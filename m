@@ -1,64 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263222AbTJPXjS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 19:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263224AbTJPXjS
+	id S263221AbTJPXfl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 19:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263224AbTJPXfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 19:39:18 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:46244 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S263222AbTJPXjO convert rfc822-to-8bit
+	Thu, 16 Oct 2003 19:35:41 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:59654 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S263221AbTJPXfj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 19:39:14 -0400
-From: Andreas Hartmann <andihartmann@freenet.de>
-X-Newsgroups: fa.linux.kernel
-Subject: Re: 2.4.23-pre VM regression?
-Date: Fri, 17 Oct 2003 01:37:49 +0200
-Organization: privat
-Message-ID: <bmna4e$4bi$1@ID-44327.news.dfncis.de>
-References: <fa.jkt135h.1l0s0t@ifi.uio.no> <fa.j3l9liv.1djudhj@ifi.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: susi.maya.org 1066347470 4466 192.168.1.3 (16 Oct 2003 23:37:50 GMT)
-X-Complaints-To: abuse@fu-berlin.de
-User-Agent: KNode/0.7.6
+	Thu, 16 Oct 2003 19:35:39 -0400
+Date: Thu, 16 Oct 2003 16:35:33 -0700
+From: jw schultz <jw@pegasys.ws>
 To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by susi.maya.org id h9GNd9cq004642
+Subject: Re: [RFC] frandom - fast random generator module
+Message-ID: <20031016233533.GD29279@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <3F8E552B.3010507@users.sf.net> <3F8E58A9.20005@cyberone.com.au> <3F8E70E0.7070000@users.sf.net> <3F8E8101.70009@pobox.com> <20031016173135.GL5725@waste.org> <3F8F23BE.7020703@users.sf.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F8F23BE.7020703@users.sf.net>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: This Outlook installation has been found to be susceptible to misuse.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tvrtko A. Ur¨ulin wrote:
-
+On Fri, Oct 17, 2003 at 01:03:26AM +0200, Eli Billauer wrote:
+> Matt Mackall wrote:
 > 
->> So a lot of processes which should not get killed are dying. This is
->> really bad. I was afraid it could happen and it did.
->>
->> What now? Resurrect OOM-killer?
+> >On Thu, Oct 16, 2003 at 07:29:05AM -0400, Jeff Garzik wrote:
+> > 
+> >
+> >>So, given that trend and also given the existing /dev/[u]random, I 
+> >>disagree completely:  /dev/frandom is the perfect example of something 
+> >>that should _not_ be in the kernel.  If you want /dev/urandom faster, 
+> >>then solve _that_ problem.  Don't try to solve a /dev/urandom problem by 
+> >>creating something totally new.
+> >>   
+> >>
+> >
+> >I have some performance fixes for /dev/urandom, but there's a fair
+> >amount of other cleanup that has to go in first.
+> >
+> ... and this reminded me that I originally wanted to patch random.c, and 
+> change the algorithm to the faster one. To my best understanding, there 
+> would be no degradation in random quality, assuming I would do it 
+> correctly (and not being hung for the nerve to do it). But that's the 
+> problem: What if I got something wrong?
 > 
-> Regards to all,
+> If a hardware device driver is buggy, you usually know about it sooner 
+> or later. If an RNG has a rare bug, or an architecture-dependent flaw, 
+> it's much harder to notice. If the RNG starts to repeat itself, you 
+> won't know about it, unless you happened to test exactly that data. The 
+> algorithm may be perfect, but a silly bug can blow it all.
 > 
-> It seems that this topic is very persistent. I have RFC-ed this patch
-> (attached) a few days and here it goes again.
+> So personally, I wouldn't touch the urandom code, not even the smallest 
+> fix. Instead, I decided to write another RNG, which doesn't interfere 
+> with the existing one. The only way to be confident about it, is to give 
+> it mileage. And that means making it available for broad use.
 > 
-> It makes OOM Killer a compile time option (IMHO better than completely
-> remove or fixed-include it). Even, more, it makes it completely modular
-> and adds two new killers.
-> 
-> Any comments?
+> Which is why I originally offered frandom as a supplement, not an 
+> alternative.
 
-I think it would be good to have it as option. Maybe there are situations,
-where the old model is better then the new one.
+Sounds like a case for having a config choice for which
+urandom code to build in.
 
-But let me say, that the OOM Killer has its problems too: I often saw
-servers with killed sshd or apache, named, ... instead of the bad
-rsync-process, which eats up all the memory ressources until the OOM killer
-killed it.
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-Onother thing:
-the new VM is the best VM I ever saw in a 2.4.x kernel. On the desktop with
-512 MB RAM and used 230MB swap and 14MB/s HD i/o (IDE) and KDE compiling
-(load about 3), I was able to look mpeg's without any problem.
-
-
-Kind regards,
-Andreas Hartmann
+		Remember Cernan and Schmitt

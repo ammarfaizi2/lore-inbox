@@ -1,85 +1,189 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVBOM4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbVBOM6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbVBOM4s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 07:56:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVBOM4s
+	id S261711AbVBOM6w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 07:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVBOM6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 07:56:48 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:31626 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S261708AbVBOM4o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 07:56:44 -0500
-Date: Tue, 15 Feb 2005 13:55:55 +0100
-To: Pavel Machek <pavel@suse.cz>
-Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
-Subject: Re: [ACPI] Call for help: list of machines with working S3
-Message-ID: <20050215125555.GD16394@gamma.logic.tuwien.ac.at>
-References: <20050214211105.GA12808@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050214211105.GA12808@elf.ucw.cz>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+	Tue, 15 Feb 2005 07:58:52 -0500
+Received: from smtp3.wanadoo.fr ([193.252.22.28]:56775 "EHLO smtp3.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S261713AbVBOM6U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 07:58:20 -0500
+X-ME-UUID: 20050215125817862.D2A911C001FD@mwinf0307.wanadoo.fr
+Message-ID: <4211F1F4.1070806@wanadoo.fr>
+Date: Tue, 15 Feb 2005 13:58:28 +0100
+From: Yves Crespin <crespin.quartz@wanadoo.fr>
+Organization: Quartz
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Yves Crespin <Crespin.Quartz@Wanadoo.fr>
+Subject: sigwait() and 2.6
+References: <20050215031441.EFABE1DDFE@X31.nui.nul> <1108471847.10281.3.camel@gaston>
+In-Reply-To: <1108471847.10281.3.camel@gaston>
+Content-Type: multipart/mixed;
+ boundary="------------010404000908010003050007"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Feb 2005, Pavel Machek wrote:
-> (1) systems where video state is preserved over S3.
-> 
-> (2) systems where it is possible to call video bios during S3
->   resume. Unfortunately, it is not correct to call video BIOS at that
->   point, but it happens to work on some machines. Use
->   acpi_sleep=s3_bios.
-> 
-> (3) systems that initialize video card into vga text mode and where BIOS
->   works well enough to be able to set video mode. Use
->   acpi_sleep=s3_mode on these.
-> 
-> (4) on some systems s3_bios kicks video into text mode, and
->   acpi_sleep=s3_bios,s3_mode is needed.
-> 
-> (5) radeon systems, where X can soft-boot your video card. You'll need
->   patched X, and plain text console (no vesafb or radeonfb), see
->   http://www.doesi.gmxhome.de/linux/tm800s3/s3.html.
-> 
-> (6) other radeon systems, where vbetool is enough to bring system back
->   to life. Do vbetool vbestate save > /tmp/delme; echo 3 > /proc/acpi/sleep;
->   vbetool post; vbetool vbestate restore < /tmp/delme; setfont
->   <whatever>, and your video should work.
-> 
-> Acer TM 800			vga=normal, X patches, see webpage (5)
+This is a multi-part message in MIME format.
+--------------010404000908010003050007
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+
+Hi,
+
+Going on a 2.6 kernel, I have a trouble with sigwait()
+
+When I send a kill to this program, the exit code is 143 (signal 15 and 
+core)!
+
+Is there a workaround ?
+
+Thanks,
+
+Yves
+
+gcc -g -Wall -D_REENTRANT=1 -D_THREAD_SAFE=1 s.c -lpthread -o s
+
+/===== début du code =====/
+
+#include <unistd.h>
+#include <stdio.h>
+#include <signal.h>
+#include <pthread.h>
+
+typedef    void Sigfunc(int);
+
+#define ThreadBlockSignal()    ThreadSignalAction(SIG_BLOCK)
+#define ThreadUnblockSignal()    ThreadSignalAction(SIG_UNBLOCK)
+
+/*----------STATIC------------------*/
+extern void ThreadSignalAction(const int how)
+{
+   sigset_t    newmask;
+
+   if (sigemptyset(&newmask)<0){
+       printf("sigemptyset failed");
+       return;
+   }
+   if (sigaddset(&newmask,SIGTERM)<0){
+       printf("sigaddset failed");
+       return;
+   }
+   if (pthread_sigmask(how,&newmask,NULL)){
+       printf("pthread_sigmask SIG_BLOCK failed");          return;
+   }
+}
+
+extern Sigfunc * signal_intr(int signo,Sigfunc *func)
+{
+   struct sigaction    act, oact;
+
+   act.sa_handler = func;
+   sigemptyset(&act.sa_mask);
+   act.sa_flags = 0;
+   if (signo == SIGALRM){
+#ifdef SA_INTERRUPT
+       act.sa_flags |= SA_INTERRUPT;    /* Interrupt mode */
+#endif /* SA_INTERRUPT */
+   }else{
+#ifdef SA_RESTART
+       /*
+        * automatic restart of interrupted system calls except
+        * if they are operating on a slow device.
+        * For select():
+        * Under BSD, even if SA_RESTART is specified, select() was
+        * never restarted.
+        * Under SVR4, if SA_RESTART is specified, even select() and
+        * pool() are automatically restarted.
+        */
+       act.sa_flags |= SA_RESTART;
+#endif /* SA_RESTART */
+       if (signo == SIGCHLD){
+           act.sa_flags |= SA_NOCLDSTOP; /* Don't send SIGCHLD when 
+children stop*/
+       }
+   }
+
+#ifdef SA_RESETHAND
+   act.sa_flags &= ~SA_RESETHAND;    /* signal handle remains installed */
+#endif /* SA_RESETHAND */
+   if (sigaction(signo, &act, &oact) < 0){
+       return(SIG_ERR);
+   }
+   return(oact.sa_handler);
+}
+
+extern int WaitSignal(void)
+{
+   sigset_t    newmask;
+   int        ret;
+   int        sig;
+
+   if (sigemptyset(&newmask)<0){
+       printf("sigemptyset failed");
+       return -1;
+   }
+   if (sigaddset(&newmask,SIGTERM)<0){
+       printf("sigaddset failed");
+       return -1;
+   }
+   printf("Waiting signal ..."); fflush(stdout);
+   ret = sigwait(&newmask,&sig);
+   if (ret!=0){
+       printf("WaitSignal: sigwait failed %d",ret);
+   }else{
+       printf("WaitSignal: sigwait sig %d",sig);
+   }
+   return sig;
+}
+
+int main(int argc,char * const argv[])
+{
+   if (signal_intr(SIGTERM,SIG_DFL) == SIG_ERR){
+       printf("signal %d (set handle) failed",SIGTERM);
+   }
+
+   /* -- Main loop */
+   printf("%lu ready ...",(unsigned long)getpid()); fflush(stdout);
+       int    signo;
+
+       ThreadUnblockSignal();
+       signo = WaitSignal();
+       ThreadBlockSignal();
+       if (signo==SIGTERM){
+           printf("\nSIGTERM in main\n"); fflush(stdout);
+       }else{
+           printf("\n%d in main\n",signo); fflush(stdout);
+       }
+   return 0;
+}
+
+/===== fin du code =====/
 
 
-Acer TM 650 (Radeon M7)
+--------------010404000908010003050007
+Content-Type: text/x-vcard; charset=utf-8;
+ name="crespin.quartz.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="crespin.quartz.vcf"
 
-vga=normal plus boot-radeon (webpage(5)) works to get text console
-back. But switching to X freezes the computer completely.
+begin:vcard
+fn:Yves Crespin
+n:Crespin;Yves
+org:Quartz
+adr:Hameau du Pra - CIDEX 322;;39, rue Victor Hugo;CROLLES;;38920;France
+email;internet:Crespin.Quartz@Wanadoo.fr
+tel;work:04.76.92.21.91
+tel;cell:06.86.42.86.81
+x-mozilla-html:FALSE
+url:http://crespin.quartz.free.fr/
+version:2.1
+end:vcard
 
-X from debian sid. 
-XFree86 Version 4.3.0.1 (Debian 4.3.0.dfsg.1-10 20041215174925 fabbione@fabbione.net)
-Release Date: 15 August 2003
-X Protocol Version 11, Revision 0, Release 6.6
-Build Operating System: Linux 2.4.26 i686 [ELF] 
-Build Date: 15 December 2004
 
+--------------010404000908010003050007--
 
-I would like to get X running to, but there are no traces in the logfile
-whatsoever to be seen. Pity.
-
-So it seems that my laptop does not fall in any of these categories.
-
-Best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>                 Università di Siena
-sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-PELUTHO (n.) A South American ball game. The balls are whacked against
-a brick wall with a stout wooden bat until the prisoner confesses.
-			--- Douglas Adams, The Meaning of Liff

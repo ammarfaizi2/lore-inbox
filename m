@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265655AbTFNIoB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 04:44:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265656AbTFNIoB
+	id S265653AbTFNIno (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 04:43:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265654AbTFNIno
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 04:44:01 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:24083 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S265655AbTFNIn5
+	Sat, 14 Jun 2003 04:43:44 -0400
+Received: from babyruth.hotpop.com ([204.57.55.14]:15563 "EHLO
+	babyruth.hotpop.com") by vger.kernel.org with ESMTP id S265653AbTFNInm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 04:43:57 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.21-rc7 hang on boot after spurious 8259A interrupt: IRQ15.
-Date: Sat, 14 Jun 2003 16:57:19 +0800
-User-Agent: KMail/1.5.2
-Cc: Vojtech Pavlik <vojtech@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200306130958.39707.mflt1@micrologica.com.hk> <200306141124.09882.mflt1@micrologica.com.hk> <1055578663.7651.1.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1055578663.7651.1.camel@dhcp22.swansea.linux.org.uk>
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 14 Jun 2003 04:43:42 -0400
+Subject: Re: 2.5.70 hangs on boot
+From: OverrideX <overridex@punkass.com>
+To: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030613214944.GA10406@suse.de>
+References: <1055466518.29294.10.camel@nazgul>
+	 <20030613214944.GA10406@suse.de>
+Content-Type: text/plain
+Message-Id: <1055581050.936.0.camel@nazgul>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 14 Jun 2003 04:57:30 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306141657.19854.mflt1@micrologica.com.hk>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 14 June 2003 16:17, Alan Cox wrote:
-> > The system executes a regular boot from _reset_ at this stage.
-> > swsusp takes over once the kernel is up and restores the
-> > suspended kernel
-> > Could it be that the kernel does not handle a spurious int at
-> > this early stage in the boot process ?
->
-> It may also be BIOS SMI handling or reset handling problems as a
-> similar case a vendor investigated showed to be. The first thing is
-> to make life easier for the BIOS - make sure your kernel doesnt have
-> APIC support included
+On Fri, 2003-06-13 at 17:49, Dave Jones wrote:
+> Ugh, what a mess. Take a look at http://www.codemonkey.org.uk/post-halloween-2.5.txt
+> You'll notice that your .config doesn't contain most of those in the
+> 'gotchas' section that it suggests you make sure you have.
+> 
+> The root cause of this is that you have CONFIG_INPUT=m.
+> 
+> CONFIG_VT only shows up if you have CONFIG_INPUT=y.
+> With it set to =m a whole bunch of options never ever show up in the
+> configuration.
+> 
+> This really wants fixing badly. The source of this problem seems to be
+> people taking 2.4 configs (where CONFIG_INPUT=m was fine), and it all
+> going pear-shaped when people make oldconfig.  I'm aware of the problems
+> that oldconfig can't override variables set in .config, so how about 
+> just renaming CONFIG_INPUT to something else ?
+> 
+> 		Dave
 
-APIC is not in the kernel
+Yep, this was the problem thanks for the heads up -Dan
 
-I put 
+--
+OverrideX <overridex@punkass.com>
+GPG Key Fingerprint = 4AD5 CE9C D7C8 0069 BDD3 7F72 3AB2 642A 5A5D EB89
 
-  __asm__("int $0x2f");
+Those who make peaceful revolution impossible will make violent
+revolution inevitable. -- John F. Kennedy
 
-before calibrate_delay and inside as well for testing.
-spurious 8259A int15 was reported  and up to 18000 counted in 
-/proc/interrupts, but no hang ;-) 
-
-I suppose have to settle for hardware/BIOS (IRQ misrouted/8259 
-init problem or timer not working) as the cause for the hang
-
-Regards
-Michael
-
--- 
-Powered by linux-2.5.70-mm3, compiled with gcc-2.95-3
-
-My current linux related activities in rough order of priority:
-- Testing of Swsusp for 2.4
-- Research of NFS i/o errors during transfer 2.4>2.5
-- Learning 2.5 series kernel debugging with kgdb - it's in the -mm tree
-- Studying 2.5 series serial and ide drivers, ACPI, S3
-* Input and feedback is always welcome *
 

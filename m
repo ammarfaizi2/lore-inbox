@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276448AbRJCQQv>; Wed, 3 Oct 2001 12:16:51 -0400
+	id <S276439AbRJCQQB>; Wed, 3 Oct 2001 12:16:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276451AbRJCQQo>; Wed, 3 Oct 2001 12:16:44 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:50952 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S276448AbRJCQQ2>;
-	Wed, 3 Oct 2001 12:16:28 -0400
-Date: Wed, 3 Oct 2001 18:14:32 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Ben Greear <greearb@candelatech.com>
-Cc: jamal <hadi@cyberus.ca>, <linux-kernel@vger.kernel.org>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Robert Olsson <Robert.Olsson@data.slu.se>,
-        Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <3BBB3845.DAE47D27@candelatech.com>
-Message-ID: <Pine.LNX.4.33.0110031808100.8633-100000@localhost.localdomain>
+	id <S276448AbRJCQPv>; Wed, 3 Oct 2001 12:15:51 -0400
+Received: from hermes.toad.net ([162.33.130.251]:43653 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S276439AbRJCQPb>;
+	Wed, 3 Oct 2001 12:15:31 -0400
+Subject: call_pnp_bios() okay
+To: linux-kernel@vger.kernel.org
+Date: Wed, 3 Oct 2001 12:15:28 -0400 (EDT)
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20011003161528.757EA5AC@thanatos.toad.net>
+From: jdthood@home.dhs.org (Thomas Hood)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Given that the args are u16s and u16s are unsigned shorts, it looks to me
+> as if this is going to zero out all the odd-numbered args.  But if that's
+> what's happening then I'm amazed this driver works at all.  I see that
+> in some cases the odd-numbered args are zero anyway, but in others not.
+> Result #1:  The driver isn't getting a real value for the maximum node size.
+>             But a random value will sometimes not oops the kernel.
+> Result #2:  PnP BIOS is sometimes getting 0 as its DS selector
+> Result #3:  The get_dev_node config selector is always 0 (should be 1 or 2)
+> Result #4:  The set_dev_node handle is 0; but this is duplicated in the
+>             node info structure, so the function may still work.  However,
+>             the selector number of the node data is wrong
+> 
+> I'm off to patch this bug and see if it fixes my problem.
+> It may fix the Sony and Dell problems too.
 
-On Wed, 3 Oct 2001, Ben Greear wrote:
+Well, on closer look the call_pnp_bios code is okay after all.
+The variables get promoted to 32 bits prior to the 16 bit shifts,
+despite the shifts being in parentheses.  I.e, Never Mind.  :)
 
-> So, couldn't your NAPI patch be used by drivers that are updated, and
-> let Ingo's patch be a catch-all for un-fixed drivers?  As we move
-> foward, more and more drivers support your version, and Ingo's patch
-> becomes less utilized.  So long as the patches are tuned such that
-> yours keeps Ingo's from being triggered on devices you support, there
-> should be no real conflict, eh?
+Stelian: Sorry, I put your e-mail address in the previous subject heading
+by mistake.
 
-exactly. auto-mitigation will not hurt NAPI-enabled devices the least.
-Also, auto-mitigation is device-independent.
-
-perhaps Jamal misunderstood the nature of my patch, so i'd like to state
-it again: auto-mitigation is a feature that is not triggered normally. I
-did a quick hack yesterday to include kpolld - that was a mistake, i was
-wrong, and i've removed it. kpolld was mostly an experiment to prove that
-TCP network connections can be fully functional during extreme overload
-situations as well. Also, auto-mitigation will be a nice mechanizm to make
-people more aware of the NAPI patch: if they ever notice 'Possible IRQ
-overload:' messages then they can be told to try the NAPI patches.
-
-	Ingo
-
+-- 
+Thomas Hood
+(Don't reply to the From: address but to jdthood_AT_yahoo.co.uk)

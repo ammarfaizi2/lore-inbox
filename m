@@ -1,45 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262046AbRENB3O>; Sun, 13 May 2001 21:29:14 -0400
+	id <S262045AbRENBcy>; Sun, 13 May 2001 21:32:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262045AbRENB3E>; Sun, 13 May 2001 21:29:04 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:19594 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262043AbRENB2t>; Sun, 13 May 2001 21:28:49 -0400
-Importance: Normal
-Subject: Minor numbers
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF2C42607E.899F4413-ON87256A4C.00068D2E@LocalDomain>
-From: "Alex Q Chen" <aqchen@us.ibm.com>
-Date: Sun, 13 May 2001 18:28:46 -0700
-X-MIMETrack: Serialize by Router on D03NM080/03/M/IBM(Release 5.0.6 |December 14, 2000) at
- 05/13/2001 07:28:48 PM
+	id <S262043AbRENBco>; Sun, 13 May 2001 21:32:44 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:61964 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262048AbRENBca>; Sun, 13 May 2001 21:32:30 -0400
+Date: Sun, 13 May 2001 18:32:02 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Getting FS access events
+In-Reply-To: <200105140117.f4E1HqN07362@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.21.0105131824090.20981-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To the best of my knowledge, dev_t number is still 16 bits with 8 most
-significant bits being the major number and the other 8 bits being the
-minor number; which of course means that minor numbers can only go up to
-255.  Has this limitation been some how addressed with 2.4?  256 devices
-per module, sometimes is not enough, especially if you are in the SAN
-environment; or when the 256 minors numbers are broken down to several
-ranges of numbers to address different types of special files.  I don't see
-how this problem can be solved with dev_fs either.  Anyone out there with a
-work-around or is proposing a solution?  I believe that minor and major
-numbers for SUN and AIX are both 16 bits each (32 bits dev_t).
 
-Thanks in advance for your input.
+On Sun, 13 May 2001, Richard Gooch wrote:
+>
+>   Hi, Linus. I've been thinking more about trying to warm the page
+> cache with blocks needed by the bootup process. What is currently
+> missing is (AFAIK) a mechanism to find out what inodes and blocks have
+> been accessed. Sure, you can use bmap() to convert from file block to
+> device block, but first you need to figure out the file blocks
+> accessed. I'd like to find out what kind of patch you'd accept to
+> provide the missing functionality.
 
-Thanks!
+Why would you use bmap() anyway? You CANNOT warm up the page cache with
+the physical map nr as discussed. So there's no real point in using
+bmap() at any time.
 
-Sincerely,
-Alex Chen
+> One approach would be to create a new ioctl(2) for a FS that would
+> read out inum,bnum pairs.
 
-IBM SSD Device Driver Development
-Office: 9000 S. Rita Rd 9032/2262
-Email: aqchen@us.ibm.com
-Phone: (external) 520-799-5212 (Tie Line) (321)-5212
+Why not just "path,pagenr" instead? You make your instrumentation save
+away the whole pathname, by just using the dentry pointer. Many
+filesystems don't even _have_ a "inum", so anything less doesn't work
+anyway.
+
+Example acceptable approach:
+
+ - save away full dentry and page number. Don't make it an ioctl. Think
+   "profiling" - this is _exactly_ the same thing, and profiling uses a
+	(a) command line argument to turn it on
+	(b) /proc/profile
+   (and because you have the full pathname, you should just make the dang
+   /proc/fsaccess file be ASCII)
+
+ - add a "prefetch()" system call that does all the same things
+   "read()" does, but doesn't actually wait for (or transfer) the
+   data. Basically just a read-ahead thing. So you'd basically end up
+   doing
+
+	foreach (filename in /proc/fsaccess)
+		fd = open(filename);
+		foreach (sorted pagenr for filename in /proc/fsaccess)
+			prefetch(fd, pagenr);
+		end
+	end
+
+Forget about all these crappy "ioctl" ideas. Basic rule of thumb: if you
+think an ioctl is a good idea, you're (a) being stupid and (b) thinking
+wrong and (c) on the wrong track.
+
+And notice how there's not a single bmap anywhere, and not a single "raw
+device open" anywhere.
+
+		Linus
 

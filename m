@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268310AbUI3Iko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268955AbUI3Imt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268310AbUI3Iko (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 04:40:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268317AbUI3Iko
+	id S268955AbUI3Imt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 04:42:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268317AbUI3Imt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 04:40:44 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:56774 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S268310AbUI3Ikl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 04:40:41 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 30 Sep 2004 10:23:05 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Tonnerre <tonnerre@thundrix.ch>
-Cc: Christoph Hellwig <hch@infradead.org>, Hanna Linder <hannal@us.ibm.com>,
-       linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org,
-       greg@kroah.com
-Subject: Re: [PATCH 2.6.9-rc2-mm4 bttv-driver.c][4/8] convert pci_find_device to pci_dev_present
-Message-ID: <20040930082305.GB20456@bytesex>
-References: <15470000.1096491322@w-hlinder.beaverton.ibm.com> <20040929220344.A17872@infradead.org> <20040929222353.GF21770@thundrix.ch>
+	Thu, 30 Sep 2004 04:42:49 -0400
+Received: from colin2.muc.de ([193.149.48.15]:60174 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S268955AbUI3Imb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 04:42:31 -0400
+Date: 30 Sep 2004 10:42:24 +0200
+Date: Thu, 30 Sep 2004 10:42:24 +0200
+From: Andi Kleen <ak@muc.de>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Readd panic blinking in 2.6
+Message-ID: <20040930084224.GA28779@muc.de>
+References: <m3llet4456.fsf@averell.firstfloor.org> <20040929132134.GA3770@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040929222353.GF21770@thundrix.ch>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040929132134.GA3770@ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 30, 2004 at 12:23:53AM +0200, Tonnerre wrote:
-> Salut,
 > 
-> On Wed, Sep 29, 2004 at 10:03:44PM +0100, Christoph Hellwig wrote:
-> > I think this check should just go away completely.  
-> > We don't have such silly warnings in any other driver.
+> Something like
 > 
-> Kraxel introduced this  check because of the confusion  with the "old"
-> and "new" WinTV cards. The older one had a bt848 chip, the newer one a
-> connexant 878, and only the older one was supported by Linux.
+> 	spin_lock_irqsave(&i8042_lock, flags);
+> 	i8042_flush();
+> 	i8042_ctr &= ~I8042_CTR_KBDINT & ~I8042_CTR_AUXINT;
+> 	i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR);
+> 	i8042_wait_write();
+> 	i8042_write_data(0xed);
+> 	i8042_wait_read();
+> 	i8042_flush();
+> 	i8042_wait_write();
+> 	i8042_write_data(led);
+> 	i8042_wait_read();
+> 	i8042_flush();
+> 	spin_unlock_irqrestore(&i8042_lock, flags);
+> 
+> would be safer and more correct.
 
-Yep, that was the reason.  It's pretty much obsolete these days through
-as we have a working (well, sort of, depending on the tv norm sound may
-be a problem ...) driver for these cards in mainline.  Just dropping
-that now is perfectly fine.
+That all takes far too many locks. The risk of deadlocking during
+panic is too great. I think the delay is fine (worked great under 2.4),
+just need to fix the IBF issue you mentioned.
 
-  Gerd
+-Andi
 
--- 
-return -ENOSIG;

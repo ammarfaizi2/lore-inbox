@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293204AbSCJTyZ>; Sun, 10 Mar 2002 14:54:25 -0500
+	id <S293205AbSCJTzq>; Sun, 10 Mar 2002 14:55:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293205AbSCJTyP>; Sun, 10 Mar 2002 14:54:15 -0500
-Received: from stargazer.compendium-tech.com ([64.156.208.76]:62398 "EHLO
-	stargazer.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S293204AbSCJTyD>; Sun, 10 Mar 2002 14:54:03 -0500
-Date: Sun, 10 Mar 2002 11:53:54 -0800 (PST)
-From: Kelsey Hudson <khudson@compendium-tech.com>
-To: Jeffrey Siegal <jbs@quiotix.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Recommended dual Xeon motherboard for 2.4?
-In-Reply-To: <3C8AEED1.80104@quiotix.com>
-Message-ID: <Pine.LNX.4.44.0203101147470.20626-100000@sol.compendium-tech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293206AbSCJTzh>; Sun, 10 Mar 2002 14:55:37 -0500
+Received: from stingr.net ([212.193.33.37]:46761 "HELO hq.stingr.net")
+	by vger.kernel.org with SMTP id <S293205AbSCJTzT>;
+	Sun, 10 Mar 2002 14:55:19 -0500
+Date: Sun, 10 Mar 2002 22:31:52 +0300
+From: Paul P Komkoff Jr <i@stingr.net>
+To: linux-kernel@vger.kernel.org
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>
+Subject: Bug in do_mounts.c/namespace.c/devfs ?
+Message-ID: <20020310193152.GJ28744@stingr.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Richard Gooch <rgooch@ras.ucalgary.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Agent Tanya
+X-Mailer: Roxio Easy CD Creator 5.0
+X-RealName: Stingray Greatest Jr
+Organization: Bedleham International
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does anyone have one of these running reliably?  I've seen a lot of 
-> messages about hard lockups, BIOS bugs, and such.
-> 
-> I'm looking for an off-the-shelf MB that will work reliably with the new 
-> Prestonia CPUs.
+This is clearly reproducible here.
+Let's have 2.4.19-pre2-ac{2,3,maybe 4}.
+Let compile in devfs support but dont enable mount on boot etc.
 
-Off the shelf, I've had relatively few problems with my Supermicro P6DCE+. 
-Aside from not supporting higher than 12 physical IDE devices (6 masters), 
-being mostly ACPI-driven, requiring some odd-ball 24-pin+8-pin+4-pin 
-power supply, and having a terrible board layout, I'm very 
-impressed with this motherboard and its features. I haven't experienced a 
-single lockup with the board, and it's been running in production using 
-2.4.19-pre2-ac2 now for 3 days without a hitch. Hyperthreading is enabled. 
-It's a dual 2.0GHz machine, and easily the fastest PC-based machine I've 
-ever used. It's got its quirks, which you'll see in practice, but aside 
-from them, i'd highly reccommend this motherboard.
+After boot we will have in /proc/mounts the following line
+devfs /dev devfs
+(other mounts)
 
-hope this helps...
-
- Kelsey Hudson                                           khudson@ctica.com 
- Associate Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------     
-==== 0100101101001001010000110100101100100000010010010101010000100001 =====
+Digging into do_mounts.c brought me to following code fragments:
 
 
+                        do_devfs = 1;
+                }
+        }
+        sys_chdir("/dev");
+        sys_unlink("root");
+        sys_mknod("root", S_IFBLK|0600, kdev_t_to_nr(ROOT_DEV));
+        if (do_devfs)
+                sys_mount("devfs", ".", "devfs", 0, NULL);
+
+followed then by ...
+
+done:
+        putname(fs_names);
+        if (do_devfs)
+                sys_umount(".", 0);
+
+I am unfamiliar with devfs and vfs code so my bug-hunting go very slowly.
+Maybe somebody will point into right direction ?
+
+The only thing I can add that in 2.4.17 all was fine.
+
+-- 
+Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
+  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4

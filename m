@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265929AbUA0U4I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 15:56:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265931AbUA0UzC
+	id S265664AbUA0VNT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 16:13:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265662AbUA0VNT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 15:55:02 -0500
-Received: from fw.osdl.org ([65.172.181.6]:47496 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265929AbUA0Uyv (ORCPT
+	Tue, 27 Jan 2004 16:13:19 -0500
+Received: from mail.kroah.org ([65.200.24.183]:51844 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265664AbUA0VND (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 15:54:51 -0500
-Date: Tue, 27 Jan 2004 12:54:47 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@muc.de>
-Cc: eric@cisu.net, stoffel@lucent.com, ak@muc.de, Valdis.Kletnieks@vt.edu,
-       bunk@fs.tum.de, cova@ferrara.linux.it, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
-Message-Id: <20040127125447.31631e14.akpm@osdl.org>
-In-Reply-To: <20040127162043.GA98702@colin2.muc.de>
-References: <200401232253.08552.eric@cisu.net>
-	<200401261326.09903.eric@cisu.net>
-	<20040126115614.351393f2.akpm@osdl.org>
-	<200401262343.35633.eric@cisu.net>
-	<20040126215056.4e891086.akpm@osdl.org>
-	<20040127162043.GA98702@colin2.muc.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 27 Jan 2004 16:13:03 -0500
+Date: Tue, 27 Jan 2004 13:12:53 -0800
+From: Greg KH <greg@kroah.com>
+To: Jake Moilanen <moilanen@austin.ibm.com>, johnrose@austin.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+Subject: Re: [PATCH][2.6] PCI Scan all functions
+Message-ID: <20040127211253.GA27583@kroah.com>
+References: <1075222501.1030.45.camel@magik>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1075222501.1030.45.camel@magik>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@muc.de> wrote:
->
-> > Can you plesae confirm that restoring only -funit-at-a-time again produces
-> > a crashy kernel?  And that you are using a flavour of gcc-3.3?  If so, I
-> 
-> It works just fine on the SuSE 9.0 3.3-hammer gcc. 
-> 
-> So far the reports point to some Mandrake gcc 3.3 having problems
-> (they used an older version of Hammer branch). It's hard to be sure
-> because everybody having any problem with the kernel seems to like
-> to report it to this thread :-) But before just disabling
-> it I would like to track down the problem and see if it's really a 
-> compiler issue or something that can be fixed in the kernel.
-> 
-> If you really want to disable it I would prefer to only check for that
-> compiler version and keep it for working 3.3-hammers.
+On Tue, Jan 27, 2004 at 10:55:01AM -0600, Jake Moilanen wrote:
+> There are some arch, like PPC64, that need to be able to scan all the
+> PCI functions.  The problem comes in on a logically partitioned system
+> where function 0 on a PCI-PCI bridge is assigned to one partition and
+> say function 2 is assiged to another partition.  On the second
+> partition, it would appear that function 0 does not exist, but function
+> 2 does.  If all the functions are not scanned, everything under function
+> 2 would not be detected.
 
-I've moved the enabling of -funit-at-a-time out of Makefile and down into
-arch/i386/Makefile, and I changed to require gcc-3.4 or higher.
+Heh, I think the PPC64 people need to get together and all talk about
+this, as I just got a different patch, that solves much the same problem
+from John Rose (it's on the linuxppc64 mailing list.)
 
-So if you want to use -funit-at-a-time on gcc-3.3/hammer you can do so.
+Can you two get together and not patch the same section of code to do
+the same thing in different ways?
 
+thanks,
+
+greg k-h

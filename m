@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318650AbSHSXqx>; Mon, 19 Aug 2002 19:46:53 -0400
+	id <S319105AbSHSXpX>; Mon, 19 Aug 2002 19:45:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319109AbSHSXqx>; Mon, 19 Aug 2002 19:46:53 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:35577 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318650AbSHSXqw>; Mon, 19 Aug 2002 19:46:52 -0400
-Subject: Re: MAX_PID changes in 2.5.31
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <ajrsok$p0m$1@cesium.transmeta.com>
-References: <200208192236.g7JMaxS28968@vindaloo.ras.ucalgary.ca>
-	<Pine.LNX.4.44.0208200040010.5356-100000@localhost.localdomain>
-	<200208192242.g7JMgmD29241@vindaloo.ras.ucalgary.ca> 
-	<ajrsok$p0m$1@cesium.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 20 Aug 2002 00:51:18 +0100
-Message-Id: <1029801078.21212.10.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S319109AbSHSXpX>; Mon, 19 Aug 2002 19:45:23 -0400
+Received: from watchdog.cdt.org ([206.112.85.61]:56246 "EHLO mail.cdt.org")
+	by vger.kernel.org with ESMTP id <S319105AbSHSXpW>;
+	Mon, 19 Aug 2002 19:45:22 -0400
+Date: Mon, 19 Aug 2002 19:49:21 -0400 (EDT)
+From: Daniel Berlin <dberlin@dberlin.org>
+Reply-To: dberlin@dberlin.org
+To: "David S. Miller" <davem@redhat.com>
+Cc: thunder@lightweight.ods.org, <zdzichu@irc.pl>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 and full ipv6 - will it happen?
+In-Reply-To: <20020819.162340.133733118.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0208191948130.4566-100000@dberlin.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-19 at 23:51, H. Peter Anvin wrote:
-> It probably should change at some point.  I would favour changing the
-> default to aggressive in 2.5, to smoke out bugs, and perhaps turn it
-> back to conservative in 2.6.  In 2.7, we probably should turn on
-> aggressive for good.
+On Mon, 19 Aug 2002, David S. Miller wrote:
 
-By that point I'd hope anyone running large workloads is running a 64bit
-CPU not x86_32 8) At which point the problem is mostly moot
+>    From: Thunder from the hill <thunder@lightweight.ods.org>
+>    Date: Mon, 19 Aug 2002 17:34:51 -0600 (MDT)
+>    
+>    We're using it for years now. Works well, made me incredibly happy ever
+>    since. Just too cool thing.
+> 
+> The keyword is "you", you are using is locally at your site.
+> 
+> There are zero backbone ipv6 routers, everyone is still tunneling
+> or has a custom network layout for their usage.
+
+Errr, not quite:
+
+>From a presentation entitled "Commercial IPV6 at Worldcom"                                                                                                                      
+Page 6
+
+   vBNS+ IPv6 Service Overview
+   * Native (not tunneled) IPv6-over-ATM
+   backbone since July 1998
+   * Dedicated hardware (Cisco 4700s and a
+   7507 with OC3/ATM) for IPv6 routing.
+   * Full mesh of ATM PVCs among the IPv6
+   routers.
+   * Backbone provider (pTLA) for the global
+   6bone.
+
+
+There are other backbone ipv6 routers, too, that are non-tunneled.
+
+--Dan
 

@@ -1,57 +1,88 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316848AbSFBGwc>; Sun, 2 Jun 2002 02:52:32 -0400
+	id <S317114AbSFBHBc>; Sun, 2 Jun 2002 03:01:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317009AbSFBGwb>; Sun, 2 Jun 2002 02:52:31 -0400
-Received: from dsl-213-023-039-114.arcor-ip.net ([213.23.39.114]:36496 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316848AbSFBGwa>;
-	Sun, 2 Jun 2002 02:52:30 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Ion Badulescu <ionut@cs.columbia.edu>
-Subject: Re: KBuild 2.5 Impressions
-Date: Sun, 2 Jun 2002 08:51:21 +0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <Pine.LNX.4.44.0206012349360.671-100000@age.cs.columbia.edu>
+	id <S317133AbSFBHBb>; Sun, 2 Jun 2002 03:01:31 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:29715 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317114AbSFBHBa>; Sun, 2 Jun 2002 03:01:30 -0400
+Message-ID: <3CF9B4CC.7020205@evision-ventures.com>
+Date: Sun, 02 Jun 2002 08:01:48 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Cc: Keith Owens <kaos@ocs.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Message-Id: <E17EPCz-0000Jr-00@starship>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Anthony Spinillo <tspinillo@linuxmail.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: INTEL 845G Chipset IDE Quandry
+In-Reply-To: <Pine.SOL.4.30.0206020318090.29792-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 02 June 2002 06:03, you wrote:
-> On Fri, 31 May 2002, Daniel Phillips wrote:
-> What you and other very vocal proponents of kbuild25 don't understand is 
-> that you need break it up __functionally__. That is, add one feature at a 
-> time. That way, good features can be added without much of a discussion, 
-> and debatable features can be, well, debated.
+Bartlomiej Zolnierkiewicz wrote:
+>>Alan,
+>>
+>>This is one of the versions of INTEL which has extra bandwidth if you
+>>want
+>>wanted to the async IO.  Meaning the device could be set faster than the
+>>host when reading from the host.  However when writing to the host the
+>>device "must" be set to match.  The buffer is not capable of safely
+>>handling the extra push.
+>>
+>>So in 2.4 we will properly time the host, unlike 2.5 which has elected
+>>to overdrive the hardware.
 > 
-> Unfortunately, I don't see Keith doing this anytime soon. He's too much in 
-> love with his baby to risk seeing parts of it being thrown away, so he's 
-> taking an all-or-nothing attitude.
+> 
+> Only in piix driver (Intel & Efar) and user have to explicitly compile
+> support for it, it have nothing to do with kernel version and everything
+> with driver version.
+> 
+> 
+>>The effect is the following.  "LINUS are you listening?"
+> 
+> 				 ^^^^^^^^^^^^^^^^^^^^^^^^
+> Andre, you forgot to cc Linus ;)
+> 
+> 
+>>Ultra DMA 100 uses 4 data clocks to transfer "X" amount of data.
+>>Ultra DMA 133 uses 3 data clocks to transfer "X" amount of data.
+>>
+>>So if a bad host trys to push the limits, it ends up missing a data
+>>strobe and the DATA goes away quietly without warning.  NICE!
+>>
+>>Maybe now people will understand why 2.5 is falling apart and it is not
+>>Martin's fault.  He is just getting bad information and bad patches.
+> 
+> 
+> Poor Marcin, he is so misinformed by bad people trying to spoil ATA stuff.
+> 
+> Bad patches? Who is the bad guy making the bad patches?
+> Let me guess, it is Vojtech removing others people copyrighted "sick
+> timing tables". Or maybe it is Jens doing at least TCQ?
+> Or maybe it is me... etc.
+> 
+> 
+>>He actual has nearly the same model I was working on to use fucntion
+> 
+> 
+> It is really funny... but some people read code and know facts...
+> 
+> 
+>>pointers in the style of "MiniPort (tm)".  I will explain why this is
+>>desired later.
+> 
+> 
+> in Q4 I guess
 
-Fortunately, he's got help now:
-
-   http://marc.theaimsgroup.com/?a=102296100300003&r=1&w=2
-
-> Fortunately, it is precisely what Kai is doing. He deserves a big THANKS 
-> for doing it, not your silly bashing. I also saw some good work on this 
-> from Sam Ravnborg on the list.
-
-If I got the impression that Kai was actually trying to work with the team,
-I'd thank him for that.  He appears to be doing just the opposite, and I
-stand by my comment that that is divisive.  He could accomplish the same
-thing result he wants - patching up old kbuild - and bring parts of kbuild
-2.5 into the tree, reducing the size of that patch *at the same time*,
-instead of (apparently) trying to marginalize that work.  That is what I'd
-call cooperation.
-
-We have a perfect - and rare - situation here where the two can coexist in
-the same tree, and may the best and fastest eventually predominate.  Let's
-take advantage of that: let's have both in parallel for a while.
-
--- 
-Daniel
+Of year 2010 - remember learning proper C will take him time.
+Becouse I never ever saw any code contributed by him
+despite the fact that I'm still open for patches, as
+I have told him upon request.
+Once exception was a broken patch which even didn't
+compile and couldn't solve the problem it was
+proclaiming to solve.
 

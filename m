@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbUJ3QSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbUJ3QbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbUJ3QSe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 12:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUJ3QRP
+	id S261216AbUJ3QbA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 12:31:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbUJ3Qa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 12:17:15 -0400
-Received: from mail.kroah.org ([69.55.234.183]:48024 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261238AbUJ3P3Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 11:29:24 -0400
-Date: Fri, 29 Oct 2004 20:23:57 -0700
-From: Greg KH <greg@kroah.com>
-To: David Vrabel <dvrabel@arcom.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] PCI: Add is_bridge to pci_dev to allow fixups to disable bridge functionality.
-Message-ID: <20041030032357.GA1441@kroah.com>
-References: <4174F909.1040804@arcom.com>
+	Sat, 30 Oct 2004 12:30:58 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:22417 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S261216AbUJ3Q1o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 12:27:44 -0400
+Subject: Problem with hotplug functions
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Sat, 30 Oct 2004 18:28:02 +0200
+Message-Id: <1099153682.16247.30.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4174F909.1040804@arcom.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 19, 2004 at 12:22:49PM +0100, David Vrabel wrote:
-> Hi,
-> 
-> This patch allows device fixups to force the PCI subsystem to ignore 
-> bridges and hence not allocate resources to them.
-> 
-> I have an IXP425 (ARM) board with a CardBus controller on it (of which 
-> only the PC card interfaces are used).  The problem is that the PCI 
-> memory window is too small to fit in all the bridge resources and the 
-> rest of the PCI devices and up being unconfigured.  With this patch, and 
-> a fixup to clear is_bridge, this doesn't happen.
-> 
-> The plan was to make the CardBus driver (drivers/pcmcia/yenta_socket.c) 
-> honour the is_bridge flag and not bother with CardBus stuff if it's cleared.
+Hi,
 
-But why can't any code that wants to check this, just look at the
-dev->hdr_type instead?  I don't think we need to add a new bit for this
-because of that, right?
+I have a little problem with the hotplug functions and in particular
+with the one from firmware_class. The problem is that the extra env
+variables are not set when hotplug is called. Maybe this is fixed
+somewhere, but the lastest Bitkeeper snapshot of the Linus tree is not
+working for me.
 
-> Index: linux-2.6-armbe/drivers/pci/probe.c
-> ===================================================================
-> --- linux-2.6-armbe.orig/drivers/pci/probe.c	2004-10-14 
-> 11:26:38.000000000 +0100
-> +++ linux-2.6-armbe/drivers/pci/probe.c	2004-10-19 
-> 12:00:00.000000000 +0100
+I see a problem in kobject_hotplug() at lib/kobject_uevent.c:
 
-Also, your patch was linewrapped :(
+        if (hotplug_ops->hotplug) {
+                /* have the kset specific function add its stuff */
+                retval = hotplug_ops->hotplug (kset, kobj,
+                                  &envp[i], NUM_ENVP - i, scratch,
+                                  BUFFER_SIZE - (scratch - buffer));
+                if (retval) {
+                        pr_debug ("%s - hotplug() returned %d\n",
+                                  __FUNCTION__, retval);
+                        goto exit;
+                }
+        }
 
-thanks,
+        spin_lock(&sequence_lock);
+        seq = ++hotplug_seqnum;
+        spin_unlock(&sequence_lock);
 
-greg k-h
+        envp [i++] = scratch;
+        scratch += sprintf(scratch, "SEQNUM=%lld", (long long)seq) + 1;
+
+The hotplug function of hotplug_ops get called, but afterwards its
+values are overwritten by the sequence number. Is this correct or do I
+made a thinking mistake?
+
+Regards
+
+Marcel
+
+

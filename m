@@ -1,52 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263007AbTKPQ5g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 11:57:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbTKPQ5g
+	id S263008AbTKPQ6w (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 11:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbTKPQ6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 11:57:36 -0500
-Received: from h80ad26be.async.vt.edu ([128.173.38.190]:10124 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263007AbTKPQ5d (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 11:57:33 -0500
-Message-Id: <200311161657.hAGGvRLa028307@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.0-test9 - document elevator= parameter 
-In-Reply-To: Your message of "Sun, 16 Nov 2003 15:15:27 +0100."
-             <Pine.LNX.4.53.0311161510280.14183@gockel.physik3.uni-rostock.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <200311160259.hAG2x4La006117@turing-police.cc.vt.edu>
-            <Pine.LNX.4.53.0311161510280.14183@gockel.physik3.uni-rostock.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1995571050P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Sun, 16 Nov 2003 11:58:49 -0500
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:34822 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id S263008AbTKPQ5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 11:57:50 -0500
+Message-ID: <3FB7AC8C.9050807@dcrdev.demon.co.uk>
+Date: Sun, 16 Nov 2003 16:57:48 +0000
+From: Dan Creswell <dan@dcrdev.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [Fwd: Re: Hard lock on 2.6-test9]
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Sun, 16 Nov 2003 11:57:26 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1995571050P
-Content-Type: text/plain; charset=us-ascii
 
-On Sun, 16 Nov 2003 15:15:27 +0100, Tim Schmielau said:
 
-> IIRC cfq isn't yet in mainline, thus it seems a bit too early to
-> document it...
+-------- Original Message --------
+Subject: 	Re: Hard lock on 2.6-test9
+Date: 	Sun, 16 Nov 2003 13:25:42 +0000
+From: 	Dan Creswell <dan@dcrdev.demon.co.uk>
+To: 	Davide Libenzi <davidel@xmailserver.org>
+References: 
+<Pine.LNX.4.44.0311151501000.1997-100000@bigblue.dev.mdolabs.com>
 
-Thanks for catching that, cfq is indeed a -mm feature.
 
---==_Exmh_1995571050P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Davide Libenzi wrote:
 
-iD8DBQE/t6x2cC3lWbTT17ARAgvZAKDFE8qKEBdEdJhTMGr0J/CRu5TJNQCeJu6U
-tXcdgjBHXTZhkAcIVo0csD8=
-=kk/k
------END PGP SIGNATURE-----
+>On Sat, 15 Nov 2003, Dan Creswell wrote:
+>
+>  
+>
+>>Chipset is E7505 with dual Xeons.
+>>
+>>Under X, I can provoke a lock just by waggling the mouse.  I've had the 
+>>machine connected up to a serial console with nmi_watchdog=1 and, when 
+>>the machine dies, nothing is printed on the console (I guess that makes 
+>>it *very* bad :( ).
+>>    
+>>
+>
+>Is NMI really enabled?
+>
+>$ cat /proc/interrupts
+>
+>
+>
+>- Davide
+>
+>
+>
+>  
+>
+Hi Davide,
 
---==_Exmh_1995571050P--
+Thanks for the response!
+
+I guess you're asking did I check that the NMI counts were rising (i.e. 
+they weren't staying at zero) and the answer, unfortunately, is yes - 
+they were increasing steadily.
+
+I checked exactly as you suggested using "cat /proc/interrupts".
+
+Then, I ran X up and "boom", that's all she wrote :(
+
+Best wishes,
+
+Dan.
+
+
+
+

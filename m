@@ -1,48 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268906AbUHMAWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268909AbUHMAYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268906AbUHMAWg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 20:22:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268908AbUHMAWd
+	id S268909AbUHMAYL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 20:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268908AbUHMAYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 20:22:33 -0400
-Received: from waste.org ([209.173.204.2]:14298 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S268906AbUHMAWc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 20:22:32 -0400
-Date: Thu, 12 Aug 2004 19:21:22 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: Jeff Moyer <jmoyer@redhat.com>, linux-kernel@vger.kernel.org,
-       Stelian Pop <stelian@popies.net>, jgarzik@pobox.com
-Subject: Re: [patch] fix netconsole hang with alt-sysrq-t
-Message-ID: <20040813002122.GG16310@waste.org>
-References: <16659.56343.686372.724218@segfault.boston.redhat.com> <20040806195237.GC16310@waste.org> <16659.58271.979999.616045@segfault.boston.redhat.com> <20040806202649.GE16310@waste.org> <16667.55966.317888.504243@segfault.boston.redhat.com> <20040812211841.GB17907@granada.merseine.nu> <16667.57829.212177.183803@segfault.boston.redhat.com> <20040812213936.GC17907@granada.merseine.nu>
+	Thu, 12 Aug 2004 20:24:11 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:9693 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268909AbUHMAYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 20:24:02 -0400
+Date: Fri, 13 Aug 2004 02:23:59 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Len Brown <len.brown@intel.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc4-mm1 doesn't boot
+Message-ID: <20040813002358.GQ13377@fs.tum.de>
+References: <566B962EB122634D86E6EE29E83DD808182C2B33@hdsmsx403.hd.intel.com> <1092259920.5021.117.camel@dhcppc4> <200408121550.15892.bjorn.helgaas@hp.com> <1092350580.7765.190.camel@dhcppc4>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040812213936.GC17907@granada.merseine.nu>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <1092350580.7765.190.camel@dhcppc4>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 13, 2004 at 12:39:36AM +0300, Muli Ben-Yehuda wrote:
-> On Thu, Aug 12, 2004 at 05:32:21PM -0400, Jeff Moyer wrote:
-> > ==> Regarding Re: [patch] fix netconsole hang with alt-sysrq-t; Muli Ben-Yehuda <mulix@mulix.org> adds:
-> > 
-> > mulix> On Thu, Aug 12, 2004 at 05:01:18PM -0400, Jeff Moyer wrote:
-> > >> So how do you want to deal with this case?  We could do something like:
-> > >> 
-> > >> int cpu = smp_processor_id();
-> > 
-> > mulix> That doesn't look right, unless I'm missing something, you could get
-> > mulix> preempted here (between the smp_processor_id() and the
-> > mulix> local_irq_save() and end up with 'cpu' pointing to the wrong CPU.
-> > 
-> > Would a preempt_disable() be too hideous?  Other suggestions?
-> 
-> Maybe, but we could hide it in get_cpu() / put_cpu() ;-)
+On Thu, Aug 12, 2004 at 06:43:00PM -0400, Len Brown wrote:
+>...
+> Adrian, if you enable your not-present floppy in the BIOS,
+> what does Linux do?
 
-Yes, let's. I'll have to think about this general approach a bit more though.
+2.6.8-rc3-mm1 boots, 2.6.8-rc4-mm1 fails.
+
+>From the 2.6.8-rc3-mm1 boot log:
+
+<--  snip  -->
+
+...
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE,EPP]
+parport0: irq 7 detected
+lp0: using parport0 (polling).
+Using anticipatory io scheduler
+Floppy drive(s): fd0 is 1.44M
+
+
+--->> 2.6.8-rc4-mm1 stops here
+
+
+floppy0: no floppy controllers found
+loop: loaded (max 8 devices)
+sis900.c: v1.08.07 11/02/2003
+ACPI: PCI interrupt 0000:00:04.0[A] -> GSI 6 (level, low) -> IRQ 6
+eth0: Realtek RTL8201 PHY transceiver found at address 1.
+eth0: Using transceiver found at address 1 as default
+eth0: SiS 900 PCI Fast Ethernet at 0xdc00, IRQ 6, 00:0b:6a:3b:93:a8.
+...
+
+<--  snip  -->
+
+> thanks,
+> -Len
+
+cu
+Adrian
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

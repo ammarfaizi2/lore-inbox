@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290625AbSBSWRl>; Tue, 19 Feb 2002 17:17:41 -0500
+	id <S290627AbSBSW2V>; Tue, 19 Feb 2002 17:28:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290627AbSBSWRc>; Tue, 19 Feb 2002 17:17:32 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:13037 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S290625AbSBSWRT>;
-	Tue, 19 Feb 2002 17:17:19 -0500
-Date: Tue, 19 Feb 2002 14:17:04 -0800
-From: Jesse Barnes <jbarnes@sgi.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: David Mosberger <davidm@hpl.hp.com>, Dan Maas <dmaas@dcine.com>,
-        linux-kernel@vger.kernel.org,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Ben Collins <bcollins@debian.org>
-Subject: Re: readl/writel and memory barriers
-Message-ID: <20020219141704.B1510654@sgi.com>
-Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
-	David Mosberger <davidm@hpl.hp.com>, Dan Maas <dmaas@dcine.com>,
-	linux-kernel@vger.kernel.org,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Ben Collins <bcollins@debian.org>
-In-Reply-To: <20020219103506.A1511175@sgi.com> <13997.1014156337@ocs3.intra.ocs.com.au>
+	id <S290634AbSBSW2M>; Tue, 19 Feb 2002 17:28:12 -0500
+Received: from hellhound.math.fu-berlin.de ([160.45.44.204]:50304 "EHLO
+	fefe.de") by vger.kernel.org with ESMTP id <S290627AbSBSW2H>;
+	Tue, 19 Feb 2002 17:28:07 -0500
+Date: Tue, 19 Feb 2002 23:27:54 +0100
+From: Felix von Leitner <usenet-20020219@fefe.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Disgusted with kbuild developers
+Message-ID: <20020219222754.GC1208@fefe.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200202171759.g1HHxRS30551@duracef.shout.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <13997.1014156337@ocs3.intra.ocs.com.au>
-User-Agent: Mutt/1.3.23i
+In-Reply-To: <200202171759.g1HHxRS30551@duracef.shout.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 20, 2002 at 09:05:37AM +1100, Keith Owens wrote:
-> On Tue, 19 Feb 2002 10:35:06 -0800, 
-> Jesse Barnes <jbarnes@sgi.com> wrote:
-> >Making a variable volatile doesn't guarantee that the compiler won't
-> >reorder references to it, AFAIK.
-> 
-> Ignoring the issue of hardware that reorders I/O, volatile accesses
-> must not be reordered by the compiler.  From a C9X draft (1999, anybody
-> have the current C standard online?) :-
+Thus spake Michael Elizabeth Chastain (mec@shout.net):
+> . A Microsoft engineer wrote scripts/Configure.  For three years, I have
+>   lived in fear that Microsoft would notice this fact and use it to attack
+>   Linux through public relations channels or legal means.  They haven't yet,
+>   so I have been wrong so far.
 
-Of course volatile references must be ordered wrt each other, but a
-reference to a volatile doesn't preclude the compiler from moving it
-above or below accesses to other variables.  That is, it doesn't act
-as an optimization barrier.  Sound right?  I guess I'm getting a
-little off-topic here...
+That is not something Microsoft could leverage.
+Actually, it is something Linux can leverage against Microsoft, because
+Microsoft keeps on telling people that using GPL is a nightmare because
+it forces all your intellectual property on the street for free.  They
+proved that wrong themselves.  That is quite a strong argument.  It
+should be publicized, not buried.  We should thank them publicly.
 
-Jesse
+Felix

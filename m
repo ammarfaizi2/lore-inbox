@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264258AbUAIT7h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 14:59:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264331AbUAIT7h
+	id S264351AbUAITy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 14:54:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264376AbUAITy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 14:59:37 -0500
-Received: from smtp2.clear.net.nz ([203.97.37.27]:15277 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S264258AbUAIT7M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 14:59:12 -0500
-Date: Sat, 10 Jan 2004 08:48:08 +1300
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: To whom should I submit Suspend patches?
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Reply-to: ncunningham@users.sourceforge.net
-Message-id: <1073677687.2067.29.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: multipart/signed; boundary="=-dR8U8tH2eV+138fTS46O";
- protocol="application/pgp-signature"; micalg=pgp-sha1
+	Fri, 9 Jan 2004 14:54:56 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:54026 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264351AbUAITyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 14:54:55 -0500
+Date: Fri, 9 Jan 2004 19:54:50 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: New FBDev patch
+In-Reply-To: <20040108232621.B25760@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0401090035270.17957-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-dR8U8tH2eV+138fTS46O
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> > This is the latest patch against 2.6.0-rc3. Give it a try.
+> > 
+> > http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+> 
+> This looks wrong (cyber2000fb.c):
 
-Hi.
+Yeap it is. Typo. 
 
-Patrick has a new job and it seems to have swallowed him whole. To whom
-should I be submitting patches for Suspend itself? I was wanting to go
-wild submitting patches before my move to Canberra in three weeks time.
-I do have a BK tree I can put them in if it helps.
+> sizeof(u32) != 32.  Proper fix is to place the pseudopalette array
+> inside cfb_info, and dispense with this addition here.
 
-Regards,
+You have to make sure the struct fb_info pseudopalette points to the data 
+in cfb_info. Actually only drivers should allocate the pseudopalette at 
+boot time if the hardware doesn't support mode change. In the other case 
+the pseudopalette should be allocated in set_par. 
 
-Nigel
---=20
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
-
---=-dR8U8tH2eV+138fTS46O
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA//wV3VfpQGcyBBWkRAvwAAJ4y3Gvp4krBdYiLu3TxTG6o1SAekgCfQbwL
-7QqPjzBQd0IEvA7h5+1vL9Q=
-=q37n
------END PGP SIGNATURE-----
-
---=-dR8U8tH2eV+138fTS46O--
 

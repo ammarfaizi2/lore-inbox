@@ -1,96 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265342AbUFBFqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265348AbUFBFyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265342AbUFBFqT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 01:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265341AbUFBFqT
+	id S265348AbUFBFyl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 01:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265344AbUFBFyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 01:46:19 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:52471 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S265342AbUFBFqP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 01:46:15 -0400
-Date: Wed, 2 Jun 2004 06:46:14 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: linux-mtd@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] MTD: add st m50fw0* to jedec_probe.c
-Message-ID: <Pine.LNX.4.58.0406020642310.16424@skynet>
+	Wed, 2 Jun 2004 01:54:41 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:36617 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S265348AbUFBFyj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 01:54:39 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Select/Poll
+Date: Tue, 1 Jun 2004 22:54:40 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKAEJIMFAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <courier.40BD66BD.00006D7D@softhome.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2120
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Tue, 01 Jun 2004 22:32:25 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Tue, 01 Jun 2004 22:32:29 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Please ignore my last patch, my hardware guy pointed me at some more
-chips,
+> In one of the threads named: "Linux's implementation of poll() not
+> scalable?'
+> Linus has stated the following:
+> **************
+> Neither poll() nor select() have this problem: they don't get more
+> expensive as you have more and more events - their expense is the number
+> of file descriptors, not the number of events per se. In fact, both poll()
+> and select() tend to perform _better_ when you have pending events, as
+> they are both amenable to optimizations when there is no need for waiting,
+> and scanning the arrays can use early-out semantics.
+> **************
+>
+> Please help me understand the above.. I'm using select in a server to read
+> on multiple FDs and the clients are dumping messages (of fixed size) in a
+> loop on these FDs and the server maintainig those FDs is not able
+> to get all
+> the messages.. Some of the last messages sent by each client are lost.
+> If the number of clients and hence the number of FDs (in the server) is
+> increased the loss of data is proportional.
+> eg: 5 clients send messages (100 each) to 1 server and server receives
+>    96 messages from each client.
+>    10 clients send messages (100 by each) to 1 server and server again
+>    receives 96 from each client.
+>
+> If a small sleep in introduced between sending messages the loss of data
+> decreases.
+> Also please explain the algorithm select uses to read messages on FDs and
+> how does it perform better when number of FDs increases.
 
-so this patch adds support to the jedec probe for ST M50FW040, M50FW080
-and M50FW016 all Firmware hubs for i8x0 chipsets,
-http://www.st.com/stonline/products/families/memories/fl_nor/fl_fwh.htm
+	Your issue has nothing to do with select or poll scalability, it has to do
+with the fact that UDP is unreliable and you must provide your own send
+timing. A UDP server or client cannot just send 100 messages in one shot and
+expect the other end to get all of them. They probably won't all even make
+it to the wire, so the recipient can't solve the problem.
 
-From: Dave Airlie <airlied@linux.ie>
+	DS
 
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
 
---- /storage/2.6/linux-2.6.4/drivers/mtd/chips/jedec_probe.c	2004-03-15 14:15:30.000000000 +1100
-+++ linux-2.6.6/drivers/mtd/chips/jedec_probe.c	2004-06-22 21:51:55.019354760 +1000
-@@ -109,6 +109,9 @@
- #define M29W160DT	0x22C4
- #define M29W160DB	0x2249
- #define M29W040B	0x00E3
-+#define M50FW040	0x002C
-+#define M50FW080	0x002D
-+#define M50FW016	0x002E
-
- /* SST */
- #define SST29EE512	0x005d
-@@ -1234,6 +1237,45 @@
- 		.regions	= {
- 			ERASEINFO(0x10000,8),
- 		}
-+        }, {
-+		.mfr_id		= MANUFACTURER_ST,
-+		.dev_id		= M50FW040,
-+		.name		= "ST M50FW040",
-+		.uaddr		= {
-+			[0] = MTD_UADDR_UNNECESSARY,    /* x8 */
-+		},
-+		.DevSize	= SIZE_512KiB,
-+		.CmdSet		= P_ID_INTEL_EXT,
-+		.NumEraseRegions= 1,
-+		.regions	= {
-+			ERASEINFO(0x10000,8),
-+		}
-+        }, {
-+		.mfr_id		= MANUFACTURER_ST,
-+		.dev_id		= M50FW080,
-+		.name		= "ST M50FW080",
-+		.uaddr		= {
-+			[0] = MTD_UADDR_UNNECESSARY,    /* x8 */
-+		},
-+		.DevSize	= SIZE_1MiB,
-+		.CmdSet		= P_ID_INTEL_EXT,
-+		.NumEraseRegions= 1,
-+		.regions	= {
-+			ERASEINFO(0x10000,16),
-+		}
-+        }, {
-+		.mfr_id		= MANUFACTURER_ST,
-+		.dev_id		= M50FW016,
-+		.name		= "ST M50FW016",
-+		.uaddr		= {
-+			[0] = MTD_UADDR_UNNECESSARY,    /* x8 */
-+		},
-+		.DevSize	= SIZE_2MiB,
-+		.CmdSet		= P_ID_INTEL_EXT,
-+		.NumEraseRegions= 1,
-+		.regions	= {
-+			ERASEINFO(0x10000,32),
-+		}
- 	}, {
- 		.mfr_id		= MANUFACTURER_TOSHIBA,
- 		.dev_id		= TC58FVT160,

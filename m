@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264288AbUFKRlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUFKRl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264288AbUFKRlu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 13:41:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264276AbUFKRlH
+	id S264297AbUFKRl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 13:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264275AbUFKRkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 13:41:07 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:15529 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S264272AbUFKRhZ
+	Fri, 11 Jun 2004 13:40:23 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:8361 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S264270AbUFKRhL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 13:37:25 -0400
-Date: Fri, 11 Jun 2004 19:37:34 +0200
+	Fri, 11 Jun 2004 13:37:11 -0400
+Date: Fri, 11 Jun 2004 19:37:17 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390: tape driver changes.
-Message-ID: <20040611173734.GH3279@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390: qeth network driver.
+Message-ID: <20040611173716.GG3279@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,221 +21,470 @@ User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] s390: tape driver changes.
+[PATCH] s390: qeth network driver.
 
-From: Stefan Bader <shbader@de.ibm.com>
+From: Frank Pavlic <pavlic@de.ibm.com>
+From: Thomas Spatzier <tspat@de.ibm.com>
 
-tape driver changes:
- - Create seperate debug areas for core and discipline modules.
+qeth network driver changes:
+ - Use correct request length in arp/snmp requests.
+ - Simplify handling of empty vs. primed buffers.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 diffstat:
- drivers/s390/char/tape.h       |    8 ++++----
- drivers/s390/char/tape_34xx.c  |   20 ++++++++++++++++++--
- drivers/s390/char/tape_block.c |    2 ++
- drivers/s390/char/tape_char.c  |    2 ++
- drivers/s390/char/tape_core.c  |   18 ++++++++++--------
- drivers/s390/char/tape_proc.c  |    2 ++
- drivers/s390/char/tape_std.c   |    2 ++
- 7 files changed, 40 insertions(+), 14 deletions(-)
+ drivers/s390/net/qeth.h      |    9 -
+ drivers/s390/net/qeth_main.c |  209 +++++++++++++++++++++++++------------------
+ 2 files changed, 128 insertions(+), 90 deletions(-)
 
-diff -urN linux-2.6/drivers/s390/char/tape.h linux-2.6-s390/drivers/s390/char/tape.h
---- linux-2.6/drivers/s390/char/tape.h	Mon May 10 04:32:53 2004
-+++ linux-2.6-s390/drivers/s390/char/tape.h	Fri Jun 11 19:09:59 2004
-@@ -32,7 +32,7 @@
- #ifdef  DBF_LIKE_HELL
- #define DBF_LH(level, str, ...) \
- do { \
--	debug_sprintf_event(tape_dbf_area, level, str, ## __VA_ARGS__); \
-+	debug_sprintf_event(TAPE_DBF_AREA, level, str, ## __VA_ARGS__); \
- } while (0)
- #else
- #define DBF_LH(level, str, ...) do {} while(0)
-@@ -43,12 +43,12 @@
-  */
- #define DBF_EVENT(d_level, d_str...) \
- do { \
--	debug_sprintf_event(tape_dbf_area, d_level, d_str); \
-+	debug_sprintf_event(TAPE_DBF_AREA, d_level, d_str); \
- } while (0)
+diff -urN linux-2.6/drivers/s390/net/qeth.h linux-2.6-s390/drivers/s390/net/qeth.h
+--- linux-2.6/drivers/s390/net/qeth.h	Fri Jun 11 19:09:24 2004
++++ linux-2.6-s390/drivers/s390/net/qeth.h	Fri Jun 11 19:09:59 2004
+@@ -23,7 +23,7 @@
  
- #define DBF_EXCEPTION(d_level, d_str...) \
- do { \
--	debug_sprintf_exception(tape_dbf_area, d_level, d_str); \
-+	debug_sprintf_exception(TAPE_DBF_AREA, d_level, d_str); \
- } while (0)
+ #include "qeth_mpc.h"
  
- #define TAPE_VERSION_MAJOR 2
-@@ -313,7 +313,7 @@
- extern void tape_med_state_set(struct tape_device *, enum tape_medium_state);
+-#define VERSION_QETH_H 		"$Revision: 1.109 $"
++#define VERSION_QETH_H 		"$Revision: 1.110 $"
  
- /* The debug area */
--extern debug_info_t *tape_dbf_area;
-+extern debug_info_t *TAPE_DBF_AREA;
+ #ifdef CONFIG_QETH_IPV6
+ #define QETH_VERSION_IPV6 	":IPv6"
+@@ -380,11 +380,6 @@
+ 	 * outbound: filled by driver; owned by hardware in order to be sent
+ 	 */
+ 	QETH_QDIO_BUF_PRIMED,
+-	/*
+-	 * inbound only: an error condition has been detected for a buffer
+-	 *     the buffer will be discarded (not read out)
+-	 */
+-	QETH_QDIO_BUF_ERROR,
+ };
  
- /* functions for building ccws */
- static inline struct ccw1 *
-diff -urN linux-2.6/drivers/s390/char/tape_34xx.c linux-2.6-s390/drivers/s390/char/tape_34xx.c
---- linux-2.6/drivers/s390/char/tape_34xx.c	Mon May 10 04:32:28 2004
-+++ linux-2.6-s390/drivers/s390/char/tape_34xx.c	Fri Jun 11 19:09:59 2004
-@@ -15,11 +15,19 @@
- #include <linux/bio.h>
- #include <linux/workqueue.h>
+ enum qeth_qdio_info_states {
+@@ -423,7 +418,7 @@
  
-+#define TAPE_DBF_AREA	tape_34xx_dbf
-+
- #include "tape.h"
- #include "tape_std.h"
+ struct qeth_qdio_out_buffer {
+ 	struct qdio_buffer *buffer;
+-	volatile enum qeth_qdio_buffer_states state;
++	atomic_t state;
+ 	volatile int next_element_to_fill;
+ 	struct sk_buff_head skb_list;
+ };
+diff -urN linux-2.6/drivers/s390/net/qeth_main.c linux-2.6-s390/drivers/s390/net/qeth_main.c
+--- linux-2.6/drivers/s390/net/qeth_main.c	Fri Jun 11 19:09:24 2004
++++ linux-2.6-s390/drivers/s390/net/qeth_main.c	Fri Jun 11 19:09:59 2004
+@@ -1,6 +1,6 @@
+ /*
+  *
+- * linux/drivers/s390/net/qeth_main.c ($Revision: 1.118 $)
++ * linux/drivers/s390/net/qeth_main.c ($Revision: 1.121 $)
+  *
+  * Linux on zSeries OSA Express and HiperSockets support
+  *
+@@ -12,7 +12,7 @@
+  *			  Frank Pavlic (pavlic@de.ibm.com) and
+  *		 	  Thomas Spatzier <tspat@de.ibm.com>
+  *
+- *    $Revision: 1.118 $	 $Date: 2004/06/02 06:34:52 $
++ *    $Revision: 1.121 $	 $Date: 2004/06/11 16:32:15 $
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -78,7 +78,7 @@
+ #include "qeth_mpc.h"
+ #include "qeth_fs.h"
  
- #define PRINTK_HEADER "TAPE_34XX: "
+-#define VERSION_QETH_C "$Revision: 1.118 $"
++#define VERSION_QETH_C "$Revision: 1.121 $"
+ static const char *version = "qeth S/390 OSA-Express driver";
  
-+/*
-+ * Pointer to debug area.
-+ */
-+debug_info_t *TAPE_DBF_AREA = NULL;
-+EXPORT_SYMBOL(TAPE_DBF_AREA);
-+
- enum tape_34xx_type {
- 	tape_3480,
- 	tape_3490,
-@@ -1343,7 +1351,13 @@
- {
- 	int rc;
- 
--	DBF_EVENT(3, "34xx init: $Revision: 1.20 $\n");
-+	TAPE_DBF_AREA = debug_register ( "tape_34xx", 1, 2, 4*sizeof(long));
-+	debug_register_view(TAPE_DBF_AREA, &debug_sprintf_view);
-+#ifdef DBF_LIKE_HELL
-+	debug_set_level(TAPE_DBF_AREA, 6);
-+#endif
-+
-+	DBF_EVENT(3, "34xx init: $Revision: 1.21 $\n");
- 	/* Register driver for 3480/3490 tapes. */
- 	rc = ccw_driver_register(&tape_34xx_driver);
- 	if (rc)
-@@ -1357,12 +1371,14 @@
- tape_34xx_exit(void)
- {
- 	ccw_driver_unregister(&tape_34xx_driver);
-+
-+	debug_unregister(TAPE_DBF_AREA);
+ /**
+@@ -2345,13 +2345,17 @@
  }
  
- MODULE_DEVICE_TABLE(ccw, tape_34xx_ids);
- MODULE_AUTHOR("(C) 2001-2002 IBM Deutschland Entwicklung GmbH");
- MODULE_DESCRIPTION("Linux on zSeries channel attached 3480 tape "
--		   "device driver ($Revision: 1.20 $)");
-+		   "device driver ($Revision: 1.21 $)");
- MODULE_LICENSE("GPL");
- 
- module_init(tape_34xx_init);
-diff -urN linux-2.6/drivers/s390/char/tape_block.c linux-2.6-s390/drivers/s390/char/tape_block.c
---- linux-2.6/drivers/s390/char/tape_block.c	Mon May 10 04:33:05 2004
-+++ linux-2.6-s390/drivers/s390/char/tape_block.c	Fri Jun 11 19:09:59 2004
-@@ -19,6 +19,8 @@
- 
- #include <asm/debug.h>
- 
-+#define TAPE_DBF_AREA	tape_core_dbf
-+
- #include "tape.h"
- 
- #define PRINTK_HEADER "TAPE_BLOCK: "
-diff -urN linux-2.6/drivers/s390/char/tape_char.c linux-2.6-s390/drivers/s390/char/tape_char.c
---- linux-2.6/drivers/s390/char/tape_char.c	Mon May 10 04:33:10 2004
-+++ linux-2.6-s390/drivers/s390/char/tape_char.c	Fri Jun 11 19:09:59 2004
-@@ -18,6 +18,8 @@
- 
- #include <asm/uaccess.h>
- 
-+#define TAPE_DBF_AREA	tape_core_dbf
-+
- #include "tape.h"
- #include "tape_std.h"
- #include "tape_class.h"
-diff -urN linux-2.6/drivers/s390/char/tape_core.c linux-2.6-s390/drivers/s390/char/tape_core.c
---- linux-2.6/drivers/s390/char/tape_core.c	Mon May 10 04:32:26 2004
-+++ linux-2.6-s390/drivers/s390/char/tape_core.c	Fri Jun 11 19:09:59 2004
-@@ -20,6 +20,8 @@
- 
- #include <asm/types.h>	     // for variable types
- 
-+#define TAPE_DBF_AREA	tape_core_dbf
-+
- #include "tape.h"
- #include "tape_std.h"
- 
-@@ -39,7 +41,8 @@
- /*
-  * Pointer to debug area.
-  */
--debug_info_t *tape_dbf_area = NULL;
-+debug_info_t *TAPE_DBF_AREA = NULL;
-+EXPORT_SYMBOL(TAPE_DBF_AREA);
- 
- /*
-  * Printable strings for tape enumerations.
-@@ -1176,12 +1179,12 @@
- static int
- tape_init (void)
+ static inline void
+-qeth_clear_output_buffer(struct qeth_card *card,
++qeth_clear_output_buffer(struct qeth_qdio_out_q *queue,
+ 			 struct qeth_qdio_out_buffer *buf)
  {
--	tape_dbf_area = debug_register ( "tape", 1, 2, 4*sizeof(long));
--	debug_register_view(tape_dbf_area, &debug_sprintf_view);
-+	TAPE_DBF_AREA = debug_register ( "tape", 1, 2, 4*sizeof(long));
-+	debug_register_view(TAPE_DBF_AREA, &debug_sprintf_view);
- #ifdef DBF_LIKE_HELL
--	debug_set_level(tape_dbf_area, 6);
-+	debug_set_level(TAPE_DBF_AREA, 6);
+ 	int i;
+ 	struct sk_buff *skb;
+ 
+-	for(i = 0; i < QETH_MAX_BUFFER_ELEMENTS(card); ++i){
++	/* is PCI flag set on buffer? */
++	if (buf->buffer->element[0].flags & 0x40)
++		atomic_dec(&queue->set_pci_flags_count);
++
++	for(i = 0; i < QETH_MAX_BUFFER_ELEMENTS(queue->card); ++i){
+ 		buf->buffer->element[i].length = 0;
+ 		buf->buffer->element[i].addr = NULL;
+ 		buf->buffer->element[i].flags = 0;
+@@ -2361,7 +2365,7 @@
+ 		}
+ 	}
+ 	buf->next_element_to_fill = 0;
+-	buf->state = QETH_QDIO_BUF_EMPTY;
++	atomic_set(&buf->state, QETH_QDIO_BUF_EMPTY);
+ }
+ 
+ static inline void
+@@ -2578,8 +2582,17 @@
+ 		QETH_DBF_TEXT(trace, 2, "flushbuf");
+ 		QETH_DBF_TEXT_(trace, 2, " err%d", rc);
+ 		queue->card->stats.tx_errors += count;
++		/* ok, since do_QDIO went wrong the buffers have not been given
++		 * to the hardware. they still belong to us, so we can clear
++		 * them and reuse then, i.e. set back next_buf_to_fill*/
++		for (i = index; i < index + count; ++i) {
++			buf = &queue->bufs[i % QDIO_MAX_BUFFERS_PER_Q];
++			qeth_clear_output_buffer(queue, buf);
++		}
++		queue->next_buf_to_fill = index;
+ 		return;
+ 	}
++	atomic_add(count, &queue->used_buffers);
+ #ifdef CONFIG_QETH_PERF_STATS
+ 	queue->card->perf_stats.bufs_sent += count;
  #endif
--	DBF_EVENT(3, "tape init: ($Revision: 1.49 $)\n");
-+	DBF_EVENT(3, "tape init: ($Revision: 1.50 $)\n");
- 	tape_proc_init();
- 	tapechar_init ();
- 	tapeblock_init ();
-@@ -1200,19 +1203,18 @@
- 	tapechar_exit();
- 	tapeblock_exit();
- 	tape_proc_cleanup();
--	debug_unregister (tape_dbf_area);
-+	debug_unregister (TAPE_DBF_AREA);
+@@ -2617,11 +2630,11 @@
+ 			queue->do_pack = 0;
+ 			/* flush packing buffers */
+ 			buffer = &queue->bufs[queue->next_buf_to_fill];
+-			BUG_ON(buffer->state == QETH_QDIO_BUF_PRIMED);
+-			if (buffer->next_element_to_fill > 0) {
+-				buffer->state = QETH_QDIO_BUF_PRIMED;
++			if ((atomic_read(&buffer->state) ==
++						QETH_QDIO_BUF_EMPTY) &&
++			    (buffer->next_element_to_fill > 0)) {
++				atomic_set(&buffer->state,QETH_QDIO_BUF_PRIMED);
+ 				flush_count++;
+-				atomic_inc(&queue->used_buffers);
+ 				queue->next_buf_to_fill =
+ 					(queue->next_buf_to_fill + 1) %
+ 					QDIO_MAX_BUFFERS_PER_Q;
+@@ -2635,17 +2648,17 @@
+ qeth_flush_buffers_on_no_pci(struct qeth_qdio_out_q *queue, int under_int)
+ {
+ 	struct qeth_qdio_out_buffer *buffer;
++	int index;
+ 
+-	buffer = &queue->bufs[queue->next_buf_to_fill];
+-	BUG_ON(buffer->state == QETH_QDIO_BUF_PRIMED);
+-	if (buffer->next_element_to_fill > 0){
++	index = queue->next_buf_to_fill;
++	buffer = &queue->bufs[index];
++	if((atomic_read(&buffer->state) == QETH_QDIO_BUF_EMPTY) &&
++	   (buffer->next_element_to_fill > 0)){
+ 		/* it's a packing buffer */
+-		buffer->state = QETH_QDIO_BUF_PRIMED;
+-		atomic_inc(&queue->used_buffers);
+-		qeth_flush_buffers(queue, under_int, queue->next_buf_to_fill,
+-				   1);
++		atomic_set(&buffer->state, QETH_QDIO_BUF_PRIMED);
+ 		queue->next_buf_to_fill =
+ 			(queue->next_buf_to_fill + 1) % QDIO_MAX_BUFFERS_PER_Q;
++		qeth_flush_buffers(queue, under_int, index, 1);
+ 	}
  }
  
- MODULE_AUTHOR("(C) 2001 IBM Deutschland Entwicklung GmbH by Carsten Otte and "
- 	      "Michael Holzheu (cotte@de.ibm.com,holzheu@de.ibm.com)");
- MODULE_DESCRIPTION("Linux on zSeries channel attached "
--		   "tape device driver ($Revision: 1.49 $)");
-+		   "tape device driver ($Revision: 1.50 $)");
- MODULE_LICENSE("GPL");
+@@ -2688,13 +2701,9 @@
+ 			qeth_schedule_recovery(card);
+ 			return;
+ 		}
+-		/* is PCI flag set on buffer? */
+-		if (buffer->buffer->element[0].flags & 0x40)
+-			atomic_dec(&queue->set_pci_flags_count);
+-
+-		qeth_clear_output_buffer(card, buffer);
+-		atomic_dec(&queue->used_buffers);
++		qeth_clear_output_buffer(queue, buffer);
+ 	}
++	atomic_sub(count, &queue->used_buffers);
  
- module_init(tape_init);
- module_exit(tape_exit);
+ 	netif_wake_queue(card->dev);
+ #ifdef CONFIG_QETH_PERF_STATS
+@@ -2887,8 +2896,8 @@
+ 	/* free outbound qdio_qs */
+ 	for (i = 0; i < card->qdio.no_out_queues; ++i){
+ 		for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; ++j)
+-			qeth_clear_output_buffer(card, &card->qdio.
+-						out_qs[i]->bufs[j]);
++			qeth_clear_output_buffer(card->qdio.out_qs[i],
++					&card->qdio.out_qs[i]->bufs[j]);
+ 		kfree(card->qdio.out_qs[i]);
+ 	}
+ 	kfree(card->qdio.out_qs);
+@@ -2905,8 +2914,8 @@
+ 	for (i = 0; i < card->qdio.no_out_queues; ++i)
+ 		if (card->qdio.out_qs[i]){
+ 			for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; ++j)
+-				qeth_clear_output_buffer(card, &card->qdio.
+-						out_qs[i]->bufs[j]);
++				qeth_clear_output_buffer(card->qdio.out_qs[i],
++						&card->qdio.out_qs[i]->bufs[j]);
+ 		}
+ }
  
--EXPORT_SYMBOL(tape_dbf_area);
- EXPORT_SYMBOL(tape_generic_remove);
- EXPORT_SYMBOL(tape_generic_probe);
- EXPORT_SYMBOL(tape_generic_online);
-diff -urN linux-2.6/drivers/s390/char/tape_proc.c linux-2.6-s390/drivers/s390/char/tape_proc.c
---- linux-2.6/drivers/s390/char/tape_proc.c	Mon May 10 04:32:28 2004
-+++ linux-2.6-s390/drivers/s390/char/tape_proc.c	Fri Jun 11 19:09:59 2004
-@@ -16,6 +16,8 @@
- #include <linux/vmalloc.h>
- #include <linux/seq_file.h>
+@@ -2958,8 +2967,8 @@
+ 		memset(card->qdio.out_qs[i]->qdio_bufs, 0,
+ 		       QDIO_MAX_BUFFERS_PER_Q * sizeof(struct qdio_buffer));
+ 		for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; ++j){
+-			qeth_clear_output_buffer(card, &card->qdio.
+-						 out_qs[i]->bufs[j]);
++			qeth_clear_output_buffer(card->qdio.out_qs[i],
++					&card->qdio.out_qs[i]->bufs[j]);
+ 		}
+ 		card->qdio.out_qs[i]->card = card;
+ 		card->qdio.out_qs[i]->next_buf_to_fill = 0;
+@@ -3671,7 +3680,7 @@
+ 	if (!queue->do_pack) {
+ 		QETH_DBF_TEXT(trace, 6, "fillbfnp");
+ 		/* set state to PRIMED -> will be flushed */
+-		buf->state = QETH_QDIO_BUF_PRIMED;
++		atomic_set(&buf->state, QETH_QDIO_BUF_PRIMED);
+ 	} else {
+ 		QETH_DBF_TEXT(trace, 6, "fillbfpa");
+ #ifdef CONFIG_QETH_PERF_STATS
+@@ -3683,7 +3692,7 @@
+ 			 * packed buffer if full -> set state PRIMED
+ 			 * -> will be flushed
+ 			 */
+-			buf->state = QETH_QDIO_BUF_PRIMED;
++			atomic_set(&buf->state, QETH_QDIO_BUF_PRIMED);
+ 		}
+ 	}
+ 	return 0;
+@@ -3696,32 +3705,27 @@
+ {
+ 	struct qeth_qdio_out_buffer *buffer;
+ 	int index;
+-	int rc = 0;
  
-+#define TAPE_DBF_AREA	tape_core_dbf
+ 	QETH_DBF_TEXT(trace, 6, "dosndpfa");
+ 
+ 	spin_lock(&queue->lock);
+-	/* do we have empty buffers? */
+-	if (atomic_read(&queue->used_buffers) >= (QDIO_MAX_BUFFERS_PER_Q - 1)){
++	index = queue->next_buf_to_fill;
++	buffer = &queue->bufs[queue->next_buf_to_fill];
++	/*
++	 * check if buffer is empty to make sure that we do not 'overtake'
++	 * ourselves and try to fill a buffer that is already primed
++	 */
++	if (atomic_read(&buffer->state) != QETH_QDIO_BUF_EMPTY) {
+ 		card->stats.tx_dropped++;
+-		rc = -EBUSY;
+ 		spin_unlock(&queue->lock);
+-		goto out;
++		return -EBUSY;
+ 	}
+-	index = queue->next_buf_to_fill;
+-	buffer = &queue->bufs[queue->next_buf_to_fill];
+-	BUG_ON(buffer->state == QETH_QDIO_BUF_PRIMED);
+ 	queue->next_buf_to_fill = (queue->next_buf_to_fill + 1) %
+ 				  QDIO_MAX_BUFFERS_PER_Q;
+-	atomic_inc(&queue->used_buffers);
+-	spin_unlock(&queue->lock);
+-
+-	/* go on sending ... */
+-	netif_wake_queue(skb->dev);
+ 	qeth_fill_buffer(queue, buffer, (char *)hdr, skb);
+ 	qeth_flush_buffers(queue, 0, index, 1);
+-out:
+-	return rc;
++	spin_unlock(&queue->lock);
++	return 0;
+ }
+ 
+ static inline int
+@@ -3737,35 +3741,43 @@
+ 	QETH_DBF_TEXT(trace, 6, "dosndpkt");
+ 
+ 	spin_lock(&queue->lock);
+-	/* do we have empty buffers? */
+-	if (atomic_read(&queue->used_buffers) >= (QDIO_MAX_BUFFERS_PER_Q - 2)){
+-		card->stats.tx_dropped++;
+-		rc = -EBUSY;
+-		goto out;
+-	}
+ 	start_index = queue->next_buf_to_fill;
+ 	buffer = &queue->bufs[queue->next_buf_to_fill];
+-	BUG_ON(buffer->state == QETH_QDIO_BUF_PRIMED);
++	/*
++	 * check if buffer is empty to make sure that we do not 'overtake'
++	 * ourselves and try to fill a buffer that is already primed
++	 */
++	if (atomic_read(&buffer->state) != QETH_QDIO_BUF_EMPTY){
++		card->stats.tx_dropped++;
++		spin_unlock(&queue->lock);
++		return -EBUSY;
++	}
+ 	if (queue->do_pack){
+ 		/* does packet fit in current buffer? */
+-		if((QETH_MAX_BUFFER_ELEMENTS(card) - buffer->next_element_to_fill)
+-				< elements_needed){
++		if((QETH_MAX_BUFFER_ELEMENTS(card) -
++		    buffer->next_element_to_fill) < elements_needed){
+ 			/* ... no -> set state PRIMED */
+-			buffer->state = QETH_QDIO_BUF_PRIMED;
++			atomic_set(&buffer->state, QETH_QDIO_BUF_PRIMED);
+ 			flush_count++;
+-			atomic_inc(&queue->used_buffers);
+ 			queue->next_buf_to_fill =
+ 				(queue->next_buf_to_fill + 1) %
+ 				QDIO_MAX_BUFFERS_PER_Q;
+ 			buffer = &queue->bufs[queue->next_buf_to_fill];
++			/* we did a step forward, so check buffer state again */
++			if (atomic_read(&buffer->state) != QETH_QDIO_BUF_EMPTY){
++				card->stats.tx_dropped++;
++				qeth_flush_buffers(queue, 0, start_index, 1);
++				spin_unlock(&queue->lock);
++				/* return EBUSY because we sent old packet, not
++				 * the current one */
++				return -EBUSY;
++			}
+ 		}
+ 	}
+-
+ 	qeth_fill_buffer(queue, buffer, (char *)hdr, skb);
+-	if (buffer->state == QETH_QDIO_BUF_PRIMED){
++	if (atomic_read(&buffer->state) == QETH_QDIO_BUF_PRIMED){
+ 		/* next time fill the next buffer */
+ 		flush_count++;
+-		atomic_inc(&queue->used_buffers);
+ 		queue->next_buf_to_fill = (queue->next_buf_to_fill + 1) %
+ 			QDIO_MAX_BUFFERS_PER_Q;
+ 	}
+@@ -3777,9 +3789,8 @@
+ 
+ 	if (!atomic_read(&queue->set_pci_flags_count))
+ 		qeth_flush_buffers_on_no_pci(queue, 0);
+-out:
+-	spin_unlock(&queue->lock);
+ 
++	spin_unlock(&queue->lock);
+ 	return rc;
+ }
+ 
+@@ -4079,21 +4090,43 @@
+ 
+ static int
+ qeth_send_ipa_arp_cmd(struct qeth_card *card, struct qeth_cmd_buffer *iob,
+-		      int len, int (*reply_cb)
+-			      		(struct qeth_card *,
+-					 struct qeth_reply*, unsigned long),
++		      int len, int (*reply_cb)(struct qeth_card *,
++					       struct qeth_reply *,
++					       unsigned long),
+ 		      void *reply_param)
+ {
+-	int rc;
+-
+ 	QETH_DBF_TEXT(trace,4,"sendarp");
+ 
+ 	memcpy(iob->data, IPA_PDU_HEADER, IPA_PDU_HEADER_SIZE);
+ 	memcpy(QETH_IPA_CMD_DEST_ADDR(iob->data),
+ 	       &card->token.ulp_connection_r, QETH_MPC_TOKEN_LENGTH);
+-	rc = qeth_send_control_data(card, IPA_PDU_HEADER_SIZE + len, iob,
+-				    reply_cb, reply_param);
+-	return rc;
++	return qeth_send_control_data(card, IPA_PDU_HEADER_SIZE + len, iob,
++				      reply_cb, reply_param);
++}
 +
- #include "tape.h"
- 
- #define PRINTK_HEADER "TAPE_PROC: "
-diff -urN linux-2.6/drivers/s390/char/tape_std.c linux-2.6-s390/drivers/s390/char/tape_std.c
---- linux-2.6/drivers/s390/char/tape_std.c	Mon May 10 04:31:57 2004
-+++ linux-2.6-s390/drivers/s390/char/tape_std.c	Fri Jun 11 19:09:59 2004
-@@ -22,6 +22,8 @@
- #include <asm/ebcdic.h>
- #include <asm/tape390.h>
- 
-+#define TAPE_DBF_AREA	tape_core_dbf
++static int
++qeth_send_ipa_snmp_cmd(struct qeth_card *card, struct qeth_cmd_buffer *iob,
++		      int len, int (*reply_cb)(struct qeth_card *,
++					       struct qeth_reply *,
++					       unsigned long),
++		      void *reply_param)
++{
++	u16 s1, s2;
 +
- #include "tape.h"
- #include "tape_std.h"
++	QETH_DBF_TEXT(trace,4,"sendsnmp");
++
++	memcpy(iob->data, IPA_PDU_HEADER, IPA_PDU_HEADER_SIZE);
++	memcpy(QETH_IPA_CMD_DEST_ADDR(iob->data),
++	       &card->token.ulp_connection_r, QETH_MPC_TOKEN_LENGTH);
++	/* adjust PDU length fields in IPA_PDU_HEADER */
++	s1 = (u32) IPA_PDU_HEADER_SIZE + len;
++	s2 = (u32) len;
++	memcpy(QETH_IPA_PDU_LEN_TOTAL(iob->data), &s1, 2);
++	memcpy(QETH_IPA_PDU_LEN_PDU1(iob->data), &s2, 2);
++	memcpy(QETH_IPA_PDU_LEN_PDU2(iob->data), &s2, 2);
++	memcpy(QETH_IPA_PDU_LEN_PDU3(iob->data), &s2, 2);
++	return qeth_send_control_data(card, IPA_PDU_HEADER_SIZE + len, iob,
++				      reply_cb, reply_param);
+ }
  
+ static struct qeth_cmd_buffer *
+@@ -4136,8 +4169,7 @@
+ 
+ 	rc = qeth_send_ipa_arp_cmd(card, iob,
+ 				   QETH_SETASS_BASE_LEN+QETH_ARP_CMD_LEN,
+-				   qeth_arp_query_cb,
+-				   (void *)&qinfo);
++				   qeth_arp_query_cb, (void *)&qinfo);
+ 	if (rc) {
+ 		tmp = rc;
+ 		PRINT_WARN("Error while querying ARP cache on %s: %s "
+@@ -4247,7 +4279,8 @@
+ {
+ 	struct qeth_cmd_buffer *iob;
+ 	struct qeth_ipa_cmd *cmd;
+-	struct qeth_snmp_ureq ureq;
++	struct qeth_snmp_ureq *ureq;
++	int req_len;
+ 	struct qeth_arp_query_info qinfo = {0, };
+ 	int rc = 0;
+ 
+@@ -4260,29 +4293,39 @@
+ 			   "on %s!\n", card->info.if_name);
+ 		return -EOPNOTSUPP;
+ 	}
+-	if (copy_from_user(&ureq, udata, sizeof(struct qeth_snmp_ureq)))
++	/* skip 4 bytes (data_len struct member) to get req_len */
++	if (copy_from_user(&req_len, udata + sizeof(int), sizeof(int)))
+ 		return -EFAULT;
+-	qinfo.udata_len = ureq.hdr.data_len;
+-	if (!(qinfo.udata = kmalloc(qinfo.udata_len, GFP_KERNEL)))
++	ureq = kmalloc(req_len, GFP_KERNEL);
++	if (!ureq) {
++		QETH_DBF_TEXT(trace, 2, "snmpnome");
+ 		return -ENOMEM;
++	}
++	if (copy_from_user(ureq, udata, req_len)){
++		kfree(ureq);
++		return -EFAULT;
++	}
++	qinfo.udata_len = ureq->hdr.data_len;
++	if (!(qinfo.udata = kmalloc(qinfo.udata_len, GFP_KERNEL))){
++		kfree(ureq);
++		return -ENOMEM;
++	}
+ 	memset(qinfo.udata, 0, qinfo.udata_len);
+ 	qinfo.udata_offset = sizeof(struct qeth_snmp_ureq_hdr);
+ 
+ 	iob = qeth_get_adapter_cmd(card, IPA_SETADP_SET_SNMP_CONTROL,
+-				   QETH_SNMP_SETADP_CMDLENGTH+ureq.hdr.req_len);
++				   QETH_SNMP_SETADP_CMDLENGTH + req_len);
+ 	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
+-	memcpy(&cmd->data.setadapterparms.data.snmp, &ureq.cmd,
+-	       sizeof(struct qeth_snmp_cmd));
+-	rc = qeth_send_ipa_arp_cmd(card, iob,
+-				   QETH_SETADP_BASE_LEN + QETH_ARP_DATA_SIZE +
+-				   ureq.hdr.req_len, qeth_snmp_command_cb,
+-				   (void *)&qinfo);
++	memcpy(&cmd->data.setadapterparms.data.snmp, &ureq->cmd, req_len);
++	rc = qeth_send_ipa_snmp_cmd(card, iob, QETH_SETADP_BASE_LEN + req_len,
++				    qeth_snmp_command_cb, (void *)&qinfo);
+ 	if (rc)
+ 		PRINT_WARN("SNMP command failed on %s: (0x%x)\n",
+ 			   card->info.if_name, rc);
+ 	 else
+ 		copy_to_user(udata, qinfo.udata, qinfo.udata_len);
+ 
++	kfree(ureq);
+ 	kfree(qinfo.udata);
+ 	return rc;
+ }

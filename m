@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283773AbRLEVi4>; Wed, 5 Dec 2001 16:38:56 -0500
+	id <S284506AbRLEVl4>; Wed, 5 Dec 2001 16:41:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284506AbRLEVij>; Wed, 5 Dec 2001 16:38:39 -0500
-Received: from andromeda.veritel.com.br ([200.230.193.1]:19929 "HELO
-	veritel.com.br") by vger.kernel.org with SMTP id <S284526AbRLEVhd>;
-	Wed, 5 Dec 2001 16:37:33 -0500
-Message-ID: <3C0E9497.9070607@veritel.com.br>
-Date: Wed, 05 Dec 2001 19:41:43 -0200
-From: "William N. Zanatta" <william@veritel.com.br>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Unknown Bridge Resource...
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S283155AbRLEVlq>; Wed, 5 Dec 2001 16:41:46 -0500
+Received: from bitmover.com ([192.132.92.2]:62338 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S284439AbRLEVle>;
+	Wed, 5 Dec 2001 16:41:34 -0500
+Date: Wed, 5 Dec 2001 13:41:33 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
+        Lars Brinkhoff <lars.spam@nocrew.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, hps@intermeta.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: SMP/cc Cluster description [was Linux/Pro]
+Message-ID: <20011205134133.A11801@work.bitmover.com>
+Mail-Followup-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+	Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
+	Lars Brinkhoff <lars.spam@nocrew.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, hps@intermeta.de,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011205132532.Y11801@work.bitmover.com> <2537032729.1007559379@mbligh.des.sequent.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <2537032729.1007559379@mbligh.des.sequent.com>; from Martin.Bligh@us.ibm.com on Wed, Dec 05, 2001 at 01:36:19PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey guys,
+> I still think (see my previous email) that we're actually heading to more or
+> less the same place from different directions, which was actually my main
+> point.
 
-   I'm getting these 3 lines on my syslog every boot:
-
- > Dec  4 23:45:25 carcass kernel: Unknown bridge resource 0: assuming 
-transparent
- > Dec  4 23:45:25 carcass kernel: Unknown bridge resource 1: assuming 
-transparent
- > Dec  4 23:45:25 carcass kernel: Unknown bridge resource 2: assuming 
-transparent
-
-   What does they mean?
-   Athlon 1.2GHz + ABIT KT7A (w/ buggy VIA) + kernel 
-2.4.14+loopback+via-ide-floppy patches.
-
-William N Zanatta
-
+Oh, I agree with that.  There is no doubt of that, I thought that was fairly
+apparent.  We aren't arguing about "what" we are arguing about "how".  You
+are saying "I can take the path explored before and do it better" and I'm
+saying "Maybe, but extremely unlikely given history.  It's far more likely
+that you'll repeat history by ignoring it, a time honored tradition, albeit
+ill-advised."
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272178AbRH3MQk>; Thu, 30 Aug 2001 08:16:40 -0400
+	id <S272173AbRH3MRe>; Thu, 30 Aug 2001 08:17:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272179AbRH3MQa>; Thu, 30 Aug 2001 08:16:30 -0400
-Received: from web9307.mail.yahoo.com ([216.136.129.56]:13316 "HELO
-	web9307.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S272178AbRH3MQW>; Thu, 30 Aug 2001 08:16:22 -0400
-Message-ID: <20010830121640.16465.qmail@web9307.mail.yahoo.com>
-Date: Thu, 30 Aug 2001 05:16:40 -0700 (PDT)
-From: John paul R <jpr200012@yahoo.com>
-Subject: Re: dell inspiron 8000 eepro100 problems
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010830154914.A13392@castle.nmd.msu.ru>
+	id <S272180AbRH3MR1>; Thu, 30 Aug 2001 08:17:27 -0400
+Received: from nbd.it.uc3m.es ([163.117.139.192]:2832 "EHLO nbd.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S272173AbRH3MQj>;
+	Thu, 30 Aug 2001 08:16:39 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200108301216.OAA03980@nbd.it.uc3m.es>
+Subject: Re: Having problems with 2.4.9-ac
+X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
+In-Reply-To: <3B8E2C35.1956DF51@inet.com> "from Jordan Breeding at Aug 30, 2001
+ 07:06:13 am"
+To: Jordan <ledzep37@home.com>, Jordan Breeding <jordan.breeding@inet.com>
+Date: Thu, 30 Aug 2001 14:16:33 +0200 (CEST)
+CC: linux kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"A month of sundays ago Jordan Breeding wrote:"
+> I have reported having problems shuting down and rebooting my SMP
+> machine before.  Before the 2.4.8/9 series or ac kernels the last kernel
 
---- Andrey Savochkin <saw@saw.sw.com.sg> wrote:
-> On Wed, Aug 22, 2001 at 01:04:12AM -0700, John paul
-> R wrote:
-> [snip]
-> > sometimes it may take 10 hours to start. what
-> happens
-> > is i lose my ability to connect to anything
-> whether it
-> > be telnet, web browsing, ssh, etc. but i can still
-> > ping sites by ip address. if i am plugged in
-> behind my
-> > router i can ping and connect to other boxes on my
-> > network (i've been browsing through a proxy on one
-> of
-> > them while trying to figure out what the problem
-> is).
-> [snip]
-> 
-> The fact that you can still ping sites by IP is
-> important.
-> 1. Check if it's DNS-related problem.
-> 2. Check if packet size matters.
+ditto.
 
-i don't think it is dns related problems because the
-other computers on the network can still use the same
-dns server and rebooting fixes the problem. one other
-thing i should add is that if i have already connect
-to something like aim i can continue using it or
-anything else that i already have established a
-connection to. i have tried what someone else
-suggested and let tcpdump run for a few minutes and it
-seems to clear up the problem.
+> correctly reboot or shut down anymore.  What might the problem be?  I
+> don't want to go back to 2.4.8-ac10 if at all possible, 2.4.9-ac3 is one
+> of if not the most stable 2.4 kernel I have run in a long time.  Thank
 
-> 
->  Andrey
+Does anyone have the patch diff from 8-ac10 to 8-ac11 in the apm area?
+This sounds very hopeful for tracking down the problem .. if it's not
+just timing.
 
-__________________________________________________
-Do You Yahoo!?
-Get email alerts & NEW webcam video instant messaging with Yahoo! Messenger
-http://im.yahoo.com
+Peter

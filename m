@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310214AbSDIQ5h>; Tue, 9 Apr 2002 12:57:37 -0400
+	id <S310224AbSDIQ7Y>; Tue, 9 Apr 2002 12:59:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310224AbSDIQ5g>; Tue, 9 Apr 2002 12:57:36 -0400
-Received: from borg.kabelfoon.nl ([62.45.45.66]:8722 "HELO borg.kabelfoon.nl")
-	by vger.kernel.org with SMTP id <S310214AbSDIQ5g>;
-	Tue, 9 Apr 2002 12:57:36 -0400
-Message-ID: <3CB30E53.8020905@kabelfoon.nl>
-Date: Tue, 09 Apr 2002 17:52:51 +0200
-From: Nick Martens <nickm@kabelfoon.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020404
-X-Accept-Language: en-us, en
+	id <S310241AbSDIQ7X>; Tue, 9 Apr 2002 12:59:23 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:13697 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S310224AbSDIQ7W>; Tue, 9 Apr 2002 12:59:22 -0400
+Date: Tue, 9 Apr 2002 12:58:43 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: C++ and the kernel
+In-Reply-To: <xb7u1qk6cil.fsf@camaro.informatik.uni-freiburg.de>
+Message-ID: <Pine.LNX.3.95.1020409125455.5166B-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: linux-kernel@vger.kernel.org, rowan.ingvar.wilson@0800dial.com
-Subject: Re: 2.4.18 Boot problem
-In-Reply-To: <3CB1B505.2010505@kabelfoon.nl> <3CB1FE78.6050606@kabelfoon.nl> <200204090939.g399dlX02029@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes much longer, more like for ever... Is there a way to find out what 
-is causing it other then removing each piece of hardware one by one ??
+On 9 Apr 2002, Sau Dan Lee wrote:
+[SNIPPED ... all]
+We need to take this off linux-kernel. Anybody who wants to
+continue, please contact me directly. No Holy Wars. I know
+that everybody I have communicated with has good points to
+ponder.
 
+Cheers,
+Dick Johnson
 
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
 
-Denis Vlasenko wrote:
-> On 8 April 2002 18:32, Nick Martens wrote:
-> 
->>I don't expect it to be a memory problem my system is really stable and
->>the weirdest about the problem is that it only happens the first time I
->>boot up after my pc has been turned off for a while and there are no
->>problems when i boot 2.5.1 it only crashes on shutdowns on that kernel.
->>I have tried updating all kind of things, but noting seems to work
-> 
-> 
-> Is your "for a while" >= ten seconds? Nothing in CPU/RAM can survive
-> that long.
-> 
-> I'd say this is a hardware problem then. Something in your box does not like 
-> to be cold.
-> --
-> vda
-
-
+                 Windows-2000/Professional isn't.
 

@@ -1,40 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286196AbRL0D3Z>; Wed, 26 Dec 2001 22:29:25 -0500
+	id <S286206AbRL0Df4>; Wed, 26 Dec 2001 22:35:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286207AbRL0D3R>; Wed, 26 Dec 2001 22:29:17 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:56008
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S286206AbRL0D3J>; Wed, 26 Dec 2001 22:29:09 -0500
-Date: Wed, 26 Dec 2001 22:14:46 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: CML2-1.9.14 is available
-Message-ID: <20011226221446.A8032@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+	id <S286207AbRL0Dfp>; Wed, 26 Dec 2001 22:35:45 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:5126 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S286206AbRL0Dff>;
+	Wed, 26 Dec 2001 22:35:35 -0500
+Date: Thu, 27 Dec 2001 01:35:52 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Legacy Fishtank <garzik@havoc.gtf.org>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org,
+        ext2-devel@lists.sourceforge.net, Alexander Viro <viro@math.psu.edu>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [RFC] [PATCH] Clean up fs.h union for ext2
+Message-ID: <20011227013552.A28388@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Legacy Fishtank <garzik@havoc.gtf.org>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+	Alexander Viro <viro@math.psu.edu>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <E16JR71-0000cU-00@starship.berlin> <20011226222809.A8233@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+In-Reply-To: <20011226222809.A8233@havoc.gtf.org>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 1.9.14: Wed Dec 26 22:10:25 EST 2001
-	* Rulebase and help sync with 2.4.18-pre1/2.5.2-pre2.
-	* Fix a bug in handling of the private bit.
+Em Wed, Dec 26, 2001 at 10:28:09PM -0500, Legacy Fishtank escreveu:
+> On Thu, Dec 27, 2001 at 04:21:42AM +0100, Daniel Phillips wrote:
+> > --- ../2.4.17.clean/include/linux/fs.h	Fri Dec 21 12:42:03 2001
+> > +++ ./include/linux/fs.h	Wed Dec 26 23:30:55 2001
+> > @@ -478,7 +478,7 @@
+> >  	__u32			i_generation;
+> >  	union {
+> >  		struct minix_inode_info		minix_i;
+> > -		struct ext2_inode_info		ext2_i;
+> > +		struct ext2_inode_info		ext2_inode_info;
+> >  		struct ext3_inode_info		ext3_i;
+> >  		struct hpfs_inode_info		hpfs_i;
+> >  		struct ntfs_inode_info		ntfs_i;
+> 
+> Change in principle looks good except IMHO you should go ahead and
+> remove the ext2 stuff from the union...  (with the additional changes
+> that implies)
 
-A normal point release, issued mainly to update the rulebase.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Jeff, he's trying to go incremental, the idea is to make the union
+something like ->i_fs_private (void pointer) or something like that, or do
+like I did for the struct sock case, using a per fs slabcache, to avoid the
+extra allocation for the private area, Al thinks that this is not needed,
+but Daniel thinks it can be worth it, doing it incrementally we can test
+both approaches and avoid getting to big a patch. But yes, the idea is to
+kill the union completely and remove all the fs specific includes in fs.h.
 
-A human being should be able to change a diaper, plan an invasion,
-butcher a hog, conn a ship, design a building, write a sonnet, balance
-accounts, build a wall, set a bone, comfort the dying, take orders, give
-orders, cooperate, act alone, solve equations, analyze a new problem,
-pitch manure, program a computer, cook a tasty meal, fight efficiently,
-die gallantly. Specialization is for insects.
-	-- Robert A. Heinlein, "Time Enough for Love"
+After the access to the union is abstracted, we can do the next step, which
+is to remove the union, touching then only the function/macro that
+abstracts the access to the fs specific data.
+
+So, yes, the ext2 stuff will be removed, as all the other fs specific stuff
+8)
+
+- Arnaldo

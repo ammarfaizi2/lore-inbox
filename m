@@ -1,76 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132260AbRBRATs>; Sat, 17 Feb 2001 19:19:48 -0500
+	id <S132179AbRBRAeR>; Sat, 17 Feb 2001 19:34:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132241AbRBRATi>; Sat, 17 Feb 2001 19:19:38 -0500
-Received: from toscano.org ([64.50.191.142]:43216 "HELO bubba.toscano.org")
-	by vger.kernel.org with SMTP id <S132260AbRBRATb>;
-	Sat, 17 Feb 2001 19:19:31 -0500
-Date: Sat, 17 Feb 2001 19:19:30 -0500
-From: Pete Toscano <pete.lkml@toscano.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1ac17 hang on mounting loopback fs
-Message-ID: <20010217191930.A12036@bubba.toscano.org>
-Mail-Followup-To: Pete Toscano <pete.lkml@toscano.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <14990.18933.849551.526672@mercury.st.hmc.edu> <E14UE0r-00071Q-00@the-village.bc.nu> <14990.57922.176851.105401@mercury.st.hmc.edu> <20010218020140.F5199@niksula.cs.hut.fi>
+	id <S132241AbRBRAeI>; Sat, 17 Feb 2001 19:34:08 -0500
+Received: from jalon.able.es ([212.97.163.2]:4327 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S132179AbRBRAeB>;
+	Sat, 17 Feb 2001 19:34:01 -0500
+Date: Sun, 18 Feb 2001 01:33:53 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Hugh Dickins <hugh@veritas.com>, Paul Gortmaker <p_gortmaker@yahoo.com>,
+        linux-kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] a more efficient BUG() macro
+Message-ID: <20010218013353.A1331@werewolf.able.es>
+In-Reply-To: <Pine.LNX.4.21.0102171200530.2029-100000@localhost.localdomain> <18856.982454476@ocs3.ocs-net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010218020140.F5199@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Sun, Feb 18, 2001 at 02:01:40AM +0200
-X-Unexpected: The Spanish Inquisition
-X-Uptime: 7:11pm  up 26 min,  6 users,  load average: 1.40, 0.89, 0.45
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <18856.982454476@ocs3.ocs-net>; from kaos@ocs.com.au on Sun, Feb 18, 2001 at 01:01:16 +0100
+X-Mailer: Balsa 1.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 02.18 Keith Owens wrote:
+> 
+> __C_FILE__ and __C_LINE__ refer to the .c or .s file that included the
+> header, so you get the exact location of the failing code instead of
+> the name and line number of a common header which is used all over the
+> place.  __C_FILE__ would be replaced with the minimum string required
 
-hmmm... I've been trying to play with GRUB on my 2.4.2-pre4 system.  For
-safety's sake, I wanted to make a bookdisk with mkbootdisk.  After
-reading this, I see now why mkbootdisk was locking in the D state with
-the loop mounted... Would this also explain not being able to seek
-forward while writing a floppy? =20
+Are you sure about that ?
+Try this:
+a.h:
+#define hello printf("%d at %s\n",__LINE__,__FILE__)
 
-I was trying to make the GRUB boot disk by writing the stage 1 and 2
-loaders to the floppy (as per the GRUB docs) with dd:
+a.c:
+#include <stdio.h>
+#include "a.h"
 
-[root@bubba grub]# dd of=3D/dev/fd0 if=3Dstage1 bs=3D512 count=3D1
-1+0 records in
-1+0 records out
-[root@bubba grub]# dd of=3D/dev/fd0 if=3Dstage2 bs=3D512 seek=3D1
-dd: advancing past 1 blocks in output file `/dev/fd0': Permission denied
+int main()
+{
+    hello;
+    hello;
+    return 0;
+}
 
-With 2.4.1, I get a different error message, but, AFAICT, the same
-result.
+werewolf:~/ko> gcc a.c -o a
+werewolf:~/ko> a
+6 at a.c
+7 at a.c
 
-pete
+(line changes, and name is .c)
+because __FILE__ and __LINE__ are expanded with respect to the current
+SOURCE file (see info cpp), not header file.
 
+As I said before, my choose would be the __func__ + __LINE__ predefined macros.
+I would prefer to see 'bug in my_buggy_device_init(), line 42'. And you can
+even drop the __LINE__ part.
 
-Alan Cox writes:
-> > # mount -t ext2 -o loop /spare/i486-linuxaout.img /spare/mnt
-> > loop: enabling 8 loop devices
->=20
-> Loop does not currently work in 2.4. It might partly work by luck
-> but thats it.  This will change as and when the new loop patches go
-> in. Until then if you need loop use 2.2
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
 
---uAKRQypu60I7Lcqm
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Linux werewolf 2.4.1-ac17 #1 SMP Sat Feb 17 01:47:56 CET 2001 i686
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6jxUSsMikd2rK89sRAqg8AJsFBPOsOCJcQOiW8Oc0IGeirElzlQCdHXnL
-5zrlakll6HG4bIPDBIn6HJ4=
-=NMW5
------END PGP SIGNATURE-----
-
---uAKRQypu60I7Lcqm--

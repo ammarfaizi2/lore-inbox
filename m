@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262491AbRENVAc>; Mon, 14 May 2001 17:00:32 -0400
+	id <S262496AbRENVKm>; Mon, 14 May 2001 17:10:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262490AbRENVAW>; Mon, 14 May 2001 17:00:22 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:11018 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S262491AbRENVAI>; Mon, 14 May 2001 17:00:08 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
+	id <S262499AbRENVKc>; Mon, 14 May 2001 17:10:32 -0400
+Received: from ns.suse.de ([213.95.15.193]:13066 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S262496AbRENVKS>;
+	Mon, 14 May 2001 17:10:18 -0400
+Date: Mon, 14 May 2001 23:09:54 +0200
+From: Andi Kleen <ak@suse.de>
 To: Linus Torvalds <torvalds@transmeta.com>
-Date: Tue, 15 May 2001 06:55:01 +1000 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15104.17957.253821.765483@notabene.cse.unsw.edu.au>
 Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
         "H. Peter Anvin" <hpa@transmeta.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <viro@math.psu.edu>
+        viro@math.psu.edu
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: message from Linus Torvalds on Monday May 14
-In-Reply-To: <3B003EFC.61D9C16A@mandrakesoft.com>
-	<Pine.LNX.4.31.0105141328020.22874-100000@penguin.transmeta.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Message-ID: <20010514230954.A4305@gruyere.muc.suse.de>
+In-Reply-To: <3B003EFC.61D9C16A@mandrakesoft.com> <Pine.LNX.4.31.0105141328020.22874-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.31.0105141328020.22874-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, May 14, 2001 at 01:29:51PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday May 14, torvalds@transmeta.com wrote:
-> 
-> End of discussion.
-> 
-> 		Linus
-> 
+On Mon, May 14, 2001 at 01:29:51PM -0700, Linus Torvalds wrote:
+> Big device numbers are _not_ a solution. I will accept a 32-bit one, but
+> no more, and I will _not_ accept a "manage by hand" approach any more. The
+> time has long since come to say "No". Which I've done. If you can't make
+> it manage the thing automatically with a script, you won't get a hardcoded
+> major device number just because you're lazy.
 
-...and start of education please...
+As far as I can see it just needs a /proc/devices that also outputs
+minor ranges with names, and a small program similar to scsidev to 
+generate nodes in /dev based on that on the fly on early bootup.
 
-I want to create a new block device - it is a different interface to
-the software-raid code that allows the arrays to be partitioned using
-normal partition tables.
+Is that what you have in mind?
 
-So I need a major number - to give to devfs_register_blkdev at least.
-You don't want me to have a hardcoded one (which is fine) so I need a
-dynamically allocated one - yes?
-
-This means that we need some analogue to {get,put}_unnamed_dev that
-manages a range of dynamically allocated majors.
-Is there such a beast already, or does someone need to write it?
-What range(s) should be used for block devices? 
-
-Am I missing something obvious here?
-
-NeilBrown
+-Andi

@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266077AbTGISkl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 14:40:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268438AbTGISkk
+	id S266068AbTGISrS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 14:47:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268471AbTGISrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 14:40:40 -0400
-Received: from ns.suse.de ([213.95.15.193]:31502 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266077AbTGISkj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 14:40:39 -0400
-Date: Wed, 9 Jul 2003 20:55:15 +0200
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: grundler@parisc-linux.org, alan@lxorguk.ukuu.org.uk,
-       James.Bottomley@SteelEye.com, axboe@suse.de, suparna@in.ibm.com,
-       linux-kernel@vger.kernel.org, alex_williamson@hp.com,
-       bjorn_helgaas@hp.com
-Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
-Message-Id: <20030709205515.716a2f3a.ak@suse.de>
-In-Reply-To: <20030708.152314.115928676.davem@redhat.com>
-References: <20030708213427.39de0195.ak@suse.de>
-	<20030708.150433.104048841.davem@redhat.com>
-	<20030708222545.GC6787@dsl2.external.hp.com>
-	<20030708.152314.115928676.davem@redhat.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 9 Jul 2003 14:47:18 -0400
+Received: from dnsc6804027.pnl.gov ([198.128.64.39]:43654 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S266068AbTGISrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 14:47:17 -0400
+Date: Wed, 9 Jul 2003 11:51:48 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Christoph Hellwig <hch@infradead.org>, marcelo@connectiva.com.br,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: ->direct_IO API change in current 2.4 BK
+Message-ID: <20030709115148.L4482@schatzie.adilger.int>
+Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Christoph Hellwig <hch@infradead.org>, marcelo@connectiva.com.br,
+	lkml <linux-kernel@vger.kernel.org>
+References: <20030709133109.A23587@infradead.org> <20030709100336.H4482@schatzie.adilger.int> <Pine.LNX.4.55L.0307091421070.26373@freak.distro.conectiva> <16140.24322.464839.812346@charged.uio.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <16140.24322.464839.812346@charged.uio.no>; from trond.myklebust@fys.uio.no on Wed, Jul 09, 2003 at 08:29:22PM +0200
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 08 Jul 2003 15:23:14 -0700 (PDT)
-"David S. Miller" <davem@redhat.com> wrote:
+On Jul 09, 2003  20:29 +0200, Trond Myklebust wrote:
+> How about instead following Alan's suggestion to replace
+> KERNEL_HAS_O_DIRECT with a KERNEL_HAS_O_DIRECT2 that can be used to
+> switch between the old and new O_DIRECT format in the XFS patches?
 
->    From: Grant Grundler <grundler@parisc-linux.org>
->    Date: Tue, 8 Jul 2003 16:25:45 -0600
-> 
->    On Tue, Jul 08, 2003 at 03:04:33PM -0700, David S. Miller wrote:
->    >    Do you know a common PCI block device that would benefit from this
->    >    (performs significantly better with short sg lists)? It would be
->    >    interesting to test.
->    >    
->    > %10 to %15 on sym53c8xx devices found on sparc64 boxes.
->    
->    Which workload?
-> 
-> dbench type stuff, but that's a hard thing to test these days with
-> the block I/O schedulers changing so much.  Try to keep that part
-> constant in the with/vs/without VIO_VMERGE!=0 testing :)
+Actually, I like that a lot more, as it allows out-of-tree code to
+know which interface to use, and we don't have to key on kernel version
+(which is bogus if compiling against a vendor kernel that back-ports
+this fix).
 
-With MPT-Fusion and reaim "new dbase" load it seems to be slightly faster
-with forced IOMMU merging on Opteron, but the differences are quite small (~4%) and could
-be measurement errors.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
--Andi

@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293255AbSBWXIf>; Sat, 23 Feb 2002 18:08:35 -0500
+	id <S293256AbSBWXNg>; Sat, 23 Feb 2002 18:13:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293254AbSBWXI0>; Sat, 23 Feb 2002 18:08:26 -0500
-Received: from smtp3.cern.ch ([137.138.131.164]:26845 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S293255AbSBWXIJ>;
-	Sat, 23 Feb 2002 18:08:09 -0500
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] C exceptions in kernel
-In-Reply-To: <200202231011.g1NABaU10984@devserv.devel.redhat.com> <25097.1014467212@ocs3.intra.ocs.com.au> <20020223075002.A23666@devserv.devel.redhat.com>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 24 Feb 2002 00:07:13 +0100
-In-Reply-To: Pete Zaitcev's message of "Sat, 23 Feb 2002 07:50:02 -0500"
-Message-ID: <d3n0xzre5a.fsf@lxplus049.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S293257AbSBWXNQ>; Sat, 23 Feb 2002 18:13:16 -0500
+Received: from zero.tech9.net ([209.61.188.187]:55563 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S293256AbSBWXNH>;
+	Sat, 23 Feb 2002 18:13:07 -0500
+Subject: Re: [PATCH] only irq-safe atomic ops
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <3C781351.DCB40AD3@zip.com.au>
+In-Reply-To: <3C773C02.93C7753E@zip.com.au>,
+	<1014444810.1003.53.camel@phantasy> <3C773C02.93C7753E@zip.com.au>
+	<1014449389.1003.149.camel@phantasy> <3C774AC8.5E0848A2@zip.com.au>
+	<20020223043815.B29874@hq.fsmlabs.com> <1014488408.846.806.camel@phantasy>
+	<20020223120648.A1295@hq.fsmlabs.com> <3C781037.EA4ADEF5@linux-m68k.org> 
+	<3C781351.DCB40AD3@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 23 Feb 2002 18:13:06 -0500
+Message-Id: <1014505987.1003.1104.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev <zaitcev@redhat.com> writes:
+On Sat, 2002-02-23 at 17:10, Andrew Morton wrote:
 
-> Personally, I have no problem handling current practices.
-> But I may see the point of the guy with the try/catch patch.
-> Do not make me to defend him though. I am trying to learn
-> is those exceptions are actually helpful. BTW, we all know
-> where they come from (all of Cutler's NT is written that way),
-> but let it not cloud our judgement.
+> ooh.  me likee.
+> 
+> #define smp_get_cpuid() ({ preempt_disable(); smp_processor_id(); })
+> #define smp_put_cpuid() preempt_enable()
+> 
+> Does rml likee?
 
-The problem here is that when using exceptions, you stop thinking
-about what is going on underneath at the low level which is really not
-what one wants in the kernel.
+Yah, that works.
 
-After all, C is just and advanced assembly interface, which is exactly
-why it's such a great language ;-)
+All we need to do is wrap the smp_processor_id references (however many
+- it does not matter) in preempt_disable ... preempt_enable.  This does
+that cleanly.
 
-Jes
+	Robert Love
+

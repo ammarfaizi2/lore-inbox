@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263590AbTKXGzI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 01:55:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbTKXGzH
+	id S263607AbTKXHFx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 02:05:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbTKXHFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 01:55:07 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22788 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263590AbTKXGzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 01:55:04 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: transmeta cpu code question
-Date: 23 Nov 2003 22:54:54 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bps9vu$osu$1@cesium.transmeta.com>
-References: <20031120020218.GJ3748@schottelius.org> <20031120232532.GA8229@mail.shareable.org> <200311210834.hAL8YOKw000394@81-2-122-30.bradfords.org.uk> <20031121084857.GA10343@mail.shareable.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	Mon, 24 Nov 2003 02:05:52 -0500
+Received: from amber.ccs.neu.edu ([129.10.116.51]:5369 "EHLO amber.ccs.neu.edu")
+	by vger.kernel.org with ESMTP id S263607AbTKXHFv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 02:05:51 -0500
+Subject: Re: [OT] Re: Linux 2.6.0-test10
+From: Stan Bubrouski <stan@ccs.neu.edu>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <7vvfpai81r.fsf@assigned-by-dhcp.cox.net>
+References: <Pine.LNX.4.44.0311231804170.17378-100000@home.osdl.org>
+	 <7vvfpai81r.fsf@assigned-by-dhcp.cox.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-D/WXqan2JoeJ0R1DUunb"
+Message-Id: <1069657549.1269.149.camel@duergar>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 24 Nov 2003 02:05:50 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20031121084857.GA10343@mail.shareable.org>
-By author:    Jamie Lokier <jamie@shareable.org>
-In newsgroup: linux.dev.kernel
-> 
-> What would be the point in that?  Surely the CMS overhead for decoding
-> the rarely used x86 instructions is negligable, precisely because of
-> their rarity?
-> 
 
-Pretty much.
+--=-D/WXqan2JoeJ0R1DUunb
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The bulk of the time spent in CMS is in the backend scheduler, at
-which time the original x86 instructions are pretty much
-unrecognizable.
+On Mon, 2003-11-24 at 01:40, Junio C Hamano wrote:
+> Sorry for being paranoid, but is this message really from the
+> real Linus?  I have never seen Linus' e-mail with long lines
+> folded with '=3D' at the end of line, nor with charset ISO-8859-1.
+>=20
 
-If there is something that one could imagine doing at the CMS level to
-help on Linux, it would probably be something like making it optional
-to actually perform stores beneath the stack pointer, in which case a
-lot of stack frame operations could be done purely in registers.  CMS
-will do them in registers already, but will be forced to perform a
-store at the end of the translation anyway in order to keep exact x86
-semantics.
+The message by all indication is from Linus.  I do not see the the lines
+folded with '=3D' as you point out, but I do see the content-type as
+charset ISO-8859-1, but I don't see Linus using Latin 1 as suspicious at
+all.  Finally someone more paranoid than me ;-)
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+-sb
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
+n
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>=20
+
+--=-D/WXqan2JoeJ0R1DUunb
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/wa3NQHy9+2ztQiARAsjEAKDTWYjK5CA58I1jLIyUnD5PbvOzogCgpdze
+9YuadgW73HYB8vHe+kDM6fw=
+=QwHg
+-----END PGP SIGNATURE-----
+
+--=-D/WXqan2JoeJ0R1DUunb--
+

@@ -1,355 +1,270 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261479AbUBUCRw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 21:17:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUBUCRv
+	id S261498AbUBUCSV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 21:18:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbUBUCSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 21:17:51 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:8417 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S261479AbUBUCRX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 21:17:23 -0500
-Date: Sat, 21 Feb 2004 03:17:25 +0100
-From: Christophe Saout <christophe@saout.de>
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
-Message-ID: <20040221021724.GA8841@leto.cs.pocnet.net>
-References: <20040219170228.GA10483@leto.cs.pocnet.net> <20040219111835.192d2741.akpm@osdl.org> <20040220171427.GD9266@certainkey.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040220171427.GD9266@certainkey.com>
-User-Agent: Mutt/1.5.6i
+	Fri, 20 Feb 2004 21:18:21 -0500
+Received: from web12823.mail.yahoo.com ([216.136.174.204]:61538 "HELO
+	web12823.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261499AbUBUCRY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 21:17:24 -0500
+Message-ID: <20040221021722.89969.qmail@web12823.mail.yahoo.com>
+Date: Fri, 20 Feb 2004 18:17:22 -0800 (PST)
+From: Shantanu Goel <sgoel01@yahoo.com>
+Subject: [NFS PATCH 2.6.3] Add write throttling to NFS client
+To: Kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-853436547-1077329842=:89047"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 20, 2004 at 12:14:27PM -0500, Jean-Luc Cooke wrote:
+--0-853436547-1077329842=:89047
+Content-Type: text/plain; charset=us-ascii
+Content-Id: 
+Content-Disposition: inline
 
-> As for naming the cipher-hash as "aes-sha256", why not just go all the way
-> and specify the mode of operation as well?
-> 
-> cipher-hash-modeop example: aes-sha256-cbc
+Hi,
 
-cipher-modeop[-hash] is less ambiguous, because the hash-less config is
-the backward-compatible mode (and for Kamikaze ECB mode).
+The attached patch implements write throttling for the
+NFS client.  In the stock client, a streaming write
+will hog all the request slots blocking out other
+access to the same mount point.  For example, running
+a single dd in my NFS home directory completely blocks
+my X session until the dd process exits. With the
+patch, I have tested running 4 dd's without causing a
+completely lock out. Please consider it for inclusion.
 
-> As for hashing the hey etc.  You should be using HMAC for that.
+Thanks,
+Shantanu
 
-Ok, I've rewritten it so you can now generate an IV through HMAC with
-a user-specified digest and changed the config string to
-<cipher>-<mode>[-<digest>].
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail SpamGuard - Read only the mail you want.
+http://antispam.yahoo.com/tools
+--0-853436547-1077329842=:89047
+Content-Type: application/octet-stream; name="nfs-write-throttle.patch"
+Content-Transfer-Encoding: base64
+Content-Description: nfs-write-throttle.patch
+Content-Disposition: attachment; filename="nfs-write-throttle.patch"
 
-And I'm memcpy'ing the tfm onto the stack now to have a local copy.
-So I don't need to lock and it makes HMAC precomputation possible
-because I don't destroy the original tfm context.
+LS0tIC5vcmlnL2ZzL25mcy9pbm9kZS5jCTIwMDQtMDItMjAgMjE6MDI6MzYu
+MzQ3MjM5MjEzIC0wNTAwCisrKyBoYWNrZWQvZnMvbmZzL2lub2RlLmMJMjAw
+NC0wMi0yMCAxOToxMjozNS4zMTE2ODk3NTEgLTA1MDAKQEAgLTM2NCw2ICsz
+NjQsOSBAQAogCWlmIChzYi0+c19tYXhieXRlcyA+IE1BWF9MRlNfRklMRVNJ
+WkUpIAogCQlzYi0+c19tYXhieXRlcyA9IE1BWF9MRlNfRklMRVNJWkU7IAog
+CisJc2VydmVyLT53YWN0aXZlID0gMDsKKwlpbml0X3dhaXRxdWV1ZV9oZWFk
+KCZzZXJ2ZXItPndyaXRlcnEpOworCiAJLyogV2UncmUgYWlyYm9ybmUgU2V0
+IHNvY2tldCBidWZmZXJzaXplICovCiAJcnBjX3NldGJ1ZnNpemUoc2VydmVy
+LT5jbGllbnQsIHNlcnZlci0+d3NpemUgKyAxMDAsIHNlcnZlci0+cnNpemUg
+KyAxMDApOwogCXJldHVybiAwOwotLS0gLm9yaWcvZnMvbmZzL3BhZ2VsaXN0
+LmMJMjAwNC0wMi0yMCAyMTowMjozNi40NDgyMjk1MDUgLTA1MDAKKysrIGhh
+Y2tlZC9mcy9uZnMvcGFnZWxpc3QuYwkyMDA0LTAyLTIwIDE5OjEyOjM1LjMx
+MjY4OTY1NyAtMDUwMApAQCAtMjQ5LDYgKzI0OSw4IEBACiAgKiBAZmlsZTog
+aWYgc2V0LCBlbnN1cmUgd2UgbWF0Y2ggcmVxdWVzdHMgZnJvbSB0aGlzIGZp
+bGUKICAqIEBpZHhfc3RhcnQ6IGxvd2VyIGJvdW5kIG9mIHBhZ2UtPmluZGV4
+IHRvIHNjYW4KICAqIEBucGFnZXM6IGlkeF9zdGFydCArIG5wYWdlcyBzZXRz
+IHRoZSB1cHBlciBib3VuZCB0byBzY2FuLgorICogQG1heF9yZXE6IGlmIHNl
+dCwgc3RvcCBhZnRlciB0aGlzIG1hbnkgY29hbGVzY2VkIHJlcXVlc3RzLgor
+ICogQHdwYWdlczogaWYgbWF4X3JlcSBpcyBzZXQsIG1heCAjIHBhZ2VzIHBl
+ciBjb2FsZXNjZWQgcmVxdWVzdC4KICAqCiAgKiBNb3ZlcyBlbGVtZW50cyBm
+cm9tIG9uZSBvZiB0aGUgaW5vZGUgcmVxdWVzdCBsaXN0cy4KICAqIElmIHRo
+ZSBudW1iZXIgb2YgcmVxdWVzdHMgaXMgc2V0IHRvIDAsIHRoZSBlbnRpcmUg
+YWRkcmVzc19zcGFjZQpAQCAtMjU5LDE4ICsyNjEsMjIgQEAKIGludAogbmZz
+X3NjYW5fbGlzdChzdHJ1Y3QgbGlzdF9oZWFkICpoZWFkLCBzdHJ1Y3QgbGlz
+dF9oZWFkICpkc3QsCiAJICAgICAgc3RydWN0IGZpbGUgKmZpbGUsCi0JICAg
+ICAgdW5zaWduZWQgbG9uZyBpZHhfc3RhcnQsIHVuc2lnbmVkIGludCBucGFn
+ZXMpCisJICAgICAgdW5zaWduZWQgbG9uZyBpZHhfc3RhcnQsIHVuc2lnbmVk
+IGludCBucGFnZXMsCisJICAgICAgdW5zaWduZWQgaW50IG1heF9yZXEsIHVu
+c2lnbmVkIGludCB3cGFnZXMpCiB7CiAJc3RydWN0IGxpc3RfaGVhZAkqcG9z
+LCAqdG1wOwotCXN0cnVjdCBuZnNfcGFnZQkJKnJlcTsKKwlzdHJ1Y3QgbmZz
+X3BhZ2UJCSpyZXEsICpwcmV2OwogCXVuc2lnbmVkIGxvbmcJCWlkeF9lbmQ7
+Ci0JaW50CQkJcmVzOworCWludAkJCXJlcywgaXNfY29udGlnOworCXVuc2ln
+bmVkIGludAkJbnJlcSwgcGFnZXM7CiAKIAlyZXMgPSAwOwogCWlmIChucGFn
+ZXMgPT0gMCkKIAkJaWR4X2VuZCA9IH4wOwogCWVsc2UKIAkJaWR4X2VuZCA9
+IGlkeF9zdGFydCArIG5wYWdlcyAtIDE7CisJbnJlcSA9IHBhZ2VzID0gMDsK
+KwlwcmV2ID0gTlVMTDsKIAogCWxpc3RfZm9yX2VhY2hfc2FmZShwb3MsIHRt
+cCwgaGVhZCkgewogCkBAIC0yODQsMTEgKzI5MCwyOSBAQAogCQlpZiAocmVx
+LT53Yl9pbmRleCA+IGlkeF9lbmQpCiAJCQlicmVhazsKIAorCQlpc19jb250
+aWcgPSAobWF4X3JlcSAmJgorCQkJICAgICBwcmV2ICYmCisJCQkgICAgIHBh
+Z2VzIDwgd3BhZ2VzICYmCisJCQkgICAgIHJlcS0+d2JfcGdiYXNlID09IDAg
+JiYKKwkJCSAgICAgcHJldi0+d2JfcGdiYXNlICsgcHJldi0+d2JfYnl0ZXMg
+PT0gUEFHRV9DQUNIRV9TSVpFICYmCisJCQkgICAgIHJlcS0+d2JfaW5kZXgg
+PT0gcHJldi0+d2JfaW5kZXggKyAxICYmCisJCQkgICAgIHJlcS0+d2JfY3Jl
+ZCA9PSBwcmV2LT53Yl9jcmVkKTsKKworCQlpZiAobWF4X3JlcSAmJiAhaXNf
+Y29udGlnICYmIG5yZXEgPT0gbWF4X3JlcSkKKwkJCWJyZWFrOworCiAJCWlm
+ICghbmZzX2xvY2tfcmVxdWVzdChyZXEpKQogCQkJY29udGludWU7CiAJCW5m
+c19saXN0X3JlbW92ZV9yZXF1ZXN0KHJlcSk7CiAJCW5mc19saXN0X2FkZF9y
+ZXF1ZXN0KHJlcSwgZHN0KTsKIAkJcmVzKys7CisKKwkJaWYgKCFpc19jb250
+aWcpIHsKKwkJCW5yZXErKzsKKwkJCXBhZ2VzID0gMTsKKwkJfSBlbHNlCisJ
+CQlwYWdlcysrOworCQlwcmV2ID0gcmVxOwogCX0KIAlyZXR1cm4gcmVzOwog
+fQotLS0gLm9yaWcvZnMvbmZzL3dyaXRlLmMJMjAwNC0wMi0yMCAyMTowMjoz
+Ni41MjAyMjI1ODQgLTA1MDAKKysrIGhhY2tlZC9mcy9uZnMvd3JpdGUuYwky
+MDA0LTAyLTIwIDIwOjE4OjEwLjMzNzEyNzYyOCAtMDUwMApAQCAtMTI1LDYg
+KzEyNSw2NiBAQAogfQogCiAvKgorICogVGhlIGZvbGxvd2luZyBkZWZpbml0
+aW9ucyBhcmUgZm9yIHRocm90dGxpbmcgd3JpdGUgcmVxdWVzdHMuCisgKiBP
+bmNlICMgb3V0c3RhbmRpbmcgd3JpdGUgcmVxdWVzdHMgcmVhY2hlcyBBU1lO
+Q19SRVFfTElNSVQsCisgKiB3cml0ZXJzIGFyZSBmb3JjZWQgdG8gd2FpdCB1
+bnRpbCAjIHJlcXVlc3RzIGRyb3BzIHRvIEFTWU5DX1JFUV9SRVNVTUUuCisg
+Ki8KKyNkZWZpbmUgQVNZTkNfUkVRX0xJTUlUCQlSUENfTUFYUkVRUworI2Rl
+ZmluZSBBU1lOQ19SRVFfUkVTVU1FCShBU1lOQ19SRVFfTElNSVQgKiAzIC8g
+NCkKKyNkZWZpbmUgTkZTX0JESShpbm9kZSkJCSgmTkZTX1NFUlZFUihpbm9k
+ZSktPmJhY2tpbmdfZGV2X2luZm8pCisjZGVmaW5lIElTX0NPTkdFU1RFRChp
+bm9kZSkJYmRpX3dyaXRlX2Nvbmdlc3RlZChORlNfQkRJKGlub2RlKSkKKwor
+LyoKKyAqIEEgd3JpdGUgcmVxdWVzdCBpcyBiZWluZyBpbml0aWF0ZWQuICBJ
+bmNyZW1lbnQgYWN0aXZlCisgKiByZXF1ZXN0IGNvdW50IGFuZCBjaGVjayBm
+b3IgY29uZ2VzdGlvbi4KKyAqLworc3RhdGljIF9faW5saW5lX18gdm9pZCBX
+UklURV9TVEFSVChzdHJ1Y3QgaW5vZGUgKmlub2RlKQoreworCXNwaW5fbG9j
+aygmbmZzX3dyZXFfbG9jayk7CisJaWYgKCsrTkZTX1NFUlZFUihpbm9kZSkt
+PndhY3RpdmUgPj0gQVNZTkNfUkVRX0xJTUlUKQorCQlzZXRfYml0KEJESV93
+cml0ZV9jb25nZXN0ZWQsICZORlNfQkRJKGlub2RlKS0+c3RhdGUpOworCXNw
+aW5fdW5sb2NrKCZuZnNfd3JlcV9sb2NrKTsKK30KKworLyoKKyAqIEEgd3Jp
+dGUgcmVxdWVzdCBoYXMganVzdCBjb21wbGV0ZWQgb24gYW4gaW5vZGUuCisg
+KiBDaGVjayBpZiBjb25nZXN0aW9uIGhhcyBub3cgY2xlYXJlZC4KKyAqLwor
+c3RhdGljIF9faW5saW5lX18gdm9pZCBXUklURV9ET05FKHN0cnVjdCBpbm9k
+ZSAqaW5vZGUpCit7CisJc3Bpbl9sb2NrKCZuZnNfd3JlcV9sb2NrKTsKKwlO
+RlNfU0VSVkVSKGlub2RlKS0+d2FjdGl2ZS0tOworCWlmIChJU19DT05HRVNU
+RUQoaW5vZGUpICYmIE5GU19TRVJWRVIoaW5vZGUpLT53YWN0aXZlIDw9IEFT
+WU5DX1JFUV9SRVNVTUUpIHsKKwkJY2xlYXJfYml0KEJESV93cml0ZV9jb25n
+ZXN0ZWQsICZORlNfQkRJKGlub2RlKS0+c3RhdGUpOworCQl3YWtlX3VwX2Fs
+bCgmTkZTX1NFUlZFUihpbm9kZSktPndyaXRlcnEpOworCX0KKwlzcGluX3Vu
+bG9jaygmbmZzX3dyZXFfbG9jayk7Cit9CisKKy8qCisgKiBXYWl0IGZvciBj
+b25nZXN0aW9uIHRvIGV4cGlyZS4KKyAqLworc3RhdGljIF9faW5saW5lX18g
+aW50IENPTkdFU1RJT05fV0FJVChzdHJ1Y3QgaW5vZGUgKmlub2RlKQorewor
+CWludCBlcnIgPSAwOworCWludCBpbnRyID0gTkZTX1NFUlZFUihpbm9kZSkt
+PmZsYWdzICYgTkZTX01PVU5UX0lOVFI7CisJREVDTEFSRV9XQUlUUVVFVUUo
+d2FpdCwgY3VycmVudCk7CisKKwlkbyB7CisJCXNldF9jdXJyZW50X3N0YXRl
+KGludHIgPyBUQVNLX0lOVEVSUlVQVElCTEUgOiBUQVNLX1VOSU5URVJSVVBU
+SUJMRSk7CisJCWFkZF93YWl0X3F1ZXVlKCZORlNfU0VSVkVSKGlub2RlKS0+
+d3JpdGVycSwgJndhaXQpOworCQlpZiAoSVNfQ09OR0VTVEVEKGlub2RlKSkg
+eworCQkJaW9fc2NoZWR1bGUoKTsKKwkJCWlmIChpbnRyICYmIHNpZ25hbGxl
+ZCgpKQorCQkJCWVyciA9IC1FUkVTVEFSVFNZUzsKKwkJfQorCQlzZXRfY3Vy
+cmVudF9zdGF0ZShUQVNLX1JVTk5JTkcpOworCQlyZW1vdmVfd2FpdF9xdWV1
+ZSgmTkZTX1NFUlZFUihpbm9kZSktPndyaXRlcnEsICZ3YWl0KTsKKwl9IHdo
+aWxlICghZXJyICYmIElTX0NPTkdFU1RFRChpbm9kZSkpOworCXJldHVybiBl
+cnI7Cit9CisKKy8qCiAgKiBXcml0ZSBhIHBhZ2Ugc3luY2hyb25vdXNseS4K
+ICAqIE9mZnNldCBpcyB0aGUgZGF0YSBvZmZzZXQgd2l0aGluIHRoZSBwYWdl
+LgogICovCkBAIC0xNjIsNyArMjIyLDkgQEAKIAkJCXdkYXRhLmFyZ3MuY291
+bnQgPSBjb3VudDsKIAkJd2RhdGEuYXJncy5vZmZzZXQgPSBwYWdlX29mZnNl
+dChwYWdlKSArIHdkYXRhLmFyZ3MucGdiYXNlOwogCisJCVdSSVRFX1NUQVJU
+KGlub2RlKTsKIAkJcmVzdWx0ID0gTkZTX1BST1RPKGlub2RlKS0+d3JpdGUo
+JndkYXRhLCBmaWxlKTsKKwkJV1JJVEVfRE9ORShpbm9kZSk7CiAKIAkJaWYg
+KHJlc3VsdCA8IDApIHsKIAkJCS8qIE11c3QgbWFyayB0aGUgcGFnZSBpbnZh
+bGlkIGFmdGVyIEkvTyBlcnJvciAqLwpAQCAtMjgyLDIwICszNDQsMzkgQEAK
+IAlzdHJ1Y3QgaW5vZGUgKmlub2RlID0gbWFwcGluZy0+aG9zdDsKIAlpbnQg
+aXNfc3luYyA9ICF3YmMtPm5vbmJsb2NraW5nOwogCWludCBlcnI7CisJbG9u
+ZyBucGFnZXMgPSB3YmMtPm5yX3RvX3dyaXRlOwogCiAJZXJyID0gZ2VuZXJp
+Y193cml0ZXBhZ2VzKG1hcHBpbmcsIHdiYyk7CiAJaWYgKGVycikKIAkJZ290
+byBvdXQ7Ci0JZXJyID0gbmZzX2ZsdXNoX2ZpbGUoaW5vZGUsIE5VTEwsIDAs
+IDAsIDApOwotCWlmIChlcnIgPCAwKQotCQlnb3RvIG91dDsKLQlpZiAod2Jj
+LT5zeW5jX21vZGUgPT0gV0JfU1lOQ19IT0xEKQotCQlnb3RvIG91dDsKIAlp
+ZiAoaXNfc3luYyAmJiB3YmMtPnN5bmNfbW9kZSA9PSBXQl9TWU5DX0FMTCkg
+eworCQlucGFnZXMgLT0gTkZTX0koaW5vZGUpLT5uZGlydHkgKyBORlNfSShp
+bm9kZSktPm5jb21taXQ7CiAJCWVyciA9IG5mc193Yl9hbGwoaW5vZGUpOwot
+CX0gZWxzZQorCQlnb3RvIG91dDsKKwl9CisJaWYgKHdiYy0+c3luY19tb2Rl
+ICE9IFdCX1NZTkNfSE9MRCkKKwkJbnBhZ2VzIC09IE5GU19JKGlub2RlKS0+
+bmNvbW1pdDsKKwl3aGlsZSAobnBhZ2VzID4gMCkgeworCQlpZiAoSVNfQ09O
+R0VTVEVEKGlub2RlKSkgeworCQkJaWYgKHdiYy0+bm9uYmxvY2tpbmcpIHsK
+KwkJCQl3YmMtPmVuY291bnRlcmVkX2Nvbmdlc3Rpb24gPSAxOworCQkJCWJy
+ZWFrOworCQkJfQorCQkJZXJyID0gQ09OR0VTVElPTl9XQUlUKGlub2RlKTsK
+KwkJCWlmIChlcnIpCisJCQkJZ290byBvdXQ7CisJCX0KKwkJZXJyID0gbmZz
+X2ZsdXNoX2ZpbGUoaW5vZGUsIE5VTEwsIDAsIDAsIDApOworCQlpZiAoZXJy
+IDwgMCkKKwkJCWdvdG8gb3V0OworCQlpZiAoZXJyID09IDApCisJCQlicmVh
+azsKKwkJbnBhZ2VzIC09IGVycjsKKwl9CisJaWYgKHdiYy0+c3luY19tb2Rl
+ICE9IFdCX1NZTkNfSE9MRCkKIAkJbmZzX2NvbW1pdF9maWxlKGlub2RlLCBO
+VUxMLCAwLCAwLCAwKTsKIG91dDoKKwl3YmMtPm5yX3RvX3dyaXRlID0gbnBh
+Z2VzOwogCXJldHVybiBlcnI7CiB9CiAKQEAgLTQ3MiwxMSArNTUzLDExIEBA
+CiAgKiBUaGUgcmVxdWVzdHMgYXJlICpub3QqIGNoZWNrZWQgdG8gZW5zdXJl
+IHRoYXQgdGhleSBmb3JtIGEgY29udGlndW91cyBzZXQuCiAgKi8KIHN0YXRp
+YyBpbnQKLW5mc19zY2FuX2RpcnR5KHN0cnVjdCBpbm9kZSAqaW5vZGUsIHN0
+cnVjdCBsaXN0X2hlYWQgKmRzdCwgc3RydWN0IGZpbGUgKmZpbGUsIHVuc2ln
+bmVkIGxvbmcgaWR4X3N0YXJ0LCB1bnNpZ25lZCBpbnQgbnBhZ2VzKQorbmZz
+X3NjYW5fZGlydHkoc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGxpc3Rf
+aGVhZCAqZHN0LCBzdHJ1Y3QgZmlsZSAqZmlsZSwgdW5zaWduZWQgbG9uZyBp
+ZHhfc3RhcnQsIHVuc2lnbmVkIGludCBucGFnZXMsIHVuc2lnbmVkIGludCBt
+YXhfcmVxKQogewogCXN0cnVjdCBuZnNfaW5vZGUgKm5mc2kgPSBORlNfSShp
+bm9kZSk7CiAJaW50CXJlczsKLQlyZXMgPSBuZnNfc2Nhbl9saXN0KCZuZnNp
+LT5kaXJ0eSwgZHN0LCBmaWxlLCBpZHhfc3RhcnQsIG5wYWdlcyk7CisJcmVz
+ID0gbmZzX3NjYW5fbGlzdCgmbmZzaS0+ZGlydHksIGRzdCwgZmlsZSwgaWR4
+X3N0YXJ0LCBucGFnZXMsIG1heF9yZXEsIE5GU19TRVJWRVIoaW5vZGUpLT53
+cGFnZXMpOwogCW5mc2ktPm5kaXJ0eSAtPSByZXM7CiAJc3ViX3BhZ2Vfc3Rh
+dGUobnJfZGlydHkscmVzKTsKIAlpZiAoKG5mc2ktPm5kaXJ0eSA9PSAwKSAh
+PSBsaXN0X2VtcHR5KCZuZnNpLT5kaXJ0eSkpCkBAIC01MDEsNyArNTgyLDcg
+QEAKIHsKIAlzdHJ1Y3QgbmZzX2lub2RlICpuZnNpID0gTkZTX0koaW5vZGUp
+OwogCWludAlyZXM7Ci0JcmVzID0gbmZzX3NjYW5fbGlzdCgmbmZzaS0+Y29t
+bWl0LCBkc3QsIGZpbGUsIGlkeF9zdGFydCwgbnBhZ2VzKTsKKwlyZXMgPSBu
+ZnNfc2Nhbl9saXN0KCZuZnNpLT5jb21taXQsIGRzdCwgZmlsZSwgaWR4X3N0
+YXJ0LCBucGFnZXMsIDAsIDApOwogCW5mc2ktPm5jb21taXQgLT0gcmVzOwog
+CWlmICgobmZzaS0+bmNvbW1pdCA9PSAwKSAhPSBsaXN0X2VtcHR5KCZuZnNp
+LT5jb21taXQpKQogCQlwcmludGsoS0VSTl9FUlIgIk5GUzogZGVzeW5jaHJv
+bml6ZWQgdmFsdWUgb2YgbmZzX2kubmNvbW1pdC5cbiIpOwpAQCAtNjI2LDYg
+KzcwNyw5IEBACiB7CiAJdW5zaWduZWQgaW50CWRpcnR5LCB3cGFnZXM7CiAK
+KwlpZiAoSVNfQ09OR0VTVEVEKGlub2RlKSkKKwkJcmV0dXJuOworCiAJZGly
+dHkgID0gTkZTX0koaW5vZGUpLT5uZGlydHk7CiAJd3BhZ2VzID0gTkZTX1NF
+UlZFUihpbm9kZSktPndwYWdlczsKICNpZiBkZWZpbmVkKENPTkZJR19ORlNf
+VjMpIHx8IGRlZmluZWQoQ09ORklHX05GU19WNCkKQEAgLTc2Nyw2ICs4NTEs
+OCBAQAogCiAJTkZTX1BST1RPKGlub2RlKS0+d3JpdGVfc2V0dXAoZGF0YSwg
+Y291bnQsIGhvdyk7CiAKKwlXUklURV9TVEFSVChpbm9kZSk7CisKIAlkcHJp
+bnRrKCJORlM6ICU0ZCBpbml0aWF0ZWQgd3JpdGUgY2FsbCAocmVxICVzLyVM
+ZCwgJXUgYnl0ZXMgQCBvZmZzZXQgJUx1KVxuIiwKIAkJdGFzay0+dGtfcGlk
+LAogCQlpbm9kZS0+aV9zYi0+c19pZCwKQEAgLTg1Niw2ICs5NDIsOCBAQAog
+CWRwcmludGsoIk5GUzogJTRkIG5mc193cml0ZWJhY2tfZG9uZSAoc3RhdHVz
+ICVkKVxuIiwKIAkJdGFzay0+dGtfcGlkLCB0YXNrLT50a19zdGF0dXMpOwog
+CisJV1JJVEVfRE9ORShkYXRhLT5pbm9kZSk7CisKIAkvKiBXZSBjYW4ndCBo
+YW5kbGUgdGhhdCB5ZXQgYnV0IHdlIGNoZWNrIGZvciBpdCBuZXZlcnRoZWxl
+c3MgKi8KIAlpZiAocmVzcC0+Y291bnQgPCBhcmdwLT5jb3VudCAmJiB0YXNr
+LT50a19zdGF0dXMgPj0gMCkgewogCQlzdGF0aWMgdW5zaWduZWQgbG9uZyAg
+ICBjb21wbGFpbjsKQEAgLTEwNjYsMTAgKzExNTQsMTQgQEAKIHsKIAlMSVNU
+X0hFQUQoaGVhZCk7CiAJaW50CQkJcmVzLAorCQkJCW5yZXEsCiAJCQkJZXJy
+b3IgPSAwOwogCisJbnJlcSA9IEFTWU5DX1JFUV9MSU1JVCAtIE5GU19TRVJW
+RVIoaW5vZGUpLT53YWN0aXZlOworCWlmIChucmVxIDwgMSkKKwkJbnJlcSA9
+IDE7CiAJc3Bpbl9sb2NrKCZuZnNfd3JlcV9sb2NrKTsKLQlyZXMgPSBuZnNf
+c2Nhbl9kaXJ0eShpbm9kZSwgJmhlYWQsIGZpbGUsIGlkeF9zdGFydCwgbnBh
+Z2VzKTsKKwlyZXMgPSBuZnNfc2Nhbl9kaXJ0eShpbm9kZSwgJmhlYWQsIGZp
+bGUsIGlkeF9zdGFydCwgbnBhZ2VzLCBucmVxKTsKIAlzcGluX3VubG9jaygm
+bmZzX3dyZXFfbG9jayk7CiAJaWYgKHJlcykKIAkJZXJyb3IgPSBuZnNfZmx1
+c2hfbGlzdCgmaGVhZCwgTkZTX1NFUlZFUihpbm9kZSktPndwYWdlcywgaG93
+KTsKQEAgLTExMTQsMTMgKzEyMDYsMTkgQEAKIAogCWRvIHsKIAkJZXJyb3Ig
+PSAwOwotCQlpZiAod2FpdCkKLQkJCWVycm9yID0gbmZzX3dhaXRfb25fcmVx
+dWVzdHMoaW5vZGUsIGZpbGUsIGlkeF9zdGFydCwgbnBhZ2VzKTsKLQkJaWYg
+KGVycm9yID09IDApCisJCWlmIChJU19DT05HRVNURUQoaW5vZGUpKQorCQkJ
+ZXJyb3IgPSBDT05HRVNUSU9OX1dBSVQoaW5vZGUpOworCQlpZiAoZXJyb3Ig
+PT0gMCkgewogCQkJZXJyb3IgPSBuZnNfZmx1c2hfZmlsZShpbm9kZSwgZmls
+ZSwgaWR4X3N0YXJ0LCBucGFnZXMsIGhvdyk7CisJCQlpZiAoZXJyb3IgPT0g
+MCAmJiB3YWl0KQorCQkJCWVycm9yID0gbmZzX3dhaXRfb25fcmVxdWVzdHMo
+aW5vZGUsIGZpbGUsIGlkeF9zdGFydCwgbnBhZ2VzKTsKKwkJfQogI2lmIGRl
+ZmluZWQoQ09ORklHX05GU19WMykgfHwgZGVmaW5lZChDT05GSUdfTkZTX1Y0
+KQotCQlpZiAoZXJyb3IgPT0gMCkKKwkJaWYgKGVycm9yID09IDAgJiYgTkZT
+X1BST1RPKGlub2RlKS0+dmVyc2lvbiA+IDIpIHsKIAkJCWVycm9yID0gbmZz
+X2NvbW1pdF9maWxlKGlub2RlLCBmaWxlLCBpZHhfc3RhcnQsIG5wYWdlcywg
+aG93KTsKKwkJCWlmIChlcnJvciA9PSAwICYmIHdhaXQpCisJCQkJZXJyb3Ig
+PSBuZnNfd2FpdF9vbl9yZXF1ZXN0cyhpbm9kZSwgZmlsZSwgaWR4X3N0YXJ0
+LCBucGFnZXMpOworCQl9CiAjZW5kaWYKIAl9IHdoaWxlIChlcnJvciA+IDAp
+OwogCXJldHVybiBlcnJvcjsKLS0tIC5vcmlnL2luY2x1ZGUvbGludXgvbmZz
+X2ZzX3NiLmgJMjAwNC0wMi0yMCAyMTowMjozNi41NzgyMTcwMDkgLTA1MDAK
+KysrIGhhY2tlZC9pbmNsdWRlL2xpbnV4L25mc19mc19zYi5oCTIwMDQtMDIt
+MjAgMTk6MTI6MzUuMzE3Njg5MTg1IC0wNTAwCkBAIC0yOCw2ICsyOCw4IEBA
+CiAJY2hhciAqCQkJaG9zdG5hbWU7CS8qIHJlbW90ZSBob3N0bmFtZSAqLwog
+CXN0cnVjdCBuZnNfZmgJCWZoOwogCXN0cnVjdCBzb2NrYWRkcl9pbglhZGRy
+OworCXVuc2lnbmVkIGludAkJd2FjdGl2ZTsJLyogIyB3cml0ZSByZXF1ZXN0
+cyBpbiBwcm9ncmVzcyAqLworCXdhaXRfcXVldWVfaGVhZF90CXdyaXRlcnE7
+CS8qIHdyaXRlcnMgd2FpdGluZyB0byB3cml0ZSAqLwogI2lmZGVmIENPTkZJ
+R19ORlNfVjQKIAkvKiBPdXIgb3duIElQIGFkZHJlc3MsIGFzIGEgbnVsbC10
+ZXJtaW5hdGVkIHN0cmluZy4KIAkgKiBUaGlzIGlzIHVzZWQgdG8gZ2VuZXJh
+dGUgdGhlIGNsaWVudGlkLCBhbmQgdGhlIGNhbGxiYWNrIGFkZHJlc3MuCi0t
+LSAub3JpZy9pbmNsdWRlL2xpbnV4L25mc19wYWdlLmgJMjAwNC0wMi0yMCAy
+MTowMjozNi42MzkyMTExNDYgLTA1MDAKKysrIGhhY2tlZC9pbmNsdWRlL2xp
+bnV4L25mc19wYWdlLmgJMjAwNC0wMi0yMCAxOToxMjozNS4zMTg2ODkwOTAg
+LTA1MDAKQEAgLTUzLDcgKzUzLDggQEAKIGV4dGVybgl2b2lkIG5mc19saXN0
+X2FkZF9yZXF1ZXN0KHN0cnVjdCBuZnNfcGFnZSAqLCBzdHJ1Y3QgbGlzdF9o
+ZWFkICopOwogCiBleHRlcm4JaW50IG5mc19zY2FuX2xpc3Qoc3RydWN0IGxp
+c3RfaGVhZCAqLCBzdHJ1Y3QgbGlzdF9oZWFkICosCi0JCQkgIHN0cnVjdCBm
+aWxlICosIHVuc2lnbmVkIGxvbmcsIHVuc2lnbmVkIGludCk7CisJCQkgIHN0
+cnVjdCBmaWxlICosIHVuc2lnbmVkIGxvbmcsIHVuc2lnbmVkIGludCwKKwkJ
+CSAgdW5zaWduZWQgaW50LCB1bnNpZ25lZCBpbnQpOwogZXh0ZXJuCWludCBu
+ZnNfY29hbGVzY2VfcmVxdWVzdHMoc3RydWN0IGxpc3RfaGVhZCAqLCBzdHJ1
+Y3QgbGlzdF9oZWFkICosCiAJCQkJICB1bnNpZ25lZCBpbnQpOwogZXh0ZXJu
+ICBpbnQgbmZzX3dhaXRfb25fcmVxdWVzdChzdHJ1Y3QgbmZzX3BhZ2UgKik7
+Cg==
 
-(this is a diff against the original dm-crypt version in linux-2.6.3-mm1)
-
-
-diff -Nur linux-2.6.3-mm1.orig/drivers/md/dm-crypt.c linux-2.6.3-mm1/drivers/md/dm-crypt.c
---- linux-2.6.3-mm1.orig/drivers/md/dm-crypt.c	2004-02-21 03:05:21.444341304 +0100
-+++ linux-2.6.3-mm1/drivers/md/dm-crypt.c	2004-02-21 03:05:44.070901544 +0100
-@@ -61,11 +61,13 @@
- 	/*
- 	 * crypto related data
- 	 */
--	struct crypto_tfm *tfm;
-+	struct crypto_tfm *cipher;
-+	struct crypto_tfm *digest;
- 	sector_t iv_offset;
- 	int (*iv_generator)(struct crypt_config *cc, u8 *iv, sector_t sector);
- 	int iv_size;
- 	int key_size;
-+	int digest_size;
- 	u8 key[0];
- };
- 
-@@ -102,6 +104,32 @@
- 	return 0;
- }
- 
-+static int crypt_iv_hmac(struct crypt_config *cc, u8 *iv, sector_t sector)
-+{
-+	struct scatterlist sg = {
-+		.page = virt_to_page(iv),
-+		.offset = offset_in_page(iv),
-+		.length = sizeof(u64) / sizeof(u8)
-+	};
-+	int i;
-+	int tfm_size = sizeof(*cc->digest) + cc->digest->__crt_alg->cra_ctxsize;
-+	char tfm[tfm_size];
-+
-+	*(u64 *)iv = cpu_to_le64((u64)sector);
-+
-+	/* HMAC has already been initialized, finish it on private copy */
-+	memcpy(tfm, cc->digest, tfm_size);
-+	crypto_hmac_update(cc->digest, &sg, 1);
-+	crypto_hmac_final(cc->digest, cc->key,
-+	                  (unsigned int *)&cc->key_size, iv);
-+
-+	/* fill the rest of the vector if it is larger */
-+	for(i = cc->digest_size; i < cc->iv_size; i += cc->digest_size)
-+		memcpy(iv + i, iv, min(cc->digest_size, cc->iv_size - i));
-+
-+	return 0;
-+}
-+
- static inline int
- crypt_convert_scatterlist(struct crypt_config *cc, struct scatterlist *out,
-                           struct scatterlist *in, unsigned int length,
-@@ -116,14 +144,14 @@
- 			return r;
- 
- 		if (write)
--			r = crypto_cipher_encrypt_iv(cc->tfm, out, in, length, iv);
-+			r = crypto_cipher_encrypt_iv(cc->cipher, out, in, length, iv);
- 		else
--			r = crypto_cipher_decrypt_iv(cc->tfm, out, in, length, iv);
-+			r = crypto_cipher_decrypt_iv(cc->cipher, out, in, length, iv);
- 	} else {
- 		if (write)
--			r = crypto_cipher_encrypt(cc->tfm, out, in, length);
-+			r = crypto_cipher_encrypt(cc->cipher, out, in, length);
- 		else
--			r = crypto_cipher_decrypt(cc->tfm, out, in, length);
-+			r = crypto_cipher_decrypt(cc->cipher, out, in, length);
- 	}
- 
- 	return r;
-@@ -401,6 +429,17 @@
- 	}
- }
- 
-+static struct cipher_mode {
-+	const char	*name;
-+	int			mode;
-+} cipher_modes[] = {
-+	{ "ecb", CRYPTO_TFM_MODE_ECB },
-+	{ "cbc", CRYPTO_TFM_MODE_CBC },
-+	{ "cfb", CRYPTO_TFM_MODE_CFB },
-+	{ "ctr", CRYPTO_TFM_MODE_CTR },
-+	{ NULL,  0 }
-+};
-+
- /*
-  * Construct an encryption mapping:
-  * <cipher> <key> <iv_offset> <dev_path> <start>
-@@ -412,6 +451,7 @@
- 	char *tmp;
- 	char *cipher;
- 	char *mode;
-+	char *digest;
- 	int crypto_flags;
- 	int key_size;
- 
-@@ -423,10 +463,32 @@
- 	tmp = argv[0];
- 	cipher = strsep(&tmp, "-");
- 	mode = strsep(&tmp, "-");
-+	digest = strsep(&tmp, "-");
- 
- 	if (tmp)
- 		DMWARN("dm-crypt: Unexpected additional cipher options");
- 
-+	if (mode) {
-+		struct cipher_mode *cm;
-+
-+		for(cm = cipher_modes; cm->name; cm++)
-+			if (strcmp(cm->name, mode) == 0)
-+				break;
-+		if (!cm->name) {
-+			ti->error = "dm-crypt: Invalid cipher mode";
-+			return -EINVAL;
-+		}
-+
-+		crypto_flags = cm->mode;
-+	} else {
-+		crypto_flags = CRYPTO_TFM_MODE_CBC;
-+	}
-+
-+	if (crypto_flags == CRYPTO_TFM_MODE_ECB && digest) {
-+		ti->error = "dm-crypt: ECB does not support IVs";
-+		return -EINVAL;
-+	}
-+
- 	key_size = strlen(argv[1]) >> 1;
- 
- 	cc = kmalloc(sizeof(*cc) + key_size * sizeof(u8), GFP_KERNEL);
-@@ -436,40 +498,55 @@
- 		return -ENOMEM;
- 	}
- 
--	if (!mode || strcmp(mode, "plain") == 0)
--		cc->iv_generator = crypt_iv_plain;
--	else if (strcmp(mode, "ecb") == 0)
-+	cc->digest_size = 0;
-+	cc->digest = NULL;
-+	if (crypto_flags == CRYPTO_TFM_MODE_ECB)
- 		cc->iv_generator = NULL;
-+	else if (!digest)
-+		cc->iv_generator = crypt_iv_plain;
- 	else {
--		ti->error = "dm-crypt: Invalid chaining mode";
--		goto bad1;
--	}
-+		/* the IV generator is the name of a digest used for HMAC */
-+		tfm = crypto_alloc_tfm(digest, 0);
-+		if (!tfm) {
-+			ti->error = "dm-crypt: Error allocating digest tfm";
-+			goto bad1;
-+		}
-+		if (crypto_tfm_alg_type(tfm) != CRYPTO_ALG_TYPE_DIGEST) {
-+			ti->error = "dm-crypt: Expected digest algorithm";
-+			goto bad1;
-+		}
- 
--	if (cc->iv_generator)
--		crypto_flags = CRYPTO_TFM_MODE_CBC;
--	else
--		crypto_flags = CRYPTO_TFM_MODE_ECB;
-+		cc->digest = tfm;
-+		cc->digest_size = crypto_tfm_alg_digestsize(tfm);
-+		cc->iv_generator = crypt_iv_hmac;
-+	}
- 
- 	tfm = crypto_alloc_tfm(cipher, crypto_flags);
- 	if (!tfm) {
- 		ti->error = "dm-crypt: Error allocating crypto tfm";
- 		goto bad1;
- 	}
-+	if (crypto_tfm_alg_type(tfm) != CRYPTO_ALG_TYPE_CIPHER) {
-+		ti->error = "dm-crypt: Expected cipher algorithm";
-+		goto bad2;
-+	}
- 
--	if (tfm->crt_u.cipher.cit_decrypt_iv && tfm->crt_u.cipher.cit_encrypt_iv)
--		/* at least a 32 bit sector number should fit in our buffer */
-+	if (tfm->crt_cipher.cit_decrypt_iv &&
-+	    tfm->crt_cipher.cit_encrypt_iv) {
-+		/* at least a sector number should fit in our buffer */
- 		cc->iv_size = max(crypto_tfm_alg_ivsize(tfm), 
--		                  (unsigned int)(sizeof(u32) / sizeof(u8)));
--	else {
-+		                  (unsigned int)(sizeof(u64) / sizeof(u8)));
-+		cc->iv_size = max(cc->iv_size, cc->digest_size);
-+	} else {
- 		cc->iv_size = 0;
- 		if (cc->iv_generator) {
--			DMWARN("dm-crypt: Selected cipher does not support IVs");
--			cc->iv_generator = NULL;
-+			ti->error = "dm-crypt: Cipher does not support IVs";
-+			goto bad2;
- 		}
- 	}
- 
- 	cc->io_pool = mempool_create(MIN_IOS, mempool_alloc_slab,
--				     mempool_free_slab, _crypt_io_pool);
-+	                             mempool_free_slab, _crypt_io_pool);
- 	if (!cc->io_pool) {
- 		ti->error = "dm-crypt: Cannot allocate crypt io mempool";
- 		goto bad2;
-@@ -482,7 +559,7 @@
- 		goto bad3;
- 	}
- 
--	cc->tfm = tfm;
-+	cc->cipher = tfm;
- 	cc->key_size = key_size;
- 	if ((key_size == 0 && strcmp(argv[1], "-") != 0)
- 	    || crypt_decode_key(cc->key, argv[1], key_size) < 0) {
-@@ -490,11 +567,16 @@
- 		goto bad4;
- 	}
- 
--	if (tfm->crt_u.cipher.cit_setkey(tfm, cc->key, key_size) < 0) {
-+	if (tfm->crt_cipher.cit_setkey(tfm, cc->key, key_size) < 0) {
- 		ti->error = "dm-crypt: Error setting key";
- 		goto bad4;
- 	}
- 
-+	/* precompute part of the HMAC here, it only depends on the key */
-+	if (cc->digest)
-+		crypto_hmac_init(cc->digest, cc->key,
-+		                 (unsigned int *)&key_size);
-+
- 	if (sscanf(argv[2], SECTOR_FORMAT, &cc->iv_offset) != 1) {
- 		ti->error = "dm-crypt: Invalid iv_offset sector";
- 		goto bad4;
-@@ -521,6 +603,8 @@
- bad2:
- 	crypto_free_tfm(tfm);
- bad1:
-+	if (cc->digest)
-+		crypto_free_tfm(cc->digest);
- 	kfree(cc);
- 	return -EINVAL;
- }
-@@ -532,7 +616,10 @@
- 	mempool_destroy(cc->page_pool);
- 	mempool_destroy(cc->io_pool);
- 
--	crypto_free_tfm(cc->tfm);
-+	crypto_free_tfm(cc->cipher);
-+	if (cc->digest)
-+		crypto_free_tfm(cc->digest);
-+
- 	dm_put_device(ti, cc->dev);
- 	kfree(cc);
- }
-@@ -669,9 +756,10 @@
- 			char *result, unsigned int maxlen)
- {
- 	struct crypt_config *cc = (struct crypt_config *) ti->private;
-+	struct cipher_mode *cm;
- 	char buffer[32];
- 	const char *cipher;
--	const char *mode = NULL;
-+	const char *digest;
- 	int offset;
- 
- 	switch (type) {
-@@ -680,20 +768,20 @@
- 		break;
- 
- 	case STATUSTYPE_TABLE:
--		cipher = crypto_tfm_alg_name(cc->tfm);
-+		cipher = crypto_tfm_alg_name(cc->cipher);
- 
--		switch(cc->tfm->crt_u.cipher.cit_mode) {
--		case CRYPTO_TFM_MODE_CBC:
--			mode = "plain";
--			break;
--		case CRYPTO_TFM_MODE_ECB:
--			mode = "ecb";
--			break;
--		default:
--			BUG();
--		}
-+		for(cm = cipher_modes; cm->name; cm++)
-+			if (cm->mode == cc->cipher->crt_cipher.cit_mode)
-+				break;
-+		BUG_ON(!cm->name);
-+
-+		if (cc->digest)
-+			digest = crypto_tfm_alg_name(cc->digest);
-+		else
-+			digest = "";
- 
--		snprintf(result, maxlen, "%s-%s ", cipher, mode);
-+		snprintf(result, maxlen, "%s-%s%s%s ", cipher, cm->name,
-+		         digest[0] ? "-" : "", digest);
- 		offset = strlen(result);
- 
- 		if (cc->key_size > 0) {
-diff -Nur linux-2.6.3-mm1.orig/drivers/md/Kconfig linux-2.6.3-mm1/drivers/md/Kconfig
---- linux-2.6.3-mm1.orig/drivers/md/Kconfig	2004-02-21 03:04:59.338701872 +0100
-+++ linux-2.6.3-mm1/drivers/md/Kconfig	2004-02-21 03:05:44.071901392 +0100
-@@ -174,6 +174,7 @@
- 	tristate "Crypt target support"
- 	depends on BLK_DEV_DM && EXPERIMENTAL
- 	select CRYPTO
-+	select CRYPTO_HMAC
- 	---help---
- 	  This device-mapper target allows you to create a device that
- 	  transparently encrypts the data on it. You'll need to activate
+--0-853436547-1077329842=:89047--

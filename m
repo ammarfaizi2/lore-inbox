@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269367AbUICIDF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269376AbUICICo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269367AbUICIDF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 04:03:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269372AbUICIDF
+	id S269376AbUICICo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 04:02:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269373AbUICICn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 04:03:05 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:65508 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S269368AbUICIBq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 04:01:46 -0400
-Date: Fri, 3 Sep 2004 10:01:45 +0200
-From: Frank van Maarseveen <frankvm@xs4all.nl>
-To: Grzegorz Ja??kiewicz <gj@pointblue.com.pl>
-Cc: Jamie Lokier <jamie@shareable.org>, Rik van Riel <riel@redhat.com>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Matt Mackall <mpm@selenic.com>, Nicholas Miell <nmiell@gmail.com>,
-       Wichert Akkerman <wichert@wiggy.net>, Jeremy Allison <jra@samba.org>,
-       Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040903080145.GA8355@janus>
-References: <200408261034.38509.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.44.0408260736080.23532-100000@chimarrao.boston.redhat.com> <20040826121223.GG30449@mail.shareable.org> <4137F4D9.7040206@pointblue.com.pl>
+	Fri, 3 Sep 2004 04:02:43 -0400
+Received: from cantor.suse.de ([195.135.220.2]:46796 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269367AbUICIA6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 04:00:58 -0400
+Date: Fri, 3 Sep 2004 10:00:58 +0200
+From: Andi Kleen <ak@suse.de>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel
+Message-ID: <20040903080058.GB2402@wotan.suse.de>
+References: <20040901072245.GF13749@mellanox.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4137F4D9.7040206@pointblue.com.pl>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+In-Reply-To: <20040901072245.GF13749@mellanox.co.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 03, 2004 at 06:36:41AM +0200, Grzegorz Ja??kiewicz wrote:
-> Jamie Lokier wrote:
-> 
-> >Is it a problem to decree that "file data MUST NOT be stored in a
-> >metadata directory; only non-essential metadata and data computed from
-> >the file data may be stored"?
-> 
-> That's exactly what folks seem to lost in this debate.
+On Wed, Sep 01, 2004 at 10:22:45AM +0300, Michael S. Tsirkin wrote:
+> Hello!
+> Currently, on the x86_64 architecture, its quite tricky to make
+> a char device ioctl work for an x86 executables.
+> In particular,
+>    1. there is a requirement that ioctl number is unique -
+>       which is hard to guarantee especially for out of kernel modules
 
-And that's not even the most important part: How would you educate all
-the developers _not_ on this list: application developers? I think this
-is just a disaster waiting for us to occur.
+Yes, that is a problem for some people. But you should
+have used an unique number in the first place.
 
-> * be able to extract/modify file part on fly.
-> * be able to store metadata, that doesn't matter on copy
+There are some hackish ways to work around it for non modules[1], but at some
+point we should probably support it better.
 
-those may be orthogonal.
+[1] it can be handled, except for module unloading, so you have
+to disable that.
 
--- 
-Frank
+>    2. there's a performance huge overhead for each compat call - there's
+>       a hash lookup in a global hash inside a lock_kernel -
+>       and I think compat performance *is* important.
+
+Did you actually measure it? I doubt it is a big issue.
+
+-Andi

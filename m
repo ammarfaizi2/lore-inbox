@@ -1,80 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264231AbUEHKNh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264218AbUEHKS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbUEHKNh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 06:13:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbUEHKNg
+	id S264218AbUEHKS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 06:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbUEHKSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 06:13:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62421 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264231AbUEHKNZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 06:13:25 -0400
-Date: Sat, 8 May 2004 03:12:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: manfred@colorfullife.com, davej@redhat.com, torvalds@osdl.org,
-       wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: Re: dentry bloat.
-Message-Id: <20040508031254.1d7dbc8a.akpm@osdl.org>
-In-Reply-To: <20040508031159.782d6a46.akpm@osdl.org>
-References: <20040506200027.GC26679@redhat.com>
-	<20040506150944.126bb409.akpm@osdl.org>
-	<409B1511.6010500@colorfullife.com>
-	<20040508012357.3559fb6e.akpm@osdl.org>
-	<20040508022304.17779635.akpm@osdl.org>
-	<20040508031159.782d6a46.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 8 May 2004 06:18:55 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:5893 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S264218AbUEHKSy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 06:18:54 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: root@chaos.analogic.com, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
+Date: Sat, 8 May 2004 13:18:28 +0300
+User-Agent: KMail/1.5.4
+Cc: Jamie Lokier <jamie@shareable.org>, Bill Davidsen <davidsen@tmr.com>,
+       Len Brown <len.brown@intel.com>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Willy Tarreau <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+References: <4069A359.7040908@nortelnetworks.com> <Pine.LNX.4.55.0404011423070.3675@jurand.ds.pg.gda.pl> <Pine.LNX.4.53.0404010814420.15020@chaos>
+In-Reply-To: <Pine.LNX.4.53.0404010814420.15020@chaos>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405081318.28853.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+> In Intel machines ALL memory operations are atomic. What
+> the means is that if I make code that does:
 >
-> - NFS and AFS are modifying d_flags without dcache_lock.
-> 
+> 	addl	%eax,(memory)
+>
+> ... what's in memory will always be the sum of what it was
+> before and the value in the EAX register.
 
+Except on SMP.
 
- 25-akpm/fs/afs/dir.c    |    2 ++
- 25-akpm/fs/nfs/unlink.c |    4 ++++
- 2 files changed, 6 insertions(+)
+> A long time ago, somebody invented the 'lock' instruction
+> for Intel machines. It turns out that the first ones locked
+> the whole bus during an operation. Eventually somebody looked
+> at that, and by the time the '486 came out, they no longer
+> locked the whole bus. Then somebody else said; "WTF...
+> Why do we even need this stuff". It was a throw-back to
+> early primitive machines where there were only load and
+> store operations in memory. All arithmetic had to be done
+> in registers. Now, there are only a couple instructions you
+> can use the lock prefix with, or you get an invalid opcode
+> trap, and they are really no-ops because the instruction
+> itself is atomic.
 
-diff -puN fs/nfs/unlink.c~d_flags-locking-fix fs/nfs/unlink.c
---- 25/fs/nfs/unlink.c~d_flags-locking-fix	2004-05-08 03:03:14.075568032 -0700
-+++ 25-akpm/fs/nfs/unlink.c	2004-05-08 03:04:02.561197096 -0700
-@@ -180,7 +180,9 @@ nfs_async_unlink(struct dentry *dentry)
- 	task->tk_action = nfs_async_unlink_init;
- 	task->tk_release = nfs_async_unlink_release;
- 
-+	spin_lock(&dcache_lock);
- 	dentry->d_flags |= DCACHE_NFSFS_RENAMED;
-+	spin_unlock(&dcache_lock);
- 	data->cred = rpcauth_lookupcred(clnt->cl_auth, 0);
- 
- 	rpc_sleep_on(&nfs_delete_queue, task, NULL, NULL);
-@@ -210,7 +212,9 @@ nfs_complete_unlink(struct dentry *dentr
- 		return;
- 	data->count++;
- 	nfs_copy_dname(dentry, data);
-+	spin_lock(&dcache_lock);
- 	dentry->d_flags &= ~DCACHE_NFSFS_RENAMED;
-+	spin_unlock(&dcache_lock);
- 	if (data->task.tk_rpcwait == &nfs_delete_queue)
- 		rpc_wake_up_task(&data->task);
- 	nfs_put_unlinkdata(data);
-diff -puN fs/afs/dir.c~d_flags-locking-fix fs/afs/dir.c
---- 25/fs/afs/dir.c~d_flags-locking-fix	2004-05-08 03:03:14.404518024 -0700
-+++ 25-akpm/fs/afs/dir.c	2004-05-08 03:04:20.190517032 -0700
-@@ -615,7 +615,9 @@ static int afs_d_revalidate(struct dentr
- 
- 	/* the dirent, if it exists, now points to a different vnode */
-  not_found:
-+	spin_lock(&dcache_lock);
- 	dentry->d_flags |= DCACHE_NFSFS_RENAMED;
-+	spin_unlock(&dcache_lock);
- 
-  out_bad:
- 	if (inode) {
+Not on SMP. On SMP, lock prefix *is needed*.
 
-_
+If you think I'm wrong, point me to the relevant docs.
+--
+vda
 

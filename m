@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbTJHWHi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 18:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbTJHWHi
+	id S261784AbTJHWRx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 18:17:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbTJHWRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 18:07:38 -0400
-Received: from smtp02.web.de ([217.72.192.151]:1560 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S261775AbTJHWHh (ORCPT
+	Wed, 8 Oct 2003 18:17:53 -0400
+Received: from gprs148-130.eurotel.cz ([160.218.148.130]:60545 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261784AbTJHWRw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 18:07:37 -0400
-From: Bernd Schubert <bernd-schubert@web.de>
-To: Torsten Werner <email@twerner42.de>
-Subject: Re: NFS speed problem when appending data to existing files
-Date: Thu, 9 Oct 2003 00:08:14 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Oct 2003 18:17:52 -0400
+Date: Thu, 9 Oct 2003 00:17:42 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Time precision, adjtime(x) vs. gettimeofday
+Message-ID: <20031008221741.GA1381@elf.ucw.cz>
+References: <1065619951.25818.15.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310090008.14366.bernd-schubert@web.de>
+In-Reply-To: <1065619951.25818.15.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> on the client side (2.4.22, server is a 2.4.21 kernel based nfsd). Only
-> appending small amounts of data to an existing file shows the problem.
-> Writing a large file happens at FastEthernet speed flawlessly. Any help,
-> please?
-> 
+Hi!
 
-Hello Torsten,
+> While fixing problems experienced by some scientific users who
+> found out that gettimeofday() could sometimes run backward, I
 
-2.4.22 has a client-side nfs-bug causing this. I'm not sure if this is already 
-fixed in 2.4.23-pre6, so I suggest you downgrade to 2.4.21.
-
-Cheers,
-	Bernd
-
+Having time run backward is not really an option; screensavers start
+kicking randomly, make has problems, etc, etc.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

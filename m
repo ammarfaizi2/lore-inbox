@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273900AbRI0VEj>; Thu, 27 Sep 2001 17:04:39 -0400
+	id <S273904AbRI0VE3>; Thu, 27 Sep 2001 17:04:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273902AbRI0VE3>; Thu, 27 Sep 2001 17:04:29 -0400
-Received: from jason.blazeconnect.net ([208.255.12.2]:9859 "HELO
-	localhost.blazeconnect.net") by vger.kernel.org with SMTP
-	id <S273900AbRI0VEW>; Thu, 27 Sep 2001 17:04:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jason Straight <jason@blazeconnect.net>
-To: Morten Stenseth <nfp3033@privat.cybercity.no>
-Subject: Re: regarding 2.4.10 power managment lockup
-Date: Thu, 27 Sep 2001 17:04:16 -0400
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <1001467024.3307.4.camel@cartman>
-In-Reply-To: <1001467024.3307.4.camel@cartman>
-Cc: linux-kernel@vger.kernel.org
+	id <S273902AbRI0VET>; Thu, 27 Sep 2001 17:04:19 -0400
+Received: from host-029.nbc.netcom.ca ([216.123.146.29]:4616 "EHLO
+	mars.infowave.com") by vger.kernel.org with ESMTP
+	id <S273900AbRI0VEJ>; Thu, 27 Sep 2001 17:04:09 -0400
+Message-ID: <6B90F0170040D41192B100508BD68CA1015A81AE@earth.infowave.com>
+From: Alex Cruise <acruise@infowave.com>
+To: "'Randy.Dunlap'" <rddunlap@osdlab.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: apm suspend broken in 2.4.10
+Date: Thu, 27 Sep 2001 14:03:42 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010927210416.49C837CA@localhost.blazeconnect.net>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This did the trick - 2.4.10 running like a charm now.
-Thanks.
+From: Randy.Dunlap [mailto:rddunlap@osdlab.org]
 
-On Tuesday 25 September 2001 21:17, you wrote:
-> Had the same problem as you , but tried to
-> remove "APIC and IO-APIC support on uniprocessors" and
-> now everything seems to work. :-)
->
-> Morten
+> Verified here.
+> APM doesn't install if apm=on or apm=off is used in 2.4.10.
+> 
+> Here's a small patch for it.  With this patch, apm thread,
+> /proc/apm, misc apm_bios device etc. are created.
 
--- 
-------------------------------------------
-Jeet Kune Do does not beat around the bush. It does not take winding detours. 
-It follows a straight line to the objective. Simplicity is the shortest 
-distance between two points.
-Bruce Lee - Tao of Jeet Kune Do
-------------------------------------------
+Thanks... apm=on works now, but APM functionality itself still suffers from
+the same failure as before (Resource temporarily unavailble.)
 
-Jason Straight -- President
-BlazeConnect -- Cheboygan Michigan
-Phone: 231-597-0376 -- Fax: 231-597-0393
+I should mention that before your patch, /dev/misc/apm_bios, /dev/apm_bios
+and /proc/apm were already being created by the driver; it's going through
+the motions but not delivering the goods.
+
+-0xe1a
+

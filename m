@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262077AbUCWG2f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 01:28:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbUCWG2f
+	id S262106AbUCWGnS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 01:43:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbUCWGnS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 01:28:35 -0500
-Received: from amsfep16-int.chello.nl ([213.46.243.26]:61984 "EHLO
-	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262077AbUCWG2d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 01:28:33 -0500
-From: Jos Hulzink <josh@stack.nl>
-To: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-Subject: Re: OSS: cleanup or throw away
-Date: Tue, 23 Mar 2004 07:27:26 +0100
-User-Agent: KMail/1.6.1
-Cc: Diego Calleja =?iso-8859-1?q?Garc=EDa?= <diegocg@teleline.es>,
-       Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-References: <200403221955.52767.jos@hulzink.net> <20040322232723.780ab026.diegocg@teleline.es> <1079996074.29535.8.camel@telecentrolivre>
-In-Reply-To: <1079996074.29535.8.camel@telecentrolivre>
-MIME-Version: 1.0
+	Tue, 23 Mar 2004 01:43:18 -0500
+Received: from upco.es ([130.206.70.227]:46822 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S262106AbUCWGnQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 01:43:16 -0500
+Date: Tue, 23 Mar 2004 07:43:10 +0100
+From: Romano Giannetti <romano@dea.icai.upco.es>
+To: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: swsusp 2.0 with kernel 2.6.4, failure to suspend (vaio fx701)
+Message-ID: <20040323064310.GA6285@pern.dea.icai.upco.es>
+Reply-To: romano@dea.icai.upco.es
+Mail-Followup-To: Romano Giannetti <romano@dea.icai.upco.es>,
+	Nigel Cunningham <ncunningham@users.sourceforge.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+	Patrick Mochel <mochel@osdl.org>
+References: <20040322100521.GA26767@pern.dea.icai.upco.es> <1079990542.2770.25.camel@calvin.wpcb.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403230727.27089.josh@stack.nl>
+In-Reply-To: <1079990542.2770.25.camel@calvin.wpcb.org.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 March 2004 23:54, Luiz Fernando Capitulino wrote:
->
->  Also, I think is not good for the kernel to have code that does not
-> compile and/or compile with several warnings.
->
->  So, if someone have time to work on it, is not bad.
+On Tue, Mar 23, 2004 at 09:22:22AM +1200, Nigel Cunningham wrote:
+> Hi.
+> 
+> Thanks for the report; The end of your log shows us that it was
+> saslauthd that was causing the freezing failure. I'll look at what
+> adjustments would fix that issue.
 
-Ok, it's clear OSS is here to stay for a while, and I will start working on 
-it, if only for nice compile statistics.
+Ok.
 
-These tiny patches might be a good way for me to get used to the beautiful 
-world of kernel coding I think :) 
+> Regarding getting more debugging info, you need to use debug_sections as
+> well as the default_console_level; the console level says how much
+> information you want. debug_sections says what information you want.
+> (Suspend it capable of printing an awful lot of debugging info; usually
+> we're only interested in one particular area).
 
-Best regards,
+Darn, I missed it. Tell me which sections are of interest, and I can repeat
+(this afternoon, if it's useful) and report. 
 
-Jos Hulzink
+Thanks,
+       Romano
+
+-- 
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

@@ -1,34 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262807AbVAKQVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262820AbVAKQWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262807AbVAKQVN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 11:21:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVAKQVN
+	id S262820AbVAKQWp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 11:22:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbVAKQWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 11:21:13 -0500
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:34255 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S262807AbVAKQVM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 11:21:12 -0500
-Date: Tue, 11 Jan 2005 11:21:13 -0500
-To: Anders Saaby <as@cohaesio.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux NFS vs NetApp
-Message-ID: <20050111162113.GE23849@fieldses.org>
-References: <200501111711.50218.as@cohaesio.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501111711.50218.as@cohaesio.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+	Tue, 11 Jan 2005 11:22:45 -0500
+Received: from adsl-298.mirage.euroweb.hu ([193.226.239.42]:26496 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262808AbVAKQWk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 11:22:40 -0500
+To: akpm@osdl.org, torvalds@osdl.org
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 0/11] FUSE - Filesystem in Userspace
+Message-Id: <E1CoOmg-0003IS-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 11 Jan 2005 17:22:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 05:11:50PM +0100, Anders Saaby wrote:
-> In which kernel version should this have been fixed?
+Andrew, Linus,
 
-2.6.10, I believe; see
+This is mostly a resend, modulo problems discovered by Mike Waychison
+and Brice Goglin in the previous submission.  Thanks for the review!
 
-http://marc.theaimsgroup.com/?l=linux-nfs&m=110021733807921&w=2
+Please apply!
 
---Bruce Fields
+If you still have any gripes about FUSE, I'd very much like to know
+about it (it stinks of microkernels, it's too complex, etc.), so I can
+try to address them.
+
+Thanks,
+Miklos

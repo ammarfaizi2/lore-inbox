@@ -1,33 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbUEAAJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbUEAAOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261867AbUEAAJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 20:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbUEAAJ1
+	id S261900AbUEAAOk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 20:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbUEAAOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 20:09:27 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:39660 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261867AbUEAAJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 20:09:27 -0400
-From: Lev Makhlis <mlev@despammed.com>
-To: "Michael Brown" <mebrown@michaels-house.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4] add SMBIOS information to /proc/smbios -- UPDATE 2
-Date: Fri, 30 Apr 2004 19:09:49 -0500
-User-Agent: KMail/1.5.4
+	Fri, 30 Apr 2004 20:14:40 -0400
+Received: from mail.tpgi.com.au ([203.12.160.59]:11915 "EHLO mail3.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S261897AbUEAAOi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 20:14:38 -0400
+Date: Sat, 01 May 2004 10:03:26 +1000
+From: "Nigel Cunningham" <ncunningham@linuxmail.org>
+To: "Todd Poynor" <tpoynor@mvista.com>,
+       "Russell King" <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [PATCH] Hotplug for device power state changes
+Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       "Patrick Mochel" <mochel@digitalimplant.org>,
+       linux-hotplug-devel@lists.sourceforge.net,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>
+Reply-To: ncunningham@linuxmail.org
+References: <20040429202654.GA9971@dhcp193.mvista.com> <20040429224243.L16407@flint.arm.linux.org.uk> <40918375.2090806@mvista.com> <1083286226.20473.159.camel@gaston> <20040430093012.A30928@flint.arm.linux.org.uk> <4092B02C.5090205@mvista.com>
+Content-Type: text/plain; format=flowed; delsp=yes; charset=us-ascii
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404302009.49576.mlev@despammed.com>
+Content-Transfer-Encoding: 8bit
+Message-ID: <opr7anr02fshwjtr@laptop-linux.wpcb.org.au>
+In-Reply-To: <4092B02C.5090205@mvista.com>
+User-Agent: Opera M2/7.50 (Linux, build 663)
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +	for (fp = 0xF0000; fp < 0xFFFFF; fp += 16) {
-> +		isa_memcpy_fromio(table_eps, fp, sizeof(*table_eps));
-> +		if (memcmp(table_eps->anchor, "_SM_", 4)!=0)
-> +			continue;
+Hi.
 
-This is fine for x86 and x86_64, but for ia64 -- don't you need
-to get the SMBIOS entry point from the EFI table?
+Sorry for getting in on this conversion a little late; I've only just  
+noticed it.
 
+The usual way in which userspace notification of suspending/resuming is  
+handled at the moment is via scripts which are run prior to suspending and  
+after resuming. As has been noted, the first thing the kernel side  
+implementations does is freeze userspace, keeping things static until post  
+resume. This seems to me to be a good, simple model. DHCP releases can be  
+handled from user space, prior to echo 4 > /proc/acpi/sleep (or  
+alternatives) and the whole difficulty regarding interactions between  
+userspace and kernelspace just goes away.
+
+Note too that the actual invocation of a suspend can still be in response  
+to kernel events. An ACPI event can be sent to the userspace ACPI daemon,  
+which does userspace preparations and then invokes the kernel suspend  
+mechanism. After resume, it can also do userspace reinitialisation.
+
+Given this model, I would suggest that hotplug should silently drop any  
+events that happen while suspending, and queue events that occur while  
+resuming until the kernelspace part of resuming is complete and userspace  
+can run as normal. It shouldn't rely upon device suspend/resume  
+notifications because they can and do happen while we're still in the  
+process of suspending and resuming. The means to detect whether we're  
+suspending or resuming or running normally could be implemented as a  
+simple function that could test the status of the different suspend  
+implementations.
+
+Is that at all helpful?
+
+Regards,
+
+Nigel
+
+-- 
+Nigel Cunningham
+C/- Westminster Presbyterian Church Belconnen
+61 Templeton Street, Cook, ACT 2614, Australia.
++61 (2) 6251 7727 (wk)
+
+At just the right time, while we were still powerless, Christ
+died for the ungodly. (Romans 5:6)

@@ -1,26 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbTIPXMi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 19:12:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbTIPXMh
+	id S262525AbTIPXIe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 19:08:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbTIPXIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 19:12:37 -0400
-Received: from lidskialf.net ([62.3.233.115]:55937 "EHLO beyond.lidskialf.net")
-	by vger.kernel.org with ESMTP id S262547AbTIPXMg (ORCPT
+	Tue, 16 Sep 2003 19:08:34 -0400
+Received: from lidskialf.net ([62.3.233.115]:54145 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S262525AbTIPXIc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 19:12:36 -0400
+	Tue, 16 Sep 2003 19:08:32 -0400
 From: Andrew de Quincey <adq_dvb@lidskialf.net>
 To: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: [PATCH] 2.6.0-test4 Don't change BIOS allocated IRQs
-Date: Wed, 17 Sep 2003 00:11:03 +0100
+Subject: [PATCH] 2.4.23-pre3 Don't change BIOS allocated IRQs
+Date: Wed, 17 Sep 2003 00:06:59 +0100
 User-Agent: KMail/1.5.3
 Cc: linux-acpi@intel.com, Chris Wright <chrisw@osdl.org>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200309170011.03630.adq_dvb@lidskialf.net>
+Content-Disposition: inline
+Message-Id: <200309170006.59980.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -35,10 +35,9 @@ way to tell which systems are good and bad in advance, this patch simply
 ensures that ACPI does not change an IRQ if the BIOS has pre-allocated it.
 
 
-
---- linux-2.6.0-test4.es7000fix/drivers/acpi/pci_link.c	2003-09-06 00:35:16.000000000 +0100
-+++ linux-2.6.0-test4.nochangeirq/drivers/acpi/pci_link.c	2003-09-17 00:00:40.740553544 +0100
-@@ -510,15 +510,15 @@
+--- linux-2.4.23-pre3.null_crs/drivers/acpi/pci_link.c	2003-09-05 23:57:39.000000000 +0100
++++ linux-2.4.23-pre3.nochangeirq/drivers/acpi/pci_link.c	2003-09-16 23:59:49.212387016 +0100
+@@ -507,15 +507,15 @@
  		irq = link->irq.active;
  	} else {
  		irq = link->irq.possible[0];

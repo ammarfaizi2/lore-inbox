@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264087AbTDWPo6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 11:44:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264091AbTDWPo5
+	id S264094AbTDWPsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 11:48:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbTDWPsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 11:44:57 -0400
-Received: from imap.gmx.net ([213.165.65.60]:28542 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264087AbTDWPo3 (ORCPT
+	Wed, 23 Apr 2003 11:48:25 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:3343
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S264094AbTDWPrs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 11:44:29 -0400
-Date: Wed, 23 Apr 2003 17:56:29 +0200
-From: gigerstyle@gmx.ch
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Fix SWSUSP & !SWAP
-Message-Id: <20030423175629.7cfc9087.gigerstyle@gmx.ch>
-In-Reply-To: <20030423144705.GA2823@elf.ucw.cz>
-References: <20030423135100.GA320@elf.ucw.cz>
-	<Pine.GSO.4.21.0304231631560.1343-100000@vervain.sonytel.be>
-	<20030423144705.GA2823@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 23 Apr 2003 11:47:48 -0400
+Subject: Re: kernel ring buffer accessible by users
+From: Robert Love <rml@tech9.net>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Julien Oster <frodo@dereference.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030423125602.B1425@almesberger.net>
+References: <frodoid.frodo.87wuhmh5ab.fsf@usenet.frodoid.org>
+	 <1051031876.707.804.camel@localhost> <20030423125602.B1425@almesberger.net>
+Content-Type: text/plain
+Message-Id: <1051113589.707.948.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.3.2 (1.3.2-1) (Preview Release)
+Date: 23 Apr 2003 11:59:49 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Wed, 2003-04-23 at 11:56, Werner Almesberger wrote:
 
-Just a quick question:
+> How do you know what is sensitive information ? A kernel debug
+> message may just say something like "bad message 47 65 68 65 69 6d",
+> and the kernel has no idea that this is actually a password
 
-As I know, swsusp is for hybernation (S4), right? The memory content will be written to the swap partition. What happens if the swap space is already used from programs? Abort? Or do I have to reserve swap space which never has to be used from programs?
+Why on earth would the user give the kernel a password?
 
-Thank you!
+The point is user input like telephone numbers or passwords should never
+be fed into the kernel anyhow.  On the rare case it is (apparently this
+ISDN instance, assuming it is actually from dmesg and not syslog), the
+kernel should not echo it.
 
-Marc
+	Robert Love
 
-
-On Wed, 23 Apr 2003 16:47:05 +0200
-Pavel Machek <pavel@ucw.cz> wrote:
-
-> Hi!
-> 
-> > > Swsusp without swap makes no sense, but leads to compilation
-> > > failure. This fixes it. Please apply,
-> > 
-> > Just wondering, what about MMU-less machines?
-> 
-> Ugh... Currently: no we can't do that. We are happy to suspend/resume
-> on i386 ;-).
-> 								Pavel

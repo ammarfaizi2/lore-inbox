@@ -1,89 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268752AbUIGW70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268755AbUIGXBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268752AbUIGW70 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 18:59:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268753AbUIGW7P
+	id S268755AbUIGXBF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 19:01:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268753AbUIGW7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 18:59:15 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:32956 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S268752AbUIGW5a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 18:57:30 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Christer Weinigel <christer@weinigel.se>
-Cc: Hans Reiser <reiser@namesys.com>, David Masover <ninja@slaphack.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Spam <spam@tnonline.net>,
-       Tonnerre <tonnerre@thundrix.ch>, Linus Torvalds <torvalds@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>, Jamie Lokier <jamie@shareable.org>,
-       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Date: Tue, 7 Sep 2004 15:56:08 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <m3isapitmr.fsf@zoo.weinigel.se>
-Message-ID: <Pine.LNX.4.60.0409071552070.10789@dlang.diginsite.com>
-References: <200409070206.i8726vrG006493@localhost.localdomain><413D4C18.6090501@slaphack.com>
- <m3d60yjnt7.fsf@zoo.weinigel.se><413DFF33.9090607@namesys.com>
- <m3vfepiv7r.fsf@zoo.weinigel.se><Pine.LNX.4.60.0409071528200.10789@dlang.diginsite.com>
- <m3isapitmr.fsf@zoo.weinigel.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 7 Sep 2004 18:59:39 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:7417 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268751AbUIGW64 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 18:58:56 -0400
+Message-ID: <9e47339104090715585fa4f8af@mail.gmail.com>
+Date: Tue, 7 Sep 2004 18:58:53 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Matthew Wilcox <willy@debian.org>
+Subject: Re: multi-domain PCI and sysfs
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040906014058.GV642@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <9e4733910409041300139dabe0@mail.gmail.com>
+	 <200409041527.50136.jbarnes@engr.sgi.com>
+	 <9e47339104090415451c1f454f@mail.gmail.com>
+	 <200409041603.56324.jbarnes@engr.sgi.com>
+	 <20040905230425.GU642@parcelfarce.linux.theplanet.co.uk>
+	 <9e473391040905165048798741@mail.gmail.com>
+	 <20040906014058.GV642@parcelfarce.linux.theplanet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Sep 2004, Christer Weinigel wrote:
-
-> Subject: Re: silent semantic changes with reiser4
+On Mon, 6 Sep 2004 02:40:58 +0100, Matthew Wilcox <willy@debian.org> wrote:
+> > When implementing the VGA control I'm running into the problem that
+> > there is no root node in sysfs for the top of a domain. I need a
+> > domain node to attach an attribute disabling all VGA devices in the
+> > domain. In the zx1 diagram I could have vga devices on any of the
+> > PCI-X or AGP buses.
 > 
-> David Lang <david.lang@digitalinsight.com> writes:
->
->> so far the best answer that I've seen is a slight varient of what Hans
->> is proposing for the 'file-as-a-directory'
->>
->> make the base file itself be a serialized version of all the streams
->> and if you want the 'main' stream open file/. (or some similar
->> varient)
->
->> in fact it may make sense to just open file/file to get at the 'main'
->> stream of the file (there may be cases where the concept of a single
->> main stream may not make sense)
->
-> So what happens if I have a text file foo.txt and add an author
-> attribute to it?  When I read foo.txt the next time it's supposed to
-> give me a serialized version with both the contents of foo.txt _and_
-> the author attribute?
->
-> That would definitely confuse me.
->
-> Or did I misunderstand something?
->
+> Why would it be a problem if the attribute is per-bus, as it is right now?
+> see bus->bridge_ctl (PCI_BRIDGE_CTL_VGA)
+> 
+> Actually, they're sparsely numbered to allow for people plugging in pci-pci
+> bridges on cards, so:
+> 
+> $ ls -1 /sys/devices/
+> pci0000:00
+> pci0000:80
+> pci0000:a0
+> pci0000:c0
+> platform
+> system
 
-good point. under my scheme you would need to access foo.txt/foo.txt or 
-foo.txt/. instead of just foo.txt
+How many active VGA devices can I have in this system 1 or 4? If the
+answer is 4, how do I independently address each VGA card? If the
+answer is one, you can see why I want a pci0000 node to hold the
+attribute for turning it off and on.
 
-I guess my way would work if there is a way to know that a file has been 
-extended (or if you just make it a habit of opening the file/file instead 
-of just file) but not for random additions of streams to otherwise normal 
-files.
+How many simultaneous VGA devices does this system allow?
 
-Oh well, it seemed like a easy fix (and turned out to be to easy to be 
-practical)
+ppc32:
+jbarnes@mill:~$ ls -l /sys/devices
+total 0
+drwxr-xr-x   5 root root 0 Sep  4 13:37 pci0000:00/
+drwxr-xr-x  13 root root 0 Sep  4 13:37 pci0001:01/
+drwxr-xr-x   7 root root 0 Sep  4 13:37 pci0002:06/
+drwxr-xr-x   3 root root 0 Sep  4 13:37 platform/
+drwxr-xr-x   4 root root 0 Sep  4 13:37 system/
+drwxr-xr-x   5 root root 0 Sep  4 13:37 uni-n-i2c/
 
-David Lang
+I would think it is three active devices.
 
->  /Christer
->
-> --
-> "Just how much can I get away with and still go to heaven?"
->
-> Freelance consultant specializing in device driver programming for Linux
-> Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se
->
+Does a PCI domain imply separate PCI IO address spaces, or does it
+just mean separate PCI Config spaces?
+
+Can an x86 machine use separate PCI IO address spaces?
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Jon Smirl
+jonsmirl@gmail.com

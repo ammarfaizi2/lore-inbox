@@ -1,48 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262542AbVAESPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbVAESSQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262542AbVAESPr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 13:15:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbVAESPn
+	id S262521AbVAESSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 13:18:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbVAESSQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 13:15:43 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:61213 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262542AbVAESNd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 13:13:33 -0500
-Date: Wed, 5 Jan 2005 19:14:02 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: kconfig: avoid temporary file
-Message-ID: <20050105181402.GA15675@mars.ravnborg.org>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <20041230235146.GA9450@mars.ravnborg.org> <200501030155.05203.zippel@linux-m68k.org> <20050103051002.GB8113@mars.ravnborg.org> <200501051340.31794.zippel@linux-m68k.org>
-Mime-Version: 1.0
+	Wed, 5 Jan 2005 13:18:16 -0500
+Received: from mail.joq.us ([67.65.12.105]:37550 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262521AbVAESRg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 13:17:36 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>, Chris Wright <chrisw@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <1104374603.9732.32.camel@krustophenia.net>
+	<20050103140359.GA19976@infradead.org>
+	<1104862614.8255.1.camel@krustophenia.net>
+	<20050104182010.GA15254@infradead.org> <87u0pxhvn0.fsf@sulphur.joq.us>
+	<1104865198.8346.8.camel@krustophenia.net>
+	<1104878646.17166.63.camel@localhost.localdomain>
+	<20050104175043.H469@build.pdx.osdl.net>
+	<1104890131.18410.32.camel@krustophenia.net>
+	<20050105115213.GA17816@elte.hu>
+From: "Jack O'Quin" <joq@io.com>
+Date: Wed, 05 Jan 2005 12:18:27 -0600
+In-Reply-To: <20050105115213.GA17816@elte.hu> (Ingo Molnar's message of
+ "Wed, 5 Jan 2005 12:52:13 +0100")
+Message-ID: <87vfabd9jg.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501051340.31794.zippel@linux-m68k.org>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 05, 2005 at 01:40:31PM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Monday 03 January 2005 06:10, Sam Ravnborg wrote:
-> 
-> > Next step is to integrate Petr Baudis patch to link lxdialog with mconf.
-> 
-> I had two major problems with his patch:
-> - it didn't resize when the terminal changed.
-Resize support will not be added until it works.
+Ingo Molnar <mingo@elte.hu> writes:
 
-> - window layering, old windows are not removed and just drawn over (this was 
-> especially a problem with help texts).
-Did not see it as a problem as such - will try to play with it a bit
-more. I have the original patch more or less blindly applied. For an
-acceptable version a parts of it will be redone.
+> the RT-LSM thing is a bit dangerous because it doesnt really protect
+> against a runaway, buggy app. So i think the right way to approach this
+> problem is to not apply RT-LSM for the time being, but to provide an
+> 'advanced latency needs' scheduling class that is _still_ safe even if
+> the task is runaway, but behaves with near-RT priorities if the task is
+> 'nice' (i.e. doesnt use up large amount of CPU time.)
 
-I also noticed that ESC was not working as usual.
+You are right that a runaway SCHED_FIFO application can freeze the
+system.  But, this really has nothing to do with the permissions
+problem addressed by the realtime-lsm.  In fact, it is needed by
+non-root users for running `nice -20', just as for SCHED_FIFO.
 
-	Sam
+I have no objection to creating a "better" RT scheduling class than
+SCHED_FIFO.  The "much-maligned" Mac OS X has a deadline scheduler
+that works quite well for running JACK and its applications.
+
+> so, could you try vanilla 2.6.10 (without LSM and without jackd running
+> with RT priorities), with jackd set to nice -20? Make sure the
+> jack-client process gets this priority too. Best to achieve this is to
+> renice a shell to -20 and start up everything from there - the nice
+> settings will be inherited. How does such an audio test compare to a
+> test done with jackd running at SCHED_FIFO with RT priority 1?
+
+For a quick comparison, I used a slightly modified version of the
+jack_test3.2 script, that runs jackd without the -R (--realtime)
+option...
+
+                                 With -R        Without -R
+                               (SCHED_FIFO)     (nice -20)
+
+************* SUMMARY RESULT ****************
+Total seconds ran . . . . . . :   300
+Number of clients . . . . . . :    20
+Ports per client  . . . . . . :     4
+Frames per buffer . . . . . . :    64
+*********************************************
+Timeout Count . . . . . . . . :(    1)          (    1)         
+XRUN Count  . . . . . . . . . :     2             2837          
+Delay Count (>spare time) . . :     0                0          
+Delay Count (>1000 usecs) . . :     0                0          
+Delay Maximum . . . . . . . . :  3130   usecs    5038044   usecs
+Cycle Maximum . . . . . . . . :   960   usecs    18802   usecs
+Average DSP Load. . . . . . . :    34.3 %           44.1 %    
+Average CPU System Load . . . :     8.7 %            7.5 %    
+Average CPU User Load . . . . :    29.8 %            5.2 %    
+Average CPU Nice Load . . . . :     0.0 %           20.3 %    
+Average CPU I/O Wait Load . . :     3.2 %            5.2 %    
+Average CPU IRQ Load  . . . . :     0.7 %            0.7 %    
+Average CPU Soft-IRQ Load . . :     0.0 %            0.2 %    
+Average Interrupt Rate  . . . :  1707.6 /sec      1677.3 /sec 
+Average Context-Switch Rate . : 11914.9 /sec     11197.6 /sec 
+*********************************************
+
+This was not exactly the test you requested.  The LSM is still
+present.  But, it makes no difference.  In fact, I used it to grant
+nice privileges, since I didn't feel like running it as root.
+
+But this is otherwise vanilla 2.6.10, and the two scheduling
+algorithms are fairly represented.  Try it yourself, I think you'll
+see similarly dramatic differences.
+
+Note that 2.6.10 has by far the best realtime performance of any
+vanilla Linux kernel I have ever tried.  Although, much better results
+can be obtained with your Realtime Preemption patches, this is still a
+very creditable result, quite usable for many relatively low-latency
+applications.  Kudos to you and the many others who contributed to
+this achievement.
+
+> if this works out well then we could achieve something comparable to
+> RT-LSM, via nice levels alone.
+
+As you see, it does not work at all.
+-- 
+  joq

@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262477AbUKWA4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbUKVXKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262477AbUKWA4P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 19:56:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbUKWAx5
+	id S261233AbUKVXKE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 18:10:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbUKVXHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 19:53:57 -0500
-Received: from c7ns3.center7.com ([216.250.142.14]:17323 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S261242AbUKWAv4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 19:51:56 -0500
-Message-ID: <41A28D07.3080109@devicelogics.com>
-Date: Mon, 22 Nov 2004 18:06:15 -0700
-From: "Jeff V. Merkey" <jmerkey@devicelogics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@devicelogics.com>
-Cc: Lincoln Dale <ltd@cisco.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.9 pktgen module causes INIT process respawning   and
- sickness
-References: <5.1.0.14.2.20041122144144.04e3d9f0@171.71.163.14> <419E6B44.8050505@devicelogics.com> <419E6B44.8050505@devicelogics.com> <5.1.0.14.2.20041122144144.04e3d9f0@171.71.163.14> <5.1.0.14.2.20041123094109.04003720@171.71.163.14> <41A2862A.2000602@devicelogics.com>
-In-Reply-To: <41A2862A.2000602@devicelogics.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 22 Nov 2004 18:07:34 -0500
+Received: from fw.osdl.org ([65.172.181.6]:29101 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261738AbUKVXGj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 18:06:39 -0500
+Date: Mon, 22 Nov 2004 15:10:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: linux-kernel@vger.kernel.org, Jan Kara <jack@suse.cz>
+Subject: Re: 2.6.10-rc2-mm3 - oops on boot
+Message-Id: <20041122151049.6b9dc575.akpm@osdl.org>
+In-Reply-To: <41A26BD4.8000509@eyal.emu.id.au>
+References: <20041121223929.40e038b2.akpm@osdl.org>
+	<41A26BD4.8000509@eyal.emu.id.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff V. Merkey wrote:
-
+Eyal Lebedinsky <eyal@eyal.emu.id.au> wrote:
 >
-> Bryan Sparks says no to open sourcing this code in Linux. Sorry -- I 
-> asked. I am allowed to open source any modifications
-> to public kernel sources like dev.c since we have an obligation to do 
-> so. I will provide source code enhancements for the kernel
-> for anyone who purchases our Linux based appliances and asks for the 
-> source code (so says Bryan Sparks). You can issue a purchase
-> request to Bryan Sparks (bryan@devicelogics.com) if you want any 
-> source code changes for the Linux kernel.
->
-Lincoln,
+> EIP is at invalidate_bdev+0x10/0x29
+> eax: 00000000   ebx: 00000000   ecx: 00000000   edx: f7ca4320
+> esi: 00000002   edi: 00000006   ebp: f7cb3400   esp: c194bef8
+> ds: 007b   es: 007b   ss: 0068
+> Process swapper (pid: 1, threadinfo=c194b000 task=c194aa80)
+> Stack: 00000000 00000004 c0187aa3 00000000 00000000 00000005 00000006 00000006 
+>        00000000 00000000 00000000 f7cb3400 c1931f80 00000000 c0176377 f7cb3400 
+>        ffffffff c02cc149 00000000 ffffffff c194bf60 c02cc149 00000000 c0176498 
+> Call Trace:
+>  [<c0187aa3>] vfs_quota_off+0xc0/0x219
+>  [<c0176377>] do_umount+0x19e/0x235
+>  [<c0176498>] sys_umount+0x8a/0x8e
+>  [<c03c72b0>] umount_devfs+0x17/0x1b
+>  [<c03c71bd>] prepare_namespace+0x2e/0xd7
+>  [<c012e2fc>] flush_workqueue+0x77/0x95
+>  [<c0100454>] init+0x14e/0x18d
+>  [<c0100306>] init+0x0/0x18d
+>  [<c010128d>] kernel_thread_helper+0x5/0xb
+> Code: 5e 5f 5d c3 89 5c 24 1c f0 ff 43 0c eb d5 0f 0b b2 01 7f 6d 2d c0 e9 4b ff ff ff 83 ec 08 89 5c 24 04 8b 5c 24 0c e8 f5 0f 00 00 <8b> 43 04 8b 5c 24 04 8b 80 b4 00 00 00 89 44 24 0c 83 c4 08 e9 
+>  <0>Kernel panic - not syncing: Attempted to kill init!
 
-Needless to say, we are not open sourcing any of our proprietary 
-technology with the appliances, just the changes to the core
-Linux kernel files as required by the GPL, just to clarify. It comes as 
-a patch to linux-2.6.9 and does not include the appliance
-core systems.
+Well devfs has a NULL sb->s_bdev, so the oops is no surprise.  However I'm
+a bit surprised that we even got that far into the quota code.
 
-Jeff
+Maybe it's a bit odd that sync_blockdev() accepts a NULL argument, but
+invalidate_bdev() does not.  Whatever.  This should get you going:
+
+--- 25/fs/dquot.c~vfs_quota_off-oops-fix	Mon Nov 22 15:08:31 2004
++++ 25-akpm/fs/dquot.c	Mon Nov 22 15:08:49 2004
+@@ -1372,7 +1372,8 @@ int vfs_quota_off(struct super_block *sb
+ 			mark_inode_dirty(toput[cnt]);
+ 			iput(toput[cnt]);
+ 		}
+-	invalidate_bdev(sb->s_bdev, 0);
++	if (sb->s_bdev)
++		invalidate_bdev(sb->s_bdev, 0);
+ 	return 0;
+ }
+ 
+_
+

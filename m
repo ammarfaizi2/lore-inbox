@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbTLXTMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 14:12:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbTLXTMQ
+	id S263803AbTLXTFf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 14:05:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263805AbTLXTFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 14:12:16 -0500
-Received: from [195.62.234.69] ([195.62.234.69]:27884 "EHLO
-	mail.nectarine.info") by vger.kernel.org with ESMTP id S263777AbTLXTMP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 14:12:15 -0500
-Message-ID: <3FE9E537.8010207@nectarine.info>
-Date: Wed, 24 Dec 2003 20:12:55 +0100
-From: Giacomo Di Ciocco <admin@nectarine.info>
-Organization: Nectarine Networks
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 24 Dec 2003 14:05:31 -0500
+Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:3408 "HELO
+	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S263803AbTLXTFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 14:05:24 -0500
+From: BlaisorBlade <blaisorblade_spam@yahoo.it>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 "Losing too many ticks"
-X-Enigmail-Version: 0.82.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: [NEW FEATURE]Partitions on loop device for 2.6
+Date: Wed, 24 Dec 2003 20:04:14 +0100
+User-Agent: KMail/1.5
+References: <200312241341.23523.blaisorblade_spam@yahoo.it>
+In-Reply-To: <200312241341.23523.blaisorblade_spam@yahoo.it>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312242004.14750.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-sorry but i figured just now that i dont have specified the most important 
-detail, the system goes _really_ _really_ slow, and when starting programs from 
-console it says "Unknown HZ (68) assuming 100", where 68 may vary from 60 to 80.
+Answering to Sean Estabrooks:
 
-Regards
+1st, I asked to be CC'ed on replies, as I'm not subscribed. In fact I'm sorry 
+your mail is not properly quoted, as I did this by hand.
 
+On Wed, 24 Dec 2003 18:20:22 +0100
+BlaisorBlade <blaisorblade_spam@yahoo.it> wrote:
+>> NEED:
+>> I have the need to loop mount files containing not plain filesystems,
+>> but whole disk images.
+>> 
+>
+>What does your proposed feature
+Note that I propose also beta-code(not actually ready due to the BLKRRPART 
+problem).
+> add to the kernel that can't be
+>accomplished with the "losetup" command and its offset parameter?
+If you read my mail, I already noted the existance of the offset parameter, 
+but do you prefer:
+1) to run fdisk, shoot some commands and get the offset and then put that 
+offset into losetup or mount, saving some code but losing a lot of 
+time(remember computers are all about saving time for humans); this could 
+actually be scripted, and if you post a script to do this I could even use 
+it.
+2) or use existing code in the kernel to automate all this, with minimal 
+intrusiveness?
+I know that moving things to userspace is useful if it helps reduce kernel 
+bloating(and this patch will not bloat anything); yet we could move partition 
+handling to the userspace by adding an offset param for general mounts, but 
+this doesn't happen.
+However for this it's matter of taste.
 
+Good bye and merry Christmas!
 -- 
-Giacomo Di Ciocco
-Nectarine Administrator
-Phone/Fax: 0577663107
-Web: http://www.nectarine.info
-Irc: irc.nectarine.info #nectarine
-Email: admin@nectarine.info (pgp.mit.edu)
+Paolo Giarrusso, aka Blaisorblade
+

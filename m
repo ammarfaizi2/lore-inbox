@@ -1,62 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287109AbRL2D3p>; Fri, 28 Dec 2001 22:29:45 -0500
+	id <S287110AbRL2DkR>; Fri, 28 Dec 2001 22:40:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287110AbRL2D3g>; Fri, 28 Dec 2001 22:29:36 -0500
-Received: from mnh-1-20.mv.com ([207.22.10.52]:22024 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S287109AbRL2D3b>;
-	Fri, 28 Dec 2001 22:29:31 -0500
-Message-Id: <200112290449.XAA08848@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Daniel Phillips <phillips@bonn-fries.net>,
-        William Lee Irwin III <wli@holomorphy.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: UML has been sent to Linus 
-In-Reply-To: Your message of "Sat, 29 Dec 2001 01:24:25 +0100."
-             <E16K7IZ-0000BL-00@starship.berlin> 
+	id <S287112AbRL2DkI>; Fri, 28 Dec 2001 22:40:08 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:21009 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S287111AbRL2Djz>;
+	Fri, 28 Dec 2001 22:39:55 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Wichert Akkerman <wichert@wiggy.net>
+Cc: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org,
+        linux-hams@vger.kernel.org
+Subject: Re: link error in SCC driver 
+In-Reply-To: Your message of "Fri, 28 Dec 2001 17:59:08 BST."
+             <20011228165908.GL7481@wiggy.net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 28 Dec 2001 23:49:38 -0500
-From: Jeff Dike <jdike@karaya.com>
+Date: Sat, 29 Dec 2001 14:39:42 +1100
+Message-ID: <9005.1009597182@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-phillips@bonn-fries.net said:
-> There are interesting  applications we'll start to see when UML is
-> more widely available, such as  simulation of clusters, or 'Linux
-> Bubbles' under Windows.
+On Fri, 28 Dec 2001 17:59:08 +0100, 
+Wichert Akkerman <wichert@wiggy.net> wrote:
+>[maltimi;~/linux]-36> perl ../reference_discarded.pl 
+>Finding objects, 443 objects, ignoring 0 module(s)
+>Finding conglomerates, ignoring 37 conglomerate(s)
+>Scanning objects
+>Error: ./net/ipv4/netfilter/ip_nat_snmp_basic.o .text.lock refers to 0000004c R_386_PC32        .text.exit
 
-Yeah, there are a ton of interesting possibilities which I have probably not
-done enough to publicize.
-
-> I think you've done a great job maintaining UML out-of-tree 
-
-Thanks!
-
-> for more than a  year, with very little assistance, 
-
-UML is approaching three years old (I started hacking in Feb 1998; 
-the first public sign of it was the following June).
-
-> and I hope you won't have to shoulder that  extra burden much longer.
-
-Yeah, one can hope :-)
-
-I'm currently banging on bugs and residual missing functionality.  When I
-think that's all done, that will be what I call UML V1.0 and I will send
-it to Marcelo.  At that point, the out-of-tree phase of UML will be over.
-
-wli@holomorphy.com said:
-> uml has been a very valuable tool for me to both learn kernel
-> programming 
-
-That's why I originally wrote it...
-
-> and to get kernel programming done. And it's extremely
-> cool.
-> IMHO it's excellent programming as well.
-
-Thanks, thanks, and thanks!
-
-				Jeff
+Yep, the broader problem of lock handling in discarded sections leaving
+dangling references in section .text.lock.  See [patch] 2.4.18-pre1
+replace .text.lock with .subsection.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=100950122410373&w=2
 

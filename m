@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbUCCWfa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 17:35:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbUCCWf3
+	id S261219AbUCCWfw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 17:35:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbUCCWfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 17:35:29 -0500
-Received: from gprs40-129.eurotel.cz ([160.218.40.129]:37846 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261217AbUCCWfY (ORCPT
+	Wed, 3 Mar 2004 17:35:51 -0500
+Received: from mail0-96.ewetel.de ([212.6.122.96]:41133 "EHLO mail0.ewetel.de")
+	by vger.kernel.org with ESMTP id S261219AbUCCWfu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 17:35:24 -0500
-Date: Wed, 3 Mar 2004 23:35:10 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Dave Jones <davej@redhat.com>,
-       Cpufreq mailing list <cpufreq@www.linux.org.uk>,
-       kernel list <linux-kernel@vger.kernel.org>, davej@codemonkey.ork.uk
-Cc: paul.devriendt@amd.com
-Subject: Re: powernow-k8-acpi driver
-Message-ID: <20040303223510.GE222@elf.ucw.cz>
-References: <20040303215435.GA467@elf.ucw.cz> <20040303222712.GA16874@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040303222712.GA16874@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Wed, 3 Mar 2004 17:35:50 -0500
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild will remove .c files
+In-Reply-To: <1vLWC-7h0-1@gated-at.bofh.it>
+References: <1vLk4-6uK-23@gated-at.bofh.it> <1vLWC-7h0-1@gated-at.bofh.it>
+Date: Wed, 3 Mar 2004 23:35:35 +0100
+Message-Id: <E1Ayexk-0000GH-0B@localhost>
+From: Pascal Schmidt <der.eremit@email.de>
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On St 03-03-04 22:27:12, Dave Jones wrote:
-> On Wed, Mar 03, 2004 at 10:54:36PM +0100, Pavel Machek wrote:
->  > Hi!
->  > 
->  > Lots of machines have broken PST tables, so current in-kernel driver
->  > refuses to works on them. Vendors do get ACPI tables right because
->  > apparently Windows use them ;-). So this driver tends to work.
->  > 
->  > Comments? Could we get this into mainline?
-> 
-> I really dislike the idea of having >1 driver for this.
-> Why can't we have a "use_acpi" module_param to switch to this ?
+On Wed, 03 Mar 2004 22:20:06 +0100, you wrote in linux.kernel:
 
-Well, that would probably not even link on kernel without ACPI...
+> Two questions pops up though.
+> First my make documentatin say the make would use "rm -f ...",not "rm".
+> What make version do you use?
 
-We could make that functionality depend on CONFIG_ACPI, and allow
-runtime selection only if its defined... But those two drivers are
-pretty different just now and acpi-dependend chunk is pretty big. (It
-does funny stuff like polling for AC plug removal if we are in
-high-power state  and battery would not handle that. Old driver simply
-refused to use high-power states on such machines.)
+I can't find it in the documentation right now, but I believe GNU make
+does the unlink(2) itself for intermediate files and only pretends to
+be calling rm(1).
 
-								Pavel
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Ciao,
+Pascal

@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290959AbSBFXg2>; Wed, 6 Feb 2002 18:36:28 -0500
+	id <S290919AbSBFXiI>; Wed, 6 Feb 2002 18:38:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290958AbSBFXgT>; Wed, 6 Feb 2002 18:36:19 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10512 "EHLO
+	id <S290958AbSBFXh5>; Wed, 6 Feb 2002 18:37:57 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14352 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S290953AbSBFXgI>; Wed, 6 Feb 2002 18:36:08 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: kernel: ldt allocation failed
-Date: 6 Feb 2002 15:35:35 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a3sek7$h6n$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0112070057480.20196-100000@tombigbee.pixar.com.suse.lists.linux.kernel> <20020206163118.E21624@devserv.devel.redhat.com> <3C61A8C0.7000406@zytor.com> <20020206172025.H21624@devserv.devel.redhat.com>
+	id <S290953AbSBFXhK>; Wed, 6 Feb 2002 18:37:10 -0500
+Date: Wed, 6 Feb 2002 15:36:01 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+In-Reply-To: <3C618AFD.7148EEAA@linux-m68k.org>
+Message-ID: <Pine.LNX.4.33.0202061529280.1714-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020206172025.H21624@devserv.devel.redhat.com>
-By author:    Jakub Jelinek <jakub@redhat.com>
-In newsgroup: linux.dev.kernel
+
+On Wed, 6 Feb 2002, Roman Zippel wrote:
 >
-> Unlike d) with LDT, where unmodified glibc could work with older kernels
-> too, thus would mean strict kernel minimum version requirement (with LDT d)
-> it would be just an optimization).
-> 
+> Sorry, I meant the part about accepting patches directly from email.
+> Pine supports piping a mail to a script, this script could try to apply
+> the patch and extract the text in front of the patch, but it could of
+> course also recognize a bk patch and feed it to bk.
 
-Just make it a fallback option.
+That's not the problem I have.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+The problem I have with piping patches directly to bk is that I don't like
+to switch back-and-forth between reading email and applying (and fixing
+up) patches. Even if the patch applies cleanly (which most of them tend to
+do) I still usually need to do at least some minimal editing of the commit
+message etc (removing stuff like "Hi Linus" etc).
+
+So my scripts are all done to automate this, and to allow me to just save
+the patches off for later, and then apply them in chunks when I'm ready to
+switch over from email to tree update. So that's why I script the thing,
+and want to apply patches from emails rather than by piping them.
+
+Some of these issues don't exist with true BK patches, and I'm trying to
+set up a separate chain to apply those directly (and not from the email at
+all - the email would contain only a description and a BK repository
+source). That will be very convenient for multiple patches, but at the
+same time that will require more trust in the source, so I'll probably
+keep the "patches as diffs in emails" for the occasional work, and the
+direct BK link for the people I work closest with.
+
+		Linus
+

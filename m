@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264343AbTKMQsv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 11:48:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264348AbTKMQsv
+	id S264348AbTKMRBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 12:01:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264355AbTKMRBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 11:48:51 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:63401 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S264343AbTKMQsu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 11:48:50 -0500
-Date: Thu, 13 Nov 2003 08:48:01 -0800
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Updating our sn code in 2.6
-Message-ID: <20031113164801.GA27268@sgi.com>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <20031107102514.A2437@infradead.org> <Pine.SGI.3.96.1031112174709.40512D-100000@fsgi900.americas.sgi.com> <20031113065844.A16234@infradead.org>
+	Thu, 13 Nov 2003 12:01:16 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:20973 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264348AbTKMRBP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 12:01:15 -0500
+Date: Thu, 13 Nov 2003 18:01:08 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.6.0-test9-mjb2: emulex driver link error
+Message-ID: <20031113170108.GN10456@fs.tum.de>
+References: <85450000.1068220085@[10.10.2.4]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031113065844.A16234@infradead.org>
-User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
+In-Reply-To: <85450000.1068220085@[10.10.2.4]>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 13, 2003 at 06:58:44AM +0000, Christoph Hellwig wrote:
-> > + 	- please don't kill xbridge support from pcibr, we want to reuse
-> > + 	it for the ip27 port soon
-> > 
-> > Not sure what you mean here. I'm pretty sure if this code is needed for
-> > a non-ia64 system it won't be in the sn2 code.
-> 
-> Well, given that the ip27 is basically the same system architecture as 
-> sn2 we want to resuse that code.  Whether it stays in arch/ia64/ or goes
-> to drivers/xtalk is a different question.  Also note that you can just
-> make the IS_PIC calls evulate to 1 always in your build, any recent gcc
-> will optimize away the xbridge codepathes then
+On Fri, Nov 07, 2003 at 07:48:05AM -0800, Martin J. Bligh wrote:
+>...
+> emulex driver					Emulex
+> 	Driver for emulex fiberchannel cards
+>...
 
-Are you sure you want to handle it this way?  I'm not sure the code is
-very useful in its current state--I think we might be better off
-downloading an old kernel version for reference and writing new code for
-drivers/xtalk.
+"copyin" and "copyout" aren't good names for non-static functions:
 
-Then again, starting with the existing mips code might be even better
-since we know that worked at one point.
+<--  snip  -->
 
-Jesse
+...
+  LD      drivers/built-in.o
+drivers/scsi/built-in.o(.text+0x1182c0): In function `copyout':
+: multiple definition of `copyout'
+drivers/char/built-in.o(.text+0x58fe0): first defined here
+ld: Warning: size of symbol `copyout' changed from 95 in 
+drivers/char/built-in.o to 55 in drivers/scsi/built-in.o
+drivers/scsi/built-in.o(.text+0x118300): In function `copyin':
+: multiple definition of `copyin'
+drivers/char/built-in.o(.text+0x58f60): first defined here
+ld: Warning: size of symbol `copyin' changed from 125 in 
+drivers/char/built-in.o to 88 in drivers/scsi/built-in.o
+make[1]: *** [drivers/built-in.o] Error 1
+make: *** [drivers] Error 2
+
+<--  snip  -->
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

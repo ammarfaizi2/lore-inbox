@@ -1,131 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270009AbUIDAtB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268382AbUIDAv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270009AbUIDAtB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 20:49:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270016AbUIDApz
+	id S268382AbUIDAv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 20:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269938AbUIDAtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 20:45:55 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:27844 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S270009AbUIDAf4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 20:35:56 -0400
-Date: Fri, 3 Sep 2004 20:40:23 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH][2/8] updated arch agnostic completely out of line locks /
- arm
-Message-ID: <Pine.LNX.4.58.0409032018290.31136@montezuma.fsmlabs.com>
+	Fri, 3 Sep 2004 20:49:36 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:50355 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S268382AbUIDArp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 20:47:45 -0400
+Date: Sat, 4 Sep 2004 02:47:29 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: yuvalt@gmail.com
+cc: sam@ravnborg.org, rddunlap@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Menuconfig search changes - pt. 3
+In-Reply-To: <20040903190023.GA8898@aduva.com>
+Message-ID: <Pine.LNX.4.61.0409040152160.877@scrub.home>
+References: <20040903190023.GA8898@aduva.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- arch/arm/kernel/time.c              |   17 ++++++++++++++++-
- arch/arm/kernel/vmlinux.lds.S       |    1 +
- arch/arm/oprofile/op_model_xscale.c |    4 ++--
- include/asm-arm/ptrace.h            |    5 +++++
- 4 files changed, 24 insertions(+), 3 deletions(-)
+Hi,
 
-Status: Untested
-Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
+On Fri, 3 Sep 2004, Yuval Turgeman wrote:
 
-Index: linux-2.6.9-rc1-bk9-sparc64/arch/arm/kernel/time.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-bk9/arch/arm/kernel/time.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 time.c
---- linux-2.6.9-rc1-bk9-sparc64/arch/arm/kernel/time.c	3 Sep 2004 01:30:18 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-bk9-sparc64/arch/arm/kernel/time.c	3 Sep 2004 23:55:27 -0000
-@@ -33,7 +33,7 @@
- #include <asm/io.h>
- #include <asm/irq.h>
- #include <asm/leds.h>
--
-+#include <asm/thread_info.h>
- #include <asm/mach/time.h>
+> (Once again, this patch should be applied after Andrew's changes)
 
- u64 jiffies_64 = INITIAL_JIFFIES;
-@@ -52,6 +52,21 @@ EXPORT_SYMBOL(rtc_lock);
- /* change this if you have some constant time drift */
- #define USECS_PER_JIFFY	(1000000/HZ)
+Please send a complete patch, it makes commenting on it easier.
 
-+#ifdef CONFIG_SMP
-+unsigned long profile_pc(struct pt_regs *regs)
-+{
-+	unsigned long fp, pc = instruction_pointer(regs);
-+
-+	if (pc >= (unsigned long)&__lock_text_start &&
-+	    pc <= (unsigned long)&__lock_text_end) {
-+		fp = thread_saved_fp(current);
-+		pc = pc_pointer(((unsigned long *)fp)[-1]);
-+	}
-+
-+	return pc;
-+}
-+EXPORT_SYMBOL(profile_pc);
-+#endif
+> +	if (regcomp(&re, pattern, REG_EXTENDED|REG_NOSUB))
+> +		return 0;
+> +	rc = regexec(&re, string, (size_t) 0, NULL, 0);
+> +	regfree(&re);
 
- /*
-  * hook for setting the RTC's idea of the current time.
-Index: linux-2.6.9-rc1-bk9-sparc64/arch/arm/kernel/vmlinux.lds.S
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-bk9/arch/arm/kernel/vmlinux.lds.S,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 vmlinux.lds.S
---- linux-2.6.9-rc1-bk9-sparc64/arch/arm/kernel/vmlinux.lds.S	3 Sep 2004 01:30:18 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-bk9-sparc64/arch/arm/kernel/vmlinux.lds.S	3 Sep 2004 23:55:27 -0000
-@@ -71,6 +71,7 @@ SECTIONS
- 		_text = .;		/* Text and read-only data	*/
- 			*(.text)
- 			SCHED_TEXT
-+			LOCK_TEXT
- 			*(.fixup)
- 			*(.gnu.warning)
- 			*(.rodata)
-Index: linux-2.6.9-rc1-bk9-sparc64/arch/arm/oprofile/op_model_xscale.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-bk9/arch/arm/oprofile/op_model_xscale.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 op_model_xscale.c
---- linux-2.6.9-rc1-bk9-sparc64/arch/arm/oprofile/op_model_xscale.c	3 Sep 2004 01:30:18 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-bk9-sparc64/arch/arm/oprofile/op_model_xscale.c	3 Sep 2004 23:55:27 -0000
-@@ -343,7 +343,7 @@ static void inline __xsc2_check_ctrs(voi
+You shouldn't compute the pattern at every search.
 
- static irqreturn_t xscale_pmu_interrupt(int irq, void *arg, struct pt_regs *regs)
- {
--	unsigned long eip = instruction_pointer(regs);
-+	unsigned long pc = profile_pc(regs);
- 	int i, is_kernel = !user_mode(regs);
- 	u32 pmnc;
+> +static void show_expr(struct menu *menu, FILE *fp)
+> +{
+> +	bool hit = false;
+> +	fprintf(fp, "Depends:\n ");
+> +	if (menu->dep) {
+> +		if (!hit)
+> +			hit = true;
+> +		expr_fprint(menu->dep, fp);
+> +	}
 
-@@ -357,7 +357,7 @@ static irqreturn_t xscale_pmu_interrupt(
- 			continue;
+menu->dep contains only temporary information. The real information is in 
+prop->visible.expr.
 
- 		write_counter(i, -(u32)results[i].reset_counter);
--		oprofile_add_sample(eip, is_kernel, i, smp_processor_id());
-+		oprofile_add_sample(pc, is_kernel, i, smp_processor_id());
- 		results[i].ovf--;
- 	}
+> +	if (menu->sym && menu->sym->dep) {
+> +		if (!hit)
+> +			hit = true;
+> +		expr_fprint(menu->sym->dep, fp);
+>  	}
 
-Index: linux-2.6.9-rc1-bk9-sparc64/include/asm-arm/ptrace.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-bk9/include/asm-arm/ptrace.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 ptrace.h
---- linux-2.6.9-rc1-bk9-sparc64/include/asm-arm/ptrace.h	3 Sep 2004 01:30:39 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-bk9-sparc64/include/asm-arm/ptrace.h	3 Sep 2004 23:55:27 -0000
-@@ -130,7 +130,12 @@ static inline int valid_user_regs(struct
+sym->dep doesn't contain user relevant information.
 
- #define instruction_pointer(regs) \
- 	(pc_pointer((regs)->ARM_pc))
-+
-+#ifdef CONFIG_SMP
-+extern unsigned long profile_pc(struct pt_regs *regs);
-+#else
- #define profile_pc(regs) instruction_pointer(regs)
-+#endif
+> +	if (menu->sym) {
+> +		struct property *prop;
+> +		hit = false;
+> +		fprintf(fp, "\nSelects:\n ");
+> +		for_all_properties(menu->sym, prop, P_SELECT) {
+> +			if (!hit)
+> +				hit = true;
+> +			expr_fprint(prop->expr, fp);
+> +		}
 
- #ifdef __KERNEL__
- extern void show_regs(struct pt_regs *);
+With this you print all selection with every menu entry.
+You probably also want to print sym->rev_dep, which is used to calculate 
+the selections for this symbol.
+
+>  			while (submenu) {
+>  				menu[j++] = submenu;
+>  				submenu = submenu->parent;
+>  			}
+
+This loop should stop when you find root_menu.
+
+>  			if (j > 0) {
+> +				if (!hit)
+> +					hit = true;
+> +				if (prop->text)
+> +					fprintf(fp, "%s (%s)\n", prop->text, 
+> +								sym->name);
+>  				else
+>  					fprintf(fp, "%s\n", sym->name);
+
+This test isn't necessary, every prompt has a text.
+
+> +			space = (char*)malloc(sizeof(char)*j);
+
+This isn't necessary, just use "%*c" like the other indentations.
+
+bye, Roman

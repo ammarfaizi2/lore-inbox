@@ -1,46 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265355AbTB0Pty>; Thu, 27 Feb 2003 10:49:54 -0500
+	id <S265373AbTB0Pvt>; Thu, 27 Feb 2003 10:51:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265361AbTB0Pty>; Thu, 27 Feb 2003 10:49:54 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:47242 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265355AbTB0Ptx>; Thu, 27 Feb 2003 10:49:53 -0500
-Date: Thu, 27 Feb 2003 08:00:07 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: fastboot@osdl.org,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Andy Pfiffer <andyp@osdl.org>
-Subject: Re: [KEXEC][2.5.63] Partially tested patches available
-Message-ID: <7350000.1046361606@[10.10.2.4]>
-In-Reply-To: <m11y1ulz79.fsf@frodo.biederman.org>
-References: <1046220814.27557.7.camel@andyp.pdx.osdl.net>
- <m11y1ulz79.fsf@frodo.biederman.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S265396AbTB0Pvt>; Thu, 27 Feb 2003 10:51:49 -0500
+Received: from inmail.compaq.com ([161.114.1.205]:22029 "EHLO
+	ztxmail01.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S265373AbTB0Pvr>; Thu, 27 Feb 2003 10:51:47 -0500
+Date: Thu, 27 Feb 2003 10:04:31 +0600
+From: Stephen Cameron <steve.cameron@hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: charles.white@hp.com, amy.vanzant-hodge@hp.com
+Subject: [PATCH] 2.5.21-pre5, MAINTAINTERS, cciss/cpqarray/cpqfc
+Message-ID: <20030227040431.GA2813@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@hp.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> There were additional syscall hijinks in the merge to 2.5.63, so anyone
->> that uses this patch set will need to recompile their kexec tools.
-> 
-> Along with all of the usual craziness of life my brother has been
-> staying with me the last month or so, and my amount of free
-> time to actual work on kexec has been less then I like.
-> 
-> We need to get up some steam and see what it will take for Linus
-> to notice and actually get this patch included.
 
-Could you confirm that the patches are released under the GPL, and have no
-patent encumberances that you know of? That will enable me to integrate
-them and get more people to work on it ...
+Charles White and Amy Vanzant-Hodge have moved on
+to do other things. 
 
-Thanks,
+-- steve
 
-M.
+--- lx2421p5/MAINTAINERS~maint	2003-02-27 09:57:04.000000000 +0600
++++ lx2421p5-scameron/MAINTAINERS	2003-02-27 09:59:38.000000000 +0600
+@@ -335,25 +335,25 @@ L:	codalist@coda.cs.cmu.edu
+ W:	http://www.coda.cs.cmu.edu/
+ S:	Maintained
+ 
+-COMPAQ FIBRE CHANNEL 64-bit/66MHz PCI non-intelligent HBA
+-P:      Amy Vanzant-Hodge 
+-M:      Amy Vanzant-Hodge (fibrechannel@compaq.com)
+-L:	compaqandlinux@cpqlin.van-dijk.net
+-W:	ftp.compaq.com/pub/products/drivers/linux
+-S:      Supported
++HP (was COMPAQ) FIBRE CHANNEL 64-bit/66MHz PCI non-intelligent HBA
++P:      Stephen Cameron
++M:      arrays@hp.com 
++M:      steve.cameron@hp.com
++L:	cpqfc-discuss@lists.sourceforge.net
++S:      Odd Fixes
++
++HP (was COMPAQ) SMART2 RAID DRIVER
++P:	Stephen Cameron
++M:	arrays@hp.com
++M:	steve.cameron@hp.com
++L:	cpqarray-discuss@lists.sourceforge.net
++S:	Odd Fixes
+ 
+-COMPAQ SMART2 RAID DRIVER
+-P:	Charles White	
+-M:	Charles White <arrays@compaq.com>
+-L:	compaqandlinux@cpqlin.van-dijk.net
+-W:	ftp.compaq.com/pub/products/drivers/linux
+-S:	Supported	
+-
+-COMPAQ SMART CISS RAID DRIVER 
+-P:	Charles White
+-M:	Charles White <arrays@compaq.com>
+-L:	compaqandlinux@cpqlin.van-dijk.net
+-W:	ftp.compaq.com/pub/products/drivers/linux	
++HP (was COMPAQ) SMART CISS RAID DRIVER 
++P:	Stephen Cameron
++M:	arrays@hp.com
++M:	steve.cameron@hp.com
++L:	cciss-discuss@lists.sourceforge.net
+ S:	Supported 
+ 
+ COMPUTONE INTELLIPORT MULTIPORT CARD
 
+_

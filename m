@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264659AbUEJMQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264658AbUEJMUN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264659AbUEJMQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 08:16:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264663AbUEJMQ1
+	id S264658AbUEJMUN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 08:20:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264661AbUEJMUN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 08:16:27 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:23688 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264659AbUEJMQC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 08:16:02 -0400
-Date: Mon, 10 May 2004 08:17:35 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Shobhit Mathur <shobhitmmathur@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI excessive retry error
-In-Reply-To: <20040510113303.20724.qmail@web51003.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.53.0405100757470.28174@chaos>
-References: <20040510113303.20724.qmail@web51003.mail.yahoo.com>
+	Mon, 10 May 2004 08:20:13 -0400
+Received: from smtp016.mail.yahoo.com ([216.136.174.113]:24767 "HELO
+	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264658AbUEJMUJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 08:20:09 -0400
+Message-ID: <409F7377.3030308@yahoo.com.au>
+Date: Mon, 10 May 2004 22:20:07 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave Jones <davej@redhat.com>
+CC: Dominik Karall <dominik.karall@gmx.net>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-mm1
+References: <20040510024506.1a9023b6.akpm@osdl.org> <200405101252.33205.dominik.karall@gmx.net> <20040510111845.GB21671@redhat.com>
+In-Reply-To: <20040510111845.GB21671@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 May 2004, Shobhit Mathur wrote:
+Dave Jones wrote:
+> On Mon, May 10, 2004 at 12:52:33PM +0200, Dominik Karall wrote:
+>  > 
+>  >   CC      arch/i386/kernel/cpu/cpufreq/p4-clockmod.o
+>  > arch/i386/kernel/cpu/cpufreq/p4-clockmod.c: In Funktion >>cpufreq_p4_get<<:
+>  > arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:283: error: `sibling' undeclared 
+>  > (first use in this function)
+>  > arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:283: error: (Each undeclared 
+>  > identifier is reported only once
+>  > arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:283: error: for each function it 
+>  > appears in.)
+>  > make[4]: *** [arch/i386/kernel/cpu/cpufreq/p4-clockmod.o] Fehler 1
+> 
+> Oops.
+> 
 
-> Hello,
->
-> I have a situation in which sending ioctls from a user
-> application to an HBA at the same time as active I/Os
-> running on the same card causes a critical error as -
-> PCI excessive retry error.
->
-> I would like to know what can be the causes of such a
-> problem and what type of solution can resolve such
-> problems.....?
->
-> - Thank you
->
+In -mm, cpu_sibling_map is a cpumask_t with cpu_sibling_map[cpu]
+containing "cpu" and all of its siblings.
 
-How do you know? The PCI/Bus transparently retries. What
-facillity reports the error?  In any event, if the PCI/Bus
-hasn't been destroyed, the problem is caused by the failure
-of some driver to set the cache-line size and/or the
-latency timer. For ix86 machines the cache-line size
-is "8" (8 longwords). Some software may mistakenly
-set it to 32 because the author didn't understand the
-documentation. A latency timer of 64 or lower, and a
-cache-line size of 8 should solve your problems. These
-problems don't show up unless the PCI device is a bus-master.
+Linus' tree looks like it is going to be that way shortly too.
 
-I mentioned a "broken bus" in the beginning. Some new
-PCI boards are not 5-volt tolerant. If you plug them into
-the PCI bus of some motherboards (Intel 865PE chipset),
-The Intel D865PERL, for one, the PCI/Bus will get blown.
-Same with the MS-6585 (648 MAX board). I blew up several
-boards by plugging 3.5 volt PCI cards into the 5 volt
-bus. According to the rules, it's supposed to work unless
-the PCI slots have "Cadium Yellow" or "Brilliant Blue"
-keying plugs (I kid you not, it's in the PCI specs).
-
-Anyway, you get to eat a few US$150 boards if you are not
-careful.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+Nick

@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262101AbUFRU6B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263763AbUFRVCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbUFRU6B (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 16:58:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbUFRU5o
+	id S263763AbUFRVCk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 17:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbUFRU6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 16:57:44 -0400
-Received: from [81.187.239.184] ([81.187.239.184]:22468 "EHLO
-	mail.newtoncomputing.co.uk") by vger.kernel.org with ESMTP
-	id S262101AbUFRUyA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 16:54:00 -0400
-Date: Fri, 18 Jun 2004 21:53:55 +0100
-From: matthew-lkml@newtoncomputing.co.uk
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
-Subject: [PATCH] Stop printk printing non-printable chars
-Message-ID: <20040618205355.GA5286@newtoncomputing.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 18 Jun 2004 16:58:40 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:45485 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S262085AbUFRUx1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 16:53:27 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: PATCH: Further aacraid work
+Date: Fri, 18 Jun 2004 16:53:13 -0400
+Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189FD241D1@otce2k03.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PATCH: Further aacraid work
+Thread-Index: AcRVc1d99x9MOcHUQierlSjobyvpdgAAl+IQ
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "William Lee Irwin III" <wli@holomorphy.com>, "Alan Cox" <alan@redhat.com>,
+       <y@redhat.com>, "Clay Haapala" <chaapala@cisco.com>,
+       "James Bottomley" <James.Bottomley@steeleye.com>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "SCSI Mailing List" <linux-scsi@vger.kernel.org>, <akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+`Adaptec' has been overloaded with internal work and has Bosses of
+Bosses of Bosses setting priorities.
 
-I have had problems recently with the output from dmesg. Somewhere in
-the depths of ACPI (drivers/acpi/tables.c:104) the
-header->asl_compiler_id contained non-printable characters, and it made
-xterm stop displaying any more output. dmesg|less had to be used as less
-filters out the duff chars.
+I had `respond to William' in my queue ... hopefully with results ...
+but alas not today :-(
 
-The main problem seems to be in ACPI, but I don't see any reason for
-printk to even consider printing _any_ non-printable characters at all.
-It makes all characters out of the range 32..126 (except for newline)
-print as a '?'.
+Sincerely -- Mark `apologizing is not a sign of weakness' Salyzyn
 
-Patch is for 2.6.7.
+-----Original Message-----
+From: William Lee Irwin III [mailto:wli@holomorphy.com] 
+Sent: Friday, June 18, 2004 4:32 PM
+To: Alan Cox; Salyzyn, Mark; y@redhat.com; Clay Haapala; James
+Bottomley; Christoph Hellwig; Linux Kernel; SCSI Mailing List;
+akpm@osdl.org
+Subject: Re: PATCH: Further aacraid work
 
-Matthew
+On Fri, Jun 18, 2004 at 08:05:18AM -0700, William Lee Irwin III wrote:
+> Proper changelog this time, and comments, too. Adaptec et al, please
+> verify this resolves the issues you've been having.
+> Someone say _something_.
 
+jejb's seeing such improved results that I don't believe we need to
+wait for Adaptec's ack to merge this.
 
---- linux-2.6.7/kernel/printk.c.orig	2004-06-18 20:44:28.000000000 +0100
-+++ linux-2.6.7/kernel/printk.c	2004-06-18 20:53:36.000000000 +0100
-@@ -14,6 +14,8 @@
-  *     manfreds@colorfullife.com
-  * Rewrote bits to get rid of console_lock
-  *	01Mar01 Andrew Morton <andrewm@uow.edu.au>
-+ * Stop emit_log_char from emitting non-ASCII chars.
-+ *  Matthew Newton, 18 June 2004 <matthew-lkml@newtoncomputing.co.uk>
-  */
- 
- #include <linux/kernel.h>
-@@ -538,7 +540,11 @@
- 			}
- 			log_level_unknown = 0;
- 		}
--		emit_log_char(*p);
-+		if (p[0] != '\n' && (p[0] < 32 || p[0] > 126)) {
-+			emit_log_char('?');
-+		} else {
-+			emit_log_char(*p);
-+		}
- 		if (*p == '\n')
- 			log_level_unknown = 1;
- 	}
+akpm, please apply.
 
 
+-- wli

@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281685AbRKUJJe>; Wed, 21 Nov 2001 04:09:34 -0500
+	id <S281695AbRKUJKm>; Wed, 21 Nov 2001 04:10:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281686AbRKUJJW>; Wed, 21 Nov 2001 04:09:22 -0500
-Received: from gate.mesa.nl ([194.151.5.70]:36105 "EHLO joshua.mesa.nl")
-	by vger.kernel.org with ESMTP id <S281685AbRKUJJH>;
-	Wed, 21 Nov 2001 04:09:07 -0500
-Date: Wed, 21 Nov 2001 10:08:49 +0100
-From: "Marcel J.E. Mol" <marcel@mesa.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-Subject: Re: New ac patch???
-Message-ID: <20011121100849.D15851@joshua.mesa.nl>
-Reply-To: marcel@mesa.nl
-In-Reply-To: <Pine.LNX.4.30.0111202146260.17569-100000@mustard.heime.net> <E166KTa-00036Z-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E166KTa-00036Z-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Nov 20, 2001 at 11:38:50PM +0000
+	id <S281691AbRKUJKd>; Wed, 21 Nov 2001 04:10:33 -0500
+Received: from news.cistron.nl ([195.64.68.38]:10246 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S281686AbRKUJKN>;
+	Wed, 21 Nov 2001 04:10:13 -0500
+From: "Rob Turk" <r.turk@chello.nl>
+Subject: Re: Linux FSCP (Frequently Submitted Compilation Problems)? (was:  Re: Loop.c File !!!!)
+Date: Wed, 21 Nov 2001 10:10:11 +0100
+Organization: Cistron Internet Services B.V.
+Message-ID: <9tfr1k$a5l$1@ncc1701.cistron.net>
+In-Reply-To: <Pine.LNX.4.21.0111202025290.6299-100000@brick> <5.1.0.14.2.20011121082413.00abadd0@pop.gmx.net>
+X-Trace: ncc1701.cistron.net 1006333812 10421 193.78.180.30 (21 Nov 2001 09:10:12 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"DevilKin" <devilkin@gmx.net> wrote in message
+news:cistron.5.1.0.14.2.20011121082413.00abadd0@pop.gmx.net...
+> Hi all,
+>
+> Just a thought. Don't shoot the messenger/idiot that thought of it.
+>
+> >He's doubtless referring to the deactivate_page()
+> >thing that's been talked to death on this list for
+> >the past 2 weeks...
+> I'm getting rather annoyed with the same problem being reported/asked
+about
+> over and over again...
+>
+> Is there - or would it be nice it it would be here - a list of recent
+> compilation problems encountered with stock kernels (and what to do about
+> it)? (see the loop.c thingy recently, and other problems with other stock
+> kernels). So we could just point the people to that thing instead of
+having
+> these 'discussions' over and over again...
+
+Good suggestion. Unfortunately, many people obviously do not take the time
+to read the newsgroup before they post, so what do you propose will be the
+mechanism to encourage them to lookup existing issues?
+
+Rob
 
 
-2.4.13-ac will "flushing ide drives" on shutdown. This helped my laptop
-from not '/dev/hdax no cleanly unmounted, checking' on startup. I'm sure
-the system did not crash before that.
 
-2.4.15-pre6 does not have this code and now sometimes some filesystems
-seem not to be clean anymore on startup...
 
-Will the ide_notify_reboot be included in 2.4.15 final?
-
--Marcel
-
-On Tue, Nov 20, 2001 at 11:38:50PM +0000, Alan Cox wrote:
-> > > to Linus that are 2.5 material (eg PnPBIOS). The only "-ac" patch as such
-> > > would be for 32bit quota and other oddments so I don't think its worth the
-> > > effort.
-> > 
-> > Will this include the patches to allow for /proc/sys/vm/(min|max)-readahead
-> > soon?
-> 
-> Thats pretty low on my priority list. Its actually not a hard patch to
-> extract although I'd prefer someone like Andrea who knows the new rather
-> undocumented VM did the merge
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-     ======--------         Marcel J.E. Mol                MESA Consulting B.V.
-    =======---------        ph. +31-(0)6-54724868          P.O. Box 112
-    =======---------        marcel@mesa.nl                 2630 AC  Nootdorp
-__==== www.mesa.nl ---____U_n_i_x______I_n_t_e_r_n_e_t____ The Netherlands ____
- They couldn't think of a number,           Linux user 1148  --  counter.li.org
-    so they gave me a name!  -- Rupert Hine  --  www.ruperthine.com

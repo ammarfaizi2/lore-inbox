@@ -1,87 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267872AbUIJVCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267880AbUIJVFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267872AbUIJVCF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 17:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267876AbUIJVCF
+	id S267880AbUIJVFX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 17:05:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267893AbUIJVFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 17:02:05 -0400
-Received: from imr2.ericy.com ([198.24.6.3]:2234 "EHLO imr2.ericy.com")
-	by vger.kernel.org with ESMTP id S267872AbUIJVBw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 17:01:52 -0400
-Message-ID: <41421433.8090804@ericsson.com>
-Date: Fri, 10 Sep 2004 16:53:07 -0400
-From: Makan Pourzandi <Makan.Pourzandi@ericsson.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
+	Fri, 10 Sep 2004 17:05:23 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:13833 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S267880AbUIJVFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 17:05:07 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: Brian Somers <brian.somers@sun.com>, Michael.Waychison@sun.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: TG3 doesn't work in kernel 2.4.27 (David S. Miller)
+X-Message-Flag: Warning: May contain useful information
+References: <20040816110000.1120.31256.Mailman@lists.us.dell.com>
+	<200408162049.FFF09413.8592816B@anet.ne.jp>
+	<20040816143824.15238e42.davem@redhat.com> <412CD101.4050406@sun.com>
+	<20040825120831.55a20c57.davem@redhat.com> <412CF0E9.2010903@sun.com>
+	<20040825175805.6807014c.davem@redhat.com> <412DC055.4070401@sun.com>
+	<20040826123730.375ce5d2.davem@redhat.com> <41419F82.10109@sun.com>
+	<20040910135357.393f7737.davem@redhat.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Fri, 10 Sep 2004 14:05:03 -0700
+In-Reply-To: <20040910135357.393f7737.davem@redhat.com> (David S. Miller's
+ message of "Fri, 10 Sep 2004 13:53:57 -0700")
+Message-ID: <52oekdbzsw.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-CC: "Serge E. Hallyn" <hallyn@CS.WM.EDU>, linux-kernel@vger.kernel.org,
-       Axelle Apvrille <axelle.apvrille@trusted-logic.fr>, serue@us.ibm.com,
-       david.gordon@ericsson.com, gaspoucho@yahoo.com
-Subject: Re: [ANNOUNCE] Release Digsig 1.3.1: kernel module for run-time authentication
- of binaries
-References: <41407CF6.2020808@ericsson.com> <20040909092457.L1973@build.pdx.osdl.net> <41409378.5060908@ericsson.com> <20040909105520.U1924@build.pdx.osdl.net> <20040909190511.GB28807@escher.cs.wm.edu> <4140BFCE.8010701@ericsson.com> <20040909140349.C1924@build.pdx.osdl.net>
-In-Reply-To: <20040909140349.C1924@build.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 10 Sep 2004 21:05:03.0616 (UTC) FILETIME=[D7896800:01C49779]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+    David> The real problem was the MAC_STATUS register checking in
+    David> tg3_timer() that we use to determine if we should call the
+    David> PHY code.  Specifically, we were failing to test
+    David> MAC_STATUS_SIGNAL_DET being set, which when trying to bring
+    David> the link up means we should call tg3_setup_phy().
 
-see below:
+    David> There are still some nagging problems with certain blades
+    David> even with my current code.  Brian, if you want to help I'd
+    David> really appreciate it if you worked with current tg3 sources
+    David> as I rewrote the 5704 hw autoneg support from scratch since
+    David> it was missing a hw bug workaround and had other issues as
+    David> well.
 
-Chris Wright wrote:
-> * Makan Pourzandi (Makan.Pourzandi@ericsson.com) wrote:
-> 
->>Serge E. Hallyn wrote:
->>
->>>Quoting Chris Wright (chrisw@osdl.org):
->>>
->>>>AFAICT, this means anybody with read access to a file can block all
->>>>writes.  This doesn't sound great.
->>>
->>>True.
->>
->>>This could be fixed by adding a check at the top of dsi_file_mmap for
->>>file->f_dentry->d_inode->i_mode & MAY_EXEC.  Of course then shared
->>>libraries which are installed without execute permissions will cause
->>>apps to break.  On my quick test, I couldn't run xterm or vi  :)
->>>
->>>Note that blocking writes requires that the file be a valid ELF file,
->>>as this is all that digsig mediates.  So I'm not sure which we worry
->>>about more - the fact that all shared libraries have to be installed
->>>with execute permissions (under the proposed solution), or that write
->>
->>
->>My 2 cents, a quick browsing on my machine (fedora core 1) shows that 
->>almost all my shared libraries are installed with both execution and 
->>read permissions.  IMHO, I don't believe then that this should be 
->>considered as a major issue.
-> 
-> 
-> This has nothing to do with file permissions aside of read.  All you need
-> is read permission, then you can mmap(PROT_EXEC) which will kick off the
-> check, and do deny_write_access.  It's a freeform way to lock writers
-> out of any readable file in the system.  This is why MAP_EXECUTABLE and
-> MAP_DENYWRITE are masked off at syscall entry.
+Hmm... for what it's worth, Brian's patch against 2.6.8.1 works on my
+JS20 blade, and the latest BK tg3 code doesn't.
 
-Chris, my understanding is that Serge's patch even though it restricts a 
-little the system admin, is the best solution we have for time being. Am 
-I right?
-If this is the case I'll include Serge's patch in the cvs source code 
-and send out a new release soon.
-
-regards,
-Makan
-> 
-> thanks,
-> -chris
-
--- 
-
-Makan Pourzandi, Open Systems Lab
-Ericsson Research, Montreal, Canada
-*This email does not represent or express the opinions of Ericsson Inc.*
-
+Thanks,
+  Roland

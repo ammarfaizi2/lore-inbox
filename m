@@ -1,48 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbUCIPX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 10:23:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262002AbUCIPX7
+	id S261996AbUCIP1c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 10:27:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbUCIP1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 10:23:59 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:61188
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262001AbUCIPX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 10:23:57 -0500
-Date: Tue, 9 Mar 2004 16:24:38 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
-Message-ID: <20040309152438.GE8193@dualathlon.random>
-References: <20040308202433.GA12612@dualathlon.random> <Pine.LNX.4.58.0403081238060.9575@ppc970.osdl.org> <20040308132305.3c35e90a.akpm@osdl.org> <20040308230247.GC12612@dualathlon.random> <20040308152126.54f4f681.akpm@osdl.org> <20040308234014.GG12612@dualathlon.random> <20040309083103.GB8021@elte.hu> <20040309090326.GA10039@elte.hu> <20040309145130.GC8193@dualathlon.random> <20040309150942.GA8224@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 Mar 2004 10:27:32 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:4615 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S261996AbUCIP1a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 10:27:30 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 4/4] vm-mapped-x-active-lists
+Date: Tue, 9 Mar 2004 16:26:39 +0100
+User-Agent: KMail/1.6.1
+Cc: Nick Piggin <piggin@cyberone.com.au>,
+       Linux Memory Management <linux-mm@kvack.org>
+References: <404D56D8.2000008@cyberone.com.au> <404D5784.9080004@cyberone.com.au>
+In-Reply-To: <404D5784.9080004@cyberone.com.au>
+X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040309150942.GA8224@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Message-Id: <200403091626.39479@WOLK>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_vIeTAlxMIuV3BfO"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 09, 2004 at 04:09:42PM +0100, Ingo Molnar wrote:
-> 
-> * Andrea Arcangeli <andrea@suse.de> wrote:
-> 
-> > first of all that this algorithm is running in production just fine in
-> > the workloads you're talking about, it's not like I didn't even try
-> > it, even the ones that have to swap (see the end of the email).
-> 
-> could you just try test-mmap2.c on such a box, and hit swap?
 
-I will try, to see what happens. But please write an exploit for
-truncate too since you obviously can, blaming on the vm is a
-red-herring, if the vm has an issue, truncate always had an issue in any
-kernel out there since 1997 (the first time I rememeber).
+--Boundary-00=_vIeTAlxMIuV3BfO
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Unless it crashes the machine I don't care, it's totally wrong in my
-opinion to hurt everything useful to save cpu while running an exploit.
-there are easier ways to waste cpu (rewrite the exploit with truncate
-please!!!)
+On Tuesday 09 March 2004 06:35, Nick Piggin wrote:
+
+Hi Nick,
+
+seems the following patch is required ontop of your patches?
+
+ciao, Marc
+
+--Boundary-00=_vIeTAlxMIuV3BfO
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="002_03-vm-mapped-x-active-lists-1-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="002_03-vm-mapped-x-active-lists-1-fix.patch"
+
+--- old/arch/i386/mm/hugetlbpage.c	2004-03-09 14:57:42.000000000 +0100
++++ new/arch/i386/mm/hugetlbpage.c	2004-03-09 15:36:15.000000000 +0100
+@@ -411,8 +411,8 @@ static void update_and_free_page(struct 
+ 	htlbzone_pages--;
+ 	for (j = 0; j < (HPAGE_SIZE / PAGE_SIZE); j++) {
+ 		map->flags &= ~(1 << PG_locked | 1 << PG_error | 1 << PG_referenced |
+-				1 << PG_dirty | 1 << PG_active | 1 << PG_reserved |
+-				1 << PG_private | 1<< PG_writeback);
++				1 << PG_dirty | 1 << PG_active_mapped | 1 << PG_active_unapped |
++				1 << PG_reserved | 1 << PG_private | 1<< PG_writeback);
+ 		set_page_count(map, 0);
+ 		map++;
+ 	}
+
+--Boundary-00=_vIeTAlxMIuV3BfO--

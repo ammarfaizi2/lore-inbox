@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265092AbSKNTuH>; Thu, 14 Nov 2002 14:50:07 -0500
+	id <S264756AbSKNTqB>; Thu, 14 Nov 2002 14:46:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265168AbSKNTuH>; Thu, 14 Nov 2002 14:50:07 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:23244 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265092AbSKNTuF>; Thu, 14 Nov 2002 14:50:05 -0500
-Subject: Non-blocking lock requests during the grace period
-To: nfs@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
-Message-ID: <OFCACC2A48.A38B3611-ON87256C71.006D0CEB@us.ibm.com>
-From: Juan Gomez <juang@us.ibm.com>
-Date: Thu, 14 Nov 2002 11:56:42 -0800
-X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0 [IBM]|October 31, 2002) at
- 11/14/2002 12:57:45
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	id <S264990AbSKNTqB>; Thu, 14 Nov 2002 14:46:01 -0500
+Received: from rth.ninka.net ([216.101.162.244]:3986 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S264756AbSKNTqA>;
+	Thu, 14 Nov 2002 14:46:00 -0500
+Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+From: "David S. Miller" <davem@redhat.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <234560000.1037297061@flay>
+References: <225710000.1037241209@flay> <3DD3D6E1.3060104@pobox.com> 
+	<234560000.1037297061@flay>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 14 Nov 2002 12:11:14 -0800
+Message-Id: <1037304674.13735.0.camel@rth.ninka.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-11-14 at 10:04, Martin J. Bligh wrote:
+> > If people have net driver bugs, feel free to report them to the 
+> > above URL, and assign them to me...
+> 
+> You should now be the default owner for net driver bugs. Still looking
+> for other willing owners ;-)
 
-
-
-
-
-I found out that the current Linux client of lockd blocks non-blocking lock
-requests while the server is in the grace period.
-I think this is incorrect behavior and I am wondering if the will exists
-out there to correct this and return "resource not available"
-to the process when a request is for a *non-blocking* lock while the server
-is in the grace period.
-
-It is extremelly odd to issue a *non-blocking* call and be blocked in the
-kernel for about a minute when the server happens
-to be in the grace period.
-
-This consists of a minor change to nlmclnt_call() and I would send the
-patch if someone will review and include it.
-
-Regards, Juan
-
+Please assign the other networking categories to davem@vger.kernel.org
+thanks.
 

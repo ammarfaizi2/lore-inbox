@@ -1,75 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270520AbTHQTSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 15:18:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270524AbTHQTSI
+	id S270498AbTHQTJG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 15:09:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270499AbTHQTJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 15:18:08 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:25472 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S270520AbTHQTSA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 15:18:00 -0400
-Date: Sun, 17 Aug 2003 20:17:39 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Jan Rychter <jan@rychter.com>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 17 Aug 2003 15:09:06 -0400
+Received: from main.gmane.org ([80.91.224.249]:12231 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S270498AbTHQTJD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 15:09:03 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jan Rychter <jan@rychter.com>
 Subject: Re: Centrino support
-Message-ID: <20030817191739.GA3305@mail.jlokier.co.uk>
-References: <m2wude3i2y.fsf@tnuctip.rychter.com> <1060972810.29086.8.camel@serpentine.internal.keyresearch.com> <3F3D469B.2020507@yahoo.com> <20030816123410.56cbb550.skraw@ithnet.com> <m2isoxgys4.fsf@tnuctip.rychter.com>
+Date: Sat, 16 Aug 2003 12:58:42 -0700
+Message-ID: <m2d6f5gyrx.fsf@tnuctip.rychter.com>
+References: <m2wude3i2y.fsf@tnuctip.rychter.com> <1060972810.29086.8.camel@serpentine.internal.keyresearch.com>
+ <m2oeyq3bi2.fsf@tnuctip.rychter.com>
+ <1060980793.29086.21.camel@serpentine.internal.keyresearch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m2isoxgys4.fsf@tnuctip.rychter.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
+X-Spammers-Please: blackholeme@rychter.com
+Cancel-Lock: sha1:/YMxU5rJ620Qavyofri0/gTAqzE=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Rychter wrote:
-> >>>>> "Stephan" == Stephan von Krawczynski <skraw@ithnet.com>:
->  Stephan> I think I have read in an earlier thread something the like.
->  Stephan> But I cannot understand how this can be logically linked to
->  Stephan> releasing docs. If all companies would follow this thought
->  Stephan> e.g. Siemens would never have released the docs for ISDN
->  Stephan> chipsets and therefore no ISDN drivers would be in the
->  Stephan> kernel. I'd rather say someone with money is afraid ...
-> 
-> Yes, that sounds rather ridiculous. Sooner or later someone is going to
-> reverse-engineer the thing, so not releasing drivers or specs just
-> delays this moment. If there's a manager at Intel that thinks this way,
-> he doesn't understand much about security.
+--=-=-=
+Content-Transfer-Encoding: quoted-printable
 
-Let's be fair to Intel for a moment.
+>>>>> "Bryan" =3D=3D Bryan O'Sullivan <bos@serpentine.com>:
+ Bryan> On Fri, 2003-08-15 at 13:35, Jan Rychter wrote:
+ >> I keep dreaming about the day when I'll be able to have a modern
+ >> laptop with a stable Linux kernel. As for now, it has taken me (on
+ >> one of my laptops) about 1.5 years to get to a point where 2.4
+ >> works, most of my hardware works, and software suspend (pretty much
+ >> a requirement for laptops) works. I'm not about to give that up
+ >> easily, so I'm not that eager to jump to 2.5/2.6.
 
-With hardware radios, anyone can open it up, fiddle with electronics,
-and make it do something illegal, possibly dangerous.  Manufacturers
-aren't required to make them impregnable!
+ Bryan> Can't say that's been my experience.  I bought a new Thinkpad
+ Bryan> X31 the other day, and it's already running 2.6.0-test3.
+ Bryan> Suspend works, all's happy.
 
-All manufacturers have to do is not put any knobs on the front which
-can make the radio do unapproved things.
+Lucky you! That's because almost two years (or so) of heavy work by many
+people went into this. Also, you're probably lucky with your Thinkpad.
 
-Folk are allowed to fiddle with radio electronics, with care, as long
-as they get themselves a radio license and stick to the rules.
+When I bought this laptop (a Sharp Mebius PC-MT1-H5) back in Sept 2001,
+there weren't many machines on the market that had only ACPI (and no
+APM). And Linux ACPI wasn't in a very sane state back then, not to
+mention swsusp. It took almost two years for the software to mature, and
+only recently did I get a stable machine that I can work on for a month
+without rebooting (suspending/resuming several times a day).
 
-They can even sell an altered device, if they take it through the FCC
-approval process.
+I've just gotten a Centrino-based Toshiba Dynabook SS S7/290LNKW, and
+the story continues -- I've already hit at least two ACPI bugs, while
+swsusp problems seem to have been ironed out thanks to hard work by
+Nigel Cunningham. And of course, the built-in wireless card does not
+work. My guess is another 6 months (if not more) until Linux works on
+it.
 
-With a software radio, it's analagous.  The manufacturer doesn't have
-to make it _impossible_ to reprogram, they just have to make it hard
-enough that ordinary users won't do it.
+=2D-J.
 
-Releasing the source code may or may not result in ordinary users
-reprograming their radios in harmful ways.  Though, you can imagine
-people would circulate patches to boost the power in no time.
+--=-=-=
+Content-Type: application/pgp-signature
 
-At least there is some hope for the expert hobbyist: they _can_
-reverse engineer the device.  It is good that this is possible.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-If Intel build a crypto-based authentication mechanism into their
-software radios, then there is no hope for the amateur radio hobbyist
-to fiddle with their radios.
+iD8DBQA/PozzLth4/7/QhDoRApuyAJ9mTmIuLVxoJQmL8QTCH2VfyMktegCgjq9i
+H1Lty3BVNqJBh460sP8kRfo=
+=CQQd
+-----END PGP SIGNATURE-----
+--=-=-=--
 
-So, really, Intel has done the amateur radio community a favour by
-leaving the tantalising possibility of reverse engineering the driver,
-compared with a DRM solution which totally prevents even expert tinkering.
-
--- Jamie

@@ -1,108 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263402AbTL2MuG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 07:50:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbTL2MuG
+	id S263452AbTL2MxR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 07:53:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263463AbTL2MxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 07:50:06 -0500
-Received: from holomorphy.com ([199.26.172.102]:47550 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263402AbTL2Mtv (ORCPT
+	Mon, 29 Dec 2003 07:53:16 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:16286 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263452AbTL2MxF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 07:49:51 -0500
-Date: Mon, 29 Dec 2003 04:49:27 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, mfedyk@matchmail.com,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Anton Ertl <anton@mips.complang.tuwien.ac.at>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, phillips@arcor.de
-Subject: Re: Page Colouring (was: 2.6.0 Huge pages not working as expected)
-Message-ID: <20031229124927.GZ22443@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-	mfedyk@matchmail.com, "Eric W. Biederman" <ebiederm@xmission.com>,
-	Anton Ertl <anton@mips.complang.tuwien.ac.at>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	phillips@arcor.de
-References: <Pine.LNX.4.58.0312271245370.2274@home.osdl.org> <m1smj596t1.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.58.0312272046400.2274@home.osdl.org> <20031228163952.GQ22443@holomorphy.com> <20031229003631.GE1882@matchmail.com> <20031229025507.GT22443@holomorphy.com> <Pine.LNX.4.58.0312282000390.11299@home.osdl.org> <20031229065240.GU22443@holomorphy.com> <20031229084304.GA31630@elte.hu> <20031229120930.GA31941@elte.hu>
+	Mon, 29 Dec 2003 07:53:05 -0500
+Date: Mon, 29 Dec 2003 13:52:56 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Frank van Maarseveen <frankvm@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 can run with HZ==0!
+Message-ID: <20031229125256.GA28065@devserv.devel.redhat.com>
+References: <20031228230522.GA1876@janus> <1072691126.5223.5.camel@laptop.fenrus.com> <20031229125240.GA4055@janus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
 Content-Disposition: inline
-In-Reply-To: <20031229120930.GA31941@elte.hu>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031229125240.GA4055@janus>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* William Lee Irwin III <wli@holomorphy.com> wrote:
-> > I did get a positive reaction from you at KS, and I've also been
->> slaving away at keeping this thing current and improving it when I can
->> for a year. Would you mind telling me what the Hell is going on here?
->> I guess I already know I'm screwed beyond all hope of recovery, but I
->> might as well get official confirmation.
 
-On Mon, Dec 29, 2003 at 01:09:30PM +0100, Ingo Molnar wrote:
-> i've been following your code (pgcl) and it looks pretty good. (it needs
-> finishing touches as always, but that's fine.) I tried to backport it to
-> 2.4 before doing 4G/4G but the maintainance overhead skyrocketed and so
-> it not practical for 2.4-based distribution purposes - but it would be
-> the perfect kind of thing to start 2.7.0 with. I've not seen any other
-> code but yours in this area.
+--n8g4imXOkfNTN/H1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That's a rather kind assessment; I suppose I hold flaws not critical at
-the design level as fatal where those who look primarily at design don't.
+On Mon, Dec 29, 2003 at 01:52:40PM +0100, Frank van Maarseveen wrote:
+> On Mon, Dec 29, 2003 at 10:45:27AM +0100, Arjan van de Ven wrote:
+> >=20
+> > not all motherboards can deal with HZ=3D1000.... seems yours is one of
+> > thise.
+>=20
+> But it seems to work. I would expect it to fail quite soon right at or af=
+ter
+> boot, not after a day once every few weeks (assuming it was the cause).
+>=20
+> > your patch is *highly* inadequate to get HZ=3D1000 working well in 2.4.=
+...
+> > it needs to be about 10x bigger with fixing more userspace api's...
+>=20
+> Can you give me an example?
+>=20
+> HZ for x386 is 100 by definition and there aren't that many system calls
+> and /proc files which expose jiffies to userspace.
 
+there are quite a few you missed; scsi ioctls is one, firewall rules are
+another.... there's a long list (2.6 has most if not all of them fixed)
 
-On Mon, Dec 29, 2003 at 01:09:30PM +0100, Ingo Molnar wrote:
-> i believe the right approach to the 'tons of RAM' problem is to simplify
-> it as much as possible, ie. go for larger pages (and wrap the MMU format
-> in the most trivial way) and to deal with 4K pages as a filesystem (and
-> ELF format) compatibility thing only. Your patch does precisely this.
-> How much we'll have to 'mix' the two page sizes, only practice will
-> tell, but the less mixing, the easier it will get. Filesystems on such
-> systems will match the pagesize anyway.
+--n8g4imXOkfNTN/H1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Well, that's more or less consistent with what I'm I'm doing. In
-actuality it's Hugh's design and original implementation, but I'm going
-to have to claim _some_ credit for the work I've put into this at some
-point, though it be grunt work after a fashion.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-The nontrivial point is largely ABI compatibility. A tremendous amount
-of diff could be eliminated without ABI compatibility; however, the
-concern is rather critical as long as legacy binaries are involved.
+iD8DBQE/8COnxULwo51rQBIRAoReAJ9WtrK4Rmt+Ej9CzRF0Zn37AW75XwCgh1vU
+M5dtULSJ2o3CNQgU2QepvP4=
+=KeKe
+-----END PGP SIGNATURE-----
 
-
-On Mon, Dec 29, 2003 at 01:09:30PM +0100, Ingo Molnar wrote:
-> i'd even suggest to not overdo the fractured-page logic too much - ie.
-> just 'waste' a full page on a misaligned or single 4K-sized vma -
-> concentrate on the common case: linearly mapped files and anonymous
-> mappings. Prefault both of them at PAGE_SIZE granularity and 'waste' the
-> final partial page. The VM swapout logic should only deal with full
-> pages. Same for the pagecache: just fill in full pages and dont worry
-> about granularity.
-> Your patch already does more than this. But i think if someone does 4K
-> vmas on a pgcl system or runs it on a 128 MB box and expects perfect
-> swapping, then it's his damn fault.
-
-My reasoning here has actually been dominated by performance. Exchanging
-the logic for this task is actually a difficult enough operation with
-respect to programming that very few a priori concerns can be allowed
-any influence at all.
-
-The algorithm now used for fault handling, recently ported by brute
-force from Hugh's rather ancient sources, effectively does as you say
-(though there is a lot of latitude in the criterion you've stated).
-One risk I've taken is updating some API's to return pfn's instead of
-pages. In the case of get_user_pages() this is likely essential. But
-kmap_atomic_to_page() (to_pfn() in my sources) and some others might
-be able to be avoided entirely with some moderately traumatic rework
-(traumatic as far as work I have to do is concerned; in all honesty,
-the issue is stupid, but as a problem it makes up for the lack of
-difficulty owing to quality with that owed to vast quantities of
-debugging and intolerance to dumb C mistakes.) The methods you're
-suggesting suggest removing these changes in exchange for some
-potential inefficiencies with virtualspace consumption, though these
-are not entirely out of the question, as ia32 is effectively deprecated.
-
-
--- wli
+--n8g4imXOkfNTN/H1--

@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284837AbRL2AHY>; Fri, 28 Dec 2001 19:07:24 -0500
+	id <S284886AbRL2ALX>; Fri, 28 Dec 2001 19:11:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284866AbRL2AHO>; Fri, 28 Dec 2001 19:07:14 -0500
-Received: from are.twiddle.net ([64.81.246.98]:42727 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S284837AbRL2AHC>;
-	Fri, 28 Dec 2001 19:07:02 -0500
-Date: Fri, 28 Dec 2001 16:07:00 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: "Aneesh Kumar K.V" <aneesh.kumar@digital.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Alpha/Linux ] Stack layout/and register values for ret_from_sys_call
-Message-ID: <20011228160700.B30611@twiddle.net>
-Mail-Followup-To: "Aneesh Kumar K.V" <aneesh.kumar@digital.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1008613257.22228.3.camel@satan.xko.dec.com>
+	id <S284905AbRL2ALN>; Fri, 28 Dec 2001 19:11:13 -0500
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:34829 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S284886AbRL2ALJ>; Fri, 28 Dec 2001 19:11:09 -0500
+Subject: 2.5.1-dj7 -- fdomain.c: In function `do_fdomain_16x0_intr':
+	`io_request_lock' undeclared
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>, Dave Jones <davej@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1.99+cvs.2001.12.21.18.01 (Preview Release)
+Date: 28 Dec 2001 16:12:20 -0800
+Message-Id: <1009584742.22848.2.camel@stomata.megapathdsl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1008613257.22228.3.camel@satan.xko.dec.com>; from aneesh.kumar@digital.com on Mon, Dec 17, 2001 at 11:50:57PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 17, 2001 at 11:50:57PM +0530, Aneesh Kumar K.V wrote:
->  Can someone explain me what should be the stack layout and register
-> value( if there is any restriction ) before calling ret_from_syscall for
-> Alpha.
 
-Top of stack should contain a struct pt_regs.  See asm/ptrace.h.
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE  -DPCMCIA
+-D__NO_VERSION__ -c -o fdomain.o ../fdomain.c
+../fdomain.c: In function `do_fdomain_16x0_intr':
+../fdomain.c:1268: `io_request_lock' undeclared (first use in this
+function)
+../fdomain.c:1268: (Each undeclared identifier is reported only once
+../fdomain.c:1268: for each function it appears in.)
+../fdomain.c: In function `fdomain_16x0_release':
+../fdomain.c:2045: warning: control reaches end of non-void function
+make[3]: *** [fdomain.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/scsi/pcmcia'
 
->   lda     $8,0x3fff
->   bic     $30,$8,$8
-> 
-> If someone can expain what happens in the above two assembly statement
-> it will be really helpful.
-
-This computes the value for "current".  The stack plus task structure
-is aligned on a two-page boundary.  See task_union in linux/sched.h.
-
-
-r~

@@ -1,101 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269971AbUJNFYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269973AbUJNF1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269971AbUJNFYx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 01:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269976AbUJNFYw
+	id S269973AbUJNF1I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 01:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269976AbUJNF1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 01:24:52 -0400
-Received: from chello083144090118.chello.pl ([83.144.90.118]:46855 "EHLO pluto")
-	by vger.kernel.org with ESMTP id S269971AbUJNFYt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 01:24:49 -0400
-From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@pld-linux.org>
-Subject: [PATCH] [i386] current_stack_pointer()
-Date: Thu, 14 Oct 2004 07:24:43 +0200
-User-Agent: KMail/1.7.1
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_c2gbBsoONDlzFJG"
-Message-Id: <200410140724.44408.pluto@pld-linux.org>
+	Thu, 14 Oct 2004 01:27:08 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:18120 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S269973AbUJNF0v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 01:26:51 -0400
+Subject: unkillable process
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1097731227.2666.11264.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 14 Oct 2004 01:20:27 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_c2gbBsoONDlzFJG
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+It's really bad when a task group leader exits.
+The process becomes unkillable.
 
-Hi,
+This is with the 2.6.8-rc1 kernel. I haven't seen
+any mention of this getting fixed since then.
+Here's the top of the /proc/*/status file:
 
-This trivial fix simplifies the output code.
+Name:   a.out
+State:  Z (zombie)
+SleepAVG:       59%
+Tgid:   9662
+Pid:    9662
+PPid:   1
+TracerPid:      0
+Uid:    1000    1000    1000    1000
+Gid:    1000    1000    1000    1000
+FDSize: 0
+Groups: 500 1000 
+Threads:        9
 
-testcase).
+Here's the code:
 
-volatile unsigned long tmp = current_stack_pointer
+///////////////////////////////////////////////////////////////
+#include <sys/types.h>
+#include <unistd.h>
+#include <signal.h>
+#include <stdio.h>
+#include <sched.h>
 
-without fix).
+#ifndef CLONE_THREAD
+#define CLONE_THREAD         0x00010000
+#endif
+#ifndef CLONE_DETACHED
+#define CLONE_DETACHED       0x00400000
+#endif
+#ifndef CLONE_STOPPED
+#define CLONE_STOPPED        0x02000000
+#endif
 
-#APP
-        movl    %esp, %eax      # ti
-#NO_APP
-        movl    %eax, tmp       # ti, tmp
+#define FLAGS (CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_VM|CLONE_THREAD|CLONE_DETACHED)
 
-with fix).
+static pid_t one;
 
-        movl    %esp, tmp       # __esp, tmp
+static void die(int signo){
+  (void)signo;
+  _exit(0);
+}
 
--- 
-/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
+static void hang(void){
+  for(;;) pause();
+}
 
-                           #define say(x) lie(x)
+static int clone_fn(void *vp){
+  (void)vp;
+  hang();
+  return 0; // keep gcc happy
+}
 
---Boundary-00=_c2gbBsoONDlzFJG
-Content-Type: text/x-diff;
-  charset="iso-8859-2";
-  name="0.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="0.diff"
+static long clone_stack_data[2048];
+#ifdef __hppa__
+static long *clone_stack = &clone_stack_data[0];
+#else
+static long *clone_stack = &clone_stack_data[2048];
+#endif
 
-diff -uNr linux-2.6.9-rc4.orig/arch/i386/kernel/irq.c linux-2.6.9-rc4/arch/i386/kernel/irq.c
---- linux-2.6.9-rc4.orig/arch/i386/kernel/irq.c	2004-10-11 04:57:02.000000000 +0200
-+++ linux-2.6.9-rc4/arch/i386/kernel/irq.c	2004-10-12 18:35:56.734235704 +0200
-@@ -515,7 +515,7 @@
- 			/* build the stack frame on the IRQ stack */
- 			isp = (u32*) ((char*)irqctx + sizeof(*irqctx));
- 			irqctx->tinfo.task = curctx->tinfo.task;
--			irqctx->tinfo.previous_esp = current_stack_pointer();
-+			irqctx->tinfo.previous_esp = current_stack_pointer;
- 
- 			*--isp = (u32) action;
- 			*--isp = (u32) &regs;
-@@ -1135,7 +1135,7 @@
- 		curctx = current_thread_info();
- 		irqctx = softirq_ctx[smp_processor_id()];
- 		irqctx->tinfo.task = curctx->task;
--		irqctx->tinfo.previous_esp = current_stack_pointer();
-+		irqctx->tinfo.previous_esp = current_stack_pointer;
- 
- 		/* build the stack frame on the softirq stack */
- 		isp = (u32*) ((char*)irqctx + sizeof(*irqctx));
-diff -uNr linux-2.6.9-rc4.orig/include/asm-i386/thread_info.h linux-2.6.9-rc4/include/asm-i386/thread_info.h
---- linux-2.6.9-rc4.orig/include/asm-i386/thread_info.h	2004-10-11 04:57:04.000000000 +0200
-+++ linux-2.6.9-rc4/include/asm-i386/thread_info.h	2004-10-12 18:35:41.420563736 +0200
-@@ -92,12 +92,7 @@
- }
- 
- /* how to get the current stack pointer from C */
--static inline unsigned long current_stack_pointer(void)
--{
--	unsigned long ti;
--	__asm__("movl %%esp,%0; ":"=r" (ti) : );
--	return ti;
--}
-+register unsigned long current_stack_pointer asm ("esp");
- 
- /* thread information allocation */
- #ifdef CONFIG_DEBUG_STACK_USAGE
+int main(int argc, char *argv[]){
+  pid_t minime;
+  int i = 8;
+  (void)argc;
+  (void)argv;
 
---Boundary-00=_c2gbBsoONDlzFJG--
+  one = getpid();
+  signal(SIGHUP,die);
+  if(fork()) hang();    // parent later killed as readyness signal
+
+  while(i--){
+    // better be stopped... they share a stack
+    minime = clone(clone_fn, clone_stack, FLAGS | CLONE_STOPPED, NULL);
+    if(minime==-1){
+      perror("no clone");
+      kill(one,SIGKILL);
+      _exit(8);
+    }
+  }
+
+  kill(one,SIGHUP); // let the shell know we're ready
+
+  _exit(0);  // make task group leader a zombie
+  return 0;  // keep gcc happy
+}
+/////////////////////////////////////////////////////////////////////
+
+

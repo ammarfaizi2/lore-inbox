@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131964AbRAEPdy>; Fri, 5 Jan 2001 10:33:54 -0500
+	id <S132010AbRAEPfe>; Fri, 5 Jan 2001 10:35:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132109AbRAEPdo>; Fri, 5 Jan 2001 10:33:44 -0500
-Received: from sls.lcs.mit.edu ([18.27.0.167]:1780 "EHLO sls.lcs.mit.edu")
-	by vger.kernel.org with ESMTP id <S131964AbRAEPdb>;
-	Fri, 5 Jan 2001 10:33:31 -0500
-Message-ID: <3A55E937.4C67A08F@sls.lcs.mit.edu>
-Date: Fri, 05 Jan 2001 10:33:11 -0500
-From: I Lee Hetherington <ilh@sls.lcs.mit.edu>
-Organization: MIT Laboratory for Computer Science
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.18-pre25.1.smp i686)
-X-Accept-Language: en
+	id <S132074AbRAEPfY>; Fri, 5 Jan 2001 10:35:24 -0500
+Received: from AStrasbourg-201-2-1-11.abo.wanadoo.fr ([193.251.1.11]:26897
+	"EHLO lune.perinfo.com") by vger.kernel.org with ESMTP
+	id <S132010AbRAEPfI>; Fri, 5 Jan 2001 10:35:08 -0500
+Message-ID: <000d01c07724$8fa531f0$8900030a@nicolasp>
+From: "Nicolas Parpandet" <nparpand@perinfo.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel network problem ?
+Date: Fri, 5 Jan 2001 15:34:07 +0100
 MIME-Version: 1.0
-To: Jon Burgess <Jon_Burgess@eur.3com.com>
-CC: Andrew Morton <andrewm@uow.edu.au>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Dell Precision 330 (Pentium 4, i850 chipset, 3c905c)
-In-Reply-To: <802569CB.005567CF.00@notesmta.eur.3com.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="Windows-1252"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, it is rev 78, but I have at least 20 of these working on other
-machines (Precision 620) for a long time now.  The difference in this
-machine is the i850 chipset vs. the i810 in the 620.
 
-This seems to be a problem of 3c59x making a successful call of
-request_irq(), but nothing shows up in /proc/interrupts.  It sounds like
-something is getting dropped on the floor somewhere else.
+Hi all,
 
-I will try the patched driver on Andrew's web site.
+I'm testing 2.4 series for few weeks,
+even the last prerelease
 
---Lee Hetherington
+I've seen stranges things  :
+
+I cannot access to some ips adresses ! :
+in http or in smtp using "konqueror", "netscape",
+"mail",  "telnet 25".
+
+I cannot login to hotmail (in the web page:http) 
+or send mail (smtp) to hotmail users (don't blame me !!)
+All the others network things works well, the network in general seems
+good only very few sites like hotmail doesn't works.
+
+And only with 2.4 series !! not with 2.2 ...
+
+maybe it's a glibc or kernel issue, I'dont know.
+I have an intel SMP motherboard connected to the net (cable) 
+with a PCI realtek 8019.
+
+I didn't analyse packets sent. If somebody else have the
+same problems ...
+
+Nicolas.
+
+Sorry for my poor english.
+
+PS: funny "bug" isn't it ? (hotmail !)
+PS2: thanks for all, very good job done, 
+      2.4 is very fast and seems stable.
+
 
 
 -

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129398AbRAZKiR>; Fri, 26 Jan 2001 05:38:17 -0500
+	id <S135207AbRAZKkR>; Fri, 26 Jan 2001 05:40:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129523AbRAZKiH>; Fri, 26 Jan 2001 05:38:07 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:50186 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S129398AbRAZKh5>;
-	Fri, 26 Jan 2001 05:37:57 -0500
-Date: Fri, 26 Jan 2001 12:37:49 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: hotmail not dealing with ECN
-Message-ID: <20010126123749.E25659@mea-ext.zmailer.org>
-In-Reply-To: <Pine.LNX.4.21.0101250041440.1498-100000@srv2.ecropolis.com> <94qcvm$9qp$1@cesium.transmeta.com> <14960.54069.369317.517425@pizda.ninka.net>
+	id <S135222AbRAZKkH>; Fri, 26 Jan 2001 05:40:07 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:467 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S135207AbRAZKj6>;
+	Fri, 26 Jan 2001 05:39:58 -0500
+Date: Fri, 26 Jan 2001 10:37:14 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Timur Tabi <ttabi@interactivesi.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: ioremap_nocache problem?
+Message-ID: <20010126103714.B11607@redhat.com>
+In-Reply-To: <3A6D5D28.C132D416@sangate.com> <20010123165117Z131182-221+34@kanga.kvack.org> <20010123165117Z131182-221+34@kanga.kvack.org> <20010125151655.V11607@redhat.com> <200101251556.f0PFuPd01743@mail.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <14960.54069.369317.517425@pizda.ninka.net>; from davem@redhat.com on Thu, Jan 25, 2001 at 05:30:29PM -0800
+User-Agent: Mutt/1.2i
+In-Reply-To: <200101251556.f0PFuPd01743@mail.redhat.com>; from ttabi@interactivesi.com on Thu, Jan 25, 2001 at 09:56:32AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 25, 2001 at 05:30:29PM -0800, David S. Miller wrote:
-...
-> Thirdly, it was widely discussed by the ECN reserachers on how to
-> "detect ECN blackholes" sort to speak.  All such schemes suggested
-> we unusable, it is not doable without impacting performance _and_
-> violating existing RFCs.  Basically, you have to ignore a valid TCP
-> reset to deal with some of the ECN holes out there, that is where such
-> workaround attempts become full crap and are unsatisfactory for
-> inclusion in any implementation much less an RFC.  Happily, we got the
-> ECN folks to agree with Alexey and myself on these points.
+Hi,
+
+On Thu, Jan 25, 2001 at 09:56:32AM -0600, Timur Tabi wrote:
+> > ioremap*() is only supposed to be used on IO regions or reserved
+> > pages.  If you haven't marked the pages as reserved, then iounmap will
+> > do the wrong thing, so it's up to you to reserve the pages.
 > 
-> So turning it off on a per-connection basis is not really an option.
+> Au contraire!
+> 
+> I mark the page as reserved when I ioremap() it.  However, if I leave it marked
+> reserved, then iounmap() will not unmap it.  
 
-  But could you nevertheless consider supplying a socket option for it ?
-  By all means default it per sysctl, but allow clearing/setting by
-  program too.
+It certainly should do, and the 2.4 source certainly looks as if it
+does.  At least on i386, iounmap calls vfree, which ends up in
+free_area_pte(), which will unconditionally clear the pte (hence
+unmapping the page).
 
-... 
-> Later,
-> David S. Miller
-> davem@redhat.com
-
-/Matti Aarnio
+Cheers,
+ Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

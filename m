@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261581AbSKYQzD>; Mon, 25 Nov 2002 11:55:03 -0500
+	id <S261660AbSKYQ46>; Mon, 25 Nov 2002 11:56:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261593AbSKYQzD>; Mon, 25 Nov 2002 11:55:03 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:34308 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S261581AbSKYQzC>; Mon, 25 Nov 2002 11:55:02 -0500
-Date: Mon, 25 Nov 2002 18:02:14 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-rc3
-Message-ID: <20021125170214.GB9564@merlin.emma.line.org>
-Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L.0211221520230.22247-100000@freak.distro.conectiva>
+	id <S261645AbSKYQ46>; Mon, 25 Nov 2002 11:56:58 -0500
+Received: from host217-36-81-41.in-addr.btopenworld.com ([217.36.81.41]:30665
+	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
+	id <S261663AbSKYQ4x>; Mon, 25 Nov 2002 11:56:53 -0500
+Subject: Re: [PROBLEM] D-Link DFE-580TX: Only 3 Ports working
+From: Gianni Tedesco <gianni@ecsc.co.uk>
+To: Richard Mueller <mueller@teamix.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <140282249663.20021125161149@teamix.net>
+References: <140282249663.20021125161149@teamix.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SeB18f+XZO++PLo+yrQh"
+Organization: 
+Message-Id: <1038243830.22885.8.camel@lemsip>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0211221520230.22247-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.5.1i
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 25 Nov 2002 17:03:51 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Nov 2002, Marcelo Tosatti wrote:
 
-> 
-> Hi,
-> 
-> Finally, here goes -rc3.
-> 
-> 
-> 
-> Summary of changes from v2.4.20-rc2 to v2.4.20-rc3
-> ============================================
-> 
-> <akpm@digeo.com>:
-> <hch@lst.de>:
-> <marcelo@freak.distro.conectiva>:
+--=-SeB18f+XZO++PLo+yrQh
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-What in hell will I have to do to bash someone up so hard he installs my
-lk-changelog.pl aka. shortlog update voluntarily next time I send one?
+On Mon, 2002-11-25 at 15:11, Richard Mueller wrote:
+> Hello kernel-developers (esp. Donald ;) )
+>=20
+> I am experiencing very strange problems with the
+> "D-Link DFE-580TX 4 port Server Adapter" in our enviroment.
+>=20
+> The kernel can only use the first three Ports. The forth Port
+> is detected but reports some problems with the MII-Transciever.
 
-These addresses are already present, and I just added Lee Nash as well,
-only Mr./Mrs. T. McReynolds of NVidia Corp. is missing the full name of
-THIS changelog.
+Just for the record, I am using this card (infact 6 of them in one
+machine, totalling 24 interfaces). All interfaces appear to work just
+fine.
+
+I'm using v1.09 of the driver though. Have you tried the latest one from
+http://www.scyld.com/network/sundance.html?
+
+HTH
+
+--=20
+// Gianni Tedesco (gianni at ecsc dot co dot uk)
+lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+
+--=-SeB18f+XZO++PLo+yrQh
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA94lf2kbV2aYZGvn0RAm2nAJ0Xegl0VS2KAAYC8cnVTrGn0DMHJQCfapUm
+yLreZPDXytHGHn0HTD8qKxs=
+=psu9
+-----END PGP SIGNATURE-----
+
+--=-SeB18f+XZO++PLo+yrQh--
+

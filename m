@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317107AbSGHS60>; Mon, 8 Jul 2002 14:58:26 -0400
+	id <S314551AbSGHTfH>; Mon, 8 Jul 2002 15:35:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317110AbSGHS6Z>; Mon, 8 Jul 2002 14:58:25 -0400
-Received: from gateway2.ensim.com ([65.164.64.250]:7943 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S317107AbSGHS6X>; Mon, 8 Jul 2002 14:58:23 -0400
-X-mailer: xrn 8.03-beta-26
-From: pmenage@ensim.com (pmenage@ensim.com)
-Subject: Re: BKL removal
-To: Oliver Neukum <oliver@neukum.name>
-Cc: linux-kernel@vger.kernel.org
-X-Newsgroups: 
-In-reply-to: <0C01A29FBAE24448A792F5C68F5EA47D2B0C8A@nasdaq.ms.ensim.com>
-Message-Id: <E17RdkT-0007Qt-00@pmenage-dt.ensim.com>
-Date: Mon, 08 Jul 2002 12:00:37 -0700
+	id <S315536AbSGHTfG>; Mon, 8 Jul 2002 15:35:06 -0400
+Received: from mta01-svc.ntlworld.com ([62.253.162.41]:23262 "EHLO
+	mta01-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S314551AbSGHTfG>; Mon, 8 Jul 2002 15:35:06 -0400
+From: Chris Rankin <cj.rankin@ntlworld.com>
+Message-Id: <200207081937.g68Jbi8t000811@twopit.underworld>
+Subject: Scary VM message with Linux 2.4.19-pre9-ac3
+To: linux-kernel@vger.kernel.org
+Date: Mon, 8 Jul 2002 20:37:44 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <0C01A29FBAE24448A792F5C68F5EA47D2B0C8A@nasdaq.ms.ensim.com>,
-you write:
->The BKL, unless used unbalanced, can never cause a bug.
->It could be insufficient or superfluous, but never be really buggy in
->itself.
+Hi,
 
-Unless you're including incorrect nesting in your definition of
-"unbalanced", that's not really true. E.g. lock_kernel() anywhere that
-dcache_lock is held can deadlock against anywhere that does a path
-lookup with the BKL held (such as do_coredump()).
+I have just seen this message appear in my kernel log:
 
-Paul
+Jul  8 20:20:44 twopit kernel: do_wp_page: bogus page at address 40fb8000 (page 0xc2f96990)
+Jul  8 20:20:44 twopit kernel: VM: killing process setiathome
 
+I am running Linux-2.4.19-pre9-ac3 on a dual 733 MHz PIII, with 1.25
+GB RAM, devfs, ALSA-CVS and lm_sensors 2.6.3, and this is the first
+time I have *ever* seen this message. To be fair, I've been suspecting
+memory corruption in 2.4.18+ kernels for a long time, and this message
+did not produce an oops, but I am *particularly* spooked this time
+because this it happened (only once) just *minutes* after my first
+reboot since an important BIOS upgrade. Normally, the machine stays up
+for about a week before it needs a maintenance reboot.
+
+Everything still fine so far ... see that rubik's cube go...
+
+I have previously run memtest-3.0 over all my RAM and it has checked
+out.
+
+Should I worry?
+
+Cheers,
+Chris

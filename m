@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVARAi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVARAli@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261310AbVARAi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 19:38:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVARAi6
+	id S261361AbVARAli (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 19:41:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbVARAlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 19:38:58 -0500
-Received: from fire.osdl.org ([65.172.181.4]:56014 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S261310AbVARAi4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 19:38:56 -0500
-Message-ID: <41EC5207.3030003@osdl.org>
-Date: Mon, 17 Jan 2005 16:02:15 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
+	Mon, 17 Jan 2005 19:41:37 -0500
+Received: from ms-smtp-02-lbl.southeast.rr.com ([24.25.9.101]:24808 "EHLO
+	ms-smtp-02-eri0.southeast.rr.com") by vger.kernel.org with ESMTP
+	id S261361AbVARAld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 19:41:33 -0500
+Message-ID: <41EC5B3A.4000004@ncsu.edu>
+Date: Mon, 17 Jan 2005 19:41:30 -0500
+From: Chris Bookholt <cgbookho@ncsu.edu>
 User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-CC: Daniel Drake <dsd@gentoo.org>, Andrew Morton <akpm@osdl.org>,
-       Joseph Fannin <jhf@rivenstone.net>, linux-kernel@vger.kernel.org,
-       Neil Brown <neilb@cse.unsw.edu.au>,
-       William Park <opengeometry@yahoo.ca>
-Subject: Re: [PATCH] Wait and retry mounting root device (revised)
-References: <20050114002352.5a038710.akpm@osdl.org> <20050116005930.GA2273@zion.rivenstone.net> <41EC7A60.9090707@gentoo.org> <20050118003413.GA26051@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20050118003413.GA26051@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: legacy_va_layout
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> On Tue, Jan 18, 2005 at 02:54:24AM +0000, Daniel Drake wrote:
-> 
->>Retry up to 20 times if mounting the root device fails.  This fixes booting
->>from usb-storage devices, which no longer make their partitions immediately
->>available.
-> 
-> 
-> Sigh...  So we can very well get device coming up in the middle of a loop
-> and get the actual attempts to mount the sucker in wrong order.  How nice...
-> 
-> Folks, that's not a solution.  And kludges like that really have no
-> business being there - they only hide the problem and make it harder
-> to reproduce.
+Could anyone explain or refer me to some documentation that explains the 
+purpose of the legacy_va_layout sysctl option?
 
-Is there a solution other than initrd/initramfs ?
+Essentially, I'm looking to understand how the legacy layout is 
+different from the current 2.6-series VA space layout.
 
-Thanks,
+Thanks muchly in advance
+
+-Chris
 -- 
-~Randy
+Chris Bookholt
+cgbookho@ncsu.edu
+PGP Key: http://chris.kavefish.net/pubkey.asc

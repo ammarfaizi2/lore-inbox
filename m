@@ -1,25 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129502AbRB0CdS>; Mon, 26 Feb 2001 21:33:18 -0500
+	id <S129839AbRB0UXX>; Tue, 27 Feb 2001 15:23:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129501AbRB0CdF>; Mon, 26 Feb 2001 21:33:05 -0500
-Received: from pc7.prs.nunet.net ([199.249.167.77]:19475 "HELO
-	pc7.prs.nunet.net") by vger.kernel.org with SMTP id <S129502AbRB0Ccs>;
-	Mon, 26 Feb 2001 21:32:48 -0500
-Message-ID: <20010227023246.15890.qmail@pc7.prs.nunet.net>
-From: "Rico Tudor" <rico@patrec.com>
-Subject: Re: 64GB option broken in 2.4.2
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Mon, 26 Feb 2001 20:32:46 -0600 (CST)
-Cc: mingo@elte.hu, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20010226181049.G29254@athlon.random> from "Andrea Arcangeli" at Feb 26, 1 06:10:49 pm
-X-Mailer: ELM [version 2.4 PL25]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S129854AbRB0UXP>; Tue, 27 Feb 2001 15:23:15 -0500
+Received: from [195.161.132.222] ([195.161.132.222]:60427 "EHLO got.mmtel.ru")
+	by vger.kernel.org with ESMTP id <S129839AbRB0UWz>;
+	Tue, 27 Feb 2001 15:22:55 -0500
+From: Serg <aaru@got.mmtel.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Хотитестатьдипломатом?Хотитеиметьдипломатическийстатус?Тогдаэтоименното,чтоВамнеобходимо.(Письмо). Email, 095-7059285#92889
+X-Mailer: Microsoft Outlook Express 5.00.2314.1300
+Reply-To: aaru@got.mmtel.ru
+Date: Tue, 27 Feb 2001 15:22:55 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Message-Id: <200102280016281.SM00185@aaru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem is not fixed with your patch.  Debugging packet is
 
-	http://patrec.com./rico/vger/diag002.tar.bz2
+Уважаемые господа.
+
+Приносим свои извинения за вмешательство в Ваше электронное пространство, но Ваш 
+электронный адрес был взят из открытых источников. Данная рассылка носит исключительно 
+разовый характер и более повторяться не будет.
+
+Предлагаем к приобретению Самое полное и максимально подробное руководство:
+
+"Нетрадиционный путь получения дипломатического статуса"
+
+Данное руководство было издано в Лондоне Английской Адвокатской Компанией, более никогда и 
+нигде не издавалась и не переиздавалась.
+
+Данное издание содержит подробнейшие инструкции, порядок действий, образцы писем и 
+документов, законодательные акты.
+
+Вся информация неоднократно проверена и относится абсолюдно ко всем, ни гражданство, ни 
+прописка, никакие иные данные принципиального значения не имеют.
+
+Более подробной и точной информации Вы не сможете более найти нигде.
+
+Язык руководства русский или английский по Вашему выбору.
+
+Варианты:
+
+- твердый переплет    -  50 у.е.
+- мягкий переплет     -   40 у.е.
+- электронная версия - 30 у.е.
+
+Доставка:  Наложный платеж; Авансовый платеж; Курьерская.
+
+Стоимость доставки по Москве и Московской области входит в стоимость(кроме курьерской).
+
+Скидки:
+- от 10 экз. - 10%
+- от 25 экз. - 15%
+- от 50 экз. - 20%
+- авансовый платеж - 10%.
+
+Обращайтесь. Мы ждем Вас!
+
+е-м: arcot@beep.ru
+t\f\a : 7059285#92889

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264455AbTFYKem (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 06:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264472AbTFYKeO
+	id S264454AbTFYK0v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 06:26:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264460AbTFYK0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 06:34:14 -0400
-Received: from mail.convergence.de ([212.84.236.4]:17824 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S264455AbTFYKXa convert rfc822-to-8bit
+	Wed, 25 Jun 2003 06:26:00 -0400
+Received: from mail.convergence.de ([212.84.236.4]:16032 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S264436AbTFYKX2 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 06:23:30 -0400
-Subject: [PATCH 7/7] Update dvb av7110 driver
-In-Reply-To: <10565374593380@convergence.de>
+	Wed, 25 Jun 2003 06:23:28 -0400
+Subject: [PATCH 4/7] Update various dvb frontend drivers
+In-Reply-To: <10565374582064@convergence.de>
 X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Wed, 25 Jun 2003 12:37:39 +0200
-Message-Id: <10565374594161@convergence.de>
+Date: Wed, 25 Jun 2003 12:37:38 +0200
+Message-Id: <10565374582365@convergence.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
@@ -23,749 +23,374 @@ From: Michael Hunold (LinuxTV.org CVS maintainer)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- Fix to 'Sharing SDRAM between TT re-insertion and OSD...' - OSD didn't get the maximum available memory in one piece; needs new firmware version 0x2616
-- Improved performance when setting palette with full 256 color OSD
-- read MAC from EEPROM if available, contributed by Michael Glaum <mglaum@kvh.com>
-- add some MODULE_PARM_DESC for modinfo
-- add support for the "analog module" available for DVB-C cards: the saa7113 is initialized and some more v4l2 ioctls are available. you can use "xawtv" now to switch between "dvb" and "analog" input. when you are one the "analog" input, you can tune in analog channels.
-diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/dvb/ttpci/av7110.c linux-2.5.73.work/drivers/media/dvb/ttpci/av7110.c
---- linux-2.5.73.bk/drivers/media/dvb/ttpci/av7110.c	2003-06-25 09:46:54.000000000 +0200
-+++ linux-2.5.73.work/drivers/media/dvb/ttpci/av7110.c	2003-06-23 12:40:49.000000000 +0200
-@@ -86,6 +86,7 @@
- 	#define DEB_EE(x)
- #endif
+- grundig_29504-401.c: fix charge pump and band switch setting bug, catched by Robert Schlabbach <robert_s@gmx.net>
+- grundig_29504-401.c: pass apply_frontend_param() return value to upper layers
+- grundig_29504-401.c: try to make a more specific detection mechanism
+- grundig_29504-491.c:remove bogus out-of-range check, FEC table index is limited to 0...7 due to &= ~0x03 anyway...
+- nxt6000.c: Patch by Paul Andreassen: Add Support for Comtech DVBT-6k07 (PLL IC: SP5730)
+- ves1820.c: use Robert Schlabbach's suggestions for CLKCONF (0x03) and CARCONF (0x04)
+- alps_bsrv2.c: don't enable voltage on init + inversion bugfix
+diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/dvb/dvb-core/dvb_frontend.c linux-2.5.73.work/drivers/media/dvb/dvb-core/dvb_frontend.c
+--- linux-2.5.73.bk/drivers/media/dvb/dvb-core/dvb_frontend.c	2003-06-25 09:46:54.000000000 +0200
++++ linux-2.5.73.work/drivers/media/dvb/dvb-core/dvb_frontend.c	2003-06-23 12:40:49.000000000 +0200
+@@ -263,8 +263,14 @@
+                 if (flags & O_NONBLOCK)
+                         return -EWOULDBLOCK;
  
-+#include "ttpci-eeprom.h"
- #include "av7110.h"
- #include "av7110_ipack.h"
++		up(&fe->sem);
++
+                 ret = wait_event_interruptible (events->wait_queue,
+                                                 events->eventw != events->eventr);
++
++        	if (down_interruptible (&fe->sem))
++			return -ERESTARTSYS;
++
+                 if (ret < 0)
+                         return ret;
+         }
+diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/dvb/frontends/alps_bsrv2.c linux-2.5.73.work/drivers/media/dvb/frontends/alps_bsrv2.c
+--- linux-2.5.73.bk/drivers/media/dvb/frontends/alps_bsrv2.c	2003-06-25 09:46:54.000000000 +0200
++++ linux-2.5.73.work/drivers/media/dvb/frontends/alps_bsrv2.c	2003-06-25 09:50:42.000000000 +0200
+@@ -55,7 +55,7 @@
+         0x01, 0xA4, 0x35, 0x81, 0x2A, 0x0d, 0x55, 0xC4,
+         0x09, 0x69, 0x00, 0x86, 0x4c, 0x28, 0x7F, 0x00,
+         0x00, 0x81, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	
+-        0x80, 0x00, 0x31, 0xb0, 0x14, 0x00, 0xDC, 0x20,
++        0x80, 0x00, 0x31, 0xb0, 0x14, 0x00, 0xDC, 0x00,
+         0x81, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+         0x00, 0x55, 0x00, 0x00, 0x7f, 0x00
+@@ -158,6 +158,11 @@
+ {
+ 	u8 val;
  
-@@ -110,7 +112,8 @@
++	/*
++	 * inversion on/off are interchanged because i and q seem to
++	 * be swapped on the hardware
++	 */
++
+ 	switch (inversion) {
+ 	case INVERSION_OFF:
+ 		val = 0xc0;
+@@ -166,13 +171,16 @@
+ 		val = 0x80;
+ 		break;
+ 	case INVERSION_AUTO:
+-		val = 0x40;
++		val = 0x00;
+ 		break;
+ 	default:
+ 		return -EINVAL;
+ 	}
  
- int av7110_num = 0;
+-	return ves1893_writereg (i2c, 0x0c, (init_1893_tab[0x0c] & 0x3f) | val);
++	/* needs to be saved for FE_GET_FRONTEND */
++	init_1893_tab[0x0c] = (init_1893_tab[0x0c] & 0x3f) | val;
++
++	return ves1893_writereg (i2c, 0x0c, init_1893_tab[0x0c]);
+ }
  
--#define FW_CI_LL_SUPPORT(arm_app) (((arm_app) >> 16) & 0x8000)
-+#define FW_CI_LL_SUPPORT(arm_app) ((arm_app) & 0x80000000)
-+#define FW_VERSION(arm_app)       ((arm_app) & 0x0000FFFF)
  
- /****************************************************************************
-  * DEBI functions
-@@ -1089,7 +1092,7 @@
-         u32 stat;
- #endif
+@@ -383,8 +391,14 @@
+ 		afc = (afc * (int)(p->u.qpsk.symbol_rate/1000/8))/16;
  
--	DEB_EE(("av7110: %p\n",av7110));
-+//	DEB_EE(("av7110: %p\n",av7110));
+ 		p->frequency -= afc;
++
++		/*
++		 * inversion indicator is only valid
++		 * if auto inversion was used
++		 */
++		if (!(init_1893_tab[0x0c] & 0x80))
+ 		p->inversion = (ves1893_readreg (i2c, 0x0f) & 2) ? 
+-					INVERSION_ON : INVERSION_OFF;
++					INVERSION_OFF : INVERSION_ON;
+ 		p->u.qpsk.fec_inner = ves1893_get_fec (i2c);
+ 	/*  XXX FIXME: timing offset !! */
+ 		break;
+diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/dvb/frontends/grundig_29504-401.c linux-2.5.73.work/drivers/media/dvb/frontends/grundig_29504-401.c
+--- linux-2.5.73.bk/drivers/media/dvb/frontends/grundig_29504-401.c	2003-06-25 09:46:54.000000000 +0200
++++ linux-2.5.73.work/drivers/media/dvb/frontends/grundig_29504-401.c	2003-06-18 14:03:14.000000000 +0200
+@@ -37,15 +37,15 @@
  
- 	if (!av7110->arm_ready) {
- 		DEB_D(("arm not ready.\n"));
-@@ -1166,7 +1169,7 @@
+ 
+ struct dvb_frontend_info grundig_29504_401_info = {
+-	.name 			= "Grundig 29504-401",
+-	.type 			= FE_OFDM,
+-/*	.frequency_min 		= ???,*/
+-/*	.frequency_max 		= ???,*/
+-	.frequency_stepsize 	= 166666,
+-/*      .frequency_tolerance 	= ???,*/
+-/*      .symbol_rate_tolerance 	= ???,*/
+-	.notifier_delay =  0,
+-	.caps = FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 | 
++	name: "Grundig 29504-401",
++	type: FE_OFDM,
++/*	frequency_min: ???,*/
++/*	frequency_max: ???,*/
++	frequency_stepsize: 166666,
++/*      frequency_tolerance: ???,*/
++/*      symbol_rate_tolerance: ???,*/
++	notifier_delay: 0,
++	caps: FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 | 
+ 	      FE_CAN_FEC_5_6 | FE_CAN_FEC_7_8 |
+ 	      FE_CAN_QPSK | FE_CAN_QAM_16 | FE_CAN_QAM_64 |
+ 	      FE_CAN_MUTE_TS /*| FE_CAN_CLEAN_SETUP*/
+@@ -109,15 +109,15 @@
+ 	div = (36125000 + freq) / 166666;
+ 	cfg = 0x88;
+ 
+-	cpump = div < 175000000 ? 2 : div < 390000000 ? 1 :
+-		div < 470000000 ? 2 : div < 750000000 ? 1 : 3;
++	cpump = freq < 175000000 ? 2 : freq < 390000000 ? 1 :
++		freq < 470000000 ? 2 : freq < 750000000 ? 1 : 3;
+ 
+-	band_select = div < 175000000 ? 0x0e : div < 470000000 ? 0x05 : 0x03;
++	band_select = freq < 175000000 ? 0x0e : freq < 470000000 ? 0x05 : 0x03;
+ 
+ 	buf [0] = (div >> 8) & 0x7f;
+ 	buf [1] = div & 0xff;
+ 	buf [2] = ((div >> 10) & 0x60) | cfg;
+-	buf [3] = cpump | band_select;
++	buf [3] = (cpump << 6) | band_select;
+ 
+ 	return tsa5060_write (i2c, buf);
+ }
+@@ -267,12 +268,12 @@
+ }
+ 
+ 
+-static void reset_and_configure (struct dvb_i2c_bus *i2c)
++static int reset_and_configure (struct dvb_i2c_bus *i2c)
+ {
+ 	u8 buf [] = { 0x06 };
+ 	struct i2c_msg msg = { .addr = 0x00, .flags = 0, .buf = buf, .len = 1 };
+ 
+-	i2c->xfer (i2c, &msg, 1);
++	return (i2c->xfer (i2c, &msg, 1) == 1) ? 0 : -ENODEV;
+ }
+ 
+ 
+@@ -391,7 +392,7 @@
+ 		struct dvb_frontend_parameters *p = arg;
+ 
+ 		tsa5060_set_tv_freq (i2c, p->frequency);
+-		apply_frontend_param (i2c, p);
++		return apply_frontend_param (i2c, p);
+ 	}
+         case FE_GET_FRONTEND:
+ 		/*  we could correct the frequency here, but...
+@@ -417,25 +418,61 @@
+ 
+ static int l64781_attach (struct dvb_i2c_bus *i2c)
+ {
++	u8 reg0x3e;
+ 	u8 b0 [] = { 0x1a };
+ 	u8 b1 [] = { 0x00 };
+ 	struct i2c_msg msg [] = { { .addr = 0x55, .flags = 0, .buf = b0, .len = 1 },
+ 			   { .addr = 0x55, .flags = I2C_M_RD, .buf = b1, .len = 1 } };
+ 
+-	if (i2c->xfer (i2c, msg, 2) == 2)   /*  probably an EEPROM... */
++	/**
++	 *  the L64781 won't show up before we send the reset_and_configure()
++	 *  broadcast. If nothing responds there is no L64781 on the bus...
++	 */
++	if (reset_and_configure(i2c) < 0) {
++		dprintk("no response on reset_and_configure() broadcast, bailing out...\n");
+ 		return -ENODEV;
++	}
+ 
+-	reset_and_configure (i2c);
+-
+-	if (i2c->xfer (i2c, msg, 2) != 2)   /*  nothing... */
++	/* The chip always responds to reads */
++	if (i2c->xfer(i2c, msg, 2) != 2) {  
++	        dprintk("no response to read on I2C bus\n");
+ 		return -ENODEV;
++	}
++
++	/* Save current register contents for bailout */
++	reg0x3e = l64781_readreg(i2c, 0x3e);
+ 
+-	if (b1[0] != 0xa1)
++	/* Reading the POWER_DOWN register always returns 0 */
++	if (reg0x3e != 0) {
++	        dprintk("Device doesn't look like L64781\n");
+ 		return -ENODEV;
++	}
++
++	/* Turn the chip off */
++	l64781_writereg (i2c, 0x3e, 0x5a);
++
++	/* Responds to all reads with 0 */
++	if (l64781_readreg(i2c, 0x1a) != 0) {
++ 	        dprintk("Read 1 returned unexpcted value\n");
++	        goto bailout;
++	}	  
++
++	/* Turn the chip on */
++	l64781_writereg (i2c, 0x3e, 0xa5);
++	
++	/* Responds with register default value */
++	if (l64781_readreg(i2c, 0x1a) != 0xa1) { 
++ 	        dprintk("Read 2 returned unexpcted value\n");
++	        goto bailout;
++	}
+ 
+ 	dvb_register_frontend (grundig_29504_401_ioctl, i2c, NULL,
+ 			       &grundig_29504_401_info);
+ 	return 0;
++
++ bailout:
++	l64781_writereg (i2c, 0x3e, reg0x3e);  /* restore reg 0x3e */
++	return -ENODEV;
+ }
+ 
+ 
+diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/dvb/frontends/grundig_29504-491.c linux-2.5.73.work/drivers/media/dvb/frontends/grundig_29504-491.c
+--- linux-2.5.73.bk/drivers/media/dvb/frontends/grundig_29504-491.c	2003-06-25 09:46:54.000000000 +0200
++++ linux-2.5.73.work/drivers/media/dvb/frontends/grundig_29504-491.c	2003-06-25 09:50:42.000000000 +0200
+@@ -179,10 +179,7 @@
+ 	static fe_code_rate_t fec_tab [] = { FEC_8_9, FEC_1_2, FEC_2_3, FEC_3_4,
+ 				       FEC_4_5, FEC_5_6, FEC_6_7, FEC_7_8 };
+ 
+-	index = tda8083_readreg (i2c, 0x0e) & 0x3;
+-
+-	if (index > 7)
+-		return FEC_NONE;
++	index = tda8083_readreg(i2c, 0x0e) & 0x07;
+ 
+ 	return fec_tab [index];
+ }
+diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/dvb/frontends/nxt6000.c linux-2.5.73.work/drivers/media/dvb/frontends/nxt6000.c
+--- linux-2.5.73.bk/drivers/media/dvb/frontends/nxt6000.c	2003-06-25 09:46:54.000000000 +0200
++++ linux-2.5.73.work/drivers/media/dvb/frontends/nxt6000.c	2003-06-18 09:32:40.000000000 +0200
+@@ -6,8 +6,10 @@
+ 	
+ 	Alps TDME7 (Tuner: MITEL SP5659)
+ 	Alps TDED4 (Tuner: TI ALP510, external Nxt6000)
++	Comtech DVBT-6k07 (PLL IC: SP5730)
+ 
+     Copyright (C) 2002-2003 Florian Schirmer <schirmer@taytron.net>
++    Copyright (C) 2003 Paul Andreassen <paul@andreassen.com.au>
+ 
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+@@ -78,6 +80,7 @@
+ 
+ #define TUNER_TYPE_ALP510	0
+ #define TUNER_TYPE_SP5659	1
++#define TUNER_TYPE_SP5730	2
+ 
+ #define FE2NXT(fe) ((struct nxt6000_config *)&(fe->data))
+ #define FREQ2DIV(freq) ((freq + 36166667) / 166667)
+@@ -212,6 +215,39 @@
+ 	
+ }
+ 
++static int sp5730_set_tv_freq(struct dvb_frontend *fe, u32 freq)
++{
++
++	u8 buf[4];
++	struct nxt6000_config *nxt = FE2NXT(fe);
++
++	buf[0] = (FREQ2DIV(freq) >> 8) & 0x7F;
++	buf[1] = FREQ2DIV(freq) & 0xFF;
++	buf[2] = 0x93;
++
++	if ((freq >= 51000000) && (freq < 132100000))
++		buf[3] = 0x05;
++	else if ((freq >= 132100000) && (freq < 143000000))
++		buf[3] = 0x45;
++	else if ((freq >= 146000000) && (freq < 349100000))
++		buf[3] = 0x06;
++	else if ((freq >= 349100000) && (freq < 397100000))
++		buf[3] = 0x46;
++	else if ((freq >= 397100000) && (freq < 426000000))
++		buf[3] = 0x86;
++	else if ((freq >= 430000000) && (freq < 659100000))
++		buf[3] = 0x03;
++	else if ((freq >= 659100000) && (freq < 759100000))
++		buf[3] = 0x43;
++	else if ((freq >= 759100000) && (freq < 858000000))
++		buf[3] = 0x83;
++	else
++		return -EINVAL;
++
++	return pll_write(fe->i2c, nxt->demod_addr, nxt->tuner_addr, buf, 4);
++	
++}
++
+ static void nxt6000_reset(struct dvb_frontend *fe)
+ {
+ 
+@@ -756,6 +792,13 @@
+ 						
+ 					break;
+ 					
++				case TUNER_TYPE_SP5730:
++
++					if ((result = sp5730_set_tv_freq(fe, param->frequency)) < 0)
++						return result;
++
++					break;
++
+ 				default:
+ 				
+ 					return -EFAULT;
+@@ -816,6 +859,14 @@
+ 	
+ 			dprintk("nxt6000: detected MITEL SP5659 tuner at 0x%02X\n", nxt.tuner_addr);
+ 		
++		} else if (pll_write(i2c, demod_addr_tbl[addr_nr], 0xC0, NULL, 0) == 0) {
++
++			nxt.tuner_addr = 0xC0;
++			nxt.tuner_type = TUNER_TYPE_SP5730;
++			nxt.clock_inversion = 0;
++	
++			dprintk("nxt6000: detected SP5730 tuner at 0x%02X\n", nxt.tuner_addr);
++		
+ 		} else {
+ 
+ 			printk("nxt6000: unable to detect tuner\n");
+diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/dvb/frontends/ves1820.c linux-2.5.73.work/drivers/media/dvb/frontends/ves1820.c
+--- linux-2.5.73.bk/drivers/media/dvb/frontends/ves1820.c	2003-06-25 09:46:54.000000000 +0200
++++ linux-2.5.73.work/drivers/media/dvb/frontends/ves1820.c	2003-06-20 08:48:36.000000000 +0200
+@@ -95,7 +95,7 @@
+ 
+ static u8 ves1820_inittab [] =
+ {
+-	0x69, 0x6A, 0x9B, 0x0A, 0x52, 0x46, 0x26, 0x1A,
++	0x69, 0x6A, 0x9B, 0x12, 0x12, 0x46, 0x26, 0x1A,
+ 	0x43, 0x6A, 0xAA, 0xAA, 0x1E, 0x85, 0x43, 0x28,
+ 	0xE0, 0x00, 0xA1, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 	0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
+@@ -109,7 +109,7 @@
+ {
+ 	u8 addr = GET_DEMOD_ADDR(fe->data);
+         u8 buf[] = { 0x00, reg, data };
+-	struct i2c_msg msg = { addr: addr, .flags = 0, .buf = buf, .len = 3 };
++	struct i2c_msg msg = { .addr = addr, .flags = 0, .buf = buf, .len = 3 };
+ 	struct dvb_i2c_bus *i2c = fe->i2c;
+         int ret;
+ 
+@@ -130,8 +130,8 @@
+ 	u8 b0 [] = { 0x00, reg };
+ 	u8 b1 [] = { 0 };
+ 	u8 addr = GET_DEMOD_ADDR(fe->data);
+-	struct i2c_msg msg [] = { { addr: addr, .flags = 0, .buf = b0, .len = 2 },
+-	                   { addr: addr, .flags = I2C_M_RD, .buf = b1, .len = 1 } };
++	struct i2c_msg msg [] = { { .addr = addr, .flags = 0, .buf = b0, .len = 2 },
++	                   { .addr = addr, .flags = I2C_M_RD, .buf = b1, .len = 1 } };
+ 	struct dvb_i2c_bus *i2c = fe->i2c;
+ 	int ret;
+ 
+@@ -147,7 +147,7 @@
+ static int tuner_write (struct dvb_i2c_bus *i2c, u8 addr, u8 data [4])
  {
          int ret;
-         
-- 	DEB_EE(("av7110: %p\n",av7110));
-+// 	DEB_EE(("av7110: %p\n",av7110));
- 
-         if (!av7110->arm_ready) {
- 		DEB_D(("arm not ready.\n"));
-@@ -1190,7 +1193,7 @@
-         u16 buf[num+2];
-         int i, ret;
- 
-- 	DEB_EE(("av7110: %p\n",av7110));
-+// 	DEB_EE(("av7110: %p\n",av7110));
- 
-         buf[0]=(( type << 8 ) | com);
-         buf[1]=num;
-@@ -1332,7 +1335,7 @@
- 
- static inline int SendDAC(struct av7110 *av7110, u8 addr, u8 data)
- {
-- 	DEB_EE(("av7110: %p\n",av7110));
-+// 	DEB_EE(("av7110: %p\n",av7110));
- 
-         return outcom(av7110, COMTYPE_AUDIODAC, AudioDAC, 2, addr, data);
- }
-@@ -1659,6 +1662,24 @@
-                   color, ((blend>>4)&0x0f));
- }
- 
-+static int OSDSetPalette(struct av7110 *av7110, u32 *colors, u8 first, u8 last)
-+{
-+       int i;
-+       int length = last - first + 1;
-+
-+       if (length * 4 > DATA_BUFF3_SIZE)
-+               return -1;
-+
-+       for (i=0; i<length; i++) {
-+               u32 blend = (colors[i] & 0xF0000000) >> 4;
-+               u32 yuv = blend ? RGB2YUV(colors[i] & 0xFF, (colors[i] >> 8) & 0xFF, (colors[i] >> 16) & 0xFF) | blend : 0;
-+               yuv = ((yuv & 0xFFFF0000) >> 16) | ((yuv & 0x0000FFFF) << 16); // TODO kls2003-06-15: not sure if this is endian-proof
-+               wdebi(av7110, DEBINOSWAP, DATA_BUFF3_BASE + i*4, yuv, 4);
-+       }
-+       return outcom(av7110, COMTYPE_OSD, Set_Palette, 4,
-+               av7110->osdwin, bpp2pal[av7110->osdbpp[av7110->osdwin]], first, last);
-+}
-+
- static int OSDSetBlock(struct av7110 *av7110, int x0, int y0, int x1, int y1, int inc, u8 *data)
- {
-         uint w, h, bpp, bpl, size, lpb, bnum, brest;
-@@ -1721,6 +1742,9 @@
-                 return 0;
-         case OSD_SetPalette:
-         {      
-+                if (FW_VERSION(av7110->arm_app) >= 0x2618)
-+                        OSDSetPalette(av7110, (u32 *)dc->data, dc->color, dc->x0);
-+                else {
-                 int i, len=dc->x0-dc->color+1;
-                 u8 *colors=(u8 *)dc->data;
- 
-@@ -1728,6 +1752,7 @@
-                         OSDSetColor(av7110, dc->color+i,
-                                     colors[i*4]  , colors[i*4+1],
-                                     colors[i*4+2], colors[i*4+3]);
-+                }
-                 return 0;
-         }
-         case OSD_SetTrans: 
-@@ -2087,28 +2112,28 @@
- 
- static inline void TestMode(struct av7110 *av7110, int mode)
- {
-- 	DEB_EE(("av7110: %p\n",av7110));
-+//	DEB_EE(("av7110: %p\n",av7110));
-         outcom(av7110, COMTYPE_ENCODER, SetTestMode, 1, mode);
- }
- 
- static inline void VidMode(struct av7110 *av7110, int mode)
- {
-- 	DEB_EE(("av7110: %p\n",av7110));
-+// 	DEB_EE(("av7110: %p\n",av7110));
-         outcom(av7110, COMTYPE_ENCODER, SetVidMode, 1, mode);
- }
-            
- 
--static inline int vidcom(struct av7110 *av7110, u32 com, u32 arg)
-+static int inline vidcom(struct av7110 *av7110, u32 com, u32 arg)
- {
-- 	DEB_EE(("av7110: %p\n",av7110));
-+// 	DEB_EE(("av7110: %p\n",av7110));
-         return outcom(av7110, 0x80, 0x02, 4, 
-                       (com>>16), (com&0xffff), 
-                       (arg>>16), (arg&0xffff));
- }
- 
--static inline int audcom(struct av7110 *av7110, u32 com)
-+static int inline audcom(struct av7110 *av7110, u32 com)
- {
--	DEB_EE(("av7110: %p\n",av7110));
-+//	DEB_EE(("av7110: %p\n",av7110));
- 	return outcom(av7110, 0x80, 0x03, 4, 
-                       (com>>16), (com&0xffff));
- }
-@@ -2583,38 +2608,274 @@
-  * V4L SECTION
-  ****************************************************************************/
- 
--int av7110_ioctl(struct saa7146_dev *dev, unsigned int cmd, void *arg) 
-+static struct v4l2_input inputs[2] = {
-+	{ 0,	"DVB",		V4L2_INPUT_TYPE_CAMERA,	1, 0, V4L2_STD_PAL_BG|V4L2_STD_NTSC_M, 0 }, 
-+	{ 1,	"ANALOG",	V4L2_INPUT_TYPE_TUNER,	2, 1, V4L2_STD_PAL_BG|V4L2_STD_NTSC_M, 0 },
-+};
-+
-+/* taken from ves1820.c */
-+static int ves1820_writereg(struct saa7146_dev *dev, u8 reg, u8 data)
- {
-+	u8 addr = 0x09;
-+        u8 buf[] = { 0x00, reg, data };
-+	struct i2c_msg msg = { .addr = addr, .flags = 0, .buf = buf, .len = 3 };
-+
-+  	DEB_EE(("av7710: dev: %p\n",dev));
-+
-+	if( 1 != saa7146_i2c_transfer(dev, &msg, 1, 1)) {
-+		return -1;
-+	}
-+	return 0;
-+}
-+
-+static int tuner_write(struct saa7146_dev *dev, u8 addr, u8 data [4])
-+{
+-        struct i2c_msg msg = { addr: addr, .flags = 0, .buf = data, .len = 4 };
 +        struct i2c_msg msg = { .addr = addr, .flags = 0, .buf = data, .len = 4 };
-+
-+  	DEB_EE(("av7710: dev: %p\n",dev));
-+
-+	if( 1 != saa7146_i2c_transfer(dev, &msg, 1, 1)) {
-+		return -1;
-+	}
-+	return 0;
-+}
-+
-+
-+/**
-+ *   set up the downconverter frequency divisor for a
-+ *   reference clock comparision frequency of 62.5 kHz.
-+ */
-+static int tuner_set_tv_freq (struct saa7146_dev *dev, u32 freq)
-+{
-+        u32 div;
-+	u8 config;
-+        u8 buf [4];
-+
-+ 	DEB_EE(("av7710: freq: 0x%08x\n",freq));
-+
-+	/* magic number: 56. tuning with the frequency given by v4l2
-+	   is always off by 56*62.5 kHz...*/
-+	div = freq + 56;
-+
-+	buf[0] = (div >> 8) & 0x7f;
-+	buf[1] = div & 0xff;
-+	buf[2] = 0x8e;
-+
-+	if (freq < 16*168.25 ) 
-+		config = 0xa0;
-+	else if (freq < 16*447.25) 
-+		config = 0x90;
-+	else
-+		config = 0x30;
-+	config &= ~0x02;
-+
-+	buf[3] = config;
-+
-+        return tuner_write (dev, 0x61, buf);
-+}
-+
-+static struct saa7146_standard analog_standard[];
-+static struct saa7146_standard dvb_standard[];
-+static struct saa7146_standard standard[];
-+
-+int av7110_dvb_c_switch(struct saa7146_fh *fh)
-+{
-+	struct saa7146_dev *dev = fh->dev;
-+	struct saa7146_vv *vv = dev->vv_data;
-+	struct av7110 *av7110 = (struct av7110*)dev->ext_priv;
-+	u16 buf[3] = { ((COMTYPE_AUDIODAC << 8) + ADSwitch), 1, 1 };
-+
-+	u8 band = 0;
-+	int source, sync;
-+	struct saa7146_fh *ov_fh = NULL;
-+	int restart_overlay = 0;
-+
-+	DEB_EE(("av7110: %p\n",av7110));
-+
-+	if( vv->ov_data != NULL ) {
-+		ov_fh = vv->ov_data->fh;
-+		saa7146_stop_preview(ov_fh);
-+		restart_overlay = 1;
-+	}
-+
-+	if( 0 != av7110->current_input ) {
-+		buf[2] = 0;
-+		band = 0x68; /* analog band */
-+		source = SAA7146_HPS_SOURCE_PORT_B;
-+		sync = SAA7146_HPS_SYNC_PORT_B;
-+		memcpy(standard,analog_standard,sizeof(struct saa7146_standard)*2);
-+	} else {
-+		buf[2] = 1;
-+		band = 0x28; /* digital band */	
-+		source = SAA7146_HPS_SOURCE_PORT_A;
-+		sync = SAA7146_HPS_SYNC_PORT_A;
-+		memcpy(standard,dvb_standard,sizeof(struct saa7146_standard)*2);
-+	}
-+
-+	/* hmm, this does not do anything!? */
-+	if (OutCommand(av7110, buf, 3)) {
-+		printk("ADSwitch error\n");
-+	}
-+
-+	if( 0 != ves1820_writereg(dev, 0x0f, band )) {
-+		printk("setting band in demodulator failed.\n");
-+	}
-+	saa7146_set_hps_source_and_sync(dev, source, sync);
-+
-+	/* restart overlay if it was active before */
-+	if( 0 != restart_overlay ) {
-+		saa7146_start_preview(ov_fh);
-+	}
-+
-+	return 0;
-+}
-+
-+int av7110_ioctl(struct saa7146_fh *fh, unsigned int cmd, void *arg) 
-+{
-+	struct saa7146_dev *dev = fh->dev;
-+	struct av7110 *av7110 = (struct av7110*)dev->ext_priv;
-  	DEB_EE(("saa7146_dev: %p\n",dev));
  
- 	switch(cmd) {
-+	case VIDIOC_G_TUNER:
-+	{
-+		struct v4l2_tuner *t = arg;
-+
-+		DEB_EE(("VIDIOC_G_TUNER: %d\n", t->index));
-+
-+		if( 0 == av7110->has_analog_tuner || av7110->current_input != 1 ) {
-+			return -EINVAL;
-+		}
-+
-+		memset(t,0,sizeof(*t));
-+		strcpy(t->name, "Television");
-+
-+		t->type = V4L2_TUNER_ANALOG_TV;
-+		t->capability = V4L2_TUNER_CAP_NORM | V4L2_TUNER_CAP_STEREO | V4L2_TUNER_CAP_LANG1 | V4L2_TUNER_CAP_LANG2 | V4L2_TUNER_CAP_SAP;
-+		t->rangelow = 772;	/* 48.25 MHZ / 62.5 kHz = 772, see fi1216mk2-specs, page 2 */
-+		t->rangehigh = 13684;	/* 855.25 MHz / 62.5 kHz = 13684 */
-+		/* FIXME: add the real signal strength here */
-+		t->signal = 0xffff;
-+		t->afc = 0;		
-+		/* fixme: real autodetection here */
-+		t->rxsubchans 	= V4L2_TUNER_SUB_STEREO | V4L2_TUNER_SUB_MONO;
-+
-+		return 0;
-+	}
-+	case VIDIOC_S_TUNER:
-+	{
-+		struct v4l2_tuner *t = arg;
-+		
-+		DEB_EE(("VIDIOC_S_TUNER: %d\n", t->index));
-+
-+		if( 0 == av7110->has_analog_tuner || av7110->current_input != 1 ) {
-+			return -EINVAL;
-+		}
-+
-+
-+		switch(t->audmode) {
-+			case V4L2_TUNER_MODE_STEREO: {
-+				DEB_D(("VIDIOC_S_TUNER: V4L2_TUNER_MODE_STEREO\n"));
-+				break;
-+			}
-+			case V4L2_TUNER_MODE_LANG1: {
-+				DEB_D(("VIDIOC_S_TUNER: V4L2_TUNER_MODE_LANG1\n"));
-+				break;
-+			}
-+			case V4L2_TUNER_MODE_LANG2: {
-+				DEB_D(("VIDIOC_S_TUNER: V4L2_TUNER_MODE_LANG2\n"));
-+				break;
-+			}
-+			default: { /* case V4L2_TUNER_MODE_MONO: {*/
-+				DEB_D(("VIDIOC_S_TUNER: TDA9840_SET_MONO\n"));
-+				break;
-+			}
-+		}
-+
-+		return 0;
-+	}
-+	case VIDIOC_G_FREQUENCY:
-+	{
-+		struct v4l2_frequency *f = arg;
-+
-+		DEB_EE(("VIDIOC_G_FREQ: freq:0x%08x.\n", f->frequency));
-+
-+		if( 0 == av7110->has_analog_tuner || av7110->current_input != 1 ) {
-+			return -EINVAL;
-+		}
-+
-+		memset(f,0,sizeof(*f));
-+		f->type = V4L2_TUNER_ANALOG_TV;
-+		f->frequency =  av7110->current_freq;
-+
-+		return 0;
-+	}
-+	case VIDIOC_S_FREQUENCY:
-+	{
-+		struct v4l2_frequency *f = arg;
-+
-+		DEB_EE(("VIDIOC_S_FREQUENCY: freq:0x%08x.\n",f->frequency));
-+
-+		if( 0 == av7110->has_analog_tuner || av7110->current_input != 1 ) {
-+			return -EINVAL;
-+		}
-+
-+		if (V4L2_TUNER_ANALOG_TV != f->type)
-+			return -EINVAL;
-+
-+		/* tune in desired frequency */			
-+		tuner_set_tv_freq(dev, f->frequency);
-+		av7110->current_freq = f->frequency;
-+
-+		return 0;
-+	}
- 	case VIDIOC_ENUMINPUT:
- 	{
- 		struct v4l2_input *i = arg;
- 		
-+		DEB_EE(("VIDIOC_ENUMINPUT: %d\n", i->index));
-+
-+		if( 0 != av7110->has_analog_tuner ) {
-+			if( i->index < 0 || i->index >= 2) {
-+				return -EINVAL;
-+			}
-+		} else {
- 		if( i->index != 0 ) {
- 			return -EINVAL;
- 		}
-+		}		
- 
--		memset(i,0,sizeof(*i));
--		i->index = 0;
--		strcpy(i->name, "DVB");
--		i->type = V4L2_INPUT_TYPE_CAMERA;
--		i->audioset = 1;
-+		memcpy(i, &inputs[i->index], sizeof(struct v4l2_input));
- 		
- 		return 0;
- 	}
- 	case VIDIOC_G_INPUT:
- 	{
- 		int *input = (int *)arg;
--		*input = 0;
-+		*input = av7110->current_input;
-+		DEB_EE(("VIDIOC_G_INPUT: %d\n", *input));
- 		return 0;		
- 	}	
- 	case VIDIOC_S_INPUT:
- 	{
-+		int input = *(int *)arg;
-+
-+		DEB_EE(("VIDIOC_S_INPUT: %d\n", input));
-+
-+		if( 0 == av7110->has_analog_tuner ) {
- 		return 0;		
- 	}	
-+		
-+		if( input < 0 || input >= 2) {
-+			return -EINVAL;
-+		}
-+		
-+		/* fixme: switch inputs here */
-+		av7110->current_input = input;
-+		return av7110_dvb_c_switch(fh);
-+	}	
- 	default:
-+		printk("no such ioctl\n");
- 		return -ENOIOCTLCMD;
- 	}
- 	return 0;
-@@ -4006,7 +4267,6 @@
- #endif
- //        }
-         
--        av7110->dvb_net.card_num=av7110->dvb_adapter->num;
-         dvb_net_init(av7110->dvb_adapter, &av7110->dvb_net, &dvbdemux->dmx);
- 
- 	return 0;
-@@ -4061,6 +4321,10 @@
- 	{ VIDIOC_ENUMINPUT, 	SAA7146_EXCLUSIVE },
- 	{ VIDIOC_G_INPUT,	SAA7146_EXCLUSIVE },
- 	{ VIDIOC_S_INPUT,	SAA7146_EXCLUSIVE },
-+	{ VIDIOC_G_FREQUENCY,	SAA7146_EXCLUSIVE },
-+	{ VIDIOC_S_FREQUENCY, 	SAA7146_EXCLUSIVE },
-+	{ VIDIOC_G_TUNER, 	SAA7146_EXCLUSIVE },
-+	{ VIDIOC_S_TUNER, 	SAA7146_EXCLUSIVE },
- 	{ 0, 0 }
- };
- 
-@@ -4114,6 +4378,8 @@
- 		return -ENOMEM;
- 	}
- 
-+	ttpci_eeprom_parse_mac(av7110->i2c_bus);
-+
- 	saa7146_write(dev, PCI_BT_V1, 0x1c00101f);
- 	saa7146_write(dev, BCS_CTRL, 0x80400040);
- 
-@@ -4186,9 +4452,9 @@
- 	bootarm(av7110);
- 	firmversion(av7110);
- 
--	if ((av7110->arm_app&0xffff)<0x2501)
-+	if (FW_VERSION(av7110->arm_app)<0x2501)
- 		printk ("av7110: Warning, firmware version 0x%04x is too old. "
--			"System might be unstable!\n", av7110->arm_app&0xffff);
-+			"System might be unstable!\n", FW_VERSION(av7110->arm_app));
- 
- 	kernel_thread(arm_thread, (void *) av7110, 0);
- 
-@@ -4199,6 +4465,8 @@
- 	VidMode(av7110, vidmode);
- 
- 	/* remaining inits according to card and frontend type */
-+	av7110->has_analog_tuner = 0;
-+	av7110->current_input = 0;
- 	if (i2c_writereg(av7110, 0x20, 0x00, 0x00)==1) {
- 		printk ("av7110(%d): Crystal audio DAC detected\n",
- 			av7110->dvb_adapter->num);
-@@ -4225,6 +4493,31 @@
- 			msp_writereg(av7110, 0x12, 0x000a, 0x0220); // SCART 1 source
- 			msp_writereg(av7110, 0x12, 0x0007, 0x7f00); // SCART 1 volume
- 			msp_writereg(av7110, 0x12, 0x000d, 0x4800); // prescale SCART
-+		
-+		if (i2c_writereg(av7110, 0x48, 0x01, 0x00)!=1) {
-+			INFO(("saa7113 not accessible.\n"));
-+		} else {
-+			av7110->has_analog_tuner = 1;
-+			/* init the saa7113 */
-+			i2c_writereg(av7110, 0x48, 0x02, 0xd0); i2c_writereg(av7110, 0x48, 0x03, 0x23); i2c_writereg(av7110, 0x48, 0x04, 0x00);
-+			i2c_writereg(av7110, 0x48, 0x05, 0x00); i2c_writereg(av7110, 0x48, 0x06, 0xe9); i2c_writereg(av7110, 0x48, 0x07, 0x0d);
-+			i2c_writereg(av7110, 0x48, 0x08, 0x98); i2c_writereg(av7110, 0x48, 0x09, 0x02); i2c_writereg(av7110, 0x48, 0x0a, 0x80);
-+			i2c_writereg(av7110, 0x48, 0x0b, 0x40); i2c_writereg(av7110, 0x48, 0x0c, 0x40); i2c_writereg(av7110, 0x48, 0x0d, 0x00);
-+			i2c_writereg(av7110, 0x48, 0x0e, 0x01);	i2c_writereg(av7110, 0x48, 0x0f, 0x7c); i2c_writereg(av7110, 0x48, 0x10, 0x48);
-+			i2c_writereg(av7110, 0x48, 0x11, 0x0c);	i2c_writereg(av7110, 0x48, 0x12, 0x8b);	i2c_writereg(av7110, 0x48, 0x13, 0x10);
-+			i2c_writereg(av7110, 0x48, 0x14, 0x00);	i2c_writereg(av7110, 0x48, 0x15, 0x00);	i2c_writereg(av7110, 0x48, 0x16, 0x00);
-+			i2c_writereg(av7110, 0x48, 0x17, 0x00);	i2c_writereg(av7110, 0x48, 0x18, 0x00);	i2c_writereg(av7110, 0x48, 0x19, 0x00);
-+			i2c_writereg(av7110, 0x48, 0x1a, 0x00);	i2c_writereg(av7110, 0x48, 0x1b, 0x00);	i2c_writereg(av7110, 0x48, 0x1c, 0x00);
-+			i2c_writereg(av7110, 0x48, 0x1d, 0x00);	i2c_writereg(av7110, 0x48, 0x1e, 0x00);
-+		}	
-+
-+		memcpy(standard,dvb_standard,sizeof(struct saa7146_standard)*2);
-+		/* set dd1 stream a & b */
-+      		saa7146_write(dev, DD1_STREAM_B, 0x00000000);
-+		saa7146_write(dev, DD1_INIT, 0x0200700);
-+		saa7146_write(dev, MC2, (MASK_09 | MASK_25 | MASK_10 | MASK_26));
-+
-+
- 	} else if (dev->pci->subsystem_vendor == 0x110a) {
- 		printk("av7110(%d): DVB-C w/o analog module detected\n",
- 			av7110->dvb_adapter->num);
-@@ -4330,6 +4623,16 @@
- 	{ "NTSC", V4L2_STD_NTSC, 0x10, 244, 480, 0x40, 708, 709, 480, 640 },
- };
- 
-+static struct saa7146_standard analog_standard[] = {
-+	{ "PAL", V4L2_STD_PAL, 0x18, 288, 576, 0x08, 708, 709, 576, 768 },
-+	{ "NTSC", V4L2_STD_NTSC, 0x10, 244, 480, 0x40, 708, 709, 480, 640 },
-+};
-+
-+static struct saa7146_standard dvb_standard[] = {
-+	{ "PAL", V4L2_STD_PAL, 0x14, 288, 576, 0x4a, 708, 709, 576, 768 },
-+	{ "NTSC", V4L2_STD_NTSC, 0x10, 244, 480, 0x40, 708, 709, 480, 640 },
-+};
-+
- static struct saa7146_extension av7110_extension;
- 
- #define MAKE_AV7110_INFO(x_var,x_name) \
-@@ -4390,7 +4693,7 @@
- static struct saa7146_ext_vv av7110_vv_data = {
- 	.inputs		= 1,
- 	.audios 	= 1,
--	.capabilities	= 0,
-+	.capabilities	= V4L2_CAP_TUNER,
- 	.flags		= SAA7146_EXT_SWAP_ODD_EVEN,
- 
- 	.stds		= &standard[0],
-@@ -4442,7 +4745,11 @@
- 
- MODULE_PARM(av7110_debug,"i");
- MODULE_PARM(vidmode,"i");
-+MODULE_PARM_DESC(vidmode,"analog video out: 0 off, 1 CVBS+RGB (default), 2 CVBS+YC, 3 YC");
- MODULE_PARM(pids_off,"i");
-+MODULE_PARM_DESC(pids_off,"clear video/audio/PCR PID filters when demux is closed");
- MODULE_PARM(adac,"i");
-+MODULE_PARM_DESC(adac,"audio DAC type: 0 TI, 1 CRYSTAL, 2 MSP (use if autodetection fails)");
- MODULE_PARM(hw_sections, "i");
-+MODULE_PARM_DESC(hw_sections, "0 use software section filter, 1 use hardware");
- 
-diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/dvb/ttpci/av7110.h linux-2.5.73.work/drivers/media/dvb/ttpci/av7110.h
---- linux-2.5.73.bk/drivers/media/dvb/ttpci/av7110.h	2003-06-25 09:46:54.000000000 +0200
-+++ linux-2.5.73.work/drivers/media/dvb/ttpci/av7110.h	2003-06-17 09:29:10.000000000 +0200
-@@ -153,7 +153,8 @@
- 	BlitBmp,
- 	ReleaseBmp,
- 	SetWTrans,
--	SetWNoTrans
-+        SetWNoTrans,
-+        Set_Palette
- };
- 
- enum av7110_pid_command { 
-@@ -405,6 +406,11 @@
- 	struct dvb_i2c_bus	*i2c_bus;	
- 	char			*card_name;
- 
-+	/* support for analog module of dvb-c */
-+	int			has_analog_tuner;
-+	int			current_input;
-+	u32			current_freq;
-+				
- 	struct tasklet_struct   debi_tasklet;
- 	struct tasklet_struct   gpio_tasklet;
- 
-@@ -572,6 +578,9 @@
- #define DATA_BUFF2_BASE	(DATA_BUFF1_BASE+DATA_BUFF1_SIZE)
- #define DATA_BUFF2_SIZE	0x0800
- 
-+#define DATA_BUFF3_BASE (DATA_BUFF2_BASE+DATA_BUFF2_SIZE)
-+#define DATA_BUFF3_SIZE 0x0400
-+
- #define Reserved	(DPRAM_BASE + 0x1E00)
- #define Reserved_SIZE	0x1C0
- 
-diff -uNrwB --new-file linux-2.5.73.patch/drivers/media/dvb/ttpci/ttpci-eeprom.c linux-2.5.73.work/drivers/media/dvb/ttpci/ttpci-eeprom.c
---- linux-2.5.73.patch/drivers/media/dvb/ttpci/ttpci-eeprom.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.5.73.work/drivers/media/dvb/ttpci/ttpci-eeprom.c	2003-06-25 10:57:21.000000000 +0200
-@@ -0,0 +1,118 @@
-+/*
-+    Retrieve encoded MAC address from 24C16 serial 2-wire EEPROM,
-+    decode it and store it in the associated adapter struct for
-+    use by dvb_net.c
-+
-+    This code was tested on TT-Budget/WinTV-NOVA-CI PCI boards with
-+    Atmel and ST Microelectronics EEPROMs.
-+
-+    This card appear to have the 24C16 write protect held to ground,
-+    thus permitting normal read/write operation. Theoretically it
-+    would be possible to write routines to burn a different (encoded)
-+    MAC address into the EEPROM.
-+
-+    Robert Schlabbach	GMX
-+    Michael Glaum	KVH Industries
-+    Holger Waechtler	Convergence
-+
-+    This program is free software; you can redistribute it and/or modify
-+    it under the terms of the GNU General Public License as published by
-+    the Free Software Foundation; either version 2 of the License, or
-+    (at your option) any later version.
-+
-+    This program is distributed in the hope that it will be useful,
-+    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+    GNU General Public License for more details.
-+
-+    You should have received a copy of the GNU General Public License
-+    along with this program; if not, write to the Free Software
-+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+
-+*/
-+
-+#include <asm/errno.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/string.h>
-+
-+#include "dvb_i2c.h"
-+#include "dvb_functions.h"
-+
-+#if 1
-+#define dprintk(x...) printk(x)
-+#else
-+#define dprintk(x...)
-+#endif
-+
-+
-+static int ttpci_eeprom_read_encodedMAC(struct dvb_i2c_bus *i2c, u8 * encodedMAC)
-+{
-+	int ret;
-+	u8 b0[] = { 0xd4 };
-+
-+	struct i2c_msg msg[] = {
-+		{.addr = 0x50,.flags = 0,.buf = b0,.len = 1},
-+		{.addr = 0x50,.flags = I2C_M_RD,.buf = encodedMAC,.len = 6}
-+	};
-+
-+	dprintk("%s\n", __FUNCTION__);
-+
-+	ret = i2c->xfer(i2c, msg, 2);
-+
-+	if (ret != 2)		/* Assume EEPROM isn't there */
-+		return (-ENODEV);
-+
-+	return 0;
-+}
-+
-+static void decodeMAC(u8 * decodedMAC, const u8 * encodedMAC)
-+{
-+	u8 ormask0[3] = { 0x54, 0x7B, 0x9E };
-+	u8 ormask1[3] = { 0xD3, 0xF1, 0x23 };
-+	u8 low;
-+	u8 high;
-+	u8 shift;
-+	int i;
-+
-+	decodedMAC[0] = 0x00;
-+	decodedMAC[1] = 0xD0;
-+	decodedMAC[2] = 0x5C;
-+
-+	for (i = 0; i < 3; i++) {
-+		low = encodedMAC[2 * i] ^ ormask0[i];
-+		high = encodedMAC[2 * i + 1] ^ ormask1[i];
-+		shift = (high >> 6) & 0x3;
-+
-+		decodedMAC[5 - i] = ((high << 8) | low) >> shift;
-+	}
-+
-+}
-+
-+
-+int ttpci_eeprom_parse_mac(struct dvb_i2c_bus *i2c)
-+{
-+	int ret;
-+	u8 encodedMAC[6];
-+	u8 decodedMAC[6];
-+
-+	ret = ttpci_eeprom_read_encodedMAC(i2c, encodedMAC);
-+
-+	if (ret != 0) {		/* Will only be -ENODEV */
-+		dprintk("Couldn't read from EEPROM: not there?\n");
-+		memset(i2c->adapter->proposed_mac, 0, 6);
-+		return ret;
-+	}
-+
-+	decodeMAC(decodedMAC, encodedMAC);
-+	memcpy(i2c->adapter->proposed_mac, decodedMAC, 6);
-+
-+	dprintk("%s adapter %i has MAC addr = %02x:%02x:%02x:%02x:%02x:%02x\n",
-+		i2c->adapter->name, i2c->adapter->num,
-+		decodedMAC[0], decodedMAC[1], decodedMAC[2],
-+		decodedMAC[3], decodedMAC[4], decodedMAC[5]);
-+	dprintk("encoded MAC was %02x:%02x:%02x:%02x:%02x:%02x\n",
-+		encodedMAC[0], encodedMAC[1], encodedMAC[2],
-+		encodedMAC[3], encodedMAC[4], encodedMAC[5]);
-+	return 0;
-+}
-diff -uNrwB --new-file linux-2.5.73.patch/drivers/media/dvb/ttpci/ttpci-eeprom.h linux-2.5.73.work/drivers/media/dvb/ttpci/ttpci-eeprom.h
---- linux-2.5.73.patch/drivers/media/dvb/ttpci/ttpci-eeprom.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.5.73.work/drivers/media/dvb/ttpci/ttpci-eeprom.h	2003-06-25 10:55:33.000000000 +0200
-@@ -0,0 +1,32 @@
-+/*
-+    Retrieve encoded MAC address from ATMEL ttpci_eeprom serial 2-wire EEPROM,
-+    decode it and store it in associated adapter net device
-+
-+    Robert Schlabbach	GMX
-+    Michael Glaum	KVH Industries
-+    Holger Waechtler	Convergence
-+
-+    This program is free software; you can redistribute it and/or modify
-+    it under the terms of the GNU General Public License as published by
-+    the Free Software Foundation; either version 2 of the License, or
-+    (at your option) any later version.
-+
-+    This program is distributed in the hope that it will be useful,
-+    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+    GNU General Public License for more details.
-+
-+    You should have received a copy of the GNU General Public License
-+    along with this program; if not, write to the Free Software
-+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+
-+*/
-+
-+#ifndef __TTPCI_EEPROM_H__
-+#define __TTPCI_EEPROM_H__
-+
-+#include "dvb_i2c.h"
-+
-+extern int ttpci_eeprom_parse_mac(struct dvb_i2c_bus *i2c);
-+
-+#endif
-diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/dvb/dvb-core/dvbdev.h linux-2.5.73.work/drivers/media/dvb/dvb-core/dvbdev.h
---- linux-2.5.73.bk/drivers/media/dvb/dvb-core/dvbdev.h	2003-06-25 09:46:54.000000000 +0200
-+++ linux-2.5.73.work/drivers/media/dvb/dvb-core/dvbdev.h	2003-06-25 12:24:18.000000000 +0200
-@@ -48,6 +48,7 @@
- 	struct list_head list_head;
- 	struct list_head device_list;
- 	const char *name;
-+	u8 proposed_mac [6];
- };
- 
+         ret = i2c->xfer (i2c, &msg, 1);
  
 

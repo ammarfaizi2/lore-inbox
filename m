@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272587AbTHEJEw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 05:04:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272588AbTHEJEw
+	id S272603AbTHEJNK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 05:13:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272604AbTHEJNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 05:04:52 -0400
-Received: from pop.gmx.net ([213.165.64.20]:748 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S272587AbTHEJEv (ORCPT
+	Tue, 5 Aug 2003 05:13:10 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:40601 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S272603AbTHEJNI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 05:04:51 -0400
-Message-Id: <5.2.1.1.2.20030805104620.01974e28@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Tue, 05 Aug 2003 11:09:02 +0200
-To: Con Kolivas <kernel@kolivas.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] O13int for interactivity
-Cc: Oliver Neukum <oliver@neukum.org>, Andrew Morton <akpm@osdl.org>,
-       piggin@cyberone.com.au, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       felipe_alfaro@linuxmail.org
-In-Reply-To: <200308051843.54357.kernel@kolivas.org>
-References: <5.2.1.1.2.20030805102719.01a06d48@pop.gmx.net>
- <200308051012.12951.oliver@neukum.org>
- <5.2.1.1.2.20030805102719.01a06d48@pop.gmx.net>
+	Tue, 5 Aug 2003 05:13:08 -0400
+Date: Tue, 5 Aug 2003 11:12:45 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PM] Split SOFTWARE_SUSPEND and ACPI_SLEEP
+Message-ID: <20030805091245.GA278@elf.ucw.cz>
+References: <20030726223958.GA473@elf.ucw.cz> <Pine.LNX.4.44.0308041752180.23977-100000@cherise>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308041752180.23977-100000@cherise>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 06:43 PM 8/5/2003 +1000, Con Kolivas wrote:
->On Tue, 5 Aug 2003 18:27, Mike Galbraith wrote:
-> > At 06:20 PM 8/5/2003 +1000, Con Kolivas wrote:
-> > >Every experiment I've tried at putting tasks at the start of the queue
-> > >instead
-> > >of the end has resulted in some form of starvation so should not be
-> > > possible for any user task and I've abandoned it.
-> >
-> > (ditto:)
->
->Superuser access real time tasks may be worth reconsidering though...
+Hi!
 
-If they were guaranteed ultra-light, maybe, but userland is just not 
-trustworthy.
+> > Splits two config options to avoid user confusion. Patrick already has
+> > better version of that patch in his tree, and probably wants to avoid
+> > applying this.
+> 
+> Correct, I opted for my version, which moves kernel/suspend.c to 
+> kernel/power/swsusp.c, and moves the refrigerator code to process.c in 
+> that directory.
 
-Better imho would be something like Davide's SOFT_RR with an additional 
-automatic priority adjust per cpu usage or something (cpu usage being a 
-[very] little bit of a latency hint, and a great 'hurt me' hint).  Best 
-would be an API that allowed userland applications to describe their 
-latency requirements explicitly, with the scheduler watching users of this 
-API like a hawk, ever ready to sanction abusers.  Anything I think about in 
-this area gets uncomfortably close to hard rt though, and all of the wisdom 
-I've heard on LKLM over the years wrt separation of problem spaces comes 
-flooding back.
+I actually like your version more. Good.
 
-         -Mike 
-
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

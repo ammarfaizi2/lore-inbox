@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268117AbUIGOhq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268134AbUIGOhq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268117AbUIGOhq (ORCPT <rfc822;willy@w.ods.org>);
+	id S268134AbUIGOhq (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 7 Sep 2004 10:37:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268116AbUIGOd6
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268117AbUIGOeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 10:33:58 -0400
-Received: from pat.uio.no ([129.240.130.16]:39047 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S268117AbUIGOcQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 10:32:16 -0400
-To: Kasper Sandberg <lkml@metanurb.dk>
-Cc: Andrew Morton <akpm@osdl.org>,
-       LKML Mailinglist <linux-kernel@vger.kernel.org>
+	Tue, 7 Sep 2004 10:34:11 -0400
+Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:57297 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S268111AbUIGOcE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 10:32:04 -0400
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.9-rc1-mm4
+Date: Tue, 7 Sep 2004 11:31:49 -0300
+User-Agent: KMail/1.7
+Cc: Andrew Morton <akpm@osdl.org>, Nathan Scott <nathans@sgi.com>
 References: <20040907020831.62390588.akpm@osdl.org>
-	<wxxoekil26x.fsf@nommo.uio.no> <1094567096.11870.0.camel@localhost>
-From: Terje Kvernes <terjekv@math.uio.no>
-Organization: The friends of mr. Tux
-X-URL: http://terje.kvernes.no/
-Date: Tue, 07 Sep 2004 16:32:08 +0200
-In-Reply-To: <1094567096.11870.0.camel@localhost> (Kasper Sandberg's message
- of "Tue, 07 Sep 2004 16:24:56 +0200")
-Message-ID: <wxxwtz6i1zr.fsf@nommo.uio.no>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.1 (gnu/linux)
+In-Reply-To: <20040907020831.62390588.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=-5, required 12,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409071131.49512.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kasper Sandberg <lkml@metanurb.dk> writes:
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6
+>.9-rc1-mm4/
 
-> if you feel like it, you are welcome to make the patch, atleast for
-> me, then ill test it :D
+JFYI, this one fixed my problem with KDE and XFS.
 
-  since the patch is rather big, I've put it on the web.  it's against
-  2.6.9-rc1-mm4.
+Thanks Andrew, Nathan, and Christoph!
 
-  <url: http://www.math.uio.no/~terjekv/kernel/sk98lin_v7.07_2.6.9-rc1-mm4.patch >
-
--- 
-Terje
+Best regards,
+Norberto

@@ -1,74 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270162AbVBESB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270177AbVBESEb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270162AbVBESB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 13:01:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264728AbVBESB2
+	id S270177AbVBESEb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 13:04:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263731AbVBESEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 13:01:28 -0500
-Received: from www.tuxrocks.com ([64.62.190.123]:7946 "EHLO tuxrocks.com")
-	by vger.kernel.org with ESMTP id S270136AbVBESBO (ORCPT
+	Sat, 5 Feb 2005 13:04:31 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:64905 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S273650AbVBESD2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 13:01:14 -0500
-Message-ID: <420509D1.2080401@tuxrocks.com>
-Date: Sat, 05 Feb 2005 11:00:49 -0700
-From: Frank Sorenson <frank@tuxrocks.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rob Landley <rob@landley.net>
-CC: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
-       torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
-       Jeff Dike <jdike@addtoit.com>
-Subject: Re: [uml-devel] [patch] Make User Mode Linux compile in 2.6.11-rc3
-References: <200502051051.46242.rob@landley.net>
-In-Reply-To: <200502051051.46242.rob@landley.net>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 5 Feb 2005 13:03:28 -0500
+Subject: [FIX] Long-standing xattr sharing bug
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: acl-devel@bestbits.at,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: SUSE Labs
+Message-Id: <1107626603.27797.64.camel@winden.suse.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 05 Feb 2005 19:03:23 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+When looking for identical xattr blocks to share, we were not comparing
+the name_index fields.  This could lead to false sharing when two xattr
+blocks ended up with identical attribute names and values, and the only
+difference was in name_index.  Specifically this could trigger with
+default acls.  Because acls are cached, the bug was hidden until the
+next reload of the affected inode.
 
-Rob Landley wrote:
-| As of yesterday afternoon, the UML build still breaks in
-sys_call_table.c,
-| here's the patch I submitted earlier (which got me past the break when I
-| tried it).  Last week, this produced what seemed like a working UML.
-|
-| Now there's a second break in mm/memory.c: the move to four level page
-| tables conflicts with a stub in our headers.  Not quite sure how to
-fix that.
-| Jeff?
-|
-| (Yeah, I know Andrew's tree works.  But wouldn't it be nice if the
-kernel.org
-| tree to worked too, before 2.6.11 release.)
+  $ mkdir -m 700 a b
+  $ setfacl -m u:bin:rwx a
+	< acl of a goes in the mbcache
 
-This patch for sys_call_table.c was merged into the main tree in this
-changeset:
-http://linux.bkbits.net:8080/linux-2.5/cset@1.2080?nav=index.html|ChangeSet@-2d
+  $ setfacl -dm u:bin:rwx b
+	< acl of b differs only in name_index, so a's acl is reused
 
-The patch fixes both the sys_call_table and the pud_alloc breakage, and
-as of 2.6.11-rc3-bk2, the main tree compiles again for UML.
+  $ getfacl b
+	< shows the result from the inode cache
 
-Andrew's tree, however, (at least 2.6.11-rc3-mm1) requires the patch I
-sent out yesterday in the message titled "Fix compilation of UML after
-the stack-randomization patches."
+  < empty inode cache (remount, etc.)
 
-Frank
-- --
-Frank Sorenson - KD7TZK
-Systems Manager, Computer Science Department
-Brigham Young University
-frank@tuxrocks.com
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+  $ getfacl b
+	< shows an access acl instead of a default acl.
 
-iD8DBQFCBQlRaI0dwg4A47wRAjJ8AJ9CKD/aXaz1TS9QfOO11vcsv+57BACg1CdJ
-GR0ukCKAabFtJs5rVsPItGg=
-=h/on
------END PGP SIGNATURE-----
+Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+
+Index: linux-2.6.11-rc3/fs/ext2/xattr.c
+===================================================================
+--- linux-2.6.11-rc3.orig/fs/ext2/xattr.c
++++ linux-2.6.11-rc3/fs/ext2/xattr.c
+@@ -881,6 +881,7 @@ ext2_xattr_cmp(struct ext2_xattr_header 
+ 		if (IS_LAST_ENTRY(entry2))
+ 			return 1;
+ 		if (entry1->e_hash != entry2->e_hash ||
++		    entry1->e_name_index != entry2->e_name_index ||
+ 		    entry1->e_name_len != entry2->e_name_len ||
+ 		    entry1->e_value_size != entry2->e_value_size ||
+ 		    memcmp(entry1->e_name, entry2->e_name, entry1->e_name_len))
+Index: linux-2.6.11-rc3/fs/ext3/xattr.c
+===================================================================
+--- linux-2.6.11-rc3.orig/fs/ext3/xattr.c
++++ linux-2.6.11-rc3/fs/ext3/xattr.c
+@@ -1162,6 +1162,7 @@ ext3_xattr_cmp(struct ext3_xattr_header 
+ 		if (IS_LAST_ENTRY(entry2))
+ 			return 1;
+ 		if (entry1->e_hash != entry2->e_hash ||
++		    entry1->e_name_index != entry2->e_name_index ||
+ 		    entry1->e_name_len != entry2->e_name_len ||
+ 		    entry1->e_value_size != entry2->e_value_size ||
+ 		    memcmp(entry1->e_name, entry2->e_name, entry1->e_name_len))
+
+
+Regards,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX GMBH
+

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262098AbTEEIdb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 04:33:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbTEEIdb
+	id S262099AbTEEIiE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 04:38:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbTEEIiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 04:33:31 -0400
-Received: from [12.47.58.20] ([12.47.58.20]:38520 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S262098AbTEEIda (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 04:33:30 -0400
-Date: Mon, 5 May 2003 01:47:29 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: dipankar@in.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kmalloc_percpu
-Message-Id: <20030505014729.5db76f70.akpm@digeo.com>
-In-Reply-To: <20030505081300.6B2ED2C016@lists.samba.org>
-References: <20030505081300.6B2ED2C016@lists.samba.org>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 May 2003 08:45:53.0244 (UTC) FILETIME=[BC9731C0:01C312E2]
+	Mon, 5 May 2003 04:38:04 -0400
+Received: from [195.95.38.160] ([195.95.38.160]:58611 "HELO mail.vt4.net")
+	by vger.kernel.org with SMTP id S262099AbTEEIiD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 04:38:03 -0400
+From: DevilKin <devilkin-lkml@blindguardian.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [FIXED 2.5.69] Re: [2.5.67 - 2.5.68] Hangs on pcmcia yenta_socket initialisation
+Date: Mon, 5 May 2003 10:51:03 +0200
+User-Agent: KMail/1.5.1
+References: <200304230747.27579.devilkin-lkml@blindguardian.org> <200304240940.21553.devilkin-lkml@blindguardian.org> <20030424085756.A9597@flint.arm.linux.org.uk>
+In-Reply-To: <20030424085756.A9597@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200305051051.09629.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
->
-> This is the kmalloc_percpu patch.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-How does it work?  What restrictions does it have, and
-what compromises were made?
+Just reporting that this now works fine under 2.5.69. Whatever the problem, 
+it's definitely gone now.
 
-+#define PERCPU_POOL_SIZE 32768
+DK
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-What's this?
+iD8DBQE+tiX5puyeqyCEh60RAvk1AJ9Qvygxk+70PFSKSSLKTgUi2mWmJwCaAjf0
+5AR6Cz0LF6fC9g6Nd5t2eP8=
+=o4WM
+-----END PGP SIGNATURE-----
 
-
-The current implementation of kmalloc_per_cpu() turned out to be fairly
-disappointing because of the number of derefs which were necessary to get at
-the data in fastpaths.   How does this implementation compare?
-
-
-Thanks.

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131697AbQLQCOC>; Sat, 16 Dec 2000 21:14:02 -0500
+	id <S131773AbQLQCPM>; Sat, 16 Dec 2000 21:15:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131773AbQLQCNw>; Sat, 16 Dec 2000 21:13:52 -0500
-Received: from main.cornernet.com ([209.98.65.1]:23307 "EHLO
+	id <S131865AbQLQCOw>; Sat, 16 Dec 2000 21:14:52 -0500
+Received: from main.cornernet.com ([209.98.65.1]:25355 "EHLO
 	main.cornernet.com") by vger.kernel.org with ESMTP
-	id <S131697AbQLQCNg>; Sat, 16 Dec 2000 21:13:36 -0500
-Date: Sat, 16 Dec 2000 19:43:53 -0600 (CST)
+	id <S131863AbQLQCOq>; Sat, 16 Dec 2000 21:14:46 -0500
+Date: Sat, 16 Dec 2000 19:44:52 -0600 (CST)
 From: Chad Schwartz <cwslist@main.cornernet.com>
-To: Tom Vier <thomassr@erols.com>
-cc: <linux-kernel@vger.kernel.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Tom Vier <thomassr@erols.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: Dropping chars on 16550
-In-Reply-To: <20001216152833.A7536@zero>
-Message-ID: <Pine.LNX.4.30.0012161943240.6348-100000@main.cornernet.com>
+In-Reply-To: <E147PsV-0003HP-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0012161944080.6348-100000@main.cornernet.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-heh. yep.
+absolutely, they are.
 
-Thats why I didn't list them.
+They don't follow the same archaic I/O register mechanism, either. which
+is *GOOD*.
 
-z85's are good chips, but they perform JUST LIKE a 16550.
+(Just take a peak at the 16C854 sometime. You'll understand exactly how
+archaic it can GET.)
 
 Chad
 
-> On Thu, Dec 14, 2000 at 08:51:42AM -0600, Chad Schwartz wrote:
-> > And what kind of serial ports do you find on your Alpha?  16550's!  Your
-> > PowerPC?  16550's!  Your PA-RISC box? 16550's!  Hey! Even RS/6000's use
-> > 16550's!
+> > macs and sun machines use z85c30 chips, so there are some non-16550 boxes
+> > out there.
 >
-> macs and sun machines use z85c30 chips, so there are some non-16550 boxes
-> out there.
->
-> --
-> Tom Vier <thomassr@erols.com>
-> DSA Key id 0x27371A2C
+> SGI kit also tends to use Z85Cx30 based devices. Its unfortunate the 16xx0
+> series serial controllers won as the Z85Cx30 is much more flexible ;)
 >
 
 -

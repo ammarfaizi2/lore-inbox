@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288263AbSAHTeD>; Tue, 8 Jan 2002 14:34:03 -0500
+	id <S288266AbSAHTfc>; Tue, 8 Jan 2002 14:35:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288260AbSAHTdx>; Tue, 8 Jan 2002 14:33:53 -0500
-Received: from 24-163-106-43.he2.cox.rr.com ([24.163.106.43]:8098 "EHLO
-	asd.ppp0.com") by vger.kernel.org with ESMTP id <S288263AbSAHTdm>;
-	Tue, 8 Jan 2002 14:33:42 -0500
-Date: Tue, 8 Jan 2002 14:33:55 -0500
-Subject: Re: Whizzy New Feature: Paged segmented memory
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v480)
-Cc: jtv <jtv@xs4all.nl>, Jacques Gelinas <jack@solucorp.qc.ca>,
-        linux-kernel@vger.kernel.org
-To: root@chaos.analogic.com
-From: Anthony DeRobertis <asd@suespammers.org>
-In-Reply-To: <Pine.LNX.3.95.1020108090853.226A-100000@chaos.analogic.com>
-Message-Id: <A7567F5E-046E-11D6-8467-00039355CFA6@suespammers.org>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.480)
+	id <S288265AbSAHTfX>; Tue, 8 Jan 2002 14:35:23 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51719 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288260AbSAHTfJ>;
+	Tue, 8 Jan 2002 14:35:09 -0500
+Date: Tue, 8 Jan 2002 19:35:03 +0000
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: "Eric S. Raymond" <esr@thyrsus.com>, Russell King <rmk@arm.linux.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        linux-arm-kernel@lists.arm.linux.org.uk
+Subject: Re: Missing entries in Configuure.help)
+Message-ID: <20020108193503.GA852@gallifrey>
+In-Reply-To: <20020106210233.A30319@thyrsus.com> <20020107085307.A17914@flint.arm.linux.org.uk> <20020108124334.A24742@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020108124334.A24742@thyrsus.com>
+User-Agent: Mutt/1.3.25i
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.4.17 (i686)
+X-Uptime: 19:33:07 up 32 min,  4 users,  load average: 2.06, 2.06, 1.75
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Eric S. Raymond (esr@thyrsus.com) wrote:
 
-On Tuesday, January 8, 2002, at 09:14 AM, Richard B. Johnson wrote:
+> CPU_ARM922_D_CACHE_ON
+> CPU_ARM922_I_CACHE_ON
+> CPU_ARM922_WRITETHROUGH
 
-> At least with Intel ix8*, even though one can create a discriptor for
-> a (backwards) stack, you would have a hard time using it. 
-> 'Push' op-codes
-> decrement the stack-pointer and 'pop' increments it regardless of
-> the characteristics of the stack-selector.
+Hmm - is there anything ARM922 specific about these - i.e. is there a
+reason that we shouldn't get rid of them and have some architecture
+independent symbols CPU_D_CACHE_ON, CPU_I_CACHE_ON and
+CPU_CACHE_WRITETHROUGH (and more to your taste) and then architectures
+can use the ones which apply to them.
 
-You'd have to do it manually, without those instructions. That's 
-what you get for using a CISC architecture from who-knows-when.
+Doesn't seem to be a point in having dupes.
 
-I'd guess most RISC architectures don't have this problem.
-
+Dave
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

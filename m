@@ -1,73 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265024AbTFCOVY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 10:21:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265026AbTFCOVX
+	id S265031AbTFCOci (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 10:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265032AbTFCOci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 10:21:23 -0400
-Received: from [211.167.76.68] ([211.167.76.68]:6814 "HELO soulinfo")
-	by vger.kernel.org with SMTP id S265024AbTFCOVV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 10:21:21 -0400
-Date: Tue, 3 Jun 2003 22:35:11 +0800
-From: hugang <hugang@soulinfo.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: software suspend in 2.5.70-mm3.
-Message-Id: <20030603223511.155ea2cc.hugang@soulinfo.com>
-In-Reply-To: <1054646566.9234.20.camel@dhcp22.swansea.linux.org.uk>
-References: <20030603211156.726366e7.hugang@soulinfo.com>
-	<1054646566.9234.20.camel@dhcp22.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	Tue, 3 Jun 2003 10:32:38 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:48365 "EHLO
+	iapetus.localdomain") by vger.kernel.org with ESMTP id S265031AbTFCOcf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 10:32:35 -0400
+Date: Tue, 3 Jun 2003 16:46:56 +0200
+From: Frank van Maarseveen <frankvm@xs4all.nl>
+To: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Cc: Edward Hibbert <EH@dataconnection.com>
+Subject: Re: [NFS] Disabling Symbolic Link Content Caching in NFS Client
+Message-ID: <20030603144656.GA6157@iapetus.localdomain>
+Mail-Followup-To: Frank van Maarseveen <frankvm@xs4all.nl>,
+	nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+	Edward Hibbert <EH@dataconnection.com>
+References: <CFCD2C778CF1D611B5B400065B04D5C84A736F@KENTON>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
- =?ISO-8859-1?Q?=CA=D5=BC=FE=C8=CB=A3=BA:?= Alan Cox <alan@lxorguk.ukuu.org.uk>
- =?ISO-8859-1?Q?=CA=D5=BC=FE=C8=CB=A3=BA:?= linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CFCD2C778CF1D611B5B400065B04D5C84A736F@KENTON>
+User-Agent: Mutt/1.4i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03 Jun 2003 14:22:48 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> On Maw, 2003-06-03 at 14:11, hugang wrote:
-> > Hi Pavel Machek:
-> > 
-> > I try the 2.5.70-mm3 with software suspend function. When suspend it will oops at ide-disk.c 1526 line
-> >    BUG_ON (HWGROUP(drive)->handler);
-> > 
-> > I'm disable this check, The software suspend can work, and also can resumed. But this fix is not best way. I found in ide-io.c 1196
-> >    hwgroup->handler = NULL;
-> > is the problem.
+On Tue, Jun 03, 2003 at 02:33:45PM +0100, Edward Hibbert wrote:
 > 
-> The only way to make the suspend work properly is to queue the suspend
-> sequence wit the other requests. Ben was doing some playing with this
-> but I'm not sure what happened to it.
+> Our application consists of a number of machines collaborating on a shared
+> database over NFS.  We therefore require the ability to force data to be
+> sync'd from the client to the backend - and at the moment we do this by
+> disabling caching completely, via the noac option and acquiring and
+> releasing non-exclusive locks round io calls.
 > 
-Yes the above patch is not safe, When i'm run updatedb and suspsned, After resume will oops at kjournal. 
+> Any improvements in the granularity of control over NFS client-side caching
+> would be very valuable to us.
 
-Here is another test on it, it can works with updatedb.
--
-I found a best way to fix it. here is it. With the patch, I'm run updatedb and suspend for 5 counts, every things is ok.
+To disable ac for a single directory for a certain amount of time, see
 
- --- ide-disk.c.old	Tue Jun  3 22:22:13 2003
- +++ ide-disk.c	Tue Jun  3 22:16:22 2003
- @@ -1523,7 +1523,10 @@
-  	do_idedisk_standby(drive);
-  	drive->blocked = 1;
-  
- -	BUG_ON (HWGROUP(drive)->handler);
- +	/*BUG_ON (HWGROUP(drive)->handler);*/
- +	while(HWGROUP(drive)->handler) {
- +		schedule();
- +	}
-  	return 0;
-  }
-  
+	http://web.inter.nl.net/users/fvm/nfs-noac/2.4.20-noac-timeout.patch
+	http://web.inter.nl.net/users/fvm/nfs-noac/readme:
+
+This patch implements /proc/sys/net/nfs/noac-timeout
+
+When a nonzero value is written, suspend atribute caching for the current
+working directory and one level of files inside for the specified number
+of seconds. Attribute caching will automatically be enabled when the time
+elapses. Writing a zero re-enables attribute caching as well. Reading
+yields the number of remaining seconds attribute caching will be disabled.
+
+
+Maybe an NFS specific ioctl would be cleaner. But the above patch can be
+used even from simple scripts.
 
 -- 
-Hu Gang / Steve
-Email        : huagng@soulinfo.com, steve@soulinfo.com
-GPG FinePrint: 4099 3F1D AE01 1817 68F7  D499 A6C2 C418 86C8 610E
-http://soulinfo.com/~hugang/HuGang.asc
-ICQ#         : 205800361
-Registered Linux User : 204016
+Frank

@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264997AbUFAL4c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264998AbUFAL5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264997AbUFAL4c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 07:56:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265003AbUFAL4c
+	id S264998AbUFAL5E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 07:57:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265003AbUFAL5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 07:56:32 -0400
-Received: from pD952C7EB.dip.t-dialin.net ([217.82.199.235]:5837 "EHLO
-	router.zodiac.dnsalias.org") by vger.kernel.org with ESMTP
-	id S264997AbUFAL4b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 07:56:31 -0400
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.7-rc2-mm1
-Date: Tue, 1 Jun 2004 13:51:08 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <20040601021539.413a7ad7.akpm@osdl.org>
-In-Reply-To: <20040601021539.413a7ad7.akpm@osdl.org>
-X-Ignorant-User: yes
+	Tue, 1 Jun 2004 07:57:04 -0400
+Received: from tristate.vision.ee ([194.204.30.144]:13773 "HELO mail.city.ee")
+	by vger.kernel.org with SMTP id S264998AbUFAL5B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 07:57:01 -0400
+Message-ID: <40BC6F0C.7000602@vision.ee>
+Date: Tue, 01 Jun 2004 14:57:00 +0300
+From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040509)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: why swap at all?
+References: <200405290037.17775.vda@port.imtp.ilyichevsk.odessa.ua> <E1BTpqM-0005LZ-00@calista.eckenfels.6bone.ka-ip.net> <20040531104928.GA1465@ncsu.edu>
+In-Reply-To: <20040531104928.GA1465@ncsu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406011351.10669@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 1. Juni 2004 11:15 schrieb Andrew Morton:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7-rc2/2.6
->.7-rc2-mm1/
+jlnance@unity.ncsu.edu wrote:
 
-I can neither enter nor activate the gigabit ethernet driver section in 
-menuconfig
+>I'm not sure.  Copying a file is a pretty good indication that you
+>are about to do something with either the new or the old file.
+>
+>  
+>
+Like taking the new file with me on USB dongle and deleting old one? 
+Caching the file really doesn't help in this case.
 
-regards
-Alex
+Lenar
 
--- 
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291

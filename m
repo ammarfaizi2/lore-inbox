@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbULUBqa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbULUBqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbULUBqa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 20:46:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbULUBqa
+	id S261726AbULUBqj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 20:46:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbULUBqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 20:46:30 -0500
-Received: from webmail.sub.ru ([213.247.139.22]:25103 "HELO techno.sub.ru")
-	by vger.kernel.org with SMTP id S261720AbULUBq2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 20:46:28 -0500
-From: Mikhail Ramendik <mr@ramendik.ru>
-To: lista4@comhem.se
-Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
-Date: Tue, 21 Dec 2004 04:46:15 +0300
-User-Agent: KMail/1.7.1
-Cc: kernel@kolivas.org, nickpiggin@yahoo.com.au, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, riel@redhat.com
-References: <1348970.1103547593171.JavaMail.tomcat@pne-ps1-sn1>
-In-Reply-To: <1348970.1103547593171.JavaMail.tomcat@pne-ps1-sn1>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 20 Dec 2004 20:46:39 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:61059 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261726AbULUBqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 20:46:35 -0500
+Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Lee Revell <rlrevell@joe-job.com>, Dan Dennedy <dan@dennedy.org>,
+       Ben Collins <bcollins@debian.org>,
+       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041220230222.GA21288@stusta.de>
+References: <20041220015320.GO21288@stusta.de>
+	 <1103508610.3724.69.camel@kino.dennedy.org>
+	 <20041220022503.GT21288@stusta.de>
+	 <1103510535.1252.18.camel@krustophenia.net>
+	 <1103516870.3724.103.camel@kino.dennedy.org>
+	 <20041220225324.GY21288@stusta.de>
+	 <1103583486.1252.102.camel@krustophenia.net>
+	 <20041220230222.GA21288@stusta.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412210446.16141.mr@ramendik.ru>
+Message-Id: <1103589619.32550.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 21 Dec 2004 00:40:21 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Voluspa wrote:
+On Llu, 2004-12-20 at 23:02, Adrian Bunk wrote:
+> > What if the driver is under development and doesn't work yet?
+> 
+> For a driver developer, it shouldn't be a big problem to re-add an 
+> EXPORT_SYMBOL or even to undo an #if 0 of a currently unused function.
 
-> >This patch should have the desired effect.
->
-> Yes, it sure has. And with that I mean, YES. My testcase shows no freezes
-> now, and it has the same swapping time as 2.6.8.1-bk2.
+Except that the driver author now has to compile entire kernels, can't
+redistribute it easily to others for testing without them all rebuilding
+the kernel and has no idea of what things the author intended to be API.
+In this case it isnt a clean up, but a game plan to reduce the amount
+and quality of driver submission. 
 
-Confirmed.
+On this one you've clearly gone too far. USB had a pile of API functions
+before drivers used them, video4linux did the same and that made sense
+just like this does.  Tidy it up in 12-18 months when the drivers exist
+to know what is worth keeping and what should be removed.
 
-On 2.6.10-rc3 with Con's patch, when I run the memory eater, there is a high 
-kswapd CPU load for about 10 seconds, then things are OK. The screen never 
-freezes at that time or at any other moment.
-
-When I add vm-pageout-throttling.patch from -mm, the CPU load in the beginning 
-is somewhat less constant but remains there.
-
-While it would be nice to fix the high CPU load, the system is usable as it 
-is.
-
--- 
-Yours, Mikhail Ramendik
+Alan
 

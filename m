@@ -1,73 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264095AbTEOQKx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 12:10:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbTEOQKx
+	id S264068AbTEOQIt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 12:08:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbTEOQIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 12:10:53 -0400
-Received: from host132.googgun.cust.cyberus.ca ([209.195.125.132]:28097 "EHLO
-	marauder.googgun.com") by vger.kernel.org with ESMTP
-	id S264095AbTEOQKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 12:10:52 -0400
-Date: Thu, 15 May 2003 12:21:25 -0400 (EDT)
-From: Ahmed Masud <masud@googgun.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Chris Ricker <kaboom@gatech.edu>, Jesse Pollard <jesse@cats-chateau.net>,
-       Mike Touloumtzis <miket@bluemug.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Yoav Weiss <ml-lkml@unpatched.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: The disappearing sys_call_table export.
-In-Reply-To: <Pine.LNX.4.53.0305151139220.188@chaos>
-Message-ID: <Pine.LNX.4.33.0305151208160.17650-100000@marauder.googgun.com>
+	Thu, 15 May 2003 12:08:49 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2576 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264068AbTEOQIq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 12:08:46 -0400
+Date: Thu, 15 May 2003 09:20:15 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dean Anderson <dean@av8.com>
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Garance A Drosihn <drosih@rpi.edu>, Jan Harkes <jaharkes@cs.cmu.edu>,
+       David Howells <dhowells@redhat.com>, <linux-kernel@vger.kernel.org>,
+       <linux-fsdevel@vger.kernel.org>, <openafs-devel@openafs.org>
+Subject: Re: [OpenAFS-devel] Re: [PATCH] PAG support, try #2
+In-Reply-To: <Pine.LNX.4.44.0305150957210.4983-100000@commander.av8.net>
+Message-ID: <Pine.LNX.4.44.0305150913130.1841-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Thu, 15 May 2003, Richard B. Johnson wrote:
-
-> On Thu, 15 May 2003, Chris Ricker wrote:
+On Thu, 15 May 2003, Dean Anderson wrote:
 >
-> > On Thu, 15 May 2003, Richard B. Johnson wrote:
-> >
-> > > > You don't have to do that. Richard is mis-informed. Any of the following
-> > > > still work on Red Hat Linux 9:
-> > > >
-> > > > init=/bin/bash         # drops you straight to a bash shell
-> > > > init 1                 # runs runlevel 1 SysV init scripts and rc.sysinit
-> > > > init single            # runs rc.sysinit, but not runlevel 1
-> > > > init emergency         # runs a shell
-> > > >
-> > > > all without going to rescue media.
-> > > >
-> > >
->
-> Sill bullshit. I did nothing except to try to help a neighbor
-> who got locked out of her machine. I spent most of Saturday
-> and all of Sunday trying to break in. The LILO command prompt
-> readily took "parameters". However, any parameter passed on
-> the command-line resulted in a try-to-kill init error. Her
-> machine uses an Adaptec SCSI controller which needs to be
-> loaded via initrd to make the root file-system available.
->
-> I tried Red-Hat 8.0 here at work. It works as you described.
-> There is no problem with it and LILO and initrd. However
-> Red Hat 9/Professional does not allow break-in, at least on
-> the machine tested...and I have several pissed off witnesses.
->
+> Pardon me if I'm wrong, but doesn't the PAG already allow for multiple
+> credentials?
 
-This is an issue directly to be taken up with the manufacturer and is a
-bit off topic here. RedHat 9 professional can conceivably disallow
-parameter passing. The fact that a system does not, out of the box, allow
-for break-ins is a good thing(tm) for most part...  manually editing
-password files is a bad thing(tm), this is why command line tools such as
-useradd are provided.
+Yes, but the patch did not allow for
 
-Any how, I hope you got it all fixed.
+ -  partial sharing (keys are bound to _one_ PAG, and one PAG only)
 
-Cheers,
+    This makes "revoke" pretty much useless, since you have a damn hard 
+    time finding all the keys, since you have to copy them around instead 
+    of sharing one instance.
 
-Ahmed.
+    It also makes grouping very hard. 
+
+ - the name space is so limited that you _have_ to consider the PAG ID's 
+   temporary, which means that you have to add a whole new layer of 
+   maintenance in user space.
+
+Neither of these are apparently problems in the AFS world, because there 
+is only one entity that gives out keys, so that one entity can keep track 
+of every key ever allocated.
+
+But look at the big picture. What happens when you have multiple sources 
+of keys that have nothing to do with each other. How do you maintain 
+sanity in that kind of world, when the numbers don't have any meaning, and 
+one of the key maintainers doing a  "join" operation will throw away 
+all the work that the other key maintainers did.
+
+>	  Linus seems to be arguing for multiple PAGs, like multiple
+> GIDs. But I think that functionality is really there, inside the PAG.
+
+No it isn't. You can't do independent joins, since as it is, the code has
+an "all or nothing" approach.
+
+Again, this works in a single-use environment, where there is central 
+control. It _sucks_ if you want to have a generic "bunch of keys" model.
+
+		Linus
 

@@ -1,61 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262464AbUCELFH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 06:05:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262469AbUCELFH
+	id S262476AbUCELOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 06:14:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbUCELOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 06:05:07 -0500
-Received: from holomorphy.com ([207.189.100.168]:50955 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262464AbUCELFB (ORCPT
+	Fri, 5 Mar 2004 06:14:16 -0500
+Received: from gate.crashing.org ([63.228.1.57]:9674 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262476AbUCELOO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 06:05:01 -0500
-Date: Fri, 5 Mar 2004 03:04:51 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: initrd does not boot in 2.6.3, working in 2.4.25
-Message-ID: <20040305110451.GR655@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	vda <vda@port.imtp.ilyichevsk.odessa.ua>,
-	linux-kernel@vger.kernel.org,
-	viro@parcelfarce.linux.theplanet.co.uk
-References: <200403051238.53470.vda@port.imtp.ilyichevsk.odessa.ua>
+	Fri, 5 Mar 2004 06:14:14 -0500
+Subject: Re: serial driver / tty issues
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040305094126.D22156@flint.arm.linux.org.uk>
+References: <1078473270.5703.57.camel@gaston>
+	 <20040305085838.B22156@flint.arm.linux.org.uk>
+	 <1078477351.6327.65.camel@gaston> <1078478335.5702.79.camel@gaston>
+	 <20040305094126.D22156@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1078485196.5704.93.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403051238.53470.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 05 Mar 2004 22:13:16 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 05, 2004 at 12:38:53PM +0200, vda wrote:
-> I am using initrd in order to configure ethernet and
-> mount NFS root. It works with 2.4.25 kernel, like this:
-> linld image=2425 initrd=image.gz vga=4 "cl=root=/dev/ram init=/linuxrc.nfs.vda devfs=mount"
-> that is, it unpacks image.gz into ramdisk #0, mounts it,
-> mounts devfs on /dev and execs /linuxrc.nfs.vda.
-> When I tried to boot 2.6.3 with
-> linld image=263 initrd=image.gz vga=4 "cl=root=/dev/ram init=/linuxrc.nfs.vda devfs=mount"
-> it unpacks image.gz into ramdisk #0, mounts it,
-> mounts devfs on /dev and ... complains about NFS server.
-> Wow. I did not say /dev/nfs, what NFS?
-> ...
-> VFS: Mounted root (ext2 filesystem)
-> Mounted devfs on /dev
-> 	(here 2.4.25 would say "Freed unused kernel mem..." and exec init)
-> Root-NFS: No NFS server available, giving up
-> VFS: Unable to mount root fs via NFS, trying floppy
-> VFS: Insert root floppy and press ENTER
-> Omitting devfs=mount does not help.
-> root=/dev/ram0, root=/dev/rd/0 does not help.
-> Config attached.
+On Fri, 2004-03-05 at 20:41, Russell King wrote:
+> On Fri, Mar 05, 2004 at 08:18:56PM +1100, Benjamin Herrenschmidt wrote:
+> >  - most/all serial drivers, when the flip buffer is full, will
+> > call tty->flip.work.func() directly with the spinlock held. This is
+> > asking for trouble. I have reproduceable cases where that cause the
+> > tty layer to try to echo, thus calling back the serial_core
+> > uart_put_char() which will try to ... take the spinlock. Dead.
+> 
+> Yep - I think we need to drop the spinlock, but by dropping it we need
+> to check that stuff is still sane after re-acquiring it.
 
-nfsroot works in 2.6.3 and above here. I'm not sure you need it per se
-for initrd's; I think the way it's intended to work with that is for
-the scripts to configure network interfaces, mount the nfsroot, and then
-pivot_root(). Can you try without initrd?
-Also, try passing ip= for these things.
+Yup. I hacked something checking my driver was still open, not
+sure it's robust enough at this point though.
 
+> >  - what about the call to tty_flip_buffer_push() done by all
+> > drivers with the lock held too ? It's fine as long as we don't
+> > have this low_latency thing set. I suppose nothing but the driver
+> > itself will set it but I got a bit lost in the serial_core, can
+> > you just confirm that is ok ?
+> 
+> Again, we should drop the spinlock and re-acquire it afterwards.
 
--- wli
+For that one, I don't need to drop it. I'm just returning from
+the receive_chars to the irq indicating the main irq routine
+that something happened. It then calls tty_flip_buffer_push()
+after releasing the lock.
+
+> >  - I had a couple of times a crash in n_tty_receive_buf() called
+> > from keventd (from ldisc flip workqueue), apparently racing with
+> > a close of the port. The scenario is that the close happens, i
+> > get out of my driver back to serial core which goes back to
+> > tty_release afaik. At that point (I'm not sure exactly when, maybe
+> > in the flush of the pending work queues that is done there, maybe
+> > just on the other CPU), the pending work queue is triggered since
+> > our input buffer is still full of crap.
+> > It reliably oopses trying to derefence 0 (writing a byte, it's not
+> > a memcpy, without a spinlocked region, I haven't spotted exactly
+> > where in n_tty_receive_buf(), this function is shit to disassemble
+> > as it seems to get a ton of things inlined).
+> 
+> Well, there does seem to be a race in there in the tty layer.  We
+> appear to close down the ldisc, and fiddle about with some other
+> things, and eventually cancel the work queue.
+>
+> The n_tty close method frees the tty->read_buf, and n_tty_receive_buf()
+> references said buffer.  If the timing is right, *boom*.
+
+Yup.
+
+> We should cancel the work queue earlier, so we can guarantee that we
+> won't call the ldisc functions after we've closed them down.
+
+Yup.
+
+> I guess the TTY layer still needs a complete top to bottom overhaul...
+
+I was afraid you would say that ... :)
+
+Ben.
+
 

@@ -1,59 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267034AbTAZWyN>; Sun, 26 Jan 2003 17:54:13 -0500
+	id <S267032AbTAZWyK>; Sun, 26 Jan 2003 17:54:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267035AbTAZWyN>; Sun, 26 Jan 2003 17:54:13 -0500
-Received: from [213.86.99.237] ([213.86.99.237]:10206 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S267034AbTAZWyJ>; Sun, 26 Jan 2003 17:54:09 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20030126231232.GE394@kugai> 
-References: <20030126231232.GE394@kugai>  <20030126215714.GA394@kugai> <Pine.LNX.4.44.0301261524570.15900-100000@chaos.physics.uiowa.edu> 
-To: Christian Zander <zander@minion.de>
-Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	id <S267035AbTAZWyK>; Sun, 26 Jan 2003 17:54:10 -0500
+Received: from moutng.kundenserver.de ([212.227.126.187]:13517 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S267032AbTAZWyI>; Sun, 26 Jan 2003 17:54:08 -0500
+Date: Mon, 27 Jan 2003 00:56:46 +0100
+From: Christian Zander <zander@minion.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Christian Zander <zander@minion.de>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
        Mark Fasheh <mark.fasheh@oracle.com>,
        Thomas Schlichter <schlicht@uni-mannheim.de>,
        "Randy.Dunlap" <rddunlap@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
        LKML <linux-kernel@vger.kernel.org>,
        Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: no version magic, tainting kernel. 
+Subject: Re: no version magic, tainting kernel.
+Message-ID: <20030126235646.GI394@kugai>
+Reply-To: Christian Zander <zander@minion.de>
+References: <20030126232839.GF394@kugai> <20030126220842.GB394@kugai> <20030123193540.GD13137@ca-server1.us.oracle.com> <Pine.LNX.4.44.0301261054250.15538-100000@chaos.physics.uiowa.edu> <28922.1043617222@passion.cambridge.redhat.com> <30455.1043621199@passion.cambridge.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 26 Jan 2003 22:55:49 +0000
-Message-ID: <30633.1043621749@passion.cambridge.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <30455.1043621199@passion.cambridge.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 26, 2003 at 10:46:39PM +0000, David Woodhouse wrote:
+> 
+> Ok, but why else would you want your own makefiles if that's not
+> that you wanted them for?
+> 
 
-zander@minion.de said:
-> The problem isn't necessarily lack of flexibility, but the lack of
-> unity across kernel versions. I agree that kbuild is the preferable
-> solution for Linux 2.5, but it isn't for all incarnations of Linux 2.4
-> and definetely not for Linux 2.2.
+Essentially because they already existed and worked (well enough).
 
-/me blinks... what's wrong with 2.2? Looks fine to me...
+> True, but in this case you are voicing concern about the potential
+> breakage of something which was always known to be bad practice,
+> fragile and unreliable.
+> 
+> Your expression of concern is noted, but with about as much sympathy
+> as is granted to those who express concern because kernel headers
+> which they were including from userspace have changed.
+> 
+> Yes, it breaks if you invent you own makefiles. We knew that.  Don't
+> Do That Then -- or if you must, then just deal with it breaking in
+> the kernel-de-jour.
+> 
 
-imladris /home/dwmw2/working/mtd/drivers/mtd $ make LINUXDIR=/inst/linux/linux-2.2
-make -C /inst/linux/linux-2.2 SUBDIRS=`pwd` modules
-make[1]: Entering directory `/inst/linux/linux-2.2'
-make -C  /home/dwmw2/working/mtd/drivers/mtd CFLAGS="-Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -D__SMP__ -pipe -fno-strength-reduce -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -DCPU=686 -DMODULE"
-MAKING_MODULES=1 modules
-make[2]: Entering directory `/home/dwmw2/working/mtd/drivers/mtd'
-gcc296 -D__KERNEL__ -I/inst/linux/linux-2.2/include -I/home/dwmw2/working/mtd/drivers/mtd/../../include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -D__SMP__ -pipe -fno-strength-reduce -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -DCPU=686 -DMODULE   -DEXPORT_SYMTAB -c afs.c
-{standard input}: Assembler messages:
-{standard input}:9: Warning: ignoring changed section attributes for .modinfo
-gcc296 -D__KERNEL__ -I/inst/linux/linux-2.2/include -I/home/dwmw2/working/mtd/drivers/mtd/../../include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -D__SMP__ -pipe -fno-strength-reduce -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -DCPU=686 -DMODULE   -DEXPORT_SYMTAB -c mtdcore.cmake[2]: *** Deleting file `mtdcore.o'
-make[2]: *** [mtdcore.o] Interrupt
-make[1]: *** [_mod_/home/dwmw2/working/mtd/drivers/mtd] Interrupt
-make: *** [modules] Interrupt
+Fair enough.
 
+> 'make -C $LINUXDIR SUBDIRS=$PWD modules' has worked for as long as
+> I can remember; it's not new in 2.5. It's _always_ been the only
+> reliable way to get kernel modules to build with the correct
+> options.
+> 
 
+Since Linux 2.2 and including any specifics involved in the process of
+customizing CFLAGS, ...? If that's the case, I admit ignorance and ask
+that my earlier remarks be ignored.
 
-
-
---
-dwmw2
-
-
+-- 
+christian zander
+zander@minion.de

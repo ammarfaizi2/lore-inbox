@@ -1,183 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264266AbUGAIWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264296AbUGAI0D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264266AbUGAIWh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 04:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264296AbUGAIWh
+	id S264296AbUGAI0D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 04:26:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbUGAI0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 04:22:37 -0400
-Received: from alsvidh.mathematik.uni-muenchen.de ([129.187.111.42]:31946 "EHLO
-	alsvidh.mathematik.uni-muenchen.de") by vger.kernel.org with ESMTP
-	id S264266AbUGAIWb convert rfc822-to-8bit (ORCPT
+	Thu, 1 Jul 2004 04:26:03 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:1187 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S264296AbUGAIZ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 04:22:31 -0400
-To: linux-kernel@vger.kernel.org
-Cc: linuxppc-dev@lists.linuxppc.org
-Subject: [patch, resend, 2.6, ppc32] enable OProfile profiling driver
-Organization: Lehrstuhl fuer vergleichende Astrozoologie
-X-Mahlzeit: Das ist per Saldo Gemuetlichkeit
-Reply-To: Jens Schmalzing <j.s@lmu.de>
-From: Jens Schmalzing <j.s@lmu.de>
-Date: 01 Jul 2004 10:22:30 +0200
-Message-ID: <hh7jtoi1bt.fsf@alsvidh.mathematik.uni-muenchen.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 1 Jul 2004 04:25:56 -0400
+Date: Thu, 1 Jul 2004 10:18:05 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: [patch] enable SMP Opterons boot an NX-enabled x86 kernel, 2.6.7-bk13
+Message-ID: <20040701081805.GA11214@elte.hu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="Q68bSM7Ycu6FN28Q"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-please find enclosed a patch to enable to OProfile profiling driver
-for ppc32, forward ported from Ben's development tree.  I sent an
-incomplete version some time ago, this time I didn't forget anything
-(hopefully).
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Regards, Jens.
 
-diff -Nur kernel-source-2.6.6/arch/ppc/Makefile linuxppc-2.5-benh/arch/ppc/Makefile
---- kernel-source-2.6.6/arch/ppc/Makefile   2004-06-16 07:18:57.000000000 +0200
-+++ linuxppc-2.5-benh/arch/ppc/Makefile   2004-06-24 12:43:55.995114195 +0200
-@@ -43,6 +43,7 @@
- drivers-$(CONFIG_8xx)		+= arch/ppc/8xx_io/
- drivers-$(CONFIG_4xx)		+= arch/ppc/4xx_io/
- drivers-$(CONFIG_8260)		+= arch/ppc/8260_io/
-+drivers-$(CONFIG_OPROFILE)	+= arch/ppc/oprofile/
+the attached patch fixes a corner-case NX bug: the x86 SMP kernel doesnt
+boot on SMP Opterons if NX is enabled [and mem=nopentium is specified],
+due to kernel-space NX protection preventing the SMP trampoline from
+being executable.
+
+Since the SMP trampoline is a rare case of 'dynamic code' executed by
+the kernel (it has to be below 640K so it cannot be part of the kernel
+text itself), i've added the necessary infrastructure to enable/disable
+executability of specific kernel pages.
+
+We cannot simply disable NX via the MSR because we've got the NX bits in
+the kernel pagetables, which are set up before we do the SMP bootup. The
+NX bit in the pagetables is undefined if EFER.NXE is 0, so we cannot
+count on NX-capable CPUs not faulting when they encounter them.
+
+i've tested the x86 kernel on a non-NX SMP x86 box and on an NX UP box,
+on which i've also tested a simulated SMP trampoline, it all works fine.
+
+	Ingo
+
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="nx-fix-smpboot-2.6.7-A4"
+
+
+- add infrastructure to enable/disable executability of kernel pages
+
+- make the SMP trampoline page executable.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/arch/i386/kernel/smpboot.c.orig	
++++ linux/arch/i386/kernel/smpboot.c	
+@@ -82,6 +82,7 @@ int smp_threads_ready;
+ extern unsigned char trampoline_data [];
+ extern unsigned char trampoline_end  [];
+ static unsigned char *trampoline_base;
++static int trampoline_exec;
  
- BOOT_TARGETS = zImage zImage.initrd znetboot znetboot.initrd vmlinux.sm
- 
-diff -Nur kernel-source-2.6.6/arch/ppc/Kconfig linuxppc-2.5-benh/arch/ppc/Kconfig
---- kernel-source-2.6.6/arch/ppc/Kconfig        2004-04-05 11:49:23.000000000 +0200
-+++ linuxppc-2.5-benh/arch/ppc/Kconfig  2004-03-29 08:34:26.000000000 +0200
-@@ -1154,6 +1154,7 @@
- 
- source "lib/Kconfig"
- 
-+source "arch/ppc/oprofile/Kconfig"
- 
- menu "Kernel hacking"
- 
-diff -Nur kernel-source-2.6.6/arch/ppc/kernel/time.c linuxppc-2.5-benh/arch/ppc/kernel/time.c
---- kernel-source-2.6.5/arch/ppc/kernel/time.c	2004-03-11 03:55:37.000000000 +0100
-+++ linuxppc-2.5-benh/arch/ppc/kernel/time.c	2004-03-04 03:04:26.000000000 +0100
-@@ -56,6 +56,7 @@
- #include <linux/mc146818rtc.h>
- #include <linux/time.h>
- #include <linux/init.h>
-+#include <linux/profile.h>
- 
- #include <asm/segment.h>
- #include <asm/io.h>
-@@ -107,17 +108,23 @@
- 	return delta;
+ /*
+  * Currently trivial. Write the real->protected mode
+@@ -108,6 +109,10 @@ void __init smp_alloc_memory(void)
+ 	 */
+ 	if (__pa(trampoline_base) >= 0x9F000)
+ 		BUG();
++	/*
++	 * Make the SMP trampoline executable:
++	 */
++	trampoline_exec = set_kernel_exec((unsigned long)trampoline_base, 1);
  }
  
--extern unsigned long prof_cpu_mask;
--extern unsigned int * prof_buffer;
--extern unsigned long prof_len;
--extern unsigned long prof_shift;
- extern char _stext;
+ /*
+@@ -1375,6 +1380,10 @@ void __init smp_cpus_done(unsigned int m
+ 	setup_ioapic_dest();
+ #endif
+ 	zap_low_mappings();
++	/*
++	 * Disable executability of the SMP trampoline:
++	 */
++	set_kernel_exec((unsigned long)trampoline_base, trampoline_exec);
+ }
  
--static inline void ppc_do_profile (unsigned long nip)
-+static inline void ppc_do_profile(struct pt_regs *regs)
- {
-+	unsigned long nip;
-+	extern unsigned long prof_cpu_mask;
-+
-+	profile_hook(regs);
-+
-+	if (user_mode(regs))
-+		return;
-+
- 	if (!prof_buffer)
- 		return;
+ void __init smp_intr_init(void)
+--- linux/arch/i386/mm/init.c.orig	
++++ linux/arch/i386/mm/init.c	
+@@ -455,6 +455,34 @@ static void __init set_nx(void)
+ 	}
+ }
  
-+	nip = instruction_pointer(regs);
-+
- 	/*
- 	 * Only measure the CPUs specified by /proc/irq/prof_cpu_mask.
- 	 * (default is all CPUs.)
-@@ -156,8 +170,7 @@
- 
- 	while ((next_dec = tb_ticks_per_jiffy - tb_delta(&jiffy_stamp)) < 0) {
- 		jiffy_stamp += tb_ticks_per_jiffy;
--		if (!user_mode(regs))
--			ppc_do_profile(instruction_pointer(regs));
-+		ppc_do_profile(regs);
- 	  	if (smp_processor_id())
- 			continue;
- 
-diff -Nur kernel-source-2.6.6/arch/ppc/oprofile/Kconfig linuxppc-2.5-benh/arch/ppc/oprofile/Kconfig
---- kernel-source-2.6.6/arch/ppc/oprofile/Kconfig	1970-01-01 01:00:00.000000000 +0100
-+++ linuxppc-2.5-benh/arch/ppc/oprofile/Kconfig	2003-12-31 03:50:43.000000000 +0100
-@@ -0,0 +1,23 @@
-+
-+menu "Profiling support"
-+	depends on EXPERIMENTAL
-+
-+config PROFILING
-+	bool "Profiling support (EXPERIMENTAL)"
-+	help
-+	  Say Y here to enable the extended profiling support mechanisms used
-+	  by profilers such as OProfile.
-+
-+
-+config OPROFILE
-+	tristate "OProfile system profiling (EXPERIMENTAL)"
-+	depends on PROFILING
-+	help
-+	  OProfile is a profiling system capable of profiling the
-+	  whole system, include the kernel, kernel modules, libraries,
-+	  and applications.
-+
-+	  If unsure, say N.
-+
-+endmenu
-+
-diff -Nur kernel-source-2.6.6/arch/ppc/oprofile/Makefile linuxppc-2.5-benh/arch/ppc/oprofile/Makefile
---- kernel-source-2.6.6/arch/ppc/oprofile/Makefile	1970-01-01 01:00:00.000000000 +0100
-+++ linuxppc-2.5-benh/arch/ppc/oprofile/Makefile	2003-12-31 03:50:44.000000000 +0100
-@@ -0,0 +1,9 @@
-+obj-$(CONFIG_OPROFILE) += oprofile.o
-+
-+DRIVER_OBJS := $(addprefix ../../../drivers/oprofile/, \
-+		oprof.o cpu_buffer.o buffer_sync.o \
-+		event_buffer.o oprofile_files.o \
-+		oprofilefs.o oprofile_stats.o \
-+		timer_int.o )
-+
-+oprofile-y := $(DRIVER_OBJS) init.o
-diff -Nur kernel-source-2.6.6/arch/ppc/oprofile/init.c linuxppc-2.5-benh/arch/ppc/oprofile/init.c
---- kernel-source-2.6.6/arch/ppc/oprofile/init.c	1970-01-01 01:00:00.000000000 +0100
-+++ linuxppc-2.5-benh/arch/ppc/oprofile/init.c	2003-12-31 03:50:45.000000000 +0100
-@@ -0,0 +1,25 @@
-+/**
-+ * @file init.c
-+ *
-+ * @remark Copyright 2002 OProfile authors
-+ * @remark Read the file COPYING
-+ *
-+ * @author John Levon <levon@movementarian.org>
++/*
++ * Enables/disables executability of a given kernel page and
++ * returns the previous setting.
 + */
-+
-+#include <linux/kernel.h>
-+#include <linux/oprofile.h>
-+#include <linux/init.h>
-+#include <linux/errno.h>
-+
-+extern void timer_init(struct oprofile_operations ** ops);
-+
-+int __init oprofile_arch_init(struct oprofile_operations ** ops)
++int __init set_kernel_exec(unsigned long vaddr, int enable)
 +{
-+	return -ENODEV;
++	pte_t *pte;
++	int ret = 1;
++
++	if (!nx_enabled)
++		goto out;
++
++	pte = lookup_address(vaddr);
++	BUG_ON(!pte);
++
++	if (pte_val(*pte) & _PAGE_NX)
++		ret = 0;
++
++	if (enable)
++		pte->pte_high &= ~(1 << (_PAGE_BIT_NX - 32));
++	else
++		pte->pte_high |= 1 << (_PAGE_BIT_NX - 32);
++	__flush_tlb_all();
++out:
++	return ret;
 +}
 +
 +
-+void oprofile_arch_exit(void)
-+{
-+}
+ #endif
+ 
+ /*
+--- linux/arch/i386/mm/pageattr.c.orig	
++++ linux/arch/i386/mm/pageattr.c	
+@@ -17,7 +17,7 @@ static spinlock_t cpa_lock = SPIN_LOCK_U
+ static struct list_head df_list = LIST_HEAD_INIT(df_list);
+ 
+ 
+-static inline pte_t *lookup_address(unsigned long address) 
++pte_t *lookup_address(unsigned long address) 
+ { 
+ 	pgd_t *pgd = pgd_offset_k(address); 
+ 	pmd_t *pmd;
+--- linux/include/asm-i386/pgtable.h.orig	
++++ linux/include/asm-i386/pgtable.h	
+@@ -344,6 +344,26 @@ static inline pte_t pte_modify(pte_t pte
+ #define pte_offset_kernel(dir, address) \
+ 	((pte_t *) pmd_page_kernel(*(dir)) +  pte_index(address))
+ 
++/*
++ * Helper function that returns the kernel pagetable entry controlling
++ * the virtual address 'address'. NULL means no pagetable entry present.
++ * NOTE: the return type is pte_t but if the pmd is PSE then we return it
++ * as a pte too.
++ */
++extern pte_t *lookup_address(unsigned long address);
++
++/*
++ * Make a given kernel text page executable/non-executable.
++ * Returns the previous executability setting of that page (which
++ * is used to restore the previous state). Used by the SMP bootup code.
++ * NOTE: this is an __init function for security reasons.
++ */
++#ifdef CONFIG_X86_PAE
++ extern int set_kernel_exec(unsigned long vaddr, int enable);
++#else
++ static inline int set_kernel_exec(unsigned long vaddr, int enable) { }
++#endif
++
+ #if defined(CONFIG_HIGHPTE)
+ #define pte_offset_map(dir, address) \
+ 	((pte_t *)kmap_atomic(pmd_page(*(dir)),KM_PTE0) + pte_index(address))
 
-
--- 
-J'qbpbe, le m'en fquz pe j'qbpbe!
-Le veux aimeb et mqubib panz je pézqbpbe je djuz tqtaj!
+--Q68bSM7Ycu6FN28Q--

@@ -1,59 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266736AbUFRSzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266761AbUFRS5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266736AbUFRSzY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 14:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266166AbUFRSx0
+	id S266761AbUFRS5v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 14:57:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266482AbUFRSzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 14:53:26 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:50818 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S266353AbUFRSwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 14:52:51 -0400
-Subject: Re: DMA API issues
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Ian Molton <spyro@f2s.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com,
-       tony@atomide.com, david-b@pacbell.net, jamey.hicks@hp.com,
-       joshua@joshuawise.com
-In-Reply-To: <20040618193544.48b88771.spyro@f2s.com>
-References: <1087582845.1752.107.camel@mulgrave> 
-	<20040618193544.48b88771.spyro@f2s.com>
-Content-Type: text/plain
+	Fri, 18 Jun 2004 14:55:50 -0400
+Received: from lakermmtao06.cox.net ([68.230.240.33]:51443 "EHLO
+	lakermmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S266719AbUFRSyh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 14:54:37 -0400
+In-Reply-To: <40D33338.6050001@opensound.com>
+References: <40D232AD.4020708@opensound.com> <3217460000.1087518092@flay> <40D23701.1030302@opensound.com> <1087573691.19400.116.camel@winden.suse.de> <40D32C1D.80309@opensound.com> <40D33464.6030403@techsource.com> <40D33338.6050001@opensound.com>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <F1B17570-C158-11D8-9A43-000393ACC76E@mac.com>
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 18 Jun 2004 13:52:46 -0500
-Message-Id: <1087584769.2134.119.camel@mulgrave>
-Mime-Version: 1.0
+Cc: Timothy Miller <miller@techsource.com>,
+       Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Stop the Linux kernel madness
+Date: Fri, 18 Jun 2004 14:54:36 -0400
+To: 4Front Technologies <dev@opensound.com>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-06-18 at 13:35, Ian Molton wrote:
-> Thats all well and good for devices which have their own drivers, but
-> thats not the case always.
-> 
-> the device I described is an OHCI controller, and in theory, it should
-> be able to use the OHCI driver in the kernel without any modification,
-> *as long as* the DMA API returns valid device and virtual addresses,
-> which, at present, it does not.
+On Jun 18, 2004, at 14:23, 4Front Technologies wrote:
+> Timothy,
+>
+> Who are you to revoke my request to SuSE and other distributors and 
+> others who share
+> my views on LKML?
 
-Yes, this sounds similar to the Q720 problem.  I wanted to use the
-generic ncr53c8xx driver (being lazy) but I wanted to persuade the
-driver to use my onboard memory.  This sounds like your issue because
-the ncr driver has been sliced apart to become simply a chip driver and
-I supply a small skeleton NCR_Q720.c to glue it on to the bus.
+Who are you to demand it in the first place.  As far as I can see, 
+you've contributed
+nothing notable to the kernel development community (But please correct 
+me if I'm
+wrong).  Why should we listen to you, when you haven't given us reason 
+to.  All
+you've done is demand things of the LKML, but why should we listen to 
+your
+demands instead of our own.
 
-You still haven't explained what you want to do though.  Apart from the
-occasional brush with usbstorage, I don't have a good knowledge of the
-layout of the USB drivers.  I assume you simply want to persuade the
-ohci driver to use your memory area somehow, but what do you actually
-want the ohci driver to do with it?  And how much leeway do you get to
-customise the driver.
+> What is wrong with making a demand for standardization?. It's high time
+> that things got a bit more organized. And where do you see a 
+> demand....I just
+> said "like to see". Which is more of a request the way I understand 
+> English.
 
-The reason I'm asking is beause it's still unclear whether this is a DMA
-API issue or an ohci one.  I could solve my Q720 issue simply by
-exporting an interface from the ncr driver to supply alternative memory
-allocation use and descriptors.
+If you want things more organized, then please code it up and submit a 
+series of
+clean patches against the current kernel.  Besides, a lack of 
+organization is
+sometimes a good thing. (See _The_Cathedral_and_the_Bazaar_:
+<http://www.catb.org/~esr/writings/cathedral-bazaar/cathedral-bazaar/>).
 
-James
+> It's high time people like me spoke up for standardization and some 
+> sense of
+> organization. If the majority doesn't want to listen fine, it's a free 
+> world,
+> but you have no right to silence me for airing my views.
+
+We're not silencing you for airing your views.  If anything, we're 
+silencing you
+because your views get in the way of us doing real work.  If you want 
+to be
+productive and give us a clean set of patches, then go ahead, but all 
+you're
+doing right now is making the signal-to-noise ratio on the LKML worse.
+
+Cheers,
+Kyle Moffett
 
 

@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129231AbRBKUKv>; Sun, 11 Feb 2001 15:10:51 -0500
+	id <S129809AbRBKUNl>; Sun, 11 Feb 2001 15:13:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129617AbRBKUKm>; Sun, 11 Feb 2001 15:10:42 -0500
-Received: from clueserver.org ([206.163.47.224]:63493 "HELO clueserver.org")
-	by vger.kernel.org with SMTP id <S129231AbRBKUKF>;
-	Sun, 11 Feb 2001 15:10:05 -0500
-Date: Sun, 11 Feb 2001 12:21:43 -0800 (PST)
-From: Alan Olsen <alan@clueserver.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
-        Rogerio Brito <rbrito@iname.com>
-Subject: Re: Slowing down CDROM drives (was: Re: ATAPI CDRW which doesn't
- work)
-In-Reply-To: <20010211174707.I16362@suse.de>
-Message-ID: <Pine.LNX.4.10.10102111220160.22754-100000@clueserver.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130004AbRBKUNb>; Sun, 11 Feb 2001 15:13:31 -0500
+Received: from tazenda.demon.co.uk ([158.152.220.239]:55302 "EHLO
+	tazenda.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S129853AbRBKUNQ>; Sun, 11 Feb 2001 15:13:16 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999 (debian)
+To: linux-kernel@vger.kernel.org
+Subject: small patch for unsigned char breakage in rtl8129 driver
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 11 Feb 2001 20:12:54 +0000
+From: Philip Blundell <philb@gnu.org>
+Message-Id: <E14S2rf-0003or-00@kings-cross.london.uk.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Feb 2001, Jens Axboe wrote:
+--- linux/drivers/net/rtl8129.c	Sat Nov  4 16:42:22 2000
++++ linux/drivers/net/rtl8129.c	Sat Nov  4 16:48:21 2000
+@@ -271,7 +271,7 @@ struct rtl8129_private {
+ 	unsigned char *tx_bufs;				/* Tx bounce buffer region. */
+ 	dma_addr_t rx_ring_dma;
+ 	dma_addr_t tx_bufs_dma;
+-	char phys[4];						/* MII device addresses. */
++	signed char phys[4];				/* MII device addresses. */
+ 	char twistie, twist_cnt;			/* Twister tune state. */
+ 	unsigned int tx_full:1;				/* The Tx queue is full. */
+ 	unsigned int full_duplex:1;			/* Full-duplex operation requested. */
 
-> On Sat, Feb 10 2001, Pavel Machek wrote:
-> > > 	ioctl(cd_fd, CDROM_SELECT_SPEED, speed);
-> > 
-> > Does this actually work? I helped my friend with partly broken cdrom
-> > (worked only at low speeds) and it did not have much effect. It did
-> > not make my cdrom quiet, either, AFAI can remember.
-> 
-> It's no news that vendors only implement what they want to. New
-> cd-r/w and dvd drives are not required to implement this command,
-> so it may not work there either.
-
-Take a look at the code for cdparanoia or one of the other MP3 ripping
-programms. Slowing down the drive is a standard feature for that type of
-program.  (Reduces errors when pulling audio tracks off the disc.)
-
-alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
-Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
-    "In the future, everything will have its 15 minutes of blame."
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

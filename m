@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265849AbUATWxN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 17:53:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265844AbUATWux
+	id S265879AbUATXFN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 18:05:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265882AbUATXFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 17:50:53 -0500
-Received: from gprs214-112.eurotel.cz ([160.218.214.112]:56195 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265841AbUATWuI (ORCPT
+	Tue, 20 Jan 2004 18:05:13 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:36112 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S265879AbUATXFC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 17:50:08 -0500
-Date: Tue, 20 Jan 2004 23:50:02 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>
-Subject: Trivial cleanups for swsusp
-Message-ID: <20040120225002.GA19175@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Tue, 20 Jan 2004 18:05:02 -0500
+Date: Wed, 21 Jan 2004 00:04:49 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i386/mm and openwall change
+In-Reply-To: <Pine.LNX.4.58.0401200817260.2123@home.osdl.org>
+Message-ID: <Pine.LNX.4.44.0401210000370.13857-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Perhaps, however I assumed that errorcode == 0 is a special case meaning 
+no error, this seems to be suggested by the code.  If so then the ow 
+approach differs from the current 25pre6 code.  The openwall sets it to 0 
+meaning (I assume) no error, while the 25pre6 code sets it to a non-zero 
+value, while the 24 code sets it to whatever errorcode was (can it be 
+zero or nonzero? probably both, since this would explain the change 
+in the first place...).  This effectively means we have 3 different 
+function source-codes for the address>=TASK_SIZE case, while all behave 
+identically for address<TASK_SIZE.
 
-This kills unused part of struct and fixes spelling. Please apply,
+On Tue, 20 Jan 2004, Linus Torvalds wrote:
+> On Tue, 20 Jan 2004, Maciej Zenczykowski wrote:
+> > I'm assuming this means the openwall change was an error?
+> 
+> Oh, the openwall approach is fine too - the exact error number doesn't
+> really matter much, and which one you choose is pretty much a matter of 
+> taste.
+> 		Linus
 
-								Pavel
+If it doesn't matter why set the bit at all?  If we do set the least
+significant bit this is obviously because it shouldn't be zero (i.e. it
+doesn't matter as long as it's boolean true), if so then why does ow set
+it to zero in this case.  Obviously this is somehow _weird_...
 
-Index: linux/include/linux/suspend.h
-===================================================================
---- linux.orig/include/linux/suspend.h	2004-01-13 22:52:40.000000000 +0100
-+++ linux/include/linux/suspend.h	2004-01-20 22:51:15.000000000 +0100
-@@ -32,9 +33,6 @@
- 	int page_size;
- 	suspend_pagedir_t *suspend_pagedir;
- 	unsigned int num_pbes;
--	struct swap_location {
--		char filename[SWAP_FILENAME_MAXLENGTH];
--	} swap_location[MAX_SWAPFILES];
- };
- 
- #define SUSPEND_PD_PAGES(x)     (((x)*sizeof(struct pbe))/PAGE_SIZE+1)
-Index: linux/kernel/power/swsusp.c
-===================================================================
---- linux.orig/kernel/power/swsusp.c	2004-01-13 22:52:40.000000000 +0100
-+++ linux/kernel/power/swsusp.c	2004-01-09 20:33:05.000000000 +0100
-@@ -283,8 +287,8 @@
-  *    would happen on next reboot -- corrupting data.
-  *
-  *    Note: The buffer we allocate to use to write the suspend header is
-- *    not freed; its not needed since system is going down anyway
-- *    (plus it causes oops and I'm lazy^H^H^H^Htoo busy).
-+ *    not freed; its not needed since the system is going down anyway
-+ *    (plus it causes an oops and I'm lazy^H^H^H^Htoo busy).
-  */
- static int write_suspend_image(void)
- {
+Cheers,
+MaZe.
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+

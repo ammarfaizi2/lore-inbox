@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268654AbTCCTlD>; Mon, 3 Mar 2003 14:41:03 -0500
+	id <S268643AbTCCToD>; Mon, 3 Mar 2003 14:44:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268657AbTCCTlC>; Mon, 3 Mar 2003 14:41:02 -0500
-Received: from cub.phpwebhosting.com ([66.33.48.250]:33809 "HELO
-	cub.phpwebhosting.com") by vger.kernel.org with SMTP
-	id <S268654AbTCCTlA> convert rfc822-to-8bit; Mon, 3 Mar 2003 14:41:00 -0500
-From: "Jared Daniel J. Smith" <linux@trios.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.6 (1006) - Licensed Version
-Date: Mon, 3 Mar 2003 13:46:34 -0800
-Subject: RE: [PATCH] 2.5.63-current Yet more spelling fixes from spell-fix.pl
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20030303194100Z268654-29901+7275@vger.kernel.org>
+	id <S268660AbTCCToD>; Mon, 3 Mar 2003 14:44:03 -0500
+Received: from ip252-142.choiceonecom.com ([216.47.252.142]:28176 "EHLO
+	explorer.reliacomp.net") by vger.kernel.org with ESMTP
+	id <S268643AbTCCToC>; Mon, 3 Mar 2003 14:44:02 -0500
+Message-ID: <3E63B227.8030101@cendatsys.com>
+Date: Mon, 03 Mar 2003 13:51:03 -0600
+From: Edward King <edk@cendatsys.com>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.0rc1) Gecko/20020417
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Soeren Sonnenburg <kernel@nn7.de>
+CC: Mikael Pettersson <mikpe@user.it.uu.se>, szepe@pinerecords.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21pre4-ac5 status report
+References: <200303011252.h21CqBpl013357@harpo.it.uu.se> <1046523858.26074.7.camel@sun>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven,
 
-The following diff corrects address=addresss
-when it should correct addresses=addresss
+Soeren Sonnenburg wrote:
 
-IOW, the script singularized a plural typo.
-
--Jared
-
->diff -ur 2.5-current/include/net/sctp/user.h linux/include/net/sctp/user.h
->--- 2.5-current/include/net/sctp/user.h        Mon Mar  3 10:41:43 2003
->+++ linux/include/net/sctp/user.h        Mon Mar  3 10:45:23 2003
->@@ -100,13 +100,13 @@
->#define SCTP_SOCKOPT_BINDX_REM        SCTP_SOCKOPT_BINDX_REM
->SCTP_SOCKOPT_PEELOFF,         /* peel off association. */
->#define SCTP_SOCKOPT_PEELOFF        SCTP_SOCKOPT_PEELOFF
->-        SCTP_GET_PEER_ADDRS_NUM,         /* Get number of peer addresss. */
->+        SCTP_GET_PEER_ADDRS_NUM,         /* Get number of peer address. */
->#define SCTP_GET_PEER_ADDRS_NUM        SCTP_GET_PEER_ADDRS_NUM
->-        SCTP_GET_PEER_ADDRS,         /* Get all peer addresss. */
->+        SCTP_GET_PEER_ADDRS,         /* Get all peer address. */
->#define SCTP_GET_PEER_ADDRS        SCTP_GET_PEER_ADDRS
->-        SCTP_GET_LOCAL_ADDRS_NUM,         /* Get number of local addresss. */
->+        SCTP_GET_LOCAL_ADDRS_NUM,         /* Get number of local address. */
->#define SCTP_GET_LOCAL_ADDRS_NUM        SCTP_GET_LOCAL_ADDRS_NUM
->-        SCTP_GET_LOCAL_ADDRS,         /* Get all local addresss. */
->+        SCTP_GET_LOCAL_ADDRS,         /* Get all local address. */
->#define SCTP_GET_LOCAL_ADDRS        SCTP_GET_LOCAL_ADDRS
->};
+>On Sat, 2003-03-01 at 13:52, Mikael Pettersson wrote:
+>  
 >
+>>On 01 Mar 2003 11:47:39 +0100, Soeren Sonnenburg wrote:
+>>    
+>>
+>>>As I guessed. I've got two pdc20268 with just one drive per channel
+>>>(where the last drive is a cdrom-drive)
+>>>
+>>>So one pdc no problem >1 -> trouble.
+>>>      
+>>>
+>>Maybe that's changed in 2.4.21-pre-ac new IDE code, I don't know.
+>>
+>>Your cards don't share interrupts with anything else I hope?
+>>    
+>>
+I tried  two pdc20268's which failed miserably
 
+Used an Asus motherboard and an FIC motherboard, different cables, 
+different cards, different powersupply.Hard drives are 200GB western 
+digitals, one drive per channel.  
 
+Tried an SIIG card with the SiI680 chipset -- same problem using is and 
+the pdc20268, but is more stable than a single pdc -- so now I have 4 
+drives on that card.
+
+My kernel is 2.4.21-pre4-ac6 -- let me know if the pre5's solve the problem.
+
+Ed King
 

@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264754AbTFYRMv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 13:12:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbTFYRMv
+	id S264670AbTFYRUA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 13:20:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264732AbTFYRUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 13:12:51 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:24003 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264754AbTFYRMr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 13:12:47 -0400
-Date: Wed, 25 Jun 2003 10:26:49 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: bkbits.net is down
-Message-ID: <20030625172649.GB25213@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20030621135812.GE14404@work.bitmover.com> <20030621190944.GA13396@work.bitmover.com> <20030622002614.GA16225@work.bitmover.com> <20030623053713.GA6715@work.bitmover.com> <20030625013302.GB2525@work.bitmover.com>
+	Wed, 25 Jun 2003 13:20:00 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:11199 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264731AbTFYRTw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 13:19:52 -0400
+Date: Wed, 25 Jun 2003 10:33:26 -0700
+From: Greg KH <greg@kroah.com>
+To: Mark Watts <m.watts@eris.qinetiq.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Finding out what cards a driver supports...
+Message-ID: <20030625173326.GB11589@kroah.com>
+References: <200306251453.02690.m.watts@eris.qinetiq.com> <20030625143239.GA11244@gtf.org> <200306251658.35745.m.watts@eris.qinetiq.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030625013302.GB2525@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+In-Reply-To: <200306251658.35745.m.watts@eris.qinetiq.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We're up to the projects starting with "p" and through all the ppc trees.
-So far everything is checking out clean after a few manual fixups.
+On Wed, Jun 25, 2003 at 04:58:35PM +0100, Mark Watts wrote:
+> 
+> > On Wed, Jun 25, 2003 at 02:53:02PM +0100, Mark Watts wrote:
+> > > How would I find out what network cards a particular driver supports?
+> > > (particularly the tg3 / bcm5700 driver in 2.4.x)
+> >
+> > Look in the PCI ids table, and compare that with the output of 'lspci -n'
+> > for your card.
+> >
+> > 	Jeff
+> 
+> Is there a way to do it without actually having the card in question?
+> 
+> I'm trying to help a chap who has a 3Com 3c940 GigE card...
 
-We "downgraded" to 2.4.21 from ~2.5.70 because of what we think are file
-system or IDE corruption problems.  If anyone else is running on a 
-serverworks IDE chipset (Tyan dual PIII MB) and has hit problems with
-2.4.21 I'd be deeply grateful for a heads up.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Have them run 'lspci -n'  :)
+
+

@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262047AbUB2NES (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 08:04:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbUB2NES
+	id S262045AbUB2NLl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 08:11:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbUB2NLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 08:04:18 -0500
-Received: from gprs154-126.eurotel.cz ([160.218.154.126]:6528 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262047AbUB2NEQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 08:04:16 -0500
-Date: Sun, 29 Feb 2004 14:04:05 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: swsusp: fix error handling in "not enough swap space"
-Message-ID: <20040229130405.GA453@elf.ucw.cz>
+	Sun, 29 Feb 2004 08:11:41 -0500
+Received: from pD95F3028.dip.t-dialin.net ([217.95.48.40]:36363 "EHLO
+	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
+	id S262045AbUB2NLj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 08:11:39 -0500
+Date: Sun, 29 Feb 2004 13:11:35 +0000
+From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Copyright infringement by Walmart?
+Message-ID: <20040229131135.B10784@Marvin.DL8BCU.ampr.org>
+Reply-To: dl8bcu@dl8bcu.de
+Mail-Followup-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0402291201330.776-100000@poirot.grange>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.44.0402291201330.776-100000@poirot.grange>; from g.liakhovetski@gmx.de on Sun, Feb 29, 2004 at 12:13:29PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, Feb 29, 2004 at 12:13:29PM +0100, Guennadi Liakhovetski wrote:
+> Don't know, if I am the first, perhaps not. But I couldn't resist. Just
+> found in today's junk-mail pack an advertisement by Walmart-Germany of
+> "Linux Vollwaschmittel" - a washing powder:-)) The question in the subject
 
-Without this, if there's not enough swapspace, suspend fails, but
-leaves devices suspended, leading to dead machine. Please apply,
+It's made by an austrian company. For those who want to have a look:
+http://www.waschmittel.com/L-neu!LinuxVollwaschmittel.htm
 
-							Pavel
+IMHO there's no need to complain - it's just too funny to impress friends
+'even my washing mashine runs on Linux' :-)) 
 
---- tmp/linux/kernel/power/swsusp.c	2004-02-29 13:42:02.000000000 +0100
-+++ linux/kernel/power/swsusp.c	2004-02-29 00:34:31.000000000 +0100
-@@ -683,7 +683,11 @@
- 
- 	free_pages((unsigned long) pagedir_nosave, pagedir_order);
- 	spin_unlock_irq(&suspend_pagedir_lock);
-+
-+	device_resume();
-+	PRINTK( "Fixing swap signatures... " );
- 	mark_swapfiles(((swp_entry_t) {0}), MARK_SWAP_RESUME);
-+	PRINTK( "ok\n" );	
- }
- 
- /*
+Bye,
+Thorsten
 
- 
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
+| Mobile: ++49 170 1876134       Snail: Kiebitzstr. 14, 49324 Melle, Germany  |
+| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |

@@ -1,358 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBMR6P>; Tue, 13 Feb 2001 12:58:15 -0500
+	id <S129032AbRBMSE4>; Tue, 13 Feb 2001 13:04:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129032AbRBMR6G>; Tue, 13 Feb 2001 12:58:06 -0500
-Received: from smtp8.us.dell.com ([143.166.224.234]:39689 "EHLO
-	smtp8.us.dell.com") by vger.kernel.org with ESMTP
-	id <S129027AbRBMR56>; Tue, 13 Feb 2001 12:57:58 -0500
-Date: Tue, 13 Feb 2001 11:57:43 -0600 (CST)
-From: Michael E Brown <michael_e_brown@dell.com>
-Reply-To: Michael E Brown <michael_e_brown@dell.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: "Domsch, Matt" <Matt_Domsch@exchange.dell.com>,
-        <linux-kernel@vger.kernel.org>,
-        Andi Kleen <freitag@alancoxonachip.com>
-Subject: [RFC][PATCH] block ioctl to read/write last sector (New! Improved!)
-In-Reply-To: <Pine.LNX.3.95.1010207105607.26307A-100000@chaos.analogic.com>
-Message-ID: <DFFC82E1B73E984B8110F2955B01753E07CA66-400000@ausxmbt102.aus.amer.dell.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1500554619-416417569-982015326=:26194"
-Content-ID: <Pine.LNX.4.30.0102131139140.26811@blap.linuxdev.us.dell.com>
+	id <S129237AbRBMSEq>; Tue, 13 Feb 2001 13:04:46 -0500
+Received: from moe.rice.edu ([128.42.5.4]:34276 "EHLO moe.rice.edu")
+	by vger.kernel.org with ESMTP id <S129032AbRBMSE3>;
+	Tue, 13 Feb 2001 13:04:29 -0500
+Date: Tue, 13 Feb 2001 12:04:18 -0600
+From: Rahul Jain <rahul@rice.edu>
+To: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: [?] __alloc_pages: 1-order allocation failed.
+Message-ID: <20010213120418.A2468@photino.sid.rice.edu>
+Reply-To: Rahul Jain <rahul@rice.edu>
+In-Reply-To: <20010213105957.A16713@main.braxis.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010213105957.A16713@main.braxis.co.uk>; from kszysiu@braxis.co.uk on Tue, Feb 13, 2001 at 10:59:57AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Tue, Feb 13, 2001 at 10:59:57AM +0100, Krzysztof Rusocki wrote:
+> 
+> Hi,
+> 
+> Here's what i've found today in logs:
+> 
+> Feb 13 02:10:41 main kernel: __alloc_pages: 1-order allocation failed. 
+> Feb 13 02:10:42 main last message repeated 143 times
+> Feb 13 02:10:47 main kernel: ed. 
+> Feb 13 02:10:47 main kernel: __alloc_pages: 1-order allocation failed. 
+> Feb 13 02:50:30 main syslogd 1.3-3: restart (remote reception).
+> 
 
----1500554619-416417569-982015326=:26194
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-ID: <Pine.LNX.4.30.0102131139141.26811@blap.linuxdev.us.dell.com>
+I typically get thousands of such messages when using my SCSI CDRW (I think
+it's specifically when I'm cat'ing or dd'ing from the drive. Specifically, I
+get 2- and 3-order allocation failures. I'll use the patch Andi Kleen posted to
+track down the exact locations of these errors. There seem to be no ill effects
+at all from these errors.
 
-To address the concerns of Andi Kleen, with a good suggestion from Richard
-Johnson, I have revised my previous patch attempt. Please check this out
-and comment.
-
-Changelog:
-  1) use get_gendisk() instead of walking array manually
-  2) pass in struct instead of guessing..
-+       struct {
-+               unsigned int block;
-+               size_t content_length;
-+               char *block_contents;
-+       } blk_ioctl_parameter;
-
-  3) On write, read in previous contents in case userspace doesn't modify
-the whole block. (prevents garbage from being put in the remainder of the
-sector)
-
-
-On 7 Feb 2001, Andi Kleen wrote:
-> But what happens when you e.g. run a software blocksize of 4096 and the device
-> has >1 inaccessible 512 byte sector at the end?
-> I think it would be better to pass in a offset in 512 byte units to a special
-> ioctl (and do error checking in the driver for impossible requests)
-
-This has been addressed in the new patch. The new patch takes in an LBA
-offset and reads "LastLBA - offset" and returns the result to userspace.
-Checks are done so that only normally inaccessable blocks are accessible
-through this method. This is done to prevent any possible security
-consequences from arising because of this patch.
-
-Test code showing how to use this IOCTL have also been attached.
-Regards,
-Michael Brown
-
-
-------Original Message------
-Problem Summary:
-  There is no function exported to userspace to read or write the last
-512-byte sector of an odd-size disk.
-
-  The block device uses 1K blocksize, and will prevent userspace from
-seeing the odd-block at the end of the disk, if the disk is odd-size.
-
-  IA-64 architecture defines a new partitioning scheme where there is a
-backup of the partition table header in the last sector of the disk. While
-we can read and write to this sector in the kernel partition code, we have
-no way for userspace to update this partition block.
-
-Solution:
-  As an interim solution, I propose the following IOCTLs for the block
-device layer: BLKGETLASTSECT and BLKSETLASTSECT. These ioctls will take a
-userspace pointer to a char[512] and read/write the last sector. Below is
-a patch to do this.
-
-I have attached the patch as well, because I've heard that Pine will eat
-patches. :-(
-
-
-
-
-
----1500554619-416417569-982015326=:26194
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="try-read.c"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0102131157430.26811@blap.linuxdev.us.dell.com>
-Content-Description: 
-Content-Disposition: attachment; filename="try-read.c"
-
-DQojaW5jbHVkZSA8c3lzL3R5cGVzLmg+DQojaW5jbHVkZSA8c3lzL3N0YXQu
-aD4NCiNpbmNsdWRlIDxzeXMvZmNudGwuaD4NCiNpbmNsdWRlIDxzdGRpby5o
-Pg0KDQojaW5jbHVkZSA8c3lzL2lvY3RsLmg+DQoNCiNkZWZpbmUgQkxLR0VU
-TEFTVFNFQ1QgIF9JTygweDEyLDEwOCkgLyogZ2V0IGxhc3Qgc2VjdG9yIG9m
-IGJsb2NrIGRldmljZSAqLw0KI2RlZmluZSBCTEtTRVRMQVNUU0VDVCAgX0lP
-KDB4MTIsMTA5KSAvKiBnZXQgbGFzdCBzZWN0b3Igb2YgYmxvY2sgZGV2aWNl
-ICovDQojZGVmaW5lIEJMS1NTWkdFVCAgX0lPKDB4MTIsMTA0KS8qIGdldCBi
-bG9jayBkZXZpY2Ugc2VjdG9yIHNpemUgKi8NCg0Kc3RydWN0IGJsa2Rldl9p
-b2N0bF9wYXJhbSB7DQoJdW5zaWduZWQgaW50IGJsb2NrOw0KCXNpemVfdCBj
-b250ZW50X2xlbmd0aDsNCgljaGFyICogYmxvY2tfY29udGVudHM7DQp9Ow0K
-DQptYWluKGludCBhcmdjLCBjaGFyICphcmd2W10pDQp7DQogIGludCBmaWxl
-ZGVzLCByYz0wLCBibGtzej0wOw0KICBjaGFyICpsYXN0YmxvY2s7DQogIHN0
-cnVjdCBibGtkZXZfaW9jdGxfcGFyYW0gaW9jdGxfcGFyYW07DQoNCiAgaW9j
-dGxfcGFyYW0uYmxvY2sgPSAwOw0KDQogIGZpbGVkZXMgPSBvcGVuKCIvZGV2
-L3NkYiIsIE9fUkRPTkxZICk7DQogIHByaW50ZigiICBvcGVuIGZpbGVkZXM6
-ICVkXG4iLCBmaWxlZGVzKTsNCg0KICByYyA9IGlvY3RsKGZpbGVkZXMsIEJM
-S1NTWkdFVCwgJmJsa3N6KSA7DQogIGxhc3RibG9jayA9IChjaGFyICopIG1h
-bGxvYyggYmxrc3ogKyA4ICk7DQogIGlvY3RsX3BhcmFtLmNvbnRlbnRfbGVu
-Z3RoID0gYmxrc3o7DQogIHByaW50ZigiICBibG9jayBzaXplIGFwcGVhcnMg
-dG8gYmUgJWRcbiIsIGJsa3N6KTsNCg0KICBtZW1zZXQoIGxhc3RibG9jaywg
-J3onLCBibGtzeiArIDggICk7DQogIGlvY3RsX3BhcmFtLmJsb2NrX2NvbnRl
-bnRzID0gbGFzdGJsb2NrOw0KDQogIHJjID0gaW9jdGwoZmlsZWRlcywgQkxL
-R0VUTEFTVFNFQ1QsICZpb2N0bF9wYXJhbSkgOw0KICBwcmludGYoIiAgbGFz
-dCBzZWN0IGlvY3RsIHJjOiAlZFxuIiwgcmMpOw0KDQogIGxhc3RibG9ja1ti
-bGtzeiArIDFdID0gJ1wwJzsNCiAgcHJpbnRmKCIgIExhc3QgQmxvY2s6IFxu
-JXM8LS1cbiIsIGxhc3RibG9jayk7DQoNCiAgcmV0dXJuIDA7DQp9DQoNCg==
----1500554619-416417569-982015326=:26194
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="try-write.c"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0102131157431.26811@blap.linuxdev.us.dell.com>
-Content-Description: 
-Content-Disposition: attachment; filename="try-write.c"
-
-DQojaW5jbHVkZSA8c3lzL3R5cGVzLmg+DQojaW5jbHVkZSA8c3lzL3N0YXQu
-aD4NCiNpbmNsdWRlIDxzeXMvZmNudGwuaD4NCiNpbmNsdWRlIDxzdGRpby5o
-Pg0KDQojaW5jbHVkZSA8c3lzL2lvY3RsLmg+DQoNCiNkZWZpbmUgQkxLR0VU
-TEFTVFNFQ1QgIF9JTygweDEyLDEwOCkgLyogZ2V0IGxhc3Qgc2VjdG9yIG9m
-IGJsb2NrIGRldmljZSAqLw0KI2RlZmluZSBCTEtTRVRMQVNUU0VDVCAgX0lP
-KDB4MTIsMTA5KSAvKiBnZXQgbGFzdCBzZWN0b3Igb2YgYmxvY2sgZGV2aWNl
-ICovDQojZGVmaW5lIEJMS1NTWkdFVCAgX0lPKDB4MTIsMTA0KS8qIGdldCBi
-bG9jayBkZXZpY2Ugc2VjdG9yIHNpemUgKi8NCg0Kc3RydWN0IGJsa2Rldl9p
-b2N0bF9wYXJhbSB7DQoJdW5zaWduZWQgaW50IGJsb2NrOw0KCXNpemVfdCBj
-b250ZW50X2xlbmd0aDsNCgljaGFyICogYmxvY2tfY29udGVudHM7DQp9Ow0K
-DQptYWluKGludCBhcmdjLCBjaGFyICphcmd2W10pDQp7DQogIGludCBmaWxl
-ZGVzLCByYz0wLCBibGtzej0wOw0KICBjaGFyICpsYXN0YmxvY2ssIG5ld2No
-YXIgPSAnYSc7DQogIHN0cnVjdCBibGtkZXZfaW9jdGxfcGFyYW0gaW9jdGxf
-cGFyYW07DQogIA0KICBpZiggYXJnYyA+IDEgKSBuZXdjaGFyID0gYXJndlsx
-XVswXTsNCg0KICBpb2N0bF9wYXJhbS5ibG9jayA9IDA7DQoNCiAgZmlsZWRl
-cyA9IG9wZW4oIi9kZXYvc2RiIiwgT19SRE9OTFkgKTsNCiAgcHJpbnRmKCIg
-IG9wZW4gZmlsZWRlczogJWRcbiIsIGZpbGVkZXMpOw0KDQogIHJjID0gaW9j
-dGwoZmlsZWRlcywgQkxLU1NaR0VULCAmYmxrc3opIDsNCiAgbGFzdGJsb2Nr
-ID0gKGNoYXIgKikgbWFsbG9jKCBibGtzeiArIDIgKTsNCiAgaW9jdGxfcGFy
-YW0uY29udGVudF9sZW5ndGggPSBibGtzeiA7DQogIHByaW50ZigiICBibG9j
-ayBzaXplIGFwcGVhcnMgdG8gYmUgJWRcbiIsIGJsa3N6ICk7DQoNCiAgbWVt
-c2V0KCBsYXN0YmxvY2ssIG5ld2NoYXIsIGJsa3N6ICsgMiApOw0KICBpb2N0
-bF9wYXJhbS5ibG9ja19jb250ZW50cyA9IGxhc3RibG9jazsNCg0KICByYyA9
-IGlvY3RsKGZpbGVkZXMsIEJMS1NFVExBU1RTRUNULCAmaW9jdGxfcGFyYW0p
-IDsNCiAgcHJpbnRmKCIgIGxhc3Qgc2VjdCBpb2N0bCByYzogJWRcbiIsIHJj
-KTsNCg0KICByZXR1cm4gMDsNCn0NCg0K
----1500554619-416417569-982015326=:26194
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=patch-getlastsector-20010213
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0102131157432.26811@blap.linuxdev.us.dell.com>
-Content-Description: 
-Content-Disposition: attachment; filename=patch-getlastsector-20010213
-
-ZGlmZiAtcnVQIGxpbnV4L2RyaXZlcnMvYmxvY2svYmxrcGcuYyBsaW51eC1p
-b2N0bC9kcml2ZXJzL2Jsb2NrL2Jsa3BnLmMNCi0tLSBsaW51eC9kcml2ZXJz
-L2Jsb2NrL2Jsa3BnLmMJRnJpIE9jdCAyNyAwMTozNTo0NyAyMDAwDQorKysg
-bGludXgtaW9jdGwvZHJpdmVycy9ibG9jay9ibGtwZy5jCVR1ZSBGZWIgMTMg
-MTE6Mzk6MzcgMjAwMQ0KQEAgLTM5LDYgKzM5LDkgQEANCiANCiAjaW5jbHVk
-ZSA8YXNtL3VhY2Nlc3MuaD4NCiANCitzdGF0aWMgaW50IHNldF9sYXN0X3Nl
-Y3Rvcigga2Rldl90IGRldiwgY29uc3Qgdm9pZCAqcGFyYW0gKTsNCitzdGF0
-aWMgaW50IGdldF9sYXN0X3NlY3Rvcigga2Rldl90IGRldiwgY29uc3Qgdm9p
-ZCAqcGFyYW0gKTsNCisNCiAvKg0KICAqIFdoYXQgaXMgdGhlIGRhdGEgZGVz
-Y3JpYmluZyBhIHBhcnRpdGlvbj8NCiAgKg0KQEAgLTIxMCw2ICsyMTMsMTYg
-QEANCiAJaW50IGludHZhbDsNCiANCiAJc3dpdGNoIChjbWQpIHsNCisJCWNh
-c2UgQkxLR0VUTEFTVFNFQ1Q6DQorCQkJcmV0dXJuIGdldF9sYXN0X3NlY3Rv
-cihkZXYsIChjaGFyICopKGFyZykpOw0KKw0KKwkJY2FzZSBCTEtTRVRMQVNU
-U0VDVDoNCisJCQlpZiggaXNfcmVhZF9vbmx5KGRldikgKQ0KKwkJCQlyZXR1
-cm4gLUVBQ0NFUzsNCisJCQlpZiAoIWNhcGFibGUoQ0FQX1NZU19BRE1JTikp
-DQorCQkJCXJldHVybiAtRUFDQ0VTOw0KKwkJCXJldHVybiBzZXRfbGFzdF9z
-ZWN0b3IoZGV2LCAoY2hhciAqKShhcmcpKTsNCisNCiAJCWNhc2UgQkxLUk9T
-RVQ6DQogCQkJaWYgKCFjYXBhYmxlKENBUF9TWVNfQURNSU4pKQ0KIAkJCQly
-ZXR1cm4gLUVBQ0NFUzsNCkBAIC0yODEsMyArMjk0LDIwOSBAQA0KIH0NCiAN
-CiBFWFBPUlRfU1lNQk9MKGJsa19pb2N0bCk7DQorDQorIC8qKioqKioqKioq
-KioqKioqKioqKioNCisgICogZ2V0X2xhc3Rfc2VjdG9yKCkNCisgICogIA0K
-KyAgKiBEZXNjcmlwdGlvbjogVGhpcyBmdW5jdGlvbiB3aWxsIHJlYWQgYW55
-IGluYWNjZXNzaWJsZSBibG9ja3MgYXQgdGhlIGVuZA0KKyAgKiAJb2YgYSBk
-ZXZpY2UNCisgICogV2h5OiBOb3JtYWwgcmVhZC93cml0ZSBjYWxscyB0aHJv
-dWdoIHRoZSBibG9jayBsYXllciB3aWxsIG5vdCByZWFkIHRoZSANCisgICog
-ICAgICBsYXN0IHNlY3RvciBvZiBhbiBvZGQtc2l6ZSBkaXNrLiANCisgICog
-cGFyYW1ldGVyczogDQorICAqICAgIGRldjoga2Rldl90IC0tIHdoaWNoIGRl
-dmljZSB0byByZWFkDQorICAqICAgIHBhcmFtOiBhIHBvaW50ZXIgdG8gYSB1
-c2Vyc3BhY2Ugc3RydWN0LiBUaGUgc3RydWN0IGhhcyB0aGVzZSBtZW1iZXJz
-OiANCisgICoJYmxvY2s6ICBhbiBpbnQgd2hpY2ggZGVub3RlcyB3aGljaCBi
-bG9jayB0byByZXR1cm46DQorICAqCQkwID09IExhc3QgYmxvY2sNCisgICog
-CQkxID09IExhc3QgYmxvY2sgLSAxDQorICAqIAkJbiA9PSBMYXN0IGJsb2Nr
-IC0gbg0KKyAgKgkJVGhpcyBpcyB2YWxpZGF0ZWQgc28gdGhhdCBvbmx5IHZh
-bHVlcyBvZiANCisgICoJCSAgPD0gKCh0b3RhbF9zZWN0cyArIDEpICUgbG9n
-aWNhbF9ibG9ja19zaXplKSAgfHwgIDANCisgICoJCSAgYXJlIGFsbG93ZWQu
-DQorICAqIAlibG9ja19jb250ZW50czogYSBwb2ludGVyIHRvIHVzZXJzcGFj
-ZSBjaGFyKiwgdGhpcyBpcyB3aGVyZSB3ZSB3cml0ZSANCisgICoJIHJldHVy
-bmVkIGJsb2NrcyB0by4NCisgICogCWNvbnRlbnRfbGVuZ3RoOiBIb3cgYmln
-IHRoZSB1c2Vyc3BhY2UgYnVmZmVyIGlzLg0KKyAgKiByZXR1cm46IA0KKyAg
-KiAgICAwIG9uIHN1Y2Nlc3MNCisgICogICAtRVJSVkFMIG9uIGVycm9yLg0K
-KyAgKioqKioqKioqKioqKioqKioqKioqLw0KK2ludCBnZXRfbGFzdF9zZWN0
-b3IoIGtkZXZfdCBkZXYsIGNvbnN0IHZvaWQgKnBhcmFtICkNCit7ICAgDQor
-ICAgICAgICBzdHJ1Y3QgYnVmZmVyX2hlYWQgKmJoOw0KKyAgICAgICAgc3Ry
-dWN0IGdlbmRpc2sgKmc7DQorICAgICAgICBpbnQgcmMgPSAwOw0KKyAgICAg
-ICAgdW5zaWduZWQgaW50IGxhc3RsYmEsIHJlYWRsYmE7DQorICAgICAgICBp
-bnQgb3JpZ19ibGtzaXplID0gQkxPQ0tfU0laRTsNCisgICAgICAgIGludCBo
-YXJkYmxvY2tzaXplOw0KKw0KKwlzdHJ1Y3Qgew0KKwkJdW5zaWduZWQgaW50
-IGJsb2NrOw0KKwkJc2l6ZV90IGNvbnRlbnRfbGVuZ3RoOw0KKwkJY2hhciAq
-YmxvY2tfY29udGVudHM7DQorCX0gYmxrX2lvY3RsX3BhcmFtZXRlcjsNCisN
-CisgICAgICAgIGlmKCAhZGV2ICkgcmV0dXJuIC1FSU5WQUw7DQorDQorICAg
-ICAgICBpZihjb3B5X2Zyb21fdXNlcigmYmxrX2lvY3RsX3BhcmFtZXRlciwg
-cGFyYW0sIHNpemVvZihibGtfaW9jdGxfcGFyYW1ldGVyKSkpDQorCQlyZXR1
-cm4gLUVGQVVMVDsNCisNCisgICAgICAgIGcgPSBnZXRfZ2VuZGlzayggZGV2
-ICk7DQorDQorICAgICAgICBpZiggIWcgKSByZXR1cm4gLUVJTlZBTDsNCisN
-CisgICAgICAgIGxhc3RsYmEgPSBnLT5wYXJ0W01JTk9SKGRldildLm5yX3Nl
-Y3RzOw0KKw0KKyAgICAgICAgaWYoICFsYXN0bGJhICkgcmV0dXJuIC1FSU5W
-QUw7DQorDQorICAgICAgICBoYXJkYmxvY2tzaXplID0gZ2V0X2hhcmRibG9j
-a3NpemUoZGV2KTsNCisgICAgICAgIGlmKCAhIGhhcmRibG9ja3NpemUgKSBo
-YXJkYmxvY2tzaXplID0gNTEyOw0KKw0KKyAgICAgICAgIC8qIE5lZWQgdG8g
-Y2hhbmdlIHRoZSBibG9jayBzaXplIHRoYXQgdGhlIGJsb2NrIGxheWVyIHVz
-ZXMgKi8NCisgICAgICAgIGlmIChibGtzaXplX3NpemVbTUFKT1IoZGV2KV0p
-ew0KKyAgICAgICAgICAgICAgICBvcmlnX2Jsa3NpemUgPSBibGtzaXplX3Np
-emVbTUFKT1IoZGV2KV1bTUlOT1IoZGV2KV07DQorICAgICAgICB9DQorDQor
-ICAgICAgICAgLyogdmFsaWRhdGUgdXNlcnNwYWNlIGlucHV0ICovDQorICAg
-ICAgICBpZiggYmxrX2lvY3RsX3BhcmFtZXRlci5ibG9jayA9PSAwICkNCisJ
-CWdvdG8gZ29vZF9wYXJhbXM7DQorDQorCS8qIHNvIHdlIGRvbid0IGRpdmlk
-ZSBieSB6ZXJvIGJlbG93ICovICANCisJaWYob3JpZ19ibGtzaXplID09IDAp
-IA0KKwkJcmV0dXJuIC1FSU5WQUw7IA0KKw0KKyAgICAgICAgaWYoIGJsa19p
-b2N0bF9wYXJhbWV0ZXIuYmxvY2sgPD0gKGxhc3RsYmEgJSAob3JpZ19ibGtz
-aXplIC8gaGFyZGJsb2Nrc2l6ZSkpKQ0KKwkJZ290byBnb29kX3BhcmFtczsN
-CisNCisJcmV0dXJuIC1FSU5WQUw7IA0KKw0KK2dvb2RfcGFyYW1zOg0KKyAg
-ICAgICAgcmVhZGxiYSA9IGxhc3RsYmEgLSBibGtfaW9jdGxfcGFyYW1ldGVy
-LmJsb2NrIC0gMTsNCisNCisgICAgICAgIGlmIChvcmlnX2Jsa3NpemUgIT0g
-aGFyZGJsb2Nrc2l6ZSkNCisgICAgICAgICAgICAgICAgICAgc2V0X2Jsb2Nr
-c2l6ZShkZXYsIGhhcmRibG9ja3NpemUpOw0KKw0KKyAgICAgICAgYmggPSAg
-YnJlYWQoZGV2LCByZWFkbGJhLCBoYXJkYmxvY2tzaXplKTsNCisgICAgICAg
-IGlmICghYmgpIHsNCisJCS8qIFdlIGhpdCB0aGUgZW5kIG9mIHRoZSBkaXNr
-ICovDQorCQlwcmludGsoS0VSTl9XQVJOSU5HDQorCQkJImdldF9sYXN0X3Nl
-Y3RvciBpb2N0bDogYnJlYWQgcmV0dXJuZWQgTlVMTC5cbiIpOw0KKwkJcmV0
-dXJuIC0xOw0KKyAgICAgICAgfQ0KKw0KKyAgICAgICAgcmMgPSBjb3B5X3Rv
-X3VzZXIoYmxrX2lvY3RsX3BhcmFtZXRlci5ibG9ja19jb250ZW50cywgYmgt
-PmJfZGF0YSwgDQorCQkoYmgtPmJfc2l6ZSA+IGJsa19pb2N0bF9wYXJhbWV0
-ZXIuY29udGVudF9sZW5ndGgpID8gDQorCQlibGtfaW9jdGxfcGFyYW1ldGVy
-LmNvbnRlbnRfbGVuZ3RoIDogYmgtPmJfc2l6ZSk7DQorDQorICAgICAgICBi
-cmVsc2UoYmgpOw0KKw0KKyAgICAgICAgLyogY2hhbmdlIGJsb2NrIHNpemUg
-YmFjayAqLw0KKyAgICAgICAgaWYgKG9yaWdfYmxrc2l6ZSAhPSBoYXJkYmxv
-Y2tzaXplKQ0KKyAgICAgICAgICAgICAgICAgICBzZXRfYmxvY2tzaXplKGRl
-diwgb3JpZ19ibGtzaXplKTsNCisgICANCisgICAgICAgIHJldHVybiByYzsN
-Cit9DQorDQorIC8qKioqKioqKioqKioqKioqKioqKioNCisgICogc2V0X2xh
-c3Rfc2VjdG9yKCkNCisgICogIA0KKyAgKiBEZXNjcmlwdGlvbjogVGhpcyBm
-dW5jdGlvbiB3aWxsIHdyaXRlIHRvIGFueSBpbmFjY2Vzc2libGUgYmxvY2tz
-IGF0IHRoZSBlbmQNCisgICogCW9mIGEgZGV2aWNlDQorICAqIFdoeTogTm9y
-bWFsIHJlYWQvd3JpdGUgY2FsbHMgdGhyb3VnaCB0aGUgYmxvY2sgbGF5ZXIg
-d2lsbCBub3QgcmVhZCB0aGUgDQorICAqICAgICAgbGFzdCBzZWN0b3Igb2Yg
-YW4gb2RkLXNpemUgZGlzay4gDQorICAqIHBhcmFtZXRlcnM6IA0KKyAgKiAg
-ICBkZXY6IGtkZXZfdCAtLSB3aGljaCBkZXZpY2UgdG8gcmVhZA0KKyAgKiAg
-ICBzZWN0OiBhIHBvaW50ZXIgdG8gYSB1c2Vyc3BhY2Ugc3RydWN0LiBUaGUg
-c3RydWN0IGhhcyB0aGVzZSBtZW1iZXJzOiANCisgICoJYmxvY2s6ICBhbiBp
-bnQgd2hpY2ggZGVub3RlcyB3aGljaCBibG9jayB0byByZXR1cm46DQorICAq
-CQkwID09IExhc3QgYmxvY2sNCisgICogCQkxID09IExhc3QgYmxvY2sgLSAx
-DQorICAqIAkJbiA9PSBMYXN0IGJsb2NrIC0gbg0KKyAgKgkJVGhpcyBpcyB2
-YWxpZGF0ZWQgc28gdGhhdCBvbmx5IHZhbHVlcyBvZiANCisgICoJCSAgPD0g
-KCh0b3RhbF9zZWN0cyArIDEpICUgbG9naWNhbF9ibG9ja19zaXplKSAgfHwg
-IDANCisgICoJCSAgYXJlIGFsbG93ZWQuDQorICAqIAlibG9ja19jb250ZW50
-czogYSBwb2ludGVyIHRvIHVzZXJzcGFjZSBjaGFyKiwgdGhpcyBpcyB3aGVy
-ZSB3ZSB3cml0ZSANCisgICoJIHJldHVybmVkIGJsb2NrcyB0by4NCisgICog
-CWNvbnRlbnRfbGVuZ3RoOiBIb3cgYmlnIHRoZSB1c2Vyc3BhY2UgYnVmZmVy
-IGlzLg0KKyAgKiByZXR1cm46IA0KKyAgKiAgICAwIG9uIHN1Y2Nlc3MNCisg
-ICogICAtRVJSVkFMIG9uIGVycm9yLg0KKyAgKioqKioqKioqKioqKioqKioq
-KioqLw0KK2ludCBzZXRfbGFzdF9zZWN0b3IoIGtkZXZfdCBkZXYsIGNvbnN0
-IHZvaWQgKnBhcmFtICkgDQorew0KKyAgICAgICAgc3RydWN0IGJ1ZmZlcl9o
-ZWFkICpiaDsNCisgICAgICAgIHN0cnVjdCBnZW5kaXNrICpnOw0KKyAgICAg
-ICAgaW50IHJjID0gMDsNCisgICAgICAgIHVuc2lnbmVkIGludCBsYXN0bGJh
-LCB3cml0ZWxiYTsNCisgICAgICAgIGludCBvcmlnX2Jsa3NpemUgPSBCTE9D
-S19TSVpFOw0KKyAgICAgICAgaW50IGhhcmRibG9ja3NpemU7DQorDQorCXN0
-cnVjdCB7DQorCQl1bnNpZ25lZCBpbnQgYmxvY2s7DQorCQlzaXplX3QgY29u
-dGVudF9sZW5ndGg7DQorCQljaGFyICpibG9ja19jb250ZW50czsNCisJfSBi
-bGtfaW9jdGxfcGFyYW1ldGVyOw0KKw0KKyAgICAgICAgaWYoICFkZXYgKSBy
-ZXR1cm4gLUVJTlZBTDsNCisNCisJaWYoY29weV9mcm9tX3VzZXIoJmJsa19p
-b2N0bF9wYXJhbWV0ZXIsIHBhcmFtLCBzaXplb2YoYmxrX2lvY3RsX3BhcmFt
-ZXRlcikpKQ0KKwkJcmV0dXJuIC1FRkFVTFQ7DQorDQorICAgICAgICBnID0g
-Z2V0X2dlbmRpc2soIGRldiApOw0KKw0KKyAgICAgICAgaWYoICFnICkgcmV0
-dXJuIC1FSU5WQUw7DQorICAgIA0KKyAgICAgICAgbGFzdGxiYSA9IGctPnBh
-cnRbTUlOT1IoZGV2KV0ubnJfc2VjdHMgOw0KKyAgICANCisgICAgICAgIGlm
-KCAhbGFzdGxiYSApIHJldHVybiAtRUlOVkFMOw0KKyAgICANCisgICAgICAg
-IGhhcmRibG9ja3NpemUgPSBnZXRfaGFyZGJsb2Nrc2l6ZShkZXYpOw0KKyAg
-ICAgICAgaWYoICEgaGFyZGJsb2Nrc2l6ZSApIGhhcmRibG9ja3NpemUgPSA1
-MTI7DQorICAgIA0KKyAgICAgICAgIC8qIE5lZWQgdG8gY2hhbmdlIHRoZSBi
-bG9jayBzaXplIHRoYXQgdGhlIGJsb2NrIGxheWVyIHVzZXMgKi8NCisgICAg
-ICAgIGlmIChibGtzaXplX3NpemVbTUFKT1IoZGV2KV0pew0KKyAgICAgICAg
-ICAgICAgICBvcmlnX2Jsa3NpemUgPSBibGtzaXplX3NpemVbTUFKT1IoZGV2
-KV1bTUlOT1IoZGV2KV07DQorICAgICAgICB9DQorDQorICAgICAgICAgLyog
-dmFsaWRhdGUgdXNlcnNwYWNlIGlucHV0ICovDQorICAgICAgICBpZiggYmxr
-X2lvY3RsX3BhcmFtZXRlci5ibG9jayA9PSAwICkNCisJCWdvdG8gZ29vZF9w
-YXJhbXM7DQorDQorCS8qIHNvIHdlIGRvbid0IGRpdmlkZSBieSB6ZXJvIGJl
-bG93ICovICANCisJaWYob3JpZ19ibGtzaXplID09IDApIA0KKwkJcmV0dXJu
-IC1FSU5WQUw7IA0KKw0KKyAgICAgICAgaWYoIGJsa19pb2N0bF9wYXJhbWV0
-ZXIuYmxvY2sgPD0gKGxhc3RsYmEgJSAob3JpZ19ibGtzaXplIC8gaGFyZGJs
-b2Nrc2l6ZSkpKQ0KKwkJZ290byBnb29kX3BhcmFtczsNCisNCisJcmV0dXJu
-IC1FSU5WQUw7IA0KKw0KK2dvb2RfcGFyYW1zOg0KKyAgICAgICAgd3JpdGVs
-YmEgPSBsYXN0bGJhIC0gYmxrX2lvY3RsX3BhcmFtZXRlci5ibG9jayAtIDE7
-DQorDQorICAgICAgICBpZiAob3JpZ19ibGtzaXplICE9IGhhcmRibG9ja3Np
-emUpDQorICAgICAgICAgICAgICAgICBzZXRfYmxvY2tzaXplKGRldiwgaGFy
-ZGJsb2Nrc2l6ZSk7DQorICAgIA0KKyAgICAgICAgYmggPSAgYnJlYWQoZGV2
-LCB3cml0ZWxiYSwgaGFyZGJsb2Nrc2l6ZSk7DQorICAgICAgICBpZiAoIWJo
-KSB7DQorCQkvKiBXZSBoaXQgdGhlIGVuZCBvZiB0aGUgZGlzayAqLw0KKwkJ
-cHJpbnRrKEtFUk5fV0FSTklORw0KKwkJCSJnZXRfbGFzdF9zZWN0b3IgaW9j
-dGw6IGdldGJsayByZXR1cm5lZCBOVUxMLlxuIik7DQorCQlyZXR1cm4gLTE7
-DQorICAgICAgICB9DQorICAgIA0KKyAgICAgICAgY29weV9mcm9tX3VzZXIo
-YmgtPmJfZGF0YSwgYmxrX2lvY3RsX3BhcmFtZXRlci5ibG9ja19jb250ZW50
-cywgDQorCQkoYmgtPmJfc2l6ZSA+IGJsa19pb2N0bF9wYXJhbWV0ZXIuY29u
-dGVudF9sZW5ndGgpID8gDQorCQlibGtfaW9jdGxfcGFyYW1ldGVyLmNvbnRl
-bnRfbGVuZ3RoIDogYmgtPmJfc2l6ZSk7DQorICAgIA0KKyAgICAgICAgbWFy
-a19idWZmZXJfZGlydHkoYmgpOw0KKyAgICAgICAgbGxfcndfYmxvY2sgKFdS
-SVRFLCAxLCAmYmgpOw0KKyAgICAgICAgd2FpdF9vbl9idWZmZXIgKGJoKTsN
-CisgICAgICAgIGlmICghYnVmZmVyX3VwdG9kYXRlKGJoKSkNCisgICAgICAg
-ICAgcmM9LTE7IA0KKyAgICANCisgICAgICAgIGJyZWxzZShiaCk7DQorICAg
-IA0KKyAgICAgICAgLyogY2hhbmdlIGJsb2NrIHNpemUgYmFjayAqLw0KKyAg
-ICAgICAgaWYgKG9yaWdfYmxrc2l6ZSAhPSBoYXJkYmxvY2tzaXplKQ0KKyAg
-ICAgICAgICAgICAgICAgc2V0X2Jsb2Nrc2l6ZShkZXYsIG9yaWdfYmxrc2l6
-ZSk7DQorICAgICAgIA0KKyAgICAgICByZXR1cm4gcmM7DQorfQ0KZGlmZiAt
-cnVQIGxpbnV4L2RyaXZlcnMvaWRlL2lkZS5jIGxpbnV4LWlvY3RsL2RyaXZl
-cnMvaWRlL2lkZS5jDQotLS0gbGludXgvZHJpdmVycy9pZGUvaWRlLmMJV2Vk
-IERlYyAgNiAxNDowNjoxOSAyMDAwDQorKysgbGludXgtaW9jdGwvZHJpdmVy
-cy9pZGUvaWRlLmMJVHVlIEZlYiAxMyAxMTowNDo1OCAyMDAxDQpAQCAtMjY2
-NSw2ICsyNjY1LDggQEANCiAJCQl9DQogCQkJcmV0dXJuIDA7DQogDQorCQlj
-YXNlIEJMS0dFVExBU1RTRUNUOg0KKwkJY2FzZSBCTEtTRVRMQVNUU0VDVDoN
-CiAJCWNhc2UgQkxLUk9TRVQ6DQogCQljYXNlIEJMS1JPR0VUOg0KIAkJY2Fz
-ZSBCTEtGTFNCVUY6DQpkaWZmIC1ydVAgbGludXgvZHJpdmVycy9zY3NpL3Nk
-LmMgbGludXgtaW9jdGwvZHJpdmVycy9zY3NpL3NkLmMNCi0tLSBsaW51eC9k
-cml2ZXJzL3Njc2kvc2QuYwlGcmkgT2N0IDI3IDAxOjM1OjQ4IDIwMDANCisr
-KyBsaW51eC1pb2N0bC9kcml2ZXJzL3Njc2kvc2QuYwlUdWUgRmViIDEzIDEx
-OjA1OjI1IDIwMDENCkBAIC0yMjUsNiArMjI1LDggQEANCiAJCQkJcmV0dXJu
-IC1FSU5WQUw7DQogCQkJcmV0dXJuIHB1dF91c2VyKHNkW1NEX1BBUlRJVElP
-Tihpbm9kZS0+aV9yZGV2KV0ubnJfc2VjdHMsIChsb25nICopIGFyZyk7DQog
-DQorCQljYXNlIEJMS0dFVExBU1RTRUNUOg0KKwkJY2FzZSBCTEtTRVRMQVNU
-U0VDVDoNCiAJCWNhc2UgQkxLUk9TRVQ6DQogCQljYXNlIEJMS1JPR0VUOg0K
-IAkJY2FzZSBCTEtSQVNFVDoNCmRpZmYgLXJ1UCBsaW51eC9pbmNsdWRlL2xp
-bnV4L2ZzLmggbGludXgtaW9jdGwvaW5jbHVkZS9saW51eC9mcy5oDQotLS0g
-bGludXgvaW5jbHVkZS9saW51eC9mcy5oCVR1ZSBKYW4gMzAgMDE6MjQ6NTYg
-MjAwMQ0KKysrIGxpbnV4LWlvY3RsL2luY2x1ZGUvbGludXgvZnMuaAlUdWUg
-RmViIDEzIDExOjA4OjQzIDIwMDENCkBAIC0xODAsNiArMTgwLDggQEANCiAv
-KiBUaGlzIHdhcyBoZXJlIGp1c3QgdG8gc2hvdyB0aGF0IHRoZSBudW1iZXIg
-aXMgdGFrZW4gLQ0KICAgIHByb2JhYmx5IGFsbCB0aGVzZSBfSU8oMHgxMiwq
-KSBpb2N0bHMgc2hvdWxkIGJlIG1vdmVkIHRvIGJsa3BnLmguICovDQogI2Vu
-ZGlmDQorI2RlZmluZSBCTEtHRVRMQVNUU0VDVCAgX0lPKDB4MTIsMTA4KSAv
-KiBnZXQgbGFzdCBzZWN0b3Igb2YgYmxvY2sgZGV2aWNlICovDQorI2RlZmlu
-ZSBCTEtTRVRMQVNUU0VDVCAgX0lPKDB4MTIsMTA5KSAvKiBnZXQgbGFzdCBz
-ZWN0b3Igb2YgYmxvY2sgZGV2aWNlICovDQogDQogDQogI2RlZmluZSBCTUFQ
-X0lPQ1RMIDEJCS8qIG9ic29sZXRlIC0ga2VwdCBmb3IgY29tcGF0aWJpbGl0
-eSAqLw0K
----1500554619-416417569-982015326=:26194--
+-- 
+-> -/-                       - Rahul Jain -                       -\- <-
+-> -\- http://linux.rice.edu/~rahul -=- mailto:rahul-jain@usa.net -/- <-
+-> -/- "I never could get the hang of Thursdays." - HHGTTG by DNA -\- <-
+|--|--------|--------------|----|-------------|------|---------|-----|-|
+   Version 11.423.999.220020101.23.50110101.042
+   (c)1996-2000, All rights reserved. Disclaimer available upon request.

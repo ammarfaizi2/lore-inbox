@@ -1,51 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263469AbTJZThj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 14:37:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbTJZThj
+	id S263620AbTJZTpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 14:45:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263623AbTJZTpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 14:37:39 -0500
-Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:42971 "EHLO
-	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id S263469AbTJZThi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 14:37:38 -0500
-Subject: Linux 2.6 features list update
-From: Joe Pranevich <jpranevich@kniggit.net>
-To: linux-kernel@vger.kernel.org
-Cc: lwn@lwn.net, jpranevich@lycos.com
-Content-Type: text/plain
-Message-Id: <1067196858.3000.144.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Sun, 26 Oct 2003 14:34:19 -0500
-Content-Transfer-Encoding: 7bit
+	Sun, 26 Oct 2003 14:45:25 -0500
+Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:22656
+	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
+	id S263620AbTJZTpX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 14:45:23 -0500
+From: John Mock <kd6pag@qsl.net>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: re: PPC: slab error in cache_free_debugcheck() from sd_revalidate_disk [PATCH, -test9]
+Message-Id: <E1ADqpf-0000WU-00@penngrove.fdns.net>
+Date: Sun, 26 Oct 2003 11:45:47 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I reported this one here over a week ago, and upon a suggestion from 'benh', 
+i came up with a workaround patch for this bug, now documented in Bugzilla:
 
-I've just completed a second revision of my "Wonderful World of Linux
-2.6" document that I mailed around back in July. This document is my
-reasonably complete list of the new features in Linux 2.6, with
-explanations. This one covers up to the -test9 kernel released yesterday
-and takes into consideration a lot of feedback from members of the list
-and elsewhere. The also has large portions rewritten for flow, etc.
+	http://bugzilla.kernel.org/show_bug.cgi?id=1426
 
-If you read the previous one, there actually haven't been that many big
-changes since -test1. If you just want to see (some of) the changes, I
-made a rough list at http://kniggit.net/wwol26-changes.html.
+Attached below is said workaround patch which works for me.  I don't like 
+it as i don't think platform-specific code belongs in 'drivers/scsi/sd.c'.
+Hence i'm not necessarily recommending this for 2.6.0 unless important
+people think otherwise.  It does seem to make the problem go away and
+eventually, 'benh' will fix this one properly.
 
-If you haven't read the previous one (or even if you have), I have
-posted the update at http://kniggit.net/wwol26.html. (Text version:
-http://kniggit.net/wwol26.txt)
+				  -- JM
 
-Please let me know what you think. I am hopeful that this will be a good
-resource for people to use for learning about Linux 2.6. Unless there's
-some severe inaccuracies, I probably won't be updating this again until
-the official 2.6 release is out.
-
-Thanks so much,
-
-Joe Pranevich
-jpranevich<at>kniggit.net
-
+-------------------------------------------------------------------------------
+--- drivers/scsi/sd.c.orig	2003-10-25 11:44:14.000000000 -0700
++++ drivers/scsi/sd.c	2003-10-26 10:11:11.020000000 -0800
+@@ -1218,6 +1218,9 @@
+ 	struct scsi_device *sdp = sdkp->device;
+ 	struct scsi_request *sreq;
+ 	unsigned char *buffer;
++#ifdef CONFIG_SCSI_MESH
++	int mesh_fudge;
++#endif
+ 
+ 	SCSI_LOG_HLQUEUE(3, printk("sd_revalidate_disk: disk=%s\n", disk->disk_name));
+ 
+@@ -1235,7 +1238,18 @@
+ 		goto out;
+ 	}
+ 
++#ifndef CONFIG_SCSI_MESH
+ 	buffer = kmalloc(512, GFP_KERNEL | __GFP_DMA);
++#else
++	/* According to 'benh', some MESH controllers have buggy hardware 
++	   that wants its buffer aligned to a specific byte boundary under
++	   certain circumstances (we think it's a 16 byte boundary, but a
++	   32 byte boundary won't hurt).  KD6PAG/Oct03 */
++	buffer = kmalloc(512+0x20, GFP_KERNEL | __GFP_DMA);
++	   
++	mesh_fudge = (0x20-(int)buffer)&0x1f;	/* Result zero if NULL */
++	buffer += mesh_fudge;
++#endif
+ 	if (!buffer) {
+ 		printk(KERN_WARNING "(sd_revalidate_disk:) Memory allocation "
+ 		       "failure.\n");
+@@ -1265,6 +1279,9 @@
+ 	}
+ 		
+ 	set_capacity(disk, sdkp->capacity);
++#ifdef CONFIG_SCSI_MESH
++	buffer -= mesh_fudge;
++#endif
+ 	kfree(buffer);
+ 
+  out_release_request: 
+===============================================================================

@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317616AbSHLIwj>; Mon, 12 Aug 2002 04:52:39 -0400
+	id <S317590AbSHLIn6>; Mon, 12 Aug 2002 04:43:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317622AbSHLIwj>; Mon, 12 Aug 2002 04:52:39 -0400
-Received: from k100-159.bas1.dbn.dublin.eircom.net ([159.134.100.159]:46093
-	"EHLO corvil.com.") by vger.kernel.org with ESMTP
-	id <S317616AbSHLIwi>; Mon, 12 Aug 2002 04:52:38 -0400
-Message-ID: <3D57782E.5090009@corvil.com>
-Date: Mon, 12 Aug 2002 09:56:14 +0100
-From: Padraig Brady <padraig.brady@corvil.com>
-Organization: Corvil Networks
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
-References: <Pine.LNX.4.33.0208091459010.1283-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S317597AbSHLIn6>; Mon, 12 Aug 2002 04:43:58 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:5642 "EHLO www.home.local")
+	by vger.kernel.org with ESMTP id <S317590AbSHLInz>;
+	Mon, 12 Aug 2002 04:43:55 -0400
+Date: Mon, 12 Aug 2002 10:47:32 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Jim Roland <jroland@roland.net>
+Cc: Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
+Subject: Re: The spam problem.
+Message-ID: <20020812084732.GA6421@alpha.home.local>
+References: <027104643010c82DTVMAIL11@smtp.cwctv.net> <003701c241ba$94f8a1c0$2102a8c0@gespl2k1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <003701c241ba$94f8a1c0$2102a8c0@gespl2k1>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On 9 Aug 2002, Paul Larson wrote:
-> 
->>On Fri, 2002-08-09 at 16:42, Linus Torvalds wrote:
->>
->>>Hmm.. Giving them a quick glance-over, the /proc issues look like they
->>>shouldn't be there in 2.5.x anyway, since the inode number really is
->>>largely just a random number in 2.5 and all the real information is
->>>squirelled away at path open time.
->>
-> 
-> It looks like the biggest impact on /proc would be that the /proc/<pid> 
-> inodes wouldn't be 10%% unique any more, which in turn means that an 
-> old-style /bin/pwd that actually walks the tree backwards and checks the 
-> inode number would occasionally fail.
-> 
-> That in turn makes me suspect that we'd better off just biting the bullet 
-> and makign the inode numbers almost completely static, and forcing that 
-> particular failure mode early rather than hit it randomly due to unlucky 
-> timing.
-> 
-> Doing a simple strace shows that all the systems I have regular access to
-> use the "getcwd()" system call anyway, which gets this right on /proc (and
-> other filesystems that do not guarantee unique inode numbers)
+Hello !
 
-Anyone care to clarify which filesystems don't
-have unique inode numbers. I always thought you
-could uniquely identify any file using a device,inode
-tuple? Fair enough proc is "special" but can/should
-you not assume unique inodes within all other filesystems?
+On Sun, Aug 11, 2002 at 11:41:52PM -0500, Jim Roland wrote:
+> I'm getting damn tired of getting 50-75 spams per day in my inbox and I
+> don't even use my email address on websites to post.
 
-Also why can't you allocate a unique number in /proc?
+I don't receive 50 spams/day from lkml, and I have no filter. So some of the
+ones you receive may be addressed to you directly. BTW, nothing prevents you
+to filter the mails you receive from LKML to reduce the (IMHO) very little
+number of spams that get through. And if you're still so much bothered about
+the remaining ones, you still have the choice to unsubscribe and read them
+from marc.theaimsgroup.com or other archives.
 
-thanks,
-Pádraig.
+I personaly am quite happy about Matti and DaveM's work on the list, because
+I receive far less spam from LKML than on my personal accounts. Moreover, spams
+in the list are easily identifiable by their off-topic subjects, so most of the
+time, you don't even have to read them. So I'd prefer to keep this list open
+and get most bug reports than closing it, still receiving some spams and not
+getting bug reports. Nobody should fall to self-DoS because of spam.
+
+Regards,
+Willy
 

@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbTDKUMQ (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:12:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbTDKUMQ (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 16:12:16 -0400
-Received: from [203.197.168.150] ([203.197.168.150]:30473 "HELO
-	mailscanout256k.tataelxsi.co.in") by vger.kernel.org with SMTP
-	id S261702AbTDKUMO (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 16:12:14 -0400
-Message-ID: <3E972414.9090607@tataelxsi.co.in>
-Date: Sat, 12 Apr 2003 01:52:44 +0530
-From: "Sriram Narasimhan" <nsri@tataelxsi.co.in>
-Organization: Tata Elxsi
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	id S261711AbTDKUMi (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:12:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbTDKUMi (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 16:12:38 -0400
+Received: from zurich.ai.mit.edu ([18.43.0.244]:53765 "EHLO zurich.ai.mit.edu")
+	by vger.kernel.org with ESMTP id S261711AbTDKUMf (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 16:12:35 -0400
+To: mdresser_l@windsormachine.com
+CC: John Bradford <john@grabjohn.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       <linux-kernel@vger.kernel.org>,
+       <linux-hotplug-devel@lists.sourceforge.net>,
+       <message-bus-list@redhat.com>
+In-reply-to: <Pine.LNX.4.33.0304111615440.14943-100000@router.windsormachine.com> (mdresser_l@windsormachine.com)
+Subject: [ANNOUNCE] udev 0.1 release
+User-Agent: IMAIL/1.19; Edwin/3.114; MIT-Scheme/7.7.2.pre
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: GFP_KERNEL doubt!! <was Tasklet doubt!>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E19453q-0004gk-00@nuwen.ai.mit.edu>
+From: Chris Hanson <cph@zurich.ai.mit.edu>
+Date: Fri, 11 Apr 2003 16:23:46 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+   Date: Fri, 11 Apr 2003 16:16:52 -0400 (EDT)
+   From: Mike Dresser <mdresser_l@windsormachine.com>
 
-The problem of allocating more than 2.5 MB was actually more or less 
-related to the physical memory left in the kernel.
-But I moved the task which allocated the memory from the tasklet to the 
-keventd and used kmalloc (GFP_KERNEL).
+   On Fri, 11 Apr 2003, John Bradford wrote:
 
-The first time I ran my module, it failed at the same 2.5 MB limit.
-I restarted the system and tried it again, and I was able to allocate 5 
-MB successfully.
-I restarted the system and ran "free".
-The report is as follows:
-             total       used       free     shared    buffers     cached
-Mem:         62264      30624      31640          0       8072      16096
--/+ buffers/cache:       6456      55808
-Swap:       192772          0     192772
+   > Now, assuming a voltage drop of 0.05V across each cable...
+   >
+   > :-)
+   >
+   > John.
+   >
+   Ah yes, I was going to mention that, but didn't know which way would be
+   better.  My instinct tells me the massively parallel, but I could and
+   probably am wrong again. :)
 
-Then I ran gcc and compiled my code and then for the "free" report again.
-The report is as follows:
-             total       used       free     shared    buffers     cached
-Mem:         62264      45320      16944          0       9256      28384
--/+ buffers/cache:       7680      54584
-Swap:       192772          0     192772
+Using a tree (what you are calling massively parallel) for
+distribution produces a uniform voltage drop for all of the devices,
+and has a better worst-case voltage drop than a serial chaining
+distribution.  The serial chain has different voltage drops for each
+pair of disks, depending on how far down the chain they are, but the
+worst case is very bad.
 
-I was able to notice that the physical memory had gone down though "gcc" 
-had completed.
-The time I ran my application, I had about 2.5M physical memory left, so 
-I was able to allocate 2.5M.
+The reason is that the tree has O(log N) depth, and the serial chain
+has O(N) depth.
 
-What is happening ? What is the buffers/cache column and is there any 
-way I could force the kernel to release the cached memory back to free 
-physical ?
-Is there any way I can allocate more than what is left free from the 
-physical memory ?
-
-Any pointers or suggestions would be very helpful.
-
-Thank you.
-Regards,
-Sriram
-
+Chris

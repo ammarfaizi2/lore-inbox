@@ -1,95 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268682AbUILLc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268694AbUILLc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268682AbUILLc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 07:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268700AbUILLbN
+	id S268694AbUILLc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 07:32:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268701AbUILLbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 07:31:13 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:34300 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S268690AbUILL1B (ORCPT
+	Sun, 12 Sep 2004 07:31:22 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:51452 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S268694AbUILL2F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 07:27:01 -0400
-Date: Sun, 12 Sep 2004 13:26:38 +0200 (MEST)
-Message-Id: <200409121126.i8CBQcoY015202@harpo.it.uu.se>
+	Sun, 12 Sep 2004 07:28:05 -0400
+Date: Sun, 12 Sep 2004 13:27:53 +0200 (MEST)
+Message-Id: <200409121127.i8CBRraH015212@harpo.it.uu.se>
 From: Mikael Pettersson <mikpe@csd.uu.se>
-To: kai.germaschewski@gmx.de, kkeil@suse.de, marcelo.tosatti@cyclades.com
-Subject: [PATCH][2.4.28-pre3] ISDN drivers gcc-3.4 fixes
+To: dm@sangoma.com, marcelo.tosatti@cyclades.com, ncorbic@sangoma.com
+Subject: [PATCH][2.4.28-pre3] WANPIPE/SDLA driver gcc-3.4 fixes
 Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch fixes gcc-3.4 cast-as-lvalue warnings in the 2.4.28-pre3
-kernel's ISDN drivers. With the exception of eicon_idi.c, which
-doesn't seem to be in the 2.6 kernel, the changes are all backports
-from the 2.6 kernel.
+kernel's WANPIPE/SDLA net drivers. The 2.6 version of the code has
+not been fixed for gcc-3.4, so the changes are all new.
 
 /Mikael
 
---- linux-2.4.28-pre3/drivers/isdn/eicon/eicon_idi.c.~1~	2001-12-21 23:19:55.000000000 +0100
-+++ linux-2.4.28-pre3/drivers/isdn/eicon/eicon_idi.c	2004-09-12 01:56:20.000000000 +0200
-@@ -2054,7 +2054,8 @@
- 				OutBuf.Len++;
- 			} else {
- 				*OutBuf.Next++ = 0;
--				*((__u16 *) OutBuf.Next)++ = (__u16) LineBuf.Len;
-+				*(__u16 *) OutBuf.Next = (__u16) LineBuf.Len;
-+				OutBuf.Next += sizeof(__u16);
- 				OutBuf.Len += 3;
- 			}
- 			memcpy(OutBuf.Next, LineBuf.Data, LineBuf.Len);
---- linux-2.4.28-pre3/drivers/isdn/hisax/avm_pci.c.~1~	2002-11-30 17:12:25.000000000 +0100
-+++ linux-2.4.28-pre3/drivers/isdn/hisax/avm_pci.c	2004-09-12 01:56:20.000000000 +0200
-@@ -291,7 +291,8 @@
- 			debugl1(cs, "hdlc_empty_fifo: incoming packet too large");
- 		return;
- 	}
--	ptr = (u_int *) p = bcs->hw.hdlc.rcvbuf + bcs->hw.hdlc.rcvidx;
-+	p = bcs->hw.hdlc.rcvbuf + bcs->hw.hdlc.rcvidx;
-+	ptr = (u_int *)p;
- 	bcs->hw.hdlc.rcvidx += count;
- 	if (cs->subtyp == AVM_FRITZ_PCI) {
- 		outl(idx, cs->hw.avm.cfg_reg + 4);
-@@ -352,7 +353,8 @@
- 	}
- 	if ((cs->debug & L1_DEB_HSCX) && !(cs->debug & L1_DEB_HSCX_FIFO))
- 		debugl1(cs, "hdlc_fill_fifo %d/%ld", count, bcs->tx_skb->len);
--	ptr = (u_int *) p = bcs->tx_skb->data;
-+	p = bcs->tx_skb->data;
-+	ptr = (u_int *)p;
- 	skb_pull(bcs->tx_skb, count);
- 	bcs->tx_cnt -= count;
- 	bcs->hw.hdlc.count += count;
---- linux-2.4.28-pre3/drivers/isdn/hisax/hfc_pci.c.~1~	2003-06-14 13:30:22.000000000 +0200
-+++ linux-2.4.28-pre3/drivers/isdn/hisax/hfc_pci.c	2004-09-12 01:56:20.000000000 +0200
-@@ -1746,7 +1746,7 @@
- 			printk(KERN_WARNING "HFC-PCI: Error allocating memory for FIFO!\n");
- 			return 0;
- 		}
--		(ulong) cs->hw.hfcpci.fifos =
-+		cs->hw.hfcpci.fifos = (void *)
- 		    (((ulong) cs->hw.hfcpci.share_start) & ~0x7FFF) + 0x8000;
- 		pcibios_write_config_dword(cs->hw.hfcpci.pci_bus,
- 				       cs->hw.hfcpci.pci_device_fn, 0x80,
---- linux-2.4.28-pre3/drivers/isdn/hysdn/hysdn_proclog.c.~1~	2004-08-08 10:56:31.000000000 +0200
-+++ linux-2.4.28-pre3/drivers/isdn/hysdn/hysdn_proclog.c	2004-09-12 01:56:20.000000000 +0200
-@@ -235,7 +235,7 @@
- 		return (0);
+--- linux-2.4.28-pre3/drivers/net/wan/sdla_fr.c.~1~	2003-11-29 00:28:12.000000000 +0100
++++ linux-2.4.28-pre3/drivers/net/wan/sdla_fr.c	2004-09-12 01:56:20.000000000 +0200
+@@ -3929,7 +3929,7 @@
+                                 break;
+                         }
  
- 	inf->usage_cnt--;	/* new usage count */
--	(struct log_data **) file->private_data = &inf->next;	/* next structure */
-+	file->private_data = &inf->next;	/* next structure */
- 	if ((len = strlen(inf->log_start)) <= count) {
- 		if (copy_to_user(buf, inf->log_start, len))
- 			return -EFAULT;
-@@ -278,9 +278,9 @@
- 		cli();
- 		pd->if_used++;
- 		if (pd->log_head)
--			(struct log_data **) filep->private_data = &(pd->log_tail->next);
-+			filep->private_data = &(pd->log_tail->next);
- 		else
--			(struct log_data **) filep->private_data = &(pd->log_head);
-+			filep->private_data = &(pd->log_head);
- 		restore_flags(flags);
- 	} else {		/* simultaneous read/write access forbidden ! */
- 		unlock_kernel();
+-			(void *)ptr_trc_el = card->u.f.curr_trc_el;
++			ptr_trc_el = (void *)card->u.f.curr_trc_el;
+ 
+                         buffer_length = 0;
+ 			fr_udp_pkt->data[0x00] = 0x00;
+@@ -3980,7 +3980,7 @@
+                                
+ 				ptr_trc_el ++;
+ 				if((void *)ptr_trc_el > card->u.f.trc_el_last)
+-					(void*)ptr_trc_el = card->u.f.trc_el_base;
++					ptr_trc_el = (void*)card->u.f.trc_el_base;
+ 
+ 				buffer_length += sizeof(fpipemon_trc_hdr_t);
+                                	if(fpipemon_trc->fpipemon_trc_hdr.data_passed) {
+--- linux-2.4.28-pre3/drivers/net/wan/sdladrv.c.~1~	2001-09-23 21:06:34.000000000 +0200
++++ linux-2.4.28-pre3/drivers/net/wan/sdladrv.c	2004-09-12 01:56:20.000000000 +0200
+@@ -1002,7 +1002,7 @@
+                         peek_by_4 ((unsigned long)hw->dpmbase + curpos, buf,
+ 				curlen);
+                         addr       += curlen;
+-                        (char*)buf += curlen;
++                        buf         = (char*)buf + curlen;
+                         len        -= curlen;
+                 }
+ 
+@@ -1086,7 +1086,7 @@
+                         poke_by_4 ((unsigned long)hw->dpmbase + curpos, buf,
+ 				curlen);
+ 	                addr       += curlen;
+-                        (char*)buf += curlen;
++                        buf         = (char*)buf + curlen;
+                         len        -= curlen;
+                 }
+ 
+@@ -2130,7 +2130,7 @@
+ 	(void *)hw->dpmbase = ioremap((unsigned long)S514_mem_base_addr,
+ 		(unsigned long)MAX_SIZEOF_S514_MEMORY);
+     	/* map the physical control register memory to virtual memory */
+-	(void *)hw->vector = ioremap(
++	hw->vector = (unsigned long)ioremap(
+ 		(unsigned long)(S514_mem_base_addr + S514_CTRL_REG_BYTE),
+ 		(unsigned long)16);
+      
+--- linux-2.4.28-pre3/drivers/net/wan/sdlamain.c.~1~	2003-11-29 00:28:12.000000000 +0100
++++ linux-2.4.28-pre3/drivers/net/wan/sdlamain.c	2004-09-12 01:56:20.000000000 +0200
+@@ -1027,7 +1027,7 @@
+                       #endif
+                         dump.length     -= len;
+                         dump.offset     += len;
+-                        (char*)dump.ptr += len;
++                        dump.ptr         = (char*)dump.ptr + len;
+                 }
+ 		
+                 sdla_mapmem(&card->hw, oldvec);/* restore DPM window position */

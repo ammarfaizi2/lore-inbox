@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277435AbRKHSOp>; Thu, 8 Nov 2001 13:14:45 -0500
+	id <S277294AbRKHSR2>; Thu, 8 Nov 2001 13:17:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277431AbRKHSOg>; Thu, 8 Nov 2001 13:14:36 -0500
-Received: from full199.sara.unitn.it ([193.205.210.199]:13556 "EHLO
-	dizzy.dz.net") by vger.kernel.org with ESMTP id <S277380AbRKHSOW>;
-	Thu, 8 Nov 2001 13:14:22 -0500
-From: Massimo Dal Zotto <dz@cs.unitn.it>
-Message-Id: <200111081814.fA8IE4qi003266@dizzy.dz.net>
-Subject: Re: [PATCH] SMM BIOS on Dell i8100
-In-Reply-To: "from (env: dz) at Nov 7, 2001 03:21:44 pm"
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Date: Thu, 8 Nov 2001 19:14:03 +0100 (MET)
-CC: stephane@tuxfinder.org
-X-Mailer: ELM [version 2.4ME+ PL89 (25)]
+	id <S277380AbRKHSRQ>; Thu, 8 Nov 2001 13:17:16 -0500
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:28295 "HELO
+	openlab.rtlab.org") by vger.kernel.org with SMTP id <S277294AbRKHSRM>;
+	Thu, 8 Nov 2001 13:17:12 -0500
+Date: Thu, 8 Nov 2001 13:17:12 -0500 (EST)
+From: "Calin A. Culianu" <calin@ajvar.org>
+To: Robert Love <rml@tech9.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Any lingering Athlon bugs in Kernel 2.4.14?
+In-Reply-To: <1005241894.939.37.camel@phantasy>
+Message-ID: <Pine.LNX.4.30.0111081315500.4578-100000@rtlab.med.cornell.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 8 Nov 2001, Robert Love wrote:
 
-I have released version 1.4 of my package with a new kernel module and
-some enhancements to the i8kmon utility.
+> On Thu, 2001-11-08 at 11:46, Calin A. Culianu wrote:
+> > Hi, I am wondering if maybe there are any lingering Athlon bugs in Kernel
+> > 2.4.14?
+> > [...]
+> > Any help/advice/thoughts/even flames would be appreciated... :)
+>
+> Would you mind trying Alan's tree?  Get linux-2.4.13 and
+> patch-2.4.13-ac7.  The newest is 2.4.13-ac8, but stick with 7 for now.
 
-It should now work on more Dell laptops (Inspiron and Latitude) and report
-correctly the bios version and machine id. If it doesn't load try forcing
-it with:
+I wouldn't mind trying his tree at all.  Does his tree somehow use the
+older VM, or does it try to address Athlon bugs more aggressively? Ie: Why
+is this a great idea?  (Apart from Alan's tree just being really cool).
 
-    insmod ./i8k.o force=1
+-Calin
 
-Please test the new version and send me a report. Don't forget to include
-the following information:
+> > Ie, give kernel 2.4.13-ac7 a whirl.
+>
+> 	Robert Love
+>
 
-    laptop model
-    bios version
-    driver version
-    i8kmon version
-    kernel messages while loading the driver
-    output of "cat /proc/i8k"
-
-and a detailed description of any problem you have found.
-
--- 
-Massimo Dal Zotto
-
-+----------------------------------------------------------------------+
-|  Massimo Dal Zotto               email: massimo.dalzotto@libero.it   |
-|  Via Marconi, 141                phone: ++39-461534251               |
-|  38057 Pergine Valsugana (TN)      www: http://www.cs.unitn.it/~dz/  |
-|  Italy                                  http://www.debian.org/~dz/   |
-|  gpg:   2DB65596  3CED BDC6 4F23 BEDA F489 2445 147F 1AEA 2DB6 5596  |
-+----------------------------------------------------------------------+

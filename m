@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283390AbRLIMrL>; Sun, 9 Dec 2001 07:47:11 -0500
+	id <S283409AbRLINEG>; Sun, 9 Dec 2001 08:04:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283391AbRLIMrB>; Sun, 9 Dec 2001 07:47:01 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:45319 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S283390AbRLIMq4>;
-	Sun, 9 Dec 2001 07:46:56 -0500
-Date: Sun, 9 Dec 2001 22:46:13 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Niels Christiansen <nchr@us.ibm.com>
-Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] [RFC] [PATCH] Scalable Statistics Counters
-Message-ID: <20011209114613.GA5063@krispykreme>
-In-Reply-To: <OF4AC865AC.00ED861C-ON85256B1C.0060D84F@raleigh.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF4AC865AC.00ED861C-ON85256B1C.0060D84F@raleigh.ibm.com>
-User-Agent: Mutt/1.3.24i
+	id <S283411AbRLIND5>; Sun, 9 Dec 2001 08:03:57 -0500
+Received: from zape.um.es ([155.54.0.102]:43463 "EHLO zape.um.es")
+	by vger.kernel.org with ESMTP id <S283409AbRLINDu>;
+	Sun, 9 Dec 2001 08:03:50 -0500
+Date: Sun, 9 Dec 2001 13:58:50 +0100 (CET)
+From: Juan Piernas Canovas <piernas@ditec.um.es>
+To: Andrew Morton <akpm@zip.com.au>
+cc: zlatko.calusic@iskon.hr, sct@redhat.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: ext3 writeback mode slower than ordered mode?
+In-Reply-To: <3C12C57C.FF93FAC0@zip.com.au>
+Message-ID: <Pine.LNX.4.21.0112091353020.6975-100000@ditec.um.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 8 Dec 2001, Andrew Morton wrote:
 
-> | > ...which may be true for 4-ways and even 8-ways but when you get to
-> | > 32-ways and greater, you start seeing cache problems.  That was the
-> | > case on AIX and per-cpu counters was one of the changes that helped
-> | > get the spectacular scalability on Regatta.
-> |
-> | I agree there are large areas of improvement to be done wrt cacheline
-> | ping ponging (see my patch in 2.4.17-pre6 for one example), but we
-> | should do our own benchmarking and not look at what AIX has been doing.
+> Zlatko Calusic wrote:
+> > 
+> > Hi!
+> > 
+> > My apologies if this is an FAQ, and I'm still catching up with
+> > the linux-kernel list.
+> > 
+> > Today I decided to convert my /tmp partition to be mounted in
+> > writeback mode, as I noticed that ext3 in ordered mode syncs every 5
+> > seconds and that is something defenitely not needed for /tmp, IMHO.
+> > 
+> > Then I did some tests in order to prove my theory. :)
+> > 
+> > But, alas, writeback is slower.
+> > 
 > 
-> Oh, please!  You voiced an opinion.  I presented facts.  Nobody suggested
-> we should not measure on Linux.  As a matter of fact, I suggested that
-> Kiran does tests on the real counters and he said he would.
+> I cannot reproduce this.  Using http://www.zip.com.au/~akpm/writer.c
+> 
+> ext2:            0.03s user 1.43s system 97% cpu 1.501 total
+> ext3 writeback:  0.02s user 2.33s system 96% cpu 2.431 total
+> ext3 ordered:    0.02s user 2.52s system 98% cpu 2.574 total
+> 
+> ext3 is significantly more costly in either journalling mode,
+> probably because of the bitmap manipulation - each time we allocate
+> a block to the file, we have to muck around doing all sorts
+> of checks and list manipulations against the buffer which holds
+> the bitmap.  Not only is this costly, but ext2 speculatively
+> sets a bunch of bits at the same time, which ext3 cannot do
+> for consistency reasons.
+> 
+> There are a few things we can do to pull this back, but given that
+> this is all pretty insignificant once you actually start doing disk
+> IO, we couldn't justify the risk of destabilising the filesystem
+> for small gains.
+Hi!
 
-Exactly, show me where the current problem is and I will benchmark it on
-a 16 way linux/ppc64 machine. Your comments are opinions too unless
-you have some figures to back them up :)
+Sorry, but I can confirm that Ext3 is slower with "-o
+data=writeback" option than with "-o data=ordered" option when you create
+and delete a lot of files. I use 2.2.19 Linux kernel along with 0.0.7a
+Ext3 version.
 
-Anton
+Bye!
+
+	Juan.
+

@@ -1,109 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292130AbSCMCTN>; Tue, 12 Mar 2002 21:19:13 -0500
+	id <S292150AbSCMCdn>; Tue, 12 Mar 2002 21:33:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292045AbSCMCSx>; Tue, 12 Mar 2002 21:18:53 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8979 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292035AbSCMCSk>;
-	Tue, 12 Mar 2002 21:18:40 -0500
-Date: Wed, 13 Mar 2002 02:18:38 +0000
-From: wli@holomorphy.com
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, wli@parcelfarce.linux.theplanet.co.uk,
-        linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
-        phillips@bonn-fries.net
-Subject: Re: 2.4.19pre2aa1
-Message-ID: <20020313021838.G14628@holomorphy.com>
-Mail-Followup-To: wli@holomorphy.com,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	wli@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
-	riel@surriel.com, hch@infradead.org, phillips@bonn-fries.net
-In-Reply-To: <20020312135605.P25226@dualathlon.random> <Pine.LNX.3.95.1020312083126.14299A-100000@chaos.analogic.com>
+	id <S292222AbSCMCdX>; Tue, 12 Mar 2002 21:33:23 -0500
+Received: from ns0.auctionwatch.com ([66.7.130.2]:13587 "EHLO
+	whitestar.auctionwatch.com") by vger.kernel.org with ESMTP
+	id <S292150AbSCMCdS>; Tue, 12 Mar 2002 21:33:18 -0500
+Date: Tue, 12 Mar 2002 18:31:54 -0800
+From: Petro <petro@auctionwatch.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: michael bernstein <bernstein.46@osu.edu>, Andrew Morton <akpm@zip.com.au>,
+        Troy Benjegerdes <hozer@drgw.net>, Pavel Machek <pavel@ucw.cz>,
+        Kent Borg <kentborg@borg.org>,
+        The Open Source Club at The Ohio State University 
+	<opensource-admin@cis.ohio-state.edu>,
+        linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu,
+        Larry McVoy <lm@bitmover.com>
+Subject: Re: [opensource] Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+Message-ID: <20020313023154.GG15462@auctionwatch.com>
+In-Reply-To: <10B32CBD-320F-11D6-BAF0-003065C60BC2@osu.edu> <E16j7CE-00048k-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.3.95.1020312083126.14299A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Mar 12, 2002 at 08:33:23AM -0500
+In-Reply-To: <E16j7CE-00048k-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 12, 2002 at 08:33:23AM -0500, Richard B. Johnson wrote:
-> This is a simple random number generator. It takes a pointer to your
-> own private long, somewhere in your code, and returns a long random
-> number with a period of 0xfffd4011. I ran a program for about a
-> year, trying to find a magic number that will produce a longer
-> period.
+(Yes, I'm behind on my email. This is what comes from compromising your
+ideals and actually being good at something)
 
-Random number generators are not hash functions. Where is the relevance?
-I think you're generating a stream of uniform deviates to test whether
-a given hash function performs well with random input.
+On Thu, Mar 07, 2002 at 11:21:14PM +0000, Alan Cox wrote:
+> > programs coming out.  The Gimp, for one, was written by students at 
+> > Berkeley.  Last time I checked, no one was making money off of 
+> > enlightenment, and they are all still poor.  Stop fucking whining about 
+> 
+> Thats their planning. Some of them made poor business decisions, some of
+> them joined the wrong companies. If you think that being poor and suffering
+> are good for the soul there are a wide collection of religious orders to
+> choose from most of whom are full of people doing a lot more useful things
+> that whining on a mailing list
 
-I'm far more concerned about how the hash function behaves on real input
-data and I've been measuring that from the start, and as far as I'm
-concerned this microbenchmark is fairly useless. If it defeats it, it
-doesn't demonstrate that the hash function behaves poorly on the input
-distribution I'm interested in. If it doesn't defeat it it doesn't
-demonstrate that the hash function behaves well on the input distribution
-I'm interested in. If you want to generate useful random numbers for
-simulating workloads for hash table benchmarking you should attempt to
-measure and simulate the distribution of hash keys from the hash tables
-you're interested in and use statistical tests to verify that you're
-actually generating numbers with similar distributions. One easy way
-to get those might be, say, dumping all the elements of a hash table
-by traversing all the collision chains and sampling the keys' fields.
+    Actually, most of those religious orders are *not* full at this
+    point in time, and are *very* eager for new members. 
 
-
-On Tue, Mar 12, 2002 at 08:33:23AM -0500, Richard B. Johnson wrote:
-> You could add a ldiv and return the modulus to set hash-table limits.
-> ANDs are not good because, in principle, you could get many numbers
-> in which all the low bits are zero.
-
-It sounds like you're generating a stream of random deviates and then
-hashing them by mapping to their least residues mod the hash table size
-with perhaps a division thrown in.  With a long period you're going to
-get quite impressive statistics, not that it means anything. =)
-
-
-On Tue, Mar 12, 2002 at 08:33:23AM -0500, Richard B. Johnson wrote:
-> The advantage of this simple code is it works quickly. The disadvantages
-> are, of course, its not portable and a rotation of a binary number
-> is not a mathematical function, lending itself to rigorous analysis.
-
-Rigorous mathematical analysis does not require analyticity =) or
-number-theoretic tractability. There are things called statistical
-analysis and asymptotic analysis, which go great together and are
-quite wonderful in combination with empirical testing.
-
-
-On Tue, Mar 12, 2002 at 08:33:23AM -0500, Richard B. Johnson wrote
-	(and I added comments to):
-
-> MAGIC = 0xd0047077 
-> INTPTR = 0x08
-> .section	.text
-> .global		rnd
-> .type		rnd,@function
-> .align	0x04
-> 	pushl	%ebx			# save %ebx
-> 	movl	INTPTR(%esp), %ebx	# load argument from stack to %ebx
-> 	movl	(%ebx), %eax		# deref arg, loading to %eax
-> 	rorl	$3, %eax		# roll %eax right by 3
-> 	addl	$MAGIC, %eax		# add $MAGIC to %eax
-> 	movl	%eax, (%ebx)		# save result
-> 	popl	%ebx			# restore %ebx
->         ret
-> .end
-
-So you've invented the following function:
-
-f(n) = 2**29 * (n % 8) + floor(n/8) + 0xd0047077
-
-I wonder what several tests will look like for this, but you should
-really test your own random number generator.
-I have my own patches to work on.
-
-
-Cheers,
-Bill
+-- 
+Share and Enjoy. 

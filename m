@@ -1,61 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133014AbRDKXDj>; Wed, 11 Apr 2001 19:03:39 -0400
+	id <S132607AbRDKXSn>; Wed, 11 Apr 2001 19:18:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133024AbRDKXDa>; Wed, 11 Apr 2001 19:03:30 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:48139 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S133014AbRDKXDQ>;
-	Wed, 11 Apr 2001 19:03:16 -0400
-Date: Wed, 11 Apr 2001 16:00:43 -0700
-From: Anton Blanchard <anton@samba.org>
-To: David Howells <dhowells@cambridge.redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Andrew Morton <andrewm@uow.edu.au>, Ben LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 3rd try: i386 rw_semaphores fix
-Message-ID: <20010411160043.A4304@va.samba.org>
-In-Reply-To: <16590.986993861@warthog.cambridge.redhat.com> <17213.987007030@warthog.cambridge.redhat.com>
+	id <S132691AbRDKXSe>; Wed, 11 Apr 2001 19:18:34 -0400
+Received: from nat-hdqt.valinux.com ([198.186.202.17]:16433 "EHLO
+	golux.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S132607AbRDKXSU>; Wed, 11 Apr 2001 19:18:20 -0400
+Date: Wed, 11 Apr 2001 19:19:40 -0400
+From: esr@thyrsus.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Christoph Hellwig <hch@caldera.de>, Dave Jones <davej@suse.de>,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net,
+        "Eric S. Raymond" <esr@snark.thyrsus.com>
+Subject: Re: CML2 1.0.0 release announcement
+Message-ID: <20010411191940.A9081@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: esr@thyrsus.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Christoph Hellwig <hch@caldera.de>, Dave Jones <davej@suse.de>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>
+In-Reply-To: <20010411222722.A31359@caldera.de> <E14nT13-0007g6-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <17213.987007030@warthog.cambridge.redhat.com>; from dhowells@cambridge.redhat.com on Wed, Apr 11, 2001 at 05:37:10PM +0100
+In-Reply-To: <E14nT13-0007g6-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Apr 11, 2001 at 11:23:06PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> Multiple layers of Config.in is a feature
 
-Hi,
+I disagree, because I've seen what happens when we go to a single-apex tree.
+But you could persuade me otherwise.  What's your reason for believing this?
 
-> Here's the RW semaphore patch #3. This time with more asm constraints added.
+The problem with having multiple apices of the configuration tree (as I see
+it) is that we often ended up duplicating configuration code for things that
+aren't actually port-dependent but rather depend on other things such as
+supported bus types (ISA, PCA, PCMCIA, etc.).  This is a particularly big
+issue with network cards and disk controllers.
 
-Personally I care about sparc and ppc64 and as such would like to see the
-slow paths end up in lib/rwsem.c protected by #ifndef __HAVE_ARCH_RWSEM
-or something like that. If we couldn't get rwsems to work on x86, what
-hope have we on other archs? :)
+The duplicated code then starts to skew.  You end up with lots of features
+(especially drivers) that could be supported across architectures but aren't,
+simply because port maintainers are focused on their own trees and don't look
+at what's going on in the others.
 
-I have a few questions:
+A multiple-apex tree also tends to pull the configuration questions downwards
+from policy (e.g "Parallel-port support?") towards hardware-specific,
+platform-specific questions ("Atari parallel-port hardware?")  By designing
+the configuration rules for CML2 as a single-apex tree, I'm trying to
+move the questions upwards and have derivations in the rules file handle
+distributing that information to a lower level.
 
-In arch/i386/kernel/semaphore.c:
+For example, instead of a bunch of parallel questions like this in a 
+multiple-apex tree:
 
-static inline int rwsem_atomic_update(int delta, struct rw_semaphore *sem)
-static inline __u16 rwsem_cmpxchgw(struct rw_semaphore *sem, __u16 old, __u16 new)
+PARPORT			'Parallel port support'
+PARPORT_PC		'PC-style hardware'
+PARPORT_PC_PCMCIA	'Support for PCMCIA management for PC-style ports'
+PARPORT_ARC		'Archimedes hardware'
+PARPORT_AMIGA		'Amiga builtin port'
+PARPORT_MFC3		'Multiface III parallel port'
+PARPORT_ATARI		'Atari hardware'
+PARPORT_SUNBPP		'Sparc hardware'
 
-Can these end up in include/asm/rwsem*? The rest could then go into
-lib/rwsem.c.
+I'm trying to move us towards having *one* question and a bunch of
+well-hidden intelligence about what it implies:
 
-/* try to grab an 'activity' marker
- * - need to make sure two copies of rwsem_wake() don't do this for two separate processes
- *   simultaneously
- * - be horribly naughty, and only deal with the LSW of the atomic counter
- */
-	if (rwsem_cmpxchgw(sem,0,RWSEM_ACTIVE_BIAS)!=0)
+PARPORT			'Parallel port support'
+derive PARPORT_PC from PARPORT and X86
+derive PARPORT_ARC from PARPORT and ARC
+derive PARPORT_AMIGA from PARPORT and AMIGA
+derive PARPORT_SUNBPP from PARPORT and SUN
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Many archs dont have cmpxchg on 16 bit quantities. We can implement it
-but it will be extra instructions. Anyway on 64 bit archs, count will be 
-64 bit so we will have two 32 bit quantities to cmpxchg on.
-
-Now that I look at it, can you just do a cmpxchg on the complete sem->count
-and retry if it failed because the high order bits have changed?
-
-Anton
+Government is actually the worst failure of civilized man. There has
+never been a really good one, and even those that are most tolerable
+are arbitrary, cruel, grasping and unintelligent.
+	-- H. L. Mencken 

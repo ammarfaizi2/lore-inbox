@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQKBTxR>; Thu, 2 Nov 2000 14:53:17 -0500
+	id <S129425AbQKBTy2>; Thu, 2 Nov 2000 14:54:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129281AbQKBTxH>; Thu, 2 Nov 2000 14:53:07 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:36651 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129183AbQKBTxB>; Thu, 2 Nov 2000 14:53:01 -0500
-Date: Thu, 2 Nov 2000 20:52:46 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Tim Riker <Tim@Rikers.org>
-Cc: Andi Kleen <ak@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: non-gcc linux?
-Message-ID: <20001102205246.A17332@athlon.random>
-In-Reply-To: <3A01B8BB.A17FE178@Rikers.org> <E13rPhi-0001ng-00@the-village.bc.nu> <20001102201836.A14409@gruyere.muc.suse.de> <3A01BDCD.FCBCFFF8@Rikers.org>
+	id <S129416AbQKBTyS>; Thu, 2 Nov 2000 14:54:18 -0500
+Received: from piglet.twiddle.net ([207.104.6.26]:49168 "EHLO
+	piglet.twiddle.net") by vger.kernel.org with ESMTP
+	id <S129281AbQKBTyI>; Thu, 2 Nov 2000 14:54:08 -0500
+Date: Thu, 2 Nov 2000 11:37:26 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: tytso@mit.edu, Jakub Jelinek <jakub@redhat.com>,
+        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test10-pre6: Use of abs()
+Message-ID: <20001102113726.A19505@twiddle.net>
+In-Reply-To: <200010281629.e9SGTah07672@sleipnir.valparaiso.cl> <39FD7F2C.9A3F3976@evision-ventures.com> <20001030081938.K6207@devserv.devel.redhat.com> <39FD9E6A.AD10E699@evision-ventures.com> <20001101094619.A15283@trampoline.thunk.org> <20001101102216.A18206@twiddle.net> <3A015AB9.D3B80830@evision-ventures.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3A01BDCD.FCBCFFF8@Rikers.org>; from Tim@Rikers.org on Thu, Nov 02, 2000 at 12:17:33PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <3A015AB9.D3B80830@evision-ventures.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 02, 2000 at 12:17:33PM -0700, Tim Riker wrote:
-> [..] by adding gcc
-> syntax into it [..]
+On Thu, Nov 02, 2000 at 01:14:49PM +0100, Martin Dalecki wrote:
+> However what's the difference in respect of optimization between
+> unrolling the abs function by hand and relying on the built in?
 
-I think that's the right path. How much would be hard for you to add gcc syntax
-into your compiler too instead of feeding us kernel patches? Note that it would
-be a big advantage also for userspace (not only kernel uses inline asm and
-other gcc extensions). And probably it would be an improvement to your
-compiler too (since I don't know of other compilers that are as smart as
-gcc in the inline asm syntax :).
+Should be nothing.  The expanded source expression should get
+folded immediately to an ABS_EXPR node, at which point you are
+at exactly the same point as the builtin would have gotten you.
 
-Andrea
+
+r~
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

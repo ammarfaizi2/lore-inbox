@@ -1,71 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268718AbUIGWQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268702AbUIGWRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268718AbUIGWQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 18:16:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268702AbUIGWOt
+	id S268702AbUIGWRv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 18:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268704AbUIGWRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 18:14:49 -0400
-Received: from mx02.qsc.de ([213.148.130.14]:55712 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S268703AbUIGWO2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 18:14:28 -0400
-Date: Wed, 08 Sep 2004 00:13:20 +0200
-From: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
-Organization: Privat.
-To: Christer Weinigel <christer@weinigel.se>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Tonnerre <tonnerre@thundrix.ch>,
-       Spam <spam@tnonline.net>, ReiserFS List <reiserfs-list@namesys.com>,
-       Hans Reiser <reiser@namesys.com>, Pavel Machek <pavel@ucw.cz>,
-       David Masover <ninja@slaphack.com>, <linux-kernel@vger.kernel.org>,
-       <linux-fsdevel@vger.kernel.org>, Jamie Lokier <jamie@shareable.org>,
-       Christoph Hellwig <hch@lst.de>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       Chris Wedgwood <cw@f00f.org>, Christer Weinigel <christer@weinigel.se>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <413E3280.nailEK92X8CU7@pluto.uni-freiburg.de>
-References: <200409070206.i8726vrG006493@localhost.localdomain>
- <413D4C18.6090501@slaphack.com> <m3d60yjnt7.fsf@zoo.weinigel.se>
- <1183150024.20040907143346@tnonline.net>
- <413DD5B4.nailC801GI4E2@pluto.uni-freiburg.de>
- <m34qm9kbcl.fsf@zoo.weinigel.se>
-In-Reply-To: <m34qm9kbcl.fsf@zoo.weinigel.se>
-User-Agent: nail 11.7pre 9/7/04
-MIME-Version: 1.0
+	Tue, 7 Sep 2004 18:17:36 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:35079 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S268703AbUIGWQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 18:16:50 -0400
+Date: Tue, 7 Sep 2004 23:16:45 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Patrick Gefre <pfg@sgi.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Latest Altix I/O code reorganization code
+Message-ID: <20040907231645.A20934@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Patrick Gefre <pfg@sgi.com>, linux-ia64@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <200408042014.i74KE8fD141211@fsgi900.americas.sgi.com> <20040806141836.A9854@infradead.org> <411AAABB.8070707@sgi.com> <412F4EC9.7050003@sgi.com> <20040827165443.A32567@infradead.org> <20040827172131.A473@infradead.org> <20040904004024.A10459@infradead.org> <413E31D1.9090301@sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <413E31D1.9090301@sgi.com>; from pfg@sgi.com on Tue, Sep 07, 2004 at 05:10:25PM -0500
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christer Weinigel <christer@weinigel.se> wrote:
+On Tue, Sep 07, 2004 at 05:10:25PM -0500, Patrick Gefre wrote:
+>  > of interface beteen upper pci dma code and pcibr code ignored)
+>  >
+> 
+> Guess I'm confused about this then. Are you suggesting putting the pcibr_dma files
+> into the pci_dma.c code and not having a pcibr_dma interface ?? The api is there because
+> pcibr is an ASIC and is ASIC specific.
 
-> Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de> writes:
-> > No, it would not. If you read the POSIX.1 specification for cp
-> > carefully <http://www.unix.org/version3/online.html>, you will
-> > notice that the process for copying a regular file is carefully
-> > standardized. A POSIX.1-conforming cp implementation would not
-> > be allowed to copy additional streams, unless either additional
-> > options are given or the type of the file being copied is other
-> > than S_IFREG. And cp is just one example of a standardized file
-> > handling program.
-> We can safely ignore POSIX when it is too broken.
+No, absolutely not.  I suggested you remove the remaining ASIC-specific
+bits from pci_dma.c, namely the decision when to use direct translation
+and where to use ates, and the flags and only have a single mapping
+routine calling into pcibr code with a prototype ala:
 
-Excuse me, but there's really nothing broken here with POSIX and cp.
-You're just making an insulting talk about a part of the specification
-which currently serves GNU/Linux and other Unix-like environments very
-well, and has done so for about twelve years now.
+dma_addr_t picbr_dma_map(struct pci_dev *dev, unsigned long phys, size_t size);
 
-> cp could very well be modified to copy named streams except when
-> the option --posix is specified
+>  > > pci_extension.c:
+>  > >
+>  > >  - dito.  Why does this single function need a separate file?
+>  >
+>  > Not addressed.  In general your file organization is mess still.
+>  >
+> 
+> How is this:
+> arch/ia64/sn/pci/
+>                   pci_dma.c
+>                   pci_extension.c
+>                   pcibr/
+>                       pcibr_ate.c
+>                       pcibr_dma.c
+>                       pcibr_provider.c
+>                       pcibr_reg.c
+> 
+> arch/ia64/sn/kernel/
+>                   bte_error.c
+>                   io_init.c
+>                   iomv.c
+> 
+> Since pcibr is an ASIC it makes sense for it to have its own directory. There are
+> other ASIC interfaces that will be put in in the not too distant future and they
+> will go in separate directories also.
 
-Hey, you didn't ever even have a look at POSIX Shell & Utilities, did
-you? Then why are you making derogatory statements about it?
+Isn't the pcibr_ prefix enough?  This isn't something that would hold up
+merging, but I think the additional level is a little silly.
 
-> or the environment variale POSIXLY_CORRECT is set.
+> I will inline free_ate_resource(), alloc_ate_resource() and ate_write(). I want to
+> keep the ate code in a separate file - since it is a group of functions with a similar
+> theme and is non-trivial.
 
-Cool, data loss depending upon an environment variable which is even
-currently used by many programs unaware of such results. This really
-sounds like good engineering to me.
+Okay..
 
-	Gunnar
+>  > >    of struct tiocp and pic_s (and kill the _s postifx) in syruct pcibus_info.
+>  > >    the volatiles looks bogus, if you need it you're missing memorry barries.
+>  >
+>  > the type pointer isn't done.  Any specific reason?
+>  >
+> 
+> I'm confused on this too. The struct defs are for different MMR sets - so we do need
+> to use different types of pointers.
+
+What about adding an union of both _typed_ pointers so you don't need
+to cast everytime?
+
+
+Anyway, it looks like we're making nice progress, thanks for the work.

@@ -1,31 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264816AbSKELY7>; Tue, 5 Nov 2002 06:24:59 -0500
+	id <S264853AbSKELSc>; Tue, 5 Nov 2002 06:18:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264817AbSKELY7>; Tue, 5 Nov 2002 06:24:59 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:53396 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264816AbSKELY5>; Tue, 5 Nov 2002 06:24:57 -0500
-Subject: Re: [RFC] FS charset conversions
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Samium Gromoff <_deepfire@mail.ru>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1891J9-000B9X-00@f15.mail.ru>
-References: <E1891J9-000B9X-00@f15.mail.ru>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Nov 2002 11:53:37 +0000
-Message-Id: <1036497217.4827.30.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S264854AbSKELSc>; Tue, 5 Nov 2002 06:18:32 -0500
+Received: from mailgw3a.lmco.com ([192.35.35.7]:59154 "EHLO mailgw3a.lmco.com")
+	by vger.kernel.org with ESMTP id <S264853AbSKELSb>;
+	Tue, 5 Nov 2002 06:18:31 -0500
+Content-return: allowed
+Date: Tue, 05 Nov 2002 06:24:58 -0500
+From: "Reed, Timothy A" <timothy.a.reed@lmco.com>
+Subject: RE: idle=poll needed??
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "Reed, Timothy A" <timothy.a.reed@lmco.com>
+Cc: "Linux Kernel ML (E-mail)" <linux-kernel@vger.kernel.org>
+Message-id: <9EFD49E2FB59D411AABA0008C7E675C00DCDFC53@emss04m10.ems.lmco.com>
+MIME-version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-05 at 10:51, Samium Gromoff wrote:
->         The proposed and seemingly natural solution is to add a possibility
->     to mount --bind the subtree with a filename charset conversion applied.
+We are not concerned with power use.
 
-The traditional unix approach is to declare the universe UTF-8. No
-single character set is the right answer, UTF8 preserves "/" and \0
-semantics so works very well indeed.
+What it is we are running is a math intensive program.  When the sub uses
+the idle flag and run their test they get a run time of 370ms, when they do
+not use the flag they get a run time of 255ms.  Yes I know that 115ms is not
+much of a difference, but in our application it could be.  I have asked them
+to send me a copy of their sim so that I may attempt to reproduce it here
+and reevaluate our kernel build options.
 
+We need to do much more testing.  My opinion is that we won't be able to
+decide until we get all of the pieces into system integration.
+
+Thanks,
+Timothy Reed
+Software Engineer \ Systems Administrator
+Lockheed Martin - NE & SS Syracuse
+Email: timothy.a.reed@lmco.com
+
+The Box Said "Requires Windows  95 or Better", so I installed Linux!
+
+
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: Monday, November 04, 2002 8:43 AM
+To: Reed, Timothy A
+Cc: Linux Kernel ML (E-mail)
+Subject: Re: idle=poll needed??
+
+
+On Mon, 2002-11-04 at 12:51, Reed, Timothy A wrote:
+> All,
+> 	We currently have setup, Dual P4-Xeon 2.2G machines running 2.4.19,
+> with 2GB of RAM.
+> 	Is there any performance reasons to keep the idle=poll in the append
+> line?  I have not seen any degraded performance with the option, but some
+of
+> our subs are having performance issues with it in.
+
+It actually depends on what you are doing whether it has any impact.
+Also of course if power use is a consideration

@@ -1,30 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132396AbRC1CSX>; Tue, 27 Mar 2001 21:18:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132408AbRC1CSM>; Tue, 27 Mar 2001 21:18:12 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4871 "EHLO the-village.bc.nu") by vger.kernel.org with ESMTP id <S132396AbRC1CSB>; Tue, 27 Mar 2001 21:18:01 -0500
-Subject: Re: Larger dev_t
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Wed, 28 Mar 2001 03:19:02 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), hpa@transmeta.com (H. Peter Anvin), Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, tytso@MIT.EDU
-In-Reply-To: <Pine.LNX.4.31.0103271606420.25282-100000@penguin.transmeta.com> from "Linus Torvalds" at Mar 27, 2001 04:07:43 PM
-X-Mailer: ELM [version 2.5 PL1]
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132488AbRC1DPB>; Tue, 27 Mar 2001 22:15:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132501AbRC1DOm>; Tue, 27 Mar 2001 22:14:42 -0500
+Received: from blackhole.compendium-tech.com ([206.55.153.26]:12798 "EHLO sol.compendium-tech.com") by vger.kernel.org with ESMTP id <S132488AbRC1DOh>; Tue, 27 Mar 2001 22:14:37 -0500
+Date: Tue, 27 Mar 2001 19:13:38 -0800 (PST)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+To: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: mysterious card
+In-Reply-To: <27525795B28BD311B28D00500481B7601F104E@ftrs1.intranet.ftr.nl>
+Message-ID: <Pine.LNX.4.30.0103271909130.11653-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14i5Y9-0004qx-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Exactly. It's just that for historical reasons, I think the major for
-> "disk" should be either the old IDE or SCSI one, which just can show more
-> devices. That way old installers etc work without having to suddenly start
-> knowing about /dev/disk0.
+On Wed, 21 Mar 2001, Heusden, Folkert van wrote:
 
-They will mostly break. Installers tend to parse /proc/scsi and have fairly
-complex ioctl based relationships based on knowing ide v scsi.
+> Hi,
+>
+> I have this mysterious 8 bit ISA card with nothing more then 2 smb-mounted
+> ic's
+> and a button. It seems to be something that should force a system memory
+> dump.
+> I think I can handle the code-writing, but since there's no documentation I
+> have
+> to find out how things are working.
+> Ok, the question is: does anyone know a place on the web where I can find
+> specifications of ISA-slots? I need to know what is supposed to be connected
+> to
+> the pins (1, 2, 6, etc.)
 
-/dev/disc/ is a little un-unix but its clean
+http://www.hardwarebook.net/co_ISA.html
+has the information you want...
 
-
+V/R
+-kelsey
 

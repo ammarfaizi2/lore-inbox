@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262988AbRFNOEs>; Thu, 14 Jun 2001 10:04:48 -0400
+	id <S262997AbRFNOOv>; Thu, 14 Jun 2001 10:14:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262934AbRFNOEi>; Thu, 14 Jun 2001 10:04:38 -0400
-Received: from dsl-64-192-96-25.telocity.com ([64.192.96.25]:19720 "EHLO
-	orr.falooley.org") by vger.kernel.org with ESMTP id <S262865AbRFNOEg>;
-	Thu, 14 Jun 2001 10:04:36 -0400
-Date: Thu, 14 Jun 2001 10:03:54 -0400
-From: Jason Lunz <j@falooley.org>
-To: linux-kernel@vger.kernel.org
-Cc: almesber@lrc.di.epfl.ch
-Subject: Re: RFC: from FIBMAP to FIONDEV
-Message-ID: <20010614100354.A2129@orr.falooley.org>
-Mime-Version: 1.0
+	id <S262934AbRFNOOb>; Thu, 14 Jun 2001 10:14:31 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:53390 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S262800AbRFNOO3>;
+	Thu, 14 Jun 2001 10:14:29 -0400
+Message-ID: <3B28C6C1.3477493F@mandrakesoft.com>
+Date: Thu, 14 Jun 2001 10:14:25 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tom Gall <tom_gall@vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Going beyond 256 PCI buses
+In-Reply-To: <3B273A20.8EE88F8F@vnet.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tom Gall wrote:
+>   The box that I'm wrestling with, has a setup where each PHB has an
+> additional id, then each PHB can have up to 256 buses.  So when you are
+> talking to a device, the scheme is phbid, bus, dev etc etc. Pretty easy
+> really.
+> 
+>   I am getting for putting something like this into the kernel at large,
+> it would probably be best to have a CONFIG_GREATER_THAN_256_BUSES or
+> some such.
 
-I'm looking for a way to do FIBMAP on linux 2.4 without being root, and
-I learned from the archive that it's restricted for security reasons,
-and that it's obsolete anyway.  I found this discussion about a
-replacement called FIONDEV:
+We don't need such a CONFIG_xxx at all.  The current PCI core code
+should scale up just fine.
 
-http://uwsg.iu.edu/hypermail/linux/kernel/9906.1/0817.html
+According to the PCI spec it is -impossible- to have more than 256 buses
+on a single "hose", so you simply have to implement multiple hoses, just
+like Alpha (and Sparc64?) already do.  That's how the hardware is forced
+to implement it...
 
-However, I can't find any reference to FIONDEV in current 2.4 sources.
-Was anything similar ever coded? Is there a better way then FIBMAP to
-get the lba of a file, or are we still stuck with having to have
-CAP_SYS_RAWIO in order to do that? This is something that all linux dvd
-programs need to do in order to decrypt DVD, and it'd be nice if they
-didn't all have to run as root. :)
+	Jeff
 
-Jason
+
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

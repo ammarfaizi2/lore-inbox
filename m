@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129759AbQLXNgC>; Sun, 24 Dec 2000 08:36:02 -0500
+	id <S129749AbQLXOKM>; Sun, 24 Dec 2000 09:10:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129867AbQLXNfw>; Sun, 24 Dec 2000 08:35:52 -0500
-Received: from maynard.mail.mindspring.net ([207.69.200.243]:43031 "EHLO
-	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S129759AbQLXNfm>; Sun, 24 Dec 2000 08:35:42 -0500
-Date: Sun, 24 Dec 2000 06:05:12 -0700
-From: Jeff Lightfoot <jeffml@pobox.com>
+	id <S129781AbQLXOKD>; Sun, 24 Dec 2000 09:10:03 -0500
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:60678 "EHLO
+	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S129749AbQLXOJs>; Sun, 24 Dec 2000 09:09:48 -0500
+Date: 24 Dec 2000 11:14:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Subject: Re: innd mmap bug in 2.4.0-test12
-Message-ID: <20001224060512.A11066@www.thefoots.com>
-Reply-To: Jeff Lightfoot <jeffml@pobox.com>
-In-Reply-To: <20001224092835.B649@wonderland.linux.it>
-Mime-Version: 1.0
+Message-ID: <7sSHKzAmw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.21.0012221746160.320-100000@bee.lk>
+Subject: Re: recommended gcc compiler version
+X-Mailer: CrossPoint v3.12d.kh5 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001224092835.B649@wonderland.linux.it>; from md@Linux.IT on Sun, Dec 24, 2000 at 01:54:50AM -0700
-X-Operating-System: Linux/2.4.0-test13-pre4 (i686)
-X-URL: http://thefoots.com
-X-Uptime: 5:56am  up 10:02,  3 users,  load average: 1.02, 1.02, 1.00
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <E149NvR-0004Kz-00@the-village.bc.nu> <Pine.LNX.4.21.0012221746160.320-100000@bee.lk>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Marco d'Itri" (md@Linux.IT) wrote:
-> I can confirm the bug which loses updates to the inn active file when
-> it's unmapped is present again in 2.4.0-test12.
+anuradha@gnu.org (Anuradha Ratnaweera)  wrote on 22.12.00 in <Pine.LNX.4.21.0012221746160.320-100000@bee.lk>:
 
-It is also still in 2.4.0-test13-pre4 in case someone thought they had
-fixed it.
+> On Fri, 22 Dec 2000, Alan Cox wrote:
+>
+> > For i386
+> >
+> > 2.2.18
+> > 	gcc 2.7.2 or egcs-1.1.2
+>
+> Just a remainder for debian users. There is a debian package gcc272 which
+> is said to be the "GNU C compiler's C part", for "backword compatibility
+> purposes". I recompiled my kernel after an
+>
+>   apt-get install gcc272
+>
+> and after setting
+>
+>   HOSTGCC = gcc272
+>
+> in kernel source tree Makerile.
 
--- 
-Jeff Lightfoot   --    jeffml at pobox.com   --   http://thefoots.com/
-    "I see the light at the end of the tunnel now ... someone please
-    tell me it's not a train" -- Cracker
+I recently compiled 2.2.18 and noticed that make-kpkg (from kernel-package  
+- don't compile kernels on Debian without it!) did that automatically.
+
+Incidentally, I really like the Flavours patch.
+
+
+MfG Kai
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

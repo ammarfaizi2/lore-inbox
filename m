@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262005AbUCIPfL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 10:35:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbUCIPfL
+	id S262012AbUCIPhh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 10:37:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbUCIPhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 10:35:11 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:14524 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262005AbUCIPfG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 10:35:06 -0500
-Date: Tue, 9 Mar 2004 16:36:20 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
-Message-ID: <20040309153620.GA9012@elte.hu>
-References: <20040308202433.GA12612@dualathlon.random> <1078781318.4678.9.camel@laptop.fenrus.com> <20040308230845.GD12612@dualathlon.random> <20040309074747.GA8021@elte.hu> <20040309152121.GD8193@dualathlon.random>
+	Tue, 9 Mar 2004 10:37:37 -0500
+Received: from mail.humboldt.co.uk ([81.2.65.18]:47084 "EHLO
+	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S262012AbUCIPhf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 10:37:35 -0500
+Subject: Problems with 2.6.4-rc2 NFS server and diskless clients
+From: Adrian Cox <adrian@humboldt.co.uk>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1078846645.1441.14.camel@newt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040309152121.GD8193@dualathlon.random>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner-4.26.8-itk2 SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 09 Mar 2004 15:37:26 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Using 2.6.4-rc2  on the NFS server together with Debian unstable
+(nfs-kernel-server version 1:1.0.6-1), diskless clients can no longer
+mount their root filesystems. The same configuration works with a 2.4
+kernel on the server.
 
-* Andrea Arcangeli <andrea@suse.de> wrote:
+The client reports "nfs_get_root: getattr error = 116". No error
+messages appear in the server logs. And the old recipe of exporting with
+"no_subtree_check" makes no difference.
 
-> http://www.oracle.com/apps_benchmark/html/index.html?0325B_Report1.html
+Anybody have any suggestions?
 
-OASB is special and pushes the DB less than e.g. TPC-C does. How big was
-the SGA? I bet the setup didnt have use_indirect_data_buffers=true. 
-(OASB is not a full-disclosure benchmark so i have no way to check
-this.) All you have proven is that workloads with a limited number of
-per-inode vmas can perform well. Which completely ignores my point.
+The NFS part of .config on the server is:
+#
+# Network File Systems
+#
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+# CONFIG_NFS_V4 is not set
+# CONFIG_NFS_DIRECTIO is not set
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+# CONFIG_NFSD_V4 is not set
+# CONFIG_NFSD_TCP is not set
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+# CONFIG_SUNRPC_GSS is not set
 
-	Ingo
+- Adrian Cox
+
+ 
+

@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267151AbSLaEly>; Mon, 30 Dec 2002 23:41:54 -0500
+	id <S267152AbSLaErr>; Mon, 30 Dec 2002 23:47:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267153AbSLaElx>; Mon, 30 Dec 2002 23:41:53 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:60856
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S267151AbSLaElw>; Mon, 30 Dec 2002 23:41:52 -0500
-Message-ID: <3E1121F7.60808@redhat.com>
-Date: Mon, 30 Dec 2002 20:49:59 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20021224
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jakub Jelinek <jakub@redhat.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: glibc binaries w/ sysenter support
-References: <Pine.LNX.4.44.0212301838050.1614-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0212301838050.1614-100000@home.transmeta.com>
+	id <S267153AbSLaErr>; Mon, 30 Dec 2002 23:47:47 -0500
+Received: from mnh-1-04.mv.com ([207.22.10.36]:18439 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S267152AbSLaErq>;
+	Mon, 30 Dec 2002 23:47:46 -0500
+Message-Id: <200212310450.XAA05328@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: uml-patch-2.5.53-2
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Mon, 30 Dec 2002 23:50:28 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+This patch brings the UML 2.5 pool up to date with my 2.4 pool.  This includes
+many bug fixes and improvements including:
 
->  can you tell me what the new glibc does for different "clone()" system
-> calls?
+	Kernel stack sizes are configurable.
 
-clone() and vfork() both use int $0x80.  The vfork() problem is obvious.
-And the way we use clone() with a separate stack for the child it is
-easy to see that we cannot prepare the stack appropriately for both
-situations.  When the child is started it returns with a carefully
-crafted stack which among other values find the start functions address
-on the stack.
+	UML will build as a shared binary if tt mode is configured out.  These
+two changes, plus some valgrind fixes, make it possible to valgrind the kernel.
 
-There might be a way to make this use int and vsyscall at the same time
-but I don't think it is worth it.
+	skas mode will now force a shutdown if the kernel thread receives a
+SIGINT, SIGTERM, or SIGHUP.
 
--- 
---------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
+	The watchdog driver compiles with skas enabled
+
+	Fixed a problem with excessive stack usage which was causing
+crashes for some people
+
+	SA_SIGINFO signal delivery is fixed, making JVMs (and Tomcat) run
+
+	skas mode now has protection against tmpfs filling up
+
+	The initial UML thread is protected against running kernel code
+
+	A couple of data corruption bugs are fixed, including one which
+would cause strange behavior changes when 'debug' is added to the command
+line.
+
+	All initializers are converted to C99 syntax
+
+
+NOTE - this patch will not apply to stock 2.5.53.  It was generated against
+Linus' BK from yesterday (Dec 29).  It will probably apply cleanly to any 
+2.5.53 after my last set of updates were merged.  It certainly will not apply
+to any kernel earlier than that.
+
+The 2.5.53-2 UML patch is available at
+        http://uml-pub.ists.dartmouth.edu/uml/uml-patch-2.5.53-2.bz2
+ 
+For the other UML mirrors and other downloads, see 
+        http://user-mode-linux.sourceforge.net/dl-sf.html
+ 
+Other links of interest:
+ 
+        The UML project home page : http://user-mode-linux.sourceforge.net
+        The UML Community site : http://usermodelinux.org
+				Jeff
 

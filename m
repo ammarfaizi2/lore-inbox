@@ -1,43 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268231AbUGXCGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268234AbUGXCOr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268231AbUGXCGr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 22:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268233AbUGXCGr
+	id S268234AbUGXCOr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 22:14:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268236AbUGXCOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 22:06:47 -0400
-Received: from waste.org ([209.173.204.2]:43975 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S268231AbUGXCGq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 22:06:46 -0400
-Date: Fri, 23 Jul 2004 21:06:44 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] ketchup 0.8
-Message-ID: <20040724020644.GN18675@waste.org>
-References: <20040723185504.GJ18675@waste.org> <1090632808.1471.20.camel@mindpipe>
+	Fri, 23 Jul 2004 22:14:47 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:53909 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S268234AbUGXCOo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 22:14:44 -0400
+Subject: Re: [patch] kernel events layer
+From: Robert Love <rml@ximian.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040723200335.521fe42a.akpm@osdl.org>
+References: <1090604517.13415.0.camel@lucy>
+	 <20040723200335.521fe42a.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 23 Jul 2004 22:14:57 -0400
+Message-Id: <1090635297.1830.4.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1090632808.1471.20.camel@mindpipe>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Evolution 1.5.90 (1.5.90-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 23, 2004 at 09:33:28PM -0400, Lee Revell wrote:
-> On Fri, 2004-07-23 at 14:55, Matt Mackall wrote:
-> > ketchup is a script that automatically patches between kernel
-> > versions, downloading and caching patches as needed, and automatically
-> > determining the latest versions of several trees. Available at:
-> > 
-> >  http://selenic.com/ketchup/ketchup-0.8
-> > 
-> 
-> Does not work on Debian unstable:
+On Fri, 2004-07-23 at 20:03 -0700, Andrew Morton wrote:
 
-Oops. Should be fixed by:
+> OK.  Can you give us a ballpark estimate of how many send_kmessage() calls
+> we're likely to have in two years time?
 
-http://selenic.com/ketchup/ketchup-0.8.1
+Predicting the future is hard, but I suspect this number to be small.
+Let's say 10 in core kernel code?
 
--- 
-Mathematics is the supreme nostalgia of our time.
+If this takes off as a solution for error reporting, that number will be
+much larger in drivers.
+
+> - The GFP_ATOMIC page allocation is unfortunate.  Please pass in the
+>   gfp_flags, or change it to GFP_KERNEL and provide a separate
+>   send_kmessage_atomic()?
+
+I like the latter.
+
+> - Methinks the kernel won't build if the user set CONFIG_NETLINK_DEV=n
+
+I will test and fix.
+
+> - When fixing that up, please add CONFIG_KERNEL_EVENTS or whatever,
+>   provide the appropriate do-nothing stubs if it's disabled.  For the tiny
+>   systems.
+
+OK.
+
+> - send_kmessage() is racy against kmessage_exit().  I'm not sure that's
+>   worth fixing - if you agree then it would set minds at ease to simply
+>   remove kmessage_exit().
+
+The race is definitely not worth fixing.  If it bothers you, then
+removing kmessage_exit() makes sense.  I will do that.
+
+> - This code will never work as a module, so why include the
+>   MODULE_AUTHOR/DESCRIPTION/etc?
+
+Can be removed.
+
+> - What led to the decision to export send_kmessage() to only GPL modules?
+
+I am a fanatic about freedom?  Seriously, I will talk to Arjan about
+changing it.  I do not care either way.
+
+Updated patch forthcoming.
+
+Thanks,
+
+	Robert Love
+
+

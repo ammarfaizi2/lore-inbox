@@ -1,34 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265066AbUEKXdl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265054AbUEKXgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265066AbUEKXdl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 19:33:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265054AbUEKXdk
+	id S265054AbUEKXgl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 19:36:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265062AbUEKXgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 19:33:40 -0400
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:42632 "EHLO
-	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
-	id S265066AbUEKXdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 19:33:15 -0400
-Date: Tue, 11 May 2004 18:33:14 -0500
-From: Fernando Paredes <Fernando.Paredes@Sun.COM>
-Subject: Toshiba keyboard lockups
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <40A162BA.90407@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5)
- Gecko/20031007
+	Tue, 11 May 2004 19:36:40 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:10686 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265060AbUEKXep (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 19:34:45 -0400
+Message-Id: <200405112334.i4BNYdjO018918@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Dave Airlie <airlied@linux.ie>
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dri-devel@lists.sf.net
+Subject: Re: From Eric Anholt: 
+In-Reply-To: Your message of "Wed, 12 May 2004 00:20:51 BST."
+             <Pine.LNX.4.58.0405120018360.3826@skynet> 
+From: Valdis.Kletnieks@vt.edu
+References: <200405112211.i4BMBQDZ006167@hera.kernel.org> <20040511222245.GA25644@kroah.com>
+            <Pine.LNX.4.58.0405120018360.3826@skynet>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-479259688P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 11 May 2004 19:34:39 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There was a previous thread on this, last month.
+--==_Exmh_-479259688P
+Content-Type: text/plain; charset=us-ascii
 
-I updated to 2.6.6 and I still get these random lockups. Nothing in 
-dmesg or /var/log/messages. Too annoying as I have to reboot the machine 
-constantly. Does anyone know the status on this? Is t a toshiba hardware 
-bug (is that possible?) or a bug in serio.c or keybd.c?
+On Wed, 12 May 2004 00:20:51 BST, Dave Airlie said:
 
-Thanks!
+> I just looked at drm.h and nearly all the ioctls use int, this file is
+> included in user-space applications also at the moment, I'm worried
+> changing all ints to __u32 will break some of these, anyone on DRI list
+> care to comment?
 
+Is this a case where somebody is *really* including kernel headers in userspace
+and we need to smack them, or are they using a copy that's been sanitized
+(and possibly fixed)?
+
+--==_Exmh_-479259688P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAoWMOcC3lWbTT17ARAk2jAJwPi4T3yzXF6z3u9o4bufzEhylEWACgiSxZ
+qMlJhhyJtJ+MHCgfGNzlNcg=
+=V4m6
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-479259688P--

@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290292AbSAPAP5>; Tue, 15 Jan 2002 19:15:57 -0500
+	id <S289787AbSAPAVH>; Tue, 15 Jan 2002 19:21:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290298AbSAPAPr>; Tue, 15 Jan 2002 19:15:47 -0500
-Received: from tangens.hometree.net ([212.34.181.34]:32190 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S290292AbSAPAPk>; Tue, 15 Jan 2002 19:15:40 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: CML2-2.1.3 is available
-Date: Wed, 16 Jan 2002 00:15:39 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <a22gnb$c2s$1@forge.intermeta.de>
-In-Reply-To: <20020115145324.A5772@thyrsus.com> <Pine.LNX.4.33.0201151514090.5892-100000@xanadu.home> <20020115151804.A6308@thyrsus.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1011140139 29678 212.34.181.4 (16 Jan 2002 00:15:39 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Wed, 16 Jan 2002 00:15:39 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S289789AbSAPAU5>; Tue, 15 Jan 2002 19:20:57 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:40970 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S289787AbSAPAUt>; Tue, 15 Jan 2002 19:20:49 -0500
+Date: Tue, 15 Jan 2002 19:20:48 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: John Weber <weber@nyc.rr.com>, Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: 2.5.3-pre1 compile error
+Message-ID: <20020115192048.G17477@redhat.com>
+In-Reply-To: <3C44C3B6.8060900@nyc.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C44C3B6.8060900@nyc.rr.com>; from weber@nyc.rr.com on Tue, Jan 15, 2002 at 07:05:10PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" <esr@thyrsus.com> writes:
+On Tue, Jan 15, 2002 at 07:05:10PM -0500, John Weber wrote:
+> incompatible pointer type
+> read_write.c: In function `sys_pwrite':
+> read_write.c:403: warning: passing arg 1 of `inode_dir_notify' from 
+> incompatible pointer type
 
->Rob Landley pointed out correctly that the vitality flag was not
->actually solving this problem, and it was an ugly wart on the
->language.  Instead, there's a symbol property "BOOTABLE" in the new
->rulebase that is attached to IDE and SCSI hardware symbols that are
->controllers for what could be boot devices.
+Hmm, this should fix that.
 
-Wasn't this SunOS (Larry?):  "Can't boot a typewriter."
+		-ben
 
-Actually, some can. Or maybe their current incarnation, the serial port.
-
-Will you make every thinkable device "BOOTABLE"? USB?
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+:r ~/patches/v2.5.3-pre1-file_fix.diff
+diff -urN v2.5.3-pre1/include/linux/file.h v2.5.3-pre1-fix/include/linux/file.h
+--- v2.5.3-pre1/include/linux/file.h	Tue Jan 15 19:11:11 2002
++++ v2.5.3-pre1-fix/include/linux/file.h	Tue Jan 15 19:20:06 2002
+@@ -5,6 +5,9 @@
+ #ifndef __LINUX_FILE_H
+ #define __LINUX_FILE_H
+ 
++#ifndef __ASM__ATOMIC_H
++#include <asm/atomic.h>
++#endif
+ #ifndef _LINUX_POSIX_TYPES_H	/* __FD_CLR */
+ #include <linux/posix_types.h>
+ #endif

@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbQKHUOv>; Wed, 8 Nov 2000 15:14:51 -0500
+	id <S129029AbQKHUPN>; Wed, 8 Nov 2000 15:15:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129118AbQKHUOl>; Wed, 8 Nov 2000 15:14:41 -0500
-Received: from rmx306-mta.mail.com ([165.251.48.168]:32189 "EHLO
-	rmx306-mta.mail.com") by vger.kernel.org with ESMTP
-	id <S129033AbQKHUO2>; Wed, 8 Nov 2000 15:14:28 -0500
-Message-ID: <379322493.973714466779.JavaMail.root@web346-wra.mail.com>
-Date: Wed, 8 Nov 2000 15:14:22 -0500 (EST)
+	id <S129764AbQKHUPD>; Wed, 8 Nov 2000 15:15:03 -0500
+Received: from rmx194-mta.mail.com ([165.251.48.41]:34519 "EHLO
+	rmx194-mta.mail.com") by vger.kernel.org with ESMTP
+	id <S129118AbQKHUOx>; Wed, 8 Nov 2000 15:14:53 -0500
+Message-ID: <390875121.973714466615.JavaMail.root@web694-wra.mail.com>
+Date: Wed, 8 Nov 2000 15:14:21 -0500 (EST)
 From: Frank Davis <fdavis112@juno.com>
 To: linux-kernel@vger.kernel.org
 Subject: Pentium IV-summary

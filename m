@@ -1,83 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbVCVVMb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVCVVUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261955AbVCVVMb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 16:12:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVCVVMb
+	id S261973AbVCVVUE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 16:20:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVCVVUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 16:12:31 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:16580 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S261955AbVCVVMZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 16:12:25 -0500
-Message-ID: <42408A2C.8060103@cosmosbay.com>
-Date: Tue, 22 Mar 2005 22:12:12 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Tue, 22 Mar 2005 16:20:04 -0500
+Received: from sccrmhc14.comcast.net ([204.127.202.59]:47860 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261965AbVCVVT5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 16:19:57 -0500
+Date: Tue, 22 Mar 2005 21:19:52 +0000
+From: Willem Riede <osst@riede.org>
+Subject: Re: [2.6 patch] drivers/scsi/osst.c: make code static
+To: James.Bottomley@SteelEye.com, Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, osst-users@lists.sourceforge.net,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20050322142806.GR3982@stusta.de>
+In-Reply-To: <20050322142806.GR3982@stusta.de> (from bunk@stusta.de on Tue
+	Mar 22 09:28:07 2005)
+X-Mailer: Balsa 2.3.0
+Message-Id: <1111526392l.12349l.36l@serve.riede.org>
 MIME-Version: 1.0
-To: buakaw@buakaw.homelinux.net
-CC: Phil Oester <kernel@linuxace.com>, linux-kernel@vger.kernel.org
-Subject: Re: dst cache overflow
-References: <1144.192.168.0.37.1111351868.squirrel@buakaw.homelinux.net>	<20050321194022.491060c7.akpm@osdl.org>	<1297.192.168.0.37.1111480783.squirrel@buakaw.homelinux.net>	<20050322161657.GA18925@linuxace.com> <20050322190726.e1jiyi25xws0okss@buakaw.homelinux.net>
-In-Reply-To: <20050322190726.e1jiyi25xws0okss@buakaw.homelinux.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [62.23.185.226]); Tue, 22 Mar 2005 22:12:09 +0100 (CET)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-buakaw@buakaw.homelinux.net a écrit :
-> I see on 2.6.10/2.6.11.3
+On 03/22/2005 09:28:07 AM, Adrian Bunk wrote:
+> This patch makes needlessly global code static.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+James, I agree with this, can you put it in BK, please?
+
+Signed-off-by: Willem Riede <osst@riede.org>
+ 
+> ---
+> 
+> This patch was already sent on:
+> - 28 Feb 2005
+> 
+>  drivers/scsi/osst.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> --- linux-2.6.11-rc4-mm1-full/drivers/scsi/osst.c.old	2005-02-28 19:36:05.000000000 +0100
+> +++ linux-2.6.11-rc4-mm1-full/drivers/scsi/osst.c	2005-02-28 19:36:25.000000000 +0100
+> @@ -24,7 +24,7 @@
+>  */
+>  
+>  static const char * cvsid = "$Id: osst.c,v 1.73 2005/01/01 21:13:34 wriede Exp $";
+> -const char * osst_version = "0.99.3";
+> +static const char * osst_version = "0.99.3";
+>  
+>  /* The "failure to reconnect" firmware bug */
+>  #define OSST_FW_NEED_POLL_MIN 10601 /*(107A)*/
+> @@ -170,7 +170,7 @@
+>  static int osst_probe(struct device *);
+>  static int osst_remove(struct device *);
+>  
+> -struct scsi_driver osst_template = {
+> +static struct scsi_driver osst_template = {
+>  	.owner			= THIS_MODULE,
+>  	.gendrv = {
+>  		.name		=  "osst",
 > 
 
-
-Hello
-
-Could you give us the results of these commands :
-
-# grep . /proc/sys/net/ipv4/route/*
-# cat /proc/net/stat/rt_cache
-
-Eric Dumazet
-
-> Quoting Phil Oester <kernel@linuxace.com>:
-> 
->> On Tue, Mar 22, 2005 at 10:39:43AM +0200, buakaw@buakaw.homelinux.net 
->> wrote:
->>
->>>
->>> computer's main job is to be router on small LAN with 10 users and  some
->>> services like qmail, apache, proftpd, shoutcast, squid, and ices on 
->>> slack
->>> 10.1. Iptables and tc are used to limit  bandwiwdth and the two 
->>> bandwidthd
->>>  daemons are running on eth0 interface and all the time the cpu is 
->>> used at
->>> about 0.4% and additional 12% by ices  when encoding mp3 on demand, and
->>> the proccess ksoftirqd/0 randomally starts to use 100% of 0 cpu in 
->>> normal
->>> situation and one time when the ksoftirqd/0 became crazy i noticed dst
->>> cache overflow messages in syslog but there are more of thies lines in
->>> logs  about 5 times in 10 days period
->>
->>
->> There was a problem fixed in the handling of fragments which caused dst
->> cache overflow in the 2.6.11-rc series.  Are you still seeing dst cache
->> overflow on 2.6.11?
->>
->> Phil
->>
-> 
-> 
-> 
-> ----------------------------------------------------------------
-> This message was sent using IMP, the Internet Messaging Program.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
 

@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130473AbRCDRxx>; Sun, 4 Mar 2001 12:53:53 -0500
+	id <S130485AbRCDSO3>; Sun, 4 Mar 2001 13:14:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130475AbRCDRxn>; Sun, 4 Mar 2001 12:53:43 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:23760 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S130473AbRCDRxg>;
-	Sun, 4 Mar 2001 12:53:36 -0500
-Message-ID: <3AA2811F.83D67FDD@mandrakesoft.com>
-Date: Sun, 04 Mar 2001 12:53:35 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre1 i686)
-X-Accept-Language: en
+	id <S130487AbRCDSOU>; Sun, 4 Mar 2001 13:14:20 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:63734 "EHLO
+	imladris.rielhome.conectiva") by vger.kernel.org with ESMTP
+	id <S130485AbRCDSN7>; Sun, 4 Mar 2001 13:13:59 -0500
+Date: Sun, 4 Mar 2001 15:14:15 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Mike Galbraith <mikeg@wen-online.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [TINY patch] VM compromise?
+In-Reply-To: <Pine.LNX.4.33.0103041813280.541-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.21.0103041513440.3078-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-To: Thomas Lau <lkthomas@hkicable.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How can I get promise FastTrak 66 work in kernel?
-In-Reply-To: <01030502025800.97230@cm61-18-16-156.hkcable.com.hk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Lau wrote:
+On Sun, 4 Mar 2001, Mike Galbraith wrote:
+
+> Why do I think it works?
 > 
-> anyone have idea?
-> I am helping my friend to ask this question, Thanks
-> I mean kernel 2.4.1
+> 1. kswapd attempting to fix everything in one run doesn't take
+> into account that tasks not only allocate, they also free.  If
+> we try to fix everything, we're usually assuring an overreaction.
+> 
+> 2. scanning a little more agressively brings the cache shrinkage
+> to swap ratio to something more realistic for this work load..
+> and I strongly suspect many others as well.
 
-Read Documentation/SubmittingDrivers
+Looking great.
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+Alan, could you please include this in the next -ac kernel ?
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+

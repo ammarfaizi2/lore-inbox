@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315794AbSEEBTA>; Sat, 4 May 2002 21:19:00 -0400
+	id <S315807AbSEEBXk>; Sat, 4 May 2002 21:23:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315797AbSEEBS7>; Sat, 4 May 2002 21:18:59 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:15100
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S315794AbSEEBS6>; Sat, 4 May 2002 21:18:58 -0400
-Date: Sat, 4 May 2002 18:18:55 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: IO stats in /proc/partitions
-Message-ID: <20020505011855.GC2392@matchmail.com>
-Mail-Followup-To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020504213534.GA3034@louise.pinerecords.com> <Pine.LNX.4.33.0205041805240.11514-100000@shell1.aracnet.com>
+	id <S315808AbSEEBXj>; Sat, 4 May 2002 21:23:39 -0400
+Received: from ppp-RAS1-2-80.dialup.eol.ca ([64.56.225.80]:40320 "EHLO
+	node0.opengeometry.ca") by vger.kernel.org with ESMTP
+	id <S315807AbSEEBXi>; Sat, 4 May 2002 21:23:38 -0400
+Date: Sat, 4 May 2002 21:23:35 -0400
+From: William Park <opengeometry@yahoo.ca>
+To: linux-kernel@vger.kernel.org
+Subject: kHTTPd -- 403 Forbidden
+Message-ID: <20020504212335.A1018@node0.opengeometry.ca>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 04, 2002 at 06:08:58PM -0700, M. Edward (Ed) Borasky wrote:
-> On Sat, 4 May 2002, Tomas Szepe wrote:
-> 
-> > But hey, you've suffered thru it, which, guess what, makes you the
-> > perfect candidate to have the honor of writing the docs!
-> 
-> The person who made the "design" decisions and implemented the code is
-> responsible for documenting it. At least that's what *I* was taught 40
-> years ago when I learned to program a computer.
+I am trying out khttpd (0.1.6, I think) in 2.4.18 kernel.  But, when I do
+    lynx http://localhost:8080/test.html
+all I get is
+    HTTP/1.0 403 Forbidden
+message.
 
-True, but we don't know if the code designer is still around to do so either.
+    - all parameters in /proc/sys/net/khttpd/* are default (ie. server port
+      = 8080)
+    - I am not running any other web server, so client port (80) is
+      irrelevant
+    - 'test.html' do exist, and has permission 644
 
-By doing the code tracing yourself you are in a better position to submit
-informed documentation patches.  This won't help the designer's habbits any,
-but it'll help others in the position that you were in before you did the
-tracing...
+Have I missed something obvious?
+
+-- 
+William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>
+8-CPU Cluster, Hosting, NAS, Linux, LaTeX, python, vim, mutt, tin

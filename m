@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129716AbRAaNHE>; Wed, 31 Jan 2001 08:07:04 -0500
+	id <S130921AbRAaNZM>; Wed, 31 Jan 2001 08:25:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129777AbRAaNGz>; Wed, 31 Jan 2001 08:06:55 -0500
-Received: from getafix.lostland.net ([216.29.29.27]:62216 "EHLO
-	getafix.lostland.net") by vger.kernel.org with ESMTP
-	id <S129716AbRAaNGh>; Wed, 31 Jan 2001 08:06:37 -0500
-Date: Wed, 31 Jan 2001 08:06:19 -0500 (EST)
-From: adrian <jimbud@lostland.net>
-To: Matthew Gabeler-Lee <msg2@po.cwru.edu>
-cc: Prasanna P Subash <psubash@turbolinux.com>, John Jasen <jjasen1@umbc.edu>,
-        <linux-kernel@vger.kernel.org>, AmNet Computers <amnet@amnet-comp.com>
-Subject: Re: bttv problems in 2.4.0/2.4.1
-In-Reply-To: <Pine.LNX.4.32.0101302104360.9417-100000@cheetah.STUDENT.cwru.edu>
-Message-ID: <Pine.BSO.4.30.0101310728000.1103-100000@getafix.lostland.net>
+	id <S130924AbRAaNZC>; Wed, 31 Jan 2001 08:25:02 -0500
+Received: from nat-20.kulnet.kuleuven.ac.be ([134.58.0.20]:13754 "EHLO
+	scoezie.kotnet.org") by vger.kernel.org with ESMTP
+	id <S130921AbRAaNYu>; Wed, 31 Jan 2001 08:24:50 -0500
+Date: Wed, 31 Jan 2001 14:27:15 +0100 (CET)
+From: Davy Preuveneers <davy.preuveneers@student.kuleuven.ac.be>
+To: linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Parallel zip-disk can't use EPP 32 bit with 2.4.x kernels
+In-Reply-To: <20010130131219.A13071@bliss.zebra.net>
+Message-ID: <Pine.LNX.4.21.0101311426030.3169-100000@scoezie.kotnet.org>
+Organization: "kotnet" <www.kotnet.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,50 +21,41 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Tue, 30 Jan 2001, Matthew Gabeler-Lee wrote:
 
-> On Tue, 30 Jan 2001, adrian wrote:
->
-> >    I have a bt848 based video capture card, and get near the same results:
-> > 2.4.0-test10 through 2.4.1 all lock when i2c registers the device.  The
-> > card has its own interrupt.  With 2.2.18, the card initialized and the
-> > kernel continued to boot.  Interesting.
->
-> 2 questions:
-> What card in particular do you have?
-> What version of the bttv drivers were you using in 2.4.0-test10?
-> It comes with 0.7.38; did you patch it to a higher version?
->
-> --
-> 	-Matt
->
+On Tue, 30 Jan 2001, Forever shall I be. wrote:
 
-The card is a video only capture that came with a camera (and has a
-connector to power that camera next to the video connector).  Hauppauge is
-silkscreened on the PCB, along with Axiom Design.  I didn't buy it, so all
-I have to go off of is what's on the card.  So here's all of it.
+> On Tue, Jan 30, 2001 at 07:17:28PM +0100, Davy Preuveneers wrote:
+> > Since I'm running the 2.4.x kernels, I'm having a little problem with my
+> > parallel zip-disk. The ppa module can't use the EPP 32 protocol and uses
+> > the PS/2 protocol instead (which is much slower), as shown by the boot
+> > message of kernel 2.4.1:
+> > 
+> [snip]
+> > 
+> > Kernels 2.2.x use the EPP 32 bit protocol while the 2.4.x versions don't,
+> > although I have used the same options when compiling the new 2.4.1 kernel.
+> > When I change the parallel port configuration in the BIOS from ECP/EPP to
+> > EPP only (version 1.9), the 2.4.x kernels use the EPP 32 bit protocol as 
+> > well, but then I can't use ECP with dma anymore.
+> > 
+> > Does anyone know what the problem is?
+> 
+> Are you sure you've given parport_pc the correct IRQ/DMA? It doesn't
+> seem to be able to detect them very well over here, so I need a line
+> such as:
+> 	options parport_pc io=0x378 irq=7 dma=3
+> 
+> but YMMV :)
 
-Sticker on back: 58051 REV A 231383
-On Bt chip: Bt848kpf video decoder 255 9637
+Yes, I tried that already, but no effect
 
-As far as the bttv driver version, I've always used the ones that came
-originally with that kernel version.
-
-This is what lspci says:
-00:0f.0 Multimedia video controller: Brooktree Corporation Bt848 (rev 11)
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 16 min, 40 max, 64 set
-        Interrupt: pin A routed to IRQ 9
-        Region 0: Memory at eddfe000 (32-bit, prefetchable)
-
-A cat of /proc/pci reports REV 17 instead of 11.
-
-Regards,
-Adrian
-
+> 
+> > 
+> > Davy
+> 
+> -- 
+> Zinx Verituse                           (See headers for gpg key info)
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,143 +1,179 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263007AbTCLDdD>; Tue, 11 Mar 2003 22:33:03 -0500
+	id <S263009AbTCLDhJ>; Tue, 11 Mar 2003 22:37:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263008AbTCLDdD>; Tue, 11 Mar 2003 22:33:03 -0500
-Received: from bitmover.com ([192.132.92.2]:25232 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S263007AbTCLDdB>;
-	Tue, 11 Mar 2003 22:33:01 -0500
-Date: Tue, 11 Mar 2003 19:43:30 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Cc: ockman@penguincomputing.com, dev@bitmover.com
-Subject: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030312034330.GA9324@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org, ockman@penguincomputing.com,
-	dev@work.bitmover.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+	id <S263010AbTCLDhJ>; Tue, 11 Mar 2003 22:37:09 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:3259 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S263009AbTCLDhE>;
+	Tue, 11 Mar 2003 22:37:04 -0500
+Message-Id: <200303120347.h2C3loEG002703@eeyore.valparaiso.cl>
+To: Zack Brown <zbrown@tumblerings.org>
+cc: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed KitBeeper clone 
+In-Reply-To: Your message of "Tue, 11 Mar 2003 10:40:43 PST."
+             <20030311184043.GA24925@renegade> 
+Date: Tue, 11 Mar 2003 23:47:50 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We've been working on a gateway between BitKeeper and CVS to provide
-the revision history in a form which makes the !BK people happy (or
-happier).
+Zack Brown <zbrown@tumblerings.org> said:
+> --------------------------------- cut here ---------------------------------
+> 
+>            Linux Kernel Requirements For A Version Control System    
+> 
+> Document version 0.0.1
 
-We have the first pass of this completed and have a linux 2.5 tree on
-kernel.bkbits.net and you can check out the tree as follows (please don't
-do this unless you are a programmer and will be using this.  Penguin
-Computing provided the hardware and the bandwidth for that machine and
-if you all melt down the network they could get annoyed.  By all means
-go for it if you actually write code, though, that's why it is there.)
+[...]
 
-    mkdir ws
-    cd ws
-    cvs -d:pserver:anonymous@kernel.bkbits.net:/home/cvs co linux-2.5
+>                                  Changesets
+> 
+>   1. Introduction
+> 
+> A changeset is a group of files in a repository, that have been tagged by
+> the developer, as being logical parts of a patch dealing with a single
+> feature or fix. A developer working on multiple aspects of a repository, may
+> create one changeset for each aspect, in which each changeset consists of
+> the files relevant to that aspect.
 
-Each of the releases are tagged, they are of the form v2_5_64 etc.
+Nope. A changeset is (roughly) what was traded as a patch before. I.e., a
+coordinated _change_ to a set of files. The RCS problem (inherited by lots
+of systems) is that it handles only a diff to _one_ file at a time.
 
-Linus had said in the past that someone other than us should do this but
-as it turns out, to do a reasonable job you need BK source.  So we did it.
-What do we mean by a reasonable job?  BitKeeper has an automatic branch
-feature which captures all parallel development.  It's cool but a bit
-pedantic and it makes exporting to a different system almost impossible
-if you try and match what BK does exactly.  So we didn't.  What we
-(actually Wayne Scott) did was to write a graph traversal alg which
-finds the longest path through the revision history which includes
-all tags.  For the 2.5 tree, that is currently 8298 distinct points.
-Each of those points has been captured in CVS as a commit.  If we did
-our job correctly, each of these commits has the same timestamp across
-all files.  So you should be able to get any changeset out of the CVS
-tree with the appropriate CVS command based on dates.
+> In the context of sharing changesets between repositories, a changeset
+> consists of a diff between the set of files in the local and remote
+> repositories.
 
-We also created a ChangeSet file in the CVS tree.  It has no contents, it
-serves as a place to capture the BK changeset comments.  Each file which
-is part of a changeset has an extra comment which is of the form
+I don't think it is a good idea to handle differences _between_
+repositories, as they could be arbitrary and change in time. A change
+_within_ a repository is well defined.
 
-	(Logical change 1.%d)
+>   2. Behavior
+> 
+>     2.1 Tagging
+> 
+> It must be trivial for a developer to tag a file as part of a given
+> changeset.
 
-where the "1.%d" matches the changeset rev.  So you can look for all files
-that have (Logical change 1.300) in their comments to reconstruct the 
-changeset.  NOTE!  That information is actually redundant, the timestamps
-are supposed to do the same thing, let us know if that is not working, we'll
-redo it.  I expect we'll find bugs, please be patient, it takes 4 hours of
-CPU time on a 2.1Ghz Athlon to do the conversion, that's a big part of 
-why this has taken so long.  That's after a week's worth of optimizations.
+An individual change, not a file. You need to focus on changes to files,
+not files. I.e., file appeared/dissapeared/changed name/was edited by
+altering lines so and so. 
 
-Each ChangeSet delta has a BK rev associated with it in the comments.
-We'll be giving you a small shell script which you can use to send Linus
-patches that include the rev and we'll modify BK so that it can take
-those patches with no patch rejects if you used that script.
+The bk method of accepting individual changes, and then bundling them up
+should be enough, people tend to work at one problem at a time. It might be
+possible to take a bunch of changes and slice&dice them into changesets
+later, but that could create changesets that interdigitate and interdepend
+(i.e., changeset 13 has edits that depend on changeset 14 having been
+applied, and 14 similarly depends on 13 in other areas; also called
+"deadlock" when talking about locking ;).
 
-We have a first pass of a real time gateway between BK and this CVS tree 
-done.  Right now it is done by hand (by me) but as soon as it is debugged
-you will see this tree being updated about 1-3 minutes after Linus pushes
-to bkbits.  
+> It must be possible to reorganize changesets, so that a given changeset may
+> be split up into more manageable pieces.
 
-Once you guys look this over and decide you like it, we'll do the same
-thing for the 2.4 tree.
+I don't see this as very useful. The user should take care to make changes
+to foo.c and foo.h that touch one aspect into a changeset, and unrelated
+changes (even touching the same files) into others.  Break a changeset up
+might break dependencies between changes. It might make sense to group
+changesets into larger changes, i.e., changesets 12-25 are move to new
+driver model in /net, sets for /net, /block, /char are move to new driver
+model, and so on upwards. Then 2.8.15 to 2.8.16 would be "just" a
+(super)changeset. Such a (super)changeset would make sense to break up into
+its parts, not individual ones.
 
-We're also talking to an unnamed (in case it doesn't work out) Linux
-company who may host bkbits.net for us.  If they do that, we'll turn
-the GNU patch exporter feature in BKD.  That means that you'll be able
-to wget any changeset as a GNU patch, complete with checkin comments.
-I'm working with Alan on the format, I think we're close though I have
-to run the latest version past him.
+[...]
 
-If all of this sounds nice, it is.  It was a lot of work for us to do
-this and you might be wondering why we bothered.  Well, for a couple of
-reasons.  First of all, it was only recently that I realized that because
-BK is not free software some people won't run BK to get data out of BK.
-It may be dense on my part, but I simply did not anticipate that people
-would be that extreme, it never occurred to me.  We did a ton of work to
-make sure anyone could get their data out of BK but you do have to run
-BK to get the data.  I never thought of people not being willing to run
-BK to get at the data.  Second, we have maintained SCCS compatible file
-formats so that there would be another way to get the data out of BK.
-This has held us back in terms of functionality and performance.  I had
-thought there was some value in the SCCS format but recent discussions
-on this list have convinced me that without the changeset information
-the file format doesn't have much value.
+>   3. Problems For Clarification
+> 
+> If a file is tagged as being part of two different changesets, then changes
+> to that file should be associated with which changeset???
 
-Our goal is to provide the data in a way that you can get at it without
-being dependent on us or BK in any way.  As soon as we have this
-debugged, I'd like to move the CVS repositories to kernel.org (if I can
-get HPA to agree) and then you'll have the revision history and can live
-without the fear of the "don't piss Larry off license".  Quite frankly,
-we don't like the current situation any better than many of you, so if
-this addresses your concerns that will take some pressure off of us.
+Individual changes to files can't belong to more than one changeset, AFAICS.
 
-Another goal is to have the freedom to evolve our file formats to be
-better, better performance and more features.  SCCS is holding us back.
-So you should look hard at what we are providing and figure out if it
-is enough.  If you come back with "well, it's not BitKeeper so it's
-not enough" we'll just ignore that.  CVS isn't BitKeeper.  On the
-other hand, we believe we have gone as far as is possible to provide
-all of the information, checkin comments, data, timestamps, user names,
-everything.  The graph traversal alg captures information at an extremely
-fine granularity, absolutely as fine is possible.  We have 8298 distinct
-points over the 2.5.0 .. 2.5.64 set of changes, so it is 130 times finer
-than the official releases.  If you think something is missing, tell us,
-we'll try and fix it.
+[...]
 
-The payoff for you is that you have the data in a format that is not
-locked into some tool which could be taken away.  The payoff for us is
-that we can evolve our tool as we see fit.  We have that right today,
-we can do whatever we want, but it would be anywhere from annoying
-to unethical to do so if that meant that you couldn't get at the data
-except through BitKeeper.  So the "deal" here is that you get the data
-in CVS (and/or patches + comments) and we get to hack the heck out of
-the file format.  Our changes are going to move far faster than CSSC or
-anyone else could keep up without a lot of effort.  On the other hand,
-our changes are going to make cold cache performance be much closer to
-hot cache performance, use a lot less disk space, a lot less memory,
-and a lot less CPU.
+>                                    Merging
 
-So take a look and tell me what you think.
+[...]
+
+> It should be possible to mark a file as private to a local repository, so
+> that a merge will never try to commit that file's changes to a remote
+> repository.
+
+Gets hairy... what if I create file foo as private, and later try to
+integrate stuff that creates the same file? Better keep this out of the
+repository in the first place.
+
+>     2.2 Preserving History
+
+[...]
+
+> Even if no history is available for a given patch, it should be easy to
+> checkin and merge that patch.
+
+Just take that patch as a local edit, and make it a changeset.
+
+> The implementation must not depend on time being accurately reported by any
+> of the repositories.
+
+It is more complicated than that. On a distributed system without some form
+of shared clock it might be impossible (== nonsense, like in relativity
+theory) to talk of a global "before" and "after"
+
+[...]
+
+>                          Distributed Rename Handling
+> 
+>   1. Introduction
+> 
+> This consists of allowing developers to rename files and directories, and
+> have all repository operations properly recognize and handle this.
+
+And create and destroy. Note "rename" must include moving directories
+around, and moving stuff from one directory to another, etc.
+
+[...]
+
+>       2.2.1 Conflicts
+> 
+> An arbitrary number of repositories cloned from either a single remote
+> repository or from each other may attempt to change the name of a single
+> file to arbitrary other names and then merge that change back to a single
+> remote repository or to each other.
+
+Or several create the same file, or rename random files to the same name,
+or even create and then destroy a file created somewhere else. Or create a
+file in a directory that was just destroyed or moved locally, etc. I'm sure
+this is one of the rat's nests of hairy special cases noone has thought
+through Larry is so fond mentioning.
+
+[...]
+
+>                * * * Not Required For Kernel Development * * *
+> 
+>                                  Changesets
+> 
+> It should be possible to exchange changesets via email.
+
+I'd say this is mandatory.
+
+>                                  File Types
+> 
+> The system should support symlinks, device special files, fifos, etc. (i.e.
+> inode metadata)
+
+Urgh. If possible/convenient, yes. If not, leave it out. [I fail to see any
+use for this, but that might just be lack of immagination on my side]
+
+> * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+> This document is copyright Zack Brown and released under the terms of the
+> GNU General Public License, version 2.0.
+> * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Why not the documentation license? Just curious.
+> 
+> --------------------------------- cut here ---------------------------------
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

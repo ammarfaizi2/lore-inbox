@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbTICBBH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 21:01:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbTICBBH
+	id S263935AbTICBQu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 21:16:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263940AbTICBQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 21:01:07 -0400
-Received: from mail.kroah.org ([65.200.24.183]:49068 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261168AbTICBBF (ORCPT
+	Tue, 2 Sep 2003 21:16:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:14550 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263935AbTICBQs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 21:01:05 -0400
-Date: Tue, 2 Sep 2003 17:27:43 -0700
-From: Greg KH <greg@kroah.com>
-To: Tomas Konir <moje@vabo.cz>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@vger.kernel.org
-Subject: Re: 2.4.22 + XFS oops with palm usb sync
-Message-ID: <20030903002743.GA21349@kroah.com>
-References: <Pine.LNX.4.53.0309022000260.7734@moje.vabo.cz>
+	Tue, 2 Sep 2003 21:16:48 -0400
+Date: Tue, 2 Sep 2003 18:16:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: jamie@shareable.org, hugh@veritas.com, mingo@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] Futex non-page-pinning fix
+Message-Id: <20030902181653.721a41ea.akpm@osdl.org>
+In-Reply-To: <20030903010318.0A46B2C0FC@lists.samba.org>
+References: <20030902065144.GC7619@mail.jlokier.co.uk>
+	<20030903010318.0A46B2C0FC@lists.samba.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0309022000260.7734@moje.vabo.cz>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 02, 2003 at 08:07:09PM +0200, Tomas Konir wrote:
-> 
-> Hi
-> 2.4.22 periodically oops after synchronization my palm (Tungsten T).
-> Only XFS patches in kernel and no other. On usb was palm and Microsoft 
-> mouse. (sometimes with previous kernels the mouse was disconnected after 
-> synchronization). 
+Rusty Russell <rusty@rustcorp.com.au> wrote:
+>
+>  I don't know of a rule which says "thou shalt not wake a random thread
+>  in the kernel": for all I know wierd things like CPU hotplug or
+>  software suspend may do this in the future.
 
-Known bug, sorry.  Use 2.6 instead.
+pdflush is sensitive to that.  It emits angry squeaks if unexpectedly woken.
 
-Search the archives for details on what needs to be backported to 2.4 if
-you really want to fix this problem.
+And up until a couple of months ago there were sporadic squeaking reports,
+but they seem to have gone away.
 
-Good luck,
+Yes, we should treat a random wakeup like that as a bug.
 
-greg k-h

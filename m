@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265697AbUI1JP4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266316AbUI1JSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265697AbUI1JP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 05:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbUI1JP4
+	id S266316AbUI1JSn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 05:18:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbUI1JSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 05:15:56 -0400
-Received: from gprs214-20.eurotel.cz ([160.218.214.20]:21380 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265697AbUI1JPz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 05:15:55 -0400
-Date: Tue, 28 Sep 2004 11:12:52 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Rik van Riel <riel@redhat.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ptep_establish/establish_pte needs set_pte_atomic and all set_pte must be written in asm
-Message-ID: <20040928091252.GD18819@elf.ucw.cz>
-References: <20040926002037.GP3309@dualathlon.random> <Pine.LNX.4.44.0409252030260.28582-100000@chimarrao.boston.redhat.com> <20040926004608.GS3309@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040926004608.GS3309@dualathlon.random>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 28 Sep 2004 05:18:42 -0400
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:8541 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266316AbUI1JSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 05:18:40 -0400
+Message-ID: <41592C64.3030409@yahoo.com.au>
+Date: Tue, 28 Sep 2004 19:18:28 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Ed Schouten <edschouten@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] i386: Xbox support
+References: <65184.217.121.83.210.1096308147.squirrel@217.121.83.210> <4158AA5B.8090601@yahoo.com.au> <dc54396f040927214651393131@mail.gmail.com> <415915F0.2000803@yahoo.com.au> <20040928090641.GC18819@elf.ucw.cz>
+In-Reply-To: <20040928090641.GC18819@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Pavel Machek wrote:
 
-> > > But even ppc64 is wrong as far as C is concerned,
-> > 
-> > Looks fine to me.  From include/asm-ppc64/pgtable.h
-> > 
-> > static inline void set_pte(pte_t *ptep, pte_t pte)
-> > {
-> >         if (pte_present(*ptep)) {
-> >                 pte_clear(ptep);
-> >                 flush_tlb_pending();
-> >         }
-> >         *ptep = __pte(pte_val(pte)) & ~_PAGE_HPTEFLAGS;
-> > }
+>>Well, I ask because there is probably quite a large number of embedded type
+>>devices devices that you could "just add a small patch for" to get it 
+>>working.
 > 
-> As far as the C language is concerned that *ptep = something can be
-> implemented with 8 writes of 1 byte each (or alternatively with an
-> assembler instruction that may make the written data visible not
-
-I'd say that it is okay to do this in arch-dependend
-code. Architecture controls list of compilers allowed.
+> 
+> Yes, and we support most of them :-). This is not really different
+> from all the arm platforms etc.
 
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Yeah OK. I don't want to turn this into an argument, but the difference
+is AFAIK, that many of them are made *for* running Linux (or at least as
+a supported configuration). While the xbox requires you to circumvent
+the hardware.
+
+But on the other hand, "why not?" :)
+
+As I said, so long as Linus or Andrew is happy with it, I don't care.

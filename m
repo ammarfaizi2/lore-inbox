@@ -1,67 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262079AbSJEGPW>; Sat, 5 Oct 2002 02:15:22 -0400
+	id <S262107AbSJEHYT>; Sat, 5 Oct 2002 03:24:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262088AbSJEGPW>; Sat, 5 Oct 2002 02:15:22 -0400
-Received: from ESS-p-144-138-81-90.mega.tmns.net.au ([144.138.81.90]:260 "HELO
-	mail.bigpond.com") by vger.kernel.org with SMTP id <S262079AbSJEGPV>;
-	Sat, 5 Oct 2002 02:15:21 -0400
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-From: service@artofservice.com.au
-Subject: ITIL in Major Corporations - Has it worked?  BREAKFAST SEMINAR - Tue 22/10/02
-Date: Sat, 05 Oct 2002 16:20:36 +1000
-Message-Id: <37534.680974201386600.535358@localhost>
+	id <S262113AbSJEHYT>; Sat, 5 Oct 2002 03:24:19 -0400
+Received: from web13113.mail.yahoo.com ([216.136.174.181]:46451 "HELO
+	web13113.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S262107AbSJEHYS>; Sat, 5 Oct 2002 03:24:18 -0400
+Message-ID: <20021005071621.6628.qmail@web13113.mail.yahoo.com>
+Date: Sat, 5 Oct 2002 00:16:21 -0700 (PDT)
+From: devnetfs <devnetfs@yahoo.com>
+Subject: questions regarding sending/recving udp packets in kernel
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ITIL in Major Corporations - Has it worked?
-Speaker: Gerard Blokdijk, Managing Director The Art of Service
+Hello,
 
-When: Tuesday 22 October - 7.30am to 9.30am
-Venue: Regus Citigroup Centre, 2 Park Street, Sydney
-Cost: $45 including GST
-Features: Breakfast, Networking. Already over 50 participants - CIO's / (IT) Managers.
-Register: http://www.artofservicedirect.com click on Enrol, Sydney Events
+I am trying to write a kernel module, to send and receive udp packets. 
+I have the following questions/problems:
 
-ALSO:  EVENTS IN BRISBANE (24/10) AND MELBOURNE (29/10) go to http://www.artofservicedirect.com 
- 
-About this Event
---------------------------
-ITIL is more than a simple set of best practices guidelines to optimise a few IT service management processes. ITIL is a set of non-proprietary, comprehensive,
-well-documented and fully integrated set of management procedures and best practices that optimises IT service management and IT/business alignment. With over 20,000
-businesses, governments and non-profit organisations using it, ITIL is the most widely accepted IT process management framework in the world.
+[1] 
+I wish to receive packets asynchronously (thru a callback), rather 
+than polling [i.e calling udp_recvmsg() periodically to check for
+packtets]. 
 
-But has it worked? Many IT organisations suffer from poor perceptions of value and feel powerless to improve the situation. IT's top challenge right now is to build and
-demonstrate value to the rest of the organisation - be that commerce, government or academia. How are CIO's and their IT Service Managers to leverage ITIL and ITSM to
-meet that challenge head on and win?   
+To get this done, presently after creating a socket (sock_create), I 
+replace sk->data_ready with my own function, which when called (by the
+kernel) wakes up a kernel thread that does skb_recv_datagram() to get a
+udp sk_buff.
 
-Do not be content with prepared remarks alone. Go one-on-one with Gerard, asking the tough questions, eliciting the most revealing replies. Trends are confirmed. Illusions
-shattered. News is broken. Live on the breakfast briefing stage.
- 
+Is this the correct approach? or is there a better way to register a
+callback with the core-networking subsystem, which will get called and
+deliver the pkt, when a udp pkt arrives on an ip/port?
 
- 
-Summary
------------------
-You are cordially invited to attend an IT Service Management breakfast session presented by The Art of Service.  Gerard Blokdijk is Managing Director and co-founder of The
-Art of Service. Prior to The Art of Service Gerard has successfully set up and managed another IT Service Management education and research firm. He is the author of  "IT
-Management becomes Service", a frequent publisher and public speaker.
 
-Gerard has an active duty in IT Management since the late 80's. He has held positions as Capacity Manager, Security Manager, Disaster Recovery Manager, overall IT
-Manager and CIO for large organisations like ING Bank, ABN AMRO and Philips.
+[2]
+The memory allocted for the sk_buff (which i get thru
+skb_recv_datagram() is charged to the socket (i created). But I wish to
+use this sk_buff in my module (for processing etc.) so i dont call
+kfree_skb for a long time (hence the rmem_alloc does not get
+decremented). I tried to unlink the sk_buff from the socket list by
+calling skb_unlink() but that does NOT decrease 'rmem_alloc'.
 
-Gerard holds the Managers Certificate in IT Service Management.
- 
- 
-What You'll Get
---------------------------
-- Insight into the pressing, urgent issues of today and tomorrow, distilled into a brief overview.
-- Interaction with thought leaders by networking with your peers during question-and-answer sessions with The Art of Service specialists.
-- Accessibility and convenience. These Briefings are designed to deliver the most critical information without taking too much time from your busy schedule.
- 
- 
-Registration is on a first-come first-served basis, so we encourage early registration. To join, please register at http://www.artofservicedirect.com If you have questions or
-concerns about the breakfast session email service@artofservice.com.au or call 1300 13 44 99
+How do I cleanly (and truly) unlink a sk_buff from a socket list and
+decrease equivalent memory charged to this socket? I would be calling
+kfree_skb() later though which will eventually decrease rmem_alloc, but
+I wish to do it as part of skb_unlink(). Please advice.
 
+
+[3]
+My kernel module sends/recvs UDP pkts process and store these packets
+internally sk_buffs only. But udp_sendmsg() requires an iovec.
+I can construct an iovec from an sk_buff and give it to udp_sendmsg()
+but that will involve an additional COPYING from one kernel memory 
+space (sk_buff data buffer) to another new buffer (for iovec). I want 
+to avoid this xtra copying.
+
+Am I missing something? 
+And if above approach does involve extra copying is there a way to
+transmit a udp packet if one has the data in form of sk_buff (assuming
+there is head space for ether+ip+udp header)?
+
+
+Thanks in advance,
+
+Regards,
+Abhi.
+
+I am not subscribed to this list. Please Cc: me the replies. -- thanks.
+
+
+
+__________________________________________________
+Do you Yahoo!?
+Faith Hill - Exclusive Performances, Videos & More
+http://faith.yahoo.com

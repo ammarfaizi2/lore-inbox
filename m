@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261660AbSJJQoL>; Thu, 10 Oct 2002 12:44:11 -0400
+	id <S261674AbSJJQps>; Thu, 10 Oct 2002 12:45:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261664AbSJJQoL>; Thu, 10 Oct 2002 12:44:11 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:33436 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S261660AbSJJQoK>;
-	Thu, 10 Oct 2002 12:44:10 -0400
-Date: Thu, 10 Oct 2002 18:48:55 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: "Andre M. Hedrick" <andre@linux-ide.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] kill ide-lib.c warning
-Message-ID: <Pine.GSO.4.21.0210101846170.2509-100000@vervain.sonytel.be>
+	id <S261690AbSJJQps>; Thu, 10 Oct 2002 12:45:48 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:13696 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261674AbSJJQpp>; Thu, 10 Oct 2002 12:45:45 -0400
+Date: Thu, 10 Oct 2002 12:52:10 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: hps@intermeta.de, linux-kernel@vger.kernel.org
+Subject: Re: BK is *evil* corporate software [was Re: New BK License Problem?]
+In-Reply-To: <3DA5A9E7.4030900@pobox.com>
+Message-ID: <Pine.LNX.3.95.1021010124655.818B-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 10 Oct 2002, Jeff Garzik wrote:
 
-Kill warning (speed is u8, while XFER_PIO_4 is int)
-
---- linux-2.5.41/drivers/ide/ide-lib.c	Sun Sep 29 11:03:01 2002
-+++ linux-m68k-2.5.41/drivers/ide/ide-lib.c	Thu Oct 10 17:51:25 2002
-@@ -171,7 +171,7 @@
- 		BUG();
- 	return min(speed, speed_max[mode]);
- #else /* !CONFIG_BLK_DEV_IDEDMA */
--	return min(speed, XFER_PIO_4);
-+	return min(speed, (__typeof(speed))XFER_PIO_4);
- #endif /* CONFIG_BLK_DEV_IDEDMA */
- }
+> Henning P. Schmiedehausen wrote:
+> > yodaiken@fsmlabs.com writes:
+> > 
+> > 
+> >>But it is interesting that you can hire a full time "really good" 
+> >>programmer for total cost of $50K/year. Salaries are dropping.
+> > 
+> > 
+> > For small and medium companies (such as Siemens...), $50k (or the
+> > rough aequivalent of EUR 50k) are already good developers salary.
+> 
+> 
+> You consider Siemens a medium company?  ;-)  They're friggin huge...  42 
+> companies under their umbrella when I worked for them 10 years ago... 
+> Siemens AG was one of the world's largest conglomerates...
+> 
+> 	Jeff
+>
  
-Gr{oetje,eeting}s,
+...and they own and control more of the world than anything else,
+including the world's major armies, ever has during recorded history.
+If they were to abuse their power, Siemens could control the ultimate
+destiny of mankind. Scarey!
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

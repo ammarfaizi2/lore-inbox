@@ -1,46 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVDEGgC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVDEGmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbVDEGgC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 02:36:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVDEGgC
+	id S261579AbVDEGmP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 02:42:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbVDEGmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 02:36:02 -0400
-Received: from ozlabs.org ([203.10.76.45]:4759 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261577AbVDEGf6 (ORCPT
+	Tue, 5 Apr 2005 02:42:15 -0400
+Received: from waste.org ([216.27.176.166]:26041 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261578AbVDEGmG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 02:35:58 -0400
-MIME-Version: 1.0
+	Tue, 5 Apr 2005 02:42:06 -0400
+Date: Mon, 4 Apr 2005 23:41:53 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: [PATCH] configfs, a filesystem for userspace-driven kernel object configuration
+Message-ID: <20050405064153.GI25554@waste.org>
+References: <20050403195728.GH31163@ca-server1.us.oracle.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16978.12739.212317.106222@cargo.ozlabs.ibm.com>
-Date: Tue, 5 Apr 2005 16:35:47 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: anton@samba.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] ppc64: fix export of wrong symbol
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+In-Reply-To: <20050403195728.GH31163@ca-server1.us.oracle.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In arch/ppc64/kernel/ppc_ksyms.c, we are still exporting
-flush_icache_range, but that has been changed to be an inline in
-include/asm-ppc64/cacheflush.h which calls __flush_icache_range
-(defined in arch/ppc64/kernel/misc.S).
+On Sun, Apr 03, 2005 at 12:57:28PM -0700, Joel Becker wrote:
+> Folks,
+> 	I humbly submit configfs.  With configfs, a configfs
+> config_item is created via an explicit userspace operation: mkdir(2).
+> It is destroyed via rmdir(2).  The attributes appear at mkdir(2) time,
+> and can be read or modified via read(2) and write(2).  readdir(3)
+> queries the list of items and/or attributes.
+> 	The lifetime of the filesystem representation is completely
+> driven by userspace.  The lifetime of the objects themselves are managed
+> by a kref, but at rmdir(2) time they disappear from the filesystem.
+> 	configfs is not intended to replace sysfs or procfs, merely to
+> coexist with them.
+> 	An interface in /proc where the API is: 
+> 
+> 	# echo "create foo 1 3 0x00013" > /proc/mythingy
+> 
+> or an ioctl(2) interface where the API is:
+> 
+> 	struct mythingy_create {
+> 		char *name;
+> 		int index;
+> 		int count;
+> 		unsigned long address;
+> 	}
+> 
+> 	do_create {
+> 		mythingy_create = {"foo", 1, 3, 0x0013};
+> 		return ioctl(fd, MYTHINGY_CREATE, &mythingy_create);
+> 	}
+> 
+> becomes this in configfs:
+> 
+> 	# cd /config/mythingy
+> 	# mkdir foo
+> 	# echo 1 > foo/index
+> 	# echo 3 > foo/count
+> 	# echo 0x00013 > foo/address
+> 
+> 	Instead of a binary blob that's passed around or a cryptic
+> string that has to be formatted just so, configfs provides an interface
+> that's completely scriptable and navigable.
 
-This patch changes the export to __flush_icache_range, thus allowing
-modules to use the inline flush_icache_range.
+How does the kernel know when to actually create the object?
 
-Signed-off-by: Paul Mackerras <paulus@samba.org>
-
-diff -urN linux-2.5/arch/ppc64/kernel/ppc_ksyms.c test/arch/ppc64/kernel/ppc_ksyms.c
---- linux-2.5/arch/ppc64/kernel/ppc_ksyms.c	2005-03-07 10:46:38.000000000 +1100
-+++ test/arch/ppc64/kernel/ppc_ksyms.c	2005-04-04 08:20:26.000000000 +1000
-@@ -74,7 +74,7 @@
- #ifdef CONFIG_ALTIVEC
- EXPORT_SYMBOL(giveup_altivec);
- #endif
--EXPORT_SYMBOL(flush_icache_range);
-+EXPORT_SYMBOL(__flush_icache_range);
- 
- #ifdef CONFIG_SMP
- #ifdef CONFIG_PPC_ISERIES
+-- 
+Mathematics is the supreme nostalgia of our time.

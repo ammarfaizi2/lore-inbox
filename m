@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264566AbUBDXoE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 18:44:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264971AbUBDXlQ
+	id S264930AbUBEAHb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 19:07:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbUBEAGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 18:41:16 -0500
-Received: from dsl081-085-091.lax1.dsl.speakeasy.net ([64.81.85.91]:43659 "EHLO
-	mrhankey.megahappy.net") by vger.kernel.org with ESMTP
-	id S264566AbUBDXez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 18:34:55 -0500
-To: ctindel@users.sourceforge.net
-Subject: [PATCH 2.6.2] drivers/net/bonding/bond_alb.c
-Cc: bonding-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Message-Id: <20040204233356.485BBFA5F1@mrhankey.megahappy.net>
-Date: Wed,  4 Feb 2004 15:33:56 -0800 (PST)
-From: driver@megahappy.net (Bryan Whitehead)
+	Wed, 4 Feb 2004 19:06:12 -0500
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:30216 "EHLO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S264930AbUBEADP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 19:03:15 -0500
+Date: Wed, 4 Feb 2004 18:07:30 -0600 (CST)
+From: mikem@beardog.cca.cpqcorp.net
+To: akpm@osdl.org, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: cciss updates for 2.6 [2 of 11]
+Message-ID: <Pine.LNX.4.58.0402041804540.18320@beardog.cca.cpqcorp.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Building with gcc 3.3.2 on gentoo linux on Athlon x86 system I get
-a warning:
-  CC [M]  drivers/net/bonding/bond_alb.o
-drivers/net/bonding/bond_alb.c: In function `bond_alb_xmit':
-drivers/net/bonding/bond_alb.c:1340: warning: comparison is always true due to limited range of data type                                                                                                         
-This is due to using __constant_htons for endian issues. This is a byte so there
-is no point in using __constant_htons in the first place. Unless I'm mistaken using
-__constant_htons makes this statment always true as the compiler states.
- 
-if ipx_type = IPX_TYPE_NCP then the intended logic will not happen?
-
---- linux-2.6.2/drivers/net/bonding/bond_alb.c.orig     2004-02-04 15:08:04.228336168 -0800
-+++ linux-2.6.2/drivers/net/bonding/bond_alb.c  2004-02-04 15:26:03.769221008 -0800
-@@ -1336,8 +1336,7 @@ bond_alb_xmit(struct sk_buff *skb, struc
-                        break;
-                }
-  
--               if (ipx_hdr(skb)->ipx_type !=
--                   __constant_htons(IPX_TYPE_NCP)) {
-+               if (ipx_hdr(skb)->ipx_type != IPX_TYPE_NCP) {
-                        /* The only protocol worth balancing in
-                         * this family since it has an "ARP" like
-                         * mechanism
+Patch 2 of 11. Please apply in order.
+This patch fixes a bug where under certain error conditions we bail and
+try to free our I/O memory. Bug fix.
+This patch is in the 2.4 tree.
+--------------------------------------------------------------------------------------
+diff -burN lx261-p001/drivers/block/cciss.c lx261/drivers/block/cciss.c
+--- lx261-p001/drivers/block/cciss.c	2004-01-21 15:55:37.000000000 -0600
++++ lx261/drivers/block/cciss.c	2004-01-21 16:16:41.000000000 -0600
+@@ -2234,7 +2234,7 @@
+ #endif /* CCISS_DEBUG */
+ 	if (cfg_base_addr_index == -1) {
+ 		printk(KERN_WARNING "cciss: Cannot find cfg_base_addr_index\n");
+-		release_io_mem(hba[i]);
++		release_io_mem(c);
+ 		return -1;
+ 	}
 
 
---
-Bryan Whitehead
-Email:driver@megahappy.net
-WorkE:driver@jpl.nasa.gov
+Thanks,
+mikem
+mike.miller@hp.com
+

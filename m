@@ -1,41 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317209AbSGXOGp>; Wed, 24 Jul 2002 10:06:45 -0400
+	id <S317117AbSGXOF2>; Wed, 24 Jul 2002 10:05:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317283AbSGXOGp>; Wed, 24 Jul 2002 10:06:45 -0400
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:51374 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S317209AbSGXOGn>; Wed, 24 Jul 2002 10:06:43 -0400
-Date: Wed, 24 Jul 2002 16:09:39 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: bk://linux.bkbits.net/linux-2.[45] pull error
-Message-ID: <20020724140939.GE718@tahoe.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-References: <m37kjlmt2k.fsf@lugabout.jhcloos.org> <20020724061339.E2703@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020724061339.E2703@work.bitmover.com>
-User-Agent: Mutt/1.3.25i
+	id <S317140AbSGXOF2>; Wed, 24 Jul 2002 10:05:28 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:44001 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317117AbSGXOF1>; Wed, 24 Jul 2002 10:05:27 -0400
+Date: Wed, 24 Jul 2002 16:07:59 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jens Axboe <axboe@suse.de>
+cc: Adam Kropelin <akropel1@rochester.rr.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: cpqarray broken since 2.5.19
+In-Reply-To: <20020724133959.GD5159@suse.de>
+Message-ID: <Pine.SOL.4.30.0207241606090.15605-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 24, 2002 at 06:13:39AM -0700, Larry McVoy wrote:
 
-> We ran out of disk space, it's fixed.  Thanks for the message.
+On Wed, 24 Jul 2002, Jens Axboe wrote:
 
-While we are at it, could you please push the Linus tree 
-(http://linus.bkbits.net/linux-2.5) to the Linux tree 
-(http://linux.bkbits.net/linux-2.5) manualy again.
+> On Sun, Jul 21 2002, Adam Kropelin wrote:
+> > The cpqarray driver seems to have been broken around 2.5.19 with the
+> > blk_start_queue/blk_stop_queue changes. As-is, cpqarray deadlocks the entire
+> > system when it tries to do partition detection. The bits from the 2.5.19 patch
+> > which seem to relate are:
+> >
+> > > @@ -916,6 +915,7 @@
+> > >       goto queue_next;
+> > >
+> > >  startio:
+> > > +     blk_stop_queue(q);
+> > >       start_io(h);
+> > >  }
+> > >
+> > > @@ -1066,8 +1066,8 @@
+> > >       /*
+> > >        * See if we can queue up some more IO
+> > >        */
+> > > -     do_ida_request(BLK_DEFAULT_QUEUE(MAJOR_NR + h->ctlr));
+> > >       spin_unlock_irqrestore(IDA_LOCK(h->ctlr), flags);
+> > > +     blk_start_queue(BLK_DEFAULT_QUEUE(MAJOR_NR + h->ctlr));
+> > >  }
+> > >
+> > >  /*
+> >
+> > Simply reverting these changes allows the driver to successfully do
+> > partition detect, but it quickly hangs if any significant amount of
+> > I/O is attempted. The hang in this case seems to just affect processes
+> > trying to do I/O on the array; it is not a whole-system-deadlock.
+> >
+> > Test machine is SMP ppro.
+>
+> Thanks for the report. Could you just kill the spin_lock/unlock in
+> blk_stop_queue() in drivers/block/ll_rw_blk.c and see if it works?
+>
+> --
+> Jens Axboe
 
-/me really wonders if this couldn't be automated somehow...
+Jens, the same is in cciss.c.
+Please remove locking from blk_stop_queue() (as you suggested) or intrduce
+unlocking in request_functions.
 
-Thanks,
+--
+Bartlomiej
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com

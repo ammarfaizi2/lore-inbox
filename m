@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130198AbRBAJQS>; Thu, 1 Feb 2001 04:16:18 -0500
+	id <S130021AbRBAJpl>; Thu, 1 Feb 2001 04:45:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130206AbRBAJQI>; Thu, 1 Feb 2001 04:16:08 -0500
-Received: from h179-210-243-135.iii.org.tw ([210.243.135.179]:24801 "EHLO
-	mta0.iii.org.tw") by vger.kernel.org with ESMTP id <S130221AbRBAJP5>;
-	Thu, 1 Feb 2001 04:15:57 -0500
-Message-ID: <02d601c08c2f$291b9940$4c0c5c8c@trd.iii.org.tw>
-From: "Greeen-III" <greeen@iii.org.tw>
-To: "LinuxKernelMailList" <linux-kernel@vger.kernel.org>
-Subject: Dump the memory when fail in gunzip ramdisk 
-Date: Thu, 1 Feb 2001 17:08:27 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2314.1300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+	id <S130266AbRBAJpb>; Thu, 1 Feb 2001 04:45:31 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:61444 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S130021AbRBAJpM>; Thu, 1 Feb 2001 04:45:12 -0500
+Date: Thu, 1 Feb 2001 03:44:41 -0600
+To: Rupa Schomaker <rupa-list+linux-kernel@rupa.com>
+Cc: Andre Hedrick <andre@linux-ide.org>, Andries.Brouwer@cwi.nl,
+        mlord@pobox.com, ole@linpro.no, linux-kernel@vger.kernel.org
+Subject: Re: Problems with Promise IDE controller under 2.4.1
+Message-ID: <20010201034441.A27725@cadcamlab.org>
+In-Reply-To: <Pine.LNX.4.10.10101310936280.14252-100000@master.linux-ide.org> <m3u26ffrej.fsf@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <m3u26ffrej.fsf@localhost.localdomain>; from rupa-list+linux-kernel@rupa.com on Wed, Jan 31, 2001 at 11:33:24AM -0800
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
 
-I boot the Linux/MIPS kernel in the emulator board.
-But the kernel will halt in gunzip the ramdisk.
-And the LCD on the emulator board will show the memory dump.
-Is there any possibility to make this kind of problem?
+[Rupa Schomaker]
+> In my case, I have two identical Maxtor drives, but they reported
+> different geometry.
+[...]
+> I'm doing RAID1 and it is really nice to have the same geometry so
+> that the partition info is the same between the two drives.  Makes
+> life easier.
 
-I guess the reason is running out of memory.
+If that's what you needed, you could have used 'dd' to copy the
+partition table from one drive to the other.  Easier than going in and
+re-cabling just to fool your BIOS.
 
-Any possibility is welcome!! Thanks!!
-
-************************************
-* It's Green!! (萬林明)
-* TEL: 886-2-23776100  ext.620
-* mailto:greeen@iii.org.tw
-* Working at III(資策會)
-* 台北市大安區敦化南路二段216號12F
-************************************
-
-
-
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263047AbUJ1Xce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263089AbUJ1Xe0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263047AbUJ1Xce (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 19:32:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263086AbUJ1XaQ
+	id S263089AbUJ1Xe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 19:34:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263086AbUJ1XdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 19:30:16 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:8979 "HELO
+	Thu, 28 Oct 2004 19:33:14 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20243 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263047AbUJ1X2v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 19:28:51 -0400
-Date: Fri, 29 Oct 2004 01:28:17 +0200
+	id S263089AbUJ1XcG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 19:32:06 -0400
+Date: Fri, 29 Oct 2004 01:31:34 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: kjsisson@bellsouth.net
-Cc: greg@kroah.com, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] USB stv680.c: remove an unused function
-Message-ID: <20041028232817.GM3207@stusta.de>
+To: Fernando Fuganti <fuganti@netbank.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] watchdog/machzwd.c: remove unused functions
+Message-ID: <20041028233134.GO3207@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
 Content-Disposition: inline
@@ -26,37 +25,74 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-The patch below removes an unused function from 
-drivers/usb/media/stv680.c
+The patch below removes unused functions from 
+drivers/char/watchdog/machzwd.c
 
 
 diffstat output:
- drivers/usb/media/stv680.c |    6 ------
- 1 files changed, 6 deletions(-)
+ drivers/char/watchdog/machzwd.c |   29 -----------------------------
+ 1 files changed, 29 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-- --- linux-2.6.10-rc1-mm1-full/drivers/usb/media/stv680.c.old	2004-10-28 23:31:16.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/usb/media/stv680.c	2004-10-28 23:32:24.000000000 +0200
-@@ -498,12 +498,6 @@
- /****************************************************************************
-  *  sysfs
-  ***************************************************************************/
-- -static inline struct usb_stv *cd_to_stv(struct class_device *cd)
+- --- linux-2.6.10-rc1-mm1-full/drivers/char/watchdog/machzwd.c.old	2004-10-28 22:57:31.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/drivers/char/watchdog/machzwd.c	2004-10-28 23:56:59.000000000 +0200
+@@ -88,12 +88,6 @@
+ 	return inw(DATA_W);
+ }
+ 
+- -static unsigned short zf_readb(unsigned char port)
 - -{
-- -	struct video_device *vdev = to_video_device(cd);
-- -	return video_get_drvdata(vdev);
+- -	outb(port, INDEX);
+- -	return inb(DATA_B);
 - -}
 - -
- #define stv680_file(name, variable, field)				\
- static ssize_t show_##name(struct class_device *class_dev, char *buf)	\
- {									\
+ 
+ MODULE_AUTHOR("Fernando Fuganti <fuganti@conectiva.com.br>");
+ MODULE_DESCRIPTION("MachZ ZF-Logic Watchdog driver");
+@@ -155,13 +149,6 @@
+ #endif
+ 
+ 
+- -/* STATUS register functions */
+- -
+- -static inline unsigned char zf_get_status(void)
+- -{
+- -	return zf_readb(STATUS);
+- -}
+- -
+ static inline void zf_set_status(unsigned char new)
+ {
+ 	zf_writeb(STATUS, new);
+@@ -183,22 +170,6 @@
+ 
+ /* WD#? counter functions */
+ /*
+- - *	Just get current counter value
+- - */
+- -
+- -static inline unsigned short zf_get_timer(unsigned char n)
+- -{
+- -	switch(n){
+- -		case WD1:
+- -			return zf_readw(COUNTER_1);
+- -		case WD2:
+- -			return zf_readb(COUNTER_2);
+- -		default:
+- -			return 0;
+- -	}
+- -}
+- -
+- -/*
+  *	Just set counter value
+  */
+ 
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQFBgYCRmfzqmE8StAARAq1MAJ4mTJOcdzUkmgkFSv+v2KuDnwfVowCgnpP8
-I7E8fduvHN15RYPvBszOtiA=
-=irpb
+iD8DBQFBgYFWmfzqmE8StAARAmlSAKDA7jm7qYoR+0t2dAqockIIhOQrwQCfVfhB
+cCmEowuQG3448BONZ8bkd08=
+=hf60
 -----END PGP SIGNATURE-----

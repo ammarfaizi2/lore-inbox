@@ -1,109 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262302AbUBXUhu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 15:37:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbUBXUgv
+	id S262446AbUBXUl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 15:41:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbUBXUk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 15:36:51 -0500
-Received: from orcas.net ([66.92.223.130]:53725 "EHLO orcas.net")
-	by vger.kernel.org with ESMTP id S262449AbUBXUfa (ORCPT
+	Tue, 24 Feb 2004 15:40:28 -0500
+Received: from waste.org ([209.173.204.2]:63679 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262449AbUBXUij (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 15:35:30 -0500
-Date: Tue, 24 Feb 2004 12:35:25 -0800 (PST)
-From: Terry Hardie <terryh@orcas.net>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-cc: "torvalds@osdl.org" <torvalds@osdl.org>
-Subject: Patch for 8 port SIIG serial card support (2.4.25 patch)
-Message-ID: <Pine.LNX.4.58.0402241049150.3318@orcas.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Feb 2004 15:38:39 -0500
+Date: Tue, 24 Feb 2004 14:38:25 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Christophe Saout <christophe@saout.de>
+Cc: Jean-Luc Cooke <jlcooke@certainkey.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, James Morris <jmorris@intercode.com.au>
+Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
+Message-ID: <20040224203825.GV3883@waste.org>
+References: <20040219170228.GA10483@leto.cs.pocnet.net> <20040219111835.192d2741.akpm@osdl.org> <20040220171427.GD9266@certainkey.com> <20040221021724.GA8841@leto.cs.pocnet.net> <20040224191142.GT3883@waste.org> <1077651839.11170.4.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1077651839.11170.4.camel@leto.cs.pocnet.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 24, 2004 at 08:43:59PM +0100, Christophe Saout wrote:
+>
+> BTW: I think there's a bug in the ipv6 code, it uses spin_lock to
+> protect itself, this will cause a sleep-inside-spinlock warning. (found
+> while grepping through the source for other cryptoapi users)
 
-diff -ur linux-2.4.25/drivers/char/serial.c linux-2.4.25-mod1/drivers/char/serial.c
---- linux-2.4.25/drivers/char/serial.c	Wed Feb 18 05:36:31 2004
-+++ linux-2.4.25-mod1/drivers/char/serial.c	Tue Feb 24 09:55:54 2004
-@@ -62,10 +62,15 @@
-  *        Robert Schwebel <robert@schwebel.de>,
-  *        Juergen Beisert <jbeisert@eurodsn.de>,
-  *        Theodore Ts'o <tytso@mit.edu>
-+ *
-+ * 02/03: Added support for SIIG's 8 port serial card. SIIG
-+ *        were entirely unsupportive of this effort (not that it was
-+ *        hard, but still)
-+ *        Terry Hardie <terryh@orcas.net>
+Yep, I sent this to James several months ago but it appears we've both
+forgotten about it:
+
+diff -urN -X dontdiff orig/crypto/api.c work/crypto/api.c
+--- orig/crypto/api.c	2003-07-13 22:38:38.000000000 -0500
++++ work/crypto/api.c	2003-08-14 01:53:07.000000000 -0500
+@@ -53,7 +53,8 @@
+ 
+ static int crypto_init_flags(struct crypto_tfm *tfm, u32 flags)
+ {
+-	tfm->crt_flags = 0;
++	tfm->crt_flags = flags & CRYPTO_TFM_API_MASK;
++	flags &= ~CRYPTO_TFM_API_MASK;
+ 	
+ 	switch (crypto_tfm_alg_type(tfm)) {
+ 	case CRYPTO_ALG_TYPE_CIPHER:
+diff -urN -X dontdiff orig/crypto/internal.h work/crypto/internal.h
+--- orig/crypto/internal.h	2003-07-13 22:29:11.000000000 -0500
++++ work/crypto/internal.h	2003-08-14 01:53:28.000000000 -0500
+@@ -37,7 +37,7 @@
+ 
+ static inline void crypto_yield(struct crypto_tfm *tfm)
+ {
+-	if (!in_softirq())
++	if (tfm->crt_flags & CRYPTO_TFM_API_YIELD)
+ 		cond_resched();
+ }
+ 
+diff -urN -X dontdiff orig/include/linux/crypto.h work/include/linux/crypto.h
+--- orig/include/linux/crypto.h	2003-07-13 22:32:32.000000000 -0500
++++ work/include/linux/crypto.h	2003-08-14 01:53:07.000000000 -0500
+@@ -36,7 +36,8 @@
   */
-
--static char *serial_version = "5.05c";
--static char *serial_revdate = "2001-07-08";
-+static char *serial_version = "5.05d";
-+static char *serial_revdate = "2004-02-24";
-
+ #define CRYPTO_TFM_MODE_MASK		0x000000ff
+ #define CRYPTO_TFM_REQ_MASK		0x000fff00
+-#define CRYPTO_TFM_RES_MASK		0xfff00000
++#define CRYPTO_TFM_RES_MASK		0x7ff00000
++#define CRYPTO_TFM_API_MASK		0x80000000
+ 
+ #define CRYPTO_TFM_MODE_ECB		0x00000001
+ #define CRYPTO_TFM_MODE_CBC		0x00000002
+@@ -50,6 +51,9 @@
+ #define CRYPTO_TFM_RES_BAD_BLOCK_LEN 	0x00800000
+ #define CRYPTO_TFM_RES_BAD_FLAGS 	0x01000000
+ 
++/* Allow for rescheduling after processing each sg element */
++#define CRYPTO_TFM_API_YIELD		0x80000000
++
  /*
-  * Serial driver configuration section.  Here are the various options:
-@@ -3936,6 +3941,16 @@
- 		}
+  * Miscellaneous stuff.
+  */
+diff -urN -X dontdiff orig/include/linux/sched.h work/include/linux/sched.h
+--- orig/include/linux/sched.h	2003-08-14 01:53:04.000000000 -0500
++++ work/include/linux/sched.h	2003-08-14 01:53:07.000000000 -0500
+@@ -824,6 +824,7 @@
+ extern void __cond_resched(void);
+ static inline void cond_resched(void)
+ {
++	might_sleep();
+ 	if (need_resched())
+ 		__cond_resched();
+ }
 
- 	}
-+
-+	/* SIIG 8 port cards are off for the last 4 ports --- TMH */
-+	if (dev->vendor == PCI_VENDOR_ID_SIIG &&
-+		dev->device == PCI_DEVICE_ID_SIIG_8S_20x_650) {
-+		if (idx > 3) {
-+			offset = (idx - 4) * 8;
-+			base_idx = 4;
-+		}
-+	}
-+
+> > Something like:
+> > 
+> >  /* calculate the size of a tfm so that users can manage their own
+> >  copies */
+> > 
+> >  int crypto_alg_size(const char *name);
+> 
+> crypto_tfm_size?
 
- 	/* HP's Diva chip puts the 4th/5th serial port further out, and
- 	 * some serial ports are supposed to be hidden on certain models.
-@@ -4379,6 +4394,7 @@
- 	pbn_siig20x_0,
- 	pbn_siig20x_2,
- 	pbn_siig20x_4,
-+	pbn_siig20x_8,
+Sure.
+ 
+> >  /* copy a TFM to a user-managed buffer, possibly on stack, with proper
+> >  internal reference counting and any other necessary magic, size checks
+> >  against boneheaded buffer sizing */
+> > 
+> >  crypto_copy_tfm(char *dst, const struct crypto_tfm *src, int size);
+> > 
+> >  /* do all the necessary bookkeeping to release a user-managed TFM, use
+> >  char pointer to avoid alloc/free mismatch */
+> > 
+> >  crypto_copy_cleanup_tfm(char *usertfm);
+> 
+> Yes, I thought of something like this.
 
- 	pbn_computone_4,
- 	pbn_computone_6,
-@@ -4478,11 +4494,13 @@
- 		0, 0, pci_siig10x_fn },
- 	{ SPCI_FL_BASE2 | SPCI_FL_BASE_TABLE, 4, 921600,   /* pbn_siig10x_4 */
- 		0, 0, pci_siig10x_fn },
--	{ SPCI_FL_BASE0, 1, 921600,			   /* pbn_siix20x_0 */
-+	{ SPCI_FL_BASE0, 1, 921600,			   /* pbn_siig20x_0 */
- 		0, 0, pci_siig20x_fn },
--	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 2, 921600,   /* pbn_siix20x_2 */
-+	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 2, 921600,   /* pbn_siig20x_2 */
- 		0, 0, pci_siig20x_fn },
--	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 4, 921600,   /* pbn_siix20x_4 */
-+	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 4, 921600,   /* pbn_siig20x_4 */
-+		0, 0, pci_siig20x_fn },
-+	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 8, 921600,   /* pbn_siig20x_8 */
- 		0, 0, pci_siig20x_fn },
+Ok, I might get to this by this afternoon. 
 
- 	{ SPCI_FL_BASE0, 4, 921600, /* IOMEM */		   /* pbn_computone_4 */
-@@ -4839,6 +4857,9 @@
- 	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_4S_20x_850,
- 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
- 		pbn_siig20x_4 },
-+	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_8S_20x_650,
-+		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+		pbn_siig20x_8 },
-
- 	/* Computone devices submitted by Doug McNash dmcnash@computone.com */
- 	{	PCI_VENDOR_ID_COMPUTONE, PCI_DEVICE_ID_COMPUTONE_PG,
-diff -ur linux-2.4.25/include/linux/pci_ids.h linux-2.4.25-mod1/include/linux/pci_ids.h
---- linux-2.4.25/include/linux/pci_ids.h	Wed Feb 18 05:36:32 2004
-+++ linux-2.4.25-mod1/include/linux/pci_ids.h	Mon Feb 23 09:22:37 2004
-@@ -1525,6 +1525,7 @@
- #define PCI_DEVICE_ID_SIIG_2S1P_20x_550	0x2060
- #define PCI_DEVICE_ID_SIIG_2S1P_20x_650	0x2061
- #define PCI_DEVICE_ID_SIIG_2S1P_20x_850	0x2062
-+#define PCI_DEVICE_ID_SIIG_8S_20x_650	0x2081
-
- #define PCI_VENDOR_ID_DOMEX		0x134a
- #define PCI_DEVICE_ID_DOMEX_DMX3191D	0x0001
-
-
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

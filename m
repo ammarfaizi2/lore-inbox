@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263891AbUAIVye (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 16:54:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbUAIVyd
+	id S264510AbUAIVqu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 16:46:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264508AbUAIVqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 16:54:33 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:28917 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S263891AbUAIVyX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 16:54:23 -0500
-Message-ID: <3FFF2304.8000403@mvista.com>
-Date: Fri, 09 Jan 2004 13:54:12 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	Fri, 9 Jan 2004 16:46:50 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:6335 "EHLO
+	thoron.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S264510AbUAIVqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 16:46:22 -0500
+Date: Fri, 9 Jan 2004 16:46:18 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, <sds@epoch.ncsc.mil>,
+       <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH][SELINUX] 2/7 Add netif controls
+In-Reply-To: <20040109130613.711b34a6.akpm@osdl.org>
+Message-ID: <Xine.LNX.4.44.0401091638160.22937-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: kgdb cleanups
-References: <20040109183826.GA795@elf.ucw.cz>
-In-Reply-To: <20040109183826.GA795@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
+On Fri, 9 Jan 2004, Andrew Morton wrote:
+
+> James Morris <jmorris@redhat.com> wrote:
+> >
+> > +static void sel_netif_destroy(struct sel_netif *netif)
+> > +{
+> > +	DEBUGP("%s: %s\n", __FUNCTION__, netif->nsec.dev->name);
+> > +	
+> > +	spin_lock_bh(&sel_netif_lock);
+> > +	list_del_rcu(&netif->list);
+> > +	sel_netif_total--;
+> > +	spin_unlock_bh(&sel_netif_lock);
+> > +
+> > +	call_rcu(&netif->rcu_head, sel_netif_free, netif);
+> > +}
+> > +
+> > +void sel_netif_put(struct sel_netif *netif)
+> > +{
+> > +	if (atomic_dec_and_test(&netif->users))
+> > +		sel_netif_destroy(netif);
+> > +}
 > 
-> No real code changes, but cleanups all over the place. What about
-> applying?
-> 
-> Ouch and arch-dependend code is moved to kernel/kgdb.c. I'll probably
-> do x86-64 version so that is rather important.
-> 
-> 								Pavel
-A few comments:
+> This seems racy.  If the netif is still eligible for lookup on entry to
+> sel_netif_put(), another CPU can come in and find the netif while it is
+> hashed but while it has a zero refcount.  Only to have the netif destroyed
+> under its feet?
 
-I like the code seperation.  Does it follow what Amit is doing?  It would be 
-nice if Amit's version and this one could come together around this.
-
-I don't think we want to merge the eth and regular kgdb just yet.  I would, 
-however, like to keep eth completly out of the stub.  Possibly a new module 
-which just takes care of steering the I/O to the correct place.
-
-I think we might want to try the bad sys call one more time.  If it triggers, a 
-kernel fix is in order.  I don't see the point of removing it.  After all, the 
-disable/enable on preempt really should be paired such that we never leave the 
-kernel with a preempt count.
-
-I have new dwarft stuff.  I actually have debug records that allow bt through 
-interrupt code.  Working on the spin lock loops.  It is fine to drop these at 
-this point as the new ones will replace them anyway.
+The netif won't actually be freed until all of the CPUs have gone through
+a quiescent state, and the calling code running on the other CPU will have
+called sel_netif_put() before then.  These objects are extremely short
+lived and should not be held over context switches.
 
 
-
+- James
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+James Morris
+<jmorris@redhat.com>
+
+
 

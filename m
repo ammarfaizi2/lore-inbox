@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266915AbSKVHlX>; Fri, 22 Nov 2002 02:41:23 -0500
+	id <S266975AbSKVHwr>; Fri, 22 Nov 2002 02:52:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266955AbSKVHlX>; Fri, 22 Nov 2002 02:41:23 -0500
-Received: from 205-158-62-68.outblaze.com ([205.158.62.68]:50448 "HELO
-	spf0.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S266915AbSKVHlX>; Fri, 22 Nov 2002 02:41:23 -0500
-Message-ID: <20021122074154.25171.qmail@email.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S266977AbSKVHwr>; Fri, 22 Nov 2002 02:52:47 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3591 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266975AbSKVHwq>; Fri, 22 Nov 2002 02:52:46 -0500
+Date: Fri, 22 Nov 2002 00:00:17 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH] export e820 table on x86
+In-Reply-To: <3DDDE1DC.3080408@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0211212355060.7728-100000@home.transmeta.com>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "dan carpenter" <error27@email.com>
-To: steve@kbuxd.necst.nec.co.jp
-Cc: linux-kernel@vger.kernel.org, smatch-kbugs@lists.sourceforge.net,
-       kernel-janitor-discuss@lists.sourceforge.net
-Date: Fri, 22 Nov 2002 02:41:54 -0500
-Subject: Re: [LIST] large local declarations
-X-Originating-Ip: 67.112.122.250
-X-Originating-Server: ws3-5.us4.outblaze.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: SL Baur <steve@kbuxd.necst.nec.co.jp>
 
-> dan carpenter writes:
-> > The function with the largest variable is riocontrol().  It is used
-> > deliberately for some weird hardware.  According to the comment,
-> > "it's hardware like this that really gets on [the author's] tits."
+On Thu, 21 Nov 2002, Dave Hansen wrote:
+>
+>   BIOS-e820: 0000000000000000 - 000000000009dc00 (usable)
+>   BIOS-e820: 000000000009dc00 - 00000000000a0000 (reserved)
+>   BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+>   BIOS-e820: 0000000000100000 - 000000003fff9380 (usable)
+>   BIOS-e820: 000000003fff9380 - 0000000040000000 (ACPI data)
+>   BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
+>   BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+>   BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
 > 
-> > 524736	 drivers/char/rio/rioctrl.c 1784 riocontrol
-> 
-> That variable is static.
-> 
+> I added a " e820" onto the end of each of the cases in 
+> register_memory().  Where does the "00000000000e0000 - 
+> 0000000000100000 (reserved)" entry go?
 
-Ah...  I did not know that matterred.
-Probably a lot of the other variables on the list are as well.
+The kernel removes all region claims in the 0xa0000 - 0x100000 area, since 
+there are broken bioses that claim there is good memory there even if 
+there isn't.
 
-It will take me a couple days to create a new list that takes
-static variables into consideration.
+>  I wonder if it is vital to the  next boot...
 
-regards,
-dan carpenter
+Nope, the next boot would also just remove it..
 
-
--- 
-_______________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
-
-One click access to the Top Search Engines
-http://www.exactsearchbar.com/mailcom
+		Linus
 

@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276424AbSBGFsa>; Thu, 7 Feb 2002 00:48:30 -0500
+	id <S280975AbSBGF4B>; Thu, 7 Feb 2002 00:56:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279798AbSBGFsU>; Thu, 7 Feb 2002 00:48:20 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26898 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S276424AbSBGFsF>;
-	Thu, 7 Feb 2002 00:48:05 -0500
-Message-ID: <3C6214F0.A66C89CF@zip.com.au>
-Date: Wed, 06 Feb 2002 21:47:28 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@redhat.com>
-CC: Hugh Dickins <hugh@veritas.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] __free_pages_ok oops
-In-Reply-To: <Pine.LNX.4.21.0202061844450.1856-100000@localhost.localdomain>,
-		<Pine.LNX.4.21.0202061844450.1856-100000@localhost.localdomain>; from hugh@veritas.com on Wed, Feb 06, 2002 at 07:06:01PM +0000 <20020207000930.A17125@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S279798AbSBGFzv>; Thu, 7 Feb 2002 00:55:51 -0500
+Received: from AMontpellier-201-1-6-182.abo.wanadoo.fr ([80.13.220.182]:31748
+	"EHLO awak") by vger.kernel.org with ESMTP id <S280975AbSBGFzi> convert rfc822-to-8bit;
+	Thu, 7 Feb 2002 00:55:38 -0500
+Subject: Re: ANNOUNCE: Janitor weekend!
+From: Xavier Bestel <n0made@free.fr>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Cc: lwn@lwn.net, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Kernel Janitor Project 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+        kernelnewbies@nl.linux.org
+In-Reply-To: <20020207020105.GP8973@conectiva.com.br>
+In-Reply-To: <20020207020105.GP8973@conectiva.com.br>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 07 Feb 2002 06:55:19 +0100
+Message-Id: <1013061319.4559.3.camel@bip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
-> 
-> On Wed, Feb 06, 2002 at 07:06:01PM +0000, Hugh Dickins wrote:
-> > Sorry, no solution, but maybe another oops in __free_pages_ok might help?
-> 
-> I haven't seen the original oops, but if this patch goes in, it
-> reintroduces the problem where network drivers / others release
-> pages from irq context causing a BUG().  See sendpage.
-> 
+le jeu 07-02-2002 à 03:01, Arnaldo Carvalho de Melo a écrit :
+> Something that has been proposed for many moons, but something
+> we never got around to doing was an IRC janitor weekend.
+> Rather than further procrastinate, it's going to happen this
+> weekend, as of the Friday evening on irc.openprojects.net,
+> #kerneljanitor
 
-Calling lru_cache_del from interrupt is a bug, so Hugh's patch
-is valid.
+A stupid question: why not #kerneljanitors (with an S) ?
 
-Are you sure that the pages are being released from interrupt context?
+	Xav
 
--

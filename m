@@ -1,591 +1,524 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131010AbRCGKwk>; Wed, 7 Mar 2001 05:52:40 -0500
+	id <S129444AbRCGLRn>; Wed, 7 Mar 2001 06:17:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131056AbRCGKwc>; Wed, 7 Mar 2001 05:52:32 -0500
-Received: from colorfullife.com ([216.156.138.34]:26123 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S131010AbRCGKwV>;
-	Wed, 7 Mar 2001 05:52:21 -0500
-Message-ID: <3AA612AB.FC306BA4@colorfullife.com>
-Date: Wed, 07 Mar 2001 11:51:23 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2-ac5 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: viro@math.psu.edu, linux-kernel@vger.kernel.org, jelson@circlemud.org
-Subject: Re: Mapping a piece of one process' addrspace to another?
-Content-Type: multipart/mixed;
- boundary="------------A08979E30F91700447ACFE68"
+	id <S129501AbRCGLRe>; Wed, 7 Mar 2001 06:17:34 -0500
+Received: from mail2.caramail.com ([195.68.99.69]:38017 "EHLO
+	mail2.caramail.com") by vger.kernel.org with ESMTP
+	id <S129444AbRCGLRX>; Wed, 7 Mar 2001 06:17:23 -0500
+Posted-Date: Wed, 7 Mar 2001 12:18:47 GMT
+From: pierre.doritch@caramail.com
+To: linux-kernel@vger.kernel.org
+Message-ID: <983967373013963@caramail.com>
+X-Mailer: Caramail - www.caramail.com
+X-Originating-IP: [192.70.119.2]
+Mime-Version: 1.0
+Subject: PROBLEM: crash with linux 2.4.2
+Date: Wed, 07 Mar 2001 11:16:13 GMT+1
+Content-Type: multipart/mixed; boundary="=_NextPart_Caramail_013963983967373_ID"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------A08979E30F91700447ACFE68
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-> > BTW, where are the zerocopy patches for pipes? Maybe I'm missing 
-> > something but it seems that pipes inside the kernel are still 
-> > implememented by copying into the kernel and then copying out. 
-> > Whatever method the zerocopy pipes use is probably what I'm looking 
-> > for though. 
-> 
-> Ask DaveM or look through l-k archives for URL of recent variant... 
+--=_NextPart_Caramail_013963983967373_ID
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-I've attached the latest patch. I didn't send it to Linus yet - it isn't
-really a bug fix, and there are a few open issures:
+Hello,
 
-* I still hope that zero-copy (actually single copy) is possible for
-PIPE_BUF (4096) byte transfers.
+I ran 2.4.2 under heavy load since 2 days.
+I try to decrypt my /etc/passwd files with the program John 
+the Ripper on a Pentium133.
+This process is very long ;-)
 
-Unfortunately that would be a user space visible change:
+I don't understand the error. Hope it will be useful.
 
-void main()
-{
-	int pipes[2];
-	pipe(pipes);
-	write(pipes[1],buf,PIPE_BUF);
-}
+Pierre
 
-would block, every other Unix version I tested doesn't block. (or
-write(,,PIPE_BUF) after poll(POLLOUT) - I'm sure that there are apps
-where the O_NONBLOCK is missing)
 
-But since glibc by default uses 4096 byte writes it would speed up the
-transfers.
+you can see the load average and the uptime after crash:
+10:09am up 5 days, 21:02, 2 users, load average: 18.68, 
+18.07, 16.85
 
-* > 64 kB chunks
 
-* memory pressure. Not that important for 64 kB transfers, but required
-for larger buffers.
 
-I tested the patch with 2.4.1, and it compiles with 2.4.2-ac11.
+the output of dmesg command after crash :
 
---
-	Manfred
---------------A08979E30F91700447ACFE68
-Content-Type: text/plain; charset=us-ascii;
- name="patch-kiopipe"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-kiopipe"
+5e58960 edx: 00000004
+esi: c0268a74 edi: 00000001 ebp: 00000000 esp: 
+c1945d28
+ds: 0018 es: 0018 ss: 0018
+Process fvwm95 (pid: 7630, stackpage=3Dc1945000)
+Stack: c0225aa5 c0225c33 000000bf c0268a40 c0268cd4 
+00000002 00000000 c0dda14f 
+ 00000286 00000000 c0268a40 c0128872 c0268ccc 
+c0268cd8 00000000 00000000 
+ 000000b8 c01289bc c0268ccc 00000000 00000002 
+00000001 00000000 c1945df8 
+Call Trace: [<c0128872>] [<c01289bc>] [<c0121843>] 
+[<c0121a6f>] [<c01219a8>] [<c01356c0>] [<c0135afd>] 
+ [<c0135eca>] [<c010786f>] [<c0108e13>] 
 
-// $Header$
-// Kernel Version:
-//  VERSION = 2
-//  PATCHLEVEL = 4
-//  SUBLEVEL = 1
-//  EXTRAVERSION =
---- 2.4/fs/pipe.c	Wed Feb  7 20:02:07 2001
-+++ build-2.4/fs/pipe.c	Thu Feb  8 21:11:10 2001
-@@ -2,6 +2,9 @@
-  *  linux/fs/pipe.c
-  *
-  *  Copyright (C) 1991, 1992, 1999  Linus Torvalds
-+ *
-+ *  Major pipe_read() and pipe_write() cleanup, kiobuf based
-+ *  single copy		Copyright (C) 2001 Manfred Spraul
-  */
- 
- #include <linux/mm.h>
-@@ -10,6 +13,8 @@
- #include <linux/malloc.h>
- #include <linux/module.h>
- #include <linux/init.h>
-+#include <linux/iobuf.h>
-+#include <linux/highmem.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -35,97 +40,149 @@
- 	down(PIPE_SEM(*inode));
- }
- 
-+struct pipe_pio {
-+	int *pdone;
-+	struct kiobuf iobuf;
-+};
-+
-+static int
-+pio_copy_to_user(struct kiobuf* iobuf, int offset, char* ubuf, int chars)
-+{
-+	int page_nr;
-+	offset += iobuf->offset;
-+	page_nr = offset/PAGE_SIZE;
-+	offset %= PAGE_SIZE;
-+	while(chars) {
-+		int pcount = PAGE_SIZE-offset;
-+		void *kaddr;
-+		if (pcount > chars)
-+			pcount = chars;
-+		kaddr = kmap(iobuf->maplist[page_nr]);
-+		if (copy_to_user(ubuf, kaddr+offset, pcount))
-+			return 1;
-+		kunmap(iobuf->maplist[page_nr]);
-+		chars -= pcount;
-+		ubuf += pcount;
-+		offset = 0;
-+		page_nr++;
-+	}
-+	return 0;
-+}
-+
- static ssize_t
- pipe_read(struct file *filp, char *buf, size_t count, loff_t *ppos)
- {
- 	struct inode *inode = filp->f_dentry->d_inode;
--	ssize_t size, read, ret;
-+	ssize_t read, ret;
- 
--	/* Seeks are not allowed on pipes.  */
--	ret = -ESPIPE;
--	read = 0;
-+	/* pread is not allowed on pipes.  */
- 	if (ppos != &filp->f_pos)
--		goto out_nolock;
-+		return -ESPIPE;
- 
- 	/* Always return 0 on null read.  */
--	ret = 0;
- 	if (count == 0)
--		goto out_nolock;
-+		return 0;
- 
--	/* Get the pipe semaphore */
--	ret = -ERESTARTSYS;
--	if (down_interruptible(PIPE_SEM(*inode)))
--		goto out_nolock;
-+	down(PIPE_SEM(*inode));
- 
--	if (PIPE_EMPTY(*inode)) {
--do_more_read:
-+	read = 0;
-+	for (;;) {
-+		/* read what data is available */
-+		int chars = PIPE_LEN(*inode);
-+		if (chars) {
-+			char *pipebuf = PIPE_BASE(*inode);
-+			int offset = PIPE_START(*inode);
-+
-+			if (chars > count)
-+				chars = count;
-+			ret = -EFAULT;
-+			if(PIPE_IS_PIO(*inode)) {
-+				struct pipe_pio* pio = ((struct pipe_pio*)pipebuf);
-+				if(pio_copy_to_user(&pio->iobuf, offset, buf, chars))
-+					goto out;
-+
-+				PIPE_LEN(*inode) -= chars;
-+				if(!PIPE_LEN(*inode)) {
-+					unmap_kiobuf(&pio->iobuf);
-+					*pio->pdone = 1;
-+					PIPE_IS_PIO(*inode) = 0;
-+					PIPE_START(*inode) = 0;
-+				} else {
-+					PIPE_START(*inode) += chars;
-+				}
-+			} else {
-+				if (chars > PIPE_SIZE-offset)
-+					chars = PIPE_SIZE-offset;
-+				if (copy_to_user(buf, pipebuf+offset, chars))
-+					goto out;
-+				PIPE_LEN(*inode) -= chars;
-+				if (!PIPE_LEN(*inode)) {
-+					/* Cache behaviour optimization */
-+					PIPE_START(*inode) = 0;
-+				} else {
-+					PIPE_START(*inode) += chars;
-+					PIPE_START(*inode) &= (PIPE_SIZE - 1);
-+				}
-+			}
-+			read += chars;
-+			count -= chars;
-+			buf += chars;
-+		}
- 		ret = 0;
-+		if (!count)
-+			goto out;
-+	
-+		/* Rare special case:
-+		 * The pipe buffer was really circular,
-+		 * the wrapped bytes must be read before sleeping.
-+		 */
-+		if (PIPE_LEN(*inode))
-+			continue;
-+
-+		/* Never sleep if no process has the pipe open
-+		 * for writing */
- 		if (!PIPE_WRITERS(*inode))
- 			goto out;
- 
-+		/* Never sleep if O_NONBLOCK is set */
- 		ret = -EAGAIN;
- 		if (filp->f_flags & O_NONBLOCK)
- 			goto out;
- 
--		for (;;) {
--			PIPE_WAITING_READERS(*inode)++;
--			pipe_wait(inode);
--			PIPE_WAITING_READERS(*inode)--;
--			ret = -ERESTARTSYS;
--			if (signal_pending(current))
--				goto out;
-+		/* optimization:
-+		 * pipe_read() should return even if only a single byte
-+		 * was read.  (Posix Std. 6.4.1.2)
-+		 * But if another process is sleeping in pipe_write()
-+		 * then we wait for that data - it's invisible for user
-+		 * space programs.
-+		 */
-+		if (PIPE_MORE_DATA_WAITING(*inode)) {
-+			/*
-+			 * We know that we are going to sleep: signal
-+			 * writers synchronously that there is more
-+			 * room.
-+			 */
-+			wake_up_interruptible_sync(PIPE_WAIT(*inode));
-+		} else if (read) {
-+			/* We know that there are no writers, no need
-+			 * for wake up.
-+			 */
- 			ret = 0;
--			if (!PIPE_EMPTY(*inode))
--				break;
--			if (!PIPE_WRITERS(*inode))
--				goto out;
-+			goto out;
- 		}
--	}
- 
--	/* Read what data is available.  */
--	ret = -EFAULT;
--	while (count > 0 && (size = PIPE_LEN(*inode))) {
--		char *pipebuf = PIPE_BASE(*inode) + PIPE_START(*inode);
--		ssize_t chars = PIPE_MAX_RCHUNK(*inode);
--
--		if (chars > count)
--			chars = count;
--		if (chars > size)
--			chars = size;
--
--		if (copy_to_user(buf, pipebuf, chars))
-+		pipe_wait(inode);
-+		ret = -ERESTARTSYS;
-+		if (signal_pending(current))
- 			goto out;
--
--		read += chars;
--		PIPE_START(*inode) += chars;
--		PIPE_START(*inode) &= (PIPE_SIZE - 1);
--		PIPE_LEN(*inode) -= chars;
--		count -= chars;
--		buf += chars;
- 	}
- 
--	/* Cache behaviour optimization */
--	if (!PIPE_LEN(*inode))
--		PIPE_START(*inode) = 0;
--
--	if (count && PIPE_WAITING_WRITERS(*inode) && !(filp->f_flags & O_NONBLOCK)) {
--		/*
--		 * We know that we are going to sleep: signal
--		 * writers synchronously that there is more
--		 * room.
--		 */
--		wake_up_interruptible_sync(PIPE_WAIT(*inode));
--		if (!PIPE_EMPTY(*inode))
--			BUG();
--		goto do_more_read;
--	}
-+out:
- 	/* Signal writers asynchronously that there is more room.  */
--	wake_up_interruptible(PIPE_WAIT(*inode));
-+	if (read && !PIPE_IS_PIO(*inode))
-+		wake_up_interruptible(PIPE_WAIT(*inode));
- 
--	ret = read;
--out:
- 	up(PIPE_SEM(*inode));
--out_nolock:
- 	if (read)
- 		ret = read;
- 	return ret;
-@@ -136,113 +193,143 @@
- {
- 	struct inode *inode = filp->f_dentry->d_inode;
- 	ssize_t free, written, ret;
-+	int pio_done, do_wakeup;
- 
--	/* Seeks are not allowed on pipes.  */
--	ret = -ESPIPE;
--	written = 0;
-+	/* pwrite is not allowed on pipes.  */
- 	if (ppos != &filp->f_pos)
--		goto out_nolock;
-+		return -ESPIPE;
- 
- 	/* Null write succeeds.  */
--	ret = 0;
- 	if (count == 0)
--		goto out_nolock;
--
--	ret = -ERESTARTSYS;
--	if (down_interruptible(PIPE_SEM(*inode)))
--		goto out_nolock;
-+		return 0;
- 
--	/* No readers yields SIGPIPE.  */
--	if (!PIPE_READERS(*inode))
--		goto sigpipe;
-+	down(PIPE_SEM(*inode));
- 
- 	/* If count <= PIPE_BUF, we have to make it atomic.  */
- 	free = (count <= PIPE_BUF ? count : 1);
- 
--	/* Wait, or check for, available space.  */
--	if (filp->f_flags & O_NONBLOCK) {
--		ret = -EAGAIN;
--		if (PIPE_FREE(*inode) < free)
-+	written = 0;
-+	pio_done = 1;
-+	do_wakeup = 0;
-+	for(;;) {
-+		/* No readers yields SIGPIPE.  */
-+		ret = -EPIPE;
-+		if (!PIPE_READERS(*inode))
- 			goto out;
--	} else {
--		while (PIPE_FREE(*inode) < free) {
--			PIPE_WAITING_WRITERS(*inode)++;
--			pipe_wait(inode);
--			PIPE_WAITING_WRITERS(*inode)--;
--			ret = -ERESTARTSYS;
--			if (signal_pending(current))
--				goto out;
- 
--			if (!PIPE_READERS(*inode))
--				goto sigpipe;
--		}
--	}
--
--	/* Copy into available space.  */
--	ret = -EFAULT;
--	while (count > 0) {
--		int space;
--		char *pipebuf = PIPE_BASE(*inode) + PIPE_END(*inode);
--		ssize_t chars = PIPE_MAX_WCHUNK(*inode);
--
--		if ((space = PIPE_FREE(*inode)) != 0) {
--			if (chars > count)
--				chars = count;
--			if (chars > space)
--				chars = space;
--
--			if (copy_from_user(pipebuf, buf, chars))
--				goto out;
--
--			written += chars;
--			PIPE_LEN(*inode) += chars;
--			count -= chars;
--			buf += chars;
--			space = PIPE_FREE(*inode);
--			continue;
-+		if(!PIPE_IS_PIO(*inode)) {
-+			int chars;
-+			/* Copy into available space.  */
-+			chars = PIPE_FREE(*inode);
-+		
-+			/*
-+			 * Try zero-copy:
-+			 * - only possible if the normal pipe buffer
-+			 *   is empty
-+			 * - only possible if we can block:
-+			 *   a) O_NONBLOCK not set
-+			 *	and
-+			 *   b) request for more than PIPE_BUF bytes.
-+			 *	No Unix version blocks in pipe write for
-+			 *	<= PIPE_BUF bytes after poll() returned POLLOUT.
-+			 */
-+			ret = -EFAULT;
-+			if (count > PIPE_BUF && chars == PIPE_SIZE &&
-+				    (!(filp->f_flags & O_NONBLOCK))) {
-+				struct pipe_pio* pio = (struct pipe_pio*)PIPE_BASE(*inode);
-+				chars = KIO_MAX_ATOMIC_BYTES;
-+				if (chars > count)
-+					chars = count;
-+				kiobuf_init(&pio->iobuf);
-+				if(map_user_kiobuf(READ, &pio->iobuf, (unsigned long)buf, chars))
-+					goto out;
-+				PIPE_IS_PIO(*inode) = 1;
-+				pio_done = 0;
-+				pio->pdone = &pio_done;
-+
-+				written += chars;
-+				PIPE_LEN(*inode) += chars;
-+				count -= chars;
-+				buf += chars;
-+				do_wakeup = 1;
-+			} else if (chars >= free) {
-+				int offset;
-+next_chunk:
-+				offset = PIPE_END(*inode);
-+
-+				if (chars > count)
-+					chars = count;
-+				if (chars > PIPE_SIZE-offset)
-+					chars = PIPE_SIZE-offset;
-+				if (copy_from_user(PIPE_BASE(*inode)+offset, buf, chars))
-+					goto out;
-+
-+				written += chars;
-+				PIPE_LEN(*inode) += chars;
-+				count -= chars;
-+				buf += chars;
-+				do_wakeup = 1;
-+				
-+				if(!count)
-+					break; /* DONE! */
-+
-+				/* special case: pipe buffer wrapped */
-+				if(PIPE_LEN(*inode) != PIPE_SIZE) {
-+					chars = PIPE_FREE(*inode);
-+					goto next_chunk;
-+				}
-+			}
- 		}
- 
--		ret = written;
-+		ret = -EAGAIN;
- 		if (filp->f_flags & O_NONBLOCK)
- 			break;
- 
--		do {
-+		/* Do not wakeup unless data was written, otherwise
-+		 * multiple writers can cause a wakeup storm
-+		 */
-+		if(do_wakeup) {
- 			/*
- 			 * Synchronous wake-up: it knows that this process
- 			 * is going to give up this CPU, so it doesnt have
- 			 * to do idle reschedules.
- 			 */
- 			wake_up_interruptible_sync(PIPE_WAIT(*inode));
--			PIPE_WAITING_WRITERS(*inode)++;
--			pipe_wait(inode);
--			PIPE_WAITING_WRITERS(*inode)--;
--			if (signal_pending(current))
--				goto out;
--			if (!PIPE_READERS(*inode))
--				goto sigpipe;
--		} while (!PIPE_FREE(*inode));
--		ret = -EFAULT;
-+			do_wakeup = 0;
-+		}
-+		if (count)
-+			PIPE_MORE_DATA_WAITING(*inode)++;
-+		pipe_wait(inode);
-+		if (count)
-+			PIPE_MORE_DATA_WAITING(*inode)--;
-+		if (!count && pio_done)
-+			break; /* DONE */
-+		ret = -ERESTARTSYS;
-+		if (signal_pending(current))
-+			goto out;
- 	}
--
--	/* Signal readers asynchronously that there is more data.  */
--	wake_up_interruptible(PIPE_WAIT(*inode));
--
--	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
--	mark_inode_dirty(inode);
--
- out:
--	up(PIPE_SEM(*inode));
--out_nolock:
--	if (written)
--		ret = written;
--	return ret;
-+	if(!pio_done) {
-+		struct pipe_pio* pio = (struct pipe_pio*)PIPE_BASE(*inode);
-+		PIPE_IS_PIO(*inode) = 0;
-+		written -= PIPE_LEN(*inode);
-+		PIPE_LEN(*inode) = 0;
-+		unmap_kiobuf(&pio->iobuf);
-+		wake_up_interruptible(PIPE_WAIT(*inode));
-+	}
-+	if (written) {
-+		inode->i_ctime = inode->i_mtime = CURRENT_TIME;
-+		mark_inode_dirty(inode);
- 
--sigpipe:
--	if (written)
--		goto out;
-+		ret = written;
-+	}
- 	up(PIPE_SEM(*inode));
--	send_sig(SIGPIPE, current, 0);
--	return -EPIPE;
-+	/* Signal readers asynchronously that there is more data.  */
-+	if(do_wakeup)
-+		wake_up_interruptible(PIPE_WAIT(*inode));
-+	if (ret == -EPIPE)
-+		send_sig(SIGPIPE, current, 0);
-+	return ret;
- }
- 
- static loff_t
-@@ -453,9 +540,10 @@
- 
- 	init_waitqueue_head(PIPE_WAIT(*inode));
- 	PIPE_BASE(*inode) = (char*) page;
-+	PIPE_IS_PIO(*inode) = 0;
- 	PIPE_START(*inode) = PIPE_LEN(*inode) = 0;
- 	PIPE_READERS(*inode) = PIPE_WRITERS(*inode) = 0;
--	PIPE_WAITING_READERS(*inode) = PIPE_WAITING_WRITERS(*inode) = 0;
-+	PIPE_MORE_DATA_WAITING(*inode) = 0;
- 	PIPE_RCOUNTER(*inode) = PIPE_WCOUNTER(*inode) = 1;
- 
- 	return inode;
---- 2.4/include/linux/pipe_fs_i.h	Wed Feb  7 20:02:07 2001
-+++ build-2.4/include/linux/pipe_fs_i.h	Wed Feb  7 22:08:15 2001
-@@ -5,11 +5,11 @@
- struct pipe_inode_info {
- 	wait_queue_head_t wait;
- 	char *base;
-+	unsigned int is_pio;
- 	unsigned int start;
- 	unsigned int readers;
- 	unsigned int writers;
--	unsigned int waiting_readers;
--	unsigned int waiting_writers;
-+	unsigned int more_data;
- 	unsigned int r_counter;
- 	unsigned int w_counter;
- };
-@@ -21,12 +21,12 @@
- #define PIPE_SEM(inode)		(&(inode).i_sem)
- #define PIPE_WAIT(inode)	(&(inode).i_pipe->wait)
- #define PIPE_BASE(inode)	((inode).i_pipe->base)
-+#define PIPE_IS_PIO(inode)	((inode).i_pipe->is_pio)
- #define PIPE_START(inode)	((inode).i_pipe->start)
- #define PIPE_LEN(inode)		((inode).i_size)
- #define PIPE_READERS(inode)	((inode).i_pipe->readers)
- #define PIPE_WRITERS(inode)	((inode).i_pipe->writers)
--#define PIPE_WAITING_READERS(inode)	((inode).i_pipe->waiting_readers)
--#define PIPE_WAITING_WRITERS(inode)	((inode).i_pipe->waiting_writers)
-+#define PIPE_MORE_DATA_WAITING(inode)	((inode).i_pipe->more_data)
- #define PIPE_RCOUNTER(inode)	((inode).i_pipe->r_counter)
- #define PIPE_WCOUNTER(inode)	((inode).i_pipe->w_counter)
- 
-@@ -34,8 +34,6 @@
- #define PIPE_FULL(inode)	(PIPE_LEN(inode) == PIPE_SIZE)
- #define PIPE_FREE(inode)	(PIPE_SIZE - PIPE_LEN(inode))
- #define PIPE_END(inode)	((PIPE_START(inode) + PIPE_LEN(inode)) & (PIPE_SIZE-1))
--#define PIPE_MAX_RCHUNK(inode)	(PIPE_SIZE - PIPE_START(inode))
--#define PIPE_MAX_WCHUNK(inode)	(PIPE_SIZE - PIPE_END(inode))
- 
- /* Drop the inode semaphore and wait for a pipe event, atomically */
- void pipe_wait(struct inode * inode);
+Code: 0f 0b 83 c4 0c 90 8b 03 8b 53 04 89 50 04 89 02 89 d8 
+2b 05 
+kernel BUG at page_alloc.c:191!
+invalid operand: 0000
+CPU: 0
+EIP: 0010:[<c01285ca>]
+EFLAGS: 00010092
+eax: 00000020 ebx: c1041c78 ecx: c5e58960 edx: 
+00000005
+esi: c0268a74 edi: 00000001 ebp: 00000000 esp: 
+c1d97e08
+ds: 0018 es: 0018 ss: 0018
+Process sh (pid: 7631, stackpage=3Dc1d97000)
+Stack: c0225aa5 c0225c33 000000bf c0268a40 c0268cd4 
+00000002 00000000 000006ab 
+ 00000286 00000000 c0268a40 c0128872 c0268ccc 
+c0268cd8 00000000 00000000 
+ 000000b8 c01289bc c0268ccc 00000000 00000002 
+00000001 c11b2dd8 c51fa420 
+Call Trace: [<c0128872>] [<c01289bc>] [<c0121f3c>] 
+[<c011ee51>] [<c011efc0>] [<c010fa9b>] [<c010f944>] 
+ [<c012039b>] [<c011f54f>] [<c0123c63>] [<c0123d0d>] 
+[<c0108f54>] 
 
---------------A08979E30F91700447ACFE68--
+Code: 0f 0b 83 c4 0c 90 8b 03 8b 53 04 89 50 04 89 02 89 d8 
+2b 05 
+kernel BUG at page_alloc.c:191!
+invalid operand: 0000
+CPU: 0
+EIP: 0010:[<c01285ca>]
+EFLAGS: 00010086
+eax: 00000020 ebx: c1041c78 ecx: c5e58960 edx: 
+00000005
+esi: c0268a74 edi: 00000001 ebp: 00000000 esp: 
+c1d97e1c
+ds: 0018 es: 0018 ss: 0018
+Process sh (pid: 7632, stackpage=3Dc1d97000)
+Stack: c0225aa5 c0225c33 000000bf c0268a40 c0268cd4 
+00000002 00000000 c0268ccc 
+ 00000282 00000000 c0268a40 c0128872 c0268ccc 
+c0268cd8 00000000 00000000 
+ 000000b8 c01289bc c0268ccc 00000000 00000002 
+00000001 c0ec9be0 c5e58960 
+Call Trace: [<c0128872>] [<c01289bc>] [<c011ed96>] 
+[<c011ee30>] [<c011efc0>] [<c010fa9b>] [<c010f944>] 
+ [<c011fad7>] [<c011fead>] [<c011fee6>] [<c0108f54>] 
+
+Code: 0f 0b 83 c4 0c 90 8b 03 8b 53 04 89 50 04 89 02 89 d8 
+2b 05 
+kernel BUG at page_alloc.c:191!
+invalid operand: 0000
+CPU: 0
+EIP: 0010:[<c01285ca>]
+EFLAGS: 00010086
+eax: 00000020 ebx: c1041c78 ecx: c5e58b40 edx: 
+00000005
+esi: c0268a74 edi: 00000001 ebp: 00000000 esp: 
+c215fd40
+ds: 0018 es: 0018 ss: 0018
+Process gdmlogin (pid: 7658, stackpage=3Dc215f000)
+Stack: c0225aa5 c0225c33 000000bf c0268a40 c0268cd4 
+00000002 00000000 000004ae 
+ 00000286 00000000 c0268a40 c0128872 c0268ccc 
+c0268cd8 00000000 00000000 
+ 000000b8 c01289bc c0268ccc 00000000 00000002 
+00000001 c206ca60 c5e58b40 
+Call Trace: [<c0128872>] [<c01289bc>] [<c014d268>] 
+[<c011ed96>] [<c014d3a6>] [<c011ee30>] [<c011efc0>] 
+ [<c010fa9b>] [<c010f944>] [<c0139ebb>] [<c0108f54>] 
+[<c01219db>] [<c01219a8>] [<c012166a>] [<c0121a6f>] 
+ [<c01219a8>] [<c012d48e>] [<c0108e13>] 
+
+Code: 0f 0b 83 c4 0c 90 8b 03 8b 53 04 89 50 04 89 02 89 d8 
+2b 05 
+kernel BUG at page_alloc.c:191!
+invalid operand: 0000
+CPU: 0
+EIP: 0010:[<c01285ca>]
+EFLAGS: 00010086
+eax: 00000020 ebx: c1041c78 ecx: c5e58b40 edx: 
+00000005
+esi: c0268a74 edi: 00000001 ebp: 00000000 esp: 
+c19c3d40
+ds: 0018 es: 0018 ss: 0018
+Process gdmlogin (pid: 7662, stackpage=3Dc19c3000)
+Stack: c0225aa5 c0225c33 000000bf c0268a40 c0268cd4 
+00000002 00000000 000004ae 
+ 00000286 00000000 c0268a40 c0128872 c0268ccc 
+c0268cd8 00000000 00000000 
+ 000000b8 c01289bc c0268ccc 00000000 00000002 
+00000001 c0ec9f60 c5e58b40 
+Call Trace: [<c0128872>] [<c01289bc>] [<c014d268>] 
+[<c011ed96>] [<c014d3a6>] [<c011ee30>] [<c011efc0>] 
+ [<c010fa9b>] [<c010f944>] [<c0139ebb>] [<c0108f54>] 
+[<c01219db>] [<c01219a8>] [<c012166a>] [<c0121a6f>] 
+ [<c01219a8>] [<c012d48e>] [<c0108e13>] 
+
+Code: 0f 0b 83 c4 0c 90 8b 03 8b 53 04 89 50 04 89 02 89 d8 
+2b 05 
+kernel BUG at page_alloc.c:191!
+invalid operand: 0000
+CPU: 0
+EIP: 0010:[<c01285ca>]
+EFLAGS: 00010082
+eax: 00000020 ebx: c1041c78 ecx: c5e58960 edx: 
+00000007
+esi: c0268a74 edi: 00000001 ebp: 00000000 esp: 
+c19c3e3c
+ds: 0018 es: 0018 ss: 0018
+Process bash (pid: 7665, stackpage=3Dc19c3000)
+Stack: c0225aa5 c0225c33 000000bf c0268a40 c0268cd4 
+00000002 00000000 00000ff8 
+ 00000282 00000000 c0268a40 c0128872 c0268ccc 
+c0268cd8 00000000 00000000 
+ 000000b8 c01289bc c0268ccc 00000000 00000002 
+00000001 c10682dc c5e58960 
+Call Trace: [<c0128872>] [<c01289bc>] [<c011e8a8>] 
+[<c011effb>] [<c010fa9b>] [<c010f944>] [<c01121ef>] 
+ [<c01077f4>] [<c0108f54>] 
+
+Code: 0f 0b 83 c4 0c 90 8b 03 8b 53 04 89 50 04 89 02 89 d8 
+2b 05 
+kernel BUG at page_alloc.c:191!
+invalid operand: 0000
+CPU: 0
+EIP: 0010:[<c01285ca>]
+EFLAGS: 00010082
+eax: 00000020 ebx: c1041c78 ecx: c5e58b40 edx: 
+00000008
+esi: c0268a74 edi: 00000001 ebp: 00000000 esp: 
+c1943e3c
+ds: 0018 es: 0018 ss: 0018
+Process bash (pid: 7668, stackpage=3Dc1943000)
+Stack: c0225aa5 c0225c33 000000bf c0268a40 c0268cd4 
+00000002 00000000 00000ff8 
+ 00000282 00000000 c0268a40 c0128872 c0268ccc 
+c0268cd8 00000000 00000000 
+ 000000b8 c01289bc c0268ccc 00000000 00000002 
+00000001 c106c148 c5e58b40 
+Call Trace: [<c0128872>] [<c01289bc>] [<c011e8a8>] 
+[<c011effb>] [<c010fa9b>] [<c010f944>] [<c01075cf>] 
+ [<c01121ef>] [<c01077f4>] [<c0108f54>] 
+
+Code: 0f 0b 83 c4 0c 90 8b 03 8b 53 04 89 50 04 89 02 89 d8 
+2b 05 
+kernel BUG at page_alloc.c:191!
+invalid operand: 0000
+CPU: 0
+EIP: 0010:[<c01285ca>]
+EFLAGS: 00010082
+eax: 00000020 ebx: c1041c78 ecx: c5e58b40 edx: 
+00000007
+esi: c0268a74 edi: 00000001 ebp: 00000000 esp: 
+c0f97e3c
+ds: 0018 es: 0018 ss: 0018
+Process bash (pid: 7672, stackpage=3Dc0f97000)
+Stack: c0225aa5 c0225c33 000000bf c0268a40 c0268cd4 
+00000002 00000000 00000011 
+ 00000282 00000000 c0268a40 c0128872 c0268ccc 
+c0268cd8 00000000 00000000 
+ 000000b8 c01289bc c0268ccc 00000000 00000002 
+00000001 c10331ec c5e58b40 
+Call Trace: [<c0128872>] [<c01289bc>] [<c011e8a8>] 
+[<c011effb>] [<c010fa9b>] [<c010f944>] [<c0119e3c>] 
+ [<c011ac45>] [<c0108f54>] 
+
+Code: 0f 0b 83 c4 0c 90 8b 03 8b 53 04 89 50 04 89 02 89 d8 
+2b 05 
+kernel BUG at page_alloc.c:191!
+invalid operand: 0000
+CPU: 0
+EIP: 0010:[<c01285ca>]
+EFLAGS: 00010082
+eax: 00000020 ebx: c1041c78 ecx: c5e58aa0 edx: 
+00000007
+esi: c0268a74 edi: 00000001 ebp: 00000000 esp: 
+c1c17e3c
+ds: 0018 es: 0018 ss: 0018
+Process bash (pid: 7671, stackpage=3Dc1c17000)
+Stack: c0225aa5 c0225c33 000000bf c0268a40 c0268cd4 
+00000002 00000000 00000806 
+ 00000282 00000000 c0268a40 c0128872 c0268ccc 
+c0268cd8 00000000 00000000 
+ 000000b8 c01289bc c0268ccc 00000000 00000002 
+00000001 c1043df0 c5e58aa0 
+Call Trace: [<c0128872>] [<c01289bc>] [<c011e8a8>] 
+[<c011effb>] [<c010fa9b>] [<c010f944>] [<c01121ef>] 
+ [<c01077f4>] [<c0108f54>] 
+
+Code: 0f 0b 83 c4 0c 90 8b 03 8b 53 04 89 50 04 89 02 89 d8 
+2b 05 
+kernel BUG at page_alloc.c:191!
+invalid operand: 0000
+CPU: 0
+EIP: 0010:[<c01285ca>]
+EFLAGS: 00013096
+eax: 00000020 ebx: c1041c78 ecx: c67519e0 edx: 
+00000003
+esi: c0268a74 edi: 00000001 ebp: 00000000 esp: 
+c63cfe54
+ds: 0018 es: 0018 ss: 0018
+Process X (pid: 177, stackpage=3Dc63cf000)
+Stack: c0225aa5 c0225c33 000000bf c0268a40 c0268cfc 
+00000002 00000000 00000001 
+ 00003282 00000000 c0268a40 c0128872 c0268cf4 
+c0268d00 00000000 00000000 
+ 000000b8 c01289bc c0268cf4 00000000 00000002 
+00000001 00000000 c63cff58 
+Call Trace: [<c0128872>] [<c01289bc>] [<c0128b7c>] 
+[<c013b333>] [<c01ed7fb>] [<c01dadd7>] [<c013b57f>] 
+ [<c013baa7>] [<c0108e13>] 
+
+Code: 0f 0b 83 c4 0c 90 8b 03 8b 53 04 89 50 04 89 02 89 d8 
+2b 05 
+
+************************************************
+
+output of /var/log/syslog after crash :
+
+Mar 6 16:40:36 palerme gdm[95]: gdm_xdmcp_decode_packet: 
+Unknown opcode from host 160.128.40.83
+Mar 6 16:50:15 palerme gdm[95]: gdm_xdmcp_decode_packet: 
+Unknown opcode from host 160.128.40.83
+Mar 6 17:00:13 palerme kernel: Unable to handle kernel 
+NULL pointer dereference at virtual address 00000000
+Mar 6 17:00:13 palerme kernel: *pde =3D 00000000
+Mar 6 17:02:32 palerme gdm[5663]: 
+gdm_slave_windows_kill_ioerror_handler: Fatal X error - 
+Restarting pc-ea-bdd.xxx:0
+Mar 6 17:07:52 palerme gdm[95]: gdm_xdmcp_decode_packet: 
+Unknown opcode from host 160.128.40.83
+Mar 6 17:18:54 palerme gdm[95]: gdm_xdmcp_decode_packet: 
+Unknown opcode from host 160.128.40.83
+Mar 6 17:28:51 palerme gdm[6775]: 
+gdm_slave_windows_kill_ioerror_handler: Fatal X error - 
+Restarting pc-ea-bdd.xxx:0
+Mar 7 04:40:25 palerme kernel: Unable to handle kernel 
+paging request at virtual address 006f7575
+Mar 7 04:40:25 palerme kernel: *pde =3D 00000000
+Mar 7 09:50:34 palerme gdm[95]: gdm_xdmcp_decode_packet: 
+Unknown opcode from host 160.128.40.83
+Mar 7 09:54:38 palerme kernel: Unable to handle kernel 
+paging request at virtual address 0000636c
+Mar 7 09:54:38 palerme kernel: *pde =3D 00000000
+Mar 7 09:54:43 palerme kernel: Unable to handle kernel 
+paging request at virtual address 0000636c
+Mar 7 09:54:43 palerme kernel: *pde =3D 00000000
+Mar 7 09:54:49 palerme kernel: Unable to handle kernel 
+paging request at virtual address 0000636c
+Mar 7 09:54:49 palerme kernel: *pde =3D 00000000
+Mar 7 09:54:57 palerme kernel: Unable to handle kernel 
+paging request at virtual address 0000636c
+Mar 7 09:54:57 palerme kernel: *pde =3D 00000000
+Mar 7 09:55:01 palerme kernel: Unable to handle kernel 
+paging request at virtual address 0000636c
+Mar 7 09:55:01 palerme kernel: *pde =3D 00000000
+Mar 7 09:55:09 palerme kernel: Unable to handle kernel 
+paging request at virtual address 0000636c
+Mar 7 09:55:09 palerme kernel: *pde =3D 00000000
+
+
+
+here's the output of script/ver_linux :
+
+Linux palerme 2.4.2 #2 Thu Feb 22 10:28:00 CET 2001 i586 
+unknown
+Kernel modules 2.4.1
+Gnu C egcs-2.91.66
+Gnu Make 3.79
+Binutils 2.9.1.0.25
+Linux C Library 2.1.3
+Dynamic linker ldd: version 1.9.9
+Procps 2.0.6
+Mount 2.10l
+Net-tools 1.57
+Kbd 0.99
+Sh-utils 2.0
+Modules Loaded 
+
+
+
+All the next output are taken after the reboot of the 
+system!
+
+
+/proc/cpuinfo
+
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 5
+model		: 2
+model name	: Pentium 75 - 200
+stepping	: 11
+cpu MHz		: 132.959
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: yes
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 1
+wp		: yes
+flags		: fpu vme de pse tsc msr mce cx8 apic
+bogomips	: 264.60
+
+
+
+/proc/modules
+nothing
+
+
+/proc/ioports
+
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+02f8-02ff : serial(auto)
+03c0-03df : vga+
+03f8-03ff : serial(auto)
+0cf8-0cff : PCI conf1
+f880-f8ff : Digital Equipment Corporation DECchip 21140 
+[FasterNet]
+ f880-f8ff : eth0
+fc00-fcff : Adaptec AHA-294x / AIC-7870
+ fc00-fcfe : aic7xxx
+ 
+ 
+
+/proc/iomem
+
+00000000-0009fbff : System RAM
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000c8000-000ca7ff : Extension ROM
+000f0000-000fffff : System ROM
+00100000-067fffff : System RAM
+ 00100000-0021ccb9 : Kernel code
+ 0021ccba-0027c423 : Kernel data
+10000000-100003ff : PCI device 8086:0008 (Intel Corporation)
+10000400-100007ff : PCI device 8086:0008 (Intel Corporation)
+10000800-10000bff : PCI device 8086:0008 (Intel Corporation)
+10000c00-10000fff : PCI device 8086:0008 (Intel Corporation)
+10001000-100013ff : PCI device 8086:0008 (Intel Corporation)
+fd000000-fdffffff : Cirrus Logic GD 5430/40 [Alpine]
+fec00000-fec003ff : reserved
+fee00000-fee00fff : reserved
+fff7e800-fff7ebff : PCI device 8086:0008 (Intel Corporation)
+fff7ec00-fff7ec7f : Digital Equipment Corporation DECchip 
+21140 [FasterNet]
+ fff7ec00-fff7ec7f : eth0
+fff7f000-fff7ffff : Adaptec AHA-294x / AIC-7870
+fff80000-ffffffff : reserved
+
+
+lspci -vvv
+
+00:00.0 Host bridge: Intel Corporation 82434LX 
+[Mercury/Neptune] (rev 11)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- 
+VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr+ 
+DEVSEL=3Dslow >TAbort- <TAbort- <MAbort+ >SERR+ <PERR+
+	Latency: 64
+
+00:02.0 Non-VGA unclassified device: Intel Corporation 
+82375EB (rev 05)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- 
+VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- 
+DEVSEL=3Dmedium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 24
+
+00:09.0 VGA compatible controller: Cirrus Logic GD 5430/40 
+[Alpine] (rev 4c) (prog-if 00 [VGA])
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- 
+VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- 
+DEVSEL=3Dfast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at fd000000 (32-bit, prefetchable) 
+[size=3D16M]
+	Expansion ROM at <unassigned> [disabled] [size=3D16M]
+
+00:0b.0 SCSI storage controller: Adaptec AHA-294x / AIC-
+7870 (rev 03)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- 
+VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- 
+DEVSEL=3Dmedium >TAbort- <TAbort- <MAbort- >SERR- <PERR+
+	Latency: 64 (2000ns min, 2000ns max), cache line 
+size 08
+	Interrupt: pin A routed to IRQ 11
+	Region 0: I/O ports at fc00 [size=3D256]
+	Region 1: Memory at fff7f000 (32-bit, non-
+prefetchable) [size=3D4K]
+	Expansion ROM at <unassigned> [disabled] [size=3D64K]
+
+00:0d.0 Ethernet controller: Digital Equipment Corporation 
+DECchip 21140 [FasterNet] (rev 12)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- 
+VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- 
+DEVSEL=3Dmedium >TAbort- <TAbort- <MAbort- >SERR- <PERR+
+	Latency: 66
+	Interrupt: pin A routed to IRQ 5
+	Region 0: I/O ports at f880 [size=3D128]
+	Region 1: Memory at fff7ec00 (32-bit, non-
+prefetchable) [size=3D128]
+
+00:0e.0 Class ff00: Intel Corporation: Unknown device 0008
+	Subsystem: Unknown device e808:fff7
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- 
+VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- 
+DEVSEL=3Dfast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Region 0: Memory at fff7e800 (32-bit, prefetchable) 
+[size=3D1K]
+	Region 1: Memory at 10000000 (32-bit, prefetchable) 
+[size=3D1K]
+	Region 2: Memory at 10000400 (32-bit, prefetchable) 
+[size=3D1K]
+	Region 3: Memory at 10000800 (32-bit, prefetchable) 
+[size=3D1K]
+	Region 4: Memory at 10000c00 (32-bit, prefetchable) 
+[size=3D1K]
+	Region 5: Memory at 10001000 (32-bit, prefetchable) 
+[size=3D1K]
+	Expansion ROM at fffff800 [disabled] [size=3D2K]
+
+
+/proc/scsi/scsi
+
+Attached devices: 
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+ Vendor: IBM OEM Model: DFHSS2F Rev: 1818
+ Type: Direct-Access ANSI SCSI 
+revision: 02
+Host: scsi0 Channel: 00 Id: 01 Lun: 00
+ Vendor: IBM OEM Model: DFHSS2F Rev: 1818
+ Type: Direct-Access ANSI SCSI 
+revision: 02
+Host: scsi0 Channel: 00 Id: 04 Lun: 00
+ Vendor: TOSHIBA Model: CD-ROM XM-5301TA Rev: 2365
+ Type: CD-ROM ANSI SCSI 
+revision: 02
+Host: scsi0 Channel: 00 Id: 06 Lun: 00
+ Vendor: TANDBERG Model: TDC 3800 Rev: =3D04:
+ Type: Sequential-Access ANSI SCSI 
+revision: 02
+
+______________________________________________________
+Bo=EEte aux lettres - Caramail - http://www.caramail.com
+
+
+--=_NextPart_Caramail_013963983967373_ID--
 

@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291312AbSBVLHW>; Fri, 22 Feb 2002 06:07:22 -0500
+	id <S292840AbSBVLKW>; Fri, 22 Feb 2002 06:10:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292841AbSBVLHM>; Fri, 22 Feb 2002 06:07:12 -0500
-Received: from elin.scali.no ([62.70.89.10]:273 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S291312AbSBVLHG>;
-	Fri, 22 Feb 2002 06:07:06 -0500
-Message-ID: <3C7626A9.330A9249@scali.com>
-Date: Fri, 22 Feb 2002 12:08:25 +0100
-From: Steffen Persvold <sp@scali.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13win4lin i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-CC: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: ioremap()/PCI sickness in 2.4.18-rc2 (FIXED ALMOST)
-In-Reply-To: <20020220103320.A32211@vger.timpanogas.org> <20020220103539.B32211@vger.timpanogas.org> <3C73DC34.E83CCD35@mandrakesoft.com> <20020220.093034.112623671.davem@redhat.com> <20020220110004.A32431@vger.timpanogas.org> <20020220145449.A1102@vger.timpanogas.org> <20020220151053.A1198@vger.timpanogas.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S292843AbSBVLKM>; Fri, 22 Feb 2002 06:10:12 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:40204 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S292840AbSBVLKE>; Fri, 22 Feb 2002 06:10:04 -0500
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
+Date: 22 Feb 2002 10:07:29 GMT
+Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
+Message-ID: <slrna7c631.icv.kraxel@bytesex.org>
+In-Reply-To: <Pine.LNX.4.33.0202131434350.21395-100000@home.transmeta.com> <3C723B15.2030409@evision-ventures.com>
+NNTP-Posting-Host: localhost
+X-Trace: bytesex.org 1014372449 18848 127.0.0.1 (22 Feb 2002 10:07:29 GMT)
+User-Agent: slrn/0.9.7.1 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jeff V. Merkey" wrote:
-> 
-> On Wed, Feb 20, 2002 at 02:54:49PM -0700, Jeff V. Merkey wrote:
-> 
-> > struct vm_struct * get_vm_area(unsigned long size, unsigned long flags)
-> > {
-> >       unsigned long addr;
-> >       struct vm_struct **p, *tmp, *area;
-> >
-> >       area = (struct vm_struct *) kmalloc(sizeof(*area), GFP_KERNEL);
-> >       if (!area)
-> >               return NULL;
-> >       size += PAGE_SIZE;
-> >       addr = VMALLOC_START;
-> >       write_lock(&vmlist_lock);
-> >       for (p = &vmlist; (tmp = *p) ; p = &tmp->next) {
-> >
-> > ===============>  we barf here since the size + addr wraps
-> >
-> 
-> Also, this function should be moved to the /arch/i386/mm area since
-> it is doing pointer arithmetic with 32 bit assumptions (i.e.
-> unsigned long + unsigned long)  Last time I checked, unsigned long
-> was a construct for a 32 bit value in any gcc compiler version, ia64
-> or not.
-> 
+>  1.  Kill the ide-probe-mod by merging it with ide-mod. There is *really*
+>       no reaons for having this stuff split up into two different
+>      modules unless you wan't to create artificial module dependancies 
+>  and waste space
+>      of page boundaries during memmory allocation for the modules
 
-Jeff,
+Ah, seems you are the one who broke modular ide in 2.5.5:
 
-I think you'll have to check again. In LP64 programming models (used on most
-64-bit OS'es) 'long' is 64 bit. Thus a 'unsigned long' is always safe to use
-for pointer arithmetic since it will be 32 bit on 32bit machines and 64bit on
-64bit machines.
+Older kernels:
+  insmod ide-mod, insmod ide-disk, insmod ide-probe-mod  => works.
 
-Regards,
--- 
-  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best
- mailto:sp@scali.com |  http://www.scali.com  | performing MPI implementation:
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.13.8 -
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >320MBytes/s and <4uS latency
+2.5.5:
+  insmod ide-mod, insmod ide-disk  => mounting /dev/hda2 doesn't work.
+
+  Gerd
+

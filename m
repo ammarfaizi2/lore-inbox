@@ -1,88 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263731AbUGFJYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263741AbUGFJe6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263731AbUGFJYm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 05:24:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbUGFJYm
+	id S263741AbUGFJe6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 05:34:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbUGFJe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 05:24:42 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:9660 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S263731AbUGFJYj (ORCPT
+	Tue, 6 Jul 2004 05:34:58 -0400
+Received: from math.ut.ee ([193.40.5.125]:64511 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S263741AbUGFJez (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 05:24:39 -0400
-Date: Tue, 6 Jul 2004 11:24:38 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: system calls-(query)
-Message-ID: <20040706092438.GT18841@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040706080030.35778.qmail@web8310.mail.in.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qyZ1VOjRGk8hBWhg"
-Content-Disposition: inline
-In-Reply-To: <20040706080030.35778.qmail@web8310.mail.in.yahoo.com>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+	Tue, 6 Jul 2004 05:34:55 -0400
+Date: Tue, 6 Jul 2004 12:34:53 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: 2.6.7+BK bad: scheduling while atomic! (ALSA?)
+Message-ID: <Pine.GSO.4.44.0407061231580.25111-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+While running alsamixergui -c 2, I got alsamixergui killed with SEGV and
+the following in dmesg. Additionally, mplayer has big problems playing
+through ALSA with messages
+alsa-space: xrun of at least 30,716 msecs. resetting stream 0,0% 0 0 90%
+and I haven't yet found the place where to turn on xrun debugging.
 
---qyZ1VOjRGk8hBWhg
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+x86 UP PREEMPT.
 
-On Tue, 2004-07-06 09:00:30 +0100, Susheel Raj <susheel_nuguru@yahoo.co.in>
-wrote in message <20040706080030.35778.qmail@web8310.mail.in.yahoo.com>:
-> i have been trying to understand how the system calls
-> are being made by applications and how the kernel
-> reacts to them...this is what i got into my brain....
-> when an application makes a system call ( for i386)
-> %eax register is filled with the system call number
-> and some other registers are to be given some
-> appropriate values..for example ..if i amke an exit ()
-> system call.. then its system call number "1" is
-> filled in %eax and the status code is filled in
-> %ebx...
-> =20
-> so i want to know what are the requirements for other
-> systems calls to execute ...what all registers they
-> access..any documentation would be a great help....=20
+bad: scheduling while atomic!
+ [<c02989a3>] schedule+0x463/0x470
+ [<c014a984>] vfs_write+0xe4/0x120
+ [<c014aa58>] sys_write+0x38/0x60
+ [<c0103eee>] work_resched+0x5/0x16
+bad: scheduling while atomic!
+ [<c02989a3>] schedule+0x463/0x470
+ [<c0113aa4>] do_page_fault+0x104/0x4ff
+ [<c023e91f>] __kfree_skb+0xaf/0x140
+ [<c011635f>] sys_sched_yield+0x3f/0x50
+ [<c0155621>] coredump_wait+0x31/0xa0
+ [<c0155783>] do_coredump+0xf3/0x1b1
+ [<c01e405c>] pty_write+0x10c/0x110
+ [<c0114f5b>] recalc_task_prio+0x8b/0x180
+ [<c01139a0>] do_page_fault+0x0/0x4ff
+ [<c01048d1>] error_code+0x2d/0x38
+ [<c0120ed6>] __dequeue_signal+0xc6/0x160
+ [<c0120f93>] dequeue_signal+0x23/0x80
+ [<c012284b>] get_signal_to_deliver+0x24b/0x330
+ [<c0103c85>] do_signal+0x85/0x100
+ [<c012787c>] __kernel_text_address+0x1c/0x30
+ [<c0104b03>] print_context_stack+0x23/0x60
+ [<c0103eee>] work_resched+0x5/0x16
+ [<c0114f5b>] recalc_task_prio+0x8b/0x180
+ [<c0104b83>] show_trace+0x43/0x80
+ [<c02987b8>] schedule+0x278/0x470
+ [<c014a984>] vfs_write+0xe4/0x120
+ [<c01139a0>] do_page_fault+0x0/0x4ff
+ [<c0103d35>] do_notify_resume+0x35/0x38
+ [<c0103f12>] work_notifysig+0x13/0x15
+note: alsamixergui[3027] exited with preempt_count 1
+bad: scheduling while atomic!
+ [<c02989a3>] schedule+0x463/0x470
+ [<c013c21f>] zap_pmd_range+0x3f/0x60
+ [<c0115186>] try_to_wake_up+0x96/0xb0
+ [<c013c27d>] unmap_page_range+0x3d/0x70
+ [<c013c46e>] unmap_vmas+0x1be/0x1f0
+ [<c0140087>] exit_mmap+0x77/0x150
+ [<c0116e55>] mmput+0x55/0x70
+ [<c011ad23>] do_exit+0x143/0x3e0
+ [<c011b052>] do_group_exit+0x32/0xa0
+ [<c0122839>] get_signal_to_deliver+0x239/0x330
+ [<c0103c85>] do_signal+0x85/0x100
+ [<c012787c>] __kernel_text_address+0x1c/0x30
+ [<c0104b03>] print_context_stack+0x23/0x60
+ [<c0103eee>] work_resched+0x5/0x16
+ [<c0114f5b>] recalc_task_prio+0x8b/0x180
+ [<c0104b83>] show_trace+0x43/0x80
+ [<c02987b8>] schedule+0x278/0x470
+ [<c014a984>] vfs_write+0xe4/0x120
+ [<c01139a0>] do_page_fault+0x0/0x4ff
+ [<c0103d35>] do_notify_resume+0x35/0x38
+ [<c0103f12>] work_notifysig+0x13/0x15
 
-Userland has to place arguments where the kernel expects them. Have a
-look at ./linux/asm-$ARCH/unistd.h to see how syscalls can be made. You
-can think of the _syscallX() macros as the lowest-level "function" to
-get access to a system call slot. From there, the syscall is usually
-dispatched from entry.S.
+-- 
+Meelis Roos (mroos@linux.ee)
 
-Syscalls trigger some kind of interrupt or exception; an exception
-handler then gets the system call number and dispatches it through the
-syscall function pointer's addresses in sys_call_table (in entry.S).
-
-MfG, JBG
-
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---qyZ1VOjRGk8hBWhg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA6m/WHb1edYOZ4bsRAi5nAKCQAgeX2YRrX5rpKV0jzmB3wAwAUQCbBEaB
-udm8u/hiGs+vgdWa2CvF9Yk=
-=8RrW
------END PGP SIGNATURE-----
-
---qyZ1VOjRGk8hBWhg--

@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276928AbRJHPRF>; Mon, 8 Oct 2001 11:17:05 -0400
+	id <S276919AbRJHPTp>; Mon, 8 Oct 2001 11:19:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276919AbRJHPQo>; Mon, 8 Oct 2001 11:16:44 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:51213 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276336AbRJHPQh>; Mon, 8 Oct 2001 11:16:37 -0400
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-To: hadi@cyberus.ca (jamal)
-Date: Mon, 8 Oct 2001 16:22:16 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        andrea@suse.de (Andrea Arcangeli), mingo@elte.hu (Ingo Molnar),
-        linux-kernel@vger.kernel.org (Linux-Kernel), netdev@oss.sgi.com,
-        torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <Pine.GSO.4.30.0110081106500.5473-100000@shell.cyberus.ca> from "jamal" at Oct 08, 2001 11:09:57 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15qcES-0000rh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S276930AbRJHPTf>; Mon, 8 Oct 2001 11:19:35 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:6155 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S276919AbRJHPTT>; Mon, 8 Oct 2001 11:19:19 -0400
+Date: Mon, 8 Oct 2001 11:19:49 -0400
+Message-Id: <200110081519.f98FJnZ10592@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Context switch times
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <3BC067BB.73AF1EB5@welho.com>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 8 Oct 2001, Alan Cox wrote:
-> 
-> > NAPI is important - the irq disable tactic is a last resort. If the right
-> > hardware is irq flood aware it should only ever trigger to save us from
-> > irq routing errors (eg cardbus hangs)
-> 
-> Agreed. As long as the IRQ flood protector can do proper isolation.
-> Here's hat i see on my dell latitude laptop with a built in ethernet (not
-> cardbus related ;->)
+In article <3BC067BB.73AF1EB5@welho.com> Mika.Liljeberg@welho.com wrote:
 
-It doesnt save you from horrible performance. NAPI is there to do that, it
-saves you from a dead box. You can at least rmmod the cardbus controller
-with protection in place (or go looking for the problem with a debugger)
+>Yes. However, you still want to balance the queues even if all CPUs are
+>100% utilized. It's a fairness issue. Otherwise you could have 1 task
+>running on one CPU and 49 tasks on another.
+
+  You say that as if it were a bad thing... I believe that if you have
+one long running task and many small tasks in the system CPU affinity
+will make that happen now. Obviously not if all CPUs are 100% loaded,
+and your 1 vs. 49 is unrealistic, but having a task stay with a CPU
+while trivia run on other CPU(s) is generally a good thing under certain
+load conditions, which I guess are no less likely than your example;-)
+
+-- 
+bill davidsen <davidsen@tmr.com>
+ "If I were a diplomat, in the best case I'd go hungry.  In the worst
+  case, people would die."
+		-- Robert Lipe

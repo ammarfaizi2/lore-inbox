@@ -1,87 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267104AbTAOTWY>; Wed, 15 Jan 2003 14:22:24 -0500
+	id <S266998AbTAOTU3>; Wed, 15 Jan 2003 14:20:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267110AbTAOTWY>; Wed, 15 Jan 2003 14:22:24 -0500
-Received: from eamail1-out.unisys.com ([192.61.61.99]:15791 "EHLO
-	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
-	id <S267104AbTAOTWW>; Wed, 15 Jan 2003 14:22:22 -0500
-Message-ID: <3FAD1088D4556046AEC48D80B47B478C022BD907@usslc-exch-4.slc.unisys.com>
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "'William Lee Irwin III'" <wli@holomorphy.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       James Cleverdon <jamesclv@us.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] (0/7) Finish moving NUMA-Q into subarch, cleanup
-Date: Wed, 15 Jan 2003 13:30:37 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S266996AbTAOTU3>; Wed, 15 Jan 2003 14:20:29 -0500
+Received: from [66.70.28.20] ([66.70.28.20]:61702 "EHLO
+	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
+	id <S266987AbTAOTU1>; Wed, 15 Jan 2003 14:20:27 -0500
+Date: Wed, 15 Jan 2003 20:19:42 +0100
+From: DervishD <raul@pleyades.net>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: argv0 revisited...
+Message-ID: <20030115191942.GD47@DervishD>
+References: <A46BBDB345A7D5118EC90002A5072C7806CACA88@orsmsx116.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C7806CACA88@orsmsx116.jf.intel.com>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi Iñaki :)
 
->Actually, I've also been feeling pain about MAX_IRQ_SOURCES, NR_IRQS,
->and HARDIRQ_BITS in addition to MAX_IO_APICS and MAX_APICS. I'll bet
->some ppl will have trouble with MAX_MP_BUSSES also, though I don't
->have any heavily-populated systems to stress that with.
+> > of init. Remember, is not any program, is an init. Should be a more
+> > clean way, I suppose :??
+> I don't think is that big a deal ... if you startup the system normally,
+> sooner or later, /proc is going to be mounted. A [quickie] variation is:
 
-... and one more from me: isn't it time to let IO-APIC id be 8 bit in the
-asm/io_apic.h (make it a union fot both?..)?
-Look what I have to do in io_apic.h to get around it and ... "mister, have a
-heart":
-=========================================
-struct IO_APIC_reg_00 {
-	__u32	__reserved_2	: 24,
-		ID		:  4,
-		__reserved_1	:  4;
-} __attribute__ ((packed));
-#ifdef CONFIG_ES7000
-struct IO_APIC_reg_00_1 {
-        __u32   __reserved_2    : 24,
-                ID              :  8;
-} __attribute__ ((packed));
-#endif /* CONFIG_ES7000 */
-=========================================
+    Yes, I know, and that's one option, but I would like to avoid the
+mounting. Not a big deal, anyway, as you say. The only thing is that
+it won't work in kernels without proc enabled (yes, there are people
+without 'proc', size issues, I suppose, etc...).
 
-and then in io_apic.c:
-
-=========================================
-#ifdef CONFIG_ES7000
-	struct IO_APIC_reg_00_1 reg_00_1;
-	unsigned long *reg_00_p;
-	
-	if (es7000_plat)
-		reg_00_p = (unsigned long *)&reg_00_1;
-	else
-		reg_00_p = (unsigned long *)&reg_00;
-#endif /*CONFIG_ES7000*/
-.......
-#ifndef CONFIG_ES7000
-		*(int *)&reg_00 = io_apic_read(apic, 0);
-#else
-		*(int *)reg_00_p = io_apic_read(apic, 0);
-#endif /*CONFIG_ES7000*/
-.....
-====================================================
-
->There are also somewhat deeper issues with vector assignments to
->interrupt sources that prevent elevating any of the above to useful
->levels and utilizing them. The assumptions based on the vector assignment
->algorithm appear to be widely distributed enough to discourage me after
->an initial attempt or two to get any kind of useful interrupt routing
->for a number of IRQ sources larger than the number of vectors.
-
-I strongly suggest to take a look in IA64 implementation. 
-They have 1:1 correspondence between IRQ and vector and don't seem to be
-able to run out of vectors or IRQs.
-
->I pretty much reprogrammed the IDT to push only the vector and then still
->got interrupts on the wrong node(s) despite the physical broadcast RTE's
->plus (node, vector) <-> irq accounting and irq number lookup in do_IRQ().
-
+    Thanks a lot :)
+    Raúl

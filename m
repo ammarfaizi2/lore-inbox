@@ -1,62 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269958AbTGRInR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 04:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270441AbTGRInR
+	id S270441AbTGRIt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 04:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270727AbTGRIt0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 04:43:17 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:13322 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S269958AbTGRInQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 04:43:16 -0400
-Date: Fri, 18 Jul 2003 10:58:10 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Walt H <waltabbyh@comcast.net>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       arjanv@redhat.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       davzaffiro@tasking.nl
-Subject: Re: [PATCH] pdcraid and weird IDE geometry
-Message-ID: <20030718105810.A2925@pclin040.win.tue.nl>
-References: <3F160965.7060403@comcast.net> <1058431742.5775.0.camel@laptop.fenrus.com> <3F16B49E.8070901@comcast.net> <1058453918.9055.12.camel@dhcp22.swansea.linux.org.uk> <20030717173413.A2393@pclin040.win.tue.nl> <3F175C5C.3030708@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3F175C5C.3030708@comcast.net>; from waltabbyh@comcast.net on Thu, Jul 17, 2003 at 07:33:00PM -0700
+	Fri, 18 Jul 2003 04:49:26 -0400
+Received: from bart.one-2-one.net ([217.115.142.76]:13830 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S270441AbTGRItY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 04:49:24 -0400
+Date: Fri, 18 Jul 2003 11:05:01 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+X-X-Sender: martin@notebook.home.mdiehl.de
+To: Duncan Sands <baldrick@wanadoo.fr>
+cc: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@redhat.com>,
+       <schlicht@uni-mannheim.de>, <ricardo.b@zmail.pt>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: SET_MODULE_OWNER
+In-Reply-To: <200307180931.39177.baldrick@wanadoo.fr>
+Message-ID: <Pine.LNX.4.44.0307181045520.14014-100000@notebook.home.mdiehl.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 17, 2003 at 07:33:00PM -0700, Walt H wrote:
+On Fri, 18 Jul 2003, Duncan Sands wrote:
 
-> OK. Just got home from work. I've tried booting and specifying geometry
-> via hdg=79780,16,63 hdg=noprobe etc... The geometry is accepted,
-> however, drive access fails when trying to read the disk. This geometry
-> is the geometry reported by hde (my old drive without screwy geometry).
->  The code in calc_pdcblock_offset to calculate the offset is unchanged
-> in my patch (except the date type conversion to float) and calls
-> get_info_ptr for geometry.
+> On Thursday 17 July 2003 22:22, Jeff Garzik wrote:
+> > David S. Miller wrote:
+> > > On Thu, 17 Jul 2003 12:00:58 -0400
+> > >
+> > > Jeff Garzik <jgarzik@pobox.com> wrote:
+> > >>David?  Does Rusty have a plan here or something?
+> > >
+> > > It just works how it works and that's it.
+> > >
+> > > Net devices are reference counted, anything more is superfluous.
+> > > They may be yanked out of the kernel whenever you want.
+> >
+> > (I'm obviously just realizing the implications of this... missed it
+> > completely during the earlier discussions)
+> >
+> > Object lifetime is just part of the story.
+> >
+> > This change is a major behavior change.  The whole point of removing a
+> > module is knowing its gone ;-)  And that is completely changed now.
+> > Modules are very often used by developers in a "modprobe ; test ; rmmod"
+> > cycle, and that's now impossible (you don't know when the net device,
+> > and thus your code, is really gone).  It's already breaking userland,
+> > which does sweeps for zero-refcount modules among other things.
+> 
+> Most USB drivers can be unloaded at any time, so this problem already
+> existed elsewhere.
 
-I don't understand. Did you introduce some float? Remove it immediately.
+Most? Since when?
 
-You just replace
+For me neither usb-storage nor usbserial (pl2303 f.e.) can be unloaded 
+when in use (storage being mounted or /dev/usb/ttyUSBX opened).
 
-        lba = (ideinfo->capacity / (ideinfo->head*ideinfo->sect));
-        lba = lba * (ideinfo->head*ideinfo->sect);
-        lba = lba - ideinfo->sect;
+True, irda-usb (and probably usbnet) can be unloaded when the interface is 
+up since a few weeks - but this is due to the networking not bumping 
+the module use counter anymore, nothing todo with usb.
 
-by
+Doing something comparable to network with usb in general one would need 
+to change usb-storage reporting use-count==0 while the disk is mounted!
+Only then one could rmmod and the fs would (hopefully) get synced and 
+unmounted (or staled) automagically.
 
-	lba = ideinfo->capacity - 63;
+Personally I believe it all comes down to the semantics of the module use 
+counter. If it's taken to indicate the module cannot be unloaded while 
+!=0, it might (or should) stay ==0 if the underlaying subsystem can handle 
+module removal at any time safe - like it is done for network now.
 
-Then everything works for you, I suppose.
-Subsequently we wait for other people with the same hardware
-and see how the 63 varies as a function of their setup.
-(Or maybe you can go into the BIOS and specify different
-translations yourself?)
+In contrast, if the module use count is taken to indicate a module is in 
+use (interface up, fs mounted, chardev open, ...) I'd expect it to be >0.
+Being unable to rmmod in this situation is just a consequence of the fact 
+it's being used then, regardless whether we could rmmod anyway.
 
-(By the way, didnt your boot parameters lead to ideinfo->head = 16
-and ideinfo->sect = 63?)
+OTOH David has a point as the current situation with network helps to 
+identify bugs there - YMMV.
 
-Andries
+Martin
 

@@ -1,112 +1,196 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131601AbQLVLjZ>; Fri, 22 Dec 2000 06:39:25 -0500
+	id <S129733AbQLVLv2>; Fri, 22 Dec 2000 06:51:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131531AbQLVLjQ>; Fri, 22 Dec 2000 06:39:16 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:16525 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S131601AbQLVLjD>; Fri, 22 Dec 2000 06:39:03 -0500
-Message-ID: <3A43375C.40765043@uow.edu.au>
-Date: Fri, 22 Dec 2000 22:13:32 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: berndj@prism.co.za
-CC: linux-kernel@vger.kernel.org
-Subject: Re: possible pty DoS
-In-Reply-To: <20001220150556.A29985@prism.co.za>
+	id <S131531AbQLVLvS>; Fri, 22 Dec 2000 06:51:18 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:54024 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S129733AbQLVLvP>; Fri, 22 Dec 2000 06:51:15 -0500
+Date: Fri, 22 Dec 2000 14:21:40 +0300
+From: Alexander Zarochentcev <zam@namesys.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: memmove() in 2.4.0-test12, alpha platform
+Message-ID: <20001222142140.A26598@crimson.namesys.com>
+In-Reply-To: <20001220220342.B20612@crimson.namesys.com> <20001221184046.A6717@jurassic.park.msu.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001221184046.A6717@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Thu, Dec 21, 2000 at 06:40:46PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-This 2.4 bug must be fixed.
-
-
-berndj@prism.co.za wrote:
+On Thu, Dec 21, 2000 at 06:40:46PM +0300, Ivan Kokshaysky wrote:
+> On Wed, Dec 20, 2000 at 10:03:42PM +0300, Alexander Zarochentcev wrote:
+> > New (since test12) optimized memmove function seems to be broken
+> > on alpha platform. 
 > 
-> This snippet can prevent progress of any other processes that tries to do
-> a write to a pty:
+> Indeed it is.
 > 
-> ============
->         #include <sys/fcntl.h>
->         #include <unistd.h>
+> > If dest and src arguments are misaligned, new memmove does wrong things.
 > 
->         int main()
->         {
->                 int ptm;
->                 ptm = open("/dev/ptmx", O_WRONLY);
->                 while (1)
->                         write(ptm, "hello, world!\n", 14);
->         }
-> ============
+> Actually it broke when dest < src. Incrementing pointers should be used in
+> this case.
 > 
+> This patch seems to work (tested in userspace).
+> 
+> Ivan.
+> 
+> --- linux/arch/alpha/lib/memmove.S.orig	Tue Dec 12 00:46:26 2000
+> +++ linux/arch/alpha/lib/memmove.S	Thu Dec 21 18:32:59 2000
+> @@ -26,12 +26,16 @@ memmove:
+>  	bne $1,memcpy
+>  
+>  	and $2,7,$2			/* Test for src/dest co-alignment.  */
+> -	bne $2,$misaligned
+> +	and $16,7,$1
+> +	cmpule $16,$17,$3
+> +	bne $3,$memmove_up		/* dest < src */
+>  
+>  	and $4,7,$1
+> -	beq $1,$skip_aligned_byte_loop_head
+> +	bne $2,$misaligned_dn
+> +	unop
+> +	beq $1,$skip_aligned_byte_loop_head_dn
+>  
+> -$aligned_byte_loop_head:
+> +$aligned_byte_loop_head_dn:
+>  	lda $4,-1($4)
+>  	lda $5,-1($5)
+>  	unop
+> @@ -48,13 +52,13 @@ $aligned_byte_loop_head:
+>  	and $4,7,$6
+>  
+>  	stq_u $1,0($4)
+> -	bne $6,$aligned_byte_loop_head
+> +	bne $6,$aligned_byte_loop_head_dn
+>  
+> -$skip_aligned_byte_loop_head:
+> +$skip_aligned_byte_loop_head_dn:
+>  	lda $18,-8($18)
+> -	blt $18,$skip_aligned_word_loop
+> +	blt $18,$skip_aligned_word_loop_dn
+>  
+> -$aligned_word_loop:
+> +$aligned_word_loop_dn:
+>  	ldq $1,-8($5)
+>  	nop
+>  	lda $5,-8($5)
+> @@ -63,22 +67,22 @@ $aligned_word_loop:
+>  	stq $1,-8($4)
+>  	nop
+>  	lda $4,-8($4)
+> -	bge $18,$aligned_word_loop
+> +	bge $18,$aligned_word_loop_dn
+>  
+> -$skip_aligned_word_loop:
+> +$skip_aligned_word_loop_dn:
+>  	lda $18,8($18)
+> -	bgt $18,$byte_loop_tail
+> +	bgt $18,$byte_loop_tail_dn
+>  	unop
+>  	ret $31,($26),1
+>  
+>  	.align 4
+> -$misaligned:
+> +$misaligned_dn:
+>  	nop
+>  	fnop
+>  	unop
+>  	beq $18,$egress
+>  
+> -$byte_loop_tail:
+> +$byte_loop_tail_dn:
+>  	ldq_u $3,-1($5)
+>  	ldq_u $2,-1($4)
+>  	lda $5,-1($5)
+> @@ -91,8 +95,77 @@ $byte_loop_tail:
+>  
+>  	bis $1,$2,$1
+>  	stq_u $1,0($4)
+> +	bgt $18,$byte_loop_tail_dn
+> +	br $egress
+> +
+> +$memmove_up:
+> +	mov $16,$4
+> +	mov $17,$5
+> +	bne $2,$misaligned_up
+> +	beq $1,$skip_aligned_byte_loop_head_up
+> +
+> +$aligned_byte_loop_head_up:
+> +	unop
+> +	ble $18,$egress
+> +	ldq_u $3,0($5)
+> +	ldq_u $2,0($4)
+> +
+> +	lda $18,-1($18)
+> +	extbl $3,$5,$1
+> +	insbl $1,$4,$1
+> +	mskbl $2,$4,$2
+> +
+> +	bis $1,$2,$1
+> +	lda $5,1($5)
+> +	stq_u $1,0($4)
+> +	lda $4,1($4)
+> +
+> +	and $4,7,$6
+> +	bne $6,$aligned_byte_loop_head_up
+> +
+> +$skip_aligned_byte_loop_head_up:
+> +	lda $18,-8($18)
+> +	blt $18,$skip_aligned_word_loop_up
+> +
+> +$aligned_word_loop_up:
+> +	ldq $1,0($5)
+> +	nop
+> +	lda $5,8($5)
+> +	lda $18,-8($18)
+> +
+> +	stq $1,0($4)
+> +	nop
+> +	lda $4,8($4)
+> +	bge $18,$aligned_word_loop_up
+> +
+> +$skip_aligned_word_loop_up:
+> +	lda $18,8($18)
+> +	bgt $18,$byte_loop_tail_up
+> +	unop
+> +	ret $31,($26),1
+> +
+> +	.align 4
+> +$misaligned_up:
+> +	nop
+> +	fnop
+> +	unop
+> +	beq $18,$egress
+> +
+> +$byte_loop_tail_up:
+> +	ldq_u $3,0($5)
+> +	ldq_u $2,0($4)
+> +	lda $18,-1($18)
+> +	extbl $3,$5,$1
+> +
+> +	insbl $1,$4,$1
+> +	mskbl $2,$4,$2
+> +	bis $1,$2,$1
+> +	stq_u $1,0($4)
+> +
+> +	lda $5,1($5)
+> +	lda $4,1($4)
+>  	nop
+> -	bgt $18,$byte_loop_tail
+> +	bgt $18,$byte_loop_tail_up
+>  
+>  $egress:
+>  	ret $31,($26),1
 
-Your program fills up the pty write buffer and then blocks.
-This is fair enough.  But it blocks while holding the /dev/ptmx
-inode semaphore, so _all_ other users of /dev/ptmx are blocked.
-Your xterms get stuck, telnet and ssh are dead.  It's time to
-find the car keys.
+Ok. It works.
 
-In 2.2, we have a per-tty semaphore.  No problems.  This
-patch basically restores the 2.2 implementation and it
-passes basic sanity testing.
+Thanks.
 
-But it's not my area.  Is there really a _need_ to take the inode
-semaphore while we're writing to the pty instance?  I hope
-not, because I took that out.
-
-Perhaps it would be logical to clone the /dev/ptmx inode
-in some manner when it's opened?
-
-Anyone?
-
-
-
---- linux-2.4.0-test13-pre4/include/linux/tty.h	Tue Dec 12 19:24:23 2000
-+++ linux-akpm/include/linux/tty.h	Fri Dec 22 21:44:47 2000
-@@ -305,6 +305,7 @@
- 	unsigned long canon_head;
- 	unsigned int canon_column;
- 	struct semaphore atomic_read;
-+	struct semaphore atomic_write;
- 	spinlock_t read_lock;
- };
- 
---- linux-2.4.0-test13-pre4/drivers/char/tty_io.c	Tue Dec 12 19:24:17 2000
-+++ linux-akpm/drivers/char/tty_io.c	Fri Dec 22 21:48:22 2000
-@@ -699,9 +699,8 @@
- 	size_t count)
- {
- 	ssize_t ret = 0, written = 0;
--	struct inode *inode = file->f_dentry->d_inode;
- 	
--	if (down_interruptible(&inode->i_sem)) {
-+	if (down_interruptible(&tty->atomic_write)) {
- 		return -ERESTARTSYS;
- 	}
- 	if ( test_bit(TTY_NO_WRITE_SPLIT, &tty->flags) ) {
-@@ -734,7 +733,7 @@
- 		file->f_dentry->d_inode->i_mtime = CURRENT_TIME;
- 		ret = written;
- 	}
--	up(&inode->i_sem);
-+	up(&tty->atomic_write);
- 	return ret;
- }
- 
-@@ -1972,6 +1971,7 @@
- 	tty->tq_hangup.routine = do_tty_hangup;
- 	tty->tq_hangup.data = tty;
- 	sema_init(&tty->atomic_read, 1);
-+	sema_init(&tty->atomic_write, 1);
- 	spin_lock_init(&tty->read_lock);
- 	INIT_LIST_HEAD(&tty->tty_files);
- }
-
--
+-- 
+Alex.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

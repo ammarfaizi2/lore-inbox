@@ -1,65 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264966AbUGGIDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264960AbUGGITJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264966AbUGGIDG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 04:03:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264965AbUGGIDG
+	id S264960AbUGGITJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 04:19:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264965AbUGGITJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 04:03:06 -0400
-Received: from shockwave.systems.pipex.net ([62.241.160.9]:61129 "EHLO
-	shockwave.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S264966AbUGGICz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 04:02:55 -0400
-Date: Wed, 7 Jul 2004 09:01:38 +0100 (BST)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: tigran@einstein.homenet
-To: Andrew Morton <akpm@osdl.org>
-Cc: Brad Fitzpatrick <brad@danga.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: nfs_inode_cache not getting pruned
-In-Reply-To: <20040707004034.540e3fcb.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0407070845570.1240-100000@einstein.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Jul 2004 04:19:09 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:37554 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S264960AbUGGITF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 04:19:05 -0400
+Date: Wed, 7 Jul 2004 10:19:04 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Redeeman <lkml@metanurb.dk>
+Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: quite big breakthrough in the BAD network performance, which mm6 did not fix
+Message-ID: <20040707081904.GA21398@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Redeeman <lkml@metanurb.dk>,
+	LKML Mailinglist <linux-kernel@vger.kernel.org>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>
+References: <200407061930.i66JUpqI009671@eeyore.valparaiso.cl> <1089160973.903.1.camel@localhost> <200407061812.24526.lkml@lpbproductions.com> <1089179186.10677.8.camel@localhost> <20040707063100.GA18382@outpost.ds9a.nl> <1089182265.10687.4.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1089182265.10687.4.camel@localhost>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Jul 2004, Andrew Morton wrote:
-> Sorry, I still cannot reproduce it.  I suspect it's specific to the access
-> patterns in some way.
+On Wed, Jul 07, 2004 at 08:37:44AM +0200, Redeeman wrote:
 
-A simple access pattern that drives mad any filesystem over NFS is:
+> its 1 as default, using the tcp patch from another thread fixes so that i can connect to sites. (packages.gentoo.org etc)
+> where before that patch came, i echo'ed 0 into it, and it worked aswell,
+> however i didnt get more than 50kb/s either :|
 
-# symlink & readlink & unlink &
+Redeeman, from your trace to outpost.ds9a.nl:10000 I note that something in
+your path removes the wscale option, or that you have turned off window
+scaling entirely. Can you check /proc/sys/net/ipv4/tcp_window_scaling ?
 
-symlink.c is while (1) symlink("a", "/test/b");
-readlink.c is while(1) readlink("/test/b", buf, 900);
-unlink.c is while(1) unlink("/test/b");
+43.909623 redeeman.33083 > 213.244.168.210.10000: S 4031970603:4031970603(0) 
+	win 5840 <mss 1322,sackOK,timestamp 23502 0>
+43.909678 213.244.168.210.10000 > redeeman.33083: S 634167324:634167324(0) 
+	ack 4031970604 win 5792 <mss 1460,sackOK,timestamp 2136531455 23502> (DF)
+43.951129 redeeman.33083 > 213.244.168.210.10000: . 
+	ack 1 win 5840 <nop,nop,timestamp 23543 2136531455>
 
-On the server nothing interesting happens (except expected messages about
-"//b" being already there and d_count being too high):
+I also note that you most probably have tcp_default_win_scale set to 0.
 
-nfs_safe_remove: //b busy, d_count=2
-nfs_proc_symlink: //b already exists??
-nfs_proc_symlink: //b already exists??
-nfs_proc_symlink: //b already exists??
-nfs_proc_symlink: //b already exists??
-nfs_proc_symlink: //b already exists??
-nfs_proc_symlink: //b already exists??
-nfs_proc_symlink: //b already exists??
-nfs_safe_remove: //b busy, d_count=2
-nfs_proc_symlink: //b already exists??
-nfs_proc_symlink: //b already exists??
+Can you confirm for me that with 2.6.7-mm6 (and exactly that version)
+	- you have no TCP connectivity to packages.gentoo.org by default
 
-But on the client the inode_cache and dentry_cache grow indefinitely. The
-kernel (both client and server) is 2.4.21-15.ELsmp (haven't tried on 2.6
-yet). The fs on the server was ext3 made with default options and mounted 
-with defaults and exported with:
+	- you can access packages.gentoo.org with /proc/sys/net/ipv4/tcp_default_win_scale
+	  at both 1 and 0
 
-/mnt *(rw,no_root_squash,insecure,no_subtree_check,sync)
+	- that speed, even with tcp_default_win_scale set to 0, is
+	  significantly lower than with stock 2.6.7, that is, if you
+	  download some big files, and measure that, and then reboot
+	  immediately to 2.6.7, things get lots faster
 
-Btw, this access pattern was suggested by running racer. If you run the
-whole racer over NFS you may hit other interesting problems after a
-while.
+Alternatively, can you reboot to a kernel with the problem ("can't connect
+to packages.gentoo.org") and try to connect to http://outpost.ds9a.nl:10000
+and tcpdump that and send me the dump (if it does in fact not work).
 
-Kind regards
-Tigran
+Regards,
 
+bert
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbUCHWLM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 17:11:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbUCHWK4
+	id S261366AbUCHWLT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 17:11:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUCHWLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 17:10:56 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:15034 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S261375AbUCHWKf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 17:10:35 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Mon, 8 Mar 2004 17:11:15 -0500
+Received: from nms.rz.uni-kiel.de ([134.245.1.2]:1263 "EHLO uni-kiel.de")
+	by vger.kernel.org with ESMTP id S261370AbUCHWKX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 17:10:23 -0500
+From: Mike Gabriel <mgabriel@ecology.uni-kiel.de>
+Reply-To: mgabriel@ecology.uni-kiel.de
+To: linux-kernel@vger.kernel.org
+Subject: all people's firewire hds working?
+Date: Mon, 8 Mar 2004 23:08:45 +0100
+User-Agent: KMail/1.6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16460.61267.364413.100233@napali.hpl.hp.com>
-Date: Mon, 8 Mar 2004 14:10:27 -0800
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, davidm@hpl.hp.com,
-       Takayoshi Kochi <t-kochi@bq.jp.nec.com>, benjamin.liu@intel.com,
-       iod00d@hp.com, kaneshige.kenji@jp.fujitsu.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix PCI interrupt setting for ia64
-In-Reply-To: <200403081505.21644.bjorn.helgaas@hp.com>
-References: <3ACA40606221794F80A5670F0AF15F8401B1A017@PDSMSX403.ccr.corp.intel.com>
-	<16460.59685.452893.22564@napali.hpl.hp.com>
-	<20040308215448.I21938@flint.arm.linux.org.uk>
-	<200403081505.21644.bjorn.helgaas@hp.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200403082308.45892.mgabriel@ecology.uni-kiel.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 8 Mar 2004 15:05:21 -0700, Bjorn Helgaas <bjorn.helgaas@hp.com> said:
+hi there,
 
-  Bjorn> My inclination is that it's better to help find ACPI bugs,
-  Bjorn> and if broken tables turn out to be a problem, we can add
-  Bjorn> some kind of command-line switch or blacklist to deal with
-  Bjorn> it.  But I guess we should really get David's opinion, since
-  Bjorn> this is a potential issue for 2.6 distributions.
+is anyone able to use firewire hds (mine is a notebook-ide-drive, 40gb, in 
+real life) with kernel 2.6.3?
 
-I agree with Bjorn's reasoning, but think that the patch should be
-tested first on a Big Sur machine (with the latest official firmware).
-If something breaks with old firmware, we can then at least ask the
-affected people to upgrade their firmware (or come up with a kernel
-workaround).
+my syslog always complains:
+> ieee1394: ConfigROM quadlet transaction error for node 00:1023 
 
-	--david
+if you google for this line, you find loads of posters having the same 
+problem, but no one has provided them any answers.
+
+thus, i wonder, if all the other ide firewire drives on this nice planet are 
+working fine under 2.6.x ...
+
+BTW: mine is with working fine under kernel 2.4.xx, but i tend to be 
+progressive (i.e. 2.6.x-ish)
+
+any ideas?
+
+mike gabriel
+
+-- 
+
+Oekologiezentrum
+Christian-Albrecht-Universität zu Kiel
+- netzwerkteam -
+Mike Gabriel
+Olshausenstr 75.
+24118 Kiel
+
+fon: +49 431 880-1186
+mail: mgabriel@ecology.uni-kiel.de
+www: http://www.ecology.uni-kiel.de, http://zope.ecology.uni-kiel.de
+     

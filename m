@@ -1,89 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268085AbUIGOQX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268082AbUIGOQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268085AbUIGOQX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 10:16:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268080AbUIGOQW
+	id S268082AbUIGOQj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 10:16:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268080AbUIGOQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 10:16:22 -0400
-Received: from cantor.suse.de ([195.135.220.2]:60395 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268085AbUIGOPZ (ORCPT
+	Tue, 7 Sep 2004 10:16:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62871 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268095AbUIGOPl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 10:15:25 -0400
-Date: Tue, 7 Sep 2004 16:15:24 +0200
-From: Andi Kleen <ak@suse.de>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel
-Message-ID: <20040907141524.GA13862@wotan.suse.de>
-References: <20040901072245.GF13749@mellanox.co.il> <20040903080058.GB2402@wotan.suse.de> <20040907104017.GB10096@mellanox.co.il> <20040907121418.GC25051@wotan.suse.de> <20040907134517.GA1016@mellanox.co.il>
+	Tue, 7 Sep 2004 10:15:41 -0400
+Date: Tue, 7 Sep 2004 16:15:31 +0200
+From: Heinz Mauelshagen <mauelshagen@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: *** Announcement: dmraid 1.0.0-rc4 ***
+Message-ID: <20040907141531.GA13871@redhat.com>
+Reply-To: mauelshagen@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040907134517.GA1016@mellanox.co.il>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 07, 2004 at 04:45:18PM +0300, Michael S. Tsirkin wrote:
-> > > I built a silly driver example which just used a semaphore and a switch
-> > > statement inside the ioctl.
-> > > 
-> > > ~/<1>tavor/tools/driver_new>time /tmp/ioctltest64 /dev/mst/mt23108_pci_cr0
-> > > 0.357u 4.760s 0:05.11 100.0%    0+0k 0+0io 0pf+0w
-> > > ~/<1>tavor/tools/driver_new>time /tmp/ioctltest32 /dev/mst/mt23108_pci_cr0
-> > > 0.641u 6.486s 0:07.12 100.0%    0+0k 0+0io 0pf+0w
-> > > 
-> > > So just looking at system time there seems to be an overhead of
-> > > about 20%.
-> > 
-> > That's with an empty ioctl?
-> 
-> Not exactly empty - below's the code snippet.
 
-Hmm, ok. Surprising then. Can you profile it to see where 
-the bottleneck exactly is? 
+               *** Announcement: dmraid 1.0.0-rc4 ***
 
-> > I would expect most ioctls to do
-> > more work, so the overhead would be less.
-> > Still it could be probably made better. 
-> 
-> Then I expect you'll get bitten by the BKL taken while ioctl runs.
+dmraid 1.0.0-rc4 is available at
+http://people.redhat.com:/~heinzm/sw/dmraid/ in source, source rpm and i386 rpm.
 
-Yes, but that's a general problem, not specific to compat ioctls.
+dmraid (Device-Mapper Raid tool) discovers, [de]activates and displays
+properties of software RAID sets (ie. ATARAID) and contained DOS
+partitions using the device-mapper runtime of the 2.6 kernel.
 
-So far nobody dared to drop the BKL for ioctls because it would
-require to audit/fix a *lot* of code.
+The following ATARAID types are supported on Linux 2.6:
 
-The idea of taking the BKL during the hash lookup was that
-when the BKL is taken anyways it doesn't make too much 
-difference to take it a little bit longer. But this assumed
-that the hash lookup is fast. If it isn't maybe the hash
-function should just be optimized a bit or the table increased.
+Highpoint HPT37X
+Highpoint HPT45X
+Intel Software RAID
+Promise FastTrack
+Silicon Image Medley
 
-Most of the values are known at compile time, so maybe
-some perfect hash generator like gperf could be used to
-generate a better hash? 
+This ATARAID type is only basically supported in this version (I need
+better metadata format specs; please help):
+LSI Logic MegaRAID
+
+Please provide insight to support those metadata formats completely.
+
+Thanks.
+
+See files README and CHANGELOG, which come with the source tarball for
+prerequisites to run this software, further instructions on installing
+and using dmraid!
+
+CHANGELOG is contained below for your convenience as well.
 
 
-> >
-> > In theory the BKL could be dropped from the lookup anyways
-> > if RCU is needed for the cleanup. For locking the handler 
-> > itself into memory it doesn't make any difference.
-> > 
-> > What happens when you just remove the lock_kernel() there? 
-> > (as long as you don't unload any modules this should be safe) 
-> > 
-> > -Andi
-> 
-> Well, I personally do want to enable module unloading.
+Call for testers:
+-----------------
 
-It works fine as long as the compat function is in the same
-module as the one providing the file_ops.
+I need testers with the above ATARAID types, to check that the mapping
+created by this tool is correct (see options "-t -ay") and access to the ATARAID
+data is proper.
 
-> I think I'll add a new entry point to f_ops  and see what *this* does
-> to speed. That would be roughly equivalent, and cleaner, right?
+In case you have a different ATARAID solution from those listed above,
+please feel free to contact me about supporting it in dmraid.
 
-It may help your module, but won't solve the general problem shorter
-term.
+You can activate your ATARAID sets without danger of overwriting
+your metadata, because dmraid accesses it read-only unless you use
+option -E with -r in order to erase ATARAID metadata (see 'man dmraid')!
 
--Andi
+This is a release candidate version so you want to have backups of your valuable
+data *and* you want to test accessing your data read-only first in order to
+make sure that the mapping is correct before you go for read-write access.
 
+
+The author is reachable at <Mauelshagen@RedHat.com>.
+
+For test results, mapping information, discussions, questions, patches,
+enhancement requests and the like, please subscribe and mail
+to <ataraid@redhat.com>.
+
+--
+
+Regards,
+Heinz    -- The LVM Guy --
+
+
+CHANGELOG:
+---------
+
+
+Changelog from dmraid 1.0.0-rc3 to 1.0.0-rc4		2004.09.07
+
+FIXES:
+------
+o get_dm_serial fix for trailing blanks
+o infinite loop bug in makefile
+o unified RAID #defines
+o RAID disk erase size
+o avoided unnecessary read in isw_read()
+o segfault in build_set() on RAID set group failure
+o activation of partitions on Intel Software RAID
+o allow display if tables for active RAID sets (-t -ay)
+o discovering no RAID disks shouldn't return an error
+o free_set would have segfaulted on virgin RAID set structures
+o deep DOS partition chains (Paul Moore)
+o "dmraid -sa" displayed group RAID set with Intel Software RAID
+  when it shouldn't
+o return RAID super set pointer from hpt45x_group() and sil_group()
+  rether than sub set pointer
+
+
+FEATURES:
+---------
+
+o added offset output to all native metadata logs
+o started defining metadata format handler event method needed for
+  write updates to native metadata (eg, for mirror failure)
+o [de]activation of a single raid sets below a group one (isw)
+o support for multiple -c options (see "man dmraid"):
+  "dmraid -b -c{0,2}"
+  "dmraid -r -c{0,2}"
+  "dmraid -s -c{0,3}"
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+Heinz Mauelshagen                                 Red Hat GmbH
+Consulting Development Engineer                   Am Sonnenhang 11
+                                                  56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@RedHat.com                            +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264533AbSIVUso>; Sun, 22 Sep 2002 16:48:44 -0400
+	id <S264528AbSIVUsF>; Sun, 22 Sep 2002 16:48:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264538AbSIVUsO>; Sun, 22 Sep 2002 16:48:14 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:10368 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S264534AbSIVUrL>;
-	Sun, 22 Sep 2002 16:47:11 -0400
-Date: Sat, 21 Sep 2002 23:09:15 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Grover <andrew.grover@intel.com>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Thermal fix
-Message-ID: <20020921210915.GA31794@elf.ucw.cz>
+	id <S264538AbSIVUrM>; Sun, 22 Sep 2002 16:47:12 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:11136 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S264528AbSIVUrI>;
+	Sun, 22 Sep 2002 16:47:08 -0400
+Date: Tue, 17 Sep 2002 15:31:14 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Martin Mares <mj@ucw.cz>
+Cc: Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] lockless, scalable get_pid(), for_each_process() elimination, 2.5.35-BK
+Message-ID: <20020917153114.A35@toy.ucw.cz>
+References: <20020918164553.GB28202@holomorphy.com> <Pine.LNX.4.44.0209181932580.24794-100000@localhost.localdomain> <20020919192758.GA430@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020919192758.GA430@ucw.cz>; from mj@ucw.cz on Thu, Sep 19, 2002 at 09:27:58PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-Without this, thermal support will happily cook your machine. Well if
-it does cook it was non-compliant, it should have shut down. Anyway,
-this is important, please apply.
+> > nevertheless we do lock up for 32 seconds if there are 32K PIDs allocated
+> > in a row and last_pid hits that range - regardless of pid_max. (Depending
+> > on the cache architecture it could take significantly more.)
+> 
+> What about randomizing the PID selection a bit? I.e., allocate PIDs
+> consecutively as long as they are free; if you hit an already used
+> PID, roll dice to find a new position where the search should be
+> continued. As long as the allocated fraction of PID space is reasonably
+> small, this algorithm should be very quick in average case.
+
+Problem is it may take infinite time if you are unlucky...
 								Pavel
-PS: Is it possible that broken thermal support killed my harddrive? I
-was experiencing some overheats, now drive developed bad sectors :-(.
-
---- clean/drivers/acpi/processor.c	2002-07-29 20:02:23.000000000 +0200
-+++ linux-swsusp/drivers/acpi/processor.c	2002-09-21 13:07:50.000000000 +0200
-@@ -1468,6 +1468,9 @@
- 	 * performance state.
- 	 */
- 
-+	px = pr->limit.thermal.px;
-+	tx = pr->limit.thermal.tx;
-+
- 	switch (type) {
- 
- 	case ACPI_PROCESSOR_LIMIT_NONE:
-
 -- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

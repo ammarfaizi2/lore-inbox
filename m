@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261788AbSJEADl>; Fri, 4 Oct 2002 20:03:41 -0400
+	id <S261719AbSJEAHX>; Fri, 4 Oct 2002 20:07:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261792AbSJEADl>; Fri, 4 Oct 2002 20:03:41 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:5392 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261788AbSJEADl>;
-	Fri, 4 Oct 2002 20:03:41 -0400
-Date: Fri, 4 Oct 2002 17:06:13 -0700
-From: Greg KH <greg@kroah.com>
-To: Oliver Neukum <oliver@neukum.name>
-Cc: linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-devel] Re: EVMS Submission for 2.5
-Message-ID: <20021005000613.GE9480@kroah.com>
-References: <20021003161320.GA32588@kroah.com> <m17xENj-006iAZC@Mail.ZEDAT.FU-Berlin.DE> <20021003225635.GE2289@kroah.com> <m17xOnh-006hxUC@Mail.ZEDAT.FU-Berlin.DE>
+	id <S261785AbSJEAHX>; Fri, 4 Oct 2002 20:07:23 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:39394 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261719AbSJEAHW>;
+	Fri, 4 Oct 2002 20:07:22 -0400
+Date: Fri, 04 Oct 2002 17:04:51 -0700 (PDT)
+Message-Id: <20021004.170451.27090459.davem@redhat.com>
+To: zippel@linux-m68k.org
+Cc: gilbertd@treblig.org, lm@work.bitmover.com, tom_gall@mac.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: New BK License Problem?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0210050034250.8911-100000@serv>
+References: <20021004221639.GM710@gallifrey>
+	<Pine.LNX.4.44.0210050034250.8911-100000@serv>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m17xOnh-006hxUC@Mail.ZEDAT.FU-Berlin.DE>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 04, 2002 at 10:07:24AM +0200, Oliver Neukum wrote:
-> On Friday 04 October 2002 00:56, Greg KH wrote:
-> > On Thu, Oct 03, 2002 at 11:02:36PM +0200, Oliver Neukum wrote:
-> > > Perhaps this is a misunderstanding.
-> > > You need to report changes of the actual physical medium of eg. a zip
-> > > drive. How you want to do this from a class driver, I fail to see.
-> >
-> > When a "medium" goes away from the system, it is unregistered somehow,
-> > right?  So, in the disk class, that device would disappear, and cause
-> > the /sbin/hotplug event.
-> 
-> Well, sadly this is not the case. You can put a medium into a drive and
-> pull it out without the kernel ever noticing. Unless of course you try to use
-> the thing. But even in this case there's no hotplug event.
-> Yet user space and evms have to learn about it in the long term.
-> Changing a medium can mean that a new type of medium is inserted.
-> A modern zip drive goes from 100M(ro) to 250M(rw) and even 750M(rw)
-> We need to know and report.
+   From: Roman Zippel <zippel@linux-m68k.org>
+   Date: Sat, 5 Oct 2002 00:36:16 +0200 (CEST)
+   
+   On Fri, 4 Oct 2002, Dr. David Alan Gilbert wrote:
+   
+   > Just to be clear;
+   
+   ... this is completely offtopic, can this _please_ be moved to a bk list?
+   Thanks.
 
-I agree we need to know this.  And if the kernel figures it out
-(somehow) then userspace should also be told about this, through
-/sbin/hotplug.  That's all I'm saying.
+It is very ontopic because it affects a number of kernel developers.
+
+Whether you like BK or not, it is the primary source management tool
+used by Linus and others, it is even documented in the source tree as
+such.
+
+Therefore, such a license change could change that, so it's a relavant
+topic.
+
+And finally, as the person who has to maintain this list and deal with
+the daily bounce pool this list generates every day, I declare it as
+ontopic so :-P~~~~~~
 
 
-thanks,
-
-greg k-h

@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289025AbSBMWdX>; Wed, 13 Feb 2002 17:33:23 -0500
+	id <S289018AbSBMWjD>; Wed, 13 Feb 2002 17:39:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289036AbSBMWdN>; Wed, 13 Feb 2002 17:33:13 -0500
-Received: from dwcs.net ([209.142.196.187]:32898 "EHLO dwcs.net")
-	by vger.kernel.org with ESMTP id <S289018AbSBMWdG>;
-	Wed, 13 Feb 2002 17:33:06 -0500
-Date: Wed, 13 Feb 2002 17:32:35 -0500 (EST)
-From: bob@dwcs.net
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.x ALI IDE strangeness
-Message-ID: <Pine.LNX.4.40.0202131655290.3878-100000@dwcs.net>
+	id <S289026AbSBMWiz>; Wed, 13 Feb 2002 17:38:55 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:54279 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S289018AbSBMWil>; Wed, 13 Feb 2002 17:38:41 -0500
+Date: Wed, 13 Feb 2002 17:37:42 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RFC: one solution to sys_sync livelock fix
+Message-ID: <Pine.LNX.3.96.1020213172509.12448G-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When using any 2.4.x kernel, including the very latest one, with my
-Fujitsu Lifebook P which uses the ALI  M5229 IDE controller it acts much
-different than when using any 2.2.x  kernels that I have tried.  When
-using the latest 2.2 kernels and not including specific support for the
-ALI controller the kernel detects the controller and lets me use DMA.
-When compiling in ALI IDE support in either 2.2 or 2.4 kernels the system
-hangs when the controller is detected.
-That isn't really much of a problem in the 2.2 kernels because I can just
-use the generic IDE support.  In the 2.4 kernel series though, I can't
-enable DMA.  When booting with a 2.4 kernel I get this:
+We haven't discussed what current sync does on a busy system. The process
+gets half way through a system call and hangs. What happens when more
+processes do that, say at the end of every client run? Will the kernel get
+clogged with dozens of threads or process queues? Will processes in the
+middle of a system call be swapable?
 
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-ALI15X3: IDE controller on PCI bus 00 dev 78
-PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try using
-pci=biosirq.
-ALI15X3: chipset revision 195
-ALI15X3: not 100% native mode: will probe irqs later
-ALI15X3: simplex device:  DMA disabled
-ide0: ALI15X3 Bus-Master DMA disabled (BIOS)
-ALI15X3: simplex device:  DMA disabled
-ide1: ALI15X3 Bus-Master DMA disabled (BIOS)
+Proposed solution:
 
-Then hdparm absolutely will not let me enable DMA giving me this error:
+What would happen if the sync(2) call from a non-root user were treated as
+if it were an fsync(2) call on every file open for write?
+- it would protect the data from that process
+- it would NOT burden the system with updating data for every other
+  process
 
-/dev/hda:
- setting using_dma to 1 (on)
- HDIO_SET_DMA failed: Operation not permitted
- using_dma    =  0 (off)
+For root I think the behaviour should be to write all existing dirty
+buffers as a single pass, which eliminates the possible hang.
 
+I think the shutdown issue is hypothetical, shutdown supposedly killed all
+other processes which could be writing, one pass would do as well as wait
+forever, and if a kill -9 doesn't stop the process doing the writing,
+nothing will. The problem is not so much shutdown hanging as root doing
+something as simple as 'df' and hanging for a very long time, on a busy
+mail server I would bet money on days between occurences of no dirty
+buffers. I could find no other UNIX variant which does hang on sync in
+actual fact.
 
-Changing the PNP OS value in the BIOS to either Yes or No does absolutely
-nothing and using "pci=biosirq" just makes the part that says "Please try
-using pci=biosirq." go away.
-
-However, on accident I discovered if I boot with a 2.2 kernel, reset the
-computer instead of powering off, then boot with a 2.4 kernel it will let
-me enable DMA.
-
-Is there anything I could try to make DMA work with the 2.4 series?
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

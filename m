@@ -1,213 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbUJZA2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbUJZAbS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261865AbUJZA2H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 20:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbUJYPC5
+	id S261838AbUJZAbS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 20:31:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUJYPBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 11:02:57 -0400
-Received: from ip22-176.tor.istop.com ([66.11.176.22]:61864 "EHLO
-	crlf.tor.istop.com") by vger.kernel.org with ESMTP id S261868AbUJYOry convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 10:47:54 -0400
-Cc: raven@themaw.net
-Subject: [PATCH 18/28] VFS: Mountpoint file descriptor read properties
-In-Reply-To: <10987156292985@sun.com>
-X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Mon, 25 Oct 2004 10:47:39 -0400
-Message-Id: <1098715659264@sun.com>
-References: <10987156292985@sun.com>
+	Mon, 25 Oct 2004 11:01:44 -0400
+Received: from sd291.sivit.org ([194.146.225.122]:50880 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S261838AbUJYOof (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 10:44:35 -0400
+Date: Mon, 25 Oct 2004 16:45:49 +0200
+From: Stelian Pop <stelian@popies.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
+Message-ID: <20041025144549.GD3161@crusoe.alcove-fr>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	linux-kernel@vger.kernel.org
+References: <200410210154.58301.dtor_core@ameritech.net> <20041025125629.GF6027@crusoe.alcove-fr> <20041025135036.GA3161@crusoe.alcove-fr> <20041025135742.GA1733@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Mike Waychison <michael.waychison@sun.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041025135742.GA1733@ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch allows userspace to query a mountpoint file descriptor for
-information using the ioctl interface.
+On Mon, Oct 25, 2004 at 03:57:43PM +0200, Vojtech Pavlik wrote:
 
-The properties exported in this patch are for _example only_ to demonstrate
-what the interface might look like.  This patch allows mountfds to show the
-following information:
+> The number is 240 and it's the number of possible PS/2 scancode
+> combinations, and since at this time X can only understand the PS/2
+> protocol (and not native Linux events), this is the only way how to pass
+> keypresses to X.
+> 
+> I believe that although this way may be easier, it leads to madness.
 
-MOUNTFD_IOC_GETDEV        - Get the associated block device (if any)
-MOUNTFD_IOC_GETFSTYPE     - Get the fstype of the mountpoint.
-MOUNTFD_IOC_GETVFSOPTIONS - Get the vfs specific options of the
-                            mountpoint/superblock
-MOUNTFD_IOC_GETFSOPTIONS  - Get the fstype-specific options (if any)
+It is also impossible for me to go this way because there is no way
+to put 20+ events between 226 and 240...
 
-Signed-off-by: Mike Waychison <michael.waychison@sun.com>
----
+> >   I also haven't looked yet at adding a new modifier in the console
+> >   mode...
+>  
+> IIRC X has only 8 modifier keys and all are already defined and you
+> can't define any more. But I doubt you're using all of them on your
+> keyboard. It should be possible to assign Fn to one of them.
 
- fs/mountfd.c       |  114 ++++++++++++++++++++++++++++++++++++++++++++++++++++-
- include/linux/fs.h |    6 ++
- 2 files changed, 119 insertions(+), 1 deletion(-)
+That's what I thought too. However, it seems to work only when the
+keysym associated with the modifier is a well known key (Control_L,
+Control_R, Alt_L etc).
 
-Index: linux-2.6.9-quilt/fs/mountfd.c
-===================================================================
---- linux-2.6.9-quilt.orig/fs/mountfd.c	2004-10-22 17:17:42.625984008 -0400
-+++ linux-2.6.9-quilt/fs/mountfd.c	2004-10-22 17:17:43.230892048 -0400
-@@ -160,6 +160,72 @@ static struct dentry *get_mfd_dentry(str
- 	return dget(dentry);
- }
- 
-+static int mfd_read_fstype(struct vfsmount *mnt, char *buf)
-+{
-+	return scnprintf(buf, MOUNTFD_READSIZE-1, "%s", mnt->mnt_sb->s_type->name) + 1;
-+}
-+
-+static int mfd_read_dev(struct vfsmount *mnt, char *buf)
-+{
-+	return scnprintf(buf, MOUNTFD_READSIZE-1, "%s", mnt->mnt_sb->s_id) + 1;
-+}
-+
-+static int mfd_read_vfsoptions(struct vfsmount *mnt, char *buf)
-+{
-+	static struct vfs_info {
-+		int flag;
-+		char *str;
-+	} vfs_info[] = {
-+		{ MS_RDONLY, "ro" },
-+		{ MS_DIRSYNC, "dirsync" },
-+		{ MS_MANDLOCK, "mand" },
-+		{ MS_NOATIME, "noatime" },
-+		{ MS_NODIRATIME, "nodiratime" },
-+		{ 0, NULL }
-+	};
-+	struct vfs_info *vfs_infop;
-+	static struct mnt_info {
-+		int flag;
-+		char *str;
-+	} mnt_info[] = {
-+		{ MNT_NOSUID, "nosuid" },
-+		{ MNT_NODEV, "nodev" },
-+		{ MNT_NOEXEC, "noexec" },
-+		{ 0, NULL }
-+	};
-+	struct mnt_info *mnt_infop;
-+
-+	char *p = buf;
-+
-+	int sb_flags = mnt->mnt_sb->s_flags;
-+	int mnt_flags = mnt->mnt_flags;
-+	int first = 0;
-+
-+	/*
-+	 * Note: we skip length checks below because we assume we can't overrun
-+	 * MOUNTFD_READSIZE.
-+	 */
-+
-+	for (vfs_infop = vfs_info; vfs_infop->flag; vfs_infop++) {
-+		if (sb_flags & vfs_infop->flag) {
-+			if (first++)
-+				*p++ = ',';
-+			strcpy(p, vfs_infop->str);
-+			p += strlen(vfs_infop->str);
-+		}
-+	}
-+
-+	for (mnt_infop = mnt_info; mnt_infop->flag; mnt_infop++) {
-+		if (mnt_flags & mnt_infop->flag) {
-+			if (first++)
-+				*p++ = ',';
-+			strcpy(p, mnt_infop->str);
-+			p += strlen(mnt_infop->str);
-+		}
-+	}
-+	return p - buf + 1;
-+}
-+
- static long open_mfd(struct vfsmount *mnt)
- {
- 	struct file *file;
-@@ -176,6 +242,7 @@ static long open_mfd(struct vfsmount *mn
- 	if (fd < 0)
- 		goto out_putfilp;
- 
-+	error = -ENOMEM;
- 	file->private_data = mnt;
- 	file->f_dentry = get_mfd_dentry(mnt);
- 	if (IS_ERR(file->f_dentry)) {
-@@ -326,9 +393,53 @@ static long mfd_nextchild(struct file *m
- 	return ret;
- }
- 
-+static int mfd_ioctl_reads(struct inode *inode, struct file *filp,
-+		     unsigned int cmd, unsigned long arg)
-+{
-+	char __user *user_buf = (char __user *)arg;
-+	struct vfsmount *mnt;
-+	char *buf;
-+	int ret;
-+
-+	mnt = VFSMOUNT(filp);
-+
-+	buf = (char *)get_zeroed_page(GFP_KERNEL);
-+	if (buf)
-+		return -ENOMEM;
-+	switch (cmd) {
-+	/*
-+	 * The following calls are expected to return the total number of bytes to write out, including '\0'.
-+	 */
-+	case MOUNTFD_IOC_GETDEV:
-+		ret = mfd_read_dev(mnt, buf);
-+		break;
-+	case MOUNTFD_IOC_GETFSTYPE:
-+		ret = mfd_read_fstype(mnt, buf);
-+		break;
-+	case MOUNTFD_IOC_GETVFSOPTIONS:
-+		ret = mfd_read_vfsoptions(mnt, buf);
-+		break;
-+	case MOUNTFD_IOC_GETFSOPTIONS:
-+		/* TODO: need super_block op that doesn't take a seq_file */
-+		ret = -ENOSYS;
-+		break;
-+	default:
-+		ret = -ENOTTY;
-+	}
-+
-+	if (ret >= 0) {
-+		if (copy_to_user(user_buf, buf, ret))
-+			ret = -EFAULT;
-+	}
-+
-+	free_page((unsigned long)buf);
-+	return ret;
-+}
-+
- static int mfd_ioctl(struct inode *inode, struct file *filp,
- 		     unsigned int cmd, unsigned long arg)
- {
-+	int ret;
- 	switch (cmd) {
- 	case MOUNTFD_IOC_GETDIRFD:
- 		return mfd_getdirfd(filp);
-@@ -345,7 +456,8 @@ static int mfd_ioctl(struct inode *inode
- 	case MOUNTFD_IOC_GETNEXTCHILD:
- 		return mfd_nextchild(filp);
- 	}
--	return -ENOTTY;
-+	ret = mfd_ioctl_reads(inode, filp, cmd, arg);
-+	return ret;
- }
- 
- asmlinkage long sys_mountfd(int dirfd)
-Index: linux-2.6.9-quilt/include/linux/fs.h
-===================================================================
---- linux-2.6.9-quilt.orig/include/linux/fs.h	2004-10-22 17:17:42.625984008 -0400
-+++ linux-2.6.9-quilt/include/linux/fs.h	2004-10-22 17:17:43.232891744 -0400
-@@ -223,6 +223,12 @@ extern int leases_enable, dir_notify_ena
- /* TODO: change this interface to require the parent mfd as well */
- #define MOUNTFD_IOC_GETNEXTCHILD  _IO('p', 0xa6)
- 
-+#define MOUNTFD_READSIZE PAGE_SIZE
-+#define MOUNTFD_IOC_GETDEV        _IOR('p', 0xa7, char [MOUNTFD_READSIZE])
-+#define MOUNTFD_IOC_GETFSTYPE     _IOR('p', 0xa8, char [MOUNTFD_READSIZE])
-+#define MOUNTFD_IOC_GETVFSOPTIONS _IOR('p', 0xa9, char [MOUNTFD_READSIZE])
-+#define MOUNTFD_IOC_GETFSOPTIONS  _IOR('p', 0xaa, char [MOUNTFD_READSIZE])
-+
- #ifdef __KERNEL__
- 
- #include <linux/list.h>
+If I do (214 is the keycode generated by my Fn key):
+	keycode 214 = Control_L
+	clear mod3
+	add mod3 = Control_L
+then Fn + F1 will generate Mod3 + F1 (but Control_L will not work as 
+a Control modifier anymore).
 
+But if I do:
+	keycode 214 = function
+	clear mod3
+	add mod3 = function
+then (at least) WindowMaker does not see the modifier anymore (only
+a 'function' single key press is received).
+
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>    

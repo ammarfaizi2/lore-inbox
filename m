@@ -1,35 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266606AbRHJJbI>; Fri, 10 Aug 2001 05:31:08 -0400
+	id <S266718AbRHJJm7>; Fri, 10 Aug 2001 05:42:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266706AbRHJJa6>; Fri, 10 Aug 2001 05:30:58 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60777 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S266688AbRHJJaq>; Fri, 10 Aug 2001 05:30:46 -0400
-To: Mike Jadon <mikej@umem.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI NVRAM Memory Card
-In-Reply-To: <5.1.0.14.0.20010622101907.03ac21b0@192.168.0.5>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 10 Aug 2001 03:24:10 -0600
-In-Reply-To: <5.1.0.14.0.20010622101907.03ac21b0@192.168.0.5>
-Message-ID: <m17kwctghx.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S266806AbRHJJmt>; Fri, 10 Aug 2001 05:42:49 -0400
+Received: from office.mandrakesoft.com ([195.68.114.34]:57582 "HELO
+	giants.mandrakesoft.com") by vger.kernel.org with SMTP
+	id <S266718AbRHJJmq>; Fri, 10 Aug 2001 05:42:46 -0400
+To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+Cc: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org
+Subject: Re: using bug reports on vendor kernels
+In-Reply-To: <200108092131.f79LV4Hr024656@webber.adilger.int>
+	<01080923423801.04822@idun>
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: 10 Aug 2001 11:42:52 +0200
+In-Reply-To: <01080923423801.04822@idun> (Oliver Neukum's message of "Thu, 9 Aug 2001 23:42:38 +0200")
+Message-ID: <m3n1585jz7.fsf@giants.mandrakesoft.com>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.104
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Jadon <mikej@umem.com> writes:
+Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de> writes:
 
-> My company has released a PCI NVRAM memory card but we haven't developed a Linux
-> 
-> driver for it yet.  We want the driver to be open to developers to build upon.
-> Is there a specific path we should follow with this being our goal?  
+> It might do so. However the speed of my internet connectivity would make this 
+> a very, very slow task.
+> And the day after having completed that I'd be bound to get a bug report from 
+> a Mandrake user.
 
-You might want to check out the development of the mtd subsystem.
-http://www.linux-mtd.infradead.org/
-
-This is probably what you want to write a driver for for your NVRAM PCI card.
-
-Eric
+https://kenobi.mandrakesoft.com/cgi-bin/viewcvs.cgi/SPECS/kernel/

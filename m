@@ -1,43 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbVCIUKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262375AbVCIUPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262262AbVCIUKb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 15:10:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVCIUK3
+	id S262375AbVCIUPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 15:15:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbVCIUMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 15:10:29 -0500
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:52116 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S262371AbVCIUGU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 15:06:20 -0500
-Date: Wed, 9 Mar 2005 21:06:49 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] VGA arbitration: draft of kernel side
-Message-ID: <20050309200649.GA6640@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20050308212909.GA18376@dreamland.darkstar.lan> <1110321980.13607.294.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 9 Mar 2005 15:12:17 -0500
+Received: from fep01-0.kolumbus.fi ([193.229.0.41]:15251 "EHLO
+	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S262298AbVCIUHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 15:07:51 -0500
+From: Kimmo Sundqvist <kimmo.sundqvist@mbnet.fi>
+Organization: Unorganized
+To: linux-kernel@vger.kernel.org
+Subject: Log full of "ing_filter:  fixed  ippp2 out ippp2"
+Date: Wed, 9 Mar 2005 22:07:41 +0200
+User-Agent: KMail/1.7.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1110321980.13607.294.camel@gaston>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200503092207.41963.kimmo.sundqvist@mbnet.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Wed, Mar 09, 2005 at 09:46:20AM +1100, Benjamin Herrenschmidt ha scritto: 
-> One thing is: I
-> don't have x86 hardware, or at least, nothing where I can have 2 VGA
-> cards in (I may have access to an old laptop). So I'll need help &
-> testers at one point.
+Hello
 
-It's your lucky day ;) I've just assembled a PC with 2 PCI video card (S3
-something and a Matrox Mystique) and I think that I've an old ISA video
-card somewhere (if it can be usefull).
-Feel free to put me on CC when you have something to test.
+Please cc all replies to me.
 
-Luca
--- 
-Home: http://kronoz.cjb.net
-Colui che sorride quando le cose vanno male ha pensato a qualcuno a cui
-dare la colpa.
+After upgrading my little NATting firewall/router from 2.6.7-ck4 to 
+2.6.10-gentoo-r6 my /var/log/messages is 15MB in size and most of it looks 
+like the text below.  All traffic to the Internet seems to cause this.  
+
+"cat /var/log/messages | uniq | uniqmessages" results in a 3MB file.  I use 
+syslog-ng.
+
+Iptables setup script further down.
+
+Mar  9 21:58:15 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:15 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:15 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:15 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:15 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:16 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:16 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:16 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:16 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:16 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:16 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:16 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:17 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:17 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:17 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:17 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:17 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:17 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:17 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:17 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:17 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:17 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:17 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:17 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:17 shadowgate ing_filter:  fixed  ippp2 out ippp2
+Mar  9 21:58:17 shadowgate ing_filter:  fixed  ippp2 out ippp2
+
+My firewall setup looks like:
+
+IPTABLES=/sbin/iptables
+MODPROBE=/sbin/modprobe
+DEPMOD=/sbin/depmod
+
+EXTIF="ippp2"
+INTIF="eth0"
+KAKKOSIF="eth1"
+
+$DEPMOD -a
+
+$MODPROBE ip_tables
+
+#$MODPROBE ip_conntrack
+#In the kernel
+
+$MODPROBE ip_conntrack_ftp
+$MODPROBE iptable_nat
+$MODPROBE ip_nat_ftp
+
+echo "1" > /proc/sys/net/ipv4/ip_forward
+echo "1" > /proc/sys/net/ipv4/ip_dynaddr
+#echo "1" > /proc/sys/net/ipv4/conf/all/proxy_arp
+
+$IPTABLES -P INPUT ACCEPT
+$IPTABLES -F INPUT
+$IPTABLES -P OUTPUT ACCEPT
+$IPTABLES -F OUTPUT
+$IPTABLES -P FORWARD DROP
+$IPTABLES -F FORWARD
+
+$IPTABLES -t nat -F
+
+/sbin/iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
+/sbin/iptables -A FORWARD -i eth0 -o eth1 -j ACCEPT
+
+$IPTABLES -A FORWARD -i $EXTIF -o $KAKKOSIF -m state --state \
+ESTABLISHED,RELATED -j ACCEPT   # RJ-45
+
+$IPTABLES -A FORWARD -i $EXTIF -o $INTIF -m state --state \
+ESTABLISHED,RELATED  -j ACCEPT # BNC segment
+
+$IPTABLES -A FORWARD -i $KAKKOSIF -o $EXTIF -j ACCEPT   # RJ-45
+$IPTABLES -A FORWARD -i $INTIF -o $EXTIF -j ACCEPT        # BNC segment
+$IPTABLES -t nat -A POSTROUTING -o $EXTIF -j MASQUERADE
+$IPTABLES -A FORWARD -j LOG
+exit 0
+
+-Kimmo S.

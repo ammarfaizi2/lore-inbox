@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263600AbTDTPLY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 11:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263607AbTDTPLY
+	id S263608AbTDTPau (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 11:30:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbTDTPau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 11:11:24 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:33728 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263600AbTDTPLX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 11:11:23 -0400
-Date: Sun, 20 Apr 2003 08:23:18 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 20 Apr 2003 11:30:50 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:52740 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id S263608AbTDTPau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 11:30:50 -0400
+Date: Sun, 20 Apr 2003 17:42:45 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Larry McVoy <lm@bitmover.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: BK->CVS, kernel.bkbits.net
-Message-ID: <20030420152318.GA27331@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-References: <20030417162723.GA29380@work.bitmover.com> <b7n46e$dtb$1@cesium.transmeta.com> <20030420003021.GA10547@work.bitmover.com> <Pine.LNX.4.44.0304201436460.12110-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304201436460.12110-100000@serv>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
-	DATE_IN_PAST_06_12)
+In-Reply-To: <20030420152318.GA27331@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0304201735130.12110-100000@serv>
+References: <20030417162723.GA29380@work.bitmover.com> <b7n46e$dtb$1@cesium.transmeta.com>
+ <20030420003021.GA10547@work.bitmover.com> <Pine.LNX.4.44.0304201436460.12110-100000@serv>
+ <20030420152318.GA27331@work.bitmover.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Sun, Apr 20, 2003 at 03:16:16PM +0200, Roman Zippel wrote:
-[trolled, looking for another BK war]
+On Sun, 20 Apr 2003, Larry McVoy wrote:
 
-Don't feed the trolls, please, we're all tired of it.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+> [trolled, looking for another BK war]
+> 
+> Don't feed the trolls, please, we're all tired of it.
+
+Huh? I'm the last one who is interested in a flame war, I just provided 
+the missing information you omitted. If I said something wrong, it should 
+be no problem to correct me, but it seems you can't, so you try to 
+discredit me as troll instead.
+
+bye, Roman
+

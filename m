@@ -1,91 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262092AbTIMI6v (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 04:58:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbTIMI6v
+	id S262095AbTIMJIl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 05:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTIMJIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 04:58:51 -0400
-Received: from 80.179.100.135.forward.012.net.il ([80.179.100.135]:64270 "HELO
-	coolre4630.com") by vger.kernel.org with SMTP id S262092AbTIMI6t convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 04:58:49 -0400
-From: "Mrs Amina Bare Mainassara." <mrsaminabare@netscape.net>
-Reply-To: mrsaminabare@netscape.net
+	Sat, 13 Sep 2003 05:08:40 -0400
+Received: from nan-smtp-09.noos.net ([212.198.2.80]:59511 "EHLO smtp.noos.fr")
+	by vger.kernel.org with ESMTP id S262095AbTIMJIj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 05:08:39 -0400
+Subject: Re: People, not GPL  [was: Re: Driver Model]
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
 To: linux-kernel@vger.kernel.org
-Date: Mon, 8 Sep 2003 09:58:12 -0700
-Subject: 
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <S262092AbTIMI6t/20030913085849Z+6134@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-100N2zFLPDg1V8q/8xWp"
+Organization: Adresse personnelle
+Message-Id: <1063444117.7962.19.camel@rousalka.dyndns.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
+Date: Sat, 13 Sep 2003 11:08:37 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mrs.Amina Bare Mainassara 
-16, Rue of the gardens Cocody 
-Abidjan Cote d'ivoire. 
 
-Attn:Sir/Madam, 
+--=-100N2zFLPDg1V8q/8xWp
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+"David Schwartz" wrote :
 
-I sincerely apologize for inconveniencing you with 
-this mail even if we never met before, I firmly 
-believe that a true confidence can be born from our 
-communication and thus support a true partnership 
-between us two. 
+[ sorry to interupt your flamewar but the amount of nonsence produced
+here  starts to irritate me ]
 
-As it is with a real pleasure as I contact you from 
-ABIDJAN the economic capital of Cote d'IVOIRE(AFRIQUE 
-of the West) where I live for some time with my two 
-children, Moussa and Samira. 
+| Who is sending these letters? Who has no respect for the GPL and seeks
+| to add additional restrictions?
 
-In fact I am Mrs Amina Bare Mainassara, the legitimate 
-wife of the former president of the republic of NIGER 
-(WEST AFRICA) assassinated by a young soldier in April 
-1999. During the exercise of his presidential mandate, 
-my husband had lodged a box with a security company in 
+This is no additional restriction.
+Check your history. The linux kernel was always under the GPL, not the
+LGPL ie distributing stuff that links with the kernel means this stuff
+must be distributed under the gpl.
 
-Europe containing the sum of Ten Million Umited States 
-Dollars to allow him to conceive a project of 
-investment at the end of his presidential mandate. 
+At some point Linus decreeted linking closed modules was ok with him
+(note this was done without consulting anyone, so others contributors
+could have objected - they did choose to release stuff under the gpl
+after all - but this being Linus they let it pass)
 
-Unfortunately fate decided differently. few months 
-after his death, I discovered in the will, this 
-information and I automatically made contacts with the 
-security company to assert this important legacy in my 
-position as the legitimate wife and in comparison with 
-the testamentary stipulations. Now my major concern is 
-to ensure that the money is invested properly. 
+At a later point however the scope of closed linking had grown so big
+people started saying enough is enough and GPL-ONLY was born with
+Linus's approval.
 
-Considering my condition and that of my children, we 
-have suffered seriously from the hands of my late 
-husband's political adversaries. 
+It is not a licensing change. It's an hint the associated kernel symbols
+are not covered by Linus' previous informal exemption and full GPL rules
+apply. To avoid rewriting history symbols that could be used in non-free
+stuff previously are not GPL-ONLY. People that ignore the hint can and
+will be sued (people that link to symbols not GPL-ONLY could be sued too
+but everyone seems to have agreed to let it pass). Removing the software
+GPL-ONLY checks or working around them has nothing to do with it - it
+does not change the basic kernel license nor the stated intentions of
+its authors to enforce it. Hiding a do-not-trespass sign does not give
+you the right to do it (if you think so do a reality check).
 
-It is from this point of view that I contact you so 
-that you can help me to withdraw this consignment from 
-the security company Because I believe that you can 
-help me in this transaction. 
+So please stop making horrified noises the GPL is being enforced in a
+GPL project. Don't you realise how ridiculous it is ?
 
-I can thus reassure you that at the end of the 
-operation I will authorize 20% of the total amount to 
-you as your reward for your good effort. 
+--=20
+Nicolas Mailhot
 
-while another 5% of this amount will be set aside 
-forany expenditure that may be incured during the 
-course of this transaction. 
+--=-100N2zFLPDg1V8q/8xWp
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
 
-As soon as you express the desire to help us I will 
-deliver you more details, find attached copies of my 
-picture and that of my children. 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-Receive my most sincere greetings. 
+iD8DBQA/Yt6VI2bVKDsp8g0RApmAAJ4rgMi9HnlLpEHfznsrvYWaSxemfQCguVUS
+3x/i8q+UdWDHMFhI0BOg7Mg=
+=/3Xb
+-----END PGP SIGNATURE-----
 
-Waitng to hear your positive response and ensure you send me your 
-telephone and fax numbers. 
-
-Faithfully yours, 
-
-Mrs Amina Bare Mainassara. 
-
+--=-100N2zFLPDg1V8q/8xWp--
 

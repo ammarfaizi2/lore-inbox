@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261785AbSIXUmT>; Tue, 24 Sep 2002 16:42:19 -0400
+	id <S261794AbSIXUpq>; Tue, 24 Sep 2002 16:45:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261789AbSIXUmT>; Tue, 24 Sep 2002 16:42:19 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:1796 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261785AbSIXUmS>;
-	Tue, 24 Sep 2002 16:42:18 -0400
-Date: Sun, 22 Sep 2002 00:48:25 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@transmeta.com, akpm@zip.com.au, ingo@redhat.com,
-       linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: [PATCH] de-xchg fork.c
-Message-ID: <20020922004825.A35@toy.ucw.cz>
-References: <20020923011053.436B22C12D@lists.samba.org>
+	id <S261795AbSIXUpq>; Tue, 24 Sep 2002 16:45:46 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:39684
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S261794AbSIXUpo>; Tue, 24 Sep 2002 16:45:44 -0400
+Subject: [PATCH] s/preempt_count()/in_atomic() in do_exit()
+From: Robert Love <rml@tech9.net>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-oC8+S5VnVDB7YE7Zm9iS"
+Organization: 
+Message-Id: <1032900654.1007.89.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020923011053.436B22C12D@lists.samba.org>; from rusty@rustcorp.com.au on Mon, Sep 23, 2002 at 11:06:14AM +1000
+X-Mailer: Ximian Evolution 1.1.1 (Preview Release)
+Date: 24 Sep 2002 16:50:54 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> Don't know who put this in for 2.5.38.
-> 
-> I realize that using xchg() makes you 'leet.  But doing an atomic op
-> where none is required is suboptimal and confusing.
+--=-oC8+S5VnVDB7YE7Zm9iS
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Well, atomic op is also more expensive. i think ingo did this. Ingo, is
-patch below safe? It is faster *and* it works on 386.
-								Pavel 
+Linus,
 
-> diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.38/kernel/fork.c working-2.5.38-unxchg/kernel/fork.c
-> --- linux-2.5.38/kernel/fork.c	2002-09-21 13:55:19.000000000 +1000
-> +++ working-2.5.38-unxchg/kernel/fork.c	2002-09-23 11:00:31.000000000 +1000
-> @@ -64,11 +64,12 @@ void __put_task_struct(struct task_struc
->  	} else {
->  		int cpu = smp_processor_id();
->  
-> -		tsk = xchg(task_cache + cpu, tsk);
-> +		tsk = task_cache[cpu];
->  		if (tsk) {
->  			free_thread_info(tsk->thread_info);
->  			kmem_cache_free(task_struct_cachep,tsk);
->  		}
-> +		task_cache[cpu] = current;
->  	}
->  }
+This patch converts the debugging check in do_exit from a check on
+preempt_count() to in_atomic().
 
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+The main benefit to this is we will stop warning over the BKL and now
+use the standard mechanism for such checks.
+
+Patch is against current BK, please apply.
+
+	Robert Love
+
+
+--=-oC8+S5VnVDB7YE7Zm9iS
+Content-Disposition: attachment; filename=do_exit-in_atomic-rml-2.5.38-1.patch
+Content-Type: text/x-patch; name=do_exit-in_atomic-rml-2.5.38-1.patch; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+diff -urN linux-2.5.38/kernel/exit.c linux/kernel/exit.c
+--- linux-2.5.38/kernel/exit.c	Tue Sep 24 16:14:44 2002
++++ linux/kernel/exit.c	Tue Sep 24 16:34:27 2002
+@@ -626,7 +626,7 @@
+ 	tsk->flags |= PF_EXITING;
+ 	del_timer_sync(&tsk->real_timer);
+ 
+-	if (unlikely(preempt_count()))
++	if (unlikely(in_atomic()))
+ 		printk(KERN_INFO "note: %s[%d] exited with preempt_count %d\n",
+ 				current->comm, current->pid,
+ 				preempt_count());
+
+--=-oC8+S5VnVDB7YE7Zm9iS--
 

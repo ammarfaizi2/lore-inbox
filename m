@@ -1,48 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130774AbQLaTq6>; Sun, 31 Dec 2000 14:46:58 -0500
+	id <S130695AbQLaUCW>; Sun, 31 Dec 2000 15:02:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130833AbQLaTqt>; Sun, 31 Dec 2000 14:46:49 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:36104 "EHLO
+	id <S130747AbQLaUCN>; Sun, 31 Dec 2000 15:02:13 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:59912 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130774AbQLaTqd>; Sun, 31 Dec 2000 14:46:33 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: test13-pre5
-Date: 31 Dec 2000 11:15:51 -0800
-Organization: Transmeta Corporation
-Message-ID: <92o0l7$h5v$1@penguin.transmeta.com>
-In-Reply-To: <20001231182127.A24348@gruyere.muc.suse.de> <Pine.LNX.4.10.10012310924500.4029-100000@penguin.transmeta.com> <20001231200741.F28963@mea-ext.zmailer.org>
+	id <S130695AbQLaUCE>; Sun, 31 Dec 2000 15:02:04 -0500
+Date: Sun, 31 Dec 2000 11:31:17 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Daniel Phillips <phillips@innominate.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Generic deferred file writing
+In-Reply-To: <3A4F84B2.D691EC50@innominate.de>
+Message-ID: <Pine.LNX.4.30.0012311119350.29339-100000@cesium.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20001231200741.F28963@mea-ext.zmailer.org>,
-Matti Aarnio  <matti.aarnio@zmailer.org> wrote:
+On Sun, 31 Dec 2000, Daniel Phillips wrote:
+
+> Linus Torvalds wrote:
+> >  I do not believe that "get_block()" is as big of a problem as people make
+> >  it out to be.
 >
->	Actually nothing SMP specific in that problem sphere.
->	Alpha has  load-locked/store-conditional  pair for
->	this type of memory accesses to automatically detect,
->	and (conditionally) restart the operation - to form
->	classical  ``locked-read-modify-write'' operations.
+> I didn't mention get_block - disk accesses obviously far outweigh
+> filesystem cpu/cache usage in overall impact.  The question is, what
+> happens to disk access patterns when we do the deferred allocation.
 
-Sure, we could make the older alphas use ldl_l stl_c for byte accesses,
-but if you thought byte accesses on those machines were kind-of slow
-before, just WAIT until that happens.
+Note that the deferred allocation is only possible with a full page write.
 
-Old alpha machines (the same ones that would need this code) were
-HORRIBLE at ldl_l<->stl_c: they go out all the way to the bus to set the
-lock.  So suddenly your every byte access ends up being a few hundred
-cycles!
+Go and do statistics on a system of how often this happens, and what the
+circumstances are. Just for fun.
 
-So ldl_l/stc_l is not the answer.  It would work, but it would be so
-slow that you'd be a lot better off not doing it. 
+I will bet you $5 USD that 99.9% of all such writes are to new files, at
+the end of the file. I'm sure you can come up with other usage patterns,
+but they'll be special (big databases etc, and I bet that they'll want to
+have stuff cached all the time anyway for other reasons).
 
-I think they fixed ldl/stc later on (so that it only sets a bit locally
-that gets cleared by the cache coherency protocol), but as later alphas
-have the byte accesses anyway that doesn't matter here. The faster
-ldl/stc makes for much faster spinlocks on newer alphas, though.
+So I seriously doubt that you'll have much of an IO component to the
+writing anyway - except for the "normal" deferred write of actually
+writing the stuff out at all.
 
-		Linus
+Now, this is where I agree with you, but I disagree with where most of the
+discussion has been going: I _do_ believe that we may want to change block
+allocation discussions at write-out-time. That makes sense to me. But that
+doesn't really impact "ENOSPC" - the write would not be really "deferred"
+by the VM layer, and the filesystem would always be aware of the writer
+synchronously.
+
+> > One form of deferred writes I _do_ like is the mount-time-option form.
+> > Because that one doesn't add complexity. Kind of like the "noatime" mount
+> > option - it can be worth it under some circumstances, and sometimes it's
+> > acceptable to not get 100% unix semantics - at which point deferred writes
+> > have none of the disadvantages of trying to be clever.
+>
+> And the added attraction of requiring almost no effort.
+
+Did I mention my belief in the true meaning of "intelligence"?
+
+"Intelligence is the ability to avoid doing work, yet get the work done".
+
+Lazy programmers are the best programmers. Think Tom Sawyer painting the
+fence. That's intelligence.
+
+Requireing almost no effort is a big plus in my book.
+
+It's the "clever" programmer I'm afraid of. The one who isn't afraid of
+generating complexity, because he has a Plan (capital "P"), and he knows
+he can work out the details later.
+
+			Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

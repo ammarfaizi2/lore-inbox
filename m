@@ -1,69 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263383AbTI2OSb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 10:18:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263389AbTI2OSb
+	id S262183AbTI2OKb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 10:10:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbTI2OKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 10:18:31 -0400
-Received: from mail.zmailer.org ([62.197.173.195]:25220 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S263383AbTI2OSZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 10:18:25 -0400
-Date: Mon, 29 Sep 2003 17:18:20 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Artur Klauser <Artur.Klauser@computer.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: div64.h:do_div() bug
-Message-ID: <20030929141820.GE1058@mea-ext.zmailer.org>
-References: <Pine.LNX.4.51.0309291503030.7947@enm.xynhfre.bet>
+	Mon, 29 Sep 2003 10:10:31 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:50954 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S262183AbTI2OK3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 10:10:29 -0400
+Date: Mon, 29 Sep 2003 11:15:48 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Adrian Bunk <bunk@fs.tum.de>, netdev@oss.sgi.com, davem@redhat.com,
+       pekkas@netcore.fi, lksctp-developers@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC: [2.6 patch] disallow modular IPv6
+Message-ID: <20030929141548.GS1039@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	David Woodhouse <dwmw2@infradead.org>, Adrian Bunk <bunk@fs.tum.de>,
+	netdev@oss.sgi.com, davem@redhat.com, pekkas@netcore.fi,
+	lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20030928225941.GW15338@fs.tum.de> <20030928231842.GE1039@conectiva.com.br> <20030928232403.GX15338@fs.tum.de> <20030928233909.GG1039@conectiva.com.br> <20030929001439.GY15338@fs.tum.de> <20030929003229.GM1039@conectiva.com.br> <1064826174.29569.13.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.51.0309291503030.7947@enm.xynhfre.bet>
+In-Reply-To: <1064826174.29569.13.camel@hades.cambridge.redhat.com>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 29, 2003 at 03:25:19PM +0200, Artur Klauser wrote:
-> I've found that a bug in asm-arm/div64.h:do_div() is preventing correct
-> conversion of timestamps in smbfs (and probably ntfs as well) from NT to
-> Unix format. I'll post a patch that fixes the bug, but I think it is also
-> present in other architectures - at least SPARC, SH, and CRIS look
-> suspicious.
+Em Mon, Sep 29, 2003 at 10:02:55AM +0100, David Woodhouse escreveu:
+> On Sun, 2003-09-28 at 21:32 -0300, Arnaldo Carvalho de Melo wrote:
+> > Em Mon, Sep 29, 2003 at 02:14:39AM +0200, Adrian Bunk escreveu:
+> > > On Sun, Sep 28, 2003 at 08:39:10PM -0300, Arnaldo Carvalho de Melo wrote:
+> > > What about the following solution (the names and help texts for the
+> > > config options might not be optimal, I hope you understand the
+> > > intention):
+> > > 
+> > > config IPV6_SUPPORT
+> > > 	bool "IPv6 support"
+> > > 
+> > > config IPV6_ENABLE
+> > > 	tristate "enable IPv6"
+> > > 	depends on IPV6_SUPPORT
+> > > 
+> > > IPV6_SUPPORT changes structs etc. and IPV6_ENABLE is responsible for 
+> > > ipv6.o .
+> > 
+> > Humm, and the idea is? This seems confusing, could you elaborate on why such
+> > scheme is a good thing?
 > 
-> If people with access to these architectures could run the following small 
-> test and let me know the outcome, I can fix it there too - thanks.
+> The idea is that you then have ifdefs on CONFIG_IPV6_SUPPORT not on
+> CONFIG_IPV6_MODULE.
 
-Call it "lack/lazyness of implementation"
+That part I understood :)
+ 
+> The underlying point being that your static kernel should not change if
+> you change an option from 'n' to 'm'.
 
-Long ago it was used only in  printk()  debug printouts.
-Now it is used all over the place.  At least its users are aware of
-it being slow, and not just using GCC's magic bultin codes.
+But that will only happen if CONFIG_IPV6_SUPPORT is always enabled, no?
 
+> It should only affect the kernel image if you change options to/from 'y'.
 
-> //-----------------------------------------------------------------------------
-> #define __KERNEL__
-> #include <asm/types.h> // get kernel definition of u64, u32
-> #undef __KERNEL__
-> #include <asm/div64.h> // get definition of do_div()
-> #include <stdio.h>
-> 
-> main () {
->   union {
->     u64 n64;
->     u32 n32[2];
->   } in, out;
-> 
->   in.n32[0] = 1;
->   in.n32[1] = 1;
->   out = in;
-> 
->   do_div(out.n64, 1);
-> 
->   if (in.n64 != out.n64) {
->     printf("FAILURE: asm/div64.h:do_div() is broken for 64-bit dividends\n");
->     exit(1);
->   } else {
->     printf("Congratulations: asm/div64.h:do_div() handles 64-bit dividends\n");
->   }
->   return 0;
-> }
+That is a good goal, yes, so lets remove all the ifdefs around EXPORT_SYMBOL,
+etc, i.e.: add bloat for the simple case were I want a minimal kernel.
+
+Humm, so the user will have, in this case, these choices:
+
+1. "I don't want IPV6 at all, not now, not ever":
+	CONFIG_IPV6_SUPPORT=N
+	CONFIG_IPV6=N  (this is implicit as this depends on
+			CONFIG_IPV6_SUPPORT)
+	
+2. "I think I may well want it the future, who knows? but not now...":
+	CONFIG_IPV6_SUPPORT=Y
+	CONFIG_IPV6=N
+	
+3. "Nah, some of the users of this pre-compiled kernel will need it":
+	CONFIG_IPV6_SUPPORT=Y
+	CONFIG_IPV6=M
+	
+4. "Yeah, IPV6 is COOL, how can somebody not use this piece of art?":
+	CONFIG_IPV6_SUPPORT=Y
+	CONFIG_IPV6=Y
+
+Isn't this confusing for the I-wanna-triple-my-kernel-performance-by-compiling-
+the-kernel-for-exactly-what-I-have hordes of users?
+
+- Arnaldo

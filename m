@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbTH2OCL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 10:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbTH2OCI
+	id S261238AbTH2OXM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 10:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbTH2OXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 10:02:08 -0400
-Received: from PAT.cpr.ca ([209.115.235.79]:12037 "HELO calcprsmtp01.cpr.ca")
-	by vger.kernel.org with SMTP id S261228AbTH2OBa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 10:01:30 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-Subject: Related Problems? [WAS: 2.6.0-test4: Unable to handle kernel NULL pointer dereference]
+	Fri, 29 Aug 2003 10:23:12 -0400
+Received: from ip-64-7-1-79.dsl.lax.megapath.net ([64.7.1.79]:42232 "EHLO
+	ip-64-7-1-79.dsl.lax.megapath.net") by vger.kernel.org with ESMTP
+	id S261238AbTH2OXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 10:23:10 -0400
+Date: Fri, 29 Aug 2003 07:22:55 -0700 (PDT)
+From: <lk@trolloc.com>
+X-X-Sender: <bpape@ip-64-7-1-79.dsl.lax.megapath.net>
+To: Nick Urbanik <nicku@vtc.edu.hk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Single P4, many IDE PCI cards == trouble??
+In-Reply-To: <3F4F5C9A.5BAA1542@vtc.edu.hk>
+Message-ID: <Pine.LNX.4.33.0308290716500.26957-100000@ip-64-7-1-79.dsl.lax.megapath.net>
+X-keyboard: Happy Hacking Keyboard Lite
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Fri, 29 Aug 2003 08:01:28 -0600
-Message-ID: <68D2A80760018245B05351CDCACF543601DFD8@CALGARYMAIL04.cpr.ca>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.0-test4: Unable to handle kernel NULL pointer dereference
-Thread-Index: AcNt1ppXa3COR4KrSlyRGZH7H+tnlwAXlH/A
-From: "Garrett Serack" <Garrett_Serack@cpr.ca>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 29 Aug 2003 14:01:29.0270 (UTC) FILETIME=[0B427560:01C36E36]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm experiencing all of the problems in referenced in posts 
+> Is there _anyone_ who is using a number of ATA133 IDE disks (>=6), each on
+> its own IDE channel, on a number of PCI IDE cards, and doing so
+> successfully and reliably?  I begin to suspect not!  If so, please tell us
+> what motherboard, IDE cards you are using.  I used to imagine that a
+> terabyte of RAID storage on one P4 machine with ordinary cheap IDE cards
+> with software RAID would be feasible.  I believe it is not (although I
+> cannot afford to play musical motherboards).
 
-	"2.6.0-test4: Unable to handle kernel NULL pointer dereference"
-	"2.6.0-test4-mm2: fdisk causes Oops" (I get it with Lilo)
-	"2.6.0-test4 and hardware reports a non fatal incident"
+We've tried it with five or six different motherboards, with Intel, Via,
+and Serverworks onboard chipsets, and Promise, Highpoint, and Silicon
+Image add-in cards, and had no luck.  After extensive testing and
+patching, we finally gave up and bought 3ware 8500 cards.  The only
+non-3ware IDE we've found to be stable is the Intel onboard chipset.  
 
-Am I right in assuming that these are all related problems?  It seems that they all appeared at once, when I went to 2.6.0-test4-mm2.
+> > > My machine locks solid at unpredictable intervals with no response
+> > > from keyboard lights, no Alt-Sysrq-x response, etc, with a wide
+> > > variety of 2.4.x kernels, including 2.4.22.
+
+We generally got lost DMA messages, but still, we were unable to obtain 
+any stability.
+
+> I am giving up now, and have shelled out big dollars for a 3ware 7506-8,
+> which I will install early next week once I've figured out how to back up
+> and restore 203GB without shelling out even more money.
 
 
-And, did these get fixed with 2.6.0-test4-mm3 ?
-
-Thanks
-
-Garrett

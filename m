@@ -1,32 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129430AbQJZRw3>; Thu, 26 Oct 2000 13:52:29 -0400
+	id <S130050AbQJZSCx>; Thu, 26 Oct 2000 14:02:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129701AbQJZRwT>; Thu, 26 Oct 2000 13:52:19 -0400
-Received: from kanga.kvack.org ([209.82.47.3]:39180 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id <S129430AbQJZRwL>;
-	Thu, 26 Oct 2000 13:52:11 -0400
-Date: Thu, 26 Oct 2000 13:50:52 -0400 (EDT)
-From: <kernel@kvack.org>
-To: Robert Lynch <rmlynch@best.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops while running test10-pre5
-In-Reply-To: <39F84D21.43FB2371@best.com>
-Message-ID: <Pine.LNX.3.96.1001026134947.18810C-100000@kanga.kvack.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130147AbQJZSCo>; Thu, 26 Oct 2000 14:02:44 -0400
+Received: from styx.suse.cz ([195.70.145.226]:21491 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S130050AbQJZSCd>;
+	Thu, 26 Oct 2000 14:02:33 -0400
+Date: Thu, 26 Oct 2000 20:02:20 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Yoann Vandoorselaere <yoann@mandrakesoft.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Possible critical VIA vt82c686a chip bug (private question)
+Message-ID: <20001026200220.A492@suse.cz>
+In-Reply-To: <20001026190309.A372@suse.cz> <Pine.LNX.3.95.1001026134131.13342A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.95.1001026134131.13342A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Thu, Oct 26, 2000 at 01:42:29PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Oct 2000, Robert Lynch wrote:
+On Thu, Oct 26, 2000 at 01:42:29PM -0400, Richard B. Johnson wrote:
 
-> Oct 19 13:00:23 ives kernel: EIP:    0010:[try_to_swap_out+252/796]
+> > > ../drivers/block/ide.c, line 162, on version 2.2.17 does bad things
+> > > to the timer. It writes 0 to the control-word for timer 0. This
+> > > does the following:
+> [Snipped...]
+> >  
+> > Well, at least on 2.4.0-test9, the above timing code is #ifed to
+> > DISK_RECOVERY_TIME > 0, which in turn is #defined to 0 in
+> > include/linux/ide.h.
+> > 
+> > So this is not our problem here. Anyway I guess it's time to hunt for
+> > i8259 accesses in the kernel that lack the necessary spinlock, even when
+> > they're not probably the cause of the problem we see here.
+> 
+> Okay, good.
 
-Those Oopsen look like they're from test10-pre4 (fixed in pre5).  Also,
-please include the lines beginning with "kernel BUG at...".
+Ok, here is a list of places within the kernel that access the PIT
+timer, plus the method of locking (i386 arch only):
 
-		-ben
+Usage:						Lock method:
 
+arch/i386/kernel/time.c:170:			spin_lock()
+arch/i386/kernel/time.c:491:			spin_lock()
+arch/i386/kernel/time.c:575:			none (init)
+arch/i386/kernel/i8259.c:491:			none (init)
+arch/i386/kernel/apm.c:871:			cli()
+arch/i386/kernel/apic.c:398:			spin_lock_irqsave()
+
+drivers/char/vt.c:121:				cli()
+drivers/char/ftape/lowlevel/ftape-calibr.c:80:	cli()
+drivers/char/ftape/lowlevel/ftape-calibr.c:99: 	cli()
+drivers/char/joystick/analog.c:142:		cli() __cli()
+drivers/char/joystick/gameport.c:66:		cli()
+drivers/ide/hd.c:137:   		 	cli()
+drivers/ide/ide.c:206:  		  	__cli()
+
+I guess we'll need to fix this. While races here are not likely (the
+most likely is a beep by vt.c at a wrong moment), they're possible.
+
+However, these don't seem to be the cause of the problem we see here
+anyway.
+
+-- 
+Vojtech Pavlik
+SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263424AbUBHLYH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 06:24:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbUBHLYH
+	id S263475AbUBHLkW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 06:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263486AbUBHLkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 06:24:07 -0500
-Received: from main.gmane.org ([80.91.224.249]:29579 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263424AbUBHLYE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 06:24:04 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Sun, 8 Feb 2004 06:40:22 -0500
+Received: from demotivation.org ([150.101.226.158]:51876 "EHLO
+	shenthet.demotivation.org") by vger.kernel.org with ESMTP
+	id S263475AbUBHLkS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 06:40:18 -0500
+Date: Sun, 8 Feb 2004 22:21:12 +1030
+From: hedj@ares.demotivation.org
 To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: USB 2.0 mass storage problem
-Date: Sun, 08 Feb 2004 12:24:00 +0100
-Message-ID: <yw1xr7x5u84v.fsf@kth.se>
-References: <200402080610.i186AEp19152@mailgate01.ctimail.com>
+Subject: 2.6.2 ALSA problems
+Message-ID: <20040208115112.GA14500@ares.demotivation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ti200710a080-1862.bb.online.no
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:cv1X+ufbZV1yO5Fv5cFT7s2JuAI=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Francis, Chong Chan Fai" <francis.ccf@polyu.edu.hk> writes:
+Under 2.6.2 ( but not under 2.6.1 ) , I get a lot of this type of thing
+in the logs:
+Debug: sleeping function called from invalid context at include/asm/semaphore.h:119
+in_atomic():1, irqs_disabled():0
+Call Trace:
+ [<c011cd81>] __might_sleep+0xab/0xc9
+ [<c03267fd>] ap_cs8427_sendbytes+0x3b/0xce
+ [<c031ae57>] snd_i2c_sendbytes+0x22/0x26
+ [<c0319e88>] snd_cs8427_reg_write+0x36/0x73
+ [<c031a47d>] snd_cs8427_reset+0x4f/0x1d7
+ [<c031ab7f>] snd_cs8427_iec958_pcm+0xe5/0x162
+ [<c0323d03>] snd_ice1712_playback_pro_hw_params+0x73/0x75
+ [<c02f8890>] snd_pcm_hw_params+0x263/0x28f
+ [<c02f8943>] snd_pcm_hw_params_user+0x87/0xf4
+ [<c02fc548>] snd_pcm_playback_ioctl1+0x5e/0x4b2
+ [<c0165e79>] sys_ioctl+0x119/0x298
+ [<c0109225>] sysenter_past_esp+0x52/0x71
 
-> Hi,
->
-> I have my laptop installed with Fedora Core (Kernel 2.4.22), and I want to
-> use a USB 2.0 120G hard drive via a Cardbus USB2.0 adaptor.
-> I plug the Cardbus card, and then the USB2.0 HD, (after a few config) linux
-> recognize my HD and I can use mount /dev/sda1 /mnt/extra to mount it.
->
-> HOWEVER, the disk fail after a few read or write operation.
+This also seems to produce rather bad noises....
 
-[...]
-
-> The same hardware work perfectly in Windows 2000, It works too when I
-> connect the USB to a USB1.0 port in my machine, so I'm quite sure it is the
-> problem with the ehci-hcd driver.
-
-This looks like the drive is using a buggy Genesys USB-to-IDE bridge.
-Run lsusb and check.  There was a workaround kernel patch floating
-around here about a month ago.
-
--- 
-Måns Rullgård
-mru@kth.se
-
+Cheers,
+John Hedditch

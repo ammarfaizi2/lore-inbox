@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316540AbSFULvJ>; Fri, 21 Jun 2002 07:51:09 -0400
+	id <S316574AbSFUL45>; Fri, 21 Jun 2002 07:56:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316573AbSFULvI>; Fri, 21 Jun 2002 07:51:08 -0400
-Received: from lukoil.lt ([212.59.17.210]:21487 "HELO lukoil.lt")
-	by vger.kernel.org with SMTP id <S316540AbSFULvI>;
-	Fri, 21 Jun 2002 07:51:08 -0400
-Message-ID: <009701c21919$eceae8d0$4c00000a@lukoil.lt>
-From: "Egidijus Antanaitis" <e.antanaitis@lukoil.lt>
-To: <linux-kernel@vger.kernel.org>
-References: <3D1300D1.8020903@bonin.ca> <20020621115216.GA4687@router.zwanebloem.xs4all.nl>
-Subject: Strange problems with 2.4.18 on RH 7.2
-Date: Fri, 21 Jun 2002 13:51:05 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S316576AbSFUL44>; Fri, 21 Jun 2002 07:56:56 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:30649 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S316574AbSFUL4z>;
+	Fri, 21 Jun 2002 07:56:55 -0400
+Date: Fri, 21 Jun 2002 13:56:55 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200206211156.NAA13885@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.23+ bootflag.c triggers __iounmap: bad address
+Cc: ak@suse.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Linux RH 7.2, vanilla kernel 2.4.18 with SGI XFS patch 1.1. The test: I
-have tried to copy a large file (700MB) from one disk to another and the
-effect: after copying for 2 seconds, it stops for 2 seconds and again again
-and again... The same situation with vanilla without XFS patch. The problem
-dissapears when I use RH's prepared kernel. The friend of mine reports the
-same. Where is the point?
+When booting 2.5.23/.24, my test boxes generate the following:
 
-Egidijus Antanaitis
+(an ASUS P4T-E which has SBF)
+__iounmap: bad address d0802100
+SBF: Simple Boot Flag extension found and enabled.
+__iounmap: bad address d0805040
+__iounmap: bad address d0808080
+SBF: Setting boot flags 0x1
 
+(an old Intel AL440LX which doesn't have SBF)
+__iounmap: bad address c4800009
+__iounmap: bad address c4804b8c
+__iounmap: bad address c4802009
 
+These warnings/errors are new since 2.5.23, which makes me
+suspect something's wrong in the 2.5.23 iounmap changes.
+
+/Mikael

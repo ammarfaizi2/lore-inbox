@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275265AbRJTHeU>; Sat, 20 Oct 2001 03:34:20 -0400
+	id <S275449AbRJTHiU>; Sat, 20 Oct 2001 03:38:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275570AbRJTHeJ>; Sat, 20 Oct 2001 03:34:09 -0400
-Received: from inway106.cdi.cz ([213.151.81.106]:6055 "EHLO luxik.cdi.cz")
-	by vger.kernel.org with ESMTP id <S275265AbRJTHeB>;
-	Sat, 20 Oct 2001 03:34:01 -0400
-Posted-Date: Sat, 20 Oct 2001 09:34:12 +0200
-Date: Sat, 20 Oct 2001 09:34:12 +0200 (CEST)
+	id <S275570AbRJTHiL>; Sat, 20 Oct 2001 03:38:11 -0400
+Received: from inway106.cdi.cz ([213.151.81.106]:8615 "EHLO luxik.cdi.cz")
+	by vger.kernel.org with ESMTP id <S275449AbRJTHh7>;
+	Sat, 20 Oct 2001 03:37:59 -0400
+Posted-Date: Sat, 20 Oct 2001 09:38:28 +0200
+Date: Sat, 20 Oct 2001 09:38:28 +0200 (CEST)
 From: Martin Devera <devik@cdi.cz>
-To: Andrew Morton <akpm@zip.com.au>
+To: Bill Huey <billh@gnuppy.monkey.org>
 cc: linux-kernel@vger.kernel.org
 Subject: Re: DOT call graphs of Rik and AA VMs
-In-Reply-To: <3BD0BB14.C49E612C@zip.com.au>
-Message-ID: <Pine.LNX.4.10.10110200933100.321-100000@luxik.cdi.cz>
+In-Reply-To: <20011019164416.A8227@gnuppy>
+Message-ID: <Pine.LNX.4.10.10110200937100.321-100000@luxik.cdi.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,11 +27,13 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > > 
 > > http://luxik.cdi.cz/~devik/mm.htm
 > > 
+> > Enjoy. devik
 > 
-> Oh my that is cute.     Will you be publishing the gcc patch
-> and perl script sometime?
+> Do it for the FreeBSD VM system too if you can... ;-)
 
-Yeah I will probably at Sunday. Now I have to hurry to prepare
-our wedding.
+I have never seen bsd sources so it would take too many
+time to undestand its structure probably. But I will
+release patches and you can do it :)
+
 devik
 

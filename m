@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261956AbREPOEp>; Wed, 16 May 2001 10:04:45 -0400
+	id <S261967AbREPONH>; Wed, 16 May 2001 10:13:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261957AbREPOEZ>; Wed, 16 May 2001 10:04:25 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:34842 "EHLO
+	id <S261968AbREPOM5>; Wed, 16 May 2001 10:12:57 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:1308 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S261956AbREPOEW>; Wed, 16 May 2001 10:04:22 -0400
-Date: Wed, 16 May 2001 16:04:12 +0200
+	id <S261967AbREPOMu>; Wed, 16 May 2001 10:12:50 -0400
+Date: Wed, 16 May 2001 16:12:03 +0200
 From: Andrea Arcangeli <andrea@suse.de>
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.20pre2aa1
-Message-ID: <20010516160412.B15796@athlon.random>
-In-Reply-To: <20010515235859.A2415@athlon.random> <Pine.LNX.4.33.0105152029580.7281-100000@twinlark.arctic.org>
+To: David Howells <dhowells@redhat.com>
+Cc: eccesys@topmail.de, linux-kernel@vger.kernel.org
+Subject: Re: rwsem, gcc3 again
+Message-ID: <20010516161203.D15796@athlon.random>
+In-Reply-To: <andrea@suse.de> <10983.990021124@warthog.cambridge.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0105152029580.7281-100000@twinlark.arctic.org>; from dean-list-linux-kernel@arctic.org on Tue, May 15, 2001 at 08:33:05PM -0700
+In-Reply-To: <10983.990021124@warthog.cambridge.redhat.com>; from dhowells@redhat.com on Wed, May 16, 2001 at 02:52:04PM +0100
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 15, 2001 at 08:33:05PM -0700, dean gaudet wrote:
-> On Tue, 15 May 2001, Andrea Arcangeli wrote:
+On Wed, May 16, 2001 at 02:52:04PM +0100, David Howells wrote:
 > 
-> > o	fixed race in wake-one LIFO in accept(2). Apache must be compiled with
-> > 	-DSINGLE_LISTEN_UNSERIALIZED_ACCEPT to take advantage of that.
-> >
-> > 00_wake-one-4
-> >
-> > 	Backport 2.4 waitqueues and in turn fixes an hanging condition in accept(2).
-> >
-> > 	(me)
+> Hi Andrea:
 > 
-> apache since 1.3.15 has defined SINGLE_LISTEN_UNSERIALIZED_ACCEPT ...
+> Here you go:
+> 
+> /usr/local/bin/gcc -D__KERNEL__ -I/inst-kernels/linux-2.4.5-pre2-aa/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686    -DEXPORT_SYMTAB -c sys.c
+> sys.c: In function `sys_gethostname':
+> /inst-kernels/linux-2.4.5-pre2-aa/include/asm/rwsem_xchgadd.h:51: inconsistent
+> operand constraints in an `asm'
+> 
+> I've lit fires underneath some of our gcc people, and they say it's definitely
+> a bug in gcc. They're currently looking at it.
 
-That's definitely a good thing.
-
-> 'cause that's what you guys asked me to do :)  does this mean there are
-> known hangs on linux 2.2.x without your fix?
-
-I never heard of anybody reproducing that but accpet() in 2.2
-can _definitely_ miss events without the above 00_wake-one-4 patch
-because it wrongly considers a progress wakeing up two times the same
-exclusive task.
-
-Furthmore the exclusive wakeup logic with the exclusive information
-per-task and not per wait_queue_t will screwup if the tasks registers
-itself like a wakeall after it was just registered as wakeone somewhere
-else (however this second thing is more a theorical issue that shouldn't
-trigger in 2.2).
+Ok, I hope it will be fixed soon ;), thanks for checking.
 
 Andrea

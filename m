@@ -1,49 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284934AbRLQABB>; Sun, 16 Dec 2001 19:01:01 -0500
+	id <S284933AbRLPX4k>; Sun, 16 Dec 2001 18:56:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284938AbRLQAAv>; Sun, 16 Dec 2001 19:00:51 -0500
-Received: from pat.uio.no ([129.240.130.16]:36255 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S284934AbRLQAAd>;
-	Sun, 16 Dec 2001 19:00:33 -0500
+	id <S284934AbRLPX4a>; Sun, 16 Dec 2001 18:56:30 -0500
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:10639 "EHLO
+	phalynx") by vger.kernel.org with ESMTP id <S284933AbRLPX4X>;
+	Sun, 16 Dec 2001 18:56:23 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+To: Adam Schrotenboer <adam@tabris.net>
+Subject: Re: Is /dev/shm needed?
+Date: Sun, 16 Dec 2001 15:56:17 -0800
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16Fkqc-0001Z0-00@DervishD.viadomus.com> <20011216234748.3EDE9FB80D@tabris.net>
+In-Reply-To: <20011216234748.3EDE9FB80D@tabris.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15389.13714.559348.873531@charged.uio.no>
-Date: Mon, 17 Dec 2001 01:00:18 +0100
-To: Dave Jones <davej@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: More fun with fsx.
-In-Reply-To: <Pine.LNX.4.33.0112162226460.16845-100000@Appserv.suse.de>
-In-Reply-To: <15389.4070.855955.296791@charged.uio.no>
-	<Pine.LNX.4.33.0112162226460.16845-100000@Appserv.suse.de>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Fl8j-0000nA-00@phalynx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Dave Jones <davej@suse.de> writes:
+On December 16, 2001 15:47, Adam Schrotenboer wrote:
+> I may be wrong about /tmp as well, but I have come to think that it is data
+> that ought be discarded after logout, and have sometimes considered writing
+> a script for it in the login/logout scripts.
 
-     > On Sun, 16 Dec 2001, Trond Myklebust wrote:
-    >> In that case, I'll need a tcpdump of the point at which the
-    >> error occurs.
+System daemons can legally use /tmp, and they may not apprechiate having 
+their files removed from underneath them everytime someone telnets in. ;)
 
-     > Sure no problem... any particular preferred options ?  Want
-     > client and server, or just client ?
-
-Client should suffice. If you could start something like
-
-tcpdump -s 256 -w tcpdump.out
-
-close to the point at which the error occurs, and send me the
-resulting file, then that should be OK. I'm mainly out to check
-whether or not the server is the one returning the EIO error, or
-possibly if it is returning bad post-op attributes. Those are the only
-remaining possibilities if hard mounts are being used.
-
-BTW: could you also tell me a bit about the server? Is this an ext[23]
-partition and knfsd? I'm still a bit wary of ReiserFS...
-
-Cheers,
-   Trond
+-Ryan

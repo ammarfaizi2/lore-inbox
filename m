@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314545AbSEGWKn>; Tue, 7 May 2002 18:10:43 -0400
+	id <S314546AbSEGWMi>; Tue, 7 May 2002 18:12:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314546AbSEGWKm>; Tue, 7 May 2002 18:10:42 -0400
-Received: from jalon.able.es ([212.97.163.2]:33740 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S314545AbSEGWKj>;
-	Tue, 7 May 2002 18:10:39 -0400
-Date: Wed, 8 May 2002 00:10:28 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: rwhron@earthlink.net
-Subject: [PATCHSET] Linux 2.4.19-pre8-jam1
-Message-ID: <20020507221028.GA1937@werewolf.able.es>
+	id <S314551AbSEGWMh>; Tue, 7 May 2002 18:12:37 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:39865 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S314546AbSEGWMf>;
+	Tue, 7 May 2002 18:12:35 -0400
+Date: Wed, 8 May 2002 00:12:32 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Thunder from the hill <thunder@ngforever.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Possible SCSI (sr) mini-cleanup
+Message-ID: <20020508001232.I9980@khan.acc.umu.se>
+In-Reply-To: <Pine.LNX.4.44.0205071445480.4189-100000@hawkeye.luckynet.adm> <20020507220235.GB27824@turbolinux.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.5
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi...
+On Tue, May 07, 2002 at 04:02:35PM -0600, Andreas Dilger wrote:
+> On May 07, 2002  14:50 -0600, Thunder from the hill wrote:
+> > I don't see where the variable and the label have been used. Are they 
+> > useful for anything? If they are, tell me please!
+> 
+> > @@ -723,8 +721,6 @@
+> >  		goto cleanup_cds;
+> >  	memset(sr_sizes, 0, sr_template.dev_max * sizeof(int));
+> >  	return 0;
+> > -cleanup_sizes:
+> > -	kfree(sr_sizes);
+> >  cleanup_cds:
+> >  	kfree(scsi_CDs);
+> >  cleanup_devfs:
+> 
+> Note that you are also removing the "kfree(sr_sizes)" which is
+> definitely used...
 
-New release (P4 oriented...):
-- Bug fixes: up-apic, NIPQUAD, pagemap include in fs, mmx-xmm init
-- VM-34
-- irqbalance on top of O(1)-scheduler, timer-balance is already
-  included in mainline
+There's a return 0 on the line before the kfree(sr_sizes);,
+so either there is a goto cleanup_sizes somewhere, or the code is dead.
 
-URL:
-
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre8-jam1.tar.gz
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre8-jam1/
-
-The ide-9 update has stayed out of this because it still hangs. Will wait
-for convert.10...
-
-Thanks.
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre8-jam1 #1 SMP mar may 7 22:23:30 CEST 2002 i686
+Regards: David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

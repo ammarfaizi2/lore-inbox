@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263865AbUCZAdX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 19:33:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263859AbUCZAcs
+	id S263876AbUCZAuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 19:50:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263817AbUCZAnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 19:32:48 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21717 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263856AbUCZAPM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 19:15:12 -0500
-Message-ID: <40637603.10902@pobox.com>
-Date: Thu, 25 Mar 2004 19:14:59 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-CC: linux-kernel@vger.kernel.org, Kevin Corry <kevcorry@us.ibm.com>,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org
-Subject: Re: "Enhanced" MD code avaible for review
-References: <760890000.1079727553@aslan.btc.adaptec.com> <16480.61927.863086.637055@notabene.cse.unsw.edu.au> <40624235.30108@pobox.com> <200403251200.35199.kevcorry@us.ibm.com> <40632804.1020101@pobox.com> <40632994.7080504@pobox.com> <1035780000.1080258411@aslan.btc.adaptec.com> <406372C5.600@pobox.com> <1048370000.1080259823@aslan.btc.adaptec.com>
-In-Reply-To: <1048370000.1080259823@aslan.btc.adaptec.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 25 Mar 2004 19:43:51 -0500
+Received: from mail.kroah.org ([65.200.24.183]:60352 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263890AbUCZAlh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 19:41:37 -0500
+Date: Thu, 25 Mar 2004 16:41:02 -0800
+From: Greg KH <greg@kroah.com>
+To: James Lamanna <jamesl@appliedminds.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Figuring out USB device locations
+Message-ID: <20040326004102.GA32057@kroah.com>
+References: <406314EF.7040304@appliedminds.com> <20040325235740.GA30964@kroah.com> <40637A42.4080603@appliedminds.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40637A42.4080603@appliedminds.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin T. Gibbs wrote:
->>>None of the solutions being talked about perform "failing over" in
->>>userland.  The RAID transforms which perform this operation are kernel
->>>resident in DM, MD, and EMD.  Perhaps you are talking about spare
->>>activation and rebuild?
->>
->>This is precisely why I sent the second email, and made the qualification
->>I did :)
->>
->>For a "do it in userland" solution, an initrd or initramfs piece examines
->>the system configuration, and assembles physical disks into RAID arrays
->>based on the information it finds.  I was mainly implying that an initrd
->>solution would have to provide some primitive failover initially, before
->>the kernel is bootstrapped...  much like a bootloader that supports booting
->>off a RAID1 array would need to do.
+On Thu, Mar 25, 2004 at 04:33:06PM -0800, James Lamanna wrote:
+> Greg KH wrote:
 > 
+> >On Thu, Mar 25, 2004 at 09:20:47AM -0800, James Lamanna wrote:
+> >
+> >>Is there an easy way to find out what /dev entries usb devices get 
+> >>mapped to from userspace?
+> >
+> >
+> >"easy way" on 2.4?  No, sorry.  You need 2.6 to determine this in a
+> >simple manner.  But there are some files in the /proc/bus/usb/
+> >and /proc/bus/input/ directories that will help you out.
 > 
-> "Failover" (i.e. redirecting a read to a viable member) will not occur
-> via userland at all.  The initrd solution just has to present all available
-> members to the kernel interface performing the RAID transform.  There
-> is no need for "special failover handling" during bootstrap in either
-> case.
+> Hmm...its not obvious to me how i can use /proc/bus/usb/xxx/yyy to get 
+> the /dev entry information. I can get the USB device number, but I don't 
+> see how to get at a mapping to a major/minor in /dev space (or is this 
+> not possible in 2.4)...
 
-hmmm, yeah, agreed.
+Well, for mice you can corrispond the usb position found in
+/proc/bus/usb/devices with the input information found in
+/proc/bus/usb/input to determine which /dev file that mouse is
+(possibly, but you might get a close guess there.)
 
-	Jeff
+But remember, under 2.4 this is quite difficult.  I suggest just giving
+up and using 2.6 :)
 
+thanks,
 
-
-
+greg k-h

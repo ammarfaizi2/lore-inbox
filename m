@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265102AbUGDQeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265157AbUGDQgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265102AbUGDQeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 12:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265157AbUGDQeJ
+	id S265157AbUGDQgw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 12:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265198AbUGDQgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 12:34:09 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:21635 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S265102AbUGDQeH
+	Sun, 4 Jul 2004 12:36:52 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:63501 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S265157AbUGDQgu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 12:34:07 -0400
-Subject: Strange DMA timeouts
-From: Lasse Bang Mikkelsen <lbm-list@fatalerror.dk>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1088958931.3205.8.camel@slaptop>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 04 Jul 2004 18:35:31 +0200
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Jul 2004 12:36:50 -0400
+To: Ali Akcaagac <aliakc@web.de>
+Cc: linux-kernel@vger.kernel.org, aebr@win.tue.nl
+Subject: Re: [BUG] FAT broken in 2.6.7-bk15
+References: <1088951695.596.7.camel@localhost>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Mon, 05 Jul 2004 01:36:42 +0900
+In-Reply-To: <1088951695.596.7.camel@localhost>
+Message-ID: <877jtjwwyt.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Ali Akcaagac <aliakc@web.de> writes:
 
-I keep getting these DMA timeouts under heavy harddrive load, ex. when
-unpacking big tarballs, transfering from USB harddrive etc.
+> Ok after some further research I figured this out. My last working
+> version of the Linux Kernel was 2.6.7 which worked with my rescue
+> system. I now applied the bk* patches upwards to check which one caused
+> the issue and I figured that this happened between bk3 to bk4 (so the
+> problem occoured with the bk4 patch). The diskimage was created with
+> mtools 3.9.9 and worked perfectly before.
 
-hda: dma_timer_expiry: dma status == 0x21
-hda: DMA timeout error
-hda: dma timeout error: status=0xd0 { Busy }
+Ah, my fault. I changed the handling of "codepage" options, but it wasn't
+mentioned on changelog at all. (Sorry, I didn't notice this changes.)
 
-hda: DMA disabled
-ide0: reset: success
+Now, the codepage option recognizes only real NLS codepage module.
+(It uses FAT_DEFAULT_CODEPAGE, not NLS_DEFAULT. And FAT_DEFAULT_CODEPAGE
+only recognizes the numbers.)
 
-Is this a sign of harddisk failure or could this be a kernel problem?
+Previously, it recognized/loaded all NLS modules via CONFIG_NLS_DEFAULT,
+if it can't load the nls_cp437.ko or specified codepage.
 
-Thanks.
+But this is seriously wrong. For example, if fatfs using the
+nls_utf8.ko for codepage, it will store the wrong 8.3-alias to
+disk. (At least, windows can't read this. And several peoples reported
+this problem.)
 
+Anyway, could you please check FAT_DEFAULT_CODE/FAT_DEFAULT_IOCHARSET
+and NLS_xxx in your .config.
+
+Yes, this should be done automatically by config system. However...
 -- 
-Regards
-
-Lasse Bang Mikkelsen
-lbm@fatalerror.dk
-
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

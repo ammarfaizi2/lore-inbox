@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVBPRgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262032AbVBPRjV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262026AbVBPRgi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 12:36:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVBPRgi
+	id S262032AbVBPRjV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 12:39:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVBPRjU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 12:36:38 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:54020 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262026AbVBPRgb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 12:36:31 -0500
-Message-Id: <200502161736.j1GHa4gX013635@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: "Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       sergio@sergiomb.no-ip.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX as device 
-In-Reply-To: Your message of "Wed, 16 Feb 2005 10:42:21 +0100."
-             <20050216094221.GA29408@wszip-kinigka.euro.med.ge.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050215194813.GA20922@wszip-kinigka.euro.med.ge.com> <200502152125.j1FLPSvq024249@turing-police.cc.vt.edu>
-            <20050216094221.GA29408@wszip-kinigka.euro.med.ge.com>
+	Wed, 16 Feb 2005 12:39:20 -0500
+Received: from ns.suse.de ([195.135.220.2]:3821 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262032AbVBPRjR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 12:39:17 -0500
+Subject: Re: [patch 10/13] Solaris nfsacl workaround
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Neil Brown <neilb@cse.unsw.edu.au>, Olaf Kirch <okir@suse.de>,
+       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+       Buck Huppmann <buchk@pobox.com>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1108573547.10161.18.camel@lade.trondhjem.org>
+References: <20050122203326.402087000@blunzn.suse.de>
+	 <20050122203619.889966000@blunzn.suse.de>
+	 <1108488547.10073.39.camel@lade.trondhjem.org>
+	 <1108570666.30082.118.camel@winden.suse.de>
+	 <1108573547.10161.18.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Organization: SUSE Labs
+Message-Id: <1108575550.30082.244.camel@winden.suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1108575364_12340P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 16 Feb 2005 18:39:10 +0100
 Content-Transfer-Encoding: 7bit
-Date: Wed, 16 Feb 2005 12:36:04 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1108575364_12340P
-Content-Type: text/plain; charset=us-ascii
+On Wed, 2005-02-16 at 18:05, Trond Myklebust wrote:
+> I am, however, surprised when you say that Solaris has problems with
+> this. The PROG_MISMATCH error does also tell the client the minimum and
+> maximum supported version, so if all is working well, then it recognize
+> that we support version 3 only. It seems wierd that they should then
+> choose to treat that as an mount failure.
 
-On Wed, 16 Feb 2005 10:42:21 +0100, "Kiniger, Karl (GE Healthcare)" said:
+Well, yes. It's a weird bug.
 
-> >    Have you tested the ISO on some *OTHER* hardware?  The impression I got
-> >    was that the cd was *burned* right by ide-cd, but when *read back*, it
-> >    bollixed things up at the end of the CD.....
-> 
-> Using ide-scsi is enough to get all the data till the real end of the CD.
+Cheers,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX GMBH
 
-OK, so the problem is that ide-cd is able to *burn* the CD just fine, but it
-suffers lossage when ide-cd tries to read it back...
-
-Alan - are the sense-byte patches for ide-cd in a shape to push either upstream
-or to -mm?
-
---==_Exmh_1108575364_12340P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCE4SDcC3lWbTT17ARAvaYAJ9/w/Vnw8wHc+SsxSJ0cxlL1f/NkACg9hx3
-Smz/3lB3J/uUQBRJT9nfSPs=
-=ogKn
------END PGP SIGNATURE-----
-
---==_Exmh_1108575364_12340P--

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268165AbTBSJj6>; Wed, 19 Feb 2003 04:39:58 -0500
+	id <S268338AbTBSJpR>; Wed, 19 Feb 2003 04:45:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268166AbTBSJj6>; Wed, 19 Feb 2003 04:39:58 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:32161 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S268165AbTBSJj4>; Wed, 19 Feb 2003 04:39:56 -0500
-Date: Wed, 19 Feb 2003 10:49:39 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Stephen Wille Padnos <stephen.willepadnos@verizon.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: a really annoying feature of the config menu structure
-Message-ID: <20030219094939.GB10698@louise.pinerecords.com>
-References: <1045623798.25795.73.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0302182110070.25342-100000@dell>
+	id <S268337AbTBSJpQ>; Wed, 19 Feb 2003 04:45:16 -0500
+Received: from cda1.e-mind.com ([195.223.140.107]:17537 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S268338AbTBSJpO>;
+	Wed, 19 Feb 2003 04:45:14 -0500
+Date: Wed, 19 Feb 2003 10:54:55 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: openbkweb-0.0
+Message-ID: <20030219095455.GA14633@x30.suse.de>
+References: <20030214203151.GL20159@fs.tum.de> <Pine.LNX.4.44.0302141553320.1097-100000@localhost.localdomain> <20030215003951.GB4333@bjl1.jlokier.co.uk> <20030215161821.GC29194@dualathlon.random> <b2ouas$as3$1@tangens.hometree.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302182110070.25342-100000@dell>
+In-Reply-To: <b2ouas$as3$1@tangens.hometree.net>
 User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [rpjday@mindspring.com]
+On Sun, Feb 16, 2003 at 09:03:24PM +0000, Henning P. Schmiedehausen wrote:
+> Andrea Arcangeli <andrea@suse.de> writes:
 > 
-> > > It seems that the mjpeg stuff will be in the wrong place when it starts 
-> > > being used by non-DVB modules.  I see the two (DVB and mjpeg) as 
-> > > distinct entities - like ethernet drivers and ipv4.  (DVB drivers should 
-> > > let you change channels and whatnot, mjpeg drivers should allow you to 
-> > > decode data streams from any available source.)
-> > 
-> > Its more by API than by hardware. One driver sometimes covers cards with
-> > and without tuners, with and without mpeg hardware and so on. Classification
-> > is nice, but like biology its never neat
+> >I'm been told of several giga archives with dozen thousand revisions
+> >under subversion for istance (I know Al Viro blamed subversion code but
+> >if the design it's good it may be a good start).  subversion may not
 > 
-> true enough -- there's no perfect solution, but i'm convinced that
-> it can certainly be much more intuitive and organized that it is now.
+> I'm still missing a single good argument for the current SVN being
+> "bad code" aside from Al Viros' lovecraftian comparisation which seem
+> to be universal accepted (I got some mails citing or even using this
+> comparisation to prove that SVN is "inferior"). The Apache Foundation
+> e.g. is planning to move most of its projects to SVN from CVS in the
+> near future. And all of these people on infrastructure@ can't be that
+> clueless...
 
-Please wait until Roman Zippel pushes the "menuconfig" grammar extension.
+The fact a product can work great doesn't mean the code have to be nice.
+Certainly if a product works great likely it's well designed in terms of
+highlevel algorithms though.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+Anyways I really can't comment on the sourcecode of SVN, I've the tar.gz
+of r4503 here but I didn't manage looking at it yet.
+
+Andrea

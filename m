@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263348AbTDSER5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 00:17:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263349AbTDSER5
+	id S263349AbTDSEhB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 00:37:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263350AbTDSEhB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 00:17:57 -0400
-Received: from [12.47.58.203] ([12.47.58.203]:61091 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263348AbTDSER4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 00:17:56 -0400
-Date: Fri, 18 Apr 2003 21:29:49 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "J. Hidding" <J.Hidding@student.rug.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.67-mm4] Can't open pty's
-Message-Id: <20030418212949.2b9a7d6e.akpm@digeo.com>
-In-Reply-To: <web-6774367@mail.rug.nl>
-References: <web-6774367@mail.rug.nl>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 19 Apr 2003 00:37:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26040 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263349AbTDSEhA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 00:37:00 -0400
+Message-ID: <3EA0D524.7010309@pobox.com>
+Date: Sat, 19 Apr 2003 00:48:36 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [TRIVIAL] kstrdup
+References: <20030419041526.5E3982C093@lists.samba.org>
+In-Reply-To: <20030419041526.5E3982C093@lists.samba.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Apr 2003 04:29:47.0718 (UTC) FILETIME=[4F69FE60:01C3062C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J. Hidding" <J.Hidding@student.rug.nl> wrote:
->
-> Hi,
+Rusty Russell wrote:
+> In message <3E9FB2E9.9040308@pobox.com> you write:
 > 
-> Xterm (nor any other VT) won't run on my freshly compiled 
-> 2.5.67-mm4 kernel. It says:
+>>Rusty Trivial Russell wrote:
+>>
+>>>+char *kstrdup(const char *s, int gfp)
+>>>+{
+>>>+	char *buf = kmalloc(strlen(s)+1, gfp);
+>>>+	if (buf)
+>>>+		strcpy(buf, s);
+>>>+	return buf;
+>>>+}
+>>
+>>You should save the strlen result to a temp var, and then s/strcpy/memcpy/
 > 
-> --
-> xterm: Error 32, errno 2: No such file or directory
-> Reason: get_pty: not enough ptys
+> 
+> Completely disagree.  Write the most straightforward code possible,
+> and then if there proves to be a problem, optimize.  Optimizations
+> where there's no actual performance problem should be left to the
+> compiler.
 
-Apparently you now need to mount the devpts filesystem on /dev/pts.
+Since the kernel does its own string ops, the compiler does not have 
+enough information to deduce that further optimization is possible.
 
-Red Hat 8's /etc/fstab has
 
-	none /dev/pts devpts gid=5,mode=620 0 0
+> Case in point: gcc-3.2 on -O2 on Intel is one instruction longer for
+> your version.
 
+And?  It's still slower.
+
+	Jeff
 
 

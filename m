@@ -1,63 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131148AbRBEVTs>; Mon, 5 Feb 2001 16:19:48 -0500
+	id <S130327AbRBEV0V>; Mon, 5 Feb 2001 16:26:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130733AbRBEVTi>; Mon, 5 Feb 2001 16:19:38 -0500
-Received: from barry.mail.mindspring.net ([207.69.200.25]:16940 "EHLO
-	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S131148AbRBEVTU>; Mon, 5 Feb 2001 16:19:20 -0500
-From: lists@frednet.dyndns.org
-Date: Mon, 5 Feb 2001 15:19:17 -0600
-To: Rusty Russell <rusty@linuxcare.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Hot swap CPU support for 2.4.1@
-Message-ID: <20010205151917.A17110@frednet.dyndns.org>
-In-Reply-To: <E14PcpU-0004U1-00@halfway>
+	id <S131567AbRBEV0K>; Mon, 5 Feb 2001 16:26:10 -0500
+Received: from pcow028o.blueyonder.co.uk ([195.188.53.124]:59914 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S130327AbRBEVZ7>;
+	Mon, 5 Feb 2001 16:25:59 -0500
+Date: Mon, 5 Feb 2001 21:20:09 +0000
+From: Michael Pacey <michael@wd21.co.uk>
+To: Tom Sightler <ttsig@tuxyturvy.com>
+Cc: linux-kernel@vger.kernel.org, aia21@cam.ac.uk, michael@wd21.co.uk
+Subject: Re: [Patch] [Repost] 3Com 3c523: Can't load module in kernel 2.4.1
+Message-ID: <20010205212009.B425@kermit.wd21.co.uk>
+In-Reply-To: <Pine.LNX.4.30.0102051034450.22075-100000@iso-2146-l1.zeusinc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14PcpU-0004U1-00@halfway>; from rusty@linuxcare.com.au on Mon, Feb 05, 2001 at 03:00:40PM +1100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.30.0102051034450.22075-100000@iso-2146-l1.zeusinc.com>; from ttsig@tuxyturvy.com on Mon, Feb 05, 2001 at 15:50:26 +0000
+X-Mailer: Balsa 1.0.pre5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Would any special hardware besides a multi-cpu system be necessarey to
-test this out?
+On Mon, 05 Feb 2001 15:50:26 Tom Sightler wrote:
 
+> Anyway, here's the patch again, hope it works this time.  It includes the
+> following changes:
+> 
+> - fix addresses with bus_to_virt
+> - reduce xmit buffers from 4 to 1 (puts driver in noop mode like ni52
+> driver)
+> - increase recv buffers from 6 to 9 (should help decrease dropped
+> packets)
+> - add short delay to detect routine (makes cards detectable on fast
+> machines)
+> - use eth_copy_and_sum for receiving packets
+> 
+> It passed basic stress testing with multiple, simultaneous ftp transfers.
+> 
+> Known bugs:
+> 
+> - Multicast still doesn't work at all (I have patches that seem to fix
+> this but they have other problems)
+> - Still drops packets under heavy traffic (can be reduced further by
+> lowering MTU on interface)
+> - Sometimes requires host to send a packet before it starts receiving (I
+> can't reproduce this on my equipment anymore, but needs more testing)
+> 
+> Anyone with this card please test and report back.
+> 
 
-Matthew Fredrickson
+This works for me. I had to frig the patch file though (I think /my/ mailer
+(balsa) was screwing it up though).
 
-On Mon, Feb 05, 2001 at 03:00:40PM +1100, Rusty Russell wrote:
-> Hi all,
-> 
-> I did the infrastructure, Anton did the bugfinding and PPC support,
-> aka. the hard stuff.  Other architectures need to implement
-> __cpu_disable, __cpu_die and __cpu_up for them to work.  Volunteers
-> appreciated.
-> 
-> 	This patch allows you to down & up CPUs as follows:
-> 	# echo 0 > /proc/sys/cpu/0/online
-> 	# echo 1 > /proc/sys/cpu/0/online
-> 
-> The relatively trivial patch works as follows:
-> 
-> 1) Implements synchronize_kernel() (thanks Andi Kleen for forwarding
->    Paul McKenney's quiescent-state ideas) which waits for a schedule
->    on all CPUs.
-> 2) All CPU numbers are now physical: removes cpu_number_map,
->    cpu_logical_map and smp_num_cpus.
-> 3) Adds cpu_online(cpu) and cpu_num_online() macros.
-> 4) Adds cpu_down() and cpu_up() calls, which call arch-specific
->    __cpu_disable(cpu), __cpu_die(cpu) and __cpu_up(cpu).
-> 5) Fixes schedule() to check allowed_cpus even if rescheduling same
->    task.
-> 
-> Since it's 60k long, mime attached bzip2.
-> 
-> Go hack!
-> Rusty Russell & Anton Blanchard
-> --
+I did an NFS transfer of ~100Mb file (a tar of linux 2.4.1). Details:
 
+10Base2 Co-ax segment, lightly used, shared with one other machine.
+Transfer rate: 5,854,215 Mbit/s
+Overruns: 18
+
+I didn't check what the overruns were prior to the transfer but all I had
+done was the NFS mount and couple of directory listings.
+
+I'm very happy with this; under 2.2.17 with this card, I was getting about
+1Mbyte per minute for an NFS transfer. My friend thanks you too.
+
+--
+Michael Pacey
+michael@wd21.co.uk
+ICQ: 105498469
+
+wd21 ltd - world domination in the 21st century
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

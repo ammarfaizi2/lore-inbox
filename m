@@ -1,46 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293380AbSCUFTC>; Thu, 21 Mar 2002 00:19:02 -0500
+	id <S292385AbSCUFVD>; Thu, 21 Mar 2002 00:21:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293379AbSCUFSw>; Thu, 21 Mar 2002 00:18:52 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:38643
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S293380AbSCUFSl>; Thu, 21 Mar 2002 00:18:41 -0500
-Date: Wed, 20 Mar 2002 21:20:08 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Bergs <flygong@yahoo.com>
+	id <S293035AbSCUFUx>; Thu, 21 Mar 2002 00:20:53 -0500
+Received: from web10108.mail.yahoo.com ([216.136.130.58]:21520 "HELO
+	web10108.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S292385AbSCUFUk>; Thu, 21 Mar 2002 00:20:40 -0500
+Message-ID: <20020321052039.11197.qmail@web10108.mail.yahoo.com>
+Date: Wed, 20 Mar 2002 21:20:39 -0800 (PST)
+From: Ivan Gurdiev <ivangurdiev@yahoo.com>
+Subject: Re: Via-Rhine stalls - transmit errors
+To: Andy Carlson <naclos@andyc.dyndns.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: The network performance of linux
-Message-ID: <20020321052008.GA2871@matchmail.com>
-Mail-Followup-To: Bergs <flygong@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020321051219.9811.qmail@web14510.mail.yahoo.com>
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 20, 2002 at 09:12:19PM -0800, Bergs wrote:
-> 
->  I work on a linux 2.2.14 kernel to test the network
-> throughput of a linux  box used as a firewall.
-> 
->  I find that when the IP packet length is 512B,the
-> throughput is the highest 71%. IP packet length is
-> smaller than 512B or bigger than 512B,the throughput
-> is the lower.
-> 
->    I don't know why this ? Can I have some solutions
-> to improve the throughput of linux box ?
-> 
-> 
+> Here is a patch the Urban Widmark originally came up
+> with for 2.4.17, 
+> and I retrofitted to 2.4.18.  I do not know if it 
+> will patch vs 2.4.19-pre3:
 
-You'll need to post much more info about your hardware.
+It does. However the problem persists.
+I changed the default debug value to 7 again.
 
-start with lspci and /proc/cpuinfo...
+Here's more information:
+Unlike the old driver this one repeatedly logs:
+Mar 20 21:47:50 cobra kernel: eth0: Setting
+full-duplex based on MII #1 link partner capability of
+3100. 
+Mar 20 21:48:30 cobra last message repeated 4 times
 
-Also you didn't say how fast each packet size actually was, and did you use
-a switch or what other type of network hardware.
+...when inactive...
 
-Mike
+The opposite side repeatedly logs:
+eth0: lost link beat
+eth0: found link beat
+eth0: autonegotiation complete: 100BaseT-FD selected
+
+As for the scp transfer.... same problem except 
+now I get "Transmitter underflow?" errors
+and status of 0008.
+
+Here's a section of an example log:
+--------------------------------------------------
+Mar 20 21:51:51 cobra kernel: eth0: Something Wicked
+happened! 001a.
+Mar 20 21:51:51 cobra kernel: eth0: Transmitter
+underflow?, status 001a.
+Mar 20 21:51:51 cobra kernel: eth0: Transmitter
+underrun, increasing Tx threshol                      
+        d setting to 60.
+Mar 20 21:51:51 cobra kernel: eth0: Something Wicked
+happened! 001a.
+Mar 20 21:51:52 cobra kernel: eth0: Transmitter
+underflow?, status 0008.
+Mar 20 21:51:52 cobra kernel: eth0: Something Wicked
+happened! 0008.
+Mar 20 21:51:56 cobra kernel: NETDEV WATCHDOG: eth0:
+transmit timed out
+Mar 20 21:51:56 cobra kernel: eth0: Transmit timed
+out, status 0000, PHY status                          
+     782d, resetting...
+Mar 20 21:51:56 cobra kernel: eth0: reset finished
+after 5 microseconds.
+Mar 20 21:51:56 cobra kernel: eth0: Setting
+full-duplex based on MII #1 link par                  
+            tner capability of 3100.
+Mar 20 21:51:59 cobra kernel: eth0: Transmitter
+underflow?, status 001a.
+Mar 20 21:51:59 cobra kernel: eth0: Transmitter
+underrun, increasing Tx threshol                      
+        d setting to 40.
+Mar 20 21:51:59 cobra kernel: eth0: Something Wicked
+happened! 001a.
+Mar 20 21:51:59 cobra kernel: eth0: Transmitter
+underflow?, status 000a.
+Mar 20 21:51:59 cobra kernel: eth0: Something Wicked
+happened! 000a.
+Mar 20 21:51:59 cobra kernel: eth0: Transmitter
+underflow?, status 0008.
+Mar 20 21:51:59 cobra kernel: eth0: Something Wicked
+happened! 0008.
+Mar 20 21:51:59 cobra kernel: eth0: Transmitter
+underflow?, status 001a.
+Mar 20 21:51:59 cobra kernel: eth0: Transmitter
+underrun, increasing Tx threshol                      
+        d setting to 60.
+Mar 20 21:51:59 cobra kernel: eth0: Something Wicked
+happened! 001a.
+Mar 20 21:52:00 cobra kernel: eth0: Transmitter
+underflow?, status 0008.
+Mar 20 21:52:00 cobra kernel: eth0: Something Wicked
+happened! 0008.
+Mar 20 21:52:00 cobra kernel: eth0: Transmitter
+underflow?, status 0008.
+Mar 20 21:52:00 cobra kernel: eth0: Something Wicked
+happened! 0008.
+Mar 20 21:52:00 cobra kernel: eth0: Transmitter
+underflow?, status 0008.
+Mar 20 21:52:00 cobra kernel: eth0: Something Wicked
+happened! 0008.
+Mar 20 21:52:00 cobra kernel: eth0: Setting
+full-duplex based on MII #1 link par                  
+            tner capability of 3100.
+
+------------------------
+Let me know how I can help.
+Thanks for your assistance.
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Movies - coverage of the 74th Academy Awards®
+http://movies.yahoo.com/

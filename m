@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136467AbRD3HRh>; Mon, 30 Apr 2001 03:17:37 -0400
+	id <S136468AbRD3HXs>; Mon, 30 Apr 2001 03:23:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136468AbRD3HR1>; Mon, 30 Apr 2001 03:17:27 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:48104 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S136467AbRD3HRO>;
-	Mon, 30 Apr 2001 03:17:14 -0400
-Date: Mon, 30 Apr 2001 03:17:09 -0400 (EDT)
+	id <S136469AbRD3HX3>; Mon, 30 Apr 2001 03:23:29 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:48367 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S136468AbRD3HXT>;
+	Mon, 30 Apr 2001 03:23:19 -0400
+Date: Mon, 30 Apr 2001 03:23:15 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: David Emory Watson <demoryw@pacbell.net>, aia21@cam.ac.uk,
-        stoffel@casc.com, linux-kernel@vger.kernel.org,
+To: volodya@mindspring.com
+cc: "Eric S. Raymond" <esr@thyrsus.com>, Anton Altaparmakov <aia21@cam.ac.uk>,
+        John Stoffel <stoffel@casc.com>, CML2 <linux-kernel@vger.kernel.org>,
         kbuild-devel@lists.sourceforge.net
 Subject: Re: CML2 1.3.1, aka "I stick my neck out a mile..."
-In-Reply-To: <20010430025335.A5189@thyrsus.com>
-Message-ID: <Pine.GSO.4.21.0104300255530.4113-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.LNX.4.20.0104300303530.4671-100000@node2.localnet.net>
+Message-ID: <Pine.GSO.4.21.0104300317250.4113-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,38 +22,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 30 Apr 2001, Eric S. Raymond wrote:
+On Mon, 30 Apr 2001 volodya@mindspring.com wrote:
 
-> I don't think I've heard anyone invoke the 4-line rule since about
-> 1992, though.  I didn't start generating short random quotes into my sig
-> until about 1996, well after the "standard" was effectively dead.
-
-<wry> We hang in different parts of USENET </wry>
-
-Last time I've seen it invoked was probably a couple of weeks ago.
- 
-> Even back in its day this "rule" was frequently abused as a socially
-> acceptable way to attack people whose opinions or style one disliked.
-> This is doubtless one reason it failed to survive the bandwidth boom.
+> > 
+> > Eric, it's getting tiresome.  Kindly learn what the fsck McQ is, OK?
 > 
-> Hmmm.  Maybe this should be a Jargon File entry...
+>  Just out of curiousity - what is McQ ?
+> 
+>                               Vladimir Dergachev
+> 
+> PS And no, I am very sure there is no such thing in Star Trek.
 
-ISTR that you had an entry on AFW - it would more or less fit there.
+McQ: (from George McQuary) Conventional limit on signature size.
 
-Stuff generating random quotes (aka. sigmonsters) is pretty common,
-indeed, but fitting said quotes into McQ is a part of fun. I suspect
-that strong dislike to excessive sigs goes back to the beginning of
-Endless September - like it or not, "why would I give a fuck for
-conventions" attitude correlates with particulary obnoxious breed
-of lusers. Same as with HTML postings, or quoted-printable crap.
+>From AFW FAQ:
 
-Seeing that from folks who should know better... Ugh.
-
-And no, I really don't care for the contents - if anything, I find
-both sides of holy war around g*n* c**t**l moderately amusing, but
-for all I care it could be 6-7 lines of PARRY vs. ELIZA dialog (or
-vi macros, or just a line noise).
-
-BTW, there's one more jarring thing about use of sigs on l-k - you are
-getting _two_ sigs that way (look at the unsubscribe instructions).
+Q11. What is the McQuary limit?
+A11. "There once was a man from Nantucket,
+     who lost his .sig in a bucket.
+     Five lines was too long,
+     columns 80 just strong,
+     so he didn't know where to tuck it."
+A11. The limit on signature size:  "4x80".
 

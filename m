@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132688AbRDIEUp>; Mon, 9 Apr 2001 00:20:45 -0400
+	id <S132686AbRDIEkU>; Mon, 9 Apr 2001 00:40:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132686AbRDIEUf>; Mon, 9 Apr 2001 00:20:35 -0400
-Received: from [216.6.80.34] ([216.6.80.34]:9996 "EHLO
-	dcmtechdom.dcmtech.co.in") by vger.kernel.org with ESMTP
-	id <S132685AbRDIEUY>; Mon, 9 Apr 2001 00:20:24 -0400
-Message-ID: <7FADCB99FC82D41199F9000629A85D1A01747F78@dcmtechdom.dcmtech.co.in>
-From: Rajeev Nigam <rajeev.nigam@dcmtech.co.in>
-To: linux-kernel@vger.kernel.org
-Subject: Network Driver
-Date: Mon, 9 Apr 2001 09:53:51 +0530 
+	id <S132689AbRDIEkK>; Mon, 9 Apr 2001 00:40:10 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:10217 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S132686AbRDIEj7>;
+	Mon, 9 Apr 2001 00:39:59 -0400
+Date: Mon, 9 Apr 2001 00:39:37 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: warren <warren@infortrend.com.tw>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: race condition on looking up inodes
+In-Reply-To: <000201c0c0a4$eb5c7b10$321ea8c0@saturn>
+Message-ID: <Pine.GSO.4.21.0104090033280.7440-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
 
-I have a blue tooth stack and a BT device and the device connects on the
-serial port, over that I have to run tcpip.
 
-Can u tell me which driver I have to need or Is there no need to write any
-driver.
+On Mon, 9 Apr 2001, warren wrote:
 
-Should I have to write any character driver or network driver, can u pls
-suggeste me over which tcpip wud be run.
+> 
+> 
+> Hi,
+>     I had post a simillar message before.
+>     Thanks for the replay from Albert D. Cahalan. But i found some results
+> confusing me.
+>     For example,  process 1 and process 2 run concurrently and execute the
+> following system calls.
+> 
+>     rename("/usr/hybrid/cfg/data","/usr/mytemp/data1"); /*for process 1*/
+> 
+>    ----------------------------------------------------------------
+> 
+>   rename("/usr/mytemp/data1","/usr/test");/* for process 2*/
 
-Have u any idea about PCMCIA??
+>   ----------------------------------------------------------------
+>   It is possible that context switch happens when process 1 is look ing up
+> the inode for "/usr/mytemp/data1"  or the inode for "/usr/hybrid/cfg/data".
 
->From where i can get any sample code regarding our needs.
-any further suggestion wud be appreciate.
+>  It will result in diffrent behaviour for process 2 and confuses the
+> application.
 
-Thanx & Regards 
-Rajeev Nigam 
+>   If so,how does Linux solve?
+
+Solves what, precisely? Result depends on the order of these calls. If
+you don't provide any serialization - you get timing-dependent results
+you were asking for. What's the problem and what behaviour do you expect?
+
+Besides, what's the difference caused by the moment of context switch?
+

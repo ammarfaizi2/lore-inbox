@@ -1,113 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261742AbSLBJUa>; Mon, 2 Dec 2002 04:20:30 -0500
+	id <S261721AbSLBJTY>; Mon, 2 Dec 2002 04:19:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261799AbSLBJUa>; Mon, 2 Dec 2002 04:20:30 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:33928 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S261742AbSLBJU1>; Mon, 2 Dec 2002 04:20:27 -0500
-From: Christian Borntraeger <christian@borntraeger.net>
-To: <linux-kernel@vger.kernel.org>
-CC: <linux390@de.ibm.com>
-X-Mailer: PocoMail 2.63 (1077) - EVALUATION VERSION
-Date: Mon, 2 Dec 2002 09:27:53 GMT
-X-URL: http://www.pocomail.com/
-Subject: [PATCH] 2.5.50 ctctty not aware of new HZ value
+	id <S261742AbSLBJTY>; Mon, 2 Dec 2002 04:19:24 -0500
+Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:23161 "EHLO
+	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S261721AbSLBJTX>;
+	Mon, 2 Dec 2002 04:19:23 -0500
+Date: Mon, 2 Dec 2002 10:26:45 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.23-rc2 & an MCE
+Message-ID: <20021202102645.A20062@jaquet.dk>
+References: <20021126220459.GA229@elf.ucw.cz> <Pine.LNX.4.33L2.0212011838160.25551-100000@dragon.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="60736045-POCO-55883843"
-Message-Id: <E18Imrr-0007EA-00@marl.lancs.ac.uk>
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33L2.0212011838160.25551-100000@dragon.pdx.osdl.net>; from rddunlap@osdl.org on Sun, Dec 01, 2002 at 06:39:41PM -0800
+X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
+X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multipart message in MIME format
 
---60736045-POCO-55883843
-Content-Type: text/plain; charset="iso-8859-1"
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-this patch replaces 2 numeric values with a HZ-related version in=
- the ctc 
-driver of the S/390.
-Its obvious that the first one is wrong, but I am not sure if the=
- value of the 
-timeout is important for the 2nd change. Nevertheless the HZ=
- value has 
-changed, so should the timeout.
+On Sun, Dec 01, 2002 at 06:39:41PM -0800, Randy.Dunlap wrote:
+> | > Machine Check Exception: 000000000000004
+> | > Bank 4: b200000000040151
+> | > Kernel panic: CPU context corrupt
+>=20
+> Rasmus,
+>=20
+> If you haven't already done so, you should check out the
+> MCE decoder from Dave Jones at
+>   http://www.codemonkey.org.uk/cruft/parsemce.c/
+>=20
 
+That gave me:=20
 
-There are some changes neccessary in some other serial drivers. 
-If there is interest, I will send patches for them as well.
-cheers 
+Status: (4) Machine Check in progress.
+Restart IP invalid.
 
-Christian
+Not sure what to make of that, though. Further comments
+always welcome. And thanks for the pointer.
 
---- drivers/s390/net/ctctty.org=092002-11-27 22:36:02.000000000=
- +0000
-+++ drivers/s390/net/ctctty.c=092002-12-01 17:45:09.000000000=
- +0000
-@@ -1094,7 +1094,7 @@
- =09 * line status register.
- =09 */
- =09if (info->flags & CTC_ASYNC_INITIALIZED) {
--=09=09tty_wait_until_sent(tty, 3000);=09/* 30 seconds timeout */
-+=09=09tty_wait_until_sent(tty, 30*HZ);=09/* 30 seconds timeout */
- =09=09/*
- =09=09 * Before we drop DTR, make sure the UART transmitter
- =09=09 * has completely drained; this is especially
-@@ -1119,7 +1119,7 @@
- =09tty->closing =3D 0;
- =09if (info->blocked_open) {
- =09=09set_current_state(TASK_INTERRUPTIBLE);
--=09=09schedule_timeout(50);
-+=09=09schedule_timeout(HZ/2);
- =09=09wake_up_interruptible(&info->open_wait);
- =09}
- =09info->flags &=3D ~(CTC_ASYNC_NORMAL_ACTIVE | CTC_ASYNC_CLOSING);
+Regards,
+  Rasmus
 
---- drivers/s390/net/ctctty.org=092002-11-27 22:36:02.000000000=
- +0000
-+++ drivers/s390/net/ctctty.c=092002-12-01 17:45:09.000000000=
- +0000
-@@ -1094,7 +1094,7 @@
- =09 * line status register.
- =09 */
- =09if (info->flags & CTC_ASYNC_INITIALIZED) {
--=09=09tty_wait_until_sent(tty, 3000);=09/* 30 seconds timeout */
-+=09=09tty_wait_until_sent(tty, 30*HZ);=09/* 30 seconds timeout */
- =09=09/*
- =09=09 * Before we drop DTR, make sure the UART transmitter
- =09=09 * has completely drained; this is especially
-@@ -1119,7 +1119,7 @@
- =09tty->closing =3D 0;
- =09if (info->blocked_open) {
- =09=09set_current_state(TASK_INTERRUPTIBLE);
--=09=09schedule_timeout(50);
-+=09=09schedule_timeout(HZ/2);
- =09=09wake_up_interruptible(&info->open_wait);
- =09}
- =09info->flags &=3D ~(CTC_ASYNC_NORMAL_ACTIVE | CTC_ASYNC_CLOSING);
+--4Ckj6UjgE2iN1+kY
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
 
+iD8DBQE96ydVlZJASZ6eJs4RAhoDAJ9uqcREGktZBMrlb4b3+mwWcqHGvACfV6tK
+6BFn+3yujwtze7+6Y3VvgUk=
+=9HTn
+-----END PGP SIGNATURE-----
 
---60736045-POCO-55883843
-Content-Type: application/octet-stream; name="ctc.patch"
-Content-Transfer-Encoding: Base64
-Content-Disposition: attachment; filename="ctc.patch"
-
-LS0tIGRyaXZlcnMvczM5MC9uZXQvY3RjdHR5Lm9yZwkyMDAyLTExLTI3IDIyOjM2OjAyLjAwMDAw
-MDAwMCArMDAwMAorKysgZHJpdmVycy9zMzkwL25ldC9jdGN0dHkuYwkyMDAyLTEyLTAxIDE3OjQ1
-OjA5LjAwMDAwMDAwMCArMDAwMApAQCAtMTA5NCw3ICsxMDk0LDcgQEAKIAkgKiBsaW5lIHN0YXR1
-cyByZWdpc3Rlci4KIAkgKi8KIAlpZiAoaW5mby0+ZmxhZ3MgJiBDVENfQVNZTkNfSU5JVElBTEla
-RUQpIHsKLQkJdHR5X3dhaXRfdW50aWxfc2VudCh0dHksIDMwMDApOwkvKiAzMCBzZWNvbmRzIHRp
-bWVvdXQgKi8KKwkJdHR5X3dhaXRfdW50aWxfc2VudCh0dHksIDMwICogSFopOwkvKiAzMCBzZWNv
-bmRzIHRpbWVvdXQgKi8KIAkJLyoKIAkJICogQmVmb3JlIHdlIGRyb3AgRFRSLCBtYWtlIHN1cmUg
-dGhlIFVBUlQgdHJhbnNtaXR0ZXIKIAkJICogaGFzIGNvbXBsZXRlbHkgZHJhaW5lZDsgdGhpcyBp
-cyBlc3BlY2lhbGx5CkBAIC0xMTE5LDcgKzExMTksNyBAQAogCXR0eS0+Y2xvc2luZyA9IDA7CiAJ
-aWYgKGluZm8tPmJsb2NrZWRfb3BlbikgewogCQlzZXRfY3VycmVudF9zdGF0ZShUQVNLX0lOVEVS
-UlVQVElCTEUpOwotCQlzY2hlZHVsZV90aW1lb3V0KDUwKTsKKwkJc2NoZWR1bGVfdGltZW91dChI
-Wi8yKTsKIAkJd2FrZV91cF9pbnRlcnJ1cHRpYmxlKCZpbmZvLT5vcGVuX3dhaXQpOwogCX0KIAlp
-bmZvLT5mbGFncyAmPSB+KENUQ19BU1lOQ19OT1JNQUxfQUNUSVZFIHwgQ1RDX0FTWU5DX0NMT1NJ
-TkcpOwo=
-
---60736045-POCO-55883843--
-
+--4Ckj6UjgE2iN1+kY--

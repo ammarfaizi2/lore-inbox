@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291916AbSBNVBd>; Thu, 14 Feb 2002 16:01:33 -0500
+	id <S291888AbSBNUud>; Thu, 14 Feb 2002 15:50:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291890AbSBNU6a>; Thu, 14 Feb 2002 15:58:30 -0500
-Received: from e24.nc.us.ibm.com ([32.97.136.230]:53992 "EHLO
-	e24.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S291903AbSBNU6U>; Thu, 14 Feb 2002 15:58:20 -0500
-Subject: [ANNOUNCE] Test Results (and requests) Mailing List
-From: Paul Larson <plars@austin.ibm.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 14 Feb 2002 14:49:07 -0600
-Message-Id: <1013719748.26463.107.camel@plars.austin.ibm.com>
+	id <S291851AbSBNUuU>; Thu, 14 Feb 2002 15:50:20 -0500
+Received: from smtp3.vol.cz ([195.250.128.83]:35344 "EHLO smtp3.vol.cz")
+	by vger.kernel.org with ESMTP id <S291878AbSBNUuC>;
+	Thu, 14 Feb 2002 15:50:02 -0500
+Date: Wed, 13 Feb 2002 23:50:48 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Rob Landley <landley@trommello.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: small IDE cleanup: void * should not be used unless neccessary
+Message-ID: <20020213225047.GI1454@elf.ucw.cz>
+In-Reply-To: <20020211220937.GA121@elf.ucw.cz> <20020212224930.OKGN9845.femail25.sdc1.sfba.home.com@there> <20020213104731.GG32687@atrey.karlin.mff.cuni.cz> <20020213193835.CIGI23450.femail13.sdc1.sfba.home.com@there>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020213193835.CIGI23450.femail13.sdc1.sfba.home.com@there>
+User-Agent: Mutt/1.3.25i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Linux Test Project (http://ltp.sourceforge.net) has a new mailing
-list for the purpose of publishing and requesing test results.  We are
-creating this list as a convenient means keeping a central, archived
-place where anyone can publish the results of tests being run on Linux.
-This list may also serve as a place for developers to request others to
-test their patches, then reply to the list with results.
+Hi!
 
-We encourage everyone in the Linux Community to start actively testing
-Linux and publishing the results of those tests.
+> > > > This is really easy, please apply. (It will allow me to kill few casts
+> > > > in future).
+> > > > 								Pavel
+> > > >
+> > > > --- linux/include/linux/ide.h	Mon Feb 11 21:15:04 2002
+> > > > +++ linux-dm/include/linux/ide.h	Mon Feb 11 22:36:12 2002
+> > > > @@ -529,7 +531,7 @@
+> > > >
+> > > >  typedef struct hwif_s {
+> > > >  	struct hwif_s	*next;		/* for linked-list in ide_hwgroup_t */
+> > > > -	void		*hwgroup;	/* actually (ide_hwgroup_t *) */
+> > > > +	struct hwgroup_s *hwgroup;	/* actually (ide_hwgroup_t *) */
+> > > >  	ide_ioreg_t	io_ports[IDE_NR_PORTS];	/* task file registers */
+> > > >  	hw_regs_t	hw;		/* Hardware info */
+> > > >  	ide_drive_t	drives[MAX_DRIVES];	/* drive info */
+> > >
+> > > Now I'm confused about the comment on the end of the line.
+> > >
+> > > Should the comment be changed, or should the type be ide_hwgroup_t
+> > > instead of struct hwgroup_s?
+> >
+> > struct hwgroup_s == ide_hwgroup_t. That's infection by hungarian
+> > notation, and yes it would be nice to clean it up. For now, I'm
+> > killing worst stuff.
+> > 							Pavel
+> 
+> I know they're functionally equivalent, but so was the original void
+> *. :)
 
-To subscribe to the list, either go through our website at
-http://ltp.sourceforge.net, or go directly to the subscribe link at:
-http://lists.sourceforge.net/mailman/listinfo/ltp-results
+Well, void * hides real errors.
 
+> Just an "as long as you're touching this line anyway, why leave the old 
+> comment?" thing.  A minor, in-passing nit at best...
 
-For clarity, and easy searching and browsing of test results, please try
-to use the following format for your subject line:
-
-If you are reporting test results:
-Subject: (what is being tested) - (Test ran) - (Pass/fail [%])
-For instance, if you are reporing the results of testing 2.4.18-rc1 with
-ltp-20020207 and it passed at 100%, use  something like:
-2.4.18-rc1 - ltp-20020207 - Pass 100%
-
-If you are requesting a test, use the same format (with out the pass
-fail at the end of course) and begine the subject line with [REQ].  For
-instance:
-[REQ] 2.5.5-pre1+mypatch - LTP-20020207 96hours
-And of course include your patch, or a link to it.
-
-The subject line should contain overview type information.  Any details,
-results, etc. should be included in the body of the message.
-
+ide_hwgroup_t is used in 90% of rest of code, so I thought I better
+leave it there.
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

@@ -1,694 +1,313 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269024AbTBXAPm>; Sun, 23 Feb 2003 19:15:42 -0500
+	id <S269033AbTBXAUa>; Sun, 23 Feb 2003 19:20:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269027AbTBXAPm>; Sun, 23 Feb 2003 19:15:42 -0500
-Received: from dp.samba.org ([66.70.73.150]:60052 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S269024AbTBXAPb>;
-	Sun, 23 Feb 2003 19:15:31 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Brian Gerst <bgerst@quark.didntduck.org>
-Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCHES] minor module.c code cleanups modinfo section
-Date: Fri, 21 Feb 2003 18:55:04 +1100
-Message-Id: <20030224002543.DDEE42C04C@lists.samba.org>
+	id <S269034AbTBXAUa>; Sun, 23 Feb 2003 19:20:30 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:34488 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S269033AbTBXAUY>; Sun, 23 Feb 2003 19:20:24 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200302240030.h1O0UaX14560@devserv.devel.redhat.com>
+Subject: Linux 2.4.21pre4-ac6
+To: linux-kernel@vger.kernel.org
+Date: Sun, 23 Feb 2003 19:30:36 -0500 (EST)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Linux 2.4.21pre4-ac6
+o	Update IPMI to v18				(Corey Minyard)
+o	More intel PIIX identifiers			(Bill Nottingham)
+o	Update e100 for new identifiers			(Jeff Garzik)
+o	Update Athlon SSE enabler			(Dave Jones)
+o	Update auerswald USB isdn driver		(Wolfgang)
+o	USB storage updates				(Matthew Dharm)
+o	Add tripp idents to the pl2303 usb serial	(John Moses)
+o	Add a new ftdi_sio ident			(Philipp Gühring)
+o	Remove unused ohci driver field			(Johannes Erdfelt)
+o	Fix EHCI abuse of SLAB_KERNEL in interrupt	(Oliver Neukum)
+o	Fix dhcp on kaweth				(Oliver Neukum)
+o	Fix some wrong idents in the pegasus driver	(Petko Manolov)
+o	Fix ipaq name in usbnet				(Carsten)
+o	USB macro cleanup				(Joern Engel)
+o	Remove proc files in uhci that get stuck
+o	Remove wrong comment in ohci/uhci drivers	(Johannes Erdfelt)
+o	Roland SC8820 USB midi support			(Andrew Wood)
+o	Fix USB naming bug				(Johannes Edrfelt)
+o	Add ontrack to the hid ignore list		(Greg Kroah Hartmann)
+o	Add tangtop to the hid blacklist		(Greg Kroah Hartmann)
+o	USB scanner updates				(Henning Meier-Geinitz)
+o	Fix an oom handling bug in sis drm
+o	DRM updates for Radeon
+	| Flightgear now takes > 2hrs to hang on my R9000
+o	Fix various abusers of GFP_KERNEL in USB	(Arjan van de Ven)
+o	Fix aic7xxx updates eaten by exclude file	(Sergio Visinoni)
+o	Use check_gcc on crusoe				(Stelian Pop)
+o	Update sonypi and meye drivers			(Stelian Pop)
+o	Make input layer accept jogdial as valid	(Stelian Pop)
+o	Intel i8xx framebuffer driver			(David Dawes)
 
-	Three patchess.  First one is cosmetic changes from a big
-if/else/if statement to a find_sec function for modules, and
-handle_section removal.
+Linux 2.4.21pre4-ac5
+o	Fix the AMD ide bug() on boot up
+o	Pass device to outbsync so that we can whack	(Ben Herrenschmidt)
+	the bridge on weird platforms
+o	Default sl82c05 second channel to PIO0		(Ben Herrenschmidt)
+o	EHCI speed up fixes				(David Brownell)
+o	Assorted cpia fixes				(Duncan Haldane)
+o	SSE enable for later Athlon			(Daniel Egger)
+o	3com 3c990 driver 				(David Dillow)
+o	Fix config syntax error in DRM config		(Andrzej Krzysztofowicz)
+o	Update pci-skeleton to fix pad bug in example	(me)
+	| Noted by Roger Luethi
+o	Supress popping when audio starts on via82cxxx	(Jorg Schuler)
+o	Fix reiserfs direct I/O crash			(Oleg Drokin)
+o	Allow cramfs initrd				(Christoph Hellwig)
+o	Fix error path on dscc wan driver		(me)
+o	Fix sign mishandling in epca driver		(me)
+o	Fix sign mishandling in mwave driver		(Oleg Drokin)
+o	Fix sign mishandling in mpt fusion		(Oleg Drokin)
+o	Fix sign mishandling in aacraid			(Oleg Drokin)
+o	Fix sign mishandling in tun			(Oleg Drokin, me)
 
-Second reintroduces the .modinfo section and puts vermagic, aliases,
-etc in there (to be supported fully, grab 0.9.10-pre
-module-init-tools).
+Linux 2.4.21pre4-ac4
+o	Attach a fake id struct to old/unprobed drives	(me)
+	| Fixes a ton of special casing some of which was
+	| buggy.
+o	Fix incorrect sign handling in setup-pci noted	(me)
+	by Oleg Drokin
+o	Fix bogon error returns from init_chipset noted	(me)
+	by Oleg Drokin
+	| Fixes hpt366 crash on 66Mhz bus
+o	Fix mishandling of flash/disk combinations	(me)
+o	Fix handling of /proc/ide/*/identify with	(me)
+	no driver loaded (band aid for now)
+o	Fix IDE hang on rmmod and on poweroff		(me)
+o	Fix IDE printk <6> bug				(Henning Schmiedehausen)
+o	Radeon no longer needs AGPgart			(James McClain)
+o	REPORTING-BUGS typo fix				(Faik Uygur)
+o	ndelay() for PPC				(Ben Herrenschmidt)
+o	PPC ioflush handling				(Ben Herrenschmidt)
+o	PowerMac IDE updates				(Ben Herrenschmidt)
+o	8169 missing includes for Alpha build		(Geoffrey Lee)
+o	Fix sisfb build on boxes with no MTRR		(Geoffrey Lee)
+o	Fix cpqfc build on Alpha			(Geoffrey Lee)
+o	Fix forte build on Alpha			(Geoffrey Lee)
+o	Add eth_io_copy_and_sum for Alpha		(Geoffrey Lee)
+o	Fix bogus semicolon in 8253xtty			(Oleg Drokin)
+o	Fix incorrect if in megaraid driver		(Oleg Drokin)
+o	Fix sign warning in radio_cadet driver found	(me)
+	by Oleg Drokin
 
-Third one is Brian Gerst's patch to put the module structure in .mod.c
-rather than using linker tricks, with a couple of changes (the module
-name is converted correctly, and the section is called __module).
+Linux 2.4.21pre4-ac3
+o	ALi FIFO setup channel fix			(Al Viro)
+	| This needs careful testing. Treat -ac3 with a lot of care
+	| on ALi platforms and report how it goes
+o	Fix the dma waiting overflow			(Ben Herrenschmidt)
+o	Fix ATAPI devices on VIA8235			(Vojtech Pavlik)
+o	Add ndelay for Alpha				(Ivan kokshaysky)
+o	Give ndelay sensible argument names		(Geert Uytterhoeven)
+o	Fix pcnet32 big endian filtering		(Marcus Meissner)
+o	Fix ordering problem with PCI radeon causing	(Chris Ison)
+	DRI hangs
+o	Fix C3 gcc compiler flags for newer gcc		(Jeff Garzik)
+o	Replace nvidia and amd IDE drivers with new	(Vojtech Pavlik)
+	driver
+o	Fix missing ; in aicasm_gram.y			(Thibaut VARENE)
+o	NCR5380 trivial fix				(Geert Uytterhoeven)
+o	Make constants in maxiradio static		(Arnd Bergmann)
+o	Fix typos of 'available'			(Alfredo Sanjuan)
+o	Fix wrong checks in bttv ioctl code	(Alexandre Pereira Nunes)
+o	Fix i2c_ack cris extra ";"
+o	Fix JSIOCSBTNMAP extra ";"
+o	Fix VIDIOCGTUNER on w9966
+o	Fix amd8111e_read_regs
+o	Fix smctr_load_node_addr
+o	Fix sym53c8xxx extra ";"
+o	Fix sym53c8xxx_2 extra ";"
+o	Fix cs46xx download area clear
+o	Fix hysdn bootup error handling
+o	Fix mtd mount error checks
+o	Fix dpt_i2o reset error paths
+o	Fix a jffs error path handler
+o	Fix es1371 error path on register
+o	Fix sscape operator precedence
+o	Fix copy counting in vrc5477 audio
+o	Fix cdu31a oops with data cd			(Mauricio Martinez)
+o	Fix ide taskfile if ";" errors			(Oleg Drokin)
+o	Add 3com 3c460 to kaweth			(Oliver Neukum)
+o	Kaweth length/dhcp fix				(Oliver Neukum)
+o	ISD-200 requires IDE				(Olaf Hering)
 
-Very lightly tested: my test box doesn't stay up for very long under
-recent kernels 8(
+Linux 2.4.21pre4-ac2
+o	Turn on use of ide_execute_command everywhere	(Ross Biro, me)
+o	First cut at settings locking for IDE		(me)
+o	Add driver for CS5530 Kahlua audio		(me)
+o	Fix wrong semicolons in system.h		(Mikael Pettersson)
+o	Support root=nbd				(Ben LaHaise)
+o	x86 byte order swapping optimisations		(Andi Kleen)
+o	PMAC ide updates				(Ben Herrenschmidt)
+o	Fix mishandling of nfsroot port= option		(Eric Lammerts)
+o	Fix ALi audio on systems with > 2Gb RAM		(Ivan Kokshaysky)
+o	Enable generic rtc on PPC boxes			(Geert Uytterhoeven)
+o	Fix ide build with gcc 3.3 snapshot		(Olaf Hering)
+o	Merge EHCI updates (qh state machine fix etc)	(David Brownell)
+o	Fix radio-cadet SMP build			(Adrian Bunk)
+o	Starfire updates				(Ion Badulescu)
+o	Backport seq_file fix to 2.4			(Eric Sandeen)
+o	Fix ext3 crash deleting a single non sparse	(Stephen Tweedie)
+	file exceeding 1Tb
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Linux 2.4.21pre4-ac1
+o	Restore the mmap corner case fix		(Raul)
+o	Add sendfile64 to 2.4.x				(Christoph Hellwig)
+o	NLM garbage collection hang fix			(Daniel Forrest)
+o	Enable kernel side pcigart for radeon		(Michael Danzer)
+	| Requires recent XFree and ForcePCIMode
+o	Don't bash legacy floppy on x86_64 bootup	(Mikael Petersson)
+o	Forward sony joygdial input to input layer	(Stelian Pop)
+o	TCP session stall fix				(Alexey Kuznetsov)
+o	Ian Nelson has moved				(Ian Nelson)
+o	Add unplugged iops ready for hotplug IDE support(me)
+o	Add an OUTBSYNC iop for the IDE layer		(Ben Herrenschmidt)
+o	Finish the ide_execute_command code		(me)
+o	Switch ide-cd to ide_execute_command 		(me)
+	| Always good to test stuff on read only devices first 8)
+o	Fix IDE masking logic error			(Ross Biro)
+o	Fix IDE mishandling of IRQ 0 devices		(me)
+o	Fix printk levels on promise drivers		(me)
+o	Clean up duplicate mmio ops/printk in siimage	(me)
+o	Always set interrupt line with VIA northbridge	(me)
+	| Should fix apic mode problems with USB/audio/net on VIA boards
+o	Add Diamond technology dt0893 codec		(Thomas Davis)
+o	Add IBM 'Ruthless' platform string to summit
+o	Don't warn about IRQ when enabling a pure	(me)
+	legacy mode IDE class device
+o	Clean up radio_cadet locking and other bugs	(me)
+o	Fix jiffies mishandling in eata drivers		(Tim Schmielau)
+o	Quieten confusing DMA disabled messages		(Tomas Szepe)
+o	i830 DRM update port over			(Arjan van de Ven)
 
-Name: Tidy Up module.c
-Author: Rusty Russell
-Status: Experimental
+Linux 2.4.21pre3-ac5
+o	Fix erratic oopsing on 2.4.21pre3-ac*		(Hugh Dickins)
+o	Fix an incorrect check in raw.c			(Artur Frycze)
+o	Fix highmem IDE DMA				(Jens Axboe)
+o	Fix the size of the EDD area			(Kevin Lawton)
+o	Remove incorrect ACPI blacklist entry		(Pavel Machek)
+o	SCSI memory leak fix				(Justin Gibbs)
+o	Fix mmap of vmalloc area in kmem giving wrong	(Tony Dziedzic)
+	results
+o	Fix date in the microcode driver		(Jonah Sherman)
+o	Fix incorrect smc9194 handling of skb_padto	(David McCullough)
+o	Fix use of old check_regio function in umc8672	(William Stinson)
+o	Remove unused variable in sc1200		(Bob Miller)
+o	Perform ide_cs unregister in task context	(Paul Mackerras)
+	| This doesn't fix all the bugs yet...
+o	Fix bugs in the gx power management code	(Hiroshi Miura)
+o	Fix the sl82c105 driver for the new IDE code	(Benjamin Herrenschmidt,
+							 Russell King)
+o	Remove cacheflush debug printk			(me)
+o	Fix IDE paths in docs for new layout		(Karl-Heinz Eischer)
+o	Generic RTC driver backport			(Geert Uytterhoeven)
+o	HDLC driver updates				(Krzysztof Halasa)
+o	AMD8111 random number generator support		(Andi Kleen)
+o	Fix crashes on e2100 driver			(me)
 
-D: This open-codes handle_section, which simply does relocations now
-D: Also adds "find_sec" and uses it to find the various sections.
+Linux 2.4.21pre3-ac4
+o	Finish verifying PIIX/ICH drivers versus errata	(me)
+o	Fix handling of DMA0 MWDMA on early ICH		(me)
+o	Fix compile in kernel for Aurora SIO16		(Adrian Bunk)
+o	Clean up various Configure.help bits		(Adrian Bunk)
+o	Disallow write combining on 450NX		(me)
+o	Ensure rev C0 450NX has restreaming off		(me)
+o	Don't do IDE DMA on rev B0 450NX or later	(me)
+	450NX without BIOS workarounds for the hang
+o	Update Configure.help for HPT IDE		(Adrian Bunk)
+o	Fix harmless code error in sb_mixer		(Jeff Garzik)
+o	Fix ethernet padding on via-rhine		(Roger Luethi)
+o	Add ndelay functionality for x86		(me)
+	| Based on Ross Biro's code
+o	Add ide_execute_command 			(me)
+	| Again based on Ross Biro's changed. Not yet used
+	| This will be the new correct way to kick off an 
+	| IDE command from non IRQ context
+o	Matroxfb compile fix for one option combination	(Petr Vandrovec)
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.62-bk1/kernel/module.c working-2.5.62-bk1-modclean/kernel/module.c
---- linux-2.5.62-bk1/kernel/module.c	2003-02-18 11:18:57.000000000 +1100
-+++ working-2.5.62-bk1-modclean/kernel/module.c	2003-02-19 22:22:19.000000000 +1100
-@@ -76,6 +76,22 @@ int init_module(void)
- }
- EXPORT_SYMBOL(init_module);
- 
-+/* Find a module section: 0 means not found. */
-+static unsigned int find_sec(Elf_Ehdr *hdr,
-+			     Elf_Shdr *sechdrs,
-+			     const char *secstrings,
-+			     const char *name)
-+{
-+	unsigned int i;
-+
-+	for (i = 1; i < hdr->e_shnum; i++)
-+		/* Alloc bit cleared means "ignore it." */
-+		if ((sechdrs[i].sh_flags & SHF_ALLOC)
-+		    && strcmp(secstrings+sechdrs[i].sh_name, name) == 0)
-+			return i;
-+	return 0;
-+}
-+
- /* Find a symbol, return value and the symbol group */
- static unsigned long __find_symbol(const char *name,
- 				   struct kernel_symbol_group **group,
-@@ -875,45 +891,6 @@ void *__symbol_get(const char *symbol)
- }
- EXPORT_SYMBOL_GPL(__symbol_get);
- 
--/* Deal with the given section */
--static int handle_section(const char *name,
--			  Elf_Shdr *sechdrs,
--			  unsigned int strindex,
--			  unsigned int symindex,
--			  unsigned int i,
--			  struct module *mod)
--{
--	int ret;
--	const char *strtab = (char *)sechdrs[strindex].sh_addr;
--
--	switch (sechdrs[i].sh_type) {
--	case SHT_REL:
--		ret = apply_relocate(sechdrs, strtab, symindex, i, mod);
--		break;
--	case SHT_RELA:
--		ret = apply_relocate_add(sechdrs, strtab, symindex, i, mod);
--		break;
--	default:
--		DEBUGP("Ignoring section %u: %s\n", i,
--		       sechdrs[i].sh_type==SHT_NULL ? "NULL":
--		       sechdrs[i].sh_type==SHT_PROGBITS ? "PROGBITS":
--		       sechdrs[i].sh_type==SHT_SYMTAB ? "SYMTAB":
--		       sechdrs[i].sh_type==SHT_STRTAB ? "STRTAB":
--		       sechdrs[i].sh_type==SHT_RELA ? "RELA":
--		       sechdrs[i].sh_type==SHT_HASH ? "HASH":
--		       sechdrs[i].sh_type==SHT_DYNAMIC ? "DYNAMIC":
--		       sechdrs[i].sh_type==SHT_NOTE ? "NOTE":
--		       sechdrs[i].sh_type==SHT_NOBITS ? "NOBITS":
--		       sechdrs[i].sh_type==SHT_REL ? "REL":
--		       sechdrs[i].sh_type==SHT_SHLIB ? "SHLIB":
--		       sechdrs[i].sh_type==SHT_DYNSYM ? "DYNSYM":
--		       sechdrs[i].sh_type==SHT_NUM ? "NUM":
--		       "UNKNOWN");
--		ret = 0;
--	}
--	return ret;
--}
--
- /* Change all symbols so that sh_value encodes the pointer directly. */
- static int simplify_symbols(Elf_Shdr *sechdrs,
- 			    unsigned int symindex,
-@@ -1103,93 +1080,16 @@ static struct module *load_module(void *
- 	sechdrs = (void *)hdr + hdr->e_shoff;
- 	secstrings = (void *)hdr + sechdrs[hdr->e_shstrndx].sh_offset;
- 
--	/* May not export symbols, or have setup params, so these may
--           not exist */
--	exportindex = setupindex = obsparmindex = gplindex = licenseindex 
--		= crcindex = gplcrcindex = versindex = 0;
--
--	/* And these should exist, but gcc whinges if we don't init them */
--	symindex = strindex = exindex = modindex = vmagindex = 0;
--
--	/* Find where important sections are */
- 	for (i = 1; i < hdr->e_shnum; i++) {
- 		/* Mark all sections sh_addr with their address in the
- 		   temporary image. */
- 		sechdrs[i].sh_addr = (size_t)hdr + sechdrs[i].sh_offset;
- 
-+		/* Internal symbols and strings. */
- 		if (sechdrs[i].sh_type == SHT_SYMTAB) {
--			/* Internal symbols */
--			DEBUGP("Symbol table in section %u\n", i);
- 			symindex = i;
--			/* Strings */
- 			strindex = sechdrs[i].sh_link;
--			DEBUGP("String table found in section %u\n", strindex);
--		} else if (strcmp(secstrings+sechdrs[i].sh_name,
--				  ".gnu.linkonce.this_module") == 0) {
--			/* The module struct */
--			DEBUGP("Module in section %u\n", i);
--			modindex = i;
--		} else if (strcmp(secstrings+sechdrs[i].sh_name, "__ksymtab")
--			   == 0) {
--			/* Exported symbols. */
--			DEBUGP("EXPORT table in section %u\n", i);
--			exportindex = i;
--		} else if (strcmp(secstrings+sechdrs[i].sh_name,
--				  "__ksymtab_gpl") == 0) {
--			/* Exported symbols. (GPL) */
--			DEBUGP("GPL symbols found in section %u\n", i);
--			gplindex = i;
--		} else if (strcmp(secstrings+sechdrs[i].sh_name, "__kcrctab")
--			   == 0) {
--			/* Exported symbols CRCs. */
--			DEBUGP("CRC table in section %u\n", i);
--			crcindex = i;
--		} else if (strcmp(secstrings+sechdrs[i].sh_name, "__kcrctab_gpl")
--			   == 0) {
--			/* Exported symbols CRCs. (GPL)*/
--			DEBUGP("CRC table in section %u\n", i);
--			gplcrcindex = i;
--		} else if (strcmp(secstrings+sechdrs[i].sh_name, "__param")
--			   == 0) {
--			/* Setup parameter info */
--			DEBUGP("Setup table found in section %u\n", i);
--			setupindex = i;
--		} else if (strcmp(secstrings+sechdrs[i].sh_name, "__ex_table")
--			   == 0) {
--			/* Exception table */
--			DEBUGP("Exception table found in section %u\n", i);
--			exindex = i;
--		} else if (strcmp(secstrings+sechdrs[i].sh_name, "__obsparm")
--			   == 0) {
--			/* Obsolete MODULE_PARM() table */
--			DEBUGP("Obsolete param found in section %u\n", i);
--			obsparmindex = i;
--		} else if (strcmp(secstrings+sechdrs[i].sh_name,".init.license")
--			   == 0) {
--			/* MODULE_LICENSE() */
--			DEBUGP("Licence found in section %u\n", i);
--			licenseindex = i;
--			sechdrs[i].sh_flags &= ~(unsigned long)SHF_ALLOC;
--		} else if (strcmp(secstrings+sechdrs[i].sh_name,
--				  "__vermagic") == 0 &&
--			   (sechdrs[i].sh_flags & SHF_ALLOC)) {
--			/* Version magic. */
--			DEBUGP("Version magic found in section %u\n", i);
--			vmagindex = i;
--			sechdrs[i].sh_flags &= ~(unsigned long)SHF_ALLOC;
--		} else if (strcmp(secstrings+sechdrs[i].sh_name,
--				  "__versions") == 0 &&
--			   (sechdrs[i].sh_flags & SHF_ALLOC)) {
--			/* Module version info (both exported and needed) */
--			DEBUGP("Versions found in section %u\n", i);
--			versindex = i;
--			sechdrs[i].sh_flags &= ~(unsigned long)SHF_ALLOC;
- 		}
--#ifdef CONFIG_KALLSYMS
--		/* symbol and string tables for decoding later. */
--		if (sechdrs[i].sh_type == SHT_SYMTAB || i == strindex)
--			sechdrs[i].sh_flags |= SHF_ALLOC;
--#endif
- #ifndef CONFIG_MODULE_UNLOAD
- 		/* Don't load .exit sections */
- 		if (strstr(secstrings+sechdrs[i].sh_name, ".exit"))
-@@ -1197,6 +1097,14 @@ static struct module *load_module(void *
- #endif
- 	}
- 
-+#ifdef CONFIG_KALLSYMS
-+	/* Keep symbol and string tables for decoding later. */
-+	sechdrs[symindex].sh_flags |= SHF_ALLOC;
-+	sechdrs[strindex].sh_flags |= SHF_ALLOC;
-+#endif
-+
-+	modindex = find_sec(hdr, sechdrs, secstrings,
-+			    ".gnu.linkonce.this_module");
- 	if (!modindex) {
- 		printk(KERN_WARNING "No module found in object\n");
- 		err = -ENOEXEC;
-@@ -1204,6 +1112,18 @@ static struct module *load_module(void *
- 	}
- 	mod = (void *)sechdrs[modindex].sh_addr;
- 
-+	/* Optional sections */
-+	exportindex = find_sec(hdr, sechdrs, secstrings, "__ksymtab");
-+	gplindex = find_sec(hdr, sechdrs, secstrings, "__ksymtab_gpl");
-+	crcindex = find_sec(hdr, sechdrs, secstrings, "__kcrctab");
-+	gplcrcindex = find_sec(hdr, sechdrs, secstrings, "__kcrctab_gpl");
-+	setupindex = find_sec(hdr, sechdrs, secstrings, "__param");
-+	exindex = find_sec(hdr, sechdrs, secstrings, "__ex_table");
-+	obsparmindex = find_sec(hdr, sechdrs, secstrings, "__obsparm");
-+	licenseindex = find_sec(hdr, sechdrs, secstrings, ".init.license");
-+	vmagindex = find_sec(hdr, sechdrs, secstrings, "__vermagic");
-+	versindex = find_sec(hdr, sechdrs, secstrings, "__versions");
-+
- 	/* Check module struct version now, before we try to use module. */
- 	if (!check_modstruct_version(sechdrs, versindex, mod)) {
- 		err = -ENOEXEC;
-@@ -1336,10 +1256,14 @@ static struct module *load_module(void *
- 		mod->extable.entry = (void *)sechdrs[exindex].sh_addr;
- 	}
- 
--	/* Now handle each section. */
-+	/* Now do relocations. */
- 	for (i = 1; i < hdr->e_shnum; i++) {
--		err = handle_section(secstrings + sechdrs[i].sh_name,
--				     sechdrs, strindex, symindex, i, mod);
-+		if (sechdrs[i].sh_type == SHT_REL)
-+			err = apply_relocate(sechdrs, strtab, symindex, i,
-+					     mod);
-+		else if (sechdrs[i].sh_type == SHT_RELA)
-+			err = apply_relocate_add(sechdrs, strtab, symindex, i,
-+						 mod);
- 		if (err < 0)
- 			goto cleanup;
- 	}
+Linux 2.4.21pre3-ac3
+o	Address comments on wcache value/issuing	(me)
+	cache flush requests
+o	Update credits entry for Stelian Pop		(Stelian Pop)
+o	Backport some sonypi improvements from 2.5	(Kunihiko IMAI)
+o	Fix pdcraid/silraid symbol clash		(Arjan van de Ven)
+o	Fix ehci build with older gcc			(Greg Kroah-Hartmann)
+o	Fix via 8233/5 hang				(me)
+o	Fix non SMP cpufreq build			(Eyal Lebidinsky)
+o	Fix sbp2 build with some config options		(Eyal Lebidinsky)
+o	Fix ATM build bugs				(Francois Romieu)
+o	Fix an ipc/sem.c race				(Bernhard Kaindl)
+o	Fix toshiba keyboard double release		(Unknown)
+o	CPUFreq updaes/fixes				(Dominik Brodowski)
+o	Natsemi Geode/Cyrix MediaGX cpufreq support	(Hiroshi Miura,
+							 Zwane Mwaikambo)
+o	Add frequency table helpers to CPUfreq		(Dominik Brodowski)
 
-Name: Restore modinfo section
-Author: Rusty Russell
-Status: Tested on 2.5.62-bk2
-Depends: Module/tidy.patch.gz
+Linux 2.4.21pre3-ac2
+o	Fix the dumb bug in skb_pad			(Dave Miller)
+o	Confirm some sparc bits are wrong and drop them	(Dave Miller)
+o	Remove a wrong additional copyright comment	(Dave Miller)
+o	Upgrade IPMI driver to v16			(Corey Minyard)
+o	Fix 3c523 compile				(Francois Romieu)
+o	Handle newer rpm where -ta is rpmbuild not rpm	(me)
+o	Driver for Aurora Sio16 PCI adapter series	(Joachim Martillo)
+	(SIO8000P, 16000P, and CPCI)
+	| Initial merge
+o	Backport Hammer 32bit mtrr/nmi changes		(Andi Kleen)
+o	Add the fast IRQ path to via 8233/5 audio	(me)
 
-D: Restores .modinfo section, and uses it to store license and vermagic.
+Linux 2.4.21pre3-ac1
++	Handle battery quirk on the Vaio Z600-RE	(Paul Mitcheson)
+*	EHCI USB updates				(David Brownell)
++	IDE Raid support for AMI/SI 'Medley' IDE Raid	(Arjan van de Ven)
++	NVIDIA nForce2 IDE PCI identifiers		(Johannes Deisenhofer,
+							 Tim Krieglstein)
+*	CPU bitmask truncation fix			(Bjorn Helgaas)
+o	HP100 cleanup					(Pavel Machek)
+o	Fix initial capslock handling on USB keyboard	(Pete Zaitcev)
++	Update dscc4 driver for new wan			(Francois Romieu)
++	Fix boot on Chaintech 4BEA/4BEA-R and		(Alexander Achenbach)
+	Gigabyte 9EJL by handing wacky E820 memory
+	reporting
+o	SysKonnect driver updates			(Mirko Lindner)
+o	Fix memory leak in n_hdlc			(Paul Fulghum)
+o	Fix missing mtd dependancy			(Herbert Xu)
++	Clean up ide-tape printk stuff			(Pete Zaitcev)
++	IDE tape fixes					(Pete Zaitcev)
+o	Fix size reporting of large disks in scsi	(Andries Brouwer)
++	Fix excessive stack usage in NMI handlers	(Mikael Pettersson)
++	Add support for Epson 785EPX USB printer pcmcia	(Khalid Aziz)
+*	Quirk handler to sort out IDE compatibility	(Ivan Kokshaysky)
+	mishandling
++	Model 1 is valid for PIV in MP table		(Egenera)
++	Ethernet padding fixes for various drivers	(me)
+o	Allow trident codec setup to time out		(Ian Soboroff)
+	This can happen with non PM codecs
+o	Fix broken documentation link			(Henning Meier-Geinitz)
+o	Update video4linux docbook			(William Stimson)
+o	Correct kmalloc check in dpt_i2o		(Pablo Menichini)
+o	Shrink kmap area to required space only		(Manfred Spraul)
+o	Fix irq balancing				(Ben LaHaise)
+o	CPUfreq updates					(Dominik Brodowski)
+o	Fix typo in pmagb fb				(John Bradford)
+o	EDD backport					(Matt Domsch)
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27442-linux-2.5.62-bk3/include/linux/module.h .27442-linux-2.5.62-bk3.updated/include/linux/module.h
---- .27442-linux-2.5.62-bk3/include/linux/module.h	2003-02-21 10:32:28.000000000 +1100
-+++ .27442-linux-2.5.62-bk3.updated/include/linux/module.h	2003-02-21 18:53:23.000000000 +1100
-@@ -21,10 +21,7 @@
- #include <asm/uaccess.h> /* For struct exception_table_entry */
- 
- /* Not Yet Implemented */
--#define MODULE_AUTHOR(name)
--#define MODULE_DESCRIPTION(desc)
- #define MODULE_SUPPORTED_DEVICE(name)
--#define MODULE_PARM_DESC(var,desc)
- #define print_modules()
- 
- /* v850 toolchain uses a `_' prefix for all user symbols */
-@@ -57,12 +54,11 @@ search_extable(const struct exception_ta
- 	       unsigned long value);
- 
- #ifdef MODULE
--#define ___module_cat(a,b) a ## b
-+#define ___module_cat(a,b) __mod_ ## a ## b
- #define __module_cat(a,b) ___module_cat(a,b)
--/* For userspace: you can also call me... */
--#define MODULE_ALIAS(alias)					\
--	static const char __module_cat(__alias_,__LINE__)[]	\
--		__attribute__((section(".modinfo"),unused)) = "alias=" alias
-+#define MODULE_INFO(tag, info) \
-+static const char __module_cat(tag,__LINE__)[]	\
-+	__attribute__((section(".modinfo"),unused)) = __stringify(tag) "=" info
- 
- #define MODULE_GENERIC_TABLE(gtype,name)			\
- extern const struct gtype##_id __mod_##gtype##_table		\
-@@ -72,6 +68,18 @@ extern const struct gtype##_id __mod_##g
- #define MOD_INC_USE_COUNT _MOD_INC_USE_COUNT(THIS_MODULE)
- #define MOD_DEC_USE_COUNT __MOD_DEC_USE_COUNT(THIS_MODULE)
- 
-+#else  /* !MODULE */
-+
-+#define MODULE_GENERIC_TABLE(gtype,name)
-+#define MODULE_INFO(tag, info)
-+#define THIS_MODULE ((struct module *)0)
-+#define MOD_INC_USE_COUNT	do { } while (0)
-+#define MOD_DEC_USE_COUNT	do { } while (0)
-+#endif
-+
-+/* For userspace: you can also call me... */
-+#define MODULE_ALIAS(_alias) MODULE_INFO(alias, _alias)
-+
- /*
-  * The following license idents are currently accepted as indicating free
-  * software modules
-@@ -98,19 +106,17 @@ extern const struct gtype##_id __mod_##g
-  * 2.	So the community can ignore bug reports including proprietary modules
-  * 3.	So vendors can do likewise based on their own policies
-  */
--#define MODULE_LICENSE(license)					\
--	static const char __module_license[]			\
--		__attribute__((section(".init.license"), unused)) = license
-+#define MODULE_LICENSE(_license) MODULE_INFO(license, _license)
- 
--#else  /* !MODULE */
-+/* Author, preferably of form NAME <email>[ and NAME <email>]* */
-+#define MODULE_AUTHOR(_author) MODULE_INFO(author, _author)
- 
--#define MODULE_ALIAS(alias)
--#define MODULE_GENERIC_TABLE(gtype,name)
--#define THIS_MODULE ((struct module *)0)
--#define MOD_INC_USE_COUNT	do { } while (0)
--#define MOD_DEC_USE_COUNT	do { } while (0)
--#define MODULE_LICENSE(license)
--#endif
-+/* What your module does. */
-+#define MODULE_DESCRIPTION(_description) MODULE_INFO(description, _description)
-+
-+/* One for each parameter, describing how to use it. */
-+#define MODULE_PARM_DESC(_parm, desc) \
-+	MODULE_INFO(parm, #_parm ":" desc)
- 
- #define MODULE_DEVICE_TABLE(type,name)		\
-   MODULE_GENERIC_TABLE(type##_device,name)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27442-linux-2.5.62-bk3/kernel/module.c .27442-linux-2.5.62-bk3.updated/kernel/module.c
---- .27442-linux-2.5.62-bk3/kernel/module.c	2003-02-21 18:52:50.000000000 +1100
-+++ .27442-linux-2.5.62-bk3.updated/kernel/module.c	2003-02-21 18:53:23.000000000 +1100
-@@ -894,12 +894,12 @@ EXPORT_SYMBOL_GPL(__symbol_get);
- /* Change all symbols so that sh_value encodes the pointer directly. */
- static int simplify_symbols(Elf_Shdr *sechdrs,
- 			    unsigned int symindex,
--			    unsigned int strindex,
-+			    const char *strtab,
- 			    unsigned int versindex,
- 			    struct module *mod)
- {
- 	Elf_Sym *sym = (void *)sechdrs[symindex].sh_addr;
--	const char *strtab = (char *)sechdrs[strindex].sh_addr;
-+	
- 	unsigned int i, n = sechdrs[symindex].sh_size / sizeof(Elf_Sym);
- 	int ret = 0;
- 
-@@ -1018,13 +1018,9 @@ static inline int license_is_gpl_compati
- 		|| strcmp(license, "Dual MPL/GPL") == 0);
- }
- 
--static void set_license(struct module *mod, Elf_Shdr *sechdrs, int licenseidx)
-+static void set_license(struct module *mod, const char *license)
- {
--	char *license;
--
--	if (licenseidx) 
--		license = (char *)sechdrs[licenseidx].sh_addr;
--	else
-+	if (!license)
- 		license = "unspecified";
- 
- 	mod->license_gplok = license_is_gpl_compatible(license);
-@@ -1035,6 +1031,40 @@ static void set_license(struct module *m
- 	}
- }
- 
-+/* Parse tag=value strings from .modinfo section */
-+static char *next_string(char *string, unsigned long *secsize)
-+{
-+	/* Skip non-zero chars */
-+	while (string[0]) {
-+		string++;
-+		if ((*secsize)-- <= 1)
-+			return NULL;
-+	}
-+
-+	/* Skip any zero padding. */
-+	while (!string[0]) {
-+		string++;
-+		if ((*secsize)-- <= 1)
-+			return NULL;
-+	}
-+	return string;
-+}
-+
-+static char *get_modinfo(Elf_Shdr *sechdrs,
-+			 unsigned int info,
-+			 const char *tag)
-+{
-+	char *p;
-+	unsigned int taglen = strlen(tag);
-+	unsigned long size = sechdrs[info].sh_size;
-+
-+	for (p = (char *)sechdrs[info].sh_addr; p; p = next_string(p, &size)) {
-+		if (strncmp(p, tag, taglen) == 0 && p[taglen] == '=')
-+			return p + taglen + 1;
-+	}
-+	return NULL;
-+}
-+
- /* Allocate and load the module: note that size of section 0 is always
-    zero, and we rely on this for optional sections. */
- static struct module *load_module(void *umod,
-@@ -1043,9 +1073,9 @@ static struct module *load_module(void *
- {
- 	Elf_Ehdr *hdr;
- 	Elf_Shdr *sechdrs;
--	char *secstrings, *args;
--	unsigned int i, symindex, exportindex, strindex, setupindex, exindex,
--		modindex, obsparmindex, licenseindex, gplindex, vmagindex,
-+	char *secstrings, *args, *modmagic, *strtab = NULL;
-+	unsigned int i, symindex = 0, strindex = 0, setupindex, exindex,
-+		exportindex, modindex, obsparmindex, infoindex, gplindex,
- 		crcindex, gplcrcindex, versindex;
- 	long arglen;
- 	struct module *mod;
-@@ -1079,6 +1109,7 @@ static struct module *load_module(void *
- 	/* Convenience variables */
- 	sechdrs = (void *)hdr + hdr->e_shoff;
- 	secstrings = (void *)hdr + sechdrs[hdr->e_shstrndx].sh_offset;
-+	sechdrs[0].sh_addr = 0;
- 
- 	for (i = 1; i < hdr->e_shnum; i++) {
- 		/* Mark all sections sh_addr with their address in the
-@@ -1089,6 +1120,7 @@ static struct module *load_module(void *
- 		if (sechdrs[i].sh_type == SHT_SYMTAB) {
- 			symindex = i;
- 			strindex = sechdrs[i].sh_link;
-+			strtab = (char *)hdr + sechdrs[strindex].sh_offset;
- 		}
- #ifndef CONFIG_MODULE_UNLOAD
- 		/* Don't load .exit sections */
-@@ -1097,12 +1129,6 @@ static struct module *load_module(void *
- #endif
- 	}
- 
--#ifdef CONFIG_KALLSYMS
--	/* Keep symbol and string tables for decoding later. */
--	sechdrs[symindex].sh_flags |= SHF_ALLOC;
--	sechdrs[strindex].sh_flags |= SHF_ALLOC;
--#endif
--
- 	modindex = find_sec(hdr, sechdrs, secstrings,
- 			    ".gnu.linkonce.this_module");
- 	if (!modindex) {
-@@ -1120,9 +1146,16 @@ static struct module *load_module(void *
- 	setupindex = find_sec(hdr, sechdrs, secstrings, "__param");
- 	exindex = find_sec(hdr, sechdrs, secstrings, "__ex_table");
- 	obsparmindex = find_sec(hdr, sechdrs, secstrings, "__obsparm");
--	licenseindex = find_sec(hdr, sechdrs, secstrings, ".init.license");
--	vmagindex = find_sec(hdr, sechdrs, secstrings, "__vermagic");
- 	versindex = find_sec(hdr, sechdrs, secstrings, "__versions");
-+	infoindex = find_sec(hdr, sechdrs, secstrings, ".modinfo");
-+
-+	/* Don't keep modinfo section */
-+	sechdrs[infoindex].sh_flags &= ~(unsigned long)SHF_ALLOC;
-+#ifdef CONFIG_KALLSYMS
-+	/* Keep symbol and string tables for decoding later. */
-+	sechdrs[symindex].sh_flags |= SHF_ALLOC;
-+	sechdrs[strindex].sh_flags |= SHF_ALLOC;
-+#endif
- 
- 	/* Check module struct version now, before we try to use module. */
- 	if (!check_modstruct_version(sechdrs, versindex, mod)) {
-@@ -1130,14 +1163,15 @@ static struct module *load_module(void *
- 		goto free_hdr;
- 	}
- 
-+	modmagic = get_modinfo(sechdrs, infoindex, "vermagic");
- 	/* This is allowed: modprobe --force will invalidate it. */
--	if (!vmagindex) {
-+	if (!modmagic) {
- 		tainted |= TAINT_FORCED_MODULE;
- 		printk(KERN_WARNING "%s: no version magic, tainting kernel.\n",
- 		       mod->name);
--	} else if (!same_magic((char *)sechdrs[vmagindex].sh_addr, vermagic)) {
-+	} else if (!same_magic(modmagic, vermagic)) {
- 		printk(KERN_ERR "%s: version magic '%s' should be '%s'\n",
--		       mod->name, (char*)sechdrs[vmagindex].sh_addr, vermagic);
-+		       mod->name, modmagic, vermagic);
- 		err = -ENOEXEC;
- 		goto free_hdr;
- 	}
-@@ -1217,11 +1251,11 @@ static struct module *load_module(void *
- 	/* Now we've moved module, initialize linked lists, etc. */
- 	module_unload_init(mod);
- 
--	/* Set up license info based on contents of section */
--	set_license(mod, sechdrs, licenseindex);
-+	/* Set up license info based on the info section */
-+	set_license(mod, get_modinfo(sechdrs, infoindex, "license"));
- 
- 	/* Fix up syms, so that st_value is a pointer to location. */
--	err = simplify_symbols(sechdrs, symindex, strindex, versindex, mod);
-+	err = simplify_symbols(sechdrs, symindex, strtab, versindex, mod);
- 	if (err < 0)
- 		goto cleanup;
- 
-@@ -1259,8 +1293,7 @@ static struct module *load_module(void *
- 	/* Now do relocations. */
- 	for (i = 1; i < hdr->e_shnum; i++) {
- 		if (sechdrs[i].sh_type == SHT_REL)
--			err = apply_relocate(sechdrs, strtab, symindex, i,
--					     mod);
-+			err = apply_relocate(sechdrs, strtab, symindex, i,mod);
- 		else if (sechdrs[i].sh_type == SHT_RELA)
- 			err = apply_relocate_add(sechdrs, strtab, symindex, i,
- 						 mod);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27442-linux-2.5.62-bk3/scripts/modpost.c .27442-linux-2.5.62-bk3.updated/scripts/modpost.c
---- .27442-linux-2.5.62-bk3/scripts/modpost.c	2003-02-21 10:32:29.000000000 +1100
-+++ .27442-linux-2.5.62-bk3.updated/scripts/modpost.c	2003-02-21 18:53:23.000000000 +1100
-@@ -386,9 +386,7 @@ add_header(struct buffer *b)
- 	buf_printf(b, "#include <linux/vermagic.h>\n");
- 	buf_printf(b, "#include <linux/compiler.h>\n");
- 	buf_printf(b, "\n");
--	buf_printf(b, "const char vermagic[]\n");
--	buf_printf(b, "__attribute__((section(\"__vermagic\"))) =\n");
--	buf_printf(b, "VERMAGIC_STRING;\n");
-+	buf_printf(b, "MODULE_INFO(vermagic, VERMAGIC_STRING);\n");
- }
- 
- /* Record CRCs for unresolved symbols */
 
-Name: Move module structure out of header
-Author: Brian Gerst <bgerst@quark.didntduck.org>
-Status: Experimental
-Depends: Module/modinfo.patch.gz
+REMOVED FOR NOW
 
-D: This patch moves the module structure to the generated .mod.c file, 
-D: instead of compiling it into each object and relying on the linker to 
-D: include it only once.
-D:
-D: Tweaked by Rusty.
+-	RMAP
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27119-2.5.62-bk3-this_module.pre/arch/v850/Makefile .27119-2.5.62-bk3-this_module/arch/v850/Makefile
---- .27119-2.5.62-bk3-this_module.pre/arch/v850/Makefile	2003-02-11 14:26:00.000000000 +1100
-+++ .27119-2.5.62-bk3-this_module/arch/v850/Makefile	2003-02-21 18:51:11.000000000 +1100
-@@ -22,11 +22,6 @@ CFLAGS += -ffixed-r16 -mno-prolog-functi
- CFLAGS += -fno-builtin
- CFLAGS += -D__linux__ -DUTS_SYSNAME=\"uClinux\"
- 
--# This prevents the linker from consolidating the .gnu.linkonce.this_module
--# section into .text (which the v850 default linker script for -r does for
--# some reason)
--LDFLAGS_MODULE += --unique=.gnu.linkonce.this_module
--
- LDFLAGS_BLOB := -b binary --oformat elf32-little
- OBJCOPY_FLAGS_BLOB := -I binary -O elf32-little -B v850e
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27119-2.5.62-bk3-this_module.pre/include/linux/module.h .27119-2.5.62-bk3-this_module/include/linux/module.h
---- .27119-2.5.62-bk3-this_module.pre/include/linux/module.h	2003-02-21 18:51:10.000000000 +1100
-+++ .27119-2.5.62-bk3-this_module/include/linux/module.h	2003-02-21 18:51:11.000000000 +1100
-@@ -412,19 +412,6 @@ static inline const char *module_address
- 
- #ifdef MODULE
- extern struct module __this_module;
--#ifdef KBUILD_MODNAME
--/* We make the linker do some of the work. */
--struct module __this_module
--__attribute__((section(".gnu.linkonce.this_module"))) = {
--	.name = __stringify(KBUILD_MODNAME),
--	.symbols = { .owner = &__this_module },
--	.gpl_symbols = { .owner = &__this_module, .gplonly = 1 },
--	.init = init_module,
--#ifdef CONFIG_MODULE_UNLOAD
--	.exit = cleanup_module,
--#endif
--};
--#endif /* KBUILD_MODNAME */
- #endif /* MODULE */
- 
- #define symbol_request(x) try_then_request_module(symbol_get(x), "symbol:" #x)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27119-2.5.62-bk3-this_module.pre/kernel/module.c .27119-2.5.62-bk3-this_module/kernel/module.c
---- .27119-2.5.62-bk3-this_module.pre/kernel/module.c	2003-02-21 18:51:10.000000000 +1100
-+++ .27119-2.5.62-bk3-this_module/kernel/module.c	2003-02-21 18:51:11.000000000 +1100
-@@ -1146,8 +1129,7 @@ static struct module *load_module(void *
- #endif
- 	}
- 
--	modindex = find_sec(hdr, sechdrs, secstrings,
--			    ".gnu.linkonce.this_module");
-+	modindex = find_sec(hdr, sechdrs, secstrings, "__module");
- 	if (!modindex) {
- 		printk(KERN_WARNING "No module found in object\n");
- 		err = -ENOEXEC;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27119-2.5.62-bk3-this_module.pre/scripts/modpost.c .27119-2.5.62-bk3-this_module/scripts/modpost.c
---- .27119-2.5.62-bk3-this_module.pre/scripts/modpost.c	2003-02-21 18:51:10.000000000 +1100
-+++ .27119-2.5.62-bk3-this_module/scripts/modpost.c	2003-02-21 18:51:11.000000000 +1100
-@@ -10,7 +10,7 @@
-  *
-  * Usage: modpost vmlinux module1.o module2.o ...
-  */
--
-+#include <ctype.h>
- #include "modpost.h"
- 
- /* Are we using CONFIG_MODVERSIONS? */
-@@ -289,6 +289,10 @@ handle_modversions(struct module *mod, s
- 		/* undefined symbol */
- 		if (ELF_ST_BIND(sym->st_info) != STB_GLOBAL)
- 			break;
-+
-+		/* ignore __this_module */
-+		if (!strcmp(symname, "__this_module"))
-+			break;
- 		
- 		s = alloc_symbol(symname);
- 		/* add to list */
-@@ -377,16 +381,50 @@ buf_write(struct buffer *buf, const char
- 	buf->pos += len;
- }
- 
--/* Header for the generated file */
-+static inline void filename2modname(char *modname, const char *filename)
-+{
-+	const char *afterslash;
-+	unsigned int i;
-+
-+	afterslash = strrchr(filename, '/');
-+	if (!afterslash)
-+		afterslash = filename;
-+	else
-+		afterslash++;
-+
-+	/* Convert to underscores, stop at first . */
-+	for (i = 0; afterslash[i] && afterslash[i] != '.'; i++) {
-+		if (!isalnum(afterslash[i]))
-+			modname[i] = '_';
-+		else
-+			modname[i] = afterslash[i];
-+	}
-+	modname[i] = '\0';
-+}
- 
-+/* Header for the generated file */
- void
--add_header(struct buffer *b)
-+add_header(struct buffer *b, struct module *mod)
- {
-+	char modname[strlen(mod->name)+1];
-+	filename2modname(modname, mod->name);
-+
- 	buf_printf(b, "#include <linux/module.h>\n");
- 	buf_printf(b, "#include <linux/vermagic.h>\n");
- 	buf_printf(b, "#include <linux/compiler.h>\n");
- 	buf_printf(b, "\n");
- 	buf_printf(b, "MODULE_INFO(vermagic, VERMAGIC_STRING);\n");
-+	buf_printf(b, "\n");
-+	buf_printf(b, "struct module __this_module\n");
-+	buf_printf(b, "__attribute__((section(\"__module\"))) = {\n");
-+	buf_printf(b, "	.name = \"%s\",\n", modname);
-+	buf_printf(b, "	.symbols = { .owner = &__this_module },\n");
-+	buf_printf(b, "	.gpl_symbols = { .owner = &__this_module, .gplonly = 1 },\n");
-+	buf_printf(b, "	.init = init_module,\n");
-+	buf_printf(b, "#ifdef CONFIG_MODULE_UNLOAD\n");
-+	buf_printf(b, "	.exit = cleanup_module,\n");
-+	buf_printf(b, "#endif\n");
-+	buf_printf(b, "};\n");
- }
- 
- /* Record CRCs for unresolved symbols */
-@@ -528,7 +566,7 @@ main(int argc, char **argv)
- 
- 		buf.pos = 0;
- 
--		add_header(&buf);
-+		add_header(&buf, mod);
- 		add_versions(&buf, mod);
- 		add_depends(&buf, mod, modules);
- 		add_moddevtable(&buf, mod);
+REMOVED FOR GOOD
+
+-	LLC 	(See 2.5)
+-	VaryIO  (Never accepted mainstream)

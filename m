@@ -1,35 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268090AbUHXQmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268089AbUHXQlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268090AbUHXQmI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 12:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268094AbUHXQmI
+	id S268089AbUHXQlh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 12:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268090AbUHXQlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 12:42:08 -0400
-Received: from a26.t1.student.liu.se ([130.236.221.26]:13456 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S268090AbUHXQmG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 12:42:06 -0400
-Message-ID: <412B6FD6.2050105@drzeus.cx>
-Date: Tue, 24 Aug 2004 18:41:58 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040704)
-X-Accept-Language: en-us, en
+	Tue, 24 Aug 2004 12:41:37 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:16600 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S268089AbUHXQlc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 12:41:32 -0400
+Date: Tue, 24 Aug 2004 18:41:14 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: jdow <jdow@earthlink.net>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>
+Subject: Re: Amiga partition reading patch
+In-Reply-To: <00f301c489ce$c2cd01a0$1225a8c0@kittycat>
+Message-ID: <Pine.GSO.4.58.0408241840210.26345@waterleaf.sonytel.be>
+References: <00f301c489ce$c2cd01a0$1225a8c0@kittycat>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-rc1
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The MMC patches included in 2.6.9-rc1 missed drivers/Kconfig. A 'source 
-"drivers/mmc/Kconfig"' is needed.
-drivers/Makefile is ok though.
+On Tue, 24 Aug 2004, jdow wrote:
+> This is a patch known good against Mandrake 2.6.3-7mdk. I suspect it will
+> apply to later versions equally well since the file affected appears to
+> be unchanged as late as 2.6.9-rc1.
 
-Rgds
-Pierre Ossman
+When you will send the forgotten patch, can you please CC
+linux-m68k@lists.linux-m68k.org? Thx!
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

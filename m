@@ -1,62 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264976AbSLLRk1>; Thu, 12 Dec 2002 12:40:27 -0500
+	id <S264889AbSLLRpx>; Thu, 12 Dec 2002 12:45:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264983AbSLLRk1>; Thu, 12 Dec 2002 12:40:27 -0500
-Received: from mxintern.kundenserver.de ([212.227.126.204]:37111 "EHLO
-	mxintern.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S264976AbSLLRk0>; Thu, 12 Dec 2002 12:40:26 -0500
-Date: Thu, 12 Dec 2002 18:48:14 +0100
-From: Anders Henke <anders.henke@sysiphus.de>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: using 2 TB  in real life
-Message-ID: <20021212174814.GA18993@schlund.de>
-References: <20021212111237.GA12143@schlund.de> <029301c2a1d6$85cbe280$f6de11cc@black> <1039713776.16887.4.camel@camp4.serpentine.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1039713776.16887.4.camel@camp4.serpentine.com>
-User-Agent: Mutt/1.3.28i
-Organization: Schlund + Partner AG
+	id <S264901AbSLLRpx>; Thu, 12 Dec 2002 12:45:53 -0500
+Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:44947 "EHLO
+	swan.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S264889AbSLLRpw>; Thu, 12 Dec 2002 12:45:52 -0500
+Date: Thu, 12 Dec 2002 10:45:20 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Antonino Daplas <adaplas@pol.net>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [FBDEV]: Framebuffer driver for Intel 810/815 chipsets
+In-Reply-To: <1039603490.1147.80.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0212121045060.32196-100000@maxwell.earthlink.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 12th 2002, Bryan O'Sullivan wrote:
-> On Thu, 2002-12-12 at 04:03, Mike Black wrote:
-> > Looks like it's already handled in 2.5.
-> > Here's a patch for 2.4:
-> > http://www.gelato.unsw.edu.au/patches-index.html
-> 
-> The result of the device size calculation that Anders complained about
-> in 2.4.20 was wrong in a different way in Peter's >2TB patch, last I
-> looked.  I don't think Peter's patch is necessary for a 1.9TB device,
-> anyway.
 
-Peter's patch is not necessary for a 1.9TB device, but (from a quick
-glance at the source) should fix the display problem I mentioned.
+Applied !!!!
 
+MS: (n) 1. A debilitating and surprisingly widespread affliction that
+renders the sufferer barely able to perform the simplest task. 2. A disease.
 
-Personally I've no problem using 2.4.20 without this patch applied,
-although sd.c makes 1.9TB devices look as being something coming
-from a very dark corner of the universe ...
+James Simmons  [jsimmons@users.sf.net] 	                ____/|
+fbdev/console/gfx developer                             \ o.O|
+http://www.linux-fbdev.org                               =(_)=
+http://linuxgfx.sourceforge.net                            U
+http://linuxconsole.sourceforge.net
 
-I knew of the 2 TB limit before, but the strange output brought me
-to extensively test both xfs and ext3 on it before writing any
-important data on the device. Other people might assume that Linux simply
-cannot handle (scsi/fc) devices larger than 0.5 TB or think Linux of
-being of less quality than $other_operating_system ("they claim 2 TB is 
-the limit, but it somehow chokes at only 0.5 TB").
+On 11 Dec 2002, Antonino Daplas wrote:
 
-It would be a very kind thing if someone knows how to fix sd.c that
-way would do it before such ideas arise - unluckily, I don't have the
-in-depth knowledge to do this, so I'm sending this as a notice to 
-linux-kernel (as this is the place where I believe the ones are who
-know how to do fix it).
+> James,
+>
+> It seems the fbdev framework is stable enough, and already in the
+> development tree.  So, I'm submitting a driver for the Intel 810/815 for
+> review and perhaps inclusion to your tree (to get more testing), and
+> hopefully merge with Linus's tree.
+>
+> The patch is against linux-2.5.51, but will not work yet because of 2
+> reasons:
+>
+> 1. agpgart is not working for the i810
+> 2. support for early agp initialization needs to be added.
+>
+> Once #1 is fixed, the driver should work as a module.  And once #2 gets
+> included, the driver can be compiled statically.  Dave Jones (thanks for
+> the help, by the way) has already #2 in his tree (tested and works), and
+> is currently working on #1 (I have a hacked version at home).
+>
+> The driver should be compliant with fbdev-2.5, and should support most
+> if not all features that are to be expected (modularity, state saving
+> and restoring, full hardware support, etc).  One thing also that's very
+> important for many people is that the driver will work with XFree86 with
+> its native i810 drivers without further modification, and quite stably
+> too.
+>
+> The patch is at
+> http://i810fb.sourceforge.net/linux-2.5.51-i810fb.diff.gz
+>
+> Thanks,
+>
+> Tony
+>
+>
+>
+>
+>
 
-
-Regards,
-
-Anders
--- 
-http://sysiphus.de/

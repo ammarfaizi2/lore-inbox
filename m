@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267918AbTCFIFE>; Thu, 6 Mar 2003 03:05:04 -0500
+	id <S267919AbTCFIPl>; Thu, 6 Mar 2003 03:15:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267919AbTCFIFE>; Thu, 6 Mar 2003 03:05:04 -0500
-Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:53460 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S267918AbTCFIFC>; Thu, 6 Mar 2003 03:05:02 -0500
-Message-ID: <20030306081529.28620.qmail@email.com>
-Content-Type: text/plain; charset="iso-8859-1"
+	id <S267925AbTCFIPk>; Thu, 6 Mar 2003 03:15:40 -0500
+Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:25283 "EHLO
+	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S267919AbTCFIPk>; Thu, 6 Mar 2003 03:15:40 -0500
+Date: Thu, 6 Mar 2003 09:25:21 +0100
+To: Antonino Daplas <adaplas@pol.net>
+Cc: Sven Luther <luther@dpt-info.u-strasbg.fr>,
+       James Simmons <jsimmons@infradead.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] Re: FBdev updates.
+Message-ID: <20030306082521.GA1851@iliana>
+References: <20030303203500.GA2916@vana.vc.cvut.cz> <Pine.LNX.4.44.0303052015250.27760-100000@phoenix.infradead.org> <20030306073508.GA1734@iliana> <1046937890.1208.29.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "dan carpenter" <error27@email.com>
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, smatch-discuss@lists.sourceforge.net
-Date: Thu, 06 Mar 2003 03:15:29 -0500
-Subject: Re: smatch update / 2.5.64 / kbugs.org
-X-Originating-Ip: 66.127.101.73
-X-Originating-Server: ws3-5.us4.outblaze.com
+In-Reply-To: <1046937890.1208.29.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.3i
+From: Sven Luther <luther@dpt-info.u-strasbg.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg KH <greg@kroah.com>
-> What I really need to know is, what are all of the reported errors in a
-> specific portion of the kernel tree.  If you give some way to search
-> based on filename and path, I think you will find a lot more people
-> using the results of this tool.  I know I would :)
+On Thu, Mar 06, 2003 at 04:05:32PM +0800, Antonino Daplas wrote:
+> On Thu, 2003-03-06 at 15:35, Sven Luther wrote:
+> > >  
+> > > >   And one (or two...) generic questions: why is not pseudo_palette
+> > > > u32* pseudo_palette, or even directly u32 pseudo_palette[17] ?
+> > > 
+> > > pseudo_palette was originally designed to be a pointer to some kind of 
+> > > data for color register programming. For example many PPC graphics cards 
+> > > have a color register region. Now you could have that point to 
+> > 
+> > Does this correspond to the LUT i have in my boards ?
+> > 
+> > BTW, what is the point in having a pseudo_palette if you can store
+> > the colors in the onchip LUT table.
+> > 
 > 
+> The hardware clut typically stores each color channel separately.  In
+> software terms, this is akin to struct fb_cmap.  The pseudo_palette, on
+> the other hand, is a pixel LUT, the contents of which can be directly
+> written to the framebuffer without it ever knowing the format at all, ie
+> it does not matter if it's RGB or YUV.  This makes the upper layer
+> independent of the low-lever driver (at least in terms of colorspace
+> formats).
 
-You are right of course...  I'll do that tomorrow evenning. :)
+Ok, thanks, ...
 
-> Also, what advantage does signing up for a user account on the kbugs.org
-> site give you?
-> 
+Friendly,
 
-I'm glad you asked.  When you log in then you can moderate 
-the bugs as a bug or not a bug.  I am going to make that 
-more obvious, by adding "Login to moderate" next to each 
-bug when you look at the source.
-
-Tracking bug moderations from one version to the next is 
-basically working since 2.5.63.
-
-thanks,
-dan carpenter
-
--- 
-_______________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
-
-Meet Singles
-http://corp.mail.com/lavalife
-
+Sven Luther

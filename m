@@ -1,45 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266054AbTGDPmv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 11:42:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266057AbTGDPmv
+	id S266059AbTGDP7J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 11:59:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266062AbTGDP7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 11:42:51 -0400
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:34045 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S266054AbTGDPmu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 11:42:50 -0400
-Message-ID: <3F05A4C8.9060604@pacbell.net>
-Date: Fri, 04 Jul 2003 09:01:12 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
+	Fri, 4 Jul 2003 11:59:09 -0400
+Received: from voldemort.codesourcery.com ([65.73.237.138]:35529 "EHLO
+	mail.codesourcery.com") by vger.kernel.org with ESMTP
+	id S266059AbTGDP7G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 11:59:06 -0400
+From: "Zack Weinberg" <zack@codesourcery.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Garbage collectors and VM
+References: <20030703184825.GA17090@mail.jlokier.co.uk>
+	<87u1a2srwl.fsf@egil.codesourcery.com>
+	<20030704120732.GD22105@mail.jlokier.co.uk>
+Date: Fri, 04 Jul 2003 09:13:33 -0700
+In-Reply-To: <20030704120732.GD22105@mail.jlokier.co.uk> (Jamie Lokier's
+ message of "Fri, 4 Jul 2003 13:07:32 +0100")
+Message-ID: <87d6gqs21e.fsf@egil.codesourcery.com>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: "Ilia A. Petrov" <masmas@mcst.ru>
-CC: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] PROBLEM: when booting from USB-HDD device kernel
- 2.4.21 is trying to mount root file system too early before usb device is
- found on the usb-bus
-References: <3F056D0D.3050101@mcst.ru>
-In-Reply-To: <3F056D0D.3050101@mcst.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ilia A. Petrov wrote:
-> When kernel is mounting root file system it is doing it too fast so 
-> usb-support have not ime to scan bus for mass-storage devices and 
-> connect them.
-> ...
-> or, imho better way, - when completing init of usb bus, first scans it 
-> and connect all devices and only after all devices were connected 
-> returns to main kernel code.
+Jamie Lokier <jamie@shareable.org> writes:
 
-That might not entirely solve the problem, since the relevant device
-could drop off the bus temporarily, but it seems like it'd be a step
-forward.  How would you make root hub ("bus") initialization do that?
+> Zack Weinberg wrote:
+>> Thus, a new pseudo-device, with the semantics:
+>
+> I like it!  I'd use it, too.
 
-- Dave
+Thanks.  Implementing it is way beyond me, but it's good to hear that
+other people might find it useful.
 
+>>  * Reading from the descriptor produces a list of user-space pointers
+>>    to all the pages that have been reset to read-write since the last
+>>    read.
+>
+> Would it be appropriate to have a limit on the number of pages which
+> become writable before a signal is delivered instead of continuing to
+> make more pages writable?  Just like the kernel, sometimes its good to
+> limit the number of dirty pages in flight in userspace, too.
 
+Maybe.  The GC I wanted to use this with is rather constrained in some
+ways - it can't walk the stack, for instance - so it can only collect
+when the mutator tells it it's okay.  I suppose it could just copy the
+list to its own buffer and continue, which saves the kernel from
+having to store a potentially very large list.
+
+>>  * I never decided what to do if the program forks.  The application I
+>>    personally care about doesn't do that, but for a general GC like
+>>    Boehm it matters.
+>
+> It should clone the state, obviously, and COW should be invisible to
+> the application :)
+
+Well, yeah, that would be the cleanest thing, but it does require two
+dirty bits.
+
+> Btw, are these pages swappable?
+
+They certainly ought to be.
+
+> On a different but related topic, it would be most cool if there were
+> a way for the kernel to request memory to be released from a userspace
+> GC, prior to swapping the GC's memory.  Currently the best strategy is
+> for each GC to guess how much of the machine's RAM it can use, however
+> this is not a good strategy if you wish to launch multiple programs
+> each of which has its own GC, nor is it a particularly good balance
+> between GC application pages and other page-cache pages.
+
+Again, this is not particularly useful to me since the collector can't
+collect at arbitrary points - but it would be a good thing to have for
+a general GC, and maybe I ought to be using a general GC anyway...
+
+zw

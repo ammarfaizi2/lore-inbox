@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVARIuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVARIwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbVARIuV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 03:50:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVARIuV
+	id S261200AbVARIwv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 03:52:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVARIwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 03:50:21 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60126 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261197AbVARIuM (ORCPT
+	Tue, 18 Jan 2005 03:52:40 -0500
+Received: from mailr.eris.qinetiq.com ([128.98.1.9]:60598 "HELO
+	mailr.qinetiq-tim.net") by vger.kernel.org with SMTP
+	id S261193AbVARIwT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 03:50:12 -0500
-Date: Tue, 18 Jan 2005 00:49:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Helge Hafting <helge.hafting@hist.no>
-Cc: rddunlap@osdl.org, viro@parcelfarce.linux.theplanet.co.uk, dsd@gentoo.org,
-       jhf@rivenstone.net, linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au,
-       opengeometry@yahoo.ca
-Subject: Re: [PATCH] Wait and retry mounting root device (revised)
-Message-Id: <20050118004935.7bd4a099.akpm@osdl.org>
-In-Reply-To: <41ECC8AF.9020404@hist.no>
-References: <20050114002352.5a038710.akpm@osdl.org>
-	<20050116005930.GA2273@zion.rivenstone.net>
-	<41EC7A60.9090707@gentoo.org>
-	<20050118003413.GA26051@parcelfarce.linux.theplanet.co.uk>
-	<41EC5207.3030003@osdl.org>
-	<41ECC8AF.9020404@hist.no>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Jan 2005 03:52:19 -0500
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: Re: brought up 4 cpu's
+Date: Tue, 18 Jan 2005 08:59:09 +0000
+User-Agent: KMail/1.6.1
+References: <20050117153646.GA25273@xeon2.local.here> <200501171632.26443.m.watts@eris.qinetiq.com> <20050117162938.GS4274@stusta.de>
+In-Reply-To: <20050117162938.GS4274@stusta.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200501180859.09699.m.watts@eris.qinetiq.com>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.29.0.5; VDF: 6.29.0.52; host: mailr.qinetiq-tim.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting <helge.hafting@hist.no> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+
+> > Thats your answer then. HyperThreading makes one cpu act as two (with a
+> > suitable performance increase for some workloads)
 >
-> The USB block driver should know that 10s (or whatever) hasn't yet 
->  passed, and simply
->  block any attempt to access block devices (or scan for them) knowing 
->  that it will
->  not work yet, but any device will be there after the pause. A root mount 
->  on USB will
->  then succeed at the _first_ try everytime, so no need for retries.
+> This doesn't explain why it stopped booting on his computer...
 
-Maybe a simple delay somewhere in the boot sequence would suffice?  Boot
-with `mount_delay=10'.
+I guess he doesn't have the right workload for the performace increase 
+then... ;)
 
-But it sure would be nice to simply get this stuff right somehow.  If the
-USB block driver knows that discovery is still in progress it should wait
-until it has completed.  (I suggested that before, but wasn't 100% convinced
-by the answer).
+Always the details...
+
+Mark.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFB7M/dBn4EFUVUIO0RAjFSAKD1u8t9LdF8FMxH/Gq1H0uMiazqqACgmtUw
+Sv3wL71jbhuj/3ckw/J54Tk=
+=O8Z7
+-----END PGP SIGNATURE-----

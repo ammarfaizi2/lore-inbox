@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265587AbTBCKoL>; Mon, 3 Feb 2003 05:44:11 -0500
+	id <S265939AbTBCLDK>; Mon, 3 Feb 2003 06:03:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265754AbTBCKoL>; Mon, 3 Feb 2003 05:44:11 -0500
-Received: from dp.samba.org ([66.70.73.150]:46472 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265587AbTBCKoK>;
-	Mon, 3 Feb 2003 05:44:10 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: John Levon <levon@movementarian.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Module alias and device table support. 
-In-reply-to: Your message of "Mon, 03 Feb 2003 02:49:46 -0000."
-             <20030203024946.GA90036@compsoc.man.ac.uk> 
-Date: Mon, 03 Feb 2003 21:34:08 +1100
-Message-Id: <20030203105342.0CE3B2C003@lists.samba.org>
+	id <S266199AbTBCLDK>; Mon, 3 Feb 2003 06:03:10 -0500
+Received: from angband.namesys.com ([212.16.7.85]:40585 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S265939AbTBCLDJ>; Mon, 3 Feb 2003 06:03:09 -0500
+Date: Mon, 3 Feb 2003 14:12:36 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: David Ford <david+powerix@blue-labs.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@digeo.com>
+Subject: Re: NFS problems, 2.5.5x
+Message-ID: <20030203141236.A18736@namesys.com>
+References: <3E3B2D2E.8000604@blue-labs.org> <15931.35891.22926.408963@charged.uio.no> <3E3BEFDB.3060208@blue-labs.org> <15931.62606.441404.74917@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15931.62606.441404.74917@charged.uio.no>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030203024946.GA90036@compsoc.man.ac.uk> you write:
-> On Mon, Feb 03, 2003 at 11:52:57AM +1100, Rusty Russell wrote:
-> 
-> > Well, "modprobe foo" will only give you the "new_foo" driver if (1) the
-> > foo driver isn't found, and (2) the new driver author decides that
-> > it's a valid replacement.
-> 
-> It's not the driver author's decision as to which module an admin would
-> like to use. This just seems to make things a lot more awkward.
+Hello!
 
-I disagree.
+On Sat, Feb 01, 2003 at 05:23:42PM +0100, Trond Myklebust wrote:
+>      > The last time NFS was working, I had 2.4.19 and 2.5.53 clients
+>      > on a
+>      > 2.5.59 server, that was yesterday.  I had experienced a slight
+>      >        problem
+>      > with it last week when my 2.5.53 client was booted for first
+>      > time on 2.5.5x, it was previously a 2.4 kernel.  The server
+>      > OOPSed repeatedly shortly after bootup in NFS stuff then it
+>      > never happened again and was rock solid until today.
+> So have you tried out the 2.5.53 client since you noticed this
+> problem?
 
-"insmod foo" will *always* get foo.  The only exception is when "foo"
-doesn't exist, in which case modprobe looks for another module which
-explicitly says it can serve in the place of foo.
+While trying to reproduce mounting of reiserfs FS over NFS from 2.5.59 server,
+trying to see if there is something to do with reiserfs itself (and it worked
+perfectly with 2.4.19 client), I decided to try to mount it from this same
+workstation as I did not had 2.5.59 client at hand.
+This way I learned that mount localhost:/exportedfs /mnt -t nfs
+(localhost can be replaced by any local IP) results in mount
+hanging in D state:
+100     0   775   770  15   0  1532  620 rpc_ex D    pts/1      0:00 mount 212.16.7.78:/home /mnt -t nfs
 
-This allows smooth transition when a driver is superceded, *if* the
-new author wants it.
+At the same time I still can mount it from external hosts (but cannot kill this hung mount, obviously).
 
-> > going to do this, I'd rather they did it in the kernel, rather than
-> > some random userspace program.
-> 
-> Can you explain why please ?
+This is on today's 2.5.529 bk snapshot.
 
-Sure, but you cut the vital bit of my mail.  Currently we have (1)
-request_module() which is used in various cases to request a service,
-and (2) aliases like "char-major-36", which modprobe.conf (or the old
-modutils' builtin) says is "netlink".  If you introduce a new char
-major (or, say a new cypher, or new network family, etc), you currenly
-have to get everyone to include it in their configuration file.
-
-Now, the netlink module *knows* it provides char-major-36: with
-MODULE_ALIAS() it can say so.
-
-Obviously, there is a place for aliases which are configured by the
-user: they are definitely not going away.  But many are simple
-enumerations, which are currently duplicated external to the kernel
-sources.
-
-So I think it's a good idea, even if using it to replace drivers is
-insane...
-
-Does that clarify?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Bye,
+    Oleg

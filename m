@@ -1,114 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262666AbSI2PhV>; Sun, 29 Sep 2002 11:37:21 -0400
+	id <S262665AbSI2PfR>; Sun, 29 Sep 2002 11:35:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262743AbSI2PhU>; Sun, 29 Sep 2002 11:37:20 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:11657 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S262666AbSI2PhT>; Sun, 29 Sep 2002 11:37:19 -0400
-Date: Sun, 29 Sep 2002 18:42:21 +0300
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org, wtarreau@yahoo.fr
-Subject: linux-2.2.22, scsi-idle: oops with tmscsim driver
-Message-ID: <20020929154221.GQ41965@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
-	wtarreau@yahoo.fr
+	id <S262666AbSI2PfR>; Sun, 29 Sep 2002 11:35:17 -0400
+Received: from meel.hobby.nl ([212.72.224.15]:17928 "EHLO meel.hobby.nl")
+	by vger.kernel.org with ESMTP id <S262665AbSI2PfP>;
+	Sun, 29 Sep 2002 11:35:15 -0400
+Date: Sun, 29 Sep 2002 16:44:34 +0200
+From: Toon van der Pas <toon@vanvergehaald.nl>
+To: Dominik Brodowski <linux@brodo.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: [2.5.39] (3/5) CPUfreq i386 drivers
+Message-ID: <20020929164434.A5618@vdpas.hobby.nl>
+References: <20020928112503.E1217@brodo.de> <20020928134457.A14784@brodo.de> <20020929000332.A16506@vdpas.hobby.nl> <20020929103807.A1250@brodo.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="LwW0XdcUbUexiWVK"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020929103807.A1250@brodo.de>; from linux@brodo.de on Sun, Sep 29, 2002 at 10:38:08AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Sep 29, 2002 at 10:38:08AM +0200, Dominik Brodowski wrote:
+> On Sun, Sep 29, 2002 at 12:03:32AM +0200, Toon van der Pas wrote:
+> > On Sat, Sep 28, 2002 at 01:44:57PM +0200, Dominik Brodowski wrote:
+> > > 
+> > > This add-on patch is needed to abort on Dell Inspiron 8000 / 8100
+> > > which would lock up during speedstep.c and to resolve an oops
+> > > (thanks to Hu Gang for reporting this)
+> > 
+> > Wait a minute...
+> > Do I understand you and your patch right?
+> > Dell sells a machine with a Pentium III Mobile CPU with Speedstep
+> > technology, and now you tell us that it won't work?  Ever?
+> > Does this mean that a lot of people (including me) bought a very
+> > advanced and expensive piece of trash?  Then it's about time that
+> > I contact Dell, because they screwed me.
+> 
+> I've been contacted by two Dell Inspiron 8100 users who reported deadlocks
+> when using any cpufreq version on their systems. The reason is that Dell
+> doesn't use the (documented) interface in the ICH2-M southbridge, but
+> (proabably) the ISSCL (Intel SpeedStep Control Logic)-Interface also used on
+> 440?X chipsets. Unfortunately, this interface is not documented - Intel
+> even _removes_ parts of documentation avaialable to the public that could 
+> lead to reverse-engineering of the ISSCL-Interface (440 MX Platform Design
+> Guide). So, a "legacy" speedstep driver for 440?X chipsets or Dell Inspiron 
+> 8000/8100s is unlikely, at least for the moment.
+> 
+> However, you might have another chance: by using ACPI. The latest ACPI
+> releases for 2.4. as well as the 2.5. tree offers "P-State" support. So if
+> your BIOS' ACPI-tables make these P-States available, you _can_ use
+> speedstep on this notebook. For details on ACPI P-States, please take a look
+> at http://www.brodo.de/english/pub/acpi/proc/processor.html
 
---LwW0XdcUbUexiWVK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+First of all, thanks for your elaborate reply.
+It cleared up a lot of things for me.
 
-Firstly: I've only seen this with scsi-idle, it perhaps might happen without
-it.
+According to your patch the first accaptable version is 5 while the version
+of thehost bridge op my Inspiron 8100 appears to be 4, so I'm definitely hit
+by INTEL's saddening policy.  :-(
 
-[Willy, I'm cc'ing you because I asked you about scsi-idle and it seems the
-bug might elsewhere.]
+00:00.0 Host bridge: Intel Corporation 82815 815 Chipset Host Bridge and Memory Controller Hub (rev 04)
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 0
+        Region 0: Memory at e8000000 (32-bit, prefetchable) [size=64M]
+        Capabilities: [88] #09 [e104]
+        Capabilities: [a0] AGP version 2.0
+                Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
+                Command: RQ=0 SBA+ AGP+ 64bit- FW- Rate=x1
 
-Whenever scsi-idle has spun down a disk, and the kernel wakes it up, the
-disk does correctly spin up, but I get:
+But my current home-baked 2.4.18 kernel with a fairly old acpi-version
+already appears to support the acpi P-state support you mention.
+It seems to work. No throttling support though. I'm less than
+thrilled by the power management support of this laptop and
+the SpeedStep policy of INTEL. (yes, it's more of a (marketing) policy
+than a technology, in my opinion)
 
-Adhoc c01aae80 <dc390_Disconnect+12c/138>
-Adhoc c01a9f2a <do_DC390_Interrupt+112/1c8>
-Adhoc c0108b7a <handle_IRQ_event+36/68>
-Adhoc c010893f <do_8259A_IRQ+7f/a8>
-Adhoc c0106000 <get_options+0/74>
-Adhoc c0108c94 <do_IRQ+24/40>
-Adhoc c0108980 <common_interrupt+18/20>
-Adhoc c0106000 <get_options+0/74>
-Adhoc c0106270 <cpu_idle+64/7c>
-Adhoc c010629c <sys_idle+14/24>
-Adhoc c01078e8 <system_call+34/38>
-Adhoc c0106000 <get_options+0/74>
-Adhoc c010609b <cpu_idle+7/18>
-Adhoc c0106000 <get_options+0/74>
-Adhoc c0100174 <L6+0/2>
+[toon@roach toon]$ uname -a
+Linux roach.hobby.nl 2.4.18-rc4-rmap12h-acpi20020503-pciirq.17.acpi #2 do mei 9 21:21:22 GMT+1 2002 i686 unknown
+[root@roach toon]# cat /proc/acpi/processor/CPU0/performance 
+state count:             2
+active state:            P0
+states:
+   *P0:                  1000 Mhz, 15800 mW, 500 uS
+    P1:                  733 Mhz, 12500 mW, 500 uS
 
-Based on gdb dissambly, it actually dies in dc390_SRBdone, called by
-dc390_Disconnect:
-
-
-dc390_SRBdone( PACB pACB, PDCB pDCB, PSRB pSRB )
-{
-    UCHAR  bval, status, i, DCB_removed;
-    PSCSICMD pcmd;
-    PSCSI_INQDATA  ptr;
-    PSGL   ptr2;
-    ULONG  swlval;
-
-    pcmd = pSRB->pcmd; DCB_removed = 0;
-    status = pSRB->TargetStatus;
-    ptr = (PSCSI_INQDATA) (pcmd->request_buffer);
-    if( pcmd->use_sg )
-        ptr = (PSCSI_INQDATA) (((PSGL) ptr)->address);
-                                       ^^^^^^^^^^^^^^
-                                       Here.
-
-The ptr pointer is NULL.
-  
-I created the attached patch, and it works now, but I'm very uncertain if
-that's even near the correct solution.
-
-Also, I can't tell if that could happen without the scsi-idle patch.
-
-It would be nice if a scsi-guru had a look...
-
-
--- v --
-
-v@iki.fi
-
---LwW0XdcUbUexiWVK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="tmscsim.patch"
-
---- drivers/scsi/scsiiom.c	Sun Sep 29 18:39:15 2002
-+++ ../linux-2.2.22/drivers/scsi/scsiiom.c	Sun Mar 25 19:37:36 2001
-@@ -1367,7 +1367,7 @@
-     pcmd = pSRB->pcmd; DCB_removed = 0;
-     status = pSRB->TargetStatus;
-     ptr = (PSCSI_INQDATA) (pcmd->request_buffer);
--    if( pcmd->use_sg && ptr )
-+    if( pcmd->use_sg )
- 	ptr = (PSCSI_INQDATA) (((PSGL) ptr)->address);
- 	
-     DEBUG0(printk (" SRBdone (%02x,%08x), SRB %p, pid %li\n", status, pcmd->result,\
-@@ -1609,7 +1609,7 @@
-     if( pcmd->cmnd[0] == INQUIRY && 
- 	(pcmd->result == (DID_OK << 16) || status_byte(pcmd->result) & CHECK_CONDITION) )
-      {
--	if (ptr && (ptr->DevType & SCSI_DEVTYPE) == TYPE_NODEV && !DCB_removed)
-+	if ((ptr->DevType & SCSI_DEVTYPE) == TYPE_NODEV && !DCB_removed)
- 	  {
- 	     //printk ("DC390: Type = nodev! (%02i-%i)\n", pcmd->target, pcmd->lun);
- 	     /* device not present: remove */
-
---LwW0XdcUbUexiWVK--
+Regards,
+Toon.
+-- 
+ /"\                             |
+ \ /     ASCII RIBBON CAMPAIGN   |  "Who is this General Failure, and
+  X        AGAINST HTML MAIL     |   what is he doing on my harddisk?"
+ / \

@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbTIPDvo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 23:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbTIPDvo
+	id S261781AbTIPEa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 00:30:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbTIPEa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 23:51:44 -0400
-Received: from GOL139579-1.gw.connect.com.au ([203.63.118.157]:13960 "EHLO
-	goldweb.com.au") by vger.kernel.org with ESMTP id S261745AbTIPDvn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 23:51:43 -0400
-Message-ID: <1063684291.3f6688c32d104@dubai.stillhq.com>
-Date: Tue, 16 Sep 2003 13:51:31 +1000
-From: Michael Still <mikal@stillhq.com>
-To: Michael Still <mikal@stillhq.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [2.6 Patch] Kernel-doc updates
-References: <1063681289.3f667d09e6972@dubai.stillhq.com>
-In-Reply-To: <1063681289.3f667d09e6972@dubai.stillhq.com>
+	Tue, 16 Sep 2003 00:30:28 -0400
+Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:6786
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261781AbTIPEa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 00:30:27 -0400
+Date: Tue, 16 Sep 2003 00:30:31 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Kevin Breit <mrproper@ximian.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Need fixing of a rebooting system
+In-Reply-To: <1063650478.1516.0.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.53.0309151440540.5140@montezuma.fsmlabs.com>
+References: <1063496544.3164.2.camel@localhost.localdomain> 
+ <Pine.LNX.4.53.0309131945130.3274@montezuma.fsmlabs.com>  <3F6450D7.7020906@ximian.com>
+  <Pine.LNX.4.53.0309140904060.22897@montezuma.fsmlabs.com> 
+ <1063561687.10874.0.camel@localhost.localdomain> 
+ <Pine.LNX.4.53.0309141741050.5140@montezuma.fsmlabs.com>  <3F64FEAF.1070601@ximian.com>
+  <Pine.LNX.4.53.0309142055560.5140@montezuma.fsmlabs.com>
+ <1063650478.1516.0.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
-X-Originating-IP: 203.17.68.210
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Michael Still <mikal@stillhq.com>:
+On Mon, 15 Sep 2003, Kevin Breit wrote:
 
-> This patch removes kernel-doc errors reported whilst doing
-> a make mandocs on 2.6-test4-bk5
+>  iOn Sun, 2003-09-14 at 20:57, Zwane Mwaikambo wrote:
+> > On Sun, 14 Sep 2003, Kevin Breit wrote:
+> > 
+> > > This unfortunately didn't help.  It still reboots right after it 
+> > > uncompresses the kernel.
+> > 
+> > Please try the attached .config, if that works, start removing things like 
+> > ACPI from your configuration.
+> 
+> I disabled ACPI and that didn't help.  I reenabled it now and I'm
+> looking for other options to disable.  But I don't know where to start. 
+> Any suggestions?
 
-It has been pointed out by a couple of people that my mailer ate the patches.
-You can find the original unmangled patches at:
-
-http://www.stillhq.com/linux/patches/2.6.0-test4-bk5/
-(look for mandocs_tweaks)
-
-Thanks for your patience,
-Mikal
-
-PS: Linus' tree has changed under me, so I am going to have to update some of
-these patches anyways, but it would still be nice to be informed of factual
-errors within the patches.
-
--- 
-
-Michael Still (mikal@stillhq.com) | "All my life I've had one dream,
-http://www.stillhq.com            |  to achieve my many goals"
-UTC + 10                          |    -- Homer Simpson
-
-
--------------------------------------------------
-This mail sent through IMP: http://horde.org/imp/
+Sure, but let's take it off the mailing list.

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276622AbRJCRqY>; Wed, 3 Oct 2001 13:46:24 -0400
+	id <S276627AbRJCRqz>; Wed, 3 Oct 2001 13:46:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276627AbRJCRqP>; Wed, 3 Oct 2001 13:46:15 -0400
-Received: from cc885639-a.flushing1.mi.home.com ([24.182.96.34]:12772 "HELO
-	caesar.lynix.com") by vger.kernel.org with SMTP id <S276622AbRJCRp7>;
-	Wed, 3 Oct 2001 13:45:59 -0400
-Date: Wed, 3 Oct 2001 13:44:23 -0400
-From: Subba Rao <subba9@home.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: bad blocks and rebooting
-Message-ID: <20011003134423.A28512@home.com>
-Reply-To: Subba Rao <subba9@home.com>
+	id <S276630AbRJCRqp>; Wed, 3 Oct 2001 13:46:45 -0400
+Received: from AMontpellier-201-1-2-24.abo.wanadoo.fr ([193.253.215.24]:39183
+	"EHLO awak") by vger.kernel.org with ESMTP id <S276627AbRJCRqf> convert rfc822-to-8bit;
+	Wed, 3 Oct 2001 13:46:35 -0400
+Subject: Re: [POT] Which journalised filesystem ?
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011003190315.G21866@emma1.emma.line.org>
+In-Reply-To: <Pine.LNX.4.33L.0110030938130.4835-100000@imladris.rielhome.conectiva>
+	<Pine.LNX.4.30.0110031448460.16788-100000@Appserv.suse.de> 
+	<20011003190315.G21866@emma1.emma.line.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.14.99+cvs.2001.09.27.21.30 (Preview Release)
+Date: 03 Oct 2001 19:41:14 +0200
+Message-Id: <1002130880.10919.0.camel@nomade>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+le mer 03-10-2001 at 19:03 Matthias Andree a écrit :
+> On Wed, 03 Oct 2001, Dave Jones wrote:
+> 
+> > Alan mentioned this was something to do with the IBM hard disk
+> > having strange write-cache properties that confuse ext3.
+> 
+> hdparm -W0 /dev/hda is your friend.
 
-I have a system setup as a black box. If the system is powered
-off accidentally, and upon powering on the system keeps rebooting 
-after trying to do the file system consistency check. The file 
-system message is to run "ef2fsck -v -y <partition>. Is there
-anyway to force this check at lilo prompt? 
+Unfortunately I think IDE drives don't honor this setting - write-cache
+is always on.
 
-Thanks for any help.
--- 
+	Xav
 
-Subba Rao
-subba9@home.com                     http://members.home.net/subba9/
-OpenPGP/GPG public key ID CCB7344E
-
- => Time is relative. Here is a new way to look at time. <=
-http://www.smcinnovations.com

@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263895AbTLXVOV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 16:14:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263902AbTLXVOV
+	id S263903AbTLXVU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 16:20:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263904AbTLXVU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 16:14:21 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16822 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263895AbTLXVOU (ORCPT
+	Wed, 24 Dec 2003 16:20:26 -0500
+Received: from fed1mtao01.cox.net ([68.6.19.244]:1745 "EHLO fed1mtao01.cox.net")
+	by vger.kernel.org with ESMTP id S263903AbTLXVUY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 16:14:20 -0500
-Date: Wed, 24 Dec 2003 13:12:23 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Ben Srour <srour@cs.wisc.edu>
+	Wed, 24 Dec 2003 16:20:24 -0500
+Date: Wed, 24 Dec 2003 14:20:22 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Meelis Roos <mroos@linux.ee>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Safe ISA port probing?
-Message-Id: <20031224131223.2c3f497c.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0312241431280.2726-100000@data.upl.cs.wisc.edu>
-References: <20031224200433.GC6577@kroah.com>
-	<Pine.LNX.4.44.0312241431280.2726-100000@data.upl.cs.wisc.edu>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Subject: Re: PPC & 2.6.0-test3: wrong mem size & hang on ifconfig
+Message-ID: <20031224212022.GN4023@stop.crashing.org>
+References: <20031210161142.GE23731@stop.crashing.org> <Pine.GSO.4.44.0312111357130.24419-100000@math.ut.ee>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.44.0312111357130.24419-100000@math.ut.ee>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Dec 2003 14:33:54 -0600 (CST) Ben Srour <srour@cs.wisc.edu> wrote:
+On Thu, Dec 11, 2003 at 03:51:34PM +0200, Meelis Roos wrote:
+> > ===== arch/ppc/boot/prep/misc.c 1.14 vs edited =====
+> > --- 1.14/arch/ppc/boot/prep/misc.c	Mon Oct 20 11:49:35 2003
+> > +++ edited/arch/ppc/boot/prep/misc.c	Wed Dec 10 09:11:05 2003
+> > @@ -251,15 +251,21 @@
+> >  		{
+> >  			phandle dev_handle;
+> >  			int mem_info[2];
+> > +			int n;
+> > +			puts("Trying OF\n");
+> >
+> >  			/* get handle to memory description */
+> >  			if (!(dev_handle = finddevice("/memory@0")))
+> >  				break;
+> > +			puts("Found /memory@0\n");
+> >
+> >  			/* get the info */
+> >  			if (getprop(dev_handle, "reg", mem_info,
+> > -						sizeof(mem_info) != 8))
+> > +						sizeof(mem_info) != 8)) {
+> > +				puts("n = 0x");puthex(n);puts("\n");
+> >  				break;
+> > +			}
+> > +			puts("Found reg prop\n");
+> 
+> Are you sure that n really gets a value?
+> 
+> It prints
+> Found /memory@0
+> n = 0x00000000
+> 
+> and nothinf about reg prop as the code tells. What do you actually mean
+> by n?
 
-| Hello,
-| 
-| What is the safest way to go about probing for non-pnp ISA devices on a
-| system?
+Sorry for such a late reply.  What I ment to do in there was:
+	if ((n = getprop(dev_handle, "reg", mem_info, sizeof(mem_info))
+	!= 8) {
+		puts("n = 0x";puthex(n);puts("\n");
+		break;
+	}
 
-To be very safe, use a parameter and don't do probing, except to
-verify that the device is where you have been told it is.
-
-| Is the only solution to start at a base address and increment until you
-| find something interesting? Won't this put devices along the way in an
-| unsafe state?
-
-It could.
-
-| Any advice/suggestions would be appreciated,
-
-There's not a method that's always safe AFAIK.
-
-It's better to use reads instead of writes if possible.
-It's better to begin at the least-used addresses of other
-known devices as much as possible (but you know that).
-
---
-~Randy
-MOTD:  Always include version info.
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269971AbRIAClR>; Fri, 31 Aug 2001 22:41:17 -0400
+	id <S271600AbRHZWjW>; Sun, 26 Aug 2001 18:39:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270073AbRIAClI>; Fri, 31 Aug 2001 22:41:08 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:24083 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S269971AbRIAClA>; Fri, 31 Aug 2001 22:41:00 -0400
-Message-ID: <3B904AC4.6A449086@zip.com.au>
-Date: Fri, 31 Aug 2001 19:41:08 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac5 i686)
-X-Accept-Language: en
+	id <S271560AbRHZWjM>; Sun, 26 Aug 2001 18:39:12 -0400
+Received: from dialup-30064.dialup.ptt.ru ([195.34.30.64]:17157 "EHLO
+	vegae.deep.net") by vger.kernel.org with ESMTP id <S271618AbRHZWjD>;
+	Sun, 26 Aug 2001 18:39:03 -0400
+From: Samium Gromoff <_deepfire@mail.ru>
+Message-Id: <200109260301.f8Q31cq06972@vegae.deep.net>
+Subject: Re: [OT] Howl of soul...
+To: barryn@pobox.com
+Date: Wed, 26 Sep 2001 03:01:38 +0000 (UTC)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: mb/ext3@dcs.qmul.ac.uk
-CC: linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Subject: Re: ext3 oops under moderate load
-In-Reply-To: <Pine.LNX.4.33.0108301740420.7921-100000@inconnu.isu.edu> <Pine.LNX.4.33.0108310759460.13139-100000@nick.dcs.qmul.ac.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mb/ext3@dcs.qmul.ac.uk wrote:
-> 
-> Hi bug hunters,
-> 
-> I left my spangly new dual PIII with an ext3 partition on a Promise
-> FastTrak 100TX2 being used both by a local process and knfsd for a few
-> hours, and the following happened:
-> 
-> [ 2.4.9-ac3 SMP (noapic) + the one patch from Zygo Blaxell to recognise
-> the Promise card; now I have kupdated, kjournald and user-space processes
-> trying to access the volume in question all in state 'D' ]
-> 
-> kernel BUG at revoke.c:307!
+>  A low-level format (using IBM DFT) is going to *silently* remap bad
+>  parts of the disk. It's only going to complain once it's no longer
+>  possible to remap the bad sectors. So, just because the low-level format
+>  doesn't complain does not mean that there is no media degradation!
+    1. how to find problematic blocks?
+           - just read, and if read fails goto 2.
+	     (i.e. we found no new bad sectors)
+	   - goto 2 on the sectors reported before as bad.
+             (i.e. drive remembers sectors on which he had failures)
+    2. what to do when i found problematic sector?
+           - just see if it still usable.
+         2a. i write to the sector, and after that i read crap.
+               - sector is bad! should remap it!
+         2b. i can write data to the sector, then reads goes ok.
+               - hmm, i think that was kinda magnetetic storm, sector
+ is still usable. do not remapping.
 
-Yours is the third report of this - it's definitely a bug in
-ext3.  I still need to work out how you managed to get a page
-attached to the inode which has not had its buffers fed through
-journal_dirty_data().  There seem to be several ways in which
-this can happen.
+        in my case there was just magnetic storm, so the sector can be safely
+     read/written again.
 
-Is it possible that you ran out of disk space on the relevant
-partition shortly before it died?
+cheers,
+Sam
 
--

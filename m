@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266643AbSL3FWa>; Mon, 30 Dec 2002 00:22:30 -0500
+	id <S266708AbSL3F17>; Mon, 30 Dec 2002 00:27:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266708AbSL3FWa>; Mon, 30 Dec 2002 00:22:30 -0500
-Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:29968 "HELO
-	yucs.org") by vger.kernel.org with SMTP id <S266643AbSL3FW3>;
-	Mon, 30 Dec 2002 00:22:29 -0500
-Subject: nfsservctl documentation?
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1041226244.17074.56.camel@zaphod>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 30 Dec 2002 00:30:45 -0500
-Content-Transfer-Encoding: 7bit
+	id <S266716AbSL3F17>; Mon, 30 Dec 2002 00:27:59 -0500
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:61400 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S266708AbSL3F17> convert rfc822-to-8bit; Mon, 30 Dec 2002 00:27:59 -0500
+x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: 53mm2 kernel panic during boot
+Date: Mon, 30 Dec 2002 11:06:08 +0530
+Message-ID: <94F20261551DC141B6B559DC49108672044437@blr-m3-msg.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 53mm2 kernel panic during boot
+Thread-Index: AcKvxVoo2Yju7fMZQK6MgTLK4x2kgA==
+From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
+To: "Andrew Morton" <akpm@digeo.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 30 Dec 2002 05:36:08.0933 (UTC) FILETIME=[5AF6B150:01C2AFC5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-is there any real documentation on this syscall anywhere?  i.e. if one
-wanted to write a daemon that dynamically dealt with nfs exports
-(creating/removing/changing) this syscall would seem very appropriate
-(at least as I understand), but I can't find any documentation besides
-the skimpy man page on how to use it.
+I am getting kernel panic during boot-up after applying mm2 patch. I did the whole compilation again but the problem persisits.
 
-am I not supposed to use it? :)
+Shared 3rd level pagetable on
 
-thanks,
+Details
 
-shaya
+Call trace:
+
+ ramfs_get_inode+0x7b/0x120
+Sget+0x197/0x1b0
+ ramfs_fill_super+0x2c/0x60
+Get_sb_nodev+0x3a/0x70
+Do_kern_mount+0x41/0xa0
+Ramfs_fill_super+0x0/0x60
+_stext+0x0/0x30
+_stext+0x0/0x30
+
+<0> kernel painc: Attempted to kill idle task!
+In idle task -not syncing
 

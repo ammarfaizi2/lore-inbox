@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263280AbSKRQrm>; Mon, 18 Nov 2002 11:47:42 -0500
+	id <S262881AbSKRQnO>; Mon, 18 Nov 2002 11:43:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263276AbSKRQrm>; Mon, 18 Nov 2002 11:47:42 -0500
-Received: from venema.csee.wvu.edu ([157.182.194.151]:7303 "EHLO
-	mail.csee.wvu.edu") by vger.kernel.org with ESMTP
-	id <S263270AbSKRQrk>; Mon, 18 Nov 2002 11:47:40 -0500
-Subject: Re: Compiling packages from source on Ultrasparc
-From: Shanti Katta <katta@csee.wvu.edu>
-To: "David S. Miller" <davem@redhat.com>
-Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20021117.213319.39848385.davem@redhat.com>
-References: <1037581211.30240.17.camel@indus.csee.wvu.edu> 
-	<20021117.213319.39848385.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 18 Nov 2002 12:09:03 -0500
-Message-Id: <1037639343.417.6.camel@indus.csee.wvu.edu>
+	id <S262959AbSKRQnN>; Mon, 18 Nov 2002 11:43:13 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8722 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262881AbSKRQnN>;
+	Mon, 18 Nov 2002 11:43:13 -0500
+Date: Mon, 18 Nov 2002 16:50:10 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix topology.c
+Message-ID: <20021118165010.K7530@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-11-18 at 00:33, David S. Miller wrote:
->    From: Shanti Katta <katta@csee.wvu.edu>
->    Date: 17 Nov 2002 20:00:11 -0500
-> 
->    I understand that userland is 32-bit on Ultrasparc. I am trying to
->    compile user-mode-linux on Ultrasparc,
-> 
-> Maybe after you post about this ordeal 500 more times, someone
-> will answer.
-Take this to be posted 500 more times...does it really work?
 
--Shanti
+Missing smp.h
 
+diff -urpNX dontdiff linux-2.5.48/arch/i386/mach-generic/topology.c linux-2.5.48-header/arch/i386/mach-generic/topology.c
+--- linux-2.5.48/arch/i386/mach-generic/topology.c	2002-11-17 23:29:53.000000000 -0500
++++ linux-2.5.48-header/arch/i386/mach-generic/topology.c	2002-11-18 10:16:10.000000000 -0500
+@@ -26,6 +26,7 @@
+  * Send feedback to <colpatch@us.ibm.com>
+  */
+ #include <linux/init.h>
++#include <linux/smp.h>
+ #include <asm/cpu.h>
+ 
+ struct i386_cpu cpu_devices[NR_CPUS];
+
+-- 
+Revolutions do not require corporate support.

@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132127AbRCVSIR>; Thu, 22 Mar 2001 13:08:17 -0500
+	id <S132126AbRCVSS5>; Thu, 22 Mar 2001 13:18:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132130AbRCVSH7>; Thu, 22 Mar 2001 13:07:59 -0500
-Received: from raven.toyota.com ([63.87.74.200]:46351 "EHLO raven.toyota.com")
-	by vger.kernel.org with ESMTP id <S132127AbRCVSHp>;
-	Thu, 22 Mar 2001 13:07:45 -0500
-Message-ID: <3ABA3F46.ECFF3569@toyota.com>
-Date: Thu, 22 Mar 2001 10:07:02 -0800
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
-CC: Kernel-mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Sound issues with m805lr motheboard
-In-Reply-To: <Pine.LNX.4.30.0103220730450.4739-100000@biglinux.tccw.wku.edu>
+	id <S132128AbRCVSSr>; Thu, 22 Mar 2001 13:18:47 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:21010 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S132126AbRCVSSd>;
+	Thu, 22 Mar 2001 13:18:33 -0500
+Date: Thu, 22 Mar 2001 11:18:42 -0700
+From: Cort Dougan <cort@fsmlabs.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: nbecker@fred.net, linux-kernel@vger.kernel.org
+Subject: Re: regression testing
+Message-ID: <20010322111842.C17926@hq.fsmlabs.com>
+In-Reply-To: <x88zoeeeyh8.fsf@adglinux1.hns.com> <Pine.LNX.3.95.1010322083448.20107C-100000@chaos.analogic.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.3.95.1010322083448.20107C-100000@chaos.analogic.com>; from root@chaos.analogic.com on Thu, Mar 22, 2001 at 08:39:06AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Brent D. Norris" wrote:
+} On 22 Mar 2001 nbecker@fred.net wrote:
+} 
+} > Hi.  I was wondering if there has been any discussion of kernel
+} > regression testing.  Wouldn't it be great if we didn't have to depend
+} > on human testers to verify every change didn't break something?
+} > 
+} > OK, I'll admit I haven't given this a lot of thought.  What I'm
+} > wondering is whether the user-mode linux could help here (allow a way
+} > to simulate controlled activity).
+} > -
+} 
+} Regression testing __is__ what happens when 10,000 testers independently
+} try to break the software!
 
-> > That seems strange. What is realserver failing with ?
->
-> It isn't so much failing as it hangs.
+No, in fact that is not a regression test.
 
-It might be interesting to strace the realserver startup
-both under 2.2 and 2.4 -
+} Canned so-called "regression-test" schemes will fail to test at least
+} 90 percent of the code paths, while attempting to "test" 100 percent
+} of the code!
 
-cu
-
-Jup
-
+A canned set of regression tests would actually do what they're supposed to
+- prevent the kernel from regressing.  If you fix a bug - write a test for
+that bug and keep running it.  Something we follow for RTLinux that has
+helped us immensely.

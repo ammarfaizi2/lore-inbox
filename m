@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285051AbRLQHGc>; Mon, 17 Dec 2001 02:06:32 -0500
+	id <S285032AbRLQHCV>; Mon, 17 Dec 2001 02:02:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285049AbRLQHGW>; Mon, 17 Dec 2001 02:06:22 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:13700 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S285036AbRLQHGP>; Mon, 17 Dec 2001 02:06:15 -0500
-Date: Mon, 17 Dec 2001 09:05:46 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Ia64 unaligned accesses in ntfs driver
-Message-ID: <20011217090545.N12063@niksula.cs.hut.fi>
-In-Reply-To: <20011216124328.E21566@niksula.cs.hut.fi> <20011216191325.K12063@niksula.cs.hut.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011216191325.K12063@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Sun, Dec 16, 2001 at 07:13:25PM +0200
+	id <S285034AbRLQHCK>; Mon, 17 Dec 2001 02:02:10 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:63401 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S285032AbRLQHCA>; Mon, 17 Dec 2001 02:02:00 -0500
+Date: Mon, 17 Dec 2001 00:01:56 -0700
+Message-Id: <200112170701.fBH71uW04275@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kill(-1,sig)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get unaligned accesses from these addresses:
+  Hi, all. To followup on the change in 2.5.1 which sends a signal to
+the signalling process when send_pid==-1, I have a definate case where
+the new behaviour is highly undesirable, and I would say broken.
 
-kernel unaligned access to 0xe00000006fb49719, ip=0xa000000000265050
+shutdown(8) from util-linux (*not* the version that comes with the
+bloated monstrosity known as SysVInit) uses the sequence:
+	kill (-1, SIGTERM);
+	sleep (2);
+	kill (-1, SIGKILL);
 
-from ksymoops:
-Adhoc a000000000265050 <[ntfs]ntfs_decompress+d0/320>
-Adhoc a000000000262d80 <[ntfs]ntfs_decompress_run+2a0/3c0>
-Adhoc a000000000262ba0 <[ntfs]ntfs_decompress_run+c0/3c0>
-Adhoc a000000000262d60 <[ntfs]ntfs_decompress_run+280/3c0>
+to ensure that all processes not stuck in 'D' state are killed.
 
-Are these dangerous? I gather IA64 port has some kind of handler for these,
-since they don't oops.
+With the new behaviour, shutdown(8) ends up killing itself. This is no
+good, because the shutdown process doesn't complete (i.e. unmounting
+of filesystems, calling sync(2) and good stuff like that).
 
+If this change remains, it will break all users of
+simpleinit(8)/shutdown(8). I'm not happy about moving logic for
+shutdown(8) into simpleinit(8), since it will just end up bloating it
+without good reason.
 
--- v --
+				Regards,
 
-v@iki.fi
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282133AbRLDBpv>; Mon, 3 Dec 2001 20:45:51 -0500
+	id <S284556AbRLDANF>; Mon, 3 Dec 2001 19:13:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284614AbRLDAOK>; Mon, 3 Dec 2001 19:14:10 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:1292 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S285135AbRLCUwX>;
-	Mon, 3 Dec 2001 15:52:23 -0500
-Date: Mon, 3 Dec 2001 21:52:02 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.1-pre5 not easy to boot with devfs
-Message-ID: <20011203215202.G5176@suse.de>
-In-Reply-To: <Pine.GSO.4.21.0112021150310.12801-100000@binet.math.psu.edu> <E16AaCR-0003wy-00@the-village.bc.nu> <200112021802.fB2I2iE10476@vindaloo.ras.ucalgary.ca> <20011203135842.A5176@suse.de> <200112031906.fB3J6X323874@vindaloo.ras.ucalgary.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200112031906.fB3J6X323874@vindaloo.ras.ucalgary.ca>
+	id <S276424AbRLDAFg>; Mon, 3 Dec 2001 19:05:36 -0500
+Received: from donna.siteprotect.com ([64.41.120.44]:64005 "EHLO
+	donna.siteprotect.com") by vger.kernel.org with ESMTP
+	id <S284914AbRLCSHd>; Mon, 3 Dec 2001 13:07:33 -0500
+Date: Mon, 3 Dec 2001 13:07:11 -0500 (EST)
+From: John Clemens <john@deater.net>
+X-X-Sender: <john@pianoman.cluster.toy>
+To: Pavel Machek <pavel@suse.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>,
+        ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>
+Subject: Re: ACPI+HP omnibook -- freeze until power is pressed?
+In-Reply-To: <20011202121922.A2356@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.33.0112031303010.18581-100000@pianoman.cluster.toy>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 03 2001, Richard Gooch wrote:
-> Jens Axboe writes:
-> > On Sun, Dec 02 2001, Richard Gooch wrote:
-> > > And 2.5 isn't going to get a lot of testing until the breakage caused
-> > > by the bio changes is fixed. At the moment, I can't even test it
-> > > myself.
-> > 
-> > I'll just go read your bug rapport and fix it right up.
-> 
-> It wasn't meant as a criticism of the changes. I'm glad to see someone
-> working on fixing the bio layer. It's just not ready for widespread
-> testing yet (crude measurement: if it breaks for me, it's not ready
-> for the masses ;-). Once I surface from this round of devfs cleanups,
-> I'll pause for breath and try again with 2.5. If I still have
-> problems, I'll let you know.
 
-No seriously, I want to know if something is broken so it can get fixed.
-bio core is indeed stable, if something breaks it's drivers. And they
-need fixing right away.
+YES!  Same problem here.  HP Pavilion N5430 (Duron/ALI MAgik1 notebook).
+Seems to happen a lot under X as well.  2.4.16 (been happening for a long time).
 
-At least until I break every single block driver out there again in a
-few days. And no, I'm not kidding.
+Machine seems to freeze up, w/ interrupts disabled, but just hitting the
+power switch for a quick second (not long enough to shut it off), seems to
+make the machine unstuck.  Happens a lot for me if i happen to switch
+consoles to X and start using the touchpad before X is fully switched in.
+
+been bothering me for a while...
+
+john.c
+
+On Sun, 2 Dec 2001, Pavel Machek wrote:
+
+> Hi!
+>
+> I'm seeing strange thing on hp omnibook... I work on console, and
+> machine suddenly locks up without me doing anything strange. So I
+> press powerbutton for a short while, and ... machine continues to work
+> as if nothing happened. Not even keyboard presses are lost.
+>
+> But its annoying, anyway. 2.4.14-acpi. Happened ~10 times so
+> far. Anyone seen something similar?
+> 								Pavel
+>
 
 -- 
-Jens Axboe
+John Clemens          http://www.deater.net/john
+john@deater.net     ICQ: 7175925, IM: PianoManO8
+      "I Hate Quotes" -- Samuel L. Clemens
+
+
 

@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286923AbRL1OdK>; Fri, 28 Dec 2001 09:33:10 -0500
+	id <S283782AbRL1PUO>; Fri, 28 Dec 2001 10:20:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286922AbRL1OdB>; Fri, 28 Dec 2001 09:33:01 -0500
-Received: from elektroni.ee.tut.fi ([130.230.131.11]:38418 "HELO
-	elektroni.ee.tut.fi") by vger.kernel.org with SMTP
-	id <S286920AbRL1Ocw>; Fri, 28 Dec 2001 09:32:52 -0500
-Date: Fri, 28 Dec 2001 16:32:50 +0200
-From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
+	id <S286926AbRL1PUF>; Fri, 28 Dec 2001 10:20:05 -0500
+Received: from cti06.citenet.net ([206.123.38.70]:61189 "EHLO
+	cti06.citenet.net") by vger.kernel.org with ESMTP
+	id <S286927AbRL1PTz>; Fri, 28 Dec 2001 10:19:55 -0500
+From: Jacques Gelinas <jack@solucorp.qc.ca>
+Date: Fri, 28 Dec 2001 09:36:13 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: zImage not supported for 2.2.20?
-Message-ID: <20011228163250.A31791@elektroni.ee.tut.fi>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <4.3.2.7.2.20011228101818.00aaa2c0@192.168.124.1> <4.3.2.7.2.20011228101818.00aaa2c0@192.168.124.1> <20011228121228.GA9920@emma1.emma.line.org> <4.3.2.7.2.20011228124704.00abba70@192.168.124.1>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <4.3.2.7.2.20011228124704.00abba70@192.168.124.1>; from linux-kernel-l@nta-monitor.com on Fri, Dec 28, 2001 at 01:11:42PM +0000
+Subject: Re: file names ?
+X-mailer: tlmpmail 0.1
+Message-ID: <20011228093613.917de25dc62c@remtk.solucorp.qc.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 28, 2001 at 01:11:42PM +0000, Roy Hills wrote:
-> The old 2.2.17 zImage kernel that runs fine has a filesize of 462060 bytes and
-> reports 784k kernel code, 412k reserved, 1168k data, 36k init.
-> 
-> The new 2.2.20 zImage kernel that fails has a filesize of 482795 bytes.
-> Note that the actual problem with Toshiba tecra laptops and bzImage files is
-> a known hardware problem (something to do with the A20 line).  I'm not trying
-> to address this problem, just why the normal workaround (use zImage rather
-> than bzImage to keep in conventional memory) doesn't work any more with
-> 2.2.20.
+On Tue, 25 Dec 2001 15:36:46 -0500, Nicholas Knight wrote
 
-Hi, I used to make zImages, but for no specific reason. The last working
-version was 2.2.20pre3. 2.2.20pre5 gave Out of memory -- System halted. I
-reported it a few months ago:
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0108.2/0363.html
+> Actually there should be *no* problem at all. Just enable UMSDOS and
+> the UMSDOS filesystem will take care of ensuring that the FAT
+> filesystem supports the links, and the same filenames. Just don't try
+> to extract the files anywhere but in Linux with UMSDOS enabled.
+>
+> Err, and don't run scandisk or anything similar on the drives while in
+> DOS/Windows....
 
-This was the only change then that looks like it:
+umsdos has no problems with scandisk. hardlinks are represented as special
+symlinks for example.
 
-o       Add support for the 2.4 boot extensions to 2.2  (H Peter Anvin)
+---------------------------------------------------------
+Jacques Gelinas <jack@solucorp.qc.ca>
+vserver: run general purpose virtual servers on one box, full speed!
+http://www.solucorp.qc.ca/miscprj/s_context.hc

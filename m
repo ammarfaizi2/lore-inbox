@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262632AbUC2Eym (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 23:54:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbUC2Eym
+	id S262651AbUC2E6P (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 23:58:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262650AbUC2E6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 23:54:42 -0500
-Received: from gizmo10ps.bigpond.com ([144.140.71.20]:10157 "HELO
-	gizmo10ps.bigpond.com") by vger.kernel.org with SMTP
-	id S262632AbUC2Eyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 23:54:40 -0500
-From: Ross Dickson <ross@datscreative.com.au>
-Reply-To: ross@datscreative.com.au
-Organization: Dat's Creative Pty Ltd
-To: lml@beonline.com.au
-Subject: Re: Kernel / Userspace Data Transfer   
-Date: Mon, 29 Mar 2004 14:57:10 +1000
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
+	Sun, 28 Mar 2004 23:58:15 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55434 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262647AbUC2E6L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 23:58:11 -0500
+Message-ID: <4067ACD4.7070203@pobox.com>
+Date: Sun, 28 Mar 2004 23:57:56 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jens Axboe <axboe@suse.de>, William Lee Irwin III <wli@holomorphy.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-ide@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] speed up SATA
+References: <4066021A.20308@pobox.com> <200403282030.11743.bzolnier@elka.pw.edu.pl> <20040328183010.GQ24370@suse.de> <200403282045.07246.bzolnier@elka.pw.edu.pl> <406720A7.1050501@pobox.com> <20040329005502.GG3039@dualathlon.random>
+In-Reply-To: <20040329005502.GG3039@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403291457.10653.ross@datscreative.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lml@beonline.com.au wrote: 
- > I have a set of counters in a Kernel module that i want to export to a 
- > userspace application. I originally decided to use a /proc entry and parse 
- > the output whenever the userspace application needed this data, however, 
- > i need more than the 4096 that is allowed in /proc and i'm not too keen 
- > on parsing large chunks of text anyway. 
- > 
- > What i would like to do is copy these slabs of text from the kernel to my 
- > userspace application (whenever the application requests it). I've seen the 
- > 'copy_to_user' function and it looks usefull, but have no idea where to start 
- > or how to use it :-/ 
- > 
- > Can someone provide and example or point me in the right direction? Or is there 
- > a better place to ask this question? 
- 
-Here is a good starter on-line reference
-http://www.faqs.org/docs/kernel/
-Relevant page
-http://www.faqs.org/docs/kernel/x848.html
-or as pdf
-http://www.tldp.org/LDP/lkmpg/lkmpg.pdf
+Andrea Arcangeli wrote:
+> is beneficial at all, and your bootup log showing 32M is all but
+> exciting, I'd be a lot more excited to see 512k there.
 
-There is also mbuff that maps shared memory between kernel and user space.
-It is pretty easy to use.
-http://sourceforge.net/projects/mbuff/
 
-Regards
-Ross.
+Just to clarify...   32MB would never ever be reached.  The S/G table 
+limit means requests are limited to 8MB.  VM thresholds and user 
+application use further limit request size.
+
+I think Andrew's point is actually more relevant than examining the size 
+of a single request:
+
+> 	the effect of really big requests will be the same
+> 	as the effect of permitting _more_ requests. 
+
+Thus like the "1,000 disks" example, memory management needs to make 
+sure that an "unreasonable" amount of memory is not being pinned.
+
+	Jeff
+
+
+

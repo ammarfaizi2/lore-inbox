@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbULTMaK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbULTMl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261496AbULTMaK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 07:30:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbULTMaK
+	id S261497AbULTMl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 07:41:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbULTMl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 07:30:10 -0500
-Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:12422 "EHLO
-	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261496AbULTMaB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 07:30:01 -0500
-References: <1329986.1103525472726.JavaMail.tomcat@pne-ps1-sn1> <20041219231250.457deb12.akpm@osdl.org> <41C682F1.20200@yahoo.com.au> <200412200706.06534.edt@aei.ca>
-Message-ID: <cone.1103545745.935101.4585.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Ed Tomlinson <edt@aei.ca>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       lista4@comhem.se, linux-kernel@vger.kernel.org, mr@ramendik.ru,
-       kernel@kolivas.org, riel@redhat.com
-Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
-Date: Mon, 20 Dec 2004 23:29:05 +1100
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Dec 2004 07:41:58 -0500
+Received: from [62.206.217.67] ([62.206.217.67]:52876 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S261499AbULTMl4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 07:41:56 -0500
+Message-ID: <41C6DB68.30607@trash.net>
+Date: Mon, 20 Dec 2004 15:02:16 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Einar_L=FCck?= <lkml@einar-lueck.de>
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH 1/2] ipv4 routing: splitting of ip_route_[in|out]put_slow,
+ 2.6.10-rc3
+References: <41C6B3D4.6060207@einar-lueck.de>
+In-Reply-To: <41C6B3D4.6060207@einar-lueck.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson writes:
-
-> On Monday 20 December 2004 02:44, Nick Piggin wrote:
->> Andrew Morton wrote:
->> > Voluspa <lista4@comhem.se> wrote:
->> > 
->> >>Would be nice though if someone else could verify...
->> > 
->> > 
->> > Well I'd love to, but afaik the only workloads which we currently know of
->> > involve complex userspace apps which I have no experience running.
->> > 
->> > Did anyone come up with a simple step-by-step procedure for reproducing the
->> > problem?  It would be good if someone could do this, because I don't think
->> > we understand the root cause yet?
->> > 
->> 
->> I admit to generally being in the same boat as you with respect to
->> running complex userspace apps.
->> 
->> However, based on this and other scattered reports, I'd say it seems
->> quite likely that token based thrashing control is the culprit. Based
->> on the cost/benefit, I wonder if we should disable TBTC by default for
->> 2.6.10, rather than trying to fix it, and try again for 2.6.11?
->> 
->> Rik? Andrew?
->> 
->> Also, it would be nice to have a sysctl to *completely* disable TBTC,
->> that would make testing easier.
+Einar Lück wrote:
+> [PATCH 1/2] ipv4 routing: splitting of ip_route_[in|out]put_slow, 
+> 2.6.10-rc3
 > 
-> Except that disabling it (with 0) reportedly did not solve the problem.  There is 
-> a possibility that its a more complex issue...
+> From: Einar Lueck <lkml@einar-lueck.de>
+> 
+> This patch splits up ip_route_[in|out]put_slow in inlined functions.
+> Basic idea:
+> * improve overall comprehensibility
+> * allow for an easier application of patch for improved multipath 
+>  support (refer to the subsequent patch)
+> 
+> Please consider for application.
 
-Disabling it is more than setting it to 0. Removing the patch disables it 
-and this does fix the problem. We need it to be truly possible to disable 
-it. See the patch I posted on this thread later.
+Your patches have once again been made unreadable by
+your email-client. Please send them again as attachments.
 
-Con
-
+Regards
+Patrick

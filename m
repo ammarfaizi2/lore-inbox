@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbVDEPfV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbVDEPeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbVDEPfV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 11:35:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVDEPfT
+	id S261781AbVDEPeq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 11:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVDEPeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 11:35:19 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:7571 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S261794AbVDEPbc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 11:31:32 -0400
-Subject: Re: debug: sleeping function...slab.c:2090
-From: Marcel Holtmann <marcel@holtmann.org>
-To: linux-os@analogic.com
-Cc: John M Flinchbaugh <john@hjsoft.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0504051036440.16098@chaos.analogic.com>
-References: <20050405142836.GA25571@butterfly.hjsoft.com>
-	 <Pine.LNX.4.61.0504051036440.16098@chaos.analogic.com>
-Content-Type: text/plain
-Date: Tue, 05 Apr 2005 17:31:34 +0200
-Message-Id: <1112715094.12406.55.camel@notepaq>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Tue, 5 Apr 2005 11:34:44 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:61114 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261789AbVDEPbg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 11:31:36 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: acpi-devel@lists.sourceforge.net, romano@dea.icai.upco.es
+Subject: Re: [ACPI] Re: 2.6.12-rc1-mm4 and suspend2ram (and synaptics)
+Date: Tue, 5 Apr 2005 17:31:52 +0200
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@ucw.cz>, Stefan Schweizer <sschweizer@gmail.com>,
+       Norbert Preining <preining@logic.at>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20050331220822.GA22418@gamma.logic.tuwien.ac.at> <20050402085935.GC1330@openzaurus.ucw.cz> <20050405150105.GA26149@pern.dea.icai.upco.es>
+In-Reply-To: <20050405150105.GA26149@pern.dea.icai.upco.es>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504051731.52845.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Richard,
+Hi,
 
-> > I got the debug statement below during boot.
-> >
-> > Environment:
-> >    Pentium M, Thinkpad R40
-> >    Debian unstable
-> >    Linux 2.6.12-rc2
-> >    Gnu C 3.3.5
-> >    binutils 2.15
-> >
-> > Debug: sleeping function called from invalid context at mm/slab.c:2090
-> > in_atomic():1, irqs_disabled():0
-> > [<c0103707>] dump_stack+0x17/0x20
-> > [<c0114e6c>] __might_sleep+0xac/0xc0
-> > [<c014394e>] kmem_cache_alloc+0x5e/0x60
-> > [<c0142aa3>] kmem_cache_create+0xe3/0x570
-> > [<c0268d39>] proto_register+0x99/0xc0
-> > [<e0bea096>] inet6_init+0x16/0x1d0 [ipv6]
-> > [<c0132902>] sys_init_module+0x172/0x230
-> > [<c01030e5>] syscall_call+0x7/0xb
-> >
+On Tuesday, 5 of April 2005 17:01, Romano Giannetti wrote:
+> > 
+> > Same way to debug it, then.... try minimal drivers.
 > 
-> What module was being loaded at the time?
+> Yes, the lifer of a kernel debugger is hard... 
+> 
+> Pavel, one question (maybe stupid, I am not at all an expert). Wouldn't be
+> possible to add a printk when invoking and returning from suspend/resume
+> methods of drivers, telling if they are specific or generic on? Maybe with
+> the help of the serial console could be an aid to detect wich drivers are
+> failing in that case.
 
-this is the ipv6 module and the unix module has the same problem. I
-posted this problem already to the netdev mailing list and it seems that
-Arnaldo is looking at it.
+The serial sonsole itself is disabled during suspend/resume, so you have to
+hack the serial driver's suspend/resume routines to get any output on it
+at that time. :-)
 
-Regards
+Anyway, if you want to put some debug printks somewhere, IMO a good place
+to start is in resume_device() in drivers/base/power/resume.c or
+in suspend_device() in drivers/base/power/suspend.c (actually, there already
+is one, you only need to enable it).
 
-Marcel
+Greets,
+Rafael
 
 
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

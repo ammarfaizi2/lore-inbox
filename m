@@ -1,42 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132564AbRDHOVb>; Sun, 8 Apr 2001 10:21:31 -0400
+	id <S132567AbRDHOs3>; Sun, 8 Apr 2001 10:48:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132565AbRDHOVW>; Sun, 8 Apr 2001 10:21:22 -0400
-Received: from beton.btnet.cz ([62.80.85.76]:1540 "HELO beton.btnet.cz")
-	by vger.kernel.org with SMTP id <S132564AbRDHOVM>;
-	Sun, 8 Apr 2001 10:21:12 -0400
-Date: Sun, 8 Apr 2001 16:19:33 +0200
-From: clock@beton.btnet.cz
-To: linux-kernel@vger.kernel.org
-Subject: TCP stack misbehaviour?
-Message-ID: <20010408161933.A223@beton.btnet.cz>
-Reply-To: clock@ghost.btnet.cz
-Mime-Version: 1.0
+	id <S132565AbRDHOsS>; Sun, 8 Apr 2001 10:48:18 -0400
+Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:25031 "EHLO
+	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S132567AbRDHOsF>; Sun, 8 Apr 2001 10:48:05 -0400
+Message-ID: <3AD079EA.50DA97F3@rcn.com>
+Date: Sun, 08 Apr 2001 09:47:06 -0500
+From: Marvin Stodolsky <stodolsk@rcn.com>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: kaos@ocs.com.au, linux-kernel@vger.kernel.org
+Subject: build -->/usr/src/linux
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The TCP stack in the linux kernel behaves this way:
+MODULE SUPPORT [GENERAL], KMOD
+P:      Keith Owens
+M:      kaos@ocs.com.au
+L:      linux-kernel@vger.kernel.org
+============================================
 
-I have got a FULL-DUPLEX 28.800kbps channel with BER <= 1*10-9
-a) I start a long TCP connection in one direction
-b) After 5 minutes I start another connection in the opposite direction
+Though I've done some rational searching through the Documetation,
+an explanation hasn't manifested, as to why there has appeared in the
+2.4.nn   ??????:
 
-The second connection rusn for about half a minute, then converges to 0
-throughtput. After several minutes, another 30 seconds of transmission ocuur.
-The data path in the direction that should be used for this connection is
-empty, except for occasional ACKs. The utilization of the channel is about 4%.
 
-I would expect that both channels would be used for at least 95%. Instead, only
-one is used.
+# ls -l /lib/modules/2.4.3/
+total 24
+lrwxrwxrwx    1 root     root  ???????   20 Apr  2 17:00 build ->
+/usr/src/linux-2.4.3
+drwxr-xr-x    6 root     root         1024 Apr  2 17:00 kernel
+-rw-r--r--    1 root     root         4725 Apr  8 08:06 modules.dep
+-rw-r--r--    1 root     root           31 Apr  8 08:06
+modules.generic_string
+-rw-r--r--    1 root     root         4388 Apr  8 08:06
+modules.isapnpmap
+-rw-r--r--    1 root     root           29 Apr  8 08:06
+modules.parportmap
+-rw-r--r--    1 root     root         8723 Apr  8 08:06 modules.pcimap
+-rw-r--r--    1 root     root         1317 Apr  8 08:06 modules.usbmap
+lrwxrwxrwx    1 root     root           35 Apr  2 17:05 pcmcia ->
+/lib/modules/2.4.3-oldpcmcia/pcmcia
 
-Is this a bug of Linux kernel TCP stack, or a bug in the algorithm presented
-in the appropriate RFC?
+-----------
+Could someone enlighten me?  What is it necessary for?
 
-Isn't UDP more suitable for data transfers?
+It's presence has required some gymnastics, per below, during module
+installation for the Winmodem driver, ltmodem.o requiring a subsequent
+"depmod -a"
 
--- 
-Karel Kulhavy                     http://atrey.karlin.mff.cuni.cz/~clock
+MarvS
+===========================================================
+from the module install script  ./ltinst
+
+# To avoid non-relevant complaint noise that would be generated during
+#    depmod -a   within update-modules
+# under 2.4.nn kernels due to the symbolic Link
+#   /lib/modules/2.4.nn/build --> /usr/src/linux
+# if kernel-source "make clean" is run betweem build_module & 
+#   ltinst (install ltmodem.o in the /lib/modules/  tree)
+# The Link is moved to  /tmp and after "update-modules" is  restored.
+if [ -L /lib/modules/$SYS/build ]; then
+mv /lib/modules/$SYS/build /tmp
+fi
+
+# Updating module dependancies
+if [ -f /etc/modutils/aliases ]; then
+update-modules
+else
+depmod -a
+fi
+
+# Restoring build link if any
+if [ -L /tmp/build ]; then
+mv /tmp/build /lib/modules/$SYS/
+fi

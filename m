@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262443AbUCWKeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 05:34:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbUCWKeP
+	id S262453AbUCWKcU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 05:32:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbUCWKcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 05:34:15 -0500
-Received: from stilton.pencil.net ([217.204.76.170]:30681 "EHLO
-	stilton.pencil.net") by vger.kernel.org with ESMTP id S262443AbUCWKcq
+	Tue, 23 Mar 2004 05:32:20 -0500
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:43409 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262453AbUCWKcL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 05:32:46 -0500
-Date: Tue, 23 Mar 2004 10:32:45 +0000
-From: Doug Winter <doug@pigeonhold.com>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: APIC on Chaintech ZNF3-150 Motherboard
-Message-ID: <20040323103245.GB24221@pigeonhold.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, doug@pigeonhold.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Tue, 23 Mar 2004 05:32:11 -0500
+Date: Tue, 23 Mar 2004 11:32:09 +0100 (CET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>, Robert_Hentosh@Dell.com,
+       fleury@cs.auc.dk, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: RE: spurious 8259A interrupt
+In-Reply-To: <Pine.LNX.4.53.0403221822230.24444@chaos>
+Message-ID: <Pine.LNX.4.55.0403231129510.16819@jurand.ds.pg.gda.pl>
+References: <Pine.LNX.4.44.0403222354280.1902-100000@poirot.grange>
+ <Pine.LNX.4.53.0403221822230.24444@chaos>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Reported to Ingo Molnar who told me to send it here too.)
+On Mon, 22 Mar 2004, Richard B. Johnson wrote:
 
-I've just put a new computer together with an AMD Athlon 64 3200+ and a
-Chaintech ZNF3-150 motherboard.  This has the Nvidia NForce 3 chipset.
+> Yes. The interrupt status, above, clearly shows that the XT-PIC is
+> being used for timer interrupts. The local APIC timer is being used
+> instead of the PIT (Programmable Interval Timer at port 0x40,
 
-Booting 2.6.4, from the debian kernel-image-2.6.4-1-k7 package, I get
-reproducible errors from the onboard BCM5788 NIC and a Realtek 8139 NIC
-when under load.
+ The local APIC timer is never used "instead" of the PIT.  If both timers
+are available, they are used independently for different puproses.
 
-When the disk is under load, I get reproducible DMA errors from any IDE
-disk that is under load.
+> channel 0).  The IO-APIC contains, several timers as well as a
+> programmable interrupt controller and router, etc. You are not
+> using its interrupt controller, but you are using its timer,
+> best I can see.
 
-When I boot with "noapic", these problems go away.
-
-I'm happy to help debug this any way necessary.
-
-Thanks,
-
-Doug.
-
-(Please CC: me, I am not subscribed)
+ There is no timer source in any I/O APIC I know of.
 
 -- 
-   http://adju.st   | It's nice to be important but
-6973E2CF: 2C95 66AD | more important to be nice
-1596 37D2 41FC 609F |         -- Scooter
-76C0 A4EC 6973 E2CF |
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263218AbUJ2B51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263141AbUJ2AHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263218AbUJ2B51 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 21:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263197AbUJ2BzP
+	id S263141AbUJ2AHn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 20:07:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbUJ2AAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 21:55:15 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18438 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263180AbUJ2ASX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:18:23 -0400
-Date: Fri, 29 Oct 2004 02:17:45 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Chris Gauthron <chrisg@0-in.com>, greg@kroah.com, phil@netroedge.com
-Cc: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] i2c it87.c: remove an unused function
-Message-ID: <20041029001745.GI29142@stusta.de>
-References: <20041028222039.GO3207@stusta.de>
+	Thu, 28 Oct 2004 20:00:34 -0400
+Received: from colin2.muc.de ([193.149.48.15]:15110 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S263141AbUJ1XrV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 19:47:21 -0400
+Date: 29 Oct 2004 01:47:18 +0200
+Date: Fri, 29 Oct 2004 01:47:18 +0200
+From: Andi Kleen <ak@muc.de>
+To: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org
+Subject: [PATCH] x86_64: Fix warning in genapic
+Message-ID: <20041028234718.GB94390@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041028222039.GO3207@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ this time without the problems due to a digital signature... ]
+Straight forward patch to remove a warning in genapic about
+a unused function.
 
-The patch below removes an unused function from drivers/i2c/chips/it87.c
+Independently done by Chris Wright too.
 
+Signed-off-by: Andi Kleen <ak@muc.de>
 
-diffstat output:
- drivers/i2c/chips/it87.c |    7 -------
- 1 files changed, 7 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm1-full/drivers/i2c/chips/it87.c.old	2004-10-28 23:00:26.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/i2c/chips/it87.c	2004-10-28 23:00:37.000000000 +0200
-@@ -56,13 +56,6 @@
- #define PME	0x04	/* The device with the fan registers in it */
- #define	DEVID	0x20	/* Register: Device ID */
+Index: linux/arch/x86_64/kernel/genapic_cluster.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/genapic_cluster.c	2004-10-29 01:16:46.%N +0200
++++ linux/arch/x86_64/kernel/genapic_cluster.c	2004-10-29 01:17:21.%N +0200
+@@ -57,14 +57,6 @@
+ 	apic_write_around(APIC_LDR, val);
+ }
  
--static inline void
--superio_outb(int reg, int val)
+-static int cluster_cpu_present_to_apicid(int mps_cpu)
 -{
--	outb(reg, REG);
--	outb(val, VAL);
+-	if ((unsigned)mps_cpu < NR_CPUS)
+-		return (int)bios_cpu_apicid[mps_cpu];
+-	else
+-		return BAD_APICID;
 -}
 -
- static inline int
- superio_inb(int reg)
- {
+ /* Start with all IRQs pointing to boot CPU.  IRQ balancing will shift them. */
+ 
+ static cpumask_t cluster_target_cpus(void)

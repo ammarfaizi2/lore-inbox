@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275258AbTHSAaI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 20:30:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275260AbTHSAaI
+	id S275257AbTHSAfO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 20:35:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275262AbTHSAfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 20:30:08 -0400
-Received: from holomorphy.com ([66.224.33.161]:49641 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S275258AbTHSAaE (ORCPT
+	Mon, 18 Aug 2003 20:35:14 -0400
+Received: from acs-24-239-225-74.zoominternet.net ([24.239.225.74]:54524 "EHLO
+	topaz") by vger.kernel.org with ESMTP id S275257AbTHSAfJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 20:30:04 -0400
-Date: Mon, 18 Aug 2003 17:31:10 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Wes Janzen <superchkn@sbcglobal.net>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Re: Blender profiling-1 O16.2int
-Message-ID: <20030819003110.GY32488@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Wes Janzen <superchkn@sbcglobal.net>,
-	Con Kolivas <kernel@kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20030817003128.04855aed.voluspa@comhem.se> <200308171142.33131.kernel@kolivas.org> <20030817073859.51021571.voluspa@comhem.se> <200308172336.42593.kernel@kolivas.org> <3F416BD4.3040302@sbcglobal.net>
-Mime-Version: 1.0
+	Mon, 18 Aug 2003 20:35:09 -0400
+To: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: weird pcmcia problem
+From: Narayan Desai <desai@mcs.anl.gov>
+Date: Mon, 18 Aug 2003 19:34:59 -0500
+Message-ID: <87u18efpsc.fsf@mcs.anl.gov>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Common Lisp, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F416BD4.3040302@sbcglobal.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 18, 2003 at 07:14:12PM -0500, Wes Janzen wrote:
-> That makes sense, I was running a program that I found on IBM's website 
-> that's supposed to test context switching speed this weekend.  It has 1 
-> free lock and passes them around the group.  If I put it up to 32 
-> threads or so with one spare lock, I can start to see the starvation.  
-> When running vmstat, it's apparent when the the starvation occurs as the 
-> context switching sky-rockets.  I was going to add to the example code 
-> to check for how many times a thread wakes up waiting for the lock and 
-> can't get it after reading that message about locks in the list.  I 
-> guess I won't have to do that now.  Anyway, that'll bring my system to a 
-> halt when the thread count gets up over 256.  Still, it's usuable as 
-> long as I'm not doing something else that makes heavy use of the processor.
+Running 2.6.0-test3 (both with and without your recent yenta socket
+patches) pcmcia cards present during boot don't show up until they are
+removed and reinserted. Once reinserted, they work fine. This only
+seems to occur if yenta_socket is build into the kernel; if support is
+modular, cards appear to be recognized properly at boot time. I am
+running on a thinkpad t21.  Let me know if I can help with this
+problem in any way...  thanks
+ -nld
 
-Could you give a URL to that benchmark?
+messages from boot:
+Yenta: CardBus bridge found at 0000:00:02.0 [1014:0130]
+Yenta: Using INTVAL to route CSC interrupts to PCI
+Yenta: Routing CardBus interrupts to PCI
+Yenta: ISA IRQ list 04b8, PCI irq11
+Socket status: 30000010
+Yenta: CardBus bridge found at 0000:00:02.1 [1014:0130]
+Yenta: Using INTVAL to route CSC interrupts to PCI
+Yenta: Routing CardBus interrupts to PCI
+Yenta: ISA IRQ list 04b8, PCI irq11
+Socket status: 30000006
 
-Thanks.
+<later>
 
-
--- wli
+cs: warning: no high memory space available!
+cs: unable to map card memory!
+cs: unable to map card memory!
+cs: IO port probe 0x0c00-0x0cff: clean.
+cs: IO port probe 0x0800-0x08ff: clean.
+cs: IO port probe 0x0100-0x04ff: excluding 0x170-0x177 0x370-0x377 0x3b8-0x3df 0x4d0-0x4d7
+cs: IO port probe 0x0a00-0x0aff: clean.

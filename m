@@ -1,52 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVCCGSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVCCGSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261478AbVCCGSp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 01:18:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbVCCGQg
+	id S261489AbVCCGSq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 01:18:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbVCCGQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 01:16:36 -0500
-Received: from fire.osdl.org ([65.172.181.4]:43728 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261504AbVCCGKH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 01:10:07 -0500
-Date: Wed, 2 Mar 2005 21:50:05 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: kkeil@suse.de, akpm <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] isdn: fix gcc data type/size warning
-Message-Id: <20050302215005.690e2daf.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 3 Mar 2005 01:16:22 -0500
+Received: from tanthi.teneoris.com ([164.164.94.19]:27539 "EHLO
+	tanthi.teneoris.com") by vger.kernel.org with ESMTP id S261489AbVCCGJe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 01:09:34 -0500
+Subject: Initrd and Initramfs
+From: Amol <amol@teneoris.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1109830227.4063.60.camel@amol.teneoris.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 03 Mar 2005 11:40:27 +0530
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(resend)
+Hi,
+ For an embedded developers perspective, Is there any other advantage of
+using initramfs over initrd apart from RAMFS benefits over RAMDISK ?
 
-Fix gcc warning:
-drivers/isdn/i4l/isdn_ppp.c:1581: warning: large integer implicitly truncated to unsigned type
-<seq> is unsigned int.
-
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-
-diffstat:=
- drivers/isdn/i4l/isdn_ppp.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -Naurp ./drivers/isdn/i4l/isdn_ppp.c~isdn_types ./drivers/isdn/i4l/isdn_ppp.c
---- ./drivers/isdn/i4l/isdn_ppp.c~isdn_types	2004-12-24 13:35:01.000000000 -0800
-+++ ./drivers/isdn/i4l/isdn_ppp.c	2005-01-10 12:27:37.645551176 -0800
-@@ -1578,7 +1578,7 @@ static int isdn_ppp_mp_init( isdn_net_lo
- 		lp->next = lp->last = lp;	/* nobody else in a queue */
- 		lp->netdev->pb->frags = NULL;
- 		lp->netdev->pb->frames = 0;
--		lp->netdev->pb->seq = LONG_MAX;
-+		lp->netdev->pb->seq = UINT_MAX;
- 	}
- 	lp->netdev->pb->ref_ct++;
- 	
+Please CC me
+Thanks
+Amol
 
 
----

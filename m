@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289054AbSA3KTR>; Wed, 30 Jan 2002 05:19:17 -0500
+	id <S289058AbSA3KWh>; Wed, 30 Jan 2002 05:22:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289058AbSA3KTH>; Wed, 30 Jan 2002 05:19:07 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:49871 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S289054AbSA3KS5>;
-	Wed, 30 Jan 2002 05:18:57 -0500
-Date: Wed, 30 Jan 2002 05:18:55 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Daniel Phillips <phillips@bonn-fries.net>, mingo@elte.hu,
-        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130051855.E11267@havoc.gtf.org>
-In-Reply-To: <Pine.LNX.4.33.0201300110420.1542-100000@penguin.transmeta.com> <E16VrdT-0006t7-00@the-village.bc.nu>
+	id <S289067AbSA3KWS>; Wed, 30 Jan 2002 05:22:18 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:50693 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S289058AbSA3KV6>; Wed, 30 Jan 2002 05:21:58 -0500
+Date: Wed, 30 Jan 2002 10:21:47 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Dave Jones <davej@suse.de>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fbdev accel wrapper. II
+Message-ID: <20020130102147.C16937@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.GSO.4.21.0201291034460.3801-100000@vervain.sonytel.be> <Pine.LNX.4.10.10201291507020.29648-100000@www.transvirtual.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16VrdT-0006t7-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Jan 30, 2002 at 10:06:35AM +0000
+In-Reply-To: <Pine.LNX.4.10.10201291507020.29648-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Tue, Jan 29, 2002 at 03:59:26PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 10:06:35AM +0000, Alan Cox wrote:
-> The other related question is device driver implementation stuff (not interfaces
-> and abstractions). You don't seem to check that much anyway, or have any taste
-> in device drivers 8) so should that be part of the small fixing job ?
+On Tue, Jan 29, 2002 at 03:59:26PM -0800, James Simmons wrote:
+>     if (info->fix.visual == FB_VISUAL_PSEUDOCOLOR)
+>         region.color = attr_bgcol_ec(p,vc);
+>     else 
+>         region.color = info->pseudo_palette)[attr_bgcol_ec(p,vc)];
+                        ^                    ^
 
-I've often dreamt of an overall "drivers maintainer" or perhaps just an
-unmaintained-drivers maintainer:  a person with taste who could give
-driver patches a glance, when noone else does.
-(and no I'm not volunteering :))
+I hope this is a typing mistake that's not present in the real source. 8)
 
-	Jeff, dreams on
-
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,32 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289764AbSAWKOd>; Wed, 23 Jan 2002 05:14:33 -0500
+	id <S289761AbSAWKRx>; Wed, 23 Jan 2002 05:17:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289762AbSAWKOX>; Wed, 23 Jan 2002 05:14:23 -0500
-Received: from smtp2.vol.cz ([195.250.128.42]:42512 "EHLO smtp2.vol.cz")
-	by vger.kernel.org with ESMTP id <S289761AbSAWKOO>;
-	Wed, 23 Jan 2002 05:14:14 -0500
-Date: Mon, 21 Jan 2002 12:39:36 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Guillaume Boissiere <boissiere@mediaone.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5]  January 17, 2001
-Message-ID: <20020121123936.D37@toy.ucw.cz>
-In-Reply-To: <3C463337.24593.CD1AD57@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3C463337.24593.CD1AD57@localhost>; from boissiere@mediaone.net on Thu, Jan 17, 2002 at 02:13:11AM -0500
+	id <S289762AbSAWKRn>; Wed, 23 Jan 2002 05:17:43 -0500
+Received: from is.elta.co.il ([199.203.121.2]:42669 "EHLO is.elta.co.il")
+	by vger.kernel.org with ESMTP id <S289761AbSAWKRX>;
+	Wed, 23 Jan 2002 05:17:23 -0500
+Date: Wed, 23 Jan 2002 12:16:23 +0200 (IST)
+From: Eli Zaretskii <eliz@is.elta.co.il>
+To: John Covici <covici@ccs.covici.com>
+cc: emacs-devel@gnu.org, linux-kernel@vger.kernel.org
+Subject: Re: reading a file in emacs crashes 2.4.17 and 18-pre4
+In-Reply-To: <m3elkh2x8i.fsf@ccs.covici.com>
+Message-ID: <Pine.SUN.3.91.1020123121537.6845Z-100000@is>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> o Planning Porting all input devices over to input API  (James Simmons)
+On Wed, 23 Jan 2002, John Covici wrote:
 
-Heh, it is merged in -dj kernels. Make this "ready".
-								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+> Well, I have worked around this problem by getting rid of the Athlon
+> optimizations so I guess there is still more work to do on those.
 
+Could you please tell what did you change, exactly?  It might be that 
+this information should be in etc/PROBLEMS, in case other users bump into 
+the same problem.

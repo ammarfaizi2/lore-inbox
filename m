@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUKWXw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbUKWXyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbUKWXw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 18:52:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbUKWXug
+	id S261209AbUKWXyv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 18:54:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbUKWXxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 18:50:36 -0500
-Received: from pastinakel.tue.nl ([131.155.2.7]:6418 "EHLO pastinakel.tue.nl")
-	by vger.kernel.org with ESMTP id S261638AbUKWXtM (ORCPT
+	Tue, 23 Nov 2004 18:53:19 -0500
+Received: from fw.osdl.org ([65.172.181.6]:51595 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261631AbUKWXvS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 18:49:12 -0500
-Date: Wed, 24 Nov 2004 00:49:10 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Karel Kulhavy <clock@twibright.com>
-Cc: linux-kernel@vger.kernel.org, mtk-manpages@gmx.net
-Subject: Re: bug in man netdevice?
-Message-ID: <20041123234910.GA3488@pclin040.win.tue.nl>
-References: <20041123214320.GA2193@beton.cybernet.src>
+	Tue, 23 Nov 2004 18:51:18 -0500
+Date: Tue, 23 Nov 2004 15:55:19 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: <celeron2002@chile.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: bug in mm/slab.c
+Message-Id: <20041123155519.4c08a949.akpm@osdl.org>
+In-Reply-To: <34591.200.113.104.46.1101247993.squirrel@mail.chile.com>
+References: <34591.200.113.104.46.1101247993.squirrel@mail.chile.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041123214320.GA2193@beton.cybernet.src>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: : 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23, 2004 at 09:43:20PM +0000, Karel Kulhavy wrote:
 
-> struct ifreq {
->            char    ifr_name[IFNAMSIZ];/* Interface name */
->            union {
->                    struct sockaddrifr_addr;
->                    struct sockaddrifr_dstaddr;
->                    struct sockaddrifr_broadaddr;
->                    struct sockaddrifr_netmask;
->                    struct sockaddrifr_hwaddr;
-> 
-> This looks like spaces forgotten between "sockaddr" and ifr_something.
-> Is it a bug? Or is it some elaborate language construct?
+(This is 2.6.9)
 
-This is not for l-k but for mtk-manpages@gmx.net .
+<celeron2002@chile.com> wrote:
+>
+> kmem_cache_create: duplicate cache sgpool-8
 
-And to answer your question, there is a tabs line in the source
-that puts the tabs at the wrong positions. Do a
-  1,$s/sockaddr<tab>/sockaddr /
+This is due to the scsi layer trying to create the "sgpool-8" cache during
+`modprobe scsi_mod', but that cache already exists.
 
-Andries
+There have been a few reports of this, and I _think_ it has been fixed. 
+Could the scsi folks please confirm?
+
+
+
+> ------------[ cut here ]------------
+> kernel BUG at mm/slab.c:1442!
+> invalid operand: 0000 [#1]
+> PREEMPT
+> Modules linked in: scsi_mod i2c_amd756 i2c_algo_bit i2c_isa i2c_algo_pcf
+> w83781d i2c_sensor nvidia
+> CPU:    0
+> EIP:    0060:[<c0139a22>]    Tainted: P   VLI
+> EFLAGS: 00010202   (2.6.9-final)
+> EIP is at kmem_cache_create+0x3f2/0x560
+> eax: 0000002c   ebx: cee8fdd0   ecx: c056b8cc   edx: 00000286
+> esi: c046a7c6   edi: cfa9c343   ebp: cec41c60   esp: cdc6af34
+> ds: 007b   es: 007b   ss: 0068
+> Process modprobe (pid: 1094, threadinfo=cdc6a000 task=cdcf0aa0)
+> Stack: c044d5dc cfa9c33a 00000020 00002000 cdc6af54 cec41c9c ffffffe0
+> c0000000
+>        00000020 cfaa2dc0 00000000 cdc6a000 c049f4e0 cfa5e10a cfa9c33a
+> 00000080
+>        00000020 00002000 00000000 00000000 c049f4f8 cfaa3340 cfa5e009
+> b7fcd000
+> Call Trace:
+>  [<cfa5e10a>] scsi_init_queue+0x4a/0xc0 [scsi_mod]
+>  [<cfa5e009>] init_scsi+0x9/0xc0 [scsi_mod]
+>  [<c012e7fa>] sys_init_module+0x18a/0x270
+>  [<c01040b9>] sysenter_past_esp+0x52/0x71

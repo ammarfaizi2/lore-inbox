@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278953AbRJVV0u>; Mon, 22 Oct 2001 17:26:50 -0400
+	id <S278950AbRJVV1k>; Mon, 22 Oct 2001 17:27:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278950AbRJVV0l>; Mon, 22 Oct 2001 17:26:41 -0400
-Received: from gene.pbi.nrc.ca ([204.83.147.150]:21288 "EHLO gene.pbi.nrc.ca")
-	by vger.kernel.org with ESMTP id <S278949AbRJVV0g>;
-	Mon, 22 Oct 2001 17:26:36 -0400
-Date: Mon, 22 Oct 2001 15:27:04 -0600 (CST)
-From: <ogd116@mail.usask.ca>
-Reply-To: <ogd116@mail.usask.ca>
-To: Craig Dickson <crdic@yahoo.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.2.20pre10
-In-Reply-To: <20011022135759.A17384@crdic.ath.cx>
-Message-ID: <Pine.LNX.4.30.0110221524020.30020-100000@gene.pbi.nrc.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278954AbRJVV1b>; Mon, 22 Oct 2001 17:27:31 -0400
+Received: from lhw-65-33-244-104.pompano.net ([65.33.244.104]:3489 "EHLO
+	ja.kerneltrap.com") by vger.kernel.org with ESMTP
+	id <S278950AbRJVV1P>; Mon, 22 Oct 2001 17:27:15 -0400
+Date: Mon, 22 Oct 2001 17:27:48 -0400
+From: Jeremy Andrews <jeremy@kerneltrap.com>
+To: linux-kernel@vger.kernel.org
+Subject: Noise { was: Linux 2.2.20pre10 }
+Message-Id: <20011022172748.507bb7c4.jeremy@kerneltrap.com>
+X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Blah...
 
-I usually try not to speak unless I have something relevant to say but I
-must say I am growing tired of the "United States is the center of the
-world" doctrine. Linux is free for you to change so sit down and publish
-your own changelogs if you can. Either that or shut up.
+What is the problem?
 
-Ognen
+Some seem to think the problem is:  Alan has censored security information.
 
-On Mon, 22 Oct 2001, Craig Dickson wrote:
+But ask yourself, 'Why has he done this?'
 
-> Alan Cox wrote:
->
-> > However until people stop shooting I'd prefer not to be a potential
-> > target.
->
-> Mr. Cox,
->
-> I understand your concern for your own safety, though I disagree with
-> your evaluation of the danger in this case.
->
-[a lot of unnecessary crap snipped]
+He has made a very valid point.  And by affecting the United States' users and
+developers of Linux, we in turn stand to affect those around us.  Living in the
+US, it looks as though we are in for some rough times.  Freedom is being
+redefined around us.
 
-> Respectfully,
->
-> Craig Dickson
+Learn.  Educate.  Communicate.
 
+There is a lot of information available on the internet.  Whether or not Alan
+includes cliff-notes to his kernel patches, the larger problem still remains. 
+And has potential to get much worse.
+
+A good place to start:
+  http://www.eff.org/
+  
+Specifically regarding the Digital Millennium Copyright Act (DMCA):
+  http://www.eff.org/IP/DMCA
+  http://www.dibona.com/dmca
+  http://www.anti-dmca.org/
+
+Take a look at the map here, and think a moment:
+  http://thefreeworld.net/
+
+There are voices in this noise that need to be heard.  Speak out!  But please,
+speak towards the root of the problem.  Towards a government whos rhetoric is:
+'Enduring Freedom'.
+
+What is freedom?
+
+If we have freedom left, and I believe we do, we must use it now.
+
+--
+ Jeremy Andrews    <mailto:jeremy@kerneltrap.com>
+ PGP Key ID: 8F8B617A  http://www.kerneltrap.com/

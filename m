@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbUKMXi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbUKMXku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbUKMXi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 18:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbUKMXi1
+	id S261205AbUKMXku (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 18:40:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbUKMXiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 18:38:27 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:6016
-	"EHLO x30.random") by vger.kernel.org with ESMTP id S261212AbUKMXhd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 18:37:33 -0500
-Date: Sun, 14 Nov 2004 00:37:40 +0100
-From: Andrea Arcangeli <andrea@novell.com>
-To: Chris Ross <chris@tebibyte.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Nick Piggin <piggin@cyberone.com.au>, Rik van Riel <riel@redhat.com>,
-       Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>, tglx@linutronix.de
-Subject: Re: [PATCH] fix spurious OOM kills
-Message-ID: <20041113233740.GA4121@x30.random>
-References: <20041111112922.GA15948@logos.cnet> <4193E056.6070100@tebibyte.org> <4194EA45.90800@tebibyte.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4194EA45.90800@tebibyte.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Sat, 13 Nov 2004 18:38:52 -0500
+Received: from port-212-202-157-208.static.qsc.de ([212.202.157.208]:27038
+	"EHLO zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S261205AbUKMX1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Nov 2004 18:27:19 -0500
+Message-ID: <41969843.50407@ppp0.net>
+Date: Sun, 14 Nov 2004 00:26:59 +0100
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.3) Gecko/20040926 Thunderbird/0.8 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>
+CC: linux-parport@lists.infradead.org
+Subject: [PATCH] parport module_param conversion
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 12, 2004 at 05:52:21PM +0100, Chris Ross wrote:
-> 
-> 
-> Chris Ross escreveu:
-> >It seems good.
-> 
-> Sorry Marcelo, I spoke to soon. The oom killer still goes haywire even 
-> with your new patch. I even got this one whilst the machine was booting!
+module_param conversion for newly introduced MODULE_PARM
+in parport_pc.
+Also convert some consts which aren't const
 
-On monday I'll make a patch to place the oom killer at the right place.
+Signed-off-by: Jan Dittmer <jdittmer@ppp0.net>
 
-Marcelo's argument that kswapd is a localized place isn't sound to me,
-kswapd is still racing against all other task contexts, so if the task
-context isn't reliable, there's no reason why kswapd should be more
-reliable than the task context. the trick is to check the _right_
-watermarks before invoking the oom killer, it's not about racing against
-each other, 2.6 is buggy in not checking the watermarks. Moving the oom
-killer in kswapd can only make thing worse, fix is simple, and it's the
-opposite thing: move the oom killer up the stack outside vmscan.c.
+diff -Nru a/drivers/parport/parport_pc.c b/drivers/parport/parport_pc.c
+--- a/drivers/parport/parport_pc.c	2004-11-14 00:21:38 +01:00
++++ b/drivers/parport/parport_pc.c	2004-11-14 00:21:38 +01:00
+@@ -3172,9 +3172,9 @@
+ }
+
+ #ifdef MODULE
+-static const char *irq[PARPORT_PC_MAX_PORTS];
+-static const char *dma[PARPORT_PC_MAX_PORTS];
+-static const char *init_mode;
++static char *irq[PARPORT_PC_MAX_PORTS];
++static char *dma[PARPORT_PC_MAX_PORTS];
++static char *init_mode;
+
+ MODULE_PARM_DESC(io, "Base I/O address (SPP regs)");
+ module_param_array(io, int, NULL, 0);
+@@ -3190,7 +3190,7 @@
+ module_param(verbose_probing, int, 0644);
+ #endif
+ MODULE_PARM_DESC(init_mode, "Initialise mode for VIA VT8231 port (spp, ps2, epp, ecp or ecpepp)");
+-MODULE_PARM(init_mode, "s");
++module_param(init_mode, charp, 0);
+
+ static int __init parse_parport_params(void)
+ {

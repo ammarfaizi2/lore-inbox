@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262635AbVA0Q71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262578AbVA0RCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262635AbVA0Q71 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 11:59:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262666AbVA0Q6i
+	id S262578AbVA0RCN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 12:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbVA0Q7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 11:58:38 -0500
-Received: from rain.plan9.de ([193.108.181.162]:54196 "EHLO rain.plan9.de")
-	by vger.kernel.org with ESMTP id S262635AbVA0Q4a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 11:56:30 -0500
-Date: Thu, 27 Jan 2005 17:56:28 +0100
-From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: critical bugs in md raid5
-Message-ID: <20050127165628.GB7474@schmorp.de>
-Mail-Followup-To: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-References: <20050127035906.GA7025@schmorp.de> <m1vf9j4fsp.fsf@muc.de> <20050127063131.GA29574@schmorp.de> <20050127095102.GA88779@muc.de>
+	Thu, 27 Jan 2005 11:59:35 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:17590 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261470AbVA0Q7T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 11:59:19 -0500
+Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: brking@us.ibm.com, Andi Kleen <ak@muc.de>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1106777405.5235.78.camel@gaston>
+References: <200501101449.j0AEnWYF020850@d03av01.boulder.ibm.com>
+	 <m14qhpxo2j.fsf@muc.de> <41E2AC74.9090904@us.ibm.com>
+	 <20050110162950.GB14039@muc.de> <41E3086D.90506@us.ibm.com>
+	 <1105454259.15794.7.camel@localhost.localdomain>
+	 <20050111173332.GA17077@muc.de>
+	 <1105626399.4664.7.camel@localhost.localdomain>
+	 <20050113180347.GB17600@muc.de>
+	 <1105641991.4664.73.camel@localhost.localdomain>
+	 <20050113202354.GA67143@muc.de>  <41ED27CD.7010207@us.ibm.com>
+	 <1106161249.3341.9.camel@localhost.localdomain>
+	 <41F7C6A1.9070102@us.ibm.com>  <1106777405.5235.78.camel@gaston>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1106841228.14787.23.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050127095102.GA88779@muc.de>
-X-PGP: "1024D/DA743396 1999-01-26 Marc Alexander Lehmann <schmorp@schmorp.de>
-       Key fingerprint = 475A FE9B D1D4 039E 01AC  C217 A1E8 0270 DA74 3396"
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 27 Jan 2005 15:53:49 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 27, 2005 at 10:51:02AM +0100, Andi Kleen <ak@muc.de> wrote:
-> The nasty part there is that it can affect completely unrelated
-> data too (on a traditional disk you normally only lose the data
-> that is currently being written) because of of the relationship
-> between stripes on different disks.
+On Mer, 2005-01-26 at 22:10, Benjamin Herrenschmidt wrote:
+> On Wed, 2005-01-26 at 10:34 -0600, Brian King wrote:
+> Well, I honestly think that this is unnecessary burden. I think that
+> just dropping writes & returning data from the cache on reads is enough,
+> blocking userspace isn't necessary, but then, I may be wrong ;)
 
-Sorry, I must be a bit dense at times I understood that now, you meant in
-the case where parity is lost and you have an I/O error in other cases.
+Providing the BARs, cmd register and bridge VGA_EN are cached then I
+think you
+are right.
 
-> There were some suggestions in the past 
-> to be a bit nicer on read IO errors - often if a read fails and you rewrite 
-> the block from the reconstructed data the disk would allocate a new block
-> and then be error free again.
-> 
-> The problem is just that when there are user visible IO errors
-> on a modern disk something is very wrong and it will likely run quickly out 
+Alan
 
-Also, linux already does re-write failed parity blocks automatically on
-a crash, so whatever damage you might think might be done to the disk
-will already be done at numerous occasions, as linux in general nor the
-raid driver in particular checks for bad blocks before rewriting (I don't
-suggets that it does, just that linux already rewrites failed blocks if it
-doesn't know about them, and this hasn't been a particular bad problem).
-
--- 
-                The choice of a
-      -----==-     _GNU_
-      ----==-- _       generation     Marc Lehmann
-      ---==---(_)__  __ ____  __      pcg@goof.com
-      --==---/ / _ \/ // /\ \/ /      http://schmorp.de/
-      -=====/_/_//_/\_,_/ /_/\_\      XX11-RIPE

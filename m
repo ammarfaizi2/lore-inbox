@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbUJaA0w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbUJaA2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbUJaA0w (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 20:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbUJaA0v
+	id S261447AbUJaA2M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 20:28:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbUJaA2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 20:26:51 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:36175 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S261443AbUJaA0t
+	Sat, 30 Oct 2004 20:28:12 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:44183 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261447AbUJaA16
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 20:26:49 -0400
-Subject: Re: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UP
-	kernel
-From: Paul Fulghum <paulkf@microgate.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Tim_T_Murphy@Dell.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1099176190.25178.7.camel@localhost.localdomain>
-References: <4B0A1C17AA88F94289B0704CFABEF1AB0B4CC4@ausx2kmps304.aus.amer.dell.com>
-	 <20041029212029.I31627@flint.arm.linux.org.uk>
-	 <1099093258.5965.41.camel@at2.pipehead.org>
-	 <1099176190.25178.7.camel@localhost.localdomain>
+	Sat, 30 Oct 2004 20:27:58 -0400
+Subject: Re: BK kernel workflow
+From: Robert Love <rml@novell.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Xavier Bestel <xavier.bestel@free.fr>,
+       James Bruce <bruce@andrew.cmu.edu>, Linus Torvalds <torvalds@osdl.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Andrea Arcangeli <andrea@novell.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041030234619.GB24640@work.bitmover.com>
+References: <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org>
+	 <Pine.LNX.4.61.0410270223080.877@scrub.home>
+	 <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
+	 <4180B9E9.3070801@andrew.cmu.edu>
+	 <20041028135348.GA18099@work.bitmover.com>
+	 <1098972379.3109.24.camel@gonzales>
+	 <20041028151004.GA3934@work.bitmover.com> <20041028195947.GD3207@stusta.de>
+	 <20041028213534.GA29335@work.bitmover.com>
+	 <20041030065111.GF4374@stusta.de>
+	 <20041030234619.GB24640@work.bitmover.com>
 Content-Type: text/plain
-Message-Id: <1099182383.6000.99.camel@at2.pipehead.org>
+Date: Sat, 30 Oct 2004 20:28:32 -0400
+Message-Id: <1099182512.6034.147.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sat, 30 Oct 2004 19:26:23 -0500
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-30 at 17:43, Alan Cox wrote:
-> On Sad, 2004-10-30 at 00:40, Paul Fulghum wrote:
-> > Would it make sense to do something like (in tty_io.c) the following?
-> 
-> Not really because it can legally occur if you flip the low latency
-> flag while a transaction is queued. It might work if you waited for
-> scheduled work to complete in the flag changing.
+On Sat, 2004-10-30 at 16:46 -0700, Larry McVoy wrote:
 
-I don't see how having flush_to_ldisc() queued
-or already running (on another processor) negates
-the prohibition on calling tty_flip_buffer_push()
-with low_latency set in interrupt context.
+> If there are reasonable people out there who feel this way then let's
+> figure out some sort of public contract or something that makes it clear
+> that we have no designs on the Linux kernel.  That's just wacko but if
+> a lot of people think that then lets fix that.  By the way, with all
+> due respect, Andrea & Roman are not "reasonable" people in this context.
+> Let's find some reasonable people who are not BK users and make sure they
+> are comfortable with what is going on.  Alan Cox, Al Viro, who else?
+> I don't really care if it is non-BK users, BK users, or a combination,
+> I just care that there is some sanity in the discussion.
 
-The comments for tty_flip_buffer_push() state the
-function should not be called in interrupt context
-if low_latency is set (no exceptions are listed).
-Meaning flush_to_ldisc() should only be called
-in process context.
+I am a non-BK user[1].  And I see this as a total non-issue.
 
-If flush_to_ldisc() is queued or already executing,
-there is no protection against calling
-flush_to_ldisc() again, directly in interrupt context.
-TTY_DONT_FLIP is no protection, that is only set
-in read_chan() of n_tty.c
+	Robert Love
 
-If I'm missing something, please point it out.
-
--- 
-Paul Fulghum
-paulkf@microgate.com
+[1] While I am no fan of the license, the real reason I don't use BK is
+because I don't think it currently makes sense for developers who are
+not also maintainers.  BK really shines when you have people above
+(Linus, Andrew) and below (other developers) you.  E.g., it makes sense
+for Greg K-H.  Not so much for me or, say, Ingo.  It is the push-pull
+relationship where BK shines.  Your comment that you were looking at
+improving workloads like Andrew's interests me.
 
 

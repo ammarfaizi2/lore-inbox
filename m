@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313975AbSDQASG>; Tue, 16 Apr 2002 20:18:06 -0400
+	id <S313977AbSDQAVl>; Tue, 16 Apr 2002 20:21:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313976AbSDQASF>; Tue, 16 Apr 2002 20:18:05 -0400
-Received: from ns.crrstv.net ([209.128.25.4]:41373 "EHLO mail.crrstv.net")
-	by vger.kernel.org with ESMTP id <S313975AbSDQASF>;
-	Tue, 16 Apr 2002 20:18:05 -0400
-Date: Tue, 16 Apr 2002 21:18:18 -0300
-From: "skidley" <skidley@crrstv.net>
-To: Khalid Aziz <khalid_aziz@hp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-pre7
-Message-ID: <20020417001818.GA9379@crrstv.net>
-Mail-Followup-To: Khalid Aziz <khalid_aziz@hp.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0204160049130.18896-100000@freak.distro.conectiva> <slrnabnps8.evm.kraxel@bytesex.org> <20020416200032.14fbd436.lkml@bigpond.com> <20020416123549.A16359@bytesex.org> <3CBC81DF.FC060062@hp.com>
-Mime-Version: 1.0
+	id <S313982AbSDQAVk>; Tue, 16 Apr 2002 20:21:40 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:44806
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S313977AbSDQAVj>; Tue, 16 Apr 2002 20:21:39 -0400
+Date: Tue, 16 Apr 2002 17:21:06 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCHSET] Linux 2.4.19-pre7-jam1
+In-Reply-To: <20020417000351.GC1800@werewolf.able.es>
+Message-ID: <Pine.LNX.4.10.10204161720260.10691-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16, 2002 at 01:56:15PM -0600, Khalid Aziz wrote:
-> I broke this with a typo in my patch (I inserted a line one line above
-> where I wanted to). Follwing patch will fix the problem.
+There is a micro bug in 3a, look for 4 to arrive.
+
+regards
+
+On Wed, 17 Apr 2002, J.A. Magallon wrote:
+
+> Hi.
 > 
-> --
-> Khalid
+> New version, just collected latest important bugfixes:
 > 
-> --- linux-2.4.18-hcdpold/include/asm-i386/serial.h      Tue Apr 16
-> 12:05:27 2002
-> +++ linux-2.4.18-hcdp/include/asm-i386/serial.h Tue Apr 16 12:02:54 2002
-> @@ -140,8 +140,8 @@
->  #endif
->  
->  #define SERIAL_PORT_DFNS               \
-> -       HCDP_SERIAL_PORT_DEFNS          \
->         STD_SERIAL_PORT_DEFNS           \
-> +       HCDP_SERIAL_PORT_DEFNS          \
->         EXTRA_SERIAL_PORT_DEFNS         \
->         HUB6_SERIAL_PORT_DFNS           \
->         MCA_SERIAL_PORT_DFNS
+> - Serial port number assign (05-serial.gz)
+> - pagemap.h include for fs/ (04-fs-pagemap.gz)
+> - unlocking order in buffer.c::end_buffer_io_kiobuf (03-unlock-bh-before.gz)
 > 
+> And a couple new additions:
 > 
+> - ide update -3a (very shrinked wrt original, the big ppc part has gone
+>   in mainline)
+> - netconsole-C2-2 (for my beowulf...)
 > 
+> Rest as usual, O1-sched-k3 (is any backport of the updates planned ??)
+> mini-low-lat, splitted-vm-33, bproc-3.1.9.
 > 
-failed against 2.4.19-pre7 here
--- 
-Chad Young
-Linux User #195191 
+> Enjoy !!
+> 
+> -- 
+> J.A. Magallon                           #  Let the source be with you...        
+> mailto:jamagallon@able.es
+> Mandrake Linux release 8.3 (Cooker) for i586
+> Linux werewolf 2.4.19-pre7-jam1 #1 SMP Wed Apr 17 00:42:27 CEST 2002 i686
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
+

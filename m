@@ -1,111 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVCXBdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262303AbVCXBjx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262325AbVCXBdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 20:33:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbVCXBdJ
+	id S262303AbVCXBjx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 20:39:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbVCXBjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 20:33:09 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:53650 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262325AbVCXBcz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 20:32:55 -0500
-Subject: Re: 2.6.12-rc1-mm1: Kernel BUG at pci:389
-From: Li Shaohua <shaohua.li@intel.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, rjw@sisk.pl,
-       lkml <linux-kernel@vger.kernel.org>, Len Brown <len.brown@intel.com>
-In-Reply-To: <20050322122041.GA1414@elf.ucw.cz>
-References: <20050322122041.GA1414@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1111627799.11775.9.camel@sli10-desk.sh.intel.com>
+	Wed, 23 Mar 2005 20:39:51 -0500
+Received: from alt.aurema.com ([203.217.18.57]:33432 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id S262303AbVCXBjm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 20:39:42 -0500
+Date: Thu, 24 Mar 2005 12:29:48 +1100
+From: Kingsley Cheung <kingsley@aurema.com>
+To: Tom Zanussi <zanussi@us.ibm.com>
+Cc: Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org
+Subject: Re: read() on relayfs channel returns premature 0
+Message-ID: <20050324012948.GC25134@aurema.com>
+Mail-Followup-To: Tom Zanussi <zanussi@us.ibm.com>,
+	Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org
+References: <20050323090254.GA10630@aurema.com> <16961.35656.576684.890542@tut.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 24 Mar 2005 09:29:59 +0800
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="Dxnq1zWXvFF0Q93v"
+Content-Disposition: inline
+In-Reply-To: <16961.35656.576684.890542@tut.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-22 at 20:20, Pavel Machek wrote:
-> Hi!
-> 
-> > >> > Yes, but it is needed. There are many drivers, and they look at
-> > >> > numerical value of PMSG_*. I'm proceeding in steps. I hopefully
-> > killed
-> > >> > all direct accesses to the constants, and will switch constants
-> to
-> > >> > something else... But that is going to be tommorow (need some
-> > sleep).
-> > >> The patches are going to acquire correct PCI device sleep state
-> for
-> > >> suspend/resume. We discussed the issue several months ago. My
-> plan is
-> > we
-> > >> first introduce 'platform_pci_set_power_state', then merge the
-> > >> 'platform_pci_choose_state' patch after Pavel's pm_message_t
-> > conversion
-> > >> finished. Maybe Len mislead my comments.
-> > >>
-> > >> Anyway for the callback, my intend is platform_pci_choose_state
-> > accept
-> > >> the pm_message_t parameter, and it return an 'int', since
-> platform
-> > >> method possibly failed and then pci_choose_state translate the
-> return
-> > >> value to pci_power_t.
-> > >
-> > >You can't just retype around like that. You may want it take
-> > >pci_power_t * as an argument, and then return 0/-ENODEV or
-> something
-> > >like that. But you can't retype between int and pm_message_t...
-> > No, taking pci_power_t as an argument is meaningless. For ACPI, we
-> > should know the exact sleep state, pm_message_t will tell us. But
-> I'm ok
-> > to let it return a pci_power_t, and the failure case returns
-> > -ENODEV.
-> 
-> You can't put -ENODEV into pci_power_t ... but maybe we should create
-> PCI_ERROR and pass it in cases like this one?
-That makes sense, please do it.
 
-> 
-> > >> > Could you just revert those two patches? First one is very
-> > >> > wrong. Second one might be fixed, but... See comments below.
-> > >> I think the platform_pci_set_power_state should be ok, did you
-> see it
-> > >> causes oops?
-> > >
-> > >No its just ugly and uses __force in "creative" way. That one can
-> be
-> > >recovered.
-> > Do you mean this?
-> > 
-> > > +   static int state_conv[] = {
-> > > +           [0] = 0,
-> > > +           [1] = 1,
-> > > +           [2] = 2,
-> > > +           [3] = 3,
-> > > +           [4] = 3
-> > > +   };
-> > > +   int acpi_state = state_conv[(int __force) state];
-> > 
-> > The table should be
-> >               [PCI_D0] = 0,
-> > 
-> > I'm not sure, but then could we use state_conv[state] directly? It
-> seems
-> 
-> I think so. Of course it is wrong, but it is less wrong than forcing
-> it to integer than index, without using macros at all.
-> 
-> Or perhaps you should do
-> 
-> switch (state) {
-> case PCI_D0: ...
-> }
-> 
-> ...and handle default case somehow.
-That's ok for me. I'll change it later.
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thanks,
-Shaohua
+On Wed, Mar 23, 2005 at 09:29:12AM -0600, Tom Zanussi wrote:
+> kingsley@aurema.com writes:
+>  > 
+>  > Now I understand that this is not the latest release of relayfs (there
+>  > are the redux patches, which I have yet to try).  Nonetheless I'd like
+>  > to know whether this behaviour is deliberate.  Is it? 
+> 
+> Nope, looks like you've found a bug - thanks for the patch.  Any
+> chance you can send me your module so I can easily reproduce the
+> problem and test the fix?
+> 
+> Thanks,
+> 
+> Tom
+> 
 
+Tom,
+
+Yes, well a cut down version of the kernel module anyway.  Its in the
+attached tar ball.  The kernel module requires pagg as well as relayfs
+to work.  Basically the module tracks kernel events - in this case
+process execs.  
+
+I've tested it on 2.6.10 with the pagg and relayfs patches from
+
+http://www.opersys.com/ftp/pub/relayfs/patch-relayfs-2.6.10-050113 
+
+and
+
+ftp://oss.sgi.com/projects/pagg/download/linux-2.6.10-pagg.patch-4
+
+read() gives me a zero still once about a page of data has been read.
+
+Many thanks, 
+--
+		Kingsley
+
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/x-bzip2
+Content-Disposition: attachment; filename="RelayfsModule.tar.bz2"
+Content-Transfer-Encoding: base64
+
+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
+
+--Dxnq1zWXvFF0Q93v--

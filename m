@@ -1,103 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVARIsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVARIuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261191AbVARIsc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 03:48:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVARIsc
+	id S261194AbVARIuV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 03:50:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVARIuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 03:48:32 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:4740 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261200AbVARIsV (ORCPT
+	Tue, 18 Jan 2005 03:50:21 -0500
+Received: from fw.osdl.org ([65.172.181.6]:60126 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261197AbVARIuM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 03:48:21 -0500
-Date: Tue, 18 Jan 2005 14:19:15 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Juho Snellman <jsnell@iki.fi>, linux-kernel@vger.kernel.org
-Subject: Re: x86-64: int3 no longer causes SIGTRAP in 2.6.10
-Message-ID: <20050118084915.GA1321@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-References: <20050118011244.GA23256@iki.fi> <m1sm4zv78j.fsf@muc.de>
+	Tue, 18 Jan 2005 03:50:12 -0500
+Date: Tue, 18 Jan 2005 00:49:35 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Helge Hafting <helge.hafting@hist.no>
+Cc: rddunlap@osdl.org, viro@parcelfarce.linux.theplanet.co.uk, dsd@gentoo.org,
+       jhf@rivenstone.net, linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au,
+       opengeometry@yahoo.ca
+Subject: Re: [PATCH] Wait and retry mounting root device (revised)
+Message-Id: <20050118004935.7bd4a099.akpm@osdl.org>
+In-Reply-To: <41ECC8AF.9020404@hist.no>
+References: <20050114002352.5a038710.akpm@osdl.org>
+	<20050116005930.GA2273@zion.rivenstone.net>
+	<41EC7A60.9090707@gentoo.org>
+	<20050118003413.GA26051@parcelfarce.linux.theplanet.co.uk>
+	<41EC5207.3030003@osdl.org>
+	<41ECC8AF.9020404@hist.no>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1sm4zv78j.fsf@muc.de>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 18, 2005 at 02:47:08AM +0100, Andi Kleen wrote:
-> Juho Snellman <jsnell@iki.fi> writes:
-> 
-> > 2.6.10 changed the behaviour of the int3 instruction on x86-64. It
-> > used to result in a SIGTRAP, now it's a SIGSEGV in both native and
-> > 32-bit legacy modes. This was apparently caused by the kprobe port,
-> > specifically this part:
-> >
-> > --- a/arch/x86_64/kernel/traps.c        2004-12-24 13:36:17 -08:00
-> > +++ b/arch/x86_64/kernel/traps.c        2004-12-24 13:36:17 -08:00
-> > @@ -862,8 +910,8 @@
-> >         set_intr_gate(0,&divide_error);
-> >         set_intr_gate_ist(1,&debug,DEBUG_STACK);
-> >         set_intr_gate_ist(2,&nmi,NMI_STACK);
-> > -       set_system_gate(3,&int3);       /* int3-5 can be called from all */
-> > -       set_system_gate(4,&overflow);
-> > +       set_intr_gate(3,&int3);
-> > +       set_system_gate(4,&overflow);   /* int4-5 can be called from all */
-> >
-> > Was effectively disabling int3 a conscious decision, or just an
-> > unintended side-effect? This breaks at least Steel Bank Common Lisp
-> 
-> It's a bug. Thanks for the report.
-> 
-> I'm not sure why it was even changed. Prasanna? 
-> 
-> I think it should be just changed back. If kprobes cannot 
-> deal with traps for user space it needs to be fixed. e.g.
-> by adding a user space check in kprobe_handler().
-> 
-Yes its a bug, we turn trap 3 into interrupt gates to ensure that it is not preemtable.
+Helge Hafting <helge.hafting@hist.no> wrote:
+>
+> The USB block driver should know that 10s (or whatever) hasn't yet 
+>  passed, and simply
+>  block any attempt to access block devices (or scan for them) knowing 
+>  that it will
+>  not work yet, but any device will be there after the pause. A root mount 
+>  on USB will
+>  then succeed at the _first_ try everytime, so no need for retries.
 
-Thanks
-Prasanna
-> -Andi
-> 
-> Like this patch.
-> 
-> Index: linux/arch/x86_64/kernel/traps.c
-> ===================================================================
-> --- linux.orig/arch/x86_64/kernel/traps.c	2005-01-17 10:34:24.%N +0100
-> +++ linux/arch/x86_64/kernel/traps.c	2005-01-18 02:42:02.%N +0100
-> @@ -908,7 +908,7 @@
->  	set_intr_gate(0,&divide_error);
->  	set_intr_gate_ist(1,&debug,DEBUG_STACK);
->  	set_intr_gate_ist(2,&nmi,NMI_STACK);
-> -	set_intr_gate(3,&int3);
-> +	set_system_gate(3,&int3);
->  	set_system_gate(4,&overflow);	/* int4-5 can be called from all */
->  	set_system_gate(5,&bounds);
->  	set_intr_gate(6,&invalid_op);
-> Index: linux/arch/x86_64/kernel/kprobes.c
-> ===================================================================
-> --- linux.orig/arch/x86_64/kernel/kprobes.c	2005-01-04 12:12:39.%N +0100
-> +++ linux/arch/x86_64/kernel/kprobes.c	2005-01-18 02:46:05.%N +0100
-> @@ -297,6 +297,8 @@
->  	struct die_args *args = (struct die_args *)data;
->  	switch (val) {
->  	case DIE_INT3:
-> +		if (args->regs->cs & 3)
-> +			return NOTIFY_DONE;
->  		if (kprobe_handler(args->regs))
->  			return NOTIFY_STOP;
->  		break;
-> 
-> 
+Maybe a simple delay somewhere in the boot sequence would suffice?  Boot
+with `mount_delay=10'.
 
--- 
-Have a Nice Day!
-
-Thanks & Regards
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
+But it sure would be nice to simply get this stuff right somehow.  If the
+USB block driver knows that discovery is still in progress it should wait
+until it has completed.  (I suggested that before, but wasn't 100% convinced
+by the answer).

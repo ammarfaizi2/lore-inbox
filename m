@@ -1,182 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289703AbSAJVws>; Thu, 10 Jan 2002 16:52:48 -0500
+	id <S289711AbSAJVzi>; Thu, 10 Jan 2002 16:55:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289718AbSAJVwR>; Thu, 10 Jan 2002 16:52:17 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:55726 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S289709AbSAJVvk>;
-	Thu, 10 Jan 2002 16:51:40 -0500
-Date: Thu, 10 Jan 2002 13:48:59 -0800
-From: Jesse Barnes <jbarnes@sgi.com>
-To: davem@redhat.com, ralf@uni-koblenz.de
-Cc: linux-kernel@vger.kernel.org
-Subject: memory-mapped i/o barrier
-Message-ID: <20020110134859.A729245@sgi.com>
-Mail-Followup-To: davem@redhat.com, ralf@uni-koblenz.de,
-	linux-kernel@vger.kernel.org
+	id <S289714AbSAJVz3>; Thu, 10 Jan 2002 16:55:29 -0500
+Received: from petrus.schuldei.org ([217.27.175.140]:28265 "HELO
+	petrus.schuldei.org") by vger.kernel.org with SMTP
+	id <S289711AbSAJVzV>; Thu, 10 Jan 2002 16:55:21 -0500
+Date: Thu, 10 Jan 2002 23:09:29 +0100
+From: Andreas Schuldei <andreas@schuldei.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: viro@math.psu.edu
+Subject: oops in the filesystem code (ext3) during find (cron)
+Message-ID: <20020110220928.GA975@sigrid.schuldei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a copy of a patch I just got accepted into the 2.5 patch for
-ia64, and I'm wondering if you guys will accept something similar.  On
-mips64, mmiob() could just be implemented as a 'sync', but I'm not
-sure how to do it (or if it's even necessary) on other platforms.
-Please let me know what you think.  I wrote a small documentation file
-for the macro that appears at the top of the patch.
+I regularly get this oops during daily cron jobs.
 
-Thanks,
-Jesse
+uname -a
+Linux johannes 2.4.17-pre6 #4 Sat Dec 15 21:54:55 CET 2001 i686
+ext3 fs
+
+i think i can reproduce this at will for debugging.
+
+the defaults for ksymoops are correct in this case.
+andreas@johannes:~> ksymoops < /root/oops-2002-01-10
+ksymoops 2.4.3 on i686 2.4.17-pre6.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.17-pre6/ (default)
+     -m /boot/System.map-2.4.17-pre6 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Call Trace: [<c01352f4>] [<c01359f8>] [<c013510d>] [<c0135c6a>] [<c0136021>]
+   [<c01332bd>] [<c012ce27>] [<c0106d3b>]
+Code: 8b 6d 00 8b 54 24 18 39 53 44 75 7c 8b 44 24 24 39 43 0c 75
+Using defaults from ksymoops -t elf32-i386 -a i386
+
+Trace; c01352f4 <cached_lookup+10/54>
+Trace; c01359f8 <link_path_walk+500/758>
+Trace; c013510c <getname+5c/9c>
+Trace; c0135c6a <path_walk+1a/1c>
+Trace; c0136020 <__user_walk+34/50>
+Trace; c01332bc <sys_lstat64+18/70>
+Trace; c012ce26 <sys_close+42/54>
+Trace; c0106d3a <system_call+32/38>
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   8b 6d 00                  mov    0x0(%ebp),%ebp
+Code;  00000002 Before first symbol
+   3:   8b 54 24 18               mov    0x18(%esp,1),%edx
+Code;  00000006 Before first symbol
+   7:   39 53 44                  cmp    %edx,0x44(%ebx)
+Code;  0000000a Before first symbol
+   a:   75 7c                     jne    88 <_EIP+0x88> 00000088 Before first symbol
+Code;  0000000c Before first symbol
+   c:   8b 44 24 24               mov    0x24(%esp,1),%eax
+Code;  00000010 Before first symbol
+  10:   39 43 0c                  cmp    %eax,0xc(%ebx)
+Code;  00000012 Before first symbol
+  13:   75 00                     jne    15 <_EIP+0x15> 00000014 Before first symbol
+
+ <1>Unable to handle kernel paging request at virtual address 5d856915
+c013d030
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c013d030>]    Not tainted
+EFLAGS: 00010207
+eax: efe5f020   ebx: 5d856905   ecx: 00000011   edx: cacf0437
+esi: 00000000   edi: df409fa4   ebp: 5d856915   esp: df409f14
+ds: 0018   es: 0018   ss: 0018
+Process find (pid: 23101, stackpage=df409000)
+Stack: df409f74 00000000 df409fa4 e1b942c0 efe5f020 e7aef000 cacf0437 0000000d
+       c01352f4 e63a59a0 df409f74 df409f74 c01359f8 e63a59a0 df409f74 00000000
+       e7aef000 00000000 df409fa4 00000008 c013510d 00000008 e7aef00d 00000000
+Call Trace: [<c01352f4>] [<c01359f8>] [<c013510d>] [<c0135c6a>] [<c0136021>]
+   [<c01332bd>] [<c012ce27>] [<c0106d3b>]
+Code: 8b 6d 00 8b 54 24 18 39 53 44 75 7c 8b 44 24 24 39 43 0c 75
+
+>>EIP; c013d030 <d_lookup+60/100>   <=====
+Trace; c01352f4 <cached_lookup+10/54>
+Trace; c01359f8 <link_path_walk+500/758>
+Trace; c013510c <getname+5c/9c>
+Trace; c0135c6a <path_walk+1a/1c>
+Trace; c0136020 <__user_walk+34/50>
+Trace; c01332bc <sys_lstat64+18/70>
+Trace; c012ce26 <sys_close+42/54>
+Trace; c0106d3a <system_call+32/38>
+Code;  c013d030 <d_lookup+60/100>
+00000000 <_EIP>:
+Code;  c013d030 <d_lookup+60/100>   <=====
+   0:   8b 6d 00                  mov    0x0(%ebp),%ebp   <=====
+Code;  c013d032 <d_lookup+62/100>
+   3:   8b 54 24 18               mov    0x18(%esp,1),%edx
+Code;  c013d036 <d_lookup+66/100>
+   7:   39 53 44                  cmp    %edx,0x44(%ebx)
+Code;  c013d03a <d_lookup+6a/100>
+   a:   75 7c                     jne    88 <_EIP+0x88> c013d0b8 <d_lookup+e8/100>
+Code;  c013d03c <d_lookup+6c/100>
+   c:   8b 44 24 24               mov    0x24(%esp,1),%eax
+Code;  c013d040 <d_lookup+70/100>
+  10:   39 43 0c                  cmp    %eax,0xc(%ebx)
+Code;  c013d042 <d_lookup+72/100>
+  13:   75 00                     jne    15 <_EIP+0x15> c013d044 <d_lookup+74/100>
 
 
-diff -Naur --exclude=*~ --exclude=TAGS linux-2.4.17-ia64/Documentation/mmio_barrier.txt linux-2.4.17-ia64-mmiob/Documentation/mmio_barrier.txt
---- linux-2.4.17-ia64/Documentation/mmio_barrier.txt	Wed Dec 31 16:00:00 1969
-+++ linux-2.4.17-ia64-mmiob/Documentation/mmio_barrier.txt	Tue Jan  8 15:57:37 2002
-@@ -0,0 +1,15 @@
-+On some platforms, so-called memory-mapped I/O is weakly ordered.  For
-+example, the following might occur:
-+
-+CPU A writes 0x1 to Device #1
-+CPU B writes 0x2 to Device #1
-+Device #1 sees 0x2
-+Device #1 sees 0x1
-+
-+On such platforms, driver writers are responsible for guaranteeing that I/O
-+writes to memory-mapped addresses on their device arrive in the order
-+intended.  The mmiob() macro is provided for this purpose.  A typical use
-+of this macro might be immediately prior to the exit of a critical
-+section of code proteced by spinlocks.  This would ensure that subsequent
-+writes to I/O space arrived only after all prior writes (much like a
-+typical memory barrier op, mb(), only with respect to I/O).
-diff -Naur --exclude=*~ --exclude=TAGS linux-2.4.17-ia64/arch/ia64/sn/kernel/sn1/iomv.c linux-2.4.17-ia64-mmiob/arch/ia64/sn/kernel/sn1/iomv.c
---- linux-2.4.17-ia64/arch/ia64/sn/kernel/sn1/iomv.c	Tue Jan  8 15:45:11 2002
-+++ linux-2.4.17-ia64-mmiob/arch/ia64/sn/kernel/sn1/iomv.c	Tue Jan  8 15:58:54 2002
-@@ -9,6 +9,8 @@
- #include <asm/io.h>
- #include <linux/pci.h>
- #include <asm/sn/simulator.h>
-+#include <asm/pio_flush.h>
-+#include <asm/delay.h>
- 
- static inline void *
- sn1_io_addr(unsigned long port)
-@@ -134,3 +136,9 @@
- 	__ia64_mf_a();
- }
- #endif /* SN1_IOPORTS */
-+
-+void
-+sn_mmiob ()
-+{
-+	PIO_FLUSH();
-+}
-diff -Naur --exclude=*~ --exclude=TAGS linux-2.4.17-ia64/include/asm-ia64/io.h linux-2.4.17-ia64-mmiob/include/asm-ia64/io.h
---- linux-2.4.17-ia64/include/asm-ia64/io.h	Fri Nov  9 14:26:17 2001
-+++ linux-2.4.17-ia64-mmiob/include/asm-ia64/io.h	Wed Jan  9 10:53:46 2002
-@@ -69,6 +69,21 @@
-  */
- #define __ia64_mf_a()	__asm__ __volatile__ ("mf.a" ::: "memory")
- 
-+/**
-+ * __ia64_mmiob - I/O space memory barrier
-+ *
-+ * Acts as a memory mapped I/O barrier for platforms that queue writes to 
-+ * I/O space.  This ensures that subsequent writes to I/O space arrive after
-+ * all previous writes.  For most ia64 platforms, this is a simple
-+ * 'mf.a' instruction.  For other platforms, mmiob() may have to read
-+ * a chipset register to ensure ordering.
-+ */
-+static inline void
-+__ia64_mmiob ()
-+{
-+	__ia64_mf_a();
-+}
-+
- static inline const unsigned long
- __ia64_get_io_port_base (void)
- {
-@@ -271,6 +286,7 @@
- #define __outb		platform_outb
- #define __outw		platform_outw
- #define __outl		platform_outl
-+#define __mmiob         platform_mmiob
- 
- #define inb		__inb
- #define inw		__inw
-@@ -284,6 +300,7 @@
- #define outsb		__outsb
- #define outsw		__outsw
- #define outsl		__outsl
-+#define mmiob           __mmiob
- 
- /*
-  * The address passed to these functions are ioremap()ped already.
-diff -Naur --exclude=*~ --exclude=TAGS linux-2.4.17-ia64/include/asm-ia64/machvec.h linux-2.4.17-ia64-mmiob/include/asm-ia64/machvec.h
---- linux-2.4.17-ia64/include/asm-ia64/machvec.h	Tue Jan  8 15:45:11 2002
-+++ linux-2.4.17-ia64-mmiob/include/asm-ia64/machvec.h	Tue Jan  8 15:59:44 2002
-@@ -60,6 +60,7 @@
- typedef void ia64_mv_outb_t (unsigned char, unsigned long);
- typedef void ia64_mv_outw_t (unsigned short, unsigned long);
- typedef void ia64_mv_outl_t (unsigned int, unsigned long);
-+typedef void ia64_mv_mmiob_t (void);
- 
- extern void machvec_noop (void);
- 
-@@ -107,6 +108,7 @@
- #  define platform_outb		ia64_mv.outb
- #  define platform_outw		ia64_mv.outw
- #  define platform_outl		ia64_mv.outl
-+#  define platofrm_mmiob        ia64_mv.mmiob
- # endif
- 
- struct ia64_machine_vector {
-@@ -140,6 +142,7 @@
- 	ia64_mv_outb_t *outb;
- 	ia64_mv_outw_t *outw;
- 	ia64_mv_outl_t *outl;
-+	ia64_mv_mmiob_t *mmiob;
- };
- 
- #define MACHVEC_INIT(name)			\
-@@ -173,7 +176,8 @@
- 	platform_inl,				\
- 	platform_outb,				\
- 	platform_outw,				\
--	platform_outl				\
-+	platform_outl,				\
-+        platform_mmiob                          \
- }
- 
- extern struct ia64_machine_vector ia64_mv;
-@@ -287,6 +291,9 @@
- #endif
- #ifndef platform_outl
- # define platform_outl		__ia64_outl
-+#endif
-+#ifndef platform_mmiob
-+# define platform_mmiob         __ia64_mmiob
- #endif
- 
- #endif /* _ASM_IA64_MACHVEC_H */
-diff -Naur --exclude=*~ --exclude=TAGS linux-2.4.17-ia64/include/asm-ia64/machvec_sn1.h linux-2.4.17-ia64-mmiob/include/asm-ia64/machvec_sn1.h
---- linux-2.4.17-ia64/include/asm-ia64/machvec_sn1.h	Tue Jan  8 15:45:11 2002
-+++ linux-2.4.17-ia64-mmiob/include/asm-ia64/machvec_sn1.h	Tue Jan  8 15:45:54 2002
-@@ -14,6 +14,7 @@
- extern ia64_mv_outb_t sn1_outb;
- extern ia64_mv_outw_t sn1_outw;
- extern ia64_mv_outl_t sn1_outl;
-+extern ia64_mv_mmiob_t sn_mmiob;
- extern ia64_mv_pci_alloc_consistent	sn1_pci_alloc_consistent;
- extern ia64_mv_pci_free_consistent	sn1_pci_free_consistent;
- extern ia64_mv_pci_map_single		sn1_pci_map_single;
-@@ -45,6 +46,7 @@
- #define platform_outb		sn1_outb
- #define platform_outw		sn1_outw
- #define platform_outl		sn1_outl
-+#define platform_mmiob          sn_mmiob
- #define platform_pci_dma_init	machvec_noop
- #define platform_pci_alloc_consistent	sn1_pci_alloc_consistent
- #define platform_pci_free_consistent	sn1_pci_free_consistent
+1 warning issued.  Results may not be reliable.
+

@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbUCSCz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 21:55:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbUCSCz5
+	id S261685AbUCSC6u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 21:58:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbUCSC6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 21:55:57 -0500
-Received: from holomorphy.com ([207.189.100.168]:53378 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261503AbUCSCz4 (ORCPT
+	Thu, 18 Mar 2004 21:58:50 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:14289 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S261685AbUCSC6t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 21:55:56 -0500
-Date: Thu, 18 Mar 2004 18:55:49 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jesse Barnes <jbarnes@sgi.com>
-Cc: linux-kernel@vger.kernel.org, colpatch@us.ibm.com, mbligh@aracnet.com,
-       akpm@osdl.org, haveblue@us.ibm.com
-Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
-Message-ID: <20040319025549.GM2045@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jesse Barnes <jbarnes@sgi.com>, linux-kernel@vger.kernel.org,
-	colpatch@us.ibm.com, mbligh@aracnet.com, akpm@osdl.org,
-	haveblue@us.ibm.com
-References: <1079651064.8149.158.camel@arrakis> <200403181523.10670.jbarnes@sgi.com>
+	Thu, 18 Mar 2004 21:58:49 -0500
+Date: Fri, 19 Mar 2004 03:58:45 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Bind Mount Extensions 0.04 (linux-2.4.25)
+Message-ID: <20040319025845.GD31040@MAIL.13thfloor.at>
+Mail-Followup-To: viro@parcelfarce.linux.theplanet.co.uk,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	linux-kernel@vger.kernel.org
+References: <20040315035559.GC30948@MAIL.13thfloor.at> <20040318122932.GK31500@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200403181523.10670.jbarnes@sgi.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040318122932.GK31500@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 18, 2004 at 03:23:10PM -0800, Jesse Barnes wrote:
-> My hero! :)  I think this has been needed for awhile, but now that I
-> think about it, it begs the question of what a node is.  Is it a set
-> of CPUs and blocks of memory (that seems to be the most commonly used
-> definition in the code), just memory, just CPUs, or what?  On sn2
-> hardware, we have the concept of a node without CPUs.  And due to our
-> wacky I/O layout, we also have nodes without CPUs *or* memory!  (The
-> I/O guys call these "ionodes".)  And then of course, there are CPUs
-> that aren't particularly close to any memory (i.e. they have none of
-> their own, and have to go several hops and/or through other CPUs to
-> get at memory at all).
-> I'll take a look at the ia64 bits when I get them (I've only received
-> two of the seven patches thus far).
+On Thu, Mar 18, 2004 at 12:29:32PM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Mon, Mar 15, 2004 at 04:55:59AM +0100, Herbert Poetzl wrote:
+> >  	if (count != 0) {
+> > -		UPDATE_ATIME(file->f_dentry->d_inode);
+> > +		UPDATE_ATIME(file->f_dentry->d_inode, file->f_vfsmnt);
+> 
+> For crying out loud...  Make that touch_file(file) and be done with that.
+> There's a lot of places where we do just that (touch atime of opened file)
+> and passing pair of vfsmount and inode (not even vfsmount and dentry) is
+> just plain wrong.
 
-You need a tripartite graph.
-(a) are connections full or half duplex? (i.e. directed or undirected)
-(b) do you need distinct weights on each edge? (i.e. weighted or unweighted)
+I guess 2.4 will not allow to many changes in this regard, 
+but maybe I'm wrong and deeper changes have a chance to
+be accepted into mainline to 'mend' the 'broken' behaviour
 
-
--- wli
+best,
+Herbert

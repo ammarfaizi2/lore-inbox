@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318229AbSIKAQ0>; Tue, 10 Sep 2002 20:16:26 -0400
+	id <S318230AbSIKA01>; Tue, 10 Sep 2002 20:26:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318230AbSIKAQ0>; Tue, 10 Sep 2002 20:16:26 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:3054 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S318229AbSIKAQ0>; Tue, 10 Sep 2002 20:16:26 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Date: Wed, 11 Sep 2002 10:21:04 +1000
+	id <S318234AbSIKA01>; Tue, 10 Sep 2002 20:26:27 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:54005 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S318230AbSIKA00>; Tue, 10 Sep 2002 20:26:26 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15742.35952.363082.526569@notabene.cse.unsw.edu.au>
-Cc: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
-In-Reply-To: message from James Bottomley on Monday September 9
-References: <200209091458.g89Evv806056@localhost.localdomain>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Message-ID: <15742.36555.430376.240952@wombat.chubb.wattle.id.au>
+Date: Wed, 11 Sep 2002 10:31:07 +1000
+To: Joe Kellner <jdk@kingsmeadefarm.com>
+Cc: John Alvord <jalvo@mbay.net>, linux-kernel@vger.kernel.org
+Subject: Re: XFS?
+In-Reply-To: <1059487013@toto.iv>
+X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday September 9, James.Bottomley@steeleye.com wrote:
-> 
-> Well, neither of the people most involved in the development (that's Neil 
-> Brown for md in general and Ingo Molnar for the multi-path enhancements) made 
-> any comments---see if you can elicit some feedback from either of them.
 
-I'm fairly un-interested in multipath.  I try not to break it while
-tidying up the generic md code, but apart from that I leave it alone.
+>>>>> "Joe" == Joe Kellner <jdk@kingsmeadefarm.com> writes:
+>> So does Redhat/Suse/??? ship XFS yet?
+>> 
+>> john
+>> 
 
-For failover, I suspect that md is an appropriate place for multipath,
-though it would be nice to get more detail error information from the
-lower levels.
+Joe> Mandrake has had XFS support in the default boot kernel since
+Joe> 8.0. AFAIK, Suse and Slackware also have XFS capable kernels now
+Joe> too.
 
-For load balancing you really need something lower down, just below
-the elevator would seem right: at the request_fn level rather than
-make_request_fn.
 
-But all that has pretty much been said.
+FWIW so does debian.
 
-NeilBrown
+--
+Dr Peter Chubb				    peterc@gelato.unsw.edu.au
+You are lost in a maze of BitKeeper repositories, all almost the same.

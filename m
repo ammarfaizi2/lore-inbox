@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270490AbTGSEX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 00:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270491AbTGSEX3
+	id S270489AbTGSE0x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 00:26:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270491AbTGSE0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 00:23:29 -0400
-Received: from janus.zeusinc.com ([205.242.242.161]:9834 "EHLO
-	zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
-	id S270490AbTGSEX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 00:23:27 -0400
-Subject: Re: [BUG REPORT 2.6.0] cisco airo_cs scheduling while atomic
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: James Bourne <jbourne@hardrock.org>, breed@users.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030718200013.40e983f6.akpm@osdl.org>
-References: <20030718140414.371cdb55.akpm@osdl.org>
-	 <Pine.LNX.4.44.0307182044420.22990-100000@cafe.hardrock.org>
-	 <20030718200013.40e983f6.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1058589381.3434.11.camel@iso-8590-lx.zeusinc.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 19 Jul 2003 00:36:52 -0400
+	Sat, 19 Jul 2003 00:26:53 -0400
+Received: from [202.94.238.145] ([202.94.238.145]:59873 "EHLO
+	mail.shaolinmicro.com") by vger.kernel.org with ESMTP
+	id S270489AbTGSE0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 00:26:50 -0400
+Message-ID: <3F18CBF9.1040400@shaolinmicro.com>
+Date: Sat, 19 Jul 2003 12:41:29 +0800
+From: David Chow <davidchow@shaolinmicro.com>
+Organization: Shaolin Microsystems Ltd.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: zh_TW, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: David Howells <dhowells@redhat.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+Subject: Re: [PATCH] General filesystem cache
+References: <Pine.LNX.4.44.0307182000300.6370-100000@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-07-18 at 23:00, Andrew Morton wrote:
-> James Bourne <jbourne@hardrock.org> wrote:
-> >
-> > > I've been waiting months for someone to test this patch.  Can you please do
-> >  > so?
-> > 
-> >  Well, the error is gone, unfortunately I won't have anything for the card to
-> >  talk to until monday (or if I take my laptop for a car ride...).
-> 
-> Well Daniel Ritz has posted a big fix to the driver so I threw mine away. 
-> I'll include it in the next -mm, so please test that.
+Is it a file system or a patch to the VFS? I love to see this patch. It 
+is quite useful for me. Is it available for 2.4?
 
-I've applied Daniel's patch to my 2.6.0-test1-mm1 tree on two of my test
-systems (a PCMCIA and PCI version of the Aironet 350 series) and both
-are working great.  His patches look pretty obviously correct to me and
-are much cleaner than the hacked up patches I've been sending out to
-people to get the card working on recent 2.5.7x kernels.  Just wanted to
-report the success.
+David Chow
 
-Later,
-Tom
+Linus Torvalds wrote:
+
+>On Fri, 18 Jul 2003, David Howells wrote:
+>  
+>
+>>Here's a patch to add a quasi-filesystem ("CacheFS") that turns a block device
+>>into a general cache for any other filesystem that cares to make use of its
+>>facilities.
+>>
+>>This is primarily intended for use with my AFS filesystem, but I've designed
+>>it such that it needs to know nothing about the filesystem it's backing, and
+>>so it may also be useful for NFS, SMB and ISO9660 for example.
+>>    
+>>
+>
+>Ok. Sounds good. In fact, it's something I've wanted for a while, since 
+>it's also potentially the solution to performance-critical things like 
+>virtual filesystems based on revision control logic etc (traditionally 
+>done with fake NFS servers).
+>
+>I did a very very quick scan, and didn't see anything that raised my 
+>hackles. But it's late in the 2.6.x game, and as a result I'm not going to 
+>apply it until I get a lot of feedback from actual users too.
+>  
+>
 
 

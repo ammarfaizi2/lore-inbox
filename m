@@ -1,35 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289243AbSBXCYL>; Sat, 23 Feb 2002 21:24:11 -0500
+	id <S289272AbSBXCyn>; Sat, 23 Feb 2002 21:54:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289239AbSBXCYD>; Sat, 23 Feb 2002 21:24:03 -0500
-Received: from 1Cust130.tnt6.lax7.da.uu.net ([67.193.244.130]:55291 "HELO
-	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with SMTP
-	id <S289210AbSBXCXr>; Sat, 23 Feb 2002 21:23:47 -0500
-Subject: Re: [PATCHSET] Linux 2.4.18-rc3-jam1
-To: barryn@pobox.com (Barry K. Nathan)
-Date: Sat, 23 Feb 2002 18:24:51 -0800 (PST)
-Cc: jamagallon@able.es (J.A. Magallon), barryn@pobox.com (Barry K. Nathan),
-        linux-kernel@vger.kernel.org (Lista Linux-Kernel),
-        rwhron@earthlink.net
-In-Reply-To: <20020223233949.02B7089C87@cx518206-b.irvn1.occa.home.com> from "Barry K. Nathan" at Feb 23, 2002 03:39:49 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S289255AbSBXCyX>; Sat, 23 Feb 2002 21:54:23 -0500
+Received: from cs24344-28.austin.rr.com ([24.243.44.28]:57351 "EHLO
+	explorer.dummynet") by vger.kernel.org with ESMTP
+	id <S289239AbSBXCyP>; Sat, 23 Feb 2002 21:54:15 -0500
+Date: Sat, 23 Feb 2002 20:54:11 -0600
+From: Dan Hopper <ku4nf@austin.rr.com>
+To: Greg KH <greg@kroah.com>
+Cc: Patrick Mochel <mochel@osdl.org>,
+        Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
+        lkml <linux-kernel@vger.kernel.org>,
+        linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.5.5-pre1 rmmod usb-uhci hangs
+Message-ID: <20020224025411.GA2418@yoda.dummynet>
+Mail-Followup-To: Dan Hopper <ku4nf@austin.rr.com>,
+	Greg KH <greg@kroah.com>, Patrick Mochel <mochel@osdl.org>,
+	Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
+	lkml <linux-kernel@vger.kernel.org>,
+	linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <fa.n7cofbv.1him3j@ifi.uio.no> <fa.dsb79pv.on84ii@ifi.uio.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20020224022451.E749B89C87@cx518206-b.irvn1.occa.home.com>
-From: barryn@pobox.com (Barry K. Nathan)
+Content-Disposition: inline
+In-Reply-To: <fa.dsb79pv.on84ii@ifi.uio.no>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Barry K. Nathan wrote:
-> In fact, all I need is plain 2.4.17 + irqrate-A1. That's it. That's all I
-> need to get floppy accesses to hang 100% of the time. 2.4.17 without
-> irqrate does not have this problem.
+Greg KH <greg@kroah.com> remarked:
+> 
+> On Fri, Feb 15, 2002 at 10:22:05AM -0800, Patrick Mochel wrote:
+> > 
+> > On Fri, 15 Feb 2002, Patrick Mochel wrote:
+> > 
+> > > 
+> > > > no, it doesn't solve the problem. i would like to test it whith 
+> > > > preemtible kernel not set but it doesn't boot.
+> > > 
+> > > While Greg's patch did fix part of the problem, the rest of it was on my 
+> > > end. Could you try this patch, and see if helps?
+> > 
+> > Actually, the patch that I sent is against my current tree, which includes 
+> > some changes that I've already pushed to Linus. If you're using BK, you 
+> > should be able to pull his current tree (if you're into that kinda thing). 
+> > Or, wait until -pre2. Sorry about that.
+> 
+> Your current tree, + this patch, + my patch solves all of the unloading,
+> removing, and loading problems that I had been seeing.
+> 
+> Thanks for finding this.
 
-For that matter, 2.4.14-pre7 (the earliest that I can apply the irqrate-A1
-patch to without rejects) + irqrate-A1 also causes the floppy freeze for
-me. By "freeze" I mean my mouse pointer stops moving for me in X and I'm
-unable to switch virtual consoles.
+I wonder if anyone might look at doing the same sort of fix to
+the 2.4.18 working tree?  I experience the same sort of behavior
+with usb-uhci on my KT266A board (VT82C586B USB) on 2.4.18-rc1 (and
+previous 2.4.x kernels, too).  I'd do it myself, but the patch from
+Patrick on inode.c makes me too nervous to do it, since I have
+no experience with the filesystem drivers.
 
--Barry K. Nathan <barryn@pobox.com>
+Thanks,
+Dan Hopper

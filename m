@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316880AbSEVH3J>; Wed, 22 May 2002 03:29:09 -0400
+	id <S316882AbSEVHhS>; Wed, 22 May 2002 03:37:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316881AbSEVH3I>; Wed, 22 May 2002 03:29:08 -0400
-Received: from netfinity.realnet.co.sz ([196.28.7.66]:51616 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S316880AbSEVH3I>; Wed, 22 May 2002 03:29:08 -0400
-Date: Wed, 22 May 2002 09:03:47 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: "Calin A. Culianu" <calin@ajvar.org>
-Cc: Kevin Buhr <buhr@telus.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Lazy Newbie Question
-In-Reply-To: <Pine.LNX.4.33L2.0205211917110.16426-100000@rtlab.med.cornell.edu>
-Message-ID: <Pine.LNX.4.44.0205220855590.23578-100000@netfinity.realnet.co.sz>
+	id <S316883AbSEVHhR>; Wed, 22 May 2002 03:37:17 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:59396 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S316882AbSEVHhR>; Wed, 22 May 2002 03:37:17 -0400
+Message-ID: <3CEB4A6B.A98FC6F4@aitel.hist.no>
+Date: Wed, 22 May 2002 09:36:11 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.12-dj1 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.5.17
+In-Reply-To: <86256BC0.0067E23B.00@smtpnotes.altec.com> <20020521.143011.30682853.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 May 2002, Calin A. Culianu wrote:
+"David S. Miller" wrote:
+[...]
+>    Under 2.5.17 there is a problem with gtop 1.0.9.
+> 
+> The /proc/meminfo output changed, and this makes a lot of programs
+> reading that file explode.
 
-> What the fuck is your problem?  I was merely wondering how to use
-> path_init/path_walk.  I had to go to the newbie irc channel and they were
-> much politer and must more helpful.  None of this fucking attitude of "why
-> do you want to do that that is evil never do that".  Obviously i have a
-> reason to do it and I don't need you lecturing me.
+No problem with file format breakage, but the programs 
+"exploding" shouldn't get stuck unkillable by kill -9.
+looks like a kernel problem to me.
 
-Wow, you didn't get along with the other kids did you? So far i see 
-absolutely no reason why anybody should lend you a hand (no one gets paid 
-for support here), perhaps instead of just blurting out insults at the 
-kind folks trying to help you out, you may have tried putting forward 
-additional questions as to why they consider the proposed methods evil, 
-and wether there are more sane ways of achieving the same result.
-
-Perhaps next time consider using another muscle apart from the one in your 
-sphincter to convey your message...
-
-Regards,
-	Zwane Mwaikambo
-
- -- 
-http://function.linuxpower.ca
-		
-
+Helge Hafting

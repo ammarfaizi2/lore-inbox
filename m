@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266091AbTGDSRE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 14:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266093AbTGDSRE
+	id S266092AbTGDSP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 14:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266091AbTGDSP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 14:17:04 -0400
-Received: from holomorphy.com ([66.224.33.161]:31104 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S266091AbTGDSQ6 (ORCPT
+	Fri, 4 Jul 2003 14:15:28 -0400
+Received: from holomorphy.com ([66.224.33.161]:27776 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S266086AbTGDSPX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 14:16:58 -0400
-Date: Fri, 4 Jul 2003 11:32:43 -0700
+	Fri, 4 Jul 2003 14:15:23 -0400
+Date: Fri, 4 Jul 2003 11:31:06 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
 To: "Martin J. Bligh" <mbligh@aracnet.com>
 Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        Helge Hafting <helgehaf@aitel.hist.no>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, linux-mm@kvack.org
 Subject: Re: 2.5.74-mm1 fails to boot due to APIC trouble, 2.5.73mm3 works.
-Message-ID: <20030704183243.GD955@holomorphy.com>
+Message-ID: <20030704183106.GC955@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
 	"Martin J. Bligh" <mbligh@aracnet.com>,
 	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
@@ -34,12 +34,11 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Fri, Jul 04, 2003 at 09:18:12AM -0700, Martin J. Bligh wrote:
-> Ugh, are you saying the cpumask stuff shrinks masks to < 32 bits if
-> NR_CPUS is low enough? If so, I can see more point to the patch, but
-> it still seems like violent overkill. Stopping it doing that would
-> probably fix it ... I can't imagine it buys you much.
+> Yeah, things taking logical apicids, and turning them into cpu numbers
+> presumably shouldn't have to touch that.
 
-Step off it. This is not overkill. This is correct.
+The bitmap is wider than the function wants. The change is fine, despite
+your abuse of phys_cpu_present_map.
 
 
 -- wli

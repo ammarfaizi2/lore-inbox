@@ -1,39 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265232AbUFMRrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265229AbUFMRvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265232AbUFMRrL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 13:47:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbUFMRrK
+	id S265229AbUFMRvg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 13:51:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265230AbUFMRvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 13:47:10 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:47863 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S265228AbUFMRrH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 13:47:07 -0400
-From: debian-changes@lists.debian.org
-Date: Sun, 13 Jun 2004 15:39:15 GMT
-MIME-Version: 1.0
-Subject: EU gibt Erwerbslosen volle Freizuegigkeit <Id:5890>
-Importance: Normal
-X-Priority: 3 (Normal)
-Message-ID: <108bae8d7f1bb0.4a06b.qmail@lists.debian.org>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"
-To: unlisted-recipients:; (no To-header on input)
+	Sun, 13 Jun 2004 13:51:36 -0400
+Received: from p213.54.74.240.tisdip.tiscali.de ([213.54.74.240]:46210 "EHLO
+	stralsunder-10.homelinux.org") by vger.kernel.org with ESMTP
+	id S265229AbUFMRve (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 13:51:34 -0400
+Date: Sun, 13 Jun 2004 19:51:34 +0200
+From: Andreas Schmidt <andy@space.wh1.tu-dresden.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Frequent system freezes after kernel bug
+Message-ID: <20040613175134.GO1733@rocket>
+References: <20040612183742.GE1733@rocket> <20040612202023.GA22145@taniwha.stupidest.org> <20040612214947.GI1733@rocket> <40CB9B84.4030502@g-house.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed	DelSp=Yes
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <40CB9B84.4030502@g-house.de> (from evil@g-house.de on Sun, Jun 13, 2004 at 02:10:44 +0200)
+X-Mailer: Balsa 2.0.17
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Einwanderungswelle osteuropaeischer Sozialhilfe-Empfaenger befuerchtet
+On 2004.06.13 02:10, Christian Kujau wrote:
+> Andreas Schmidt wrote:
+> |> On Sat, Jun 12, 2004 at 08:37:42PM +0200, Andreas Schmidt wrote:
+> |>
+> |> > > kernel: EIP:    0010:[iput+44/592]    Tainted: P
+> |>
+> | fcdsl                 862816   2
+> 
+> could be totally unrelated, but please try to reproduce without this
+> (tainted) fcdsl module. it is often known for weird lockups. i'm not
+> able to tell from the oops message, so i have to ask: is this an SMP  
+> box?
+The box has just one processor (Duron, in case it's relevant). BTW, I'm  
+a bit at a loss how to reproduce the problem. Trouble is, it appears  
+quite arbitrarily. The box has been running about 26hrs now without a  
+reboot. (OK, there wasn't much activity today except handling mails.) I  
+could unload the fcdsl module, which would cut me off the net. If  
+necessary, I could even do this for a day or two -- but what if that  
+error didn't occur during that time? As I'm not sure what triggered it  
+in the first place, IMHO nothing could be deduced with certainty from  
+the error not occuring. There'd only be definite information if it  
+_did_ happen again. So, what do you suggest? (Sorry if that sounds  
+obnoxious, but I'm really a bit confused about this stuff...)
 
-Muenchen (rpo). Hans-Werner Sinn, Praesident des ifo-Institut hat in der 'Sueddeutschen Zeitung' vor einer massiven Einwanderungswelle osteuropaeischer Sozialhilfe-Empfaenger nach Deutschland gewarnt. Zwar habe die EU Uebergangsfristen fuer Arbeitnehmer verankert, doch Erwerbslose duerften sofort einwandern und haetten von Anfang an 'Anspruch auf alle sozialen Leistungen'.
 
-Diese Regelung sei grotesk und werde die westeuropaeischen Sozialstaaten zerstoeren. Nur eine Aenderung der EU-Verfassung koenne das noch verhindern. Die Folgen der vom EU-Parlament gebilligten Freizuegigkeits-Richtlinie fuer Wanderungen innerhalb der EU seien 'von Politik und Oeffentlichkeit total uebersehen' worden, kritisierte der Wirtschaftswissenschaftler. Osteuropaeer duerfen waehrend einer mehrjaehrigen Uebergangsfrist zwar 'nicht als Arbeitnehmer kommen.
+Best regards,
 
-Als Selbststaendige und nicht erwerbstaetige Personen duerfen sie sich jedoch sofort in Deutschland niederlassen', erklaerte Sinn. 'Von Anfang an hat auch der nicht Erwerbstaetige Anspruch auf alle sozialen Leistungen des Staates wie ein Einheimischer. Das wird viele, die in den aermeren Regionen Europas zu Hause sind, veranlassen, in die reichen Sozialstaaten der EU zu wandern.' Die Anreize seien uebermaechtig. Die deutsche Sozialhilfe sei fuenf Mal so hoch wie ein slowakischer Lohn.
-
-Die bevorstehende Armutswanderung aus Osteuropa werde die westeuropaeischen Sozialstaaten erodieren: 'Die Staaten werden ihre Leistungen in einer Art Abschreckungswettbewerb zurueckschrauben, weil keiner zum Ziel der Wohlfahrtswanderungen werden will', und 'im Endeffekt wird Europa nur noch so sozial sein koennen, wie es Amerika heute ist'. Um dies abzuwenden, muessten die EU-Staaten 'das Recht der Migration in den Sozialstaat' streichen: Das Heimatland muesste fuer die Sozialleistungen an nicht erwerbstaetige Zuwanderer zustaendig bleiben, forderte der ifo-Praesident.
+Andreas
 
 
-Link's:
-http://www.rp-online.de/public/article/nachrichten/politik/deutschland/48909
-
-http://www.rhein-main.net/sixcms/list.php?page=fnp2_news_article&id=1685544

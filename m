@@ -1,317 +1,235 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267404AbUIJN1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267408AbUIJNqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267404AbUIJN1r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 09:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267405AbUIJN1r
+	id S267408AbUIJNqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 09:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267409AbUIJNqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 09:27:47 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:17876 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267404AbUIJN1e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 09:27:34 -0400
-Date: Fri, 10 Sep 2004 15:28:41 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Fri, 10 Sep 2004 09:46:25 -0400
+Received: from mail.renesas.com ([202.234.163.13]:20634 "EHLO
+	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S267408AbUIJNqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 09:46:13 -0400
+Date: Fri, 10 Sep 2004 22:45:54 +0900 (JST)
+Message-Id: <20040910.224554.43002845.takata.hirokazu@renesas.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: rlrevell@joe-job.com, linux-kernel@vger.kernel.org,
-       felipe_alfaro@linuxmail.org, mista.tapas@gmx.net, kr@cybsft.com,
-       Mark_H_Johnson@Raytheon.com
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R6
-Message-ID: <20040910132841.GA8552@elte.hu>
-References: <20040903120957.00665413@mango.fruits.de> <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu> <20040906110626.GA32320@elte.hu> <1094626562.1362.99.camel@krustophenia.net> <20040909192924.GA1672@elte.hu> <20040909130526.2b015999.akpm@osdl.org>
+Subject: [PATCH 2.6.9-rc1-mm4] [m32r] Update headers to remove useless
+ iBCS2 support code
+From: Hirokazu Takata <takata@linux-m32r.org>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="wq9mPyueHGvFACwf"
-Content-Disposition: inline
-In-Reply-To: <20040909130526.2b015999.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---wq9mPyueHGvFACwf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Here's a patch to update headers, elf.h and poll.h, to remove 
+useless iBCS2/SVR4 support code for m32r.
+
+This patch is against 2.6.9-rc1-mm4.
+Please apply.
+
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 2.6.9-rc1-mm3] [m32r] Modify sys_ipc() to remove useless iBCS2 support code
+Date: Mon, 6 Sep 2004 22:08:07 +0100
+> On Mon, Sep 06, 2004 at 02:02:09PM -0700, Andrew Morton wrote:
+> > Hirokazu Takata <takata@linux-m32r.org> wrote:
+> > >
+> > > The useless iBCS2 supporting code is removed.
+> > 
+> > I didn't really understand what Christoph was saying about this one, so
+> > I'll apply it for now.
+> 
+> iBCS2 is a standard for binary compatiblity on x86.  The x86 SysV IPC code
+> has hacks in there so it could be used by applications for x86 SVR3/4 system
+> under binary emulation aswell.  This is obviously useless for any non-x86
+> port, but lots of people blindly copied it.
+> 
+
+	* arch/m32r/elf.h:
+	- SET_PERSONALITY: Remove PER_SVR4; m32r should not support it.
+	- Update comments.
+
+	* arch/m32r/poll.h:
+	- POLLREMOVE: Add definition.
+	- Remove comments about ibcs2, and so on.
+
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
+
+ include/asm-m32r/elf.h  |   75 ++++++++++++++++++++++--------------------------
+ include/asm-m32r/poll.h |   12 ++++---
+ 2 files changed, 42 insertions(+), 45 deletions(-)
 
 
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> diff -puN mm/vmscan.c~swapspace-layout-improvements mm/vmscan.c
-> --- 25/mm/vmscan.c~swapspace-layout-improvements	2004-06-03 21:32:51.087602712 -0700
-> +++ 25-akpm/mm/vmscan.c	2004-06-03 21:32:51.102600432 -0700
-
-i've attached a merge against current BK-ish kernels. Lee, would you be
-interested in testing it? It applies cleanly to an -S0 VP tree. I've
-tested it only lightly - it compiles and boots and survives some simple
-swapping but that's all.
-
-	Ingo
-
---wq9mPyueHGvFACwf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="swapspace-layout-improvements-2.6.9-rc1-bk12-A1"
-
---- linux/include/linux/swap.h.orig	
-+++ linux/include/linux/swap.h	
-@@ -193,7 +193,7 @@ extern int rw_swap_page_sync(int, swp_en
- extern struct address_space swapper_space;
- #define total_swapcache_pages  swapper_space.nrpages
- extern void show_swap_cache_info(void);
--extern int add_to_swap(struct page *);
-+extern int add_to_swap(struct page *page, void *cookie, pgoff_t index);
- extern void __delete_from_swap_cache(struct page *);
- extern void delete_from_swap_cache(struct page *);
- extern int move_to_swap_cache(struct page *, swp_entry_t);
-@@ -209,7 +209,7 @@ extern long total_swap_pages;
- extern unsigned int nr_swapfiles;
- extern struct swap_info_struct swap_info[];
- extern void si_swapinfo(struct sysinfo *);
--extern swp_entry_t get_swap_page(void);
-+extern swp_entry_t get_swap_page(void *cookie, pgoff_t index);
- extern int swap_duplicate(swp_entry_t);
- extern int valid_swaphandles(swp_entry_t, unsigned long *);
- extern void swap_free(swp_entry_t);
-@@ -274,7 +274,7 @@ static inline int remove_exclusive_swap_
- 	return 0;
- }
+diff -rup linux-2.6.9-rc1-mm4.orig/include/asm-m32r/elf.h linux-2.6.9-rc1-mm4.remove_ibcs2_code/include/asm-m32r/elf.h
+--- linux-2.6.9-rc1-mm4.orig/include/asm-m32r/elf.h	2004-09-08 08:14:17.000000000 +0900
++++ linux-2.6.9-rc1-mm4.remove_ibcs2_code/include/asm-m32r/elf.h	2004-09-10 21:52:20.000000000 +0900
+@@ -1,16 +1,16 @@
+ #ifndef _ASM_M32R__ELF_H
+ #define _ASM_M32R__ELF_H
  
--static inline swp_entry_t get_swap_page(void)
-+static inline swp_entry_t get_swap_page(void *cookie, pgoff_t index)
- {
- 	swp_entry_t entry;
- 	entry.val = 0;
---- linux/kernel/power/swsusp.c.orig	
-+++ linux/kernel/power/swsusp.c	
-@@ -317,7 +317,7 @@ static int write_suspend_image(void)
- 	for (i=0; i<nr_copy_pages; i++) {
- 		if (!(i%100))
- 			printk( "." );
--		entry = get_swap_page();
-+		entry = get_swap_page(NULL, i);
- 		if (!entry.val)
- 			panic("\nNot enough swapspace when writing data" );
- 		
-@@ -335,7 +335,7 @@ static int write_suspend_image(void)
- 		cur = (union diskpage *)((char *) pagedir_nosave)+i;
- 		BUG_ON ((char *) cur != (((char *) pagedir_nosave) + i*PAGE_SIZE));
- 		printk( "." );
--		entry = get_swap_page();
-+		entry = get_swap_page(NULL, i);
- 		if (!entry.val) {
- 			printk(KERN_CRIT "Not enough swapspace when writing pgdir\n" );
- 			panic("Don't know how to recover");
-@@ -358,7 +358,7 @@ static int write_suspend_image(void)
- 	BUG_ON (sizeof(struct suspend_header) > PAGE_SIZE-sizeof(swp_entry_t));
- 	BUG_ON (sizeof(union diskpage) != PAGE_SIZE);
- 	BUG_ON (sizeof(struct link) != PAGE_SIZE);
--	entry = get_swap_page();
-+	entry = get_swap_page(NULL, i);
- 	if (!entry.val)
- 		panic( "\nNot enough swapspace when writing header" );
- 	if (swapfile_used[swp_type(entry)] != SWAPFILE_SUSPEND)
---- linux/kernel/power/pmdisk.c.orig	
-+++ linux/kernel/power/pmdisk.c	
-@@ -206,7 +206,7 @@ static int write_swap_page(unsigned long
- 	swp_entry_t entry;
- 	int error = 0;
- 
--	entry = get_swap_page();
-+	entry = get_swap_page(NULL, addr >> PAGE_SHIFT);
- 	if (swp_offset(entry) && 
- 	    swapfile_used[swp_type(entry)] == SWAPFILE_SUSPEND) {
- 		error = rw_swap_page_sync(WRITE, entry,
---- linux/mm/vmscan.c.orig	
-+++ linux/mm/vmscan.c	
-@@ -390,7 +390,10 @@ static int shrink_list(struct list_head 
- 		 * Try to allocate it some swap space here.
- 		 */
- 		if (PageAnon(page) && !PageSwapCache(page)) {
--			if (!add_to_swap(page))
-+			void *cookie = page->mapping;
-+			pgoff_t index = page->index;
-+
-+			if (!add_to_swap(page, cookie, index))
- 				goto activate_locked;
- 		}
- #endif /* CONFIG_SWAP */
---- linux/mm/swap_state.c.orig	
-+++ linux/mm/swap_state.c	
-@@ -137,8 +137,12 @@ void __delete_from_swap_cache(struct pag
-  *
-  * Allocate swap space for the page and add the page to the
-  * swap cache.  Caller needs to hold the page lock. 
-+ *
-+ * We attempt to lay pages out on swap to that virtually-contiguous pages are
-+ * contiguous on-disk.  To do this we utilise page->index (offset into vma) and
-+ * page->mapping (the anon_vma's address).
-  */
--int add_to_swap(struct page * page)
-+int add_to_swap(struct page *page, void *cookie, pgoff_t index)
- {
- 	swp_entry_t entry;
- 	int pf_flags;
-@@ -148,7 +152,7 @@ int add_to_swap(struct page * page)
- 		BUG();
- 
- 	for (;;) {
--		entry = get_swap_page();
-+		entry = get_swap_page(cookie, index);
- 		if (!entry.val)
- 			return 0;
- 
---- linux/mm/shmem.c.orig	
-+++ linux/mm/shmem.c	
-@@ -740,7 +740,7 @@ static int shmem_writepage(struct page *
- 	struct shmem_inode_info *info;
- 	swp_entry_t *entry, swap;
- 	struct address_space *mapping;
--	unsigned long index;
-+	pgoff_t index;
- 	struct inode *inode;
- 
- 	BUG_ON(!PageLocked(page));
-@@ -752,7 +752,7 @@ static int shmem_writepage(struct page *
- 	info = SHMEM_I(inode);
- 	if (info->flags & VM_LOCKED)
- 		goto redirty;
--	swap = get_swap_page();
-+	swap = get_swap_page(mapping, index);
- 	if (!swap.val)
- 		goto redirty;
- 
---- linux/mm/swapfile.c.orig	
-+++ linux/mm/swapfile.c	
-@@ -25,6 +25,7 @@
- #include <linux/rmap.h>
- #include <linux/security.h>
- #include <linux/backing-dev.h>
-+#include <linux/hash.h>
- 
- #include <asm/pgtable.h>
- #include <asm/tlbflush.h>
-@@ -83,71 +84,51 @@ void swap_unplug_io_fn(struct backing_de
- 	up_read(&swap_unplug_sem);
- }
- 
--static inline int scan_swap_map(struct swap_info_struct *si)
--{
--	unsigned long offset;
--	/* 
--	 * We try to cluster swap pages by allocating them
--	 * sequentially in swap.  Once we've allocated
--	 * SWAPFILE_CLUSTER pages this way, however, we resort to
--	 * first-free allocation, starting a new cluster.  This
--	 * prevents us from scattering swap pages all over the entire
--	 * swap partition, so that we reduce overall disk seek times
--	 * between swap pages.  -- sct */
--	if (si->cluster_nr) {
--		while (si->cluster_next <= si->highest_bit) {
--			offset = si->cluster_next++;
--			if (si->swap_map[offset])
--				continue;
--			si->cluster_nr--;
--			goto got_page;
--		}
--	}
--	si->cluster_nr = SWAPFILE_CLUSTER;
-+int akpm;
- 
--	/* try to find an empty (even not aligned) cluster. */
--	offset = si->lowest_bit;
-- check_next_cluster:
--	if (offset+SWAPFILE_CLUSTER-1 <= si->highest_bit)
--	{
--		unsigned long nr;
--		for (nr = offset; nr < offset+SWAPFILE_CLUSTER; nr++)
--			if (si->swap_map[nr])
--			{
--				offset = nr+1;
--				goto check_next_cluster;
--			}
--		/* We found a completly empty cluster, so start
--		 * using it.
--		 */
--		goto got_page;
--	}
--	/* No luck, so now go finegrined as usual. -Andrea */
--	for (offset = si->lowest_bit; offset <= si->highest_bit ; offset++) {
--		if (si->swap_map[offset])
+-/* $Id$ */
+-
+-/*
+- * ELF register definitions..
+- */
 +/*
-+ * We divide the swapdev into 1024 kilobyte chunks.  We use the cookie and the
-+ * upper bits of the index to select a chunk and the rest of the index as the
-+ * offset into the selected chunk.
++ * ELF-specific definitions.
++ *
++ * Copyright (C) 1999-2004, Renesas Technology Corp.
++ *      Hirokazu Takata <takata at linux-m32r.org>
 + */
-+#define CHUNK_SHIFT	(20 - PAGE_SHIFT)
-+#define CHUNK_MASK	(-1UL << CHUNK_SHIFT)
-+
-+static int
-+scan_swap_map(struct swap_info_struct *si, void *cookie, pgoff_t index)
-+{
-+	unsigned long chunk;
-+	unsigned long nchunks;
-+	unsigned long block;
-+	unsigned long scan;
-+
-+	nchunks = si->max >> CHUNK_SHIFT;
-+	chunk = 0;
-+	if (nchunks)
-+		chunk = hash_long((unsigned long)cookie + (index & CHUNK_MASK),
-+					BITS_PER_LONG) % nchunks;
-+
-+	block = (chunk << CHUNK_SHIFT) + (index & ~CHUNK_MASK);
-+
-+	for (scan = 0; scan < si->max; scan++, block++) {
-+		if (block == si->max)
-+			block = 0;
-+		if (block == 0)
- 			continue;
--		si->lowest_bit = offset+1;
--	got_page:
--		if (offset == si->lowest_bit)
--			si->lowest_bit++;
--		if (offset == si->highest_bit)
--			si->highest_bit--;
--		if (si->lowest_bit > si->highest_bit) {
--			si->lowest_bit = si->max;
--			si->highest_bit = 0;
--		}
--		si->swap_map[offset] = 1;
--		si->inuse_pages++;
-+		if (si->swap_map[block])
-+			continue;
-+		si->swap_map[block] = 1;
- 		nr_swap_pages--;
--		si->cluster_next = offset+1;
--		return offset;
-+		if (akpm)
-+			printk("cookie:%p, index:%lu, chunk:%lu nchunks:%lu "
-+				"block:%lu\n",
-+				cookie, index, chunk, nchunks, block);
-+		return block;
- 	}
--	si->lowest_bit = si->max;
--	si->highest_bit = 0;
- 	return 0;
- }
  
--swp_entry_t get_swap_page(void)
-+swp_entry_t get_swap_page(void *cookie, pgoff_t index)
- {
- 	struct swap_info_struct * p;
- 	unsigned long offset;
-@@ -166,7 +147,7 @@ swp_entry_t get_swap_page(void)
- 		p = &swap_info[type];
- 		if ((p->flags & SWP_ACTIVE) == SWP_ACTIVE) {
- 			swap_device_lock(p);
--			offset = scan_swap_map(p);
-+			offset = scan_swap_map(p, cookie, index);
- 			swap_device_unlock(p);
- 			if (offset) {
- 				entry = swp_entry(type,offset);
+ #include <asm/ptrace.h>
+ #include <asm/user.h>
+-
+-#include <linux/utsname.h>
++#include <asm/page.h>
+ 
+ /* M32R relocation types  */
+ #define	R_M32R_NONE		0
+@@ -48,7 +48,7 @@
+ #define R_M32R_HI16_SLO_RELA	R_M32R_HI16_SLO
+ #define R_M32R_LO16_RELA	R_M32R_LO16
+ #define R_M32R_SDA16_RELA	R_M32R_SDA16
+-#else /* OLD_TYPE */
++#else /* not OLD_TYPE */
+ #define	R_M32R_GNU_VTINHERIT	11
+ #define	R_M32R_GNU_VTENTRY	12
+ 
+@@ -92,14 +92,16 @@
+ #define R_M32R_GOTPC_HI_ULO	59
+ #define R_M32R_GOTPC_HI_SLO	60
+ #define R_M32R_GOTPC_LO		61
+-
+-#endif /* OLD_TYPE */
++#endif /* not OLD_TYPE */
+ 
+ #define R_M32R_NUM		256
+ 
+-typedef unsigned long elf_greg_t;
+-
++/*
++ * ELF register definitions..
++ */
+ #define ELF_NGREG (sizeof (struct pt_regs) / sizeof(elf_greg_t))
++
++typedef unsigned long elf_greg_t;
+ typedef elf_greg_t elf_gregset_t[ELF_NGREG];
+ 
+ /* We have no FP mumumu.  */
+@@ -125,28 +127,27 @@ typedef elf_fpreg_t elf_fpregset_t;
+ #endif
+ #define ELF_ARCH	EM_M32R
+ 
+-/* SVR4/i386 ABI (pages 3-31, 3-32) says that when the program starts %edx
+-   contains a pointer to a function which might be registered using `atexit'.
+-   This provides a mean for the dynamic linker to call DT_FINI functions for
+-   shared libraries that have been loaded before the code runs.
+-
+-   A value of 0 tells we have no such handler.
+-
+-   We might as well make sure everything else is cleared too (except for %esp),
+-   just to make things more deterministic.
++/* r0 is set by ld.so to a pointer to a function which might be
++ * registered using 'atexit'.  This provides a mean for the dynamic
++ * linker to call DT_FINI functions for shared libraries that have
++ * been loaded before the code runs.
++ *
++ * So that we can use the same startup file with static executables,
++ * we start programs with a value of 0 to indicate that there is no
++ * such function.
+  */
+-#define ELF_PLAT_INIT(_r, load_addr)	do { \
+-	_r->r0 = 0; \
+-} while (0)
++#define ELF_PLAT_INIT(_r, load_addr)	(_r)->r0 = 0
+ 
+ #define USE_ELF_CORE_DUMP
+-#define ELF_EXEC_PAGESIZE	4096
+-
+-/* This is the location that an ET_DYN program is loaded if exec'ed.  Typical
+-   use of this is to invoke "./ld.so someprog" to test out a new version of
+-   the loader.  We need to make sure that it is out of the way of the program
+-   that it will "exec", and that there is sufficient room for the brk.  */
++#define ELF_EXEC_PAGESIZE	PAGE_SIZE
+ 
++/*
++ * This is the location that an ET_DYN program is loaded if exec'ed.
++ * Typical use of this is to invoke "./ld.so someprog" to test out a
++ * new version of the loader.  We need to make sure that it is out of
++ * the way of the program that it will "exec", and that there is
++ * sufficient room for the brk.
++ */
+ #define ELF_ET_DYN_BASE         (TASK_SIZE / 3 * 2)
+ 
+ /* regs is struct pt_regs, pr_reg is elf_gregset_t (which is
+@@ -156,22 +157,16 @@ typedef elf_fpreg_t elf_fpregset_t;
+ 	memcpy((char *)&pr_reg, (char *)&regs, sizeof (struct pt_regs));
+ 
+ /* This yields a mask that user programs can use to figure out what
+-   instruction set this CPU supports.  This could be done in user space,
+-   but it's not easy, and we've already done it here.  */
+-
++   instruction set this CPU supports.  */
+ #define ELF_HWCAP	(0)
+ 
+ /* This yields a string that ld.so will use to load implementation
+    specific libraries for optimization.  This is more specific in
+-   intent than poking at uname or /proc/cpuinfo.
+-
+-   For the moment, we have only optimizations for the Intel generations,
+-   but that could change... */
+-
+-#define ELF_PLATFORM  (NULL)
++   intent than poking at uname or /proc/cpuinfo.  */
++#define ELF_PLATFORM	(NULL)
+ 
+ #ifdef __KERNEL__
+-#define SET_PERSONALITY(ex, ibcs2) set_personality((ibcs2)?PER_SVR4:PER_LINUX)
++#define SET_PERSONALITY(ex, ibcs2) set_personality(PER_LINUX)
+ #endif
+ 
+ #endif  /* _ASM_M32R__ELF_H */
+diff -rup linux-2.6.9-rc1-mm4.orig/include/asm-m32r/poll.h linux-2.6.9-rc1-mm4.remove_ibcs2_code/include/asm-m32r/poll.h
+--- linux-2.6.9-rc1-mm4.orig/include/asm-m32r/poll.h	2004-09-08 08:14:17.000000000 +0900
++++ linux-2.6.9-rc1-mm4.remove_ibcs2_code/include/asm-m32r/poll.h	2004-09-10 21:52:15.000000000 +0900
+@@ -1,11 +1,13 @@
+ #ifndef _ASM_M32R_POLL_H
+ #define _ASM_M32R_POLL_H
+ 
+-/* $Id$ */
++/*
++ * poll(2) bit definitions.  Based on <asm-i386/poll.h>.
++ *
++ * Modified 2004
++ *      Hirokazu Takata <takata at linux-m32r.org>
++ */
+ 
+-/* orig : i386 2.4.18 */
+-
+-/* These are specified by iBCS2 */
+ #define POLLIN		0x0001
+ #define POLLPRI		0x0002
+ #define POLLOUT		0x0004
+@@ -13,12 +15,12 @@
+ #define POLLHUP		0x0010
+ #define POLLNVAL	0x0020
+ 
+-/* The rest seem to be more-or-less nonstandard. Check them! */
+ #define POLLRDNORM	0x0040
+ #define POLLRDBAND	0x0080
+ #define POLLWRNORM	0x0100
+ #define POLLWRBAND	0x0200
+ #define POLLMSG		0x0400
++#define POLLREMOVE	0x1000
+ 
+ struct pollfd {
+ 	int fd;
 
---wq9mPyueHGvFACwf--
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286140AbRLTFuV>; Thu, 20 Dec 2001 00:50:21 -0500
+	id <S286137AbRLTFtB>; Thu, 20 Dec 2001 00:49:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286142AbRLTFuB>; Thu, 20 Dec 2001 00:50:01 -0500
-Received: from f38.pav0.hotmail.com ([64.4.32.222]:54798 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S286140AbRLTFtt>;
-	Thu, 20 Dec 2001 00:49:49 -0500
-X-Originating-IP: [202.88.224.81]
-From: "blesson paul" <blessonpaul@msn.com>
-To: linux-kernel@vger.kernel.org
-Subject: exported functions in 2.2.16
-Date: Thu, 20 Dec 2001 11:19:43 +0530
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F38RfLC7A9BzqREGcvc0000f97a@hotmail.com>
-X-OriginalArrivalTime: 20 Dec 2001 05:49:43.0608 (UTC) FILETIME=[1FA3FB80:01C1891A]
+	id <S286139AbRLTFsv>; Thu, 20 Dec 2001 00:48:51 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30480 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S286137AbRLTFsk>; Thu, 20 Dec 2001 00:48:40 -0500
+Date: Wed, 19 Dec 2001 21:47:18 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: <cs@zip.com.au>, <billh@tierra.ucsd.edu>, <bcrl@redhat.com>,
+        <linux-kernel@vger.kernel.org>, <linux-aio@kvack.org>
+Subject: Re: aio
+In-Reply-To: <20011219.185847.77651573.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0112192136300.19214-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
-	I am using  kernel 2.2.16.  I  need to use the following functions which of 
-course are exported from a kernel 2.4.5.
 
-	interruptible_sleep_on_timeout
-	schedule_task
+On Wed, 19 Dec 2001, David S. Miller wrote:
+>
+> Not precisely my thrust, which is that AIO is not important to any
+> significant population of Linux users, it is "nook and cranny" in
+> scope.  And that those "nook and cranny" folks who really find it
+> important can get paid implementation+support of AIO.
 
-			These functions are not exported from 2.2.16. So which are the functions 
-that is exported from 2.2.16 that we can be called instead of the above ones
-regards
-Blesson Paul
+I disagree - we can probably make the aio by Ben quite important. Done
+right, it becomes a very natural way of doing event handling, and it could
+very well be rather useful for many things that use select loops right
+now.
 
+So I actually like the thing as it stands now. What I don't like is how
+it's been handled, with people inside Oracle etc working with it, but
+_not_ people on the kernel mailing list. I don't worry about the code
+nearly as much as I worry about people starting to clique together.
 
-
-_________________________________________________________________
-Send and receive Hotmail on your mobile device: http://mobile.msn.com
+		Linus
 

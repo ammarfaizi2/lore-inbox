@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267096AbSKSFnM>; Tue, 19 Nov 2002 00:43:12 -0500
+	id <S267101AbSKSFtf>; Tue, 19 Nov 2002 00:49:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267102AbSKSFnM>; Tue, 19 Nov 2002 00:43:12 -0500
-Received: from picante.ne.client2.attbi.com ([24.91.80.18]:2555 "EHLO
-	habanero.picante.com") by vger.kernel.org with ESMTP
-	id <S267096AbSKSFnK>; Tue, 19 Nov 2002 00:43:10 -0500
-Message-Id: <200211190549.gAJ5nGmU007542@habanero.picante.com>
-From: Grant Taylor <gtaylor+lkml_ihdeh111902@picante.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [rfc] epoll interface change and glibc bits ...
-Date: Tue, 19 Nov 2002 00:49:16 -0500
+	id <S267097AbSKSFtf>; Tue, 19 Nov 2002 00:49:35 -0500
+Received: from dp.samba.org ([66.70.73.150]:19630 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267094AbSKSFtd>;
+	Tue, 19 Nov 2002 00:49:33 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Doug Ledford <dledford@redhat.com>,
+       Linux Scsi Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Why /dev/sdc1 doesn't show up... 
+In-reply-to: Your message of "Tue, 19 Nov 2002 10:49:21 +1100."
+Date: Tue, 19 Nov 2002 16:52:25 +1100
+Message-Id: <20021119055636.94C182C088@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Mark Mielke <mark@mark.mielke.cc> writes:
+> right).  Or you can run a notifier on "enlivening" a module: I'd hoped
+> to avoid that.
 
-> We're talking about one extra field to a data structure.
+Actually, after some thought, this seems to clearly be the Right
+Thing, because it solves another existing race.  Consider a module
+which does:
 
-Hmm.  As it happens, it looks like Davide is going to err on the side
-of the kitchen sink; that neatly makes us both more or less happy,
-even if it's still ugly ;)
+	if (!register_foo(&my_foo))
+		goto cleanup;
+	if (!create_proc_entry(&my_entry))
+		goto cleanup_foo;
 
+If register_foo() calls /sbin/hotplug, the module can still fail to
+load and /sbin/hotplug is called for something that doesn't exist.
+With the new module loader, you can also have /sbin/hotplug try to
+access the module before it's gone live, which will fail to prevent
+the "using before we know module won't fail init" race.
 
-Meanwhile, in the more important caveat department (Dan, this will
-appeal to you), I found a while back that signals cause pain with
-epoll.
+Now, if you run /sbin/hotplug out of a notifier which is fired when
+the module actually goes live, this problem vanishes.  It also means
+we can block module unload until /sbin/hotplug is run.
 
-For example, sometimes TCP reads return EAGAIN when in fact they have
-data.  This seems to stem from the case where the signal is found
-before the first segment copy (from tcp.c circa 1425, there's even a
-handy FIXME note there).  If you use epoll and get an EAGAIN, you have
-no idea if it was a signal or a real empty socket unless you are also
-very careful to notice when you got a signal during the read.
+The part that makes this feel like the Right Thing is that adding to
+init/main.c:
 
-	do {
-		struct sk_buff * skb;
-		u32 offset;
+	/* THIS_MODULE == NULL */
+	notifier_call_chain(&module_notifiers, MODULE_LIVE, NULL);
 
-		/* Are we at urgent data? Stop if we have read anything. */
-		if (copied && tp->urg_data && tp->urg_seq == *seq)
-			break;
+means that /sbin/hotplug is called for everything which was registered
+at boot.  (We may not want to do this, but in general the symmetry
+seems really nice).
 
-		/* We need to check signals first, to get correct SIGURG
-		 * handling. FIXME: Need to check this doesnt impact 1003.1g
-		 * and move it down to the bottom of the loop
-		 */
-		if (signal_pending(current)) {
-			if (copied)
-				break;
-			copied = timeo ? sock_intr_errno(timeo) : -EAGAIN;
-			break;
-		}
+[ Note: the logic for /sbin/hotplug applies to any similar "publicity"
+  function which promises that something now exists. ]
 
-		/* Next get a buffer. */
-
-		skb = skb_peek(&sk->receive_queue);
-		do {
-	
-
-
--- 
-Grant Taylor - gtaylor<at>picante.com - http://www.picante.com/~gtaylor/
-   Linux Printing Website and HOWTO:  http://www.linuxprinting.org/
+Al, thoughts?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

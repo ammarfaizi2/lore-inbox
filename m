@@ -1,145 +1,198 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268031AbUIJEFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268052AbUIJENb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268031AbUIJEFs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 00:05:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268033AbUIJEFs
+	id S268052AbUIJENb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 00:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268054AbUIJENb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 00:05:48 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:53719 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S268031AbUIJEFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 00:05:13 -0400
-Message-ID: <01be01c496eb$6a9dbd60$f97d220a@linux.bs1.fc.nec.co.jp>
-From: "Kaigai Kohei" <kaigai@ak.jp.nec.com>
-To: "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0409092005430.14004-100000@localhost.localdomain>
-Subject: PATCH] atomic_inc_return() [0/5] (Re: atomic_inc_return)
-Date: Fri, 10 Sep 2004 13:05:32 +0900
+	Fri, 10 Sep 2004 00:13:31 -0400
+Received: from scrye.com ([216.17.180.1]:20920 "EHLO mail.scrye.com")
+	by vger.kernel.org with ESMTP id S268052AbUIJENX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 00:13:23 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Date: Thu, 9 Sep 2004 22:13:16 -0600
+From: Kevin Fenzi <kevin-linux-kernel@scrye.com>
+To: linux-kernel@vger.kernel.org, bjorn.helgaas@hp.com, pavel@ucw.cz
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Subject: Re: FYI: my current bigdiff
+X-Draft-From: ("scrye.linux.kernel" 66164)
+References: <20040909134421.GA12204@elf.ucw.cz>
+Message-Id: <20040910041320.DF700E7504@voldemort.scrye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The first mail to LKML was returned to me because Triple-X was in subject.
-I tried to send this one again.
----------------------------
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hello, Hugh Dickins
+>>>>> "Pavel" == Pavel Machek <pavel@ucw.cz> writes:
 
-> KaiGai-San,
-> 
-> I believe you have a patch adding those to i386 (including CONFIG_M386
-> runtime check lest it's an actual i386 which cannot do "xadd") and x86_64.
-> I'd be glad to see that go into the tree, would you be ready to submit it
-> to Andrew or Linus based on the current 2.6 BK tree?
+Pavel> Hi!  This is my bigdiff. It is not for inclusion (I'll have to
+Pavel> split it), but it contains some usefull code (I believe :-).
 
-Indeed, I hope to do this.
-atomic_inc_return() is necessary for the 'SELinux performance improvement
-by RCU' patch.
+Pavel> Oh, it speeds up swsusp quite a lot.
 
-See, http://lkml.org/lkml/2004/8/30/63
-  [PATCH]SELinux performance improvement by RCU (Re: RCU issue with SELinux)
+Indeed it does. 
 
-These fundamental functions should be managed in up-stream.
+After 42 days of uptime with 2.6.8-rc2-mm1 I decided to upgrade. 
+swsusp was very stable, but was getting slower and slower. Eariler
+tonight I suspended and it took about 15min to finish suspending. 
 
-> I think arm was missing the inc and dec, but has recently gained them.
-> arm26 doesn't have any of the four, but it's not SMP, and just a matter
-> of following the other examples in its atomic.h to add them.  sparc64
-> is missing the add and sub (which neither of us particularly need),
-> I think just because nobody was using them: easily added - I think
-> it'd be a good idea for all architectures to have the set of four.
+So, I built a new 2.6.9-rc1-mm4 + this bigdiff for swsusp. 
 
-I made patches for i386, x86_64, arm, arm26 and sparc64.
-These patches apply to both linux-2.6.9-rc1 and 2.6.9-rc1-mm4.
+First suspend worked. 
+First resume came back, but all kinds of problems with my network,
+with my usb, and with sound. 
 
-[1/5] atomic_inc_return-linux-2.6.9-rc1.i386.patch
-  This patch implements atomic_inc_return() and so on for i386,
-  and includes runtime check whether CPU is legacy 386.
-  It is same as I posted to LKML and Andi Kleen at '04/09/01.
+After looking around a bit it seems this is the issue: 
 
-[2/5] atomic_inc_return-linux-2.6.9-rc1.x86_64.patch
-  This patch implements atomic_inc_return() and so on for x86_64.
-  It is same as I posted to LKML and Andi Kleen at '04/09/01.
+Sep  9 21:32:27 voldemort kernel: ** PCI interrupts are no longer routed automatically.  If this
+Sep  9 21:32:27 voldemort kernel: ** causes a device to stop working, it is probably because the
+Sep  9 21:32:27 voldemort kernel: ** driver failed to call pci_enable_device().  As a temporary
+Sep  9 21:32:27 voldemort kernel: ** workaround, the "pci=routeirq" argument restores the old
+Sep  9 21:32:27 voldemort kernel: ** behavior.  If this argument makes the device work again,
+Sep  9 21:32:27 voldemort kernel: ** please email the output of "lspci" to bjorn.helgaas@hp.com
+Sep  9 21:32:27 voldemort kernel: ** so I can fix the driver.
 
-[3/5] atomic_inc_return-linux-2.6.9-rc1.arm.patch
-  This patch declares atomic_inc_return() as the alias of atomic_add_return()
-  and atomic_dec_return() as an alias of atomic_dec_return().
-  This patch has not been tested, since we don't have ARM machine.
-  I want to let this reviewed by ARM specialists.
+After that first suspend/resume:
 
-[4/5] atomic_inc_return-linux-2.6.9-rc1.arm26.patch
-  This patch implements atomic_inc_return() and so on for ARM26.
-  Because Hugh says that SMP is not supported in arm26, it is implemented
-  by normal operations between local_irq_save() and local_irq_restore()
-  like another atomic operations.
-  This patch has not been tested, since we don't have ARM26 machine.
-  I want to let this reviewed by ARM26 specialists.
+Sep  9 21:35:28 voldemort kernel: Stopping tasks: ====================================|
+Sep  9 21:35:28 voldemort kernel: Freeing memory...  ^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H
+\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-
+^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^
+H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^Hdone (44436 pages freed)
 
-[5/5] atomic_inc_return-linux-2.6.9-rc1.sparc64.patch
-  This patch declares atomic_add_return() as an alias of __atomic_add().
-  atomic64_add_return(),atomic_sub_return() and atomic64_sub_return() are same.
-  This patch has not been tested, since we don't have SPARC64 machine.  
-  I want to let this reviewed by SPARC64 specialists.
+(BTW, that looks pretty nasty in the logs, even though it's very nice
+to watch)
 
---------
-Kai Gai <kaigai@ak.jp.nec.com>
+Sep  9 21:35:28 voldemort kernel: swsusp: Need to copy 13410 pages
+Sep  9 21:35:28 voldemort kernel: ACPI: PCI interrupt 0000:00:1f.1[A] -> GSI 11 (level, low) -> IRQ 11
+Sep  9 21:35:28 voldemort kernel: ACPI: PCI interrupt 0000:02:0e.0[A] -> GSI 10 (level, low) -> IRQ 10
+Sep  9 21:35:28 voldemort kernel: ACPI: PCI interrupt 0000:02:0e.1[B] -> GSI 10 (level, low) -> IRQ 10
+Sep  9 21:35:28 voldemort kernel: Restarting tasks... done
+Sep  9 21:35:30 voldemort kernel: usbcore: registered new driver usbfs
+Sep  9 21:35:30 voldemort kernel: usbcore: registered new driver hub
+Sep  9 21:35:30 voldemort kernel: ohci_hcd: 2004 Feb 02 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+Sep  9 21:35:30 voldemort kernel: ACPI: PCI interrupt 0000:02:0e.0[A] -> GSI 10 (level, low) -> IRQ 10
+Sep  9 21:35:30 voldemort kernel: ohci_hcd 0000:02:0e.0: NEC Corporation USB
+Sep  9 21:35:31 voldemort kernel: irq 10: nobody cared!
+Sep  9 21:35:31 voldemort kernel:  [<c01083ef>] __report_bad_irq+0x2a/0x8b
+Sep  9 21:35:31 voldemort kernel:  [<c01085e1>] note_interrupt+0x7c/0xde
+Sep  9 21:35:31 voldemort kernel:  [<c0108847>] do_IRQ+0xf7/0x116
+Sep  9 21:35:31 voldemort kernel:  [<c010678c>] common_interrupt+0x18/0x20
+Sep  9 21:35:31 voldemort kernel:  [<c011fa5f>] __do_softirq+0x2f/0x87
+Sep  9 21:35:31 voldemort kernel:  [<c011fadd>] do_softirq+0x26/0x28
+Sep  9 21:35:31 voldemort kernel:  [<c0108826>] do_IRQ+0xd6/0x116
+Sep  9 21:35:31 voldemort kernel:  [<c010678c>] common_interrupt+0x18/0x20
+Sep  9 21:35:31 voldemort kernel:  [<c0108c71>] setup_irq+0x69/0xaa
+Sep  9 21:35:31 voldemort kernel:  [<f88b68aa>] usb_hcd_irq+0x0/0x67 [usbcore]
+Sep  9 21:35:31 voldemort kernel:  [<c010891c>] request_irq+0x83/0xc5
+Sep  9 21:35:31 voldemort kernel:  [<f88ba6af>] usb_hcd_pci_probe+0x1f5/0x4dc [usbcore]
+Sep  9 21:35:31 voldemort kernel:  [<f88b68aa>] usb_hcd_irq+0x0/0x67 [usbcore]
+Sep  9 21:35:31 voldemort kernel:  [<c01863e1>] sysfs_make_dirent+0x2b/0x97
+Sep  9 21:35:31 voldemort kernel:  [<c01e3e58>] pci_device_probe_static+0x52/0x61
+Sep  9 21:35:31 voldemort kernel:  [<c01e3ea2>] __pci_device_probe+0x3b/0x4e
+Sep  9 21:35:31 voldemort kernel:  [<c01e3ee1>] pci_device_probe+0x2c/0x4a
+Sep  9 21:35:31 voldemort kernel:  [<c0229acd>] bus_match+0x3f/0x6a
+Sep  9 21:35:31 voldemort kernel:  [<c0229bdf>] driver_attach+0x56/0x80
+Sep  9 21:35:31 voldemort kernel:  [<c022a032>] bus_add_driver+0x91/0xaf
+Sep  9 21:35:31 voldemort kernel:  [<c022a54d>] driver_register+0x2f/0x33
+Sep  9 21:35:31 voldemort kernel:  [<c01e4120>] pci_register_driver+0x5c/0x84
+Sep  9 21:35:31 voldemort kernel:  [<f887e037>] ohci_hcd_pci_init+0x37/0x44 [ohci_hcd]
+Sep  9 21:35:31 voldemort kernel:  [<c0130ea8>] sys_init_module+0x135/0x1ba
+Sep  9 21:35:31 voldemort kernel:  [<c0105dcd>] sysenter_past_esp+0x52/0x71
+Sep  9 21:35:31 voldemort kernel: handlers:
+Sep  9 21:35:31 voldemort kernel: [<f88b68aa>] (usb_hcd_irq+0x0/0x67 [usbcore])
+Sep  9 21:35:31 voldemort kernel: Disabling IRQ #10
+Sep  9 21:35:31 voldemort kernel: ohci_hcd 0000:02:0e.0: irq 10, pci mem 0x40180000
+Sep  9 21:35:31 voldemort kernel: ohci_hcd 0000:02:0e.0: new USB bus registered, assigned bus number 1
+Sep  9 21:35:32 voldemort kernel: hub 1-0:1.0: USB hub found
+Sep  9 21:35:32 voldemort kernel: hub 1-0:1.0: 3 ports detected
+Sep  9 21:35:32 voldemort kernel: ACPI: PCI interrupt 0000:02:0e.1[B] -> GSI 10 (level, low) -> IRQ 10
+Sep  9 21:35:32 voldemort kernel: ohci_hcd 0000:02:0e.1: NEC Corporation USB (#2)
+Sep  9 21:35:32 voldemort kernel: ohci_hcd 0000:02:0e.1: irq 10, pci mem 0x40200000
+Sep  9 21:35:32 voldemort kernel: ohci_hcd 0000:02:0e.1: new USB bus registered, assigned bus number 2
+Sep  9 21:35:33 voldemort kernel: hub 2-0:1.0: USB hub found
+Sep  9 21:35:33 voldemort kernel: hub 2-0:1.0: 2 ports detected
+Sep  9 21:35:33 voldemort kernel: Loaded prism54 driver, version 1.2
+Sep  9 21:35:33 voldemort kernel: ACPI: PCI interrupt 0000:03:00.0[A] -> GSI 11 (level, low) -> IRQ 11
+Sep  9 21:35:33 voldemort kernel: divert: allocating divert_blk for eth1
+Sep  9 21:36:07 voldemort kernel: eth1: resetting device...
+Sep  9 21:36:07 voldemort kernel: eth1: uploading firmware...
+Sep  9 21:36:08 voldemort kernel: eth1: firmware upload complete
+Sep  9 21:36:09 voldemort kernel: eth1: reset problem: no 'reset complete' IRQ seen
+Sep  9 21:36:09 voldemort kernel: eth1: timeout waiting for mgmt response 1000, triggering device
+Sep  9 21:36:10 voldemort kernel: eth1: timeout waiting for mgmt response
+Sep  9 21:36:10 voldemort kernel: eth1: mgt_commit_list: failure. oid=ff020008 err=-110
+Sep  9 21:36:10 voldemort kernel: eth1: timeout waiting for mgmt response 1000, triggering device
+Sep  9 21:36:11 voldemort kernel: eth1: timeout waiting for mgmt response
+Sep  9 21:36:11 voldemort kernel: eth1: mgt_commit_list: failure. oid=ff020003 err=-110
+Sep  9 21:36:11 voldemort kernel: eth1: timeout waiting for mgmt response 1000, triggering device
+Sep  9 21:36:12 voldemort kernel: eth1: timeout waiting for mgmt response
+Sep  9 21:36:12 voldemort kernel: eth1: mgt_commit_list: failure. oid=10000000 err=-110
+Sep  9 21:36:12 voldemort kernel: eth1: timeout waiting for mgmt response 1000, triggering device
+Sep  9 21:36:13 voldemort kernel: eth1: timeout waiting for mgmt response
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=17000007 err=-110
+Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=19000001 err=-12
+Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=10000002 err=-12
+Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=19000004 err=-12
+Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=12000000 err=-12
+Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=12000001 err=-12
+Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=12000002 err=-12
+Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=12000004 err=-12
+Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=12000005 err=-12
+Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=12000006 err=-12
+Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=12000007 err=-12
+Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=12000003 err=-12
+Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=150007e0 err=-12
+Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=ff02000c err=-12
+Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=ff020003 err=-12
+Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_update_addr: failure
+Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit: failure
+Sep  9 21:36:13 voldemort kernel: eth1: interface reset complete
 
+Seems the usb and prism54 didn't play nice. 
 
-> Andrew,
-> 
-> Sorry, I think I must ask you to back my lighten-mmlist_lock.patch
-> out of -mm for the moment, and I'll resubmit a little later on.
-> 
-> Reason being, though nobody is at all likely to hit the race,
-> I've put a pathetic piece of self-delusion in try_to_unuse:
-> if (!atomic_read(&mm->mm_users))
-> continue;
->   atomic_inc(&mm->mm_users);
-> 
-> I've tried several ways of fixing it (including reworking that dance
-> using marker mms instead of raised counts), but got bored or given up
-> in disgust over most of them.  Much the nicest fix would be:
-> if (atomic_inc_return(&mm->mm_users) == 1) {
-> atomic_dec(&mm->mm_users);
-> continue;
-> }
-> 
-> (Since, if mm_users was 0, try_to_unuse is the only one which could
-> be incrementing it; and though it's possible to do two swapoffs at
-> once, we here have the mmlist_lock guarding against another.)
-> 
-> But that suffers from the drawback that not all architectures currently
-> support atomic_inc_return (nor do all support cmpxchg, which could have
-> been used instead), and its friends atomic_add_return, atomic_sub_return,
-> atomic_dec_return.  Though most do: wouldn't it be nice if they all did?
-> 
-> KaiGai-San,
-> 
-> I believe you have a patch adding those to i386 (including CONFIG_M386
-> runtime check lest it's an actual i386 which cannot do "xadd") and x86_64.
-> I'd be glad to see that go into the tree, would you be ready to submit it
-> to Andrew or Linus based on the current 2.6 BK tree?
-> 
-> I think arm was missing the inc and dec, but has recently gained them.
-> arm26 doesn't have any of the four, but it's not SMP, and just a matter
-> of following the other examples in its atomic.h to add them.  sparc64
-> is missing the add and sub (which neither of us particularly need),
-> I think just because nobody was using them: easily added - I think
-> it'd be a good idea for all architectures to have the set of four.
-> 
-> Hirokazu-San,
-> 
-> That leaves your m32r architecture without them: are those functions
-> which you could easily add to the m32r atomic.h, or would there be a
-> problem with them?  I'd hate to break your newly-arrived architecture!
-> 
-> Thanks,
-> Hugh
-> 
+After booting with the pci=routeirq as suggested wireless and usb
+played nice on suspend resume again. 
+I am copying this to the email address that is mentioned. 
 
+So, after that glitch:
+
+- - The display is much nicer. Congrats. 
+
+- - Speed does seem to be nicer. It's taking me 40 seconds to do a
+complete suspend/resume cycle. 
+
+- - Should PREEMPT and/or HIMEM work with this version? I can test them
+if support has been added/fixed/tweaked for them. 
+
+I have only done a few cycles, but it looks nice and stable. I would
+suggest you break it into smaller patches and get it applied. 
+Being applied to the main tree would be nice. 
+
+kevin
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
+
+iD8DBQFBQSng3imCezTjY0ERAjT0AJwNvCL3WbN2ypJQedPOjL3nlF8DMwCeJYss
+WNY5zEepODMsOoq2GNrWhfI=
+=vFww
+-----END PGP SIGNATURE-----

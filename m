@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291948AbSB0RMm>; Wed, 27 Feb 2002 12:12:42 -0500
+	id <S292806AbSB0RUB>; Wed, 27 Feb 2002 12:20:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292813AbSB0RM2>; Wed, 27 Feb 2002 12:12:28 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:31121 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S292116AbSB0RL7>; Wed, 27 Feb 2002 12:11:59 -0500
-Date: Wed, 27 Feb 2002 10:25:45 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: 3Ware Hard Bus Hang 2.4.18 > 220 MB/S 
-Message-ID: <20020227102545.B31524@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S292836AbSB0RTk>; Wed, 27 Feb 2002 12:19:40 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:54668 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S292818AbSB0RSH>; Wed, 27 Feb 2002 12:18:07 -0500
+From: "Nivedita Singhvi" <nivedita@us.ibm.com>
+Importance: Normal
+Sensitivity: 
+Subject: Re: How to disable TCP's checksum
+To: zhuyingj@comp.nus.edu.sg
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF52308070.845FF676-ON88256B6D.005DD163@boulder.ibm.com>
+Date: Wed, 27 Feb 2002 09:17:56 -0800
+X-MIMETrack: Serialize by Router on D03NM035/03/M/IBM(Release 5.0.9 |November 16, 2001) at
+ 02/27/2002 10:18:01 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> I am currently using kernel version 2.4.2 and trying to
+> disable tcp_input's checksum function. However, even
+> I comment all the csum_error in the file tcp_input.c, the
+> packet (with wrong checksum) seems still will be dropped.
 
+If the checksum field is the only one thats incorrect or messed
+up, then disabling the checksum will suffice.  But if any other part
+of the packet is also corrupted or altered in some way, it
+might fail the many other checks both IP and TCP perform.
 
-Running 4 3Ware 7810 Adapters with the updated 48 bit LBA firmware
-for the 78110, and attached to 8 Maxtor 160 GB hard disks on each card
-(32 drives total) striping Raid 0m across 5.6 terabytes of disk, I am
-seeing about 216-224 MB/S total throughput on writes to local 
-arrays on 2.4.18.  
+(Sorry, I know thats fairly obvious, but its easy to miss a check
+or two. :) )
 
-The system is also running an Intel Gigabit Ethernet Card at 
-116-122 MB/S with full network traffic and writing this traffic to 
-the 3Ware arrays.  All this hardware is running on a Serverworks 
-HE chipset with a SuperMicro motherboard and dual 933 Mhz PIII
-processors.
+> Zhu Ying jie
 
-After running for about 3 hours, the system will hard hang and die.  
-Using debugging tools, I have isolated to the hang to the 3Ware 
-adapters.  If I remove all but a single 3Ware adapter, the system will
-run reliably for days at these data rates.  The moment I add more 
-than one 3Ware 7810 adapter, the system will lock up.  Recent testing
-reveals that the hang is in the 3Ware card itself (all the LEDs go 
-on at once and stay on).  Attempts by the system to reset the adapter
-fail until the system is power cycled.  
+thanks,
+Nivedita
 
-3Ware dfriver version is .16 from the 2.4.18 tree.  Firmware is the 48 bit
-LBA version.  
-
-Please advise.  
-
-Jeff

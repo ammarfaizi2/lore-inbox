@@ -1,37 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVCPTUX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262760AbVCPT2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVCPTUX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 14:20:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbVCPTUW
+	id S262760AbVCPT2R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 14:28:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262763AbVCPT2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 14:20:22 -0500
-Received: from 70-56-134-246.albq.qwest.net ([70.56.134.246]:59617 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261362AbVCPTUC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 14:20:02 -0500
-Date: Wed, 16 Mar 2005 12:20:29 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Nathan Lynch <ntl@pobox.com>
-cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, rusty@rustcorp.com.au
-Subject: Re: CPU hotplug on i386
-In-Reply-To: <20050316170945.GK21853@otto>
-Message-ID: <Pine.LNX.4.61.0503161220130.19938@montezuma.fsmlabs.com>
-References: <20050316132151.GA2227@elf.ucw.cz> <20050316170945.GK21853@otto>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Mar 2005 14:28:17 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:3748 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262760AbVCPT2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 14:28:14 -0500
+Subject: Re: Driver Development
+From: Lee Revell <rlrevell@joe-job.com>
+To: "shafa.hidee" <shafa.hidee@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <00a701c52a0b$cec6f780$6a88cb0a@hss.hns.com>
+References: <00a701c52a0b$cec6f780$6a88cb0a@hss.hns.com>
+Content-Type: text/plain
+Date: Wed, 16 Mar 2005 14:28:12 -0500
+Message-Id: <1111001293.21369.13.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Mar 2005, Nathan Lynch wrote:
-
-> On Wed, Mar 16, 2005 at 02:21:52PM +0100, Pavel Machek wrote:
->
-> > I tried to solve long-standing uglyness in swsusp cmp code by calling
-> > cpu hotplug... only to find out that CONFIG_CPU_HOTPLUG is not
-> > available on i386. Is there way to enable CPU_HOTPLUG on i386?
+On Wed, 2005-03-16 at 15:07 +0530, shafa.hidee wrote:
+> Hi All,
+>        Is there any driver development project going on where I can try
+> apply driver development method.
 > 
-> i386 cpu hotplug has been in -mm for a while.  Don't know when (if
-> ever) it will get merged.
 
-Well this is a good user =)
+Of all the kernel subsystems ALSA presents one of the cleanest APIs for
+driver writers.
+
+http://www.alsa-project.org/~iwai/writing-an-alsa-driver/
+
+And there are several chipsets for which we have docs and no driver.
+
+HTH,
+
+Lee
+

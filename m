@@ -1,91 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264836AbTA1Dtd>; Mon, 27 Jan 2003 22:49:33 -0500
+	id <S267308AbTA1Dtg>; Mon, 27 Jan 2003 22:49:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267308AbTA1Dtd>; Mon, 27 Jan 2003 22:49:33 -0500
-Received: from mail15.bigmailbox.com ([209.132.220.46]:28135 "EHLO
-	mail15.bigmailbox.com") by vger.kernel.org with ESMTP
-	id <S264836AbTA1Dtb>; Mon, 27 Jan 2003 22:49:31 -0500
-Date: Mon, 27 Jan 2003 19:58:36 -0800
-Message-Id: <200301280358.h0S3waq02188@mail15.bigmailbox.com>
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
-X-Mailer: MIME-tools 4.104 (Entity 4.116)
+	id <S267315AbTA1Dtg>; Mon, 27 Jan 2003 22:49:36 -0500
+Received: from holomorphy.com ([66.224.33.161]:61863 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267308AbTA1Dtf>;
+	Mon, 27 Jan 2003 22:49:35 -0500
+Date: Mon, 27 Jan 2003 19:57:36 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jason Papadopoulos <jasonp@boo.net>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] page coloring for 2.5.59 kernel, version 1
+Message-ID: <20030128035736.GF780@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Jason Papadopoulos <jasonp@boo.net>, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org
+References: <3.0.6.32.20030127224726.00806c20@boo.net>
 Mime-Version: 1.0
-X-Originating-Ip: [66.205.18.163]
-From: "deborah kabila" <kabila72o@37.com>
-To: kabila72o@37.com
-Subject: hi friend
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3.0.6.32.20030127224726.00806c20@boo.net>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear friend,
+On Mon, Jan 27, 2003 at 10:47:26PM -0500, Jason Papadopoulos wrote:
+> This is yet another holding action, a port of my page coloring patch
+> to the 2.5 kernel. This is a minimal port (x86 only) intended to get
+> some testing done; once again the algorithm used is the same as in 
+> previous patches. There are several cleanups and removed 2.4-isms that
+> make the code somewhat more compact, though.
+> I'll be experimenting with other coloring schemes later this week.
+> www.boo.net/~jasonp/page_color-2.5.59-20030127.patch
+> Feedback of any sort welcome.
 
- RE save our soul
+set_num_colors() needs to go downstairs under arch/ Some of the
+current->pid checks look a bit odd esp. for GFP_ATOMIC and/or
+in_interrupt() cases. I'm not sure why this is a config option; it
+should be mandatory. I also wonder about the interaction of this with
+the per-cpu lists. This may really want to be something like a matrix
+with (cpu, color) indices to find the right list; trouble is, there's a
+high potential for many pages to be trapped there. mapnr's (page -
+zone->zone_mem_map etc.) are being used for pfn's; this may raise
+issues if zones' required alignments aren't num_colors*PAGE_SIZE or
+larger. proc_misc.c can be used instead of page_color_init(). ->free_list
+can be removed. get_rand() needs locking, per-zone state. Useful stuff.
 
-
-   I am Mrs. Deborah Kabila, one of the wives of Late
- President Laurent D. Kabila of Democratic Republic of
- Congo (DRC).
-
- Consequent upon the assassination of my husband, I am
- in possession of USD 58,000,000 (Fifty Eight Million
- US Dollars Only) being funds earlier earmarked for
- special projects.  This fund has since been deposited
- in a security company in West African Country of Togo
- where I am residing now with my children.
-
-It is now my intention to move the said fund out of
- this place (Togo) to a safer place for the benefit of
- my children and I, for immediate investment.  Based on
- this that I solicited for your assistance to enable me
- take this money out of Togo.
-
- However, note that my children and I have agreed to
-give you 20% of the total fund if you can accept the
- offer of assisting us.  Also it will be your
- responsibility in directing us on a viable business.
- It is also my intention to relocate and probably take
- a temporarily resident in your country pending when
- all the troubles in my country will be resolved. We
- advised that you look for a house we will buy as soon
- as we arrived.
-
- To conclude this transaction, you will be required to
- come to Togo to open an account in any bank here in
- Togo where the security company will deposit the total
- sum in your favor. From this bank the money will be
- remitted into your original bank in your country.
- Immediately this done, all of us will depart Togo to
- your country, where my children and I are expected to
- take a temporary resident.
-
- Please note that I can not open any Bank account with
- my name because, My late husband's first
- son-JOSEPH-who took over power in our country, don't
- want to see me and my children, He claimed that when
- our husband was alive, that I was very close to him
- than any other of his wives including his (Joseph)
- mother. He also claimed that because of my closeness
- to him that I was able to get things from him more
- than others. As a result he has been monitoring me.
- Infact this one of the main reasons I want to take my
-children out of our country and any nearby country.
-
-
- Thanking you in advance.
-
-Yours faithfully,
-
- Deborah Kabila (Mrs.)
- N/B: Kindly give me your direct telephone,fax and your mobile telephone numbers for
- more explanations.
-
-
-
-
-
-------------------------------------------------------------
-http://Game.37.com/  <--- Free Games
-http://newJoke.com/   <---  J O K E S  ! ! !
+--wli

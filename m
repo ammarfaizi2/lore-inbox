@@ -1,47 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264658AbUGXDO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268255AbUGXDgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264658AbUGXDO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 23:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268254AbUGXDO5
+	id S268255AbUGXDgr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 23:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268256AbUGXDgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 23:14:57 -0400
-Received: from waste.org ([209.173.204.2]:32210 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S264658AbUGXDOz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 23:14:55 -0400
-Date: Fri, 23 Jul 2004 22:14:53 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] ketchup 0.8
-Message-ID: <20040724031453.GQ18675@waste.org>
-References: <20040723185504.GJ18675@waste.org> <1090632808.1471.20.camel@mindpipe> <20040724020644.GN18675@waste.org> <1090638263.1471.24.camel@mindpipe>
+	Fri, 23 Jul 2004 23:36:47 -0400
+Received: from 209-87-233-98.storm.ca ([209.87.233.98]:42429 "EHLO
+	ottawa.interneqc.com") by vger.kernel.org with ESMTP
+	id S268255AbUGXDgq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 23:36:46 -0400
+Date: Fri, 23 Jul 2004 22:05:10 -0400
+From: Greg KH <greg@kroah.com>
+To: John Rose <johnrose@austin.ibm.com>
+Cc: Mike Wortman <wortman@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: pci_bus_lock question
+Message-ID: <20040724020510.GE14905@kroah.com>
+References: <1090447841.544.7.camel@sinatra.austin.ibm.com> <1090448467.544.10.camel@sinatra.austin.ibm.com> <20040722070830.GB21907@kroah.com> <1090509081.1648.5.camel@sinatra.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1090638263.1471.24.camel@mindpipe>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <1090509081.1648.5.camel@sinatra.austin.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 23, 2004 at 11:04:24PM -0400, Lee Revell wrote:
-> On Fri, 2004-07-23 at 22:06, Matt Mackall wrote:
-> > Oops. Should be fixed by:
-> > 
-> > http://selenic.com/ketchup/ketchup-0.8.1
+On Thu, Jul 22, 2004 at 10:11:21AM -0500, John Rose wrote:
+> I need to remove a bus from the pci_root_buses() list, and I need to do
+> so from a module.  Would it be preferable to export the pci_bus_lock
+> symbol or create wrappers in the PCI core that safely add/remove buses
+> to/from this list?
 > 
-> Now it seems to work, but I get:
-> 
-> ...downloads some stuff...
-> patching file sound/pci/intel8x0.c
-> patching file sound/pci/nm256/nm256.c
-> patching file sound/ppc/pmac.c
-> ketchup: patch /home/rlrevell/.ketchup/patch-2.6.8-rc1.bz2 failed: 256
-> 
-> Not checking the return value from patch correctly?
+> I'm guessing the latter :)
 
-That return code suggests some hunks failed. Can you check for .rej
-files?
+Good guess :)
 
--- 
-Mathematics is the supreme nostalgia of our time.
+greg k-h

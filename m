@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266972AbSKLVpa>; Tue, 12 Nov 2002 16:45:30 -0500
+	id <S266982AbSKLVr3>; Tue, 12 Nov 2002 16:47:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266975AbSKLVp3>; Tue, 12 Nov 2002 16:45:29 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:7306 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266972AbSKLVp2>;
-	Tue, 12 Nov 2002 16:45:28 -0500
-Date: Tue, 12 Nov 2002 14:46:29 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
-       hohnbaum@us.ibm.com
-Subject: Re: [0/4] NUMA-Q: remove PCI bus number mangling
-Message-ID: <177250000.1037141189@flay>
-In-Reply-To: <20021112213906.GW23425@holomorphy.com>
-References: <E18BaIc-0006Zs-00@holomorphy> <20021112205241.GS23425@holomorphy.com> <3DD172B8.8040802@us.ibm.com> <20021112213504.GV23425@holomorphy.com> <20021112213906.GW23425@holomorphy.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266981AbSKLVr2>; Tue, 12 Nov 2002 16:47:28 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:54464 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S266982AbSKLVqr>;
+	Tue, 12 Nov 2002 16:46:47 -0500
+Date: Tue, 12 Nov 2002 13:51:47 -0800 (PST)
+Message-Id: <20021112.135147.21135668.davem@redhat.com>
+To: hugh@veritas.com
+Cc: akpm@digeo.com, dmccr@us.ibm.com, riel@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] flush_cache_page while pte valid 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0211121732170.1187-100000@localhost.localdomain>
+References: <20021111.225333.122204472.davem@redhat.com>
+	<Pine.LNX.4.44.0211121732170.1187-100000@localhost.localdomain>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also, every PCI bridge in my box has a bus number of 3 so the lookup
-> table will produce wrong answers every time.
-
-Isn't that the local bus number though? The topology functions take
-global bus numbers, which should be unique ...
-
-M.
-
+   From: Hugh Dickins <hugh@veritas.com>
+   Date: Tue, 12 Nov 2002 17:43:40 +0000 (GMT)
+   
+   Sorry, I still don't get it.  If the flush_cache_page is doing something
+   necessary, then won't a user access in between it and invalidating pte
+   undo what was necessary?  And if it's not necessary, why do we do it?
+   (For better performance would be a very good reason.)
+   
+If there are other writable mappings of the page, we can't swap
+it out legally.

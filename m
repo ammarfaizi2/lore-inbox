@@ -1,95 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261376AbTAWT0r>; Thu, 23 Jan 2003 14:26:47 -0500
+	id <S264915AbTAWT2X>; Thu, 23 Jan 2003 14:28:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261456AbTAWT0r>; Thu, 23 Jan 2003 14:26:47 -0500
-Received: from inet-mail4.oracle.com ([148.87.2.204]:27099 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S261376AbTAWT0q>; Thu, 23 Jan 2003 14:26:46 -0500
-Date: Thu, 23 Jan 2003 11:35:40 -0800
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Thomas Schlichter <schlicht@uni-mannheim.de>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: no version magic, tainting kernel.
-Message-ID: <20030123193540.GD13137@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <200301231459.22789.schlicht@uni-mannheim.de> <20030123165256.GA1092@mars.ravnborg.org> <200301231832.59942.schlicht@uni-mannheim.de> <20030123182236.GA14184@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030123182236.GA14184@mars.ravnborg.org>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.3i
+	id <S265243AbTAWT2X>; Thu, 23 Jan 2003 14:28:23 -0500
+Received: from beta.bandnet.com.br ([200.195.133.131]:62480 "EHLO
+	beta.bandnet.com.br") by vger.kernel.org with ESMTP
+	id <S264915AbTAWT2V>; Thu, 23 Jan 2003 14:28:21 -0500
+From: "User &" <breno_silva@beta.bandnet.com.br>
+To: Valdis.Kletnieks@vt.edu, User & <breno_silva@beta.bandnet.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Expand VM 
+Date: Thu, 23 Jan 2003 16:40:14 -0300
+Message-Id: <20030123194014.M374@beta.bandnet.com.br>
+In-Reply-To: <200301231655.h0NGtc75010414@turing-police.cc.vt.edu>
+References: <20030123155627.M95099@beta.bandnet.com.br> <200301231655.h0NGtc75010414@turing-police.cc.vt.edu>
+X-Mailer: Open WebMail 1.81 20021127
+X-OriginatingIP: 200.215.42.52 (breno_silva)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can't the stuff in init/vermagic.c be moved into a header file? Maybe
-vermagic.h? Most of the code can be cut 'n pasted right out of vermagic.c
-and the bit that defines "const char vermagic[]..." could be placed inside a
-macro which modules would then stick in the bottom of one of their c files.
-This is what I'm getting at (warning I haven't checked this code or even
-tried to clean it up):
+Hi Valdis
 
-in vermagic.h:
-#include <linux/version.h>
-#include <linux/module.h>
+Create a new VMA on Linux B for Linux A is easy , but i have a problem , the 
+address of VMA is returned on Linux B , so the VMA created on Linux B can not 
+be used for process of linux A.
+The problem is "how can i return address of VMA created on LINUX B to Linux 
+A , and use this space ?".
 
-/* Simply sanity version stamp for modules. */
-#ifdef CONFIG_SMP
-#define MODULE_VERMAGIC_SMP "SMP "
-#else
-#define MODULE_VERMAGIC_SMP ""
-#endif
-#ifdef CONFIG_PREEMPT
-#define MODULE_VERMAGIC_PREEMPT "preempt "
-#else
-#define MODULE_VERMAGIC_PREEMPT ""
-#endif
-#ifndef MODULE_ARCH_VERMAGIC
-#define MODULE_ARCH_VERMAGIC ""
-#endif
+Thanks
+Breno
 
-#define KERNEL_VERSIONMAGIC const char vermagic[]			\
-__attribute__((section("__vermagic"))) =				\
-       UTS_RELEASE " "							\
-       MODULE_VERMAGIC_SMP MODULE_VERMAGIC_PREEMPT MODULE_ARCH_VERMAGIC	\
-       "gcc-" __stringify(__GNUC__) "." __stringify(__GNUC_MINOR__)
-
-
-in my_external_module.c, and init/vermagic.c I'd just do:
-#include <linux/vermagic.h>
-KERNEL_VERSIONMAGIC();
-
-and be done with it.
-
-Modules that ship with the kernel wouldn't have to change a thing (and still
-be linked against vermagic.c, and it'd only add two lines of code to
-everyones externally shipped modules. I don't really think that this would be
-"doing too much" for those whose modules are included in Linus's kernel, and
-it wouldn't require people to keep entire source tree's around to compile a
-module or two...
-Am I totally missing something here or wouldn't this solve our problem?
-Someone please correct me if I'm wrong :)
-	--Mark
-
-On Thu, Jan 23, 2003 at 07:22:36PM +0100, Sam Ravnborg wrote:
-> As it is today the only sane way is to have the full kernel src available.
-> It should be possible to minimize that - but I do not feel tempted to
-> do so.
+On Thu, 23 Jan 2003 11:55:38 -0500, Valdis.Kletnieks wrote
+> On Thu, 23 Jan 2003 12:56:27 -0300, User & 
+> <breno_silva@beta.bandnet.com.br>  said:
 > 
-> We want to do too much to rely on whatever makefile people write for
-> their module.
+> > I have one idea , and this is about expand virtual memory on linux boxes 
+> > connected in LAN.
+> > Example: Linux A is processing come information , and need more memory , 
+so 
+> > with this source , Linux A could access virtual memory on Linux B in LAN.
 > 
-> 	Sam
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> We've seen *this* done before (remember diskless Sun3-50's?) - the /dev/swap
+> file would be a large file on an NFS mount from a server.  At the 
+> time, this actually made performance sense, because the old 
+> 'Shoebox' drives the -50 came with were incredibly slow, and you 
+> could actually do an NFS operation to a larger server (a -280 with 
+> Fujitsu SuperEagle disks, for instance) faster than talking to the 
+> local disk.
+> 
+> These days, it's probably easier and cheaper to just buy more RAM 
+> and/or disk for Linux A.
+> 
+> > But i don´t know how translate the virtual address between Linux A and 
+B , to 
+> > have success in acess VM, or how to send all the process for Linux B to 
+be 
+> > processed.
+> 
+> Sending the whole process to Linux B to be processed is called "process
+> migration", and is a difficult problem.  Moving the memory image of the
+> process is usually pretty easy.  What is difficult is moving things like
+> references to open files, file locks, and so on (what if the process 
+> is actively writing to block 739 of /usr/foo/some.file, and the 
+> LinuxB machine doesn't have a /usr/foo, or the permissions on 
+> some.file don't match, or another process has it locked, or... ) 
+> There be nasty dragons in this.
+> 
+> You're probably better off buying more RAM and disk for your A machine.
+> -- 
+> 				Valdis Kletnieks
+> 				Computer Systems Senior Engineer
+> 				Virginia Tech
 
---
-Mark Fasheh
-Software Developer, Oracle Corp
-mark.fasheh@oracle.com
+
+
+----------------------
+WebMail Bandnet.com.br
+

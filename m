@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270580AbRHNLvL>; Tue, 14 Aug 2001 07:51:11 -0400
+	id <S270575AbRHNLtv>; Tue, 14 Aug 2001 07:49:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270577AbRHNLvD>; Tue, 14 Aug 2001 07:51:03 -0400
-Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:29459 "EHLO
+	id <S270573AbRHNLtn>; Tue, 14 Aug 2001 07:49:43 -0400
+Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:24595 "EHLO
 	alfik.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S270576AbRHNLu3>; Tue, 14 Aug 2001 07:50:29 -0400
-Date: Sat, 11 Aug 2001 01:13:29 +0000
+	id <S270577AbRHNLtg>; Tue, 14 Aug 2001 07:49:36 -0400
+Date: Sat, 11 Aug 2001 01:11:47 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bulent Abali <abali@us.ibm.com>,
-        "Dirk W. Steinberg" <dws@dirksteinberg.de>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+To: Andreas Haumer <andreas@xss.co.at>
+Cc: "Dirk W. Steinberg" <dws@dirksteinberg.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Subject: Re: Swapping for diskless nodes
-Message-ID: <20010811011329.C55@toy.ucw.cz>
-In-Reply-To: <OF452D802E.BE93E657-ON85256AA3.004E8422@pok.ibm.com> <E15UrUl-0007Rn-00@the-village.bc.nu>
+Message-ID: <20010811011146.B55@toy.ucw.cz>
+In-Reply-To: <E15Ulnx-0006zZ-00@the-village.bc.nu> <3B729B96.D306185C@dirksteinberg.de> <3B729FD7.7D8BCA5F@xss.co.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E15UrUl-0007Rn-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Aug 09, 2001 at 04:13:11PM +0100
+In-Reply-To: <3B729FD7.7D8BCA5F@xss.co.at>; from andreas@xss.co.at on Thu, Aug 09, 2001 at 04:36:07PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hi!
 
-> > Last time I checked swapping over nbd required patching the network stack.
-> > Because swapping occurs when memory is low and when memory is low TCP
-> > doesn't do what you expect it to do...
-> 
-> Its a case of having sufficient memory in the atomic pools. Its possible to
-> do some ugly quick kernel hack to make the pool commit less likely to be a 
-> problem.
-> 
-> Ultimately its an insoluble problem, neither SunOS, Solaris or NetBSD are
-> infallible, they just never fail for any normal situation, and thats good
-> enough for me as a solution
+> > what you say sound a lot like a hacker solution ("check that it uses the
+> > right GFP_ levels"). I think it's about time that this deficit of linux
+> > as compared to SunOS or *BSD should be removed. Network paging should be
+> > supported as a standard feature of a stock kernel compile.
+> > 
+> We have swapping over NBD running for some time now on
+> our "xS+S Diskless Client" system, and it works really
+> fine! No problem running StarOffice, Netscape, The Gimp
+> and KDE on a 128MB Diskless Client and 250MB swap over a 
+> 100MBit switched ethernet!
 
-Oops,  really? And if I can DoS such machine with ping -f (to eat atomic
-ram)? And what are you going to tel your users? "It died so reboot"?
+Try going 8MB of ram, ping -f client and try to compile the kernel.
+
+Netscape + SO + gimp on 128MB is rather light load.
+
+> Check <http://www.xss.co.at/linux/NBD/Applications.html>
+> to find our solution for that.
+> 
+> Kernel patches are a little bit outdated, but we have NBD swap
+> for 2.2.19 running internally since this week, and we will
+> update our web-page soon.
+
+Be sure to mail me a copy.
 								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

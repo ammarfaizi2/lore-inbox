@@ -1,104 +1,250 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292963AbSCDXDN>; Mon, 4 Mar 2002 18:03:13 -0500
+	id <S292979AbSCDXEn>; Mon, 4 Mar 2002 18:04:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292967AbSCDXDD>; Mon, 4 Mar 2002 18:03:03 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:3674 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S292963AbSCDXCw>; Mon, 4 Mar 2002 18:02:52 -0500
-Date: Tue, 5 Mar 2002 00:01:02 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
-        linux-kernel@vger.kernel.org
+	id <S292978AbSCDXEi>; Mon, 4 Mar 2002 18:04:38 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:38893 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S292964AbSCDXEW>;
+	Mon, 4 Mar 2002 18:04:22 -0500
+Date: Mon, 4 Mar 2002 15:03:19 -0800 (PST)
+From: Samuel Ortiz <sortiz@dbear.engr.sgi.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Stephan von Krawczynski <skraw@ithnet.com>, <riel@conectiva.com.br>,
+        <phillips@bonn-fries.net>, <davidsen@tmr.com>, <mfedyk@matchmail.com>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: 2.4.19pre1aa1
-Message-ID: <20020305000102.S20606@dualathlon.random>
-In-Reply-To: <20020304191942.M20606@dualathlon.random> <Pine.LNX.4.44L.0203041732520.1413-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0203041732520.1413-100000@duckman.distro.conectiva>
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <20020304230603.O20606@dualathlon.random>
+Message-ID: <Pine.LNX.4.33.0203041447450.17847-100000@dbear.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 04, 2002 at 06:36:47PM -0300, Rik van Riel wrote:
-> On Mon, 4 Mar 2002, Andrea Arcangeli wrote:
-> 
-> > > 2) We can do local per-node scanning - no need to bounce
-> > > information to and fro across the interconnect just to see what's
-> > > worth swapping out.
+On Mon, 4 Mar 2002, Andrea Arcangeli wrote:
+
+> On Mon, Mar 04, 2002 at 10:46:54AM -0800, Martin J. Bligh wrote:
+> > >> 2) We can do local per-node scanning - no need to bounce
+> > >> information to and fro across the interconnect just to see what's
+> > >> worth swapping out.
+> > >
+> > > Well, you can achieve this by "attaching" the nodes' local memory
+> > > (zone) to its cpu and let the vm work preferably only on these attached
+> > > zones (regarding the list scanning and the like). This way you have no
+> > > interconnect traffic generated. But this is in no way related to rmap.
+> > >
+> > >> I can't see any way to fix this without some sort of rmap - any
+> > >> other suggestions as to how this might be done?
+> > >
+> > > As stated above: try to bring in per-node zones that are preferred by their cpu. This can work equally well for UP,SMP and NUMA (maybe even for cluster).
+> > > UP=every zone is one or more preferred zone(s)
+> > > SMP=every zone is one or more preferred zone(s)
+> > > NUMA=every cpu has one or more preferred zone(s), but can walk the whole zone-list if necessary.
+> > >
+> > > Preference is implemented as simple list of cpu-ids attached to every
+> > > memory zone.  This is for being able to see the whole picture. Every
+> > > cpu has a private list of (preferred) zones which is used by vm for the
+> > > scanning jobs (swap et al). This way there is no need to touch interconnection.
+> > > If you are really in a bad situation you can alway go back to the global
+> > > list and do whatever is needed.
 > >
-> > the lru lists are global at the moment, so for the normal swapout
-> > activitiy rmap won't allow you to do what you mention above
-> 
-> Actually, the lru lists are per zone and have been for a while.
+> > As I understand the current code (ie this may be totally wrong ;-) ) I think
+> > we already pretty much have what you're suggesting. There's one (or more)
+> > zone per node chained off the pgdata_t, and during memory allocation we
+> > try to scan through the zones attatched to the local node first. The problem
+>
+> yes, also make sure to keep this patch from SGI applied, it's very
+> important to avoid memory balancing if there's still free memory in the
+> other zones:
+>
+> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre1aa1/20_numa-mm-1
+This patch is included (in a slightly different form) in the 2.4.17
+discontig patch (http://sourceforge.net/projects/discontig).
+But martin may need another patch to apply. With the current
+implementation of __alloc_pages, we have 2 problems :
+1) A node is not emptied before moving to the following node
+2) If none of the zones on a node have more freepages than min(defined as
+   min+= z->pages_low), we start looking on the following node, instead of
+   trying harder on the same node.
 
-They're not in my tree and for very good reasons, Ben did such mistake
-the first time at some point during 2.3. You've a big downside with the
-per-zone information, all normal machines (like with 64M of ram or 2G of
-ram) where theorical O(N) complexity is perfectly fine for lowmem
-dma/normal allocations, will get hurted very much by the per-node lrus.
-You're the one saying that the system load is very low and that it's
-better to do more accurate page replacement decisions.
+I have a patch that tries to fix these problems. Of course this patch
+makes sense only with either the discontig patch or the SGI patch Andrea
+mentioned applied. I'd appreciate your feedback on this piece of code.
 
-I think they may be worthwhile on a hundred gigabyte machine only, but
-the whole point is that in such a box you'll have only one zone anyways
-and so per-zone in such case will match per-node :).
+This patch is against 2.4.19-pre2:
 
-So I think they should be at least per-node in 2.5 to make 99% of
-userbase happy.  And again, it depends on what kind numa if they've to
-be global or per-node, so it would be probably much better to have them
-per-node or global depending on a compile-time configuration #define.
+--- linux-2.4.19-pre2/mm/page_alloc.c	Mon Mar  4 14:35:27 2002
++++ linux-2.4.19-pre2-sam/mm/page_alloc.c	Mon Mar  4 14:38:53 2002
+@@ -339,68 +339,110 @@
+  */
+ struct page * __alloc_pages(unsigned int gfp_mask, unsigned int order, zonelist_t *zonelist)
+ {
+-	unsigned long min;
+-	zone_t **zone, * classzone;
++	unsigned long min_low, min_min;
++	zone_t **zone, **current_zone, * classzone, *z;
+ 	struct page * page;
+ 	int freed;
+-
++	struct pglist_data* current_node;
++
+ 	zone = zonelist->zones;
+-	classzone = *zone;
+-	min = 1UL << order;
+-	for (;;) {
+-		zone_t *z = *(zone++);
+-		if (!z)
++	z = *zone;
++	for(;;){
++		/*
++		 * This loops scans all the zones
++		 */
++		min_low = 1UL << order;
++		current_node = z->zone_pgdat;
++		current_zone = zone;
++		classzone = z;
++		do{
++			/*
++			 * This loops scans all the zones of
++			 * the current node.
++			 */
++			min_low += z->pages_low;
++			if (z->free_pages > min_low) {
++				page = rmqueue(z, order);
++				if (page)
++					return page;
++			}
++			z = *(++zone);
++		}while(z && (z->zone_pgdat == current_node));
++		/*
++		 * The node is low on memory.
++		 * If this is the last node, then the
++		 * swap daemon is awaken.
++		 */
++
++		classzone->need_balance = 1;
++		mb();
++		if (!z && waitqueue_active(&kswapd_wait))
++			wake_up_interruptible(&kswapd_wait);
++
++		min_min = 1UL << order;
++
++		/*
++		 * We want to try again in the current node.
++		 */
++		zone = current_zone;
++		z = *zone;
++		do{
++			unsigned long local_min;
++			local_min = z->pages_min;
++			if (!(gfp_mask & __GFP_WAIT))
++				local_min >>= 2;
++			min_min += local_min;
++			if (z->free_pages > min_min) {
++				page = rmqueue(z, order);
++				if (page)
++					return page;
++			}
++			z = *(++zone);
++		}while(z && (z->zone_pgdat == current_node));
++
++		/*
++		 * If we are on the last node, and the current
++		 * process has not the correct flags, then it is
++		 * not allowed to empty the machine.
++		 */
++		if(!z && !(current->flags & (PF_MEMALLOC | PF_MEMDIE)))
+ 			break;
 
-> The thing which was lacking up to now is a pagecache_lru_lock
-> per zone, because this clashes with truncate().  Arjan came up
-> with a creative solution to fix this problem and I'll integrate
-> it into -rmap soon...
+-		min += z->pages_low;
+-		if (z->free_pages > min) {
++		zone = current_zone;
++		z = *zone;
++		do{
+ 			page = rmqueue(z, order);
+ 			if (page)
+ 				return page;
+-		}
+-	}
+-
+-	classzone->need_balance = 1;
+-	mb();
+-	if (waitqueue_active(&kswapd_wait))
+-		wake_up_interruptible(&kswapd_wait);
+-
+-	zone = zonelist->zones;
+-	min = 1UL << order;
+-	for (;;) {
+-		unsigned long local_min;
+-		zone_t *z = *(zone++);
+-		if (!z)
++			z = *(++zone);
++		}while(z && (z->zone_pgdat == current_node));
++
++		if(!z)
+ 			break;
+-
+-		local_min = z->pages_min;
+-		if (!(gfp_mask & __GFP_WAIT))
+-			local_min >>= 2;
+-		min += local_min;
+-		if (z->free_pages > min) {
+-			page = rmqueue(z, order);
+-			if (page)
+-				return page;
+-		}
+ 	}
+-
+-	/* here we're in the low on memory slow path */
+-
++
+ rebalance:
++	/*
++	 * We were not able to find enough memory.
++	 * Since the swap daemon has been waken up,
++	 * we might be able to find some pages.
++	 * If not, we need to balance the entire memory.
++	 */
++	classzone = *zonelist->zones;
+ 	if (current->flags & (PF_MEMALLOC | PF_MEMDIE)) {
+ 		zone = zonelist->zones;
+ 		for (;;) {
+ 			zone_t *z = *(zone++);
+ 			if (!z)
+ 				break;
+-
++
+ 			page = rmqueue(z, order);
+ 			if (page)
+ 				return page;
+ 		}
+ 		return NULL;
+ 	}
+-
++
+ 	/* Atomic allocations - we can't balance anything */
+ 	if (!(gfp_mask & __GFP_WAIT))
+ 		return NULL;
+@@ -410,14 +452,14 @@
+ 		return page;
 
-making it a per-lru spinlock is natural scalability optimization, but
-anyways pagemap_lru_lock isn't a very critical spinlock.  before
-worrying about pagemal_lru_lock I'd worry about the pagecache_lock I
-think (even the pagecache_lock doesn't matter much on most usages). Of
-course it also depends on the workload, but the important workloads will
-hit the pagecache_lock first.
+ 	zone = zonelist->zones;
+-	min = 1UL << order;
++	min_min = 1UL << order;
+ 	for (;;) {
+ 		zone_t *z = *(zone++);
+ 		if (!z)
+ 			break;
 
-> > (furthmore rmap gives you only the pointer to the pte chain, but there's
-> > no guarantee the pte is in the same node as the physical page, even
-> > assuming we'll have per-node inactive/active list, so you'll fall into
-> > the bouncing scenario anyways rmap or not, only the cpu usage will be
-> > lower and as side effect you'll bounce less, but you're not avoiding the
-> > interconnet overhead with the per-node scanning).
-> 
-> Well, if we need to free memory from node A, we will need to
-> do that anyway. If we don't scan the page tables from node B,
-> maybe we'll never be able to free memory from node A.
-> 
-> The only thing -rmap does is make sure we only scan the page
-> tables belonging to the physical pages in node A, instead of
-> having to scan the page tables of all processes in all nodes.
+-		min += z->pages_min;
+-		if (z->free_pages > min) {
++		min_min += z->pages_min;
++		if (z->free_pages > min_min) {
+ 			page = rmqueue(z, order);
+ 			if (page)
+ 				return page;
 
-Correct. And as said this is a scalability optimization, the more ptes
-you'll have, the more you want to skip the ones belonging to pages in
-node B, or you may end wasting too much system time on 512G system etc...
 
-> I'd appreciate it if you could look at the implementation and
-> look for areas to optimise. However, note that I don't believe
 
-I didn't had time to look too much into that yet (I had only a short
-review so far), but I will certainly do that in some more time, looking
-at it with a 2.5 long term prospective. I didn't liked too much that you
-resurrected some of the old code that I don't think pays off. I would
-preferred if you had rmap on top of my vm patch without reintroducing
-the older logics. I still don't see the need of inactive_dirty and the
-fact you dropped classzone and put the unreliable "plenty stuff" that
-reintroduces design bugs that will lead kswapd go crazy again. But ok, I
-don't worry too much about that, the rmap bits that maintains the
-additional information are orthogonal with the other changes and that's
-the interesting part of the patch after all.
 
-Andrea
+

@@ -1,57 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263952AbTE0Q4A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 12:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbTE0Q4A
+	id S263943AbTE0Qxz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 12:53:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263944AbTE0Qxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 12:56:00 -0400
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:24054 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP id S263952AbTE0Qz7
+	Tue, 27 May 2003 12:53:55 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:52891 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263943AbTE0Qxx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 12:55:59 -0400
-Message-ID: <3ED39BB8.9030306@acm.org>
-Date: Tue, 27 May 2003 12:09:12 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
+	Tue, 27 May 2003 12:53:53 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 27 May 2003 10:06:56 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Thomas Winischhofer <thomas@winischhofer.net>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Martin Diehl <lists@mdiehl.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sis650 irq router fix for 2.4.x
+In-Reply-To: <3ED32BA4.4040707@winischhofer.net>
+Message-ID: <Pine.LNX.4.55.0305271000550.2340@bigblue.dev.mcafeelabs.com>
+References: <3ED21CE3.9060400@winischhofer.net>
+ <Pine.LNX.4.55.0305261431230.3000@bigblue.dev.mcafeelabs.com>
+ <3ED32BA4.4040707@winischhofer.net>
 MIME-Version: 1.0
-To: viro@parcelfarce.linux.theplanet.co.uk
-CC: Keith Owens <kaos@ocs.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Registering for notifier chains in modules (was Linux 2.4.21-rc3
- - ipmi unresolved)
-References: <20707.1054013443@kao2.melbourne.sgi.com> <3ED37AD5.7020607@acm.org> <20030527160247.GA27916@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20030527160247.GA27916@parcelfarce.linux.theplanet.co.uk>
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
+On Tue, 27 May 2003, Thomas Winischhofer wrote:
 
->On Tue, May 27, 2003 at 09:48:53AM -0500, Corey Minyard wrote:
 >
->  
->
->>>The user does have to do something.  Every piece of code that calls
->>>notify_register has to set the new field to __THIS_MODULE.  WIthout
->>>that field being set, you are no better off, the race still exists.
->>>
->>>      
->>>
->>Why?  The user doesn't have to set the field, you can let the
->>registration code do that.  I have attached a patch as an example.
->>    
->>
->
->How the devil would registration code figure out which module should
->be used?
->  
->
-You create a new call that also takes the module as a parameter, and
-have the old call set the module owner to NULL.  You export the new
-call, and modules use it.
+> To Alan who is perhaps reading this: Who is an expert on this type of stuff?
 
--Corey
+Alan, are you there ?
+
+(I also Cc'ed Martin that helped me with the patch)
+
+
+> Davide Libenzi wrote:
+> > On Mon, 26 May 2003, Thomas Winischhofer wrote:
+> >
+> >
+> >>and I had (and have) no problems with irqs or USB (or anything) on any
+> >>of these machines.
+>
+> First, let me say that I know NIL about irq routing. But fact is, I had
+> my machines running with webcams, floppy drives and mice (all via USB,
+> that is) - and had no problem.
+>
+> But you got me puzzled: As a matter of fact, it seems that ALL (!) my
+> 650 variants show different routing tables, mostly like yours.
+>
+> dmesg with pci-debug enabled and lspci -vxxx printouts attached.
+>
+> 650 = "ISA bridge" revision 0
+> M650 = revision 4
+> 651 = revision 0x25
+>
+> Interestingly, as soon as pci-debugging was enabled, the log is full
+> with error messages, and I suddenly actually _had_ problems with my
+> network card and my wireless card (and assumingly the USB stuff, too,
+> conclusing from the "failed" statements in the log)....
+>
+> >>Are you sure that checking the revision number of the device is enough?
+> >
+> >
+> > It seems reasonble, at least without having the spec for the chipset. All
+> > my searches failed about docs. Previous cases are correctly handled like
+> > before, as you can see from the patch.
+>
+> I myself doubt this now. If I am reading the dmesg output correctly,
+> even the machine with revision 0 (plain 650) is routing _some_ of the
+> interrupts with 0x6x requests...
+
+Yes, it seems that those request can be handled as pass thru, so might
+have two options :
+
+1) Use the new routing to handle only rev-04 and let users of other
+	revisions to use the "stdroute" boot line
+
+2) Use the new routing by default, except for the revisions that are known
+	to work well with the old one
+
+
+> > You happen to have the spec for the SIS650 ?
+>
+> That's a good one :) I have been bugging SiS since 2001 for docs, all I
+> got was nothing.
+
+Yes, I digged badly. Nothing beat Intel about documentation.
+
+
+
+- Davide
 

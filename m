@@ -1,78 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264985AbUDUGVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265009AbUDUGY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264985AbUDUGVg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 02:21:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264984AbUDUGIK
+	id S265009AbUDUGY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 02:24:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264972AbUDUGYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 02:08:10 -0400
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:37548 "HELO
-	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264986AbUDUGFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 02:05:44 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 6/15] New set of input patches: atkbd soften accusation
-Date: Wed, 21 Apr 2004 00:54:21 -0500
-User-Agent: KMail/1.6.1
-Cc: Vojtech Pavlik <vojtech@suse.cz>
-References: <200404210049.17139.dtor_core@ameritech.net>
-In-Reply-To: <200404210049.17139.dtor_core@ameritech.net>
+	Wed, 21 Apr 2004 02:24:23 -0400
+Received: from miranda.se.axis.com ([193.13.178.2]:13470 "EHLO
+	miranda.se.axis.com") by vger.kernel.org with ESMTP id S265044AbUDUGWc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 02:22:32 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404210054.23583.dtor_core@ameritech.net>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFC] kbuild: Documentation - how to build external modules
+Date: Wed, 21 Apr 2004 08:22:25 +0200
+Message-ID: <50BF37ECE4954A4BA18C08D0C2CF88CB366386@exmail1.se.axis.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC] kbuild: Documentation - how to build external modules
+Thread-Index: AcQnKO0gjcdNMd57SFmr22qegkUIaAAPs8gA
+From: "Peter Kjellerstedt" <peter.kjellerstedt@axis.com>
+To: "Sam Ravnborg" <sam@ravnborg.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 21 Apr 2004 06:22:27.0328 (UTC) FILETIME=[0478A000:01C42769]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Sam Ravnborg
+> Sent: Tuesday, April 20, 2004 23:52
+> To: linux-kernel@vger.kernel.org
+> Subject: [RFC] kbuild: Documentation - how to build external modules
+> 
+> This is just first wrap-up of some text about building 
+> external modules. There are a few unfinished chapters - 
+> but's too late today.
+> 
+> Please let me know what you expect to see in here - which is 
+> not covered eiter direct or via an empty heading.
+> 
+> 	Sam
 
-===================================================================
+What about external modules that need to be configured
+using make config & co? Is that possible with this system?
 
-
-ChangeSet@1.1907, 2004-04-20 22:27:51-05:00, dtor_core@ameritech.net
-  Input: Change spurious ACK warning in atkbd to soften accusation
-         against XFree86
-
-
- atkbd.c |   23 ++++++++++++++---------
- 1 files changed, 14 insertions(+), 9 deletions(-)
-
-
-===================================================================
-
-
-
-diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c	Tue Apr 20 23:04:41 2004
-+++ b/drivers/input/keyboard/atkbd.c	Tue Apr 20 23:04:41 2004
-@@ -300,15 +300,20 @@
- 		case ATKBD_KEY_NULL:
- 			break;
- 		case ATKBD_KEY_UNKNOWN:
--			printk(KERN_WARNING "atkbd.c: Unknown key %s (%s set %d, code %#x on %s).\n",
--				atkbd->release ? "released" : "pressed",
--				atkbd->translated ? "translated" : "raw",
--				atkbd->set, code, serio->phys);
--			if (atkbd->translated && atkbd->set == 2 && code == 0x7a)
--				printk(KERN_WARNING "atkbd.c: This is an XFree86 bug. It shouldn't access"
--					" hardware directly.\n");
--			else
--				printk(KERN_WARNING "atkbd.c: Use 'setkeycodes %s%02x <keycode>' to make it known.\n",						code & 0x80 ? "e0" : "", code & 0x7f);
-+			if (data == ATKBD_RET_ACK || data == ATKBD_RET_NAK) {
-+				printk(KERN_WARNING "atkbd.c: Spurious %s on %s. Some program, "
-+				       "like XFree86, might be trying access hardware directly.\n",
-+				       data == ATKBD_RET_ACK ? "ACK" : "NAK", serio->phys);
-+			} else {
-+				printk(KERN_WARNING "atkbd.c: Unknown key %s "
-+				       "(%s set %d, code %#x on %s).\n",
-+				       atkbd->release ? "released" : "pressed",
-+				       atkbd->translated ? "translated" : "raw",
-+				       atkbd->set, code, serio->phys);
-+				printk(KERN_WARNING "atkbd.c: Use 'setkeycodes %s%02x <keycode>' "
-+				       "to make it known.\n",
-+				       code & 0x80 ? "e0" : "", code & 0x7f);
-+			}
- 			break;
- 		case ATKBD_SCR_1:
- 			scroll = 1 - atkbd->release * 2;
+//Peter

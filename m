@@ -1,73 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264535AbTFIQwT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 12:52:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264536AbTFIQwT
+	id S264536AbTFIQw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 12:52:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264537AbTFIQw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 12:52:19 -0400
-Received: from pat.uio.no ([129.240.130.16]:8616 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264535AbTFIQwO (ORCPT
+	Mon, 9 Jun 2003 12:52:58 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:26048 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264536AbTFIQwd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 12:52:14 -0400
-To: Bob Vickers <R.Vickers@cs.rhul.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Locking NFS files on kernels 2.4.19 and 2.4.20
-References: <Pine.OSF.4.44.0306091347560.4682-100000@sartre.cs.rhbnc.ac.uk>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 09 Jun 2003 19:05:01 +0200
-In-Reply-To: <Pine.OSF.4.44.0306091347560.4682-100000@sartre.cs.rhbnc.ac.uk>
-Message-ID: <shsd6hnrxky.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Mon, 9 Jun 2003 12:52:33 -0400
+Message-ID: <3EE4BD08.6040601@us.ibm.com>
+Date: Mon, 09 Jun 2003 09:59:52 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+Organization: IBM LTC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+To: Matt Mackall <mpm@selenic.com>
+CC: Trivial Patch Monkey <trivial@rustcorp.com.au>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] use valid value when unmapping cpus
+References: <3EDE63FE.1010603@us.ibm.com> <20030609052008.GB31216@waste.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Bob Vickers <bobv@cs.rhul.ac.uk> writes:
+Matt Mackall wrote:
+> On Wed, Jun 04, 2003 at 02:26:22PM -0700, Matthew Dobson wrote:
+> 
+>>For some unknown reason, we stick a -1 in cpu_2_node when we unmap a cpu 
+>>on i386.  We're better off sticking a 0 in there, because at least 0 is 
+>>a valid value if something references it.  -1 is only going to cause 
+>>problems at some point down the line.
+> 
+> 
+> Problems down the line help you find the bogus dereference. Even
+> better to stick a poison value in there.
 
-     > I have recently upgraded some machines and have found that it
-     > is no longer possible to lock files on NFS file systems. It is
-     > definitely a client-side problem: upgraded clients could no
-     > longer lock files on *any* NFS server (including Tru64 as well
-     > as a variety of Linux servers).
+Well, it's not really a dereference issue.  The function, cpu_to_node() 
+just returns an integer which is the node that particular CPU is on. 
+This should always return a valid value.  This is used in many places, 
+often as a direct index into an array, and we shouldn't have to check 
+its return value everywhere.  The default behavior is to just return 0, 
+because 0 is a valid node, even for UP/SMP.  The array of CPU -> node 
+mappings is initialized to 0's on i386 already, so unmapping a CPU 
+should return this mapping to its uninitialized state.
 
-Two questions:
+Cheers!
 
-  Are you running statd on the client and server?
-
-if no, then you should...
-
-  Does SuSE compile statd with or without the RESTRICTED_STATD flag?
-
-If the latter, then you'll need an extra kernel patch in order to
-allow the kernel NSM to use a reserved port. Something like the
-appended scheme...
-
-Cheers,
-  Trond
-
---- linux/fs/lockd/mon.c.orig	2002-02-04 23:49:27.000000000 -0800
-+++ linux/fs/lockd/mon.c	2003-06-09 10:02:57.000000000 -0700
-@@ -105,12 +105,19 @@
- 	struct rpc_xprt		*xprt;
- 	struct rpc_clnt		*clnt = NULL;
- 	struct sockaddr_in	sin;
-+	uid_t saved_fsuid = current->fsuid;
-+	kernel_cap_t saved_cap = current->cap_effective;
- 
- 	sin.sin_family = AF_INET;
- 	sin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
- 	sin.sin_port = 0;
- 
-+	/* Create RPC socket as root user so we get a priv port */
-+	current->fsuid = 0;
-+	cap_raise (current->cap_effective, CAP_NET_BIND_SERVICE);
- 	xprt = xprt_create_proto(IPPROTO_UDP, &sin, NULL);
-+	current->fsuid = saved_fsuid;
-+	current->cap_effective = saved_cap;
- 	if (!xprt)
- 		goto out;
- 
+-Matt
 

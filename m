@@ -1,88 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263288AbTJBLiL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 07:38:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263333AbTJBLiL
+	id S263335AbTJBMBh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 08:01:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263334AbTJBMBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 07:38:11 -0400
-Received: from smtp2.actcom.co.il ([192.114.47.15]:2436 "EHLO
-	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S263288AbTJBLiJ
+	Thu, 2 Oct 2003 08:01:36 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:469 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263335AbTJBMBe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 07:38:09 -0400
-Date: Thu, 2 Oct 2003 14:37:55 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Miles Bader <miles@gnu.org>, Jamie Lokier <jamie@shareable.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] document optimizing macro for translating PROT_ to VM_ bits
-Message-ID: <20031002113755.GQ29313@actcom.co.il>
-References: <20030929090629.GF29313@actcom.co.il> <20030929153437.GB21798@mail.jlokier.co.uk> <20030930071005.GY729@actcom.co.il> <buohe2u3f20.fsf@mcspd15.ucom.lsi.nec.co.jp> <20030930074138.GG729@actcom.co.il> <buoad8m3dvn.fsf@mcspd15.ucom.lsi.nec.co.jp> <20030930092403.GR29313@actcom.co.il> <buon0cm1tpm.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	Thu, 2 Oct 2003 08:01:34 -0400
+Date: Thu, 2 Oct 2003 13:01:33 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: Zan Lynx <zlynx@acm.org>, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2.6.0-test6 crash while reading files in /proc/fs/reiserfs/sda1
+Message-ID: <20031002120133.GC7665@parcelfarce.linux.theplanet.co.uk>
+References: <1064936688.4222.14.camel@localhost.localdomain> <200309302006.32584.vitaly@namesys.com> <1065019441.4226.1.camel@localhost.localdomain> <16251.5348.570797.101912@laputa.namesys.com> <20031001184338.GW7665@parcelfarce.linux.theplanet.co.uk> <16251.63770.622805.143036@laputa.namesys.com> <20031002103550.GB7665@parcelfarce.linux.theplanet.co.uk> <16252.798.375208.261677@laputa.namesys.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BN1FuguMf1o6kBCi"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <buon0cm1tpm.fsf@mcspd15.ucom.lsi.nec.co.jp>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <16252.798.375208.261677@laputa.namesys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[Linus, please wait with applying the patch below until ACK from Nikita, OK?]
 
---BN1FuguMf1o6kBCi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, Oct 02, 2003 at 02:51:10PM +0400, Nikita Danilov wrote:
+> viro@parcelfarce.linux.theplanet.co.uk writes:
+>  > On Thu, Oct 02, 2003 at 02:08:26PM +0400, Nikita Danilov wrote:
+>  > > What about creating fake struct vfsmount for /proc/fs/reiserfs/<devname>
+>  > > and attaching it to the super block of /<mountpoint>? After all
+>  > > /proc/fs/reiserfs/<devname> is just a view into /<mountpoint>. This will
+>  > > automatically guarantee that /<mountpoint> cannot be unmounted while
+>  > > files in /proc/fs/reiserfs/<devname> are opened. Will this screw up
+>  > > dcache?
+>  > 
+>  > I don't see what it would buy you - you get to revalidate the pointer to
+>  > vfsmount instead of revalidating pointer to superblock, which is not easier.
+> 
+> I thought that opening procfs file would do mntget() that will pin super
+> block of host file system. Wouldn't it?
 
-On Tue, Sep 30, 2003 at 07:00:53PM +0900, Miles Bader wrote:
-> Muli Ben-Yehuda <mulix@mulix.org> writes:
-> > I like code that is "future proof", especially when it doesn't cost
-> > anything.
->=20
-> Sure, it's not always worth the trouble/pain to do so unless you've
-> actually got some reason to think it will be mis-used.
->=20
-> This is seeming more and more like such a case: it's a very special
-> purpose macro which is only used by two other small functions, both of
-> which are located immediately adjacent to the macro's definition.
+That wouldn't help.  Look, the real problem here is that at some point
+you need to decide that filesystem is getting shut down.  Doesn't really
+matter how you do it - until some moment superblock is up and running,
+after it we start shutting the things down.
 
-After taking the time to cool down from the testosterone rush commonly
-induced by micro optimizations, I recon you're right. Andrew, please
-apply this documentation only patch against 2.6.0-t6-mm2: =20
+Now, you want two places that would get access to superblock (directly or
+not, again, it doesn't matter): mountpoint and file in procfs.  Mountpoint
+is given up by explicit action - umount.  You want that action to trigger
+removal of file in procfs.  I.e. you don't want simple presense of that
+file to pin the thing down.  OTOH, you want IO on that file to hold
+the filesystem until we are done.  Whether we do that in open() or in
+read(), we still have a transition point somewhere.
 
---- linux-2.5/include/linux/mman.h	Sun Sep  7 10:05:18 2003
-+++ optimizing-macro-2.6.0-t6/include/linux/mman.h	Tue Sep 30 09:47:19 2003
-@@ -28,8 +28,13 @@
- 	vm_acct_memory(-pages);
+And that transition is where the trouble is.  The object you want to access
+is superblock.  So no matter what you do, you will need to get hold of it.
+Which brings us back to revalidation of pointers to superblocks...
+
+There *is* an alternative, and it might be worth considering, but it's much
+more intrusive.  We might give these files a separate superblock and have
+them mounted explicitly.  Then we are fine - this superblock would have
+a pointer to vfsmount or reiserfs superblock directly and would pin it
+down as long as it's mounted.  It would look like that:
+
+mount -t reisermeta <pathname of reiserfs mountpoint> <some directory>
+
+and we get these files under <some directory>.  That would avoid all problems
+nicely and it's not hard to implement, but it's definitely more intrusive than
+sget()-based revalidation and it creates a user-visible interface change.
+
+It might be worth doing as an alternative interface (Jeff Garzik had played
+with similar stuff for ext2 metadata/defragmenting/etc., so there's even
+some existing code), but I would rather go for minimally intrusive correct
+fix right now.
+
+
+Speaking of seq_file...  It's not impossible to do if this context is kept
+on stack of ->start()/->next()/->stop()/->show() callers, but I'm not sure
+it buys us enough to be worth doing.
+
+
+If you are OK with the patch below - please ACK it.  AFAICS it's the minimal
+fix and combined with optimistic sget() patch it should address all objections.
+
+diff -urN B6-rest/fs/reiserfs/procfs.c B6-current/fs/reiserfs/procfs.c
+--- B6-rest/fs/reiserfs/procfs.c	Sat Sep 27 22:04:57 2003
++++ B6-current/fs/reiserfs/procfs.c	Thu Oct  2 07:57:31 2003
+@@ -478,14 +478,15 @@
+ static void *r_next(struct seq_file *m, void *v, loff_t *pos)
+ {
+ 	++*pos;
++	if (v)
++		deactivate_super(v);
+ 	return NULL;
  }
-=20
--/* Optimisation macro. */
--#define _calc_vm_trans(x,bit1,bit2) \
-+/*=20
-+ * Optimisation macro.  It is equivalent to:=20
-+ *      (x & bit1) ? bit2 : 0
-+ * but this version is faster. =20
-+ * ("bit1" and "bit2" must be single bits).=20
-+ */
-+#define _calc_vm_trans(x, bit1, bit2) \
-   ((bit1) <=3D (bit2) ? ((x) & (bit1)) * ((bit2) / (bit1)) \
-    : ((x) & (bit1)) / ((bit1) / (bit2)))
-=20
-
---=20
-Muli Ben-Yehuda
-http://www.mulix.org
-
-
---BN1FuguMf1o6kBCi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/fA4TKRs727/VN8sRAtZ9AJ4w/uLidKCPMHq5scBYrbIVDXNrigCbBJ6U
-dTcQgV+rurOey+eBCGLWwkc=
-=n7vz
------END PGP SIGNATURE-----
-
---BN1FuguMf1o6kBCi--
+ 
+ static void r_stop(struct seq_file *m, void *v)
+ {
+-	struct proc_dir_entry *de = m->private;
+-	struct super_block *s = de->data;
+-	deactivate_super(s);
++	if (v)
++		deactivate_super(v);
+ }
+ 
+ static int r_show(struct seq_file *m, void *v)

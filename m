@@ -1,35 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265012AbSKANEt>; Fri, 1 Nov 2002 08:04:49 -0500
+	id <S265017AbSKANgt>; Fri, 1 Nov 2002 08:36:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265015AbSKANEt>; Fri, 1 Nov 2002 08:04:49 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:20359 "EHLO
+	id <S265018AbSKANgt>; Fri, 1 Nov 2002 08:36:49 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:29831 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265012AbSKANDr>; Fri, 1 Nov 2002 08:03:47 -0500
-Subject: Re: What's left over.
+	id <S265017AbSKANgj>; Fri, 1 Nov 2002 08:36:39 -0500
+Subject: Re: display anomaly when switching between X and virtual terminals
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-In-Reply-To: <3DC19A4C.40908@pobox.com>
-References: <Pine.LNX.4.44.0210310918260.1410-100000@penguin.transmeta.com>
-	 <3DC19A4C.40908@pobox.com>
+To: Michael <mohr@temerity.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0210311945570.9398-100000@zeus.temerity.net>
+References: <Pine.LNX.4.44.0210311945570.9398-100000@zeus.temerity.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 01 Nov 2002 13:30:18 +0000
-Message-Id: <1036157418.12693.19.camel@irongate.swansea.linux.org.uk>
+Date: 01 Nov 2002 14:02:32 +0000
+Message-Id: <1036159352.12551.45.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-31 at 21:02, Jeff Garzik wrote:
-> hosed/screaming, and various mid-layers are dying.  For LKCD to be of 
-> any use, it needs to _skip_ the block layer and talk directly to 
-> low-level drivers.
+On Fri, 2002-11-01 at 03:54, Michael wrote:
+> consoles, only when going back to X.  What I wanted to know is if this
+> behavious is a result of some sort of hardware damage or if it is a
+> problem with the kernel and/or X.  It's not that important, I was just
+> wondering if I should be worried.
 
-Rusty wrote a polled IDE driver that should handle some subset of that
+Its just the display being drawn before the colours are all restored
 

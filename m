@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262947AbUJ0WRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262908AbUJ0VXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262947AbUJ0WRR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 18:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbUJ0WNm
+	id S262908AbUJ0VXs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 17:23:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbUJ0VXR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 18:13:42 -0400
-Received: from spectre.fbab.net ([212.214.165.139]:14992 "HELO mail2.fbab.net")
-	by vger.kernel.org with SMTP id S262932AbUJ0VmD (ORCPT
+	Wed, 27 Oct 2004 17:23:17 -0400
+Received: from DSL022.labridge.com ([206.117.136.22]:10764 "EHLO Perches.com")
+	by vger.kernel.org with ESMTP id S262754AbUJ0VTO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 17:42:03 -0400
-Message-ID: <41801622.5040207@fbab.net>
-Date: Wed, 27 Oct 2004 23:41:54 +0200
-From: "Magnus Naeslund(t)" <mag@fbab.net>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
-References: <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041027130359.GA6203@elte.hu>
-In-Reply-To: <20041027130359.GA6203@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 27 Oct 2004 17:19:14 -0400
+Subject: Re: BK kernel workflow
+From: Joe Perches <joe@perches.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrea Arcangeli <andrea@novell.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.61.0410272214580.877@scrub.home>
+References: <20041024233214.GA9772@work.bitmover.com>
+	 <20041025114641.GU14325@dualathlon.random>
+	 <1098707342.7355.44.camel@localhost.localdomain>
+	 <20041025133951.GW14325@dualathlon.random>
+	 <20041025162022.GA27979@work.bitmover.com>
+	 <20041025164732.GE14325@dualathlon.random>
+	 <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
+	 <Pine.LNX.4.61.0410252350240.17266@scrub.home>
+	 <20041026010141.GA15919@work.bitmover.com>
+	 <Pine.LNX.4.61.0410270338310.877@scrub.home>
+	 <20041027035412.GA8493@work.bitmover.com>
+	 <Pine.LNX.4.61.0410272214580.877@scrub.home>
+Content-Type: text/plain
+Date: Wed, 27 Oct 2004 14:16:15 -0700
+Message-Id: <1098911775.8811.126.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm testing out this patch on an debian box.
-There seems to be a problem with enable_irq in the e100 driver that 
-makes the network to b0rk.
+On Wed, 2004-10-27 at 22:58 +0200, Roman Zippel wrote:
+> The complete development history of the Linux kernel is now effectly 
+> locked into the bk format, you can get a summary of it, but that's it.
+> The data everyone put into a bk repository is now owned by BM and only if 
+> you abide to the rules set by BM, do you have the permission to extract 
+> some of the data again. You can completely forget the idea to one day 
+> import "your" data into a different SCM system.
 
-What information do you need to get something useful out of this?
-I saw that others have this problem, so I've got an serial console to 
-the box, if you want me to do any tests, tell me how.
+Nonsense.
 
+I believe these statements to be wrong.
+I believe you might even know these statements are wrong.
 
-Regards,
-Magnus
+It's sad really.
 
+Subscribe to BK-KERNEL-COMMITS if you want to see every change
+ever made and track them.  Use the web tools, use the CVS.
 
-Setting up IP spoofing protection: rp_filter.
-Configuring network interfaces: ifconfig/924: BUG in enable_irq at 
-kernel/irq/manage.c:112
-  [<c01362a0>] enable_irq+0xe4/0x12c (8)
-  [<d08a44f6>] e100_up+0x119/0x224 [e100] (44)
-  [<d08a5743>] e100_open+0x2c/0x84 [e100] (44)
-  [<c0237dda>] dev_open+0x76/0x85 (28)
-  [<c02394a8>] dev_change_flags+0x5d/0x138 (24)
-  [<c0237cbd>] dev_load+0x31/0x6c (12)
-  [<c027915c>] devinet_ioctl+0x5f9/0x6c6 (20)
-  [<c027b1b8>] inet_ioctl+0xc7/0xd3 (104)
-  [<c022ea5e>] sock_ioctl+0x19f/0x26a (24)
-  [<c016c897>] sys_ioctl+0x1e8/0x249 (28)
-  [<c0113eea>] do_page_fault+0x0/0x5ee (24)
-  [<c0105bb3>] syscall_call+0x7/0xb (16)
-preempt count: 00000002
-. 2-level deep critical section nesting:
-.. entry 1: enable_irq+0x31/0x12c [<c01361ed>] / (0x0 [<00000000>])
-.. entry 2: print_traces+0x14/0x47 [<c0130201>] / (0x0 [<00000000>])
+Perhaps now you'll say something like because BK doesn't provide
+a cross-reference tool for every email to LK that proposes some patch
+that BK is stopping you from importing "your" data.
+
+Write your own import tools.
+
+Stop whining.  Go write your own SCM.
+BitBucket anyone?  Lots of activity on SF.
+

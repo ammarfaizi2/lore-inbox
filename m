@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267033AbSKVJJG>; Fri, 22 Nov 2002 04:09:06 -0500
+	id <S267179AbSKVJMN>; Fri, 22 Nov 2002 04:12:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267082AbSKVJJG>; Fri, 22 Nov 2002 04:09:06 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:1555
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267033AbSKVJJF>; Fri, 22 Nov 2002 04:09:05 -0500
-Subject: Re: calling schedule() from interupt context
-From: Robert Love <rml@tech9.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: error27@email.com, linux-kernel@vger.kernel.org, rusty@rustcorp.com.au,
-       torvalds@transmeta.com
-In-Reply-To: <20021122.010934.126934922.davem@redhat.com>
-References: <20021122085441.2127.qmail@email.com>
-	 <20021122.010934.126934922.davem@redhat.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1037956564.1504.3896.camel@phantasy>
+	id <S267181AbSKVJMN>; Fri, 22 Nov 2002 04:12:13 -0500
+Received: from boden.synopsys.com ([204.176.20.19]:50909 "HELO
+	boden.synopsys.com") by vger.kernel.org with SMTP
+	id <S267179AbSKVJML>; Fri, 22 Nov 2002 04:12:11 -0500
+Date: Fri, 22 Nov 2002 10:18:22 +0100
+From: Alex Riesen <Alexander.Riesen@synopsys.com>
+To: davids@webmaster.com
+Cc: Nivedita Singhvi <niv@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: TCP memory pressure question
+Message-ID: <20021122091822.GD16412@riesen-pc.gr05.synopsys.com>
+Reply-To: Alexander.Riesen@synopsys.com
+References: <3DDD8811.752CA2C4@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 22 Nov 2002 04:16:04 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DDD8811.752CA2C4@us.ibm.com>
+User-Agent: Mutt/1.4i
+Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-11-22 at 04:09, David S. Miller wrote:
->    From: "dan carpenter" <error27@email.com>
->    Date: Fri, 22 Nov 2002 03:54:41 -0500
-> 
->    module_put ==> put_cpu ==> preempt_schedule ==> schedule
-> 
-> Oh we can't kill module references from interrupts?
+On Thu, Nov 21, 2002 at 05:27:45PM -0800, Nivedita Singhvi wrote:
+> > When a Linux machine has reached the tcp_mem limit, what will happen to 
+> > 'write's on non-blocking sockets? Will they block until more TCP memory is 
+> > available? Will they return an error code? ENOMEM?
+> > 
+> > If it varies by kernel version, details about different versions would be 
+> > extremely helpful. I'm most interested in late 2.4 kernels.
+> > 
+> >  Thanks in advance.
+> Returns EAGAIN.
+> Fairly static ~late 2.4.
 
-No, I think you can.  Or at least the put_cpu() will not hurt you.
+returns number of bytes sent and sets errno to EAGAIN.
 
-Inside the interrupt handlers, the preemption count is bumped so
-preempt_schedule() will never call schedule().
-
-	Robert Love
-
+-alex

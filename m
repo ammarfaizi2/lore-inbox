@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131158AbRC3UNs>; Fri, 30 Mar 2001 15:13:48 -0500
+	id <S130485AbRC3UD5>; Fri, 30 Mar 2001 15:03:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131486AbRC3UNh>; Fri, 30 Mar 2001 15:13:37 -0500
-Received: from umail.unify.com ([204.163.170.2]:35819 "EHLO umail.unify.com")
-	by vger.kernel.org with ESMTP id <S131158AbRC3UNY>;
-	Fri, 30 Mar 2001 15:13:24 -0500
-Message-ID: <419E5D46960FD211A2D5006008CAC79902E5C163@pcmailsrv1.sac.unify.com>
-From: "Manuel A. McLure" <mmt@unify.com>
-To: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel 2.4.3 fails to compile
-Date: Fri, 30 Mar 2001 12:12:09 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S130532AbRC3UDt>; Fri, 30 Mar 2001 15:03:49 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:7432 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S130485AbRC3UD3>; Fri, 30 Mar 2001 15:03:29 -0500
+Message-Id: <200103302001.f2UK1MMv024840@pincoya.inf.utfsm.cl>
+To: Keith Owens <kaos@ocs.com.au>
+cc: "Chris Funderburg" <chris@directcommunications.net>,
+   "Linux-Kernel" <linux-kernel@vger.kernel.org>,
+   "Justin T. Gibbs" <gibbs@scsiguy.com>
+Subject: Re: memcpy in 2.2.19 
+In-Reply-To: Message from Keith Owens <kaos@ocs.com.au> 
+   of "Thu, 29 Mar 2001 23:28:37 PST." <7717.985937317@ocs3.ocs-net> 
+Date: Fri, 30 Mar 2001 16:01:22 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> On Fri, 30 Mar 2001, Manuel A. McLure wrote:
-> 
-> > ...
-> > gcc -D__KERNEL__ -I/usr/src/linux/include -Wall 
-> -Wstrict-prototypes -O2
-> > -fomit-frame-pointer -fno-strict-aliasing -pipe 
-> -mpreferred-stack-boundary=2
-> > -march=athlon  -DMODULE -DMODVERSIONS -include
-> > /usr/src/linux/include/linux/modversions.h   -c -o buz.o buz.c
-> > buz.c: In function `v4l_fbuffer_alloc':
-> > buz.c:188: `KMALLOC_MAXSIZE' undeclared (first use in this function)
-> > buz.c:188: (Each undeclared identifier is reported only once
-> > buz.c:188: for each function it appears in.)
-> 
-> Easy solution -- just delete the entire test
-> 
-> 	if (size > KMALLOC_MAXSIZE) {
-> 		...
-> 	}
+Keith Owens <kaos@ocs.com.au> said:
+> On Fri, 30 Mar 2001 08:04:17 +0100, 
+> "Chris Funderburg" <chris@directcommunications.net> wrote:
+> >drivers/scsi/scsi.a(aic7xxx.o): In function `aic7xxx_load_seeprom':
+> >aic7xxx.o(.text+0x116bf): undefined reference to `memcpy'
 
-Thanks, I'll do that. It just seemed strange that the file was being
-compiled in the first place when the config option was not set.
+> Under some circumstances gcc will generate an internal call to
+> memcpy().  Alas this bypasses the pre-processor so memcpy is not
+> converted to the kernel's internal memcpy code.  The cause is normally
+> a structure assignment, probably this line.
+> 
+>   struct seeprom_config *sc = (struct seeprom_config *) scarray;
 
---
-Manuel A. McLure - Unify Corp. Technical Support <mmt@unify.com>
-Space Ghost: "Hey, what happened to the-?" Moltar: "It's out." SG: "What
-about-?" M: "It's fixed." SG: "Eh, good. Good."
+Just a pointer initialization.
+
+[...]
+
+> The other possibility I can see is
+> 
+>     p->sc = *sc;
+> 
+> try
+> 
+>     memcpy(&(p->sc), sc, sizeof(*sc));
+-- 
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

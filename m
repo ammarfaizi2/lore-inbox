@@ -1,190 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264308AbTLVFge (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 00:36:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264310AbTLVFge
+	id S264310AbTLVFtH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 00:49:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264311AbTLVFtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 00:36:34 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:6583 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S264308AbTLVFg3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 00:36:29 -0500
-Date: Sun, 21 Dec 2003 21:36:18 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: cesarb@nitnet.com.br
-Subject: [Bug 1714] New: divide error at snd_pcm_timer_resolution_change
-Message-ID: <71240000.1072071378@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Mon, 22 Dec 2003 00:49:07 -0500
+Received: from zero.voxel.net ([209.123.232.253]:8148 "EHLO zero.voxel.net")
+	by vger.kernel.org with ESMTP id S264310AbTLVFtD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 00:49:03 -0500
+Subject: [PATCH] CONFIG_PCMCIA_PROBE fix
+From: Andres Salomon <dilinger@voxel.net>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PXoIkaBXQKzpIA6NFH81"
+Message-Id: <1072072123.27831.6.camel@spiral.internal>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 22 Dec 2003 00:48:44 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1714
 
-           Summary: divide error at snd_pcm_timer_resolution_change
-    Kernel Version: 2.6.0
-            Status: NEW
-          Severity: normal
-             Owner: drivers_sound@kernel-bugs.osdl.org
-         Submitter: cesarb@nitnet.com.br
+--=-PXoIkaBXQKzpIA6NFH81
+Content-Type: multipart/mixed; boundary="=-oTLQBMh64P3BjhxO/X9c"
 
 
-Distribution: Debian testing/unstable
-Hardware Environment: K7
-Software Environment: wine 20031118, glibc 2.3.2.ds1-10
-Problem Description:
+--=-oTLQBMh64P3BjhxO/X9c
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Dec 20 23:27:22 flower kernel: can't create port
-Dec 20 23:27:26 flower kernel: divide error: 0000 [#1]
-Dec 20 23:27:26 flower kernel: CPU:    0
-Dec 20 23:27:26 flower kernel: EIP:   
-0060:[snd_pcm_timer_resolution_change+126/144]    Not tainted
-Dec 20 23:27:26 flower kernel: EFLAGS: 00010246
-Dec 20 23:27:26 flower kernel: EIP is at snd_pcm_timer_resolution_change+0x7e/0x90
-Dec 20 23:27:26 flower kernel: eax: f4240000   ebx: 00008000   ecx: 00008000  
-edx: 00000000
-Dec 20 23:27:26 flower kernel: esi: 00000000   edi: f4240000   ebp: c35bdc00  
-esp: c36b3bbc
-Dec 20 23:27:26 flower kernel: ds: 007b   es: 007b   ss: 0068
-Dec 20 23:27:26 flower kernel: Process wine.bin-pthrea (pid: 11613,
-threadinfo=c36b2000 task=c1fc92a0)
-Dec 20 23:27:26 flower kernel: Stack: 00000001 00008000 c35bdc00 00000001
-c36b3c00 cfb77e40 c03ab619 cfb77e40
-Dec 20 23:27:26 flower kernel:        c36b3c00 c35bd400 c36b3c00 cfb77e40
-00000000 c03ab71f cfb77e40 c36b3c00
-Dec 20 23:27:26 flower kernel:        0000025c 00000000 00000008 00000000
-00000000 00000000 00000000 00000000
-Dec 20 23:27:26 flower kernel: Call Trace:
-Dec 20 23:27:26 flower kernel:  [snd_pcm_hw_params+505/656]
-snd_pcm_hw_params+0x1f9/0x290
-Dec 20 23:27:26 flower kernel:  [snd_pcm_hw_params_user+111/208]
-snd_pcm_hw_params_user+0x6f/0xd0
-Dec 20 23:27:26 flower kernel:  [snd_pcm_playback_ioctl1+100/1056]
-snd_pcm_playback_ioctl1+0x64/0x420
-Dec 20 23:27:26 flower kernel:  [snd_pcm_hw_param_near+498/656]
-snd_pcm_hw_param_near+0x1f2/0x290
-Dec 20 23:27:26 flower kernel:  [snd_pcm_kernel_playback_ioctl+56/80]
-snd_pcm_kernel_playback_ioctl+0x38/0x50
-Dec 20 23:27:26 flower kernel:  [snd_pcm_oss_change_params+1123/2160]
-snd_pcm_oss_change_params+0x463/0x870
-Dec 20 23:27:26 flower kernel:  [snd_pcm_oss_get_active_substream+79/96]
-snd_pcm_oss_get_active_substream+0x4f/0x60
-Dec 20 23:27:26 flower kernel:  [snd_pcm_oss_get_rate+23/48]
-snd_pcm_oss_get_rate+0x17/0x30
-Dec 20 23:27:26 flower kernel:  [snd_pcm_oss_ioctl+1680/1888]
-snd_pcm_oss_ioctl+0x690/0x760
-Dec 20 23:27:26 flower kernel:  [sys_ioctl+275/704] sys_ioctl+0x113/0x2c0
-Dec 20 23:27:26 flower kernel:  [sysenter_past_esp+82/113]
-sysenter_past_esp+0x52/0x71
-Dec 20 23:27:26 flower kernel:
-Dec 20 23:27:26 flower kernel: Code: f7 f6 89 85 14 02 00 00 83 c4 08 5b 5e 5f
-5d c3 89 f6 8b 44
-Dec 20 23:28:22 flower kernel:  <3>can't create port
-Dec 20 23:28:35 flower kernel: can't create port
-Dec 20 23:28:37 flower kernel: divide error: 0000 [#2]
-Dec 20 23:28:37 flower kernel: CPU:    0
-Dec 20 23:28:37 flower kernel: EIP:   
-0060:[snd_pcm_timer_resolution_change+126/144]    Not tainted
-Dec 20 23:28:37 flower kernel: EFLAGS: 00010246
-Dec 20 23:28:37 flower kernel: EIP is at snd_pcm_timer_resolution_change+0x7e/0x90
-Dec 20 23:28:37 flower kernel: eax: f4240000   ebx: 00008000   ecx: 00008000  
-edx: 00000000
-Dec 20 23:28:37 flower kernel: esi: 00000000   edi: f4240000   ebp: ca666800  
-esp: c09cfbbc
-Dec 20 23:28:37 flower kernel: ds: 007b   es: 007b   ss: 0068
-Dec 20 23:28:37 flower kernel: Process wine.bin-pthrea (pid: 11701,
-threadinfo=c09ce000 task=c1fc8660)
-Dec 20 23:28:37 flower kernel: Stack: 00000001 00008000 ca666800 00000001
-c09cfc00 cfb77d80 c03ab619 cfb77d80
-Dec 20 23:28:37 flower kernel:        c09cfc00 c52da000 c09cfc00 cfb77d80
-00000000 c03ab71f cfb77d80 c09cfc00
-Dec 20 23:28:37 flower kernel:        0000025c 00000000 00000008 00000000
-00000000 00000000 00000000 00000000
-Dec 20 23:28:37 flower kernel: Call Trace:
-Dec 20 23:28:37 flower kernel:  [snd_pcm_hw_params+505/656]
-snd_pcm_hw_params+0x1f9/0x290
-Dec 20 23:28:37 flower kernel:  [snd_pcm_hw_params_user+111/208]
-snd_pcm_hw_params_user+0x6f/0xd0
-Dec 20 23:28:37 flower kernel:  [snd_pcm_playback_ioctl1+100/1056]
-snd_pcm_playback_ioctl1+0x64/0x420
-Dec 20 23:28:37 flower kernel:  [snd_pcm_hw_param_near+498/656]
-snd_pcm_hw_param_near+0x1f2/0x290
-Dec 20 23:28:37 flower kernel:  [snd_pcm_kernel_playback_ioctl+56/80]
-snd_pcm_kernel_playback_ioctl+0x38/0x50
-Dec 20 23:28:37 flower kernel:  [snd_pcm_oss_change_params+1123/2160]
-snd_pcm_oss_change_params+0x463/0x870
-Dec 20 23:28:37 flower kernel:  [snd_pcm_oss_get_active_substream+79/96]
-snd_pcm_oss_get_active_substream+0x4f/0x60
-Dec 20 23:28:37 flower kernel:  [snd_pcm_oss_get_rate+23/48]
-snd_pcm_oss_get_rate+0x17/0x30
-Dec 20 23:28:37 flower kernel:  [snd_pcm_oss_ioctl+1680/1888]
-snd_pcm_oss_ioctl+0x690/0x760
-Dec 20 23:28:37 flower kernel:  [sys_ioctl+275/704] sys_ioctl+0x113/0x2c0
-Dec 20 23:28:37 flower kernel:  [sysenter_past_esp+82/113]
-sysenter_past_esp+0x52/0x71
-Dec 20 23:28:37 flower kernel: 
-Dec 20 23:28:37 flower kernel: Code: f7 f6 89 85 14 02 00 00 83 c4 08 5b 5e 5f
-5d c3 89 f6 8b 44
-Dec 20 23:28:58 flower kernel:  hda: dma_intr: status=0x51 { DriveReady
-SeekComplete Error }
-Dec 20 23:37:20 flower kernel: can't create port
-Dec 20 23:37:21 flower kernel: divide error: 0000 [#3]
-Dec 20 23:37:21 flower kernel: CPU:    0
-Dec 20 23:37:21 flower kernel: EIP:   
-0060:[snd_pcm_timer_resolution_change+126/144]    Not tainted
-Dec 20 23:37:21 flower kernel: EFLAGS: 00010246
-Dec 20 23:37:21 flower kernel: EIP is at snd_pcm_timer_resolution_change+0x7e/0x90
-Dec 20 23:37:21 flower kernel: eax: f4240000   ebx: 00008000   ecx: 00008000  
-edx: 00000000
-Dec 20 23:37:21 flower kernel: esi: 00000000   edi: f4240000   ebp: ca666400  
-esp: c72edbbc
-Dec 20 23:37:21 flower kernel: ds: 007b   es: 007b   ss: 0068
-Dec 20 23:37:21 flower kernel: Process wine.bin-pthrea (pid: 11934,
-threadinfo=c72ec000 task=cc9980c0)
-Dec 20 23:37:21 flower kernel: Stack: 00000001 00008000 ca666400 00000001
-c72edc00 cfb77cc0 c03ab619 cfb77cc0
-Dec 20 23:37:21 flower kernel:        c72edc00 c8cbf400 c72edc00 cfb77cc0
-00000000 c03ab71f cfb77cc0 c72edc00
-Dec 20 23:37:21 flower kernel:        0000025c 00000000 00000008 00000000
-00000000 00000000 00000000 00000000
-Dec 20 23:37:21 flower kernel: Call Trace:
-Dec 20 23:37:21 flower kernel:  [snd_pcm_hw_params+505/656]
-snd_pcm_hw_params+0x1f9/0x290
-Dec 20 23:37:21 flower kernel:  [snd_pcm_hw_params_user+111/208]
-snd_pcm_hw_params_user+0x6f/0xd0
-Dec 20 23:37:21 flower kernel:  [snd_pcm_playback_ioctl1+100/1056]
-snd_pcm_playback_ioctl1+0x64/0x420
-Dec 20 23:37:21 flower kernel:  [snd_pcm_hw_param_near+498/656]
-snd_pcm_hw_param_near+0x1f2/0x290
-Dec 20 23:37:21 flower kernel:  [snd_pcm_kernel_playback_ioctl+56/80]
-snd_pcm_kernel_playback_ioctl+0x38/0x50
-Dec 20 23:37:21 flower kernel:  [snd_pcm_oss_change_params+1123/2160]
-snd_pcm_oss_change_params+0x463/0x870
-Dec 20 23:37:21 flower kernel:  [snd_pcm_oss_get_active_substream+79/96]
-snd_pcm_oss_get_active_substream+0x4f/0x60
-Dec 20 23:37:21 flower kernel:  [snd_pcm_oss_get_rate+23/48]
-snd_pcm_oss_get_rate+0x17/0x30
-Dec 20 23:37:21 flower kernel:  [snd_pcm_oss_ioctl+1680/1888]
-snd_pcm_oss_ioctl+0x690/0x760
-Dec 20 23:37:21 flower kernel:  [sys_ioctl+275/704] sys_ioctl+0x113/0x2c0
-Dec 20 23:37:21 flower kernel:  [sysenter_past_esp+82/113]
-sysenter_past_esp+0x52/0x71
-Dec 20 23:37:21 flower kernel: 
-Dec 20 23:37:21 flower kernel: Code: f7 f6 89 85 14 02 00 00 83 c4 08 5b 5e 5f
-5d c3 89 f6 8b 44
+Some time ago, Russell King submitted a patch to use CONFIG_PCMCIA_PROBE
+instead of CONFIG_ISA in pcmcia probing code.  Unfortunately,
+CONFIG_PCMCIA_PROBE still is only set if CONFIG_ISA is set.  This means
+that if ISA isn't enabled, certain things break in 2.6; for example, my
+pcmcia nic/modem (using pcnet_cs/serial_cs).  These worked fine in 2.4;
+I tracked the behavior to the fact that if irq_mask is set on a pcmcia
+socket (instead of pci_irq), and PCMCIA_PROBE isn't set,
+pcmcia_request_irq refuses to assign an irq.  Most of the pcmcia bridges
+appear to set an irq_mask, so the attached patch changes Kconfig to set
+CONFIG_PCMCIA_PROBE if any of those bridges are selected.
+
+Please apply this (or an alternative fix), as it fixes a 2.6 regression
+in pcmcia functionality.
 
 
-Steps to reproduce:
-I was playing with wine and some random games. I don't know if I can reproduce it.
+--=-oTLQBMh64P3BjhxO/X9c
+Content-Disposition: attachment; filename=000-pcmcia_probe.patch
+Content-Type: text/x-patch; name=000-pcmcia_probe.patch; charset=us-ascii
+Content-Transfer-Encoding: base64
 
-# CONFIG_SND_DEBUG is not set
+UmV2aXNpb246IGxpbnV4LS1tYWlubGluZS0tMi42LS1wYXRjaC0yDQpBcmNoaXZlOiBkaWxpbmdl
+ckB2b3hlbC5uZXQtLTIwMDMtc3BpcmFsDQpDcmVhdG9yOiBBbmRyZXMgU2Fsb21vbiA8ZGlsaW5n
+ZXJAdm94ZWwubmV0Pg0KRGF0ZTogU3VuIERlYyAyMSAwMzowNToyNyBFU1QgMjAwMw0KU3RhbmRh
+cmQtZGF0ZTogMjAwMy0xMi0yMSAwODowNToyNyBHTVQNCk1vZGlmaWVkLWZpbGVzOiBkcml2ZXJz
+L3BjbWNpYS9LY29uZmlnDQpOZXctcGF0Y2hlczogZGlsaW5nZXJAdm94ZWwubmV0LS0yMDAzLXNw
+aXJhbC9saW51eC0tbWFpbmxpbmUtLTIuNi0tcGF0Y2gtMg0KU3VtbWFyeTogRW5hYmxlIFBDTUNJ
+QV9QUk9CRSBvbiBwY21jaWEgYnJpZGdlcw0KS2V5d29yZHM6IA0KDQpDdXJyZW50IGJlaGF2aW9y
+IG9ubHkgZW5hYmxlcyBDT05GSUdfUENNQ0lBX1BST0JFIGlmIENPTkZJR19JU0EgaXMgc2V0LiAg
+U29tZQ0KYnJpZGdlcyAoZm9yIGV4YW1wbGUsIHllbnRhKSBicmVhayBiYWRseSB3L291dCBQQ01D
+SUFfUFJPQkU7IHcvb3V0IGl0LA0KcGNtY2lhX3JlcXVlc3RfaXJxKCkgZmFpbHMgaWYgYW4gaXJx
+X21hc2sgaXMgc2V0LiAgVGhlIGlkZWEgaXMgdG8gZGVjb3VwbGUNCkNPTkZJR19JU0EgZnJvbSBD
+T05GSUdfUENNQ0lBX1BST0JFOyBzbywgd2hhdCBJJ3ZlIGRvbmUgaXMgdG8gZW5hYmxlDQpQQ01D
+SUFfUFJPQkUgZm9yIGJyaWRnZXMgdGhhdCBzZXQgaXJxX21hc2tzIGZvciB0aGVpciBzb2NrZXRz
+Lg0KDQoqIGFkZGVkIGZpbGVzDQoNCiAgICB7YXJjaH0vbGludXgvbGludXgtLW1haW5saW5lL2xp
+bnV4LS1tYWlubGluZS0tMi42L2RpbGluZ2VyQHZveGVsLm5ldC0tMjAwMy1zcGlyYWwvcGF0Y2gt
+bG9nL3BhdGNoLTINCg0KKiBtb2RpZmllZCBmaWxlcw0KDQotLS0gb3JpZy9kcml2ZXJzL3BjbWNp
+YS9LY29uZmlnDQorKysgbW9kL2RyaXZlcnMvcGNtY2lhL0tjb25maWcNCkBAIC0xMDMsNyArMTAz
+LDcgQEANCiANCiBjb25maWcgUENNQ0lBX1BST0JFDQogCWJvb2wNCi0JZGVmYXVsdCB5IGlmIElT
+QSAmJiAhQVJDSF9TQTExMDAgJiYgIUFSQ0hfQ0xQUzcxMVgNCisJZGVmYXVsdCB5IGlmICFBUkNI
+X1NBMTEwMCAmJiAhQVJDSF9DTFBTNzExWCAmJiAoSVNBIHx8IFlFTlRBIHx8IFRDSUMgfHwgSEQ2
+NDQ2NV9QQ01DSUEgfHwgSTgyMzY1KQ0KIA0KIGVuZG1lbnUNCiANCg0KDQoNCg==
 
-If I understand correctly, even without CONFIG_SND_DEBUG it should handle bogus
-values gracefully. Looks like it's not checking the input enough (maybe in
-snd_pcm_hw_params_user).
+--=-oTLQBMh64P3BjhxO/X9c--
 
+--=-PXoIkaBXQKzpIA6NFH81
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/5oW678o9R9NraMQRAinQAKCKQMe4735qtfqw4TpD0CS/amPFwQCfRuOY
+kp3beE8Wq2sbmQIuaVJsFTc=
+=HNmD
+-----END PGP SIGNATURE-----
+
+--=-PXoIkaBXQKzpIA6NFH81--
 

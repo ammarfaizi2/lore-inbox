@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268066AbUIAVgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268154AbUIAVlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268066AbUIAVgv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 17:36:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267987AbUIAVGe
+	id S268154AbUIAVlW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 17:41:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267974AbUIAVhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 17:06:34 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:63172 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267958AbUIAU4j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 16:56:39 -0400
-Subject: [patch 11/25]  drivers/char/selection.c MIN/MAX removal
-To: linux-kernel@vger.kernel.org
-Cc: akpm@digeo.com, janitor@sternwelten.at
-From: janitor@sternwelten.at
-Date: Wed, 01 Sep 2004 22:56:38 +0200
-Message-ID: <E1C2c9n-0007Mz-5O@sputnik>
+	Wed, 1 Sep 2004 17:37:50 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:50048 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268121AbUIAVPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 17:15:09 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
+From: Lee Revell <rlrevell@joe-job.com>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: Ingo Molnar <mingo@elte.hu>, Daniel Schmitt <pnambic@unu.nu>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Mark_H_Johnson@raytheon.com, tytso@mit.edu
+In-Reply-To: <1094053973.2282.2.camel@tux.rsn.bth.se>
+References: <200408282210.03568.pnambic@unu.nu>
+	 <20040828203116.GA29686@elte.hu>
+	 <1093727453.8611.71.camel@krustophenia.net>
+	 <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net>
+	 <1093737080.1385.2.camel@krustophenia.net>
+	 <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu>
+	 <20040830090608.GA25443@elte.hu> <1093934448.5403.4.camel@krustophenia.net>
+	 <20040831065327.GA30631@elte.hu>
+	 <1093993396.3404.17.camel@krustophenia.net>
+	 <1094053973.2282.2.camel@tux.rsn.bth.se>
+Content-Type: text/plain
+Message-Id: <1094073302.1343.0.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 01 Sep 2004 17:15:02 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-09-01 at 11:52, Martin Josefsson wrote:
+> On Wed, 2004-09-01 at 01:03, Lee Revell wrote:
+> 
+> Hi Lee
+> 
+> > This solves the problem with the random driver.  The worst latencies I
+> > am seeing are in netif_receive_skb().  With netdev_max_backlog set to 8,
+> > the worst is about 160 usecs:
+> 
+> I'm a bit curious... have you tried these tests with ip_conntrack
+> enabled?
 
+No, this is disabled in my config.  I will try enabling it.
 
-Patch (against 2.6.7) removes unnecessary min/max macros and changes
-calls to use kernel.h macros instead.
+What would the expected result be?
 
-Feedback is always welcome
-Michael
+Lee
 
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-
-
-
----
-
- linux-2.6.9-rc1-bk7-max/drivers/char/selection.c |    6 +-----
- 1 files changed, 1 insertion(+), 5 deletions(-)
-
-diff -puN drivers/char/selection.c~min-max-char_selection drivers/char/selection.c
---- linux-2.6.9-rc1-bk7/drivers/char/selection.c~min-max-char_selection	2004-09-01 19:34:10.000000000 +0200
-+++ linux-2.6.9-rc1-bk7-max/drivers/char/selection.c	2004-09-01 19:34:10.000000000 +0200
-@@ -26,10 +26,6 @@
- #include <linux/tiocl.h>
- #include <linux/console.h>
- 
--#ifndef MIN
--#define MIN(a,b)	((a) < (b) ? (a) : (b))
--#endif
--
- /* Don't take this from <ctype.h>: 011-015 on the screen aren't spaces */
- #define isspace(c)	((c) == ' ')
- 
-@@ -295,7 +291,7 @@ int paste_selection(struct tty_struct *t
- 			continue;
- 		}
- 		count = sel_buffer_lth - pasted;
--		count = MIN(count, tty->ldisc.receive_room(tty));
-+		count = min(count, tty->ldisc.receive_room(tty));
- 		tty->ldisc.receive_buf(tty, sel_buffer + pasted, NULL, count);
- 		pasted += count;
- 	}
-
-_

@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261290AbSLUAWR>; Fri, 20 Dec 2002 19:22:17 -0500
+	id <S261286AbSLUAgd>; Fri, 20 Dec 2002 19:36:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261310AbSLUAWR>; Fri, 20 Dec 2002 19:22:17 -0500
-Received: from holomorphy.com ([66.224.33.161]:24264 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261290AbSLUAWQ>;
-	Fri, 20 Dec 2002 19:22:16 -0500
-Date: Fri, 20 Dec 2002 16:29:40 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Janet Morgan <janetmor@us.ibm.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] aic7xxx bouncing over 4G
-Message-ID: <20021221002940.GM25000@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Justin T. Gibbs" <gibbs@scsiguy.com>,
-	Janet Morgan <janetmor@us.ibm.com>, linux-scsi@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <200212210012.gBL0Cng21338@eng2.beaverton.ibm.com> <176730000.1040430221@aslan.btc.adaptec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <176730000.1040430221@aslan.btc.adaptec.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S261292AbSLUAgd>; Fri, 20 Dec 2002 19:36:33 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:52441 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261286AbSLUAgc>;
+	Fri, 20 Dec 2002 19:36:32 -0500
+Date: Fri, 20 Dec 2002 16:43:26 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: george anzinger <george@mvista.com>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 21
+In-Reply-To: <3E02E875.8BF23AAE@mvista.com>
+Message-ID: <Pine.LNX.4.33L2.0212201641210.1703-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, Janet Morgan had her attribution removed:
->> I have an Adaptec AIC-7897 Ultra2 SCSI adapter on a system with 8G
->> of physical memory.  The adapter is using bounce buffers when DMA'ing
->> to memory >4G because of a bug in the aic7xxx driver. 
+On Fri, 20 Dec 2002, george anzinger wrote:
 
-On Fri, Dec 20, 2002 at 05:23:42PM -0700, Justin T. Gibbs wrote:
-> This has been fixed in both the aic7xxx and aic79xx drivers for some
-> time.  The problem is that these later revisions have not been integrated
-> into the mainline trees.
+| This is the platform part of the high-res timers for the
+| x86.
+|
+| Changes since last time:
+| CONFIG dependency added to not turn on stuff only needed
+| when CONFIG_HIGH_RES = y.
+| ----------
+|
+| The 3 parts to the high res timers are:
+|  core		The core kernel (i.e. platform independent) changes
+| *i386		The high-res changes for the i386 (x86) platform
+|  hrposix	The changes to the POSIX clocks & timers patch to
+| use high-res timers
+|
+| Please apply.
 
-Could you split up the new revisions into a series of reviewable
-patches with clearly-defined individual scope and descriptive changelog
-entries and post them (in your mail message, not as URL's) please? I
-actually use this driver at home, so I'd like to be able to understand
-what's going on with it. I suspect various others are of like mind.
+
+George,
+
+This arch/i386/Kconfig file contains some KGDB options that keep
+it from applying cleanly.  Not delaying me, but it might delay someone.
 
 
-Thanks,
-Bill
+
+$ patch -p1 -b --dry-run < ~/cglstage/HRT_2002_1220/03-hrtimers-x86.patch
+patching file arch/i386/Kconfig
+Hunk #2 FAILED at 1665.
+Hunk #3 FAILED at 1857.
+Hunk #4 FAILED at 1866.
+3 out of 4 hunks FAILED -- saving rejects to file arch/i386/Kconfig.rej
+
+-- 
+~Randy
+

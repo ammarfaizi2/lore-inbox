@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266638AbUBEVHK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 16:07:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUBEVHJ
+	id S266865AbUBEVOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 16:14:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266867AbUBEVOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 16:07:09 -0500
-Received: from mout2.freenet.de ([194.97.50.155]:47265 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S266638AbUBEVHD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 16:07:03 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
+	Thu, 5 Feb 2004 16:14:25 -0500
+Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:59567 "HELO
+	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266865AbUBEVOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 16:14:18 -0500
+From: Murilo Pontes <murilo_pontes@yahoo.com.br>
+To: linux-kernel@vger.kernel.org
 Subject: Re: psmouse.c, throwing 3 bytes away
-Date: Thu, 5 Feb 2004 22:06:48 +0100
-User-Agent: KMail/1.6.50
+Date: Thu, 5 Feb 2004 18:14:35 +0000
+User-Agent: KMail/1.6
 References: <200402041820.39742.wnelsonjr@comcast.net> <200402051517.37466.murilo_pontes@yahoo.com.br> <20040205203840.GA13114@ucw.cz>
 In-Reply-To: <20040205203840.GA13114@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, Murilo Pontes <murilo_pontes@yahoo.com.br>
 MIME-Version: 1.0
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200402052207.00423.mbuesch@freenet.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402051814.35648.murilo_pontes@yahoo.com.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+My motherboard is k7n2-delta-l from MSI, and my mouse is Logitech PS/2 Optical Mouse Whell,
+512mb of ram, no swap partitions
 
-On Thursday 05 February 2004 21:38, you wrote:
+Well, always which compiling large sources like kde-3.2 and using XFree86-4.3.0 in parallel,
+this bug is appears several times. Maybe not related with disks DMA/apic/acpi/preempt/agp issues,
+
+Near of isolate bug is on VM system(stress it, like compiling kde-3.2 with no swap partitions) or 
+I2C/ACPI Thermal zone/ACPI fans. Both have related with input system?
+
+With lower load I newer take is bug. Anyone take? 
+
+
+Em Qui 05 Fev 2004 20:38, Vojtech Pavlik escreveu:
+> On Thu, Feb 05, 2004 at 05:24:27PM +0000, Murilo Pontes wrote:
+> > I have same problems since of 2.6.0, now I running 2.6.2 stock kernel
+> > I run XFree86-4.3.0 and still with problems, anyone try XFree86-4.4.0 devel snapshots???
+> > 
+> > I try kernel with/without  preempty/acpi/apic make all possibilities, 
+> > then may be error is not in kernel, but in XFree86-4.3.0 which not support big changes in input system
+> > of 2.6.x, I tried compile XFree86 with linux-2.6.{0,1,2} kernel headers was 100% fail, sounds binary 
+> > and source incompatibilites,  
+> 
 > Hey, guys, could you possibly try to figure out what your machines have
 > in common? I've switched all my computers to PS/2 mice so that I have a
 > bigger chance to reproduce the problem, but it is not happening on any
 > of them.
-
-Hm, that's a good question. :)
-As I said I had these error messages on 2.6.2-rc2, but now
-on 2.6.2 I don't have them anymore. (at least until yet).
-But could also have something to do with the switch from
-KDE-cvsHEAD-december2003 to KDE-3.2. I don't know.
-
-I'm compiling software and accessing the disk heavily today
-(and yesterday) but I can't see the message anymore.
-That's strange!
-
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAIrBzFGK1OIvVOP4RAs1SAKCHWBStoIZ119Zq7wAomnYC2R1ukACePqTH
-o0HPu/uLewEvpUD52TzbWqw=
-=RG51
------END PGP SIGNATURE-----
+> 

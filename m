@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293390AbSCJX4u>; Sun, 10 Mar 2002 18:56:50 -0500
+	id <S293400AbSCKAME>; Sun, 10 Mar 2002 19:12:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293393AbSCJX4l>; Sun, 10 Mar 2002 18:56:41 -0500
-Received: from taifun.devconsult.de ([212.15.193.29]:13073 "EHLO
-	taifun.devconsult.de") by vger.kernel.org with ESMTP
-	id <S293390AbSCJX4V>; Sun, 10 Mar 2002 18:56:21 -0500
-Date: Mon, 11 Mar 2002 00:56:19 +0100
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Andreas Jaeger <aj@suse.de>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] syscall interface for cpu affinity
-Message-ID: <20020311005619.A1481@devcon.net>
-Mail-Followup-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
-	Andreas Jaeger <aj@suse.de>, Robert Love <rml@tech9.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <1015784104.1261.8.camel@phantasy> <u8zo1g9nf8.fsf@gromit.moeb> <1015793618.928.17.camel@phantasy> <u8bsdw9lvd.fsf@gromit.moeb>
+	id <S293397AbSCKALz>; Sun, 10 Mar 2002 19:11:55 -0500
+Received: from smtp013.mail.yahoo.com ([216.136.173.57]:2828 "HELO
+	smtp013.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S293400AbSCKALj>; Sun, 10 Mar 2002 19:11:39 -0500
+Subject: Re: Suspend support for IDE
+From: Reid Hekman <reid_hekman@yahoo.com>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020310005213.1D8BB8959A@cx518206-b.irvn1.occa.home.com>
+In-Reply-To: <20020310005213.1D8BB8959A@cx518206-b.irvn1.occa.home.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 10 Mar 2002 18:10:14 -0600
+Message-Id: <1015805489.15071.10.camel@zeus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <u8bsdw9lvd.fsf@gromit.moeb>; from aj@suse.de on Sun, Mar 10, 2002 at 10:03:02PM +0100
-Organization: dev/consulting GmbH
-X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 10, 2002 at 10:03:02PM +0100, Andreas Jaeger wrote:
-> >
-> > Note you can use the syscall interface with existing programs, too. 
-> > Just write a program to take in a pid and mask and call
-> > sched_set_affinity.
-> What I need at the moment is a wrapper - and you can do it two ways:
+On Sat, 2002-03-09 at 18:52, Barry K. Nathan wrote: 
+> > > Why should I tell the drive to power down? It is going to loose its
+> > > power, anyway (I believe in both S3 and S4).
+> > 
+> > So it can shut itself down nicely and do any housework it wants to do
+> > (like flushing the cache if the cache flush command isnt supported.. its
+> >  optional in older ATA standards)
 > 
-> $ run_with_affinity 1 program arguments...
-> $ (cat 1 > /proc/self/affinity; program arguments...)
-> 
-> The second one is much easier coded ;-)
+> Or, in the case of newer IBM TravelStars, so that the drive can unload
+> its head properly instead of having to do an uncontrolled emergency unload
+> that shortens the drive's life and makes an awful screeching noise.
 
-$ (set_affinity 1; program arguments...)
+Eeep. Have we just set the wayback machine for 15 years ago? I don't
+remember seeing PARK.COM in /sbin recently. 
 
-set_affinity just calls sched_set_affinity(getppid()), and everything
-is fine (and even shorter to type) :-)
+Sorry, couldn't resist. 
+Reid 
 
-Andreas
--- 
-       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
-     ---------------------------------------------------------
-         +49 521 1365800 - af@devcon.net - www.devcon.net
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
+

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282258AbRKWWM4>; Fri, 23 Nov 2001 17:12:56 -0500
+	id <S282260AbRKWW1L>; Fri, 23 Nov 2001 17:27:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282260AbRKWWMr>; Fri, 23 Nov 2001 17:12:47 -0500
-Received: from ns01.netrox.net ([64.118.231.130]:37354 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S282258AbRKWWMh>;
-	Fri, 23 Nov 2001 17:12:37 -0500
-Subject: Re: Kernel Compilation Basics
-From: Robert Love <rml@tech9.net>
-To: "Paulo J. Matos aka  " PDestroy <pocm@rnl.ist.utl.pt>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m3pu69qheo.fsf@localhost.localdomain>
-In-Reply-To: <m3pu69qheo.fsf@localhost.localdomain>
-Content-Type: text/plain
+	id <S282266AbRKWW1A>; Fri, 23 Nov 2001 17:27:00 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:61708 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S282260AbRKWW0t>; Fri, 23 Nov 2001 17:26:49 -0500
+Message-ID: <3BFECCA6.7459DCAB@linux-m68k.org>
+Date: Fri, 23 Nov 2001 23:24:38 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: dalecki@evision.ag
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH 2.4.15-pre6 idt compilation and proc_misc cleanup.
+In-Reply-To: <87y9l58pb5.fsf@fadata.bg> <200111171920.fAHJKjJ01550@penguin.transmeta.com> <3BFA6B1A.D91C5703@evision-ventures.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
-Date: 23 Nov 2001 17:11:21 -0500
-Message-Id: <1006553483.1351.3.camel@icbm>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-11-23 at 16:57, Paulo J. Matos aka PDestroy wrote:
-> I'm trying to compile 2.4.15.
-> I've read Kernel Howto and I've done the quick compilation steps:
-> make xconfig
-> make dep
-> make clean
-> make bzImage
-> cp arch/i386/boot/bzImage /boot/vmlinuz-2.4.15
-> make modules
-> make modules_install
-> 
-> What about now?
-> How do I create system map and modules info?
-> What are they for?
-> I feel that kernel howto is not explicit with this questions.
-> Is there any place where can I get insight about these questions?
+Hi,
 
-You already have a System.map, it is in the root of your linux source
-directory.  Thus, as you copied vmlinuz over, do the same for
-System.map:
+Martin Dalecki wrote:
 
-	cp System.map /boot/System.map-2.4.15
+> 2. Killing some code which is dead since ages in proc_misc.c
+> [..]
+> -#ifdef CONFIG_PROC_HARDWARE
+> -               {"hardware",    hardware_read_proc},
+> -#endif
+> -#ifdef CONFIG_STRAM_PROC
+> -               {"stram",       stram_read_proc},
+> -#endif
 
-modules-info is something specific to RedHat which you do not need. 
-`make modules_install' is all that is required.  Now, edit your
-bootloader (lilo, grub, etc) and reboot.  Enjoy.
+Unfortunately I see this only now, but this isn't dead at all, it's just
+not used on i386, please grep more carefully next time.
 
-	Robert Love
-
+bye, Roman

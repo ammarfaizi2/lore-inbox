@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVCRPBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVCRPHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbVCRPBf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 10:01:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbVCRPBf
+	id S261631AbVCRPHE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 10:07:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVCRPHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 10:01:35 -0500
-Received: from mail1.upco.es ([130.206.70.227]:59585 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S261630AbVCRPBb (ORCPT
+	Fri, 18 Mar 2005 10:07:03 -0500
+Received: from rproxy.gmail.com ([64.233.170.198]:37245 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261629AbVCRPG6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 10:01:31 -0500
-Date: Fri, 18 Mar 2005 16:01:29 +0100
-From: Romano Giannetti <romanol@upco.es>
-To: Len Brown <len.brown@intel.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: [BKPATCH] ACPI for 2.6.12-rc1
-Message-ID: <20050318150129.GB22887@pern.dea.icai.upco.es>
-Reply-To: romano@dea.icai.upco.es
-Mail-Followup-To: romano@dea.icai.upco.es,
-	Len Brown <len.brown@intel.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	ACPI Developers <acpi-devel@lists.sourceforge.net>
-References: <1111127024.9332.157.camel@d845pe>
+	Fri, 18 Mar 2005 10:06:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=MydN7NHrS713REEcfmNC0J66hWXLiXZWCcHXJsyFoQllD0liglJyqRGt/laGyUCqqONGjXaM1myIPgtyAFjnA1bHxUnz09TkPmy0ryeNYLsOPxQemfGkjHVqg4ycZ43kZTFjWVC/RFNcKLH86rUlaPxPbMFCj2VTAJTzzJsEg/s=
+Message-ID: <4f6c1bdf05031807063460dc7b@mail.gmail.com>
+Date: Fri, 18 Mar 2005 20:36:58 +0530
+From: Hong Kong Phoey <hongkongphoey@gmail.com>
+Reply-To: Hong Kong Phoey <hongkongphoey@gmail.com>
+To: Imanpreet Arora <imanpreet@gmail.com>
+Subject: Re: Question on Scheduler activations
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <c26b9592050318060863830434@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <1111127024.9332.157.camel@d845pe>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <c26b9592050318060863830434@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 18, 2005 at 01:23:44AM -0500, Len Brown wrote:
-
-> 	This includes the ACPI part of memory hotplug,
-> 	plus various fixes, BIOS workarounds and a fix for
-> 	an interpreter regressions we had in 2.6.11 vs 2.6.10.
-
-Thank you for the grat work. Could I humble advocating pushing the patch 
-http://bugme.osdl.org/attachment.cgi?id=4516&action=view ,please? It fixed a
-very bad regression in hotkey event from 2.6.9...
-
-Thanks!
+RTFM
 
 
-
-
--- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+On Fri, 18 Mar 2005 19:38:45 +0530, Imanpreet Arora <imanpreet@gmail.com> wrote:
+> Hello,
+> 
+>        I came across
+> 
+>                http://people.redhat.com/drepper/glibcthreads.html
+> 
+>        It seems to arouse a bit of confusion. _FIRST_ it says that scheduler
+> activations are BAD. Then it delves on the possible implementation of
+> Scheduler activations in Linux. Though I know that scheduler
+> activations are not part of the present kernel. Could anyone provide
+> BOTH the short and long answer to
+> 
+> a)      If they were ever implemented?
+> b)      Reasons for rejection?
+> 
+> TIA
+> 
+> --
+> 
+> Imanpreet Singh Arora
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265309AbUALRRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 12:17:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266364AbUALRRQ
+	id S261406AbUALRQs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 12:16:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265309AbUALRQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 12:17:16 -0500
-Received: from inet-mail1.oracle.com ([148.87.2.201]:50109 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id S265309AbUALRRL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 12:17:11 -0500
-Date: Mon, 12 Jan 2004 09:16:56 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: removable media revalidation - udev vs. devfs or static /dev
-Message-ID: <20040112171656.GM11065@ca-server1.us.oracle.com>
-Mail-Followup-To: Gerd Knorr <kraxel@bytesex.org>,
-	linux-kernel@vger.kernel.org
-References: <200401012333.04930.arvidjaar@mail.ru> <20040103055847.GC5306@kroah.com> <Pine.LNX.4.58.0401071036560.12602@home.osdl.org> <20040107185656.GB31827@kroah.com> <20040109033655.GK11065@ca-server1.us.oracle.com> <87wu81tptc.fsf@bytesex.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87wu81tptc.fsf@bytesex.org>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.4i
+	Mon, 12 Jan 2004 12:16:47 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:65022 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261406AbUALRQq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 12:16:46 -0500
+Message-ID: <4002D65C.1010505@eglifamily.dnsalias.net>
+Date: Mon, 12 Jan 2004 10:16:12 -0700
+From: Dan Egli <dan@eglifamily.dnsalias.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Subject: 2.6.x breaks some Berkeley/Sleepycat DB functionality
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: dan@eglifamily.dnsalias.net
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 09, 2004 at 10:49:03AM +0100, Gerd Knorr wrote:
-> I also think you don't need *all* minors for removable media.  I
-> havn't seen removable media with extended partitions so far.  IIRC zip
-> floppys are using /dev/sda4 and most other ones either /dev/sda1 or
-> /dev/sda directly, so we likely can catch 99% with just three device
-> nodes.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-	Ahh, but that's magic, and we don't want magic.  Today, you just
-'magically' know that your camera card reader shows up at sda1.  We
-don't want that (or at least, I hope we don't).  We want sysfs to
-describe exactly what appeared (a block device with one partition), and
-we want udev to give it the name our policy has asked it to (/dev/disk1
-or /dev/camera1 or /dev/partition1 or whatever that policy is).  In a
-udev world, I don't want to have to intrinsicly know that sda1 is where
-some card reader devices appear.  Naming should be a priori, not random.
+I have encountered a strange issue in 2.6.0 and 2.6.1
 
-Joel
+I run a PGP Public key server on this machine and under 2.4.x it's
+"smooth as silk". But if I boot under 2.6.x, it's gaurenteed failure. If
+I try to build a database using the build command (this is an sks
+server, so it's sks build or sks fastbuild) I IMMEDIATELY get  Bdb
+error. But the exact same command with the exact same libraries and
+input files under 2.4.20 works without a hitch.
 
--- 
+Anyone got any ideas? Anything else I can provide to assist in debugging?
 
-"Glory is fleeting, but obscurity is forever."  
-         - Napoleon Bonaparte
+- --- Dan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+iD8DBQFAAtZctwT22Jak4/4RAk+nAJ4tclsoZTI/a2LAwxb81KOrPxHLhQCcDxoP
+Dlbr7aZabky+CeBGD9TnjY4=
+=dr0q
+-----END PGP SIGNATURE-----
+

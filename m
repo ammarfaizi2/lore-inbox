@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263347AbTDCKuW>; Thu, 3 Apr 2003 05:50:22 -0500
+	id <S263348AbTDCLDQ>; Thu, 3 Apr 2003 06:03:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263353AbTDCKuW>; Thu, 3 Apr 2003 05:50:22 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:62479 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S263347AbTDCKuV>; Thu, 3 Apr 2003 05:50:21 -0500
-Date: Thu, 3 Apr 2003 12:10:33 +0200
-From: DervishD <raul@pleyades.net>
-To: Greg KH <greg@kroah.com>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: USB Mouse issue
-Message-ID: <20030403101033.GC47@DervishD>
-References: <20030402193731.GA1273@DervishD> <20030403005344.GA5361@kroah.com>
+	id <S263350AbTDCLDQ>; Thu, 3 Apr 2003 06:03:16 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:3040 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id <S263348AbTDCLDP>;
+	Thu, 3 Apr 2003 06:03:15 -0500
+Date: Thu, 3 Apr 2003 13:14:27 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: David Lang <david.lang@digitalinsight.com>,
+       "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 64-bit kdev_t - just for playing
+Message-ID: <20030403111427.GD13233@marowsky-bree.de>
+References: <b6fmoe$nvt$1@cesium.transmeta.com> <Pine.LNX.4.44.0304030207230.31471-100000@dlang.diginsite.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030403005344.GA5361@kroah.com>
+In-Reply-To: <Pine.LNX.4.44.0304030207230.31471-100000@dlang.diginsite.com>
 User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Greg :)
+On 2003-04-03T02:09:48,
+   David Lang <david.lang@digitalinsight.com> said:
 
- Greg KH dixit:
-> >     But when I do 'gpm -m mouse -p -t imps2' I have a 'ENODEV'. Same
-> > if I try to open 'mouse' with cat or the like, always ENODEV:
-> >     crw-r--r--  1 root root 180,16 mouse
-> No, this interface (Major 180, minor 16) is long out of date.  You have
-> to use the input core now.
+> when you think of huge raid arrays that present themselves to the system
+> as a single drive even 64 partitions can be limiting.
 
-    And that means activate INPUT_MOUSEDEV and load the module, ok,
-but then, usbmouse does anything? Is it necessary for the USB mouse?
-Right now I have INPUT activated, but INPUT_MOUSEDEV not. I have
-INPUT_EVDEV activated, which is supposed to work for the Wacom
-Graphire digitizer (I have one too), but because the Configure.help
-file says so, in USB_MOUSE I don't see such advise :?
+That's what logical volume management is for. Problem solved.
 
-    If usbmouse depends on INPUT_MOUSEDEV it should say it in the
-Configure.help entry...
 
-    Excuse me, none of the above was needed, just created the node
-(char 13,64) and run gpm saying that the mouse is of 'evdev' type. No
-INPUT_MOUSEDEV needed :) Just one curiosity: the usbmouse module
-shows as 'unused', in fact is 'evdev' the one used by 'gpm', but if I
-unload the usbmouse module (which I can do even with gpm running)
-then gpm stops working! I mean, the usbmouse module can be rmmod'ed
-but it is in use! Is this a bug? I'm afraid I must mark this module
-as not autocleanable :((( and it will remain loaded even if I stop
-using the mouse. Any advice?
-
-    Thanks for the information, Greg, you've saved me a few hours of
-testing ;))
-
-    Raúl Núñez de Arenas Coronado
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
 -- 
-Linux Registered User 88736
-http://www.pleyades.net & http://www.pleyades.net/~raulnac
+SuSE Labs - Research & Development, SuSE Linux AG
+  
+"If anything can go wrong, it will." "Chance favors the prepared (mind)."
+  -- Capt. Edward A. Murphy            -- Louis Pasteur

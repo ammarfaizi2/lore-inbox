@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319733AbSIMRaG>; Fri, 13 Sep 2002 13:30:06 -0400
+	id <S319720AbSIMRfA>; Fri, 13 Sep 2002 13:35:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319736AbSIMRaG>; Fri, 13 Sep 2002 13:30:06 -0400
-Received: from ns1.digital-internetwork.net ([213.186.34.76]:47008 "HELO
-	ns1.digital-internetwork.net") by vger.kernel.org with SMTP
-	id <S319733AbSIMRaF>; Fri, 13 Sep 2002 13:30:05 -0400
-Date: Fri, 13 Sep 2002 12:34:42 -0400
-From: Guillaume <guillaume@samizdat.net>
-To: linux-kernel@vger.kernel.org
-Cc: guillaume@samizdat.net, arjanv@redhat.com, rusty@rustcorp.com.au,
-       jgarzik@mandrakesoft.com, goutham.rao@intel.com, visitor@valinux.com
-Subject: [2.4.19] new eepro100 driver: "eepro100: wait_for_cmd_done timeout!"
-Message-Id: <20020913123442.64b2695e.guillaume@samizdat.net>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; Baron Harkonnen: He who controls the Spice, controls the universe!)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S319723AbSIMRfA>; Fri, 13 Sep 2002 13:35:00 -0400
+Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:23707 "EHLO
+	swan.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S319720AbSIMRe7>; Fri, 13 Sep 2002 13:34:59 -0400
+Date: Fri, 13 Sep 2002 10:39:18 -0700
+From: " Jim Sibley" <jimsibley@earthlink.net>
+To: pollard@admin.navo.hpc.mil
+Cc: linux-kernel@vger.kernel.org, riel@conectiva.com.br,
+       vda@port.imtp.ilyichevsk.odessa.ua, alan@lxorguk.ukuu.org.uk
+Reply-To: jimsibley@earthlink.net
+Subject: [No Subject]
+Message-ID: <Springmail.0994.1031938758.0.73924900@webmail.pas.earthlink.net>
+X-Originating-IP: 32.97.110.142
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+First, please change your replies to me to jimsibley@earthlink.net and drop
+the IBM address. Some of my replies may not reflect IBM's position. 
 
-Since I upgraded 2.4.18 -> to 2.4.19,
-my on-board (VAIO GR) eepro100 ethernet card hangs
-when traffic gets above ~10 KB/s. 
+Also please drop the LTC address in your replies. I'm told that the address is
+not a
+place to discuss issues like this. So much for monolithic turf wars.
 
-   867  Sep 12 22:11:45 thufir kernel: eepro100: wait_for_cmd_done timeout!
-   868  Sep 12 22:12:58 thufir last message repeated 8 times
-	etc...
+Anyway, back to the important stuff.
 
-I fed the 2.4.18 eepro100 driver to the source tree of .19, recompiled,
-and now it works fine again.
-Hope it wont be that way on all the future versions.
-Just letting you know :)
+GID might be sufficient if you reserve some GID for resource balancing and use
+the /proc interface to update it.
 
-Besides, great work, I like .19 !
+As Thunder has pointed out, what do you do when all thatis left is critical
+system stuff?
 
-Guillaume
+What I wouldn't want to see is a cumbersome workload manager ala zOS that
+might consume as much resources as its tring to manage. Nor should the
+solution be too extotic that other Unix might adopt.
 
-P.S. Please C.C. any reply to my eMail.
- 

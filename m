@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135305AbRDRUVq>; Wed, 18 Apr 2001 16:21:46 -0400
+	id <S135310AbRDRUWq>; Wed, 18 Apr 2001 16:22:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135304AbRDRUVh>; Wed, 18 Apr 2001 16:21:37 -0400
-Received: from m311-mp1-cvx1a.col.ntl.com ([213.104.69.55]:42368 "EHLO
-	[213.104.69.55]") by vger.kernel.org with ESMTP id <S135297AbRDRUVY>;
-	Wed, 18 Apr 2001 16:21:24 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Let init know user wants to shutdown
-Cc: <sfr@canb.auug.org.au>, <linux-kernel@vger.kernel.org>,
-        <apenwarr@worldvisions.ca>
-In-Reply-To: <E14pyHg-0005cJ-00@the-village.bc.nu>
-From: John Fremlin <chief@bandits.org>
-Date: 18 Apr 2001 21:21:14 +0100
-In-Reply-To: Alan Cox's message of "Wed, 18 Apr 2001 21:10:37 +0100 (BST)"
-Message-ID: <m2oftu3qo5.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
+	id <S135314AbRDRUWh>; Wed, 18 Apr 2001 16:22:37 -0400
+Received: from [62.81.160.68] ([62.81.160.68]:18076 "EHLO smtp2.alehop.com")
+	by vger.kernel.org with ESMTP id <S135306AbRDRUW1>;
+	Wed, 18 Apr 2001 16:22:27 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Manuel Ignacio Monge Garcia <ignaciomonge@navegalia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ATA 100 & VIA and linux-2.4.3ac8
+Date: Wed, 18 Apr 2001 22:21:53 -0400
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <01041820505300.01783@localhost.localdomain> <3ADDE820.2050103@texoma.net>
+In-Reply-To: <3ADDE820.2050103@texoma.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <01041822215300.01341@localhost.localdomain>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+El Mié 18 Abr 2001 15:16, escribiste:
+> I don't know about other possible problems with the kernel, but you must
+> use an 80 wire IDE cable for UDMA66/100 to work.
+>
+> > -----------------------Primary IDE-------Secondary IDE------
+> > Cable Type:                   40w                 40w
 
-> > willing to exercise this power. We would not break compatibility
-> > with any std kernel by instead having a apmd send a "reject all"
-> > ioctl instead, and so deal with events without having the pressure
-> > of having to reject or accept them, and let us remove all the veto
-> > code from the kernel driver. Or am I missing something?
-> 
-> That sounds workable. But the same program could reply to the events
-> just as well as issue the ioctl 8)
 
-Having more than one program holding the veto on each event is a bit
-of a hassle. Keeping track of "replies" is also a bit of a
-hassle. It'd be simpler to let userspace handle everything in line
-with e.g. the ACPI power button press, and suspend or turn off the
-machine in the normal manner.
+        Strange thing. With previous version of kernel (2.4.1 I think), I 
+haven't  got this problem. May be a bios detection problem?
 
-[...]
+Extract from /usr/src/linux/drivers/ide/via82cxxx..c:
 
--- 
+*
+*   PIO 0-5, MWDMA 0-2, SWDMA 0-2 and UDMA 0-5
+*
+* (this includes UDMA33, 66 and 100) modes. UDMA66 and higher modes are
+* autoenabled only in case the BIOS has detected a 80 wire cable. To ignore
+* the BIOS data and assume the cable is present, use 'ide0=ata66' or
+* 'ide1=ata66' on the kernel command line.
+*
 
-	http://www.penguinpowered.com/~vii
+I've tried with ide0=ata100, but this options doesn't work.

@@ -1,30 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136622AbREAPLh>; Tue, 1 May 2001 11:11:37 -0400
+	id <S136633AbREAPND>; Tue, 1 May 2001 11:13:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136629AbREAPL1>; Tue, 1 May 2001 11:11:27 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21769 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136622AbREAPLT>; Tue, 1 May 2001 11:11:19 -0400
-Subject: Re: isa_read/write not available on ppc - solution suggestions ??
-To: bgerst@didntduck.org (Brian Gerst)
-Date: Tue, 1 May 2001 16:14:24 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mike_phillips@urscorp.com,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <3AEECD51.ABC493CB@didntduck.org> from "Brian Gerst" at May 01, 2001 10:50:57 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S136630AbREAPMs>; Tue, 1 May 2001 11:12:48 -0400
+Received: from www.topmail.de ([212.255.16.226]:6116 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S136636AbREAPMc>;
+	Tue, 1 May 2001 11:12:32 -0400
+Message-ID: <00da01c0d251$240894e0$de00a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: bandwidth
+Date: Tue, 1 May 2001 15:11:52 -0000
+Organization: eccesys.net Linux development
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14ubr8-0001nf-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > for ioremap and are meant for lazy porting
-> 
-> You meant isa_read* were for lazy porting.  read* require ioremap be
-> done before hand, even for ISA.
+duh! You argue over bandwidth due to sigs >4*80, and
+other ppl here are QUOTING SIGS which is much worse,
+and even the kcsf-ing LMKL footer.
+And yep I have a .sig which I don't use on LKML due
+to bandwidth.
 
-Indeed I do
+Another point: look at the headers. I'd like LKML to
+strip all these X- thingies, the "Received:" etc.
+so that the messages I get have a bare minimum header
+consisting just of To: and Subject: (maybe MIME).
+
+-mirabilos
 

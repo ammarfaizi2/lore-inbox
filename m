@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267810AbUJRXbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267815AbUJRXi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267810AbUJRXbp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 19:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267815AbUJRXbo
+	id S267815AbUJRXi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 19:38:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267818AbUJRXi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 19:31:44 -0400
-Received: from fire.osdl.org ([65.172.181.4]:18885 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S267810AbUJRXbd (ORCPT
+	Mon, 18 Oct 2004 19:38:26 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37016 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267815AbUJRXiZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 19:31:33 -0400
-Message-ID: <41745034.40501@osdl.org>
-Date: Mon, 18 Oct 2004 16:22:28 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: OOPS while loading a Linux-2.6.8 module
-References: <Pine.LNX.4.61.0410151030490.25333@chaos.analogic.com> <200410161344.26932.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.61.0410180748100.18155@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0410180748100.18155@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 18 Oct 2004 19:38:25 -0400
+Date: Mon, 18 Oct 2004 16:42:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: sct@redhat.com, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH 2/3] ext3 reservation allow turn off for specifed file
+Message-Id: <20041018164218.70fb08d3.akpm@osdl.org>
+In-Reply-To: <1098140129.9754.1064.camel@w-ming2.beaverton.ibm.com>
+References: <1097846833.1968.88.camel@sisko.scot.redhat.com>
+	<1097856114.4591.28.camel@localhost.localdomain>
+	<1097858401.1968.148.camel@sisko.scot.redhat.com>
+	<1097872144.4591.54.camel@localhost.localdomain>
+	<1097878826.1968.162.camel@sisko.scot.redhat.com>
+	<1097879695.4591.61.camel@localhost.localdomain>
+	<1098140129.9754.1064.camel@w-ming2.beaverton.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> On Sat, 16 Oct 2004, Denis Vlasenko wrote:
-> 
->> On Friday 15 October 2004 17:34, Richard B. Johnson wrote:
->>
->>>
->>> If you were to execute `strip` on a Linux-2.6.8 module,
->>> you can OOPS the kernel. Gotta patch? I'll test immediately.
->>>
->>>
->>> HeavyLink: falsely claims to have parameter shmem
->>> Unable to handle kernel NULL pointer dereference at virtual address 
->>> 00000000
->>>   printing eip:
->>> 00000000
->>> *pde = 07469001
->>> Oops: 0000 [#1]
->>> SMP
->>> Modules linked in: HeavyLink parport_pc lp parport autofs4 rfcomm
->>
->>                     ^^^^^^^^^
->> Is the source of this available anywhere?
->> -- 
->> vda
->>
-> 
-> Any module does this.  Here's one to experiment with since
-> it contains practically nothing....
+Mingming Cao <cmm@us.ibm.com> wrote:
+>
+> Allow user shut down reservation-based allocation(using ioctl) on a specific file(e.g. for seeky random write).
 
-Yep.  Steve Hemminger posted patches that fix that problem and
-they *should* show up in 2.6.10-pre/-rc.
+Applications currently pass a seeky-access hint into the kernel via
+posix_fadvise(POSIX_FADV_RANDOM).  It would be nice to hook into that
+rather than adding an ext3-specific ioctl.  Maybe just peeking at
+file->f_ra.ra_pages would suffice.
 
--- 
-~Randy

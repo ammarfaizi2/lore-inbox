@@ -1,68 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290743AbSARQ7b>; Fri, 18 Jan 2002 11:59:31 -0500
+	id <S290750AbSARRCv>; Fri, 18 Jan 2002 12:02:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290740AbSARQ7T>; Fri, 18 Jan 2002 11:59:19 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:39842 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S290743AbSARQq5>; Fri, 18 Jan 2002 11:46:57 -0500
-Message-ID: <3C485169.7070005@sap.com>
-Date: Fri, 18 Jan 2002 17:46:33 +0100
-From: Wilhelm Nuesser <wilhelm.nuesser@sap.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S290740AbSARRCm>; Fri, 18 Jan 2002 12:02:42 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:8832 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S290750AbSARRCb>; Fri, 18 Jan 2002 12:02:31 -0500
+Date: Fri, 18 Jan 2002 12:02:56 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Raman S <raman_s_@hotmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: int 0x40
+In-Reply-To: <F49lHiu3fQtYdVzDpub0001e2cc@hotmail.com>
+Message-ID: <Pine.LNX.3.95.1020118113841.960A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: clarification about redhat and vm
-In-Reply-To: <E16RFE9-00042W-00@the-village.bc.nu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-SAP: out
-X-SAP: out
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Fri, 18 Jan 2002, Raman S wrote:
 
->>"If redhat doesn't use the -aa VM " was a short form of "if redhat
->>cannot see the goodness of all the bugfixing work that happened between
->>the 2.4.9 VM and any current branch 2.4, and so if they keep shipping
->>2.4.9 VM as the best one for DBMS and critical VM apps like the SAP
->>benchmark".
->>
->
->The RH VM is totally unrelated to the crap in 2.4.9 vanilla. The SAP comment
->begs a question. 2.4.10 seems to have problems remembering to actually 
->do fsync()'s. How much of your SAP benchmark is from fsync's that dont
->happen ? Do you get the same values with 2.4.18-aa ?
->
-Well, basically we checked the thing many times with quite different 
-kernels.
-Our current tests - which show exactly the same results as 
-2.4.[10,14,15] - run
-on the new "official" SuSE kernel 2.4.16.  Again, we  observe a 
-performance increase
-in high swap situations of about  a factor of ten compared to 2.4.[7,9].
- 
-IMO, this shows that errors like fsync etc. are _not_ responsible for 
-the improved
-performance.
+> Hi,
+>   I relatively new to the kernel and am trying to understand how the linux 
+> kernel handles interrupts. For this I attempted to
+> create an int 0x40 by adding a set_system_gate(64, &system_call) in traps.c. 
+> I verfied by giving out print statements within set_system_gate that 64 is 
+> being set during initialization (though it isnt a surprise that it is being 
+> set).  But when i give an int 0x40 in a user level assembly program I get 
+> segmentation fault, (a SIGSEGV signal is sent to the process).  I have tried 
+> adding another function in entry.S called my_system_call and reproducing the 
+> code in system_call with a jmp ret_from_sys_call  at the end. Also tried 
+> giving an empty C function for my_system_call all with the same result.
+> 
 
+As you no-doubt know, any 'int' instruction from user-world is
+invalid and will cause a trap. So, you can make a trap-handler
+and have it do something useful. To have the trap handler get
+control, rather than the illegal-instruction trap, you need an
+entry in the IDT (interrupt descriptor table). I don't know
+which system procedure (if any) will make this entry for you.
+You can see how the initial interrupt(s) are set up, make an
+entry and then remember to `lidt` load the new IDT.
 
-But of course, we will check the newer kernels as well.  I think we 
-could live with another
-factor of ten ...
+> My assembly prints out hello world, from the linux assembly how to, 
+> reproduced here
+> If i replace int 0x80 with my int 0x40 I end up with a segmentation fault. 
+> Is there any thing other than set_system_gate and writing the my_system_call 
+> handler, that i need to do to have a successful int 0x40? I had tried
+>    a) commenting out just the deference of the system handler function 
+> within system_call (call *sys_call_table(0, %eax, 4) )
+>    b) using &system_call itself in set_system_gate
+>   but still the same situation.
+> 
+> Any suggestions will be appreciated.
+> 
+> Thanks
+> Raman
+> 
 
-Best regards
-    Willi
+[SNIPPED assembly...]
 
------------------------
+In principle, one should be able to nest software interrupts, DOS
+did it all the time. However, I fear that executing interrupt 0x80
+from within interrupt 0x40 may be interpreted by other kernel code
+as "bad". You might get a "Eieee scheduling in an interrupt!" panic.
 
-   Willi Nüßer
-    SAP LinuxLab
+I would suggest that you execute the sys-calls directly, not through
+int 0x80, within your code. This will prevent this problem. It is
+also faster. Since a user-mode interrupt is really just a 'call',
+'current' should still be valid for I/O.
 
+The kernel was not designed for user-mode software interrupts so you
+might find other problems. My question is why you would actually want
+one? If you need another function, just add it. If you need something
+else, make a module.
 
+Note that a hardware interrupt will never execute a user-mode
+interrupt service routine unless you make a kernel-mode ISR that
+somehow calls a user-mode routine....and, although that's possible
+by using some clever tricks, it's kinda dumb.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
 

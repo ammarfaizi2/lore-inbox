@@ -1,79 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281926AbRLWQgY>; Sun, 23 Dec 2001 11:36:24 -0500
+	id <S282067AbRLWQZG>; Sun, 23 Dec 2001 11:25:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282511AbRLWQgO>; Sun, 23 Dec 2001 11:36:14 -0500
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:29116 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S281926AbRLWQgG>; Sun, 23 Dec 2001 11:36:06 -0500
-From: "Ashok Raj" <ashokr2@attbi.com>
-To: <mingo@elte.hu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: affinity and tasklets...
-Date: Sun, 23 Dec 2001 08:35:49 -0800
-Message-ID: <PPENJLMFIMGBGDDHEPBBKELMCAAA.ashokr2@attbi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.33.0112222327410.10048-100000@localhost.localdomain>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S281835AbRLWQYz>; Sun, 23 Dec 2001 11:24:55 -0500
+Received: from fluent1.pyramid.net ([206.100.220.212]:23353 "EHLO
+	fluent1.pyramid.net") by vger.kernel.org with ESMTP
+	id <S281787AbRLWQYp>; Sun, 23 Dec 2001 11:24:45 -0500
+Message-Id: <4.3.2.7.2.20011223080930.00c5aed0@10.1.1.42>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Sun, 23 Dec 2001 08:24:29 -0800
+To: David Woodhouse <dwmw2@infradead.org>
+From: Stephen Satchell <list@fluent2.pyramid.net>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in
+  Configure.help. 
+Cc: Phil Howard <phil-linux-kernel@ipal.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <32114.1009104214@redhat.com>
+In-Reply-To: <4.3.2.7.2.20011222075342.00c11e00@10.1.1.42>
+ <4.3.2.7.2.20011222075342.00c11e00@10.1.1.42>
+ <Pine.GSO.4.30.0112221113120.2091-100000@balu>
+ <E16H9C4-0005ST-00@sites.inka.de>
+ <Pine.GSO.4.30.0112221113120.2091-100000@balu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-#3 seems like the best fit, and we can load balance to some extent ourself.
+At 10:43 AM 12/23/01 +0000, David Woodhouse wrote:
+>If you are more interested in the choices of the marketplace than in
+>technical correctness, one has to wonder what you're doing on this mailing
+>list.
 
-#2: You got it right. The hw is designed to generate a fewer # of
-interrupts, since the information necessary is available in other means, and
-there is a lot of time saved by not taking the interrupt.
+Nice ad hominem attack, David.  Attack the messenger.  Good boy.
 
-I will give #3 a try and let you folks know.
+If you recall (or perhaps you have placed me in your kill file) I mentioned 
+that the last place you want to make a sudden change in terminology is in 
+the most public of places, the configuration help file.  You also missed my 
+call to use the new abbreviations FIRST within the kernel itself, in /proc, 
+and in those userland utilities that report system resource usage.  If the 
+universe of Linux users accept it (translation: no flames erupt) then you 
+can consider populating the configuration help files with them.
 
-ashokr
------Original Message-----
-From: mingo@localhost.localdomain [mailto:mingo@localhost.localdomain]On
-Behalf Of Ingo Molnar
-Sent: Saturday, December 22, 2001 2:35 PM
-To: Ashok Raj
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: affinity and tasklets...
+I also mentioned that we have a very, very large base of "legacy users" who 
+do not understand what MiB would be (outside of the context of the movie 
+_Men in Black_) and who would become very, very confused.  In short, making 
+the change would CONFUSE THE NON-TECHNICAL USERS more than they already are.
 
+I'm not against technical correctness.  I'm against witless, thoughtless, 
+blind deployment of an idea without considering the consequences of that 
+deployment.
 
+Don't underestimate the power of "the market."  Have you seen much about 
+MINIX lately?
 
-On Sat, 22 Dec 2001, Ashok Raj wrote:
-
-> The natual affinity of tasklet execution is really the one iam trying
-> to get away from.
-
-some form of interrupt source is needed to load-balance IRQ load to other
-CPUs - some other, unrelated processor wont just start executing the
-necessery function, without that CPU getting interrupted in some way.
-(polling is an option too, but that's out of question for a generic
-solution.)
-
-there are a number of solutions to this problem.
-
-0) is it truly necessery to process the 3 virtual devices in parallel? Are
-they independent and is the processing needed heavy enough that it demands
-distribution between CPUs?
-
-1) the hardware could generate real IRQs for the virtual devices too,
-which would get load-balanced automatically. I suspect this is not an
-option in your case, right?
-
-2) the 'hard' IRQ you generate could be broadcasted to multiple CPUs at
-once. Your IRQ handler would have the target CPU number hardcoded. This is
-pretty inflexible and needs some lowlevel APIC code changes.
-
-3) upon receiving the hard-IRQ, you could also trigger execution on other
-CPUs, via smp_call_function().
-
-i think #3 is the most generic solution. You'll have to do the
-load-balancing by determining the target CPU of smp_call_function().
-
-	Ingo
+Stephen Satchell
 

@@ -1,124 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbUCDNpk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 08:45:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbUCDNoM
+	id S261897AbUCDNmc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 08:42:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbUCDNlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 08:44:12 -0500
-Received: from thump.bur.st ([203.30.45.89]:16649 "EHLO thump.bur.st")
-	by vger.kernel.org with ESMTP id S261903AbUCDNnt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 08:43:49 -0500
-Date: Thu, 4 Mar 2004 21:43:44 +0800
-From: Trent Lloyd <lathiat@bur.st>
+	Thu, 4 Mar 2004 08:41:31 -0500
+Received: from mail.math.uni-mannheim.de ([134.155.89.179]:14030 "EHLO
+	mail.math.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S261900AbUCDNk5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 08:40:57 -0500
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Server suddenly freezes but awakes upon SysRq!?
-Message-ID: <20040304134343.GA15402@thump.bur.st>
-References: <20040304131915.GA15713@westend.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH] Change "GPL" to "GPL v2" where files are GPLv2
+Date: Thu, 4 Mar 2004 08:44:52 +0100
+User-Agent: KMail/1.6
+References: <200403040838.31412.eike-kernel@sf-tec.de>
+In-Reply-To: <200403040838.31412.eike-kernel@sf-tec.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040304131915.GA15713@westend.com>
-User-Agent: Mutt/1.3.28i
-X-Random-Number: -inf
+Message-Id: <200403040840.13086.eike-kernel@sf-tec.de>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've seen similar problems where the machines userspace seems to die but
-it still pings etc and requires a reboot
-This was on just P1/PPRO hardware, never figured it out. havent seen it
-for quite some time
-Haven't tried SQSRQ, if I see it again I'll try that.
+>-there is a tag only for "GPL v2" but there are some drivers claiming to be
+>v2 and not using this (patch will follow)
 
-Cheers,
-Trent
-Sixlabs
+And here it is.
 
-> Hello
-> 
-> We have some problems with a server that started to suddenly freeze
-> every now and then which means that it does react to ping and tcp
-> connects but does not allow a login nor returns the shell or does syslog
-> write anything to disc or network.
-> 
-> Funnily it always immediately awakes when we presses 'AltGr+SysGr+h'
-> although a login on the console did not work before.
-> 
-> What could be the cause of this "sleep" mode if a sysrq ends it?
-> We noticed that at least 1-2 freezes occured right after accessing the
-> external usb2.0 backup harddrive.
-> 
-> The server is a dual-p3 with a 3ware ide-scsi RAID and very low load as
-> postfix+apache server.
-> 
-> bye,
-> 
-> -christian-
-> 
-> Some bits of the configuration:
-> 
-> ...
-> CONFIG_MPENTIUMIII=y
-> ...
-> CONFIG_HIGHMEM4G=y
-> # CONFIG_HIGHMEM64G is not set
-> CONFIG_HIGHMEM=y
-> CONFIG_HIGHIO=y
-> # CONFIG_MATH_EMULATION is not set
-> CONFIG_MTRR=y
-> CONFIG_SMP=y
-> CONFIG_NR_CPUS=32
-> # CONFIG_X86_NUMA is not set
-> # CONFIG_X86_TSC_DISABLE is not set
-> CONFIG_X86_TSC=y
-> CONFIG_HAVE_DEC_LOCK=y
-> #
-> # General setup
-> #
-> CONFIG_NET=y
-> CONFIG_X86_IO_APIC=y
-> CONFIG_X86_LOCAL_APIC=y
-> CONFIG_PCI=y
-> # CONFIG_PCI_GOBIOS is not set
-> # CONFIG_PCI_GODIRECT is not set
-> CONFIG_PCI_GOANY=y
-> CONFIG_PCI_BIOS=y
-> CONFIG_PCI_DIRECT=y
-> CONFIG_ISA=y
-> CONFIG_PCI_NAMES=y
-> # CONFIG_EISA is not set
-> # CONFIG_MCA is not set
-> CONFIG_HOTPLUG=y
-> ...
-> # CONFIG_ACPI is not set
-> CONFIG_ACPI_BOOT=y
-> ...
-> CONFIG_PNP=y
-> CONFIG_ISAPNP=m
-> ...
-> CONFIG_DEBUG_STACKOVERFLOW=y
-> # CONFIG_DEBUG_HIGHMEM is not set
-> # CONFIG_DEBUG_SLAB is not set
-> # CONFIG_DEBUG_IOVIRT is not set
-> CONFIG_MAGIC_SYSRQ=y
-> # CONFIG_DEBUG_SPINLOCK is not set
-> # CONFIG_FRAME_POINTER is not set
-> CONFIG_LOG_BUF_SHIFT=0
-> 
-> -- 
-> Christian Hammers             WESTEND GmbH  |  Internet-Business-Provider
-> Technik                       CISCO Systems Partner - Authorized Reseller
->                               L?tticher Stra?e 10      Tel 0241/701333-11
-> ch@westend.com                D-52064 Aachen              Fax 0241/911879
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-[ Trent "Lathiat" Lloyd  lathi@sixlabs.org ]/ "You sure as hell shouldn't be   \
-[ tlhIngan Hol Dajatlh'e   www.sixlabs.org ]| fingering my toaster" -Linus     |
-[ GPG Key Id: 0x04AB3C5D        www.bur.st ]| Torvalds, LCA2003 Speakers dinner|
-[ IPv6 Conference  http://conf.sixlabs.org ]\ talking about ipv6 with me       /
+diff -aur linux-2.6.3/drivers/message/fusion/isense.c 
+linux-2.6.3-eike/drivers/message/fusion/isense.c
+--- linux-2.6.3/drivers/message/fusion/isense.c	2004-02-18 04:57:56.000000000 
++0100
++++ linux-2.6.3-eike/drivers/message/fusion/isense.c	2004-03-04 
+08:04:14.000000000 +0100
+@@ -91,7 +91,7 @@
+ 
+ MODULE_AUTHOR(MODULEAUTHOR);
+ MODULE_DESCRIPTION(my_NAME);
+-MODULE_LICENSE("GPL");
++MODULE_LICENSE("GPL v2");
+ 
+ /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+ int __init isense_init(void)
+diff -aur linux-2.6.3/drivers/message/fusion/mptbase.c 
+linux-2.6.3-eike/drivers/message/fusion/mptbase.c
+--- linux-2.6.3/drivers/message/fusion/mptbase.c	2004-03-04 
+08:19:02.000000000 +0100
++++ linux-2.6.3-eike/drivers/message/fusion/mptbase.c	2004-03-04 
+08:02:32.000000000 +0100
+@@ -118,7 +118,7 @@
+ 
+ MODULE_AUTHOR(MODULEAUTHOR);
+ MODULE_DESCRIPTION(my_NAME);
+-MODULE_LICENSE("GPL");
++MODULE_LICENSE("GPL v2");
+ 
+ /*
+  *  cmd line parameters
+diff -aur linux-2.6.3/drivers/message/fusion/mptctl.c 
+linux-2.6.3-eike/drivers/message/fusion/mptctl.c
+--- linux-2.6.3/drivers/message/fusion/mptctl.c	2004-02-18 04:57:13.000000000 
++0100
++++ linux-2.6.3-eike/drivers/message/fusion/mptctl.c	2004-03-04 
+08:01:39.000000000 +0100
+@@ -106,7 +106,7 @@
+ #endif
+ MODULE_AUTHOR(MODULEAUTHOR);
+ MODULE_DESCRIPTION(my_NAME);
+-MODULE_LICENSE("GPL");
++MODULE_LICENSE("GPL v2");
+ 
+ /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+ 
+diff -aur linux-2.6.3/drivers/message/fusion/mptlan.c 
+linux-2.6.3-eike/drivers/message/fusion/mptlan.c
+--- linux-2.6.3/drivers/message/fusion/mptlan.c	2004-03-04 08:19:02.000000000 
++0100
++++ linux-2.6.3-eike/drivers/message/fusion/mptlan.c	2004-03-04 
+08:05:00.000000000 +0100
+@@ -80,7 +80,7 @@
+ 
+ #define MYNAM		"mptlan"
+ 
+-MODULE_LICENSE("GPL");
++MODULE_LICENSE("GPL v2");
+ 
+ /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+ /*
+diff -aur linux-2.6.3/drivers/message/fusion/mptscsih.c 
+linux-2.6.3-eike/drivers/message/fusion/mptscsih.c
+--- linux-2.6.3/drivers/message/fusion/mptscsih.c	2004-03-04 
+08:19:02.000000000 +0100
++++ linux-2.6.3-eike/drivers/message/fusion/mptscsih.c	2004-03-04 
+08:03:05.000000000 +0100
+@@ -89,7 +89,7 @@
+ 
+ MODULE_AUTHOR(MODULEAUTHOR);
+ MODULE_DESCRIPTION(my_NAME);
+-MODULE_LICENSE("GPL");
++MODULE_LICENSE("GPL v2");
+ 
+ /* Set string for command line args from insmod */
+ #ifdef MODULE
+diff -aur linux-2.6.3/drivers/pci/hotplug/fakephp.c 
+linux-2.6.3-eike/drivers/pci/hotplug/fakephp.c
+--- linux-2.6.3/drivers/pci/hotplug/fakephp.c	2004-02-18 04:58:36.000000000 
++0100
++++ linux-2.6.3-eike/drivers/pci/hotplug/fakephp.c	2004-03-04 
+07:49:33.000000000 +0100
+@@ -226,7 +226,7 @@
+ 
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+ MODULE_DESCRIPTION(DRIVER_DESC);
+-MODULE_LICENSE("GPL");
++MODULE_LICENSE("GPL v2");
+ MODULE_PARM(debug, "i");
+ MODULE_PARM_DESC(debug, "Debugging mode enabled or not");
+ 
+diff -aur linux-2.6.3/drivers/scsi/3w-xxxx.c 
+linux-2.6.3-eike/drivers/scsi/3w-xxxx.c
+--- linux-2.6.3/drivers/scsi/3w-xxxx.c	2004-02-18 04:59:31.000000000 +0100
++++ linux-2.6.3-eike/drivers/scsi/3w-xxxx.c	2004-03-04 07:59:08.000000000 
++0100
+@@ -189,7 +189,7 @@
+ #else
+ MODULE_DESCRIPTION ("3ware Storage Controller Linux Driver");
+ #endif
+-MODULE_LICENSE("GPL");
++MODULE_LICENSE("GPL v2");
+ 
+ #include <linux/kernel.h>
+ #include <linux/pci.h>
+diff -aur linux-2.6.3/drivers/usb/serial/usb-serial.c 
+linux-2.6.3-eike/drivers/usb/serial/usb-serial.c
+--- linux-2.6.3/drivers/usb/serial/usb-serial.c	2004-02-18 04:57:31.000000000 
++0100
++++ linux-2.6.3-eike/drivers/usb/serial/usb-serial.c	2004-03-02 
+09:54:22.000000000 +0100
+@@ -1468,7 +1468,7 @@
+ /* Module information */
+ MODULE_AUTHOR( DRIVER_AUTHOR );
+ MODULE_DESCRIPTION( DRIVER_DESC );
+-MODULE_LICENSE("GPL");
++MODULE_LICENSE("GPL v2");
+ 
+ MODULE_PARM(debug, "i");
+ MODULE_PARM_DESC(debug, "Debug enabled or not");

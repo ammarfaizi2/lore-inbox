@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269313AbUJKWnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269315AbUJKWpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269313AbUJKWnk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 18:43:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269315AbUJKWnk
+	id S269315AbUJKWpm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 18:45:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269316AbUJKWpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 18:43:40 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:14251 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S269313AbUJKWng (ORCPT
+	Mon, 11 Oct 2004 18:45:42 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:28076 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S269315AbUJKWp2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 18:43:36 -0400
-Date: Mon, 11 Oct 2004 15:39:57 -0700
+	Mon, 11 Oct 2004 18:45:28 -0400
+Date: Mon, 11 Oct 2004 15:42:29 -0700
 From: Paul Jackson <pj@sgi.com>
 To: colpatch@us.ibm.com
 Cc: frankeh@watson.ibm.com, ricklind@us.ibm.com, mbligh@aracnet.com,
@@ -20,8 +20,8 @@ Cc: frankeh@watson.ibm.com, ricklind@us.ibm.com, mbligh@aracnet.com,
        linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
 Subject: Re: [Lse-tech] Re: [PATCH] cpusets - big numa cpu and memory
  placement
-Message-Id: <20041011153957.1111dc06.pj@sgi.com>
-In-Reply-To: <1097533108.4038.64.camel@arrakis>
+Message-Id: <20041011154229.7e850ad2.pj@sgi.com>
+In-Reply-To: <1097532989.4038.61.camel@arrakis>
 References: <20041007015107.53d191d4.pj@sgi.com>
 	<200410071053.i97ArLnQ011548@owlet.beaverton.ibm.com>
 	<20041007072842.2bafc320.pj@sgi.com>
@@ -30,8 +30,8 @@ References: <20041007015107.53d191d4.pj@sgi.com>
 	<4166B569.60408@watson.ibm.com>
 	<20041008112319.63b694de.pj@sgi.com>
 	<1097283613.6470.146.camel@arrakis>
-	<20041009170512.5edf0b7e.pj@sgi.com>
-	<1097533108.4038.64.camel@arrakis>
+	<20041009130808.70c56ea3.pj@sgi.com>
+	<1097532989.4038.61.camel@arrakis>
 Organization: SGI
 X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -40,23 +40,17 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes.  That is true, but it is by no means meant to be the end-all,
-> be-all of CKRM.  
+Matthrew wrote:
+> My (completely uninformed) guess is that the CKRM folks thought it would
+> be extremely unlikely to be able to get the 'vrm' into the kernel
+> without something to use it.
 
-All well and good.  Except that it has taken me an inordinate amount of
-effort to grok what CKRM is, and this mingling of a framework for
-resource management with one particular instance of such, a fair share
-scheduler, has contributed to my confusions.  My teen age son can no
-doubt offer additional explanations for my confusions.
+I'd guess the same thing.
 
-And indeed, while a new kernel framework should come with at least one
-good example of something worth so framing, still it's better to keep
-the two clearly distinguished.  If these two are well distinguished now,
-then I am unaware of that.
+> The 'vrm' and the fair share scheduler, should be
+> logically separate pieces of code, though. 
 
-Perhaps this effort to add a placement manager to the existing fair
-share manager in CKRM's repetoire will result in a clearer separation of
-the CKRM framework from that which it frames.
+I agree - should be.
 
 -- 
                           I won't rest till it's the best ...

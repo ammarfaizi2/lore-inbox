@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280029AbRKITRK>; Fri, 9 Nov 2001 14:17:10 -0500
+	id <S280034AbRKITRt>; Fri, 9 Nov 2001 14:17:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280031AbRKITRA>; Fri, 9 Nov 2001 14:17:00 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33036 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280029AbRKITQu>; Fri, 9 Nov 2001 14:16:50 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: serial console slow
-Date: 9 Nov 2001 11:16:35 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9sha2j$l5l$1@cesium.transmeta.com>
-In-Reply-To: <20011109102140.A29288@elf.ucw.cz>
-MIME-Version: 1.0
+	id <S280033AbRKITRb>; Fri, 9 Nov 2001 14:17:31 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:28690 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S280031AbRKITRT>; Fri, 9 Nov 2001 14:17:19 -0500
 Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+Subject: Re: [PATCH] Adding KERN_INFO to some printks
+Date: Fri, 9 Nov 2001 21:17:00 +0000
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.40.0111091200310.2020-100000@filesrv1.baby-dragons.com>
+In-Reply-To: <Pine.LNX.4.40.0111091200310.2020-100000@filesrv1.baby-dragons.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <01110921170000.00807@nemo>
 Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20011109102140.A29288@elf.ucw.cz>
-By author:    root <root@Elf.ucw.cz>
-In newsgroup: linux.dev.kernel
-> 
-> Hi!
-> 
-> > I tried to boot my kernel using the serial console, using the
-> > console=ttyS0,115200 (it does the same thing with 9600) ... it work great
-> > until :
-> > 
-> > Freeing unused kernel memory: 36k freed
-> > serial console detected.  Disabling virtual terminals.
-> > console=/dev/ttyS0
-> > 
-> > At this point the output of the serial line slow down dramaticly ... almost
-> > to a halt ... I get 1 line every 30 seconds !!!
-> > 
-> > why is this slow down occuring ? the part which is 100% kernel is going fast
-> > and ok, but when it become console related ... it slows down ?
-> 
-> Serial just got its control signals (it is now *userland* writing, and
-> userland honours them), plus userland is  probably opening/closing
-> serial all the time. Bad.
-> 									Pavel
+On Friday 09 November 2001 17:02, 
+"Mr. James W. Laferriere" <babydr@baby-dragons.com> wrote:
 
-I have had much better luck talking to /dev/console in userland.
-IMNSHO this should *always* work; anything else is broken.
-/dev/console currently *IS* broken to some degree, multi-console
-hasn't worked properly for a long time, and you don't get job control
-running of it because it isn't a tty, but I think it's a lot less
-broken than things like the above...
+> Hello Vda ,  Would you share your /etc/syslog.conf  file ?
+> 	I'd really like to see Good example of one .  Most of the docs
+> 	describe what all the options do ,  But don't show how they relate
+> 	in the config file .  Tia ,  JimL
+>
+> > I configured my syslog to sort all kernel msgs to
+> > /var/log/syslog.N.debug|info|notice|warn|... (you got the idea)
+> > and made it spew everything on tty12, and warnings only to tty11.
+> >
+> > I got tired of seeing purely informative messages on tty11 every
+> > boot. They shouldn't be there.
 
-(And dammit, I really would like to see console=tty0 console=ttyS0 to
-actually give me both consoles -- in userland *and* in the kernel...)
+# /etc/syslog.conf
+#
+# Message proirities:
+# debug info notice warning err crit alert emerg
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+*.debug			/var/log/syslog.7.debug
+*.info			/var/log/syslog.6.info
+*.notice		/var/log/syslog.5.notice
+*.warn			/var/log/syslog.4.warn
+*.err			/var/log/syslog.3.err
+*.crit			/var/log/syslog.2.crit
+*.alert			/var/log/syslog.1.alert
+*.emerg			/var/log/syslog.0.emerg
+
+# >= crit: these will go to console too
+# vda: had to comment it out: was dying on SAK 'coz held /dev/console open
+# I hope syslogd maintainer will someday read this...
+##*.crit			/dev/console
+
+# Log everything on 12th console, log 'serious' things on 11th
+*.*			/dev/tty12
+*.warn			/dev/tty11
+
+#
+# This might work instead to log on a remote host:
+# *.*			@hostname

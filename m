@@ -1,177 +1,164 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262876AbUDAMCs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 07:02:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262879AbUDAMCs
+	id S262877AbUDAMGs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 07:06:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbUDAMGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 07:02:48 -0500
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:43272 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262876AbUDAMCm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 07:02:42 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net,
-       Greg Kroah-Hartman <greg@kroah.com>
-Subject: Re: 2.6.5-rc3-mm4
-Date: Thu, 1 Apr 2004 14:02:44 +0200
-User-Agent: KMail/1.6.1
-Cc: Andrew Morton <akpm@osdl.org>
-References: <20040401020512.0db54102.akpm@osdl.org>
-In-Reply-To: <20040401020512.0db54102.akpm@osdl.org>
-X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
-MIME-Version: 1.0
+	Thu, 1 Apr 2004 07:06:48 -0500
+Received: from raven.ecs.soton.ac.uk ([152.78.70.1]:43146 "EHLO
+	raven.ecs.soton.ac.uk") by vger.kernel.org with ESMTP
+	id S262877AbUDAMGm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 07:06:42 -0500
+Date: Thu, 1 Apr 2004 13:06:38 +0100
+From: Hugo Mills <hugo@soton.ac.uk>
+To: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
+Cc: hugo-lkml@carfax.org.uk
+Subject: [PATCH] RFC3514 packet filtering
+Message-ID: <20040401120638.GB30129@soton.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200404011402.44875@WOLK>
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_kTAbAADeA/9DWYr"
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-MailScanner-Information: Please contact helpdesk@ecs.soton.ac.uk for more information
+X-ECS-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   This patch provides an RFC3514 filter for iptables. This is the
+kernel half of the patch, against 2.6.5-rc3.
 
---Boundary-00=_kTAbAADeA/9DWYr
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+   Please cc: replies to me -- I'm having some trouble subscribing to
+linux-kernel at the moment.
 
-On Thursday 01 April 2004 12:05, Andrew Morton wrote:
+   Hugo.
 
-Hi 
+diff -uNr linux-2.6/include/linux/netfilter_ipv4/ipt_evil.h linux-2.6-ipt-evil/include/linux/netfilter_ipv4/ipt_evil.h
+--- linux-2.6/include/linux/netfilter_ipv4/ipt_evil.h	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-ipt-evil/include/linux/netfilter_ipv4/ipt_evil.h	2004-03-15 22:05:34.268945232 +0000
+@@ -0,0 +1,7 @@
++#ifndef _IPT_EVIL_H
++#define _IPT_EVIL_H
++
++struct ipt_evil_info {
++	int	invert;
++};
++#endif /*_IPT_EVIL_H*/
+diff -uNr linux-2.6/include/net/ip.h linux-2.6-ipt-evil/include/net/ip.h
+--- linux-2.6/include/net/ip.h	2003-09-08 19:50:16.000000000 +0000
++++ linux-2.6-ipt-evil/include/net/ip.h	2004-03-15 20:43:33.349763049 +0000
+@@ -71,6 +71,7 @@
+ 
+ /* IP flags. */
+ #define IP_CE		0x8000		/* Flag: "Congestion"		*/
++#define IP_EVIL	0x8000		/* Flag: "Evil" (RFC 3514)	*/
+ #define IP_DF		0x4000		/* Flag: "Don't Fragment"	*/
+ #define IP_MF		0x2000		/* Flag: "More Fragments"	*/
+ #define IP_OFFSET	0x1FFF		/* "Fragment Offset" part	*/
+diff -uNr linux-2.6/net/ipv4/netfilter/Kconfig linux-2.6-ipt-evil/net/ipv4/netfilter/Kconfig
+--- linux-2.6/net/ipv4/netfilter/Kconfig	2004-03-15 21:47:01.353917514 +0000
++++ linux-2.6-ipt-evil/net/ipv4/netfilter/Kconfig	2004-03-15 20:56:08.577655525 +0000
+@@ -274,6 +274,15 @@
+ 
+ 	  To compile it as a module, choose M here.  If unsure, say N.
+ 
++config IP_NF_MATCH_EVIL
++	tristate "Evil bit match support"
++	depends on IP_NF_IPTABLES
++	help
++	  Matches the "Evil" bit in the IP header. See RFC 3514 for 
++	  details.
++
++	  To compile it as a module, choose M here.  If unsure, say N.
++
+ # The targets
+ config IP_NF_FILTER
+ 	tristate "Packet filtering"
+diff -uNr linux-2.6/net/ipv4/netfilter/Makefile linux-2.6-ipt-evil/net/ipv4/netfilter/Makefile
+--- linux-2.6/net/ipv4/netfilter/Makefile	2003-09-08 19:49:57.000000000 +0000
++++ linux-2.6-ipt-evil/net/ipv4/netfilter/Makefile	2004-03-15 20:59:18.934937734 +0000
+@@ -66,6 +66,8 @@
+ 
+ obj-$(CONFIG_IP_NF_MATCH_PHYSDEV) += ipt_physdev.o
+ 
++obj-$(CONFIG_IP_NF_MATCH_EVIL) += ipt_evil.o
++
+ # targets
+ obj-$(CONFIG_IP_NF_TARGET_REJECT) += ipt_REJECT.o
+ obj-$(CONFIG_IP_NF_TARGET_TOS) += ipt_TOS.o
+diff -uNr linux-2.6/net/ipv4/netfilter/ipt_evil.c linux-2.6-ipt-evil/net/ipv4/netfilter/ipt_evil.c
+--- linux-2.6/net/ipv4/netfilter/ipt_evil.c	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-ipt-evil/net/ipv4/netfilter/ipt_evil.c	2004-03-15 21:16:21.991019291 +0000
+@@ -0,0 +1,67 @@
++/* (C) 2004 Hugo Mills <hugo@carfax.org.uk>
++ * Structure copied/stolen from ipt_pkttype.c
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/module.h>
++#include <linux/skbuff.h>
++#include <linux/if_ether.h>
++#include <linux/if_packet.h>
++#include <net/ip.h>
++
++#include <linux/netfilter_ipv4/ipt_evil.h>
++#include <linux/netfilter_ipv4/ip_tables.h>
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Hugo Mills <hugo@carfax.org.uk>");
++MODULE_DESCRIPTION("IP tables match to match on evil bit (RFC 3514)");
++
++static int match(const struct sk_buff *skb,
++      const struct net_device *in,
++      const struct net_device *out,
++      const void *matchinfo,
++      int offset,
++      int *hotdrop)
++{
++    const struct ipt_evil_info *info = matchinfo;
++
++	if(skb->nh.iph->frag_off & __constant_htons(IP_EVIL))
++		return !info->invert;
++
++	return info->invert;
++}
++
++static int checkentry(const char *tablename,
++		   const struct ipt_ip *ip,
++		   void *matchinfo,
++		   unsigned int matchsize,
++		   unsigned int hook_mask)
++{
++	if (matchsize != IPT_ALIGN(sizeof(struct ipt_evil_info)))
++		return 0;
++
++	return 1;
++}
++
++static struct ipt_match evil_match = {
++	.name		= "evil",
++	.match		= &match,
++	.checkentry	= &checkentry,
++	.me		= THIS_MODULE,
++};
++
++static int __init init(void)
++{
++	return ipt_register_match(&evil_match);
++}
++
++static void __exit fini(void)
++{
++	ipt_unregister_match(&evil_match);
++}
++
++module_init(init);
++module_exit(fini);
 
->  bk-usb.patch
 
-hmm, did something changed in handling USB mice? starting with 2.6.5-rc3-mm1 
-and the included bk-usb.patch my USB mouse won't work anymore. Using 
-bk-usb.patch from 2.6.5-rc2-mm5 in 2.6.5-rc3-mm4 all works fine for me.
-
-Attached are 2 files, one from 2.6.5-rc2-mm5 bk-usb and the other one is 
-2.6.5-rc3-mm4 bk-usb. Seems the latter one does not proper init hid though 
-the module is loaded.
-
-ciao, Marc
-
---Boundary-00=_kTAbAADeA/9DWYr
-Content-Type: text/x-log;
-  charset="iso-8859-15";
-  name="bk-usb-2.6.5-rc2-mm5.log"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="bk-usb-2.6.5-rc2-mm5.log"
-
-Apr  1 13:52:20 codeman kernel: mice: PS/2 mouse device common for all mice
-Apr  1 13:52:20 codeman kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
-Apr  1 13:52:20 codeman kernel: input: ImPS/2 Generic Wheel Mouse on isa006=
-0/serio1
-Apr  1 13:52:20 codeman kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
-Apr  1 13:52:20 codeman kernel: input: AT Translated Set 2 keyboard on isa0=
-060/serio0
-Apr  1 13:52:20 codeman kernel: usbcore: registered new driver usbfs
-Apr  1 13:52:20 codeman kernel: usbcore: registered new driver hub
-Apr  1 13:52:20 codeman kernel: usbcore: registered new driver hiddev
-Apr  1 13:52:20 codeman kernel: usbcore: registered new driver hid
-Apr  1 13:52:20 codeman kernel: drivers/usb/input/hid-core.c: v2.0:USB HID =
-core driver
-Apr  1 13:52:20 codeman kernel: USB Universal Host Controller Interface dri=
-ver v2.2
-Apr  1 13:52:20 codeman kernel: uhci_hcd 0000:00:1d.0: Intel Corp. 82801DB =
-USB (Hub #1)
-Apr  1 13:52:20 codeman kernel: PCI: Setting latency timer of device 0000:0=
-0:1d.0 to 64
-Apr  1 13:52:20 codeman kernel: uhci_hcd 0000:00:1d.0: irq 16, io base 0000=
-d800
-Apr  1 13:52:20 codeman kernel: uhci_hcd 0000:00:1d.0: new USB bus register=
-ed, assigned bus number 1
-Apr  1 13:52:20 codeman kernel: hub 1-0:1.0: USB hub found
-Apr  1 13:52:20 codeman kernel: hub 1-0:1.0: 2 ports detected
-Apr  1 13:52:20 codeman kernel: uhci_hcd 0000:00:1d.1: Intel Corp. 82801DB =
-USB (Hub #2)
-Apr  1 13:52:20 codeman kernel: PCI: Setting latency timer of device 0000:0=
-0:1d.1 to 64
-Apr  1 13:52:20 codeman kernel: uhci_hcd 0000:00:1d.1: irq 19, io base 0000=
-d400
-Apr  1 13:52:20 codeman kernel: uhci_hcd 0000:00:1d.1: new USB bus register=
-ed, assigned bus number 2
-Apr  1 13:52:20 codeman kernel: hub 2-0:1.0: USB hub found
-Apr  1 13:52:20 codeman kernel: hub 2-0:1.0: 2 ports detected
-Apr  1 13:52:20 codeman kernel: uhci_hcd 0000:00:1d.2: Intel Corp. 82801DB =
-USB (Hub #3)
-Apr  1 13:52:20 codeman kernel: PCI: Setting latency timer of device 0000:0=
-0:1d.2 to 64
-Apr  1 13:52:20 codeman kernel: uhci_hcd 0000:00:1d.2: irq 18, io base 0000=
-d000
-Apr  1 13:52:20 codeman kernel: uhci_hcd 0000:00:1d.2: new USB bus register=
-ed, assigned bus number 3
-Apr  1 13:52:20 codeman kernel: hub 3-0:1.0: USB hub found
-Apr  1 13:52:20 codeman kernel: hub 3-0:1.0: 2 ports detected
-Apr  1 13:52:20 codeman kernel: ehci_hcd 0000:00:1d.7: Intel Corp. 82801DB =
-USB2
-Apr  1 13:52:20 codeman kernel: PCI: Setting latency timer of device 0000:0=
-0:1d.7 to 64
-Apr  1 13:52:20 codeman kernel: ehci_hcd 0000:00:1d.7: irq 23, pci mem f889=
-4000
-Apr  1 13:52:20 codeman kernel: ehci_hcd 0000:00:1d.7: new USB bus register=
-ed, assigned bus number 4
-Apr  1 13:52:20 codeman kernel: PCI: cache line size of 128 is not supporte=
-d by device 0000:00:1d.7
-Apr  1 13:52:20 codeman kernel: ehci_hcd 0000:00:1d.7: USB 2.0 enabled, EHC=
-I 1.00, driver 2003-Dec-29
-Apr  1 13:52:20 codeman kernel: hub 4-0:1.0: USB hub found
-Apr  1 13:52:20 codeman kernel: hub 4-0:1.0: 6 ports detected
-Apr  1 13:52:20 codeman kernel: SCSI subsystem initialized
-Apr  1 13:52:20 codeman kernel: Initializing USB Mass Storage driver...
-Apr  1 13:52:20 codeman kernel: usbcore: registered new driver usb-storage
-Apr  1 13:52:20 codeman kernel: USB Mass Storage support registered.
-Apr  1 13:52:20 codeman kernel: usb 2-1: new low speed USB device using add=
-ress 2
-Apr  1 13:52:20 codeman kernel: input: USB HID v1.00 Mouse [Microsoft Micro=
-soft Wheel Mouse Optical=AE] on usb-0000:00:1d.1-1
-
---Boundary-00=_kTAbAADeA/9DWYr
-Content-Type: text/x-log;
-  charset="iso-8859-15";
-  name="bk-usb-2.6.5-rc3-mm4.log"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="bk-usb-2.6.5-rc3-mm4.log"
-
-Apr  1 13:33:33 codeman kernel: mice: PS/2 mouse device common for all mice
-Apr  1 13:33:33 codeman kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
-Apr  1 13:33:33 codeman kernel: input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
-Apr  1 13:33:33 codeman kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
-Apr  1 13:33:33 codeman kernel: input: AT Translated Set 2 keyboard on isa0060/serio0
-Apr  1 13:33:33 codeman kernel: usbcore: registered new driver usbfs
-Apr  1 13:33:33 codeman kernel: usbcore: registered new driver hub
-Apr  1 13:33:33 codeman kernel: USB Universal Host Controller Interface driver v2.2
-Apr  1 13:33:33 codeman kernel: uhci_hcd 0000:00:1d.0: Intel Corp. 82801DB USB (Hub #1)
-Apr  1 13:33:33 codeman kernel: PCI: Setting latency timer of device 0000:00:1d.0 to 64
-Apr  1 13:33:33 codeman kernel: uhci_hcd 0000:00:1d.0: irq 16, io base 0000d800
-Apr  1 13:33:33 codeman kernel: uhci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 1
-Apr  1 13:33:33 codeman kernel: hub 1-0:1.0: USB hub found
-Apr  1 13:33:33 codeman kernel: hub 1-0:1.0: 2 ports detected
-Apr  1 13:33:33 codeman kernel: uhci_hcd 0000:00:1d.1: Intel Corp. 82801DB USB (Hub #2)
-Apr  1 13:33:33 codeman kernel: PCI: Setting latency timer of device 0000:00:1d.1 to 64
-Apr  1 13:33:33 codeman kernel: uhci_hcd 0000:00:1d.1: irq 19, io base 0000d400
-Apr  1 13:33:33 codeman kernel: uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 2
-Apr  1 13:33:33 codeman kernel: hub 2-0:1.0: USB hub found
-Apr  1 13:33:33 codeman kernel: hub 2-0:1.0: 2 ports detected
-Apr  1 13:33:33 codeman kernel: uhci_hcd 0000:00:1d.2: Intel Corp. 82801DB USB (Hub #3)
-Apr  1 13:33:33 codeman kernel: PCI: Setting latency timer of device 0000:00:1d.2 to 64
-Apr  1 13:33:33 codeman kernel: uhci_hcd 0000:00:1d.2: irq 18, io base 0000d000
-Apr  1 13:33:33 codeman kernel: uhci_hcd 0000:00:1d.2: new USB bus registered, assigned bus number 3
-Apr  1 13:33:33 codeman kernel: hub 3-0:1.0: USB hub found
-Apr  1 13:33:33 codeman kernel: hub 3-0:1.0: 2 ports detected
-Apr  1 13:33:33 codeman kernel: ehci_hcd 0000:00:1d.7: Intel Corp. 82801DB USB2
-Apr  1 13:33:33 codeman kernel: PCI: Setting latency timer of device 0000:00:1d.7 to 64
-Apr  1 13:33:33 codeman kernel: ehci_hcd 0000:00:1d.7: irq 23, pci mem f8894000
-Apr  1 13:33:33 codeman kernel: ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 4
-Apr  1 13:33:33 codeman kernel: PCI: cache line size of 128 is not supported by device 0000:00:1d.7
-Apr  1 13:33:33 codeman kernel: ehci_hcd 0000:00:1d.7: USB 2.0 enabled, EHCI 1.00, driver 2003-Dec-29
-Apr  1 13:33:33 codeman kernel: hub 4-0:1.0: USB hub found
-Apr  1 13:33:33 codeman kernel: hub 4-0:1.0: 6 ports detected
-Apr  1 13:33:33 codeman kernel: SCSI subsystem initialized
-Apr  1 13:33:33 codeman kernel: Initializing USB Mass Storage driver...
-Apr  1 13:33:33 codeman kernel: usbcore: registered new driver usb-storage
-Apr  1 13:33:33 codeman kernel: USB Mass Storage support registered.
-
---Boundary-00=_kTAbAADeA/9DWYr--
+-- 
+ --- Hugo Mills - <hugo@soton.ac.uk> - ECS at Southampton University --- 
+          --- Comb-e-chem project: http://www.combechem.org/ ---         
+              Quantum Mechanics: The dreams stuff is made of             

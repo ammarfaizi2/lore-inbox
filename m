@@ -1,133 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266431AbSKOQ0S>; Fri, 15 Nov 2002 11:26:18 -0500
+	id <S266433AbSKOQ0E>; Fri, 15 Nov 2002 11:26:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266434AbSKOQ0S>; Fri, 15 Nov 2002 11:26:18 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:49066 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266431AbSKOQ0N>;
-	Fri, 15 Nov 2002 11:26:13 -0500
-Subject: Re: Non-blocking lock requests during the grace period
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
-Message-ID: <OF92154664.1C5EF07E-ON87256C72.005A0481@us.ibm.com>
-From: Juan Gomez <juang@us.ibm.com>
-Date: Fri, 15 Nov 2002 08:31:28 -0800
-X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0 [IBM]|November 8, 2002) at
- 11/15/2002 09:32:33
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	id <S266431AbSKOQ0E>; Fri, 15 Nov 2002 11:26:04 -0500
+Received: from bitmover.com ([192.132.92.2]:62365 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S266408AbSKOQ0C>;
+	Fri, 15 Nov 2002 11:26:02 -0500
+Date: Fri, 15 Nov 2002 08:32:47 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Khoa Huynh <khoa@us.ibm.com>
+Cc: Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
+       linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
+       mbligh@aracnet.com
+Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+Message-ID: <20021115083247.F32321@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Khoa Huynh <khoa@us.ibm.com>, Larry McVoy <lm@bitmover.com>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+	linux-kernel-owner@vger.kernel.org, mbligh@aracnet.com
+References: <OF13B0B9E1.574AFCAA-ON85256C72.00595C26@pok.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <OF13B0B9E1.574AFCAA-ON85256C72.00595C26@pok.ibm.com>; from khoa@us.ibm.com on Fri, Nov 15, 2002 at 10:23:19AM -0600
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-                                                                                                               
-                                                                                                               
-                                                                                                               
+On Fri, Nov 15, 2002 at 10:23:19AM -0600, Khoa Huynh wrote:
+> Yes, this is great!  We can create a separate field in the bug reports to
+> contain this unique names, so we can reference the cset directly from
+> the bug reports.  This allows us to link bug reports to csets -- great!
+> 
+> What format will these unique names be in?  If we put them in the bug
+> reports,
+> can we click on them (as URLs) and get to the csets directly?
 
+That's the goal.  I'm hacking on it it currently, we have some issues with
+how it works today, I'll try and get a bk-3.0.1 release out the door which
+fixes them.  
 
-Trond,
+The current format is may be seen with a 
 
-I think this would fix it but the patch I have tested locally is a bit
-different.
+	bk changes -k -r<rev>
 
-1).-Instead of
+where <rev> is the changeset revision you want.  You'll get something like
+this:
 
-+wait_on_grace:
-+                        if (!argp->block)
-+                                    return -EAGAIN;
+	torvalds@home.transmeta.com|ChangeSet|20021115061315|00914
 
-I have
+That's sort of big and ugly, and it currently doesn't work as a name
+in BK/Web.  I'm debugging an implementation of md5 sums of the above
+to see if we can use that instead.  I'll let you know as soon as I
+have something which works.  
 
-+wait_on_grace:
-+                        if ((proc == NLMPROC_LOCK) && !argp->block)
-+                                    return -EAGAIN;
+Assuming that we get some format like dSD4okOiGmLGDcqOTpQPFQ== then 
+you'll be able to view the cset with the following URL
 
-2.-I also have this part enclosed in the if(resp->status ==
-NLM_LCK_DENIED_GRACE_PERIOD) as follows:
+	http://linux.bkbits.net:8080/linux-2.5/cset@dSD4okOiGmLGDcqOTpQPFQ==
 
-if(resp->status == NLM_LCK_DENIED_GRACE_PERIOD) {
-
-      blah blah...
-
-wait_on_grace:
-                         if ((proc == NLMPROC_LOCK) && !argp->block)
-                                     return -EAGAIN
-} else {
-
-      ....
-}
-
-This with the intention to be very specific as to when we want the return
--EAGAIN to be called.
-
-Juan
-
-
-
-|---------+---------------------------->
-|         |           Trond Myklebust  |
-|         |           <trond.myklebust@|
-|         |           fys.uio.no>      |
-|         |                            |
-|         |           11/14/02 06:33 PM|
-|         |                            |
-|---------+---------------------------->
-  >-------------------------------------------------------------------------------------------------------------------------|
-  |                                                                                                                         |
-  |       To:       Juan Gomez/Almaden/IBM@IBMUS                                                                            |
-  |       cc:       nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org                                                 |
-  |       Subject:  Re: Non-blocking lock requests during the grace period                                                  |
-  |                                                                                                                         |
-  |                                                                                                                         |
-  >-------------------------------------------------------------------------------------------------------------------------|
-
-
-
->>>>> " " == Juan Gomez <juang@us.ibm.com> writes:
-
-     > I found out that the current Linux client of lockd blocks
-     > non-blocking lock requests while the server is in the grace
-     > period.  I think this is incorrect behavior and I am wondering
-     > if the will exists out there to correct this and return
-     > "resource not available" to the process when a request is for a
-     > *non-blocking* lock while the server is in the grace period.
-
-Would the following fix it?
-
-Cheers,
-  Trond
-
---- linux-2.5.47/fs/lockd/clntproc.c.orig        2002-09-29
-10:15:13.000000000 -0400
-+++ linux-2.5.47/fs/lockd/clntproc.c             2002-11-14
-21:32:26.000000000 -0500
-@@ -256,10 +256,8 @@
-                         msg.rpc_cred = NULL;
-
-             do {
--                        if (host->h_reclaiming && !argp->reclaim) {
--
-interruptible_sleep_on(&host->h_gracewait);
--                                    continue;
--                        }
-+                        if (host->h_reclaiming && !argp->reclaim)
-+                                    goto wait_on_grace;
-
-                         /* If we have no RPC client yet, create one. */
-                         if ((clnt = nlm_bind_host(host)) == NULL)
-@@ -296,6 +294,9 @@
-                                     dprintk("lockd: server returns status
-%d\n", resp->status);
-                                     return 0;         /* Okay, call
-complete */
-                         }
-+wait_on_grace:
-+                        if (!argp->block)
-+                                    return -EAGAIN;
-
-                         /* Back off a little and try again */
-                         interruptible_sleep_on_timeout(&host->h_gracewait,
-15*HZ);
-
-
-
+and that will always work and never get you different data.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

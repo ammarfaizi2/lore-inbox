@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270205AbRHROyZ>; Sat, 18 Aug 2001 10:54:25 -0400
+	id <S270203AbRHROvz>; Sat, 18 Aug 2001 10:51:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270206AbRHROyF>; Sat, 18 Aug 2001 10:54:05 -0400
-Received: from cardinal0.Stanford.EDU ([171.64.15.238]:17649 "EHLO
-	cardinal0.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S270205AbRHROx5>; Sat, 18 Aug 2001 10:53:57 -0400
-Date: Sat, 18 Aug 2001 07:53:52 -0700 (PDT)
-From: Ted Unangst <tedu@stanford.edu>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Encrypted Swap
-In-Reply-To: <fa.kmbqblv.v3uvig@ifi.uio.no>
-Message-ID: <Pine.GSO.4.31.0108180744090.9012-100000@cardinal0.Stanford.EDU>
+	id <S270204AbRHROvq>; Sat, 18 Aug 2001 10:51:46 -0400
+Received: from mail.fbab.net ([212.75.83.8]:36625 "HELO mail.fbab.net")
+	by vger.kernel.org with SMTP id <S270203AbRHROve>;
+	Sat, 18 Aug 2001 10:51:34 -0400
+X-Qmail-Scanner-Mail-From: mag@fbab.net via mail.fbab.net
+X-Qmail-Scanner-Rcpt-To: riel@conectiva.com.br linux-kernel@vger.kernel.org
+X-Qmail-Scanner: 0.94 (No viruses found. Processed in 8.153163 secs)
+Message-ID: <015d01c127f5$93ec9230$020a0a0a@totalmef>
+From: "Magnus Naeslund\(f\)" <mag@fbab.net>
+To: "Rik van Riel" <riel@conectiva.com.br>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0108171818040.2277-100000@duckman.distro.conectiva>
+Subject: Re: 2.4.8 Resource leaks + limits
+Date: Sat, 18 Aug 2001 16:53:44 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Aug 2001, Eric W. Biederman wrote:
+From: "Rik van Riel" <riel@conectiva.com.br>
+[snip]
+> 
+> Morale of the story:  whenever you find a bug, try if you
+> can reproduce it with Alan's kernel ;)
+> 
 
-> So the attacker has two way to attack your machine.  Attempt to break
-> in while it is still running.  Put in a minimal boot cd and press
-> reset and see how much is recovered.  Generally breaking should prove
-> the more fruitful course, but the fact that reset preseves all of the
-> memory, means it simply is not safe for someone to have physical
-> access to your machine while the power is on.
+Ok, i got it.
+I tried with 2.4.8ac5 and it seems to hold nicely.
+Too bad this isn't so much documented.
+The whole pam_limit thing is pretty poorly detailed.
+Like the prio limit, it doesn't say what ranges and so on.
+(well it's the same as nice, but it doesnt say that eihter i think :))
 
-if the machine is on, and you can get close to it, it's probably easier
-just to use tempest radiation.  it will also work at a distance, so it's
-more likely to be a threat than grabbing RAM chips.  a few points:
+> Rik
+> 
 
-1.  not everyone is going to bring their James Bond RAM Reader (tm) into
-your building to extract data.  a hardcore data thief, maybe, but it's not
-common equipment.  everyone will have access to an IDE or SCSI disk
-reader.
+Magnus
 
-2.  RAM has a short window of oppurtunity.  whatever it turns out to be,
-RAM degrades faster than disk.  it's not going to last while you drive it
-home, unless you have a RAM refresher plugged in the cigarette lighter.
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+ Programmer/Networker [|] Magnus Naeslund
+ PGP Key: http://www.genline.nu/mag_pgp.txt
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-3.  encrypted swap is meant for a different threat model.  you assume that
-the attacker might have access to the box at night or over a weekend,
-while you're away.  RAM will be off.  if you think someone might be trying
-to steal your RAM, you need better physical security.
-
-
-
-
-
---
-"I am a great mayor; I am an upstanding Christian man; I am an
-intelligent man; I am a deeply educated man; I am a humble man."
-      - M. Barry, Mayor of Washington, DC
 

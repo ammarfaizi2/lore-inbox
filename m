@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbVAYPnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVAYPss@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261992AbVAYPnO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 10:43:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbVAYPnN
+	id S261973AbVAYPss (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 10:48:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVAYPss
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 10:43:13 -0500
-Received: from modemcable096.213-200-24.mc.videotron.ca ([24.200.213.96]:4517
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261996AbVAYPly (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 10:41:54 -0500
-Date: Tue, 25 Jan 2005 10:41:45 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@localhost.localdomain
-To: Ian Campbell <icampbell@arcom.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: use datacs is smc91x driver
-In-Reply-To: <1106665612.19123.142.camel@icampbell-debian>
-Message-ID: <Pine.LNX.4.61.0501251038030.16341@localhost.localdomain>
-References: <1106569302.19123.49.camel@icampbell-debian> 
- <Pine.LNX.4.61.0501241459090.7307@localhost.localdomain> 
- <1106651657.19123.54.camel@icampbell-debian> <1106665612.19123.142.camel@icampbell-debian>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 Jan 2005 10:48:48 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28346 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261973AbVAYPsq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 10:48:46 -0500
+Date: Tue, 25 Jan 2005 09:59:25 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: 8xx 2.6.10-rc3 console_init()->con_init()->__alloc_bootmem() caus es "Oops: kernel access of bad area"
+Message-ID: <20050125115925.GC19585@logos.cnet>
+References: <313680C9A886D511A06000204840E1CF0A64758D@whq-msgusr-02.pit.comms.marconi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <313680C9A886D511A06000204840E1CF0A64758D@whq-msgusr-02.pit.comms.marconi.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jan 2005, Ian Campbell wrote:
-
-> On Tue, 2005-01-25 at 11:14 +0000, Ian Campbell wrote:
-> > Are you happy with "iocs", "attrib" and "datacs" for the names?
+On Tue, Jan 25, 2005 at 09:30:49AM -0500, Povolotsky, Alexander wrote:
+> I booting kernel on 8xx 2.6.10-rc3
+> while trying to debug non-working console,
+> I moved  console_init() call way down in __init start_kernel()
+> and put indefinite while loop right after it -
+> is it legtimate thing to do ?
 > 
-> Of the platforms with an smc91x platform_device (according to grep) only
-> 2 (lubbock, neponset) out of the 18 have memory resources other than the
-> iocs (full list of platforms is at the end, after the patch)
+> Then I got soft reboot and was able to examine the content of the log buffer
+> in the bootloader.
+> I see that in a trace (function call sequence):
 > 
-> So for the sake of the least intrusive patch I think for the main iocs
-> I'll call _byname and fallback on mem resource number 0 if no named iocs
-> resource exists. attrib and datacs must be explicitly named. This allows
-> most of the board ports to remain unchanged.
+> console_init()->con_init()->__alloc_bootmem() 
+> 
+> I am getting "Oops: kernel access of bad area"
+> 
+> I am looking for advise,
 
-Sensible.
+Hi Alexander,
 
-> I also noticed that the name propagates into /proc/iomem etc
-> 	# cat /proc/iomem
-> 	[...]
-> 	10000000-10000003 : datacs
-> 	  10000000-10000003 : smc91x
-> so perhaps smc91x-datacs -attrib -iocs might be more appropriate names?
+I recommend using the linuxppc-2.5 BK tree for 8xx. Are you doing that?
 
-Probably, although "iocs" is rather criptic for someone not familiar 
-with the chip.  What about "smc91x-regs", "smc91x-attrib" and 
-"smc91x-data32" ?
+The linuxppc-embedded list is a better place for discussion of such issues.
 
+And about your problem, you need to get the full oops message, not only the 
+beginning of it.
 
-Nicolas

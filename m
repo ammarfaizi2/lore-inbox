@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264573AbRFTTSU>; Wed, 20 Jun 2001 15:18:20 -0400
+	id <S264577AbRFTTTj>; Wed, 20 Jun 2001 15:19:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264575AbRFTTSK>; Wed, 20 Jun 2001 15:18:10 -0400
-Received: from hq2.fsmlabs.com ([209.155.42.199]:17679 "HELO hq2.fsmlabs.com")
-	by vger.kernel.org with SMTP id <S264573AbRFTTRx>;
-	Wed, 20 Jun 2001 15:17:53 -0400
-Date: Wed, 20 Jun 2001 13:14:28 -0600
-From: Victor Yodaiken <yodaiken@fsmlabs.com>
-To: Matthew Kirkwood <matthew@hairy.beasts.org>, Larry McVoy <lm@bitmover.com>,
-        Dan Kegel <dank@kegel.com>, ognen@gene.pbi.nrc.ca,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        laughing@shared-source.org
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Message-ID: <20010620131428.B31012@hq2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010619095239.T3089@work.bitmover.com>
-User-Agent: Mutt/1.3.18i
-Organization: FSM Labs
+	id <S264576AbRFTTT3>; Wed, 20 Jun 2001 15:19:29 -0400
+Received: from maestro.symsys.com ([208.223.9.37]:20485 "EHLO
+	maestro.symsys.com") by vger.kernel.org with ESMTP
+	id <S264575AbRFTTTQ>; Wed, 20 Jun 2001 15:19:16 -0400
+Date: Wed, 20 Jun 2001 14:19:00 -0500 (CDT)
+From: Greg Ingram <ingram@symsys.com>
+To: linux-kernel@vger.kernel.org
+Subject: Unknown PCI Net Device
+In-Reply-To: <Pine.LNX.4.10.10106202036470.10363-100000@luxik.cdi.cz>
+Message-ID: <Pine.LNX.4.21.0106201401060.1874-100000@maestro.symsys.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 19, 2001 at 09:52:39AM -0700, Larry McVoy wrote:
-> I think the general thrust of us ``anti-thread'' people is that a few
-> are fine, a lot is stupid, and the model encourages a lot.  It's just
 
-There is a huge academic research literature on how to prove that a large
-set of threads will all meet deadlines in a realtime system.  Years ago I
-made a not-so-brilliant optimization to RTLinux scheduler that had an unanticipated
-side effect of only scheduling the first two threads created. Nobody noticed
-for months, because RT programmers know that more than 2 threads is 
-almost always a design error.  Not always though.
-(now we have regression tests so I could not make such an experiment again).
+I picked up a network card that claims to use the "most reliable Realtek
+LAN chip".  The big chip is labelled "LAN-8139" so naturally I tried the
+8139too driver.  It doesn't find the device.  I'm wondering if maybe it's
+just something in the device ID tables.  Here's some info:
 
+# lspci -vv 
+
+[snip]
+
+00:0b.0 Ethernet controller: MYSON Technology Inc: Unknown device 0803
+	Subsystem: MYSON Technology Inc: Unknown device 0803
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 min, 64 max, 64 set, cache line size 08
+	Interrupt: pin A routed to IRQ 19
+	Region 0: I/O ports at e400 [size=256]
+	Region 1: Memory at e9000000 (32-bit, non-prefetchable) [size=1K]
+	Expansion ROM at e8000000 [disabled] [size=64K]
+	Capabilities: [88] Power Management version 2
+		Flags: PMEClk- AuxPwr- DSI- D1+ D2- PME-
+		Status: D0 PME-Enable+ DSel=0 DScale=0 PME-
+
+[snip]
+
+The driver disk includes fealnx.[co].  The driver is for 2.0 and has a
+reference to Donald Becker's website at NASA.  I don't know if the driver
+is based on Becker's work.  There's no GPL.  In fact, there's no license
+of any sort in the source.
+
+Any suggestions?
+
+- Greg
 
 

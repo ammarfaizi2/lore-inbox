@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264140AbTDJUTa (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 16:19:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264141AbTDJUTa (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 16:19:30 -0400
-Received: from pop.gmx.de ([213.165.65.60]:62632 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264140AbTDJUT3 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 16:19:29 -0400
-Message-ID: <3E95D488.60806@gmx.net>
-Date: Thu, 10 Apr 2003 22:31:04 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
+	id S264141AbTDJUWr (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 16:22:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264144AbTDJUWr (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 16:22:47 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:6274 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S264141AbTDJUWq (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 16:22:46 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304102036.h3AKa837025670@81-2-122-30.bradfords.org.uk>
+Subject: Re: kernel support for non-english user messages
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Thu, 10 Apr 2003 21:36:08 +0100 (BST)
+Cc: root@chaos.analogic.com, fdavis@si.rr.com (Frank Davis),
+       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <1050001030.12494.1.camel@dhcp22.swansea.linux.org.uk> from "Alan Cox" at Apr 10, 2003 07:57:10 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Hermann Himmelbauer <dusty@violin.dyndns.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: rtl8139 Problem/kernel panic (probably unrelated)
-References: <200304102118.24350.dusty@violin.dyndns.org>
-In-Reply-To: <200304102118.24350.dusty@violin.dyndns.org>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hermann Himmelbauer wrote:
-> Hi,
-> I have problems with my Ovis Link 10/100 PCI Network adapter (based on 
-> RTL8139too)
-> 
-> Until yesterday the NIC worked flawlessly with Linux-2.4.19-SuSE (from SuSE 
-> 8.1) and rtl8139too (driver version 0.9.26).
+> There is a lot of anti-VMS stuff in the Unix world mostly coming
+> from the _horrible_ command line and other bad early memories. There
+> is also a hell of a lot of really cool stuff under that command line
+> we could and should learn from.
 
-Have you tried upgrading your kernel to the current version from SuSE?
-The version number should be like k_deflt-2.4.19-274, which also would
-fix the ptrace problem.
+When are we going to see versioned filesystems in Linux?  That was a
+standard feature in VMS.
 
-Regards,
-Carl-Daniel
-
--- 
-http://www.hailfinger.org/
-
+John.

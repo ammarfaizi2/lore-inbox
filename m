@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261324AbSIZOz0>; Thu, 26 Sep 2002 10:55:26 -0400
+	id <S261314AbSIZOxp>; Thu, 26 Sep 2002 10:53:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261325AbSIZOzZ>; Thu, 26 Sep 2002 10:55:25 -0400
-Received: from bitmover.com ([192.132.92.2]:33461 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S261324AbSIZOzZ>;
-	Thu, 26 Sep 2002 10:55:25 -0400
-Date: Thu, 26 Sep 2002 08:00:39 -0700
-From: Larry McVoy <lm@bitmover.com>
+	id <S261321AbSIZOxo>; Thu, 26 Sep 2002 10:53:44 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14605 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261314AbSIZOxn>; Thu, 26 Sep 2002 10:53:43 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [offtopic] Linux Weekly News
-Message-ID: <20020926080039.E19862@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-MailScanner: Found to be clean
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [patch] 'sticky pages' support in the VM, futex-2.5.38-C5
+Date: Thu, 26 Sep 2002 15:01:51 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <amv7gv$266$1@penguin.transmeta.com>
+References: <Pine.LNX.4.44.0209261311070.11487-100000@localhost.localdomain>
+X-Trace: palladium.transmeta.com 1033052337 2298 127.0.0.1 (26 Sep 2002 14:58:57 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 26 Sep 2002 14:58:57 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Weekly News almost went off the air because they ran out of money.
-They are trying out a subscription model, with reasonable terms, $5/month
-and they release the content to everyone a week later.  These folks are
-nice people who provide useful reporting and have done a lot for all of
-us, I think it would be a good thing to show some support for them and
-sign up.
+In article <Pine.LNX.4.44.0209261311070.11487-100000@localhost.localdomain>,
+Ingo Molnar  <mingo@elte.hu> wrote:
+>
+>while running fork() testcases with NPTL we found a number of futex
+>related failures that i tracked down to the following conceptual bug in
+>the futex code:
 
-I'm not associated with them, I don't get money or anything else from
-them, in fact, Jon and I have butted heads multiple times, so this isn't
-some sort of self serving message.  I'd just like to see the "community"
-for once actually act like a community and warmly support one of our own.
-BitMover is signing up our people, this is not a lot of money to a
-company, you folks at places like IBM, HP, etc, really ought to consider
-a site subscription, you have benefited plenty from the Linux community,
-how about little giveback in some hard cold cash?
+This patch seems trivially broken by having two futexes on the same
+page.  When the first futex removes itself, it will clear the sticky
+bit, even though the other futex is still pinning the same page.
+
+Trust me, you'll have to use the page list approach.
+
+		Linus

@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262371AbVBLAs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbVBLA4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262371AbVBLAs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 19:48:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbVBLAs7
+	id S262378AbVBLA4V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 19:56:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbVBLA4V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 19:48:59 -0500
-Received: from relay.axxeo.de ([213.239.199.237]:10723 "EHLO relay.axxeo.de")
-	by vger.kernel.org with ESMTP id S262371AbVBLAs5 (ORCPT
+	Fri, 11 Feb 2005 19:56:21 -0500
+Received: from orb.pobox.com ([207.8.226.5]:61084 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S262378AbVBLA4O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 19:48:57 -0500
-From: Ingo Oeser <ioe-lkml@axxeo.de>
-To: Greg KH <gregkh@suse.de>
-Subject: Re: [ANNOUNCE] hotplug-ng 001 release
-Date: Sat, 12 Feb 2005 01:48:49 +0100
-User-Agent: KMail/1.7.1
-Cc: andersen@codepoet.org, Christian Borntr?ger <christian@borntraeger.net>,
-       Bill Nottingham <notting@redhat.com>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20050211004033.GA26624@suse.de> <20050211230657.B1635@banaan.localdomain> <20050211221323.GC23606@suse.de>
-In-Reply-To: <20050211221323.GC23606@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Feb 2005 19:56:14 -0500
+Date: Fri, 11 Feb 2005 18:56:09 -0600
+From: Nathan Lynch <ntl@pobox.com>
+To: Matthias-Christian Ott <matthias.christian@tiscali.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6-bk: cpu hotplug + preempt = smp_processor_id warnings galore
+Message-ID: <20050212005609.GB14499@otto>
+References: <20050211232821.GA14499@otto> <420D4646.4010600@tiscali.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502120148.50073.ioe-lkml@axxeo.de>
+In-Reply-To: <420D4646.4010600@tiscali.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Feb 12, 2005 at 12:56:54AM +0100, Matthias-Christian Ott wrote:
+> Nathan Lynch wrote:
+> 
+> >With 2.6.11-rc3-bk7 on ppc64 I am seeing lots of smp_processor_id
+> >warnings whenever I hotplug cpus:
+...
+>
+> Use get_cpu() (It disables preemption) or __smp_processor_id () (on a smp).
 
-Greg KH write:
-> Very nice stuff.  Ok, that's a good reason not to get rid of these
-> files, although they can be generated on the fly from the modules
-> themselves (like depmod does it.)
-
-Time to resurrect modinfo? ;-)
-Didn't we plan to get rid of that, too?
-
-If we like to use information from modules, there should be a scriptable 
-tool to extract this kind of information, otherwise it will be a bitch to 
-maintain those tools.
+It's not necessarily that simple (ok, maybe the idle loop warning is).
+But at least one of the warnings I listed appears to be caused by a
+kernel thread that is normally bound to a particular cpu trying to do
+normal processing on another cpu before it has stopped.  Injudicious
+use of __smp_processor_id or get_cpu in this case would only obscure
+the problem.
 
 
-Regards
-
-Ingo Oeser
+Nathan
 

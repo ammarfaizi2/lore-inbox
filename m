@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272167AbTHIDE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 23:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272168AbTHIDE5
+	id S272168AbTHIDNy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 23:13:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272223AbTHIDNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 23:04:57 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:45586 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S272167AbTHIDEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 23:04:55 -0400
-Date: Sat, 9 Aug 2003 13:04:09 +1000
-To: Andreas Gruenbacher <agruen@suse.de>
+	Fri, 8 Aug 2003 23:13:54 -0400
+Received: from mail.suse.de ([213.95.15.193]:59656 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S272168AbTHIDNx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 23:13:53 -0400
+Date: Sat, 9 Aug 2003 05:13:52 +0200 (CEST)
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Herbert Xu <herbert@gondor.apana.org.au>
 Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.4: Fix steal_locks race
-Message-ID: <20030809030409.GA11867@gondor.apana.org.au>
-References: <20030808105321.GA5096@gondor.apana.org.au> <Pine.LNX.4.53.0308090451380.18879@Chaos.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0308090451380.18879@Chaos.suse.de>
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <20030809025232.GA11777@gondor.apana.org.au>
+Message-ID: <Pine.LNX.4.53.0308090509020.18879@Chaos.suse.de>
+References: <20030808105321.GA5096@gondor.apana.org.au>
+ <20030809010736.GA10487@gondor.apana.org.au> <Pine.LNX.4.53.0308090357290.18879@Chaos.suse.de>
+ <20030809025232.GA11777@gondor.apana.org.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 09, 2003 at 04:59:03AM +0200, Andreas Gruenbacher wrote:
->
-> @@ -714,18 +715,16 @@ static int load_elf_binary(struct linux_
->  			elf_entry = load_elf_interp(&interp_elf_ex,
->  						    interpreter,
->  						    &interp_load_addr);
-> -
-> -		allow_write_access(interpreter);
-> -		fput(interpreter);
-> -		kfree(elf_interpreter);
-> -
->  		if (BAD_ADDR(elf_entry)) {
->  			printk(KERN_ERR "Unable to load interpreter\n");
-> -			kfree(elf_phdata);
->  			send_sig(SIGSEGV, current, 0);
->  			retval = -ENOEXEC; /* Nobody gets to see this, but.. */
-> -			goto out;
-> +			goto out_free_dentry;
->  		}
-> +
-> +		allow_write_access(interpreter);
-> +		fput(interpreter);
-> +		kfree(elf_interpreter);
->  	}
+On Sat, 9 Aug 2003, Herbert Xu wrote:
 
-This looks bad since you're past the point of no return.
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+> On Sat, Aug 09, 2003 at 04:04:53AM +0200, Andreas Gruenbacher wrote:
+> >
+> > > My patch is buggy too.  If a file is closed by another clone between
+> > > the two steal_locks calls the lock will again be lost.  Fortunately
+> > > this much harder to trigger than the previous bug.
+> >
+> > I think this is not a strict bug---this scenario is not covered by POSIX
+> > in the first place. Unless lock stealing is done atomically with
+> > unshare_files there is a window of oportunity between unshare_files() and
+> > steal_locks(), so locks can still get lost.
+>
+> It's not a standard compliance issue.  In this case the lock will never
+> be released and it will eventually lead to a crash when someone reads
+> /proc/locks.
+
+I don't see how this would happen. Could you please elaborate?

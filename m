@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264753AbTFAWoh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 18:44:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264755AbTFAWoh
+	id S264750AbTFAWoT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 18:44:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264753AbTFAWoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 18:44:37 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:29093 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id S264753AbTFAWof convert rfc822-to-8bit
+	Sun, 1 Jun 2003 18:44:18 -0400
+Received: from bms.ne.client2.attbi.com ([24.62.163.168]:23432 "EHLO
+	ns.briggsmedia.com") by vger.kernel.org with ESMTP id S264750AbTFAWoS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 18:44:35 -0400
-From: Gong Su <gongsu@cs.columbia.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.x block device driver question
-Date: Sun, 01 Jun 2003 18:54:56 -0400
-Organization: CS Dept., Columbia Univ.
-Message-ID: <5sukdv4jvcd417f7chvla92je3su1le1r8@4ax.com>
-X-Mailer: Forte Agent 1.93/32.576 English (American)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	Sun, 1 Jun 2003 18:44:18 -0400
+Subject: athlon guidance
+From: Joe Briggs <jbriggs@briggsmedia.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 01 Jun 2003 18:57:47 -0400
+Message-Id: <1054508267.1840.18.camel@family>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[please cc: me as not subscribed to list]
+I am attempting to build a 16-camera surveillance system with 8
+2-channel multiplexed frame-grabber channels each.. Each channel is read
+at at about 5 frames per second, the image converted into JPEG and
+saved, and an MPEG-1 clip made at the same time (lots of storage, yes). 
+I typically use a small IDE drive for my OS, and a 2-drive RAID-0 built
+with WD120JB 8-MB cache drives.  I have learned the hard way that
+regular IDE RAID controllers of the Promise type loose interrupts and
+result in disk corruption, whereas the 3-ware (with its SCSI-like
+hardware) are reliable. There is a LOT of processing and storage going
+on here, and I have had good luck on my 8-camera systems using a
+GigaByte GA7VAXP with AMD2400XP processors, but average about 10% CPU
+utilization for each active (detected motion, now capturing and
+encoding) channel.  So when all 8 cameras are active, I sustain about
+80% or more total CPU loading.  Typically never more than 5 are active
+at the same time.  My question is how can I scale up to get 16 camera
+channels?  I use Debian Woody 2.4.19 with Reiserfs (good job Hans!).
 
-I was trying to see how __make_request throttles a fast writing process
-from overrunning a slow device. So I took Alessandro Rubini's spull.c
-code from his device driver book (2nd edition) and ran it in "pseudo irq"
-mode. What the driver does basically is to schedule an alarm in its
-request service function (spull_irqdriven_request) and return immediately
-without calling end_request. And when the alarm fires it finishes the IO
-by calling end_request(1). I made the following change to the driver:
+The fastest Athlon that I can get is a AMD3200 XP with 400 Mhz FSB. On
+the other hand, I can use the Tyan 2466 Dual Athlon board, but MP
+processors only have a 266 Mhz FSB and the fastest speed is the 2800
+MP.  So, given the nature of the CPU and data intensive application,
+which is the faster platform:  a slower 2800/266 MHZ FSB dual processor
+or a single 3200/400 MHZ FSB processor? 
 
-1. make the ram disk size infinite by setting blk_size[MAJOR_NR]=NULL.
-2. disable the actual copying to/from the ram disk by commenting out
-   spull_transfer in the spull_irqdriven_request function.
+All suggestions and analysis welcomed.
 
-I load the driver with a 3 second delay for the alarm. So basically, the
-driver simulates a "very slow" device that takes 3 seconds to service
-each request (without actually doing anything). Now I do:
+Joe
 
-dd if=/dev/zero of=/dev/pda bs=1024 count=1000000
 
-What I expect is that the kernel will quickly stop dd after all 128 (64
-on machines with less than 32MB of ram) free request slots are taken.
-Of course it will take forever for dd to finish. But what happened is
-that the system quickly becomes unusable. It still handles a request
-every 3 seconds but is otherwise oblivious of any input (I can still
-switch virtual console but that's it). Is this the expected behavior of
-2.4 or am I just doing something stupid? Your insight will be highly
-appreciated. Thanks in advance.
 
--- 
-/Gong

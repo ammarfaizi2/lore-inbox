@@ -1,84 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVCNEwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbVCNEyH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbVCNEwt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 23:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVCNEwt
+	id S261523AbVCNEyH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 23:54:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVCNEyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 23:52:49 -0500
-Received: from mail.aknet.ru ([217.67.122.194]:50450 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S261425AbVCNEwl (ORCPT
+	Sun, 13 Mar 2005 23:54:07 -0500
+Received: from www.rapidforum.com ([80.237.244.2]:25062 "HELO rapidforum.com")
+	by vger.kernel.org with SMTP id S261523AbVCNExp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 23:52:41 -0500
-Message-ID: <423518A7.9030704@aknet.ru>
-Date: Mon, 14 Mar 2005 07:52:55 +0300
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: ru, en-us, en
+	Sun, 13 Mar 2005 23:53:45 -0500
+Message-ID: <423518C7.10207@rapidforum.com>
+Date: Mon, 14 Mar 2005 05:53:27 +0100
+From: Christian Schmid <webmaster@rapidforum.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040817
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@redhat.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       wine-devel@winehq.org
-Subject: Re: [patch] x86: fix ESP corruption CPU bug
-References: <42348474.7040808@aknet.ru> <20050313201020.GB8231@elf.ucw.cz> <4234A8DD.9080305@aknet.ru> <Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org> <Pine.LNX.4.58.0503131614360.2822@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503131614360.2822@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Ben Greear <greearb@candelatech.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: BUG: Slowdown on 3000 socket-machines tracked down
+References: <4229E805.3050105@rapidforum.com>	 <422BAAC6.6040705@candelatech.com>	<422BB548.1020906@rapidforum.com>	 <422BC303.9060907@candelatech.com>	<422BE33D.5080904@yahoo.com.au>	 <422C1D57.9040708@candelatech.com>	<422C1EC0.8050106@yahoo.com.au>	 <422D468C.7060900@candelatech.com>	<422DD5A3.7060202@rapidforum.com>	 <422F8A8A.8010606@candelatech.com>	<422F8C58.4000809@rapidforum.com>	 <422F9259.2010003@candelatech.com>	<422F93CE.3060403@rapidforum.com>	 <20050309211730.24b4fc93.akpm@osdl.org> <4231B95B.6020209@rapidforum.com>	 <4231ED18.2050804@candelatech.com>  <4231F112.60403@rapidforum.com> <1110775215.5131.17.camel@npiggin-nld.site>
+In-Reply-To: <1110775215.5131.17.camel@npiggin-nld.site>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>This effect appeared on 1 task and on 200 tasks. I dont know what it is, but with HT off it doesnt 
+>>appear anymore. The slow-down still appears when lower_zone_protection is set to 0 but the peak at 
+>>80 MB disappeared when set to 1024. I am now running at 95 MB/Sec smoothly.
+>>
+> 
+> OK well that is a good result for you. Thanks for sticking with it.
+> Unfortunately you'll probably not want to test any patches on your
+> production system, so the cause of the problem will be difficult to
+> fix.
+> 
+> I am working on patches which improve HT performance in some
+> situations though, so with luck they will cure your problems too.
+> Basically I think SMP "balancing" is too aggressive - and this may
+> explain why 2.6.10 was worse for you, it had patches to *increase*
+> the aggressiveness of balancing.
+> 
+> The other thing that worries me is your need for lower_zone_protection.
+> I think this may be due to unbalanced highmem vs lowmem reclaim. It
+> would be interesting to know if those patches I sent you improve this.
+> They certainly improve reclaim balancing for me... but again I guess
+> you'll be reluctant to do much experimentation :\
 
-Linus Torvalds wrote:
-> Btw, Stas, one thing I'd really like to see is even a partial list of 
-> anything that actually cares about this. Ie, if there is some known 
-> Windows app where Wine works better or something like that, just adding
-I am not using Wine too much, but I've
-found this:
-http://cvs.winehq.org/cvsweb/~checkout~/wine/dlls/winedos/int31.c?rev=1.41&content-type=text/plain
----
-/* due to a flaw in some CPUs (at least mine), it is best to mark stack segments as 32-bit if they
-   can be used in 32-bit code. Otherwise, these CPUs may not set the high word of esp during a
-   ring transition (from kernel code) to the 16-bit stack, and this causes trouble if executing
-   32-bit code using this stack. */
----
-I added win-devel to CC, maybe people there
-can tell if that patch has any value for them
-or not.
-The reference to the original patch:
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0503.1/1794.html
-
-Dosemu looks a little better on that, the
-whole chapter of the docs is dedicated to
-that problem:
-http://dosemu.sourceforge.net/docs/EMUfailure/t1.html#AEN55
-There you can find a (relatively small)
-list of the programs that are affected,
-but I personally have the old Microsoft
-linker that crashes, and a few more DOS
-games.
-
-> Another way of saying the same thing: I absolutely hate seeing patches 
-> that fix some theoretical issue that no Linux apps will ever care about. 
-No, it is not theoretical, but it is mainly
-about a DOS games and an MS linker, as for
-me. The things I'd like to get working, but
-the ones you may not care too much about:)
-The particular game I want to get working,
-is "Master of Orion 2" for DOS.
-
-> So I'd like to have a bit more of a case for this patch, since I know what 
-> the case against it is ;)
-Yep, and the informational leak it closes,
-looks also rather minor.
-So it is only a matter of how do you care
-about the dosemu and the DOS games under
-linux. Considering the amount of the
-dosemu-related code in vm86.c, I guess you
-care:)
-And uhm, adding the list of the DOS games
-to the comments of the Linux kernel code,
-doesn't sound like a good idea to me:)
-
+I have tested your patch and unfortunately on 2.6.11 it didnt change anything :( I reported this 
+before, or do you mean something else? I am of course willing to test patches as I do not want to 
+stick with 2.6.10 forever.

@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262220AbRETVLF>; Sun, 20 May 2001 17:11:05 -0400
+	id <S262227AbRETVdr>; Sun, 20 May 2001 17:33:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262136AbRETVKz>; Sun, 20 May 2001 17:10:55 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:3077 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S262220AbRETVKj>; Sun, 20 May 2001 17:10:39 -0400
-Date: Sun, 20 May 2001 16:32:59 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: Zlatko Calusic <zlatko.calusic@iskon.hr>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
-In-Reply-To: <Pine.LNX.4.33.0105201943510.1635-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.21.0105201626190.5547-100000@freak.distro.conectiva>
+	id <S262234AbRETVdi>; Sun, 20 May 2001 17:33:38 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:34052 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S262227AbRETVdZ>; Sun, 20 May 2001 17:33:25 -0400
+Date: Sun, 20 May 2001 22:33:22 +0100 (BST)
+From: John Levon <moz@compsoc.man.ac.uk>
+To: "Robert M. Love" <rml@tech9.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: sqrt in kernel?
+In-Reply-To: <990390802.1002.0.camel@phantasy>
+Message-ID: <Pine.LNX.4.21.0105202232200.9577-100000@mrbusy.compsoc.man.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 20 May 2001, Robert M. Love wrote:
 
-
-On Sun, 20 May 2001, Mike Galbraith wrote:
-
-> > Also in all recent kernels, if the machine is swapping, swap cache
-> > grows without limits and is hard to recycle, but then again that is
-> > a known problem.
+> hi,
 > 
-> This one bugs me.  I do not see that and can't understand why.
+> is there a sqrt function in the kernel?
 
-To throw away dirty and dead swapcache (its done at swap writepage())
-pages page_launder() has to run into its second loop (launder_loop = 1)
-(meaning that a lot of clean cache has been thrown out already).
+no. read the FAQ.
 
-We can "short circuit" this dead swapcache pages by cleaning them in the
-first page_launder() loop.
+> i tried finding/grepping around, and found some various arch-specific
+> stuff for fpu emulation... is there a general sqrt function?  is there a
 
-Take a look at the writepage() patch I sent to Linus a few days ago.
+In general questions like this are better asked on the kernelnewbies list. Read
+the FAQ.
+
+john
 

@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316672AbSIAK7t>; Sun, 1 Sep 2002 06:59:49 -0400
+	id <S316667AbSIAK7K>; Sun, 1 Sep 2002 06:59:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316673AbSIAK7t>; Sun, 1 Sep 2002 06:59:49 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:54465 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316672AbSIAK7p>;
-	Sun, 1 Sep 2002 06:59:45 -0400
-Date: Sun, 01 Sep 2002 03:57:49 -0700 (PDT)
-Message-Id: <20020901.035749.37156689.davem@redhat.com>
-To: szepe@pinerecords.com
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] warnkill trivia 2/2
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020901105643.GH32122@louise.pinerecords.com>
-References: <20020901105643.GH32122@louise.pinerecords.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S316672AbSIAK7K>; Sun, 1 Sep 2002 06:59:10 -0400
+Received: from relay2.uni-heidelberg.de ([129.206.210.211]:51924 "EHLO
+	relay2.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S316667AbSIAK7I>; Sun, 1 Sep 2002 06:59:08 -0400
+Date: Sun, 1 Sep 2002 13:02:07 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Oops]: Kernel BUG at dcache.c:345 (kernel 2.4.19)
+Message-ID: <20020901110207.GA317@orga.eichstaetter-triathlon.de>
+References: <20020830134115.GA1711@orga.eichstaetter-triathlon.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020830134115.GA1711@orga.eichstaetter-triathlon.de>
+User-Agent: Mutt/1.3.28i
+From: Markus Blatt <Markus.Blatt@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Tomas Szepe <szepe@pinerecords.com>
-   Date: Sun, 1 Sep 2002 12:56:43 +0200
+On Fri, Aug 30, 2002 at 03:41:15PM +0200, mblatt wrote:
+> Hi,
+> 
+> Starting from kernel version 2.4.18 I irregularly get kernel oopses
+> which do not seem to depend on using special applications but rather
+> on the amount auf memory used.
+> 
+> [snip]
 
-   2.4.20-pre5: prevent sparc32's atomic_read() from possibly discarding
-   const qualifiers from pointers passed as its argument.
-   
-   -static __inline__ int atomic_read(atomic_t *v)
-   +static __inline__ int atomic_read(const atomic_t *v)
+As I got quite some unmotivated sigs in the last time, I also made some
+Hardware tests.
 
-So the atomic_t is const is it?  That's news to me.
+According to memtest my ram seems to be Ok. Unfortnately after heavy use 
+even building the kernel crashes while it succeeds directly after booting.
 
-I think you mean something like "atomic_t const * v" which means the
-pointer is constant, not the value.
+So I fear that there is Problem with the cooling of my cpu.
+
+Maybe those kernel oopses could be due to that problem too.
+
+I apologize bothering you maybe for nothing.
+
+Regards,
+
+Markus Blatt

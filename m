@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269144AbUJEPaZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269112AbUJEPhD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269144AbUJEPaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 11:30:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269150AbUJEPaZ
+	id S269112AbUJEPhD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 11:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269082AbUJEPgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 11:30:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57581 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269144AbUJEPaG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 11:30:06 -0400
-Date: Tue, 5 Oct 2004 16:29:59 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       parisc-linux@parisc-linux.org
-Subject: Re: [PATCH] Sort generic PCI fixups after specific ones
-Message-ID: <20041005152959.GX16153@parcelfarce.linux.theplanet.co.uk>
-References: <20040922214304.GS16153@parcelfarce.linux.theplanet.co.uk> <20040923172038.GA8812@kroah.com> <20040923173151.GX16153@parcelfarce.linux.theplanet.co.uk> <20040924023357.A2526@jurassic.park.msu.ru> <20040930174155.GT16153@parcelfarce.linux.theplanet.co.uk> <20041002014817.A24292@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 5 Oct 2004 11:36:45 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:25020 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S269146AbUJEPfA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 11:35:00 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] I/O space write barrier
+Date: Tue, 5 Oct 2004 08:33:49 -0700
+User-Agent: KMail/1.7
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1096922369.2666.177.camel@cube> <200410041926.57205.jbarnes@sgi.com> <1096945479.24537.15.camel@gaston>
+In-Reply-To: <1096945479.24537.15.camel@gaston>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041002014817.A24292@jurassic.park.msu.ru>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200410050833.49654.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 02, 2004 at 01:48:17AM +0400, Ivan Kokshaysky wrote:
-> On Thu, Sep 30, 2004 at 06:41:55PM +0100, Matthew Wilcox wrote:
-> > Allow prioritising PCI fixups.  "How it works" is covered in the comment
-> > in pci.h.  The patch to superio.c may well only apply with fuzz to the
-> > current Linux tree; I include it only to show an example.
-> 
-> No, you missed my point.
-> What we need is yet another PCI fixup *pass*, not prioritizing fixups
-> inside *one* pass - see appended patch (compile tested only).
+On Monday, October 4, 2004 8:04 pm, Benjamin Herrenschmidt wrote:
+> > I agree, it's hard to get right, especially when you've got a large base
+> > of drivers with hard to find assumptions about ordering.
+> >
+> > What about mmiowb()?  Should it be eieio?  I don't want to post another
+> > patch if I don't have to...
+>
+> I don't understand the whole story...
+>
+> If normal accesses aren't relaxed (and I think they shouldn't be), then
+> there is no point in a barrier here.... If you need an explicit barrier
+> for explicitely relaxed accesses, then yes.
 
-Boot tested.  Works fine for my problem child.  Greg, can you apply
-Ivan's patch, please?
+This macro is only supposed to deal with writes from different CPUs that may 
+arrive out of order, nothing else.  It sounds like PPC won't allow that 
+normally, so I can be an empty definition.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+> That doesn't solve my need of MMIO vs. memory unless you are trying to
+> cover that as well, in which case it should be a sync.
+
+No, I think that has to be covered separately.
+
+Jesse

@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbTEEUsK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 16:48:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbTEEUsK
+	id S261350AbTEEUqm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 16:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbTEEUqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 16:48:10 -0400
-Received: from lakemtao01.cox.net ([68.1.17.244]:11252 "EHLO
-	lakemtao01.cox.net") by vger.kernel.org with ESMTP id S261352AbTEEUsJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 16:48:09 -0400
-Message-ID: <3EB6D0E9.6070604@cox.net>
-Date: Mon, 05 May 2003 16:00:25 -0500
-From: David van Hoose <davidvh@cox.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: menuconfig error
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 5 May 2003 16:46:42 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:53944 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S261350AbTEEUqj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 16:46:39 -0400
+Date: Mon, 5 May 2003 16:58:39 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200305052058.h45Kwd800522@devserv.devel.redhat.com>
+To: "Lee, Shuyu" <SLee@cognex.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How to DMA data from a pci device to a user buffer directly
+In-Reply-To: <mailman.1052164262.6444.linux-kernel2news@redhat.com>
+References: <mailman.1052164262.6444.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Menuconfig in 2.4.x allows me to load and save my configuration files to 
-/boot. Menuconfig in 2.5.x allows me to load the configuration from 
-/boot, but when I try to write to it, it tells me that it can't. I'm 
-logged in as root, so I see no reason why 2.4.x can and 2.5.x cannot.
+> 5) My DMA controller has unlimited scatter-gather capability.
 
-Thanks,
-David
+> By the way, I have tested the rest of my code by DMA the image data to a
+> kernel buffer allocated using kmalloc() first, then do a memcpy() to copy
+> the image data to a user buffer. This alternative seems to work fine.
 
+Use mmap to make the kmalloc-ed buffer available to user
+application without the overhead of memcpy().
+
+It is very wonderful that you can do s/g, so on the next stage
+you can kmalloc a bunch of blocks with small order (1) and use
+those instead of relying on bootmem allocation and Pauline's
+bigphysarea patch. Most older controllers cannot do it.
+
+-- Pete

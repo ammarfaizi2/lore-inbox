@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277544AbRJJXrD>; Wed, 10 Oct 2001 19:47:03 -0400
+	id <S277540AbRJJXrX>; Wed, 10 Oct 2001 19:47:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277541AbRJJXqw>; Wed, 10 Oct 2001 19:46:52 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:16636 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S277540AbRJJXqi>; Wed, 10 Oct 2001 19:46:38 -0400
-Date: Wed, 10 Oct 2001 16:44:30 -0700
-From: Chris Wright <chris@wirex.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.11 min() in tcp.c
-Message-ID: <20011010164430.B19995@figure1.int.wirex.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
+	id <S277541AbRJJXrN>; Wed, 10 Oct 2001 19:47:13 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:19335 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S277540AbRJJXq5>;
+	Wed, 10 Oct 2001 19:46:57 -0400
+Date: Wed, 10 Oct 2001 16:46:28 -0700 (PDT)
+Message-Id: <20011010.164628.39155290.davem@redhat.com>
+To: yodaiken@fsmlabs.com
+Cc: kaos@ocs.com.au, paulus@samba.org, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of
+ lists with insertion
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011010162419.A13116@hq2>
+In-Reply-To: <16510.1002751003@ocs3.intra.ocs.com.au>
+	<20011010162419.A13116@hq2>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-compiling 2.4.11 gives the following warning.
+   From: Victor Yodaiken <yodaiken@fsmlabs.com>
+   Date: Wed, 10 Oct 2001 16:24:19 -0600
+   
+   In general you're right, and always its better to 
+   reduce contention than to come up with silly algorithms for 
+   reducing the cost of contention,
 
-tcp.c:855: warning: comparison of distinct pointer types lacks a cast
+I want to second this and remind people that the "cost" of spinlocks
+is mostly not "spinning idly waiting for lock", rather the big cost
+is shuffling the dirty cacheline ownership between the processors.
 
-the following patch, changes min() to min_t() to make size_t explicit.
+Any scheme involving shared data which is written (the read counts
+in the various "lockless" schemes are examples) have the same "cost"
+assosciated with them.
 
-thanks,
--chris
+In short, I see no performance gain from the lockless algorithms
+even in the places where they can be applied.
 
---- linux-2.4.11/net/ipv4/tcp.c	Mon Oct  1 09:19:57 2001
-+++ linux-2.4.11-min/net/ipv4/tcp.c	Wed Oct 10 16:42:55 2001
-@@ -852,7 +852,7 @@
- 
- 		page = pages[poffset/PAGE_SIZE];
- 		offset = poffset % PAGE_SIZE;
--		size = min(psize, PAGE_SIZE-offset);
-+		size = min_t (size_t, psize, PAGE_SIZE-offset);
- 
- 		if (tp->send_head==NULL || (copy = mss_now - skb->len) <= 0) {
- new_segment:
+I spent some time oogling over lockless algorithms a few years ago,
+but I stopped once I realized where the true costs were.  In my view,
+the lockless algorithms perhaps are a win in parallel processing
+environments (in fact, the supercomputing field is where a lot of the
+lockless algorithm research comes from) but not in the kinds of places
+and with the kinds of data structure usage the Linux kernel has.
+
+Franks a lot,
+David S. Miller
+davem@redhat.com
+

@@ -1,39 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262872AbTGRMuY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 08:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264242AbTGRMuX
+	id S271750AbTGRMtV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 08:49:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271755AbTGRMtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 08:50:23 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:11475
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262872AbTGRMuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 08:50:19 -0400
-Subject: Re: Linux 2.4.22-pre6-ac1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030718131714.A26615@infradead.org>
-References: <200307181212.h6ICCQ925343@devserv.devel.redhat.com>
-	 <20030718131714.A26615@infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058533363.19512.39.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 18 Jul 2003 14:02:43 +0100
+	Fri, 18 Jul 2003 08:49:20 -0400
+Received: from s161-184-77-200.ab.hsia.telus.net ([161.184.77.200]:10732 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP id S271750AbTGRMtT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 08:49:19 -0400
+Date: Fri, 18 Jul 2003 07:03:59 -0600 (MDT)
+From: James Bourne <jbourne@hardrock.org>
+To: Benjamin Reed <breed@users.sourceforge.net>
+cc: linux-kernel@vger.kernel.org
+Subject: [BUG REPORT 2.6.0] cisco airo_cs scheduling while atomic
+Message-ID: <Pine.LNX.4.44.0307180656090.19070-100000@cafe.hardrock.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-07-18 at 13:17, Christoph Hellwig wrote:
-> On Fri, Jul 18, 2003 at 08:12:26AM -0400, Alan Cox wrote:
-> > o	The tty procfile can reveal keycounts make	(Solar Designer)
-> > 	it root only
-> 
-> Shouldn't we just kill it completly?
+The Cisco Airo card driver calls schedule while atomic in the function
+issuecommand in drivers/net/wireless/airo.c line 2388.
 
-It is useful in lots of situations, its just *too* useful in some of
-them. I don't see a reason to kill it off
+
+Jul 17 15:27:10 localhost kernel: bad: scheduling while atomic!
+Jul 17 15:27:10 localhost kernel: Call Trace:
+Jul 17 15:27:10 localhost kernel:  [<c0119754>] schedule+0x3c4/0x3d0
+Jul 17 15:27:10 localhost kernel:  [<d18cbb51>] sendcommand+0xa1/0xe0 [airo]
+Jul 17 15:27:10 localhost kernel:  [<d18cba80>] issuecommand+0x60/0x90 [airo]
+Jul 17 15:27:10 localhost kernel:  [<d18cc001>] PC4500_accessrid+0x41/0x80 [airo]
+Jul 17 15:27:10 localhost kernel:  [<d18cc0a3>] PC4500_readrid+0x63/0x130 [airo]
+Jul 17 15:27:10 localhost kernel:  [<d18c95d9>] readStatsRid+0x29/0x50 [airo]
+Jul 17 15:27:10 localhost kernel:  [<d18c9c0a>] airo_get_stats+0x2a/0xe0 [airo]
+Jul 17 15:27:10 localhost kernel:  [<c013e194>] check_poison_obj+0x54/0x1d0
+Jul 17 15:27:10 localhost kernel:  [<c013e194>] check_poison_obj+0x54/0x1d0
+Jul 17 15:27:10 localhost kernel:  [<c013fa94>] kmem_cache_alloc+0x114/0x160
+Jul 17 15:27:10 localhost kernel:  [<c01848ce>] proc_alloc_inode+0x1e/0x80
+Jul 17 15:27:10 localhost kernel:  [<c01848fd>] proc_alloc_inode+0x4d/0x80
+Jul 17 15:27:10 localhost kernel:  [<c016def7>] alloc_inode+0xd7/0x190
+Jul 17 15:27:10 localhost kernel:  [<c0184887>] proc_read_inode+0x17/0x40
+Jul 17 15:27:10 localhost kernel:  [<c016f941>] wake_up_inode+0x11/0x30
+Jul 17 15:27:10 localhost kernel:  [<c01f070a>] vsnprintf+0x21a/0x440
+Jul 17 15:27:10 localhost kernel:  [<c0173bd5>] seq_printf+0x45/0x60
+Jul 17 15:27:10 localhost kernel:  [<c02846eb>] dev_seq_printf_stats+0xeb/0x100
+Jul 17 15:27:10 localhost kernel:  [<c0284726>] dev_seq_show+0x26/0x80
+Jul 17 15:27:10 localhost kernel:  [<c0173689>] seq_read+0x1c9/0x300
+Jul 17 15:27:10 localhost kernel:  [<c0154bd3>] vfs_read+0xd3/0x140
+Jul 17 15:27:10 localhost kernel:  [<c0154e7f>] sys_read+0x3f/0x60
+Jul 17 15:27:10 localhost kernel:  [<c01094fb>] syscall_call+0x7/0xb
+
+Regards
+James Bourne
+
+-- 
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  
+
 

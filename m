@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261562AbRFGPeK>; Thu, 7 Jun 2001 11:34:10 -0400
+	id <S261639AbRFGPjl>; Thu, 7 Jun 2001 11:39:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261628AbRFGPeA>; Thu, 7 Jun 2001 11:34:00 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:63121 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261562AbRFGPdl>;
-	Thu, 7 Jun 2001 11:33:41 -0400
-Date: Thu, 7 Jun 2001 11:33:39 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: I/O system call never returns if file desc is closed
- in the
-In-Reply-To: <tgk82obhoe.fsf@mercury.rus.uni-stuttgart.de>
-Message-ID: <Pine.GSO.4.21.0106071119190.12650-100000@weyl.math.psu.edu>
+	id <S261628AbRFGPjb>; Thu, 7 Jun 2001 11:39:31 -0400
+Received: from www.wen-online.de ([212.223.88.39]:20233 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S261595AbRFGPjW>;
+	Thu, 7 Jun 2001 11:39:22 -0400
+Date: Thu, 7 Jun 2001 17:38:39 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Bulent Abali <abali@us.ibm.com>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        Derek Glidden <dglidden@illusionary.com>,
+        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: Break 2.4 VM in five easy steps
+In-Reply-To: <OF75B67BC7.4C70DAF5-ON85256A64.004C4AD1@pok.ibm.com>
+Message-ID: <Pine.LNX.4.33.0106071641020.332-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 7 Jun 2001, Bulent Abali wrote:
 
+> I happened to saw this one with debugger attached serial port.
+> The system was alive.  I think I was watching the free page count and
+> it was decreasing very slowly may be couple pages per second.  Bigger
+> the swap usage longer it takes to do swapoff.  For example, if I had
+> 1GB in the swap space then it would take may be an half hour to shutdown...
 
-On 7 Jun 2001, Florian Weimer wrote:
+I took a ~300ms ktrace snapshot of the no IO spot with 2.4.4.ikd..
 
-> There's a subtle difference: For malloc(), libc has a mutex (or
-> whatever), but for open(), socket() etc., no locking is performed, and
-> many libc functions create (and destroy) descriptors imlicitely.  
+  % TOTAL    TOTAL USECS    AVG/CALL   NCALLS
+  0.0693%         208.54        0.40      517 c012d4b9 __free_pages
+  0.0755%         227.34        1.01      224 c012cb67 __free_pages_ok
+  ...
+ 34.7195%      104515.15        0.95   110049 c012de73 unuse_vma
+ 53.3435%      160578.37      303.55      529 c012dd38 __swap_free
+Total entries: 131051  Total usecs:    301026.93 Idle: 0.00%
 
-So? You don't have to close() descriptors you had not (to your code
-knowledge) opened. End of story.
+Andrew Morton could be right about that loop not being wonderful.
 
-> I still don't see how you can write maintainable and reliable software
-> with asynchronous close().  For example, if some select() call returns
-> EBADF after an asynchronous close(), you would have to scan the
-> descriptors to find the offending one, but in the meantime, it has
-> been reused by another thread.  What do you do in this case?
-
-You don't rely on EBADF. It's _your_ code that had closed the thing. Unless
-you pass descriptors of unknown origin into select() (hardly a good idea)
-you have all information you need to provide an exclusion.
+	-Mike
 

@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262804AbREVUkr>; Tue, 22 May 2001 16:40:47 -0400
+	id <S262808AbREVUph>; Tue, 22 May 2001 16:45:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262801AbREVUkh>; Tue, 22 May 2001 16:40:37 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:12449 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S262800AbREVUk3>;
-	Tue, 22 May 2001 16:40:29 -0400
-Message-ID: <3B0ACEB1.F3806F00@mandrakesoft.com>
-Date: Tue, 22 May 2001 16:40:17 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre5 i686)
-X-Accept-Language: en
+	id <S262809AbREVUp1>; Tue, 22 May 2001 16:45:27 -0400
+Received: from eschelon.gamesquad.net ([216.115.239.45]:11530 "HELO
+	eschelon.gamesquad.net") by vger.kernel.org with SMTP
+	id <S262808AbREVUpV>; Tue, 22 May 2001 16:45:21 -0400
+From: "Vibol Hou" <vhou@khmer.cc>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Cc: <pz@spylog.ru>, <fxian@fxian.jukie.net>
+Subject: __alloc_pages: 0-order allocation failed on 2.4.5-pre3
+Date: Tue, 22 May 2001 13:43:28 -0700
+Message-ID: <NDBBKKONDOBLNCIOPCGHEEEOHCAA.vhou@khmer.cc>
 MIME-Version: 1.0
-To: Richard Henderson <rth@twiddle.net>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
-Subject: Re: alpha iommu fixes
-In-Reply-To: <15112.59880.127047.315855@pizda.ninka.net> <20010521125032.K30738@athlon.random> <15112.62766.368436.236478@pizda.ninka.net> <20010521131959.M30738@athlon.random> <20010521155151.A10403@jurassic.park.msu.ru> <20010521105339.A1907@twiddle.net> <20010522025658.A1116@athlon.random> <20010522162916.B15155@athlon.random> <20010522184409.A791@jurassic.park.msu.ru> <20010522170016.D15155@athlon.random> <20010522132815.A4573@twiddle.net>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Henderson wrote:
-> 
-> On Tue, May 22, 2001 at 05:00:16PM +0200, Andrea Arcangeli wrote:
-> > I'm also wondering if ISA needs the sg to start on a 64k boundary,
-> 
-> Traditionally, ISA could not do DMA across a 64k boundary.
-> 
-> The only ISA card I have (a soundblaster compatible) appears
-> to work without caring for this, but I suppose we should pay
-> lip service to pedantics.
+Hi,
 
-ISA cards can do sg?
+I searched the lkml for previous reports of this error, and I've found a few
+questions asked, but no real answer given.  I'm not looking for a quick
+answer, but this just seems to be an issue that hasn't been touched on much.
+Any thoughts (and solutions) would be greatly appreciated.
 
-[sure it's theoretically possible... do any drivers use it though, if
-such hardware even exists?]
+I'm cc'ing this to previous thread starters and responders.  I got the
+following errors streaming down my console after about 5 days uptime on
+2.4.5-pre3.  I sent a previous message out regarding the same error on
+2.4.3-ac13.  Others have reported this same problem on 2.4.4 and 2.4.3 (no
+mention of series).
 
--- 
-Jeff Garzik      | "Are you the police?"
-Building 1024    | "No, ma'am.  We're musicians."
-MandrakeSoft     |
+__alloc_pages: 0-order allocation failed.
+__alloc_pages: 0-order allocation failed.
+__alloc_pages: 0-order allocation failed.
+__alloc_pages: 0-order allocation failed.
+__alloc_pages: 0-order allocation failed.
+__alloc_pages: 0-order allocation failed.
+
+The system was unresponsive, but sysrq worked for a short while until the
+above errors kicked in again.
+
+The system is rather minimal.  The kernel is compiled with SMP (two CPUs)
+and a 4GB limit to take advantage of the 1GB memory in it.  The system has a
+SCSI disk subsystem (Adaptec 2940 + 3 uw-scsi drives), a 3c905b nic, and a
+cheap video card.
+
+The workload it handles is ~120 Apache processes (~5MB/process) and ~20
+mysql threads (256MB keycache + ~5MB/thread).
+
+--
+Vibol Hou
+

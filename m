@@ -1,72 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbUBQHPH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 02:15:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbUBQHPH
+	id S261567AbUBQHSo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 02:18:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbUBQHSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 02:15:07 -0500
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:1440 "EHLO
-	mailout.schmorp.de") by vger.kernel.org with ESMTP id S261188AbUBQHPA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 02:15:00 -0500
-Date: Tue, 17 Feb 2004 08:14:48 +0100
-From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jamie Lokier <jamie@shareable.org>, Marc Lehmann <pcg@schmorp.de>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re: JFS default behavior)
-Message-ID: <20040217071448.GA8846@schmorp.de>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Jamie Lokier <jamie@shareable.org>, Marc Lehmann <pcg@schmorp.de>,
-	viro@parcelfarce.linux.theplanet.co.uk,
-	Linux kernel <linux-kernel@vger.kernel.org>
-References: <200402150006.23177.robin.rosenberg.lists@dewire.com> <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk> <200402150107.26277.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.58.0402141827200.14025@home.osdl.org> <20040216183616.GA16491@schmorp.de> <Pine.LNX.4.58.0402161040310.30742@home.osdl.org> <20040216200321.GB17015@schmorp.de> <Pine.LNX.4.58.0402161205120.30742@home.osdl.org> <20040216222618.GF18853@mail.shareable.org> <Pine.LNX.4.58.0402161431260.30742@home.osdl.org>
+	Tue, 17 Feb 2004 02:18:44 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:35058 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261567AbUBQHSk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 02:18:40 -0500
+Date: Tue, 17 Feb 2004 12:53:14 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Greg KH <greg@kroah.com>, Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Dipankar Sarma <dipankar@in.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6] sysfs_remove_dir Vs dcache_readdir
+Message-ID: <20040217072314.GA5459@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0402161431260.30742@home.osdl.org>
-X-Operating-System: Linux version 2.4.24 (root@cerebro) (gcc version 2.95.4 20011002 (Debian prerelease)) 
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 16, 2004 at 02:40:25PM -0800, Linus Torvalds <torvalds@osdl.org> wrote:
-> Try it with a regular C locale. Do a simple
-> 
-> 	echo > едц
+Hello,
 
-Just for your info, though. You can't even input these characters in a C
-locale, since your libc (and/or xlib) is unable to handle them (lots of SO
-C functions will barf on this one). C is 7 bit only.
+I have re-done the patch fixing the race between sysfs_remove_dir() and
+dcache_readdir(). If you recall, sysfs_remove_dir(kobj) manipulates the
+->d_subdirs list for the dentry corresponding to the sysfs directory being
+removed. It can end up deleting the cursor dentry which is added to the
+->d_subdirs list during a concurrent dcache_dir_open() ==> dcache_readdir() for 
+the same directory. And as a result dcache_readdir() can loop for ever holding
+dcache_lock.
 
-> Which, if you think about is, is 100% EXACTLY equivalent to what a UTF-8
-> program should do when it sees broken UTF-8.
+The earlier patch which was included in -mm1 created problems which resulted
+in list_del() BUG hits in prune_dcache(). The reason I think is that in the 
+main loop in sysfs_remove_dir(), dcache_lock is dropped and re-acquired, and 
+this could result in inconsistent ->d_subdirs list and prune_dcache() may try
+to delete an already deleted dentry. I have corrected this in the new 
+patch as below. 
 
-The problem is that the very common C language makes it a pain to use
-this in i18n programs. multibyte functions or iconv will no accept
-these, so programs wanting to do what you are expecting to do need to
-re-implement most if not all of the character handling of your typical
-libc.
+I could do sysfs_remove_dir() more neatly on sysfs backing store patch set
+as there I don't use the ->d_subdirs list. Instead the list of children
+sysfs_dirent works out well. But untill sysfs backing store patch is picked
+up the existing code suffer from this race. This can be easily tested by
+running following two loops on a SMP box
 
-Yes, it's possible....
+# while true; do insmod drivers/net/dummy.ko; rmmod dummy; done
+# while true; do find /sys/class/net > /dev/null; done
 
-> The two cases are 100% equivalent. We've gone through this before. There 
-> is a bit of pain involved, but it's not something new, or something 
-> fundamentally impossible. It's very straightforward indeed.
+Please review the patch below.
 
-The "bit" is enourmous, as you can't use your libc for text processing
-anymore.
+Thanks
+Manneesh
 
-Yes, it works in non-i18n programms, but right now most programs get
-i18n support, which means they will all fail to properly handle
-non-locale characters.
+===============================================================================
 
--- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+
+o This patch fixes sysfs_remove_dir race with dcache_readdir. There is
+  no need for sysfs_remove_dir to modify the d_subdirs list for the directory
+  being deleted as it is taken care in the final dput. Modifying this list
+  results in inconsistent d_subdirs list and causes infinite loop in 
+  concurrently occurring dcache_readdir.
+
+o The main loop is restarted every time, dcache_lock is re-acquired in order
+  to maintain consistency.
+
+
+ fs/sysfs/dir.c |   11 ++++++-----
+ 1 files changed, 6 insertions(+), 5 deletions(-)
+
+diff -puN fs/sysfs/dir.c~sysfs_remove_dir-race-fix fs/sysfs/dir.c
+--- linux-2.6.3-rc4/fs/sysfs/dir.c~sysfs_remove_dir-race-fix	2004-02-17 11:18:38.000000000 +0530
++++ linux-2.6.3-rc4-maneesh/fs/sysfs/dir.c	2004-02-17 12:21:31.000000000 +0530
+@@ -120,13 +120,14 @@ void sysfs_remove_dir(struct kobject * k
+ 	down(&dentry->d_inode->i_sem);
+ 
+ 	spin_lock(&dcache_lock);
++restart:
+ 	node = dentry->d_subdirs.next;
+ 	while (node != &dentry->d_subdirs) {
+ 		struct dentry * d = list_entry(node,struct dentry,d_child);
+-		list_del_init(node);
+ 
++		node = node->next;
+ 		pr_debug(" o %s (%d): ",d->d_name.name,atomic_read(&d->d_count));
+-		if (d->d_inode) {
++		if (!d_unhashed(d) && (d->d_inode)) {
+ 			d = dget_locked(d);
+ 			pr_debug("removing");
+ 
+@@ -137,12 +138,12 @@ void sysfs_remove_dir(struct kobject * k
+ 			d_delete(d);
+ 			simple_unlink(dentry->d_inode,d);
+ 			dput(d);
++			pr_debug(" done\n");
+ 			spin_lock(&dcache_lock);
++			/* re-acquired dcache_lock, need to restart */
++			goto restart;
+ 		}
+-		pr_debug(" done\n");
+-		node = dentry->d_subdirs.next;
+ 	}
+-	list_del_init(&dentry->d_child);
+ 	spin_unlock(&dcache_lock);
+ 	up(&dentry->d_inode->i_sem);
+ 
+
+_

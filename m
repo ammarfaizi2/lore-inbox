@@ -1,78 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318649AbSHAHVM>; Thu, 1 Aug 2002 03:21:12 -0400
+	id <S318650AbSHAHZo>; Thu, 1 Aug 2002 03:25:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318650AbSHAHVM>; Thu, 1 Aug 2002 03:21:12 -0400
-Received: from [213.69.232.58] ([213.69.232.58]:15112 "HELO schottelius.org")
-	by vger.kernel.org with SMTP id <S318649AbSHAHVK>;
-	Thu, 1 Aug 2002 03:21:10 -0400
-Date: Wed, 31 Jul 2002 23:24:26 +0200
-From: Nico Schottelius <nico-mutt@schottelius.org>
-To: linux.nics@intel.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: network driver informations [general NIC, Wireless and e100]
-Message-ID: <20020731212426.GA3342@schottelius.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wac7ysb48OaltWcw"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-MSMail-Priority: Is not really needed
-X-Mailer: Yam on Linux ?
-X-Operating-System: Linux flapp 2.5.29
+	id <S318652AbSHAHZo>; Thu, 1 Aug 2002 03:25:44 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:25863 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S318650AbSHAHZn>; Thu, 1 Aug 2002 03:25:43 -0400
+Date: Thu, 1 Aug 2002 03:38:23 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Linux v2.4.19-rc5
+Message-ID: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---wac7ysb48OaltWcw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hello!
-
-I recently tried the e100 driver and was happy that it reports
-if there is a connection and speed and so on.
-
-But should these informations not be reported through /proc-fs ?
-I think this would make it easier for programs to monitor connection
-status. We could even have a small red/green light in the KDE panel
-to display connection status for different cards.
-
-The point in fact is, looking into dmesg for connection status is definitly
-wrong IMHO. It's neither a clean access nor easy to watch for applications.
-
-So what do you think about /proc/net/<DEVNAME> support for status ?
-
-As far as I can see this is partly implemented in /proc/net/wireless
-or in /proc/net/dev.
-Adding another column in the latter would do the job, too.
-
-Anyways, just an idea.
-
-Hope to hear your critics,
-
-Nico
+One of the -rc4 fixes was not correct and -rc4 missed an important SMP
+race "fix" on the block layer.
 
 
---=20
-Changing mail address: please forget all known @pcsystems.de addresses.
+Summary of changes from v2.4.19-rc4 to v2.4.19-rc5
+============================================
 
-Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
-ils
-to mailing list!). If you don't know what pgp is visit www.gnupg.org.
-(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
+<davem@redhat.com> (02/08/01 1.662)
+	[PATCH] Correct openprom fix
 
---wac7ysb48OaltWcw
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+	   <davem@redhat.com> (02/07/31 1.661)
+	   	[PATCH] Add missing check to openprom driver
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+<akpm@zip.com.au> (02/08/01 1.663)
+	[PATCH] disable READA
 
-iD8DBQE9SFWKtnlUggLJsX0RAsk8AJ45LAFB8OcmBflYxVnm0Y77fAe9LwCdFJ3q
-XBefQwz0Ax3SFQkX3Pt7usw=
-=oW9g
------END PGP SIGNATURE-----
+<marcelo@plucky.distro.conectiva> (02/08/01 1.664)
+	Change EXTRAVERSION to -rc5
 
---wac7ysb48OaltWcw--

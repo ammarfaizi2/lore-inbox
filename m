@@ -1,63 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262239AbTDLXQM (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 19:16:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbTDLXQM (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 19:16:12 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:15537 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S262239AbTDLXQL (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 19:16:11 -0400
-Date: Sat, 12 Apr 2003 19:27:40 -0400
-From: Havoc Pennington <hp@redhat.com>
-To: Greg KH <greg@kroah.com>
-Cc: "Kevin P. Fleming" <kpfleming@cox.net>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       message-bus-list@redhat.com
-Subject: Re: [ANNOUNCE] udev 0.1 release
-Message-ID: <20030412192740.B739@devserv.devel.redhat.com>
-References: <20030411172011.GA1821@kroah.com> <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk> <20030411182313.GG25862@wind.cocodriloo.com> <3E970A00.2050204@cox.net> <20030411190717.GH1821@kroah.com> <20030411152920.C17638@devserv.devel.redhat.com> <20030412080721.GA2768@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030412080721.GA2768@kroah.com>
+	id S262526AbTDLXfu (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 19:35:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262545AbTDLXfu (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 19:35:50 -0400
+Received: from ca-fulrtn-cuda2-c6a-113.anhmca.adelphia.net ([68.66.9.113]:32896
+	"EHLO shrike.mirai.cx") by vger.kernel.org with ESMTP
+	id S262526AbTDLXft (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 19:35:49 -0400
+Message-ID: <3E98A597.6000507@tmsusa.com>
+Date: Sat, 12 Apr 2003 16:47:35 -0700
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Joshua Kwan <joshk@triplehelix.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bug: slab corruption in 2.5.67-mm1
+References: <3E988DA2.4080600@tmsusa.com> <20030412232425.GA24920@triplehelix.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joshua Kwan wrote:
 
-On Sat, Apr 12, 2003 at 01:07:21AM -0700, Greg KH wrote: 
-> Oh, and to compare sizes, with udev linked against klibc (static link)
-> it comes out to a whopping big 6004 bytes:
-> $ size udev
->    text    data     bss     dec     hex filename
->    5572       4     392    5968    1750 udev
-> 
+>On Sat, Apr 12, 2003 at 03:05:22PM -0700, J Sloan wrote:
+>  
+>
+>>I had run 2.5.67-mm1 for some days and for
+>>the most part it ran well in it's duties as dns,
+>>squid, vpn/firewall and postfix server, with
+>>the only oddity being the ide messages which
+>>I reported earlier.
+>>    
+>>
+>
+>You're insane running a -mm kernel on a production machine, IMHO.
+>
+Oh please.
 
-If it isn't obvious (I guess it is), that's an apples and oranges
-comparison - though udev being smaller than /bin/true is either bad
-for /bin/true or pretty good for udev. ;-)
+This is my network, and there is nothing
+insane about it - FYI the stock 2.4.18 RH
+kernel had severe stability problems on
+this system - OTOH 2.5.67-mm1 is like
+the rock of gibraltar in comparison.
 
-I would want to compare D-BUS to a CORBA implementation, DCOP, M-BUS,
-SOAP, or something like that (though it's reasonably different from
-all of those). It's about the same size as DCOP, and about half the
-size of ORBit2 which is a small CORBA. Then there's a large CORBA like
-MICO that uses several megabytes. No clue how big an M-BUS
-implementation is.
+:-)
 
-The important thing though in my mind isn't the raw size comparison
-but what the size is "spent" on - for D-BUS the size is partially
-spent on avoiding dependencies (DCOP and ORBit rely on GLib/Qt for
-many things), and robustness (thread locks, OOM handling, robust API,
-unit testability, and careful input validation). There's also size
-cost to the abstractions made: system vs. per-session bus, bus daemon
-vs. one-to-one, network transport (tcp vs. unix domain vs. whatever),
-authentication mechanism (cookies, socket credentials, kerberos), and
-so forth.
+>They're good for desktop use but in my experience anything that needs to
+>stay up for more than a few days should at LEAST use one of the
+>stability-oriented patches like -mjb or -osdl, if not the vanilla
+>kernel.
+>
+Sorry,  -mm fixes a number of bugs that
+render the vanilla kernel unusable for me.
 
-Other IPC sofware that's about the same size spends its code size on
-different things, it's all about the tradeoffs.
+>2.5-mm typically goes nuts with such errors as you described after a
+>few days of uptime, as far as I've seen and noticed. These bugs will
+>probably eventually be fixed, but at this time, it's still unstable.
+>
+By running 2.5 and reporting, maybe we
+can help expose those bugs - but since .65
+or so, I haven't really seen any show stopper
+issues - everything works, and works well,
+on my particular hardware, and workload.
 
-Havoc
+>
+>I wouldn't run anything above 2.4.20 on a box that does what you
+>describe..
+>  
+>
+My clients get official vendor kernels, but
+in the sanctity of my own domain I run the
+latest and greatest and take a look at what's
+coming - what I'm running today is a sneak
+preview of what my clients will be running
+tomorrow.
 
-
-
+Joe
 

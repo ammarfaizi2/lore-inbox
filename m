@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261325AbSJCPs0>; Thu, 3 Oct 2002 11:48:26 -0400
+	id <S261205AbSJCPmH>; Thu, 3 Oct 2002 11:42:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261336AbSJCPs0>; Thu, 3 Oct 2002 11:48:26 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:17841 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261325AbSJCPsY>;
-	Thu, 3 Oct 2002 11:48:24 -0400
-Message-ID: <3D9C680F.5080705@colorfullife.com>
-Date: Thu, 03 Oct 2002 17:53:51 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
+	id <S261228AbSJCPmH>; Thu, 3 Oct 2002 11:42:07 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:55708 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261205AbSJCPmF>;
+	Thu, 3 Oct 2002 11:42:05 -0400
+Message-ID: <3D9C6537.2D52E074@us.ibm.com>
+Date: Thu, 03 Oct 2002 10:41:43 -0500
+From: Mike Tran <mhtran@us.ibm.com>
+Organization: IBM
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.5.40-evms i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "David S. Miller" <davem@redhat.com>, alan@redhat.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.40-ac1
-References: <3D9C5827.70703@colorfullife.com>	<20021003.075034.12648168.davem@redhat.com> 	<3D9C5FAE.60008@colorfullife.com> <1033660105.28814.11.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Shawn <core@enodev.com>, linux-kernel@vger.kernel.org,
+       evms-devel@lists.sourceforge.net
+Subject: Re: [Evms-devel] Re: EVMS Submission for 2.5
+References: <02100216332002.18102@boiler> <20021003153256.B17513@infradead.org> <20021003100341.B32461@q.mn.rr.com> <20021003163117.A23642@infradead.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Thu, 2002-10-03 at 16:18, Manfred Spraul wrote:
-> 
->>There should bit nonatomic bit ops for every byte width.
->>
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=99167415926343&w=2
->>
->>I even sent you the patch proposal, but never got a reply.
->>
->>Patch again attached, but untested.
-> 
-> 
-> What about reverse endianness ?
+Christoph Hellwig wrote:
 
-AFAIK, writeX macros should swap as needed, i.e.
+> On Thu, Oct 03, 2002 at 10:03:41AM -0500, Shawn wrote:
+> > On 10/03, Christoph Hellwig said something like:
+> > > On Wed, Oct 02, 2002 at 04:33:20PM -0500, Kevin Corry wrote:
+> > > > EVMS provides a new, stand-alone subsystem to the kernel
+> > >
+> > > i.e. it duplictes existing block layer/volume managment functionality..
+> >
+> > Ok, LVM1 is non-existant if that's what you're referring to. Really,
+> > this replaces LVM1, but your statement WRT md still has merit. As for
+> > md duplication, it has been stated already that a preferred approach
+> > might be to send only core functionality bits for now, leaving that
+> > out till that question can be addressed.
+>
+> I speak of all drivers/md/* and fs/partitions/*.
+>
 
-	writel(0x100,ioaddr);
+I have sent Neil Brown an email asking for his thoughts on a possible code
+merge.
+Neil is on vacation until 10/7.
 
-should arrive as bit 8 set on the hardware. [please correct me if I'm 
-wrong] Thus the input into write{b,w,l} should be in host byte order.
+I would say that the EMVS MD code & original MD code are very similar.
+The most significant difference is the MD array discovery and setup code.
+EVMS MD does in-kernel discovery, whereas Linux MD has both in-kernel
+discovery (via fs/partitions/check.c) and user space initiated discovery
+(IOCTL).
 
-	u{8,16,32}	array[];
+Mike Tran
 
-	__set_bit_{8,16,32}(,array);
-
-	write{b,w,l}(array[],ioaddr);
-
-would achieve that.
 

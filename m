@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271455AbTGYCdX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 22:33:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271692AbTGYCdX
+	id S271692AbTGYCo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 22:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271697AbTGYCo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 22:33:23 -0400
-Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:62125 "EHLO
-	swan.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S271455AbTGYCdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 22:33:22 -0400
-From: Richard Drummond <lists@rcdrummond.net>
-Reply-To: lists@rcdrummond.net
-Organization: Private
-To: James Simmons <jsimmons@infradead.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH] Big-endian fixes for tdfxfb in 2.4.21
-Date: Thu, 24 Jul 2003 21:53:13 -0500
-User-Agent: KMail/1.5.2
-Cc: linux-fbdev-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0307250040290.7845-100000@phoenix.infradead.org>
-In-Reply-To: <Pine.LNX.4.44.0307250040290.7845-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Jul 2003 22:44:28 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:41996 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S271692AbTGYCo1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 22:44:27 -0400
+Date: Thu, 24 Jul 2003 19:59:31 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Posting format
+Message-ID: <20030725025931.GE19593@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20030723201801.GB32585@rdlg.net> <20030723212224.A527@infradead.org> <20030723220037.GC32585@rdlg.net> <20030723225333.GC16244@louise.pinerecords.com> <bfn5v6$m20$1@gatekeeper.tmr.com> <1059059667.1672.202.camel@spc9.esa.lanl.gov> <20030724154732.GJ32585@rdlg.net> <20030724232413.GA800@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307242153.14002.lists@rcdrummond.net>
+In-Reply-To: <20030724232413.GA800@zip.com.au>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: The contents of this message may cause sleeplessness, irritability, loss of appetite, anxiety, depression, or other psychological disorders.  Consult your doctor if these symptoms persist.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James
+On Fri, Jul 25, 2003 at 09:24:13AM +1000, CaT wrote:
+> On Thu, Jul 24, 2003 at 11:47:32AM -0400, Robert L. Harris wrote:
+[snip]
+> > Using VI and Mutt, the cursor starts at the top not the bottom or
+> > anywhere in the middle so there's and ease of use for CLI mail readers
+> > as well instead of the GUI oriented.
+> 
+> I use mutt and vim. This is a non-point. The spacebar works. With vi
+> ndd works for quote removal (where n is the number of lines). For vim
+> you have shift-v to begin your selection and just move the cursor down
+> to where you want to cut. If the person you're replying to did their
+> job then you doing yours is simplicity in itself. If they don't then
+> it becomes more painful but it still is not difficult (or complex -
+> just takes a wee bit longer).
 
-On Thursday 24 July 2003 06:41 pm, James Simmons wrote:
-> > Ooops. I apologize. It turns out that I didn't test this as thoroughly as
-> > I had thought. Although the Voodoo3 works perfectly, 16-bit and 32-bit
-> > modes are still broken on the Voodoo4.
->
-> I have a Voodoo 5 so I can give it a try this week end. I don't have docs
-> on the latest cards. I will apply the patch to 2.5.X this weekend.
+And if the quoting is FRC compliant (as above) both vim and
+mutt's built-in pager will render the quotes in a succession
+of colors according to depth making them even easier to
+discern.  And if paragraph reformatting is needed due to
+someone's misbehavior re long lines vim's autoindent will
+preserve the quoting correctly.
 
-I have been doing some experimenting with the Voodoo4 on my Mac, and I have 
-made a little progress. By doing register dumps and general snooping about to 
-discover how MacOS sets up the card, I've found that the card actually 
-supports a big-endian aperture on the framebuffer (this is different from how 
-big-endian support works on the Voodoo3). As I don't have docs, there's a lot 
-of guess-work involved, and I haven't got it working 100% reliably yet - but 
-once I do I'll supply a patch.
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-I'm also working on getting the hwcursor working. The patch I produced against 
-2.4.21 does contain fixes for the hwcursor on the Voodoo3 for big-endian 
-machines. Again, though, because the different way byte-swizzling works on 
-the Voodoo4/5, it doesn't work there in 16- and 32-bit modes. When I get the 
-big-endian fixes for the Voodoo4/5 finished, I'll have look at the hwcursor 
-on 2.5/2.6 . . . 
-
-Cheers,
-Rich
-
+		Remember Cernan and Schmitt

@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267967AbTB1PSd>; Fri, 28 Feb 2003 10:18:33 -0500
+	id <S267949AbTB1PUM>; Fri, 28 Feb 2003 10:20:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267974AbTB1PSd>; Fri, 28 Feb 2003 10:18:33 -0500
-Received: from mail2.sig.nl ([139.178.250.5]:20229 "HELO mail2.sig.nl")
-	by vger.kernel.org with SMTP id <S267967AbTB1PSb>;
-	Fri, 28 Feb 2003 10:18:31 -0500
-From: "Han Holl" <han.holl@prismant.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Bug report bounced + bug report
-Date: Fri, 28 Feb 2003 16:28:46 +0100
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S267951AbTB1PTw>; Fri, 28 Feb 2003 10:19:52 -0500
+Received: from ns.suse.de ([213.95.15.193]:27149 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267949AbTB1PTo>;
+	Fri, 28 Feb 2003 10:19:44 -0500
+Date: Fri, 28 Feb 2003 16:30:00 +0100
+From: Andi Kleen <ak@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Matthew Wilcox <willy@debian.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Proposal: Eliminate GFP_DMA
+Message-ID: <20030228153000.GA17745@wotan.suse.de>
+References: <20030228064631.G23865@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73heao7ph2.fsf@amdsimf.suse.de> <20030228141234.H23865@parcelfarce.linux.theplanet.co.uk> <1046445897.16599.60.camel@irongate.swansea.linux.org.uk> <20030228143405.I23865@parcelfarce.linux.theplanet.co.uk> <1046447737.16599.83.camel@irongate.swansea.linux.org.uk> <20030228145614.GA27798@wotan.suse.de> <20030228152502.GA32449@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200302281628.46969.han.holl@prismant.nl>
+In-Reply-To: <20030228152502.GA32449@gtf.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> That's a bit broken...  I have an ALS4000 PCI soundcard that is a 24-bit
+> soundcard.  pci_set_dma_mask should support 24-bits accordingly,
+> otherwise it's a bug in your platform implementation...  Nobody will be
+> able to use certain properly-written drivers on your platform otherwise.
 
-Hi,
+It supports it for pci_alloc_consistent (by mapping it to an GFP_DMA
+allocation)
 
-I tried to report a bug in kernel 2.2.23 to Alan.Cox@linux.org, as instructed
-by the 2.2.23 documents, but got a bounce message:                       
-                       The Postfix program
+Just for pci_map_single/pci_map_sg() it is not supported and will 
+error out when the passed address doesn't fit the mask. That behaviour
+is 100% compatible with IA32 which does the same. 
 
-<Alan.Cox@linux.org>: Name service error for domain linux.org: Host found but
-    no data record of requested type
-
-Here is the bug report:
-
-Subject: Cannot boot Compaq Smart Array 532 with grub on 2.2.23
-
-Hi,
-
-Well, subject says it all really. Here is a (minimal) patch:
- 
---- main.c.orig Fri Feb 28 15:56:54 2003
-+++ main.c      Fri Feb 28 15:40:37 2003
-@@ -495,6 +495,8 @@
-        { "sdn",     0x08d0 },
-        { "sdo",     0x08e0 },
-        { "sdp",     0x08f0 },
-+       { "cciss/c0d0p",0x6800 },
-+       { "cciss/c0d1p",0x6810 },
-        { "rd/c0d0p",0x3000 },
-        { "rd/c0d1p",0x3008 },
-        { "rd/c0d2p",0x3010 },
-
-Cheers,
-
-Han Holl
-
+-Andi

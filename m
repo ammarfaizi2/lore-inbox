@@ -1,82 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263665AbTFVXNA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 19:13:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbTFVXM7
+	id S264208AbTFVXcT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 19:32:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbTFVXcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 19:12:59 -0400
-Received: from lucidpixels.com ([66.45.37.187]:9856 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S263665AbTFVXM6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 19:12:58 -0400
-Date: Sun, 22 Jun 2003 19:27:03 -0400 (EDT)
-From: war <war@lucidpixels.com>
-X-X-Sender: war@p500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Spurious 8259A Interrupt IRQ 7
-In-Reply-To: <1056322074.2075.40.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.56.0306221924400.361@p500>
-References: <20030622222014.7827.qmail@lucidpixels.com>
- <1056322074.2075.40.camel@dhcp22.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 22 Jun 2003 19:32:19 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:23813 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S264208AbTFVXcR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 19:32:17 -0400
+Date: Sun, 22 Jun 2003 16:42:45 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: AIC7(censored) card gone wild?
+Message-ID: <20030622234244.GC2308@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <A20D5638D741DD4DBAAB80A95012C0AE03E6A0@orsmsx409.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <A20D5638D741DD4DBAAB80A95012C0AE03E6A0@orsmsx409.jf.intel.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also, I am not sure how the IO-APIC & IRQ routing work, however, with the
-ATA/100 TX1 (first generation promise controller, the interrupts are
-shared differently.
+On Sat, Jun 21, 2003 at 09:01:08PM -0700, Perez-Gonzalez, Inaky wrote:
+> > From: Matthias Andree [mailto:matthias.andree@gmx.de]
+> > On Fri, 20 Jun 2003, Perez-Gonzalez, Inaky wrote:
+> > 
+> > > So I wonder, what does that error mean? SCSI1 has attached a
+> > > CDRW (Sony Yamaha CDRW 8/4/24) but now it doesn't show up
+> > > anymore (and so, I cannot get the model). .
+> > 
+> > The first step towards finding that out is power cycling (shut down,
+> > switch off for a minute, then start up again) or physically
+> > disconnecting the Yamaha drive (if it's Yamaha).
+> 
+> And clean up and check all of the fans, cables, connections,
+> connect, disconnect ... nothing changes. Something is hosed
+> up. The three years w/o downtime are biting back now.
 
-Whether this makes a difference or has anything to do with the spurious
-interrupts/messages, I am not sure.
+You may want to replace the power supply.  Most PC power
+supplies are junk and some time after a year or two start
+drifting out of spec.  Out of spec power supplies are
+responsible for more hardware failures than probably
+anything else.
 
-Before:
 
-# cat /proc/interrupts
-CPU0
-0: 6486628 XT-PIC timer
-1: 6 XT-PIC keyboard
-2: 0 XT-PIC cascade
-4: 647546 XT-PIC serial
-5: 0 XT-PIC Crystal audio controller
-8: 1 XT-PIC rtc
-9: 3548883 XT-PIC eth2, eth3
-11: 2601852 XT-PIC ide2, ide3, eth0, eth1
-12: 38 XT-PIC PS/2 Mouse
-14: 121950 XT-PIC ide0
-15: 25 XT-PIC ide1
-NMI: 0
-LOC: 6486487
-ERR: 11
-MIS: 0
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-After:
-
-           CPU0
-  0:      22081          XT-PIC  timer
-  1:          6          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  4:       2061          XT-PIC  serial
-  5:          0          XT-PIC  Crystal audio controller
-  8:          1          XT-PIC  rtc
-  9:       4233          XT-PIC  eth2, eth3
- 10:         37          XT-PIC  ide2, ide3
- 11:       2071          XT-PIC  eth0, eth1
- 12:         38          XT-PIC  PS/2 Mouse
- 14:       6037          XT-PIC  ide0
- 15:         24          XT-PIC  ide1
-NMI:          0
-LOC:      22032
-ERR:          0
-MIS:          0
-
-Now to see if I get any more of these spurious interrupts...
-
-On Sun, 22 Jun 2003, Alan Cox wrote:
-
-> IRQ7 is raised if an interrupt appears and then vanishes again before it
-> can be serviced. For 2.4.20/21 at least it can occur from the IDE layer
-> and maybe others
->
->
+		Remember Cernan and Schmitt

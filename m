@@ -1,173 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262745AbUAUJdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 04:33:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265890AbUAUJdQ
+	id S262714AbUAUJp0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 04:45:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265890AbUAUJpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 04:33:16 -0500
-Received: from mxfep02.bredband.com ([195.54.107.73]:50049 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S262745AbUAUJdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 04:33:09 -0500
+	Wed, 21 Jan 2004 04:45:25 -0500
+Received: from tank-fep3-0.inet.fi ([194.251.242.243]:17132 "EHLO
+	fep18.tmt.tele.fi") by vger.kernel.org with ESMTP id S262714AbUAUJpX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 04:45:23 -0500
+From: "tuija t." <tuxakka@yahoo.co.uk>
 To: linux-kernel@vger.kernel.org
-Subject: Strange IDE errors
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Wed, 21 Jan 2004 10:33:07 +0100
-Message-ID: <yw1xn08hlk8c.fsf@ford.guide>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Subject: swusp acpi
+Date: Wed, 21 Jan 2004 11:43:51 +0200
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401211143.51585.tuxakka@yahoo.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-After 13 days uptime without a glitch, my Alpha SX164 running Linux
-2.6.0 threw the errors below at me.  The disks are Seagate Barracuda
-120 GB disks hooked up to a Highpoint hpt374 with SATA bridges.  The
-hdi disk was recently replaced since the old disk would fail randomly
-and mysteriously.  Is something in my machine destroying hdi?  Apart
-from the lines about hdk below, there has been no trouble with the
-other disks.  As usual, SMART doesn't tell me anything useful,
-i.e. there are no errors logged and all attributes seem OK.  After a
-reboot everything seems to work properly.  The question is for how
-long.  Could the controller be faulty?
+Sorry about the newbie question but I haven't managed
+to get answer elsewhere :-)
+I have a laptop (Fujitsu Lifebook C1020) Debian system
+with linux-2.6.1 vanilla.
+An I have wondered how I should but it in sleep?
+# echo 4 > /proc/acpi/sleep 
+writes the ram in the swap:
 
-hdi: dma_intr: status=0x00 { }
+Stopping tasks: ===================================================|
+Freeing memory: ........................|
+hdc: start_power_step(step: 0)
+hdc: completing PM request, suspend
+hda: start_power_step(step: 0)
+hda: completing PM request, suspend
+/critical section: Counting pages to copy[nosave c03cf000] (pages needed: 
+4727+512=5239 free: 118136)
+Alloc pagedir
+[nosave c03cf000]<4>Freeing prev allocated pagedir
+eth0: link up, 100Mbps, full-duplex, lpa 0x45E1
+hda: Wakeup request inited, waiting for !BSY...
+hda: start_power_step(step: 1000)
+hda: completing PM request, resume
+hdc: Wakeup request inited, waiting for !BSY...
+hdc: start_power_step(step: 1000)
+hdc: completing PM request, resume
+Fixing swap signatures... ok
+Restarting tasks... done
+And after reboot comes back to same than it was before
+This behaviour is kind of "big sleep" and have to boot from grub.
 
-hdi: status error: status=0x00 { }
+When I do
+# echo 3 > /proc/acpi/sleep
+it beebs from bios and do:
+PM: Preparing system for suspend
+Stopping tasks: ===================================================|
+hdc: start_power_step(step: 0)
+hdc: completing PM request, suspend
+hda: start_power_step(step: 0)
+hda: start_power_step(step: 1)
+hda: complete_power_step(step: 1, stat: 50, err: 0)
+hda: completing PM request, suspend
+PM: Entering state.
+Back to C!
+PM: Finishing up.
+eth0: link up, 100Mbps, full-duplex, lpa 0x45E1
+hda: Wakeup request inited, waiting for !BSY...
+hda: start_power_step(step: 1000)
+hda: completing PM request, resume
+hdc: Wakeup request inited, waiting for !BSY...
+hdc: start_power_step(step: 1000)
+hdc: completing PM request, resume
+Restarting tasks...<6>usb 1-1: USB disconnect, address 2
+drivers/usb/host/uhci-hcd.c: 1200: host system error, PCI problems?
+drivers/usb/host/uhci-hcd.c: 1200: host controller halted. very bad
+drivers/usb/host/uhci-hcd.c: 1300: host system error, PCI problems?
+drivers/usb/host/uhci-hcd.c: 1300: host controller halted. very bad
+drivers/usb/host/uhci-hcd.c: 1700: host system error, PCI problems?
+drivers/usb/host/uhci-hcd.c: 1700: host controller halted. very bad
+psmouse: reconnect request, but serio is disconnected, ignoring...
+ done
+hub 1-0:1.0: new USB device on port 1, assigned address 3
+usb 1-1: control timeout on ep0out
 
-hdi: drive not ready for command
-hdi: status error: status=0x00 { }
+And with pressing power button everything else comes back exept
+usb.
+This behaviour is kind of "little light nap" and system comes back fast.
+And I have also noticed that I cannot use bios passwd with
+# echo 3 > /proc/acpi/sleep   cause even it doesn't reboot it goes
+somehow to bios and bios passwd prompted but it doesn't accept it?
+But after disabled bios passwd it works exept usb.
 
-hdi: drive not ready for command
-hdi: status error: status=0x00 { }
+Can somebody give me any wise what I'm doing wrong or point
+me to some documentation about this matter?
 
-hdi: DMA disabled
-hdi: drive not ready for command
-ide4: reset: success
-hdi: status error: status=0x00 { }
-
-hdi: drive not ready for command
-hdi: status error: status=0x00 { }
-
-hdi: drive not ready for command
-hdi: status error: status=0x00 { }
-
-hdi: drive not ready for command
-hdi: status error: status=0x00 { }
-
-hdi: drive not ready for command
-ide4: reset: success
-hdi: status error: status=0x00 { }
-
-hdi: no DRQ after issuing WRITE
-hdi: status error: status=0x00 { }
-
-hdi: drive not ready for command
-hdi: status error: status=0x00 { }
-
-hdi: drive not ready for command
-hdi: status error: status=0x00 { }
-
-hdi: drive not ready for command
-ide4: reset: success
-hdi: status error: status=0x00 { }
-
-hdi: no DRQ after issuing WRITE
-hdi: status error: status=0x00 { }
-
-hdi: drive not ready for command
-hdi: status error: status=0x00 { }
-
-hdi: drive not ready for command
-hdi: status error: status=0x00 { }
-
-hdi: drive not ready for command
-ide4: reset: success
-hdi: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-
-hdi: drive not ready for command
-hdi: status error: status=0xd0 { Busy }
-
-hdi: drive not ready for command
-ide4: reset: master: error (0x00?)
-hdk: dma_timer_expiry: dma status == 0x00
-hdk: DMA timeout retry
-hdk: timeout waiting for DMA
-hdk: status timeout: status=0xd0 { Busy }
-
-hdk: drive not ready for command
-ide5: reset: success
-hdi: status error: status=0x00 { }
-
-hdi: drive not ready for command
-hdi: status error: status=0x00 { }
-
-hdi: drive not ready for command
-hdi: status error: status=0x00 { }
-
-hdi: drive not ready for command
-hdi: status error: status=0x00 { }
-
-hdi: drive not ready for command
-ide4: reset: success
-hdi: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-
-hdi: drive not ready for command
-hdi: status error: status=0xd0 { Busy }
-
-hdi: drive not ready for command
-ide4: reset: success
-hdi: lost interrupt
-hdi: lost interrupt
-hdi: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-
-hdi: drive not ready for command
-hdi: status error: status=0xd0 { Busy }
-
-hdi: drive not ready for command
-ide4: reset: master: error (0x00?)
-hdi: lost interrupt
-hdi: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-
-hdi: drive not ready for command
-hdi: status error: status=0xd0 { Busy }
-
-hdi: drive not ready for command
-ide4: reset: master: error (0x00?)
-end_request: I/O error, dev hdi, sector 11297617
-raid1: Disk failure on md3, disabling device. 
-        Operation continuing on 1 devices
-raid1: md3: rescheduling sector 22049024
-RAID1 conf printout:
- --- wd:1 rd:2
- disk 0, wo:0, o:1, dev:md2
- disk 1, wo:1, o:0, dev:md3
-RAID1 conf printout:
- --- wd:1 rd:2
- disk 0, wo:0, o:1, dev:md2
-raid1: md2: redirecting sector 22049024 to another mirror
-end_request: I/O error, dev hdi, sector 226111
-raid1: Disk failure on md1, disabling device. 
-        Operation continuing on 1 devices
-raid1: md1: rescheduling sector 452096
-end_request: I/O error, dev hdi, sector 226127
-raid1: md1: rescheduling sector 452112
-end_request: I/O error, dev hdi, sector 226143
-raid1: md1: rescheduling sector 452128
-RAID1 conf printout:
- --- wd:1 rd:2
- disk 0, wo:0, o:1, dev:md0
- disk 1, wo:1, o:0, dev:md1
-RAID1 conf printout:
- --- wd:1 rd:2
- disk 0, wo:0, o:1, dev:md0
-raid1: md0: redirecting sector 452096 to another mirror
-raid1: md0: redirecting sector 452112 to another mirror
-raid1: md0: redirecting sector 452128 to another mirror
-
+Thank you for your patience and possible answers advance :-)
 
 -- 
-Måns Rullgård
-mru@kth.se
+best rgds
+~tt
+

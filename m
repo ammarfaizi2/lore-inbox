@@ -1,81 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318184AbSHZRkT>; Mon, 26 Aug 2002 13:40:19 -0400
+	id <S318169AbSHZRwP>; Mon, 26 Aug 2002 13:52:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318188AbSHZRkT>; Mon, 26 Aug 2002 13:40:19 -0400
-Received: from pD9E2394F.dip.t-dialin.net ([217.226.57.79]:12466 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S318184AbSHZRkS>; Mon, 26 Aug 2002 13:40:18 -0400
-From: Lightweight Patch Manager <patch@luckynet.dynu.com>
-To: Linus Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2.5] macro madness for Linux 2.5.31
-X-Mailer: Lightweight Patch Manager
-Message-ID: <20020826174430.A02677@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-User-Agent: Lightweight Patch Manager/1.04
-Date: Mon, 26 Aug 2002 17:44:30 +0000
-X-Priority: I really don't care.
-Content-Type: text/plain; charset=US-ASCII
-Organization: Lightweight Networking
-Content-Transfer-Encoding: 7BIT
+	id <S318170AbSHZRwP>; Mon, 26 Aug 2002 13:52:15 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42757 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318169AbSHZRwO>; Mon, 26 Aug 2002 13:52:14 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: MM patches against 2.5.31
+Date: Mon, 26 Aug 2002 17:58:41 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <akdq8h$fqn$1@penguin.transmeta.com>
+References: <3D644C70.6D100EA5@zip.com.au> <20020822112806.28099.qmail@thales.mathematik.uni-ulm.de> <3D6989F7.9ED1948A@zip.com.au>
+X-Trace: palladium.transmeta.com 1030384576 26743 127.0.0.1 (26 Aug 2002 17:56:16 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 26 Aug 2002 17:56:16 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch reduces  macro madness with old compilers  that didn't know
-that one  can even  write the comma  directly after  the __FUNCTION__,
-like I did in this sentence. Can you parse it? If no, you'll need this
-patch either.
+In article <3D6989F7.9ED1948A@zip.com.au>,
+Andrew Morton  <akpm@zip.com.au> wrote:
+>
+>What I'm inclined to do there is to change __page_cache_release()
+>to not attempt to free the page at all.  Just let it sit on the
+>LRU until page reclaim encounters it.  With the anon-free-via-pagevec
+>patch, very, very, very few pages actually get their final release in
+>__page_cache_release() - zero on uniprocessor, I expect.
 
-diff -Nurp -x SCCS -x CVS -x .deps -x ChangeSet -x BitKeeper linus-2.5/arch/arm/mach-sa1100/system3.c thunder-2.5/arch/arm/mach-sa1100/system3.c
---- linus-2.5/arch/arm/mach-sa1100/system3.c	Sat Aug 24 04:50:21 2002
-+++ thunder-2.5/arch/arm/mach-sa1100/system3.c	Mon Aug 26 11:35:32 2002
-@@ -62,7 +62,7 @@
- #define DEBUG 1
- 
- #ifdef DEBUG
--#	define DPRINTK( x, args... )	printk( "%s: line %d: "x, __FUNCTION__, __LINE__, ## args  );
-+#	define DPRINTK( x, args... )	printk( "%s: line %d: " x, __FUNCTION__ , __LINE__ , ## args );
- #else
- #	define DPRINTK( x, args... )	/* nix */
- #endif
-diff -Nurp -x SCCS -x CVS -x .deps -x ChangeSet -x BitKeeper linus-2.5/drivers/ieee1394/sbp2.c thunder-2.5/drivers/ieee1394/sbp2.c
---- linus-2.5/drivers/ieee1394/sbp2.c	Sat Aug 24 04:52:05 2002
-+++ thunder-2.5/drivers/ieee1394/sbp2.c	Mon Aug 26 11:37:04 2002
-@@ -449,7 +449,7 @@ MODULE_DEVICE_TABLE(ieee1394, sbp2_id_ta
- /* #define CONFIG_IEEE1394_SBP2_PACKET_DUMP */
- 
- #ifdef CONFIG_IEEE1394_SBP2_DEBUG_ORBS
--#define SBP2_ORB_DEBUG(fmt, args...)	HPSB_ERR("sbp2(%s): "fmt, __FUNCTION__, ## args)
-+#define SBP2_ORB_DEBUG(fmt, args...)	HPSB_ERR("sbp2(%s): " fmt, __FUNCTION__ , ## args)
- static u32 global_outstanding_command_orbs = 0;
- #define outstanding_orb_incr global_outstanding_command_orbs++
- #define outstanding_orb_decr global_outstanding_command_orbs--
-diff -Nurp -x SCCS -x CVS -x .deps -x ChangeSet -x BitKeeper linus-2.5/drivers/pcmcia/sa1100_system3.c thunder-2.5/drivers/pcmcia/sa1100_system3.c
---- linus-2.5/drivers/pcmcia/sa1100_system3.c	Sat Aug 24 04:52:54 2002
-+++ thunder-2.5/drivers/pcmcia/sa1100_system3.c	Mon Aug 26 11:37:39 2002
-@@ -40,7 +40,7 @@
- #define DEBUG 0
- 
- #ifdef DEBUG
--#	define DPRINTK( x, args... )	printk( "%s: line %d: "x, __FUNCTION__, __LINE__, ## args  );
-+#	define DPRINTK( x, args... )	printk( "%s: line %d: " x, __FUNCTION__ , __LINE__ , ## args  );
- #else
- #	define DPRINTK( x, args... )	/* nix */
- #endif
-diff -Nurp -x SCCS -x CVS -x .deps -x ChangeSet -x BitKeeper linus-2.5/drivers/video/aty128fb.c thunder-2.5/drivers/video/aty128fb.c
---- linus-2.5/drivers/video/aty128fb.c	Sat Aug 24 04:53:33 2002
-+++ thunder-2.5/drivers/video/aty128fb.c	Mon Aug 26 11:36:03 2002
-@@ -87,7 +87,7 @@
- #undef DEBUG
- 
- #ifdef DEBUG
--#define DBG(fmt, args...)		printk(KERN_DEBUG "aty128fb: %s " fmt, __FUNCTION__, ##args);
-+#define DBG(fmt, args...)		printk(KERN_DEBUG "aty128fb: %s " fmt, __FUNCTION__ , ##args);
- #else
- #define DBG(fmt, args...)
- #endif
+If you do this, then I would personally suggest a conceptually different
+approach: make the LRU list count towards the page count.  That will
+_automatically_ result in what you describe - if a page is on the LRU
+list, then "freeing" it will always just decrement the count, and the
+_real_ free comes from walking the LRU list and considering count==1 to
+be trivially freeable. 
 
--- 
-Lightweight Patch Manager, without pine.
-If you have any objections (apart from who I am), tell me
+That way you don't have to have separate functions for releasing
+different kinds of pages (we've seen how nasty that was from a
+maintainance standpoint already with the "put_page vs
+page_cache_release" thing). 
+
+Ehh?
+
+		Linus
 

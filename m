@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285692AbSBYRSr>; Mon, 25 Feb 2002 12:18:47 -0500
+	id <S293174AbSBYRUh>; Mon, 25 Feb 2002 12:20:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292387AbSBYRSh>; Mon, 25 Feb 2002 12:18:37 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38416 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285692AbSBYRSb>; Mon, 25 Feb 2002 12:18:31 -0500
-Subject: Re: [PATCH] Lightweight userspace semaphores...
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Mon, 25 Feb 2002 17:31:26 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rusty@rustcorp.com.au (Rusty Russell),
-        mingo@elte.hu, matthew@hairy.beasts.org (Matthew Kirkwood),
-        bcrl@redhat.com (Benjamin LaHaise), david@mysql.com (David Axmark),
-        wli@holomorphy.com (William Lee Irwin III),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0202250905090.3392-100000@home.transmeta.com> from "Linus Torvalds" at Feb 25, 2002 09:06:15 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S291809AbSBYRUb>; Mon, 25 Feb 2002 12:20:31 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:22769
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S293174AbSBYRUI>; Mon, 25 Feb 2002 12:20:08 -0500
+Date: Mon, 25 Feb 2002 09:20:48 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Dan Maas <dmaas@dcine.com>
+Cc: "Rose, Billy" <wrose@loislaw.com>, linux-kernel@vger.kernel.org
+Subject: Re: ext3 and undeletion
+Message-ID: <20020225172048.GV20060@matchmail.com>
+Mail-Followup-To: Dan Maas <dmaas@dcine.com>,
+	"Rose, Billy" <wrose@loislaw.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <fa.n4lfl6v.h4chor@ifi.uio.no> <05cb01c1be1e$c490ba00$1a01a8c0@allyourbase>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16fOyE-0005Xl-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <05cb01c1be1e$c490ba00$1a01a8c0@allyourbase>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > unlink()
+On Mon, Feb 25, 2002 at 12:06:29PM -0500, Dan Maas wrote:
+> > but I don't want a Netware filesystem running on Linux, I
+> > want a *native* Linux filesystem (i.e. ext3) that has the
+> > ability to queue deleted files should I configure it to.
 > 
-> Sure, but that, together with making up a unique temporary name etc just
-> adds extra overhead for no actual gain.
+> Rather than implementing this in the filesystem itself, I'd first try
+> writing a libc shim that overrides unlink(). You could copy files to safety,
+> or do anything else you want, before they actually get deleted...
 
-As opposed to adding special cases to the kernel which are unswappable and
-stand to tangle up bits of the generic vfs - eg we would have a vma with
-a vm_file but that file would not be in the dcache ?
+Yep, more portable.
 
-Is it really worth it. For temporary files unix has never adopted a tmpfile()
-syscall because nobody has ever found mkstemp() a paticularly critical path
-that justified it
+Now the question is: Is there already something written?

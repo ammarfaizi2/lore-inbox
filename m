@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268040AbUHVR1C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268038AbUHVR2a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268040AbUHVR1C (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 13:27:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268050AbUHVRYS
+	id S268038AbUHVR2a (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 13:28:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268037AbUHVR2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 13:24:18 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:56719 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268040AbUHVRXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 13:23:44 -0400
-Subject: Re: PROBLEM: Promise Fast Track SX6000 i2o driver.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Piotr Goczal <bilbo@mazurek.man.lodz.pl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0408221854310.2571@mazurek.man.lodz.pl>
-References: <Pine.LNX.4.58.0408211012500.2571@mazurek.man.lodz.pl>
-	 <1093173914.24272.45.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0408221606520.2571@mazurek.man.lodz.pl>
-	 <1093184419.24617.5.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0408221854310.2571@mazurek.man.lodz.pl>
-Content-Type: text/plain
+	Sun, 22 Aug 2004 13:28:30 -0400
+Received: from mail.gmx.de ([213.165.64.20]:24476 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268053AbUHVR2T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 13:28:19 -0400
+X-Authenticated: #116626
+From: Alexander Kern <alex.kern@gmx.de>
+To: linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [Linux-fbdev-devel] Framebuffer drivers maintainers
+Date: Sun, 22 Aug 2004 19:28:04 +0200
+User-Agent: KMail/1.6.1
+Cc: Otto Wyss <otto.wyss@orpatec.ch>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+References: <41270AD0.FE6C7970@orpatec.ch>
+In-Reply-To: <41270AD0.FE6C7970@orpatec.ch>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1093191690.24761.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 22 Aug 2004 17:21:32 +0100
+Message-Id: <200408221928.05205.alex.kern@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-08-22 at 17:55, Piotr Goczal wrote:
-> On Sun, 22 Aug 2004, Alan Cox wrote:
-> 
-> > As I understand it the new firmware isn't I2O so I2O would be the wrong
-> > driver anyway. If Promise own source code drivers support it then that
-> > is at least as good as documentation 8). Are promise own drivers for the
-> > sx6000 GPL or not ?
-> 
-> Fortunatelly: YES
+Am Samstag, 21. August 2004 10:41 schrieb Otto Wyss:
+> I've now updated the framebuffer driver list and hopefully listed each
+> current driver. It may not show the correct name so please suggest
+> corrections.
+>
+> For each driver its maintainer should be listed possibly with its
+> sourceforge.net user account in brackets. I'd like if only current
+> maintainers, who really take care of their drivers, are listed and none
+> who has done so in the past. Please any maintainer post a message to
+> linux-fbdev-devel or tell me where I can retrieve reliable information.
+>
+> I'd like to form a QA team which task is mostly to take care of not
+> maintained drivers. If you want to volunteer just leave me a message.
+>
+> O. Wyss
+HI, I'm care about atyfb driver in 2.6.x
 
-Then I think that the right path is probably to integrate those drivers
-into the kernel, cleaning them up if neccessary ?
-
+bye Alex Kern

@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311647AbSC2Tmw>; Fri, 29 Mar 2002 14:42:52 -0500
+	id <S311670AbSC2Tnc>; Fri, 29 Mar 2002 14:43:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311670AbSC2Tmo>; Fri, 29 Mar 2002 14:42:44 -0500
-Received: from quattro-eth.sventech.com ([205.252.89.20]:39942 "EHLO
-	quattro.sventech.com") by vger.kernel.org with ESMTP
-	id <S311647AbSC2Tme>; Fri, 29 Mar 2002 14:42:34 -0500
-Date: Fri, 29 Mar 2002 14:42:34 -0500
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Stanislav Meduna <stano@meduna.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net
-Subject: Re: USB printing via ptal broke between 2.4.17 and .18
-Message-ID: <20020329144234.E23430@sventech.com>
-In-Reply-To: <200203291936.g2TJaWT02200@meduna.org>
-Mime-Version: 1.0
+	id <S311701AbSC2TnX>; Fri, 29 Mar 2002 14:43:23 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:57607
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S311670AbSC2TnD>; Fri, 29 Mar 2002 14:43:03 -0500
+Date: Fri, 29 Mar 2002 11:42:04 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre4-ac[23] do not boot
+In-Reply-To: <E16qz6l-0001Ud-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10203291137220.10681-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 29, 2002, Stanislav Meduna <stano@meduna.org> wrote:
-> somewhere between 2.4.17 and 2.4.18 the USB printing to the
-> HP printer using PTAL library broke. I now get following
-> in the log:
-> 
-> ptal-init: Starting the HP OfficeJet Linux driver.
-> ptal-mlcd: SYSLOG at ExMgr.cpp:660, dev=<usb:PSC_750>, pid=1183, errno=111
->         ptal-mlcd successfully initialized. 
-> ptal-printd: ptal-printd(mlc:usb:PSC_750) successfully initialized. 
-> rc: Starting ptal-init:  succeeded
-> ptal-mlcd: ERROR at ExMgr.cpp:2445, dev=<usb:PSC_750>, pid=1183, errno=11
->         llioService: llioRead returns 3, expected=6! 
-> ptal-mlcd: ERROR at ExMgr.cpp:853, dev=<usb:PSC_750>, pid=1183, errno=32
->         exClose(reason=0x0010) 
-> 
-> Any idea what I should try to further corner the bug?
-> 
-> Red Hat 7.2
-> 2.4.18 kernel
-> hpoj 0.8
-> hpijs 1.0
-> HP PSC 750 multifunctional device
-> alias usb-controller uhci
-> no devfs
+On Fri, 29 Mar 2002, Alan Cox wrote:
 
-Give usb-uhci a shot. I'm curious if it works better.
+> > 2.4.19-pre4-ac[23] does not boot. I've not tested ac1 but vanilla pre4
+> > works.
+> 
+> Can you try backing out the following two changes, one at a time. These are
+> the only ALi specific changes. So firstly I want to see if its an ALi or
+> core IDE bug
+> 
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.19p4/drivers/ide/alim15x3.c linux.19pre4-ac3/drivers/ide/alim15x3.c
+> --- linux.19p4/drivers/ide/alim15x3.c	Mon Mar 25 17:47:11 2002
+> +++ linux.19pre4-ac3/drivers/ide/alim15x3.c	Tue Mar 26 18:36:23 2002
+> @@ -248,7 +248,7 @@
+>  	byte s_clc, a_clc, r_clc;
+>  	unsigned long flags;
+>  	int bus_speed = system_bus_clock();
+> -	int port = hwif->index ? 0x5c : 0x58;
+> +	int port = hwif->channel ? 0x5c : 0x58;
+>  	int portFIFO = hwif->channel ? 0x55 : 0x54;
+>  	byte cd_dma_fifo = 0;
+>  
+> @@ -442,6 +442,8 @@
+>  	ide_dma_action_t dma_func	= ide_dma_on;
+>  	byte can_ultra_dma		= ali15x3_can_ultra(drive);
+>  
+> +	(void) config_chipset_for_pio(drive);
+> +	
 
-Also, can you try the latest 2.4.19 pre patch (-pre4 I believe)?
+This is possible, however one of the problems encountered is the
+following under several chipsets.  If there is no pio timing set at all,
+then we can run into host lock issues if the driver drops out of dma.
+Thus, if it is going to lockup here it would/could lock up in other
+places when one trys to program the host for PIO.
 
-JE
+Regardsless this is bad, in one direction or another.
+
+>  	if ((m5229_revision<=0x20) && (drive->media!=ide_disk))
+>  		return hwif->dmaproc(ide_dma_off_quietly, drive);
+>  
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
 

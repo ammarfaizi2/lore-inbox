@@ -1,68 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313109AbSDEQwq>; Fri, 5 Apr 2002 11:52:46 -0500
+	id <S313026AbSDEPdO>; Fri, 5 Apr 2002 10:33:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313102AbSDEQwg>; Fri, 5 Apr 2002 11:52:36 -0500
-Received: from luna.tlmat.unican.es ([193.144.186.2]:26126 "EHLO
-	luna.tlmat.unican.es") by vger.kernel.org with ESMTP
-	id <S312852AbSDEQwa>; Fri, 5 Apr 2002 11:52:30 -0500
-From: "Johnny Choque" <jchoque@tlmat.unican.es>
-To: <linux-kernel@vger.kernel.org>
-Subject: Problems with skb_copy
-Date: Fri, 5 Apr 2002 18:57:47 +0200
-Message-ID: <NDBBLMLMCKPEIBAPMLCHOEHMCGAA.jchoque@tlmat.unican.es>
+	id <S313020AbSDEPdF>; Fri, 5 Apr 2002 10:33:05 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:53252 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S313016AbSDEPc4>; Fri, 5 Apr 2002 10:32:56 -0500
+Date: Fri, 5 Apr 2002 10:29:47 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: faster boots?
+In-Reply-To: <20020405132132.50285.qmail@web20512.mail.yahoo.com>
+Message-ID: <Pine.LNX.3.96.1020405101901.8337A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 5 Apr 2002, [iso-8859-1] willy tarreau wrote:
 
+> > It's normally done with hdparm spindown when idle
+> > options...
+> 
+> only supported on IDE devices.
 
-Hi all !
+I didn't have a machine to test, that's not clear from the man page:
 
-    I'm programming a module at kernel level. For each socket_buffer
-arriving to my module, I have to create one or more new socket_buffers that
-must be identical to the original one, but the original socket buffer's data
-field must be divided into as many fragments as new socket buffers have to
-be created. Each fragment must be copied into each new socket buffer's data
-field. Then I send them by the wireless channel and finally rebuild the
-original at the receiver.
+       Some  options (eg. -r for SCSI) may not work with old ker-
+       nels as necessary ioctl()'s were not supported.
 
-    To accomplish this, I have used the skb_copy function. The problem is
-that when I'm sending UDP packets using the nttcp tool, only more or less
-half of them achieve the transmitter pcmcia card's driver, whatever the
-number of sent packets is (always over 1000 packets). And, of course, only
-half of them arrive to the receiver.
+       Although this utility is intended primarily for  use  with
+       (E)IDE  hard disk devices, several of the options are also
+       valid (and permitted) for use with SCSI hard disk  devices
+       and MFM/RLL hard disks with XT interfaces.
+and
 
-    I have also tried to clone the packets (using the skb_clone function)
-instead of copy them, but the problem persists.
+       -S     Set  the  standby (spindown) timeout for the drive.
+              This value is used by the drive  to  determine  how
+              long to wait (with no disk activity) before turning
+              off the spindle motor to save  power.   Under  such
+              circumstances,  the  drive  may  take as long as 30
+              seconds to respond to  a  subsequent  disk  access,
+              though  most drives are much quicker.  The encoding
+              of the timeout value is somewhat peculiar.  A value
+              of  zero means "off".  Values from 1 to 240 specify
+              multiples of 5 seconds, for timeouts from 5 seconds
+              to 20 minutes.  Values from 241 to 251 specify from
+              1 to 11 units of 30 minutes, for timeouts  from  30
+              minutes  to  5.5 hours.  A value of 252 signifies a
+              timeout of 21 minutes, 253  sets  a  vendor-defined
+              timeout,  and 255 is interpreted as 21 minutes plus
+              15 seconds.
 
-    Does anyone know what the solution is? Has anyone have any problem using
-either skb_copy or skb_clone functions ?
+so I thought this might be helpful for someone with the problem to
+consider. I'll be building a suitable machine in the next few days, so I
+will try it with current hdparm, just for my own edification.
 
-   Thanks in advanced.
-   Best regards.
+There is a scsi-idle program of some age floating around, I haven't looked
+at that but I know it exists. As I recall it used the sg interface, but
+that's purely what I remember from the days when a 600MB Maxtor made me a
+king. I went through a few years ago and backed them all up to one CD
+each...
 
-PD: Using counter variables I have notice that the packets are dropped in
-the
-net_device but I don't kown neither why nor where.
-
-----------------------------------------
-Johnny Choque
-University of Cantabria
-Department of Communications Engineering
-39005 Santander - Spain
-
-Phone: +34-942-201387
-Fax  : +34-942-201488
-
-E-mail: jchoque@tlmat.unican.es
-----------------------------------------
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

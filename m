@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbUDHQKr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 12:10:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUDHQKr
+	id S261899AbUDHQNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 12:13:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbUDHQNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 12:10:47 -0400
-Received: from turing-police.cirt.vt.edu ([128.173.54.129]:39299 "EHLO
-	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
-	id S261943AbUDHQKD (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 12:10:03 -0400
-Message-Id: <200404081558.i38Fw2SU014685@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Mathieu Giguere <Mathieu.Giguere@ericsson.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IPv4 and IPv6 stack multi-FIB, scalable in the million of entries. 
-In-Reply-To: Your message of "Thu, 08 Apr 2004 10:40:46 EDT."
-             <001a01c41d77$7a609440$0348858e@D4SF2B21> 
-From: Valdis.Kletnieks@vt.edu
-References: <001a01c41d77$7a609440$0348858e@D4SF2B21>
+	Thu, 8 Apr 2004 12:13:25 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:41384
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261899AbUDHQNY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 12:13:24 -0400
+Date: Thu, 8 Apr 2004 18:13:22 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       parisc-linux@parisc-linux.org
+Subject: Re: [parisc-linux] rmap: parisc __flush_dcache_page
+Message-ID: <20040408161322.GE31667@dualathlon.random>
+References: <20040408151415.GB31667@dualathlon.random> <Pine.LNX.4.44.0404081626460.7248-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1676565424P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 08 Apr 2004 11:58:02 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0404081626460.7248-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1676565424P
-Content-Type: text/plain; charset=us-ascii
+On Thu, Apr 08, 2004 at 04:35:12PM +0100, Hugh Dickins wrote:
+> It's not fixable via the i_shared_sem, but we can add another layer
 
-On Thu, 08 Apr 2004 10:40:46 EDT, Mathieu Giguere said:
->     We currently looking for a multi-FIB, scalable routing table in the
-> million of entries, no routing cache for IPv4 and IPv6.  We want a IP stack
-> that can have a log(n) (or better) insertion/deletion and lookup
-> performance.  Predictable performance, even in the million of entries.
+I meant it's unfixable unless we change the VM common code.
 
-Gaak.
+> of spin_lock around the i_mmap* list/tree manipulations, one that
+> preprocesses away to nothing on all arches but parisc and arm, and
+> is used in their __flush_dcache_page.  *Not* the page_table_lock ;)
 
-The guys at http://www.cidr-report.org are only showing 130K or so prefixes in
-the global routing table (and estimate that it could be kicked down to 90K or
-so with better CIDR aggregation.
-
-I won't ask what sort of totally martian network design is leading to a routing
-table of millions of entries - even the "stick PMTU info into a host route" trick
-should expire routes to hosts you're not talking to, and you're probably going
-to be wanting a load balancer if you're talking to hundreds of thousands of
-machines at the same time.....
-
-
-
---==_Exmh_1676565424P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAdXaKcC3lWbTT17ARAuIaAJ48P6xzXoSGnUR8l4mtT/d+H5Lm4wCfTq2x
-3UhKjZ07+jjqhgosXQLxMsA=
-=98kW
------END PGP SIGNATURE-----
-
---==_Exmh_1676565424P--
+I'd prefer to use only a spinlock then to carry around two overlapping
+locks, the need_resched() check is needed anyways even with preempt in
+the real costly paths.

@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263555AbUHBVK7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263713AbUHBVQ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263555AbUHBVK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 17:10:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbUHBVK7
+	id S263713AbUHBVQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 17:16:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUHBVQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 17:10:59 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:1677 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S263555AbUHBVK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 17:10:57 -0400
-Date: Mon, 2 Aug 2004 22:09:35 +0100
-From: Dave Jones <davej@redhat.com>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: Ian Romanick <idr@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       "DRI developer's list" <dri-devel@lists.sourceforge.net>
-Subject: Re: DRM code reorganization
-Message-ID: <20040802210935.GF12724@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jon Smirl <jonsmirl@yahoo.com>, Ian Romanick <idr@us.ibm.com>,
-	lkml <linux-kernel@vger.kernel.org>,
-	DRI developer's list <dri-devel@lists.sourceforge.net>
-References: <410E9FEE.60108@us.ibm.com> <20040802204204.88994.qmail@web14926.mail.yahoo.com>
+	Mon, 2 Aug 2004 17:16:28 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:22005 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263713AbUHBVQ1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 17:16:27 -0400
+Subject: Re: [PATCH] Create cpu_sibling_map for PPC64
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: Anton Blanchard <anton@samba.org>, LKML <linux-kernel@vger.kernel.org>,
+       LSE Tech <lse-tech@lists.sourceforge.net>
+In-Reply-To: <20040731214512.36123c10.akpm@osdl.org>
+References: <1091049554.19459.33.camel@arrakis>
+	 <20040731214512.36123c10.akpm@osdl.org>
+Content-Type: text/plain
+Organization: IBM LTC
+Message-Id: <1091481370.4415.35.camel@arrakis>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040802204204.88994.qmail@web14926.mail.yahoo.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 02 Aug 2004 14:16:10 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 02, 2004 at 01:42:04PM -0700, Jon Smirl wrote:
- > We are really short handed for kernel level DRM developers; most 3D
- > developers work in user space. The main person that wrote it, Gareth
- > Hughes, doesn't seem to work on it any more. Right now there are three
- > to four, non-paid people working part-time on DRM. 
- > 
- > How about you kernel developers working in other areas giving us a hand
- > with reorganizing the DRM code? You don't need to know anything about
- > 3D you would just be reworking the code without changing how it
- > functions.
+On Sat, 2004-07-31 at 21:45, Andrew Morton wrote:
+> Matthew Dobson <colpatch@us.ibm.com> wrote:
+> >
+> > In light of some proposed changes in the sched_domains code, I coded up
+> >  this little ditty that simply creates and populates a cpu_sibling_map
+> >  for PPC64 machines.
+> 
+> err, did you compile it?
 
-Whip me, beat me, make me clean up drivers/char/drm
+Oh, you wanted the version that compiles!?!  ;)  Besides me being really
+bad at counting dots, our lab was down for a bit and I didn't test or
+compile that before I sent it.  I was sending it more as an RFC than a
+patch destined for acceptance (yet).  I still don't have access to a
+machine to test it on, but I hope to snag some time soon.  Glad to see
+*someone* is reading my code, though, since it obviously isn't me! ;)
 
-8-)
-
-Seriously, it's not a fun job at all, so finding volunteers may be
-somewhat difficult, but for someone with a high pain threshold, it might
-be fun[1], but as Ian mentioned, it depends on the payoff.  If subsequent
-DRI tree -> kernel merges back out any cleanup work, it's definitly going
-to be a waste of time even trying.
-
-Additionally, assuming some grand cleanup happens. Going back the other way
-(keeping stuff in the DRI tree up to date with whatever kernel changes were
- made) is going to prove interesting. In short, I'd not expect other OS's to
-work out-of-the-box until someone put in the legwork to make them adapt
-to whatever changes were made.
-
-Another possibility of course is that the BSD & Linux kernel side bits
-go their seperate ways. How active is the kernel side of the BSD world ?
-
-		Dave
-
-[1] Well, fun perhaps for the same sort of person who enjoyed pulling legs
-    off of insects as a child, to see if it still wiggles.
+-Matt
 

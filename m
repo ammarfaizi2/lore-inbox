@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263767AbTKXQeL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 11:34:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263769AbTKXQeL
+	id S263777AbTKXQuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 11:50:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbTKXQuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 11:34:11 -0500
-Received: from hosting-agency.de ([195.69.240.23]:31701 "EHLO mailagency.de")
-	by vger.kernel.org with ESMTP id S263767AbTKXQeK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 11:34:10 -0500
-From: Jakob Lell <jlell@JakobLell.de>
-To: linux-kernel@vger.kernel.org
-Subject: hard links create local DoS vulnerability and security problems
-Date: Mon, 24 Nov 2003 17:36:23 +0100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Nov 2003 11:50:09 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:25321 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S263777AbTKXQuF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 11:50:05 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 24 Nov 2003 17:30:13 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.0-test10] standby freezes bttv
+Message-ID: <20031124163013.GA32212@bytesex.org>
+References: <200311241420.08216.mbuesch@freenet.de> <20031124134212.GE30618@bytesex.org> <200311241645.05926.mbuesch@freenet.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311241736.23824.jlell@JakobLell.de>
+In-Reply-To: <200311241645.05926.mbuesch@freenet.de>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-on Linux it is possible for any user to create a hard link to a file belonging 
-to another user. This hard link continues to exist even if the original file 
-is removed by the owner. However, as the link still belongs to the original 
-owner, it is still counted to his quota. If a malicious user creates hard 
-links for every temp file created by another user, this can make the victim 
-run out of quota (or even fill up the hard disk). This makes a local DoS 
-attack possible.
+> In file included from drivers/media/video/bttv-driver.c:39:
+> drivers/media/video/bttvp.h:44:29: media/ir-common.h: No such file or directory
 
-Furthermore, users can even create links to a setuid binary. If there is a 
-security whole like a buffer overflow in any setuid binary, a cracker can 
-create a hard link to this file in his home directory. This link still exists 
-when the administrator has fixed the security whole by removing or replacing 
-the insecure program. This makes it possible for a cracker to keep a security 
-whole open until an exploit is available. It is even possible to create links 
-to every setuid program on the system. This doesn't create new security 
-wholes but makes it more likely that they are exploited.
+That is in the 25_ir_input-2.6.0-test8.diff.gz patch ...
 
-To solve the problem, the kernel shouldn't allow users to create hard links to 
-files belonging to someone else.
+> As I'm using test-10, do you have updated patches?
 
-I could reproduce the problem on linux 2.2.19 and 2.4.21 (and found nothing 
-about it in the changelogs to 2.4.23-rc3).
+just uploaded.
 
-Regards
- Jakob
+  Gerd
 
+-- 
+You have a new virus in /var/mail/kraxel

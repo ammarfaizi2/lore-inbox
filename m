@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262442AbSKTTNe>; Wed, 20 Nov 2002 14:13:34 -0500
+	id <S262480AbSKTTH0>; Wed, 20 Nov 2002 14:07:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262448AbSKTTNe>; Wed, 20 Nov 2002 14:13:34 -0500
-Received: from relay.snowman.net ([66.92.156.198]:37899 "EHLO
-	relay.snowman.net") by vger.kernel.org with ESMTP
-	id <S262442AbSKTTNb> convert rfc822-to-8bit; Wed, 20 Nov 2002 14:13:31 -0500
-From: nick@snowman.net
-Date: Wed, 20 Nov 2002 13:32:27 -0500 (EST)
-To: Dana Lacoste <dana.lacoste@peregrine.com>
-cc: Thomas =?ISO-8859-1?Q?Lang=E5s?= <tlan@stud.ntnu.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: spinlocks, the GPL, and binary-only modules
-In-Reply-To: <1037819741.29863.119.camel@dlacoste.ottawa.loran.com>
-Message-ID: <Pine.LNX.4.21.0211201331480.11473-100000@ns>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S262464AbSKTTG4>; Wed, 20 Nov 2002 14:06:56 -0500
+Received: from ifup.net ([217.160.130.191]:27555 "HELO sit0.ifup.net")
+	by vger.kernel.org with SMTP id <S262480AbSKTTGF>;
+	Wed, 20 Nov 2002 14:06:05 -0500
+Date: Wed, 20 Nov 2002 20:13:28 +0100
+From: Karsten Desler <soohrt@soohrt.org>
+To: Christian Guggenberger 
+	<Christian.Guggenberger@physik.uni-regensburg.de>
+Cc: linux-kernel@vger.kernel.org, Ulrich Wiederhold <U.Wiederhold@gmx.net>
+Subject: Re: 2.4.20-rc1-ac4 HPT374 doesn't find connected ide drives
+Message-ID: <20021120191328.GA24741@soohrt.org>
+References: <20021119105955.A23008@pc9391.uni-regensburg.de> <20021119102338.GA24510@sit0.ifup.net> <20021119113300.C23008@pc9391.uni-regensburg.de> <20021119152244.GA26989@sit0.ifup.net> <20021119180317.A2597@pc9391.uni-regensburg.de> <20021119193530.GA915@sit0.ifup.net> <20021120175350.A6312@pc9391.uni-regensburg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20021120175350.A6312@pc9391.uni-regensburg.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ahh, but that's 7 seconds of *PREFORMED* music.  This implies that no
-matter how much past work has gone into it, if it can be run in under 7
-seconds it can't be copyrighted.  I rather like this interpretation.
-	Nick
+> so today I added 4 more drives to my hpt374, tried 2.5.47-ac6 and works 
+> flawlessy...
 
-On 20 Nov 2002, Dana Lacoste wrote:
+Yep, 2.5.46 and 2.5.47-ac6 work for me too.
 
-> On Wed, 2002-11-20 at 13:57, Thomas Langås wrote:
-> > If someone snags 10-20 secs of a song,
-> > and puts it into his/her song that's violation of the copyrights (given
-> > that the person didn't ask for permission). But, then there's "what's the
-> > minimum"-question
-> 
-> 7 seconds for music.
-> 
-> What's 7 seconds worth of code? :)
-> 
-> -- 
-> Dana Lacoste
-> Ottawa, Canada
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> [/dev/hd* device creation]
 
+You're right, thanks - but that's not the problem since the md raid
+autodetection happenes before / is mounted.
+
+Anyways, I wondered why I couldn't use hdparm on all the raid devices
+but haven't tried to solve the problem :-), thanks.
+
+Bye
+ Karsten

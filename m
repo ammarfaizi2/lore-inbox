@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262326AbSJLHUT>; Sat, 12 Oct 2002 03:20:19 -0400
+	id <S261877AbSJLHRS>; Sat, 12 Oct 2002 03:17:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262351AbSJLHUT>; Sat, 12 Oct 2002 03:20:19 -0400
-Received: from zipp.nu ([212.72.99.60]:7612 "EHLO mail.zipp.nu")
-	by vger.kernel.org with ESMTP id <S262326AbSJLHUS>;
-	Sat, 12 Oct 2002 03:20:18 -0400
-Message-ID: <3DA7CE88.2080600@holodeck1.com>
-Date: Sat, 12 Oct 2002 09:26:00 +0200
-From: Jure Repinc <jlp@holodeck1.com>
-Organization: Holodeck 1
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.2b) Gecko/20021011
-X-Accept-Language: en-us, en-gb, en, sl
+	id <S262326AbSJLHRS>; Sat, 12 Oct 2002 03:17:18 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15049 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261877AbSJLHRR>; Sat, 12 Oct 2002 03:17:17 -0400
+Date: Sat, 12 Oct 2002 09:23:03 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: stevef@smfhome1.austin.rr.com, <jfs-discussion@oss.software.ibm.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.42
+In-Reply-To: <Pine.LNX.4.44.0210112134160.7166-100000@penguin.transmeta.com>
+Message-ID: <Pine.NEB.4.44.0210120918290.8340-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Support for Mount Rainier / Packet Writing
-References: <3DA09C34.4070709@holodeck1.com> <20021007055637.GD1738@suse.de>
-In-Reply-To: <3DA09C34.4070709@holodeck1.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+On Fri, 11 Oct 2002, Linus Torvalds wrote:
 
-> These are for CD-RW transparent writing, not cd-mrw.
+>...
+> Summary of changes from v2.5.41 to v2.5.42
+> ============================================
+>...
+> <stevef@smfhome1.austin.rr.com>:
+>   o Initial check in of cifs filesystem version 0.54 for Linux 2.5 (to
+>     clean tree as one changeset)
+>...
 
-Thanks for clearing this up.
 
-> I had patches for 2.4 that enable mt rainier support in ide-cd and sr,
-> they need to be polished a bit and submitted. I don't view the feature
-> freeze as a big problem here, it's just minor additions to the cd-rom
-> driver so...
+Both jfs and cifs ship a function called `dump_mem' causing the following
+compile error when both are included:
 
-Great to hear this. I hope these patches get into final kernel. I know a 
-lot of people would be very happy.
+<--  snip  -->
+
+   ld -m elf_i386  -r -o fs/built-in.o ...
+fs/jfs/built-in.o: In function `dump_mem':
+fs/jfs/built-in.o(.text+0xe420): multiple definition of `dump_mem'
+fs/cifs/built-in.o(.text+0x3af0): first defined here
+make[1]: *** [fs/built-in.o] Error 1
+make: *** [fs] Error 2
+
+<--  snip  -->
+
+cu
+Adrian
 
 -- 
-Live long and prosper!
 
-
+"Is there not promise of rain?" Ling Tan asked suddenly out
+of the darkness. There had been need of rain for many days.
+"Only a promise," Lao Er said.
+                                Pearl S. Buck - Dragon Seed
 

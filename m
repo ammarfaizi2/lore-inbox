@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262549AbTDQUdj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 16:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTDQUdj
+	id S262639AbTDQUkm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 16:40:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262642AbTDQUkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 16:33:39 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:17662 "EHLO
-	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
-	id S262549AbTDQUdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 16:33:33 -0400
-Date: Thu, 17 Apr 2003 21:47:25 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] stop swapoff 2/3 EINTR
-In-Reply-To: <Pine.LNX.4.44.0304172142530.2039-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0304172146420.2039-100000@localhost.localdomain>
+	Thu, 17 Apr 2003 16:40:41 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40715 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262639AbTDQUkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 16:40:40 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: BK->CVS, kernel.bkbits.net
+Date: 17 Apr 2003 13:52:30 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b7n46e$dtb$1@cesium.transmeta.com>
+References: <20030417162723.GA29380@work.bitmover.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sometimes you start a swapoff and, seeing how long it takes,
-wish you had not: allow signal to interrupt and stop swapoff.
+Followup to:  <20030417162723.GA29380@work.bitmover.com>
+By author:    Larry McVoy <lm@bitmover.com>
+In newsgroup: linux.dev.kernel
+>
+> It's back up, and the CVS server up to date with the 2.4 2.5 kernels as
+> of a few minutes ago.  The CVS server is at
+> 
+> :pserver:anonymous@kernel.bkbits.net:/home/cvs 
+> 
+> There are linux-2.4/ and linux-2.5/ subdirectories there (should this go in
+> a FAQ someplace or does nobody except Andrea care?).
+> 
 
---- swapoff1/mm/swapfile.c	Thu Apr 17 18:32:40 2003
-+++ swapoff2/mm/swapfile.c	Thu Apr 17 18:32:50 2003
-@@ -592,6 +592,11 @@
- 	 * to swapoff for a while, then reappear - but that is rare.
- 	 */
- 	while ((i = find_next_to_unuse(si, i))) {
-+		if (signal_pending(current)) {
-+			retval = -EINTR;
-+			break;
-+		}
-+
- 		/* 
- 		 * Get a page for the entry, using the existing swap
- 		 * cache page if there is one.  Otherwise, get a clean
-@@ -761,8 +766,7 @@
- 
- 		/*
- 		 * Make sure that we aren't completely killing
--		 * interactive performance.  Interruptible check on
--		 * signal_pending() would be nice, but changes the spec?
-+		 * interactive performance.
- 		 */
- 		cond_resched();
- 	}
+It definitely should.
 
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

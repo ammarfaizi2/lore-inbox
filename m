@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267970AbUHPWIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267973AbUHPWLD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267970AbUHPWIW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 18:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267972AbUHPWIW
+	id S267973AbUHPWLD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 18:11:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267975AbUHPWLD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 18:08:22 -0400
-Received: from fw.osdl.org ([65.172.181.6]:226 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267970AbUHPWIV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 18:08:21 -0400
-Date: Mon, 16 Aug 2004 15:06:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: ecki-news2004-05@lina.inka.de, linux-kernel@vger.kernel.org
+	Mon, 16 Aug 2004 18:11:03 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:40709 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267973AbUHPWK7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 18:10:59 -0400
+Date: Mon, 16 Aug 2004 23:10:53 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, ecki-news2004-05@lina.inka.de,
+       linux-kernel@vger.kernel.org
 Subject: Re: Linux SATA RAID FAQ
-Message-Id: <20040816150641.108c66a6.akpm@osdl.org>
-In-Reply-To: <1092315392.21994.52.camel@localhost.localdomain>
-References: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net>
-	<1092315392.21994.52.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Message-ID: <20040816231053.A15749@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	ecki-news2004-05@lina.inka.de, linux-kernel@vger.kernel.org
+References: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net> <1092315392.21994.52.camel@localhost.localdomain> <20040816150641.108c66a6.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040816150641.108c66a6.akpm@osdl.org>; from akpm@osdl.org on Mon, Aug 16, 2004 at 03:06:41PM -0700
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->
-> I'm currently trying to fix up the IT8212 which is an older PATA board
->  which does have real h/w raid 0/1
+On Mon, Aug 16, 2004 at 03:06:41PM -0700, Andrew Morton wrote:
+> hch questioned why we need the driver at all: just put the card in JBOD
+> mode and use s/w raid drivers.  But the thing does have an on-board CPU and
+> the idea is that by offloading to that, the data transits the bus just a
+> single time.  The developers are off doing some comparative benchmarking at
+> present.
 
-I'm sitting on the vendor's driver for these cards.  How does your work
-differ from this?
-
-hch questioned why we need the driver at all: just put the card in JBOD
-mode and use s/w raid drivers.  But the thing does have an on-board CPU and
-the idea is that by offloading to that, the data transits the bus just a
-single time.  The developers are off doing some comparative benchmarking at
-present.
+Alan's driver can use the chip in raid mode.
 

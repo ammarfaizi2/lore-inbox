@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316402AbSEOPPE>; Wed, 15 May 2002 11:15:04 -0400
+	id <S316401AbSEOPO7>; Wed, 15 May 2002 11:14:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316399AbSEOPPD>; Wed, 15 May 2002 11:15:03 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:3333 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316402AbSEOPPB>; Wed, 15 May 2002 11:15:01 -0400
-Date: Wed, 15 May 2002 11:11:05 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Address space limits in IA32 linux
-In-Reply-To: <200205151257.HAA75582@tomcat.admin.navo.hpc.mil>
-Message-ID: <Pine.LNX.3.96.1020515110730.5026A-100000@gatekeeper.tmr.com>
+	id <S316402AbSEOPO6>; Wed, 15 May 2002 11:14:58 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:21377 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S316401AbSEOPO5> convert rfc822-to-8bit;
+	Wed, 15 May 2002 11:14:57 -0400
+Message-Id: <200205151514.g4FFEmW11764@mail.pronto.tv>
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: Pronto TV AS
+To: linux-kernel@vger.kernel.org
+Subject: RAMFS turned read-only after upgrade to 2.4.19-pre3
+Date: Wed, 15 May 2002 17:14:47 +0200
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 May 2002, Jesse Pollard wrote:
+hi
 
-> IA32 is by definition limited to 4G. Just because the Kernel may, under
-> extreem duress, access more by memory management shenanigans access more,
-> user processes are ALWAYS limited to a 32 bit virtual address. Even this
-> is more restricted, since shared libraries and other access limits it even
-> more. Usually you can stretch it to 3G, but not over that.
+after upgrading from 2.4.19-pre3-ac1 tp 2.4.19-pre8-ac3, and RAMFS is 
+suddenly read-only. This is extremely inconvinient ... How can I mend it?
 
-Actually you can go to 3.5G now, using readily available patches. However,
-your unstated premise is correct, the limit using current kernel and gcc
-capabilities is <4G. 
-
-> 
-> search the archives - the details are available.
-
-Right, so is 3.5G, but I doubt that anyone with a problem not working in
-3G is going to find solace in 3.5G.
-
+roy
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Roy Sigurd Karlsbakk
 
+Computers are like air conditioners.
+They stop working when you open Windows.

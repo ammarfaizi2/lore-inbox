@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311575AbSCTFxI>; Wed, 20 Mar 2002 00:53:08 -0500
+	id <S311572AbSCTFwI>; Wed, 20 Mar 2002 00:52:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311579AbSCTFw7>; Wed, 20 Mar 2002 00:52:59 -0500
-Received: from mailout6-0.nyroc.rr.com ([24.92.226.125]:14135 "EHLO
-	mailout6.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S311582AbSCTFwp>; Wed, 20 Mar 2002 00:52:45 -0500
-Message-ID: <010101c1cfd3$8a87cfd0$1a02a8c0@allyourbase>
-From: "Dan Maas" <dmaas@dcine.com>
-To: "chiranjeevi vaka" <cvaka_kernel@yahoo.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <fa.l19uvvv.1hjmo8t@ifi.uio.no>
-Subject: Re: using kmalloc
-Date: Wed, 20 Mar 2002 00:53:20 -0500
+	id <S311579AbSCTFwB>; Wed, 20 Mar 2002 00:52:01 -0500
+Received: from www.wen-online.de ([212.223.88.39]:36106 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S311572AbSCTFvs>;
+	Wed, 20 Mar 2002 00:51:48 -0500
+Date: Tue, 19 Mar 2002 20:16:40 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: John Jasen <jjasen1@umbc.edu>,
+        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: reading your email via tcpdump
+In-Reply-To: <20020319185225.GT2254@matchmail.com>
+Message-ID: <Pine.LNX.4.10.10203192012410.606-100000@mikeg.wen-online.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am getting some problems with kmalloc. If I tried to
-> allocate more than certain memory then the system is
-> hanging while booting with the changed kernel. Can you
-> suggest me how to come out this situation. Can't I
-> allocate as much I want when I want to allocate in the
-> kernel.
+On Tue, 19 Mar 2002, Mike Fedyk wrote:
 
-kmalloc() allocates physically-contiguous pages of memory. Due to
-fragmentation, more than 64KB-128KB of contiguous pages might not be
-available, and hence kmalloc() will fail.
+> On Tue, Mar 19, 2002 at 07:56:27PM +0100, Mike Galbraith wrote:
+> > On Tue, 19 Mar 2002, Mike Fedyk wrote:
+> > > That's not the problem part of the tcpdump output.  The problem is that part
+> > > of an email previously read on the linux box (with no samba runing. (also,
+> > > no smbfs MikeG?)) showed up in the tcpdump output...
+> > 
+> > Yes.  That's exactly what worried me. (no clue as to security issues)
+> 
+> What computer is 10.0.0.101?
 
-To allocate more memory, use vmalloc(), which allocates and maps physically
-disjoint pages into a virtually-contiguous region. Be careful when doing DMA
-to a vmalloc() area, since it is not physically contiguous and exists only
-in the kernel's virtual memory map... Also I believe vmalloc()ed memory is
-only accessible from (the context of) the process in which it was allocated
-(?).
+My son's win98 box. I'm ~positive that the message did _not_ propagate
+to my son's box and come back via net.. local data exposed probably via
+page return.
 
-Regards,
-Dan
+	-Mike
 

@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129255AbQK0SaU>; Mon, 27 Nov 2000 13:30:20 -0500
+        id <S129248AbQK0SbI>; Mon, 27 Nov 2000 13:31:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129401AbQK0SaJ>; Mon, 27 Nov 2000 13:30:09 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:57618 "EHLO
-        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S129324AbQK0SaD>; Mon, 27 Nov 2000 13:30:03 -0500
-Message-ID: <3A22A0C9.6888B08@transmeta.com>
-Date: Mon, 27 Nov 2000 09:58:33 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-        Mandrake Install <install@linux-mandrake.com>
-Subject: Re: Universal debug macros.
-In-Reply-To: <200011270045.BAA13121@cave.bitwizard.nl>
-                <Pine.LNX.4.10.10011270302570.24716-100000@yle-server.ylenurme.sise>
-                <8vsno2$pc6$1@cesium.transmeta.com>
-                <m3vgt9nykk.fsf@matrix.mandrakesoft.com>
-                <3A229E41.B3C278E2@transmeta.com> <m3aealnvt6.fsf@matrix.mandrakesoft.com>
+        id <S130352AbQK0Sam>; Mon, 27 Nov 2000 13:30:42 -0500
+Received: from munchkin.spectacle-pond.org ([209.192.197.45]:44552 "EHLO
+        munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
+        id <S129401AbQK0SaV>; Mon, 27 Nov 2000 13:30:21 -0500
+Date: Mon, 27 Nov 2000 13:01:36 -0500
+From: Michael Meissner <meissner@spectacle-pond.org>
+To: Werner Almesberger <Werner.Almesberger@epfl.ch>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0"
+Message-ID: <20001127130136.A17104@munchkin.spectacle-pond.org>
+In-Reply-To: <200011270556.VAA12506@baldur.yggdrasil.com> <20001127094139.H599@almesberger.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20001127094139.H599@almesberger.net>; from Werner.Almesberger@epfl.ch on Mon, Nov 27, 2000 at 09:41:39AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chmouel Boudjnah wrote:
+On Mon, Nov 27, 2000 at 09:41:39AM +0100, Werner Almesberger wrote:
+> Adam J. Richter wrote:
+> > 	At the moment, I have started daydreaming about instead
+> > writing an "elf squeezer" to do this and other space optimizations
+> > by modifying objdump.
 > 
-> "H. Peter Anvin" <hpa@transmeta.com> writes:
+> Hmm, this would require that gcc never calculates the location of an
+> explicitly initialized static variable based on the address of another
+> one. E.g. in
 > 
-> > > > Something RedHat & co may want to consider doing is providing a basic
-> > > > kernel and have, as part of the install procedure or later, an
-> > > > automatic recompile and install kernel procedure.  It could be
-> > > > automated very easily, and on all but the very slowest of machines, it
-> > > > really doesn't take that long.
-> > >
-> > > this completely not possible to do in regard of the end-users eyes.
-> > >
-> >
-> > Why not?
+> static int a = 0, b = 0, c = 0, d = 0;
 > 
-> slow !! end-user want to install a distribution fast !!!
+> ...
+>     ... a+b+c+d ...
+> ...
 > 
-> it need a lot to be friendly the compilation (ie: we cannot do only
-> launch of make xconfig, not everyone now which options to select),
-> what we can do is a detection of the module and recompile a kernel
-> with the detected module for recompilation but there is too much error
-> case that could not be handle.
-> 
+> egcs-2.91.66 indeed doesn't seem to make this optimization on i386.
+> (Maybe the pointer increment or pointer offset solution would
+> actually be slower - didn't check.) But I'm not sure if this is also
+> true for other versions/architectures, or other code constructs.
 
-It's not that slow compared to a whole distro install, although you would
-of course want to do it *optionally*.  You wouldn't want to get into
-every single option, of course, but I thought that was obvious
-(apparently not.)  The drivers and stuff is the least of the problem --
-there, you can use modules anyway.
-
-	-hpa
+Jeff Law played with a similar optimization about 1-2 years ago, and eventually
+deleted all of the code because there were problems with the code.  It would
+help some of our platforms (but not the x86) to access all variables in the
+same section via a common pointer.  This is because on those systems, it often
+times takes 2-3 instructions to access global/static variables.  Global
+variables you have more problems visiblity and such.
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Michael Meissner, Red Hat, Inc.
+PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
+Work:	  meissner@redhat.com		phone: +1 978-486-9304
+Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

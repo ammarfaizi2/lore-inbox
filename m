@@ -1,103 +1,131 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313012AbSDKXVZ>; Thu, 11 Apr 2002 19:21:25 -0400
+	id <S313014AbSDKXWU>; Thu, 11 Apr 2002 19:22:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313014AbSDKXVZ>; Thu, 11 Apr 2002 19:21:25 -0400
-Received: from h52544c185a20.ne.client2.attbi.com ([24.147.41.41]:18697 "EHLO
-	luna.pizzashack.org") by vger.kernel.org with ESMTP
-	id <S313012AbSDKXVY>; Thu, 11 Apr 2002 19:21:24 -0400
-Date: Thu, 11 Apr 2002 19:21:23 -0400
-From: xystrus <xystrus@haxm.com>
-To: linux-kernel@vger.kernel.org
-Subject: link() security
-Message-ID: <20020411192122.F5777@pizzashack.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S313022AbSDKXWT>; Thu, 11 Apr 2002 19:22:19 -0400
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:64435 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S313014AbSDKXWR>; Thu, 11 Apr 2002 19:22:17 -0400
+Date: Fri, 12 Apr 2002 00:22:11 +0100 (BST)
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [prepatch] address_space-based writeback
+In-Reply-To: <3CB5FFB5.693E7755@zip.com.au>
+Message-ID: <Pine.SOL.3.96.1020411235415.24708A-100000@virgo.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Thu, 11 Apr 2002, Andrew Morton wrote:
+> Alexander Viro wrote:
+> > ...
+> > FWIW, correct solution might be to put dirty address_spaces on a list -
+> > per-superblock or global.
+> 
+> Another approach may be to implement address_space.private,
+> which appears to be what NTFS wants.  My initial reaction
+> to that is fear, because it just makes the graph even more
+> tangly.
+> 
+> I agree that listing the dirty address_spaces against the
+> superblock makes sense - really it's what I'm trying to do,
+> and the intermediate inode is the only means of getting there.
 
-If this subject has been beaten to death in the past, a link to the
-discussion is really all I need...
+If you take Al's approach then the intermediate inode becomes irrelevant.
+I like the idea of per super block dirty mappings list a lot. In fact I
+was planning to do that for ntfs and attach the list to the ntfs_volume
+and then have a kntfsd thread walk those every 5 seconds and flush to
+disk... (I was also thinking of throwing in barriers and
+flush_to_this_barrier_now functionality for journalling purposes but I
+was going to leave that for later...)
 
-Is there a good reason why a user can successfully link() a file to
-which they do not have any access?
+It would be great if the VFS implemented that in general instead. (-:
 
-Here's a scenario:
+> Also, this splitup would clearly separate the concepts
+> of a dirty-inode and dirty-inode-pages.  These seem to be
+> coupled in a non-obvious way at present.
 
-Many linux systems, like Slackware and SuSE, favor the permissions
-1777 for the mail spool directory.  This is a good policy from a
-security perspective, as it prevents mail utilities from requiring
-SUID/SGID root or mail privileges to create a user's spool and/or lock
-files.
+Indeed. That would be very nice.
 
-Now, people often point to several problems with this scheme.  Such
-as the following:
+> AFAIK, the current superblock->inode->mapping approach won't
+> break any existing filesystems, so I'm inclined to follow 
+> that for the while, get all the known problems collected
+> together and then take another pass at it. Maybe do something
+> to make inode_lock a bit more conventional as well.
+> 
+> This whole trend toward a flowering of tiny address_spaces
+> worries me a little from the performance POV,
 
- * users can create an unlimited number of files in this directory,
-   potentially using up all availabile inodes
+Why tiny address_spaces? I have seen 4.5GiB large $MFT/$DATA (inode table)
+on a 40GiB ntfs partition and that was year ago now... That's not what I
+call tiny. (-;
 
- * users can use the spool as scratch space, and potentially fill up
-   the spool filesystem
+The cluster allocation bitmap on a 40GiB partition is 10MiB in size, that
+is not huge but not what I would call tiny either...
 
- * users can create links to other users' spool files.
+> because writeback likes big gobs of linear data to chew on.  With the
+> global buffer LRU, even though large-scale sorting opportunities were
+> never implemented, we at least threw a decent amount of data at the
+> request queue. 
+> 
+> With my current approach, all dirty conventional metadata
+> (the output from mark_buffer_dirty) is written back via
+> the blockdev's mapping.  It becomes a bit of a dumping
+> ground for the output of legacy filesystems, but it does
+> offer the opportunity to implement a high-level sort before
+> sending it to disk.  If that's needed.
 
-The first two really are very minor problems in comparison to a
-potential security breach (priviledge elevation), and can be solved
-with quota and/or site policy.  Troublesome users who ignore policy
-can be dealt with appropriately.
+Considering modern harddrives have their own intelligent write back and
+sorting of write requests and ever growing hd buffers the need for doing
+this at the OS level is going to become less and less would be my guess, I
+may be wrong of course...
 
-The last one is a bit sticky though.  As a regular user, I can create
-a hard link to someone's spool file, and call it whatever I want.
-This isn't a major problem, because the resulting link retains the
-permissions and ownership of the original file; therefore a user who
-does this can't gain access to anything they didn't already have
-access to...  However, it certainly can constitute an abuse of
-resources and/or site policy.
+> I guess that as long as the periodic- and memory-pressure
+> based writeback continues to send a lot of pages down the
+> pipe we'll still get adequate merging, but it is something
+> to be borne in mind.  At the end of the day we have to deal
+> with these funny spinning things.
+> 
+> One thing I'm not clear on with the private metadata address_space
+> concept: how will it handle blocksize less than PAGE_CACHE_SIZE? 
 
-There are cases where this can be a security problem though; and
-what's more, there's no apparent way to identify who created the link,
-since the link retains ownership of the original file.  If, for
-example, a malicious user noticed that a particular new user's spool
-file had not been created, he could link(mymailbox, newusermailbox).
-And now (ignoring locking issues in the spool area), one of two things
-will happen:
+The new ntfs uses 512 byte blocksize ONLY (the hd sector size) and remaps
+internally between the actual partition cluster size (block size) and the
+512 byte block size set in s_blocksize.
 
- a) if the mail delivery programs run with privileges (despite not
-    needing to with 1777 permissions on the spool), the new user's
-    mail will be delivered to the malicious user's spool.
+This is the only way to support cluster sizes above PAGE_CACHE_SIZE. -
+NTFS 3.1 can go up to 512kiB clusters (and bigger!, but Windows doesn't
+allow you to format partitions with bigger cluster sizes AFAIK). 
 
- b) if they don't run with privileges, a mail delivery error should
-    result, alerting the system administrators to the problem.
+At the moment I am using a buffer head for each 512 byte disk sector which
+is very counter productive to performance. 
 
-Either way, this isn't really a great situation.  But here's the worst
-part:  a malicious user can frame someone, say another user they hold
-a grudge against, as having done this.  Since the link() call succeeds
-regardless of permissions on the file, the malicious user can also
-call link(framedusermailbox, newusermailbox)!  The system
-administration team has no way to identify who created the file.  They
-can't even look and see who was on at time of creation, because the
-creation time is the same as that of the original file.  Worse still,
-system administrators who are not aware of this behavior of link() may
-mistakenly believe that the file was created by the framed user, and
-recommend expulsion or termination of their employment/access/whatever
-on that basis.
+It would be great to be able to submit variable size "io entities" even
+greater than PAGE_CACHE_SIZE (by giving a list of pages, starting offset
+in first page and total request size for example) and saying write that to
+the device starting at offset xyz. That would suit ntfs perfectly. (-:
 
-I've tested that this works on Red Hat 7.1 with pristine 2.4.17
-sources and using the ln command.  I have not actually written a
-program that calls link() in this manner.  However the ln command is
-not SUID, so I can imagine no other way this would work...
+> The only means we have at present of representing sub-page
+> segments is the buffer_head.  Do we want to generalise the buffer
+> layer so that it can be applied against private address_spaces?
+> That wouldn't be a big leap.
 
-In my opinion, the solution to this problem is to check that the file
-being linked is owned by the UID of the calling process, or that the
-UID is root (or that the process has the appropriate capabilities -- a
-facility that I'm not overly familiar with).  If not, the call to
-link() should fail with EACCES or EPERM.
+It is already generalised. I use it that way at least at the moment...
 
+> Or would the metadata address_spaces send their I/O through the
+> backing blockdev mapping in some manner?
 
-Thanks,
-Xy
+Not sure what you mean...
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+IRC: #ntfs on irc.openprojects.net / ICQ: 8561279
+WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264314AbTKUItS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 03:49:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264330AbTKUItR
+	id S264324AbTKUItU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 03:49:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264330AbTKUItU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 03:49:17 -0500
-Received: from mail.jlokier.co.uk ([81.29.64.88]:54967 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S264314AbTKUItE
+	Fri, 21 Nov 2003 03:49:20 -0500
+Received: from adsl-66-124-9-168.dsl.lsan03.pacbell.net ([66.124.9.168]:45205
+	"EHLO cocoabitch") by vger.kernel.org with ESMTP id S264324AbTKUItI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 03:49:04 -0500
-Date: Fri, 21 Nov 2003 08:48:57 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: John Bradford <john@grabjohn.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: transmeta cpu code question
-Message-ID: <20031121084857.GA10343@mail.shareable.org>
-References: <20031120020218.GJ3748@schottelius.org> <200311201210.04780.ben@jeeves.bpa.nu> <20031120083827.GL3748@schottelius.org> <bpitsu$732$1@cesium.transmeta.com> <20031120232532.GA8229@mail.shareable.org> <200311210834.hAL8YOKw000394@81-2-122-30.bradfords.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311210834.hAL8YOKw000394@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.4.1i
+	Fri, 21 Nov 2003 03:49:08 -0500
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Making Linux HID compliant
+From: James Lamanna <jlamanna@ugcs.caltech.edu>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Date: Fri, 21 Nov 2003 00:50:24 -0800
+Message-ID: <opryzb6a0rz4tciz@192.168.1.4>
+User-Agent: Opera7.22/Win32 M2 build 3221
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
-> > > It's also not faster in any meaningful way, since the dynamic
-> > > translator does optimistic optimization.
-> > 
-> > Statically compiled code for the Crusoe chips may not be faster.
-> > (Arguably statically compiled code for _any_ CPU is not the best
-> > strategy for fast code).
-> > 
-> > But if someone is able to write better code morphing software than
-> > Transmeta, that would be faster :)
-> 
-> The idea of a CMS which only implemented the subset of X86
-> instructions that gcc actually uses was discussed on the list a few
-> months ago, but unsuprisingly it never progressed beyond the thought
-> experiment stage.
+While Linux is mostly HID compliant, it does not totally match the HID specification, which causes some HID compliant devices (most notably Phidgets) to have problems.
 
-What would be the point in that?  Surely the CMS overhead for decoding
-the rarely used x86 instructions is negligable, precisely because of
-their rarity?
+Linux assumes that there is a 1-1 correspondence from Usages to device controls. This may not be the case. As the HID specification states:
+"While Local items do not carry over to the next Main item, they may apply to
+more than one control within a single item. For example, if an Input item
+defining five controls is preceded by three Usage tags, the three usages would
+be assigned sequentially to the first three controls, and the third usage would
+also be assigned to the fourth and fifth controls."
 
--- Jamie
+Linux does not do this, which prevents HID devices like Phidgets from working properly,
+Is there any plans to get this fixed in the near 2.6.x timeframe? (I'm pretty sure it should be fairly simple, just duplicated the last usage...)
+This issue was brought up on usb-devel but it didn't seem like anything came of it.

@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282525AbRL0VgD>; Thu, 27 Dec 2001 16:36:03 -0500
+	id <S282655AbRL0Vnx>; Thu, 27 Dec 2001 16:43:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282705AbRL0Vfy>; Thu, 27 Dec 2001 16:35:54 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:44438 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S282654AbRL0Vfk>;
-	Thu, 27 Dec 2001 16:35:40 -0500
-Date: Thu, 27 Dec 2001 16:35:38 -0500
-From: Legacy Fishtank <garzik@havoc.gtf.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rlimit_nproc
-Message-ID: <20011227163538.D23942@havoc.gtf.org>
-In-Reply-To: <Pine.LNX.4.33L.0112271816380.12225-100000@duckman.distro.conectiva> <Pine.LNX.4.33.0112271224590.1167-100000@penguin.transmeta.com>
+	id <S282705AbRL0Vnp>; Thu, 27 Dec 2001 16:43:45 -0500
+Received: from altus.drgw.net ([209.234.73.40]:21254 "EHLO altus.drgw.net")
+	by vger.kernel.org with ESMTP id <S282655AbRL0Vn3>;
+	Thu, 27 Dec 2001 16:43:29 -0500
+Date: Thu, 27 Dec 2001 15:43:18 -0600
+From: Troy Benjegerdes <hozer@drgw.net>
+To: Linus Torvalds <torvalds@transmeta.com>, Larry McVoy <lm@bitmover.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: The direction linux is taking
+Message-ID: <20011227154318.F25200@altus.drgw.net>
+In-Reply-To: <20011227123344.H25698@work.bitmover.com> <Pine.LNX.4.33.0112271236120.1167-100000@penguin.transmeta.com> <20011227125028.J25698@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0112271224590.1167-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Dec 27, 2001 at 12:35:38PM -0800
+In-Reply-To: <20011227125028.J25698@work.bitmover.com>; from lm@bitmover.com on Thu, Dec 27, 2001 at 12:50:28PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 27, 2001 at 12:35:38PM -0800, Linus Torvalds wrote:
-> Also worthwhile for automation is an md5sum or similar (for verifying that
-> the mail made it though the mail system unscathed). A pgp signature would
-> be even better, of course - especially useful as I suspect it would be
-> good to also cc the things to some patch-list, and having a clear identity
-> on the sender is always a good idea in these things.
 
-I've been thinking that a "patches@kernel.org" dumping ground would be
-useful.
+[snip]
 
-This is NOT intended as a patch tracker.  This is NOT intended as a
-substitution for submitting the patch to you, but instead intended
-as a patch archive that doesn't go away.  We have seen linux-kernel
-archives come and go, or drop messages.  But a patch archive would be
-useful...  I'm not sure a mailing list proper is right for the job,
-since I want to support the reception and archiving of multi-megabyte
-patches at times.
+> > > but your typical SCM has the end user doing the merges, not the maintainer.
+> > > If you had an SCM system which allowed the maintainer to do all or some of
+> > > the merging, would that help?
+> > 
+> > Well, that's what the filesystem is for me right now ;)
+> 
+> Yes, and it works great for easy merges.  It sucks for complicated merges.
+> BK can help you a great deal with those merges.  
 
-	Jeff
+There is a point to be made though that if *Linus* has to do a complicated 
+merge, the 'patch' that caused the merge should probably be suspect in the 
+first place.
+
+The person sending the patch should be the one responsible for resolving a
+complicated merge. If BK makes that easier, great. HOWEVER, I don't really
+want Linus to be using some tool that does automerging.. No SCM system and
+automerge tool is going to understand what the code *means*, unless it's 
+got a compiler integrated into it.
+
+I've had some strange things happen on a BK automerge in the past, and I
+don't trust any automated system that doesn't understand the code to not
+make some subtle semantic mistake. (Mind you, when strange things
+happened, the code usually worked, and I didn't notice until I tried to
+*manually* prepare a 'patch' to send upstream)
 
 
+-- 
+Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
+-----"If this message isn't misspelled, I didn't write it" -- Me -----
+"Why do musicians compose symphonies and poets write poems? They do it
+because life wouldn't have any meaning for them if they didn't. That's 
+why I draw cartoons. It's my life." -- Charles Schulz

@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316400AbSETVoK>; Mon, 20 May 2002 17:44:10 -0400
+	id <S316404AbSETVwK>; Mon, 20 May 2002 17:52:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316401AbSETVoJ>; Mon, 20 May 2002 17:44:09 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:41409 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316400AbSETVoI>;
-	Mon, 20 May 2002 17:44:08 -0400
-Date: Mon, 20 May 2002 14:30:18 -0700 (PDT)
-Message-Id: <20020520.143018.82222608.davem@redhat.com>
-To: beezly@beezly.org.uk
-Cc: linux-kernel@vger.kernel.org
+	id <S316407AbSETVwJ>; Mon, 20 May 2002 17:52:09 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:18949 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S316404AbSETVwJ>; Mon, 20 May 2002 17:52:09 -0400
+Date: Mon, 20 May 2002 22:52:06 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: beezly@beezly.org.uk, linux-kernel@vger.kernel.org
 Subject: Re: OOPS: ext3/sparc badness
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1021897921.8474.8.camel@montgomery>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Message-ID: <20020520225206.A15153@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"David S. Miller" <davem@redhat.com>, beezly@beezly.org.uk,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <1021897921.8474.8.camel@montgomery> <20020520.143018.82222608.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Beezly <beezly@beezly.org.uk>
-   Date: 20 May 2002 13:32:00 +0100
+On Mon, May 20, 2002 at 02:30:18PM -0700, David S. Miller wrote:
+> Unsupported compiler for sparc64 kernels.  Your OOPS report is going
+> to be ignored.
 
-   I'm having problems with an ext3 filesystem on sparc64 (an Ultra1).
-   
-   kernel is: 
-   
-   Linux lemur 2.4.19-pre7 #5 SMP Fri Apr 26 01:30:49 BST 2002 sparc64
-   unknown
-   
-   and was compiled with gcc-3.0.4.
-   
-Unsupported compiler for sparc64 kernels.  Your OOPS report is going
-to be ignored.
+Btw, is gcc 3.1 supported now or only the magic egcs variant?
+

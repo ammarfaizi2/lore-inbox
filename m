@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265424AbTB0PyL>; Thu, 27 Feb 2003 10:54:11 -0500
+	id <S265361AbTB0QBq>; Thu, 27 Feb 2003 11:01:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265446AbTB0PyK>; Thu, 27 Feb 2003 10:54:10 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:50578 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265424AbTB0PyI>; Thu, 27 Feb 2003 10:54:08 -0500
-Date: Thu, 27 Feb 2003 08:04:23 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Andy Pfiffer <andyp@osdl.org>
-Subject: Re: [KEXEC][2.5.63] Partially tested patches available
-Message-ID: <8970000.1046361862@[10.10.2.4]>
-In-Reply-To: <m1wujllnkb.fsf@frodo.biederman.org>
-References: <1046220814.27557.7.camel@andyp.pdx.osdl.net>
- <m11y1ulz79.fsf@frodo.biederman.org> <7350000.1046361606@[10.10.2.4]>
- <m1wujllnkb.fsf@frodo.biederman.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S265543AbTB0QBq>; Thu, 27 Feb 2003 11:01:46 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:2059 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S265361AbTB0QBp>; Thu, 27 Feb 2003 11:01:45 -0500
+Date: Thu, 27 Feb 2003 17:12:04 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Ducrot Bruno <ducrot@poupinou.org>
+Cc: Robert Woerle Paceblade/Support <robert@paceblade.com>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] Re: mem= option for broken bioses
+Message-ID: <20030227161203.GF12434@atrey.karlin.mff.cuni.cz>
+References: <F760B14C9561B941B89469F59BA3A8471380D7@orsmsx401.jf.intel.com> <20030226224450.GD15455@atrey.karlin.mff.cuni.cz> <3E5E2061.2060807@paceblade.com> <20030227151907.GC12434@atrey.karlin.mff.cuni.cz> <20030227154922.GY13404@poup.poupinou.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030227154922.GY13404@poup.poupinou.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Could you confirm that the patches are released under the GPL, and have
->> no patent encumberances that you know of? That will enable me to
->> integrate them and get more people to work on it ...
+Hi!
+
+> > > >>OK, looks reasonable. Can you also gen up a patch documenting this in
+> > > >>kernel-parameters.txt?
+> > > >>   
+> > > >>
+> > > >
+> > > >You can, assuming you took the patch ;-).
+> > > > 
+> > > >
+> > > well how can i find the correct value`s to put in ??
+> > 
+> > Well, similar method to how you use mem=123@456 parameters. You just
+> > guess them. [Given kernel messages, it is actually quite easy.]
+> > 
 > 
-> I though I had.  But yes all of the code is released under GPL version 2
-> as specified by the kernel copying file.
+> If I understand you,  you then just have to mem= with the correct
+> value reported via, for example:
+> 
+> ducrot@novae:~$ dmesg | grep 'ACPI data'
+>  BIOS-e820: 000000000fef0000 - 000000000feff000 (ACPI data)
 
-Excellent - thanks for this ... I'll roll them in, and see how many
-machines here we can get to work.
+Well, for you bios map is okay and you don't need mem= parameter.
 
-M.
+> But big problem though.  It is really really strange that the
+> BIOS mainteners have broken e820 call, are you sure you have
+> enabled acpi in BIOS, and/or power management ?
 
+Yes, what I needed was bios update. If you downgrade your bios you can
+provoke same bug I saw.
 
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

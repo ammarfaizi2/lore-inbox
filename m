@@ -1,99 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262618AbREOEUh>; Tue, 15 May 2001 00:20:37 -0400
+	id <S262621AbREOEfl>; Tue, 15 May 2001 00:35:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262620AbREOEU0>; Tue, 15 May 2001 00:20:26 -0400
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:38321 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S262618AbREOEUP>; Tue, 15 May 2001 00:20:15 -0400
-Date: Mon, 14 May 2001 21:19:48 -0700 (PDT)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: <whitney@math.berkeley.edu>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Jeff Golds <jgolds@resilience.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.4 kernel reports wrong amount of physical memory 
-In-Reply-To: <Pine.LNX.4.21.0105142331010.4671-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.33.0105142116030.9796-100000@mf1.private>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262622AbREOEfV>; Tue, 15 May 2001 00:35:21 -0400
+Received: from bitmover.com ([207.181.251.162]:7200 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S262621AbREOEfR>;
+	Tue, 15 May 2001 00:35:17 -0400
+Date: Mon, 14 May 2001 21:35:16 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Getting FS access events
+Message-ID: <20010514213516.A15744@work.bitmover.com>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Richard Gooch <rgooch@ras.ucalgary.ca>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200105142319.f4ENJpf19203@vindaloo.ras.ucalgary.ca> <Pine.LNX.4.21.0105142054180.23578-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.21.0105142054180.23578-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, May 14, 2001 at 09:00:44PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 May 2001, Rik van Riel wrote:
+On Mon, May 14, 2001 at 09:00:44PM -0700, Linus Torvalds wrote:
+> Or rather, there is a fundamental reason why we must NEVER EVER look at
+> the buffer cache: it is not coherent with the page cache. 
 
-> It would be cool if one of you two could update the docs ;)
+Not that Linus needs any backing up but Sun got rid of the buffer cache
+and just had a page cache in SunOS 4.0, which was before I got there, I 
+suspect something like 15 years ago.  It was a good move.  SunOS was 
+an extremely pleasant place to work, all you had to understand was 
+vnode,offset and you basically understood the VM system.
 
-OK, here is my attempt, as a patch to Configure.help in 2.4.5-pre1.  I
-hope it is clear, accurate, and not too long-winded, and that my mailer
-does not munge patches.
+It is so _blindingly_ obvious that Linus is right, it's been proven,
+you don't have to think about it, just read some history.
 
-Cheers,
-Wayne
+Hell, that's the OS that gave us mmap, remember that?  
 
---- linux-2.4.5-pre1-lcd-via-3.23/Documentation/Configure.help.orig	Sat Apr 28 00:27:57 2001
-+++ linux-2.4.5-pre1-lcd-via-3.23/Documentation/Configure.help	Mon May 14 21:10:30 2001
-@@ -198,38 +198,39 @@
+> Really. Give it up. Your silly "make bootup faster" is not going to happen
+> this way. You're trying to break some rather fundamental data structures,
+> all for the unusual case of booting up. There are other ways to boot up
+> quickly: look into pre-filling your memory image (aka "resume from disk"),
 
- High Memory support
- CONFIG_NOHIGHMEM
--  Linux can use up to 64 Gigabytes of physical memory on x86 systems.
--  However, the address space of 32-bit x86 processors is only 4
--  Gigabytes large. That means that, if you have a large amount of
--  physical memory, not all of it can be "permanently mapped" by the
--  kernel. The physical memory that's not permanently mapped is called
--  "high memory".
-+  Linux can use up to 64GB (64 Gigabytes) of physical memory on x86
-+  systems. However, the address space of 32-bit x86 processors is only
-+  4GB large. As Linux allocates 3GB of this address space to user
-+  space, and the kernel reserves 128MB of address space for its needs,
-+  only 896MB of address space is available for mapping physical
-+  memory. This Configure option controls how the kernel uses this
-+  896MB window to access physical memory.
+Which is pretty much what I have been asking for, in a general way, for
+a long time.  I've wanted "directory clustering" forever, where you read
+one file, read the next, and go into "file readahead mode" wherein you
+slurp in the entire directories worth of files in one I/O.  If we had
+that, not only would we go faster in general, you could easily tweak it
+slightly for the fast bootup.  
 
--  If you are compiling a kernel which will never run on a machine with
--  more than 1 Gigabyte total physical RAM, answer "off" here (default
--  choice and suitable for most users). This will result in a "3GB/1GB"
--  split: 3GB are mapped so that each process sees a 3GB virtual memory
--  space and the remaining part of the 4GB virtual memory space is used
--  by the kernel to permanently map as much physical memory as
--  possible.
-+  The default choice, "off", causes the kernel to permanently map
-+  physical memory into this 896MB window. The kernel will be able
-+  to use at most 896MB of physical memory, but this is fine for most
-+  users.
+> You know, the mark of intelligence is realizing when you're making the
+> same mistake over and over and over again, and not hitting your head in
+> the wall five hundred times before you understand that it's not a clever
+> thing to do.
+> 
+> Please show some intelligence.
 
--  If the machine has between 1 and 4 Gigabytes physical RAM, then
--  answer "4GB" here.
-+  The "4GB" option allows the kernel to access up to 4GB of physical
-+  memory.  This is done by dynamically mapping the physical memory
-+  into the 896MB window as necessary; such dynamically mapped memory
-+  is known as "high memory".
-
--  If more than 4 Gigabytes is used then answer "64GB" here. This
--  selection turns Intel PAE (Physical Address Extension) mode on.
--  PAE implements 3-level paging on IA32 processors. PAE is fully
--  supported by Linux, PAE mode is implemented on all recent Intel
--  processors (Pentium Pro and better). NOTE: If you say "64GB" here,
--  then the kernel will not boot on CPUs that don't support PAE!
-+  The "64GB" option is necessary to support more than 4GB of physical
-+  memory.  This selection turns Intel PAE (Physical Address Extension)
-+  mode on.  PAE implements 3-level paging on IA32 processors. PAE is
-+  fully supported by Linux and PAE mode is implemented on all recent
-+  Intel processors (Pentium Pro and better). NOTE: If you say "64GB"
-+  here, then the kernel will not boot on CPUs that don't support PAE!
-
--  The actual amount of total physical memory will either be
--  auto detected or can be forced by using a kernel command line option
-+  The actual amount of total physical memory will either be auto
-+  detected or can be forced by using a kernel command line option
-   such as "mem=256M". (Try "man bootparam" or see the documentation of
-   your boot loader (lilo or loadlin) about how to pass options to the
-   kernel at boot time.)
-
--  If unsure, say "off".
-+  If unsure, say "off" if you have 896MB or less of physical memory;
-+  say "4GB" otherwise.
-
- Normal PC floppy disk support
- CONFIG_BLK_DEV_FD
-
+Those who don't learn from history are doomed to repeat it, eh?
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbUJZRJG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbUJZRV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbUJZRJG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 13:09:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbUJZRIK
+	id S261354AbUJZRV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 13:21:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbUJZRV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 13:08:10 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:31112 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261352AbUJZRHv
+	Tue, 26 Oct 2004 13:21:57 -0400
+Received: from zamok.crans.org ([138.231.136.6]:32992 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S261354AbUJZRVw convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 13:07:51 -0400
-Date: Tue, 26 Oct 2004 21:08:15 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: David Vrabel <dvrabel@arcom.com>, Linus Torvalds <torvalds@osdl.org>,
-       Len Brown <len.brown@intel.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Versioning of tree
-Message-ID: <20041026190815.GA8338@mars.ravnborg.org>
-Mail-Followup-To: David Vrabel <dvrabel@arcom.com>,
-	Linus Torvalds <torvalds@osdl.org>, Len Brown <len.brown@intel.com>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <1098254970.3223.6.camel@gaston> <1098256951.26595.4296.camel@d845pe> <Pine.LNX.4.58.0410200728040.2317@ppc970.osdl.org> <20041025234736.GF10638@michonline.com> <417E39AE.5020209@arcom.com> <20041026122632.GH10638@michonline.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041026122632.GH10638@michonline.com>
-User-Agent: Mutt/1.5.6i
+	Tue, 26 Oct 2004 13:21:52 -0400
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-mm1: LVM stopped working
+References: <87oeitdogw.fsf@barad-dur.crans.org>
+	<58cb370e041026070067daa404@mail.gmail.com>
+	<58cb370e0410261007145fc22c@mail.gmail.com>
+From: Mathieu Segaud <matt@minas-morgul.org>
+Date: Tue, 26 Oct 2004 19:21:50 +0200
+In-Reply-To: <58cb370e0410261007145fc22c@mail.gmail.com> (Bartlomiej
+	Zolnierkiewicz's message of "Tue, 26 Oct 2004 19:07:45 +0200")
+Message-ID: <87is8xl7ip.fsf@barad-dur.crans.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 26, 2004 at 08:26:33AM -0400, Ryan Anderson wrote:
-> On Tue, Oct 26, 2004 at 12:49:02PM +0100, David Vrabel wrote:
-> > Ryan Anderson wrote:
-> > >
-> > >Well, here's a patch that adds -BKxxxxxxxx to LOCALVERSION when a
-> > >top-level BitKeeper tree is detected.
-> > >[...]
-> > > LOCALVERSION = $(subst $(space),, \
-> > > 	       $(shell cat /dev/null $(localversion-files)) \
-> > >+	       $(subst ",,$(localversion-bk)) \
-> > 
-> > Surely there's no need for this?  Can't the script spit out an 
-> > appropriate localversion* file instead?
-> 
-> It can, and yes, my first version used that method.
-> 
-> Except it never worked.  I was able to generate the file before
-> include/linux/version.h was rebuilt, but failed to get it picked up in
-> that.  I'm not really sure why.
+Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> disait dernièrement que :
 
-The $(wildcard ...) function was executed before you created the file.
-If we shall retreive the version from a SCM then as you already do
-must hide it in a script.
-I want the script only to be executed when we actually ask kbuild to
-build a kernel - so it has to be part of the prepare rule set.
-Furthermore I like to avoid a dependency on perl for a basic kernel.
+> To make this task easier I prepared 2.6.9-rc3-mm3 to 2.6.9-mm1 IDE patch:
+>
+> http://home.elka.pw.edu.pl/~bzolnier/ide-2.6.9-rc3-mm3-to-2.6.9-mm1.patch.bz2
+>
+> Just revert it from 2.6.9-mm1.
 
-Can you retreive the version from bk using a simple shell script?
+thx, I will test it soon.
+I have just made straces of vgchange processes in success and failure cases
+(there is little difference in the fact that in the failure case, I added
+-v verbose option but that's all)
 
-	Sam
+vgchange tries to read 2 chunks of data from the partition:
+- the first 2048 bytes,
+- and after closing device, and reopening it, the 512 next ones.
+
+in the failure case, the first read succeeds with just 1536 bytes read,
+which causes the process to issue another read syscall to read the "missing"
+512 bytes, which fails...
+
+for now, that's all I can see
+I will enable lvm debugging, for the next try
+
+the straces are:
+http://www.crans.org/~segaud/vgchange.failure
+http://www.crans.org/~segaud/vgchange.succeeded
+(names are obvious)
+
+Best regards,
+
+Mathieu
+
+-- 
+"I am a living example of someone who took on an issue and benefited from it."
+
+George W. Bush
+April 25, 2001
+Speaking to John King of CNN.
+

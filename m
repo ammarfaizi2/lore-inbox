@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313314AbSD0MIy>; Sat, 27 Apr 2002 08:08:54 -0400
+	id <S313448AbSD0MPD>; Sat, 27 Apr 2002 08:15:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313325AbSD0MIx>; Sat, 27 Apr 2002 08:08:53 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:25503 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S313314AbSD0MIw>;
-	Sat, 27 Apr 2002 08:08:52 -0400
-Date: Sat, 27 Apr 2002 14:08:30 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: Richard Thrapp <rthrapp@sbcglobal.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, alan@lxorguk.ukuu.org.uk
-Subject: Re: The tainted message
-Message-ID: <20020427140830.A32034@fafner.intra.cogenit.fr>
-In-Reply-To: <1019883102.8819.48.camel@wizard>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Organisation: Marie's fan club - II
+	id <S313505AbSD0MPC>; Sat, 27 Apr 2002 08:15:02 -0400
+Received: from ppp65-029.verat.net ([217.26.65.29]:45953 "EHLO
+	spnew.snpe.co.yu") by vger.kernel.org with ESMTP id <S313448AbSD0MPB>;
+	Sat, 27 Apr 2002 08:15:01 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: snpe <snpe@snpe.co.yu>
+To: <linux-kernel@vger.kernel.org>
+Subject: ABI & SMP
+Date: Sat, 27 Apr 2002 12:27:06 +0200
+X-Mailer: KMail [version 1.4]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200204271227.06609.snpe@snpe.co.yu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Thrapp <rthrapp@sbcglobal.net> :
-[...]
-> First of all, the current tainted message is not really useful. 
-> "Warning: Loading %s will taint the kernel..." isn't very informative at
-> all.  Most people don't know what it means to "taint the  kernel".  It's
+Hello,
+   I have kernel 2.4.17 and abi 2.4.17 patch
+I have used aplication (oracle sqlforms30, runmenu for sco 5, coff).
+Hardware is Compaq Proliant 1600 with 2 processors.
+If I use kernel with one processor all is ok, but with SMP kernel
+I have problem.
+Application work btw one hour and then I get segmentation fault.
+I am tried unload moduls and load again without success.
+After reset all work one hour ...
 
-Add a reference to http://www.tux.org/lkml/#s1-18. An explanation is already
-there.
+Please help
+regards
+haris peco
 
--- 
-Ueimor
+

@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263603AbUEPNTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263596AbUEPN2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263603AbUEPNTU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 09:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbUEPNTU
+	id S263596AbUEPN2U (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 09:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263605AbUEPN2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 09:19:20 -0400
-Received: from wingding.demon.nl ([82.161.27.36]:40321 "EHLO wingding.demon.nl")
-	by vger.kernel.org with ESMTP id S263605AbUEPNTS (ORCPT
+	Sun, 16 May 2004 09:28:20 -0400
+Received: from poros.telenet-ops.be ([195.130.132.44]:33412 "EHLO
+	poros.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S263596AbUEPN2S convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 09:19:18 -0400
-Date: Sun, 16 May 2004 15:20:20 +0200
-From: Rutger Nijlunsing <rutger.nijlunsing@nospam.com>
-To: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org, moqua@kurtenba.ch
-Subject: Re: cpufreq and p4 prescott
-Message-ID: <20040516132020.GA14608@nospam.com>
-Reply-To: linux-kernel@tux.tmfweb.nl
-References: <20040513173946.GA8238@dominikbrodowski.de> <20040514214751.GA8433@nospam.com> <20040515064434.GB8572@dominikbrodowski.de> <20040515105200.GA8095@nospam.com> <20040515194124.GA8212@dominikbrodowski.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 16 May 2004 09:28:18 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: "P. Christeas" <p_christ@hol.gr>
+Subject: Re: [2.6.6] Synaptics driver is 'jumpy'
+Date: Sun, 16 May 2004 15:28:39 +0200
+User-Agent: KMail/1.6.2
+Cc: lkml <linux-kernel@vger.kernel.org>
+References: <200405161427.44859.p_christ@hol.gr>
+In-Reply-To: <200405161427.44859.p_christ@hol.gr>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040515194124.GA8212@dominikbrodowski.de>
-Organization: M38c
-User-Agent: Mutt/1.5.6i
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200405161528.43329.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The only thing I could find in Intel's documentation is the max. time
-> > of throttling is 3 microseconds (p.67; 5.2.1 of Prescott
-> > datasheet). So this 3 microseconds should correspond to 5600 ticks or
-> > so...
-> 
-> Can't find it in the datasheets right now, but did find an interesting
-> comment in section 13.15.3 of 24547212.pdf which explains the strange
-> behaviour we're seeing.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hm, 13.16.3 in my version, but indeed: all logical processors should
-be put asleep in the same way ;)
+On Sunday 16 May 2004 13:27, P. Christeas wrote:
+> Under normal load this shouldn't happen. It could only have to do with
+> interrupts from PS/2 port.
 
-> 
-> > I know this is not P4 specific, but motherboard specific, but do
-> > you know of modules which use motherboard specific knowledge to scale
-> > the processor?
-> No.
-> > If the BIOS can do it, so should we be able to do it.
-> 
-> Dynamic frequency scaling is (probably) way different from setting a
-> frequency at boot (which is what the BIOS does). Timing issues, settling
-> times, etc. are way too complicated, AFAICS. Even trying to do this might
-> result in severe non-recoverable hardware failures.
+Unfortunately, it happens all the time, even if the CPU load == 0.00. I don't 
+have any other PS/2 devices (since I don't have a PS/2 port ;p) but I do use 
+a USB mouse - but this is totally unrelated to this problem.
 
-Probably true for some motherboards, but Asus got a WinXP program
-called 'AiBooster' which is a program to under/overclock from -50% to
-+33% runtime (butt-ugly UI can be seen in
-http://www.asuscom.de/pub/ASUS/mb/sock478/p4p800/AIBooster_u.pdf). Could
-Wine be used (given the right permissions) to run or disect such a
-utility to make underclocking reality under Linux?
+> Try running the touchpad in relative mode, with 'options psmouse
+> proto=exps' at /etc/modprobe.conf, which disables the Synaptics (i.e.
+> absolute mode).
 
-*hopeful* Or has Asus released the specification of its motherboard?
+Well... This causes X to bomb out with not finding any Synaptics device - 
+which If i understand the driver correctly is quite correct at this point.
 
--- 
-Rutger Nijlunsing ---------------------------- rutger ed tux tmfweb nl
-never attribute to a conspiracy which can be explained by incompetence
-----------------------------------------------------------------------
+The fact is, it worked _perfectly_ under 2.6.5 with the standard mode. No 
+problems whatsoever. Something must have changed (but I'm too unfamiliar with 
+kernel code) that causes some sort of a delay in the processing of the input 
+queue of the touchpad. 
+
+I've upgraded the X driver, but that changes nothing.
+
+Jan
+
+- -- 
+"For the man who has everything... Penicillin."
+ -- F. Borquin
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAp2yJUQQOfidJUwQRAvhEAJ9AlsLKIyPb1lP+6lql6E8YhEieOgCcDSQZ
+giKmwZyuYUkkR3YiAfGfYso=
+=CBBE
+-----END PGP SIGNATURE-----

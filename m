@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262298AbSIPUVe>; Mon, 16 Sep 2002 16:21:34 -0400
+	id <S262838AbSIPU2D>; Mon, 16 Sep 2002 16:28:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262838AbSIPUVe>; Mon, 16 Sep 2002 16:21:34 -0400
-Received: from dsl-213-023-040-192.arcor-ip.net ([213.23.40.192]:11146 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S262298AbSIPUVd>;
-	Mon, 16 Sep 2002 16:21:33 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Dave Olien <dmo@osdl.org>, Jens Axboe <axboe@suse.de>
-Subject: Re: [2.5] DAC960
-Date: Mon, 16 Sep 2002 22:26:23 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Samium Gromoff <_deepfire@mail.ru>, linux-kernel@vger.kernel.org
-References: <E17odbY-000BHv-00@f1.mail.ru> <20020915131920.GR935@suse.de> <20020916131359.A17880@acpi.pdx.osdl.net>
-In-Reply-To: <20020916131359.A17880@acpi.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17r2Rr-0001Vk-00@starship>
+	id <S262856AbSIPU2D>; Mon, 16 Sep 2002 16:28:03 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:63622 "EHLO
+	wookie-t23.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S262838AbSIPU2C>; Mon, 16 Sep 2002 16:28:02 -0400
+Subject: Re: Killing/balancing processes when overcommited
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44L.0209161610370.1857-100000@imladris.surriel.com>
+References: <Pine.LNX.4.44L.0209161610370.1857-100000@imladris.surriel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 16 Sep 2002 13:27:50 -0700
+Message-Id: <1032208070.2318.370.camel@wookie-t23.pdx.osdl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 September 2002 22:13, Dave Olien wrote:
-> > 
-> > I can only note that so far there has been a lot of talk about dac960
-> > and updating it, and that's about it. Talk/code ratio is very very low,
-> > I'm tempted to just do the update myself. Might even safe some time.
-> > 
-> > -- 
-> > Jens Axboe
-> > 
-> > -
+On Mon, 2002-09-16 at 12:11, Rik van Riel wrote:
+> On 16 Sep 2002, Timothy D. Witham wrote:
+> > On Mon, 2002-09-16 at 07:03, Rik van Riel wrote:
 > 
-> I have the DAC960 driver working in 2.5.34.  The work isn't
-> complete yet.  But, I'm able to boot, and do mke2fs
-> on partitions on logical drives, and then do e2fsck
-> on those partitions.  It seems to work, although more
-> testing is required.  Is there any interest in reviewing
-> the code so far, or should I continue testing and complete
-> the remaining issues first?
+> > > > > 1) memory is exhausted
+> > > > > 2) the network driver can't allocate memory and
+> > > > >    spits out a message
+> > > > > 3) syslogd and/or klogd get killed
+> 
+> >   Not in what I had described.  Unless the page fault was for a new page
+> > (just malloc'ed) it wouldn't result in the killing of the process.
+> 
+> Unfortunately they do. Reality doesn't quite match your
+> description.
+> 
 
-Please post the patch, I'll try it right away.
+  I wasn't talking about the current situation I was talking about
+the pre-allocation method.
 
+Tim
+
+> Rik
+> -- 
+> Bravely reimplemented by the knights who say "NIH".
+> 
+> http://www.surriel.com/		http://distro.conectiva.com/
+> 
+> Spamtraps of the month:  september@surriel.com trac@trac.org
 -- 
-Daniel
+Timothy D. Witham - Lab Director - wookie@osdlab.org
+Open Source Development Lab Inc - A non-profit corporation
+15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
+

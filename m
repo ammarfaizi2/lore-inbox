@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270241AbRHHAQ2>; Tue, 7 Aug 2001 20:16:28 -0400
+	id <S270240AbRHHAQ7>; Tue, 7 Aug 2001 20:16:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270242AbRHHAQT>; Tue, 7 Aug 2001 20:16:19 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:30058 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S270241AbRHHAQA>; Tue, 7 Aug 2001 20:16:00 -0400
-Date: Wed, 8 Aug 2001 02:17:13 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.8pre6aa1
-Message-ID: <20010808021713.A687@athlon.random>
-Mime-Version: 1.0
+	id <S270242AbRHHAQu>; Tue, 7 Aug 2001 20:16:50 -0400
+Received: from ip240.cvd2.rb1.bel.nwlink.com ([207.202.151.240]:33548 "EHLO
+	zot.localdomain") by vger.kernel.org with ESMTP id <S270240AbRHHAQg>;
+	Tue, 7 Aug 2001 20:16:36 -0400
+To: Riley Williams <rhw@MemAlpha.CX>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+In-Reply-To: <Pine.LNX.4.33.0108072359440.30936-100000@infradead.org>
+From: Mark Atwood <mra@pobox.com>
+Date: 07 Aug 2001 17:16:45 -0700
+In-Reply-To: Riley Williams's message of "Wed, 8 Aug 2001 00:35:54 +0100 (BST)"
+Message-ID: <m3bslrv21e.fsf@flash.localdomain>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Only in 2.4.8pre5aa2: 00_alloc_skb-gfp_dma-1
-Only in 2.4.8pre5aa2: 00_drop_write_unlocked-get_bh-1
+(apologies for splitting my reply into multiple pieces, but each part
+ covers different territory).
 
-	Merged in mainline.
+Riley Williams <rhw@MemAlpha.CX> writes:
+> 
+>  2. Multiple identical static interfaces.
+> 
+>     At the moment, you are required to initialise the interfaces in
+>     ascending order of their name in the modules.conf file.
+> 
+>     I've dealt with this situation on several occasions, and never
+>     found this to be a problem in any way.
 
-Only in 2.4.8pre5aa2: 00_sync_old_buffers-3
+Have you ever assembled a distribution that's going to be imaged into
+several thousands to several tens of thousands of hardware boxes, with
+evolving-into-the-future changes in hardware version and changes in
+component suppliers?
 
-	Alternate fix in mainline.
+If Linux really wants to break into the appliance market, this is
+going to be a bigger and bigger issue.
 
-Only in 2.4.8pre6aa1: 00_alpha-ds20l-support-1
-
-	DS20L support from Christopher Chimelis.
-
-URL:
-
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.8pre6aa1/
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.8pre6aa1.bz2
-
-Andrea
+-- 
+Mark Atwood   | I'm wearing black only until I find something darker.
+mra@pobox.com | http://www.pobox.com/~mra

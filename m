@@ -1,44 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272039AbRIDRwz>; Tue, 4 Sep 2001 13:52:55 -0400
+	id <S271987AbRIDRu0>; Tue, 4 Sep 2001 13:50:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272034AbRIDRwq>; Tue, 4 Sep 2001 13:52:46 -0400
-Received: from h157s242a129n47.user.nortelnetworks.com ([47.129.242.157]:27320
-	"EHLO zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S272039AbRIDRwl>; Tue, 4 Sep 2001 13:52:41 -0400
-Message-ID: <3B95150B.BE5173B4@nortelnetworks.com>
-Date: Tue, 04 Sep 2001 13:53:15 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S272034AbRIDRuP>; Tue, 4 Sep 2001 13:50:15 -0400
+Received: from jive.SoftHome.net ([204.144.231.93]:29901 "EHLO softhome.net")
+	by vger.kernel.org with ESMTP id <S271987AbRIDRuG>;
+	Tue, 4 Sep 2001 13:50:06 -0400
+From: "John L. Males" <jlmales@softhome.net>
+Organization: Toronto, Ontario, Canada
+To: Doug McNaught <doug@wireboard.com>
+Date: Tue, 4 Sep 2001 13:49:51 -0500
 MIME-Version: 1.0
-To: Mark Frazer <mark@somanetworks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Should I use Linux to develop driver for specialized ISA card?
-In-Reply-To: <E15eHup-0003ir-00@the-village.bc.nu> <01090410264000.14864@bits.linuxball> <3B950034.17909E5D@nortelnetworks.com> <20010904133227.B25240@somanetworks.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@nortelnetworks.com>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Question Re AC Patch with VM Tuneable Parms for now
+Reply-to: jlmales@softhome.net
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3B94DBFF.1248.396225@localhost>
+In-Reply-To: "John L. Males"'s message of "Tue, 4 Sep 2001 02:30:08 -0500"
+In-Reply-To: <m37kvfovbo.fsf@belphigor.mcnaught.org>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Frazer wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Christopher Friesen <cfriesen@nortelnetworks.com> [01/09/04 12:29]:
-> > We have a realtime process that tries to run every 50ms.  We're seeing actual
-> > worst-case scheduling latencies upwards of 300-400ms.
+Doug,
+
+Thanks for taking the time to reply and refreshing my memory about
+menu oldconfig.
+
+I imply from your reply that there is no carry forward feature via
+the menu xconfig.  I guess it was wishful thinking in my original
+message there might be.  Not an big issue, just thought I ask in case
+I missed something in reading and searching the kernel doc.
+
+Thanks for tip that the tuneable VM items may be implemented via
+/proc.
+
+
+Regards,
+
+John L. Males
+Willowdale, Ontario
+Canada
+04 September 2001 14:49
+mailto:jlmales@softhome.net
+
+
+To:             	jlmales@softhome.net
+Copies to:      	linux-kernel@vger.kernel.org
+Subject:        	Re: Question Re AC Patch with VM Tuneable Parms for
+now
+From:           	Doug McNaught <doug@wireboard.com>
+Date sent:      	04 Sep 2001 10:59:55 -0400
+
+> "John L. Males" <jlmales@softhome.net> writes:
 > 
-> With or without the low-latency patches?
+> > Can someone advise me if the "Make several vm behaviours tunable
+> > for now" as of the 2.4.9-ac4 patch are implemented in the kernel
+> > .config file?  If so is there an easy way to carry forward a
+> > 2.4.8 version of the .config file using "make xconfig" so that I
+> > do not have to set all the setting I have made from scratch?  I
+> > get the sense from the Kernel documentation that one can run a
+> > process that will ask one only those parameters that have been
+> > changed or added rather that all of them, but best I can tell
+> > this is a console y/n/?? type response.
+> 
+> You have to do the carry-forward on the command line, using 
+> 'make oldconfig'.  It will prompt you to answer any questions that
+> aren't in the old config file, which will usually be fairly few. 
+> So it's not that bad, and you only have to do it once per upgrade.
+> 
+> Once you've done it, you can use 'menuconfig' as usual to tune your
+> configuration.  
+> 
+> BTW, it's quite likely (though I haven't looked at it) that the
+> VM tunables are in /proc rather than being config options.
+> 
+> -Doug
+> -- 
+> Free Dmitry Sklyarov! 
+> http://www.freesklyarov.org/ 
+> 
+> We will return to our regularly scheduled signature shortly.
 
 
-Without.  It's PPC hardware, and the lowlatency stuff that I've found seems to
-be x86-centric.
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 6.5.8 for non-commercial use 
+<http://www.pgp.com>
+
+iQA/AwUBO5UiNeAqzTDdanI2EQIPigCgoEPsa9QqvFPcZ/TbGZUPCxaLe20AnRN6
+PJ60mqjFcKquI2lqGD4daWKb
+=yLPc
+-----END PGP SIGNATURE-----
 
 
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+"Boooomer ... Boom Boom, how are you Boom Boom" Boomer 1985 - February/2000

@@ -1,59 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262633AbTJTPVV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 11:21:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbTJTPVU
+	id S262647AbTJTPW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 11:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbTJTPW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 11:21:20 -0400
-Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:55683
-	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
-	id S262633AbTJTPVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 11:21:19 -0400
-From: Tovar <tvr@penngrove.fdns.net>
+	Mon, 20 Oct 2003 11:22:28 -0400
+Received: from skuter.storm.com.pl ([195.116.229.161]:62473 "EHLO
+	skuter.storm.com.pl") by vger.kernel.org with ESMTP id S262647AbTJTPWZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 11:22:25 -0400
+Message-ID: <3F93FD9F.4010306@storm.pl>
+Date: Mon, 20 Oct 2003 17:22:07 +0200
+From: =?ISO-8859-2?Q?Piotr_Wa=B6kiewicz?= <piter@storm.pl>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-cc: David H?rdeman <david@2gen.com>
-Subject: Re: Suspend with 2.6.0-test7-mm1
-Message-Id: <E1ABbqb-0002B5-00@penngrove.fdns.net>
-Date: Mon, 20 Oct 2003 08:21:29 -0700
+Subject: Kernel 2.6-test7 panic (appletalk related)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-    > I've been playing with the suspend features of 2.6.0-test7-mm1 and I
-    > can't get it to work. When I do "echo -n standby > /sys/power/state",
-    > the screen flickers briefly and then the system is back to normal. In
-    > the logs I see the following message:
-    >
-	...
+Box is dual pentium:
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 5
+model name      : Pentium II (Deschutes)
+stepping        : 2
+cpu MHz         : 451.023
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
+mca cmov pat pse36 mmx fxsr
+bogomips        : 888.83
 
-    I've seen this, too. Try "sleep 1; echo -n standby > /sys/power/state".
-    I theory I thought of, is that the system suspends before you have
-    time to release the enter key, and the key release triggers a wakeup.
-    Does this seem reasonable to those more knowledgeable?
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 5
+model name      : Pentium II (Deschutes)
+stepping        : 2
+cpu MHz         : 451.023
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
+mca cmov pat pse36 mmx fxsr
+bogomips        : 899.07
 
-That doesn't change anything for me, either.  Same 'dmesg' output as noted
-before.
+Two network cards (don't remember names exactly), one on 3c59x, second 
+on ne2k-pci.
+Two networks: samba and netatalk (strange, but netatalk was idle at the 
+moment).
+HD on IDE.
 
-     .config:	http://bugzilla.kernel.org/attachment.cgi?id=1092
+After about two days uptime I got this panic (written off screen on 
+paper, so might be errors in it):
 
-This is on a Sony VAIO R505EL, attached is 'lspci'.
+EIP is at atalk_sum_skb+0x17d/0x1f0 [appletalk]
+eax: 00000000 ebx: 00000011 ecx: 00000000 edx: dfb55be0
+esi: 00000006 edi: 00000015 ebp: 00000015 esp: dc84de5c
+ds: 007b es: 007b ss: 0068
 
-			   -- JM
+Stack: dfb55bac 00000011 00000000 5596f951 8100000a 00000000 df90b400 
+00000000 (sorry, but I haven't time to write more)
 
--------------------------------------------------------------------------------
-00:00.0 Host bridge: Intel Corp. 82830 830 Chipset Host Bridge (rev 04)
-00:02.0 VGA compatible controller: Intel Corp. 82830 CGC [Chipset Graphics Controller] (rev 04)
-00:02.1 Display controller: Intel Corp. 82830 CGC [Chipset Graphics Controller]
-00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #1) (rev 02)
-00:1d.1 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #2) (rev 02)
-00:1d.2 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #3) (rev 02)
-00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 42)
-00:1f.0 ISA bridge: Intel Corp. 82801CAM ISA Bridge (LPC) (rev 02)
-00:1f.1 IDE interface: Intel Corp. 82801CAM IDE U100 (rev 02)
-00:1f.3 SMBus: Intel Corp. 82801CA/CAM SMBus (rev 02)
-00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 Audio (rev 02)
-00:1f.6 Modem: Intel Corp. 82801CA/CAM AC'97 Modem (rev 02)
-02:02.0 FireWire (IEEE 1394): Texas Instruments TSB43AB22/A IEEE-1394a-2000 Controller (PHY/Link)
-02:05.0 CardBus bridge: Ricoh Co Ltd RL5c475 (rev 80)
-02:08.0 Ethernet controller: Intel Corp. 82801CAM (ICH3) PRO/100 VE (LOM) Ethernet Controller (rev 42)
-===============================================================================
+Call Trace:
+[<e092210a>] atalk_chcecksum+0x2a/0x50 [appletalk]
+[<e0922db0>] atalk_rcv+0x300/0x390 [appletalk]
+[<c01100d0>] do_gettimeofday+0x20/0xad
+[<e08e40d7>] snap_rcv+0x57/0xb0 [psnap]
+[<e08cf4e6>] llc_rcv+0x196/0x280 [llc]
+              netif_receive_skb
+              process_backlog
+              net_rx_action
+              do_softirq
+              do_IRQ
+              common_interrupt
+
+Code: 0f 0b f4 03 76 4b 92 e0 eb ea c7 44 24 0c e4 03 00 00 c7 44
+<0> Kernel panic: Fatal exception in interrupt
+In interrupt handler - not syncing
+
+
+HTH
+

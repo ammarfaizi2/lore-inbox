@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266636AbRGEHBY>; Thu, 5 Jul 2001 03:01:24 -0400
+	id <S266633AbRGEGwe>; Thu, 5 Jul 2001 02:52:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266637AbRGEHBP>; Thu, 5 Jul 2001 03:01:15 -0400
-Received: from ns2.Deuroconsult.com ([193.226.167.164]:27916 "EHLO
-	marte.Deuroconsult.com") by vger.kernel.org with ESMTP
-	id <S266636AbRGEHBH>; Thu, 5 Jul 2001 03:01:07 -0400
-Date: Thu, 5 Jul 2001 10:02:43 +0300 (EEST)
-From: Catalin BOIE <util@deuroconsult.ro>
-To: joe.mathewson@btinternet.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Suitable Athlon Motherboard for Linux
-In-Reply-To: <200107041849.f64InoE12398@ambassador.mathewson.int>
-Message-ID: <Pine.LNX.4.20.0107051001260.13908-100000@marte.Deuroconsult.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266635AbRGEGwY>; Thu, 5 Jul 2001 02:52:24 -0400
+Received: from ucu-105-116.ucu.uu.nl ([131.211.105.116]:21133 "EHLO
+	ronald.bitfreak.net") by vger.kernel.org with ESMTP
+	id <S266633AbRGEGwL>; Thu, 5 Jul 2001 02:52:11 -0400
+Subject: Re: >128 MB RAM stability problems (again)
+From: Ronald Bultje <rbultje@ronald.bitfreak.net>
+To: Chris Siebenmann <cks@utcc.utoronto.ca>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <01Jul4.172916edt.62972@gpu.utcc.utoronto.ca>
+In-Reply-To: <01Jul4.172916edt.62972@gpu.utcc.utoronto.ca>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 05 Jul 2001 10:44:25 +0200
+Message-Id: <994322676.768.0.camel@tux>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Jul 2001, Joseph Mathewson wrote:
-
-> Having heard the various horror stories about the VIA PCI data corruption
-> bugs, and watching one Via based machine destroy itself with a Mandrake 8.0
->  2.4.3, I was just wondering if anyone had a suggestion for an Athlon
-> motherboard that works reliably under Linux (I don't think all the issues
-> have been cleared up in the kernel yet?).  There must be quite a few Linux
-> Athlon users out there - what boards are you using and with what success?
+On 04 Jul 2001 17:29:12 -0400, Chris Siebenmann wrote:
+> You write:
+> | I'm kind of astounded now, WHY can't linux-2.4.x run on ANY machine in
+> | my house with more than 128 MB RAM?!? Can someone please point out to me
+> | that he's actually running kernel-2.4.x on a machine with more than 128
+> | MB RAM and that he's NOT having severe stability problems?
 > 
-> I can't see much alternative to Via chipsets in the Ahtlon market, other
-> than all-in-one-graphics-sound-network jobbies that, from previous
-> experience (namely the i810), are also best avoided.
+>  Me. Two machines. (Both 2.4.5 high -ac kernels.)
 > 
-> Joe.
+>  I strongly suggest getting memtest86 and running it on all of your
+> problematic machines.
 
-Hi!
+I ran memtest tonight on all machines....
+It gave 0 errors on all of them.....
 
-I have an EPOX 8kta2 (www.eopx.com) and I'm very pleased with it. No
-lookups since I buy it! I use a Thunderbird @ 650MHz.
+So.... this leads to the conclusion that the memory is okay, and that
+something else must be the problem.... Could it still be a failing power
+supply or something? It seems both computers have a 230 W power supply.
+Might be a problem, I guess, I can buy a 400 W thingy if that makes
+sense.
 
+Other solutions I heard:
+- antistatic wrist strap: already have one :-)
+- BIOS fiddling... What exactly should I look for? They are, as far as I
+can see, identical memory sticks, probably both from different
+suppliers, but besides that quite the same....
+- are there different brands of memory of different quality and might
+that be a possible cause of the problems? And if so - what are good
+memory brands and what are the bad ones?
+- I mixed different types of SDRAM... Could be it.... My mainboard
+manual is not really clear about this.... And I have no clue what brand
+of memory I bought... they are all 133 MHz SDRAM sticks, some 64 MB,
+some 128 MB.... MB manual says it can handle all 64/128 MB sticks...
+- <your solution here :-)>
 
-> 
-> +-------------------------------------------------+
-> | Joseph Mathewson <joe@mathewson.co.uk>          |
-> +-------------------------------------------------+
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Anyway, thanks for any advice until now and thanks for listening again,
+hope to hear more solutions.
 
----
-Catalin(ux) BOIE
-catab@deuroconsult.ro
-A new Linux distribution: http://l13plus.deuroconsult.ro
-http://www2.deuroconsult.ro/~catab
+--
+Ronald Bultje
 

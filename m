@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266754AbUBMGPt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 01:15:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266771AbUBMGPt
+	id S266780AbUBMGbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 01:31:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266783AbUBMGbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 01:15:49 -0500
-Received: from hera.kernel.org ([63.209.29.2]:14479 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S266754AbUBMGPs (ORCPT
+	Fri, 13 Feb 2004 01:31:25 -0500
+Received: from fw.osdl.org ([65.172.181.6]:32968 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266780AbUBMGbY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 01:15:48 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: IPV4 as module?
-Date: Fri, 13 Feb 2004 06:15:38 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c0hq2a$ftg$1@terminus.zytor.com>
-References: <20040204200610.GB3802@localhost.localdomain> <20040205122921.GB28571@lug-owl.de> <Pine.LNX.4.58L.0402080257060.29247@rudy.mif.pg.gda.pl> <20040208212757.GW28571@lug-owl.de>
+	Fri, 13 Feb 2004 01:31:24 -0500
+Date: Thu, 12 Feb 2004 22:31:39 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: lepton <lepton@mail.goldenhope.com.cn>
+Cc: linux-kernel@vger.kernel.org, Nikita Danilov <Nikita@Namesys.COM>
+Subject: Re: [BUG]kmalloc memory in reiserfs code failed on a dual amd64/4G
+ linux 2.6.2 box
+Message-Id: <20040212223139.61c3c349.akpm@osdl.org>
+In-Reply-To: <20040213031653.GA25623@lepton.goldenhope.com.cn>
+References: <20040213031653.GA25623@lepton.goldenhope.com.cn>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Trace: terminus.zytor.com 1076652938 16305 63.209.29.3 (13 Feb 2004 06:15:38 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Fri, 13 Feb 2004 06:15:38 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20040208212757.GW28571@lug-owl.de>
-By author:    Jan-Benedict Glaw <jbglaw@lug-owl.de>
-In newsgroup: linux.dev.kernel
+lepton <lepton@mail.goldenhope.com.cn> wrote:
+>
+>  I seen such dmesg in mu dual amd64/4G memory box.
 > 
-> That's not all correct. You can fit 700 MB data on a CD-ROM, but booting
-> is still emulated from a 1.44 MB floppy (or some other floppy/HDD
-> images, but many BIOSses won't accept those (or handle them correctly)).
+>  I am running kernel 2.6.2
 > 
+>  This is the second time I saw some problems about __alloc_pages on this
+>  amd 64 box...
+> 
+> 
+>  sort: page allocation failure. order:1, mode:0x20
+> 
+>  Call Trace:<ffffffff8014e5f0>{__alloc_pages+816} <ffffffff8014e65e>{__get_free_pages+78} 
+>         <ffffffff80151921>{cache_grow+177} <ffffffff80151e78>{cache_alloc_refill+440} 
+>         <ffffffff801521c6>{__kmalloc+102} <ffffffff801b44f6>{get_mem_for_virtual_node+102} 
+>         <ffffffff801b49a8>{fix_nodes+232} <ffffffff801c08c5>{reiserfs_insert_item+149} 
+>         <ffffffff801acf2c>{reiserfs_new_inode+892} <ffffffff801bd6a8>{pathrelse+40} 
+>         <ffffffff801a834b>{reiserfs_create+171} <ffffffff8017690c>{vfs_create+140} 
+>         <ffffffff80176ca8>{open_namei+424} <ffffffff801675a7>{filp_open+39} 
+>         <ffffffff801210a8>{sys32_open+56} <ffffffff8011e25e>{ia32_do_syscall+30}
 
-Baloney.  Most BIOSes support "no emulation" booting these days; in fact,
-there are more that don't do floppy emulation correctly than the few very
-old BIOSes which didn't do no emulation.
-
-	-hpa
--- 
-PGP public key available - finger hpa@zytor.com
-Key fingerprint: 2047/2A960705 BA 03 D3 2C 14 A8 A8 BD  1E DF FE 69 EE 35 BD 74
-"The earth is but one country, and mankind its citizens."  --  Bahá'u'lláh
-Just Say No to Morden * The Shadows were defeated -- Babylon 5 is renewed!!
+Nikita, why cannot get_mem_for_virtual_node() use GFP_KERNEL?

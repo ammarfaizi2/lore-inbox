@@ -1,56 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbVCIRqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbVCIRpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262137AbVCIRqA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 12:46:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVCIRqA
+	id S262135AbVCIRpF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 12:45:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbVCIRpB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 12:46:00 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:44965 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S262150AbVCIRpP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 12:45:15 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230CC20@exa-atlanta>
-From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-To: "'Arjan van de Ven'" <arjan@infradead.org>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "'Christoph Hellwig'" <hch@infradead.org>
-Subject: RE: [ANNOUNCE][PATCH 2.6.11 2/3] megaraid_sas: Announcing new mod
-	 ule  for LSI Logic's SAS based MegaRAID controllers
-Date: Wed, 9 Mar 2005 12:44:14 -0500 
+	Wed, 9 Mar 2005 12:45:01 -0500
+Received: from minimail.digi.com ([66.77.174.15]:53621 "EHLO minimail.digi.com")
+	by vger.kernel.org with ESMTP id S262123AbVCIRmb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 12:42:31 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [ patch 6/7] drivers/serial/jsm: new serial device driver
+Date: Wed, 9 Mar 2005 11:42:31 -0600
+Message-ID: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D9E9@minimail.digi.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ patch 6/7] drivers/serial/jsm: new serial device driver
+Thread-Index: AcUkzektfT08CmaEQtmGs/jGEM9ejgAAA1Rw
+From: "Kilau, Scott" <Scott_Kilau@digi.com>
+To: "Wen Xiong" <wendyx@us.ibm.com>, "Greg KH" <greg@kroah.com>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >
->> >> . And since this is compile time
->> >> system-wide property, I kept it as driver global.
->> >
->> >that step I don't understand... why is it a global 
->*VARIABLE* if it's
->> >compile time system-wide property...
->> >
->> 
->> I see your point! Are you saying I should use 
->if(sizeof(dma_addr_t)==8)
->> instead of the shortcut if(is_dma64)? 
->yep
->well you can use a preprocessor define of something to make it slightly
->more readable (eg shortcut) if you want, but that's what I mean yeah..
->
->gcc will optimize the entire unused code away this way, including the
->actual conditional jump, so for performance and bloat-ness 
->point of view
->it's nice.... and of course generic design beauty ;)
->
+Hi Wendy, Greg, all,
 
-Great. Thanks! I will change it. If I understand you correctly, I should
-#define IS_DMA64 (sizeof(dma_addr_t)==8).
+If IBM intends on our DPA management program to work for the JSM
+products,
+the ioctls are needed.
 
-Is this better than declaring is_dma64 global variable const? (Excuse the
-oxymoron).
+DPA support is a requirement for all Digi drivers, so it would
+not be possible for me to remove them from my "dgnc" version
+of the driver.
+
+For the JSM driver, its up to you whether you feel its needed or not.
+
+However, I would like to mention that the DIGI drivers that currently
+reside in the kernel sources *do* reserve that ioctl space,
+and is acknowledged by "Documentation/ioctl-number.txt":
+> d'     F0-FF   linux/digi1.h
+
+I understand that the list is not a reservation list,
+but a current list of potential ioctl conflicts...
+
+But the JSM driver sure doesn't add any new ioctl ranges,
+or cause any new conflicts that didn't already exist.
+
+Scott
+
+
+
+-----Original Message-----
+From: Wen Xiong [mailto:wendyx@us.ibm.com] 
+Sent: Wednesday, March 09, 2005 11:32 AM
+To: Greg KH
+Cc: Kilau, Scott; linux-kernel@vger.kernel.org
+Subject: Re: [ patch 6/7] drivers/serial/jsm: new serial device driver
+
+
+Greg KH wrote:
+
+>On Wed, Mar 09, 2005 at 10:50:04AM -0500, Wen Xiong wrote:
+>  
+>
+>>+/* Ioctls needed for dpa operation */
+>>+#define DIGI_GETDD	('d'<<8) | 248		/* get driver info
+*/
+>>+#define DIGI_GETBD	('d'<<8) | 249		/* get board info
+*/
+>>+#define DIGI_GET_NI_INFO ('d'<<8) | 250		/*
+nonintelligent state snfo */
+>>    
+>>
+>
+>Hm, new ioctls still?...
+>
+>And the structures you are attempting to access through these ioctls
+are
+>incorrect, so if you are still insisting you need them, at least make
+>the code work properly :(
+>
+>thanks,
+>
+>greg k-h
+>
+>  
+>
+Hi Scott,
+
+The above three ioctls are for dpa/managment. If I removed these ioctls,
+
+I have to remove jsm_mgmt.c(patch5.jasmine).
+Do you mind I remove jsm_mgmt.c code now? From my side, I  don't think I
+
+need them now.
+
+Maybe we can have a solution in the kernel as Russell and Greg said
+later.
+
+Thanks,
+wendy
+

@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136493AbREGRwp>; Mon, 7 May 2001 13:52:45 -0400
+	id <S136505AbREGRyE>; Mon, 7 May 2001 13:54:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136483AbREGRwe>; Mon, 7 May 2001 13:52:34 -0400
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:48298 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S136468AbREGRwX>; Mon, 7 May 2001 13:52:23 -0400
-Message-Id: <5.1.0.14.2.20010507184618.00a8a5b0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 07 May 2001 18:52:49 +0100
-To: "Dunlap, Randy" <randy.dunlap@intel.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: RE: [PATCH] x86 page fault handler not interrupt safe 
-Cc: "'David Woodhouse'" <dwmw2@infradead.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE26F@orsmsx31.jf.intel
- .com>
+	id <S136527AbREGRx4>; Mon, 7 May 2001 13:53:56 -0400
+Received: from se1.cogenit.fr ([195.68.53.173]:47625 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S136505AbREGRxl>;
+	Mon, 7 May 2001 13:53:41 -0400
+Date: Mon, 7 May 2001 19:53:33 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: alexander.eichhorn@rz.tu-ilmenau.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Question] Explanation of zero-copy networking
+Message-ID: <20010507195333.A13072@se1.cogenit.fr>
+In-Reply-To: <E14wlUi-0003WQ-00@the-village.bc.nu> <Pine.LNX.3.95.1010507121212.4256A-100000@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.95.1010507121212.4256A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Mon, May 07, 2001 at 12:12:57PM -0400
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 18:32 07/05/2001, Dunlap, Randy wrote:
-> > From: David Woodhouse [mailto:dwmw2@infradead.org]
-> >
-> > torvalds@transmeta.com said:
-> > >  If anybody has such a beast, please try this kernel patch _and_
-> > > running the F0 0F bug-producing program (search for it on the 'net -
-> > > it must be out there somewhere) to verify that the code still
-> > > correctly handles that case.
-> >
-> > Something along the lines of:
-> >
-> > echo "unsigned long main=0xf00fc7c8;" > f00fbug.c ; make f00fbug
->
->Yes, that's what the (SGI) program uses:
->http://lwn.net/2001/0329/a/ltp-f00f.php3
+Richard B. Johnson <root@chaos.analogic.com> ecrit :
+[...]
+> when the hardware I/O is used. This shows that the network code, alone,
+> cannot be improved very much to provide an improvement in throughput.
 
-That's not quite what they do. David's SGI equivalent would be:
+It shows that cached code performs well with ~0us latency device/memory.
 
-echo "unsigned long main=0xc8c70ff0;" > f00fbug.c ; make f00fbug
-
-i.e. remember that ia32 is little endian.
-
-Thanks for the link.
-
-Best regards,
-
-Anton
-
+Networking is about latency and pps too. They both dramatically reduce
+the (axe-)evaluated bandwith.
 
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+Ueimor

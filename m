@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285498AbSALPrC>; Sat, 12 Jan 2002 10:47:02 -0500
+	id <S287134AbSALPzM>; Sat, 12 Jan 2002 10:55:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287134AbSALPqs>; Sat, 12 Jan 2002 10:46:48 -0500
-Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:28584 "EHLO
-	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S285498AbSALPq3>; Sat, 12 Jan 2002 10:46:29 -0500
-Date: Sat, 12 Jan 2002 10:50:09 -0500
+	id <S287139AbSALPyx>; Sat, 12 Jan 2002 10:54:53 -0500
+Received: from ns.suse.de ([213.95.15.193]:37127 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287134AbSALPyp>;
+	Sat, 12 Jan 2002 10:54:45 -0500
+Date: Sat, 12 Jan 2002 16:54:43 +0100
+From: Andi Kleen <ak@suse.de>
 To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 1-2-3 GB
-Message-ID: <20020112105009.A6642@earthlink.net>
-In-Reply-To: <20020112004528.A159@earthlink.net> <20020112125625.E1482@inspiron.school.suse.de>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@zip.com.au>,
+        linux-kernel@vger.kernel.org,
+        Manfred Spraul <manfreds@colorfullife.com>
+Subject: Re: Q: behaviour of mlockall(MCL_FUTURE) and VM_GROWSDOWN segments
+Message-ID: <20020112165443.A13179@wotan.suse.de>
+In-Reply-To: <3C3F3C7F.76CCAF76@colorfullife.com.suse.lists.linux.kernel> <3C3F4FC6.97A6A66D@zip.com.au.suse.lists.linux.kernel> <p73r8ow4dd7.fsf@oldwotan.suse.de> <20020112163332.M1482@inspiron.school.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020112125625.E1482@inspiron.school.suse.de>; from andrea@suse.de on Sat, Jan 12, 2002 at 12:56:25PM +0100
-From: rwhron@earthlink.net
+In-Reply-To: <20020112163332.M1482@inspiron.school.suse.de>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Derived from:
-> > htty://kernelnewbies.org/kernels/rh72/SOURCES/linux-2.4.2-vm-1-2-3-gbyte.patch
-> > Some parts of the patch above are already in the mainline trees.
-> > 
-> > Patch below applies to 2.4.18pre2aa2:
-> 
-> for a fileserver (even more if in kernel like tux) it certainly make
-> sense to have as much direct mapped memory as possible, it is not the
-> recommended setup for a generic purpose kernel though. So I applied the
-> patch (except the prefix thing which is distribution specific). thanks,
-> 
-> Andrea
+On Sat, Jan 12, 2002 at 04:33:32PM +0100, Andrea Arcangeli wrote:
+> it doesn't (of course depends "what's the right thing"), and that's why
 
-Thanks so much!
+I think it does. Allocating all possible in future allocated pages
+is just not possible for VM_GROWSDOWN, because the stack has really 
+no suitable limit (other than rlimits, which are far too big to
+mlock them) 
 
--- 
-Randy Hron
+BTW expand_stack seems to have a small bug: it adds to mm->locked_vm
+the complete offset from last vm_start; if it covers more than one page
+the locked_vm value will be too large. 
 
+> What the current kernel is doing with page faults, is to fault in only
+> the touched pages, not the pages in between as well, this isn't a
+> security concern because the faulted in pages won't be swapped out, but
+> it may matter for some RT app, OTOH the RT apps would better memset the
+> whole stack they need before assuming they won't get page faults, first
+> of all because of all other kernels out there (this is what I mean with
+> a matter of API).
+
+For the stack they can get minor faults anyways when they allocate new
+stack space below ESP. There is no good way to fix that from the kernel; the 
+application has to preallocate its memory on stack. I think it's reasonable
+if it does the same for holes on the stack. 
+
+-Andi

@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbTKTRQm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 12:16:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTKTRQm
+	id S262015AbTKTROx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 12:14:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTKTROx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 12:16:42 -0500
-Received: from mail.kroah.org ([65.200.24.183]:55695 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262048AbTKTRQM (ORCPT
+	Thu, 20 Nov 2003 12:14:53 -0500
+Received: from mail.kroah.org ([65.200.24.183]:12687 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262015AbTKTROw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 12:16:12 -0500
-Date: Thu, 20 Nov 2003 09:03:03 -0800
+	Thu, 20 Nov 2003 12:14:52 -0500
+Date: Thu, 20 Nov 2003 08:59:05 -0800
 From: Greg KH <greg@kroah.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Martin Schlemmer <azarah@nosferatu.za.org>, Adrian Bunk <bunk@fs.tum.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] document that udev isn't yet ready (fwd)
-Message-ID: <20031120170303.GJ26720@kroah.com>
-References: <20031119213237.GA16828@fs.tum.de> <20031119221456.GB22090@kroah.com> <1069283566.5032.21.camel@nosferatu.lan> <20031119232651.GA22676@kroah.com> <20031120125228.GC432@openzaurus.ucw.cz>
+To: Dave Jones <davej@redhat.com>, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 006 release
+Message-ID: <20031120165905.GG26720@kroah.com>
+References: <20031119162912.GA20835@kroah.com> <20031120011209.GA5719@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031120125228.GC432@openzaurus.ucw.cz>
+In-Reply-To: <20031120011209.GA5719@redhat.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 20, 2003 at 01:52:29PM +0100, Pavel Machek wrote:
-> Hi!
+On Thu, Nov 20, 2003 at 01:12:09AM +0000, Dave Jones wrote:
+>  > If anyone ever wants a snapshot of the current tree, due to not using
+>  > BitKeeper, or other reasons, is always available at any time by asking.
 > 
-> > > > Hm, with the 006 release, what do you find lacking in udev?
-> > > > 
-> > > 
-> > > I am guessing its more driver support, etc.  Input devices for
-> > > instance do not seem to have any sysfs support yet,
-> > 
-> > Yes, we do need better driver support.  But that's nothing that udev
-> > itself can do :)
-> > 
-> > I have a number of patches pending for 2.6.1 that will add more driver
-> > support for sysfs.
-> > 
-> What drivers did you convert? sysfs-for-inputs would
-> be *very* welcome.
+> I just changed my sparse snapshotter to a generic bitkeeper repo snapshotting
+> script. Daily tarballs of udev as well as a daily unpacked tree can now also
+> be found at http://www.codemonkey.org.uk/projects/bitkeeper/udev/
 
-I have patches for the memory devices, all sound drivers (ALSA and OSS),
-frame buffer devices, and misc devices in my linuxusb.bkbits.net/usb-2.5
-tree.  Hanna Linder is working on the input sysfs patches, and has
-posted some work in the past.
-
-thanks,
+Very nice, thanks for doing this.
 
 greg k-h

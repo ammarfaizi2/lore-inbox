@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269877AbRHXT5w>; Fri, 24 Aug 2001 15:57:52 -0400
+	id <S272305AbRHXUAV>; Fri, 24 Aug 2001 16:00:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272305AbRHXT5l>; Fri, 24 Aug 2001 15:57:41 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42244 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269877AbRHXT5b>; Fri, 24 Aug 2001 15:57:31 -0400
-Subject: Re: [OT] Howl of soul...
-To: justin@soze.net (Justin Guyett)
-Date: Fri, 24 Aug 2001 21:00:40 +0100 (BST)
-Cc: _deepfire@mail.ru (Samium Gromoff), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0108241122040.11343-100000@kobayashi.soze.net> from "Justin Guyett" at Aug 24, 2001 11:33:17 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272311AbRHXUAL>; Fri, 24 Aug 2001 16:00:11 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:39296 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S272313AbRHXT7x>; Fri, 24 Aug 2001 15:59:53 -0400
+Date: Fri, 24 Aug 2001 15:59:55 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Ross Vandegrift <ross@willow.seitz.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 broken on 486SX
+In-Reply-To: <20010824154233.A10048@willow.seitz.com>
+Message-ID: <Pine.LNX.3.95.1010824155107.11043A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15aN8C-0006OH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I *think* the i8xx N/Sbridge chipsets all work fine with the drives.  Mine
-> do.  A quick search shows complaints with: BX, amd 751, kt 133a, 
-> chipsets.
+On Fri, 24 Aug 2001, Ross Vandegrift wrote:
 
-BX and 810 are basically identical IDE. I dont think controller has anything
-to do with drive hardware failures
+> Hello all,
+> 
+> 	I've tried many versions of 2.4 kernels on a 486SX that I have,
+> and none of them will boot.
+[SNIPPED stuff with no new-lines]
 
-> Does anyone know what this bug actually is, and whether there's a possible
-> workaround without disabling udma entirely?
+You need to compile as a '386. Modify ../linux/.config to enable
+CONFIG_M386=y under "Processor type and features". Delete all other
+lines until "General Setup". Then execute:
 
-There have been multiple reports of problems with drive failures on recent
-IBM drives with lots of OS's.
+	make oldconfig
 
-Alan
+Linux 2.4.1 boots fine on a '386. If that doesn't work, you may
+have to back-rev your 'C' compiler.
+
+I'm using egcs-2.91.66 which works okay. Some newer versions may
+generate code that can't run on a `386.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

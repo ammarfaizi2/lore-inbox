@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261411AbSIZQMZ>; Thu, 26 Sep 2002 12:12:25 -0400
+	id <S261371AbSIZQFG>; Thu, 26 Sep 2002 12:05:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261412AbSIZQMZ>; Thu, 26 Sep 2002 12:12:25 -0400
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:41888
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S261411AbSIZQMZ>; Thu, 26 Sep 2002 12:12:25 -0400
-Date: Thu, 26 Sep 2002 12:17:09 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Thunder from the hill <thunder@lightweight.ods.org>
-cc: Rik van Riel <riel@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Tomas Szepe <szepe@pinerecords.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH][2.5] Single linked lists for Linux,v2
-In-Reply-To: <Pine.LNX.4.44.0209260934170.7827-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44.0209261216420.3548-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261402AbSIZQFG>; Thu, 26 Sep 2002 12:05:06 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:63481
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261371AbSIZQEo>; Thu, 26 Sep 2002 12:04:44 -0400
+Subject: Re: DAC960 in 2.5.38, with new changes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Dave Olien <dmo@osdl.org>, "David S. Miller" <davem@redhat.com>,
+       davidm@hpl.hp.com, davidm@napali.hpl.hp.com, axboe@suse.de,
+       _deepfire@mail.ru, linux-kernel@vger.kernel.org
+In-Reply-To: <E17ttf4-0003iY-00@starship>
+References: <20020923120400.A15452@acpi.pdx.osdl.net>
+	<20020923.135447.24672280.davem@redhat.com>
+	<20020924095456.A17658@acpi.pdx.osdl.net>  <E17ttf4-0003iY-00@starship>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Sep 2002 17:13:47 +0100
+Message-Id: <1033056827.11848.66.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Sep 2002, Thunder from the hill wrote:
+On Tue, 2002-09-24 at 18:39, Daniel Phillips wrote:
+> (I sincerely hope somebody in the DAC960 food chain notices this
+> comment, or somebody forwards it to one of the aforementioned: give
+> the world the spec and we will reciprocate by making the thing go as
+> fast as theoretically possible.)
 
-> Hi,
-> 
-> On Thu, 26 Sep 2002, Rik van Riel wrote:
-> > If I were you, I'd take a large piece of paper and make
-> > a drawing of what the data structure looks like and what
-> > the various macros/functions are supposed to do.
-> 
-> Well, I know what they _should_ do. But I don't know what I should 
-> initialize an empty list entry to. That's not got much spam in it...
+I think thats now IBM. So it may be pretty random if you get docs,
+rejections, both or ignored.
 
-Try with NULL.
-
-
-Nicolas
 

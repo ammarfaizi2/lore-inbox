@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263773AbTDUFnm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 01:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263774AbTDUFnm
+	id S263775AbTDUFzl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 01:55:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263776AbTDUFzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 01:43:42 -0400
-Received: from mta05bw.bigpond.com ([139.134.6.95]:16066 "EHLO
-	mta05bw.bigpond.com") by vger.kernel.org with ESMTP id S263773AbTDUFnl
+	Mon, 21 Apr 2003 01:55:41 -0400
+Received: from x101-201-233-dhcp.reshalls.umn.edu ([128.101.201.233]:55975
+	"EHLO minerva") by vger.kernel.org with ESMTP id S263775AbTDUFzl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 01:43:41 -0400
-Message-ID: <3EA2B509.20608@snapgear.com>
-Date: Mon, 21 Apr 2003 00:56:09 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]: linux-2.5.67-uc0 (MMU-less fix ups)
-References: <3E96C09F.3020105@snapgear.com> <20030419162924.A20533@infradead.org>
-In-Reply-To: <20030419162924.A20533@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 21 Apr 2003 01:55:41 -0400
+Date: Mon, 21 Apr 2003 01:07:43 -0500
+From: Matt Reppert <arashi@yomerashi.yi.org>
+To: Brian Jackson <brian@mdrx.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sooner 2.4.21-pre8
+Message-Id: <20030421010743.5309f585.arashi@yomerashi.yi.org>
+In-Reply-To: <200304202352.06128.brian@mdrx.com>
+References: <Pine.LNX.4.55.0304210823230.944@boston.corp.fedex.com>
+	<20030421032606.07d467db.soppscum@online.no>
+	<200304202352.06128.brian@mdrx.com>
+Organization: Yomerashi
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-message-flag: : This mail sent from host minerva, please respond.
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christpoh,
+On Sun, 20 Apr 2003 23:52:05 -0500
+Brian Jackson <brian@mdrx.com> wrote:
 
-Christoph Hellwig wrote:
->>Also updated:
->>
->>. Motorola 68328 framebuffer driver
->>http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.67-uc0-68328fb.patch.gz
-> 
-> 
-> This one is empty..
+> Isn't there a place to get frequent bk snapshots, or is that only Linus' tree?
 
-I shouldn't have bothered listing that one, there was no
-new patches for that.
+export CVSROOT=:pserver:anonymous@kernel.bkbits.net:/home/cvs
 
-Regards
-Greg
+And you now have read access to up-to-date CVS "mirrors" of whatever's in bk.
+The module names are 'linux-2.4' and 'linux-2.5'.
 
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
+Matt

@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282348AbRLDHYm>; Tue, 4 Dec 2001 02:24:42 -0500
+	id <S282320AbRLDHam>; Tue, 4 Dec 2001 02:30:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282317AbRLDHYc>; Tue, 4 Dec 2001 02:24:32 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:52240 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S282283AbRLDHYO>; Tue, 4 Dec 2001 02:24:14 -0500
-To: Markus Biermaier <mbier@eunet.at>
-Cc: linux-kernel@vger.kernel.org, mayfield+usb@sackheads.org
-Subject: Re: Problem with 'mount -t vfat' on PPC
-In-Reply-To: <Pine.LNX.4.21.0112031818220.10327-100000@linuxpb.mboffice>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 04 Dec 2001 16:23:39 +0900
-In-Reply-To: <Pine.LNX.4.21.0112031818220.10327-100000@linuxpb.mboffice>
-Message-ID: <87zo4zla84.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S282357AbRLDHac>; Tue, 4 Dec 2001 02:30:32 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:33218 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S282320AbRLDHaZ>; Tue, 4 Dec 2001 02:30:25 -0500
+Date: Tue, 4 Dec 2001 00:29:51 -0700
+Message-Id: <200112040729.fB47TpA02534@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v99.21 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+  Hi, all. Version 99.21 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
-Markus Biermaier <mbier@eunet.at> writes:
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.2/devfs-patch-current.gz
 
-> I have a problem, when mounting a DOS-File-System with "mount -t vfat":
-> Most (long) file/folder names are corrupted.
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.2/devfs-patch-current.gz
 
-[...]
+WARNING: you will need devfsd-v1.3.19 or later.
 
-> I had sometimes problems with byte-ordering (big endianess) before when
-> I used relatively new modules...
-> 
-> My configuration:
-> 
-> Hardware:	Apple PowerBook G3 (bronze keyboard)
-> System:		SuSE Linux 7.1
-> Kernel:		Self compiled kernel 2.4.12
+NOTE: the devfs-patch-v99.x patches are maintenance patches for the
+old 2.2.x production kernels. Occasionally, features from a modern
+kernel are back-ported, but this happens rarely.
 
-Could you please try linux-2.4.13 or later?  IIRC, this bug was fixed
-at linux-2.4.13.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+This is against 2.2.20. Highlights of this release:
+
+- Ported devfs-patch-v99.20 to kernel 2.2.20
+
+- Updated README from master HTML file
+
+- Added DEVFSD_NOTIFY_DELETE event
+
+- Removed unused DEVFS_FL_SHOW_UNREG flag
+
+- Send DEVFSD_NOTIFY_REGISTERED events in <devfs_mk_dir>
+
+- Do not send CREATE, CHANGE, ASYNC_OPEN or DELETE events from devfsd
+  or children
+
+- Switched to process group check for devfsd privileges
+
+- Fixed drivers/scsi/osst.c to account for <devfs_register> change
+
+- Remove /dev/ide when IDE module unloaded
+
+- Made drivers/block/cpqarray.c devfs-friendly
+
+- Made drivers/block/cciss.c devfs-friendly
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268565AbUJDVSb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268532AbUJDVMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268565AbUJDVSb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 17:18:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268537AbUJDVSb
+	id S268532AbUJDVMK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 17:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268534AbUJDVMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 17:18:31 -0400
-Received: from pD9FF1A09.dip.t-dialin.net ([217.255.26.9]:16644 "EHLO
+	Mon, 4 Oct 2004 17:12:10 -0400
+Received: from pD9FF1A09.dip.t-dialin.net ([217.255.26.9]:14596 "EHLO
 	timbaland.dnsalias.org") by vger.kernel.org with ESMTP
-	id S268565AbUJDVSM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 17:18:12 -0400
+	id S268532AbUJDVMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 17:12:02 -0400
 From: Borislav Petkov <petkov@uni-muenster.de>
 To: Jens Axboe <axboe@suse.de>
 Subject: Re: Fw: Re: 2.6.9-rc2-mm4
-Date: Mon, 4 Oct 2004 23:14:13 +0200
+Date: Mon, 4 Oct 2004 23:11:55 +0200
 User-Agent: KMail/1.7
 Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
        Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
@@ -24,7 +24,7 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200410042314.13588.petkov@uni-muenster.de>
+Message-Id: <200410042311.55584.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -87,12 +87,13 @@ On Monday 04 October 2004 22:42, Jens Axboe wrote:
 > It actually means we have a little discrepancy between what programs
 > expact of the api. What program are you using? They are supposed to read
 > back what value has been set with SG_GET_RESERVED_SIZE, I guess this one
-> does not.
+> does not
+> 
+It is called cdda2wav and it is part of the cdrtools package by Joerg 
+Schilling.  
 >
 > What's a little extra strange is that this command apparently doesn't
 > have ->dxfer_len set to the correct size, or it should be caught in
 > sg_io() at issue time.
-
-Sorry if I've flooded your mails but I've been playing with Postfix ... 8)
 
 Boris.

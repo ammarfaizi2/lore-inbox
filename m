@@ -1,75 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262031AbREPWMR>; Wed, 16 May 2001 18:12:17 -0400
+	id <S262109AbREPWVr>; Wed, 16 May 2001 18:21:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262070AbREPWMI>; Wed, 16 May 2001 18:12:08 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:225 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S262031AbREPWL5>; Wed, 16 May 2001 18:11:57 -0400
-Date: Thu, 17 May 2001 00:11:55 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
-Subject: Re: LANANA: To Pending Device Number Registrants
-Message-ID: <20010517001155.H806@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca> <Pine.LNX.4.05.10105160921220.23225-100000@callisto.of.borg> <200105161822.f4GIMo509185@vindaloo.ras.ucalgary.ca> <3B02D6AB.E381D317@transmeta.com> <200105162001.f4GK18X10128@vindaloo.ras.ucalgary.ca> <3B02DD79.7B840A5B@transmeta.com> <200105162054.f4GKsaF10834@vindaloo.ras.ucalgary.ca> <3B02F2EC.F189923@transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3B02F2EC.F189923@transmeta.com>; from hpa@transmeta.com on Wed, May 16, 2001 at 02:36:44PM -0700
+	id <S262113AbREPWVh>; Wed, 16 May 2001 18:21:37 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:32273 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262109AbREPWVa>; Wed, 16 May 2001 18:21:30 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] rootfs (part 1)
+Date: 16 May 2001 15:21:21 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9duuh1$mes$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0105161010200.4738-100000@penguin.transmeta.com> <Pine.GSO.4.21.0105161434420.26191-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 16, 2001 at 02:36:44PM -0700, H. Peter Anvin wrote:
-> > But all devices which export a CD-ROM interface will do so. So the
-> > device node that is associated with the CD-ROM driver will export
-> > CD-ROM semantics, and the trailing name will be "/cd".
-> > 
-> > Other interfaces a device exports, such as a CD-RW, appear as a
-> > different device node ("generic" for SCSI, because we have no CD-RW
-> > classification at this point).
-> > 
-> > My scheme works already, and works reliably. Nothing had to be done to
-> > support the CD-ROM interface to CD-RW and DVD devices.
-> > 
+Followup to:  <Pine.GSO.4.21.0105161434420.26191-100000@weyl.math.psu.edu>
+By author:    Alexander Viro <viro@math.psu.edu>
+In newsgroup: linux.dev.kernel
 > 
-> It's still completely braindamaged: (a) these interfaces aren't
-> disjoint.  They refer to the same device, and will interfere with each
-> other; (b) it is highly undesirable to tie the naming to the interfaces
-> in this way.  It further restricts the namespaces you can export, for one
-> thing.
+> Well, since all I actually use in the full variant of patch is sys_mknod(),
+> sys_chdir() and sys_mkdir()... IMO tmpfs is an overkill here. Maybe we
+> really need minimal rootfs in the kernel (no regular files) and let
+> ramfs, tmpfs, whatever-device-fs use it as a library.
+> 
 
-We do this already with ide-scsi. A device is visible as /dev/hda
-and /dev/sda at the same time. Or think IDE-CDRW: /dev/hda,
-/dev/sr0 and /dev/sg0.
+One thing that I thought was really spiffy was someone who had done
+patches to populate a ramfs from a tarball loaded via the initrd
+bootloader protocol... call it "initial ramfs."  It allowed a whole
+lot of cleanup -- the "initrd" isn't magic anymore (instead use
+pivot_root), and it gets rid of the rd stuff.  At the same time it
+does allow the full flexibility of a fullblown filesystem that can be
+populated with arbitrary contents.
 
-All at the same time.
+	-hpa
 
-It is perfectly normal to export different interfaces for the
-same device. This is basically, what subfunctions on PCI do: Same
-device with different interfaces. 
-
-Just that we do it through a driver with ide and through the
-hardware with a multi function PCI card.
-
-Applications don't care about devices. They care about entities
-that have capabilities and programming interfaces. What they
-_really_ are and if this is only emulated is not important.
-
-Sorry, I don't see your point here :-(
-
-
-Regards
-
-Ingo Oeser
 -- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

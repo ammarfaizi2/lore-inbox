@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135258AbRDLTEm>; Thu, 12 Apr 2001 15:04:42 -0400
+	id <S135266AbRDLTQN>; Thu, 12 Apr 2001 15:16:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135261AbRDLTEX>; Thu, 12 Apr 2001 15:04:23 -0400
-Received: from smtpnotes.altec.com ([209.149.164.10]:55300 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S135258AbRDLTEU>; Thu, 12 Apr 2001 15:04:20 -0400
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: linux-kernel@vger.kernel.org
-Message-ID: <86256A2C.0068BA0C.00@smtpnotes.altec.com>
-Date: Thu, 12 Apr 2001 14:03:56 -0500
-Subject: badly punctuated parameter list in `#define' (2.4.3-ac5 and 2.4.4
-	-pre2)
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S135268AbRDLTQD>; Thu, 12 Apr 2001 15:16:03 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:56974 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S135267AbRDLTPy>; Thu, 12 Apr 2001 15:15:54 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 12 Apr 2001 12:15:32 -0700
+Message-Id: <200104121915.MAA03715@baldur.yggdrasil.com>
+To: vonbrand@inf.utfsm.cl
+Subject: Re: PATCH(?): linux-2.4.4-pre2: fork should run child first
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> = Adam J. Richter <adam@yggdrasil.com>
+>  = Horst von Brand <vonbrand@inf.utfsm.cl>
 
+>> 	I suppose that running the child first also has a minor
+>> advantage for clone() in that it should make programs that spawn lots
+>> of threads to do little bits of work behave better on machines with a
+>> small number of processors, since the threads that do so little work that
+>> they accomplish they finish within their time slice will not pile up
+>> before they have a chance to run.  So, rather than give the parent's CPU
+>> priority to the child only if CLONE_VFORK is not set, I have decided to
+>> do a bit of machete surgery and have the child always inherit all of the
+>> parent's CPU priority all of the time.  It simplifies the code and
+>> probably saves a few clock cycles (and before you say that this will
+>> cost a context switch, consider that the child will almost always run
+>> at least one time slice anyhow).
 
-When compiling 2.4.3-ac5 (and also 2.4.4-pre2) I get this:
+>And opens the system up to DoS attacks: You can't have a process fork(2)
+>at will and so increase its (aggregate) CPU priority.
 
-/usr/src/linux-2.4.3-ac5/include/asm/rwsem.h:26: badly punctuated parameter list
- in `#define'
+	My change does not increase the aggregate priority of
+parent+child.  Perhaps I misunderstand your comment.
 
-This appears to be due to some code in rwsem.h that is written for a different
-version of gcc. (I'm still using gcc-2.91.66 as specified in
-Documentation/Changes.)  It works for me if I replace it with the code in the
-section labeled /* old gcc */.  Here's a patch to do that:
-
---- include/asm-i386/rwsem.h.old   Thu Apr 12 13:47:00 2001
-+++ include/asm-i386/rwsem.h  Thu Apr 12 13:48:04 2001
-@@ -21,16 +21,16 @@
- #include <linux/wait.h>
-
- #if RWSEM_DEBUG
--#define rwsemdebug(FMT,...) do { if (sem->debug) printk(FMT,__VA_ARGS__); }
-while(0)
-+//#define rwsemdebug(FMT,...) do { if (sem->debug) printk(FMT,__VA_ARGS__); }
-while(0)
- #else
--#define rwsemdebug(FMT,...)
-+//#define rwsemdebug(FMT,...)
- #endif
-
- /* old gcc */
- #if RWSEM_DEBUG
--//#define rwsemdebug(FMT, ARGS...) do { if (sem->debug) printk(FMT,##ARGS); }
-while(0)
-+#define rwsemdebug(FMT, ARGS...) do { if (sem->debug) printk(FMT,##ARGS); }
-while(0)
- #else
--//#define rwsemdebug(FMT, ARGS...)
-+#define rwsemdebug(FMT, ARGS...)
- #endif
-
- #ifdef CONFIG_X86_XADD
-
-
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263126AbTDFV4n (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 17:56:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbTDFV4n (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 17:56:43 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:3551 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263126AbTDFVzn (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 17:55:43 -0400
-Date: Sun, 06 Apr 2003 15:06:59 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Rik van Riel <riel@surriel.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
-       andrea@suse.de, mingo@elte.hu, hugh@veritas.com, dmccr@us.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, Bill Irwin <wli@holomorphy.com>
-Subject: Re: subobj-rmap
-Message-ID: <2050000.1049666818@[10.10.2.4]>
-In-Reply-To: <1600000.1049666582@[10.10.2.4]>
-References: <Pine.LNX.4.44.0304061737510.2296-100000@chimarrao.boston.redhat.com> <1600000.1049666582@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id S263128AbTDFV6E (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 17:58:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbTDFV6D (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 17:58:03 -0400
+Received: from mario.gams.at ([194.42.96.10]:9307 "EHLO mario.gams.at")
+	by vger.kernel.org with ESMTP id S263128AbTDFV54 convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 17:57:56 -0400
+X-Mailer: exmh version 2.6.1 18/02/2003 with nmh-1.0.4
+From: Bernd Petrovitsch <bernd@gams.at>
+To: steve.cameron@hp.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How to speed up building of modules? 
+References: <20030404085740.GA10052@zuul.cca.cpqcorp.net> 
+In-reply-to: Your message of "Fri, 04 Apr 2003 14:57:40 +0600."
+             <20030404085740.GA10052@zuul.cca.cpqcorp.net> 
+X-url: http://www.luga.at/~bernd/
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Mon, 07 Apr 2003 00:09:03 +0200
+Message-ID: <7449.1049666943@frodo.gams.co.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> OK, lets say we have a file of 1000 pages, or
->> offsets 0 to 999, with the following mappings:
->> 
->> VMA A:   0-999
->> VMA B:   0-200
->> VMA C: 150-400
->> VMA D: 300-500
->> VMA E: 300-500
->> VMA F:   0-999
->> 
->> How would you describe these with independant regions ?
-> 
-> Good question to illustrate with.
-> Extra spacing added just for ease of reading:
-> 
-> 0-150 -> 150-200 -> 200-300 -> 300-400 -> 400-500 -> 500-999
->  A          A          A          A          A          A
->  B          B
->             C          C          C 
->                                   D          D          
->                                   E          E          
->  F          F          F          F          F          F
+Stephen Cameron <steve.cameron@hp.com> wrote:
+>With all the distributions, and differnent
+>offerings of distributions, and errata kernels... today, I count
+>almost 40 distinct kernels we're trying to support, not counting the
+>mainline development on kernel.org, and not counting multiple
+>config file variations for each of those 40 or so kernels.
+>
+>The main catch seems to be the symbol checksums.  In order for those
+>to match (and I'm not too interested in subverting those), the 
+>config files used during the compile need to be very similar.  That 
+>means building lots and lots of modules.  (Think about all the 
+>modules which are enabled in redhat's typical default config files.)
+>This takes time.  Mulitply 3 drivers * ~40 kernels * several config
+>files, and pretty soon... well, pretty soon you don't remember
+>what "preety soon" means.
+[...]
+>Any ideas?
 
-Bah, offsets are slightly wrong, but the point is obviously the same
+http://ccache.samba.org/
 
-0-150 -> 151-200 -> 201-300 -> 301-400 -> 401-500 -> 501-999
- A          A          A          A          A          A
- B          B
-            C          C          C 
-                                  D          D          
-                                  E          E          
- F          F          F          F          F          F
+	Bernd
+-- 
+Bernd Petrovitsch                              Email : bernd@gams.at
+g.a.m.s gmbh                                  Fax : +43 1 205255-900
+Prinz-Eugen-Straﬂe 8                    A-1040 Vienna/Austria/Europe
+                     LUGA : http://www.luga.at
+
+

@@ -1,62 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269188AbUIBVhp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269199AbUIBVgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269188AbUIBVhp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 17:37:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269175AbUIBVhm
+	id S269199AbUIBVgW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 17:36:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269180AbUIBVee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 17:37:42 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:51426 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S269172AbUIBVdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 17:33:43 -0400
-Message-Id: <200409022133.i82LXc38022679@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
-To: "Wise, Jeremey" <jeremey.wise@agilysys.com>
-Cc: Oliver Hunt <oliverhunt@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel or Grub bug. 
-In-Reply-To: Your message of "Wed, 01 Sep 2004 15:40:12 EDT."
-             <1094067612.15795.19.camel@wizej.agilysys.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <1094008341.4704.32.camel@wizej.agilysys.com> <200408312358.08153.dsteven3@maine.rr.com> <1094041227.4635.7.camel@wizej.agilysys.com> <200409011135.36537.dsteven3@maine.rr.com> <1094055985.4635.44.camel@wizej.agilysys.com> <4699bb7b04090109415f64fea1@mail.gmail.com>
-            <1094067612.15795.19.camel@wizej.agilysys.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1123080636P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 2 Sep 2004 17:34:34 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:37049 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S269199AbUIBV3e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 17:29:34 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [PATCH] allow i8042 register location override
+Date: Thu, 2 Sep 2004 15:29:19 -0600
+User-Agent: KMail/1.6.2
+Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>
+References: <20040902175647.97709.qmail@web81309.mail.yahoo.com>
+In-Reply-To: <20040902175647.97709.qmail@web81309.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Thu, 02 Sep 2004 17:33:38 -0400
+Message-Id: <200409021529.19575.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1123080636P
-Content-Type: text/plain; charset=us-ascii
+On Thursday 02 September 2004 11:56 am, Dmitry Torokhov wrote:
+> > +static unsigned long i8042_command_reg = I8042_COMMAND_REG;
+> > +static unsigned long i8042_status_reg = I8042_STATUS_REG;
+> > +static unsigned long i8042_data_reg = I8042_DATA_REG;
 
-On Wed, 01 Sep 2004 15:40:12 EDT, "Wise, Jeremey" said:
+> This will not work as these macros are not constants, see i8042-*io.h
+> and i8042_platform_init().
 
-> 2) If I choose to compile the kernel with reiserfs as a modules (ie not
-> monolithicaly  in the kernel) then I will have issues as the kernel has
-> to have the driver reiserfs to mount the root file system to be able to
-> load /lib/modules/..../reiserfs.ko. If this is what you meant then
-> again, I am a bit confused. I thought that was the whole point of the
-> initrd image in that those modules (RAID, FC, USB, Network
-> etc....)required to get the OS to the state that it has a / they must be
-> compiled in the initrd which is called and referaned in grub or lilo.
-> Again, please correct me if I am wrong.
+Thanks for pointing this out.  What do you think of the attached?
 
-A somewhat subtle gotcha that I got bit by once - very bad things
-happen if you try to load reiserfs off an ext2-formatted initrd image,
-and your kernel doesn't have ext2 built in.  (Feel free to substitute
-any 2 filesystem formats - I actually got nailed by ext2/ext3)...
+> What you need to do is add ACPI hooks to 
+> i8042_platform_init for i386/ia64/etc.
 
---==_Exmh_1123080636P
-Content-Type: application/pgp-signature
+Yes, that sounds like a better idea as well.  Let me poke on that part
+a bit more.  Maybe I can just move the calls I added into the platform
+init/exit functions.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFBN5GycC3lWbTT17ARAtagAKCndHf6YtnXHyQS0RTC4CQClxn29gCglXUQ
-5A3dOQK1bDXpX4E4TzC6HGg=
-=UuM3
------END PGP SIGNATURE-----
+Allow the default i8042 register locations to be changed at run-time.
+This is a prelude to adding discovery via the ACPI namespace.
 
---==_Exmh_1123080636P--
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+
+diff -u -ur 2.6.9-rc1-mm2/drivers/input/serio/i8042-io.h 2.6.9-rc1-mm2-kbd1/drivers/input/serio/i8042-io.h
+--- 2.6.9-rc1-mm2/drivers/input/serio/i8042-io.h	2004-09-02 09:49:05.000000000 -0600
++++ 2.6.9-rc1-mm2-kbd1/drivers/input/serio/i8042-io.h	2004-09-02 09:50:26.000000000 -0600
+@@ -36,32 +36,36 @@
+ #endif
+ 
+ /*
+- * Register numbers.
++ * Register numbers (may be overridden)
+  */
+ 
+ #define I8042_COMMAND_REG	0x64	
+ #define I8042_STATUS_REG	0x64	
+ #define I8042_DATA_REG		0x60
+ 
++extern unsigned long i8042_command_reg;
++extern unsigned long i8042_status_reg;
++extern unsigned long i8042_data_reg;
++
+ static inline int i8042_read_data(void)
+ {
+-	return inb(I8042_DATA_REG);
++	return inb(i8042_data_reg);
+ }
+ 
+ static inline int i8042_read_status(void)
+ {
+-	return inb(I8042_STATUS_REG);
++	return inb(i8042_status_reg);
+ }
+ 
+ static inline void i8042_write_data(int val)
+ {
+-	outb(val, I8042_DATA_REG);
++	outb(val, i8042_data_reg);
+ 	return;
+ }
+ 
+ static inline void i8042_write_command(int val)
+ {
+-	outb(val, I8042_COMMAND_REG);
++	outb(val, i8042_command_reg);
+ 	return;
+ }
+ 
+diff -u -ur 2.6.9-rc1-mm2/drivers/input/serio/i8042.c 2.6.9-rc1-mm2-kbd1/drivers/input/serio/i8042.c
+--- 2.6.9-rc1-mm2/drivers/input/serio/i8042.c	2004-09-02 09:49:05.000000000 -0600
++++ 2.6.9-rc1-mm2-kbd1/drivers/input/serio/i8042.c	2004-09-02 15:18:12.000000000 -0600
+@@ -106,6 +106,10 @@
+ static struct timer_list i8042_timer;
+ static struct platform_device *i8042_platform_device;
+ 
++static unsigned long i8042_command_reg;
++static unsigned long i8042_status_reg;
++static unsigned long i8042_data_reg;
++
+ /*
+  * Shared IRQ's require a device pointer, but this driver doesn't support
+  * multiple devices
+@@ -650,10 +654,7 @@
+ 	}
+ 
+ 	printk(KERN_INFO "serio: i8042 %s port at %#lx,%#lx irq %d\n",
+-	       values->name,
+-	       (unsigned long) I8042_DATA_REG,
+-	       (unsigned long) I8042_COMMAND_REG,
+-	       values->irq);
++	       values->name, i8042_data_reg, i8042_command_reg, values->irq);
+ 
+ 	serio_register_port(port);
+ 
+@@ -1067,6 +1068,18 @@
+ 	return serio;
+ }
+ 
++static void __init i8042_init_defaults(void)
++{
++	i8042_command_reg = I8042_COMMAND_REG;
++	i8042_data_reg = I8042_DATA_REG;
++#ifdef I8042_STATUS_REG
++	i8042_status_reg = I8042_STATUS_REG;
++#endif
++
++	i8042_aux_values.irq = I8042_AUX_IRQ;
++	i8042_kbd_values.irq = I8042_KBD_IRQ;
++}
++
+ int __init i8042_init(void)
+ {
+ 	int i;
+@@ -1077,12 +1090,11 @@
+ 	init_timer(&i8042_timer);
+ 	i8042_timer.function = i8042_timer_func;
+ 
++	i8042_init_defaults();
++
+ 	if (i8042_platform_init())
+ 		return -EBUSY;
+ 
+-	i8042_aux_values.irq = I8042_AUX_IRQ;
+-	i8042_kbd_values.irq = I8042_KBD_IRQ;
+-
+ 	if (i8042_controller_init())
+ 		return -ENODEV;
+ 

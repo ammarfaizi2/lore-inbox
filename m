@@ -1,75 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288578AbSAHXd3>; Tue, 8 Jan 2002 18:33:29 -0500
+	id <S288575AbSAHXet>; Tue, 8 Jan 2002 18:34:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288575AbSAHXdK>; Tue, 8 Jan 2002 18:33:10 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:36365 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S288574AbSAHXdB>; Tue, 8 Jan 2002 18:33:01 -0500
-Date: Tue, 8 Jan 2002 17:32:54 -0600
-From: Ken Brownfield <brownfld@irridia.com>
-To: Luigi Genoni <kernel@Expansa.sns.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020108173254.B9318@asooo.flowerfire.com>
-In-Reply-To: <E16Nyaf-0000A5-00@starship.berlin> <Pine.LNX.4.33.0201082351020.1185-100000@Expansa.sns.it>
+	id <S288579AbSAHXel>; Tue, 8 Jan 2002 18:34:41 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:62963 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S288575AbSAHXe1>;
+	Tue, 8 Jan 2002 18:34:27 -0500
+Date: Wed, 9 Jan 2002 00:34:24 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [Announcement] linux-2.0.40-rc1
+Message-ID: <20020109003424.S5235@khan.acc.umu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0201082351020.1185-100000@Expansa.sns.it>; from kernel@Expansa.sns.it on Wed, Jan 09, 2002 at 12:02:48AM +0100
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2002 at 12:02:48AM +0100, Luigi Genoni wrote:
-| Probably sometimes they are not making a good business. In the reality
-| preempt is good in many scenarios, as I said, and I agree that for
-| desktops, and dedicated servers where just one application runs, and
-| probably the CPU is idle the most of the time, indeed users have a speed
-| feeling. Please consider that on eavilly loaded servers, with 40 and more
-| users, some are running gcc, others g77, others g++ compilations, someone
-| runs pine or mutt or kmail, and netscape, and mozilla, and emacs (someone
-| form xterm kde or gnome), and and
-| and... You can have also 4/8 CPU butthey are not infinite ;) (but I talk
-| mainly thinking of dualAthlon systems).
-| there is a lot of memory and disk I/O.
-| This is not a strange scenary on the interactive servers used at SNS.
-| Here preempt has a too high price
+Uhhhm, ok, no big objections to -pre3 arose, but
+Daniel Phillips found a naughty little bug in ext2fs. However,
+Ville and Samuli have run quite a few tests with Daniel's patch,
+and cannot seem to trigger the bug any longer.
 
-MacOS 9 is the OS for you.
+Hence I'm declaring this the first release candidate for 2.0.40.
+Try it out, please.
 
-Essentially what the low-latency patches are is cooperative
-multitasking.  Which has less overhead in some cases than preemptive as
-long as everyone is equally nice and calls WaitNextEvent() within the
-right inner loops.  In the absence of preemptive, Andrew's patch is the
-next best thing.  But Bad Things happen without preemptive.  Just try
-using Mac OS 9. ;)
 
-Preemptive gives better interactivity under load, which is the whole
-point of multitasking (think about it).  If you don't want the overhead
-(which also exists without preemptive) run #processes == #processors.
+2.0.40-rc1
 
-Whether or not preemptive is applied, having a large number of processes
-active is a performance hit from context switches, cache thrashing, etc.
-Preemptive punishes (and rewards) everyone equally, thus better latency.
+o	Fix possible vmalloc bug for		(Ralf Baechle)
+	architectures with virtually
+	indexed caches
+o	Micro-optimization in vmalloc		(Ralf Baechle)
+o	Fix group descriptor corruption		(Daniel Phillips,
+	in ext2fs				 Ville Herva,
+						 Samuli Kärkkäinen)
+o	Fix some missing includes		(me)
+o	Change array-size from 0 to 1 for	(me)
+	two arrays in the symbol-table
+	in include/linux/module.h
+o	Fix type of struct timeval xtime in	(me)
+	include/linux/sched.h
+o	Fix warnings in include/linux/skbuff.h	(me)
+o	Fix a few typos in Configure.help	(me)
+o	Various small whitespace changes	(me)
+	and fixes of strange indentation
+	| I know some of you won't like this
+	| and I don't give a damn ;-)
 
-I'm really surprised that people are still actually arguing _against_
-preemptive multitasking in this day and age.  This is a no-brainer in
-the long run, where current corner cases aren't holding us back.
+2.0.40-pre3
 
-At least IMVHO.
--- 
-Ken.
-brownfld@irridia.com
+o	Fix typo in sched.c			(Tim Sutherland)
+	| this time for real; I applied this
+	| patch to the wrong kernel-tree last
+	| time, hence the reject
+o	IDE probe patch for some ATAPI drives	(Geert Van der Plas)
 
-| > By the way, have you measured the cost of -preempt in practice?
-| >
-| Yes, I did a lot of tests, and with current preempt patch definitelly
-| I was seeing a too big performance loss.
-| 
-| 
-| -
-| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-| the body of a message to majordomo@vger.kernel.org
-| More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| Please read the FAQ at  http://www.tux.org/lkml/
+2.0.40-pre2
+
+o	Make pci2000 compile			(Joseph Martin)
+o	Use KERNELRELEASE in module		(me)
+	installpath as well
+o	Removed unused variable in		(me)
+	ext2/super.c
+o	Fixed warning in ext2/dir.c		(me)
+o	Fix a blunder of my own in		(me)
+	arch/kernel/i386/traps.c
+o	Fix typo in sched.c			(Tim Sutherland)
+o	Fix bug in mkdep.c			(Tim Sutherland)
+o	Fix bug in autoirq.c			(Michael Deutschmann)
+o	Add allocation debugging code		(Michael Deutschmann)
+o	Fix bugs in the math-emu code		(Bill Metzenthen,
+						 Michael Deutschmann)
+
+2.0.40-pre1
+
+o	Fixed the ordering of			(Philipp Rumpf)
+	watchdog initialising, to make sure
+	hardware watchdogs takes precedence
+	over the softdog driver
+o	Fix the CREDITS-entry for		(Kai Petzke)
+	Kai Petzke
+o	Updated the MAINTAINERS-file a little	(me)
+o	Fix "dumpable"-race			(Solar Designer)
+o	Fix theoretical exploit in printk	(Solar Designer)
+o	Backported checkconfig.pl,		(me)
+	checkhelp.pl and checkincludes.pl
+	from v2.4
+o	Backported support for tags and		(me)
+	TAGS
+o	Added an extra-version entry to		(me)
+	the version#, to keep track of
+	the prepatches etc.
+o	Fix all occurences of			(me)
+	#endif BLABLA type; don't forget
+	that it should be /* BLABLA */ !!!
+
+
+
+Regards: David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

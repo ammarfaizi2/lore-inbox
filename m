@@ -1,63 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263410AbTIBB3O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 21:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263412AbTIBB3O
+	id S263403AbTIBBTz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 21:19:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbTIBBTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 21:29:14 -0400
-Received: from lpbproductions.com ([68.98.208.147]:55177 "HELO
-	lpbproductions.com") by vger.kernel.org with SMTP id S263410AbTIBB3M convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 21:29:12 -0400
-From: Matt Heler <lkml@lpbproductions.com>
-To: Robert Love <rml@tech9.net>
-Subject: Re: -mm patches on www.kernel.org ?
-Date: Mon, 1 Sep 2003 18:30:49 -0700
-User-Agent: KMail/1.5.9
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.51.0308071636100.31463@dns.toxicfilms.tv> <200309011728.44977.lkml@lpbproductions.com> <1062463428.8206.5.camel@boobies.awol.org>
-In-Reply-To: <1062463428.8206.5.camel@boobies.awol.org>
+	Mon, 1 Sep 2003 21:19:55 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2023 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263403AbTIBBTx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 21:19:53 -0400
+Date: Mon, 1 Sep 2003 18:19:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dave Olien <dmo@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sparse change to understand additional postix expressions.
+In-Reply-To: <20030902005349.GA10260@osdl.org>
+Message-ID: <Pine.LNX.4.44.0309011803300.3186-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200309011830.52065.lkml@lpbproductions.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Monday 01 September 2003 05:43 pm, Robert Love wrote:
-> On Mon, 2003-09-01 at 20:28, Matt Heler wrote:
-> > What are you smoking ?? It's a single patch .. that you can apply on top
-> > of the 2.6 tree, SINGLE..  And why can't it be done ? the ac tree and dj
-> > tree were done.
->
-> Dude, manic much?  You seriously need to relax.
-O ya !!! all the time =P
+On Mon, 1 Sep 2003, Dave Olien wrote:
+> 
+> This patch makes a cast expression followed by an initializer list into
+> a postfix expression that can be dereferenced as a structure or an array.
+> There are approximately 7 instances of these expressions in the Linux kernel,
+> that give warnings about "expected lvalue for member dereference".
 
->
-> hpa can do whatever he wants - he admins the damn thing.  But it is
-> obvious he was just unclear that the -mm patches are in fact available
-> in a single patch.
-That's what I was trying to point out.. if I went a wee bit o' manic on it.. 
-Sorry .. But ya its a single patch hpa.. not a patchset.. =
+Ok.
 
+I was actually planning on not supporting this gcc feature and trying to
+discontinue its use in the kernel (gcc itself has quite often generated
+bad code for it, and we've historically had to remove some of the uses
+because of gcc flakiness), but your implementation is pretty clean, so..
 
->
-> 	Robert Love
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+> The approach involved introducing a new "stack-based temporary" symbol
+> of the same type as the cast expression
 
-iD8DBQE/U/LLleY/n9G/oZ8RAoiVAJ98oEE6TVaKIq2t1PHocRaNss1aZgCfY7EP
-mVP4FIH2sTe6S2JlXFXh3+Y=
-=YCs2
------END PGP SIGNATURE-----
+This is what gcc does too. However, the liveness analysis ends up being 
+nasty, especially with inline functions that return one of these beasts. 
+So from a code generation standpoint it can be quite problematic.
+
+(Obviously, the current sparse "code generation" in show-parse.c is so 
+broken that we don't much care, and right now there are no real back-ends 
+using sparse, but I still hope that some day we'll get a back-end too. If 
+only because it will be the only way to _really_ figure out whether sparse 
+is doing the right thing or not).
+
+Damn, but it shouldn't be that hard for somebody who likes back-ends to
+write a bad (non-optimizing) one. I'd actually like to make the tree
+linearization be phase #6 of the sparse phase tree, because we can't even
+do trivial dead code removal without it.
+
+(The kernel depends on dead-code removal for several things, and I'd 
+actually want several warnings to only happen for reachable code. So 
+having dead-code removal actually helps sparse even from a pure checking 
+standpoint: I'd love to have something like
+
+	static inline struct page *alloc_pages(unsigned int mask, unsigned int order)
+	{
+		if (__builtin_constant_p(mask) && (mask & __GFP_ATOMIC))
+			return alloc_pages_atomic(mask,order);
+		return alloc_pages_cansleep(mask,order);
+	}
+
+and then have sparse know about sleeping/nonsleeping contexts, and warn 
+about calling "alloc_pages()" within a locked context when it might sleep.
+
+See how the above requires trivial dead code removal to work from a 
+warning standpoint?
+
+		Linus
+

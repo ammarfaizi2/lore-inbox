@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUE2Xtg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbUE2Xzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUE2Xtg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 19:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUE2Xtg
+	id S261236AbUE2Xzq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 19:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbUE2Xzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 19:49:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27268 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261234AbUE2Xtc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 19:49:32 -0400
-Date: Sat, 29 May 2004 19:49:26 -0400
-From: Alan Cox <alan@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: VIA Velocity Gigabit Driver: update
-Message-ID: <20040529234926.GA15549@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sat, 29 May 2004 19:55:46 -0400
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:57775 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S261236AbUE2Xzp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 19:55:45 -0400
+Message-ID: <40B922EC.8060708@myrealbox.com>
+Date: Sat, 29 May 2004 16:55:24 -0700
+From: Andy Lutomirski <luto@myrealbox.com>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Artemio <theman@artemio.net>, bcollins@debian.org,
+       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+Subject: Re: [2.6 patch] let IEEE1394 select NET
+References: <200405291424.43982.theman@artemio.net> <20040529121408.GM16099@fs.tum.de> <20040529132356.A3014@flint.arm.linux.org.uk>
+In-Reply-To: <20040529132356.A3014@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've posted an updated via-velocity driver to 
-	ftp://people.redhat.com/alan/Kernel
+Russell King wrote:
 
-The new tar ball contains the following changes
+> On Sat, May 29, 2004 at 02:14:08PM +0200, Adrian Bunk wrote:
+> 
+>>The following patch lets FireWire support automatically select 
+>>Networking support:
+> 
+> 
+> And so we get another fscking symbol which has a non-obvious way to
+> turn it off.
+> 
 
-	-	Fix two 64bit problems
-	-	Fix various formatting and other related cleanup
-		things 
-	-	Fix crash on down
-	-	Switch ethtool to new ethool ops (fixes ethtool crash)
-	-	Add power management back
-	-	Fix multiple power management bugs in the via driver
-		(errors copied from and still present in many existing drivers
-		 including 3c59x)
-	-	Remove unneeded chain of velocity_info structs
-	-	Clean up transmit packet length logic
-	-	Added module_license tag note to the header file
-	-	Renamed header file to match c file
+Is it possible to make xconfig and menuconfig show what has an option selected?
 
-The driver still lacks copybreak and scatter gather optimisations. I've
-tagged a few possible improvements with "FIXME" in the comments if anyone
-is interested.
-
-Alan
---
-  "... and for $64000 question, could you get yourself vaguely familiar with
-		the notion of on-topic posting?"
-				-- Al Viro
+--Andy

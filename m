@@ -1,49 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264382AbUEDOby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264393AbUEDOmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264382AbUEDOby (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 10:31:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbUEDOby
+	id S264393AbUEDOmT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 10:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbUEDOmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 10:31:54 -0400
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:20799 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S264382AbUEDObw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 10:31:52 -0400
-Message-ID: <4097A94C.8060403@samwel.tk>
-Date: Tue, 04 May 2004 16:31:40 +0200
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: nl, en-us, en
-MIME-Version: 1.0
-To: Libor Vanek <libor@conet.cz>
-CC: "Richard B. Johnson" <root@chaos.analogic.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Read from file fails
-References: <20040503000004.GA26707@Loki> <Pine.LNX.4.53.0405030852220.10896@chaos> <20040503150606.GB6411@Loki> <Pine.LNX.4.53.0405032020320.12217@chaos> <20040504011957.GA20676@Loki>
-In-Reply-To: <20040504011957.GA20676@Loki>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 127.0.0.1
-X-SA-Exim-Mail-From: bart@samwel.tk
-X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
+	Tue, 4 May 2004 10:42:19 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:61317 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S262273AbUEDOmM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 10:42:12 -0400
+Date: Tue, 4 May 2004 07:40:39 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, davidm@hpl.hp.com, pj@sgi.com, linux-ia64@vger.kernel.org,
+       rusty@rustycorp.com.au
+Subject: take3: Updated CPU Hotplug patches for IA64 (pj blessed) Patch [1/7]
+Message-ID: <20040504074039.A1909@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Libor Vanek wrote:
-> I know that kernel threads work. My question was more like: "I'd
- > like to know, whether writing my module as kernel thread will make
- > it able to read/write files".
-[...]
->>> I think there are reasons (speed, speed, speed...)  why some things
- >>> should be done kernel-space.
+Hi Andrew/David
 
-Using a kernel thread won't improve speed, because to do anything you 
-will have to context-switch to the thread. For the stuff you want to do 
-you are probably better off having a tiny kernel module to intercept the 
-events that you're interested in, notifying a userspace process to do 
-the real work. Yes, it will be slower than in kernel space, but only 
-slightly. Especially if you use sendfile from the userspace process. And 
-it's also good to remember that Linux is optimized for running user 
-space processes as fast as possible. :)
+Here are the next set of patches for supporting CPU hotplug. This is
+officially Paul Jackson (pj@sgi.com) blessed for cpumask related issues
+the earlier patch introduced. Hopefully ready for David-MT to wave the 
+magic wand (blessing) for inclusion in ia64 tree :-)
 
---Bart
+Thanks to akpm for providing a test base for comments and improve the 
+overall acceptability of the patch.
+
+Due to the changes, i had to change the series (patch order) so i had generic 
+changes or bug fixes before hotplug ia64.
+
+The real changes in this patch set are really changes to cpu_present.patch.
+- Removed ARCH_HAS_CPU_PRESENT_MAP
+- No confusing ifdef's around for aliasing with/without hotplug for cpu_present
+  and cpu_possible_map
+- cpu_present_map is now declared for all architectures, and managed
+  transparently for arch's that dont populate those to work seamlessly.
+- Tested for hotlug on tiger4 (logical, not physical remove using echo 0 to the
+  cpu control file in /sys/devices/system/cpu/cpu#/online).
+- pj tested boot on SN2. (thanks for testing and a fix for booting, integrated 
+  in this patch)
+
+
+
+Name: core_kernel_init.patch
+Author: Ashok Raj (Intel Corporation)
+D: This patch changes __init to __devinit to init_idle so that when a new cpu
+D: arrives, it can call these functions at a later time.
+
+
+---
+
+ linux-2.6.5-lhcs-root/init/main.c    |    2 +-
+ linux-2.6.5-lhcs-root/kernel/sched.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -puN kernel/sched.c~core_kernel_init kernel/sched.c
+--- linux-2.6.5-lhcs/kernel/sched.c~core_kernel_init	2004-05-03 16:29:51.257858100 -0700
++++ linux-2.6.5-lhcs-root/kernel/sched.c	2004-05-03 16:29:51.261764352 -0700
+@@ -2657,7 +2657,7 @@ void show_state(void)
+ 	read_unlock(&tasklist_lock);
+ }
+ 
+-void __init init_idle(task_t *idle, int cpu)
++void __devinit init_idle(task_t *idle, int cpu)
+ {
+ 	runqueue_t *idle_rq = cpu_rq(cpu), *rq = cpu_rq(task_cpu(idle));
+ 	unsigned long flags;
+diff -puN init/main.c~core_kernel_init init/main.c
+--- linux-2.6.5-lhcs/init/main.c~core_kernel_init	2004-05-03 16:29:51.258834663 -0700
++++ linux-2.6.5-lhcs-root/init/main.c	2004-05-03 16:29:51.261764352 -0700
+@@ -181,7 +181,7 @@ EXPORT_SYMBOL(loops_per_jiffy);
+    better than 1% */
+ #define LPS_PREC 8
+ 
+-void __init calibrate_delay(void)
++void __devinit calibrate_delay(void)
+ {
+ 	unsigned long ticks, loopbit;
+ 	int lps_precision = LPS_PREC;
+
+_

@@ -1,115 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbUJZBuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261926AbUJZBuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262084AbUJZBuP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 21:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbUJZBsB
+	id S261926AbUJZBuM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 21:50:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbUJZBtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 21:48:01 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:8918 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262009AbUJZBVP (ORCPT
+	Mon, 25 Oct 2004 21:49:41 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:42196 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261926AbUJZBTz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 21:21:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=quxHRFeoAfyKy3vfD1sR4eFJOkYdL8oGxM/K/qmzfFmv6BL0kMQpASx2hbwptlemIFV+QyCVOcntirq11CHBaG8puWyqDR22XGW4P3fQNeuQWDhqc4cofuwiRGtR61ynREBwJivWd143WjfomZHN2mbCX5rzSmjw9paaJ8LsaBk=
-Message-ID: <a99a678a041025161160e25452@mail.gmail.com>
-Date: Mon, 25 Oct 2004 19:11:04 -0400
-From: George Glover <hyperborean@gmail.com>
-Reply-To: George Glover <hyperborean@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.9 Oops in tcp_time_to_recover + 0x6d/0x1b0
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 25 Oct 2004 21:19:55 -0400
+Message-ID: <417D88BB.70907@osdl.org>
+Date: Mon, 25 Oct 2004 16:14:03 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-mm1
+References: <20041022032039.730eb226.akpm@osdl.org>	<417D7EB9.4090800@osdl.org> <20041025155626.11b9f3ab.akpm@osdl.org>
+In-Reply-To: <20041025155626.11b9f3ab.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+Andrew Morton wrote:
+> "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+> 
+>>I'm trying to spend time on kexec++ this week, but this little BUG
+>>keeps getting in the way.  Has it already been reported/fixed?
+>>
+>>kernel BUG at arch/i386/mm/highmem.c:42!
+> 
+> 
+> oops, we did it again.
+> 
+> --- 25/drivers/ide/ide-taskfile.c~ide_pio_sector-kmap-fix	Mon Oct 25 15:54:35 2004
+> +++ 25-akpm/drivers/ide/ide-taskfile.c	Mon Oct 25 15:54:48 2004
+> @@ -304,7 +304,7 @@ static void ide_pio_sector(ide_drive_t *
+>  	else
+>  		taskfile_input_data(drive, buf, SECTOR_WORDS);
+>  
+> -	kunmap_atomic(page, KM_BIO_SRC_IRQ);
+> +	kunmap_atomic(buf, KM_BIO_SRC_IRQ);
+>  #ifdef CONFIG_HIGHMEM
+>  	local_irq_restore(flags);
+>  #endif
+> _
 
-I've had this happen twice now with mostly the same Oops message. 
-Maybe a third time, however the screen was blanked.  They occur at the
-very same instruction pointer, and from the mprime process context.
+Yes, that gets further.   :(
+Maybe I'll just (try) apply the kexec patch to a vanilla kernel.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000050
-printing eip:
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMT SMP
-Modules link in: sbp2 ohci1394 ieee1394
-CPU: 1
-EIP: 0060:[<c032c97d>] Not tainted : VLI
-EFLAGS: 00210246 (2.6.9)
-EIP is at tcp_time_to_recover+0x6d/0x1b0
-eax: 19eeb26a  ebx: cc2d97f0  ecx: 00000001 edx: 00000000
-esi: 00000006  edi: cc2d9600  ebp: 0000003 esp: c04c2d3c
-ds: 007b  es: 007b  ss: 0068
-Process mprime (pid: 2845, threadinfo=c04c2000 task=ee66a310)
-Stack: cc2d97f0 00000000 00000000 00000003 c032d62f 00200002 c74fc00c 0000000
-e2fca91c 00000000 00000006 00000003 a5861ecc cc2d9600 00000002 cc2d97f0
-a58628d8 00000006 c032ea24 00000006 0000000 00000000 00200292 00000001
+
+Unable to handle kernel paging request at virtual address fffea000
+  printing eip:
+c02c8e4d
+*pde = 0064b067
+*pte = 00000000
+Oops: 0002 [#1]
+SMP DEBUG_PAGEALLOC
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c02c8e4d>]    Not tainted VLI
+EFLAGS: 00010006   (2.6.9-mm1)
+EIP is at ide_insw+0xd/0x20
+eax: 000001f0   ebx: c05ee7ec   ecx: 00000100   edx: 000001f0
+esi: c05ee7ec   edi: fffea000   ebp: c056fe80   esp: c056fe7c
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, threadinfo=c056e000 task=c0486b80)
+Stack: c05ee740 c056fea0 c02c93b8 000001f0 fffea000 00000100 c05ee7ec 
+00000080
+        fffea000 c056fec0 c02ccf06 c05ee7ec fffea000 00000080 00000000 
+00000000
+        c05ee740 c056feec c02cd62b c05ee7ec fffea000 00000080 00000000 
+fffea000
 Call Trace:
-Stack pointer is garbage, not printing trace
-Code: 01 00 00 00 39 cd 0f 8f 00 01 00 00 8b 8b 98 00 00 00 85 c9 74 24 8b 57 64
-0d 47 64 39 c2 b8 00 00 00 00 0f 44 d0 a1 e0 84 3e c0 <2b> 42 50 3b 83 94 00 00
-00 0f 87 d5 00 00 00 89 f2 0f b6 c2 39
+  [<c0107eff>] show_stack+0xaf/0xc0
+  [<c010808d>] show_registers+0x15d/0x1e0
+  [<c01082a6>] die+0x106/0x190
+  [<c011c707>] do_page_fault+0x517/0x6a6
+  [<c0107b4d>] error_code+0x2d/0x38
+  [<c02c93b8>] ata_input_data+0x98/0xa0
+  [<c02ccf06>] taskfile_input_data+0x26/0x50
+  [<c02cd62b>] ide_pio_sector+0xcb/0xf0
+  [<c02cd892>] task_in_intr+0xe2/0x100
+  [<c02c8c16>] ide_intr+0xb6/0x150
+  [<c0142cd8>] handle_IRQ_event+0x38/0x70
+  [<c0142df2>] __do_IRQ+0xe2/0x150
+  [<c0109606>] do_IRQ+0x36/0x60
+  [<c0107a30>] common_interrupt+0x18/0x20
+  [<c01050f1>] cpu_idle+0x31/0x50
+  [<c05709bf>] start_kernel+0x15f/0x180
+  [<c0100211>] 0xc0100211
+Code: e5 8b 55 08 ec 0f b6 c0 5d c3 8d 74 26 00 55 89 e5 8b 55 08 66 
+ed 0f b7 c
+  <0>Kernel panic - not syncing: Fatal exception in interrupt
+  <0>Dumping messages in 0 seconds : last chance for Alt-SysRq...
 
 
-There may be numerous typos since it's typed from a poor digital camera image.
-
-The code disassmbles to:
-c032c951:       b9 01 00 00 00          mov    $0x1,%ecx
-c032c956:       39 c2                   cmp    %eax,%edx
-c032c958:       0f 8f 08 01 00 00       jg     c032ca66
-<tcp_time_to_recover+0x156>
-c032c95e:       8b 8b 98 00 00 00       mov    0x98(%ebx),%ecx
-c032c964:       85 c9                   test   %ecx,%ecx
-c032c966:       74 24                   je     c032c98c
-<tcp_time_to_recover+0x7c>
-c032c968:       8b 57 64                mov    0x64(%edi),%edx
-c032c96b:       8d 47 64                lea    0x64(%edi),%eax
-c032c96e:       39 c2                   cmp    %eax,%edx
-c032c970:       b8 00 00 00 00          mov    $0x0,%eax
-c032c975:       0f 44 d0                cmove  %eax,%edx
-c032c978:       a1 e0 84 3e c0          mov    0xc03e84e0,%eax
-c032c97d:       2b 42 50                sub    0x50(%edx),%eax  <-- Oops is here
-c032c980:       3b 83 94 00 00 00       cmp    0x94(%ebx),%eax
-c032c986:       0f 87 d5 00 00 00       ja     c032ca61
-<tcp_time_to_recover+0x151>
-c032c98c:       89 f2                   mov    %esi,%edx
-c032c98e:       0f b6 c2                movzbl %dl,%eax
-c032c991:       39 c1                   cmp    %eax,%ecx
-
-Punching in the addresses I see on the stack gives a back trace of:
-tcp_time_to_recover
-tcp_fastretrans_alert
-tcp_ack
-
-gcc version 3.3.4
-Hardware is a dual 1.2Ghz Athlon MP with 768MB of register ecc
-
-lspci:
-00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P]
-System Controller (rev 20)
-00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP Bridge
-00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev 05)
-00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE (rev 04)
-00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev 03)
-00:08.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1010
-Ultra3 SCSI Adapter (rev 01)
-00:08.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1010
-Ultra3 SCSI Adapter (rev 01)
-00:10.0 PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev 05)
-01:05.0 VGA compatible controller: nVidia Corporation NV20 [GeForce3] (rev a3)
-02:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-768 [Opus] USB (rev 07)
-02:05.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 08)
-02:05.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 08)
-02:06.0 FireWire (IEEE 1394): Texas Instruments TSB12LV26 IEEE-1394
-Controller (Link)
-02:07.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 0d)
-02:08.0 RAID bus controller: Promise Technology, Inc. PDC20276 IDE (rev 01)
 
 
-Hope any of this helps,
-
-George
+-- 
+~Randy
+MOTD:  Always include version info.
+(Again.  Sometimes I think ln -s /usr/src/linux/.config .signature)

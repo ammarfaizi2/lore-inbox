@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289858AbSBOPbf>; Fri, 15 Feb 2002 10:31:35 -0500
+	id <S289834AbSBOPaz>; Fri, 15 Feb 2002 10:30:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289859AbSBOPb2>; Fri, 15 Feb 2002 10:31:28 -0500
-Received: from [200.180.188.189] ([200.180.188.189]:62478 "HELO
-	dyn162-188.crt.net.br") by vger.kernel.org with SMTP
-	id <S289858AbSBOPbP> convert rfc822-to-8bit; Fri, 15 Feb 2002 10:31:15 -0500
-Message-ID: <200202151334470970.014BCCA0@prd.no-ip.com>
-In-Reply-To: <200202151242540300.011C4811@prd.no-ip.com>
-In-Reply-To: <200202151242540300.011C4811@prd.no-ip.com>
-X-Mailer: Calypso Version 3.30.00.00 (3)
-Date: Fri, 15 Feb 2002 13:34:47 -0300
-From: "Uilton Dutra" <kernel@uiltrix.com.br>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Motherboard ASUS CUV4X-DLS
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+	id <S289858AbSBOPaq>; Fri, 15 Feb 2002 10:30:46 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:10441 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S289834AbSBOPaa>; Fri, 15 Feb 2002 10:30:30 -0500
+Message-ID: <3C6D2994.55C1A4A3@redhat.com>
+Date: Fri, 15 Feb 2002 15:30:28 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-26beta.16smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert Jameson <rj@open-net.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: oops with 2.4.18-pre9-mjc2
+In-Reply-To: <20020215035135.0c26b130.rj@open-net.org> <1013780277.950.663.camel@phantasy> <20020215102037.00cf2ad9.rj@open-net.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for my stupid doubt. Sym53c8xx is the module.
+Robert Jameson wrote:
+> 
+> It's appears right after my PDA finishes syncing, so im guessing, its
+> during a device close. To answer alans question im using nVidias kernel
+> driver, therefor i tainted the kernel (tm) (c).
 
-LInk: http://www.plasma-online.de/index.html?content=http%3A//www.plasma-online.de/english/identify/picture/symbios.html
+you're using a binary only kernel driver AND a preempt kernel ?
+brave. very brave.
 
-Uilton Dutra
-
-*********** REPLY SEPARATOR  ***********
-
-On 15/02/02 at 12:42 Uilton Dutra wrote:
-
->Hi all,
->
->I have an Motherboard ASUS CUV4X-DLS and can't locate correct module for
->onboard LSI 53C1010-33 SCSI. 
->What's name of driver for this device and where i find it?
->
->Thanks,
->
->
->Uilton Dutra
->uilton@uiltrix.com.br
->http://www.uiltrix.com.br
->
->I know that my Redeemer lives, and that He shall stand at last on the
->earth. (Job 19:25, KJV)
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
+preempt works on the assumption that it can change the content of inline
+functions and such....

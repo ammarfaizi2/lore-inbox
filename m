@@ -1,157 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262566AbTJTNGl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 09:06:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbTJTNGl
+	id S262574AbTJTN1J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 09:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262575AbTJTN1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 09:06:41 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:50068 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262566AbTJTNGg (ORCPT
+	Mon, 20 Oct 2003 09:27:09 -0400
+Received: from [62.67.222.139] ([62.67.222.139]:10953 "EHLO mail.ku-gbr.de")
+	by vger.kernel.org with ESMTP id S262574AbTJTN1F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 09:06:36 -0400
-Subject: K 2.6 test6 strange signal behaviour
-From: Ken Foskey <foskey@optushome.com.au>
+	Mon, 20 Oct 2003 09:27:05 -0400
+Date: Mon, 20 Oct 2003 15:27:05 +0200
+From: Konstantin Kletschke <konsti@ludenkalle.de>
 To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-tTmQbcPgI7el2lMZ+Thn"
-Message-Id: <1066654886.5930.57.camel@gandalf.foskey.org>
+Subject: Uncorrectable Error on IDE, significant accumulation
+Message-ID: <20031020132705.GA1171@synertronixx3>
+Reply-To: konsti@ludenkalle.de
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 20 Oct 2003 23:01:26 +1000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-PGP-Key: http://www.ludenkalle.de/konsti/pubkey.asc
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi there.
 
---=-tTmQbcPgI7el2lMZ+Thn
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I have a probably unusual question which is mainly directed to the
+linux-kernel IDE driver developers due to their experience with IDE
+disks.
 
+I have a PC @home, which accumulates HDDs in it which die.
 
-I have a problem with signals.
+This Weekend my 120GB Maxtor begun to die with Uncorrectable Errors.
+I thought "OK, another damn Quality Hard Drive" But half a year ago I
+replaced a not so old 40GB MAxtor in it and before that a 20GB System
+Disk and a WD800JB has already 6 Secors remapped (smartctl -a). My
+friends call me the "Master of the HDD cemetary".
 
-I get multiple signals from a single execution of the program.  I have
-attached a stripped source.  Here is the critical snippet, you can see
-the signal handler being set before each call:
+After that I realized, that 99% of my harddisk which die do this in that
+PC. I have a K7S5A Mainboard in it with SiS chipset. Kernel IDE Driver
+sis5513 is compiled in, UDMA switched on.
 
-	signal( SIGSEGV,	SignalHdl );
-	signal( SIGBUS,		SignalHdl );
-	fprintf( stderr, "Running \n" );
-	result = func( eT, p );
-	fprintf( stderr, "Finished \n" );
-	signal( SIGSEGV,	SIG_DFL );
-	signal( SIGBUS,		SIG_DFL );
+My question is, can a subtile Hardware error in the Mainboard exist so
+that HDDs is written bullshit to into some sektors which is discovered
+days or months later when reading/writing there?
+Or can the Kernel provocate (in Hardware!) Uncorrectable errors with
+software?
+I used Kernel 2.4.20-acX and since 2.5.69-mmX this one.
+Or do I have simply bad luck in buying HDDs?
+They are mounted good, the Wires are accurately folded together, 1" air
+above and under each disk, additional case fan...
+It is my home server for mail/news/print/nfs and used as public ftp at
+lan-partys 3 or 4 times a year. For this purpose (pub ftp) there are two
+disks of three used with an LVM2 around all three. 
+Statistically after each lan-party one drive dies. Not immedieately
+though.
 
-When I run the code, that does 2 derefs of NULL you will see 2 instances
-of "Running" and the handler is not invoked at all for the second time.
+Any opinions? Similair Experiences? Software? Hardware? Bad Luck?
 
-./solar:
+Regards, Konstantin Kletschke
 
-
-Getting from NULL
-Setting Jump
-Running
-Signal 11 caught
-After jump
-Setting to NULL
-Setting Jump
-Running
-Segmentation fault
-
-I am running debian version of K 2.6 test6.  This has occurred on all
-versions of K2.6 though, not specific.
 
 -- 
-Thanks
-KenF
-OpenOffice.org developer
-
---=-tTmQbcPgI7el2lMZ+Thn
-Content-Disposition: attachment; filename=solar.c
-Content-Type: text/x-c; name=solar.c; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-#include <stdio.h>
-#include <signal.h>
-#include <setjmp.h>
-
-/*************************************************************************
-|*	Typdeclarations for memory access test functions
-*************************************************************************/
-typedef int (*TestFunc)( void* );
-
-/*************************************************************************
-*************************************************************************/
-static jmp_buf check_env;
-static int bSignal;
-static void SignalHdl( int sig )
-{
-  bSignal = 1;
-  
-  fprintf( stderr, "Signal %d caught\n", sig );
-  longjmp( check_env, sig );
-}
-
-/*************************************************************************
-*************************************************************************/
-void check( TestFunc func, void* p )
-{
-  int result;
-
-  fprintf( stderr, "Setting Jump\n" );
-  if ( !setjmp( check_env ) )
-  {
-	signal( SIGSEGV,	SignalHdl );
-	signal( SIGBUS,		SignalHdl );
-    fprintf( stderr, "Running \n" );
-	result = func( p );
-    fprintf( stderr, "Finished \n" );
-	signal( SIGSEGV,	SIG_DFL );
-	signal( SIGBUS,		SIG_DFL );
-  }
-  fprintf( stderr, "After jump \n" );
-}
-
-/*************************************************************************
-*************************************************************************/
-static int GetAtAddress( void* p )
-{
-  return *((char*)p);
-}
-
-/*************************************************************************
-*************************************************************************/
-static int SetAtAddress( void* p )
-{
-  return *((char*)p)	= 0;
-}
-
-/*************************************************************************
-*************************************************************************/
-void CheckGetAccess( void* p )
-{
-  check( (TestFunc)GetAtAddress, p );
-}
-/*************************************************************************
-*************************************************************************/
-void CheckSetAccess( void* p )
-{
-  check( (TestFunc)SetAtAddress, p );
-}
-
-/*************************************************************************
-*************************************************************************/
-int main( int argc, char* argv[] )
-{
-  {
-	char* p = NULL;
-	fprintf( stderr, "Getting from NULL\n" );
-    CheckGetAccess( p );
-	fprintf( stderr, "Setting to NULL\n" );
-    CheckSetAccess( p );
-	fprintf( stderr, "After Setting to NULL\n" );
-  }
-
-  exit( 0 );
-}
-
---=-tTmQbcPgI7el2lMZ+Thn--
-
+2.6.0-test1-mm2
+Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
+GPG KeyID EF62FCEF
+Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
+keulator.homelinux.org up 3:45, 20 users

@@ -1,89 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317831AbSFSJby>; Wed, 19 Jun 2002 05:31:54 -0400
+	id <S317835AbSFSJdA>; Wed, 19 Jun 2002 05:33:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317832AbSFSJbx>; Wed, 19 Jun 2002 05:31:53 -0400
-Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:40368 "EHLO
-	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S317831AbSFSJbw>; Wed, 19 Jun 2002 05:31:52 -0400
-Date: Wed, 19 Jun 2002 15:01:37 +0530 (IST)
-From: Manik Raina <manik@cisco.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: (off 2.5.22) replacing __builtin_expect with unlikely in
- Alpha header
-Message-ID: <Pine.GSO.4.44.0206191500390.19689-100000@cbin2-view1.cisco.com>
+	id <S317836AbSFSJc7>; Wed, 19 Jun 2002 05:32:59 -0400
+Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:896 "EHLO
+	DervishD.pleyades.net") by vger.kernel.org with ESMTP
+	id <S317835AbSFSJc5>; Wed, 19 Jun 2002 05:32:57 -0400
+Date: Wed, 19 Jun 2002 11:38:56 +0200
+Organization: Pleyades
+To: viro@math.psu.edu, sct@redhat.com
+Subject: Re: Shrinking ext3 directories
+Cc: raul@pleyades.net, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Message-ID: <3D105130.mailEN1WJ7DE@viadomus.com>
+References: <Pine.GSO.4.21.0206181812220.13571-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0206181812220.13571-100000@weyl.math.psu.edu>
+User-Agent: nail 9.31 6/18/02
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+From: DervishD <raul@pleyades.net>
+Reply-To: DervishD <raul@pleyades.net>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi Alexander :))
 
-Thanks adrian and paul for the correction . Here are the diffs with the
-typo fixed ..... Please apply against latest 2.5....
+>IOW, making sure that empty blocks in the end of directory get freed
+>is a matter of 10-20 lines.  If you want such patch - just tell, it's
+>half an hour of work...
 
+    IMHO it would be a great feature to add, and if the cost is as
+low as you say... BTW, thanks a lot for your answer and your offer :)
 
-diff -u -U 6 -r include/asm-alpha/rwsem.h /home/manik/linux-2.5.22/include/asm-alpha/rwsem.h
---- include/asm-alpha/rwsem.h	Mon Jun 17 08:01:35 2002
-+++ /home/manik/linux-2.5.22/include/asm-alpha/rwsem.h	Wed Jun 19 14:48:08 2002
-@@ -80,13 +80,13 @@
- 	".subsection 2\n"
- 	"2:	br	1b\n"
- 	".previous"
- 	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
- 	:"Ir" (RWSEM_ACTIVE_READ_BIAS), "m" (sem->count) : "memory");
- #endif
--	if (__builtin_expect(oldcount < 0, 0))
-+	if (unlikely(oldcount < 0))
- 		rwsem_down_read_failed(sem);
- }
-
- static inline void __down_write(struct rw_semaphore *sem)
- {
- 	long oldcount;
-@@ -104,13 +104,13 @@
- 	".subsection 2\n"
- 	"2:	br	1b\n"
- 	".previous"
- 	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
- 	:"Ir" (RWSEM_ACTIVE_WRITE_BIAS), "m" (sem->count) : "memory");
- #endif
--	if (__builtin_expect(oldcount, 0))
-+	if (unlikely(oldcount))
- 		rwsem_down_write_failed(sem);
- }
-
- static inline void __up_read(struct rw_semaphore *sem)
- {
- 	long oldcount;
-@@ -128,13 +128,13 @@
- 	".subsection 2\n"
- 	"2:	br	1b\n"
- 	".previous"
- 	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
- 	:"Ir" (RWSEM_ACTIVE_READ_BIAS), "m" (sem->count) : "memory");
- #endif
--	if (__builtin_expect(oldcount < 0, 0))
-+	if (unlikely(oldcount < 0))
- 		if ((int)oldcount - RWSEM_ACTIVE_READ_BIAS == 0)
- 			rwsem_wake(sem);
- }
-
- static inline void __up_write(struct rw_semaphore *sem)
- {
-@@ -154,13 +154,13 @@
- 	".subsection 2\n"
- 	"2:	br	1b\n"
- 	".previous"
- 	:"=&r" (count), "=m" (sem->count), "=&r" (temp)
- 	:"Ir" (RWSEM_ACTIVE_WRITE_BIAS), "m" (sem->count) : "memory");
- #endif
--	if (__builtin_expect(count, 0))
-+	if (unlikely(count))
- 		if ((int)count == 0)
- 			rwsem_wake(sem);
- }
-
- static inline void rwsem_atomic_add(long val, struct rw_semaphore *sem)
- {
-
-
+    Raúl

@@ -1,202 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262661AbVDAH6D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262665AbVDAIBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262661AbVDAH6D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 02:58:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbVDAH55
+	id S262665AbVDAIBL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 03:01:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262664AbVDAIBB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 02:57:57 -0500
-Received: from fire.osdl.org ([65.172.181.4]:19894 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262661AbVDAH51 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 02:57:27 -0500
-Date: Thu, 31 Mar 2005 23:57:06 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: johnpol@2ka.mipt.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cn_queue.c
-Message-Id: <20050331235706.5b5981db.akpm@osdl.org>
-In-Reply-To: <1112341236.9334.97.camel@uganda>
-References: <20050331173215.49c959a0.akpm@osdl.org>
-	<1112341236.9334.97.camel@uganda>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 1 Apr 2005 03:01:01 -0500
+Received: from convulsion.choralone.org ([80.68.90.157]:2067 "EHLO
+	convulsion.choralone.org") by vger.kernel.org with ESMTP
+	id S262663AbVDAIAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 03:00:23 -0500
+Date: Fri, 1 Apr 2005 09:00:22 +0100
+From: Dave Jones <davej@kernelslacker.org>
+To: linux-kernel@vger.kernel.org
+Subject: Free Linux-like kernel sources for x86-64
+Message-ID: <20050401080022.GA10834@kernelslacker.org>
+Mail-Followup-To: Dave Jones <davej@kernelslacker.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
->
-> > > static void cn_queue_wrapper(void *data)
-> > > {
-> > > 	struct cn_callback_entry *cbq = (struct cn_callback_entry *)data;
-> > > 
-> > > 	smp_mb__before_atomic_inc();
-> > > 	atomic_inc(&cbq->cb->refcnt);
-> > > 	smp_mb__after_atomic_inc();
-> > > 	cbq->cb->callback(cbq->cb->priv);
-> > > 	smp_mb__before_atomic_inc();
-> > > 	atomic_dec(&cbq->cb->refcnt);
-> > > 	smp_mb__after_atomic_inc();
-> > > 
-> > > 	cbq->destruct_data(cbq->ddata);
-> > > }
-> > 
-> > What on earth are all these barriers for?  Barriers should have an
-> > associated comment describing why they were added, and what they are
-> > defending against, becuase it is very hard to tell that from reading the
-> > code.
-> > 
-> > Please describe (via code comments) what the refcounting rules are for
-> > these data structures.  It all looks very strange.  You basically have:
-> > 
-> > 
-> > 	atomic_inc(refcnt);
-> > 	use(some_object);
-> > 	atomic_dec(refcnt);
-> > 
-> > Which looks very racy.  Some other CPU could see a zero refcount just
-> > before this CPU did the atomic_inc() and the other CPU will go and free up
-> > some_object.  There should be locking associated with refcounting to
-> > prevent such races, and I don't see any.
-> 
-> It can not happen in the above case.
-> It can race with callback removing, but remove path 
-> call cancel_delayed_work() which calls del_timer_sync(), 
-> so above code can not be run or will not run, 
-> only after it refcnt is being checked to be zero.
-> It is probably an overhead since sinchronization is done
-> in other places.
-> All above barriers are introduced to remove already not theoretical
-> atomic vs. non-atomic reordering [ppc64 very like it],
-> when reference counter must be decremented after object was used, 
-> but due to reordering it can happen before use [and it will be seen
-> atomically on all CPUs], 
-> and other CPU may free object based on knowledge that
-> refcnt is zero.
+Do you pine for the nice days of Linux-1.1, when men were men and wrote
+their own device drivers? Are you without a nice project and just dying
+to cut your teeth on a OS you can try to modify for your needs? Are you
+finding it frustrating when everything works on Linux? No more all-
+nighters to get a nifty program working? Then this post might be just
+for you :-)
 
-But all the above seems to be tied into the
-poll-until-refcount-goes-to-zero cleanup code.  I think - it's quite
-unclear what the refcount protocol is for these objects.
+I'm working on a free version of a Linux-lookalike for x86-64 computers.
+It has finally reached the stage where it's even usable (though may not be
+depending on what you want), and I am willing to put out the sources for wider
+distribution.  It is just version 0.02 (+1 (very small) patch already), but
+I've successfully run bash/gcc/gnu-make/gnu-sed/compress etc under it.
 
-Why cannot we manage object lifetimes here in the same manner as dentries,
-inodes, skbuffs, etc?
+Sources for this pet project of mine can be found at http://www.kernelslacker.org/davix
+The directory also contains some README-file and a couple of binaries to work under
+Davix[*] (bash, update and gcc, what more can you ask for :-).
 
-> > > static struct cn_callback_entry *cn_queue_alloc_callback_entry(struct cn_callback *cb)
-> > 
-> > 80 cols again.
-> > 
-> > > static void cn_queue_free_callback(struct cn_callback_entry *cbq)
-> > > {
-> > > 	cancel_delayed_work(&cbq->work);
-> > > 
-> > > 	while (atomic_read(&cbq->cb->refcnt)) {
-> > > 		printk(KERN_INFO "Waiting for %s to become free: refcnt=%d.\n",
-> > > 		       cbq->pdev->name, atomic_read(&cbq->cb->refcnt));
-> > > 
-> > > 		msleep_interruptible(1000);
-> > > 
-> > > 		if (current->flags & PF_FREEZE)
-> > > 			refrigerator(PF_FREEZE);
-> > > 
-> > > 		if (signal_pending(current))
-> > > 			flush_signals(current);
-> > > 	}
-> > > 
-> > > 	kfree(cbq);
-> > > }
-> > 
-> > erp.  Can you please do this properly?
-> > 
-> > Free the object on the refcount going to zero (with appropriate locking)? 
-> > If you want (for some reason) to wait until all users of an object have
-> > gone away then you should take a ref on the object (inside locking), then
-> > sleep on a waitqueue_head embedded in that object.  Make all
-> > refcount-droppers do a wake_up.
-> > 
-> > Why is this function playing with signals?
-> 
-> It is not, just can be interrupted to check state befor timeout expires.
-> It is not a problem to remove signal interrupting here.
+Full kernel source is provided.  The system is able to compile "as-is" and
+has been known to work.  Heh.
+Sources to the binaries (bash and gcc) can be found at the same place in
+/pub/software/.
 
-If this function is called by userspace tasks then we've just dumped any
-signals which that task might have had pending.
+ALERT! WARNING! NOTE! These sources still need Linux to be compiled
+(and gcc-4.0, possibly 3.x, haven't tested), and you need Linux to
+set it up if you want to run it, so it is not yet a standalone system
+for those of you without Linux. I'm working on it. You also need to be
+something of a hacker to set it up (?), so for those hoping for an
+alternative to Linux-x86-64, please ignore me. It is currently meant for
+hackers interested in operating systems and x86-64's with access to Linux.
 
-> > > 			break;
-> > > 		}
-> > > 	}
-> > > 	if (!found) {
-> > > 		atomic_set(&cbq->cb->refcnt, 1);
-> > > 		list_add_tail(&cbq->callback_entry, &dev->queue_list);
-> > > 	}
-> > > 	spin_unlock_bh(&dev->queue_lock);
-> > 
-> > Why use spin_lock_bh()?  Does none of this code ever get called from IRQ
-> > context?
-> 
-> Test documentation module that lives in
-> Documentation/connector/cn_test.c
-> describes different usage cases for connector, and it uses
-> cn_netlink_send()
-> from irq context, which may race with the callback adding/removing.
+The system needs an AT-compatible harddisk (IDE is fine) and EGA/VGA. If
+you are still interested, please ftp the README/RELNOTES, and/or mail me
+for additional info.
 
-But cn_netlink_send() takes ->queue_lock.  If this CPU happened to be
-holding the same lock in process or bh context it will deadlock in IRQ
-context.
+I can (well, almost) hear you asking yourselves "why?".  Hurd will be
+out in a year (or two, or next month, who knows), and I've already got
+Linux.  This is a program for hackers by a hacker.  I've enjouyed doing
+it, and somebody might enjoy looking at it and even modifying it for
+their own needs.  It is still small enough to understand, use and
+modify, and I'm looking forward to any comments you might have.
 
-> 
-> > 
-> > > struct cn_queue_dev *cn_queue_alloc_dev(char *name, struct sock *nls)
-> > > {
-> > > 	struct cn_queue_dev *dev;
-> > > 
-> > > 	dev = kmalloc(sizeof(*dev), GFP_KERNEL);
-> > > 	if (!dev) {
-> > > 		printk(KERN_ERR "%s: Failed to allocte new struct cn_queue_dev.\n",
-> > > 		       name);
-> > > 		return NULL;
-> > > 	}
-> > > 
-> > > 	memset(dev, 0, sizeof(*dev));
-> > > 
-> > > 	snprintf(dev->name, sizeof(dev->name), "%s", name);
-> > 
-> > scnprintf?
-> 
-> Return value is ignored here, but I will change function though.
+I'm also interested in hearing from anybody who has written any of the
+utilities/library functions for Linux. If your efforts are freely
+distributable (under copyright or even public domain), I'd like to hear
+from you, so I can add them to the system. I'm using Ulrich Dreppers glibc
+right now (thanks for a nice and working system Uli), and similar works
+will be very wellcome. Your (C)'s will of course be left intact. Drop me
+a line if you are willing to let me use your code.
 
-scnprintf() null-terminates the destination even if it hits the end of its
-buffer.
+Davej
 
-> > 
-> > Again, why is this code playing with signals?  Hopefully it is never called
-> > by user tasks - that would be very bad.
-> 
-> I will remove signal interrupting.
-
-And use the kthread API, please.
-
-> According to wait queue inside the object - it can have it, but it will
-> be used only for waiting and repeated checking in a slow path.
-> Let's postpone it for now until other isssues are resolved first.
-
-This all ties into the refcounting and object lifetime design.  What you
-have there appears quite unconventional.  Maybe there's good reason for
-that and maybe the code is race-free.  I don't understand what you've done
-there sufficiently well to be able to say.
-
-> > With proper refcounting and lifetime management and the use of the kthread
-> > API we should be able to make all this go away.
-> > 
-> > Once we're trying to free up the controlling device, what prevents new
-> > messages from being queued?
-> 
-> Before callback device is removed it is unregistered from the callback
-> subsystem,
-> so all messages will be discarded, until main socket is removed
-> (actually only released so it can be properly freed in network subsystem
-> later).
-> 
-
-OK, I missed that.
+[*] Yes, the name sucks, but its all some other guys fault.
+    http://www.uwsg.iu.edu/hypermail/linux/kernel/9902.2/0288.html
 

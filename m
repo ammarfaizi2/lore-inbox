@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263776AbUEXAcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263777AbUEXAjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263776AbUEXAcF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 20:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbUEXAcF
+	id S263777AbUEXAjl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 20:39:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbUEXAjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 20:32:05 -0400
-Received: from web90007.mail.scd.yahoo.com ([66.218.94.65]:64154 "HELO
-	web90007.mail.scd.yahoo.com") by vger.kernel.org with SMTP
-	id S263776AbUEXAcB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 20:32:01 -0400
-Message-ID: <20040524003200.14639.qmail@web90007.mail.scd.yahoo.com>
-Date: Sun, 23 May 2004 17:32:00 -0700 (PDT)
-From: Phy Prabab <phyprabab@yahoo.com>
-Subject: Help understanding slow down
-To: linux-kernel@vger.kernel.org
+	Sun, 23 May 2004 20:39:41 -0400
+Received: from smtp4.cwidc.net ([154.33.63.114]:31712 "EHLO smtp4.cwidc.net")
+	by vger.kernel.org with ESMTP id S263777AbUEXAjk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 20:39:40 -0400
+Message-ID: <40B14444.1020307@tequila.co.jp>
+Date: Mon, 24 May 2004 09:39:32 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: Tequila \ Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040308
+X-Accept-Language: en-us, en, ja
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jean Delvare <khali@linux-fr.org>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-mm3: i810 agpgart module can't be initialized
+References: <20040523105557.115b91a0.khali@linux-fr.org>
+In-Reply-To: <20040523105557.115b91a0.khali@linux-fr.org>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I need some help understanding what is at issue with
-the extreme lsow down in build times for a custom
-executable on different kernel versions.  The
-difference is pretty huge:
+Jean Delvare wrote:
+| Hi Clemens,
+|
+| Could be that you have the i2c-i810 driver loaded. Both drivers (i2c and
+| fb) request the PCI device AFAIK, so they are mutually exclusive.
+|
+| Both drivers should proably be merged so as to solve that issue, but
+| nodoby seems to be interested in working on this right now. And I won't
+| do it, I don't even have compatible hardware to test on.
 
-RH 2.4.20-13-7 : ~1m.10s
-2.4.22         : ~1m.40s
-2.4.26         : ~2m.15s
-2.6.1          : ~3m.40s
-2.6.2          : ~4m.00s
-2.6.3          : ~4m.00s
-2.6.6          : ~3m.15s
-2.6.6-mm4      : ~2m.10s
-2.6.6-mm5      : ~2m.50s
-2.6.7-p1       : ~2m.80s
-(ran five times on every kernel to get approximate
-time listed)
+well they shouldn't, shouldn't they. Anyway in mm4 this problem doesn't
+exist anymore.
 
-The question is, how can I get the newer kernels to
-scream like the older kernels?
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.co.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-I have moved all files in question to the local disk
-to rule out network issues (though the 2.6.x kernels
-are faster at net access).  I have run the make
-command in debug mode and find no differnce betHz w/8G
-RAM.
-
-Thank you for your assistance.
-Phy
-
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Domains – Claim yours for only $14.70/year
-http://smallbusiness.promotions.yahoo.com/offer 
+iD8DBQFAsUREjBz/yQjBxz8RAtKQAKC2XS8HzUcJDp6vlJJgLqMDehl5HwCgtZ7I
+xfPWVArBnTEkFHujUZLE0d4=
+=NOy+
+-----END PGP SIGNATURE-----

@@ -1,228 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbUKUQUS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbUKUPku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261737AbUKUQUS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 11:20:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbUKUQSQ
+	id S261333AbUKUPku (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 10:40:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbUKUPkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 11:18:16 -0500
-Received: from [213.85.13.118] ([213.85.13.118]:29571 "EHLO tau.rusteko.ru")
-	by vger.kernel.org with ESMTP id S261775AbUKUQPR (ORCPT
-	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Sun, 21 Nov 2004 11:15:17 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="KRuiu7EswP"
-Content-Transfer-Encoding: 7bit
-Message-ID: <16800.48889.428100.518358@gargle.gargle.HOWL>
-Date: Sun, 21 Nov 2004 19:14:49 +0300
-To: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-Cc: Andrew Morton <AKPM@Osdl.ORG>, Linux MM Mailing List <linux-mm@kvack.org>
-Subject: Re: [PATCH]: 3/4 mm/rmap.c cleanup
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
-References: <16800.47063.386282.752478@gargle.gargle.HOWL>
-	<m1zn1bmbu3.fsf@clusterfs.com>
+	Sun, 21 Nov 2004 10:40:00 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43272 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261645AbUKUPgS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 10:36:18 -0500
+Date: Sun, 21 Nov 2004 16:36:14 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: rmk@arm.linux.org.uk
+Cc: Antonino Daplas <adaplas@pol.net>, linux-kernel@vger.kernel.org,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: [2.6 patch] cyber2000fb.c: misc cleanups
+Message-ID: <20041121153614.GR2829@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---KRuiu7EswP
-Content-Type: text/plain; charset=us-ascii
-Content-Description: message body text
-Content-Transfer-Encoding: 7bit
-
-Nikita Danilov <nikita@clusterfs.com> writes:
-
-> Nikita Danilov <nikita@clusterfs.com> writes:
->
->> identical code that
->
-> Hmm... hungry grues everywhere. First lines should have been
->
->     mm/rmap.c:page_referenced_one() and mm/rmap.c:try_to_unmap_one() contain
->     identical code that
->
-> Patch is also but. Try again, this time attached.
-
-This time for sure, I promise.
-
-Nikita.
-
---KRuiu7EswP
-Content-Type: text/plain
-Content-Disposition: inline;
-	filename="rmap-cleanup.patch"
-Content-Transfer-Encoding: 7bit
+The patch below ncludes the following cleanups for 
+drivers/video/cyber2000fb.c:
+- remove five EXPORT_SYMBOL'ed but completely unused functions
+- make some needlessly global code static
 
 
-mm/rmap.c:page_referenced_one() and mm/rmap.c:try_to_unmap_one() contain
-identical code that
-
- - takes mm->page_table_lock;
-
- - drills through page tables;
-
- - checks that correct pte is reached.
-
-Coalesce this into page_check_address()
+diffstat output:
+ drivers/video/cyber2000fb.c |   79 +-----------------------------------
+ drivers/video/cyber2000fb.h |    9 ----
+ 2 files changed, 4 insertions(+), 84 deletions(-)
 
 
- mm/rmap.c |   95 +++++++++++++++++++++++++++-----------------------------------
- 1 files changed, 42 insertions(+), 53 deletions(-)
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-diff -puN mm/rmap.c~rmap-cleanup mm/rmap.c
---- bk-linux/mm/rmap.c~rmap-cleanup	2004-11-21 18:59:59.759523776 +0300
-+++ bk-linux-nikita/mm/rmap.c	2004-11-21 18:59:59.761523472 +0300
-@@ -250,6 +250,34 @@ unsigned long page_address_in_vma(struct
- }
+--- linux-2.6.10-rc2-mm2-full/drivers/video/cyber2000fb.h.old	2004-11-21 15:04:35.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/video/cyber2000fb.h	2004-11-21 15:04:59.000000000 +0100
+@@ -497,12 +497,3 @@
+ 
+ struct fb_var_screeninfo;
+ 
+-/*
+- * Note! Writing to the Cyber20x0 registers from an interrupt
+- * routine is definitely a bad idea atm.
+- */
+-int cyber2000fb_attach(struct cyberpro_info *info, int idx);
+-void cyber2000fb_detach(int idx);
+-void cyber2000fb_enable_extregs(struct cfb_info *cfb);
+-void cyber2000fb_disable_extregs(struct cfb_info *cfb);
+-void cyber2000fb_get_fb_var(struct cfb_info *cfb, struct fb_var_screeninfo *var);
+--- linux-2.6.10-rc2-mm2-full/drivers/video/cyber2000fb.c.old	2004-11-21 15:05:10.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/video/cyber2000fb.c	2004-11-21 15:10:01.000000000 +0100
+@@ -1075,79 +1075,6 @@
+ static struct cfb_info		*int_cfb_info;
  
  /*
-+ * Check that @page is mapped at @address into @mm.
-+ *
-+ * On success returns with mapped pte and locked mm->page_table_lock.
-+ */
-+static inline pte_t *page_check_address(struct page *page, struct mm_struct *mm,
-+					unsigned long address)
-+{
-+	pgd_t *pgd;
-+	pmd_t *pmd;
-+	pte_t *pte;
-+
-+	spin_lock(&mm->page_table_lock);
-+	pgd = pgd_offset(mm, address);
-+	if (likely(pgd_present(*pgd))) {
-+		pmd = pmd_offset(pgd, address);
-+		if (likely(pmd_present(*pmd))) {
-+			pte = pte_offset_map(pmd, address);
-+			if (likely(pte_present(*pte) &&
-+				   page_to_pfn(page) == pte_pfn(*pte)))
-+				return pte;
-+			pte_unmap(pte);
-+		}
-+	}
-+	spin_unlock(&mm->page_table_lock);
-+	return ERR_PTR(-ENOENT);
-+}
-+
-+/*
-  * Subfunctions of page_referenced: page_referenced_one called
-  * repeatedly from either page_referenced_anon or page_referenced_file.
+- * Enable access to the extended registers
+- */
+-void cyber2000fb_enable_extregs(struct cfb_info *cfb)
+-{
+-	cfb->func_use_count += 1;
+-
+-	if (cfb->func_use_count == 1) {
+-		int old;
+-
+-		old = cyber2000_grphr(EXT_FUNC_CTL, cfb);
+-		old |= EXT_FUNC_CTL_EXTREGENBL;
+-		cyber2000_grphw(EXT_FUNC_CTL, old, cfb);
+-	}
+-}
+-
+-/*
+- * Disable access to the extended registers
+- */
+-void cyber2000fb_disable_extregs(struct cfb_info *cfb)
+-{
+-	if (cfb->func_use_count == 1) {
+-		int old;
+-
+-		old = cyber2000_grphr(EXT_FUNC_CTL, cfb);
+-		old &= ~EXT_FUNC_CTL_EXTREGENBL;
+-		cyber2000_grphw(EXT_FUNC_CTL, old, cfb);
+-	}
+-
+-	if (cfb->func_use_count == 0)
+-		printk(KERN_ERR "disable_extregs: count = 0\n");
+-	else
+-		cfb->func_use_count -= 1;
+-}
+-
+-void cyber2000fb_get_fb_var(struct cfb_info *cfb, struct fb_var_screeninfo *var)
+-{
+-	memcpy(var, &cfb->fb.var, sizeof(struct fb_var_screeninfo));
+-}
+-
+-/*
+- * Attach a capture/tv driver to the core CyberX0X0 driver.
+- */
+-int cyber2000fb_attach(struct cyberpro_info *info, int idx)
+-{
+-	if (int_cfb_info != NULL) {
+-		info->dev	      = int_cfb_info->dev;
+-		info->regs	      = int_cfb_info->regs;
+-		info->fb	      = int_cfb_info->fb.screen_base;
+-		info->fb_size	      = int_cfb_info->fb.fix.smem_len;
+-		info->enable_extregs  = cyber2000fb_enable_extregs;
+-		info->disable_extregs = cyber2000fb_disable_extregs;
+-		info->info            = int_cfb_info;
+-
+-		strlcpy(info->dev_name, int_cfb_info->fb.fix.id, sizeof(info->dev_name));
+-	}
+-
+-	return int_cfb_info != NULL;
+-}
+-
+-/*
+- * Detach a capture/tv driver from the core CyberX0X0 driver.
+- */
+-void cyber2000fb_detach(int idx)
+-{
+-}
+-
+-EXPORT_SYMBOL(cyber2000fb_attach);
+-EXPORT_SYMBOL(cyber2000fb_detach);
+-EXPORT_SYMBOL(cyber2000fb_enable_extregs);
+-EXPORT_SYMBOL(cyber2000fb_disable_extregs);
+-EXPORT_SYMBOL(cyber2000fb_get_fb_var);
+-
+-/*
+  * These parameters give
+  * 640x480, hsync 31.5kHz, vsync 60Hz
   */
-@@ -258,8 +286,6 @@ static int page_referenced_one(struct pa
+@@ -1306,7 +1233,8 @@
+  * Parse Cyber2000fb options.  Usage:
+  *  video=cyber2000:font:fontname
+  */
+-int
++#ifndef MODULE
++static int
+ cyber2000fb_setup(char *options)
  {
- 	struct mm_struct *mm = vma->vm_mm;
- 	unsigned long address;
--	pgd_t *pgd;
--	pmd_t *pmd;
- 	pte_t *pte;
- 	int referenced = 0;
- 
-@@ -269,35 +295,18 @@ static int page_referenced_one(struct pa
- 	if (address == -EFAULT)
- 		goto out;
- 
--	spin_lock(&mm->page_table_lock);
--
--	pgd = pgd_offset(mm, address);
--	if (!pgd_present(*pgd))
--		goto out_unlock;
--
--	pmd = pmd_offset(pgd, address);
--	if (!pmd_present(*pmd))
--		goto out_unlock;
--
--	pte = pte_offset_map(pmd, address);
--	if (!pte_present(*pte))
--		goto out_unmap;
--
--	if (page_to_pfn(page) != pte_pfn(*pte))
--		goto out_unmap;
--
--	if (ptep_clear_flush_young(vma, address, pte))
--		referenced++;
--
--	if (mm != current->mm && !ignore_token && has_swap_token(mm))
--		referenced++;
-+	pte = page_check_address(page, mm, address);
-+	if (!IS_ERR(pte)) {
-+		if (ptep_clear_flush_young(vma, address, pte))
-+			referenced++;
- 
--	(*mapcount)--;
-+		if (mm != current->mm && !ignore_token && has_swap_token(mm))
-+			referenced++;
- 
--out_unmap:
--	pte_unmap(pte);
--out_unlock:
--	spin_unlock(&mm->page_table_lock);
-+		(*mapcount)--;
-+		pte_unmap(pte);
-+		spin_unlock(&mm->page_table_lock);
-+	}
- out:
- 	return referenced;
- }
-@@ -501,8 +510,6 @@ static int try_to_unmap_one(struct page 
- {
- 	struct mm_struct *mm = vma->vm_mm;
- 	unsigned long address;
--	pgd_t *pgd;
--	pmd_t *pmd;
- 	pte_t *pte;
- 	pte_t pteval;
- 	int ret = SWAP_AGAIN;
-@@ -513,26 +520,9 @@ static int try_to_unmap_one(struct page 
- 	if (address == -EFAULT)
- 		goto out;
- 
--	/*
--	 * We need the page_table_lock to protect us from page faults,
--	 * munmap, fork, etc...
--	 */
--	spin_lock(&mm->page_table_lock);
--
--	pgd = pgd_offset(mm, address);
--	if (!pgd_present(*pgd))
--		goto out_unlock;
--
--	pmd = pmd_offset(pgd, address);
--	if (!pmd_present(*pmd))
--		goto out_unlock;
--
--	pte = pte_offset_map(pmd, address);
--	if (!pte_present(*pte))
--		goto out_unmap;
--
--	if (page_to_pfn(page) != pte_pfn(*pte))
--		goto out_unmap;
-+	pte = page_check_address(page, mm, address);
-+	if (IS_ERR(pte))
-+		goto out;
- 
- 	/*
- 	 * If the page is mlock()d, we cannot swap it out.
-@@ -598,7 +588,6 @@ static int try_to_unmap_one(struct page 
- 
- out_unmap:
- 	pte_unmap(pte);
--out_unlock:
- 	spin_unlock(&mm->page_table_lock);
- out:
- 	return ret;
-@@ -697,7 +686,6 @@ static void try_to_unmap_cluster(unsigne
+ 	char *opt;
+@@ -1328,6 +1256,7 @@
  	}
+ 	return 0;
+ }
++#endif
  
- 	pte_unmap(pte);
--
- out_unlock:
- 	spin_unlock(&mm->page_table_lock);
- }
-@@ -849,3 +837,4 @@ int try_to_unmap(struct page *page)
- 		ret = SWAP_SUCCESS;
- 	return ret;
- }
-+
+ /*
+  * The CyberPro chips can be placed on many different bus types.
+@@ -1717,7 +1646,7 @@
+  *
+  * Tony: "module_init" is now required
+  */
+-int __init cyber2000fb_init(void)
++static int __init cyber2000fb_init(void)
+ {
+ 	int ret = -1, err;
+ 
 
-_
-
---KRuiu7EswP--

@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129648AbQKYTwq>; Sat, 25 Nov 2000 14:52:46 -0500
+        id <S130108AbQKYUcL>; Sat, 25 Nov 2000 15:32:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129822AbQKYTwh>; Sat, 25 Nov 2000 14:52:37 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41488 "EHLO
-        www.linux.org.uk") by vger.kernel.org with ESMTP id <S129648AbQKYTwZ>;
-        Sat, 25 Nov 2000 14:52:25 -0500
-Date: Sat, 25 Nov 2000 19:22:14 +0000
-From: Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>
-To: Roger Larsson <roger.larsson@norran.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: *_trylock return on success?
-Message-ID: <20001125192214.R2272@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <00112516072500.01122@dox> <Pine.LNX.4.21.0011251547210.8818-100000@duckman.distro.conectiva> <20001125183036.Q2272@parcelfarce.linux.theplanet.co.uk> <00112520034902.01122@dox>
+        id <S131730AbQKYUcB>; Sat, 25 Nov 2000 15:32:01 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:60400 "EHLO hera.cwi.nl")
+        by vger.kernel.org with ESMTP id <S130108AbQKYUby>;
+        Sat, 25 Nov 2000 15:31:54 -0500
+Date: Sat, 25 Nov 2000 21:01:47 +0100
+From: Andries Brouwer <aeb@veritas.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: gcc-2.95.2-51 is buggy
+Message-ID: <20001125210147.A6798@veritas.com>
+In-Reply-To: <14878.58.908955.701821@notabene.cse.unsw.edu.au> <Pine.LNX.4.21.0011251522430.8818-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <00112520034902.01122@dox>; from roger.larsson@norran.net on Sat, Nov 25, 2000 at 08:03:49PM +0100
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.21.0011251522430.8818-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Sat, Nov 25, 2000 at 03:26:15PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 25, 2000 at 08:03:49PM +0100, Roger Larsson wrote:
-> > _trylock functions return 0 for success.
-> 
-> Not   spin_trylock
+On Sat, Nov 25, 2000 at 03:26:15PM -0200, Rik van Riel wrote:
 
-Argh, I missed the (recent ?) change to make x86 spinlocks use 1 to mean
-unlocked.  You're correct, and obviously this should be fixed.
+> The gcc-2.95.2-6cl from Conectiva 6.0 is buggy too.
+
+Yes. Probably you have seen it by now, but the difference between
+good and bad versions of gcc-2.95.2 did not lie in the applied patches,
+but was the difference between compilation for 686 or 386.
+It is not your (SuSE's, Debian's) fault. A fix already exists.
+
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

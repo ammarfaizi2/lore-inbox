@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288940AbSAFNYH>; Sun, 6 Jan 2002 08:24:07 -0500
+	id <S288946AbSAFNZk>; Sun, 6 Jan 2002 08:25:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288946AbSAFNX6>; Sun, 6 Jan 2002 08:23:58 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:40336 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S288940AbSAFNXu>;
-	Sun, 6 Jan 2002 08:23:50 -0500
-Date: Sun, 6 Jan 2002 14:23:45 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200201061323.OAA29303@harpo.it.uu.se>
-To: stepan@3amp.com
-Subject: Re: 2.4.17 - hang after 'freeing unused kernel memory'
-Cc: linux-kernel@vger.kernel.org
+	id <S288949AbSAFNZ2>; Sun, 6 Jan 2002 08:25:28 -0500
+Received: from ns.suse.de ([213.95.15.193]:60420 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S288948AbSAFNZW>;
+	Sun, 6 Jan 2002 08:25:22 -0500
+Date: Sun, 6 Jan 2002 14:25:17 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Momchil Velikov <velco@fadata.bg>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove 8 bytes from struct page on 64bit archs
+In-Reply-To: <87n0zraagg.fsf@fadata.bg>
+Message-ID: <Pine.LNX.4.33.0201061421400.3859-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Jan 2002 12:30:39 +0100, Stepan Hluchan wrote:
->I have installed the RedHat 7.2 distro (I think it comes with
->2.4.10-something
->but that hangs too) on one machine A. and then transferred the HD to
->another (machine B) where it should be used.   On machine A (Celeron 800Mhz)
->it all boots up fine with any kernel, on machine B (P75 @ 100Mhz, ancient
->BIOS
->and mobo) it hangs after the message 'freeing up XX k unused kernel memory'.
->
->I have compiled the 2.4.17, 2.4.0 kernels set to 'classic pentium', but both
->would
->hang...
+On 6 Jan 2002, Momchil Velikov wrote:
 
-User error. It's actually INIT that's hanging, not the kernel.
-When you installed on machine A, RH chose glibc libraries optimised
-for i686-class CPUs. These libraries WILL NOT RUN on anything less,
-including the P5 classic in your machine B, due to their use of the
-CMOV instruction.
+> They're pretty much independent of each other
 
-Move the disk back to machine A. Manually install the plain i386 glibc
-library (glibc-2.2.4-19.3.i386.rpm if you get it from the RH7.2 updates
-sites). Then move the disk back to machine B.
+Hardly. wli removes the zone ptr completely by encoding it into flags,
+whilst anton makes it conditional. As it stands, they don't
+play together.
 
-/Mikael
+> as a single large dropping^h^h^h^h is not the preferred way of
+> submitting patches.
+
+They both have the same (or similar) goal. Having them both go
+off in different directions to achieve that goal is counterproductive
+if the end result is the same.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267569AbTA3RiS>; Thu, 30 Jan 2003 12:38:18 -0500
+	id <S267571AbTA3Rll>; Thu, 30 Jan 2003 12:41:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267571AbTA3RiS>; Thu, 30 Jan 2003 12:38:18 -0500
-Received: from host213-121-111-56.in-addr.btopenworld.com ([213.121.111.56]:44733
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
-	id <S267569AbTA3RiR>; Thu, 30 Jan 2003 12:38:17 -0500
-Subject: Re: Secure usage of netfilter hooks
-From: Gianni Tedesco <gianni@ecsc.co.uk>
-To: Abhishek Singh <abhi@cc.gatech.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0301301229130.22137-100000@novascotia-lnx.cc.gatech.edu>
-References: <Pine.LNX.4.44.0301301229130.22137-100000@novascotia-lnx.cc.gatech.edu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-5XhnoakRM5n4De64J8xs"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 30 Jan 2003 17:47:51 +0000
-Message-Id: <1043948872.720.28.camel@lemsip>
+	id <S267573AbTA3Rll>; Thu, 30 Jan 2003 12:41:41 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:26248
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267571AbTA3Rlk>; Thu, 30 Jan 2003 12:41:40 -0500
+Subject: Re: [PATCH] 2.5.59 morse code panics
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Tomas Szepe <szepe@pinerecords.com>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Rodland <arodland@noln.com>, john@grabjohn.com
+In-Reply-To: <20030130173642.GB25824@codemonkey.org.uk>
+References: <20030130150709.GC701@louise.pinerecords.com>
+	 <20030130173642.GB25824@codemonkey.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1043952334.31674.20.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 30 Jan 2003 18:45:34 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-01-30 at 17:36, Dave Jones wrote:
+> As this patch further builds upon the previous one,
+> It'd take a complete change of mind on his part to take
+> this as it is.
 
---=-5XhnoakRM5n4De64J8xs
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, 2003-01-30 at 17:33, Abhishek Singh wrote:
-> Is it possible for a netfilter hook registered during module insertion=20
-> time to be removed by a userspace application (such as iptables) without=20
-> the insertion of a new module?=20
-
-Yeah, remove all rules using it and rmmod the module.
-
-> What I am trying to do is implement a hook for secure packet processing=20
-> using netfilter. If however an attacker can remove this hook without=20
-> inserting a new module or compromising the kernel in some way then the=20
-> security level of this hook is compromised.=20
-
-You gotta be root to manipulate iptables. If a user could manipulate ANY
-iptables rules security would already be compromised because any user
-could fuck with firewall rules.
-
-HTH
-
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
-
---=-5XhnoakRM5n4De64J8xs
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA+OWVHkbV2aYZGvn0RAm0+AJ0b/3IEyAt0ZgsZS2s/xtbcrVxfcgCeMDEm
-5RXQdXLDdYydHZpY+yLza58=
-=4N2U
------END PGP SIGNATURE-----
-
---=-5XhnoakRM5n4De64J8xs--
+If its attached to atkbd then its not a PCism and its now
+nicely modularised in the atkbd driver. Providing we have
+a clear split between the core "morse sender" and the
+platform specific morse output device (do we want 
+morse_ops 8)) it should be clean and you can write morse
+drivers for pc speaker, for non pc keyboard and even for
+soundblaster 8)
 

@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262132AbVCTLOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVCTLP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262132AbVCTLOh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 06:14:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVCTLOh
+	id S261719AbVCTLP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 06:15:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVCTLP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 06:14:37 -0500
-Received: from coderock.org ([193.77.147.115]:25739 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262132AbVCTLOd (ORCPT
+	Sun, 20 Mar 2005 06:15:29 -0500
+Received: from coderock.org ([193.77.147.115]:27787 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261719AbVCTLPP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 06:14:33 -0500
-Date: Sun, 20 Mar 2005 12:14:27 +0100
+	Sun, 20 Mar 2005 06:15:15 -0500
+Date: Sun, 20 Mar 2005 12:15:07 +0100
 From: Domen Puncer <domen@coderock.org>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, adobriyan@mail.ru
-Subject: Re: [patch 06/10 with proper signed-off] init/do_mounts_initrd.c: fix sparse warning
-Message-ID: <20050320111426.GA14273@nd47.coderock.org>
-References: <20050319131732.75E071F23D@trashy.coderock.org>
+Subject: Re: [patch 07/10 with proper signed-off] arch/i386/kernel/traps.c: fix sparse warnings
+Message-ID: <20050320111507.GB14273@nd47.coderock.org>
+References: <20050319131735.930951ECA8@trashy.coderock.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050319131732.75E071F23D@trashy.coderock.org>
+In-Reply-To: <20050319131735.930951ECA8@trashy.coderock.org>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -30,28 +30,54 @@ Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj-domen/init/do_mounts_initrd.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ kj-domen/arch/i386/kernel/traps.c |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
 
-diff -puN init/do_mounts_initrd.c~sparse-init_do_mounts_initrd init/do_mounts_initrd.c
---- kj/init/do_mounts_initrd.c~sparse-init_do_mounts_initrd	2005-03-20 12:11:17.000000000 +0100
-+++ kj-domen/init/do_mounts_initrd.c	2005-03-20 12:11:17.000000000 +0100
-@@ -41,7 +41,7 @@ static int __init do_linuxrc(void * shel
- static void __init handle_initrd(void)
- {
- 	int error;
--	int i, pid;
-+	int pid;
+diff -puN arch/i386/kernel/traps.c~sparse-arch_i386_kernel_traps arch/i386/kernel/traps.c
+--- kj/arch/i386/kernel/traps.c~sparse-arch_i386_kernel_traps	2005-03-20 12:11:18.000000000 +0100
++++ kj-domen/arch/i386/kernel/traps.c	2005-03-20 12:11:18.000000000 +0100
+@@ -233,22 +233,22 @@ void show_registers(struct pt_regs *regs
+ 	 * time of the fault..
+ 	 */
+ 	if (in_kernel) {
+-		u8 *eip;
++		u8 __user *eip;
  
- 	real_root_dev = new_encode_dev(ROOT_DEV);
- 	create_dev("/dev/root.old", Root_RAM0, NULL);
-@@ -58,7 +58,7 @@ static void __init handle_initrd(void)
+ 		printk("\nStack: ");
+ 		show_stack(NULL, (unsigned long*)esp);
  
- 	pid = kernel_thread(do_linuxrc, "/linuxrc", SIGCHLD);
- 	if (pid > 0) {
--		while (pid != sys_wait4(-1, &i, 0, NULL))
-+		while (pid != sys_wait4(-1, NULL, 0, NULL))
- 			yield();
- 	}
+ 		printk("Code: ");
+ 
+-		eip = (u8 *)regs->eip - 43;
++		eip = (u8 __user *)regs->eip - 43;
+ 		for (i = 0; i < 64; i++, eip++) {
+ 			unsigned char c;
+ 
+-			if (eip < (u8 *)PAGE_OFFSET || __get_user(c, eip)) {
++			if (eip < (u8 __user *)PAGE_OFFSET || __get_user(c, eip)) {
+ 				printk(" Bad EIP value.");
+ 				break;
+ 			}
+-			if (eip == (u8 *)regs->eip)
++			if (eip == (u8 __user *)regs->eip)
+ 				printk("<%02x> ", c);
+ 			else
+ 				printk("%02x ", c);
+@@ -272,13 +272,13 @@ static void handle_BUG(struct pt_regs *r
+ 
+ 	if (eip < PAGE_OFFSET)
+ 		goto no_bug;
+-	if (__get_user(ud2, (unsigned short *)eip))
++	if (__get_user(ud2, (unsigned short __user *)eip))
+ 		goto no_bug;
+ 	if (ud2 != 0x0b0f)
+ 		goto no_bug;
+-	if (__get_user(line, (unsigned short *)(eip + 2)))
++	if (__get_user(line, (unsigned short __user *)(eip + 2)))
+ 		goto bug;
+-	if (__get_user(file, (char **)(eip + 4)) ||
++	if (__get_user(file, (char * __user *)(eip + 4)) ||
+ 		(unsigned long)file < PAGE_OFFSET || __get_user(c, file))
+ 		file = "<bad filename>";
  
 _

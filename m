@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129055AbQKAMqa>; Wed, 1 Nov 2000 07:46:30 -0500
+	id <S129185AbQKAMrU>; Wed, 1 Nov 2000 07:47:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130619AbQKAMqU>; Wed, 1 Nov 2000 07:46:20 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35088 "EHLO
+	id <S130090AbQKAMrK>; Wed, 1 Nov 2000 07:47:10 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37392 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129055AbQKAMqJ>; Wed, 1 Nov 2000 07:46:09 -0500
-Subject: Re: scsi-cdrom lockup and ide-scsi problem (both EFS related)
-To: axboe@suse.de (Jens Axboe)
-Date: Wed, 1 Nov 2000 12:47:20 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), paul@clubi.ie (Paul Jakma),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <20001031191043.C11727@suse.de> from "Jens Axboe" at Oct 31, 2000 07:10:43 PM
+	id <S130616AbQKAMqw>; Wed, 1 Nov 2000 07:46:52 -0500
+Subject: Re: test10-pre7
+To: kaos@ocs.com.au (Keith Owens)
+Date: Wed, 1 Nov 2000 12:46:41 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        rmk@arm.linux.org.uk (Russell King),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <21820.973046146@ocs3.ocs-net> from "Keith Owens" at Nov 01, 2000 01:35:46 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13qxIX-0000OZ-00@the-village.bc.nu>
+Message-Id: <E13qxHu-0000OT-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Nov 01 2000, Alan Cox wrote:
-> > > It's untested behaviour at this point, all bets are off. It
-> > > hasn't oopses here though...
-> > 
-> > Not just CD either. SCSI disk has the same problem in 2.4 but not 2.2
-> 
-> Disk too? I guess Eric broke more than he bargained for :)
+> of SCSI cards is not a good enough reason.  People with multiple SCSI
+> cards already change the order of scsi entries to get the probe order
+> that suits them, LINK_FIRST will make that even easier.
 
-Magneto optical disks are 2K block size with 512 byte chunked MSDOS fs on them
+Why not solve the generic problem. If you give a list of requirements to
+tsort one per line it will tell you the order. You just need to turn a set
+of ordering needs into a tsort input
+
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

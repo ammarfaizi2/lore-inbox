@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131834AbRCXV6r>; Sat, 24 Mar 2001 16:58:47 -0500
+	id <S131842AbRCXWse>; Sat, 24 Mar 2001 17:48:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131836AbRCXV6k>; Sat, 24 Mar 2001 16:58:40 -0500
-Received: from [213.128.193.148] ([213.128.193.148]:23817 "EHLO
-	dredd.crimea.edu") by vger.kernel.org with ESMTP id <S131834AbRCXV62>;
-	Sat, 24 Mar 2001 16:58:28 -0500
-Date: Sun, 25 Mar 2001 00:57:31 +0300
-From: Oleg Drokin <green@dredd.crimea.edu>
-To: linux-kernel@vger.kernel.org, davem@redhat.com, kuznet@ms2.inr.ac.ru
-Subject: IP layer bug?
-Message-ID: <20010325005731.A5243@dredd.crimea.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S131861AbRCXWsY>; Sat, 24 Mar 2001 17:48:24 -0500
+Received: from www.wen-online.de ([212.223.88.39]:38156 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S131842AbRCXWsS>;
+	Sat, 24 Mar 2001 17:48:18 -0500
+Date: Sat, 24 Mar 2001 23:47:44 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <3ABCE547.DD5E78B9@redhat.com>
+Message-ID: <Pine.LNX.4.33.0103242307520.570-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sat, 24 Mar 2001, Doug Ledford wrote:
 
-   2.4.x kernel. have not tried 2.2
-   I just found somethig, I believe is kernel bug.
-   I am working with usbnet.c driver, which stores some of its
-   internal state in sk_buff.cb area. But once such skb passed to
-   upper layer with netif_rx, net/ipv4/ip_input.c reuses content of cb
-   (line #345), and all packets that should go outside of beyond hosts
-   we have direct routes to, fails, because we think, they have source routing
-   enabled.
-   For now I workarounded it with filling skb->cb with zeroes before
-   netif_rx(), but I believe it is a kludge and networking layer should be fixed
-   instead.
+> Mike Galbraith wrote:
+> >
+> > General thread comment:
+> > To those who are griping, and obviously rightfully so, Rik has twice
+> > stated on this list that he could use some help with VM auto-balancing.
+> > The responses (visible on this list at least) was rather underwhelming.
+> > I noted no public exchange of ideas.. nada in fact.
+>
+> While my post didn't give an exact formula, I was quite clear on the fact that
+> the system is allowing the caches to overrun memory and cause oom problems.
 
-   Thank you.
+Yes.  A testcase would be good.  It's not happening to everybody nor is
+it happening under all loads.  (if it were, it'd be long dead)
 
-Bye,
-    Oleg
+> I'm more than happy to test patches, and I would even be willing to suggest
+> some algorithms that might help, but I don't know where to stick them in the
+> code.  Most of the people who have been griping are in a similar position.
+
+First step toward killing the critter is to lure him onto open ground.
+Once there.. well, I've seen some pretty fancy shooting on this list.
+
+	-Mike
+

@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317944AbSFSRTm>; Wed, 19 Jun 2002 13:19:42 -0400
+	id <S313421AbSFSRXD>; Wed, 19 Jun 2002 13:23:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317946AbSFSRTl>; Wed, 19 Jun 2002 13:19:41 -0400
-Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:3456
-	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with ESMTP id <S317944AbSFSRTk>; Wed, 19 Jun 2002 13:19:40 -0400
-From: Wayne Whitney <whitney@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-Message-Id: <200206191718.g5JHIrK01977@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Dave Jones <davej@suse.de>, Anders Gustafsson <andersg@0x63.nu>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/partitions broken in 2.5.23
-In-Reply-To: <20020619113233.GA15730@win.tue.nl>
-References: <20020619090248.GA8681@suse.de> <20020619090248.GA8681@suse.de> <20020619113233.GA15730@win.tue.nl>
-Reply-To: whitney@math.berkeley.edu
-Date: Wed, 19 Jun 2002 10:18:53 -0700
+	id <S317946AbSFSRXC>; Wed, 19 Jun 2002 13:23:02 -0400
+Received: from otter.mbay.net ([206.55.237.2]:30728 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S313421AbSFSRXB> convert rfc822-to-8bit;
+	Wed, 19 Jun 2002 13:23:01 -0400
+From: John Alvord <jalvo@mbay.net>
+To: Rob Landley <landley@trommello.org>
+Cc: zaimi@pegasus.rutgers.edu, linux-kernel@vger.kernel.org
+Subject: Re: kernel upgrade on the fly
+Date: Wed, 19 Jun 2002 10:22:59 -0700
+Message-ID: <l8f1hu0ptese1cie90tnvathd36jqc41ca@4ax.com>
+References: <Pine.GSO.4.44.0206181703540.26846-100000@pegasus.rutgers.edu> <20020619010945.6725B7D9@merlin.webofficenow.com>
+In-Reply-To: <20020619010945.6725B7D9@merlin.webofficenow.com>
+X-Mailer: Forte Agent 1.8/32.553
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In mailing-lists.linux-kernel, you wrote:
+On Tue, 18 Jun 2002 15:37:23 -0400, Rob Landley
+<landley@trommello.org> wrote:
 
-> I changed something here a few weeks ago. The idea was to avoid
-> listing partitions of size 0 but do list full devices, regardless of
-> size. Especially in case of removable media that is useful.
+>On Tuesday 18 June 2002 05:21 pm, zaimi@pegasus.rutgers.edu wrote:
+>> Hi all,
+>>
+>>  has anybody worked or thought about a property to upgrade the kernel
+>> while the system is running?  ie. with all processes waiting in their
+>> queues while the resident-older kernel gets replaced by a newer one.
+>
+>Thought about, yes.  At length.  That's why it hasn't been done. :)
 
-I traced the change to the part of mainline ChangeSet 1.496 given
-below (warning: cut and pasted).  It seems to cause every possible
-device that a driver could provide to show up in /proc/partitions.
-For LVM, that's a zillion devices, and /proc/partitions overflows,
-showing some random pages from memory.  Reverting the patch below
-makes /proc/partitions and LVM happy again.
+IMO the biggest reason it hasn't been done is the existence of
+loadable modules. Most driver-type development work can be tested
+without rebooting.
 
-Cheers,
-Wayne
-
-
---- a/drivers/block/genhd.c	Wed May  8 09:53:06 2002
-+++ b/drivers/block/genhd.c	Sun Jun  9 18:58:36 2002
-@@ -177,9 +177,10 @@
- 	if (sgp == gendisk_head)
- 		seq_puts(part, "major minor  #blocks  name\n\n");
- 
--	/* show all non-0 size partitions of this disk */
-+	/* show the full disk and all non-0 size partitions of it */
- 	for (n = 0; n < (sgp->nr_real << sgp->minor_shift); n++) {
--		if (sgp->part[n].nr_sects == 0)
-+		int minormask = (1<<sgp->minor_shift) - 1;
-+		if ((n & minormask) && sgp->part[n].nr_sects == 0)
- 			continue;
- 		seq_printf(part, "%4d  %4d %10d %s\n",
- 			sgp->major, n, sgp->sizes[n],
+john

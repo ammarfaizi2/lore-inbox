@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264445AbSIVRvk>; Sun, 22 Sep 2002 13:51:40 -0400
+	id <S264452AbSIVSCO>; Sun, 22 Sep 2002 14:02:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264450AbSIVRvk>; Sun, 22 Sep 2002 13:51:40 -0400
-Received: from moutng.kundenserver.de ([212.227.126.185]:33263 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S264445AbSIVRvk>; Sun, 22 Sep 2002 13:51:40 -0400
-Date: Sun, 22 Sep 2002 19:56:17 +0200
-From: Martin Hermanowski <martin@martin.mh57.net>
-To: Jeff Dike <jdike@karaya.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: UML error message clone failed/new thread failed
-Message-ID: <20020922175617.GO15310@martin.mh57.net>
-References: <20020922093040.GL15310@martin.mh57.net> <200209221550.g8MFoQN06125@karaya.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="veXX9dWIonWZEC6h"
-Content-Disposition: inline
-In-Reply-To: <200209221550.g8MFoQN06125@karaya.com>
-User-Agent: Mutt/1.3.28i
+	id <S264453AbSIVSCO>; Sun, 22 Sep 2002 14:02:14 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:6784 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S264452AbSIVSCN>;
+	Sun, 22 Sep 2002 14:02:13 -0400
+Date: Sun, 22 Sep 2002 13:07:18 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: Jurriaan <thunder7@xs4all.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-scsi problems (identical) in 2.5.38 and 2.4.20-pre7-ac3:
+ CoD != 0 in idescsi_pc_intr
+In-Reply-To: <20020922065504.GA1009@middle.of.nowhere>
+Message-ID: <Pine.LNX.4.44.0209221252490.909-100000@dad.molina>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 22 Sep 2002, Jurriaan wrote:
 
---veXX9dWIonWZEC6h
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> selected parts of dmesg:
+> 
+> hdg: LITE-ON LTR-40125W, ATAPI CD/DVD-ROM drive
+> ide-cd: passing drive hdg to ide-scsi emulation.
+> scsi1 : SCSI host adapter emulation for IDE ATAPI devices
+>   Vendor: LITE-ON   Model: LTR-40125W        Rev: WS05
+>   Type:   CD-ROM                             ANSI SCSI revision: 02
+> sr3: scsi3-mmc drive: 12x/12x writer cd/rw xa/form2 cdda tray
+> 
+> After writing for a while, it says:
+> ide-scsi: CoD != 0 in idescsi_pc_intr
+> hdg: ATAPI reset complete
 
-On Sun, Sep 22, 2002 at 11:50:26AM -0400, Jeff Dike wrote:
-> martin@martin.mh57.net said:
-> > The host is running a vanilla 2.4.17, the UML is the one in Debian
-> > Woody (2.4.18.17um-1)
->=20
-> That's a fairly old UML.  If you can make it happen with something more
-> recent, I'd be interested.
+I could not duplicate this error in 2.5.38-bk.
 
-I will try something more recent, but I don't think this will happen
-soon again. The UML that had the problems is running a mailserver with
-amavis and spamd, it has an uptime of about 28 days. The other UMLs on
-the same host are running for 73 days now, without any problems.=20
+However, I did notice some other anomalies during testing.  My testing 
+consisted of dd if=/dev/cdrom of=cd.iso under 2.4.18-10 and 2.5.38-bk.  I 
+tried both a small mail spool (2 MB) cd and a large document cd (637 MB).  
+The small file copied fine under both, but 2.5.38-bk read two fewer 
+sectors than 2.4.18-10 (32404 vs. 32406).  On disk, the files created 
+were:
 
-I had problems with to many processes inside the UML before, but not
-like this. Processes in the UML timed out (exim pipe delivery) and new
-ones could not be started, but I cannot see the reason.
+-rw-r--r--    1 root     root     668475392 Sep 22 12:01 cd2.iso
+-rw-r--r--    1 root     root     668479488 Sep 22 11:51 cd.iso
 
-Regards,
-Martin
+from the same source cd.
 
---veXX9dWIonWZEC6h
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9jgRBV3BRtc7IW1wRAqK0AJ0XrYQrzXUPC8t/w4K1xJAhb0RrSACaApKe
-Do7ygqGlZFgCyz3MUf5WtGE=
-=bBvU
------END PGP SIGNATURE-----
-
---veXX9dWIonWZEC6h--

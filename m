@@ -1,48 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbUCJJbW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 04:31:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbUCJJbW
+	id S262561AbUCJJc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 04:32:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbUCJJc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 04:31:22 -0500
-Received: from ns.suse.de ([195.135.220.2]:60848 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261456AbUCJJbV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 04:31:21 -0500
-To: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Redirection of STDERR
-References: <20040308111349.030feea6.Christoph.Pleger@uni-dortmund.de>
-	<404DEAFD.8090802@bcgreen.com> <jehdwylz0x.fsf@sykes.suse.de>
-	<20040310085039.6c234fbc.Christoph.Pleger@uni-dortmund.de>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: ..  Now KEN and BARBIE are PERMANENTLY ADDICTED to MIND-ALTERING
- DRUGS..
-Date: Wed, 10 Mar 2004 10:31:19 +0100
-In-Reply-To: <20040310085039.6c234fbc.Christoph.Pleger@uni-dortmund.de> (Christoph
- Pleger's message of "Wed, 10 Mar 2004 08:50:39 +0100")
-Message-ID: <jek71tkpzs.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 10 Mar 2004 04:32:57 -0500
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:42718 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S262561AbUCJJct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 04:32:49 -0500
+Date: Wed, 10 Mar 2004 15:05:31 -0500
+From: Sesha Muneendra Swameejee Panda <Psm.Swamiji@Sun.COM>
+Subject: Re: Kernel panic with SLES8.0
+To: linux-kernel@vger.kernel.org
+Reply-to: Psm.Swamiji@Sun.COM
+Message-id: <404F750B.4040100@Sun.COM>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.0.1) Gecko/20020920
+ Netscape/7.0
+References: <404F5FC1.7070207@Sun.COM>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Pleger <Christoph.Pleger@uni-dortmund.de> writes:
+Hi,
 
-> I found out that the problem exists with bash 2.05b, but not with 2.05a.
-> The reason is that with 2.05a the command uses the file descriptors
-> under /dev/fd0 for the pipe, but with 2.05b the command creates a pipe
-> under /tmp. Obviously, the 2.05b mechanism worked with Kernel 2.4, but
-> not with 2.6.
 
-Works fine here, please make sure that your bash isn't misconfigured.
+The follwing are the detailed messages while kernel panic.
 
-Andreas.
+------
+Pending list:
+Kernel Free SCB list: 3 1 0
+DevQ(0:0:0): ) waiting
+DevQ(0:0:0): ) waiting
+aic7xxx_abort returnss 0x2002
+scsi: device set offline - not ready or command retry failed after bus 
+reset: ho
+st 1 channel 0 id 15 lun 0
+Loading module ext3 ...
+Using /lib/modules/2.4.19-64GB-SMP/kernel/fs/ext3/ext3.0
+kmod: failed to exec /sbin/modprobe -s -k block-major-8, errno = 2
+VFS: Cannot open root device "sda2" or 08:02
+Please append a correct "root=" boot option
+kernel panic: VFS: Unable to mount root fs on 08:03
+--------
+
+The system has three partitions.
+
+1. /dev/sda1  /boot   125 MB  ext3
+2. /dev/sda2  /      30.5 GB  ext3
+3. /dev/sda3  swap    3.5 GB  swap
+
+And the RAM is 2048MB.
+
+Boot options used : root=/dev/sda2 mem=2048M.
+
+Any clues?
+
+Thanks,
+P.S.M.Swamiji
+
+
+
+
+Sesha Muneendra Swameejee Panda wrote:
+> Hi,
+> 
+> I have installed the SLES8.0 on a LX50 server. The installation went
+> fine. While coming up the kernel panics with the below message.
+> 
+> kernel panic: VFS: Unable to mount root fs on 08:03
+> 
+> I have tried the workaround by give mem=2048M for boot options . This
+> does not work and give the same problem.
+> 
+> Can anyone of you throw light on this?
+> 
+> Your help is highly appreciated.
+> 
+
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+
+Regards,
+P.S.M.Swamiji
+Ph:2298989 x 27566
+
+"LIFE IS ALREADY SHORT, DONT MAKE IT SHORTER by SMOKING OR
+ARGUING."
+

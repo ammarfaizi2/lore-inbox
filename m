@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbTDHV0o (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 17:26:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbTDHV0o (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 17:26:44 -0400
-Received: from granite.he.net ([216.218.226.66]:12051 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S261892AbTDHV0k (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 17:26:40 -0400
-Date: Tue, 8 Apr 2003 14:40:45 -0700
-From: Greg KH <greg@kroah.com>
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] [PATCH] USB speedtouch: don't open a connection if no firmware
-Message-ID: <20030408214045.GA6376@kroah.com>
-References: <200304080926.43403.baldrick@wanadoo.fr> <20030408201239.GA5828@kroah.com> <200304082222.10919.baldrick@wanadoo.fr>
+	id S261764AbTDHVmn (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 17:42:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTDHVmm (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 17:42:42 -0400
+Received: from x101-201-233-dhcp.reshalls.umn.edu ([128.101.201.233]:26045
+	"EHLO minerva") by vger.kernel.org with ESMTP id S261764AbTDHVmm (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 17:42:42 -0400
+Date: Tue, 8 Apr 2003 16:54:11 -0500
+From: Matt Reppert <arashi@yomerashi.yi.org>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com, rth@twiddle.net
+Subject: Re: Linux 2.5.67
+Message-Id: <20030408165411.4e6d1465.arashi@yomerashi.yi.org>
+In-Reply-To: <Pine.LNX.4.44.0304071051190.1385-100000@penguin.transmeta.com>
+References: <Pine.LNX.4.44.0304071051190.1385-100000@penguin.transmeta.com>
+Organization: Yomerashi
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-message-flag: : This mail sent from host minerva, please respond.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304082222.10919.baldrick@wanadoo.fr>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 08, 2003 at 10:22:10PM +0200, Duncan Sands wrote:
-> > > +	udsl_fire_receivers (instance);
-> > >
-> > >  	dbg ("udsl_atm_open successful");
-> > >
-> > > +	MOD_INC_USE_COUNT;
-> > > +
-> > >  	return 0;
-> > >  }
-> >
-> > Any way you can convert this driver to not use MOD_INC_USE_COUNT, as
-> > it's racy and not really supported anymore?  But if you _really_ have to
-> > use it, you need to call it at the first possible chance to make any
-> > race window smaller.
+On Mon, 7 Apr 2003 10:53:43 -0700 (PDT)
+Linus Torvalds <torvalds@transmeta.com> wrote:
+
 > 
-> Hi Greg, I'm waiting on the fixes to the ATM layer (coming soon to a kernel
-> near you).
+> All over the place as usual - there's definitely a lot of small things 
+> going on. PCMCIA and i2c updates may be the most noticeable ones.
 
-Ah, ok, that makes sense.
+Alpha (LX164) still doesn't build:
 
-> As for the position of MOD_INC_USE_COUNT, did you ever hear
-> of anyone getting bitten by a race like this?  If it makes you feel better, I
-> will move it up, probably just before I take the semaphore (since that is the
-> first place we can sleep).  I will do it tomorrow, OK?
+cc1: warnings being treated as errors
+arch/alpha/kernel/pci.c:314: warning: type defaults to `int' in declaration of `EXPORT_SYMBOL'
+arch/alpha/kernel/pci.c:314: warning: parameter names (without types) in function declaration
+arch/alpha/kernel/pci.c:314: warning: data definition has no type or storage class
 
-Yes, it needs to be before any function that can sleep.  I'll hold off
-applying this patch then.
+The included patch fixes this. I don't know what to do about the following, though:
 
-thanks,
+kernel/sys.c:226: conflicting types for `sys_sendmsg'
+include/linux/socket.h:245: previous declaration of `sys_sendmsg'
+kernel/sys.c:227: conflicting types for `sys_recvmsg'
+include/linux/socket.h:246: previous declaration of `sys_recvmsg'
 
-greg k-h
+Matt
+
+--- 1.29/arch/alpha/kernel/pci.c	Sun Mar 23 19:35:08 2003
++++ 1.30/arch/alpha/kernel/pci.c	Fri Apr  4 20:06:45 2003
+@@ -19,6 +19,7 @@
+ #include <linux/ioport.h>
+ #include <linux/kernel.h>
+ #include <linux/bootmem.h>
++#include <linux/module.h>
+ #include <linux/cache.h>
+ #include <asm/machvec.h>
+ 

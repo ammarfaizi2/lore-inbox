@@ -1,85 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319474AbSIMBQL>; Thu, 12 Sep 2002 21:16:11 -0400
+	id <S319476AbSIMBVV>; Thu, 12 Sep 2002 21:21:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319475AbSIMBQL>; Thu, 12 Sep 2002 21:16:11 -0400
-Received: from bg77.anu.edu.au ([150.203.223.77]:49106 "EHLO lassus.himi.org")
-	by vger.kernel.org with ESMTP id <S319474AbSIMBQK>;
-	Thu, 12 Sep 2002 21:16:10 -0400
-Date: Fri, 13 Sep 2002 11:20:56 +1000
-From: Simon Fowler <simon@himi.org>
-To: Allan Duncan <allan.d@bigpond.com>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: Re: Linux 2.4.20-pre4 & ff. blows away Xwindows with Matrox G400 and agpgart
-Message-ID: <20020913012056.GA10432@himi.org>
-Mail-Followup-To: Allan Duncan <allan.d@bigpond.com>,
-	linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-References: <3D7FF444.87980B8E@bigpond.com.suse.lists.linux.kernel> <p73ptvjpmec.fsf@oldwotan.suse.de> <20020912213201.GA9168@himi.org> <3D811B12.A6615688@bigpond.com>
+	id <S319477AbSIMBVU>; Thu, 12 Sep 2002 21:21:20 -0400
+Received: from sv1.valinux.co.jp ([202.221.173.100]:35336 "HELO
+	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S319476AbSIMBVS>;
+	Thu, 12 Sep 2002 21:21:18 -0400
+Date: Fri, 13 Sep 2002 10:18:26 +0900 (JST)
+Message-Id: <20020913.101826.32726068.taka@valinux.co.jp>
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org, janetmor@us.ibm.com
+Subject: Re: [patch] readv/writev rework
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <3D80E139.ACC1719D@digeo.com>
+References: <3D7EFF0F.89F7D585@digeo.com>
+	<20020912.220041.82105437.taka@valinux.co.jp>
+	<3D80E139.ACC1719D@digeo.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
-Content-Disposition: inline
-In-Reply-To: <3D811B12.A6615688@bigpond.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > Your readv/writev patch interested me and I checked it.
+> > I found we also have a chance to improve normal writev.
+> > 
+> > a_ops->prepare_write() and a_ops->commit_write will have a
+> > penalty when I/O size isn't PAGE_SIZE.
+> > With following patch generic_file_write_nolock() will try to
+> > make each I/O size become PAGE_SIZE.
+> > 
+> 
+> Certainly makes a lot of sense.  If an application has a large
+> number of small objects which are to be appended to a file, and
+> they are not contiguous in user memory then this patch makes
+> writev() a very attractive way of doing that.  Tons faster.
 
-On Fri, Sep 13, 2002 at 08:54:10AM +1000, Allan Duncan wrote:
-> Not in my case, at least for 2.4.20-pre4.
->=20
-2.4.19 works for me with nopentium, 2.4.20-pre5 fails with nopentium
-and works without it - I can't add anything beyond that.
+Yeah, I realized syslogd is using writev against logfiles which are
+opened with O_SYNC flag! I think heavy loaded mail-servers or
+web-servers may get good performance with the new writev
+as they are logging too much.
 
-> At which kernels does the nopentium become obsolete?  Alan Cox mentioned =
-some
-> confusion about this.  Obviously the latest ones, but does this extend as=
- far
-> back as 2.4.19?
->=20
-> In order to close in on what changes are triggering this, I found the pat=
-ch for
-> sched.c for -pre3 and ran that, and find that -pre3  is fine with or with=
-out
-> nopentium, so that narrows it to what was altered pre3 to pre4.
->=20
-> There was nothing obvious in Marcelo's log of changes, so I will trawl th=
-rough
-> the diffs themselves tonight.
->=20
-> At the same time, I noticed that there seems to a fair bit of touchy
-> behaviour of AGP out there, so maybe what is proving fatal to me is the s=
-ame as
-> the cause of flaky for others.
+And I'd also like to make knfsd use it as a recevied nfs request may
+be splited into some IP fragments.
 
-AGP/DRI has been flaky for me in all sorts of ways, but then I've been
-using the DRI CVS code which does lots of strange things, so I can't
-pin the problems on AGP . . .
+> However I'd be a little concerned over the increased work which a boring
+> old write() has to do.  Perhaps we could add a special code path
+> for it:
 
-Simon
+It sounds nice.
+I'll rewrite it soon.
 
---=20
-PGP public key Id 0x144A991C, or ftp://bg77.anu.edu.au/pub/himi/himi.asc
-(crappy) Homepage: http://bg77.anu.edu.au
-doe #237 (see http://www.lemuria.org/DeCSS)=20
-My DeCSS mirror: ftp://bg77.anu.edu.au/pub/mirrors/css/=20
-
---AqsLC8rIMeq19msA
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9gT13QPlfmRRKmRwRAmPNAJ0Y1epu+WByrdQOQMMxC4rZ4trhNQCfTKFu
-y8QFqwYxzD+erTA9G9oTDa0=
-=d27+
------END PGP SIGNATURE-----
-
---AqsLC8rIMeq19msA--
+> 	struct iovstate {
+> 		unsigned rest;
+> 		unsigned copy;
+> 		unsigned off;
+> 		struct iovec    *work_iov;
+> 		char            *work_buf;
+> 		unsigned         work_iov_bytes;
+> 	} iovstate;
+> 
+> 	if (nr_segs != 1) {
+> 		initialise iovstate;
+> 	}
+> 
+> 	...
+> 
+> 	if (nr_segs == 1)
+> 		page_fault = filemap_copy_from_user(page, offset, buf, bytes);
+> 	else
+> 		page_fault = iov_copy_from_user(&arg1, &arg2, &bytes, &iovstate);
+> 	status = a_ops->commit_write(file, page, offset, offset+bytes);
+> 
+> 
+> then we can do all that fancy stuff in iov_copy_from_user().  That
+> function should be inlined so we don't really pass all those arguments
+> around.  That's just a cleanliness thing, and branching around the complex
+> code in the simple case.  We should be able to get the impact on the
+> common case down to a single taken branch per page.

@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131511AbQKBMvZ>; Thu, 2 Nov 2000 07:51:25 -0500
+	id <S131445AbQKBMxz>; Thu, 2 Nov 2000 07:53:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131505AbQKBMvP>; Thu, 2 Nov 2000 07:51:15 -0500
-Received: from mail6.svr.pol.co.uk ([195.92.193.212]:43872 "EHLO
-	mail6.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S131462AbQKBMvG>; Thu, 2 Nov 2000 07:51:06 -0500
-Date: Thu, 2 Nov 2000 12:50:05 +0000 (UTC)
-From: Mo McKinlay <mmckinlay@gnu.org>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Mo McKinlay <mmckinlay@gnu.org>, linux-kernel@vger.kernel.org
-Subject: Re: ESS device "1998"
-In-Reply-To: <3A016E2C.3E0A056E@evision-ventures.com>
-Message-ID: <Pine.LNX.4.21.0011021249080.8426-100000@kyle.altai.org>
-Organization: inter/open Labs
-X-URL: http://www.interopen.org/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131394AbQKBMxp>; Thu, 2 Nov 2000 07:53:45 -0500
+Received: from ns.caldera.de ([212.34.180.1]:50437 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S131505AbQKBMxg>;
+	Thu, 2 Nov 2000 07:53:36 -0500
+Date: Thu, 2 Nov 2000 13:52:18 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: torvalds@transmeta.com, linux-kbuild@torque.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] list-style makefile boilerplate without reordering
+Message-ID: <20001102135218.A16541@caldera.de>
+Mail-Followup-To: Peter Samuelson <peter@cadcamlab.org>,
+	torvalds@transmeta.com, linux-kbuild@torque.net,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20001101125837.A28861@caldera.de> <14848.12475.791640.17546@wire.cadcamlab.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <14848.12475.791640.17546@wire.cadcamlab.org>; from peter@cadcamlab.org on Wed, Nov 01, 2000 at 09:03:23AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 01, 2000 at 09:03:23AM -0600, Peter Samuelson wrote:
+> 
+> [Christoph Hellwig <hch@caldera.de>]
+> > +
+> > +# include a local makefile, if present
+> > +-include Makefile.local
+> 
+> Why?
 
-Today, Martin Dalecki (dalecki@evision-ventures.com) wrote:
+someone on lkml suggested it. It will not hurt but help some people.
 
-  > The chip you are talking about is a maestro-3. It's a hybris chip
-  > between a CSXXXX and an Alegro. The OSS sound drivers support it
-  > already. 
-  > However there is no free driver for it currently out there.
-  > If you get the current maestro open driver to recognize the chip
-  > at least the mixer will start to work.
+>
+> [all the other changes]
+>
 
-Aha - Many thanks! I shall go and experiment, then :)
+If have just rewritten Rules.make to not reorder objects and take input
+in list-style format.  The big makefile rewrite should happen in 2.5, IMHO.
+
+	Christoph
 
 -- 
-Mo McKinlay
-mmckinlay@gnu.org
--------------------------------------------------------------------------
-GnuPG/PGP Key: pub  1024D/76A275F9 2000-07-22
-
-
-
-
-
-
+Always remember that you are unique.  Just like everyone else.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

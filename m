@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129778AbRAJTd3>; Wed, 10 Jan 2001 14:33:29 -0500
+	id <S131987AbRAJTej>; Wed, 10 Jan 2001 14:34:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131425AbRAJTdT>; Wed, 10 Jan 2001 14:33:19 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:21252 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129778AbRAJTdK>;
-	Wed, 10 Jan 2001 14:33:10 -0500
-Date: Wed, 10 Jan 2001 20:33:07 +0100
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Daniel Phillips <phillips@innominate.de>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Subtle MM bug
-Message-ID: <20010110203307.A5106@gruyere.muc.suse.de>
-In-Reply-To: <20010110183256.A28025@gruyere.muc.suse.de> <E14GQyR-0000mh-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14GQyR-0000mh-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Jan 10, 2001 at 07:31:52PM +0000
+	id <S132041AbRAJTe3>; Wed, 10 Jan 2001 14:34:29 -0500
+Received: from mail11.voicenet.com ([207.103.0.37]:40380 "HELO voicenet.com")
+	by vger.kernel.org with SMTP id <S131987AbRAJTeV>;
+	Wed, 10 Jan 2001 14:34:21 -0500
+Message-ID: <3A5CB938.9090203@voicefx.com>
+Date: Wed, 10 Jan 2001 14:34:16 -0500
+From: "John O'Donnell" <johnod@voicefx.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; 0.7) Gecko/20010105
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [preview] VIA IDE driver v3.11 with vt82c686b UDMA100 support
+In-Reply-To: <20010110124524.A2154@suse.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10, 2001 at 07:31:52PM +0000, Alan Cox wrote:
-> > struct ucred is also needed to get LinuxThreads POSIX compliant (sharing
-> > credentials between threads, but still keeping system calls atomic in
-> > relation to credential changes) 
+Vojtech Pavlik wrote:
+
+> Hi!
 > 
-> That is extremely undesirable behaviour. setuid() changes for pthreads crud
-> should be done by the library emulation layer. Many people have very real
-> and very good reasons for running multiple parallel ids. Just try writing
-> a threaded ftp daemon (non anonymous) without that, or an nfs server
+> For all of you who had problems getting the VIA IDE driver to work
+> correctly on the 686b, here is a driver that should work with those
+> chips, even in UDMA 100 mode. I've not tested it, because I don't have
+> the 686b myself. So it may eat your filesystem as well.
+> 
+> Good luck!
 
-Of course not by default, it would be a new clone flag (with default to on in
-linuxthreads though, to not cause security holes in ported programs like today) 
+Oops - I did not look close enough.  I have the 686a.
+Well, it works the same  :-)
 
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller on PCI bus 00 dev 21
+VP_IDE: chipset revision 16
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: VIA vt82c686a (cf/cg) IDE UDMA66 controller on pci0:4.1
+     ide0: BM-DMA at 0xb800-0xb807, BIOS settings: hda:DMA, hdb:pio
+     ide1: BM-DMA at 0xb808-0xb80f, BIOS settings: hdc:DMA, hdd:DMA
+hda: WDC WD450AA-00BAA0, ATA DISK drive
+hdc: Hewlett-Packard CD-Writer Plus 9100, ATAPI CDROM drive
+hdd: LS-120 VER5 00 UHD Floppy, ATAPI FLOPPY drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 87930864 sectors (45021 MB) w/2048KiB Cache, CHS=5473/255/63, UDMA(33)
+hdd: 123264kB, 963/8/32 CHS, 533 kBps, 512 sector size, 720 rpm
 
--Andi
+Timing tests are the same....
+
+-- 
+<SomeLamer> what's the difference between chattr and chmod?
+<SomeGuru> SomeLamer: man chattr > 1; man chmod > 2; diff -u 1 2 | less
+	-- Seen on #linux on irc
+=== Never ask a geek why, just nod your head and slowly back away.===
++==============================+====================================+
+| John O'Donnell (Sr. Systems Engineer, Net Admin, Webmaster, etc.) |
+| Voice FX Corporation (a subsidiary of Student Advantage)          |
+| One Plymouth Meeting         |     E-Mail: johnod@voicefx.com     |
+| Suite 610                    |           www.voicefx.com          |
+| Plymouth Meeting, PA 19462   |         www.campusdirect.com       |
++==============================+====================================+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267186AbUI1MV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267388AbUI1MWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267186AbUI1MV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 08:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267536AbUI1MV0
+	id S267388AbUI1MWn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 08:22:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267536AbUI1MWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 08:21:26 -0400
-Received: from 217-114-210-112.kunde.vdserver.de ([217.114.210.112]:16900 "EHLO
-	old-fsckful.ath.cx") by vger.kernel.org with ESMTP id S267186AbUI1MVY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 08:21:24 -0400
-Date: Tue, 28 Sep 2004 14:21:17 +0200
-From: Andreas Happe <andreashappe@flatline.ath.cx>
-To: James Morris <jmorris@redhat.com>
-Cc: Michal Ludvig <michal@logix.cz>, Andreas Happe <crow@old-fsckful.ath.cx>,
-       cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.9-rc2 1/2] cryptoapi: update sysfs-patch
-Message-ID: <20040928122117.GA21010@final-judgement.ath.cx>
-References: <20040927084149.GA3625@final-judgement.ath.cx> <Xine.LNX.4.44.0409271151500.21876-100000@thoron.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="a8Wt8u1KmwUX3Y2C"
-Content-Disposition: inline
-In-Reply-To: <Xine.LNX.4.44.0409271151500.21876-100000@thoron.boston.redhat.com>
-X-Request-PGP: subkeys.pgp.net
-X-Hangover: none
-User-Agent: Mutt/1.5.6i
+	Tue, 28 Sep 2004 08:22:43 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:37136 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S267388AbUI1MWc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 08:22:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Microsoft claim 267% better peak performance than linux?
+Date: Tue, 28 Sep 2004 15:24:25 +0000
+X-Mailer: KMail [version 1.4]
+References: <20040928075545.GA3298@cenedra.walrond.org>
+In-Reply-To: <20040928075545.GA3298@cenedra.walrond.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200409281524.25187.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 28 September 2004 07:55, Andrew Walrond wrote:
+> I was pointed to this (rotating) banner advert at the top of www.eweek.com
+>
+> It claims that when comparing Red Hat AS2.1 with Windows Server 2003 on a
+> dual processor machine, Windows Server 2003 gives 276% better peak
+> performance, quoting Veritest as the source.
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+It is very easy to 'slightly' misconfigure Linux machine so that it
+slows to a crawl. For webservers, classic way to do it is to force
+Apache to log a fqdn of incoming connections instead of numeric IP.
 
-Just removes the cra_list entry from the whirlpool - cipher.
+>From pdf:
+> Microsoft commissioned VeriTest, a division of Lionbridge
+> Technologies, Inc., to conduct a series of tests comparing
+> the Web serving performance of the following server operating
+> system configurations running on a variety of server hardware
+> and processor configurations...
 
-please apply after the old patch.
-
-Signed-off-by: Andreas Happe <andreashappe@snikt.net>
-
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="patch-2.6.9-rc2-update_cryptoapi_class"
-
-diff -u -r -N linux-2.6.8/crypto/whirlpool.c linux-sysfs/crypto/whirlpool.c
---- linux-2.6.8/crypto/whirlpool.c	2004-09-28 12:50:31.000000000 +0200
-+++ linux-sysfs/crypto/whirlpool.c	2004-09-28 12:24:23.000000000 +0200
-@@ -1106,7 +1106,6 @@
- 	.cra_blocksize	=	WHIRLPOOL_BLOCK_SIZE,
- 	.cra_ctxsize	=	sizeof(struct whirlpool_ctx),
- 	.cra_module	=	THIS_MODULE,
--	.cra_list       =       LIST_HEAD_INIT(alg.cra_list),	
- 	.cra_u		=	{ .digest = {
- 	.dia_digestsize	=	WHIRLPOOL_DIGEST_SIZE,
- 	.dia_init   	= 	whirlpool_init,
-
---a8Wt8u1KmwUX3Y2C--
+Do you seriously expect that MS-funded tests can ever find Linux
+to be faster?
+-- 
+vda

@@ -1,76 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263238AbTJURz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 13:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263241AbTJURz6
+	id S263210AbTJURxR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 13:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263214AbTJURxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 13:55:58 -0400
-Received: from poup.poupinou.org ([195.101.94.96]:1580 "EHLO poup.poupinou.org")
-	by vger.kernel.org with ESMTP id S263238AbTJURz4 (ORCPT
+	Tue, 21 Oct 2003 13:53:17 -0400
+Received: from mail.kroah.org ([65.200.24.183]:8404 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263210AbTJURxP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 13:55:56 -0400
-Date: Tue, 21 Oct 2003 19:55:45 +0200
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-acpi <linux-acpi@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Dominik Brodowski <linux@brodo.de>
-Subject: Re: [PATCH] 1/3 Dynamic cpufreq governor and updates to ACPI P-state driver
-Message-ID: <20031021175545.GK13989@poupinou.org>
-References: <88056F38E9E48644A0F562A38C64FB6007791A@scsmsx403.sc.intel.com>
+	Tue, 21 Oct 2003 13:53:15 -0400
+Date: Tue, 21 Oct 2003 10:44:26 -0700
+From: Greg KH <greg@kroah.com>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: clemens@dwf.com, linux-hotplug-devel@lists.sourceforge.net,
+       KML <linux-kernel@vger.kernel.org>, reg@orion.dwf.com
+Subject: Re: [ANNOUNCE] udev 003 release
+Message-ID: <20031021174426.GA1497@kroah.com>
+References: <20031017055652.GA7712@kroah.com> <200310171757.h9HHvGiY006997@orion.dwf.com> <20031017181923.GA10649@kroah.com> <20031017182754.GA10714@kroah.com> <1066696767.10221.164.camel@nosferatu.lan> <20031021005025.GA28269@kroah.com> <1066698679.10221.178.camel@nosferatu.lan> <20031021024322.GA29643@kroah.com> <1066707482.10221.243.camel@nosferatu.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB6007791A@scsmsx403.sc.intel.com>
-User-Agent: Mutt/1.5.4i
-From: Ducrot Bruno <ducrot@poupinou.org>
+In-Reply-To: <1066707482.10221.243.camel@nosferatu.lan>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 21, 2003 at 10:15:31AM -0700, Pallipadi, Venkatesh wrote:
+On Tue, Oct 21, 2003 at 05:38:02AM +0200, Martin Schlemmer wrote:
 > 
-> > -----Original Message-----
-> > From: Ducrot Bruno [mailto:ducrot@poupinou.org] 
+> Been in the tree for about a week - removed it though (0.2), so only
+> have 003 presently.  I also missed the /etc/hotplug.d/default/ symlink,
+> so initial integration needs tweaking.
 
+Do you also have the latest hotplug scripts in gentoo?
 
-...
+> So far have not had any complaints, except for minimal support at this
+> stage, but hey, its still early in the game =)
 
-> > Your do not handle correctly 
-> > other processors
-> > than Intel.  
-> 
-> I am sorry. I do not understand this comment. 
-> - Major part of Patch 1 is adding SMP awareness, which has
-> nothing specific to Intel at all.
-> - A part of patch 1 adds MSR based transition capability. 
-> This is based on ACPI spec.
+Nice.  Be sure to let me know if you do hear any.
 
-Could you tell me where you find in ACPI spec. that FfixedHW means 
-always MSR?  That not true for C-states definitions via _CST for
-example (the first entry being always an FFixedHW, because it
-is C1 and will be the single asm instruction: 'hlt').
-Look 2.0b page 228.
+Remember, gentoo needs to wean itself off of devfs for 2.6...
 
-> It will work any processor 
-> that is ACPI compatible and again there are no specific 
-> checks for Intel here.
-> 
+> Also, I am using ramfs for now to do the device nodes, and have not
+> looked at minimal /dev layout, although I guess it is not that minimal,
+> as even the input drivers lack udev (sysfs) support currently it seems.
+> Wat was the last eta for initramfs again ?
 
-On a K7 with powernow for example, perf_ctrl and perf_data will be MSR 0
-with your patch, that do not make sence.
-Even if you know the correct MSRs, the values for 'control' and 'status'
-in _PSS packages will be only bit-fields, and they can *not* be
-written nor read directly to the (correct) MSRs (again for K7 powernow).
+initramfs is in the kernel, you use it to boot already :)
 
-This is because the FfixedHW is only an indication that a CPU specific
-'feature' (even though already somehow defined in ACPI like P-state,
-C-state, etc.) have to be handled by the OS in a non-acpi driver, as
-per ACPI spec, and that will be dependant of the CPU.
+thanks,
 
-
--- 
-Ducrot Bruno
-
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.
+greg k-h

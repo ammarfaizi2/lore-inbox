@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVALQDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVALQDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbVALQDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 11:03:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbVALQDJ
+	id S261206AbVALQDz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 11:03:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVALQDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 11:03:09 -0500
-Received: from village.ehouse.ru ([193.111.92.18]:9223 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S261185AbVALQDG (ORCPT
+	Wed, 12 Jan 2005 11:03:55 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30381 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261206AbVALQDt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 11:03:06 -0500
-From: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Linux 2.6.11-rc1
-Date: Wed, 12 Jan 2005 19:03:02 +0300
-User-Agent: KMail/1.7.2
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0501112100250.2373@ppc970.osdl.org> <200501121824.44327.rathamahata@ehouse.ru> <Pine.LNX.4.58.0501120730490.2373@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0501120730490.2373@ppc970.osdl.org>
+	Wed, 12 Jan 2005 11:03:49 -0500
+Date: Wed, 12 Jan 2005 08:03:44 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] do_brk() needs mmap_sem write-locked
+In-Reply-To: <20050112002117.GA27653@logos.cnet>
+Message-ID: <Pine.LNX.4.58.0501120800500.2373@ppc970.osdl.org>
+References: <20050112002117.GA27653@logos.cnet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501121903.02325.rathamahata@ehouse.ru>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 12 January 2005 18:32, Linus Torvalds wrote:
-> 
-> On Wed, 12 Jan 2005, Sergey S. Kostyliov wrote:
-> > 
-> > 2.6.10-rc1 hangs at boot stage for my dual opteron machine
-> 
-> Oops, yes. There's some recent NUMA breakage - either disable CONFIG_NUMA, 
-> or apply the patches that Andi Kleen just posted on the mailing list (the 
-> second option much preferred, just to verify that yes, that does fix it).
 
-That (numa x86_64 patchset from Andi Kleen) fixes it. Thanks for
-a quick reply!
 
--- 
-Sergey S. Kostyliov <rathamahata@ehouse.ru>
-Jabber ID: rathamahata@jabber.org
+Looks good, except for a small nit:
+
+On Tue, 11 Jan 2005, Marcelo Tosatti wrote:
+> diff -Nur linux-2.6-curr.orig/mm/mmap.c linux-2.6-curr/mm/mmap.c
+> --- linux-2.6-curr.orig/mm/mmap.c	2005-01-11 22:48:49.000000000 -0200
+> +++ linux-2.6-curr/mm/mmap.c	2005-01-11 23:43:10.704800272 -0200
+> @@ -1891,6 +1891,12 @@
+>  	}
+>  
+>  	/*
+> +	 * mm->mmap_sem is required to protect against another thread
+> +	 * changing the mappings in case we sleep.
+> +	 */
+> +	WARN_ON(down_read_trylock(&mm->mmap_sem));
+> +
+> +	/*
+>  	 * Clear old maps.  this also does some error checking for us
+>  	 */
+>   munmap_back:
+> 
+
+if that warning ever triggers, mmap_sem will now be locked, and that will 
+cause problems. So I suspect it's better to do
+
+	if (down_read_trylock(&mm->mmap_sem)) {
+		WARN_ON(1);
+		up_read(&mm->mmap_sem);
+	}
+
+and move that into a helper function of its own (something like
+"verify_mmap_write_lock_held()").
+
+		Linus

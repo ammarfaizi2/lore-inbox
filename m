@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279190AbRJ2LRC>; Mon, 29 Oct 2001 06:17:02 -0500
+	id <S279189AbRJ2LQC>; Mon, 29 Oct 2001 06:16:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279196AbRJ2LQw>; Mon, 29 Oct 2001 06:16:52 -0500
-Received: from workplace.tp1.ruhr-uni-bochum.de ([134.147.240.2]:28169 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S279190AbRJ2LQf>; Mon, 29 Oct 2001 06:16:35 -0500
-Date: Mon, 29 Oct 2001 12:17:02 +0100 (CET)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: <kai@vaio>
-To: Greg KH <greg@kroah.com>
-cc: Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.13 errors and warnings
-In-Reply-To: <20011028100317.C8059@kroah.com>
-Message-ID: <Pine.LNX.4.33.0110291205560.29385-100000@vaio>
+	id <S279190AbRJ2LPx>; Mon, 29 Oct 2001 06:15:53 -0500
+Received: from mail000.mail.bellsouth.net ([205.152.58.20]:53698 "EHLO
+	imf00bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S279189AbRJ2LPo>; Mon, 29 Oct 2001 06:15:44 -0500
+Message-ID: <3BDD3A87.B98104B0@mandrakesoft.com>
+Date: Mon, 29 Oct 2001 06:16:23 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Samuli Suonpaa <suonpaa@iki.fi>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.13-acX: NM256 hangs at boot
+In-Reply-To: <E15yAHE-0002M1-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Oct 2001, Greg KH wrote:
-
-> These, and lots of the other pci_id table warnings are due to the tables
-> being used for MODULE_DEVICE_TABLE() information.  When the code is not
-> compiled as modules, those tables are not needed.
+Alan Cox wrote:
+> > NM256 is PCI-based, so I checked whether CONFIG_HOTPLUG_PCI would have
+> > any effect. It didn't.
+> >
+> > Exactly the same thing happens with 2.4.13-ac4.
+> >
+> > If I compile the kernel without sound-support, everything works just
+> > fine.
 > 
-> Hm, I guess I should look into some kind of macro to keep this from
-> happening...
+> Jeff Garzik updated the neomagic driver to use the generic ac97 codec. It
+> looks like he didnt quite get it right firs ttime around. I'll take a look
+> and its then a case of either fixing it or reverting Jeff's change
 
-A couple of months ago I thought about this and could think of two 
-possible solutions:
+If you don't see something right off, go ahead and revert it.
 
-o add a __moddevtable which expands to __devinitdata 
-  __attribute((unused)).
-  Drawback: Needs changing of all drivers which produce the warning.
-o add a variable which references the table within MODULE_DEVICE_TABLE. 
-  I implemented this, minor drawback is that it costs 4 bytes per table. 
-  However, IIRC Keith didn't like it at this time.
+IIRC now, nm256 had trouble with completely locking the PCI bus if you
+touched the wrong AC97 registers.  The solution was to create
+ac97_codec_{read,write} that filtered register numbers depending on a
+codec-specific mask, thus avoiding those registers on nm256 and using
+them on other chips.  This change isn't in anybody's ac97_codec (except
+an old CVS of mine), and it was never fully debugged when I had a hands
+on a laptop with [supposed] ac97 codec nm256 on it.
 
-The best option, of course, is to move drivers to the new-style pci or 
-whatever interface, such that the table actually gets used. But the 
-middle of a stable series is not necessarily the best time to do so.
-  
---Kai
+So, I am hoping it's a stupid error like "using ac97 mixer when I
+shouldn't", otherwise it's likely too much trouble to bother with.
 
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

@@ -1,113 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266037AbTIJXgO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 19:36:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266040AbTIJXgO
+	id S266045AbTIJXhc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 19:37:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266046AbTIJXhc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 19:36:14 -0400
-Received: from mta05-svc.ntlworld.com ([62.253.162.45]:17029 "EHLO
-	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S266037AbTIJXgF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 19:36:05 -0400
-From: James Clark <jimwclark@ntlworld.com>
-Reply-To: jimwclark@ntlworld.com
-To: Timothy Miller <miller@techsource.com>,
-       David Schwartz <davids@webmaster.com>
-Subject: Re: People, not GPL  [was: Re: Driver Model]
-Date: Thu, 11 Sep 2003 00:35:10 +0100
-User-Agent: KMail/1.5
-Cc: Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
-References: <MDEHLPKNGKAHNMBLJOLKEEOCGDAA.davids@webmaster.com> <3F5F3C46.4060004@techsource.com>
-In-Reply-To: <3F5F3C46.4060004@techsource.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Sep 2003 19:37:32 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:21137 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S266045AbTIJXh1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 19:37:27 -0400
+Date: Thu, 11 Sep 2003 00:37:20 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Virtual alias cache coherency results (was: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this)
+Message-ID: <20030910233720.GA25756@mail.jlokier.co.uk>
+References: <20030910210416.GA24258@mail.jlokier.co.uk> <20030910233951.Q30046@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309110035.10611.jimwclark@ntlworld.com>
+In-Reply-To: <20030910233951.Q30046@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In many ways the original intention of the debate was lost in the battle. 
-There are a lot of zealots on both sides of the GPL debate - personally, my 
-undertanding is that the GPL forbids usage restrictions, thus once you 
-release code under the GPL you cannot control it. This seems especially 
-important in a project, such as Linux, that has been collaboratively 
-developmed by a whole community.
+Russell King wrote:
+> >     CPUs with incoherent write buffers: PA-RISC 2.0, 68040 and ARMs.
+> 
+> Some StrongARM CPUs seem to exhibit non-coherence in their write buffers.
+> I don't think we've done enough testing to make any statement like "ARMs
+> have uncoherent write buffers."
 
-The original question was would a binary driver interface allow easier usage 
-by 'normal' users with any compatible kernel (rather than specific versions) 
-and perhaps simplify module development cycle? 
+It should be read as "some ARMs", as in you can't rely on an ARM
+userspace having coherent write buffers unless you know you're using
+the right chip _or_ the right kernel.
 
-Would the performance hit involved be worth the potential 
-compatibility/simplicity? 
+Similarly we don't know that all PA-RISCs or all 68040s have
+incoherent write buffers, we just know that some of them do.
 
-A lot of people have, assumed that this is a call to arms for binary-only 
-modules. This is not true although this type of change would make such things 
-more common.
+> >     SHMLBA not valid:		ARM, m68k
+> > 
+> > Note that "SHMLBA" is defined for some architectures on which it
+> > doesn't actually provide coherent virtual aliases.  On the ARM this is
+> > believed to be due to a chip bug, and very recent kernels may contain
+> > a workaround for it (disabling the write buffer for aliased pages).
+> 
+> Not correct.  Because of the fundamental nature of VIVT caches, there
+> is no "SHMLBA" value which prevents aliases occuring.  Think carefully
+> about the structure of a VIVT cache and how it would be searched.  This
+> isn't a chip bug.
 
-James
+I am describing coherence seen by the application.  That is a function
+of the kernel, not the chip.  I'll make that clearer in any next
+revision of the document.
 
+The kernel can make virtual aliases coherent on _any_ CPU, using
+software techniques if necessary.
 
-On Wednesday 10 Sep 2003 3:59 pm, Timothy Miller wrote:
-> I'm still 1600 messages behind in reading the list, but I have spent
-> enough time reading the discussion about GPL and drivers that I feel
-> compelled to comment.  I don't intend to comment further because I don't
-> want to contribute to a flamewar any more than this already will.  But I
-> feel the need to defend those who contribute to Free Software against
-> those who don't.
->
-> The argument I have been reading has been centered around the idea of
-> working around the GPL to support binary-only driver and various other
-> things which are counter to the spirit of the GPL and Linux.  But
-> someone who is trying to find a legal GPL loophole is not considering
-> the root of the situation and that the GPL is an effect, not a cause.
->
-> A point someone else made that I feel compelled to reiterate is that it
-> is the nature of the Linux development model and the attitude of the
-> developers which has made Linux what it is and has made you want to use it.
->
-> But I have another point.  You are not dealing with a license here.  The
-> license is there to satisfy lawyers and make clear the INTENT of the
-> authors.  The keyword here is INTENT in that someone who has developed
-> something is telling you how they feel about the use of their work
-> which, under many circumstances, they could have chosen not to share
-> with you.  What you are dealing with is real people who have put an
-> incredible amount of time and effort into developing Linux.  Those
-> people, to whom you owe much respect for sharing their contributions,
-> have decided that their software should be used with certain
-> restrictions, that being the GPL.  If you abuse Linux, it is not the GPL
-> that you are insulting, but the people who developed Linux.
->
-> The GPL_ONLY restriction for driver modules may seem unfair, but it is
-> far from it.  There are both valid technical and philosophical reasons
-> for working that way.  No one forces you to use Linux, and when you made
-> the choice to use it, you are entering into a community with a specific
-> philosophy.  You know that philosophy in advance, so when you discover
-> that you have a restruction you don't like, you have no room to complain.
->
-> As someone said, if you want to write drivers for a UNIX which does not
-> have these restrictions, there are plenty of commercial UNIXes out there
-> that you have to choose from.  The fact that they are perhaps less
-> popular is one reason why Linux developers do not want to imitate them.
->
-> So, the discussions about finding ways to make a non-GPL driver look
-> like a GPL driver and get away with it legally are all moot.  The reason
-> you should not violate this is because the architects of Linux do not
-> want you to.  If you choose to violate that, you are being unethical,
-> pure and simple.  Or more to the point, you're being an asshole to a lot
-> of hard-working people who have chosen to freely share their work with
-> you.  Since they are the authors and you are not, their feelings about
-> their softare are more important than yours.  You may be able to screw
-> them over and get away with it -- people do that sort of thing all the
-> time -- but the fact that you may find a legal loophole doesn't make you
-> any less of an abject asshole.
->
-> In short:  Be honorable.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Therefore the VIVT cache is not something the application cares about.
+It's irrelevant, an implementation detail for the kernel to handle.
+In this case, by making aliased pages uncacheable.  The application
+only cares whether the pages appear coherent, and how fast that is.
 
+The unexpected chip behaviour is the reason why the (old) ARM kernel
+doesn't succesfully make alias appear coherent.
+
+> The kernel works around this, but, due to some bugs on StrongARM chips
+> in the write buffer, it appears that we need further work-arounds, which
+> are already implemented.
+
+In other words, there _is_ an SHMLBA value which prevents alias
+incoherence on the ARM, because the kernel implements a workaround, if
+it's a recent kernel.  That value is one page.
+
+I put ARM in the "don't rely on this" category simply because there
+are older kernels in use which don't have the correct workaround.
+Otherwise, I would have said ARM has a reliable SHMLBA, of one page.
+To the application, this is correct.
+
+There is one thing which puzzles me.  The ARM test program outputs
+I've been sent say that the cache is incoherent, _not_ just the write
+buffers.  You said you have results which report write buffers, but I
+don't have those in detail, only descriptions.
+
+Does your fix, which makes pages uncacheable andq disables write
+combining (correct?) only fix your test results which intermittently
+reported write buffer problems, or does it fix _all_ the ARM test
+results I received, including those which don't report write buffer
+problems?
+
+If the former, then I have to say that ARM Linux _in general_ still
+doesn't have coherent virtual aliases.  If they are all fixed, then
+there's a flaw in the test program because it should have been
+reporting write buffer problems, not general cache incoherence.
+
+Thanks,
+-- Jamie

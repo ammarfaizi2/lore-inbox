@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbVCCSjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262399AbVCCSop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262521AbVCCSjk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 13:39:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbVCCRpV
+	id S262399AbVCCSop (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 13:44:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbVCCSnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 12:45:21 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:3048
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261389AbVCCRoJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 12:44:09 -0500
-Date: Thu, 3 Mar 2005 09:43:37 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: nickpiggin@yahoo.com.au, paulus@samba.org, akpm@osdl.org, clameter@sgi.com,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       anton@samba.org
-Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
-Message-Id: <20050303094337.186d63b2.davem@davemloft.net>
-In-Reply-To: <1109831428.5680.187.camel@gaston>
-References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
-	<20050302174507.7991af94.akpm@osdl.org>
-	<Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>
-	<20050302185508.4cd2f618.akpm@osdl.org>
-	<Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>
-	<20050302201425.2b994195.akpm@osdl.org>
-	<16934.39386.686708.768378@cargo.ozlabs.ibm.com>
-	<20050302213831.7e6449eb.davem@davemloft.net>
-	<1109829248.5679.178.camel@gaston>
-	<42274727.2070200@yahoo.com.au>
-	<1109831428.5680.187.camel@gaston>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 3 Mar 2005 13:43:47 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:27499 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S261408AbVCCSmF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 13:42:05 -0500
+Message-Id: <200503031842.AWY46304@mira-sjc5-e.cisco.com>
+Reply-To: <hzhong@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "'Linus Torvalds'" <torvalds@osdl.org>,
+       "'Jeff Garzik'" <jgarzik@pobox.com>
+Cc: "'Greg KH'" <greg@kroah.com>, "'David S. Miller'" <davem@davemloft.net>,
+       <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: RFD: Kernel release numbering
+Date: Thu, 3 Mar 2005 10:42:00 -0800
+Organization: Cisco Systems
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+In-Reply-To: <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
+Thread-Index: AcUgDe83JHlKi2QrQ4i2pw46NoINRAAEeapw
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 03 Mar 2005 17:30:28 +1100
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> In fact, if somebody maintained that kind of tree, especially 
+> in BK, it would be trivial for me to just pull from it every once in a 
+> while (like ever _day_ if necessary). But for that to work, then that 
+> tree would have to be about so _obviously_ not wild patches that 
+> it's a no-brainer.
 
-> On Fri, 2005-03-04 at 04:19 +1100, Nick Piggin wrote:
-> 
-> > You don't want to do that for all architectures, as I said earlier.
-> > eg. i386 can concurrently set the dirty bit with the MMU (which won't
-> > honour the lock).
-> > 
-> > So you then need an atomic lock, atomic pte operations, and atomic
-> > unlock where previously you had only the atomic pte operation. This is
-> > disastrous for performance.
-> 
-> Of course, but I was answering to David about sparc64 which uses
-> software TLB load :)
+Alan Cox once said he would like to do it:
 
-Right.
+    > On Mer, 2004-10-27 at 19:37, Hua Zhong wrote:
+    > When I said "nobody", I really meant "top kernel developers". I have
+not
+    > seen anyone step up and say "I'll volunteer to maintain a 2.6 stable
+    > release" hence the comment.
 
-The current situation on sparc64 is that the tlb miss handler is
-~10 cycles.
+    I'll do it if Linus wants
 
-Like I said, I can use this thing if it just increases access, without
-modifying the TLB miss handler at all.
+Do you consider having a real stable release maintainer again?
 
-Hmmm... let me think about this some more.
+If you want someone to do the job, give him a title. It's a thankless and
+boring job, and you can't make it worse by just hiding him somewhere.
+
+How a "stable release maintainer" works for the current model is up to you.
+One thought is that he picks up 2.6.x release as a start point and takes
+patches to make it stable, then releases it _himself_, not by Linus. Because
+the real work is done by him and you need to give him the authority (just
+like other Linux 2.x maintainers who release official kernels). But of
+course you still pull from his tree to make sure the bug fixes are also
+committed to mainline.
+
+Hua
+

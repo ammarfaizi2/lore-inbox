@@ -1,92 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266134AbUGEO7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266137AbUGEPD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266134AbUGEO7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 10:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUGEO7P
+	id S266137AbUGEPD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 11:03:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266136AbUGEPDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 10:59:15 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:30876 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S266134AbUGEO67
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 10:58:59 -0400
-Date: Mon, 5 Jul 2004 16:59:28 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390: common i/o layer.
-Message-ID: <20040705145928.GB3756@mschwid3.boeblingen.de.ibm.com>
+	Mon, 5 Jul 2004 11:03:52 -0400
+Received: from yoda.ing.unibs.it ([192.167.22.24]:907 "EHLO localhost")
+	by vger.kernel.org with ESMTP id S266140AbUGEO7u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 10:59:50 -0400
+Date: Mon, 5 Jul 2004 17:00:32 +0200
+From: marco ghidinelli <marcogh@linux.it>
+To: linux-kernel@vger.kernel.org
+Subject: irq mess on a via kt400 notebook...
+Message-ID: <20040705150032.GA1923@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+X-Subliminal: BillGatesSucks
 User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] s390: common i/o layer.
+i have a lot of errors in my /proc/interrupts when i enable the ioapic,
+even under kernel 2.6 and 2.4:
 
-From: Arnd Bergmann <arndb@de.ibm.com>
+$ cat /proc/interrupts 
+           CPU0       
+  0:    3296925          XT-PIC  timer
+  1:       8808          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  3:          0          XT-PIC  uhci_hcd
+  5:          0          XT-PIC  uhci_hcd, VIA8233
+  9:        640          XT-PIC  acpi
+ 10:          0          XT-PIC  ehci_hcd
+ 11:     205410          XT-PIC  uhci_hcd, eth0, radeon@PCI:1:0:0
+ 12:     468682          XT-PIC  i8042
+ 14:      24512          XT-PIC  ide0
+ 15:         21          XT-PIC  ide1
+NMI:          0 
+LOC:    3295129 
+ERR:     368518
 
-Common i/o layer changes:
- - Reorder checking and setting of the ccw device id.
+---------^^^^^^
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+MIS:          0
 
-diffstat:
- drivers/s390/cio/device_fsm.c |   31 +++++++++++++++++--------------
- 1 files changed, 17 insertions(+), 14 deletions(-)
+and when i try to access the cdrom under kernel 2.6 sometimes it stops to
+work and complains about:
 
-diff -urN linux-2.6/drivers/s390/cio/device_fsm.c linux-2.6-s390/drivers/s390/cio/device_fsm.c
---- linux-2.6/drivers/s390/cio/device_fsm.c	Mon Jul  5 16:12:27 2004
-+++ linux-2.6-s390/drivers/s390/cio/device_fsm.c	Mon Jul  5 16:12:48 2004
-@@ -165,8 +165,6 @@
- 		return;
- 	}
- 	cdev->private->flags.donotify = 1;
--	/* Get device online again. */
--	ccw_device_online(cdev);
- }
- 
- /*
-@@ -233,15 +231,23 @@
- 			  cdev->private->devno, sch->irq);
- 		break;
- 	case DEV_STATE_OFFLINE:
--		if (cdev->private->state == DEV_STATE_DISCONNECTED_SENSE_ID)
-+		if (cdev->private->state == DEV_STATE_DISCONNECTED_SENSE_ID) {
-+			ccw_device_handle_oper(cdev);
- 			notify = 1;
--		else  /* fill out sense information */
--			cdev->id = (struct ccw_device_id) {
--				.cu_type   = cdev->private->senseid.cu_type,
--				.cu_model  = cdev->private->senseid.cu_model,
--				.dev_type  = cdev->private->senseid.dev_type,
--				.dev_model = cdev->private->senseid.dev_model,
--			};
-+		}
-+		/* fill out sense information */
-+		cdev->id = (struct ccw_device_id) {
-+			.cu_type   = cdev->private->senseid.cu_type,
-+			.cu_model  = cdev->private->senseid.cu_model,
-+			.dev_type  = cdev->private->senseid.dev_type,
-+			.dev_model = cdev->private->senseid.dev_model,
-+		};
-+		if (notify) {
-+			/* Get device online again. */
-+			ccw_device_online(cdev);
-+			wake_up(&cdev->private->wait_q);
-+			return;
-+		}
- 		/* Issue device info message. */
- 		CIO_DEBUG(KERN_INFO, 2, "SenseID : device %04x reports: "
- 			  "CU  Type/Mod = %04X/%02X, Dev Type/Mod = "
-@@ -256,10 +262,7 @@
- 		break;
- 	}
- 	cdev->private->state = state;
--	if (notify && state == DEV_STATE_OFFLINE)
--		ccw_device_handle_oper(cdev);
--	else
--		io_subchannel_recog_done(cdev);
-+	io_subchannel_recog_done(cdev);
- 	if (state != DEV_STATE_NOT_OPER)
- 		wake_up(&cdev->private->wait_q);
- }
+Jul  5 06:33:11 localhost kernel: hdc: cdrom_pc_intr: The drive appears
+confused (ireason = 0x01)
+
+i posteb a bugreport on this about 1 month ago, but nobody seems to
+care.
+
+i attach fresh dmesg from a recent 2.6 kernel.
+
+http://bugzilla.kernel.org/show_bug.cgi?id=2811
+
+i even try a lot of options (nolapic, noapic, noacpi) but without the
+right clue to understand what's happens.
+

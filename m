@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262341AbUBXSDg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 13:03:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbUBXSDf
+	id S262354AbUBXSHH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 13:07:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbUBXSHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 13:03:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:46042 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262341AbUBXSDe (ORCPT
+	Tue, 24 Feb 2004 13:07:07 -0500
+Received: from mail.kroah.org ([65.200.24.183]:60841 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262354AbUBXSHA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 13:03:34 -0500
-Date: Tue, 24 Feb 2004 10:03:25 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, hch@lst.de, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Please back out the bluetooth sysfs support
-Message-Id: <20040224100325.761f48eb.davem@redhat.com>
-In-Reply-To: <1077621601.2880.27.camel@pegasus>
-References: <20040223103613.GA5865@lst.de>
-	<20040223101231.71be5da2.davem@redhat.com>
-	<1077560544.2791.63.camel@pegasus>
-	<20040223184525.GA12656@lst.de>
-	<1077582336.2880.12.camel@pegasus>
-	<20040224004151.GF31035@parcelfarce.linux.theplanet.co.uk>
-	<20040223232149.5dd3a132.davem@redhat.com>
-	<1077621601.2880.27.camel@pegasus>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 24 Feb 2004 13:07:00 -0500
+Date: Tue, 24 Feb 2004 09:55:17 -0800
+From: Greg KH <greg@kroah.com>
+To: Kai Makisara <Kai.Makisara@kolumbus.fi>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] SCSI update for 2.6.3
+Message-ID: <20040224175515.GA31715@kroah.com>
+References: <Pine.LNX.4.58.0402240919490.1129@spektro.metla.fi> <20040224170412.GA31268@kroah.com> <1077642529.1804.170.camel@mulgrave> <20040224171629.GA31369@kroah.com> <Pine.LNX.4.58.0402241937450.3713@kai.makisara.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0402241937450.3713@kai.makisara.local>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Feb 2004 12:20:01 +0100
-Marcel Holtmann <marcel@holtmann.org> wrote:
-
-> > > > -		skb->dev = (void *) &bfusb->hdev;
-> > > > +		skb->dev = (void *) bfusb->hdev;
-> > > 
-> > > Wait a bloody minute.  skb->dev is supposed to be net_device; what's going
-> > > on here?
-> > 
-> > Oh yeah, this is busted.
-> > I'm surprised this doesn't explode.
+On Tue, Feb 24, 2004 at 07:51:42PM +0200, Kai Makisara wrote:
+> On Tue, 24 Feb 2004, Greg KH wrote:
 > 
-> we used this from the beginning and I don't see where this can explode,
-> because the SKB's are only used inside the Bluetooth subsystem.
+> > On Tue, Feb 24, 2004 at 11:08:48AM -0600, James Bottomley wrote:
+> > > On Tue, 2004-02-24 at 11:04, Greg KH wrote:
+> > > > Can you post it here so we can review it?
+> > > > 
+> > > > And yes, using class_simple should relieve you of Al flamage :)
+> > > 
+> > > The one in the tree is attached.  I did verify it myself, and tried it
+> > > out on some old QIC tapes I had lying around.
+> > 
+> > Can you print out the sysfs tree this patch creates?
+> > 
+> Here is a partial tree for the first tree (nearly identical entries from 
+> the middle trimmed):
 
-Ok, if that is %100 true, then it's OK.
+<snip>
+
+Ah, very nice.  And thanks for adding those symlinks back to the class
+entries, that should be helpful for people.
+
+Looks good.
+
+greg k-h

@@ -1,108 +1,63 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154701-8316>; Wed, 9 Sep 1998 00:11:31 -0400
-Received: from dm.cobaltmicro.com ([209.133.34.35]:3367 "EHLO dm.cobaltmicro.com" ident: "IDENT-NONSENSE") by vger.rutgers.edu with ESMTP id <155076-8316>; Tue, 8 Sep 1998 18:43:54 -0400
-Date: Tue, 8 Sep 1998 18:14:54 -0700
-Message-Id: <199809090114.SAA05738@dm.cobaltmicro.com>
-From: "David S. Miller" <davem@dm.cobaltmicro.com>
-To: mrj@i2k.com
-CC: linux-kernel@vger.rutgers.edu
-In-reply-to: <Pine.LNX.4.02.9809081543110.334-100000@jeffd.i2k.net> (message from Jeff DeFouw on Tue, 8 Sep 1998 17:10:10 -0400 (EDT))
-Subject: Re: Very poor TCP/SACK performance
-References: <Pine.LNX.4.02.9809081543110.334-100000@jeffd.i2k.net>
+Received: by vger.rutgers.edu id <154931-8316>; Wed, 9 Sep 1998 01:16:08 -0400
+Received: from noc.nyx.net ([206.124.29.3]:4608 "EHLO noc.nyx.net" ident: "mail") by vger.rutgers.edu with ESMTP id <155150-8316>; Tue, 8 Sep 1998 22:33:06 -0400
+Date: Tue, 8 Sep 1998 22:46:25 -0600 (MDT)
+From: Colin Plumb <colin@nyx.net>
+Message-Id: <199809090446.WAA25923@nyx10.nyx.net>
+X-Nyx-Envelope-Data: Date=Tue Sep  8 22:46:25 1998, Sender=colin, Recipient=, Valsender=colin@localhost
+To: andrejp@luz.fe.uni-lj.si
+Subject: Re: GPS Leap Second Scheduled!
+Cc: linux-kernel@vger.rutgers.edu
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-   Date: Tue, 8 Sep 1998 17:10:10 -0400 (EDT)
-   From: Jeff DeFouw <mrj@i2k.com>
+Ulrich Windl wrote:
+> The time in the kernel is seconds since the epoch. To insert a second 
+> means that we'll have to delay the next second for another second. 
+> The other solution seems to be a clib -> kernel interface that knows 
+> that a leap second is active now. Then the clib could possibly 
+> convert the seconds to xx:yy:60. (I hope I did not overlook something 
+> obvious).
 
-   On Tue, 8 Sep 1998, David S. Miller wrote:
+And Andrej Presern replied:
+>> Have you considered simply not scheduling any processes for one second and
+>> adjusting the time accordingly? (if one second chunk is too big, you can do
+>> it in several steps)
 
-   > But if you provide more dumps to help me debug this problem could
-   > you please rebuild tcpdump with the patch I have appended at the end?
-   > The stock tcpdump does not output SACK information from TCP packets
-   > properly without the patch.  The stock tcpdump uses the pre-RFC format
-   > of the SACKS which is nothing like real modern SACKs in use today :-)
+The problem is that POSIX is schizophrenic on the subject of leap seconds.
+On the one hand, time() returns UTC time.  On the other,
 
-     Did you forget to append the patch, or is there somewhere I can get it?
+	t = time();
+	sec = t % 60;
+	t /= 60;
+	min = t % 60;
+	t /= 60;
+	hr = t % 24;
+	t /= 24;
+	printf("UTC time is %lu days, %02u:%02u:%02u\n", (unsigned long)t, gr, min, sec);
 
-Sorry, here it is:
+is required to work (since so much code does it.)
 
---- tcpdump-3.3/tcpdump-3.3/print-tcp.c.orig	Tue Dec 10 23:26:08 1996
-+++ tcpdump-3.3/tcpdump-3.3/print-tcp.c	Thu Mar 19 23:46:33 1998
-@@ -103,8 +103,8 @@
- 	register int hlen;
- 	register char ch;
- 	u_short sport, dport, win, urp;
--	u_int32_t seq, ack;
--
-+	u_int32_t seq, ack,thseq,thack;	
-+        int threv;
- 	tp = (struct tcphdr *)bp;
- 	ip = (struct ip *)bp2;
- 	ch = '\0';
-@@ -162,7 +162,7 @@
- 			tha.port = dport << 16 | sport;
- 			rev = 1;
- 		}
--
-+		threv = rev;
- 		for (th = &tcp_seq_hash[tha.port % TSEQ_HASHSIZE];
- 		     th->nxt; th = th->nxt)
- 			if (!memcmp((char *)&tha, (char *)&th->addr,
-@@ -183,6 +183,10 @@
- 			else
- 				th->seq = seq, th->ack = ack - 1;
- 		} else {
-+		  
-+		        thseq = th->seq;
-+                        thack = th->ack;
-+
- 			if (rev)
- 				seq -= th->ack, ack -= th->seq;
- 			else
-@@ -263,18 +267,32 @@
- 				break;
- 
- 			case TCPOPT_SACK:
--				(void)printf("sack");
--				datalen = len - 2;
--				for (i = 0; i < datalen; i += 4) {
--					LENCHECK(i + 4);
--					/* block-size@relative-origin */
--					(void)printf(" %u@%u",
--					    EXTRACT_16BITS(cp + i + 2),
--					    EXTRACT_16BITS(cp + i));
-+			  {
-+			    u_int32_t s, e;
-+
-+			    datalen = len - 2;
-+			    if (datalen % 8 != 0) {
-+				(void)printf(" malformed sack ");
-+			    } else {
-+				(void)printf(" sack %d ", datalen / 8);
-+				for (i = 0; i < datalen; i += 8) {
-+				    LENCHECK(i + 4);
-+				    s = EXTRACT_32BITS(cp + i);
-+				    LENCHECK(i + 8);
-+				    e = EXTRACT_32BITS(cp + i + 4);
-+				    if (threv) {
-+					s -= thseq;
-+					e -= thseq;
-+				    } else {
-+					s -= thack;
-+					e -= thack;
-+				    }
-+				    (void)printf("{%u:%u}", s, e);
- 				}
--				if (datalen % 4)
--					(void)printf("[len %d]", len);
--				break;
-+				(void)printf(" ");
-+			    }
-+			    break;
-+			  }
- 
- 			case TCPOPT_ECHO:
- 				(void)printf("echo");
+Actually, I think Ulrich was present when I proposed a similar solution:
+gettimeofday() will not return during 23:59:60.  If a process calls
+gettimeofday() during a leap second, then the call will sleep until 0:00:00
+when it can return the correct result.
+
+This horrified the real-time people.  It is, however, strictly speaking,
+completely correct.
+
+The real-world solution (a.k.a kludge), is to stretch some number of
+seconds to cover the n+1 seconds including the leap second.  During
+those seconds, gettimeofday() is incorrect, but the error is
+well-defined, so two "good" implementations will return "close" values
+and you can undo the fudging afterwards if desired.
+
+The only trick is to define the number of seconds n, their position
+relative to the leap second, and they type of stretching.  Linear is
+obvious, making the 60 seconds leading up to a leap second take 61/60
+of the usual time, but you could define a polynomial with higher-order
+continuity.
+-- 
+	-Colin
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264476AbTEJTI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 15:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264477AbTEJTI3
+	id S264469AbTEJTFo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 15:05:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264471AbTEJTFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 15:08:29 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:22402
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S264476AbTEJTI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 15:08:26 -0400
-Date: Sat, 10 May 2003 15:11:37 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: David van Hoose <davidvh@cox.net>
-cc: Stian Jordet <liste@jordet.nu>, Greg KH <greg@kroah.com>,
-       "" <linux-kernel@vger.kernel.org>
-Subject: Re: PCI problem [was Re: ACPI conflict with USB]
-In-Reply-To: <3EBD49CF.7030304@cox.net>
-Message-ID: <Pine.LNX.4.50.0305101511030.11047-100000@montezuma.mastecende.com>
-References: <3EBADF3C.1040609@cox.net> <20030509002240.GA4328@kroah.com>
- <1052444521.3ebb076946267@webmail.jordet.nu> <3EBB0A95.20902@cox.net>
- <3EBD49CF.7030304@cox.net>
+	Sat, 10 May 2003 15:05:44 -0400
+Received: from mailhost.cs.tamu.edu ([128.194.130.106]:54154 "EHLO cs.tamu.edu")
+	by vger.kernel.org with ESMTP id S264469AbTEJTFn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 15:05:43 -0400
+Date: Sat, 10 May 2003 14:18:23 -0500 (CDT)
+From: Xinwen Fu <xinwenfu@cs.tamu.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: don't use cheap switches under some scenarios
+Message-ID: <Pine.GSO.4.44.0305101411001.11628-100000@unix.cs.tamu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 May 2003, David van Hoose wrote:
+Hi, all,
+	I asked before why my linksys workgroup 5-port switch worked like
+a hub
+under heavy traffic (10mb/s) into one socket of the switch. The conclusion
+is that the switch has some problem.
 
-> If I boot with pci=noacpi, I do *not* have the problem. I still have the 
-> timeout, but my trackball works. However, I have many lines of an 
-> acpi_irq handler and call trace with the comment 'irq 20: nobody 
-> cared!'. I also get 'APIC error on CPU0: 00(40)' and 'APIC error on 
-> CPU0: 40(40)' a couple dozen times each.
-> 
-> If I boot with noacpi *and* pci=noacpi, I have the all of the problems 
-> mentioned; no trackball and the pci=noacpi related problems.
-> 
-> Someone mentioned using noapic, but it doesn't have any effect.
-> 
-> Any questions?
+	In fact, for the first 5 minutes, it
+works like a switch and then it works like a hub. The switching table is
+messed up by the intense traffic, we believe. Other cheaper switches
+(netgear fast esthernet switch FS108 ) have the same problem. We use a
+CentreCom FS708, and then the problem is solved. Of course other expensive
+and professional switches should be ok too, we think.
 
-Is that an AMD/SMP system?
+	Just some information.
 
--- 
-function.linuxpower.ca
+
+Xinwen Fu
+
+
+---------- Forwarded message ----------
+Date: Thu, 8 May 2003 22:49:01 -0500 (CDT)
+From: Xinwen Fu <xinwenfu@cs.tamu.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: linksys workgroup switch works like a hub
+
+It is really weird!
+
+Host_10.1--->10.254_router_1.254--->Linksys 5-port workgroup switch-->Host1.1
+                                       |               |
+                                       |               |
+                                       v               v
+                                    Host_1.10        Host_1.5
+
+Host_10.1 sends 1000 packets/s (pps) to Host_1.10. Host_1.10 receives the
+packets. But Host_1.5 receives the packets too, while Host_1.1 does not
+(by tcpdump -i any).
+
+	What is the possible reason?
+
+	Thanks!
+Xinwen Fu
+
+
+

@@ -1,45 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262349AbTKJB7K (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 20:59:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbTKJB7K
+	id S262425AbTKJCFj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 21:05:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbTKJCFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 20:59:10 -0500
-Received: from waste.org ([209.173.204.2]:31887 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262349AbTKJB7I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 20:59:08 -0500
-Date: Sun, 9 Nov 2003 19:59:05 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: kernel.bkbits.net off the air
-Message-ID: <20031110015905.GN13246@waste.org>
-References: <20031107051048.GA6099@work.bitmover.com> <bollnv$uvt$1@cesium.transmeta.com> <20031109152534.GA24312@work.bitmover.com> <3FAE9576.9080007@zytor.com>
+	Sun, 9 Nov 2003 21:05:38 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:2188 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262425AbTKJCFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 21:05:37 -0500
+Subject: Re: [PATCH] cfq + io priorities
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: axboe@suse.de, guichaz@yahoo.fr
+Content-Type: text/plain
+Organization: 
+Message-Id: <1068428977.722.65.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FAE9576.9080007@zytor.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 09 Nov 2003 20:49:37 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 09, 2003 at 11:28:54AM -0800, H. Peter Anvin wrote:
-> Larry McVoy wrote:
-> >On Sun, Nov 09, 2003 at 07:16:15AM -0800, H. Peter Anvin wrote:
-> >
-> >>That doesn't include anyone who uses the mirrored repository on the
-> >>main kernel.org machines.  
-> >
-> >Last I checked, kernel.org isn't offering pserver access, just ftp.  If you
-> >want to take over the CVS access just say the word.
-> >
-> 
-> No, we don't do the pserver access, but some people get the whole 
-> repository through the mirror.  The current division seems to work well, 
-> so I don't see any reason to change it.
+Jens Axboe writes:
+> On Sun, Nov 09 2003, Guillaume Chazarain wrote:
 
-Except for the higher likelihood of pserver being an exploit vector.
+>> A process has an assigned io nice level, anywhere
+>> from 0 to 20. Both of
+>>
+>> OK, I ask THE question : why not using the normal
+>> nice level, via current->static_prio ? This way,
+>> cdrecord would be RT even in IO, and nice -19
+>> updatedb would have a minimal impact on the system.
+>
+> I don't want to tie io prioritites to cpu
+> priorities, that's a design decision.
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+Sure, but do it in a way that's friendly to
+all the apps and admins that only know "nice".
+
+nice_cpu   sets CPU niceness
+nice_net   sets net niceness
+nice_disk  sets disk niceness
+...
+nice       sets all niceness values at once
+
+>>> these end values are "special" - 0 means the process
+>>> is only allowed to do io if the disk is idle, and 20
+>>> means the process io is considered
+>>
+>> So a process with ioprio == 0 can be forever
+>> starved. As it's not
+>
+> Yes
+>
+>> done this way for nice -19 tasks (unlike FreeBSD),
+>> wouldn't it be safer to give a very long deadline
+>> to ioprio == 0 requests ?
+>
+> ioprio == 0 means idle IO. It follows from that that
+> you can risk infinite starvation if other io is happening.
+> Otherwise it would not be idle io :-)
+>
+> CFQ doesn't assign request deadlines. That would
+> be another way of handling starvation.
+
+Keeping IO niceness as similar to CPU niceness as
+you can would be very good for admins.
+
+

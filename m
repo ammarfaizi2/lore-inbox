@@ -1,36 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265681AbTAFCT1>; Sun, 5 Jan 2003 21:19:27 -0500
+	id <S265705AbTAFCXl>; Sun, 5 Jan 2003 21:23:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265689AbTAFCT1>; Sun, 5 Jan 2003 21:19:27 -0500
-Received: from dp.samba.org ([66.70.73.150]:29882 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265681AbTAFCT1>;
-	Sun, 5 Jan 2003 21:19:27 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: rth@twiddle.net, bjornw@axis.com, davidm@hpl.hp.com, geert@linux-m68k.org,
-       ralf@gnu.org, mkp@mkp.net, willy@debian.org, anton@samba.org,
-       gniibe@m17n.org, kkojima@rr.iij4u.or.jp, Jeff Dike <jdike@karaya.com>
-Subject: Userspace Test Framework for module loader porting
-Date: Mon, 06 Jan 2003 13:27:02 +1100
-Message-Id: <20030106022803.902F82C0E2@lists.samba.org>
+	id <S265708AbTAFCXl>; Sun, 5 Jan 2003 21:23:41 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:37834 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S265705AbTAFCXk>; Sun, 5 Jan 2003 21:23:40 -0500
+Date: Sun, 05 Jan 2003 18:32:09 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Timer interrupt cleanups [0/3]
+Message-ID: <194400000.1041820329@titus>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The userspace test framework I used to develop module loading on
-different archs is up at:
+Well, I tested these on the NUMA-Q and they seem to work.
+Basically (as discussed previously) they rename the stuff off
+the global timer to global_timer_* and the stuff off the
+local timer to local_timer_*. Then I tried to clean up the
+cross-calling ifdef madness. There are various corner cases,
+so it's possible I screwed something up, but I think it's OK.
 
-	http://www.kernel.org/pub/linux/kernel/people/rusty/modules/module-test-framework.tar.gz 
+Original calling graph looked like this, I'll update this for
+each patch to show what happens. Feel free to flame me, everyone.
 
-I found it much easier to use for each arch than doing the
-crash/reboot cycle (and you can use a real debugger).
+--------------------
 
-BTW, the change to use shared objects for modules is going to be a 2.7
-thing: after 10 architectures, MIPS toolchain issues made it
-non-trivial.  So the current stuff is what is going to be there for
-2.6, so no point waiting 8)
+Assuming we're SMP with a local apic timer all firing away:
 
-Please report any problems!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+timer_interrupt
+	do_timer_interrupt
+		{ack the interrupt}
+		do_timer_interrupt_hook
+			do_timer
+				jiffies_64++;
+				update_times
+		{update CMOS clock}    (In the interrupt still ??!!)
+
+apic_timer_interrupt
+	smp_apic_timer_interrupt
+		{ack the interrupt}
+		smp_local_timer_interrupt
+			x86_do_profile
+			update_process_times
+
+--------------------
+
+On UP with local apic timer:
+
+timer_interrupt
+	do_timer_interrupt
+		{ack the interrupt}
+		do_timer_interrupt_hook
+			do_timer
+				jiffies_64++;
+				update_process_times
+				update_times
+		{update CMOS clock}    (In the interrupt still ??!!)
+
+apic_timer_interrupt
+	smp_apic_timer_interrupt
+		{ack the interrupt}
+		smp_local_timer_interrupt
+			x86_do_profile
+
+--------------------
+
+On a UP 386 with stale crusty breadcrumbs, and no local timer:
+	
+timer_interrupt
+	do_timer_interrupt
+		{ack the interrupt}
+		do_timer_interrupt_hook
+			do_timer
+				jiffies_64++;
+				update_process_times
+				update_times
+			x86_do_profile()
+		{update CMOS clock}    (In the interrupt still ??!!)
+
+--------------------
+

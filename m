@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbTIYNda (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 09:33:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbTIYNda
+	id S261232AbTIYNhN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 09:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbTIYNhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 09:33:30 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18626 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261205AbTIYNd3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 09:33:29 -0400
-Date: Thu, 25 Sep 2003 14:33:27 +0100 (BST)
-From: marcelo@parcelfarce.linux.theplanet.co.uk
-To: "Brown, Len" <len.brown@intel.com>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: RE: HT not working by default since 2.4.22
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0CC8708@hdsmsx402.hd.intel.com>
-Message-ID: <Pine.LNX.4.44.0309251426570.30864-100000@parcelfarce.linux.theplanet.co.uk>
+	Thu, 25 Sep 2003 09:37:13 -0400
+Received: from zork.zork.net ([64.81.246.102]:3218 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S261232AbTIYNhK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 09:37:10 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Data writting over the quota chage inote time
+References: <fc5f185ffdd49f6f4444747a24368d79@www4.mail.post.cz>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Thu, 25 Sep 2003 14:37:08 +0100
+In-Reply-To: <fc5f185ffdd49f6f4444747a24368d79@www4.mail.post.cz> (Youza
+ Youzovic's message of "Thu, 25 Sep 2003 15:28:19 +0200 (CEST)")
+Message-ID: <6uad8toupn.fsf@zork.zork.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Sep 2003, Brown, Len wrote:
+"Youza Youzovic" <youza@post.cz> writes:
 
-> Okay, so what to do?
-> 
-> We could make 2.4.23 like 2.4.21 where ACPI code for HT is included in
-> the kernel even when CONFIG_ACPI is not set.
-> 
-> Or we could leave 2.4.23 like 2.4.22 where disabling CONFIG_ACPI really
-> does remove all ACPI code in the kernel; and when CONFIG_ACPI is set,
-> CONFIG_ACPI_HT_ONLY is available to limit ACPI to just the tables part
-> needed for HT.
+> echo "s" >> test; stat test 
+> File: "test"
+> Size: 204800 Blocks: 408 IO Block: 
+> 121234234 Regular File
+> Device: 811h/2065d Inode: 6300 Links: 1 
+> Access: (0644/-rw-r--r--) Uid: (1010/test) Gid:(0/root)
+> Access: Wed Aug 13 16:10:21 2003
+> Modify: Wed Aug 13 16:14:38 2003
+> Change: Wed Aug 13 16:14:38 2003
+>
+> the size is not change - this is OK !!
+> But Modify, and Change time is modified !!!
 
-CONFIG_ACPI_HT should be not dependant on CONFIG_ACPI. So
-
-1) Please make it very clear on the configuration that for HT 
-CONFIG_ACPI_HT_ONLY is needed
-2) Move it outside CONFIG_ACPI. 
-
-OK? 
-
-Thank you.
-
+ctime is the inode change time; it has nothing to do with quotas.  In
+your example above, you wrote some data to a file, which resulted in
+some of the inode's fields being updated, which resulted in the inode
+change time being updated.
 

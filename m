@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318847AbSG0WcH>; Sat, 27 Jul 2002 18:32:07 -0400
+	id <S318842AbSG0Wao>; Sat, 27 Jul 2002 18:30:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318848AbSG0WcG>; Sat, 27 Jul 2002 18:32:06 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:37127 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318847AbSG0WcF>; Sat, 27 Jul 2002 18:32:05 -0400
-Date: Sat, 27 Jul 2002 19:35:11 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Buddy Lumpkin <b.lumpkin@attbi.com>,
-       Austin Gonyou <austin@digitalroadkill.net>,
-       <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Ville Herva <vherva@niksula.hut.fi>, DervishD <raul@pleyades.net>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: RE: About the need of a swap area
-In-Reply-To: <1027813211.21516.2.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44L.0207271933200.3086-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S318846AbSG0Wao>; Sat, 27 Jul 2002 18:30:44 -0400
+Received: from leviathan.kumin.ne.jp ([211.9.65.12]:11549 "HELO
+	emerald.kumin.ne.jp") by vger.kernel.org with SMTP
+	id <S318842AbSG0Wan>; Sat, 27 Jul 2002 18:30:43 -0400
+Message-Id: <200207272233.AA00105@prism.kumin.ne.jp>
+Date: Sun, 28 Jul 2002 07:33:40 +0900
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.29 Compile error
+From: Seiichi Nakashima <nakasima@kumin.ne.jp>
+In-Reply-To: <200205060815.AA00092@prism.kumin.ne.jp>
+References: <200205060815.AA00092@prism.kumin.ne.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: AL-Mail32 Version 1.12
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Jul 2002, Alan Cox wrote:
-> On Sat, 2002-07-27 at 23:22, Buddy Lumpkin wrote:
-> > I thought linux worked more like Solaris where it didn't use any swap (AT
-> > ALL) until it has to... At least, I hope linux works this way.
->
-> I'd be suprised if Solaris did something that dumb.
->
-> You want to push out old long unaccessed pages of code to make room for
-> more cached disk blocks from files.
+Hi.
 
-AFAIK they quietly removed priority paging from Solaris 8,
-somewhat embarrasing considering the publicity at its
-introduction with Solaris 7, but no more embarrasing than
-the regular VM rewrites Linux undergoes ;/
+linux-2.5.29 compile error occured.
 
-Now only if VM was a well-understood area and we could just
-implement something known to work ... OTOH, that would take
-away all the fun ;)
+===== make bzImage error log =====
 
-cheers,
+softirq.c: In function `spawn_ksoftirqd':
+softirq.c:416: warning: statement with no effect
+buffer.c: In function `__buffer_error':
+buffer.c:65: warning: implicit declaration of function `show_stack'
+agp.h:86: warning: `global_cache_flush' defined but not used
+agp.h:86: warning: `global_cache_flush' defined but not used
+ide-cd.c: In function `ide_cdrom_do_request':
+ide-cd.c:1623: warning: implicit declaration of function `ide_stall_queue'
+eepro100.c:2248: warning: `eepro100_remove_one' defined but not used
+share.c: In function `parport_claim_or_block':
+share.c:1005: warning: unused variable `flags'
+bluesmoke.c:309: warning: `mce_task' defined but not used
+apm.c: In function `apm_get_info':
+apm.c:1592: warning: implicit declaration of function `num_possible_cpus'
+apm.c: At top level:
+apm.c:933: warning: `sysrq_poweroff_op' defined but not used
+arch/i386/kernel/kernel.o: In function `apm_get_info':
+arch/i386/kernel/kernel.o(.text+0x903b): undefined reference to `num_possible_cpus'
+arch/i386/kernel/kernel.o: In function `apm':
+arch/i386/kernel/kernel.o(.text+0x9215): undefined reference to `num_possible_cpus'
+arch/i386/kernel/kernel.o(.text+0x937a): undefined reference to `num_possible_cpus'
+arch/i386/kernel/kernel.o: In function `apm_init':
+arch/i386/kernel/kernel.o(.text.init+0x3b81): undefined reference to `num_possible_cpus'
+arch/i386/kernel/kernel.o(.text.init+0x3d07): undefined reference to `num_possible_cpus'
+make: *** [vmlinux] Error 1
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+--------------------------------
+  Seiichi Nakashima
+  Email   nakasima@kumin.ne.jp
+--------------------------------

@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129443AbRCPIzb>; Fri, 16 Mar 2001 03:55:31 -0500
+	id <S129126AbRCPIoU>; Fri, 16 Mar 2001 03:44:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129446AbRCPIzW>; Fri, 16 Mar 2001 03:55:22 -0500
-Received: from www.wen-online.de ([212.223.88.39]:24845 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S129346AbRCPIzC>;
-	Fri, 16 Mar 2001 03:55:02 -0500
-Date: Fri, 16 Mar 2001 09:54:09 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Art Boulatov <art@ksu.ru>, <linux-kernel@vger.kernel.org>
-Subject: Re: pivot_root & linuxrc problem
-In-Reply-To: <20010315224125.C7500@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0103160822350.1057-100000@mikeg.weiden.de>
+	id <S129321AbRCPIoL>; Fri, 16 Mar 2001 03:44:11 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:34319 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S129126AbRCPIn4>; Fri, 16 Mar 2001 03:43:56 -0500
+Date: Fri, 16 Mar 2001 03:58:51 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Reserved memory for highmem bouncing (fwd)
+In-Reply-To: <Pine.LNX.4.30.0103160917420.807-100000@elte.hu>
+Message-ID: <Pine.LNX.4.21.0103160358230.4571-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Mar 2001, Russell King wrote:
 
-> On Thu, Mar 15, 2001 at 10:11:55PM +0100, Mike Galbraith wrote:
-> > On Thu, 15 Mar 2001, Art Boulatov wrote:
+Ok.
+
+Going to write a patch and send you to test RSN.
+
+On Fri, 16 Mar 2001, Ingo Molnar wrote:
+
+> 
+> On Thu, 15 Mar 2001, Marcelo Tosatti wrote:
+> 
+> > The old create_bounce code used to set PF_MEMALLOC on the task flags
+> > and call wakeup_bdflush(1) in case GFP_BUFFER page allocation failed.
+> > That was broken because flush_dirty_buffers() could try to flush a
+> > buffer pointing to highmem page, which would end up in create_bounce
+> > again, but with PF_MEMALLOC.
 > >
-> > > How can I "exec /sbin/init" from "/linuxrc", whatever it is,
-> > > if "linuxrc" does not get PID=1?
-> > >
-> > > Actually, why does NOT "linuxrc" get PID=1?
-> >
-> > That's the question.. the first task started gets pid=1, and when
-> > that is true, exec /sbin/init has no problem.  What else is your
-> > system starting?.. it must be starting something.
->
-> Linux always forks from PID1 before executing /linuxrc automagically.
-> Check init/main.c.
-
-Aha.. so that's it.  I've never been able to get /linuxrc to execute
-automagically.  I wonder why /linuxrc executes on Art's system, but
-not on mine.  I can call it whatever I want and it doesn't run unless
-I explicitly start it with init=whatever.
-
-If it does execute though, that explains init complaining.. pid is
-going to be whatever comes after the last thread started (would be
-8 here).  It looks like you're only supposed to do setup things in
-magic filename /linuxrc and not exec /sbin/init from there.
-
-In any case, it looks like renaming linuxrc to whatever.sh and booting
-with init=/whatever.sh instead will likely make init happy.
-
-	-Mike
+> > Have you tried to make flush_dirty_buffers() only flush buffers
+> > pointing to lowmem pages in case the caller wants it to do so?
+> 
+> this makes sense too - although an emergency pool of some sort never
+> hurts, given that highmem buffers cannot be written out without allocating
+> bounce buffers. (this makes them more volatile wrt. resource shortages
+> than lowmem buffers.) Also, there is no guarantee that flushing lowmem
+> buffers yields any free pages.
+> 
+> > This way you can call flush_dirty_buffers() with the guarantee you're
+> > going to free useful (lowmem) memory. This also throttles high mem
+> > writes giving priority to low mem ones.
+> 
+> yep, i think we should do this in addition to the emergency pool thing, it
+> should improve balance.
+> 
+> 	Ingo
+> 
 

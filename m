@@ -1,42 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317809AbSFMTq7>; Thu, 13 Jun 2002 15:46:59 -0400
+	id <S317808AbSFMTqi>; Thu, 13 Jun 2002 15:46:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317810AbSFMTq7>; Thu, 13 Jun 2002 15:46:59 -0400
-Received: from N606P028.dipool.highway.telekom.at ([212.183.85.188]:40698 "EHLO
-	perception.wg") by vger.kernel.org with ESMTP id <S317809AbSFMTq6>;
-	Thu, 13 Jun 2002 15:46:58 -0400
-Date: Thu, 13 Jun 2002 21:46:56 +0200
-From: "Florian G. Pflug" <fgp@phlo.org>
-To: linux-kernel@vger.kernel.org
-Subject: More than 32 groups per process
-Message-ID: <20020613194656.GB1299@perception.phlo.org>
+	id <S317809AbSFMTqi>; Thu, 13 Jun 2002 15:46:38 -0400
+Received: from stingr.net ([212.193.32.15]:2435 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S317808AbSFMTqh>;
+	Thu, 13 Jun 2002 15:46:37 -0400
+Date: Thu, 13 Jun 2002 23:46:36 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] aic7xxx won't compile w/o PCI at all <- fixed
+Message-ID: <20020613194636.GA26527@stingr.net>
+Mail-Followup-To: "Justin T. Gibbs" <gibbs@scsiguy.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: RIPEMD160
 
-Since linux currently doesn't support more than 32 groups per process, I
-created a patch which expands this limit (65536 at the moment, but this is
-quite abitrary).
+I know I shouldn't do that
+I also know someone should do at least compile on cases which affected by
+some patch.
 
-It replaces the static groups array with a dynamically allocated array
-(which is reference counted, so that we don't need to copy it on forking).
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.538   -> 1.539  
+#	drivers/scsi/aic7xxx/aic7xxx_proc.c	1.9     -> 1.10   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/06/13	stingray@boxster.stingr.net	1.539
+# Fix two obscure cases in heh aic7xxx
+# --------------------------------------------
+#
+diff -Nru a/drivers/scsi/aic7xxx/aic7xxx_proc.c b/drivers/scsi/aic7xxx/aic7xxx_proc.c
+- --- a/drivers/scsi/aic7xxx/aic7xxx_proc.c	Thu Jun 13 23:43:23 2002
++++ b/drivers/scsi/aic7xxx/aic7xxx_proc.c	Thu Jun 13 23:43:23 2002
+@@ -282,7 +282,11 @@
+ 		sd.sd_CK = SEECK;
+ 		sd.sd_DO = SEEDO;
+ 		sd.sd_DI = SEEDI;
++#ifdef CONFIG_PCI
+ 		have_seeprom = ahc_acquire_seeprom(ahc, &sd);
++#else
++		have_seeprom = 0;
++#endif
+ 	}
+ 
+ 	if (!have_seeprom) {
+@@ -306,8 +310,10 @@
+ 				  sizeof(struct seeprom_config)/2);
+ 		ahc_read_seeprom(&sd, (uint16_t *)ahc->seep_config,
+ 				 start_addr, sizeof(struct seeprom_config)/2);
++#ifdef CONFIG_PCI
+ 		if ((ahc->chip & AHC_VL) == 0)
+ 			ahc_release_seeprom(&sd);
++#endif
+ 		written = length;
+ 	}
+ 
+- -- 
+Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
+  When you're invisible, the only one really watching you is you (my keychain)
+-----BEGIN PGP SIGNATURE-----
 
-The groups array is kept sorted (which is easy, because sys_setgroups always
-replaces the whole array), and is searched efficiently by using a binary
-search algorithmn.
-
-Since I'm not very experienced in kernel hacking, I'd like to know if
-someone has done a similar patch (at least I could then compare my code with
-it).
-
-If there is interest, I'll post my patch here - but I didn't want to fill
-your inboxes with something most people will find useless (2^16 groups is
-quite a lot ;-) ).
-
-greetings, Florian Pflug
+iEYEAREDAAYFAj0I9poACgkQyMW8naS07KSyFgCeIaq/qC3CjghpuzZaQZDk+xFk
+gbEAn2VYDXsq+VC5lvvgOXCTUTr2DCsa
+=g0mm
+-----END PGP SIGNATURE-----

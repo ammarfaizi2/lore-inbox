@@ -1,44 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285189AbRL3Ogj>; Sun, 30 Dec 2001 09:36:39 -0500
+	id <S287111AbRL3OnK>; Sun, 30 Dec 2001 09:43:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285150AbRL3Oga>; Sun, 30 Dec 2001 09:36:30 -0500
-Received: from tourian.nerim.net ([62.4.16.79]:42500 "HELO tourian.nerim.net")
-	by vger.kernel.org with SMTP id <S284239AbRL3OgP>;
-	Sun, 30 Dec 2001 09:36:15 -0500
-Message-ID: <3C2F265E.4000105@free.fr>
-Date: Sun, 30 Dec 2001 15:36:14 +0100
-From: Lionel Bouton <Lionel.Bouton@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011228
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: rdicaire@ardynet.com
-Cc: Linux <linux-kernel@vger.kernel.org>
-Subject: Re: AWE64 Duplex not working with 2.4.17
-In-Reply-To: <3C2E0E01.EE3D22D7@ardynet.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S287267AbRL3OnB>; Sun, 30 Dec 2001 09:43:01 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:59665 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S287111AbRL3Omm>; Sun, 30 Dec 2001 09:42:42 -0500
+Date: Sun, 30 Dec 2001 14:42:35 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix serial close hang
+Message-ID: <20011230144235.B9625@flint.arm.linux.org.uk>
+In-Reply-To: <20011230135249.A9625@flint.arm.linux.org.uk> <20011230141731.GA7314@elfie.cavy.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011230141731.GA7314@elfie.cavy.de>; from hd@cavy.de on Sun, Dec 30, 2001 at 03:17:31PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rdicaire@ardynet.com wrote:
+On Sun, Dec 30, 2001 at 03:17:31PM +0100, Heinz Diehl wrote:
+> serial.c:3131: state' undeclared (first use in this function)
 
-> I have installed an SB AWE 64, kernel is 2.4.17, audio works fine, but I
-> cannot play
-> simultaneous multpile wav or mp3 files, errors reported that something
-> else has the device open already.
-> 
+Whoops.  This should fix it.
 
+--- orig/include/linux/serialP.h	Sat Jul 21 10:47:15 2001
++++ linux/include/linux/serialP.h	Sun Dec 30 13:09:27 2001
+@@ -70,7 +70,7 @@
+ 	int			x_char;	/* xon/xoff character */
+ 	int			close_delay;
+ 	unsigned short		closing_wait;
+-	unsigned short		closing_wait2;
++	unsigned short		closing_wait2; /* obsolete */
+ 	int			IER; 	/* Interrupt Enable Register */
+ 	int			MCR; 	/* Modem control register */
+ 	int			LCR; 	/* Line control register */
+--- orig/drivers/char/serial.c	Sun Dec 30 13:37:23 2001
++++ linux/drivers/char/serial.c	Sun Dec 30 13:49:27 2001
+@@ -3095,36 +3095,52 @@
+ 
+ 	sstate = rs_table + line;
+ 	sstate->count++;
+-	if (sstate->info) {
+-		*ret_info = sstate->info;
+-		return 0;
+-	}
++	info = sstate->info;
++
++	/*
++	 * If the async_struct is already allocated, do the fastpath.
++	 */
++	if (info)
++		goto out;
++
+ 	info = kmalloc(sizeof(struct async_struct), GFP_KERNEL);
+ 	if (!info) {
+ 		sstate->count--;
+ 		return -ENOMEM;
+ 	}
++
+ 	memset(info, 0, sizeof(struct async_struct));
+ 	init_waitqueue_head(&info->open_wait);
+ 	init_waitqueue_head(&info->close_wait);
+ 	init_waitqueue_head(&info->delta_msr_wait);
+ 	info->magic = SERIAL_MAGIC;
+ 	info->port = sstate->port;
++	info->hub6 = sstate->hub6;
+ 	info->flags = sstate->flags;
+-	info->io_type = sstate->io_type;
+-	info->iomem_base = sstate->iomem_base;
+-	info->iomem_reg_shift = sstate->iomem_reg_shift;
+ 	info->xmit_fifo_size = sstate->xmit_fifo_size;
++	info->state = sstate;
+ 	info->line = line;
++	info->iomem_base = sstate->iomem_base;
++	info->iomem_reg_shift = sstate->iomem_reg_shift;
++	info->io_type = sstate->io_type;
+ 	info->tqueue.routine = do_softint;
+ 	info->tqueue.data = info;
+-	info->state = sstate;
++
+ 	if (sstate->info) {
+ 		kfree(info);
+-		*ret_info = sstate->info;
+-		return 0;
++		info = sstate->info;
++	} else {
++		sstate->info = info;
++	}
++
++out:
++	/*
++	 * If this is the first open, copy over some timeouts.
++	 */
++	if (sstate->count == 1) {
++		info->closing_wait = sstate->closing_wait;
+ 	}
+-	*ret_info = sstate->info = info;
++	*ret_info = info;
+ 	return 0;
+ }
+ 
 
-This is an hardware limitation. AWE series don't support multiple PCM 
-streams.
-So mixing multiple PCM streams must be done in software. Use either esd, 
-artsd, ...
-
-You could imagine a driver based software mixing but :
-- it would make drivers far more complex -> more bug-prone,
-- it may pose performance/feasability problems when your apps need 
-accurate timings (Video/audio sync for example).
-
-LB.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

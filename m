@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264499AbTDPQme (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 12:42:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbTDPQme
+	id S264504AbTDPQns (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 12:43:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264505AbTDPQns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 12:42:34 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:9636 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S264499AbTDPQmc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 12:42:32 -0400
-Message-ID: <3E9D8A68.5050207@colorfullife.com>
-Date: Wed, 16 Apr 2003 18:52:56 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tomas Szepe <szepe@pinerecords.com>
-CC: jamal <hadi@cyberus.ca>, Catalin BOIE <util@deuroconsult.ro>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH] qdisc oops fix
-References: <20030415084706.O1131@shell.cyberus.ca> <Pine.LNX.4.53.0304160838001.25861@hosting.rdsbv.ro> <20030416072952.E4013@shell.cyberus.ca> <3E9D755A.8060601@colorfullife.com> <20030416160606.GA32575@louise.pinerecords.com>
-In-Reply-To: <20030416160606.GA32575@louise.pinerecords.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 16 Apr 2003 12:43:48 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:35780
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264504AbTDPQnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 12:43:47 -0400
+Subject: Re: 2.4.21-pre7 + Intel 82801AA IDE + 80Gb Barracuda do not work
+	well together
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pau Aliagas <linuxnow@newtral.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0304161759290.4806-100000@pau.intranet.ct>
+References: <Pine.LNX.4.44.0304161759290.4806-100000@pau.intranet.ct>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1050508630.28727.134.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 16 Apr 2003 16:57:10 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomas Szepe wrote:
+On Mer, 2003-04-16 at 17:15, Pau Aliagas wrote:
+> I'm having serious trouble dealing with:
+> * 80Gb Seagate Barracuda disc (Model Number ST380011A, Firmware Revision 3.04)
+> * on an Intel 82801AA IDE controller
 
->The original backtrace as provided by Martin Volf does not contain
->any weird addresses such as 0xd081ecc7 above:
->
->http://marc.theaimsgroup.com/?l=linux-kernel&m=105013596721774&w=2
->  
->
-Thanks.
-The bug was caused by sch_tree_lock() in htb_change_class().
-2.4.21-pre7 contains a fix.
+Thats a known to work configuration, so that is strange. Is the drive
+known good and the driver/controller setup ok in "other OS" if you also
+run it ?
 
---
-    Manfred
+> (RH-8.0 updated kernels) unless I boot with ide=nodma.
+> With RH kernels it stalls reading the partition table.
+> With 2.4.21-pre7 I get and error of the dma.
+
+Same error in both cases, just its recovered properly in the newer code.
 
 

@@ -1,131 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264874AbUDWQ4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264871AbUDWQ43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264874AbUDWQ4k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 12:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbUDWQ4k
+	id S264871AbUDWQ43 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 12:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbUDWQ43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 12:56:40 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:33552 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264874AbUDWQ4Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 12:56:25 -0400
-Date: Fri, 23 Apr 2004 17:56:21 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Bobby Hitt <Bob.Hitt@bscnet.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Graphics Mode Woes
-In-Reply-To: <01b801c428cb$737005d0$0900a8c0@bobhitt>
-Message-ID: <Pine.LNX.4.44.0404231755300.3997-100000@phoenix.infradead.org>
+	Fri, 23 Apr 2004 12:56:29 -0400
+Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:14457 "HELO
+	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264871AbUDWQ4W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 12:56:22 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Marcel Holtmann <marcel@holtmann.org>
+Subject: Re: [OOPS/HACK] atmel_cs and the latest changes in sysfs/symlink.c
+Date: Fri, 23 Apr 2004 11:55:59 -0500
+User-Agent: KMail/1.6.1
+Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Simon Kelley <simon@thekelleys.org.uk>
+References: <200404230142.46792.dtor_core@ameritech.net> <200404230802.42293.dtor_core@ameritech.net> <1082730412.23959.118.camel@pegasus>
+In-Reply-To: <1082730412.23959.118.camel@pegasus>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404231156.03106.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-That is because the native driver takes priority over the vesafb driver.
-Disable the native driver if you don't want ot use it.
-
-
-On Thu, 22 Apr 2004, Bobby Hitt wrote:
-
-> Hello,
+On Friday 23 April 2004 09:26 am, Marcel Holtmann wrote:
+> I can't tell you anything about the hiddev problem, but for the PCMCIA
+> subsystem we have the problem that right now it is not integrated into
+> the driver model. Maybe a dummy integration for PCMCIA would be nice or
+> can we get a device_simple like we have class_simple?
 > 
-> I'm attempting to get linux 2.6.5 to go into 1024x768x64k mode with my
-> NVidia GEForce card. Under 2.4.25, it works fine with "vga=791" in my
-> lilo.conf file. Here's what's in the log:
-> 
-> Apr 22 17:19:09 gateway kernel: vesafb: framebuffer at 0xf0000000, mapped to
-> 0xe080d000, size 3072k
-> Apr 22 17:19:09 gateway kernel: vesafb: mode is 1024x768x16,
-> linelength=2048, pages=0
-> Apr 22 17:19:09 gateway kernel: vesafb: protected mode interface info at
-> c000:c590
-> Apr 22 17:19:09 gateway kernel: vesafb: scrolling: redraw
-> Apr 22 17:19:09 gateway kernel: vesafb: directcolor: size=0:5:6:5,
-> shift=0:11:5:0
-> Apr 22 17:19:09 gateway kernel: Console: switching to colour frame buffer
-> device 128x48
-> Apr 22 17:19:09 gateway kernel: fb0: VESA VGA frame buffer device
-> 
-> Under 2.6.5:
-> 
-> Apr 22 17:57:58 gateway kernel: rivafb: nVidia device/chipset 10DE0110
-> Apr 22 17:57:58 gateway kernel: rivafb: Detected CRTC controller 0 being
-> used
-> Apr 22 17:57:58 gateway kernel: rivafb: RIVA MTRR set to ON
-> Apr 22 17:57:58 gateway kernel: rivafb: PCI nVidia NV10 framebuffer ver
-> 0.9.5b (nVidiaGeForce2-M, 32MB @ 0xF0000000)
-> Apr 22 17:57:58 gateway kernel: vga16fb: initializing
-> Apr 22 17:57:58 gateway kernel: vga16fb: mapped to 0xc00a0000
-> Apr 22 17:57:58 gateway kernel: fb1: VGA16 VGA frame buffer device
-> 
-> Totally different output and no references to vesafb. With "vga=791" on
-> bootup the screen goes blank then switches to the normal graphics mode. Even
-> when I use "vga=ask" and I put in a valid number, the screen switches to
-> text mode momentarily then goes back to the normal graphics mode.
-> 
-> Here's the related portion of my .config file:
-> 
->  #
-> # Graphics support
-> #
-> CONFIG_FB=y
-> # CONFIG_FB_PM2 is not set
-> # CONFIG_FB_CYBER2000 is not set
-> # CONFIG_FB_IMSTT is not set
-> CONFIG_FB_VGA16=y
-> CONFIG_FB_VESA=y
-> CONFIG_VIDEO_SELECT=y
-> # CONFIG_FB_HGA is not set
-> CONFIG_FB_RIVA=y
-> # CONFIG_FB_I810 is not set
-> # CONFIG_FB_MATROX is not set
-> # CONFIG_FB_RADEON_OLD is not set
-> # CONFIG_FB_RADEON is not set
-> # CONFIG_FB_ATY128 is not set
-> # CONFIG_FB_ATY is not set
-> # CONFIG_FB_SIS is not set
-> # CONFIG_FB_NEOMAGIC is not set
-> # CONFIG_FB_KYRO is not set
-> # CONFIG_FB_3DFX is not set
-> # CONFIG_FB_VOODOO1 is not set
-> # CONFIG_FB_TRIDENT is not set
-> # CONFIG_FB_VIRTUAL is not set
-> 
-> #
-> # Console display driver support
-> #
-> CONFIG_VGA_CONSOLE=y
-> # CONFIG_MDA_CONSOLE is not set
-> CONFIG_DUMMY_CONSOLE=y
-> CONFIG_FRAMEBUFFER_CONSOLE=y
-> CONFIG_PCI_CONSOLE=y
-> CONFIG_FONTS=y
-> CONFIG_FONT_8x8=y
-> CONFIG_FONT_8x16=y
-> # CONFIG_FONT_6x11 is not set
-> CONFIG_FONT_PEARL_8x8=y
-> CONFIG_FONT_ACORN_8x8=y
-> # CONFIG_FONT_MINI_4x6 is not set
-> # CONFIG_FONT_SUN8x16 is not set
-> # CONFIG_FONT_SUN12x22 is not set
-> 
-> #
-> # Logo configuration
-> #
-> CONFIG_LOGO=y
-> CONFIG_LOGO_LINUX_MONO=y
-> CONFIG_LOGO_LINUX_VGA16=y
-> CONFIG_LOGO_LINUX_CLUT224=y
-> 
-> Any help or suggestions are appreciated,
-> 
-> Bobby
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+I wonder if===== drivers/net/wireless/atmel_cs.c 1.11 vs edited =====
+--- 1.11/drivers/net/wireless/atmel_cs.c	Thu Feb  5 05:04:40 2004
++++ edited/drivers/net/wireless/atmel_cs.c	Fri Apr 23 11:43:42 2004
+@@ -348,17 +348,13 @@
+ 	{ 0, 0, "11WAVE/11WP611AL-E", "atmel_at76c502e%s.bin", "11WAVE WaveBuddy" } 
+ };
+ 
+-/* This is strictly temporary, until PCMCIA devices get integrated into the device model. */
+-static struct device atmel_device = {
+-        .bus_id    = "pcmcia",
+-};
+-
+ static void atmel_config(dev_link_t *link)
+ {
+ 	client_handle_t handle;
+ 	tuple_t tuple;
+ 	cisparse_t parse;
+ 	local_info_t *dev;
++	struct device *atmel_device;
+ 	int last_fn, last_ret;
+ 	u_char buf[64];
+ 	int card_index = -1, done = 0;
+@@ -538,14 +534,25 @@
+ 		       "atmel: cannot assign IRQ: check that CONFIG_ISA is set in kernel config.");
+ 		goto cs_failed;
+ 	}
+-	
++
++	CS_CHECK(GetSysDevice, pcmcia_get_sys_device(link->handle, &atmel_device));
++
++	if (!atmel_device) {
++		printk(KERN_ALERT "atmel: cannot get sys device from the card.\n");
++		goto cs_failed;
++	}
++
+ 	((local_info_t*)link->priv)->eth_dev = 
+ 		init_atmel_card(link->irq.AssignedIRQ,
+ 				link->io.BasePort1,
+ 				card_index == -1 ? NULL :  card_table[card_index].firmware,
+-				&atmel_device,
++				atmel_device,
+ 				card_present, 
+ 				link);
++
++	put_device(atmel_device);
++	atmel_device = NULL;
++
+ 	if (!((local_info_t*)link->priv)->eth_dev) 
+ 		goto cs_failed;
+ 	
+===== drivers/pcmcia/cs.c 1.78 vs edited =====
+--- 1.78/drivers/pcmcia/cs.c	Mon Apr 19 03:12:13 2004
++++ edited/drivers/pcmcia/cs.c	Fri Apr 23 11:51:19 2004
+@@ -1009,6 +1009,24 @@
+     return CS_SUCCESS;
+ } /* get_configuration_info */
+ 
++/*====================================================================*/
++
++int pcmcia_get_sys_device(client_handle_t handle, struct device **sys_dev)
++{
++	struct pcmcia_socket *s;
++
++	if (CHECK_HANDLE(handle))
++		return CS_BAD_HANDLE;
++
++	s = SOCKET(handle);
++	if (!(s->state & SOCKET_PRESENT))
++		return CS_NO_CARD;
++
++	*sys_dev = get_device(s->dev.dev);
++
++	return CS_SUCCESS;
++} /* get_sys_device */
++
+ /*======================================================================
+ 
+     Return information about this version of Card Services.
+@@ -2109,6 +2127,7 @@
+ EXPORT_SYMBOL(pcmcia_get_next_tuple);
+ EXPORT_SYMBOL(pcmcia_get_next_window);
+ EXPORT_SYMBOL(pcmcia_get_status);
++EXPORT_SYMBOL(pcmcia_get_sys_device);
+ EXPORT_SYMBOL(pcmcia_get_tuple_data);
+ EXPORT_SYMBOL(pcmcia_insert_card);
+ EXPORT_SYMBOL(pcmcia_map_mem_page);
+===== drivers/pcmcia/ds.c 1.49 vs edited =====
+--- 1.49/drivers/pcmcia/ds.c	Sun Mar 14 15:36:00 2004
++++ edited/drivers/pcmcia/ds.c	Fri Apr 23 11:51:47 2004
+@@ -307,7 +307,8 @@
+     { ResumeCard,			"ResumeCard" },
+     { EjectCard,			"EjectCard" },
+     { InsertCard,			"InsertCard" },
+-    { ReplaceCIS,			"ReplaceCIS" }
++    { ReplaceCIS,			"ReplaceCIS" },
++    { GetSysDevice,			"GetSysDevice" }
+ };
+ 
+ 
+===== include/pcmcia/cs.h 1.9 vs edited =====
+--- 1.9/include/pcmcia/cs.h	Sun Mar 14 15:36:00 2004
++++ edited/include/pcmcia/cs.h	Fri Apr 23 11:47:26 2004
+@@ -418,9 +418,11 @@
+     SetEventMask, SetRegion, ValidateCIS, VendorSpecific,
+     WriteMemory, BindDevice, BindMTD, ReportError,
+     SuspendCard, ResumeCard, EjectCard, InsertCard, ReplaceCIS,
+-    GetFirstWindow, GetNextWindow, GetMemPage
++    GetFirstWindow, GetNextWindow, GetMemPage, GetSysDevice
+ };
+ 
++struct device;
++
+ int pcmcia_access_configuration_register(client_handle_t handle, conf_reg_t *reg);
+ int pcmcia_deregister_client(client_handle_t handle);
+ int pcmcia_get_configuration_info(client_handle_t handle, config_info_t *config);
+@@ -431,6 +433,7 @@
+ int pcmcia_get_first_window(window_handle_t *win, win_req_t *req);
+ int pcmcia_get_next_window(window_handle_t *win, win_req_t *req);
+ int pcmcia_get_status(client_handle_t handle, cs_status_t *status);
++int pcmcia_get_sys_device(client_handle_t handle, struct device **sys_dev);
+ int pcmcia_get_mem_page(window_handle_t win, memreq_t *req);
+ int pcmcia_map_mem_page(window_handle_t win, memreq_t *req);
+ int pcmcia_modify_configuration(client_handle_t handle, modconf_t *mod);

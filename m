@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265274AbUAERwt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 12:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265282AbUAERwt
+	id S265279AbUAERwN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 12:52:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265274AbUAERwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 12:52:49 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:44467 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265274AbUAERwn
+	Mon, 5 Jan 2004 12:52:12 -0500
+Received: from magic-mail.adaptec.com ([216.52.22.10]:39828 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S265279AbUAERwB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 12:52:43 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 5 Jan 2004 09:52:45 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Linus Torvalds <torvalds@osdl.org>, Andries Brouwer <aebr@win.tue.nl>,
-       Daniel Jacobowitz <dan@debian.org>, Rob Love <rml@ximian.com>,
-       <rob@landley.net>, Pascal Schmidt <der.eremit@email.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: udev and devfs - The final word
-In-Reply-To: <20040105172900.GA359@ucw.cz>
-Message-ID: <Pine.LNX.4.44.0401050944420.17134-100000@bigblue.dev.mdolabs.com>
+	Mon, 5 Jan 2004 12:52:01 -0500
+Date: Mon, 05 Jan 2004 10:57:35 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+cc: Berkley Shands <berkley@cs.wustl.edu>
+Subject: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple map/unmaps
+Message-ID: <2938942704.1073325455@aslan.btc.adaptec.com>
+X-Mailer: Mulberry/3.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Jan 2004, Vojtech Pavlik wrote:
+Berkley Shands recently tripped over this problem.  The 2.6.X pci_map_sg
+code for x86_64 modifies the passed in S/G list to compact it for mapping
+by the GART.  This modification is not reversed when pci_unmap_sg is
+called.  In the case of a retried SCSI command, this causes any attempt
+to map the command a second time to fail with a BUG assertion since the
+nseg parameter passed into the second map call is state.  nseg comes from
+the "use_sg" field in the SCSI command structure which is never touched
+by the HBA drivers invoking pci_map_sg.
 
-> On Mon, Jan 05, 2004 at 08:13:26AM -0800, Linus Torvalds wrote:
-> 
-> > But the thing is, some things you simply _cannot_ number. For example, a
-> > two-dimensional space is innumerable - you need more than one integer
-> > number to look things up.  So is the set of real numbers (but not the set 
-> > of fractions), etc etc.
-> 
-> Two dimensional discrete space (*) is enumerable. Just start at [0,0]
-> and assign numbers going around the center in a growing spiral (**).
-> That way you assign a number to every point in that space. This is very
-> similar to the trick used to demonstrate fractions are enumerable.
+DMA-API.txt doesn't seem to cover this issue.  Should the low-level DMA
+code restore the S/G list to its original state on unmap or should the
+SCSI HBA drivers be changed to update "use_sg" with the segment count
+reported by the pci_map_sg() API?  If the latter, this seems to contradict
+the mandate in DMA-API that the nseg parameter passed into the unmap call
+be the same as that passed into the map call.  Most of the kernel assumes
+that an S/G list can be mapped an unmapped multiple times using the same
+arguments.  This doesn't seem to me to be an unreasonable expectation.
 
-Vojtech, a spiral (in the math sense) won't work because whatever 
-continuos function you choose for the radius, you are going to skip 
-integers when the radius grows (and duplicate them when it's small). Also, 
-IIRC, fractions are enumerable because they're a mapping from two 
-enumerable spaces (integers): F = F(I1, I2) = I1 / I2.
-
-
-
-- Davide
-
-
+--
+Justin
 

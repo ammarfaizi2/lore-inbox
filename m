@@ -1,76 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317545AbSFEEKt>; Wed, 5 Jun 2002 00:10:49 -0400
+	id <S314584AbSFEE15>; Wed, 5 Jun 2002 00:27:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317546AbSFEEKs>; Wed, 5 Jun 2002 00:10:48 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:15595 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S317545AbSFEEKq>; Wed, 5 Jun 2002 00:10:46 -0400
-Message-ID: <3CFD8E42.7000703@didntduck.org>
-Date: Wed, 05 Jun 2002 00:06:26 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fs/inode.c list_del_init
-Content-Type: multipart/mixed;
- boundary="------------020805000108010003010602"
+	id <S317546AbSFEE14>; Wed, 5 Jun 2002 00:27:56 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:31395 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S314584AbSFEE14>;
+	Wed, 5 Jun 2002 00:27:56 -0400
+Date: Wed, 5 Jun 2002 14:27:21 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Matthew Wilcox <matthew@wil.cx>,
+        Trivial Kernel Patches <trivial@rustcorp.com.au>
+Subject: [PATCH] fs/locks.c use list_del_init
+Message-Id: <20020605142721.2d15f147.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020805000108010003010602
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi Linus,
 
-A few cases of list_del(x) + INIT_LIST_HEAD(x) crept in recently which 
-can be replaced with list_del_init(x).
+Trivial part of a patch by Matthew Wilcox.  Please apply.
 
---------------020805000108010003010602
-Content-Type: text/plain;
- name="inode-list-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="inode-list-1"
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-diff -urN linux-bk/fs/inode.c linux/fs/inode.c
---- linux-bk/fs/inode.c	Tue Jun  4 23:54:33 2002
-+++ linux/fs/inode.c	Tue Jun  4 23:57:37 2002
-@@ -390,8 +390,7 @@
- 		if (atomic_read(&inode->i_count))
- 			continue;
- 		list_del(tmp);
--		list_del(&inode->i_hash);
--		INIT_LIST_HEAD(&inode->i_hash);
-+		list_del_init(&inode->i_hash);
- 		list_add(tmp, freeable);
- 		inode->i_state |= I_FREEING;
- 		count++;
-@@ -777,8 +776,7 @@
- void remove_inode_hash(struct inode *inode)
+diff -ruN 2.5.20/fs/locks.c 2.5.20-sfr.1/fs/locks.c
+--- 2.5.20/fs/locks.c	Fri Mar  8 14:37:19 2002
++++ 2.5.20-sfr.1/fs/locks.c	Wed Jun  5 14:23:33 2002
+@@ -397,10 +397,8 @@
+  */
+ static void locks_delete_block(struct file_lock *waiter)
  {
- 	spin_lock(&inode_lock);
--	list_del(&inode->i_hash);
--	INIT_LIST_HEAD(&inode->i_hash);
-+	list_del_init(&inode->i_hash);
- 	spin_unlock(&inode_lock);
+-	list_del(&waiter->fl_block);
+-	INIT_LIST_HEAD(&waiter->fl_block);
+-	list_del(&waiter->fl_link);
+-	INIT_LIST_HEAD(&waiter->fl_link);
++	list_del_init(&waiter->fl_block);
++	list_del_init(&waiter->fl_link);
+ 	waiter->fl_next = NULL;
  }
  
-@@ -786,10 +784,8 @@
- {
- 	struct super_operations *op = inode->i_sb->s_op;
- 
--	list_del(&inode->i_hash);
--	INIT_LIST_HEAD(&inode->i_hash);
--	list_del(&inode->i_list);
--	INIT_LIST_HEAD(&inode->i_list);
-+	list_del_init(&inode->i_hash);
-+	list_del_init(&inode->i_list);
- 	inode->i_state|=I_FREEING;
- 	inodes_stat.nr_inodes--;
- 	spin_unlock(&inode_lock);
-
---------------020805000108010003010602--
-

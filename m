@@ -1,112 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286719AbRLVIWO>; Sat, 22 Dec 2001 03:22:14 -0500
+	id <S286721AbRLVIaJ>; Sat, 22 Dec 2001 03:30:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286721AbRLVIWH>; Sat, 22 Dec 2001 03:22:07 -0500
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:22257 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S286719AbRLVIVw>; Sat, 22 Dec 2001 03:21:52 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Adam Keys <akeys@post.cis.smu.edu>
-To: Thomas Deselaers <thomas@deselaers.de>
-Subject: Re: IDE Harddrive Performance
-Date: Sat, 22 Dec 2001 02:21:59 -0600
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20011219153233.GA3424@leukertje.hitnet.rwth-aachen.de>
-In-Reply-To: <20011219153233.GA3424@leukertje.hitnet.rwth-aachen.de>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011222082147.CCTE6450.rwcrmhc52.attbi.com@there>
+	id <S286723AbRLVI3z>; Sat, 22 Dec 2001 03:29:55 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:55534 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S286721AbRLVI3n>;
+	Sat, 22 Dec 2001 03:29:43 -0500
+Date: Sat, 22 Dec 2001 01:29:34 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Hello. Patch time (drivers/block/loop.c)
+Message-ID: <20011222012934.B7823@lynx.no>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011222031442.A25275@grokthis.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20011222031442.A25275@grokthis.net>; from ericw@grokthis.net on Sat, Dec 22, 2001 at 03:14:42AM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 19, 2001 09:32, Thomas Deselaers wrote:
-> I do have an Asus P2B-S Mainboard and since a week I have a Maxtor 60 GB
-> 5400 rpm Harddrive (MAXTOR 4K060H3).
+On Dec 22, 2001  03:14 -0500, Eric Windisch wrote:
+> I may be looking at this and the multi-device drivers in the near
+> future as I have a need for support for partitions on these devices;
 
-I am experiencing extremely shoddy performance with a similar disk/chipset 
-combination.  I am on an Asus P2B-DS board (440BX) with the following disk 
-setup.
+Contact Neil Brown, as this is already done.  That is a "feature" of
+Linux - most things you want to do have already been done by someone
+else.
 
-hda: Maxtor 93073U6, ATA DISK drive
-hdc: Maxtor 90840D6, ATA DISK drive
-hdd: Maxtor 90840D6, ATA DISK drive
+> I think it would be really neat if the software-raid could eventually
+> become compatable with hardware raid.. although much slower
 
-I am barely experiencing the same performance you are, after enabling all the 
-stuff that's been discussed in this thread.    I'd like to determine if this 
-disk is dying or if there is something seriously wrong with my kernel.  I did 
-not seem to experience anything until I went to 2.4.16.  hdd seems to be 
-headed for the heap, as all tests on it fail.  I am stumped; I've read the 
-manual and the threads and still haven't extracted proper performance.  All 
-help is appreciated.
+In many cases, software raid is as fast or faster than hardware raid.
+What do you mean by "compatible"?
 
-Thanks,
-AKK
-
-Following is the information on the other disks and the hdparm test results:
-
-# hdparm -t /dev/hda
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in 86.98 seconds =753.46 kB/sec
-
-# hdparm /dev/hda ; hdparm -i /dev/hda
-
-/dev/hda:
- multcount    = 16 (on)
- I/O support  =  1 (32-bit)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 3736/255/63, sectors = 60030432, start = 0
- busstate     =  1 (on)
-
-/dev/hda:
-
- Model=Maxtor 93073U6, FwRev=FA500S60, SerialNo=G607E80C
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=60030432
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4
- AdvancedPM=yes: disabled (255) WriteCache=enabled
- Drive Supports : ATA/ATAPI-4 T13 1153D revision 17 : ATA-1 ATA-2 ATA-3 ATA-4 
-ATA-5
-
-
-/dev/hdc:
- Timing buffered disk reads:  64 MB in  5.63 seconds = 11.37 MB/sec
-
-/dev/hdc:
- multcount    = 16 (on)
- I/O support  =  1 (32-bit)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 1021/255/63, sectors = 16406208, start = 0
- busstate     =  1 (on)
-
-/dev/hdc:
-
- Model=Maxtor 90840D6, FwRev=WAS82739, SerialNo=K606M2WA
- Config={ Fixed }
- RawCHS=16276/16/63, TrkSize=0, SectSize=0, ECCbytes=29
- BuffType=DualPortCache, BuffSize=256kB, MaxMultSect=16, MultSect=16
- CurCHS=16276/16/63, CurSects=16406208, LBA=yes, LBAsects=16406208
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2
- AdvancedPM=no WriteCache=enabled
- Drive Supports : ATA/ATAPI-4 T13 1153D revision 17 : ATA-1 ATA-2 ATA-3 ATA-4
--- 
-akk~
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

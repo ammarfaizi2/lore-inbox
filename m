@@ -1,39 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262656AbTFGH0G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 03:26:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbTFGH0G
+	id S262714AbTFGHu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 03:50:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbTFGHu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 03:26:06 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:57102 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262656AbTFGH0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 03:26:05 -0400
-Date: Sat, 7 Jun 2003 08:39:29 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Stewart Smith <stewart@linux.org.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Jeff Garzik <jgarzik@pobox.com>,
-       David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [EVIL-PATCH] getting rid of lib/lib.a and breaking many archs in the processes (was Re: [PATCH] fixed: CRC32=y && 8193TOO=m unresolved symbols)
-Message-ID: <20030607083929.A19009@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Stewart Smith <stewart@linux.org.au>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-References: <20030604153224.GF19929@gtf.org> <Pine.LNX.4.44.0306040838370.13753-100000@home.transmeta.com> <20030607073321.GC1540@cancer>
+	Sat, 7 Jun 2003 03:50:27 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:40461 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S262714AbTFGHuW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 03:50:22 -0400
+Date: Sat, 7 Jun 2003 10:03:57 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Docbook update
+Message-ID: <20030607080357.GB8943@mars.ravnborg.org>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <20030607080226.GA8943@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030607073321.GC1540@cancer>; from stewart@linux.org.au on Sat, Jun 07, 2003 at 05:33:21PM +1000
+In-Reply-To: <20030607080226.GA8943@mars.ravnborg.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 07, 2003 at 05:33:21PM +1000, Stewart Smith wrote:
-> Is it a good idea to make the archs themselves include the generic implementation if they don't do it themselves? Or is there a way to detect this in the build system (this would be more elegant, but I have no idea how to do it).
-
-You can always add a HAVE_ARCH_FOO #define.  Btw, we have so many
-of those these days that an <asm/config.h> for them might be a better
-choice than polluting random other header.  Opinions?
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1316  -> 1.1316.1.1
+#	Documentation/DocBook/kernel-api.tmpl	1.25    -> 1.26   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/06/07	sam@mars.ravnborg.org	1.1316.1.1
+# docbook/kernel-api: include files updated
+# 
+# Path to pci_hotplug_core corrected.
+# Added !Eli/string.h to document strlcpy and friends
+# --------------------------------------------
+#
+diff -Nru a/Documentation/DocBook/kernel-api.tmpl b/Documentation/DocBook/kernel-api.tmpl
+--- a/Documentation/DocBook/kernel-api.tmpl	Sat Jun  7 09:53:51 2003
++++ b/Documentation/DocBook/kernel-api.tmpl	Sat Jun  7 09:53:51 2003
+@@ -79,6 +79,7 @@
+      </sect1>
+      <sect1><title>String Manipulation</title>
+ !Ilib/string.c
++!Elib/string.c
+      </sect1>
+      <sect1><title>Bit Operations</title>
+ !Iinclude/asm-i386/bitops.h
+@@ -176,7 +177,7 @@
+ !Edrivers/pci/pci.c
+      </sect1>
+      <sect1><title>PCI Hotplug Support Library</title>
+-!Edrivers/hotplug/pci_hotplug_core.c
++!Edrivers/pci/hotplug/pci_hotplug_core.c
+      </sect1>
+      <sect1><title>MCA Architecture</title>
+ 	<sect2><title>MCA Device Functions</title>

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287631AbSAMSVr>; Sun, 13 Jan 2002 13:21:47 -0500
+	id <S287421AbSAMSVh>; Sun, 13 Jan 2002 13:21:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287417AbSAMSVe>; Sun, 13 Jan 2002 13:21:34 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:40710 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S287421AbSAMSVQ>;
-	Sun, 13 Jan 2002 13:21:16 -0500
-Date: Sun, 13 Jan 2002 19:20:59 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, anton@samba.org
-Subject: Re: [patch] O(1) scheduler, -H7
-Message-Id: <20020113192059.68f9bf53.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.33.0201132056360.8784-100000@localhost.localdomain>
-In-Reply-To: <20020113185732.72ea3aa8.skraw@ithnet.com>
-	<Pine.LNX.4.33.0201132056360.8784-100000@localhost.localdomain>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S287596AbSAMSV2>; Sun, 13 Jan 2002 13:21:28 -0500
+Received: from zero.tech9.net ([209.61.188.187]:62225 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S287417AbSAMSVN>;
+	Sun, 13 Jan 2002 13:21:13 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+From: Robert Love <rml@tech9.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: arjan@fenrus.demon.nl, Rob Landley <landley@trommello.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E16Pn2o-0007I8-00@the-village.bc.nu>
+In-Reply-To: <E16Pn2o-0007I8-00@the-village.bc.nu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 13 Jan 2002 13:20:08 -0500
+Message-Id: <1010946009.12125.10.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Jan 2002 20:58:12 +0100 (CET)
-Ingo Molnar <mingo@elte.hu> wrote:
-
+On Sun, 2002-01-13 at 10:59, Alan Cox wrote:
+> > I disable a single specific interrupt, I don't disable the timer interrupt.
+> > Your code doesn't seem to handle that.
 > 
-> On Sun, 13 Jan 2002, Stephan von Krawczynski wrote:
-> 
-> > sched.o sched.c sched.c:21: asm/sched.h: No such file or directory
-> 
-> Please re-download the 2.4.17 -H7 patch, i've fixed this.
+> It can if we increment the preempt_count in disable_irq_nosync and
+> decrement it on enable_irq.
 
-Hello Ingo,
+OK, Alan, you spooked me with the disable_irq mess and admittedly my
+initial solution wasn't ideal for a few reasons.
 
-did it. Applied. Compiled ok.
+But it isn't a problem after all. In hw_irq.h we bump the count in the
+interrupt path.  This should handle any handler, however we end up in
+it.
 
-BUT:
-I tried it on top of 2.4.18-pre3, it applied clean with some offsets. Only my
-machine hangs during boot on first network packets (simple pings). This is
-reproducable.
+I realized it because if we did not have a global solution to interrupt
+request handlers, dropping spinlocks in the handler, even with IRQs
+disabled, would cause a preemptive schedule.  All interrupts are
+properly protected.
 
-I am retrying with plain 2.4.17 + H7 and be back in few minutes...
-
-Regards,
-Stephan
-
+	Robert Love
 

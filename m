@@ -1,77 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbUK3VtS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262342AbUK3Vsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbUK3VtS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 16:49:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbUK3VtS
+	id S262342AbUK3Vsz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 16:48:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbUK3Vsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 16:49:18 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:2251 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262339AbUK3VtH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 16:49:07 -0500
-Subject: Re: Suspend 2 merge: 49/51: Checksumming
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Rob Landley <rob@landley.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041130130745.GB4670@openzaurus.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <200411290455.10318.rob@landley.net>
-	 <1101767472.4343.439.camel@desktop.cunninghams>
-	 <200411291830.33885.rob@landley.net>
-	 <1101775792.4329.23.camel@desktop.cunninghams>
-	 <20041130130745.GB4670@openzaurus.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1101851144.5715.19.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 01 Dec 2004 08:45:44 +1100
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Nov 2004 16:48:54 -0500
+Received: from mail.dif.dk ([193.138.115.101]:54204 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262339AbUK3Vsn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 16:48:43 -0500
+Date: Tue, 30 Nov 2004 22:58:32 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Bebel <bebel@braila.astral.ro>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: misleading error message
+In-Reply-To: <001101c4d715$25a59470$af00a8c0@BEBEL>
+Message-ID: <Pine.LNX.4.61.0411302251180.3635@dragon.hygekrogen.localhost>
+References: <001101c4d715$25a59470$af00a8c0@BEBEL>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Tue, 30 Nov 2004, Bebel wrote:
 
-On Wed, 2004-12-01 at 00:07, Pavel Machek wrote:
-> > Mmm. I wonder how much code that would require us to add. I do like the
-> > idea of not interacting where the answer is obvious :>. I still think,
-> > however, that interacting when the answer isn't obvious is the right
-> > thing to do. Take for example the case where we find an image, but the
-> > device numbers look like they belong to 2.4 and we're a 2.6 kernel. We
-> > can't read the header (we can't be sure that this is the cause). The
-> > user - or their cat - might have selected the wrong boot image
-> > unintentionally. Why shouldn't we give them the opportunity to reboot
-> > and get the right one?
+> This may be a BUG REPORT, as I see it, allthough more experienced Linux users
+> might think differently:
 > 
-> Well, kernel depending on user feedback has some interesting issues...
-> ...like user not speaking english or user using speech output.
-> Thats why pushing "Shall I reboot?" etc prompts into userland
-> is good idea. (Distros probably will not get it right, either, but at least
-> they get a chance.)
+> I compiled built-in support for iptables in my new 2.6.9 kernel, but when my
+> legacy firewall does a "modprobe ip_tables" , I get the startling message:
+> "FATAL: module ip_tables not found" .
 
-And if we don't have userspace yet? (No initrd/initramfs).
+In my oppinion the message is perfectly clear. You told modprobe to load a 
+module, the file was not found so it is forced to give up - and that's 
+exactely what it told you.
 
-The language issue is a good point; the whole issue of kernel messages
-and languages needs a more general solution.
+modprobe knows nothing about the functionality provided by any given 
+module, it's only task in life is to attempt to load modules you tell it 
+to load. So, it cannot tell you that "I didn't find this and besides, you 
+don't need it since it's already build in", since modprobe does not have 
+that information. 
 
-It probably also helps to remember the point to this:
-- avoid file system corruption
-- give the user a chance to confirm/fix actions that look wrong
+All modprobe can do is try to load the module you told it to load, and 
+when the file is missing that *is* a fatal error from modrobes point of 
+view - it has absolutely no way to recover or give you any sane 
+diagnostics since it has no idea what the mystery module you asked it to 
+load that wasn't there was supposed to do.
 
-Would making interaction a compile time option make you happy? (That
-said, I'm not looking forward to trying to guess what the system should
-do in some of these cases if not allowed to ask).
 
-Regards,
-
-Nigel
 -- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+Jesper Juhl
 
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
 

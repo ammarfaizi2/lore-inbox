@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVB0HhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVB0Hlx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVB0HhR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 02:37:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbVB0HhR
+	id S261363AbVB0Hlx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 02:41:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVB0Hlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 02:37:17 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:52954 "EHLO
-	pd3mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S261362AbVB0HhK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 02:37:10 -0500
-Date: Sun, 27 Feb 2005 01:35:17 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Invalid module format in Fedora core2
-In-reply-to: <3BQcw-7tO-3@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <42217835.5020704@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
+	Sun, 27 Feb 2005 02:41:52 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39302 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261363AbVB0Hli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 02:41:38 -0500
+Message-ID: <4221799F.4050801@pobox.com>
+Date: Sun, 27 Feb 2005 02:41:19 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
-References: <3BPzY-6Vi-33@gated-at.bofh.it> <3BQcw-7tO-3@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+MIME-Version: 1.0
+To: Tejun Heo <htejun@gmail.com>
+CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux-ide <linux-ide@vger.kernel.org>
+Subject: Re: [PATCH 2.6.11-rc3 10/11] ide: make ide_cmd_ioctl() use TASKFILE
+References: <20050210083808.48E9DD1A@htj.dyndns.org> <20050210083854.BD13DFBD@htj.dyndns.org> <58cb370e050224075040f5c031@mail.gmail.com> <20050227065348.GB27728@htj.dyndns.org>
+In-Reply-To: <20050227065348.GB27728@htj.dyndns.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os wrote:
-> I attached a typical makefile so you can see how complicated
-> this new crap is.
-> 
-> In the meantime, you can just take this and link it with your
-> "module.o" to make a "module.ko".
+For what it's worth...
 
-What is all this stuff for? Unless you are doing some pretty bizarre 
-things in your module this is far more complex than it needs to be. See:
+Some vendor-specific commands on PATA devices require -exact- 
+specification of registers in, and registers out.  You never want to 
+read more registers than are flagged.  Ditto for write.
 
-http://linuxdevices.com/articles/AT4389927951.html
+	Jeff
 
-Given your previous posts on this issue I can't help but think you'd be 
-better off reading how this can be done simply, rather than whining 
-about the "political correctness" of the build process..
+
 

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264806AbSLQHvS>; Tue, 17 Dec 2002 02:51:18 -0500
+	id <S264818AbSLQHy4>; Tue, 17 Dec 2002 02:54:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264815AbSLQHvS>; Tue, 17 Dec 2002 02:51:18 -0500
-Received: from hauptpostamt.charite.de ([193.175.66.220]:11909 "EHLO
+	id <S264822AbSLQHyz>; Tue, 17 Dec 2002 02:54:55 -0500
+Received: from hauptpostamt.charite.de ([193.175.66.220]:13702 "EHLO
 	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id <S264806AbSLQHvS>; Tue, 17 Dec 2002 02:51:18 -0500
-Date: Tue, 17 Dec 2002 08:59:14 +0100
+	id <S264818AbSLQHyz>; Tue, 17 Dec 2002 02:54:55 -0500
+Date: Tue, 17 Dec 2002 09:02:51 +0100
 From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE but no disks
-Message-ID: <20021217075914.GB13175@charite.de>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1040055392.13910.52.camel@irongate.swansea.linux.org.uk>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre1
+Message-ID: <20021217080251.GD13175@charite.de>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.50L.0212101834240.23096-100000@freak.distro.conectiva> <20021211090829.GD8741@charite.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1040055392.13910.52.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <20021211090829.GD8741@charite.de>
 User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> People seeing IDE controllers detected but no disks can you try the
-> following backport of Ivan's 2.5 PCI fix
+* Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>:
 
-This fixes my IDE problem with -ac2 as described in my posting with
-Message-ID: <20021211090829.GD8741@charite.de>
+> And, alas, I do have problems with exactly that code. Background:
+> 
+> I've been trying the -ac kernels for quite some time now, but on my
+> new Toshiba Satellite Pro 6100 they all fail miserably.
+> 
+> I made three screenshots which illuminate the problem:
+> http://www.stahl.bau.tu-bs.de/~hildeb/kernel/
+
+Alan's patch in the Message with "Subject: IDE but no disks" fixes the
+problem.
 
 -- 
 Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
 Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
 Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
-"Does your computer ever crash?"
-"Oh definitely, believe me. We want to make a tool that we can use ourselves
-and we know from our own use we can make it a lot better and a lot more
-reliable."                                  -- Bill Gates in a BBC interview 
+Real programmers never work 9 to 5. If any real programmers are around
+at 9 am, it's because they were up all night. 
 

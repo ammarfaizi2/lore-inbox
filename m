@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293121AbSCEOBr>; Tue, 5 Mar 2002 09:01:47 -0500
+	id <S293132AbSCEOCm>; Tue, 5 Mar 2002 09:02:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293125AbSCEOBi>; Tue, 5 Mar 2002 09:01:38 -0500
-Received: from [216.66.12.254] ([216.66.12.254]:21461 "HELO
-	ep1.elevenprospect.com") by vger.kernel.org with SMTP
-	id <S293121AbSCEOBd>; Tue, 5 Mar 2002 09:01:33 -0500
-Message-ID: <3C84CF95.8070103@xblox.net>
-Date: Tue, 05 Mar 2002 14:00:53 +0000
-From: Matthew Allum <mallum@xblox.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020205
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: fujitsu pt510 ( again ) and touchscreen
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S293129AbSCEOC2>; Tue, 5 Mar 2002 09:02:28 -0500
+Received: from due.stud.ntnu.no ([129.241.56.71]:18895 "EHLO due.stud.ntnu.no")
+	by vger.kernel.org with ESMTP id <S293125AbSCEOCK>;
+	Tue, 5 Mar 2002 09:02:10 -0500
+Date: Tue, 5 Mar 2002 15:02:04 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
+        linux-net@vger.kernel.org
+Subject: Re: [BETA-0.95] Sixth test release of Tigon3 driver
+Message-ID: <20020305150204.A7174@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020305.031312.92586410.davem@redhat.com> <20020305143519.A1780@stud.ntnu.no> <20020305.055204.44939648.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020305.055204.44939648.davem@redhat.com>; from davem@redhat.com on Tue, Mar 05, 2002 at 05:52:04AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all;
+David S. Miller:
+> Which card do you have?
 
-I now have Linux running happily on the 510 with pcmcia and X running 
-happily.
+01:08.0 Ethernet controller: BROADCOM Corporation BCM5700 1000BaseTX (rev 12)
+        Subsystem: Dell Computer Corporation: Unknown device 00d1
+        Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 17
+        Memory at feb00000 (64-bit, non-prefetchable) [size=64K]
+        Capabilities: [40] PCI-X non-bridge device.
+        Capabilities: [48] Power Management version 2
+        Capabilities: [50] Vital Product Data
+        Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/3 Enable-
 
-However I am having little luck getting any infomation from the 
-touchscreen. I have tried various X11 drivers ( from linuxslate.org 
-andfujitsu b112 drivers ) as well as kernel modules for different types 
-of ps2 mice. 
+That one :)
 
-Im not sure if the touchscreen is on a ttyS or /dev/psaux, the kernel 
-reports nothing. I have been told ( unreliably however ) thats its a ps2 
-port on irq 12. Catting these various devices also produces nothing.
+> Also, can you try both changing the MTU during the
+> initial up of the interface and later after the
+> interface is up already?  Thanks.
 
-Im looking for some pointers on how to begin reverse enginneeing the 
-touchscreen and
-actually getting some data from it.
+Did that, none work.
 
-dmidecode gives me nothing as does lspci ( the machine does not have pci ).
-
-Any advice, greatly appreciated;
-
-Matthew Allum
-
-
+-- 
+Thomas

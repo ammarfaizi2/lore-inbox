@@ -1,78 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276640AbRJGXW6>; Sun, 7 Oct 2001 19:22:58 -0400
+	id <S276641AbRJGXcI>; Sun, 7 Oct 2001 19:32:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276641AbRJGXWs>; Sun, 7 Oct 2001 19:22:48 -0400
-Received: from CPE-61-9-149-34.vic.bigpond.net.au ([61.9.149.34]:49656 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S276640AbRJGXWf>; Sun, 7 Oct 2001 19:22:35 -0400
-Message-ID: <3BC0E21F.8F926D2F@eyal.emu.id.au>
-Date: Mon, 08 Oct 2001 09:15:43 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-ac18 i686)
-X-Accept-Language: en
+	id <S276647AbRJGXb6>; Sun, 7 Oct 2001 19:31:58 -0400
+Received: from web10404.mail.yahoo.com ([216.136.130.96]:7688 "HELO
+	web10404.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S276641AbRJGXbu>; Sun, 7 Oct 2001 19:31:50 -0400
+Message-ID: <20011007233220.73702.qmail@web10404.mail.yahoo.com>
+Date: Mon, 8 Oct 2001 09:32:20 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Is there preempt patch for 2.2.19?
+To: kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: list linux-kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: 2.4.11-pre5: Makefile fixes for symbol exports
-Content-Type: multipart/mixed;
- boundary="------------E5F993B61993CFF7C9E18C69"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------E5F993B61993CFF7C9E18C69
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Some modules with exported symbols are missing from their respective
-Makefile and cause a build failure. This simply adds them there.
+Hi,
 
-drivers/ieee1394/Makefile
-drivers/ide/Makefile
+I can not find it out but I hope some one would do
+that. Hope R. Love is willing to do that :-) , many
+thanks...
 
-I only test the i386 build.
+Cheers,
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
---------------E5F993B61993CFF7C9E18C69
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.11-pre5-exports-ieee1394.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.11-pre5-exports-ieee1394.patch"
 
---- linux/drivers/ieee1394/Makefile.orig	Mon Oct  8 08:53:16 2001
-+++ linux/drivers/ieee1394/Makefile	Mon Oct  8 08:53:39 2001
-@@ -4,7 +4,7 @@
- 
- O_TARGET := ieee1394drv.o
- 
--export-objs := ieee1394_syms.o
-+export-objs := ieee1394_syms.o ohci1394.o
- 
- list-multi := ieee1394.o
- ieee1394-objs := ieee1394_core.o ieee1394_transactions.o hosts.o \
 
---------------E5F993B61993CFF7C9E18C69
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.11-pre5-exports-ide.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.11-pre5-exports-ide.patch"
+=====
+S.KIEU
 
---- linux/drivers/ide/Makefile.orig	Mon Oct  8 08:52:14 2001
-+++ linux/drivers/ide/Makefile	Mon Oct  8 08:52:33 2001
-@@ -10,7 +10,7 @@
- 
- O_TARGET := idedriver.o
- 
--export-objs		:= ide.o ide-features.o
-+export-objs		:= ide.o ide-features.o ataraid.o
- list-multi		:= ide-mod.o ide-probe-mod.o
- 
- obj-y		:=
-
---------------E5F993B61993CFF7C9E18C69--
-
+http://travel.yahoo.com.au - Yahoo! Travel
+- Got Itchy feet? Get inspired!

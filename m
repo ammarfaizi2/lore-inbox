@@ -1,570 +1,161 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272334AbTHBIwq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 04:52:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272355AbTHBIwp
+	id S272355AbTHBJGd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 05:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272379AbTHBJGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 04:52:45 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:37902 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S272334AbTHBIwL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 04:52:11 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] input hotplug support
-Date: Sat, 2 Aug 2003 12:53:02 +0400
-User-Agent: KMail/1.5
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <200308020139.37446.arvidjaar@mail.ru> <20030801235748.GC321@kroah.com>
-In-Reply-To: <20030801235748.GC321@kroah.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_uv3K/YqV1MVekc/"
-Message-Id: <200308021253.03005.arvidjaar@mail.ru>
+	Sat, 2 Aug 2003 05:06:33 -0400
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:1801
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S272355AbTHBJG0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 05:06:26 -0400
+Subject: [BROKEN PATCH] syscalls leak data via registers?
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1059815183.18860.55.camel@ixodes.goop.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 02 Aug 2003 02:06:24 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It looks to me like the syscall calling convention, on x86 at least,
+leaks kernel data out via the registers.
 
---Boundary-00=_uv3K/YqV1MVekc/
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+In arch/i386/kernel/entry.S, system_call saves all the registers on the
+stack and then calls the appropriate system call function.  The integer
+registers are saved on the stack in the appropriate order for the C
+calling convention, so ebx=arg1, ecx=arg2, etc.
 
-On Saturday 02 August 2003 03:57, Greg KH wrote:
-> On Sat, Aug 02, 2003 at 01:39:37AM +0400, Andrey Borzenkov wrote:
-> > this adds input agent and coldplug rc script. It relies on patch for
-> > module-init-tools that gnerates input handlers map table being posted to
-> > lkml as well.
-> >
-> > input agent loads input handler in respond to input subsystem request. It
-> > is currently purely table-driven, no attempt to provide for any static
-> > list or like was done, it needs some operational experience.
-> >
-> > static coldplug rc script is intended to load input handlers for any
-> > built-in input drivers, like e.g. psmouse (if you built it in). Currently
-> > it does it by parsing /proc/bus/input/devices, I'd like to use sysfs but
-> > apparently support for it in input susbsystem is incomplete at best.
-> >
-> > It also modifies usb.agent to not consult usb.handmap on 2.6, as it is
-> > not needed anymore.
-> >
-> > Patch is against 2003_05_01 version of hotplug. Comments appreciated.
->
-> Can you send it not compressed so we have a chance to read it?
->
+On system call exit, it saves %eax (the return value) back the stack,
+restores all those registers by popping them off the stack and returns
+to user-mode.
 
+The trouble is that gcc assumes it can reuse the stack space used by
+arguments for spilling, so the values the return path restores are not
+necessarily the ones it saved.
 
-sorry.
+For example:
 
-plain text attached.
+If you have sys_foo():
 
--andrey
---Boundary-00=_uv3K/YqV1MVekc/
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="hotplug-2003_05_01-input.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="hotplug-2003_05_01-input.patch"
+int sys_foo(int arg1, int arg2)
+/* arg1 at 4(%esp) on entry */
+/* arg2 at 8(%esp) on entry */
+{
+	/*... stuff ...*/
+	arg1 = 77;
+		movl	$77, %arg1
+	
+	/* compiler needs to spill arg1: */
+		movl	%arg1, 4(%esp)
 
---- hotplug-2003_05_01/etc/hotplug/input.agent.input	2003-08-01 00:02:37.000000000 +0400
-+++ hotplug-2003_05_01/etc/hotplug/input.agent	2003-08-01 15:01:46.000000000 +0400
-@@ -0,0 +1,316 @@
-+#!/bin/bash
-+#
-+# input-specific hotplug policy agent.
-+#
-+# This should handle 2.6.* input hotplugging,
-+# with a consistent framework for adding device and driver
-+# specific handling.
-+#
-+# Normally, adding a input device will modprobe handler(s) for
-+# this device.
-+#
-+# Kernel input hotplug params include (not all of them may be available):
-+#	
-+#	ACTION=%s [add or remove]
-+#	PRODUCT=%x/%x/%x/%x
-+#	NAME=%s
-+#	PHYS=%s
-+#	EV=%lx
-+#	KEY=%lx %lx ...
-+#	REL=%lx
-+#	ABS=%lx %lx ...
-+#	MSC=%lx
-+#	LED=%lx
-+#	SND=%lx
-+#	FF=%lx %lx ...
-+#
-+# HISTORY:
-+#
-+# 30-Jul-2003	initial version
-+#
-+
-+cd /etc/hotplug
-+. hotplug.functions
-+# DEBUG=yes export DEBUG
-+
-+# generated by module-init-tools
-+MAP_CURRENT=$MODULE_DIR/modules.inputmap
-+
-+# accumulates list of modules we may care about
-+DRIVERS=""
-+
-+if [ "$ACTION" = "" ]; then
-+    mesg Bad INPUT agent invocation, no action
-+    exit 1
-+fi
-+
-+# we can't "unset IFS" on bash1, so save a copy
-+DEFAULT_IFS="$IFS"
-+
-+#
-+# Each modules.inputmap format line corresponds to one entry in a
-+# MODULE_DEVICE_TABLE(input,...) declaration in a kernel file.
-+#
-+declare -i matchBits=0
-+declare -i i_bustype=0 i_vendor=0 i_product=0 i_version=0
-+declare -i i_evBits=0
-+declare i_keyBits i_relBits i_absBits i_mscBits i_ledBits i_sndBits i_ffBits
-+
-+input_join_words ()
-+{
-+    declare name=$1 array=$2 tmp
-+    if [ "$array" = '' ]; then
-+	return
-+    fi
-+
-+    set $array
-+
-+    tmp=$1
-+    shift
-+    while [ "$#" -gt 0 ]; do
-+	tmp="$tmp:$1"
-+	shift
-+    done
-+
-+    eval "$name=\"$tmp\""
-+}
-+
-+input_convert_vars ()
-+{
-+    if [ "$PRODUCT" != "" ]; then
-+	IFS=/
-+	set $PRODUCT ''
-+	IFS="$DEFAULT_IFS"
-+	i_bustype=0x$1
-+	i_vendor=0x$2
-+	i_product=0x$3
-+	i_version=0x$4
-+    fi
-+
-+    if [ "$EV" != "" ]; then
-+	i_evBits=0x$EV
-+    fi
-+
-+    input_join_words i_keyBits "$KEY"
-+    input_join_words i_relBits "$REL"
-+    input_join_words i_absBits "$ABS"
-+    input_join_words i_mscBits "$MSC"
-+    input_join_words i_ledBits "$LED"
-+    input_join_words i_sndBits "$SND"
-+    input_join_words i_ffBits  "$FF"
-+}
-+
-+declare -i INPUT_DEVICE_ID_MATCH_BUS=1
-+declare -i INPUT_DEVICE_ID_MATCH_VENDOR=2
-+declare -i INPUT_DEVICE_ID_MATCH_PRODUCT=4
-+declare -i INPUT_DEVICE_ID_MATCH_VERSION=8
-+declare -i INPUT_DEVICE_ID_MATCH_EVBIT=0x010
-+declare -i INPUT_DEVICE_ID_MATCH_KEYBIT=0x020
-+declare -i INPUT_DEVICE_ID_MATCH_RELBIT=0x040
-+declare -i INPUT_DEVICE_ID_MATCH_ABSBIT=0x080
-+declare -i INPUT_DEVICE_ID_MATCH_MSCBIT=0x100
-+declare -i INPUT_DEVICE_ID_MATCH_LEDBIT=0x200
-+declare -i INPUT_DEVICE_ID_MATCH_SNDBIT=0x400
-+declare -i INPUT_DEVICE_ID_MATCH_FFBIT=0x800
-+
-+
-+input_match_bits ()
-+{
-+    declare mod_bits=$1 dev_bits=$2
-+    declare -i mword dword
-+
-+    mword=0x${mod_bits##*:}
-+    dword=0x${dev_bits##*:}
-+
-+    while true; do
-+	if [ $(( $mword & $dword != $mword )) -eq 1 ]; then
-+	    return 1
-+	fi
-+
-+	mod_bits=${mod_bits%:*}
-+	dev_bits=${dev_bits%:*}
-+
-+	case "$mod_bits-$dev_bits" in
-+	    *:*-*:* )
-+		: continue
-+	    ;;
-+	    *:*-*|*-*:* )
-+		return 0
-+	    ;;
-+	    * )
-+		return 1
-+	    ;;
-+	esac
-+    done
-+}
-+
-+#
-+# stdin is "modules.inputmap" syntax
-+# on return, all matching modules were added to $DRIVERS
-+#
-+input_map_modules ()
-+{
-+    local line module
-+    declare -i matchBits
-+    declare -i bustype vendor product version
-+    declare -i evBits driverInfo 
-+    declare relBits mscBits ledBits sndBitskeyBits absBits ffBits
-+
-+    while read line
-+    do
-+        # comments are lines that start with "#" ...
-+	# be careful, they still get parsed by bash!
-+	case "$line" in
-+	\#*) continue ;;
-+	esac
-+
-+	set $line
-+
-+	module="$1"
-+	matchBits="$2"
-+
-+	bustype="$3"
-+	vendor="$4"
-+	product="$5"
-+	product="$6"
-+
-+	evBits="$7"
-+	keyBits="$8"
-+	relBits="$9"
-+
-+	shift 9
-+	absBits="$1"
-+	cbsBits="$2"
-+	ledBits="$3"
-+	sndBits="$4"
-+	ffBits="$5"
-+	driverInfo="$6"
-+
-+	: checkmatch $module
-+
-+	: bustype $bustype $i_bustype
-+        if [ $INPUT_DEVICE_ID_MATCH_BUS -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_BUS )) ] && 
-+	   [ $bustype -ne $i_bustype ]; then
-+	    continue
-+	fi
-+
-+	: vendor $vendor $i_vendor
-+        if [ $INPUT_DEVICE_ID_MATCH_VENDOR -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_VENDOR )) ] && 
-+	   [ $vendor -ne $i_vendor ]; then
-+	    continue
-+	fi
-+
-+	: product $product $i_product
-+        if [ $INPUT_DEVICE_ID_MATCH_PRODUCT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_PRODUCT )) ] && 
-+	   [ $product -ne $i_product ]; then
-+	    continue
-+	fi
-+
-+	# version i_version $i_version < version $version
-+        if [ $INPUT_DEVICE_ID_MATCH_VERSION -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_VERSION )) ] && 
-+	   [ $version -ge $i_version ]; then
-+	    continue
-+	fi
-+
-+	: evBits $evBits $i_evBits
-+        if [ $INPUT_DEVICE_ID_MATCH_EVBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_EVBIT )) ] && 
-+	   [ $evBits -ne $(( $evBits & $i_evBits)) ]; then
-+	    continue
-+	fi
-+	: keyBits $keyBits $i_keyBits
-+        if [ $INPUT_DEVICE_ID_MATCH_KEYBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_KEYBIT )) ] && 
-+	   input_match_bits "$keyBits" "$i_keyBits"; then
-+	    continue
-+	fi
-+	: relBits $relBits $i_relBits
-+        if [ $INPUT_DEVICE_ID_MATCH_RELBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_RELBIT )) ] && 
-+	   [ $relBits -ne $(( $relBits & $i_relBits)) ]; then
-+	    continue
-+	fi
-+
-+	: absBits $absBits $i_absBits
-+        if [ $INPUT_DEVICE_ID_MATCH_ABSBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_ABSBIT )) ] && 
-+	   input_match_bits "$absBits" "$i_absBits"; then
-+	    continue
-+	fi
-+
-+	: mscBits $mscBits $i_mscBits
-+        if [ $INPUT_DEVICE_ID_MATCH_MSCBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_MSCBIT )) ] && 
-+	   [ $mscBits -ne $(( $mscBits & $i_mscBits)) ]; then
-+	    continue
-+	fi
-+
-+	: ledBits $ledBits $_ledBits
-+        if [ $INPUT_DEVICE_ID_MATCH_LEDBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_LEDBIT )) ] && 
-+	   input_match_bits "$ledBits" "$i_ledBits"; then
-+	    continue
-+	fi
-+
-+	: sndBits $sndBits $i_sndBits
-+        if [ $INPUT_DEVICE_ID_MATCH_SNDBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_SNDBIT )) ] && 
-+	   [ $sndBits -ne $(( $sndBits & $i_sndBits)) ]; then
-+	    continue
-+	fi
-+
-+	: ffBits $ffBits $i_ffBits
-+        if [ $INPUT_DEVICE_ID_MATCH_FFBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_FFBIT )) ] && 
-+	   input_match_bits "$ffBits" "$i_ffBits"; then
-+	    continue
-+	fi
-+
-+	: driverInfo $driverInfo
-+	if [ $matchBits -eq 0 -a $driverInfo -eq 0 ]; then
-+		continue
-+	fi
-+
-+	# It was a match!
-+	case " $DRIVERS " in
-+	    *" $module "* )
-+		: already found
-+	    ;;
-+	    * )
-+		DRIVERS="$module $DRIVERS"
-+	    ;;
-+	esac
-+	: drivers $DRIVERS
-+    done
-+}
-+
-+#
-+# What to do with this INPUT hotplug event?
-+#
-+case $ACTION in
-+
-+add)
-+
-+    input_convert_vars
-+
-+    FOUND=false
-+    LABEL="INPUT product $PRODUCT"
-+
-+    if [ -r $MAP_CURRENT ]; then
-+	load_drivers input $MAP_CURRENT "$LABEL"
-+    fi
-+
-+    if [ "$DRIVERS" != "" ]; then
-+	FOUND=true
-+    fi
-+
-+    if [ "$FOUND" = "false" ]; then
-+	mesg "... no modules for $LABEL"
-+	exit 2
-+    fi
-+
-+    ;;
-+
-+remove)
-+    : nothing so far
-+
-+    ;;
-+
-+*)
-+    debug_mesg INPUT $ACTION event not supported
-+    exit 1
-+    ;;
-+
-+esac
---- hotplug-2003_05_01/etc/hotplug/input.rc.input	2003-08-01 15:02:09.000000000 +0400
-+++ hotplug-2003_05_01/etc/hotplug/input.rc	2003-08-01 15:02:13.000000000 +0400
-@@ -0,0 +1,147 @@
-+#!/bin/bash
-+#
-+# input.rc	This loads handlers for those input devices
-+#		that have drivers compiled in kernel
-+#		Currently stopping is not supported
-+#
-+# Best invoked via /etc/init.d/hotplug or equivalent, with
-+# writable /tmp, /usr mounted, and syslogging active.
-+#
-+
-+
-+PATH=/sbin:/bin:/usr/sbin:/usr/bin
-+PROCDIR=/proc/bus/input
-+
-+# source function library
-+if [ -f /etc/init.d/functions ]; then
-+	. /etc/init.d/functions
-+elif [ -f /etc/rc.d/init.d/functions ]; then
-+	. /etc/rc.d/init.d/functions
-+fi
-+
-+if [ -f /etc/hotplug/hotplug.functions ]; then
-+	. /etc/hotplug/hotplug.functions
-+fi
-+
-+input_reset_state () {
-+
-+    PRODUCT=
-+    NAME=
-+    PHYS=
-+    EV=
-+    KEY=
-+    REL=
-+    ABS=
-+    MSC=
-+    LED=
-+    SND=
-+    FF=
-+
-+}
-+
-+#
-+# "COLD PLUG" ... load input handlers for compile-in input drivers loaded
-+# before the OS could really handle hotplug, perhaps because /sbin or
-+# $HOTPLUG_DIR wasn't available or /tmp wasn't writable.  When/if the
-+# /sbin/hotplug program is invoked then, hotplug event notifications
-+# get dropped.  To make up for such "cold boot" errors, we synthesize
-+# all the hotplug events we expect to have seen already.  They can be
-+# out of order, and some might be duplicates.
-+#
-+input_boot_events ()
-+{
-+    if [ ! -r $PROCDIR/devices ]; then
-+	    echo $"** can't synthesize input events - $PROCDIR/devices missing"
-+	    return
-+    fi
-+
-+    ACTION=add
-+    export ACTION
-+
-+    export PRODUCT NAME PHYS EV KEY REL ABS MSC LED SND FF
-+    input_reset_state
-+
-+    declare line
-+
-+    #
-+    # the following reads from /proc/bus/input/devices. It is inherently
-+    # racy (esp. as this file may be changed by input.agent invocation)
-+    # but so far input devices do not appear in sysfs
-+    #
-+    while read line; do
-+	case "$line" in
-+	    I:* )	# product ID
-+		eval "${line#I: }"
-+		PRODUCT=$Bus/$Vendor/$Product/$Version
-+	    ;;
-+	    N:* )	# name
-+		eval "${line#N: }"
-+		NAME="$Name"
-+	    ;;
-+	    P:* )	# Physical
-+		eval "${line#P: }"
-+		PHYS=$Phys
-+	;;
-+	    B:* )	# Controls supported
-+		line="${line#B: }"
-+		eval "${line%%=*}=\"${line#*=}\""
-+	    ;;
-+	    "" )	# End of block
-+		debug_mesg "Invoking input.agent"
-+		debug_mesg "PRODUCT=$PRODUCT"
-+		debug_mesg "NAME=$NAME"
-+		debug_mesg "PHYS=$PHYS"
-+		debug_mesg "EV=$EV"
-+		debug_mesg "KEY=$KEY"
-+		debug_mesg "REL=$REL"
-+		debug_mesg "ABS=$ABS"
-+		debug_mesg "MSC=$MSC"
-+		debug_mesg "LED=$LED"
-+		debug_mesg "SND=$SND"
-+		debug_mesg "FF=$FF"
-+		/etc/hotplug/input.agent < /dev/null
-+		input_reset_state
-+	    ;;
-+	esac
-+    done < $PROCDIR/devices
-+}
-+
-+
-+# See how we were called.
-+case "$1" in
-+  start)
-+	input_boot_events
-+        ;;
-+  stop)
-+	: not supported currently
-+        ;;
-+  status)
-+	echo $"INPUT status for kernel: " `uname -srm`
-+	echo ''
-+
-+	echo "INPUT devices:"
-+	if [ -r $PROCDIR/devices ]; then
-+	    grep "^[INHP]:" $PROCDIR/devices
-+	else
-+	    echo "$PROCDIR/devices not available"
-+	fi
-+	echo ''
-+
-+	echo "INPUT handlers:"
-+	if [ -r $PROCDIR/handlers ]; then
-+	    cat $PROCDIR/handlers
-+	else
-+	    echo "$PROCDIR/handlers not available"
-+	fi
-+
-+	echo ''
-+
-+	;;
-+  restart)
-+	# always invoke by absolute path, else PATH=$PATH:
-+	$0 stop && $0 start
-+	;;
-+  *)
-+        echo $"Usage: $0 {start|stop|status|restart}"
-+        exit 1
-+esac
---- hotplug-2003_05_01/etc/hotplug/usb.agent.input	2003-08-01 00:02:37.000000000 +0400
-+++ hotplug-2003_05_01/etc/hotplug/usb.agent	2003-08-01 00:02:37.000000000 +0400
-@@ -397,12 +397,20 @@
+	/* ... */
+
+	return 99;
+}
+
+When sys_foo returns, the value of %ebx has been changed to 77 on the
+stack, so when it returns to user-mode, the whole world can see that
+arg1 was assigned 77 at some point.
+
+It seems to me the bug is in restoring the register values on return to
+user-mode.  As I understand it, the x86 ABI says that the called
+function owns the stack memory which contains the function's arguments,
+so it is completely within gcc's right to reuse the memory as spill
+space (or anything else) when generating code for that function. 
+Therefore, the code in entry.S should not restore those values to
+registers - it should just trash all the registers (except %eax, of
+course) before returning.
+
+I tried writing a patch which replaces the RESTORE_ALL with the
+equivalent which simply skips %esp over the other registers, pops %eax
+and then assigns it to %ebx-%ebp (it makes as good a trash value as
+any), but this crashes when calibrating the delay loop.  Hm, looks like
+the RESTORE_ALL on the syscall return path is also used by the interrupt
+return path - that probably shouldn't trash registers.
+
+Anyway, patch attached so you can see what I'm thinking.
+
+	J
+
+ arch/i386/kernel/entry.S |   47 +++++++++++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 45 insertions(+), 2 deletions(-)
+
+diff -puN arch/i386/kernel/entry.S~syscall-trash-regs arch/i386/kernel/entry.S
+--- local-2.6/arch/i386/kernel/entry.S~syscall-trash-regs	2003-08-02 01:33:00.000000000 -0700
++++ local-2.6-jeremy/arch/i386/kernel/entry.S	2003-08-02 01:40:32.000000000 -0700
+@@ -122,6 +122,33 @@ TSS_ESP0_OFFSET = (4 - 0x200)
+ 	popl %ebp;	\
+ 	popl %eax
  
-     # cope with special driver module configurations
-     # (mostly HID devices, until we have an input.agent)
--    if [ -r $MAP_HANDMAP ]; then
--    	load_drivers usb $MAP_HANDMAP "$LABEL"
--	if [ "$DRIVERS" != "" ]; then
--	    FOUND=true
--	fi
--    fi
-+    # not needed on 2.6 - they are loaded by hotplug
-+    case "$KERNEL" in
-+	2.6.* )
-+	    : nothing
-+	;;
-+	* )
-+	    if [ -r $MAP_HANDMAP ]; then
-+		load_drivers usb $MAP_HANDMAP "$LABEL"
-+		if [ "$DRIVERS" != "" ]; then
-+		    FOUND=true
-+		fi
-+	    fi
-+	;;
-+    esac
++/* restore %eax, trash the rest */
++#define RESTORE_EAX		\
++	lea  6*4(%esp),%esp;	\
++	popl %eax;		\
++	movl %eax,%ebx;		\
++	movl %eax,%ecx;		\
++	movl %eax,%edx;		\
++	movl %eax,%esi;		\
++	movl %eax,%edi;		\
++	movl %eax,%ebp
++
++#define RESTORE_SOME_REGS	\
++	RESTORE_EAX;		\
++1:	popl %ds;		\
++2:	popl %es;		\
++.section .fixup,"ax";		\
++3:	movl $0,(%esp);		\
++	jmp 1b;			\
++4:	movl $0,(%esp);		\
++	jmp 2b;			\
++.previous;			\
++.section __ex_table,"a";	\
++	.align 4;		\
++	.long 1b,3b;		\
++	.long 2b,4b;		\
++.previous
++
+ #define RESTORE_REGS	\
+ 	RESTORE_INT_REGS; \
+ 1:	popl %ds;	\
+@@ -138,6 +165,22 @@ TSS_ESP0_OFFSET = (4 - 0x200)
+ 	.long 2b,4b;	\
+ .previous
  
-     # some devices have user-mode drivers (no kernel module, but config)
-     # or specialized user-mode setup helpers 
++#define RESTORE_MOST	\
++	RESTORE_SOME_REGS;	\
++	addl $4, %esp;	\
++1:	iret;		\
++.section .fixup,"ax";   \
++2:	sti;		\
++	movl $(__USER_DS), %edx; \
++	movl %edx, %ds; \
++	movl %edx, %es; \
++	pushl $11;	\
++	call do_exit;	\
++.previous;		\
++.section __ex_table,"a";\
++	.align 4;	\
++	.long 1b,2b;	\
++.previous
+ 
+ #define RESTORE_ALL	\
+ 	RESTORE_REGS	\
+@@ -324,8 +367,8 @@ restore_all:
+         
+ resume_kernelX:
+ #endif
+-	RESTORE_ALL
+-
++	RESTORE_MOST
++	
+ 	# perform work that needs to be done immediately before resumption
+ 	ALIGN
+ work_pending:
 
---Boundary-00=_uv3K/YqV1MVekc/--
+_
+
 

@@ -1,61 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269048AbUI2Vlv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269050AbUI2VnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269048AbUI2Vlv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 17:41:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269050AbUI2Vlv
+	id S269050AbUI2VnO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 17:43:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269068AbUI2VnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 17:41:51 -0400
-Received: from [69.25.196.29] ([69.25.196.29]:62176 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S269048AbUI2Vlt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 17:41:49 -0400
-Date: Wed, 29 Sep 2004 17:40:51 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-Cc: linux@horizon.com, linux-kernel@vger.kernel.org, cryptoapi@lists.logix.cz
-Subject: Re: [PROPOSAL/PATCH 2] Fortuna PRNG in /dev/random
-Message-ID: <20040929214051.GA6769@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Jean-Luc Cooke <jlcooke@certainkey.com>, linux@horizon.com,
-	linux-kernel@vger.kernel.org, cryptoapi@lists.logix.cz
-References: <20040924005938.19732.qmail@science.horizon.com> <20040929171027.GJ16057@certainkey.com> <20040929193117.GB6862@thunk.org> <20040929202707.GO16057@certainkey.com>
-Mime-Version: 1.0
+	Wed, 29 Sep 2004 17:43:14 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:21497 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S269065AbUI2Vmy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 17:42:54 -0400
+Date: Wed, 29 Sep 2004 14:43:38 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org,
+       kraxel@bytesex.org
+cc: Hanna Linder <hannal@us.ibm.com>
+Subject: Re: [PATCH 2.6.9-rc2-mm4 bttv-driver.c][4/8] convert pci_find_device to pci_dev_present
+Message-ID: <17920000.1096494218@w-hlinder.beaverton.ibm.com>
+In-Reply-To: <20040929211135.GA24407@kroah.com>
+References: <15470000.1096491322@w-hlinder.beaverton.ibm.com> <20040929220344.A17872@infradead.org> <20040929211135.GA24407@kroah.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040929202707.GO16057@certainkey.com>
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 29, 2004 at 04:27:07PM -0400, Jean-Luc Cooke wrote:
+--On Wednesday, September 29, 2004 02:11:35 PM -0700 Greg KH <greg@kroah.com> wrote:
+> On Wed, Sep 29, 2004 at 10:03:44PM +0100, Christoph Hellwig wrote:
+>> On Wed, Sep 29, 2004 at 01:55:22PM -0700, Hanna Linder wrote:
+>> > 
+>> > As pci_find_device is going away need to replace it. This file did not use the dev returned
+>> > from pci_find_device so is replaceable by pci_dev_present. I was not able to test it
+>> > as I do not have the hardware.
+>> 
+>> I think this check should just go away completely.  
 > 
-> When reading nbytes from /dev/{u}random, Legacy /dev/random would:
->  - Mix nbytes of data from primary pool into secondary pool
->  - Then generate nbytes from secondary pool
+> Good point.  Especially as pci_module_init() can never return -ENODEV
+> anymore :)
 > 
-> When reading nbytes from /dev/{u}random, Fortuna-patch /dev/random would:
->  - Mix ??? of data from input pools into the AES key for output generation
->  - Then generate nbytes from AES256-CTR
-> 
-> Perhaps I miss the subtlety of the difference in terms of security.  If
-> nbytes >= size of both pools - wouldn't Legacy also be vulnerable to the
-> same attack?
+> Hanna, care to respin this patch?
 
-Sure, but the Fortuna is supposed to be "more secure" because it
-resists the state extension attack.  I don't think the state extension
-attack is at all realistic, for the reasons cited above.  But if your
-implementation doesn't resist the state extension attack, then why
-bloat the kernel with an alternate random algorithm that's no better
-as far as security is concerned?  (And is more heavy weight, and is
-more wasteful with its entropy, etc., etc.?)
+Here it is, compile tested this time...
 
-						- Ted
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
 
-P.S.  I'll also note by the way, that in more recent versions of
-/dev/random, we use a separate pool for /dev/urandom and /dev/random.
-A further enhancement which I'm thinking might be a good one to add is
-to limit the rate at which we transfer randomness from the primary
-pool to the urandom pool.  So that it's not that I'm against making
-changes; it's just that I want the changes to make sense, and protect
-against realistic threats, not imaginary ones.
+diff -Nrup linux-2.6.9-rc2-mm4cln/drivers/media/video/bttv-driver.c linux-2.6.9-rc2-mm4patch2/drivers/media/video/bttv-driver.c
+--- linux-2.6.9-rc2-mm4cln/drivers/media/video/bttv-driver.c	2004-09-28 14:58:35.000000000 -0700
++++ linux-2.6.9-rc2-mm4patch2/drivers/media/video/bttv-driver.c	2004-09-29 14:30:38.000000000 -0700
+@@ -4010,7 +4010,6 @@ static struct pci_driver bttv_pci_driver
+ 
+ static int bttv_init_module(void)
+ {
+-	int rc;
+ 	bttv_num = 0;
+ 
+ 	printk(KERN_INFO "bttv: driver version %d.%d.%d loaded\n",
+@@ -4033,13 +4032,7 @@ static int bttv_init_module(void)
+ 	bttv_check_chipset();
+ 
+ 	bus_register(&bttv_sub_bus_type);
+-	rc = pci_module_init(&bttv_pci_driver);
+-	if (-ENODEV == rc) {
+-		/* plenty of people trying to use bttv for the cx2388x ... */
+-		if (NULL != pci_find_device(0x14f1, 0x8800, NULL))
+-			printk("bttv doesn't support your Conexant 2388x card.\n");
+-	}
+-	return rc;
++	return(pci_module_init(&bttv_pci_driver));
+ }
+ 
+ static void bttv_cleanup_module(void)
+
 

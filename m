@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316309AbSGYUzI>; Thu, 25 Jul 2002 16:55:08 -0400
+	id <S316408AbSGYVG6>; Thu, 25 Jul 2002 17:06:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316339AbSGYUzI>; Thu, 25 Jul 2002 16:55:08 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:56370 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S316309AbSGYUzH>; Thu, 25 Jul 2002 16:55:07 -0400
-Date: Thu, 25 Jul 2002 22:59:10 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Cort Dougan <cort@fsmlabs.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cheap lookup of symbol names on oops()
-Message-ID: <20020725205910.GR1180@dualathlon.random>
-References: <20020725110033.G2276@host110.fsmlabs.com> <20020725181126.A17859@infradead.org> <20020725112142.I2276@host110.fsmlabs.com> <20020725190445.GO1180@dualathlon.random> <20020725142716.N2276@host110.fsmlabs.com>
-Mime-Version: 1.0
+	id <S316437AbSGYVG6>; Thu, 25 Jul 2002 17:06:58 -0400
+Received: from relay1.pair.com ([209.68.1.20]:31754 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S316408AbSGYVG5>;
+	Thu, 25 Jul 2002 17:06:57 -0400
+X-pair-Authenticated: 24.126.73.164
+Message-ID: <3D406A09.37CE334@kegel.com>
+Date: Thu, 25 Jul 2002 14:13:45 -0700
+From: dank@kegel.com
+Reply-To: dank@kegel.com
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Header files and the kernel ABI
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020725142716.N2276@host110.fsmlabs.com>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 25, 2002 at 02:27:16PM -0600, Cort Dougan wrote:
-> None of the changes look like a problem.  I'll absorb them and send another
-
-the lack of <= was a bug, the buffer overflows on the stack with symbols
-> 60 was a bug too even if less likely to trigger.
-
-> patch.  One that fixes Ben's criticisms of spurious whitespace, even :)
+Oliver Xymoron <oxymoron@waste.org> wrote:
 > 
-> Are you suggesting that it should print the start/end of the module in each
-> trace in addition to the symbol names or instead of them?
+> On Thu, 25 Jul 2002, Erik Andersen wrote:
+> 
+> > On Thu Jul 25, 2002 at 09:31:23AM -0700, H. Peter Anvin wrote:
+> > > Oliver Xymoron wrote:
+> > > >
+> > > >Ideally, the ABI layer would be maintained and packaged separately from
+> > > >both the kernel and glibc to avoid gratuitous changes from either side.
+> > >
+> > > I disagree.  The ABI is a product of the kernel and should be attached
+> > > to it.  It is *not* a product of glibc -- glibc is a consumer of it, as
+> > > are any other libcs.
+> >
+> > Agreed.  I maintain a libc and I certainly do not want to
+> > have to maintain the kernel ABI of the day headers.  That
+> > is clearly a job for the kernel.
+> 
+> The idea of maintaining them separately is that people won't be able to
+> touch the ABI without explicitly going through a gatekeeper whose job is
+> to minimize breakage. Linus usually catches ABI changes but not always.
+> 
+> I explicitly did _not_ suggest making it the job of libc maintainers. And
+> the whole point of the exercise is to avoid ABI of the day anyway. The ABI
+> should change less frequently than the kernel or libc. It's more analogous
+> to something like modutils.
 
-Not the end, just the start, and not in addition, but only the start
-address of each module without any symbol.
+IMHO it should live with the kernel, at least for now.  
+The ABI .h files can live in a walled-off area that stays as stable as possible.
+Anyone building glibc should be able to grab the ABI .h files from a
+recent linux kernel source tarball without much effort.  (Maybe we'd
+add a 'install headers_install' make target to install the ABI .h files
+to make it obvious how to get them.)
 
-> I've found it valuable to have the EIP resolved.  Even though the symbol
-> name may not be perfect (only resolves exported names) it is valuable to
-> see that the function crashed 0x1fe bytes after a given symbol name.
+Imagine what would happen if the base ABI .h files were maintained 
+as part of a future Linux Standard Base, with the kernel only maintaining
+.h files for extensions to the base ABI.  You'd need to install the ABI .h 
+files before you could build the kernel!  That might be the right way to
+go, but let's not propose it until the ABI .h files exist and are useful.
 
-valuable for what? you need the system.map or the .o disassembly of the
-module anyways to take advantage of such symbol. I don't find it useful.
-Furthmore ksymoops will prefer to work with hex numbers rather than
-doing the reverse lookup to the number and then resolving to the right
-symbol (and not only ksymoops, me too while doing by hand and that's why
-I prefer hex there)
-
-One thing is if you have ksymall ala kdb and you can resolve to
-something where you don't need the system.map to guess what happened,
-but without the ksymall you need the system.map or vmlinux anyways.
-
-Andrea
+- Dan

@@ -1,75 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266100AbUBCUrA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 15:47:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266129AbUBCUrA
+	id S266130AbUBCUup (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 15:50:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266143AbUBCUup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 15:47:00 -0500
-Received: from wblv-254-118.telkomadsl.co.za ([165.165.254.118]:21640 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S266100AbUBCUq6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 15:46:58 -0500
-Subject: Re: module-init-tools/udev and module auto-loading
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040203193351.GY21151@parcelfarce.linux.theplanet.co.uk>
-References: <20040203010224.4CF742C261@lists.samba.org>
-	 <1075830486.7473.32.camel@nosferatu.lan>
-	 <20040203193351.GY21151@parcelfarce.linux.theplanet.co.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wTwa3b/5nZp1mLbVbQi0"
-Message-Id: <1075841233.7473.54.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 03 Feb 2004 22:47:13 +0200
+	Tue, 3 Feb 2004 15:50:45 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:51331 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S266130AbUBCUum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 15:50:42 -0500
+Date: Tue, 3 Feb 2004 20:59:31 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200402032059.i13KxV5v003730@81-2-122-30.bradfords.org.uk>
+To: "Richard B. Johnson" <root@chaos.analogic.com>,
+       =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Cc: John Bradford <john@grabjohn.com>,
+       =?iso-8859-1?q?Martin_Povoln=FD?= <xpovolny@aurora.fi.muni.cz>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.53.0402031509100.32547@chaos>
+References: <20040203131837.GF3967@aurora.fi.muni.cz>
+ <Pine.LNX.4.53.0402030839380.31203@chaos>
+ <401FB78A.5010902@zvala.cz>
+ <Pine.LNX.4.53.0402031018170.31411@chaos>
+ <200402031602.i13G2NFi002400@81-2-122-30.bradfords.org.uk>
+ <yw1xsmhsf882.fsf@kth.se>
+ <200402031635.i13GZJ9Q002866@81-2-122-30.bradfords.org.uk>
+ <20040203174606.GG3967@aurora.fi.muni.cz>
+ <200402031853.i13Ir1e0003202@81-2-122-30.bradfords.org.uk>
+ <yw1xn080m1d2.fsf@kth.se>
+ <Pine.LNX.4.53.0402031509100.32547@chaos>
+Subject: Re: 2.6.0, cdrom still showing directories after being erased
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I had to borrow a R/W CDROM because most everybody uses CR-R only
+> here. That's why it took so long to check. With SCSI, Linux 2.4.24,
+> cdrecord fails to umount the drive before it burns it. The result
+> is that the previous directory still remains at the mount-point.
+> This, even though cdrecord ejected the drive to "re-read" its
+> status.
+> 
+> Bottom line: If the CDROM isn't umounted first, you can still
+> get a directory entry even though the CDROM has been written with
+> about 500 magabytes of new data.
 
---=-wTwa3b/5nZp1mLbVbQi0
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+You're describing a different problem.  The original poster is
+unmounting the disc before erasing it.
 
-On Tue, 2004-02-03 at 21:33, viro@parcelfarce.linux.theplanet.co.uk
-wrote:
-> On Tue, Feb 03, 2004 at 07:48:06PM +0200, Martin Schlemmer wrote:
-> > > > I guess there will be cries of murder if 'somebody' suggested that =
-if
-> > > > a node in /dev is opened, but not there, the kernel can call
-> > > > 'modprobe -q /dev/foo' to load whatever alias there might have been=
-?
->=20
-> Vetoed.  _Especially_ when you are checking that on "pathname prefix"
-> level - namei.c is not a place for such special-casing.
->=20
+It would be nice if cdrecord checked that the device it was about to
+write to wasn't already mounted, and complained if it was.
 
-Well, I do not scratch around in there in general.  I guess the question
-is:
-
-1)  This this idea is Ok to make it (not patch or where it is, but the
-idea in general.
-
-2)  If yes to 1), any suggested place I should have a look at?
-
-
-Thanks,
-
---=20
-Martin Schlemmer
-
---=-wTwa3b/5nZp1mLbVbQi0
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAIAjRqburzKaJYLYRAk0XAJ9vhTmdun7SPwBaBQp/qoght1DhVACglONM
-2AclocufwuukHSnvH4OuA1A=
-=fLk5
------END PGP SIGNATURE-----
-
---=-wTwa3b/5nZp1mLbVbQi0--
-
+John.

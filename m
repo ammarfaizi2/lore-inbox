@@ -1,34 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318133AbSHQS5d>; Sat, 17 Aug 2002 14:57:33 -0400
+	id <S318141AbSHQTEI>; Sat, 17 Aug 2002 15:04:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318134AbSHQS5d>; Sat, 17 Aug 2002 14:57:33 -0400
-Received: from moutng.kundenserver.de ([212.227.126.170]:11519 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S318133AbSHQS5d>; Sat, 17 Aug 2002 14:57:33 -0400
-Date: Sat, 17 Aug 2002 21:05:29 +0200
-From: Heinz Diehl <hd@cavy.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4-ide updated
-Message-ID: <20020817190529.GA1565@chiara.cavy.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020816131759.GR2475@suse.de>
+	id <S318139AbSHQTEI>; Sat, 17 Aug 2002 15:04:08 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:10251 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S318138AbSHQTEH>;
+	Sat, 17 Aug 2002 15:04:07 -0400
+Date: Sat, 17 Aug 2002 12:03:24 -0700
+From: Greg KH <greg@kroah.com>
+To: Adam Belay <ambx1@netscape.net>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.31 driverfs: patch for your consideration
+Message-ID: <20020817190324.GA9320@kroah.com>
+References: <3D5D7E50.4030307@netscape.net> <20020817030604.GB7029@kroah.com> <3D5E595A.7090106@netscape.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020816131759.GR2475@suse.de>
-Organization: private site in Mannheim/Germany
-X-PGP-Key: Use PGP! Get my key at http://www.cavy.de/hd.key
-User-Agent: Mutt/1.5.1i (Linux 2.4.20-pre2-ac3 i586)
+In-Reply-To: <3D5E595A.7090106@netscape.net>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Sat, 20 Jul 2002 18:01:05 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri Aug 16 2002, Jens Axboe wrote:
+On Sat, Aug 17, 2002 at 02:10:34PM +0000, Adam Belay wrote:
+> 
+> 
+> greg@kroah.com wrote:
+> 
+> >
+> >Um, your email client mangled the patch, dropping tabs and wrapped
+> >lines.
+> >
+> Thanks for pointing this out.  I'll send it as an attachment this time.
+>  My current client has been causing me a lot of trouble, is there one
+> you would suggest I use?
 
-> 2.4-ide-all-1 has it all, and there are 7 other patches that do it
-> incrementally.
+I like mutt, but that's just my opinion :)
 
-The patches do not apply properly (or I'm too stupid) with any -p option.
+Hm, in looking at your attachments, they will not apply either.  All the
+tabs are gone, something's wrong with your originals.  Did you cut and
+paste to generate them?
 
--- 
-# Heinz Diehl, 68259 Mannheim, Germany
+> >
+> >Isn't this info already in the "name" file of a driver?
+> >
+> 
+> I'm probably just confused but I'm not sure what you mean.  This patch 
+> does the following, as shown previously:
+> 
+> example:
+> #cd /driverfs/root/pci0/00:00.0
+> #cat driver
+> agpgart
+
+Ah, got it, nevermind :)
+
+thanks,
+
+greg k-h

@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264492AbRFQDCV>; Sat, 16 Jun 2001 23:02:21 -0400
+	id <S264455AbRFQC6V>; Sat, 16 Jun 2001 22:58:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264495AbRFQDCC>; Sat, 16 Jun 2001 23:02:02 -0400
-Received: from [207.106.50.26] ([207.106.50.26]:51719 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S264492AbRFQDBw>;
-	Sat, 16 Jun 2001 23:01:52 -0400
-Date: Sat, 16 Jun 2001 23:05:49 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Robert Love <rml@ufl.edu>
-Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net,
-        rick@linuxmafia.com
-Subject: Re: Kernel configuration.  It's not just a job, it's an adventure!
-Message-ID: <20010616230549.A12127@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Robert Love <rml@ufl.edu>, CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net, rick@linuxmafia.com
-In-Reply-To: <20010616222709.A11872@thyrsus.com> <992745542.3204.2.camel@phantasy>
+	id <S264492AbRFQC6L>; Sat, 16 Jun 2001 22:58:11 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:46596 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S264455AbRFQC6G>;
+	Sat, 16 Jun 2001 22:58:06 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: esr@thyrsus.com
+cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: Re: Kernel configuration. It's not just a job, it's an adventure! 
+In-Reply-To: Your message of "Sat, 16 Jun 2001 22:27:09 -0400."
+             <20010616222709.A11872@thyrsus.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <992745542.3204.2.camel@phantasy>; from rml@ufl.edu on Sat, Jun 16, 2001 at 10:38:59PM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Date: Sun, 17 Jun 2001 12:57:59 +1000
+Message-ID: <5607.992746679@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love <rml@ufl.edu>:
-> _WAY_ too much time on your hands!
+On Sat, 16 Jun 2001 22:27:09 -0400, 
+"Eric S. Raymond" <esr@thyrsus.com> wrote:
+>Welcome to CML2 Adventure, version 1.6.1.
+>You are in a maze of twisty little Linux kernel options menus, all different.
+>The main room.  A sign reads `Linux Kernel Configuration System'.
 
-I wrote most of CML2 Adventure on a long airplane flight.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Sick, Eric, very, very sick!
 
-"This country, with its institutions, belongs to the people who inhabit it. 
-Whenever they shall grow weary of the existing government, they can exercise
-their constitutional right of amending it or their revolutionary right to 
-dismember it or overthrow it."	-- Abraham Lincoln, 4 April 1861
+ps.  Replace the grue with a mundie, much easier to kill.
+

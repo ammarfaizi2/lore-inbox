@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbUB0O4J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 09:56:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262916AbUB0O4J
+	id S262894AbUB0O5o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 09:57:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUB0O5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 09:56:09 -0500
-Received: from stat1.steeleye.com ([65.114.3.130]:7639 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262914AbUB0Oz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 09:55:59 -0500
-Subject: Re: [PATCH] move consistent_dma_mask to the generic device
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Jeremy Higdon <jeremy@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, willy@debian.org,
-       Jes Sorensen <jes@wildopensource.com>,
-       Grant Grundler <grundler@parisc-linux.org>, alex.williamson@hp.com,
-       jbarnes@sgi.com, ak@muc.de, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040227065702.GB561561@sgi.com>
-References: <1077814394.2662.86.camel@mulgrave> 
-	<20040227065702.GB561561@sgi.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 27 Feb 2004 08:55:30 -0600
-Message-Id: <1077893732.1806.2.camel@mulgrave>
-Mime-Version: 1.0
+	Fri, 27 Feb 2004 09:57:44 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:10882 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262894AbUB0O5d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 09:57:33 -0500
+Date: Fri, 27 Feb 2004 09:59:15 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Brad Cramer <bcramer@callahanfuneralhome.com>
+cc: "'Guennadi Liakhovetski'" <g.liakhovetski@gmx.de>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi-owner@vger.kernel.org
+Subject: RE: sym53c8xx_2 driver and tekram dc-390u2w kernel-2.6.x
+In-Reply-To: <008801c3fd40$933d2ca0$6501a8c0@office>
+Message-ID: <Pine.LNX.4.53.0402270955240.7189@chaos>
+References: <008801c3fd40$933d2ca0$6501a8c0@office>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-02-27 at 00:57, Jeremy Higdon wrote:
-> I haven't had a chance to try it yet, but it looks good.
-> 
-> If you're going to get rid of pci_dev.consistent_dma_mask in favor
-> of pci_dev.dev.coherent_dma_mask, would you want to do the same
-> with pci_dev.dma_mask?
+On Fri, 27 Feb 2004, Brad Cramer wrote:
 
-It's probably about time that was done, yes.
+> OK, it took me some time, but here is what I did.
+> I installed a debian kernel image (kernel_image-2.4.24-1-k7) to tell if this
+> was just a problem with the driver or because of the upgrade to kernel 2.6.x
+> I the sym53c8xx and sym53c8xx_2 drivers are modules and this is what I got.
+>
+> bigdaddy:~# modprobe sym53c8xx
+> PCI: Found IRQ 11 for device 00:0f.0
+> PCI: Sharing IRQ 11 with 00:0d.0
+> PCI: Sharing IRQ 11 with 00:0d.1
+[SNIPPED...everything was fine]
 
-> Which brings to mind a second question; why is device.dma_mask
-> a u64 * instead of u64?  Does it typically point to pci_dev.dma_mask?
+>
+> and everything works fine, then when I do :
+>
 
-That's a bad design decision that will forever haunt me.  When I first
-proposed moving from the PCI DMA model to the generic device DMA model,
-the dma_mask was in the wrong place.  Quite a few drivers touched it
-themselves outside of the accessor functions, so actually moving it in
-to struct device became quite involved, so I took the easy way out and
-simply made the entry in struct device a pointer to the real one so that
-anything that updated the mask outside of the accessors would still
-work.
+Did you `rmmod` the previos driver???  If not, you have
+two drivers pounding on the same board, attempting to
+handle the same disk(s). All bets are off.
 
-I suppose I should really do the work as pennance, plus write out a
-hundred times "never sacrifice design integrity for expediency", sigh.
+> bigdaddy:~# modprobe sym53c8xx_2
+[SNIPPED...]
 
-James
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

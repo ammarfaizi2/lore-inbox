@@ -1,71 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264323AbTDPMDB (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 08:03:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264324AbTDPMDB 
+	id S264321AbTDPMBj (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 08:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264323AbTDPMBj 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 08:03:01 -0400
-Received: from miranda.zianet.com ([216.234.192.169]:40209 "HELO
-	miranda.zianet.com") by vger.kernel.org with SMTP id S264323AbTDPMC7 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 08:02:59 -0400
-Subject: Re: Kernels since 2.5.60 upto 2.5.67 freeze when X server
-	terminates
-From: Steven Cole <elenstev@mesatop.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Joseph Fannin <jhf@rivenstone.net>, Florin Iucha <florin@iucha.net>,
-       linux-kernel@vger.kernel.org, Dave Jones <davej@codemonkey.org.uk>,
-       Andrew Morton <akpm@digeo.com>
-In-Reply-To: <200304160825.h3G8PtMS001267@turing-police.cc.vt.edu>
-References: <20030415133608.A1447@cuculus.switch.gts.cz>
-	 <20030415125507.GA29143@iucha.net> <3E9C03DD.3040200@oracle.com>
-	 <20030415164435.GA6389@rivenstone.net> <20030415182057.GC29143@iucha.net>
-	 <20030416044144.GA32400@rivenstone.net>
-	 <200304160825.h3G8PtMS001267@turing-police.cc.vt.edu>
+	Wed, 16 Apr 2003 08:01:39 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:38338
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264321AbTDPMBi (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 16 Apr 2003 08:01:38 -0400
+Subject: Re: PixelView video4linux driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alexandru Damian <ddalex_krn@easynet.ro>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E9D150E.6000601@easynet.ro>
+References: <Pine.LNX.4.53.0303211420170.13876@chaos>
+	 <1048324118.3306.3.camel@LNX.iNES.RO> <3E7F1B6A.2000103@easynet.ro>
+	 <1048525157.25655.1.camel@irongate.swansea.linux.org.uk>
+	 <3E7F321A.1000809@easynet.ro> <87ptog628m.fsf@bytesex.org>
+	 <3E9C196F.5060205@easynet.ro>  <3E9D150E.6000601@easynet.ro>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1050495049.27972.15.camel@spc>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 16 Apr 2003 06:10:49 -0600
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1050491720.28727.28.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 16 Apr 2003 12:15:20 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-16 at 02:25, Valdis.Kletnieks@vt.edu wrote:
-> On Wed, 16 Apr 2003 00:41:48 EDT, Joseph Fannin said:
-> 
-> >     Except that I'm seeing the very same sort of freeze on with a
-> >  Rage128 card with XFree86 4.2.1.
-> > 
-> >     Are we all Debian sid users, perhaps?
-> 
-> Nice try, but I'm seeing it on a RedHat 9-ish laptop with this card:
-> 
-> 01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 440 Go] (rev a3)
-> 
-> using XFree86 4.3.0 and the binary NVidia 4191 driver.  I hadn't posted because
-> I figured it was an NVidia problem and tainted  quite thoroughly.
-> 
-> Another data point:  I *dont* see this sort of freeze if I start it with
-> 'NvAGP=1' (use internal agp), but I *do* see it with 'NvAGP=2' or '3'
-> (which tell it to use the kernel 'agpgart' code).
-> 
-> Sorry Dave, looks like a bug in AGP....
+On Mer, 2003-04-16 at 09:32, Alexandru Damian wrote:
+> Maybe someone can help me with a hint about what's going on, and how should
+> I handle interlocking between X and clgdtv.
 
-Yet another data point.  I've seen this with RedHat 9 and i810 and
-2.5.67+. I've haven't had time to test without AGP yet
+If you don't need things like DMA buffers you could put the code
+entirely in the Xv support for that hardware and not touch the
+kernel. If you need the kernel then it gets rather hairier. DRI 
+keeps fast locks between the DRI clients and the X server.
 
-I could avoid the freeze by starting X with "startx". Then, when going
-back to runlevel 3, the freeze did _not_ occur. 
-
-I saw the freeze when selecting "Log Out" from either KDE or Gnome, but
-only if I started X with /sbin/init 5.
-
-Occasionally and with 2.5.67-mm1 only, instead of a freeze, I saw a
-spontaneous reboot.
-
-I'm many miles from that test box now but if I get the chance I'll test
-without AGP.
-
-Steven
 

@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262877AbRFCL0A>; Sun, 3 Jun 2001 07:26:00 -0400
+	id <S262903AbRFCMe6>; Sun, 3 Jun 2001 08:34:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262885AbRFCLZk>; Sun, 3 Jun 2001 07:25:40 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:49302 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262877AbRFCLZ3>;
-	Sun, 3 Jun 2001 07:25:29 -0400
-Date: Sun, 3 Jun 2001 07:25:25 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andries.Brouwer@cwi.nl
-cc: linux-kernel@vger.kernel.org
-Subject: Re: symlink_prefix
-In-Reply-To: <UTC200106031053.MAA185287.aeb@vlet.cwi.nl>
-Message-ID: <Pine.GSO.4.21.0106030703590.27673-100000@weyl.math.psu.edu>
+	id <S262915AbRFCMJQ>; Sun, 3 Jun 2001 08:09:16 -0400
+Received: from mail.iwr.uni-heidelberg.de ([129.206.104.30]:37599 "EHLO
+	mail.iwr.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S262885AbRFCMAC>; Sun, 3 Jun 2001 08:00:02 -0400
+Date: Sun, 3 Jun 2001 13:59:57 +0200 (CEST)
+From: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Mark Frazer <mark@somanetworks.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Pete Zaitcev <zaitcev@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <netdev@oss.sgi.com>
+Subject: Re: MII access (was [PATCH] support for Cobalt Networks (x86 only)
+In-Reply-To: <E156J4v-0002BA-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0106031343530.31050-100000@kenzo.iwr.uni-heidelberg.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2 Jun 2001, Alan Cox wrote:
 
+> > > Then it needs to be privileged
+> >
+> > Fine. Can you think of a default value for expiring cache ?
+>
+> Yeah .. so long as its a default and tunable in /proc.
 
-On Sun, 3 Jun 2001 Andries.Brouwer@cwi.nl wrote:
+New day, new ideea. The original problem was that unpriviledged users can
+access it too often. How about exposing the MII registers as /dev entries?
+Then you can have normal access rights for them and no need to worry about
+frequency of access.  Probably default would be 600 owned by root and for
+HA applications a user or a group can get read (or even write) access.
+It's up to the sysadmin to allow it, but has to be renewed after each
+boot. But I guess that this is not something to be applied to 2.2 and
+2.4...
 
-> What I did was: add a field  `char *mnt_symlink_prefix;'  to the
-> struct vfsmount, fill it in super.c:add_vfsmnt(), use it in
-> namei.c:vfs_follow_link(). Pick the value up by recognizing
-> in super.c:do_mount() the option "symlink_prefix=" before
-> giving the options to the separate filesystems.
-> 
-> [One could start a subdiscussion about that part. The mount(2)
-> system call needs to transport vfs information and per-fs information.
-> So far, the vfs information used flag bits only, but sooner or later
-> we'll want to have strings, and need a vfs_parse_mount_options().
-> Indeed, many filesystems today have uid= and gid= and umask= options
-> that might be removed from the individual filesystems and put into vfs.
-> After all, such options are also useful for (foreign) ext2 filesystems.]
+With clearer mind, I have to make some a correction to one of the previous
+messages: the problem of not checking arguments range does not apply to
+3c59x which has in the ioctl function '& 0x1f' for both transceiver number
+and register number. However, eepro100 and tulip don't do that. (I'm
+checking now with 2.4.3 from Mandrake 8, but I don't think that there were
+recent changes in these areas).
 
-_Please_, if we do anything of that kind - let's use a new syscall.
-Ideally, I'd say
-	fs_fd = open("/fs/ext2", O_RDWR);
-	/* error -> no such filesystem */
-	write(fs_fd. "/dev/sda1", strlen("/dev/sda1"));
-	/* error handling */
-	write(fs_fd, "reserve=5", strlen(....));
-	...
-	dir = open("/usr/local", O_DIRECTORY);
-	/* error handling */
-	new_mount(dir, MNT_SET, fs_fd);	/* closes dir and fs_fd */
-	/* error handling */
+-- 
+Bogdan Costescu
 
-First open gives you a new channel. Preferably - wit datagram semantics (i.e.
-write() boundaries are preserved). Then you convince fs driver to give you
-fs. Then you mount it.
-
-Notice that all cruft with "mount ncpfs and then use ioctls to authenticate"
-goes away - authentication happens before you mount. Parsers are also easier
-that way. Moreover, seeing what filesystem types are available is also trivial,
-etc. We need only one special case - mounting that fstypefs. Fine, let's
-make new_mount(dir, MNT_TYPES) do that.
-
-BTW, bind and friends are also easy - it's
-	what = open(old, 0);
-	where = open(mountpoint, 0);
-	new_mount(where, MNT_BIND, what);
-
-Comments?
+IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
+Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
+Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
+E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
 

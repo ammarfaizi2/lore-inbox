@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268954AbRHTTqV>; Mon, 20 Aug 2001 15:46:21 -0400
+	id <S268974AbRHTTsl>; Mon, 20 Aug 2001 15:48:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268958AbRHTTqL>; Mon, 20 Aug 2001 15:46:11 -0400
-Received: from relay02.cablecom.net ([62.2.33.102]:47377 "EHLO
-	relay02.cablecom.net") by vger.kernel.org with ESMTP
-	id <S268954AbRHTTqD>; Mon, 20 Aug 2001 15:46:03 -0400
-Message-Id: <200108201946.f7KJkGk12091@mail.swissonline.ch>
-Content-Type: text/plain; charset=US-ASCII
-From: Christian Widmer <llx@swissonline.ch>
-Reply-To: llx@swissonline.ch
-To: george anzinger <george@mvista.com>
-Subject: Re: misc questions about kernel 2.4.x internals
-Date: Mon, 20 Aug 2001 21:46:16 +0200
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <200108201452.f7KEqxk18219@mail.swissonline.ch> <3B815D97.680B37A5@mvista.com>
-In-Reply-To: <3B815D97.680B37A5@mvista.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S268963AbRHTTsb>; Mon, 20 Aug 2001 15:48:31 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:33154 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S268968AbRHTTsZ>; Mon, 20 Aug 2001 15:48:25 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Alex Bligh - linux-kernel" <linux-kernel@alex.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Entropy from net devices - keyboard & IDE just as 'bad' [was Re: [PATCH] let Net Devices feed Entropy, updated (1/2)]
+Date: Mon, 20 Aug 2001 12:48:39 -0700
+Message-ID: <NOEJJDACGOHCKNCOGFOMCEDNDFAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <2246712912.998317539@[10.132.112.53]>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thanks 
 
-> You would/ could assign it a real time priority and make it SCHED_FIFO
-> or SCHED_RR.  
+Alex Bligh wrote:
 
-do you have references to an example how to to it?
+> Many non-i386 platforms have more finely grained timers than 1 jiffie.
+> The problem is the code doesn't use them. So my point is, it seems
+> illogical to throw stones at (often) theoretical issues with Robert's
+> patch, when people's energy would be better diverted to help fix up
+> hole in the current implementation.
 
-> If you do this, it is a good idea to make the priority
-> used available to be "tuned".  Not every one will agree that _your_
-> handler is as important as you think it is.
+	I don't understand the connection. Either Robert's patch is good or it's
+bad. If there are other problems, then we can address those too. But to say
+that Robert's patch is bad because it doesn't fix the most important problem
+that you can think of doesn't make any sense. Every problem should be fixed,
+and if Robert has a patch to fix one of them, then that's one less.
 
-ye i think so - in our cluster it's just fine at the moment :)
+	You can certainly advise people to work on the most serious problems. But
+you most certainly can't say that someone shouldn't work on X because Y is
+more important.
 
-chris
+	DS
+

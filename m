@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132764AbRASD5B>; Thu, 18 Jan 2001 22:57:01 -0500
+	id <S135886AbRASEXj>; Thu, 18 Jan 2001 23:23:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135755AbRASD4x>; Thu, 18 Jan 2001 22:56:53 -0500
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:59218 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S132764AbRASD4h>; Thu, 18 Jan 2001 22:56:37 -0500
-Message-ID: <3A67BAEE.519C777F@linux.com>
-Date: Fri, 19 Jan 2001 03:56:30 +0000
-From: David Ford <david@linux.com>
-Organization: Blue Labs Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre8 i686)
-X-Accept-Language: en
+	id <S135775AbRASEX3>; Thu, 18 Jan 2001 23:23:29 -0500
+Received: from dewey.lib.ci.phoenix.az.us ([148.167.132.200]:20622 "EHLO
+	dewey.lib.ci.phoenix.az.us") by vger.kernel.org with ESMTP
+	id <S135456AbRASEXQ>; Thu, 18 Jan 2001 23:23:16 -0500
+Date: Thu, 18 Jan 2001 21:23:10 -0700 (MST)
+From: Paul Hancock <phancock@lib.ci.phoenix.az.us>
+To: <linux-kernel@vger.kernel.org>
+Subject: Network response time issue
+Message-ID: <Pine.LNX.4.30.0101182051210.30915-100000@ariseth.lib.ci.phoenix.az.us>
 MIME-Version: 1.0
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-In-Reply-To: <Pine.LNX.4.30.0101181913540.16292-100000@twinlark.arctic.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dean gaudet wrote:
+I am investigating a web site response time issue that one of our patrons
+is having. After ruling out the obvious, I ran a tcpdump, and compared the
+packet trace to other web sessions that had reasonable response time, and
+found that the session that was having problems had a mss of 536, while
+most of the tcp sessions used a mss of 1460.
 
-> the reason, gag puke, is for doing things such as sending "activity"
-> progress -- like a line at a time or whatever to indicate that the CGI is
-> there and still working.
+When I upgraded the kernel from 2.4.0-test12 to 2.4.0, response seemed to
+improve slightly.  Nonetheless, I'm still seeing the same basic behavior:
+a burst of traffic, followed by a period of silence.  I'm not an expert at
+analyzing packet traces, but it looks like the server is having to do a
+lot of re-transmits.  The user states that other sites come up fine,
+including another web server that shares the WAN link with us.
 
-I understand the gagging on this and generally I agree.  I do appreciate having
-the ability to do this however.  In some very infrequent cases it is nice to
-have.  Perhaps a distinguished method to accomplish this can be created so only
-this method does this while all others become more efficient and data transfer?
+Am I possibly looking at a kernel networking issue?  What other things
+should I be looking at/for?
 
--d
+Thanks.
 
-
---
-..NOTICE fwd: fwd: fwd: type emails will be deleted automatically.
-      "There is a natural aristocracy among men. The grounds of this are
-      virtue and talents", Thomas Jefferson [1742-1826], 3rd US President
-
-
+		-- Paul (phancock@lib.ci.phoenix.az.us)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

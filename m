@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288967AbSATX0C>; Sun, 20 Jan 2002 18:26:02 -0500
+	id <S288061AbSATXk1>; Sun, 20 Jan 2002 18:40:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288969AbSATXZw>; Sun, 20 Jan 2002 18:25:52 -0500
-Received: from mons.uio.no ([129.240.130.14]:32755 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S288967AbSATXZq>;
-	Sun, 20 Jan 2002 18:25:46 -0500
+	id <S288969AbSATXkR>; Sun, 20 Jan 2002 18:40:17 -0500
+Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:4868
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S288061AbSATXkF>; Sun, 20 Jan 2002 18:40:05 -0500
+Date: Sun, 20 Jan 2002 18:40:56 -0500 (EST)
+From: Shawn Starr <spstarr@sh0n.net>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Hans Reiser <reiser@namesys.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Possible Idea with filesystem buffering.
+In-Reply-To: <Pine.LNX.4.33L.0201202110290.32617-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.40.0201201839530.490-100000@coredump.sh0n.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15435.20982.84353.824971@charged.uio.no>
-Date: Mon, 21 Jan 2002 00:25:42 +0100
-To: Hans-Peter Jansen <hpj@urpla.net>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] with 2.4.18-pre4+linux-2.4.18-NFS_ALL
-In-Reply-To: <20020120222722.3972B143F@shrek.lisa.de>
-In-Reply-To: <20020120164118.D587513E3@shrek.lisa.de>
-	<shsbsfo6gt9.fsf@charged.uio.no>
-	<20020120222722.3972B143F@shrek.lisa.de>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Hans-Peter Jansen <hpj@urpla.net> writes:
 
-     > On Sunday, 20. January 2002 19:03, Trond Myklebust wrote:
-    >> >>>>> " " == Hans-Peter Jansen <hpj@urpla.net> writes:
-    >> > Hi Trond et al., I can reliably reproduce this oops on my
-    >> > diskless with NFS_ALL applied, but not with plain-pre4, just
-    >> > by quitting one of {StarOffice,VMware}.
-    >>
-    >> The new version should be rid of it. It was a call to
-    >> get_file() which was missing a test for a NULL argument.
+My worry is this. If we have different filesystems having their own page
+buffer/caching daemons we'll definately introduce race conditions.
 
-     > Are you sure?
+Say have 2 hard drives with ReiserFS and EXT3 and im copying data between
+the two and each of them has their own daemons its going to get pretty
+messy no?
 
-I forgot the nfs_cred_file() in the line above. That too is fixed now,
-and so fsx is running fine again...
 
-Cheers,
-   Trond
+On Sun, 20 Jan 2002, Rik van Riel wrote:
+
+> On Sun, 20 Jan 2002, Shawn Starr wrote:
+>
+> > But why should each filesystem have to have a different method of
+> > buffering/caching? that just doesn't fit the layered model of the
+> > kernel IMHO.
+>
+> I think Hans will give up the idea once he realises the
+> performance implications. ;)
+>
+> Rik
+> --
+> "Linux holds advantages over the single-vendor commercial OS"
+>     -- Microsoft's "Competing with Linux" document
+>
+> http://www.surriel.com/		http://distro.conectiva.com/
+>
+>
+>
+

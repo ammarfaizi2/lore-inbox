@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbUDQCHR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 22:07:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbUDQCHR
+	id S261197AbUDQCM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 22:12:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbUDQCM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 22:07:17 -0400
-Received: from web12821.mail.yahoo.com ([216.136.174.202]:53135 "HELO
-	web12821.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261210AbUDQCHO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 22:07:14 -0400
-Message-ID: <20040417020713.16619.qmail@web12821.mail.yahoo.com>
-Date: Fri, 16 Apr 2004 19:07:13 -0700 (PDT)
-From: Shantanu Goel <sgoel01@yahoo.com>
-Subject: Process hang with 2.6.6-rc1
-To: Kernel <linux-kernel@vger.kernel.org>
+	Fri, 16 Apr 2004 22:12:26 -0400
+Received: from gherkin.frus.com ([192.158.254.49]:23943 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id S261197AbUDQCMZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 22:12:25 -0400
+Subject: Re: [PATCH] sym53c500_cs PCMCIA SCSI driver (new)
+In-Reply-To: <200404170142.24798.p_christ@hol.gr> "from P. Christeas at Apr 17,
+ 2004 01:42:24 am"
+To: "P. Christeas" <p_christ@hol.gr>
+Date: Fri, 16 Apr 2004 21:12:24 -0500 (CDT)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20040417021224.1C20ADBEE@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob Tracy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+P. Christeas wrote:
+> I'm the second person in our solar system that has such a card! 
+> 
+> I cleanly compiled and run your module. Looks OK. I haven't yet attached any 
+> peripheral, though. It's of no use to me, but I will be glad to help you by 
+> testing that code (w. devices as well).
+> Thanks for resurrecting the dead!
 
-I have been experiencing process hangs since upgrading
-to 2.6.6-rc1.  The system is usually able to stay up
-for a day before the hang.  But it is quite consistent
-in that it always hangs.  I experienced the same hang
-with 2.6.5-bk1 as well.  In the thread traces, it
-looks as though the mmap_sem of pid 3960 (pan) is not
-being released preventing any other process from
-locking the address space.  This is readily apparent
-from the hung "ps" command.  It is trying to read
-"/proc/3960/stat".
-Any clues would be appreciated as I have not been able
-to make any headway in debugging this.  My hardware
-information is below and I have attached the sysrq-t
-output and .config.
+Bravo!  You've made my day :-).  What kind of devices do you have
+available?  When I repair the #$%@! capstan on my Archive cartridge
+tape unit, I need to test with that...  The need for tape backup was
+the reason I bought my card in the first place.  At the moment, the
+only device I've got that's even halfway convenient to use in testing
+is an Olympus optical disk unit (removable media).  The driver works
+reliably with that, but I've got a sneaking suspicion that a tape unit
+would stress things a bit more (error handling and such).
 
-Thanks,
-Shantanu
+Per Christoph's critique, I've successfully combined the three driver
+source files into a single source file, and eliminated all the
+deprecated includes as well as the structure typedefs.  Still to do:
+add support for multiple HBAs, and eliminate distasteful hacks in
+detection code.  Dunno how I'm going to test the multiple HBA code...
 
-Kernel version: 2.6.6-rc1 SMP
-Hardware Info: Dell PE1600SC with 2x2Ghz Xeon CPUs
-
-D
-
-
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Tax Center - File online by April 15th
-http://taxes.yahoo.com/filing.html
+-- 
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

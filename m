@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129135AbQKADfP>; Tue, 31 Oct 2000 22:35:15 -0500
+	id <S129562AbQKADqP>; Tue, 31 Oct 2000 22:46:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131246AbQKADfE>; Tue, 31 Oct 2000 22:35:04 -0500
-Received: from [209.249.10.20] ([209.249.10.20]:40602 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S129135AbQKADes>; Tue, 31 Oct 2000 22:34:48 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Tue, 31 Oct 2000 19:42:46 -0800
-Message-Id: <200011010342.TAA08318@adam.yggdrasil.com>
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-        torvalds@transmeta.com
-Subject: Patch: linux-2.4.0-test10-pre7/drivers/usb/usb.c driver matching bug
+	id <S131196AbQKADp4>; Tue, 31 Oct 2000 22:45:56 -0500
+Received: from mnh-1-12.mv.com ([207.22.10.44]:65036 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S129562AbQKADpp>;
+	Tue, 31 Oct 2000 22:45:45 -0500
+Message-Id: <200011010453.XAA23218@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: user-mode port 0.32-2.4.0-test10
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 31 Oct 2000 23:53:23 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	linux-2.4.0-test10-pre7/drivers/usb/usb.c introduced a really
-cool feature, where USB drivers can declare a data structure that
-describes the various ID bytes of the USB devices that they are
-relevant to.  Updated versions of depmod and hotplug are then
-used so that the appropriate USB drivers can then be loaded
-automatically as soon as you plug in a device, without any
-need to create additional system configuration files.
+The user-mode port of 2.4.0-test10 is available.
 
-	Anyhow, the USB implementation of this has a tiny bug,
-where it does an apples-and-oranges comparison.  The patch is
-attached below.
+The stack overflows seen in test9 are fixed.  The stack is now allocated as 
+four pages, the top two used as a kernel stack, the third is inaccessible and 
+acts as a guard page, and the lowest page contains the task structure.
 
-	Since the USB device table support is in
-linux-2.4.0-test10-pre7 and not in the HEAD branch of the
-linux-usb CVS tree on sourceforge.net, and since the bug fix
-is very clear and small, I am sending this patch to Linus and 
-linux-kernel in addition to linux-usb-devel.  If there is some
-better way that I should submit a patch in this sort of situation,
-please let me know.  I don't mean to step on anyone's toes.
+Host devices can again be mounted inside the virtual machine.  This was broken 
+a few releases ago when I made the block driver check io requests against the 
+device size.
 
-	By the way, I was able to test this all the way to the
-point of plugging in a USB printer and watching the module
-automatically load and bind to the printer interface.  (I
-will submit the usb/printer.c device table support patch to
-linux-usb-devel momentarily.)
+It will no longer crash if the main console is not a terminal.
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+I fixed a race which was causing strange kernel memory faults.
 
---- linux-2.4.0-test10-pre7/drivers/usb/usb.c	Tue Oct 31 02:42:50 2000
-+++ linux/drivers/usb/usb.c	Tue Oct 31 19:26:14 2000
-@@ -540,7 +540,7 @@
- 			    if (id->bInterfaceClass
- 				    && id->bInterfaceClass == intf->bInterfaceClass) {
- 				if (id->bInterfaceSubClass && id->bInterfaceSubClass
--					!= intf->bInterfaceClass)
-+					!= intf->bInterfaceSubClass)
- 				    continue;
- 				if (id->bInterfaceProtocol && id->bInterfaceProtocol
- 					!= intf->bInterfaceProtocol)
+In the sources (the patch and cvs), but not the binaries, there is the 
+beginning of a hostfs filesystem.  This gives you access to the host root 
+filesystem.  Doing 'mount none /wherever -t hostfs' will mount the host root 
+filesystem on /wherever.  Right now, you can mount it and cd into it, but ls 
+will crash the kernel.
+
+The project's home page is http://user-mode-linux.sourceforge.net
+
+The project's download page is http://sourceforge.net/project/filelist.php?grou
+p_id=429
+
+				Jeff
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265595AbUBPOYb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 09:24:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265620AbUBPOYb
+	id S265689AbUBPOAH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 09:00:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265613AbUBPN4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 09:24:31 -0500
-Received: from mail.uni-kl.de ([131.246.137.52]:8845 "EHLO uni-kl.de")
-	by vger.kernel.org with ESMTP id S265595AbUBPOY3 (ORCPT
+	Mon, 16 Feb 2004 08:56:52 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:45705 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265647AbUBPNzS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 09:24:29 -0500
-Date: Mon, 16 Feb 2004 15:24:11 +0100
-From: Eduard Bloch <edi@gmx.de>
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-Subject: Re: JFS default behavior
-Message-ID: <20040216142411.GA3474@zombie.inka.de>
-References: <Pine.LNX.4.58.0402151545030.443@neptune.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402151545030.443@neptune.local>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Mon, 16 Feb 2004 08:55:18 -0500
+Message-ID: <4030CBC3.6060605@redhat.com>
+Date: Mon, 16 Feb 2004 08:55:15 -0500
+From: Will Cohen <wcohen@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mikael Pettersson <mikpe@csd.uu.se>
+CC: Philippe Elie <phil.el@wanadoo.fr>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, John Levon <levon@movementarian.org>
+Subject: Re: [PATCH] oprofile add Pentium Mobile support
+References: <20040212224152.GE316@zaniah> <16432.39480.817800.21083@alkaid.it.uu.se>
+In-Reply-To: <16432.39480.817800.21083@alkaid.it.uu.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Moin Pascal!
-Pascal Schmidt schrieb am Sunday, den 15. February 2004:
-
-> >>    iso-8859-1 for that virtual terminal, but the keyboard remained
-> >>    stuck in UTF-8 for _all_ virtual terminals.
-> > kbd_mode -a to reset to ASCII mode.
+Mikael Pettersson wrote:
+> Philippe Elie writes:
+>  > From: Will Cohen <wcohen@redhat.com>
+>  > 
+>  > Add oprofile support for Pentium Mobile (P6 core). Pentium Mobile needs
+>  > to unmask LVPTC vector, since it doesn't hurt other P6 core based cpus
+>  > we do it unconditionally for all these.
 > 
-> And as I just figured out, loadkeys has to be invoked again, also.
+> [Patch talking about the Pentium-M.]
 > 
-> I can go to utf-8 with:
+> I can find no support in Intel's documentation (IA32 Volume 3,
+> 25366813.pdf) that Pentium-M:s need to unmask LVTPC.
 > 
-> 	setfont lat0-16
-> 	kbd_mode -u
-> 	loadkeys de-latin1-nodeadkeys
+> How certain are you of this? Is this an undocumented hardware
+> quirk? If it is documented, please indicate where.
 
-When I do this, I still cannot enter unicode chars "as usual". I see
-them, mutt (for example) displays everything correct with a UTF-8
-locale. However, I cannot insert them correctly. When I use vim, I have
-to press another key (eg. Space) 2..4 times after an umlaut was pressed,
-only then the char appears.
+I have tested it on a Pentium M machine. Without the unmask LVTPC the 
+nmi handler collected precisely one interrupt. With the LVTPC unmask the 
+OProfile data collection worked normally.
 
-Needless to say that the same applications work fine in X with the same
-UTF-8 locale.
+> It's my theory that P4 added the auto-masking to help PEBS
+> buffer overflow situations, but since P-M doesn't have PEBS,
+> they shouldn't have had to change this on P-M as well.
+> OTOH, it's certainly possible they changed it by accident.
 
-Regards,
-Eduard.
--- 
-Lob ist eine gewaltige Antriebskraft, dessen Zauber seine Wirkung nie
-verfehlt.
-		-- Andor Foldes
+My theory is that the Pentium M uses same bus interface and local apic 
+as the Pentium M. Thus, the Pentium M shares the Pentium 4 need to 
+unmask LVTPC.
+
+> One way of testing this would be to run a P-M with
+> nmi_watchdog=2. If the NMI counter keeps ticking, then
+> LVTPC does not need unmasking.
+
+Yes, I tested the nmi watchdog and it currently does not work on the 
+Pentium M. It doesn't get the later interrupts and states it is stuck.
+
+
+-Will
+

@@ -1,66 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283917AbRLAEpw>; Fri, 30 Nov 2001 23:45:52 -0500
+	id <S283922AbRLAErx>; Fri, 30 Nov 2001 23:47:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281450AbRLAEpd>; Fri, 30 Nov 2001 23:45:33 -0500
-Received: from [202.172.46.73] ([202.172.46.73]:41485 "HELO mail.celestix.com")
-	by vger.kernel.org with SMTP id <S281455AbRLAEpZ>;
-	Fri, 30 Nov 2001 23:45:25 -0500
-Date: Sat, 1 Dec 2001 12:30:40 +0800
-From: Thibaut Laurent <thibaut@celestix.com>
-To: =?ISO-8859-1?Q? "=BE=C8=BC=F6=B9=CE" ?= <anmacarena@hanmail.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: some questions about wedding
-Message-Id: <20011201123040.7fcb77f7.thibaut@celestix.com>
-In-Reply-To: <20011130140150.HM.B0000000002n9Vu@www12.hanmail.net>
-In-Reply-To: <20011130140150.HM.B0000000002n9Vu@www12.hanmail.net>
-Organization: Celestix Networks Pte Ltd
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-mandrake-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S283921AbRLAEro>; Fri, 30 Nov 2001 23:47:44 -0500
+Received: from mgr2.xmission.com ([198.60.22.202]:8964 "EHLO mgr2.xmission.com")
+	by vger.kernel.org with ESMTP id <S281463AbRLAErZ>;
+	Fri, 30 Nov 2001 23:47:25 -0500
+Message-ID: <3C0860DB.60905@xmission.com>
+Date: Fri, 30 Nov 2001 21:47:23 -0700
+From: Frank Jacobberger <f1j@xmission.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: More problems with 2.5.0-pre5 than pre4
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Nov 2001 14:01:50 +0900 (KST)
-"¾È¼ö¹Î" <anmacarena@hanmail.net> wrote:
+What do you make of this from a attempted compile of 2.5.0-pre5:
 
- | 1. what is the most popular wedding present in your
- | culture?
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.0/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+-march=i686    -c -o rd.o rd.c
+rd.c:561: `rd_cleanup' undeclared here (not in a function)
+make[3]: *** [rd.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.5.0/drivers/block'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.5.0/drivers/block'
+make[1]: *** [_subdir_block] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.0/drivers'
+make: *** [_dir_drivers] Error 2
 
-IIRC, the male usually gives either a small rock (not especially a diamond)
-or a fish to the female (depending on the species).
+Thanks,
 
- | 2. How much money do you need to prepare wedding
- | ceremony(also, which item do you spend money most for)
- | ?
-
-You don't need any money. People tend to bring their own fish with them.
-
- | 3. do you have a unique expression for proposal?
- | (for example, in korea, a man says "i'll love you
- | until my black hair turns into white like snow" to his
- | lover)
-
-It sounds like a sort of _very_ broken trumpett.
-
- | 4. what is the most popular place for honeymoon in
- | your culture?
-
-Antarctic...
-
- | 5. where and when is wedding ceremony usually held?
-
-It's usually held on the shore. No particuliar day but usually during
-spring.
-
- | please help me!!!
-
-I believe the National Geographics folks made some nice videos if you want
-to learn more...
-
- | thank you for reading my mail :-)
-
-Cheers,
-Thibaut
+Frank
 

@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267963AbTBMJSX>; Thu, 13 Feb 2003 04:18:23 -0500
+	id <S267992AbTBMJXt>; Thu, 13 Feb 2003 04:23:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267966AbTBMJSX>; Thu, 13 Feb 2003 04:18:23 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:11278 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
-	id <S267963AbTBMJSW>; Thu, 13 Feb 2003 04:18:22 -0500
-Date: Thu, 13 Feb 2003 10:28:07 +0100 (CET)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: oford <oford@ev1.net>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.60 Compile error
-In-Reply-To: <1045126616.23710.51.camel@spider.hotmonkeyporn.com>
-Message-ID: <Pine.LNX.4.51.0302131027320.25884@dns.toxicfilms.tv>
-References: <1045126616.23710.51.camel@spider.hotmonkeyporn.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267995AbTBMJXt>; Thu, 13 Feb 2003 04:23:49 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:51864 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267992AbTBMJXs>;
+	Thu, 13 Feb 2003 04:23:48 -0500
+Date: Thu, 13 Feb 2003 01:19:03 -0800 (PST)
+Message-Id: <20030213.011903.32136660.davem@redhat.com>
+To: neilb@cse.unsw.edu.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Routing problem with udp, and a multihomed host in 2.4.20
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <15947.25922.785515.945307@notabene.cse.unsw.edu.au>
+References: <15946.54853.37531.810342@notabene.cse.unsw.edu.au>
+	<1045120278.5115.0.camel@rth.ninka.net>
+	<15947.25922.785515.945307@notabene.cse.unsw.edu.au>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Feb 2003, oford wrote:
+   From: Neil Brown <neilb@cse.unsw.edu.au>
+   Date: Thu, 13 Feb 2003 20:28:34 +1100
 
->   gcc -Wp,-MD,arch/i386/kernel/.time.o.d -D__KERNEL__ -Iinclude -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
-> -pipe -mpreferred-stack-boundary=2 -march=pentium3
-> -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc
-> -iwithprefix include    -DKBUILD_BASENAME=time -DKBUILD_MODNAME=time -c
-> -o arch/i386/kernel/.tmp_time.o arch/i386/kernel/time.c
-> ld:arch/i386/kernel/.tmp_time.ver:1: parse error
-> make[1]: *** [arch/i386/kernel/time.o] Error 1
-> make: *** [arch/i386/kernel] Error 2
->
-There's a sed incompatibility, check out 2.5.60-dj2, that has it fixed.
+   On  February 12, davem@redhat.com wrote:
+   > On Wed, 2003-02-12 at 15:18, Neil Brown wrote:
+   > > Is this a bug, or is there some configuration I can change?
+   > 
+   > Specify the correct 'src' parameter in your 'ip' route
+   > command invocations.
+   
+   Thanks... but I think I need a bit more help.
+   
+Sorry, I forgot to add that you need to enable the
+arp_filter sysctl as well to make this work properly.
 
-Regards,
-Maciej
+It should work once you do this.

@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268175AbTBXGcS>; Mon, 24 Feb 2003 01:32:18 -0500
+	id <S268174AbTBXGcM>; Mon, 24 Feb 2003 01:32:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268177AbTBXGcS>; Mon, 24 Feb 2003 01:32:18 -0500
-Received: from holomorphy.com ([66.224.33.161]:22191 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S268175AbTBXGcR>;
-	Mon, 24 Feb 2003 01:32:17 -0500
-Date: Sun, 23 Feb 2003 22:41:28 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Val Henson <val@nmt.edu>
-Cc: Bill Davidsen <davidsen@tmr.com>, Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030224064128.GM10411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Val Henson <val@nmt.edu>, Bill Davidsen <davidsen@tmr.com>,
-	Larry McVoy <lm@bitmover.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030222231552.GA31268@work.bitmover.com> <Pine.LNX.3.96.1030223183404.999F-100000@gatekeeper.tmr.com> <20030224062230.GD16803@boardwalk>
+	id <S268175AbTBXGcM>; Mon, 24 Feb 2003 01:32:12 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:53987 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S268174AbTBXGcL>;
+	Mon, 24 Feb 2003 01:32:11 -0500
+Date: Sun, 23 Feb 2003 22:25:57 -0800 (PST)
+Message-Id: <20030223.222557.132586554.davem@redhat.com>
+To: yoshfuji@linux-ipv6.org
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       netfilter-devel@lists.netfilter.org, kuznet@ms2.inr.ac.ru,
+       usagi@linux-ipv6.org
+Subject: Re: [PATCH] IPv6: Functions Clean-up
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030224.125702.13403857.yoshfuji@linux-ipv6.org>
+References: <20021103.115427.104445233.yoshfuji@linux-ipv6.org>
+	<20030223.011816.108201183.davem@redhat.com>
+	<20030224.125702.13403857.yoshfuji@linux-ipv6.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030224062230.GD16803@boardwalk>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Type: Text/Plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 23, 2003 at 06:57:09PM -0500, Bill Davidsen wrote:
->> Clearly. And things which require more locking will pay some penalty for
->> this. But a quick scan of this list on keyword "lockless' will show that
->> people are thinking about this.
+   From: YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org>
+   Date: Mon, 24 Feb 2003 12:57:02 +0900 (JST)
 
-On Sun, Feb 23, 2003 at 11:22:30PM -0700, Val Henson wrote:
-> Lockless algorithms still generate bus traffic when you do the atomic
-> compare-and-swap or load-linked or whatever hardware instruction you
-> use to implement your lockless algorithm.  Caches still have to stay
-> coherent, lock or no lock.
+   > I will apply this patch once you make the change.  Would you
+   > like me to add it to 2.4.x as well?
+   
+   yes.  Do I need to send a patch for linux-2.4.xx, too?
+   
+Not necessary, I know what is different in the networking
+between these two trees.
+   
+   Here's the patch for linux-2.5.62.
 
-Not all lockless algorithms operate on the "access everything with
-atomic operations" principle. RCU, for example, uses no atomic
-operations on the read side, which is actually fewer atomic operations
-than standard rwlocks use for the read side.
-
-
--- wli
+Applied, thanks.

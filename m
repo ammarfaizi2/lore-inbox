@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314559AbSEHQ0F>; Wed, 8 May 2002 12:26:05 -0400
+	id <S314584AbSEHQbb>; Wed, 8 May 2002 12:31:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314556AbSEHQ0E>; Wed, 8 May 2002 12:26:04 -0400
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:6626 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S314513AbSEHQ0D>;
-	Wed, 8 May 2002 12:26:03 -0400
-Date: Wed, 8 May 2002 12:26:03 -0400 (EDT)
-From: "Calin A. Culianu" <calin@ajvar.org>
-X-X-Sender: <calin@rtlab.med.cornell.edu>
-To: Der Herr Hofrat <der.herr@mail.hofr.at>
-Cc: "Serguei I. Ivantsov" <administrator@svitonline.com>,
-        <linux-gcc@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Measure time
-In-Reply-To: <200205081200.g48C0a805476@hofr.at>
-Message-ID: <Pine.LNX.4.33L2.0205081224390.9196-100000@rtlab.med.cornell.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314620AbSEHQba>; Wed, 8 May 2002 12:31:30 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:55290 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S314584AbSEHQba>; Wed, 8 May 2002 12:31:30 -0400
+Subject: Re: O(1) scheduler gives big boost to tbench 192
+From: Robert Love <rml@tech9.net>
+To: Jussi Laako <jussi.laako@kolumbus.fi>
+Cc: Mike Kravetz <kravetz@us.ibm.com>, mingo@elte.hu,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3CD94582.DE18AB99@kolumbus.fi>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
+Date: 08 May 2002 09:31:39 -0700
+Message-Id: <1020875500.2078.117.camel@bigsur>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 May 2002, Der Herr Hofrat wrote:
+On Wed, 2002-05-08 at 08:34, Jussi Laako wrote:
 
-> > Hello!
-> >
-> > Is there any function for high precision time measuring.
-> > time() returns only in second. I need nanoseconds.
-> >
-> you can directly read the TSC but that will not realy give you nanoseconds
-> resolution as the actual read access even on a PIII/1GHz is going to take
-> up to a few 100 nanoseconds, and depending on what you want to time
-> stamp the overall jitter of that code can easaly be in the
-> range of a microsecond.
->
-> There are some hard-realtime patches to the Linux kernel that will
-> allow time precission of aprox. 1us (the TSC has a precission of 32ns)
-> but I don't think you can get below that without dedicated hardware.
->
-> for RTLinux check at ftp://ftp.rtlinux.org/pub/rtlinux/
+> Mike Kravetz wrote:
+> > 
+> > I'd really like to know if there are any real workloads that
+> > benefited from this feature, rather than just some benchmark.
+> 
+> Maybe this is the reason why O(1) scheduler has big latencies with
+> pthread_cond_*() functions which original scheduler doesn't have?
+> I think I tracked the problem down to try_to_wake_up(), but I was unable to
+> fix it.
 
-I recommend RTAI instead.  It's more feature-rich, and works with newer
-kernels.. the url is http://www.aero.polimi.it/~rtai/, or
-http://www.rtai.org.
+Ah this could be the same case.  I just looked into the definition of
+the conditional variable pthread stuff and it looks like it _could_ be
+implemented using pipes but I do not see why it would per se.  If it
+does not use pipes, then this sync issue is not at hand (only the pipe
+code passed 1 for the sync flag).
 
--Calin
+If it does not use pipes, we could have another problem - but I doubt
+it.  Maybe the benchmark is just another case where it shows worse
+performance due to some attribute of the scheduler or load balancer?
 
->
-> hofrat
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+	Robert Love
 

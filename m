@@ -1,114 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265365AbTLHPHR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 10:07:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265389AbTLHPHR
+	id S265344AbTLHPDg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 10:03:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265365AbTLHPDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 10:07:17 -0500
-Received: from web25201.mail.ukl.yahoo.com ([217.12.10.61]:6063 "HELO
-	web25201.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S265365AbTLHPHO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 10:07:14 -0500
-Message-ID: <20031208150713.39743.qmail@web25201.mail.ukl.yahoo.com>
-Date: Mon, 8 Dec 2003 16:07:13 +0100 (CET)
-From: =?iso-8859-1?q?moi=20toi?= <mikemaster_f@yahoo.fr>
-Subject: Physical address
+	Mon, 8 Dec 2003 10:03:36 -0500
+Received: from mta02.alltel.net ([166.102.165.144]:19933 "EHLO
+	mta02-srv.alltel.net") by vger.kernel.org with ESMTP
+	id S265344AbTLHPDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 10:03:34 -0500
+Subject: Re: 2.6 Test 11 Freeze on USB Disconnect
+From: "Jonathan A. Zdziarski" <jonathan@nuclearelephant.com>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20031208074509.GB24585@kroah.com>
+References: <1070825737.2978.7.camel@tantor.nuclearelephant.com>
+	 <20031208004742.GB23644@kroah.com>
+	 <1070851506.2942.0.camel@tantor.nuclearelephant.com>
+	 <20031208074509.GB24585@kroah.com>
+Content-Type: text/plain
+Message-Id: <1070895991.2928.6.camel@tantor.nuclearelephant.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 08 Dec 2003 10:06:31 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+> When the kernel dies, it usually emits a oops.  If you are running X at
+> the time, you can't see it.
+> 
+> Can you try removing the device when at a console screen?
 
-I am a newbie in the development of Linux driver. I
-have some
-difficulties to understand how the memory management
-works.
+Ah...Linux Bluescreen.  Cool.
 
-I am working on a Pentium IV ( 512M of RAM), with the
-Red Hat 9.0.
-I want to create buffers in the RAM which are
-available for DMA
-transfer, and I want that process can map them.
+I wrote down as much as I could before running out of paper.  Info is
+below.  This info isn't available via dmesg or anything is it?
 
-I reserve at boot time some space in the RAM
-(mem=400M).
-And then I remap a buffer into the driver with the
-following command: 
+Oops: 0002[#1]
+CPU 0
+EIP 0060:[<228635f7>] Tained: GF
+EFLAGS: 00010002
+EIP is at uhci_remove_pending_qhs + 0x7d/0xcc [uhci_hcd]
+eax: 2158b938
+ebx: 21586938
+ecx: 6b6b6b9f
+edx: 18fa4000
+esi: 6b6b6b6b
+ed: 00000083
+ebp: 0c36753c
+esp: 18fa5f2c
 
->unsigned long Ram_Buffer_addr;
->#define       POSITION 0x19000000 
-//400*1024*1024=400M
->#define SIZE  8*1024
->
->Ram_Buffer_addr = (unsigned long) ioremap (POSITION,
-SIZE);
+Process klogd:
 
-The addresses of the buffer are the following: 
-Ram_Buffer_addr               = 0xD9DCB000
-Virt_to_phys(Ram_Buffer_addr) = 0x19DCB000
-Virt_to_bus(Ram_Buffer_addr)  = 0x19DCB000
+[Some numbers I didn't have room for]
 
-The virtual address is of course different from the
-physical address,
-and the physical address and the bus address are the
-same, because I m
-working on a PC. But I don t understand why the
-physical address is
-different from the one I gave to the function ioremap.
+Code: 89 46 34 89 48 04 89 0b 89 59 04 57 9d 8b 42 08 ff 4a 14 83
 
-I did a second test: I change the position of the
-buffer instead of
-taking it at the address 0x19000000, the buffer start
-at the address:
-0x1f400000 (500M).
+Kernel Panic: Fatal Exception in Interrupt
 
->unsigned long Ram_Buffer_addr;
->#define       POSITION 0x1F400000 
-//500*1024*1024=500M
->#define SIZE  8*1024
->
->Ram_Buffer_addr = (unsigned long) ioremap (POSITION,
-SIZE);
+in Interrupt Handler: not_syncing
 
-The addresses of the buffer are the following: 
-Ram_Buffer_addr               = 0xD9DCB000
-Virt_to_phys(Ram_Buffer_addr) = 0x19DCB000
-Virt_to_bus(Ram_Buffer_addr)  = 0x19DCB000
 
-The addresses are exactly the same. I m ok for the
-virtual addresses,
-but it sounds pretty weird for the physical and bus
-addresses, they
-shouldn t be the same than in the first test.
-
-----------------------------------------------------------------------
-When I map the buffer from a process, I use the
-virtual address of the
-buffer with the function mmap, but in the mmap
-call-back function in
-the driver, I use the true physical address with the
-function:
-remap_page_range( vma,  vma->vm_start,
-POSITION,(vma->vm_end -
-vma->vm_start), (pgprot_t) vma->vm_page_prot);
-And it seems work! 
-But if instead of POSITION, I set
-Virt_to_phys(Ram_Buffer_addr), it
-doesn t work anymore.
-
-Does that mean that the functions virt_to_phys and
-virt_to_bus don t
-work on virtual addresses? Does anyone know, how to
-get the real
-physical address of the buffer.
-
-Thanks
-
-Francois.
-
-____________________________________________________________________________________
-Do You Yahoo!? -- Avec Yahoo! soyez au coeur de la récolte de dons pour le Téléthon.
-http://fr.promotions.yahoo.com/caritatif/

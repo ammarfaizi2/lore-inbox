@@ -1,37 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263034AbUC2Qxk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 11:53:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263063AbUC2Qxk
+	id S263013AbUC2RDN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 12:03:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbUC2RDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 11:53:40 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:33484 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S263034AbUC2QVX
+	Mon, 29 Mar 2004 12:03:13 -0500
+Received: from sea2-dav28.sea2.hotmail.com ([207.68.164.85]:19475 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263028AbUC2QbA convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 11:21:23 -0500
-Date: Mon, 29 Mar 2004 18:20:13 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Daniel Egger <degger@tarantel.rz.fh-muenchen.de>
-Cc: Bernd Fuhrmann <silverbanana@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: usage of RealTek 8169 crashes my Linux system
-Message-ID: <20040329182013.A4452@electric-eye.fr.zoreil.com>
-References: <40673495.3050500@gmx.de> <20040329112402.A26390@tarantel.rz.fh-muenchen.de> <20040329181321.A1078@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040329181321.A1078@electric-eye.fr.zoreil.com>; from romieu@fr.zoreil.com on Mon, Mar 29, 2004 at 06:13:21PM +0200
-X-Organisation: Land of Sunshine Inc.
+	Mon, 29 Mar 2004 11:31:00 -0500
+X-Originating-IP: [80.204.235.254]
+X-Originating-Email: [pupilla@hotmail.com]
+From: "Marco Berizzi" <pupilla@hotmail.com>
+To: "Chris Friesen" <cfriesen@nortelnetworks.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: proxy arp behaviour
+Date: Mon, 29 Mar 2004 18:30:50 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1123
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1123
+Message-ID: <Sea2-DAV28PFR6sKBEr0001522a@hotmail.com>
+X-OriginalArrivalTime: 29 Mar 2004 16:30:57.0464 (UTC) FILETIME=[36B50380:01C415AB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu <romieu@fr.zoreil.com> :
-[...]
-> Can you try (against 2.6.5-rc2):
-> http://www.fr.zoreil.com/people/francois/misc/20040302-2.6.5-rc2-r8169.c-test.patch
+My apologies Chris.
+I haven't full explained my configuration.
+Here is:
 
-Oops. Please use:
-http://www.fr.zoreil.com/people/francois/misc/20040329-2.6.5-rc2-r8169.c-test.patch
+ifconfig eth0 172.17.1.1 netmask 255.255.255.0
+ifconfig eth1 10.77.77.1 netmask 255.255.255.252
 
---
-Ueimor
+
+ip route del 172.17.1.0/24 dev eth0
+ip route del 10.77.77.0/30 dev eth1
+
+ip route add 172.17.1.254 dev eth0
+ip route add 172.17.1.0/24 dev eth1
+
+ip rule add iif eth1 table dmz-ipsec priority 504
+
+ip route add default via 172.17.1.254 dev eth0 table main metric 1
+ip route add default via 172.17.1.254 dev eth0 table dmz-ipsec metric 1
+ip route flush cache
+
+echo 1 > /proc/sys/net/ipv4/conf/eth0/proxy_arp
+echo 1 > /proc/sys/net/ipv4/conf/eth1/proxy_arp
+
+
+Now, hosts connected to eth1 are all 172.17.1.0/24.
+
+The linux box is now replying to arp requests for
+172.17.1.0/24 hosts, sent by 172.17.1.0/24 hosts,
+on the eth1 network segment.
+
+
+Chris Friesen wrote:
+
+> Marco Berizzi wrote:
+> 
+> > eth1 configuration is here:
+> > 
+> > ifconfig eth1 10.77.77.1 broadcast 10.77.77.3 netmask 255.255.255.252
+> > ip route del 10.77.77.0/30 dev eth1
+> > ip route add 172.17.1.0/24 dev eth1
+> > 
+> > echo 1 > /proc/sys/net/ipv4/conf/eth1/proxy_arp
+> > 
+> > Hosts connected to eth1 are all 172.17.1.0/24.
+> > The linux box is now replying to arp requests
+> > that are sent by 172.17.1.0/24 hosts on the eth1
+> > network segment.
+> 
+> Arp requests for what IP addresses?
+
+The linux box is replying to arp requests for 172.17.1.0/24, sent
+by 172.17.1.0/24 systems (windoze 2000 and Linux 2.4.25).

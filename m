@@ -1,73 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265536AbSKABQ2>; Thu, 31 Oct 2002 20:16:28 -0500
+	id <S265556AbSKABSP>; Thu, 31 Oct 2002 20:18:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265541AbSKABQ2>; Thu, 31 Oct 2002 20:16:28 -0500
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:49072 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S265536AbSKABQ1>; Thu, 31 Oct 2002 20:16:27 -0500
-Message-ID: <3DC1D768.6000104@attbi.com>
-Date: Thu, 31 Oct 2002 17:22:48 -0800
-From: Miles Lane <miles.lane@attbi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021022
-X-Accept-Language: en-us, en
+	id <S265557AbSKABSP>; Thu, 31 Oct 2002 20:18:15 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20497 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S265556AbSKABSN>; Thu, 31 Oct 2002 20:18:13 -0500
+Date: Thu, 31 Oct 2002 20:24:04 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Thomas Dodd <ted@cypress.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
+In-Reply-To: <3DC1A804.1030204@cypress.com>
+Message-ID: <Pine.LNX.3.96.1021031202044.22444A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.45 -- usbaudio.c: 1882: structure has no member named `bInterfaceClass'
- in function `snd_usb_create_streams'
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -Wp,-MD,sound/usb/.usbaudio.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=athlon -Iarch/i386/mach-generic -nostdinc -iwithprefix include    
--DKBUILD_BASENAME=usbaudio   -c -o sound/usb/usbaudio.o 
-sound/usb/usbaudio.c
-sound/usb/usbaudio.c: In function `snd_usb_create_streams':
-sound/usb/usbaudio.c:1882: structure has no member named `bInterfaceClass'
-make[2]: *** [sound/usb/usbaudio.o] Error 1
+On Thu, 31 Oct 2002, Thomas Dodd wrote:
 
-#
-# Sound
-#
-CONFIG_SOUND=y
+> 
+> 
+> Bill Davidsen wrote:
+> > On Sat, 19 Oct 2002, Andre Hedrick wrote:
+> > 
+> > 
+> >>So could you ask the question a little more blunt?
+> >>
+> >>"Gee, I am trying to break a US Law on content protection, would you be my
+> >>enabler?  Don't worry, it only effects the US, and we are in a public
+> >>forum.  Also, do you prefer gray or black in your future pin stripped
+> >>suit?"
+> > 
+> > 
+> > Unless the rules have changed VERY recently, making a copy of legally
+> > owned music for personal use, such as in the car, MP3 player, etc, is
+> > called "fair use" and is totally legal.
+> 
+> Actually the rules did change. read the DMCA. It's illegal to
+> break the security, regardless of the reason. So you have fair
+> use rights, but cannot take atvantage of them.
 
-#
-# Advanced Linux Sound Architecture
-#
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_SEQ_DUMMY=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=y
-CONFIG_SND_VERBOSE_PRINTK=y
-CONFIG_SND_DEBUG=y
-CONFIG_SND_DEBUG_MEMORY=y
-CONFIG_SND_DEBUG_DETECT=y
+That would be making a "derivative work" which did not have the security,
+a true and faithful copy (ektype) has not broken the security.
+ 
+> Same as the DVD and Ebook cases. Breaking the protection is
+> illegal. Eventually this will hit the courts, but it will take
+> several tries to win on fair use grounds.
 
-#
-# Generic devices
-#
-CONFIG_SND_DUMMY=y
-CONFIG_SND_VIRMIDI=y
-CONFIG_SND_MTPAV=y
-CONFIG_SND_SERIAL_U16550=y
-CONFIG_SND_MPU401=y
+Let's hope so, it will be an interesting trial(s).
 
-#
-# PCI devices
-#
-CONFIG_SND_EMU10K1=y
-
-#
-# ALSA USB devices
-#
-CONFIG_SND_USB_AUDIO=y
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

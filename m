@@ -1,79 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265139AbUASPqk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 10:46:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265283AbUASPqk
+	id S265259AbUASPlG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 10:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265268AbUASPlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 10:46:40 -0500
-Received: from absinthe.ifi.unizh.ch ([130.60.75.58]:36769 "EHLO
-	diamond.madduck.net") by vger.kernel.org with ESMTP id S265139AbUASPqi
+	Mon, 19 Jan 2004 10:41:06 -0500
+Received: from 82-68-84-57.dsl.in-addr.zen.co.uk ([82.68.84.57]:51877 "EHLO
+	lenin.trudheim.com") by vger.kernel.org with ESMTP id S265259AbUASPlD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 10:46:38 -0500
-Date: Mon, 19 Jan 2004 16:46:33 +0100
-From: Martin F Krafft <krafft@ailab.ch>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: failing to force-claim USB interface
-Message-ID: <20040119154633.GA3797@piper.madduck.net>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Mon, 19 Jan 2004 10:41:03 -0500
+Subject: BK 2.6.1 Kernel
+From: Anders Karlsson <anders@trudheim.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5uEzI89S4L95fk0S5FDV"
+Organization: Trudheim Technology Limited
+Message-Id: <1074526887.5748.8.camel@tor.trudheim.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
-Content-Disposition: inline
-Organization: AILab, IFI, University of Zurich
-X-OS: Debian GNU/Linux testing/unstable kernel 2.6.1-diamond i686
-X-Mailer: Mutt 1.5.4i (2003-03-19)
-X-Subliminal-Message: debian/rules!
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 Rubber Turnip www.usr-local-bin.org 
+Date: Mon, 19 Jan 2004 15:41:27 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---2oS5YaxWCcQjTEyO
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
+--=-5uEzI89S4L95fk0S5FDV
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-I am trying to make use of the usbfs USBDEVFS_DISCONNECT ioctl, and
-I am failing. Here is the code:
+Hi there,
 
-  struct usb_device *dev;
-  [...]
-  sprintf(path, "/proc/bus/usb/%s/%s", dev->bus->dirname, dev->filename);
-  int fd =3D open(path);
-  struct usbdevfs_ioctl command =3D { 0, USBDEVFS_DISCONNECT, 0 };
-  ioctl (fd, USBDEVFS_IOCTL, &command) < 0
+System is a Thinkpad X31, Pentium-M with 512MB RAM.
 
-However, the ioctl always fails. I am not sure whether I am using
-the right values for the file descriptor passed to ioctl(), or what
-the interface number (first parameter of usbdevfs_ioctl) is.
+Today I pulled the latest change-sets from
+http://linux.bkbits.net:8080/linux-2.5 and
+http://linux-acpi.bkbits.net:8080/linux-acpi-test-2.6.1 and built that
+kernel. (.config available on request).
 
-Maybe someone could offer me some advice or tell me to RTFM (but
-please specify TM to FR).
+This kernel does boot, ish... It gets as far as loading the ACPI modules
+towards the end of the boot procedure, then locks the machine up
+completely. Alt+SysRq+{s,u}, does not work, Alt+SysRq+b does reboot the
+box, so not a complete hard hang with loss of interrupts etc.
 
-Thanks,
+There is no debug output as the machine hangs so suddenly. Side effect
+of this hang is that the /var filesystem, reiserfs, gets halfly hosed.
+Ordinary fsck fails and I get dropped to a shell to fix it manually. I
+am using LVM2 and device-mapper for the filesystems, and my compiled
+2.6.0 kernel still works, so I will use that for the time being.
+
+If there is any patches for ACPI, I will happily try them.
+
+Cheers,
 
 --=20
-Martin F. Krafft                Artificial Intelligence Laboratory
-Ph.D. Student                   Department of Information Technology
-Email: krafft@ailab.ch          University of Zurich
-Tel: +41.(0)1.63-54323          Andreasstrasse 15, Office 2.20
-http://ailab.ch/people/krafft   CH-8050 Zurich, Switzerland
-=20
-Invalid/expired PGP subkeys? Use subkeys.pgp.net as keyserver!
-=20
-click the start menu and select 'shut down.'
+Anders Karlsson <anders@trudheim.com>
+Trudheim Technology Limited
 
---2oS5YaxWCcQjTEyO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+--=-5uEzI89S4L95fk0S5FDV
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQFAC/vZIgvIgzMMSnURAo2sAKDWVU2Rot/cRFqB0kt43xXtkA+0xACfXlS+
-VyAyfkq2mF0JBZ0mdWsTgJE=
-=erGc
+iD8DBQBAC/qmLYywqksgYBoRAoPTAJ0Yozc+ZdHuKwPZP4ntA4M8iMlIjACg2N/z
+7k/xXFbeAvoQyXb5cpXS7vk=
+=C+kF
 -----END PGP SIGNATURE-----
 
---2oS5YaxWCcQjTEyO--
+--=-5uEzI89S4L95fk0S5FDV--

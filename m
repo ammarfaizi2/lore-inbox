@@ -1,38 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293161AbSCSABl>; Mon, 18 Mar 2002 19:01:41 -0500
+	id <S293132AbSCSABV>; Mon, 18 Mar 2002 19:01:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293314AbSCSABW>; Mon, 18 Mar 2002 19:01:22 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31493 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293161AbSCSABL>; Mon, 18 Mar 2002 19:01:11 -0500
-Subject: Re: VFS mediator?
-To: trond.myklebust@fys.uio.no (Trond Myklebust)
-Date: Tue, 19 Mar 2002 00:15:49 +0000 (GMT)
-Cc: pavel@suse.cz (Pavel Machek), viro@math.psu.edu (Alexander Viro),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        Simon.Richter@phobos.fachschaften.tu-muenchen.de (Simon Richter),
-        jbarker@ebi.ac.uk (Jonathan Barker), linux-kernel@vger.kernel.org
-In-Reply-To: <shs1yeha5b4.fsf@charged.uio.no> from "Trond Myklebust" at Mar 18, 2002 11:18:07 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S293314AbSCSABM>; Mon, 18 Mar 2002 19:01:12 -0500
+Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:43466 "HELO
+	mailphish.drugphish.ch") by vger.kernel.org with SMTP
+	id <S293132AbSCSABG> convert rfc822-to-8bit; Mon, 18 Mar 2002 19:01:06 -0500
+Message-ID: <3C967FB2.1080706@drugphish.ch>
+Date: Tue, 19 Mar 2002 01:00:50 +0100
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020306
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16n7I5-0006SA-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: =?ISO-8859-1?Q?Witek_Kr=EAcicki?= <adasi@kernel.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.7] compilation problem
+In-Reply-To: <006301c1ceca$87937c70$0201a8c0@WITEK>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->      > Does not work... If you mount nfs server on localhost, you can
->      > deadlock.
-> 
-> Huh? Examples please? A hell of a lot of work has gone into ensuring
-> that this cannot happen. I do most of my NFS client work on this sort
-> of setup, so it had bloody well better work...
+Hi,
 
-At least theoretically it can. Imagine you have every other process stuck
-trying to page out (or blocked on a page out) over NFS, including your
-user mode nfs process. In practice it would be very hard to arrange but
-the theory is real.
+Witek Krêcicki wrote:
+> make[3]: Entering `/home/users/adasi/rpm/BUILD/linux-2.5.7/net/core'
+> egcs -D__KERNEL__ -I/home/users/adasi/rpm/BUILD/linux-2.5.7/include -Wall -W
+> strict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasi
+> ng -fno-common -pipe  -march=i686   -DKBUILD_BASENAME=dev  -c -o dev.o dev.c
+> dev.c: In function `netif_receive_skb':
+> dev.c:1465: void value not ignored as it ought to be
+> Part of .config:
+> <cite>
+> #
+> # Networking options
+> #
+> CONFIG_PACKET=m
 
-Alan
+[removed unimportant part]
+
+> CONFIG_IP_PIMSM_V2=y
+> # CONFIG_ARPD is not set
+> # CONFIG_INET_ECN is not set
+> CONFIG_SYN_COOKIES=y
+
+You forgot to post the important rest: CONFIG_NET_DIVERT=y
+
+> How to fix it?
+
+--- linux-2.5.7/net/core/dev.c	Mon Mar 18 23:17:40 2002
++++ /usr/src/linux-2.5.7/net/core/dev.c	Tue Mar 19 00:53:10 2002
+@@ -1462,7 +1462,7 @@
+
+  #ifdef CONFIG_NET_DIVERT
+  	if (skb->dev->divert && skb->dev->divert->divert)
+- 
+	ret = handle_diverter(skb);
++ 
+	handle_diverter(skb);
+  #endif /* CONFIG_NET_DIVERT */
+  	 
+	
+  #if defined(CONFIG_BRIDGE) || defined(CONFIG_BRIDGE_MODULE)
+
+
+I don't know why this has been changed since it doesn't differ much from 
+the 2.4.x code in its invariant (CONFIG_NET_DIVERT) handling. Maybe 
+DaveM had a bad day ;)
+
+Cheers,
+Roberto Nibali, ratz
+

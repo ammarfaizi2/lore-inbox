@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267633AbSLSKnu>; Thu, 19 Dec 2002 05:43:50 -0500
+	id <S267635AbSLSKpn>; Thu, 19 Dec 2002 05:45:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267634AbSLSKnt>; Thu, 19 Dec 2002 05:43:49 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:41746
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267633AbSLSKns>; Thu, 19 Dec 2002 05:43:48 -0500
-Date: Thu, 19 Dec 2002 02:33:40 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "D.A.M. Revok" <marvin@synapse.net>,
-       Manish Lachwani <manish@Zambeel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus A7V133 
- Promise ctrlr, or...
-In-Reply-To: <200212191024.gBJAOqs28377@Port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.10.10212190229580.8350-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S267643AbSLSKpf>; Thu, 19 Dec 2002 05:45:35 -0500
+Received: from holomorphy.com ([66.224.33.161]:50624 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267635AbSLSKn5>;
+	Thu, 19 Dec 2002 05:43:57 -0500
+Date: Thu, 19 Dec 2002 02:51:25 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: 2.5.52-mm2
+Message-ID: <20021219105125.GL1922@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+	linux-mm@kvack.org
+References: <3E015ECE.9E3BD19@digeo.com> <20021219085426.GJ1922@holomorphy.com> <20021219092853.GK1922@holomorphy.com> <20021219101219.GS31800@holomorphy.com> <3E01A004.58F2B880@digeo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E01A004.58F2B880@digeo.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Dec 2002, Denis Vlasenko wrote:
+William Lee Irwin III wrote:
+>> c014f9e9 502737   1.64565     .text.lock.file_table
+>> c01b1890 719105   2.35391     __copy_to_user
+>> c0135768 911894   2.98498     __get_page_state
+>> c013ee50 952823   3.11895     do_anonymous_page
+>> c01436d0 1079864  3.53481     page_add_rmap
+>> c01438cc 1186938  3.8853      page_remove_rmap
+>> c0106f38 17763755 58.1476     poll_idle
 
-> On 19 December 2002 08:19, Andre Hedrick wrote:
-> > Promise knows this point.
-> > Thus they moved the setting to a push/pull in the vendor space in the
-> > dma_base+1 and dma_base+3 respectively.
-> > lspci -vvvxxx fails when the content is located in bar4 io space.
-> 
-> Neither I nor original bug reporter (I think) did understand
-> a bit what you said. Can we plead for IDE -> English translation?
-> ;)
-> If lspci is of no help, what can we use instead?
+On Thu, Dec 19, 2002 at 02:31:32AM -0800, Andrew Morton wrote:
+> Is that improved?
 
-They move the setting which were readable in the asic from PCI space in
-the 20246/47/62/65/67 into a sense mode of the asic sniffing the contents
-of the taskfile registers to internally do the same thing but hide it all.
+Only in the qualitative sense. No statistically significant differences
+in running times are observable.
 
-The new 20268/69/7* report all zeros in the PCI space.
 
-ioperm()
+William Lee Irwin III wrote:
+>> pfn_to_nid() got lots of icache misses. Try using a macro.
 
-But be prepared to roast your data.
+On Thu, Dec 19, 2002 at 02:31:32AM -0800, Andrew Morton wrote:
+> What's the callsite?
 
-I do not have a good answer!
+I was not able to collect this information and would be much obliged
+to hear of how to do so for instruction cache profiling.
 
-Andre Hedrick
-LAD Storage Consulting Group
 
+On Thu, Dec 19, 2002 at 02:31:32AM -0800, Andrew Morton wrote:
+> Actually, just looking at mmzone.h, I have to say "ick".  The
+> non-NUMA case seems unnecessarily overdone.  eg:
+> #define page_to_pfn(page)
+> 	((page - page_zone(page)->zone_mem_map) + page_zone(page)->zone_start_pfn)
+> Ouch.  Why can't we have the good old `page - mem_map' here?
+
+There is no reason why it could not be re-established for the Pee Cee
+case. IMHO It would be excellent to have the proper architecture
+discrimination defines in place so that Pee Cees could utilize the vastly
+simpler calculation. So long as this is devolved to arch code there is no
+danger of page->virtual being required by arch-independent code.
+
+
+Thanks,
+Bill

@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbUCKEkv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 23:40:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbUCKEkv
+	id S262256AbUCKE6f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 23:58:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262637AbUCKE6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 23:40:51 -0500
-Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:60378 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id S261580AbUCKEku
+	Wed, 10 Mar 2004 23:58:35 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:20198 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S262256AbUCKE6d
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 23:40:50 -0500
-Message-ID: <404FEDAC.8090300@stesmi.com>
-Date: Thu, 11 Mar 2004 05:40:12 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7a) Gecko/20040219
-X-Accept-Language: en-us, en
+	Wed, 10 Mar 2004 23:58:33 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: Tom Rini <trini@kernel.crashing.org>, Andi Kleen <ak@muc.de>
+Subject: Re: kgdb for mainline kernel: core-lite [patch 1/3]
+Date: Thu, 11 Mar 2004 10:27:51 +0530
+User-Agent: KMail/1.5
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       george@mvista.com, pavel@ucw.cz
+References: <1xpyM-2Op-21@gated-at.bofh.it> <20040310123605.GA62228@colin2.muc.de> <20040310152750.GE5169@smtp.west.cox.net>
+In-Reply-To: <20040310152750.GE5169@smtp.west.cox.net>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Peter Williams <peterw@aurema.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       root@chaos.analogic.com, linux-kernel@vger.kernel.org,
-       "Godbole, Amarendra (GE Consumer & Industrial)" 
-	<Amarendra.Godbole@ge.com>
-Subject: Re: (0 == foo), rather than (foo == 0)
-References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com> <20040310100215.1b707504.rddunlap@osdl.org> <Pine.LNX.4.53.0403101324120.18709@chaos> <404F9E28.4040706@aurema.com> <Pine.LNX.4.58.0403101832580.1045@ppc970.osdl.org> <404FD81D.3010502@aurema.com> <Pine.LNX.4.58.0403101917060.1045@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0403101917060.1045@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403111027.52534.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus.
+On Wednesday 10 Mar 2004 8:57 pm, Tom Rini wrote:
+> On Wed, Mar 10, 2004 at 01:36:05PM +0100, Andi Kleen wrote:
+> > > Yes. But as things stand, gdb 6.0 doesn't show stack traces correctly
+> > > with esp and eip got from switch_to and gas 2.14 can't handle i386
+> > > dwarf2 CFI. Do we want to enforce getting a CVS version of gdb _and_
+> > > gas to build kgdb? Certainly not.
+> >
+> > binutils 2.15 should be released soon anyways AFAIK. And for x86-64 this
+> > all works just fine (as demonstrated by Jim's/George's stub), so please
+> > get rid of it at least for x86-64. I really don't want user_schedule
+> > there, because it's completely unnecessary.
+>
+> I think more importantly, it's probably going to be one of those ugly
+> things that will make it so much harder to get it into Linus' tree.  So
+> lets just say it'll require gdb 6.1 / binutils 2.15 for KGDB to work
+> best.
 
-> The warning should be there whether there are parenthesis or not, and it 
-> should state that you should have an explicit inequality expression. So if 
-> you have
-> 
-> 	if (a = b) 
-> 		...
-> 
-> and you really _mean_ that, then the way to write it sanely is to just 
-> write it as
-> 
-> 	if ((a = b) != 0)
-> 		...
-> 
-> which makes it much clearer what you're actually doing.
+If we are enforcing this we need to do it correctly: is there any way to check 
+from source code whether binutils version is correct (even a gas check will 
+suffice)
 
-Or actually change it to
+-Amit
 
-a = b;
-if (a)
-   ...
-
-That's even more clear in my opinion. The other still feels a bit iffy
-but maybe that's just me.
-
-// Stefan

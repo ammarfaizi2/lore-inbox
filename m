@@ -1,104 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278243AbRJMCVm>; Fri, 12 Oct 2001 22:21:42 -0400
+	id <S278245AbRJMC3x>; Fri, 12 Oct 2001 22:29:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278245AbRJMCVW>; Fri, 12 Oct 2001 22:21:22 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:779 "EHLO
-	ani.animx.eu.org") by vger.kernel.org with ESMTP id <S278243AbRJMCVO>;
-	Fri, 12 Oct 2001 22:21:14 -0400
-Date: Fri, 12 Oct 2001 22:28:38 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Pozsar Balazs <pozsy@sch.bme.hu>
-Cc: Mike Panetta <mpanetta@applianceware.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>, andre@linux-ide.org
-Subject: Re: IDE Hot-Swap, does it work?, Conspiracy is afoot! (more questions)
-Message-ID: <20011012222838.A13338@animx.eu.org>
-In-Reply-To: <20011012172955.B12857@animx.eu.org> <Pine.GSO.4.30.0110130008070.18155-100000@balu>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=LQksG6bCIzRHxTLp
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <Pine.GSO.4.30.0110130008070.18155-100000@balu>; from Pozsar Balazs on Sat, Oct 13, 2001 at 12:14:01AM +0200
+	id <S278247AbRJMC3n>; Fri, 12 Oct 2001 22:29:43 -0400
+Received: from host.eclipsehosting.com ([209.239.60.242]:39175 "EHLO
+	host.eclipsehosting.com") by vger.kernel.org with ESMTP
+	id <S278245AbRJMC3f>; Fri, 12 Oct 2001 22:29:35 -0400
+Message-Id: <200110121933.NVI5249@mail.kanecal.net>
+Date: Fri, 12 Oct 2001 7:33:47 PM -0800
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Dynamic Opt-In Emailer (Win95/98/NT)
+Subject: Print SPC, Barcode and GD&T symbol fonts from your Computer in Word, Excel, CAD etc.
+From: "Kanecal Customer Service" <info@kanecal.net>
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+We also provide a link to FREE Military and Dept. of Defense specifications. To read or print. No catches!
 
---LQksG6bCIzRHxTLp
-Content-Type: text/plain; charset=us-ascii
+Print GD&T, SPC or Barcodes symbols on your PC! Perfect for publications, letters, forms, test materials, inspection reports etc!
 
-Pozsar Balazs wrote:
-> Wakko, could you tell me in detail how to use hdparm -R and -U, because i
-> couldn't get it work. Does it (or shoudl it) work for harddisks too?
+"True position", "profile of a surface", "grand average of sigma" etc., all hand crafted into TrueType fonts for your PC. Windows or Mac, these fonts are available from all your applications' drop down lists. 
 
-I'm not sure if it supports hdds or not, As far as I can see, it basically
-rescans for the device you're doing.  I attach the contrib script (comes in
-hdparm's source tree but not generally included
+Do you outsource your customer bar code requirements because typical barcode "systems" are way too expensive? What if you could print your own shipping/inventory labels right from "Word", "Word Perfect", or "Excel"?
 
-> What chipset/hardware supports ide-hot-swap, and which of these are
-> supported in linux?
-> Under The Other Operating System 2000 i have seen this working on a few
-> machines for example on an asus cusl2 mobo, so that chipset (i think
-> intel 815e) at least can got to do this job.
+We also make custom fonts for any application. We have combined several existing fonts and added specific symbols to exact specifications. We are also the most affordable font source.
 
-I think it would work on all ide chipsets, but i'm not sure.  I have hot
-plugged IDE into standard systems and hdds not designed for it.  You do run
-a risk of hardware damage which I has never happened for me (but could
-happen to me next time I try or it could happen to you.  Be warned).  For
-this, I've had a system who's / is not an ide disk (I have a machine
-mounting / over nfs) and I load/unload ide modules.
+If this is not a concern, please pass this on to your professional counterparts that could use these timesaving symbol fonts. If this does concern you, please read on;
 
-I'd like to see support for this similar to /proc/scsi/scsi to rescan
+Most managers do not realize that college and university graduates in the quality or engineering fields do not receive formal GD&T training as part of their educational program. This is alarming since these people are hired into design, manufacturing or quality control/assurance positions which all require reading drawings and properly interpreting all requirements. Now these symbols are available in a font with an easy to read wall chart that depicts the symbol, its name/meaning and where to find detailed reference to its use.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+We provide Geometric Dimensioning and Tolerancing (GD&T per ASME Y 14.5 [formerly ANSI] symbols), Statistical Process Control (SPC), Feature Control Frame, General Blueprint/Inspection symbols and Barcode (Logmar) fonts that appear in "Word", "Excel", CAD, Autocad, Pro/E, Solidworks, Autocad LT, Corel Draw® or Word Perfect® drop down lists that have all the versatility of other system fonts. Our symbol fonts are perfect for letters, notices, drawings, resumes, forms periodicals, manuals, brochures or reports. 
 
---LQksG6bCIzRHxTLp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=idectl
+Our bar-code font is compliant with all required ASTM specifications for shipment labels, inventory or general identification for major contractors or government use.
+ 
+Unlike most other providers, our fonts range in price from $10-$35. Please visit our site @ http://www.kanecal.net for more information. We would be proud to be affiliated with your company and we believe that many professionals from the Manufacturing, Quality and Engineering/Design field would appreciate our products and services.
 
-#!/bin/sh
+Our satisfied customer lists includes numerous Inspection Services, Defense Contractors, Qualilty Control Software designers and Metrology Labs as well as Raytheon Industries and soon, Delta Airlines.
 
-HDPARM=/sbin/hdparm
-MAX_IDE_NR=1
+Sincerely,
 
-IDE_IO_0=0x1f0
-IDE_IO_1=0x170
+Kanecal Consumer Relations
 
-USE_IDE_DEV_0=/dev/hdc
-USE_IDE_DEV_1=/dev/hda
-
-usage () {
-	if [ $# -gt 0 ]; then
-		echo $* >&2
-		echo
-	fi
-
-	echo "usage: $0 ide-channel-nr [off|on|rescan]" 2>&1
-	exit 1
-}
-
-IDE_NR=$1
-MODE=$2
-
-do_register=0
-do_unregister=0
+Note; You are not on any "spam" list. If you have no interest, please pass this on to those who may use it. We will not contact you again unless you specifically request it. 
 
 
-if [ ! "$IDE_NR" ] || [ $IDE_NR -lt 0 ] || [ $IDE_NR -gt $MAX_IDE_NR ]; then
-	usage "Unrecognized IDE-channel number"
-fi
-
-case "$MODE" in
-on )		do_register=1 ;;
-off )		do_unregister=1 ;;
-rescan )	do_unregister=1; do_register=1 ;;
-* )			usage "Unrecognized command" ;;
-esac
-
-eval "IDE_IO=\$IDE_IO_$IDE_NR"
-eval "USE_IDE_DEV=\$USE_IDE_DEV_$IDE_NR"
-
-[ $do_unregister -eq 1 ] && eval "$HDPARM -U $IDE_NR $USE_IDE_DEV > /dev/null"
-[ $do_register -eq 1 ] && eval "$HDPARM -R $IDE_IO 0 0 $USE_IDE_DEV > /dev/null"
 
 
---LQksG6bCIzRHxTLp--
+
+
+

@@ -1,28 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318877AbSHTOH1>; Tue, 20 Aug 2002 10:07:27 -0400
+	id <S318842AbSHTOGU>; Tue, 20 Aug 2002 10:06:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318862AbSHTOH1>; Tue, 20 Aug 2002 10:07:27 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:19388 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S318877AbSHTOH1>;
-	Tue, 20 Aug 2002 10:07:27 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200208201410.SAA12318@sex.inr.ac.ru>
-Subject: Re: igmp kernel issues.
-To: tom@rooted.NET (Tom Parker)
-Date: Tue, 20 Aug 2002 18:10:40 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4.2.0.58.20020820135148.02f70ed8@193.133.49.25> from "Tom Parker" at Aug 20, 2 05:45:05 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S318862AbSHTOGU>; Tue, 20 Aug 2002 10:06:20 -0400
+Received: from mail44-s.fg.online.no ([148.122.161.44]:14318 "EHLO
+	mail44.fg.online.no") by vger.kernel.org with ESMTP
+	id <S318842AbSHTOGT>; Tue, 20 Aug 2002 10:06:19 -0400
+From: "jools" <j1@gramstad.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: hpt374 / BUG();
+Date: Tue, 20 Aug 2002 16:10:34 +0200
+Message-ID: <IOELJIHGBNLBJNBMHABBIEPOCCAA.j1@gramstad.org>
 MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi
 
-> Currently the kernel dosnt seem to pass IGMP reports to user space
-> unless there is a route
+I'm using a RocketRAID 404 (hpt374) and a Asus A7v266.
+When trying to boot from a 'htp374-enabled' kernel like 2.4.19-ac4 or
+2.4.20-pre2-ac4, i keep getting kernel panic at hpt366.c:1393.
+Does anyone know why this happens, or what I might do to correct this
+problem? I have tried every patch I can find for the 2.4 kernel.
 
-Do you have rp filter enabled? Disable.
+hpt366.c line 1392:
 
-Alexey
+if (hpt_minimum_revision(dev,8))
+        BUG();
+else if (hpt_minimum_revision(dev,5))
+        dev->driver_data = (void *) fifty_base_hpt372;
+else if (hpt_minimum_revision(dev,4))
+        dev->driver_data = (void *) fifty_base_hpt370a;
+else
+        dev->driver_data = (void *) fifty_base_hpt370a;
+printk("HPT37X: using 50MHz internal PLL\n");
+goto init_hpt37X_done;
+
+
+Jools
+j1@gramstad.org
+

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263085AbTDFVDe (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 17:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263086AbTDFVDe (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 17:03:34 -0400
-Received: from smtp1.clear.net.nz ([203.97.33.27]:2269 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S263085AbTDFVDd (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 17:03:33 -0400
-Date: Mon, 07 Apr 2003 09:12:00 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: PATCH: Fixes for ide-disk.c
-In-reply-to: <1049641400.963.18.camel@dhcp22.swansea.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id S263087AbTDFVSR (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 17:18:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263096AbTDFVSR (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 17:18:17 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:4526 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S263087AbTDFVSQ (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 17:18:16 -0400
+Date: Sun, 6 Apr 2003 23:29:31 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@clear.net.nz>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1049663520.8403.26.camel@laptop-linux.cunninghams>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1049527877.1865.17.camel@laptop-linux.cunninghams>
- <1049561200.25700.7.camel@dhcp22.swansea.linux.org.uk>
- <1049570711.3320.2.camel@laptop-linux.cunninghams>
- <1049641400.963.18.camel@dhcp22.swansea.linux.org.uk>
+Subject: Re: PATCH: swsusp - 2.5.66 incremental
+Message-ID: <20030406212931.GB693@elf.ucw.cz>
+References: <1049537149.1709.6.camel@laptop-linux.cunninghams> <20030406182016.GA17666@atrey.karlin.mff.cuni.cz> <1049663561.3199.29.camel@laptop-linux.cunninghams>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1049663561.3199.29.camel@laptop-linux.cunninghams>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again.
+Hi!
 
-I've just reread your message. Isn't it used as a lock at the moment?
-IIRC, you get a BUG if you try to use the driver while its blocked.
-Perhaps that's where I'm getting confused.
+> > You really should have moved it to the driver model... having #ifdef
+> > in suspend.c for every driver would be very ugly.
+> 
+> Sorry. I thought that was the maintainer's job.
 
-Regards,
-
-Nigel
-
-On Mon, 2003-04-07 at 03:03, Alan Cox wrote:
-> Blocked is a binary power management described state, its not a lock.
-> What are you actually trying to do ?
-
-
+Well, his job is to tell you to do it properly. Don't expect him to do
+the rewriting himself. [Also he probably is not using swsusp so he
+would not test that.]
+								Pavel
+-- 
+When do you have heart between your knees?

@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270684AbRHJXtd>; Fri, 10 Aug 2001 19:49:33 -0400
+	id <S270690AbRHJXzx>; Fri, 10 Aug 2001 19:55:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270688AbRHJXtY>; Fri, 10 Aug 2001 19:49:24 -0400
-Received: from wireless-folk-35-95.campsite.hal2001.org ([217.155.35.95]:13218
-	"EHLO thefinal.cern.ch") by vger.kernel.org with ESMTP
-	id <S270684AbRHJXtQ>; Fri, 10 Aug 2001 19:49:16 -0400
-Date: Sat, 11 Aug 2001 00:50:37 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: Subba Rao <subba9@home.com>, linux-kernel@vger.kernel.org
-Subject: Re: Half Duplex and Zero Copy IP
-Message-ID: <20010811005037.A5591@thefinal.cern.ch>
-In-Reply-To: <20010810095313.A6219@home.com> <k266bveos8.fsf@zero.aec.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <k266bveos8.fsf@zero.aec.at>; from ak@muc.de on Fri, Aug 10, 2001 at 08:46:31PM +0200
+	id <S270691AbRHJXzn>; Fri, 10 Aug 2001 19:55:43 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:18189 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S270690AbRHJXzZ>;
+	Fri, 10 Aug 2001 19:55:25 -0400
+Date: Fri, 10 Aug 2001 20:55:09 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
+        Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/<n>/maps getting _VERY_ long
+In-Reply-To: <Pine.LNX.4.33.0108101618270.1045-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0108102053140.3530-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> The sniffer zero copy implementation as implemented in some libpcaps 
-> does not depend on any special NIC support; it should work with any.
+On Fri, 10 Aug 2001, Linus Torvalds wrote:
 
-Do you mean mmap() on a packet socket?  Unless I am mistaken, the data
-is still copied once to the mmap area, however only the capture length
-is copied -- the rest of the packet is discarded.
+> Which brings us back to the original question, and answers it: we already
+> do all of this, and we do it RIGHT. We optimize for the right things.
 
-This means that you cannot use mmap() on a packet socket to zero-copy
-read whole packets.  In fact there is no way to zero-copy read whole
-packets into user space, without modifying the kernel.
+... and die under load.
 
-Am I mistaken (it would be nice)?
+There still are a whole number of things outstanding:
 
-Thanks,
--- Jamie
+1) true low-memory deadlock prevention (memory reservations?)
+2) load control, so we won't die from thrashing
+3) better IO clustering, to push the thrashing point out further
+
+regards,
+
+Rik
+--
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

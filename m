@@ -1,76 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289049AbSAIWTb>; Wed, 9 Jan 2002 17:19:31 -0500
+	id <S289054AbSAIWUv>; Wed, 9 Jan 2002 17:20:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289055AbSAIWTR>; Wed, 9 Jan 2002 17:19:17 -0500
-Received: from mail.zeelandnet.nl ([212.115.192.194]:48079 "HELO
-	mail.zeelandnet.nl") by vger.kernel.org with SMTP
-	id <S289054AbSAIWRp>; Wed, 9 Jan 2002 17:17:45 -0500
-Message-ID: <005401c19953$3139c750$7800a8c0@darkskywinblow>
-From: "Dennis Fleurbaaij" <dennis@core-lan.nl>
-To: <linux-kernel@vger.kernel.org>
-Subject: arch/i386/kernel/pci-irq.c
-Date: Wed, 9 Jan 2002 22:18:32 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S289055AbSAIWUi>; Wed, 9 Jan 2002 17:20:38 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:58128 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S289054AbSAIWTm>;
+	Wed, 9 Jan 2002 17:19:42 -0500
+Date: Wed, 9 Jan 2002 14:17:21 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] dietHotplug 0.4 release
+Message-ID: <20020109221721.GA22938@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I've just released a new version of the dietHotplug package.  It can be
+found at:
+	http://prdownloads.sourceforge.net/linux-hotplug/diethotplug-0.4.tar.gz
+or:
+ 	kernel.org/pub/linux/utils/kernel/hotplug/diethotplug-0.4.tar.gz
+ 	kernel.org/pub/linux/utils/kernel/hotplug/diethotplug-0.4.tar.bz2
 
-I'm sorry for my last posting, it seems that there are many ways to
-incidently hit the send mail button.
+No functional changes since the last release, but the resulting binary
+is about 1.2K smaller now thanks to Erik Anderson.
 
-I have stumbled upon an error in linux 2.4 that prevents my laptop from
-using it's PCMCIA and PS2 mouse together. This is with every known 2.4
-kernel and is a result of the BIOS not acknowleging the cardbus controller.
-This problem was posted a couple of times to the lkm but has never been
-fixed.
+The project is now being hosted at:
+	http://linuxusb.bitkeeper.com:8088/dietHotplug
+instead of the previous cvs tree at sf.net in the linux-hotplug
+directory.
 
-A simple solution is offered by suse in the form of a lilo trick. As can be
-read in:
-http://sdb.suse.de/en/sdb/html/pcmcia_install_kernel2.4.x.html. There is
-also another problem description there.
+Changes since the last release:
+	- patch for the Makefile and dietlibc stuff from Erik Andersen
+	  (now can cross compile much easier, can build with uClibc,
+	  and some size savings.)
+	- renamed the dietlibc subdirectory to klibc
+	- synced with my previous klibc changes
+	- cleaned up remaining compiler warnings.
+	- further Makefile tweaks.
+	- more klibc tweaks, now binary is even smaller.
+thanks,
 
-In anycase I've been working to get rid of the bug without having to apply
-tricks. The solution as it seems is very simple.
-
-The problem is a follows:
-
-If the kernel detects the controllers (there are 2 of them) it find that
-thay both have an IRQ of 255 set by the bios. This is ofcourse rediculous.
-It also finds ou that they have a irq map of f000 which is to use only irq
-12, 13 and 14. The secont time that the IRQ handler is called is when the
-yenta driver (i guess) orders the card to be found. This triggers a loop
-that will search for a free IRQ. This loop is located inside
-arch/i386/kernel/pci-irq.c line 574.
-
-Now with that mapping, we are nearly guaranteed to cllide with either PS/2
-or ide. And that is exactly what happens. This is avoided by allowing the
-device to also look at the 'free' irq's 5, 8-11. this is done by adding the
-bitmask of those irq's.
-
-Just below the if statement on line 573 and above the loop place the code
-
-mask |= 0x1e60;
-
-that will allow linux to circumvent my braindead BIOS. In my computer it
-also has the advantage of spreading the 2 controllers to 2 free IRQ's which
-(in theory) should allow for more efficient communications. If the space
-gets really cramped they both are put on the same irq, which is hwo it was
-originally meant.
-
-I hope that you will make this mainstream or give me pointers where to look
-next in order to get rid of this bug.
-
--
-I hope that I didn't waste any of your time.
-Dennis Fleurbaaij
-dennis@core-lan.nl
-
+greg k-h

@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268065AbUHZKJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268070AbUHZKOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268065AbUHZKJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 06:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268032AbUHZKIG
+	id S268070AbUHZKOL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 06:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267979AbUHZKA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 06:08:06 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:59790 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S268065AbUHZKGB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 06:06:01 -0400
-Date: Thu, 26 Aug 2004 03:05:30 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, Linus Torvalds <torvalds@osdl.org>,
-       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
+	Thu, 26 Aug 2004 06:00:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59595 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268065AbUHZJwS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 05:52:18 -0400
+Date: Thu, 26 Aug 2004 02:49:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Spam <spam@tnonline.net>
+Cc: wichert@wiggy.net, jra@samba.org, torvalds@osdl.org, reiser@namesys.com,
+       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
 Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826100530.GA20805@taniwha.stupidest.org>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org>
+Message-Id: <20040826024956.08b66b46.akpm@osdl.org>
+In-Reply-To: <1939276887.20040826114028@tnonline.net>
+References: <20040824202521.GA26705@lst.de>
+	<412CEE38.1080707@namesys.com>
+	<20040825152805.45a1ce64.akpm@osdl.org>
+	<112698263.20040826005146@tnonline.net>
+	<Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>
+	<1453698131.20040826011935@tnonline.net>
+	<20040825163225.4441cfdd.akpm@osdl.org>
+	<20040825233739.GP10907@legion.cup.hp.com>
+	<20040825234629.GF2612@wiggy.net>
+	<1939276887.20040826114028@tnonline.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040826010049.GA24731@mail.shareable.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 02:00:49AM +0100, Jamie Lokier wrote:
+Spam <spam@tnonline.net> wrote:
+>
+>    Yes,  for  example  documents,  image  files  etc. The multiple data
+>    streams  can  contain thumbnails, info about who is editing the file
+>    (useful for networked files) etc. Could be used for version handling
+>    and much more.
 
-> One of the big potential uses for file-as-directory is to go inside
-> archive files, ELF files, .iso files and so on in a convenient way.
+All of which can be handled in userspace library code.
 
-Arguably this belongs in userspace --- and people have put it there.
-
-
-  --cw
+What compelling reason is there for doing this in the kernel?

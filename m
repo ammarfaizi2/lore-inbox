@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129199AbRCHPxX>; Thu, 8 Mar 2001 10:53:23 -0500
+	id <S129156AbRCHPxe>; Thu, 8 Mar 2001 10:53:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129191AbRCHPxN>; Thu, 8 Mar 2001 10:53:13 -0500
-Received: from viper.haque.net ([64.0.249.226]:62339 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S129156AbRCHPw4>;
-	Thu, 8 Mar 2001 10:52:56 -0500
-Date: Thu, 8 Mar 2001 10:52:23 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: Venkatesh Ramamurthy <Venkateshr@ami.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Microsoft begining to open source Windows 2000?
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E952C3@ATL_MS1>
-Message-ID: <Pine.LNX.4.32.0103081049190.9614-100000@viper.haque.net>
+	id <S129191AbRCHPxX>; Thu, 8 Mar 2001 10:53:23 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:28061 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S129156AbRCHPxO>; Thu, 8 Mar 2001 10:53:14 -0500
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+Date: Thu, 8 Mar 2001 08:52:20 -0700
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk
+Subject: [PATCH] remove CONFIG_NCR885E from Configure.help
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01030808522000.01048@spc.esa.lanl.gov>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Mar 2001, Venkatesh Ramamurthy wrote:
+It appears that use of CONFIG_NCR885E was removed in 2.4.2-ac2,
+in Config.in and the Makefile in drivers/net.
 
-> Please check out this article. Looks like microsoft know open source is the
-> thing of the future. I would consider that it is a begining step for full
-> blown GPL!!!!
->
-> http://www.zdnet.com/enterprise/stories/main/0,10228,2692987,00.html
-> -
+If it really is the case that CONFIG_NCR885E is history, then it
+should be history in Configure.help as well.
 
-Feh. First, you need be a customer w/ 1500 licences. And then you're not
-allowed to made modifications to the source.
+This patch, against 2.4.2-ac14, removes CONFIG_NCR885E from Configure.help.
 
-This isn't really much different then what they were doing before.
-(Paying look at the source code so you could write 'optimized' apps)
+Steven
 
-
--- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
-
+--- linux/Documentation/Configure.help.orig     Thu Mar  8 08:26:11 2001
++++ linux/Documentation/Configure.help  Thu Mar  8 08:43:36 2001
+@@ -16511,16 +16511,6 @@
+   whenever you want). If you want to compile it as a module, say M
+   here and read Documentation/modules.txt.
+ 
+-Symbios 53c885 (Synergy ethernet) support
+-CONFIG_NCR885E
+-  This is and Ethernet driver for the dual-function NCR 53C885
+-  SCSI/Ethernet controller.
+-
+-  This driver is also available as a module called ncr885e.o ( = code
+-  which can be inserted in and removed from the running kernel
+-  whenever you want). If you want to compile it as a module, say M
+-  here and read Documentation/modules.txt.
+-
+ National DP83902AV (Oak ethernet) support
+ CONFIG_OAKNET
+   Say Y if your machine has this type of Ethernet network card.

@@ -1,34 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285424AbSA2Wkf>; Tue, 29 Jan 2002 17:40:35 -0500
+	id <S285498AbSA2WnY>; Tue, 29 Jan 2002 17:43:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285273AbSA2WkP>; Tue, 29 Jan 2002 17:40:15 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:25102 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S285352AbSA2WkG>; Tue, 29 Jan 2002 17:40:06 -0500
-Date: Tue, 29 Jan 2002 14:39:26 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Mike Paul <mbp2@Lehigh.EDU>
-cc: rubini@vision.unipv.it, linux-kernel@vger.kernel.org
-Subject: Re: Small kernel patch for Logitech iTouch
-In-Reply-To: <20020129222823.GA8154@schala>
-Message-ID: <Pine.LNX.4.10.10201291438450.29648-100000@www.transvirtual.com>
+	id <S285273AbSA2WnQ>; Tue, 29 Jan 2002 17:43:16 -0500
+Received: from 209-166-219-2.cust.walrus.com ([209.166.219.2]:6920 "EHLO
+	xchange.rsvpusa.com") by vger.kernel.org with ESMTP
+	id <S286179AbSA2WnC>; Tue, 29 Jan 2002 17:43:02 -0500
+Message-ID: <21B5EAC6675ED411B62500105A9C006018D426@XCHANGE>
+From: Nickolaos Fotopoulos <nick@rsvpusa.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: A modest proposal -- We need a patch penguin
+Date: Tue, 29 Jan 2002 17:42:35 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I work at a incoming call center and when the phone get to be too much for
+us to handle all of overflow automatically goes to them.  This help keep our
+client happy and us in business when a client unexpectidly run an TV ad.
+Maybe something could be setup to handle the overflow that Linus recieves on
+a regular basis.  BTW this is my first post to the list and firstday on the
+list so please excuse any ignorance, as i might have just restated what
+other have already said.
 
-> The current discussion about dealing with patch integration in Linux has
-> reminded me of this little patch I wrote a few months back for my Logitech
-> iTouch cordless keyboard.  It's mainly to put an end to the "unknown scancode"
-> messages that would appear on the console every few minutes and corrupt my
-> display, but while I was at it I added keycodes for the special-function
-> buttons on the keyboard too.
-> 
-> Here's the patch, and it's a pretty straightforward one.  It should apply
-> cleanly to 2.4.17.
-
-Can you give the DJ tree a try. We have replaced pc_keyb.c with the new
-input api drivers for PS/2 devices.
-
+Nick Fotopoulos

@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270477AbTGSSyl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 14:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270481AbTGSSyl
+	id S266106AbTGST3i (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 15:29:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268557AbTGST3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 14:54:41 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:19718 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S270477AbTGSSyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 14:54:40 -0400
-Date: Sat, 19 Jul 2003 14:58:11 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: =?iso-8859-1?q?Ga=EBl_Le_Mignot?= <kilobug@freesurf.fr>
-Cc: Larry McVoy <lm@work.bitmover.com>,
-       Christian Reichert <c.reichert@resolution.de>,
-       John Bradford <john@grabjohn.com>, lkml@lrsehosting.com,
-       linux-kernel@vger.kernel.org, lm@bitmover.com, rms@gnu.org,
-       Valdis.Kletnieks@vt.edu
-Subject: Re: [OT] HURD vs Linux/HURD
-In-Reply-To: <plopm3he5i8l4h.fsf@drizzt.kilobug.org>
-Message-ID: <Pine.LNX.4.53.0307191447360.24746@montezuma.mastecende.com>
-References: <200307191503.h6JF3tac002376@81-2-122-30.bradfords.org.uk>
- <1058626962.30424.6.camel@stargate> <plopm3lluu8mv0.fsf@drizzt.kilobug.org>
- <20030719172311.GA23246@work.bitmover.com> <plopm3he5i8l4h.fsf@drizzt.kilobug.org>
+	Sat, 19 Jul 2003 15:29:35 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:12184 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S266106AbTGST3f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 15:29:35 -0400
+From: Miles Lane <miles.lane@comcast.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test1-ac2 -- arch/ppc/platforms/pmac_cpufreq.c:179: `CPUFREQ_ALL_CPUS' undeclared  (first use in this function)
+Date: Sat, 19 Jul 2003 12:44:31 -0700
+User-Agent: KMail/1.5.9
+Cc: paulus@au.ibm.com, benh@kernel.crashing.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200307191244.31830.miles.lane@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jul 2003, Gaël Le Mignot wrote:
+  CC      arch/ppc/platforms/pmac_cpufreq.o
+arch/ppc/platforms/pmac_cpufreq.c: In function `do_set_cpu_speed':
+arch/ppc/platforms/pmac_cpufreq.c:179: `CPUFREQ_ALL_CPUS' undeclared (first 
+use in this function)
 
-> Maybe  for  you,  an  OS  is  drivers.  For  me,  it's  a  design,  an
-> architecture, a  philosophy, and a way  to defend a value  that is not
-> important for you: Freedom.
-
-Intriguing, quasi-religious/political OS blabbering of sorts..
-
-> Stop trolling, thank you.
-
-Pot .. kettle .. black. Please take this to the Hurd mailing lists, 
-perhaps it could spruce up the activity a bit.
-
--- 
-function.linuxpower.ca
+CONFIG_CPU_FREQ=y
+CONFIG_CPU_FREQ_PROC_INTF=y
+CONFIG_CPU_FREQ_24_API=y
+CONFIG_CPU_FREQ_PMAC=y

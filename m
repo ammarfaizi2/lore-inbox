@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131496AbRCWXA0>; Fri, 23 Mar 2001 18:00:26 -0500
+	id <S131507AbRCWXJG>; Fri, 23 Mar 2001 18:09:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131501AbRCWXAQ>; Fri, 23 Mar 2001 18:00:16 -0500
-Received: from jalon.able.es ([212.97.163.2]:24008 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S131496AbRCWW75>;
-	Fri, 23 Mar 2001 17:59:57 -0500
-Date: Fri, 23 Mar 2001 23:59:09 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Bill Wendling <wendling@ganymede.isdn.uiuc.edu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "J . A . Magallon" <jamagallon@able.es>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] gcc-3.0 warnings
-Message-ID: <20010323235909.C3098@werewolf.able.es>
-In-Reply-To: <20010323162956.A27066@ganymede.isdn.uiuc.edu> <Pine.LNX.4.31.0103231433380.766-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.31.0103231433380.766-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Mar 23, 2001 at 23:34:15 +0100
-X-Mailer: Balsa 1.1.2
+	id <S131506AbRCWXIq>; Fri, 23 Mar 2001 18:08:46 -0500
+Received: from inet-smtp4.oracle.com ([209.246.15.58]:40697 "EHLO
+	inet-smtp4.oracle.com") by vger.kernel.org with ESMTP
+	id <S131503AbRCWXIn>; Fri, 23 Mar 2001 18:08:43 -0500
+Message-ID: <3ABBD639.12BE1035@oracle.com>
+Date: Sat, 24 Mar 2001 00:03:21 +0100
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Support Services
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tom Sightler <ttsig@tuxyturvy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Can't get serial.c to work with Xircom Cardbus Ethernet+Modem
+In-Reply-To: <012301c0b357$3d29cc50$1601a8c0@zeusinc.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 03.23 Linus Torvalds wrote:
+Tom Sightler wrote:
 > 
-> I agree. I'd much prefer that syntax also.
+> Hi all,
 > 
-> Or just remove the "default:" altogether, when it doesn't make any
-> difference.
-> 
+> I saw a discussion on this list about this problem earlier, but could not
+> find that it had actually been resolved.
 
-Well, at last some sense. The same is with that ugly out: at the end
-of the function. Just change all that 'goto out' for a return.
-It does not matter, -O2 is going to do what it wants.
+That was me :) and no, it doesn't work. Jeff Garzik asked me to enable
+ a couple debug #defines in serial.c, apply patches to serial.c and
+ finally disable i82365 support but as of now it doesn't work.
 
-And the missing return 0 at the end of functions that call a 'noreturn'
-function. gcc 2.96 still wants them. But it looks like a religious matter
-to put ot not to put that stupid return just to shut up the compiler.
-As I understand, the noreturn says that the function that is marked as
-noreturn is allowed to have missing correct return paths, and the compiler
-can build, for example <panic>, without worring about the global state
-once it has entered <panic>. But <info gcc> says nothing about functions
-that call a 'noreturn' function. So I see as INCORRECT to omit a return path
-in a function that calls <panic>.
+It looks like we have the same card with modem @ 0x1880.
 
-And if people is so worried about fast paths, begin to use 'const' or
-'pure' functions. I think that can help the compiler to generate fast code
-more than trying to do hancrafted fast paths that the compiler will reorganize.
+[snip]
 
--- 
-J.A. Magallon                                          #  Let the source
-mailto:jamagallon@able.es                              #  be with you, Luke... 
+> Any ideas?  I may look at it more tomorrow.  For now I'm back to using
+> serial_cb which still works fine (even though that apparently suprises many
+> people).
 
-Linux werewolf 2.4.2-ac22 #3 SMP Fri Mar 23 02:06:00 CET 2001 i686
+:) this is -pre4 with serial_cb which works fine, and always has...
 
+--alessandro      <alessandro.suardi@oracle.com> <asuardi@uninetcom.it>
+
+Linux:  kernel 2.2.19p17/2.4.3p6 glibc-2.2 gcc-2.96-69 binutils-2.11.90.0.1
+Oracle: Oracle8i 8.1.7.0.1 Enterprise Edition for Linux
+motto:  Tell the truth, there's less to remember.

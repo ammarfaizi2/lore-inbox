@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264333AbTKNV2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 16:28:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbTKNV2X
+	id S264320AbTKNVdM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 16:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264472AbTKNVdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 16:28:23 -0500
-Received: from magic.adaptec.com ([216.52.22.17]:4333 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S264333AbTKNV2X convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 16:28:23 -0500
-content-class: urn:content-classes:message
+	Fri, 14 Nov 2003 16:33:12 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:46061 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264320AbTKNVdL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 16:33:11 -0500
+Date: Fri, 14 Nov 2003 13:57:53 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test9-mm3
+Message-ID: <103290000.1068847073@flay>
+In-Reply-To: <Pine.LNX.4.53.0311141555130.27998@montezuma.fsmlabs.com>
+References: <20031112233002.436f5d0c.akpm@osdl.org> <3210000.1068786449@[10.10.2.4]> <Pine.LNX.4.53.0311141555130.27998@montezuma.fsmlabs.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Subject: Test message please ignore
-Date: Fri, 14 Nov 2003 13:28:20 -0800
-Message-ID: <59C7D667A0EADB45866C62DD1B55A0FDBCA7F8@aime2k02.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Test message please ignore
-Thread-Index: AcOq9jl0U7OuHxPgS7K9nuV4ezXv0A==
-From: "Green, Jeff" <Jeff_Green@adaptec.com>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Test
+>> > - Several ext2 and ext3 allocator fixes.  These need serious testing on big
+>> >   SMP.
+>> 
+>> Survives kernbench and SDET on ext2 at least on 16-way. I'll try ext3
+>> later.
+> 
+> It's actually triple faulting my laptop (K6 family=5 model=8 step=12) when 
+> i have CONFIG_X86_4G enabled and try and run X11. The same kernel is fine 
+> on all my other test boxes. Any hints?
 
- 
- 
-Jeff Green
-Network Operations 
-Adaptec Inc. 
-691 S. Milpitas Blvd 
-Milpitas, CA 95035 
-408-957-6916
+Linus had some debug thing for triple faults, a few months ago, IIRC ...
+probably in the archives somewhere ...
 
+M.
 

@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262836AbVCWHJM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVCWHN3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262836AbVCWHJM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 02:09:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbVCWHJL
+	id S261193AbVCWHN3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 02:13:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbVCWHN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 02:09:11 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:53416 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262836AbVCWHJH (ORCPT
+	Wed, 23 Mar 2005 02:13:29 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:4521 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261193AbVCWHN0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 02:09:07 -0500
-Date: Wed, 23 Mar 2005 08:08:56 +0100 (MET)
+	Wed, 23 Mar 2005 02:13:26 -0500
+Date: Wed, 23 Mar 2005 08:13:16 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Invalidating dentries
-In-Reply-To: <20050322184452.2408be4b.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0503230808000.21578@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0503211626180.20464@yvahk01.tjqt.qr>
- <20050322184452.2408be4b.akpm@osdl.org>
+To: linux-os <linux-os@analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: lseek on /proc/kmsg
+In-Reply-To: <Pine.LNX.4.61.0503221633230.7421@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0503230811020.21578@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0503221320090.5551@chaos.analogic.com>
+ <Pine.LNX.4.61.0503222020470.32461@yvahk01.tjqt.qr>
+ <Pine.LNX.4.61.0503221423560.6369@chaos.analogic.com>
+ <Pine.LNX.4.61.0503222215310.19826@yvahk01.tjqt.qr>
+ <Pine.LNX.4.61.0503221633230.7421@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> how can I invalidate all buffered/cached dentries so that ls -l /somefolder 
->>  will definitely go read the harddisk?
->
->Patch the kernel?
 
-Great idea.
+1> Sure, read() needs to be modified to respect the file-position
+1> set by kmsg_seek(). I don't think you can get away with the
+1> call back into do_syslog.
 
->A quick way of doing it would be to add a new mount option to the
->filesystem and call shrink_dcache_sb() from there.  do `mount -o
->remount,shrink_dcache'.
+2>I'm not sure that seek makes any sense on that, since it is more like a 
+2>pipe than a normal file..
 
-I doubt that there is a way to define an option applicable to all fs?
-But thanks for the idea.
+Well, seek(fd, 0, SEEK_END) could be used to flush a pipe's buffers.
+
+0>> +static loff_t kmsg_seek(struct file *filp, loff_t offset, int origin) {
+0>> +    if(origin != 2 /* SEEK_END */ || offset < 0) { return -ESPIPE; }
+3> "Allow" seeking past the end of the buffer?
+
+Well, what does lseek(fd, >0, SEEK_END) do on normal files?
+
 
 
 Jan Engelhardt

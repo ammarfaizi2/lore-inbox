@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274307AbRITEn6>; Thu, 20 Sep 2001 00:43:58 -0400
+	id <S274299AbRITEvh>; Thu, 20 Sep 2001 00:51:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274310AbRITEnr>; Thu, 20 Sep 2001 00:43:47 -0400
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:64693 "EHLO snfc21.pbi.net")
-	by vger.kernel.org with ESMTP id <S274307AbRITEn3>;
-	Thu, 20 Sep 2001 00:43:29 -0400
-Date: Wed, 19 Sep 2001 21:42:43 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: 2001-09-19 release of hotplug scripts
-To: Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-        Linux-usb-users@lists.sourceforge.net
-Message-id: <005b01c1418e$b08433a0$6800000a@brownell.org>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-In-Reply-To: <20010424124116.A13291@kroah.com> <20010919174402.A17423@kroah.com>
+	id <S274308AbRITEv2>; Thu, 20 Sep 2001 00:51:28 -0400
+Received: from c007-h012.c007.snv.cp.net ([209.228.33.219]:18142 "HELO
+	c007.snv.cp.net") by vger.kernel.org with SMTP id <S274299AbRITEvP>;
+	Thu, 20 Sep 2001 00:51:15 -0400
+X-Sent: 20 Sep 2001 04:51:33 GMT
+Message-ID: <3BA9740D.DD16AE9E@distributopia.com>
+Date: Wed, 19 Sep 2001 23:43:57 -0500
+From: "Christopher K. St. John" <cks@distributopia.com>
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.0.36 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: [PATCH] /dev/epoll update ...
+In-Reply-To: <XFMail.20010919192804.davidel@xmailserver.org> <3BA97155.4D2D53AC@distributopia.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've just packaged up the latest Linux hotplug scripts into a release,
-> which can be found at:
-> http://sourceforge.net/project/showfiles.php?group_id=17679
+"Christopher K. St. John" wrote:
 > 
-> This release adds ieee1394 support and a try at SuSE support :)
+> Assume that instead of many very fast
+> connections coming in at a furious rate, you get a
+> large steady current of very slow connections.
+> 
 
-And various bugfixes ... :)
+ Sorry, bad editing, that should be:
 
-
-> Here's the full changelog:
-> - Added ieee1394.agent from Kristian Hogsberg
->   <hogsberg@users.sourceforge.net>
-> - with docs, "sh -x" debug support, minor fix.  Needs kernel
->   2.4.10 and modutils 2.4.9 to hotplug.
-
-To clarify, the ieee1394 support is what needs software that's
-as-yet not quite released.  Other hotplugging (USB, PCI, network)
-still works just fine with 2.4.0 (and, for USB, 2.2.current).  The
-release is not (as one person suspected :) Science Fiction!
+ Assume a large but bursty current of low bandwidth
+high latency connections instead of a continuous steady
+flood of high bandwidth low latency connections.
 
 
-> - Some of the updates from SuSE:
-
-... excluding most of the SuSE-specific admin stuff, so
-for now SuSE users will need to get an RPM from SuSE
-that knows and uses those hooks.  (Much like the way
-the Debian and RedHat distros re-use this software.)
-
-I figure converging admin between such distros is not a near
-term possibility, but testing for each distro's admin hooks
-and then using them is achievable.  We're not quite there
-yet, but the size of the distro-specific patches should be
-shrinking over time ... :)
-
-- Dave
-
-
-
+-- 
+Christopher St. John cks@distributopia.com
+DistribuTopia http://www.distributopia.com

@@ -1,61 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262528AbVA0BGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262460AbVA0AHG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262528AbVA0BGK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 20:06:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbVA0APy
+	id S262460AbVA0AHG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 19:07:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbVA0AG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 19:15:54 -0500
-Received: from gate.crashing.org ([63.228.1.57]:43478 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262471AbVAZWLW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 17:11:22 -0500
-Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: brking@us.ibm.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41F7C6A1.9070102@us.ibm.com>
-References: <200501101449.j0AEnWYF020850@d03av01.boulder.ibm.com>
-	 <m14qhpxo2j.fsf@muc.de> <41E2AC74.9090904@us.ibm.com>
-	 <20050110162950.GB14039@muc.de> <41E3086D.90506@us.ibm.com>
-	 <1105454259.15794.7.camel@localhost.localdomain>
-	 <20050111173332.GA17077@muc.de>
-	 <1105626399.4664.7.camel@localhost.localdomain>
-	 <20050113180347.GB17600@muc.de>
-	 <1105641991.4664.73.camel@localhost.localdomain>
-	 <20050113202354.GA67143@muc.de>  <41ED27CD.7010207@us.ibm.com>
-	 <1106161249.3341.9.camel@localhost.localdomain>
-	 <41F7C6A1.9070102@us.ibm.com>
-Content-Type: text/plain
-Date: Thu, 27 Jan 2005 09:10:05 +1100
-Message-Id: <1106777405.5235.78.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Wed, 26 Jan 2005 19:06:26 -0500
+Received: from gizmo10ps.bigpond.com ([144.140.71.20]:35294 "HELO
+	gizmo10ps.bigpond.com") by vger.kernel.org with SMTP
+	id S262454AbVAZV2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 16:28:38 -0500
+Message-ID: <41F80B7C.40207@bigpond.net.au>
+Date: Thu, 27 Jan 2005 08:28:28 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: "Jack O'Quin" <joq@io.com>, Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU feature, -D7
+References: <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu> <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu> <41F6C5CE.9050303@bigpond.net.au> <41F6C797.80403@bigpond.net.au> <20050126100846.GB8720@elte.hu>
+In-Reply-To: <20050126100846.GB8720@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-26 at 10:34 -0600, Brian King wrote:
-
-> Here is the last one. I've looked at making userspace sleep until BIST 
-> is finished. The downside I see to this is that is complicates the patch 
-> due to the following reasons:
+Ingo Molnar wrote:
+> * Peter Williams <pwil3058@bigpond.net.au> wrote:
 > 
-> 1. In order to also make this work for Ben's PPC power management usage 
-> would require an additional flag and additional APIs to set and clear 
-> the flag.
-> 2. Since BIST can be run at interrupt context, the interfaces to block 
-> and unblock userspace accesses across BIST must be callable from 
-> interrupt context. This prevents the usage of semaphores or simple 
-> wait_event macros and requires new macros that carefully check the new 
-> pci device flag and manage the spinlock.
 > 
+>>Oops, after rereading the patch, a task that set its RT_CPU_RATIO
+>>rlimit to zero wouldn't be escaping the mechanism at all.  It would be
+>>suffering maximum throttling. [...]
+> 
+> 
+> my intention was to let 'limit 0' mean 'old RT semantics' - i.e. 'no RT
+> CPU time for unprivileged tasks at all', and only privileged tasks may
+> do it and then they'll get full CPU time with no throttling.
+> 
+> so in that context your observation highlights another bug, which i
+> fixed in the -D7 patch available from the usual place:
+> 
+>   http://redhat.com/~mingo/rt-limit-patches/
+> 
+> not doing the '0' exception would make it harder to introduce the rlimit
+> in a compatible fashion. (My current thinking is that the default RT_CPU
+> rlimit should be 0.)
 
-Well, I honestly think that this is unnecessary burden. I think that
-just dropping writes & returning data from the cache on reads is enough,
-blocking userspace isn't necessary, but then, I may be wrong ;)
+I'd suggest making the default 100% and only allow non privileged users 
+to set a real time policy if the tasks RT_CPU_RATIO is BELOW some 
+(possibly configurable via sysfs or sysctl) limit.  This will have the 
+desired effect that tasks given RT status via the normal means will be 
+unaffected.
 
-Ben.
+I'd also like to suggest that you change the units from parts per 
+hundred (a.k.a. percent) to parts per thousand.  In addition to giving 
+better control granularity this will be a better match to HZ on most 
+systems giving better efficiency.
 
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

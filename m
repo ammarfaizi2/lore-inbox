@@ -1,32 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129107AbRBNRCJ>; Wed, 14 Feb 2001 12:02:09 -0500
+	id <S129136AbRBNRF3>; Wed, 14 Feb 2001 12:05:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129565AbRBNRBt>; Wed, 14 Feb 2001 12:01:49 -0500
-Received: from kamov.deltanet.ro ([193.226.175.59]:21265 "HELO
-	kamov.deltanet.ro") by vger.kernel.org with SMTP id <S129107AbRBNRBl>;
-	Wed, 14 Feb 2001 12:01:41 -0500
-Date: Wed, 14 Feb 2001 19:01:28 +0200
-From: Petru Paler <ppetru@ppetru.net>
-To: linux-kernel@vger.kernel.org
-Subject: ECN for servers ?
-Message-ID: <20010214190128.G923@ppetru.net>
-Mime-Version: 1.0
+	id <S129565AbRBNRFT>; Wed, 14 Feb 2001 12:05:19 -0500
+Received: from slc82.modem.xmission.com ([166.70.9.82]:4615 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S129457AbRBNRFK>; Wed, 14 Feb 2001 12:05:10 -0500
+To: Jeremy Jackson <jeremy.jackson@sympatico.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is this the ultimate stack-smash fix?
+In-Reply-To: <3A899FEB.D54ABBC7@sympatico.ca>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 14 Feb 2001 09:25:18 -0700
+In-Reply-To: Jeremy Jackson's message of "Tue, 13 Feb 2001 15:58:19 -0500"
+Message-ID: <m1lmr98c5t.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.14i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Jeremy Jackson <jeremy.jackson@sympatico.ca> writes:
 
-What is the impact of enabling ECN on the server side ? I mean, will
-any clients (with broken firewalls) be affected if a SMTP/HTTP server
-has ECN enabled ?
+> Greetings.  This is my first post on linux-kernel, I hope this is
+> appropriate.
+> 
+> The recent CERT IN-2001-01 's massive repercussions and CA-2001-02's
+> re-releasing
+> old material in an attempt to coerce admins to update their OS, has led
+> me to think about
+> buffer overrun exploits.   I have gained a new appreciation after being
+> rooted twice this month.
+> 
+> I believe there is a solution that can be implemented in the kernel
+> (Linux and probably most Unix)
+> that can prevent this type of exploit, has no effect on userspace code,
+> and is minimally obtrusive
+> for the kernel.
 
-On the other hand, is there any advantage with ECN enabled on the server
-side ?
+There is another much more effective solution in the works.  The C
+standard allows bounds checking of arrays.  So it is quite possible
+for the compiler itself to check this in a combination of run-time and
+compile-time checks.   I haven't followed up but not too long ago
+there was an effort to add this as an option to gcc.  If you really
+want this fixed that is the direction to go.  Then buffer overflow
+exploits become virtually impossible.
 
---
-Petru Paler, mailto:ppetru@ppetru.net
-http://www.ppetru.net - ICQ: 41817235
+Eric
+
+
+

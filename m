@@ -1,83 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264308AbRFNAo5>; Wed, 13 Jun 2001 20:44:57 -0400
+	id <S264299AbRFNAws>; Wed, 13 Jun 2001 20:52:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264303AbRFNAos>; Wed, 13 Jun 2001 20:44:48 -0400
-Received: from nycsmtp3fb.rdc-nyc.rr.com ([24.29.99.80]:3084 "EHLO nyc.rr.com")
-	by vger.kernel.org with ESMTP id <S264299AbRFNAoj>;
-	Wed, 13 Jun 2001 20:44:39 -0400
-Message-ID: <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x>
-From: "Daniel" <ddickman@nyc.rr.com>
-To: "Linux kernel" <linux-kernel@vger.kernel.org>
-Subject: obsolete code must die
-Date: Wed, 13 Jun 2001 20:44:11 -0400
+	id <S264324AbRFNAwi>; Wed, 13 Jun 2001 20:52:38 -0400
+Received: from [205.185.57.35] ([205.185.57.35]:58380 "EHLO mail.promise.com")
+	by vger.kernel.org with ESMTP id <S264299AbRFNAwe>;
+	Wed, 13 Jun 2001 20:52:34 -0400
+Reply-To: <craigl@promise.com>
+From: "Craig Lyons" <craigl@promise.com>
+To: "'Andre Hedrick'" <andre@linux-ide.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Eye2Eye a hope for Promise to Join Linux
+Date: Wed, 13 Jun 2001 16:52:12 -0700
+Message-ID: <00d301c0f463$de9dd840$bd01a8c0@promise.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
+X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <Pine.LNX.4.10.10106131428430.11106-100000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anyone concerned about the current size of the kernel source code? I am, and
-I propose to start cleaning house on the x86 platform. I mean it's all very
-well and good to keep adding features, but stuff needs to go if kernel
-development is to move forward. Before listing the gunk I want to get rid
-of, here's my justification for doing so:
--- Getting rid of old code can help simplify the kernel. This means less
-chance of bugs.
--- Simplifying the kernel means that it will be easier for newbies to
-understand and perhaps contribute.
--- a simpler, cleaner kernel will also be of more use in an academic
-environment.
--- a smaller kernel is easier to maintain and is easier to re-architect
-should the need arise.
--- If someone really needs support for this junk, they will always have the
-option of using the 2.0.x, 2.2.x or 2.4.x series.
+Hi,
 
-So without further ado here're the features I want to get rid of:
+Andre and I did indeed have a nice conversation on the phone. Thank you
+again for taking the time to talk with me and offering your assistance. As I
+stated on the phone, we are making a large commitment of resources to
+supporting Linux by releasing drivers and utilities for our products,
+including the FastTrak. I know we have plans to release source for our Ultra
+and SuperTrak series cards, but at this point I'm not sure that the way we
+are going to be supporting FastTrak is what you would like to see. As I
+said, while I cannot guarantee anything that I don't have the authority to
+deliver, I will pass on your requests. I will try to be an advocate for
+Promise in the Linux community, and an advocate for the Linux community to
+Promise. If the company has concerns, I will let you know what they are, and
+then maybe you can tell us if we are off-base with those concerns or not.
 
-i386, i486
-The Pentium processor has been around since 1995. Support for these older
-processors should go so we can focus on optimizations for the pentium and
-better processors.
+I would invite anybody to contact me if you have any suggestions, any
+requests, whatever. As I told Andre, I won't promise something I can't
+personally deliver, but I will do whatever I can to help out. I'm also
+trying to get a technical point of contact so that you don't have to deal
+with a marketing weenie who doesn't understand half of what you're saying
+;).
 
-math-emu
-If support for i386 and i486 is going away, then so should math emulation.
-Every intel processor since the 486DX has an FPU unit built in. In fact
-shouldn't FPU support be a userspace responsibility anyway?
+Regards,
 
-ISA bus, MCA bus, EISA bus
-PCI is the defacto standard. Get rid of CONFIG_BLK_DEV_ISAPNP,
-CONFIG_ISAPNP, etc
+Craig
 
-ISA, MCA, EISA device drivers
-If support for the buses is gone, there's no point in supporting devices for
-these buses.
 
-all code marked as CONFIG_OBSOLETE
-Since we're cleaning house we may as well get rid of this stuff.
+-----Original Message-----
+From: Andre Hedrick [mailto:andre@linux-ide.org]
+Sent: Wednesday, June 13, 2001 2:43 PM
+To: Craig Lyons
+Cc: linux-kernel@vger.kernel.org
+Subject: Eye2Eye a hope for Promise to Join Linux
 
-MFM/RLL/XT/ESDI hard drive support
-Does anyone still *have* an RLL drive that works? At the very least get rid
-of the old driver (eg CONFIG_BLK_DEV_HD_ONLY, CONFIG_BLK_DEV_HD_IDE,
-CONFIG_BLK_DEV_XD, CONFIG_BLK_DEV_PS2)
 
-parallel/serial/game ports
-More controversial to remove this, since they are *still* in pretty wide
-use -- but USB and IEEE 1394 are the way to go. No ifs ands or buts.
 
-a.out
-Who needs it anymore. I love ELF.
+Greetings Craig,
 
-I really think doing a clean up is worthwhile. Maybe while looking for stuff
-to clean up we'll even be able to better comment the existing code. Any
-other features people would like to get rid of? Any comments or suggestions?
-I'd love to start a good discussion about this going so please send me your
-2 cents.
+I would like to publicly thank you for coming to the table of GNU/GPL with
+an open perspective.  After 90 minutes on the phone, of which 45 minutes
+were me pointing out issues promblems and complaints w/ 20 minutes on ways
+to work on solutions in the near and distant future and the listening to
+your concerns and questions between my moments of interruption.
 
-Daniel
+The next conversion will not have the burst-in moments because it will be
+in person or my cell battery will be fully charged.
+
+Since you have stated "I will not make promise, I can not keep" this is a
+good thing and it will go a fair way to clean up messes from the past on
+both sides.
+
+I look forward to Promise working with Linux in meaningful and productive
+ways.
+
+Please reply and correct anything that is mistated by me or verify the
+correctness.  This will show an action of good-faith before all those
+watching here.
+
+Respectfully,
+
+Andre Hedrick
+Linux ATA Development
 

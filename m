@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVCHU3t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262131AbVCHU3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbVCHU3t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 15:29:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVCHU2p
+	id S262131AbVCHU3z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 15:29:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbVCHU2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 15:28:45 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:12254 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261471AbVCHUOB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 15:14:01 -0500
-Subject: Re: Atheros wi-fi card drivers (?)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mateusz Berezecki <mateuszb@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1110216394.3072.72.camel@localhost.localdomain>
-References: <422C7722.40301@gmail.com>
-	 <1110216394.3072.72.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 08 Mar 2005 15:13:59 -0500
-Message-Id: <1110312840.4600.4.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Tue, 8 Mar 2005 15:28:35 -0500
+Received: from mail1.skjellin.no ([80.239.42.67]:3036 "EHLO mx1.skjellin.no")
+	by vger.kernel.org with ESMTP id S262262AbVCHUKT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 15:10:19 -0500
+Message-ID: <422E06AD.9030500@tomt.net>
+Date: Tue, 08 Mar 2005 21:10:21 +0100
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: George Georgalis <georgalis@gmail.com>
+Cc: linux-kernel@vger.kernel.org, users@spamassassin.apache.org,
+       misc@list.smarden.org, supervision@list.skarnet.org, nix@esperi.org.uk,
+       mkettler@evi-inc.com
+Subject: Re: a problem with linux 2.6.11 and sa
+References: <20050303214023.GD1251@ixeon.local>	 <6.2.1.2.0.20050303165334.038f32a0@192.168.50.2>	 <20050303224616.GA1428@ixeon.local>	 <871xaqb6o0.fsf@amaterasu.srvr.nix>	 <20050308165814.GA1936@ixeon.local>	 <20050308171953.GB1936@ixeon.local> <d91f4d0c050308112120aace61@mail.gmail.com>
+In-Reply-To: <d91f4d0c050308112120aace61@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-07 at 17:26 +0000, Alan Cox wrote:
-> On Llu, 2005-03-07 at 15:45, Mateusz Berezecki wrote:
-> > I've been doing some reverse engineering of madwifi HAL (Hardware 
-> > Abstraction Layer) object file recently.
-> > I ended up with an almost complete source code for one chipset so far 
-> > and I was wondering if it is legal
-> > to publish such source code on the internet?
+George Georgalis wrote:
+> Here is a problem with 2.6.10:
 > 
-> You should normally avoid doing this. Instead write a description of the
-> chip registers and functions from the source you have produced and get
-> someone else to write a chip driver from that. This avoids the risk of
-> you being held to have "copied" their code - in the EU while you have
-> rights to reverse engineer for interoperability in general if you copy
-> their code that may still be a copyright violation.
+> while read file; do mplayer $file ; done <mediafiles.txt
 > 
-
-Just to clarify, this also applies to the USA.
-
-> There is other code in the kernel where reverse engineering was used. 
+> or
 > 
+> tail -n93  mediafiles.txt | while read file; do mplayer $file ; done
+> 
+> for each file path in that text file I get:
+> 
+> Failed to open /dev/rtc: Permission denied (it should be readable by the user.)
 
-Heh, that is putting it mildly.  Linux driver support would be nowhere
-without reverse engineering.
+^- This is also emitted by mplayer. It usually does this on any standard 
+system.
 
-Lee
+> In addition the audio pcm level is set to zero (presumably by mplayer).
+> 
+> This does work:
+> for file in `cat mediafiles.txt`; do mplayer $file ; done
+> 
+> but discovering and fixing code now broke will be unpleasent.
+> What exactly is going on? 
+> 
+> // George
+> 
 

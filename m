@@ -1,71 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129771AbRACWjX>; Wed, 3 Jan 2001 17:39:23 -0500
+	id <S130319AbRACWjx>; Wed, 3 Jan 2001 17:39:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130319AbRACWjM>; Wed, 3 Jan 2001 17:39:12 -0500
-Received: from 64.124.41.10.napster.com ([64.124.41.10]:55313 "EHLO
-	foobar.napster.com") by vger.kernel.org with ESMTP
-	id <S129771AbRACWi5>; Wed, 3 Jan 2001 17:38:57 -0500
-Message-ID: <3A53A9FB.A3D558D9@napster.com>
-Date: Wed, 03 Jan 2001 14:38:51 -0800
-From: Jordan Mendelson <jordy@napster.com>
-Organization: Napster, Inc.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-prerelease i686)
-X-Accept-Language: en
+	id <S131802AbRACWjq>; Wed, 3 Jan 2001 17:39:46 -0500
+Received: from [212.187.138.98] ([212.187.138.98]:9737 "HELO
+	opel.itsolve.co.uk") by vger.kernel.org with SMTP
+	id <S130319AbRACWjf>; Wed, 3 Jan 2001 17:39:35 -0500
+Date: Wed, 3 Jan 2001 22:39:39 +0000 (GMT)
+From: Mark Zealey <mark@itsolve.co.uk>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Dan Hollis <goemon@anime.net>, Dan Aloni <karrde@callisto.yi.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] prevention of syscalls from writable segments, breaking
+ bug exploits
+In-Reply-To: <Pine.GSO.4.21.0101031716000.17363-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0101032238540.1139-100000@sunbeam.itsolve.co.uk>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-pre able to mount SHM twice
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 3 Jan 2001, Alexander Viro wrote:
 
-This is probably due to the source being 'none', but the shm mount point
-can be mounted twice at the same mount point.
+> 
+> 
+> On Wed, 3 Jan 2001, Dan Hollis wrote:
+> 
+> > On Wed, 3 Jan 2001, Alexander Viro wrote:
+> > > On Wed, 3 Jan 2001, Dan Aloni wrote:
+> > > > without breaking anything. It also reports of such calls by using printk.
+> > > Get real.
+> > 
+> > Why do you always have to be insulting alex? Sheesh.
+> 
+> Sigh... Not intended to be an insult. Plain and simple advice. Idea is
+> broken for absolutely obvious reasons (namely, every real-life program
 
-Shouldn't mount(2) return -EBUSY in this case?
+This doesnt stop syscalls, only syscalls from writable areas.
 
+> contains at least one syscall that it _can_ execute). Expecting _any_
+> part of userland to be rewritten into the form that would not have
+> such places (i.e. all IO is done by trusted processes that poll
+> memory areas shared with the programs needing said IO, exit is done
+> either by explicit kill() from another process or by dumping core, signals
+> are done by putting request into shared area and letting a trusted process
+> do the thing, etc.) warrants such suggestion, doesn't it? If somebody
+> seriously believes that it can be done (and that's the only way how this
+> patch could give any protection)... Well, scratch "get real", I've got a
+> nice bridge for sale.
 
-# cat /etc/mtab
-/dev/hda4 / ext2 rw,errors=remount-ro,errors=remount-ro 0 0
-proc /proc proc rw 0 0
-devpts /dev/pts devpts rw,gid=5,mode=620 0 0
-/dev/hda1 /boot ext2 rw 0 0
-/dev/hda3 /mnt/win vfat rw 0 0
-none /proc/bus/usb usbdevfs rw 0 0
+That's a bit OTT, no? ;)
 
-# mount /dev/shm
-# cat /etc/mtab
-/dev/hda4 / ext2 rw,errors=remount-ro,errors=remount-ro 0 0
-proc /proc proc rw 0 0
-devpts /dev/pts devpts rw,gid=5,mode=620 0 0
-/dev/hda1 /boot ext2 rw 0 0
-/dev/hda3 /mnt/win vfat rw 0 0
-none /proc/bus/usb usbdevfs rw 0 0
-none /dev/shm shm rw 0 0
+> 
+> 
+> 
 
-# mount /dev/shm
-# cat /etc/mtab
-/dev/hda4 / ext2 rw,errors=remount-ro,errors=remount-ro 0 0
-proc /proc proc rw 0 0
-devpts /dev/pts devpts rw,gid=5,mode=620 0 0
-/dev/hda1 /boot ext2 rw 0 0
-/dev/hda3 /mnt/win vfat rw 0 0
-none /proc/bus/usb usbdevfs rw 0 0
-none /dev/shm shm rw 0 0
-none /dev/shm shm rw 0 0
+-- 
 
-# umount /dev/shm
-# cat /etc/mtab
-/dev/hda4 / ext2 rw,errors=remount-ro,errors=remount-ro 0 0
-proc /proc proc rw 0 0
-devpts /dev/pts devpts rw,gid=5,mode=620 0 0
-/dev/hda1 /boot ext2 rw 0 0
-/dev/hda3 /mnt/win vfat rw 0 0
-none /proc/bus/usb usbdevfs rw 0 0
+Mark Zealey (aka JALH on irc.openprojects.net: #zealos and many more)
+mark@itsolve.co.uk
+mark@sexygeek.org
+mark@x-paste.de
 
-Jordan
+UL++++$ (GCM/GCS/GS/GM)GUG! dpu? s-:-@ a15! C+++>$ P++$>+++@ L+++>+++++$
+!E---? W+++>$ N++@>+ o->+ w--- !M--? !V--? PS- PE--@ !PGP----? r++
+!t---?@ !X---? !R- b+ !DI---? e->+++++ h+++*! y-
+
+(www.geekcode.com)
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

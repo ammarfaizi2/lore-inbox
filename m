@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262203AbTCHVAW>; Sat, 8 Mar 2003 16:00:22 -0500
+	id <S262200AbTCHU70>; Sat, 8 Mar 2003 15:59:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262205AbTCHVAW>; Sat, 8 Mar 2003 16:00:22 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:36019 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP
-	id <S262203AbTCHVAT>; Sat, 8 Mar 2003 16:00:19 -0500
-Message-ID: <3E6A5C44.9060002@zytor.com>
-Date: Sat, 08 Mar 2003 13:10:28 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Russell King <rmk@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Roman Zippel <zippel@linux-m68k.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
-References: <Pine.LNX.4.44.0303072121180.5042-100000@serv>	<Pine.LNX.4.44.0303071459260.1309-100000@home.transmeta.com>	<20030307233916.Q17492@flint.arm.linux.org.uk>	<m1d6l2lih9.fsf@frodo.biederman.org>	<20030308100359.A27153@flint.arm.linux.org.uk> <m18yvpluw7.fsf@frodo.biederman.org>
-In-Reply-To: <m18yvpluw7.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262203AbTCHU70>; Sat, 8 Mar 2003 15:59:26 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:43533 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262200AbTCHU6u>; Sat, 8 Mar 2003 15:58:50 -0500
+Date: Sat, 8 Mar 2003 21:09:22 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andries.Brouwer@cwi.nl
+Cc: hch@infradead.org, akpm@digeo.com, alan@lxorguk.ukuu.org.uk,
+       greg@kroah.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] register_blkdev
+Message-ID: <20030308210922.A419@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andries.Brouwer@cwi.nl, akpm@digeo.com, alan@lxorguk.ukuu.org.uk,
+	greg@kroah.com, linux-kernel@vger.kernel.org,
+	torvalds@transmeta.com
+References: <UTC200303082059.h28KxES05315.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <UTC200303082059.h28KxES05315.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Sat, Mar 08, 2003 at 09:59:14PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+On Sat, Mar 08, 2003 at 09:59:14PM +0100, Andries.Brouwer@cwi.nl wrote:
+> > We need to get rid of the artifical major/minor split completly
 > 
-> The last time I worked on something like this I put a dhcp client, and
-> a tftp client in a single binary, my compressed initrd was only 16K on
-> x86.  And I had a complete network boot loader using the linux kernel.
+> I do not disagree with you, but your point of view seems
+> to be that either we make everything perfect or we do nothing.
+> I prefer slow progress.
+
+I completly agree with you on the slow steps.  What we seem to
+disagree about is the order of steps..
+
+> Concerning this split - traces of it occur in a very large
+> number of places.
+
+Yupp.  And getting rid of those one by one is a a good thing
+and I'm happy about every single patch you submit to get rid
+of one.
+
+> Let me just mention the raw device that
+> I did this afternoon. How does one connect a raw device
+> with a block device? Using a struct raw_config_request
+> from user space. And look
 > 
-> Now the kernel is so big and bloated it has not been practical to use
-> it.  So my effort has mostly been concentrated on etherboot.  Which
-> is essentially a mini-kernel that just focuses on being a network boot
-> loader.  And with etherboot I can get a udp/ip stack. With dhcp and
-> tftp support, and an eepro100 nic driver into 38K on an Itanium (The
-> platform with possible the most bloated binaries known to man).  On x86
-> with an eepro100 driver I can usually get it down to around 16K.  (All
-> sizes represent self decompressing executables).
+> struct raw_config_request
+> {
+>         int     raw_minor;
+>         __u64   block_major;
+>         __u64   block_minor;
+> };
 > 
+> One of the many places that has a built-in major/minor split.
+> Basically this split is unimportant. A dev_t is just a cookie.
+> But as soon as you start looking at details this split is
+> all over the place.
 
-Incidentally, any hope of getting Etherboot to act as a PXE stack any 
-time soon?
-
-	-hpa (ducks & runs)
-
+Yes.  And my opinion is that we need to sort these issues out
+one for one before moving on to make dev_t bigger, not the other
+way around.
 

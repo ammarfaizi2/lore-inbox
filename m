@@ -1,62 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbTDXHKi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 03:10:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbTDXHKi
+	id S261292AbTDXH2O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 03:28:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbTDXH2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 03:10:38 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:45959 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261300AbTDXHKf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 03:10:35 -0400
-Date: Thu, 24 Apr 2003 08:22:15 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Ben Collins <bcollins@debian.org>
-Cc: Pat Suwalski <pat@suwalski.net>, Werner Almesberger <wa@almesberger.net>,
-       Pavel Machek <pavel@ucw.cz>, Matthias Schniedermeyer <ms@citd.de>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Marc Giger <gigerstyle@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 623] New: Volume not remembered.
-Message-ID: <20030424072215.GC28253@mail.jlokier.co.uk>
-References: <20030423164558.GA12202@citd.de> <1508310000.1051116963@flay> <20030423172120.GA12497@citd.de> <3EA6947D.9080106@suwalski.net> <20030423221749.GA9187@elf.ucw.cz> <3EA71533.4090008@suwalski.net> <20030423225520.GA32577@atrey.karlin.mff.cuni.cz> <20030423231920.D1425@almesberger.net> <3EA74BF1.2090700@suwalski.net> <20030424023434.GF354@phunnypharm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Apr 2003 03:28:14 -0400
+Received: from tartarus.telenet-ops.be ([195.130.132.46]:59858 "EHLO
+	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S261292AbTDXH2M convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 03:28:12 -0400
+From: DevilKin-LKML <devilkin-lkml@blindguardian.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [2.5.67 - 2.5.68] Hangs on pcmcia yenta_socket initialisation
+Date: Thu, 24 Apr 2003 09:40:18 +0200
+User-Agent: KMail/1.5
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       LKML <linux-kernel@vger.kernel.org>, devilkin-lkml@blindguardian.org
+References: <200304230747.27579.devilkin-lkml@blindguardian.org> <200304232050.41230.devilkin-lkml@blindguardian.org> <20030423204341.A19573@flint.arm.linux.org.uk>
+In-Reply-To: <20030423204341.A19573@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <20030424023434.GF354@phunnypharm.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200304240940.21553.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Collins wrote:
-> Sound may be a standard feature, but it does not get driven by a
-> standard interface like PS2 or HID keyboards do. It's also not as
-> straight forward as "sound or no sound". There's many different levels
-> of sound hardware, from the 2-channel basic stereo, to the 6-way Dolby
-> Digital 5.1.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-There was a time when you had to spend a day fiddling with X
-configurations to get X to work on your card and monitor.
+On Wednesday 23 April 2003 21:43, Russell King wrote:
+> On Wed, Apr 23, 2003 at 08:50:39PM +0200, DevilKin-LKML wrote:
+> > Unable to handle kernel paging request at virtual address d10545c0
+> >  printing eip:
+> > c01b0368
+> > *pde = 0fb66067
+> > *pte = 00000000
+> > Oops: 0000 [#1]
+> > CPU:    0
+> > EIP:    0060:[<c01b0368>]    Not tainted
+> > EFLAGS: 00010286
+> > EIP is at pci_bus_match+0x18/0xb0
+> > eax: 00000000   ebx: cf2a8800   ecx: d10545c0   edx: 00000000
+> > esi: cf2a884c   edi: ffffffed   ebp: c12d284c   esp: ce591e88
+> > ds: 007b   es: 007b   ss: 0068
+> > Process pcmcia/0 (pid: 388, threadinfo=ce590000 task=ce6f7300)
+> > Stack: d109edc8 c01d1abf cf2a884c d109edc8 d109edf8 cf2a884c c02d7ff8
+> > c01d1b5f cf2a884c d109edc8 cf2a884c c02d7fa0 cf2a8888 c01d1d24 cf2a884c
+> > c0282ddf c02de000 cf2a884c 00000000 cf2a8888 c01d0ef0 cf2a884c cf2a8800
+> > cffd08b4 Call Trace:
+> >  [<d109edc8>] m3_pci_driver+0x28/0xa0 [maestro3]
+> >  [<c01d1abf>] bus_match+0x2f/0x80
+> >  [<d109edc8>] m3_pci_driver+0x28/0xa0 [maestro3]
+> >  [<d109edf8>] m3_pci_driver+0x58/0xa0 [maestro3]
+> >  [<c01d1b5f>] device_attach+0x4f/0x90
+> >  [<d109edc8>] m3_pci_driver+0x28/0xa0 [maestro3]
+>
+> I don't think this is PCMCIA related - something else is going on here.
+>
+> My guess is we're trying to locate a driver for the card, and we get to
+> maestro3.  This works as expected, but the next driver on the chain
+> seems to be a module which was may have been removed but which left
+> its pci_driver structure behind (at 0xd10545c0.)
 
-And then do it again when XFree86 4 came out :(
-Or if you changed monitor :(
+I have a Maestro3 in the laptop (which is also why the module is loaded), but 
+I never unload it once it's loaded at bootup...
 
-Thankfully those times are gone, and usually X just works with no
-configuration at all.  It's a *huge* improvment.
+Anything else I can try?
 
-The same should be possible with sound hardware, however (just as in
-the old days of video), sound hardware is mostly not able to
-self-configure yet.
+Jan
+- -- 
+To be sure of hitting the target, shoot first and, whatever you hit,
+call it the target.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-> Whether or not a line is needed in an rc script is really a shortcoming
-> of userspace, IMO. It's the responsibility of userspace to setup the
-> user's environment in the most friendly way.
+iD8DBQE+p5TlpuyeqyCEh60RAuAuAJ9WByWWm+pwMNT3HrarHxiW/6HfKACeMOPZ
+2d2+dnUbdZhDG2A3vfVNHoI=
+=rw/c
+-----END PGP SIGNATURE-----
 
-So why do we enable the PC-speaker beep automatically?
-Shouldn't that be silent initially too?
-
-I can tell you that beep can also be quite embarrassing at
-conferences.  On my laptop it uses the same speakers as the sound
-card, but unfortunately the beep is much louder than I'd even set the
-sound to be.
-
--- Jamie

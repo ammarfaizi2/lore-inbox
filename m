@@ -1,19 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262181AbTCHTzB>; Sat, 8 Mar 2003 14:55:01 -0500
+	id <S262180AbTCHTxb>; Sat, 8 Mar 2003 14:53:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262183AbTCHTzA>; Sat, 8 Mar 2003 14:55:00 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16132 "EHLO
+	id <S262181AbTCHTxb>; Sat, 8 Mar 2003 14:53:31 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15620 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262181AbTCHTxg>; Sat, 8 Mar 2003 14:53:36 -0500
-Date: Sat, 8 Mar 2003 12:11:03 +0000
+	id <S262180AbTCHTx1>; Sat, 8 Mar 2003 14:53:27 -0500
+Date: Sat, 8 Mar 2003 10:47:49 +0000
 From: Russell King <rmk@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Register tty_devclass before use
-Message-ID: <20030308121103.C29145@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: Patrick Mochel <mochel@osdl.org>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: PCI driver module unload race?
+Message-ID: <20030308104749.A29145@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Patrick Mochel <mochel@osdl.org>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+	Rusty Russell <rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,36 +29,29 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-The following patch (against vanilla 2.5.64) registers the tty devclass
-with sysfs before any drivers can use it - sysfs requires structures to
-be registered before use.
+What prevents the following scenario from happening?  It's purely
+theoretical - I haven't seen this occuring.
 
-The patch applies to bk-curr with offset.
+- Load PCI driver.
 
---- orig/drivers/char/tty_io.c	Wed Mar  5 19:45:15 2003
-+++ linux/drivers/char/tty_io.c	Sat Mar  8 12:01:41 2003
-@@ -2307,14 +2307,19 @@
- };
- EXPORT_SYMBOL(tty_devclass);
- 
-+static int __init tty_devclass_init(void)
-+{
-+	return devclass_register(&tty_devclass);
-+}
-+
-+postcore_initcall(tty_devclass_init);
-+
- /*
-  * Ok, now we can initialize the rest of the tty devices and can count
-  * on memory allocations, interrupts etc..
-  */
- void __init tty_init(void)
- {
--	devclass_register(&tty_devclass);
--
- 	/*
- 	 * dev_tty_driver and dev_console_driver are actually magic
- 	 * devices which get redirected at open time.  Nevertheless,
+- PCI driver registers using pci_module_init(), and adds itself to sysfs.
+
+- Hot-plugin a PCI device which uses this driver.  sysfs matches the PCI
+  driver, and calls the PCI drivers probe function.
+
+- The probe function calls kmalloc or some other function which sleeps
+  (or gets preempted, if CONFIG_PREEMPT is enabled.)
+
+- We switch to another thread, which happens to be rmmod for this PCI
+  driver.  We remove the driver since it has a use count of zero.
+
+- We switch back to the PCI driver.  Oops.
+
+I've probably missed something, but I don't think so.  I suspect we need
+struct device_driver to include a struct module pointer which sysfs can
+take before calling any driver functions.
+
+Comments?
 
 -- 
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

@@ -1,103 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262713AbTCPRgh>; Sun, 16 Mar 2003 12:36:37 -0500
+	id <S262704AbTCPRea>; Sun, 16 Mar 2003 12:34:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262716AbTCPRgh>; Sun, 16 Mar 2003 12:36:37 -0500
-Received: from nat9.steeleye.com ([65.114.3.137]:34052 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id <S262713AbTCPRge>; Sun, 16 Mar 2003 12:36:34 -0500
-Subject: Re: Complete support PC-9800 for 2.5.64-ac4 (11/11) SCSI
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Osamu Tomita <tomita@cinet.co.jp>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-In-Reply-To: <20030316011550.GK1592@yuzuki.cinet.co.jp>
-References: <20030316001622.GA1061@yuzuki.cinet.co.jp> 
-	<20030316011550.GK1592@yuzuki.cinet.co.jp>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 16 Mar 2003 11:47:16 -0600
-Message-Id: <1047836839.9267.29.camel@mulgrave>
+	id <S262705AbTCPRe3>; Sun, 16 Mar 2003 12:34:29 -0500
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:58350 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id <S262704AbTCPRe0>; Sun, 16 Mar 2003 12:34:26 -0500
+Date: Sun, 16 Mar 2003 10:44:48 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, Andrew Morton <akpm@digeo.com>
+Subject: Re: [Ext2-devel] [PATCH] distributed counters for ext2 to avoid group scaning
+Message-ID: <20030316104447.D12806@schatzie.adilger.int>
+Mail-Followup-To: Alex Tomas <bzzz@tmi.comex.ru>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	ext2-devel@lists.sourceforge.net, Andrew Morton <akpm@digeo.com>
+References: <m3el5773to.fsf@lexa.home.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <m3el5773to.fsf@lexa.home.net>; from bzzz@tmi.comex.ru on Sun, Mar 16, 2003 at 06:01:55PM +0300
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-15 at 19:15, Osamu Tomita wrote:
-> This is the patch to support NEC PC-9800 subarchitecture
-> against 2.5.64-ac4. (11/11)
+On Mar 16, 2003  18:01 +0300, Alex Tomas wrote:
+> hi!
 > 
-> SCSI host adapter support.
->  - BIOS parameter change for PC98.
->  - Add pc980155 driver for old PC98.
->  - wd33c93.c update error handler for eh_*.
->  - wd33c93.h register to int for PIO mode.
+> ext2 with concurrent balloc/ialloc doesn't maintain global free inodes/blocks
+> counters.   This is due to badness of spinlocks and atomic_t from big iron's
+> viewpoint. therefore, to know these values we should scan all group
+> descriptors.  there are 81 groups for 10G fs. I believe there is method to
+> avoid scaning and decrease memory footprint. 
+> 
+> problem:
+> 1) we have to maintain something like global counter
+> 2) we do not want to use spinlock/atomic because of cache ping-pong badness
+> 3) it's possible to fluctuate for some counters
+>    for example, free blocks counter in ext2
+> 
+> solution:
+> lets have some base value of counter and diff value for each cpu.
+> every time, someone wants to change (increase/decrease) counter, he
+> increases/decreases diff value for current cpu. value of global counter
+> may be calculated as sum of base value and all diffs. In order to prevent
+> diff overflow, we need sometime to 'resyn' diff with base value. this
+> resync needs to be serialized by seqlock. I called it 'distributed counter'.
 
-I suppose the first thing to point out is that it would be helpful if
-you could send this to linux-scsi@vger.kernel.org.  Although most SCSI
-people also read linux-kernel, it is easy to lose things in the noise.
+This sounds like a good idea.  I've thought about ways of fixing this
+in the past, but hadn't had any good solutions.  Unfortunately, we are
+still stuck with updating the per-group free blocks/inodes counts, and
+since they are modified directly in the buffer heads we can't go changing
+the alignments of those fields to match the locks.
 
-> diff -Nru linux/drivers/scsi/sd.c linux98/drivers/scsi/sd.c
-> --- linux/drivers/scsi/sd.c	2003-03-05 12:29:32.000000000 +0900
-> +++ linux98/drivers/scsi/sd.c	2003-03-08 11:13:28.000000000 +0900
-> @@ -485,6 +485,15 @@
->  	else
->  		scsicam_bios_param(bdev, sdkp->capacity, diskinfo);
->  
-> +#ifdef CONFIG_X86_PC9800
-> +	{
-> +		extern int pc98_bios_param(struct scsi_device *,
-> +					   struct block_device *,
-> +					   sector_t, int *);
-> +		pc98_bios_param(sdp, bdev, sdkp->capacity, diskinfo);
-> +	}
-> +#endif
-> +
->  	if (put_user(diskinfo[0], &loc->heads))
->  		return -EFAULT;
->  	if (put_user(diskinfo[1], &loc->sectors))
+> +	dcounter_init(&EXT2_SB(sb)->free_blocks_dc, total_free, 1);
+> +	dcounter_init(&EXT2_SB(sb)->free_inodes_dc,
+> +			le32_to_cpu (es->s_free_inodes_count), 1);
 
-You already have the pc98_bios_param as part of your local driver.  Why
-do you need this in addition?
+> +static inline void dcounter_init(struct dcounter *dc, int value, int min)
+> +{
+> +	seqlock_init(&dc->lock);
+> +	dc->base = value;
+> +	dc->min = min;
+> +	memset(dc->diff, 0, sizeof(int) * NR_CPUS);
+> +}
 
-[...]
->  static inline uchar
->  read_aux_stat(const wd33c93_regs regs)
->  {
-> -	return inb(*regs.SASR);
-> +	return inb(regs.SASR);
->  }
->  
->  static inline void
->  write_wd33c93(const wd33c93_regs regs, uchar reg_num, uchar value)
->  {
-> -      outb(reg_num, *regs.SASR);
-> -      outb(value, *regs.SCMD);
-> +      outb(reg_num, regs.SASR);
-> +      outb(value, regs.SCMD);
->  }
->  
-[...]
->     /* This is what the 3393 chip looks like to us */
->  typedef struct {
-> +#ifdef CONFIG_WD33C93_PIO
-> +   unsigned int   SASR;
-> +   unsigned int   SCMD;
-> +#else
->     volatile unsigned char  *SASR;
->     volatile unsigned char  *SCMD;
-> +#endif
->  } wd33c93_regs;
->  
+So, why is it that the minimum free blocks/inodes is 1?
 
-This really doesn't look right.  For non PIO (which is all drivers apart
-from yours), they expect to dereference SASR to get the port number (as
-an unsigned char).  If you remove the dereference, don't they all break?
+> +struct dcounter {
+> +	int base;
+> +	int min;
+> +	int diff[NR_CPUS];
+> +	seqlock_t lock;
+> +};
 
-Perhaps the better thing to do is to make your driver use an unsigned
-int *, so the dereference works in all cases.
+For a generic struct, it probably makes more sense to make these fields
+"long" instead of "int".
 
-James
+Also, while your goal is to reduce cache ping-pong between CPUs, we will
+now have cache ping-pong for the "diff" array.  We need to do per-cpu
+values or make each value cacheline aligned to avoid ping-pong.
+
+Just for sanity's sake, it would be good to call these fields something
+other than "min" and "lock", since that makes life just hell with tags
+(it always bugs me when structs have fields called list_head, list_entry,
+page, inode, etc).
+
+Maybe something like "dc_min", "dc_lock", etc. would be much nicer?
+The same goes for the fields in the block group info - it would be nice
+if they had a "bgi_" prefix.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

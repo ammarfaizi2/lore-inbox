@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314442AbSEFNEG>; Mon, 6 May 2002 09:04:06 -0400
+	id <S314411AbSEFNPI>; Mon, 6 May 2002 09:15:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314443AbSEFNEF>; Mon, 6 May 2002 09:04:05 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:24077 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S314442AbSEFNEF>; Mon, 6 May 2002 09:04:05 -0400
-Date: Mon, 6 May 2002 15:03:56 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "Ivan G." <ivangurdiev@linuxfreemail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5 keyboard timeout
-Message-ID: <20020506130355.GA11676@louise.pinerecords.com>
-In-Reply-To: <02050602144500.00976@cobra.linux>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 14 days, 7:37)
+	id <S314433AbSEFNPH>; Mon, 6 May 2002 09:15:07 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:38673 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S314411AbSEFNPH>; Mon, 6 May 2002 09:15:07 -0400
+Message-Id: <200205061311.g46DBUX15881@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Chris Rankin <cj.rankin@ntlworld.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18 floppy driver EATS floppies
+Date: Mon, 6 May 2002 16:17:41 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200205051317.g45DHIU0000750@twopit.underworld>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try booting with 'acpi=off' and search the lkml archives for '2.5, keyboard'.
-T.
+On 5 May 2002 11:17, Chris Rankin wrote:
+> May  5 13:32:36 twopit kernel: floppy0: sector not found: track 0, head 0,
+> sector 6, size 2 May  5 13:32:37 twopit kernel: floppy0: sector not found:
+> track 0, head 0, sector 6, size 2 May  5 13:32:37 twopit kernel:
+> end_request: I/O error, dev 02:00 (floppy), sector 5 May  5 13:32:37 twopit
+> kernel: 2nd bread in fat_access failed
 
+Kernel says there is a bad sector.
+Did you verify that your floppy is ok?
 
-> [Ivan G. <ivangurdiev@linuxfreemail.com>, May-06 2002, Mon, 02:14 -0600]
-> May  6 01:49:51 cobra kernel: keyboard: Timeout - AT keyboard not present?(ed)
-> problem exists for both 2.5.13 and 2.5.14 ( i wasn't able to get earlier 
-> kernels to work)
-> 
-> When X boots, the mouse works. Mouse freezes on attempt to type anything with 
-> the keyboard. Single - user mode: keyboard is dead by the time I need to type 
-> the root password.
-> 
-> Keyboard works fine with 2.4 kernels 
+OTOH, sector errors shouldn't lead to unkillable processes.
+If they do, that's a bug.
+--
+vda
+

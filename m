@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131707AbRBATAb>; Thu, 1 Feb 2001 14:00:31 -0500
+	id <S131633AbRBATCL>; Thu, 1 Feb 2001 14:02:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131639AbRBATAX>; Thu, 1 Feb 2001 14:00:23 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:37903 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S131707AbRBATAM>;
-	Thu, 1 Feb 2001 14:00:12 -0500
-Date: Thu, 1 Feb 2001 11:59:41 -0700
-From: yodaiken@fsmlabs.com
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@caldera.de>,
-        "Stephen C. Tweedie" <sct@redhat.com>, Steve Lord <lord@sgi.com>,
+	id <S131672AbRBATCB>; Thu, 1 Feb 2001 14:02:01 -0500
+Received: from ns.caldera.de ([212.34.180.1]:27143 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S131633AbRBATBy>;
+	Thu, 1 Feb 2001 14:01:54 -0500
+Date: Thu, 1 Feb 2001 20:00:55 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, bsuparna@in.ibm.com,
         linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
 Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
-Message-ID: <20010201115941.B6715@hq.fsmlabs.com>
-In-Reply-To: <E14ONzo-0004kq-00@the-village.bc.nu> <Pine.LNX.4.21.0102011628590.1321-100000@duckman.distro.conectiva>
+Message-ID: <20010201200055.A7182@caldera.de>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Stephen C. Tweedie" <sct@redhat.com>, bsuparna@in.ibm.com,
+	linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+In-Reply-To: <20010201194800.A4653@caldera.de> <E14OOvP-0004sX-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <Pine.LNX.4.21.0102011628590.1321-100000@duckman.distro.conectiva>; from Rik van Riel on Thu, Feb 01, 2001 at 04:32:48PM -0200
+X-Mailer: Mutt 1.0i
+In-Reply-To: <E14OOvP-0004sX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Feb 01, 2001 at 06:57:41PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 01, 2001 at 04:32:48PM -0200, Rik van Riel wrote:
-> On Thu, 1 Feb 2001, Alan Cox wrote:
-> 
-> > > Sure.  But Linus saing that he doesn't want more of that (shit, crap,
-> > > I don't rember what he said exactly) in the kernel is a very good reason
-> > > for thinking a little more aboyt it.
-> > 
-> > No. Linus is not a God, Linus is fallible, regularly makes mistakes and
-> > frequently opens his mouth and says stupid things when he is far too busy.
-> 
-> People may remember Linus saying a resolute no to SMP
-> support in Linux ;)
+On Thu, Feb 01, 2001 at 06:57:41PM +0000, Alan Cox wrote:
+> Not for raw I/O. Although for the drivers that can't cope then going via
+> the page cache is certainly the next best alternative
 
-And perhaps he was right!
+True - but raw-io has it's own alignment issues anyway.
+
+> Yes. You also need a way to describe it in terms of page * in order to do
+> mm locking for raw I/O (like the video capture stuff wants)
+
+Right. (That's why we have the struct page * always as part of the structure)
+
+> Certainly having the lightweight one a subset of the heavyweight one is a good
+> target. 
+
+Yes, I'm trying to address that...
+
+	Christoph
 
 -- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
-
+Of course it doesn't work. We've performed a software upgrade.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,89 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263056AbVCQMT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVCQMey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263056AbVCQMT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 07:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVCQMSm
+	id S261300AbVCQMey (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 07:34:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVCQMey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 07:18:42 -0500
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:23223 "EHLO mta1.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S261300AbVCQMQl (ORCPT
+	Thu, 17 Mar 2005 07:34:54 -0500
+Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:31665 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261300AbVCQMeu convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 07:16:41 -0500
-To: linux-kernel@vger.kernel.org
-cc: garloff@suse.de, ak@suse.de
-Subject: 2.6.11 vs 2.6.10 slowdown on i686
-Date: Thu, 17 Mar 2005 12:16:40 +0000
-From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Message-Id: <E1DBtvc-0002c4-00@mta1.cl.cam.ac.uk>
+	Thu, 17 Mar 2005 07:34:50 -0500
+MIME-Version: 1.0
+To: torvalds@osdl.org
+Subject: bktools::shortlog update
+CC: matthias.andree@gmx.de, samel@mail.cz, linux-kernel@vger.kernel.org
+From: Matthias Andree <matthias.andree@gmx.de>
+Content-ID: <Thu,_17_Mar_2005_12_34_45_+0000_0@merlin.emma.line.org>
+Content-type: text/plain; charset=iso-8859-1
+Content-Description: An object packed by metasend
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20050317123445.751E278BFD@merlin.emma.line.org>
+Date: Thu, 17 Mar 2005 13:34:45 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Linus,
 
-Folks, 
+you can either use "bk receive" to patch with this mail,
+or you can
+Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
+or in cases of dire need, you can apply the patch below.
 
-When we upgraded arch xen/x86 to kernel 2.6.11, we noticed a slowdown
-on a number of micro-benchmarks. In order to investigate, I built
-native (non Xen) i686 uniprocessor kernels for 2.6.10 and 2.6.11 with
-the same configuration and ran lmbench-3.0-a3 on them. The test
-machine was a 2.4GHz Xeon box, gcc 3.3.3 (FC3 default) was used to
-compile the kernels, NOHIGHMEM=y (2-level only).
+BK parent: http://bktools.bkbits.net/bktools
 
-On the i686 fork and exec benchmarks I found that there's been a
-significant slowdown between 2.6.10 and 2.6.11. Some of the other
-numbers a bit ugly too (see attached).
+Patch description:
+ChangeSet@1.292, 2005-03-17 13:11:15+01:00, samel@mail.cz
+  shortlog: add 4 new addresses
 
-fork: 166 -> 235  (40% slowdown)
-exec: 857 -> 1003 (17% slowdown)
+Matthias
 
-I'm guessing this is down to the 4 level pagetables. This is rather a
-surprise as I thought the compiler would optimise most of these
-changes away. Apparently not. 
+------------------------------------------------------------------------
 
-Anyhow, this explains the arch Xen results we were seeing.
+##### DIFFSTAT #####
+ shortlog |    4 ++++
+ 1 files changed, 4 insertions(+)
 
-Results appended, median of 6 runs.
+##### GNUPATCH #####
+--- 1.257/shortlog	2005-03-14 20:52:29 +01:00
++++ 1.258/shortlog	2005-03-17 13:10:58 +01:00
+@@ -297,6 +297,7 @@
+ 'andre.breiler:null-mx.org' => 'André Breiler',
+ 'andre.landwehr:gmx.net' => 'Andre Landwehr',
+ 'andre:linux-ide.org' => 'Andre Hedrick',
++'andre:tomt.net' => 'Andre Tomt',
+ 'andrea:cpushare.com' => 'Andrea Arcangeli',
+ 'andrea:novell.com' => 'Andrea Arcangeli',
+ 'andrea:suse.de' => 'Andrea Arcangeli',
+@@ -1173,6 +1174,7 @@
+ 'jack_hammer:adaptec.com' => 'Jack Hammer',
+ 'jackson:realtek.com.tw' => 'Ian Jackson',
+ 'jacmet:sunsite.dk' => 'Peter Korsgaard',
++'jacques_basson:myrealbox.com' => 'Jacques Basson',
+ 'jaharkes:cs.cmu.edu' => 'Jan Harkes',
+ 'jakob.kemi:telia.com' => 'Jakob Kemi',
+ 'jakub:redhat.com' => 'Jakub Jelínek',
+@@ -2240,6 +2242,7 @@
+ 'rene.herman:nl.rmk.(none)' => 'Rene Herman',
+ 'rene.rebe:gmx.net' => 'Rene Rebe',
+ 'rene.scharfe:lsrfire.ath.cx' => 'Rene Scharfe',
++'rene:exactcode.de' => 'Rene Rebe',
+ 'rgcrettol:datacomm.ch' => 'Roger Crettol',
+ 'rgooch:atnf.csiro.au' => 'Richard Gooch',
+ 'rgooch:ras.ucalgary.ca' => 'Richard Gooch',
+@@ -2435,6 +2438,7 @@
+ 'shbader:de.ibm.com' => 'Stefan Bader',
+ 'sheilds:msrl.com' => 'Michael Shields', # typo
+ 'shemminger:osdl.org' => 'Stephen Hemminger',
++'shenkel:gmail.com' => 'Sven Henkel',
+ 'shep:alum.mit.edu' => 'Tim Shepard',
+ 'shields:msrl.com' => 'Michael Shields',
+ 'shingchuang:via.com.tw' => 'Shing Chuang',
 
-Best,
-Ian
 
 
-Processor, Processes - times in microseconds - smaller is better
-------------------------------------------------------------------------------
-Host                 OS  Mhz null null      open slct sig  sig  fork exec sh  
-                             call  I/O stat clos TCP  inst hndl proc proc proc
---------- ------------- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-commando-  Linux 2.6.10 2400 0.49 0.57 2.06 3.06 19.6 0.89 2.70 166. 857. 2972
-commando-  Linux 2.6.11 2400 0.49 0.60 2.12 3.35 20.8 0.92 2.73 235. 1003 3168
+##### BKPATCH #####
 
-Context switching - times in microseconds - smaller is better
--------------------------------------------------------------------------
-Host                 OS  2p/0K 2p/16K 2p/64K 8p/16K 8p/64K 16p/16K 16p/64K
-                         ctxsw  ctxsw  ctxsw ctxsw  ctxsw   ctxsw   ctxsw
---------- ------------- ------ ------ ------ ------ ------ ------- -------
-commando-  Linux 2.6.10 7.5800 4.3300 8.1900 5.1100   33.1 8.37000    41.9
-commando-  Linux 2.6.11 7.9200 8.3200 8.3200 5.8300   26.6 9.46000    40.4
-
-*Local* Communication latencies in microseconds - smaller is better
----------------------------------------------------------------------
-Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
-                        ctxsw       UNIX         UDP         TCP conn
---------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
-commando-  Linux 2.6.10 7.750  19.4 21.3  37.2  45.5  42.5  53.2  76.
-commando-  Linux 2.6.11 7.920  20.3 23.6  40.2  50.1  46.5  57.6  87.
-
-File & VM system latencies in microseconds - smaller is better
--------------------------------------------------------------------------------
-Host                 OS   0K File      10K File     Mmap    Prot   Page   100fd
-                        Create Delete Create Delete Latency Fault  Fault  selct
---------- ------------- ------ ------ ------ ------ ------- ----- ------- -----
-commando-  Linux 2.6.10   39.3   16.2   92.7   35.2   122.0 1.200 2.14310  18.3
-commando-  Linux 2.6.11   40.8   16.8   99.5   36.7   163.0 1.075 2.27760  18.8
-
-*Local* Communication bandwidths in MB/s - bigger is better
------------------------------------------------------------------------------
-Host                OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
-                             UNIX      reread reread (libc) (hand) read write
---------- ------------- ---- ---- ---- ------ ------ ------ ------ ---- -----
-commando-  Linux 2.6.10 313. 440. 222. 1551.7 1528.5  549.1  566.8 1550 784.8
-commando-  Linux 2.6.11 554. 450. 224. 1564.8 1548.3  549.9  574.6 1528 760.5
+## Wrapped with gzip_b64 ##
+H4sIAGV5OUICA7WUUW+bMBDHn+NPcVIf8tBBbIMDWEqVpp3WtJNWpevz5JhryAq4w06aTnz4
+QVBSJeoetnXgB+743/G/+0mcwPRS9pyp1ipP7fgJy8VqWfquUqUt0Clfm6K+yFS5wDt0NaeU
+NzfjAR2KpObJUIgaOQqhQ6bmURyh5uQE7i1Wslco57Klsr4q0wqxyV8Z62RvUWz8tA1nxjTh
+wK4sDh6xKjEfTG6a43WB54zJLWmEt8rpDNZYWdljfrDPuJcnlL3Zx0/3n89nhIxGsPcKoxF5
+57mO5hl3cxy2ETRgIUtE06kehkOekEtgPk84UDGgwYBFwALJmGTilDJJKVhVYD4u1DL39U84
+ZeBRMoF3tn5BNNjMVC43CwkqTSGEEp/bpwqtRUtuYBhELCa3rysk3h9ehFBFydmr+cwUeOR8
+56IzLlhMo7D5bh2wKBH1AybqQUc0URRTNU8Pt3NQ3G46YpxREdeMhZxt+e8UB/j/2cbv0B/7
+2ZLnST0MhOAdeREfkqdSxG+TD/8b+bd5d0v7Al71vGmPt2ng7yb6C/ZTniTASH+7IulM4fwS
+XR9GZ9A/b3Pwtcn1P5ApY5Fold+V/rFC+22urDWlLF4qVPncbNpBu7rrTgGTraKt5TzkbW2F
+JUrcKO20SbGB0RXMmjTMcI5bbRhErdZmWD5iLhfdrnfN79ZYwtX2VaPe/1R0hvrRropRzBWG
+WsfkF7RXK4UmBQAA
 

@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262137AbTHTSpv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 14:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTHTSpv
+	id S262161AbTHTSqf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 14:46:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbTHTSqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 14:45:51 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:28689
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S262137AbTHTSpu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 14:45:50 -0400
-Date: Wed, 20 Aug 2003 11:45:46 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Eric St-Laurent <ericstl34@sympatico.ca>, linux-kernel@vger.kernel.org
-Subject: Re: scheduler interactivity: timeslice calculation seem wrong
-Message-ID: <20030820184546.GA1040@matchmail.com>
-Mail-Followup-To: Nick Piggin <piggin@cyberone.com.au>,
-	Eric St-Laurent <ericstl34@sympatico.ca>,
-	linux-kernel@vger.kernel.org
-References: <1061261666.2094.15.camel@orbiter> <3F419449.4070104@cyberone.com.au> <20030819175105.GA19465@matchmail.com> <3F42DFEB.9010404@cyberone.com.au>
+	Wed, 20 Aug 2003 14:46:21 -0400
+Received: from h80ad24cb.async.vt.edu ([128.173.36.203]:14209 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262154AbTHTSqP (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 14:46:15 -0400
+Message-Id: <200308201846.h7KIk6uu013871@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: davidsen@tmr.com (bill davidsen)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SCO's "proof" 
+In-Reply-To: Your message of "Wed, 20 Aug 2003 18:27:31 -0000."
+             <bi0eij$f13$1@gatekeeper.tmr.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <3F422809.7080806@yahoo.com> <20030819145213.GC5582@gallifrey> <20030819150137.GA22521@gevaerts.be> <lt4r0du0t3.fsf@colina.demon.co.uk>
+            <bi0eij$f13$1@gatekeeper.tmr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F42DFEB.9010404@cyberone.com.au>
-User-Agent: Mutt/1.5.4i
+Content-Type: multipart/signed; boundary="==_Exmh_482782970P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 20 Aug 2003 14:46:05 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 20, 2003 at 12:41:47PM +1000, Nick Piggin wrote:
-> My idea is just to modify timeslices. It should achieve a similar
-> effect to what you describe I think.
+--==_Exmh_482782970P
+Content-Type: text/plain; charset=us-ascii
 
-And how do you have one time slice per array switch (what's the term for
-that?) and larger slices for lower nice levels, how does that work?
+On Wed, 20 Aug 2003 18:27:31 -0000, davidsen@tmr.com (bill davidsen)  said:
+> Colin Paul Adams  <colin@colina.demon.co.uk> wrote:
+> | But Caldera are SCO now, aren't they? Are they going to sue themselves!?
+> 
+> Thay should! Oh wait, you said sue, not shoot... nevermind.
+
+Only in the foot.. only in the foot.. unfortunately.
+
+--==_Exmh_482782970P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/Q8HtcC3lWbTT17ARAiSbAKDTIxS20/Ykd2oT40MpJYI+6Yn65ACePq8/
+J22LMehLhz5XlBY/YuWUHjY=
+=9wmh
+-----END PGP SIGNATURE-----
+
+--==_Exmh_482782970P--

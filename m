@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266555AbSL2QxA>; Sun, 29 Dec 2002 11:53:00 -0500
+	id <S265236AbSL2Qtr>; Sun, 29 Dec 2002 11:49:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266528AbSL2QxA>; Sun, 29 Dec 2002 11:53:00 -0500
-Received: from main.gmane.org ([80.91.224.249]:36561 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S266435AbSL2Qwq>;
-	Sun, 29 Dec 2002 11:52:46 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	id <S266433AbSL2Qtq>; Sun, 29 Dec 2002 11:49:46 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:57298 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id <S265236AbSL2Qs6>;
+	Sun, 29 Dec 2002 11:48:58 -0500
+Subject: [PATCH 2.5 RESEND] bttv-cards.c undeclared function fix
+From: Steven Barnhart <sbarn03@softhome.net>
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Steven Barnhart" <sbarn03@softhome.net>
-Subject: Re: [PATCH 2.5 RESEND] bttv-cards.c AUDC_CONFIG_PINNACLE fix
-Date: Sun, 29 Dec 2002 11:51:10 -0500
-Message-ID: <pan.2002.12.29.16.47.56.187325@softhome.net>
-References: <1041142844.12913.8.camel@sbarn.net>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 29 Dec 2002 11:57:17 -0500
+Message-Id: <1041181042.28165.8.camel@sbarn.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Pan/0.13.0 (The whole remains beautiful)
+Content-Type: multipart/mixed; boundary="=_jive-28811-1041181040-0001-2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Dec 2002 01:20:35 +0000, Steven Barnhart wrote:
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-> This fixes bug #162 on http://bugme.osdl.org that has still not been
-> merged with mainline since it appeared in 2.5.51. This patch gets rid of
-> the undeclared AUDC_CONFIG_PINNACLE problem. Please merge.
-> 
-> Steven Barnhart
-> sbarn03@softhome.net
+--=_jive-28811-1041181040-0001-2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-It seems I totally forgot to attach the patch (sorry!). Its attached now.
+Sorry I forgot to include the actual patch! Pleas excuse that for I sent
+it at 1 something AM. This patch does fix the problem though and has
+been tested. It fixes the undeclared function problem
+AUDC_CONFIG_PINNACLE in divers/media/video/bttv-cards.c Please apply.
 
 Steven
 
---------
+-------
 # This is a BitKeeper generated patch for the following project:
 # Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch format is intended for GNU patch command version 2.5 or
+higher.
 # This patch includes the following deltas:
 #	           ChangeSet	1.956   -> 1.957  
 #	drivers/media/video/audiochip.h	1.1     -> 1.2    
@@ -48,7 +46,8 @@ Steven
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
 # 02/12/29	steven@sbarn.net	1.957
-# Fix AUDC_CONFIG_PINNACLE undeclared error in drivers/media/video/bttv-cards.c.
+# Fix AUDC_CONFIG_PINNACLE undeclared error in
+drivers/media/video/bttv-cards.c.
 # --------------------------------------------
 #
 diff -Nru a/drivers/media/video/Makefile b/drivers/media/video/Makefile
@@ -63,7 +62,8 @@ diff -Nru a/drivers/media/video/Makefile b/drivers/media/video/Makefile
  obj-$(CONFIG_SOUND_TVMIXER) += tvmixer.o
  
  obj-$(CONFIG_VIDEO_ZR36120) += zoran.o
-diff -Nru a/drivers/media/video/audiochip.h b/drivers/media/video/audiochip.h
+diff -Nru a/drivers/media/video/audiochip.h
+b/drivers/media/video/audiochip.h
 --- a/drivers/media/video/audiochip.h	Sun Dec 29 01:08:25 2002
 +++ b/drivers/media/video/audiochip.h	Sun Dec 29 01:08:25 2002
 @@ -67,4 +67,8 @@
@@ -75,7 +75,8 @@ diff -Nru a/drivers/media/video/audiochip.h b/drivers/media/video/audiochip.h
 +#define AUDC_CONFIG_PINNACLE  _IOW('m',32,int)
 +
  #endif /* AUDIOCHIP_H */
-diff -Nru a/drivers/media/video/bttv-cards.c b/drivers/media/video/bttv-cards.c
+diff -Nru a/drivers/media/video/bttv-cards.c
+b/drivers/media/video/bttv-cards.c
 --- a/drivers/media/video/bttv-cards.c	Sun Dec 29 01:08:25 2002
 +++ b/drivers/media/video/bttv-cards.c	Sun Dec 29 01:08:25 2002
 @@ -40,6 +40,7 @@
@@ -86,7 +87,8 @@ diff -Nru a/drivers/media/video/bttv-cards.c b/drivers/media/video/bttv-cards.c
  
  /* fwd decl */
  static void boot_msp34xx(struct bttv *btv, int pin);
-diff -Nru a/drivers/media/video/tda9887.c b/drivers/media/video/tda9887.c
+diff -Nru a/drivers/media/video/tda9887.c
+b/drivers/media/video/tda9887.c
 --- /dev/null	Wed Dec 31 16:00:00 1969
 +++ b/drivers/media/video/tda9887.c	Sun Dec 29 01:08:25 2002
 @@ -0,0 +1,493 @@
@@ -117,12 +119,18 @@ diff -Nru a/drivers/media/video/tda9887.c b/drivers/media/video/tda9887.c
 +
 +/* Addresses to scan */
 +static unsigned short normal_i2c[] = {I2C_CLIENT_END};
-+static unsigned short normal_i2c_range[] = {0x86>>1,0x86>>1,I2C_CLIENT_END};
-+static unsigned short probe[2]        = { I2C_CLIENT_END, I2C_CLIENT_END };
-+static unsigned short probe_range[2]  = { I2C_CLIENT_END, I2C_CLIENT_END };
-+static unsigned short ignore[2]       = { I2C_CLIENT_END, I2C_CLIENT_END };
-+static unsigned short ignore_range[2] = { I2C_CLIENT_END, I2C_CLIENT_END };
-+static unsigned short force[2]        = { I2C_CLIENT_END, I2C_CLIENT_END };
++static unsigned short normal_i2c_range[] =
+{0x86>>1,0x86>>1,I2C_CLIENT_END};
++static unsigned short probe[2]        = { I2C_CLIENT_END,
+I2C_CLIENT_END };
++static unsigned short probe_range[2]  = { I2C_CLIENT_END,
+I2C_CLIENT_END };
++static unsigned short ignore[2]       = { I2C_CLIENT_END,
+I2C_CLIENT_END };
++static unsigned short ignore_range[2] = { I2C_CLIENT_END,
+I2C_CLIENT_END };
++static unsigned short force[2]        = { I2C_CLIENT_END,
+I2C_CLIENT_END };
 +static struct i2c_client_address_data addr_data = {
 +	normal_i2c, normal_i2c_range, 
 +	probe, probe_range, 
@@ -139,7 +147,9 @@ diff -Nru a/drivers/media/video/tda9887.c b/drivers/media/video/tda9887.c
 +MODULE_PARM(secam,"s");
 +MODULE_LICENSE("GPL");
 +
-+/* ---------------------------------------------------------------------- */
++/*
+----------------------------------------------------------------------
+*/
 +
 +#define dprintk     if (debug) printk
 +
@@ -152,7 +162,9 @@ diff -Nru a/drivers/media/video/tda9887.c b/drivers/media/video/tda9887.c
 +static struct i2c_driver driver;
 +static struct i2c_client client_template;
 +
-+/* ---------------------------------------------------------------------- */
++/*
+----------------------------------------------------------------------
+*/
 +
 +//
 +// TDA defines
@@ -232,7 +244,8 @@ diff -Nru a/drivers/media/video/tda9887.c b/drivers/media/video/tda9887.c
 +	u8   bCarrierMode = 0;
 +	u8   bOutPort1    = cOutputPort1Inactive;
 +#if 0
-+	u8   bOutPort2    = cOutputPort2Inactive & mbTADState; // store i2c tuner state
++	u8   bOutPort2    = cOutputPort2Inactive & mbTADState; // store i2c
+tuner state
 +#else
 +	u8   bOutPort2    = cOutputPort2Inactive;
 +#endif
@@ -354,7 +367,8 @@ diff -Nru a/drivers/media/video/tda9887.c b/drivers/media/video/tda9887.c
 +		cForcedMuteAudioOFF  |  // B5: forced Audio Mute (off)
 +		bOutPort1            |  // B6: Out Port 1 
 +		bOutPort2;              // B7: Out Port 2 
-+	bData[2] = bTopAdjust |   // C0 - C4: Top Adjust 0 == -16dB  31 == 15dB
++	bData[2] = bTopAdjust |   // C0 - C4: Top Adjust 0 == -16dB  31 ==
+15dB
 +		bDeEmphasis   |   // C5: De-emphasis on/off
 +		bDeEmphVal    |   // C6: De-emphasis 50/75 microsec
 +		cAudioGain0;      // C7: normal audio gain
@@ -371,7 +385,9 @@ diff -Nru a/drivers/media/video/tda9887.c b/drivers/media/video/tda9887.c
 +	return 0;
 +}
 +
-+/* ---------------------------------------------------------------------- */
++/*
+----------------------------------------------------------------------
+*/
 +
 +#if 0
 +/* just for reference: old knc-one saa7134 stuff */
@@ -441,11 +457,14 @@ diff -Nru a/drivers/media/video/tda9887.c b/drivers/media/video/tda9887.c
 +	dprintk("tda9885/6/7: 0x%02x 0x%02x 0x%02x\n",
 +		buf[1],buf[2],buf[3]);
 +        if (4 != (rc = i2c_master_send(&t->client,buf,4)))
-+                printk("tda9885/6/7: i2c i/o error: rc == %d (should be 4)\n",rc);
++                printk("tda9885/6/7: i2c i/o error: rc == %d (should be
+4)\n",rc);
 +	return 0;
 +}
 +
-+/* ---------------------------------------------------------------------- */
++/*
+----------------------------------------------------------------------
+*/
 +
 +static int tda9887_attach(struct i2c_adapter *adap, int addr,
 +			  unsigned short flags, int kind)
@@ -545,7 +564,9 @@ diff -Nru a/drivers/media/video/tda9887.c b/drivers/media/video/tda9887.c
 +	return 0;
 +}
 +
-+/* ----------------------------------------------------------------------- */
++/*
+-----------------------------------------------------------------------
+*/
 +
 +static struct i2c_driver driver = {
 +        name:           "i2c tda9887 driver",
@@ -578,7 +599,8 @@ diff -Nru a/drivers/media/video/tda9887.c b/drivers/media/video/tda9887.c
 +
 +/*
 + * Overrides for Emacs so that we follow Linus's tabbing style.
-+ * ---------------------------------------------------------------------------
++ *
+---------------------------------------------------------------------------
 + * Local variables:
 + * c-basic-offset: 8
 + * End:
@@ -586,3 +608,579 @@ diff -Nru a/drivers/media/video/tda9887.c b/drivers/media/video/tda9887.c
 
 
 
+
+--=_jive-28811-1041181040-0001-2
+Content-Type: text/plain; name="bttv-cards.c-patch"; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename=bttv-cards.c-patch
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher=
+.
+# This patch includes the following deltas:
+#	           ChangeSet	1.956   -> 1.957 =20
+#	drivers/media/video/audiochip.h	1.1     -> 1.2   =20
+#	drivers/media/video/Makefile	1.13    -> 1.14  =20
+#	drivers/media/video/bttv-cards.c	1.12    -> 1.13  =20
+#	               (new)	        -> 1.1     drivers/media/video/tda9887.c
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/12/29	steven@sbarn.net	1.957
+# Fix AUDC_CONFIG_PINNACLE undeclared error in drivers/media/video/bttv-car=
+ds.c.
+# --------------------------------------------
+#
+diff -Nru a/drivers/media/video/Makefile b/drivers/media/video/Makefile
+--- a/drivers/media/video/Makefile	Sun Dec 29 01:08:25 2002
++++ b/drivers/media/video/Makefile	Sun Dec 29 01:08:25 2002
+@@ -15,7 +15,7 @@
+ obj-$(CONFIG_VIDEO_DEV) +=3D videodev.o v4l2-common.o
+=20
+ obj-$(CONFIG_VIDEO_BT848) +=3D bttv.o msp3400.o tvaudio.o \
+-	tda7432.o tda9875.o tuner.o video-buf.o
++	tda7432.o tda9875.o tuner.o video-buf.o tda9887.o
+ obj-$(CONFIG_SOUND_TVMIXER) +=3D tvmixer.o
+=20
+ obj-$(CONFIG_VIDEO_ZR36120) +=3D zoran.o
+diff -Nru a/drivers/media/video/audiochip.h b/drivers/media/video/audiochip=
+.h
+--- a/drivers/media/video/audiochip.h	Sun Dec 29 01:08:25 2002
++++ b/drivers/media/video/audiochip.h	Sun Dec 29 01:08:25 2002
+@@ -67,4 +67,8 @@
+ #define AUDC_SWITCH_MUTE      _IO('m',16)      /* turn on mute */
+ #endif
+=20
++
++/* misc stuff to pass around config info to i2c chips */
++#define AUDC_CONFIG_PINNACLE  _IOW('m',32,int)
++
+ #endif /* AUDIOCHIP_H */
+diff -Nru a/drivers/media/video/bttv-cards.c b/drivers/media/video/bttv-car=
+ds.c
+--- a/drivers/media/video/bttv-cards.c	Sun Dec 29 01:08:25 2002
++++ b/drivers/media/video/bttv-cards.c	Sun Dec 29 01:08:25 2002
+@@ -40,6 +40,7 @@
+ #if 0
+ # include "bt832.h"
+ #endif
++#include "audiochip.h"
+=20
+ /* fwd decl */
+ static void boot_msp34xx(struct bttv *btv, int pin);
+diff -Nru a/drivers/media/video/tda9887.c b/drivers/media/video/tda9887.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/media/video/tda9887.c	Sun Dec 29 01:08:25 2002
+@@ -0,0 +1,493 @@
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/i2c.h>
++#include <linux/types.h>
++#include <linux/videodev.h>
++#include <linux/init.h>
++#include <linux/errno.h>
++#include <linux/slab.h>
++
++#include "id.h"
++#include "audiochip.h"
++
++/* Chips:
++   TDA9885 (PAL, NTSC)
++   TDA9886 (PAL, SECAM, NTSC)
++   TDA9887 (PAL, SECAM, NTSC, FM Radio)
++
++   found on:
++   - Pinnacle PCTV (Jul.2002 Version with MT2032, bttv)
++      TDA9887 (world), TDA9885 (USA)
++      Note: OP2 of tda988x must be set to 1, else MT2032 is disabled!
++   - KNC One TV-Station RDS (saa7134)
++*/
++   =20
++
++/* Addresses to scan */
++static unsigned short normal_i2c[] =3D {I2C_CLIENT_END};
++static unsigned short normal_i2c_range[] =3D {0x86>>1,0x86>>1,I2C_CLIENT_E=
+ND};
++static unsigned short probe[2]        =3D { I2C_CLIENT_END, I2C_CLIENT_END=
+ };
++static unsigned short probe_range[2]  =3D { I2C_CLIENT_END, I2C_CLIENT_END=
+ };
++static unsigned short ignore[2]       =3D { I2C_CLIENT_END, I2C_CLIENT_END=
+ };
++static unsigned short ignore_range[2] =3D { I2C_CLIENT_END, I2C_CLIENT_END=
+ };
++static unsigned short force[2]        =3D { I2C_CLIENT_END, I2C_CLIENT_END=
+ };
++static struct i2c_client_address_data addr_data =3D {
++	normal_i2c, normal_i2c_range,=20
++	probe, probe_range,=20
++	ignore, ignore_range,=20
++	force
++};
++
++/* insmod options */
++static int debug =3D  0;
++static char *pal =3D  "b";
++static char *secam =3D  "l";
++MODULE_PARM(debug,"i");
++MODULE_PARM(pal,"s");
++MODULE_PARM(secam,"s");
++MODULE_LICENSE("GPL");
++
++/* ---------------------------------------------------------------------- =
+*/
++
++#define dprintk     if (debug) printk
++
++struct tda9887 {
++	struct i2c_client client;
++	int radio,tvnorm;
++	int pinnacle_id;
++};
++
++static struct i2c_driver driver;
++static struct i2c_client client_template;
++
++/* ---------------------------------------------------------------------- =
+*/
++
++//
++// TDA defines
++//
++
++//// first reg
++#define cVideoTrapBypassOFF     0x00    // bit b0
++#define cVideoTrapBypassON      0x01    // bit b0
++
++#define cAutoMuteFmInactive     0x00    // bit b1
++#define cAutoMuteFmActive       0x02    // bit b1
++
++#define cIntercarrier           0x00    // bit b2
++#define cQSS                    0x04    // bit b2
++
++#define cPositiveAmTV           0x00    // bit b3:4
++#define cFmRadio                0x08    // bit b3:4
++#define cNegativeFmTV           0x10    // bit b3:4
++
++
++#define cForcedMuteAudioON      0x20    // bit b5
++#define cForcedMuteAudioOFF     0x00    // bit b5
++
++#define cOutputPort1Active      0x00    // bit b6
++#define cOutputPort1Inactive    0x40    // bit b6
++
++#define cOutputPort2Active      0x00    // bit b7
++#define cOutputPort2Inactive    0x80    // bit b7
++
++
++//// second reg
++#define cDeemphasisOFF          0x00    // bit c5
++#define cDeemphasisON           0x20    // bit c5
++
++#define cDeemphasis75           0x00    // bit c6
++#define cDeemphasis50           0x40    // bit c6
++
++#define cAudioGain0             0x00    // bit c7
++#define cAudioGain6             0x80    // bit c7
++
++
++//// third reg
++#define cAudioIF_4_5             0x00    // bit e0:1
++#define cAudioIF_5_5             0x01    // bit e0:1
++#define cAudioIF_6_0             0x02    // bit e0:1
++#define cAudioIF_6_5             0x03    // bit e0:1
++
++
++#define cVideoIF_58_75           0x00    // bit e2:4
++#define cVideoIF_45_75           0x04    // bit e2:4
++#define cVideoIF_38_90           0x08    // bit e2:4
++#define cVideoIF_38_00           0x0C    // bit e2:4
++#define cVideoIF_33_90           0x10    // bit e2:4
++#define cVideoIF_33_40           0x14    // bit e2:4
++#define cRadioIF_45_75           0x18    // bit e2:4
++#define cRadioIF_38_90           0x1C    // bit e2:4
++
++
++#define cTunerGainNormal         0x00    // bit e5
++#define cTunerGainLow            0x20    // bit e5
++
++#define cGating_18               0x00    // bit e6
++#define cGating_36               0x40    // bit e6
++
++#define cAgcOutON                0x80    // bit e7
++#define cAgcOutOFF               0x00    // bit e7
++
++static int tda9887_miro(struct tda9887 *t)
++{
++	int rc;
++	u8   bData[4]     =3D { 0 };
++	u8   bVideoIF     =3D 0;
++	u8   bAudioIF     =3D 0;
++	u8   bDeEmphasis  =3D 0;
++	u8   bDeEmphVal   =3D 0;
++	u8   bModulation  =3D 0;
++	u8   bCarrierMode =3D 0;
++	u8   bOutPort1    =3D cOutputPort1Inactive;
++#if 0
++	u8   bOutPort2    =3D cOutputPort2Inactive & mbTADState; // store i2c tun=
+er state
++#else
++	u8   bOutPort2    =3D cOutputPort2Inactive;
++#endif
++	u8   bVideoTrap   =3D cVideoTrapBypassOFF;
++#if 0
++	u8   bTopAdjust   =3D mbAGC;
++#else
++	u8   bTopAdjust   =3D 0;
++#endif
++
++#if 0
++	if (mParams.fVideoTrap)
++		bVideoTrap   =3D cVideoTrapBypassON;
++#endif
++
++	if (t->radio) {
++		bVideoTrap   =3D cVideoTrapBypassOFF;
++		bCarrierMode =3D cQSS;
++		bModulation  =3D cFmRadio;
++		bOutPort1    =3D cOutputPort1Inactive;
++		bDeEmphasis  =3D cDeemphasisON;
++		if (3 =3D=3D t->pinnacle_id) {
++			/* ntsc */
++			bDeEmphVal   =3D cDeemphasis75;
++			bAudioIF     =3D cAudioIF_4_5;
++			bVideoIF     =3D cRadioIF_45_75;
++		} else {
++			/* pal */
++			bAudioIF     =3D cAudioIF_5_5;
++			bVideoIF     =3D cRadioIF_38_90;
++			bDeEmphVal   =3D cDeemphasis50;
++		}
++
++	} else if (t->tvnorm =3D=3D VIDEO_MODE_PAL) {
++		bDeEmphasis  =3D cDeemphasisON;
++		bDeEmphVal   =3D cDeemphasis50;
++		bModulation  =3D cNegativeFmTV;
++		bOutPort1    =3D cOutputPort1Inactive;
++		if (1 =3D=3D t->pinnacle_id) {
++			bCarrierMode =3D cIntercarrier;
++		} else {
++			// stereo boards
++			bCarrierMode =3D cQSS;
++		}
++		switch (pal[0]) {
++		case 'b':
++		case 'g':
++		case 'h':
++			bVideoIF     =3D cVideoIF_38_90;
++			bAudioIF     =3D cAudioIF_5_5;
++			break;
++		case 'd':
++			bVideoIF     =3D cVideoIF_38_00;
++			bAudioIF     =3D cAudioIF_6_5;
++			break;
++		case 'i':
++			bVideoIF     =3D cVideoIF_38_90;
++			bAudioIF     =3D cAudioIF_6_0;
++			break;
++		case 'm':
++		case 'n':
++			bVideoIF     =3D cVideoIF_45_75;
++			bAudioIF     =3D cAudioIF_4_5;
++			bDeEmphVal   =3D cDeemphasis75;
++			if ((5 =3D=3D t->pinnacle_id) || (6 =3D=3D t->pinnacle_id)) {
++				bCarrierMode =3D cIntercarrier;
++			} else {
++				bCarrierMode =3D cQSS;
++			}
++			break;
++		}
++
++	} else if (t->tvnorm =3D=3D VIDEO_MODE_SECAM) {
++		bAudioIF     =3D cAudioIF_6_5;
++		bDeEmphasis  =3D cDeemphasisON;
++		bDeEmphVal   =3D cDeemphasis50;
++		bModulation  =3D cNegativeFmTV;
++		bCarrierMode =3D cQSS;
++		bOutPort1    =3D cOutputPort1Inactive;               =20
++		switch (secam[0]) {
++		case 'd':
++			bVideoIF     =3D cVideoIF_38_00;
++			break;
++		case 'k':
++			bVideoIF     =3D cVideoIF_38_90;
++			break;
++		case 'l':
++			bVideoIF     =3D cVideoIF_38_90;
++			bDeEmphasis  =3D cDeemphasisOFF;
++			bDeEmphVal   =3D cDeemphasis75;
++			bModulation  =3D cPositiveAmTV;
++			break;
++		case 'L' /* L1 */:
++			bVideoIF     =3D cVideoIF_33_90;
++			bDeEmphasis  =3D cDeemphasisOFF;
++			bDeEmphVal   =3D cDeemphasis75;
++			bModulation  =3D cPositiveAmTV;
++			break;
++		}
++
++	} else if (t->tvnorm =3D=3D VIDEO_MODE_NTSC) {
++                bVideoIF     =3D cVideoIF_45_75;
++                bAudioIF     =3D cAudioIF_4_5;
++                bDeEmphasis  =3D cDeemphasisON;
++                bDeEmphVal   =3D cDeemphasis75;
++                bModulation  =3D cNegativeFmTV;               =20
++                bOutPort1    =3D cOutputPort1Inactive;
++                if ((5 =3D=3D t->pinnacle_id) || (6 =3D=3D t->pinnacle_id)=
+) {
++			bCarrierMode =3D cIntercarrier;
++		} else {
++			bCarrierMode =3D cQSS;
++                }
++	}
++
++	bData[1] =3D bVideoTrap        |  // B0: video trap bypass
++		cAutoMuteFmInactive  |  // B1: auto mute
++		bCarrierMode         |  // B2: InterCarrier for PAL else QSS=20
++		bModulation          |  // B3 - B4: positive AM TV for SECAM only
++		cForcedMuteAudioOFF  |  // B5: forced Audio Mute (off)
++		bOutPort1            |  // B6: Out Port 1=20
++		bOutPort2;              // B7: Out Port 2=20
++	bData[2] =3D bTopAdjust |   // C0 - C4: Top Adjust 0 =3D=3D -16dB  31 =3D=
+=3D 15dB
++		bDeEmphasis   |   // C5: De-emphasis on/off
++		bDeEmphVal    |   // C6: De-emphasis 50/75 microsec
++		cAudioGain0;      // C7: normal audio gain
++	bData[3] =3D bAudioIF      |  // E0 - E1: Sound IF
++		bVideoIF         |  // E2 - E4: Video IF
++		cTunerGainNormal |  // E5: Tuner gain (normal)
++		cGating_18       |  // E6: Gating (18%)
++		cAgcOutOFF;         // E7: VAGC  (off)
++=09
++	dprintk("tda9885/6/7: 0x%02x 0x%02x 0x%02x [pinnacle_id=3D%d]\n",
++		bData[1],bData[2],bData[3],t->pinnacle_id);
++	if (4 !=3D (rc =3D i2c_master_send(&t->client,bData,4)))
++		printk("tda9885/6/7: i2c i/o error: rc =3D=3D %d (should be 4)\n",rc);
++	return 0;
++}
++
++/* ---------------------------------------------------------------------- =
+*/
++
++#if 0
++/* just for reference: old knc-one saa7134 stuff */
++static unsigned char buf_pal_bg[]    =3D { 0x00, 0x16, 0x70, 0x49 };
++static unsigned char buf_pal_i[]     =3D { 0x00, 0x16, 0x70, 0x4a };
++static unsigned char buf_pal_dk[]    =3D { 0x00, 0x16, 0x70, 0x4b };
++static unsigned char buf_pal_l[]     =3D { 0x00, 0x06, 0x50, 0x4b };
++static unsigned char buf_fm_stereo[] =3D { 0x00, 0x0e, 0x0d, 0x77 };
++#endif
++
++static unsigned char buf_pal_bg[]    =3D { 0x00, 0x96, 0x70, 0x49 };
++static unsigned char buf_pal_i[]     =3D { 0x00, 0x96, 0x70, 0x4a };
++static unsigned char buf_pal_dk[]    =3D { 0x00, 0x96, 0x70, 0x4b };
++static unsigned char buf_pal_l[]     =3D { 0x00, 0x86, 0x50, 0x4b };
++static unsigned char buf_fm_stereo[] =3D { 0x00, 0x8e, 0x0d, 0x77 };
++static unsigned char buf_ntsc[]	     =3D { 0x00, 0x96, 0x70, 0x44 };
++static unsigned char buf_ntsc_jp[]   =3D { 0x00, 0x96, 0x70, 0x40 };
++
++static int tda9887_configure(struct tda9887 *t)
++{
++	unsigned char *buf =3D NULL;
++	int rc;
++
++	printk("tda9887_configure\n");
++
++	if (t->radio) {
++		dprintk("tda9885/6/7: FM Radio mode\n");
++		buf =3D buf_fm_stereo;
++
++	} else if (t->tvnorm =3D=3D VIDEO_MODE_PAL) {
++		dprintk("tda9885/6/7: PAL-%c mode\n",pal[0]);
++		switch (pal[0]) {
++		case 'b':
++		case 'g':
++			buf =3D buf_pal_bg;
++			break;
++		case 'i':
++			buf =3D buf_pal_i;
++			break;
++		case 'd':
++		case 'k':
++			buf =3D buf_pal_dk;
++			break;
++		case 'l':
++			buf =3D buf_pal_l;
++			break;
++		}
++
++	} else if (t->tvnorm =3D=3D VIDEO_MODE_NTSC) {
++		dprintk("tda9885/6/7: NTSC mode\n");
++		buf =3D buf_ntsc;
++
++	} else if (t->tvnorm =3D=3D VIDEO_MODE_SECAM) {
++		dprintk("tda9885/6/7: SECAM mode\n");
++                buf =3D buf_pal_l;
++
++        } else if (t->tvnorm =3D=3D 6 /* BTTV hack */) {
++		dprintk("tda9885/6/7: NTSC-Japan mode\n");
++                buf =3D buf_ntsc_jp;
++        }
++
++	if (NULL =3D=3D buf) {
++		printk("tda9885/6/7 unknown norm=3D%d\n",t->tvnorm);
++		return 0;
++	}
++
++	dprintk("tda9885/6/7: 0x%02x 0x%02x 0x%02x\n",
++		buf[1],buf[2],buf[3]);
++        if (4 !=3D (rc =3D i2c_master_send(&t->client,buf,4)))
++                printk("tda9885/6/7: i2c i/o error: rc =3D=3D %d (should b=
+e 4)\n",rc);
++	return 0;
++}
++
++/* ---------------------------------------------------------------------- =
+*/
++
++static int tda9887_attach(struct i2c_adapter *adap, int addr,
++			  unsigned short flags, int kind)
++{
++	struct tda9887 *t;
++
++        client_template.adapter =3D adap;
++        client_template.addr    =3D addr;
++
++        printk("tda9887: chip found @ 0x%x\n", addr<<1);
++
++        if (NULL =3D=3D (t =3D kmalloc(sizeof(*t), GFP_KERNEL)))
++                return -ENOMEM;
++	memset(t,0,sizeof(*t));
++	t->client =3D client_template;
++        t->client.data =3D t;
++	t->pinnacle_id =3D -1;
++        i2c_attach_client(&t->client);
++       =20
++	MOD_INC_USE_COUNT;
++	return 0;
++}
++
++static int tda9887_probe(struct i2c_adapter *adap)
++{
++	int rc;
++
++	switch (adap->id) {
++	case I2C_ALGO_BIT | I2C_HW_B_BT848:
++	case I2C_ALGO_BIT | I2C_HW_B_RIVA:
++	case I2C_ALGO_SAA7134:
++		printk("tda9887: probing %s i2c adapter [id=3D0x%x]\n",
++		       adap->name,adap->id);
++		rc =3D i2c_probe(adap, &addr_data, tda9887_attach);
++		break;
++	default:
++		printk("tda9887: ignoring %s i2c adapter [id=3D0x%x]\n",
++		       adap->name,adap->id);
++		rc =3D 0;
++		/* nothing */
++	}
++	return rc;
++}
++
++static int tda9887_detach(struct i2c_client *client)
++{
++	struct tda9887 *t =3D (struct tda9887*)client->data;
++
++	i2c_detach_client(client);
++	kfree(t);
++	MOD_DEC_USE_COUNT;
++	return 0;
++}
++
++static int
++tda9887_command(struct i2c_client *client, unsigned int cmd, void *arg)
++{
++	struct tda9887 *t =3D (struct tda9887*)client->data;
++
++        switch (cmd) {
++
++	/* --- configuration --- */
++	case AUDC_SET_RADIO:
++		t->radio =3D 1;
++		if (-1 !=3D t->pinnacle_id)
++			tda9887_miro(t);
++		else
++			tda9887_configure(t);
++		break;
++	=09
++	case AUDC_CONFIG_PINNACLE:
++	{
++		int *i =3D arg;
++
++		t->pinnacle_id =3D *i;
++		break;
++	}
++	/* --- v4l ioctls --- */
++	/* take care: bttv does userspace copying, we'll get a
++	   kernel pointer here... */
++	case VIDIOCSCHAN:
++	{
++		struct video_channel *vc =3D arg;
++
++		t->radio  =3D 0;
++		t->tvnorm =3D vc->norm;
++		if (-1 !=3D t->pinnacle_id)
++			tda9887_miro(t);
++		else
++			tda9887_configure(t);
++		break;
++	}
++	default:
++		/* nothing */
++		break;
++	}
++	return 0;
++}
++
++/* -----------------------------------------------------------------------=
+ */
++
++static struct i2c_driver driver =3D {
++        name:           "i2c tda9887 driver",
++        id:             -1, /* FIXME */
++        flags:          I2C_DF_NOTIFY,
++        attach_adapter: tda9887_probe,
++        detach_client:  tda9887_detach,
++        command:        tda9887_command,
++};
++static struct i2c_client client_template =3D
++{
++        name:   "tda9887",
++	flags:  I2C_CLIENT_ALLOW_USE,
++        driver: &driver,
++};
++
++static int tda9887_init_module(void)
++{
++	i2c_add_driver(&driver);
++	return 0;
++}
++
++static void tda9887_cleanup_module(void)
++{
++	i2c_del_driver(&driver);
++}
++
++module_init(tda9887_init_module);
++module_exit(tda9887_cleanup_module);
++
++/*
++ * Overrides for Emacs so that we follow Linus's tabbing style.
++ * -----------------------------------------------------------------------=
+----
++ * Local variables:
++ * c-basic-offset: 8
++ * End:
++ */
+
+--=_jive-28811-1041181040-0001-2--

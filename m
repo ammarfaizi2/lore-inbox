@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129555AbQK0RtZ>; Mon, 27 Nov 2000 12:49:25 -0500
+        id <S129267AbQK0RwF>; Mon, 27 Nov 2000 12:52:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129641AbQK0RtQ>; Mon, 27 Nov 2000 12:49:16 -0500
-Received: from netwinder.org ([207.245.35.202]:41464 "EHLO kei.netwinder.org")
-        by vger.kernel.org with ESMTP id <S129555AbQK0RtI>;
-        Mon, 27 Nov 2000 12:49:08 -0500
-Message-ID: <3A22978B.30E6A29A@netwinder.org>
-Date: Mon, 27 Nov 2000 12:19:07 -0500
-From: "Andrew E. Mileski" <andrewm@netwinder.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Universal debug macros.
-In-Reply-To: <Pine.LNX.3.95.1001127115313.153A-100000@chaos.analogic.com>
+        id <S129361AbQK0Rvz>; Mon, 27 Nov 2000 12:51:55 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:17412 "EHLO
+        penguin.e-mind.com") by vger.kernel.org with ESMTP
+        id <S129267AbQK0Rvg>; Mon, 27 Nov 2000 12:51:36 -0500
+Date: Mon, 27 Nov 2000 18:21:13 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Werner.Almesberger@epfl.ch, adam@yggdrasil.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0"
+Message-ID: <20001127182113.A15029@athlon.random>
+In-Reply-To: <200011270556.VAA12506@baldur.yggdrasil.com> <20001127094139.H599@almesberger.net> <200011270839.AAA28672@pizda.ninka.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200011270839.AAA28672@pizda.ninka.net>; from davem@redhat.com on Mon, Nov 27, 2000 at 12:39:55AM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> On Mon, 27 Nov 2000, Andrew E. Mileski wrote:
-> >
-> > Reminds me ... <linux/kernel.h> has a "#if DEBUG" statement that blows
-> > up if the debug code does something like "#define DEBUG(X...) printk(X...)".
-> > I came across this recently (think I was debugging PCI code ... not sure).
-> > Changing it to "#ifdef DEBUG" avoids problems.
-> >
-> > --
-> > Andrew E. Mileski - Software Engineer
-> > Rebel.com  http://www.rebel.com/
-> 
-> I find that the following works fine:
-> 
-> #ifdef DEBUG
-> #define DEB(f) f
-> #else
-> #define DEB(f)
-> #endif
+On Mon, Nov 27, 2000 at 12:39:55AM -0800, David S. Miller wrote:
+> Also I believe linkers are allowed to arbitrarily reorder members in
+> the data and bss sections.  I could be wrong on this one though.
 
-Agreed, but that wasn't my point.  There is debug code in the current
-kernel that defines DEBUG to something non-numeric, which causes
-the compile to barf on kernel.h in some cases (try defining DEBUG in
-your Makefile).  Instances of the offending code (there are SEVERAL)
-and kernel.h should be fixed.
+I'm not sure either, but we certainly rely on that behaviour somewhere.
+Just to make an example fs/dquot.c:
 
-Try this from the top level:
-  grep -r DEBUG * | grep -v DEBUG_ | less
+	int nr_dquots, nr_free_dquots;
 
---
-Andrew E. Mileski - Software Engineer
-Rebel.com  http://www.rebel.com/
+kernel/sysctl.c:
+
+	{FS_NRDQUOT, "dquot-nr", &nr_dquots, 2*sizeof(int),
+
+The above is ok also on mips in practice though.
+
+In 2.2.x there was more of them.
+
+Regardless if we're allowed to rely on the ordering the above is bad coding
+practice because somebody could forget about the dependency on the ordering and
+put something between nr_dquotes and nr_free_dquotes :), so such dependency
+should be avoided anyways...
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

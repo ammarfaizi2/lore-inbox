@@ -1,98 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVA3JC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVA3JQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261655AbVA3JC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 04:02:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVA3JCz
+	id S261642AbVA3JQH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 04:16:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVA3JQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 04:02:55 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52891 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261655AbVA3JCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 04:02:44 -0500
-Date: Sun, 30 Jan 2005 09:02:41 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Subject: [FIX] Re: [2.6 patch] drivers/cdrom/isp16.c: small cleanups
-Message-ID: <20050130090241.GV8859@parcelfarce.linux.theplanet.co.uk>
-References: <20050129171108.GB28047@stusta.de> <58cb370e05012909513cc96b17@mail.gmail.com> <20050129234624.GC3185@stusta.de> <58cb370e0501291554450fbef8@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 30 Jan 2005 04:16:07 -0500
+Received: from 80.178.38.121.forward.012.net.il ([80.178.38.121]:56034 "EHLO
+	linux15") by vger.kernel.org with ESMTP id S261642AbVA3JQB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 04:16:01 -0500
+From: Oded Shimon <ods15@ods15.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Subject: Pipes and fd question. Large amounts of data.
+Date: Sun, 30 Jan 2005 11:15:59 +0200
+User-Agent: KMail/1.7.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <58cb370e0501291554450fbef8@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200501301115.59532.ods15@ods15.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 30, 2005 at 12:54:30AM +0100, Bartlomiej Zolnierkiewicz wrote:
-> On Sun, 30 Jan 2005 00:46:24 +0100, Adrian Bunk <bunk@stusta.de> wrote:
-> > On Sat, Jan 29, 2005 at 06:51:25PM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > > Hi,
-> > >
-> > > On Sat, 29 Jan 2005 18:11:08 +0100, Adrian Bunk <bunk@stusta.de> wrote:
-> > > > This patch makes the needlessly global function isp16_init static.
-> > > >
-> > > > As a result, it turned out that both this function and some other code
-> > > > are only required #ifdef MODULE.
+A Unix C programming question. Has to do mostly with pipes, so I am hoping I 
+am asking in the right place.
 
-... assuming that driver had not been broken to start with
+I have a rather unique situation. I have 2 programs, neither of which   have 
+control over.
+Program A writes into TWO fifo's.
+Program B reads from two fifo's.
 
-> > >
-> > > Your patch is correct but it is wrong. ;)
-> > >
-> > > #ifdefs around isp16_init() need to be removed as
-> > > otherwise this driver is not initialized in built-in case.
+My program is the middle step.
 
-... assuming that driver is initialized in built-in case
+The problem - neither programs are aware of each other, and write into any of 
+the fifo's at their own free will. They will also block until whatever data 
+moving they did is complete.
 
-> > It's somehow initialized via isp16_setup.
+Meaning, if I were to use the direct approach and have no middle step, the 
+programs would be thrown into a deadlock instantly. as one program will write 
+info fifo 1, and the other will be reading from fifo 2.
 
-... assuming that magic exists, which would follow from the original
-assumptions
+The amounts of data is very large, GB's of data in total, and at least 10mb a 
+second or possibly as much as 300mb a second. So efficiency in context 
+switching is very important.
 
-> Could you explain?
-> 
-> AFAICS isp16_setup() only handles "isp16=" boot parameter.
+programs A & B both write and read using large chunks, usually 300k.
 
-Simple: driver is broken.  And "obvious" transformations of that sort are
-safe only when they are applied to correct code.  Otherwise you end up with
-obfuscation of original breakage.
+So far, my solution is using select() and non blocking pipes. I also used 
+large buffers (20mb). In my measurements, at worst case the programs 
+write/read 6mb before switching to the other fifo. so 20mb is safe enough.
 
-Trivial check of history shows that
-	a) until 2.5.1-pre1 isp16_init() had been called from blk_dev_init()
-	b) in 2.5.1-pre2 Jens had taken that call out, but forgot to remove
-ifdef in isp16.c
-	c) nobody had cared since then.
+I have implemented this, but it has a major disadvantage - every 'write()' 
+only write 4k at a time, never more, because of how non-blocking pipes are 
+done. at 20,000 context switches a second, this method reaches barely 10mb a 
+second, if not less.
 
-Fix follows.
+Blocking pipes have an advantage - they can write large chunks at a time. They 
+have a more serious disadvantage though - the amount of data you ask to be 
+written/read, IS the amount of data that will be written or read, and will 
+block until that much data is moved. I cannot know beforehand exactly how 
+much data the programs want, so this could easily fall into a dead lock.
 
-diff -u RC11-rc2-bk6-base/drivers/cdrom/isp16.c RC11-rc2-bk6-current/drivers/cdrom/isp16.c
---- RC11-rc2-bk6-base/drivers/cdrom/isp16.c	2005-01-28 17:06:37.000000000 -0500
-+++ RC11-rc2-bk6-current/drivers/cdrom/isp16.c	2005-01-30 04:00:09.319617779 -0500
-@@ -112,7 +112,7 @@
-  *  ISP16 initialisation.
-  *
-  */
--int __init isp16_init(void)
-+static int __init isp16_init(void)
- {
- 	u_char expected_drive;
- 
-@@ -366,15 +366,13 @@
- 	return 0;
- }
- 
--void __exit isp16_exit(void)
-+static void __exit isp16_exit(void)
- {
- 	release_region(ISP16_IO_BASE, ISP16_IO_SIZE);
- 	printk(KERN_INFO "ISP16: module released.\n");
- }
- 
--#ifdef MODULE
- module_init(isp16_init);
--#endif
- module_exit(isp16_exit);
- 
- MODULE_LICENSE("GPL");
+Ideally, I could do this:
+my program:  write(20mb);
+program B:     read(300k);
+my program:  write() returns with return value '300,000'
+
+I was unable to find anything like this solution or similar.
+No combination of blocking/non blocking fd's will give this, or any system 
+call.
+I am looking for alternative/better suggestions.
+
+- ods15.

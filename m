@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbUJWXDg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbUJWSWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261329AbUJWXDg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 19:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbUJWXDg
+	id S261267AbUJWSWx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 14:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbUJWSWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 19:03:36 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:15081 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261329AbUJWXDb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 19:03:31 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-mm1: NForce3 problem (IRQ sharing issue?)
-Date: Sun, 24 Oct 2004 01:05:26 +0200
-User-Agent: KMail/1.6.2
-Cc: Allan Sandfeld Jensen <allan@carewolf.com>
-References: <200410222354.44563.rjw@sisk.pl> <200410240014.47507.allan@carewolf.com>
-In-Reply-To: <200410240014.47507.allan@carewolf.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Sat, 23 Oct 2004 14:22:53 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:22050 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261267AbUJWSWv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 14:22:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=LvS0H2ZFwK0pPikVX0pmToNGEHfl6E0rzkifvS6S5m6Vc5FhmcQDErRR5i8c4hFh/T50GRJXw6O53jkzEOuFgQ28yHrBnxI8lZ8JdOfhe98MwKNEkjkUspFPiQXi9s7Qao5j4Ei/fZQne7SNu4rQ51SMUgoaIGhMUhPDrBO9FXU=
+Message-ID: <9e47339104102311229276d8@mail.gmail.com>
+Date: Sat, 23 Oct 2004 14:22:51 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH} Trivial - fix drm_agp symbol export
+In-Reply-To: <20041023095644.GC30137@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410240105.26642.rjw@sisk.pl>
+References: <9e473391041022214570eab48a@mail.gmail.com>
+	 <20041023095644.GC30137@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 24 of October 2004 00:14, Allan Sandfeld Jensen wrote:
-> On Friday 22 October 2004 23:54, you wrote:
-> > Hi,
-> >
-> > I have a problem with 2.6.9-mm1 on an AMD64 NForce3-based box.  Namely,
-> > after some time in X, USB suddenly stops working and sound goes off
-> > simultaneously (it's quite annoying, as I use a USB mouse ;-)).  It is 
-100%
-> > reproducible and it may be related to the sharing of IRQ 5:
-> >
-> Have you tried disabling ioapic? 
+On Sat, 23 Oct 2004 10:56:44 +0100, Christoph Hellwig <hch@infradead.org> wrote:
+> Sorry, wrong API.  At least export the individual functions and use them
+> directly (and without the symbol_get abnomination that's not any better
+> than inter_module_*).
 
-In principle I could, but I have no such problems with the 2.6.9 kernel, 
-although the APIC etc., settings are the same.  Which means there's a 
-regression and that's the real issue.
+I put a new version in DRM CVS that uses the symbols directly. It
+checks out with AGP compiled in and not in.
 
-Greets,
-RJW
+You might want to give DRM CVS another look. We are getting ready to
+submit the code in the linux-core/shared-core directories to the
+kernel.
+
+There are still coding style issues. These are slowly getting fixed
+but on the other hand we don't want to break the working code. We can
+fix a few more on each round of submissions. Main highlights of this
+version are elimination of the DRM() macros and elminination of
+inter_module() use for both DRM and AGP.
+
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Jon Smirl
+jonsmirl@gmail.com

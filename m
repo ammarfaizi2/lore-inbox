@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292507AbSCAP7E>; Fri, 1 Mar 2002 10:59:04 -0500
+	id <S292989AbSCAP6e>; Fri, 1 Mar 2002 10:58:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293005AbSCAP6y>; Fri, 1 Mar 2002 10:58:54 -0500
-Received: from mail.internet-factory.de ([195.122.142.5]:23232 "EHLO
-	mail.internet-factory.de") by vger.kernel.org with ESMTP
-	id <S292507AbSCAP6n>; Fri, 1 Mar 2002 10:58:43 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Holger Lubitz <h.lubitz@internet-factory.de>
-Newsgroups: lists.linux.kernel
-Subject: Re: Yet another disk transfer speed problem
-Date: Fri, 01 Mar 2002 16:58:36 +0100
-Organization: Internet Factory AG
-Message-ID: <3C7FA52C.E0A1715E@internet-factory.de>
-In-Reply-To: <1014914087.3274.22.camel@wavelets.mit.edu> <1014926801.3274.40.camel@wavelets.mit.edu>
-NNTP-Posting-Host: bastille.internet-factory.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S292507AbSCAP6Y>; Fri, 1 Mar 2002 10:58:24 -0500
+Received: from sebula.traumatized.org ([193.121.72.130]:41665 "EHLO
+	sebula.traumatized.org") by vger.kernel.org with ESMTP
+	id <S293005AbSCAP6H>; Fri, 1 Mar 2002 10:58:07 -0500
+X-NoSPAM: http://traumatized.org/nospam/
+Message-ID: <3C7F93FE.5020602@pophost.eunet.be>
+Date: Fri, 01 Mar 2002 15:45:18 +0100
+From: Jurgen Philippaerts <jurgen@pophost.eunet.be>
+User-Agent: Mozilla/5.0 (X11; U; Linux sparc64; en-US; rv:0.9.8) Gecko/20020220
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: 2.4.19pre2 - USB - sparc64 compile problem
+In-Reply-To: <3C7F8B80.1010007@pophost.eunet.be> <20020301.073142.24904941.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Trace: darkstar.internet-factory.de 1014998317 8144 195.122.142.158 (1 Mar 2002 15:58:37 GMT)
-X-Complaints-To: usenet@internet-factory.de
-NNTP-Posting-Date: 1 Mar 2002 15:58:37 GMT
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre3-ac2 i686)
-X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bharath Krishnan proclaimed:
-> 
-> Hi,
-> 
-> I would expect the disk which acts slower(maxtor) to be atleast as fast
-> as the other one (ibm).
+David S. Miller wrote:
 
-Could you provide fdisk -l for both? For some odd reason unknown to me
-some filesystems give slower results with hdparm than others, even with
-the buffer-cache reads (which are intended to measure memory speed, not
-drive speed, and thus should be the same for all drives on a given
-mainboard). Also, hdparm directly on the drive device is often a bit
-slower than hdparm for the first (outermost) partition. These problems
-have been far worse in older kernels, though. With 2.2 I once
-benchmarked a vfat-partition at half the speed the same partition gave
-as ext2.
+>    hcd.c: In function `usb_hcd_pci_probe':
+>    hcd.c:627: `irq' undeclared (first use in this function)
+>    hcd.c:627: (Each undeclared identifier is reported only once
+>    hcd.c:627: for each function it appears in.)
+> 
+> Go to line 627 in an editor and change "irq" to be "dev->irq"
+> 
+> The same build failure got introduced when this code was merged
+> into the 2.5.x tree and I had to fix it there too.
 
-Holger
+thanks, it compiles nicely now.
+
+
+Jurgen.
+

@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265674AbRFWK4f>; Sat, 23 Jun 2001 06:56:35 -0400
+	id <S265673AbRFWKzP>; Sat, 23 Jun 2001 06:55:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265676AbRFWK4Z>; Sat, 23 Jun 2001 06:56:25 -0400
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:49924 "HELO
+	id <S265674AbRFWKzF>; Sat, 23 Jun 2001 06:55:05 -0400
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:48644 "HELO
 	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S265674AbRFWK4F>; Sat, 23 Jun 2001 06:56:05 -0400
-Date: Sat, 23 Jun 2001 22:56:03 +1200
+	id <S265673AbRFWKy4>; Sat, 23 Jun 2001 06:54:56 -0400
+Date: Sat, 23 Jun 2001 22:54:52 +1200
 From: Chris Wedgwood <cw@f00f.org>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, proski@gnu.org,
-        linux-kernel@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org
 Subject: Re: ACPI + Promise IDE = disk corruption :-(((
-Message-ID: <20010623225603.B4960@metastasis.f00f.org>
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDEEF@orsmsx35.jf.intel.com>
+Message-ID: <20010623225451.A4960@metastasis.f00f.org>
+In-Reply-To: <Pine.LNX.4.33.0106221635230.1575-100000@vesta.nine.com> <E15DZDd-0004Fq-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDEEF@orsmsx35.jf.intel.com>; from andrew.grover@intel.com on Fri, Jun 22, 2001 at 05:30:19PM -0700
+In-Reply-To: <E15DZDd-0004Fq-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jun 22, 2001 at 11:16:01PM +0100
 X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 22, 2001 at 05:30:19PM -0700, Grover, Andrew wrote:
+On Fri, Jun 22, 2001 at 11:16:01PM +0100, Alan Cox wrote:
 
-    It's just *one* issue that has generated all the disk corruption
-    reports.
+    ACPI is over complex, new technology. The BIOS stuff is new (and
+    frequently wrong)
 
-The same code is used for FreeBSD and friends too right? Are they
-seeing anywhere near the same number of types of poroblems Linux is?
+Show my a BIOS that isn't broken.
+
+I'm serious, EVERY SINGLE MACHINE at my disposal of late has had
+buggy ACPI tables or worse.
+
+Ironically, many laptops use a Pheonix BIOS who traditionaly have had
+terrible QA too --- their bioses APM would only work under Windows95
+initially and then later Windows98.
+
+I'm really started to wish the OpenBios folks had more resources
+available; the quality of the average BIOS it seems in the last
+couple fo years is really bad.
 
 
 

@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130140AbRAaSyi>; Wed, 31 Jan 2001 13:54:38 -0500
+	id <S131229AbRAaS52>; Wed, 31 Jan 2001 13:57:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131049AbRAaSy2>; Wed, 31 Jan 2001 13:54:28 -0500
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:64714 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S130140AbRAaSxw>; Wed, 31 Jan 2001 13:53:52 -0500
-Date: Wed, 31 Jan 2001 10:38:50 -0800
-From: Dan Kegel <dank@alumni.caltech.edu>
-Subject: Re: [Kiobuf-io-devel] Re: RFC: Kernel mechanism: Compound event
- wait/notify + callback chains
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Reply-to: dank@alumni.caltech.edu
-Message-id: <3A785BBA.55AC2B65@alumni.caltech.edu>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S131049AbRAaS5I>; Wed, 31 Jan 2001 13:57:08 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:3333 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131700AbRAaS5A>; Wed, 31 Jan 2001 13:57:00 -0500
+Date: Wed, 31 Jan 2001 15:07:17 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Timo Jantunen <jeti@iki.fi>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at inode.c:889!
+In-Reply-To: <Pine.LNX.4.30.0101312023170.1186-100000@limbo.null.fi>
+Message-ID: <Pine.LNX.4.21.0101311505050.16763-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sct wrote:
 
-> On Wed, Jan 31, 2001 at 04:12:11PM +0530, bsuparna@in.ibm.com wrote: 
-> > 
-> > Thanks for mentioning this. I didn't know about it earlier. I've been 
-> > going through the 4/00 kqueue patch on freebsd ... 
+
+On Wed, 31 Jan 2001, Timo Jantunen wrote:
+
+> Heip!
 > 
-> Linus has already denounced them as massively over-engineered... 
+> 
+> While I was looking unused partitions to be used for ReiserFS testing
 
-That shouldn't stop anyone from looking at them and learning, though.
-There might be a good idea or two hiding in there somewhere.
-- Dan
+Haven't you forgot to inform which kernel version are you using? 
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266895AbUHITMv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266917AbUHITVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266895AbUHITMv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 15:12:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266900AbUHITKB
+	id S266917AbUHITVa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 15:21:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266915AbUHITTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 15:10:01 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:8970 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S266895AbUHIS73
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 14:59:29 -0400
-To: "John Stoffel" <stoffel@lucent.com>
-Cc: Harald Arnesen <harald@skogtun.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc2-bk13 and later: Read-only filesystem on USB
-References: <87n01944xd.fsf@basilikum.skogtun.org>
-	<16659.38405.356084.360627@gargle.gargle.HOWL>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 10 Aug 2004 03:58:31 +0900
-In-Reply-To: <16659.38405.356084.360627@gargle.gargle.HOWL>
-Message-ID: <87d620p294.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
-MIME-Version: 1.0
+	Mon, 9 Aug 2004 15:19:16 -0400
+Received: from holomorphy.com ([207.189.100.168]:13026 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266903AbUHITM6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 15:12:58 -0400
+Date: Mon, 9 Aug 2004 12:12:49 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Hirokazu Takahashi'" <taka@valinux.co.jp>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, "Seth, Rohit" <rohit.seth@intel.com>
+Subject: Re: Hugetlb demanding paging for -mm tree
+Message-ID: <20040809191249.GT11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+	'Hirokazu Takahashi' <taka@valinux.co.jp>,
+	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+	"Seth, Rohit" <rohit.seth@intel.com>
+References: <20040806210750.GT17188@holomorphy.com> <200408091819.i79IJ3Y12216@unix-os.sc.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408091819.i79IJ3Y12216@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"John Stoffel" <stoffel@lucent.com> writes:
+William Lee Irwin III wrote on Friday, August 06, 2004 2:08 PM
+>> update_mmu_cache() does not appear to check the size of the translation
+>> to be established in many architectures. e.g. on arch/ia64/ it does
+>> flush_icache_range(addr, addr + PAGE_SIZE) unconditionally, and only
+>> sets PG_arch_1 on a single struct page. Similar comments apply to
+>> sparc64 and ppc64; I didn't check any others.
 
-> Finally, the damm thing is mounted RW and actually lets me write
-> something to the goddamm thing.  
-> 
-> What a pain in the ass.  This change should be reverted until it's
-> properly implemented to tell mount(8) that it's not mounted RW, but RO
-> instead.
+On Mon, Aug 09, 2004 at 11:19:04AM -0700, Chen, Kenneth W wrote:
+> I suppose this is fixable in update_mmu_cache() where it can check the
+> type of pte and do appropriate sizing and other things.  ia64 would have
+> to check the address instead of looking at the pte.
 
-The kernel is already exporting the some information. cat /proc/mounts.
+Yes, it's just a fair amount of document-hunting since there isn't
+always easily cut-and-pasteable stuff (e.g. ITAG_MASK for larger page
+sizes was omitted from the #ifdefs on sparc64).
 
-Yes, probably proper interface would be useful. But it's the another
-story.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+As for ia64 checking addresses... ew, can't we just use long format
+VHPT? The virtual placement constraints are nasty.
+
+
+-- wli

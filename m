@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267107AbUBMQow (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 11:44:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267114AbUBMQow
+	id S267124AbUBMQsy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 11:48:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267125AbUBMQsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 11:44:52 -0500
-Received: from stat1.steeleye.com ([65.114.3.130]:40088 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S267107AbUBMQou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 11:44:50 -0500
-Subject: Re: dm core patches
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	Fri, 13 Feb 2004 11:48:54 -0500
+Received: from gw-nl4.philips.com ([161.85.127.50]:43177 "EHLO
+	gw-nl4.philips.com") by vger.kernel.org with ESMTP id S267124AbUBMQsV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 11:48:21 -0500
+Message-ID: <402D0083.7010606@basmevissen.nl>
+Date: Fri, 13 Feb 2004 17:51:15 +0100
+From: Bas Mevissen <ml@basmevissen.nl>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Shut up about the damn modules already...
+References: <20040212031631.69CAD2C04B@lists.samba.org>
+In-Reply-To: <20040212031631.69CAD2C04B@lists.samba.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 13 Feb 2004 11:44:41 -0500
-Message-Id: <1076690681.2158.54.camel@mulgrave>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The mechanism is in place, but the SCSI stack still needs a few changes
-> to pass down the correct errors. The easiest would be to pass down
-> pseudo-sense keys (I'd rather just call them something else as not to
-> confuse things, io error hints or something) to
-> end_that_request_first(), changing uptodate from a bool to a hint.
+Rusty Russell wrote:
 
-Yes, I'm ready to do this in SCSI.  I think the uptodate field should
-include at least two (and possibly three) failure type indications:
+> Please apply before 2.6.3.
+> 
+> In almost all distributions, the kernel asks for modules which don't
+> exist, such as "net-pf-10" or whatever.  Changing "modprobe -q" to
+> "succeed" in this case is hacky and breaks some setups, and also we
+> want to know if it failed for the fallback code for old aliases in
+> fs/char_dev.c, for example.
+> 
+> Just remove the debugging message which fill people's logs:
 
-- fatal: error cannot be retried
-- retryable: error may be retried
+Yup, those messages are really annoying.
 
-and possibly
+I'm wondering why it is that the kernel is asking for non-existing 
+modules so often. Is it that userspace applications try to access all 
+kinds of devices too often (autoprobing) or it this (wanted) kernel 
+behaviour?
 
-- informational: This is dangerous, since it's giving information about
-a transaction that actually succeeded (i.e. we'd need to fix drivers to
-recognise it as being uptodate but with info, like sector remapped)
+If it is the former, I think that applications should be fixed in the 
+first place. Maybe userspace and kernel should share knowledge about 
+what devices are there and supported by the kernel(modules).
 
-Then, we also have a error origin indication:
+In the meantime, your patch needs to go in though because fixing this in 
+userspace is not something that will happen on short term.
 
-- device: The device is actually reporting the problem
-- transport: the error is a transport error
-- driver: the error comes from the device driver.
+Regards,
 
-So dm would know that fatal transport or driver errors could be
-repathed, but fatal device errors probably couldn't.
+Bas.
 
-Any that I've missed?
-
-James
 

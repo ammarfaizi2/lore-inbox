@@ -1,62 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269693AbRIPJiB>; Sun, 16 Sep 2001 05:38:01 -0400
+	id <S269787AbRIPKBq>; Sun, 16 Sep 2001 06:01:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269739AbRIPJhw>; Sun, 16 Sep 2001 05:37:52 -0400
-Received: from [62.54.182.47] ([62.54.182.47]:17164 "EHLO mail.citd.de")
-	by vger.kernel.org with ESMTP id <S269693AbRIPJhk>;
-	Sun, 16 Sep 2001 05:37:40 -0400
-Date: Sun, 16 Sep 2001 11:38:01 +0200 (MEST)
-From: Matthias Schniedermeyer <ms@citd.de>
-To: linux-kernel@vger.kernel.org
-Subject: (2.4.9)kswapd goes haywire
-Message-ID: <Pine.LNX.4.20.0109161129001.26325-100000@citd.owl.de>
+	id <S270073AbRIPKBh>; Sun, 16 Sep 2001 06:01:37 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:36626 "EHLO
+	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S269787AbRIPKBX>; Sun, 16 Sep 2001 06:01:23 -0400
+Message-ID: <3BA47835.16A91A57@t-online.de>
+Date: Sun, 16 Sep 2001 12:00:21 +0200
+From: SPATZ1@t-online.de (Frank Schneider)
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How errorproof is ext2 fs?
+In-Reply-To: <200109160858.KAA28624@cave.bitwizard.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Rogier Wolff schrieb:
+> 
+> Alan Cox wrote:
+> > > due to an not responding USB-keyboard/-mouse (what a nice coincident). Now while
+> > > the Mac restarted without any fuse I had to fix the ext2-fs manually for about
+> > > 15 min. Luckily it seems I haven't lost anything on both system.
+> > >
+> > > This leaves me a bad taste of Linux in my mouth. Does ext2 fs really behave so
+> > > worse in case of a crash? Okay Linux does not crash that often as MacOS does, so
+> 
+> > That sounds like it behaved well. fsck didnt have enough info to safely
+> > do all the fixup without asking you. Its not a reliability issue as such.
+> 
+> Well, fsck wants to ask
+> 
+>         "Found an unattached inode, connect to lost+found?"
+> 
+> to the user and will interrupt an automatic reboot for that.
+> 
+> This is bad: The safe choice is safe: It won't cause data-loss.
+> 
+> Maybe it should report it (say by Email), but interrupting a reboot
+> just for connecting a couple of files to lost+found, that's
+> rediculous.
+> 
+> If it would give me enough information when I do this manually, I'd
+> make an informed decision. However, what are the chances of me knowing
+> that inode 123456 is a staroffice bak-file? So the only way to safely
+> operate is to link them into lost+found, and then to look at the files
+> manually.
 
+Hello...
 
+This is true, most distros are relatively rigid in dropping you to a
+shell, because they call fsck with very weak options and do not care
+about the fact that most servers are not standing under a table of
+someone with easy access to the console.
 
-I have a Dual PIII 933 on a Serverworks HE-SL Chipset Mainboard with 3GB
-of RAM. 
+If i have such a problem and get dropped to a shell, i normaly do a
+simple "e2fsck /dev/XXX -p" or "-y" and this runs through and fixes the
+filesystem without any questions.
 
-I don't have any swap configured and every now and then kswapd goes
-haywire and eats the performace of a whole processor (99.9% in top)
+I had only one time in the recent history where this did not work, i had
+to repeat the steps a second and third time, but that was due to an
+extreme error, i did e2fsck on a mounted filesystem during writing
+.tar-backups there (error in crontab)...no good idea..:-).
 
-I like murphy. Just a second ago kswapd went to 0.0 %. But as you can see
-in my uptime and the processtime of kswapd it was haywire for nearly from
-the beginning.
+So if you want to come around this "dropping-you-to-a-shell" problem you
+could easily patch the file "/etc/rc.d/rc.sysinit" (RH) and call fsck
+with the option "-p" or "-y", and you could easily change this script
+that in cases of really bad trouble the system mounts / (or a
+reserve-partition, even a CD would do AFAIK) readonly but starts up
+normaly, so you can log in via net and do the repair by hand.
 
--- top --
- 11:32am  up 10:19,  7 users,  load average: 0.16, 0.98, 1.09
-108 processes: 107 sleeping, 1 running, 0 zombie, 0 stopped
-CPU0 states:  1.2% user,  0.3% system,  0.0% nice, 97.4% idle
-CPU1 states:  0.0% user,  0.1% system,  0.0% nice, 99.4% idle
-Mem:  3090704K av, 2404600K used,  686104K free,       0K shrd,  139676K
-buff
-Swap:       0K av,       0K used,       0K free                 2089512K
-cached
+Solong..
+Frank.
 
-    5 root       9   0     0    0     0 SW    0.0  0.0 597:58 kswapd
--- End --
-
-Kernel is 2.4.9 Vanilla
-
-If more information is needed i will provide them.
-
-
-
-
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
-
-
+--
+Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
+... -.-

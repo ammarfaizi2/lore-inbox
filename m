@@ -1,104 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269459AbUHZThz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269368AbUHZTif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269459AbUHZThz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 15:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269435AbUHZTfM
+	id S269368AbUHZTif (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 15:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269486AbUHZTid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 15:35:12 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:10650 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S269336AbUHZT3t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 15:29:49 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] propagate pci_enable_device() errors
-Date: Thu, 26 Aug 2004 13:29:16 -0600
-User-Agent: KMail/1.6.2
-Cc: Jeff Garzik <jgarzik@pobox.com>, ecd@atecom.com, chas@cmf.nrl.navy.mil,
-       linux-atm-general@lists.sourceforge.net, kkeil@suse.de,
-       kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
-       stelian.pop@fr.alcove.com, support@auvertech.fr, amax@us.ibm.com,
-       davies@maniac.ultranet.com, tulip-users@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Thu, 26 Aug 2004 15:38:33 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:22534 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S269368AbUHZThG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 15:37:06 -0400
+Date: Thu, 26 Aug 2004 21:38:05 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org
+Subject: kbuild: use *.lds infrastructure in arch/i386/kernel/Makefile
+Message-ID: <20040826193805.GD9539@mars.ravnborg.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040826193614.GB9539@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408261329.16825.bjorn.helgaas@hp.com>
+In-Reply-To: <20040826193614.GB9539@mars.ravnborg.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik pointed out that I should have propagated the error returned
-from pci_enable_device() rather than making up -ENODEV.
-
-
-Propagate pci_enable_device() error returns rather than using -ENODEV.
-
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-
-===== drivers/atm/idt77252.c 1.25 vs edited =====
---- 1.25/drivers/atm/idt77252.c	2004-08-24 03:08:33 -06:00
-+++ edited/drivers/atm/idt77252.c	2004-08-26 13:08:03 -06:00
-@@ -3684,9 +3684,9 @@
- 	int i, err;
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/08/26 21:20:43+02:00 sam@mars.ravnborg.org 
+#   kbuild: use *.lds infrastructure in arch/i386/kernel
+#   
+#   Rusty decided to preprocess a *.lds.S file in parallele with the new *.lds infrastructure
+#   being added to kbuild. Fix that up.
+#   Also added the file to targets so we do not see recompile each time the kernel is build.
+#   
+#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+# 
+# arch/i386/kernel/Makefile
+#   2004/08/26 21:20:27+02:00 sam@mars.ravnborg.org +4 -3
+#   Use new infrastructure for .lds files.
+#   Rusty decided to preporocess a .lds file in parallel
+#   with the new infrastructure being added.
+# 
+diff -Nru a/arch/i386/kernel/Makefile b/arch/i386/kernel/Makefile
+--- a/arch/i386/kernel/Makefile	2004-08-26 21:21:27 +02:00
++++ b/arch/i386/kernel/Makefile	2004-08-26 21:21:27 +02:00
+@@ -41,20 +41,21 @@
+ # Note: kbuild does not track this dependency due to usage of .incbin
+ $(obj)/vsyscall.o: $(obj)/vsyscall-int80.so $(obj)/vsyscall-sysenter.so
+ targets += $(foreach F,int80 sysenter,vsyscall-$F.o vsyscall-$F.so)
++targets += vsyscall.lds
  
+ # The DSO images are built using a special linker script.
+ quiet_cmd_syscall = SYSCALL $@
+       cmd_syscall = $(CC) -nostdlib $(SYSCFLAGS_$(@F)) \
+ 		          -Wl,-T,$(filter-out FORCE,$^) -o $@
  
--	if (pci_enable_device(pcidev)) {
-+	if ((err = pci_enable_device(pcidev))) {
- 		printk("idt77252: can't enable PCI device at %s\n", pci_name(pcidev));
--		return -ENODEV;
-+		return err;
- 	}
+-export AFLAGS_vsyscall.lds.o += -P -C -U$(ARCH)
++export CPPFLAGS_vsyscall.lds += -P -C -U$(ARCH)
  
- 	if (pci_read_config_word(pcidev, PCI_REVISION_ID, &revision)) {
-===== drivers/isdn/tpam/tpam_main.c 1.12 vs edited =====
---- 1.12/drivers/isdn/tpam/tpam_main.c	2004-08-24 03:08:33 -06:00
-+++ edited/drivers/isdn/tpam/tpam_main.c	2004-08-26 13:09:52 -06:00
-@@ -88,10 +88,10 @@
- 	tpam_card *card, *c;
- 	int i, err;
+ vsyscall-flags = -shared -s -Wl,-soname=linux-gate.so.1
+ SYSCFLAGS_vsyscall-sysenter.so	= $(vsyscall-flags)
+ SYSCFLAGS_vsyscall-int80.so	= $(vsyscall-flags)
  
--	if (pci_enable_device(dev)) {
-+	if ((err = pci_enable_device(dev))) {
- 		printk(KERN_ERR "TurboPAM: can't enable PCI device at %s\n",
- 			pci_name(dev));
--		return -ENODEV;
-+		return err;
- 	}
+ $(obj)/vsyscall-int80.so $(obj)/vsyscall-sysenter.so: \
+-$(obj)/vsyscall-%.so: $(src)/vsyscall.lds.s $(obj)/vsyscall-%.o FORCE
++$(obj)/vsyscall-%.so: $(src)/vsyscall.lds $(obj)/vsyscall-%.o FORCE
+ 	$(call if_changed,syscall)
  
- 	/* allocate memory for the board structure */
-===== drivers/misc/ibmasm/module.c 1.3 vs edited =====
---- 1.3/drivers/misc/ibmasm/module.c	2004-08-24 03:08:34 -06:00
-+++ edited/drivers/misc/ibmasm/module.c	2004-08-26 13:11:17 -06:00
-@@ -59,13 +59,13 @@
+ # We also create a special relocatable object that should mirror the symbol
+@@ -65,5 +66,5 @@
+ $(obj)/built-in.o: ld_flags += -R $(obj)/vsyscall-syms.o
  
- static int __init ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
- {
--	int result = -ENOMEM;
-+	int err, result = -ENOMEM;
- 	struct service_processor *sp;
- 
--	if (pci_enable_device(pdev)) {
-+	if ((err = pci_enable_device(pdev))) {
- 		printk(KERN_ERR "%s: can't enable PCI device at %s\n",
- 			DRIVER_NAME, pci_name(pdev));
--		return -ENODEV;
-+		return err;
- 	}
- 
- 	sp = kmalloc(sizeof(struct service_processor), GFP_KERNEL);
-===== drivers/net/tulip/de4x5.c 1.40 vs edited =====
---- 1.40/drivers/net/tulip/de4x5.c	2004-08-25 11:34:58 -06:00
-+++ edited/drivers/net/tulip/de4x5.c	2004-08-26 13:13:04 -06:00
-@@ -2242,8 +2242,8 @@
- 		return -ENODEV;
- 
- 	/* Ok, the device seems to be for us. */
--	if (pci_enable_device (pdev))
--		return -ENODEV;
-+	if ((error = pci_enable_device (pdev)))
-+		return error;
- 
- 	if (!(dev = alloc_etherdev (sizeof (struct de4x5_private)))) {
- 		error = -ENOMEM;
+ SYSCFLAGS_vsyscall-syms.o = -r
+-$(obj)/vsyscall-syms.o: $(src)/vsyscall.lds.s $(obj)/vsyscall-sysenter.o FORCE
++$(obj)/vsyscall-syms.o: $(src)/vsyscall.lds $(obj)/vsyscall-sysenter.o FORCE
+ 	$(call if_changed,syscall)

@@ -1,110 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314491AbSEHPrN>; Wed, 8 May 2002 11:47:13 -0400
+	id <S314486AbSEHPtf>; Wed, 8 May 2002 11:49:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314486AbSEHPrM>; Wed, 8 May 2002 11:47:12 -0400
-Received: from www.ttb.siemens.com ([192.5.31.80]:65061 "HELO
-	www.ttb.simens.com") by vger.kernel.org with SMTP
-	id <S314491AbSEHPrJ>; Wed, 8 May 2002 11:47:09 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: "J. Albers" <j_albers@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: Kernelpatch: multi line string problem in 2.5.14 with gcc3.x
-Date: Wed, 8 May 2002 08:45:31 -0700
-X-Mailer: KMail [version 1.4]
-Cc: torvalds@transmeta.com
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200205080845.31655.j_albers@web.de>
+	id <S314492AbSEHPte>; Wed, 8 May 2002 11:49:34 -0400
+Received: from ns.suse.de ([213.95.15.193]:30215 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S314486AbSEHPtc>;
+	Wed, 8 May 2002 11:49:32 -0400
+Date: Wed, 8 May 2002 17:49:25 +0200
+From: Andi Kleen <ak@suse.de>
+To: Dave Engebretsen <engebret@vnet.ibm.com>
+Cc: justincarlson@cmu.edu, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org, anton@samba.org, davidm@hpl.hp.com,
+        ak@suse.de
+Subject: Re: Memory Barrier Definitions
+Message-ID: <20020508174924.A32610@wotan.suse.de>
+In-Reply-To: <E175BY8-0008S4-00@the-village.bc.nu> <1020809750.13627.24.camel@gs256.sp.cs.cmu.edu> <3CD89247.8ECB01A4@vnet.ibm.com> <3CD943CE.296717DF@vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, May 08, 2002 at 10:27:10AM -0500, Dave Engebretsen wrote:
+> I am curious what the definition of memory barriers is for IA64, Sparc,
+> and x86-64.  
+> 
+> >From what I can tell, sparc and x86-64 are like alpha and map directly
+> to the existing mb, wmb, and rmb semantics, incluing ordering between
+> system memory and I/O space.  Is that an accurate assesment?
 
-this patches fix problems with multi line stings in 2.5.14 /w gcc 3.x
+I don't think it is true for alpha, but it is true
+for x86-64. x86-64 by default has strong ordering for most loads/stores.
+It is possible to use weak ordering for special marked stores. For that
+there are special read and write and read/write barriers which apply
+to all memory (not distinction between io space and other memory). In 
+addition there is a way to mark special memory areas as write combining and
+some other settings, but that is ordered by the normal barriers too.
 
-Best regards,
- Jens Albers
+-Andi
 
-==========  Begin #1 ==========
---- aic7xxx_linux.c_2.5.14      Wed May  8 08:00:27 2002
-+++ aic7xxx_linux.c     Wed May  8 08:01:24 2002
-@@ -398,26 +398,26 @@
- MODULE_LICENSE("Dual BSD/GPL");
- #endif
- MODULE_PARM(aic7xxx, "s");
--MODULE_PARM_DESC(aic7xxx, "period delimited, options string.
--       verbose                 Enable verbose/diagnostic logging
--       no_probe                Disable EISA/VLB controller probing
--       no_reset                Supress initial bus resets
--       extended                Enable extended geometry on all controllers
--       periodic_otag           Send an ordered tagged transaction 
-periodically
--                               to prevent tag starvation.  This may be
--                               required by some older disk drives/RAID 
-arrays.
--       reverse_scan            Sort PCI devices highest Bus/Slot to lowest
--       tag_info:<tag_str>      Set per-target tag depth
--       seltime:<int>           Selection 
-Timeout(0/256ms,1/128ms,2/64ms,3/32ms)
--
--       Sample /etc/modules.conf line:
--               Enable verbose logging
--               Disable EISA/VLB probing
--               Set tag depth on Controller 2/Target 2 to 10 tags
--               Shorten the selection timeout to 128ms from its default of 256
--
--       options 
-aic7xxx='\"verbose.no_probe.tag_info:{{}.{}.{..10}}.seltime:1\"'
--");
-+MODULE_PARM_DESC(aic7xxx, "period delimited, options string."
-+"      verbose                 Enable verbose/diagnostic logging"
-+"      no_probe                Disable EISA/VLB controller probing"
-+"      no_reset                Supress initial bus resets"
-+"      extended                Enable extended geometry on all controllers"
-+"      periodic_otag           Send an ordered tagged transaction 
-periodically"
-+"                              to prevent tag starvation.  This may be"
-+"                              required by some older disk drives/RAID 
-arrays."
-+"      reverse_scan            Sort PCI devices highest Bus/Slot to lowest"
-+"      tag_info:<tag_str>      Set per-target tag depth"
-+"      seltime:<int>           Selection 
-Timeout(0/256ms,1/128ms,2/64ms,3/32ms)"
-+""
-+"      Sample /etc/modules.conf line:"
-+"              Enable verbose logging"
-+"              Disable EISA/VLB probing"
-+"              Set tag depth on Controller 2/Target 2 to 10 tags"
-+"              Shorten the selection timeout to 128ms from its default of 
-256"
-+""
-+"      options 
-aic7xxx='\"verbose.no_probe.tag_info:{{}.{}.{..10}}.seltime:1\"'"
-+);
- #endif
-
- static void ahc_linux_handle_scsi_status(struct ahc_softc *,
-==========  End #1 ==========
-
-==========  Begin #2 ==========
---- i2c-core.c_2.5.14   Wed May  8 08:31:40 2002
-+++ i2c-core.c  Wed May  8 08:32:43 2002
-@@ -381,10 +381,10 @@
-                                                printk("i2c-core.o: while "
-                                                       "unregistering driver "
-                                                       "`%s', the client at "
--                                                      "address %02x of
--                                                      adapter `%s' could not
--                                                      be detached; driver
--                                                      not unloaded!",
-+                                                      "address %02x of "
-+                                                      "adapter `%s' could not 
-"
-+                                                      "be detached; driver "
-+                                                      "not unloaded!",
-                                                       driver->name,
-                                                       client->addr,
-                                                       adap->name);
-==========  Begin #2 ==========

@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262482AbRENUNM>; Mon, 14 May 2001 16:13:12 -0400
+	id <S262470AbRENUOc>; Mon, 14 May 2001 16:14:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262470AbRENUNC>; Mon, 14 May 2001 16:13:02 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:30218 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S262465AbRENUM5>;
-	Mon, 14 May 2001 16:12:57 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200105142012.f4EKCeK44513@saturn.cs.uml.edu>
-Subject: Re: How VFS interacts with a file driver
-To: phillips@bonn-fries.net (Daniel Phillips)
-Date: Mon, 14 May 2001 16:12:40 -0400 (EDT)
-Cc: blessonpaul@usa.net (Blesson Paul), linux-kernel@vger.kernel.org
-In-Reply-To: <01051415551805.02742@starship> from "Daniel Phillips" at May 14, 2001 03:55:18 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S262471AbRENUOW>; Mon, 14 May 2001 16:14:22 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:27073 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S262470AbRENUOJ>;
+	Mon, 14 May 2001 16:14:09 -0400
+Message-ID: <3B003C8B.7FFD5606@mandrakesoft.com>
+Date: Mon, 14 May 2001 16:14:03 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <3B002FC6.C0093C18@transmeta.com>
+		<3B0033A4.8BB96F43@mandrakesoft.com> <200105142009.f4EK9FE17307@vindaloo.ras.ucalgary.ca>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips writes:
-> On Monday 14 May 2001 07:29, Blesson Paul wrote:
+Richard Gooch wrote:
+> So we add yet another series of hacks to avoid doing what's
+> necessary?!?
 
->>                I am trying to implement a distributed file system.
+We cannot change the world in a day.  :)
 
-Me too!  :-)
+"Doing what's necessary" is way beyond the scope of 2.4, IMHO.
 
->> For that I write a file driver. I want to know the following things
->>
->> 1 . If I am writing a new file system, is it necessary to modify the
->> existing structs including inode struct.
-
-Nope. There is a generic pointer you can use. You just need to
-figure out when to free it, assuming you don't want to leak
-lots of memory. Student projects can leak -- lucky you!
-
->> 2 . If it is not needed, will a simple registration of the file
->> system is needed to mount the file system
->>                 More over I am new to this area. I am doing as my
->> graduate project. I need someones help to crack the working of VFS
->> Thanks in advance
->
-> 1. In .config, change CONFIG_EXT2_FS to 'm'
-> 2. change "ext2" to "newfs" at DECLARE_FSTYPE_DEV in super.c
-> 3. make modules SUBDIRS=fs/ext2
-> 4. insmod fs/ext2/ext2.o
-> 
-> Poof!  New filesystem.  (cat /proc/filesystems) Don't forget to change 
-> ext2 in .config back to "y" before you build your next kernel.  You'll 
-> need to study the kernel *hard* before you can expect to have half a 
-> chance of having your filesystem work properly.
-
-Gotta love d_delete the function and d_delete the function pointer
-in a struct. Discovery was cause for inventing new curses.
-
-Along the way I stumble accross a "retval" that is only set once
-and a "if(de &&" of "if(!de ||" (I forget) that is redundant.
-Maybe in the proc or tmpfs code, just in case someone cares enough.
+-- 
+Jeff Garzik      | Game called on account of naked chick
+Building 1024    |
+MandrakeSoft     |

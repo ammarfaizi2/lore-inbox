@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267416AbTAQHVb>; Fri, 17 Jan 2003 02:21:31 -0500
+	id <S267421AbTAQHiS>; Fri, 17 Jan 2003 02:38:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267417AbTAQHVb>; Fri, 17 Jan 2003 02:21:31 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:39400 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S267416AbTAQHVa>; Fri, 17 Jan 2003 02:21:30 -0500
-Date: Fri, 17 Jan 2003 08:30:27 +0100
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: jsimmons@infradead.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.59
-Message-Id: <20030117083027.6410d4b0.us15@os.inf.tu-dresden.de>
-In-Reply-To: <20030117081516.357ee146.us15@os.inf.tu-dresden.de>
-References: <Pine.LNX.4.44.0301161826430.8879-100000@penguin.transmeta.com>
-	<20030117081516.357ee146.us15@os.inf.tu-dresden.de>
-Organization: Disorganized
-X-Mailer: Sylpheed version 0.8.8claws22 (GTK+ 1.2.10; Linux 2.5.59)
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+	id <S267424AbTAQHiS>; Fri, 17 Jan 2003 02:38:18 -0500
+Received: from hauptpostamt.charite.de ([193.175.66.220]:27556 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id <S267421AbTAQHiQ>; Fri, 17 Jan 2003 02:38:16 -0500
+Date: Fri, 17 Jan 2003 08:47:13 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-pre3-ac4 oops in free_pages_ok
+Message-ID: <20030117074713.GF12788@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030116082851.A31643@ns1.theoesters.com> <3E27044C.4010308@tupshin.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.Ok'yxHc3rcW3gx"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E27044C.4010308@tupshin.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.Ok'yxHc3rcW3gx
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+* Tupshin Harper <tupshin@tupshin.com>:
+> There are multiple other threads about this problem recently. One 
+> started by me, as well as a few others.
+> The consensus is that it's a problem in the ac tree, and is not present 
+> in 2.4.21-pre3.
 
+Yep.
 
-Hi James,
+> Some people seem to avoid the problem by disabling highmem, but this 
+> doesn't work for me. Quota has been mentioned as a possible culprit, but 
+> disabling that also doesn't help me. 
 
-Here's some other info from boot messages that suggests something is going wrong.
+Correct. I use neither himem nor quotas, still it crashes.
 
-rivafb: nVidia device/chipset 10DE0150
-rivafb: RIVA MTRR set to ON
-rivafb: PCI nVidia NV10 framebuffer ver 0.9.5b (nVidiaGeForce2-G, 32MB @ 0xC8000000)
-Badness in kobject_register at lib/kobject.c:152
-Call Trace:
- [<c0209ef8>] kobject_register+0x58/0x70
- [<c024532b>] bus_add_driver+0x5b/0xe0
- [<c024579f>] driver_register+0x2f/0x40
- [<c0176208>] create_proc_entry+0x88/0xd0
- [<c020fe37>] pci_register_driver+0x47/0x60
- [<c010507a>] init+0x3a/0x160
- [<c0105040>] init+0x0/0x160
- [<c010713d>] kernel_thread_helper+0x5/0x18
+> The ac changes to mm/shmem.c are 
+> still a possibility, though one reporter seems to have tried that 
+> without any success.
 
-Console: switching to colour frame buffer device 144x54
+Yup, I tried that. No go.
 
+> The remaining candidate that has been mentioned to 
+> me is the buffer cache changes in the ac tree, this seems moderately 
+> likely. I don't see any obvious way to break out those changes from 
+> Alan's large ac4 patch, so I emailed him hoping to get a patch free of 
+> those changes, but I haven't heard back yet(it's been 9 hours 
+> already...how dare he ignore me ;-).
 
-Regards,
--Udo.
+-- 
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
+Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
+"The report of my death was an exaggeration." 
+ -Mark Twain, After reading his own obituary, June 2, 1897
 
---=.Ok'yxHc3rcW3gx
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.3.1 (GNU/Linux)
-
-iD8DBQE+J7ETnhRzXSM7nSkRAuQIAJ9+OAItTQn+wE2E7NLJ6JmMykXTcgCfTiEh
-bkGHUTHhraef4GIbzWiSDkk=
-=C88d
------END PGP SIGNATURE-----
-
---=.Ok'yxHc3rcW3gx--

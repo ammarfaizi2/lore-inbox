@@ -1,49 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318269AbSHZUER>; Mon, 26 Aug 2002 16:04:17 -0400
+	id <S318229AbSHZUBk>; Mon, 26 Aug 2002 16:01:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318250AbSHZUDq>; Mon, 26 Aug 2002 16:03:46 -0400
-Received: from marc2.theaimsgroup.com ([63.238.77.172]:7694 "EHLO
-	marc2.theaimsgroup.com") by vger.kernel.org with ESMTP
-	id <S318243AbSHZUCi>; Mon, 26 Aug 2002 16:02:38 -0400
-Date: Mon, 26 Aug 2002 16:06:56 -0400
-Message-Id: <200208262006.g7QK6uH29932@marc2.theaimsgroup.com>
-From: Hank Leininger <linux-kernel@progressive-comp.com>
-Reply-To: Hank Leininger <hlein@progressive-comp.com>
-To: linux-kernel@vger.kernel.org
-Subject: RE:Re: TUX2 filesystem
-X-Shameless-Plug: Check out http://marc.theaimsgroup.com/
-X-Warning: This mail posted via a web gateway at marc.theaimsgroup.com
-X-Warning: Report any violation of list policy to abuse@progressive-comp.com
-X-Posted-By: Hank Leininger <hlein@progressive-comp.com>
+	id <S318242AbSHZUBk>; Mon, 26 Aug 2002 16:01:40 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:8197
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S318229AbSHZUBU>; Mon, 26 Aug 2002 16:01:20 -0400
+Subject: [PATCH] hyperthreading scheduler improvement
+From: Robert Love <rml@tech9.net>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 26 Aug 2002 16:05:36 -0400
+Message-Id: <1030392337.15007.413.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-08-26, <Hell.Surfers@cwctv.net> wrote:
+Linus,
 
-> what patent issues.???
+This patch implements a per-arch load balancing scheme for P4s to better
+balance across the virtual CPUs (e.g. prefer fully unused CPUs to a
+single available HT unit).  This is the same logic in 2.4-ac, 2.4-aa,
+etc.
 
-[ Please beat your mail{reader,vendor} into defaulting to bottom-posting ]
+This patch uses the previously posted per-arch load balancing
+infrastructure.
 
-> On Mon, 26 Aug 2002 Daniel Phillips <phillips@arcor.de> wrote: 
-> > Maybe yourself, Daniel, care to comment ?
+The new logic is keyed off of a new CONFIG_X86_HYPERTHREADING value
+which is currently set off of CONFIG_MPENTIUM4.  Thus, only kernels
+compiled for P4s will receive the new logic.  It is safe to make the
+code available to all x86s, however.
 
-> It's well down my list of priorities because of uncertainties due to
-> the U.S. patent system.
->
-> Does anybody want to know if patent chill exists, and is it hurting
-> open source?  The answer is yes.
+As I am not fortunate enough to have dual Xeons at my disposal, this
+patch is largely untested for performance, although it is present in -aa
+and -ac.  I suspect this could show very acceptable performance gains.
 
-I'm guessing Daniel is referring to NetApp/WAFL issues.  NetApp's WAFL
-filesystem (IIRC) implements something which is kinda sorta if-you-squint-
-your-eyes philosophically similar to tux2's phase tree.  Only
+	Robert Love
 
-a) It isn't *really* all that similar
-b) Daniel has prior art going back to the 1980's
-c) NetApp has more lawyers on staff than Daniel does
+diff -urN linux-2.5.31/arch/i386/config.in linux/arch/i386/config.in
+--- linux-2.5.31/arch/i386/config.in	Sat Aug 10 21:41:25 2002
++++ linux/arch/i386/config.in	Sat Aug 24 22:07:10 2002
+@@ -103,6 +103,7 @@
+    define_bool CONFIG_X86_TSC y
+    define_bool CONFIG_X86_GOOD_APIC y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
++   define_bool CONFIG_X86_HYPERTHREADING y
+ fi
+ if [ "$CONFIG_MK6" = "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+diff -urN linux-2.5.31/include/asm-i386/processor.h linux/include/asm-i386/processor.h
+--- linux-2.5.31/include/asm-i386/processor.h	Sat Aug 10 21:41:18 2002
++++ linux/include/asm-i386/processor.h	Sat Aug 24 22:07:10 2002
+@@ -488,4 +488,6 @@
+ 
+ #endif
+ 
++#define ARCH_HAS_SMP_BALANCE
++
+ #endif /* __ASM_I386_PROCESSOR_H */
+diff -urN linux-2.5.31/include/asm-i386/smp_balance.h linux/include/asm-i386/smp_balance.h
+--- linux-2.5.31/include/asm-i386/smp_balance.h	Wed Dec 31 19:00:00 1969
++++ linux/include/asm-i386/smp_balance.h	Sat Aug 24 22:26:15 2002
+@@ -0,0 +1,55 @@
++#ifndef _ASM_SMP_BALANCE_H
++#define _ASM_SMP_BALANCE_H
++
++/*
++ * We have an architecture-specific SMP load balancer to improve
++ * scheduling behavior on hyperthreaded CPUs.  Since only P4s have
++ * HT, we only use the code if CONFIG_MPENTIUM4 is set.
++ *
++ * Distributions may want to make this unconditional to support all
++ * x86 machines on one kernel.  The overhead in the non-P4 case is
++ * minimal while the benefit to SMP P4s is probably decent.
++ */
++#if defined(CONFIG_X86_HYPERTHREADING)
++
++/*
++ * Find any idle processor package (i.e. both virtual processors are idle)
++ */
++static inline int find_idle_package(int this_cpu)
++{
++	int i;
++
++	i = this_cpu;
++
++	for (i = (this_cpu + 1) % NR_CPUS;
++	     i != this_cpu;
++	     i = (i + 1) % NR_CPUS) {
++		int sibling = cpu_sibling_map[i];
++
++		if (idle_cpu(i) && idle_cpu(sibling))
++			return i;
++	}
++	return -1;	/* not found */
++}
++
++static inline int arch_load_balance(int this_cpu, int idle)
++{
++	/* Special hack for hyperthreading */
++       if (unlikely(smp_num_siblings > 1 && idle && !idle_cpu(cpu_sibling_map[this_cpu]))) {
++               int found;
++               struct runqueue *rq_target;
++
++               if ((found = find_idle_package(this_cpu)) >= 0 ) {
++                       rq_target = cpu_rq(found);
++                       resched_task(rq_target->idle);
++                       return 1;
++               }
++       }
++       return 0;
++}
++
++#else
++#define arch_load_balance(x, y)		(0)
++#endif
++
++#endif /* _ASM_SMP_BALANCE_H */
 
-Daniel, did I get it vaguely right?
 
---
-Hank Leininger <hlein@progressive-comp.com> 
-  
+

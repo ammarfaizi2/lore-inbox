@@ -1,88 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbTFCWr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 18:47:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbTFCWr6
+	id S261798AbTFCWuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 18:50:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTFCWuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 18:47:58 -0400
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:3597 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S261757AbTFCWr4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 18:47:56 -0400
-Date: Tue, 3 Jun 2003 16:01:17 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Jocelyn Mayer <jma@netgem.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] ieee1394 sbp2 driver is broken for kernel >= 2.4.21-rc2
-Message-ID: <20030603160117.D21083@one-eyed-alien.net>
-Mail-Followup-To: Jocelyn Mayer <jma@netgem.com>,
-	linux kernel <linux-kernel@vger.kernel.org>
-References: <1054582582.4967.48.camel@jma1.dev.netgem.com> <20030602163443.2bd531fb.georgn@somanetworks.com> <1054588832.4967.77.camel@jma1.dev.netgem.com> <20030603113636.GX10102@phunnypharm.org> <1054663917.4967.99.camel@jma1.dev.netgem.com> <20030603185421.GB10102@phunnypharm.org> <1054671619.4951.139.camel@jma1.dev.netgem.com> <20030603132504.C21083@one-eyed-alien.net> <1054674754.4951.184.camel@jma1.dev.netgem.com>
+	Tue, 3 Jun 2003 18:50:25 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:57085 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261798AbTFCWuW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 18:50:22 -0400
+Subject: [RFC][PATCH] linux-2.5.70_btime-fix_A0
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: h.lambermont@aramiska.net
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054681259.32091.783.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="k4f25fnPtRuIRUb3"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1054674754.4951.184.camel@jma1.dev.netgem.com>; from jma@netgem.com on Tue, Jun 03, 2003 at 11:12:34PM +0200
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 03 Jun 2003 16:00:59 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+All,
 
---k4f25fnPtRuIRUb3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+	Since jiffies didn't necessarily start incrementing at a second
+boundary, jiffies/HZ doesn't increment at the same moment as
+xtime.tv_sec. This causes one second wobbles in the calculation of btime
+(xtime.tv_sec - jiffies/HZ).  
 
-On Tue, Jun 03, 2003 at 11:12:34PM +0200, Jocelyn Mayer wrote:
-> On Tue, 2003-06-03 at 22:25, Matthew Dharm wrote:
-> > I know jumping in the middle of a conversation is bad, but....
-> >=20
-> > In conversations with the SBP2 folks, they indicated to me that the way
-> > they do hotplugging is very different from the way usb-storage does it.
-> > The end result (I'm told) is that invoking a scan from userspace is oft=
-en
-> > needed for SBP2 but never for usb-storage.
-> >=20
-> > So, comparing the two is really pointless.
->=20
-> you're right, I just wanted to point that there's no reason
-> that we need to register a device etheir by hand or using
-> an "infamous script" (citation from Ben Collins
-> http://sourceforge.net/mailarchive/message.php?msg_id=3D4435485 )
-> due to the SCSI stack, but that it's only a SBP2 problem.
+This fix increases the precision of the calculation so the usec
+component of xtime is used as well. Additionally it fixes some of the
+non-atomic reading of time values. 
 
-Actually, it is/was a SCSI problem.  The short version being that it is/was
-easier to hotplug an entire HBA rather than an individual device.  That is
-being changed in 2.5 right now.  usb-storage used an HBA-per-device, while
-SBP2 uses a single HBA.
 
-Of course, all this is being changed right now in 2.5.x
+This is a fix for bugme bug #764.
+http://bugme.osdl.org/show_bug.cgi?id=764
 
-Matt
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+Let me know if you have any comments
 
-It's monday.  It must be monday.
-					-- Greg
-User Friendly, 5/4/1998
+thanks
+-john
 
---k4f25fnPtRuIRUb3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--- 1.77/fs/proc/proc_misc.c	Sun May 25 14:08:09 2003
++++ edited/fs/proc/proc_misc.c	Tue Jun  3 15:52:41 2003
+@@ -378,8 +378,22 @@
+ {
+ 	int i, len;
+ 	extern unsigned long total_forks;
+-	u64 jif = get_jiffies_64() - INITIAL_JIFFIES;
++	u64 jif;
+ 	unsigned int sum = 0, user = 0, nice = 0, system = 0, idle = 0, iowait = 0;
++	struct timeval now; 
++	unsigned long seq;
++
++	/* Atomically read jiffies and time of day */ 
++	do {
++		seq = read_seqbegin(&xtime_lock);
++
++		jif = get_jiffies_64() - INITIAL_JIFFIES;
++		do_gettimeofday(&now);
++	} while (read_seqretry(&xtime_lock, seq));
++
++	/* calc # of seconds since boot time */
++	jif = ((u64)now.tv_sec * HZ) + (now.tv_usec/(1000000/HZ)) - jif;
++	do_div(jif, HZ);
+ 
+ 	for (i = 0 ; i < NR_CPUS; i++) {
+ 		int j;
+@@ -419,7 +433,6 @@
+ 		len += sprintf(page + len, " %u", kstat_irqs(i));
+ #endif
+ 
+-	do_div(jif, HZ);
+ 	len += sprintf(page + len,
+ 		"\nctxt %lu\n"
+ 		"btime %lu\n"
+@@ -427,7 +440,7 @@
+ 		"procs_running %lu\n"
+ 		"procs_blocked %lu\n",
+ 		nr_context_switches(),
+-		xtime.tv_sec - (unsigned long) jif,
++		(unsigned long)jif,
+ 		total_forks,
+ 		nr_running(),
+ 		nr_iowait());
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQE+3Si9IjReC7bSPZARAuhfAJ47EaH7ia4FVN+zJFpSeL8sUfHHVACfWvyD
-lwZsfedyNiq0wpP6JNzacgE=
-=euTK
------END PGP SIGNATURE-----
 
---k4f25fnPtRuIRUb3--

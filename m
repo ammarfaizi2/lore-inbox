@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273240AbRIRJUA>; Tue, 18 Sep 2001 05:20:00 -0400
+	id <S273256AbRIRJWu>; Tue, 18 Sep 2001 05:22:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273253AbRIRJTv>; Tue, 18 Sep 2001 05:19:51 -0400
-Received: from ip122-15.asiaonline.net ([202.85.122.15]:61376 "EHLO
-	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
-	id <S273240AbRIRJTj>; Tue, 18 Sep 2001 05:19:39 -0400
-Message-ID: <3BA710EF.FC38A28B@rcn.com.hk>
-Date: Tue, 18 Sep 2001 17:16:31 +0800
-From: David Chow <davidchow@rcn.com.hk>
-Organization: Resources Computer Network Ltd.
-X-Mailer: Mozilla 4.76 [zh_TW] (X11; U; Linux 2.4.4-1DC i686)
-X-Accept-Language: zh_TW, en
+	id <S273254AbRIRJWk>; Tue, 18 Sep 2001 05:22:40 -0400
+Received: from edu.joroinen.fi ([195.156.135.125]:26635 "HELO edu.joroinen.fi")
+	by vger.kernel.org with SMTP id <S273258AbRIRJWc> convert rfc822-to-8bit;
+	Tue, 18 Sep 2001 05:22:32 -0400
+Date: Tue, 18 Sep 2001 12:22:48 +0300 (EEST)
+From: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>
+X-X-Sender: <pk@edu.joroinen.fi>
+To: <linux-kernel@vger.kernel.org>
+Subject: Module-loading problem with 4MB of ram
+Message-ID: <Pine.LNX.4.33.0109181217330.4235-100000@edu.joroinen.fi>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: EFAULT from file read.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
 
-I am having trouble in reading a file in the kernel space using the
-file->f_op->read call, everything is ok. I start off file->f_pos = 0 . I
-also did a mntget to the super block before I call
-"file=dentry_open(.....)" . I intend to open the file in read only mode.
-What can be wrong? I have also check the inode->i_size is large enough
-for me to just read 8 bytes from the file. I keep having EFAULT error
-from the read call... also before calling mntget, also did a dget to the
-dentry. Any help is welcomed. Thanks.
+Hello!
 
-regards,
+I have a machine with only 4MB of RAM. I'm using kernel 2.2.19.
 
-David Chow
+System starts up just fine, and I can load pcmcia-cs. Now, when I insert
+pcmcia-card, the card is detected, and the loading of driver is started.
+
+This is where the problems start. Driver says it cannot allocate memory
+for the firmware of the card. When I look at the code, it is like this:
+
+ptr = dmalloc(size, GFP_ATOMIC);
+
+is there any way to reserve some memory for the driver-module?
+
+
+Thank you for your help.
+
+
+- Pasi Kärkkäinen
+                                   ^
+                                .     .
+                                 Linux
+                              /    -    \
+                             Choice.of.the
+                           .Next.Generation.
+

@@ -1,77 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbUBYKHu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 05:07:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbUBYKHu
+	id S261175AbUBYKLT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 05:11:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbUBYKLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 05:07:50 -0500
-Received: from mailhost.cs.auc.dk ([130.225.194.6]:35989 "EHLO
-	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S261206AbUBYKHp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 05:07:45 -0500
-Date: Wed, 25 Feb 2004 11:07:41 +0100 (CET)
-From: =?iso-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.auc.dk>
-To: linux-kernel@vger.kernel.org
-cc: umbrella@cs.auc.dk
-Subject: Implement new system call in 2.6
-Message-ID: <Pine.LNX.4.56.0402250933001.648@homer.cs.auc.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 25 Feb 2004 05:11:19 -0500
+Received: from gprs147-32.eurotel.cz ([160.218.147.32]:24960 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261175AbUBYKLR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 05:11:17 -0500
+Date: Wed, 25 Feb 2004 11:11:00 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Bruno Ducrot <ducrot@poupinou.org>
+Cc: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+       Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Stefan Seyfried <seife@suse.de>, acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] swsusp/s3: Assembly interactions need asmlinkage
+Message-ID: <20040225101100.GA214@elf.ucw.cz>
+References: <20040224130051.GA8964@elf.ucw.cz> <20040225083957.GE2869@poupinou.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040225083957.GE2869@poupinou.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+Hi!
 
-How do I invoke a newly created system call in the 2.6.3 kernel from
-userspace?
+> > swsusp/s3 assembly parts, and parts called from assembly are not
+> > properly marked asmlinkage; that leads to double fault on resume when
+> > someone compiles kernel with regparm. Thanks go to Stefan Seyfried for
+> > discovering this. Please apply,
+> 
+> Does acpi_enter_sleep_state_s4bios() have the same issue ?
 
-The call is added it arch/i386/kernel/entry.S and include/asm/unistd.h
-and the call is implemented in a security module called Umbrella(*).
+Yes, it does; I missed that. Thanks. Here's the fix.
+								Pavel
 
-The kernel compiles and boots nicely.
-
-The main problem is now to compile a userspace program that invokes this
-call. The guide for implementing the systemcall at
-http://fossil.wpi.edu/docs/howto_add_systemcall.html
-has been followed, which yields the following userspace program:
-
-// test.h
-#include "/home/snc/linux-2.6.3-umbrella/include/linux/unistd.h"
-_syscall1(int, umbrella_scr, int, arg1);
-
-// test.c
-#include "test.h"
-main() {
-  int test = umbrella_scr(1);
-  printf ("%i\n", test);
-}
-
-When compiling:
-
-gcc -I/home/snc/linux-2.6.3/include test.c
-
-/tmp/ccYYs1zB.o(.text+0x20): In function `umbrella_scr':
-: undefined reference to `errno'
-collect2: ld returned 1 exit status
-
-
-It seems like a little stupid error :-( Does some of you have a solution?
-
-
-
-Thanks in advance and best regards,
-Kristian Sørensen.
-
-
-
-(*) Umbrella is a security project for securing handheld devices. Umbrella
-for implements a combination of process based mandatory access control
-(MAC) and authentication of files. This is implemented on top of the Linux
-Security Modules framework. The MAC scheme is enforced by a set of
-restrictions for each process.
-More information on http://umbrella.sf.net
+--- clean/drivers/acpi/hardware/hwsleep.c	2004-02-05 01:53:59.000000000 +0100
++++ linux/drivers/acpi/hardware/hwsleep.c	2004-02-25 11:08:15.000000000 +0100
+@@ -359,7 +359,7 @@
+  *
+  ******************************************************************************/
+ 
+-acpi_status
++acpi_status asmlinkage
+ acpi_enter_sleep_state_s4bios (
+ 	void)
+ {
 
 
 -- 
-Kristian Sørensen <ks@cs.auc.dk>
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

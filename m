@@ -1,89 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbVACWse@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbVACWyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbVACWse (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 17:48:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbVACWWM
+	id S261923AbVACWyS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 17:54:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVACWwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 17:22:12 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:22169 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261911AbVACWTl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 17:19:41 -0500
-Message-ID: <41D9C53A.3030503@tmr.com>
-Date: Mon, 03 Jan 2005 17:20:42 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "L. A. Walsh" <law@tlinx.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Reviving the concept of a stable series (was Re: starting with
- 2.7)
-References: <20050102232102.GN26717@gallifrey><20050102232102.GN26717@gallifrey> <41D91707.6040102@tlinx.org>
-In-Reply-To: <41D91707.6040102@tlinx.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 3 Jan 2005 17:52:04 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:12978 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261896AbVACWsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 17:48:47 -0500
+Subject: Re: [ide] clean up error path in do_ide_setup_pci_device()
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+In-Reply-To: <58cb370e050103142269e1f67f@mail.gmail.com>
+References: <200412310343.iBV3hqvd015595@hera.kernel.org>
+	 <1104773262.13302.3.camel@localhost.localdomain>
+	 <58cb370e050103142269e1f67f@mail.gmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1104788671.13302.63.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 03 Jan 2005 21:44:33 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-L. A. Walsh wrote:
-> I don't know about #3 below, but #1 and #2 are certainly true.
-> I always preferred to run a vanilla stable kernel as I did not
-> trust the vendors' kernels because their patches were not as well
-> eyed as the vanilla kernel.  I prefer to compile a kernel for
-> my specific machines, some of which are old and do better with a
-> hand-configured kernel rather than a Microsoftian monolith that
-> is compiled with all possible options as modules.
-
-Same conclusion from another direction. If I make a patch which I know 
-can't (or won't) be accepted into the mainline, it's easier for me to 
-carry it forward on a mainline kernel. I'm happy to say I haven't had to 
-do that for a while, although I will probably rehack the network code a 
-little this summer.
-
-> Nevertheless, it would be nice to see a no-new-features, stable series
-> spun off from these development kernels, maybe .4th number releases,
-> like 2.6.10 also becomes a 2.6.10.0 that starts a 2.6.10.1, then 2.6.10.2,
-> etc...with iteritive bug fixes to the same kernel and no new features
-> in such a branch, it might become stable enough for users to have 
-> confidence
-> installing them on their desktop or stable machines.
+On Llu, 2005-01-03 at 22:22, Bartlomiej Zolnierkiewicz wrote:
+> > Nothing in the IDE specification requires the PCI IDE controller be the
+> > only use of that PCI function. The damage is probably minimal as it
+> > deals with error paths but this change should be reverted (and will be
+> > for -ac).
 > 
-> It wouldn't have to be months upon months of diverging code, as jumps
-> to a new stable base can be started upon any fairly stable development
-> kernel, say 2.6.10 w/e100 fixed, tracing fixed, the slab bug fix, and
-> the capabilities bugs fixed going into a 2.6.10.1 that has no new features
-> or old features removed.  Serious bug fixes after that could go into a
-> 2.6.10.2, etc.  Such point releases would be easier to manage and only
-> be updated/maintained as long as someone was interested enough to do it.
-> 
-> The same process would be applied to a future dev-kernel that appears to be
-> mostly stable after some number of weeks of alpha testing.  It may be
-> the case that a given furture dev-kernel has no stable branch off of it
-> because it either a) didn't need one, or b) was too far from stable to 
-> start
-> one.
+> Different PCI functions should have different struct pci_dev instances
+> so is this really a problem?
 
-If the -rc process were in place, new feature freeze until the big green 
-bugs were fixed just before the next release, that actually might be 
-most of a solution.
+Different PCI functions are but nothing requires that the PCI function
+that is the IDE controller is only the IDE controller. In some cases
+other logic lives in the "spare" BAR register areas of the device.
 
-No one bug akpm can accurately asses how well fixes come back from 
-vendors, but I suspect that the kernel is moving too fast and vendors 
-"pick one" and stabilize that, by which time the kernel.org is 
-generations down the road. It's possible that some fixes are then 
-rediffed against the current kernel and fed, but I have zero information 
-on that happening or not.
+One example where the weird design makes it obvious is the CS5520. Here
+the 5520 bridge has the IDE in one BAR and all sorts of other logic
+(including the xBUS virtual ISA environment) in the same PCI function.
+On that chip a pci_disable_device on the IDE pci_dev turns off mundane
+things like the timer chips keyboard and mouse 8).
 
->>  3) In some cases the commercial vendors don't seem to release
->>  source to some of the kernels except to people who have bought
->>  the packages, so those vendor kernel fixes aren't 'publically'
->>  visible.
+Other vendors do equally evil things and providing the chip reports IDE
+class and has the IDE BARs set up nobody else is any the wiser and
+presumably gate count goes down.
 
-That shouldn't happen, and in practice it's rare. But you may have to 
-search a bit to find the sources...
+Alan
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me

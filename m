@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261741AbREUHR6>; Mon, 21 May 2001 03:17:58 -0400
+	id <S261843AbREUHtC>; Mon, 21 May 2001 03:49:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261772AbREUHRs>; Mon, 21 May 2001 03:17:48 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:10765 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S261741AbREUHRn>;
-	Mon, 21 May 2001 03:17:43 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200105210716.f4L7Gte504365@saturn.cs.uml.edu>
-Subject: Re: LANANA: To Pending Device Number Registrants
-To: dwguest@win.tue.nl (Guest section DW)
-Date: Mon, 21 May 2001 03:16:55 -0400 (EDT)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), Mauelshagen@sistina.com,
-        thomasko321k@gmx.at (Thomas Kotzian),
-        helgehaf@idb.hist.no (Helge Hafting), linux-kernel@vger.kernel.org
-In-Reply-To: <20010517113924.B9270@win.tue.nl> from "Guest section DW" at May 17, 2001 11:39:24 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S261810AbREUHsx>; Mon, 21 May 2001 03:48:53 -0400
+Received: from fjordland.nl.linux.org ([131.211.28.101]:4622 "EHLO
+	fjordland.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S261805AbREUHsi>; Mon, 21 May 2001 03:48:38 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Negative inode-nr ?
+Date: Sat, 19 May 2001 22:04:28 +0200
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0105191332150.5531-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0105191332150.5531-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01051922042809.00491@starship>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guest section DW writes:
-> On Thu, May 17, 2001 at 02:35:55AM -0400, Albert D. Cahalan wrote:
-
->> The PC partition table has such an ID. The LILO change log
->> mentions it. I think it's 6 random bytes, with some restriction
->> about being non-zero.
+On Saturday 19 May 2001 18:33, Rik van Riel wrote:
+> On Sat, 19 May 2001, [iso-8859-1] Jakob Østergaard wrote:
+> > What do you think of this ?
+> > [root]# cat /proc/sys/fs/inode-nr
+> > 157097	-180
 >
-> You are confused. The partition table contains IDs, but these are
-> the numbers like 83 for a Linux partition. No disk-identifying numbers.
+> I think you should upgrade to a newer kernel; Al Viro
+> fixed this bug and the fix went into 2.4.5-pre1.
 
-Care to explain "duplicate MBR signature handling" in the GPT FAQ?
-While describing the new-style partitions, Microsoft mentions that
-Windows 2000 has a way to mark old-style ("MBR") partitions:
+What was the bug and how was it fixed?
 
-: 58. What happens if a duplicate Disk or Partition GUID is detected? 
-: Windows Whistler will generate new GUIDs for any duplicate Disk GUID,
-: MSR Partition GUID, or MSR basic data GUID upon detection. This is
-: similar to the duplicate MBR signature handling in Windows 2000.
-: Duplicate GUIDs on a dynamic container or database partition
-: cause unpredictable results.
+/me wishes one more time for an applied-patch history.
 
-Well, the way to test this would be with Windows 2000, two disks,
-and a Linux rescue disk that has "dd" on it. See what gets changed
-when the "duplicate MBR signature handling in Windows 2000" runs.
-
+--
+Daniel

@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbTEYVKR (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 25 May 2003 17:10:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263780AbTEYVKR
+	id S263780AbTEYVRd (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 25 May 2003 17:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263781AbTEYVRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 17:10:17 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:48265 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263777AbTEYVKP
+	Sun, 25 May 2003 17:17:32 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3466 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263780AbTEYVRb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 17:10:15 -0400
-Date: Sun, 25 May 2003 23:23:01 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: Willy Tarreau <willy@w.ods.org>,
-   Marcelo Tosatti <marcelo@conectiva.com.br>,
-   lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-rc3 : IDE pb on Alpha
-In-Reply-To: <20030525205511.GC23651@matchmail.com>
-Message-ID: <Pine.SOL.4.30.0305252304510.10573-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 25 May 2003 17:17:31 -0400
+Date: Sun, 25 May 2003 22:30:40 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+   Alexander Viro <aviro@redhat.com>
+Subject: Re: oops with bk kernel as of 2003-05-25T13:00:00-07
+Message-ID: <20030525213040.GH6270@parcelfarce.linux.theplanet.co.uk>
+References: <3ED12727.1080907@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3ED12727.1080907@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, May 25, 2003 at 01:27:19PM -0700, Ulrich Drepper wrote:
+> Call Trace:
+>  [<c0157a4e>] cdev_add+0x63/0x65
+>  [<c01579c8>] exact_match+0x0/0x5
+>  [<c01579cd>] exact_lock+0x0/0x1e
+>  [<c01575d1>] register_chrdev+0xc6/0x10f
+>  [<c039ec53>] init_netlink+0x1f/0x58
+>  [<c039ec2e>] netlink_proto_init+0x47/0x4d
+>  [<c0382880>] do_initcalls+0x27/0x93
+>  [<c012ddc3>] init_workqueues+0xf/0x26
+>  [<c01050a8>] init+0x4c/0x1a8
+>  [<c010505c>] init+0x0/0x1a8
+>  [<c0108a15>] kernel_thread_helper+0x5/0xb
+ 
+> I looked at the code and the problem is that cdev_map == NULL when
+> cdev_add is called.  cdev_map is initialized in a constructor.  Maybe
+> the wrong order or a race...
 
-On Sun, 25 May 2003, Mike Fedyk wrote:
-> On Sun, May 25, 2003 at 10:45:00PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > On Sun, 25 May 2003, Mike Fedyk wrote:
-> >
-> > > On Sun, May 25, 2003 at 07:00:46PM +0200, Willy Tarreau wrote:
-> > > > hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> > > > hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> > >
-> > > Can you revert back to your previous kernel and run badblocks read-only on
-> > > it a few times.  Your drive may be going bad.
-> >
-> >
-> >
-> > Everything is okay, older drives don't understand some commands.
-> > I will fix it, but now its low on my TODO list.
+Gack...  We have
 
-> Bart, is there any chace you could change the printks to show the name of
-> the command that caused the drive to produce the error (assuming non
-> ide-tcq, with tcq I'd immagine that it'd be a bit harder).
+subsys_initcall(chrdev_init);
+in fs/char_dev.c
+and
+core_initcall(netlink_proto_init);
+in net/netlink/af_netlink.c
 
-For taskfile based IO its trivial, but IDE is not yet switched to it
-(will be soon).
+Guess which one wins...  What a mess...  How about the following (untested,
+but AFAICS should work)
 
-> This way someone who hasn't read the IDE spec might be able to tell that
-> this isn't a warning of impending failure.
-
-> BTW, is this information encoded in the two lines above somewhere, and if so
-> how would I read it?
-
-Only failed irq handler, drive status and error returned by drive.
-"error = 0x04" means command aborted.
-
-Regards,
---
-Bartlomiej
-
-> Thanks,
->
-> Mike
-
+diff -urN linux/fs/char_dev.c linux2/fs/char_dev.c
+--- linux/fs/char_dev.c	Sun May 25 08:01:46 2003
++++ linux2/fs/char_dev.c	Sun May 25 17:26:04 2003
+@@ -457,11 +457,9 @@
+ 	return NULL;
+ }
+ 
+-static int __init chrdev_init(void)
++void __init cdev_init(void)
+ {
+ 	subsystem_register(&cdev_subsys);
+ 	kset_register(&kset_dynamic);
+ 	cdev_map = kobj_map_init(base_probe, &cdev_subsys);
+-	return 0;
+ }
+-subsys_initcall(chrdev_init);
+diff -urN linux/fs/dcache.c linux2/fs/dcache.c
+--- linux/fs/dcache.c	Sat May 24 18:49:58 2003
++++ linux2/fs/dcache.c	Sun May 25 17:25:40 2003
+@@ -1606,6 +1606,7 @@
+ EXPORT_SYMBOL(d_genocide);
+ 
+ extern void bdev_cache_init(void);
++extern void cdev_init(void);
+ 
+ void __init vfs_caches_init(unsigned long mempages)
+ {
+@@ -1626,4 +1627,5 @@
+ 	files_init(mempages); 
+ 	mnt_init(mempages);
+ 	bdev_cache_init();
++	cdev_init();
+ }

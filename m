@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262578AbTFKP5g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 11:57:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbTFKP5g
+	id S262623AbTFKQH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 12:07:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbTFKQH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 11:57:36 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16655 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262578AbTFKP5f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 11:57:35 -0400
-Date: Wed, 11 Jun 2003 09:11:01 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: viro@parcelfarce.linux.theplanet.co.uk, Frank Cusack <fcusack@fcusack.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] nfs_unlink() race (was: nfs_refresh_inode: inode number
- mismatch)
-In-Reply-To: <1055346664.2420.5.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0306110905420.1653-100000@home.transmeta.com>
+	Wed, 11 Jun 2003 12:07:27 -0400
+Received: from uni-paderborn.de ([131.234.22.30]:28548 "EHLO mail-gate")
+	by vger.kernel.org with ESMTP id S262623AbTFKQH0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 12:07:26 -0400
+Message-ID: <3EE756C9.F07564D4@upb.de>
+Date: Wed, 11 Jun 2003 18:20:25 +0200
+From: Kay Salzwedel <nkz@upb.de>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: buffer requests answered from cache
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On 11 Jun 2003, Alan Cox wrote:
-> 
-> No no - this happens on LOCAL disk. No NFS needed at all.
+can anybody point me to a place where the kernel (2.4) checks whenever a
+buffer head is already in the cache or not? I would like to know how
+many requests to a device are answered from cached buffers.
 
-How do you make a local filesystem return ESTALE? A quick grep shows it in
-fs/fat/inode.c, but it should only be in the "export" functions used to
-export it for NFS.
+Thanks very much.
 
-Curious. What am I missing?
+Regards KAy
+-- 
+--------------------------------------------------------------------
+Kay A Salzwedel
 
-		Linus
-
+Heinz Nixdorf Institute
+University of Paderborn
+Germany
+------------------------------------------
+E-Mail:  kay@hni.uni-paderborn.de
+Tel.:    +49-5251-60 64 58
+--------------------------------------------------------------------

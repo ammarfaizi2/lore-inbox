@@ -1,122 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267516AbUI1Lgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267519AbUI1Lk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267516AbUI1Lgo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 07:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267554AbUI1Lgo
+	id S267519AbUI1Lk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 07:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267554AbUI1Lk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 07:36:44 -0400
-Received: from out010pub.verizon.net ([206.46.170.133]:30643 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S267516AbUI1Lgj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 07:36:39 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm4
-Date: Tue, 28 Sep 2004 07:36:38 -0400
-User-Agent: KMail/1.7
-Cc: Ingo Molnar <mingo@elte.hu>, Matt Heler <lkml@lpbproductions.com>
-References: <20040926181021.2e1b3fe4.akpm@osdl.org> <200409280701.06932.gene.heskett@verizon.net> <20040928110541.GA22436@elte.hu>
-In-Reply-To: <20040928110541.GA22436@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Sep 2004 07:40:27 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:30923 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S267519AbUI1LkP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 07:40:15 -0400
+Date: Tue, 28 Sep 2004 06:38:58 -0500
+From: Robin Holt <holt@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: Jay Lan <jlan@engr.sgi.com>, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, csa@oss.sgi.com, akpm@osdl.org,
+       guillaume.thouvenin@bull.net, tim@physik3.uni-rostock.de,
+       corliss@digitalmages.com
+Subject: Re: [PATCH 2.6.9-rc2 2/2] enhanced MM accounting data collection
+Message-ID: <20040928113858.GA1090@lnx-holt.americas.sgi.com>
+References: <4158956F.3030706@engr.sgi.com> <41589927.5080803@engr.sgi.com> <20040928023350.611c84d8.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409280736.38340.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [151.205.46.219] at Tue, 28 Sep 2004 06:36:38 -0500
+In-Reply-To: <20040928023350.611c84d8.pj@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 September 2004 07:05, Ingo Molnar wrote:
->* Gene Heskett <gene.heskett@verizon.net> wrote:
->> That would I assume need a null modem cable, and what do I run on
->> the firewall?  Minicom?  Or is there something better that can
->> just grab and log without being interactive?  Its a rh7.3 box with
->> a 2.4.18 era kernel.  I'd update that, but its not broken. :)
->
->here's a mini-howto:
->
-Printed for future reference, thanks
+On Tue, Sep 28, 2004 at 02:33:50AM -0700, Paul Jackson wrote:
+> nits:
+> 
+> 3) Is it always the case that csa_update_integrals() and
+>    update_mem_hiwater() are used together?  If so, perhaps
+>    they could be collapsed into one?  Even the current->mm
+>    test inside them could be made one test, perhaps?
 
->to set up serial logging:
->-------------------------
->
->install a null modem cable to one of the serial ports of the server,
->connect the cable to another box, run a terminal program on that
-> other box (e.g. "minicom -m" - do Alt-L to switch on logging after
-> starting it up) and set up the server's kernel to do serial
-> logging: enable CONFIG_SERIAL_8250_CONSOLE and
-> CONFIG_SERIAL_CORE_CONSOLE, recompile & reinstall the kernel, add
-> "console=ttyS0,38400 console=tty0" to your /etc/grub.conf or
-> /etc/lilo.conf kernel boot line, reboot the server with the new
-> kernel command line - and configure minicom to run with that speed
-> (Alt-S).
->
->e.g. my /etc/grub.conf has:
->
->title test-2.6 (test-2.6)
->        root (hd0,0)
->        kernel /boot/bzImage root=/dev/sda1 console=ttyS0,38400
-> console=tty0 nmi_watchdog=1 kernel_preempt=1
->
->if everything is set up correctly then you should see kernel
-> messages showing up in the minicom session when you boot up.
->
->When the messages do not show up then typical errors are mismatch
->between the serial port (or speed) and the device names used - if
-> it's COM2 then use ttyS1, and dont forget to set up the serial
-> speed option of minicom, etc. You can test the serial connection by
-> doing:
->
->	echo x > /dev/ttyS0
->
->and that should show up in the minicom session on the other box.
->
->to set up the NMI watchdog:
->---------------------------
->
->add nmi_watchdog=1 to your boot parameters and reboot - that should
-> be all to get it active. If all CPU's NMI count increases in
->/proc/interrupts then it's working fine. If the counts do not
-> increase (or only one CPU increases it) then try nmi_watchdog=2 -
-> this is another type of NMI that might work better. (Very rarely
-> there are boxes that dont have reliable NMI counts with 1 and 2
-> either - but i dont think your box is one of those.)
->
->once the NMI watchdog is up and running it should catch all hard
-> lockups and print backtraces to the serial console - even if you
-> are within X while the lockup happens. You can test hard lockups by
-> running the attached 'lockupcli' userspace code as root - it turns
-> off interrupts and goes into an infinite loop => instant lockup.
-> The NMI watchdog should notice this condition after a couple of
-> seconds and should abort the task, printing a kernel trace as well.
-> Your box should be back in working order after that point.
->
->now for the real lockup your box wont be 'fixed' by the NMI
-> watchdog, it will likely stay locked up, but you should get
-> messages on the serial console, giving us an idea where the kernel
-> locked up and why. (Very rarely it happens that not even the NMI
-> watchdog prints anything for a hard lockup - this is often the sign
-> of hardware problems.)
->
->	Ingo
->
->--- lockupcli.c
->
->main ()
->{
->	iopl(3);
->	for (;;) asm("cli");
->}
+This sounds like a really good idea.  Maybe update_mem_hiwater should have
+the #ifdef CONFIG_CSA inside it.  This really sounds like a good idea.
+Is update_mem_hiwater everywhere that csa_update_integrals needs to be?
+I seem to remember one or two places where that was not the case.
+Of course that was a few years ago and my memory is really fuzzy
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.26% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+> 
+> 4) What kind of kernel text size expansion does this cause?
+>    There seem to be about a dozen of these calls.  What are
+>    the pros and cons of inlining csa_update_integrals() and
+>    update_mem_hiwater()?  Are these on hot enough kernel code
+>    paths that we should benchmark with and without these hooks
+>    enabled, both inline and out-of-line?
+
+The size was never very noticable.  It usually did not even cause overflow
+to the next 4k page.  The csa_job module added the biggest bloat, but
+I have nearly always compiled that as a module.
+
+I have benchmarked these hooks a very long time ago.  The number and
+location has not changed appreciably.
+
+I ran three seperate tests.  The first was without any csa config'd on.
+The second was with csa config'd on, but no job containers and the
+writing of the accounting file turned off.  Last was with everything.
+We ran 7 runs of each config on a 32 cpu system.
+
+There was no delta between the two kernels that were not writing
+accounting files.  Actually, the average for the with integrals was 0.3%
+above the without integrals, but this is well within the noise range.
+
+Originally, there was a 5% decrease in performance with the writing of
+the accounting data.  There was another unfortunate side effect that some
+of the CSA metrics became much worse.  This problem was later identified
+and fixed.  At that point, CSA logging caused a 2.7% drop in AIM7 peak
+with shifting the transition point (I think that was the name I remember)
+towards a higher number of processes.  Jack said that was due to a
+slight serializing of process exits.
+
+Robin

@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264218AbTGBRIL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 13:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264219AbTGBRH4
+	id S264197AbTGBRXM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 13:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264201AbTGBRXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 13:07:56 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:7050 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S264218AbTGBRGg (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 13:06:36 -0400
-Message-Id: <200307021719.h62HJw7i005423@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Breno <brenosp@brasilsec.com.br>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: about send task 
-In-Reply-To: Your message of "Wed, 02 Jul 2003 14:03:38 -0300."
-             <000701c340bb$e48b43e0$19dfa7c8@bsb.virtua.com.br> 
-From: Valdis.Kletnieks@vt.edu
-References: <000701c340bb$e48b43e0$19dfa7c8@bsb.virtua.com.br>
+	Wed, 2 Jul 2003 13:23:11 -0400
+Received: from dsl2.external.hp.com ([192.25.206.7]:53765 "EHLO
+	dsl2.external.hp.com") by vger.kernel.org with ESMTP
+	id S264197AbTGBRXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 13:23:08 -0400
+Date: Wed, 2 Jul 2003 11:37:33 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       James Bottomley <James.Bottomley@steeleye.com>, axboe@suse.de,
+       davem@redhat.com, suparna@in.ibm.com, linux-kernel@vger.kernel.org,
+       alex_williamson@hp.com, bjorn_helgaas@hp.com
+Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
+Message-ID: <20030702173733.GE11739@dsl2.external.hp.com>
+References: <1057077975.2135.54.camel@mulgrave> <20030702015701.6007ac26.ak@suse.de> <20030702165510.GC11739@dsl2.external.hp.com> <20030702172026.GB32261@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_293004168P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 02 Jul 2003 13:19:58 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030702172026.GB32261@wotan.suse.de>
+User-Agent: Mutt/1.3.28i
+X-Home-Page: http://www.parisc-linux.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_293004168P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Wed, Jul 02, 2003 at 07:20:26PM +0200, Andi Kleen wrote:
+...
+> > Can two adjacent IOMMU entries be used to map two 1K buffers?
+> > Assume the 1st buffer ends on a 4k alignment and the next one
+> > starts on a 4k alignment.
+> 
+> Yes, it could. But is that situation likely/worth to handle? 
 
-On Wed, 02 Jul 2003 14:03:38 -0300, Breno <brenosp@brasilsec.com.br>  sai=
-d:
+Probably.  It would reduce the number of mappings by 25% (3 instead of 4).
+My assumption is two adjecent IOMMU entries have contigious bus addresses.
 
-> if it busy , free the memory of these virtual addresses.
-> - get structs mm , vma , task , zone , page
->   and copy all buffers existing in the
+I was trying to figure out if x86-64 should be setting
+BIO_VMERGE_BOUNDARY to 0 or 4k.
 
-> Please , i=B4d like some comments/ideas about this.
+It sounds like x86-64 could support "#define BIO_VMERGE_BOUNDARY 4096"
+if the IOMMU code will return one DMA address for two SG list entries
+in the above example.
 
-1) You forgot little details like "current working directory", "open file=
-s",
-"file locks", "open TCP connections" and all the other process-state issu=
-es.
-These turn out  to be the real problems in migration.
-
-2) http://www.mosix.org - it's not as easy as it looks.
-
---==_Exmh_293004168P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/AxQ9cC3lWbTT17ARAphXAJ9L+OKP4pf6etnMs07l0B/J9ZBqZwCfTlkD
-DwUXl/nKyizF+eAg5Ho7dPs=
-=kfYq
------END PGP SIGNATURE-----
-
---==_Exmh_293004168P--
+hth,
+grant

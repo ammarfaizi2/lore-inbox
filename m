@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293201AbSCKGPN>; Mon, 11 Mar 2002 01:15:13 -0500
+	id <S293337AbSCKGdt>; Mon, 11 Mar 2002 01:33:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293167AbSCKGPD>; Mon, 11 Mar 2002 01:15:03 -0500
-Received: from angband.namesys.com ([212.16.7.85]:55438 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S293081AbSCKGO7>; Mon, 11 Mar 2002 01:14:59 -0500
-Date: Mon, 11 Mar 2002 09:14:58 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-Message-ID: <20020311091458.A24600@namesys.com>
-In-Reply-To: <shswuwkujx5.fsf@charged.uio.no> <200203110018.BAA11921@webserver.ithnet.com> <15499.64058.442959.241470@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15499.64058.442959.241470@charged.uio.no>
-User-Agent: Mutt/1.3.22.1i
+	id <S293395AbSCKGdi>; Mon, 11 Mar 2002 01:33:38 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:2944 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S293337AbSCKGd2>;
+	Mon, 11 Mar 2002 01:33:28 -0500
+Date: Mon, 11 Mar 2002 01:33:26 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix for get_sb_bdev() bug
+Message-ID: <Pine.GSO.4.21.0203110123340.9713-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+	Grr...  When loop in get_sb_bdev() had been switched from
+global list of superblock to per-type one, we should have switched
+from sb_entry(p) (aka. list_entry(p, struct super_block, s_list)) to
+list_entry(p, struct super_block, s_instances).
 
-On Mon, Mar 11, 2002 at 01:28:42AM +0100, Trond Myklebust wrote:
->      > this is a weak try of an explanation. All involved fs types are
->      > reiserfs. The problem occurs reproducably only after (and
-> Which ReiserFS format? Is it version 3.5?
+	As it is, we end up with false negatives all the time.  I.e.
+second mount from the same block device with the same type gices
+a new superblock.  With obvious nasty results...
 
->    'cat /proc/fs/reiserfs/device/version'
+	Patch below fixes that.
 
-If this does not work because you have no such file, then look through your
-kernel logs, if you use reiserfs v3.5 on 2.4 kernel, it will show itself
-as such record in the log file: "reiserfs: using 3.5.x disk format"
+--- C6-0/fs/super.c	Fri Mar  8 19:01:07 2002
++++ C6-0/fs/super.c.fix	Mon Mar 11 01:22:26 2002
+@@ -728,7 +728,8 @@
+ 	spin_lock(&sb_lock);
+ 
+ 	list_for_each(p, &fs_type->fs_supers) {
+-		struct super_block *old = sb_entry(p);
++		struct super_block *old;
++		old = list_entry(p, struct super_block, s_instances);
+ 		if (old->s_bdev != bdev)
+ 			continue;
+ 		if (!grab_super(old))
 
-Bye,
-    Oleg

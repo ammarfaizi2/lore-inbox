@@ -1,88 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283003AbSAILUn>; Wed, 9 Jan 2002 06:20:43 -0500
+	id <S285745AbSAIL1N>; Wed, 9 Jan 2002 06:27:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286161AbSAILUe>; Wed, 9 Jan 2002 06:20:34 -0500
-Received: from port-213-20-128-187.reverse.qdsl-home.de ([213.20.128.187]:62218
-	"EHLO drocklinux.dyndns.org") by vger.kernel.org with ESMTP
-	id <S284264AbSAILUV> convert rfc822-to-8bit; Wed, 9 Jan 2002 06:20:21 -0500
-Date: Wed, 09 Jan 2002 12:19:16 +0100 (CET)
-Message-Id: <20020109.121916.424252478.rene.rebe@gmx.net>
-To: mingo@elte.hu
-Cc: davidel@xmailserver.org, kravetz@us.ibm.com, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, george@mvista.com
-Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
-From: Rene Rebe <rene.rebe@gmx.net>
-In-Reply-To: <Pine.LNX.4.33.0201091154440.2276-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.40.0201082057560.936-100000@blue1.dev.mcafeelabs.com>
-	<Pine.LNX.4.33.0201091154440.2276-100000@localhost.localdomain>
-X-Mailer: Mew version 2.1 on XEmacs 21.4.6 (Common Lisp)
+	id <S286238AbSAIL1E>; Wed, 9 Jan 2002 06:27:04 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:2894 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S285745AbSAIL07>; Wed, 9 Jan 2002 06:26:59 -0500
+Date: Wed, 9 Jan 2002 12:24:18 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Robert Love <rml@tech9.net>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Anton Blanchard <anton@samba.org>,
+        Luigi Genoni <kernel@Expansa.sns.it>,
+        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@zip.com.au>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020109122418.F1543@inspiron.school.suse.de>
+In-Reply-To: <20020108030420Z287595-13997+1799@vger.kernel.org> <20020108142117.F3221@inspiron.school.suse.de> <20020108133335.GB26307@krispykreme> <E16Nxjg-00009W-00@starship.berlin> <20020108162930.E1894@inspiron.school.suse.de> <1010523340.3225.87.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <1010523340.3225.87.camel@phantasy>; from rml@tech9.net on Tue, Jan 08, 2002 at 03:55:38PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
-Date: Wed, 9 Jan 2002 12:37:46 +0100 (CET)
-
-[...]
-
-> 2.5.2-pre10-vanilla running the test at the default priority level:
+On Tue, Jan 08, 2002 at 03:55:38PM -0500, Robert Love wrote:
+> On Tue, 2002-01-08 at 10:29, Andrea Arcangeli wrote:
 > 
->     # ./chat_s 127.0.0.1
->     # ./chat_c 127.0.0.1 10 1000
+> > "extra schedule points all over the place", that's the -preempt kernel
+> > not the lowlatency kernel! (on yeah, you don't see them in the source
+> > but ask your CPU if it sees them)
 > 
->     Average throughput : 124676 messages per second
->     Average throughput : 102244 messages per second
->     Average throughput : 115841 messages per second
-> 
->     [ system is unresponsive at the start of the test, but
->       once the 2.5.2-pre10 load-estimator establishes which task is
->       interactive and which one is not, the system becomes usable.
->       Load can be felt and there are frequent delays in commands. ]
-> 
-> 2.5.2-pre10-vanilla running at nice level 19:
-> 
->     # nice -n 19 ./chat_s 127.0.0.1
->     # nice -n 19 ./chat_c 127.0.0.1 10 1000
-> 
->     Average throughput : 214626 messages per second
->     Average throughput : 220876 messages per second
->     Average throughput : 225529 messages per second
-> 
->     [ system is usable from the beginning - nice levels are working as
->       expected. Load can be felt while executing shell commands, but the
->       system is usable. Load cannot be felt in truly interactive
->       applications like editors.
->
-> Summary of throughput results: 2.5.2-pre10-vanilla is equivalent
-> throughput-wise in the test with your patched kernel, but the vanilla
-> kernel is about 100% faster than your patched kernel when running reniced.
+> How so?  The branch on drop of the last lock?  It's not a factor in
 
-Could someone tell a non-kernel-hacker why this benchmark is nearly
-twice as fast when running reniced??? Shouldn't it be slower when it
-runs with lower priority (And you execute / type some commands during
-it)?
+exactly, this is the reschedule point I meant. Oh note that it's
+unlikely also in the lowlatecy patch. Please count the number of time
+you add this branch in the -preempt, and how many times we add this
+branch in the lowlat and then tell me who is adding rescheduling points
+in the kernel all over the place.
 
-[...]
- 
-> 	Ingo
+> This makes me think the end conclusion would be that preemptive
+> multitasking in general is bad.  Why don't we increase the timeslice and
+> and tick period, in that case?
 
-k33p h4ck1n6
-  René
+that would increase performance, but we'd lost interactivity.
 
--- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
+> One can argue the complexity degrades performance, but tests show
+> otherwise.  In throughput and latency.  Besides, like I always say, its
 
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
+which benchmarks? you should make sure the CPU spend all its cycles in
+the kernel to benchmark the perfrormance degradation (this is the normal
+case of webserving with a few gigabit ethernet cards using sendfile).
 
-Homepage: http://www.tfh-berlin.de/~s712059/index.html
+> ride.  On the other hand, the patch has a _huge_ userbase and you can't
 
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.
+I question this because it is too risky to apply. There is no way any
+distribution or production system could ever consider applying the
+preempt kernel and ship it in its next kernel update 2.4. You never know
+if a driver will deadlock because it is doing a test and set bit busy
+loop by hand instead of using spin_lock and you cannot audit all the
+device drivers out there. It is not like the VM that is self contained
+and that can be replaced without any caller noticing, this instead
+impacts every single driver out there and you'd need to audit all of
+them, which is not feasible I think and that should be done by giving
+everybody the time to test. This is also what makes preempt config
+option risky, if we go preempt we should force everybody to use it, at
+least during 2.5, so we get the useful feedback from testers of all the
+hardware, or nobody could trust -preempt.
+
+NOTE: I trust your work with spinlocks, locks around per-cpu data
+structures etc.. is perfect, I trust that part, as said it's the driver
+doing test and set bit that you cannot audit that is the problem here
+and that makes it potentially unstable, not your changes.  And also the
+per-cpu data structures sounds a little risky (but for example for UP
+that's not an issue).
+
+> question that.  You also can't question the benchmarks that show
+> improvements in average _and_ worst case latency _and_ throughput.
+
+I don't question some benchmark is faster with -preempt, the interesting
+thing is to find why because it shouldn't be the case, Andrew for
+example mentioned software raid, there are good reasons for which
+-preempt could be faster there, so we added a single sechdule point and
+we just have that case covered in 18pre2aa1, we don't need reschedule
+points all over the place like in -preempt to cover things like that.
+It is good to find them out so we can fix those bugs, I consider them
+bugs :).
+
+Again: I'm not completly against preempt, it can reach an mean latency
+much lower than mainline (it can reschedule immediatly in the middle of
+long copy-users for example), so it definitely has a value, it's just
+that I'm not sure if it worth it.
+
+Andrea

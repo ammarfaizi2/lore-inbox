@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262486AbSJKPDs>; Fri, 11 Oct 2002 11:03:48 -0400
+	id <S262491AbSJKPJo>; Fri, 11 Oct 2002 11:09:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262488AbSJKPDs>; Fri, 11 Oct 2002 11:03:48 -0400
-Received: from moe.rice.edu ([128.42.5.4]:27611 "EHLO moe.rice.edu")
-	by vger.kernel.org with ESMTP id <S262486AbSJKPDs>;
-	Fri, 11 Oct 2002 11:03:48 -0400
-Message-ID: <00c701c27138$69de9fa0$2476a018@OMIT>
-From: "omit_ECE" <omit@rice.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: Implementation problems in tcp
-Date: Fri, 11 Oct 2002 10:10:16 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+	id <S262497AbSJKPJo>; Fri, 11 Oct 2002 11:09:44 -0400
+Received: from vena.lwn.net ([206.168.112.25]:47111 "HELO eklektix.com")
+	by vger.kernel.org with SMTP id <S262491AbSJKPJo>;
+	Fri, 11 Oct 2002 11:09:44 -0400
+Message-ID: <20021011151531.3430.qmail@eklektix.com>
+To: Thierry Mallard <thierry.mallard@vawis.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: schedule_task still available in 2.5.41 ? (working on nvidia kernel module driver, but maybe not related) 
+From: corbet@lwn.net (Jonathan Corbet)
+In-reply-to: Your message of "Fri, 11 Oct 2002 17:05:05 +0200."
+             <20021011150505.GA1684@d133.dhcp212-198-6.noos.fr> 
+Date: Fri, 11 Oct 2002 09:15:31 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+schedule_task is, as they say, an ex-parrot.  See:
 
-I have a project to implement some functions in TCP.
-First, I wanna calculate the one-way delay by time_stamp
-in TCP Acks; ie, rcv_tsval & rvc_tsecr in tcp_input.c. But 
-I am not quite sure in which functions, ex. tcp_rcv_established, 
-the two values (rcv_tsval & rvc_tsecr) are what I want.
+	http://lwn.net/Articles/10963/
 
-Second, I want to use ECN as an indicator and add some 
-conditions. But I really cannot figure out what is going on 
-in tcp_input.c. Could anyone give me some hints please?
-Thanks.
+(now available without subscription :) for a description of the change,
+and, even, some documentation of the new workqueue interface.
 
-YuZen
+jon
+
+Jonathan Corbet
+Executive editor, LWN.net
+corbet@lwn.net

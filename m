@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265355AbSL1BPj>; Fri, 27 Dec 2002 20:15:39 -0500
+	id <S265361AbSL1Bm0>; Fri, 27 Dec 2002 20:42:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265361AbSL1BPj>; Fri, 27 Dec 2002 20:15:39 -0500
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:39913 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S265355AbSL1BPi>; Fri, 27 Dec 2002 20:15:38 -0500
-Date: Fri, 27 Dec 2002 17:29:54 -0800
+	id <S265368AbSL1Bm0>; Fri, 27 Dec 2002 20:42:26 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:3055 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S265361AbSL1Bm0>; Fri, 27 Dec 2002 20:42:26 -0500
+Date: Fri, 27 Dec 2002 17:56:43 -0800
 From: David Brownell <david-b@pacbell.net>
 Subject: Re: [RFT][PATCH] generic device DMA implementation
 To: James Bottomley <James.Bottomley@steeleye.com>
 Cc: linux-kernel@vger.kernel.org
-Message-id: <3E0CFE92.7060902@pacbell.net>
+Message-id: <3E0D04DB.1000500@pacbell.net>
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii; format=flowed
 Content-transfer-encoding: 7BIT
@@ -21,82 +21,32 @@ References: <200212272140.gBRLeMW03698@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> david-b@pacbell.net said:
-> 
->>- Implementation-wise, I'm rather surprised that the generic
->>   version doesn't just add new bus driver methods rather than
->>   still insisting everything be PCI underneath. 
+
+>>- There's no analogue to pci_pool, and there's nothing like
+>>   "kmalloc" (likely built from N dma-coherent pools). 
 > 
 > 
-> You mean dma-mapping.h in asm-generic?  ..
+> I didn't want to build another memory pool re-implementation.  The mempool API 
+> seems to me to be flexible enough for this, is there some reason it won't work?
 
-Yes.  As noted, it can't work for USB directly.  And your
-suggestion of more "... else if (bus is USB) ... else  ... "
-logic (#including each bus type's headers?) bothers me.
-
-
-> Bus driver methods have been advocated before, but it's not clear to me that 
-> they should be exposed in the *generic* API.
-
-Isn't the goal to make sure that for every kind of "struct device *"
-it should be possible to use those dma_*() calls, without BUGging
-out.  If that's not true ... then why were they defined?
-
-That's certainly the notion I was talking about when this "generic
-dma" API notion came up this summer [1].  (That discussion led to
-the USB DMA APIs, and then the usb_sg_* calls that let usb-storage
-queue scatterlists directly to disk:  performance wins, including
-DaveM's "USB keyboards don't allocate IOMMU pages", but structures
-looking ahead to having real generic DMA calls.)
+I didn't notice any way it would track, and return, DMA addresses.
+It's much like a kmem_cache in that way.
 
 
->>   It's not clear to me how I'd make, for example, a USB device
->>   or interface work with dma_map_sg() ... those "generic" calls
->>   are going to fail (except on x86, where all memory is DMA-able)
->>   since USB != PCI.
-> 
-> 
-> Actually, they should work on parisc out of the box as well because of the way 
-> its DMA implementation is built in terms of the generic dma_ API.
+> I did consider wrappering mempool to make it easier, but I couldn't really 
+> find a simplifying wrapper that wouldn't lose flexibility.
 
-Most of us haven't seen your PARISC code, it's not in Linus' tree.  :)
+In My Ideal World (tm) Linux would have some kind of memory allocator
+that'd be configured to use __get_free_pages() or dma_alloc_coherent()
+as appropriate.  Fast, efficient; caching pre-initted objects; etc.
 
->>   (The second indirection:  the usb controller hardware does the
->>   mapping, not the device or hcd.  That's usually PCI.) 
-> 
-> 
-> Could you clarify this a little.
+I'm not sure how realistic that is.  So long as APIs keep getting written
+so that drivers _must_ re-invent the "memory allocator" wheel, it's not.
 
-Actually, make that "hardware-specific code".
-
-The USB controller is what does the DMA.  But USB device drivers don't
-talk to USB controllers, at least not directly.  Instead they talk to a
-"struct usb_interface *", or a "struct usb_device *" ... those are more
-or less software proxies for the real devices with usbcore and some
-HCD turning proxy i/o requests into USB controller operations.
-
-The indirection is getting from the USB device (or interface) to the
-object representing the USB controller.  All USB calls need that, at
-least for host-side APIs, since the controller driver is multiplexing
-up to almost 4000 I/O channels.  (127 devices * 31 endpoints, max; and
-of course typical usage is more like dozens of channels.)
-
-
-> Is the problem actually that the USB controller needs to be able to allocate 
-> coherent memory in a range much more narrowly defined than the current 
-> dma_mask allows?
-
-Nope, it's just an indirection issue.  Even on a PCI based system, the "struct
-device" used by a USB driver (likely usb_interface->dev) will never be a USB
-controller.  Since it's the USB controller actually doing the I/O something
-needs to use that controller to do the DMA mapping(s).
-
-So any generic DMA logic needs to be able to drill down a level or so before
-doing DMA mappings (or allocations) for a USB "struct device *".
+But ... if the generic DMA API includes such stuff, it'd be easy to replace
+a dumb implementation (have you seen pci_pool, or how usb_buffer_alloc
+works? :) with something more intelligent than any driver could justify
+writing for its own use.
 
 - Dave
-
-[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=102389137402497&w=2
-
 

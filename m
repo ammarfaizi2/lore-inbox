@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVCGUYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbVCGUd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbVCGUYi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 15:24:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVCGUYa
+	id S261296AbVCGUd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 15:33:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVCGUcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 15:24:30 -0500
-Received: from mailer.campus.mipt.ru ([194.85.82.4]:64432 "EHLO
+	Mon, 7 Mar 2005 15:32:45 -0500
+Received: from mailer.campus.mipt.ru ([194.85.82.4]:8113 "EHLO
 	mailer.campus.mipt.ru") by vger.kernel.org with ESMTP
-	id S261245AbVCGUM3 convert rfc822-to-8bit (ORCPT
+	id S261778AbVCGUMd convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 15:12:29 -0500
+	Mon, 7 Mar 2005 15:12:33 -0500
 Cc: Fruhwirth Clemens <clemens@endorphin.org>,
        Herbert Xu <herbert@gondor.apana.org.au>, cryptoapi@lists.logix.cz,
        James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>,
        Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Subject: [26/many] arch: frv config
-In-Reply-To: <11102278562188@2ka.mipt.ru>
+Subject: [30/many] arch: m32r config
+In-Reply-To: <11102278563938@2ka.mipt.ru>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 7 Mar 2005 23:37:36 +0300
-Message-Id: <11102278562248@2ka.mipt.ru>
+Date: Mon, 7 Mar 2005 23:37:37 +0300
+Message-Id: <1110227857550@2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
@@ -29,9 +29,9 @@ X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (mailer.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- ./arch/frv/Kconfig~	2005-03-02 10:37:54.000000000 +0300
-+++ ./arch/frv/Kconfig	2005-03-07 21:26:53.000000000 +0300
-@@ -498,4 +498,6 @@
+--- ./arch/m32r/Kconfig~	2005-03-02 10:37:30.000000000 +0300
++++ ./arch/m32r/Kconfig	2005-03-07 21:27:51.000000000 +0300
+@@ -364,4 +364,6 @@
  
  source "crypto/Kconfig"
  

@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313083AbSEULrK>; Tue, 21 May 2002 07:47:10 -0400
+	id <S313477AbSEUL5Z>; Tue, 21 May 2002 07:57:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313118AbSEULrJ>; Tue, 21 May 2002 07:47:09 -0400
-Received: from kim.it.uu.se ([130.238.12.178]:7555 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S313083AbSEULrI>;
-	Tue, 21 May 2002 07:47:08 -0400
-From: Mikael Pettersson <mikpe@csd.uu.se>
-MIME-Version: 1.0
+	id <S313505AbSEUL5Y>; Tue, 21 May 2002 07:57:24 -0400
+Received: from khazad-dum.debian.net ([200.196.10.6]:8326 "EHLO
+	khazad-dum.debian.net") by vger.kernel.org with ESMTP
+	id <S313477AbSEUL5Y>; Tue, 21 May 2002 07:57:24 -0400
+Date: Tue, 21 May 2002 08:57:23 -0300
+To: linux-kernel@vger.kernel.org
+Cc: Antti Salmela <asalmela@iki.fi>
+Subject: Re: ext3 assertion failure and oops, 2.4.18
+Message-ID: <20020521085723.A32143@khazad-dum>
+In-Reply-To: <20020521114244.GA29043@otitsun.oulu.fi>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15594.13240.936204.105899@kim.it.uu.se>
-Date: Tue, 21 May 2002 13:47:04 +0200
-To: reneb@cistron.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: floppy always read-only in 2.5.12+
-In-Reply-To: <slrnaekbvt.4u.reneb@orac.aais.org>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-GPG-Fingerprint-1: 1024D/128D36EE 50AC 661A 7963 0BBA 8155  43D5 6EF7 F36B 128D 36EE
+X-GPG-Fingerprint-2: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+From: hmh@rcm.org.br (Henrique de Moraes Holschuh)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Blokland writes:
- > Hi, my desktop has a buildin floppy not an ide but and oldfasion one.
- > The mb is an ASUS p5a with an AMD k6 processor
- > When i try to do a dd to /dev/fd0 as root, it compaining about a Read-Only
- > filesystem.
- > Also lilo has this problem. is it a bug or did I miss something?
- > Thanks for your answer.
+On Tue, 21 May 2002, Antti Salmela wrote:
+> I can reliably reproduce an assertion failure and oops in ext3 by simply
+> restarting cyrus21, if directories used by cyrus have +j flag set with
+> chattr. Filesystem was mounted with default journalling mode data=orderded,
+> kernels tested were 2.4.18 and 2.4.19-pre3-ac4. Recent -pre or -ac kernels
+> wouldn't compile with my .config.
 
-This has been discussed here on LKML before. The preliminary patch at
-<http://www.csd.uu.se/~mikpe/linux/patches/2.5/patch-fix-floppy-2.5.16>
-fixes the problem for me, but it may not be the "real" fix.
+I can atest to this, too. 2.4.18 stock, if I use the +j flag, the kernel
+will oops with the exact same assertion failure.  The access pattern is that
+of Sleepycat DB3 doing a database snapshot in a subdirectory of the
+directory with the +j attribute set.
 
-If you intend to mount the floppy as a file system you may also have
-to patch fs/partitions/check.c:check_partition() similarly to how
-fs/block_dev.c was patched. I haven't tested that bit yet.
-
-/Mikael
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

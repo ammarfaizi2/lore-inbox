@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbUCNSy0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 13:54:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUCNSy0
+	id S261580AbUCNT21 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 14:28:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUCNT21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 13:54:26 -0500
-Received: from ns.suse.de ([195.135.220.2]:2706 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261502AbUCNSyS (ORCPT
+	Sun, 14 Mar 2004 14:28:27 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:33773 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261580AbUCNT2Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 13:54:18 -0500
-Subject: Re: [PATCH] lockfs patch for 2.6
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-xfs@oss.sgi.com
-In-Reply-To: <20040314104439.7c381a09.akpm@osdl.org>
-References: <1078867885.25075.1458.camel@watt.suse.com>
-	 <20040313131447.A25900@infradead.org>
-	 <1079191213.4187.243.camel@watt.suse.com>
-	 <20040313163346.A27004@infradead.org> <20040314140032.A8901@infradead.org>
-	 <20040314104439.7c381a09.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1079290590.4183.258.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 14 Mar 2004 13:56:30 -0500
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Mar 2004 14:28:25 -0500
+Message-Id: <200403141926.i2EJPwio004819@eeyore.valparaiso.cl>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: Does sysfs really provides persistent hardware path to devices? 
+In-Reply-To: Message from Andrey Borzenkov <arvidjaar@mail.ru> 
+   of "Sun, 14 Mar 2004 14:53:56 +0300." <200403141453.59145.arvidjaar@mail.ru> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Sun, 14 Mar 2004 15:25:57 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-03-14 at 13:44, Andrew Morton wrote:
-> Christoph Hellwig <hch@infradead.org> wrote:
-> >
-> > + * This takes the block device bd_mount_sem to make sure no new mounts
-> >  + * happen on bdev until unlockfs is called.  If a super is found on this
-> >  + * block device, we hould a read lock on the s->s_umount sem to make sure
-> >  + * nobody unmounts until the snapshot creation is done
-> >  + */
-> >  +struct super_block *freeze_bdev(struct block_device *bdev)
-> 
-> I think you do need s_umount, as the comments say.  But this patch doesn't
-> touch it.
+Andrey Borzenkov <arvidjaar@mail.ru> said:
 
-get_super gives us a read lock on it.
+[...]
 
--chris
+> I am trying to assign name for a USB slot on my PCs front so that when I
+> plug in USB stick or USB drive or whatever I get the same name. Always.
 
+Not necessary: You can mount by volume label, or UUID (Yes, need a sane
+filesystem for that... and MS-DOS ones aren't. Sorry.)
 
+Dangerous: You plug a _different_ USB stick in, and think it is the same.
+
+Besides, plugging your drive in "the same place" on USB is useful today,
+with 1 or 2 conectors. Add hubs, and you are talking about hundreds of
+places... better concentrate on getting the machine keep track of
+bureaucratic details.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275055AbTHRUod (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 16:44:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275057AbTHRUod
+	id S275022AbTHRUuw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 16:50:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275050AbTHRUuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 16:44:33 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:36874
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S275055AbTHRUoZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 16:44:25 -0400
-Date: Mon, 18 Aug 2003 13:43:38 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, marcelo@conectiva.com.br,
-       akpm@osdl.org, andrea@suse.de, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
-Message-ID: <20030818204338.GE10320@matchmail.com>
-Mail-Followup-To: Stephan von Krawczynski <skraw@ithnet.com>,
-	Neil Brown <neilb@cse.unsw.edu.au>, marcelo@conectiva.com.br,
-	akpm@osdl.org, andrea@suse.de, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org
-References: <16182.54248.868067.968522@gargle.gargle.HOWL> <20030811113302.6f30a256.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030811113302.6f30a256.skraw@ithnet.com>
-User-Agent: Mutt/1.5.4i
+	Mon, 18 Aug 2003 16:50:51 -0400
+Received: from marc2.theaimsgroup.com ([63.238.77.172]:25351 "EHLO
+	mailer.progressive-comp.com") by vger.kernel.org with ESMTP
+	id S275022AbTHRUuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 16:50:50 -0400
+Date: Mon, 18 Aug 2003 16:50:49 -0400
+Message-Id: <200308182050.h7IKonga016378@marc2.theaimsgroup.com>
+From: Hank Leininger <linux-kernel@progressive-comp.com>
+Reply-To: Hank Leininger <hlein@progressive-comp.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Dumb question: Why are exceptions such as SIGSEGV not logged
+X-Shameless-Plug: Check out http://marc.theaimsgroup.com/
+X-Warning: This mail posted via a web gateway at marc.theaimsgroup.com
+X-Warning: Report any violation of list policy to abuse@progressive-comp.com
+X-Posted-By: Hank Leininger <hlein@progressive-comp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 11:33:02AM +0200, Stephan von Krawczynski wrote:
-> On Mon, 11 Aug 2003 09:23:20 +1000
-> Neil Brown <neilb@cse.unsw.edu.au> wrote:
-> 
-> > On Sunday August 10, skraw@ithnet.com wrote:
-> > > 
-> > > From looking at the tests so far I would say the setup is remarkably slower
-> > > in terms of writing to ext3 via nfs and sync option set. I think especially
-> > > the"sync" is very visible - unlike reiserfs.
-> > 
-> >   data=journal
-> > makes nfsd go noticable faster over ext3.  Having an external journal
-> > is even better.
-> 
-> Uh, forgive my ignorance. "journal" means metadata+data journaling. If I have
-> large data movement, how can that be even faster? Ok, I see the facts around
-> sync'ing the fs. But anyway the data size written should be nearly doubled
-> compared to data=ordered. Reiserfs journaling has to be real incredible in
-> comparison to ext3(ordered). I have the impression that large files are hit
-> most.
+On 2003-08-18, Michael Frank <mhf () linuxmail ! org> wrote:
 
-You enlarge your journal (larger for more activity).
+> I tend to see segfaults only when something is broken or when my lapse
+> of attention perhaps should be rewarded by said "sucker rod".
 
-The idea is that the sync puts all data+meta-data into the journal, and once
-that's complete the sync returns.
+As others have said some apps use "interesting" signals normally.  For
+instance probably the most common is vmware.  vmware sends itself SIGSEGV
+all the time (at startup, at least) as part of its memory-management foo:
 
-After the sync returns, the data is written from the journal asyncrounously
-in the background while you're not waiting.
+Aug 12 14:11:23 foo kernel: grsec: signal 11 sent to (vmware-ui:12180) \
+	UID(XXXX) EUID(XXXX), parent (vmware:17653) UID(XXXX) EUID(XXXX)
+Aug 12 14:11:23 foo kernel: grsec: signal 11 sent to (vmware-mks:25238) \
+	UID(XXXX) EUID(XXXX), parent (vmware:17653) UID(XXXX) EUID(XXXX)
+Aug 12 14:11:23 foo kernel: grsec: signal 11 sent to (vmware:17653) \
+	UID(XXXX) EUID(XXXX), parent (bash:2883) UID(XXXX) EUID(XXXX)
 
-If your system is stressed to its limit, this won't work, but in the common
-case, it will speed up your nfs server.
+..So not *all* such cases are cause for alarm.  However, if you run one of
+the patches enabling logging of this, you quickly learn what's normal for
+the apps you run, and can teach your log-auditing tools and/or your brain
+to ignore them.
 
-Though, after using reiserfs for a while, writeout is smoother.  There
-aren't the spikes like with ext3 (even in ordered mode), but that could be
-due to the 30 second timeout on reiserfs compared to 5 second for ext3
-before writes are committed to disk (without memory pressure).
+--
+Hank Leininger <hlein@progressive-comp.com> 
+  

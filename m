@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264825AbSKNKaz>; Thu, 14 Nov 2002 05:30:55 -0500
+	id <S264836AbSKNKm3>; Thu, 14 Nov 2002 05:42:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264839AbSKNKaz>; Thu, 14 Nov 2002 05:30:55 -0500
-Received: from out001pub.verizon.net ([206.46.170.140]:33177 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP
-	id <S264825AbSKNKaz>; Thu, 14 Nov 2002 05:30:55 -0500
-Message-Id: <200211141035.gAEAZt2t017446@pool-151-204-203-202.delv.east.verizon.net>
-Date: Thu, 14 Nov 2002 05:35:53 -0500
-From: Skip Ford <skip.ford@verizon.net>
-To: linux-kernel@vger.kernel.org
-Cc: rusty@rustcorp.com.au
-Subject: module-init-tools breaks kallsyms
+	id <S264838AbSKNKm3>; Thu, 14 Nov 2002 05:42:29 -0500
+Received: from hazard.jcu.cz ([160.217.1.6]:31369 "EHLO hazard.jcu.cz")
+	by vger.kernel.org with ESMTP id <S264836AbSKNKm3>;
+	Thu, 14 Nov 2002 05:42:29 -0500
+Date: Thu, 14 Nov 2002 11:49:19 +0100
+From: Jan Marek <linux@hazard.jcu.cz>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.4[5-7]]: console w/o iso-latin-2 chars?
+Message-ID: <20021114104919.GB1421@hazard.jcu.cz>
+References: <20021112074156.GA8292@hazard.jcu.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at out001.verizon.net from [151.204.203.202] at Thu, 14 Nov 2002 04:37:43 -0600
+In-Reply-To: <20021112074156.GA8292@hazard.jcu.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Install of module-init-tools moves the old tools to *.old but it doesn't
-address kallsyms.  In the case of kallsyms being a link to insmod, it
-breaks.  Since the new insmod is supposed to call insmod.old when
-appropriate, I'm not sure why it breaks.  But it doesn't work here.
+Hallo l-k,
 
-To successfully compile a kernel < 2.5.47-bk2 after module-init-tools
-installation, with kallsyms being a symlink, you need to link it to
-insmod.old instead.
+On Tue, Nov 12, 2002 at 08:41:56AM +0100, Jan Marek wrote:
+> Hallo l-k,
+> 
+> I have two computers, where I'm testing new kernels. On both computers I
+> have latest Debian sid. I'm don't using framebuffer (as you can see from
+> attached .config files). config-notebook is for kernel 2.5.44 and
+> config-desktop is for kernel 2.5.47.
+> 
+> Please contact me, if you will want some additional informations...
 
+I have some additional info's:
+
+I must do 'consolechars -f iso02.f16 --sfm=iso02' multiple times (at
+least three times) to get correct behavior in 2.4.47??? But after that
+it works OK...
+
+Sincerely
+Jan Marek
 -- 
-Skip
+Ing. Jan Marek
+University of South Bohemia
+Academic Computer Centre
+Phone: +420-38-7772080

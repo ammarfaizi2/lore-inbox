@@ -1,25 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317362AbSGIQdM>; Tue, 9 Jul 2002 12:33:12 -0400
+	id <S316456AbSGIQgN>; Tue, 9 Jul 2002 12:36:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317361AbSGIQdM>; Tue, 9 Jul 2002 12:33:12 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1043 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317360AbSGIQdD>; Tue, 9 Jul 2002 12:33:03 -0400
-Subject: Re: Linux 2.4.19-rc1-ac1
-To: jmacbaine@yahoo.de (=?iso-8859-1?q?Jim=20MacBaine?=)
-Date: Tue, 9 Jul 2002 17:59:00 +0100 (BST)
-Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20020709163002.11174.qmail@web40101.mail.yahoo.com> from "=?iso-8859-1?q?Jim=20MacBaine?=" at Jul 09, 2002 06:30:01 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S316605AbSGIQgM>; Tue, 9 Jul 2002 12:36:12 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:37040 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316434AbSGIQgK>;
+	Tue, 9 Jul 2002 12:36:10 -0400
+Date: Tue, 9 Jul 2002 18:38:41 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Piotr Sawuk <a9702387@unet.univie.ac.at>
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: joystick.c
+Message-ID: <20020709183841.A10953@ucw.cz>
+References: <3D2AB938.52461BDE@unet.univie.ac.at>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17RyKL-0005GU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3D2AB938.52461BDE@unet.univie.ac.at>; from a9702387@unet.univie.ac.at on Tue, Jul 09, 2002 at 10:21:44AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is it safe to compile with GCC 3.1 (or 3.1.1pre)?
+On Tue, Jul 09, 2002 at 10:21:44AM +0000, Piotr Sawuk wrote:
 
-Not always. 586 seems to have real problems.
+> Sorry if I'm off-topic here, since I don't read this list.
+> also when replying please send me a copy...
+> 
+> in function js_correct(value,corr) I've found the instructions:
+> 
+> if (value < -32767) return -32767;
+> if (value > 32767) return 32767;
+> 
+> what's the use of these? I'm asking because my new usb-joystick
+> is returning those values somewhere in the middle of it's threshold
+> and I was wondering if disabling the above would do any good?
+
+The data coming from the joystick is defined to be bound by this range.
+It's signed 16 bit anyway.
+
+> however, the actual reason why I've looked into that file was
+> because wine reported strange joystick-events 6,7,8,9 and I
+> just can't figure out what those are supposed to do. I've found
+> JS_EVENT 1 and 2 in the linux/joystick.h include, but no mention
+> of anything related to the number '6'. does anyone know anything
+> about those joystick events?
+
+What joystick is it? This looks like a problem with the HID driver.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

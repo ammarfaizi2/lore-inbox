@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265020AbUFCOw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264266AbUFCPAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265020AbUFCOw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 10:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264034AbUFCOnB
+	id S264266AbUFCPAo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 11:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbUFCO5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 10:43:01 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:62875 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S264584AbUFCOjk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 10:39:40 -0400
-Reply-to: Wolfgang Fritz <wolfgang.fritz@gmx.net>
-To: linux-kernel@vger.kernel.org
-From: Wolfgang Fritz <wolfgang.fritz@gmx.net>
-Subject: Re: .config question
-Date: Thu, 03 Jun 2004 16:37:44 +0200
-Organization: None
-Message-ID: <40BF37B8.80302@gmx.net>
-References: <s0bf4d74.020@idfw.idsa.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 3 Jun 2004 10:57:08 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:33676 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264655AbUFCOzQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 10:55:16 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] DM: dm-ioctl.c: change an int* to a size_t*
+Date: Thu, 3 Jun 2004 09:54:41 -0500
+User-Agent: KMail/1.6
+Cc: DevMapper <dm-devel@redhat.com>, LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
-X-Accept-Language: en-us, en, de-de
-In-Reply-To: <s0bf4d74.020@idfw.idsa.ch>
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.11; AVE: 6.25.0.61; VDF: 6.25.0.83; host: gurke)
+Message-Id: <200406030954.42045.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Pernet wrote:
-> Hi,
-> Sorry to not be part of the mailing list and ask question. Please,
-> could you post any answer (CC) to this question, if relevant ? Many
-> TIA.
-> 
-> I've got a kernel already installed in my machine (SuSe Pro 9). I would
+dm-ioctl.c: Use a size_t* instead of an int* in list_version_get_needed().
+size_t and int are not the same size on all architectures.
 
-Make sure you have the kernel source package installed. Then read
-/usr/src/linux/README.SuSE, especially "How to configure the kernel
-sources" and "Where to find configuration files"
-
-Wolfgang
-
-> like to modify something and recompile the kernel. Since it has been
-> installed from rpm, there is no .config in /usr/src/linux. Is there any
-> way to create this file from the image and modules, so i do not need to
-> verify all my config prior to change something ?
-> 
-> Thx
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
+--- diff/drivers/md/dm-ioctl.c	2004-06-03 09:46:39.000000000 -0500
++++ source/drivers/md/dm-ioctl.c	2004-06-03 09:48:40.000000000 -0500
+@@ -417,9 +417,9 @@
+ 	return 0;
+ }
+ 
+-static void list_version_get_needed(struct target_type *tt, void *param)
++static void list_version_get_needed(struct target_type *tt, void *needed_param)
+ {
+-    int *needed = param;
++    size_t *needed = needed_param;
+ 
+     *needed += strlen(tt->name);
+     *needed += sizeof(tt->version);

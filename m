@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317767AbSGVVgr>; Mon, 22 Jul 2002 17:36:47 -0400
+	id <S317820AbSGVVjm>; Mon, 22 Jul 2002 17:39:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317791AbSGVVgr>; Mon, 22 Jul 2002 17:36:47 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:49622 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S317767AbSGVVgq>; Mon, 22 Jul 2002 17:36:46 -0400
-Date: Mon, 22 Jul 2002 23:39:48 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Thomas Molina <tmolina@cox.net>, <linux-kernel@vger.kernel.org>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       Dave Jones <davej@suse.de>
-Subject: Re: bug database/webpage
-In-Reply-To: <Pine.LNX.4.44L.0207221820210.3086-100000@imladris.surriel.com>
-Message-ID: <Pine.NEB.4.44.0207222337060.10993-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S317828AbSGVVjm>; Mon, 22 Jul 2002 17:39:42 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:51653 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317820AbSGVVjl>;
+	Mon, 22 Jul 2002 17:39:41 -0400
+Importance: Normal
+Sensitivity: 
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.4  June 8, 2000
+Message-ID: <OF5933E2F2.D3E9CDE3-ON85256BFE.00744D4A@pok.ibm.com>
+From: "Steve Pratt" <slpratt@us.ibm.com>
+Date: Mon, 22 Jul 2002 16:42:19 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.10 SPR# MIAS5B3GZN |June
+ 28, 2002) at 07/22/2002 05:42:43 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Jul 2002, Rik van Riel wrote:
+on  2002-07-22 19:07:25 Christoph Hellwig wrote:
 
-> On Mon, 22 Jul 2002, Thomas Molina wrote:
->
-> > http://members.cox.net/tmolina
-> >
-> > Would something like this be sufficient, or would a full-fledged server
-> > be required?  Feedback/comments are welcome
->
-> A simple page _that is being maintained_ is much better than a
-> database which accumulates hundreds of stale entries over time ;)
+... snip
 
-davej runs such a simple page since several months at
-  http://www.codemonkey.org.uk/Linux-2.5.html
+>> There
+>> does not appear to be anything in either LVM2 or Device Mapper for
+>> manipulating partition tables and resizing partitions.  User space tools
+>> could be written to work with Device Mapper to make this happen, but
+such
+>> tools do not yet exist, AFAIK.
 
-> Rik
+>And EVMS sucks in trucloads of fs code that already exists in userspace
+>instead of using e.g. the parted library that can easily be linked to the
+>LVM2 tools.
 
-cu
-Adrian
+I don't know what code you are looking at because EVMS does
+not suck in any code from existing fs utilities.  We only have enough
+code to invoke the EXISTING utilities.  The only code we have is
+simple things like version checks, superblock probes, and size
+constraints.  For example, unlike  libparted which re-implements
+resize of ext2 volumes, EVMS invokes the existing resize2fs.
+In fact, all FSIMs have been developed in collaboration with the
+filesystem owners, and in the case of JFS and EXT2/3 the FS
+utility owners actually wrote the FSIM!
 
--- 
+Also, if it is so easy to link parted with LVM2 to get greater
+functionality,
+why hasn't the LVM team or Andrew done this yet?  We went down this
+road and found it was a dead end.
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+Steve
+
+
 
 

@@ -1,78 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287552AbSBLTMu>; Tue, 12 Feb 2002 14:12:50 -0500
+	id <S290276AbSBLTXL>; Tue, 12 Feb 2002 14:23:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290276AbSBLTMl>; Tue, 12 Feb 2002 14:12:41 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:35034 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S287552AbSBLTMa>;
-	Tue, 12 Feb 2002 14:12:30 -0500
-From: David Mosberger <davidm@hpl.hp.com>
+	id <S290503AbSBLTXC>; Tue, 12 Feb 2002 14:23:02 -0500
+Received: from mailc.telia.com ([194.22.190.4]:15560 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id <S290276AbSBLTWw>;
+	Tue, 12 Feb 2002 14:22:52 -0500
+Message-Id: <200202121922.g1CJMPi23466@mailc.telia.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@norran.net>
+To: Martin Dalecki <dalecki@evision-ventures.com>,
+        Pavel Machek <pavel@suse.cz>
+Subject: Re: another IDE cleanup: kill duplicated code
+Date: Tue, 12 Feb 2002 20:19:14 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Jens Axboe <axboe@suse.de>, kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020211221102.GA131@elf.ucw.cz> <3C68F3F3.8030709@evision-ventures.com>
+In-Reply-To: <3C68F3F3.8030709@evision-ventures.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15465.26907.618278.388730@napali.hpl.hp.com>
-Date: Tue, 12 Feb 2002 11:12:27 -0800
-To: David Howells <dhowells@redhat.com>
-Cc: davidm@hpl.hp.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: Task ornaments
-In-Reply-To: <23542.1013512554@warthog.cambridge.redhat.com>
-In-Reply-To: <davidm@hpl.hp.com>
-	<15464.24083.54161.609609@napali.hpl.hp.com>
-	<23542.1013512554@warthog.cambridge.redhat.com>
-X-Mailer: VM 7.00 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 12 Feb 2002 11:15:54 +0000, David Howells <dhowells@redhat.com> said:
+On Tuesday den 12 February 2002 11.52, Martin Dalecki wrote:
+>
+> If you are already at it, I would like to ask to you consider seriously
+> the removal of the
+> following entries in the ide drivers /proc control files:
+>
+> [snip]
+>     ide_add_setting(drive,    "file_readahead",   ...
+> &max_readahead[major][minor],    NULL);
+>
+> Those calls can be found in ide-cd.c, ide-disk,c and ide-floppy.c
+>
+> [snip]
+>
+> The second of them is trying to control a file-system level constant
+> inside the actual block device driver.
+> This is a blatant violation of the layering principle in software
+> design, and should go as soon as
+> possible.
 
-  David.H> Well, I've been using them in two ways to date, without
-  David.H> much of a problem.
+It really should go (the only one working is for ide-disk) but
+you need to add another way to tune readahead per disk too...
 
-Well, that's my point.  This kind of stuff works great until you
-start to really push it.
+Tuning this parameter gives quite a bit improved performance
+when reading from several big files at a time! A diff of two big files
+is enough to show it: from 10MB/s to 25MB/s (2.4.17-rc1)
+(due to less time lost seeking)
 
-  David.H> The biggest problem I've seen is with
-  David.H> signal cancellation/alteration by the signal delivery
-  David.H> callback on an ornament, since that affects what signal
-  David.H> (and if) the next ornament sees.
+/RogerL
 
-Yup.  And that's only the beginning.  I bet the perfmon support would
-introduce even more interesting ordering constraints.
-
-  David.H> There are two further callbacks I have thought about
-  David.H> adding:
-
-  David.H>  (1) Subsumation of the pending signal-notifier stuff
-  David.H> currently in the task_struct (used by DRM). However, this
-  David.H> means the the sigmask_lock must be held any time you want
-  David.H> to walk or change the task ornament list:-/
-
-  David.H>  (2) CPU user exception notification(s). Give task
-  David.H> ornaments a chance to handle these in a way more
-  David.H> appropriate to the binfmt or personality of the process
-  David.H> (for instance, to generate a Win32 structured exception).
-
-  David.H>      However, I think this is probably superfluous given
-  David.H> the provision of the signal delivery notification.
-
-  David.H> There are also a number of other things I've thought about
-  David.H> trying to do with task ornaments, though I'm not sure of
-  David.H> how practical they are. The only one I can actually think
-  David.H> of at the moment, though, is:
-
-  David.H>  (1) Child process notifying parent (and other processes)
-  David.H> on death (basically the SIGCHLD handler). This would allow
-  David.H> this bit of code to be removed from the exit path. A parent
-  David.H> process would install an ornament in each child process's
-  David.H> list and would remove them when the parent died. This might
-  David.H> make thread handling somewhat easier, as signals could then
-  David.H> be easily redirected.
-
-Basically, you're proving my point.  Ornaments look like a generic
-facility, yet there are global dependencies (ordering, locking, ...)
-which require each use to be checked against possibly all existing
-ornament users.
-
-	--david
+-- 
+Roger Larsson
+Skellefteå
+Sweden

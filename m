@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266425AbUG0Pll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266443AbUG0Plx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266425AbUG0Pll (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 11:41:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266381AbUG0Pll
+	id S266443AbUG0Plx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 11:41:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266381AbUG0Plx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 11:41:41 -0400
-Received: from cantor.suse.de ([195.135.220.2]:8371 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266425AbUG0PhI (ORCPT
+	Tue, 27 Jul 2004 11:41:53 -0400
+Received: from holomorphy.com ([207.189.100.168]:13956 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266449AbUG0Ph5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 11:37:08 -0400
-Date: Tue, 27 Jul 2004 17:37:03 +0200
-From: Andi Kleen <ak@suse.de>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH][2.6] Allow x86_64 to reenable interrupts on contention
-Message-Id: <20040727173703.0174a76e.ak@suse.de>
-In-Reply-To: <Pine.LNX.4.58.0407271006290.23985@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0407270432470.23989@montezuma.fsmlabs.com>
-	<20040727132638.7d26e825.ak@suse.de>
-	<Pine.LNX.4.58.0407271006290.23985@montezuma.fsmlabs.com>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 27 Jul 2004 11:37:57 -0400
+Date: Tue, 27 Jul 2004 08:32:29 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Joel.Becker@oracle.com, Tim Connors <tconnors+linuxkml@astro.swin.edu.au>,
+       Con Kolivas <kernel@kolivas.org>,
+       Clemens Schwaighofer <cs@tequila.co.jp>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Autotune swappiness01
+Message-ID: <20040727153229.GC2334@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Joel.Becker@oracle.com,
+	Tim Connors <tconnors+linuxkml@astro.swin.edu.au>,
+	Con Kolivas <kernel@kolivas.org>,
+	Clemens Schwaighofer <cs@tequila.co.jp>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040726202946.GD26075@ca-server1.us.oracle.com> <20040726134258.37531648.akpm@osdl.org> <cone.1090882721.156452.20693.502@pc.kolivas.org> <4105A761.9090905@tequila.co.jp> <20040726180943.4c871e4f.akpm@osdl.org> <4105AD1C.2050507@tequila.co.jp> <slrn-0.9.7.4-15175-21673-200407271159-tc@hexane.ssi.swin.edu.au> <cone.1090896213.276247.20693.502@pc.kolivas.org> <Pine.LNX.4.53.0407271250210.23847@tellurium.ssi.swin.edu.au> <20040727034739.GA2161@ca-server1.us.oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040727034739.GA2161@ca-server1.us.oracle.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jul 2004 10:31:27 -0400 (EDT)
-Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+On Mon, Jul 26, 2004 at 08:47:39PM -0700, Joel Becker wrote:
+> 	I happen to be a person who rolls his eyes at everyone's mention
+> of micro-optimized "feel".  I've found that any system faster than
+> 300MHz is pretty decent for normal desktop work (that is, moz + lots of
+> terminals in gnome/kde).  Yes, I'm a luddite, I used to wait 45 seconds
+> for moz to start in the morning on the 300Mhz.  I survived.
+> 	In general, I can't notice the difference between 2.6.anything
+> on my 1GHz.  Maybe everyone else can, but I can't.
+> 	HOWEVER, the swappiness of '60' puts my system into
+> fits-and-starts mode.  Not "It feels slower", but "It pauses for seconds
+> at a time."  So I chimed in on this.
+> 	And yes, I'd give up oodles of pagecache to avoid fits and
+> starts.  But there's got to be a way to use the pagecache and not hang
+> for seconds at a time.
 
-> On Tue, 27 Jul 2004, Andi Kleen wrote:
-> 
-> > On Tue, 27 Jul 2004 05:29:10 -0400 (EDT)
-> > Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
-> >
-> > > This is a follow up to the previous patches for ia64 and i386, it will
-> > > allow x86_64 to reenable interrupts during contested locks depending on
-> > > previous interrupt enable status. It has been runtime and compile tested
-> > > on UP and 2x SMP Linux-tiny/x86_64.
-> >
-> > This will likely increase code size. Do you have numbers by how much? And is it
-> > really worth it?
-> 
-> Yes there is a growth;
-> 
->    text    data     bss     dec     hex filename
-> 3655358 1340511  486128 5481997  53a60d vmlinux-after
-> 3648445 1340511  486128 5475084  538b0c vmlinux-before
+I've had similar experiences except for the pauses. Could you identify
+this as idle time, iowait, or cpu time (user/kernel)?
 
-That's significant.
+Also, does this behavior change at all as the IO scheduler varies? And
+could you describe the system, e.g. IO devices/etc.?
 
-> 
-> And this was on i386;
-> 
->    text    data     bss     dec     hex filename
-> 2628024  921731       0 3549755  362a3b vmlinux-after
-> 2621369  921731       0 3543100  36103c vmlinux-before
-> 
-> Keith Owens managed to get increased throughput as the original patch was
-> driven by poor performance from a workload. I think it's worth it just for
 
-What workload was that?
-
-I am not sure it is a good idea to "fix" workloads by making spinlocks better.
-It is likely better to just fix the locking for that workload, that would
-likely improve the workload a lot more.
-
-> the reduced interrupt latency, the code size issue can also be taken care
-> of, but that requires benchmarking as the change is a bit more drastic.
-
-Do you have numbers on that? Frankly if someone is spinning on irq disabled
-locks for a long time they should just fix their code.
-
--Andi
+-- wli

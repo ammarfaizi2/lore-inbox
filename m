@@ -1,77 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269485AbUICEyR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269506AbUICE44@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269485AbUICEyR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 00:54:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269499AbUICEyR
+	id S269506AbUICE44 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 00:56:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269509AbUICE4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 00:54:17 -0400
-Received: from main.gmane.org ([80.91.224.249]:50577 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S269485AbUICEyJ (ORCPT
+	Fri, 3 Sep 2004 00:56:55 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:53611 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269506AbUICE4Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 00:54:09 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: [PATCH 2.6.8.1 0/2] leds: new class for led devices
-Date: Fri, 03 Sep 2004 13:54:04 +0900
-Message-ID: <ch8tdd$1uf$1@sea.gmane.org>
-References: <1094157190l.4235l.2l@hydra>
+	Fri, 3 Sep 2004 00:56:24 -0400
+Message-ID: <2c6b3ab0040902215656704680@mail.gmail.com>
+Date: Fri, 3 Sep 2004 10:26:23 +0530
+From: Amit Gud <amitgud@gmail.com>
+Reply-To: Amit Gud <amitgud@gmail.com>
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Re: Using filesystem blocks
+Cc: linux-kernel@vger.kernel.org, gud@eth.net
+In-Reply-To: <20040902200743.GB6875@taniwha.stupidest.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: j110113.ppp.asahi-net.or.jp
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040627
-X-Accept-Language: bg, en, ja, ru, de
-In-Reply-To: <1094157190l.4235l.2l@hydra>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <2c6b3ab004090212293b394b41@mail.gmail.com> <20040902200743.GB6875@taniwha.stupidest.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Lenz wrote:
-> This is an attempt to provide an alternative to the current arm  
-> specific led interface.  This arm interface does not integrate well  
-> with the device model and sysfs.
-I am just curious, but what specific hardware devices can be controlled with this?
-
-[snip]
-
-> function : a read/write attribute that sets the current function of  
-> this led.  The available options are
 > 
->  timer : the led blinks on and off on a timer
->  idle : the led turns off when the system is idle and on when not idle
->  power : the led represents the current power state
->  user : the led is controlled by user space
+> > Is it wise enough to abstract away the usage of blocks for storing
+> > extended attributes?
+> 
+> No.  Some fs' will store xattr data in the inodes if it fits.
+> 
 
-Please put the power comment in the source too, e.g. :
+First up, why is mbcache code is written at VFS layer than being
+filesystem specific? Neccessarily to take away the coding overheads of
+maintaining block cache that any filesystem uses, even though given
+that only ext2 and ext3 uses it. It facilitates code reuse.
 
-+enum led_functions {
-+	leds_user = 0,	/* user has control of this led through sysfs */
-+	leds_timer,	/* led blinks on a timer */
-+	leds_idle,	/* led is on when the system is not idle */
-+	leds_power,	/* led is on when ?????????????????????? */
-+};
+Now if we are making reuse of the code to manage block cache, why
+can't we make use of the code of allocating blocks, storing the stuff
+and other intricacies of block boundary management by writing the code
+at another layer, which other fs' can use readiliy including ext2
+ext3?
 
-To be honest, I don't get the meaning of any of the led_functions except leds_user...
+This is advantageous for new filesystems or new fs features which may
+use disk blocks not assiciated with any inode for some purpose. Right
+now if I'm to do, I'II have to rewrite the code of whole block
+management. But I can avail the block cache functions of mbcache.
 
-> light : a read/write attribute that allows userspace to see the current  
-> status of the led.  If function="user" then writing to this attribute  
-> will change the led on or off.  If function != "user" then writing has  
-> no effect.
->  light is an integer, where 0 means off, 1 means on first color, 2  
-> means on second color, etc.  (for example, if color="green/blue" then  
-> light=1 means turn led on to green and if light=2 means turn led on to  
-> blue.
+Like I said, forget what fs does what to store its xattr, ext2/3 is
+just an example which uses blocks to store them. What I'm pointing to
+is generic interface to the block management code. If the block
+management code is written with a generic interface, like mbcache, it
+would be very helpful for the future filesystems or for new features
+in the exiting fs'.
 
-Is something like max_colors or num_colors necessary?
-Might be handy for changing to the "last" color or something,
-but it may as well be done by userspace app.
-
-
--- 
- || ~~~~~~~~~~~~~~~~~~~~~~ ||
-(  ) http://ThinRope.net/ (  )
- || ______________________ ||
-
+AG

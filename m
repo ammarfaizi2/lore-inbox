@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268823AbRG0K2v>; Fri, 27 Jul 2001 06:28:51 -0400
+	id <S268831AbRG0KsF>; Fri, 27 Jul 2001 06:48:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268824AbRG0K2l>; Fri, 27 Jul 2001 06:28:41 -0400
-Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:24961 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S268823AbRG0K2a>; Fri, 27 Jul 2001 06:28:30 -0400
-Message-ID: <3B6141BE.1CD754AF@randomlogic.com>
-Date: Fri, 27 Jul 2001 03:26:06 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-Organization: Akamai Technologies, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S268827AbRG0Kr4>; Fri, 27 Jul 2001 06:47:56 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:20930 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S268824AbRG0Kro>; Fri, 27 Jul 2001 06:47:44 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Thomas Foerster <puckwork@madz.net>
+Date: Fri, 27 Jul 2001 20:30:53 +1000 (EST)
 MIME-Version: 1.0
-To: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-CC: "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>,
-        "kplug-lpsg@kernel-panic.org" <kplug-lpsg@kernel-panic.org>
-Subject: Re: Linx Kernel Source tree and metrics
-In-Reply-To: <20010727095757Z268814-721+5010@vger.kernel.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15201.17117.641766.521810@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linx Kernel Source tree and metrics
+In-Reply-To: message from Thomas Foerster on Friday July 27
+In-Reply-To: <20010727095757Z268814-721+5010@vger.kernel.org>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-[SNIP]
+On Friday July 27, puckwork@madz.net wrote:
+> Hi,
+> 
+> > "Paul G. Allen" wrote:
+> 
+> >> > > The URL is:
+> >> >
+> >> > > http://24.5.14.144:3000/linux-kernel
+> >> >
+> >> > [...]
+> >> >
+> >> > It's forwarded to "127.0.0.1:3000", so no one can connect?! ;-)
+> >> >
 > 
 > > OK, try it now. (I really need another external IP/connection so I can
 > > try these things out myself first :-)
@@ -35,17 +47,13 @@ Original-Recipient: rfc822;linux-kernel-outgoing
 > Can't be found (DNS-Error)
 > 
 
-I connected using VPN into work (I made an external link) with my
-laptop, and from there I was able to load the pages. Note that you MUST
-use the IP, not the machine name as that name is a private hostname and
-is not registered on the public Internet.
+Just add a slash.  Then the webserver wont ahve to do it for you:
 
-Dang, I really need a faster connection to my home. :)
+http://24.5.14.144:3000/linux-kernel/
 
-PGA
-
--- 
-Paul G. Allen
-UNIX Admin II/Network Security
-Akamai Technologies, Inc.
-www.akamai.com
+> Thomas
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

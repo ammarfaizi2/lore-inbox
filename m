@@ -1,87 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266695AbUBMDRk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 22:17:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266700AbUBMDRj
+	id S266700AbUBMD2x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 22:28:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266709AbUBMD2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 22:17:39 -0500
-Received: from [220.249.10.10] ([220.249.10.10]:4546 "EHLO
-	mail.goldenhope.com.cn") by vger.kernel.org with ESMTP
-	id S266695AbUBMDRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 22:17:34 -0500
-Date: Fri, 13 Feb 2004 11:16:53 +0800
-From: lepton <lepton@mail.goldenhope.com.cn>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG]kmalloc memory in reiserfs code failed on a dual amd64/4G linux 2.6.2 box
-Message-ID: <20040213031653.GA25623@lepton.goldenhope.com.cn>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Thu, 12 Feb 2004 22:28:53 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:28570 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266700AbUBMD2w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 22:28:52 -0500
+Date: Thu, 12 Feb 2004 19:28:09 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Ping Cheng <pingc@wacom.com>
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: Wacom USB driver patch
+Message-Id: <20040212192809.3c7e6db4.zaitcev@redhat.com>
+In-Reply-To: <28E6D16EC4CCD71196610060CF213AEB065BCA@wacom-nt2.wacom.com>
+References: <28E6D16EC4CCD71196610060CF213AEB065BCA@wacom-nt2.wacom.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I seen such dmesg in mu dual amd64/4G memory box.
+On Thu, 12 Feb 2004 16:55:47 -0800
+Ping Cheng <pingc@wacom.com> wrote:
 
-I am running kernel 2.6.2
+> The wacom.c at http://linux.bkbits.net:8080/linux-2.4 is way out of date and
+> people are still working on/using 2.4 releases. Should I make a patch for
+> 2.4?
 
-This is the second time I saw some problems about __alloc_pages on this
-amd 64 box...
+We plan to support 2.4 based releases for several years yet. If Vojtech
+approves what you did for 2.6, I am all for a backport to Marcelo tree.
+Marcelo is not very forthcoming with approvals these days, but perhaps
+it may be folded into some update. But as usual I would like to avoid
+carrying a patch in Red Hat tree, if at all possible.
 
-
-sort: page allocation failure. order:1, mode:0x20
-
-Call Trace:<ffffffff8014e5f0>{__alloc_pages+816} <ffffffff8014e65e>{__get_free_pages+78} 
-       <ffffffff80151921>{cache_grow+177} <ffffffff80151e78>{cache_alloc_refill+440} 
-       <ffffffff801521c6>{__kmalloc+102} <ffffffff801b44f6>{get_mem_for_virtual_node+102} 
-       <ffffffff801b49a8>{fix_nodes+232} <ffffffff801c08c5>{reiserfs_insert_item+149} 
-       <ffffffff801acf2c>{reiserfs_new_inode+892} <ffffffff801bd6a8>{pathrelse+40} 
-       <ffffffff801a834b>{reiserfs_create+171} <ffffffff8017690c>{vfs_create+140} 
-       <ffffffff80176ca8>{open_namei+424} <ffffffff801675a7>{filp_open+39} 
-       <ffffffff801210a8>{sys32_open+56} <ffffffff8011e25e>{ia32_do_syscall+30} 
-       
-sort: page allocation failure. order:1, mode:0x20
-
-Call Trace:<ffffffff8014e5f0>{__alloc_pages+816} <ffffffff8014e65e>{__get_free_pages+78} 
-       <ffffffff80151921>{cache_grow+177} <ffffffff80151e78>{cache_alloc_refill+440} 
-       <ffffffff801521c6>{__kmalloc+102} <ffffffff801b44f6>{get_mem_for_virtual_node+102} 
-       <ffffffff801b49a8>{fix_nodes+232} <ffffffff801c08c5>{reiserfs_insert_item+149} 
-       <ffffffff801acf2c>{reiserfs_new_inode+892} <ffffffff801bd6a8>{pathrelse+40} 
-       <ffffffff801a834b>{reiserfs_create+171} <ffffffff8017690c>{vfs_create+140} 
-       <ffffffff80176ca8>{open_namei+424} <ffffffff801675a7>{filp_open+39} 
-       <ffffffff801210a8>{sys32_open+56} <ffffffff8011e25e>{ia32_do_syscall+30} 
-       
-sort: page allocation failure. order:1, mode:0x20
-
-Call Trace:<ffffffff8014e5f0>{__alloc_pages+816} <ffffffff8014e65e>{__get_free_pages+78} 
-       <ffffffff80151921>{cache_grow+177} <ffffffff80151e78>{cache_alloc_refill+440} 
-       <ffffffff801521c6>{__kmalloc+102} <ffffffff801b44f6>{get_mem_for_virtual_node+102} 
-       <ffffffff801b49a8>{fix_nodes+232} <ffffffff801c08c5>{reiserfs_insert_item+149} 
-       <ffffffff801acf2c>{reiserfs_new_inode+892} <ffffffff801bd6a8>{pathrelse+40} 
-       <ffffffff801a834b>{reiserfs_create+171} <ffffffff8017690c>{vfs_create+140} 
-       <ffffffff80176ca8>{open_namei+424} <ffffffff801675a7>{filp_open+39} 
-       <ffffffff801210a8>{sys32_open+56} <ffffffff8011e25e>{ia32_do_syscall+30} 
-       
-sort: page allocation failure. order:1, mode:0x20
-
-Call Trace:<ffffffff8014e5f0>{__alloc_pages+816} <ffffffff8014e65e>{__get_free_pages+78} 
-       <ffffffff80151921>{cache_grow+177} <ffffffff80151e78>{cache_alloc_refill+440} 
-       <ffffffff801521c6>{__kmalloc+102} <ffffffff801b44f6>{get_mem_for_virtual_node+102} 
-       <ffffffff801b49a8>{fix_nodes+232} <ffffffff801c08c5>{reiserfs_insert_item+149} 
-       <ffffffff801acf2c>{reiserfs_new_inode+892} <ffffffff801bd6a8>{pathrelse+40} 
-       <ffffffff801a834b>{reiserfs_create+171} <ffffffff8017690c>{vfs_create+140} 
-       <ffffffff80176ca8>{open_namei+424} <ffffffff801675a7>{filp_open+39} 
-       <ffffffff801210a8>{sys32_open+56} <ffffffff8011e25e>{ia32_do_syscall+30} 
-       
-sort: page allocation failure. order:1, mode:0x20
-
-Call Trace:<ffffffff8014e5f0>{__alloc_pages+816} <ffffffff8014e65e>{__get_free_pages+78} 
-       <ffffffff80151921>{cache_grow+177} <ffffffff80151e78>{cache_alloc_refill+440} 
-       <ffffffff801521c6>{__kmalloc+102} <ffffffff801b44f6>{get_mem_for_virtual_node+102} 
-       <ffffffff801b49a8>{fix_nodes+232} <ffffffff801c08c5>{reiserfs_insert_item+149} 
-       <ffffffff801acf2c>{reiserfs_new_inode+892} <ffffffff8014e2a5>{buffered_rmqueue+325} 
-       <ffffffff801bd6a8>{pathrelse+40} <ffffffff801a834b>{reiserfs_create+171} 
-       <ffffffff8017690c>{vfs_create+140} <ffffffff80176ca8>{open_namei+424} 
-       <ffffffff801675a7>{filp_open+39} <ffffffff801210a8>{sys32_open+56} 
-       <ffffffff8011e25e>{ia32_do_syscall+30} 
+-- Pete

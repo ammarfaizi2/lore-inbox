@@ -1,75 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275259AbTHGJ6E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 05:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275258AbTHGJ6D
+	id S275262AbTHGJxy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 05:53:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275263AbTHGJxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 05:58:03 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:13758 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S275259AbTHGJ5z (ORCPT
+	Thu, 7 Aug 2003 05:53:53 -0400
+Received: from smtp017.mail.yahoo.com ([216.136.174.114]:56324 "HELO
+	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S275262AbTHGJxX convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 05:57:55 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 7 Aug 2003 11:57:49 +0200 (MEST)
-Message-Id: <UTC200308070957.h779vnj22394.aeb@smtp.cwi.nl>
-To: B.Zolnierkiewicz@elka.pw.edu.pl, aebr@win.tue.nl
-Subject: Re: [PATCH] ide-disk.c rev 1.13 killed CONFIG_IDEDISK_STROKE
-Cc: alan@lxorguk.ukuu.org.uk, andersen@codepoet.org,
-       linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+	Thu, 7 Aug 2003 05:53:23 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: Nuno Silva <nuno.silva@vgertech.com>
+Subject: Re: [2.6] system is very slow during disk access
+Date: Thu, 7 Aug 2003 11:53:02 +0200
+User-Agent: KMail/1.5.3
+References: <200308062052.10752.fsdeveloper@yahoo.de> <200308062247.17816.fsdeveloper@yahoo.de> <3F31D205.2080008@vgertech.com>
+In-Reply-To: <3F31D205.2080008@vgertech.com>
+Cc: Jean-Yves LENHOF <jean-yves@lenhof.eu.org>, insecure@mail.od.ua,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200308071153.18361.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    > The part I most object to are things like
-    >
-    > > +    id->lba_capacity_2 = capacity_2 = set_max_ext;
-    >
-    > There have been many problems in the past, and it is a bad idea to add
-    > more of this. We should be eliminating all cases.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-    What problems?  This reflects real change in drive's identify
-    and I think should be replaced by rereading drive->id from a drive.
+On Thursday 07 August 2003 06:13, Nuno Silva wrote:
+> Hi!
 
-In order to be able to troubleshoot problems we need to be able
-to reconstruct the information involved.
+Hi,
 
-One part is the disk identity info that existed at boot time.
-It was read by the kernel, and stored. It is returned by the
-HDIO_GET_IDENTIFY ioctl, as used in e.g. hdparm -i.
+> There are some references to: hdparm -a 512 /dev/hda.
+> For some folks this improves fs performance.
+>
+> Does it work for you?
 
-There is also the current disk identity info.
-It is found by asking the disk now, and is returned by e.g. hdparm -I.
+Changing read-ahead doesn't work. Neither to 8 nor to 512.
+I think it doesn't have something to do with read-ahead,
+because the system-performance-drop occurs while
+writing to the disk.
+My dd-example wrote to disk:
 
-    > We have info from BIOS, user, disk etc and conclude
-    > to a certain geometry.
-
-    I can't spot place when we get info from a BIOS.
-
-See arch/i386/boot/setup.S
-(I ripped out ide-geometry.c recently, so the use has diminished.)
-
-    > Sneakily changing what the disk reported is very ugly. I recall a case
-    > where a disk bounced between two capacities because the value that this
-    > computation concluded to was not a fixed point. Also, the user gets an
-    > incorrect report from HDIO_GET_IDENTITY.
-
-    User gets correct report from HDIO_GET_IDENTIFY as drive's identify was
-    really changed.  Moreover HDIO_GET_IDENTIFY needs fixing to actually
-    reread drive->id from a drive (similarly like /proc identify was fixed).
-
-There are at least two objections.
-First: we do not want the new identity, we want the old.
-Second: if we ask the disk for identity again, you'll see that
-more than this single field was changed.
-
-If the user only wanted to know the current max size then there are
-other means, like BLKGETSIZE.
-
-    > So, the clean way is to examine what the disk reported, never change it
-
-    Even if disk's info changes?  I don't think so.
-
-Yes. The disk geometry data that we use is drive->*
-What the disk reported to us is drive->id->*.
+dd if=/dev/zero of=./t.test
 
 
-Andries
+I just ran a few other tests:
+
+dd if=/dev/hda of=/dev/null
+doesn't drop system performance and the system is very usable
+while dd is running.
+So reading from a plain partition is OK.
+
+
+dd if=/dev/zero of=/dev/hdc7
+This slows down the system _very_ much, but it's still usable.
+The mouse curser doesn't jump randomly over the screen, like it
+did while
+dd if=/dev/zero of=./t.test
+
+So my guess, it may have something to do with reiserFS.
+So I ran another test:
+
+I did
+mke2fs /dev/hdc7
+mount /dev/hdc7 /mnt/data_1
+cd /mnt/data_1
+dd if=/dev/zero of=./t.test
+
+And now the surprise. :)
+Here the system-behaviour is exactly the same, as while
+writing to the plain partition.
+The cursor is not smooth, but it's usable and it doesn't
+jump ramdonly over the screen.
+
+So I think it has something to do with reiserFS.
+Where can I start to track it down, why reiserFS
+is doing this?
+Hmm, I'll try to enable
+CONFIG_REISERFS_CHECK
+and
+CONFIG_REISERFS_PROC_INFO
+
+Can somebody tell me how to debug reiserFS with these
+options enabled?
+
+> Regards,
+> Nuno Silva
+
+Short note: hda and hdc are both exactly the same devices.
+
+- -- 
+Regards Michael Buesch  [ http://www.8ung.at/tuxsoft ]
+Penguin on this machine:  Linux 2.6.0-test2 - i386
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/MiGKoxoigfggmSgRAt+PAJ9gI8Z5Osm4/DcnFZsPtR7x4UQpZACfZw7R
+GxC2PwCVOAWFFE39Fw9ttKM=
+=v0nD
+-----END PGP SIGNATURE-----
+

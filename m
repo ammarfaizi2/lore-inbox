@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267890AbRGZMpu>; Thu, 26 Jul 2001 08:45:50 -0400
+	id <S267912AbRGZM7b>; Thu, 26 Jul 2001 08:59:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267904AbRGZMpl>; Thu, 26 Jul 2001 08:45:41 -0400
-Received: from foobar.isg.de ([62.96.243.63]:17418 "HELO mail.isg.de")
-	by vger.kernel.org with SMTP id <S267890AbRGZMp2>;
-	Thu, 26 Jul 2001 08:45:28 -0400
-Message-ID: <3B6010EC.B7428A0D@isg.de>
-Date: Thu, 26 Jul 2001 14:45:32 +0200
-From: Lutz Vieweg <lkv@isg.de>
-Organization: Innovative Software AG
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: German, de, en
+	id <S267918AbRGZM7L>; Thu, 26 Jul 2001 08:59:11 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:2320 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S267912AbRGZM7G>; Thu, 26 Jul 2001 08:59:06 -0400
+Date: Thu, 26 Jul 2001 09:58:58 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
+        "ext3-users@redhat.com" <ext3-users@redhat.com>
+Subject: Re: ext3-2.4-0.9.4
+In-Reply-To: <20010726143002.E17244@emma1.emma.line.org>
+Message-ID: <Pine.LNX.4.33L.0107260956520.20326-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: kas@informatics.muni.cz, linux-kernel@vger.kernel.org
-Cc: unix@fi.muni.cz
-Subject: Re: [Fwd: Linux 2.4 networking/routing slowdown]
-In-Reply-To: <3B600EAD.3F8F9A70@isg.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Jan Kasprzak <kas@informatics.muni.cz> wrote:
+On Thu, 26 Jul 2001, Matthias Andree wrote:
 
-> >         I have tried to upgrade my firewall to 2.4 kernel (2.4.7), and I have
-> > observed a major slowdown of the network speed.
+> So, what would help the common MTA?
 
-We observed a similar problem, hunted it down via kernel profiling:
+Not relying on non-supported semantics to save your ass.
 
-When we used ipchains to establish a port redirection (just one
-rule, map one port to another), the network would become rediculously
-slow after some time of use, causing the CPU to spend almost 100%
-as "system time".
+Rename() is atomic in the sense that you either see the
+old name or the new name, but I don't know of systems
+which guarantee atomicity across a system crash.
 
-We found that the expensive kernel functions were redir_cmp and unredir_cmp,
-which were called an unreasonable amount of times by find_redir - seems the
-iteration over the list there is quite lengthy...
+In fact, knowing how hard disks work mechanically, only
+journaling filesystems could have an extention to make
+this work.  Ie. this is NOT something you can rely on ;)
 
-We didn't investigate the problem further, but found that by using 
-"iptables" instead of the obsolete "ipchains" to establish the redirection
-rule, everything was fine again.
+regards,
 
-So my advice would be to try iptables and see if your problem goes away
-as well.
-
-Regards,
-
-Lutz Vieweg
-
+Rik
 --
- Dipl. Phys. Lutz Vieweg | email: lkv@isg.de
- Innovative Software AG  | Phone/Fax: +49-69-505030 -120/-505
- Feuerbachstrasse 26-32  | http://www.isg.de/people/lkv/
- 60325 Frankfurt am Main | ^^^ PGP key available here ^^^
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

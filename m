@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265939AbSKOJfY>; Fri, 15 Nov 2002 04:35:24 -0500
+	id <S263188AbSKOJnp>; Fri, 15 Nov 2002 04:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265960AbSKOJfY>; Fri, 15 Nov 2002 04:35:24 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:20755 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S265939AbSKOJfX>;
-	Fri, 15 Nov 2002 04:35:23 -0500
-Date: Fri, 15 Nov 2002 10:40:51 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-Message-ID: <20021115094051.GF45@marowsky-bree.de>
-References: <1037325839.13735.4.camel@rth.ninka.net> <396026666.1037298946@[10.10.2.3]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <396026666.1037298946@[10.10.2.3]>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+	id <S265995AbSKOJnn>; Fri, 15 Nov 2002 04:43:43 -0500
+Received: from kim.it.uu.se ([130.238.12.178]:64212 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S263188AbSKOJnj>;
+	Fri, 15 Nov 2002 04:43:39 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15828.50020.883077.644905@kim.it.uu.se>
+Date: Fri, 15 Nov 2002 10:50:28 +0100
+To: Corey Minyard <cminyard@mvista.com>
+Cc: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
+       "'Zwane Mwaikambo'" <zwane@holomorphy.com>,
+       John Levon <levon@movementarian.org>,
+       Dipankar Sarma <dipankar@gamebox.net>, linux-kernel@vger.kernel.org
+Subject: Re: NMI handling rework for x86
+In-Reply-To: <3DD47858.3060404@mvista.com>
+References: <3DD47858.3060404@mvista.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-11-14T18:35:47,
-   "Martin J. Bligh" <mbligh@aracnet.com> said:
+Corey Minyard writes:
+ > diff -urN linux.orig/arch/i386/kernel/nmi_watchdog.c linux/arch/i386/kernel/nmi_watchdog.c
+ > --- linux.orig/arch/i386/kernel/nmi_watchdog.c	Thu Oct 24 19:56:54 2002
+ > +++ linux/arch/i386/kernel/nmi_watchdog.c	Thu Oct 24 20:54:19 2002
+...
+ > +static int k7_watchdog_reset(int handled)
+ > +{
+ > +	unsigned int low, high;
+ > +	int          source;
+ > +
+ > +	rdmsr(MSR_K7_PERFCTR0, low, high);
+ > +	source = (low & (1 << 31)) == 0;
+ > +	if (source)
+ > +		wrmsr(MSR_K7_PERFCTR0, -(cpu_khz/nmi_hz*1000), -1);
+ > +	return source;
+ > +}
 
-> Hmmm ... I'm not sure that being that restrictive is going to help.
-> Whilst bugs against any randomly patched version of the kernel
-> probably aren't that interesting, things in major trees like -mm, 
-> -ac, -dj etc are likely going to end up in mainline sooner or later
-> anyway ... wouldn't you rather know of the breakage sooner rather
-> than later?
+and similar code in p6 and p4 watchdog_reset.
 
-Simple answer:
+- Why are you reading the perfctrs with RDMSR instead of RDPMC?
+  RDMSR is noticeably slower on most post-P5 CPUs.
+- "(low & (1 << 31)) == 0" looks like a convoluted and inefficient
+  way of computing "(int)low >= 0".
+- The p6 and k7 watchdog_reset procedures are identicial, except
+  for the actual MSR number used. The original nmi.c makes the
+  number a parameter and shares the code, causing less code bloat.
 
-Bugreports in specific patchsets / kernel trees should first be sent to the
-respective maintainer (mailing list, real person, distributor, whatever) and
-then be "filtered" by that person into the consolidated "vanilla" bugzilla.
-
-Anything else is madness. (Anything else also won't fit into the support
-models of RH, SuSE, UL ...)
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-Principal Squirrel 
-SuSE Labs - Research & Development, SuSE Linux AG
-  
-"If anything can go wrong, it will." "Chance favors the prepared (mind)."
-  -- Capt. Edward A. Murphy            -- Louis Pasteur
+/Mikael

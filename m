@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262698AbVBEHqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264282AbVBEHtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262698AbVBEHqt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 02:46:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265133AbVBEHqt
+	id S264282AbVBEHtK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 02:49:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263645AbVBEHtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 02:46:49 -0500
-Received: from out003pub.verizon.net ([206.46.170.103]:62416 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S262698AbVBEHqi
+	Sat, 5 Feb 2005 02:49:10 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:42911 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S266469AbVBEHso
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 02:46:38 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None, usuallly detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: ftp.kernel.org was broken
-Date: Sat, 5 Feb 2005 02:46:27 -0500
-User-Agent: KMail/1.7
-Cc: Grant <grant_nospam@dodo.com.au>, YOSHIMURA Keitaro <ramsy@linux.or.jp>
-References: <20050205115136.01F6.RAMSY@linux.or.jp> <mss801pt9l1934tbm7t6r1tgmsidbp9ckk@4ax.com>
-In-Reply-To: <mss801pt9l1934tbm7t6r1tgmsidbp9ckk@4ax.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 5 Feb 2005 02:48:44 -0500
+Subject: Re: [PATCH] PPC/PPC64: Introduce CPU_HAS_FEATURE() macro
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Olof Johansson <olof@austin.ibm.com>
+Cc: Pekka Enberg <penberg@gmail.com>, linuxppc64-dev@ozlabs.org,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, paulus@samba.org,
+       anton@samba.org, trini@kernel.crashing.org, benh@kernel.crashing.org,
+       hpa@zytor.com, akpm@osdl.org
+In-Reply-To: <20050204172041.GA17586@austin.ibm.com>
+References: <20050204072254.GA17565@austin.ibm.com>
+	 <84144f0205020400172d89eddf@mail.gmail.com>
+	 <20050204172041.GA17586@austin.ibm.com>
+Date: Sat, 05 Feb 2005 09:48:19 +0200
+Message-Id: <1107589699.17616.4.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502050246.28131.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.62.185] at Sat, 5 Feb 2005 01:46:36 -0600
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 05 February 2005 02:21, Grant wrote:
->Hi there,
->
->On Sat, 05 Feb 2005 13:13:32 +0900, you wrote:
->>Hi.
->>
->>ftp.kernel.org is broken.
->>The contents are empty, and root(uid/gid) is displayed as 0 though
->> /pub directory is seen.
->
->The country code versions appear to be working, I tried 'au' and
-> 'jp': ftp.au.kernel.org  ftp.jp.kernel.org
->
->Perhaps they're spreading the load?
->
->Cheers,
->Grant.
+On Fri, 2005-02-04 at 11:20 -0600, Olof Johansson wrote:
+> * cpu-has-feature(cpu-feature-foo) v cpu-has-feature(foo): I picked the
+> latter for readability.
+> * Renaming CPU_FTR_<x> -> CPU_<x> makes it less obvious that
+> it's actually a cpu feature it's describing (i.e. CPU_ALTIVEC vs
+> CPU_FTR_ALTIVEC).
+> * Renaming would clobber the namespace, CPU_* definitions are used in
+> other places in the tree.
+> * Can't make it an inline and still use the preprocessor concatenation.
 
-Dunno, its responding to me here in WV, but everything is empty.
+Seriously, if readability is your argument, macro magic is not the
+answer. Ok, we can't clobber the CPU_ definitions, so pick another
+prefix.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.32% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+If you want readability, please consider using named enums:
+
+enum cpu_feature {
+	CF_ALTIVEC = /* ... */
+};
+
+static inline int cpu_has_feature(enum cpu_feature cf) { }
+
+			Pekka
+

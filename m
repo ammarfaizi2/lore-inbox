@@ -1,69 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263857AbTEFQLF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 12:11:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263915AbTEFQLE
+	id S263914AbTEFQJa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 12:09:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263915AbTEFQJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 12:11:04 -0400
-Received: from mail2.ewetel.de ([212.6.122.20]:16857 "EHLO mail2.ewetel.de")
-	by vger.kernel.org with ESMTP id S263857AbTEFQKP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 12:10:15 -0400
-Date: Tue, 6 May 2003 18:22:40 +0200 (CEST)
-From: Pascal Schmidt <der.eremit@email.de>
-To: Jens Axboe <axboe@suse.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [IDE] trying to make MO drive work with ide-floppy/ide-cd
-In-Reply-To: <20030506152543.GX905@suse.de>
-Message-ID: <Pine.LNX.4.44.0305061816490.1310-100000@neptune.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-CheckCompat: OK
+	Tue, 6 May 2003 12:09:30 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:44045
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S263914AbTEFQJ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 12:09:28 -0400
+Date: Tue, 6 May 2003 09:21:53 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Shantanu Goel <sgoel01@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-rc1-ac2 NFS close-to-open question
+Message-ID: <20030506162153.GH8350@matchmail.com>
+Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Shantanu Goel <sgoel01@yahoo.com>, linux-kernel@vger.kernel.org
+References: <20030427151201.27191.qmail@web12802.mail.yahoo.com> <shshe8k6ijs.fsf@charged.uio.no> <20030506022813.GB8350@matchmail.com> <16055.44973.106804.436859@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16055.44973.106804.436859@charged.uio.no>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 May 2003, Jens Axboe wrote:
+On Tue, May 06, 2003 at 02:50:53PM +0200, Trond Myklebust wrote:
+> I'm confused. Are the rmap patches making changes to lockd?
+> I certainly don't see the above errors in standard 2.4.21-rc1.
 
-> No, but clearly something is wrong. At least that you should agree on.
+Ok, I'll test with standard rc1...
 
-Yes, I would guess the MO drive doesn't like most commands that are
-used for DVD/CD-ROMs and writers.
+Oh and one more thing, both have the debian freeswan kernel patch applied.
 
-> And knowing hardware, there are probably drives out there that just wont
-> work because of the various "weird" commands it gets sent.
-
-Okay, I was assuming those errors don't do harm, but that might
-be wrong, yeah.
-
-> Just because it happens to work for you doesn't make it a viable
-> solution.
-
-Agreed.
-
-> Shouldn't matter, the drive has to check for that particular bit (and it
-> obviously does not). Are we still talking 2.5 or 2.4?
-
-2.5
-The solution with ide-scsi is good enough for me on 2.4, but since CD
-burning also doesn't need ide-scsi any more on 2.5, I'd like to use a
-kernel without any SCSI code in it.
-
-> You can play with the c code, you've demonstrated that much so far. So
-> play some more, find out which commands are aborted and why. The log
-> messages even tell you which ones.
-
-Okay. I'll try to find a way to pass the information that the drive
-was originally detected as ide_optical down to ide-cd.c so I can skip
-the commands that don't make sense on an MO drive.
-
-> Now find out if these are necessary
-> for proper MO functionality or not. Or maybe some vital commands are
-> even missing, lots of fun there :). But it really should not be very
-> hard.
-
-I'll go play with the code some more, then.
-
--- 
-Ciao,
-Pascal
-
+I'll try again without any patches.

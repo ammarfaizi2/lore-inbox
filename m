@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262349AbTD3PvC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 11:51:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbTD3PvC
+	id S262343AbTD3Pni (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 11:43:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbTD3Pni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 11:51:02 -0400
-Received: from mx01.uni-tuebingen.de ([134.2.3.11]:54724 "EHLO
-	mx01.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id S262349AbTD3PvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 11:51:01 -0400
-X-Face: "iUeUu$b*W_"w?tV83Y3*r:`rh&dRv}$YnZ3,LVeCZSYVuf[Gpo*5%_=/\_!gc_,SS}[~xZ
- wY77I-M)xHIx:2f56g%/`SOw"Dx%4Xq0&f\Tj~>|QR|vGlU}TBYhiG(K:2<T^
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: dphillips@sistina.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] Faster generic_fls
-References: <Pine.LNX.4.44.0304300824190.7157-100000@home.transmeta.com>
-From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
-Date: 30 Apr 2003 18:03:14 +0200
-In-Reply-To: <Pine.LNX.4.44.0304300824190.7157-100000@home.transmeta.com>
-Message-ID: <87el3kt1kt.fsf@student.uni-tuebingen.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (cabbage)
-MIME-Version: 1.0
+	Wed, 30 Apr 2003 11:43:38 -0400
+Received: from damocles.com ([216.12.219.203]:1942 "EHLO uph.com")
+	by vger.kernel.org with ESMTP id S262343AbTD3Pnh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 11:43:37 -0400
+Date: Wed, 30 Apr 2003 10:55:54 -0500
+From: Jeff Randall <randall@uph.com>
+To: Larry McVoy <lm@work.bitmover.com>,
+       "Downing, Thomas" <Thomas.Downing@ipc.com>,
+       Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+Message-ID: <20030430105554.A15778@uph.com>
+References: <170EBA504C3AD511A3FE00508BB89A9202032941@exnanycmbx4.ipc.com> <20030430152041.GA22038@work.bitmover.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-AntiVirus: checked by AntiVir Milter 1.0.0.8; AVE 6.19.0.3; VDF 6.19.0.10
+Content-Disposition: inline
+In-Reply-To: <20030430152041.GA22038@work.bitmover.com>; from lm@bitmover.com on Wed, Apr 30, 2003 at 08:20:41AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+On Wed, Apr 30, 2003 at 08:20:41AM -0700, Larry McVoy wrote:
+> My point wasn't about theft, it was about reimplementation.
+> I stand behind that point, what I've seen for more than a decade is
+> reimplementation after reimplementation.  I'm not saying there is no
+> value to that or that it is illegal or that there are no improvements
+> (compare Unix diff to GNU diff if you want to see some imrovements).
+> There is tons of value in having free versions of useful tools.
+> There is also tons of value in the creation of new work.
+> 
+> What I haven't seen is a lot of revolutionary work.  All of that seems
+> to come from commercial companies and at a pretty slow pace.  There are
+> a lot of false starts, commercial failures, whatever.  But a few slam
+> dunks as well.
 
-> There is _never_ any excuse to use a lookup table for something that
-> can be calculated with a few simple instructions. That's just
-> stupid.
+Mosaic was pretty revolutionary for it's time.. as was Sendmail..
+source was available for both from the start.
 
-Well, the "few simple instructions" are 28 instructions on Alpha for
-example, including 6 data-dependent branches. So I don't think it's
-*that* stupid.
-
-But I agree that benchmarking this stand-alone isn't particularly
-useful.
 
 -- 
-	Falk
+randall@uph.com    "It's a big world and you can hit it with any airplane."
+                                           -- Flying, August 2000, Page 90.

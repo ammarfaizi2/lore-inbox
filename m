@@ -1,77 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264275AbUACWUt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 17:20:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264285AbUACWUs
+	id S264326AbUACWZH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 17:25:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264333AbUACWZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 17:20:48 -0500
-Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:54183 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S264275AbUACWUh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 17:20:37 -0500
-Subject: Re: OSS sound emulation broken between 2.6.0-test2 and test3
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Chris Shafer <cshafer@toad.net>
-Cc: Edward Tandi <ed@efix.biz>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040103005350.GA4960@cablespeed.com>
-References: <1072479167.21020.59.camel@nosferatu.lan>
-	 <1480000.1072479655@[10.10.2.4]> <1072480660.21020.64.camel@nosferatu.lan>
-	 <1640000.1072481061@[10.10.2.4]> <1072482611.21020.71.camel@nosferatu.lan>
-	 <2060000.1072483186@[10.10.2.4]> <1072500516.12203.2.camel@duergar>
-	 <8240000.1072511437@[10.10.2.4]> <1072523478.12308.52.camel@nosferatu.lan>
-	 <1072525450.3794.8.camel@wires.home.biz>
-	 <20040103005350.GA4960@cablespeed.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dCo0TwhobuQ3NjIaOv01"
-Message-Id: <1073168600.6075.59.camel@nosferatu.lan>
+	Sat, 3 Jan 2004 17:25:06 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:46760 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S264326AbUACWZC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 17:25:02 -0500
+Date: Sat, 3 Jan 2004 14:24:54 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Alex Buell <alex.buell@munted.org.uk>
+Cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: inode_cache / dentry_cache not being reclaimed aggressively enough  on low-memory PCs
+Message-ID: <20040103222454.GJ1882@matchmail.com>
+Mail-Followup-To: Alex Buell <alex.buell@munted.org.uk>,
+	Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0401031128100.2605@slut.local.munted.org.uk> <20040103103023.77bf91b5.jlash@speakeasy.net> <Pine.LNX.4.58.0401031823010.3488@slut.local.munted.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 04 Jan 2004 00:23:20 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0401031823010.3488@slut.local.munted.org.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 03, 2004 at 06:27:42PM +0000, Alex Buell wrote:
+> On Sat, 3 Jan 2004, John Lash wrote:
+> > A couple of solutions come to mind. The one I like best would be to
+> > adjust the above code to make it conscious of the total memory in the
+> > system and keep nr_unused to a reasonable percentage. Another is to
+> > allow unused_ratio to be less than 1, Possibly some/proc entry to lower
+> > it (.5, .25, whatever), or to avoid the float, provide another parameter
+> > to do an integer divisor for unused_ratio. Something like:
+> > 
+> > 	nr_unused - nr_used * unused_ratio / ratio_fraction
+> 
+> That solution does seem be the best answer.
 
---=-dCo0TwhobuQ3NjIaOv01
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, 2004-01-03 at 02:53, Chris Shafer wrote:
-> On Sat, Dec 27, 2003 at 11:44:11AM +0000, Edward Tandi scrawled:
-> >=20
-> > Because it only happens in XMMS I thought it was one of those
-> > application bugs brought out by scheduler changes. I now use Zinf BTW
-> > -It's better for large music collections (although not as stable or
-> > flash).
->=20
-> Have you tried and see if it occurs with the ALSA output driver for XMMS.
-> Without the whole frag line set?
->=20
-
-That should work.  The chip used for the i8[67]5 boards used to behave
-like this, but apparently to somebody else on the list it was because
-it could not handle variable data lengths (could have the term wrong)
-written to it, and was fixed driver side - this is not maybe an issue
-for the sis based boards as well (using a realtek chip i think??) ?
-Meaning its chip/driver side, not OSS-emu side?
-
-
-Cheers,
-
---=20
-Martin Schlemmer
-
---=-dCo0TwhobuQ3NjIaOv01
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQA/90DYqburzKaJYLYRAp+TAJ9OALT/vmGb0J31+CSoNI/AZbywdwCcDODv
-v4wFbt1Pr3Ut4fkMmkEwpNU=
-=rK+S
------END PGP SIGNATURE-----
-
---=-dCo0TwhobuQ3NjIaOv01--
-
+Be sure to run your changes by roger luetger.  He's working with the
+problems with lowmem machines and 2.6.

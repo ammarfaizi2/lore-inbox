@@ -1,91 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbTLAHov (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 02:44:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTLAHov
+	id S261807AbTLAHyF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 02:54:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTLAHyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 02:44:51 -0500
-Received: from holomorphy.com ([199.26.172.102]:41416 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261812AbTLAHor (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 02:44:47 -0500
-Date: Sun, 30 Nov 2003 23:44:45 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: pgcl-2.6.0-test5-bk3-17
-Message-ID: <20031201074445.GH19856@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-References: <20031128041558.GW19856@holomorphy.com> <20031128072148.GY8039@holomorphy.com> <20031130164301.GK8039@holomorphy.com> <20031201073632.GQ8039@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031201073632.GQ8039@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Mon, 1 Dec 2003 02:54:05 -0500
+Received: from catv-50624ad9.szolcatv.broadband.hu ([80.98.74.217]:12188 "EHLO
+	catv-50624ad9.szolcatv.broadband.hu") by vger.kernel.org with ESMTP
+	id S261807AbTLAHx6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 02:53:58 -0500
+Message-ID: <3FCAF390.10202@freemail.hu>
+Date: Mon, 01 Dec 2003 08:53:52 +0100
+From: Boszormenyi Zoltan <zboszor@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.4.1) Gecko/20031030
+X-Accept-Language: hu, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: ACPI does not power off the machine automatically
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 30, 2003 at 11:36:32PM -0800, William Lee Irwin III wrote:
-> Stack decoding fixes, shutting up some compiler warnings, and dumping
-> PAGE_SIZE and MMUPAGE_SIZE into /proc/meminfo (for lack of a better place).
-> The printk()'s down there should eventually get ripped out anyway for
-> minimal impact and a quieter boot, but until then...
+Hi,
 
-This fixes some bad address calculations in arch/i386/mm/boot_ioremap.c
+I have a n ABit BP6 board with 2 Celeron/400MHz with the latest
+released version RU (beta) BIOS, it was released in 2000.
 
+I am running 2.6.0-test10-mm1 at present
+and it does not power off the machine. It writes
 
--- wli
+acpi_power_off called
 
+at the end and stops there. But when I press Alt+SysRQ+o,
+it switches off. 1 out of (maybe) 50 occasions, the machine
+can switch itself off automatically.
 
-diff -prauN pgcl-2.6.0-test11-7/arch/i386/mm/boot_ioremap.c pgcl-2.6.0-test11-8/arch/i386/mm/boot_ioremap.c
---- pgcl-2.6.0-test11-7/arch/i386/mm/boot_ioremap.c	2003-11-26 12:46:12.000000000 -0800
-+++ pgcl-2.6.0-test11-8/arch/i386/mm/boot_ioremap.c	2003-11-30 13:07:00.000000000 -0800
-@@ -31,7 +31,7 @@
- 
- #define BOOT_PTE_PTRS (PTRS_PER_PTE*2)
- #define boot_pte_index(address) \
--	     (((address) >> PAGE_SHIFT) & (BOOT_PTE_PTRS - 1))
-+	     (((address) >> MMUPAGE_SHIFT) & (BOOT_PTE_PTRS - 1))
- 
- static inline boot_pte_t* boot_vaddr_to_pte(void *address)
- {
-@@ -52,17 +52,17 @@ static void __boot_ioremap(unsigned long
- 	char *vaddr = virtual_source;
- 
- 	pte = boot_vaddr_to_pte(virtual_source);
--	for (i=0; i < nrpages; i++, phys_addr += PAGE_SIZE, pte++) {
--		set_pte(pte, pfn_pte(phys_addr>>PAGE_SHIFT, PAGE_KERNEL));
--		__flush_tlb_one(&vaddr[i*PAGE_SIZE]);
-+	for (i=0; i < nrpages; i++, phys_addr += MMUPAGE_SIZE, pte++) {
-+		set_pte(pte, pfn_pte(phys_addr>>MMUPAGE_SHIFT, PAGE_KERNEL));
-+		__flush_tlb_one(&vaddr[i*MMUPAGE_SIZE]);
- 	}
- }
- 
- /* the virtual space we're going to remap comes from this array */
- #define BOOT_IOREMAP_PAGES 4
--#define BOOT_IOREMAP_SIZE (BOOT_IOREMAP_PAGES*PAGE_SIZE)
-+#define BOOT_IOREMAP_SIZE (BOOT_IOREMAP_PAGES*MMUPAGE_SIZE)
- __initdata char boot_ioremap_space[BOOT_IOREMAP_SIZE] 
--		__attribute__ ((aligned (PAGE_SIZE)));
-+		__attribute__ ((aligned (MMUPAGE_SIZE)));
- 
- /*
-  * This only applies to things which need to ioremap before paging_init()
-@@ -83,11 +83,11 @@ __init void* boot_ioremap(unsigned long 
- 	last_addr = phys_addr + size - 1;
- 
- 	/* page align the requested address */
--	offset = phys_addr & ~PAGE_MASK;
--	phys_addr &= PAGE_MASK;
--	size = PAGE_ALIGN(last_addr) - phys_addr;
-+	offset = phys_addr & ~MMUPAGE_MASK;
-+	phys_addr &= MMUPAGE_MASK;
-+	size = MMUPAGE_ALIGN(last_addr) - phys_addr;
- 	
--	nrpages = size >> PAGE_SHIFT;
-+	nrpages = size >> MMUPAGE_SHIFT;
- 	if (nrpages > BOOT_IOREMAP_PAGES)
- 		return NULL;
- 	
+But it worked earlier, I don't know which kernel it was.
+
+I have to pass acpi=force to get ACPI working because of the
+BIOS date but it seems to work OK although I get some weird ACPI
+status messages during kernel boot. It writes something like
+\_PR_\CPU0 is missing from a (don't remember which) table.
+
+-- 
+Best regards,
+Zoltán Böszörményi
+
+---------------------
+What did Hussein say about his knife?
+One in Bush worth two in the hand.
+

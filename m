@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265004AbSKANoW>; Fri, 1 Nov 2002 08:44:22 -0500
+	id <S265024AbSKANki>; Fri, 1 Nov 2002 08:40:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265015AbSKANoW>; Fri, 1 Nov 2002 08:44:22 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:48902 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S265004AbSKANoV>; Fri, 1 Nov 2002 08:44:21 -0500
-Date: Fri, 1 Nov 2002 14:50:38 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Matthew Wilcox <willy@debian.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Where's the documentation for Kconfig?
-In-Reply-To: <20021101125226.B16919@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0211011439420.6949-100000@serv>
-References: <20021031134308.I27461@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.44.0210311452531.13258-100000@serv> <20021101125226.B16919@flint.arm.linux.org.uk>
+	id <S265025AbSKANki>; Fri, 1 Nov 2002 08:40:38 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:41934 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S265024AbSKANkg>;
+	Fri, 1 Nov 2002 08:40:36 -0500
+Message-ID: <3DC285D4.2040305@colorfullife.com>
+Date: Fri, 01 Nov 2002 14:47:00 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: might_sleep() in copy_{from,to}_user and friends?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Arnd wrote:
+> I have been looking for more places in 2.5 that can be marked 
+> might_sleep() and noticed that all the functions in asm/uaccess.h
+> are not marked although they sleep if the memory they access
+> has to be paged in.
+> 
 
-On Fri, 1 Nov 2002, Russell King wrote:
+Good idea.
+There is some abuse of __get_user to identify bad pointers:
+show_registers in the oops codepath, mm/slab.c in the /proc/slabinfo code.
 
-> Is there a tool to convert _a_ Config.in to a Kconfig?  lkcc doesn't
-> seem to do it - it wants to do thw hole lot, which isn't very useful
-> when you've got half a tree that's converted and many Config.in files
-> that contain updates that aren't in Kconfig.
+Could you omit the test from the __ versions?
 
-You could put it into arch/tmp/config.in and do 'lkcc tmp'.
-But converting the whole tree is the prefered solution, because lkcc needs 
-all the type information of every symbol used in the config file to do a 
-good job. The easiest solution is probably to get the 2.5.44 patch from my 
-page, generate a diff to your converted 2.5.44 tree and apply this patch 
-to 2.5.45. If you send me a 2.5.44 patch of your tree, I can do it for 
-you.
-
-bye, Roman
+--
+	Manfred
 

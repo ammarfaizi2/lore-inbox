@@ -1,74 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVCGEtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVCGEvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261550AbVCGEtd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 23:49:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVCGEtd
+	id S261619AbVCGEvj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 23:51:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVCGEvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 23:49:33 -0500
-Received: from nevyn.them.org ([66.93.172.17]:36819 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S261550AbVCGEt3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 23:49:29 -0500
-Date: Sun, 6 Mar 2005 23:49:20 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Roland McGrath <roland@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Cagney <cagney@redhat.com>
-Subject: Re: More trouble with i386 EFLAGS and ptrace
-Message-ID: <20050307044920.GA25093@nevyn.them.org>
-Mail-Followup-To: Roland McGrath <roland@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Cagney <cagney@redhat.com>
-References: <20050306221347.GA14194@nevyn.them.org> <200503070316.j273Gb4G027048@magilla.sf.frob.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503070316.j273Gb4G027048@magilla.sf.frob.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 6 Mar 2005 23:51:38 -0500
+Received: from smtp1.adl2.internode.on.net ([203.16.214.181]:64781 "EHLO
+	smtp1.adl2.internode.on.net") by vger.kernel.org with ESMTP
+	id S261619AbVCGEv2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 23:51:28 -0500
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
+Organization: IBM LTC
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: 2.6.11 breaks ALSA Intel AC97 audio
+Date: Mon, 7 Mar 2005 15:51:01 +1100
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org, Lars <lhofhansl@yahoo.com>
+References: <422A3C7F.3020501@yahoo.com> <200503071109.08641.michael@ellerman.id.au> <1110157756.29922.0.camel@mindpipe>
+In-Reply-To: <1110157756.29922.0.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1783252.XxF6h7Orfm";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200503071551.20365.michael@ellerman.id.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 06, 2005 at 07:16:37PM -0800, Roland McGrath wrote:
-> > I think mine is more correct; the problem doesn't occur because the
-> > debugger cancelled a signal, it occurs because a bogus TF bit was saved
-> > to the signal context.  I like keeping solutions close to their
-> > problems.  But that's just aesthetic.
-> 
-> I understand the scenario.  Understanding how it comes about made me
-> recognize there is another scenario that is also handled wrong.  
-> I didn't say the second scenario was what you are seeing.
-> 
-> Dan's patch covers the case of PTRACE_SINGLESTEP called to deliver a signal
-> that has a handler to run.  That's because there TF is set after the ptrace
-> stop, when it's resuming.  This is a "normalize register state" operation.
-> I think it would be a little clearer to do this in handle_signal where the
-> similar case of tweaking register state to back up a system call is done.
-> 
-> The patch I posted moves the resetting of TF from the trap handler to
-> ptrace_signal_deliver.  This is necessary to ensure that TF is not shown as
-> set in the registers retrieved by the debugger when the process stops for
-> something other than the single-step trap requested by PTRACE_SINGLESTEP.
+--nextPart1783252.XxF6h7Orfm
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Is this semantically different from the patch I posted, i.e. is there
-any case which one of them covers and not the other?
+Thanks Lee, that fixed it.
 
-> Here is a patch that does both of those things.  This had no effect on any
-> of the gdb testsuite cases (for good or ill) aside from sigstep.exp, and:
-> 
-> $ grep 'FAIL.*sigstep' testsuite/gdb.sum
-> KFAIL: gdb.base/sigstep.exp: finish from handleri; leave handler (could not set breakpoint) (PRMS: gdb/1736)
-> 
-> I don't know what that one is about, but it was KFAIL before the change too.
+On Mon, 7 Mar 2005 12:09, Lee Revell wrote:
+> On Mon, 2005-03-07 at 11:09 +1100, Michael Ellerman wrote:
+> > Hi Lars,
+> >
+> > Yeah I've got no audio on my T41, which I think uses the AC97 too. I
+> > haven't had time to look into it though :/
+>
+> Did you disable "Headphone Jack Sense" and "Line Jack Sense" in
+> alsamixer?
+>
+> Lee
 
-That is an inability to set breakpoints in the vsyscall page.  Andrew
-told me (last May, wow) that he thought this worked in Fedora, but I
-haven't seen any signs of the code.  It would certainly be a Good Thing
-if it is possible!
 
-> 
+--nextPart1783252.XxF6h7Orfm
+Content-Type: application/pgp-signature
 
--- 
-Daniel Jacobowitz
-CodeSourcery, LLC
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCK93IdSjSd0sB4dIRAszZAJ9ytaAUjOpLlzU2W+F2J50D3Kj11wCglyzt
+ue9Q32YdC8r8bTmUlyAzSk8=
+=azhZ
+-----END PGP SIGNATURE-----
+
+--nextPart1783252.XxF6h7Orfm--

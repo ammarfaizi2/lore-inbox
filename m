@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267468AbTBLSaP>; Wed, 12 Feb 2003 13:30:15 -0500
+	id <S267446AbTBLSf6>; Wed, 12 Feb 2003 13:35:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267487AbTBLSaP>; Wed, 12 Feb 2003 13:30:15 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:36113 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267468AbTBLSaO>; Wed, 12 Feb 2003 13:30:14 -0500
-Date: Wed, 12 Feb 2003 18:40:01 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Rick Warner <rick@sapphire.no-ip.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: support for dual independent keyboards in devel kernel?
-In-Reply-To: <200301251714.07510.rick@sapphire.no-ip.com>
-Message-ID: <Pine.LNX.4.44.0302121833480.31435-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267454AbTBLSf5>; Wed, 12 Feb 2003 13:35:57 -0500
+Received: from poup.poupinou.org ([195.101.94.96]:16429 "EHLO
+	poup.poupinou.org") by vger.kernel.org with ESMTP
+	id <S267446AbTBLSf4>; Wed, 12 Feb 2003 13:35:56 -0500
+Date: Wed, 12 Feb 2003 19:45:37 +0100
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: Dave Jones <davej@codemonkey.org.uk>, Adam Belay <ambx1@neo.rr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.20][2.5.60] /proc/interrupts comparsion - two irqs for i8042?
+Message-ID: <20030212184536.GD25632@poup.poupinou.org>
+References: <20030212155506.GA13038@codemonkey.org.uk> <Pine.LNX.4.44.0302121114150.211-100000@coredump.sh0n.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0302121114150.211-100000@coredump.sh0n.net>
+User-Agent: Mutt/1.4i
+From: Ducrot Bruno <poup@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 12, 2003 at 11:14:40AM -0500, Shawn Starr wrote:
+> 
+> Right but, why does this *not* show up in 2.4? IRQ 12 is free in 2.4 but
+> not in 2.5 *with* PS/2 mouse enabled?!
 
-> I have been doing some research on running 2 independent displays off of 1 
-> machine (ie 2 keyboards, 2 mice, 2 vid cards, 2 monitors).. there are some 
-> hacks out there now that "sort of" work.... but nothing stable and official.. 
-> it's all hacks....   I have read that support for this is planned for 
-> 2.5/2.6, and would like to know what progress has been done.  I am willing to 
-> help where I can.  I am a good C/C++ programmer, but have not done any kernel 
-> work so far.
+Because this interrupt is only requested when /dev/psaux is opened in 2.4.
 
-   You are talking about the linuxconsole project. Yes with alot of work 
-we got a multi-desktop system working. We even got several X servers with 
-several patches running on different desktops even tho they where working 
-out of one box. The main problem with this research was the console system 
-level of code was intertwine in each input and display driver. In 2.5.X 
-you see the moving of the console keyboards etc to the input api which can 
-function indepenedent of the console layer. You also had the same effect 
-with the new framebuffer layer. This was done to make driver writing easy 
-and to help the embedded space as well as prepare for the future 
-multi-desktop of linux. 
-   What has not been done is true multi-desktop support. I like to work on 
-this in the future but due to recent events in my life I have to abandon 
-such research :-(
-
+-- 
+Ducrot Bruno
+http://www.poupinou.org        Page profaissionelle
+http://toto.tu-me-saoules.com  Haume page

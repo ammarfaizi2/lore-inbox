@@ -1,86 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265570AbSJXRmm>; Thu, 24 Oct 2002 13:42:42 -0400
+	id <S265568AbSJXRh7>; Thu, 24 Oct 2002 13:37:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265571AbSJXRmm>; Thu, 24 Oct 2002 13:42:42 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:17899 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S265570AbSJXRml>; Thu, 24 Oct 2002 13:42:41 -0400
-From: Matthias Welk <matthias.welk@fokus.gmd.de>
-Organization: FhG-FOKUS
-To: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Subject: Re: [CFT] faster athlon/duron memory copy implementation
-Date: Thu, 24 Oct 2002 19:48:38 +0200
-User-Agent: KMail/1.4.7
-Cc: arjanv@redhat.com
-References: <3DB82ABF.8030706@colorfullife.com>
-In-Reply-To: <3DB82ABF.8030706@colorfullife.com>
+	id <S265569AbSJXRh7>; Thu, 24 Oct 2002 13:37:59 -0400
+Received: from [63.204.6.12] ([63.204.6.12]:404 "EHLO mail.somanetworks.com")
+	by vger.kernel.org with ESMTP id <S265568AbSJXRh5>;
+	Thu, 24 Oct 2002 13:37:57 -0400
+Date: Thu, 24 Oct 2002 13:44:06 -0400 (EDT)
+From: "Scott Murray" <scottm@somanetworks.com>
+X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
+To: Greg KH <greg@kroah.com>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       "KOCHI Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>, <jung-ik.lee@intel.com>,
+       <tony.luck@intel.com>, <pcihpd-discuss@lists.sourceforge.net>,
+       <linux-ia64@linuxia64.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Pcihpd-discuss] Re: PCI Hotplug Drivers for 2.5
+In-Reply-To: <20021024165411.GG22654@kroah.com>
+Message-ID: <Pine.LNX.4.33.0210241300220.10937-100000@rancor.yyz.somanetworks.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200210241948.38490.matthias.welk@fokus.fraunhofer.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 October 2002 19:15, Manfred Spraul wrote:
-> AMD recommends to perform memory copies with backward read operations
-> instead of prefetch.
+On Thu, 24 Oct 2002, Greg KH wrote:
+
+> On Thu, Oct 24, 2002 at 10:52:09AM -0400, Jeff Garzik wrote:
+> > Greg KH wrote:
+> > >I think we now all agree that resource management should move into a
+> > >place where it can be shared by all pci hotplug drivers, right?
+> > >
+> > >If so, anyone want to propose some common code?
+> >
+> >
+> > drivers/pci/setup* is not enough?
+> >
+> > I am surprised that anything needed to be added here...
 >
-> http://208.15.46.63/events/gdc2002.htm
->
-> Attached is a test app that compares several memory copy implementations.
-> Could you run it and report the results to me, together with cpu,
-> chipset and memory type?
->
-> Please run 2 or 3 times.
->
-> --
->     Manfred
+> There was some reason that code would not work out when I looked at it
+> over a year ago.  But I don't remember why, so I'll go look at it again,
+> thanks for pointing it out.
 
-Running on an Athlon XP2000+, ASUS A7V333, 768MB DDR2100:
+I don't know if you looked at my cPCI driver patch in detail, but it uses
+the setup-*.c code for all of its resource management.  The only things
+that were really missing in 2.4.x were:
 
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
+- exports of a few things, most notably pci_scan_bridge
+- code to update the resource windows of a newly added bridge (recursively)
+- a pci_write_bridge_bases
+- PCI resource reservation to allow hot insertion on dumb cPCI hardware
+- on x86, the smarts to work back to the root PCI bus to figure out the
+  IRQ pin to use when looking in the pirq table
 
-copy_page() tests
-copy_page function 'warm up run'         took 18132 cycles per page
-copy_page function '2.4 non MMX'         took 25200 cycles per page
-copy_page function '2.4 MMX fallback'    took 19369 cycles per page
-copy_page function '2.4 MMX version'     took 18078 cycles per page
-copy_page function 'faster_copy'         took 11343 cycles per page
-copy_page function 'even_faster'         took 11203 cycles per page
-copy_page function 'no_prefetch'         took 7814 cycles per page
-1019 [maw] (buruk) /tmp/athlon # athlon_test
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
+Since I've been swamped with other stuff, I just started finally porting
+my cPCI stuff to 2.5 yesterday. :(  I think I can get it up and running
+relatively quickly, but figuring out Ivan's newer hotplug helper code
+and how to take advantage of it might take me a couple of days.
 
-copy_page() tests
-copy_page function 'warm up run'         took 18081 cycles per page
-copy_page function '2.4 non MMX'         took 19487 cycles per page
-copy_page function '2.4 MMX fallback'    took 19403 cycles per page
-copy_page function '2.4 MMX version'     took 18086 cycles per page
-copy_page function 'faster_copy'         took 11372 cycles per page
-copy_page function 'even_faster'         took 11183 cycles per page
-copy_page function 'no_prefetch'         took 7815 cycles per page
-1020 [maw] (buruk) /tmp/athlon # athlon_test
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
+Scott
 
-copy_page() tests
-copy_page function 'warm up run'         took 18081 cycles per page
-copy_page function '2.4 non MMX'         took 19487 cycles per page
-copy_page function '2.4 MMX fallback'    took 19453 cycles per page
-copy_page function '2.4 MMX version'     took 18063 cycles per page
-copy_page function 'faster_copy'         took 11335 cycles per page
-copy_page function 'even_faster'         took 11154 cycles per page
-copy_page function 'no_prefetch'         took 8332 cycles per page
 
-Greeting, Matthias.
 -- 
----------------------------------------------------------------
-From: Matthias Welk                   office:  +49-30-3463-7272
-      FhG-FOKUS                       mobile:  +49-179- 1144752
-      Kaiserin-Augusta-Allee 31       fax   :  +49-30-3463-8672
-      10589 Berlin    email : matthias.welk@fokus.fraunhofer.de
----------------------------------------------------------------
-
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
 

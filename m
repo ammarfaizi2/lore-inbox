@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317371AbSFLXVT>; Wed, 12 Jun 2002 19:21:19 -0400
+	id <S317372AbSFLX1P>; Wed, 12 Jun 2002 19:27:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317372AbSFLXVS>; Wed, 12 Jun 2002 19:21:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17925 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317371AbSFLXVR>;
-	Wed, 12 Jun 2002 19:21:17 -0400
-Message-ID: <3D07D6A6.7090308@mandrakesoft.com>
-Date: Wed, 12 Jun 2002 19:17:58 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/00200205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: fxzhang@ict.ac.cn, linux-mips@oss.sgi.com, saw@saw.sw.com.sg,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: NAPI for eepro100
-In-Reply-To: <3D0740ED.2060907@ict.ac.cn>	<3D07D270.5060902@mandrakesoft.com> <20020612.160532.134201977.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317373AbSFLX1O>; Wed, 12 Jun 2002 19:27:14 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:56282 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S317372AbSFLX1O>;
+	Wed, 12 Jun 2002 19:27:14 -0400
+Date: Wed, 12 Jun 2002 16:27:14 -0700
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Re : ANN: Linux 2.2 driver compatibility toolkit
+Message-ID: <20020612162714.A24255@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <20020610174050.A21783@bougret.hpl.hp.com> <3D07D022.5030106@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
->    From: Jeff Garzik <jgarzik@mandrakesoft.com>
->    Date: Wed, 12 Jun 2002 19:00:00 -0400
->    
->    for the 'mips' patch, it looks 
->    like the arch maintainer(s) need to fix the PCI DMA support...
+On Wed, Jun 12, 2002 at 06:50:10PM -0400, Jeff Garzik wrote:
 > 
-> No, it's worse than that.
+> Sure, that would be fine too.
 > 
-> See how non-consistent memory is used by the eepro100 driver
-> for descriptor bits?  The skb->tail bits?
-> 
-> That is very problematic.
+> The main user demand has been for 2.4.x drivers on 2.2.x.  If there is 
+> demand for 2.0.x driver support or, what you describe, 2.5.x driver 
+> support on 2.[24].x, that's a good direction to head towards.  I haven't 
+> seen any requests for that from driver authors yet.
 
+	It seems that most of the 2.5.X construct are also available
+in 2.4.X, but 2.5.X obsolete some of the old 2.4.X construct (for
+example pci API).
+	For me, the problem between 2.5.X and 2.4.X is the USB API
+which has significantely changed (urb_submit anyone ?). I end up
+having two quite different version of irda-usb to maintain. But
+probably USB in 2.5.X. is too much a moving target for you to include
+in your package.
 
-Oh crap, you're right...   eepro100 in general does funky stuff with the 
-way packets are handled, mainly due to the need to issue commands to the 
-NIC engine instead of the normal per-descriptor owner bit way of doing 
-things.
+> I am sadly guilty of "NIH" in several cases, but actually this is not 
+> one of them :)  I think that kcompat24 provides a bit more of a complete 
+> compatibility package than the other solutions.  So, I would like to 
+> borrow code from pcmcia and other sources to make this toolkit even 
+> better.  (patches accepted! :))
 
-Well, I accept patches to that clean eepro100 up...   I'm not terribly 
-motivated to clean it up myself, as we have e100 and an e100 maintainer 
-we can beat on if such uglies arise :)
+	Actually, NIH works both ways (so don't take personally). It
+would be nice to have David Hinds using your package, because you
+would immediately gain a sizeable user base, and because a lot of
+Pcmcia drivers are both in the kernel and the Pcmcia package, and some
+pour souls attempt to keep them in sync.
+	For example, we currently have a unsatisfactory situation with
+the orinoco and airo drivers.
+	By the way, I didn't look in detail at kcompat24, but I
+guarantee you that the latest Pcmcia package has quite a complete
+solution.
 
-	Jeff
+> 	Jeff
 
+	Have fun...
 
-
+	Jean

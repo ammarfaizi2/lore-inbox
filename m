@@ -1,59 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262292AbVCVGg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbVCVGcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262292AbVCVGg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 01:36:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbVCVGgz
+	id S262295AbVCVGcT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 01:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262292AbVCVCDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 01:36:55 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:22944 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261825AbVCVGeV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 01:34:21 -0500
-Date: Tue, 22 Mar 2005 01:34:05 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andrew Morton <akpm@osdl.org>, Jamie Lokier <jamie@shareable.org>,
-       linux-kernel@vger.kernel.org, mingo@elte.hu,
-       Chris Morgan <cmorgan@alum.wpi.edu>, paul@linuxaudiosystems.com,
-       seto.hidetoshi@jp.fujitsu.com
-Subject: Re: kernel bug: futex_wait hang
-Message-ID: <20050322063405.GN32746@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <1111463950.3058.20.camel@mindpipe> <20050321202051.2796660e.akpm@osdl.org> <20050322044838.GB32432@mail.shareable.org> <20050321210802.14be70cc.akpm@osdl.org> <1111469453.3563.0.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1111469453.3563.0.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
+	Mon, 21 Mar 2005 21:03:55 -0500
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:23179 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262333AbVCVBfj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 20:35:39 -0500
+Message-Id: <20050322013458.457325000@abc>
+References: <20050322013427.919515000@abc>
+Date: Tue, 22 Mar 2005 02:24:03 +0100
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Content-Disposition: inline; filename=dvb-doc-oren-firmware.patch
+X-SA-Exim-Connect-IP: 217.231.55.169
+Subject: [DVB patch 30/48] OREN or51211, or51132_qam and or51132_vsb firmware download info
+X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 22, 2005 at 12:30:53AM -0500, Lee Revell wrote:
-> On Mon, 2005-03-21 at 21:08 -0800, Andrew Morton wrote:
-> > Jamie Lokier <jamie@shareable.org> wrote:
-> > > 
-> > > The most recent messages under "Futex queue_me/get_user ordering",
-> > > with a patch from Jakub Jelinek will fix this problem by changing the
-> > > kernel.  Yes, you should apply Jakub's most recent patch, message-ID
-> > > "<20050318165326.GB32746@devserv.devel.redhat.com>".
-> > > 
-> > > I have not tested the patch, but it looks convincing.
-> > 
-> > OK, thanks.  Lee && Paul, that's at
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/2.6.12-rc1-mm1/broken-out/futex-queue_me-get_user-ordering-fix.patch
-> > 
-> 
-> Does not fix the problem.
+o add OREN or51211, or51132_qam and or51132_vsb firmware
+o correct some links
 
-Have you analyzed the use of mutexes/condvars in the program?
-The primary suspect is a deadlock, race of some kind or other bug
-in the program.  All these will show up as a hang in FUTEX_WAIT.
-The argument that it works with LinuxThreads doesn't count,
-the timing and internals of both threading libraries are so different
-that a program bug can only show up with one of the threading libraries
-and not both.
-Only once you distill a minimal self-contained testcase that proves
-the program is correct and it gets analyzed, it is time to talk about
-NPTL or kernel bugs.
+Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
-	Jakub
+ contributors.txt |    3 +++
+ get_dvb_firmware |   50 +++++++++++++++++++++++++++++++++++++++++++++-----
+ readme.txt       |    7 ++++---
+ 3 files changed, 52 insertions(+), 8 deletions(-)
+
+Index: linux-2.6.12-rc1-mm1/Documentation/dvb/get_dvb_firmware
+===================================================================
+--- linux-2.6.12-rc1-mm1.orig/Documentation/dvb/get_dvb_firmware	2005-03-22 00:18:18.000000000 +0100
++++ linux-2.6.12-rc1-mm1/Documentation/dvb/get_dvb_firmware	2005-03-22 00:18:42.000000000 +0100
+@@ -22,14 +22,15 @@ use File::Temp qw/ tempdir /;
+ use IO::Handle;
+ 
+ @components = ( "sp8870", "sp887x", "tda10045", "tda10046", "av7110", "dec2000t",
+-		"dec2540t", "dec3000s", "vp7041", "dibusb", "nxt2002" );
++		"dec2540t", "dec3000s", "vp7041", "dibusb", "nxt2002",
++		"or51211", "or51132_qam", "or51132_vsb");
+ 
+ # Check args
+ syntax() if (scalar(@ARGV) != 1);
+ $cid = $ARGV[0];
+ 
+ # Do it!
+-for($i=0; $i < scalar(@components); $i++) {
++for ($i=0; $i < scalar(@components); $i++) {
+     if ($cid eq $components[$i]) {
+ 	$outfile = eval($cid);
+ 	die $@ if $@;
+@@ -122,9 +123,9 @@ sub tda10046 {
+ }
+ 
+ sub av7110 {
+-    my $sourcefile = "dvb-ttpci-01.fw-261c";
+-    my $url = "http://www.linuxtv.org/download/dvb/firmware/$sourcefile";
+-    my $hash = "7b263de6b0b92d2347319c65adc7d4fb";
++    my $sourcefile = "dvb-ttpci-01.fw-261d";
++    my $url = "http://www.linuxtv.org/downloads/firmware/$sourcefile";
++    my $hash = "603431b6259715a8e88f376a53b64e2f";
+     my $outfile = "dvb-ttpci-01.fw";
+ 
+     checkstandard();
+@@ -251,6 +252,45 @@ sub nxt2002 {
+     $outfile;
+ }
+ 
++sub or51211 {
++    my $fwfile = "dvb-fe-or51211.fw";
++    my $url = "http://linuxtv.org/downloads/firmware/$fwfile";
++    my $hash = "d830949c771a289505bf9eafc225d491";
++
++    checkstandard();
++
++    wgetfile($fwfile, $url);
++    verify($fwfile, $hash);
++
++    $fwfile;
++}
++
++sub or51132_qam {
++    my $fwfile = "dvb-fe-or51132-qam.fw";
++    my $url = "http://linuxtv.org/downloads/firmware/$fwfile";
++    my $hash = "7702e8938612de46ccadfe9b413cb3b5";
++
++    checkstandard();
++
++    wgetfile($fwfile, $url);
++    verify($fwfile, $hash);
++
++    $fwfile;
++}
++
++sub or51132_vsb {
++    my $fwfile = "dvb-fe-or51132-vsb.fw";
++    my $url = "http://linuxtv.org/downloads/firmware/$fwfile";
++    my $hash = "c16208e02f36fc439a557ad4c613364a";
++
++    checkstandard();
++
++    wgetfile($fwfile, $url);
++    verify($fwfile, $hash);
++
++    $fwfile;
++}
++
+ # ---------------------------------------------------------------
+ # Utilities
+ 
+Index: linux-2.6.12-rc1-mm1/Documentation/dvb/contributors.txt
+===================================================================
+--- linux-2.6.12-rc1-mm1.orig/Documentation/dvb/contributors.txt	2005-03-21 23:27:57.000000000 +0100
++++ linux-2.6.12-rc1-mm1/Documentation/dvb/contributors.txt	2005-03-22 00:18:42.000000000 +0100
+@@ -72,5 +72,8 @@ Kenneth Aafløy <ke-aa@frisurf.no>
+ Ernst Peinlich <e.peinlich@inode.at>
+   for tuning/DiSEqC support for the DEC 3000-s
+ 
++Peter Beutner <p.beutner@gmx.net>
++  for the IR code for the ttusb-dec driver
++
+ (If you think you should be in this list, but you are not, drop a
+  line to the DVB mailing list)
+Index: linux-2.6.12-rc1-mm1/Documentation/dvb/readme.txt
+===================================================================
+--- linux-2.6.12-rc1-mm1.orig/Documentation/dvb/readme.txt	2005-03-21 23:27:57.000000000 +0100
++++ linux-2.6.12-rc1-mm1/Documentation/dvb/readme.txt	2005-03-22 00:18:42.000000000 +0100
+@@ -5,8 +5,9 @@ The main development site and CVS reposi
+ drivers is http://linuxtv.org/.
+ 
+ The developer mailing list linux-dvb is also hosted there,
+-see http://linuxtv.org/mailinglists.xml. Please check
+-the archive http://linuxtv.org/mailinglists/linux-dvb/
++see http://linuxtv.org/lists.php. Please check
++the archive http://linuxtv.org/pipermail/linux-dvb/
++and the Wiki http://linuxtv.org/wiki/
+ before asking newbie questions on the list.
+ 
+ API documentation, utilities and test/example programs
+@@ -15,7 +16,7 @@ are available as part of the old driver 
+ We plan to split this into separate packages, but it's not
+ been done yet.
+ 
+-http://linuxtv.org/download/dvb/
++http://linuxtv.org/downloads/
+ 
+ What's inside this directory:
+ 
+
+--
+

@@ -1,97 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262424AbTD3VRa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 17:17:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbTD3VRa
+	id S261198AbTD3VWD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 17:22:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbTD3VWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 17:17:30 -0400
-Received: from granite.he.net ([216.218.226.66]:7436 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S262424AbTD3VR2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 17:17:28 -0400
-Date: Wed, 30 Apr 2003 14:31:41 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] More USB changes for 2.5.68
-Message-ID: <20030430213141.GA24995@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 30 Apr 2003 17:22:03 -0400
+Received: from fep02.superonline.com ([212.252.122.41]:14996 "EHLO
+	fep02.superonline.com") by vger.kernel.org with ESMTP
+	id S261198AbTD3VWB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 17:22:01 -0400
+Message-ID: <3EB0413D.2050200@superonline.com>
+Date: Thu, 01 May 2003 00:33:49 +0300
+From: "O.Sezer" <sezero@superonline.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: tr, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: alan@redhat.com, kernel@mandrakesoft.com
+Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-9; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+So far, so good...
 
-Here are some more USB changes and fixes for 2.5.68.  There are a few
-bugs fixed as found by the CHECKER project, and a usbnet driver rework
-and a few other minor changes.
+I can happily boot, halt, play some opengl games, perform my daily
+routines, etc.  This should also be related to the bug recorded at
+Mandrake-bugzilla: http://qa.mandrakesoft.com/show_bug.cgi?id=3198 .
+I also reported this to kernel@mandrakesoft.com .
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/linus-2.5
-
-Patches will be posted to linux-usb-devel as a follow-up thread for
-those who want to see them.
-
-thanks,
-
-greg k-h
+Regards;
+Özkan Sezer
 
 
- drivers/input/joystick/sidewinder.c |   11 +-
- drivers/input/misc/uinput.c         |   35 ++++---
- drivers/usb/Makefile                |    1 
- drivers/usb/core/urb.c              |   31 +++++-
- drivers/usb/host/uhci-hcd.c         |   13 +-
- drivers/usb/input/usbkbd.c          |    3 
- drivers/usb/input/usbmouse.c        |    3 
- drivers/usb/media/vicam.c           |    5 -
- drivers/usb/net/Kconfig             |  175 +++++++++++++++++++++++++++---------
- drivers/usb/net/Makefile            |    1 
- drivers/usb/net/usbnet.c            |  113 +++++++++++++++--------
- drivers/usb/serial/empeg.c          |    4 
- drivers/usb/serial/io_edgeport.c    |    6 -
- drivers/usb/serial/ipaq.c           |    2 
- drivers/usb/serial/keyspan.c        |    4 
- drivers/usb/serial/usb-serial.h     |    2 
- drivers/usb/storage/unusual_devs.h  |   33 ++++++
- include/linux/usb.h                 |    3 
- 18 files changed, 321 insertions(+), 124 deletions(-)
------
+-------- Original Message --------
+Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
+Date: Wed, 30 Apr 2003 21:58:42 +0300
+From: O.Sezer <sezero@superonline.com>
+To: linux-kernel@vger.kernel.org
+CC: alan@lxorguk.ukuu.org.uk,  kernel@mandrakesoft.com
 
-<ccheney@cheney.cx>:
-  o USB: vicam.c copyright patches
+For the record:
 
-<gj@pointblue.com.pl>:
-  o USB: fix usbkbd.c compilation error
+This patch posted by Adam Mercer solved my previously reported
+problem about the mmio clash of CDM680 and GeForce3-Ti200 / 128MB
+(see thread: "IDE siimage Problem" at:
+   http://marc.theaimsgroup.com/?l=linux-kernel&m=104773593910239&w=2
+   disscussed offlist with Alan).
+Very preliminary testing (no modules built, no initrd, only the
+vmlinuz) did not show any mmio clash and boot was fine.
+Dmesg and syslog files (gzipped) are attached. I may/will report
+more results upon more testing if/when necessary.
 
-<james@superbug.demon.co.uk>:
-  o USB: Add support for Pentax Still Camera to linux kernel
+Regards,
+Özkan Sezer
 
-<joe@perches.com>:
-  o USB: fix up usb.h's dbg macro to take up less space
-  o USB: fix up usb_serial.h's dbg macro to take up less space
-  o USB: fix up usbnet's macros for older compilers
-
-<linux-usb@gemeinhardt.info>:
-  o USB: add support for Mello MP3 Player
-
-Alan Stern <stern@rowland.harvard.edu>:
-  o USB: Minor patch for uhci-hcd.c
-
-David Brownell <david-b@pacbell.net>:
-  o USB: usbnet, config changes for CDC Ether
-
-Greg Kroah-Hartman <greg@kroah.com>:
-  o USB: add comment to storage/unusual_devs.h that specifies how to add new entries
-  o USB: added support for Sony DSC-P8
-  o USB: create usb_init_urb() for those people who like to live dangerously (like the bluetooth stack.)
-  o USB: fix CHECKER found bug in the keyspan.c driver
-  o USB: fix CHECKER found bug in the ipaq.c driver
-  o USB: fix CHECKER found bug in the io_edgeport.c driver
-  o USB: fix CHECKER found bug in the empeg.c driver
-
-Randy Dunlap <randy.dunlap@verizon.net>:
-  o uinput.c: reduce stack usage
-  o sidewinder: reduce stack usage
 

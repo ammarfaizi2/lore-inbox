@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbTIOOft (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 10:35:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbTIOOfs
+	id S261434AbTIOOho (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 10:37:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbTIOOho
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 10:35:48 -0400
-Received: from dp.samba.org ([66.70.73.150]:26756 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261429AbTIOOfj (ORCPT
+	Mon, 15 Sep 2003 10:37:44 -0400
+Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:14094 "EHLO
+	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
+	id S261434AbTIOOhn convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 10:35:39 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Felipe W Damasio <felipewd@terra.com.br>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jamie Lokier <jamie@shareable.org>
-Subject: Re: [PATCH] kernel/futex.c: Uneeded memory barrier 
-In-reply-to: Your message of "Fri, 12 Sep 2003 15:33:04 -0300."
-             <3F621160.5020502@terra.com.br> 
-Date: Mon, 15 Sep 2003 19:39:13 +1000
-Message-Id: <20030915143538.009B32C0C3@lists.samba.org>
+	Mon, 15 Sep 2003 10:37:43 -0400
+Subject: Re: 2.6.0-test5-mm2
+From: Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, rusty@rustcorp.com.au
+In-Reply-To: <20030914234843.20cea5b3.akpm@osdl.org>
+References: <20030914234843.20cea5b3.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: Governo Eletronico - SP
+Message-Id: <1063636490.5588.10.camel@lorien>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 15 Sep 2003 11:34:51 -0300
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3F621160.5020502@terra.com.br> you write:
-> >     Kills an unneeded set_current_state after schedule_timeout, since it 
-> > already guarantees that the task will be TASK_RUNNING.
+Em Seg, 2003-09-15 às 03:48, Andrew Morton escreveu:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test5/2.6.0-test5-mm2/
 
-In fact, furthur cleanups are possible.
+net/ipv4/ip_input.c: In function `ip_local_deliver_finish':
+net/ipv4/ip_input.c:204: invalid suffix on integer constant
+net/ipv4/ip_input.c:204: syntax error before numeric constant
+make[2]: ** [net/ipv4/ip_input.o] Error 1
+make[1]: ** [net/ipv4] Error 2
+make: ** [net] Error 2
 
-Thanks!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+ this happens when CONFIG_NETFILTER_DEBUG is set. The line with
+the problem are here:
 
-Name: Clean up futex task state setting
-Author: Rusty Russell, Felipe W Damasio <felipewd@terra.com.br>
-Depends: Misc/futex-jamie-plus1.patch.gz
-Status: Trivial
+#ifdef CONFIG_NETFILTER_DEBUG
+        nf_debug_ip_local_deliver(skb);
+        skb->nf_debug =3D 0;
+#endif /*CONFIG_NETFILTER_DEBUG*/
 
-D: Felipe points out that set_task_state is overkill.  In fact,
-D: futex_lock protects us so we can set if after the queued test,
-D: simplifying the whole function slightly
+ in the skb->nf_debug.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7327-2.6.0-test5-bk3-futex-task_state.pre/kernel/futex.c .7327-2.6.0-test5-bk3-futex-task_state/kernel/futex.c
---- .7327-2.6.0-test5-bk3-futex-task_state.pre/kernel/futex.c	2003-09-15 19:37:14.000000000 +1000
-+++ .7327-2.6.0-test5-bk3-futex-task_state/kernel/futex.c	2003-09-15 19:37:14.000000000 +1000
-@@ -374,20 +374,16 @@ static int futex_wait(unsigned long uadd
- 	 */
- 	add_wait_queue(&q.waiters, &wait);
- 	spin_lock(&futex_lock);
--	set_current_state(TASK_INTERRUPTIBLE);
- 
- 	if (unlikely(list_empty(&q.list))) {
--		/*
--		 * We were woken already.
--		 */
-+		/* We were woken already. */
- 		spin_unlock(&futex_lock);
--		set_current_state(TASK_RUNNING);
- 		return 0;
- 	}
- 
-+	__set_current_state(TASK_INTERRUPTIBLE);
- 	spin_unlock(&futex_lock);
- 	time = schedule_timeout(time);
--	set_current_state(TASK_RUNNING);
- 
- 	/*
- 	 * NOTE: we don't remove ourselves from the waitqueue because
+-- 
+Luiz Fernando N. Capitulino
+
+<lcapitulino@prefeitura.sp.gov.br>
+<http://www.telecentros.sp.gov.br>
+

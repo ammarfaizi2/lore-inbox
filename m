@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbUK2Enu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbUK2E5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbUK2Enu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 23:43:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbUK2Ent
+	id S261627AbUK2E5M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 23:57:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbUK2E5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 23:43:49 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:54386 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261623AbUK2Ens (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 23:43:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:return-path:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
-        b=j2mvMbM0RcFZhSU3ngortwceeakwiXpE2hSTpF3p0TCLlgqHjkScSlQaXw4Ctj7bl35W3vpF6g8tRtbpEnUPG0oqsXNDi7QB/pPPFYeIcJiWCy6jWdMew0cYcEE1+BzdNIYfX6waiVApR/hPE0ZFxHfzWLTVadELgToCrgxxOec=
-Message-ID: <41AAA94E.8090001@gmail.com>
-Date: Mon, 29 Nov 2004 06:45:02 +0200
-From: Matan Peled <chaosite@gmail.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jim Nelson <james4765@verizon.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Question about /dev/mem and /dev/kmem
-References: <41AA9E26.4070105@verizon.net>
-In-Reply-To: <41AA9E26.4070105@verizon.net>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 28 Nov 2004 23:57:12 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15563 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261627AbUK2E5J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 23:57:09 -0500
+Date: Mon, 29 Nov 2004 04:57:06 +0000
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       Greg KH <greg@kroah.com>, David Woodhouse <dwmw2@infradead.org>,
+       Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
+       hch@infradead.org, aoliva@redhat.com, linux-kernel@vger.kernel.org,
+       libc-hacker@sources.redhat.com, Mariusz Mazur <mmazur@kernel.pl>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+Message-ID: <20041129045705.GM26051@parcelfarce.linux.theplanet.co.uk>
+References: <19865.1101395592@redhat.com> <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk> <1101406661.8191.9390.camel@hades.cambridge.redhat.com> <20041127032403.GB10536@kroah.com> <16810.24893.747522.656073@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org> <41AAA746.5000003@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41AAA746.5000003@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Nelson wrote:
+On Sun, Nov 28, 2004 at 11:36:22PM -0500, Jeff Garzik wrote:
+> If people want to go beyond that, IMHO it would be simple and easy to 
+> start putting new kernel headers in include/kernel (or somesuch).  That 
+> way there are no massive reorganizations; kernel-specific stuff gets 
+> slowly migrated to a kernel-specific area.
 
- > I was looking at some articles about rootkits on monolithic kernels, 
-and had a thought.  Would a kernel config option to disable write > 
-access to /dev/mem and /dev/kmem be a workable idea?
-
-
-Yes, its a workable idea, and in fact, has already been implemented in 
-grsecurity.
-
-http://www.grsecurity.net/features.php
-
+ITYM "to areas where it actually gets used".  A _lot_ in include/* is
+used only by a couple of drivers and should've been sitting in
+drivers/*/* instead.

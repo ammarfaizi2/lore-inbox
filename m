@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285671AbRLGXiu>; Fri, 7 Dec 2001 18:38:50 -0500
+	id <S285661AbRLGXmm>; Fri, 7 Dec 2001 18:42:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285672AbRLGXil>; Fri, 7 Dec 2001 18:38:41 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:41161 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S285671AbRLGXig>;
-	Fri, 7 Dec 2001 18:38:36 -0500
-From: David Mosberger <davidm@hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15377.21231.897410.355714@napali.hpl.hp.com>
-Date: Fri, 7 Dec 2001 15:38:23 -0800
+	id <S285670AbRLGXmc>; Fri, 7 Dec 2001 18:42:32 -0500
+Received: from zero.tech9.net ([209.61.188.187]:5382 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S285661AbRLGXmP>;
+	Fri, 7 Dec 2001 18:42:15 -0500
+Subject: Re: Linux 2.4.17-pre6 drm-4.0
+From: Robert Love <rml@tech9.net>
 To: Keith Owens <kaos@ocs.com.au>
 Cc: linux-ia64@linuxia64.org, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-ia64] Linux 2.4.17-pre6 drm-4.0
-In-Reply-To: <4494.1007767210@ocs3.intra.ocs.com.au>
-In-Reply-To: <4494.1007767210@ocs3.intra.ocs.com.au>
-X-Mailer: VM 6.76 under Emacs 20.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+In-Reply-To: <4719.1007767953@ocs3.intra.ocs.com.au>
+In-Reply-To: <4719.1007767953@ocs3.intra.ocs.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.06.08.57 (Preview Release)
+Date: 07 Dec 2001 18:42:10 -0500
+Message-Id: <1007768531.12114.2.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Sat, 08 Dec 2001 10:20:10 +1100, Keith Owens <kaos@ocs.com.au> said:
+On Fri, 2001-12-07 at 18:32, Keith Owens wrote:
+> On 07 Dec 2001 18:27:11 -0500, Robert Love <rml@tech9.net> wrote:
 
-  Keith> On Fri, 7 Dec 2001 19:38:23 -0200 (BRST), Marcelo Tosatti
-  Keith> <marcelo@conectiva.com.br> wrote:
-  >> pre6: - direct render for some SiS cards (Torsten Duwe/Alan Cox)
+> >For 2.5, there probably is no intention of keeping that around.  But can
+> >we honestly ditch it in the middle of a stable kernel?  Personally I
+> >don't use it, but its not polite ...
 
-  Keith> IA64 is still using the drm-4.0 code, as are the (possibly
-  Keith> obsolete) -ac kernels.  The drm 4.0 makefiles are a pain in
-  Keith> the neck and I want to get rid of them asap.  The SiS direct
-  Keith> render is only for drm 4.1 so now is a good time to question
-  Keith> if 4.0 is still required.
+> Linus ditched drm 4.0 months ago.  It only survives in arch add on
+> patches like ia64 and in -ac trees.
 
-  Keith> How long do people plan to keep drm 4.0 code in their
-  Keith> versions of the kernel?
+I know.  I meant we should continue to support the drm-4.0 package. 
+It's the usual song ... we shouldn't change interfaces or required tools
+in a stable series, and the least we can do is make 4.0 available
+somehow, because someone may rely on it.
 
-You mean for 2.5?  I don't think there is a good reason to keep
-drm-4.0 there.  For 2.4, we should keep it because there might be
-folks out there that rely on it.
+On the flip side, I don't care, and I suspect the people who actually
+are using DRM are on 4.1 now.  Further, if _you_ are maintaining the
+cruft and it bothers _you_, then stop :)
 
-	--david
+	Robert Love
+

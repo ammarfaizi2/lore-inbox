@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135939AbREGGkD>; Mon, 7 May 2001 02:40:03 -0400
+	id <S136020AbREGGsq>; Mon, 7 May 2001 02:48:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136017AbREGGjw>; Mon, 7 May 2001 02:39:52 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:1799 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S135939AbREGGjn>; Mon, 7 May 2001 02:39:43 -0400
-Date: 07 May 2001 08:37:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <80OKvFpXw-B@khms.westfalen.de>
-In-Reply-To: <9d4ut6$9b9$1@cesium.transmeta.com>
-Subject: Re: [PATCH] for iso8859-13
-X-Mailer: CrossPoint v3.12d.kh6 R/C435
-MIME-Version: 1.0
+	id <S136024AbREGGs0>; Mon, 7 May 2001 02:48:26 -0400
+Received: from deliverator.sgi.com ([204.94.214.10]:41587 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S136020AbREGGsV>; Mon, 7 May 2001 02:48:21 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Maciek Nowacki <maciek@Voyager.powersurfr.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: scripts/Configure patch for automatic module compile 
+In-Reply-To: Your message of "Mon, 07 May 2001 00:34:13 CST."
+             <20010507003413.A28246@megabyte> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <9d4ut6$9b9$1@cesium.transmeta.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Date: Mon, 07 May 2001 16:48:02 +1000
+Message-ID: <11351.989218082@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hpa@zytor.com (H. Peter Anvin)  wrote on 06.05.01 in <9d4ut6$9b9$1@cesium.transmeta.com>:
+On Mon, 7 May 2001 00:34:13 -0600, 
+Maciek Nowacki <maciek@Voyager.powersurfr.com> wrote:
+>If you're like me, you build everything as modules, boot with an initrd that
+>loads in the disk or net driver and filesystem module, and then let kmod take
+>care of the rest. Here's a patch that changes Configure (make config) to
+>build all possible modules - in other words, to answer 'M' for every tristate
+>of some form y/m/n.
 
-> Followup to:  <200105062104.XAA24831@green.mif.pg.gda.pl>
-> By author:    Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-> In newsgroup: linux.dev.kernel
-> >
-> > Hi,
-> >    The following patch removed unused and broken conversion table from
-> > nls_iso8859-13.c.
-> >
->
-> Wouldn't it make a heck of a lot more sense if we had a preprocessor
-> which could produce these kinds of tables from a more sensible input
-> format (preferrably one which is already in use somewhere.)
+I already have a patch from Ghozlane Toumi in my inbox that supports:
 
-For example from the tables on the Unicode webserver or from the IBM  
-charset registry ...
+make randconfig
+  answers randomly to the questions .
 
+make allyes
+  answers 'yes' to all questions .
 
-MfG Kai
+make allno
+  answers 'no' to all questions .
+
+make allmod
+  answer 'm' if avaiable, 'yes' else .
+
+Plus you can specify defaults in .force_default which will always be
+honoured.  I have been using it to stress test the 2.4.4 configs and my
+2.5 makefile rewrite, it works very nicely.
+

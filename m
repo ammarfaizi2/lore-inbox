@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268276AbUBRWU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 17:20:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268288AbUBRWUz
+	id S264874AbUBRX1U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 18:27:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266944AbUBRXZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 17:20:55 -0500
-Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:14424 "HELO
-	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268276AbUBRWUy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 17:20:54 -0500
-From: tabris <tabris@tabris.net>
-To: Bernhard Rosenkraenzer <bero@arklinux.org>
-Subject: Re: 2.4.25-pac1
-Date: Wed, 18 Feb 2004 17:17:24 -0500
-User-Agent: KMail/1.5.3
-References: <Pine.LNX.4.58.0402181655210.19729@dot.kde.org>
-In-Reply-To: <Pine.LNX.4.58.0402181655210.19729@dot.kde.org>
+	Wed, 18 Feb 2004 18:25:21 -0500
+Received: from mail.kroah.org ([65.200.24.183]:9377 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266681AbUBRXZE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 18:25:04 -0500
+Date: Wed, 18 Feb 2004 15:24:50 -0800
+From: Greg KH <greg@kroah.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] move CONFIG_HOTPLUG to kernel/Kconfig.hotplug
+Message-ID: <20040218232450.GA6521@kroah.com>
+References: <200402150157.05808.bzolnier@elka.pw.edu.pl> <20040216233911.GB23911@kroah.com> <200402170230.38839.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402181717.24810.tabris@tabris.net>
+In-Reply-To: <200402170230.38839.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 18 February 2004 10:57 am, Bernhard Rosenkraenzer wrote:
-> $SUBJECT is released, and can be found at
-> ftp://ftp.kernel.org/pub/linux/kernel/people/bero/2.4/2.4.25/
->
-> Changes since 2.4.25-rc1-pac1:
-> - Port to current code
-> - Fix ACPI poweroff on some systems (Willy Tarreau)
-is the nfs problem fixed?
->
-> LLaP
-> bero
+On Tue, Feb 17, 2004 at 02:30:38AM +0100, Bartlomiej Zolnierkiewicz wrote:
+> On Tuesday 17 of February 2004 00:39, Greg KH wrote:
+> > On Sun, Feb 15, 2004 at 01:57:05AM +0100, Bartlomiej Zolnierkiewicz wrote:
+> > > I've also noticed that some archs (cris, h8300, m68k and sparc) don't
+> > > have HOTPLUG in their Kconfig files, shame on you - no udev for you 8).
+> > >
+> > > BTW maybe HOTPLUG should be moved from "Bus options" to "General setup"?
+> >
+> > I agree, it should go there, as it affects so much more these days than
+> > "bus options".
+> >
+> > Care to make that change instead?
+> 
+> Done.  I put HOTPLUG between SYSCTL and IKCONFIG.
+> 
+> --bart
+> 
+> 
+> [PATCH] move CONFIG_HOTPLUG to init/Kconfig
+> 
+> As a bonus: cris, h8300, m68k and sparc can use CONFIG_HOTPLUG now.
 
--- 
-Two heads are better than one.
-		-- John Heywood
+Looks good, I've applied this, thanks.
 
+greg k-h

@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUFNOis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262837AbUFNOov@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263159AbUFNOis (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 10:38:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUFNOis
+	id S262837AbUFNOov (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 10:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbUFNOov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 10:38:48 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:19766 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S263159AbUFNOip
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 10:38:45 -0400
-Message-ID: <40CDB871.6070408@microgate.com>
-Date: Mon, 14 Jun 2004 09:38:41 -0500
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: areversat@tuxfamily.org
-CC: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Badness in local_bh_enable with eciadsl driver and kernel 2.6
-References: <1087145610.2266.1.camel@hosts>	 <1087146654.2517.1.camel@doobie.pipehead.org> <1087221214.2270.6.camel@hosts>
-In-Reply-To: <1087221214.2270.6.camel@hosts>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Jun 2004 10:44:51 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:15833 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262389AbUFNOot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 10:44:49 -0400
+Date: Mon, 14 Jun 2004 15:44:48 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [PATCH] IDE update for 2.6.7-rc3 [1/12]
+Message-ID: <20040614144448.GA21851@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+	greg@kroah.com
+References: <200406111750.30312.bzolnier@elka.pw.edu.pl> <200406131936.08338.bzolnier@elka.pw.edu.pl> <20040614095835.GA11585@infradead.org> <200406141636.01353.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406141636.01353.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-areversat wrote:
-> Ok someone tried the patch for me (i don't have the modem here). And it
-> seems to work just fine : it removes the message i reported. It may need
-> more extensive tests but it would be nice to think about including it to
-> the kernel.
+On Mon, Jun 14, 2004 at 04:36:01PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > Are you sure?  I've seen piix3/4 in very strange place, iirc even in
+> > a docking station which is hotpluggable.
+> 
+> Do you mean that south-bridge chipset itself is hotpluggable?
+> 
+> AFAIK it is only ATA hotplug not PCI one.
 
-This patch is well tested and understood and I'm confident
-it will be accepted. But Linus indicated 2.6.7-rc is closed
-to new stuff so I have not pushed it to Andrew yet.
+that thingy had an ide controller that was hotpluggable in the dockingstation.
+And IIRC it was a piix4 with everything but ide and superio disabled.
 
-2.6.8 seems likely.
-
---
-Paul Fulghum
-paulkf@microgate.com

@@ -1,78 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262464AbVCCUie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262517AbVCCVYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262464AbVCCUie (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 15:38:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVCCUfl
+	id S262517AbVCCVYm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 16:24:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVCCVPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 15:35:41 -0500
-Received: from mail.kroah.org ([69.55.234.183]:43911 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262212AbVCCUc2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 15:32:28 -0500
-Date: Thu, 3 Mar 2005 12:32:06 -0800
-From: Greg KH <greg@kroah.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Rene Rebe <rene@exactcode.de>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/ Altivec
-Message-ID: <20050303203206.GB13522@kroah.com>
-References: <422751D9.2060603@exactcode.de> <422756DC.6000405@pobox.com> <20050303191840.GA12916@kroah.com> <42276A0C.9080505@pobox.com> <20050303200718.GR28536@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050303200718.GR28536@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.8i
+	Thu, 3 Mar 2005 16:15:24 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44461 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262398AbVCCVHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 16:07:32 -0500
+Message-ID: <42277C81.4010302@pobox.com>
+Date: Thu, 03 Mar 2005 16:07:13 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: tglx@linutronix.de
+CC: Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       Greg KH <greg@kroah.com>, "David S. Miller" <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: RFD: Kernel release numbering
+References: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>	 <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>	 <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>	 <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>	 <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com>	 <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>	 <20050303170808.GG4608@stusta.de>	 <1109877336.4032.47.camel@tglx.tec.linutronix.de>	 <Pine.LNX.4.58.0503031135190.25732@ppc970.osdl.org>	 <42276AF5.3080603@pobox.com> <1109882043.4032.79.camel@tglx.tec.linutronix.de>
+In-Reply-To: <1109882043.4032.79.camel@tglx.tec.linutronix.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 03, 2005 at 12:07:18PM -0800, Chris Wright wrote:
-> * Jeff Garzik (jgarzik@pobox.com) wrote:
-> > Greg KH wrote:
-> > 
-> > Two procedural suggestions...
-> > 
-> > >Ok, I've fixed up the patch and applied it to a local tree that I've set
-> > >up to catch these things (it will live at
-> > >bk://kernel.bkbits.net:gregkh/linux-2.6.11.y until Chris Wright and I
-> > >set up how we are going to handle all of this.)
-> > 
-> > My suggestion would be one of two alternatives:
-> > 
-> > 1) At each release, Linus clones
-> > 	linux.bkbits.net/linux-2.6
-> > 		to
-> > 	linux.bkbits.net/linux-2.6.11
-> > 
-> > and gives the "release team" access to push to linux-2.6.11 repo.
-> 
-> My recollection of the bkbits interface is that it's keys are good for a
-> "project" dir.  So I don't know if it would work like you suggested.
-> 
-> > 2) Create linux-release.bkbits.net, and some non-Linus person clones 
-> > linux-2.6 at release time to linux-2.6.11.
-> 
-> This is closer to what I suggested to Greg (although I like your name
-> better).
+As a further elaboration...
 
-I like this too, less work for Linus to do this.
+The problem with the current 2.6-rc setup is a _human_ _communications_ 
+problem.
 
-Ok, linux-release.bkbits.net is now created.
+Users have been trained in a metaphor that is applied uniformly across 
+all software projects that use the metaphor:
 
-> > >Feel free to start pointing stuff like this at me and chris (we'll also
-> > >be setting up an alias for it.)
-> > 
-> > I was wondering if it would be possible to setup a list on vger that is 
-> > public, but read-only to everyone but the $sucker team.
+	test release:		a useful merge/testing point
+	release candidate:	bugfixes only, test test test
 
-So, the $sucker team can't read it, but the rest of the world could?  :)
+Linux does it differently.
 
-> Don't see why not, we were thinking of making it just an alias at
-> kernel.org.
+It's hard enough to get users to test...   now we have raised the 
+barrier even higher by abusing a common metaphor.  A metaphor that is 
+used _succesfully_ elsewhere to get users to test.
 
-An alias would probably be easier, unless you think everything sent
-there should be archived?
+"release candidate" is a promise to users that the current tree is close 
+to what the release will look like, and only major fixes will appear 
+between -rc and -final.
 
-thanks,
+We broke that promise.  In human interface terms, this is like 
+redefining the "garbage can" icon to mean "save your work."  ;-)
 
-greg k-h
+	Jeff
+
+
+

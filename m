@@ -1,69 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263985AbUDQNLz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 09:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263982AbUDQNLv
+	id S263980AbUDQNrN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 09:47:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263982AbUDQNrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 09:11:51 -0400
-Received: from smtprelay01.ispgateway.de ([62.67.200.156]:5292 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S263973AbUDQNL0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 09:11:26 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RELEASE]: megaraid unified driver version 2.20.0.B1
-Date: Sat, 17 Apr 2004 15:11:17 +0200
-User-Agent: KMail/1.6
-Cc: "Mukker, Atul" <Atulm@lsil.com>, "'Jeff Garzik'" <jgarzik@pobox.com>,
-       "Bagalkote, Sreenivas" <sreenib@lsil.com>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Matt_Domsch@dell.com'" <Matt_Domsch@dell.com>,
-       "'paul@kungfoocoder.org'" <paul@kungfoocoder.org>,
-       "'James.Bottomley@SteelEye.com'" <James.Bottomley@SteelEye.com>,
-       "'arjanv@redhat.com'" <arjanv@redhat.com>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-References: <0E3FA95632D6D047BA649F95DAB60E57033BC544@exa-atlanta.se.lsil.com>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57033BC544@exa-atlanta.se.lsil.com>
+	Sat, 17 Apr 2004 09:47:13 -0400
+Received: from mlf.linux.rulez.org ([192.188.244.13]:26890 "EHLO
+	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S263980AbUDQNrH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 09:47:07 -0400
+Date: Sat, 17 Apr 2004 15:47:04 +0200 (MEST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Dave Jones <davej@redhat.com>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, linux-ntfs-dev@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: NTFS null dereference x2
+Message-ID: <Pine.LNX.4.21.0404171505580.30107-100000@mlf.linux.rulez.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200404171511.18070.ioe-lkml@rameria.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Hi,
+Dave Jones <davej@redhat.com> wrote:
 
-On Saturday 17 April 2004 08:40, Mukker, Atul wrote:
-> > Typically, one includes a simple counter to ensure the loop is not 
-> > infinite...
-> > 
-> > 	while (condition && (counter-- > 0))
-> > 		cpu_relax()
-> > 
-> The hard part is arriving at the counter value. Given that this driver might
-> run on a 700MHz singe cpu, one of my test servers :-( or a 3.2GHz SMP server
-> - the typical counter value is difficult to set. But you are right, we
-> should find out the typical time a cpu would take to execute so many
-> iterations and base counter value over it.
+> if vol is NULL, everything falls apart..
 
-Then you might use a udelay(1) instead. This should equalize this
-effect, no?
+AFAIS, neither vol nor vol->sb can be NULL below. The !vol check, that
+fooled you or an automatic checker, is bogus and probably it slipped
+through the user space library, thanks.
 
+Please note, by the patch you would introduce a real bug when you
+dereference the now uninitialized sb to assign a value to block_size.
 
-Regards
+	Szaka
 
-Ingo Oeser
+> --- linux-2.6.5/fs/ntfs/attrib.c~     2004-04-16 22:45:53.000000000 +0100
+> +++ linux-2.6.5/fs/ntfs/attrib.c      2004-04-16 22:46:47.000000000 +0100
+> @@ -1235,16 +1235,19 @@
+>       u8 *al_end = al + initialized_size;
+>       run_list_element *rl;
+>       struct buffer_head *bh;
+> -     struct super_block *sb = vol->sb;
+> +     struct super_block *sb;
+>       unsigned long block_size = sb->s_blocksize;
+>       unsigned long block, max_block;
+>       int err = 0;
+> -     unsigned char block_size_bits = sb->s_blocksize_bits;
+> +     unsigned char block_size_bits;
+>
+>       ntfs_debug("Entering.");
+>       if (!vol || !run_list || !al || size <= 0 || initialized_size < 0 ||
+>                       initialized_size > size)
+>               return -EINVAL;
+> +     sb = vol->sb;
+> +     block_size_bits = sb->s_blocksize_bits;
+> +
+>       if (!initialized_size) {
+>               memset(al, 0, size);
+>               return 0;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAgSz1U56oYWuOrkARApDLAKDRyAJk7wL4T2M5NDjo3sUVT9sXTACgiEmo
-3NQ5RyBs8aIWxrrfCzlP4JM=
-=3K/t
------END PGP SIGNATURE-----

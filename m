@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279745AbRJ3KhX>; Tue, 30 Oct 2001 05:37:23 -0500
+	id <S279910AbRJ3KoX>; Tue, 30 Oct 2001 05:44:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279910AbRJ3KhD>; Tue, 30 Oct 2001 05:37:03 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:18430
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S279745AbRJ3KhA>; Tue, 30 Oct 2001 05:37:00 -0500
-Date: Tue, 30 Oct 2001 02:37:31 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: bert hubert <ahu@ds9a.nl>, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Nasty suprise with uptime
-Message-ID: <20011030023731.A21884@mikef-linux.matchmail.com>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <E15yJD1-0003uO-00@the-village.bc.nu> <3BDDBE89.397E42C0@lexus.com> <20011030104751.A11623@outpost.ds9a.nl>
+	id <S279911AbRJ3KoO>; Tue, 30 Oct 2001 05:44:14 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:58952 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S279910AbRJ3KoK>; Tue, 30 Oct 2001 05:44:10 -0500
+Date: Tue, 30 Oct 2001 05:44:32 -0500
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Christoph Hellwig <hch@caldera.de>,
+        Mike Jagdis <jaggy@purplet.demon.co.uk>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        arjanv@redhat.com
+Subject: Re: [PATCH] syscall exports - against 2.4.14-pre3
+Message-ID: <20011030054432.B28368@devserv.devel.redhat.com>
+In-Reply-To: <20011029173711.B24272@caldera.de> <3BDE7D22.8000006@purplet.demon.co.uk> <20011030113731.A14808@caldera.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011030104751.A11623@outpost.ds9a.nl>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011030113731.A14808@caldera.de>; from hch@caldera.de on Tue, Oct 30, 2001 at 11:37:31AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 30, 2001 at 10:47:51AM +0100, bert hubert wrote:
-> On Mon, Oct 29, 2001 at 12:39:37PM -0800, J Sloan wrote:
-> 
-> > So, is there an implicit Linux policy to upgrade
-> > the distro, or at least the kernel, every 496 days
-> > whether it needs it or not?
-> 
-> Having huge uptimes is by the way not adviseable operational policy
-> according to many. Chances are you will be in for a nasty surprise when you
-> reboot - do you remember after a year which daemons you 'started by hand'
-> and how?
-> 
+On Tue, Oct 30, 2001 at 11:37:31AM +0100, Christoph Hellwig wrote:
+> On Tue, Oct 30, 2001 at 10:12:50AM +0000, Mike Jagdis wrote:
+> > > once again the syscall export patch - back to EXPORT_SYMBOL
 
-Very, very true.  This has happened to me a couple times with only a couple
-months uptime... :(
+> "Because we did it all the time it's right".
+> 
+> Of course it worked - that doesn't mean it's a good idea.
+> Arjan might want to comment on how gcc 2.96+ liked the old concept..
 
-My configs have since stabalized so that hasn't been a problem for me
-recently...
+gcc 2.96 and 3.0 _rightfully_ object to calling a function pointer with a
+different number of arguments than the function pointer prototype is. Even
+if gcc didn't object to it, I consider it butt-ugly and you also just lost
+any and all type checking the compiler can help you with. During the change
+to calling the real functions instead of the basicaly untyped function
+pointers, quite a few ibcs bugs were fixed just because the arguments were
+wrong. I'm with Christoph on this 100%.
 
-Mike
+Greetings,
+   Arjan van de Ven

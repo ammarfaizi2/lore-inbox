@@ -1,35 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289735AbSA3QN2>; Wed, 30 Jan 2002 11:13:28 -0500
+	id <S290306AbSA3SO2>; Wed, 30 Jan 2002 13:14:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289395AbSA3QNC>; Wed, 30 Jan 2002 11:13:02 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:53691 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S289398AbSA3QLr>; Wed, 30 Jan 2002 11:11:47 -0500
-Date: Wed, 30 Jan 2002 18:06:42 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Michel Angelo da Silva Pereira <michelpereira@uol.com.br>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Oops with 2.4.18-pre3-ac2 with Intel ServerRAID Controller
-In-Reply-To: <E16VwfU-0007Xu-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44.0201301805200.5518-100000@netfinity.realnet.co.sz>
+	id <S290282AbSA3SND>; Wed, 30 Jan 2002 13:13:03 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:21510 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S289912AbSA3QPP>;
+	Wed, 30 Jan 2002 11:15:15 -0500
+Date: Wed, 30 Jan 2002 14:14:52 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Tom Rini <trini@kernel.crashing.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>, Ingo Molnar <mingo@elte.hu>,
+        Rob Landley <landley@trommello.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <20020130080308.D18381@work.bitmover.com>
+Message-ID: <Pine.LNX.4.33L.0201301408540.11594-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jan 2002, Alan Cox wrote:
+On Wed, 30 Jan 2002, Larry McVoy wrote:
+> On Wed, Jan 30, 2002 at 08:42:33AM -0700, Tom Rini wrote:
+> > On Tue, Jan 29, 2002 at 11:48:05PM -0800, Linus Torvalds wrote:
+> > It does in some ways anyhow.  Following things downstream is rather
+> > painless, but one of the things we in the PPC tree hit alot is when we
+> > have a new file in one of the sub trees and want to move it up to the
+> > 'stable' tree
+>
+> Summary: only an issue because Linus isn't using BK.
 
-> Ok the oops is not nice. The timeouts point to i2o_scsi and/or the serveraid
-> in i2o mode not liking one another (it has an official native mode driver
-> too btw which is the one you wanted)
+Bitkeeper also seems to have some problems applying out-of-order
+changesets or applying them partially.
 
-Is that the one supplied on Intel's site? Or is there a kernel supported 
-one?
+Changesets sent by 'bk send' are also much harder to read than
+unidiffs ;)
 
-Thanks,
-	Zwane Mwaikambo
+I think for bitkeeper to be useful for the kernel we really need:
 
+1) 'bk send' format Linus can read easily
+
+2) the ability to send individual changes (for example, the
+   foo_net.c fixes from 1.324 and 1.350) in one nice unidiff
+
+3) the ability for Linus to apply patches that are slightly
+   "out of order" - a direct consequence of (2)
+
+regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

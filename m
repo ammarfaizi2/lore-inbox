@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262443AbUC2VFf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 16:05:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbUC2VFe
+	id S262525AbUC2VJM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 16:09:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUC2VJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 16:05:34 -0500
-Received: from mail-ext.curl.com ([66.228.88.132]:49679 "HELO
-	mail-ext.curl.com") by vger.kernel.org with SMTP id S262443AbUC2VF1
+	Mon, 29 Mar 2004 16:09:12 -0500
+Received: from dsl081-235-061.lax1.dsl.speakeasy.net ([64.81.235.61]:4005 "EHLO
+	ground0.sonous.com") by vger.kernel.org with ESMTP id S262525AbUC2VJJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 16:05:27 -0500
-To: Pavel Machek <pavel@ucw.cz>
-Cc: =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cowlinks v2
-References: <20040320083411.GA25934@wohnheim.fh-wedel.de>
-	<s5gznab4lhm.fsf@patl=users.sf.net>
-	<20040320152328.GA8089@wohnheim.fh-wedel.de>
-	<20040329171245.GB1478@elf.ucw.cz>
-From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Message-ID: <s5g7jx31int.fsf@patl=users.sf.net>
-Date: 29 Mar 2004 16:05:25 -0500
-In-Reply-To: <20040329171245.GB1478@elf.ucw.cz>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 29 Mar 2004 16:09:09 -0500
+In-Reply-To: <1080594005.3570.12.camel@laptop.fenrus.com>
+References: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com> <1080594005.3570.12.camel@laptop.fenrus.com>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <50DC82B4-81C5-11D8-A0A8-000A959DCC8C@sonous.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Lev Lvovsky <lists1@sonous.com>
+Subject: Re: older kernels + new glibc?
+Date: Mon, 29 Mar 2004 13:09:07 -0800
+To: arjanv@redhat.com
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> writes:
+We have the source of the drivers, but they are specific to the 2.2.x 
+kernels.  I am not a kernel hacker, and this would be way beyond my 
+area of expertise.
 
-> > > What happens if the disk fills while you are making the copy?  Will
-> > > open(2) on an *existing file* then return ENOSPC?
+And sadly, this doesn't answer the initial question.
+
+-lev
+
+On Mar 29, 2004, at 1:00 PM, Arjan van de Ven wrote:
+
 >
-> Applications can not be sure that it is existing file. If you
-> do stat followed by open, someone may have removed the file in
-> between. So it is not so new case.
+>> Specifically, a piece of telecom hardware that we use out in the field
+>> requires a 2.2.x kernel to compile the drivers, however, after 
+>> choosing
+>
+> you could of course ask/use the source of the driver and port it to
+> 2.4... that's what open source is about ;)
 
-I should have said, "Will open(2) without O_CREAT then return ENOSPC?"
-
-This is definitely a new case.
-
-For what it's worth, I agree with whoever (Jamie?) said that COW
-should be primarily a space optimization, and that semantically the
-two files should mostly behave like separate copies.
-
-In fact, I think it is unfortunate, in some ways, that things like
-permissions and timestamps are kept in the inode.  This means that two
-files may only be COW-linked if they also share ownership,
-permissions, and timestamps, which makes COW links less useful for
-some applications (e.g., sharing source trees among multiple
-developers).
-
-But sharing data blocks without sharing inodes is too horrible even to
-contemplate, I suppose.
-
- - Pat

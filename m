@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264444AbTLQPyn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 10:54:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264446AbTLQPyn
+	id S264453AbTLQQIX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 11:08:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264455AbTLQQIX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 10:54:43 -0500
-Received: from fw.osdl.org ([65.172.181.6]:22148 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264444AbTLQPyn (ORCPT
+	Wed, 17 Dec 2003 11:08:23 -0500
+Received: from needs-no.brain.uni-freiburg.de ([132.230.63.23]:5401 "EHLO
+	needs-no.brain.uni-freiburg.de") by vger.kernel.org with ESMTP
+	id S264453AbTLQQIV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 10:54:43 -0500
-Date: Wed, 17 Dec 2003 07:54:39 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: PCI Express support for 2.4 kernel
-In-Reply-To: <Pine.GSO.4.58.0312171105200.24864@waterleaf.sonytel.be>
-Message-ID: <Pine.LNX.4.58.0312170753400.8541@home.osdl.org>
-References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com> 
- <3FDD8691.80206@intel.com> <20031215103142.GA8735@iram.es>  <3FDDACA9.1050600@intel.com>
- <1071494155.5223.3.camel@laptop.fenrus.com> <3FDDBDFE.5020707@intel.com>
- <Pine.LNX.4.58.0312151154480.1631@home.osdl.org> <3FDEDC77.9010203@intel.com>
- <Pine.LNX.4.58.0312160844110.1599@home.osdl.org> <3FDFF81F.7040309@intel.com>
- <Pine.LNX.4.58.0312162240040.8541@home.osdl.org>
- <Pine.GSO.4.58.0312171105200.24864@waterleaf.sonytel.be>
+	Wed, 17 Dec 2003 11:08:21 -0500
+Date: Wed, 17 Dec 2003 17:08:17 +0100 (MET)
+From: Thomas Voegtle <thomas@voegtle-clan.de>
+To: linux-kernel@vger.kernel.org
+cc: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Subject: Re: no atapi cdrecord burning with 2.6.0-test11-bk10 / bk13
+In-Reply-To: <yw1xd6anjwt6.fsf@kth.se>
+Message-ID: <Pine.LNX.4.21.0312171704030.32339-100000@needs-no.brain.uni-freiburg.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 17 Dec 2003, Måns Rullgård wrote:
 
-
-On Wed, 17 Dec 2003, Geert Uytterhoeven wrote:
+> The following message is a courtesy copy of an article
+> that has been posted to gmane.linux.kernel as well.
 > 
-> For the record: PCI Express is _not_ PCI-X.
+> Thomas Voegtle <thomas@voegtle-clan.de> writes:
+> 
+> > cdrecord -dev=ATAPI -scanbus  with 2.6.0-test11-bk10 and bk13 shows this:
+> 
+> cdrecord dev=/dev/cdrom -scanbus  is the recommended way, whatever
+> cdrecord tries to make you believe.
 
-Ok, but "PCI Express" is too damn long to write, so we'll have to have 
-_some_ sane name for it without typing for half an hour.
+Well, this doesn't change the fact that I cannot burn cdroms.
+But I can burn with vanilla 2.6.0-test11
 
-		Linus "retard on a keyboard" Torvalds
+Greetings
+
+
+-- 
+ Thomas Vögtle    email: thomas@voegtle-clan.de
+ ----- http://www.voegtle-clan.de/thomas ------
+
+

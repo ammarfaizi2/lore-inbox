@@ -1,53 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129348AbRAEALV>; Thu, 4 Jan 2001 19:11:21 -0500
+	id <S129563AbRAEAMb>; Thu, 4 Jan 2001 19:12:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129563AbRAEALL>; Thu, 4 Jan 2001 19:11:11 -0500
-Received: from nrg.org ([216.101.165.106]:53290 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S129348AbRAEALE>;
-	Thu, 4 Jan 2001 19:11:04 -0500
-Date: Thu, 4 Jan 2001 16:10:55 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: ludovic fernandez <ludovic.fernandez@sun.com>
-cc: Roger Larsson <roger.larsson@norran.net>,
-        Daniel Phillips <phillips@innominate.de>,
-        george anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.0-prerelease: preemptive kernel.
-In-Reply-To: <3A550433.52982189@sun.com>
-Message-ID: <Pine.LNX.4.05.10101041554520.4946-100000@cosmic.nrg.org>
+	id <S129675AbRAEAMV>; Thu, 4 Jan 2001 19:12:21 -0500
+Received: from acct2.voicenet.com ([207.103.26.205]:27022 "HELO voicenet.com")
+	by vger.kernel.org with SMTP id <S129563AbRAEAMH>;
+	Thu, 4 Jan 2001 19:12:07 -0500
+Message-ID: <3A551155.1060001@voicefx.com>
+Date: Thu, 04 Jan 2001 19:12:05 -0500
+From: "John O'Donnell" <johnod@voicefx.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-prerelease-ac4 i686; en-US; m18) Gecko/20010103
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Oops 2.2.17 and 2.0.37pre10 - same machine
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2001, ludovic fernandez wrote:
-> This is not the point I was trying to make .....
-> So far we are talking about real time behaviour. This is a very interesting/exciting
-> thing and we all agree it's a huge task which goes much more behind
-> just having a preemptive kernel.
+I am trying to install Slackware Linux.
+I boot the 2.2.17 from slackware-current series
+I fdisk /dev/hda1 as 128MB Swap and /dev/hda2 as root.
+I run mkswap -c -v1 /dev/hda1 - it chugs and finishes...
+I run swapon /dev/hda1 and I get an oops!
 
-You're right that it is more than just a preemptible kernel, but I don't
-agree that it's all that huge.  But this is the third time I have worked
-on enabling real-time behavior in unix-like OSes, so I may be biased ;-)
+Unable to handle kernel NULL pointer dereference at virtual address 0000001c
+Current->tss.cr3 = 07737000, %cr3 = 07737000
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010[<c0126794>]
+EFLAGS: 00010202
+eax: c7ffd5e0  ebx: 00000000  ecx: c6980801  edx: 00000000
+esi: 00016fc4  edi: 00000000  ebp: 00000000  esp: c7739efc
+ds: 018  es: 0018  ss: 0018
+Process swapon (pid: 88, process nr: 13, stackpage=c7739000)
+Stack: c7731140 00000000 00000801 00000000 0801ffff c0123771 00000801 00001000
+        c7738000 bffffd7c 08049106 ffffffff 00000000 0000009d 0c7feb32 c7739f88
+        00000000 c7647009 c02abac0 c776aee0 00000801 00001140 c7739f68 00000000
+Call Trace: [<c0123771>] [<c0109158>]
+Code: 8b 6b 1c 66 86 4c 24 1a 66 39 4b 0c 0f 85 c3 00 00 00 8b 4c
+Segmentation fault
+#
 
-> I'm not convinced that a preemptive kernel is interesting for apps using
-> the time sharing scheduling, mainly because it is not deterministic and the
-> price of a mmu conntext switch is still way to heavy (that's my 2 cents belief
-> anyway).
+This is a brand new machine.
+PIII 800 (133Mhz bus)
+Acorp 6BX/VIA83
+128Mb RAM
 
-But as Roger pointed out, the number of extra context switches
-introduced by having a preemptible kernel is actually very low.  If an
-interrupt occurs while running in user mode, the context switch it may
-cause will happen even in a non-preemptible kernel.  I think that
-running a kernel compile for example, the number of context switches per
-second caused by kernel preemption is probably between 1% and 10% of the
-total context switches per second.  And it's certainly interesting to me
-that I can listen to MP3s without interruption now, while doing a kernel
-build!
+I thought it might have something to do with the IDE drive or controller.
+I installed a trusty Adaptec 2940AU and a Seagate 4G drive.  Same thing?!?!
+So it is not the drives or controllers...
+For kicks I put in a Slackware 3.9 (kernel 2.0.37pre10) cd I had next to me.
+Boot.   fdisk - partitions ok.
+mkswap -c -v0 /dev/sda1
+Oops.....
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+Can anyone help me?  I have scoured the BIOS for any flaky settings.
+I can see none.  HHHHhhhhheeeeelllllpppppp.....  :-)
+Johnny O
+
+-- 
+<SomeLamer> what's the difference between chattr and chmod?
+<SomeGuru> SomeLamer: man chattr > 1; man chmod > 2; diff -u 1 2 | less
+	-- Seen on #linux on irc
+=== Never ask a geek why, just nod your head and slowly back away.===
++==============================+====================================+
+| John O'Donnell (Sr. Systems Engineer, Net Admin, Webmaster, etc.) |
+| Voice FX Corporation (a subsidiary of Student Advantage)          |
+| One Plymouth Meeting         |     E-Mail: johnod@voicefx.com     |
+| Suite 610                    |           www.voicefx.com          |
+| Plymouth Meeting, PA 19462   |         www.campusdirect.com       |
++==============================+====================================+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,90 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265875AbRGGDNi>; Fri, 6 Jul 2001 23:13:38 -0400
+	id <S265891AbRGGDVK>; Fri, 6 Jul 2001 23:21:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265880AbRGGDN2>; Fri, 6 Jul 2001 23:13:28 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:12557 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S265875AbRGGDNX>;
-	Fri, 6 Jul 2001 23:13:23 -0400
-Date: Sat, 7 Jul 2001 00:13:31 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Philipp Rumpf <prumpf@mandrakesoft.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] __initstr & __exitstr
-Message-ID: <20010707001331.B6356@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Philipp Rumpf <prumpf@mandrakesoft.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010706231744.A6356@conectiva.com.br> <20010706220514.A18820@mandrakesoft.mandrakesoft.com>
-Mime-Version: 1.0
+	id <S265970AbRGGDVA>; Fri, 6 Jul 2001 23:21:00 -0400
+Received: from dsl-64-192-146-25.telocity.com ([64.192.146.25]:4873 "EHLO
+	dsl-64-192-146-25.telocity.com") by vger.kernel.org with ESMTP
+	id <S265891AbRGGDUx>; Fri, 6 Jul 2001 23:20:53 -0400
+Message-ID: <3B467FF6.A2D991E7@telocity.com>
+Date: Fri, 06 Jul 2001 22:20:22 -0500
+From: Greg Rollins <gregrollins@telocity.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: John Kacur <jkacur@home.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Tulip driver doesn't work as module on 2.4.6
+In-Reply-To: <3B4677EB.966BA972@home.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010706220514.A18820@mandrakesoft.mandrakesoft.com>; from prumpf@mandrakesoft.com on Fri, Jul 06, 2001 at 10:05:14PM -0500
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Jul 06, 2001 at 10:05:14PM -0500, Philipp Rumpf escreveu:
-> On Fri, Jul 06, 2001 at 11:17:44PM -0300, Arnaldo Carvalho de Melo wrote:
-> > Hi,
-> > 
-> > 	Please comment on this approach to move strings in __init functions
-> > from .rodata to .data.init so that it get discarded after initialization,
-> > like the variables marked as __initdata and the functions marked as __init,
-> > as well as move strings in __exit marked functions to .data.exit, that will
-> > be discarded and not even get into the generated kernel image.
-> > 
-> > 	Please note that if possible the best approach was for gcc to move
-> > those strings automatically if the function was marked with modified 
-> > __init/__exit macros, but we have to keep in mind that some of the strings
-> > in those functions can not be discarded because they keep being referenced
-> > by say register_chrdev and others, unlike, for example, proc functions and
-> > others that copy the string passed to some malloc'ed data structure, so we
-> > have to be selective marking exactly the ones that can indeed be discarded.
-> 
-> .. or fix all registration functions to use a private copy of the string,
-> which would avoid some common oopses.
+John Kacur wrote:
 
-yes, that would be nice, if allowed I can put my janitor hat and do that :)
- 
-> > 	I've also implemented helper functions for printk thats the most
-> > common case, and leaved the other common case, panic, using
-> > __initstr/__exitstr explicitely, so that people can comment on what is
-> > better.
-> 
-> > #define init_printk(fmt,arg...) printk(__initstr(fmt) , ##arg)
-> 
-> I dislike init_printk;  it combines variadic functions/macros with
-> assumptions about how the first argument is specified (i.e. as a string
-> constant), so it's potentially very confusing.
-> 
-> Also, printk is used for debugging, and accidentally using init_printk
-> instead of printk would result in no messages being printed at all if
-> the driver is compiled into the kernel (while everything would work
-> fine if the driver is compiled as a module, where init_printk and printk
-> are identical).  I think this would be very annoying to track down for
-> less experienced kernel hackers.
+> Hi
+>
+> With Kernel 2.4.6, when I compile the Tulip driver as a module, I don't
+> have network connectivity. I can ping myself, and netstat -rn gives the
+> same table as with earlier kernels, but I can't connect to any of the
+> other computers on my network. (network = 1 pentium 120, and 1 pentium
+> 133 running a 2.2.16 and a 2.0.36 kernel respectively.) (the module is
+> loaded correctly and I have all the correct levels of support programs
+> as listed in the Changes file.) When I compile the Tulip driver directly
+> into the Kernel, it works.
+>
+> I would be happy to provide more information to anybody who wants to try
+> to figure this one out, just ask me what you need to know.
+>
+> Thanks
+>
+> John Kacur
+>
+> jkacur@home.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-that's why I've didn't coded a init_panic :) ok, I can change this if the
-rest of the patch is considered ok
- 
-> > #define __initstr(s)    ({ static char __tmp_init_str[] __initdata=s;
-> > __tmp_init_str;})
-> 
-> I think this would fail if used in structure initialisations ?
+I haven't had this problem.  I did my compile last p.m. and so far my Compaq
+Deskpro is running better than ever.  Which tulip based card are you
+running?  Mine is a Linksys 10/100.  More detail please.  I'm doing a modular
+load also.
 
-yes, this fails in such cases, any ideas on another approach that works in
-this case as well in the other cases covered by the patch?
+Greg Rollins
+gregrollins@telocity.com
 
-Also please note that strings in __initdata marked structs with just 'char
-*' instances are going to .rodata and not getting discarded, thats why I've
-changed some to char[SOME_MAX_STRING_SIZE], so that it gets moved to
-.data.init, crude, but works, I'm interested in another approach for this
-case as well.
-
-Thanks for the comments.
-
-- Arnaldo

@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131206AbRDBUxi>; Mon, 2 Apr 2001 16:53:38 -0400
+	id <S131248AbRDBVH7>; Mon, 2 Apr 2001 17:07:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131248AbRDBUx2>; Mon, 2 Apr 2001 16:53:28 -0400
-Received: from cmailg6.svr.pol.co.uk ([195.92.195.176]:18976 "EHLO
-	cmailg6.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S131206AbRDBUxU>; Mon, 2 Apr 2001 16:53:20 -0400
-Message-ID: <3AC8E633.9070503@humboldt.co.uk>
-Date: Mon, 02 Apr 2001 21:50:59 +0100
-From: Adrian Cox <adrian@humboldt.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; m18) Gecko/20010112
-X-Accept-Language: en
+	id <S131320AbRDBVHt>; Mon, 2 Apr 2001 17:07:49 -0400
+Received: from tahallah.claranet.co.uk ([212.126.138.206]:33290 "EHLO
+	tahallah.clara.co.uk") by vger.kernel.org with ESMTP
+	id <S131248AbRDBVHk>; Mon, 2 Apr 2001 17:07:40 -0400
+Date: Mon, 2 Apr 2001 22:06:53 +0100 (BST)
+From: Alex Buell <alex.buell@tahallah.clara.co.uk>
+X-X-Sender: <alex@tahallah.clara.co.uk>
+Reply-To: <alex.buell@tahallah.clara.co.uk>
+To: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Swapping wierdness on SparcStation 4 w/ 2.2.19
+Message-ID: <Pine.LNX.4.33.0104022201460.4049-100000@tahallah.clara.co.uk>
 MIME-Version: 1.0
-To: "Richard A. Smith" <rsmith@bitworks.com>
-CC: "andre@linux-ide.org" <andre@linux-ide.org>,
-   Padraig Brady <Padraig@AnteFacto.com>,
-   "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-   Steffen Grunewald <steffen@gfz-potsdam.de>
-Subject: Re: Cool Road Runner (was CFA as Ide.)
-In-Reply-To: <MDAEMON-F200104021529.AA291937MD92027@bitworks.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard A. Smith wrote:
+I built and installed 2.2.19 on my SparcStation 4 last night, and have
+been testing it by recompiling gcc 2.95.2 over and over. Just noticed now
+that it doesn't seem to swap at all, despite the fact that the swap
+partition exists and is active.
 
+Here's the output from procinfo (snipped for brevity)
 
-> IIRC SanDisk was the original people to come out with IDE CFA and everyone else just copied 
-> them.  I have the SanDisk datasheets that I can send you if you need them to verify stuff.  I 
-> believe that if you verify it with the SanDisk then all the other MFG's should work as well.
+Linux 2.2.19 (root@sparc4) (gcc 2.95.2 19991024 ) #6 Sun Apr 1 22:23:42 BST 2001 1CPU [sparc4.]
 
-If only. In my limited experience SanDisk cards have been the most 
-tolerant. I suspect that Sandisk actually implement the full range of 
-timings documented in the spec, and nobody else bothers.
+Memory:      Total        Used        Free      Shared     Buffers      Cached
+Mem:         95532       89512        6020       23784       29560       37576
+Swap:       131120           0      131120
 
-This isn't normally a problem on PC hardware, but if you try to 
-implement an interface to talk to a CF card in an embedded system you 
-find this out.
+Bootup: Sun Apr  1 23:45:56 2001    Load average: 1.00 1.00 1.00 3/40 19021
 
-- Adrian Cox
+Here's the output from swapon -s:
+
+[alex@sparc4]/home/alex > swapon -s
+Filename                        Type            Size    Used    Priority
+/dev/sda2                       partition       131120  0       -1
+
+Here's the /proc/cpuinfo, in case it is relevant
+
+[alex@sparc4]/home/alex > cat /proc/cpuinfo
+cpu             : Fujitsu  MB86904
+fpu             : Lsi Logic/Meiko L64804 or compatible
+promlib         : Version 3 Revision 2
+prom            : 2.24
+type            : sun4m
+ncpus probed    : 1
+ncpus active    : 1
+BogoMips        : 109.77
+MMU type        : Fujitsu Swift
+invall          : 0
+invmm           : 0
+invrnge         : 0
+invpg           : 0
+contexts        : 256
+
+I'm not currently subscribed to the l-k mailing list so feel free to cc me
+on any replies, thanks.
+
+-- 
+I'm just too silly for you.
+
+http://www.tahallah.clara.co.uk
 

@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVBGDIC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVBGDKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbVBGDIC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 22:08:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVBGDIC
+	id S261348AbVBGDKM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 22:10:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVBGDKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 22:08:02 -0500
-Received: from smtp815.mail.sc5.yahoo.com ([66.163.170.1]:45667 "HELO
-	smtp815.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261345AbVBGDHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 22:07:50 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-input@atrey.karlin.mff.cuni.cz
-Subject: [PATCH] twiddler compile fix.
-Date: Sun, 6 Feb 2005 22:07:48 -0500
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 6 Feb 2005 22:10:12 -0500
+Received: from almesberger.net ([63.105.73.238]:9736 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S261348AbVBGDJx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 22:09:53 -0500
+Date: Mon, 7 Feb 2005 00:09:22 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: "Jack O'Quin" <joq@io.com>, linux <linux-kernel@vger.kernel.org>,
+       abiss-general@lists.sourceforge.net
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
+Message-ID: <20050207000922.B25338@almesberger.net>
+References: <41EEE1B1.9080909@kolivas.org> <41EF00ED.4070908@kolivas.org> <873bwwga0w.fsf@sulphur.joq.us> <41EF123D.703@kolivas.org> <87ekgges2o.fsf@sulphur.joq.us> <41EF2E7E.8070604@kolivas.org> <87oefkd7ew.fsf@sulphur.joq.us> <41EF48BA.50709@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502062207.49276.dtor_core@ameritech.net>
+In-Reply-To: <41EF48BA.50709@kolivas.org>; from kernel@kolivas.org on Thu, Jan 20, 2005 at 04:59:22PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+[ Cc:s trimmed, added abiss-general ]
 
-Somehow this part of one of the earlier patches was lost...
+Con Kolivas wrote:
+> Possibly reiserfs journal related. That has larger non-preemptible code 
+> sections.
+
+If I understand your workload right, it should consist mainly of
+computation, networking (?), and disk reads.
+
+I don't know much about ReiserFS, but in some experiments with ext3,
+using ABISS, we found that a reader application competing with best
+effort readers would experience worst-case delays of dozens of
+milliseconds.
+
+They were caused by journaled atime updates. Mounting the file
+system with "noatime" reduced delays to a few hundred microseconds
+(still worst-case).
+
+- Werner
 
 -- 
-Dmitry
-
-
-===================================================================
-
-
-ChangeSet@1.2122, 2005-02-06 20:25:21-05:00, dtor_core@ameritech.net
-  Input: fix compie error in twidjoy.c
-  
-  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-
-
- twidjoy.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
-
-
-===================================================================
-
-
-
-diff -Nru a/drivers/input/joystick/twidjoy.c b/drivers/input/joystick/twidjoy.c
---- a/drivers/input/joystick/twidjoy.c	2005-02-06 21:56:05 -05:00
-+++ b/drivers/input/joystick/twidjoy.c	2005-02-06 21:56:05 -05:00
-@@ -58,7 +58,9 @@
- #include <linux/serio.h>
- #include <linux/init.h>
- 
--MODULE_DESCRIPTION("Handykey Twiddler keyboard as a joystick driver");
-+#define DRIVER_DESC	"Handykey Twiddler keyboard as a joystick driver"
-+
-+MODULE_DESCRIPTION(DRIVER_DESC);
- MODULE_LICENSE("GPL");
- 
- /*
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263396AbTJUV5g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 17:57:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263397AbTJUV5f
+	id S263453AbTJUWSi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 18:18:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbTJUWSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 17:57:35 -0400
-Received: from thunk.org ([140.239.227.29]:15846 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S263396AbTJUV5e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 17:57:34 -0400
-Date: Tue, 21 Oct 2003 17:53:46 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Valdis.Kletnieks@vt.edu
-Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org
-Subject: Re: Blockbusting news, results are in
-Message-ID: <20031021215346.GA15109@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Valdis.Kletnieks@vt.edu,
-	root@chaos.analogic.com, linux-kernel@vger.kernel.org
-References: <175701c397e6$b36e5310$24ee4ca5@DIAMONDLX60> <20031021193128.GA18618@helium.inexs.com> <Pine.LNX.4.53.0310211558500.19942@chaos> <200310212021.h9LKLQK3009397@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200310212021.h9LKLQK3009397@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.5.4i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+	Tue, 21 Oct 2003 18:18:38 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:41988 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263453AbTJUWSg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 18:18:36 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [RFC] frandom - fast random generator module
+Date: 21 Oct 2003 22:08:31 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bn4aov$jf7$1@gatekeeper.tmr.com>
+References: <3F8E552B.3010507@users.sf.net> <3F8E58A9.20005@cyberone.com.au> <bn40oa$i4q$1@gatekeeper.tmr.com> <bn46q9$1rv$1@cesium.transmeta.com>
+X-Trace: gatekeeper.tmr.com 1066774111 19943 192.168.12.62 (21 Oct 2003 22:08:31 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 21, 2003 at 04:21:26PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 21 Oct 2003 16:05:15 EDT, "Richard B. Johnson" said:
-> 
-> > If the respondent wants them isolated into a "BADBLOCKS" file,
-> > he can make a utility to do that. It's really quite easy because
-> > you can raw-read disks under Linux, plus there is already
-> > the `badblocks` program that will locate them.
-> 
-> Yes, it's trivially easy to figure out that block 193453 on /dev/hdb is bad.
-> It's even not too bad to map that to an offset on /dev/hdb4.  Even if you're
-> using LVM or DM to map stuff, it's still attackable.  But how do you guarantee
-> that block 193453 gets allocated to your badblocks file and not to some other
-> file that just tried to extend itself by 32K?
+In article <bn46q9$1rv$1@cesium.transmeta.com>,
+H. Peter Anvin <hpa@zytor.com> wrote:
+| Followup to:  <bn40oa$i4q$1@gatekeeper.tmr.com>
+| By author:    davidsen@tmr.com (bill davidsen)
+| In newsgroup: linux.dev.kernel
+| >
+| > In article <3F8E58A9.20005@cyberone.com.au>,
+| > Nick Piggin  <piggin@cyberone.com.au> wrote:
+| > 
+| > | Without looking at the code, why should this be done in the kernel?
+| > 
+| > Because it's a generally useful function, /dev/random and /dev/urandom
+| > are in the kernel, /dev/urandom is SLOW. And doing a userspace solution
+| > is a bitch in shell scripts ;-)
+| > 
+| 
+| Bullshit.  "myrng 36 | foo" works just fine.
 
-Read the e2fsck man page, and pay attention to the -c, -l, and -L
-options....
+myrng?? That doesn't seem to be part of the bash I have, or any
+distribution I could check, and google shows a bunch of visual basic
+results rather than anything useful.
 
-						- Ted
+If you're suggesting that every user write their own program to
+generate random numbers, then write a script to call it, that kind of
+defeats the purpose of doing shell instead of writing a program, doesn't
+it? Not to mention that to get entropy the user program will have to
+call the devices anyway.
 
+I think this could also fail the objective of returning unique results
+in an SMP system, but that's clearly imprementation dependent.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,73 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264244AbUDSCSj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 22:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264249AbUDSCSi
+	id S264260AbUDSCwH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 22:52:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264272AbUDSCwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 22:18:38 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:17118 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S264244AbUDSCSg (ORCPT
+	Sun, 18 Apr 2004 22:52:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37549 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264260AbUDSCv6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 22:18:36 -0400
-Date: Sun, 18 Apr 2004 22:18:31 -0400
-From: David Eger <eger@havoc.gtf.org>
-To: Timothy Miller <miller@techsource.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: radeonfb broken
-Message-ID: <20040419021831.GA27877@havoc.gtf.org>
-References: <20040415202523.GA17316@codeblau.de> <407EFB08.6050307@techsource.com>
+	Sun, 18 Apr 2004 22:51:58 -0400
+Date: Sun, 18 Apr 2004 19:51:31 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: akpm <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, zwane@linuxpower.ca
+Subject: [PATCH] floppy98.c: use kernel min/max
+Message-Id: <20040418195131.7133cb0f.rddunlap@osdl.org>
+In-Reply-To: <20040418194357.4cd02a06.rddunlap@osdl.org>
+References: <20040418194357.4cd02a06.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <407EFB08.6050307@techsource.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-My apologies; the bug is mine.  It's a simple issue of taking care
-of overlapping regions in calls to copyarea().  I sent the fix to the
-linux-fbdev mailing list earlier today.   The patch is reprinted below;
-Hopefully Linus will take it for 2.6.6.
+Convert floppy98.c to use kernel min/max, like floppy.c.
 
--dte
 
---- drivers/video/aty/radeon_accel.c.orig	2004-04-19 01:26:52.000000000 +0200
-+++ drivers/video/aty/radeon_accel.c	2004-04-19 01:49:14.000000000 +0200
-@@ -53,6 +53,18 @@
- static void radeonfb_prim_copyarea(struct radeonfb_info *rinfo, 
- 				   const struct fb_copyarea *area)
- {
-+	int xdir, ydir;
-+	u32 sx, sy, dx, dy, w, h;
-+
-+	w = area->width; h = area->height;
-+	dx = area->dx; dy = area->dy;
-+	sx = area->sx; sy = area->sy;
-+	xdir = sx - dx;
-+	ydir = sy - dy;
-+
-+	if ( xdir < 0 ) { sx += w-1; dx += w-1; }
-+	if ( ydir < 0 ) { sy += h-1; dy += h-1; }
-+
- 	radeon_fifo_wait(3);
- 	OUTREG(DP_GUI_MASTER_CNTL,
- 		rinfo->dp_gui_master_cntl /* i.e. GMC_DST_32BPP */
-@@ -60,12 +72,13 @@
- 		| ROP3_S 
- 		| DP_SRC_RECT );
- 	OUTREG(DP_WRITE_MSK, 0xffffffff);
--	OUTREG(DP_CNTL, (DST_X_LEFT_TO_RIGHT | DST_Y_TOP_TO_BOTTOM));
-+	OUTREG(DP_CNTL, (xdir>=0 ? DST_X_LEFT_TO_RIGHT : 0)
-+			| (ydir>=0 ? DST_Y_TOP_TO_BOTTOM : 0));
- 
- 	radeon_fifo_wait(3);
--	OUTREG(SRC_Y_X, (area->sy << 16) | area->sx);
--	OUTREG(DST_Y_X, (area->dy << 16) | area->dx);
--	OUTREG(DST_HEIGHT_WIDTH, (area->height << 16) | area->width);
-+	OUTREG(SRC_Y_X, (sy << 16) | sx);
-+	OUTREG(DST_Y_X, (dy << 16) | dx);
-+	OUTREG(DST_HEIGHT_WIDTH, (h << 16) | w);
+diffstat:=
+ drivers/block/floppy98.c |   28 ++++++----------------------
+ 1 files changed, 6 insertions(+), 22 deletions(-)
+
+
+diff -Naurp ./drivers/block/floppy98.c~fd98_minmax ./drivers/block/floppy98.c
+--- ./drivers/block/floppy98.c~fd98_minmax	2004-04-18 17:54:42.000000000 -0700
++++ ./drivers/block/floppy98.c	2004-04-18 18:12:38.000000000 -0700
+@@ -720,25 +720,9 @@ static void reschedule_timeout(int drive
+ 	timeout_message = message;
  }
  
+-static int maximum(int a, int b)
+-{
+-	if (a > b)
+-		return a;
+-	else
+-		return b;
+-}
+-
+-#define INFBOUND(a,b) (a)=maximum((a),(b));
+-
+-static int minimum(int a, int b)
+-{
+-	if (a < b)
+-		return a;
+-	else
+-		return b;
+-}
++#define INFBOUND(a,b) (a)=max_t(int, a, b)
  
+-#define SUPBOUND(a,b) (a)=minimum((a),(b));
++#define SUPBOUND(a,b) (a)=min_t(int, a, b)
+ 
+ /*
+  * Bottom half floppy driver.
+@@ -2556,12 +2540,12 @@ static void copy_buffer(int ssize, int m
+ 	int size, i;
+ 
+ 	max_sector = transfer_size(ssize,
+-				   minimum(max_sector, max_sector_2),
++				   min(max_sector, max_sector_2),
+ 				   current_req->nr_sectors);
+ 
+ 	if (current_count_sectors <= 0 && CT(COMMAND) == FD_WRITE &&
+ 	    buffer_max > fsector_t + current_req->nr_sectors)
+-		current_count_sectors = minimum(buffer_max - fsector_t,
++		current_count_sectors = min_t(int, buffer_max - fsector_t,
+ 						current_req->nr_sectors);
+ 
+ 	remaining = current_count_sectors << 9;
+@@ -2580,7 +2564,7 @@ static void copy_buffer(int ssize, int m
+ 	}
+ #endif
+ 
+-	buffer_max = maximum(max_sector, buffer_max);
++	buffer_max = max(max_sector, buffer_max);
+ 
+ 	dma_buffer = floppy_track_buffer + ((fsector_t - buffer_min) << 9);
+ 
+@@ -2733,7 +2717,7 @@ static int make_raw_rw_request(void)
+ 		max_sector = 2 * _floppy->sect / 3;
+ 		if (fsector_t >= max_sector) {
+ 			current_count_sectors =
+-			    minimum(_floppy->sect - fsector_t,
++			    min_t(int, _floppy->sect - fsector_t,
+ 				    current_req->nr_sectors);
+ 			return 1;
+ 		}
+--
+~Randy

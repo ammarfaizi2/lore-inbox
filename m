@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVAXVdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVAXVeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbVAXVdS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 16:33:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVAXVbe
+	id S261595AbVAXVeu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 16:34:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVAXVdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 16:31:34 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:40083 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261633AbVAXUeF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 15:34:05 -0500
-Date: Mon, 24 Jan 2005 12:33:47 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: "David S. Miller" <davem@davemloft.net>
-cc: akpm@osdl.org, hugh@veritas.com, linux-ia64@vger.kernel.org,
-       torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: Extend clear_page by an order parameter
-In-Reply-To: <20050124122350.1142ee81.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.58.0501241232330.17210@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0501041512450.1536@schroedinger.engr.sgi.com>
- <Pine.LNX.4.44.0501082103120.5207-100000@localhost.localdomain>
- <20050108135636.6796419a.davem@davemloft.net>
- <Pine.LNX.4.58.0501211210220.25925@schroedinger.engr.sgi.com>
- <20050122234517.376ef3f8.akpm@osdl.org> <Pine.LNX.4.58.0501240835041.15963@schroedinger.engr.sgi.com>
- <20050124122350.1142ee81.davem@davemloft.net>
+	Mon, 24 Jan 2005 16:33:32 -0500
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:19623 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261672AbVAXVcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 16:32:08 -0500
+Message-ID: <41F56949.3010505@ens-lyon.fr>
+Date: Mon, 24 Jan 2005 22:31:53 +0100
+From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
+Reply-To: Brice.Goglin@ens-lyon.org
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave Jones <davej@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1
+References: <20050124021516.5d1ee686.akpm@osdl.org> <41F4E28A.3090305@ens-lyon.fr> <20050124185258.GB27570@redhat.com> <20050124204458.GD27570@redhat.com>
+In-Reply-To: <20050124204458.GD27570@redhat.com>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Report: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jan 2005, David S. Miller wrote:
+Dave Jones a écrit :
+> Here's the most obvious bug fixed. There still seems to be
+> something wrong however. It only successfully boots 50% of the
+> time for me, (it reboots when starting X otherwise), and when
+> it does boot, I get a flood of ...
+> Warning: kfree_skb on hard IRQ cf7b5800
+> Warning: kfree_skb on hard IRQ cf7b5800
+> Warning: kfree_skb on hard IRQ cf7b5800
+> 
+> I think there may be some stupid memory corruptor bug in there still.
+> 
+> 		Dave
 
-> On Mon, 24 Jan 2005 08:37:15 -0800 (PST)
-> Christoph Lameter <clameter@sgi.com> wrote:
->
-> > Then it may also be better to pass the page struct to clear_pages
-> > instead of a memory address.
->
-> What is more generally available at the call sites at this time?
-> Consider both HIGHMEM and non-HIGHMEM setups in your estimation
-> please :-)
+Thanks, your patch makes X work again with DRI.
+Actually, it successfully booted 100% of the time here.
+I tried 6 or 7 times without seeing any problem like yours.
+Let me know if you want me to try something special.
 
-The only call site is prep_zero_page which has a GFP flag, the order and
-the pointer to struct page.
-
-The patch makes the huge page code call prep_zero_page and scrubd will
-also call prep_zero_page.
+Brice

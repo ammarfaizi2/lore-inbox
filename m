@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263628AbTFZUMt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 16:12:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263705AbTFZUMs
+	id S262497AbTFZUPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 16:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263897AbTFZUPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 16:12:48 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:56283 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263628AbTFZUMi (ORCPT
+	Thu, 26 Jun 2003 16:15:08 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:30428 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262497AbTFZUOa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 16:12:38 -0400
-Date: Thu, 26 Jun 2003 13:26:49 -0700
+	Thu, 26 Jun 2003 16:14:30 -0400
+Date: Thu, 26 Jun 2003 13:28:32 -0700
 From: Bob Miller <rem@osdl.org>
-To: trivial@rustcorp.com.au
+To: alan@redhat.com, akpm@digeo.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5.73 TRIVIAL] Remove un-needed MOD_*_USE_COUNT from i4lididrv.c
-Message-ID: <20030626202649.GD16162@doc.pdx.osdl.net>
+Subject: [PATCH 2.5.73] Remove racy check_mem_region() call from arc-rimi.c
+Message-ID: <20030626202832.GF16162@doc.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,29 +22,77 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Module init methods are called with a reference already taken by the
-module code so the MOD_*_USE_COUNT can be deleted.
+Removed the check_mem_region() call and replaced with request_mem_region().
+Because of the way the driver is structured the first request_mem_region()
+call gets the default memory area.  After probing the complete memory
+area that is needed to communicate with the device is known, so the first
+memory area is released and the complete area is requested.
 
 --
 Bob Miller                                      Email: rem@osdl.org
 Open Source Development Lab                     Phone: 503.626.2455 Ext. 17
 
-diff -Nru a/drivers/isdn/hardware/eicon/i4lididrv.c b/drivers/isdn/hardware/eicon/i4lididrv.c
---- a/drivers/isdn/hardware/eicon/i4lididrv.c	Wed Jun 25 16:18:28 2003
-+++ b/drivers/isdn/hardware/eicon/i4lididrv.c	Wed Jun 25 16:18:28 2003
-@@ -1354,8 +1354,6 @@
-   status_lock = SPIN_LOCK_UNLOCKED;
-   ll_lock = SPIN_LOCK_UNLOCKED;
+diff -Nru a/drivers/net/arcnet/arc-rimi.c b/drivers/net/arcnet/arc-rimi.c
+--- a/drivers/net/arcnet/arc-rimi.c	Wed Jun 25 16:18:27 2003
++++ b/drivers/net/arcnet/arc-rimi.c	Wed Jun 25 16:18:27 2003
+@@ -86,6 +86,8 @@
+  */
+ static int __init arcrimi_probe(struct net_device *dev)
+ {
++	int retval;
++
+ 	BUGLVL(D_NORMAL) printk(VERSION);
+ 	BUGLVL(D_NORMAL) printk("E-mail me if you actually test the RIM I driver, please!\n");
  
--  MOD_INC_USE_COUNT;
--
-   if (strlen(id) < 1)
-     strcpy(id, "diva");
- 
-@@ -1382,7 +1380,6 @@
-   create_proc();
- 
- out:
--  MOD_DEC_USE_COUNT;
-   return(ret);
+@@ -97,16 +99,27 @@
+ 		       "must specify the shmem and irq!\n");
+ 		return -ENODEV;
+ 	}
+-	if (check_mem_region(dev->mem_start, BUFFER_SIZE)) {
++	/*
++	 * Grab the memory region at mem_start for BUFFER_SIZE bytes.
++	 * Later in arcrimi_found() the real size will be determined
++	 * and this reserve will be released and the correct size
++	 * will be taken.
++	 */
++	if (!request_mem_region(dev->mem_start, BUFFER_SIZE, "arcnet (90xx)")) {
+ 		BUGMSG(D_NORMAL, "Card memory already allocated\n");
+ 		return -ENODEV;
+ 	}
+ 	if (dev->dev_addr[0] == 0) {
++		release_mem_region(dev->mem_start, BUFFER_SIZE);
+ 		BUGMSG(D_NORMAL, "You need to specify your card's station "
+ 		       "ID!\n");
+ 		return -ENODEV;
+ 	}
+-	return arcrimi_found(dev);
++	retval = arcrimi_found(dev);
++	if (retval < 0) {
++		release_mem_region(dev->mem_start, BUFFER_SIZE);
++	}
++	return retval;
  }
+ 
+ 
+@@ -182,8 +195,19 @@
+ 	/* get and check the station ID from offset 1 in shmem */
+ 	dev->dev_addr[0] = readb(lp->mem_start + 1);
+ 
+-	/* reserve the memory region - guaranteed to work by check_region */
+-	request_mem_region(dev->mem_start, dev->mem_end - dev->mem_start + 1, "arcnet (90xx)");
++	/*
++	 * re-reserve the memory region - arcrimi_probe() alloced this reqion
++	 * but didn't know the real size.  Free that region and then re-get
++	 * with the correct size.  There is a VERY slim chance this could
++	 * fail.
++	 */
++	release_mem_region(dev->mem_start, BUFFER_SIZE);
++	if (!request_mem_region(dev->mem_start,
++				dev->mem_end - dev->mem_start + 1,
++				"arcnet (90xx)")) {
++		BUGMSG(D_NORMAL, "Card memory already allocated\n");
++		goto err_free_dev_priv;
++	}
+ 
+ 	BUGMSG(D_NORMAL, "ARCnet RIM I: station %02Xh found at IRQ %d, "
+ 	       "ShMem %lXh (%ld*%d bytes).\n",

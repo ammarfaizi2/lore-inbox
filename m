@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130401AbQL1Msr>; Thu, 28 Dec 2000 07:48:47 -0500
+	id <S132403AbQL1M7I>; Thu, 28 Dec 2000 07:59:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132397AbQL1Msg>; Thu, 28 Dec 2000 07:48:36 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19473 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130401AbQL1MsW>; Thu, 28 Dec 2000 07:48:22 -0500
-Subject: Re: Linux 2.2.19pre3
-To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
-Date: Thu, 28 Dec 2000 12:20:16 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001228112305.A2571@emma1.emma.line.org> from "Matthias Andree" at Dec 28, 2000 11:23:05 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132424AbQL1M66>; Thu, 28 Dec 2000 07:58:58 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:47344 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S132403AbQL1M6r>; Thu, 28 Dec 2000 07:58:47 -0500
+Date: Thu, 28 Dec 2000 13:25:56 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Joe deBlaquiere <jadb@redhat.com>
+cc: Ralf Baechle <ralf@uni-koblenz.de>,
+        the list <linux-kernel@vger.kernel.org>, linux-mips@oss.sgi.com,
+        linux-mips@fnet.fr
+Subject: Re: sysmips call and glibc atomic set
+In-Reply-To: <3A48CC1D.9000204@redhat.com>
+Message-ID: <Pine.GSO.3.96.1001228132356.21148C-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Bc2d-0003e0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Wait a minute, this is a new board. I had a suspicion, and I have a new
-> suspect, can we investigate this?
+On Tue, 26 Dec 2000, Joe deBlaquiere wrote:
 
-Yep
-
-> I rebooted, and since I left APM out, the system clock is alright since
-> 63 mins. Might the APM BIOS CPU IDLE calls be related? I did *not* enable
-
-If the APM bios holds interrupts off or doesnt let Linux handle each time
-tick.
-
-> CONFIG_APM_ALLOW_INTS. I'll investigate this right now and report back
-> what I find.
-
-That would be interesting
+> > Read the ISA manual; sc will fail if the LL-bit in c0_status is cleared
+> > which will be cleared when the interrupt returns using the eret instruction.
 > 
-> > adjtimex will let you tell Linux the clock on the board is crap too
-> 
-> Where is the source for the adjtimex /program/? SuSE don't bring
-> adjtimex.
+> I tried to find a MIPSIII manual from mips.com but all I could find was 
+> mips32 and mips64 (which are not the same as MIPSII/MIPSIII/MIPSIV).
 
-tickadj I think is one front end to it
+ Get "IDT MIPS Microprocessor Software Reference Manual" from
+http://decstation.unix-ag.org/docs/ic_docs/3715.pdf (the original is no
+longer available from IDT servers).
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263939AbUCZFC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 00:02:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263940AbUCZFC6
+	id S263933AbUCZFHs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 00:07:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263941AbUCZFHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 00:02:58 -0500
-Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:2319
-	"EHLO muru.com") by vger.kernel.org with ESMTP id S263939AbUCZFCz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 00:02:55 -0500
-Date: Thu, 25 Mar 2004 21:02:44 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Len Brown <len.brown@intel.com>
-Cc: Chris Cheney <ccheney@cheney.cx>, linux-kernel@vger.kernel.org,
-       acpi-devel-request@lists.sourceforge.net, patches@x86-64.org,
-       Andi Kleen <ak@suse.de>, pavel@ucw.cz
-Subject: Re: [PATCH] x86_64 VIA chipset IOAPIC fix
-Message-ID: <20040326050244.GF8058@atomide.com>
-References: <20040325033434.GB8139@atomide.com> <20040326030458.GZ9248@cheney.cx> <20040326033536.GA8057@atomide.com> <1080274911.748.130.camel@dhcppc4>
+	Fri, 26 Mar 2004 00:07:48 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:41855 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263933AbUCZFHr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 00:07:47 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, colpatch@us.ibm.com,
+       linux-kernel@vger.kernel.org, mbligh@aracnet.com, akpm@osdl.org,
+       haveblue@us.ibm.com
+Subject: Re: [PATCH] nodemask_t x86_64 changes [5/7] 
+In-reply-to: Your message of "Tue, 23 Mar 2004 20:11:01 -0800."
+             <20040323201101.3427494c.pj@sgi.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1080274911.748.130.camel@dhcppc4>
-User-Agent: Mutt/1.5.6i
+Date: Fri, 26 Mar 2004 16:06:34 +1100
+Message-ID: <6562.1080277594@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Len Brown <len.brown@intel.com> [040325 20:22]:
-> 
-> where does it hang when processor and thermal are compiled-in?
+On Tue, 23 Mar 2004 20:11:01 -0800, 
+Paul Jackson <pj@sgi.com> wrote:
+>I still don't know how I will fix the CPU_MASK_ALL static initializor in
+>the multi-word case - since I can't put runtime code in it.
 
-It hangs early after saying the processor supports c1 and c2 states + few
-more lines.
+#define NR_CPUS_WORDS ((NR_CPUS+BITS_PER_LONG-1)/BITS_PER_LONG)
+#define NR_CPUS_UNDEF (NR_CPUS_WORDS*BITS_PER_LONG-NR_CPUS)
 
-It does not hang if loading processor and thermal as modules.
+#if NR_CPUS_UNDEF == 0
+#define CPU_MASK_ALL { [0 ... NR_CPUS_WORDS-1] = ~0UL }
+#else
+#define CPU_MASK_ALL { [0 ... NR_CPUS_WORDS-2] = ~0UL, ~0UL << NR_CPUS_UNDEF }
+#endif
 
-Tony

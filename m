@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291038AbSAaJEf>; Thu, 31 Jan 2002 04:04:35 -0500
+	id <S290981AbSAaJIQ>; Thu, 31 Jan 2002 04:08:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291039AbSAaJEZ>; Thu, 31 Jan 2002 04:04:25 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:48905 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S291038AbSAaJEU>; Thu, 31 Jan 2002 04:04:20 -0500
-Date: Thu, 31 Jan 2002 10:04:17 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dave Jones <davej@suse.de>, Nathan <wfilardo@fuse.net>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Various issues with 2.5.2-dj6
-Message-ID: <20020131100417.B12102@suse.cz>
-In-Reply-To: <3C58B3DD.3000800@fuse.net> <20020131041901.H31313@suse.de>
+	id <S290987AbSAaJIG>; Thu, 31 Jan 2002 04:08:06 -0500
+Received: from cmailg3.svr.pol.co.uk ([195.92.195.173]:18438 "EHLO
+	cmailg3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S290981AbSAaJIA>; Thu, 31 Jan 2002 04:08:00 -0500
+Date: Wed, 30 Jan 2002 23:09:54 +0000
+To: linux-lvm@sistina.com, linux-kernel@vger.kernel.org, lvm-devel@sistina.com
+Subject: Re: [lvm-devel] [ANNOUNCE] LVM reimplementation ready for beta testing
+Message-ID: <20020130230954.E7763@fib011235813.fsnet.co.uk>
+In-Reply-To: <20020130202254.A7364@fib011235813.fsnet.co.uk> <20020130145408.I763@lynx.adilger.int>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020131041901.H31313@suse.de>; from davej@suse.de on Thu, Jan 31, 2002 at 04:19:01AM +0100
+In-Reply-To: <20020130145408.I763@lynx.adilger.int>; from adilger@turbolabs.com on Wed, Jan 30, 2002 at 02:54:08PM -0700
+From: Joe Thornber <thornber@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 04:19:01AM +0100, Dave Jones wrote:
-
->  > Issue 5: Mouse (via /dev/input/mice) seems slugish this time (after a 
->  > fresh cold boot).  Seemed fine first few times on 2.5.2-dj6 and fine 
->  > under 2.4.18-pre7 /dev/psaux.
+On Wed, Jan 30, 2002 at 02:54:08PM -0700, Andreas Dilger wrote:
+> On Jan 30, 2002  20:22 +0000, Joe Thornber wrote:
+> > Sistina is pleased to announce that the LVM2 software is ready for
+> > beta testing.
+> > 
+> > This is a complete reimplementation of the existing LVM system, both
+> > driver and userland tools.
 > 
->  This is the 2nd report I've had of this. Hopefully Vojtech has
->  an answer for this.
+> What is the current and future licensing of the LVM2 code?  Given the
+> GFS events, I think people will be hesitant to accept an all-Sistina
+> reimplementation of LVM.
 
-I haven't seen this happen yet, I'll look into the code for explanation,
-but if I don't find anything that could cause it, I'll need some debug
-data.
 
-(Enabling #define I8042_DEBUG_IO in drivers/input/serio/i8042.h is
-usually good enough.)
+LVM2 is GPL/LGPL-licensed - just like the original version of LVM.
+This means the whole Linux community benefits from this aspect of
+Sistina's work.  The device-mapper and LVM2 packages will *always* be
+GPL/LGPL.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+As those who have been following LVM development closely will be aware,
+the decision to rewrite was taken for sound technical - not licensing -
+reasons, and of course we welcome and encourage contributions to LVM2
+from outside Sistina.
+
+- Joe

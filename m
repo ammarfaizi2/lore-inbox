@@ -1,118 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129399AbRBZTar>; Mon, 26 Feb 2001 14:30:47 -0500
+	id <S129780AbRBZTzd>; Mon, 26 Feb 2001 14:55:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129710AbRBZTah>; Mon, 26 Feb 2001 14:30:37 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:8712 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S129399AbRBZTaW>;
-	Mon, 26 Feb 2001 14:30:22 -0500
-Date: Mon, 26 Feb 2001 20:29:49 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: weird /proc/ide/hdx/settings
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3A9AAEAD.2CEEDD2A@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-Content-type: text/plain; charset=iso-8859-2
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
-In-Reply-To: <Pine.LNX.4.10.10102242109550.24823-100000@master.linux-ide.org>
+	id <S129710AbRBZTzX>; Mon, 26 Feb 2001 14:55:23 -0500
+Received: from ns.arraycomm.com ([199.74.167.5]:50148 "HELO
+	bastion.arraycomm.com") by vger.kernel.org with SMTP
+	id <S129780AbRBZTzG>; Mon, 26 Feb 2001 14:55:06 -0500
+Message-Id: <5.0.2.1.2.20010226115140.0265f4f8@pop.arraycomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Mon, 26 Feb 2001 11:53:07 -0800
+To: linux-kernel@vger.kernel.org (Linux Kernel)
+From: Jasmeet Sidhu <jsidhu@arraycomm.com>
+Subject: Re: ide / usb problem
+In-Reply-To: <E14X1f7-00033Q-00@the-village.bc.nu>
+In-Reply-To: <20010225060326.K127@pervalidus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
-> 
-> Zero is a counting number. 0->255 == 1->256.
+At 01:56 PM 2/25/2001 +0000, Alan Cox wrote:
+> > hda: dma_intr: status=3D0x51 { DriveReady SeekComplete Error }
+> > hda: dma_intr: error=3D0x84 { DriveStatusError BadCRC }
+> > ide0: reset: success
+> >
+> > Again, if it's really a cable problem, then ASUS is selling
+> > cables that don't work with UDMA66 (but they sell it as
+> > UDMA66).
+>
+>To get ATA66 working well you need the right cables, you also need a machine
+>that is to spec on interference and the like. You cant just point at the 
+>cables
+>althoigh they are first guess.
+>
 
-I don't understand.
-This doesn't explain (value) is bigger than (max).
-
-Are you saying that (value) is counted from 1 , while
-(max) ( and min too ? ) is counted from 0 ?
-
-david
-
-> On Fri, 23 Feb 2001, David Balazic wrote:
-> 
-> > Running kernel 2.4.2 :
-> >
-> > cat /proc/ide/hdc/settings
-> >
-> > name                    value           min             max             mode
-> > ----                    -----           ---             ---             ----
-> > bios_cyl                89355           0               65535           rw
-> > bios_head               16              0               255             rw
-> > bios_sect               63              0               63              rw
-> > breada_readahead        4               0               127             rw
-> > bswap                   0               0               1               r
-> > current_speed           69              0               69              rw
-> > file_readahead          0               0               2097151         rw
-> > ide_scsi                0               0               1               rw
-> > init_speed              12              0               69              rw
-> > io_32bit                1               0               3               rw
-> > keepsettings            0               0               1               rw
-> > lun                     0               0               7               rw
-> > max_kb_per_request      128             1               127             rw
-> > multcount               0               0               8               rw
-> > nice1                   1               0               1               rw
-> > nowerr                  0               0               1               rw
-> > number                  2               0               3               rw
-> > pio_mode                write-only      0               255             w
-> > slow                    0               0               1               rw
-> > unmaskirq               1               0               1               rw
-> > using_dma
-> > --------------------%X---------------
-> >
-> > max_kb_per_request  has value 128 , but max is 127 !?
-> >
-> > max for multcount is 8 , but my drive supports 16 sectors. ( see hdparm output below )
-> > If I set multcount to 8 sectors ( hdparm -m 8 /dev/hdc )
-> > then /proc/ide/hdc/settings will show :
-> > multcount               4               0               8               rw
-> >
-> > The values are divided by 2. Why ?
-> >
-> >
-> > hdparm -i /dev/hdc  :
-> >
-> > /dev/hdc:
-> >
-> >  Model=IBM-DTLA-307045, FwRev=TX6OA60A, SerialNo=YMEYMML9342
-> >  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
-> >  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
-> >  BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
-> >  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=90069840
-> >  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
-> >  PIO modes: pio0 pio1 pio2 pio3 pio4
-> >  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5
-> >
-> > IDE interface is VIA xxx686b ( ATA-100 )
-> > IDE driver is VIA IDE v4.3
-> >
-> > --
-> > David Balazic
-> > --------------
-> > "Be excellent to each other." - Bill & Ted
-> > - - - - - - - - - - - - - - - - - - - - - -
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> 
-> Andre Hedrick
-> Linux ATA Development
-> ASL Kernel Development
-> -----------------------------------------------------------------------------
-> ASL, Inc.                                     Toll free: 1-877-ASL-3535
-> 1757 Houret Court                             Fax: 1-408-941-2071
-> Milpitas, CA 95035                            Web: www.aslab.com
+I have a similar setup and had the same problems.  Dump your cables and get 
+ATA/100 Certified cables and you should not have this problem.  Also keep 
+the cable length in mind.  Anybody out there know if there's a max cable 
+length for the ATA/100 spec??
 
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+
+- - -
+Jasmeet Sidhu
+Unix Systems Administrator
+ArrayComm, Inc.
+jsidhu@arraycomm.com
+www.arraycomm.com
+
+

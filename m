@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262155AbTH0UbU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 16:31:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbTH0UbT
+	id S262272AbTH0VBM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 17:01:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTH0VBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 16:31:19 -0400
-Received: from fw.osdl.org ([65.172.181.6]:27577 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262155AbTH0UbT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 16:31:19 -0400
-Date: Wed, 27 Aug 2003 13:15:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Larry McVoy <lm@bitmover.com>
-Cc: jgarzik@pobox.com, jfbeam@bluetronic.net, linux-kernel@vger.kernel.org
+	Wed, 27 Aug 2003 17:01:12 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:5258 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S262272AbTH0VBK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 17:01:10 -0400
+Date: Wed, 27 Aug 2003 16:58:35 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
 Subject: Re: BK tree?
-Message-Id: <20030827131513.6899cb7a.akpm@osdl.org>
-In-Reply-To: <20030827173056.GA32397@work.bitmover.com>
-References: <Pine.GSO.4.33.0308271303500.7750-100000@sweetums.bluetronic.net>
-	<20030827171806.GC6147@gtf.org>
-	<20030827173056.GA32397@work.bitmover.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20030827131513.6899cb7a.akpm@osdl.org>
+Message-ID: <Pine.GSO.4.33.0308271655160.7750-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy <lm@bitmover.com> wrote:
+On Wed, 27 Aug 2003, Andrew Morton wrote:
+...
+>> If you need to be able to do it I'll set that up.
 >
-> Hmm.  Andrew, what's the workflow?  Is Linus still the guy who pushes to
-> bkbits or is that now your or him?
+>There's no pressing need at this time thanks.  It could be that we keep
+>going this way until 2.7 is forked off.
 
-Linus does it.
+Now you've done it... Linus is now surely doomed to a bloody incident
+involving a bus and a breakfast muffin. (I'm sure everyone remembers that
+"study")
 
-> If you need to be able to do it I'll set that up.
+I guess I can hold my breath 'til The Man returns.
 
-There's no pressing need at this time thanks.  It could be that we keep
-going this way until 2.7 is forked off.
+--Ricky
+
 

@@ -1,54 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265256AbUGCUui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265255AbUGCU4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265256AbUGCUui (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 16:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265255AbUGCUui
+	id S265255AbUGCU4N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 16:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265257AbUGCU4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 16:50:38 -0400
-Received: from gprs214-161.eurotel.cz ([160.218.214.161]:55169 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265257AbUGCUug (ORCPT
+	Sat, 3 Jul 2004 16:56:13 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:35200 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265255AbUGCU4K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 16:50:36 -0400
-Date: Sat, 3 Jul 2004 22:50:23 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Christoph Hellwig <hch@ucw.cz>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: current BK compilation failure on ppc32
-Message-ID: <20040703205023.GF31892@elf.ucw.cz>
-References: <20040703185606.GA4718@lst.de>
+	Sat, 3 Jul 2004 16:56:10 -0400
+Date: Sat, 3 Jul 2004 22:56:21 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Joel Soete <soete.joel@tiscali.be>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, marcelo.tosatti@cyclades.com
+Subject: Re: Some cleanup patches for: '...lvalues is deprecated'
+Message-ID: <20040703205621.GA1640@ucw.cz>
+References: <40E6AC41.4050804@tiscali.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040703185606.GA4718@lst.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <40E6AC41.4050804@tiscali.be>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> kernel/power/smp.c: In function `smp_pause':
-> kernel/power/smp.c:24: error: storage size of `ctxt' isn't known
-> kernel/power/smp.c:24: warning: unused variable `ctxt'
+On Sat, Jul 03, 2004 at 12:53:21PM +0000, Joel Soete wrote:
+> Hi Marcelo,
 > 
-> kernel/power/smp.c seems to be inherently swsusp-specific but is
-> compiled for CONFIG_PM. (Same seems to be true for amny other files
-> in kernel/power/, but as they compile it only causes bloat..)
+> Please appolgies first for wrong presentation of previous post (that was 
+> the first and certainly the last time that I used the 'forwarding' option 
+> of this webmail interface :( ).
+> 
+> Here are some backport to clean up some warning of type: use of cast 
+> experssion
+> as lvalues is deprecated.
+> --- linux-2.4.27-rc2-pa4mm/kernel/sysctl.c.Orig	2004-06-29 
+> 09:03:42.000000000 +0200
+> +++ linux-2.4.27-rc2-pa4mm/kernel/sysctl.c	2004-06-29 
+> 10:10:31.588030256 +0200
+> @@ -890,7 +890,7 @@
+>  				if (!isspace(c))
+>  					break;
+>  				left--;
+> -				((char *) buffer)++;
+> +				buffer += sizeof(char);
 
-Patch is good, thanks and sorry for breakage.
-								Pavel
+This (although correct in the end) is a wrong thing to do.
 
-> --- 1.10/kernel/power/Makefile	2004-07-02 07:23:47 +02:00
-> +++ edited/kernel/power/Makefile	2004-07-03 22:07:29 +02:00
-> @@ -1,5 +1,7 @@
->  obj-y				:= main.o process.o console.o pm.o
-> +ifeq ($(CONFIG_SOFTWARE_SUSPEND), y)
->  obj-$(CONFIG_SMP)		+= smp.o
-> +endif
->  obj-$(CONFIG_SOFTWARE_SUSPEND)	+= swsusp.o
->  obj-$(CONFIG_PM_DISK)		+= disk.o pmdisk.o
->  
+It seems to look like the intention is to move the pointer by a char's
+size, however your change is equivalent to:
+
+	buffer += 1;
+
+And if buffer wasn't void*, which it fortunately is, it would, unlike
+the older construction, move the pointer by a different size.
+
+So just use
+
+	buffer++;
+
+here, and the intent is then clear.
+
+> --- linux-2.4.27-rc2-pa4mm/drivers/video/fbcon.c.Orig	2004-06-29 
+> 10:47:31.901491304 +0200
+> +++ linux-2.4.27-rc2-pa4mm/drivers/video/fbcon.c	2004-06-29 
+> 11:13:31.846343640 +0200
+> @@ -1877,7 +1877,10 @@
+>         font length must be multiple of 256, at least. And 256 is multiple
+>         of 4 */
+>      k = 0;
+> -    while (p > new_data) k += *--(u32 *)p;
+> +    while (p > new_data) {
+> +        p = (u8 *)((u32 *)p - 1);
+> +        k += *(u32 *)p;
+> +    }
+
+
+How about
+
+	p -= 4;
+	k += *(u32 *)p;
 
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261901AbVAYL2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261905AbVAYLap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261901AbVAYL2t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 06:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbVAYL2j
+	id S261905AbVAYLap (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 06:30:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbVAYLaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 06:28:39 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:49158 "HELO
+	Tue, 25 Jan 2005 06:30:09 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:54278 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261901AbVAYL1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 06:27:41 -0500
-Date: Tue, 25 Jan 2005 12:27:38 +0100
+	id S261905AbVAYL2I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 06:28:08 -0500
+Date: Tue, 25 Jan 2005 12:28:05 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] SCSI psi240i.c: make 4 functions static
-Message-ID: <20050125112738.GC30909@stusta.de>
+Cc: linux-kernel@vger.kernel.org, iss_storagedev@hp.com
+Subject: [2.6 patch] drivers/block/cpqarray.c: small cleanups
+Message-ID: <20050125112805.GI30909@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,69 +22,61 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes 4 needlessly global functions static.
+This patch contains the following cleanups:
+- make cpqarray_pci_device_id static
+- merge cpqarray_init_step2 into cpqarray_init and make it static
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- drivers/scsi/psi240i.c |    8 ++++----
- drivers/scsi/psi240i.h |    4 ----
- 2 files changed, 4 insertions(+), 8 deletions(-)
+ drivers/block/cpqarray.c |   13 ++-----------
+ 1 files changed, 2 insertions(+), 11 deletions(-)
 
 This patch was already sent on:
-- 15 Nov 2004
+- 29 Nov 2004
 
---- linux-2.6.10-rc1-mm5-full/drivers/scsi/psi240i.h.old	2004-11-13 22:46:35.000000000 +0100
-+++ linux-2.6.10-rc1-mm5-full/drivers/scsi/psi240i.h	2004-11-13 23:09:48.000000000 +0100
-@@ -309,11 +309,7 @@
- #endif	// PSI_EIDE_SCSIOP
+--- linux-2.6.10-rc1-mm3-full/drivers/block/cpqarray.c.old	2004-11-06 19:51:42.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/block/cpqarray.c	2004-11-06 19:53:16.000000000 +0100
+@@ -97,7 +97,7 @@
+ };
  
- // function prototypes
--int Psi240i_Detect			(Scsi_Host_Template *tpnt);
- int Psi240i_Command			(Scsi_Cmnd *SCpnt);
--int Psi240i_QueueCommand	(Scsi_Cmnd *SCpnt, void (*done)(Scsi_Cmnd *));
- int Psi240i_Abort			(Scsi_Cmnd *SCpnt);
- int Psi240i_Reset			(Scsi_Cmnd *SCpnt, unsigned int flags);
--int Psi240i_BiosParam		(struct scsi_device *sdev, struct block_device *bdev,
--					sector_t capacity, int geom[]);
- #endif
---- linux-2.6.10-rc1-mm5-full/drivers/scsi/psi240i.c.old	2004-11-13 22:47:12.000000000 +0100
-+++ linux-2.6.10-rc1-mm5-full/drivers/scsi/psi240i.c	2004-11-13 22:47:59.000000000 +0100
-@@ -390,7 +390,7 @@
-  *	Returns:		Status code.
-  *
-  ****************************************************************/
--int Psi240i_QueueCommand (Scsi_Cmnd *SCpnt, void (*done)(Scsi_Cmnd *))
-+static int Psi240i_QueueCommand (Scsi_Cmnd *SCpnt, void (*done)(Scsi_Cmnd *))
- 	{
- 	UCHAR		   *cdb = (UCHAR *)SCpnt->cmnd;					// Pointer to SCSI CDB
- 	PADAPTER240I	padapter = HOSTDATA (SCpnt->device->host); 			// Pointer to adapter control structure
-@@ -509,7 +509,7 @@
-  *	Returns:		Nothing.
-  *
-  **************************************************************************/
--void ReadChipMemory (void *pdata, USHORT base, USHORT length, USHORT port)
-+static void ReadChipMemory (void *pdata, USHORT base, USHORT length, USHORT port)
- 	{
- 	USHORT	z, zz;
- 	UCHAR	*pd = (UCHAR *)pdata;
-@@ -538,7 +538,7 @@
-  *	Returns:		Number of adapters found.
-  *
-  ****************************************************************/
--int Psi240i_Detect (Scsi_Host_Template *tpnt)
-+static int Psi240i_Detect (Scsi_Host_Template *tpnt)
- 	{
- 	int					board;
- 	int					count = 0;
-@@ -654,7 +654,7 @@
-  *	Returns:		zero.
-  *
-  ****************************************************************/
--int Psi240i_BiosParam (struct scsi_device *sdev, struct block_device *dev,
-+static int Psi240i_BiosParam (struct scsi_device *sdev, struct block_device *dev,
- 		sector_t capacity, int geom[])
- 	{
- 	POUR_DEVICE	pdev;
+ /* define the PCI info for the PCI cards this driver can control */
+-const struct pci_device_id cpqarray_pci_device_id[] =
++static const struct pci_device_id cpqarray_pci_device_id[] =
+ {
+ 	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_COMPAQ_42XX,
+ 		0x0E11, 0x4058, 0, 0, 0},       /* SA431 */
+@@ -135,7 +135,6 @@
+ /* Debug Extra Paranoid... */
+ #define DBGPX(s) do { } while(0)
+ 
+-int cpqarray_init_step2(void);
+ static int cpqarray_pci_init(ctlr_info_t *c, struct pci_dev *pdev);
+ static void __iomem *remap_pci_mem(ulong base, ulong size);
+ static int cpqarray_eisa_detect(void);
+@@ -312,14 +311,6 @@
+ 
+ module_param_array(eisa, int, NULL, 0);
+ 
+-/* This is a bit of a hack,
+- * necessary to support both eisa and pci
+- */
+-int __init cpqarray_init(void)
+-{
+-	return (cpqarray_init_step2());
+-}
+-
+ static void release_io_mem(ctlr_info_t *c)
+ {
+ 	/* if IO mem was not protected do nothing */
+@@ -560,7 +551,7 @@
+  *  This is it.  Find all the controllers and register them.
+  *  returns the number of block devices registered.
+  */
+-int __init cpqarray_init_step2(void)
++static int __init cpqarray_init(void)
+ {
+ 	int num_cntlrs_reg = 0;
+ 	int i;
 

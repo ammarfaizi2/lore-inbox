@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266974AbRGMVNV>; Fri, 13 Jul 2001 17:13:21 -0400
+	id <S266980AbRGMVOj>; Fri, 13 Jul 2001 17:14:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266973AbRGMVNJ>; Fri, 13 Jul 2001 17:13:09 -0400
-Received: from weta.f00f.org ([203.167.249.89]:15235 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S266974AbRGMVMs>;
-	Fri, 13 Jul 2001 17:12:48 -0400
-Date: Sat, 14 Jul 2001 09:12:49 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: lyons@pobox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ioctl bug?
-Message-ID: <20010714091249.D5737@weta.f00f.org>
-In-Reply-To: <Pine.LNX.4.33.0107131559160.12456-100000@gruel.uchicago.edu> <20010714090905.C5737@weta.f00f.org>
-Mime-Version: 1.0
+	id <S267544AbRGMVOb>; Fri, 13 Jul 2001 17:14:31 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42503 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S266982AbRGMVOW>; Fri, 13 Jul 2001 17:14:22 -0400
+Subject: Re: [PATCH] 64 bit scsi read/write
+To: adilger@turbolinux.com (Andreas Dilger)
+Date: Fri, 13 Jul 2001 22:14:19 +0100 (BST)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), bcrl@redhat.com (Ben LaHaise),
+        kernel@ragnark.vestdata.no (Ragnar Kjxrstad),
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        mike@bigstorage.com, kevin@bigstorage.com, linux-lvm@sistina.com
+In-Reply-To: <200107132041.f6DKfqM8013404@webber.adilger.int> from "Andreas Dilger" at Jul 13, 2001 02:41:52 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010714090905.C5737@weta.f00f.org>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15LAGR-0000HX-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 14, 2001 at 09:09:05AM +1200, Chris Wedgwood wrote:
-    On Fri, Jul 13, 2001 at 04:00:24PM -0500, Gary Lyons wrote:
-    
-        Yes. sorry about leaving that out.
-    
-    strace -fblah lsattr some-dir/
-    
-    (where some-dir is empty)
+> RAID 5 throws a wrench into this by not guaranteeing that all of the
+> blocks in a stripe are consistent (you don't know which blocks and/or
+> parity were written and which not).  Ideally, you want a multi-stage
+> commit for RAID as well, so that you write the data first, and the
+> parity afterwards (so on reboot you trust the data first, and not the
+> parity).  You have a problem if there is a bad disk and you crash.
 
-actually, make sure at least one file is in there
+Well to be honest so does most disk firmware. IDE especially. For one thing
+the logical sector size the drives writes need not match the illusions
+provided upstream, and the write flush commands are frequently not implemented
+because they damage benchmarketing numbers from folks like Zdnet..
 
 
-  --cw

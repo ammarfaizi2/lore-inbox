@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262879AbSJaSIf>; Thu, 31 Oct 2002 13:08:35 -0500
+	id <S262722AbSJaSGQ>; Thu, 31 Oct 2002 13:06:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262838AbSJaSH1>; Thu, 31 Oct 2002 13:07:27 -0500
-Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:5586 "EHLO
-	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
-	id <S262859AbSJaSHI>; Thu, 31 Oct 2002 13:07:08 -0500
-Message-ID: <180577A42806D61189D30008C7E632E8793B28@boca213a.boca.ssc.siemens.com>
-From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-To: "'Tom Bradley'" <tojabr@tojabr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: your mail
-Date: Thu, 31 Oct 2002 13:13:27 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S262779AbSJaSFX>; Thu, 31 Oct 2002 13:05:23 -0500
+Received: from mail.gurulabs.com ([208.177.141.7]:27576 "EHLO
+	mail.gurulabs.com") by vger.kernel.org with ESMTP
+	id <S262722AbSJaSFF>; Thu, 31 Oct 2002 13:05:05 -0500
+Subject: Re: [PATCH] 2.5.45: Filesystem capabilities
+From: Dax Kelson <dax@gurulabs.com>
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Cc: torvalds@transmeta.com, viro@math.psu.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <87znsuy9ho.fsf@goat.bogus.local>
+References: <87znsuy9ho.fsf@goat.bogus.local>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 31 Oct 2002 11:11:50 -0700
+Message-Id: <1036087911.2296.19.camel@mentor>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks very much.
+On Thu, 2002-10-31 at 07:21, Olaf Dietsche wrote:
+> Hi Linus,
+> 
+> This patch implements filesystem capabilities. It allows to run
+> privileged executables without the need for suid root.
+> 
+> Changes:
+> - switched from 32 bits to 128 bits for capabilities
+> 
+> I have addressed all objections Al Viro has raised. However, this is
+> not widely tested so far. But this is a relative small patch, so it
+> shouldn't be too hard to remove it later, if it turns out to be too
+> dangerous, either security or file system wise.
+> 
+> Please include.
+> 
+> Regards, Olaf.
 
-Jack Bloch 
-Siemens ICN
-phone                (561) 923-6550
-e-mail                jack.bloch@icn.siemens.com
+I second this!
+
+I would very very much like to purge my systems of SUID root binaries. 
+
+If this goes in, we/I should start a little project to audit the SUID
+root binaries commonly found on Linux to see what are the minimum
+capabilities each binary needs.
+
+Ideally the distro then ship this way by default.
+
+RPM/DPKG (tar,cpio?) should be modified to store the capabilities too.
+
+Dax Kelson
+Guru Labs
 
 
------Original Message-----
-From: Tom Bradley [mailto:tojabr@tojabr.com]
-Sent: Thursday, October 31, 2002 1:00 PM
-To: Bloch, Jack
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail
 
-
-They are just regular values. The UL tells the compiler to format the
-number as an unsgned long.
-
-
-On Thu, 31 Oct 2002, Bloch, Jack wrote:
-
-> I am looking at some sample driver code which shows the usage of some
-> unsigned integers 1UL, 2UL, 4UL, 16UL, 64UL, 128UL and 256UL.  I need to
-> know what these are defined as. Please excuse my ignorance.
->
-> Please CC me directly on any responses.
->
-> Jack Bloch
-> Siemens ICN
-> phone                (561) 923-6550
-> e-mail                jack.bloch@icn.siemens.com
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->

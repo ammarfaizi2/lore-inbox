@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315870AbSHaOwK>; Sat, 31 Aug 2002 10:52:10 -0400
+	id <S317471AbSHaPCq>; Sat, 31 Aug 2002 11:02:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316544AbSHaOwK>; Sat, 31 Aug 2002 10:52:10 -0400
-Received: from dsl-213-023-039-014.arcor-ip.net ([213.23.39.14]:8679 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S315870AbSHaOwJ>;
-	Sat, 31 Aug 2002 10:52:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Keith Owens <kaos@ocs.com.au>, neilb@cse.unsw.edu.au
-Subject: Re: [patch] 2.4.19 Generate better code for nfs_sillyrename
-Date: Sat, 31 Aug 2002 16:58:20 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <5810.1030518440@kao2.melbourne.sgi.com>
-In-Reply-To: <5810.1030518440@kao2.melbourne.sgi.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17l9hd-0004Ow-00@starship>
+	id <S317520AbSHaPCp>; Sat, 31 Aug 2002 11:02:45 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:29939
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317471AbSHaPCp>; Sat, 31 Aug 2002 11:02:45 -0400
+Subject: Re: [patch 2.5.31] transparent PCI-to-PCI bridges
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020831144223.A772@localhost.park.msu.ru>
+References: <20020831015716.B926@jurassic.park.msu.ru>
+	<20020830201958.24112@192.168.4.1> 
+	<20020831144223.A772@localhost.park.msu.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 31 Aug 2002 16:06:42 +0100
+Message-Id: <1030806402.3490.9.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 August 2002 09:07, Keith Owens wrote:
-> Using strlen() generates an unnecessary inline function expansion plus
-> dynamic stack adjustment.  For constant strings, strlen() == sizeof()-1
-> and the object code is better.  Patch against 2.4.19.
+Related question while we are on the subject of bridges. I'm trying to
+work out a clean way to initialize a new subtree of devices given a
+bridge that suddenely has devices behind it.
 
-But now the source code is worse.  Macro?
+This occurs in three cases I know about now 
+- Easidock cardbus->PCI extender
+- IBM Thinkpad hot docking bridge
+- Magma PCI extended split bridge
 
-> diff -urp 2.4.x-xfs-linux/fs/nfs/dir.c 2.4.x-xfs-linux-kdb/fs/nfs/dir.c
-> --- 2.4.x-xfs-linux/fs/nfs/dir.c	Fri Aug  9 16:03:57 2002
-> +++ 2.4.x-xfs-linux-kdb/fs/nfs/dir.c	Wed Aug 28 16:54:44 2002
-> @@ -741,7 +741,7 @@ static int nfs_sillyrename(struct inode 
->  	static unsigned int sillycounter;
->  	const int      i_inosize  = sizeof(dir->i_ino)*2;
->  	const int      countersize = sizeof(sillycounter)*2;
-> -	const int      slen       = strlen(".nfs") + i_inosize + countersize;
-> +	const int      slen       = sizeof(".nfs")-1 + i_inosize + countersize;
->  	char           silly[slen+1];
->  	struct qstr    qsilly;
->  	struct dentry *sdentry;
 
--- 
-Daniel

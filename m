@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316824AbSGVLSr>; Mon, 22 Jul 2002 07:18:47 -0400
+	id <S316582AbSGVIEJ>; Mon, 22 Jul 2002 04:04:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316823AbSGVLRv>; Mon, 22 Jul 2002 07:17:51 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:35110 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S316757AbSGVLRk>; Mon, 22 Jul 2002 07:17:40 -0400
-Message-Id: <200207221119.g6MBJgV26234@gum09.etpnet.phys.tue.nl>
-Date: Mon, 22 Jul 2002 13:19:40 +0200 (CEST)
-From: bart@etpmod.phys.tue.nl
-Reply-To: bart@etpmod.phys.tue.nl
-Subject: Re: [PATCH] 2.5.27 sysctl
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3D3BE4C7.2060203@evision.ag>
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+	id <S316585AbSGVIEI>; Mon, 22 Jul 2002 04:04:08 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23311 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316582AbSGVIEI>; Mon, 22 Jul 2002 04:04:08 -0400
+Date: Mon, 22 Jul 2002 09:07:04 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.5.25 net/core/Makefile
+Message-ID: <20020722090704.A2052@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.44.0207211853130.16927-100000@chaos.physics.uiowa.edu> <25972.1027300121@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <25972.1027300121@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Mon, Jul 22, 2002 at 11:08:41AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Jul, Marcin Dalecki wrote:
-> Christoph Hellwig wrote:
->> On Mon, Jul 22, 2002 at 12:42:07PM +0200, Marcin Dalecki wrote:
->> 
->>>This is making the sysctl code acutally be written in C.
->>>It wasn't mostly due to georgeous ommitted size array "forward
->>>declarations". As a side effect it makes the table structure easier to
->>>deduce.
->> 
->> 
->> Please don't remove the trailing commas in the enums.  they make adding
->> to them much easier and are allowed by gcc (and maybe C99, I'm not
->> sure).
-> 
-> It's an GNU-ism. If you have any problem with "adding vales", just
-> invent some dummy end-value. I have a problem with using -pedantic.
-> 
+On Mon, Jul 22, 2002 at 11:08:41AM +1000, Keith Owens wrote:
+> It is required if you ever want autoconfigure to work, that
+> distinguishes between "" (undefined) and "n" (explicitly turned off).
+> Forward planning.
 
-Trailing commas in enums were NOT allowed before C99. C99 allows them,
-and gcc and some other compilers allowed this syntax before C99. 
-Since the kernel is going to use the .field= (C99) syntax for structure
-initialisers anyway, I don't see any point in removing trailing commas.
-(Especially not in code I once wrote :-))
+Wouldn't it be better to fix the existing config tools to output "=n"
+instead of "# CONFIG_foo is not set" ?  IIRC they do the translation
+back and forth internally anyway, so it should be just a matter of
+removing some code from the tools.
 
-As an aside, the fact that gcc warns about them is probably a compiler
-bug: (http://gcc.gnu.org/c99status.html)
-'In some places, -pedantic warnings don't take proper account of the
-standard version selected.'
-
-Bart
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+After all, the earlier we update the config tools, the earlier we can
+do something with the makefiles (after a reasonable period for things
+like mconfig to catch up...)
 
 -- 
-Bart Hartgers - TUE Eindhoven 
-http://plasimo.phys.tue.nl/bart/contact.html
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

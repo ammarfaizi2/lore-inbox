@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271518AbRH0Al3>; Sun, 26 Aug 2001 20:41:29 -0400
+	id <S271634AbRH0A15>; Sun, 26 Aug 2001 20:27:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271582AbRH0AlK>; Sun, 26 Aug 2001 20:41:10 -0400
-Received: from [212.159.14.227] ([212.159.14.227]:23991 "HELO
-	warrior-outbound.services.quay.plus.net") by vger.kernel.org
-	with SMTP id <S271518AbRH0Ak7>; Sun, 26 Aug 2001 20:40:59 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: kernel@penguin.linuxhardware.org (Kernel Related Emails),
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Support for new chipsets in AGPGART
-In-Reply-To: <E15aixW-000838-00@the-village.bc.nu>
-From: Adam Sampson <azz@gnu.org>
-Organization: The Society Of People Who Repeatedly Point Out That "alot" And "allot" Are Both Wrong, And It Should Be Written "a lot"
-Date: 26 Aug 2001 01:35:26 +0100
-In-Reply-To: <E15aixW-000838-00@the-village.bc.nu>
-Message-ID: <87itfbu08h.fsf@cartman.azz.us-lot.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S271635AbRH0A1r>; Sun, 26 Aug 2001 20:27:47 -0400
+Received: from argo.starforce.com ([216.158.56.82]:18816 "EHLO
+	argo.starforce.com") by vger.kernel.org with ESMTP
+	id <S271634AbRH0A1m>; Sun, 26 Aug 2001 20:27:42 -0400
+Date: Sun, 26 Aug 2001 20:28:03 -0400 (EDT)
+From: Derek Wildstar <dwild@starforce.com>
+To: dman <dsh8290@rit.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: tmpfs -- where's the M to R?
+In-Reply-To: <20010826195651.A5295@hudson>
+Message-ID: <Pine.LNX.4.33L2.0108262025590.1097-100000@argo.starforce.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Sun, 26 Aug 2001, dman wrote:
 
-> > Attached is a patch to identify two new chipsets in the AGP kernel
-> > module.
-> Ok I've already got the AMD, I'll check if I dont have the KT266
+> I'm interested in tmpfs for several reasons, one of them is setting up
+> a diskless terminal.  I found a few mentions of tmpfs in the FAQ and a
+> brief mention in the Multi Disk Tuning HOWTO, but I couldn't find any
+> docs on it.  Most of what I read said that there was no tmpfs
+> implementation in Linux, but my config (kernel 2.4.8) says there is.
+> Any pointers to documentation would be appreciated.
 
-As a datapoint, I made the same change to 2.4.5 a few weeks ago on a
-KT266 machine at work, and it works fine.
+Look at the help for tmpfs in "make menuconfig", if you highlight it then
+select "help" ... it explains how to mount it and what some of the options
+are.
 
--- 
-Adam Sampson <azz@gnu.org>                  <URL:http://azz.us-lot.org/>
+-dwild
+

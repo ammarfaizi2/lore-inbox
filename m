@@ -1,176 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269390AbRHQIPf>; Fri, 17 Aug 2001 04:15:35 -0400
+	id <S269849AbRHQITF>; Fri, 17 Aug 2001 04:19:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269274AbRHQIP1>; Fri, 17 Aug 2001 04:15:27 -0400
-Received: from elin.scali.no ([195.139.250.10]:31241 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S269390AbRHQIPT>;
-	Fri, 17 Aug 2001 04:15:19 -0400
-Subject: Re: [PATCH] processes with shared vm
-From: Terje Eggestad <terje.eggestad@scali.no>
-To: Robert Love <rml@tech9.net>
+	id <S269756AbRHQIS4>; Fri, 17 Aug 2001 04:18:56 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:2201 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S269849AbRHQISm>; Fri, 17 Aug 2001 04:18:42 -0400
+From: Christoph Rohland <cr@sap.com>
+To: safemode <safemode@speakeasy.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <998035750.1013.15.camel@phantasy>
-In-Reply-To: <997973469.7632.10.camel@pc-16> 
-	<998035017.663.13.camel@phantasy> 
-	<998035444.7627.4.camel@pc-16.office.scali.no> 
-	<998035750.1013.15.camel@phantasy>
-Content-Type: multipart/mixed; boundary="=-L6iLOYILsDzljNLIi035"
-X-Mailer: Evolution/0.12 (Preview Release)
-Date: 17 Aug 2001 10:15:30 +0200
-Message-Id: <998036130.7627.12.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
+Subject: Re: question about tmpfs
+In-Reply-To: <20010817064809Z269735-760+2777@vger.kernel.org>
+Organisation: SAP LinuxLab
+Date: 17 Aug 2001 10:18:46 +0200
+In-Reply-To: <20010817064809Z269735-760+2777@vger.kernel.org>
+Message-ID: <m34rr79k0p.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 17 Aug 2001, safemode@speakeasy.net wrote:
+> I looked in the documentation for something about tmpfs and looked
+> around for some obvious tmpfs source but couldn't find any to figure
+> out how to know when/if it's doing what it's supposed to.  when i ls
+> the dir it's mounted to i get nothing and this is what df gives me.
+> Filesystem           1k-blocks    Used    Available Use% Mounted on
+> tmpfs                   144108        0        144108       0%       /dev/shm
 
---=-L6iLOYILsDzljNLIi035
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+In the 2.3 timeframe SYSV shared memory did require you to mount shmfs
+somewhere to work properly. This was relaxed since Al Viro introduced
+kernel internal mount points. This feature is used now for SYSV shm
+and shared anonymous maps. You do not see this instance in user
+space. You can use ipcs to show the SYSV segmants.
 
-Man......
+The instance on /dev/shm only used by the shmopen/shmunlink functions
+of glibc 2.2. These functions are specified by POSIX for shared memory
+handling. Since there aren't a lot of programs using this interface
+right now, you do not see anything here and could drop this mount from
+your fstab. But if you use such a program you will need a tmpfs
+instance mounted somewhere (preferably under /dev/shm).
 
-Is there any other way I can do this wrong!?!?, guess I need to write
-more patches :-)
+Greetings
+		Christoph
 
---- array.c.orig	Mon Mar 19 21:34:55 2001
-+++ array.c	Thu Aug 16 16:33:56 2001
-@@ -50,6 +50,12 @@
-  * Al Viro & Jeff Garzik :  moved most of the thing into base.c and
-  *			 :  proc_misc.c. The rest may eventually go into
-  *			 :  base.c too.
-+ *
-+ * Terje Eggestad    :  added in /proc/<pid>/status a VmClones: n
-+ *                   :  that tells how many proc that uses the same VM (mm_struct).
-+ *                   :  if there are clones add another field VmFirstClone with the
-+ *                   :  clone with the lowest pid. Needed for things like gtop that adds 
-+ *                   :  mem usage of groups of proc, or else they add up the usage of threads.
-  */
- 
- #include <linux/config.h>
-@@ -178,7 +184,7 @@
- static inline char * task_mem(struct mm_struct *mm, char *buffer)
- {
- 	struct vm_area_struct * vma;
--	unsigned long data = 0, stack = 0;
-+ 	unsigned long data = 0, stack = 0;
- 	unsigned long exec = 0, lib = 0;
- 
- 	down_read(&mm->mmap_sem);
-@@ -206,12 +212,24 @@
- 		"VmData:\t%8lu kB\n"
- 		"VmStk:\t%8lu kB\n"
- 		"VmExe:\t%8lu kB\n"
--		"VmLib:\t%8lu kB\n",
-+		"VmLib:\t%8lu kB\n"
-+		"VmClones:\t%d\n",
- 		mm->total_vm << (PAGE_SHIFT-10),
- 		mm->locked_vm << (PAGE_SHIFT-10),
- 		mm->rss << (PAGE_SHIFT-10),
- 		data - stack, stack,
--		exec - lib, lib);
-+		exec - lib, lib, 
-+		mm->mm_users.counter-2);
-+	/* if we've vm clones, find the lowest/first pid of the clones */	
-+	if (mm->mm_users.counter > 2) {
-+	  struct task_struct *p;
-+	  read_lock(&tasklist_lock);
-+	  for_each_task(p) {
-+	    if (p->mm == mm) break;
-+	  };
-+	  buffer += sprintf(buffer, "VmFirstClone:\t%d\n", p->pid);
-+	  read_unlock(&tasklist_lock);
-+	};
- 	up_read(&mm->mmap_sem);
- 	return buffer;
- }
-Den 17 Aug 2001 04:08:53 -0400, skrev Robert Love:
-> On 17 Aug 2001 10:04:04 +0200, Terje Eggestad wrote:
-> > OK
-> 
-> the patch is backwards :) i think your original one was too
-> 
-> diff -u <old> <new>
-> 
-> -- 
-> Robert M. Love
-> rml at ufl.edu
-> rml at tech9.net
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-_________________________________________________________________________
-
-Terje Eggestad                  terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
-
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 70 Bogerud                      +47 975 31 574  (MOBILE)
-N-0621 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
-
---=-L6iLOYILsDzljNLIi035
-Content-Type: text/plain
-Content-Disposition: attachment; filename=vmclone.patch
-Content-ID: <998036033.7609.9.camel@pc-16.office.scali.no>
-Content-Transfer-Encoding: 7bit
-
---- array.c.orig	Mon Mar 19 21:34:55 2001
-+++ array.c	Thu Aug 16 16:33:56 2001
-@@ -50,6 +50,12 @@
-  * Al Viro & Jeff Garzik :  moved most of the thing into base.c and
-  *			 :  proc_misc.c. The rest may eventually go into
-  *			 :  base.c too.
-+ *
-+ * Terje Eggestad    :  added in /proc/<pid>/status a VmClones: n
-+ *                   :  that tells how many proc that uses the same VM (mm_struct).
-+ *                   :  if there are clones add another field VmFirstClone with the
-+ *                   :  clone with the lowest pid. Needed for things like gtop that adds 
-+ *                   :  mem usage of groups of proc, or else they add up the usage of threads.
-  */
- 
- #include <linux/config.h>
-@@ -178,7 +184,7 @@
- static inline char * task_mem(struct mm_struct *mm, char *buffer)
- {
- 	struct vm_area_struct * vma;
--	unsigned long data = 0, stack = 0;
-+ 	unsigned long data = 0, stack = 0;
- 	unsigned long exec = 0, lib = 0;
- 
- 	down_read(&mm->mmap_sem);
-@@ -206,12 +212,24 @@
- 		"VmData:\t%8lu kB\n"
- 		"VmStk:\t%8lu kB\n"
- 		"VmExe:\t%8lu kB\n"
--		"VmLib:\t%8lu kB\n",
-+		"VmLib:\t%8lu kB\n"
-+		"VmClones:\t%d\n",
- 		mm->total_vm << (PAGE_SHIFT-10),
- 		mm->locked_vm << (PAGE_SHIFT-10),
- 		mm->rss << (PAGE_SHIFT-10),
- 		data - stack, stack,
--		exec - lib, lib);
-+		exec - lib, lib, 
-+		mm->mm_users.counter-2);
-+	/* if we've vm clones, find the lowest/first pid of the clones */	
-+	if (mm->mm_users.counter > 2) {
-+	  struct task_struct *p;
-+	  read_lock(&tasklist_lock);
-+	  for_each_task(p) {
-+	    if (p->mm == mm) break;
-+	  };
-+	  buffer += sprintf(buffer, "VmFirstClone:\t%d\n", p->pid);
-+	  read_unlock(&tasklist_lock);
-+	};
- 	up_read(&mm->mmap_sem);
- 	return buffer;
- }
-
---=-L6iLOYILsDzljNLIi035--
 

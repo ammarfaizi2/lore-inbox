@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266052AbTLIQHV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 11:07:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266088AbTLIQHV
+	id S266074AbTLIPw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 10:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266077AbTLIPwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 11:07:21 -0500
-Received: from [193.138.115.2] ([193.138.115.2]:41735 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S266052AbTLIQHR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 11:07:17 -0500
-Date: Tue, 9 Dec 2003 17:04:47 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: =?iso-8859-1?q?moi=20toi?= <mikemaster_f@yahoo.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Physical address
-In-Reply-To: <20031208150713.39743.qmail@web25201.mail.ukl.yahoo.com>
-Message-ID: <8A43C34093B3D5119F7D0004AC56F4BC0706E5CE@difpst1a.dif.dk>
-References: <20031208150713.39743.qmail@web25201.mail.ukl.yahoo.com>
+	Tue, 9 Dec 2003 10:52:55 -0500
+Received: from maximus.kcore.de ([213.133.102.235]:46484 "EHLO
+	maximus.kcore.de") by vger.kernel.org with ESMTP id S266074AbTLIPwy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 10:52:54 -0500
+From: Oliver Feiler <kiza@gmx.net>
+To: David Jez <dave.jez@seznam.cz>, hanasaki <hanasaki@hanaden.com>
+Subject: Re: VT82C686  - no sound
+Date: Tue, 9 Dec 2003 16:51:27 +0100
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <3FD54817.9050402@hanaden.com> <20031209101808.GA18309@stud.fit.vutbr.cz>
+In-Reply-To: <20031209101808.GA18309@stud.fit.vutbr.cz>
+X-PGP-Key-Fingerprint: E9DD 32F1 FA8A 0945 6A74  07DE 3A98 9F65 561D 4FD2
+X-PGP-Key: http://kiza.kcore.de/pgpkey
+X-Species: Snow Leopard
+X-Operating-System: Linux
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312091651.27677.kiza@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 09 December 2003 11:18, David Jez wrote:
 
-On Mon, 8 Dec 2003, moi toi wrote:
-
-> Hi
+> > == /etc/modules ==
+> > snd_via82xx
+> > snd_ac97_codec
+> > snd_pcm_oss
+> > snd_page_alloc
+> > snd_pcm
+> > snd_timer
+> > snd_mixer_oss
+> > snd_pcm_oss
+> > snd_mpu401_uart
 >
-> I am a newbie in the development of Linux driver. I
-> have some
-> difficulties to understand how the memory management
-> works.
->
-> I am working on a Pentium IV ( 512M of RAM), with the
-> Red Hat 9.0.
-> I want to create buffers in the RAM which are
-> available for DMA
-> transfer, and I want that process can map them.
->
+>   This is not ALSA modules. If you have configured system for use with
+> ALSA, you don't have to use OSS modules. Use ALSA with OSS emulaton
+> instead. It should works.
 
-I recently came across a good article in Linux Journal by Robert Love that
-explains how to allocate memory in the kernel and the various options you
-have.
-The article was called "Allocating Memory in the Kernel" and appeared in
-the December 2003 issue. You can also find it online here:
-http://www.linuxjournal.com/article.php?sid=6930
+But this _is_ ALSA with the OSS emulation modules loaded (snd_mixer_oss and 
+snd_pcm_oss). :)
+The OSS driver module is called via82cxxx_audio afaik.
 
+Bye,
+Oliver
 
-Hope this helps you.
-
-
-Kind regards,
-
-Jesper Juhl
+-- 
+Oliver Feiler  <kiza@(kcore.de|lionking.org|gmx[pro].net)>
 

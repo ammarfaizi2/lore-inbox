@@ -1,62 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbULPVMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbULPVRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbULPVMP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 16:12:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbULPVMP
+	id S262026AbULPVRT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 16:17:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbULPVRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 16:12:15 -0500
-Received: from mail.kroah.org ([69.55.234.183]:62344 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262028AbULPVMC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 16:12:02 -0500
-Date: Thu, 16 Dec 2004 13:11:37 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.10-rc2 start_udev very slow
-Message-ID: <20041216211137.GA9475@kroah.com>
-References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org> <200411171932.47163.andrew@walrond.org> <20041216155643.GB27421@kroah.com> <200412162057.25244.andrew@walrond.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Dec 2004 16:17:19 -0500
+Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:38051 "EHLO
+	cenedra.walrond.org") by vger.kernel.org with ESMTP id S262026AbULPVRN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 16:17:13 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: bkbits problem?
+Date: Thu, 16 Dec 2004 21:16:57 +0000
+User-Agent: KMail/1.7.1
+Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       bitkeeper-users@bitmover.com
+References: <20041216190159.GA31805@one-eyed-alien.net>
+In-Reply-To: <20041216190159.GA31805@one-eyed-alien.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200412162057.25244.andrew@walrond.org>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200412162116.57509.andrew@walrond.org>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 08:57:25PM +0000, Andrew Walrond wrote:
-> On Thursday 16 Dec 2004 15:56, Greg KH wrote:
-> > On Wed, Nov 17, 2004 at 07:32:47PM +0000, Andrew Walrond wrote:
-> > > I noticed that when upgrading from 2.6.8.1 to rc2, start_udev now takes
-> > > 10-15s after printing
-> > >
-> > > "Creating initial udev device nodes:"
-> >
-> > udevstart should be used instead of start_udev.  It goes a lot faster
-> > and fixes odd startup dependancies that are needed.
-> 
-> I'm using 048 at the moment. Works great, but if I replace start_udev with 
-> udevstart in my init scripts as you suggest, it all goes horribly wrong...
-> 
-> udevstart is just a symlink to udev, but start_udev is a script which:
->  - mounts ramfs
->  - runs udevstart
->  - makes some extra nodes not exported by sysfs (stdin/out/err)
+On Thursday 16 Dec 2004 19:01, Matthew Dharm wrote:
+> Is anyone besides me having difficulty cloning a tree from
+> linux.bkbits.net/linux-2.5 or 2.6?
+>
+> I keep getting:
+>
+> [mdharm@g5 mdharm]$ bk clone bk://linux.bkbits.net/linux-2.5 linux-405-2.5
+> Clone bk://linux.bkbits.net/linux-2.5
+>    -> file://home/mdharm/linux-405-2.5
+> BAD gzip hdr
+> read: No such file or directory
+> 0 bytes uncompressed to 0, nanX expansion
+> sfio errored
+>
+> I can clone from linuxusb, so I don't _think_ it's a problem on my end...
+>
 
-Then I don't really know what to recommend.  As the udev startup logic
-is very tightly tied to how the distro is set up, I recommend using
-whatever they do, and ignore what I say :)
+I reported the same thing on Sunday to the bitkeeper-users ML (see below)
+Interestingly, I can 'pull' to an existing linux-2.5 repo now, but clone is 
+still busted.
 
-> So I guess I need to migrate this functionality to my init system before I can 
-> call udevstart directly.
+bitkeeper-users is deathly quiet. I got no reply since sunday. Has christmas 
+started early at Bitmovers?   ;)
 
-I'd suggest just leaving it alone.
++-----------------------------------------+
 
-> 
-> Is that list of  'extra nodes not exported by sysfs likely to change?'
+Since yesterday night, when I try a pull an existing clone of 
+bk://linux.bkbits.net/linux-2.6, I get a hang 20s hang like this:
 
-What does that list contain?
 
-thanks,
+ andrew@orac linux-bk $ bk pull
+ Pull bk://linux.bkbits.net/linux-2.6
+   -> file://home/andrew/kernels/linux-bk
+ Nothing to pull.
+ [HANG 20s or so]
+ andrew@orac linux-bk $ 
 
-greg k-h
+
+If I try to get a new clone, I get some really funky stuff:
+
+ andrew@orac test $ bk clone bk://linux.bkbits.net/linux-2.6
+ Clone bk://linux.bkbits.net/linux-2.6
+    -> file://home/andrew/test/linux-2.5
+ BAD gzip hdr
+ read: No such file or directory
+ 0 bytes uncompressed to 0, nanX expansion
+ sfio errored
+ andrew@orac test $
+
+
+Tried on two seperate machines in UK and US, so I don't think its me or 
+internet breakage...
+
+Andrew Walrond

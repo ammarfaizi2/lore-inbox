@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262527AbTCRSdG>; Tue, 18 Mar 2003 13:33:06 -0500
+	id <S262530AbTCRSfM>; Tue, 18 Mar 2003 13:35:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262528AbTCRSdG>; Tue, 18 Mar 2003 13:33:06 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:56254 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262527AbTCRSdF>;
-	Tue, 18 Mar 2003 13:33:05 -0500
-Date: Tue, 18 Mar 2003 10:40:51 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Der Herr Hofrat <der.herr@hofr.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bug in kernel/sysctl.c (SYSIPC) ?
-Message-Id: <20030318104051.0fb171ed.rddunlap@osdl.org>
-In-Reply-To: <200303180751.h2I7pIT11537@hofr.at>
-References: <200303180751.h2I7pIT11537@hofr.at>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S262515AbTCRSfM>; Tue, 18 Mar 2003 13:35:12 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:21185 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262539AbTCRSfJ>;
+	Tue, 18 Mar 2003 13:35:09 -0500
+Subject: [PATCH 2.5.65] md/linear oops fix
+From: Daniel McNeil <daniel@osdl.org>
+To: NeilBrown <neilb@cse.unsw.edu.au>, Ingo Molnar <mingo@redhat.com>
+Cc: linux-raid <linux-raid@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-iKuDKTgAesgz48O3oSK8"
+Organization: 
+Message-Id: <1048013156.2542.11.camel@ibm-c.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 18 Mar 2003 10:45:56 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Mar 2003 08:51:17 +0100 (CET) Der Herr Hofrat <der.herr@hofr.at> wrote:
 
-|  atleast in kernel 2.4.19 and 2.4.20 in kernel/sysctl.c shmmax and shmall use
-|  the proc_dointvec_minmax callback without passing a min/max value - is there
-|  a reson for this or is this a simple bug ?
-| 
-| linux/kenrel/sysctl.c (line 221 for 2.4.19/20)
-| 
-| #ifdef CONFIG_SYSVIPC
-| 	{KERN_SHMMAX, "shmmax", &shm_ctlmax, sizeof (size_t),
-| 	 0644, NULL, &proc_doulongvec_minmax},
-| 	{KERN_SHMALL, "shmall", &shm_ctlall, sizeof (size_t),
-| 	 0644, NULL, &proc_doulongvec_minmax},
-| 	...
-| #endif
+--=-iKuDKTgAesgz48O3oSK8
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-The min and max values default to 0 if not specified (initialized),
-and the _minmax functions have code to handle those cases.
+This fixes an oops caused by incorrect usage of sector_div()
+in which_dev() in md/linear.c.  It was dereferencing an non-existent
+hash table entry.
 
-so as long as the intended min/max values were 0, I don't see a
-problem.  Are you seeing a problem?
+-- 
+Daniel McNeil <daniel@osdl.org>
 
---
-~Randy
+--=-iKuDKTgAesgz48O3oSK8
+Content-Disposition: attachment; filename=patch-2.5.65-linear
+Content-Type: text/x-patch; name=patch-2.5.65-linear; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+diff -urNp -X /home/daniel/dontdiff linux-2.5.65/drivers/md/linear.c linux-2.5.65-md/drivers/md/linear.c
+--- linux-2.5.65/drivers/md/linear.c	Mon Mar 17 13:44:04 2003
++++ linux-2.5.65-md/drivers/md/linear.c	Tue Mar 18 09:34:09 2003
+@@ -37,7 +37,11 @@ static inline dev_info_t *which_dev(mdde
+ 	linear_conf_t *conf = mddev_to_conf(mddev);
+ 	sector_t block = sector >> 1;
+ 
+-	hash = conf->hash_table + sector_div(block, conf->smallest->size);
++	/*
++	 * sector_div(a,b) returns the remainer and sets a to a/b
++	 */
++	(void)sector_div(block, conf->smallest->size);
++	hash = conf->hash_table + block;
+ 
+ 	if ((sector>>1) >= (hash->dev0->size + hash->dev0->offset))
+ 		return hash->dev1;
+
+--=-iKuDKTgAesgz48O3oSK8--
+

@@ -1,84 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265964AbRGJJMz>; Tue, 10 Jul 2001 05:12:55 -0400
+	id <S264874AbRGJJrt>; Tue, 10 Jul 2001 05:47:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266044AbRGJJMo>; Tue, 10 Jul 2001 05:12:44 -0400
-Received: from rcum.uni-mb.si ([164.8.2.10]:3347 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S265964AbRGJJMe>;
-	Tue, 10 Jul 2001 05:12:34 -0400
-Date: Tue, 10 Jul 2001 11:12:31 +0200
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: VIA Southbridge bug (Was: Crash on boot (2.4.5))
-To: landley@webofficenow.com
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3B4AC6FF.A7363AA2@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S264877AbRGJJrj>; Tue, 10 Jul 2001 05:47:39 -0400
+Received: from picard.csihq.com ([204.17.222.1]:47506 "EHLO picard.csihq.com")
+	by vger.kernel.org with ESMTP id <S264874AbRGJJr3>;
+	Tue, 10 Jul 2001 05:47:29 -0400
+Message-ID: <02ae01c10925$4b791170$e1de11cc@csihq.com>
+From: "Mike Black" <mblack@csihq.com>
+To: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
+Subject: 2.4.6 and ext3-2.4-0.9.1-246
+Date: Tue, 10 Jul 2001 05:47:12 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley (landley@webofficenow.com) wrote :
-> On Sunday 08 July 2001 13:37, Alan Cox wrote: 
-> > > > possible on the memory bus. Several people have reported that machines 
-> > > > that are otherwise stable on the bios fast options require the proper 
-> > > > conservative settings to be stable with the Athlon optimisations 
-> > > 
-> > > Do we need patch to memtest to use 3dnow? 
-> > 
-> > Possibly yes. Although memtest86 really tries to test for onchip not bus 
-> > related problems 
-> 
-> What else tends to fail on the motherboard that might be easy to test for? 
-> Processor overheating? (When the thermometer circuitry's there, anyway.) 
-> Something to do with DMA? (Would DMA to/from a common card like VGA catch 
-> chipset-side DMA problems?) There was an SMP exception thing floating by 
-> recently, is that common and testable? 
-> 
-> I know there's a lot of funky peripheral combinations that behave strangely, 
-> but without opening that can of worms what kind of common problems on the 
-> motherboard itself might be easy to test for in a "run this overnight and see 
-> if it finds a problem with your hardware" sort of way? 
-> 
-> Rob 
-> 
-> (P.S. What kind of CPU load is most likely to send a processor into overheat? 
+I started testing 2.4.6 with ext3-2.4-0.9.1-246 yesterday morning and
+immediately hit a wall.
 
-CPUburn from http://users.ev1.net/~redelm/
+Testing on a an SMP kernel -- dual IDE RAID1 set the system temporarily
+locked up (telnet window stops until disk I/O is complete).
+I'm using tiobench tiobench-0.3.2 and do have unmaskirq turned on so it
+shouldn't be irq contention.
+/dev/hda:
+ multcount    =  0 (off)
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+/dev/hdc:
+ multcount    =  0 (off)
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
 
-My Celeron 300 oc'ed to 450 run RC5 and Mersenne Prime for hours,
-but locked up after 5 minutes of CPU burn.
+Investigating this some I noticed that kswapd was taking a LOT of CPU time
+(althought there was only 10Meg in swap).  The swap files are located on the
+RAID1 IDE set.
+So...I moved the swapfiles to my SCSI subsystem (also EXT3 at this point)
+and tested again.
+Smoother although there was a quite a bit of jerkiness on the telnet window
+still.
+So...swap on IDE/RAID1/EXT3 was bad idea...I'd say 80% better when swap was
+moved off of the IDE system to SCSI.
 
-The best CPU ( and bus/memory) test program that exists, IMHO
+Here's my RAID1/IDE benchmark with EXT3
+..ooops...spoke too soon.
+The tiobench.pl locked up on 8 threads (after doing 1,2, & 4).  Had to do a
+ALT-SYSRQ-B as all windows were dead although I could get a login prompt.
 
->  (Other than "a tight loop", thanks. I mean what kind of instructions?) 
-> This is going to be CPU specific, isn't it? Our would a general instruction 
-> mix that doesn't call halt be enough? It would need to keep the FPU busy 
-> too, wouldn't it? And maybe handle interrupts. Hmmm...) 
-> 
-> I wonder... The torture test Tom's Hardware guide uses for processor 
-> overheating is GCC compiling the Linux kernel. (That's what caught the 
-> Pentium III 1.13 gigahertz instability when nothing else would.) I wonder, 
-> maybe if a stripped down subset of a known version of GCC and a known version 
-> of the kernel were running from a ramdisk... It USED to fit in 8 megs with 
-> no swap, might still fit in 32 with a decent chunk of kernel source. Throw 
-> the compile in a loop, add in a processor temperature detector daemon to kill 
-> the test and HLT the system if the temperature went too high... 
-> 
-> I wonder what bits of the kernel GCC actually needs to run these days? 
-> (System V inter-process communication? sysctl support? Hmmm... Would 
-> 2.4.anything be a stable enough base for this yet, or should it be 2.2.19? 
-> Is 2.4 still psychotic with less swap space than ram (I.E. no swap space at 
-> all)?) 
-> 
-> Off to play... 
-> 
-> Still Rob. 
+It really looks like tiobench is a good stress tester for ext3.
+________________________________________
+Michael D. Black   Principal Engineer
+mblack@csihq.com  321-676-2923,x203
+http://www.csihq.com  Computer Science Innovations
+http://www.csihq.com/~mike  My home page
+FAX 321-676-2355
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -

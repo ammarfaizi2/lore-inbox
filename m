@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267513AbSKQPAv>; Sun, 17 Nov 2002 10:00:51 -0500
+	id <S267516AbSKQPsa>; Sun, 17 Nov 2002 10:48:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267514AbSKQPAv>; Sun, 17 Nov 2002 10:00:51 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:6924 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S267513AbSKQPAu>; Sun, 17 Nov 2002 10:00:50 -0500
-Message-Id: <200211171507.gAHF7de11633@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Patrick Mansfield <patmans@us.ibm.com>
-cc: "J.E.J. Bottomley" <James.Bottomley@SteelEye.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       grundler@dsl2.external.hp.com, willy@debian.org
-Subject: Re: [RFC][PATCH] move dma_mask into struct device 
-In-Reply-To: Message from Patrick Mansfield <patmans@us.ibm.com> 
-   of "Sat, 16 Nov 2002 12:33:51 PST." <20021116123351.A7537@eng2.beaverton.ibm.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 17 Nov 2002 09:07:39 -0600
-From: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S267517AbSKQPsa>; Sun, 17 Nov 2002 10:48:30 -0500
+Received: from 015.atlasinternet.net ([212.9.93.15]:13764 "EHLO
+	antoli.gallimedina.net") by vger.kernel.org with ESMTP
+	id <S267516AbSKQPs3>; Sun, 17 Nov 2002 10:48:29 -0500
+Date: Sun, 17 Nov 2002 16:55:22 +0100
+From: Ricardo Galli <gallir@uib.es>
+Message-Id: <200211171549.gAHFnSrE021923@mnm.uib.es>
+To: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+X-UIDL: PLS!!d??!!J%,"!I'""!
+Content-Type: text/plain; charset=US-ASCII
+Organization: UIB
+Subject: PATCH: Recognize Tualatin cache size in 2.4.x
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-patmans@us.ibm.com said:
-> Can shost->host_driverfs_dev.parent be used instead of adding and
-> using a duplicate shost->dev? 
+Marcelo,
+	please attach this patch to recognise the Tualatin processors' 
+cache. 
 
-I think so. I believe the parent is always the device we're looking for.  I'll 
-make the fix.
+I think this has been already discussed in the list, and DaveJ 
+also applied it in his tree and/or 2.5.x. It is documented by
+Intel.
 
-James
+Regards
+
+--
+  ricardo galli    GPG id C8114D34
+
+--- /usr/src/linux-2.4.20-rc1/arch/i386/kernel/setup.c	2002-11-05 2002-11-17 16:46:32.000000000 +0100
++++ /usr/src/linux-2.4.20-rc1a/arch/i386/kernel/setup.c	2002-11-05 00:52:25.000000000 +0100
+@@ -2215,6 +2215,7 @@
+ 	{ 0x7B, LVL_2,      512 },
+ 	{ 0x7C, LVL_2,      1024 },
+ 	{ 0x82, LVL_2,      256 },
++	{ 0x83, LVL_2,      512 },
+ 	{ 0x84, LVL_2,      1024 },
+ 	{ 0x85, LVL_2,      2048 },
+ 	{ 0x00, 0, 0}
 
 

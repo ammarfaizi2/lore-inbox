@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265393AbTF1UbD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 16:31:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbTF1UbD
+	id S265395AbTF1Ud7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 16:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265401AbTF1Ud7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 16:31:03 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:55313 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S265393AbTF1UbC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 16:31:02 -0400
-Date: Sat, 28 Jun 2003 22:31:35 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-       Larry McVoy <lm@bitmover.com>,
-       Scott McDermott <vaxerdec@frontiernet.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bkbits.net is down
-Message-ID: <20030628203135.GC29680@alpha.home.local>
-References: <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk> <20030627235150.GA21243@work.bitmover.com> <20030627165519.A1887@beaverton.ibm.com> <20030628001625.GC18676@work.bitmover.com> <20030627205140.F29149@newbox.localdomain> <20030628031920.GF18676@work.bitmover.com> <1056827655.6295.22.camel@dhcp22.swansea.linux.org.uk> <20030628191847.GB8158@work.bitmover.com> <20030628193857.GH841@gallifrey> <1056832290.6289.44.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
+	Sat, 28 Jun 2003 16:33:59 -0400
+Received: from arbi.Informatik.uni-oldenburg.de ([134.106.1.7]:51986 "EHLO
+	arbi.Informatik.Uni-Oldenburg.DE") by vger.kernel.org with ESMTP
+	id S265395AbTF1Ud6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 16:33:58 -0400
+Subject: Patch 2.4.21 fix use of pid in capabillity.c
+To: linux-kernel@vger.kernel.org
+Date: Sat, 28 Jun 2003 22:48:13 +0200 (MEST)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1056832290.6289.44.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E19WMcH-000CqP-00@grossglockner.Informatik.Uni-Oldenburg.DE>
+From: "Walter Harms" <Walter.Harms@Informatik.Uni-Oldenburg.DE>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 28, 2003 at 09:31:30PM +0100, Alan Cox wrote:
-> On Sad, 2003-06-28 at 20:38, Dr. David Alan Gilbert wrote:
-> > Tapes are a pain; but at the type of 40GB range is it worth considering
-> > a pile of external USB/Firewire hard drives?
-> 
-> I'm testing the USB2 disk idea at the moment. Big problem is performance
-> - 5Mbytes/second isnt the best backup rate in the world.
 
-Well, still quite faster than a DDS3 anyway, and probably faster than a DDS4...
+Hi liste,
+this is a small patch to fix functions that do not use the 
+correct type for pid. daniele bellucci and i have worked this 
+out. 
 
-Cheers,
-Willy
+walter
+
+
+--- kernel/capability.c.org	2003-06-25 22:27:44.000000000 +0200
++++ kernel/capability.c	2003-06-25 22:32:08.000000000 +0200
+@@ -21,7 +21,8 @@
+ 
+ asmlinkage long sys_capget(cap_user_header_t header, cap_user_data_t dataptr)
+ {
+-     int error, pid;
++     int error;
++     pid_t pid;
+      __u32 version;
+      struct task_struct *target;
+      struct __user_cap_data_struct data;
+@@ -131,7 +132,8 @@
+      kernel_cap_t inheritable, permitted, effective;
+      __u32 version;
+      struct task_struct *target;
+-     int error, pid;
++     int error;
++     pid_t pid;
+ 
+      if (get_user(version, &header->version))
+ 	     return -EFAULT; 
+-- 

@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262366AbVAUM55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbVAUN1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262366AbVAUM55 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 07:57:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbVAUM54
+	id S262360AbVAUN1t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 08:27:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbVAUN1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 07:57:56 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:38384 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262362AbVAUM5r
+	Fri, 21 Jan 2005 08:27:49 -0500
+Received: from mail-gw1.york.ac.uk ([144.32.128.246]:49082 "EHLO
+	mail-gw1.york.ac.uk") by vger.kernel.org with ESMTP id S262360AbVAUN1l convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 07:57:47 -0500
-Message-ID: <41F0FC45.3030205@tiscali.de>
-Date: Fri, 21 Jan 2005 13:57:41 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
+	Fri, 21 Jan 2005 08:27:41 -0500
+Date: Fri, 21 Jan 2005 13:18:16 +0000
+From: Alan Jenkins <aj504@student.cs.york.ac.uk>
+Subject: Re: 2.6.9 suspend-to-disk bug (during resume)
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+References: <1106210882.7975.9.camel@linux.site>
+	<1106210985l.8224l.0l@linux> <20050120145804.GJ476@openzaurus.ucw.cz>
+	<1106298500.10018.2.camel@linux.site> <20050121103921.GH18373@elf.ucw.cz>
+In-Reply-To: <20050121103921.GH18373@elf.ucw.cz> (from pavel@suse.cz on Fri
+	Jan 21 10:39:21 2005)
+X-Mailer: Balsa 2.2.4
+Message-Id: <1106313496l.7636l.0l@linux>
 MIME-Version: 1.0
-To: Alexander Gran <alex@zodiac.dnsalias.org>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Lost in translation
-References: <200501211136.11488@zodiac.zodiac.dnsalias.org>
-In-Reply-To: <200501211136.11488@zodiac.zodiac.dnsalias.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	DelSp=Yes	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-York-MailScanner: Found to be clean
+X-York-MailScanner-From: aj504@student.cs.york.ac.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Gran wrote:
+> > > Try without preempt for an ugly workaround.
+> > Check.
+> 
+> ??? Sorry, I do not understand.
 
->Hi folks,
->
->something esspecially for our german speakers:
->http://translate.google.com/translate?hl=de&sl=en&u=http://members.optusnet.com.au/ckolivas/kernel/&prev=/search%3Fq%3Dlinux%2Bkernel%2Bhighmem%2B1Gb%26hl%3Dde%26lr%3D%26ie%3DUTF-8%26c2coff%3D1
->
->SCNR
->Alex
->
->  
->
-Rofl, very nice!
+My fault.  I mean disabling preempt gets rid of the warnings.
 
-Matthias-Christian Ott
+> Ok, looks like I should enable PREEMPT here.
+> 
+> But resume succeeds at the end, no? We'll probably need to fix those
+> warnings, but driver model has bigger priority just now.
+
+Yes, the warnings do not appear to cause a problem.
+
+I have some unrelated problems, one of which I have described on the
+list.
+
+Thanks
+Alan
+

@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262729AbREOKlC>; Tue, 15 May 2001 06:41:02 -0400
+	id <S262728AbREOKex>; Tue, 15 May 2001 06:34:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262730AbREOKkw>; Tue, 15 May 2001 06:40:52 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8207 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262729AbREOKkt>; Tue, 15 May 2001 06:40:49 -0400
-Subject: Re: LANANA: To Pending Device Number Registrants
-To: viro@math.psu.edu (Alexander Viro)
-Date: Tue, 15 May 2001 11:36:30 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds),
-        neilb@cse.unsw.edu.au (Neil Brown),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        hpa@transmeta.com (H. Peter Anvin),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.GSO.4.21.0105150556120.21081-100000@weyl.math.psu.edu> from "Alexander Viro" at May 15, 2001 06:12:52 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262729AbREOKem>; Tue, 15 May 2001 06:34:42 -0400
+Received: from fjordland.nl.linux.org ([131.211.28.101]:60432 "EHLO
+	fjordland.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S262728AbREOKe1>; Tue, 15 May 2001 06:34:27 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alexander Viro <viro@math.psu.edu>, Richard Gooch <rgooch@ras.ucalgary.ca>
+Subject: Re: Getting FS access events
+Date: Tue, 15 May 2001 12:33:35 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0105150252171.19333-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0105150252171.19333-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14zcBq-0002Ku-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01051512333507.24410@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Cost of adding IOCTL_REWIND_TAPE - two words in each tape driver. That
-> alone kills a bunch of crap in userland and makes _both_ sides more
-> maintainable.
+On Tuesday 15 May 2001 08:57, Alexander Viro wrote:
+> On Tue, 15 May 2001, Richard Gooch wrote:
+> > > What happens if you create a buffer cache entry? Does that
+> > > invalidate the page cache one? Or do you just allow invalidates
+> > > one way, and not the other? And why=
+> >
+> > I just figured on one way invalidates, because that seems cheap and
+> > easy and has some benefits. Invalidating the other way is costly,
+> > so don't bother, even if there were some benefits.
+>
+> Cute.
+> 	* create an instance in pagecache
+> 	* start reading into buffer cache (doesn't invalidate, right?)
+> 	* start writing using pagecache
+> 	* lose the page
+> 	* try to read it (via pagecache)
+> Woops - just found a copy in buffer cache, let's pick data from it.
+> Pity that said data is obsolete...
 
-A lot lot more than that. There are some cases where what you are saying is
-true and we have duplication. The worst culprit was the cd layer and that
-has been cleaned up for a while now.
+That's because you left out his invalidate:
 
-In most of the other cases it varies what is done in drive firmware or in
-userspace by the app. Reimplementing half of the drive firmware in kernel
-space not user space does not appeal
+ 	* create an instance in pagecache
+ 	* start reading into buffer cache (doesn't invalidate, right?)
+ 	* start writing using pagecache (invalidate buffer copy)
+ 	* lose the page
+ 	* try to read it (via pagecache)
 
-Where it just normalising ioctl numbers I'd agree 100%
+Everthing ok.  As an optimization, instead of 'lose the page', do 'move 
+page blocks to buffer cache'.
 
-
+--
+Daniel

@@ -1,58 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266085AbRF1S2Z>; Thu, 28 Jun 2001 14:28:25 -0400
+	id <S266090AbRF1S3z>; Thu, 28 Jun 2001 14:29:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266086AbRF1S2P>; Thu, 28 Jun 2001 14:28:15 -0400
-Received: from mean.netppl.fi ([195.242.208.16]:17420 "EHLO mean.netppl.fi")
-	by vger.kernel.org with ESMTP id <S266085AbRF1S2H>;
-	Thu, 28 Jun 2001 14:28:07 -0400
-Date: Thu, 28 Jun 2001 21:28:05 +0300
-From: Pekka Pietikainen <pp@evil.netppl.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch.
-Message-ID: <20010628212805.A19547@netppl.fi>
-In-Reply-To: <Pine.LNX.4.33.0106280956030.15199-100000@penguin.transmeta.com> <6082.993748704@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
-In-Reply-To: <6082.993748704@redhat.com>
+	id <S266089AbRF1S3p>; Thu, 28 Jun 2001 14:29:45 -0400
+Received: from energy.pdb.sbs.de ([192.109.2.19]:23313 "EHLO energy.pdb.sbs.de")
+	by vger.kernel.org with ESMTP id <S266086AbRF1S3b>;
+	Thu, 28 Jun 2001 14:29:31 -0400
+Date: Thu, 28 Jun 2001 20:32:27 +0200 (CEST)
+From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+cc: Gerhard Wichert <Gerhard.Wichert@fujitsu-siemens.com>
+Subject: [PATCH] Bug in 2.4.5 in proc_pid_make_inode ()
+Message-ID: <Pine.LNX.4.30.0106281619150.17260-100000@biker.pdb.fsc.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 28, 2001 at 06:18:24PM +0100, David Woodhouse wrote:
-> 
-> 
-> torvalds@transmeta.com said:
-> > Things like version strings etc sound useful, but the fact is that the
-> > only _real_ problem it has ever solved for anybody is when somebody
-> > thinks they install a new kernel, and forgets to run "lilo" or
-> > something.
-> 
-> I can give counter-examples of times when it's been extremely useful to 
-> know exactly what version the user is running, and the info messages
-> included in their first bug report have told me exactly what I needed to 
-> know.
-> 
-> Only for code which is always distributed as part of the kernel, and where 
-> there are never any more up to date versions in the maintainer's tree, even 
-> temporarily.
-Indeed, and even if you're talking about kernel x.y.z the
-user might in fact be running a vendor-patched kernel with a newer
-version of the driver (and the author would still have to find out
-what version of the driver was included).
 
-For other things the version string is pretty useless as it isn't ever
-updated (e.g. networking), and there the kernel version is enough
-information.
+Hi,
 
-What I'd propose is a recommendation that modules in 
-addition to the "useful" information a module should print
-a maximum of one line (80 chars), and the author gets to
-choose what they want in there, version information, driver homepage,
-copyright, sponsor, whatever.
+I have recently experienced a number of kernel OOPSes
+in "top" under heavy load. Kernel is 2.4.5 (IA64, but
+this has nothing to do the IA64 patch).
 
-I just hope we never get to the point of having a "Memory leak removal
-sponsored by Tampax" boot message ;)
+The OOPS happens in the call tree
+
+open () system call
+[...]
+real_lookup ()
+proc_base_lookup ()
+proc_pid_make_inode ()
+iput ()
+proc_delete_inode () -> OOPS in __MOD_DEC_USE_COUNT
+
+proc_pid_make_inode () calls iput () if it finds a task PID of 0
+(jump to label out_unlock). If (PID == 0), the statement
+
+	inode->i_ino = fake_ino(task->pid, ino);
+
+sets    inode->i_ino = ((0 << 16) | ino) = ino.
+
+Thus if (ino < (1 << 16)), the test
+
+	if (PROC_INODE_PROPER(inode))
+
+in proc_delete_inode () will fail, and proc_delete_inode will
+erroneously assume this is a non-PID inode and
+look for a proc_dir_entry struct which is of course bogus
+(the OOPS happens when it tries to decrement the module use counter).
+
+Therefore I propose the following patch:
+
+--- 2.4.5mw/fs/proc/base.c.org	Wed Jun 27 12:36:18 2001
++++ 2.4.5mw/fs/proc/base.c	Thu Jun 28 20:52:22 2001
+@@ -672,6 +672,8 @@
+ 	return inode;
+
+ out_unlock:
++	/* Make sure proc_delete_inode does the right thing */
++	inode->i_ino |= (1 << 16);
+ 	iput(inode);
+ 	return NULL;
+ }
+
+This will tell proc_delete_inode that this is a PID entry.
+
+PS:
+I have seen 2.4.6-pre6 contains changes to this subroutine as well,
+but they seem to be attacking a different problem.
+Having analyzed the stack trace and the kernel code with objdump,
+I am pretty certain that the changes in 2.4.6-pre6 do not fix my problem
+(if they did, I would see a crash in proc_pid_delete_inode rather
+than in proc_delete_inode).
+
+The two patches are not in conflict.
+
+Regards,
+Martin
 
 -- 
-Pekka Pietikainen
+Martin Wilck     <Martin.Wilck@fujitsu-siemens.com>
+FSC EP PS DS1, Paderborn      Tel. +49 5251 8 15113
+
+
+
+

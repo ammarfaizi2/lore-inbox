@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262737AbSI1HcH>; Sat, 28 Sep 2002 03:32:07 -0400
+	id <S262739AbSI1IA7>; Sat, 28 Sep 2002 04:00:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262738AbSI1HcH>; Sat, 28 Sep 2002 03:32:07 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:44009 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S262737AbSI1HcG>;
-	Sat, 28 Sep 2002 03:32:06 -0400
-Date: Sat, 28 Sep 2002 09:46:35 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Larry Kessler <kessler@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Richard J Moore <richardj_moore@uk.ibm.com>
-Subject: Re: [PATCH-RFC] 4 of 4 - New problem logging macros, SCSI RAIDdevice
-  driver
-In-Reply-To: <Pine.LNX.4.44.0209262140380.1655-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0209280934540.13549-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262740AbSI1IA7>; Sat, 28 Sep 2002 04:00:59 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52238 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262739AbSI1IA6>; Sat, 28 Sep 2002 04:00:58 -0400
+Date: Sat, 28 Sep 2002 09:06:17 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sysrq on serial console
+Message-ID: <20020928090617.A32639@flint.arm.linux.org.uk>
+References: <3D94ED88.5040407@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D94ED88.5040407@us.ibm.com>; from haveblue@us.ibm.com on Fri, Sep 27, 2002 at 04:45:12PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 27, 2002 at 04:45:12PM -0700, Dave Hansen wrote:
+> It looks like the UART_LSR_BI bit needs to be set in the status 
+> variable for the break character to be interpreted as a break in the 
+> driver.
 
-On Thu, 26 Sep 2002, Linus Torvalds wrote:
-> On Thu, 26 Sep 2002, Jeff Garzik wrote:
-> > Tangent question, is it definitely to be named 2.6?
-> 
-> I see no real reason to call it 3.0.
-> 
-> The order-of-magnitude threading improvements might just come closest to
-> being a "new thing", but yeah, I still consider it 2.6.x. We don't have
-> new architectures or other really fundamental stuff. In many ways the
-> jump from 2.2 -> 2.4 was bigger than the 2.4 -> 2.6 thing will be, I
-> suspect.
+That is correct; that is how the UART reports a break character.
 
-i consider the VM and IO improvements one of the most important things
-that happened in the past 5 years - and it's definitely something that
-users will notice. Finally we have a top-notch VM and IO subsystem (in
-addition to the already world-class networking subsystem) giving
-significant improvements both on the desktop and the server - the jump
-from 2.4 to 2.5 is much larger than from eg. 2.0 to 2.4.
+> I doubt that it is actually broken,  but it isn't immediately obvious 
+> how that bit gets set.  Is there something that I should have set when 
+> the device was initialized to make sure that UART_LSR_BI is asserted 
+> in "status" when the interrupt occurs?
 
-I think due to these improvements if we dont call the next kernel 3.0 then
-probably no Linux kernel in the future will deserve a major number. In 2-4
-years we'll only jump to 3.0 because there's no better number available
-after 2.8. That i consider to be ... boring :) [while kernel releases are
-supposed to be a bit boring, i dont think they should be _that_ boring.]
+Now.  Its a status bit from the UART LSR register itself, read from
+serial8250_handle_port() and receive_chars().  It will cause an
+interrupt any time that the receive interrupt is enabled, ie when
+the port is open by user space.
 
-	Ingo
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbUFCNY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUFCN3C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbUFCNY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 09:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUFCNY1
+	id S262071AbUFCN3C (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 09:29:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbUFCN3C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 09:24:27 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:65019 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261932AbUFCNY0 (ORCPT
+	Thu, 3 Jun 2004 09:29:02 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62896 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262071AbUFCN3A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 09:24:26 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16575.9858.655475.206533@alkaid.it.uu.se>
-Date: Thu, 3 Jun 2004 15:24:18 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Joshua Kwan <joshk@triplehelix.org>
+	Thu, 3 Jun 2004 09:29:00 -0400
+Date: Thu, 3 Jun 2004 14:28:52 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc2-mm1
-In-Reply-To: <pan.2004.06.03.00.51.12.405011@triplehelix.org>
-References: <20040601021539.413a7ad7.akpm@osdl.org>
-	<pan.2004.06.03.00.51.12.405011@triplehelix.org>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Subject: Re: [PATCH] 2/5: Device-mapper: kcopyd
+Message-ID: <20040603132852.GD6627@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040602154129.GO6302@agk.surrey.redhat.com> <20040602204126.2bd0565c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040602204126.2bd0565c.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Kwan writes:
- > On Tue, 01 Jun 2004 02:15:39 -0700, Andrew Morton wrote:
- > > - merged perfctr.  No documentation though :(
- > 
- > In light of all of the problems with perfctr here, I've gone and done the
- > ifdef work for CONFIG_PERFCTR, presenting an alternative solution to the
- > struct problem...
- > 
- > http://triplehelix.org/~joshk/perfctr.diff
+On Wed, Jun 02, 2004 at 08:41:26PM -0700, Andrew Morton wrote:
+> What is the page pool for?
 
-What "all the problems"? There was an issue with warnings on
-struct-declared-in-parameter-list when CONFIG_PERFCTR is disabled,
-but those are trivial to fix and a fix was posted early on.
+On the I/O path it can't wait for pages to be allocated without 
+risking deadlock.  (cf. pvmove in 2.4)
 
-Your patch is #ifdef:ing out calls that have explicit no-op stubs
-for the !CONFIG_PERFCTR_VIRTUAL case. This shouldn't be needed.
-(And you're testing the wrong config option.)
 
-Also _please_ include the maintainer of said code if you think
-it has problems.
+> Why are the pooled pages locked?
 
-/Mikael
+I can't see that having any effect (i.e. unnecessary).
+
+ 
+> > +static int __init jobs_init(void)
+> > +	INIT_LIST_HEAD(&_complete_jobs);
+> > +	INIT_LIST_HEAD(&_io_jobs);
+> > +	INIT_LIST_HEAD(&_pages_jobs);
+
+> Do these lists need to be initialised a second time?
+
+No:-)
+
+
+Alasdair
+-- 
+agk@redhat.com

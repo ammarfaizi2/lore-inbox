@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269558AbUHZU7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269637AbUHZU7M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269558AbUHZU7O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269660AbUHZU5P
+	id S269637AbUHZU7M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:59:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269664AbUHZU5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:57:15 -0400
-Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:41383 "EHLO
-	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S269626AbUHZUiV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:38:21 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Christophe Saout <christophe@saout.de>
-To: Dmitry Baryshkov <mitya@school.ioffe.ru>
-Cc: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
-       hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>, flx@namesys.com,
-       torvalds@osdl.org, reiserfs-list@namesys.com
-In-Reply-To: <20040826203017.GA14361@school.ioffe.ru>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
-	 <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com>
-	 <20040826014542.4bfe7cc3.akpm@osdl.org> <412DAC59.4010508@namesys.com>
-	 <1093548414.5678.74.camel@krustophenia.net>
-	 <20040826203017.GA14361@school.ioffe.ru>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-iRiqRY6UDa+JwpiIC1hF"
-Date: Thu, 26 Aug 2004 22:38:12 +0200
-Message-Id: <1093552692.13881.43.camel@leto.cs.pocnet.net>
+	Thu, 26 Aug 2004 16:57:24 -0400
+Received: from holomorphy.com ([207.189.100.168]:41880 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269590AbUHZUiL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 16:38:11 -0400
+Date: Thu, 26 Aug 2004 13:38:06 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: jmerkey@comcast.net
+Cc: Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org,
+       jmerkey@drdos.com
+Subject: Re: 1GB/2GB/3GB User Space Splitting Patch 2.6.8.1 (PSEUDO SPAM)
+Message-ID: <20040826203806.GH2793@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	jmerkey@comcast.net, Roland Dreier <roland@topspin.com>,
+	linux-kernel@vger.kernel.org, jmerkey@drdos.com
+References: <082620042024.23755.412E47050006895C00005CCB2200751150970A059D0A0306@comcast.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.92.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <082620042024.23755.412E47050006895C00005CCB2200751150970A059D0A0306@comcast.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At some point in the past, my attribution was stripped from:
+>> Though asinine, the ABI spec is set in stone.
 
---=-iRiqRY6UDa+JwpiIC1hF
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Thu, Aug 26, 2004 at 08:24:38PM +0000, jmerkey@comcast.net wrote:
+> Why should Linux, which supports multiple executable formats, tie
+> itself to ELF exclusively? I doubt I am going to need to run ORACLE
+> or some other piggish app on my embedded linux system, but I would
+> like to have more kernel address space for drivers and other
+> appliance type features.  What do you plan to do when the driver base
+> becomes as large as the one in WIndows 2000/XP and you don't have
+> enough memory to load all the drivers.  Right now, iptables barfs
+> even with 3GB of address space when you load up about a  dozen
+> virtual network interfaces ?  Microsoft had this same problem (only
+> at a much sooner juncture in their platform evolution) and went to
+> VM support in the kernel itself to increase virtual address space for
+> kernel apps, file systems, and drivers when thye hit the wall. It's
+> coming time to start thinking about it.  
 
-Am Freitag, den 27.08.2004, 00:30 +0400 schrieb Dmitry Baryshkov:
+You're years late to this game. It's been thought about and the
+consensus (which I disagreed with) was to reject virtualspace pressure
+related changes of this kind for 32-bit platforms in favor of refusing
+to support 32-bit platforms and/or workloads requiring them.
 
-> Another example: Can ext2/etx3/reiserfsv3/xfs be implemented as reiser4
-> plugins? From Hans' words it seems so. If this is correct, then maybe
-> reiser4 core should be updated to completely replace current VFS layer?
-> Then it's a good point to create a branch (in old development model it
-> would be 2.7, dunno for new :), replace VFS layer with reiser4 core, and
-> rewrite all (or at least most used) FS as reiser4 plugins. Then
-> everybody will be happy.
->=20
-> But this looks too good to be true. Perhaps I misunderstood Hans' words
-> aboud 'new disk format', did I?
-
-No. You can change the format the reiser4 storage tree is stored in. As
-long as other filesystems don't use the same underlying storage tree
-this is not possible.
+Also, please line wrap at 80 characters (preferably 70) and please
+don't top post. The request about "top posting" is that placing quoted
+text prior to your responses in the message, with a line attributing the
+quoted text to the original author immediately above the quoted text is
+greatly preferred over the quoting arrangements made in your post(s).
 
 
---=-iRiqRY6UDa+JwpiIC1hF
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBLko0ZCYBcts5dM0RAifHAJoDtiifngYh4ZiRKhfWPv/yKHeNBACfSpa/
-dzAAXkO7oaVv7W4rgMIhrk8=
-=h/iE
------END PGP SIGNATURE-----
-
---=-iRiqRY6UDa+JwpiIC1hF--
-
+-- wli

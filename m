@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312302AbSDSRFR>; Fri, 19 Apr 2002 13:05:17 -0400
+	id <S312498AbSDSRRt>; Fri, 19 Apr 2002 13:17:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312453AbSDSRFQ>; Fri, 19 Apr 2002 13:05:16 -0400
-Received: from NEVYN.RES.CMU.EDU ([128.2.145.6]:745 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id <S312302AbSDSRFP>;
-	Fri, 19 Apr 2002 13:05:15 -0400
-Date: Fri, 19 Apr 2002 13:05:33 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Jan Slupski <jslupski@email.com>
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: Re: [PATCH] Wrong IRQ for USB on Sony Vaio (dmi_scan.c, pci-irq.c)
-Message-ID: <20020419130533.A23568@nevyn.them.org>
-Mail-Followup-To: Jan Slupski <jslupski@email.com>,
-	linux-kernel@vger.kernel.org, alan@redhat.com
-In-Reply-To: <Pine.LNX.4.21.0204191553110.6667-100000@venus.ci.uw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S312524AbSDSRRs>; Fri, 19 Apr 2002 13:17:48 -0400
+Received: from bv-n-3b5d.adsl.wanadoo.nl ([212.129.187.93]:16900 "HELO
+	legolas.dynup.net") by vger.kernel.org with SMTP id <S312498AbSDSRRr>;
+	Fri, 19 Apr 2002 13:17:47 -0400
+Date: 19 Apr 2002 17:17:42 -0000
+Message-ID: <20020419171742.6300.qmail@legolas.dynup.net>
+From: rudmer@legolas.dynup.net
+To: davej@suse.de
+Subject: harddisk problems with 2.5.8-dj1
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 19, 2002 at 04:02:18PM +0200, Jan Slupski wrote:
-> 
-> Hi,
-> 
-> I'm writing once more about problem with IRQ assignment 
-> for Sony Vaio Laptops.
-> 
-> Broken BIOS of these notebooks assigns IRQ 10 for USB,
-> even though it is actually wired to IRQ 9.
-> 
-> I use PCG-FX240 model of Sony Vaio, but I have proofs of other users, 
-> that exactly the same problem exists on models:
-> FX200, FX220, FX250, FX270, FX290, FX370, FX503, R505JS, R505JL
-> These models use Intel's 82801BA controller, and Phoenix bios.
-> 
-> I wrote the patch that fix this. It is written on example of
-> patch for HP Pavillion (taken from 2.4.19-pre7-ac1).
-> 
-> This patch was tested on FX240. 
-> It is build for 2.4.18-pre7-ac1.
-> 
-> Only problem is I don't have DMI Product names for all involved models.
-> That's why I left pretty general:
->   MATCH(DMI_PRODUCT_NAME, "PCG-")
+Hi,
 
-Quite some time ago (~ November) Manfred posted a cleanup patch which
-fixes this in a more generic way.  You might want to ask him about it.
+reading through my dmesg output I found the following:
+--
+hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+hda: drive_cmd: error=0x04 { DriveStatusError }
+hdc: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+hdc: drive_cmd: error=0x04 { DriveStatusError }
+--
 
--- 
-Daniel Jacobowitz                           Carnegie Mellon University
-MontaVista Software                         Debian GNU/Linux Developer
+This is the first time I see this error for my HD's.
+HD information from dmesg:
+--
+Uniform Multi-Platform E-IDE driver ver.:7.0.0
+ide: system bus speed 33MHz
+hda: QUANTUM FIREBALL640A, ATA DISK drive
+hdc: QUANTUM FIREBALL640A, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 1253952 sectors (642 MB) w/83KiB Cache, CHS=1244/16/63
+hdc: 1253952 sectors (642 MB) w/83KiB Cache, CHS=1244/16/63
+Partition check:
+ hda: [PTBL] [622/32/63] hda1 hda2
+ hdc: [PTBL] [622/32/63] hdc1
+--
+
+I changed nothing in my .config from earlier -dj kernels
+So what can be wrong?
+
+There is also some other problem with kernels 2.5 for my system
+since every kernel I have tried locked up after one of the HD's
+(mostly hdc) had lost its interrupt, sometimes after an hour,
+sometimes after almost a week... keeping the hdc1 (/usr) partition
+mounted ro increased the lifetime of the running system.
+Is this a problem of my (old) hardware giving up on me or is the
+new IDE driver not fully capable of handling my hardware?
+It also appeared that the -dj kernels were better then the normal
+kernels.
+
+If you want more information please ask,
+
+Rudmer

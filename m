@@ -1,45 +1,235 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267779AbUJCK41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267783AbUJCLAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267779AbUJCK41 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 06:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267783AbUJCK41
+	id S267783AbUJCLAh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 07:00:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267792AbUJCLAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 06:56:27 -0400
-Received: from yue.linux-ipv6.org ([203.178.140.15]:7689 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S267779AbUJCK4Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 06:56:25 -0400
-Date: Sun, 03 Oct 2004 19:56:45 +0900 (JST)
-Message-Id: <20041003.195645.08061913.yoshfuji@linux-ipv6.org>
-To: vda@port.imtp.ilyichevsk.odessa.ua
+	Sun, 3 Oct 2004 07:00:37 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:33548 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S267783AbUJCLAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 07:00:01 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: YOSHIFUJI Hideaki /
+	 =?utf-8?q?=E5=90=89=E8=97=A4=E8=8B=B1=E6=98=8E?= 
+	<yoshfuji@linux-ipv6.org>
+Subject: Re: [PATCH] add rotate left/right ops to bitops.h
+Date: Sun, 3 Oct 2004 13:59:45 +0300
+User-Agent: KMail/1.5.4
 Cc: jmorris@redhat.com, davem@davemloft.net, linux-kernel@vger.kernel.org,
        yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH] add rotate left/right ops to bitops.h
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <200410031344.54182.vda@port.imtp.ilyichevsk.odessa.ua>
-References: <200410031344.54182.vda@port.imtp.ilyichevsk.odessa.ua>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+References: <200410031344.54182.vda@port.imtp.ilyichevsk.odessa.ua> <20041003.195645.08061913.yoshfuji@linux-ipv6.org>
+In-Reply-To: <20041003.195645.08061913.yoshfuji@linux-ipv6.org>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_hu9XBEhFl7UnU+R"
+Message-Id: <200410031359.45549.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200410031344.54182.vda@port.imtp.ilyichevsk.odessa.ua> (at Sun, 3 Oct 2004 13:44:54 +0300), Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> says:
 
-> extern inline u32 rol32(u32 x, int num)
-:
-Please do not use use extern inline; use static inline instead.
+--Boundary-00=_hu9XBEhFl7UnU+R
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Thanks.
+> > extern inline u32 rol32(u32 x, int num)
+>
+> Please do not use use extern inline; use static inline instead.
 
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+We shall fold it into #define once and for all eventually.
+
+Meanwhile, s/extern/static/ patch is attached.
+--
+vda
+
+--Boundary-00=_hu9XBEhFl7UnU+R
+Content-Type: text/x-diff;
+  charset="koi8-r";
+  name="269r3rot.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="269r3rot.diff"
+
+diff -urpN linux-2.6.9-rc3.src/include/asm-i386/bitops.h linux-2.6.9-rc3rot.src/include/asm-i386/bitops.h
+--- linux-2.6.9-rc3.src/include/asm-i386/bitops.h	Fri Oct  1 21:30:16 2004
++++ linux-2.6.9-rc3rot.src/include/asm-i386/bitops.h	Sun Oct  3 12:48:46 2004
+@@ -431,9 +431,130 @@ static inline int ffs(int x)
+ #define hweight16(x) generic_hweight16(x)
+ #define hweight8(x) generic_hweight8(x)
+ 
+-#endif /* __KERNEL__ */
++/*
++ * 64bit rotations
++ * (gcc3 seems to be clever enough to do 32bit ones just fine)
++ *
++ * Why "i" and "I" constraints do not work? gcc says:
++ * "warning: asm operand 2 probably doesn't match constraints"
++ * "error: impossible constraint in 'asm'"
++ * Will use "Ic" for now. If gcc will fail to do const propagation
++ * and will try to stuff constant into ecx, shld %3,... will expand
++ * to shld %ecx,... and assembler will moan.
++ * Do not 'fix' by changing to shld %b3,...
++ *
++ * Have to stick to edx,eax pair only because
++ * gcc has limited support for 64bit asm parameters
++ */
++#define constant_rol64(v,c) \
++	({						\
++	u64 vv = (v);					\
++	if(!(c&63)) {					\
++	} else if((c&63)==1) {				\
++		asm (					\
++		"	shldl	$1,%%edx,%%eax	\n"	\
++		"	rcll	$1,%%edx	\n"	\
++		: "=&A" (vv)				\
++		: "0" (vv)				\
++		);					\
++	} else if((c&63)==63) {				\
++		asm (					\
++		"	shrdl	$1,%%edx,%%eax	\n"	\
++		"	rcrl	$1,%%edx	\n"	\
++		: "=&A" (vv)				\
++		: "0" (vv)				\
++		);					\
++	} else if((c&63)<32) {				\
++		asm (					\
++		"	shldl	%3,%%edx,%%eax	\n"	\
++		"	shldl	%3,%2,%%edx	\n"	\
++		: "=&A" (vv)				\
++		: "0" (vv),				\
++		  "r" (vv),				\
++		  "Ic" (c&63)				\
++		);					\
++	} else if((c&63)>32) {				\
++		asm (					\
++		"	shrdl	%3,%%edx,%%eax	\n"	\
++		"	shrdl	%3,%2,%%edx	\n"	\
++		: "=&A" (vv)				\
++		: "0" (vv),				\
++		  "r" (vv),				\
++		  "Ic" (64-(c&63))			\
++		);					\
++	} else /* (c&63)==32 */ {			\
++		asm (					\
++		"	xchgl	%%edx,%%eax	\n"	\
++		: "=&A" (vv)				\
++		: "0" (vv)				\
++		);					\
++	}						\
++	vv;						\
++	})
++#define constant_ror64(v,c) \
++	({						\
++	u64 vv = (v);					\
++	if(!(c&63)) {					\
++	} else if((c&63)==1) {				\
++		asm (					\
++		"	shrdl	$1,%%edx,%%eax	\n"	\
++		"	rcrl	$1,%%edx	\n"	\
++		: "=&A" (vv)				\
++		: "0" (vv)				\
++		);					\
++	} else if((c&63)==63) {				\
++		asm (					\
++		"	shldl	$1,%%edx,%%eax	\n"	\
++		"	rcll	$1,%%edx	\n"	\
++		: "=&A" (vv)				\
++		: "0" (vv)				\
++		);					\
++	} else if((c&63)<32) {				\
++		asm (					\
++		"	shrdl	%3,%%edx,%%eax	\n"	\
++		"	shrdl	%3,%2,%%edx	\n"	\
++		: "=&A" (vv)				\
++		: "0" (vv),				\
++		  "r" (vv),				\
++		  "Ic" (c&63)				\
++		);					\
++	} else if((c&63)>32) {				\
++		asm (					\
++		"	shldl	%3,%%edx,%%eax	\n"	\
++		"	shldl	%3,%2,%%edx	\n"	\
++		: "=&A" (vv)				\
++		: "0" (vv),				\
++		  "r" (vv),				\
++		  "Ic" (64-(c&63))			\
++		);					\
++	} else /* (c&63)==32 */ {			\
++		asm (					\
++		"	xchgl	%%edx,%%eax	\n"	\
++		: "=&A" (vv)				\
++		: "0" (vv)				\
++		);					\
++	}						\
++	vv;						\
++	})
++/*
++ * Unfortunately 64bit rotations with non-constant count
++ * have issues with cnt>=32. Using C code instead
++ */
++static inline u64 rol64(u64 x,int num) {
++	if(__builtin_constant_p(num))
++		return constant_rol64(x,num);
++	/* Hmmm... shall we do cnt&=63 here? */
++	return ((x<<num) | (x>>(64-num)));
++}
++static inline u64 ror64(u64 x,int num) {
++	if(__builtin_constant_p(num))
++		return constant_ror64(x,num);
++	return ((x>>num) | (x<<(64-num)));
++}
++
++#define ARCH_HAS_ROL64
++#define ARCH_HAS_ROR64
+ 
+-#ifdef __KERNEL__
+ 
+ #define ext2_set_bit(nr,addr) \
+ 	__test_and_set_bit((nr),(unsigned long*)addr)
+diff -urpN linux-2.6.9-rc3.src/include/linux/bitops.h linux-2.6.9-rc3rot.src/include/linux/bitops.h
+--- linux-2.6.9-rc3.src/include/linux/bitops.h	Sat Aug 14 13:56:23 2004
++++ linux-2.6.9-rc3rot.src/include/linux/bitops.h	Sun Oct  3 12:43:51 2004
+@@ -4,6 +4,38 @@
+ #include <asm/bitops.h>
+ 
+ /*
++ * bit rotations
++ */
++
++#ifndef ARCH_HAS_ROL32
++static inline u32 rol32(u32 x, int num)
++{
++	return (x << num) | (x >> (32 - num));
++}
++#endif
++
++#ifndef ARCH_HAS_ROR32
++static inline u32 ror32(u32 x, int num)
++{
++	return (x >> num) | (x << (32 - num));
++}
++#endif
++
++#ifndef ARCH_HAS_ROL64
++static inline u64 rol64(u64 x, int num)
++{
++	return (x << num) | (x >> (64 - num));
++}
++#endif
++
++#ifndef ARCH_HAS_ROR64
++static inline u64 ror64(u64 x, int num)
++{
++	return (x >> num) | (x << (64 - num));
++}
++#endif
++
++/*
+  * ffs: find first bit set. This is defined the same way as
+  * the libc and compiler builtin ffs routines, therefore
+  * differs in spirit from the above ffz (man ffs).
+
+--Boundary-00=_hu9XBEhFl7UnU+R--
+

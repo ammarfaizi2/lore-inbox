@@ -1,84 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268465AbUILFXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268472AbUILFYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268465AbUILFXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 01:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268463AbUILFXQ
+	id S268472AbUILFYF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 01:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268470AbUILFYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 01:23:16 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:25048 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S268472AbUILFWi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 01:22:38 -0400
-Date: Sun, 12 Sep 2004 01:27:12 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Paul Mackerras <paulus@samba.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>, Andi Kleen <ak@suse.de>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] Yielding processor resources during lock contention
-In-Reply-To: <Pine.LNX.4.58.0409112200060.13491@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.53.0409120118280.2297@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com>
- <16703.60725.153052.169532@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.53.0409090810550.15087@montezuma.fsmlabs.com>
- <Pine.LNX.4.58.0409090751230.5912@ppc970.osdl.org>
- <Pine.LNX.4.58.0409090754270.5912@ppc970.osdl.org>
- <Pine.LNX.4.53.0409091107450.15087@montezuma.fsmlabs.com>
- <Pine.LNX.4.53.0409120009510.2297@montezuma.fsmlabs.com>
- <Pine.LNX.4.58.0409112200060.13491@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 12 Sep 2004 01:24:05 -0400
+Received: from holomorphy.com ([207.189.100.168]:20099 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268463AbUILFXR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 01:23:17 -0400
+Date: Sat, 11 Sep 2004 22:23:08 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [pagevec] resize pagevec to O(lg(NR_CPUS))
+Message-ID: <20040912052308.GE2660@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040909163929.GA4484@logos.cnet> <20040909155226.714dc704.akpm@osdl.org> <20040909230905.GO3106@holomorphy.com> <20040909162245.606403d3.akpm@osdl.org> <20040910000717.GR3106@holomorphy.com> <414133EB.8020802@yahoo.com.au> <20040910174915.GA4750@logos.cnet> <41439884.8040909@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41439884.8040909@yahoo.com.au>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Sep 2004, Linus Torvalds wrote:
+Marcelo Tosatti wrote:
+>> For me Bill's patch (with the recursive thingie) is very cryptic. Its
+>> just doing log2(n), it took me an hour to figure it out with his help.
 
-> I'd seriously suggest you ask Intel for an official opinion on this. Last
-> I heard (and that was, I believe, before monitor/mwait had been officially
-> announced, so it's certainly a bit dated now) it wasn't architecturally
-> clear that it's a good idea using it for things like spinlocks.
+On Sun, Sep 12, 2004 at 10:29:56AM +1000, Nick Piggin wrote:
+> Having it depend on NR_CPUS should be avoided if possible.
+> But yeah in this case I guess you can't easily make it work
+> at runtime.
 
-Indeed last i heard, it was unuseable for low latency locking, for this 
-case (lock acquisition after relinquish on remote processor) we may be 
-able to put up with the higher latency.
+With some work it could be tuned at boot-time.
 
-> In particular, if the CPU idly waits for a cacheline to be dirtied, it is 
-> entirely possible that the other CPU that owns the lock and releases it 
-> won't actually _tell_ the world that the lock has been released for quite 
-> some time. After all, why should it - if it is the exclusive owner, and it 
-> sees no memory traffic on the bus, it may have no reason to push out the 
-> fact that it just released the lock. Just keep it dirty in its caches.
-> 
-> In other words: monitor/mwait on purpose obviously causes fewer bus
-> cycles. But that very fact may well mean (at least in theory) that you get
-> very high latencies. It could make spinlock contention very very unfair
-> (the original CPU keeps getting the lock over and over again, while the
-> monitor/mwait one never gets to play), and it might also make ping-pong
-> locking latency be extremely high.
 
-Good point, i can see this scenario occuring on current processors.
+Marcelo Tosatti wrote:
+>> Oops, right. wli's patch is borked for NUMA. Clamping it at 64 should do 
+>> fine.
 
-> Also, it's entirely possible that monitor/mwait ends up shutting down the
-> CPU to the point that getting out of a lower-power mode might have a
-> latency of microseconds or even milliseconds. External (or even internal)
-> voltage regulators and frequency changes are not instantaneous by any
-> means..
+On Sun, Sep 12, 2004 at 10:29:56AM +1000, Nick Piggin wrote:
+> Is 16 any good? ;)
 
-Yes i noted too, currently it doesn't support any additional options 
-to affect how the processor halts during mwait, intel could indeed pull a 
-number and make the default ultra high wakeup latency mode. I truly 
-hope they don't as it really would make the whole thing useless.
+There are nontrivial differences in the optimal batching factor
+dependent on the distribution of hold times and interarrival times. The
+strongest dependencies of all are on ratio of the lock transfer time to
+the interarrival time and the lock transfer time itself. These appear
+routinely in numerous odd places in the expressions for expected
+response time, and the latter often as a constant of proportionality.
 
-> In other words, I would strongly suggest you _not_ really consider this a
-> serious thing (feel free to play around with it and try to get some
-> numbers) with this without getting an answer from Intel about what the
-> _architected_ behaviour of monitor/mwait is, from a latency standpoint.
 
-Well the i386 and x86_64 versions were purely for testing purposes on my 
-part, i'm content with dropping them. The main user was going to be PPC64, 
-but i felt compelled to throw in an architecture implementation.
+On Sun, Sep 12, 2004 at 10:29:56AM +1000, Nick Piggin wrote:
+>> Whats the L1 cache size of Itanium2? Each page is huge compared to the 
+>> pagevec structure (you need a 64 item pagevec array on 64-bits to
+>> occupy the space of one 4KB page). So I think you wont blow up the
+>> cache even with a really big pagevec.
 
-Thanks,
-	Zwane
+On Sun, Sep 12, 2004 at 10:29:56AM +1000, Nick Piggin wrote:
+> I think it is 16K data cache. It is not the pagevec structure that you
+> are worried about, but all the cachelines from all the pages you put
+> into it. If you put 64 pages in it, that's 8K with a 128byte cacheline
+> size (the structure will be ~512 bytes on a 64-bit arch).
+> And if you touch one other cacheline per page, there's 16K.
+> So I'm just making up numbers, but the point is you obviously want to
+> keep it as small as possible unless you can demonstrate improvements.
+
+It's unclear what you're estimating the size of. PAGEVEC_SIZE of 62
+yields a 512B pagevec, for 4 cachelines exclusive to the cpu (or if
+stack allocated, the task). The pagevecs themselves are not shared,
+so the TLB entries for per-cpu pagevecs span surrouding per-cpu data,
+not other cpus' pagevecs, and the TLB entries for stack-allocated
+pagevecs are in turn shared with other stack-allocated data.
+
+
+Marcelo Tosatti wrote:
+>> Not very noticeable on reaim. I want to do more tests (different 
+>> workloads, nr CPUs, etc).
+
+On Sun, Sep 12, 2004 at 10:29:56AM +1000, Nick Piggin wrote:
+> Would be good.
+
+On Sun, Sep 12, 2004 at 10:29:56AM +1000, Nick Piggin wrote:
+> To get a best case argument for increasing the size of the structure, I 
+> guess you'll want to setup tests to put the maximum contention on the
+> lru_lock. That would mean big non NUMAs (eg. OSDL's stp8 systems),
+> lots of page reclaim so you'll have to fill up the caches, and lots
+> of read()'ing.
+
+mapping->tree_lock is affected as well as zone->lru_lock. The workload
+obviously has to touch the relevant locks for pagevecs to be relevant;
+however, the primary factor in the effectiveness of pagevecs is the
+lock transfer time, which is not likely to vary significantly on boxen
+such as the OSDL STP machines. You should use a workload stressing
+mapping->tree_lock via codepaths using radix_tree_gang_lookup() and
+getting runtime on OSDL's NUMA-Q or otherwise asking SGI to test its
+effects, otherwise you're dorking around with boxen with identical
+characteristics as far as batched locking is concerned.
+
+
+-- wli

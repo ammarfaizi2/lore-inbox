@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291036AbSBGBIL>; Wed, 6 Feb 2002 20:08:11 -0500
+	id <S291022AbSBGBLL>; Wed, 6 Feb 2002 20:11:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291027AbSBGBIB>; Wed, 6 Feb 2002 20:08:01 -0500
-Received: from [63.231.122.81] ([63.231.122.81]:44641 "EHLO lynx.adilger.int")
-	by vger.kernel.org with ESMTP id <S291019AbSBGBHy>;
-	Wed, 6 Feb 2002 20:07:54 -0500
-Date: Wed, 6 Feb 2002 18:07:39 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: mumismo <mumismo@wanadoo.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel hotplug
-Message-ID: <20020206180739.K15496@lynx.turbolabs.com>
-Mail-Followup-To: mumismo <mumismo@wanadoo.es>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <GR4YZ6$IaNaxbYS7pHDy2KXFL5wNL4Sbf6iJS4Wb@wanadoo.es>
-Mime-Version: 1.0
+	id <S291019AbSBGBLE>; Wed, 6 Feb 2002 20:11:04 -0500
+Received: from ua0d5hel.dial.kolumbus.fi ([62.248.132.0]:62732 "EHLO
+	porkkala.uworld.dyndns.org") by vger.kernel.org with ESMTP
+	id <S291022AbSBGBKu>; Wed, 6 Feb 2002 20:10:50 -0500
+Message-ID: <3C61D409.1B9B5895@kolumbus.fi>
+Date: Thu, 07 Feb 2002 03:10:33 +0200
+From: Jussi Laako <jussi.laako@kolumbus.fi>
+X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: mingo@elte.hu
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
+In-Reply-To: <Pine.LNX.4.33.0202061329370.4542-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <GR4YZ6$IaNaxbYS7pHDy2KXFL5wNL4Sbf6iJS4Wb@wanadoo.es>; from mumismo@wanadoo.es on Thu, Feb 07, 2002 at 01:06:42AM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 07, 2002  01:06 +0100, mumismo wrote:
-> I just want to ask if someone is working or has worked in changing a kernel 
-> for another one without the need of rebooting the machine
-> I think it has a couple of practical purporses:
-> - Letting add new features as new drivers for hotplug devices , you can argue 
-> that compilation of modules are enough but think in big kernel number changes 
-> when you can't use that drivers so you have to reboot to install a new usb 
-> HW. Pretty windows-like...
-> - Letting change kernel for instance 2.4.0 --> 2.4.17, maybe you have a 
-> machine working fine but with some problems sometimes with memory and you 
-> have realized that the 2.4.17 mm works much finer. It's logical be able to 
-> change it without rebooting (maybe you are in a 24x7 enviroment or you want 
-> to beat some uptime record)
+Ingo Molnar wrote:
+> 
+> since there is lots of idle CPU time left, the only thing that could make
+> a difference is timeslice length.
+> to 'fix' this (temporarily), renice all the non-SCHED_FIFO processes to
+> nice +19, that will give them the minimum timeslice length.
 
-This is an old idea and is basically not possible to do, nor would you
-actually want to do it in real life.  Please see:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=99489535607340&w=4
+That caused a "choke" effect of about 10 seconds and then returned back to
+normal without visible change.
 
-for a link to the last time this thread came up on l-k.  Maybe it is a time
-for a FAQ entry?
+> again, what does it need to cause the 'bad' situation - too much latency
+> in the sound delivery path causing the audio buffers to starve? (or audio
+> buffers to be dropped?)
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+If processes doing read()/write() on socket are not scheduled fast enough it
+will cause sender thread in distributor process (SCHED_FIFO) to loose
+pthread_cond_*() event for new block of data. This is non-waiting datablock
+posting mechanism is made to prevent one hung or otherwise nonresponding
+process from affecting other processes dataflow, esp. in SMP systems. So all
+the output threads must be back from write() on pthread_cond_wait() before
+input thread finishes it's read() and issues pthread_cond_broadcast() for
+new datablock. If one of those output threads is not on pthread_cond_wait()
+it will of course loose it's datablock.
+
+
+I made even more testing and found situation where the old scheduler also
+does same thing. It seems to be related to processes frequency(/size) of
+issuing read()/write() calls on socket. Below _and_ above this frequency
+everything works fine. This frequency is a bit lower on old scheduler. So
+there is some kind of grey frequency region.
+
+
+	- Jussi Laako
+
+-- 
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers
 

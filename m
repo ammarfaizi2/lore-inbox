@@ -1,50 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266792AbUFYQkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266798AbUFYQmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266792AbUFYQkW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 12:40:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266795AbUFYQkW
+	id S266798AbUFYQmz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 12:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266797AbUFYQmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 12:40:22 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:32528 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S266792AbUFYQkQ (ORCPT
+	Fri, 25 Jun 2004 12:42:54 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:45552 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266795AbUFYQlZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 12:40:16 -0400
-Date: Fri, 25 Jun 2004 18:40:10 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "Makhlis, Lev" <Lev_Makhlis@bmc.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [SYSVIPC] Change shm_tot from int to size_t
-Message-ID: <20040625164010.GA5420@pclin040.win.tue.nl>
-References: <F12B6443B4A38748AFA644D1F8EF3532151078@bos-ex-01.adprod.bmc.com>
+	Fri, 25 Jun 2004 12:41:25 -0400
+Subject: Re: [PATCH] acpiphp extension for 2.6.7
+From: Vernon Mauery <vernux@us.ibm.com>
+To: Greg KH <gregkh@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Pat Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>, Jess Botts <botts@us.ibm.com>
+In-Reply-To: <20040624214555.GA1800@us.ibm.com>
+References: <1087934028.2068.57.camel@bluerat>
+	 <20040624214555.GA1800@us.ibm.com>
+Content-Type: text/plain
+Message-Id: <1088181777.4749.11.camel@bluerat>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F12B6443B4A38748AFA644D1F8EF3532151078@bos-ex-01.adprod.bmc.com>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 25 Jun 2004 09:42:58 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 25, 2004 at 10:41:13AM -0500, Makhlis, Lev wrote:
-
-> I see that shm_tot (the total number of pages in shm segments) in
-> ipc/shm.c is defined as int, even though its max value (shmall) is size_t.
+On Thu, 2004-06-24 at 14:45, Greg KH wrote: 
+> > +int acpiphp_register_attention_info(struct acpiphp_attention_info *info)
+> > +{
+> > +	int retval = 0;
+> > +	unsigned long flags;
+> > +
+> > +	if (!info || !info->owner || !info->set_attn || !info->get_attn)
+> > +		retval = -1;
+> > +	else {
+> > +		spin_lock_irqsave(&attn_info_lock, flags);
 > 
-> Admittedly, it only matters for systems with >8TB memory, but shouldn't
-> shm_tot also be size_t?  The attached patch makes it so.
+> Why lock here?  What could race?
 
-> -static int shm_tot; /* total number of shared memory pages */
-> +static size_t shm_tot; /* total number of shared memory pages */
+If this function is only ever called from a module's init_module
+function, then our global data is protected by the kernel's
+module_mutex.  But is the assumption that it is never called from other
+code safe to make?  It manipulates global data, so it needs to be
+protected somehow...
 
-First, please avoid attachments.
+> And why the irqsave lock?
+Not sure.  That can be changed.
 
-Secondly, this makes shm_tot unsigned. Have you checked all places
-where it occurs in an inequality to see whether the semantics did
-change? (It looks OK.)
+> > -static int set_attention_status(struct hotplug_slot *hotplug_slot, u8 status)
+> > +static int set_attention_status (struct hotplug_slot *hotplug_slot, u8 status)
+> >  {
+> > +	int retval = -1;
+> > +	unsigned long flags;
+> > +	struct acpiphp_attention_info info;
+> > +
+> >  	dbg("%s - physical_slot = %s\n", __FUNCTION__, hotplug_slot->name);
+> >  
+> > -	switch (status) {
+> > -		case 0:
+> > -			/* FIXME turn light off */
+> > -			hotplug_slot->info->attention_status = 0;
+> > -			break;
+> > -
+> > -		case 1:
+> > -		default:
+> > -			/* FIXME turn light on */
+> > -			hotplug_slot->info->attention_status = 1;
+> > -			break;
+> > +	spin_lock_irqsave(&attn_info_lock, flags);
+> > +	memcpy(&info, &attention_info, sizeof(struct acpiphp_attention_info));
+> > +	spin_unlock_irqrestore(&attn_info_lock, flags);
+> 
+> Again, why lock?  And why copy the whole structure?  And it's on the
+> stack, which isn't very nice.  Same comment applies to the get_
+> function.
 
-Thirdly, shm_tot is transmitted to userspace (via the SHM_INFO ioctl)
-as an unsigned long. If it is necessary to make it larger, then we
-must do something with this ioctl. For example, return -1 there
-in case the actual value does not fit in an unsigned long.
+Getting a local copy of the data structure within the lock ensures that
+this function is reentrant.  But if we can make the same guarantee that
+this funtion is called only on module_exit (again protected by the
+module_mutex) then we can move to a pointer and no local lock.
+
+> > +
+> > +	if (info.set_attn && try_module_get(info.owner)) {
+> > +		retval = info.set_attn(hotplug_slot, status);
+> > +		module_put(info.owner);
+> >  	}
+> >  
+> > -	return 0;
+> > +	if (!retval)
+> > +		hotplug_slot->info->attention_status = (status) ? 1 : 0;
+> 
+> Why change the value based on the return value of the call?  This
+> shouldn't be set at all.
+
+Oops.  This was a snippet of legacy code that was around before I
+figured out how to read the LED value from hardware.  I will drop it.
+
+--Vernon
 
 

@@ -1,94 +1,160 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261522AbTCTPJt>; Thu, 20 Mar 2003 10:09:49 -0500
+	id <S261513AbTCTPGg>; Thu, 20 Mar 2003 10:06:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261536AbTCTPJk>; Thu, 20 Mar 2003 10:09:40 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:12967 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S261522AbTCTPIM>;
-	Thu, 20 Mar 2003 10:08:12 -0500
-Date: Thu, 20 Mar 2003 16:19:12 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Cc: davem@redhat.com
-Subject: [some more data]  Re: [BUG] 2.5.65 ipv6 TCP checksum errors (capture attached)
-Message-ID: <20030320151912.GA25487@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>, netdev@oss.sgi.com,
-	linux-kernel@vger.kernel.org, davem@redhat.com
-References: <20030319124533.GA14363@outpost.ds9a.nl>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="NzB8fVQJ5HfG6fxh"
-Content-Disposition: inline
-In-Reply-To: <20030319124533.GA14363@outpost.ds9a.nl>
-User-Agent: Mutt/1.3.28i
+	id <S261522AbTCTPGb>; Thu, 20 Mar 2003 10:06:31 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:46547 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S261513AbTCTPFd>;
+	Thu, 20 Mar 2003 10:05:33 -0500
+Date: Thu, 20 Mar 2003 17:16:25 +0200 (IST)
+From: Shmulik Hen <hshmulik@intel.com>
+X-X-Sender: hshmulik@jrslxjul4.npdj.intel.com
+To: Bonding Developement list <bonding-devel@lists.sourceforge.net>,
+       Bonding Announce list <bonding-announce@lists.sourceforge.net>,
+       Linux Net Mailing list <linux-net@vger.kernel.org>,
+       Linux Kernel Mailing list <linux-kernel@vger.kernel.org>,
+       Oss SGI Netdev list <netdev@oss.sgi.com>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: [patch] (4/8) Add 802.3ad support to bonding
+Message-ID: <Pine.LNX.4.44.0303201635460.10351-100000@jrslxjul4.npdj.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch adds support for getting slave's speed and duplex via ethtool 
+(Needed for 802.3ad and other future modes).
 
---NzB8fVQJ5HfG6fxh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This patch is against bonding 2.4.20-20030317.
 
-On Wed, Mar 19, 2003 at 01:45:33PM +0100, bert hubert wrote:
-> Interestingly, the initial ssh connection worked, the second one failed.
-> Subsequent attempts fail too.
-
-I've since let loose the excellent ethereal on this and found out:
-
-> hubert# tcpdump -r file -v -v
-> 29.09 snapcount.33408 > hubert.ssh: S [tcp sum ok] 2737328594:2737328594(0) win 5760 <mss 1440,sackOK,timestamp 10690463 0,nop,wscale 0> (len 40, hlim 64)
-> 29.09 hubert.ssh > snapcount.33408: S [tcp sum ok] 2399386333:2399386333(0) ack 2737328595 win 5712 <mss 1440,sackOK,timestamp 10865690 10690463,nop,wscale 0> (len 40, hlim 64)
-> 29.09 snapcount.33408 > hubert.ssh: . [tcp sum ok] 1:1(0) ack 1 win 5760 <nop,nop,timestamp 10690464 10865690> (len 32, hlim 64)
-
-So far so good.
-
-> 29.10 hubert.ssh > snapcount.33408: P [bad tcp cksum 4f2!] 1:41(40) ack 1 win 5712 <nop,nop,timestamp 10865695 10690464> (len 72, hlim 64)
-> 29.30 hubert.ssh > snapcount.33408: P [bad tcp cksum 3bf1!] 1:41(40) ack 1 win 5712 <nop,nop,timestamp 10865896 10690464> (len 72, hlim 64)
-> 29.83 hubert.ssh > snapcount.33408: P [bad tcp cksum 23ef!] 1:41(40) ack 1 win 5712 <nop,nop,timestamp 10866432 10690464> (len 72, hlim 64)
-> 30.86 hubert.ssh > snapcount.33408: P [bad tcp cksum 23eb!] 1:41(40) ack 1 win 5712 <nop,nop,timestamp 10867456 10690464> (len 72, hlim 64)
-
-These packets all have an identical csum of 0x680d, it is not being updated.
-So, the SYN/SYNACK/ACK stuff went fine, the initial data however has a wrong
-checksum. 
-
-For completeness, I've attached the capture again.
-
-Regards,
-
-bert
+diff -Nuarp linux-2.4.20-bonding-20030317/drivers/net/bonding.c linux-2.4.20-bonding-20030317-devel/drivers/net/bonding.c
+--- linux-2.4.20-bonding-20030317/drivers/net/bonding.c	2003-03-18 17:03:26.000000000 +0200
++++ linux-2.4.20-bonding-20030317-devel/drivers/net/bonding.c	2003-03-18 17:03:27.000000000 +0200
+@@ -299,6 +299,10 @@
+  *		Shmulik Hen <shmulik.hen at intel dot com>
+  *	- Fixed hang in bond_enslave(): netdev_set_master() must not be
+  *	  called from within the bond lock while traffic is running.
++ *
++ * 2003/03/18 - Amir Noam <amir.noam at intel dot com>
++ *	- Added support for getting slave's speed and duplex via ethtool.
++ *	  Needed for 802.3ad and other future modes.
+  */
+ 
+ #include <linux/config.h>
+@@ -649,6 +653,59 @@ bond_attach_slave(struct bonding *bond, 
+ 	set_fs(fs);			\
+ 	ret; })
+ 
++/*
++ * Get link speed and duplex from the slave's base driver
++ * using ethtool. If for some reason the call fails or the
++ * values are invalid, fake speed and duplex to 100/Full
++ * and return error.
++ */
++static int bond_update_speed_duplex(struct slave *slave)
++{
++	struct net_device *dev = slave->dev;
++	static int (* ioctl)(struct net_device *, struct ifreq *, int);
++	struct ifreq ifr;
++	struct ethtool_cmd etool;
++
++	ioctl = dev->do_ioctl;
++	if (ioctl) {
++		etool.cmd = ETHTOOL_GSET;
++		ifr.ifr_data = (char*)&etool;
++		if (IOCTL(dev, &ifr, SIOCETHTOOL) == 0) {
++			slave->speed = etool.speed;
++			slave->duplex = etool.duplex;
++		} else {
++			goto err_out;
++		}
++	} else {
++		goto err_out;
++	}
++
++	switch (slave->speed) {
++		case SPEED_10:
++		case SPEED_100:
++		case SPEED_1000:
++			break;
++		default:
++			goto err_out;
++	}
++	
++	switch (slave->duplex) {
++		case DUPLEX_FULL:
++		case DUPLEX_HALF:
++			break;
++		default:
++			goto err_out;
++	}
++	
++	return 0;
++	
++err_out:
++	//Fake speed and duplex
++	slave->speed = SPEED_100;
++	slave->duplex = DUPLEX_FULL;
++	return -1;
++}
++
+ /* 
+  * if <dev> supports MII link status reporting, check its link status.
+  *
+@@ -1173,6 +1230,13 @@ static int bond_enslave(struct net_devic
+ 		new_slave->link  = BOND_LINK_DOWN;
+ 	}
+ 
++	if (bond_update_speed_duplex(new_slave) && (new_slave->link == BOND_LINK_UP) ) {
++		printk(KERN_WARNING
++		       "bond_enslave(): failed to get speed/duplex from %s, "
++		       "speed forced to 100Mbps, duplex forced to Full.\n",
++		       new_slave->dev->name);
++	}
++	
+ 	/* if we're in active-backup mode, we need one and only one active
+ 	 * interface. The backup interfaces will have their NOARP flag set
+ 	 * because we need them to be completely deaf and not to respond to
+@@ -1821,6 +1885,9 @@ static void bond_mii_monitor(struct net_
+ 			}
+ 			break;
+ 		} /* end of switch */
++		
++		bond_update_speed_duplex(slave);
++		
+ 	} /* end of while */
+ 
+ 	/* 
+diff -Nuarp linux-2.4.20-bonding-20030317/include/linux/if_bonding.h linux-2.4.20-bonding-20030317-devel/include/linux/if_bonding.h
+--- linux-2.4.20-bonding-20030317/include/linux/if_bonding.h	2003-03-18 17:03:26.000000000 +0200
++++ linux-2.4.20-bonding-20030317-devel/include/linux/if_bonding.h	2003-03-18 17:03:27.000000000 +0200
+@@ -11,6 +11,9 @@
+  *	This software may be used and distributed according to the terms
+  *	of the GNU Public License, incorporated herein by reference.
+  * 
++ * 2003/03/18 - Amir Noam <amir.noam at intel dot com>
++ *	- Added support for getting slave's speed and duplex via ethtool.
++ *	  Needed for 802.3ad and other future modes.
+  */
+ 
+ #ifndef _LINUX_IF_BONDING_H
+@@ -89,6 +92,8 @@ typedef struct slave {
+ 	char   state;   /* one of BOND_STATE_XXXX */
+ 	unsigned short original_flags;
+ 	u32 link_failure_count;
++	u16    speed;
++	u8     duplex;
+ } slave_t;
+ 
+ /*
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
-http://netherlabs.nl                         Consulting
---NzB8fVQJ5HfG6fxh
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename=bad-csum
-Content-Transfer-Encoding: base64
+| Shmulik Hen                                    |
+| Israel Design Center (Jerusalem)               |
+| LAN Access Division                            |
+| Intel Communications Group, Intel corp.        |
+|                                                |
+| Anti-Spam: shmulik dot hen at intel dot com    |
 
-1MOyoQIABAAAAAAAAAAAANwFAAABAAAAiWR4Pht3AQBeAAAAXgAAAAAIoRnw8ACgzMjyXIbd
-YAAAAAAoBkAgAQiIEDYAAAIIof/+GfDxIAEIiBA2AAACCKH//hnw8IKAABajKFHSAAAAAKAC
-FoACJAAAAgQFoAQCCAoAox+fAAAAAAEDAwCJZHg+wHcBAF4AAABeAAAAAKDMyPJcAAihGfDw
-ht1gAAAAACgGQCABCIgQNgAAAgih//4Z8PAgAQiIEDYAAAIIof/+GfDxABaCgI8Dut2jKFHT
-oBIWUOuhAAACBAWgBAIICgClzBoAox+fAQMDAIlkeD5KeAEAVgAAAFYAAAAACKEZ8PAAoMzI
-8lyG3WAAAAAAIAZAIAEIiBA2AAACCKH//hnw8SABCIgQNgAAAgih//4Z8PCCgAAWoyhR048D
-ut6AEBaAGiIAAAEBCAoAox+gAKXMGolkeD5XigEAfgAAAH4AAAAAoMzI8lwACKEZ8PCG3WAA
-AAAASAZAIAEIiBA2AAACCKH//hnw8CABCIgQNgAAAgih//4Z8PEAFoKAjwO63qMoUdOAGBZQ
-aA0AAAEBCAoApcwfAKMfoFNTSC0xLjk5LU9wZW5TU0hfMy41cDEgRGViaWFuIDE6My41cDEt
-NQqJZHg+7pkEAH4AAAB+AAAAAKDMyPJcAAihGfDwht1gAAAAAEgGQCABCIgQNgAAAgih//4Z
-8PAgAQiIEDYAAAIIof/+GfDxABaCgI8Dut6jKFHTgBgWUGgNAAABAQgKAKXM6ACjH6BTU0gt
-MS45OS1PcGVuU1NIXzMuNXAxIERlYmlhbiAxOjMuNXAxLTUKiWR4Pv/GDAB+AAAAfgAAAACg
-zMjyXAAIoRnw8IbdYAAAAABIBkAgAQiIEDYAAAIIof/+GfDwIAEIiBA2AAACCKH//hnw8QAW
-goCPA7reoyhR04AYFlBoDQAAAQEICgClzwAAox+gU1NILTEuOTktT3BlblNTSF8zLjVwMSBE
-ZWJpYW4gMTozLjVwMS01CopkeD4pJA0AfgAAAH4AAAAAoMzI8lwACKEZ8PCG3WAAAAAASAZA
-IAEIiBA2AAACCKH//hnw8CABCIgQNgAAAgih//4Z8PEAFoKAjwO63qMoUdOAGBZQaA0AAAEB
-CAoApdMAAKMfoFNTSC0xLjk5LU9wZW5TU0hfMy41cDEgRGViaWFuIDE6My41cDEtNQqMZHg+
-0/QJAH4AAAB+AAAAAKDMyPJcAAihGfDwht1gAAAAAEgGQCABCIgQNgAAAgih//4Z8PAgAQiI
-EDYAAAIIof/+GfDxABaCgI8Dut6jKFHTgBgWUGgNAAABAQgKAKXaAACjH6BTU0gtMS45OS1P
-cGVuU1NIXzMuNXAxIERlYmlhbiAxOjMuNXAxLTUKj2R4PkXxDgB+AAAAfgAAAACgzMjyXAAI
-oRnw8IbdYAAAAABIBkAgAQiIEDYAAAIIof/+GfDwIAEIiBA2AAACCKH//hnw8QAWgoCPA7re
-oyhR04AYFlBoDQAAAQEICgCl5wAAox+gU1NILTEuOTktT3BlblNTSF8zLjVwMSBEZWJpYW4g
-MTozLjVwMS01CpZkeD6mqAkAfgAAAH4AAAAAoMzI8lwACKEZ8PCG3WAAAAAASAZAIAEIiBA2
-AAACCKH//hnw8CABCIgQNgAAAgih//4Z8PEAFoKAjwO63qMoUdOAGBZQaA0AAAEBCAoApgEA
-AKMfoFNTSC0xLjk5LU9wZW5TU0hfMy41cDEgRGViaWFuIDE6My41cDEtNQo=
 
---NzB8fVQJ5HfG6fxh--
+

@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289446AbSAOJVd>; Tue, 15 Jan 2002 04:21:33 -0500
+	id <S289138AbSAOJTN>; Tue, 15 Jan 2002 04:19:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289455AbSAOJVX>; Tue, 15 Jan 2002 04:21:23 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:16272 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S289446AbSAOJVK>; Tue, 15 Jan 2002 04:21:10 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: 520047054719-0001@t-online.de (Oliver Neukum)
-Reply-To: Oliver.Neukum@lrz.uni-muenchen.de
-To: george anzinger <george@mvista.com>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Tue, 15 Jan 2002 09:32:17 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <16QNVQ-2JqEACC@fwd03.sul.t-online.com> <3C43D5E1.6785695C@mvista.com>
-In-Reply-To: <3C43D5E1.6785695C@mvista.com>
+	id <S289422AbSAOJTE>; Tue, 15 Jan 2002 04:19:04 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:21259 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S289138AbSAOJSx>; Tue, 15 Jan 2002 04:18:53 -0500
+Message-ID: <3C43F3F1.50F30779@aitel.hist.no>
+Date: Tue, 15 Jan 2002 10:18:41 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.2-pre11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <16QP1L-0yTNqqC@fwd02.sul.t-online.com>
+To: yodaiken@fsmlabs.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020111195018.A2008@hq.fsmlabs.com> <20020112042404.WCSI23959.femail47.sdc1.sfba.home.com@there> <20020111220051.A2333@hq.fsmlabs.com> <3C4023A2.8B89C278@linux-m68k.org> <20020112052802.A3734@hq.fsmlabs.com> <3C40392F.C4E1EFF3@linux-m68k.org> <20020112075638.A5098@hq.fsmlabs.com> <3C4367EA.A52D6360@mvista.com> <20020114175931.A27147@hq.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 January 2002 08:10, george anzinger wrote:
+yodaiken@fsmlabs.com wrote:
+> 
+> On Mon, Jan 14, 2002 at 03:21:14PM -0800, george anzinger wrote:
+> > > > How is that changed? AFAIK inserting more schedule points does not
+> > > > change the behaviour of the scheduler. The niced app will still get its
+> > > > time.
+> > >
+> > > How many times can an app be preempted? In a non preempt kernel
+> > > is can be preempted during user mode at timer frequency and no more
+> >
+> > Uh, it can be and is preempted in user mode by ANY interrupt, be it
+> > keyboard, serial, lan, disc, etc.  The kernel looks for need_resched at
+> > the end of ALL interrupts, not just the timer interrupt.
+> 
+> Ouch.
 
-> Yes, this is classic priority inversion.  It is here now, today with
-> semaphors which are held by code that blocks.  If the code doesn't
-> block, why not use a spin lock?  If it does, well the problem is here
+Ouch?  It is supposed to be that way.  Consider:
 
-Because eg. other code that holds the semaphore needs to sleep
+A high-priority task issues a disk read - and blocks.  Some
+lower-priority process gets the cpu.  But then the disk io finishes
+way before the low-priority process used up its timeslice.
+The kernel gets an interrupt from the disk controller because
+of that.  Perhaps the block device issues some more requests,
+then time comes to return to user space.  The higher priority task
+is now ready to run because its IO completed.  So of course
+it is preferred over that low-priority thing.  In other words,
+the low-priority task got preempted, this time by a disk
+interrupt.
 
-> now.  I suppose we could set a preempt disable around a semaphore if it
-> makes you feel better.  It doesn't fix the problem if the task blocks
+The same thing happens whan high-priority tasks waits for
+other kinds of io, such as network, serial, and so on.
+I am sure you wouldn't want it any other way.  Not
+using the opportunity to switch task immediately after an io
+completion interrupt would kill latency completely.
 
-It would make me feel better, but it would defeat the purpose.
-There's a lot of code holding semaphores.
-
-> AND it is legal to block while holding a preemption lock.
-
-But it's easier to fix. If you can preempt only by explicitely
-sleeping, you can beat priority invasion by changing basically
-only wake_up. If you can be preempted at random, you need to know
-who holds a semaphore.
-
-	Regards
-		Oliver
+Helge Hafting

@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbULDQGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbULDQLH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbULDQGV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 11:06:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbULDQGV
+	id S261739AbULDQLH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 11:11:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbULDQLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 11:06:21 -0500
-Received: from vsmtp1.tin.it ([212.216.176.141]:60038 "EHLO vsmtp1.tin.it")
-	by vger.kernel.org with ESMTP id S261728AbULDQGS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 11:06:18 -0500
-Date: Sat, 4 Dec 2004 14:05:01 +0100
-From: Giuliano Pochini <pochini@shiny.it>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Time sliced CFQ io scheduler
-Message-Id: <20041204140501.52fddd94.pochini@shiny.it>
-In-Reply-To: <20041202144129.GI10458@suse.de>
-References: <20041202130457.GC10458@suse.de>
-	<Pine.LNX.4.58.0412021517070.3471@denise.shiny.it>
-	<20041202144129.GI10458@suse.de>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 4 Dec 2004 11:11:06 -0500
+Received: from out012pub.verizon.net ([206.46.170.137]:33973 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S261739AbULDQLF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 11:11:05 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.10-rc3 vs clock
+Date: Sat, 4 Dec 2004 11:11:16 -0500
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412041111.16055.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.11.214] at Sat, 4 Dec 2004 10:11:04 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Dec 2004 15:41:34 +0100
-Jens Axboe <axboe@suse.de> wrote:
+At -rc2 my clock kept fairly decent time, but -rc3 is running fast, 
+about 30 seconds an hour fast.
 
-> > > Case 4: write_files, random, bs=4k
-> >
-> > Just a thought... in this test the results don't look right. Why
-> > aggregate bandwidth with 8 clients is higher than with 4 and 2 clients ?
-> > In the cfq test with 8 clients aggregate bw is also higher than with
-> > a single client.
->
-> I don't know what happens with the 4 client case, but it's not that
-> unlikely that aggregate bandwidth will be higher for more threads doing
-> random writes, as request coalesching will help minimize seeks.
+I've been using ntpdate, is that now officially deprecated?
 
-In order to keep the probabilty that requests get coalesced constant, the
-size of the test file should be multiple of the number of clients.
-
-
---
-Giuliano.
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.30% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

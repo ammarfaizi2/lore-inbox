@@ -1,79 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130162AbRAMOI2>; Sat, 13 Jan 2001 09:08:28 -0500
+	id <S130202AbRAMOK6>; Sat, 13 Jan 2001 09:10:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130202AbRAMOIS>; Sat, 13 Jan 2001 09:08:18 -0500
-Received: from styx.suse.cz ([195.70.145.226]:53237 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S130162AbRAMOFm>;
-	Sat, 13 Jan 2001 09:05:42 -0500
-Date: Sat, 13 Jan 2001 14:42:36 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: davej@suse.de
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: ide.2.4.1-p3.01112001.patch
-Message-ID: <20010113144236.B1155@suse.cz>
-In-Reply-To: <E14HDqv-0005Fm-00@the-village.bc.nu> <Pine.LNX.4.31.0101130228310.17083-100000@athlon.local>
-Mime-Version: 1.0
+	id <S130765AbRAMOKs>; Sat, 13 Jan 2001 09:10:48 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:17081 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S130202AbRAMOKa>; Sat, 13 Jan 2001 09:10:30 -0500
+X-Gnus-Agent-Meta-Information: mail nil
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] symlink creation broken in shmem.c
+From: Christoph Rohland <cr@sap.com>
+Message-ID: <m3g0ink1ss.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
+Date: 13 Jan 2001 15:14:30 +0100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.31.0101130228310.17083-100000@athlon.local>; from davej@suse.de on Sat, Jan 13, 2001 at 02:43:30AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 13, 2001 at 02:43:30AM +0000, davej@suse.de wrote:
+Hi Linus,
 
-> > |The system is an AMD K6-3 on a FIC PA-2013 mobo with 3 IDE disks.  The
-> > |size of hda is 4.3 GB, the size of hdb is 854 MB and the size of hdc is
-> > |1.2 GB.  Hdd is an IDE CDROM drive
-> >
-> > I think its significant that two reports I have are FIC PA-2013 but not all.
-> > What combination of chips is on the 2013 ?
-> 
-> The FIC PA-2013 is one of the stranger types of MVP3.
-> (A mixture of 82c597 host bridge and 82c598 PCI bridge).
+The shmem_symlink function is completely broken in 2.4.0 and never
+worked.
 
-598 + 586b
+This patch removes the function from 2.4.0
 
-> As discussed some time ago on this list, there are some of these
-> boards, which initially seem to be an MVP3, but have the host bridge ID
-> set to an VP3. (Real reasoning behind this never figured out).
+Greetings
+                Christoph
 
-Windows driver compatibility, so that VP3 drivers would work on MVP3 as
-well.
+P.S.: For those which test read/write support patch: I will post patch
+      for my swapfs soon which will make it working on top of that
 
-> 2.4 has code in the pci quirks to disable the register which makes
-> the chip masquerade as a VP3, and forces it to identify itself as
-> an MVP3 part.  I'm curious whether this has an interaction here.
 
-This doesn't do anything but change the ID so that Linux drivers are not
-confused anymore. This caused a lot of trouble in 2.2, especially with
-the old VIA IDE driver.
+diff -uNr 2.4.0/mm/shmem.c 2.4.0-nosymlink/mm/shmem.c
+--- 2.4.0/mm/shmem.c	Sat Jan 13 14:20:51 2001
++++ 2.4.0-nosymlink/mm/shmem.c	Sat Jan 13 14:18:26 2001
+@@ -374,8 +374,7 @@
+ 			inode->i_fop = &shmem_dir_operations;
+ 			break;
+ 		case S_IFLNK:
+-			inode->i_op = &page_symlink_inode_operations;
+-			break;
++			BUG();
+ 		}
+ 		spin_lock (&shmem_ilock);
+ 		list_add (&inode->u.shmem_i.list, &shmem_inodes);
+@@ -528,19 +527,6 @@
+ 	return error;
+ }
+ 
+-static int shmem_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
+-{
+-	int error;
+-
+-	error = shmem_mknod(dir, dentry, S_IFLNK | S_IRWXUGO, 0);
+-	if (!error) {
+-		int l = strlen(symname)+1;
+-		struct inode *inode = dentry->d_inode;
+-		error = block_symlink(inode, symname, l);
+-	}
+-	return error;
+-}
+-
+ static int shmem_mmap(struct file * file, struct vm_area_struct * vma)
+ {
+ 	struct vm_operations_struct * ops;
+@@ -677,7 +663,6 @@
+ 	lookup:		shmem_lookup,
+ 	link:		shmem_link,
+ 	unlink:		shmem_unlink,
+-	symlink:	shmem_symlink,
+ 	mkdir:		shmem_mkdir,
+ 	rmdir:		shmem_rmdir,
+ 	mknod:		shmem_mknod,
 
-> I have a list of known 'hybrid' boards, and known true (both halves) MVP3
-> boards and also a collection of lspci -xxx outputs from a selection of
-> them. If anyone wants any of this stuff, shout and I'll put it up
-> for ftp/www.
-
-Actually, the definitions of what's a 'true VIA xxx chipset' change over
-time, as VIA upgrades the southbridges in the specs. You'll now fing
-that the VPX chipset is 587vpx + 586b, but when released the 587vpx was
-coupled with the old 586 south.
-
-Fortunately all these chips use PIIX-compatible extensions to the PCI
-bus, so they are all interchangeable to some degree.
-
-> I'm curious if all of the other boards in Alans bug reports also
-> fall into the stranger category.
-
-It's possible. I have a board (VA-503A), which has a masqueraded 598,
-which identifies itself as 597, and a 686a southbridge. This got the
-2.2 ide driver completely confused, for example. 
-
--- 
-Vojtech Pavlik
-SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

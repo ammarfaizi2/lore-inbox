@@ -1,36 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262289AbTCCJqf>; Mon, 3 Mar 2003 04:46:35 -0500
+	id <S262394AbTCCJrn>; Mon, 3 Mar 2003 04:47:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262394AbTCCJqf>; Mon, 3 Mar 2003 04:46:35 -0500
-Received: from holomorphy.com ([66.224.33.161]:49810 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262289AbTCCJqe>;
-	Mon, 3 Mar 2003 04:46:34 -0500
-Date: Mon, 3 Mar 2003 01:56:43 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: John Levon <levon@movementarian.org>
-Cc: linux-kernel@vger.kernel.org, ambx1@neo.rr.com
-Subject: Re: [PATCH] Another bitop on boolean in pnpbios
-Message-ID: <20030303095643.GO1195@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	John Levon <levon@movementarian.org>, linux-kernel@vger.kernel.org,
-	ambx1@neo.rr.com
-References: <20030303054235.GA58427@compsoc.man.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030303054235.GA58427@compsoc.man.ac.uk>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S262469AbTCCJrn>; Mon, 3 Mar 2003 04:47:43 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:29358 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S262394AbTCCJrk>;
+	Mon, 3 Mar 2003 04:47:40 -0500
+Date: Mon, 3 Mar 2003 10:57:41 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Christoph Hellwig <hch@sgi.com>
+cc: akpm@digeo.com, Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] allow CONFIG_SWAP=n for i386
+In-Reply-To: <200303030506.h2356Z627107@hera.kernel.org>
+Message-ID: <Pine.GSO.4.21.0303031056070.10724-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 03, 2003 at 05:42:35AM +0000, John Levon wrote:
->  #define pnpbios_is_static(x) ((x)->flags & 0x0100) == 0x0000
-> -#define pnpbios_is_dynamic(x) (x)->flags & 0x0080
-> +#define pnpbios_is_dynamic(x) ((x)->flags & 0x0080)
+On Mon, 3 Mar 2003, Linux Kernel Mailing List wrote:
+> ChangeSet 1.1050, 2003/03/02 20:37:34-08:00, akpm@digeo.com
+> 
+> 	[PATCH] allow CONFIG_SWAP=n for i386
+> 	
+> 	Patch from Christoph Hellwig <hch@sgi.com>
 
-pnpbios_is_static() could probably use the same treatment.
+Since 2.5.x has entered the spell checking phase...
 
+> diff -Nru a/arch/i386/Kconfig b/arch/i386/Kconfig
+> --- a/arch/i386/Kconfig	Sun Mar  2 21:06:38 2003
+> +++ b/arch/i386/Kconfig	Sun Mar  2 21:06:38 2003
+> @@ -19,8 +19,13 @@
+>  	default y
+>  
+>  config SWAP
+> -	bool
+> +	bool "Support for paging of anonymous memory"
+>  	default y
+> +	help
+> +	  This option allows you to choose whether you want to have support
+> +	  for socalled swap devices or swap files in your kernel that are
+              ^^^^^^^^
+	      so-called?
 
--- wli
+> +	  used to provide more virtual memory than the actual RAM present
+> +	  in your computer.  If unusre say Y.
+                                ^^^^^^
+				unsure
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

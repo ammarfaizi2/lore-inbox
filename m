@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287919AbSABTwk>; Wed, 2 Jan 2002 14:52:40 -0500
+	id <S287938AbSABTzU>; Wed, 2 Jan 2002 14:55:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287931AbSABTwc>; Wed, 2 Jan 2002 14:52:32 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:39684 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S287919AbSABTwM>; Wed, 2 Jan 2002 14:52:12 -0500
-Message-Id: <200201021951.g02Jpw4G017809@pincoya.inf.utfsm.cl>
-To: timothy.covell@ashavan.org
-cc: linux-kernel@vger.kernel.org
-Subject: Re: system.map 
-In-Reply-To: Message from Timothy Covell <timothy.covell@ashavan.org> 
-   of "Wed, 02 Jan 2002 13:26:29 MDT." <200201021930.g02JUCSr021556@svr3.applink.net> 
-Date: Wed, 02 Jan 2002 16:51:58 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S287936AbSABTzK>; Wed, 2 Jan 2002 14:55:10 -0500
+Received: from barbados.bluemug.com ([63.195.182.101]:19468 "EHLO
+	barbados.bluemug.com") by vger.kernel.org with ESMTP
+	id <S287931AbSABTzF>; Wed, 2 Jan 2002 14:55:05 -0500
+Date: Wed, 2 Jan 2002 11:52:44 -0800
+To: David Weinehall <tao@acc.umu.se>
+Cc: Stevie O <stevie@qrpff.net>, "David S. Miller" <davem@redhat.com>,
+        Mika.Liljeberg@welho.com, kuznet@ms2.inr.ac.ru,
+        Mika.Liljeberg@nokia.com, linux-kernel@vger.kernel.org,
+        sarolaht@cs.helsinki.fi
+Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2 [NEW DATA]
+Message-ID: <20020102195244.GB10437@bluemug.com>
+Mail-Followup-To: David Weinehall <tao@acc.umu.se>,
+	Stevie O <stevie@qrpff.net>, "David S. Miller" <davem@redhat.com>,
+	Mika.Liljeberg@welho.com, kuznet@ms2.inr.ac.ru,
+	Mika.Liljeberg@nokia.com, linux-kernel@vger.kernel.org,
+	sarolaht@cs.helsinki.fi
+In-Reply-To: <3C1FA558.E889A00D@welho.com> <200112181837.VAA10394@ms2.inr.ac.ru> <3C1FA558.E889A00D@welho.com> <20011218.122813.63057831.davem@redhat.com> <5.1.0.14.2.20011220022218.01dc2258@whisper.qrpff.net> <20011220112218.X5235@khan.acc.umu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011220112218.X5235@khan.acc.umu.se>
+X-PGP-ID: 5C09BB33
+X-PGP-Fingerprint: C518 67A5 F5C5 C784 A196  B480 5C97 3BBD 5C09 BB33
+From: Mike Touloumtzis <miket@bluemug.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Covell <timothy.covell@ashavan.org> said:
+On Thu, Dec 20, 2001 at 11:22:18AM +0100, David Weinehall wrote:
+> 
+> Last time I checked, the ARM7tdmi was a mmu-less cpu -> ucLinux.
 
-[...]
+The Cirrus Logic EP7211, among others, is an ARM7TDMI with an MMU.
 
-> 	Of course, you can copy over the new System.map
-> file to /boot,  but their is no (easy) way of having more than
-> one active version via "lilo" or "grub".   And that could be 
-> considered a deficiency of the Linux OS.
-
-For kernel 2.4.18pre1 call it /boot/System.map-2.4.18pre1. Everything gets
-sorted out if your initscripts symlink that to /boot/System.map (uname(1)
-gives you the version of the running kernel).
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+miket

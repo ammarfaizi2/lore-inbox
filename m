@@ -1,58 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269334AbTCDIFV>; Tue, 4 Mar 2003 03:05:21 -0500
+	id <S269333AbTCDIEq>; Tue, 4 Mar 2003 03:04:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269337AbTCDIFU>; Tue, 4 Mar 2003 03:05:20 -0500
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:17079 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id <S269334AbTCDIFR>;
-	Tue, 4 Mar 2003 03:05:17 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: xmms (audio) skipping in 2.5 (not 2.4)
-Date: Tue, 4 Mar 2003 19:15:43 +1100
-User-Agent: KMail/1.5
-References: <103200000.1046755559@[10.10.2.4]> <200303041828.10130.kernel@kolivas.org> <107450000.1046764086@[10.10.2.4]>
-In-Reply-To: <107450000.1046764086@[10.10.2.4]>
+	id <S269334AbTCDIEq>; Tue, 4 Mar 2003 03:04:46 -0500
+Received: from dsl-213-023-050-047.arcor-ip.net ([213.23.50.47]:52877 "EHLO
+	pulsar.homelinux.net") by vger.kernel.org with ESMTP
+	id <S269333AbTCDIEp>; Tue, 4 Mar 2003 03:04:45 -0500
+Message-ID: <3E646091.6070004@pulsar.homelinux.net>
+Date: Tue, 04 Mar 2003 09:15:13 +0100
+From: Uwe Reimann <linux-kernel@pulsar.homelinux.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030121
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Direct access to parport
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303041915.43743.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Mar 2003 06:48 pm, Martin J. Bligh wrote:
-> >> >> So ... is there any easy way I can diagnose this? Does anyone else
-> >> >> have a similar problem?
-> >> >
-> >> > Most of us who have worked with an O(1) scheduler based kernel have
-> >> > found this  at various times. See the previous discussion with akpm
-> >> > about the interactivity estimator. Akpm found that decreasing the
-> >> > maximum timeslice duration would blunt the effect of the interactivity
-> >> > estimator giving preference to the "wrong" task. In 2.4.20-ck4 I avoid
-> >> > this problem with the  "desktop tuning" of making the max
-> >> > timeslice==min timeslice. Try an -mm  kernel with the scheduler
-> >> > tunables patch and try playing with the max  timeslice. Most have
-> >> > found that <=25 will usually stop these skips. The  default max
-> >> > timeslice of 300ms is just too long for the desktop and interactivity
-> >> > estimator.
-> >>
-> >> Heh, cool. I have the same patch in my tree too, fixed it without
-> >> rebooting even ;-) Still a *tiny* bit of skipping, but infinitely better
-> >> than it was.
-> >
-> > Try decreasing prio_bonus_ratio to 15 as well
->
-> Doesn't seem to make much difference, actually.
-> But "waggle scrollbar a bit" isn't very scientific .. ;-)
-> Does contest (or anything else) measure this kind of thing more precisely?
+Hi,
 
-Last time I tried to do a whole swag of tunables it was showing differences 
-but I was plagued by memory leaks ruining the data. I'll try again in the 
-near future. Also Bill Davidsen's trivial response benchmark may show 
-something too.
+I'd like to connect some self made hardware to the parallel port and 
+read the values of the dataline using linux. Can this be done in 
+userspace or do I have to write kernel code to do so? I'm currently 
+thinking of writing a device like lp, which in turn uses the parport 
+device. Does this sound like a good idea?
 
-Con
+Regards, Uwe
+
 

@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264638AbSIQVxV>; Tue, 17 Sep 2002 17:53:21 -0400
+	id <S264642AbSIQV5W>; Tue, 17 Sep 2002 17:57:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264640AbSIQVxV>; Tue, 17 Sep 2002 17:53:21 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:54403 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264638AbSIQVxU>;
-	Tue, 17 Sep 2002 17:53:20 -0400
-Date: Tue, 17 Sep 2002 14:49:11 -0700 (PDT)
-Message-Id: <20020917.144911.43656989.davem@redhat.com>
-To: jgarzik@mandrakesoft.com
-Cc: akpm@digeo.com, manfred@colorfullife.com, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Info: NAPI performance at "low" loads
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D87A4A2.6050403@mandrakesoft.com>
-References: <3D87A264.8D5F3AD2@digeo.com>
-	<20020917.143947.07361352.davem@redhat.com>
-	<3D87A4A2.6050403@mandrakesoft.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264651AbSIQV5W>; Tue, 17 Sep 2002 17:57:22 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:59332 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S264642AbSIQV5U> convert rfc822-to-8bit; Tue, 17 Sep 2002 17:57:20 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux Solutions
+To: "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk
+Subject: Re: do_gettimeofday vs. rdtsc in the scheduler
+Date: Tue, 17 Sep 2002 15:02:04 -0700
+User-Agent: KMail/1.4.1
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, johnstul@us.ibm.com,
+       anton.wilson@camotion.com
+References: <p73vg54tjpl.fsf@oldwotan.suse.de> <1032298092.20498.21.camel@irongate.swansea.linux.org.uk> <20020917.141806.49377410.davem@redhat.com>
+In-Reply-To: <20020917.141806.49377410.davem@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209171502.04524.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jeff Garzik <jgarzik@mandrakesoft.com>
-   Date: Tue, 17 Sep 2002 17:54:42 -0400
+On Tuesday 17 September 2002 02:18 pm, David S. Miller wrote:
+>    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>    Date: 17 Sep 2002 22:28:12 +0100
+>
+>    A bus clock - but things like the x440 have more than one bus clock. Its
+>    NUMA. Also the bus clock and rdtsc clock are different - rdtsc is
+>    dependant on the multiplier. Shove a celeron 300 and a celeron 450 in a
+>    BP6 board with tsc on and enjoy
+>
+> That's mostly my point.
+>
+> If the bus clocks differ, then great create some system wide crystal
+> oscillator.  That's a detail, the important bit is that you don't need
+> to go out to the system bus to read the tick value, it must be cpu
+> local to be effective and without serious performance impact.
+> -
 
-   David S. Miller wrote:
-   > Any driver should be able to get the NAPI overhead to max out at
-   > 2 PIOs per packet.
-   
-   Just to pick nits... my example went from 2 or 3 IOs [depending on the 
-   presence/absence of a work loop] to 6 IOs.
-   
-I mean "2 extra PIOs" not "2 total PIOs".
+It's more than just a detail.  Sequent's last NUMA system (_not_ the NUMA-Q;  
+never released) did exactly what you suggest.  The midplane card generated 
+the bus clock for all quad modules.  We had requested this feature because it 
+was such a pain dealing with clock drift between nodes in the OS.
 
-I think it's doable for just about every driver, even tg3 with it's
-weird semaphore scheme takes 2 extra PIOs worst case with NAPI.
+The HW guys were able to give us synchronized bus clocks on a 16-way box, but 
+warned us that it would not be practical on the 256-way.  Too much clock skew 
+at those speeds, or something like that.  I suppose you could trade off 
+interconnect rate for clock sync, but then performance would suffer.
 
-The semaphore I have to ACK anyways at hw IRQ time anyways, and since
-I keep a software copy of the IRQ masking register, mask and unmask
-are each one PIO.
+I don't know how Sun and SGI manage with their larger systems.  Either they 
+don't do clock sync, or they may have to make expensive tradeoffs.
+
+Interestingly, Intel's IA64 manual does not guarantee that the CPU clock (and 
+thus its TSC register) has anything to do with the bus clock rate.  Maybe 
+they want to dabble with asynchronous logic or multiple clock domains in 
+future CPUs.
+
+Trivia:  NUMA-Q systems running Dynix/PTX can contain quads running at very 
+different CPU speeds.  This made locating some race conditions quite easy.
+
+-- 
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
+

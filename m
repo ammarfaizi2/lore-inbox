@@ -1,75 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268511AbUH3QCN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268529AbUH3QHX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268511AbUH3QCN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 12:02:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268520AbUH3QCN
+	id S268529AbUH3QHX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 12:07:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268530AbUH3QHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 12:02:13 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:15323 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S268511AbUH3QCG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 12:02:06 -0400
-Date: Mon, 30 Aug 2004 18:02:05 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       flx@msu.ru, Christophe Saout <christophe@saout.de>,
-       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: reiser4 plugins
-Message-ID: <20040830160205.GA7718@MAIL.13thfloor.at>
-Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
-	Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-	flx@msu.ru, Christophe Saout <christophe@saout.de>,
-	Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org, flx@namesys.com,
-	reiserfs-list@namesys.com
-References: <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de> <20040828105929.GB6746@alias> <Pine.LNX.4.58.0408281011280.2295@ppc970.osdl.org> <20040828190350.GA14152@alias> <20040828190901.GA18083@lst.de> <4130FBF8.8070005@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4130FBF8.8070005@namesys.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 30 Aug 2004 12:07:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64645 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268526AbUH3QHP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 12:07:15 -0400
+Message-ID: <413350A2.1000003@pobox.com>
+Date: Mon, 30 Aug 2004 12:06:58 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Brad Campbell <brad@wasp.net.au>
+CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] libata ATA vs SATA detection and workaround.
+References: <41320DAF.2060306@wasp.net.au> <41321288.4090403@pobox.com> <413216CC.5080100@wasp.net.au> <4132198B.8000504@pobox.com> <41321F7F.7050300@pobox.com> <41333CDC.5040106@wasp.net.au> <41334058.4050902@wasp.net.au>
+In-Reply-To: <41334058.4050902@wasp.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 28, 2004 at 02:41:12PM -0700, Hans Reiser wrote:
-> I think it is reasonable to make the -nopseudos (turns off the metafiles 
-> ) mount option mandatory, until the bugs are resolved.
-> 
-> Our testing did not find these metafile/VFS bugs because of the reason 
-> for all our bugs, we screwed up. 
-> 
-> There is a distinct difference between some persons and I, which is that 
-> some think all of reiser4 should be excluded until metafiles are 
-> implemented by VFS some long time from now, and I, in that I merely 
-> think buggy optional features should be turned off until they are 
-> fixed.  I, being renowned for my paranoia and asininity as I am, think 
-> these persons find it convenient as an excuse to keep us from competing, 
-> and I think that if we were slower there would be less hassle every time 
-> we try to get into the kernel. 
-> 
-> While reiser4 has some significant roughnesses remaining in its 
-> performance, I think the average user would find it performs better than 
-> other filesystems, and is stable enough for, say, a laptop, and I 
-> predict that by the time we have it stable enough for mission critical 
-> servers, all the roughness in various important corner cases will be 
-> gone.  
-> 
-> Persons benchmarking it with tarballs, please be sure to use tarballs 
-> created on reiser4, not ext2 tarballs, readdir order matters a lot for 
-> sorted directory filesystems.
+Brad Campbell wrote:
+> +			/* limit bridge transfers to udma5, 200 sectors */
+> +			if ((ap->cbl == ATA_CBL_SATA) && (!ata_id_is_sata(ap->device))) {
+> +				printk(KERN_INFO "ata%u(%u): applying bridge limits\n",
+> +					ap->id, ap->device->devno);
+> +				ap->udma_mask &= ATA_UDMA5;
+> +				ap->host->max_sectors = ATA_MAX_SECTORS;
+> +				ap->host->hostt->max_sectors = ATA_MAX_SECTORS;
+> +				ap->device->flags |= ATA_DFLAG_LOCK_SECTORS;
+> +			}
+>  			if (ap->ops->dev_config)
+>  				ap->ops->dev_config(ap, &ap->device[i]);
 
-hmm, so probably we have to wait until all
-tar packagers moved to reiser4, so that the
-available tar files are 'sorted properly' ...
 
-best,
-Herbert
+Close!  Please move the entire quoted section, including the two lines 
+of code calling ->dev_config(), into a new function 'ata_dev_config'. 
+Export it (bottom of libata-core.c) and prototype it (libata.h) as well.
 
-> Hans
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I'm still pondering what Alan was hinting at, a bit.  You (Brad) are 
+correct in pointing out that this code should only trigger for the 
+correct situations (lba48, etc.) which are only present on modern 
+drives, but...  there is still a chance that word 93 will be zero on 
+some weird (probably non-compliant) device.
+
+However, Alan's comment is actually more relevant for unrelated sections 
+of libata.  Whenever we test a feature bit in words 82-87, we should 
+check for "word != 0 && word != 0xffff" which is how one knows the word 
+is implemented.  There are no feature bits indicating that feature bits 
+exist :)
+
+	Jeff
+
+

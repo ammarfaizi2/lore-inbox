@@ -1,59 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264699AbTAJPDs>; Fri, 10 Jan 2003 10:03:48 -0500
+	id <S265154AbTAJPMF>; Fri, 10 Jan 2003 10:12:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264975AbTAJPDs>; Fri, 10 Jan 2003 10:03:48 -0500
-Received: from holomorphy.com ([66.224.33.161]:51865 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S264699AbTAJPDr>;
-	Fri, 10 Jan 2003 10:03:47 -0500
-Date: Fri, 10 Jan 2003 07:12:23 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Erich Focht <efocht@ess.nec.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@tech9.net>
-Subject: Re: small migration thread fix
-Message-ID: <20030110151223.GT23814@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Erich Focht <efocht@ess.nec.de>, Ingo Molnar <mingo@elte.hu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Robert Love <rml@tech9.net>
-References: <200301101346.03653.efocht@ess.nec.de> <20030110131100.GS23814@holomorphy.com> <200301101529.33302.efocht@ess.nec.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200301101529.33302.efocht@ess.nec.de>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S265168AbTAJPMF>; Fri, 10 Jan 2003 10:12:05 -0500
+Received: from mail.sevencubes.de ([62.245.134.131]:61575 "HELO
+	wwwserver1.sevencubes.de") by vger.kernel.org with SMTP
+	id <S265154AbTAJPME> convert rfc822-to-8bit; Fri, 10 Jan 2003 10:12:04 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Robert Szentmihalyi <robert.szentmihalyi@entracom.de>
+Organization: Entracom GmbH
+To: Oleg Drokin <green@namesys.com>
+Subject: Re: Severe reiserfs problems
+Date: Fri, 10 Jan 2003 16:20:42 +0100
+User-Agent: KMail/1.4.3
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200301101332.50873.robert.szentmihalyi@entracom.de> <20030110172115.A9028@namesys.com>
+In-Reply-To: <20030110172115.A9028@namesys.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301101620.42248.robert.szentmihalyi@entracom.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 January 2003 14:11, William Lee Irwin III wrote:
->> I'm not mingo, but I can say this looks sane. My only question is
->> whether there are more codepaths that need this kind of check, for
->> instance, what happens if someone does set_cpus_allowed() to a cpumask
->> with !(task->cpumask & cpu_online_map) ?
+On Friday 10 January 2003 15:21, Oleg Drokin wrote:
+> Hello!
 
-On Fri, Jan 10, 2003 at 03:29:33PM +0100, Erich Focht wrote:
-> The piece of code below was intended for that. I agree with Rusty's
-> comment, BUG() is too strong for that case. 
-> #if 0 /* FIXME: Grab cpu_lock, return error on this case. --RR */
-> 	new_mask &= cpu_online_map;
-> 	if (!new_mask)
-> 		BUG();
-> #endif
-> Anyhow, changing the new_mask in this way is BAD, because the masks
-> are inherited. So when more CPUs come online, they remain excluded
-> from the mask of the process and it's children.
-> The fix suggested in the comments still has to be done...
+Hi Oleg,
 
-I don't have much to add but another ack and a "hmm, maybe something
-could be done". My prior comments stand. I'd be very much obliged if
-you provide a fix for the set_cpus_allowed() issue. I very much rely
-upon you now to provide scheduler fixes and optimizations for large
-scale and/or NUMA machines these days.
+>
+> On Fri, Jan 10, 2003 at 01:32:50PM +0100, Robert Szentmihalyi wrote:
+> > I have severe file system problems on a reiserfs partition.
+> > When I try copy files to another filesystem, the kernel panics at
+> > certain files.
+>
+> Can you tell us what the panics were?
+> What was the kernel version?
 
+It said "... killing interrupt handler!"
+However, the message is not exactly reproduceable. 
+Meanwhile, when I mount the partition in the rescue system (SuSE Linux 
+8.1) and access the mountpoint somehow, the machine reboots...
 
-Thanks,
-Bill
+>
+> > reiserfsck --fix-fixable says that I need to run
+> > reiserfsck --rebuild-tree to fix the errors, but when I do this,
+> > reiserfsck hangs after a few secounds.
+>
+> What's the reiserfsck version you have?
+
+I have tried tried SuSE 8.0 and 81 rescue systems with kernels 2.4.18.and 
+2.4.19 / reiserfsck 3.x.1b and 3.6.2 with the same result.
+
+> What do you mean by hangs? Does it eats cpu time or something?
+
+It just freezes doesn't react to key presses no more.
+All you can do is swith the computer off... 
+
+>
+> > Is there a way to rescue at least some of the data on the partition?
+>
+> There is not enough info yet to know the answer.
+
+I am happy to provide any inforamation you might need.
+
+>
+> Bye,
+>     Oleg
+
+Thanks for your help so far,
+ Robert
+
+-- 
+Where do you want to be tomorrow?
+
+Entracom. Building Linux systems.
+http://www.entracom.de
+

@@ -1,42 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292388AbSBPPVM>; Sat, 16 Feb 2002 10:21:12 -0500
+	id <S292390AbSBPPYN>; Sat, 16 Feb 2002 10:24:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292385AbSBPPVD>; Sat, 16 Feb 2002 10:21:03 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:2312
-	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S292388AbSBPPU1>; Sat, 16 Feb 2002 10:20:27 -0500
-Date: Sat, 16 Feb 2002 09:53:45 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Dave Jones <davej@suse.de>, Larry McVoy <lm@work.bitmover.com>,
-        Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
-        linux-kernel@vger.kernel.org
+	id <S292389AbSBPPYB>; Sat, 16 Feb 2002 10:24:01 -0500
+Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:11769 "EHLO
+	filestore.kroptech.com") by vger.kernel.org with ESMTP
+	id <S292390AbSBPPVj>; Sat, 16 Feb 2002 10:21:39 -0500
+Message-ID: <019801c1b6fd$9df513f0$02c8a8c0@kroptech.com>
+From: "Adam Kropelin" <akropel1@rochester.rr.com>
+To: <esr@thyrsus.com>, "David Woodhouse" <dwmw2@infradead.org>
+Cc: "Rob Landley" <landley@trommello.org>, "Dave Jones" <davej@suse.de>,
+        "Larry McVoy" <lm@work.bitmover.com>,
+        "Arjan van de Ven" <arjan@redhat.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020216013538.A23546@thyrsus.com> <20020215135557.B10961@thyrsus.com> <20020215224916.L27880@suse.de> <20020215170459.A15406@thyrsus.com> <20020215232517.FXLQ71.femail38.sdc1.sfba.home.com@there> <20020216013538.A23546@thyrsus.com> <22614.1013851279@redhat.com> <20020216085706.H23546@thyrsus.com>
 Subject: Re: Disgusted with kbuild developers
-Message-ID: <20020216095345.N23546@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>, Dave Jones <davej@suse.de>,
-	Larry McVoy <lm@work.bitmover.com>,
-	Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020215135557.B10961@thyrsus.com> <200202151929.g1FJTaU03362@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215141433.B11369@thyrsus.com> <20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215145421.A12540@thyrsus.com> <20020215124255.F28735@work.bitmover.com> <20020215153953.D12540@thyrsus.com> <20020215221532.K27880@suse.de> <20020215155817.A14083@thyrsus.com> <3C6E1942.C08DA061@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C6E1942.C08DA061@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Feb 16, 2002 at 03:33:06AM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Date: Sat, 16 Feb 2002 10:21:33 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-OriginalArrivalTime: 16 Feb 2002 15:21:33.0622 (UTC) FILETIME=[9DF62560:01C1B6FD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@mandrakesoft.com>:
-> How hard is it to maintain a database where the key for each entry is
-> easy an unambigious?
+----- Original Message -----
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: "David Woodhouse" <dwmw2@infradead.org>
+Cc: "Rob Landley" <landley@trommello.org>; "Dave Jones" <davej@suse.de>; "Larry
+McVoy" <lm@work.bitmover.com>; "Arjan van de Ven" <arjan@redhat.com>;
+<linux-kernel@vger.kernel.org>
+Sent: Saturday, February 16, 2002 8:57 AM
+Subject: Re: Disgusted with kbuild developers
 
-It's not that simple, either.  You have to track the symbols that are
-*supposed* to be different between trees.  The devil is in the details --
-and it's a big devil.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+> David Woodhouse <dwmw2@infradead.org>:
+> > However - the thing to which I and many others object most strongly is the
+> > rulebase policy changes which appear to be inseparable from the change in
+> > mechanism. That is; we've tried to get you to separate them, and failed.
+>
+> Failed?  Hardly.
+>
+> The only rulebase policy change Tom Rini was able to identify in a recent
+> review was the magic behavior of EXPERT with respect to entries without
+> help.  Which I then removed by commenting out a single declaration.
+>
+> There is a widespread myth that the CML2 rulebase is lousy with "policy
+> changes".  I don't know how it got started, but it needs to die now.
+
+The last time I played with CML2 (~2 months ago) I didn't even make it through a
+full 'make config' before I had to stop on account of nausea. It was seemingly
+overrun with gratuitous changes that were (to me, anyway) useless and annoying.
+
+Examples:
+* It started asking me vague questions like how old my computer was in order to
+draw some magic conclusion about my configuration needs. *I* know my hardware.
+Don't waste my time with Aunt Tillie questions that will quite possibly draw the
+wrong conclusion for my needs.
+
+* The 'make config' UI was subtly changed from the CML1 version. Why? I haven't
+seen any complaints on the list about the UI.
+
+* The 'make menuconfig' UI was significantly changed. Again, why? Haven't seen
+any complaints about the old one.
+
+Maybe these issues don't qualify as "policy change" but it seems obvious that
+there is some other agenda being followed here besides replacing the CML1
+language with one that can accurately represent the rulebase. I'm in favor of
+the later, but definitely not if it comes inseparably packaged with the former.
+
+--Adam
+
+

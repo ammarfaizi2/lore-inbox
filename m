@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265619AbUAZXiM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 18:38:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265620AbUAZXiM
+	id S265617AbUAZXxh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 18:53:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265592AbUAZXxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 18:38:12 -0500
-Received: from sandershosting.com ([69.26.136.138]:2721 "HELO
-	sandershosting.com") by vger.kernel.org with SMTP id S265619AbUAZXiF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 18:38:05 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: David Sanders <linux@sandersweb.net>
-Reply-To: David Sanders <linux@sandersweb.net>
-Organization: SandersWeb.net
-Message-Id: <200401261834.54450@sandersweb.net>
-To: linux-kernel@vger.kernel.org
-Subject: atkbd.c: Unknown key released
-Date: Mon, 26 Jan 2004 18:37:37 -0500
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	Mon, 26 Jan 2004 18:53:37 -0500
+Received: from cpe-024-033-224-91.neo.rr.com ([24.33.224.91]:41360 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S265635AbUAZXw2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 18:52:28 -0500
+Date: Mon, 26 Jan 2004 18:37:38 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: David Sanders <linux@sandersweb.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PNP depends on ISA ? (2.6.2-rc2
+Message-ID: <20040126183738.GB3180@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	David Sanders <linux@sandersweb.net>, linux-kernel@vger.kernel.org
+References: <20040126193144.GC2004@luna.mooo.com> <20040126161746.GA3180@neo.rr.com> <200401261813.48324@sandersweb.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401261813.48324@sandersweb.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I keep getting the following in my syslog whenever I startx:
+On Mon, Jan 26, 2004 at 06:15:43PM -0500, David Sanders wrote:
+> On Monday 26 January 2004 11:17 am, Adam Belay wrote:
+> > On Mon, Jan 26, 2004 at 09:31:44PM +0200, Micha Feigin wrote:
+> > > I was wondering why pnp depends on isa being selected in 2.6.2-rc2,
+> 
+> > Yes, it only is related to isa devices, but they include onboard
+> I the 2.4.x kernel I seem to remember being able to cat /proc/isapnp 
+> and getting info about pnp devices on my system.  Is there an 
+> equivalent in 2.6.x ?
 
-Jan 26 13:43:56 debian kernel: atkbd.c: Unknown key released 
-(translated set 2, code 0x7a on isa0060/serio0).
-Jan 26 13:43:56 debian kernel: atkbd.c: This is an XFree86 bug. It 
-shouldn't access hardware directly.
-Jan 26 13:43:57 debian kernel: atkbd.c: Unknown key released 
-(translated set 2, code 0x7a on isa0060/serio0).
-Jan 26 13:43:57 debian kernel: atkbd.c: This is an XFree86 bug. It 
-shouldn't access hardware directly.
+Yes.  A complete interface, including id information and control over
+resource management is provided through sysfs.
 
-I don't get the error with the 2.4.24 kernel.
--- 
-David Sanders
-linux@sandersweb.net
+#mkdir /sys
+#mount -t sysfs none /sys
+
+Look in /sys/bus/pnp for more information.
+
+Thanks,
+Adam

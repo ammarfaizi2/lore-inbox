@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269900AbTHOV7F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 17:59:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269958AbTHOV7E
+	id S269967AbTHOWDz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 18:03:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270449AbTHOWDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 17:59:04 -0400
-Received: from adicia.telenet-ops.be ([195.130.132.56]:11187 "EHLO
-	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S269900AbTHOV7D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 17:59:03 -0400
-Date: Fri, 15 Aug 2003 23:59:00 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, James Simmons <jsimmons@infradead.org>
+	Fri, 15 Aug 2003 18:03:54 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:60422 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269967AbTHOWDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 18:03:52 -0400
+Date: Fri, 15 Aug 2003 23:03:51 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Kurt Roeckx <Q@ping.be>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Problem with framebuffer in 2.6.0-test3
-Message-ID: <20030815215900.GA172@ping.be>
-References: <20030815142008.GA22123@ping.be> <20030815141846.083f3d2d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030815141846.083f3d2d.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030815142008.GA22123@ping.be>
+Message-ID: <Pine.LNX.4.44.0308152301190.30952-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 02:18:46PM -0700, Andrew Morton wrote:
-> Kurt Roeckx <Q@ping.be> wrote:
-> >
-> > If I compile with framebuffer I get weird results during boot.
-> 
-> Please test
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test3/2.6.0-test3-mm2/broken-out/fbdev.patch
-> 
-> and send a report to linux-kernel and James Simmons <jsimmons@infradead.org>
 
-It behaves just the same as plain 2.6.0-test3.
+> When I use "vga=normal", I get this weird screen during boot.
+> It doesn't show any text.  It just lots of coloured pixels.
 
+This tells the the BIOS to set the video mode to a VGA text hardware mode. 
+This will never work with any of the framebuffer drivers. That is meant 
+only for vgacon.
 
-Kurt
+> When I use "vga=0x301" I just get a blank screen during boot.
+
+This will only work with VESA fbdev.
+
+> In the init scripts I call fbset to set the proper resolution,
+> which work in both cases.
+
+fbset doesn't work with VESA fbdev because VESA doesn't support mode 
+changes. 
+ 
+> Here is part of my .config:
+> CONFIG_FB=y
+> # CONFIG_FB_CIRRUS is not set
+> # CONFIG_FB_PM2 is not set
+> # CONFIG_FB_CYBER2000 is not set
+> # CONFIG_FB_IMSTT is not set
+> CONFIG_FB_VGA16=y
+> CONFIG_FB_VESA=y
+> CONFIG_VIDEO_SELECT=y
+> # CONFIG_FB_HGA is not set
+> # CONFIG_FB_RIVA is not set
+> # CONFIG_FB_MATROX is not set
+> # CONFIG_FB_RADEON is not set
+> # CONFIG_FB_ATY128 is not set
+> # CONFIG_FB_ATY is not set
+> # CONFIG_FB_SIS is not set
+> # CONFIG_FB_NEOMAGIC is not set
+> CONFIG_FB_3DFX=y
+> # CONFIG_FB_VOODOO1 is not set
+> # CONFIG_FB_TRIDENT is not set
+> # CONFIG_FB_PM3 is not set
+> # CONFIG_FB_VIRTUAL is not set
+
+Ah. You have a Voodoo 3 card. Please only us that driver. Also make sure 
+you have CONFIG_FRAMEBUFFER_CONSOLE set.
+
 

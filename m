@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273754AbRI0SFZ>; Thu, 27 Sep 2001 14:05:25 -0400
+	id <S273787AbRI0SVg>; Thu, 27 Sep 2001 14:21:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273755AbRI0SFP>; Thu, 27 Sep 2001 14:05:15 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:50951 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S273754AbRI0SFG>; Thu, 27 Sep 2001 14:05:06 -0400
-Message-ID: <3BB36A6A.B0736CA2@zip.com.au>
-Date: Thu, 27 Sep 2001 11:05:30 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: ookhoi@dds.nl
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] netconsole - log kernel messages over the network. 2.4.10.
-In-Reply-To: <20010927171818.H774@humilis>
-Content-Type: text/plain; charset=us-ascii
+	id <S273784AbRI0SVZ>; Thu, 27 Sep 2001 14:21:25 -0400
+Received: from venus.bullseyetelecom.net ([166.90.250.12]:63759 "EHLO
+	venus.bullseyetelecom.net") by vger.kernel.org with ESMTP
+	id <S273781AbRI0SVP>; Thu, 27 Sep 2001 14:21:15 -0400
+Subject: Re: 2.4.10 (SMP, highmem) solid freeze
+From: Jason Czerak <Jason-Czerak@Jasnik.net>
+To: Igor Mozetic <igor.mozetic@uni-mb.si>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <15282.60654.52083.446184@proizd.camtp.uni-mb.si>
+In-Reply-To: <15282.60654.52083.446184@proizd.camtp.uni-mb.si>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13 (Preview Release)
+Date: 27 Sep 2001 14:21:18 +0000
+Message-Id: <1001600478.822.18.camel@neworder>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ookhoi wrote:
+On Thu, 2001-09-27 at 09:10, Igor Mozetic wrote:
+
+Yeah, same thing happened here after about 7 or 8 hours of uptime.
+
+Dual PIII-750. 1 gig ram. supermicro P6DGE. 128 meg swap partition (just
+in case). Adaptic 2490U2W
+
+I'm dropping back to 2.4.9-ac11. that one seems to fix the high memory
+bug and was stable.
+
+Also the 2.4.10 kernel seems to slow down after a while of uptime to.
+System seems sluggish. But that could be just Gnome 1.4 stuff.
+
+
+> After two days of uptime under load 2-3 (no swapping, not much I/O),
+> the box froze completely. Only hard reboot brought it back.
+> Nothing in logs, sorry ...
+> Hardware seems OK, other machines (UP, no highmem) run fine so far.
 > 
-> Hi All,
+> Hardware:
+> dual Xeon 550Mhz, C440GX+, 2GB RAM, 1GB swap, SCSI AIC-7896/7
 > 
-> Ingo was not aware of the sourceforge project, and suggested me to
-> resend my reply to lkml. Does the patch work for you guys? Do I do
-> something wrong? That would be more than possible. :-)
+> -Igor Mozetic
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> ...
-> cuddle:~# uname -a
-> Linux cuddle 2.4.9-ac15 #1 Thu Sep 27 13:54:51 CEST 2001 i686 unknown
-> cuddle:~# insmod netconsole dev=eth0 target_ip=0x0a604875 source_port=6666 target_port=5555
-> Using /lib/modules/2.4.9-ac15/kernel/drivers/net/netconsole.o
-> /lib/modules/2.4.9-ac15/kernel/drivers/net/netconsole.o: init_module: Operation not permitted
-> Hint: insmod errors can be caused by incorrect module parameters, including invalid IO or IRQ parameters
-
-If you're not using the eepro100 driver, then an insmod of the
-netconsole driver will fail:
 
 
-+       if (!ndev->poll_controller) {
-+               printk(KERN_ERR "netconsole: %s's network driver does not implement netlogging yet, aborting.\n", dev);
-+               return -1;
-+       }
 
-Maybe that message is in your logs somewhere?
-
-Take a look at the poll_controller() implementation in the eepro100
-part of Ingo's patch - it's dead simple.
-
-What we need is for a bunch of people to implement poll_controller()
-for *their* ethernet driver and contribute the tested diffs
-back to Ingo.
-
--

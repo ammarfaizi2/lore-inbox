@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264545AbTEPSaV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 14:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264546AbTEPSaV
+	id S264553AbTEPSdo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 14:33:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264589AbTEPSdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 14:30:21 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:50914 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S264545AbTEPSaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 14:30:20 -0400
-Subject: Re: Resend [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Ben Collins <bcollins@debian.org>
-Cc: Patrick Mochel <mochel@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030516002059.GE433@phunnypharm.org>
-References: <20030513071412.GS433@phunnypharm.org>
-	 <Pine.LNX.4.44.0305130808040.9816-100000@cherise>
-	 <20030516002059.GE433@phunnypharm.org>
-Content-Type: text/plain
-Message-Id: <1053110581.648.4.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
-Date: 16 May 2003 20:43:02 +0200
-Content-Transfer-Encoding: 7bit
+	Fri, 16 May 2003 14:33:43 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21252 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264553AbTEPSdm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 14:33:42 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [ANNOUNCE] submount: another removeable media handler
+Date: 16 May 2003 11:46:20 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <ba3bls$c2p$1@cesium.transmeta.com>
+References: <200305160106.37274.eweiss@sbcglobal.net> <20030516113304.GK32559@Synopsys.COM> <200305161027.20045.eweiss@sbcglobal.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-05-16 at 02:20, Ben Collins wrote:
-> On Tue, May 13, 2003 at 08:08:35AM -0700, Patrick Mochel wrote:
-> > 
-> > On Tue, 13 May 2003, Ben Collins wrote:
-> > 
-> > > On Tue, May 13, 2003 at 08:10:32AM +0100, Christoph Hellwig wrote:
-> > > > On Tue, May 13, 2003 at 02:26:40AM -0400, Ben Collins wrote:
-> > > > > This was causing me all sorts of problems with linux1394's 16-18 byte
-> > > > > long bus_id lengths. The sysfs names were all broken.
-> > > > > 
-> > > > > This not only makes KOBJ_NAME_LEN match BUS_ID_SIZE, but fixes the
-> > > > > strncpy's in drivers/base/ so that it can't happen again (atleast the
-> > > > > strings will be null terminated).
-> > > > 
-> > > > What about defining BUS_ID_SIZE in terms of KOBJ_NAME_LEN?
-> > > 
-> > > Ok, then add this in addition to the previous patch.
-> > 
-> > I'll add this, and sync with Linus this week, if he doesn't pick it up.
+Followup to:  <200305161027.20045.eweiss@sbcglobal.net>
+By author:    Eugene Weiss <eweiss@sbcglobal.net>
+In newsgroup: linux.dev.kernel
+>
 > 
-> *sigh* Patrick, you accepted the BUS_ID_SIZE change without the original
-> patch, so now BUS_ID_SIZE is back to 16 bytes.
+> > how is it different from what automounter does?
 > 
-> Linus, please apply this patch to get things right again.
+> Autofs works by creating a special filesystem above the vfs layer, and passing 
+> requests and data back and forth.   Submount actually does much less than 
+> this- it puts a special filesystem underneath the real one, and the only 
+> things it returns to the VFS layer are error messages.  It handles no IO 
+> operations whatsoever.
+> 
+> Peter Anvin has called using the automounter for removeable media "abuse."
+> Submount is designed for it.
+> 
 
-Well, it seems this patch has bad interaction with the Yamaha ALSA sound
-driver (aka snd-ymfpci). Don't know why, but changing KOBJ_NAME_LEN from
-16 to 20, causes snd-ymfpci.ko to oops.
+Sure, but it's not clear to me that you have listened to me saying
+*why* it is abuse.
 
-If you have the time, please take a look at another thread in the LKML
-called "pccard oops while booting".
+Basically, in my opinion removable media should be handled by insert
+and removal detection, not by access detection.  Obviously, there are
+some sticky issues with that in the case where media can be removed
+without notice (like PC floppies or other manual-eject devices), but
+overall I think that is the correct approach.
 
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

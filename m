@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314496AbSEYMCV>; Sat, 25 May 2002 08:02:21 -0400
+	id <S314500AbSEYMP3>; Sat, 25 May 2002 08:15:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314499AbSEYMCU>; Sat, 25 May 2002 08:02:20 -0400
-Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:9915 "EHLO
-	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
-	id <S314496AbSEYMCT>; Sat, 25 May 2002 08:02:19 -0400
-Date: Sat, 25 May 2002 14:02:16 +0200 (MET DST)
-From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: [PATCH] neofb.c
-Message-ID: <Pine.GSO.4.05.10205251400470.7328-100000@mausmaki.cosy.sbg.ac.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314502AbSEYMP2>; Sat, 25 May 2002 08:15:28 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:55281 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S314500AbSEYMP2>; Sat, 25 May 2002 08:15:28 -0400
+Subject: Re: Nforce chipset and 2.2 kernels
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Hayden James <hjames@stevens-tech.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SGI.4.30.0205250203400.5168315-100000@attila.stevens-tech.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 25 May 2002 14:16:37 +0100
+Message-Id: <1022332597.11811.3.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc 3.1 seems to be unhappy:
-neofb.c:2321: initialized causes a section type conflict
+On Sat, 2002-05-25 at 07:13, Hayden James wrote:
+> You are shit out of luck, upgrade to 2.4 and deal with the lack of
+> free complete drivers for the onboard audio, network, and video or return
+> the boards. I am not even sure if 2.4 will work seeing as how I was
+> told(by Alan and Vojtech) that 2.5 is the only kernel that supports the IDE
+> chipset on the board.
 
-the simple patch for this would be:
-===== neofb.c 1.8 vs edited =====
---- 1.8/drivers/video/neofb.c   Thu May  2 00:56:02 2002
-+++ edited/neofb.c      Sat May 25 18:50:14 2002
-@@ -2318,10 +2318,10 @@
-   return 0;
- }
- 
--static int __init initialized = 0;
--
- int __init neofb_init(void)
- {
-+  static int initialized = 0;
-+
-   DBG("neofb_init");
- 
-   if (disabled)
+Fixing the IDE to work in the stable tree appears to be just adding some
+PCI idents so that bit shouldn't be too problematic. The rest is not
+good though
 
-
--- 
-in some way i do, and in some way i don't.
+Alan
 

@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263227AbTDGDr1 (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 23:47:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263228AbTDGDr0 (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 23:47:26 -0400
-Received: from chii.cinet.co.jp ([61.197.228.217]:48769 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP id S263227AbTDGDrM (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 23:47:12 -0400
-Date: Mon, 7 Apr 2003 12:56:53 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5.66-ac2] PC-9800 sub architecture support (8/9) PCMCIA
-Message-ID: <20030407035653.GH4840@yuzuki.cinet.co.jp>
-References: <20030407033627.GA4798@yuzuki.cinet.co.jp>
-Mime-Version: 1.0
+	id S263228AbTDGDuN (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 23:50:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263247AbTDGDuN (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 23:50:13 -0400
+Received: from [203.199.93.15] ([203.199.93.15]:41995 "EHLO
+	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
+	id S263228AbTDGDuM (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 23:50:12 -0400
+From: "ramands" <ramands@indiatimes.com>
+Message-Id: <200304070327.IAA23937@WS0005.indiatimes.com>
+To: <linux-kernel@vger.kernel.org>
+Reply-To: "ramands" <ramands@indiatimes.com>
+Subject: Compiation Err:Derefercing pointer to incomplete type
+Date: Mon, 07 Apr 2003 09:30:49 +0530
+X-URL: http://indiatimes.com
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030407033627.GA4798@yuzuki.cinet.co.jp>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.66-ac2. (8/9)
+whenever i incude header uaccess.h for copy my compiler throws a lot of compilation errors . They are generaly of nature 
 
-Small change for PCMCIA (16bits) support.
-For fix usable IRQ number.
+uaccess.h>dereferencing pointer to incomplete type
 
-Regards,
-Osamu Tomita
+sched.h>dereferncing pointer to incomplete type 
 
-diff -Nru linux-2.5.62-ac1/drivers/pcmcia/i82365.c linux98-2.5.62-ac1/drivers/pcmcia/i82365.c
---- linux-2.5.62-ac1/drivers/pcmcia/i82365.c	2003-02-18 07:56:55.000000000 +0900
-+++ linux98-2.5.62-ac1/drivers/pcmcia/i82365.c	2003-02-21 11:14:30.000000000 +0900
-@@ -188,7 +188,11 @@
- };
- 
- /* Default ISA interrupt mask */
-+#ifndef CONFIG_X86_PC9800
- #define I365_MASK	0xdeb8	/* irq 15,14,12,11,10,9,7,5,4,3 */
-+#else
-+#define I365_MASK	0xd668	/* irq 15,14,12,10,9,6,5,3 */
-+#endif
- 
- #ifdef CONFIG_ISA
- static int grab_irq;
+i am using redhat 8.0
+i have read that some distributions do not provide complete headers for module level programming 
+Is that the reason for error i am getting ?
+
+
+
+
+
+Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
+
+ Buy The Best In BOOKS at http://www.bestsellers.indiatimes.com
+
+Bid for for Air Tickets @ Re.1 on Air Sahara Flights. Just log on to http://airsahara.indiatimes.com and Bid Now !
+

@@ -1,28 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264760AbTFLFyl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 01:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbTFLFyl
+	id S264759AbTFLFyd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 01:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264760AbTFLFyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 01:54:41 -0400
-Received: from h2.prohosting.com.ua ([217.106.231.81]:17794 "EHLO
+	Thu, 12 Jun 2003 01:54:33 -0400
+Received: from h2.prohosting.com.ua ([217.106.231.81]:17282 "EHLO
 	h2.prohosting.com.ua") by vger.kernel.org with ESMTP
-	id S264760AbTFLFyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 01:54:36 -0400
+	id S264759AbTFLFya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 01:54:30 -0400
 From: Artemio <artemio@artemio.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
+To: "J.A. Magallon" <jamagallon@able.es>
 Subject: Re: SMP question
-Date: Thu, 12 Jun 2003 08:42:42 +0300
+Date: Thu, 12 Jun 2003 08:37:40 +0300
 User-Agent: KMail/1.5
-References: <Pine.LNX.4.44.0306111838360.20310-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.44.0306111838360.20310-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200306120841.08809.artemio@artemio.net>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <MDEHLPKNGKAHNMBLJOLKMEJLDJAA.davids@webmaster.com> <200306112313.30903.artemio@artemio.net> <20030611225401.GE2712@werewolf.able.es>
+In-Reply-To: <20030611225401.GE2712@werewolf.able.es>
+MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306120837.40421.artemio@artemio.net>
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - h2.prohosting.com.ua
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -33,63 +33,37 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello!
 
-> > I'm building a hard real-time Linux (RTLinux) system on a 2x Xeon
-> > machine. If
+Thanks for your reply!
+
+> > Hmmm... So, you mean uni-processor Linux kernel can't see two processors
+> > as one "big" processor?
 >
-> then LKML is not the place for you.  RTLinux is a fork of "real" linux.
-
-Well, those guys seem to have success on the same machines that I fail. 
-
-I even used *their* .config file to compile a kernel, but I still fail.
-
-> well, talk to the rtlinux people.  considering what rtlinux changes from
-> real linux, this hang is not a big surprise.
-
-Yes, rtlinux runs linux kernel as it's idle thread, and it messes up the 
-system - I mean it becomes more difficult to make it work if it doesn't work.
-
-> > So, I have to deside between these two:
-> >
-> >  - Run rtlinux and hard-realtime applications on a kernel without SMP
-> > support. How much performance will I loose this way? Is SMP *THAT*
-> > critical?
+> No, but it will work as if it does...explain below.
 >
-> huh?  it's not critical at all.  though if you have two processors,
-> you've just wasted several hundred dollars unless you run SMP.
-
-:-)
-
-> >  - Run all tasks in a usual way, no hard realtime, but with SMP support.
+> You have 2 processor packages, each one is HyperThreading capable. This
+> means you have two 'CPUs' inside each package, so that sums up your 4 CPUs.
+> But there is a flaw. The 2 'CPUs' inside each processor package are not
+> full real CPUs, just two register sets that share cache, FP units, integer
+> units and so on. So let's say your Xeon has 8 FP units, and you want to
+> run a FPU intensive task with low or null disk IO. If you activate
+> hyperthreading each of the 2 'cpus' has 4 FP units, so half the computation
+> power. If you deactivate HT, you have 1 CPU with 8 FP units.
 >
-> why do you think you need rtlinux-type realtime?
+> In short, for FP intensive tasks, hyperthreading is a big lie...
+> You can't run 2 computations in parallel.
 
-Hmm... Nice question.
+Thanks for such in-depth explanation! 
 
-We are to run many applications that will be mission-critical. That's why we 
-decided to make them in hard-realtime.
+As I understood, with HT enabled, Linux-SMP sees four CPUs with 5000 bogo mips 
+each (of course I've already seen this in /proc/cpuinfo).
 
-The other way is probably making low-priority kernel threads by usual means.
+So, if I deactivate HT, will a UP Linux see one CPU with 4x5000=20000 bogo 
+mips?
 
-But I think hard-realtime will give us more performance. 
-
-> > Also, if I turn hyperthreading off, how will it influence the system with
-> > SMP support? Without SMP support?
->
-> HT is just hardware-supported multithreading - imagine that you have
-> the same old processor, except that the CPU's instruction-dispatcher
-> is reading from two instruction streams.  HT doesn't add any new resources,
-> just shares a single CPU among two threads.
-
-Got it.
-
-> I suspect the design of rtlinux is inherently incompatible with HT.
-
-I will try turning HT off and running RTLinux.
+Anyway, I will try what I mentioned on that machine today.
 
 
-
-Thank you very much for your reply!
+Thank you again and good luck!
 
 
 Artemio.
-

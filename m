@@ -1,47 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263383AbTCNRB2>; Fri, 14 Mar 2003 12:01:28 -0500
+	id <S263368AbTCNRQa>; Fri, 14 Mar 2003 12:16:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263394AbTCNRB2>; Fri, 14 Mar 2003 12:01:28 -0500
-Received: from [80.190.48.67] ([80.190.48.67]:64518 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id <S263383AbTCNRB1> convert rfc822-to-8bit; Fri, 14 Mar 2003 12:01:27 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21pre5aa1
-Date: Fri, 14 Mar 2003 18:10:54 +0100
-User-Agent: KMail/1.4.3
-References: <20030314090825.GB1375@dualathlon.random> <200303141437.11589.m.c.p@wolk-project.de>
-In-Reply-To: <200303141437.11589.m.c.p@wolk-project.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200303141810.54234.m.c.p@wolk-project.de>
+	id <S263384AbTCNRQa>; Fri, 14 Mar 2003 12:16:30 -0500
+Received: from B573e.pppool.de ([213.7.87.62]:13196 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S263368AbTCNRQ3>; Fri, 14 Mar 2003 12:16:29 -0500
+Subject: Re: 2.4.20 and 2.5.64 NIC missing interrupts in APIC mode
+From: Daniel Egger <degger@fhm.edu>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20030313202407.GA10774@k3.hellgate.ch>
+References: <1047581900.1513.36.camel@sonja>
+	 <20030313202407.GA10774@k3.hellgate.ch>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-V4t6T/KHNB8Z9KYu22n/"
+Organization: 
+Message-Id: <1047662819.7452.17.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 14 Mar 2003 18:27:00 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 14 March 2003 14:39, Marc-Christian Petersen wrote:
 
-Hi Andrea,
+--=-V4t6T/KHNB8Z9KYu22n/
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > Only in 2.4.21pre5aa1: 22_sched-deadlock-mmdrop-1
-> > 	Backport from 2.5 (in a more icache friendy way) an anti-deadlock
-> > 	fix for the o1 scheduler that can otherwise send a cross IPI with
-> > 	irq disabled.
+Am Don, 2003-03-13 um 21.24 schrieb Roger Luethi:
 
-> I get _tons_ of these messages:
->
-> Initializing RT netlink socket
-> rq->prev_mm was c025b0e0 set to c025b0e0 - swapper
-> dffddf4c c0115786 c023b1a0 c025b0e0 c025b0e0 dffdc24e dffddfbc dffce02c
->        dffdc000 00000000 dffdc000 dffddfbc c0105000 0008e000 c01072bd
-> 00000700 c0125d00 c02916a8 dffddfbc c0105000 0008e000 00000002 c01e0018
-> ....
+> > As soon as I enable the APIC mode in the BIOS the onboard PHY seems
+> > to ignore any packets which are thrown at it *after* the kernel
+> > initialised itself which is especially nasty since the system is bootin=
+g
+> > from network effectively stopping its boot when trying to get an IP
+> > using DHCP or mounting a NFS volume in case the IP is fixed. The onboar=
+d
+> > NIC is a VIA Rhine II (VT6102).
 
-I am going to rip out 22_sched-deadlock-mmdrop-1 because I dunno how to fix 
-this. The trace is annoying ;)
+> You may want to try 2.4.x-ac kernels, I believe Alan fixed some VIA APIC
+> issues.
 
-ciao, Marc
+According to Alans changelog the 2.5-ac has a forwardport of the VIA
+interrupt line patch, after some difficulties applying 2.5.64-ac3 to=20
+a rsynched post 2.5.64 kernel (some parts of the console changes didn't
+apply cleanly) I now tried it and it shows exactly the same symptoms.
 
+Are there more VIA patches floating aroung? A short search on google
+didn't find anything particularly interesting.
+
+Almost more annoying is that even after removing the fb support I cannot
+see enough of the messages to be helpful here, neither scrolllock nor
+shift-pgup help, probably also an interrupt issue though a bit seems
+to go through:
+atkbd.c: Unknown key (set 2, scancode 0xb6, on isa0060/serio0) pressed.
+
+--=20
+Servus,
+       Daniel
+
+--=-V4t6T/KHNB8Z9KYu22n/
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+chDjchlzsq9KoIYRAjKfAKCndKNYMm+xQZMIzWYIkS29/bHRbwCgp8YG
+gLaLhR3RahUnZ4G4p0dQyXQ=
+=4ds5
+-----END PGP SIGNATURE-----
+
+--=-V4t6T/KHNB8Z9KYu22n/--
 

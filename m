@@ -1,113 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262373AbTAIPJb>; Thu, 9 Jan 2003 10:09:31 -0500
+	id <S266728AbTAIPJy>; Thu, 9 Jan 2003 10:09:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266728AbTAIPJb>; Thu, 9 Jan 2003 10:09:31 -0500
-Received: from 12-211-138-234.client.attbi.com ([12.211.138.234]:13164 "EHLO
-	vlad.geekizoid.com") by vger.kernel.org with ESMTP
-	id <S262373AbTAIPJ3>; Thu, 9 Jan 2003 10:09:29 -0500
-Reply-To: <vlad@geekizoid.com>
-From: "Vlad@Vlad.geekizoid.com" <vlad@vlad.geekizoid.com>
-To: "'John Alvord'" <jalvo@mbay.net>
-Cc: <linux-kernel@vger.kernel.org>, <rms@gnu.org>
-Subject: What's in a name?
-Date: Thu, 9 Jan 2003 09:18:32 -0600
-Message-ID: <012201c2b7f2$5ffd4e40$0200a8c0@wsl3>
+	id <S266735AbTAIPJy>; Thu, 9 Jan 2003 10:09:54 -0500
+Received: from sj-msg-core-2.cisco.com ([171.70.145.30]:28083 "EHLO
+	sj-msg-core-2.cisco.com") by vger.kernel.org with ESMTP
+	id <S266728AbTAIPJw>; Thu, 9 Jan 2003 10:09:52 -0500
+Message-ID: <040b01c2b7f2$56ff0f40$a78b4d0a@apac.cisco.com>
+From: "Indukumar Ilangovan" <iilangov@cisco.com>
+To: <linux-kernel@vger.kernel.org>, <linux-mips@linux-mips.org>
+Subject: [OT] cross-compiler problem
+Date: Thu, 9 Jan 2003 20:48:18 +0530
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
+X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <nbdq1vo9enjh9c6gnh68mpg0ebt7n22fhi@4ax.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+x-mimeole: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And in that same period, look at Linux, and then look at Hurd.  Hurd even
-has the advantage of using giant chunks of Linux code, but it still is
-basically useless.
+Hi All,
 
-Why should Linux be refered to as GNU/Linux because of tools, and yet Hurd
-doesn't give credit where credit is due?  RMS has done more to hurt GNU with
-his current stance on the matter than Microsoft ever could.  He's getting
-annoying, too.
+I tried to build cross compiler on Red Hat Linux
+Kernel 2.4.2-2 on an i686.
+I use binutils-2.13, gcc-3.2, glibc-2.2.5, glibc-2.2.5-mips-build-gmon.diff,
+glibc-linuxthreads.tar.gz.
+I followed the instructions from
+http://www.ltc.com/~brad/mips/mipsel-linux-cross-toolchain-building.txt
 
-Regards,
-Scott
+I installed binutils  without any problems.
 
------Original Message-----
-From: John Alvord [mailto:jalvo@mbay.net]
-Sent: Thursday, January 09, 2003 2:58 AM
-To: vlad@geekizoid.com
-Cc: rms@gnu.org; linux-kernel@vger.kernel.org
-Subject: Re: Nvidia and its choice to read the GPL "differently"
+While compiling glibc2.2.5 I get the following error.
+
+../sysdeps/unix/syscall.S: Assembler messages:
+../sysdeps/unix/syscall.S:28: Error: absolute expression required `li'
+make[2]: *** [/home/iilangov/crossGCC/mips/mips-glibc/misc/syscall.o] Error
+1
+make[2]: Leaving directory `/home/iilangov/crossGCC/mips/glibc-2.2.5/misc'
+make[1]: *** [misc/subdir_lib] Error 2
+make[1]: Leaving directory `/home/iilangov/crossGCC/mips/glibc-2.2.5'
+make: *** [all] Error 2
+
+I have "asm/unistd.h" in the include path, still this problem is happening.
+Do you guys have any clue ?
+
+Thanks in Advance !
+Indu
 
 
-Try to imagine the last 12 years of Linux without
+----- Original Message -----
+From: "Alexandre Oliva" <aoliva@redhat.com>
+To: "Khantharat Anekboon" <dfos1@hotmail.com>
+Cc: <crossgcc@sources.redhat.com>
+Sent: Saturday, December 28, 2002 12:22 PM
+Subject: Re: cross-compiler problem
 
-gcc
-binutils
-unix programs such as ls, cp, rm, etc
 
-I personally believe the current state of the Linux kernel would have
-been impossible to achieve (at this time) without the above tools.
+| On Dec 28, 2002, "Khantharat Anekboon" <dfos1@hotmail.com> wrote:
+|
+| > ../sysdeps/unix/syscall.S:28: Error: absolute expression required 'li'
+|
+| Looks like you're missing the kernel headers where the syscall numbers
+| are defined.  (.../include/asm/unistd.h)
+|
+| --
+| Alexandre Oliva   Enjoy Guarana', see http://www.ic.unicamp.br/~oliva/
+| Red Hat GCC Developer                 aoliva@{redhat.com, gcc.gnu.org}
+| CS PhD student at IC-Unicamp        oliva@{lsd.ic.unicamp.br, gnu.org}
+| Free Software Evangelist                Professional serial bug killer
+|
+| ------
+| Want more information?  See the CrossGCC FAQ,
+http://www.objsw.com/CrossGCC/
+| Want to unsubscribe? Send a note to
+crossgcc-unsubscribe@sources.redhat.com
 
-The Linux kernel development has stood on the shoulders of the GNU
-effort the whole time.
-
-Whether the result should be labeled as GNU/Linux is semantics - what
-is the meaning of "operating system".  And it is redundant... after
-all there is no Linux without GNU, so why force unnecessary
-information on terms. If there was an ATT/Linux and an Intel/Linux,
-having a GNU/Linux would make some sense... but that is not the way it
-is. GNU/Linux is singular, so Linux makes a reasonable contraction.
-
-Distributor marketting wants a neat snapy name that is easy to
-remember. Linux is close enough to unix to merge meanings a bit.
-People who read about Linus Torvalds get the Linus/Linux play on
-words.
-
-Another puzzling aspect to me is that GNU really goes beyond what I
-think of as an operating system. I have a suite of GNU tools installed
-on a Windows NT machine and I use make, ls, cp, mv all day. So I am
-using GNU on a foreign operating system... or does my usage needs to
-be labeled as GNU/Windows NT?
-
-john alvord
-
-On Wed, 8 Jan 2003 20:26:09 -0600, "Vlad@Vlad.geekizoid.com"
-<vlad@vlad.geekizoid.com> wrote:
-
->Do you actually buy your own bullshit here?  If so, that's sad.  I used to
->respect you.  I'd like to see you put your money where your mouth is -
-PROVE
->that GNU (not just people who have release GPL'd software) contributed most
->of the work to say Slackware, or Debian, or Red Hat.
->
->Face it - you're full of it.  You're not fooling anyone either.
->
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org
->[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Richard Stallman
->Sent: Wednesday, January 08, 2003 2:00 AM
->To: lm@bitmover.com
->Cc: lm@bitmover.com; acahalan@cs.uml.edu; linux-kernel@vger.kernel.org
->Subject: Re: Nvidia and its choice to read the GPL "differently"
->
->
->    Great.  So not only is there no legal need to cite GNU in the Linux
->    name, there is no ethical obligation either.
->
->When you take part of my statement, stretch it, interpret it based on
->assumptions you know I disagree with, and present the result as
->something I said, that doesn't prove anything.  It is childish.
->
->There is no ethical obligation to mention secondary contributions
->incorporated in a large project.  There ethical obligation is to cite
->the main developer.  In the GNU/Linux system, the GNU Project is the
->principal contributor; the system is more GNU than anything else,
->and we started it.
+********************************************************
+Indukumar Ilangovan
+HCL-Cisco Offshore development center,
+49-50, Nelson Manickam Road, Chennai - 600029 ,  India .
+TEL:  +91-44-2374 1939 x 2215 FAX: +91-44-3741038
+Email :iilangov@cisco.com
 

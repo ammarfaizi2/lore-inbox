@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264274AbTKUOY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 09:24:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTKUOY1
+	id S262776AbTKUOVt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 09:21:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTKUOVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 09:24:27 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:19601 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264274AbTKUOY0 (ORCPT
+	Fri, 21 Nov 2003 09:21:49 -0500
+Received: from main.gmane.org ([80.91.224.249]:22983 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262776AbTKUOVs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 09:24:26 -0500
-Date: Fri, 21 Nov 2003 09:24:16 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Steven Davy <sdavy@tssg.org>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: IPsec AH failure over IPv6
-In-Reply-To: <200311210909.51836.sdavy@tssg.org>
-Message-ID: <Xine.LNX.4.44.0311210923500.18045-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 21 Nov 2003 09:21:48 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Core file
+Date: Fri, 21 Nov 2003 15:21:46 +0100
+Message-ID: <yw1xd6blvm2t.fsf@kth.se>
+References: <000001c3b037$9a92aee0$34dfa7c8@bsb.virtua.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:pwOpDpqClP82nTfdgTT24NWvQ5s=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Nov 2003, Steven Davy wrote:
+"Breno" <brenosp@brasilsec.com.br> writes:
 
-> Im running performance tests using netperf (patched for ip6) across two 
-> machines, ESP works great but AH works really bad, practally all the packets 
-> are droped. Tcpdump reads the packets but they are not passed on to netperf. 
-> Read somewhere the IPsec Ah doesent like fragmentation over tcp, but im not 
-> sure. Im using manual keying, and the 2.5.75 kernel. Is there a kernel patch 
-> to fix this!!
+> I´d like to know where i can find the source code that create filename.core
+> when some memory fault happen.
 
-Please try a more recent kernel (like 2.6.0-test9).
+In linux 2.6 it's in fs/exec.c.  Look for format_corename.
 
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
+Måns Rullgård
+mru@kth.se
 

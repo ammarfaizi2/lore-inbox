@@ -1,119 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267489AbUBSTUD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 14:20:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267498AbUBSTTN
+	id S267490AbUBSTSc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 14:18:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267494AbUBSTSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 14:19:13 -0500
-Received: from mail.kroah.org ([65.200.24.183]:56975 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267489AbUBSTSG (ORCPT
+	Thu, 19 Feb 2004 14:18:31 -0500
+Received: from mail.kroah.org ([65.200.24.183]:51855 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267490AbUBSTSA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 14:18:06 -0500
-Date: Thu, 19 Feb 2004 11:16:36 -0800
+	Thu, 19 Feb 2004 14:18:00 -0500
+Date: Thu, 19 Feb 2004 10:59:32 -0800
 From: Greg KH <greg@kroah.com>
 To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: HOWTO use udev to manage /dev
-Message-ID: <20040219191636.GC10527@kroah.com>
-References: <20040219185932.GA10527@kroah.com>
+Subject: [ANNOUNCE] udev 018 release
+Message-ID: <20040219185932.GA10527@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040219185932.GA10527@kroah.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've released the 018 version of udev.  It can be found at:
+ 	kernel.org/pub/linux/utils/kernel/hotplug/udev-018.tar.gz
 
-Here's a small document that I've added to the udev tarball that
-explains how I managed to get udev to manage my /dev tree on a Red Hat
-Fedora based machine.  All you Gentoo developers can just laugh as it's
-already integrated into your distro.
+rpms built against Red Hat FC2-test1 are available at:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-018-1.i386.rpm
+with the source rpm at:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-018-1.src.rpm
 
-Any users of other distros, feel free to send me updates to this to show
-how to do it for yours.  Any distro maintainers, feel free to just
-integrate udev into your system so this kind of tweaking isn't
-necessary :)
+udev allows users to have a dynamic /dev and provides the ability to
+have persistent device names.  It uses sysfs and /sbin/hotplug and runs
+entirely in userspace.  It requires a 2.6 kernel with CONFIG_HOTPLUG
+enabled to run.  Please see the udev FAQ for any questions about it:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
+
+For any udev vs devfs questions anyone might have, please see:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev_vs_devfs
+
+
+Major changes from the 017 version:
+	- We now handle the ability to generate all partitions for a
+	  device to allow removable devices to work in a sane manner.
+	  This has been requested by a lot of people.
+	- there's a new %s{} modifier available for people to use
+	- the SYSFS_ style rule has changed to SYSFS{}.  The old style
+	  is still supported for now, but you have been warned
+	- %c1 style modifiers has been changed to %c{1}.  Again, the old
+	  style format still works.
+	- scsi_id is built by default now in the rpm and is available in
+	  the pre-built rpm package.  This should get it a wider range
+	  of testing.
+	- lots of bug fixes and other cleanups.
+
+In all, there is nothing hugely major in this release, but any current
+users of udev will want this version for all of the bugfixes if for
+nothing else.
+
+Thanks to everyone who has send me patches for this release, a full list
+of everyone, and their changes is below.
+
+udev development is done in a BitKeeper repository located at:
+	bk://linuxusb.bkbits.net/udev
+
+Daily snapshots of udev from the BitKeeper tree can be found at:
+	http://www.codemonkey.org.uk/projects/bitkeeper/udev/
+If anyone ever wants a tarball of the current bk tree, just email me.
 
 thanks,
 
-greg k-
+greg k-h
 
----------------------------------------
+Summary of changes from v017 to v018
+============================================
 
-HOWTO use udev to manage /dev
+<ext.devoteam.varoqui:sncf.fr>:
+  o [PATCH] symlink dm-[0-9]* rule
+  o update extras/multipath
 
-  This document describes one way to get udev working on a Fedora-development
-  machine to manage /dev.  This procedure may be used to get udev to manage
-  /dev on other distros, if you modify some of the steps.
-  
-  This will only work if you use a 2.6 based kernel, preferably the most
-  recent one.  This does not prevent your machine from using a 2.4
-  kernel, if you boot into one, udev will not run and your old /dev will
-  be present with no changes needed.
+<john-hotplug:fjellstad.org>:
+  o init.d debian patch
 
+Kay Sievers:
+  o udev - TODO update
+  o udev - add %s{filename} to man page
+  o udev - udevd/udevsend man page
+  o udev - switch callout part selector to {attribute}
+  o udev - switch SYSFS_file to SYSFS{file}
+  o udev - create all partitions of blockdevice
+  o allow SYSFS{file}
+  o Adding '%s' format specifier to NAME and SYMLINK
 
-NOTE NOTE NOTE NOTE NOTE NOTE NOTE
-  This is completely unsupported.  Attempting to do this may cause your
-  machine to be unable to boot properly.  USE AT YOUR OWN RISK.  Always
-  have a rescue disk or CD handy to allow you to fix up any errors that
-  may occur.
-NOTE NOTE NOTE NOTE NOTE NOTE NOTE
+Greg Kroah-Hartman:
+  o added some scsi_id files to the bk ignore file
+  o added scsi_id and some more documentation to the udev.spec file
+  o update udev.rules.gentoo with new config file format
+  o Update the Gentoo udev.rules and udev.permissions files
+  o Create a udev.rules.examples file to hold odd udev.rules
+  o add udevd priority issue to the TODO list
+  o more HOWTO cleanups
+  o add HOWTO detailing how to use udev to manage /dev
+  o mv libsysfs/libsysfs.h to libsysfs/sysfs/libsysfs.h to make it easier to use
+  o add start_udev init script
+  o add support for UDEV_NO_SLEEP env variable so Gentoo people will be happy
+  o start up udevd ourselves in the init script to give it some good priorities
+  o update the red hat init script to handle nodes that are not present
+  o add a "old style" SYSFS_attribute test to udev-test.pl
+  o Have udevsend report more info in debug mode
+  o Have udevd report it's version in debug mode
+  o fix up bug created for udevtest in previous partition creation patch
+  o update the udev.spec to add udevtest and make some more Red Hat suggested changes
+  o add ability to install udevtest to Makefile
+  o 017_bk mark
+  o Add another test to udev-test.pl and fix a bug when only running 1 test
+  o Fix bug where we did not use the "converted" kernel name if we had no rule
+  o v017 release TAG: v017
 
+Patrick Mansfield:
+  o udev use new libsysfs header file location
+  o udev add some ID tests
 
- - Build and install udev as specified in the README that comes with
-   udev.  I recommend using the following build options to get the
-   smallest possible binaries:
-	make USE_KLIBC=true USE_LOG=false DEBUG=false
-
- - disable udev from the boot process by running:
- 	chkconfig udev off
-   or
-   	chkconfig --del udev
-   as root.
-
- - place the start_udev script somewhere that is accessible by your
-   initscripts.  I placed it into /etc/rc.d with the following command:
-	copy extras/start_udev /etc/rc.d/
-	
- - modify the rc.sysinit script to call the start_udev script as one of
-   the first things that it does, but after /proc and /sys are mounted.
-   I did this with the latest Fedora startup scripts with the patch at
-   the end of this file.
-
- - make sure the /etc/udev/udev.conf file lists the udev_root as /dev.
-   It should contain the following line in order to work properly.
-	udev_root="/dev/"
-
- - reboot into a 2.6 kernel and watch udev create all of the initial
-   device nodes in /dev
-
-
-If anyone has any problems with this, please let me, and the
-linux-hotplug-devel@lists.sourceforge.net mailing list know.
-
-A big thanks go out to the Gentoo developers for showing me that this is
-possible to do.
-
-Greg Kroah-Hartman
-<greg@kroah.com>
-
-
-----------------------------------
-Patch to modify rc.sysinit to call udev at the beginning of the boot
-process:
-
-
---- /etc/rc.sysinit.orig	2004-02-17 11:45:17.000000000 -0800
-+++ /etc/rc.sysinit	2004-02-17 13:28:33.000000000 -0800
-@@ -32,6 +32,9 @@
- 
- . /etc/init.d/functions
- 
-+# start udev to populate /dev
-+/etc/rc.d/start_udev
-+
- if [ "$HOSTTYPE" != "s390" -a "$HOSTTYPE" != "s390x" ]; then
-   last=0
-   for i in `LC_ALL=C grep '^[0-9].*respawn:/sbin/mingetty' /etc/inittab | sed 's/^.* tty\([0-9][0-9]*\).*/\1/g'`; do
-
- 

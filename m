@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbVAJOxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbVAJO4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbVAJOxL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 09:53:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbVAJOxL
+	id S262283AbVAJO4b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 09:56:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbVAJO4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 09:53:11 -0500
-Received: from mail108.messagelabs.com ([216.82.255.115]:47058 "HELO
-	mail108.messagelabs.com") by vger.kernel.org with SMTP
-	id S262282AbVAJOxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 09:53:06 -0500
-X-VirusChecked: Checked
-X-Env-Sender: AAnthony@sbs.com
-X-Msg-Ref: server-15.tower-108.messagelabs.com!1105368783!6809937!1
-X-StarScan-Version: 5.4.5; banners=sbs.com,-,-
-X-Originating-IP: [204.255.71.6]
-Message-ID: <4F23E557A0317D45864097982DE907941A32B1@pilotmail.sbscorp.sbs.com>
-From: Adam Anthony <AAnthony@sbs.com>
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Cc: Adam Anthony <AAnthony@sbs.com>
-Subject: [PATCH] /driver/net/wan/sbs520
-Date: Mon, 10 Jan 2005 07:46:52 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+	Mon, 10 Jan 2005 09:56:31 -0500
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:30171 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S262283AbVAJO4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 09:56:17 -0500
+Date: Mon, 10 Jan 2005 07:56:15 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2.6.10-mm2] Use the new preemption code [3/3]
+Message-ID: <20050110145615.GC2226@smtp.west.cox.net>
+References: <20050110013508.1.patchmail@tglx> <1105318804.17853.5.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1105318804.17853.5.camel@tglx.tec.linutronix.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SGI and Kernel Maintainers,
-	With the permission of my employer, SBS Technologies, Inc., I have
-released a patch for 2.4 kernels that supports the 520 Series of WAN
-adapters.  (A similar patch for 2.6 kernels will soon follow)  The driver
-itself has been tested by many customers, but as of this morning, the patch
-has only been tested by me.
-       I have created a Source Forge project for the patch/GPL driver, which
-can be viewed at the following location:
-"https://sourceforge.net/projects/sbs520lnxdrv/".  The patch can be
-downloaded directly from the following link:
-"http://prdownloads.sourceforge.net/sbs520lnxdrv/sbs520patch.bz2?download"
-       It would be great to receive some feedback on our work, and we hope
-that this driver will eventually be added to the kernel.
-Best regards,
-Adam
+On Mon, Jan 10, 2005 at 02:00:04AM +0100, Thomas Gleixner wrote:
 
-Signed-off-by: Adam T. Anthony <aanthony@sbs.com>
+> This patch adjusts the PPC entry code to use the fixed up
+> preempt_schedule() handling in 2.6.10-mm2
+> 
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> 
+> ---
+>  entry.S |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> ---
+> Index: 2.6.10-mm1/arch/ppc/kernel/entry.S
+> ===================================================================
+> --- 2.6.10-mm1/arch/ppc/kernel/entry.S  (revision 141)
+> +++ 2.6.10-mm1/arch/ppc/kernel/entry.S  (working copy)
+> @@ -624,12 +624,12 @@
+>         beq+    restore
+>         andi.   r0,r3,MSR_EE    /* interrupts off? */
+>         beq     restore         /* don't schedule if so */
+> -1:     lis     r0,PREEMPT_ACTIVE@h
+> +1:     li      r0,1
 
+Perhaps I just don't have enough context, but is there good reason to
+use a magic constant instead of a define ?
 
-
-For limitations on the use and distribution of this message, please visit www.sbs.com/emaildisclaimer.
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbVCOXol@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVCOXpg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262155AbVCOXol (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 18:44:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVCOXmA
+	id S262163AbVCOXpg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 18:45:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVCOXov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 18:42:00 -0500
-Received: from gate.crashing.org ([63.228.1.57]:57770 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262126AbVCOXkz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 18:40:55 -0500
-Subject: Re: [BUG] 2.6.11- sym53c8xx Broken on pp64
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Omkhar Arasaratnam <iamroot@ca.ibm.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, tgall@us.ibm.com,
-       antonb@au1.ibm.com
-In-Reply-To: <4237051E.6080107@ca.ibm.com>
-References: <422FA817.4060400@ca.ibm.com>
-	 <1110420620.32525.145.camel@gaston> <422FBACF.90108@ca.ibm.com>
-	 <422FC042.40303@ca.ibm.com>
-	 <Pine.LNX.4.58.0503091944030.2530@ppc970.osdl.org>
-	 <1110434383.32525.184.camel@gaston>
-	 <20050310121701.GD21986@parcelfarce.linux.theplanet.co.uk>
-	 <1110467868.5379.15.camel@mulgrave>  <42307E4D.6080505@ca.ibm.com>
-	 <1110492159.32524.261.camel@gaston>  <4237051E.6080107@ca.ibm.com>
-Content-Type: text/plain
-Date: Wed, 16 Mar 2005 10:38:40 +1100
-Message-Id: <1110929920.24296.40.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Mar 2005 18:44:51 -0500
+Received: from web26510.mail.ukl.yahoo.com ([217.146.176.47]:23692 "HELO
+	web26510.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262138AbVCOXoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 18:44:16 -0500
+Message-ID: <20050315234415.71730.qmail@web26510.mail.ukl.yahoo.com>
+Date: Tue, 15 Mar 2005 23:44:15 +0000 (GMT)
+From: Neil Conway <nconway_kernel@yahoo.co.uk>
+Subject: Re: NFS client bug in 2.6.8-2.6.11
+To: Bernardo Innocenti <bernie@develer.com>, Anders Saaby <as@cohaesio.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       lkml <linux-kernel@vger.kernel.org>, nfs@lists.sourceforge.net
+In-Reply-To: 6667
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-15 at 09:54 -0600, Omkhar Arasaratnam wrote:
-> Benjamin Herrenschmidt wrote:
+Hi Bernardo (et al).  Apologies - I've not been reading my account for
+a wee while.  Then again, I probably don't have much useful to add to
+the debate right now ;-)
 
-> The 2.6.11.3 kernel with the 2.6.10 driver seems to fail with the same 
-> sym2 driver error - so I suppose it goes deeper than the driver itself.
+--- Bernardo Innocenti <bernie@develer.com> wrote:
+> Anders Saaby wrote:
+> > Anyways if your server has only run with 2.6.10 - try 2.6.11.
 > 
+> Thank you, I've finally nailed it down by upgrading the
+> *server* kernel from 2.6.10-1.770_FC3 to 2.6.10-1.770_FC3.
 
-Let's move that to linuxppc64-dev and drop the CC-list. Last message on
-this thread.
+Hmm, I will infer from a previous email you sent that you mean 766_FC3
+for the "from" kernel.
 
-Ben.
+> The latter is basically 2.6.10-ac12 plus a bunch of vendor
+> specific patches.
+
+766 -> 770 sounds like a "small" (ish) number of patches to check, if
+we're lucky.  Did you wade through 'em all yet?  Any smoking guns?
+
+Regards,
+Neil
+PS: oh bugger, just remembered that I also reproduced my bug with a
+2.6.8 kernel on the server; admittedly though it was an FC2 kernel so
+who knows what extra patches it had.
 
 
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Make Yahoo! your home page 
+http://www.yahoo.com/r/hs

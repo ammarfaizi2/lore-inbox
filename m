@@ -1,61 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266611AbUIVScf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266616AbUIVSjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266611AbUIVScf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 14:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266616AbUIVScf
+	id S266616AbUIVSjO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 14:39:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266619AbUIVSjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 14:32:35 -0400
-Received: from mail.humboldt.co.uk ([81.2.65.18]:51636 "EHLO
-	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S266611AbUIVScd
+	Wed, 22 Sep 2004 14:39:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28078 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266616AbUIVSjG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 14:32:33 -0400
-Subject: Re: [PATCH][2.6] Add command function to struct i2c_adapter
-From: Adrian Cox <adrian@humboldt.co.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sensors@Stimpy.netroedge.com
-Cc: Michael Hunold <hunold-ml@web.de>, Jon Smirl <jonsmirl@gmail.com>,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <20040922122848.M14129@linux-fr.org>
-References: <414F111C.9030809@linuxtv.org>
-	 <20040921154111.GA13028@kroah.com>	 <41506099.8000307@web.de>
-	 <41506D78.6030106@web.de> <1095843365.18365.48.camel@localhost>
-	 <20040922102938.M15856@linux-fr.org> <1095854048.18365.75.camel@localhost>
-	 <20040922122848.M14129@linux-fr.org>
-Content-Type: text/plain
-Message-Id: <1095877951.18365.232.camel@localhost>
+	Wed, 22 Sep 2004 14:39:06 -0400
+Date: Wed, 22 Sep 2004 19:39:05 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org
+Subject: Re: The new PCI fixup code ate my IDE controller
+Message-ID: <20040922183905.GQ16153@parcelfarce.linux.theplanet.co.uk>
+References: <20040922174929.GP16153@parcelfarce.linux.theplanet.co.uk> <1095877177.17821.1535.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 22 Sep 2004 19:32:31 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1095877177.17821.1535.camel@hades.cambridge.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-22 at 14:38, Jean Delvare wrote:
+On Wed, Sep 22, 2004 at 07:19:37PM +0100, David Woodhouse wrote:
+> Hmm. We already have two passes through the fixup stuff. Add a third?
+> But sorting PCI_ANY_ID to go last seems like a reasonable first stab at
+> an answer, if that's sufficient for your purposes.
 
-> Aha, this is an interesting point (which was missing from your previous
-> explanation). The base of your proposal would be to have several small i2c
-> "trees" (where a tree is a list of adapters and a list of clients) instead of
-> a larger, unique one. This would indeed solve a number of problems, and I
-> admit that it is somehow equivalent to Michael's classes in that it
-> efficiently prevents the hardware monitoring clients from probing the video
-> stuff. The rest is just details internal to each "tree". As I understand it,
-> each video device would be a tree on itself, while the whole hardware
-> monitoring stuff would constitute one (bigger) tree. Correct?
+I don't think we need to go that far.  Something like the following
+should work ... (untested, uncompiled, whitespace-damaged)
 
-I've been rereading the code, and it could be even simpler. How about
-this:
+Index: drivers/pci/quirks.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/drivers/pci/quirks.c,v
+retrieving revision 1.16
+diff -u -p -r1.16 quirks.c
+--- drivers/pci/quirks.c        13 Sep 2004 15:23:21 -0000      1.16
++++ drivers/pci/quirks.c        22 Sep 2004 18:37:53 -0000
+@@ -661,7 +661,7 @@ static void __devinit quirk_ide_bases(st
+        printk(KERN_INFO "PCI: Ignoring BAR%d-%d of IDE controller %s\n",
+               first_bar, last_bar, pci_name(dev));
+ }
+-DECLARE_PCI_FIXUP_HEADER(PCI_ANY_ID,             PCI_ANY_ID,                   
+  quirk_ide_bases );
++DECLARE_PCI_FIXUP_HEADER_ALL(quirk_ide_bases);
+ 
+ /*
+  *     Ensure C0 rev restreaming is off. This is normally done by
+Index: include/linux/pci.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/linux/pci.h,v
+retrieving revision 1.18
+diff -u -p -r1.18 pci.h
+--- include/linux/pci.h 13 Sep 2004 15:24:12 -0000      1.18
++++ include/linux/pci.h 22 Sep 2004 18:37:54 -0000
+@@ -1016,6 +1016,11 @@ enum pci_fixup_pass {
+        __attribute__((__section__(".pci_fixup_header"))) = {                   
+        \
+                vendor, device, hook };
+ 
++#define DECLARE_PCI_FIXUP_HEADER_ALL(hook) \
++       static struct pci_fixup __pci_fixup_PCI_ANY_IDPCI_ANY_ID##hook __attribu
+te_used__ \
++       __attribute__((__section__(".pci_fixup_header_all"))) = {
++               PCI_ANY_ID, PCI_ANY_ID, hook };
++
+ #define DECLARE_PCI_FIXUP_FINAL(vendor, device, hook)                          
+\
+        static struct pci_fixup __pci_fixup_##vendor##device##hook __attribute_u
+sed__   \
+        __attribute__((__section__(".pci_fixup_final"))) = {                    
+        \
+Index: include/asm-generic/vmlinux.lds.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-generic/vmlinux.lds.h,v
+retrieving revision 1.4
+diff -u -p -r1.4 vmlinux.lds.h
+--- include/asm-generic/vmlinux.lds.h   13 Sep 2004 15:24:02 -0000      1.4
++++ include/asm-generic/vmlinux.lds.h   22 Sep 2004 18:37:54 -0000
+@@ -20,6 +20,7 @@
+        .pci_fixup        : AT(ADDR(.pci_fixup) - LOAD_OFFSET) {        \
+                VMLINUX_SYMBOL(__start_pci_fixups_header) = .;          \
+                *(.pci_fixup_header)                                    \
++               *(.pci_fixup_header_all)                                \
+                VMLINUX_SYMBOL(__end_pci_fixups_header) = .;            \
+                VMLINUX_SYMBOL(__start_pci_fixups_final) = .;           \
+                *(.pci_fixup_final)                                     \
 
-1) The card driver defines an i2c_adapter structure, but never calls
-i2c_add_adapter(). The only extra thing it needs to do is to initialise
-the semaphores in the structure.
-2) The frontend calls i2c_transfer() directly.
-3) The i2c core never gets involved, and there is never any i2c_client
-structure.
-
-This gives us the required reuse of the I2C algo-bit code, without any
-of the list walking or device probing being required.
-
-- Adrian Cox
-Humboldt Solutions Ltd.
-
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

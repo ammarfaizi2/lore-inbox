@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261903AbSI3Clq>; Sun, 29 Sep 2002 22:41:46 -0400
+	id <S261905AbSI3D2R>; Sun, 29 Sep 2002 23:28:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261904AbSI3Clq>; Sun, 29 Sep 2002 22:41:46 -0400
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:6272 "EHLO
-	completely") by vger.kernel.org with ESMTP id <S261903AbSI3Clp>;
-	Sun, 29 Sep 2002 22:41:45 -0400
-From: Ryan Cumming <ryan@completely.kicks-ass.org>
-To: chrisl@gnuchina.org, "Theodore Ts'o" <tytso@mit.edu>,
-       Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] fix htree dir corrupt after fsck -fD
-Date: Sun, 29 Sep 2002 19:46:57 -0700
-User-Agent: KMail/1.4.7-cool
-References: <E17uINs-0003bG-00@think.thunk.org> <20020929070315.GA6876@vmware.com> <200209290117.02331.ryan@completely.kicks-ass.org>
-In-Reply-To: <200209290117.02331.ryan@completely.kicks-ass.org>
-MIME-Version: 1.0
-Content-Description: clearsigned data
+	id <S261906AbSI3D2R>; Sun, 29 Sep 2002 23:28:17 -0400
+Received: from dp.samba.org ([66.70.73.150]:5259 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261905AbSI3D2R>;
+	Sun, 29 Sep 2002 23:28:17 -0400
+Date: Mon, 30 Sep 2002 13:33:44 +1000
+From: David Gibson <hermes@gibson.dropbear.id.au>
+To: newsgate@linuxguru.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Orinoco 2.5.39 include fix
+Message-ID: <20020930033344.GE10265@zax>
+Mail-Followup-To: David Gibson <hermes@gibson.dropbear.id.au>,
+	newsgate@linuxguru.net, linux-kernel@vger.kernel.org
+References: <20020929201159.GA4933@comet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="big5"
-Content-Transfer-Encoding: 8bit
-Message-Id: <200209291947.01487.ryan@completely.kicks-ass.org>
+In-Reply-To: <20020929201159.GA4933@comet>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, Sep 29, 2002 at 04:11:59PM -0400, newsgate@linuxguru.net wrote:
+> 2.5.39 with orinoco support fails to include because of tqueue.h isn't
+> included. This patch fixes that so that the orinoco module compiles.  
+> 
+> This patch has been untested because the keyboard on my Toshiba 505-S5004
+> has not worked since 2.5.31. :(
+> 
+> 
+> (An aside -- Some day I'm going to have a kernel patch accepted. Some
+> day...)
 
-On September 29, 2002 01:16, Ryan Cumming wrote:
-> Case 1:
-> "Problem in HTREE directory inode 2 (/): bad block 3223649"
->
-> Case 2:
-> "Inode 2, i_blocks is 3718, should be 2280
-> Directory inode 2 has an unallocated block #377
-> Directory inode 2 has an unallocated block #378
-> Directory inode 2 has an unallocated block #379"
-> etc
+Hmm.. I can't seem to reproduce the problem (but I'm having trouble
+getting 2.5.39 to compile at all on my PowerMac).  Nonetheless
+tqueue.h should be included directly, so I've included a patch with
+similar intent into the next driver update, patch coming soon.
 
-Okay, a few more datapoints:
-1) Case #1 happens much more frequently than case #2
-2) I can trigger filesystem corruption with nothing but non-concurrent 
-readdir()s and unlink()s
-3) Although my initial tests were reaching the filesystem's inode limit, I've 
-been able to reproduce case #1 with 153,129 free inodes and 217,294 free 
-blocks.
-4) Case #1 persists with Chris' stack overflow fix, modified to use memmove 
-instead of memcpy
-5) I have not been able to reproduce either error without the dir_index flag 
-set. This may be due to the fact that my test program runs -much- more slowly 
-without directory indexing.
-
-- -Ryan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE9l7slLGMzRzbJfbQRAtbnAKCo5c6NzuGY59Xy4MvCRFqwuw5/+gCgpQkr
-FBXfCLl2R2ii/PiJ3+0ZQR8=
-=droh
------END PGP SIGNATURE-----
+-- 
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

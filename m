@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129524AbQKGNHb>; Tue, 7 Nov 2000 08:07:31 -0500
+	id <S129664AbQKGNVp>; Tue, 7 Nov 2000 08:21:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129121AbQKGNHV>; Tue, 7 Nov 2000 08:07:21 -0500
-Received: from kendy.up.ac.za ([137.215.101.101]:52749 "EHLO kendy.up.ac.za")
-	by vger.kernel.org with ESMTP id <S129807AbQKGNHD>;
-	Tue, 7 Nov 2000 08:07:03 -0500
-Message-ID: <3A07FC3D.13663547@suntiger.ee.up.ac.za>
-Date: Tue, 07 Nov 2000 14:57:33 +0200
-From: Justin Schoeman <justin@suntiger.ee.up.ac.za>
-Reply-To: justin@suntiger.ee.up.ac.za
-Organization: University of Pretoria
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Joe Woodward <woodey@twasystems.fsnet.co.uk>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: removable EIDE disks
-In-Reply-To: <000001c048ae$6132c340$6904883e@default>
+	id <S129781AbQKGNVg>; Tue, 7 Nov 2000 08:21:36 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:32018 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129121AbQKGNV3>;
+	Tue, 7 Nov 2000 08:21:29 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: motyl@stan.chemie.unibas.ch (Tomasz Motylewski),
+        linux-kernel@vger.kernel.org
+Subject: Re: ide-probe.c:400: `rtc_lock' undeclared and /lib/modules/..../build 
+In-Reply-To: Your message of "Tue, 07 Nov 2000 12:11:57 -0000."
+             <E13t7ba-0007KF-00@the-village.bc.nu> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Wed, 08 Nov 2000 00:21:22 +1100
+Message-ID: <13554.973603282@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Joe Woodward wrote:
-> 
-> I am trying to use removable EIDE hard disks on a Red Hat Linux 6.1
-> machine, for backup / walknet purposes.
-> 
-> Issuing a BLKRRPART ioctl call immediately after changing the disk
-> works, but only if the new disk is no larger than the disk present at
-> boot time (smaller and equal capacity disks work OK).
-> 
-> How do I get Linux to recognise that the media in /dev/hdc has
-> changed?
-> 
-> Bill Nottingham suggested that I ask you, as he is unsure if this is a
-> bug or if there is a technique that I am missing.
-> 
-> 
-> Thanks
-> 
-> Richard Stanton
-> 
-> rich@twasystems.fsnet.co.uk
-> 
+On Tue, 7 Nov 2000 12:11:57 +0000 (GMT), 
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>> Agreed, I was unhappy that the build symlink was added to 2.2 kernels.
+>> Now you need modutils >= 2.3.14 for 2.2 kernels :(.  But nobody asks
+>> me, I'm just the kernel module.[ch] and modutils maintainer.
+>
+>Actually they do. I agree that it wants sorting. Im just wondering what the
+>best approach is - maybe check modutils rev and only add the link if its high
+>enough ?
 
-Try using the HDIO_SCAN_HWIF ioctl instead.  This is what I have been
-using, and it work(ed) just fine. (It seems to result in hard locks on
-the newer 2.2.x, where x>14, kernels though).
+Against 2.2.18-pre19, only create build symlink if insmod exists and
+has version >= 2.3.14.
 
--justin
+Index: 18-pre19.1/Makefile
+--- 18-pre19.1/Makefile Sat, 04 Nov 2000 21:35:33 +1100 kaos (linux-2.2/G/b/14_Makefile 1.3.2.2.1.1.1.5.1.3.6.1.5.1.1.1.1.16.1.4 644)
++++ 18-pre19.1(w)/Makefile Wed, 08 Nov 2000 00:13:19 +1100 kaos (linux-2.2/G/b/14_Makefile 1.3.2.2.1.1.1.5.1.3.6.1.5.1.1.1.1.16.1.4 644)
+@@ -335,6 +335,7 @@ modules_install:
+ 	MODLIB=$(INSTALL_MOD_PATH)/lib/modules/$(KERNELRELEASE); \
+ 	mkdir -p $$MODLIB; \
+ 	rm -f $$MODLIB/build; \
++	[ `/sbin/insmod -V 2>&1 | awk '/^insmod version /{split($3, a, /\./); printf "%d%03d%03d\n", a[1], a[2], a[3];}'`0 -ge 20030140 ] && \
+ 	ln -s `pwd` $$MODLIB/build; \
+ 	cd modules; \
+ 	MODULES=""; \
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

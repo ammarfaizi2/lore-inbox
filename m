@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbTIKO0i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 10:26:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbTIKO0i
+	id S261235AbTIKO15 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 10:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbTIKO14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 10:26:38 -0400
-Received: from ns.suse.de ([195.135.220.2]:65177 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261186AbTIKO0g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 10:26:36 -0400
-Date: Thu, 11 Sep 2003 16:26:34 +0200
-From: Andi Kleen <ak@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: akpm@osdl.org, richard.brunner@amd.com, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Message-Id: <20030911162634.64438c7d.ak@suse.de>
-In-Reply-To: <3F60837D.7000209@pobox.com>
-References: <99F2150714F93F448942F9A9F112634C0638B196@txexmtae.amd.com>
-	<20030911012708.GD3134@wotan.suse.de>
-	<20030910184414.7850be57.akpm@osdl.org>
-	<20030911014716.GG3134@wotan.suse.de>
-	<3F60837D.7000209@pobox.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 11 Sep 2003 10:27:56 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:35217 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261235AbTIKO10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 10:27:26 -0400
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030911062816.GX27368@fs.tum.de>
+References: <200309071647.h87Glp4t014359@harpo.it.uu.se>
+	 <20030907174341.GA21260@mail.jlokier.co.uk>
+	 <1062958188.16972.49.camel@dhcp23.swansea.linux.org.uk>
+	 <20030911062816.GX27368@fs.tum.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1063290309.2962.12.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Thu, 11 Sep 2003 15:25:10 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Sep 2003 10:15:25 -0400
-Jeff Garzik <jgarzik@pobox.com> wrote:
+On Iau, 2003-09-11 at 07:28, Adrian Bunk wrote:
+> - Does the Cyrix III support 686 instructions?
 
-> Andi Kleen wrote:
-> > It could be done but ... we are moving more and more to generic kernels
-> > (e.g. see the alternative patch code which is enabled unconditionally)
-> > So that when you have a kernel it will boot on near all modern CPUs.
-> 
-> 
-> Only with CONFIG_X86_GENERIC.  That's precisely why CONFIG_X86_GENERIC 
-> was created.
+Original Cyrix III supports the IA32 P6 definition
+VIA C3 supports the IA32 P6 definition
+The later ones also support cmov (the gcc i686 definition)
 
-It was not created for that (I know that because I created it ;-)
+They run 486 scheduling better it seems because its a single issue
+machine. Turn off the padding tho.
 
-X86_GENERIC is merely an optimization hint (currently it only changes the cache
-line size hint) It does not change anything related to correctness. Everything
-that handles correctness is checked unconditionally.
+> - Do -march=winchip{2,-c6} and -march=c3{,-2} add anything not in
+>   -march=i686 (except optimizations of otherwise compatible code)?
 
-is_prefetch is a correctness thing.
+Its i586 ish (but runs best with 486 code kept compact as with the C3).
+It lacks some bits of Pentium (lot of profiling, appendix H type stuff)
+but is 586 + optional extras in other areas.
 
-> 
-> If I disabled CONFIG_X86_GENERIC and select CONFIG_MPENTIUM4, I darned 
-> well better not get any Athlon code.  The cpu setup code in particular I 
-> want to conditionalize, and there are other bits that need work... but 
-> for the most part it works as intended.
-
-Now that's becomming silly. It's alttogether only a few KB and all
-__init code anyways.
-
--Andi

@@ -1,47 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbTKDW1S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 17:27:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbTKDW1S
+	id S261226AbTKDW14 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 17:27:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbTKDW1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 17:27:18 -0500
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:59883 "EHLO
-	ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S261168AbTKDW1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 17:27:17 -0500
-Date: Tue, 4 Nov 2003 17:26:50 -0500
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: Linus Torvalds <torvalds@osdl.org>, Paul Venezia <pvenezia@jpj.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: ext3 performance inconsistencies, 2.4/2.6
-Message-ID: <20031104222650.GA8958@ti19.telemetry-investments.com>
-Reply-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	Linus Torvalds <torvalds@osdl.org>, Paul Venezia <pvenezia@jpj.net>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Ulrich Drepper <drepper@redhat.com>
-References: <20031104212813.GC30612@ti19.telemetry-investments.com> <Pine.LNX.4.44.0311041335200.20373-100000@home.osdl.org> <20031104221904.GE30612@ti19.telemetry-investments.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031104221904.GE30612@ti19.telemetry-investments.com>
-User-Agent: Mutt/1.4i
+	Tue, 4 Nov 2003 17:27:55 -0500
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:37046 "HELO
+	develer.com") by vger.kernel.org with SMTP id S261226AbTKDW1r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 17:27:47 -0500
+Message-ID: <3FA827D8.3000700@develer.com>
+Date: Tue, 04 Nov 2003 23:27:36 +0100
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer S.r.l.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: uclinux-dev <uclinux-dev@uclinux.org>
+CC: GCC Mailing List <gcc@gcc.gnu.org>,
+       CrossGCC Mailing List <crossgcc@sources.redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCE] GCC 3.3.2/3.4 ColdFire toolchain for uClinux (20031103)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 04, 2003 at 05:19:04PM -0500, Bill Rugolsky Jr. wrote:
-> On Fedora 0.95, Pentium M 1.6GHz, 2.4.22-1.2115.nptl, glibc-2.3.2-10, (NPTL 0.60),
-> I get:
-> 
-> Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
->                     -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-> Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-> NPTL           100M 13070 100 +++++ +++ 14141   4 13099 100 +++++ +++ +++++ +++
-> LinuxThreads   100M 25957 100 +++++ +++ 20037   5 26777  99 +++++ +++ +++++ +++
- 
+Hello,
 
-Eek, that's glibc-2.3.2-101.
-                          ^
+I've released a new snapshot of the uClinux/ColdFire toolchain
+based on GCC 3.3.2 and GCC 3.4-prerelease:
 
- 	- Bill Rugolsky
+  http://www.uclinux.org/pub/uClinux/uclinux-elf-tools/gcc-3/
+
+This release incorporares quite a lot of updates and fixes
+since the last official announcement.
+
+Changes in release 20031102:
+
+    * Update GCC to 3.3.2 and 3.4-20031029;
+    * Update binutils to version 2.14.90.0.7;
+    * Finished integrating uClinux and ColdFire support in
+      official GCC and binutils. The 3.4 toolchain now builds
+      with no patches except for some pending GCC 3.4 bugfixes;
+    * Use self-extracting archives for all binary packages;
+    * Fix GCC 3.4 packaging problem (thanks to Frank Baumgart).
+
+Changes in release 20031006:
+
+    * Most ColdFire and uClinux patches are now incorporated
+      in the official GCC 3.4 snapshots.
+    * Update GDB to 6.0, with new BDM patches.
+    * Update uClibc to 0.9.21.
+    * Enable pthreads support in uClibc (lightly tested).
+    * Split binary distribution in three packages (base, C++ and GDB).
+    * Several bugfixes all over the build script and patches.
+
+Changes in release 20030811:
+
+    * Upgraded GCC 3.3.1 to the official release;
+    * Update links for GCC 3.4 to really point at the 20030806
+      snapshot.
+
+Changes in release 20030808:
+
+    * uClibc multilibs for -msep-data were being built as
+      shared libraries (reported by Chen Qi).
+    * Update elf2flt from uClinux CVS and drop all patches.
+    * Update GCC 3.4 snapshot to 20030806. Fixes problems with -MD,
+      builds kernel, breaks libstdc++ multilibs (still investigating).
+    * Apply small fixes to GCC 3.4 patchset.
+    * Integrate GDB 5.3 with BDM support
+    * Restore building GCC 3.3.1 (got broken in previous release)
+    * Test with GCC 2.95.3: surprisingly, it still builds fine...
+
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
+
+Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
+
+
+

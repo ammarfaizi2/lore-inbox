@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312681AbSFLUTI>; Wed, 12 Jun 2002 16:19:08 -0400
+	id <S313563AbSFLUT3>; Wed, 12 Jun 2002 16:19:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313563AbSFLUTH>; Wed, 12 Jun 2002 16:19:07 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29188 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S312681AbSFLUTH>; Wed, 12 Jun 2002 16:19:07 -0400
-Date: Wed, 12 Jun 2002 13:16:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Oliver Xymoron <oxymoron@waste.org>
-cc: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>,
-        Rusty Russell <rusty@rustcorp.com.au>,
-        linux-kernel <linux-kernel@vger.kernel.org>, <frankeh@watson.ibm.com>
-Subject: Re: [PATCH] Futex Asynchronous Interface
-In-Reply-To: <Pine.LNX.4.44.0206121459110.30179-100000@waste.org>
-Message-ID: <Pine.LNX.4.33.0206121310260.9852-100000@penguin.transmeta.com>
+	id <S314149AbSFLUT2>; Wed, 12 Jun 2002 16:19:28 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:23546 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S313563AbSFLUT1>; Wed, 12 Jun 2002 16:19:27 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15623.44235.134423.210640@wombat.chubb.wattle.id.au>
+Date: Thu, 13 Jun 2002 06:19:23 +1000
+To: David Woodhouse <dwmw2@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH, TRIVIAL] Fix argument of BLKGETSIZE64 
+In-Reply-To: <17385.1023889628@redhat.com>
+X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+X-Face: .slVUC18R`%{j(W3ztQe~*ATzet;h`*Wv33MZ]*M,}9AP<`+C=U)c#NzI5vK!0^d#6:<_`a
+ {#.<}~(T^aJ~]-.C'p~saJ7qZXP-$AY==]7,9?WVSH5sQ}g3,8j>u%@f$/Z6,WR7*E~BFY.Yjw,H6<
+ F.cEDj2$S:kO2+-5<]afj@kC!:uw\(<>lVpk)lPZs+2(=?=D/TZPG+P9LDN#1RRUPxdX
+Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "David" == David Woodhouse <dwmw2@infradead.org> writes:
 
-On Wed, 12 Jun 2002, Oliver Xymoron wrote:
-> 
-> That doesn't rule out approaches like storing a cookie alongside the lock
-> once it's acquired (or in a parallel space). Which can easily be done with
-> a wrapper around lock acquisition. And stale lock detection needn't be
-> done in kernel space either.
+David> peter@chubb.wattle.id.au said:
+>> This issue is that when I try to use the BLKGETSZ64 ioctl from a
+>> user space program, the version of linux/fs.h shipped with
+>> glibc-2.2.5 contains a u64 type.
 
-Oh, agreed, you can do debugging locks in user-space, but it won't be the
-kernel that does anything, it will instead have to depend on something
-like "if I time out on the lock, I can explicitly test if the previous
-holder (who saved his thread ID in memory after getting the lock) is still
-alive and try to clean up after him".
+>> You could argue that this is a glibc bug.
 
-This is what a lot of the filesystem locking code does for the things in
-/var/lock/xxx, of course.
+David> I do indeed. I further argue that it has no business being
+David> discussed on the kernel mailing list, just because the kernel
+David> happens to have a header with a similar name.
 
-No kernel necessarily involved. 
+The header in question *defines* the kernel to userspace interface.
+As such it is a kernel issue.  Any interface exposed to userspace must
+use types that are common to userspace and the kernel.  u64 is kernel
+only, therefore has no business being used in an ioctl declaration.
 
-But it's going to have to depend on the politeness of all threads that 
-partake in the locking.
-
-		Linus
+--
+Peter C					    peterc@gelato.unsw.edu.au
+You are lost in a maze of BitKeeper repositories, all almost the same.
 

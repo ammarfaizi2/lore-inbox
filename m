@@ -1,75 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264344AbUEEMrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264623AbUEEMsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264344AbUEEMrk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 08:47:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264623AbUEEMrk
+	id S264623AbUEEMsL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 08:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbUEEMsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 08:47:40 -0400
-Received: from mlf.linux.rulez.org ([192.188.244.13]:24074 "EHLO
-	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S264344AbUEEMri
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 08:47:38 -0400
-Date: Wed, 5 May 2004 14:47:34 +0200 (MEST)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: m.gibula@conecto.pl, ntfs-dev <linux-ntfs-dev@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-NTFS-Dev] Re: [BUG] 2.6.5 ntfs
-In-Reply-To: <1083758242.916.42.camel@imp.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.21.0405051423360.28183-100000@mlf.linux.rulez.org>
+	Wed, 5 May 2004 08:48:11 -0400
+Received: from gizmo09bw.bigpond.com ([144.140.70.19]:28332 "HELO
+	gizmo09bw.bigpond.com") by vger.kernel.org with SMTP
+	id S264623AbUEEMsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 08:48:04 -0400
+From: Ross Dickson <ross@datscreative.com.au>
+Reply-To: ross@datscreative.com.au
+Organization: Dat's Creative Pty Ltd
+To: Ian Kumlien <pomac@vapor.com>
+Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH] for idle=C1halt, 2.6.5
+Date: Wed, 5 May 2004 22:52:29 +1000
+User-Agent: KMail/1.5.1
+Cc: Allen Martin <AMartin@nvidia.com>, linux-kernel@vger.kernel.org,
+       Len Brown <len.brown@intel.com>, Jesse Allen <the3dfxdude@hotmail.com>,
+       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
+       Craig Bradney <cbradney@zip.com.au>, christian.kroener@tu-harburg.de,
+       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       Jamie Lokier <jamie@shareable.org>, Daniel Drake <dan@reactivated.net>
+References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FC2D@mail-sc-6-bk.nvidia.com> <200405052124.55515.ross@datscreative.com.au> <1083759539.2797.24.camel@big>
+In-Reply-To: <1083759539.2797.24.camel@big>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405052252.29359.ross@datscreative.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 5 May 2004, Anton Altaparmakov wrote:
-
-> > NTFS-fs error: ntfs_decompress(): Failed. Returning -EOVERFLOW.
-
-I'm aware at least ntfsprogs mapping pairs decompression doesn't check
-upper boundary and this can cause problems on corrupted NTFS. This might
-or might not have anything to do with the above.
-
-> > NTFS-fs error (device hde4): ntfs_read_compressed_block(): ntfs_decompress() 
-> > failed in inode 0x78a with error code 75. Skipping this compression block.
+On Wednesday 05 May 2004 22:18, Ian Kumlien wrote:
+> On Wed, 2004-05-05 at 13:24, Ross Dickson wrote:
+> <snip>
+> > They can't see through their Windows.??!@@#$$%%&*&
 > > 
-> > But no oops ... 
-> > If you want I can run whatever is necessary.
+> > ML1-0505-19 Re: Cause of lockups with KM-18G Pro is incorrect pci reg values in bios -please update bios
+> > 
+> > From: 
+> > "dr.pro" <dr.pro@albatron.com.tw>
+> > 
+> > To: 
+> > <ross@datscreative.com.au>
+> > 
+> > Date: 
+> > Today 17:38:08
+> > 
+> >   Dear Ross,
+> > 
+> >   Thank you very much for contacting Albatron technical support.
+> > 
+> >   KM18G Pro has been proved under Windows 98SE/ME/2000/XP but Linux, so you
+> > may encounter problems with it under Linux. We suggest you use Windows
+> > 98SE/ME/2000/XP for the stable performance. Sorry for the inconvenience and
+> > please kindly understand it.
+> > 
+> >   Please let us know if you have any question.
 > 
-> If you run "chkdsk /f" from windows on this partition, does it detect
-> any errors?
-
-It would be nice to get the NTFS metadata first (please see below).  
-However I also suspect, it's again an NTFS corruption that the Windows
-driver tolerates/handles better ...
-
-> Assuming chkdsk doesn't detect and fix any errors, this would definitely
-> be worth investigating.  I don't think it has anything to do with the
-> oops but I would very much like a copy of this inode because it might
-> mean our decompression code has a bug in it and I want to check this
-> out.  To create a copy, I will assume you have the latest ntfsprogs
-> installed, then use ntfscat to dump your $MFT like this:
+> Please kindly understand it? I wouldn't... I'm about to bash asus, so...
+> This information gets me in the moood to do some real bashing =)
 > 
-> ntfscat -i 0 /dev/hde4 > ~/mymftdump
+> Btw, does windows do a C1 disconnect? And if so how often?
 
-What's wrong with the below instead?
+I think it does as temps are lower then linux without disconnect.
+Here are some temperatures from my machine read from the bios on reboot.
+I gave it minimal activity for the minutes prior to reboot.
 
-	ntfsclone --metadata --output ntfsmeta.img /dev/hde4
-	tar -cjSf ntfsmeta.img.tar.bz2 ntfsmeta.img
+ Win98, 47C
+ XPHome, 42C
+ Patched Linux 2.4.24 (1000Hz), 40C
+ Linux 2.6.3-rc1-mm1, 53C  with no disconnect
+ 
+I think the disconnect happens for less time percentage. With slower
+ticks one might assume less often than linux. 
+-Ross
 
-It has everything needed, zeros all the unused space for best compression,
-wipes private resident user data and it's even mountable. The compressed
-NTFS metadata is usually max 1-5 MB (of course please send it off-list).
-
-If the ntfsclone consistency check wouldn't pass I have a patch that
-disables it (if time allows I'm just working on the refactoring of the
-relevant ntfsprogs utils for this purpose and having an ntfsck).
-
->   [Error: Formatting error: Non-hexadecimal character in QP encoding]
-
-Apparently Sourceforge still doesn't like quoted-printable 
-Content-Transfer-Encoding ...
-
-	Szaka
+> 
+> -- 
+> Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+> 
 

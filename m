@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261919AbSJNGqC>; Mon, 14 Oct 2002 02:46:02 -0400
+	id <S261914AbSJNGnh>; Mon, 14 Oct 2002 02:43:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261920AbSJNGqC>; Mon, 14 Oct 2002 02:46:02 -0400
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:14606 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S261919AbSJNGqB>; Mon, 14 Oct 2002 02:46:01 -0400
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: jim.houston@ccur.com
-Date: Mon, 14 Oct 2002 08:50:59 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3DAA8571.5439.26F0B5@localhost>
-In-reply-to: <3DA89C29.93F5622E@ccur.com>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
-X-Content-Conformance: HerringScan-0.12/Sophos-3.59+2.10+2.03.098+01 July 2002+74553@20021014.064418Z
+	id <S261916AbSJNGnh>; Mon, 14 Oct 2002 02:43:37 -0400
+Received: from white-ippp0.koehntopp.de ([195.244.233.49]:8412 "EHLO
+	white.koehntopp.de") by vger.kernel.org with ESMTP
+	id <S261914AbSJNGng>; Mon, 14 Oct 2002 02:43:36 -0400
+Date: Mon, 14 Oct 2002 08:49:22 +0200
+From: Kristian Koehntopp <kris@koehntopp.de>
+To: Larry McVoy <lm@work.bitmover.com>, Richard Stallman <rms@gnu.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper outragem, old and new
+Message-ID: <20021014064922.GA16052@white.koehntopp.de>
+References: <E180rX3-0005dL-00@fencepost.gnu.org> <20021013171840.B1011@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021013171840.B1011@work.bitmover.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Oct 2002, at 18:03, Jim Houston wrote:
+On Sun, Oct 13, 2002 at 05:18:40PM -0700, Larry McVoy wrote:
+> 3) If you had built a decent system instead of sitting around and whining,
+>    we could be doing something else instead of sitting around listening 
+>    to your whining.
 
-> 
-> >> This patch, in conjunction with the "core" high-res-timers 
-> >> patch implements high resolution timers on the i386 
-> >> platforms. 
-> >
-> > I really don't get the notion of partial ticks, and quite frankly, this 
-> > isn't going into my tree until some major distribution kicks me in the 
-> > head and explains to me why the hell we have partial ticks instead of just 
-> > making the ticks shorter. 
-> > 
-> >                Linus 
-> 
-> Hi Linus,
-> 
-> Concurrent has been using previous versions of the Posix timers patch
-> in our 2.4.18 based kernel.  I like this interface and would like to 
-> see it included in your kernel.
+Larry, rest assured that exactly this is happinging right now
+all over the world. You are not feeling the backlash now,
+because it takes time, but it will happen, and you made pretty
+much sure of that. 
 
-Hi,
+You are pulling a Qt. By changing the license to BK to
+discourage development of BK alternatives you made sure that
+Subversion and other projects get plenty of new and highly
+motivated developers - you actually encouraged the development
+of BK alternatives just like the non-free license of Qt as the
+foundation of KDE spawned the Gnome project.
 
-I think nobody objects seeing the interface implemented. Maybe just how 
-it's implemented. I did not have a close look, but the concept seems 
-odd at first sight.
+The clock just started ticking and when we reevaluate this
+discussion in one or two years time, the complete strategic
+stupidity of this particular license change from BKs POV view
+will be evident.
 
-Using a individial timer as interrupt source may be a different idea 
-(if avaliable for the particular hardware), but the there must be a 
-balance between busy looping in the kernel and setting up of such an 
-individual interrupt.
-
-The other thing is how to correlate it with the wall clock.
-
-Sorry for not giving answers, I just know the problems...
-
-Regards,
-Ulrich
-
+Kristian

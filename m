@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135922AbRDTSrd>; Fri, 20 Apr 2001 14:47:33 -0400
+	id <S135981AbRDTSuD>; Fri, 20 Apr 2001 14:50:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135978AbRDTSrX>; Fri, 20 Apr 2001 14:47:23 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1549 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S135922AbRDTSrF>;
-	Fri, 20 Apr 2001 14:47:05 -0400
-Date: Fri, 20 Apr 2001 19:47:02 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Jeff Dike <jdike@karaya.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org,
-        parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone paying attention?
-Message-ID: <20010420194702.E18464@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20010420172126.C18464@parcelfarce.linux.theplanet.co.uk> <200104201900.OAA03252@ccure.karaya.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200104201900.OAA03252@ccure.karaya.com>; from jdike@karaya.com on Fri, Apr 20, 2001 at 02:00:00PM -0500
+	id <S135980AbRDTSt4>; Fri, 20 Apr 2001 14:49:56 -0400
+Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:38641
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S135978AbRDTSts>; Fri, 20 Apr 2001 14:49:48 -0400
+Date: Fri, 20 Apr 2001 14:48:18 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: <nico@xanadu.home>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Matthew Wilcox <willy@ldl.fc.hp.com>,
+        james rich <james.rich@m.cc.utah.edu>,
+        lkml <linux-kernel@vger.kernel.org>, <parisc-linux@parisc-linux.org>
+Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is
+ anyone paying attention?
+In-Reply-To: <20010420112042.Z13403@opus.bloom.county>
+Message-ID: <Pine.LNX.4.33.0104201440580.12186-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 20, 2001 at 02:00:00PM -0500, Jeff Dike wrote:
-> matthew@wil.cx said:
-> > http://www.kernel.org/ has a list of architecture websites.  Also the
-> > CREDITS / MAINTAINERS files tend to list the people who are involved. 
-> 
-> Except it's restricted to processor ports, which would leave you not knowing 
-> about UML.
 
-Have you tried mailing webmaster@kernel.org and asking to be added?
 
--- 
-Revolutions do not require corporate support.
+On Fri, 20 Apr 2001, Tom Rini wrote:
+
+> On Fri, Apr 20, 2001 at 12:35:12PM -0400, Nicolas Pitre wrote:
+>
+> > Why not having everybody's tree consistent with themselves and have whatever
+> > CONFIGURE_* symbols and help text be merged along with the very code it
+> > refers to?  It's worthless to have config symbols be merged into Linus' or
+> > Alan's tree if the code isn't there (yet).  It simply makes no sense.
+>
+> Well, this depends a lot on a) The project to be merged (arch, mtd, whatever)
+> and b) how far something has gotten in being merged someplace else, and of
+> course c) the maintainer(s).  Whatever the exact case, and in general, it
+> should be handled via the maintainer.  Why? They maintain the code.
+
+Therefore it's the maintainer's job to submit coherent patches and accept to
+see inconsistent CONFIG_* references be removed from the official tree until
+further patch submission is due.  It's only a question of discipline.
+Otherwise how can you distinguish between dead wood which must be removed
+and potentially valid symbols referring to code existing only in a remote
+tree?
+
+
+Nicolas
+

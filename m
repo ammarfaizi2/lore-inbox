@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263079AbUEJXQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUEJXRA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263079AbUEJXQp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 19:16:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbUEJXQo
+	id S263117AbUEJXRA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 19:17:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbUEJXRA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 19:16:44 -0400
-Received: from p508B5AFA.dip.t-dialin.net ([80.139.90.250]:1626 "EHLO
-	mail.linux-mips.net") by vger.kernel.org with ESMTP id S263079AbUEJXOh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 19:14:37 -0400
-Date: Tue, 11 May 2004 01:14:26 +0200
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 8250_pci.c build fix
-Message-ID: <20040510231426.GA9104@linux-mips.org>
+	Mon, 10 May 2004 19:17:00 -0400
+Received: from fed1rmmtao02.cox.net ([68.230.241.37]:26546 "EHLO
+	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
+	id S262902AbUEJXOd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 19:14:33 -0400
+Date: Mon, 10 May 2004 16:13:36 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH] All Symbols in /proc/kallsyms
+Message-ID: <20040510231336.GE2196@smtp.west.cox.net>
+References: <1084166916.8127.46.camel@bach>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1084166916.8127.46.camel@bach>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The changes between 2.6.6-rc3 and 2.6.6 broke static compliation of
-8250_pci.c.  Obvious fix below.
+On Mon, May 10, 2004 at 03:28:37PM +1000, Rusty Russell wrote:
 
-  Ralf
+> Debuggers (ie. xmon) can use kallsyms, but they want all symbols, not
+> just functions.  Fair enough.
+> 
+> Name: Debugging Option to Put text symbols in kallsyms
+> Status: Tested on 2.6.6-rc3-bk11
+> 
+> kallsyms contains only function names, but some debuggers (eg. xmon on
+> PPC/PPC64) use it to lookup symbols: it'd be much nicer if it included
+> data symbols too.
 
-Index: drivers/serial/8250_pci.c
-===================================================================
-RCS file: /home/cvs/linux/drivers/serial/8250_pci.c,v
-retrieving revision 1.18
-diff -u -r1.18 8250_pci.c
---- drivers/serial/8250_pci.c	10 May 2004 14:25:34 -0000	1.18
-+++ drivers/serial/8250_pci.c	10 May 2004 23:09:21 -0000
-@@ -704,7 +704,7 @@
- 		.subdevice	= PCI_SUBDEVICE_ID_OCTPRO232,
- 		.init		= sbs_init,
- 		.setup		= sbs_setup,
--		.exit		= sbs_exit
-+		.exit		= __devexit_p(sbs_exit)
- 	},
- 	/*
- 	 * SBS Technologies, Inc., PMC-OCTALPRO 422
-@@ -716,7 +716,7 @@
- 		.subdevice	= PCI_SUBDEVICE_ID_OCTPRO422,
- 		.init		= sbs_init,
- 		.setup		= sbs_setup,
--		.exit		= sbs_exit
-+		.exit		= __devexit_p(sbs_exit)
- 	},
- 	/*
- 	 * SBS Technologies, Inc., P-Octal 232
-@@ -728,7 +728,7 @@
- 		.subdevice	= PCI_SUBDEVICE_ID_POCTAL232,
- 		.init		= sbs_init,
- 		.setup		= sbs_setup,
--		.exit		= sbs_exit
-+		.exit		= __devexit_p(sbs_exit)
- 	},
- 	/*
- 	 * SBS Technologies, Inc., P-Octal 422
-@@ -740,7 +740,7 @@
- 		.subdevice	= PCI_SUBDEVICE_ID_POCTAL422,
- 		.init		= sbs_init,
- 		.setup		= sbs_setup,
--		.exit		= sbs_exit
-+		.exit		= __devexit_p(sbs_exit)
- 	},
- 
- 	/*
+Shouldn't you make xmon depend on both of these, on ppc64? 
+(iirc, it won't compile w/o KALLSYMS, so select/suggest, or whatever,
+and ppc32 hasn't yet had the kallsyms stuff backported).
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,64 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261514AbTIKVOq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 17:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbTIKVOq
+	id S261535AbTIKVUV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 17:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbTIKVUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 17:14:46 -0400
-Received: from lidskialf.net ([62.3.233.115]:26599 "EHLO beyond.lidskialf.net")
-	by vger.kernel.org with ESMTP id S261514AbTIKVOp (ORCPT
+	Thu, 11 Sep 2003 17:20:21 -0400
+Received: from mail.kroah.org ([65.200.24.183]:49129 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261535AbTIKVUJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 17:14:45 -0400
-From: Andrew de Quincey <adq_dvb@lidskialf.net>
-To: jbarnes@sgi.com (Jesse Barnes)
-Subject: Re: [PATCH] deal with lack of acpi prt entries gracefully
-Date: Thu, 11 Sep 2003 22:13:13 +0100
-User-Agent: KMail/1.5.3
-Cc: andrew.grover@intel.com, linux-kernel@vger.kernel.org
-References: <20030909201310.GB6949@sgi.com> <200309112140.08967.adq_dvb@lidskialf.net> <20030911205310.GA26569@sgi.com>
-In-Reply-To: <20030911205310.GA26569@sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Sep 2003 17:20:09 -0400
+Date: Thu, 11 Sep 2003 14:20:18 -0700
+From: Greg KH <greg@kroah.com>
+To: Matt Domsch <Matt_Domsch@Dell.com>
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Buggy PCI drivers - do not mark pci_device_id as discardable data
+Message-ID: <20030911212018.GA14238@kroah.com>
+References: <Pine.LNX.4.44.0309100427490.17820-100000@localhost.localdomain> <Pine.LNX.4.44.0309101212510.2440-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309112213.13263.adq_dvb@lidskialf.net>
+In-Reply-To: <Pine.LNX.4.44.0309101212510.2440-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 Sep 2003 9:53 pm, Jesse Barnes wrote:
-> On Thu, Sep 11, 2003 at 09:40:08PM +0100, Andrew de Quincey wrote:
-> > On Wednesday 10 Sep 2003 10:38 pm, Jesse Barnes wrote:
-> > > On Wed, Sep 10, 2003 at 10:30:29PM +0100, Andrew de Quincey wrote:
-> > > > So, exactly as your patch did, you just want it to drop back if there
-> > > > were no PCI routing entries found by ACPI... sounds sensible enough.
-> > > >
-> > > > Can you confirm I have this right?
-> > >
-> > > Yep, that's it.  The code should do that, but we get there before the
-> > > list has been initialized, so we just hang.
-> >
-> > I'm not sure if this is automatically fixed or not yet.
-> >
-> > With the new patch:
-> >
-> > 1) If ACPI fails to parse a table, it disables ACPI, and so disables any
-> > attempt to use ACPI for PRT routing.
->
-> That might work, though I'll be using the ACPI namespace to drive PCI
-> discovery soon (hacking the PROM now).  Maybe I should add some MADT and
-> _PRT entries while I'm at it?  The problem is that we don't support
-> IOAPIC or IOSAPIC interrupt models/hw registers.
+On Wed, Sep 10, 2003 at 12:17:34PM -0500, Matt Domsch wrote:
+> > > These either need to be marked __devinit and make "new_id" dependant on
+> > > CONFIG_HOTPLUG
+> 
+> Patch below moves all the new_id code under CONFIG_HOTPLUG.  Tested
+> with both CONFIG_HOTPLUG enabled and disabled.  No significant code
+> changes, merely code moving, and in 2 cases, stub functions added.
+> 
+> Please review and apply.
 
-Which base architecture do you use? x86 and x86_64 ACPI now both support PIC 
-based interrupt models.. as thats the only other option AFAIK (It tries 
-IOAPIC first, then if that fails, it drops back to trying PIC mode).
+Looks good.  I've added this patch, and then applied this one on top of
+yours to fix up some compiler warnings that I got when building yours.
+I've also moved the #defines into static inline functions, which is a
+bit nicer to do.
 
-> > 2) If ACPI is enabled, and enters the function you patched, code further
-> > in checks if the routing tables have any entries. If not, it rejects the
-> > attempt.
->
-> That would work I guess.
+I'll send it on in a bit to Linus.
 
-Cool, well if it doesn't work, at least we know exactly what to fix.
+I'll also go through the tree and fix up any pci probe functions that
+are marked __init as they should now be marked __devinit.
 
+thanks for doing this patch,
+
+greg k-h
+
+
+# PCI: remove compiler warning from previous new_id patch
+#
+# Also change the #define functions into inline functions to help
+# catch any future paramater mis-matches.
+#
+# And clean up a few minor style issue...
+
+diff -Nru a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+--- a/drivers/pci/pci-driver.c	Thu Sep 11 14:23:32 2003
++++ b/drivers/pci/pci-driver.c	Thu Sep 11 14:23:32 2003
+@@ -69,6 +69,7 @@
+ 	spin_unlock(&drv->dynids.lock);
+ 	return error;
+ }
++
+ static inline void
+ dynid_init(struct dynid *dynid)
+ {
+@@ -78,15 +79,12 @@
+ 
+ /**
+  * store_new_id
+- * @ pdrv
+- * @ buf
+- * @ count
+  *
+  * Adds a new dynamic pci device ID to this driver,
+  * and causes the driver to probe for all devices again.
+  */
+ static inline ssize_t
+-store_new_id(struct device_driver * driver, const char * buf, size_t count)
++store_new_id(struct device_driver *driver, const char *buf, size_t count)
+ {
+ 	struct dynid *dynid;
+ 	struct bus_type * bus;
+@@ -159,7 +157,7 @@
+ }
+ 
+ static int
+-pci_create_newid_file(struct pci_driver * drv)
++pci_create_newid_file(struct pci_driver *drv)
+ {
+ 	int error = 0;
+ 	if (drv->probe != NULL)
+@@ -169,7 +167,7 @@
+ }
+ 
+ static int
+-pci_bus_match_dynids(const struct pci_dev * pci_dev, const struct pci_driver * pci_drv)
++pci_bus_match_dynids(const struct pci_dev *pci_dev, struct pci_driver *pci_drv)
+ {
+ 	struct list_head *pos;
+ 	struct dynid *dynid;
+@@ -187,12 +185,21 @@
+ }
+ 
+ #else /* !CONFIG_HOTPLUG */
+-#define pci_device_probe_dynamic(drv,pci_dev) (-ENODEV)
+-#define dynid_init(dynid) do {} while (0)
+-#define pci_init_dynids(dynids) do {} while (0)
+-#define pci_free_dynids(drv) do {} while (0)
+-#define pci_create_newid_file(drv) (0)
+-#define pci_bus_match_dynids(pci_dev, pci_drv) (0)
++static inline int pci_device_probe_dynamic(struct pci_driver *drv, struct pci_dev *pci_dev)
++{
++	return -ENODEV;
++}
++static inline void dynid_init(struct dynid *dynid) {}
++static inline void pci_init_dynids(struct pci_dynids *dynids) {}
++static inline void pci_free_dynids(struct pci_driver *drv) {}
++static inline int pci_create_newid_file(struct pci_driver *drv)
++{
++	return 0;
++}
++static inline int pci_bus_match_dynids(const struct pci_dev *pci_dev, struct pci_driver *pci_drv)
++{
++	return 0;
++}
+ #endif
+ 
+ /**
+@@ -352,7 +359,7 @@
+ };
+ 
+ static int
+-pci_populate_driver_dir(struct pci_driver * drv)
++pci_populate_driver_dir(struct pci_driver *drv)
+ {
+ 	return pci_create_newid_file(drv);
+ }

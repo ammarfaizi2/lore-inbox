@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290181AbSA3QyG>; Wed, 30 Jan 2002 11:54:06 -0500
+	id <S290200AbSA3Qzk>; Wed, 30 Jan 2002 11:55:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290103AbSA3Qwc>; Wed, 30 Jan 2002 11:52:32 -0500
-Received: from oe64.law9.hotmail.com ([64.4.8.199]:24083 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S290153AbSA3Qvx>;
-	Wed, 30 Jan 2002 11:51:53 -0500
-X-Originating-IP: [24.29.113.54]
-From: "T. A." <tkhoadfdsaf@hotmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Linux ABI?
-Date: Wed, 30 Jan 2002 11:51:02 -0500
+	id <S290078AbSA3QyL>; Wed, 30 Jan 2002 11:54:11 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:55496 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S290175AbSA3Qxp>;
+	Wed, 30 Jan 2002 11:53:45 -0500
+Date: Wed, 30 Jan 2002 19:51:19 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Larry McVoy <lm@bitmover.com>, Tom Rini <trini@kernel.crashing.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>,
+        Rob Landley <landley@trommello.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <Pine.LNX.4.33L.0201301445430.11594-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.33.0201301949190.11581-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <OE64G9H9z9YNBjyZhk80000a5d5@hotmail.com>
-X-OriginalArrivalTime: 30 Jan 2002 16:51:47.0667 (UTC) FILETIME=[67F61A30:01C1A9AE]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-    I can't seam to track down the Linux ABI patches.  I need to run some
-SCO binaries.  Anyone know where they are located?
-  Thanks.
+On Wed, 30 Jan 2002, Rik van Riel wrote:
+
+> On Wed, 30 Jan 2002, Ingo Molnar wrote:
+>
+> > could this be made: 'as long as they do not touch the same lines of
+> > code, taking 3 lines of context into account'? (ie. unified diff
+> > definition of 'collisions' context.)
+>
+> That would be _wonderful_ and fix the last bitkeeper problem I'm
+> having once in a while.
+
+perhaps there should also be some sort of authority needed to allow such
+'violation' of current BK rules: while the patches to conflict in terms of
+source code file, we can override it and tell it that they really dont
+conflict.
+
+	Ingo
+

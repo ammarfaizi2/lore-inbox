@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285068AbRLLD0K>; Tue, 11 Dec 2001 22:26:10 -0500
+	id <S285070AbRLLDgK>; Tue, 11 Dec 2001 22:36:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285070AbRLLD0A>; Tue, 11 Dec 2001 22:26:00 -0500
-Received: from ftoomsh.progsoc.uts.edu.au ([138.25.6.1]:11531 "EHLO ftoomsh")
-	by vger.kernel.org with ESMTP id <S285068AbRLLDZq>;
-	Tue, 11 Dec 2001 22:25:46 -0500
-Date: Wed, 12 Dec 2001 14:25:38 +1100
-From: Matt <matt@progsoc.uts.edu.au>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Berend De Schouwer <bds@jhb.ucs.co.za>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Kernel Oops on cat /proc/ioports
-Message-ID: <20011212142538.N5809@ftoomsh.progsoc.uts.edu.au>
-In-Reply-To: <1008073796.5535.5.camel@bds.ucs.co.za> <3C16ADB1.F9E847E9@zip.com.au>, <3C16ADB1.F9E847E9@zip.com.au>; <20011212135713.M5809@ftoomsh.progsoc.uts.edu.au> <3C16CA8F.722CB6BB@zip.com.au>
+	id <S285071AbRLLDgA>; Tue, 11 Dec 2001 22:36:00 -0500
+Received: from ohiper0-240.apex.net ([209.250.50.240]:39694 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S285070AbRLLDfn>; Tue, 11 Dec 2001 22:35:43 -0500
+Date: Tue, 11 Dec 2001 21:35:15 -0600
+From: Steven Walter <srwalter@yahoo.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] v2.5.1-pre9-00_kvec.diff
+Message-ID: <20011211213515.D29224@hapablap.dyn.dhs.org>
+Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
+	Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011211162639.F6878@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3C16CA8F.722CB6BB@zip.com.au>; from akpm@zip.com.au on Tue, Dec 11, 2001 at 07:10:07PM -0800
-X-OperatingSystem: Linux ftoomsh.progsoc.uts.edu.au 2.2.15-pre13
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011211162639.F6878@redhat.com>; from bcrl@redhat.com on Tue, Dec 11, 2001 at 04:26:39PM -0500
+X-Uptime: 7:05pm  up 15 days,  1:56,  1 user,  load average: 1.23, 1.21, 1.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 11, 2001 at 07:10:07PM -0800, Andrew Morton wrote:
-> Matt wrote:
+> +	nr_pages = (ptr + len + PAGE_SIZE - 1) >> PAGE_SHIFT;
+> +	nr_pages -= ptr >> PAGE_SHIFT;
 
->> speaking of living in module memory, a similar thing happens with
->> the via-rhine driver. after my machine has been up for a few hours
->> the "via-rhine" string in /proc/iomem and /proc/ioports gets over
->> written and prints garbage. since this has never been the cause for
->> an oops on my machine i never bothered reporting it. if anyone
->> wants details i'll provide.
-
-> I think it _could_ oops.  Would it be correct to assume that you're
-> linking the driver into the kernel, rather than using it as a
-> module?
-
-you are most correct, it is directly linked. i'll give it a burl. i
-assume you are going to submit this to donald/jeff and marcelo?
-
-	matt
-
+Isn't this the same as
+	nr_pages = (len + PAGE_SIZE -1) >> PAGE_SHIFT;
+?  Or am I missing something?
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell
+He's alive.  He's alive!  Oh, that fellow at RadioShack said I was mad!
+Well, who's mad now?
+			-- Montgomery C. Burns

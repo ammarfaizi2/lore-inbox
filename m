@@ -1,71 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262470AbTFJI5v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 04:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbTFJI5v
+	id S262439AbTFJJG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 05:06:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbTFJJG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 04:57:51 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:32405 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262470AbTFJI5u (ORCPT
+	Tue, 10 Jun 2003 05:06:26 -0400
+Received: from [217.222.53.238] ([217.222.53.238]:53252 "EHLO mail.gts.it")
+	by vger.kernel.org with ESMTP id S262439AbTFJJGY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 04:57:50 -0400
-Date: Tue, 10 Jun 2003 11:11:27 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jurgen Kramer <gtm.kramer@inter.nl.net>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Completely disable AT/PS2 keyboard support in 2.4?
-In-Reply-To: <1055169922.4052.3.camel@paragon.slim>
-Message-ID: <Pine.GSO.4.21.0306101110320.1661-100000@vervain.sonytel.be>
+	Tue, 10 Jun 2003 05:06:24 -0400
+Message-ID: <3EE5A2C3.1060303@gts.it>
+Date: Tue, 10 Jun 2003 11:20:03 +0200
+From: Stefano Rivoir <s.rivoir@gts.it>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4b) Gecko/20030507
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: IDE performances, 2.4 vs 2.5
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Jun 2003, Jurgen Kramer wrote:
-> My arrow keys are working just fine. The "can't emulate rawmode for
-> keycode" messages seem to appear without a key being pressed. The
-> keyboard or the keyboard receiver (it's a wireless keyboard) is probably
-> just sending out keycodes at will...
 
-OK, so the arrow-keys (and other keys generating E0/E1-prefixed scancodes) not
-working happens on `other' architectures only (e.g. MIPS with dummy
-keyboard.c).
+Noting that 2.5 is much slower than 2.4 on disk operations (you *touch* 
+it when you have not-so-fast machine and use KDE, for example), I've 
+written a silly test that fwrite/fread a single 100Mb file, char by 
+char, and timing it I have results that I can't understand very well. Of 
+course, same machine, same hdparm settings, same processes running 
+(none, it's a notebook without server processes). I've run these test 
+several time, the results are always more or less the same (ext2):
 
-> On Mon, 2003-06-09 at 15:34, Geert Uytterhoeven wrote:
-> > On 9 Jun 2003, Jurgen Kramer wrote:
-> > > Is it possible to completely disable AT/PS2 keyboard support
-> > > in 2.4 or is this still needed when I only use a USB keyboard?
-> > > 
-> > > I am currently getting dozens of keyboard messages:
-> > > 
-> > > keyboard.c: can't emulate rawmode for keycode 272
-> > > keyboard.c: can't emulate rawmode for keycode 272
-> > > keyboard.c: can't emulate rawmode for keycode 272
-> > > keyboard.c: can't emulate rawmode for keycode 272
-> > > keyboard.c: can't emulate rawmode for keycode 272
-> > > keyboard.c: can't emulate rawmode for keycode 272
-> > > keyboard.c: can't emulate rawmode for keycode 272
-> > > keyboard.c: can't emulate rawmode for keycode 272
-> > > 
-> > > I am not sure if the comes from the USB keyboard or from
-> > > the non-connected PS2 port.
-> > 
-> > In 2.4.x, the input layer converts input events to PC/AT scancodes, and still
-> > relies on the PS/2 low-level keyboard driver scancode conversion to interprete
-> > them. This means you must include the PS/2 low-level keyboard driver. If you
-> > don't, you may get strange results, especially on architectures where you have
-> > a different low-level keyboard driver.
-> > 
-> > BTW, I guess your arrow keys are not working?
+2.4.19
 
-Gr{oetje,eeting}s,
+   read:    real    0m15.822s
+            user    0m15.180s
+            sys     0m0.270s
 
-						Geert
+   write:   real    0m12.524s
+            user    0m11.800s
+            sys     0m0.690s
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+2.5.70 (up to -bk14, and -mm6)
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+   read:    real    0m20.790s
+            user    0m14.372s
+            sys     0m0.949s
+
+   write:   real    0m13.148s
+            user    0m11.901s
+            sys     0m0.665
+
+Writing does not drop, but reading has a 6 seconds difference between 
+user+sys and real that I can't figure out. And the total difference is 
+"huge". Actually, using anything that touches the disk (it can be a 
+trivial "aptitude" loading the cache, or a complex KDE) slows down.
+
+I've run these tests on a HP Omnibook w/Celeron, but I have the same 
+slow down on a Athlon K7.
+
+Is it anyway "normal", something I should expect upgrading from 2.4 to 
+2.5/2.6? Or there should be something I should check more accurately?
+
+Bye all.
+
+-- 
+Stefano RIVOIR
+
+
+
 

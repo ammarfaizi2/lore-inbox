@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267143AbTAPP2b>; Thu, 16 Jan 2003 10:28:31 -0500
+	id <S267145AbTAPPba>; Thu, 16 Jan 2003 10:31:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267144AbTAPP2b>; Thu, 16 Jan 2003 10:28:31 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:12563 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id <S267143AbTAPP2a>;
-	Thu, 16 Jan 2003 10:28:30 -0500
-Date: Thu, 16 Jan 2003 16:37:27 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Cc: Larry McVoy <lm@work.bitmover.com>, Andrew Walrond <andrew@walrond.org>,
-       jw schultz <jw@pegasys.ws>
-Subject: Re: any brand recomendation for a linux laptop ?
-Message-ID: <20030116153727.GA27441@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Larry McVoy <lm@work.bitmover.com>,
-	Andrew Walrond <andrew@walrond.org>, jw schultz <jw@pegasys.ws>
-References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr> <20030116104154.GL25246@pegasys.ws> <3E26BE43.6000406@walrond.org> <20030116144045.GC30736@work.bitmover.com>
+	id <S267150AbTAPPba>; Thu, 16 Jan 2003 10:31:30 -0500
+Received: from 216-42-72-144.ppp.netsville.net ([216.42.72.144]:37864 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id <S267145AbTAPPb2>;
+	Thu, 16 Jan 2003 10:31:28 -0500
+Subject: Re: [2.4] VFS locking problem during concurrent link/unlink
+From: Chris Mason <mason@suse.com>
+To: Oleg Drokin <green@namesys.com>
+Cc: linux-kernel@vger.kernel.org, eazgwmir@umail.furryterror.org,
+       viro@math.psu.edu, nikita@namesys.com
+In-Reply-To: <20030116140015.A17612@namesys.com>
+References: <20030116140015.A17612@namesys.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042731580.31099.2195.camel@tiny.suse.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QWwVEGBFzbXSb0Gf"
-Content-Disposition: inline
-In-Reply-To: <20030116144045.GC30736@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18 
-x-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-x-gpg-key: wwwkeys.de.pgp.net
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 16 Jan 2003 10:39:41 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-01-16 at 06:00, Oleg Drokin wrote:
+> Hello!
+> 
+>    Debugging reiserfs problem that can be demonstrated with script created by
+>    Zygo Blaxell, I started to wonder if the problem presented is indeed reiserfs
+>    fault and not VFS.
+>    Though the Zygo claims script only produces problems on reiserfs, I am trying
+>    it now myself on ext2 (which will take some time).
+> 
+>    Debugging shows that reiserfs_link is sometimes called for inodes whose
+>    i_nlink is zero (and all corresponding data is deleted already).
+>    So my current guess of what's going on is this:
+> 
 
---QWwVEGBFzbXSb0Gf
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+No, this is a reiserfs bug, since we schedule after doing link checks in
+reiserfs_link and reiserfs_unlink.  I sent a patch to reiserfs dev a
+while ago, I'll pull it out of the suse kernel and rediff against
+2.4.20.
 
-On Thu, 2003-01-16 06:40:45 -0800, Larry McVoy <lm@bitmover.com>
-wrote in message <20030116144045.GC30736@work.bitmover.com>:
-> On Thu, Jan 16, 2003 at 02:14:27PM +0000, Andrew Walrond wrote:
+-chris
 
-> I like the T23 myself.  Wireless, ethernet, modem, DVD, fast.
 
-Serial modem, or some winmodem type? I'd prefer to have a "real" modem,
-though...
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet!
-   Shell Script APT-Proxy: http://lug-owl.de/~jbglaw/software/ap2/
-
---QWwVEGBFzbXSb0Gf
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+JtG3Hb1edYOZ4bsRAo6RAJ9ewDX65dk6z7p5ZvRCrNlw4otw7QCfcmdl
-EET3IcxvIVKbbL6+VYGkK8M=
-=G4b8
------END PGP SIGNATURE-----
-
---QWwVEGBFzbXSb0Gf--

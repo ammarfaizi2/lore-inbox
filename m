@@ -1,138 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264196AbSIVMux>; Sun, 22 Sep 2002 08:50:53 -0400
+	id <S264232AbSIVNAT>; Sun, 22 Sep 2002 09:00:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264232AbSIVMux>; Sun, 22 Sep 2002 08:50:53 -0400
-Received: from kol77.saturnus.vein.hu ([193.6.40.77]:39553 "EHLO
-	bazooka.saturnus.vein.hu") by vger.kernel.org with ESMTP
-	id <S264196AbSIVMuv>; Sun, 22 Sep 2002 08:50:51 -0400
-Date: Sun, 22 Sep 2002 14:54:54 +0200
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: bazooka@vekoll.saturnus.vein.hu, linux-kernel@vger.kernel.org
-Subject: Re: ESR bad value...
-Message-ID: <20020922125454.GA763@bazooka.saturnus.vein.hu>
-References: <200209221142.NAA10111@harpo.it.uu.se>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="5mCyUwZo2JvN/JJP"
-Content-Disposition: inline
-In-Reply-To: <200209221142.NAA10111@harpo.it.uu.se>
-User-Agent: Mutt/1.4i
-From: Banai Zoltan <bazooka@vekoll.vein.hu>
+	id <S264240AbSIVNAT>; Sun, 22 Sep 2002 09:00:19 -0400
+Received: from c-24-118-234-119.mn.client2.attbi.com ([24.118.234.119]:640
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S264232AbSIVNAS>; Sun, 22 Sep 2002 09:00:18 -0400
+Date: Sun, 22 Sep 2002 08:04:11 -0500 (CDT)
+From: "Scott M. Hoffman" <scott781@attbi.com>
+Reply-To: scott781@attbi.com
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.38 scheduling oops? at boot
+Message-ID: <Pine.LNX.4.44.0209220749280.918-200000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1986937700-1032699589=:944"
+Content-ID: <Pine.LNX.4.44.0209220800010.944@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
---5mCyUwZo2JvN/JJP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--8323328-1986937700-1032699589=:944
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.44.0209220800011.944@localhost.localdomain>
 
-Hi!
-On Sun, Sep 22, 2002 at 01:42:07PM +0200, Mikael Pettersson wrote:
-> On Sat, 21 Sep 2002 17:43:48 +0200, Banai Zoltan wrote:
-> >I have a problem with kernels >2.4.17,
-> >booting them i got error message
-> >ESR bad value enabling vector 00000004
-> >Using 2.2.x and <=2.4.17 there is no probelm
-> >
-> >The hardware is an Intergraph TDZ-310
-> >PPro-200Mhz, 450KX/GX chipset.
-> >
-> >My config with 2.4.19-ac4 (is similar to configs
-> >use with 2.4.9 with JFS) is attached.
-> 
-> There is no such message in a standard 2.4.19 kernel.
-> Please post the _exact_ message(s). Also, are you sure it's
-> an error and not just informational? Does the box work?
+Hi,
+  I booted into 2.5.38 on a dual amd duron system using profile=2 on 
+command line, and the system seemed a bit sluggish just to get bash to 
+complete a filename in /proc.  I found the attached oops after these  
+messages:
+	Starting migration thread for cpu 1
+	bad: Scheduling while atomic!
 
-Sorry! You are right, i did not had time for write it down
-becouse it is a production system.
-But i grepped the source and found the right message in:
-./arch/i386/kernel/apic.c so the message i seen was:
-printk("ESR value before enabling vector: %08lx\n", value); 
+And after the oops came this:
+	CPUs done 4294967295
 
-and the system stopped booting after that.
-(This is a MP motherboard with one processor.)
+The kernel was compiled with gcc 2.95.3, but under RedHat's 7.3.94 beta.
 
-Disabling 
-CONFIG_X86_UP_IOAPIC=y                                                                                                                       
-CONFIG_X86_IO_APIC=y                                                                                                                         
-CONFIG_X86_LOCAL_APIC=y
-makes system boot!
-
-I attach the lcpci -v output hoping it will help.
-
-
-
-> 
-> /Mikael
-> 
-Regards,
 -- 
-Banai Zoltan
-
---5mCyUwZo2JvN/JJP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=lspci
-
-00:01.0 PCI bridge: Digital Equipment Corporation DECchip 21050 (rev 02) (prog-if 00 [Normal decode])
-	Flags: bus master, medium devsel, latency 64
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
-	I/O behind bridge: 0000f000-0000ffff
-	Memory behind bridge: fcb00000-febfffff
-	Prefetchable memory behind bridge: fab00000-fcafffff
-
-00:02.0 Non-VGA unclassified device: Intel Corp. 82378IB [SIO ISA Bridge] (rev 88)
-	Flags: bus master, medium devsel, latency 0
-
-00:06.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 01)
-	Flags: bus master, medium devsel, latency 64, IRQ 15
-	Memory at ffbe7000 (32-bit, prefetchable) [size=4K]
-	I/O ports at ef40 [size=32]
-	Memory at ff800000 (32-bit, non-prefetchable) [size=1M]
-	Expansion ROM at ff700000 [disabled] [size=1M]
-
-00:07.0 SCSI storage controller: Adaptec AIC-7860 (rev 01)
-	Flags: bus master, medium devsel, latency 64, IRQ 11
-	I/O ports at e800 [disabled] [size=256]
-	Memory at ffbef000 (32-bit, non-prefetchable) [size=4K]
-
-00:0d.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 64)
-	Subsystem: 3Com Corporation 3C905B Fast Etherlink XL 10/100
-	Flags: bus master, medium devsel, latency 64, IRQ 9
-	I/O ports at ec00 [size=128]
-	Memory at ffbeef80 (32-bit, non-prefetchable) [size=128]
-	Expansion ROM at ffbc0000 [disabled] [size=128K]
-	Capabilities: [dc] Power Management version 1
-
-00:0e.0 Ethernet controller: Hewlett-Packard Company J2585A
-	Flags: medium devsel, IRQ 10
-	I/O ports at e400 [size=256]
-	Memory at ffbec000 (32-bit, non-prefetchable) [disabled] [size=8K]
-
-00:14.0 RAM memory: Intel Corp. 450KX/GX [Orion] - 82453KX/GX Memory controller (rev 05)
-	Flags: fast devsel
-
-00:19.0 Host bridge: Intel Corp. 450KX/GX [Orion] - 82454KX/GX PCI bridge (rev 06)
-	Flags: bus master, medium devsel, latency 64
-
-01:07.0 SCSI storage controller: Adaptec AHA-7850
-	Flags: bus master, medium devsel, latency 64, IRQ 11
-	I/O ports at f800 [disabled] [size=256]
-	Memory at febe7000 (32-bit, non-prefetchable) [size=4K]
-
-01:0c.0 Display controller: Intergraph Corporation: Unknown device 00e1 (rev 60)
-	Flags: bus master, medium devsel, latency 16, IRQ 9
-	Memory at febe8000 (32-bit, non-prefetchable) [size=32K]
-
-01:0d.0 VGA compatible controller: Cirrus Logic GD 5430/40 [Alpine] (rev 47) (prog-if 00 [VGA])
-	Flags: VGA palette snoop, medium devsel
-	Memory at fb000000 (32-bit, prefetchable) [size=16M]
-	Expansion ROM at fd000000 [disabled] [size=16M]
-
-01:0e.0 Ethernet controller: 3Com Corporation 3c905 100BaseTX [Boomerang]
-	Flags: bus master, medium devsel, latency 64, IRQ 15
-	I/O ports at ff00 [size=64]
-	Expansion ROM at febf0000 [disabled] [size=64K]
+Scott M. Hoffman
+scott781@attbi.com
+Running Linux 2.4.18-11smp, up 0 days 0 hours 4 minutes 
 
 
---5mCyUwZo2JvN/JJP--
+--8323328-1986937700-1032699589=:944
+Content-Type: TEXT/PLAIN; NAME="oops.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0209220759490.944@localhost.localdomain>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="oops.txt"
+
+a3N5bW9vcHMgMi40LjUgb24gaTY4NiAyLjUuMzguICBPcHRpb25zIHVzZWQN
+CiAgICAgLVYgKGRlZmF1bHQpDQogICAgIC1rIC9wcm9jL2tzeW1zIChkZWZh
+dWx0KQ0KICAgICAtbCAvcHJvYy9tb2R1bGVzIChkZWZhdWx0KQ0KICAgICAt
+byAvbGliL21vZHVsZXMvMi41LjM4LyAoZGVmYXVsdCkNCiAgICAgLW0gL2Jv
+b3QvU3lzdGVtLm1hcC0yLjUuMzggKGRlZmF1bHQpDQoNCldhcm5pbmc6IFlv
+dSBkaWQgbm90IHRlbGwgbWUgd2hlcmUgdG8gZmluZCBzeW1ib2wgaW5mb3Jt
+YXRpb24uICBJIHdpbGwNCmFzc3VtZSB0aGF0IHRoZSBsb2cgbWF0Y2hlcyB0
+aGUga2VybmVsIGFuZCBtb2R1bGVzIHRoYXQgYXJlIHJ1bm5pbmcNCnJpZ2h0
+IG5vdyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1bHQgb3B0aW9ucyBhYm92ZSBm
+b3Igc3ltYm9sIHJlc29sdXRpb24uDQpJZiB0aGUgY3VycmVudCBrZXJuZWwg
+YW5kL29yIG1vZHVsZXMgZG8gbm90IG1hdGNoIHRoZSBsb2csIHlvdSBjYW4g
+Z2V0DQptb3JlIGFjY3VyYXRlIG91dHB1dCBieSB0ZWxsaW5nIG1lIHRoZSBr
+ZXJuZWwgdmVyc2lvbiBhbmQgd2hlcmUgdG8gZmluZA0KbWFwLCBtb2R1bGVz
+LCBrc3ltcyBldGMuICBrc3ltb29wcyAtaCBleHBsYWlucyB0aGUgb3B0aW9u
+cy4NCg0KU2VwIDIyIDA3OjM4OjIzIFNjb3R0cyBrZXJuZWw6IGMxNDI1ZjAw
+IGMwMTE4NmVkIGMwMjhhZDgwIGMxNDI0MDAwIGMxNDI1ZjcwIGMxNDI1Zjc4
+IDAwMDAwMDAwIDAwMDAwMDAwIA0KU2VwIDIyIDA3OjM4OjIzIFNjb3R0cyBr
+ZXJuZWw6ICAgICAgICAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAw
+MDAwMCBjMTQyNDAwMCBjMTQyNWY3OCBjMDExOGQ5YyAwMDAwMDAwMCANClNl
+cCAyMiAwNzozODoyMyBTY290dHMga2VybmVsOiAgICAgICAgYzE0MjQwMDAg
+YzAzNWFjYzAgYzE0MjQwMDAgYzE0MjVmYTQgMDAwMDAwMDAgYzE0MjMwYzAg
+YzAxMThiMzAgMDAwMDAwMDAgDQpTZXAgMjIgMDc6Mzg6MjMgU2NvdHRzIGtl
+cm5lbDogQ2FsbCBUcmFjZTogWzxjMDExODZlZD5dIFs8YzAxMThkOWM+XSBb
+PGMwMTE4YjMwPl0gWzxjMDExOGIzMD5dIFs8YzAxMWEyYzU+XSANClNlcCAy
+MiAwNzozODoyMyBTY290dHMga2VybmVsOiAgICBbPGMwMTFhMzNlPl0gWzxj
+MDExYTJmMD5dIFs8YzAxMDZmMGQ+XSANClNlcCAyMiAwNzozODoyMyBTY290
+dHMga2VybmVsOiBjMTQyMWYxYyBjMDExODZlZCBjMDI4YWQ4MCBjMTQyMDAw
+MCBjMTQyMWY4YyBjMTQyMWY5NCAwMDAwMDAwMCAwMDAwMDAwMCANClNlcCAy
+MiAwNzozODoyMyBTY290dHMga2VybmVsOiAgICAgICAgMDAwMDAwMDAgMDAw
+MDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAgYzE0MjAwMDAgYzE0MjFmOTQgYzAx
+MThkOWMgMDAwMDAwMDAgDQpTZXAgMjIgMDc6Mzg6MjMgU2NvdHRzIGtlcm5l
+bDogICAgICAgIGMxNDIwMDAwIGMwMzVhY2MwIGMxNDIwMDAwIGMxNDIxZmMw
+IDAwMDAwMDAwIGMxNDIzN2MwIGMwMTE4YjMwIDAwMDAwMDAwIA0KU2VwIDIy
+IDA3OjM4OjIzIFNjb3R0cyBrZXJuZWw6IENhbGwgVHJhY2U6IFs8YzAxMTg2
+ZWQ+XSBbPGMwMTE4ZDljPl0gWzxjMDExOGIzMD5dIFs8YzAxMThiMzA+XSBb
+PGMwMTFhMmM1Pl0gDQpTZXAgMjIgMDc6Mzg6MjMgU2NvdHRzIGtlcm5lbDog
+ICAgWzxjMDEyMjc0Zj5dIFs8YzAxMjI3MDA+XSBbPGMwMTA2ZjBkPl0gDQpX
+YXJuaW5nIChPb3BzX3JlYWQpOiBDb2RlIGxpbmUgbm90IHNlZW4sIGR1bXBp
+bmcgd2hhdCBkYXRhIGlzIGF2YWlsYWJsZQ0KDQoNClRyYWNlOyBjMDExODZl
+ZCA8c2NoZWR1bGUrM2QvNDMwPg0KVHJhY2U7IGMwMTE4ZDljIDx3YWl0X2Zv
+cl9jb21wbGV0aW9uKzljLzEwMD4NClRyYWNlOyBjMDExOGIzMCA8ZGVmYXVs
+dF93YWtlX2Z1bmN0aW9uKzAvNDA+DQpUcmFjZTsgYzAxMThiMzAgPGRlZmF1
+bHRfd2FrZV9mdW5jdGlvbiswLzQwPg0KVHJhY2U7IGMwMTFhMmM1IDxzZXRf
+Y3B1c19hbGxvd2VkKzE0NS8xNzA+DQpUcmFjZTsgYzAxMWEzM2UgPG1pZ3Jh
+dGlvbl90aHJlYWQrNGUvMzQwPg0KVHJhY2U7IGMwMTFhMmYwIDxtaWdyYXRp
+b25fdGhyZWFkKzAvMzQwPg0KVHJhY2U7IGMwMTA2ZjBkIDxrZXJuZWxfdGhy
+ZWFkX2hlbHBlcis1LzE4Pg0KVHJhY2U7IGMwMTE4NmVkIDxzY2hlZHVsZSsz
+ZC80MzA+DQpUcmFjZTsgYzAxMThkOWMgPHdhaXRfZm9yX2NvbXBsZXRpb24r
+OWMvMTAwPg0KVHJhY2U7IGMwMTE4YjMwIDxkZWZhdWx0X3dha2VfZnVuY3Rp
+b24rMC80MD4NClRyYWNlOyBjMDExOGIzMCA8ZGVmYXVsdF93YWtlX2Z1bmN0
+aW9uKzAvNDA+DQpUcmFjZTsgYzAxMWEyYzUgPHNldF9jcHVzX2FsbG93ZWQr
+MTQ1LzE3MD4NClRyYWNlOyBjMDEyMjc0ZiA8a3NvZnRpcnFkKzRmL2YwPg0K
+VHJhY2U7IGMwMTIyNzAwIDxrc29mdGlycWQrMC9mMD4NClRyYWNlOyBjMDEw
+NmYwZCA8a2VybmVsX3RocmVhZF9oZWxwZXIrNS8xOD4NCg0KDQoyIHdhcm5p
+bmdzIGlzc3VlZC4gIFJlc3VsdHMgbWF5IG5vdCBiZSByZWxpYWJsZS4NCg==
+--8323328-1986937700-1032699589=:944--

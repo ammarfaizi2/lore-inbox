@@ -1,90 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275552AbRKJHfA>; Sat, 10 Nov 2001 02:35:00 -0500
+	id <S276709AbRKJHiu>; Sat, 10 Nov 2001 02:38:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276709AbRKJHel>; Sat, 10 Nov 2001 02:34:41 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:42507 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S275552AbRKJHed>; Sat, 10 Nov 2001 02:34:33 -0500
-Message-ID: <3BECD87F.F53234B2@zip.com.au>
-Date: Fri, 09 Nov 2001 23:34:23 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
+	id <S279505AbRKJHik>; Sat, 10 Nov 2001 02:38:40 -0500
+Received: from ws-002.ray.fi ([193.64.14.2]:59802 "EHLO behemoth.ts.ray.fi")
+	by vger.kernel.org with ESMTP id <S276709AbRKJHiW>;
+	Sat, 10 Nov 2001 02:38:22 -0500
+Date: Sat, 10 Nov 2001 09:35:45 +0200 (EET)
+From: Tommi Kyntola <lk@ts.ray.fi>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Anthony Campbell <a.campbell@doctors.org.uk>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Total lockup with 2.4.14
+In-Reply-To: <20011109125730.B446@mikef-linux.matchmail.com>
+Message-ID: <Pine.LNX.4.33.0111100933470.24163-100000@behemoth.ts.ray.fi>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: scsi BLKGETSIZE breakage in -pre2
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sd_ioctl() was changed to pass BLKGETSIZE off to blk_ioctl(),
-but blk_ioctl() doesn't implement it.
+> > I've had 3 total lockups with kernel 2.4.12 and now one with 2.4.14.
+> > 
+> > I was online at the time, using Acroread on this occasion. No key would
+> > work, nor would the mouse.
+> > 
+> > This doesn't seem to happen with the Alan Cox patches, so perhaps it is
+> > something to do with VM.
+> > 
+> 
+> Don't assume that.
+> 
+> The -ac patch includes many more things than just the previous VM.
+> 
+> You should include the Oops, if it did oops.
+> 
+> Also, you should include your .config, and a "lspci -vv" of the affected
+> system.
 
-So `cfdisk /dev/sda' is failing.
+It would also make sense to make sure it's in fact a kernel lock up.
+>From time to time X may lock up _but_ the machine pings and you
+can gain access via ssh/telnet and try to fix it by shutting down
+X from there...
 
-Simply copying the -ac version of blkpg.c across fixes
-it for me.
+  Tommi "Kynde" Kyntola      
+     /* A man alone in the forest talking to himself and 
+        no women around to hear him. Is he still wrong?  */
 
-
---- linux-2.4.15-pre2/drivers/block/blkpg.c	Mon Oct 15 13:27:42 2001
-+++ linux-akpm/drivers/block/blkpg.c	Fri Nov  9 23:14:23 2001
-@@ -195,8 +195,13 @@ int blkpg_ioctl(kdev_t dev, struct blkpg
- 
- int blk_ioctl(kdev_t dev, unsigned int cmd, unsigned long arg)
- {
-+	struct gendisk *g;
-+	u64 ullval = 0;
- 	int intval;
- 
-+	if (!dev)
-+		return -EINVAL;
-+
- 	switch (cmd) {
- 		case BLKROSET:
- 			if (!capable(CAP_SYS_ADMIN))
-@@ -212,7 +217,7 @@ int blk_ioctl(kdev_t dev, unsigned int c
- 		case BLKRASET:
- 			if(!capable(CAP_SYS_ADMIN))
- 				return -EACCES;
--			if(!dev || arg > 0xff)
-+			if(arg > 0xff)
- 				return -EINVAL;
- 			read_ahead[MAJOR(dev)] = arg;
- 			return 0;
-@@ -224,8 +229,6 @@ int blk_ioctl(kdev_t dev, unsigned int c
- 		case BLKFLSBUF:
- 			if(!capable(CAP_SYS_ADMIN))
- 				return -EACCES;
--			if (!dev)
--				return -EINVAL;
- 			fsync_dev(dev);
- 			invalidate_buffers(dev);
- 			return 0;
-@@ -235,18 +238,16 @@ int blk_ioctl(kdev_t dev, unsigned int c
- 			intval = get_hardsect_size(dev);
- 			return put_user(intval, (int *) arg);
- 
--#if 0
- 		case BLKGETSIZE:
--			/* Today get_gendisk() requires a linear scan;
--			   add this when dev has pointer type. */
--			/* add BLKGETSIZE64 too */
-+		case BLKGETSIZE64:
- 			g = get_gendisk(dev);
--			if (!g)
--				ulongval = 0;
-+			if (g)
-+				ullval = g->part[MINOR(dev)].nr_sects;
-+
-+			if (cmd == BLKGETSIZE)
-+				return put_user((unsigned long)ullval, (unsigned long *)arg);
- 			else
--				ulongval = g->part[MINOR(dev)].nr_sects;
--			return put_user(ulongval, (unsigned long *) arg);
--#endif
-+				return put_user(ullval, (u64 *)arg);
- #if 0
- 		case BLKRRPART: /* Re-read partition tables */
- 			if (!capable(CAP_SYS_ADMIN))

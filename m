@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262938AbUKXXml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262901AbUKXXmm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262938AbUKXXml (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 18:42:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbUKXXhg
+	id S262901AbUKXXmm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 18:42:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbUKXXgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 18:37:36 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:41805 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262938AbUKXX00 (ORCPT
+	Wed, 24 Nov 2004 18:36:47 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:28815 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262901AbUKXXXB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 18:26:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=T3u0TQmXF8UMah5qiItDWlKbtaEOKbAlRewpu1Tqye/lYw04HepSZQI9RwesuEzlld04ag7TGZwdGpSQJcEUROWt77OyuNZt5l6cRTpc54VPk405rrSx0TY9TfkjJP2pipL4GmeIb1q+vohmMqTM/T2Oa2HgvdPq8I1zJhFXhpA=
-Message-ID: <8783be6604112412397b46c767@mail.gmail.com>
-Date: Wed, 24 Nov 2004 15:39:28 -0500
-From: Ross Biro <ross.biro@gmail.com>
-Reply-To: Ross Biro <ross.biro@gmail.com>
-To: Ole Laursen <olau@cs.aau.dk>
-Subject: Re: Isolating two network processes on same machine
-Cc: linux-kernel@vger.kernel.org, d507a@cs.aau.dk
-In-Reply-To: <tv8r7mj1dwr.fsf@homer.cs.aau.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <tv8r7mj1dwr.fsf@homer.cs.aau.dk>
+	Wed, 24 Nov 2004 18:23:01 -0500
+Date: Wed, 24 Nov 2004 22:46:05 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend 2 merge: 26/51: Kconfig and makefile.
+In-Reply-To: <1101330674.3895.30.camel@desktop.cunninghams>
+Message-ID: <Pine.LNX.4.61.0411242243540.793@scrub.home>
+References: <1101292194.5805.180.camel@desktop.cunninghams> 
+ <1101296580.5805.292.camel@desktop.cunninghams>  <Pine.LNX.4.61.0411241718400.1284@scrub.home>
+ <1101330674.3895.30.camel@desktop.cunninghams>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The problem is that we need to run several instances of our network
-> application on the same test machine since we have too few machines.
-> But when we create two IP addresses on the same machine with
-> 
+Hi,
 
-The easiest solution is probably to have the FreeBSD box DNAT the
-linux boxes so they don't know they are talking to themselves.  Then
-you only need to use 1 ip address per linux box.
+On Thu, 25 Nov 2004, Nigel Cunningham wrote:
 
-    Ross
+> I'm not sure exactly what 'such indentations' means. Could you please
+> give me a pointer to how it should look (I was blindly following what I
+> thought was the pattern to follow and will happily follow something else
+> :>).
+
+What did you look at it? Where else did you find such indentations?
+
+bye, Roman

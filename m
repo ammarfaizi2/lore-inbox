@@ -1,263 +1,492 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261300AbSJLRRF>; Sat, 12 Oct 2002 13:17:05 -0400
+	id <S261298AbSJLRSZ>; Sat, 12 Oct 2002 13:18:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261299AbSJLRQU>; Sat, 12 Oct 2002 13:16:20 -0400
-Received: from mx2.airmail.net ([209.196.77.99]:62992 "EHLO mx2.airmail.net")
-	by vger.kernel.org with ESMTP id <S261297AbSJLRQG>;
-	Sat, 12 Oct 2002 13:16:06 -0400
-Date: Sat, 12 Oct 2002 11:50:10 -0500
+	id <S261299AbSJLRR5>; Sat, 12 Oct 2002 13:17:57 -0400
+Received: from mx2.airmail.net ([209.196.77.99]:65296 "EHLO mx2.airmail.net")
+	by vger.kernel.org with ESMTP id <S261298AbSJLRQK>;
+	Sat, 12 Oct 2002 13:16:10 -0400
+Date: Sat, 12 Oct 2002 11:43:45 -0500
 From: Art Haas <ahaas@neosoft.com>
 To: linux-kernel@vger.kernel.org
 Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] C99 designated initializers for drivers/char
-Message-ID: <20021012165010.GH633@debian>
+Subject: [PATCH] C99 designated initializers for drivers/block
+Message-ID: <20021012164345.GG633@debian>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="liOOAslEiF7prFVr"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---liOOAslEiF7prFVr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
 Hi.
 
-Here's a set of patches (61 in total) for converting drivers/char to use
-C99 named initializers. As the number of individual patches is large,
-and the size of all the patches "cat"ed together is more that 40K, I'm
-sending the patch set as a compressed attachment. The vast majority
-of the patches are less than 1K in size - the largest is 3K.
-
-Patched files:
-acquirewdt.c
-advantechwdt.c
-amd768_rng.c
-applicom.c
-busmouse.c
-cyclades.c
-ds1620.c
-dsp56k.c
-dtlk.c
-dz.c
-efirtc.c
-eurotechwdt.c
-hp_psaux.c
-hvc_console.c
-i810-tco.c
-i810_rng.c
-i8k.c
-ib700wdt.c
-ip2main.c
-isicom.c
-istallion.c
-ite_gpio.c
-keyboard.c
-lp.c
-machzwd.c
-mem.c
-misc.c
-mixcomwd.c
-nvram.c
-nwbutton.c
-nwflash.c
-pcwd.c
-ppdev.c
-qtronix.c
-random.c
-riscom8.c
-rtc.c
-sbc60xxwdt.c
-scx200_wdt.c
-serial167.c
-serial_tx3912.c
-sh-sci.c
-shwdt.c
-softdog.c
-sonypi.c
-stallion.c
-sx.c
-synclink.c
-synclinkmp.c
-sysrq.c
-toshiba.c
-tpqic02.c
-tty_io.c
-vc_screen.c
-vme_scc.c
-vt.c
-w83877f_wdt.c
-wdt.c
-wdt285.c
-wdt977.c
-wdt_pci.c
+Here's a set of patches for converting drivers/block to use C99 named
+initializers. The patches are all against 2.5.42.
 
 Art Haas
+
+--- linux-2.5.42/drivers/block/DAC960.c.old	2002-10-07 15:45:21.000000000 -0500
++++ linux-2.5.42/drivers/block/DAC960.c	2002-10-12 09:51:18.000000000 -0500
+@@ -82,11 +82,11 @@
+ */
+ 
+ static struct block_device_operations DAC960_BlockDeviceOperations = {
+-	owner:		THIS_MODULE,
+-	open:		DAC960_Open,
+-	release:	DAC960_Release,
+-	ioctl:		DAC960_IOCTL,
+-	revalidate:	DAC960_revalidate,
++	.owner		= THIS_MODULE,
++	.open		= DAC960_Open,
++	.release	= DAC960_Release,
++	.ioctl		= DAC960_IOCTL,
++	.revalidate	= DAC960_revalidate,
+ };
+ 
+ 
+--- linux-2.5.42/drivers/block/acsi.c.old	2002-10-07 15:45:21.000000000 -0500
++++ linux-2.5.42/drivers/block/acsi.c	2002-10-12 09:51:17.000000000 -0500
+@@ -372,7 +372,7 @@
+ /************************* End of Prototypes **************************/
+ 
+ 
+-struct timer_list acsi_timer = { function: acsi_times_out };
++struct timer_list acsi_timer = { .function = acsi_times_out };
+ 
+ 
+ #ifdef CONFIG_ATARI_SLM
+@@ -1598,12 +1598,12 @@
+ #endif
+ 
+ static struct block_device_operations acsi_fops = {
+-	owner:			THIS_MODULE,
+-	open:			acsi_open,
+-	release:		acsi_release,
+-	ioctl:			acsi_ioctl,
+-	check_media_change:	acsi_media_change,
+-	revalidate:		acsi_revalidate,
++	.owner			= THIS_MODULE,
++	.open			= acsi_open,
++	.release		= acsi_release,
++	.ioctl			= acsi_ioctl,
++	.check_media_change	= acsi_media_change,
++	.revalidate		= acsi_revalidate,
+ };
+ 
+ #ifdef CONFIG_ATARI_SLM_MODULE
+--- linux-2.5.42/drivers/block/acsi_slm.c.old	2002-08-02 08:16:16.000000000 -0500
++++ linux-2.5.42/drivers/block/acsi_slm.c	2002-10-12 09:51:16.000000000 -0500
+@@ -270,15 +270,15 @@
+ /************************* End of Prototypes **************************/
+ 
+ 
+-static struct timer_list slm_timer = { function: slm_test_ready };
++static struct timer_list slm_timer = { .function = slm_test_ready };
+ 
+ static struct file_operations slm_fops = {
+-	owner:		THIS_MODULE,
+-	read:		slm_read,
+-	write:		slm_write,
+-	ioctl:		slm_ioctl,
+-	open:		slm_open,
+-	release:	slm_release,
++	.owner		= THIS_MODULE,
++	.read		= slm_read,
++	.write		= slm_write,
++	.ioctl		= slm_ioctl,
++	.open		= slm_open,
++	.release	= slm_release,
+ };
+ 
+ 
+--- linux-2.5.42/drivers/block/ataflop.c.old	2002-10-07 15:45:21.000000000 -0500
++++ linux-2.5.42/drivers/block/ataflop.c	2002-10-12 09:51:17.000000000 -0500
+@@ -392,15 +392,15 @@
+ /************************* End of Prototypes **************************/
+ 
+ static struct timer_list motor_off_timer =
+-	{ function: fd_motor_off_timer };
++	{ .function = fd_motor_off_timer };
+ static struct timer_list readtrack_timer =
+-	{ function: fd_readtrack_check };
++	{ .function = fd_readtrack_check };
+ 
+ static struct timer_list timeout_timer =
+-	{ function: fd_times_out };
++	{ .function = fd_times_out };
+ 
+ static struct timer_list fd_timer =
+-	{ function: check_change };
++	{ .function = check_change };
+ 	
+ static inline void
+ start_motor_off_timer(void)
+@@ -1914,12 +1914,12 @@
+ }
+ 
+ static struct block_device_operations floppy_fops = {
+-	owner:			THIS_MODULE,
+-	open:			floppy_open,
+-	release:		floppy_release,
+-	ioctl:			fd_ioctl,
+-	check_media_change:	check_floppy_change,
+-	revalidate:		floppy_revalidate,
++	.owner			= THIS_MODULE,
++	.open			= floppy_open,
++	.release		= floppy_release,
++	.ioctl			= fd_ioctl,
++	.check_media_change	= check_floppy_change,
++	.revalidate		= floppy_revalidate,
+ };
+ 
+ static struct gendisk *floppy_find(int minor)
+--- linux-2.5.42/drivers/block/cciss.c.old	2002-10-12 09:46:42.000000000 -0500
++++ linux-2.5.42/drivers/block/cciss.c	2002-10-12 09:51:18.000000000 -0500
+@@ -125,11 +125,11 @@
+ #endif /* CONFIG_PROC_FS */
+ 
+ static struct block_device_operations cciss_fops  = {
+-	owner:			THIS_MODULE,
+-	open:			cciss_open, 
+-	release:        	cciss_release,
+-        ioctl:			cciss_ioctl,
+-	revalidate:		cciss_revalidate,
++	.owner			= THIS_MODULE,
++	.open			= cciss_open, 
++	.release        	= cciss_release,
++        .ioctl			= cciss_ioctl,
++	.revalidate		= cciss_revalidate,
+ };
+ 
+ #include "cciss_scsi.c"		/* For SCSI tape support */
+@@ -2514,10 +2514,10 @@
+ }	
+ 
+ static struct pci_driver cciss_pci_driver = {
+-	name:		"cciss",
+-	probe:		cciss_init_one,
+-	remove:		__devexit_p(cciss_remove_one),
+-	id_table:	cciss_pci_device_id, /* id_table */
++	.name		= "cciss",
++	.probe		= cciss_init_one,
++	.remove		= __devexit_p(cciss_remove_one),
++	.id_table	= cciss_pci_device_id, /* id_table */
+ };
+ 
+ /*
+--- linux-2.5.42/drivers/block/cciss_scsi.c.old	2002-07-05 18:42:18.000000000 -0500
++++ linux-2.5.42/drivers/block/cciss_scsi.c	2002-10-12 09:51:17.000000000 -0500
+@@ -73,14 +73,14 @@
+ #endif
+ 
+ static struct cciss_scsi_hba_t ccissscsi[MAX_CTLR] = {
+-	{ name: "cciss0", ndevices: 0 },
+-	{ name: "cciss1", ndevices: 0 },
+-	{ name: "cciss2", ndevices: 0 },
+-	{ name: "cciss3", ndevices: 0 },
+-	{ name: "cciss4", ndevices: 0 },
+-	{ name: "cciss5", ndevices: 0 },
+-	{ name: "cciss6", ndevices: 0 },
+-	{ name: "cciss7", ndevices: 0 },
++	{ .name = "cciss0", .ndevices = 0 },
++	{ .name = "cciss1", .ndevices = 0 },
++	{ .name = "cciss2", .ndevices = 0 },
++	{ .name = "cciss3", .ndevices = 0 },
++	{ .name = "cciss4", .ndevices = 0 },
++	{ .name = "cciss5", .ndevices = 0 },
++	{ .name = "cciss6", .ndevices = 0 },
++	{ .name = "cciss7", .ndevices = 0 },
+ };
+ 
+ /* We need one Scsi_Host_Template *per controller* instead of 
+--- linux-2.5.42/drivers/block/cpqarray.c.old	2002-10-12 09:46:42.000000000 -0500
++++ linux-2.5.42/drivers/block/cpqarray.c	2002-10-12 09:51:17.000000000 -0500
+@@ -163,11 +163,11 @@
+ #endif
+ 
+ static struct block_device_operations ida_fops  = {
+-	owner:		THIS_MODULE,
+-	open:		ida_open,
+-	release:	ida_release,
+-	ioctl:		ida_ioctl,
+-	revalidate:	ida_revalidate,
++	.owner		= THIS_MODULE,
++	.open		= ida_open,
++	.release	= ida_release,
++	.ioctl		= ida_ioctl,
++	.revalidate	= ida_revalidate,
+ };
+ 
+ 
+--- linux-2.5.42/drivers/block/elevator.c.old	2002-10-07 15:45:22.000000000 -0500
++++ linux-2.5.42/drivers/block/elevator.c	2002-10-12 09:51:18.000000000 -0500
+@@ -348,9 +348,9 @@
+ }
+ 
+ elevator_t elevator_noop = {
+-	elevator_merge_fn:		elevator_noop_merge,
+-	elevator_next_req_fn:		elevator_noop_next_request,
+-	elevator_add_req_fn:		elevator_noop_add_request,
++	.elevator_merge_fn		= elevator_noop_merge,
++	.elevator_next_req_fn		= elevator_noop_next_request,
++	.elevator_add_req_fn		= elevator_noop_add_request,
+ };
+ 
+ module_init(elevator_global_init);
+--- linux-2.5.42/drivers/block/floppy.c.old	2002-10-12 09:46:42.000000000 -0500
++++ linux-2.5.42/drivers/block/floppy.c	2002-10-12 09:51:17.000000000 -0500
+@@ -628,7 +628,7 @@
+ }
+ 
+ typedef void (*timeout_fn)(unsigned long);
+-static struct timer_list fd_timeout ={ function: (timeout_fn) floppy_shutdown };
++static struct timer_list fd_timeout ={ .function = (timeout_fn) floppy_shutdown };
+ 
+ static const char *timeout_message;
+ 
+@@ -3956,12 +3956,12 @@
+ }
+ 
+ static struct block_device_operations floppy_fops = {
+-	owner:			THIS_MODULE,
+-	open:			floppy_open,
+-	release:		floppy_release,
+-	ioctl:			fd_ioctl,
+-	check_media_change:	check_floppy_change,
+-	revalidate:		floppy_revalidate,
++	.owner			= THIS_MODULE,
++	.open			= floppy_open,
++	.release		= floppy_release,
++	.ioctl			= fd_ioctl,
++	.check_media_change	= check_floppy_change,
++	.revalidate		= floppy_revalidate,
+ };
+ 
+ static void __init register_devfs_entries (int drive)
+--- linux-2.5.42/drivers/block/genhd.c.old	2002-10-12 09:46:42.000000000 -0500
++++ linux-2.5.42/drivers/block/genhd.c	2002-10-12 09:51:17.000000000 -0500
+@@ -194,10 +194,10 @@
+ }
+ 
+ struct seq_operations partitions_op = {
+-	start:	part_start,
+-	next:	part_next,
+-	stop:	part_stop,
+-	show:	show_partition
++	.start	= part_start,
++	.next	= part_next,
++	.stop	= part_stop,
++	.show	= show_partition
+ };
+ #endif
+ 
+--- linux-2.5.42/drivers/block/loop.c.old	2002-10-12 09:46:42.000000000 -0500
++++ linux-2.5.42/drivers/block/loop.c	2002-10-12 09:51:16.000000000 -0500
+@@ -137,15 +137,15 @@
+ }
+ 
+ struct loop_func_table none_funcs = { 
+-	number: LO_CRYPT_NONE,
+-	transfer: transfer_none,
+-	init: none_status,
++	.number = LO_CRYPT_NONE,
++	.transfer = transfer_none,
++	.init = none_status,
+ }; 	
+ 
+ struct loop_func_table xor_funcs = { 
+-	number: LO_CRYPT_XOR,
+-	transfer: transfer_xor,
+-	init: xor_status
++	.number = LO_CRYPT_XOR,
++	.transfer = transfer_xor,
++	.init = xor_status
+ }; 	
+ 
+ /* xfer_funcs[0] is special - its release function is never called */ 
+@@ -992,10 +992,10 @@
+ }
+ 
+ static struct block_device_operations lo_fops = {
+-	owner:		THIS_MODULE,
+-	open:		lo_open,
+-	release:	lo_release,
+-	ioctl:		lo_ioctl,
++	.owner		= THIS_MODULE,
++	.open		= lo_open,
++	.release	= lo_release,
++	.ioctl		= lo_ioctl,
+ };
+ 
+ /*
+--- linux-2.5.42/drivers/block/nbd.c.old	2002-10-07 15:45:22.000000000 -0500
++++ linux-2.5.42/drivers/block/nbd.c	2002-10-12 09:51:17.000000000 -0500
+@@ -485,10 +485,10 @@
+ 
+ static struct block_device_operations nbd_fops =
+ {
+-	owner:		THIS_MODULE,
+-	open:		nbd_open,
+-	release:	nbd_release,
+-	ioctl:		nbd_ioctl,
++	.owner		= THIS_MODULE,
++	.open		= nbd_open,
++	.release	= nbd_release,
++	.ioctl		= nbd_ioctl,
+ };
+ 
+ /*
+--- linux-2.5.42/drivers/block/ps2esdi.c.old	2002-10-12 09:46:42.000000000 -0500
++++ linux-2.5.42/drivers/block/ps2esdi.c	2002-10-12 09:51:16.000000000 -0500
+@@ -110,7 +110,7 @@
+ static int no_int_yet;
+ static int ps2esdi_drives;
+ static u_short io_base;
+-static struct timer_list esdi_timer = { function: ps2esdi_reset_timer };
++static struct timer_list esdi_timer = { .function = ps2esdi_reset_timer };
+ static int reset_status;
+ static int ps2esdi_slot = -1;
+ static int tp720esdi = 0;	/* Is it Integrated ESDI of ThinkPad-720? */
+--- linux-2.5.42/drivers/block/rd.c.old	2002-10-12 09:46:42.000000000 -0500
++++ linux-2.5.42/drivers/block/rd.c	2002-10-12 09:51:17.000000000 -0500
+@@ -140,10 +140,10 @@
+ }
+ 
+ static struct address_space_operations ramdisk_aops = {
+-	readpage: ramdisk_readpage,
+-	writepage: fail_writepage,
+-	prepare_write: ramdisk_prepare_write,
+-	commit_write: ramdisk_commit_write,
++	.readpage = ramdisk_readpage,
++	.writepage = fail_writepage,
++	.prepare_write = ramdisk_prepare_write,
++	.commit_write = ramdisk_commit_write,
+ };
+ 
+ static int rd_blkdev_pagecache_IO(int rw, struct bio_vec *vec,
+@@ -347,8 +347,8 @@
+ 
+ 
+ static struct file_operations initrd_fops = {
+-	read:		initrd_read,
+-	release:	initrd_release,
++	.read		= initrd_read,
++	.release	= initrd_release,
+ };
+ 
+ #endif
+@@ -389,9 +389,9 @@
+ }
+ 
+ static struct block_device_operations rd_bd_op = {
+-	owner:		THIS_MODULE,
+-	open:		rd_open,
+-	ioctl:		rd_ioctl,
++	.owner		= THIS_MODULE,
++	.open		= rd_open,
++	.ioctl		= rd_ioctl,
+ };
+ 
+ /* Before freeing the module, invalidate all of the protected buffers! */
+--- linux-2.5.42/drivers/block/swim3.c.old	2002-10-07 15:45:22.000000000 -0500
++++ linux-2.5.42/drivers/block/swim3.c	2002-10-12 09:51:17.000000000 -0500
+@@ -1002,11 +1002,11 @@
+ }
+ 
+ static struct block_device_operations floppy_fops = {
+-	open:			floppy_open,
+-	release:		floppy_release,
+-	ioctl:			floppy_ioctl,
+-	check_media_change:	floppy_check_change,
+-	revalidate:		floppy_revalidate,
++	.open			= floppy_open,
++	.release		= floppy_release,
++	.ioctl			= floppy_ioctl,
++	.check_media_change	= floppy_check_change,
++	.revalidate		= floppy_revalidate,
+ };
+ 
+ static devfs_handle_t floppy_devfs_handle;
+--- linux-2.5.42/drivers/block/swim_iop.c.old	2002-10-07 15:45:22.000000000 -0500
++++ linux-2.5.42/drivers/block/swim_iop.c	2002-10-12 09:51:16.000000000 -0500
+@@ -118,11 +118,11 @@
+ static void start_request(struct floppy_state *fs);
+ 
+ static struct block_device_operations floppy_fops = {
+-	open:			floppy_open,
+-	release:		floppy_release,
+-	ioctl:			floppy_ioctl,
+-	check_media_change:	floppy_check_change,
+-	revalidate:		floppy_revalidate,
++	.open			= floppy_open,
++	.release		= floppy_release,
++	.ioctl			= floppy_ioctl,
++	.check_media_change	= floppy_check_change,
++	.revalidate		= floppy_revalidate,
+ };
+ 
+ /*
+--- linux-2.5.42/drivers/block/umem.c.old	2002-10-12 09:46:42.000000000 -0500
++++ linux-2.5.42/drivers/block/umem.c	2002-10-12 09:51:17.000000000 -0500
+@@ -882,11 +882,11 @@
+ -----------------------------------------------------------------------------------
+ */
+ static struct block_device_operations mm_fops = {
+-	owner:		THIS_MODULE,
+-	open:		mm_open,
+-	ioctl:		mm_ioctl,
+-	revalidate:	mm_revalidate,
+-	check_media_change: mm_check_change,
++	.owner		= THIS_MODULE,
++	.open		= mm_open,
++	.ioctl		= mm_ioctl,
++	.revalidate	= mm_revalidate,
++	.check_media_change = mm_check_change,
+ };
+ /*
+ -----------------------------------------------------------------------------------
+@@ -1143,18 +1143,18 @@
+ }
+ 
+ static const struct pci_device_id __devinitdata mm_pci_ids[] = { {
+-	vendor:		PCI_VENDOR_ID_MICRO_MEMORY,
+-	device:		PCI_DEVICE_ID_MICRO_MEMORY_5415CN,
++	.vendor		= PCI_VENDOR_ID_MICRO_MEMORY,
++	.device		= PCI_DEVICE_ID_MICRO_MEMORY_5415CN,
+ 	}, { /* end: all zeroes */ }
+ };
+ 
+ MODULE_DEVICE_TABLE(pci, mm_pci_ids);
+ 
+ static struct pci_driver mm_pci_driver = {
+-	name:		"umem",
+-	id_table:	mm_pci_ids,
+-	probe:		mm_pci_probe,
+-	remove:		mm_pci_remove,
++	.name		= "umem",
++	.id_table	= mm_pci_ids,
++	.probe		= mm_pci_probe,
++	.remove		= mm_pci_remove,
+ };
+ /*
+ -----------------------------------------------------------------------------------
+--- linux-2.5.42/drivers/block/xd.c.old	2002-10-07 15:45:22.000000000 -0500
++++ linux-2.5.42/drivers/block/xd.c	2002-10-12 09:51:17.000000000 -0500
+@@ -129,9 +129,9 @@
+ static struct gendisk *xd_gendisk[2];
+ 
+ static struct block_device_operations xd_fops = {
+-	owner:		THIS_MODULE,
+-	open:		xd_open,
+-	ioctl:		xd_ioctl,
++	.owner		= THIS_MODULE,
++	.open		= xd_open,
++	.ioctl		= xd_ioctl,
+ };
+ static DECLARE_WAIT_QUEUE_HEAD(xd_wait_int);
+ static u_char xd_drives, xd_irq = 5, xd_dma = 3, xd_maxsectors;
 -- 
 They that can give up essential liberty to obtain a little temporary safety
 deserve neither liberty nor safety.
  -- Benjamin Franklin, Historical Review of Pennsylvania, 1759
-
---liOOAslEiF7prFVr
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="char.diff.gz"
-Content-Transfer-Encoding: base64
-
-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
-JV01Uk+nLEfpGbQrI/Rs1MWK8/8BsIo2AXenAAA=
-
---liOOAslEiF7prFVr--

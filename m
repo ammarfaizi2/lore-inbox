@@ -1,39 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262186AbRETTo2>; Sun, 20 May 2001 15:44:28 -0400
+	id <S262182AbRETTnS>; Sun, 20 May 2001 15:43:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262189AbRETToK>; Sun, 20 May 2001 15:44:10 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:9226 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262183AbRETTn5>; Sun, 20 May 2001 15:43:57 -0400
-Subject: Re: VIA's Southbridge bug: Latest (pseudo-)patch
-To: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
-Date: Sun, 20 May 2001 20:40:13 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        Axel.Thimm@physik.fu-berlin.de (Axel Thimm),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-        doelf@au-ja.de (Au-Ja), YipingChen@via.com.tw (Yiping Chen),
-        support@msi.com.tw, info@msi-computer.de, support@via-cyrix.de,
-        john@grulic.org.ar (John R Lenton)
-In-Reply-To: <20010520024449.P754@nightmaster.csn.tu-chemnitz.de> from "Ingo Oeser" at May 20, 2001 02:44:49 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262187AbRETTnI>; Sun, 20 May 2001 15:43:08 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:18418 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262182AbRETTmy>;
+	Sun, 20 May 2001 15:42:54 -0400
+Date: Sun, 20 May 2001 15:42:53 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Russell King <rmk@arm.linux.org.uk>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Matthew Wilcox <matthew@wil.cx>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Andrew Clausen <clausen@gnu.org>, Ben LaHaise <bcrl@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+In-Reply-To: <Pine.LNX.4.21.0105201208360.7553-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0105201512450.8940-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E151Z3l-0002m3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > If it had been a manufacturer in most respectable areas of business they'd be
-> > recalling and reissuing components, and paying for the end resllers to notify
-> > each customer 
+
+
+On Sun, 20 May 2001, Linus Torvalds wrote:
+
+> No, but the point is, everybody _would_ consider it a bug if a
+> low-level driver "write()" did anything but touched the explicit buffer.
 > 
-> This is consumer hardware. Consumer products are optimized for a
-> good buzzword count per $ ratio. Everything else is secondary.
+> Code like that would not pass through anybody's yuck-o-meter. People would
+> point fingers and say "That is not a legal write() function". Anybody who
+> tried to make write() follow pointers would be laughed at as a stupid git.
 
-Its what I would describe as lack of enforcement by trading standards bodies,
-and I suspect what the US would call 'insufficient class action lawsuits'
+Linus, as much as I'd like to agree with you, you are hopeless optimist.
+90% of drivers contain code written by stupid gits.
+ 
+> Anybody who makes "ioctl()" do the same is just following years of
+> standard practice, and the yuck-o-meter doesn't even register.
 
-Alan
+Nobody reads the drivers. Because otherwise yuck-o-meters would go off-scale.
+
+How about yuck value of the
+	* removing a file by writing "-1" into it?
+	* mkdir() populating directory.
+	* unlink() not working in said directory.
+	* rmdir() happily removing it. And freeing all associated structures.
+Opened files? What opened files? Whaddya mean, "oops"?
+
+How about sprintf(s + strlen(s), foo)?
+
+How about a collection of b0rken strtoul() implementations? Including one
+that contains
+	switch (...) {
+		case 48:
+		case 49:
+	(all 22 cases)
+
+How about declaring global array and comparing it with NULL?
+
+How about the whole binfmt_misc.c?
+
+Ehh...
+
+Linus, I've been doing exactly that (reading through the large parts of
+tree) and trust me, yuck-o-meter was off-scale almost permanently. Level
+of idiocy in the obvious bugs is such that I bet you anything that code
+had never been really read through by anyone who knew C.
+
+I would love it if more people actually cared to read the fscking code.
+Too few are doing that.
+
+And yes, it's a psychological problem, not a technical one. Oh, well...
+
+Sorry about the rant - I've just spent a couple of hours wading through
+the piles of excrements in drivers/*. Ouch.
 

@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269400AbUIYT3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269398AbUIYTiX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269400AbUIYT3r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 15:29:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269398AbUIYT2W
+	id S269398AbUIYTiX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 15:38:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269399AbUIYTiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 15:28:22 -0400
-Received: from mailfe07.swip.net ([212.247.154.193]:24277 "EHLO
-	mailfe07.swip.net") by vger.kernel.org with ESMTP id S269399AbUIYT17
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 15:27:59 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Sat, 25 Sep 2004 21:27:48 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Jeremy Allison <jra@samba.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       YOSHIFUJI Hideaki / ???????????? <yoshfuji@linux-ipv6.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6] smbfs & "du" illness
-Message-ID: <20040925192748.GB2971@bouh.is-a-geek.org>
-Mail-Followup-To: Jeremy Allison <jra@samba.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	YOSHIFUJI Hideaki / ???????????? <yoshfuji@linux-ipv6.org>,
-	linux-kernel@vger.kernel.org
-References: <20040917205422.GD2685@bouh.is-a-geek.org> <Pine.LNX.4.58.0409250929030.2317@ppc970.osdl.org> <20040925171104.GN580@jeremy1> <20040926.024131.06508879.yoshfuji@linux-ipv6.org> <20040925174406.GP580@jeremy1> <Pine.LNX.4.58.0409251054490.2317@ppc970.osdl.org> <Pine.LNX.4.58.0409251108570.2317@ppc970.osdl.org> <20040925182021.GR580@jeremy1> <Pine.LNX.4.58.0409251216000.2317@ppc970.osdl.org> <20040925192224.GZ580@jeremy1>
+	Sat, 25 Sep 2004 15:38:23 -0400
+Received: from main.gmane.org ([80.91.229.2]:16049 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S269398AbUIYTiV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 15:38:21 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: OOM-killer killed everything
+Date: Sat, 25 Sep 2004 18:12:50 +0600
+Message-ID: <415560C2.1020602@ums.usu.ru>
+References: <200409251326.13915.petkov@uni-muenster.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040925192224.GZ580@jeremy1>
-User-Agent: Mutt/1.5.6i-nntp
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: dsa.physics.usu.ru
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
+X-Accept-Language: en-us, en
+In-Reply-To: <200409251326.13915.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le sam 25 sep 2004 à 12:22:24 -0700, Jeremy Allison a tapoté sur son clavier :
-> I'll fix it for the next Samba release. Happy *now* ? :-).
+Borislav Petkov wrote:
+> Hi there,
+> 
+> I just started burning an audio cd with cdrecord, ran it as root because of 
+> the SUID changes in 2.6.8 when this big bad guy by the name of OOM-killer 
+> appeared and started killing everything :) I don't know whether the spurious 
+> interrupt issue has something to do with it but according to what I've read 
+> on lkml about it until now, it is supposed to be quite harmless. Sysinfo 
+> + .config attached.
+> 
+> Regards,
+> Boris.
 
-As far as I am concerned, *now* I am indeed (although buggy samba
-releases will unfortunately still last for some time...).
+Known bug. For the fix, see:
 
-Regards,
-Samuel Thibault
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109309119620622&w=2
+
+-- 
+Alexander E. Patrakov
+

@@ -1,70 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261826AbSJJRnE>; Thu, 10 Oct 2002 13:43:04 -0400
+	id <S261870AbSJJRpk>; Thu, 10 Oct 2002 13:45:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261852AbSJJRnE>; Thu, 10 Oct 2002 13:43:04 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20239 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261826AbSJJRnB>; Thu, 10 Oct 2002 13:43:01 -0400
-Date: Thu, 10 Oct 2002 13:40:49 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Con Kolivas <conman@kolivas.net>
-cc: Andrew Morton <akpm@digeo.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 2.5.40-mm2 with contest
-In-Reply-To: <1034041272.3da237b8b7908@kolivas.net>
-Message-ID: <Pine.LNX.3.96.1021010133332.17862B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261861AbSJJRpk>; Thu, 10 Oct 2002 13:45:40 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:64017 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S261870AbSJJRpj>;
+	Thu, 10 Oct 2002 13:45:39 -0400
+Date: Thu, 10 Oct 2002 19:51:23 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: Re: linux kernel conf 0.8
+Message-ID: <20021010195123.A13678@mars.ravnborg.org>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	kbuild-devel <kbuild-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.44.0210100035210.338-100000@serv> <3DA58C1E.3090102@pobox.com> <20021010192924.A13618@mars.ravnborg.org> <3DA5B99B.5080707@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DA5B99B.5080707@pobox.com>; from jgarzik@pobox.com on Thu, Oct 10, 2002 at 01:32:11PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Oct 2002, Con Kolivas wrote:
-
-> > Problem is, users have said they don't want that.  They say that they
-> > want to copy ISO images about all day and not swap.  I think.
+On Thu, Oct 10, 2002 at 01:32:11PM -0400, Jeff Garzik wrote:
+> The kernel is written for people with a clue.  For people without a 
+> clue, they should use a vendor kernel or ESR's Aunt-Tillie-friendly system.
 > 
-> But do they really want that or do they think they want that without knowing the
-> consequences of such a setting?
+> Dumbing-down the kernel is never the right answer.
 
-I have been able to tune bdflush in 2.4-aa kernels to be much more
-aggressive about moving data to disk under write pressure, and that has
-been a big plus in terms of both getting the write completed in less real
-time and fewer big pauses doing trivial things like uncovering a window. I
-see less swap used.
+Well I'm not talking about dumbing-down the kernel. What I'm talking about
+is to keep existing functionality.
+For sure the kernel is made for people with a clue, but still people
+with a clue sometimes makes stupid mistakes.
 
-> 
-> > It worries me.  It means that we'll be really slow to react to sudden
-> > load swings, and it increases the complexity of the analysis and
-> > testing.  And I really do want to give the user a single knob,
-> > which has understandable semantics and for which I can feasibly test
-> > all operating regions.
-> > 
-> > I really, really, really, really don't want to get too fancy in there.
-> 
-> Well I made it as simple as I possibly could. It seems to do what they want (not
-> swappy) but not at the expense of making the machine never swapping when it
-> really needs to - and the performance seems to be better all round in real
-> usage. I guess the only thing is it isn't a fixed number... unless we set a
-> maximum swappiness level or... but then it starts getting unnecessarily
-> complicated with questionable benefits.
+A build system that catches obvious stupid mistakes is IMHO a good thing.
+But it shall not that for any cost, and the normal incremental build
+shall continue to be as fast as possible.
 
-I'm going to try this patch, but building a kernel on my standard test
-machine is painfully slow, so it will come after 41-ac2. It appears to
-address the balance issue dynamically.
- 
-> > I have changed this code a bit, and have added other things.  Mainly
-> > over on the writer throttling side, which tends to be the place where
-> > the stress comes from in the first place.
-> 
-> /me waits but is a little disappointed
-
-I actually like the idea of writer throttling, I just wonder how it will
-work at the corner cases like only one big writer (mkisofs) or the
-alternative, lots of little writers. 
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+	Sam

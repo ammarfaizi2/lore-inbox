@@ -1,87 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262623AbTDAQA1>; Tue, 1 Apr 2003 11:00:27 -0500
+	id <S262626AbTDAQCw>; Tue, 1 Apr 2003 11:02:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262624AbTDAQA1>; Tue, 1 Apr 2003 11:00:27 -0500
-Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:30718
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262623AbTDAQA0>; Tue, 1 Apr 2003 11:00:26 -0500
-Date: Tue, 1 Apr 2003 11:07:21 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Andi Kleen <ak@suse.de>
-cc: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5][RFT] sfence wmb for K7,P3,VIAC3-2(?)
-In-Reply-To: <1049197774.31041.15.camel@averell>
-Message-ID: <Pine.LNX.4.50.0304011105540.8773-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0304010242250.8773-100000@montezuma.mastecende.com>
- <Pine.LNX.4.50.0304010320220.8773-100000@montezuma.mastecende.com>
- <1049191863.30759.3.camel@averell>  <20030401112800.GA23027@suse.de>
- <1049197774.31041.15.camel@averell>
+	id <S262627AbTDAQCw>; Tue, 1 Apr 2003 11:02:52 -0500
+Received: from cm19173.red.mundo-r.com ([213.60.19.173]:35352 "EHLO
+	trasno.mitica") by vger.kernel.org with ESMTP id <S262626AbTDAQCu>;
+	Tue, 1 Apr 2003 11:02:50 -0500
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
+       colpatch@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (2.5.66-mm2) War on warnings
+X-Url: http://people.mandrakesoft.com/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <20030401152703.GA21986@gtf.org> (Jeff Garzik's message of
+ "Tue, 1 Apr 2003 10:27:03 -0500")
+References: <19200000.1049210557@[10.10.2.4]> <20030401152703.GA21986@gtf.org>
+Date: Tue, 01 Apr 2003 18:14:10 +0200
+Message-ID: <86u1diyz3h.fsf@trasno.mitica>
+User-Agent: Gnus/5.090015 (Oort Gnus v0.15) Emacs/21.2.93
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Apr 2003, Andi Kleen wrote:
+>>>>> "jeff" == Jeff Garzik <jgarzik@pobox.com> writes:
 
-> Yes, you're correct. It was SSE1, not SSE2.
-> 
-> The problem Zwane encountered is that early Athlons don't support SSE1,
-> only XP+ do
+jeff> On Tue, Apr 01, 2003 at 07:22:37AM -0800, Martin J. Bligh wrote:
+>> drivers/base/node.c: In function `register_node_type':
+>> drivers/base/node.c:96: warning: suggest parentheses around assignment used as truth value
+>> drivers/base/memblk.c: In function `register_memblk_type':
+>> drivers/base/memblk.c:54: warning: suggest parentheses around assignment used as truth value
+>> 
+>> Bah.
+>> 
+>> --- linux-2.5.66-mm2/drivers/base/node.c	2003-04-01 06:40:02.000000000 -0800
+>> +++ 2.5.66-mm2/drivers/base/node.c	2003-04-01 06:37:32.000000000 -0800
+>> @@ -93,7 +93,7 @@ int __init register_node_type(void)
+>> {
+>> int error;
+>> if (!(error = devclass_register(&node_devclass)))
+>> -		if (error = driver_register(&node_driver))
+>> +		if ((error = driver_register(&node_driver)))
+>> devclass_unregister(&node_devclass);
 
-hmm wouldn't they illegal op? Some tested this on an Athlon 600.
+jeff> Personally, I feel statements like these are prone to continual error
+jeff> and confusion.  I would prefer to break each test like this out into
+jeff> separate assignment and test statements.  Combining them decreases
+jeff> readability, while saving a paltry few extra bytes of source code.
 
-> To use it he would need an a new CONFIG split for Athlon XP and earlier
-> Athlon. iirc it didn't make much difference on the athlon anyways which
-> has quite fast locked operations on exclusive cachelines - sfence seems
-> to be more useful on P4.
+jeff> Sure, the gcc warning is silly, but the code is a bit obtuse too.
 
-How about this instead then;
+I think:
+- gcc warning is good, normally you want to test, not assignation
+- Linus style for that is:
 
-Index: linux-2.5.66/arch/i386/Kconfig
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.66/arch/i386/Kconfig,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 Kconfig
---- linux-2.5.66/arch/i386/Kconfig	24 Mar 2003 23:40:26 -0000	1.1.1.1
-+++ linux-2.5.66/arch/i386/Kconfig	1 Apr 2003 16:02:46 -0000
-@@ -368,6 +368,11 @@ config X86_PREFETCH
- 	depends on MPENTIUMIII || MPENTIUM4 || MVIAC3_2
- 	default y
- 
-+config X86_USE_SFENCE
-+	bool
-+	depends on MPENTIUM4
-+	default y
-+
- config X86_SSE2
- 	bool
- 	depends on MK8 || MPENTIUM4
-Index: linux-2.5.66/include/asm-i386/system.h
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.66/include/asm-i386/system.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 system.h
---- linux-2.5.66/include/asm-i386/system.h	24 Mar 2003 23:40:20 -0000	1.1.1.1
-+++ linux-2.5.66/include/asm-i386/system.h	1 Apr 2003 16:03:50 -0000
-@@ -355,11 +355,15 @@ static inline unsigned long __cmpxchg(vo
- 
- #define read_barrier_depends()	do { } while(0)
- 
-+#ifdef CONFIG_X86_USE_SFENCE
-+#define wmb()	__asm__ __volatile__ ("sfence;": : :"memory")
-+#else
- #ifdef CONFIG_X86_OOSTORE
- #define wmb() 	__asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
- #else
- #define wmb()	__asm__ __volatile__ ("": : :"memory")
- #endif
-+#endif /* CONFIG_USE_SFENCE */
- 
- #ifdef CONFIG_SMP
- #define smp_mb()	mb()
+            if ((error = driver_register(&node_driver)) != 0) 
+
+which sounds more logical.  the double parens things is just a bad
+hack IMHO.
+
+Later, Juan.
+
 
 -- 
-function.linuxpower.ca
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

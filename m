@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316595AbSFDMK2>; Tue, 4 Jun 2002 08:10:28 -0400
+	id <S317484AbSFDMPi>; Tue, 4 Jun 2002 08:15:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317484AbSFDMK1>; Tue, 4 Jun 2002 08:10:27 -0400
-Received: from mons.uio.no ([129.240.130.14]:48884 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S316595AbSFDMK0>;
-	Tue, 4 Jun 2002 08:10:26 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Organization: Dept. of Physics, University of Oslo, Norway
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: [2.5.20-BUG] 3c59x + highmem + acpi + nfs -> kernel panic
-Date: Tue, 4 Jun 2002 14:10:11 +0200
-User-Agent: KMail/1.4.1
-Cc: akpm@zip.com.au, aia21@cantab.net, linux-kernel@vger.kernel.org
-In-Reply-To: <shshekkbnrr.fsf@charged.uio.no> <200206041339.32899.trond.myklebust@fys.uio.no> <20020604.033903.42777297.davem@redhat.com>
+	id <S317485AbSFDMPh>; Tue, 4 Jun 2002 08:15:37 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:31197 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S317484AbSFDMPg>; Tue, 4 Jun 2002 08:15:36 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Jens Axboe <axboe@suse.de>
+Date: Tue, 4 Jun 2002 22:15:29 +1000 (EST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200206041410.11333.trond.myklebust@fys.uio.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15612.44897.858819.455679@notabene.cse.unsw.edu.au>
+Cc: Mike Black <mblack@csihq.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.20 RAID5 compile error
+In-Reply-To: message from Jens Axboe on Tuesday June 4
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 June 2002 12:39, David S. Miller wrote:
-> Any sort of interrupt whatsoever would be enough to cause a problem
-> here.  It is enough of a condition to allow the sunrpc code to
-> run.
+On Tuesday June 4, axboe@suse.de wrote:
+> 
+> What changes did you have in mind?
 
-Duh. Of course you are right...
+http://www.cse.unsw.edu.au/~neilb/patches/linux-devel/2.5.20/patch-A-NewPlug
 
-...and that alone suffices to justify the patch.
+Is what I had against 2.5.20.  A quick look at the mail that you sent
+with improvements suggest that I can be even less intrusive..  But it
+will have to wait until tomorrow (my time).
 
-Cheers,
-  Trond
+NeilBrown

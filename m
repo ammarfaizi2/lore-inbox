@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263346AbTJUUNl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 16:13:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263349AbTJUUNl
+	id S263349AbTJUUOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 16:14:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263358AbTJUUOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 16:13:41 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:33295 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263346AbTJUUNj
+	Tue, 21 Oct 2003 16:14:16 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:14858 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S263349AbTJUUNo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 16:13:39 -0400
-Date: Tue, 21 Oct 2003 22:23:10 +0200
-To: James Simmons <jsimmons@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, Valdis.Kletnieks@vt.edu,
-       schlicht@uni-mannheim.de, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test8-mm1
-Message-ID: <20031021202310.GA14993@hh.idb.hist.no>
-References: <20031020185613.7d670975.akpm@osdl.org> <Pine.LNX.4.44.0310211846210.32738-100000@phoenix.infradead.org>
+	Tue, 21 Oct 2003 16:13:44 -0400
+Message-Id: <200310212018.h9LKILeg002739@ccure.karaya.com>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: uml-patch-2.6.0-test8
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310211846210.32738-100000@phoenix.infradead.org>
-User-Agent: Mutt/1.5.4i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+Date: Tue, 21 Oct 2003 16:18:21 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 21, 2003 at 06:47:41PM +0100, James Simmons wrote:
-> 
-> Okay I see people are having alot of problems in the -mm tree. I don't 
-> have any problems but I'm working against Linus tree. Could people try the 
-> patch against 2.6.0-test8 and tell me if they still have the same results. 
+This patch updates UML to 2.6.0-test8.
 
-This patch was fine.  2.6.0-test8 with this patch booted and
-looked no different from plain 2.6.0-test8.  I am using it for
-writing this.  The problems must be in mm1 somehow.
+The 2.6.0-test5 UML patch is available at
+	http://jdike.stearns.org/mirror/uml-patch-2.6.0-test8.bz2
 
-Helge Hafting
+BK users can pull my 2.5 repository from
+	http://jdike.stearns.org:5000/uml-2.5
+
+For the other UML mirrors and other downloads, see 
+        http://user-mode-linux.sourceforge.net/dl-sf.html
+ 
+Other links of interest:
+ 
+        The UML project home page : http://user-mode-linux.sourceforge.net
+        The UML Community site : http://usermodelinux.org
+
+				Jeff
+

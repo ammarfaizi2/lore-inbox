@@ -1,75 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132077AbRCVQo1>; Thu, 22 Mar 2001 11:44:27 -0500
+	id <S132110AbRCVQuR>; Thu, 22 Mar 2001 11:50:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132079AbRCVQoR>; Thu, 22 Mar 2001 11:44:17 -0500
-Received: from [166.70.28.69] ([166.70.28.69]:36407 "EHLO flinx.biederman.org")
-	by vger.kernel.org with ESMTP id <S132077AbRCVQoI>;
-	Thu, 22 Mar 2001 11:44:08 -0500
-To: Guest section DW <dwguest@win.tue.nl>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <3AB9313C.1020909@missioncriticallinux.com> <Pine.LNX.4.21.0103212047590.19934-100000@imladris.rielhome.conectiva> <20010322124727.A5115@win.tue.nl>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 22 Mar 2001 09:41:56 -0700
-In-Reply-To: Guest section DW's message of "Thu, 22 Mar 2001 12:47:27 +0100"
-Message-ID: <m14rwl3gdn.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
-MIME-Version: 1.0
+	id <S132109AbRCVQuH>; Thu, 22 Mar 2001 11:50:07 -0500
+Received: from [63.68.113.130] ([63.68.113.130]:16001 "EHLO fire.osdlab.org")
+	by vger.kernel.org with ESMTP id <S132079AbRCVQtv>;
+	Thu, 22 Mar 2001 11:49:51 -0500
+Date: Thu, 22 Mar 2001 08:46:36 -0800
+To: Wade Hampton <whampton@staffnet.com>, nbecker@fred.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: regression testing
+Message-ID: <20010322084636.E2490@osdlab.org>
+In-Reply-To: <x88zoeeeyh8.fsf@adglinux1.hns.com> <3ABA1680.D1467727@staffnet.com> <20010322095616.A23245@sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010322095616.A23245@sgi.com>; from nstraz@sgi.com on Thu, Mar 22, 2001 at 09:56:16AM -0600
+From: Nathan Dabney <smurf@osdlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guest section DW <dwguest@win.tue.nl> writes:
-
-> On Wed, Mar 21, 2001 at 08:48:54PM -0300, Rik van Riel wrote:
-> > On Wed, 21 Mar 2001, Patrick O'Rourke wrote:
+On Thu, Mar 22, 2001 at 09:56:16AM -0600, Nathan Straz wrote:
+> On Thu, Mar 22, 2001 at 10:13:04AM -0500, Wade Hampton wrote:
+> > However, a lab dedicated to testing the linux kernel, properly 
+> > funded, staffed, and containing the most common hardware and 
+> > software would be a good idea.  Does anyone have any idea how
+> > this could be accomplished?  Who could do it?  IBM?  What would
+> > it cost to setup a reasonable lab?  My guess would be dozens 
+> > of machines of various architectures, a staff of at least 10,
+> > several thousand square feet of space, and a good budget....
+> > Any takers?  
 > 
-> > > Since the system will panic if the init process is chosen by
-> > > the OOM killer, the following patch prevents select_bad_process()
-> > > from picking init.
+> SGI is working on regression testing for Linux.  We have released some
+> of our tests and utilities under the Linux Test Project.  IMHO, a few
+> hundred tests aren't enough.  I need to make another big push with the
+> tests I've ported over the last few months.  
 > 
-> There is a dozen other processes that must not be killed.
-> Init is just a random example.
+> I believe there is some work in the Open Source Development Lab that
+> some IBMers could comment on.  I don't know if there is a web site
+> detailing their efforts yet.  
 
-Not killing init provides enough for recovery if you truly hit
-an out of memory situation.  With 2.4.x at least it is a box
-misconfiguration that causes it.   The 2.2.x VM doesn't always try
-to swap, and free things up hard enough, before reporting out of
-memory.  But even the 2.2.x problems are rare.
+www.osdlab.org is the closest you will get right now.
 
-> 
-> > One question ... has the OOM killer ever selected init on
-> > anybody's system ?
-> 
-> Last week I installed SuSE 7.1 somewhere.
-> During the install: "VM: killing process rpm",
-> leaving the installer rather confused.
-> (An empty machine, 256MB, 144MB swap, I think 2.2.18.)
+Since we have only recently opened we have been working to get the machines 
+configured and ready for beating.  We have only recently started opening up the 
+larger servers to developers and testers.
 
-swap < RAM. ouch!  This is a misconfiguration on a machine that
-actually starts swapping, and where out of memory problems are a
-reality.  The fact an installer would trigger swapping on a 256MB
-machine is a second problem. 
+Any regression/scalability development and testing people want to do should be
+workable.  Anyone interested in coordinating development or testing at our lab
+can contact me for info.
 
-> Last month I had a computer algebra process running for a week.
-> Killed. But this computation was the only task this machine had.
-> Its sole reason of existence.
-> Too bad - zero information out of a week's computation.
-> (I think 2.4.0.)
+-Nathan Dabney
+Open Source Development Lab
 
-It looks like you didn't have enough resources on that machine
-period.  I pretty much trust 2.4.x in this department.  Did that
-machine also have it's swap misconfigured?
 
-> 
-> Clearly, Linux cannot be reliable if any process can be killed
-> at any moment. I am not happy at all with my recent experiences.
-
-Hmm.  It should definitely not be at any moment.  It should only be
-when resources are exhausted.  So putting enough swap on a machine
-should be enough, to stop this from ever happening.
-
-Eric

@@ -1,77 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272072AbTHRPqy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 11:46:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272070AbTHRPqh
+	id S272070AbTHRPtW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 11:49:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272050AbTHRPtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 11:46:37 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:53139 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S272067AbTHRPq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 11:46:29 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Mon, 18 Aug 2003 17:46:26 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: willy@w.ods.org, alan@lxorguk.ukuu.org.uk, carlosev@newipnet.com,
-       lamont@scriptkiddie.org, davidsen@tmr.com, bloemsaa@xs4all.nl,
-       marcelo@conectiva.com.br, netdev@oss.sgi.com, linux-net@vger.kernel.org,
-       layes@loran.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030818174626.4dd57655.skraw@ithnet.com>
-In-Reply-To: <20030818071928.163a4957.davem@redhat.com>
-References: <20030728213933.F81299@coredump.scriptkiddie.org>
-	<1061127715.21885.35.camel@dhcp23.swansea.linux.org.uk>
-	<200308171555280781.0067FB36@192.168.128.16>
-	<1061134091.21886.40.camel@dhcp23.swansea.linux.org.uk>
-	<200308171759540391.00AA8CAB@192.168.128.16>
-	<1061137577.21885.50.camel@dhcp23.swansea.linux.org.uk>
-	<200308171827130739.00C3905F@192.168.128.16>
-	<1061141045.21885.74.camel@dhcp23.swansea.linux.org.uk>
-	<20030817224849.GB734@alpha.home.local>
-	<20030817223118.3cbc497c.davem@redhat.com>
-	<20030818133957.3d3d51d2.skraw@ithnet.com>
-	<20030818044419.0bc24d14.davem@redhat.com>
-	<20030818143401.1352d158.skraw@ithnet.com>
-	<20030818053007.7852ca77.davem@redhat.com>
-	<20030818145316.3a81f70c.skraw@ithnet.com>
-	<20030818055555.248f2a01.davem@redhat.com>
-	<20030818151755.47096672.skraw@ithnet.com>
-	<20030818061420.6255f3d9.davem@redhat.com>
-	<20030818162310.4106c8c6.skraw@ithnet.com>
-	<20030818071928.163a4957.davem@redhat.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Aug 2003 11:49:22 -0400
+Received: from 204.244.250.2.net-conex.com ([204.244.250.2]:24432 "EHLO
+	mail4.angio.com") by vger.kernel.org with ESMTP id S272070AbTHRPr0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 11:47:26 -0400
+Message-ID: <E2B3FD6B3FF2804CB276D9ED037268354FF6FB@mail4.angio.com>
+From: "Hassard, Stephen" <SHassard@angio.com>
+To: "'Jeff Garzik'" <jgarzik@pobox.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Communication problem with via-rhine in kernel-2.6.0-test3-bk
+	3+
+Date: Mon, 18 Aug 2003 08:47:23 -0700
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Aug 2003 07:19:28 -0700
-"David S. Miller" <davem@redhat.com> wrote:
+Hi Jeff,
 
-> On Mon, 18 Aug 2003 16:23:10 +0200
-> Stephan von Krawczynski <skraw@ithnet.com> wrote:
+"acpi=off" seems to fix it. I guess a change in the ACPI code betweek
+2.6.0-test3-bk2 and bk3 broke ACPI on my machine ..
+
+Thanks,
+Steve
+
+> -----Original Message-----
+> From: Jeff Garzik [mailto:jgarzik@pobox.com] 
+> Sent: Monday, August 18, 2003 8:40 AM
+> To: Hassard, Stephen
+> Cc: 'linux-kernel@vger.kernel.org'
+> Subject: Re: Communication problem with via-rhine in 
+> kernel-2.6.0-test3-bk3+
 > 
-> > > Both 2.0 and 2.2 answer on all interfaces for ARP requests
-> > > by default just like 2.4 does.
+> 
+> On Mon, Aug 18, 2003 at 08:28:24AM -0700, Hassard, Stephen wrote:
+> > Hi all,
 > > 
-> > Try it. Proven wrong. See above.
+> > I've been happily using the Rhine-II NIC on my VIA Epia-800 with
+> > 2.6.0-test3, but ever since bk3 via-rhine seems to be broken.
+> > 2.6.0-test3-bk2 works without problems.
+> > 
+> > I've contacted the driver maintainer, Roger Luethi, and he 
+> mentioned that if
+> > it was a problem since 2.6.0-test3, I should contact the 
+> kernel mailing
+> > list.
+> > 
+> > The interface is detected properly, but no data is 
+> transmitted. DHCP doesn't
+> > work. When I manually configure the interface and try to 
+> send data, I get
+> > the following error, which repeats:
+> > >>
+> > eth0: Transmit timed out, status 1003, PHY status 786d, resetting...
+> > eth0: Setting full-duplex based on MII #1 link partner 
+> capability of 45e1.
+> > <<
 > 
-> Ok then.
+> Does booting with "pci=noapic" or "acpi=off" or "noapic" help?
 > 
-> It still doesn't change the essence of this conversation.  Changing
-> things would break a lot of people's setups.
-
-Please explain _one_. I mean you must have something special in your mind, or
-not?
-
-> See the other posting from someone about IPMP (IP multipathing).
-
-Perhaps it would have been a good idea to explain some details about what he
-thinks would break if default behaviour was changed. At least for me it is
-non-obvious. He could have stated "42", too...
-
-Regards,
-Stephan
+> 	Jeff
+> 
+> 
+> 

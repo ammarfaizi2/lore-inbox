@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129071AbRBASwl>; Thu, 1 Feb 2001 13:52:41 -0500
+	id <S131609AbRBASxb>; Thu, 1 Feb 2001 13:53:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131514AbRBASwb>; Thu, 1 Feb 2001 13:52:31 -0500
-Received: from dryline-fw.wireless-sys.com ([216.126.67.45]:33054 "EHLO
-	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
-	id <S131543AbRBASwR>; Thu, 1 Feb 2001 13:52:17 -0500
+	id <S131610AbRBASxV>; Thu, 1 Feb 2001 13:53:21 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:45902 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S131609AbRBASxI>; Thu, 1 Feb 2001 13:53:08 -0500
+Date: Thu, 1 Feb 2001 13:51:38 -0500 (EST)
+From: <bcrl@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Christoph Hellwig <hch@caldera.de>, "Stephen C. Tweedie" <sct@redhat.com>,
+        Steve Lord <lord@sgi.com>, <linux-kernel@vger.kernel.org>,
+        <kiobuf-io-devel@lists.sourceforge.net>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+ /notify + callback chains
+In-Reply-To: <E14ONdD-0004gz-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0102011321470.3872-100000@today.toronto.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14969.45148.886179.74191@somanetworks.com>
-Date: Thu, 1 Feb 2001 13:52:12 -0500 (EST)
-From: "Georg Nikodym" <georgn@somanetworks.com>
-To: hiren_mehta@agilent.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: problem with devfsd compilation
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B747797188097A@xsj02.sjs.agilent.com>
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B747797188097A@xsj02.sjs.agilent.com>
-X-Mailer: VM 6.75 under 21.2  (beta40) "Persephone" XEmacs Lucid
-Reply-To: georgn@somanetworks.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "hm" == hiren mehta <hiren_mehta@agilent.com> writes:
+On Thu, 1 Feb 2001, Alan Cox wrote:
 
- hm> Hi, I am trying to compile devfsd on my system running RedHat
- hm> linux 7.0 (kernel 2.2.16-22). I get the error "RTLD_NEXT"
- hm> undefined. I am not sure where this symbol is defined. Is there
- hm> anything that I am missing on my system.
+> Linus list of reasons like the amount of state are more interesting
 
-Oh yeah, here's the two other things I forgot.
+The state is required, not optional, if we are to have a decent basis for
+building asyncronous io into the kernel.
 
-The install target of the devfsd GNUmakefile attempts to copy the
-devfsd.8 man page into /usr/man/man8 which doesn't exist.  RH7 has
-its man pages in /usr/share/man though you might prefer
-/usr/local/man, whatever.  I just changed the GNUmakefile.
+> Networking wants something lighter rather than heavier. Adding tons of
+> base/limit pairs to kiobufs makes it worse not better
 
-Also, RH7's /etc/rc.sysinit can already start devfsd automatically
-with the following line:
+I'm still not seeing what I consider valid arguments from the networking
+people regarding the use of kiobufs as the interface they present to the
+VFS for asynchronous/bulk io.  I agree with their needs for a light weight
+mechanism for getting small io requests from userland, and even the need
+for using lightweight scatter gather lists within the network layer
+itself.  If the statement is that map_user_kiobuf is too heavy for use on
+every single io, sure.  But that is a seperate issue.
 
-    [ -e /dev/.devfsd -a -x /sbin/devfsd ] && /sbin/devfsd /dev
+		-ben
 
-So, all you have to do is create an empty file /dev/.devfsd
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

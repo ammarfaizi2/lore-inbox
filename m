@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135240AbRD3SPS>; Mon, 30 Apr 2001 14:15:18 -0400
+	id <S133024AbRD3SPa>; Mon, 30 Apr 2001 14:15:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135222AbRD3SPI>; Mon, 30 Apr 2001 14:15:08 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18441 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S133024AbRD3SPC>; Mon, 30 Apr 2001 14:15:02 -0400
-Subject: Re: 2.4 and 2GB swap partition limit
-To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-Date: Mon, 30 Apr 2001 19:14:39 +0100 (BST)
-Cc: wakko@animx.eu.org (Wakko Warner), R.E.Wolff@BitWizard.nl (Rogier Wolff),
-        xavier.bestel@free.fr (Xavier Bestel),
-        goswin.brederlow@student.uni-tuebingen.de (Goswin Brederlow),
-        fluffy@snurgle.org (William T Wilson), Matt_Domsch@Dell.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200104281317.PAA04172@cave.bitwizard.nl> from "Rogier Wolff" at Apr 28, 2001 03:17:01 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135222AbRD3SPT>; Mon, 30 Apr 2001 14:15:19 -0400
+Received: from web6101.mail.yahoo.com ([128.11.22.95]:28434 "HELO
+	web6101.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S133024AbRD3SPQ>; Mon, 30 Apr 2001 14:15:16 -0400
+Message-ID: <20010430181513.4255.qmail@web6101.mail.yahoo.com>
+Date: Mon, 30 Apr 2001 11:15:13 -0700 (PDT)
+From: Patrick Allaire <xaqc@yahoo.com>
+Subject: I2O behaviour ...
+To: linux-kernel@vger.kernel.org
+Cc: patrick.allaire@isaacnewtontech.com
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14uIC3-0008L1-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The swap I have is 2 partitions, one on each drive both with a priority of
-> > 0.  Personally, I like the way it's done on my box.
-> 
-> So you've spent almost $200 for RAM, and refuse to spend $4 for 1Gb of
-> swap space. Fine with me. 
+Hi all,
 
-Stupid argument. Very stupid argument. Take a 16Gb server. You now want
-to buy 64Gb of hard disk for the swap. Only because of partition limits you'll
-beed at least 2 disks entirely dedicated to it, which also means a controller
-a larger PSU and a bigger case.
+This is my first post on this list, I have been reading you all for
+quite a while. But now I have my Module to do...
 
-The swap behaviour of 2.4 is a bug. 
+I have compiled the kernel (2.2.19) with I2O support, but when I try
+to compile my module, I get an unresolved error with the :
+i2o_pci_scan function. Is there a special way to compile the kernel
+to get those calls ?
 
+If I do a : cat /proc/ksyms, I get a bunch of I20 functions but I
+dont have :
+i2o_pci_scan
+i2o_pci_install ... 
+those functions are defined in drivers/i2o/i2o_pci.c
+
+Here is a short description of what I need to do. I have a host PC
+and a local PC, both a separated by an INTEL (DEC) 21554. This is a
+non-transparent pci-to-pci bridge. I need to do a module for both
+computer to make them communicate by the mean of the PCI. The 21554
+is supporting I2O. Maybe I am not at all going in the right direction
+... If can someone point me out in this good direction !
+
+Thank for your time and help.
+
+=====
+________________________________
+Patrick Allaire
+mailto:pallaire@bigfoot.com
+
+#define QUESTION ((bb) || !(bb)) 
+    - Shakespeare.
+________________________________
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - buy the things you want at great prices
+http://auctions.yahoo.com/

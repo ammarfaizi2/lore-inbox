@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278690AbRLBNzf>; Sun, 2 Dec 2001 08:55:35 -0500
+	id <S282884AbRLBOAP>; Sun, 2 Dec 2001 09:00:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282876AbRLBNzZ>; Sun, 2 Dec 2001 08:55:25 -0500
-Received: from quechua.inka.de ([212.227.14.2]:23568 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S278690AbRLBNzV>;
-	Sun, 2 Dec 2001 08:55:21 -0500
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: EXT3 - freeze ups during disk writes
-In-Reply-To: <Pine.LNX.4.33.0112011209190.3893-100000@localhost.localdomain>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.11-xfs (i686))
-Message-Id: <E16AX5E-0006pH-00@calista.inka.de>
-Date: Sun, 02 Dec 2001 14:55:04 +0100
+	id <S282883AbRLBOAG>; Sun, 2 Dec 2001 09:00:06 -0500
+Received: from ezri.xs4all.nl ([194.109.253.9]:43463 "HELO ezri.xs4all.nl")
+	by vger.kernel.org with SMTP id <S282884AbRLBN7w>;
+	Sun, 2 Dec 2001 08:59:52 -0500
+Date: Sun, 2 Dec 2001 14:59:46 +0100 (CET)
+From: Eric Lammerts <eric@lammerts.org>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] floppy.c #defines
+In-Reply-To: <Pine.LNX.4.33.0112021526530.3767-100000@netfinity.realnet.co.sz>
+Message-ID: <Pine.LNX.4.43.0112021455570.30813-100000@ally.lammerts.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0112011209190.3893-100000@localhost.localdomain> you wrote:
-> And to 
-> clarify the bug, say on a large disk write, the pause isn't constant,
 
-You should elaborate more on the type of disks writes. Is this a write to a
-single large file, a rename/delte of a large tree, ot generating of a lot of
-files. Cause there is a difference in the meta data and data handling. both
-where known to take too much time in different versions.
+On Sun, 2 Dec 2001, Zwane Mwaikambo wrote:
 
-Greetings
-Bernd
+> -#define ECALL(x) if ((ret = (x))) return ret;
+> +#define ECALL(x) if ((ret = (x))) return ret
+
+To prevent a dangling else problem, better make that
+
+#define ECALL(x) do { if ((ret = (x))) return ret; } while(0)
+
+Eric
+

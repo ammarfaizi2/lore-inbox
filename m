@@ -1,110 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264329AbUEMRjw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264330AbUEMRk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264329AbUEMRjw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 13:39:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264330AbUEMRjw
+	id S264330AbUEMRk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 13:40:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264344AbUEMRk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 13:39:52 -0400
-Received: from smtp-out6.xs4all.nl ([194.109.24.7]:34573 "EHLO
-	smtp-out6.xs4all.nl") by vger.kernel.org with ESMTP id S264329AbUEMRjs
+	Thu, 13 May 2004 13:40:26 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:12753 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S264330AbUEMRkL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 13:39:48 -0400
-In-Reply-To: <20040512221823.GK1397@holomorphy.com>
-References: <40A26FFA.4030701@pobox.com> <20040512193349.GA14936@elte.hu> <200405121947.i4CJlJm5029666@turing-police.cc.vt.edu> <Pine.LNX.4.58.0405121255170.11950@bigblue.dev.mdolabs.com> <200405122007.i4CK7GPQ020444@turing-police.cc.vt.edu> <20040512202807.GA16849@elte.hu> <20040512203500.GA17999@elte.hu> <20040512205028.GA18806@elte.hu> <20040512140729.476ace9e.akpm@osdl.org> <20040512211748.GB20800@elte.hu> <20040512221823.GK1397@holomorphy.com>
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-45-936026051"
-Message-Id: <61D92BA6-A504-11D8-BD91-000A95CD704C@wagland.net>
-Content-Transfer-Encoding: 7bit
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       Ingo Molnar <mingo@elte.hu>, netdev@oss.sgi.com,
-       davidel@xmailserver.org, Valdis.Kletnieks@vt.edu,
-       Andrew Morton <akpm@osdl.org>
-From: Paul Wagland <paul@wagland.net>
-Subject: Re: MSEC_TO_JIFFIES is messed up...
-Date: Thu, 13 May 2004 19:38:44 +0200
-To: William Lee Irwin III <wli@holomorphy.com>
-X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
-X-Mailer: Apple Mail (2.613)
+	Thu, 13 May 2004 13:40:11 -0400
+Date: Thu, 13 May 2004 19:39:46 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org,
+       rutger@tux.tmfweb.nl, moqua@kurtenba.ch
+Subject: Re: cpufreq and p4 prescott
+Message-ID: <20040513173946.GA8238@dominikbrodowski.de>
+Mail-Followup-To: cpufreq@www.linux.org.uk,
+	linux-kernel@vger.kernel.org, rutger@tux.tmfweb.nl, moqua@kurtenba.ch
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="lrZ03NoBR/3+SXJZ"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Apple-Mail-45-936026051
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Nit pick I'm sure... but....
-
-On May 13, 2004, at 0:18, William Lee Irwin III wrote:
-
-> Optimize the cases where HZ is a divisor of 1000 or vice-versa in
-> JIFFIES_TO_MSECS() and MSECS_TO_JIFFIES() by allowing the 
-> nonvanishing(!)
-> integral ratios to appear as a parenthesized expressions eligible for
-> constant folding optimizations.
+> > So i'm not sure if throttling does work until now?
+> 
+> No, I think something is broken. There is something wrong, but I do
+> not know what exactly. Maybe other people can help.
 >
->
-> -- wli
->
->
-> Index: linux-2.5/include/linux/time.h
-> ===================================================================
-> --- linux-2.5.orig/include/linux/time.h	2004-05-12 15:04:10.000000000 
-> -0700
-> +++ linux-2.5/include/linux/time.h	2004-05-12 15:12:49.000000000 -0700
-> @@ -184,12 +184,12 @@
->   * Avoid unnecessary multiplications/divisions in the
->   * two most common HZ cases:
->   */
-> -#if HZ == 1000
-> -# define JIFFIES_TO_MSECS(x)	(x)
-> -# define MSECS_TO_JIFFIES(x)	(x)
-> -#elif HZ == 100
-> -# define JIFFIES_TO_MSECS(x)	((x) * 10)
-> -# define MSECS_TO_JIFFIES(x)	(((x) + 9) / 10)
-> +#if HZ <= 1000 && !(1000 % HZ)
-> +# define JIFFIES_TO_MSECS(j)	((1000/HZ)*(j))
-> +# define MSECS_TO_JIFFIES(m)	(((m) + (1000/HZ) - 1)/(1000/HZ))
-> +#elif HZ > 1000 && !(HZ % 1000)
-> +# define JIFFIES_TO_MSECS(j)	(((j) + (HZ/1000) - 1)/(HZ/1000))
-> +# define MSECS_TO_JIFFIES(m)	((m)*(HZ/1000))
->  #else
->  # define JIFFIES_TO_MSECS(x)	(((x) * 1000) / HZ)
->  # define MSECS_TO_JIFFIES(x)	(((x) * HZ + 999) / 1000)
+> Problem #1 is the speed measurement, as you described. As far as I
+> understand, p4-clockmod delivers the same external clock to the P4,
+> but work is not done during every clock tick. E.g. when running at
+> 12.5% of the maximum frequency, only one tick in eight something is
+> done.
 
-Also, can we keep the same parameter name across all of the macros?
+Almost. The Time Stamp Counter (inside the CPU) works with a constant
+frequency, but only at e.g. each eigth tick the other parts of the CPU do
+some work.
 
-This changes behaviour when HZ==(z)000
+> Ok, so if it is true that only the work is done part of the ticks,
+> then all instructions should take more ticks! Therefore, I try to
+> measure the number of ticks which the 'rdtsc' instruction itself
+> takes. I take the minimum of 10 runs, to run
+> instruction-cache-hot. See cpuclockmod.c .
+> 
+> This gives '140' cycles in the pre-modulated phase (including some
+> overhead) when running on an idle system, and 154 or 161 running on a
+> loaded system (1 thread busy looping). If clock modulation meant
+> 'skipping ticks', I would expect this number to multiply.
 
-JIFFIES_TO_MSECS  goes from
-((x) * 1000) / (z)000  to (((x) + (z) - 1)/(z))
+Not necessarily. It's not really every eigth tick where work is done, but
+more like 800 ticks where work is done, then 5600 ticks pause, and so on --
+the frequency is somewhere in the docs, I forgot the exact value... So I'm
+not 100% convinced the measurements you've done do show something broken.
 
-i.e. for x=1, z=2 this goes from ((1)*1000)/2000)=0 to (((1)+(2)-1)/2)=1
+> This doesn't change a thing, which is to be expected since cpufreq
+> talks to real CPUs.
 
-However, MSECS_TO_JIFFIES remains the same going from
-(((x) * (z)000 + 999) / 1000) to ((x)*(z))
+It should, something _is_ broken in this regard [and I'm working on it, just
+had sent a RFC to the cpufreq mailing list...]. Maybe this causes some
+strangeness, especially if you run a userspace cpufreq tool -- but maybe the
+p4-clockmod hardware is even more strange than I thought it to be, and is
+per _virtual_ CPU.
 
-I.e. they basically reduce down to the same thing (modulo overflows)
+Can you please apply the latest cpufreq snapshot from
+http://www.codemonkey.org.uk/projects/bitkeeper/cpufreq/
+, then the attached patch, and switch the CPU frequencies of both (virtual)
+CPUs around a bit, and after each switch, 
+cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq
+cat /sys/devices/system/cpu/cpu1/cpufreq/cpuinfo_cur_freq
 
-All of the other permuations look correct to me...
+and check whether the values are the same you wrote into the specific CPU's
+scaling_setspeed [if using the userspace governor] file?
 
-Cheers,
-Paul
+Many thanks,
+	Dominik
 
---Apple-Mail-45-936026051
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=test_p4
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
+diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c linux/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
+--- linux-original/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2004-05-13 16:52:02.000000000 +0200
++++ linux/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2004-05-13 19:36:47.629852152 +0200
+@@ -68,11 +68,7 @@
+ 	cpus_allowed = current->cpus_allowed;
+ 
+ 	/* only run on CPU to be set, or on its sibling */
+-#ifdef CONFIG_SMP
+-	affected_cpu_map = cpu_sibling_map[cpu];
+-#else
+ 	affected_cpu_map = cpumask_of_cpu(cpu);
+-#endif
+ 	set_cpus_allowed(current, affected_cpu_map);
+         BUG_ON(!cpu_isset(smp_processor_id(), affected_cpu_map));
+ 
+@@ -273,11 +269,7 @@
+ 
+ 	/* only run on CPU to be set, or on its sibling */
+ 	cpus_allowed = current->cpus_allowed;
+-#ifdef CONFIG_SMP
+-        affected_cpu_map = cpu_sibling_map[cpu];
+-#else
+         affected_cpu_map = cpumask_of_cpu(cpu);
+-#endif
+ 	set_cpus_allowed(current, affected_cpu_map);
+         BUG_ON(!cpu_isset(smp_processor_id(), affected_cpu_map));
+ 
 
-iD8DBQFAo7Kotch0EvEFvxURArAUAJwNpR4JSiDhL3UppN0nUK6JAj6P+ACfXGX+
-sQEy00pbB2arDZ8XGgg3i0s=
-=7wHH
------END PGP SIGNATURE-----
-
---Apple-Mail-45-936026051--
-
+--lrZ03NoBR/3+SXJZ--

@@ -1,103 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265603AbTBTSi2>; Thu, 20 Feb 2003 13:38:28 -0500
+	id <S261364AbTBTSs7>; Thu, 20 Feb 2003 13:48:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266851AbTBTSi2>; Thu, 20 Feb 2003 13:38:28 -0500
-Received: from mrelay1.cc.umr.edu ([131.151.1.120]:40342 "EHLO smtp.umr.edu")
-	by vger.kernel.org with ESMTP id <S265603AbTBTSi0> convert rfc822-to-8bit;
-	Thu, 20 Feb 2003 13:38:26 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Content-Class: urn:content-classes:message
+	id <S266431AbTBTSs7>; Thu, 20 Feb 2003 13:48:59 -0500
+Received: from achenar.cyan.com ([216.64.128.131]:45249 "EHLO cyan.com")
+	by vger.kernel.org with ESMTP id <S261364AbTBTSs6>;
+	Thu, 20 Feb 2003 13:48:58 -0500
+From: "Rob Emanuele" <rje@cyan.com>
+To: "'Neil Brown'" <neilb@cse.unsw.edu.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Fixing a non-redundant raid
+Date: Thu, 20 Feb 2003 10:59:03 -0800
+Organization: Cyan Worlds, Inc.
+Message-ID: <000001c2d912$22da8460$a301a8c0@rje1xp>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.4.20 amd speculative caching
-Date: Thu, 20 Feb 2003 12:48:30 -0600
-Message-ID: <A5D66E6B6F478B48A3CEF22AA4B9FCA3012E56@umr-mail1.umr.edu>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.4.20 amd speculative caching
-Thread-Index: AcLZASY55HiREqNBRg2YYMZ2S7EjBwADax1A
-From: "Sowadski, Craig Harold (UMR-Student)" <sowadski@umr.edu>
-To: "Sowadski, Craig Harold (UMR-Student)" <sowadski@umr.edu>
-Cc: <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
+In-Reply-To: <15954.51227.385648.487733@notabene.cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AMD's website has some documentation that says the morgan core durons
-are affected. 
+Thanks!  It all worked and the data is consistant.
 
-http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/
-26698.pdf
+You guys rock!
 
-I am using only stock linus kernel driver for the agpgart and radeon.
-Also, the system has now started locking up with 2.4.19 so I installed
-WINDOWS (sorry) to see if it showed similar problems and it did (even
-with the win2000 agp update). I have swaped the PS, RAM, and video card
-with the same problems. I plan on swapping the MB with an identical
-replacement to see if that helps. I will let you know if I conclude it
-to be a hardware or software problem when I get some more parts to swap.
-Sorry for bothering with what might be a hardware problem.
-
-		Thanks for all the help!!
-		Craig Sowadski (sowadski@umr.edu)
-    
+--Rob
 
 -----Original Message-----
-From: Randal, Phil [mailto:prandal@herefordshire.gov.uk] 
-Sent: Thursday, February 20, 2003 10:50 AM
-To: Sowadski, Craig Harold (UMR-Student)
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Neil Brown
+Sent: Tuesday, February 18, 2003 3:56 PM
+To: Rob Emanuele
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: 2.4.20 amd speculative caching
+Subject: Re: Fixing a non-redundant raid
 
-According to Richard Brunner of AMD's email to the list dated June 11,
-2002,
-the cache attribute bug only affected Athlon XPs and MPs, so that can't
-be
-the problem here, can it?
 
-Cheers,
+On Tuesday February 18, rje@cyan.com wrote:
+> I've got a raid that I was running w/o a spare disk.  One of the 
+> drives was being flakey and I restarted the machine and I was 
+> wondering if I can recover the data on the raid.  It did not have a 
+> spare disk.  There are 12 drives in the stripe set.  According the the
 
-Phil
+> logs one drive isn't listed as a raid drive (sdi1) and the other's 
+> (sdb1) event counter is behind.  Is there anything I can do or is it a
 
----------------------------------------------
-Phil Randal
-Network Engineer
-Herefordshire Council
-Hereford, UK 
+> loss and I should rebuild the array with a hot spare :)?
+> 
+> I attached the logs.
+> 
+> Thanks for any help,
+> 
+> Rob
 
-> -----Original Message-----
-> From: Dave Jones [mailto:davej@codemonkey.org.uk]
-> Sent: 20 February 2003 16:53
-> To: Sowadski, Craig Harold (UMR-Student)
-> Cc: Andi Kleen; linux-kernel@vger.kernel.org
-> Subject: Re: 2.4.20 amd speculative caching
-> 
-> 
-> On Wed, Feb 19, 2003 at 01:13:28PM -0600, Sowadski, Craig 
-> Harold (UMR-Student) wrote:
-> 
->  > If it helps, here is my hardware config:
->  > 
->  > 	AMD Duron 1300MHZ
->  > 	MSI K7T Turbo-2
->  > 	ATI Radeon 7500 w/64mb
->  > 	Redhat 8.0
-> 
-> Are you using the ATi firegl drivers ? If so, thats likely the
-> problem. (They ship an agpgart based upon 2.4.16 which lacks
-> the fixes needed).
-> 
-> 		Dave
-> 
-> -- 
-> | Dave Jones.        http://www.codemonkey.org.uk
-> | SuSE Labs
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Get mdadm, assemble with --force.
+e.g.
+
+ mdadm --assemble --force /dev/md0 /dev/sd[abcdefghijkl]1
+
+NeilBrown
+
+http://www.kernel.org/pub/linux/utils/raid/mdadm/
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in the body of a message to majordomo@vger.kernel.org More majordomo
+info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

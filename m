@@ -1,42 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272132AbTHDSmB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 14:42:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272130AbTHDSmB
+	id S272074AbTHDStn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 14:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272140AbTHDStn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 14:42:01 -0400
-Received: from trained-monkey.org ([209.217.122.11]:22798 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP id S272128AbTHDSlz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 14:41:55 -0400
-To: davidm@hpl.hp.com
-Cc: "H. J. Lu" <hjl@lucon.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: milstone reached: ia64 linux builds out of Linus' tree
-References: <200308041737.h74HbdCf015443@napali.hpl.hp.com>
-	<20030804175308.GB16804@lucon.org>
-	<16174.41999.166222.406494@napali.hpl.hp.com>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 04 Aug 2003 14:41:49 -0400
-In-Reply-To: <16174.41999.166222.406494@napali.hpl.hp.com>
-Message-ID: <m365ldw9hu.fsf@trained-monkey.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 4 Aug 2003 14:49:43 -0400
+Received: from net28ip52nit.parklink.com ([192.204.28.52]:4480 "EHLO
+	okcomputer") by vger.kernel.org with ESMTP id S272074AbTHDStj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 14:49:39 -0400
+Subject: [Fwd: Re: Yenta init freezes Pavilion]
+From: Pat Rondon <pat@thepatsite.com>
+Reply-To: pat@thepatsite.com
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5ieHuPlq+YqOR8bMPKmq"
+Message-Id: <1060022978.3736.3.camel@okcomputer>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 04 Aug 2003 14:49:38 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David Mosberger <davidm@napali.hpl.hp.com> writes:
 
->>>>> On Mon, 4 Aug 2003 10:53:08 -0700, "H. J. Lu" <hjl@lucon.org> said:
-HJ> Does it work on bigsur?
+--=-5ieHuPlq+YqOR8bMPKmq
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-David> It should, apart from a qla1280.c glitch (see the latest ia64
-David> diff for the one-liner to get it to work; Jes Sorensen said
-David> he's going to cleanup qla1280 for real).
+On Mon, 2003-08-04 at 05:26, Russell King wrote:
+> Which kernel exhibited this behaviour, and which was the last kernel
+> which didn't?
 
-Yes, I already have in fact. I submitted the updated driver to James
-Bottomley for inclusion in the tree. I'll post it to you shortly.
+  Sorry, can't believe I forgot this- this is with 2.6-test2-bk3.  I'll
+have info on which kernel was the last to not exhibit this behavior
+tonight, I hope (school, work, etc. in the way).
 
-Cheers,
-Jes
+> Also, there should be other messages about pcmcia around that area -
+> it would be helpful to include those in your report.
+
+  Just IDE messages.
+  Booting without the mentioned options, if I let it sit long enough, I
+get the following message quite a few times:
+
+swapper: page allocation failure. order:0, mode:0x20
+
+  Also, if I hit the power button while it's frozen, it continues
+booting- obvious problem with ACPI/PCMCIA, I suppose?
+  Today it's actually sometimes booting to init without the pci/acpi
+options (it seems to depend on whether I have a card in the slot,
+actually), but at some point I get the following never-ending series of
+errors:
+
+  ACPI-0398: *** Error: acpi_ev_gpe_dispatch: No handler or method for
+GPE[xx], disabling event
+
+Thanks for helping me help. ;-)
+
+--=-5ieHuPlq+YqOR8bMPKmq
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/LqrCruzBsw43EvgRAq5dAJ9Tq3T054so8+FH6PEwO76QKzMscwCggKXD
+ExUJGEplSwau+F2haW9blU0=
+=+ef8
+-----END PGP SIGNATURE-----
+
+--=-5ieHuPlq+YqOR8bMPKmq--
+

@@ -1,64 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbTDMUdk (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 16:33:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbTDMUdj (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 16:33:39 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:65031
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S261916AbTDMUdh 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 16:33:37 -0400
-Subject: Re: 2.5.67-mm2
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Alistair Strachan <alistair@devzero.co.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030413130543.081c80fd.akpm@digeo.com>
-References: <200304132059.11503.alistair@devzero.co.uk>
-	 <20030413130543.081c80fd.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1050266723.767.1.camel@localhost>
+	id S261907AbTDMUci (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 16:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbTDMUci (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 16:32:38 -0400
+Received: from [12.47.58.73] ([12.47.58.73]:1028 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S261907AbTDMUch (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 16:32:37 -0400
+Date: Sun, 13 Apr 2003 13:44:26 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Gert Vervoort <gert.vervoort@hccnet.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.67: ppa driver & preempt == oops
+Message-Id: <20030413134426.6767b0b0.akpm@digeo.com>
+In-Reply-To: <3E994DEE.5000009@hccnet.nl>
+References: <3E982AAC.3060606@hccnet.nl>
+	<20030412141248.47a487b0.akpm@digeo.com>
+	<3E994DEE.5000009@hccnet.nl>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 13 Apr 2003 16:45:24 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Apr 2003 20:44:18.0277 (UTC) FILETIME=[741AC150:01C301FD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-04-13 at 16:05, Andrew Morton wrote:
+Gert Vervoort <gert.vervoort@hccnet.nl> wrote:
+>
+> Andrew Morton wrote:
+> 
+> >This patch should make the warnings go away.
+> >  
+> >
+> The warnings are still there:
+> 
+> ppa: Version 2.07 (for Linux 2.4.x)
+> ppa: Found device at ID 6, Attempting to use EPP 16 bit
+> ppa: Communication established with ID 6 using EPP 16 bit
+> scsi0 : Iomega VPI0 (ppa) interface
+> bad: scheduling while atomic!
+> Call Trace:
+>  [<c0117064>] schedule+0x3a4/0x3b0
+>  [<c0117349>] wait_for_completion+0x99/0xe0
 
-> It's a bk bug.  This might make it boot:
+OK, that seems to be a different bug.  The patch actually fixes
+a null pointer deref.
 
-Yah, I needed a similar patch to make 2.5.67-mm2 boot.  Not sure if its
-hiding the real problem or not, but it works.
+> error in initcall at 0xc0391ad0: returned with preemption imbalance
 
-Note the difference between mine and your's, though.  I think you need
-it.
+ick.
 
-	Robert Love
+> When trying to mount a zip disk, the mount process gets stuck:
+> 
+> [root@viper root]# mount -t ext2 /dev/sda1 /mnt/zip
+> SCSI device sda: 196608 512-byte hdwr sectors (101 MB)
+> sda: Write Protect is off
+> sda: cache data unavailable
+> sda: assuming drive cache: write through
+> SCSI device sda: 196608 512-byte hdwr sectors (101 MB)
+> sda: Write Protect is off
+> sda: cache data unavailable
+> sda: assuming drive cache: write through
+> 
+> At this point the mount process is unkillable.
+> Also strange is that the messages are printed twice.
 
-
- drivers/base/class.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-
-diff -urN linux-2.5.67/drivers/base/class.c linux/drivers/base/class.c
---- linux-2.5.67/drivers/base/class.c	2003-04-07 13:33:00.000000000 -0400
-+++ linux/drivers/base/class.c	2003-04-13 16:32:52.000000000 -0400
-@@ -103,12 +105,12 @@
- 	struct device_class * cls = get_devclass(drv->devclass);
- 	int error = 0;
- 
--	if (cls) {
-+	if (cls && &cls->subsys) {
- 		down_write(&cls->subsys.rwsem);
- 		pr_debug("device class %s: adding driver %s:%s\n",
- 			 cls->name,drv->bus->name,drv->name);
- 		error = devclass_drv_link(drv);
--		
-+
- 		if (!error)
- 			list_add_tail(&drv->class_list,&cls->drivers.list);
- 		up_write(&cls->subsys.rwsem);
-
-
+The number of broken drivers in 2.5 continues to be depressing.
 

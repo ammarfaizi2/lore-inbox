@@ -1,112 +1,262 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265055AbUEKX0w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265058AbUEKXaB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265055AbUEKX0w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 19:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265058AbUEKX0w
+	id S265058AbUEKXaB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 19:30:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265054AbUEKXaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 19:26:52 -0400
-Received: from mail.tmr.com ([216.238.38.203]:38662 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S265055AbUEKXZj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 19:25:39 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: Kernel 2.6.6: Removing the last large file does not reset   filesystem
- properties
-Date: Tue, 11 May 2004 19:27:36 -0400
-Organization: TMR Associates, Inc
-Message-ID: <c7rn7l$ifm$1@gatekeeper.tmr.com>
-References: <20040511004956.70f7e17d.akpm@osdl.org> <20040511084510.J33555@shell.inch.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1084317749 18934 192.168.12.100 (11 May 2004 23:22:29 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <20040511084510.J33555@shell.inch.com>
+	Tue, 11 May 2004 19:30:00 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:33707 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265057AbUEKX1R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 19:27:17 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 11 May 2004 16:27:11 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: [patch] really-ptrace-single-step2 ...
+Message-ID: <Pine.LNX.4.58.0405111047450.25232@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John McGowan wrote:
-> On Tue, 11 May 2004, Andrew Morton wrote:
-> 
-> 
->>John McGowan <jmcgowan@inch.com> wrote:
->>
->>I think this is really an e2fsck/initscript problem.
->>
->>fsck saw that there were no large files on the fs, then fixed up the
->>superblock to say that then returned an exit code which says "I modified
->>the fs".
->>
->>The initscripts see that exit code and have a heart attack.
-> 
-> 
-> Yes. But why did it have to modify the file system/superblock/properties?
-> Should the file system have had to be modified (relying upon
-> fsck to fix the "largefile" property when next it is run)?
-> 
-> 
->>What should happen is that fsck returns an exit code which says "I modified
->>the fs, but everythig is OK".  And the initscripts should say "oh, cool"
->>and keep booting.
-> 
-> 
-> Actually, they do, if it isn't the root partition (if I create/delay the
-> large file from another partition it gives a message and continues - but
-> for the root partition, the initscript, with an exit code greater than 1
-> drops one to a root prompt for "maintenance" - and with my /usr on a
-> different partition and seeing a bunch of "id not found"
-> "test not found" messages ... for a few minutes I was a bit flustered.
-> It is easy enough to modify the init script to do a reboot on exit
-> code 2).
-> 
-> (Fedora Core1 initscript on mounting the root partition:
-> 
->   # A return of 2 or higher means there were serious problems.
->   echo $"*** An error occurred during the file system check."
->   echo $"*** Dropping you to a shell; the system will reboot"
->   echo $"*** when you leave the shell."
->   str=$"(Repair filesystem)"
->   PS1="$str \# # "; export PS1
->   sulogin
-> 
-> (the sulogin login message is:
->   "Give root password for maintenance")
-> 
-> 
->>I don't know whether the problem lies with fsck or initscripts.
 
-I would say the problem is in the interface. There should be one more 
-state in the exit codes, and initscripts should handle that:
+This patch lets a ptrace process on x86 to "see" the instruction 
+following the INT #80h op. This has been tested on 2.6.6 using the 
+appended test source. Running over this:
 
-  0 - okay
-  1 - fixes but okay to continue
-  2 - fixes and reboot to update in-core info
-  3 - help! Uncorrected errors.
+80485a9:       b8 14 00 00 00          mov    $0x14,%eax
+80485ae:       cd 80                   int    $0x80
+80485b0:       89 45 ec                mov    %eax,0xffffffec(%ebp)
+80485b3:       eb f4                   jmp    80485a9 <main+0x85>
 
-> 
-> 
-> fsck does fix it. Or should the removal of the last large file have
-> resulted in the change without the mismatch between the "largefile"
-> property being set with no large files?
+it produces:
 
-If the system was shutdown cleanly, then there should not have been this 
-problem in the first place. Of course if you are testing recovery by 
-doing sync and hitting the switch, well actually that should still work, 
-the metadata should be correct, right?
-> 
-> It's a small annoyance (no damage to the file system itself), no more.
-> 
-> I know what's happening and how to patch the initscript to get an
-> automatic reboot on exit code 2. Is that the proper way to handle it?
+waiting ...
+done: pid=12387  status=1407
+sig=5
+EIP=0x080485a9
+waiting ...
+done: pid=12387  status=1407
+sig=5
+EIP=0x080485ae
+waiting ...
+done: pid=12387  status=1407
+sig=5
+EIP=0x080485b0
+waiting ...
+done: pid=12387  status=1407
+sig=5
+EIP=0x080485b3
 
-Absolutely not! It will leave you in an endless loop of rebooting!
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+
+
+- Davide
+
+
+
+
+----------------------------- TEST ------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/ptrace.h>
+#include <sys/wait.h>
+#include <linux/user.h>
+#include <linux/unistd.h>
+
+
+int main(int ac, char **av) {
+	int i, status, res;
+	long start, end;
+	pid_t cpid, pid;
+	struct user_regs_struct ur;
+	struct sigaction sa;
+
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	sa.sa_handler = SIG_DFL;
+	sigaction(SIGCHLD, &sa, NULL);
+
+	printf("nargs=%d\n", ac);
+	if (ac == 1)
+		goto tracer;
+
+	printf("arg=%s\n", av[1]);
+loop:
+	__asm__ volatile ("int $0x80"
+			  : "=a" (res)
+			  : "0" (__NR_getpid));
+	goto loop;
+endloop:
+	exit(0);
+
+
+tracer:
+	if ((cpid = fork()) != 0)
+		goto parent;
+
+	printf("child=%d\n", getpid());
+	ptrace(PTRACE_TRACEME, 0, NULL, NULL);
+
+	execl(av[0], av[0], "child", NULL);
+
+	exit(0);
+
+parent:
+	start = (long) &&loop;
+	end = (long) &&endloop;
+
+	printf("pchild=%d\n", cpid);
+
+	for (;;) {
+		pid = wait(&status);
+		if (pid != cpid)
+			continue;
+		res = WSTOPSIG(status);
+		if (ptrace(PTRACE_GETREGS, pid, NULL, &ur)) {
+			printf("[%d] error: ptrace(PTRACE_GETREGS, %d)\n",
+			       pid, pid);
+			return 1;
+		}
+
+		if (ptrace(PTRACE_SINGLESTEP, pid, NULL, res != SIGTRAP ? res: 0)) {
+			perror("ptrace(PTRACE_SINGLESTEP)");
+			return 1;
+		}
+
+		if (ur.eip >= start && ur.eip <= end)
+			break;
+	}
+
+
+	for (i = 0; i < 15; i++) {
+		printf("waiting ...\n");
+		pid = wait(&status);
+		printf("done: pid=%d  status=%d\n", pid, status);
+		if (pid != cpid)
+			continue;
+		res = WSTOPSIG(status);
+		printf("sig=%d\n", res);
+		if (ptrace(PTRACE_GETREGS, pid, NULL, &ur)) {
+			printf("[%d] error: ptrace(PTRACE_GETREGS, %d)\n",
+			       pid, pid);
+			return 1;
+		}
+
+		printf("EIP=0x%08x\n", ur.eip);
+
+		if (ptrace(PTRACE_SINGLESTEP, pid, NULL, res != SIGTRAP ? res: 0)) {
+			perror("ptrace(PTRACE_SINGLESTEP)");
+			return 1;
+		}
+	}
+
+	if (ptrace(PTRACE_CONT, cpid, NULL, SIGKILL)) {
+		perror("ptrace(PTRACE_SINGLESTEP)");
+		return 1;
+	}
+
+	return 0;
+}
+
+
+
+--------------------------- PATCH ----------------------------------
+
+arch/i386/kernel/entry.S       |    2 +-
+arch/i386/kernel/ptrace.c      |    7 ++++++-
+include/asm-i386/thread_info.h |    2 +-
+3 files changed, 8 insertions(+), 3 deletions(-)
+
+
+
+
+Index: arch/i386/kernel/entry.S
+===================================================================
+RCS file: /usr/src/bkcvs/linux-2.5/arch/i386/kernel/entry.S,v
+retrieving revision 1.83
+diff -u -r1.83 entry.S
+--- a/arch/i386/kernel/entry.S	12 Apr 2004 20:29:12 -0000	1.83
++++ b/arch/i386/kernel/entry.S	11 May 2004 18:49:56 -0000
+@@ -354,7 +354,7 @@
+ 	# perform syscall exit tracing
+ 	ALIGN
+ syscall_exit_work:
+-	testb $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT), %cl
++	testb $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SINGLESTEP), %cl
+ 	jz work_pending
+ 	sti				# could let do_syscall_trace() call
+ 					# schedule() instead
+Index: arch/i386/kernel/ptrace.c
+===================================================================
+RCS file: /usr/src/bkcvs/linux-2.5/arch/i386/kernel/ptrace.c,v
+retrieving revision 1.23
+diff -u -r1.23 ptrace.c
+--- a/arch/i386/kernel/ptrace.c	10 May 2004 21:25:52 -0000	1.23
++++ b/arch/i386/kernel/ptrace.c	11 May 2004 21:33:20 -0000
+@@ -147,6 +147,7 @@
+ { 
+ 	long tmp;
+ 
++	clear_tsk_thread_flag(child, TIF_SINGLESTEP);
+ 	tmp = get_stack_long(child, EFL_OFFSET) & ~TRAP_FLAG;
+ 	put_stack_long(child, EFL_OFFSET, tmp);
+ }
+@@ -369,6 +370,7 @@
+ 		else {
+ 			clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
+ 		}
++		clear_tsk_thread_flag(child, TIF_SINGLESTEP);
+ 		child->exit_code = data;
+ 	/* make sure the single step bit is not set. */
+ 		tmp = get_stack_long(child, EFL_OFFSET) & ~TRAP_FLAG;
+@@ -390,6 +392,7 @@
+ 		if (child->state == TASK_ZOMBIE)	/* already dead */
+ 			break;
+ 		child->exit_code = SIGKILL;
++		clear_tsk_thread_flag(child, TIF_SINGLESTEP);
+ 		/* make sure the single step bit is not set. */
+ 		tmp = get_stack_long(child, EFL_OFFSET) & ~TRAP_FLAG;
+ 		put_stack_long(child, EFL_OFFSET, tmp);
+@@ -410,6 +413,7 @@
+ 		}
+ 		tmp = get_stack_long(child, EFL_OFFSET) | TRAP_FLAG;
+ 		put_stack_long(child, EFL_OFFSET, tmp);
++		set_tsk_thread_flag(child, TIF_SINGLESTEP);
+ 		child->exit_code = data;
+ 		/* give it a chance to run. */
+ 		wake_up_process(child);
+@@ -534,7 +538,8 @@
+ 			audit_syscall_exit(current, regs->eax);
+ 	}
+ 
+-	if (!test_thread_flag(TIF_SYSCALL_TRACE))
++	if (!test_thread_flag(TIF_SYSCALL_TRACE) &&
++	    !test_thread_flag(TIF_SINGLESTEP))
+ 		return;
+ 	if (!(current->ptrace & PT_PTRACED))
+ 		return;
+Index: include/asm-i386/thread_info.h
+===================================================================
+RCS file: /usr/src/bkcvs/linux-2.5/include/asm-i386/thread_info.h,v
+retrieving revision 1.19
+diff -u -r1.19 thread_info.h
+--- a/include/asm-i386/thread_info.h	12 Apr 2004 20:29:12 -0000	1.19
++++ b/include/asm-i386/thread_info.h	11 May 2004 18:47:03 -0000
+@@ -165,7 +165,7 @@
+ 
+ /* work to do on interrupt/exception return */
+ #define _TIF_WORK_MASK \
+-  (0x0000FFFF & ~(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT))
++  (0x0000FFFF & ~(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SINGLESTEP))
+ #define _TIF_ALLWORK_MASK	0x0000FFFF	/* work to do on any return to u-space */
+ 
+ /*

@@ -1,41 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266868AbRGFWBp>; Fri, 6 Jul 2001 18:01:45 -0400
+	id <S266869AbRGFWCf>; Fri, 6 Jul 2001 18:02:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266871AbRGFWBf>; Fri, 6 Jul 2001 18:01:35 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:44739 "HELO
-	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S266868AbRGFWBZ>; Fri, 6 Jul 2001 18:01:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@webofficenow.com>
-Reply-To: landley@webofficenow.com
-To: Doug McNaught <doug@wireboard.com>
-Subject: Re: The SUID bit (was Re: [PATCH] more SAK stuff)
-Date: Fri, 6 Jul 2001 11:44:21 -0400
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200107060145.f661j5v74941@saturn.cs.uml.edu> <01070606044004.00596@localhost.localdomain> <m3u20q6q9j.fsf@belphigor.mcnaught.org>
-In-Reply-To: <m3u20q6q9j.fsf@belphigor.mcnaught.org>
-MIME-Version: 1.0
-Message-Id: <01070611442100.00640@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S266870AbRGFWCe>; Fri, 6 Jul 2001 18:02:34 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:17164 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S266869AbRGFWCY>; Fri, 6 Jul 2001 18:02:24 -0400
+Date: Fri, 6 Jul 2001 19:02:28 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Neil Booth <neil@daikokuya.demon.co.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Davide Libenzi <davidel@xmailserver.org>, linux-kernel@vger.kernel.org
+Subject: Re: linux/macros.h(new) and linux/list.h(mod) ...
+Message-ID: <20010706190228.C4521@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Neil Booth <neil@daikokuya.demon.co.uk>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Davide Libenzi <davidel@xmailserver.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E15II3b-0003T8-00@the-village.bc.nu> <20010706183804.A13869@daikokuya.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010706183804.A13869@daikokuya.demon.co.uk>; from neil@daikokuya.demon.co.uk on Fri, Jul 06, 2001 at 06:38:04PM +0100
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 July 2001 11:17, Doug McNaught wrote:
-> Rob Landley <landley@webofficenow.com> writes:
-> > Do you have a code example of how a program with euid root can change its
-> > actual uid (which several programs check when they should be checking
-> > euid, versions of dhcpcd before I complained about it case in point)?
->
-> Ummm...  setuid(2)?
->
-> Works for me...
+Em Fri, Jul 06, 2001 at 06:38:04PM +0100, Neil Booth escreveu:
+> Alan Cox wrote:-
+> 
+> > #define min(a,b) __magic_minfoo(a,b, __var##__LINE__, __var2##__LINE__)
+> > 
+> > #define __magic_minfoo(A,B,C,D) \
+> > 	{ typeof(A) C = (A)  .... }
+> 
+> No, that's buggy.  You need an extra level of indirection to expand
+> __LINE__.  Arguments to ## are inserted in-place without expansion.
 
-Albert Calahan cleared this up for me in email.  I thought that euid 0 
-wouldn't let you actually setuid(0) for security reasons.  (Otherwise the 
-distinction between the two of them seemed kind of pointless, which I must 
-admit I'm now officially confused about, and likely to spend an evening with 
-google over.)
+yes, so lets try with another indirection and see if I'm missing something
+that you could clarify :)
 
-Rob
+[acme@brinquedo __attribute__]$ cat b.c
+#define _min(a,b,line) __magic_minfoo(a,b, __var##line, __var2##line)
+#define min(a,b) _min(a,b,__LINE__)
+
+#define __magic_minfoo(A,B,C,D) \
+       ({ typeof(A) C = (A); typeof(B) D = (B); C>D?D:C; })
+
+void main(void)
+{
+      int __var11=5, __var211=7;
+
+      printf("min(%d,%d) = %d (should be 11: %d)\n", __var11, __var211,
+             min(__var11, __var211), __LINE__);
+}
+[acme@brinquedo __attribute__]$ cpp < b.c
+# 1 ""
+void main(void)
+{
+      int __var11=5, __var211=7;
+
+      printf("min(%d,%d) = %d (should be 11: %d)\n", __var11, __var211,
+             ({ typeof(   __var11   )   __var__LINE__   = (   __var11   );
+typeof(    __var211   )   __var2__LINE__   = (    __var211   );
+__var__LINE__  >  __var2__LINE__  ?  __var2__LINE__  :  __var__LINE__  ; })
+, 12);
+}
+[acme@brinquedo __attribute__]$
+
+- Arnaldo

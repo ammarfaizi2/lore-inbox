@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268071AbTAIWeg>; Thu, 9 Jan 2003 17:34:36 -0500
+	id <S268016AbTAIWfU>; Thu, 9 Jan 2003 17:35:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268072AbTAIWeg>; Thu, 9 Jan 2003 17:34:36 -0500
-Received: from [195.208.223.248] ([195.208.223.248]:12928 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S268071AbTAIWef>; Thu, 9 Jan 2003 17:34:35 -0500
-Date: Fri, 10 Jan 2003 01:40:15 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Grant Grundler <grundler@cup.hp.com>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, davidm@hpl.hp.com,
+	id <S268017AbTAIWfU>; Thu, 9 Jan 2003 17:35:20 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55304 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268016AbTAIWfO>; Thu, 9 Jan 2003 17:35:14 -0500
+Date: Thu, 9 Jan 2003 14:16:20 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Grant Grundler <grundler@cup.hp.com>, Paul Mackerras <paulus@samba.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, <davidm@hpl.hp.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       greg@kroah.com
+       <greg@kroah.com>
 Subject: Re: [patch 2.5] 2-pass PCI probing, generic part
-Message-ID: <20030110014015.B693@localhost.park.msu.ru>
-References: <1041942820.20658.2.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0301070942440.1913-100000@home.transmeta.com> <20030109204626.A2007@jurassic.park.msu.ru> <20030109195231.GB16698@cup.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030109195231.GB16698@cup.hp.com>; from grundler@cup.hp.com on Thu, Jan 09, 2003 at 11:52:31AM -0800
+In-Reply-To: <20030110010917.A693@localhost.park.msu.ru>
+Message-ID: <Pine.LNX.4.44.0301091413520.1436-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 09, 2003 at 11:52:31AM -0800, Grant Grundler wrote:
-> Can the EXPORT_SYMBOL(pci_scan_bus) be removed now?
 
-No, I think. Looks like it's used by ibm hotplug which can be a module.
+On Fri, 10 Jan 2003, Ivan Kokshaysky wrote:
+>
+> Note that in most cases PCI-PCI bridges can be safely excluded from
+> pci_read_bases() simply because they have neither regular BARs nor
+> ROM BAR (even though PCI spec allows that).
 
-Ivan.
+This might be a good approach to take regardless - don't read pci-pci 
+bridge BAR (or host-bridge BAR's for that matter), simply because 
+
+ (a) bridges are more "interesting" than regular devices, and disabling 
+     part of them might be a stupid thing.
+ (b) we're generally not really interested in the end result anyway
+
+Hmm?
+
+		Linus
+

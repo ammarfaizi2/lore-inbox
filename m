@@ -1,80 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264746AbTFAWSu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 18:18:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264747AbTFAWSu
+	id S264748AbTFAWVE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 18:21:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264747AbTFAWVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 18:18:50 -0400
-Received: from murphys.services.quay.plus.net ([212.159.14.225]:19654 "HELO
-	murphys.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S264746AbTFAWSs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 18:18:48 -0400
-Date: Sun, 1 Jun 2003 23:28:40 +0100
-From: Stig Brautaset <stig@brautaset.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70: scripts/Makefile.build fix
-Message-ID: <20030601222840.GA13170@brautaset.org>
-References: <fa.eruk8hn.73g20l@ifi.uio.no> <fa.hcaig7b.n72lar@ifi.uio.no>
+	Sun, 1 Jun 2003 18:21:04 -0400
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:26098 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S264748AbTFAWVD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 18:21:03 -0400
+Date: Sun, 1 Jun 2003 16:34:20 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: htree for 2.4 ext[23]
+Message-ID: <20030601163420.D1522@schatzie.adilger.int>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030601111728.GC6067@stingr.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <fa.hcaig7b.n72lar@ifi.uio.no>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030601111728.GC6067@stingr.net>; from i@stingr.net on Sun, Jun 01, 2003 at 03:17:28PM +0400
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 01 2003, Sam wrote:
-> On Sun, Jun 01, 2003 at 07:43:35PM +0100, Stig Brautaset wrote:
-> > Hi, 
-> > 
-> > This patch seems to fix `make V=0' for me.
+On Jun 01, 2003  15:17 +0400, Paul P Komkoff Jr wrote:
+> Anybody have working backport of these ?
 > 
-> Thanks for the patch.
-> I do not see the broken behaviour here. Can you provide me with information
-> about your system:
-> Make version, shell, architecture, distribution.
+> Stuff available at http://thunk.org/tytso/linux/extfs-2.4-update/ IS a)
+> outdated b) gives unpredictable results (e.g. eating filesystems)
+
+Yes, we have a working set of patches for 2.4.20 and a few other kernels
+in our CVS repository.  However, these are just taken from Ted's ext3 BK
+repository (I don't think we changed them at all).
+
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/lustre/lustre/kernel_patches/patches/Attic/ext-2.4-patch-1.patch?rev=1.1.6.1&only_with_tag=b_devel
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/lustre/lustre/kernel_patches/patches/Attic/ext-2.4-patch-2.patch?rev=1.1.6.1&only_with_tag=b_devel
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/lustre/lustre/kernel_patches/patches/Attic/ext-2.4-patch-3.patch?rev=1.1.6.1&only_with_tag=b_devel
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/lustre/lustre/kernel_patches/patches/Attic/ext-2.4-patch-4.patch?rev=1.1.6.1&only_with_tag=b_devel
 
 
-I'm on a debian testing/unstable hybrid, and `uname -a' says:
-Linux arwen 2.4.20 #1 Sun Jan 26 13:54:18 GMT 2003 i686 GNU/Linux
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-zsh/testing uptodate 4.0.6-30		# interactive shell
-dash/testing uptodate 0.4.17		# /bin/sh
-make/testing uptodate 3.80-1
-
-> I got one report in private mail about make V=0 was broken, and would
-> like to find out what is causing the problem.
-
-I believe the problem occurs because (without my patch) the last three
-lines of the following define is invoked in its own subshell, and
-echoing the commands for that second subshell is not omitted.
-
-define rule_vcc_o_c
-        $(if $($(quiet)cmd_checksrc),echo '  $($(quiet)cmd_checksrc)';)       \
-        $(cmd_checksrc)                                                       \
-        $(if $($(quiet)cmd_vcc_o_c),echo '  $($(quiet)cmd_vcc_o_c)';)         \
-        $(cmd_vcc_o_c);                                                       \
-                                                                              \
-        if ! $(OBJDUMP) -h $(@D)/.tmp_$(@F) | grep -q __ksymtab; then         \
-                mv $(@D)/.tmp_$(@F) $@;                                       \
-        else                                                                  \
-                $(CPP) -D__GENKSYMS__ $(c_flags) $<                           \
-                | $(GENKSYMS)                                                 \
-                > $(@D)/.tmp_$(@F:.o=.ver);                                   \
-                                                                              \
-                $(LD) $(LDFLAGS) -r -o $@ $(@D)/.tmp_$(@F)                    \
-                        -T $(@D)/.tmp_$(@F:.o=.ver);                          \
-                rm -f $(@D)/.tmp_$(@F) $(@D)/.tmp_$(@F:.o=.ver);              \
-        fi;                                                                   \
-        scripts/fixdep $(depfile) $@ '$(cmd_vcc_o_c)' > $(@D)/.$(@F).tmp;     \
-        rm -f $(depfile);                                                     \
-        mv -f $(@D)/.$(@F).tmp $(@D)/.$(@F).cmd
-endef
-
-
-
-
-Stig
--- 
-brautaset.org

@@ -1,88 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267939AbTAKRq3>; Sat, 11 Jan 2003 12:46:29 -0500
+	id <S267307AbTAKR6S>; Sat, 11 Jan 2003 12:58:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267941AbTAKRq3>; Sat, 11 Jan 2003 12:46:29 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:34772 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S267939AbTAKRq2>; Sat, 11 Jan 2003 12:46:28 -0500
-Date: Sat, 11 Jan 2003 18:55:08 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: R.E.Wolff@BitWizard.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] remove kernel 2.0 code from drivers/char/specialix.c
-Message-ID: <20030111175508.GT10486@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S267318AbTAKR6S>; Sat, 11 Jan 2003 12:58:18 -0500
+Received: from h181n1fls11o1004.telia.com ([195.67.254.181]:35712 "EHLO
+	ringstrom.mine.nu") by vger.kernel.org with ESMTP
+	id <S267307AbTAKR6R>; Sat, 11 Jan 2003 12:58:17 -0500
+Date: Sat, 11 Jan 2003 19:07:02 +0100 (CET)
+From: Tobias Ringstrom <tori@ringstrom.mine.nu>
+X-X-Sender: tori@boris.prodako.se
+To: Rob Wilkens <robw@optonline.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.56 power off oddity
+In-Reply-To: <1042301386.847.57.camel@RobsPC.RobertWilkens.com>
+Message-ID: <Pine.LNX.4.44.0301111904370.14688-100000@boris.prodako.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below removes some #if'd kernel 2.0 code from 
-drivers/char/specialix.c.
+On Sat, 11 Jan 2003, Rob Wilkens wrote:
 
-Please apply
-Adrian
+> One thing I noticed last night with 2.5.56 and this may be unique to my
+> system.  I did a mostly default "make config" (changing only network,
+> usb, and sound settings from the default).  
+> 
+> What I noticed is that on shutdown, when it said "Power off" or whatever
+> it says when you "init 0", if I pressed my power button, it did not
+> immediately power down the computer.  I had to do the old "hold in the
+> power button for six seconds" trick for the power to shut off.
+> 
+> This was not the csae in the 2.4.20 kernels.
+> 
+> Maybe I need to tweek ACPI settings??  
 
---- linux-2.5.56/drivers/char/specialix.c.old	2003-01-11 18:50:41.000000000 +0100
-+++ linux-2.5.56/drivers/char/specialix.c	2003-01-11 18:52:13.000000000 +0100
-@@ -93,39 +93,7 @@
- #include <linux/version.h>
- #include <linux/pci.h>
- 
--
--/* ************************************************************** */
--/* * This section can be removed when 2.0 becomes outdated....  * */
--/* ************************************************************** */
--
--#if LINUX_VERSION_CODE < 131328    /* Less than 2.1.0 */
--#define TWO_ZERO
--#else
--#if LINUX_VERSION_CODE < 131371   /* less than 2.1.43 */
--/* This has not been extensively tested yet. Sorry. */
--#warning "You're on your own between 2.1.0 and 2.1.43.... "
--#warning "Please use a recent kernel."
--#endif
--#endif
--
--
--#ifdef TWO_ZERO
--#define Get_user(a,b)         a = get_user(b)
--#define copy_from_user(a,b,c) memcpy_fromfs(a,b,c)
--#define copy_to_user(a,b,c)   memcpy_tofs(a,b,c)
--#define queue_task            queue_task_irq_off
--#else
--#define Get_user(a,b)         get_user(a,b)
--#endif
--
--/* ************************************************************** */
--/* *                End of compatibility section..              * */
--/* ************************************************************** */
--
--
--#ifndef TWO_ZERO
- #include <asm/uaccess.h>
--#endif
- 
- #include "specialix_io8.h"
- #include "cd1865.h"
-@@ -1811,7 +1779,7 @@
- 	if (error) 
- 		return error;
- 
--	Get_user(arg, (unsigned long *) value);
-+	get_user(arg, (unsigned long *) value);
- 	switch (cmd) {
- 	case TIOCMBIS: 
- 	   /*	if (arg & TIOCM_RTS) 
-@@ -2003,7 +1971,7 @@
- 		         (unsigned long *) arg);
- 		return 0;
- 	 case TIOCSSOFTCAR:
--		Get_user(arg, (unsigned long *) arg);
-+		get_user(arg, (unsigned long *) arg);
- 		tty->termios->c_cflag =
- 			((tty->termios->c_cflag & ~CLOCAL) |
- 			(arg ? CLOCAL : 0));
+Did you enable SOFTWARE_SUSPEND and ACPI_SLEEP (which is only visible if 
+SOFTWARE_SUSPEND is enabled)?
+
+/Tobias
 

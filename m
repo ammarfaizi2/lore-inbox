@@ -1,97 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbVCHKR0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVCHKVF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261935AbVCHKR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 05:17:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVCHKR0
+	id S261959AbVCHKVF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 05:21:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVCHKVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 05:17:26 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:33937 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261935AbVCHKRS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 05:17:18 -0500
-Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: "linux-aio kvack.org" <linux-aio@kvack.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "suparna@in.ibm.com" <suparna@in.ibm.com>,
-       "pbadari@us.ibm.com" <pbadari@us.ibm.com>
-Date: Tue, 08 Mar 2005 11:16:29 +0100
-Message-Id: <1110276989.14594.27.camel@frecb000686>
+	Tue, 8 Mar 2005 05:21:04 -0500
+Received: from styx.suse.cz ([82.119.242.94]:7128 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261961AbVCHKUm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 05:20:42 -0500
+Date: Tue, 8 Mar 2005 11:24:02 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: dtor_core@ameritech.net, Borislav Petkov <petkov@uni-muenster.de>,
+       perex@suse.cz, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       linux-input@atrey.karlin.mff.cuni.cz
+Subject: Re: [2.6 patch] sound/pci/cs4281.c fix typos in the SUPPORT_JOYSTICK=n case
+Message-ID: <20050308102402.GE18021@ucw.cz>
+References: <20050304033215.1ffa8fec.akpm@osdl.org> <200503070941.59365.petkov@uni-muenster.de> <20050307215206.GH3170@stusta.de> <d120d50005030714126e345fe2@mail.gmail.com> <20050307230633.GJ3170@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 08/03/2005 11:26:23,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 08/03/2005 11:26:24,
-	Serialize complete at 08/03/2005 11:26:24
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050307230633.GJ3170@stusta.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mardi 08 mars 2005 à 01:18 -0800, Andrew Morton a écrit :
-> Suparna Bhattacharya <suparna@in.ibm.com> wrote:
-> >
-> > ...
-> > 
-> > Bugs in this area seem never-ending don't they - plug one, open up
-> > another - hard to be confident/verify :( - someday we'll have to
-> > rewrite a part of this code.
-> 
-> It's solving a complex problem.  Any rewrite would probably end up
-just as
-> hairy once all the new bugs and corner cases are fixed.  Maybe.
-> 
-> 
-> > Hmm, shouldn't dio->result ideally have been adjusted to be within
-> > i_size at the time of io submission, so we don't have to deal with
-> > this during completion ? We are creating bios with the right size
-> > after all. 
-> > 
-> > We have this: 
-> >             if (!buffer_mapped(map_bh)) {
-> >                             ....
-> >                             if (dio->block_in_file >=
-> >
-i_size_read(dio->inode)>>blkbits) {
-> >                                         /* We hit eof */
-> >                                         page_cache_release(page);
-> >                                         goto out;
-> >                                 }
-> > 
-> > and
-> >             dio->result += iov[seg].iov_len -
-> >                         ((dio->final_block_in_request -
-dio->block_in_file) <<
-> >                                         blkbits);
-> > 
-> > 
-> > can you spot what is going wrong here that we have to try and
-> > workaround this later ?
-> 
-> Good question.  Do we have the i_sem coverage to prevent a concurrent
-> truncate?
-> 
-> But from Sebastien's description it doesn't soound as if a concurrent
-> truncate is involved.
+On Tue, Mar 08, 2005 at 12:06:33AM +0100, Adrian Bunk wrote:
 
-Yes, you're right, there's no concurrent truncate here. My test case
-as well as Daniel's is single threaded and is the only thread accessing
-the file.
+> This patch fixes typos in the SUPPORT_JOYSTICK=n case.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Regards,
+Thanks; applied.
 
-Sébastien.
+> --- linux-2.6.11-mm1-full/sound/pci/cs4281.c.old	2005-03-07 23:45:01.000000000 +0100
+> +++ linux-2.6.11-mm1-full/sound/pci/cs4281.c	2005-03-07 23:45:27.000000000 +0100
+> @@ -1331,8 +1331,8 @@
+>  	}
+>  }
+>  #else
+> -static inline int snd_cs4281_gameport(cs4281_t *chip) { return -ENOSYS; }
+> -static inline void snd_cs4281_gameport_free(cs4281_t *chip) { }
+> +static inline int snd_cs4281_create_gameport(cs4281_t *chip) { return -ENOSYS; }
+> +static inline void snd_cs4281_free_gameport(cs4281_t *chip) { }
+>  #endif /* CONFIG_GAMEPORT || (MODULE && CONFIG_GAMEPORT_MODULE) */
 
 -- 
-------------------------------------------------------
-
-  Sébastien Dugué                BULL/FREC:B1-247
-  phone: (+33) 476 29 77 70      Bullcom: 229-7770
-
-  mailto:sebastien.dugue@bull.net
-
-  Linux POSIX AIO: http://www.bullopensource.org/posix
-  
-------------------------------------------------------
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

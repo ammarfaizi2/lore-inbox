@@ -1,40 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269689AbUJGEkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269690AbUJGEy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269689AbUJGEkO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 00:40:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269690AbUJGEkO
+	id S269690AbUJGEy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 00:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269691AbUJGEy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 00:40:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17298 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269689AbUJGEkL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 00:40:11 -0400
-Message-ID: <4164C89A.2040408@pobox.com>
-Date: Thu, 07 Oct 2004 00:39:54 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Thu, 7 Oct 2004 00:54:27 -0400
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:65177 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269690AbUJGEyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 00:54:24 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Driver core change request
+Date: Wed, 6 Oct 2004 23:54:18 -0500
+User-Agent: KMail/1.6.2
+Cc: Greg KH <greg@kroah.com>, Patrick Mochel <mochel@osdl.org>
 MIME-Version: 1.0
-To: Matt Domsch <Matt_Domsch@dell.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, alan@redhat.com,
-       david.balazic@hermes.si
-Subject: Re: [PATCH 2.6.9-rc3-mm2] EDD: use EXTENDED READ command, add CONFIG_EDD_SKIP_MBR
-References: <20041004214803.GC2989@lists.us.dell.com>
-In-Reply-To: <20041004214803.GC2989@lists.us.dell.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410062354.18885.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alas, this does not eliminate the 30-second delay on my box.
+Hi,
 
-Just to re-emphasize, I feel a particularly relevant detail is that my 
-VIA-based Athlon64 box has _all_ PATA ports disabled.
+I am reworking my sysfs serio patches (trying to get dynamic psmouse
+protocol switching) and I am wondering if we could export device_attach
+function. Serio system allows user to request device rescan - force current
+driver to let go off the device and find another suitable driver. Also user
+can manually request device to be disconnected/connected to a driver. By
+having device_attach exported I could get rid of some duplicated code.
 
-I am fairly certainly that the delay did not exist when I enabled at 
-least one PATA port, and I can verify this if you would like.
+Also serio allows user to request a specific driver to be bound to a device
+in case there are several options (psmouse/serio_raw for example). To do
+that and not poke in the driver core guts too much I need something like the
+following:
 
-	Jeff
+int driver_probe_device(struct device_driver *dev, struct device *dev)
+{
+        int error;
+        
+	dev->driver = drv;
+        if (drv->probe) {
+        	if ((error = drv->probe(dev))) {
+                	dev->driver = NULL;
+                        return error;
+                }
+	}
+        device_bind_driver(dev);
+        return 0;
+}
 
 
+static int bus_match(struct device * dev, struct device_driver * drv)
+{
+        if (dev->bus->match(dev, drv))
+		return driver_probe_device(drv, dev);
 
+        return -ENODEV;
+}
+
+I.e driver_probe_device is exported. Does it have a chance to be accepted?
+
+Thanks!
+
+-- 
+Dmitry

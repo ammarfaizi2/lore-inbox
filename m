@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278695AbRJ1WBT>; Sun, 28 Oct 2001 17:01:19 -0500
+	id <S278698AbRJ1WGU>; Sun, 28 Oct 2001 17:06:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278696AbRJ1WBJ>; Sun, 28 Oct 2001 17:01:09 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:58753 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S278695AbRJ1WA5>; Sun, 28 Oct 2001 17:00:57 -0500
-Message-ID: <033901c15ffc$53100280$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: "David Grant" <davidgrant79@hotmail.com>,
-        "linux kernel mailinglist" <linux-kernel@vger.kernel.org>
-In-Reply-To: <045301c15fa7$c2809b70$1901a8c0@node0.idium.eu.org> <OE499R5FyGYPyZ0R7HL00016c26@hotmail.com>
-Subject: Re: Via KT133 and 2.4.8 and a hard disk problem ?
-Date: Sun, 28 Oct 2001 23:03:06 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S278699AbRJ1WF7>; Sun, 28 Oct 2001 17:05:59 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40972 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278698AbRJ1WF4>; Sun, 28 Oct 2001 17:05:56 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
+Date: Sun, 28 Oct 2001 22:04:16 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9rhvd0$7ec$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0110281014300.7438-100000@penguin.transmeta.com> <E15xvcd-0000FM-00@the-village.bc.nu>
+X-Trace: palladium.transmeta.com 1004306766 7756 127.0.0.1 (28 Oct 2001 22:06:06 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 28 Oct 2001 22:06:06 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "David Grant" <davidgrant79@hotmail.com>
-To: "David Flynn" <Dave@keston.u-net.com>; "linux kernel mailinglist"
-<linux-kernel@vger.kernel.org>
-Sent: Sunday, October 28, 2001 9:46 PM
-Subject: Re: Via KT133 and 2.4.8 and a hard disk problem ?
+In article <E15xvcd-0000FM-00@the-village.bc.nu>,
+Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
+>> Yes. My question is more: does the dpt366 thing limit the queueing some
+>> way?
+>
+>Nope. The HPT366 is a bog standard DMA IDE controller. At least unless Andre
+>can point out something I've forgotten any behaviour seen on it should be
+>the same as seen on any other IDE controller with DMA support.
+>
+>In practical terms that should mean you can obsere the same HPT366 problem
+>he does on whatever random IDE controller is on your desktop box
 
-> I've had these problems before.  Can you provide a listings of the kernel
-> errors you are getting?  I'm curious myself, and I'm sure this would help
-> any developers as well.  Also, is it an old KT133 (with vt82c686a chip) or
-> KT133A (with vt82c686b chip).
+Well, the thing is, I obviously _don't_ observe that problem. Neither
+does anybody else I have heard about. I get a nice 20MB/s on my IDE
+disks both at home and at work, whether reading or writing. 
 
-Actually, the KT133 revision has nothing (substantial) to do with the 686
-chip. There were some motherboards with both KT133 and 686B, such as my MSI
-K7TPRO 2-A. There are also AMD chipsets that use the 686A/B as an IO
-chipset, and other VIA chipsets, such as Apollo Pro.
+Which was why I was suspecting the hpt366 code. But considering that
+others report good performance with the same controller, it might be
+something even more localized, either in just Zlatko's setup (ie disk or
+controller breakage), or some subtle timing issue that is general but
+you have to have just the right timing to hit it.
 
-_____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
-
-
+		Linus

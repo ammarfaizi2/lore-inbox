@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271365AbRHTQVY>; Mon, 20 Aug 2001 12:21:24 -0400
+	id <S271335AbRHTQVx>; Mon, 20 Aug 2001 12:21:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271361AbRHTQVN>; Mon, 20 Aug 2001 12:21:13 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:29085 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S271352AbRHTQVH>; Mon, 20 Aug 2001 12:21:07 -0400
-Date: Mon, 20 Aug 2001 10:20:52 -0600
-Message-Id: <200108201620.f7KGKqw01274@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: [PATCH] devfs v188 available
+	id <S271336AbRHTQVo>; Mon, 20 Aug 2001 12:21:44 -0400
+Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:11896 "HELO
+	lunchbox.oisec.net") by vger.kernel.org with SMTP
+	id <S271335AbRHTQVb>; Mon, 20 Aug 2001 12:21:31 -0400
+Date: Mon, 20 Aug 2001 18:21:38 +0200
+From: Cliff Albert <cliff@oisec.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Yusuf Goolamabbas <yusufg@outblaze.com>, linux-kernel@vger.kernel.org,
+        gibbs@scsiguy.com
+Subject: Re: aic7xxx errors with 2.4.8-ac7 on 440gx mobo
+Message-ID: <20010820182138.C26054@oisec.net>
+In-Reply-To: <20010820105520.A22087@oisec.net> <E15YmR3-0005mb-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E15YmR3-0005mb-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 188 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
+On Mon, Aug 20, 2001 at 11:37:33AM +0100, Alan Cox wrote:
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
+> > > With 2.4.8-ac7, I get SCSI errors and the kernel fails to boot. If I
+> > > compile with APIC enabled and APIC on UP also enabled, it boots
+> > > cleanly
+> > 
+> > I'm getting similair errors on 2.4.8-ac7 on my P2B-S motherboard using
+> > the NEW AIC7xxx driver, the old isn't experiencing these problems. Further
+> > i've been getting these errors since 2.4.3.
+> 
+> There is a known BIOS irq routing table problem with a large number of Intel
+> BIOS boards with onboard adaptec controllers. The fact that making it use
+> the io-apic works suggest this is the same thing.
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
+It's an ASUS P2B-S board with a Award Bios, flashed to the latest revision that
+is available from ASUS
 
-This is against 2.4.9. Highlights of this release:
-
-- Updated major masks in fs/devfs/util.c up to Linus' "no new majors"
-  proclamation. Block: were 126 now 122 free, char: were 26 now 19 free
-
-- Updated README from master HTML file
-
-- Removed remnant of multi-mount support in <devfs_mknod>
-
-- Removed unused DEVFS_FL_SHOW_UNREG flag
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+-- 
+Cliff Albert		| RIPE:	     CA3348-RIPE | www.oisec.net
+cliff@oisec.net		| 6BONE:     CA2-6BONE	 | icq 18461740

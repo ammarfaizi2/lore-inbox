@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131768AbRAKS17>; Thu, 11 Jan 2001 13:27:59 -0500
+	id <S130255AbRAKS2J>; Thu, 11 Jan 2001 13:28:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131476AbRAKS1j>; Thu, 11 Jan 2001 13:27:39 -0500
-Received: from mail11.verio.de ([213.198.0.60]:14619 "HELO mail11.verio.de")
-	by vger.kernel.org with SMTP id <S130255AbRAKS1a>;
-	Thu, 11 Jan 2001 13:27:30 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Michael Meding <Michael@Meding.net>
-Reply-To: Michael@Meding.net
-To: "Matthew D. Pitts" <mpitts@suite224.net>
-Subject: Re: Compile error: DRM without AGP in 2.4.0
-Date: Thu, 11 Jan 2001 19:18:49 +0100
-X-Mailer: KMail [version 1.2]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0101111238210.1732-100000@phantasy.awol.org> <001101c07bfa$daf36ac0$0100a8c0@pittscomp.com>
-In-Reply-To: <001101c07bfa$daf36ac0$0100a8c0@pittscomp.com>
-MIME-Version: 1.0
-Message-Id: <01011119184900.01187@Hal>
-Content-Transfer-Encoding: 7BIT
-X-Loop-Detect: 1
+	id <S131476AbRAKS17>; Thu, 11 Jan 2001 13:27:59 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:35354 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S130255AbRAKS1o>; Thu, 11 Jan 2001 13:27:44 -0500
+Date: Thu, 11 Jan 2001 19:27:58 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Russell King <rmk@arm.linux.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Hubert Mantel <mantel@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Compatibility issue with 2.2.19pre7
+Message-ID: <20010111192758.E3560@athlon.random>
+In-Reply-To: <20010110013755.D13955@suse.de> <200101100654.f0A6sjJ02453@flint.arm.linux.org.uk> <20010110163158.F19503@athlon.random> <shszogy2jmr.fsf@charged.uio.no> <3A5DDD09.C8C70D36@colorfullife.com> <14941.61668.697523.866481@charged.uio.no> <shsae8y2blg.fsf@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <shsae8y2blg.fsf@charged.uio.no>; from trond.myklebust@fys.uio.no on Thu, Jan 11, 2001 at 07:22:03PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 11. January 2001 19:18, Matthew D. Pitts wrote:
-> Robert,
->
-> > On Thu, 11 Jan 2001, Giacomo Catenazzi spoke:
-> > > Here a valid configuration (no AGP, but all DRM set)
-> > > compiling [2.4.0]:
-> > > [...]
-> >
-> > DRM requires AGPGART.
->
-> What if your motherboard doesn't have an AGP slot? I'm running an older
-> Micro Star pentium with a ATI All-in-Wonder with the Rage 128 chipset.
->
-> Matthew
-> mpitts@suite224.net
+On Thu, Jan 11, 2001 at 07:22:03PM +0100, Trond Myklebust wrote:
+> [..] Are there any
+> alignment requirements on them?
 
-Hi,
+On some arch int can be read only at a sizeof(int) byte aligned address
+(details in my example in reply to Russell).
 
-then you are out of luck, until the pcigart is finished. Or use another 
-vidcard like the voodoo. IMHO they don't need AGPGART.
-
-Greetings,
-
-Michael
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

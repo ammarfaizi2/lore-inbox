@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264639AbSLGSTq>; Sat, 7 Dec 2002 13:19:46 -0500
+	id <S264646AbSLGSWG>; Sat, 7 Dec 2002 13:22:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264643AbSLGSTq>; Sat, 7 Dec 2002 13:19:46 -0500
-Received: from mnh-1-09.mv.com ([207.22.10.41]:34564 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S264639AbSLGSTo>;
-	Sat, 7 Dec 2002 13:19:44 -0500
-Message-Id: <200212071830.NAA01955@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Miscellaneous UML bug fixes 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 07 Dec 2002 13:30:37 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S264653AbSLGSWG>; Sat, 7 Dec 2002 13:22:06 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:55953 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S264646AbSLGSWD> convert rfc822-to-8bit; Sat, 7 Dec 2002 13:22:03 -0500
+Message-ID: <3DF23E0F.6BA703B8@attbi.com>
+Date: Sat, 07 Dec 2002 13:29:35 -0500
+From: Jim Houston <jim.houston@attbi.com>
+Reply-To: jim.houston@attbi.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>
+CC: linux-kernel@vger.kernel.org,
+       high-res-timers-discourse@lists.sourceforge.net
+Subject: Re: [PATCH] The alternate Posix timers patch7
+References: <200212071713.gB7HDdv09557@linux.local> <3DF231E8.60703@kolumbus.fi>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pull either
-	http://uml.bkbits.net/fixes-2.5
-or	http://jdike.stearns.org:5000/fixes-2.5
+Mika Penttilä wrote:
+> 
+> Just out of curiosity, how does the "sharing the local APIC timer" work
+> with the SMP local APIC timer scheme. Hopefully not disable periodic
+> timer tick on that cpu totally...?
+> 
+> --Mika
 
-This update fixes a number of small bugs:
-	strtoul calls are checked such that an empty string doesn't look like
-zero
-	fixed some ubd driver error checking
-	a host helper is searched for if it's not in its usual location
-	fixed a check for an irq being disabled
+Hi Mike,
 
-				Jeff
+Here is how I wire into the timer interrupt:
 
- arch/um/drivers/fd.c            |    2 +-
- arch/um/drivers/mcast_kern.c    |    4 ++--
- arch/um/drivers/port_user.c     |    2 +-
- arch/um/drivers/ubd_kern.c      |    9 ++++++---
- arch/um/drivers/xterm.c         |    3 +++
- arch/um/kernel/exitcode.c       |    2 +-
- arch/um/kernel/helper.c         |    5 ++++-
- arch/um/kernel/irq_user.c       |    3 ++-
- arch/um/kernel/tty_log.c        |    2 +-
- arch/um/os-Linux/file.c         |    3 ++-
- include/asm-um/system-generic.h |    1 +
- 11 files changed, 24 insertions(+), 12 deletions(-)
+   inline void smp_local_timer_interrupt(struct pt_regs * regs)
+   {
+        int cpu = smp_processor_id();
+ 
+	if (!run_posix_timers((void *)regs))
+                return;
+        ... the original code continues.
 
-ChangeSet@1.842.12.1, 2002-11-18 21:53:20-05:00, jdike@uml.karaya.com
-  Merged a number of bug fixes from the 2.4 pool.
+I keep an in kernel Posix style timer queued for each cpu at
+HZ frequency.  If this timer has expired run_posix_timers returns
+true and the normal local timer processing is done.
 
+The code is not perfect yet.  I don't honour changes in the 
+profiling multiplier.
 
+Jim Houston - Concurrent Computer Corp.

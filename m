@@ -1,57 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265339AbUAFDPp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 22:15:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265342AbUAFDPp
+	id S266061AbUAFDJH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 22:09:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266040AbUAFDJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 22:15:45 -0500
-Received: from smtp2.dei.uc.pt ([193.137.203.229]:59593 "EHLO smtp2.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S265339AbUAFDPX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 22:15:23 -0500
-Date: Tue, 6 Jan 2004 03:14:45 +0000 (WET)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: "Zhu, Yi" <yi.zhu@intel.com>
-cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Bugfix] Set more than 32K pid_max (reformatted)
-In-Reply-To: <Pine.LNX.4.44.0401061042580.26260-100000@mazda.sh.intel.com>
-Message-ID: <Pine.LNX.4.58.0401060313470.14795@student.dei.uc.pt>
-References: <Pine.LNX.4.44.0401061042580.26260-100000@mazda.sh.intel.com>
+	Mon, 5 Jan 2004 22:09:00 -0500
+Received: from linuxfools.org ([216.107.2.99]:14288 "EHLO loki.linuxfools.net")
+	by vger.kernel.org with ESMTP id S266061AbUAFDIU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 22:08:20 -0500
+Date: Mon, 5 Jan 2004 22:24:57 -0500 (EST)
+From: Jonathan Higdon <jhigdon@linuxfools.org>
+To: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org,
+       Bastiaan Spandaw <lkml@becobaf.com>,
+       Tomas Szepe <szepe@pinerecords.com>, Max Valdez <maxvalde@fis.unam.mx>
+Subject: Re: 2.6.1-rc1 affected?
+In-Reply-To: <20040106024723.4579.qmail@web40605.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.58.0401052222070.746@loki.linuxfools.org>
+References: <20040106024723.4579.qmail@web40605.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-DEI-MailScanner: Found to be clean
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Tue, 6 Jan 2004, Zhu, Yi wrote:
 
->         if (!offset || !atomic_read(&map->nr_free)) {
-> +               if (!offser)
+On Tue, 6 Jan 2004, [iso-8859-1] szonyi calin wrote:
 
-I suppose it should be "if (!offset)"...
+>  --- Jesper Juhl <juhl-lkml@dif.dk> a écrit : >
+> > On Tue, 6 Jan 2004, Max Valdez wrote:
+> >
+> > > At least it hangs a redhat 7.2 kernel
+> > >
+> > > I will test it further tomorrow, but it looks like a good
+> > proof to me
+> > >
+> > > > >
+> > > > > > There _is_ an exploit:
+> > > http://isec.pl/vulnerabilities/isec-0013-mremap.txt
+> > > > > > "Since no special privileges are required to use the
+> > mremap(2)
+> > > system
+> > > > > ...
+> > > > >
+> > > > > I will not believe the claim until I've seen the code.
+> > > >
+> > > > Not sure if this works or not.
+> > > > According to a slashdot comment this is proof of concept
+> > code.
+> > > >
+> > > > http://linuxfromscratch.org/~devine/mremap_poc.c
+> > > >
+> > > > Regards,
+> > > >
+> > > > Bastiaan
+> > > >
+> >
+> > On my box that program is a very effective 'instant reboot'.
+> >
+>
+> on mine just a segfault :-)
+> sony@grinch -04:47:32- 0 jobs, ver 2.05b.0 3
+>  /~/schule $ gcc -o mremap_poc mremap_poc.c
+> sony@grinch -04:47:35- 0 jobs, ver 2.05b.0 3
+>  /~/schule $ ./mremap_poc
+> Segmentation fault
+>
+> > The instant I ran it from a xterm my screen went black, the
+> > music I was
+> > listening to from a CD stopped and the machine rebooted.
+> > The running kernel was 2.6.1-rc1-mm1
+> >
+>
+> maybe you were running the program as root ?
 
-Mind Booster Noori
+I tried it on 2.6.0 as a regular user and got an instant reboot.
+stracing it showed the faults and the system was unusable after that :)
 
-- --
-==================================================
-Marcos Daniel Marado Torres AKA Mind Booster Noori
-/"\               http://student.dei.uc.pt/~marado
-\ /                       marado@student.dei.uc.pt
- X   ASCII Ribbon Campaign
-/ \  against HTML e-mail and Micro$oft attachments
-==================================================
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
-
-iD8DBQE/+igomNlq8m+oD34RAgGcAJ9p12OYiL/XKCJu4JPczbNO8+P6rwCg3Wdz
-eIkeuX3q4JuVHaLeGXGIDIA=
-=vP/K
------END PGP SIGNATURE-----
-
+~jon

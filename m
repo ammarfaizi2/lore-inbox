@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265410AbSJaWI5>; Thu, 31 Oct 2002 17:08:57 -0500
+	id <S265395AbSJaWEy>; Thu, 31 Oct 2002 17:04:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265398AbSJaWI4>; Thu, 31 Oct 2002 17:08:56 -0500
-Received: from waste.org ([209.173.204.2]:38366 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S265412AbSJaWIP>;
-	Thu, 31 Oct 2002 17:08:15 -0500
-Date: Thu, 31 Oct 2002 16:14:39 -0600
-From: Oliver Xymoron <oxymoron@waste.org>
-To: george anzinger <george@mvista.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: lost messages
-Message-ID: <20021031221438.GJ3620@waste.org>
-References: <3DC1A983.7B5B12B2@mvista.com>
+	id <S265388AbSJaWE1>; Thu, 31 Oct 2002 17:04:27 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:29382 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265395AbSJaWC5>;
+	Thu, 31 Oct 2002 17:02:57 -0500
+Subject: Re: [PATCH] (3/3) stack overflow checking for x86
+From: "David C. Hansen" <haveblue@us.ibm.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.COM>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021031213032.GA25685@suse.de>
+References: <1036091906.4272.87.camel@nighthawk>
+	<1036092052.4272.96.camel@nighthawk>  <20021031213032.GA25685@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 31 Oct 2002 14:08:34 -0800
+Message-Id: <1036102114.4155.272.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DC1A983.7B5B12B2@mvista.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 02:06:59PM -0800, george anzinger wrote:
-> I just stepped over the line again with a message too long
-> for the lklm.  Am I the only one who would like a message
-> back when lklm drops a message?  The mail system seems to
-> say:
-> relay=vger.kernel.org. [209.116.70.75], 
-> stat=Sent (2.7.0 nothing apparently wrong in the message.;
-> S264820AbSJaKoJ)
+On Thu, 2002-10-31 at 13:30, Dave Jones wrote:
+> On Thu, Oct 31, 2002 at 11:20:52AM -0800, David C. Hansen wrote:
+>  > * stack checking (3/3)
+>  >    - use gcc's profiling features to check for stack overflows upon
+>  >      entry to functions.
+>  >    - Warn if the task goes over 4k.
+>  >    - Panic if the stack gets within 512 bytes of overflowing.
+>  >    - use kksymoops information, if available
+>  > 
+>  > This won't apply cleanly without the irqstack patch, but the conflict is
+>  > easy to resolve.  It requires the thread_info cleanup.
 > 
-> and then drop the message.  Maybe, at least this response
-> could be changed.
+> I'm wondering about interaction between this patch and the
+> already merged CONFIG_DEBUG_STACKOVERFLOW ?
 
-Your message makes it to majordomo's resend code and gets bounced to
-owner, which is probably not much different from /dev/null. It'd be
-possible to add bounce notifications, but it'd be a big ugly hack on
-top of a long-dead codebase, work better invested in switching to a
-new list manager.
+The currently merged one is very, very simple, but relatively worthless.
+There are no guarantees about catching an overflow, especially if it
+happens in a long call chain _after_ do_IRQ with interrupts disabled.  
+Ben's version checks on entrance to every function, making it _much_
+more likely to be caught, even during an interrupt.  But, the currently
+merged one doesn't have any strange compiler requirements, like adding
+the -p option.
 
+The irq stack patch would make the current check pretty worthless
+because the check happens just after the switch to a fresh irqstack
+would have happened.
+
+But, if they both get in, it can be cleaned up later because even if
+both are turned on, nothing will blow up.  
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+Dave Hansen
+haveblue@us.ibm.com
+

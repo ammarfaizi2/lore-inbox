@@ -1,67 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263626AbUCYV7F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 16:59:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263629AbUCYV7F
+	id S263627AbUCYWEn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 17:04:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263631AbUCYWEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 16:59:05 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:22226 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263626AbUCYV7C (ORCPT
+	Thu, 25 Mar 2004 17:04:42 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:3497 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S263627AbUCYWEi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 16:59:02 -0500
-Date: Thu, 25 Mar 2004 22:59:08 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Rick Lindsley <ricklind@us.ibm.com>, piggin@cyberone.com.au,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
-       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net,
-       mbligh@aracnet.com
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
-Message-ID: <20040325215908.GA19313@elte.hu>
-References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com> <20040325154011.GB30175@wotan.suse.de>
+	Thu, 25 Mar 2004 17:04:38 -0500
+Date: Thu, 25 Mar 2004 23:04:34 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>, Kevin Corry <kevcorry@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
+       "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-raid@vger.kernel.org
+Subject: Re: "Enhanced" MD code avaible for review
+Message-ID: <20040325220434.GW15264@marowsky-bree.de>
+References: <760890000.1079727553@aslan.btc.adaptec.com> <16480.61927.863086.637055@notabene.cse.unsw.edu.au> <40624235.30108@pobox.com> <200403251200.35199.kevcorry@us.ibm.com> <40632804.1020101@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040325154011.GB30175@wotan.suse.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <40632804.1020101@pobox.com>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2004-03-25T13:42:12,
+   Jeff Garzik <jgarzik@pobox.com> said:
 
-* Andi Kleen <ak@suse.de> wrote:
+> >and -5). And we've talked for a long time about wanting to port RAID-1 and 
+> >RAID-5 (and now RAID-6) to Device-Mapper targets, but we haven't started 
+> >on any such work, or even had any significant discussions about *how* to 
+> >do it. I can't 
+> let's have that discussion :)
 
-> It doesn't do load balance in wake_up_forked_process() and is
-> relatively non aggressive in balancing later. This leads to the
-> multithreaded OpenMP STREAM running its childs first on the same node
-> as the original process and allocating memory there. Then later they
-> run on a different node when the balancing finally happens, but
-> generate cross traffic to the old node, instead of using the memory
-> bandwidth of their local nodes.
-> 
-> The difference is very visible, even the 4 thread STREAM only sees the
-> bandwidth of a single node. With a more aggressive scheduler you get 4
-> times as much.
-> 
-> Admittedly it's a bit of a stupid benchmark, but seems to
-> representative for a lot of HPC codes.
+Nice 2.7 material, and parts I've always wanted to work on. (Including
+making the entire partition scanning user-space on top of DM too.)
 
-There's no way the scheduler can figure out the scheduling and memory
-use patterns of the new tasks in advance.
+KS material?
 
-but userspace could give hints - e.g. a syscall that triggers a
-rebalancing: sys_sched_load_balance(). This way userspace notifies the
-scheduler that it is on 'zero ground' and that the scheduler can move it
-to the least loaded cpu/node.
+> My take on things...  the configuration of RAID arrays got a lot more 
+> complex with DDF and "host RAID" in general.
 
-a variant of this is already possible, userspace can use setaffinity to
-load-balance manually - but sched_load_balance() would be automatic.
+And then add all the other stuff, like scenarios where half of your RAID
+is "somewhere" on the network via nbd, iSCSI or whatever and all the
+other possible stackings... Definetely user-space material, and partly
+because it /needs/ to have the input from the volume managers to do the
+sane things.
 
-	Ingo
+The point about this implying that the superblock parsing/updating logic
+needs to be duplicated between userspace and kernel land is valid too
+though, and I'm keen on resolving this in a way which doesn't suck...
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering	      \ ever tried. ever failed. no matter.
+SUSE Labs			      | try again. fail again. fail better.
+Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
+

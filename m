@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263672AbTDGVcW (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 17:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263675AbTDGVcW (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 17:32:22 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:34749
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S263672AbTDGVcV (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 17:32:21 -0400
-Message-ID: <3E91F0FD.1040507@redhat.com>
-Date: Mon, 07 Apr 2003 14:43:25 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030406
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Fredrik Tolf <fredrik@dolda2000.cjb.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new syscall: flink
-References: <Pine.BSO.4.44.0304062250250.9407-100000@kwalitee.nolab.conman.org> <b6qruf$elf$1@cesium.transmeta.com> <200304072255.47254.fredrik@dolda2000.cjb.net>
-In-Reply-To: <200304072255.47254.fredrik@dolda2000.cjb.net>
-X-Enigmail-Version: 0.74.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	id S263681AbTDGVkr (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 17:40:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263682AbTDGVkr (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 17:40:47 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:42984 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263681AbTDGVkq (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 17:40:46 -0400
+Date: Mon, 7 Apr 2003 14:54:43 -0700
+From: Greg KH <greg@kroah.com>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: KML <linux-kernel@vger.kernel.org>, sensors@Stimpy.netroedge.com
+Subject: Re: [PATCH-2.5] Fix w83781d sensor to use Milli-Volt for in_* in sysfs
+Message-ID: <20030407215443.GA4386@kroah.com>
+References: <1049750163.4174.35.camel@nosferatu.lan>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1049750163.4174.35.camel@nosferatu.lan>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Apr 07, 2003 at 11:16:03PM +0200, Martin Schlemmer wrote:
+> --- drivers/i2c/chips/w83781d.c.orig	2003-04-07 22:53:37.000000000 +0200
+> +++ drivers/i2c/chips/w83781d.c	2003-04-07 22:53:34.000000000 +0200
+> @@ -364,7 +364,7 @@
+>  	 \
+>  	w83781d_update_client(client); \
+>  	 \
+> -	return sprintf(buf,"%ld\n", (long)IN_FROM_REG(data->reg[nr] * 10)); \
+> +	return sprintf(buf,"%ld\n", (long)IN_FROM_REG(data->reg[nr])); \
 
-Fredrik Tolf wrote:
+Hm, this patch looks backwards, is it?
 
-> Anyway, while we're on the subject, is it just me who would like to see a
-> fexec() call?
+Also, just as a side note, can you make your patches so that they can be
+applied with "patch -p1" instead of "patch -p0" which your current ones
+are?  My tools treat -p1 patches much better :)
 
-If you'd run an up-to-date system (e.g., RHL9) you'd have fexecve() already.
+thanks,
 
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+kfD92ijCOnn/RHQRAhO2AKCOD1ugVpxvM6shymsylznP/tsYmQCfbODX
-n+wHxIQMq9G8Tfi2/0seh7I=
-=EJxb
------END PGP SIGNATURE-----
-
+greg k-h

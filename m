@@ -1,103 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbTFBJim (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 05:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbTFBJim
+	id S262093AbTFBJoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 05:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbTFBJoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 05:38:42 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:14580 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id S262073AbTFBJik (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 05:38:40 -0400
-Date: Mon, 2 Jun 2003 02:49:10 -0700
-From: Chris Wright <chris@wirex.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com,
-       greg@kroah.com, sds@epoch.ncsc.mil
-Subject: [BK PATCH][LSM] Early init for security modules and various cleanups
-Message-ID: <20030602024910.B27233@figure1.int.wirex.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, linux-security-module@wirex.com,
-	greg@kroah.com, sds@epoch.ncsc.mil
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
+	Mon, 2 Jun 2003 05:44:16 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:26376
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S262093AbTFBJoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 05:44:14 -0400
+Date: Mon, 2 Jun 2003 02:46:51 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCHES] add ata scsi driver
+In-Reply-To: <20030526045833.GA27204@gtf.org>
+Message-ID: <Pine.LNX.4.10.10306020238050.23914-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
 
-Here is a batch of LSM updates.  This patchset allows for statically
-linked security modules to be initialized earlier in the boot sequence
-to give consistent security labels to the earliest dynamically created
-objects such as filesystems and kernel threads.  This patch was acked
-by nearly all the arch maintainers, then subsequently updated based on
-Sam Ravnborg's feedback.  The current version was floated passed arch
-maintainers without much response, but it did at least get one ack
-from DaveM.
+JG,
 
-Additional changes are removing two unused hooks, fixing a bug that Jakub
-Jelinek reported in setfs[ug]id, and fixing some capability checks in
-oom killer.
+This is the right move after months of debating ideas.
+Migrating the contents of ./drivers/ide/pci to scsi is reasonable too.
+This will allow the legacy drivers to die.
 
-Please consider pulling from: bk://lsm.bkbits.net/linus-2.5
+Taskfile came to late to be really useful, it is now best used as a model
+to tackle FIS/FPDMA mapping for SATA II.
 
-This will update these files:
+Linus, my professional opinion is to follow Jeff's direction for 2.5/2.6.
+This will allow Linux to push open source to the hardware vendors.
+There are several bastardized scsi-ide drivers in ./scsi.
 
- arch/alpha/vmlinux.lds.S                  |    3 +
- arch/arm/vmlinux-armo.lds.in              |    1 
- arch/arm/vmlinux-armv.lds.in              |    1 
- arch/cris/vmlinux.lds.S                   |    4 +-
- arch/h8300/platform/h8300h/generic/rom.ld |    1 
- arch/i386/vmlinux.lds.S                   |    1 
- arch/ia64/vmlinux.lds.S                   |    4 ++
- arch/m68k/vmlinux-std.lds                 |    1 
- arch/m68k/vmlinux-sun3.lds                |    1 
- arch/m68knommu/vmlinux.lds.S              |    4 --
- arch/mips/vmlinux.lds.S                   |    1 
- arch/mips64/vmlinux.lds.S                 |    1 
- arch/parisc/vmlinux.lds.S                 |    1 
- arch/ppc/vmlinux.lds.S                    |    2 +
- arch/ppc64/vmlinux.lds.S                  |    1 
- arch/s390/vmlinux.lds.S                   |    1 
- arch/sh/vmlinux.lds.S                     |    1 
- arch/sparc/vmlinux.lds.S                  |    1 
- arch/sparc64/vmlinux.lds.S                |    1 
- arch/x86_64/vmlinux.lds.S                 |    1 
- fs/namei.c                                |    2 -
- include/asm-generic/vmlinux.lds.h         |    6 +++
- include/linux/init.h                      |    6 +++
- include/linux/security.h                  |   49 ++++++------------------------
- init/main.c                               |    2 -
- kernel/sys.c                              |   20 ++++--------
- mm/oom_kill.c                             |    7 ++--
- security/capability.c                     |   10 ------
- security/dummy.c                          |   12 -------
- security/root_plug.c                      |    3 -
- security/security.c                       |   13 +++++++
- 31 files changed, 77 insertions(+), 85 deletions(-)
+pci2000.c,h :: pci2220i.c,h :: psi240i.c,h + psi_*.h :: eata*
 
-with these changes:
+ATAPI is nothing more than Bastardized SCSI beaten with an ugly stick.
 
-Chris Wright:
-  o [LSM] early init for security modules.  As discussed before, this allows
-  for early initialization of security modules when compiled statically into
-  the kernel.  The standard do_initcalls is too late for complete coverage of
-  all filesystems and threads, for example.
-  o [LSM] Remove security_inode_permission_lite hook
-  o [LSM] Remove task_kmod_set_label hook, it is no longer necessary
+Packet-Taskfile is more than painful, and I am not in the fighting mood.
 
-Jakub Jelínek:
-  o [LSM] make sure setfsuid/setfsgid return values are right. Before
-  include/linux/security.h was added, setfsuid/setfsgid always returned
+Cheers,
 
-Stephen D. Smalley:
-  o [LSM] Replaced the direct capability bit tests with calls to the
-  security_capable hook in mm/oom_kill.c
+Andre
 
-thanks,
--chris
---
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+On Mon, 26 May 2003, Jeff Garzik wrote:
+
+> Just to echo some comments I said in private, this driver is _not_
+> a replacement for drivers/ide.  This is not, and has never been,
+> the intention.  In fact, I need drivers/ide's continued existence,
+> so that I may have fewer boundaries on future development.
+> 
+> Even though ATAPI support doesn't exist and error handling is
+> primitive, this driver has been extensively tested locally and I feel
+> is ready for a full and public kernel developer assault :)
+> 
+> James ok'd sending this...  I'll be sending "un-hack scsi headers" patch
+> through him via his scsi-misc-2.5 tree.
+> 
+> 
+> 
+> 
+> Linus, please do a
+> 
+> 	bk pull bk://kernel.bkbits.net/jgarzik/scsi-2.5
+> 
+> Others may download the patch from
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.5/2.5.69-bk18-scsi1.patch.bz2
+> 
+> This will update the following files:
+> 
+>  drivers/scsi/Kconfig    |   27 
+>  drivers/scsi/Makefile   |    1 
+>  drivers/scsi/ata_piix.c |  322 ++++++
+>  drivers/scsi/libata.c   | 2247 ++++++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/ata.h     |  485 ++++++++++
+>  5 files changed, 3082 insertions(+)
+> 
+> through these ChangeSets:
+> 
+> <jgarzik@redhat.com> (03/05/26 1.1357)
+>    [scsi ata] make PATA config option actually do something useful
+> 
+> <jgarzik@redhat.com> (03/05/26 1.1356)
+>    [scsi ata] include hacks, b/c scsi headers not in include/linux
+> 
+> <jgarzik@redhat.com> (03/05/26 1.1355)
+>    [scsi] add ATA driver
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
+

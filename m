@@ -1,72 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268576AbUIGUoF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268537AbUIGUpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268576AbUIGUoF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 16:44:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268594AbUIGUoF
+	id S268537AbUIGUpb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 16:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268346AbUIGUpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 16:44:05 -0400
-Received: from cantor.suse.de ([195.135.220.2]:41909 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268576AbUIGUlg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 16:41:36 -0400
-Date: Tue, 7 Sep 2004 22:41:35 +0200
-From: Olaf Hering <olh@suse.de>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] update arch/ppc/defconfig
-Message-ID: <20040907204135.GA14700@suse.de>
-References: <20040907200013.GA14330@suse.de> <20040907202218.GH20951@smtp.west.cox.net>
+	Tue, 7 Sep 2004 16:45:30 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:52160
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S268537AbUIGUoZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 16:44:25 -0400
+Date: Tue, 7 Sep 2004 13:41:41 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Thor Kooda <tkooda-patch-kernel@devsec.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.8.1 crypto: tea.c xtea_encrypt should use
+ XTEA_DELTA
+Message-Id: <20040907134141.6c634f26.davem@davemloft.net>
+In-Reply-To: <20040903223458.GD18362@rock>
+References: <20040903223458.GD18362@rock>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040907202218.GH20951@smtp.west.cox.net>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Tue, Sep 07, Tom Rini wrote:
 
-> Is it all that common for pmacs to be using a serial console?
+Thor, your patches do not apply because your email
+client turns tab characters into spaces, please fix
+this up.
 
-It cant hurt.
+Thanks.
 
-> If that's working again, we should enable it, Mot PRePs have those
-> cards.
-
-It doesnt work for me right now.
-
-> Er, is there a good reason to have only the 16color one?
-
-Why have all 3 enabled?
-
-> > +CONFIG_JOLIET=y
-> > +CONFIG_ZISOFS=y
-> > +CONFIG_ZISOFS_FS=y
-> 
-> Ick, please no.
-
-Why not?
-
-> > +CONFIG_CRAMFS=m
-> 
-> Why?
-
-Why not?
-
-> > +#
-> >  # Kernel hacking
-> >  #
-> > -# CONFIG_DEBUG_KERNEL is not set
-> > +CONFIG_DEBUG_KERNEL=y
-> 
-> Why?
-
-having sysrq is always a win.
-
--- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG

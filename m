@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317189AbSGHWLD>; Mon, 8 Jul 2002 18:11:03 -0400
+	id <S317191AbSGHWTU>; Mon, 8 Jul 2002 18:19:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317191AbSGHWLC>; Mon, 8 Jul 2002 18:11:02 -0400
-Received: from [209.184.141.189] ([209.184.141.189]:51384 "HELO UberGeek")
-	by vger.kernel.org with SMTP id <S317189AbSGHWLB>;
-	Mon, 8 Jul 2002 18:11:01 -0400
-Subject: Re: DELL array controller access.
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Matt_Domsch@Dell.com, dtroth@bellsouth.net, linux-kernel@vger.kernel.org
-In-Reply-To: <E17RdTp-0002re-00@the-village.bc.nu>
-References: <E17RdTp-0002re-00@the-village.bc.nu>
-Content-Type: text/plain
+	id <S317192AbSGHWTT>; Mon, 8 Jul 2002 18:19:19 -0400
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:53414 "EHLO
+	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S317191AbSGHWTT>; Mon, 8 Jul 2002 18:19:19 -0400
+Message-ID: <3D29D540.3080001@mindspring.com>
+Date: Mon, 08 Jul 2002 18:09:04 +0000
+From: Andy <ahaning@mindspring.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: ATAPI + cdwriter problem
+References: <200207082159.WAA03443@darkstar.example.net> <006101c226ca$d0c9a380$0501a8c0@Stev.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 08 Jul 2002 17:13:37 -0500
-Message-Id: <1026166417.16788.0.camel@UberGeek>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I know at a minimum...those cards can be put into a 154x mode, so it
-will work. I remember that NetWare needed this feature.
+> its a Benq 32x10x40 CD/RW
+Check here for your drive to see if there are any updates for it: 
+http://perso.club-internet.fr/farzeno/firmware/cdr/cdrf.htm
 
+> running with the Promise ATA/133 controller
+If the drive is not ATA/### where ### is 66/100/133, then you may try 
+putting the drive on a UDMA/33 port to see if that helps at all. (So you 
+could eliminate the ATA/133 port as being part of the problem.
 
-On Mon, 2002-07-08 at 13:43, Alan Cox wrote:
-> > > RedHat 7.0 and it does not see the board.  Where can I get a 
-> > > EISA buss AHA-154x driver to access the array controller?
-> > 
-> > David, Dell never produced a Linux device driver for the Dell SCSI Array
-> > card.  I had forgotten about the AHA-154x emulation feature, but since it
-> > doesn't seem to work, it's unlikely that it ever will.  Everyone who worked
-> > on that project 9 years ago has left for other opportunities.  The on-board
-> > NCR SCSI controller should still work, and you can use software RAID quite
-> > easily to accomplish similar functionality.
-> 
-> The EISA bus AHA154x equivalent is the AHA174x which we do support. I don't
-> know what the Dell arrays used however
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Austin Gonyou <austin@digitalroadkill.net>
+Andy
+

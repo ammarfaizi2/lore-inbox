@@ -1,85 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbULNTYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbULNTZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261620AbULNTYv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 14:24:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbULNTYv
+	id S261621AbULNTZp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 14:25:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbULNTZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 14:24:51 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:11986 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261620AbULNTYl (ORCPT
+	Tue, 14 Dec 2004 14:25:45 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:23391 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261621AbULNTZY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 14:24:41 -0500
-Message-Id: <200412141923.iBEJNCY9011317@laptop11.inf.utfsm.cl>
-To: Werner Almesberger <wa@almesberger.net>
-cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
-       Greg KH <greg@kroah.com>, David Woodhouse <dwmw2@infradead.org>,
-       Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
-       hch@infradead.org, aoliva@redhat.com, linux-kernel@vger.kernel.org,
-       libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__ 
-In-Reply-To: Message from Werner Almesberger <wa@almesberger.net> 
-   of "Tue, 14 Dec 2004 13:50:29 -0300." <20041214135029.A1271@almesberger.net> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Tue, 14 Dec 2004 16:23:12 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 14 Dec 2004 14:25:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=XywrPJACq+4it78ABWu8wKFOb9TgyfKneh4t5WjKS+pz6xPhowA/HTXZI8HmhWD4TFPenBtNhHP+2qz3oKdYzLb/r45dh3sWqZA9636bAx3vhKMz2Ec89D+ElmjGlqbtzEBMVlfkQxXB3BGUG1Bto5R79i2Cl4bgZtMIm84URT0=
+Message-ID: <5afb2c65041214112577ff4a18@mail.gmail.com>
+Date: Tue, 14 Dec 2004 17:25:23 -0200
+From: Fabiano Ramos <fabiano.ramos@gmail.com>
+Reply-To: ramos_fabiano@yahoo.com.br
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: help with access_process_vm
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger <wa@almesberger.net> said:
-> Linus Torvalds wrote:
-> > No. Because when you include <sys/ioctl.h> (which includes the 
-> > <linux-user/foo.h>, the POSIX/SuS/whatever namespace rules say that YOU 
-> > MUST NOT pollute the namespace with the names from stdint.h.
+Hi all.
 
-[...]
+I am trying to write/read to/from a process image (to be more
+specific, replace an instruction with a 0xCC trap) from within a debug
+handler.  I mean, a debug handler will be fired
+(via eflags) and I want to make sure the process will stop again at a
+given address.
 
-> Therefore, stdint.h types would mainly be used with new interfaces,
-> or in intermediate definitions which are not themselves part of the
-> interface. Of course, the latter would have to consider pollution
-> issues.
+My new handler, called do_debug_new replaces the old do_debug. From inside it,
+I do something like
 
-They _can't_ show up in interfaces unless you specify that stdint.h has to
-be included before them... and I'd awise against any needless interface
-fattening. Besides, using them in the kernel would then mean pulling in
-stdint.h there... and you get the same mess, the other way around ("What
-userspace headers are OK to pull in when compiling the kernel?"). Better
-don't.
+       task = current;
+       ....
+       access_process_vm(task, addr, &oldvalue, sizeof(oldvalue), 0);
+       newvalue= oldvalue;
+       ptr = (char *) &newvalue;
+       *ptr = 0xCC; 
+       access_process_vm(task, addr, &newvalue, sizeof(newvalue), 1);
+        ....
 
-[...]
+But the first time a call access_process_vm, dmesg shows me:
+     
+Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
+in_atomic():0, irqs_disabled():1
+ [<c01145ac>] __might_sleep+0x8c/0xa0
+ [<c011c69b>] access_process_vm+0x4b/0x1d0
+ [<c010c830>] do_debug_new+0xd0/0x190
+ [<c038c755>] schedule+0x275/0x460
+ [<c0105c2d>] error_code+0x2d/0x40
 
-> > And trust me, the rules are really arcane. Not only do you have several 
-> > standards, and several versions, you have various local rules too, ie gcc 
-> > and glibc make up their own rules about things that depend on compiler 
-> > flags etc. 
+What I am missing? Do I need some syncronization? Can the debug
+handler run in the
+context of a process that was not the one that caused the debug trap?
 
-> If this is as unpredictable as you describe it, it would mean that also
-> new interfaces which need to specify an exact integer size would require
-> new sets of type names.
-
-That's what all the _u8 and such are. Note that any name starting with _ or
-__ is explicitly reserved by the standard (i.e., users should never use
-them), so they are (relatively) safe.
-
->                         So horrors like my_uint32_t, project-specific and
-> of course conflicting definitions of ULONG (really really meaning 32 bit,
-> at least sometimes), etc. would still be with us for a long time.
-
-Better use stdint.h where possible.
-
-> Let me add that I've happily used the standard integer names for
-> a while, inside and outside of the kernel, so far without ill
-> effects. Maybe I've just been lucky.
-
-No. You just haven't commited horrors like the ones Linus showed. No
-halfway sane C programmer would, but they are quite legal (and must work).
-
-> > Remember: the _biggest_ reason to make kernel headers available is not to 
-> > user programs that want them, but to libc and friends.
-
-> Okay, for me it's usually exactly the opposite :-) New tools
-> that need to share fairly private interfaces with the kernel.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Thanks a lot
+Fabiano

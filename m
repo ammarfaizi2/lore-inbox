@@ -1,29 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282222AbRLVUXx>; Sat, 22 Dec 2001 15:23:53 -0500
+	id <S282190AbRLVUSd>; Sat, 22 Dec 2001 15:18:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282271AbRLVUXn>; Sat, 22 Dec 2001 15:23:43 -0500
-Received: from pop.gmx.de ([213.165.64.20]:25452 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S282222AbRLVUXf>;
-	Sat, 22 Dec 2001 15:23:35 -0500
-Date: Sat, 22 Dec 2001 21:22:06 +0100
-From: Andreas Kinzler <akinzler@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: jdike@karaya.com
-Subject: Re: Injecting packets into the kernel
-X-Mailer: Andreas Kinzler's registered AK-Mail 3.11 [ger]
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20011222202340Z282222-18284+6230@vger.kernel.org>
+	id <S282212AbRLVUSX>; Sat, 22 Dec 2001 15:18:23 -0500
+Received: from balu.sch.bme.hu ([152.66.208.40]:57845 "EHLO balu.sch.bme.hu")
+	by vger.kernel.org with ESMTP id <S282190AbRLVUSR>;
+	Sat, 22 Dec 2001 15:18:17 -0500
+Date: Sat, 22 Dec 2001 21:18:08 +0100 (MET)
+From: Pozsar Balazs <pozsy@sch.bme.hu>
+To: Bernd Eckenfels <ecki@lina.inka.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+In-Reply-To: <20011222113043.GA19759@lina.inka.de>
+Message-ID: <Pine.GSO.4.30.0112222114120.9228-100000@balu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> However, for the kernel they are now LOCAL packets, which are not
->> masq'ed. To make that work, they need to look "remote" (means:
->> received by a device). Any ideas?
-> Use a TUN/TAP device (or ethertap on 2.2).
 
-That is exactly what diald does, but the packets written to such a device have
-no effect, they do not seem to make their way through the kernel.
+On Sat, 22 Dec 2001, Bernd Eckenfels wrote:
+
+> On Sat, Dec 22, 2001 at 11:24:17AM +0100, Pozsar Balazs wrote:
+> > Why on earth is it good to develop misunderstandings and inconsistency
+> > with well- and widely-known historical abbrevs?
+>
+> There is no well understood abrev. for power of two units, thats why
+> somebody had to introduce them.
+>
+> Actually it was not my Idea, but since I got multiple error reports for
+> multible writings (and that even while the original count is visible in the
+> ouput) I decided to go with the standard.
+
+What error reports do you receive?
+
+This might be a standard, but _it_is_not_adopted_anywhere! (at least I
+haven't seen it anywhere (I might be blind)).
+I would rather call standard something which is adopted in real life.
+
+-- 
+Balazs Pozsar
 

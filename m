@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbULZKAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbULZK0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261461AbULZKAs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 05:00:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbULZKAs
+	id S261624AbULZK0r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 05:26:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbULZK0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 05:00:48 -0500
-Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:25350 "EHLO
-	doc.tebibyte.org") by vger.kernel.org with ESMTP id S261461AbULZKAo
+	Sun, 26 Dec 2004 05:26:47 -0500
+Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:3282 "EHLO
+	mail.inprovide.com") by vger.kernel.org with ESMTP id S261624AbULZK0p convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 05:00:44 -0500
-Message-ID: <41CE8BCA.5090503@tebibyte.org>
-Date: Sun, 26 Dec 2004 11:00:42 +0100
-From: Chris Ross <chris@tebibyte.org>
-Organization: At home (Eindhoven, The Netherlands)
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: pt-br, pt
+	Sun, 26 Dec 2004 05:26:45 -0500
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lease.openlogging.org is unreachable
+References: <200412250121_MC3-1-91AF-7FBB@compuserve.com>
+	<20041226011222.GA1896@work.bitmover.com>
+	<20041226030957.GA8512@work.bitmover.com>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+In-Reply-To: <20041226030957.GA8512@work.bitmover.com> (Larry McVoy's
+ message of "Sat, 25 Dec 2004 19:09:57 -0800")
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Date: Sun, 26 Dec 2004 11:26:42 +0100
+Message-ID: <yw1x7jn5bbj1.fsf@inprovide.com>
 MIME-Version: 1.0
-To: Jim Nelson <james4765@verizon.net>
-Cc: Graeme T Ford <gtford@gmail.com>, linux lover <linux.lover2004@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Understanding how kernel functions works and adding new one
-References: <72c6e3790412242020482eadbe@mail.gmail.com> <31f2b71904122501096a8b787@mail.gmail.com> <41CD67D8.6080001@verizon.net>
-In-Reply-To: <41CD67D8.6080001@verizon.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Larry McVoy <lm@bitmover.com> writes:
 
+> The interesting thing is that the code already has a backup in it and I just
+> checked that code path and it works.
+>
+> Has anyone else been shut down because of lease.openlogging.org being down
+> and if so what version of BK were you running please?
+>
+> It is true that both servers are at our offices so if the network had been
+> down you would have been out of luck.
 
-Jim Nelson escreveu:
-> I'll second that.  Google is probably the closest thing to Microsoft's 
-> Knowlege Base that Linux has for quick questions ;) .
+I've been bitten by that one, as I occasionally work off-line.  Is
+there some way I can make BK renew the leases a week or so before they
+expire?
 
-Especially if you use Google's Linux specific section 
-http://www.google.com/linux
+It would also be nice if a simple read-only 'get' were allowed without
+a lease at all.
 
-Regards,
-Chris R.
+-- 
+Måns Rullgård
+mru@inprovide.com

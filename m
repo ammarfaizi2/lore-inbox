@@ -1,78 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129210AbQLAMdy>; Fri, 1 Dec 2000 07:33:54 -0500
+	id <S129210AbQLAMjY>; Fri, 1 Dec 2000 07:39:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129257AbQLAMdp>; Fri, 1 Dec 2000 07:33:45 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:3076 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S129210AbQLAMd3>; Fri, 1 Dec 2000 07:33:29 -0500
-Date: Fri, 1 Dec 2000 14:56:19 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Phillip Ezolt <ezolt@perf.zko.dec.com>, axp-list@redhat.com,
-        rth@twiddle.net, Jay.Estabrook@compaq.com,
-        linux-kernel@vger.kernel.org, clinux@zk3.dec.com,
-        wcarr@perf.zko.dec.com
-Subject: Re: Alpha SCSI error on 2.4.0-test11
-Message-ID: <20001201145619.A553@jurassic.park.msu.ru>
-In-Reply-To: <20001201004049.A980@jurassic.park.msu.ru> <Pine.OSF.3.96.1001130171941.32335D-100000@perf.zko.dec.com> <20001130233742.A21823@athlon.random>
-Mime-Version: 1.0
+	id <S129183AbQLAMjP>; Fri, 1 Dec 2000 07:39:15 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36626 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129257AbQLAMjJ>;
+	Fri, 1 Dec 2000 07:39:09 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200012011207.eB1C78523251@flint.arm.linux.org.uk>
+Subject: Re: [RFC] Configuring synchronous interfaces in Linux
+To: cw@f00f.org (Chris Wedgwood)
+Date: Fri, 1 Dec 2000 12:07:08 +0000 (GMT)
+Cc: romieu@ensta.fr, lists@cyclades.com (Ivan Passos),
+        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+In-Reply-To: <20001201233227.A9457@metastasis.f00f.org> from "Chris Wedgwood" at Dec 01, 2000 11:32:27 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20001130233742.A21823@athlon.random>; from andrea@suse.de on Thu, Nov 30, 2000 at 11:37:42PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2000 at 11:37:42PM +0100, Andrea Arcangeli wrote:
-> test12-pre2 crashes at boot on my DS20. This patch workaround the problem
-> but I would be _very_ surprised if this is the right fix :) It's obviously not
-> meant for inclusion.
+Chris Wedgwood writes:
+> Actually; Ethernet badly needs something like this too. I would kill
+> to be able to do something like:
+> 
+> 	ifconfig eth0 speed 100 duplex full
+> 
+> o across different networks cards -- I've been thinking about it of
+> late as I had to battle with this earlier this week; depending on
+> what network card you use, you need different magic incarnations to
+> do the above.
+> 
+> A standard interface is really needed; unless anyone objects I may
+> look at drafting something up -- but it will require some input if it
+> is not to look completely Ethernet centric.
+
+We already have a standard interface for this, but many drivers do not
+support it.  Its called "ifconfig eth0 media xxx":
+
+bash-2.04# ifconfig --help
+Usage:
+  ifconfig [-a] [-i] [-v] [-s] <interface> [[<AF>] <address>]
 ...
-> -			struct resource_list *ln = list->next;
-> +			struct resource_list *ln;
->  
-> +			if (!list)
-> +				return;
-> +			ln = list->next;
-
-Argh. I believe that crash could happen only if some broken device has
-empty I/O or memory range and IORESOURCE_[IO,MEM] bit set.
-
-Andrea, could you try this?
-
-Ivan.
-
---- linux/drivers/pci/setup-res.c~	Thu Nov 30 12:14:31 2000
-+++ linux/drivers/pci/setup-res.c	Fri Dec  1 13:49:34 2000
-@@ -136,6 +136,7 @@ pdev_sort_resources(struct pci_dev *dev,
- 	for (i = 0; i < PCI_NUM_RESOURCES; i++) {
- 		struct resource *r;
- 		struct resource_list *list, *tmp;
-+		unsigned long r_size;
- 
- 		/* PCI-PCI bridges may have I/O ports or
- 		   memory on the primary bus */
-@@ -144,7 +145,9 @@ pdev_sort_resources(struct pci_dev *dev,
- 			continue;
- 
- 		r = &dev->resource[i];
--		if (!(r->flags & type_mask) || r->parent)
-+		r_size = r->end - r->start;
-+		
-+		if (!(r->flags & type_mask) || !r_size || r->parent)
- 			continue;
- 		for (list = head; ; list = list->next) {
- 			unsigned long size = 0;
-@@ -152,7 +155,7 @@ pdev_sort_resources(struct pci_dev *dev,
- 
- 			if (ln)
- 				size = ln->res->end - ln->res->start;
--			if (r->end - r->start > size) {
-+			if (r_size > size) {
- 				tmp = kmalloc(sizeof(*tmp), GFP_KERNEL);
- 				tmp->next = ln;
- 				tmp->res = r;
+  [mem_start <NN>]  [io_addr <NN>]  [irq <NN>]  [media <type>]
+...
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

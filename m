@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267365AbUIVUaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267522AbUIVUka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267365AbUIVUaG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 16:30:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267521AbUIVUaF
+	id S267522AbUIVUka (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 16:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267595AbUIVUka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 16:30:05 -0400
-Received: from mail.kroah.org ([69.55.234.183]:59868 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267365AbUIVU3x (ORCPT
+	Wed, 22 Sep 2004 16:40:30 -0400
+Received: from mail.kroah.org ([69.55.234.183]:8417 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267522AbUIVUk3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 16:29:53 -0400
-Date: Wed, 22 Sep 2004 13:29:05 -0700
+	Wed, 22 Sep 2004 16:40:29 -0400
+Date: Wed, 22 Sep 2004 13:38:56 -0700
 From: Greg KH <greg@kroah.com>
-To: Vernon Mauery <vernux@us.ibm.com>
-Cc: pcihpd <pcihpd-discuss@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Greg KH <gregkh@us.ibm.com>,
-       Pat Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Jess Botts <botts@us.ibm.com>
-Subject: Re: [PATCH] acpiphp extension fixes for 2.6.9-rc2
-Message-ID: <20040922202905.GB12784@kroah.com>
-References: <1087934028.2068.57.camel@bluerat> <200407071147.57604@bilbo.math.uni-mannheim.de> <1089216410.24908.5.camel@bluerat> <200407081209.42927@bilbo.math.uni-mannheim.de> <1089328415.2089.194.camel@bluerat> <20040708232827.GA20755@kroah.com> <1095358993.13519.8.camel@localhost.localdomain> <1095459003.13519.25.camel@localhost.localdomain>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: len.brown@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.9-rc1-mm5 acpi.c] Changed pci_find_device to pci_get_device
+Message-ID: <20040922203856.GA13064@kroah.com>
+References: <8240000.1095371651@w-hlinder.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1095459003.13519.25.camel@localhost.localdomain>
+In-Reply-To: <8240000.1095371651@w-hlinder.beaverton.ibm.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 17, 2004 at 03:10:03PM -0700, Vernon Mauery wrote:
-> On Thu, 2004-09-16 at 11:23, Vernon Mauery wrote:
-> > This patch fixes an off by one error that one of the IBM machines that
+On Thu, Sep 16, 2004 at 02:54:11PM -0700, Hanna Linder wrote:
 > 
-> I realized today that I had an off by one error myself.  I had one line
-> in the wrong place by one (i.e. accessing a pointer into the table after
-> calling kfree on the table).  So, please disregard the last patch and
-> apply this one instead.
+> Another simple patch to complete the /i386 conversion to pci_get_device.
+> I was able to compile and boot this patch to verify it didn't break anything
+> (on my T22).
 > 
-> For the record...
+> Thanks.
 > 
-> This patch fixes an off by one error that one of the IBM machines that
-> uses the acpiphp_ibm driver.  The slots were numbered starting at 0 in
-> BIOS instead of starting at 1 like the pci hotplug subsystem names
-> them.  So this patch provides a lookup to translate the Linux slot
-> numbers to the internal ACPI numbers.
+> Hanna Linder
+> IBM Linux Technology Center
 > 
->  acpiphp_ibm.c |  101 ++++++++++++++++++++++++++++++++++++----------------------
->  1 files changed, 63 insertions(+), 38 deletions(-)
-> 
-> Signed-off-by: Vernon Mauery <vernux@us.ibm.com>
+> Signed-off-by: Hanna Linder <hannal@us.ibm.com>
 
 Applied, thanks.
 

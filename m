@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261692AbTDBGgX>; Wed, 2 Apr 2003 01:36:23 -0500
+	id <S261711AbTDBGuO>; Wed, 2 Apr 2003 01:50:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261711AbTDBGgX>; Wed, 2 Apr 2003 01:36:23 -0500
-Received: from amsfep11-int.chello.nl ([213.46.243.20]:60737 "EHLO
-	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S261692AbTDBGgV>; Wed, 2 Apr 2003 01:36:21 -0500
-From: Jos Hulzink <josh@stack.nl>
-To: Matthew Harrell 
-	<mharrell-dated-1049671247.27e955@bittwiddlers.com>
-Subject: Re: [Bug 529] New: ACPI under 2.5.50+ (approx) locks system hard during bootup
-Date: Wed, 2 Apr 2003 08:47:34 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <130680000.1049224849@flay> <200304020107.58676.josh@stack.nl> <20030401232043.GA10066@bittwiddlers.com>
-In-Reply-To: <20030401232043.GA10066@bittwiddlers.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S261776AbTDBGuO>; Wed, 2 Apr 2003 01:50:14 -0500
+Received: from mail4.bluewin.ch ([195.186.4.74]:1433 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S261711AbTDBGuN>;
+	Wed, 2 Apr 2003 01:50:13 -0500
+Date: Wed, 2 Apr 2003 09:01:15 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Brad Campbell <brad@seme.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: via-rhine problem on EPIAV-1Ghz 2.4.21-pre6
+Message-ID: <20030402070115.GA2667@k3.hellgate.ch>
+Mail-Followup-To: Brad Campbell <brad@seme.com.au>,
+	linux-kernel@vger.kernel.org
+References: <3E88FA24.7040406@seme.com.au> <20030401042734.GA21273@gtf.org> <3E89171A.8010506@seme.com.au> <20030401185258.GC3736@arthur.home> <3E8A6298.8060600@seme.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304020847.34735.josh@stack.nl>
+In-Reply-To: <3E8A6298.8060600@seme.com.au>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.5.65 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 April 2003 01:20, Matthew Harrell wrote:
-> I sympathize since I've been feeling the same way.  When I mentioned it to
-> Andrew in response to another ACPI problem I saw posted he recommended I
-> send it via bugzilla to see if more people will pay attention then.
->
-> But, in the ACPI team's defense, I also have about three other computers
-> with ACPI that do work fine and I've seen a number of other people on the
-> ACPI list without problems.  In my case it's annoying since it's my laptop
-> which has the problem and that's the only one that I really care about when
-> it comes to ACPI.
->
-> I suggest you read through my initial email and see if you find anything
-> unusually different in your setup.  I'm not positive since I'm new to
-> bugzilla but if you do have anything different that you notice then go to
-> bugzilla.kernel.org under bug 529 and add on to the bug report.  Sounds
-> like the more info the better for this bug
+On Wed, 02 Apr 2003 12:10:00 +0800, Brad Campbell wrote:
+> It solved the timeout propblems, I do get these however.
+> 
+> Not that they cause any hiccups in throughput.
+> 
+> eth0: Tx descriptor write-back race.
+> eth0: Tx descriptor write-back race.
+> eth0: Tx descriptor write-back race.
+> eth0: Transmit error, Tx status 00008800.
+> eth0: Transmitter underrun, Tx threshold now 40.
+> eth0: Tx descriptor write-back race.
+> eth0: Transmit error, Tx status 00008800.
+> eth0: Transmitter underrun, Tx threshold now 60.
+> eth0: Tx descriptor write-back race.
 
-I sure will. My plain Asus P2L97-DS with plain PII 333 SMP, plain Intel 440 
-LX, plain Soundblaster Live, plain 3Com 3C905C and plain Matrox G400 has no 
-trouble at all with 2.4 kernels, all IRQ lines claimed succesfully. With 
-recent 2.5 kernels it is simply: IDW ! No fancy strange laptop, no "made in 
-antarctica" chipset, only a SMP configuration on one of the most used 
-chipsets in the world, and yes, I enabled MPS 1.4 support for I had trouble 
-with shared IRQs. (FWIW: MPS 1.4 also reroutes interrupts)
+These are only informational messages on errors handled by the new code.
+You won't see them at the default debug level. I made a few observations
+leading me to believe that the number of those errors can be further
+reduced, but that will take quite a bit of work.
 
-Jos
+And there is still a Tx pause of up to a couple of seconds (net watchdog
+kicking in) on every GB or so, especially under high load.
+
+Roger

@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRBWOMV>; Fri, 23 Feb 2001 09:12:21 -0500
+	id <S129066AbRBWOQa>; Fri, 23 Feb 2001 09:16:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129066AbRBWOMK>; Fri, 23 Feb 2001 09:12:10 -0500
-Received: from atlantis.hlfl.org ([213.41.91.231]:29703 "HELO
-	atlantis.hlfl.org") by vger.kernel.org with SMTP id <S129051AbRBWOMF>;
-	Fri, 23 Feb 2001 09:12:05 -0500
-Date: Fri, 23 Feb 2001 15:12:04 +0100
-From: "Arnaud S . Launay" <asl@launay.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: OOPS with 2.4.2-ac2
-Message-ID: <20010223151204.A28383@profile4u.com>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010223144745.A28278@profile4u.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010223144745.A28278@profile4u.com>; from asl@launay.org on Fri, Feb 23, 2001 at 02:47:45PM +0100
-X-PGP-Key: http://launay.org/pgpkey.asc
+	id <S129065AbRBWOQV>; Fri, 23 Feb 2001 09:16:21 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:35345 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129066AbRBWOQH>;
+	Fri, 23 Feb 2001 09:16:07 -0500
+Message-ID: <3A967081.5CDF5797@mandrakesoft.com>
+Date: Fri, 23 Feb 2001 09:15:29 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+CC: Andrey Panin <pazke@orbita.don.sitek.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/char/serial.c unchecked ioremap() calls
+In-Reply-To: <20010223105359.A20170@orbita1.ru> <20010223064543.C12444@conectiva.com.br>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Fri, Feb 23, 2001 at 02:47:45PM +0100, Arnaud S . Launay a écrit:
-> I'm experimenting a 100% reproducable oops, ksymoops filtered
-> below, when trying to connect via ssh to the 2.4.2-ac2 machine.
-> (openssh 2.1.1p1)
+Arnaldo Carvalho de Melo wrote:
+> 
+> Em Fri, Feb 23, 2001 at 10:53:59AM +0300, Andrey Panin escreveu:
+> >
+> > Hi all,
+> >
+> > 16x50 serial driver doesn't check ioremap() return value.
+> > Atached patch should fix this it.
+> 
+> humm, have not checked, but it seems as if you don't release the previous
+> successful mappings on failure. Wipe out this message if I was too quick to
+> answer and this is not true. 8)
 
-uhuh -- just seen I'm using a gcc snapshot of today. this should
-explain. (funny to see "3.1" when asking gcc --version).
+Also, the proper return from a failed ioremap is -ENOMEM, so I think
+Andrey's serial.c patch should modify some functions to return a failure
+code...
 
-Anyway, latest gcc seems to broke kernel once again.
+	Jeff
 
-Arnaud.
+
+
+-- 
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie

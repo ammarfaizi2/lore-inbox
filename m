@@ -1,74 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVCTQ6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVCTRAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbVCTQ6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 11:58:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVCTQ6Q
+	id S261240AbVCTRAv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 12:00:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVCTRAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 11:58:16 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:31455 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261238AbVCTQ6L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 11:58:11 -0500
-Message-ID: <423DAB73.2030904@colorfullife.com>
-Date: Sun, 20 Mar 2005 17:57:23 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
+	Sun, 20 Mar 2005 12:00:51 -0500
+Received: from jade.aracnet.com ([216.99.193.136]:7898 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S261240AbVCTRAl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 12:00:41 -0500
+Date: Sun, 20 Mar 2005 09:00:33 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Scheduling changes in -mm tree
+Message-ID: <533200000.1111338032@[10.10.2.4]>
+In-Reply-To: <20050319140754.23d76496.akpm@osdl.org>
+References: <505920000.1111249137@[10.10.2.4]> <20050319140754.23d76496.akpm@osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: tglx@linutronix.de
-CC: Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       dipankar@in.ibm.com, shemminger@osdl.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, rusty@au1.ibm.com, tgall@us.ibm.com,
-       jim.houston@comcast.net, gh@us.ibm.com,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Real-Time Preemption and RCU
-References: <20050318002026.GA2693@us.ibm.com>	 <20050318091303.GB9188@elte.hu> <20050318092816.GA12032@elte.hu>	 <423BB299.4010906@colorfullife.com> <20050319162601.GA28958@elte.hu>	 <423D19FE.7020902@colorfullife.com> <1111310736.17944.24.camel@tglx.tec.linutronix.de>
-In-Reply-To: <1111310736.17944.24.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote:
+--Andrew Morton <akpm@osdl.org> wrote (on Saturday, March 19, 2005 14:07:54 -0800):
 
->On Sun, 2005-03-20 at 07:36 +0100, Manfred Spraul wrote:
->  
->
->>cpu 1:
->>acquire random networking spin_lock_bh()
->>
->>cpu 2:
->>read_lock(&tasklist_lock) from process context
->>interrupt. softirq. within softirq: try to acquire the networking lock.
->>* spins.
->>
->>cpu 1:
->>hardware interrupt
->>within hw interrupt: signal delivery. tries to acquire tasklist_lock.
->>
->>--> deadlock.
->>    
->>
->
->Signal delivery from hw interrupt context (interrupt is flagged
->SA_NODELAY) is not possible in RT preemption mode. The
->local_irq_save_nort() check in __cache_alloc will catch you.
->
->  
->
-That was just one random example.
-Another one would be :
+> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>> 
+>> I don't think these are doing much for performance. Or at least 
+>> *something* in your tree isn't ...
+>> 
+>> Kernbench: 
+>>                                      Elapsed    System      User       CPU
+>>  elm3b67      2.6.11                   50.24    146.60   1117.61   2516.67
+>>  elm3b67      2.6.11-mm1               52.27    141.14   1099.91   2374.33
+>>  elm3b67      2.6.11-mm2               51.88    142.41   1104.85   2403.67
+>>  elm3b67      2.6.11-mm4               51.23    145.04   1100.70   2431.00
+>> 
+>> (elm3b67 is a 16x x440 ia32 NUMA system + HT)
+> 
+> Sounds like the CPU scheduler, yes
+> 
+>> Is there an easy way to just test those sched changes alone?
+> 
+> Nick has tossed out and redone all the scheduler patches from -mm4, but I
+> assume it's all pretty much the same.
+> 
+> At http://www.zip.com.au/~akpm/linux/patches/stuff/mbligh.gz is a rollup
+> (against 2.6.12-rc1) of
 
-drivers/chat/tty_io.c, __do_SAK() contains
-    read_lock(&tasklist_lock);
-    task_lock(p);
+Kernbench: 
+                                    Elapsed    System      User       CPU
+elm3b67      2.6.12-rc1               49.02    147.91   1105.49   2556.00
+elm3b67      mbligh                   52.30    142.24   1105.83   2385.33
 
-kernel/sys.c, sys_setrlimit contains
-    task_lock(current->group_leader);
-    read_lock(&tasklist_lock);
+That doesn't seem like an improvement ;-) (last run is just adding above patch)
+I'll try to get you results on a couple more machines, but I'm fighting
+with the test harness to get it to behave (plus I now have to rerun all
+the tests with CONFIG_BROKEN turned on to get CONFIG_SCSI_QLOGIC_ISP to 
+work).
 
-task_lock is a shorthand for spin_lock(&p->alloc_lock). If read_lock is 
-a normal spinlock, then this is an A/B B/A deadlock.
+M.
 
---
-    Manfred

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316998AbSEWTzb>; Thu, 23 May 2002 15:55:31 -0400
+	id <S316999AbSEWT5v>; Thu, 23 May 2002 15:57:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317004AbSEWTza>; Thu, 23 May 2002 15:55:30 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:782 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316998AbSEWTz2>; Thu, 23 May 2002 15:55:28 -0400
-Date: Thu, 23 May 2002 12:54:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Pete Zaitcev <zaitcev@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.17 /dev/ports
-In-Reply-To: <3CED2F54.8000809@evision-ventures.com>
-Message-ID: <Pine.LNX.4.33.0205231251430.2815-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317000AbSEWT5u>; Thu, 23 May 2002 15:57:50 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:32271 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S316999AbSEWT5u>; Thu, 23 May 2002 15:57:50 -0400
+Date: Thu, 23 May 2002 20:57:00 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: sebastian.droege@gmx.de, hch@infradead.org, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [2.5.17-cset1.656] patch to compile nfs (and maybe others)
+Message-ID: <20020523205700.A13631@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"David S. Miller" <davem@redhat.com>, sebastian.droege@gmx.de,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020523182601.19620dbd.sebastian.droege@gmx.de> <20020523173425.A1713@infradead.org> <20020523184141.6fe51ec2.sebastian.droege@gmx.de> <20020523.093601.20619013.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 23 May 2002, Martin Dalecki wrote:
+On Thu, May 23, 2002 at 09:36:01AM -0700, David S. Miller wrote:
+>    From: Sebastian Droege <sebastian.droege@gmx.de>
+>    Date: Thu, 23 May 2002 18:41:41 +0200
 > 
-> Hey and finally if someone want's to use /dev/port for
-> developement on some slow control experimental hardware for example.
-> Why doesn't he just delete the - signs at the front lines
-> of the patch deleting it plus module register/unregister trivia and
-> compile it as a *separate* character device module ?
+>    Ok... but then we've to copy the FASTCALL stuff (which is used
+>    elsewhere too) from linkage.h to namei.h or something else...
+> 
+> namei.h should include linkage.h and I sent precisely that
+> to Linus last evening...
 
-That's not a productive approach, Martin.
-
-Yes, with open source you can do whatever you want.
-
-HOWEVER, there is a huge amount of advantage to having a common base that 
-is big enough to matter: why do you think MS does well commercially? 
-
-It's important to _not_ have to force people to do site-specific (or 
-problem-specific) hacks, even if they could do so. Because having to have 
-site-specific hacks detracts from the general usability of the code.
-
-So when simplifying, it's not just important to say "we could do without 
-this". You have to also say "and nobody can reasonably expect to need it".
-
-Which doesn't seem to be the case with /dev/ports. So it stays.
-
-		Linus
+It is pulled in through kernel.h - one of the first headers kernel
+sources are expected to include.  Please don't mess up the headers
+again, I've spent lots of work to get rid of the horrible header
+depencies Linux has.
 

@@ -1,99 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271276AbTGPXxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 19:53:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271277AbTGPXxQ
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 19:53:16 -0400
-Received: from 24-216-225-11.charter.com ([24.216.225.11]:5008 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id S271276AbTGPXxM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S271270AbTGPXxM (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 16 Jul 2003 19:53:12 -0400
-Date: Wed, 16 Jul 2003 20:08:04 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: David Ford <david+hb@blue-labs.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 sound drivers?
-Message-ID: <20030717000804.GT2412@rdlg.net>
-Mail-Followup-To: David Ford <david+hb@blue-labs.org>,
-	linux-kernel@vger.kernel.org
-References: <20030716225826.GP2412@rdlg.net> <20030716231029.GG1821@matchmail.com> <20030716233045.GR2412@rdlg.net> <3F15E3C9.4030401@blue-labs.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WVXkb2QE2eH0aWe4"
-Content-Disposition: inline
-In-Reply-To: <3F15E3C9.4030401@blue-labs.org>
-User-Agent: Mutt/1.5.4i
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271276AbTGPXxM
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 16 Jul 2003 19:53:12 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:49158 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S271270AbTGPXxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 19:53:11 -0400
+Date: Wed, 16 Jul 2003 19:56:40 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
+	 =?UTF-8?Q?=F3=AE=A0=92?= <retes_simbad@yahoo.es>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test1-mm1
+In-Reply-To: <1058397925.1794.4.camel@debian>
+Message-ID: <Pine.LNX.4.53.0307161950000.32541@montezuma.mastecende.com>
+References: <20030715225608.0d3bff77.akpm@osdl.org>  <1058376099.936.6.camel@debian>
+  <Pine.LNX.4.53.0307161501280.32541@montezuma.mastecende.com>
+ <1058397925.1794.4.camel@debian>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 17 Jul 2003, Ramón Rey [UTF-8] Vicente[UTF-8] ó® ^R wrote:
 
---WVXkb2QE2eH0aWe4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > > Well, my desktop experience with this is good. But the music playing
+> > > problems (aka mp3/ogg playing problems) still there. Its better, and I
+> > > feel the problems are near to be solved, but the player still jumps..
+> > 
+> > How fast is your processor?
+> 
+> My system:
+> 
+> k6-2 450MHz
+> 256 MB SDRAM pc100
+> ide udma33
+> aty rage fury pro 64 MB 
+> running Xfree86 4.3 +  gnome2.2 all the time :)
+> 
+> This problems with mp3/ogg playing is not reproducible with 2.4.x and
+> 2.2 series, only have it with 2.5.x and 2.6.0-test1
 
+Your system looks fine, but slower boxes seem to be suffering a bit more, 
+i get somewhat bad skipping on most my boxes which are in the 400-600MHz 
+range although all of them have > 512MB of RAM and at least UDMA33
 
-
-No go, it looks like it's playing but nothing to the speakers.
-
-Thus spake David Ford (david+hb@blue-labs.org):
-
-> /dev/sound/* is from OSS.  You'll have to enable OSS emulation if you=20
-> want legacy apps to be able to use your sound.
->=20
-> Alternatively, mpg123 --stdout | aplay, or similar.  Use a script or=20
-> alias to make it easy on yourself.
->=20
-> David
->=20
-> Robert L. Harris wrote:
->=20
-> >I do but the problem is I don't have a /dev/dsp, /dev/sound/dsp or
-> >anything else to point mpg123 at.
-> >
-> >Thus spake Mike Fedyk (mfedyk@matchmail.com):
-> >
-> >=20
-> >
-> >>On Wed, Jul 16, 2003 at 06:58:26PM -0400, Robert L. Harris wrote:
-> >>  =20
-> >>
-> >>>I have a soundblaster Live.  I've historically used the OSS drivers as
-> >>>they've worked well for me.  I just tried to load the emu10k1 which
-> >>>loads without error, but mpg123 says it can't open the default sound
-> >>>device.
-> >>>
-> >>>Anyone able to do an lsmod or a listing of the drivers I need for an
-> >>>SBLive?
-> >>>    =20
-> >>>
-> >>Did you install alsa-utils?
-> >>
-> >
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu=20
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Diagnosis: witzelsucht  =09
-
-IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
-IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
-
---WVXkb2QE2eH0aWe4
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/Fejk8+1vMONE2jsRAjX5AKDYat0BJjV06WbGxCCzDibR2UcgkQCfV3tG
-y8TVKgpKOMl6gHhHY6Ls/Xg=
-=18NV
------END PGP SIGNATURE-----
-
---WVXkb2QE2eH0aWe4--
+-- 
+function.linuxpower.ca

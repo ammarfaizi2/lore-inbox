@@ -1,210 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbUCCAQh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 19:16:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbUCCAQh
+	id S261802AbUCCAPn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 19:15:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbUCCAPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 19:16:37 -0500
-Received: from bay14-f17.bay14.hotmail.com ([64.4.49.17]:3847 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261806AbUCCAQX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 19:16:23 -0500
-X-Originating-IP: [24.136.227.168]
-X-Originating-Email: [filamoon2@hotmail.com]
-From: "johnny zhao" <filamoon2@hotmail.com>
-To: mblack@csi-inc.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: udp packet loss even with large socket buffer
-Date: Tue, 02 Mar 2004 19:16:22 -0500
+	Tue, 2 Mar 2004 19:15:43 -0500
+Received: from 10fwd.cistron-office.nl ([62.216.29.197]:15579 "EHLO
+	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
+	id S261802AbUCCAPl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 19:15:41 -0500
+Date: Wed, 3 Mar 2004 01:15:10 +0100
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org,
+       miquels@cistron.nl
+Subject: Re: 2.6.4-rc1-mm1: queue-congestion-dm-implementation patch
+Message-ID: <20040303001510.GA23103@drinkel.cistron.nl>
+References: <cistron.200403011400.51008.kevcorry@us.ibm.com> <20040302130137.GA9941@cistron.nl> <200403020826.52448.kevcorry@us.ibm.com> <20040302142134.4074cd2f.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY14-F17ddMfz4yhKU00038111@hotmail.com>
-X-OriginalArrivalTime: 03 Mar 2004 00:16:22.0285 (UTC) FILETIME=[C20B4BD0:01C400B4]
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040302142134.4074cd2f.akpm@osdl.org> (from akpm@osdl.org on Tue, Mar 02, 2004 at 23:21:34 +0100)
+X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for you reply. Unfortunately, it doesn't help :-(
+On Tue, 02 Mar 2004 23:21:34, Andrew Morton wrote:
+> Kevin Corry <kevcorry@us.ibm.com> wrote:
+> >
+> > > Changing down_read() in dm_any_congested to down_read_trylock() would
+> > > probably fix it for bdi_*_congested(). If you can tell me how to
+> > > reproduce it I can try a few things..
+> > 
+> > Switching to down_read_trylock() would certainly eliminate this problem, as 
+> > long as you don't *need* to check the congestion of the underlying devices 
+> > each time dm_any_congested() is called.
+> 
+> It's clear from the trace: we're doing down_read() inside
+> sync_sb_inodes()'s inode_lock.
+> 
+> Yes, a trylock would fix it up, but it's a bit sleazy.
+>
+> So for two reasons now, it's looking like that semaphore which protects the
+> devicemapper tables needs to become a spinlock.  One which has interesting
+> ranking properties.
 
-I have uploaded libosip and you can find it here:
-http://www.ee.duke.edu/~zw8/msn_linux/libosip-0.9.7.tar.gz
+Is that 2.6 material? If so, good. If not, the "passing up" congestion
+method doesn't seem so bad after all, I think. At least it keeps the
+backing_dev_info struct completely static ..
 
-I would appreciate it if you would look into this problem.
+(I haven't tried 2.6.4-rc1-mm1 yet - the e1000 driver doesn't work for me
+ in that kernel, so I can't reach the damn boxes).
 
-Moreover, I'm sure that the usleep() calls in the source tree are not 
-actually executed. All these files are not compiled and linked, except 
-mediastreamer/msv4l.c, whose usleep calls will not be executed unless it 
-fails to open the webcam.
-
-Thank you!
-
->From: "Mike Black" <mblack@csi-inc.com>
->To: "Charlie (Zhanglei) Wang" <filamoon2@hotmail.com>
->Subject: Re: udp packet loss even with large socket buffer
->Date: Tue, 2 Mar 2004 09:29:21 -0500
->
->I was going to try and duplicate your problem but I can't find the source 
->for libosip (gnu has taken it down from their ftp site).
->However, if your packets are blasting across < 1 ms between than you might 
->need to bump your receive queue like this:
->Default is 300:
->sysctl net.core.netdev_max_backlog
->net.core.netdev_max_backlog = 300
->sysctl -w net.core.netdev_max_backlog=2000
->net.core.netdev_max_backlog = 2000
->Ref: http://datatag.web.cern.ch/datatag/howto/tcp.html
->
->Perhaps your processing is taking long enough that the traffic queue is 
->building up.
->One thing is your usleep and nanosleep I think will be a minimum of 2ms 
->because of timer limitations.
->#include <stdio.h>
->#include <time.h>
->#include <unistd.h>
->
->main()
->{
->    time_t mytime=time(NULL);
->    struct timespec t1,t2;
->    int i=0;
->    while(mytime == time(NULL));
->    mytime = time(NULL);
->    while(mytime == time(NULL)) {
->        t1.tv_sec=0;
->        t1.tv_nsec=100000;
->        nanosleep(&t1,&t2);
->        i++;
->    }
->    printf("i=%d\n",i);
->}
->
->You'll find this program spits out approximately "i=500" no matter how 
->small you make tv_nsec.
->You should also get rid of the usleep()'s in your code.  It's been 
->superceded by nanosleep and could be screwing things up too.
->                usleep(20000);
->./console/sipomatic.c
->                    usleep(pts - now);
->./ffmpeg-0.4.8/ffmpeg.c
->            usleep(100);
->            usleep(100);
->            usleep(100);
->            usleep(100);
->            usleep(100);
->            usleep(10);
->./ffmpeg-0.4.8/libavformat/grab.c
->        }else usleep(20000);
->        }else usleep(20000);
->        }else usleep(20000);
->./mediastreamer/msv4l.c
->        //  usleep(80);
->./oRTP/src/rtpsession.c
->
->
->----- Original Message -----
->From: "Charlie (Zhanglei) Wang" <filamoon2@hotmail.com>
->To: "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>; 
-><linux-kernel@vger.kernel.org>
->Sent: Monday, March 01, 2004 9:12 PM
->Subject: Re: udp packet loss even with large socket buffer
->
->
-> > hi,
-> >
-> > Thanks for your reply. If you want to exactly reproduce my problem, 
->please
-> > use the following
-> > commands to download my codes from cvs:
-> >
-> > cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/gaim-vv login
-> > cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/gaim-vv co
-> > linphone
-> >
-> > Simply hit enter when prompted for passwd.
-> > (1) Please download and install libosip before compiling.
-> > (2) Before ./configure, please run command 'rm -Rf ffmpeg; ln -s
-> > ffmpeg-0.4.8 ffmpeg'.
-> > (3) After 'make' and 'make install', use 'linphonec' to run the program.
-> > (4) Under linphonec, use the following commands to communicate with 
->windows
-> > messenger:
-> >    r www-db.research.bell-labs.com
-> >    c <sip:username_of_windows_messenger@www-db.research.bell-labs.com>
-> >
-> > www-db.research.bell-labs.com is a public sip server.
-> >
-> > Under Windows Messenger (which runs only under WinXP), use SIP login
-> > method. Sign-in name should be
-> > username_of_windows_messenger@www-db.research.bell-labs.com
-> >
-> > Please note that Windows Messenger is different from MSN Messenger.
-> >
-> > I know it's kind of complicated... :( Thank you in advance!
-> > PS: My Linux box and Windows XP box run in the same LAN.
-> >
-> > Johnny
-> >
-> > ----- Original Message -----
-> > From: "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>
-> > To: "johnny zhao" <filamoon2@hotmail.com>; 
-><linux-kernel@vger.kernel.org>
-> > Sent: Saturday, February 28, 2004 4:22 PM
-> > Subject: Re: udp packet loss even with large socket buffer
-> >
-> >
-> > > On Saturday 28 February 2004 03:09, johnny zhao wrote:
-> > > > Hi,
-> > > >
-> > > > I have a problem when trying to receive udp packets containing video
-> > data
-> > > > sent by Microsoft Windows Messenger. Here is a detailed description:
-> > > >
-> > > > Linux box:
-> > > >     Linux-2.4.21-0.13mdksmp, P4 2.6G HT
-> > > > socket mode:
-> > > >     blocked mode
-> > > > code used:
-> > > >     while ( recvfrom(...) )
-> > > > socket buffer size:
-> > > >     8388608, set by using sysctl -w net.core.rmem_default and 
->rmem_max
-> > > >
-> > > > I used ethereal(using libpcap) to monitor the network traffic. All 
->the
-> > > > packets were transferred and captured by libpcap. But my program
-> > constantly
-> > > > suffers from packet loss. According to ethereal, the average time
-> > interval
-> > > > between 2 packets  is 70-80ms, and the minimum interval can go down 
->to
-> > > > ~1ms. Each packet is smaller than 1500 bytes (ethernet MTU).
-> > > >
-> > > > Can anybody help me? I googled and found a similar case that had 
->been
-> > > > solved by increasing the socket buffer size. But it doesn't work for 
->me.
-> > I
-> > > > think 8M is a crazily large size :(
-> > >
-> > > Post a small program demonstrating your problem.
-> > > (I'd test udp receive with netcat too)
-> > > --
-> > > vda
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe 
->linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" 
->in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-
-_________________________________________________________________
-Fast. Reliable. Get MSN 9 Dial-up - 3 months for the price of 1! 
-(Limited-time Offer) http://click.atdmt.com/AVE/go/onm00200361ave/direct/01/
-
+Mike.

@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265910AbUHAQlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266005AbUHAQpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265910AbUHAQlj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 12:41:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265977AbUHAQli
+	id S266005AbUHAQpN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 12:45:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266013AbUHAQpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 12:41:38 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:28137 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S265910AbUHAQlh (ORCPT
+	Sun, 1 Aug 2004 12:45:13 -0400
+Received: from fw.osdl.org ([65.172.181.6]:63900 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266005AbUHAQpI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 12:41:37 -0400
-Date: Sun, 1 Aug 2004 18:26:51 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Andi Kleen <ak@muc.de>, "Walker, Bruce J" <bruce.walker@hp.com>
+	Sun, 1 Aug 2004 12:45:08 -0400
+Date: Sun, 1 Aug 2004 09:24:21 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Giuliano Pochini <pochini@shiny.it>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Linux-cluster] Re: [ANNOUNCE] OpenSSI 1.0.0 released!!
-Message-ID: <20040801162651.GA3873@marowsky-bree.de>
-References: <2o4AV-18E-27@gated-at.bofh.it> <m3zn5g2k2q.fsf@averell.firstfloor.org>
+Subject: Re: SCSI removable devices problem
+Message-Id: <20040801092421.3f138fac.rddunlap@osdl.org>
+In-Reply-To: <20040801141931.6e026422.pochini@shiny.it>
+References: <20040801141931.6e026422.pochini@shiny.it>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <m3zn5g2k2q.fsf@averell.firstfloor.org>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-07-31T18:54:53,
-   Andi Kleen <ak@muc.de> said:
+On Sun, 1 Aug 2004 14:19:31 +0200 Giuliano Pochini wrote:
 
-> Do you have plans to contribute any pieces of it to the main kernel? 
+| 
+| 
+| It seems that 2.6.7 reads the partition table only once: when the scsi unit
+| is added to the list during boot or when I send the "add-single-device"
+| command. This is a problem with removable devices because if the drive
+| hasn't a disk inserted at boot time, attempting to mount a partitioned disk
+| always results in:
+| 
+| mount: /dev/sdb1 is not a valid block device
+| 
+| Also, bad things may happen (not tested) if a disk was in during boot and I
+| replace it with another one with a different partitioning.
+| 
+| As a workaround I have to send the "remove-single-device" command after
+| having unmounted a volume and "add-single-device" after I have inserted a
+| new one. I don't know when this problem was introduced, sorry.
 
-I guess there's a definite plan to have at least the OpenCI as an
-alternative backend for the membership, locking etc subsystem which
-seems to be taking shape at RHAT right now, at least that's what I
-understood last week.
+I think that it's been this way for some time now...
 
+Does using
+	blockdev --rereadpt /dev/sdb1
+help?
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering	    \ ever tried. ever failed. no matter.
-SUSE Labs, Research and Development | try again. fail again. fail better.
-SUSE LINUX AG - A Novell company    \ 	-- Samuel Beckett
-
+--
+~Randy

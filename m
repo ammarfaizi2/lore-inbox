@@ -1,63 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262107AbREPWO5>; Wed, 16 May 2001 18:14:57 -0400
+	id <S262104AbREPWOh>; Wed, 16 May 2001 18:14:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262109AbREPWOs>; Wed, 16 May 2001 18:14:48 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:11281 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262107AbREPWOn>; Wed, 16 May 2001 18:14:43 -0400
-Message-ID: <3B02FBA6.86969BDE@transmeta.com>
-Date: Wed, 16 May 2001 15:13:58 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S262107AbREPWO2>; Wed, 16 May 2001 18:14:28 -0400
+Received: from comverse-in.com ([38.150.222.2]:17028 "EHLO
+	eagle.comverse-in.com") by vger.kernel.org with ESMTP
+	id <S262104AbREPWOP>; Wed, 16 May 2001 18:14:15 -0400
+Message-ID: <6B1DF6EEBA51D31182F200902740436802678ED5@mail-in.comverse-in.com>
+From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
+To: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>
+Cc: LINUX Kernel <linux-kernel@vger.kernel.org>
+Subject: RE: ((struct pci_dev*)dev)->resource[...].start
+Date: Wed, 16 May 2001 18:13:28 -0400
 MIME-Version: 1.0
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-CC: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca> <Pine.LNX.4.05.10105160921220.23225-100000@callisto.of.borg> <200105161822.f4GIMo509185@vindaloo.ras.ucalgary.ca> <3B02D6AB.E381D317@transmeta.com> <200105162001.f4GK18X10128@vindaloo.ras.ucalgary.ca> <3B02DD79.7B840A5B@transmeta.com> <200105162054.f4GKsaF10834@vindaloo.ras.ucalgary.ca> <3B02F2EC.F189923@transmeta.com> <20010517001155.H806@nightmaster.csn.tu-chemnitz.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser wrote:
-> 
-> We do this already with ide-scsi. A device is visible as /dev/hda
-> and /dev/sda at the same time. Or think IDE-CDRW: /dev/hda,
-> /dev/sr0 and /dev/sg0.
-> 
-> All at the same time.
-> 
+Jeff,
+Many thanks for the clarifications.
 
-... and if you don't know about this funny aliasing, you get screwed. 
-This is BAD DESIGN, once again.
+> From: Jeff Garzik
+> "Khachaturov, Vassilii" wrote:
+[snip]
+> > bootup, the mapping of the PCI base address registers to 
+> virtual memory will
+> > remain the same (just as seen in /proc/pci, and as 
+> reflected in <subj>)? If
+> > not, is there a way to freeze it for the time I want to access it?
+> 
+> This is not a safe assumption, because the OS may reprogram 
+> the PCI BARs
+> at certain times.  The rule is:  ALWAYS read from 
+> dev->resource[] unless
+> you are a bus driver (PCI bridges, for example, need to assign
+> resources).
+[snip]
 
-> It is perfectly normal to export different interfaces for the
-> same device. This is basically, what subfunctions on PCI do: Same
-> device with different interfaces.
-> 
-> Just that we do it through a driver with ide and through the
-> hardware with a multi function PCI card.
-> 
-> Applications don't care about devices. They care about entities
-> that have capabilities and programming interfaces. What they
-> _really_ are and if this is only emulated is not important.
-> 
-> Sorry, I don't see your point here :-(
-> 
+I am not a bus driver, and I do call pci_enable_device once my device gets 
+probed and recognized by my driver. I always read from dev->resource[].
+But what are the "certain times" you've mentioned? What is the scope
+within which I know the BARs didn't change?
+ 
+> Finally, make sure to use pci_resource_{start,end,len,flags} macros to
+> make your core more portable and future-proof.
+I didn't use the macros - now I do, thanks for the tip!
 
-That seems to be a common theme with you.
+> > 2) (Basically, the question is "Do I understand 
+> Documentation/IO-mapping.txt
+> > right?")
+> > PCI memory, whenever IO type or memory type, can not be 
+> dereferenced but
+> > should be accessed with readb() etc. On i386, PCI mem 
+> (memory type) can be
+> > accessed by direct pointer access, but this is not portable.
+> 
+> We will yell at you mightily if you directly access PCI mem with a
+> pointer.  As you say it only works on i386 -- but IIRC since 
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Right now I am porting a driver to Linux which has so much i386 things in it
+
+(esp. byte order stuff). So far I haven't spoilt it with PCI i386 hacks
+though...
+
+> ioremap is
+> required, we are perfectly free to change or modify that assumption. 
+> For example ioremap might [have to] care about whether or not 
+> a pci mem
+> region is prefetchable.
+
+A really silly q. (I don't quite understand the Linux internals yet):
+Is ioremap() needed (in general vs. i386) for memory type PCI memory too, 
+or only for IO type?
+(In case the default size of the region associated with a BAR is fine with
+me?)
+
+Thanks,
+	Vassilii

@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267303AbUI0UD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267313AbUI0UHP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267303AbUI0UD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 16:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUI0UD5
+	id S267313AbUI0UHP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 16:07:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267312AbUI0UHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 16:03:57 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30215 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S267304AbUI0UDJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 16:03:09 -0400
-Date: Mon, 27 Sep 2004 21:03:05 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: [RFC] ARM binutils feature churn causing kernel problems
-Message-ID: <20040927210305.A26680@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Rusty Russell <rusty@rustcorp.com.au>
+	Mon, 27 Sep 2004 16:07:15 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:60596 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S267301AbUI0UGk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 16:06:40 -0400
+Date: Mon, 27 Sep 2004 13:06:16 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Cc: anil.s.keshavamurthy@intel.com, len.brown@intel.com,
+       acpi-devel@lists.sourceforge.net, lhns-devel@lists.sourceforge.net,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][3/4] Add hotplug support to drivers/acpi/numa.c
+Message-ID: <20040927130616.B30443@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <20040920092520.A14208@unix-os.sc.intel.com> <20040920094719.H14208@unix-os.sc.intel.com> <20040924012301.000007c6.tokunaga.keiich@jp.fujitsu.com> <20040924013255.00000337.tokunaga.keiich@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040924013255.00000337.tokunaga.keiich@jp.fujitsu.com>; from tokunaga.keiich@jp.fujitsu.com on Fri, Sep 24, 2004 at 01:32:55AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Sep 24, 2004 at 01:32:55AM +0900, Keiichiro Tokunaga wrote:
+> +void acpi_numa_node_init(acpi_handle handle)
+Why is this function returning void? I expect
+this to return int, what do you think?
+> +
+> +	if (acpi_bus_get_device(handle, &node_dev)) {
+> +		printk(KERN_ERR"Unknown handle.\n");
+> +		return_VOID;
+> +	}
+Why do you need to call acpi_bus_get_device?
 
-The ARM binutils seems to be in a problematical state at the moment.
-It has recently had a "bug" fixed where ARM specific "mapping symbols"
-were not generated in ELF objects.  These "mapping symbols" have names
-such as "$a" and "$d".
+> +	acpi_walk_namespace(ACPI_TYPE_PROCESSOR,
+> +			    handle,
+> +			    (u32) 1,
+> +			    find_processor,
+> +			    data,
+> +			    (void **)&cnt);
+Why are you looking for processor device here?
+Please remove this acpi_walk_namespace function.
 
-The unfortunate problem is that "$a" nearly always corresponds with
-the same address as the name of a function - and since none of the
-kernel knows about these "mapping symbols" we see backtraces which
-effectively say:
-
-[<address>] ($a+0xfoo/0xbar) from [<address>] ($a+0xfoo/0xbar)
-
-in other words, the kallsyms table and the symbol tables from kernel
-modules are next to useless because it invariably decodes all addresses
-to functions named "$a".
-
-While the binutils people have (we believe) fixed "ld" to ignore
-these symbols when decoding to a function name, "nm" reveals these
-symbols.
-
-It may be true that this will cause a lot of stuff which parses
-ELF objects to break, and I'm not going to debate whether the whole
-idea is a good one or bad.  However, what are peoples (Rusty's in
-particular) to adding yet more ARM binutils specific hacks to the
-kernel to work around these continuing problems?
-
-My major worry is that ARM ELF format will end up having soo many
-extra "features" that the Linux kernel, if it's going to continue
-supporting ARM, will need a fair amount of code to make all these
-features "work" as expected.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+> +	/*
+> diff -puN /dev/null include/acpi/numa.h
+> +#ifndef MAX_PXM_DOMAINS
+> +#define MAX_PXM_DOMAINS (256)
+> +#endif
+Why defining it again, It is already defined in asm-ia64/acpi.h file
+> 
+> _

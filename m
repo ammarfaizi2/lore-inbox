@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267354AbUI0Ue6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267365AbUI0Uj0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267354AbUI0Ue6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 16:34:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267352AbUI0Ue4
+	id S267365AbUI0Uj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 16:39:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267352AbUI0Ufa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 16:34:56 -0400
-Received: from mailin.studentenwerk.mhn.de ([141.84.225.229]:47307 "EHLO
-	email.studentenwerk.mhn.de") by vger.kernel.org with ESMTP
-	id S267301AbUI0Uco convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 16:32:44 -0400
-From: Wolfgang Walter <ml-linux-kernel@studentenwerk.mhn.de>
-Organization: Studentenwerk =?iso-8859-1?q?M=FCnchen?=
-To: Andrea Arcangeli <andrea@novell.com>
-Subject: Re: mlock(1)
-Date: Mon, 27 Sep 2004 22:32:38 +0200
-User-Agent: KMail/1.7
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Stefan Seyfried <seife@suse.de>,
-       Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <E1CAzyM-0008DI-00@calista.eckenfels.6bone.ka-ip.net> <1096281162.6485.19.camel@laptop.cunninghams> <20040927142946.GG28865@dualathlon.random>
-In-Reply-To: <20040927142946.GG28865@dualathlon.random>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Mon, 27 Sep 2004 16:35:30 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53767 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S267323AbUI0UbU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 16:31:20 -0400
+Date: Mon, 27 Sep 2004 21:31:12 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: "Kilau, Scott" <Scott_Kilau@digi.com>
+Cc: linux-kernel@vger.kernel.org, wenxiong@us.ibm.com
+Subject: Re: [PATCH 2.6.8.1] drivers/char: New serial driver.
+Message-ID: <20040927213112.B26680@flint.arm.linux.org.uk>
+Mail-Followup-To: "Kilau, Scott" <Scott_Kilau@digi.com>,
+	linux-kernel@vger.kernel.org, wenxiong@us.ibm.com
+References: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D774@minimail.digi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409272232.38952.ml-linux-kernel@studentenwerk.mhn.de>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D774@minimail.digi.com>; from Scott_Kilau@digi.com on Mon, Sep 27, 2004 at 03:03:32PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Basically to avoid to type the password during suspend, we'd need an
-> algorihtm that encrypts with a public key stored on the harddisk and
-> restore with the private key that sits only on a human brain.  The
-> public key would be stored on the harddisk and it would be used by
-> suspend to write to the swap partition. the resume password would be
-> asked to the user and used to decrypt the data. I think it should work
-> fine in theory.
->
-> However AFIK those public/private key algorithms only works securely with
-> tons of bits (a lot more than with a symmetic encryption), so I don't see
-> how can an human could possibly remeber such a long private key by memory.
-> I guess to make it work you'd need an USB pen to store it and unplug it
-> (then you'd have to be careful not to lose the USB pen). So I think it's
-> much simpler to use symmetric crypto (like cryptoloop) and to ask the
-> password during suspend too.
+On Mon, Sep 27, 2004 at 03:03:32PM -0500, Kilau, Scott wrote:
+> I am submitting a new serial driver for the 2.6 series of kernels.
+> 
+> Description:
+> Digi serial driver for the Digi Neo and Classic PCI serial port
+> products.
+> 
+> IBM has requested this submission into the Linux kernel.
+> 
+> The patch is quite large (300K uncompressed), so rather than attach it
+> I am submitting a link to our ftp site where the patch is located.
+> 
+> ftp://ftp1.digi.com/pub/patches/dgnc.patch
 
-You may do it like ssh: encrypt the private key with a symmetric cypher using 
-a key based on a passphrase and store it on disk (of course this is only as 
-secure as your passphrase).
+A few comments:
 
-On suspend: generate a symmetric-key KS, save memory to harddisk encrypted 
-with KS, append the KS enrypted with the public key A_PUB. append the private 
-encrypted key A_PRIV_ENCR_BASED_ON_PASSPHRASE  (which is stored on the 
-harddisk). On resume user must type in passphrase, then we can decrypt 
-A_PRIV_ENCR_BASED_ON_PASSPHRASE and get A_PRIV, decrypt KS and so decrypt 
-saved memory.
+(1) I'm disappointed that you aren't using the serial_core support
+    in drivers/serial.
+(2) I'm also concerned that you're using serial_reg.h as a description
+    of an interface between your hardware specific drivers and your
+    hardware independent tty core.  It isn't a description of such an
+    interface and therefore should not be used as such.  Please fix
+    your code in respect to this.
+(3) loopback mode is normally enabled by setting TIOCM_LOOP modem
+    control bit via the TIOCMBIS ioctl.
 
-Greetings,
+I'd also like Alan Cox to look over the driver since he's looking at
+the tty layer.  Alan may have further comments since I've only briefly
+looked through it.
 
-Wolfgang Walter
 -- 
-Wolfgang Walter
-Studentenwerk München
-Anstalt des öffentlichen Rechts
-EDV
-Leopoldstraße 15
-80802 München
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

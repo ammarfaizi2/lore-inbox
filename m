@@ -1,201 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbUJ3Wi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbUJ3Wlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbUJ3Wi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 18:38:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbUJ3Wi6
+	id S261369AbUJ3Wlg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 18:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbUJ3Wlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 18:38:58 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:27911 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261367AbUJ3Wit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 18:38:49 -0400
-Date: Sun, 31 Oct 2004 00:38:17 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] telephony/ixj.c cleanup
-Message-ID: <20041030223817.GH4374@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 30 Oct 2004 18:41:35 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14264 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261369AbUJ3Wla
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 18:41:30 -0400
+Message-ID: <41841886.2080609@pobox.com>
+Date: Sat, 30 Oct 2004 18:41:10 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: maximilian attems <janitor@sternwelten.at>
+CC: Margit Schubert-While <margitsw@t-online.de>,
+       Nishanth Aravamudan <nacc@us.ibm.com>, hvr@gnu.org,
+       mcgrof@studorgs.rutgers.edu, kernel-janitors@lists.osdl.org,
+       prism54-devel@prism54.org, netdev@oss.sgi.com,
+       Domen Puncer <domen@coderock.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.4] back port msleep(), msleep_interruptible()
+References: <20040923221303.GB13244@us.ibm.com> <20040923221303.GB13244@us.ibm.com> <5.1.0.14.2.20040924074745.00b1cd40@pop.t-online.de> <415CD9D9.2000607@pobox.com> <20041030222228.GB1456@stro.at>
+In-Reply-To: <20041030222228.GB1456@stro.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below does:
-- remove ixj_register and ixj_unregister
-  these were EXPORT_SYMBOL'ed static (sic) functions
-  it seems the only reason why this "worked" was that there were exactly
-  zero users of them...
-- remove four local variables that are after this removal no longer 
-  required
-- make five functions that were needlessly global static
+maximilian attems wrote:
+> diff -puN include/linux/delay.h~add-msleep-2.4 include/linux/delay.h
+> --- a/include/linux/delay.h~add-msleep-2.4	2004-10-30 22:48:46.000000000 +0200
+> +++ b/include/linux/delay.h	2004-10-30 22:48:46.000000000 +0200
+> @@ -34,4 +34,12 @@ extern unsigned long loops_per_jiffy;
+>  	({unsigned long msec=(n); while (msec--) udelay(1000);}))
+>  #endif
+>  
+> +void msleep(unsigned int msecs);
+> +unsigned long msleep_interruptible(unsigned int msecs);
+> +
+> +static inline void ssleep(unsigned int seconds)
+[...]
+> +static inline unsigned int jiffies_to_msecs(const unsigned long j)
+
+> +static inline unsigned int jiffies_to_usecs(const unsigned long j)
+
+> +static inline unsigned long msecs_to_jiffies(const unsigned int m)
 
 
-diffstat output:
- drivers/telephony/ixj.c |  105 +---------------------------------------
- 1 files changed, 5 insertions(+), 100 deletions(-)
+I'm pretty sure more than one of these symbols clashes with a symbol 
+defined locally in a driver.  I like the patch but we can't apply it 
+until the impact on existing code is evaluated.
 
+	Jeff
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm2-full/drivers/telephony/ixj.c.old	2004-10-31 00:10:49.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/drivers/telephony/ixj.c	2004-10-31 00:23:17.000000000 +0200
-@@ -406,14 +406,10 @@
- 	return 0;
- }
- 
--static IXJ_REGFUNC ixj_DownloadG729 = &Stub;
--static IXJ_REGFUNC ixj_DownloadTS85 = &Stub;
- static IXJ_REGFUNC ixj_PreRead = &Stub;
- static IXJ_REGFUNC ixj_PostRead = &Stub;
- static IXJ_REGFUNC ixj_PreWrite = &Stub;
- static IXJ_REGFUNC ixj_PostWrite = &Stub;
--static IXJ_REGFUNC ixj_PreIoctl = &Stub;
--static IXJ_REGFUNC ixj_PostIoctl = &Stub;
- 
- static void ixj_read_frame(IXJ *j);
- static void ixj_write_frame(IXJ *j);
-@@ -792,97 +788,6 @@
- 	return 0;
- }
- 
--static int ixj_register(int index, IXJ_REGFUNC regfunc)
--{
--	int cnt;
--	int retval = 0;
--	switch (index) {
--	case G729LOADER:
--		ixj_DownloadG729 = regfunc;
--		for (cnt = 0; cnt < IXJMAX; cnt++) {
--			IXJ *j = get_ixj(cnt);
--			while(test_and_set_bit(cnt, (void *)&j->busyflags) != 0) {
--				set_current_state(TASK_INTERRUPTIBLE);
--				schedule_timeout(1);
--			}
--			ixj_DownloadG729(j, 0L);
--			clear_bit(cnt, &j->busyflags);
--		}
--		break;
--	case TS85LOADER:
--		ixj_DownloadTS85 = regfunc;
--		for (cnt = 0; cnt < IXJMAX; cnt++) {
--			IXJ *j = get_ixj(cnt);
--			while(test_and_set_bit(cnt, (void *)&j->busyflags) != 0) {
--				set_current_state(TASK_INTERRUPTIBLE);
--				schedule_timeout(1);
--			}
--			ixj_DownloadTS85(j, 0L);
--			clear_bit(cnt, &j->busyflags);
--		}
--		break;
--	case PRE_READ:
--		ixj_PreRead = regfunc;
--		break;
--	case POST_READ:
--		ixj_PostRead = regfunc;
--		break;
--	case PRE_WRITE:
--		ixj_PreWrite = regfunc;
--		break;
--	case POST_WRITE:
--		ixj_PostWrite = regfunc;
--		break;
--	case PRE_IOCTL:
--		ixj_PreIoctl = regfunc;
--		break;
--	case POST_IOCTL:
--		ixj_PostIoctl = regfunc;
--		break;
--	default:
--		retval = 1;
--	}
--	return retval;
--}
--
--EXPORT_SYMBOL(ixj_register);
--
--static int ixj_unregister(int index)
--{
--	int retval = 0;
--	switch (index) {
--	case G729LOADER:
--		ixj_DownloadG729 = &Stub;
--		break;
--	case TS85LOADER:
--		ixj_DownloadTS85 = &Stub;
--		break;
--	case PRE_READ:
--		ixj_PreRead = &Stub;
--		break;
--	case POST_READ:
--		ixj_PostRead = &Stub;
--		break;
--	case PRE_WRITE:
--		ixj_PreWrite = &Stub;
--		break;
--	case POST_WRITE:
--		ixj_PostWrite = &Stub;
--		break;
--	case PRE_IOCTL:
--		ixj_PreIoctl = &Stub;
--		break;
--	case POST_IOCTL:
--		ixj_PostIoctl = &Stub;
--		break;
--	default:
--		retval = 1;
--	}
--	return retval;
--}
--
--EXPORT_SYMBOL(ixj_unregister);
--
- static void ixj_init_timer(IXJ *j)
- {
- 	init_timer(&j->timer);
-@@ -2257,7 +2162,7 @@
- 	return 0;
- }
- 
--int ixj_release(struct inode *inode, struct file *file_p)
-+static int ixj_release(struct inode *inode, struct file *file_p)
- {
- 	IXJ_TONE ti;
- 	int cnt;
-@@ -6785,7 +6690,7 @@
- 	return fasync_helper(fd, file_p, mode, &j->async_queue);
- }
- 
--struct file_operations ixj_fops =
-+static struct file_operations ixj_fops =
- {
-         .owner          = THIS_MODULE,
-         .read           = ixj_enhanced_read,
-@@ -7735,7 +7640,7 @@
- 	return res;
- }
- 
--int __init ixj_probe_isapnp(int *cnt)
-+static int __init ixj_probe_isapnp(int *cnt)
- {               
- 	int probe = 0;
- 	int func = 0x110;
-@@ -7815,7 +7720,7 @@
- 	return probe;
- }
-                         
--int __init ixj_probe_isa(int *cnt)
-+static int __init ixj_probe_isa(int *cnt)
- {
- 	int i, probe;
- 
-@@ -7839,7 +7744,7 @@
- 	return 0;
- }
- 
--int __init ixj_probe_pci(int *cnt)
-+static int __init ixj_probe_pci(int *cnt)
- {
- 	struct pci_dev *pci = NULL;   
- 	int i, probe = 0;
 

@@ -1,81 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261715AbSJ2AM0>; Mon, 28 Oct 2002 19:12:26 -0500
+	id <S261616AbSJ2AO6>; Mon, 28 Oct 2002 19:14:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261721AbSJ2AM0>; Mon, 28 Oct 2002 19:12:26 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:32424 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S261715AbSJ2AMW>;
-	Mon, 28 Oct 2002 19:12:22 -0500
-Date: Tue, 29 Oct 2002 01:18:43 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: John Gardiner Myers <jgmyers@netscape.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-aio@kvack.org, lse-tech@lists.sourceforge.net,
-       davidel@xmailserver.org
-Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
-Message-ID: <20021029001843.GB31212@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	John Gardiner Myers <jgmyers@netscape.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-aio@kvack.org, lse-tech@lists.sourceforge.net,
-	davidel@xmailserver.org
-References: <20021028220809.GB27798@outpost.ds9a.nl> <Pine.LNX.4.44.0210281420540.966-100000@blue1.dev.mcafeelabs.com> <20021028225821.GA29868@outpost.ds9a.nl> <3DBDCC02.6060100@netscape.com>
-Mime-Version: 1.0
+	id <S261626AbSJ2AO5>; Mon, 28 Oct 2002 19:14:57 -0500
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:54752 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261616AbSJ2AO4>; Mon, 28 Oct 2002 19:14:56 -0500
+To: <chris@scary.beasts.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] 2.5.44 (1/2): Filesystem capabilities kernel patch
+References: <Pine.LNX.4.33.0210282327520.8990-100000@sphinx.mythic-beasts.com>
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Date: Tue, 29 Oct 2002 01:20:58 +0100
+Message-ID: <87elaanlhx.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DBDCC02.6060100@netscape.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 28, 2002 at 03:45:06PM -0800, John Gardiner Myers wrote:
+<chris@scary.beasts.org> writes:
 
-> As you have amply demonstrated, the current epoll API is error prone. 
-> The API should be fixed to test the poll condition and, if necessary, 
-> drop an event upon insertion to the set.
+> On Mon, 28 Oct 2002, Olaf Dietsche wrote:
+>
+>> If you're careful with giving away capabilities however, this patch
+>> can make your system more secure as it is. But this isn't fully
+>> explored, so you might achieve the opposite and open new security
+>> holes.
+>
+> Have you checked how glibc handles an executable with filesystem
+> capabilities? e.g. can an LD_PRELOAD hack subvert the privileged
+> executable?
 
-That is a semantics change and not an API/ABI change. To reiterate, you
-mention the following scenario:
+No, I didn't check. Thanks for this hint, I will look into this.
 
-for(;;) {
-	nfds = sys_epoll_wait(kdpfd, &pfds, -1);
-	for(n = 0; n < nfds; ++n) {
-		if((fd = pfds[n].fd) == s) {
-                        /* 1: accept client (SYN/SYN|ACK/ACK completed) */
-			client = accept(s, (struct sockaddr*)&local, &addrlen);
-			if(client < 0){
-				perror("accept");
-				continue;
-			}
-
-			/* 2: packet comes in, client becomes readable  */
-			/* 3: registering interest */
-			if (sys_epoll_ctl(kdpfd, EP_CTL_ADD, client, POLLIN ) < 0) {
-				fprintf(stderr, "sys_epoll set insertion error: fd=%d\n", client);
-				return -1;
-			}
-			
-			/* 4: interest only now registered, no edge will be
-			   reported, our fd is lost */
-
-			fd = client;
-		}
-		do_use_fd(fd);
-	}
-}                                                                                                                     
-
-There are lots of ways to solve this, I bet Davide knows best. Perhaps it is
-solved already, you can't tell from only studying the API, the problem isn't
-intrinsic to it.  
-
-An easy solution is to have sys_epoll_ctl check if there is there is data
-ready and make sure there is an edge to report in that case to the next call
-of sys_epoll_ctl().
-
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Regards, Olaf.

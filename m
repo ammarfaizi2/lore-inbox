@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284537AbRLMSTk>; Thu, 13 Dec 2001 13:19:40 -0500
+	id <S284518AbRLMSYk>; Thu, 13 Dec 2001 13:24:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284518AbRLMSTU>; Thu, 13 Dec 2001 13:19:20 -0500
-Received: from cti06.citenet.net ([206.123.38.70]:54793 "EHLO
-	cti06.citenet.net") by vger.kernel.org with ESMTP
-	id <S282967AbRLMSTO>; Thu, 13 Dec 2001 13:19:14 -0500
-From: Jacques Gelinas <jack@solucorp.qc.ca>
-Date: Thu, 13 Dec 2001 11:02:15 -0500
-To: linux-kernel@vger.kernel.org
-Subject: re: User-manageable sub-ids proposals
-X-mailer: tlmpmail 0.1
-Message-ID: <20011213110215.bfcc4bfa0b14@remtk.solucorp.qc.ca>
+	id <S284540AbRLMSYa>; Thu, 13 Dec 2001 13:24:30 -0500
+Received: from femail25.sdc1.sfba.home.com ([24.254.60.15]:32182 "EHLO
+	femail25.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S284518AbRLMSYT>; Thu, 13 Dec 2001 13:24:19 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [OT] Re: 2.4.16 & OOM killer screw up (fwd)
+Date: Thu, 13 Dec 2001 05:22:49 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: hch@ns.caldera.de (Christoph Hellwig), linux-kernel@vger.kernel.org
+In-Reply-To: <E16ERXw-0004JK-00@the-village.bc.nu>
+In-Reply-To: <E16ERXw-0004JK-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011213182418.UDOP29887.femail25.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Dec 2001 11:36:16 -0500, Romano Giannetti wrote
-> Good morning to everyone.
+On Thursday 13 December 2001 03:48 am, Alan Cox wrote:
+> > On Tuesday 11 December 2001 12:23 pm, Christoph Hellwig wrote:
+> > > For BSD advocates it might be a problem that these are unified diffs
+> > > that are only applyable with GPL-licensed patch(1) version..
+> >
+> > Why would BSD advocates be applying patches to the linux kernel?  (You
+> > don't need the tool to read a patch for ideas, do you?)  Why would BSD
+> > advocates apply a GPL-licensed patch to the GPL-licensed Linux kernel,
+> > and then complain that the tool they're using to do so is GPL-licensed?
+> >
+> > I'm confused.  (Not SUPRISED, mind you.  Just easily confused.)
 >
-> I was thinking about the idea of sub-ids to enable users to run "untrusted"
-> binary or "dangerous" one without risk for their files/privacy.
+> Christoph, please remember that irony is not available between the Canadian
+> and Mexican border.... you are confusing them again 8)
 
-I have another solution, which is almost completed. I am combining
-two project. One is the vserver project (see the url in my signature) and the
-other is the AclFS component of the virtualfs project
-(http://www.solucorp.qc.ca/virtualfs).
+We'll get it back when the whole "everything has changed" fad dies down.  
+Average together how long the OJ simpson trial lasted, the monica lewinsky 
+thing, elian gonzalez down in miami, the press coverage of hurricane andrew, 
+the original gulf war, nancy kerrigan, john wayne bobbit, joey buttafuoco, 
+the military interventions in somalia and bosnia, the outcry over alar and 
+malathion in california back in the 80's, dan quayle attacking murphy brown, 
+the anti-nuke sentiment following chernobyl and three mile island...
 
-Using the chcontext utility from the vserver project, you can isolate a process
-from the rest of the system, including the other user processes
+That's our national attention span.  A year, maybe a year and change.  
+Anybody who thinks some nut with a beard can keep this country permanently 
+nervous obviously doesn't remember the cuban missile crisis.  (And of course 
+there are a lot of people who don't, again because of our short attention 
+span...)  Our military may be rather impressive, but our sarcastic 
+self-centered indifference is legendary.  We're STILL bombing Iraq, and most 
+of the US has forgotten that country even exists...
 
-For example, as a normal user, you can do
+</off topic thread>
 
-	xterm &
-	/usr/sbin/chcontext /bin/sh
-	ps ax
-	killall xterm
+> Alan
 
-and you only see your new shell, the ps command and init. The killall fails
-finding no xterm to kill.
-
-Another part of the vserver project is the capability ceiling, which is a way to
-turn off some capabilities for a process and its children, even setuid child.
-
-I was thinking about introducing a new capability CAP_OPEN. This capability
-would prevent any open system call from succeeding. Wow. Now that's secure :-)
-
-The acslfs daemon works using a unix domain socket. Using a preload object
-the client does various system call request to aclfsd, including open, socket
-and so on. If aclfsd grant the access, it opens the file and pass back the
-file handle using the socket. So the client does not need to open the file
-itself.
-
-So the CAP_OPEN is there to force the client to use aclfsd. Even if using aclfsd
-is transparent to normal clients, some client might do a direct call to the OS.
-All those calls would fail.
-
-Not also that aclfsd does not need any privilege. A normal user may start
-it with its own configurations (access privileges).
-
-Ultimatly, one goal of this would be to run your favorite browser in a security
-box and allow fine grain access to your own file. Then one could do the so
-cool thing windows user do all the time: They visit a site, select a plugin
-and run it. Unlike windows, you would not get all the virus though :-)
-
-Anyway, the vserver and virtual projects are used for different purpose today
-but could be combined to achieve this kind of result.
-
----------------------------------------------------------
-Jacques Gelinas <jack@solucorp.qc.ca>
-vserver: run general purpose virtual servers on one box, full speed!
-http://www.solucorp.qc.ca/miscprj/s_context.hc
+Rob

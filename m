@@ -1,34 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314325AbSFCSMH>; Mon, 3 Jun 2002 14:12:07 -0400
+	id <S314485AbSFCSOB>; Mon, 3 Jun 2002 14:14:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314485AbSFCSMG>; Mon, 3 Jun 2002 14:12:06 -0400
-Received: from AMontpellier-201-1-3-85.abo.wanadoo.fr ([193.252.1.85]:474 "EHLO
-	awak") by vger.kernel.org with ESMTP id <S314325AbSFCSMF> convert rfc822-to-8bit;
-	Mon, 3 Jun 2002 14:12:05 -0400
-Subject: Re: Support for keyboards with special scancodes
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Andre Bonin <kernel@bonin.ca>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, bonin@bonin.ca
-In-Reply-To: <3CFBACC8.6010002@bonin.ca>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 03 Jun 2002 20:11:44 +0200
-Message-Id: <1023127906.6924.30.camel@bip>
-Mime-Version: 1.0
+	id <S317448AbSFCSOA>; Mon, 3 Jun 2002 14:14:00 -0400
+Received: from pD952AF1C.dip.t-dialin.net ([217.82.175.28]:21124 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S314485AbSFCSN7>; Mon, 3 Jun 2002 14:13:59 -0400
+Date: Mon, 3 Jun 2002 12:13:29 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+cc: jt@hpl.hp.com, Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+        Dan Aloni <da-x@gmx.net>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: Link order madness :-( 
+In-Reply-To: <200206031729.g53HTwTo002828@pincoya.inf.utfsm.cl>
+Message-ID: <Pine.LNX.4.44.0206031209541.3833-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le lun 03/06/2002 à 19:52, Andre Bonin a écrit :
-> I have an Logitech Internet Navigator keyboard that has nice little 
-> 'play', 'pause', 'e-mail' buttons of all kinds (As many of us do, i 
-> believe).  I couldn't find any specialised keyboard drivers in the 
-> kernel.  Only different locales.
+Hi,
 
-Yes, and there's an app called "hotkeys" which assigns actions to these
-keys (e.g. launch Evolution or KMail on a press of the "mail" key)
+On Mon, 3 Jun 2002, Horst von Brand wrote:
+> There should be a way of saying "This must be initialized after this, and
+> before that" (the "before that" might perhaps be taken care of by the
+> "that" itself). Spiced with a few "barriers": "Networking inited", etc.
 
-	Xav
+Suggestion #1: make up an inittask table (bad idea, huge table) that gets 
+freed on end of init.
 
+Suggestion #2: each big subsystem (net, scsi, pcmcia, etc.) gets a lock 
+that is engaged when starting, and is checked by the subsystems. The 
+subsystems' init won't take place unless the parent subsystem is up. At 
+end of init, these locks get freed.
+
+Suggestion #3 (possibly the worst ever): let the subsubsystems be init'ed 
+by the subsystems, using #ifdef'd calls...
+
+I must leave now, sorry.
+
+Regards,
+Thunder
+-- 
+ship is leaving right on time	|	Thunder from the hill at ngforever
+empty harbour, wave goodbye	|
+evacuation of the isle		|	free inhabitant not directly
+caveman's paintings drowning	|	belonging anywhere
 

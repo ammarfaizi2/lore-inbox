@@ -1,76 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262357AbVBXOdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbVBXOsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262357AbVBXOdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 09:33:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262358AbVBXOdZ
+	id S262359AbVBXOsg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 09:48:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbVBXOsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 09:33:25 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:5722 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262357AbVBXOdS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 09:33:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=AekEj5TBgw5MXNAgWUKQ4epuVvtq/VmB4UHuyo5iXY46jIb5g/jF/XHuhVC2u3jVFqBGG0Cb2CKhk+XjEIHu+ZBOwHYfWaEWTcIyhD/ijvGhFA6LPS7shRx/6PE8gm5ULtfVFUOqcHB0RyU9oS4v8Tx0gq/KZQOkUgEFFdEWlTI=
-Message-ID: <61d439b050224063362ab1465@mail.gmail.com>
-Date: Thu, 24 Feb 2005 15:33:17 +0100
-From: Jordi Brinquez <jordi.brinquez@gmail.com>
-Reply-To: Jordi Brinquez <jordi.brinquez@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Possible bug on signal.h
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Feb 2005 09:48:36 -0500
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:51105 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S262359AbVBXOsC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 09:48:02 -0500
+Date: Thu, 24 Feb 2005 15:38:14 +0100 (CET)
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+cc: Tejun Heo <htejun@gmail.com>
+Subject: [patch ide-dev 2/9] add ide_tf_get_address() helper
+Message-ID: <Pine.GSO.4.58.0502241537330.13534@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I think I found a possible bug on file signal.h.
+* add ide_tf_get_address() helper
+* use it in idedisk_read_native_max_address[_ext]()
+  and idedisk_set_max_address[_ext]()
 
-The problem comes when you define a struct sigaction on a user program
-and then you use the function sigaction to remap a signal handler (in
-my case a page_fault) for my own function, this system call is
-compiled as __NR_sigaction system call (by default this routine is
-managed by sys_sigaction routine) and if the architecture defines
-__ARCH_WANT_SYS_RT_SIGACTION kernel uses the routine sys_rt_sigaction
-on the file kernel/signal.c that instead of copying the fields from
-one structure to the other it just uses copy_from_user and
-copy_to_user with the consequent mess with the fields.
+diff -Nru a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
+--- a/drivers/ide/ide-disk.c	2005-02-19 17:22:32 +01:00
++++ b/drivers/ide/ide-disk.c	2005-02-19 17:22:32 +01:00
+@@ -344,8 +344,7 @@
 
-One possible solution will be to change the field order in all struct
-sigaction under arch/ folder and reorder the fields exactly the same
-as in the kernel definition (on kernel mode are defined in this order
-sa_handler, sa_flags, sa_restorer, sa_mask and on user mode
-_sa_handler | _sa_sigaction, sa_mask, sa_flags, sa_restorer).
+ 	/* if OK, compute maximum address value */
+ 	if ((tf->command & 1) == 0) {
+-		addr = ((tf->device & 0xf) << 24) |
+-		       (tf->lbah << 16) | (tf->lbam << 8) | tf->lbal;
++		addr = (u32)ide_tf_get_address(tf);
+ 		addr++;	/* since the return value is (maxlba - 1), we add 1 */
+ 	}
+ 	return addr;
+@@ -373,9 +372,7 @@
 
-Another solution will be change the copy_to_user and copy_from_user
-for calls like in arch/i386/kernel/signal.c (__get_user(...) and
-__put_user(...)).
+ 	/* if OK, compute maximum address value */
+ 	if ((tf->command & 1) == 0) {
+-		u32 high = (tf->hob_lbah << 16) | (tf->hob_lbam << 8) | tf->hob_lbal;
+-		u32 low  = (tf->lbah << 16) | (tf->lbam << 8) | tf->lbal;
+-		addr = ((__u64)high << 24) | low;
++		addr = ide_tf_get_address(tf);
+ 		addr++;	/* since the return value is (maxlba - 1), we add 1 */
+ 	}
+ 	return addr;
+@@ -407,8 +404,7 @@
+ 	ide_raw_taskfile(drive, &args, NULL);
+ 	/* if OK, read new maximum address value */
+ 	if ((tf->command & 1) == 0) {
+-		addr_set = ((tf->device & 0xf) << 24) |
+-			   (tf->lbah << 16) | (tf->lbam << 8) | tf->lbal;
++		addr_set = (u32)ide_tf_get_address(tf);
+ 		addr_set++;
+ 	}
+ 	return addr_set;
+@@ -442,9 +438,7 @@
+ 	ide_raw_taskfile(drive, &args, NULL);
+ 	/* if OK, compute maximum address value */
+ 	if ((tf->command & 1) == 0) {
+-		u32 high = (tf->hob_lbah << 16) | (tf->hob_lbam << 8) | tf->hob_lbal;
+-		u32 low  = (tf->lbah << 16) | (tf->lbam << 8) | tf->lbal;
+-		addr_set = ((__u64)high << 24) | low;
++		addr_set = ide_tf_get_address(tf);
+ 		addr_set++;
+ 	}
+ 	return addr_set;
+diff -Nru a/drivers/ide/ide-io.c b/drivers/ide/ide-io.c
+--- a/drivers/ide/ide-io.c	2005-02-19 17:22:32 +01:00
++++ b/drivers/ide/ide-io.c	2005-02-19 17:22:32 +01:00
+@@ -317,6 +317,22 @@
+ 	spin_unlock_irqrestore(&ide_lock, flags);
+ }
 
-Or what I think it will be better change both.
++u64 ide_tf_get_address(struct ata_taskfile *tf)
++{
++	u32 high, low;
++
++	if (tf->flags & ATA_TFLAG_LBA48)
++		high = (tf->hob_lbah << 16) | (tf->hob_lbam << 8) | tf->hob_lbal;
++	else
++		high = tf->device & 0xf;
++
++	low = (tf->lbah << 16) | (tf->lbam << 8) | tf->lbal;
++
++	return ((u64)high << 24) | low;
++}
++
++EXPORT_SYMBOL_GPL(ide_tf_get_address);
++
+ /*
+  * FIXME: probably move this somewhere else, name is bad too :)
+  */
+diff -Nru a/include/linux/ide.h b/include/linux/ide.h
+--- a/include/linux/ide.h	2005-02-19 17:22:32 +01:00
++++ b/include/linux/ide.h	2005-02-19 17:22:32 +01:00
+@@ -1189,6 +1189,8 @@
+  */
+ extern void ide_init_drive_cmd (struct request *rq);
 
-I've been searching and I think that the affected architectures are
-those ones, but I may forgot some:
-
-- arm
-- arm26
-- cris
-- i386
-- m32r
-- m68k
-- m68knommu
-- s390
-- sh
-- sh64
-- sparc64
-- um
-- v850
-
-Hope I explained the problem quite clear if not please ask for more
-info and I'll give you all that you need.
-
-Greets,
-
-Jordi
++u64 ide_tf_get_address(struct ata_taskfile *);
++
+ /*
+  * this function returns error location sector offset in case of a write error
+  */

@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315540AbSHITKk>; Fri, 9 Aug 2002 15:10:40 -0400
+	id <S315708AbSHITRs>; Fri, 9 Aug 2002 15:17:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315607AbSHITKj>; Fri, 9 Aug 2002 15:10:39 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51472 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315540AbSHITKj>; Fri, 9 Aug 2002 15:10:39 -0400
-Message-ID: <3D541478.40808@zytor.com>
-Date: Fri, 09 Aug 2002 12:14:00 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
-X-Accept-Language: en-us, en, sv
+	id <S315709AbSHITRs>; Fri, 9 Aug 2002 15:17:48 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:14792 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315708AbSHITRs>;
+	Fri, 9 Aug 2002 15:17:48 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: Daniel Phillips <phillips@arcor.de>, davidm@hpl.hp.com,
+       David Mosberger <davidm@napali.hpl.hp.com>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: large page patch (fwd) (fwd)
+Date: Fri, 9 Aug 2002 15:17:55 -0400
+User-Agent: KMail/1.4.1
+Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, torvalds@transmeta.com,
+       gh@us.ibm.com, Martin.Bligh@us.ibm.com, wli@holomorpy.com,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0208031240270.9758-100000@home.transmeta.com> <200208091432.38561.frankeh@watson.ibm.com> <E17dEje-0001Ro-00@starship>
+In-Reply-To: <E17dEje-0001Ro-00@starship>
 MIME-Version: 1.0
-To: davidm@hpl.hp.com
-CC: Arnd Bergmann <arnd@bergmann-dalldorf.de>, linux-kernel@vger.kernel.org
-Subject: Re: klibc development release
-References: <aivdi8$r2i$1@cesium.transmeta.com>	<200208090934.g799YVZe116824@d12relay01.de.ibm.com>	<200208091754.g79HsJkN058572@d06relay02.portsmouth.uk.ibm.com>	<3D541018.4050004@zytor.com> <15700.4689.876752.886309@napali.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208091517.55019.frankeh@watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger wrote:
->>>>>>On Fri, 09 Aug 2002 11:55:20 -0700, "H. Peter Anvin" <hpa@zytor.com> said:
->>>>>
-> 
->   HPA> Hmf... some of these seem to be outright omissions
->   HPA> (pivot_root() and umount2() especially), and probably indicate
->   HPA> bugs or that the stock kernel isn't up to date anymore.
-> 
->   HPA> I can see umount() being missing (as in "use umount2()").
-> 
-> Alpha calls umount2() "oldumount"; ia64 never had a one-argument
-> version of umount(), so there is no point creating legacy (and the
-> naming is inconsistent anyhow...).
-> 
+On Friday 09 August 2002 02:43 pm, Daniel Phillips wrote:
+> On Friday 09 August 2002 20:32, Hubertus Franke wrote:
+> > On Friday 09 August 2002 11:20 am, Daniel Phillips wrote:
+> > > On Sunday 04 August 2002 19:19, Hubertus Franke wrote:
+> > > > "General Purpose Operating System Support for Multiple Page Sizes"
+> > > > htpp://www.usenix.org/publications/library/proceedings/usenix98/full_
+> > > >pape rs/ganapathy/ganapathy.pdf
+> > >
+> > > This reference describes roughly what I had in mind for active
+> > > defragmentation, which depends on reverse mapping.  The main additional
+> > > wrinkle I'd contemplated is introducing a new ZONE_LARGE, and
+> > > GPF_LARGE, which means the caller promises not to pin the allocation
+> > > unit for long periods and does not mind if the underlying physical page
+> > > changes spontaneously.  Defragmenting in this zone is straightforward.
+> >
+> > I think the objection to that is that in many cases the cost of
+> > defragmentation is to heavy to be recollectable through TLB miss handling
+> > alone.
+>
+> You pay the cost only on transition from a load that doesn't use many large
+> pages to one that does, it is not an ongoing cost.
+>
 
-The gratuitous inconsistencies between platforms is something that is 
-currently driving me up the wall.  I'm starting to think the NetBSD 
-people have the right idea: when you add a system call on NetBSD, you 
-only have to add it in one place and it becomes available on all the 
-platforms they support.  Of course, you can provide a custom 
-implementation for any one platform, but the idea is to keep as much of 
-the code generic as possible...
+Correct. Maybe I misunderstood, when are you doing the coalloction of 
+adjacent pages (page-clusters, super pages).
+Our intend was to do it at page fault time and breakup only during 
+memory pressure. 
 
-	-hpa
+> > [...]
+> >
+> > Defragmenting to me seems a matter of last resort, Copying pages is
+> > expensive.
+>
+> It is the only way to ever have a seamless implementation.  Really, I don't
+> understand this fear of active defragmentation.  Oh well, like davem said,
+> code talks.
 
-
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)

@@ -1,103 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbTEZVQN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 17:16:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbTEZVQN
+	id S262252AbTEZVVh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 17:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTEZVVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 17:16:13 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:52999 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S262251AbTEZVQK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 17:16:10 -0400
-Date: Mon, 26 May 2003 23:29:02 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: "David S. Miller" <davem@redhat.com>,
+	Mon, 26 May 2003 17:21:37 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25617 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262252AbTEZVVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 17:21:35 -0400
+Date: Mon, 26 May 2003 14:34:24 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jens Axboe <axboe@suse.de>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
-Message-ID: <20030526212902.GA13550@alpha.home.local>
-References: <1053732598.1951.13.camel@mulgrave> <20030524064340.GA1451@alpha.home.local> <1053923112.14018.16.camel@rth.ninka.net> <Pine.LNX.4.55L.0305261541320.20861@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55L.0305261541320.20861@freak.distro.conectiva>
-User-Agent: Mutt/1.4i
+Subject: Re: [BK PATCHES] add ata scsi driver
+In-Reply-To: <20030526205725.GT845@suse.de>
+Message-ID: <Pine.LNX.4.44.0305261429550.13489-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 26, 2003 at 03:42:42PM -0300, Marcelo Tosatti wrote:
- 
-> Splitting up the work with someone is senseless, IMO. As I said before,
-> 2.4.22-pre should be better in that aspect. In case it doesnt, I'm giving
-> up 2.4.x maintenance.
 
-Marcelo,
+On Mon, 26 May 2003, Jens Axboe wrote:
+> 
+> > Think of all the fairness issues we've had in the elevator code, and 
+> > realize that the low-level disk probably implements _none_ of those 
+> > fairness algorithms.
+> 
+> I think it does, to some extent at least.
 
-Reading your words, I have the sad feeling that you take no interest in doing
-this job, and that you do it only because people ask you to. What a shame :-(
+I doubt they do a very good job of it. I know of bad cases, even with 
+"high-end" hardware. Sure, we can hope that it's getting better, but do we 
+want to bet on it.
 
-Although it sure can be annoying, aren't you proud of each new release ?
-Usually, kernel integrators are proud of their new kernels when they get
-something rock solid ! People like Con Kolivas, J.A.Magallon, Marc-Christian
-Pettersen are often proud to announce us the few bits they changed in their
-tree and which stabilized it. It seems you only do this as an obligation,
-which is sad, really.
+> > Hmm.. Where does it keep track of request latency for requests that have 
+> > been removed from the queue?
+> 
+> Well, it doesn't...
 
-I understand that maintaining the stable tree, the one which MUST NOT FAIL,
-may be frustrating, not being as excitant as playing with kernels which try
-to get the most of every piece of hardware, as others do (although nobody
-prevents you from developing your own Wolk). But you don't seem to share much
-about your feelings, ideas or doubts with others. Alan, for example, exchanges
-a lot with people testing his kernels, suggesting a few tweaks to help them
-workaround their problems, and integrating the tweak in the next release if it
-succeeds. This fast feedback allows him to release more often. It also makes
-his work more intersting for others. People often prefer "here is -rcxx-acxx,
-which my EPIA now fully supports" to "here is -rcxx, please test it
-extensively".
+Yeah. Which means that right now _really_ long starvation will show up as
+timeouts, while other cases will just show up as bad latency.
 
-Perhaps you don't feel assurance when you have to blindly integrate hundreds
-of patches from people you don't always trust, and that may explain why you
-suddenly announce a new pre-release and keep silent, hoping for patch authors
-to reply to questions if any ? If this is the case, jump into the train,
-there's no risk, except of being caught by Rik's troll-o-meter, or having Viro
-or hch insult you ! And then ? What's the matter ? Every one has his turn. I
-even risk it with this OT mail. When you started with 2.4.16, you said that you
-were afraid you lacked some skills, but you proved to be very capable, because
-the kernel has moved since, and 2.4.21 should be far more stable than 2.4.16 !
+Which will _work_, of course (assuming the timeout handling is correct,
+which is a big if in itself), but it still sucks from a usability
+standpoint.
 
-This mail is not intended to give you any lesson, but to give a feedback from
-a Linux 2.4 user who, as many others, feels more and more forgotten by his
-maintainer. Unfortunately, what David wrote is what many people currently think
-of 2.4 :-( You threatened to give up, but that would be bad for your image
-and for Linux. Giving up means no maintainer for a certain amount of time, then
-a self-proclamed new maintainer (or worse, several ones with a tree fork).
-Being replaced is cleaner, since you do the job until the new maintainer is
-ready to start.
+Even if we drop our timeouts from 30 seconds (or whatever they are now)
+down to just a few seconds, that's a _loooong_ time, and we should be a
+lot more proactive about things. Audio/video stuff tends to want things
+with latencies in the tenth-of-a-second range, even when they buffer
+things up internally to hide the worst cases.
 
-If you don't have enough time to do everything, send a source quench, or apply
-one of David's proposed solutions : ask for some help so that only subsystems
-maintainers feed you as some already do (eg: David, Jeff, Greg), or ask for a
-pure replacement. If you're bored, that I could understand, because having to
-deal with arrogant and sometimes even selfish users is not always pleasant,
-ask for a replacement. If you're fed up with patches that you don't understand,
-reject them LOUDLY asking for more documentation. And if you plan to have a
-rest for two weeks, say it, so that people don't send you patches that will be
-lost in a full mailbox at your return. Yes, this may be what Linus did before
-you, when people already complained. But there should be a middle line between
-how he managed his kernel and how you manage it, and BTW, Linus clearly stated
-that maintaining 2.4 bored him.
-
-I've just read your mail about -rc[45]. I'm happy we start to see the light at
-the end of the 2.4.21 tunnel. As others people, I'm now impatient to both 2.4.21
-and 2.4.22-pre1. BTW, as discussed perhaps a year or two ago, you could have a
-preview of 2.4.22-pre1 in parallel with 2.4.21-rc, to feed the impatients,
-although that may be double work, which you don't necessarily need at the
-moment.
-
-And remember, please communicate, communicate, communicate. You and only you
-know what problem you have at a given time. If you don't communicate, people
-always imagine the worst.
-
-Regards,
-Willy
+			Linus
 

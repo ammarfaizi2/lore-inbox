@@ -1,75 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267190AbUHOWQ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267186AbUHOWZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267190AbUHOWQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 18:16:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267185AbUHOWQ6
+	id S267186AbUHOWZd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 18:25:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267189AbUHOWZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 18:16:58 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:22961 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S267182AbUHOWQu
+	Sun, 15 Aug 2004 18:25:33 -0400
+Received: from foxxy.triohost.com ([65.110.50.10]:63192 "EHLO
+	foxxy.triohost.com") by vger.kernel.org with ESMTP id S267186AbUHOWZb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 18:16:50 -0400
-Message-ID: <411FE14D.2080400@blue-labs.org>
-Date: Sun, 15 Aug 2004 18:18:53 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040815
-X-Accept-Language: en-us, en
+	Sun, 15 Aug 2004 18:25:31 -0400
+Date: Sun, 15 Aug 2004 18:25:17 -0400 (EDT)
+From: Sindi Keesan <keesan@iamjlamb.com>
+X-X-Sender: keesan@foxxy.triohost.com
+To: Martin Mares <mj@ucw.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: mdacon and scroll buffer
+In-Reply-To: <20040815170228.GA25095@ucw.cz>
+Message-ID: <Pine.LNX.4.44.0408151819040.28148-100000@foxxy.triohost.com>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: new tool:  blktool
-References: <411FD744.2090308@pobox.com> <1092603321.18410.5.camel@localhost.localdomain> <411FDEA9.2010802@pobox.com>
-In-Reply-To: <411FDEA9.2010802@pobox.com>
-Content-Type: multipart/mixed;
- boundary="------------040806050207070505060506"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040806050207070505060506
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, 15 Aug 2004, Martin Mares wrote:
 
-[...]
+> Hello!
+> 
+> > Mdacon appears to have no Scroll_Backward or _Forward feature (scroll
+> > buffer) like vgacon does (shift Page Up or shift Page Down).  I use
+> > mdacon.o with a 2-monitor system.  Is there something in vgacon.c I could
+> > copy over to mdacon.c so I could try to compile my own version with scroll
+> > buffer?
+> 
+> On which card do you run mdacon?  Hercules or something MDA-like?
 
-> Yep, it's more like ethtool(8) or cvs(1) in its syntax.  There is big 
-> difference in usability (for me anyway) between "command [options]..." 
-> and an unordered list of --args.  Especially as the list of commands 
-> grows longer.  It provides more structure.
->
-> Each command can have options, --foo-bar=baz if you like, I suppose.
+Some sort of generic.  I have others that I could try, including a winbond 
+W8685AF (I have marked it on the back 3BCh for some reason - maybe a 
+nonstandard address, original price $21.78, made in China) and a Korean 
+/Malaysian model with more chips .  Both have jumpers:  in one case
+JP1 JP2 and in the other a 3-pin J4.
 
+I have the lack of scroll in two computers with cards that I cannot easily 
+look at.
 
-I would rather see --option=xyz than option xyz.  End users are going to 
-be using it in scripts and in the event a parameter becomes "", then it 
-will become --option1= --option2=def instead of option1 option2 def.  I 
-would find it easier to parse, --option= is easy to ignore, option 
-option has to be recognized as an empty option instead of using option 
-as the first option's argument.
+These are all 16-bit half-length cards (length about the width of my hand) 
+with parport build-in (which does not print in linux - another problem 
+with using two video cards). 
 
-Just my opinion,
--david
+This is certainly a busy mail list!
 
+> > 				Have a 
+nice fortnight > 
 
---------------040806050207070505060506
-Content-Type: text/x-vcard; charset=utf-8;
- name="david+challenge-response.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="david+challenge-response.vcf"
-
-begin:vcard
-fn:David Ford
-n:Ford;David
-email;internet:david@blue-labs.org
-title:Industrial Geek
-tel;home:Ask please
-tel;cell:(203) 650-3611
-x-mozilla-html:TRUE
-version:2.1
-end:vcard
-
-
---------------040806050207070505060506--

@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265270AbSLJSqq>; Tue, 10 Dec 2002 13:46:46 -0500
+	id <S265661AbSLJSoV>; Tue, 10 Dec 2002 13:44:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265305AbSLJSqp>; Tue, 10 Dec 2002 13:46:45 -0500
-Received: from lennier.cc.vt.edu ([198.82.162.213]:10249 "EHLO
-	lennier.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S265270AbSLJSqo>; Tue, 10 Dec 2002 13:46:44 -0500
-Subject: Re: How to extract CONFIG file for a kernel
-From: "Richard B. Tilley " "(Brad)" <rtilley@vt.edu>
-To: SK <linuxkern@yahoo.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021210184805.19739.qmail@web14601.mail.yahoo.com>
-References: <20021210184805.19739.qmail@web14601.mail.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 10 Dec 2002 13:54:22 -0500
-Message-Id: <1039546462.11575.9.camel@oubop4.bursar.vt.edu>
-Mime-Version: 1.0
+	id <S265667AbSLJSoV>; Tue, 10 Dec 2002 13:44:21 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:58577 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S265661AbSLJSoU>; Tue, 10 Dec 2002 13:44:20 -0500
+Message-ID: <957BD1C2BF3CD411B6C500A0C944CA260216C261@pdsmsx32.pd.intel.com>
+From: "Hu, Boris" <boris.hu@intel.com>
+To: "Linux Kernel ML (E-mail)" <linux-kernel@vger.kernel.org>,
+       "NPTL list (E-mail)" <phil-list@redhat.com>
+Subject: problem about CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID ?
+Date: Wed, 11 Dec 2002 02:49:56 +0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="gb2312"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you have RH's /usr/src directory installed, you can cd to
-/usr/src/linux-2.4/configs and pick from several pre-built config files.
-they work nicely. I use them to build kernel.org kernels. It's *much*
-easier to make a few config changes to their config file than starting
-from scratch. They tend to be highly modular though... some people don't
-like this.
 
-Good luck!
+When I read create_thread() in NPTL source code, it passes
+CLONE_PARENT_SETTID 
+| CLONE_CHILD_CLEARTID to sys_clone(). However, in arch/arm/kernel/sys_arm.c
 
-On Tue, 2002-12-10 at 13:48, SK wrote:
-> 
-> Is there any way to extrace the CONFIG file
-> used to compile a kernel. I have 2.4.18-14 kernel
-> from RedHat and I want to know the config options
-> used for compiling that kernel.
-> 
-> Any ideas..?
-> Thanks
-> Santhosh
-> 
-> 
-> 
-> __________________________________________________
-> Do you Yahoo!?
-> Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-> http://mailplus.yahoo.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Richard B. Tilley (Brad), System Administrator & Web Developer
-Virginia Tech, Office of the University Bursar
-Phone: 540.231.6277
-Fax: 540.231.3238
-Page: 557.0891
-Web: http://www.bursar.vt.edu
+(sys_clone) [kernel 2.5.49]
+256         if (clone_flags & (CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID))
+257                 return -EINVAL;
+
+ I have searched CLONE_PARENT_SETTID in kernel, it seems only to appear in 
+some non-architecture files, such as /include/linux/sched.h and several arch
+files,
+ but they do little about wrapping.  Why ARM can't support 
+(CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID)? 
+
+any comments? thanks a lot. 
+
+  Boris
+=========================
+To know what I don't know
+To learn what I don't know
+To contribute what I know
+=========================
+
+
 

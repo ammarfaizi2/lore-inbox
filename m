@@ -1,114 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265243AbSLHIFX>; Sun, 8 Dec 2002 03:05:23 -0500
+	id <S265246AbSLHI6Y>; Sun, 8 Dec 2002 03:58:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265246AbSLHIFX>; Sun, 8 Dec 2002 03:05:23 -0500
-Received: from ftp.ardi.com ([207.188.170.178]:39438 "EHLO www.ardi.com")
-	by vger.kernel.org with ESMTP id <S265243AbSLHIFW>;
-	Sun, 8 Dec 2002 03:05:22 -0500
-From: "Clifford T. Matthews" <ctm@ardi.com>
+	id <S265247AbSLHI6Y>; Sun, 8 Dec 2002 03:58:24 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:2435
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S265246AbSLHI6W>; Sun, 8 Dec 2002 03:58:22 -0500
+Date: Sun, 8 Dec 2002 04:09:01 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: rtilley <rtilley@vt.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: lilo append mem problem in 2.4.20
+In-Reply-To: <3DFDE59F@zathras>
+Message-ID: <Pine.LNX.4.50.0212080359340.2139-100000@montezuma.mastecende.com>
+References: <3DFDE59F@zathras>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15858.65287.855121.801382@newbie.ardi.com>
-Date: Sun, 8 Dec 2002 01:12:55 -0700
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] 16bpp bugfix for CL-GD7548 Cirrus frame buffer
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Micron Millennium Transport laptop with Cirrus CL-GD7548
-based video.  It works fine in 16bpp using the Cirrus XFree86 4.2.0
-driver.  /dev/fb works fine at 8bpp, but didn't work at 16bpp.  I
-looked at the two drivers and made clgenfb.c do a few things the
-XFree86 driver was doing and now 16bpp appears to work fine on that
-laptop.
+On Sat, 7 Dec 2002, rtilley wrote:
 
-I don't subscribe to linux-fbdev-devel, but do read lkml via a
-leisurely Usenet feed.
+> 2.4.20smp-ac1 = Dec  4 13:44:48 localhost kernel: Memory: 12700k/16384k
+> available (1396k kernel code, 3168k reserved, 102k data, 240k init, 0k
+> highmem)
+>
+> 2.4.18-18.7.xsmp = Memory: 13156k/16384k available (1269k kernel code, 2712k
+> reserved, 90k data, 220k init, 0k highmem)
 
---Cliff	Matthews	After some people managed to scale the wall,
-ctm@ardi.com		there was a ban on the sale of rope and twine.
+I think it crept in after 2.4.18 in the -ac tree, can you test the
+following patch? Courtesy of JA Magallon's tree;
 
-diff -Naur linux-2.4.20/drivers/video/clgenfb.c linux-2.4.20-clpatch/drivers/video/clgenfb.c
---- linux-2.4.20/drivers/video/clgenfb.c	2002-11-28 16:53:15.000000000 -0700
-+++ linux-2.4.20-clpatch/drivers/video/clgenfb.c	2002-12-07 23:34:54.000000000 -0700
-@@ -15,6 +15,9 @@
-  *	Lars Hecking:
-  *	Amiga updates and testing.
-  *
-+ *	Cliff Matthews <ctm@ardi.com>:
-+ *	16bpp fix for CL-GD7548 (uses info from XFree86 4.2.0 source)
-+ *
-  * Original clgenfb author:  Frank Neumann
-  *
-  * Based on retz3fb.c and clgen.c:
-@@ -403,6 +406,9 @@
- 
- #ifdef CONFIG_PCI
- 	struct pci_dev *pdev;
-+#define IS_7548(x) ((x)->pdev->device == PCI_DEVICE_ID_CIRRUS_7548)
-+#else
-+#define IS_7548(x) (FALSE)
- #endif
- };
- 
-@@ -970,7 +976,10 @@
- 
- 	DPRINTK ("desired pixclock: %ld kHz\n", freq);
- 
--	maxclock = clgen_board_info[fb_info->btype].maxclock;
-+	if (IS_7548(fb_info))
-+		maxclock = 80100;
-+	else
-+		maxclock = clgen_board_info[fb_info->btype].maxclock;
- 	_par->multiplexing = 0;
- 
- 	/* If the frequency is greater than we can support, we might be able
-@@ -1478,10 +1487,17 @@
- 
- 		case BT_ALPINE:
- 			DPRINTK (" (for GD543x)\n");
--			if (_par->HorizRes >= 1024)
--				vga_wseq (fb_info->regs, CL_SEQR7, 0xa7);
--			else
--				vga_wseq (fb_info->regs, CL_SEQR7, 0xa3);
-+			if (IS_7548(fb_info)) {
-+				vga_wseq (fb_info->regs, CL_SEQR7, 
-+					  (vga_rseq (fb_info->regs, CL_SEQR7) & 0xE0)
-+					  | 0x17);
-+				WHDR (fb_info, 0xC1);
-+			} else {
-+				if (_par->HorizRes >= 1024)
-+					vga_wseq (fb_info->regs, CL_SEQR7, 0xa7);
-+				else
-+					vga_wseq (fb_info->regs, CL_SEQR7, 0xa3);
-+			}	
- 			clgen_set_mclk (fb_info, _par->mclk, _par->divMCLK);
- 			break;
- 
-@@ -1594,6 +1610,11 @@
- 			_par->var.bits_per_pixel);
- 	}
- 
-+	if (IS_7548(fb_info)) {
-+		vga_wseq (fb_info->regs, CL_SEQR2D, 
-+			vga_rseq (fb_info->regs, CL_SEQR2D) | 0xC0);
-+	}
-+
- 	vga_wcrt (fb_info->regs, VGA_CRTC_OFFSET, offset & 0xff);
- 	tmp = 0x22;
- 	if (offset & 0x100)
-diff -Naur linux-2.4.20/drivers/video/clgenfb.h linux-2.4.20-clpatch/drivers/video/clgenfb.h
---- linux-2.4.20/drivers/video/clgenfb.h	2000-01-06 11:23:46.000000000 -0700
-+++ linux-2.4.20-clpatch/drivers/video/clgenfb.h	2002-12-07 20:50:43.000000000 -0700
-@@ -60,6 +60,7 @@
- #define CL_SEQR1D	0x1d	/* VCLK2 Denominator and Post-Scalar Value */
- #define CL_SEQR1E	0x1e	/* VCLK3 Denominator and Post-Scalar Value */
- #define CL_SEQR1F	0x1f	/* BIOS ROM write enable and MCLK Select */
-+#define CL_SEQR2D	0x2d	/* unknown, snagged from XFree86 4.2.0 */
- 
- /*** CRT Controller Registers ***/
- #define CL_CRT22	0x22	/* Graphics Data Latches ReadBack */
+11-memparam.bz2
+	Fix mem=XXX kernel parameter when user gives a size bigger than what
+	kernel autodetected (kill a previous change)
+	Author: Adrian Bunk <bunk@fs.tum.de>,
+	Leonardo Gomes Figueira <sabbath@planetarium.com.br>
+
+--- linux/arch/i386/kernel/setup.c.original	Mon Jul 22 21:44:45 2002
++++ linux/arch/i386/kernel/setup.c	Tue Jul 23 03:38:08 2002
+@@ -770,21 +770,29 @@
+ 				userdef = 1;
+ 			} else {
+ 				/* If the user specifies memory size, we
+-				 * limit the BIOS-provided memory map to
+-				 * that size. exactmap can be used to specify
+-				 * the exact map. mem=number can be used to
+-				 * trim the existing memory map.
++				 * blow away any automatically generated
++				 * size
+ 				 */
+ 				unsigned long long start_at, mem_size;
+
++				if (userdef == 0) {
++					/* first time in: zap the whitelist
++					 * and reinitialize it with the
++					 * standard low-memory region.
++					 */
++					e820.nr_map = 0;
++					userdef = 1;
++					add_memory_region(0, LOWMEMSIZE(), E820_RAM);
++				}
+ 				mem_size = memparse(from+4, &from);
+-				if (*from == '@') {
++				if (*from == '@')
+ 					start_at = memparse(from+1, &from);
+-					add_memory_region(start_at, mem_size, E820_RAM);
+-				} else {
+-					limit_regions(mem_size);
++				else {
++					start_at = HIGH_MEMORY;
++					mem_size -= HIGH_MEMORY;
+ 					userdef=1;
+ 				}
++				add_memory_region(start_at, mem_size, E820_RAM);
+ 			}
+ 		}
+
+-- 
+function.linuxpower.ca

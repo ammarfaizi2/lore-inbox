@@ -1,52 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277419AbRJEPfH>; Fri, 5 Oct 2001 11:35:07 -0400
+	id <S277418AbRJEPeR>; Fri, 5 Oct 2001 11:34:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277417AbRJEPfA>; Fri, 5 Oct 2001 11:35:00 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:61492 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S277419AbRJEPet>; Fri, 5 Oct 2001 11:34:49 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: riel@conectiva.com.br (Rik van Riel),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-Subject: Re: [POT] Which journalised filesystem ?
-In-Reply-To: <E15pWQA-0006bs-00@the-village.bc.nu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 05 Oct 2001 09:25:09 -0600
-In-Reply-To: <E15pWQA-0006bs-00@the-village.bc.nu>
-Message-ID: <m1669uyuqy.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S277417AbRJEPd5>; Fri, 5 Oct 2001 11:33:57 -0400
+Received: from mailrelay3.inwind.it ([212.141.54.103]:54160 "EHLO
+	mailrelay3.inwind.it") by vger.kernel.org with ESMTP
+	id <S277418AbRJEPdp>; Fri, 5 Oct 2001 11:33:45 -0400
+Message-Id: <3.0.6.32.20011005173131.01dee800@pop.tiscalinet.it>
+X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
+Date: Fri, 05 Oct 2001 17:31:31 +0200
+To: Alexei Podtelezhnikov <apodtele@mccammon.ucsd.edu>,
+        <linux-kernel@vger.kernel.org>
+From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
+Subject: Re: VM: 2.4.10 vs. 2.4.10-ac2 and qsort()
+In-Reply-To: <Pine.LNX.4.33.0110041618450.2582-100000@chemcca18.ucsd.edu
+ >
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+At 17.03 04/10/01 -0700, Alexei Podtelezhnikov wrote:
+>Hi guys,
+>
+>I've already expressed my concern about using srand(1) in private e-mails.
+>I think it's unscientific to use one particular random sequence. Since 
+>no one checked if that matters, I changed srand(1) to srand(time(NULL)) 
+>and I'm posting my results. I don't do testing of Alan or Linus's kernels, 
+>but use recent Red Hat kernel. I think I've shown that it does matter.
+>
+>Six quick consecutive runs of modified qs on a small set of 8 million 
+>integers (obviously no swap activity):
+>
+>> time ./a.out 8000000
+>0 errors.
+>24.250u 0.310s 0:24.55 100.0%   0+0k 0+0io 116pf+0w
+>0 errors.
+>24.290u 0.260s 0:24.55 100.0%   0+0k 0+0io 116pf+0w
+>0 errors.
+>24.300u 0.260s 0:24.55 100.0%   0+0k 0+0io 116pf+0w
+>0 errors.
+>24.270u 0.300s 0:24.57 100.0%   0+0k 0+0io 116pf+0w
+>0 errors.
+>24.290u 0.270s 0:24.56 100.0%   0+0k 0+0io 116pf+0w
+>0 errors.
+>24.280u 0.280s 0:24.55 100.0%   0+0k 0+0io 116pf+0w
+>
+>Apparently, no significant deviations in computing times.
+>
+>Six runs of modified qs on a large set of 80 million integers (a lot of 
+>swapping!)
+>
+>> time ./a.out 80000000
+>0 errors.
+>261.580u 4.250s 11:09.21 39.7%  0+0k 0+0io 17379pf+0w
+>0 errors.
+>260.460u 3.660s 9:09.72 48.0%   0+0k 0+0io 13194pf+0w
+>0 errors.
+>260.620u 4.510s 10:39.80 41.4%  0+0k 0+0io 16714pf+0w
+>0 errors.
+>261.790u 4.150s 10:09.58 43.6%  0+0k 0+0io 16331pf+0w
+>0 errors.
+>260.400u 4.140s 9:23.46 46.9%   0+0k 0+0io 13722pf+0w
+>0 errors.
+>259.980u 3.940s 9:10.22 47.9%   0+0k 0+0io 14240pf+0w
+>
+>mean = 9m57s; standard deviation = 50s.
+>
+>Apparently, the random sequence does matter (to the Rik's algorithm at 
+>least since it's in RH kernel).
+>
+>I wonder how big the deviation is for official and AC trees.
+>Now Lorenzo's results seem inconclusive.
 
-> > > We (as in Linux) should make sure that we explicitly tell the disk when
-> > > we need it to flush its disk buffers. We don't do that right, and
-> > > because of _our_ problems some people claim that writeback caching is
-> > > evil and bad.
-> > 
-> > Does this even work right for IDE ?
-> 
-> Current IDE drives it may be a NOP. Worse than that it would totally ruin
-> high end raid performance. We need to pass write barriers. A good i2o card
-> might have 256Mb of writeback cache that we want to avoid flushing - because
-> it is battery backed and can be ordered.
+Yours too, as you have not compared two or more kernels yet.
+You have just proved that the random sequence does matter on that
+particular kernel.
 
-If the cache is small and is primarily a track cache (IDE) one trick that
-we can do is to flood the cache with data so everything is forced out.
 
-We can do this at mkfs time, (so even destructive tests are allowed)
-and we can probe how to make this work for a particular drive.  And
-then the kernel can just use the results of that probe. 
 
-> By all means have drivers fall back to cache writeback, but don't assume
-> that is the basic operation.
-
-Definentily.  We want a write-barrier however we can get it.
- 
-> Indeed a smarter raid card can generally do
-
-Eric
+-- 
+Lorenzo

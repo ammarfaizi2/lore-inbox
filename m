@@ -1,74 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281243AbRKLEuU>; Sun, 11 Nov 2001 23:50:20 -0500
+	id <S281245AbRKLFEB>; Mon, 12 Nov 2001 00:04:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281250AbRKLEuB>; Sun, 11 Nov 2001 23:50:01 -0500
-Received: from gear.torque.net ([204.138.244.1]:54793 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S281243AbRKLEtm>;
-	Sun, 11 Nov 2001 23:49:42 -0500
-Message-ID: <3BEF54EF.F7DEDF8F@torque.net>
-Date: Sun, 11 Nov 2001 23:49:51 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: sbp2.c on SMP
+	id <S281253AbRKLFDx>; Mon, 12 Nov 2001 00:03:53 -0500
+Received: from rj.sgi.com ([204.94.215.100]:5067 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S281245AbRKLFDq>;
+	Mon, 12 Nov 2001 00:03:46 -0500
+Date: Mon, 12 Nov 2001 16:01:59 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
+        Andreas Gruenbacher <ag@bestbits.at>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-xfs@oss.sgi.com
+Subject: Re: [RFC][PATCH] extended attributes
+Message-ID: <20011112160159.F583135@wobbly.melbourne.sgi.com>
+In-Reply-To: <20011107111224.C591676@wobbly.melbourne.sgi.com> <20011107023218.A4754@wotan.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011107023218.A4754@wotan.suse.de>; from ak@suse.de on Wed, Nov 07, 2001 at 02:32:18AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Wed, Nov 07, 2001 at 02:32:18AM +0100, Andi Kleen wrote:
+> On Wed, Nov 07, 2001 at 11:12:24AM +1100, Nathan Scott wrote:
+> > A manual page describing the system call interface can be found here[4].
+> > We're very interested in feedback on this.  In particular, Linus - would
+> 
+> The cursor support looks quite complicated.  ...
+> Stateless cursors are just nasty!
+> ...
 
-> drivers/ieee1394/sbp2.c deadlocks immediately on SMP, because
-> io_request_lock is not held over its call to scsi_old_done().
-> 
-> I don't know why scsi_old_done() actually requires io_request_lock;
-> perhaps Jens could comment on whether I've taken the lock in the
-> appropriate place?
-> 
-> With the appended patch I can confirm that the driver happily runs
-> `dbench 40' for half an hour on dual x86.   Even when you kick the
-> disk onto the floor (sorry, HJ).
-> 
-> The games which scsi_old_done() plays with spinlocks and interrupt
-> enabling are really foul.  If someone calls it with interrupts disabled
-> (sbp2 does this) then scsi_old_done() will enable interrupts for you.
-> If, for example, you call scsi_old_done() under spin_lock_irqsave(), 
-> the reenabling of interrupts will expose you to deadlocks.  Perhaps
-> scsi_old_done() should just use spin_unlock()/spin_lock()?
-> 
-> I tried enabling SBP2_USE_REAL_SPINLOCKS in sbp2.c and that appears to
-> work just fine, although I haven't left that change in place here.
-> 
-> You don't actually _need_ SMP hardware to test SMP code, BTW.  You
-> can just build an SMP kernel and run that on a uniprocessor box.
-> This will still catch a wide range of bugs - it certainly detects
-> the lockup which was occurring because of the scsi_old_done() thing.
-> 
-> Incidentally, it would be nice to be able to get this driver working
-> properly when linked into the kernel - it makes debugging much easier :)
+hi folks,
 
-It would also be useful to replace the old style scsi error
-handling with the improved "eh" error handling. The old style
-was deprecated in the lk 2.2 series but lives on.
+We've removed the cursor operations, and gone back to Andreas'
+original, simpler list approach.  Revised versions of the two
+extattr man pages are in the XFS CVS repository, or use:
+	http://acl.bestbits.at/man/extattr.2.html
+	http://acl.bestbits.at/man/extattr.5.html
 
-> 
-> --- linux-2.4.15-pre2/drivers/ieee1394/sbp2.c   Wed Oct 17 14:19:20 2001
-> +++ linux-akpm/drivers/ieee1394/sbp2.c  Sun Nov 11 17:22:47 2001
-> @@ -2767,7 +2767,9 @@ static void sbp2scsi_complete_command(st
->         /*
->          * Tell scsi stack that we're done with this command
->          */
-> +       spin_lock_irq(&io_request_lock);
->         done (SCpnt);
-> +       spin_unlock_irq(&io_request_lock);
->  
->         return;
->  }
+I notice that 2.4.15-pre3 doesn't have the patch below - Linus,
+Alan, could you please apply it? - it will help us a great deal.
+This would be useful to the ext2/ext3, InterMezzo/SnapFS, NTFS,
+XFS, JFS and BeFS filesystem implementations for Linux, and to
+any other filesystems planning to support extended attributes
+in the future as well.
 
-In the meantime, this patch is obviously required.
+many thanks.
 
-Doug Gilbert
+-- 
+Nathan
+
+
+diff -Naur 2.4.14-pristine/arch/i386/kernel/entry.S 2.4.14-reserved/arch/i386/kernel/entry.S
+--- 2.4.14-pristine/arch/i386/kernel/entry.S	Sat Nov  3 12:18:49 2001
++++ 2.4.14-reserved/arch/i386/kernel/entry.S	Wed Nov  7 10:02:59 2001
+@@ -622,6 +622,9 @@
+ 	.long SYMBOL_NAME(sys_ni_syscall)	/* Reserved for Security */
+ 	.long SYMBOL_NAME(sys_gettid)
+ 	.long SYMBOL_NAME(sys_readahead)	/* 225 */
++	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for extattr  */
++	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for lextattr */
++	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for fextattr */
+ 
+ 	.rept NR_syscalls-(.-sys_call_table)/4
+ 		.long SYMBOL_NAME(sys_ni_syscall)
+diff -Naur 2.4.14-pristine/include/asm-i386/unistd.h 2.4.14-reserved/include/asm-i386/unistd.h
+--- 2.4.14-pristine/include/asm-i386/unistd.h	Thu Oct 18 03:03:03 2001
++++ 2.4.14-reserved/include/asm-i386/unistd.h	Wed Nov  7 10:02:59 2001
+@@ -230,6 +230,9 @@
+ #define __NR_security		223	/* syscall for security modules */
+ #define __NR_gettid		224
+ #define __NR_readahead		225
++#define __NR_extattr		226	/* syscall for extended attributes */
++#define __NR_lextattr		227	/* syscall for extended attributes */
++#define __NR_fextattr		228	/* syscall for extended attributes */
+ 
+ /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
+ 

@@ -1,62 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312588AbSDKRRD>; Thu, 11 Apr 2002 13:17:03 -0400
+	id <S312608AbSDKRVH>; Thu, 11 Apr 2002 13:21:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312604AbSDKRRC>; Thu, 11 Apr 2002 13:17:02 -0400
-Received: from exchange.macrolink.com ([64.173.88.99]:34572 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S312588AbSDKRRC>; Thu, 11 Apr 2002 13:17:02 -0400
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A7775@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'Gabor Kerenyi'" <wom@tateyama.hu>
-Cc: linux-kernel@vger.kernel.org, Paratimer@aol.com
-Subject: RE: [PLX-9050] Re: how to write driver for PCI cards
-Date: Thu, 11 Apr 2002 10:16:57 -0700
+	id <S312612AbSDKRVG>; Thu, 11 Apr 2002 13:21:06 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:1032 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S312608AbSDKRVF>;
+	Thu, 11 Apr 2002 13:21:05 -0400
+Date: Thu, 11 Apr 2002 10:18:01 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch-2.5.8-pre] swapinfo accounting
+In-Reply-To: <Pine.LNX.4.21.0204111543340.1231-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33L2.0204111012120.28475-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Gabor,
+On Thu, 11 Apr 2002, Hugh Dickins wrote:
 
-Gabor Kerenyi wrote:
-> Paratimer@aol.com wrote:
-> > As I remember the serial eeprom from which the PLX-9050 is 
-> > configured needs to be programmed differently according to 
-> > the type of interrupt.
-> 
-> I think the device is configured properly because a windows 
-> driver exists and it's working correctly. But what do I have 
-> to do on the driver side according to the type of the interrupt? 
-> Is there any difference from the driver's point of view? 
+| On Wed, 10 Apr 2002, Andrew Morton wrote:
+| > "Randy.Dunlap" wrote:
+| > >
+| > > It looks to me like mm/swapfile.c::si_swapinfo()
+| > > shouldn't be adding nr_to_be_unused to total_swap_pages
+| > > or nr_swap_pages for return in val->freeswap and
+| > > val->totalswap.
+|
+| Good observation, thanks Randy, but wrong fix.
 
-I was thinking about driver programming of a device on the board that sends
-interrupt requests to the PLX-9050. I got bit by a UART that powered on to
-an 
-interrupt signaling mode that caused the 9050 to continuously assert an 
-interrupt request on the PCI bus. This was not a 9050 setup issue. I hope 
-that your board does not have any issues like that. 
+Thanks for the patch.  I confirm that it is giving me
+numbers that look sane.
 
-> > But more important, I do not believe your company wants to 
-> > use the 9050 in a cPCI system.  This chip does not support 
-> > hot swappability. I believe there is an almost identical part, 
-> > the PLX 9051 (or perhaps the 9052) that does.  You might have 
-> > the hardware engineer check the issue out.
-> 
-> The company uses the 9050 in a C-PCI system. The card is designed 
-> in 98 or 99. 
+BTW, the patch was for discussion, so it worked.
+"a la akpm"  :)
 
-When we updated our 9050 based card for hot-swap, we selected the PLX-9030 
-which is a compatible, but newer, part. It incorporates all of the CPCI 
-hot-swap infrastructure, even small stuff like ejector switch debouncing. 
+~Randy
 
-Regards,
-Ed
-
----------------------------------------------------------------- 
-Ed Vance              edv@macrolink.com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------
+| > whee, an si_swapinfo() maintainer.
+|
+| That might be me?  I rewrote that code for 2.4.10
+| (when you called attention to si_swapinfo slowness).
+|
+...
+|
+| It is the right fix; but since that condition was misunderstood,
+| and some other flag might be added in future, the safer patch
+| would be this more explicit one (which I'll now send to Linus
+| with a briefer description).
+|
+| But I hope nobody backports this to 2.4, where it would be
+| wrong: 2.5.4 confusingly changed the nature of SWP_WRITEOK.
+|
+| Hugh
+|
+| --- 2.5.8-pre3/mm/swapfile.c	Mon Mar 11 12:30:56 2002
+| +++ linux/mm/swapfile.c	Thu Apr 11 15:26:51 2002
+| @@ -1095,7 +1095,8 @@
+|  	swap_list_lock();
+|  	for (i = 0; i < nr_swapfiles; i++) {
+|  		unsigned int j;
+| -		if (!(swap_info[i].flags & SWP_USED))
+| +		if (!(swap_info[i].flags & SWP_USED) ||
+| +		     (swap_info[i].flags & SWP_WRITEOK))
+|  			continue;
+|  		for (j = 0; j < swap_info[i].max; ++j) {
+|  			switch (swap_info[i].swap_map[j]) {
 

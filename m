@@ -1,85 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263531AbTKQN6K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 08:58:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263532AbTKQN6K
+	id S263524AbTKQOkG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 09:40:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263528AbTKQOkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 08:58:10 -0500
-Received: from leon-2.mat.uni.torun.pl ([158.75.2.64]:17057 "EHLO
-	leon-2.mat.uni.torun.pl") by vger.kernel.org with ESMTP
-	id S263531AbTKQN6F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 08:58:05 -0500
-Date: Mon, 17 Nov 2003 14:57:34 +0100 (CET)
-From: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
-X-X-Sender: golbi@anna
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: linux-kernel@vger.kernel.org, Urlich Drepper <drepper@redhat.com>,
-       Michal Wronski <wrona@mat.uni.torun.pl>
-Subject: Re: [PATCH] POSIX message queues - syscalls & SIGEV_THREAD
-In-Reply-To: <3FB79943.70902@colorfullife.com>
-Message-ID: <Pine.GSO.4.58.0311171433430.18249@anna>
-References: <Pine.GSO.4.58.0311161546260.25475@Juliusz> <3FB79943.70902@colorfullife.com>
+	Mon, 17 Nov 2003 09:40:06 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:26826 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263524AbTKQOkC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 09:40:02 -0500
+Message-ID: <3FB8DDB9.8080709@nortelnetworks.com>
+Date: Mon, 17 Nov 2003 09:39:53 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrey Borzenkov <arvidjaar@mail.ru>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Is initramfs freed after kernel is booted?
+References: <200311162009.52813.arvidjaar@mail.ru> <3FB7D52A.7020402@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Nov 2003, Manfred Spraul wrote:
+Jeff Garzik wrote:
+> Andrey Borzenkov wrote:
+> 
+>> Apparently not:
+>>
+>> {pts/1}% head -2 /proc/mounts
+>> rootfs / rootfs rw 0 0
+>> /dev/root / reiserfs rw 0 0
+>>
+>> at least it is still mounted. Is there any way to free it?
 
-> >+/proc/fs/mqueue/max_queues  is  a  read/write  file  for  setting/getting  the
-> >+maximum number of message queues allowed on the system.
-> >+
-> >
-> Why did you add your own proc file, instead of a sysctl entry?
-Ok, we wanted to add this (proc support was done by Rusty Lynch) but when
-we started to move implementation to syscalls we put it away.
+> rootfs is always present.  It's the root, as the name implies :)
 
->
-> >+#define MQ_MAXMSG 	40	/* max number of messages in each queue */
-> >
-> >
-> In the long run, this should be run time configurable. For now it
-> doesn't matter, but think about that when chosing algorithms.
-We do. We removed heaps implementation as on some different
-(sensible) MQ_MAXMSG values it didn't show performance improve.
+He's got two root filesystems, one on top of the other.  It should be 
+possible to pivot root rather than mount the second one, thus freeing up 
+the memory from the initramfs.
 
->
-> >+#define MQ_MAXSYSSIZE	1048576	/* max size that all m.q. can have together */
-> >
-> Dito: we must try to avoid global counters - they limit the scalability.
-Could you be more precise: This constant is non-POSIX. We added it only
-because users (and some people on lkml) wanted so. It can be set to
-MQ_MAXMSG*MQ_MAXMSG*MQ_MSGSIZE + 1 to turn off whole feature. So if I
-understand you we add this just to limit scalability (and DoS attacks)
-
->
-> >+static int wq_sleep(struct mqueue_inode_info *info, int sr,
-> >+		    signed long timeout, struct ext_wait_queue *wq_ptr)
-> >+{
-> >
-> [snip]
->
-> >+		if ((current->pid == (list_entry(info->e_wait_q[sr].list.prev, struct ext_wait_queue, list))->task->pid)
-> >
-> Why current->pid? "current == ...->task" is sufficient.
-Ok
-
->
-> >diff -urN 2.6.0-test9-orig/ipc/msg.c 2.6.0-test9-patched/ipc/msg.c
-> >--- 2.6.0-test9-orig/ipc/msg.c	2003-11-07 17:07:13.000000000 +0100
-> >+++ 2.6.0-test9-patched/ipc/msg.c	2003-11-07 18:30:17.000000000 +0100
-> >
-> >[snip: move load_msg, free_msg to util.c]
-> >
-> Could you split that into a separate patch?
-
-Hm, Michal said the same but considering that some preprocessor conditions
-in util.c base on mqueues config I think that putting it different patch
-would be little bit strange. But if you feel it ok - no problem.  Maybe
-the best solution would be to make one patch that just moves functions
-from msg.c to util.c and in main patch add only little #ifdef change in
-util.c?
+Chris
 
 
-Regards
-Krzysiek
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

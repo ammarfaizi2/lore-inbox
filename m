@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268944AbUHMCGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268946AbUHMCOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268944AbUHMCGV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 22:06:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268945AbUHMCGV
+	id S268946AbUHMCOc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 22:14:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268947AbUHMCOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 22:06:21 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:61588 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268944AbUHMCGS (ORCPT
+	Thu, 12 Aug 2004 22:14:32 -0400
+Received: from main.gmane.org ([80.91.224.249]:64399 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S268946AbUHMCOa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 22:06:18 -0400
-Subject: Re: [PATCH] allocate page caches pages in round robin fasion
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       steiner@sgi.com
-In-Reply-To: <200408121638.37416.jbarnes@engr.sgi.com>
-References: <200408121638.37416.jbarnes@engr.sgi.com>
-Content-Type: text/plain
-Message-Id: <1092360960.15667.26.camel@nighthawk>
+	Thu, 12 Aug 2004 22:14:30 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Date: Fri, 13 Aug 2004 01:29:06 +0200
+Message-ID: <yw1xllgkgcl9.fsf@kth.se>
+References: <1092099669.5759.283.camel@cube> <cone.1092113232.42936.29067.502@pc.kolivas.org>
+ <411BF083.8060406@tmr.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 12 Aug 2004 18:36:00 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 197.80-202-92.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:aDOM/aPDa2m7/nwwkwMuu494IxQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-12 at 16:38, Jesse Barnes wrote:
-> On a NUMA machine, page cache pages should be spread out across the system 
-> since they're generally global in nature and can eat up whole nodes worth of 
-> memory otherwise.  This can end up hurting performance since jobs will have 
-> to make off node references for much or all of their non-file data.
+Bill Davidsen <davidsen@tmr.com> writes:
 
-Wouldn't this be painful for any workload that accesses a unique set of
-files on each node?  If an application knows that it is touching truly
-shared data which every node could possibly access, then they can use
-the NUMA API to cause round-robin allocations to occur.  
+> Con Kolivas wrote:
+>
+>> It was a hard lockup and randomly happened during a cd write,
+>> creating my first coaster in a long time... in rt mode ironically
+>> which is how it is recommended to be run. So I removed the foolish
+>> superuser bit and have had no problem since. Yes it was unaltered
+>> cdrecord source and it was the so-called alpha branch and... Not
+>> much else I can say about it really?
+>
+> I said I'd never seen this (true), but it could happen if you were
+> burning an audio CD using the ide-scsi or ATA: interface. In 2.6 the
+> ATAPI: interface uses DMA. I don't know what the program does if you
+> just say dev=/dev/hdx,
 
-Maybe a per-node watermark on page cache usage would be more useful. 
-Once a node starts to get full, and it's past the watermark, we can go
-and shoot down some of the node's page cache.  If the data access is
-truly global, then it has a good chance of being brought in on a
-different node.  
+Whatever it does, it doesn't load the system noticeably.
 
--- Dave
+-- 
+Måns Rullgård
+mru@kth.se
 

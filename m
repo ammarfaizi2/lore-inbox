@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267599AbTBXWAv>; Mon, 24 Feb 2003 17:00:51 -0500
+	id <S267611AbTBXWBB>; Mon, 24 Feb 2003 17:01:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267611AbTBXWAu>; Mon, 24 Feb 2003 17:00:50 -0500
-Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:51717 "HELO
-	yucs.org") by vger.kernel.org with SMTP id <S267599AbTBXWAu>;
-	Mon, 24 Feb 2003 17:00:50 -0500
-Subject: Re: hard lockup on 2.4.20 w/ nfs over frees/wan
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: Jeff Garzik <jgarzik@pobox.com>
+	id <S267612AbTBXWBB>; Mon, 24 Feb 2003 17:01:01 -0500
+Received: from pipgate.pipsworld.sara.nl ([145.100.9.18]:43136 "EHLO
+	dinkie.pipsworld.sara.nl") by vger.kernel.org with ESMTP
+	id <S267611AbTBXWA7>; Mon, 24 Feb 2003 17:00:59 -0500
+Date: Mon, 24 Feb 2003 23:11:11 +0100
+From: Remco Post <r.post@sara.nl>
+To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030220164420.GA9800@gtf.org>
-References: <1045634189.4761.44.camel@zaphod>
-	 <1045686971.8084.2.camel@zaphod> <1045757772.31762.13.camel@zaphod>
-	 <20030220164420.GA9800@gtf.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1046124651.10146.1.camel@zaphod>
+Subject: Re: Linux 2.5.63 [kernel BUG at drivers/net/tulip/de2104x.c:925!]
+Message-Id: <20030224231111.37a560e9.r.post@sara.nl>
+In-Reply-To: <Pine.LNX.4.44.0302241127050.13335-100000@penguin.transmeta.com>
+References: <Pine.LNX.4.44.0302241127050.13335-100000@penguin.transmeta.com>
+X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 24 Feb 2003 17:10:51 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-seems to be stable w/ the 2.4.19 driver.  All the tests that I ran be
-(basically kernel building over nfs over ipsec) that hung it hard
-consistently b4 aren't hanging it now.
 
-shaya
+Reading Oops report from the terminal
+kernel BUG at drivers/net/tulip/de2104x.c:925!                                  
+Oops: Exception in kernel mode, sig: 4                                          
+NIP: C013A454 LR: C013A454 SP: C0277E10 REGS: c0277d60 TRAP: 0700    Not tainted
+MSR: 00089032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11                                 
+TASK = c0231530[0] 'swapper' Last syscall: 120                                  
+GPR00: C013A454 C0277E10 C0231530 0000002F 00000001 C0277CC8 C0273A00 C02B0000  
+GPR08: 00001669 00000000 00000000 C0277D40 4000C088 00000000 00000000 00000000  
+GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000  
+GPR24: 00000000 00000000 00000002 00001032 C03DA000 00009032 FFFFFFCE C03DA1C0  
+Call trace: [c013a794]  [c0020710]  [c001b830]  [c0007e80]  [c00061c4]  [c0007b 
+Kernel panic: Aiee, killing interrupt handler!                                  
+In interrupt handler - not syncing                                              
+Using defaults from ksymoops -t elf32-powerpc -a powerpc:common
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-On Thu, 2003-02-20 at 11:44, Jeff Garzik wrote:
-> On Thu, Feb 20, 2003 at 11:16:13AM -0500, Shaya Potter wrote:
-> > moved from the netfinity's onboard pcnet32 adapter to an IBM branded
-> > Intel epro/100 w/ the intel driver in 2.4.20 and it appears very
-> > stable.  Is it possible the pcnet/32 adapter is broken or the driver is
-> > buggy?
-> 
-> I have gotten reports the 2.4.20 pcnet32 is buggy.
-> 
-> Can you test 2.4.20 with 2.4.19 version of pcnet32.c?
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
+>>NIP; c013a454 <de_set_media+48/1f0>   <=====
+
+This is on ppc/prep
+
+-- 
+
+Remco

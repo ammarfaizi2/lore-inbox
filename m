@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbULCVUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbULCVcx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262298AbULCVUa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 16:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbULCVUa
+	id S261587AbULCVcx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 16:32:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbULCVce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 16:20:30 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:39552
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S262298AbULCVUZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 16:20:25 -0500
-Subject: Re: [PATCH] oom killer (Core)
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Helge Hafting <helge.hafting@hist.no>
-Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de,
-       marcelo.tosatti@cyclades.com, LKML <linux-kernel@vger.kernel.org>,
-       nickpiggin@yahoo.com.au
-In-Reply-To: <41B07B1E.8050503@hist.no>
-References: <20041201104820.1.patchmail@tglx>
-	 <20041201211638.GB4530@dualathlon.random>
-	 <1101938767.13353.62.camel@tglx.tec.linutronix.de>
-	 <20041202033619.GA32635@dualathlon.random>
-	 <1101985759.13353.102.camel@tglx.tec.linutronix.de>
-	 <1101995280.13353.124.camel@tglx.tec.linutronix.de>
-	 <20041202164725.GB32635@dualathlon.random>
-	 <20041202085518.58e0e8eb.akpm@osdl.org>
-	 <20041202180823.GD32635@dualathlon.random>
-	 <1102013716.13353.226.camel@tglx.tec.linutronix.de>
-	 <20041202110729.57deaf02.akpm@osdl.org>
-	 <1102014493.13353.239.camel@tglx.tec.linutronix.de>
-	 <20041202112208.34150647.akpm@osdl.org>
-	 <1102015450.13353.245.camel@tglx.tec.linutronix.de>
-	 <41B07B1E.8050503@hist.no>
-Content-Type: text/plain
-Date: Fri, 03 Dec 2004 22:20:22 +0100
-Message-Id: <1102108823.13353.267.camel@tglx.tec.linutronix.de>
+	Fri, 3 Dec 2004 16:32:34 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:59994 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261587AbULCVcc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 16:32:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=jLV76MG/0Va9NHDW5jzZKz4rvqaWdoBkaZQjwcvGMirlSVvjeOIW9p0NtysHS6pKB9BQ6FjE7EQluswYPmuh9pDl7CgvLm89bPWBPxhMEnOmhon1odyAIENpWXYARxyIahC40/G7kVetcskx+VlHl8+bC10rqmP+QQhS6IDiTT0=
+Message-ID: <64b1faec0412031332573712e9@mail.gmail.com>
+Date: Fri, 3 Dec 2004 22:32:31 +0100
+From: Sylvain <autofr@gmail.com>
+Reply-To: Sylvain <autofr@gmail.com>
+To: Brian Gerst <bgerst@didntduck.org>
+Subject: Re: distinguish kernel thread / user task
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <41B0D18B.3020309@didntduck.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <64b1faec041203091654251b18@mail.gmail.com>
+	 <41B0BD6B.2010809@didntduck.org>
+	 <64b1faec0412031215b934a9@mail.gmail.com>
+	 <41B0D18B.3020309@didntduck.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-12-03 at 15:41 +0100, Helge Hafting wrote:
-> The case of OOM killed sshd is fixable without touching the kernel:
-> Make sure sshd is started from init, init will then restart sshd whenever
-> it quits for some reason.  This will get you your essential sshd back
-> assuming the machine is still running and the OOM killer managed
-> to free up some memory by killing some other processes.
+kernel threads have no mm struct, right.
+but it appears some programs (user tasks) haven't either ?! actually,
+that what I notice..
+
+Sylvain
+
+
+
+On Fri, 03 Dec 2004 15:50:19 -0500, Brian Gerst <bgerst@didntduck.org> wrote:
+> Sylvain wrote:
+> > I am trying to do a tool to record task switching...separating also
+> > kernel/user tasks, but I got some trouble with that last case.
+> >
+> > I confused since "ps" is actually able to distinguish kernel thread
+> > from user task.
+> > I wouldn't had a flag if It 's not necessary
+> >
+> > Sylvain
+> >
 > 
-> One might still wish for better OOM behaviour, but it is a case
-> where something has to give.
+> Pstools doesn't really know the difference between user and kernel
+> threads.  It only shows kernel threads as swapped out (in brackets)
+> because they have an RSS of zero (since kernel threads have no mm struct).
 > 
-
-Hey, are you kidding ?
-
-2.4 lets me not in, because the fork of sshd fails. How do you fix this
-with changing the userspace ?
-
-2.6 oom is plain buggy
-
-I have no problem to help myself, but I want to get this fixed in a
-reliable way which meets the comment in oom_kill.c: "least surprise"
-
-tglx
-
-
+> --
+>                                Brian Gerst
+>

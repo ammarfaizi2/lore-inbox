@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269962AbRHXGqu>; Fri, 24 Aug 2001 02:46:50 -0400
+	id <S269971AbRHXHBn>; Fri, 24 Aug 2001 03:01:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269971AbRHXGqk>; Fri, 24 Aug 2001 02:46:40 -0400
-Received: from fe170.worldonline.dk ([212.54.64.199]:15634 "HELO
-	fe170.worldonline.dk") by vger.kernel.org with SMTP
-	id <S269962AbRHXGqb>; Fri, 24 Aug 2001 02:46:31 -0400
-Date: Fri, 24 Aug 2001 08:49:31 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Brad Chapman <kakadu_croc@yahoo.com>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: brlock_is_locked()?
-Message-ID: <20010824084931.D4064@suse.de>
-In-Reply-To: <20010822.120051.25423285.davem@redhat.com> <20010822190820.57208.qmail@web10904.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010822190820.57208.qmail@web10904.mail.yahoo.com>
+	id <S269974AbRHXHBd>; Fri, 24 Aug 2001 03:01:33 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:58676 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S269971AbRHXHBS>; Fri, 24 Aug 2001 03:01:18 -0400
+Message-ID: <3B85FBC6.3080305@blue-labs.org>
+Date: Fri, 24 Aug 2001 03:01:26 -0400
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010823
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Brian Strand <bstrand@switchmanagement.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 3ware: no cards found in 2.2.19, cards found in 2.4.x
+In-Reply-To: <3B85E7E2.7000602@switchmanagement.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 22 2001, Brad Chapman wrote:
-> >    (I checked the brlock code and didn't find any schedule()s; there's
-> >     probably a reason for that).
-> > 
-> > Ummm, this is SMP 101, you can't sleep with a lock held.
-> > The global kernel lock is special in this regard, but all
-> > other SMP locking primitives may not sleep.
-> 
-> 	Grrr....I read Rusty's Unreliable Guide to Kernel Locking (twice) and
-> still didn't remember that. Guess you have to schedule() yourself.
+I first suggest that you try kernel 2.4.9 or the latest of 2.4.8-acN.
 
-Errr, like Dave said, _you cannot sleep while holding a lock_. It's not
-just that the locking primitives themselves don't sleep, you must not
-call schedule() (or any other function that may block/sleep) while
-holding a lock. _That's_ SMP 101 :-)
+David
 
--- 
-Jens Axboe
+Brian Strand wrote:
+
+> I have a quad xeon 2GB system running Oracle which I am reverting to 
+> 2.2.x because of 2.4.x's less than desirable VM performance (causing a 
+> 2x Oracle slowdown, reported about a month ago on linux-kernel).  I 
+> foolishly put a 3ware card in at the same time as I "upgraded" the box 
+> to 2.4.4, so now I am in the undesirable position of needing to go 
+> back to 2.2.19, but that kernel cannot find the card.  I get the 
+> following message during boot:
+>
+> 3w-xxxx: tw_find_cards(): No cards found
+> /lib/moduless/2.2.19-2GB-SMP/scsi/3w-xxxx.o: init_module: Device or 
+> resource busy
+>
+> I have tried compiling the 3ware driver version 1.02.00.{004,006,007} 
+> all with the same result.  Has anyone managed to use a Suse 2.2.19 
+> kernel with 3ware cards with any success?  The 1.02.00.004 driver is 
+> from the stock 2.2.19 kernel, the .006 driver is from 3ware's website, 
+> and the .007 driver is from 2.2.20pre9.
+
+
+
 

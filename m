@@ -1,101 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267191AbSKXLB7>; Sun, 24 Nov 2002 06:01:59 -0500
+	id <S267194AbSKXLWj>; Sun, 24 Nov 2002 06:22:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267193AbSKXLB6>; Sun, 24 Nov 2002 06:01:58 -0500
-Received: from elin.scali.no ([62.70.89.10]:41222 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S267191AbSKXLB5>;
-	Sun, 24 Nov 2002 06:01:57 -0500
-Date: Sun, 24 Nov 2002 12:10:31 +0100 (CET)
-From: Steffen Persvold <sp@scali.com>
-X-X-Sender: sp@sp-laptop.isdn.scali.no
-To: Manish Lachwani <manish@Zambeel.com>
-cc: linux-kernel@vger.kernel.org, <linux.nics@intel.com>
-Subject: RE: Intel GbE performance on E7500
-In-Reply-To: <233C89823A37714D95B1A891DE3BCE5202AB19A6@xch-a.win.zambeel.com>
-Message-ID: <Pine.LNX.4.44.0211241115350.1021-100000@sp-laptop.isdn.scali.no>
+	id <S267200AbSKXLWj>; Sun, 24 Nov 2002 06:22:39 -0500
+Received: from p0108.as-l043.contactel.cz ([194.108.242.108]:19450 "EHLO
+	SnowWhite.SuSE.cz") by vger.kernel.org with ESMTP
+	id <S267194AbSKXLWi> convert rfc822-to-8bit; Sun, 24 Nov 2002 06:22:38 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: PCI serial card with PCI 9052?
+References: <m3smxx1aaf.fsf@Janik.cz> <20021120095618.GB319@pazke.ipt>
+From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
+X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
+ ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
+ iHiAs(t(~b#1.{w.d[=Z
+Date: Sun, 24 Nov 2002 12:27:14 +0100
+In-Reply-To: <20021120095618.GB319@pazke.ipt> (Andrey Panin's message of
+ "Wed, 20 Nov 2002 12:56:18 +0300")
+Message-ID: <m3fztrcinh.fsf@Janik.cz>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i386-suse-linux-gnu)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Nov 2002, Manish Lachwani wrote:
+   From: Andrey Panin <pazke@orbita1.ru>
+   Date: Wed, 20 Nov 2002 12:56:18 +0300
 
-> I have used the P4DPE version of the E7500 motherboard and I have used both
-> 82544GC/82546EB. However, I have used netperf to benchmark the numbers and
-> used the 4.3.2 version of the driver. Actually, I have also used the 4.3.15
-> version of the driver.
+Hi Andrey,
 
-I've tried the 4.3.15 driver, and it is behaving in the same manner :
+   > > I have a PCI card with two serial ports on it. It has PLX Technology
+   > > PCI9052 and HOLTEK HT6552IR chips. Pictures of that card are at
+   > > http://www.janik.cz/tmp/pci9052/.
 
-(82544GC device):
+[...]
 
-Latency: 0.000033
-Now starting main loop
-  0:         1 bytes 7569 times -->    0.27 Mbps in 0.000029 sec
-  1:         2 bytes 8755 times -->    0.53 Mbps in 0.000029 sec
-  2:         3 bytes 8762 times -->    0.79 Mbps in 0.000029 sec
-  3:         4 bytes 5784 times -->    1.06 Mbps in 0.000029 sec
-  4:         6 bytes 6523 times -->    1.60 Mbps in 0.000029 sec
-  5:         8 bytes 4378 times -->    2.14 Mbps in 0.000029 sec
-  6:        12 bytes 5468 times -->    3.14 Mbps in 0.000029 sec
-  7:        13 bytes 3576 times -->    3.22 Mbps in 0.000031 sec
-  8:        16 bytes 3741 times -->    4.10 Mbps in 0.000030 sec
-  9:        19 bytes 4718 times -->    5.04 Mbps in 0.000029 sec
- 10:        21 bytes 5486 times -->    5.57 Mbps in 0.000029 sec
- 11:        24 bytes 5794 times -->    6.40 Mbps in 0.000029 sec
+   > First we need to know is it 8250 compatible. You need to make some
+   > experiments with setserial to test compatibility.
+   > 
+   > For example:
+   > setserial /dev/ttyS5 port=0xd800 irq=11
+   > 
+   > then try to open /dev/ttyS5 with minicom or other terminal program.
 
-still the same latency.
+I have tried to cat /dev/ttyS5 after
 
-(82546EB devices):
+setserial /dev/ttyS5 port 0xd800 irq 11
 
-Latency: 0.000250
-Now starting main loop
-  0:         1 bytes 1001 times -->    0.03 Mbps in 0.000250 sec
-  1:         2 bytes 1000 times -->    0.06 Mbps in 0.000250 sec
-  2:         3 bytes 1000 times -->    0.09 Mbps in 0.000250 sec
-  3:         4 bytes  667 times -->    0.12 Mbps in 0.000250 sec
-  4:         6 bytes  751 times -->    0.18 Mbps in 0.000250 sec
-  5:         8 bytes  500 times -->    0.36 Mbps in 0.000170 sec
-  6:        12 bytes  917 times -->    0.71 Mbps in 0.000129 sec
-  7:        13 bytes  804 times -->    1.59 Mbps in 0.000063 sec
-  8:        16 bytes 1845 times -->    0.96 Mbps in 0.000127 sec
-  9:        19 bytes 1105 times -->    0.87 Mbps in 0.000166 sec
- 10:        21 bytes  951 times -->    1.28 Mbps in 0.000126 sec
- 11:        24 bytes 1327 times -->    0.98 Mbps in 0.000188 sec
+[ I tried 0xd400 and 0xd800] and everything went to
 
+cat: /dev/ttyS5: Input/output error
 
-Now this is worse, the latency is varying between 250us and 63us 
-(seems like it is depending on the iterations).
+So, maybe this card is not 8250 compatible :-(
 
-> 
-> I have noticed pretty consistent performance. Can you send the kernel log
-> messages (dmesg)? Also, look at the statistics for the NICs in
-> /proc/net/PRO_Lan_adapters/eth*.info and see if you find anything
-> interesting. 
-> 
+The card has one region of size 128:
 
-Well I did take a look in the proc files (*.info) and I didn't see 
-anything abnormal (like packets dropped etc.).
+	Region 1: I/O ports at d400 [size=128]
 
-However, when compare the "features" list on the web, I find that the 
-82546EB has some features that the 82544GC apparently doesn't have :
-
-"Interrupt moderation controls"   Reduces the number of interrupts
-                                  generated by receive and transmit 
-                                  operations. Maximizes system performance 
-                                  and throughput.
-
-"Small Packet Interrupt"          Fast detection of TCP ACKs for improved 
-                                  small packet throughput.
-
-
-Maybe these features are taking effect ?
-
-Regards,
+I think that it is EEPROM, because there is a driver for EEPROM on this PLX
+chip somewhere on the Internet (I do not have that link here).
 -- 
-  Steffen Persvold   |       Scali AS      
- mailto:sp@scali.com |  http://www.scali.com
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
+Pavel Janík
 
+I think I started with hitting C-h a lot.  Really a LOT.
+                  -- Kai Grossjohann in gnu.emacs.help about Emacs knowledge

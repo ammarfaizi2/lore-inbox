@@ -1,78 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264638AbTEPXpt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 19:45:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbTEPXps
+	id S264618AbTEPXmz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 19:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264619AbTEPXmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 19:45:48 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:42713 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264638AbTEPXpr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 19:45:47 -0400
-Date: Fri, 16 May 2003 16:59:58 -0700
-From: Greg KH <greg@kroah.com>
-To: Manuel Estrada Sainz <ranty@debian.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Simon Kelley <simon@thekelleys.org.uk>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Downing, Thomas" <Thomas.Downing@ipc.com>, jt@hpl.hp.com,
-       Pavel Roskin <proski@gnu.org>
-Subject: Re: request_firmware() hotplug interface, third round.
-Message-ID: <20030516235958.GA17439@kroah.com>
-References: <20030515200324.GB12949@ranty.ddts.net> <20030516223624.GA16759@kroah.com> <20030516233751.GA2045@ranty.ddts.net>
+	Fri, 16 May 2003 19:42:55 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49164 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264618AbTEPXmx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 19:42:53 -0400
+Date: Sat, 17 May 2003 00:55:38 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>,
+       davej@suse.de
+Subject: Re: 2.5.69-mm6: pccard oops while booting
+Message-ID: <20030517005538.D26797@flint.arm.linux.org.uk>
+Mail-Followup-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+	Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+	Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>,
+	davej@suse.de
+References: <1053004615.586.2.camel@teapot.felipe-alfaro.com> <20030515144439.A31491@flint.arm.linux.org.uk> <1053037915.569.2.camel@teapot.felipe-alfaro.com> <20030515160015.5dfea63f.akpm@digeo.com> <1053090184.653.0.camel@teapot.felipe-alfaro.com> <1053110098.648.1.camel@teapot.felipe-alfaro.com> <20030516132908.62e54266.akpm@digeo.com> <1053121346.569.1.camel@teapot.felipe-alfaro.com> <3EC56173.1000306@gmx.net> <1053128425.607.1.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030516233751.GA2045@ranty.ddts.net>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1053128425.607.1.camel@teapot.felipe-alfaro.com>; from felipe_alfaro@linuxmail.org on Sat, May 17, 2003 at 01:40:26AM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 17, 2003 at 01:37:52AM +0200, Manuel Estrada Sainz wrote:
-> > > 	- Driver calls request_firmware()
-> > 
-> > Yeah, I agree with your comment in the code, I think a struct device *
-> > should be passed here.  Or at least somewhere...
-> 
->  To make compatibility with 2.4 kernel easier, I think that I'll add a
->  new 'struct device *' parameter to request_firmware(). On 2.4 kernels
->  it can be an unused 'void *'. Does that sound too ugly?
+On Sat, May 17, 2003 at 01:40:26AM +0200, Felipe Alfaro Solana wrote:
+> This is getting tricky. How about this one?
+> Attached is "ymfpci2.patch" with your suggested changes, and "dmesg"
+> with the new oops info.
 
-Yeah, don't use void * if you can ever help it.  As there will be two
-different versions for two different kernels, just don't have that
-paramater, or make it a char * like you have now for 2.4.  That seems to
-make sense for 2.4 where you don't have a struct device.
+You need to reproduce the oops you get when you modprobe the module.
+The oops with this driver built in is different, and akpm's changes
+won't tell us which one causes the problem.
 
-> > > 	- 'hotplug firmware' gets called with ACCTION=add
-> > 
-> > I don't see why you need to add a new environment variable in your
-> > firmware_class_hotplug() call.  What is the FIRMWARE variable for, if we
-> > already have a device symlink back to the device that is asking for the
-> > firmware?  Oh, you don't have that :)
-> 
->  The same device can ask for different firmware images.
+Instead of adding a character to each of those strings, could you
+remove the 'Y' character so the strings remain the same length as
+the original - that may cause the oops to reappear.
 
-Ah, that makes more sense now.  Ok, I have no problem with it.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-> > > 	- The call to request_firmware() returns with the firmware in a
-> > > 	  memory buffer and the driver can finish loading.
-> > 
-> > request_firmware() can't use a static struct class_device, like you have
-> > it, in order to work properly for multiple calls to request_firmware()
-> > at the same time by different drivers.  Just create a new struct
-> > class_device, and put it on a list, like I had to do for the tty class
-> > code (and i2c_dev class code, but that isn't in the kernel to look at
-> > yet...)
-> 
->  Sorry, I don't know how that 'static' got there, I just wanted to
->  allocate it on the stack. But I guess that it should be dynamically
->  allocated anyway. Do I really need to put it on a list?
-
-If you want to delete it later, you have to have some way to find it
-again.  If you are just adding it and then removing it in the same
-function, just allocate it dynamically, register it, sleep, and then
-free it.  So then you would not need a list.
-
-thanks,
-
-greg k-h

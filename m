@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275368AbTHMURF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 16:17:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275369AbTHMURF
+	id S275358AbTHMUSe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 16:18:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275363AbTHMUSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 16:17:05 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:49573 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S275368AbTHMURD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 16:17:03 -0400
-Date: Wed, 13 Aug 2003 21:16:11 +0100
-From: Dave Jones <davej@redhat.com>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Russell King <rmk@arm.linux.org.uk>,
-       Greg KH <greg@kroah.com>, "David S. Miller" <davem@redhat.com>,
-       rddunlap@osdl.org, linux-kernel@vger.kernel.org,
-       kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: C99 Initialisers
-Message-ID: <20030813201610.GJ12953@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Matthew Wilcox <willy@debian.org>, Jeff Garzik <jgarzik@pobox.com>,
-	Russell King <rmk@arm.linux.org.uk>, Greg KH <greg@kroah.com>,
-	"David S. Miller" <davem@redhat.com>, rddunlap@osdl.org,
-	linux-kernel@vger.kernel.org,
-	kernel-janitor-discuss@lists.sourceforge.net
-References: <32835.4.4.25.4.1060743746.squirrel@www.osdl.org> <3F39AFDF.1020905@pobox.com> <20030813031432.22b6a0d6.davem@redhat.com> <20030813173150.GA3317@kroah.com> <3F3A79CA.6010102@pobox.com> <20030813180245.GC3317@kroah.com> <3F3A82C3.5060006@pobox.com> <20030813193855.E20676@flint.arm.linux.org.uk> <3F3A952C.4050708@pobox.com> <20030813195412.GE10015@parcelfarce.linux.theplanet.co.uk>
+	Wed, 13 Aug 2003 16:18:34 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:521 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S275358AbTHMUSc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 16:18:32 -0400
+Date: Wed, 13 Aug 2003 22:18:29 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: George Anzinger <george@mvista.com>
+Cc: Thomas Schlichter <schlicht@uni-mannheim.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test3-mm1
+Message-ID: <20030813201829.GA15012@mars.ravnborg.org>
+Mail-Followup-To: George Anzinger <george@mvista.com>,
+	Thomas Schlichter <schlicht@uni-mannheim.de>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20030809203943.3b925a0e.akpm@osdl.org> <200308101941.33530.schlicht@uni-mannheim.de> <3F37DFDC.6080308@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030813195412.GE10015@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <3F37DFDC.6080308@mvista.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 13, 2003 at 08:54:12PM +0100, Matthew Wilcox wrote:
- > 
- > So I took the driver module, put it on a floppy, hand-edited the binary
- > to replace one of the PCI IDs with the ones that came back from lspci.
- > Stuck the floppy back in the Evo, loaded the hacked module and finished
- > the install.  Then compiled a new kernel ;-)
- > 
- > I haven't seen anything to address this in a nicer way yet.
+On Mon, Aug 11, 2003 at 11:26:36AM -0700, George Anzinger wrote:
+> >that patch sets DEBUG_INFO to y by default, even if whether DEBUG_KERNEL 
+> >nor KGDB is enabled. The attached patch changes this to enable DEBUG_INFO 
+> >by default only if KGDB is enabled.
+> 
+> Looks good to me, but.... just what does this turn on?  Its been a 
+> long time and me thinks a wee comment here would help me remember next 
+> time.
 
-This situation is exactly what the new_id stuff in sysfs is for AIUI.
+DEBUG_INFO add "-g" to CFLAGS.
+Main reason to introduce this was that many architectures always use
+"-g", so a config option seemed more appropriate.
+I do not agree that this should be dependent on KGDB.
+To my knowledge -g is useful also without using kgdb.
 
-		Dave
-
--- 
- Dave Jones     http://www.codemonkey.org.uk
+	Sam

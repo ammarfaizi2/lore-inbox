@@ -1,37 +1,40 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S157366AbPJWN3a>; Sat, 23 Oct 1999 09:29:30 -0400
-Received: by vger.rutgers.edu id <S157358AbPJWNTz>; Sat, 23 Oct 1999 09:19:55 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:27756 "EHLO atrey.karlin.mff.cuni.cz") by vger.rutgers.edu with ESMTP id <S157383AbPJWNBX>; Sat, 23 Oct 1999 09:01:23 -0400
-Message-ID: <19991016235253.D201@bug.ucw.cz>
-Date: Sat, 16 Oct 1999 23:52:53 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Tom M. Kroeger" <tmk@cse.ucsc.edu>, Drew Bernat <abernat@zathras.net>, linux-kernel@vger.rutgers.edu
-Subject: Re: Advice wanted: WebFS term project
-References: <Pine.GSO.4.10.9910121234280.22333-100000@weyl.math.psu.edu> <a4zoxjt7ck.fsf@gilgamesh.cse.ucsc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <a4zoxjt7ck.fsf@gilgamesh.cse.ucsc.edu>; from Tom M. Kroeger on Sat, Oct 16, 1999 at 12:48:27PM -0700
+Received: by vger.rutgers.edu via listexpand id <S157585AbPJZUH5>; Tue, 26 Oct 1999 16:07:57 -0400
+Received: by vger.rutgers.edu id <S157111AbPJZTsF>; Tue, 26 Oct 1999 15:48:05 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:3580 "EHLO tomcat.admin.navo.hpc.mil") by vger.rutgers.edu with ESMTP id <S157594AbPJZT30>; Tue, 26 Oct 1999 15:29:26 -0400
+Date: Tue, 26 Oct 1999 14:28:46 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <199910261928.OAA41544@tomcat.admin.navo.hpc.mil>
+To: linux-kernel@vger.rutgers.edu
+Subject: Re: Sealing the kernel 
+X-Mailer: [XMailTool v3.1.2b]
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hi!
+>From: Aaron Sethman <androsyn@atomic-city.dev.powerize.com>
+>On Tue, 26 Oct 1999, Dimitris Margaritis wrote:
+>> Yes, John forgot to mention that we're assuming boot from a read-only 
+>> media such as a write-protected floppy or CD-ROM.  We also assume 
+>> that the rc scripts, kernel, and all modules to be loaded at boot 
+>> time (before of course the sealing module) also reside on that medium.
+>> 
+>> About your last point, yes, root can do a lot of nasty things, but by 
+>> sealing the kernel at least they are constrained to what's available 
+>> through kernel services.  That may help presumably by disabling a lot 
+>> of stuff in the running kernel.
+>Or even a better idea, compile the kernel without module support all
+>together.  Just hope that you don't have any of those blasted Plug and
+>Pray devices.
 
-> What I'd like to see instead of http and ftp is a file-system that
-> uses scp & ssh as the transport.  It would be a secure method to mount
-> remote files on machines that you don't have root access on.
+It would be better (in general) to remove root as a privileged user.
+Try
+	http://www.rsbac.de/rsbac/
 
-You want to see combination of mc and podfuk. We already do file
-transport over ssh. Yes, with podfuk it acts like
-userfs. http://atrey.karlin.mff.cuni.cz/~pavel/podfuk/podfuk.html. [We
-do not actually use scp; ssh is just enough: we upload "programs" to
-the server, dd is required on remote side. Look at mc/vfs/fish.c.]
+for a possible implementation.
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-								Pavel
-PS: userfs is dead. Podfuk is trying to be replacement. Improving
-midnight is the right way.
--- 
-I'm really pavel@ucw.cz. Look at http://195.113.31.123/~pavel.  Pavel
-Hi! I'm a .signature virus! Copy me into your ~/.signature, please!
+Any opinions expressed are solely my own.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

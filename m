@@ -1,56 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264077AbTICRGt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 13:06:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbTICRGt
+	id S264117AbTICRSR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 13:18:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbTICRRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 13:06:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:48548 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264077AbTICRGi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 13:06:38 -0400
-Date: Wed, 3 Sep 2003 10:07:16 -0700
-From: Dave Olien <dmo@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Daniel McNeil <daniel@osdl.org>,
-       Mary Edie Meredith <maryedie@osdl.org>
-Subject: FYI: dbt testing on 2.6.0-test4-mm4 fails
-Message-ID: <20030903170716.GA23487@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Wed, 3 Sep 2003 13:17:03 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:65034 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id S264115AbTICRQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 13:16:52 -0400
+Date: Wed, 3 Sep 2003 18:18:28 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: "Nikita V. Youshchenko" <yoush@cs.msu.su>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange situation while writing CDR from iso file on tmpfs
+In-Reply-To: <200309030120.54112@sercond.localdomain>
+Message-ID: <Pine.LNX.4.44.0309031745110.2222-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 3 Sep 2003, Nikita V. Youshchenko wrote:
+> 
+> First I grabbed the iso image to a file in /tmp, which is tmpfs on my 
+> system.
+> Then I tried to write it using cdrecord at speed 24, and got an i/o error 
+> that looked like buffer underrun.
+> I insered another disk and repeated write attempt. And got i/o error again 
+> almost at the same byte offset (459716608 first time, 459399168 second 
+> time).
 
-Andrew,
+That's curious, I don't have an explanation for why 438MB should be
+repeatably significant on your 256MB system.  I'm pretty sure tmpfs
+itself doesn't have any "438MB" coded into it!  Maybe it tended to
+to horrible seeking around swap at that point; maybe shrink_cache
+got stuck too much on wait_on_page; I'm only guessing.
 
-I'm just mailing you this to keep you informed, Daniel McNeil and
-I are investigating a failure of the dbt database workload test on
-2.6.0-test4-mm4.
+> I was able to write the image only after I copied it from tmpfs to my home 
+> directory on reiserfs (file was copied without any errors).
+> ... 
+> Computer on which it happened has only 256M of RAM, and iso file size was 
+> about 700M. So large parts of the file in tmpfs actually resided in swap.
 
-The failure MAY have begun as early as 2.6.0-test4.  We were able
-to test on test4 only after I generated a patch to raw_open() for that
-kernel version.  The database test4 failure LOOKS the same as the
-test4-mm4 failure.  But we haven't investigated it as closely there yet.
-We know test3 worked OK.  We may try some of the test3-mm patches to
-see if something happened on one of those patches.
+I'm sure you did the right thing, copying it to a grown-up filesystem.
 
-In the test4-mm4 case, the kernel doesn't oops or hang. Instead, the
-database software detects a failure of some sort.  We've done an
-strace on the database processes, and in one of them we see the following
-output:
+tmpfs is fine while everything is in memory, and even when a little
+overflowed to swap; but with so much on swap it's at the mercy of the
+vagaries of the LRU lists, and swap allocation might work out far
+from optimal for it.  tmpfs use of swap is not something we've ever
+tried to optimize for.
 
-_llseek(38, 8192, [8192], SEEK_SET) = 0
-write(38, "\0\0\0\0\4\3\1\0\7\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 8192)                     = 0
+Perhaps something exceptionally stupid and avoidable occurs, I'll keep
+your mail as reminder to investigate some day.  But if most of your
+file is going to be on disk, much better to keep it in a filesystem
+which allocates disk blocks to files in a well-designed way, than to
+rely on tmpfs use of swap.
 
-A seek on file descriptor 38 to offset 8192, followed by a write of 8k.
-The write returns with 0 bytes written.
+> It seems that several times it took tmpfs unacceptably long to deliver 
+> same part of the file to the reading process. Since it was the same part 
+> of the file, I thought that these particular blocks (located on 
+> particular blocks of the swap partition) could trigger some situation 
+> when tmpfs misbehaves.
 
-Immediately after this, we can see this process writing to the error
-log a message indicating an error has been detected.
+I'm assuming you ran it two or three times without rebooting or running
+swapoff.  In which case, I doubt that the same parts of the file got the
+same swap blocks each time (the association is not persistent), so I
+don't think it would be a problem with your swap partition itself.
 
-File descriptor 38 is for the file /dev/raw/raw1.  This is the
-transaction log file for the database.  This is early in itialization
-of the database, so it's initializing the transaction log file.
+Sorry for tmpfs wasting your CDs: trust your reiserfs next time.
+
+Hugh
+

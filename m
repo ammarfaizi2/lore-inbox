@@ -1,68 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264415AbTLBWQe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 17:16:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264418AbTLBWQe
+	id S264429AbTLBWiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 17:38:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264430AbTLBWiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 17:16:34 -0500
-Received: from users.ccur.com ([208.248.32.211]:20672 "HELO rudolph.ccur.com")
-	by vger.kernel.org with SMTP id S264415AbTLBWQb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 17:16:31 -0500
-Date: Tue, 2 Dec 2003 17:16:20 -0500
-From: Joe Korty <joe.korty@ccur.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH, 2.6.0-test11] more correct get_compat_timespec interface
-Message-ID: <20031202221619.GA27505@rudolph.ccur.com>
-Reply-To: Joe Korty <joe.korty@ccur.com>
+	Tue, 2 Dec 2003 17:38:25 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:13 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S264429AbTLBWiY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 17:38:24 -0500
+Date: Tue, 2 Dec 2003 20:43:08 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: snpe <snpe@snpe.co.yu>, Linus Torvalds <torvalds@osdl.org>,
+       Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: Linux 2.4 future
+Message-ID: <20031202224307.GB17773@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	snpe <snpe@snpe.co.yu>, Linus Torvalds <torvalds@osdl.org>,
+	Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org,
+	Christoph Hellwig <hch@infradead.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <20031202063912.GD16507@lug-owl.de> <Pine.LNX.4.58.0312020956120.1519@home.osdl.org> <200312021959.53095.snpe@snpe.co.yu> <20031202223013.GA4154@mis-mike-wstn.matchmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <20031202223013.GA4154@mis-mike-wstn.matchmail.com>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew, 
- The API for get_compat_timespec / put_compat_timespec is incorrect, it
-forces a caller with const args to (incorrectly) cast.  The posix message
-queue patch is one such caller.
+Em Tue, Dec 02, 2003 at 02:30:13PM -0800, Mike Fedyk escreveu:
+> On Tue, Dec 02, 2003 at 07:59:53PM +0000, snpe wrote:
+> > Does anyone work on transfer linux-abi to kernel 2.6 ?
+> 
+> What is that supposed to be asking?
 
-Joe
+I think he is asking for that thing that previously was called iBCS2...
 
-
-
-diff -ura 2.6.0-test11-base/include/linux/compat.h 2.6.0-test11-new/include/linux/compat.h
---- 2.6.0-test11-base/include/linux/compat.h	2003-11-26 15:43:56.000000000 -0500
-+++ 2.6.0-test11-new/include/linux/compat.h	2003-12-02 15:48:14.000000000 -0500
-@@ -44,8 +44,8 @@
- } compat_sigset_t;
- 
- extern int cp_compat_stat(struct kstat *, struct compat_stat *);
--extern int get_compat_timespec(struct timespec *, struct compat_timespec *);
--extern int put_compat_timespec(struct timespec *, struct compat_timespec *);
-+extern int get_compat_timespec(struct timespec *, const struct compat_timespec *);
-+extern int put_compat_timespec(struct timespec *, const struct compat_timespec *);
- 
- struct compat_iovec {
- 	compat_uptr_t	iov_base;
-diff -ura 2.6.0-test11-base/kernel/compat.c 2.6.0-test11-new/kernel/compat.c
---- 2.6.0-test11-base/kernel/compat.c	2003-11-26 15:44:11.000000000 -0500
-+++ 2.6.0-test11-new/kernel/compat.c	2003-12-02 15:48:14.000000000 -0500
-@@ -22,14 +22,14 @@
- 
- #include <asm/uaccess.h>
- 
--int get_compat_timespec(struct timespec *ts, struct compat_timespec *cts)
-+int get_compat_timespec(struct timespec *ts, const struct compat_timespec *cts)
- {
- 	return (verify_area(VERIFY_READ, cts, sizeof(*cts)) ||
- 			__get_user(ts->tv_sec, &cts->tv_sec) ||
- 			__get_user(ts->tv_nsec, &cts->tv_nsec)) ? -EFAULT : 0;
- }
- 
--int put_compat_timespec(struct timespec *ts, struct compat_timespec *cts)
-+int put_compat_timespec(struct timespec *ts, const struct compat_timespec *cts)
- {
- 	return (verify_area(VERIFY_WRITE, cts, sizeof(*cts)) ||
- 			__put_user(ts->tv_sec, &cts->tv_sec) ||
+- Arnaldo

@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262447AbVAEOaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262449AbVAEOc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262447AbVAEOaO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 09:30:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbVAEOaO
+	id S262449AbVAEOc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 09:32:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbVAEOc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 09:30:14 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:13446 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262447AbVAEO35 (ORCPT
+	Wed, 5 Jan 2005 09:32:57 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:22152 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262449AbVAEOcx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 09:29:57 -0500
+	Wed, 5 Jan 2005 09:32:53 -0500
 From: David Howells <dhowells@redhat.com>
 To: torvalds@osdl.org, akpm@osdl.org
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] FRV: remove excess argument passed to expand_stack()
+Subject: [PATCH] FRV: provide stub asm/a.out.h
 X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Wed, 05 Jan 2005 14:29:53 +0000
-Message-ID: <28512.1104935393@redhat.com>
+Date: Wed, 05 Jan 2005 14:32:49 +0000
+Message-ID: <28569.1104935569@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The attached patch removes the excess argument being passed to expand_stack()
-as it isn't needed in -bk8.
+The attached patch provides a stub asm/a.out.h for the FRV arch. This
+shouldn't be necessary as FRV doesn't support the AOUT binfmt, but it seems to
+be required by some archs for compilation of fs/exec.c.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
-warthog>diffstat frv-expstack-2610bk8.diff 
- fault.c |    9 ++-------
- 1 files changed, 2 insertions(+), 7 deletions(-)
+warthog>diffstat frv-aouth-2610bk8.diff 
+ a.out.h |    5 +++++
+ 1 files changed, 5 insertions(+)
 
-diff -uNrp /warthog/kernels/linux-2.6.10-bk8/arch/frv/mm/fault.c linux-2.6.10-bk8-frv/arch/frv/mm/fault.c
---- /warthog/kernels/linux-2.6.10-bk8/arch/frv/mm/fault.c	2005-01-05 13:21:26.000000000 +0000
-+++ linux-2.6.10-bk8-frv/arch/frv/mm/fault.c	2005-01-05 13:30:50.667294388 +0000
-@@ -32,7 +32,7 @@
-  */
- asmlinkage void do_page_fault(int datammu, unsigned long esr0, unsigned long ear0)
- {
--	struct vm_area_struct *vma, *prev_vma;
-+	struct vm_area_struct *vma;
- 	struct mm_struct *mm;
- 	unsigned long _pme, lrai, lrad, fixup;
- 	siginfo_t info;
-@@ -120,12 +120,7 @@ asmlinkage void do_page_fault(int datamm
- 		}
- 	}
- 
--	/* find_vma_prev is just a bit slower, because it cannot use
--	 * the mmap_cache, so we run it only in the growsdown slow
--	 * path and we leave find_vma in the fast path.
--	 */
--	find_vma_prev(current->mm, ear0, &prev_vma);
--	if (expand_stack(vma, ear0, prev_vma))
-+	if (expand_stack(vma, ear0))
- 		goto bad_area;
- 
- /*
+diff -uNrp /warthog/kernels/linux-2.6.10-bk8/include/asm-frv/a.out.h linux-2.6.10-bk8-frv/include/asm-frv/a.out.h
+--- /warthog/kernels/linux-2.6.10-bk8/include/asm-frv/a.out.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.10-bk8-frv/include/asm-frv/a.out.h	2005-01-05 13:33:46.113126564 +0000
+@@ -0,0 +1,5 @@
++/*
++ * FRV doesn't do AOUT format. This header file should be removed as
++ * soon as fs/exec.c and fs/proc/kcore.c and the archs that require
++ * them to include linux/a.out.h are fixed.
++ */

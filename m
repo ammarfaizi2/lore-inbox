@@ -1,33 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268539AbUILQ1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268365AbUILQiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268539AbUILQ1o (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 12:27:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268708AbUILQ1o
+	id S268365AbUILQiI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 12:38:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268463AbUILQiI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 12:27:44 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:11701 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268539AbUILQ1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 12:27:42 -0400
-Subject: Re: The Serial Layer
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Eger <eger@havoc.gtf.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040912030150.GA22858@havoc.gtf.org>
-References: <1094582980.9750.12.camel@localhost.localdomain>
-	 <20040912030150.GA22858@havoc.gtf.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1095002727.11737.3.camel@localhost.localdomain>
+	Sun, 12 Sep 2004 12:38:08 -0400
+Received: from verein.lst.de ([213.95.11.210]:46769 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S268365AbUILQiC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 12:38:02 -0400
+Date: Sun, 12 Sep 2004 18:37:56 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org, geert@linux-m68k.org
+Cc: linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] mark amiflop non-unloadable
+Message-ID: <20040912163756.GA5002@lst.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 12 Sep 2004 16:25:30 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-09-12 at 04:01, David Eger wrote:
-> While you're at it, could you patch it up so we can have more than one
-> serial device again?  I tracked down a bug a month ago having to do
-> with the pmac_zilog driver freaking out because it tried to 
+as it's using the obsolete MOD_{INC,DEC}_USE_COUNT it's implicitly
+locked already, but let's remove them and make it explicit so these
+macros can go away completely without breaking m68k compile.
 
-uart layer is rather below the stuff I'm touching in the tty code.
+
+--- 1.46/drivers/block/amiflop.c	2003-09-03 12:32:10 +02:00
++++ edited/drivers/block/amiflop.c	2004-09-12 18:37:32 +02:00
+@@ -386,16 +386,6 @@
+ 	fd_select(drive);
+ 	udelay (1);
+ 	fd_deselect(drive);
+-
+-#ifdef MODULE
+-/*
+-  this is the last interrupt for any drive access, happens after
+-  release (from floppy_off). So we have to wait until now to decrease
+-  the use count.
+-*/
+-	if (decusecount)
+-		MOD_DEC_USE_COUNT;
+-#endif
+ }
+ 
+ static void floppy_off (unsigned int nr)
+@@ -1590,10 +1580,6 @@
+ 	local_irq_save(flags);
+ 	fd_ref[drive]++;
+ 	fd_device[drive] = system;
+-#ifdef MODULE
+-	if (unit[drive].motor == 0)
+-		MOD_INC_USE_COUNT;
+-#endif
+ 	local_irq_restore(flags);
+ 
+ 	unit[drive].dtype=&data_types[system];
+@@ -1839,6 +1825,7 @@
+ 	return amiga_floppy_init();
+ }
+ 
++#if 0 /* not safe to unload */
+ void cleanup_module(void)
+ {
+ 	int i;
+@@ -1859,4 +1846,5 @@
+ 	release_mem_region(CUSTOM_PHYSADDR+0x20, 8);
+ 	unregister_blkdev(FLOPPY_MAJOR, "fd");
+ }
++#endif
+ #endif

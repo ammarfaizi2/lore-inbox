@@ -1,77 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262284AbTFTOPc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 10:15:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbTFTOPc
+	id S262318AbTFTOQd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 10:16:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbTFTOQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 10:15:32 -0400
-Received: from pop.gmx.net ([213.165.64.20]:15266 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262284AbTFTOP1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 10:15:27 -0400
-Message-ID: <004d01c33738$7031e440$0200a8c0@brainbug>
-Reply-To: "Thomas Frase" <thomas.frase@ist-einmalig.de>
-From: "Thomas Frase" <thomas.frase@herr-der-mails.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: root shell exploit still working in kernel 2.4.21
-Date: Fri, 20 Jun 2003 16:29:59 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Fri, 20 Jun 2003 10:16:32 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:37580 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262318AbTFTOQX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 10:16:23 -0400
+Date: Fri, 20 Jun 2003 07:30:12 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>,
+       Werner Almesberger <wa@almesberger.net>, lm@bitmover.com,
+       miquels@cistron-office.nl, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-ID: <20030620143012.GC14404@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	Werner Almesberger <wa@almesberger.net>, lm@bitmover.com,
+	miquels@cistron-office.nl, linux-kernel@vger.kernel.org
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <1056027789.3ef1b48d3ea2e@support.tuxbox.dk> <03061908145500.25179@tabby> <20030619141443.GR29247@fs.tum.de> <bcsolt$37m$2@news.cistron.nl> <20030619165916.GA14404@work.bitmover.com> <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030620142436.GB14404@work.bitmover.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello!
+On Fri, Jun 20, 2003 at 07:24:36AM -0700, Larry McVoy wrote:
+> On Fri, Jun 20, 2003 at 12:09:10PM +0200, Stephan von Krawczynski wrote:
+> > On Fri, 20 Jun 2003 00:12:17 -0300
+> > Werner Almesberger <wa@almesberger.net> wrote:
+> > > Larry McVoy wrote:
+> > > > These discussions always make me wonder if the open source crowd is ever
+> > > > going to realize it's reasonable to be friendly with commercial companies.
+> > > 
+> > > The problem is that you can't trust a company. You may choose to
+> > > trust people who control or shape a company, but they may lose
+> > > that control, and then all bets are off.
+> > 
+> > And that is exactly _the_ argument in this whole discussion. There seem to be
+> > people out there who want to make a living from _others_ _ancient_ work they
+> > bought for small bucks by sueing just about anyone.
+> > 
+> > GPL has an inherent long-term strategy, you are talking of short-term, Larry.
+> > That does not match. If I am using only GPL-software I know I am able to use it
+> > as is in five years from now. 
+> 
+> Actually, my point is about long term strategy and what you think is long
+> term I think of as short term.  5 years isn't long term in my book.
 
-the problem:
-i tried an exploit (url given below) with debian woody kernel 2.4.18
-and self compiled kernel 2.4.21 resulting in a root shell.
+I realized after I sent that that maybe the point was too subtle.
+Open source is great, I use it, I love it, no problem there.  However,
+*if* I'm correct that what is happening is basically a process of copying,
+and *if* open source kills off the companies producing the products which
+are being copied, then open source slowly grinds to a halt in terms of
+creating anything new.
 
-exploit code url: (found via google)
-http://isec.pl/cliph/isec-ptrace-kmod-exploit.c
-
-as described in the source the exploit uses the well known ptrace bug
-which i thought was fixed in kernel 2.4.21.
-
-i don't know why it still works or how to fix it. i told someone people
-in #debian.de (quakenet) about the results of the exploit and they
-asked me to post a bug report here.
-
-greetings
-    thomas f.
-    (germany)
-
-Kernel 2.4.21 infos:
-
-Output from ver_linux:
--------------------------------------------------
-Linux xXxXx 2.4.21 #1 SMP Fri Jun 20 14:25:09 CEST 2003 i686 unknown
-
-Gnu C                  2.95.4
-Gnu make               3.80
-util-linux             2.11z
-mount                  2.11z
-modutils               2.4.21
-e2fsprogs              1.27
-PPP                    2.4.1
-Linux C Library        2.3.1
-Dynamic linker (ldd)   2.3.1
-Procps                 3.1.9
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded
--------------------------------------------------
-
-Output from /proc/version:
--------------------------------------------------
-Linux version 2.4.21 (root@xXxXx) (gcc version 2.95.4 20011002 (Debian
-prerelease)) #1 SMP Fri Jun 20 14:25:09 CEST 2003
--------------------------------------------------
-
-
+That may well be fine in the minds of many.  Lots of people can't see
+past their nose and all they want is free versions of what they have to
+pay for today.  What's past their nose is all the new stuff we haven't
+seen yet.  Imagine a world without that new stuff.  Just roll back the
+world to 5 years ago and think of what you would have lost.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

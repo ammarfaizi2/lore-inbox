@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269345AbUJUF6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267709AbUJUGHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269345AbUJUF6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 01:58:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270328AbUJUF5V
+	id S267709AbUJUGHw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 02:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270311AbUJUGHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 01:57:21 -0400
-Received: from ozlabs.org ([203.10.76.45]:3285 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S270259AbUJUFzs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 01:55:48 -0400
-Subject: Re: Fix for MODULE_PARM obsolete
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041020222633.7ec19a4e.akpm@osdl.org>
-References: <1098336290.10571.341.camel@localhost.localdomain>
-	 <20041020222633.7ec19a4e.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1098338148.10571.354.camel@localhost.localdomain>
+	Thu, 21 Oct 2004 02:07:14 -0400
+Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:3468 "EHLO
+	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S270513AbUJUGGG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 02:06:06 -0400
+References: <20041020181617.GA29435@elf.ucw.cz> <20041020193741.GA27096@shaka.acc.umu.se>
+Message-ID: <cone.1098338726.500663.12209.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Tim Cambrant <cambrant@acc.umu.se>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: power/disk.c: small fixups
+Date: Thu, 21 Oct 2004 16:05:26 +1000
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 21 Oct 2004 15:55:48 +1000
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-21 at 15:26, Andrew Morton wrote:
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-> >
-> > There is no __attribute_unused__: use __attribute__((__unused__)).
+Tim Cambrant writes:
+
+> On Wed, Oct 20, 2004 at 08:16:17PM +0200, Pavel Machek wrote:
+>> power_down may never ever fail, so it does not really need to return
+>> anything. Kill obsolete code and fixup old comments. Please apply,
+>> 
 > 
-> Will that fix this?
+> ...
 > 
-> /usr/src/25/drivers/acpi/tables/tbxfroot.c:168: undefined reference to `MODULE_PARM_'
+>> @@ -162,7 +163,7 @@
+>>   *
+>>   *	If we're going through the firmware, then get it over with quickly.
+>>   *
+>> - *	If not, then call pmdis to do it's thing, then figure out how
+>> + *	If not, then call swsusp to do it's thing, then figure out how
+>>   *	to power down the system.
+>>   */
+> 
+> I hate to be picky, but changing "it's" to the more correct "its" would
+> perhaps be nice to do when you're at it?
 
-No, but this will.  Tested on a tree which still has MODULE_PARM in it.
+"it's" means it belongs to, so therefore "it's" is correct usage here.
 
-Name: Fixe MODULE_PARM warning
-Status: Tested on 2.6-bk
-Depends: Module/MODULE_PARM-warning.patch.gz
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
-There is no __attribute_unused__: use __attribute__((__unused__)).
-Also, needs a real MODULE_PARM_ for when gcc doesn't throw it away for us.
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .20741-linux-2.6-bk/include/linux/module.h .20741-linux-2.6-bk.updated/include/linux/module.h
---- .20741-linux-2.6-bk/include/linux/module.h	2004-10-21 15:46:41.000000000 +1000
-+++ .20741-linux-2.6-bk.updated/include/linux/module.h	2004-10-21 15:46:45.000000000 +1000
-@@ -563,14 +563,14 @@ struct obsolete_modparm {
- 	void *addr;
- };
- 
--extern void __deprecated MODULE_PARM_(void);
-+static inline void __deprecated MODULE_PARM_(void) { }
- #ifdef MODULE
- /* DEPRECATED: Do not use. */
- #define MODULE_PARM(var,type)						    \
- struct obsolete_modparm __parm_##var __attribute__((section("__obsparm"))) = \
- { __stringify(var), type, &MODULE_PARM_ };
- #else
--#define MODULE_PARM(var,type) static void __attribute_unused__ *__parm_##var = &MODULE_PARM_;
-+#define MODULE_PARM(var,type) static void __attribute__((__unused__)) *__parm_##var = &MODULE_PARM_;
- #endif
- 
- #define __MODULE_STRING(x) __stringify(x)
-
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+Con
 

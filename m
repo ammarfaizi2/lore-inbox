@@ -1,91 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267034AbTAPFn5>; Thu, 16 Jan 2003 00:43:57 -0500
+	id <S267033AbTAPFnK>; Thu, 16 Jan 2003 00:43:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267038AbTAPFn5>; Thu, 16 Jan 2003 00:43:57 -0500
-Received: from clix.aarnet.edu.au ([192.94.63.10]:41926 "EHLO
-	clix.aarnet.edu.au") by vger.kernel.org with ESMTP
-	id <S267034AbTAPFny>; Thu, 16 Jan 2003 00:43:54 -0500
-Message-ID: <3E2648C8.4080507@aarnet.edu.au>
-Date: Thu, 16 Jan 2003 16:23:12 +1030
-From: Glen Turner <glen.turner@aarnet.edu.au>
-Organization: Australian Academic and Research Network
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
-X-Accept-Language: en-au, en
+	id <S267034AbTAPFnK>; Thu, 16 Jan 2003 00:43:10 -0500
+Received: from newmail.somanetworks.com ([216.126.67.42]:39306 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id <S267033AbTAPFnJ>; Thu, 16 Jan 2003 00:43:09 -0500
+Date: Thu, 16 Jan 2003 00:52:00 -0500 (EST)
+From: Scott Murray <scottm@somanetworks.com>
+X-X-Sender: scottm@rancor.yyz.somanetworks.com
+To: Bret Indrelee <Bret.Indrelee@qlogic.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Forcing PCI-PCI bridge to have memory resources
+In-Reply-To: <Pine.LNX.4.33.0301151709360.18997-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0301160044580.20085-100000@rancor.yyz.somanetworks.com>
 MIME-Version: 1.0
-To: Dave Jones <davej@codemonkey.org.uk>
-CC: Miklos Szeredi <Miklos.Szeredi@eth.ericsson.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: VIA C3 and random SIGTRAP or segfault
-References: <200301150929.h0F9T1I10444@duna48.eth.ericsson.se> <20030115122324.GC32694@codemonkey.org.uk>
-In-Reply-To: <20030115122324.GC32694@codemonkey.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MDSA: Yes
-X-Spam-Score: -102.3 IN_REP_TO,DOUBLE_CAPSWORD,USER_IN_WHITELIST
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Wed, Jan 15, 2003 at 10:29:01AM +0100, Miklos Szeredi wrote:
->  > 
->  > I just bought a VIA C3 866 processor, and under very special
->  > circumstances some programs (e.g. mplayer, xmms) randomly crash with
->  > trace/breakpoint trap or segmentation fault.  Otherwise the system
->  > seems stable even under high load.
+On Wed, 15 Jan 2003, Bret Indrelee wrote:
+
+> I'm working with Linux version 2.4.18-xfs with hotswap support.
 > 
-> Be sure that those programs aren't compiled for 686. The C3 lacks
-> cmov, so it'll segfault when it hits that opcode. You can confirm
-> this by running it under gdb, and disassembling where it segv's to.
-> This is still a common problem thats biting some people. The debian
-> folks had a broken libssl for months up until recently.
+> I'm trying to make a PCI-PCI bridge always have a minimum of 1MB of
+> memory address space allocated to it. I know that the BIOS we are
+> using always (correctly, by spec) sets a bridge with no devices behind 
+> it to disable the memory window. It does this by setting the 
+> MEM_LIMIT < MEM_BASE.
 > 
-> Note to userspace developers: If you're compiling something as
-> a 686 binary, you *NEED* to check the feature flags (in an i386
-> compiled program) to see if the CPU has cmov before you load 686
-> optimised parts of your app.  This is *NOT* a kernel problem,
-> it is *NOT* a CPU bug. The cmov extension is optional.
-> VIA chose to save silicon space by not implementing it. 
-> Gcc unfortunatly always uses cmov when compiling for 686.
+> I've been going through the sources in drivers/pci, trying to figure
+> out how things are set up. At the time of the pci scan, the resources
+> are usually initialized (in bci_read_breidge_bases) by doing a read of 
+> the bridge registers and setting the resource values appropropriately.
+> 
+> For the disabled bridges, the resources are copied from the parent
+> which in this case results in 0 being set in flags, start and end.
+> 
+> It looks like I will want to call pci_assign_resource(dev, 1); in
+> order to give it a memory window, but I'm not sure how to initialize
+> the resources so they are assigned correctly.
+> 
+> Our situation is similiar to what a hotswap CPCI system should encounter
+> when a hotswap device is inserted behind a previously empty PCI-PCI bridge.
+> 
+> Any help people can give would be greatly appreciated.
 
-Why not use a CMOV in a i686-specific crt0.c?
+I've some functionality in my 2.4 cPCI code that allows manually 
+specifying resource reservations for PCI bridges.  I'm about to start 
+porting it forward to 2.5, but I'll dig out the bits and send you a
+2.4.18 patch tomorrow.  If you're impatient, there should be a version
+of it in the mailing archives of this list (search for PCI resource 
+reservation), since I posted it for comment at the end of last summer 
+sometime.
 
-Then programs compiled for i686 but run on i586 will SIGILL
-deterministically at program start-up.  It seems to me that
-the major problem with SIGILL is that it occurs depending
-upon the program execution flow, and thus appears indeterministic
-to the user.
+Scott
 
-This doesn't solve the problem of a i386 executable calling
-a i686 library, but solving that problem deterministically
-requires a lot of baggage:
-
-   - compiler to produce an object file header stating CPU
-     features used.
-
-   - run time linker to take union of all CPU features in
-     object file headers and check against CPU features
-     returned by CPUID.
-
-Even this isn't perfect, consider multi-processor machines
-with differing CPU feature sets or applications which attempt
-to implement their own run-time checking:
-
-    get_cpu_features(&feature);
-    if (feature.cmov && feature.somethingelse && ...)
-        mytask_i686();
-    else
-        mytask_i386();
-
-This leads inevitably more flags in the object file header
-to instruct the run-time linker to skip particular CPU feature
-checks
-
-   gcc -c -mdisable_cpu_feature_check=cmov -o mytask.o mytask.c
-
-SIGILL starts to look lightweight :-)
 
 -- 
-  Glen Turner                (08) 8303 3936 or +61 8 8303 3936
-  Australian Academic and Research Network   www.aarnet.edu.au
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
 

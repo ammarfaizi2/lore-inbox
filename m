@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265249AbUHIEIB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265943AbUHIETZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265249AbUHIEIB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 00:08:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUHIEIB
+	id S265943AbUHIETZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 00:19:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265930AbUHIETZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 00:08:01 -0400
-Received: from rproxy.gmail.com ([64.233.170.195]:56168 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S265249AbUHIEH4 (ORCPT
+	Mon, 9 Aug 2004 00:19:25 -0400
+Received: from mailhub.hp.com ([192.151.27.10]:57555 "EHLO mailhub.hp.com")
+	by vger.kernel.org with ESMTP id S265943AbUHIETW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 00:07:56 -0400
-Message-ID: <bec878da04080821071647a846@mail.gmail.com>
-Date: Sun, 8 Aug 2004 21:07:52 -0700
-From: "Kevin O'Shea" <mastergoon@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: nvidia oops 2.6.8-rc3-mm2
-In-Reply-To: <cone.1092022093.780511.26660.502@pc.kolivas.org>
+	Mon, 9 Aug 2004 00:19:22 -0400
+Subject: Re: [PATCH] cleanup ACPI numa warnings
+From: Alex Williamson <alex.williamson@hp.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Paul Jackson <pj@sgi.com>, mbligh@aracnet.com, haveblue@us.ibm.com,
+       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20040808143631.7c18cae9.rddunlap@osdl.org>
+References: <1091738798.22406.9.camel@tdi>
+	 <1091739702.31490.245.camel@nighthawk> <1091741142.22406.28.camel@tdi>
+	 <249150000.1091763309@[10.10.2.4]>
+	 <20040805205059.3fb67b71.rddunlap@osdl.org>
+	 <20040807105729.6adea633.pj@sgi.com>
+	 <20040808143631.7c18cae9.rddunlap@osdl.org>
+Content-Type: text/plain
+Date: Sun, 08 Aug 2004 22:19:44 -0600
+Message-Id: <1092025184.2292.26.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 1.5.92.1 
 Content-Transfer-Encoding: 7bit
-References: <bec878da04080819361445af2c@mail.gmail.com> <cone.1092022093.780511.26660.502@pc.kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That fixed it.
+On Sun, 2004-08-08 at 14:36 -0700, Randy.Dunlap wrote:
+> On Sat, 7 Aug 2004 10:57:29 -0700 Paul Jackson wrote:
+> 
+> | > And there's nothing in CodingStyle that agrees with you that I could find.
+> | 
+> | >From the file Documentation/SubmittingPatches:
+> | 
+> |         3) 'static inline' is better than a macro
+> |
+> Oops.  Thanks, Paul.
 
-I now have a new error in my dmesg however (thought I'd add it here
-incase its related):
+   Ok, I was all set to switch to static inlines, but it doesn't work.
+Compiling w/ debug on, _dbg is undefined, which is part of the
+ACPI_DB_INFO macro, but it only gets setup by the ACPI_FUNCTION_NAME
+macro.  Guess I got lucky by choosing to do it as a macro.  IMHO, it
+doesn't really make sense to make the static inline functions more
+complicated or hide where they're getting called to make this all work.
+So, I think the choices are to stick with the ugly macros or put #ifdefs
+around the code and essentially leave it the way it is.  Sorry I didn't
+give it a more thorough look when originally questioned.  Better ideas?
+Thanks,
 
-kobject_register failed for sata_via (-17)
-[<c0232bdb>] kobject_register+0x5b/0x60
-[<c028dd00>] bus_add_driver+0x50/0xd0
-[<c028e31f>] driver_register+0x2f/0x40
-[<c023daec>] pci_register_driver+0x5c/0x90
-[<e10bb00f>] svia_init+0xf/0x1d [sata_via]
-[<c013157e>] sys_init_module+0x12e/0x280
-[<c0104135>] sysenter_past_esp+0x52/0x71
+	Alex
 
-
-Thanks for the help so far!
-
-Kevin O'Shea
-MyUID.com
-
-On Mon, 09 Aug 2004 13:28:13 +1000, Con Kolivas <kernel@kolivas.org> wrote:
-> Kevin O'Shea writes:
-> 
-> > I hope its ok to post about this here, but I thought it might be a
-> > kernel bug not nvidia.
-> >
-> > This is the oops with the new 6111 driver (it worked fine on mm1).
-> >
-> > Thanks,
-> > Kevin
-> 
-> > Call Trace:
-> >  [<c0114375>] io_apic_set_pci_routing+0x1e5/0x210
-> 
-> I quote from akpm's announcement:
-> 
-> - If some devices mysteriously stop working, try booting with pci=routeirq.
->   If that fixes it, please send a report, Cc'ing bjorn.helgaas@hp.com.  See
->   remove-unconditional-pci-acpi-irq-routing.patch
-> 
-> That looks like it might help your issue too since the oops talks about pci
-> routing.
-> 
-> Cheers,
-> Con
-> 
->

@@ -1,102 +1,297 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264914AbUD2Shg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264919AbUD2SlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264914AbUD2Shg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 14:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUD2Shg
+	id S264919AbUD2SlM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 14:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264920AbUD2SlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 14:37:36 -0400
-Received: from av3-1-sn4.m-sp.skanova.net ([81.228.10.114]:37849 "EHLO
-	av3-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
-	id S264914AbUD2Shc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 14:37:32 -0400
-Message-ID: <40916793.9020001@telia.com>
-Date: Thu, 29 Apr 2004 22:37:39 +0200
-From: Mikael Eriksson <miffe-miffe@telia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040225
-X-Accept-Language: en-us, en
+	Thu, 29 Apr 2004 14:41:11 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:11000 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264919AbUD2Skz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 14:40:55 -0400
+Date: Thu, 29 Apr 2004 11:40:45 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.6.5-mjb2
+Message-ID: <75500000.1083264045@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-To: Matthieu Foillard <m.foillard@iota-online.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SATA and Software RAID on 82801EB (ICH5)
-References: <200404291213.35341.m.foillard@iota-online.com>
-In-Reply-To: <200404291213.35341.m.foillard@iota-online.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthieu Foillard wrote:
-> Hello list members,
-> I'm trying to make software raid working on SATA drives for two days with 
-> partial success.
-> I'm using kernel 2.6.5 with Debian.The server has two 160Go drives and i want 
-> to make RAID 1 on them. It works partially since the server boot on a raid 
-> partition w/o problem. 
-> The problem comes when i try to construct RAID 1 array on big partition (it 
-> seems to works when partition size is not too big) e.g. /home which is about 
-> 140 Go. When i mkraid or raidhotadd, it starts to construct the array and 
-> seems to work for some times but fails after an random amount of time. At 
-> this moment, disk led shows disks are busy and the system is no more usable 
-> (but does not panic since i can magic sysrq to reboot).
-> I tried to use the "standard" ATA drivers. It works, for sure, but performance 
-> are really poor. I've also tried to create more little partitions but even 
-> with a 70Go partition, array construction fails.
-> Hope you can help, thanks !
-> 
-> P.S. : Do you think I should use iswraid on 2.4.22 kernel ?
+The patchset is meant to be pretty stable, not so much a testing ground.
+Main differences from mainline are:
 
-There is a iswraid patch for 2.4.25, I have been using it since it was 
-posted on lkml without problems.
+1. Better performance & resource consumption, particularly on larger machines.
+2. Diagnosis tools (kgdb, early_printk, etc).
+3. Kexec support.
+4. ivtv drivers
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107733169708896&w=2
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
-> 
-> here are some informations about hardware :
->  # lspci
-> ..
-> 0000:00:1f.2 IDE interface: Intel Corp. 82801EB (ICH5) Serial ATA 150 Storage 
-> Controller (rev 02)
-> 
-> # dmesg
-> ..
-> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> hda: CD-224E, ATAPI CD/DVD-ROM drive
-> ide1: I/O resource 0x170-0x177 not free.
-> ide1: ports already in use, skipping probe
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> hda: ATAPI 24X CD-ROM drive, 128kB Cache
-> Uniform CD-ROM driver Revision: 3.20
-> libata version 1.02 loaded.
-> ata_piix version 1.02
-> ata_piix: combined mode detected
-> ata: 0x1f0 IDE port busy
-> PCI: Setting latency timer of device 0000:00:1f.2 to 64
-> ata1: SATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 15
-> ata1: dev 0 cfg 49:2f00 82:7c6b 83:7f09 84:4003 85:7c69 86:3e01 87:4003 
-> 88:407f
-> ata1: dev 0 ATA, max UDMA/133, 320173056 sectors (lba48)
-> ata1: dev 1 cfg 49:2f00 82:7c6b 83:7f09 84:4003 85:7c69 86:3e01 87:4003 
-> 88:407f
-> ata1: dev 1 ATA, max UDMA/133, 320173056 sectors (lba48)
-> ata1: dev 0 configured for UDMA/133
-> ata1: dev 1 configured for UDMA/133
-> scsi0 : ata_piix
->   Vendor: ATA       Model: Maxtor 6Y160M0    Rev: 1.02
->   Type:   Direct-Access                      ANSI SCSI revision: 05
-> ata1: dev 0 max request 32MB (lba48)
->   Vendor: ATA       Model: Maxtor 6Y160M0    Rev: 1.02
->   Type:   Direct-Access                      ANSI SCSI revision: 05
-> ata1: dev 1 max request 32MB (lba48)
-> SCSI device sda: 320173056 512-byte hdwr sectors (163929 MB)
-> SCSI device sda: drive cache: write through
->  sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 >
-> Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-> SCSI device sdb: 320173056 512-byte hdwr sectors (163929 MB)
-> SCSI device sdb: drive cache: write through
->  sdb: sdb1 sdb2 sdb3 sdb4 < sdb5 sdb6 sdb7 >
-> Attached scsi disk sdb at scsi0, channel 0, id 1, lun 0
-> ..
-> 
-> 
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.6.5/patch-2.6.5-mjb2.bz2
+
+Since the last release (~ = changed, + = added, - = dropped)
+
+Notes: 
+
+-----------------------------------------------------------------------
+
+Now in Linus' tree:
+
+
+Dropped:
+
+New:
+
++ cpu_shutdown_race					Andy Whitcroft
+	Fix up race during tlb_flush_others on shutdown
+
++ find_busiest_group					Martin J. Bligh
+	Ditch a spurions oops from find_busiest_group()
+
++ prio_tree						Rajesh Venkatasubramanian
+	Priority tree for vmas for object-based RMAP
+
++ i_shared_lock						Martin J. Bligh
+	Turn i_shared_sem into i_shared_lock (improves SDET by 40%)
+
+Pending:
+per_node_rss
+local_balance_exec
+reluctance in cross-node balance (less_bouncy)
+sched tunables patch
+emulex update
+NUMA membinding API
+x86_64 update
+config_numasched
+sched tunables (reinstante)
+list_of_lists
+Child runs first (akpm)
+Netdump
+
+Present in this patch:
+
+-mjb						Martin J. Bligh
+	Add a tag to the makefile
+
+kgdb						Various
+	Stolen from akpm's 2.6.0-mm1, includes fixes
+
+kgdboe_netpoll					Matt Mackall et al.
+	Kgdb over ethernet support that works with the netpoll infrastructure
+
+kgdboe_build_fix				Andrew Morton
+	Fix kgdboe stuff so non-ia32 platforms build
+
+kgdb_x86_64					Jim Houston
+	Support kgdb on x86_64
+
+kgdb_gdb6_patches				Jim Houston
+	Patches for gdb to support kgdb on x86_64, under scripts/kgdb/
+
+ppc64_reloc_hide				Anton Blanchard / Paul Mackerras
+	PPC 64 fixups
+
+spinlock_inlining				Andrew Morton & Martin J. Bligh
+	Inline spinlocks for profiling. Made into a ugly config option by me.
+
+lockmeter					John Hawkes / Hanna Linder
+	Locking stats.
+
+lockmeter_ia64					Ray Bryant
+	Add a config option for lockmeter on ia64
+
+oops_dump_preceding_code			Andrew Morton
+	dump opcodes preceding and after the offending EIP.
+
+scheduler_2.6.5_rc3_mm1				Nick Piggin
+	sched_domains code
+
+4k_stacks					Arjan / Dave H / bcrl
+	Provide an option to use 4k kernel stacks instead of 8k
+
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
+
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+partial_objrmap					Dave McCracken
+	Object based rmap for filebacked pages.
+
+anon_mm2					Hugh Dickins
+anon_mm3					Hugh Dickins
+anon_mm4					Hugh Dickins
+anon_mm5					Hugh Dickins
+anon_mm6					Hugh Dickins
+anon_mm7					Hugh Dickins
+anon_mm8					Hugh Dickins
+	Object based rmap for anonymous memory
+
+4g4g						Ingo Molnar
+	Provide a 4G/4G user/kernel split for 32 bit memory lushes.
+
+4g_zap_low_mappings					Martin Lorenz
+	stop zap_low_mappings from being __init
+
+4g4g_locked_copy					Dave McCracken
+	Fix locking bug in 4/4 split
+
+disable preempt					Martin J. Bligh
+	I broke preempt somehow, temporarily disable it to stop accidents
+
+aiofix2						Mingming Cao
+	fixed a bug in ioctx_alloc()
+
+percpu_real_loadavg				Dave Hansen / Martin J. Bligh
+	Tell me what the real load average is, and tell me per cpu.
+
+gfp_node_strict					Dave Hansen
+	Add a node strict binding as a gfp mask option
+
+irqbal_fast					Adam Litke
+	Balance IRQs more readily
+
+kcg						Adam Litke
+	Acylic call graphs from the kernel. Wheeeeeeeeeeeee!
+
+kcg_gcc_detect					Adam Litke
+	Detect older gcc versions that don't work with mcount, and crap out
+
+numa_mem_equals 				Dave Hansen
+	mem= command line parameter NUMA awareness.
+
+autoswap					Con Kolivas
+	Auto-tune swapiness
+
+emulex driver					Emulex
+	Driver for emulex fiberchannel cards
+
+multiple_emulex					Mike Anderson
+	Allow multiple Emulex cards
+
+protocol254					Paul Mackerras / Omkhar 
+	Allow protocol 254
+
+slabtune					Dave McCracken
+	Take slab in bigger bites on larger machines
+
+topdown						Bill Irwin
+	Turn userspace upside down for fun & profit
+
+stacktrace					Adam Litke
+	Stack backtracing via frame pointers
+
+fasync_lock_rcu					Manfred Spraul
+	Use RCU for fasync_lock
+
+aio-retry
+4g4g-aio-hang-fix
+aio-retry-elevated-refcount
+aio-splice-runlist
+aio-wait-page
+aio-fs_read
+aio-upfront-readahead
+O_SYNC-speedup
+aio-O_SYNC
+gang_lookup_next
+aio-gang_lookup-fix
+aio-O_SYNC-short-write-fix.patch
+aio-cancel-fix
+aio-read-immediate
+aio-pipe
+aio-context-switch
+aio-putioctx-flushworkqueue
+aio-poll
+	AIO filesystem support				Suparna et al.
+
+kexec						Eric Biederman et al.
+	Exec a kernel for breakfast today.
+
+lockmeter_notsc					Martin J. Bligh
+	Lockmeter does not require CONFIG_X86_TSC.
+
+tiocgdev						Gerd Knorr
+
+vma_statistics						Martin J. Bligh
+	Provide per VMA stats
+
+per_task_TUB						Adam Litke
+	Per task TASK_UNMAPPED_BASE
+
+per_task_TUB_PPC32					Anton 
+	Enable per-task TASK_UMAPPED_BASE on PPC32
+
+implicit_hugetlb					Adam Litke
+	Implicit allocation of huge pages
+
+hugetlb_dyn_as						Adam Litke
+	Dynamic huge pages.
+
+irq_vector						James Cleverdon
+	Fix irq vector limits for Summit
+
+ivtv						Kevin Thayer / Steven Fuerst
+	Driver for ivtv (includes Hauppauge PVR 250 / 350)
+	Written by Kevin Thayer, ported to 2.6 by Steven Fuerst
+	Version 0.1.9
+
+sysfs_backing_store1					Maneesh Soni
+sysfs_backing_store2					Maneesh Soni
+sysfs_backing_store3					Maneesh Soni
+sysfs_backing_store4					Maneesh Soni
+sysfs_backing_store5					Maneesh Soni
+sysfs_backing_store6					Maneesh Soni
+	Make sysfs more efficient in its usage of lowmem
+
+vgtod1							John Stultz
+vgtod2							John Stultz
+vgtod3							John Stultz
+	Vsyscall gettimeofday for ia32
+
+physnode_map						Martin J. Bligh
+	Hack around problem of missing area in physnode_map
+
+sched_tunables						R. Love / Darren Hart
+	Provide sched tunables to play with on a rainy day.
+
+zone_gap						Andy Whitcroft
+	Fix up the gap between ZONE_NORMAL and ZONE_HIGHMEM on NUMA.
+
+max_mp_busses						James Cleverdon
+	Increase MAX_MP_BUSSES
+
+schedstats						Rick Lindsley
+	Provide lotsa scheduler statistics
+
+schedstats-tools					Rick Lindsley
+	Grub around in lotsa scheduler statistics
+
+jbd_journal_speedup					Andrew Morton
+	ext3 fs speedup
+
+amd64_sched						Darren Hart
+	Make AMD scheduler behave as flat SMP, not NUMA
+
+cpu_shutdown_race					Andy Whitcroft
+	Fix up race during tlb_flush_others on shutdown
+
+find_busiest_group					Martin J. Bligh
+	Ditch a spurions oops from find_busiest_group()
+
+prio_tree						Rajesh Venkatasubramanian
+	Priority tree for vmas for object-based RMAP
+
+i_shared_lock						Martin J. Bligh
+	Turn i_shared_sem into i_shared_lock (improves SDET by 40%)
+
 

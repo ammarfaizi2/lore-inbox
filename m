@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUGQSrY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUGQSrV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUGQSrY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 14:47:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUGQSrX
+	id S261232AbUGQSrV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 14:47:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUGQSrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 14:47:23 -0400
-Received: from ozlabs.org ([203.10.76.45]:10921 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261252AbUGQSrT (ORCPT
+	Sat, 17 Jul 2004 14:47:21 -0400
+Received: from ozlabs.org ([203.10.76.45]:11177 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261232AbUGQSrT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 17 Jul 2004 14:47:19 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16633.20057.434313.475775@cargo.ozlabs.ibm.com>
-Date: Sun, 18 Jul 2004 02:05:45 +1000
+Message-ID: <16633.20767.128875.570852@cargo.ozlabs.ibm.com>
+Date: Sun, 18 Jul 2004 02:17:35 +1000
 From: Paul Mackerras <paulus@samba.org>
-To: linas@austin.ibm.com
-Cc: linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org,
-       greg@kroah.com
-Subject: Re: [PATCH] 2.6 PPC64: EEH notifier call chain
-In-Reply-To: <20040707152412.F21634@forte.austin.ibm.com>
-References: <20040707152412.F21634@forte.austin.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jhf@rivenstone.net (Joseph Fannin), linux-kernel@vger.kernel.org,
+       linuxppc-dev@lists.linuxppc.org
+Subject: Re: 2.6.7-mm7
+In-Reply-To: <20040709141103.592c4655.akpm@osdl.org>
+References: <20040708235025.5f8436b7.akpm@osdl.org>
+	<20040709203852.GA1997@samarkand.rivenstone.net>
+	<20040709141103.592c4655.akpm@osdl.org>
 X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linas,
+Andrew Morton writes:
 
-> Please review and forward upstream as appropriate.  
+> hm, OK.  It could be that the debug patch is a bit too aggressive, or that
+> ppc got lucky and happens to always be in state TASK_RUNNING when these
+> calls to schedule() occur.
+> 
+> Maybe this task incorrectly has _TIF_NEED_RESCHED set?
 
-Sorry for the delay; have been on vacation.
+Is CONFIG_PREEMPT enabled?
 
-> This patch implements a notifier call chain for EEH, as per pervious emails.
-> When an EEH slot freeze is detected, it is placed on a workqueue, from
-> whence it is dispatched to any regiistered notify callbacks.   The goal 
-> of the qorkqueue is to pull the slot-freeze detection out of an interrupt 
-> context.    As before, this patch only handles events for ethernet controllers;
-> I'll try to broaden the scope in future revisions.
+> Anyway, ppc guys: please take a look at the results from
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm7/broken-out/detect-too-early-schedule-attempts.patch
+> and check that the kernel really should be calling schedule() at this time
+> and place, let us know?
+> 
+> Thanks.
+> 
+> >  The first one looks like:
+> >
+> > Calibrating delay loop... 1064.96 BogoMIPS
+> > Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+> > Badness in schedule at kernel/sched.c:2153
+> > Call trace:
+> >  [c00099e4] dump_stack+0x18/0x28
+> >  [c0006bac] check_bug_trap+0x84/0xac
+> >  [c0006d38] ProgramCheckException+0x164/0x1a4
+> >  [c0006240] ret_from_except_full+0x0/0x4c
+> >  [c02021bc] schedule+0x24/0x684
+> >  [c0005e80] syscall_exit_work+0x108/0x10c
+> >  [c02e0ad0] proc_root_init+0x14c/0x158
+> >  [00000000] 0x0
+> >  [c02ce5a0] start_kernel+0x158/0x184
+> >  [000035fc] 0x35fc
 
-I don't like the way we are making a policy decision here that
-ethernet devices can be recovered but other devices can't.  I would
-much rather call the notifier for all EEH events and have the notify
-callback(s) make the decision.  That could be either the hotplug
-driver or the device driver itself.  We get a return value from
-notifier_call_chain that could be used to communicate that back to
-eeh.c, if that is useful.
+This looks like CONFIG_PREEMPT is enabled and _TIF_NEED_RESCHED is set
+at the end of handling a system call.  AFAICS i386 will also call
+schedule in these circumstances.  Does this mean we shouldn't do
+system calls until the scheduler is running?
 
-Regards,
 Paul.

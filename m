@@ -1,96 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130446AbRDJRjO>; Tue, 10 Apr 2001 13:39:14 -0400
+	id <S130493AbRDJRtm>; Tue, 10 Apr 2001 13:49:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130485AbRDJRjA>; Tue, 10 Apr 2001 13:39:00 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:47632 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S130446AbRDJRiy>;
-	Tue, 10 Apr 2001 13:38:54 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200104101738.VAA21467@ms2.inr.ac.ru>
-Subject: Re: Bug report: tcp staled when send-q != 0, timers == 0.
-To: berd@elf.ihep.su (Eugene B. Berdnikov)
-Date: Tue, 10 Apr 2001 21:38:43 +0400 (MSK DST)
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com (Dave Miller)
-In-Reply-To: <20010409184338.B1396@elf.ihep.su> from "Eugene B. Berdnikov" at Apr 9, 1 06:43:38 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S130487AbRDJRtc>; Tue, 10 Apr 2001 13:49:32 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:44043 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S130493AbRDJRtU>;
+	Tue, 10 Apr 2001 13:49:20 -0400
+Date: Tue, 10 Apr 2001 11:51:33 -0600
+From: yodaiken@fsmlabs.com
+To: David Schleef <ds@schleef.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+        Mark Salisbury <mbs@mc.com>, Jeff Dike <jdike@karaya.com>,
+        schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: No 100 HZ timer !
+Message-ID: <20010410115133.B21319@hq.fsmlabs.com>
+In-Reply-To: <Pine.LNX.3.96.1010410002852.4212A-100000@artax.karlin.mff.cuni.cz> <E14mkGA-000341-00@the-village.bc.nu> <20010410044336.A1934@stm.lbl.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010410044336.A1934@stm.lbl.gov>; from ds@schleef.org on Tue, Apr 10, 2001 at 04:43:36AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, Apr 10, 2001 at 04:43:36AM -0700, David Schleef wrote:
+> However, on machines without a monotonically increasing counter,
+> i.e., the TSC, you have to use 8254 timer 0 as both the timebase
+> and the interval counter -- you end up slowly losing time because
+> of the race condition between reading the timer and writing a
+> new interval.  RTAI's solution is to disable kd_mksound and
+> use timer 2 as a poor man's TSC.  If either of those is too big
+> of a price, it may suffice to report that the timer granularity
+> on 486's is 10 ms.
 
->  In brief: a stale state of the tcp send queue was observed for 2.2.17
->  while send-q counter and connection window sizes are not zero: 
+Just for the record, Michael Barabanov did this in RTLinux from before
+kd_mksound was a function pointer in 1995. Michael had an optimization
+attempt using channel 1 for a while, but on very slow machines this 
+was not sufficient and he went back to channel 2. Of course, the 
+fundamental problem is that board designers keep putting an 1920s
+part in machines built in 2001. 
 
-I think I pinned down this. The patch is appended.
+Here's the comment from the RTLinux 0.5 patch -- all available on the archives
+on rtlinux.com.
 
-
->  diagnostic, I'll try to get it. In any case, I plan to run something through
->  this connection in hope to reproduce this state again.
-
-If my guess is right, you can easily put this socket to funny state
-just catting a large file and kill -STOP'ing ssh. ssh will close window,
-but sshd will not send zero probes. Any socket with keepalives enabled
-enters this state after the first keepalive is sent.
-[ Note, that it is not Butenko's problem, it is still to be discovered. 8) ]
-
-I think you will not able to reproduce full problem: socket will revive
-after the first received ACK. It is another bug and its probability is
-astronomically low.
-
-Alexey
++/* The main procedure; resets the 8254 timer to generate an interrupt.  The
++ * tricky part is to keep the global time while reprogramming it.  We latch
++ * counters 0 and 2 atomically before and after reprogramming to figure it out.
++ */
 
 
---- linux/net/ipv4/tcp_input.c.orig	Mon Apr  9 22:46:56 2001
-+++ linux/net/ipv4/tcp_input.c	Tue Apr 10 21:23:33 2001
-@@ -733,8 +733,6 @@
- 	if (tp->retransmits) {
- 		if (tp->packets_out == 0) {
- 			tp->retransmits = 0;
--			tp->fackets_out = 0;
--			tp->retrans_out = 0;
- 			tp->backoff = 0;
- 			tcp_set_rto(tp);
- 		} else {
-@@ -781,8 +779,10 @@
- 	if(sk->zapped)
- 		return(1);	/* Dead, can't ack any more so why bother */
- 
--	if (tp->pending == TIME_KEEPOPEN)
-+	if (tp->pending == TIME_KEEPOPEN) {
- 	  	tp->probes_out = 0;
-+		tp->pending = 0;
-+	}
- 
- 	tp->rcv_tstamp = tcp_time_stamp;
- 
-@@ -850,8 +850,6 @@
- 		if (tp->retransmits) {
- 			if (tp->packets_out == 0) {
- 				tp->retransmits = 0;
--				tp->fackets_out = 0;
--				tp->retrans_out = 0;
- 			}
- 		} else {
- 			/* We don't have a timestamp. Can only use
-@@ -878,6 +876,8 @@
- 			tcp_ack_packets_out(sk, tp);
- 	} else {
- 		tcp_clear_xmit_timer(sk, TIME_RETRANS);
-+		tp->fackets_out = 0;
-+		tp->retrans_out = 0;
- 	}
- 
- 	flag &= (FLAG_DATA | FLAG_WIN_UPDATE);
---- linux/net/ipv4/tcp_output.c.orig	Mon Apr  9 22:47:06 2001
-+++ linux/net/ipv4/tcp_output.c	Tue Apr 10 21:23:33 2001
-@@ -546,6 +546,8 @@
- 		 */
- 		kfree_skb(next_skb);
- 		sk->tp_pinfo.af_tcp.packets_out--;
-+		if (sk->tp_pinfo.af_tcp.fackets_out)
-+			sk->tp_pinfo.af_tcp.fackets_out--;
- 	}
- }
- 
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
+

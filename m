@@ -1,351 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267246AbTA0VRN>; Mon, 27 Jan 2003 16:17:13 -0500
+	id <S267299AbTA0VSP>; Mon, 27 Jan 2003 16:18:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267299AbTA0VRN>; Mon, 27 Jan 2003 16:17:13 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:16137 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267246AbTA0VRI>; Mon, 27 Jan 2003 16:17:08 -0500
-Date: Mon, 27 Jan 2003 16:23:37 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Tom Winkler <tom@qwws.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: poor IDE performance on ASUS P4PE with WD800JB
-In-Reply-To: <200301262039.38783.tom@qwws.net>
-Message-ID: <Pine.LNX.3.96.1030127162113.27928A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267301AbTA0VSP>; Mon, 27 Jan 2003 16:18:15 -0500
+Received: from 209-166-240-202.cust.walrus.com.240.166.209.in-addr.arpa ([209.166.240.202]:19351
+	"EHLO ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id <S267299AbTA0VSN>; Mon, 27 Jan 2003 16:18:13 -0500
+Date: Mon, 27 Jan 2003 16:27:17 -0500
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Mark Mielke <mark@mark.mielke.cc>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       Lennert Buytenhek <buytenh@math.leidenuniv.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: bug in select() (was Re: {sys_,/dev/}epoll waiting timeout)
+Message-ID: <20030127162717.A1283@ti19>
+References: <20030122065502.GA23790@math.leidenuniv.nl> <20030122080322.GB3466@bjl1.asuk.net> <Pine.LNX.4.50.0301230544320.820-100000@blue1.dev.mcafeelabs.com> <20030123154304.GA7665@bjl1.asuk.net> <20030123172734.GA2490@mark.mielke.cc> <20030123182831.GA8184@bjl1.asuk.net> <20030123204056.GC2490@mark.mielke.cc> <20030123221858.GA8581@bjl1.asuk.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20030123221858.GA8581@bjl1.asuk.net>; from jamie@shareable.org on Thu, Jan 23, 2003 at 10:18:58PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Jan 2003, Tom Winkler wrote:
-
-> I've asked this question in several Newsgroups but nobody was really
-> able to answer it. That's why I decided to send it to LKM. Please CC
-> me on your replies. Thanks!
+On Thu, Jan 23, 2003 at 10:18:58PM +0000, Jamie Lokier wrote:
+> If, as someone said, the appropriate unix specification says that
+> "wait for 10ms" means to wait for _at minimum_ 10ms, then you do need
+> the +1.
 > 
-> I've got a question related to ide performance.
-> First of all my hardware:
-> Mainboard: ASUS P4PE (using onboard IDE but not S-ATA)
->    http://www.asus.com/products/mb/socket478/p4pe/overview.htm
-> Harddisk: Western Digital WD800JB
->    http://www.westerndigital.com/products/products.asp?DriveID=32
+> (Davide), IMHO epoll should decide whether it means "at minimum" (in
+> which case the +1 is a requirement), or it means "at maximum" (in
+> which case rounding up is wrong).
 > 
-> 
-> Now about the current performance (on 2.4.20 and almost the same on 2.5.56):
-> 
-> tom@storm:~$ sudo hdparm -tT /dev/hda
-> /dev/hda:
->  Timing buffer-cache reads:   128 MB in  0.27 seconds =474.07 MB/sec
->  Timing buffered disk reads:  64 MB in  3.05 seconds = 20.98 MB/sec
-> 
-> The cache read time is pretty ok but the disk read time is below of
-> what I'd have expected. My expectations would have been around 40MB/sec.
-> 
-> Am I wrong with my expectations for this setup?
-> I'd really be interested in any suggestion about how I could omptimize
-> the system.
+> The current method of rounding up and then effectively down means that
+> you get an unpredictable mixture of both.
 
-I won't try to guess why my setup seems faster, but here's some info:
+Quite independent of this discussion, my boss came across this today
+while looking at some strace output:
 
-Script started on Mon Jan 27 16:05:52 2003
-bash-2.05b# uname -a
-Linux gaimboi.tmr.com 2.4.18-18.8.0 #1 Thu Nov 14 00:10:29 EST 2002 i686 i686 i386 GNU/Linux
-bash-2.05b# \
-> for disk in hda hdc; do
->   cat /proc/ide/$disk/model
->   hdparm -I /dev/$disk
->   hdparm -Tt /dev/$disk
->   cat /proc/ide/$disk/settings
-> done
+   gettimeofday({1043689947, 402580}, NULL) = 0
+   select(4, [0], [], [], {1, 999658})     = 0 (Timeout)
+   gettimeofday({1043689949, 401857}, NULL) = 0
+   gettimeofday({1043689949, 401939}, NULL) = 0
+   select(4, [0], [], [], {0, 299})        = 0 (Timeout)
+   gettimeofday({1043689949, 403577}, NULL) = 0
 
-WDC WD200EB-00CSF0
+Note that 1043689949.401857 - 1043689947.402580 = 1.999277.
 
-/dev/hda:
+The Single Unix Specification (v2 and v3), says of select():
 
-ATA device, with non-removable media
-	Model Number:       WDC WD200EB-00CSF0                      
-	Serial Number:      WD-WTAAV3724404
-	Firmware Revision:  04.01B04
-Standards:
-	Supported: 5 4 3 2 
-	Likely used: 6
-Configuration:
-	Logical		max	current
-	cylinders	16383	16383
-	heads		16	16
-	sectors/track	63	63
-	--
-	CHS current addressable sectors:   16514064
-	LBA    user addressable sectors:   39102336
-	device size with M = 1024*1024:       19092 MBytes
-	device size with M = 1000*1000:       20020 MBytes (20 GB)
-Capabilities:
-	LBA, IORDY(can be disabled)
-	bytes avail on r/w long: 40	Queue depth: 1
-	Standby timer values: spec'd by Standard, with device specific minimum
-	R/W multiple sector transfer: Max = 16	Current = 16
-	Recommended acoustic management value: 128, current value: 254
-	DMA: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5 
-	     Cycle time: min=120ns recommended=120ns
-	PIO: pio0 pio1 pio2 pio3 pio4 
-	     Cycle time: no flow control=120ns  IORDY flow control=120ns
-Commands/features:
-	Enabled	Supported:
-	   *	READ BUFFER cmd
-	   *	WRITE BUFFER cmd
-	   *	Host Protected Area feature set
-	   *	Look-ahead
-	   *	Write cache
-	   *	Power Management feature set
-		Security Mode feature set
-		SMART feature set
-		Automatic Acoustic Management feature set 
-		SET MAX security extension
-	   *	DOWNLOAD MICROCODE cmd
-Security: 
-		supported
-	not	enabled
-	not	locked
-	not	frozen
-	not	expired: security count
-	not	supported: enhanced erase
-HW reset results:
-	CBLID- above Vih
-	Device num = 0 determined by the jumper
-Checksum: correct
+   Implementations may also place limitations on the granularity of
+   timeout intervals. If the requested timeout interval requires a finer
+   granularity than the implementation supports, the actual timeout
+   interval shall be rounded up to the next supported value.
 
-/dev/hda:
- Timing buffer-cache reads:   128 MB in  0.26 seconds =492.78 MB/sec
- Timing buffered disk reads:  64 MB in  2.26 seconds = 28.30 MB/sec
-name			value		min		max		mode
-----			-----		---		---		----
-acoustic                0               0               254             rw
-address                 0               0               2               rw
-bios_cyl                2434            0               65535           rw
-bios_head               255             0               255             rw
-bios_sect               63              0               63              rw
-breada_readahead        8               0               255             rw
-bswap                   0               0               1               r
-current_speed           66              0               69              rw
-failures                0               0               65535           rw
-file_readahead          508             0               16384           rw
-ide_scsi                0               0               1               rw
-init_speed              66              0               69              rw
-io_32bit                0               0               3               rw
-keepsettings            0               0               1               rw
-lun                     0               0               7               rw
-max_failures            1               0               65535           rw
-max_kb_per_request      128             1               255             rw
-multcount               16              0               16              rw
-nice1                   1               0               1               rw
-nowerr                  0               0               1               rw
-number                  0               0               3               rw
-pio_mode                write-only      0               255             w
-slow                    0               0               1               rw
-unmaskirq               0               0               1               rw
-using_dma               1               0               1               rw
-wcache                  0               0               1               rw
+That seems to indicate that a fix is required.
 
-ST360021A
+Regards,
 
-/dev/hdc:
-
-ATA device, with non-removable media
-	Model Number:       ST360021A                               
-	Serial Number:      3HR1C0F1            
-	Firmware Revision:  3.19    
-Standards:
-	Supported: 5 4 3 2 
-	Likely used: 6
-Configuration:
-	Logical		max	current
-	cylinders	16383	16383
-	heads		16	16
-	sectors/track	63	63
-	--
-	CHS current addressable sectors:   16514064
-	LBA    user addressable sectors:  117231408
-	device size with M = 1024*1024:       57241 MBytes
-	device size with M = 1000*1000:       60022 MBytes (60 GB)
-Capabilities:
-	LBA, IORDY(can be disabled)
-	bytes avail on r/w long: 4	Queue depth: 1
-	Standby timer values: spec'd by Standard
-	R/W multiple sector transfer: Max = 16	Current = 16
-	Recommended acoustic management value: 128, current value: 128
-	DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5 
-	     Cycle time: min=120ns recommended=120ns
-	PIO: pio0 pio1 pio2 pio3 pio4 
-	     Cycle time: no flow control=240ns  IORDY flow control=120ns
-Commands/features:
-	Enabled	Supported:
-	   *	READ BUFFER cmd
-	   *	WRITE BUFFER cmd
-	   *	Host Protected Area feature set
-	   *	Look-ahead
-	   *	Write cache
-	   *	Power Management feature set
-		Security Mode feature set
-		SMART feature set
-		Device Configuration Overlay feature set 
-	   *	Automatic Acoustic Management feature set 
-		SET MAX security extension
-	   *	DOWNLOAD MICROCODE cmd
-Security: 
-	Master password revision code = 65534
-		supported
-	not	enabled
-	not	locked
-	not	frozen
-	not	expired: security count
-	not	supported: enhanced erase
-HW reset results:
-	CBLID- above Vih
-	Device num = 1
-Checksum: correct
-
-/dev/hdc:
- Timing buffer-cache reads:   128 MB in  0.26 seconds =492.78 MB/sec
- Timing buffered disk reads:  64 MB in  1.58 seconds = 40.50 MB/sec
-name			value		min		max		mode
-----			-----		---		---		----
-acoustic                0               0               254             rw
-address                 0               0               2               rw
-bios_cyl                116301          0               65535           rw
-bios_head               16              0               255             rw
-bios_sect               63              0               63              rw
-breada_readahead        8               0               255             rw
-bswap                   0               0               1               r
-current_speed           69              0               69              rw
-failures                0               0               65535           rw
-file_readahead          508             0               16384           rw
-ide_scsi                0               0               1               rw
-init_speed              69              0               69              rw
-io_32bit                0               0               3               rw
-keepsettings            0               0               1               rw
-lun                     0               0               7               rw
-max_failures            1               0               65535           rw
-max_kb_per_request      128             1               255             rw
-multcount               16              0               16              rw
-nice1                   1               0               1               rw
-nowerr                  0               0               1               rw
-number                  2               0               3               rw
-pio_mode                write-only      0               255             w
-slow                    0               0               1               rw
-unmaskirq               0               0               1               rw
-using_dma               1               0               1               rw
-wcache                  0               0               1               rw
-bash-2.05b# exit
-
-Script done on Mon Jan 27 16:18:40 2003
-
-
-> And here's some more information about the current settings (let me
-> know if you need anything else):
-> 
-> tom@storm:~$ sudo hdparm /dev/hda
-> /dev/hda:
->  multcount    = 16 (on)
->  I/O support  =  3 (32-bit w/sync)
->  unmaskirq    =  1 (on)
->  using_dma    =  1 (on)
->  keepsettings =  0 (off)
->  nowerr       =  0 (off)
->  readonly     =  0 (off)
->  readahead    = 255 (on)
->  geometry     = 9729/255/63, sectors = 156301488, start = 0
->  busstate     =  1 (on)
-> 
-> 
-> tom@storm:~$ sudo cat /proc/ide/hda/settings
-> name                    value           min             max             mode
-> ----                    -----           ---             ---             ----
-> acoustic                0               0               254             rw
-> address                 0               0               2               rw
-> bios_cyl                9729            0               65535           rw
-> bios_head               255             0               255             rw
-> bios_sect               63              0               63              rw
-> breada_readahead        255             0               255             rw
-> bswap                   0               0               1               r
-> current_speed           69              0               69              rw
-> failures                0               0               65535           rw
-> file_readahead          16384           0               16384           rw
-> ide_scsi                0               0               1               rw
-> init_speed              69              0               69              rw
-> io_32bit                3               0               3               rw
-> keepsettings            0               0               1               rw
-> lun                     0               0               7               rw
-> max_failures            1               0               65535           rw
-> max_kb_per_request      255             1               255             rw
-> multcount               16              0               16              rw
-> nice1                   1               0               1               rw
-> nowerr                  0               0               1               rw
-> number                  0               0               3               rw
-> pio_mode                write-only      0               255             w
-> slow                    0               0               1               rw
-> unmaskirq               1               0               1               rw
-> using_dma               1               0               1               rw
-> wcache                  0               0               1               rw
-> 
-> 
-> tom@storm:~$ sudo hdparm -I /dev/hda
-> /dev/hda:
-> non-removable ATA device, with non-removable media
->         Model Number:           WDC WD800JB-00CRA1
->         Serial Number:          WD-WMA8E3710419
->         Firmware Revision:      17.07W17
-> Standards:
->         Supported: 1 2 3 4 5
->         Likely used: 5
-> Configuration:
->         Logical         max     current
->         cylinders       16383   16383
->         heads           16      16
->         sectors/track   63      63
->         bytes/track:    57600           (obsolete)
->         bytes/sector:   600             (obsolete)
->         current sector capacity: 16514064
->         LBA user addressable sectors = 156301488
-> Capabilities:
->         LBA, IORDY(can be disabled)
->         Buffer size: 8192.0kB   ECC bytes: 40   Queue depth: 1
->         Standby timer values: spec'd by standard, with device specific minimum
->         r/w multiple sector transfer: Max = 16  Current = 16
->         DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5
->              Cycle time: min=120ns recommended=120ns
->         PIO: pio0 pio1 pio2 pio3 pio4
->              Cycle time: no flow control=120ns  IORDY flow control=120ns
-> Commands/features:
->         Enabled Supported:
->            *    READ BUFFER cmd
->            *    WRITE BUFFER cmd
->            *    Host Protected Area feature set
->            *    look-ahead
->            *    write cache
->            *    Power Management feature set
->                 Security Mode feature set
->                 SMART feature set
->                 SET MAX security extension
->            *    DOWNLOAD MICROCODE cmd
-> Security:
->                 supported
->         not     enabled
->         not     locked
->         not     frozen
->         not     expired: security count
->         not     supported: enhanced erase
-> HW reset results:
->         CBLID- above Vih
->         Device num = 0 determined by the jumper
-> Checksum: correct
-> 
-> 
-> 
-> A full dmesg dump can be found at http://www.wnk.at/files/dmesg.txt
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+   Bill Rugolsky

@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269527AbRHHVJC>; Wed, 8 Aug 2001 17:09:02 -0400
+	id <S269551AbRHHVKC>; Wed, 8 Aug 2001 17:10:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269541AbRHHVIw>; Wed, 8 Aug 2001 17:08:52 -0400
-Received: from neon-gw.transmeta.com ([63.209.4.196]:26385 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269527AbRHHVId>; Wed, 8 Aug 2001 17:08:33 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: PCI NVRAM Memory Card
-Date: 8 Aug 2001 14:08:36 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9ks9ok$jl6$1@cesium.transmeta.com>
-In-Reply-To: <5.1.0.14.0.20010622101907.03ac21b0@192.168.0.5>
+	id <S269549AbRHHVJz>; Wed, 8 Aug 2001 17:09:55 -0400
+Received: from staff.zeelandnet.nl ([212.115.193.238]:40302 "EHLO
+	staff.zeelandnet.nl") by vger.kernel.org with ESMTP
+	id <S269542AbRHHVJ0> convert rfc822-to-8bit; Wed, 8 Aug 2001 17:09:26 -0400
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: x86 SMP and RPC/NFS problems
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
+Date: Wed, 8 Aug 2001 23:09:21 +0200
+Message-ID: <1C48875BDE7ED0469485A5FD49925C4AF01265@zmx.staff.zeelandnet.nl>
+Thread-Topic: x86 SMP and RPC/NFS problems
+Thread-Index: AcEgTmPgqd/HUFF2QZu9VU46ksKXNA==
+From: "Alex Kerkhove" <alex.kerkhove@staff.zeelandnet.nl>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <5.1.0.14.0.20010622101907.03ac21b0@192.168.0.5>
-By author:    Mike Jadon <mikej@umem.com>
-In newsgroup: linux.dev.kernel
->
-> My company has released a PCI NVRAM memory card but we haven't developed a 
-> Linux driver for it yet.  We want the driver to be open to developers to 
-> build upon.  Is there a specific path we should follow with this being our 
-> goal?  In researching Linux driver development I have come across "GPL" or 
-> "LGPL".  Where do you recommend we go to find out more about this 
-> development process?
-> 
-> Thanks and my apologies for using a technical forum for this question, but 
-> wanted to go to the right source.
-> 
+Hi,
 
-Since you're willing to open the source, you are probably best off
-making the kernel portion of your driver GPL and submit it for
-integration into the main kernel tree.  The drivers included in the
-main kernel tree tend to be the ones that work reliably over time, and
-are therefore most valuable to your customers.
 
-As someone else mentioned, user-space libraries should be LGPL.
+We're running a quite busy mailserver (50.000 mailboxes, 170000+ msgs a
+day) with maildir 'mailboxes' on an NFS volume. The server was running
+redhat 7.1 with i686 2.4.3-12smp kernel.
 
-It should be pointed out that you, as the copyright holder, can
-"dual-license" the code if you want to use the same code for
-closed-source projects.  If so, the mention of the dual license nature
-should be specified in the open code, to keep you from getting in a
-sticky situation when someone submits patches.  The most formal such
-license is probably the MPL (Mozilla Public License); I do not know
-if MPL'd code would be considered "GPL compatible" and therefore
-eligible for inclusion in the main kernel.
+Ever since the machine came into full production we've had big problems
+on our dell 2540 dual p3-733, 1Gb RAM machine. At least twice a day we
+would see nfs server timeouts, followed by "can't get request slot"
+messages completeley hanging the machine and only a reboot could get the
+system going again. We've tried every cure known to man to fix this
+problem (changing nics, mount params, interal buffers, etc) no luck.
 
-Another possible license used in a few places is the "New BSD" license
-(as opposed to the "Old BSD" license, with the so-called "advertising
-clause".)  The BSD license allows *anyone* (including yourselves, of
-course, but also your competitors) to take the code and use it in a
-closed-source project.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+But when I switched to a Single processor kernel (RH 2.4.3-12) on the
+same machine the problems where instantly solved! (13 days without
+problems so far)
+
+
+So my (blunt?) conclusion is that there must be some serious problems
+with RPC/NFS (I guess RPC) and 2.4 SMP kernels! (and lots of processes
+doing NFS stuff)
+
+
+Anyone any thoughts on this?  My kernel hacking knowledge is limited,
+but I'm willing to test patches :)
+
+Thanks,
+
+Alex
+
+
+Please CC: me as I'm not subscribed to this list.

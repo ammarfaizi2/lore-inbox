@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262796AbTIESCz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 14:02:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265399AbTIESCy
+	id S265726AbTIER1X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 13:27:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265728AbTIER1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 14:02:54 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:39059 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S262796AbTIESCx (ORCPT
+	Fri, 5 Sep 2003 13:27:23 -0400
+Received: from colin2.muc.de ([193.149.48.15]:15108 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S265726AbTIER1W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 14:02:53 -0400
-Date: Fri, 5 Sep 2003 14:02:48 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Rob Landley <rob@landley.net>, Pavel Machek <pavel@suse.cz>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Fix up power managment in 2.6
-Message-ID: <20030905180248.GB29353@gtf.org>
-References: <200309050158.36447.rob@landley.net> <Pine.LNX.4.44.0309051044470.17174-100000@cherise>
+	Fri, 5 Sep 2003 13:27:22 -0400
+Date: 5 Sep 2003 19:27:15 +0200
+Date: Fri, 5 Sep 2003 19:27:15 +0200
+From: Andi Kleen <ak@colin2.muc.de>
+To: Jan Hubicka <jh@suse.cz>
+Cc: Andi Kleen <ak@muc.de>, torvalds@osdl.org, akpm@osdl.org, rth@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use -fno-unit-at-a-time if gcc supports it
+Message-ID: <20030905172715.GA80302@colin2.muc.de>
+References: <20030905004710.GA31000@averell> <20030905053730.GB24509@kam.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309051044470.17174-100000@cherise>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030905053730.GB24509@kam.mff.cuni.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 05, 2003 at 10:47:49AM -0700, Patrick Mochel wrote:
-> > the power LED still on and the hibernate light off, and the thing's a brick 
-> > at that point; the only thing you can do is hold the power button down for 
-> > ten seconds or pop the battery to get it to boot back up from scratch.)  So I 
-> > have to shut the sucker down every time I want to move it, which is a pain...
-> 
-> What model is it? It probably doesn't support APM at all. I can't
-> guarantee that ACPI suspend/resume will work on it, but I'm interested to 
-> see if it does.. 
+> How much work would be to fix kernel in this regard?
 
+The big problem is that -funit-at-a-time is not widely used yet,
+so even if we fix the kernel at some point it would likely 
+get broken again all the time by people who use older kernels
+(= most kernel developers currently)
 
-Note that a lot of ThinkPads out in the field need a BIOS update
-before their ACPI is working.  (I know this because IBM was quite
-helpful and proactive in addressing their Linux-related ACPI BIOS
-issues)
+> Are there some cases where this is esential?  Kernel would be nice
+> target to whole program optimization and GCC is not that far from it
+> right now.
 
-	Jeff
+I'm not sure that is that good an idea. When I was still hacking 
+TCP I especially moved some stuff out-of-line in the fast path to avoid 
+register pressure. Otherwise gcc would inline rarely used sub functions 
+and completely mess up the register allocation in the fast path.
+Of course just a call alone messes up the registers somewhat because
+of its clobbers, but a full inlining is usually worse.
 
+That was a long time ago, of course the code has significantly changed by
+then.
 
+I suspect that is true for a lot of core kernel code - everything
+that is worth inlining is already inlined and for the rest it doesn't matter.
+
+On the other hand a lot of driver code seems to be written without
+manual consideration for inline. For that it may be worth it. But then
+I would consider core kernel code to be more important than driver
+code.
+
+Also I fear cross module inlining would expose a lot of latent bugs
+(missing barriers etc.) when the optimizer becomes more aggressive. 
+I'm not saying this would be a bad thing, just that it may be a lot 
+of work to fix (both for compiler and kernel people)
+
+-Andi
 

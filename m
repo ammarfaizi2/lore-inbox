@@ -1,91 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262306AbSJOBCm>; Mon, 14 Oct 2002 21:02:42 -0400
+	id <S262322AbSJOBHJ>; Mon, 14 Oct 2002 21:07:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262310AbSJOBCm>; Mon, 14 Oct 2002 21:02:42 -0400
-Received: from mta02ps.bigpond.com ([144.135.25.134]:16621 "EHLO
-	wmailout2.bigpond.com") by vger.kernel.org with ESMTP
-	id <S262306AbSJOBCk>; Mon, 14 Oct 2002 21:02:40 -0400
-From: harisri <harisri@telstra.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org, harisri@bigpond.com
-Message-ID: <fd1cf102287.102287fd1cf@bigpond.com>
-Date: Tue, 15 Oct 2002 11:08:31 +1000
-X-Mailer: Netscape Webmail
-MIME-Version: 1.0
-Content-Language: en
-Subject: Re: 2.4.20-pre10aa1 oops report (was Re: Linux-2.4.20-pre8-aa2
- oops report. [solved])
-X-Accept-Language: en
+	id <S262324AbSJOBHI>; Mon, 14 Oct 2002 21:07:08 -0400
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:34238 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S262322AbSJOBHH>; Mon, 14 Oct 2002 21:07:07 -0400
+Date: Mon, 14 Oct 2002 21:12:55 -0400
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: unhappy with current.h
+Message-ID: <20021015011255.GA4098@Master.Wizards>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20021014202404.GA10777@tapu.f00f.org> <Pine.LNX.4.44L.0210142159580.22993-100000@imladris.surriel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.44L.0210142159580.22993-100000@imladris.surriel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrea,
- 
-> this smells like a problem with one of your modules. Please make 100%
-> sure you use exactly the same .config for both 2.4.20pre10 and
-> 2.4.20pre10aa1 and please try to find which is the module that is
-> crashing the kernel after it's being loaded. Expect always different
-> kind of crashes and oopses. You can also try to turn on the slab
-> debugging option in the kernel hacking menu.
-
-Yes I am using the same .config file from 2.4.20-pre10 on 
-2.4.20-pre10aa1 (of course I run make oldconfig, and accept the default 
-setting that shows up on 2.4.20-pre10aa1)
-
-I think you are right, it has something to do with the kernel modules.
-
-> > Code;  c01e55e2 <fast_clear_page+12/50>
+On Mon, Oct 14, 2002 at 10:00:26PM -0200, Rik van Riel wrote:
+> On Mon, 14 Oct 2002, Chris Wedgwood wrote:
+> > On Mon, Oct 14, 2002 at 09:46:08PM +0200, Daniele Lugli wrote:
+> >
+> > > I recently wrote a kernel module which gave me some mysterious
+> > > problems. After too many days spent in blood, sweat and tears, I found the cause:
+> >
+> > > *** one of my data structures has a field named 'current'. ***
+> >
+> > gcc -Wshadow
 > 
-> you also may want to configure the kernel as i686 instead of K7 so
-> fast_clear_page won't be used to see if it makes any difference.
-
-Ok. That didn't really help. Kernel compiled for i386 even crashes, but 
-the k7 optimised kernel crashes at the Athlon speed :-)
- 
-> the place where the oops happens is most certainly not the problem,
-> either something is wrong with fast_clear_page for whatever hardware
-> reason, or more likely the moduled by modprobe is corrupting the
-> freelist and alloc_pages returned garbage.
+> Would it be a good idea to add -Wshadow to the kernel
+> compile options by default ?
 > 
-> btw, how much memory do you have? If you've more than 800M it 
-> could be a
-> broken driver using pte_offset by hand, try to reproduce with mem=800m
-> in such case. To fix this you should find which is the module that is
-> destabilizing the kernel.
 
-My computer has 512 MB RAM. No highmem.
+Yes. 
 
-I am able to trigger the issue (after 3 attempts [1]) with,
-CONFIG_AGP m
-CONFIG_AGP_AMD y
-CONFIG_DRM y
-CONFIG_DRM_RADEON m
-
-While I couldn't trigger the issue (after 5 attempts [1]) without them. 
-Hence I suspect it may be something to do with them. But it takes a lot 
-of time to test these all, I think I will have good answers in couple of 
-days time considering the amount of time it takes to perform the tests.
-
-[1]
-1. Login to XFree86/Gnome
-2. Start Mozilla, Evolution, OpenOffice Writer/Calc/Impress, Konqueror, 
-KMail. And exit them all.
-3. mke2fs -j /dev/hdc9; mount /dev/hdc9 /test;cd /test;dd if=/dev/zero 
-of=zero bs=1024 count=2097152;cd /
-4. Redo the step 2
-5. Log out and log in and redo step 2
-6. Unmount /test
-
-Repeat the above test cycle few times (on 3rd attempt or so) the system 
-oops (when I had AGP/AMD/DRM/Radeon stuff).
-
-Thanks for your help.
-
-Hari
-harisri@bigpond.com
- 
+-- 
+Murray J. Root
+------------------------------------------------
+DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
+------------------------------------------------
+Mandrake on irc.freenode.net:
+  #mandrake & #mandrake-linux = help for newbies 
+  #mdk-cooker = Mandrake Cooker 
 

@@ -1,70 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261613AbSJFNyE>; Sun, 6 Oct 2002 09:54:04 -0400
+	id <S261614AbSJFNyG>; Sun, 6 Oct 2002 09:54:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261615AbSJFNyE>; Sun, 6 Oct 2002 09:54:04 -0400
-Received: from blowme.phunnypharm.org ([65.207.35.140]:39953 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S261613AbSJFNyD>; Sun, 6 Oct 2002 09:54:03 -0400
-Date: Sun, 6 Oct 2002 09:59:38 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem?
-Message-ID: <20021006135938.GI566@phunnypharm.org>
-References: <20021005112552.A9032@work.bitmover.com> <Pine.LNX.4.44.0210061528560.6780-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210061528560.6780-100000@localhost.localdomain>
-User-Agent: Mutt/1.4i
+	id <S261615AbSJFNyG>; Sun, 6 Oct 2002 09:54:06 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:37315 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S261614AbSJFNyE>;
+	Sun, 6 Oct 2002 09:54:04 -0400
+Date: Sun, 6 Oct 2002 16:10:46 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: "David S. Miller" <davem@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Larry McVoy <lm@bitmover.com>, Ulrich Drepper <drepper@redhat.com>,
+       <bcollins@debian.org>, Linus Torvalds <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: BK MetaData License Problem?
+In-Reply-To: <20021006144821.B31147@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0210061601040.7386-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 06, 2002 at 03:46:29PM +0200, Ingo Molnar wrote:
-> 
-> On Fri, 4 Oct 2002, Larry McVoy wrote:
-> 
-> > The clause is specifically designed to target those companies which
-> > produce or sell commercial SCM systems. [...] The open source developers
-> > have nothing to worry about.
-> 
-> and:
-> 
-> On Sat, 5 Oct 2002, Larry McVoy wrote:
-> 
-> > > Larry, I develop for the Subversion project. Does that mean my license
-> > > to use bitkeeper is revoked?
+
+On Sun, 6 Oct 2002, Russell King wrote:
+
+> > it would be better if the license also said:
 > > 
-> > Yes.  It has been since we shipped that license or when you started
-> > working on Subversion, whichever came last.
+> > 	By transmitting the MetaData to an Open Logging server, You 
+> >         hereby also agree to license the MetaData under the same license
+> >         you license the data it describes.
 > 
+> That doesn't explicitly allow bitmover to put the metadata up in public
+> view, which would mean the openlogging stuff will leave bitmover wide
+> open for legal action.
+
+(this is why i said 'also' in the above sentence. It would be in addition
+to the existing (and sensible) requirement for BM to be able to republish
+the commit logs.)
+
+> > btw., this is also the case with the emails Linus puts into BK commit info
+> > - the email someone sends to Linus is _not_ GPL-ed by default.
+> > 
+> > (perhaps the solution is simple - i'd be really happy if it was.)
 > 
-> this kind of sudden change in Larry's written opinion within 24 hours is
-> that makes this whole issue dangerous. Fact is that Larry is free to
-> license his product under fair or unfair terms - it's his. While we
-> already gave BK/BM tons of feedback, free beta-testing and free publicity,
-> all we have is this volatile promise that the binary bits of BK are going
-> to remain licensed - and with every day it will be harder and harder to
-> move the repository.
+> The exact same problem applies to pre-BK Linus and Alan, and whoever
+> else produces a change log that contains information produced by a third
+> party.
 
-In all honesty, Larry and I have a dislike for each other. I've emailed
-him in private venting my frustration against him in the past. I wasn't
-very nice at all. It's no surprise that he has a grudge against me.
+with the difference that the changelog was a few orders of magnitude less
+of an infrastructure element. Plus if you read those changelogs you'll see
+that it's 100% written by Alan or Linus - in 99% of the cases it just
+describes what the patch does, and in the remaining 1% it quotes a few key
+sentences that can be considered fair use. Ie. the ChangeLog was owned by
+Alan and Linus. [it would be a bit more robust if the ChangeLogs would be
+part of the kernel repository, that would make them covered by the GPL.]
 
-His decision above is more of a power play against me to smack me down,
-than anything else (something he's admitted to me in private email since
-sending that email to the list). He got his payback.
+> Does Linus and Alan have an implicit right to republish the
+> documentation that was sent to them with the patch? [...]
 
-Question is, if he shows a history of using license interpretation to
-handle personal grudges, how long before he gets pissed at someone else
-and inteprets his license in another way to toss around power over users
-of his product...a way more damaging than simply losing ones right to
-use BK freely.
+yes, as long as the documentation comes with the patch and is part of the
+kernel tree, which the patch derives, and which kernel tree has a certain
+'COPYING' file in the top directory. Patches *are* actively monitored for
+conflicting licenses in individual files, and occasionally we had to
+remove files.
 
+> [...] The exim mailing lists were recently threatened with legal action
+> over this very point, and there was talk at one point about having to
+> shut down the whole exim.org site because of this. [...]
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+> So, this isn't a BK problem.  Its a community problem.
+
+it *is* a BK problem caused by BK becase now this whole can of worms got
+silently exported to the kernel tree, and while BM itself is safe via its
+license, the kernel tree 'as a whole' is exposed.
+
+until now the Linux kernel tree was distributed in a tarball that had a
+nice COPYING file in a very prominent spot. With BK the situation is
+different - and like i said in previous mails it's not BK's "fault", but
+BK's "effect" - and it's a situation that needs to be remedied, right?
+
+	Ingo
+

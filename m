@@ -1,35 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268633AbUIAF1I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268654AbUIAF2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268633AbUIAF1I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 01:27:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268652AbUIAF1I
+	id S268654AbUIAF2h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 01:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268657AbUIAF2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 01:27:08 -0400
-Received: from lan-202-144-86-147.maa.sify.net ([202.144.86.147]:28293 "EHLO
-	linux.site") by vger.kernel.org with ESMTP id S268633AbUIAF1G (ORCPT
+	Wed, 1 Sep 2004 01:28:37 -0400
+Received: from ozlabs.org ([203.10.76.45]:40416 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268654AbUIAF21 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 01:27:06 -0400
-Message-ID: <41355D2A.8060404@toughguy.net>
-Date: Wed, 01 Sep 2004 10:54:58 +0530
-From: Obelix <obelix123@toughguy.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Wise, Jeremey" <jeremey.wise@agilysys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel or Grub bug.
-References: <1094008341.4704.32.camel@wizej.agilysys.com>
-In-Reply-To: <1094008341.4704.32.camel@wizej.agilysys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 1 Sep 2004 01:28:27 -0400
+Subject: Re: [PATCH] kallsyms: speed up /proc/kallsyms
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Matt Mackall <mpm@selenic.com>
+In-Reply-To: <4134DEF4.8090001@grupopie.com>
+References: <4134DEF4.8090001@grupopie.com>
+Content-Type: text/plain
+Message-Id: <1094016277.17828.53.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 01 Sep 2004 15:24:37 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-09-01 at 06:26, Paulo Marques wrote:
+> This patch implements the "is_exported" bit in the kallsyms_names
+> compressed stream, so that a "cat /proc/kallsyms" doesn't call
+> is_exported on every iteration.
 
->"Kernel panic: VFS: Unable to mount root fs on unknown-block(0,0)" 
->  
->
-Most likely a bad initrd. recheck where your /boot/initrd is pointing
-to.
+Prefer the patch split into "comments", "inconsistent kallsyms data fix"
+and "speedup".  I also prefer using a whole letter over a single bit:
+this allows archs which have wierd nm letters to express them, and
+instead of case indicating what symbols are exported, we get the real
+correct results.
 
-- obelix
+Thanks,
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268054AbUJVWJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268037AbUJVWJM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268054AbUJVWJN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 18:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268239AbUJVWFm
+	id S268037AbUJVWJM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 18:09:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268054AbUJVWGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 18:05:42 -0400
-Received: from postfix4-1.free.fr ([213.228.0.62]:55944 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S268054AbUJVWCp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 18:02:45 -0400
-Message-ID: <41797852.9070700@free.fr>
-Date: Fri, 22 Oct 2004 23:14:58 +0200
-From: Remi Colinet <remi.colinet@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Fri, 22 Oct 2004 18:06:08 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34974 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268113AbUJVWDc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 18:03:32 -0400
+Date: Fri, 22 Oct 2004 15:03:20 -0700
+Message-Id: <200410222203.i9MM3KJG005761@magilla.sf.frob.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.9-mm1-U10.3 : compile error fix with CONFIG_HOTPLUG_CPU enable
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: joe.korty@ccur.com
+X-Fcc: ~/Mail/linus
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] posix timers using == instead of & for bitmask tests
+In-Reply-To: Joe Korty's message of  Friday, 22 October 2004 10:39:53 -0400 <20041022143953.GA17881@tsunami.ccur.com>
+X-Shopping-List: (1) Despondent scrupulous ski rendezvous
+   (2) Prenatal Abrasion string-art
+   (3) Compliant combustion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+> Make posix-timers do a get_task_struct / put_task_struct if either
+> SIGEV_SIGNAL or SIGEV_THREAD_ID is set.  Currently the get/put is done
+> only if both are set.
 
-With CONFIG_HOTPLUG_CPU and CONFIG_SMP enable, this patch fixes the 
-following compile error.
-
---- mm/swap.c.orig      2004-10-22 22:31:58.000000000 +0200
-+++ mm/swap.c   2004-10-22 23:10:44.202728352 +0200
-@@ -423,12 +423,12 @@
- #ifdef CONFIG_HOTPLUG_CPU
- static void lru_drain_cache(unsigned int cpu)
- {
--       struct pagevec *pvec = &per_cpu(lru_add_pvecs, cpu);
-+       struct pagevec *pvec = &per_cpu_var_locked(lru_add_pvecs, cpu);
- 
-        /* CPU is dead, so no locking needed. */
-        if (pagevec_count(pvec))
-                __pagevec_lru_add(pvec);
--       pvec = &per_cpu(lru_add_active_pvecs, cpu);
-+       pvec = &per_cpu_var_locked(lru_add_active_pvecs, cpu);
-        if (pagevec_count(pvec))
-                __pagevec_lru_add_active(pvec);
- }
+What is the purpose of this change?  The `good_sigevent' check ensures that
+if SIGEV_THREAD_ID is set, then the value is exactly
+SIGEV_SIGNAL|SIGEV_THREAD_ID.  In fact, this change has no effect at all
+because SIGEV_SIGNAL is zero.  If it weren't, it would have an undesireable
+effect of doing the task_struct refcounting all the time instead of only
+for SIGEV_THREAD_ID.  That refcounting is never required in the plain
+SIGEV_SIGNAL case, because the task_struct pointer stored in the
+group_leader, and that is never freed before all the posix-timers data
+structures get cleared out anyway (exit_itimers).  It's only required for
+SIGEV_THREAD_ID, where the target thread might have died before the timer
+was next examined.
 
 
-  CC      mm/page_alloc.o
-  CC      mm/page-writeback.o
-  CC      mm/pdflush.o
-  CC      mm/prio_tree.o
-  CC      mm/readahead.o
-  CC      mm/slab.o
-  CC      mm/swap.o
-mm/swap.c: In function `lru_drain_cache':
-mm/swap.c:426: `per_cpu__lru_add_pvecs' undeclared (first use in this 
-function)
-mm/swap.c:426: (Each undeclared identifier is reported only once
-mm/swap.c:426: for each function it appears in.)
-mm/swap.c:426: warning: type defaults to `int' in declaration of `type name'
-mm/swap.c:426: invalid type argument of `unary *'
-mm/swap.c:431: `per_cpu__lru_add_active_pvecs' undeclared (first use in 
-this function)
-mm/swap.c:431: warning: type defaults to `int' in declaration of `type name'
-mm/swap.c:431: invalid type argument of `unary *'
-make[1]: *** [mm/swap.o] Error 1
-make: *** [mm] Error 2
-
-Remi
+Thanks,
+Roland
 

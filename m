@@ -1,28 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262679AbTJJAHm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 20:07:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbTJJAHm
+	id S262676AbTJJAFM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 20:05:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262677AbTJJAFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 20:07:42 -0400
-Received: from cmu-24-35-14-252.mivlmd.cablespeed.com ([24.35.14.252]:30879
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262679AbTJJAHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 20:07:42 -0400
-Date: Thu, 9 Oct 2003 20:07:38 -0400 (EDT)
-From: Thomas Molina <tmolina@cablespeed.com>
-X-X-Sender: tmolina@localhost.localdomain
-To: linux-kernel@vger.kernel.org
-Subject: [Bug 973] 2.6.0-test7 oops in store_stackinfo
-Message-ID: <Pine.LNX.4.44.0310091953400.12708-100000@localhost.localdomain>
+	Thu, 9 Oct 2003 20:05:12 -0400
+Received: from dyn-ctb-203-221-72-16.webone.com.au ([203.221.72.16]:14340 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S262676AbTJJAFI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 20:05:08 -0400
+Message-ID: <3F85F7A1.1070904@cyberone.com.au>
+Date: Fri, 10 Oct 2003 10:04:49 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: bill davidsen <davidsen@tmr.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Dual Xeon 2.6GHz, Supermicro X5DPA-TGM (SerialATA): 2.4.x causes
+ system pauses, 2.6.0-test6 works fine
+References: <20031007181339.GB1239@boom.net> <bm4ev7$5u7$1@gatekeeper.tmr.com>
+In-Reply-To: <bm4ev7$5u7$1@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please see bugzilla number 973 for the gory details.  The problem remains 
-through Linus' stability release.  Short summary is that if both 
-CONFIG_DEBUG_SLAG and CONFIG_DEBUG_PAGEALLOC are defined I get a 
-repeatable oops in store_stackinfo.  If one or the other is not defined 
-the oops doesn't happen.
+
+
+bill davidsen wrote:
+
+>In article <20031007181339.GB1239@boom.net>,
+>Taner Halicioglu  <taner@taner.net> wrote:
+>
+>| Hi, I just built a new system and under all the 2.4.x kernels I tried (latest
+>| redhat, and stock 2.4.22 as well) I would have 10-20s system pauses during
+>| stress testing (a simple kernel compile loop, using make -j4) - appeared to
+>| be disk subsystem, as I could change windows in screen, and network was
+>| working fine.  I tried several APIC and ACPI settings to no avail.  I tried
+>| disabling Hyperthreading - no dice.  I tried running a UP kernel - no dice.
+>| 
+>| Upon installing the 2.6.0-test6 kernel, the pauses were gone!  (for the most
+>| part... have an occasional 2s pause, but that is considerably better than
+>| 10-20s ;))
+>
+>Try booting with elevator=deadline, see if the last pause goes away.
+>
+
+Or try running the compile completely out of tmpfs. That should mostly take
+the disk and virtual memroy subsystems out of the picture.
+
 

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267212AbUBSLwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 06:52:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267214AbUBSLwQ
+	id S267198AbUBSMBI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 07:01:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267204AbUBSMBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 06:52:16 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:37051 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S267212AbUBSLwP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 06:52:15 -0500
-Date: Thu, 19 Feb 2004 12:53:51 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Non-GPL export of invalidate_mmap_range
-Message-ID: <20040219115351.GF14000@marowsky-bree.de>
-References: <20040217124001.GA1267@us.ibm.com> <20040217161929.7e6b2a61.akpm@osdl.org> <1077108694.4479.4.camel@laptop.fenrus.com> <20040218140021.GB1269@us.ibm.com> <20040218211035.A13866@infradead.org> <20040218150607.GE1269@us.ibm.com> <20040218222138.A14585@infradead.org> <20040218145132.460214b5.akpm@osdl.org> <20040219102900.GC14000@marowsky-bree.de> <20040219111116.GA16733@devserv.devel.redhat.com>
+	Thu, 19 Feb 2004 07:01:08 -0500
+Received: from pr-117-210.ains.net.au ([202.147.117.210]:28613 "EHLO
+	mail.ocs.com.au") by vger.kernel.org with ESMTP id S267198AbUBSMBG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 07:01:06 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: kjo <kernel-janitors@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: reference_init.pl for Linux 2.6 
+In-reply-to: Your message of "Wed, 18 Feb 2004 18:23:13 -0800."
+             <20040218182313.7b7b915e.rddunlap@osdl.org> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040219111116.GA16733@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-Ctuhulu: HASTUR
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 19 Feb 2004 23:00:48 +1100
+Message-ID: <2263.1077192048@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-02-19T12:11:17,
-   Arjan van de Ven <arjanv@redhat.com> said:
+On Wed, 18 Feb 2004 18:23:13 -0800, 
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>I have updated Keith Owens "reference_init.pl" script for
+>Linux 2.6.  It searches for code that refers to other code
+>sections that they should not reference, such as init code
+>calling exit code or v.v.
+>script for Linux 2.6 is at:
+>http://developer.osdl.org/rddunlap/scripts/reference_init26.pl
 
-> It already is exported GPL-only, this is all about changing it to be for
-> linking bin only modules as well...
+You added '$from !~ /\.data/'.  Any references from the .data section
+to .init or .exit text should be checked.  It is usually a struct
+containing a pointer to code that will be discarded, and is dangerous.
 
-I blame lack of coffee and want a brown paper bag. Sorry. ;)
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering	      \ ever tried. ever failed. no matter.
-SUSE Labs			      | try again. fail again. fail better.
-Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
+There is also a spurious comment line,
+#                   $from !~ $line && $line !~ $from &&
 

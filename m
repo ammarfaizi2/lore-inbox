@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293172AbSBWSbZ>; Sat, 23 Feb 2002 13:31:25 -0500
+	id <S293171AbSBWSdy>; Sat, 23 Feb 2002 13:33:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293171AbSBWSbO>; Sat, 23 Feb 2002 13:31:14 -0500
-Received: from bitmover.com ([192.132.92.2]:34208 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S293170AbSBWSbE>;
-	Sat, 23 Feb 2002 13:31:04 -0500
-Date: Sat, 23 Feb 2002 10:31:01 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: bert hubert <ahu@ds9a.nl>, Alexander Viro <viro@math.psu.edu>,
-        Dan Aloni <da-x@gmx.net>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] C exceptions in kernel
-Message-ID: <20020223103101.G11156@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	bert hubert <ahu@ds9a.nl>, Alexander Viro <viro@math.psu.edu>,
-	Dan Aloni <da-x@gmx.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020223162100.A1952@outpost.ds9a.nl> <Pine.GSO.4.21.0202231242030.26375-100000@weyl.math.psu.edu> <20020223192154.A3837@outpost.ds9a.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020223192154.A3837@outpost.ds9a.nl>; from ahu@ds9a.nl on Sat, Feb 23, 2002 at 07:21:54PM +0100
+	id <S293170AbSBWSdo>; Sat, 23 Feb 2002 13:33:44 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:27016 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S293173AbSBWSdZ>;
+	Sat, 23 Feb 2002 13:33:25 -0500
+Date: Sat, 23 Feb 2002 21:31:31 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rusty Russell <rusty@rustcorp.com.au>,
+        Matthew Kirkwood <matthew@hairy.beasts.org>,
+        Benjamin LaHaise <bcrl@redhat.com>, David Axmark <david@mysql.com>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Lightweight userspace semaphores...
+In-Reply-To: <20020223102805.F11156@work.bitmover.com>
+Message-ID: <Pine.LNX.4.33.0202232128450.15230-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I mean, this is just pathetic. There is valid criticism to new ideas, but
-> this isn't it.
 
-There are places to learn how to do basic programming and this isn't it.
-There is no way that the kernel list can handle every bad idea over and
-over again in a kind and gentle way.  Doing so requires so much time that
-noone would ever get any real work done.  At some point, you just say
-no.  If we didn't, we'd still be arguing about STREAMS, redoing the kernel
-in C++, etc.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+On Sat, 23 Feb 2002, Larry McVoy wrote:
+
+> Exactly.  SMP gives you coherent memory and test-and-set or some other
+> atomic operation.  Why not use it?
+
+the userspace library side does it. The kernel patch is the slowpath, the
+fast path (no contention) happens in user-space, using SMP-atomic
+instructions. It's all very nice and lightweight.
+
+also as far as i can see, this implementation enables semaphores to live
+anywhere within the VM, the /dev/usem is just a hack to communicate this
+VM address to the kernel-space code. So i think the patch's concepts are
+really nice, except the interface cleanliness issue which shouldnt be too
+hard to fix - adding new syscalls is pleasant work anyway :-)
+
+	Ingo
+

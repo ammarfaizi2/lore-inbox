@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264769AbUD1Msg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264657AbUD1NBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264769AbUD1Msg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 08:48:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264773AbUD1Msg
+	id S264657AbUD1NBt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 09:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264767AbUD1NBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 08:48:36 -0400
-Received: from main.gmane.org ([80.91.224.249]:34750 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264769AbUD1Msd (ORCPT
+	Wed, 28 Apr 2004 09:01:49 -0400
+Received: from [203.97.82.178] ([203.97.82.178]:59536 "EHLO treshna.com")
+	by vger.kernel.org with ESMTP id S264657AbUD1NBs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 08:48:33 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Subject: Re: What does tainting actually mean?
-Date: Wed, 28 Apr 2004 14:48:30 +0200
-Message-ID: <yw1x7jw0mfoh.fsf@kth.se>
-References: <opr65eq9ncshwjtr@laptop-linux.wpcb.org.au> <20040428042742.GA1177@middle.of.nowhere>
- <opr65f48sfshwjtr@laptop-linux.wpcb.org.au>
- <408F3EE4.1080603@nortelnetworks.com>
- <opr65ic90vshwjtr@laptop-linux.wpcb.org.au>
- <20040428121009.GA2844@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:YNu6rFSMkuP/TcsICqrujksiI58=
+	Wed, 28 Apr 2004 09:01:48 -0400
+Message-ID: <408FAB17.3090305@treshna.com>
+Date: Thu, 29 Apr 2004 01:01:11 +1200
+From: Dru <andru@treshna.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040312 Debian/1.6-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Kernel lockup on alpha with heavy IO
+References: <408C75E4.50908@treshna.com> <20040426131319.A9952@jurassic.park.msu.ru> <408E3D8C.8090504@treshna.com> <20040427201013.A14559@jurassic.park.msu.ru>
+In-Reply-To: <20040427201013.A14559@jurassic.park.msu.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Ts'o <tytso@mit.edu> writes:
+Ivan Kokshaysky wrote:
 
-> On Wed, Apr 28, 2004 at 03:18:35PM +1000, Nigel Cunningham wrote:
->> On Wed, 28 Apr 2004 01:19:32 -0400, Chris Friesen <cfriesen@nortelnetworks.com wrote:
->> >
->> >There has already been a case mentioned of a binary module that messed  
->> >up something that was only visible once that module was unloaded and  
->> >another one loaded.  It all depends totally on usage patterns.
->> 
->> I don't know what module you're talking about, but surely there must be  
->> something that could be done kernel-side to protect against such problems.  
->> Reference counting or such like? I guess if it was a hardware issue, but  
->> then again that might be an issue with too many assumptions being made  
->> about prior state? Maybe I am being too naive :>
+>On Tue, Apr 27, 2004 at 11:01:32PM +1200, Dru wrote:
+>  
 >
-> The problem is with corrupted data structures, pointers, etc.  An
-> evil/incompetently written driver can screw up data structures long
-> after it has been unloaded.  Historically, there was a time when a
-> certain set of propeitary six-letter video company beginning with 'N'
-> and ending with 'a' had serious bugs which would corrupt the kernel
-> and create random kernel panics far removed from the actual source of
-> the problems.
+>>I am not having much luck with the firmware upgrade.
+>>It gets up to saying Copying up1500fw.txt from dva0 . . .  and
+>>just sits there. It never reachs albasrm.rom file.
+>>    
+>>
 >
-> Stack overflows in a badly written device driver can overwrite task
-> structures and cause apparent filesystem problems which are blamed on
-> the hapless filesystem authors instead of where the blame properly
-> lies, namely the device driver author.
-
-Wouldn't the problem be just as difficult to pin to a certain module
-even if the source code was open?  I prefer open source modules (I
-have Alpha machines), but I just can't see this argument work.
-
--- 
-Måns Rullgård
-mru@kth.se
+>Well, it was about 1.5 years ago when I upgraded the firmware last
+>time, so I don't recall all details... Anyway, from memory:
+>- make sure that you get to SRM prompt right after reset or
+>  powerup, i.e. 'auto_action' is set to 'halt';
+>- IIRC, UP1500 has problems with some floppy drives, and it
+>  may require 2-3 resets before it reads the rom image file
+>  successfully.
+>
+>  
+>
+Finally got firmware to update, the up1500 board is a bit
+sturburn. Many repeated attempts and changing around
+floppy drives was successful. thanks for the help.
 

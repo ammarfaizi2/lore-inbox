@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280391AbRJaSbc>; Wed, 31 Oct 2001 13:31:32 -0500
+	id <S280401AbRJaSgm>; Wed, 31 Oct 2001 13:36:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280392AbRJaSbX>; Wed, 31 Oct 2001 13:31:23 -0500
-Received: from relay03.cablecom.net ([62.2.33.103]:34703 "EHLO
-	relay03.cablecom.net") by vger.kernel.org with ESMTP
-	id <S280391AbRJaSbK>; Wed, 31 Oct 2001 13:31:10 -0500
-Message-Id: <200110311831.f9VIVeR09294@mail.swissonline.ch>
-Content-Type: text/plain; charset=US-ASCII
-From: LLX <llx@swissonline.ch>
-Reply-To: llx@swissonline.ch
-To: Rik van Riel <riel@conectiva.com.br>, Timur Tabi <ttabi@interactivesi.com>
-Subject: Re: Module Licensing?
-Date: Wed, 31 Oct 2001 19:31:40 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0110311535250.2963-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0110311535250.2963-100000@imladris.surriel.com>
+	id <S280400AbRJaSgc>; Wed, 31 Oct 2001 13:36:32 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:51210 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S280405AbRJaSgY>; Wed, 31 Oct 2001 13:36:24 -0500
+Date: Wed, 31 Oct 2001 19:35:47 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: vda <vda@port.imtp.ilyichevsk.odessa.ua>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] Re: Nasty suprise with uptime
+In-Reply-To: <Pine.LNX.4.30.0110311902410.29481-100000@gans.physik3.uni-rostock.de>
+Message-ID: <Pine.LNX.4.30.0110311926360.29572-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The irrelevance here is IYHO ... it may well be judged that
-> since these two portions of the work need each other in order
-> to function, the thing really is one work.
+Sorry, I forgot to set INITIAL_JIFFIES to zero before posting the patch.
 
-a)
-vmware for linux needs a linux kernel to work. does that meen
-you whant to gpl it? 
+Testing with high INITIAL_JIFFIES values unfortunately still discloses
+instability after the wraparound even for an otherwise unpatched kernel.
 
-b)
-you can write abstraction modules for different os's. and the 
-non-gpl module works with all of them. so my module does not
-need the linux abstraction module it also works with the free-
-BSD module. the only #ifdef in my module will be around the 
-module registration code. or i write a propriatary loader,
-so that even the same binary works for different os's
+I also forgot to mention that the introduced jiffies_high variable is
+useless on 64 bit systems, so we might #ifdef it out there.
+
+Tim
 
 
+On Wed, 31 Oct 2001, Tim Schmielau wrote:
 
--- 
-****** It's nice to be important, but it's more important to be nice ! ******
+[parts of patch snipped]
+
+> --- kernel/timer.c.orig	Wed Oct 31 17:24:36 2001
+> +++ kernel/timer.c	Wed Oct 31 18:38:47 2001
+> @@ -65,7 +65,9 @@
+>
+>  extern int do_setitimer(int, struct itimerval *, struct itimerval *);
+>
+> -unsigned long volatile jiffies;
+> +#define INITIAL_JIFFIES 0xFFFFD000ul
+> +unsigned long volatile jiffies = INITIAL_JIFFIES;
+> +unsigned long volatile jiffies_high, jiffies_high_shadow;
+>
+
+This of course needs to be
+   #define INITIAL_JIFFIES 0
+for correct uptime display
+

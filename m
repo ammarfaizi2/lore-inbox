@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264251AbUHQHh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264238AbUHQHru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264251AbUHQHh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 03:37:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268136AbUHQHh7
+	id S264238AbUHQHru (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 03:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268137AbUHQHrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 03:37:59 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:16519 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S264251AbUHQHh6 (ORCPT
+	Tue, 17 Aug 2004 03:47:49 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:39819 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S264238AbUHQHrs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 03:37:58 -0400
-Date: Tue, 17 Aug 2004 09:39:27 +0200
+	Tue, 17 Aug 2004 03:47:48 -0400
+Date: Tue, 17 Aug 2004 09:48:26 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: Lee Revell <rlrevell@joe-job.com>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P1
-Message-ID: <20040817073927.GA594@elte.hu>
-References: <20040816023655.GA8746@elte.hu> <1092624221.867.118.camel@krustophenia.net> <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu> <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <20040817021431.169d07db@mango.fruits.de> <1092701223.13981.106.camel@krustophenia.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>, tytso@mit.edu
+Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
+Message-ID: <20040817074826.GA1238@elte.hu>
+References: <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu> <1092374851.3450.13.camel@mindpipe> <1092375673.3450.15.camel@mindpipe> <20040813103151.GH8135@elte.hu> <1092699974.13981.95.camel@krustophenia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1092701223.13981.106.camel@krustophenia.net>
+In-Reply-To: <1092699974.13981.95.camel@krustophenia.net>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -36,15 +36,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Lee Revell <rlrevell@joe-job.com> wrote:
 
-> > i don't know if this was mentioned before, but i sometimes see traces
-> > like this where half the entries are "preempt_schedule
-> > (copy_page_range)". I just wanted to ask if this is normal and expected
-> > behaviour.
+> I have attached a patch that effectively disables extract_entropy.  I
+> am adding Theodore T'so to the cc: list as he is the author of the
+> code in question.
 > 
-> Yes, Ingo identified an issue with copy_page_range, I don't think it's
-> fixed yet.  See the voluntary-preempt-2.6.8.1-P0 thread.
+> For the time being this hack is required to avoid ~0.5 ms
+> non-preemptible sections caused by the excessive memcpy's in
+> extract_entropy.
 
-right, it's not fixed yet. It's not a trivial critical section - we are
-holding two locks and are mapping two atomic kmaps.
+i'm not 100% sure it's the memcpy's - but it's extract_entropy()
+overhead. Might be the algorithmic slowness of SHATransform().
+
+> +	return nbytes;
+> +    
+
+since this effectively disables the random driver i cannot add it to the
+patch.
+
+there's another thing you could try: various SHA_CODE_SIZE values in
+drivers/char/random.c. Could you try 1, 2 and 3, does it change the
+overhead as seen in the trace?
 
 	Ingo

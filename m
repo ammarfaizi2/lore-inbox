@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131604AbQKJTfC>; Fri, 10 Nov 2000 14:35:02 -0500
+	id <S131550AbQKJTfv>; Fri, 10 Nov 2000 14:35:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131591AbQKJTem>; Fri, 10 Nov 2000 14:34:42 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:11648 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S131536AbQKJTeg>; Fri, 10 Nov 2000 14:34:36 -0500
-Date: Fri, 10 Nov 2000 14:34:24 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "William F. Maton" <wmaton@ryouko.dgim.crc.ca>
-cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in  /var/spool/mqueue]
-In-Reply-To: <Pine.GSO.3.96LJ1.1b7.1001110135209.27803A-100000@ryouko.dgim.crc.ca>
-Message-ID: <Pine.LNX.3.95.1001110142537.5403A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130143AbQKJTfn>; Fri, 10 Nov 2000 14:35:43 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:64271 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S131591AbQKJTfO>;
+	Fri, 10 Nov 2000 14:35:14 -0500
+Date: Fri, 10 Nov 2000 20:35:06 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in /var/spool/mqueue]
+Message-ID: <20001110203506.A1028@inspiron.suse.de>
+In-Reply-To: <3A0C4252.100D863D@timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3A0C4252.100D863D@timpanogas.org>; from jmerkey@timpanogas.org on Fri, Nov 10, 2000 at 11:45:39AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Nov 2000, William F. Maton wrote:
+On Fri, Nov 10, 2000 at 11:45:39AM -0700, Jeff V. Merkey wrote:
+> > > > > [..]  Issuing the command "sendmail -v
+> > > > > -q" does not flush the mail queue. [..]
 
-> On Fri, 10 Nov 2000, Jeff V. Merkey wrote:
-> 
-> > 
-> > The sendmail folks are claiming that the TCPIP stack in Linux is broken,
-> > which is what they claim is causing problems on sendmail on Linux
-> > platforms.  Before anyone says, "don't use that piece of shit sendmail,
-> > use qmail instead", perhaps we should look at this problem and refute
-> > these statements -- I think that sendmail is causing this problem.  The
-> > version is sendmail 8.9.3
-> 
-> What about sendmail 8.11.1?  Is the problem there too?
-> 
+So first thing to do is to check that in /etc/sendmail.cf this line is
+commented out this way:
 
-I am running sendmail-8.11-0.Beta3 on Linux 2.4.0-test9. I didn't
-have any problem with it (except that the documentation sucks,
-making it extremely difficult to configure). Once configured, it runs
-fine. It also ran fine on Linux-2.2.17.
+#O HostStatusDirectory=...
 
-If something is staying in the mail-queue `mailq`, this means that
-the daemon isn't running. It may have crashed. This can be caused
-by somebody keeping some mailer entry in /etc/inetd.conf. Sendmail
-has to run as a daemon with no other interference on port 25.
-Check the configuration.
+(if you build .cf via m4 add this line:
 
+undefine(`confHOST_STATUS_DIRECTORY')dnl
 
-Cheers,
-Dick Johnson
+and rebuild the .cf from the m4 source)
 
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+Then `rcsendmail reload; sendmail -q; mailq`.
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

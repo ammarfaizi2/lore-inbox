@@ -1,119 +1,279 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129391AbQLRTra>; Mon, 18 Dec 2000 14:47:30 -0500
+	id <S130151AbQLRTzz>; Mon, 18 Dec 2000 14:55:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130147AbQLRTrV>; Mon, 18 Dec 2000 14:47:21 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:267 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S129391AbQLRTrK>; Mon, 18 Dec 2000 14:47:10 -0500
-Date: Mon, 18 Dec 2000 20:14:02 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: rusty@linuxcare.com.au, kuznet@ms2.inr.ac.ru,
-        netfilter-devel@us5.samba.org, linux-kernel@vger.kernel.org
-Subject: ip_defrag / ip_conntrack issues (was Re: [PATCH] Fix netfilter locking)
-Message-ID: <20001218201402.Y7422@coruscant.gnumonks.org>
-In-Reply-To: <E147qmG-0001yB-00@halfway> <200012181811.KAA05490@pizda.ninka.net>
-Mime-Version: 1.0
+	id <S130150AbQLRTzp>; Mon, 18 Dec 2000 14:55:45 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:23476 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S130075AbQLRTzd>; Mon, 18 Dec 2000 14:55:33 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test13-pre3
+In-Reply-To: <Pine.LNX.4.10.10012171353270.2052-100000@penguin.transmeta.com>
+	<qwwelz5er31.fsf@sap.com>
+Organisation: SAP LinuxLab
+Date: 18 Dec 2000 20:24:25 +0100
+In-Reply-To: Christoph Rohland's message of "18 Dec 2000 15:34:10 +0100"
+Message-ID: <qwwsnnlbkie.fsf@sap.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200012181811.KAA05490@pizda.ninka.net>; from davem@redhat.com on Mon, Dec 18, 2000 at 10:11:14AM -0800
-X-Operating-System: 2.4.0-test11p4
-X-Date: Today is Setting Orange, the 58th day of The Aftermath in the YOLD 3166
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2000 at 10:11:14AM -0800, David S. Miller wrote:
->    From: Rusty Russell <rusty@linuxcare.com.au>
->    Date: Mon, 18 Dec 2000 14:15:52 +1100
+Hi Linus,
+
+On 18 Dec 2000, Christoph Rohland wrote:
+> The appended patch fixes the following:
 > 
->    Alexey is right, locking is screwed (explains some reports of
->    occasional failure during rmmod).
+> 1) We cannot unlock the page in shmem_writepage on ooswap since
+>    page_launder will do this later.
 > 
-> Patch applied, thank you.
-> 
->    I have a patch which compiles for non-linear skb mods to netfilter
->    (NAT uses linear packets still, but connection tracking and packet
->    filtering only linearize minimal requirements).  Waiting for
->    DaveM's solution to ip_ct_gather_frags()...
-> 
-> I feel it's best to just skb_clone() the skb arg to ip_defrag
-> and this will close the whole thing, I think.
+> 2) We should set the inode number of SYSV segments to the (user)
+>    shmid and not the internal id.
 
-no. The clone()d skb will still have a skb->dev pointing to NULL.
+And here additionally is the SYSV detach/destroy logic fixed which
+(again) left destroyed shm segments hang around :-(
 
-The problem occurs only for locally-generated outgoing packets, which 
-need to be fragmented:
+I also cleaned up the list of included files in ipc/shm.c
 
-- ip_build_xmit() discoveres it has to fragment
-- ip_build_xmit_slow() generates fragments and calls
-- NF_HOOK() for NF_IP_LOCAL_OUT
-- ip_conntrack_local() is called, which in turn calls
-- ip_conntrack_in(), which calls
-- ip_ct_gather_frags(), which calls
-- ip_defrag(), which calls 
-
-[now we have two possible oops - caues]
-
-a ip_find(), which calls
-a ip_frag_create(), which initialises a timer with the function
-a ip_expire(), which dereferences qp->iif
-
-b ip_frag_queue(), which dereferences it in qp->iif= skb->dev->ifindex
+Greetings
+		Christoph
 
 
-as andi kleen pointed out:
-
-> > Also is it sure that the backtrace involves ip_rcv ? A more likely
-> > guess is that it happens during the IP_LOCAL_OUT hook, when skb->dev
-> > isn't set yet, but conntrack already has to already reassemble fragments.
-
+diff -uNr 4-13-3/ipc/shm.c c/ipc/shm.c
+--- 4-13-3/ipc/shm.c	Mon Dec 18 15:08:32 2000
++++ c/ipc/shm.c	Mon Dec 18 20:07:21 2000
+@@ -15,23 +15,13 @@
+  *
+  */
  
-> Actually, I do not understand how current code could even have worked
-> in the past.  Once the SKB is passed to ip_defrag, it is nobody's
-> buisness to reference that SKB anymore.  This ip_defrag call is (from
-
-mmh... we really don't do this. We use the return value of ip_defrag(),
-which is what ip_frag_reasm() returns (== the new datagram consisting
-out of all its fragments).
-
-> Alexey, what have I missed?  I don't like the ip_fragment.c proposed
-> fix for this reason, what netfilter is doing with ip_defrag here looks
-> just wrong.
-
-Well, my conclusion is:
-
-- the defragmentation code in the ipv4 stack assumes that skb->dev points
-  to a valid device. It does this primaryly to send icmp reassembly errors
-  if a fragment reassembly timeout occurs
-
-- netfilter wants to use the ip_defrag for defragmentation, not only for 
-  incoming packets from the network at NF_IP_PRE_ROUTING, but also for
-  locally-generated fragmented packets (at NF_IP_LOCAL_OUT). Unfortunately
-  we don't have a valid skb->dev at this point. 
-
-I don't think that there is any skb_clone()ing needed, nor this would solve
-the problem. The solution is
-
-a) netfilter conntrack (more exactly: ip_ct_gather_frags) sets skb->dev to
-   something valid (skb->dst->dev). Dirty hack.
-
-b) make ip_defrag(), ... aware of the case where skb->dev == NULL. Sounds
-   like a good idea, since it is only one if(skb->dev) clause.
-
-c) netfilter stops using ip_defrag() for this case. Bad idea, it had to
-   reinvent the wheel :(
-
-> David S. Miller
-> davem@redhat.com
-
--- 
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org                http://www.gnumonks.org
-============================================================================
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
-V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)
+-#include <linux/config.h>
+-#include <linux/module.h>
+ #include <linux/malloc.h>
+ #include <linux/shm.h>
+-#include <linux/swap.h>
+-#include <linux/smp_lock.h>
+ #include <linux/init.h>
+-#include <linux/locks.h>
+ #include <linux/file.h>
+ #include <linux/mman.h>
+-#include <linux/vmalloc.h>
+-#include <linux/pagemap.h>
+ #include <linux/proc_fs.h>
+-#include <linux/highmem.h>
+-
+ #include <asm/uaccess.h>
+-#include <asm/pgtable.h>
+ 
+ #include "util.h"
+ 
+@@ -109,6 +99,7 @@
+ 		BUG();
+ 	shp->shm_atim = CURRENT_TIME;
+ 	shp->shm_lprid = current->pid;
++	shp->shm_nattch++;
+ 	shm_unlock(id);
+ }
+ 
+@@ -123,21 +114,14 @@
+  *
+  * @shp: struct to free
+  *
+- * It has to be called with shp and shm_ids.sem locked and will
+- * release them
++ * It has to be called with shp and shm_ids.sem locked
+  */
+ static void shm_destroy (struct shmid_kernel *shp)
+ {
+-	struct file * file = shp->shm_file;
+-
+-	shp->shm_file = NULL;
+ 	shm_tot -= (shp->shm_segsz + PAGE_SIZE - 1) >> PAGE_SHIFT;
+-	shm_unlock (shp->id);
+ 	shm_rmid (shp->id);
++	fput (shp->shm_file);
+ 	kfree (shp);
+-	up (&shm_ids.sem);
+-	/* put the file outside the critical path to prevent recursion */
+-	fput (file);
+ }
+ 
+ /*
+@@ -158,10 +142,10 @@
+ 		BUG();
+ 	shp->shm_lprid = current->pid;
+ 	shp->shm_dtim = CURRENT_TIME;
+-	if(shp->shm_flags & SHM_DEST &&
+-	   file_count (file) == 2) /* shp and the vma have the last
+-                                      references*/
+-		return shm_destroy (shp);
++	shp->shm_nattch--;
++	if(shp->shm_nattch == 0 &&
++	   shp->shm_flags & SHM_DEST)
++		shm_destroy (shp);
+ 
+ 	shm_unlock(id);
+ 	up (&shm_ids.sem);
+@@ -176,7 +160,7 @@
+ }
+ 
+ static struct file_operations shm_file_operations = {
+-	mmap:		shm_mmap
++	mmap:	shm_mmap
+ };
+ 
+ static struct vm_operations_struct shm_vm_ops = {
+@@ -218,9 +202,10 @@
+ 	shp->shm_atim = shp->shm_dtim = 0;
+ 	shp->shm_ctim = CURRENT_TIME;
+ 	shp->shm_segsz = size;
++	shp->shm_nattch = 0;
+ 	shp->id = shm_buildid(id,shp->shm_perm.seq);
+ 	shp->shm_file = file;
+-	file->f_dentry->d_inode->i_ino = id;
++	file->f_dentry->d_inode->i_ino = shp->id;
+ 	file->f_op = &shm_file_operations;
+ 	shm_tot += numpages;
+ 	shm_unlock (id);
+@@ -370,15 +355,13 @@
+ 		struct inode * inode;
+ 
+ 		shp = shm_get(i);
+-		if(shp == NULL || shp->shm_file == NULL)
++		if(shp == NULL)
+ 			continue;
+ 		inode = shp->shm_file->f_dentry->d_inode;
+-		down (&inode->i_sem);
+-		*rss += inode->i_mapping->nrpages;
+ 		spin_lock (&inode->u.shmem_i.lock);
++		*rss += inode->i_mapping->nrpages;
+ 		*swp += inode->u.shmem_i.swapped;
+ 		spin_unlock (&inode->u.shmem_i.lock);
+-		up (&inode->i_sem);
+ 	}
+ }
+ 
+@@ -462,7 +445,7 @@
+ 		tbuf.shm_ctime	= shp->shm_ctim;
+ 		tbuf.shm_cpid	= shp->shm_cprid;
+ 		tbuf.shm_lpid	= shp->shm_lprid;
+-		tbuf.shm_nattch	= file_count (shp->shm_file) - 1;
++		tbuf.shm_nattch	= shp->shm_nattch;
+ 		shm_unlock(shmid);
+ 		if(copy_shmid_to_user (buf, &tbuf, version))
+ 			return -EFAULT;
+@@ -512,13 +495,12 @@
+ 			goto out_up;
+ 		err = shm_checkid(shp, shmid);
+ 		if (err == 0) {
+-			if (file_count (shp->shm_file) == 1) {
++			if (shp->shm_nattch){
++				shp->shm_flags |= SHM_DEST;
++				/* Do not find it any more */
++				shp->shm_perm.key = IPC_PRIVATE;
++			} else
+ 				shm_destroy (shp);
+-				return 0;
+-			}
+-			shp->shm_flags |= SHM_DEST;
+-			/* Do not find it any more */
+-			shp->shm_perm.key = IPC_PRIVATE;
+ 		}
+ 		/* Unlock */
+ 		shm_unlock(shmid);
+@@ -619,13 +601,23 @@
+ 		return -EACCES;
+ 	}
+ 	file = shp->shm_file;
+-	get_file (file);
++	shp->shm_nattch++;
+ 	shm_unlock(shmid);
+ 
+ 	down(&current->mm->mmap_sem);
+ 	user_addr = (void *) do_mmap (file, addr, file->f_dentry->d_inode->i_size, prot, flags, 0);
+ 	up(&current->mm->mmap_sem);
+-	fput (file);
++
++	down (&shm_ids.sem);
++	if(!(shp = shm_lock(shmid)))
++		BUG();
++	shp->shm_nattch--;
++	if(shp->shm_nattch == 0 &&
++	   shp->shm_flags & SHM_DEST)
++		shm_destroy (shp);
++	shm_unlock(shmid);
++	up (&shm_ids.sem);
++
+ 	*raddr = (unsigned long) user_addr;
+ 	err = 0;
+ 	if (IS_ERR(user_addr))
+@@ -684,7 +676,7 @@
+ 				shp->shm_segsz,
+ 				shp->shm_cprid,
+ 				shp->shm_lprid,
+-				file_count (shp->shm_file) - 1,
++				shp->shm_nattch,
+ 				shp->shm_perm.uid,
+ 				shp->shm_perm.gid,
+ 				shp->shm_perm.cuid,
+diff -uNr 4-13-3/mm/shmem.c c/mm/shmem.c
+--- 4-13-3/mm/shmem.c	Mon Dec 18 15:08:32 2000
++++ c/mm/shmem.c	Mon Dec 18 15:13:10 2000
+@@ -210,37 +210,39 @@
+ {
+ 	int error;
+ 	struct shmem_inode_info *info;
+-	swp_entry_t *entry;
++	swp_entry_t *entry, swap;
+ 
+ 	info = &((struct inode *)page->mapping->host)->u.shmem_i;
+ 	if (info->locked)
+ 		return 1;
+-	spin_lock(&info->lock);
+-	entry = shmem_swp_entry (info, page->index);
+-	if (!entry)	/* this had been allocted on page allocation */
+-		BUG();
+-	error = -EAGAIN;
+-	if (entry->val)
+-		goto out;
+-
+ 	/*
+ 	 * 1 means "cannot write out".
+ 	 * We can't drop dirty pages
+ 	 * just because we ran out of
+ 	 * swap.
+ 	 */
+-	error = 1;
+-	*entry = __get_swap_page(2);
+-	if (!entry->val)
++	swap = __get_swap_page(2);
++	if (!swap.val)
++		return 1;
++
++	spin_lock(&info->lock);
++	entry = shmem_swp_entry (info, page->index);
++	if (!entry)	/* this had been allocted on page allocation */
++		BUG();
++	error = -EAGAIN;
++	if (entry->val) {
++                __swap_free(swap, 2);
+ 		goto out;
++        }
+ 
++        *entry = swap;
+ 	error = 0;
+ 	/* Remove the from the page cache */
+ 	lru_cache_del(page);
+ 	remove_inode_page(page);
+ 
+ 	/* Add it to the swap cache */
+-	add_to_swap_cache(page,*entry);
++	add_to_swap_cache(page, swap);
+ 	page_cache_release(page);
+ 	SetPageDirty(page);
+ 	info->swapped++;
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317025AbSFASYo>; Sat, 1 Jun 2002 14:24:44 -0400
+	id <S313421AbSFASrV>; Sat, 1 Jun 2002 14:47:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317026AbSFASYn>; Sat, 1 Jun 2002 14:24:43 -0400
-Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:12 "HELO
-	osinvestor.com") by vger.kernel.org with SMTP id <S317025AbSFASYn>;
-	Sat, 1 Jun 2002 14:24:43 -0400
-Date: Sat, 1 Jun 2002 14:24:41 -0400
-From: Rob Radez <rob@osinvestor.com>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: linux-kernel@vger.kernel.org, Rob Radez <rob@osinvestor.com>,
-        Matt Domsch <Matt_Domsch@dell.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Watchdog Stuff (1/4)
-Message-ID: <20020601142441.T30977@osinvestor.com>
-In-Reply-To: <20020601064309.GA10222@insight.us.oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S313767AbSFASrU>; Sat, 1 Jun 2002 14:47:20 -0400
+Received: from smtp.comcast.net ([24.153.64.2]:45409 "EHLO smtp.comcast.net")
+	by vger.kernel.org with ESMTP id <S313421AbSFASrU>;
+	Sat, 1 Jun 2002 14:47:20 -0400
+Date: Sat, 01 Jun 2002 14:47:37 -0400
+From: Tom Vier <tmv@comcast.net>
+Subject: /proc/slab garbage
+In-Reply-To: <Pine.LNX.4.21.0205281905260.7798-100000@freak.distro.conectiva>
+To: linux-kernel@vger.kernel.org
+Reply-to: Tom Vier <tmv@comcast.net>
+Message-id: <20020601184737.GA618@zero>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 31, 2002 at 11:43:36PM -0700, Joel Becker wrote:
-> 	Here are four patches for the watchdog drivers.  These patches
-> are against 2.4.19-pre9.
-> 	The first patch (this one) adds WDIOC_SETTIMEOUT support to
-> wafer5823wdt.c.  The second patch adds Matt Domsch's 'nowayout' module
-> option to the drivers that currently don't have it.  The third patch
-> fixes a bug where most of the "magic close character" capable drivers
-> don't use get_user().  The fourth patch adds "magic close character"
-> support to almost all of the remaining drivers.  It also adds
-> WDIOF_MAGICCLOSE to the driver info flags.
+when i cat /proc/slabinfo, after the normal info, it's spits out garbage;
+seemingly random memory contents. it's printing past the end of the buffer.
+i can email an example upon request.
 
-The changes (patch 1) to wafer5823wdt.c are already in my tree.  Patches 3 and
-4 have just been pretty much applied (except for stuff that depends on patch
-2), and patch 2 is in the process of being applied.  Of course, this isn't
-any kind of official statement, just a progress report :-).
+Linux zero 2.4.19-pre9 #1 Tue May 28 20:54:41 EDT 2002 alpha unknown
 
-Regards,
-Rob Radez
+-- 
+Tom Vier <tmv@comcast.net>
+DSA Key ID 0xE6CB97DA

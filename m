@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129092AbQKIAKJ>; Wed, 8 Nov 2000 19:10:09 -0500
+	id <S129100AbQKIAO7>; Wed, 8 Nov 2000 19:14:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129100AbQKIAJv>; Wed, 8 Nov 2000 19:09:51 -0500
-Received: from jalon.able.es ([212.97.163.2]:7370 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129111AbQKIAIz>;
-	Wed, 8 Nov 2000 19:08:55 -0500
-Date: Thu, 9 Nov 2000 01:08:48 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Anthony Chatman <anthony@edge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Nvidia GeForce2 kernel driver - kernel 2.4.0 test-10
-Message-ID: <20001109010848.A709@werewolf.able.es>
-Reply-To: jamagallon@able.es
-In-Reply-To: <3A08F5E9.61F424A0@ihug.co.nz> <3A092269.9020501@edge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3A092269.9020501@edge.net>; from anthony@edge.net on Wed, Nov 08, 2000 at 10:52:41 +0100
-X-Mailer: Balsa 1.0.pre2
+	id <S129147AbQKIAOu>; Wed, 8 Nov 2000 19:14:50 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:45834 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129100AbQKIAOh>;
+	Wed, 8 Nov 2000 19:14:37 -0500
+Message-ID: <3A09EC3A.82324C57@mandrakesoft.com>
+Date: Wed, 08 Nov 2000 19:13:46 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] media/radio [check_region() removal... ]
+In-Reply-To: <Pine.LNX.4.21.0011090056470.22998-200000@tricky>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Patch looks generally ok.  Some of the whitespace/formatting changes are
+questionable, I usually leave that up to the maintainer unless it is
+very gratuitously opposite to CodingStyle.
 
-On Wed, 08 Nov 2000 10:52:41 Anthony Chatman wrote:
-> Speaking of Nvidia, I have a Nvidia GeForce2, and had problems loading 
-> the NV kernel module with a patched test10 kernel (i was running test9 
-> before).  I took a look at the test10 patch, and noticed the following 2 
-> lines were taken out of  <linux_dir>/include/linux/wrapper.h:
-> 
-> #define mem_map_inc_count(p) atomic_inc(&(p->count))
-> #define mem_map_dec_count(p) atomic_dec(&(p->count))
-> 
-> I added those two defines back into wrapper.h and then was able to load 
+Some of the driver messages ("foo version 1.0") are purposefully printed
+-after-, not before, the device is probed and registered.  Your patch
+gets this wrong in at least one place.
 
-I think you should never do that. Those macros are outdated and were
-removed from kernel. Patch NVdriver instead. Patch is attached.
+Finally, a word to you, Alan, and others doing request_region work:  it
+is more informative to pass the device name (minor, etc.) into
+request_region.  Ditto for request_irq.  Many (most, except net?)
+drivers use board/chip name instead of registered interface name.  If
+you can use the interface name for request_region or request_irq, use
+it... it allows differentiation between multiple boards of the same
+type.  That's especially when looking at ISA regions in /proc/ioports,
+or interrupt counts in /proc/interrupts.
 
-BTW: does your board run ok on 2.4 ? I have a TNT2 and have not been able
-to get it working on a 2.4-smp. In 2.2-smp works fine. I don't know what
-is bad...In a recent strace (with test10), it seemed to be hanged on a
-poll() call...
+	Jeff
+
 
 -- 
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
-
+Jeff Garzik             |
+Building 1024           | Would you like a Twinkie?
+MandrakeSoft            |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

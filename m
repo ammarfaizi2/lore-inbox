@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274695AbRIYXMT>; Tue, 25 Sep 2001 19:12:19 -0400
+	id <S274701AbRIYXLL>; Tue, 25 Sep 2001 19:11:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274703AbRIYXLU>; Tue, 25 Sep 2001 19:11:20 -0400
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:59441 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S274695AbRIYXLJ> convert rfc822-to-8bit; Tue, 25 Sep 2001 19:11:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: __alloc_pages: 0-order allocation failed
-Date: Wed, 26 Sep 2001 01:10:07 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1001319223.4613.34.camel@plars.austin.ibm.com> <E15m0Wz-0002He-00@mrvdom01.schlund.de> <20010926010149.U8350@athlon.random>
-In-Reply-To: <20010926010149.U8350@athlon.random>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15m1MU-0008OQ-00@mrvdom00.schlund.de>
+	id <S274697AbRIYXKt>; Tue, 25 Sep 2001 19:10:49 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:56048 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274695AbRIYXKn>;
+	Tue, 25 Sep 2001 19:10:43 -0400
+Date: Wed, 26 Sep 2001 01:11:16 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Olivier Sessink <olivier@lx.student.wau.nl>, linux-kernel@vger.kernel.org
+Subject: Re: weird memory related problems, negative memory usage or fake memory usage?
+Message-ID: <20010926011116.X8350@athlon.random>
+In-Reply-To: <20010926003626.L8350@athlon.random> <Pine.LNX.4.33L.0109251952330.26091-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0109251952330.26091-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Tue, Sep 25, 2001 at 07:54:07PM -0300
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Could you enable CONFIG_DEBUG_GFP (kernel debugging menu) in 2.4.10aa1
-> and send me full traces of the faliures so I can better see where the
-> problem cames from? Thanks!
->
-> Andrea
+On Tue, Sep 25, 2001 at 07:54:07PM -0300, Rik van Riel wrote:
+> On Wed, 26 Sep 2001, Andrea Arcangeli wrote:
+> > On Mon, Sep 24, 2001 at 07:03:20PM -0300, Rik van Riel wrote:
+> > > On Mon, 24 Sep 2001, Olivier Sessink wrote:
+> 
+> > > >   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+> > > >  1262 root       5 -10 50764  -1M  1320 S <   2.7 99.9   0:01 XFree86
+> > >
+> > > It seems Andrea wasn't careful with the merge and
+> > > backed out some of the locking wrt mm->rss.
+> >
+> > thanks for forwarding this report, actually I just noticed this
+> > here and that's good so I can reproduce :)
+> >
+> > it is possible it is my mistake, but I don't think so, infact I
+> > don't recall to have changed rss stuff or locking around it.
+> 
+> Mmm, then it could also be one of the bugs which got
+> fixed in -ac but where Linus never reacted to the
 
-Is it enough, to take a vanilla 2.4.10 and apply 00_debug-gfp-1 and 
-00_vm-tweaks-1 or should I patch to a complete aa1. If yes, where can I find 
-the complete aa1-Patch in one part?
+possibly yes but maybe not, dunno right now or I would be just sending
+the fix inline in this email :).  As said I never seen it before Ben's
+tlb shootdown was merged into mainline, but again I repeat it can
+_really_ be just an unlucky coincidence. But I guess because of this
+coincidence the tlb shootdown will be the first things I will audit
+tomorrow.
 
-greetings
-
-Christian
+Andrea

@@ -1,60 +1,48 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154172AbPKJISD>; Wed, 10 Nov 1999 03:18:03 -0500
-Received: by vger.rutgers.edu id <S153984AbPKJIRx>; Wed, 10 Nov 1999 03:17:53 -0500
-Received: from entropy.muc.muohio.edu ([134.53.213.10]:2729 "EHLO entropy.muc.muohio.edu") by vger.rutgers.edu with ESMTP id <S153942AbPKJIRi>; Wed, 10 Nov 1999 03:17:38 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:20888 "EHLO deliverator.sgi.com") by vger.rutgers.edu with ESMTP id <S154235AbPKEFhX>; Fri, 5 Nov 1999 00:37:23 -0500
-Date: Thu, 4 Nov 1999 21:37:06 -0800 (PST)
-From: Matt Robinson <yakker@cthulhu.engr.sgi.com>
-To: Linux Kernel List <linux-kernel@vger.rutgers.edu>
-Cc: yakker@sgi.com
-Subject: Linux Kernel Crash Dumps (version 1.0.1) Available
-In-Reply-To: <38220A99.F894722B@mandrakesoft.com>
-Message-ID: <Pine.SGI.3.94.991104213430.194471A-100000@awesome.engr.sgi.com>
+Received: by vger.rutgers.edu via listexpand id <S154230AbPKKMU4>; Thu, 11 Nov 1999 07:20:56 -0500
+Received: by vger.rutgers.edu id <S153912AbPKKMUu>; Thu, 11 Nov 1999 07:20:50 -0500
+Received: from dukat.scot.redhat.com ([195.89.149.246]:1321 "EHLO dukat.scot.redhat.com") by vger.rutgers.edu with ESMTP id <S154224AbPKKMUE>; Thu, 11 Nov 1999 07:20:04 -0500
+From: "Stephen C. Tweedie" <sct@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14378.46183.729723.903734@dukat.scot.redhat.com>
+Date: Thu, 11 Nov 1999 12:19:51 +0000 (GMT)
+To: yodaiken@chelm.cs.nmt.edu
+Cc: Roman Zippel <zippel@fh-brandenburg.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>, Jes.Sorensen@cern.ch, linux-kernel@vger.rutgers.edu, Stephen Tweedie <sct@redhat.com>
+Subject: Re: linux interrupt handling problem
+In-Reply-To: <19991110085430.A3482@chelm.cs.nmt.edu>
+References: <E11lGba-0005EE-00@the-village.bc.nu> <Pine.GSO.4.10.9911101123510.2832-100000@zeus.fh-brandenburg.de> <19991110085430.A3482@chelm.cs.nmt.edu>
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Thanks for the announcement. :)  The 1.0.1 source code is now available,
-and a 1.0.2 version to correct a very minor bug in the librl code will
-be available tomorrow.  If you have questions about the product, please
-visit:
+Hi,
 
-	http://oss.sgi.com/projects/lkcd/faq.html
+On Wed, 10 Nov 1999 08:54:30 -0700, yodaiken@chelm.cs.nmt.edu said:
 
-There's also a majordomo list (lkcd@oss.sgi.com) which you can subscribe
-to by sending E-mail to majordomo@oss.sgi.com with the body message of:
+> On Wed, Nov 10, 1999 at 11:30:53AM +0100, Roman Zippel wrote:
+>> That's a problem I would like to address later, since it's a perfomance
+>> only problem, where the sti() stuff is also a portability problem.
 
-	subscribe lkcd your@email.address
+> Any measurements to show that this is a real problem? My intuition
+> is that the simple Linux model has enormous advantages over
+> more complex schemes. 
 
-No subject line required.  Thanks, enjoy, and please send lots of
-feedback so we can improve the product.
+There was a Usenix paper a couple of years ago:
 
---Matt
+    http://www.usenix.org/publications/library/proceedings/ana97/small.html
 
-On Thu, 4 Nov 1999, Jeff Garzik wrote:
-|>http://oss.sgi.com/projects/lkcd/
-|>
-|>The Linux Kernel Crash Dump project is designed to meet the needs of
-|>customers wanting a more reliable method of examining system failures
-|>after the machine recovers. This project contains kernel and user level
-|>code designed to: 
-|>
-|>* Save the kernel memory image when the system dies due to a software
-|>failure; 
-|>* Recover the kernel memory image when the system is rebooted; 
-|>* Analyze the memory image to determine what happened when the failure
-|>occurred. 
-|>
-|>-- 
-|>Jeff Garzik              | Just once, I wish we would encounter
-|>Building 1024            | an alien menace that wasn't immune to
-|>MandrakeSoft, Inc.       | bullets.   -- The Brigadier, "Dr. Who"
-|>
-|>-
-|>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-|>the body of a message to majordomo@vger.rutgers.edu
-|>Please read the FAQ at http://www.tux.org/lkml/
-|>
+at which they did an evaluation of the normal splx() mechanism in NetBSD
+with a simplified, Linux-like mechanism.  The simpler one won
+hands-down.  They did note that spl made sense on older machines where
+interrupt routines were, relatively, much longer due to the slower clock
+speeds, but concluded that it didn't make sense on modern, fast CPUs.
+
+Their proposal in the end is to protect kernel critical sections with
+cli/sti, but to keep interrupts enabled during IRQs and rely on the PIC
+to keep the interrupt line disabled during the ISR.  Odd, that looks
+familiar, doesn't it?  :-)
+
+--Stephen
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

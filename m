@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265130AbUFGXYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265128AbUFGX1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265130AbUFGXYg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 19:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265131AbUFGXYg
+	id S265128AbUFGX1g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 19:27:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265126AbUFGX1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 19:24:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:28313 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265130AbUFGXY1 (ORCPT
+	Mon, 7 Jun 2004 19:27:36 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:47791 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S265128AbUFGX1e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 19:24:27 -0400
-Date: Mon, 7 Jun 2004 16:21:10 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: hch@infradead.org, hadi@zynx.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.7-rc3
-Message-Id: <20040607162110.29cb3cdf.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0406071407190.1637@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0406071227400.2550@ppc970.osdl.org>
-	<20040607204142.GA26986@infradead.org>
-	<Pine.LNX.4.58.0406071407190.1637@ppc970.osdl.org>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 7 Jun 2004 19:27:34 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16580.63969.502824.882987@napali.hpl.hp.com>
+Date: Mon, 7 Jun 2004 16:27:29 -0700
+To: Russell Leighton <russ@elegant-software.com>
+Cc: davidm@hpl.hp.com, Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Using getpid() often, another way? [was Re: clone() <-> getpid()
+ bug in 2.6?]
+In-Reply-To: <40C4F40A.8060205@elegant-software.com>
+References: <40C1E6A9.3010307@elegant-software.com>
+	<Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>
+	<40C32A44.6050101@elegant-software.com>
+	<40C33A84.4060405@elegant-software.com>
+	<1086537490.3041.2.camel@laptop.fenrus.com>
+	<40C3AD9E.9070909@elegant-software.com>
+	<20040607121300.GB9835@devserv.devel.redhat.com>
+	<6uu0xn5vio.fsf@zork.zork.net>
+	<20040607140009.GA21480@infradead.org>
+	<16580.46864.290708.33518@napali.hpl.hp.com>
+	<40C4F40A.8060205@elegant-software.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jun 2004 14:09:04 -0700 (PDT)
-Linus Torvalds <torvalds@osdl.org> wrote:
+>>>>> On Mon, 07 Jun 2004 19:02:34 -0400, Russell Leighton <russ@elegant-software.com> said:
 
-> On Mon, 7 Jun 2004, Christoph Hellwig wrote:
-> > 
-> > This one here:
-> > 
-> > diff -Nru a/include/linux/netfilter_arp.h b/include/linux/netfilter_arp.h
-> > --- a/include/linux/netfilter_arp.h     2004-06-07 21:58:09 +02:00
-> > +++ b/include/linux/netfilter_arp.h     2004-06-07 21:58:09 +02:00
-> > @@ -17,4 +17,5 @@
-> >  #define NF_ARP_FORWARD 2
-> >  #define NF_ARP_NUMHOOKS        3
-> > 
-> > +static DECLARE_MUTEX(arpt_mutex);
-> >  #endif /* __LINUX_ARP_NETFILTER_H */
-> > 
-> > looks perfectly fucked up.
-> 
-> Agreed. David? Jamal?
+  Russell> So Ia64 does have it..that's good. Does glibc wrap it?
 
-It happens to be OK since arp_tables.c is the only includer of that header
-but I agree it's gross and I'll put it back into arp_tables.c
+Here is how it works at the user-level:
+
+ - There _is_ a clone(), with the original interface.  However,
+   this version only works when you create a new address-space.
+
+ - There is clone2(), which adds the extra "size" argument.  This
+   one works for all cases.
+
+  Russell> I agree with the above...could glibc's clone() should have
+  Russell> a size added?  Then the arch specific stack issues could be
+  Russell> hidden.
+
+In my opinion, it would make sense for all platforms to support
+clone2(), since it's more in line with the normal UNIX-convention of
+specifying stacks as a memory-range (e.g., see stack_t).  So far, the
+interest in doing this has been lack-luster (and, IIRC, Linus was
+against it in the past, so I haven't spent a lot of effort on it).
+
+	--david

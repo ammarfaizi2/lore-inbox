@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278040AbRJIWtP>; Tue, 9 Oct 2001 18:49:15 -0400
+	id <S278039AbRJIWtP>; Tue, 9 Oct 2001 18:49:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278042AbRJIWtF>; Tue, 9 Oct 2001 18:49:05 -0400
-Received: from hermes.toad.net ([162.33.130.251]:19400 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S278040AbRJIWsy>;
-	Tue, 9 Oct 2001 18:48:54 -0400
-Subject: Re: sysctl interface to bootflags?
-From: Thomas Hood <jdthood@mail.com>
-To: linux-kernel@vger.kernel.org
-Cc: davej@suse.de
+	id <S278040AbRJIWtF>; Tue, 9 Oct 2001 18:49:05 -0400
+Received: from smtp018.mail.yahoo.com ([216.136.174.115]:33551 "HELO
+	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S278039AbRJIWsw>; Tue, 9 Oct 2001 18:48:52 -0400
+X-Apparently-From: <trever?adams@yahoo.com>
+Subject: Re: iptables in 2.4.10, 2.4.11pre6 problems
+From: "Trever L. Adams" <trever_adams@yahoo.com>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Cc: "Jeffrey W. Baker" <jwbaker@acm.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Apparently-To: trever_adams@yahoo.com via web20408.mail.yahoo.com; 09 Oct
+	2001 15:46:43 -0700 (PDT)
+X-Track: 1: 40
+In-Reply-To: <Pine.LNX.4.33.0110091129190.209-100000@desktop>
+In-Reply-To: <Pine.LNX.4.33.0110100045490.24292-100000@Expansa.sns.it>
+In-Reply-To: <Pine.LNX.4.33.0110100045490.24292-100000@Expansa.sns.it>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 09 Oct 2001 18:48:56 -0400
-Message-Id: <1002667739.763.9.camel@thanatos>
+X-Mailer: Evolution/0.15.99+cvs.2001.10.09.08.08 (Preview Release)
+Date: 09 Oct 2001 18:49:43 -0400
+Message-Id: <1002667785.4093.13.camel@aurora>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks.  I tested the new sbf.c and after hacking it a
-bit to remove the fail-on-invalid-reg-value, it runs:
+On Tue, 2001-10-09 at 18:46, Luigi Genoni wrote:
+> stupid question...
+> have you got a rule like
+> 
+> iptables -A INPUT -m unclean -j DROP
+> 
+> enabled?
 
-root@thanatos:/home/jdthood/src/sbf# ./a.out
-BOOT @ 0x07fd0040
-CMOS register: 0x33
-Read current value := 0x88
-Read updated value := 0x89
+I do not know what unclean means, so I don't know.
 
-Here it has set bit 0, the PnP-OS bit.  Do you have any
-plans to enhance the program to allow control of all the flags?
+I have one that only accepts NEW from the inside.
+I have one that accepts all ESTABLISHED,RELATED.
+I have one that drops NEW,INVALID from ppp0 (outside world).
 
---
-Thomas
+Trever
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

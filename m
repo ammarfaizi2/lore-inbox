@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310468AbSCXVXf>; Sun, 24 Mar 2002 16:23:35 -0500
+	id <S310504AbSCXViG>; Sun, 24 Mar 2002 16:38:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312059AbSCXVXZ>; Sun, 24 Mar 2002 16:23:25 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:61525 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S312045AbSCXVXR>; Sun, 24 Mar 2002 16:23:17 -0500
-Message-ID: <3C9E43A7.1020604@ngforever.de>
-Date: Sun, 24 Mar 2002 14:22:47 -0700
-From: Thunder from the hill <thunder@ngforever.de>
-Organization: The LuckyNet Administration
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.9) Gecko/20020313
-X-Accept-Language: en-us, en
+	id <S311786AbSCXVh5>; Sun, 24 Mar 2002 16:37:57 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:56324 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S310504AbSCXVht>; Sun, 24 Mar 2002 16:37:49 -0500
+Message-ID: <3C9E46BD.D0BEEB2A@zip.com.au>
+Date: Sun, 24 Mar 2002 13:35:57 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: riel@conectiva.com.br, linux-kernel@vger.kernel.org,
-        linux-kernel-owner@vger.kernel.org
-Subject: Re: Automatic Reply from Trash (fwd)
-In-Reply-To: <Pine.LNX.4.44L.0203201832200.2181-100000@imladris.surriel.com> <20020320.140002.116838734.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+CC: Linus Torvalds <torvalds@transmeta.com>, yodaiken@fsmlabs.com,
+        Andi Kleen <ak@suse.de>, Paul Mackerras <paulus@samba.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
+In-Reply-To: <Pine.LNX.4.33.0203161203050.31971-100000@penguin.transmeta.com>
+	 from Linus Torvalds at "Mar 16, 2002 12:14:06 pm" <200203242112.WAA09406@cave.bitwizard.nl>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
->    From: Rik van Riel <riel@conectiva.com.br>
->    Date: Wed, 20 Mar 2002 18:33:04 -0300 (BRT)
+Rogier Wolff wrote:
 > 
->    could the list owner please remove the luser sending this message ?
+> ...
+> So we have a "PAGE_SIZE" define all around the kernel. Keep that the
+> same (for compatibility), but make a "REAL_PAGE_SIZE" that governs the
+> loop that actually sets the page table (or tlb) entries.... Note that
+> a first implementation may actually effectivly reduce the size of the
+> TLB on machines with a software loaded TLB....
 > 
-> I can't, there is no trash@* or *@thux.net subscribed to any
-> list.
-> 
-> If this idiot would put a full received: header trace to his
-> bounces we could actually do something.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-There's always the post-notice, contents don't change. We can ban him.
+> Why would I want this? Well, suppose I have a machine that unavoidably
+> has to swap on some of its workload. In practise you will almost
+> double the disk troughput by increasing the page size by a factor of
+> two.
 
-Thunder
--- 
-begin-base64 755 -
-IyEgL3Vzci9iaW4vcGVybApteSAgICAgJHNheWluZyA9CSMgVGhlIHNjcmlw
-dCBvbiB0aGUgbGVmdCBpcyB0aGUgcHJvb2YKIk5lbmEgaXN0IGVpbiIgLgkj
-IHRoYXQgaXQgaXNuJ3QgYWxsIHRoZSB3YXkgaXQgc2VlbXMKIiB2ZXJhbHRl
-dGVyICIgLgkjIHRvIGJlIChlc3BlY2lhbGx5IG5vdCB3aXRoIG1lKQoiTkRX
-LVN0YXIuXG4iICA7CiRzYXlpbmcgPX4Kcy9ORFctU3Rhci9rYW5uXAogdW5z
-IHJldHRlbi9nICA7CiRzYXlpbmcgICAgICAgPX4Kcy92ZXJhbHRldGVyL2Rp
-XAplIExpZWJlL2c7CiRzYXlpbmcgPX5zL2Vpbi8KbnVyL2c7JHNheWluZyA9
-fgpzL2lzdC9zYWd0LC9nICA7CiRzYXlpbmc9fnMvXG4vL2cKO3ByaW50Zigk
-c2F5aW5nKQo7cHJpbnRmKCJcbiIpOwo=
-====
-Extract this and see what will happen if you execute my
-signature. Just save it to file and do a
- > uudecode $file | perl
+swapin and swapout already perform multipage clustering - you'd get
+the same benefits from increasing SWAP_CLUSTER_MAX and page_cluster.
 
+Which is a three-line patch.
+
+Frankly, all the discussion I've seen about altering page sizes
+threatens to add considerable complexity for very dubious gains.
+The only place where I've seen a solid justification is for
+scientific applications which have a huge working set, and need
+large pages to save on TLB thrashing.
+
+For everything else, I believe we can get the efficiencies
+which we need by writing efficient code; no need to go playing
+with page sizes.
+
+If someone can point at a real-world workload and say "we suck",
+and we can't fix that suckage without altering the page size then
+would that person please come forth.
+ 
+-

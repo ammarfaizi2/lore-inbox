@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268921AbRHBNR5>; Thu, 2 Aug 2001 09:17:57 -0400
+	id <S268922AbRHBN3S>; Thu, 2 Aug 2001 09:29:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268923AbRHBNRr>; Thu, 2 Aug 2001 09:17:47 -0400
-Received: from smtp1.bignet.net ([64.79.64.13]:27152 "EHLO smtp1.bignet.net")
-	by vger.kernel.org with ESMTP id <S268921AbRHBNRb>;
-	Thu, 2 Aug 2001 09:17:31 -0400
-Date: Thu, 2 Aug 2001 09:15:18 -0400 (EDT)
-From: "Joshua M. Thompson" <om@bignet.net>
-To: "Paul G. Allen" <pgallen@randomlogic.com>
-cc: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: Dual Athlon, AGP, and PCI
-In-Reply-To: <3B691B85.368D1BD0@randomlogic.com>
-Message-ID: <Pine.LNX.4.33.0108020914070.17076-100000@darkstar.bignet.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268926AbRHBN3I>; Thu, 2 Aug 2001 09:29:08 -0400
+Received: from elektra.higherplane.net ([203.37.52.137]:2015 "EHLO
+	elektra.higherplane.net") by vger.kernel.org with ESMTP
+	id <S268922AbRHBN2w>; Thu, 2 Aug 2001 09:28:52 -0400
+Date: Thu, 2 Aug 2001 23:49:45 +1000
+From: john slee <indigoid@higherplane.net>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: OT: Virii on vger.kernel.org lists
+Message-ID: <20010802234945.E1183@higherplane.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010801235724.A23000@werewolf.able.es>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Aug 2001, Paul G. Allen wrote:
+[cc list trimmed]
 
-> I've been dealing with both 2.4.7 and 2.4.2 kernels, but I have mainly
-> been using 2.4.2 because I started with that before I realized 2.4.7 was
-> available. I also have the NVidia driver, version 1.0-1251.
->
-> [ snip ]
->
-> mtrr: type mismatch for f8000000,4000000 old: write-back new:
-> write-combining
+On Wed, Aug 01, 2001 at 11:57:24PM +0200, J . A . Magallon wrote:
+> patch and send it to the list you have to go through bizarre http interfaces
 
-Upgrade your kernel. 2.4.2 had broken mtrr support on Athlons.
+i assume by "bizarre http interfaces" you mean webdav as used by modern
+msie (on windows at least) and many many other applications?  it's
+hardly bizarre.  http://www.webdav.org.  people i've set it up for
+(mostly mac users with the Goliath client) preferred it to ftp.
+
+j.
 
 -- 
-Head Developer           | "...and we have C(n) = (n (n + 1))/ 2. Easy as pie.
-Big Net, Inc.            |  Actually easier, Pi = Sum 8 / ((4n + 1)(4n + 3))."
-                         |                   - Donald E. KNUTH
-
+"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson

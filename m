@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266249AbUIVRl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266003AbUIVRpt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266249AbUIVRl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 13:41:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266133AbUIVRlZ
+	id S266003AbUIVRpt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 13:45:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUIVRpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 13:41:25 -0400
-Received: from mail3.utc.com ([192.249.46.192]:54943 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S266003AbUIVRlU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 13:41:20 -0400
-Message-ID: <4151B91A.5040206@cybsft.com>
-Date: Wed, 22 Sep 2004 12:40:42 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+	Wed, 22 Sep 2004 13:45:49 -0400
+Received: from a26.t1.student.liu.se ([130.236.221.26]:41390 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S266003AbUIVRpq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 13:45:46 -0400
+Message-ID: <4151BA3F.8040406@drzeus.cx>
+Date: Wed, 22 Sep 2004 19:45:35 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040704)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Mark_H_Johnson@Raytheon.com
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S3
-References: <20040907092659.GA17677@elte.hu>	 <20040907115722.GA10373@elte.hu>	 <1094597988.16954.212.camel@krustophenia.net>	 <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net>	 <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu>	 <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu>	 <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu>	 <41519539.4010407@cybsft.com> <1095873391.498.41.camel@krustophenia.net>
-In-Reply-To: <1095873391.498.41.camel@krustophenia.net>
-X-Enigmail-Version: 0.86.1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] MMC compatibility fix - GO_IDLE
+References: <414C065A.7000602@drzeus.cx> <20040922151735.D2347@flint.arm.linux.org.uk>
+In-Reply-To: <20040922151735.D2347@flint.arm.linux.org.uk>
+X-Enigmail-Version: 0.84.2.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Wed, 2004-09-22 at 11:07, K.R. Foley wrote:
-> 
->>Ingo Molnar wrote:
->>
->>>i've released the -S3 VP patch:
->>>
->>>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm1-S3
->>>
->>
->>In order to get this to build I had to add
->>
->>#include <asm/delay.h>
->>
->>to linux/kernel/time.c
->>
-> 
-> 
-> Builds fine for me, this must specific to your config, or Ingo fixed the
-> patch.
-> 
-> Lee
-> 
-> 
+Russell King wrote:
 
-Hmm. That seems odd.
+>On Sat, Sep 18, 2004 at 11:56:42AM +0200, Pierre Ossman wrote:
+>  
+>
+>>This patch adds a GO_IDLE before sending a new SEND_OP_COND (as required 
+>>by MMC standard).
+>>    
+>>
+>
+>Thanks; I haven't completely vanished off the face of the planet.
+>  
+>
+Good to know. You've seemed a bit busy :)
 
-By the way, should I have included linux/delay.h, which includes 
-asm/delay.h instead of including it directly?
+>We already have a function using MMC_GO_IDLE_STATE, so I suggest we
+>separate this out.  If you need a 1ms delay after sending this, maybe
+>the other case also needs this delay as well?
+>
+>  
+>
+The delay was added just in case. The cards I have here work fine 
+without it. I just thought adding a small delay might avoid problematic 
+cards later on. Seems to be a few of those.
 
-kr
+>How about this patch?
+>
+>  
+>
+Looks ok. You sure we don't need to put all cards into an idle state 
+before issuing a new SEND_OP_COND? I haven't studied how the MMC layer 
+is called in detail. Can a rescan be done while a card is in a selected 
+state?
+
+Rgds
+Pierre
+

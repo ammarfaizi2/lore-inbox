@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315429AbSFJObx>; Mon, 10 Jun 2002 10:31:53 -0400
+	id <S315414AbSFJOiX>; Mon, 10 Jun 2002 10:38:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315414AbSFJObw>; Mon, 10 Jun 2002 10:31:52 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:36878 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S315420AbSFJObv>; Mon, 10 Jun 2002 10:31:51 -0400
-Date: Mon, 10 Jun 2002 16:31:44 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.18] vfat doesn't support files > 2GB under Linux, under Windoze it does
-Message-ID: <20020610143144.GA3174@louise.pinerecords.com>
-In-Reply-To: <20020609180051.39760.qmail@web14606.mail.yahoo.com> <87fzzwdxzh.fsf@devron.myhome.or.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
-X-Uptime: 6 days, 6:07
+	id <S315451AbSFJOiW>; Mon, 10 Jun 2002 10:38:22 -0400
+Received: from p50887BDF.dip.t-dialin.net ([80.136.123.223]:7343 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315414AbSFJOiV>; Mon, 10 Jun 2002 10:38:21 -0400
+Date: Mon, 10 Jun 2002 08:38:11 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Erlend Aasland <erlend-a@innova.no>
+cc: patch@luckynet.dynu.com, <linux-kernel@vger.kernel.org>, <davej@suse.de>
+Subject: Re: [PATCH][2.5] introduce new list macros for hfs (5 occ)
+In-Reply-To: <20020610124347.A18644@innova.no>
+Message-ID: <Pine.LNX.4.44.0206100836470.6159-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > hmm... so 2.4 series won't be getting it then?  I'm not a kernel
-> > hacker as such, so I can't do it myself.
-> 
-> This patch break some filesystems (adfs, affs, hfs, hpfs, qnx4).
-> And I haven't fixed them yet. So, I can't submit this patch.
-> 
-> If it's OK, I'll make the patch for 2.4.18.
+Hi,
 
-That would be appreciated I believe.
+On Mon, 10 Jun 2002, Erlend Aasland wrote:
+> And while we're at it, here's patches for the rest of
+> the files in {fs,net,sound,arch/m68k,arch/sparc64,drivers}/ subdirs.
+> I'm pretty shure that it covers all. Maybe you've got all of
+> these in your tree already...
 
-T.
+Congratulations, you redid all of my yesterdays work.
+
+Regards,
+Thunder
+-- 
+German attitude becoming        |	Thunder from the hill at ngforever
+rightaway popular:		|
+       "Get outa my way,  	|	free inhabitant not directly
+    for I got a mobile phone!"	|	belonging anywhere
+

@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315265AbSGVA5N>; Sun, 21 Jul 2002 20:57:13 -0400
+	id <S316827AbSGVL7H>; Mon, 22 Jul 2002 07:59:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315439AbSGVA5N>; Sun, 21 Jul 2002 20:57:13 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:15609 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S315265AbSGVA5M>; Sun, 21 Jul 2002 20:57:12 -0400
-Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A9
-From: Robert Love <rml@tech9.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Christoph Hellwig <hch@lst.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0207220224170.4909-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0207220224170.4909-100000@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 21 Jul 2002 18:00:15 -0700
-Message-Id: <1027299616.932.5.camel@sinai>
-Mime-Version: 1.0
+	id <S316836AbSGVL7H>; Mon, 22 Jul 2002 07:59:07 -0400
+Received: from [196.26.86.1] ([196.26.86.1]:2794 "HELO
+	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S316827AbSGVL7H>; Mon, 22 Jul 2002 07:59:07 -0400
+Date: Mon, 22 Jul 2002 14:20:00 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: Kurt Garloff <garloff@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>,
+       "C.L. Huang" <ching@tekram.com.tw>
+Subject: Re: Tekram DC390 DMA allocation fixes
+In-Reply-To: <Pine.LNX.4.44.0207220424130.3309-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.44.0207221419130.32636-100000@linux-box.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-07-21 at 17:31, Ingo Molnar wrote:
+On Mon, 22 Jul 2002, Thunder from the hill wrote:
 
-> i've done a minor comment update in softirq.c, plus i've written a
-> cli-sti-removal.txt guide to help driver writers do the transition:
+> On Mon, 22 Jul 2002, Kurt Garloff wrote:
+> > I believe we should just use
+> > pci_map_single/_sg and sg_dma_address(), no?
+> > 
+> > Or are they scheduled for removal ... ?
+> 
+> No, I just forgot about them, that's all...
 
-Nice document.
+Ah but do note that virt_to_bus and bus_to_virt are scheduled for removal
 
-One more doc correction while we are at it...
+	Zwane
 
-	Robert Love
-
-diff -urN linux-2.5.27/Documentation/preempt-locking.txt linux/Documentation/preempt-locking.txt
---- linux-2.5.27/Documentation/preempt-locking.txt	Sat Jul 20 12:11:06 2002
-+++ linux/Documentation/preempt-locking.txt	Sun Jul 21 17:59:13 2002
-@@ -70,7 +70,8 @@
- preempt_enable()		decrement the preempt counter
- preempt_disable()		increment the preempt counter
- preempt_enable_no_resched()	decrement, but do not immediately preempt
--preempt_get_count()		return the preempt counter
-+preempt_check_resched()		if needed, reschedule
-+preempt_count()			return the preempt counter
- 
- The functions are nestable.  In other words, you can call preempt_disable
- n-times in a code path, and preemption will not be reenabled until the n-th
+-- 
+function.linuxpower.ca
 

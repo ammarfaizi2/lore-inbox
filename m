@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265232AbUF1VTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265215AbUF1VT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265232AbUF1VTO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 17:19:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbUF1VTN
+	id S265215AbUF1VT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 17:19:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265227AbUF1VT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 17:19:13 -0400
-Received: from zcamail03.zca.compaq.com ([161.114.32.103]:9483 "EHLO
-	zcamail03.zca.compaq.com") by vger.kernel.org with ESMTP
-	id S265236AbUF1VSD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 17:18:03 -0400
-Message-ID: <40E08C46.6050302@hp.com>
-Date: Mon, 28 Jun 2004 17:23:18 -0400
-From: Robert Picco <Robert.Picco@hp.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Mon, 28 Jun 2004 17:19:26 -0400
+Received: from havoc.gtf.org ([216.162.42.101]:43168 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S265215AbUF1VSH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 17:18:07 -0400
+Date: Mon, 28 Jun 2004 17:18:01 -0400
+From: David Eger <eger@havoc.gtf.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] hpet related
-References: <40E05EC2.20700@hp.com> <20040628132704.50874705.akpm@osdl.org>
-In-Reply-To: <20040628132704.50874705.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: Paul Jackson <pj@sgi.com>, jdike@addtoit.com, blaisorblade_spam@yahoo.it,
+       linux-kernel@vger.kernel.org
+Subject: Re: Inclusion of UML in 2.6.8
+Message-ID: <20040628211801.GA7824@havoc.gtf.org>
+References: <200406261905.22710.blaisorblade_spam@yahoo.it> <20040626130945.190fb199.akpm@osdl.org> <20040627035923.GB8842@ccure.user-mode-linux.org> <20040626233253.06ed314e.pj@sgi.com> <20040626234025.7d69937c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040626234025.7d69937c.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sure.  I'll make the change and resend patch.
-Andrew Morton wrote:
+On Sat, Jun 26, 2004 at 11:40:25PM -0700, Andrew Morton wrote:
+>
+> > But work in progress, for which oneself is still the primary source, is
+> > fluid.  You can slice and dice and redo it, and indeed you want to, to
+> > get the best patch set.  Quilt and friends rule for this stuff.
+> 
+> Good description, that.  quilt is a grown-up version of patch-scripts, and
+> is tailored to what I do, and to what distributors do: maintain a series of
+> diffs against a monolithic tree which someone else maintains.
+> 
+> > Conclusion - use Quilt (with your favorite personal version control) on
+> > top of Bitkeeper.
+> 
+> yup.  I use patch-scripts+CVS in the way which you describe.
 
->Robert Picco <Robert.Picco@hp.com> wrote:
->  
->
->>+static inline void hpet_timer_reserved(struct hpet_data *hd, int timer)
->> +{
->> +	hd->hd_state |= (1 << timer);
->> +	return;
->> +}
->>    
->>
->
->The identifier "hpet_timer_reserved" implies (to me) that the function
->queries something.  Except it doesn't.
->
->Would "hpet_reserve_timer" be a better choice?
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+I had been wondering how you deal with so many patches...
+So do people actually use bitKeeper for more than the following:
 
+(1) glorified 'cp -r'
+(2) memory of the history of the tree from which we did a 'cp -r'
 
+-dte

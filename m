@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267331AbTBPSPY>; Sun, 16 Feb 2003 13:15:24 -0500
+	id <S267323AbTBPSQs>; Sun, 16 Feb 2003 13:16:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267334AbTBPSPY>; Sun, 16 Feb 2003 13:15:24 -0500
-Received: from crack.them.org ([65.125.64.184]:46267 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S267331AbTBPSPW>;
-	Sun, 16 Feb 2003 13:15:22 -0500
-Date: Sun, 16 Feb 2003 13:25:12 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Rahul Vaidya <rahulv@csa.iisc.ernet.in>, linux-kernel@vger.kernel.org
-Subject: Re: linux 2.5.53 not compiling
-Message-ID: <20030216182512.GB4861@nevyn.them.org>
-Mail-Followup-To: Rahul Vaidya <rahulv@csa.iisc.ernet.in>,
-	linux-kernel@vger.kernel.org
-References: <20030216171050.A12489@flint.arm.linux.org.uk> <Pine.SOL.3.96.1030216224235.25827A-100000@osiris.csa.iisc.ernet.in> <20030216174411.B12489@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	id <S267329AbTBPSQr>; Sun, 16 Feb 2003 13:16:47 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:52905 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267323AbTBPSQn>; Sun, 16 Feb 2003 13:16:43 -0500
+Date: Sun, 16 Feb 2003 10:26:26 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andrew Morton <akpm@digeo.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: 2.5.61 oops running SDET
+Message-ID: <24190000.1045419985@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0302160952280.2619-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0302160952280.2619-100000@home.transmeta.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030216174411.B12489@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 16, 2003 at 05:44:11PM +0000, Russell King wrote:
-> Please copy replies back to lkml.
+> So the choice seems to be either:
 > 
-> On Sun, Feb 16, 2003 at 10:43:01PM +0530, Rahul Vaidya wrote:
-> > the command is giving me the following:
-> > 
-> > Reading specs from
-> > /usr/local/gcc-3.2/lib/gcc-lib/i686-pc-linux-gnu/3.2/specs
-> > Configured with: ../gcc-3.2/configure --prefix=/usr/local/gcc-3.2
-> > Thread model: posix
-> > gcc version 3.2
-> >  /usr/local/gcc-3.2/lib/gcc-lib/i686-pc-linux-gnu/3.2/cpp0 -lang-c -v
-> > -iprefix /usr/local/bin/../lib/gcc-lib/i686-pc-linux-gnu/3.2/
->                       ^^^^^^^^^^
+>  - make the exit path hold the task lock over the whole exit path, not 
+>    just over mm exit.
 > 
-> It looks like gcc 3.2 thinks its compiler prefix is in a place where it
-> is not.  I'd suggest you report this to the gcc people; at a guess, it
-> may be due to gcc getting confused during its configuration:
+>  - take the "tasklist_lock" over more of "task_sig()" (not just the 
+>    collect_sigign_sigcatch() thing, but the "&p->signal->shared_pending"  
+>    rendering too.
 > 
-> 	../gcc-3.2/configure --prefix=/usr/local/gcc-3.2
->         ^^^
+> The latter is a two-liner. The former is the "right thing" for multiple 
+> reasons.
+> 
+> The reason I'd _like_ to see the task lock held over _all_ of the fields
+> in the exit() path is:
+> 
+>  - right now we actually take it and drop it multiple times in exit. See 
+>    __exit_files(), __exit_fs(), __exit_mm(). Which all take it just to 
+>    serialize setting ot "mm/files/fs" to NULL.
+> 
+>  - task_lock is a nice local lock, no global scalability impact.
 
-No, that doesn't affect the search path.  It's detecting a GCC in
-/usr/local and assuming the installation was moved.  Rahul, what does
-it say when you run it from its real location?
+Don't we have to take tasklist_lock anyway for when task_state reads
+p->real_parent->pid and p->parent->pid? Or should we have to grab
+the task_lock for those too? If so, it sounds like it could get into 
+rather horrible ordering dependencies to me. 
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+If we move exit under task_lock ... then tasklist_lock doesn't help us
+any more there either (presumably we're trying to stop them exiting 
+whilst we look at them) ... I've coded up the stupid approach for now, 
+and will check that works first. Should have results very soon.
+
+M.
+

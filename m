@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271981AbRHVKKt>; Wed, 22 Aug 2001 06:10:49 -0400
+	id <S271948AbRHVKPT>; Wed, 22 Aug 2001 06:15:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271982AbRHVKKj>; Wed, 22 Aug 2001 06:10:39 -0400
-Received: from cnxt10002.conexant.com ([198.62.10.2]:34941 "EHLO
-	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
-	id <S271981AbRHVKK3>; Wed, 22 Aug 2001 06:10:29 -0400
-Date: Wed, 22 Aug 2001 12:10:27 +0200 (CEST)
-From: <rui.p.m.sousa@clix.pt>
-X-X-Sender: <rsousa@sophia-sousar2.nice.mindspeed.com>
-To: Torrey Hoffman <torrey.hoffman@myrio.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Backporting drivers from 2.4 to 2.2
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211C9D4@mail0.myrio.com>
-Message-ID: <Pine.LNX.4.33.0108221209330.3668-100000@sophia-sousar2.nice.mindspeed.com>
+	id <S271949AbRHVKPK>; Wed, 22 Aug 2001 06:15:10 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:53003 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271948AbRHVKOx>; Wed, 22 Aug 2001 06:14:53 -0400
+Subject: Re: 2.4.9 pc_keyb.c compile fails with gcc 3.0 on alpha
+To: tomh@po.crl.go.jp (Tom Holroyd)
+Date: Wed, 22 Aug 2001 11:17:51 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (kernel mailing list)
+In-Reply-To: <Pine.LNX.4.30.0108221103420.11775-100000@holly.crl.go.jp> from "Tom Holroyd" at Aug 22, 2001 11:04:44 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15ZV55-0001Gg-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Aug 2001, Torrey Hoffman wrote:
+> In file included from pc_keyb.c:36:
+> /usr/src/linux-2.4.9/include/asm/keyboard.h:25: warning: `struct
+> kbd_repeat' declared inside parameter list
+> /usr/src/linux-2.4.9/include/asm/keyboard.h:25: warning: its scope is only
+> this definition or declaration, which is probably not what you want.
+> pc_keyb.c:545: variable `kbdrate' has initializer but incomplete type
+> pc_keyb.c:546: warning: excess elements in struct initializer
 
->
-> Is there a document somewhere that has some hints and tips for
-> backporting 2.4 drivers to the 2.2 series?  I have the O'Reilly
-> Linux Device Drivers (second edition) book by Rubini and Corbet,
-> but it's a little thin on this problem.
->
-> Specifically, the new 2.4 PCI-related functions like:
-> pci_alloc_consistent, pci_free_consistent, pci_enable_device...
->
-> >From this newbie's point of view, it seems that it would be really
-> nice to have a little library of functions that wrap the older 2.2
-> style interface to provide the 2.4-style functions...  or is this
-> impossible to do in a general way?
-
-Have a look at:
-
-http://gtf.org/garzik/drivers/kcompat24/
-
-
-Rui Sousa
-
+Pull the relevant changes from the 2.4.8-ac tree.

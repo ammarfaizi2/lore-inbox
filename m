@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264154AbTEWTa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 15:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264156AbTEWTa5
+	id S264157AbTEWTp0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 15:45:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264158AbTEWTp0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 15:30:57 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:25486 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264154AbTEWTa4
+	Fri, 23 May 2003 15:45:26 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:59147 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S264157AbTEWTpZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 15:30:56 -0400
-Date: Fri, 23 May 2003 11:42:02 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: hugh@veritas.com
-Cc: phillips@arcor.de, akpm@digeo.com, hch@infradead.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Avoid vmtruncate/mmap-page-fault race
-Message-ID: <20030523114202.C5383@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
+	Fri, 23 May 2003 15:45:25 -0400
+Date: Fri, 23 May 2003 21:57:57 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, willy@w.ods.org,
+       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: Undo aic7xxx changes
+Message-ID: <20030523195757.GA27557@alpha.home.local>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva> <2804790000.1052441142@aslan.scsiguy.com> <20030509120648.1e0af0c8.skraw@ithnet.com> <20030509120659.GA15754@alpha.home.local> <20030509150207.3ff9cd64.skraw@ithnet.com> <20030509145738.GB17581@alpha.home.local> <20030512110218.4bbc1afe.skraw@ithnet.com> <20030523123837.6521738f.skraw@ithnet.com> <428570000.1053694721@aslan.scsiguy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <428570000.1053694721@aslan.scsiguy.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 23, 2003 at 06:47:31PM +0100, Hugh Dickins wrote:
-> On Fri, 23 May 2003, Daniel Phillips wrote:
-> > On Friday 23 May 2003 18:21, Hugh Dickins wrote:
-> > > Sorry, I miss the point of this patch entirely.  At the moment it just
-> > > looks like an unattractive rearrangement - the code churn akpm advised
-> > > against - with no bearing on that vmtruncate race.  Please correct me.
-> > 
-> > This is all about supporting cross-host mmap (nice trick, huh?).  Yes, 
-> > somebody should post a detailed rfc on that subject.
+Hello !
+
+On Fri, May 23, 2003 at 06:58:41AM -0600, Justin T. Gibbs wrote:
+> > Ok. I managed to crash the tested machine after 14 days now. The crash itself
+> > is exactly like former 2.4.21-X. It just freezes, no oops no nothing. It looks
+> > like things got better, but not solved.
 > 
-> Ah, thanks - translated into terms that I can understand, so that
-> some ->nopage() not yet in the tree could do something after the
-> install_new_page() returns.  Hmm.  Can we be sure it's appropriate
-> for install_new_page to drop mm->page_table_lock before it returns?
+> What is telling you that the freeze is SCSI related?  Are you running
+> with the nmi watchdog and have a trace?  Do you have driver messages
+> that you aren't sharing?
 
-Exactly -- allows a ->nopage() to drop some lock to avoid races
-between pagefault and either vmtruncate() or invalidate_mmap_range().
-This race (from the cross-host mmap viewpoint) is described in:
+Stephen,
 
-    http://marc.theaimsgroup.com/?l=linux-kernel&m=105286345316249&w=2
+Justin is right, you should run it through the NMI watchdog, in the hope to
+find something useful. If it hangs again in 14 days, you won't know why and
+that may be frustrating. With the NMI watchdog, you at least have a chance to
+see where it locks up, and you may find it to be within the driver, which would
+help Justin stabilize it, or within any other kernel subsystem.
 
-install_new_page() has to drop mm->page_table_lock() for the same
-reason that the previous do_no_page() did.  In addition, dropping
-the lock permits a ->nopage() to invoke things like zap_page_range()
-which acquire mm->page_table_lock().
+I had to use nmi_watchdog=2 at boot time, but other people use 1.
 
-						Thanx, Paul
+Regards,
+Willy
+

@@ -1,74 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261485AbREQSr7>; Thu, 17 May 2001 14:47:59 -0400
+	id <S261489AbREQSvJ>; Thu, 17 May 2001 14:51:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261487AbREQSrt>; Thu, 17 May 2001 14:47:49 -0400
-Received: from comverse-in.com ([38.150.222.2]:42382 "EHLO
-	eagle.comverse-in.com") by vger.kernel.org with ESMTP
-	id <S261485AbREQSrb>; Thu, 17 May 2001 14:47:31 -0400
-Message-ID: <6B1DF6EEBA51D31182F200902740436802678EDB@mail-in.comverse-in.com>
-From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
-To: "'Anders Peter Fugmann'" <afu@fugmann.dhs.org>,
-        Andreas Dilger <adilger@turbolinux.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: RE: Exporting symbols from a module.
-Date: Thu, 17 May 2001 14:46:35 -0400
+	id <S261490AbREQSu7>; Thu, 17 May 2001 14:50:59 -0400
+Received: from web13703.mail.yahoo.com ([216.136.175.136]:56849 "HELO
+	web13703.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261489AbREQSur>; Thu, 17 May 2001 14:50:47 -0400
+Message-ID: <20010517185046.353.qmail@web13703.mail.yahoo.com>
+Date: Thu, 17 May 2001 20:50:46 +0200 (CEST)
+From: =?iso-8859-1?q?Joel=20Cordonnier?= <jocordonnier@yahoo.fr>
+Subject: newbie problem: compiling kernel 2.4.4, make modules_install , Help please !
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010517183832Z261485-1105+1620@vger.kernel.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you have a local makefile with which you wish to build your module 
-not linked under the kernel tree in the proper way, you still can
-"ride" on the master Makefile.
+Hi !
 
-This way one can eliminate the dependency on your particular 
-machine kernel compilation options to be hardwired in the local Makefile.
-I.e., once you reconfigure the kernel, your driver will compile
-itself when you do a local "make" with the correct set of the new flags.
+It's the first time that i try to compile my own
+kernel. At the moment, I have an old RH 6.1 with a
+2.2.12 kernel.
 
-This is what you can do on 2.2 (Makefile excerpt follows):
-EXTRA_CFLAGS := -DDEBUG -DLINUX -I/usr/src/foo/include
-MI_OBJS  := your-module.o
-O_TARGET := your-module.o
-O_OBJS   := your1.o your2.o
+I have downloaded the latest stable kernel 2.4.4
+tar.gz kernel.
 
-# Reuse Linux kernel master makefile on this directory
-ifdef MAKING_MODULES
-include $(TOPDIR)/Rules.make
-else
-all::
-        cd '/usr/src/linux' && make modules SUBDIRS=$(PWD)
-endif
+I follow these steps:
+- make xonfig (a give what i need)
+- make dep (for dependencies)
+- make bzImage.
+All seems OK for these steps.
 
-In 2.4 the syntax is different. Rename
-MI_OBJS to obj-m and O_OBJS to obj-y to achieve the same goal there:
-obj-m  := your-module.o
-O_TARGET := your-module.o
-obj-y   := your1.o your2.o
+Then 
+- make modules and 
+- make modules_install ==> PROBLEM !
 
-HTH,
-	Vassilii
+FIRST the message say that no argument -F exist for
+the command /sbin/depmod. So I change in the Makefile
+the call 
+if [ -r System.map ]; then /sbin/depmod -ae -F
+System.map  2.4.4; fi
+TO
+if [ -r System.map ]; then /sbin/depmod -ae System.map
+ 2.4.4; fi
 
-> -----Original Message-----
-> From: Anders Peter Fugmann [mailto:afu@fugmann.dhs.org]
-> Sent: Thursday, May 17, 2001 12:51 PM
-> To: Andreas Dilger
-> Cc: linux-kernel
-> Subject: Re: Exporting symbols from a module.
-> 
-> 
-> Resolved.
-> 
-> I just looked at what the kernel did whne compiling a module that 
-> exported some symbols, and discovered that I needed
-> to set CFLAGS to:
-> 
-> -D__KERNEL__ -I$/usr/src/linux)  -Wall -Wstrict-prototypes \
-> -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe \
-> -DMODULE  -DMODVERSIONS -include \
-> /usr/src/linux/modversions.h
-> 
-> Now all works correctly, and I can load my modules.
+AFTER THIS CHANGE, i have the following error:
+
+........
+.......
+make[1]: Entering directory
+`/usr/src/linux-2.4.4/arch/i386/mm'
+make[1]: Nothing to be done for `modules_install'.
+make[1]: Leaving directory
+`/usr/src/linux-2.4.4/arch/i386/mm'
+make -C  arch/i386/lib modules_install
+make[1]: Entering directory
+`/usr/src/linux-2.4.4/arch/i386/lib'
+make[1]: Nothing to be done for `modules_install'.
+make[1]: Leaving directory
+`/usr/src/linux-2.4.4/arch/i386/lib'
+cd /lib/modules/2.4.4; \
+mkdir -p pcmcia; \
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i
+-r ln -sf ../{} pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae System.map
+ 2.4.4; fi
+can't open /lib/modules/System.map/modules.dep
+
+I check, and there is no file or directory named
+/lib/modules/System.map or directory!
+
+
+Help please !
+Thanks
+Joel
+
+
+
+
+
+
+___________________________________________________________
+Do You Yahoo!? -- Pour faire vos courses sur le Net, 
+Yahoo! Shopping : http://fr.shopping.yahoo.com

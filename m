@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbVCIAjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbVCHXOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262107AbVCIAjq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 19:39:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbVCIAg3
+	id S262205AbVCHXOp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 18:14:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVCHXO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 19:36:29 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:62427 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S262408AbVCHXqM (ORCPT
+	Tue, 8 Mar 2005 18:14:27 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:9927 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S262193AbVCHXFv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 18:46:12 -0500
-Date: Wed, 9 Mar 2005 00:46:07 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Greg KH <greg@kroah.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       jt@hpl.hp.com, linux-pcmcia@lists.infradead.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PCMCIA product id strings -> hashes generation at compilation time? [Was: Re: [patch 14/38] pcmcia: id_table for wavelan_cs]
-Message-ID: <20050308234607.GA21231@isilmar.linta.de>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	jt@hpl.hp.com, linux-pcmcia@lists.infradead.org,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050308123426.249fa934.akpm@osdl.org> <20050227161308.GO7351@dominikbrodowski.de> <20050307225355.GB30371@bougret.hpl.hp.com> <20050307230102.GA29779@isilmar.linta.de> <20050307150957.0456dd75.akpm@osdl.org> <20050307232339.GA30057@isilmar.linta.de> <20050308191138.GA16169@isilmar.linta.de> <Pine.LNX.4.58.0503081438040.13251@ppc970.osdl.org> <20050308231636.GA20658@isilmar.linta.de> <20050308233706.GA11454@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050308233706.GA11454@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 8 Mar 2005 18:05:51 -0500
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230CC17@exa-atlanta>
+From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+To: "'Arjan van de Ven'" <arjan@infradead.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "'Christoph Hellwig'" <hch@infradead.org>
+Subject: RE: [ANNOUNCE][PATCH 2.6.11 1/3] megaraid_sas: Announcing new mod
+	ule  for LSI Logic's SAS based MegaRAID controllers
+Date: Tue, 8 Mar 2005 18:05:11 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 08, 2005 at 03:37:07PM -0800, Greg KH wrote:
-> module aliases, and fixing up modprobe to handle spaces in module
-> aliases wouldn't work out easier.
+>
+>>  source "drivers/scsi/megaraid/Kconfig.megaraid"
+>> +source "drivers/scsi/megaraid/Kconfig.megaraid_sas"
+>>  
+>
+>why a fully separate file and not add your ONE config option to
+>Kconfig.megaraid instead ??
+>
 
-spaces _and_ characters. And characters are already used to separate 
-different fields. 
+Arjan, I didn't want to needlessly couple megaraid and megaraid_sas.
+Since they are in the same directory, I couldn't avoid having single
+Makefile. I thought at least these two should be separate to be consistent
+with their independent nature.
 
-pcmcia:pa"some string"pb"some other string"
+If this is not a good enough reason, I will merge these two files.
 
-doesn't look bad though, indeed. Problem is: how to access the strings in 
-file2alias.c? They're in different sections than the __mod_devicetables, and
-you'd need to get architecture-dependant relocation... so this doesn't seem 
-feasible... or am I missing something?
-
-	Dominik
+Thanks,
+Sreenivas

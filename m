@@ -1,122 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbTKZRzv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 12:55:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTKZRzv
+	id S264282AbTKZSES (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 13:04:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264283AbTKZSES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 12:55:51 -0500
-Received: from fw.osdl.org ([65.172.181.6]:22461 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262827AbTKZRzr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 12:55:47 -0500
-Date: Wed, 26 Nov 2003 09:55:34 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Bruce Perens <bruce@perens.com>, Ulrich Drepper <drepper@redhat.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Signal left blocked after signal handler.
-In-Reply-To: <20031126173953.GA3534@perens.com>
-Message-ID: <Pine.LNX.4.58.0311260945030.1524@home.osdl.org>
-References: <20031126173953.GA3534@perens.com>
+	Wed, 26 Nov 2003 13:04:18 -0500
+Received: from docsis106-17.menta.net ([62.57.106.17]:12698 "EHLO
+	pau.newtral.org") by vger.kernel.org with ESMTP id S264282AbTKZSEM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 13:04:12 -0500
+Date: Wed, 26 Nov 2003 19:04:10 +0100 (CET)
+From: Pau Aliagas <linuxnow@newtral.org>
+X-X-Sender: pau@pau.intranet.ct
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: usb bluetooth adapter does not work with 2.6.0-test10-mm1
+Message-ID: <Pine.LNX.4.44.0311261900370.5021-100000@pau.intranet.ct>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[ Uli added to participants ]
+I've been trying to get this gadget working for a long time now, with all 
+the 2.6.0test kerenl to no success. It works with rh9 and fedora standard 
+kernels, that is with 2.4.
 
-On Wed, 26 Nov 2003, Bruce Perens wrote:
->
-> A signal should be blocked while its signal handler is executing, and
-> then unblocked when the handler returns - unless SA_NOMASK is set.
->
-> -test9 and -test10 leave the signal _blocked_forever_.
+I include the messages I get. Any help will be appreciated. I'm willing to 
+test patches promptly to have it working:
 
->From what I can tell, this is a glibc bug. Do an "strace" on the program,
-and see how "siglongjmp()" doesn't appear to do any system calls at all.
+# cat /var/log/messages
+Nov 26 11:10:50 pau kernel: hub 2-0:1.0: new USB device on port 2, assigned address 2
+Nov 26 11:10:50 pau /etc/hotplug/usb.agent: Bad USB agent invocation
+Nov 26 11:10:53 pau /etc/hotplug/usb.agent: Setup bluetooth for USB product a12/1/525
+Nov 26 11:10:53 pau kernel: usb 2-2: control timeout on ep0in
+Nov 26 11:10:54 pau last message repeated 18 times
+Nov 26 11:10:54 pau /etc/hotplug/usb.agent: Setup bluetooth for USB product a12/1/525
+Nov 26 11:10:54 pau kernel: usb 2-2: control timeout on ep0in
 
-It's up to siglongjmp() to restore the signal mask that it saved on
-sigsetjmp().
 
-What library version are you using (but yes, I see the same thing with
-"Fedora Core 1").
+# dmesg
+hub 2-0:1.0: new USB device on port 2, assigned address 2
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 9 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 9 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 9 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 9 ret -110
+usb 2-2: control timeout on ep0in
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 193 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 9 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 193 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 193 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 18 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 193 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 193 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 18 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 9 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 193 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 9 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 193 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 9 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 9 ret -110
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 9 ret -110
+usb 2-2: control timeout on ep0in
+usb 2-2: control timeout on ep0in
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 193 ret -110
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 18 ret -110
+usbfs: USBDEVFS_CONTROL failed cmd usbmodules dev 2 rqt 128 rq 6 len 9 ret -75
+usb 2-2: control timeout on ep0in
+usb 2-2: control timeout on ep0in
+usb 2-2: control timeout on ep0in
 
-In fact, with strace I don't even see where the signal mask would be
-_saved_ in sigsetjmp. So as far as I can tell, this just cannot work.
+If I change it to the other USB slot:
+# dmesg
+hub 2-0:1.0: new USB device on port 1, assigned address 3
+usb 2-1: control timeout on ep0out
+-- 
 
-			Linus
+Pau
 
---- rest of email saved for Uli ---
->
-> This causes the build-time confidence test for Electric Fence to break,
-> and no doubt lots of other code.
->
-> If SA_NOMASK is set, the signal is not blocked.
->
-> Test program attached below.
->
-> 	Thanks
->
-> 	Bruce
->
-> #include <stdio.h>
-> #include <stdlib.h>
-> #include <unistd.h>
-> #include <signal.h>
-> #include <setjmp.h>
->
-> static sigjmp_buf	sjbuf;
-> static int		sig = SIGINT;
->
-> static void
-> handler(int i)
-> {
-> 	struct sigaction	act;
->
-> 	memset((void *)&act, 0, sizeof(act));
-> 	act.sa_handler = SIG_DFL;
->
-> 	fprintf(stderr, "Signal handler hit!\n");
-> 	fflush(stderr);
-> 	sigaction(sig, &act, 0);
-> 	siglongjmp(sjbuf, 1);
->
-> }
->
-> static void
-> invoke_signal()
-> {
-> 	struct sigaction	act;
->
-> 	memset((void *)&act, 0, sizeof(act));
-> 	act.sa_handler = handler;
->
-> 	/* act.sa_flags = SA_NOMASK; */
->
-> 	if ( sigsetjmp(sjbuf, 0) == 0 ) {
-> 		sigaction(sig, &act, 0);
-> 		fprintf(stderr, "Sending signal... ");
-> 		fflush(stderr);
-> 		kill(getpid(), sig);
-> 		fprintf(stderr, "Huh? Nothing happened. Signal was left blocked.\n");
-> 	}
-> }
->
-> int
-> main(int argc, char * * argv)
-> {
-> 	sigset_t	set;
->
-> 	sigemptyset(&set);
-> 	sigaddset(&set, sig);
->
-> 	invoke_signal();
-> 	invoke_signal();
-> 	fprintf(stderr, "Unblocking signal... ");
-> 	if ( sigsetjmp(sjbuf, 0) == 0 ) {
-> 		sigprocmask(SIG_UNBLOCK,  &set, 0);
-> 	}
->
-> 	return 0;
-> }
->

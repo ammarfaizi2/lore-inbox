@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261938AbTKOTpA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 14:45:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbTKOTpA
+	id S261988AbTKOTtr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 14:49:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbTKOTtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 14:45:00 -0500
-Received: from dsl092-073-159.bos1.dsl.speakeasy.net ([66.92.73.159]:37385
-	"EHLO yupa.krose.org") by vger.kernel.org with ESMTP
-	id S261938AbTKOTo6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 14:44:58 -0500
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: "PCI: Cannot allocate resource region" error misleading (with
- patch)
-X-Home-Page: http://www.krose.org/~krose/
-From: Kyle Rose <krose@krose.org>
-Organization: krose.org
-Content-Type: text/plain; charset=US-ASCII
-Date: Sat, 15 Nov 2003 14:44:56 -0500
-Message-ID: <87llqhs9fr.fsf@nausicaa.krose.org>
-User-Agent: Gnus/5.090024 (Oort Gnus v0.24) XEmacs/21.4 (Reasonable
- Discussion, linux)
+	Sat, 15 Nov 2003 14:49:47 -0500
+Received: from userel174.dsl.pipex.com ([62.188.199.174]:50055 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id S261988AbTKOTtq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 14:49:46 -0500
+Date: Sat, 15 Nov 2003 19:49:43 +0000 (GMT)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+X-X-Sender: tigran@einstein.homenet
+To: Harald Welte <laforge@netfilter.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: seq_file and exporting dynamically allocated data
+In-Reply-To: <20031115173310.GA4786@obroa-skai.de.gnumonks.org>
+Message-ID: <Pine.LNX.4.44.0311151937190.743-100000@einstein.homenet>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It turns out that this error typically indicates that the resource is
-being remapped elsewhere, but no indication is given of the remapping,
-leading the naive user (e.g., me) to believe no memory was mapped at
-all.  Perhaps a reasonable patch would be:
+Dear Harald,
 
---- linux-2.6.0-test9/arch/i386/pci/i386.c.orig 2003-11-15 14:17:30.000000000 -0500
-+++ linux-2.6.0-test9/arch/i386/pci/i386.c      2003-11-15 14:22:45.000000000 -0500
-@@ -143,7 +143,7 @@
-                                    r->start, r->end, r->flags, disabled, pass);
-                                pr = pci_find_parent_resource(dev, r);
-                                if (!pr || request_resource(pr, r) < 0) {
--                                       printk(KERN_ERR "PCI: Cannot allocate resource region %d of device %s\n", idx, pci_name(dev));
-+                                       printk(KERN_ERR "PCI: Cannot allocate resource region %d of device %s (requested %08lx-%08lx); deferring reassignment\n", idx, pci_name(dev), r->start, r->end);
-                                        /* We'll assign a new address later */
-                                        r->end -= r->start;
-                                        r->start = 0;
-@@ -192,8 +192,11 @@
-                         *  the BIOS forgot to do so or because we have decided the old
-                         *  address was unusable for some reason.
-                         */
--                       if (!r->start && r->end)
--                               pci_assign_resource(dev, idx);
-+                       if (!r->start && r->end) {
-+                               if (!pci_assign_resource(dev, idx)) {
-+                                       printk(KERN_ERR "PCI: Reassigned region %d of device %s to %08lx-%08lx\n", idx, pci_name(dev), r->start, r->end);
-+                               }
-+                       }
-                }
- 
-                if (pci_probe & PCI_ASSIGN_ROMS) {
+The thing to be aware of is that seq API is limited to 1 page of data per
+read(2) call. Some people loudly proclaim "seq API is unlimited, unlike
+the old /proc formalism which was limited to 1 page" but they are 
+quiet about 1-page limitation for a single read(2) (due to hardcoded
+kmalloc(size) in seq_file.c). Why is this important? Because if your
+->start/stop routines take/drop some spinlocks then you have to know your
+position and re-verify it on the next read(2) if your data is more than 1
+page and thus could not be read atomically (i.e. while holding the
+spinlocks).
 
-Of course, I haven't come up with a solution to my original problem,
-but I'm inclined the believe it originates with the nVidia
-closed-source driver instead of with the kernel, since the open source
-nv XFree86 driver doesn't exhibit the same set of problems (e.g., DVD
-playback is fine), although its set of problems is likely to be at
-least as large.  If anyone has any leads or can offer any insight, it
-would be greatly appreciated.
+The way I do it is by looking at the integer 'offset' parameter passed to 
+'start' and walk the linked list to the same 'distance' from the head (if 
+there is still anything that far) and verify if I am looking at the "same" 
+(in quotes because the concept of "same" has to be defined, not 
+with 100% accuracy :) element as it was at the end of the previous page.
 
-Cheers,
-Kyle
+The above was the only unpleasant complication with dealing with seq API. 
+The rest seemed very smooth and worked as expected. And the ->private 
+field of seq_file was very useful to maintain the information per open 
+instance of the file, i.e. per 'file' structure. I didn't understand why 
+it is not applicable in your case, but maybe I am missing the details of 
+your implementation or something like that.
+
+Kind regards
+Tigran
+
+

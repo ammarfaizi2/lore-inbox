@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261961AbUCIOQW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 09:16:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbUCIOQW
+	id S261949AbUCIO0m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 09:26:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbUCIO0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 09:16:22 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:62424 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261524AbUCIOQU (ORCPT
+	Tue, 9 Mar 2004 09:26:42 -0500
+Received: from mail.ywesee.com ([62.12.131.35]:32211 "HELO debian.ywesee.com")
+	by vger.kernel.org with SMTP id S261949AbUCIO0l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 09:16:20 -0500
-Date: Tue, 9 Mar 2004 15:16:17 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Adrian Cox <adrian@humboldt.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cdromaudio patch gives up too easily
-Message-ID: <20040309141616.GN23525@suse.de>
-References: <1078841242.995.24.camel@newt>
+	Tue, 9 Mar 2004 09:26:41 -0500
+Date: Tue, 9 Mar 2004 15:26:38 +0100
+From: "Zeno R.R. Davatz" <zdavatz@ywesee.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Benh Kernel 2.4.25 and 2.6.3
+Message-Id: <20040309152638.191b42ca@zrr.local>
+In-Reply-To: <1078830927.9745.6.camel@gaston>
+References: <20040309092406.6513fd7c@zrr.local>
+	<1078830927.9745.6.camel@gaston>
+Organization: ywesee - intellectual capital connected
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1078841242.995.24.camel@newt>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 09 2004, Adrian Cox wrote:
-> The patch for DMA based CD reading worked well for me until I tried to
-> read the audio from a badly damaged CDR.  At this point the code dropped
-> back to the old mechanism and stayed that way for further CDs.
+On Tue, 09 Mar 2004 22:15:27 +1100
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+
+> > 2.6.3-benh (gentoo: ppc-development-sources)
+> > **********
+> > This one boots fine till /proc .....   [ok]
+> > 
+> > than the maschine just hangs. I got udev installed.
 > 
-> The logs below show what happened, running 2.6.4-rc2 with just that
-> patch:
-> 
-> cdrom: open failed.
-> hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
-> hdc: packet command error: error=0x30
-> ATAPI device hdc:
->   Error: Medium error -- (Sense key=0x03)
->   (reserved error code) -- (asc=0x57, ascq=0x00)
->   The failed "Prevent/Allow Medium Removal" packet command was:
->   "1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
-> cdrom: open failed.
-> hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
-> hdc: packet command error: error=0x30
-> ATAPI device hdc:
->   Error: Medium error -- (Sense key=0x03)
->   (reserved error code) -- (asc=0x57, ascq=0x00)
->   The failed "Prevent/Allow Medium Removal" packet command was:
->   "1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
-> cdrom: cdda rip sense 03/02/00
-> cdrom: dropping to old style cdda
+> Can you test with current linus bk snapshots ? Let me know.
+Where do I get these from?
 
-Ok, it's pretty harmful. I was just telling Andrew last week that I
-wanted to add sense checking for whether we should fall back to pio or
-not. Probably something as simple as checking for sense key 0x04 or 0x0b
-and then skipping dma completely, all others keep going.
+Thanks for your Feedback.
 
-Thanks for testing, I'm pretty happy with the results you got. They are
-just a bit too conservative, rather that than throwing up.
-
--- 
-Jens Axboe
-
+Zeno

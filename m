@@ -1,116 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317312AbSH0UqJ>; Tue, 27 Aug 2002 16:46:09 -0400
+	id <S317263AbSH0UoV>; Tue, 27 Aug 2002 16:44:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317331AbSH0UqI>; Tue, 27 Aug 2002 16:46:08 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:3853 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317312AbSH0Upy>; Tue, 27 Aug 2002 16:45:54 -0400
-Date: Tue, 27 Aug 2002 13:47:37 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.32
-In-Reply-To: <20020827224322.24561e60.us15@os.inf.tu-dresden.de>
-Message-ID: <Pine.LNX.4.10.10208271346550.24156-100000@master.linux-ide.org>
+	id <S317298AbSH0UoV>; Tue, 27 Aug 2002 16:44:21 -0400
+Received: from sproxy.gmx.de ([213.165.64.20]:35612 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S317263AbSH0UoL>;
+	Tue, 27 Aug 2002 16:44:11 -0400
+From: Felix Seeger <felix.seeger@gmx.de>
+To: Greg KH <greg@kroah.com>
+Subject: Re: USB mouse problem, kernel panic on startup in 2.4.19
+Date: Tue, 27 Aug 2002 22:48:07 +0200
+User-Agent: KMail/1.4.6
+Cc: linux-kernel@vger.kernel.org
+References: <200208272011.51691.felix.seeger@gmx.de> <200208272130.14728.felix.seeger@gmx.de> <20020827193632.GD23865@kroah.com>
+In-Reply-To: <20020827193632.GD23865@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Description: clearsigned data
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208272248.10846.felix.seeger@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Will fix as soon as I can down load and clear out current business with
-Alan Cox for 2.4.
+Am Dienstag, 27. August 2002 21:36 schrieb Greg KH:
+> On Tue, Aug 27, 2002 at 09:30:11PM +0200, Felix Seeger wrote:
+> > No, sorry. Doesn't help.
+> > Is that a patch for 2.4.20-pre4 ? I am using 2.4.19.
+>
+> Yes it is, but it might apply to 2.4.19.  I am guessing you tried it,
+> and it applied cleanly?  Any build errors?
+Yes I tried it and there were no build errors. Only a message during the 
+patch.
 
-Cheers,
+I copied the patch to the top level kernel dir.
+Than I've done a "patch -p1 < patchfile"
 
-On Tue, 27 Aug 2002, Udo A. Steinberg wrote:
+I get this:
+patching file drivers/usb/usb-ohci.c
+Hunk #3 succeeded at 2285 (offset -13 lines).
 
-> On Tue, 27 Aug 2002 12:47:16 -0700 (PDT)
-> Linus Torvalds <torvalds@transmeta.com> wrote:
-> 
-> > Linux 2.5.32 ...
-> 
-> Hello,
-> 
-> It looks like the kernel is trying to read partition tables on IDE cdrom drives
-> in SCSI emulation mode - and failing at doing so.
-> 
-> Regards,
-> -Udo.
-> 
-> 
-> hda: hda1
-> hdb: hdb1 hdb2 hdb3 < hdb5 hdb6 hdb7 hdb8 hdb9 hdb10 >
-> hde:ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 0, nr/cnr 8/1
-> 
-> end_request: I/O error, dev 21:00, sector 0
-> Buffer I/O error on device ide2(33,0), logical block 0
-> ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 1, nr/cnr 7/1
-> 
-> end_request: I/O error, dev 21:00, sector 1
-> Buffer I/O error on device ide2(33,0), logical block 1
-> ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 2, nr/cnr 6/1
-> 
-> end_request: I/O error, dev 21:00, sector 2
-> Buffer I/O error on device ide2(33,0), logical block 2
-> ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 3, nr/cnr 5/1
-> 
-> end_request: I/O error, dev 21:00, sector 3
-> Buffer I/O error on device ide2(33,0), logical block 3
-> ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 4, nr/cnr 4/1
-> 
-> end_request: I/O error, dev 21:00, sector 4
-> Buffer I/O error on device ide2(33,0), logical block 4
-> ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 5, nr/cnr 3/1
-> 
-> end_request: I/O error, dev 21:00, sector 5
-> Buffer I/O error on device ide2(33,0), logical block 5
-> ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 6, nr/cnr 2/1
-> 
-> end_request: I/O error, dev 21:00, sector 6
-> Buffer I/O error on device ide2(33,0), logical block 6
-> ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 7, nr/cnr 1/1
-> 
-> end_request: I/O error, dev 21:00, sector 7
-> Buffer I/O error on device ide2(33,0), logical block 7
-> ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 0, nr/cnr 8/1
-> 
-> end_request: I/O error, dev 21:00, sector 0
-> Buffer I/O error on device ide2(33,0), logical block 0
-> ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 1, nr/cnr 7/1
-> 
-> end_request: I/O error, dev 21:00, sector 1
-> Buffer I/O error on device ide2(33,0), logical block 1
-> ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 2, nr/cnr 6/1
-> 
-> end_request: I/O error, dev 21:00, sector 2
-> Buffer I/O error on device ide2(33,0), logical block 2
-> ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 3, nr/cnr 5/1
-> 
-> end_request: I/O error, dev 21:00, sector 3
-> Buffer I/O error on device ide2(33,0), logical block 3
-> ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 4, nr/cnr 4/1
-> 
-> end_request: I/O error, dev 21:00, sector 4
-> Buffer I/O error on device ide2(33,0), logical block 4
-> ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 5, nr/cnr 3/1
-> 
-> end_request: I/O error, dev 21:00, sector 5
-> Buffer I/O error on device ide2(33,0), logical block 5
-> ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 6, nr/cnr 2/1
-> 
-> end_request: I/O error, dev 21:00, sector 6
-> Buffer I/O error on device ide2(33,0), logical block 6
-> ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 7, nr/cnr 1/1
-> 
-> end_request: I/O error, dev 21:00, sector 7
-> Buffer I/O error on device ide2(33,0), logical block 7
->  unable to read partition table
-> SCSI subsystem driver Revision: 1.00
-> 
-> 
+After that: make dep, make bzImage, make modules, make modules install, copy, 
+lilo
 
-Andre Hedrick
-LAD Storage Consulting Group
+Something I fogot:
+If I put the mouse in the problematic port after startup, everything works 
+fine.
+
+> > Oh, the shift and the numlock leds are blinking.
+>
+> That means the kernel paniced :)
+
+Nice feature
+
+> thanks,
+>
+> greg k-h
+
+
+have fun
+Felix
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9a+WKS0DOrvdnsewRAgoAAJ4i9FPy+7HI674Zn9VHTXF9qf54aQCeIOo5
+h54EAjXg0VF0rrTHu+pF4Dk=
+=xpHA
+-----END PGP SIGNATURE-----
 

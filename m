@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312792AbSDBPmf>; Tue, 2 Apr 2002 10:42:35 -0500
+	id <S312750AbSDBPzu>; Tue, 2 Apr 2002 10:55:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312802AbSDBPmQ>; Tue, 2 Apr 2002 10:42:16 -0500
-Received: from web14912.mail.yahoo.com ([216.136.225.248]:14342 "HELO
-	web14912.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S312792AbSDBPmF>; Tue, 2 Apr 2002 10:42:05 -0500
-Message-ID: <20020402154200.30415.qmail@web14912.mail.yahoo.com>
-Date: Tue, 2 Apr 2002 10:42:00 -0500 (EST)
-From: Michael Zhu <mylinuxk@yahoo.ca>
-Subject: Get major number in Makefile
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S312842AbSDBPzk>; Tue, 2 Apr 2002 10:55:40 -0500
+Received: from AMontpellier-201-1-4-206.abo.wanadoo.fr ([217.128.205.206]:18819
+	"EHLO awak") by vger.kernel.org with ESMTP id <S312750AbSDBPzb> convert rfc822-to-8bit;
+	Tue, 2 Apr 2002 10:55:31 -0500
+Subject: Re: power off
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Christian Schoenebeck <christian.schoenebeck@epost.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020328214032.4F55147B1@debian.heim.lan>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 02 Apr 2002 17:58:25 +0200
+Message-Id: <1017763106.5315.16.camel@bip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, smart gurus, I have a question while writing a
-Makefile file to install my device driver. In my
-device driver I dynamically allocate the major number
-of my device. In my Makefile I want to build a device
-node for my device under the /dev directory.
+le jeu 28-03-2002 à 23:04, Christian Schoenebeck a écrit :
+> (please cc me)
+> 
+> Hi everybody!
+> 
+> I've got a problem with a machine (using an Asus SP98AGP-X mainboard) that 
+> doesn't want to power off since moving from 2.2.x to 2.4.x kernel. As I 
+> haven't found any other solution, can I simply replace the new apm.c by the 
+> old one from 2.2.x or just a part of the unit or would that be fatal?
 
-   mknod /dev/mydevice c $major 0;
-
-So I need to know the major number of my deivce in the
-Makefile. I've read the Linux 'Device Driver'. There
-is some information about this. I use the following
-command to get the major number in my Makefile.
-
-major=`awk "\\$2==\"$mymodule\" {printf \\$1}"
-/proc/devices`
-
-But when I use the 'make install' command to install
-my driver, the following error returned.
-
-major=`awk "\\==\"$ymodule\" {printf \\}"
-/proc/devices`
-awk: 0: unexpected character '\'
-awk: line 1: syntax error at or near ==
-make: *** [install] Error 2
-
-What is wrong with my command? Can anyone tell me how
-to get the major number in Makefile.
-
-Thank you very much.
+I have to boot my 2.4 kernels with apm=power-off
 
 
-______________________________________________________________________ 
-Find, Connect, Date! http://personals.yahoo.ca

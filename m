@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269795AbRHINMM>; Thu, 9 Aug 2001 09:12:12 -0400
+	id <S269796AbRHINUN>; Thu, 9 Aug 2001 09:20:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269794AbRHINLw>; Thu, 9 Aug 2001 09:11:52 -0400
-Received: from host217-33-139-17.ietf.ignite.net ([217.33.139.17]:18824 "HELO
-	bee5.dirksteinberg.de") by vger.kernel.org with SMTP
-	id <S269793AbRHINLs>; Thu, 9 Aug 2001 09:11:48 -0400
-Message-ID: <3B728C20.99A41239@dirksteinberg.de>
-Date: Thu, 09 Aug 2001 14:12:00 +0100
-From: "Dirk W. Steinberg" <dws@dirksteinberg.de>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-mosix106 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Swapping for diskless nodes
-In-Reply-To: <no.id> <E15Ulnx-0006zZ-00@the-village.bc.nu> <20010809125033.E1200@nightmaster.csn.tu-chemnitz.de>
+	id <S269797AbRHINUE>; Thu, 9 Aug 2001 09:20:04 -0400
+Received: from elektra.higherplane.net ([203.37.52.137]:63875 "EHLO
+	elektra.higherplane.net") by vger.kernel.org with ESMTP
+	id <S269796AbRHINTp>; Thu, 9 Aug 2001 09:19:45 -0400
+Date: Thu, 9 Aug 2001 23:20:23 +1000
+From: john slee <indigoid@higherplane.net>
+To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.7-ac10 (subjective comments)
+Message-ID: <20010809232023.B3197@higherplane.net>
+In-Reply-To: <20010808195133.A22469@lightning.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010808195133.A22469@lightning.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd like to second that example where you have weak diskless nodes and
-a big server with a lot of memory. The important point here is that the
-remote paging does not need to really write to the remote disk, especially
-not synchronously. The page could eventually be migrated to the remote
-disk asynchronously, or maybe not at all if there is no memory pressure
-at the remote system.
+hi,
 
-In such a scenario I would disagree with Alan that network paging is 
-high latency as compared to disk access. I have a fully switched 100 Mpbs
-full-duplex ethernet network, and sending a page across the net into
-the memory of a fast server could have much less latency that writing 
-that page out to a local old, slow IDE disk. Clusters could even have
-special high-bandwidth, low latency networks that could be used for
-remote paging.
+before 2.4.7-ac6 i could start loading my linux-kernel mailbox (~22000
+messages) in mutt and still have new eterms start up fairly quick.
+haven't tried -ac10 yet but you didnt mention any vm changes... in fact
+i can't see any in that time at all.  might be just subjective of
+course, but ....  seems interactivity has gone downhill a bit.
 
-In a perfect world, all nodes in a cluster would be able to dynamically 
-share a pool of "cluster swap" space, so any locally available swap that
-is not used could be utilized by other nodes in the cluster.
+the only change i've made recently is switching from ext2 to ext3 when i
+booted -ac9.  could that be the culprit? vmstat shows about the same old
+5MB/sec throughput while opening the mailbox as it did on ext2 (and on
+previous kernels), so i'm guessing it isn't...
 
-/ Dirk
+i just opened up a second instance of mutt and loaded the mailbox in it
+too.  vmstat says it barely touched the disk at all, and eterms came up
+instantly.
 
-Ingo Oeser wrote:
-> On Thu, Aug 09, 2001 at 10:08:37AM +0100, Alan Cox wrote:
-> > > what is the best/recommended way to do remote swapping via the network
-> > > for diskless workstations or compute nodes in clusters in Linux 2.4?=20
-> > > Last time i checked was linux 2.2, and there were some races related=20
-> > > to network swapping back then. Has this been fixed for 2.4?
-> >
-> > The best answer probably is "don't". Networks are high latency things for
-> > paging and paging is latency sensitive. If performance is not an issue then
-> > the nbd driver ought to work. You may need to check it uses the right
-> > GFP_ levels to avoid deadlocks and you might need to up the amount of atomic
-> > pool memory. Hopefully other hacks arent needed
-> 
-> While we are on it: I have an old machine with 64MB of RAM and a
-> new, fast machine with 1GB of RAM.
-> 
-> Sometimes I need more RAM on the old one and asked myself,
-> whether I could first swap over network to the other one, into
-> its tmpfs, before digging into real swap on a hard disk.
-> 
-> I have only three machines attached to this small internal
-> 100Mbit LAN.
-> 
-> Both machines use Kernel 2.4.x.
+-rw-------    1 indigoid indigoid 84718132 Aug  9 22:40 linux-kernel
+
+hardware:
+	533 celeron/abit be6-II 
+	ibm 40gv 5400rpm disk, using dma, not on ata66 controller
+	384mb ram
+
+thanks in advance,
+
+j.
+
+-- 
+"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson

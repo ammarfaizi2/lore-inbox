@@ -1,53 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261340AbSIZQAY>; Thu, 26 Sep 2002 12:00:24 -0400
+	id <S261341AbSIZQIF>; Thu, 26 Sep 2002 12:08:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261352AbSIZQAY>; Thu, 26 Sep 2002 12:00:24 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:59897
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261340AbSIZQAX>; Thu, 26 Sep 2002 12:00:23 -0400
-Subject: Re: [PATCH][RFC] oprofile 2.5.38 patch
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Levon <movement@marcelothewonderpenguin.com>
-Cc: linux-kernel@vger.kernel.org, bobm@fc.hp.com, phil.el@wanadoo.fr,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <20020923222933.GA33523@compsoc.man.ac.uk>
-References: <20020923222933.GA33523@compsoc.man.ac.uk>
-Content-Type: text/plain
+	id <S261362AbSIZQIE>; Thu, 26 Sep 2002 12:08:04 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:50700 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S261341AbSIZQIC>; Thu, 26 Sep 2002 12:08:02 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 26 Sep 2002 17:08:29 +0100
-Message-Id: <1033056509.11848.61.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Message-ID: <15763.12828.613912.98830@laputa.namesys.com>
+Date: Thu, 26 Sep 2002 20:13:16 +0400
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Lightweight Patch Manager <patch@luckynet.dynu.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rik van Riel <riel@connectiva.com.br>
+Subject: Re: [PATCH][2.5] Single linked lists for Linux, overly complicated but working
+In-Reply-To: <20020926160028.C221C3@hawkeye.luckynet.adm>
+References: <20020926160028.C221C3@hawkeye.luckynet.adm>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Antipastobozoticataclysm: Bariumenemanilow
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok comments
+Lightweight Patch Manager writes:
+ > This is an overly complicated version,  I guess I'll have a better one
+ > once I've got my noodles in. Wait an hour, I'll be back.
+ > 
+ > And BTW, I got the luckynet address fixed, you can send me again...
+ > 
+ > --- /dev/null	Wed Dec 31 17:00:00 1969
+ > +++ slist-2.5/include/linux/slist.h	Thu Sep 26 09:57:25 2002
+ > @@ -0,0 +1,139 @@
+ > +#ifdef __KERNEL__
+ > +#ifndef _LINUX_SLIST_H
+ > +#define _LINUX_SLIST_H
+ > +
+ > +#include <asm/processor.h>
+ > +
+ > +/*
+ > + * Type-safe single linked list helper-functions.
+ > + * (originally taken from list.h)
+ > + *
+ > + * Thomas 'Dent' Mirlacher, Daniel Phillips,
+ > + * Andreas Bogk, Thunder from the hill
+ > + */
+ > +
+ > +#define INIT_SLIST_HEAD(name)			\
+ > +	(name->next = name)
+ > +
+ > +#define SLIST_HEAD_INIT(name)			\
+ > +	name
+ > +
+ > +#define SLIST_HEAD(type,name)			\
+ > +	typeof(type) name = INIT_SLIST_HEAD(name)
+ > +
+ > +/**
+ > + * slist_add_front - add a new entry at the first slot, moving the old head
+ > + *		     to the second slot
+ > + * @new:	new entry to be added
+ > + * @head:	head of the single linked list
+ > + *
+ > + * Insert a new entry before the specified head.
+ > + * This is good for implementing stacks.
+ > + */
+ > +
+ > +#define slist_add_front(_new, _head)		\
+ > +do {						\
+ > +	(_new)->next = (_head);			\
+ > +	(_head) = (_new);			\
+ > +} while (0)
 
+Can these macros be updated to only evaluate their arguments once? By
+use of "typeof" maybe? Otherwise, slist_add_front(foo++, bar()) is going
+to lead to strange things.
 
-Security:
-enable_write with a count of 0xFFFFFFFF again repeated everywhere
+ > +
+ > +/**
+ > + * slist_add - add a new entry
 
-Major
-The buffer_read function doesnt seem to be SMP safe
-Doesnt seem to know about Intel pmc errata
-Assumes it will get PM notifiers reliably (it wont)
+[...]
 
-Minor
-Massive duplication of code in each read/write handler - build some
-helpers which actually do the thing right and you'd also have less bugs
-cpu_type_read doesnt handle partial read
-cpu_type_read scribbles on more data than the user requested
- (fun to feed as stdin to a setuid app)
-similar errors permeate the rest of that code
-
-Trivial
-In the event of an -EFAULT data is lost (nothing illegal about it)
-
-
-Basically its a nice prototype, but with the prototype working could do
-with some auditing and a cleanup. I think if you replace all the
-read/write functions with some clean helpers and fix the messes in the
-helpers it'll clean up really nicely
-
-
+Nikita.

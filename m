@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVAIWBH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbVAIWRs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbVAIWBH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 17:01:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVAIWBH
+	id S261837AbVAIWRs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 17:17:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbVAIWRs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 17:01:07 -0500
-Received: from gprs215-6.eurotel.cz ([160.218.215.6]:19584 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261823AbVAIWBF (ORCPT
+	Sun, 9 Jan 2005 17:17:48 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:38618 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261837AbVAIWRr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 17:01:05 -0500
-Date: Sun, 9 Jan 2005 22:58:46 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: kernel list <linux-kernel@vger.kernel.org>, alsa-devel@alsa-project.org
-Subject: Re: 2.6.10-mm1: oops during swsusp in ac97 support
-Message-ID: <20050109215846.GA1525@elf.ucw.cz>
-References: <20050103182842.GA1420@elf.ucw.cz> <s5h4qhxgnl9.wl@alsa2.suse.de> <20050104212702.GA1456@elf.ucw.cz> <20050109211611.GA1325@elf.ucw.cz>
+	Sun, 9 Jan 2005 17:17:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=VJJeoR7YTLvuykb++DoFGcBLu6kC4vEdoZh+bsGIG4d7ESNnaSfpEFsGtTlPG01mRlgvcXvKMWIYZ3NVmotFdccpX/iqNxbpcm55WR0ax1df0GkcYuvSdRD+480bPqY1w4IYvduZ8QTVhYO7PL/82VGFS/fEQZq5X+N+LEx7AoI=
+Message-ID: <884a349a05010914177eb5c924@mail.gmail.com>
+Date: Sun, 9 Jan 2005 23:17:47 +0100
+From: Roseline Bonchamp <roseline.bonchamp@gmail.com>
+Reply-To: Roseline Bonchamp <roseline.bonchamp@gmail.com>
+To: indrek.kruusa@tuleriit.ee
+Subject: Re: remove Attach another file remove Attach another file remove Attach another file USB mass storage not always detecting my 1GB PQI intelligent stick
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <41E1854A.40201@tuleriit.ee>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050109211611.GA1325@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <884a349a050109082516b0740e@mail.gmail.com>
+	 <41E15F09.70502@tuleriit.ee>
+	 <884a349a0501091112300009ac@mail.gmail.com>
+	 <41E1854A.40201@tuleriit.ee>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > I have via82xx soundcard, and since 2.6.10-mm1, I get an oops in
-> > > > snd_ac97_resume. Does 
-> > > 
-> > > What happened exactly? :)
-> > 
-> > During suspend, at one point devices are resumed. I get NULL pointer
-> > dereference during that phase.
-> > 
-> > I'll mail you a screenshot in a private mail. I just hope you'll be
-> > able to decipher it, it is pretty hard to read. (If not let me know, I
-> > think I can read most of it but no numbers).
-> > 
-> > 2.6.10-mm1 is broken, 2.6.10-currentbk is not.
+> Which distro/kernel do you have? Have you looked at your distro's
+> bugzilla/buglist? Have you all latest update packages installed?
 > 
-> 2.6.10-mm2 is ok, so problem went away.
 
-Sorry, I spoke too fast and did not have sound configured
-in... (Screenshots will follow in private mail).
+I use kernel 2.6.10 vanilla.
 
-								Pavel
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+The distro has nothing to do here I suppose, but it's debian unstable.

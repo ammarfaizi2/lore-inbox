@@ -1,61 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbUBVEKW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 23:10:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbUBVEKW
+	id S261672AbUBVEN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 23:13:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbUBVEN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 23:10:22 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:23261 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261667AbUBVEKV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 23:10:21 -0500
-Message-ID: <40382BAA.1000802@cyberone.com.au>
-Date: Sun, 22 Feb 2004 15:10:18 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Linus Torvalds <torvalds@osdl.org>, Mike Fedyk <mfedyk@matchmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Large slab cache in 2.6.1
-References: <4037FCDA.4060501@matchmail.com> <20040222023638.GA13840@dingdong.cryptoapps.com> <Pine.LNX.4.58.0402211901520.3301@ppc970.osdl.org> <20040222031113.GB13840@dingdong.cryptoapps.com> <Pine.LNX.4.58.0402211919360.3301@ppc970.osdl.org> <20040222033111.GA14197@dingdong.cryptoapps.com> <4038299E.9030907@cyberone.com.au>
-In-Reply-To: <4038299E.9030907@cyberone.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 21 Feb 2004 23:13:58 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:56286 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261672AbUBVENx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 23:13:53 -0500
+Subject: 2.4.25 and xfs compile errors
+From: R Dicaire <rdicair@comcast.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1077423230.1589.8.camel@ws.rdb.linux-help.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Feb 2004 23:13:50 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+While trying to compile 2.4.25, I get the following:
 
+ld -m elf_i386 -T /usr/src/linux-2.4.25/arch/i386/vmlinux.lds -e stext
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
+init/version.o init/do_mounts.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
+mm/mm.o fs/fs.o ipc/ipc.o \
+         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
+drivers/net/net.o drivers/ide/idedriver.o drivers/cdrom/driver.o
+drivers/pci/driver.o drivers/video/video.o drivers/media/media.o
+drivers/md/mddev.o \
+        net/network.o \
+        /usr/src/linux-2.4.25/arch/i386/lib/lib.a
+/usr/src/linux-2.4.25/lib/lib.a
+/usr/src/linux-2.4.25/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+fs/fs.o(.text+0x6fa94): In function `xfs_bmap_add_attrfork_local':
+: undefined reference to `__constant_c_and_count_memset'
+fs/fs.o(.text+0x72d2b): In function `xfs_bmap_alloc':
+: undefined reference to `xfs_do_div'
+fs/fs.o(.text+0x74506): In function `xfs_bmap_del_extent':
+: undefined reference to `xfs_do_div'
+fs/fs.o(.text+0x74519): In function `xfs_bmap_del_extent':
+: undefined reference to `xfs_do_div'
+fs/fs.o(.text+0x752e3): In function `xfs_bmap_worst_indlen':
+: undefined reference to `xfs_do_div'
+fs/fs.o(.text+0x78afe): In function `xfs_getbmap':
+: undefined reference to `__constant_copy_to_user'
+make: *** [vmlinux] Error 1
+----------------------------------------------------------------------
+System info:
 
-Nick Piggin wrote:
+Slackware 9.1 kernel 2.4.23-xfs
 
->
->
-> Chris Wedgwood wrote:
->
->> On Sat, Feb 21, 2004 at 07:28:24PM -0800, Linus Torvalds wrote:
->>
->>
->>> What happened to the experiment of having slab pages on the
->>> (in)active lists and letting them be free'd that way? Didn't
->>> somebody already do that? Ed Tomlinson and Craig Kulesa?
->>>
->>
->> Just as a data point:
->>
->> cw@taniwha:~/wk/linux/bk-2.5.x$ grep -E '(LowT|Slab)' /proc/meminfo
->> LowTotal:       898448 kB
->> Slab:           846260 kB
->>
->> So the slab pressure I have right now is simply because there is
->> nowhere else it has to grow...
->>
->>
->
-> Can you try the following patch? It is against 2.6.3-mm2.
->
+gcc -v
+Reading specs from /usr/lib/gcc-lib/i486-slackware-linux/3.2.3/specs
+Configured with: ../gcc-3.2.3/configure --prefix=/usr --enable-shared
+--enable-threads=posix --enable-__cxa_atexit --disable-checking
+--with-gnu-ld --verbose --target=i486-slackware-linux
+--host=i486-slackware-linux
+Thread model: posix
+gcc version 3.2.3
 
-Actually I think the previous shrink_slab formula factors
-out to the right thing anyway, so nevermind this patch :P
+Am I missing something, not sure but those undefined references usually
+mean some lib or something doesn't support the features trying to be
+compiled, any help would be greatly appreciated, thanks.
+
+Please CC rdicair@comcast.net as I'm not subscribed to this list,
+thanks.
 

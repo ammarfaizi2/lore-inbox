@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbUKOWjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbUKOWlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261499AbUKOWjO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 17:39:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbUKOWjN
+	id S261440AbUKOWlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 17:41:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbUKOWjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 17:39:13 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:30887 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261499AbUKOWh6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 17:37:58 -0500
-Subject: [patch] scheduler: rebalance_tick interval update
-From: Darren Hart <dvhltc@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: Nick Piggin <piggin@cyberone.com.au>, Matt Dobson <colpatch@us.ibm.com>,
-       Martin J Bligh <mbligh@aracnet.com>,
-       Rick Lindsley <ricklind@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Content-Type: text/plain
-Date: Mon, 15 Nov 2004 14:38:33 -0800
-Message-Id: <1100558313.17202.58.camel@localhost.localdomain>
+	Mon, 15 Nov 2004 17:39:32 -0500
+Received: from fep18.inet.fi ([194.251.242.243]:58518 "EHLO fep18.inet.fi")
+	by vger.kernel.org with ESMTP id S261440AbUKOWhM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 17:37:12 -0500
+Date: Tue, 16 Nov 2004 00:37:09 +0200
+From: Sami Farin <7atbggg02@sneakemail.com>
+To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: vm-pageout-throttling.patch: hanging in throttle_vm_writeout/blk_congestion_wait
+Message-ID: <20041115223709.GD6654@m.safari.iki.fi>
+Mail-Followup-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20041115012620.GA5750@m.safari.iki.fi> <Pine.LNX.4.44.0411152140030.4171-100000@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0411152140030.4171-100000@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current rebalance_tick() code assigns each sched_domain's
-last_balance field to += interval after performing a load_balance.  If
-interval is 10, this has the effect of saying:  we want to run
-load_balance at time = 10, 20, 30, 40, etc...  If for example
-last_balance=10 and for some reason rebalance_tick can't be run until
-30, load_balance will be called and last_balance will be updated to 20,
-causing it to call load_balance again immediately the next time it is
-called since the interval is 10 and we are already at >30.  It seems to
-me that it would make much more sense for last_balance to be assigned
-jiffies after a load_balance, then the meaning of last_balance is more
-exact: "this domain was last balanced at jiffies" rather than "we last
-handled the balance we were supposed to do at 20, at some indeterminate
-time".  The following patch makes this change.
+On Mon, Nov 15, 2004 at 09:56:29PM +0000, Hugh Dickins wrote:
+> On Mon, 15 Nov 2004, Sami Farin wrote:
+> > 
+> > this time I had some swapspace on /dev/loop1 (file-backed, reiserfs,
+> > loop-AES-2.2d)...  I think (!) it caused this deadlock.
+> 
+> That's not at all surprising.  See the swap_extent work Andrew did
+> for 2.5 (in mm/swapfile.c), by which swap to a swapfile now avoids
+> the filesystem altogether (except while swapon prepares the map of
+> disk blocks).  By swapping to a loop device over a file, you're
+> sneaking past his work, and putting the filesystem back under swap.
 
-Signed-off-by: Darren Hart <dvhltc@us.ibm.com>
----
+Aha...  interesting.
 
-diff -purN -X /home/mbligh/.diff.exclude /home/linux/views/linux-2.6.10-rc1-mm5/kernel/sched.c linux-2.6.10-rc1-mm5-jni/kernel/sched.c
---- /home/linux/views/linux-2.6.10-rc1-mm5/kernel/sched.c	2004-11-11 05:33:53.000000000 -0800
-+++ linux-2.6.10-rc1-mm5-jni/kernel/sched.c	2004-11-15 11:28:16.000000000 -0800
-@@ -2201,7 +2201,7 @@ static void rebalance_tick(int this_cpu,
- 				/* We've pulled tasks over so no longer idle */
- 				idle = NOT_IDLE;
- 			}
--			sd->last_balance += interval;
-+			sd->last_balance = jiffies;
- 		}
- 	}
- }
+> It is begging for deadlocks: I'm not saying it couldn't be got to
+> work, and of course it would be nice to boast that there's no such
+> issue; but there are so many better places to invest such effort...
 
+So, this was a known issue and it's hard to fix?  I didn't know that.
+
+I know it's a "nicer" idea to use some partition for the swap
+instead of a file on reiserfs, but I created too small swap partitions
+originally and I can't(/bother?) resize the other partitions.
+And sometimes some memhog forces me to add even more swap.
+
+BTW. your MUA does not generate References: header field,
+it makes scoring hard...  With References I would easily
+notice when someone writes a followup to some of the threads I have
+participated in.  But I could patch my MUA... 8)
+
+-- 
 

@@ -1,36 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263048AbTCSOMt>; Wed, 19 Mar 2003 09:12:49 -0500
+	id <S263033AbTCSOXj>; Wed, 19 Mar 2003 09:23:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263049AbTCSOMt>; Wed, 19 Mar 2003 09:12:49 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:7684 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263048AbTCSOMs>;
-	Wed, 19 Mar 2003 09:12:48 -0500
-Date: Mon, 17 Mar 2003 11:38:18 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Shaya Potter <spotter@cs.columbia.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fork/sh/hello microbenchmark performance in chroot
-Message-ID: <20030317103818.GA9964@zaurus.ucw.cz>
-References: <1047606184.10046.9.camel@zaphod> <1047606869.7428.12.camel@zaphod> <1047607433.7428.23.camel@zaphod>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1047607433.7428.23.camel@zaphod>
-User-Agent: Mutt/1.3.27i
+	id <S263030AbTCSOXj>; Wed, 19 Mar 2003 09:23:39 -0500
+Received: from 24-168-145-62.nj.rr.com ([24.168.145.62]:32079 "EHLO
+	mail.larvalstage.com") by vger.kernel.org with ESMTP
+	id <S263033AbTCSOXh>; Wed, 19 Mar 2003 09:23:37 -0500
+Date: Wed, 19 Mar 2003 09:33:15 -0500 (EST)
+From: John Kim <john@larvalstage.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.65] pnp api changes to sound/isa/sb/es968.c
+In-Reply-To: <20030319121121.A21042@infradead.org>
+Message-ID: <Pine.LNX.4.53.0303190903440.28260@quinn.larvalstage.com>
+References: <Pine.LNX.4.53.0303190650530.28260@quinn.larvalstage.com>
+ <20030319121121.A21042@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> when I run it /chroot/tmp/benchmark/forksh, I get .2s
+
+On Wed, 19 Mar 2003, Christoph Hellwig wrote:
+
+> On Wed, Mar 19, 2003 at 07:03:57AM -0500, John Kim wrote:
+> >  struct snd_card_es968 {
+> > -#ifdef __ISAPNP__
+> > -	struct isapnp_dev *dev;
+> > -#endif	/* __ISAPNP__ */
+> > +	struct pnp_dev *dev;
+> >  };
 > 
-> but when I chroot into the /chroot tree and run /tmp/benchmark/forksh I
-> get 1s.
+> What about completly removing struct snd_card_es968 and using pnp_dev
+> directtly instead?  sound/* is full of this overdesign and it's time
+> to get it follow kernel style a bit more..
 
-And if you force forksh to use libc from
-chroot?
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+Perhaps the task of code clean up should be done in separate track than 
+pnp api conversion task?
+ 
+> >  static int __init alsa_card_es968_init(void)
+> >  {
+> >  	int cards = 0;
+> >  
+> > -#ifdef __ISAPNP__
+> > -	cards += isapnp_probe_cards(snd_es968_pnpids, snd_es968_isapnp_detect);
+> > -#else
+> > -	snd_printk("you have to enable ISA PnP support.\n");
+> > -#endif
+> > +	cards += pnp_register_card_driver(&es968_pnpc_driver);
+> >  #ifdef MODULE
+> >  	if (!cards)
+> > -		snd_printk("no ES968 based soundcards found\n");
+> > +		printk(KERN_ERR "no ES968 based soundcards found\n");
+> >  #endif
+> >  	return cards ? 0 : -ENODEV;
+> >  }
+> 
+> That printk is useless, you get a useful message from modprobe on
+> an ENODEV return anyway.
 
+I'll make a new diff without useless printk line.  Thank you.

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284601AbSACJJN>; Thu, 3 Jan 2002 04:09:13 -0500
+	id <S284823AbSACJNX>; Thu, 3 Jan 2002 04:13:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284752AbSACJJE>; Thu, 3 Jan 2002 04:09:04 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:34551 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S284601AbSACJIs>; Thu, 3 Jan 2002 04:08:48 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020102211038.C21788@thyrsus.com> 
-In-Reply-To: <20020102211038.C21788@thyrsus.com>  <20020102174824.A21408@thyrsus.com> <Pine.LNX.4.33.0201030006120.427-100000@Appserv.suse.de> 
-To: esr@thyrsus.com
-Cc: Dave Jones <davej@suse.de>, Lionel Bouton <Lionel.Bouton@free.fr>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems? 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 03 Jan 2002 09:08:14 +0000
-Message-ID: <3021.1010048894@redhat.com>
+	id <S284761AbSACJNO>; Thu, 3 Jan 2002 04:13:14 -0500
+Received: from bs1.dnx.de ([213.252.143.130]:26347 "EHLO bs1.dnx.de")
+	by vger.kernel.org with ESMTP id <S284956AbSACJNC>;
+	Thu, 3 Jan 2002 04:13:02 -0500
+Date: Thu, 3 Jan 2002 10:04:13 +0100 (CET)
+From: Robert Schwebel <robert@schwebel.de>
+X-X-Sender: <robert@callisto.local>
+Reply-To: <robert@schwebel.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@suse.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
+        Jason Sodergren <jason@mugwump.taiga.com>,
+        Anders Larsen <anders@alarsen.net>, <rkaiser@sysgo.de>
+Subject: Re: [PATCH][RFC] AMD Elan patch
+In-Reply-To: <3C33918E.7080409@zytor.com>
+Message-ID: <Pine.LNX.4.33.0201030954440.3056-100000@callisto.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2 Jan 2002, H. Peter Anvin wrote:
+> It's end of lifed in this particular product, does that mean the core
+> itself won't find itself embedded in something? ...
 
-esr@thyrsus.com said:
-> Think useability.  On Macintoshes, you configure a kernel by moving
-> the  equivalents of modules in and out of a system folder.  Users tune
-> their kernels by moving files around -- no muttering of elaborate
-> incantations required.  *That's* the direction we should be moving in;
-> there is no  good technical reason for the process to be anywhere near
-> as arcane as it is now. 
+The probability is rather low, as the 486 cores are definitely a dying
+species. AMD is, as many other manufacturers, going the 586 way on it's
+embedded roadmaps, as modern embedded 586 cores have the same low power
+requirements and there are designs available which have all the advantages
+of the [34]86s but a more modern core and stuff like PCI interfaces.
 
-We have it better than that already. The distro vendor provides all the 
-modules and they're automatically loaded on demand - you don't even need to 
-move them into the system folder.
+But nevertheless, relying on assumptions is no good design, so we should
+stay with the current solution. If somebody adds stuff for the SC520 it
+should be no problem to add something for differentiation.
 
+Robert
 --
-dwmw2
-
+ +--------------------------------------------------------+
+ | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
+ | Pengutronix - Linux Solutions for Science and Industry |
+ |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
+ |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
+ +--------------------------------------------------------+
 

@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313327AbSDLDfd>; Thu, 11 Apr 2002 23:35:33 -0400
+	id <S313328AbSDLDpr>; Thu, 11 Apr 2002 23:45:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313328AbSDLDfd>; Thu, 11 Apr 2002 23:35:33 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:18327 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S313327AbSDLDfc>;
-	Thu, 11 Apr 2002 23:35:32 -0400
-Date: Fri, 12 Apr 2002 13:34:55 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Robert Love <rml@tech9.net>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5: task cpu affinity syscalls
-Message-ID: <20020412033454.GA5773@krispykreme>
-In-Reply-To: <1018275443.857.159.camel@phantasy>
+	id <S313330AbSDLDpq>; Thu, 11 Apr 2002 23:45:46 -0400
+Received: from mx1.afara.com ([63.113.218.20]:32404 "EHLO afara-gw.afara.com")
+	by vger.kernel.org with ESMTP id <S313328AbSDLDpq>;
+	Thu, 11 Apr 2002 23:45:46 -0400
+Subject: Re: IRIX NFS server and Linux NFS client
+From: Thomas Duffy <tduffy@afara.com>
+To: Steffen Persvold <sp@scali.com>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0204120519150.10585-100000@elin.scali.no>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-/m9Fbs4davTzt3V0wwUK"
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 11 Apr 2002 20:44:52 -0700
+Message-Id: <1018583094.3112.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+X-OriginalArrivalTime: 12 Apr 2002 03:45:40.0561 (UTC) FILETIME=[83EAE410:01C1E1D4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Attached is a resync to 2.5.8-pre2 of my CPU affinity syscalls for 2.5's
-> scheduler.
-> 
-> This patch implements two new syscalls:
-> 
-> 	int sched_setaffinity(pid_t pid, unsigned int len,
-> 				unsigned long *new_mask_ptr)
-> 
-> 	int sched_getaffinity(pid_t pid, unsigned int *user_len_ptr,
-> 				unsigned long *user_mask_ptr)
+--=-/m9Fbs4davTzt3V0wwUK
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Since this isnt 32/64 bit compatible on big endian machines, can you
-write some wrapper functions before all the archs implement it
-themselves?
+On Thu, 2002-04-11 at 20:22, Steffen Persvold wrote:
 
-Think of 32 bit userspace passing a big endian bitmask into a 64 bit
-kernel:
+> Hmm It's IRIX 6.4 and unfortunately the server can''t be upgraded. Is
+> there a ChangeLog somewhere (for IRIX) which describes the changes you
+> mention a bit more in detail ? I looked at the SGI homepage, but I didn't
+> seem to find
+> it.
 
-32 bit:
-31-0 63-32 95-64 127-96
+AHHH.  IRIX 6.4...yuck.  All bets are off for that one.  IRIX 6.3 and
+6.4 were probably the worst releases ever (said in comic guy voice :).=20
+6.3 was a one-off to support the o2 and 6.4 was a one-off to support the
+Origin 2xxx series.  I would *highly* recommend upgrading to 6.5.x.
 
-64 bit:
-63-0 127-64
+For one, NFS v3 was not very mature in the 6.4 days.  I would stick to
+NFS v2 if you cannot upgrade the OS.  But *please* upgrade the OS :)
 
-Anton
+-tduffy
+
+--=-/m9Fbs4davTzt3V0wwUK
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8tlg0dY502zjzwbwRAr2KAJ9ve03tSJm5ZBG+5U6QlFTEJcxrrwCdG7Qz
+h1oEfwsLQd6cG6MiBN2kuMg=
+=/Xk9
+-----END PGP SIGNATURE-----
+
+--=-/m9Fbs4davTzt3V0wwUK--
+

@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbUDELE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 07:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbUDELE5
+	id S261850AbUDELKy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 07:10:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbUDELKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 07:04:57 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14606 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261920AbUDELEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 07:04:55 -0400
-Date: Mon, 5 Apr 2004 12:04:52 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Ruud Linders <rkmp@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x kernels and ttyS45 for 6 serial ports ?
-Message-ID: <20040405120452.B31038@flint.arm.linux.org.uk>
-Mail-Followup-To: Ruud Linders <rkmp@xs4all.nl>,
-	linux-kernel@vger.kernel.org
-References: <4071367B.2060103@xs4all.nl>
+	Mon, 5 Apr 2004 07:10:54 -0400
+Received: from uni03du.unity.ncsu.edu ([152.1.13.103]:10112 "EHLO
+	uni03du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id S261850AbUDELKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 07:10:52 -0400
+From: jlnance@unity.ncsu.edu
+Date: Mon, 5 Apr 2004 07:10:33 -0400
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Jamie Lokier <jamie@shareable.org>,
+       =?unknown-8bit?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>, mj@ucw.cz,
+       jack@ucw.cz, "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cowlinks v2
+Message-ID: <20040405111033.GA1456@ncsu.edu>
+References: <20040320152328.GA8089@wohnheim.fh-wedel.de> <20040329171245.GB1478@elf.ucw.cz> <s5g7jx31int.fsf@patl=users.sf.net> <20040329231635.GA374@elf.ucw.cz> <20040402165440.GB24861@wohnheim.fh-wedel.de> <20040402180128.GA363@elf.ucw.cz> <20040402181707.GA28112@wohnheim.fh-wedel.de> <20040402182357.GB410@elf.ucw.cz> <20040402200921.GC653@mail.shareable.org> <20040402213933.GB246@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4071367B.2060103@xs4all.nl>; from rkmp@xs4all.nl on Mon, Apr 05, 2004 at 12:35:39PM +0200
+In-Reply-To: <20040402213933.GB246@elf.ucw.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 05, 2004 at 12:35:39PM +0200, Ruud Linders wrote:
-> Now checking this on 2.6.5 it got more confusing, I now have with
-> total of 6 serial ports a device number ttyS45 !?
+On Fri, Apr 02, 2004 at 11:39:34PM +0200, Pavel Machek wrote:
 
-And what happens if you detect a PCI modem at IO address 0x2e8 after
-you've detected your PCI card and assigned it ttyS4?
+> > get_data_id() is one way to detect equivalent files.  Another would be
+> > a function files_equal(fd1, fd2) which returns a boolean.
+> 
+> files_equal(...) would lead to quadratic number of calls, no?
+> 
+> > get_data_id() has the advantage that it can report immediately whether
+> > a file has _any_ cowlink peers, which is important for programs that
+> > scan trees.  Perhaps getxattr() would be reasonable interface, using a
+> > named attribute "data-id".
+> 
+> Yes, get_data_id() is extremely ugly name.
 
-Don't you think that would complain that their modem should be assigned
-ttyS4 rather than their PCI multiport card getting it?
+I think it is worth asking if we really want to give userspace a way of
+doing this or not.  It exposes fairly low level FS details to userspace,
+and this will limit our ability to change the implementation of the FS
+in the future (partially shared files?).  Certainly there has been some
+pain caused over the years because userspace can ask for the inode number,
+and people have written file systems which do not use inodes.  Then they
+have to kluge around this and make something up.  I would hate to see
+us implement an interface that causes long term pain.
+
+I also cant really think of anyone who would need this information.  I have
+seen diff and tar used as examples.  Perhaps diff would run faster but that
+seems like a very special case thing, and diff will certainly work w/o it.
+Tar might also be faster creating archives if it had this information
+available.  However to make tar useful wrt cowlinks, it will need to be
+able to create these links at extract time from tarfiles which were created
+on non-cowlink filesystems, so I don't think there is a pressing need.
+
+Of course, I am willing to believe that I am wrong.  Hope you all have a
+great day.
+
+Thanks,
+
+Jim
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+www.jeweltran.com

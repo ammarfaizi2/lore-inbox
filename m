@@ -1,61 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbUL0Kgt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbUL0LK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261458AbUL0Kgt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 05:36:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbUL0Kgt
+	id S261482AbUL0LK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 06:10:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbUL0LK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 05:36:49 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:65308 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261458AbUL0Keu (ORCPT
+	Mon, 27 Dec 2004 06:10:28 -0500
+Received: from pcsbom.patni.com ([203.124.139.208]:8328 "EHLO pcsspz.PATNI.COM")
+	by vger.kernel.org with ESMTP id S261482AbUL0LKT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 05:34:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=uDKUnVlwqdWD/4wKWtdEfhkBtkHrc/bIDU5L+XQbcz+JeOMiU0X2SlMG4a2DIUz6nMbgfOG9RLI4hWI48v6TquvsaZyt+0QJ8mAw80n6JsSPts9ksOwRjZ2Acmc1M9HvNzxFXEb/d23eZG1OyxetLD3fItvYl6aD5Kc5qXnRP58=
-Message-ID: <472a9f230412270234f8eab15@mail.gmail.com>
-Date: Mon, 27 Dec 2004 16:04:50 +0530
-From: Robin Jose <ackku.jose@gmail.com>
-Reply-To: Robin Jose <ackku.jose@gmail.com>
-To: selvakumar nagendran <kernelselva@yahoo.com>
-Subject: Re: Printk output on console
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041221063222.26890.qmail@web60605.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041221063222.26890.qmail@web60605.mail.yahoo.com>
+	Mon, 27 Dec 2004 06:10:19 -0500
+Reply-To: <sujeet.kumar@patni.com>
+From: "Sujeet Kumar" <sujeet.kumar@patni.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: hi all
+Date: Wed, 1 Dec 2004 16:46:25 +0530
+Message-ID: <008701c4d797$32a58b80$9e61a8c0@pcp40702>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----------=_1104146273-27319-237"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can refer to Rubini's book "Linux Device Drivers 2nd Edition". See
-section "How messages gets logged" in Chapter 4, which explains in
-detail how to use printk for debugging.
+This is a multi-part message in MIME format...
 
-This book is now available online, under Oreilly's open book project
-http://www.xml.com/ldd/chapter/book/ch04.html
+------------=_1104146273-27319-237
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Thanks,
-Robin
 
-On Mon, 20 Dec 2004 22:32:22 -0800 (PST), selvakumar nagendran
-<kernelselva@yahoo.com> wrote:
-> How can we see the output of printk calls in kernel
-> source files in our console. Is there any special
-> command or utility for it?
-> How to view the output of printk on our console? What
-> is the log level to be set for this?
-> 
-> Thanks,
-> selva
-> 
-> __________________________________
-> Do you Yahoo!?
-> Take Yahoo! Mail with you! Get it on your mobile phone.
-> http://mobile.yahoo.com/maildemo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+
+
+Hi All,
+
+I tried loading a simple char driver on kernel 2.6 but it is giving invalid
+module parameter.
+
+This module is working very fine on kernel 2.4 . The kernel version I am
+using is linux-2.6.5-7.97-smp.
+
+I know that the insmod procedure has changed but dont know how to do it.
+
+If anybody know the procedure , kindly tell this to me.
+
+
+
+
+
+Thanks & regards ,
+sujeet kumar
+
+Patni Computer Systems Ltd.
+Vashi, New Mumbai
+
+
+
+
+
+http://www.patni.com
+World-Wide Partnerships. World-Class Solutions.
+_____________________________________________________________________
+
+This e-mail message may contain proprietary, confidential or legally
+privileged information for the sole use of the person or entity to
+whom this message was originally addressed. Any review, e-transmission
+dissemination or other use of or taking of any action in reliance upon
+this information by persons or entities other than the intended
+recipient is prohibited. If you have received this e-mail in error
+kindly delete  this e-mail from your records. If it appears that this
+mail has been forwarded to you without proper authority, please notify
+us immediately at netadmin@patni.com and delete this mail. 
+_____________________________________________________________________
+
+------------=_1104146273-27319-237--

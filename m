@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268730AbUIXNIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268722AbUIXNJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268730AbUIXNIx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 09:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268734AbUIXNIx
+	id S268722AbUIXNJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 09:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268720AbUIXNJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 09:08:53 -0400
-Received: from bhhdoa.org.au ([216.17.101.199]:12556 "EHLO bhhdoa.org.au")
-	by vger.kernel.org with ESMTP id S268730AbUIXNIm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 09:08:42 -0400
-Date: Fri, 24 Sep 2004 16:07:38 +0300 (EAT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] remove spurious might_sleep in i386 usercopy
-Message-ID: <Pine.LNX.4.53.0409240430260.19886@musoma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 24 Sep 2004 09:09:56 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16616 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268734AbUIXNJh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 09:09:37 -0400
+Date: Fri, 24 Sep 2004 14:09:35 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Jan Dittmer <jdittmer@ppp0.net>
+Cc: Rolf Eike Beer <eike-kernel@sf-tec.de>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>,
+       Hotplug List <pcihpd-discuss@lists.sourceforge.net>
+Subject: Re: [Pcihpd-discuss] Re: Is there a user space pci rescan method?
+Message-ID: <20040924130935.GB16153@parcelfarce.linux.theplanet.co.uk>
+References: <E8F8DBCB0468204E856114A2CD20741F2C13E2@mail.local.ActualitySystems.com> <200409241241.19654@bilbo.math.uni-mannheim.de> <4154083B.6040109@ppp0.net> <200409241412.45204@bilbo.math.uni-mannheim.de> <41541009.9080206@ppp0.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41541009.9080206@ppp0.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There seem to be multiple might_sleep() statements littered about in 
-arch/i386/lib/usercopy.c as the primitives (__do_clear_user, 
-__copy_to_user, __copy_from_user) already do the might_sleep() check.
+On Fri, Sep 24, 2004 at 02:16:09PM +0200, Jan Dittmer wrote:
+> My point was, I load dummyphp with showunused=0 and only get dirs for the
+> slots with devices in them. Now I decide to put a network card (or whatever
+> I have to spare) in an empty slot, hope that the system doesn't reboot
+> immediately, and voila I don't have any /sys/bus/pci/slots dir to enable
+> the slot and have to reboot nevertheless. Or does the pci system a rescan
+> if I reinsert the module?
 
-Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
+That is DANGEROUS and WILL DESTROY YOUR SYSTEM.  Under no circumstances
+should we be encouraging people to do that.
 
-Index: linux-2.6.9-rc2-mm1/arch/i386/lib/usercopy.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc2-mm1/arch/i386/lib/usercopy.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 usercopy.c
---- linux-2.6.9-rc2-mm1/arch/i386/lib/usercopy.c	16 Sep 2004 13:41:16 -0000	1.1.1.1
-+++ linux-2.6.9-rc2-mm1/arch/i386/lib/usercopy.c	24 Sep 2004 01:26:13 -0000
-@@ -152,7 +152,6 @@ do {									\
- unsigned long
- clear_user(void __user *to, unsigned long n)
- {
--	might_sleep();
- 	if (access_ok(VERIFY_WRITE, to, n))
- 		__do_clear_user(to, n);
- 	return n;
-@@ -596,7 +595,6 @@ __copy_from_user_ll(void *to, const void
- unsigned long
- copy_to_user(void __user *to, const void *from, unsigned long n)
- {
--	might_sleep();
- 	if (access_ok(VERIFY_WRITE, to, n))
- 		n = __copy_to_user(to, from, n);
- 	return n;
-@@ -622,7 +620,6 @@ EXPORT_SYMBOL(copy_to_user);
- unsigned long
- copy_from_user(void *to, const void __user *from, unsigned long n)
- {
--	might_sleep();
- 	if (access_ok(VERIFY_READ, from, n))
- 		n = __copy_from_user(to, from, n);
- 	else
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

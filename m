@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316423AbSEZUqP>; Sun, 26 May 2002 16:46:15 -0400
+	id <S316431AbSEZUqU>; Sun, 26 May 2002 16:46:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316408AbSEZUpj>; Sun, 26 May 2002 16:45:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52752 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316423AbSEZUnR>;
-	Sun, 26 May 2002 16:43:17 -0400
-Message-ID: <3CF149A1.87274811@zip.com.au>
-Date: Sun, 26 May 2002 13:46:25 -0700
+	id <S316430AbSEZUpb>; Sun, 26 May 2002 16:45:31 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54544 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316388AbSEZUoB>;
+	Sun, 26 May 2002 16:44:01 -0400
+Message-ID: <3CF149CD.F0E36D69@zip.com.au>
+Date: Sun, 26 May 2002 13:47:09 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 12/18] remove mem_map_t
+Subject: [patch 13/18] generic_file_write() cleanup
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,163 +22,327 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Random cleanup: remove the mem_map_t typedef.  Just use 'struct page'
-everywhere.
+Fixes all the goto spaghetti in generic_file_write() and turns it into
+something which humans can understand.
+
+Andi tells me that gcc3 does a decent job of relocating blocks out of
+line anyway.  This patch gives the compiler a helping hand with
+appropriate use of likely() and unlikely().
 
 
 =====================================
 
---- 2.5.18/include/asm-mips64/mmzone.h~mem_map_t	Sat May 25 23:25:47 2002
-+++ 2.5.18-akpm/include/asm-mips64/mmzone.h	Sat May 25 23:25:47 2002
-@@ -76,7 +76,7 @@ extern plat_pg_data_t *plat_node_data[];
- #define MIPS64_NR(kaddr) (((unsigned long)(kaddr) > (unsigned long)high_memory)\
- 		? (max_mapnr + 1) : (LOCAL_MAP_NR((kaddr)) + \
- 		(((unsigned long)ADDR_TO_MAPBASE((kaddr)) - PAGE_OFFSET) / \
--		sizeof(mem_map_t))))
-+		sizeof(struct page))))
- 
- #define kern_addr_valid(addr)	((KVADDR_TO_NID((unsigned long)addr) > \
- 	-1) ? 0 : (test_bit(LOCAL_MAP_NR((addr)), \
---- 2.5.18/include/linux/mm.h~mem_map_t	Sat May 25 23:25:47 2002
-+++ 2.5.18-akpm/include/linux/mm.h	Sat May 25 23:25:47 2002
-@@ -145,7 +145,7 @@ struct vm_operations_struct {
+--- 2.5.18/mm/filemap.c~generic_file_write_cleanup	Sat May 25 23:25:49 2002
++++ 2.5.18-akpm/mm/filemap.c	Sat May 25 23:26:25 2002
+@@ -2074,48 +2074,43 @@ inline void remove_suid(struct dentry *d
+ /*
+  * Write to a file through the page cache. 
   *
-  * TODO: make this structure smaller, it could be as small as 32 bytes.
+- * We currently put everything into the page cache prior to writing it.
+- * This is not a problem when writing full pages. With partial pages,
+- * however, we first have to read the data into the cache, then
+- * dirty the page, and finally schedule it for writing. Alternatively, we
+- * could write-through just the portion of data that would go into that
+- * page, but that would kill performance for applications that write data
+- * line by line, and it's prone to race conditions.
+- *
+- * Note that this routine doesn't try to keep track of dirty pages. Each
+- * file system has to do this all by itself, unfortunately.
++ * We put everything into the page cache prior to writing it. This is not a
++ * problem when writing full pages. With partial pages, however, we first have
++ * to read the data into the cache, then dirty the page, and finally schedule
++ * it for writing by marking it dirty.
+  *							okir@monad.swb.de
   */
--typedef struct page {
-+struct page {
- 	struct list_head list;		/* ->mapping has some page lists. */
- 	struct address_space *mapping;	/* The inode (or ...) we belong to. */
- 	unsigned long index;		/* Our offset within mapping. */
-@@ -170,7 +170,7 @@ typedef struct page {
- 	void *virtual;			/* Kernel virtual address (NULL if
- 					   not kmapped, ie. highmem) */
- #endif /* CONFIG_HIGMEM || WANT_PAGE_VIRTUAL */
--} mem_map_t;
-+};
- 
- /*
-  * Methods to modify the page usage count.
-@@ -306,7 +306,7 @@ static inline void set_page_zone(struct 
- #define NOPAGE_OOM	((struct page *) (-1))
- 
- /* The array of struct pages */
--extern mem_map_t * mem_map;
-+extern struct page *mem_map;
- 
- extern void show_free_areas(void);
- extern void show_free_areas_node(pg_data_t *pgdat);
---- 2.5.18/include/linux/mmzone.h~mem_map_t	Sat May 25 23:25:47 2002
-+++ 2.5.18-akpm/include/linux/mmzone.h	Sat May 25 23:25:47 2002
-@@ -172,8 +172,8 @@ extern pg_data_t contig_page_data;
- 
- #endif /* !CONFIG_DISCONTIGMEM */
- 
--#define MAP_ALIGN(x)	((((x) % sizeof(mem_map_t)) == 0) ? (x) : ((x) + \
--		sizeof(mem_map_t) - ((x) % sizeof(mem_map_t))))
-+#define MAP_ALIGN(x)	((((x) % sizeof(struct page)) == 0) ? (x) : ((x) + \
-+		sizeof(struct page) - ((x) % sizeof(struct page))))
- 
- #endif /* !__ASSEMBLY__ */
- #endif /* __KERNEL__ */
---- 2.5.18/mm/memory.c~mem_map_t	Sat May 25 23:25:47 2002
-+++ 2.5.18-akpm/mm/memory.c	Sat May 25 23:25:47 2002
-@@ -69,7 +69,7 @@ static inline void copy_cow_page(struct 
- 	copy_user_highpage(to, from, address);
- }
- 
--mem_map_t * mem_map;
-+struct page *mem_map;
- 
- /*
-  * Note: this doesn't free the actual pages themselves. That
---- 2.5.18/mm/numa.c~mem_map_t	Sat May 25 23:25:47 2002
-+++ 2.5.18-akpm/mm/numa.c	Sat May 25 23:25:47 2002
-@@ -65,8 +65,8 @@ void __init free_area_init_node(int nid,
- 	int i, size = 0;
- 	struct page *discard;
- 
--	if (mem_map == (mem_map_t *)NULL)
--		mem_map = (mem_map_t *)PAGE_OFFSET;
-+	if (mem_map == NULL)
-+		mem_map = (struct page *)PAGE_OFFSET;
- 
- 	free_area_init_core(nid, pgdat, &discard, zones_size, zone_start_paddr,
- 					zholes_size, pmap);
---- 2.5.18/sound/core/memory.c~mem_map_t	Sat May 25 23:25:47 2002
-+++ 2.5.18-akpm/sound/core/memory.c	Sat May 25 23:25:47 2002
-@@ -272,8 +272,8 @@ void *snd_malloc_pages(unsigned long siz
- 	snd_assert(dma_flags != 0, return NULL);
- 	for (pg = 0; PAGE_SIZE * (1 << pg) < size; pg++);
- 	if ((res = (void *) __get_free_pages(dma_flags, pg)) != NULL) {
--		mem_map_t *page = virt_to_page(res);
--		mem_map_t *last_page = page + (1 << pg);
-+		struct page *page = virt_to_page(res);
-+		struct page *last_page = page + (1 << pg);
- 		while (page < last_page)
- 			SetPageReserved(page++);
- #ifdef CONFIG_SND_DEBUG_MEMORY
-@@ -302,7 +302,7 @@ void *snd_malloc_pages_fallback(unsigned
- void snd_free_pages(void *ptr, unsigned long size)
+ ssize_t
+-generic_file_write(struct file *file,const char *buf,size_t count, loff_t *ppos)
++generic_file_write(struct file *file, const char *buf,
++		size_t count, loff_t *ppos)
  {
- 	int pg;
--	mem_map_t *page, *last_page;
-+	struct page *page, *last_page;
+-	struct address_space *mapping = file->f_dentry->d_inode->i_mapping;
+-	struct inode	*inode = mapping->host;
++	struct address_space * mapping = file->f_dentry->d_inode->i_mapping;
++	struct address_space_operations *a_ops = mapping->a_ops;
++	struct inode 	*inode = mapping->host;
+ 	unsigned long	limit = current->rlim[RLIMIT_FSIZE].rlim_cur;
++	long		status = 0;
+ 	loff_t		pos;
+-	struct page	*page, *cached_page;
++	struct page	*page;
++	struct page	*cached_page = NULL;
+ 	ssize_t		written;
+-	long		status = 0;
+ 	int		err;
+ 	unsigned	bytes;
  
- 	if (ptr == NULL)
- 		return;
-@@ -338,8 +338,8 @@ void *snd_malloc_isa_pages(unsigned long
- 		for (pg = 0; PAGE_SIZE * (1 << pg) < size; pg++);
- 		dma_area = pci_alloc_consistent(NULL, size, dma_addr);
- 		if (dma_area != NULL) {
--			mem_map_t *page = virt_to_page(dma_area);
--			mem_map_t *last_page = page + (1 << pg);
-+			struct page *page = virt_to_page(dma_area);
-+			struct page *last_page = page + (1 << pg);
- 			while (page < last_page)
- 				SetPageReserved(page++);
- #ifdef CONFIG_SND_DEBUG_MEMORY
-@@ -391,8 +391,8 @@ void *snd_malloc_pci_pages(struct pci_de
- 	for (pg = 0; PAGE_SIZE * (1 << pg) < size; pg++);
- 	res = pci_alloc_consistent(pci, PAGE_SIZE * (1 << pg), dma_addr);
- 	if (res != NULL) {
--		mem_map_t *page = virt_to_page(res);
--		mem_map_t *last_page = page + (1 << pg);
-+		struct page *page = virt_to_page(res);
-+		struct page *last_page = page + (1 << pg);
- 		while (page < last_page)
- 			SetPageReserved(page++);
- #ifdef CONFIG_SND_DEBUG_MEMORY
-@@ -426,7 +426,7 @@ void snd_free_pci_pages(struct pci_dev *
- 			dma_addr_t dma_addr)
- {
- 	int pg;
--	mem_map_t *page, *last_page;
-+	struct page *page, *last_page;
+-	if ((ssize_t) count < 0)
++	if (unlikely((ssize_t) count < 0))
+ 		return -EINVAL;
  
- 	if (ptr == NULL)
- 		return;
---- 2.5.18/sound/pci/rme9652/rme9652_mem.c~mem_map_t	Sat May 25 23:25:47 2002
-+++ 2.5.18-akpm/sound/pci/rme9652/rme9652_mem.c	Sat May 25 23:25:47 2002
-@@ -111,8 +111,8 @@ static void *rme9652_malloc_pages(struct
- 		*dmaaddr = virt_to_bus(res);
- #endif
- 	if (res != NULL) {
--		mem_map_t *page = virt_to_page(res);
--		mem_map_t *last_page = page + (size + PAGE_SIZE - 1) / PAGE_SIZE;
-+		struct page *page = virt_to_page(res);
-+		struct page *last_page = page + (size + PAGE_SIZE - 1) / PAGE_SIZE;
- 		while (page < last_page)
- 			set_bit(PG_reserved, &(page++)->flags);
+-	if (!access_ok(VERIFY_READ, buf, count))
++	if (unlikely(!access_ok(VERIFY_READ, buf, count)))
+ 		return -EFAULT;
+ 
+-	cached_page = NULL;
+-
+ 	down(&inode->i_sem);
+-
+ 	pos = *ppos;
+-	err = -EINVAL;
+-	if (pos < 0)
++	if (unlikely(pos < 0)) {
++		err = -EINVAL;
+ 		goto out;
++	}
+ 
+-	err = file->f_error;
+-	if (err) {
++	if (unlikely(file->f_error)) {
++		err = file->f_error;
+ 		file->f_error = 0;
+ 		goto out;
  	}
-@@ -122,7 +122,7 @@ static void *rme9652_malloc_pages(struct
- static void rme9652_free_pages(struct pci_dev *pci, unsigned long size,
- 			       void *ptr, dma_addr_t dmaaddr)
- {
--	mem_map_t *page, *last_page;
-+	struct page *page, *last_page;
+@@ -2129,11 +2124,10 @@ generic_file_write(struct file *file,con
+ 	/*
+ 	 * Check whether we've reached the file size limit.
+ 	 */
+-	err = -EFBIG;
+-	
+-	if (limit != RLIM_INFINITY) {
++	if (unlikely(limit != RLIM_INFINITY)) {
+ 		if (pos >= limit) {
+ 			send_sig(SIGXFSZ, current, 0);
++			err = -EFBIG;
+ 			goto out;
+ 		}
+ 		if (pos > 0xFFFFFFFFULL || count > limit - (u32)pos) {
+@@ -2143,11 +2137,13 @@ generic_file_write(struct file *file,con
+ 	}
  
- 	if (ptr == NULL)
- 		return;
+ 	/*
+-	 *	LFS rule 
++	 * LFS rule
+ 	 */
+-	if ( pos + count > MAX_NON_LFS && !(file->f_flags&O_LARGEFILE)) {
++	if (unlikely(pos + count > MAX_NON_LFS &&
++				!(file->f_flags & O_LARGEFILE))) {
+ 		if (pos >= MAX_NON_LFS) {
+ 			send_sig(SIGXFSZ, current, 0);
++			err = -EFBIG;
+ 			goto out;
+ 		}
+ 		if (count > MAX_NON_LFS - (u32)pos) {
+@@ -2157,18 +2153,14 @@ generic_file_write(struct file *file,con
+ 	}
+ 
+ 	/*
+-	 *	Are we about to exceed the fs block limit ?
+-	 *
+-	 *	If we have written data it becomes a short write
+-	 *	If we have exceeded without writing data we send
+-	 *	a signal and give them an EFBIG.
++	 * Are we about to exceed the fs block limit ?
+ 	 *
+-	 *	Linus frestrict idea will clean these up nicely..
++	 * If we have written data it becomes a short write.  If we have
++	 * exceeded without writing data we send a signal and return EFBIG.
++	 * Linus frestrict idea will clean these up nicely..
+ 	 */
+-	 
+-	if (!S_ISBLK(inode->i_mode)) {
+-		if (pos >= inode->i_sb->s_maxbytes)
+-		{
++	if (likely(!S_ISBLK(inode->i_mode))) {
++		if (unlikely(pos >= inode->i_sb->s_maxbytes)) {
+ 			if (count || pos > inode->i_sb->s_maxbytes) {
+ 				send_sig(SIGXFSZ, current, 0);
+ 				err = -EFBIG;
+@@ -2177,7 +2169,7 @@ generic_file_write(struct file *file,con
+ 			/* zero-length writes at ->s_maxbytes are OK */
+ 		}
+ 
+-		if (pos + count > inode->i_sb->s_maxbytes)
++		if (unlikely(pos + count > inode->i_sb->s_maxbytes))
+ 			count = inode->i_sb->s_maxbytes - pos;
+ 	} else {
+ 		if (is_read_only(inode->i_rdev)) {
+@@ -2200,21 +2192,37 @@ generic_file_write(struct file *file,con
+ 		goto out;
+ 
+ 	remove_suid(file->f_dentry);
+-	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
++	inode->i_ctime = CURRENT_TIME;
++	inode->i_mtime = CURRENT_TIME;
+ 	mark_inode_dirty_sync(inode);
+ 
+-	if (file->f_flags & O_DIRECT)
+-		goto o_direct;
++	if (unlikely(file->f_flags & O_DIRECT)) {
++		written = generic_file_direct_IO(WRITE, file,
++						(char *) buf, count, pos);
++		if (written > 0) {
++			loff_t end = pos + written;
++			if (end > inode->i_size && !S_ISBLK(inode->i_mode)) {
++				inode->i_size = end;
++				mark_inode_dirty(inode);
++			}
++			*ppos = end;
++			invalidate_inode_pages2(mapping);
++		}
++		/*
++		 * Sync the fs metadata but not the minor inode changes and
++		 * of course not the data as we did direct DMA for the IO.
++		 */
++		if (written >= 0 && file->f_flags & O_SYNC)
++			status = generic_osync_inode(inode, OSYNC_METADATA);
++		goto out_status;
++	}
+ 
+ 	do {
+-		unsigned long index, offset;
++		unsigned long index;
++		unsigned long offset;
+ 		long page_fault;
+ 		char *kaddr;
+ 
+-		/*
+-		 * Try to find the page in the cache. If it isn't there,
+-		 * allocate a free page.
+-		 */
+ 		offset = (pos & (PAGE_CACHE_SIZE -1)); /* Within page */
+ 		index = pos >> PAGE_CACHE_SHIFT;
+ 		bytes = PAGE_CACHE_SIZE - offset;
+@@ -2232,96 +2240,67 @@ generic_file_write(struct file *file,con
+ 			__get_user(dummy, buf+bytes-1);
+ 		}
+ 
+-		status = -ENOMEM;	/* we'll assign it later anyway */
+ 		page = __grab_cache_page(mapping, index, &cached_page);
+-		if (!page)
++		if (!page) {
++			status = -ENOMEM;
+ 			break;
+-
+-		/* We have exclusive IO access to the page.. */
+-		if (!PageLocked(page)) {
+-			PAGE_BUG(page);
+ 		}
+ 
+ 		kaddr = kmap(page);
+-		status = mapping->a_ops->prepare_write(file, page, offset, offset+bytes);
+-		if (status)
+-			goto sync_failure;
+-		page_fault = __copy_from_user(kaddr+offset, buf, bytes);
++		status = a_ops->prepare_write(file, page, offset, offset+bytes);
++		if (unlikely(status)) {
++			/*
++			 * prepare_write() may have instantiated a few blocks
++			 * outside i_size.  Trim these off again.
++			 */
++			kunmap(page);
++			unlock_page(page);
++			page_cache_release(page);
++			if (pos + bytes > inode->i_size)
++				vmtruncate(inode, inode->i_size);
++			break;
++		}
++		page_fault = __copy_from_user(kaddr + offset, buf, bytes);
+ 		flush_dcache_page(page);
+-		status = mapping->a_ops->commit_write(file, page, offset, offset+bytes);
+-		if (page_fault)
+-			goto fail_write;
+-		if (!status)
+-			status = bytes;
+-
+-		if (status >= 0) {
+-			written += status;
+-			count -= status;
+-			pos += status;
+-			buf += status;
++		status = a_ops->commit_write(file, page, offset, offset+bytes);
++		if (unlikely(page_fault)) {
++			status = -EFAULT;
++		} else {
++			if (!status)
++				status = bytes;
++
++			if (status >= 0) {
++				written += status;
++				count -= status;
++				pos += status;
++				buf += status;
++			}
+ 		}
+-unlock:
+ 		kunmap(page);
+-		/* Mark it unlocked again and drop the page.. */
+ 		SetPageReferenced(page);
+ 		unlock_page(page);
+ 		page_cache_release(page);
+-
+ 		if (status < 0)
+ 			break;
+ 		balance_dirty_pages_ratelimited(mapping);
+ 	} while (count);
+-done:
+ 	*ppos = pos;
+ 
+ 	if (cached_page)
+ 		page_cache_release(cached_page);
+ 
+-	/* For now, when the user asks for O_SYNC, we'll actually
+-	 * provide O_DSYNC. */
++	/*
++	 * For now, when the user asks for O_SYNC, we'll actually give O_DSYNC
++	 */
+ 	if (status >= 0) {
+ 		if ((file->f_flags & O_SYNC) || IS_SYNC(inode))
+-			status = generic_osync_inode(inode, OSYNC_METADATA|OSYNC_DATA);
++			status = generic_osync_inode(inode,
++					OSYNC_METADATA|OSYNC_DATA);
+ 	}
+ 	
+ out_status:	
+ 	err = written ? written : status;
+ out:
+-
+ 	up(&inode->i_sem);
+ 	return err;
+-fail_write:
+-	status = -EFAULT;
+-	goto unlock;
+-
+-sync_failure:
+-	/*
+-	 * If blocksize < pagesize, prepare_write() may have instantiated a
+-	 * few blocks outside i_size.  Trim these off again.
+-	 */
+-	kunmap(page);
+-	unlock_page(page);
+-	page_cache_release(page);
+-	if (pos + bytes > inode->i_size)
+-		vmtruncate(inode, inode->i_size);
+-	goto done;
+-
+-o_direct:
+-	written = generic_file_direct_IO(WRITE, file, (char *) buf, count, pos);
+-	if (written > 0) {
+-		loff_t end = pos + written;
+-		if (end > inode->i_size && !S_ISBLK(inode->i_mode)) {
+-			inode->i_size = end;
+-			mark_inode_dirty(inode);
+-		}
+-		*ppos = end;
+-		invalidate_inode_pages2(mapping);
+-	}
+-	/*
+-	 * Sync the fs metadata but not the minor inode changes and
+-	 * of course not the data as we did direct DMA for the IO.
+-	 */
+-	if (written >= 0 && file->f_flags & O_SYNC)
+-		status = generic_osync_inode(inode, OSYNC_METADATA);
+-	goto out_status;
+ }
+
 
 -

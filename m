@@ -1,91 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVCOT7W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVCOT7W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261854AbVCOT7W (ORCPT <rfc822;willy@w.ods.org>);
+	id S261852AbVCOT7W (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 15 Mar 2005 14:59:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVCOT4h
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVCOTzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 14:56:37 -0500
-Received: from mail.kroah.org ([69.55.234.183]:21919 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261842AbVCOTvi (ORCPT
+	Tue, 15 Mar 2005 14:55:37 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:33820 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261828AbVCOTv1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 14:51:38 -0500
-Date: Tue, 15 Mar 2005 11:51:21 -0800
-From: Greg KH <greg@kroah.com>
-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [RFC] Changes to the driver model class code.
-Message-ID: <20050315195121.GA27408@kroah.com>
-References: <20050315170834.GA25475@kroah.com> <20050315190847.GA1870@isilmar.linta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050315190847.GA1870@isilmar.linta.de>
-User-Agent: Mutt/1.5.8i
+	Tue, 15 Mar 2005 14:51:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type;
+        b=MRiqBebZfDFMkAPjAs+wcGW2r5MWZd/jxT/zl+p0JXvEzBMztpyUET3ZZ0fbvXdSIqnWFvCEqQIq6AmbEx11uFxs3OieBUaLZNStmTUPKgbRZVuUs6PInn+wzEoQhn+y9y7jjxchp1YRuw5gvpxAwYDoWmKQ5iSAxmlDcaL2PCI=
+Message-ID: <42373CAC.6080500@gmail.com>
+Date: Tue, 15 Mar 2005 21:51:08 +0200
+From: Matan Peled <chaosite@gmail.com>
+Reply-To: chaosite@gmail.com
+Organization: Chaosite Destruction, inc.
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Chris Friesen <cfriesen@nortel.com>,
+       "Justin M. Forbes" <jmforbes@linuxtx.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.Stable and EXTRAVERSION
+References: <Pine.LNX.3.96.1050311154019.20262B-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1050311154019.20262B-100000@gatekeeper.tmr.com>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigDF952C933CE168F630B3FB32"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 15, 2005 at 08:08:47PM +0100, Dominik Brodowski wrote:
-> On Tue, Mar 15, 2005 at 09:08:34AM -0800, Greg KH wrote:
-> > Then I moved the USB host controller code to use this new interface.
-> > That was a bit more complex as it used the struct class and struct
-> > class_device code directly.  As you can see by the patch, the result is
-> > pretty much identical, and actually a bit smaller in the end.
-> > 
-> > So I'll be slowly converting the kernel over to using this new
-> > interface, and when finished, I can get rid of the old class apis (or
-> > actually, just make them static) so that no one can implement them
-> > improperly again...
-> > 
-> > Comments?
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigDF952C933CE168F630B3FB32
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Bill Davidsen wrote:
+> I have to see what that generates. The problem is LOCALVERSION and current
+> use of both 3 and 4 field kernel versions. You need a smarter script to
+> handle that.
 > 
-> The "old" class api _forced_ you to think of reference counting of
-> dynamically allocated objects, while it gets easier to get reference
-> counting wrong using this "simple"/"new" interface: while struct class will 
-> always have fine reference counting, the "parent" struct [with struct class
-> no longer being embedded] needs to be thought of individually; and the 
-> reference count cannot be shared any longer.
 
-The reference counting will now be correct.  That is implicit in the
-interface, and was done because, not to sound like a broken record,
-_everyone_ got it wrong when they tried to do it...
+... To which the knee jerk solution would be ...
 
-> Also, it seems to me that you view the class subsystem to be too closely
-> related to /dev entries -- and for these /dev entries class_simple was
-> introduced, IIRC. However, /dev is not the reason the class subsystem was 
-> introduced for -- instead, it describes _types_ of devices which want to
-> share (userspace and in-kernel) interfaces.
+Name Linus's kernel releases 2.6.z.0 ... ?
 
-I agree, I know it isn't directly related to /dev entries, but that _is_
-the most common usage of it, so I can't ignore it :)
 
-Anyway, it's very simple to convert over to using the new functions, and
-still have all of your sysfs and reference counting functionality.  See
-the USB patch that I posted in this series as an example of how to do
-this.  Just use a kref and a pointer to the class_device.  You have all
-of the previous functionality that you needed before right there.
+-- 
+[Name      ]   ::  [Matan I. Peled    ]
+[Location  ]   ::  [Israel            ]
+[Public Key]   ::  [0xD6F42CA5        ]
+[Keyserver ]   ::  [keyserver.kjsl.com]
+encrypted/signed  plain text  preferred
 
-> For example pcmcia sockets which
-> can reside on different buses, but can be handled (mostly) the same way by
-> kernel- and userspace. For example, temperature sensors could be exported
-> using /sys/class/temp_sensors/... -- then userspace wouldn't need to know
-> whether the temperature was determined using an ACPI BIOS call or by
-> accessing an i2c device. Such "abstractions", and other kernel code whcih
-> uses these "abstractions" (a.k.a. class interfaces) are a great feature to
-> have, and one too less used by now.
 
-class interfaces are not going away, there's a good need for them like
-you have pointed out.  I'm not expecting to just delete those api
-functions tomorrow, but slowly phase out the use of them over time, and
-hopefully, eventually get rid of them.  I think that with my USB host
-controller patch, I've proved that they are not as needed as you might
-think they were.
+--------------enigDF952C933CE168F630B3FB32
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-It's easy to make a complex, powerful, all-singing-all-dancing api.
-That's what we have today.  It's hard to make such an api easy to use,
-that's what we need to realize and start to fix.  This is the first of
-such steps to try to achieve this.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-thanks,
+iD8DBQFCNzywA7Qvptb0LKURAnTOAJ0fI//vr12LXeBCe/TN368cV8/HKwCfdeK6
+mm3glkS2zZIwCb6Tti9c3HY=
+=fKSK
+-----END PGP SIGNATURE-----
 
-greg k-h
+--------------enigDF952C933CE168F630B3FB32--

@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267740AbTAaJiA>; Fri, 31 Jan 2003 04:38:00 -0500
+	id <S267739AbTAaJgD>; Fri, 31 Jan 2003 04:36:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267741AbTAaJiA>; Fri, 31 Jan 2003 04:38:00 -0500
-Received: from daimi.au.dk ([130.225.16.1]:59521 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S267740AbTAaJh7>;
-	Fri, 31 Jan 2003 04:37:59 -0500
-Message-ID: <3E3A4627.993A4B59@daimi.au.dk>
-Date: Fri, 31 Jan 2003 10:47:19 +0100
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-19.7.xsmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: doubts in INIT - while system booting up
-References: <200301310921.h0V9LJxZ002780@eeyore.valparaiso.cl>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S267740AbTAaJgD>; Fri, 31 Jan 2003 04:36:03 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:32390 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S267739AbTAaJgC>; Fri, 31 Jan 2003 04:36:02 -0500
+Message-Id: <200301310941.h0V9fa89002888@eeyore.valparaiso.cl>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Module alias and device table support. 
+In-Reply-To: Your message of "Fri, 31 Jan 2003 00:23:56 CST."
+             <Pine.LNX.4.44.0301302351550.15587-100000@chaos.physics.uiowa.edu> 
+Date: Fri, 31 Jan 2003 10:41:36 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
+Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> said:
+> On Fri, 31 Jan 2003, Rusty Russell wrote:
 > 
-> > > >        INIT: Id "x" respawing too fast: disabled for 5
+> > This patch adds MODULE_ALIAS("foo") capability, and uses it to
+> > automatically generate sensible aliases from device tables.  The
+> > post-processing is a little rough, but works.
+
+I fail to see why a module would have to declare aliases for itself.
+Aliases are an userspace/after boot problem (i.e., which one is eth0?,
+etc), so this means having _two_ (three?) ways of getting the same kind of
+info (in-module/in-kernel, /etc/module.somethingortheother). Not nice.
+
+> > Name: Module alias and device table support
+> > Author: Rusty Russell
+> > Status: Tested on 2.5.59
+> > 
+> > D: Introduces "MODULE_ALIAS" which modules can use to embed their own
+> > D: aliases for modprobe to use.  Also adds a "finishing" step to modules to
+> > D: supplement their aliases based on MODULE_TABLE declarations, eg.
+> > D: 'usb:v0506p4601dl*dh*dc*dsc*dp*ic*isc*ip*' for drivers/usb/net/pegasus.o
 > 
-> I've seen such problems too, caused by full /tmp
+> Some comments:
+> o First of all, we're basically moving depmod functionality into the 
+>   kernel tree, which I regard as a good thing, since we have to deal
+>   with actual kernel structures here. (The obvious disadvantage is that
+>   this makes it much easier to change these kernel structures, which
+>   breaks compatibility with other (user space) tools who expect a certain
+>   format)
 
-Yes IIRC in that case xfs will fail to create /tmp/.font-unix
-and the socket /tmp/.font-unix/fs7100 and X will fail because
-of the missing font server.
+It doesn't "move", it "replicates into". Not nice at all.
 
-Anyway, I was just stating that it could be caused by a
-misconfigured kernel.
+[...]
 
+> o I think it'd be a good time to consider naming these sections e.g.
+>   "__discard.modalias", the license one "__discard.license" and have
+>   the kernel module loader discard "__discard*", so that it doesn't
+>   need to be aware of all that special crap, nor waste space for it. 
+>   (Well, it needs to know about the license, anyway, so that's not such
+>   a good example).
+
+Good idea.
 -- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:aaarep@daimi.au.dk
-for(_=52;_;(_%5)||(_/=5),(_%5)&&(_-=2))putchar(_);
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbULAN1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbULANcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbULAN1r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 08:27:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbULAN1r
+	id S261242AbULANcn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 08:32:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbULANcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 08:27:47 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:62861 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261240AbULAN1p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 08:27:45 -0500
-Date: Wed, 1 Dec 2004 14:27:10 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Wen-chien Jesse Sung <jesse@cola.voip.idv.tw>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-17
-Message-ID: <20041201132710.GA8328@elte.hu>
-References: <41AD9A33.3070205@cola.voip.idv.tw> <20041201113746.GA21640@elte.hu> <20041201115221.GA22697@elte.hu> <41ADBE1C.9010807@cola.voip.idv.tw>
+	Wed, 1 Dec 2004 08:32:43 -0500
+Received: from barry.mail.mindspring.net ([207.69.200.25]:41240 "EHLO
+	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id S261242AbULANcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 08:32:39 -0500
+Message-Id: <5.1.0.14.2.20041201082839.009f2340@pop.mindspring.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 01 Dec 2004 08:32:42 -0500
+To: Andrew Morton <akpm@osdl.org>
+From: Joe Korty <kortyads@mindspring.com>
+Subject: Re: waitid breaks telnet
+Cc: roland@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20041130202730.6ceab259.akpm@osdl.org>
+References: <5.1.0.14.2.20041130225221.009d1340@pop.mindspring.com>
+ <5.1.0.14.2.20041130225221.009d1340@pop.mindspring.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41ADBE1C.9010807@cola.voip.idv.tw>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 08:27 PM 11/30/04 -0800, Andrew Morton wrote:
+>Joe Korty <kortyads@mindspring.com> wrote:
+> >
+> > [ 2nd send, this one from my home email account...]
+> >
+> > telnet no longer works:
+> >
+> >      # chkconfig telnet on
+> >      # telnet localhost
+> >      Trying 127.0.0.1...
+> >      Connected to localhost (127.0.0.1).
+> >      Escape character is '^]'.
+> >      Red Hat Enterprise Linux WS release 3 (Taroon Update 2)
+> >      Kernel 2.6.10-rc2 on an i686
+> >      Connection closed by foreign host.
+> >
+> > A bsearch placed the bug between 2.6.9-rc1-bk[78], another
+> > bsearch on the changesets showed the problem is caused
+> > by this patch:
+> >
+> >      roland@redhat.com[torvalds]|ChangeSet|20040831173525|30767
+> >      [PATCH] waitid system call
+> >
+> > My guess is, something about the new wait4(2) wrapper
+> > is causing the telnet daemon to declare success before
+> > its child, /bin/login, exits.
+>
+>I can reproduce this on 2.6.10-rc2, but it seems to have been fixed in more
+>recent kernels.  However I cannot think of anything which we did which
+>would have fixed this.
 
-* Wen-chien Jesse Sung <jesse@cola.voip.idv.tw> wrote:
+I was able to reproduce it with the day-before-yesterday''s bitkeeper tree.
 
-> I redo the test with a vanilla 2.6.10-rc2-mm3-V0.7.31-16 again, and it
-> still hangs at hwclock. Here's the complete config file.
+My boss sees broken kernels work once in a while.  I myself have
+never been able to get a broken kernel to work.  The problem may
+be a race.
 
-ok, could you try the -17 kernel i've just uploaded to the usual place:
+Joe
 
-    http://redhat.com/~mingo/realtime-preempt/
 
-does this fix the lockup?
-
-i believe the lockup is an interesting side-effect of threading IRQ#0:
-any code within the kernel that loops on jiffies will produce a lockup,
-because it starves the timer IRQ thread.
-
-The RTC driver had two such places, but i also found one in the
-IRQ-autodetect code. We want to eliminate such code anyway, and a lockup
-is certainly an effective way to detect it ;)
-
-to debug such lockups in the future you can do:
-
-	echo 1 > /proc/sys/kernel/debug_direct_keyboard
-	/sbin/hwclock ...
-
-and use the sysrq keys to get a stack dump of the lockup. NOTE: dont use
-the keyboard in this mode for too long, it can lock up.
-
-	Ingo

@@ -1,82 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262580AbRFRTZL>; Mon, 18 Jun 2001 15:25:11 -0400
+	id <S262626AbRFRT3B>; Mon, 18 Jun 2001 15:29:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262611AbRFRTZB>; Mon, 18 Jun 2001 15:25:01 -0400
-Received: from front2.mail.megapathdsl.net ([66.80.60.30]:18440 "EHLO
-	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S262580AbRFRTYt>; Mon, 18 Jun 2001 15:24:49 -0400
-Subject: 2.4.5-ac15 -- Unresolved symbols "gameport_register_port" and
-	"gameport_unregister_port" in char/joystick/[cs461x.o, emu10k1-gp.o,
-	lightning.o, ns558.o, pcigame.o]
-From: Miles Lane <miles@megapathdsl.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10.99 (Preview Release)
-Date: 18 Jun 2001 12:31:28 -0700
-Message-Id: <992892690.11752.0.camel@agate>
+	id <S262649AbRFRT2v>; Mon, 18 Jun 2001 15:28:51 -0400
+Received: from SSH.ChaoticDreams.ORG ([64.162.95.164]:8580 "EHLO
+	ssh.chaoticdreams.org") by vger.kernel.org with ESMTP
+	id <S262626AbRFRT2c>; Mon, 18 Jun 2001 15:28:32 -0400
+Date: Mon, 18 Jun 2001 12:28:00 -0700
+From: Paul Mundt <lethal@ChaoticDreams.ORG>
+To: =?iso-8859-1?Q?Ren=E9?= Rebe <rene.rebe@gmx.net>
+Cc: James Simmons <jsimmons@transvirtual.com>, linux-kernel@vger.kernel.org,
+        ademar@conectiva.com.br, rolf@sir-wum.de,
+        linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: sis630 - help needed debugging in the kernel
+Message-ID: <20010618122800.A10027@ChaoticDreams.ORG>
+In-Reply-To: <20010616232740.092475e2.rene.rebe@gmx.net> <Pine.LNX.4.10.10106170652280.17509-100000@transvirtual.com> <20010618203203.35390ca8.rene.rebe@gmx.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.13i
+In-Reply-To: <20010618203203.35390ca8.rene.rebe@gmx.net>; from rene.rebe@gmx.net on Mon, Jun 18, 2001 at 08:32:03PM +0200
+Organization: Chaotic Dreams Development Team
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know if this is due to symbols not being exported or due
-to some failed dependency structuring in "make menuconfig".
+On Mon, Jun 18, 2001 at 08:32:03PM +0200, René Rebe wrote:
+> > Try booting at 640x480 with a color depth of 32. Then
+> > try booting at a different resolution (1024x768) at the default color
+> > depth. I want to see if its a error with the resolution setting or if it
+> > is a error with setting up the data relating to the color depth handling. 
+> > The results should give me some clue.
+> 
+> I can't set the videomode for the driver ...? I tried:
+> 
+> video=sis:vesa:0x112
+> video=sis:xres:640,yres:480,depth:32
+> video=sis,xres:640,yres:480,depth:32
+> 
+> Is there another way to tell the fb driver what mode to use??
+> 
+Yep, in fbmem.c the name entry is "sisfb" as opposed to just "sis". Also, the
+driver requires that the mode is passed video a "mode:" argument as is
+outlined in the sisfb_setup(). Take a look at drivers/video/sis/sis_main.h,
+specifically sisbios_mode[] for a list of supported modes.
 
-find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{}
-pcmcia
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.5-ac15;
-fi
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.5-ac15/kernel/drivers/char/joystick/cs461x.o
-depmod: 	gameport_register_port
-depmod: 	gameport_unregister_port
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.5-ac15/kernel/drivers/char/joystick/emu10k1-gp.o
-depmod: 	gameport_register_port
-depmod: 	gameport_unregister_port
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.5-ac15/kernel/drivers/char/joystick/lightning.o
-depmod: 	gameport_register_port
-depmod: 	gameport_unregister_port
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.5-ac15/kernel/drivers/char/joystick/ns558.o
-depmod: 	gameport_register_port
-depmod: 	gameport_unregister_port
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.5-ac15/kernel/drivers/char/joystick/pcigame.o
-depmod: 	gameport_register_port
-depmod: 	gameport_unregister_port
+Something like:
 
-Here are the relevant .config bits:
+video=sisfb:mode:640x480x32
 
-CONFIG_INPUT_GAMEPORT=y
-CONFIG_INPUT_NS558=m
-CONFIG_INPUT_LIGHTNING=m
-CONFIG_INPUT_PCIGAME=m
-CONFIG_INPUT_CS461X=m
-CONFIG_INPUT_EMU10K1=m
-CONFIG_INPUT_SERIO=m
-CONFIG_INPUT_SERPORT=m
-# CONFIG_INPUT_ANALOG is not set
-# CONFIG_INPUT_A3D is not set
-# CONFIG_INPUT_ADI is not set
-# CONFIG_INPUT_COBRA is not set
-# CONFIG_INPUT_GF2K is not set
-# CONFIG_INPUT_GRIP is not set
-# CONFIG_INPUT_INTERACT is not set
-# CONFIG_INPUT_TMDC is not set
-# CONFIG_INPUT_SIDEWINDER is not set
-# CONFIG_INPUT_IFORCE_USB is not set
-# CONFIG_INPUT_IFORCE_232 is not set
-# CONFIG_INPUT_WARRIOR is not set
-# CONFIG_INPUT_MAGELLAN is not set
-# CONFIG_INPUT_SPACEORB is not set
-# CONFIG_INPUT_SPACEBALL is not set
-# CONFIG_INPUT_STINGER is not set
-# CONFIG_INPUT_DB9 is not set
-# CONFIG_INPUT_GAMECON is not set
-# CONFIG_INPUT_TURBOGRAFX is not set
-# CONFIG_QIC02_TAPE is not set
+should do the job.
 
+Regards,
+
+-- 
+Paul Mundt <lethal@chaoticdreams.org>
 

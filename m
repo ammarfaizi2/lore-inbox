@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262119AbRENPMY>; Mon, 14 May 2001 11:12:24 -0400
+	id <S262125AbRENPQO>; Mon, 14 May 2001 11:16:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262125AbRENPMO>; Mon, 14 May 2001 11:12:14 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53800 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S262119AbRENPL7>; Mon, 14 May 2001 11:11:59 -0400
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: "H . J . Lu" <hjl@lucon.org>, "David S. Miller" <davem@redhat.com>,
-        alan@lxorguk.ukuu.org.uk, linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Enable IP PNP for 2.4.4-ac8
-In-Reply-To: <m1y9s1jbml.fsf@frodo.biederman.org> <20010511162412.A11896@lucon.org> <15100.30085.5209.499946@pizda.ninka.net> <20010511165339.A12289@lucon.org> <m13da9ky7s.fsf@frodo.biederman.org> <20010513110707.A11055@lucon.org> <16874.989832587@redhat.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 14 May 2001 09:08:24 -0600
-In-Reply-To: David Woodhouse's message of "Mon, 14 May 2001 10:29:47 +0100"
-Message-ID: <m1k83kj7dj.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S262128AbRENPQE>; Mon, 14 May 2001 11:16:04 -0400
+Received: from smtp102.urscorp.com ([38.202.96.105]:28680 "EHLO
+	smtp102.urscorp.com") by vger.kernel.org with ESMTP
+	id <S262125AbRENPPu>; Mon, 14 May 2001 11:15:50 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+Subject: Re: skb->truesize > sk->rcvbuf == Dropped packets
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+From: mike_phillips@urscorp.com
+Message-ID: <OFE3DC388A.10616F68-ON84256A4C.004C2B8C@urscorp.com>
+Date: Mon, 14 May 2001 12:08:06 -0300
+X-MIMETrack: Serialize by Router on SMTP102/URSCorp(Release 5.0.5 |September 22, 2000) at
+ 05/14/2001 11:11:15 AM,
+	Serialize complete at 05/14/2001 11:11:15 AM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org> writes:
+> > >  > Any suggestions on heuristics for this ? 
+> > 
+> > Not to set rcvbuf to ridiculously low values. The best variant is not
+> > to touch SO_*BUF options at all.
 
-> ebiederm@xmission.com said:
-> >  Since you have to set the command line anyway ip=dhcp is no extra
-> > burden and it lets you use the same kernel to boot of the harddrive
-> > etc.
-> 
-> You don't have to set the command line anyway. At least you _didn't_.
+> Hmmm... I don't see how not touching buffer values can solve his
+> problem at all.  His MTU is really HUGE, and in this case 300 byte
+> packet eats 10k or so space in receive buffer.
 
-There wasn't even DHCP support before so yes you did.   As you can't
-get the nfs mount point from bootp.
+> I doubt our buffer size tuning algorithms can cope with this.
 
-> ebiederm@xmission.com said:
-> >  I boot diskless all of time and supporting a ramdisk is trivial.  You
-> > just a have a program that slaps a kernel a ramdisk, and some command
-> > line arguments into a single image, along with a touch of adapter code
-> > to set the kernel parameters correctly and then boot that.
-> 
-> It's a PITA. Downloading a kernel by TFTP each time you make a one-line 
-> change is painful enough, without having to download a ramdisk to go with 
-> it.
+Yep, it's no big thing to make the change in the driver, the copy is not 
+that expensive and compared to the speed of the physical layer its 
+virtually a non-impact. The most I've ever got out of 16 mbps t/r is just 
+over 2 mb/second and memory copies can easily keep up with that. (That's 
+with 8192 byte mtu's and ftp transfers which wouldn't get copied anyway). 
 
-Unless you have a slow network, it isn't bad.  I routinely download a 3MB
-kerenl+RAMDISK image in under a second.  And that ramdisk is virtually
-without size optimization.  It has glibc and a whole host of user
-space tools.  I have gotten it down much smaller.
+Mike
 
-> And once those kernels are being built with CONFIG_BLK_DEV=n, the ramdisk 
-> is going to be an even more unattractive solution.
-
-Well I think in the CONFIG_BLK_DEV=n case it might wind up being a
-ramfs or tmpfs image.  Something like a simplified version of tar.
-
-Eric

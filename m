@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129460AbQLLVix>; Tue, 12 Dec 2000 16:38:53 -0500
+	id <S129429AbQLLVjW>; Tue, 12 Dec 2000 16:39:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129631AbQLLVim>; Tue, 12 Dec 2000 16:38:42 -0500
-Received: from mail2.rdc3.on.home.com ([24.2.9.41]:41433 "EHLO
-	mail2.rdc3.on.home.com") by vger.kernel.org with ESMTP
-	id <S129460AbQLLVid>; Tue, 12 Dec 2000 16:38:33 -0500
-Message-ID: <3A3693A8.E0BA83B7@home.com>
-Date: Tue, 12 Dec 2000 16:07:52 -0500
-From: John Cavan <johncavan@home.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S129557AbQLLVjG>; Tue, 12 Dec 2000 16:39:06 -0500
+Received: from blackhole.compendium-tech.com ([206.55.153.26]:46843 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S129429AbQLLVjB>; Tue, 12 Dec 2000 16:39:01 -0500
+Date: Tue, 12 Dec 2000 13:08:03 -0800 (PST)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+To: Matan Ziv-Av <matan@svgalib.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Big IDE HD unclipping and IBM drive
+In-Reply-To: <Pine.LNX.4.21_heb2.09.0012082319530.962-100000@matan.home>
+Message-ID: <Pine.LNX.4.21.0012121307250.6171-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-CC: " Paul C. Nendick" <pauly@enteract.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.16 SMP: mtrr errors
-In-Reply-To: <F7C565F7C41@vcnet.vc.cvut.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
-> > kernel: mtrr: base(0xd4000000) is not aligned on a size(0x1800000) boundary
-> > last message repeated 2 times
+
+Yeah, get yourself one of those nifty add-in IDE controllers that CAN see
+drives greater than 32GB. S'What I did and it works fine.
+
+On Fri, 8 Dec 2000, Matan Ziv-Av wrote:
+
 > 
-> For some strange reason X thinks that you have 24MB of memory on the G450.
-> You can either create 32MB write-combining region at 0xd4000000, or
-> teach X that your device occupies 32MB and not 24 (you should do it anyway,
-> region size can be only power of two)...
+> Hi,
+> 
+> 
+> I have an IBM drive, DTLA-307075 (75GB), and a bios that hangs with
+> large disks. I use a jumper to clip it to 32GB size, so the bios can
+> boot into linux. The problem is that WIN_READ_NATIVE_MAX returns 32GB,
+> and not the true size, and even trying to set the correct size with
+> WIN_SET_MAX fails. Is there a way to use this combination (Bios, HD,
+> Linux)?
+> 
+> 
+> 
 
-Petr, the Matrox card splits the memory between the two video screens
-when running in a multi-head configuration and "pretends" that it is two
-distinct cards. Thus, a 32 mb card will register an mtrr for 24mb and
-for 8mb seperately when in this mode.
+-- 
+ Kelsey Hudson                                           khudson@ctica.com 
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
 
-At line 1190 in arch/i386/kernel/mtrr.c the switch on Intel falls
-through hitting the error message for Centaur. I know the comment says
-to fall through, but is this correct? I've inserted a break at the end
-of the Intel switch before and have not had problems, but I left it out
-in the latest couple of kernels because of all the mtrr work being done,
-waiting to see if there was resolution.
-
-John
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

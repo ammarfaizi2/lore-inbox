@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263204AbTAJGcu>; Fri, 10 Jan 2003 01:32:50 -0500
+	id <S263228AbTAJGka>; Fri, 10 Jan 2003 01:40:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263215AbTAJGcu>; Fri, 10 Jan 2003 01:32:50 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:4883 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S263204AbTAJGcs>; Fri, 10 Jan 2003 01:32:48 -0500
-Message-Id: <200301100634.h0A6Yps14454@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Peter Chubb <peter@chubb.wattle.id.au>,
-       Andrew McGregor <andrew@indranet.co.nz>
-Subject: Re: ISO-9660 Rock Ridge gives different links different inums
-Date: Fri, 10 Jan 2003 08:34:44 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: eric@andante.org, linux-kernel@vger.kernel.org
-References: <15902.14667.489252.346007@wombat.chubb.wattle.id.au> <1345590000.1042169011@localhost.localdomain> <15902.16227.924630.143293@wombat.chubb.wattle.id.au>
-In-Reply-To: <15902.16227.924630.143293@wombat.chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S263256AbTAJGka>; Fri, 10 Jan 2003 01:40:30 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:23685 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263228AbTAJGk0>;
+	Fri, 10 Jan 2003 01:40:26 -0500
+Date: Thu, 09 Jan 2003 22:40:06 -0800 (PST)
+Message-Id: <20030109.224006.102700508.davem@redhat.com>
+To: andersg@0x63.nu
+Cc: Niels.denOtter@surfnet.nl, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.55: local symbols in net/ipv6/af_inet6.o
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030109231834.GD3345@gagarin>
+References: <20030109091025.GW31387@surly.surfnet.nl>
+	<20030109231834.GD3345@gagarin>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 January 2003 05:34, Peter Chubb wrote:
-> >> I don't know enough about the ISO9660 standard to be sure what's
-> >> best to do about this.
->
-> Andrew> Change it to be the offset to the data area, which should be
-> Andrew> the same for all of them?
->
-> I thought about that, but I'm unsure if there's any way to get from
-> that offset to the directory information.  As far as I can tell,
-> there's no concept of an inode separate from directory entry on
-> iso9660 --- the directory entry/entries all contain all the
-> information that describes a file.  Which means that the inumber has
-> to point to some directory node.
->
-> Preferably, all the inumbers for the same file would point to the
-> same directory entry; but I can see no easy way to do that.  Keeping
-> an in-memory table for files with multiple links might be the best
-> way, as there aren't that many on a typical filesystem.
+   From: Anders Gustafsson <andersg@0x63.nu>
+   Date: Fri, 10 Jan 2003 00:18:34 +0100
 
-And what will happen on a non-typical filesystem with 1 million hardlinks?
-
-The root of the problem is a fundamental layering violation in
-traditional Unix filesystems: inode numbers should NOT be visible
-to userspace. Userspace just needs a way to tell hardlinks from separate
-files, that's all. Exposing inumbers does that, but creates tons
-of problems for filesystems which do NOT have such a concept.
-
-There is at least one way to redesign it:
-* provide hash number instead of an inumber for each file
-  with the following semantics:
-  - hardlinks ALWAYS have equal hash numbers
-  - different files MAY have equal hash numbers (but rarely)
-* provide is_hardlink(file1,file2) system call
-
-But this will cause very long migration period (~10 years?)
-and incompatibilities with other Unix variants...
---
-vda
+   On Thu, Jan 09, 2003 at 10:10:26AM +0100, Niels den Otter wrote:
+   > The reference_discarded.pl script says following:
+   >  pangsit:/usr/src/linux/net> perl ~otter/reference_discarded.pl 
+   >  Finding objects, 245 objects, ignoring 0 module(s)
+   >  Finding conglomerates, ignoring 11 conglomerate(s)
+   >  Scanning objects
+   >  Error: ./ipv6/af_inet6.o .init.text refers to 000003e4 R_386_PC32 .exit.text
+   >  Done
+   > 
+   > I tried both gcc-2.95 & gcc-3.2.2 .
+   
+   This patch shoul fix it, the problem is that cleanup_ipv6_mibs can't be
+   __exit as it's called on ipv6_init's errorpath.
+   
+I've applied your patch, thanks.

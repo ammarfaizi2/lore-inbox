@@ -1,47 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132230AbRAEPmq>; Fri, 5 Jan 2001 10:42:46 -0500
+	id <S132143AbRAEPnp>; Fri, 5 Jan 2001 10:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130216AbRAEPmf>; Fri, 5 Jan 2001 10:42:35 -0500
-Received: from esteel10.client.dti.net ([209.73.14.10]:64396 "EHLO
-	nynews01.e-steel.com") by vger.kernel.org with ESMTP
-	id <S129383AbRAEPmU>; Fri, 5 Jan 2001 10:42:20 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Mathieu Chouquet-Stringer <mchouque@e-steel.com>
-Newsgroups: e-steel.mailing-lists.linux.linux-kernel
+	id <S132258AbRAEPng>; Fri, 5 Jan 2001 10:43:36 -0500
+Received: from nmail.corel.com ([209.167.40.11]:23225 "EHLO nsmail.corel.com")
+	by vger.kernel.org with ESMTP id <S129383AbRAEPn2>;
+	Fri, 5 Jan 2001 10:43:28 -0500
 Subject: Re: kernel network problem ?
-Date: 05 Jan 2001 10:42:14 -0500
-Organization: e-STEEL Netops news server
-Message-ID: <m3elyiroo9.fsf@shookay.e-steel.com>
+From: "Richard Rak" <richardr@corel.com>
+To: Nicolas Parpandet <nparpand@perinfo.com>
+Cc: linux-kernel@vger.kernel.org
 In-Reply-To: <000d01c07724$8fa531f0$8900030a@nicolasp>
-NNTP-Posting-Host: shookay.e-steel
-X-Trace: nynews01.e-steel.com 978709263 3112 192.168.3.43 (5 Jan 2001 15:41:03 GMT)
-X-Complaints-To: news@nynews01.e-steel.com
-NNTP-Posting-Date: 5 Jan 2001 15:41:03 GMT
-X-Newsreader: Gnus v5.7/Emacs 20.7
+Content-Type: text/plain
+X-Mailer: Evolution 0.8 (Developer Preview)
+Date: 05 Jan 2001 10:49:31 -0500
+Mime-Version: 1.0
+Message-ID: <7744FF5310E6.AAA66E7@nsmail.corel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Try typing "echo 0 > /proc/sys/net/ipv4/tcp_ecn" at a shell to
+    disable TPC ECN support.
 
-You have to take a look at ENC:
-Explicit Congestion Notification (ECN) allows routers to notify
-clients about network congestion, resulting in fewer dropped packets
-and increased network performance. This option adds ECN support to the
-Linux kernel, as well as a sysctl (/proc/sys/net/ipv4/tcp_ecn) which
-allows ECN support to be disabled at runtime.
 
-Note that, on the Internet, there are many broken firewalls which
-refuse connections from ECN-enabled machines, and it may be a while
-before these firewalls are fixed. Until then, to access a site behind
-such a firewall (some of which are major sites, at the time of this
-writing) you will have to disable this option, either by saying N now
-or by using the sysctl.
 
-You can disable it at runtime with:
-echo 0 > /proc/sys/net/ipv4/tcp_ecn
-
-nparpand@perinfo.com ("Nicolas Parpandet") writes:
+On 05 Jan 2001 15:34:07 +0100, Nicolas Parpandet wrote:
+> 
 > Hi all,
 > 
 > I'm testing 2.4 series for few weeks,
@@ -81,13 +65,18 @@ nparpand@perinfo.com ("Nicolas Parpandet") writes:
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > Please read the FAQ at http://www.tux.org/lkml/
-> 
+
+
 
 -- 
-Mathieu CHOUQUET-STRINGER              E-Mail : mchouque@e-steel.com
-     Learning French is trivial: the word for horse is cheval, and
-               everything else follows in the same way.
-                        -- Alan J. Perlis
+        Richard Rak
+        (richardr@corel.com)
+        Software Engineer
+        A+ Certified Service Technician
+
+        Experience CorelDRAW 10 Graphics Suite - creative power with an attitude. 
+        Visit http://www.corel.com/draw10
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

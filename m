@@ -1,32 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVAGHaQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVAGHds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbVAGHaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 02:30:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbVAGHaQ
+	id S261300AbVAGHds (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 02:33:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVAGHds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 02:30:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:25027 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261298AbVAGHaN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 02:30:13 -0500
-Date: Thu, 6 Jan 2005 23:29:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, hch@lst.de
-Subject: Re: [PATCH] add EXPORT_SYMBOL for irq_exit
-Message-Id: <20050106232959.693b637c.akpm@osdl.org>
-In-Reply-To: <20050107071834.GA4168@osiris.boeblingen.de.ibm.com>
-References: <20050107071834.GA4168@osiris.boeblingen.de.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 7 Jan 2005 02:33:48 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:51977 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261300AbVAGHdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 02:33:47 -0500
+Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
+From: Arjan van de Ven <arjan@infradead.org>
+To: paulmck@us.ibm.com
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
+       pbadari@us.ibm.com, markv@us.ibm.com, greghk@us.ibm.com
+In-Reply-To: <20050106210408.GM1292@us.ibm.com>
+References: <20050106190538.GB1618@us.ibm.com>
+	 <1105039259.4468.9.camel@laptopd505.fenrus.org>
+	 <20050106201531.GJ1292@us.ibm.com>
+	 <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk>
+	 <20050106210408.GM1292@us.ibm.com>
+Content-Type: text/plain
+Date: Fri, 07 Jan 2005 08:33:32 +0100
+Message-Id: <1105083213.4179.1.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
->
-> this patch adds the missing EXPORT_SYMBOL for irq_exit:
->  *** Warning: "irq_exit" [drivers/s390/net/iucv.ko] undefined!
+On Thu, 2005-01-06 at 13:04 -0800, Paul E. McKenney wrote:
+> On Thu, Jan 06, 2005 at 08:32:59PM +0000, Al Viro wrote:
+> > On Thu, Jan 06, 2005 at 12:15:31PM -0800, Paul E. McKenney wrote:
+> > > Yep, you win the prize, it is MVFS.
+> > > 
+> > > This is the usual port of an existing body of code to the Linux kernel.
+> > > It is not asking for a new export, only restoration of a previously existing
+> > > export.
+> > 
+> > Sorry, but "our code is badly misdesigned" does not make a valid excuse
+> > when you have been told, repeatedly, by many people, for at least a year
+> > that you needed to sanitize your design.
+> 
+> The obvious searches did not find this for me.  Any pointers so that
+> I can bring to the MVFS guys' attention any alternatives that might
+> have been recommended?
 
-Why do s/390 drivers call irq_exit()?
+eh maybe a weird question, but why are you and not the MVFS guys asking
+for this export then? They can probably better explain why they need
+it ....
+

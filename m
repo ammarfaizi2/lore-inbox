@@ -1,59 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbULaJp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbULaJsC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbULaJp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 04:45:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbULaJp5
+	id S261841AbULaJsC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 04:48:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbULaJrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 04:45:57 -0500
-Received: from 1-1-8-31a.gmt.gbg.bostream.se ([82.182.75.118]:45804 "EHLO
-	mail.shipmail.org") by vger.kernel.org with ESMTP id S261827AbULaJpv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 04:45:51 -0500
-Message-ID: <41D52153.3000307@shipmail.org>
-Date: Fri, 31 Dec 2004 10:52:19 +0100
-From: =?ISO-8859-1?Q?Thomas_Hellstr=F6m?= <unichrome@shipmail.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6)
- Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Airlie <airlied@linux.ie>
-Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
-Subject: Re: VIA drm bk tree back up...
-References: <Pine.LNX.4.58.0412310502200.24852@skynet>
-In-Reply-To: <Pine.LNX.4.58.0412310502200.24852@skynet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 31 Dec 2004 04:47:46 -0500
+Received: from fw.osdl.org ([65.172.181.6]:13249 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261831AbULaJqS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 04:46:18 -0500
+Date: Fri, 31 Dec 2004 01:46:11 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: James Nelson <james4765@verizon.net>
+Cc: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org,
+       james4765@verizon.net
+Subject: Re: [PATCH] esp: Make driver SMP-correct
+Message-Id: <20041231014611.003281e5.akpm@osdl.org>
+In-Reply-To: <20041231014403.3309.58245.96163@localhost.localdomain>
+References: <20041231014403.3309.58245.96163@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-BitDefender-Spam: No (0)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-Dave Airlie wrote:
-
->Okay I've rebuilt the via drm tree (bk://drm.bkbits.net/drm-via)
+James Nelson <james4765@verizon.net> wrote:
 >
->It should work but I've no way to test it, I think the drm is close to
->secure now if not already, and if I get the nod from the people who know
->these things (Thomas, Erdi and Keith - consider yourselves the people),
->I'll try and have it included in 2.6.11
->
->Dave.
->
->  
->
-The status of the VIA drm is as follows, AFAICT:
+> This is an attempt to make the esp serial driver SMP-correct.  It also removes
+>  some cruft left over from the serial_write() conversion.
 
-1. I would consider it secure. I have a minor update coming in in a day 
-or so.
-2. The command verifier sometimes reject 3D command streams that should 
-not be rejected. Some work to fix but cannot be done immediately (at 
-least not by me.)
-3. The AGP ring-buffer could hang under heavy 3D load. Without input 
-from VIA I believe this is hard to fix.
+>From a quick scan:
 
-/Thomas
+- startup() does multiple sleeping allocations and request_irq() under
+  spin_lock_irqsave().  Maybe fixed by this:
+
+--- 25/drivers/char/esp.c~esp-make-driver-smp-correct-fixes	2004-12-31 01:40:57.987232152 -0800
++++ 25-akpm/drivers/char/esp.c	2004-12-31 01:42:21.444544712 -0800
+@@ -851,16 +851,14 @@ static int startup(struct esp_struct * i
+ 	int	retval=0;
+         unsigned int num_chars;
+ 
+-	spin_lock_irqsave(&info->irq_lock, flags);
+-
+ 	if (info->flags & ASYNC_INITIALIZED)
+-		goto out;
++		goto out_unlocked;
+ 
+ 	if (!info->xmit_buf) {
+ 		info->xmit_buf = (unsigned char *)get_zeroed_page(GFP_KERNEL);
+ 		retval = -ENOMEM;
+ 		if (!info->xmit_buf)
+-			goto out;
++			goto out_unlocked;
+ 	}
+ 
+ #ifdef SERIAL_DEBUG_OPEN
+@@ -907,7 +905,7 @@ static int startup(struct esp_struct * i
+ 					&info->tty->flags);
+ 			retval = 0;
+ 		}
+-		goto out;
++		goto out_unocked;
+ 	}
+ 
+ 	if (!(info->stat_flags & ESP_STAT_USE_PIO) && !dma_buffer) {
+@@ -926,6 +924,8 @@ static int startup(struct esp_struct * i
+ 			
+ 	}
+ 
++	spin_lock_irqsave(&info->irq_lock, flags);
++
+ 	info->MCR = UART_MCR_DTR | UART_MCR_RTS | UART_MCR_OUT2;
+ 	serial_out(info, UART_ESI_CMD1, ESI_WRITE_UART);
+ 	serial_out(info, UART_ESI_CMD2, UART_MCR);
+@@ -965,7 +965,9 @@ static int startup(struct esp_struct * i
+ 
+ 	info->flags |= ASYNC_INITIALIZED;
+ 	retval = 0;
+-out:	spin_unlock_irqrestore(&info->irq_lock, flags);
++out:
++	spin_unlock_irqrestore(&info->irq_lock, flags);
++out_unocked:
+ 	return retval;
+ }
+ 
+_
 
 
+- startup() calls change_speed() under info->irq_lock, but change_speed()
+  also takes info->irq_lock.  Instant deadlock on driver initialisation.
 
-
+The driver needs more serious surgery than this.

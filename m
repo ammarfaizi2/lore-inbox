@@ -1,49 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280801AbRKGOoP>; Wed, 7 Nov 2001 09:44:15 -0500
+	id <S280805AbRKGOrF>; Wed, 7 Nov 2001 09:47:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280805AbRKGOoF>; Wed, 7 Nov 2001 09:44:05 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:11781 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S280801AbRKGOnv>; Wed, 7 Nov 2001 09:43:51 -0500
-Message-ID: <3BE95514.8626CB4F@evision-ventures.com>
-Date: Wed, 07 Nov 2001 16:36:52 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-Reply-To: dalecki@evision.ag
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: dalecki@evision.ag, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org
+	id <S280806AbRKGOqz>; Wed, 7 Nov 2001 09:46:55 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6404 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280805AbRKGOqr>; Wed, 7 Nov 2001 09:46:47 -0500
 Subject: Re: Using %cr2 to reference "current"
-In-Reply-To: <E161TWH-0004G9-00@the-village.bc.nu>
+To: dirk@staf.planetinternet.be (Dirk Moerenhout)
+Date: Wed, 7 Nov 2001 14:54:00 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0111071527390.204-100000@dirk> from "Dirk Moerenhout" at Nov 07, 2001 03:34:59 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E161U5Y-0004Lc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+> Thought that too untill a minute ago. Went to the Intel site and read the
+> information.
 > 
-> > somehow encouraged by the compiler comparisions between gcc and intel's
-> > free compiler, which use the register passing for anything local
-> > to the actual code, where the speed gains are up to 20% im currently
-> 
-> I was under the impression intels compiler was profoundly non-free ?
+> http://developer.intel.com/software/products/eval/
 
-Well it's free in terms of money, read: download and "personal usage"
-blabla.
-This doesn't deterr me from having a look at it ;-).
-> 
-> > quite inclined to do the redo and finish the experiment.
-> > BTW.> It's not just asm fixpus that have to be done for this
-> > to work. For example all the c files with -fno-omit-frame-pointer
-> 
-> 20% is a nice large number.
+> Gives details about _two_ ways to get it free. The known 30 day free trial
 
-Yes I was impressed as well and twiddeling with compiler flags is 
-actually indicating that the calling convention stuff is one
-of the main contributors to this. BTW.> The speed differences 
-can go up to 40% for floating point, OK this is irrelevant for
-the kernel but it is showing very well that there is still
-plenty of room for improvement.
+Seems to be non free to me
+
+May well be non-fee non-free but its still most definitely non-free

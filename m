@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbTEDRCY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 13:02:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbTEDRCY
+	id S261232AbTEDREp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 13:04:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbTEDREp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 13:02:24 -0400
-Received: from verein.lst.de ([212.34.181.86]:26895 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id S261230AbTEDRCW (ORCPT
+	Sun, 4 May 2003 13:04:45 -0400
+Received: from verein.lst.de ([212.34.181.86]:27919 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id S261232AbTEDREn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 13:02:22 -0400
-Date: Sun, 4 May 2003 19:14:47 +0200
+	Sun, 4 May 2003 13:04:43 -0400
+Date: Sun, 4 May 2003 19:17:09 +0200
 From: Christoph Hellwig <hch@lst.de>
-To: torvalds@transmeta.com, trond.myklebust@fys.uio.no
+To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove useless MOD_{INC,DEC}_USE_COUNT from sunrpc
-Message-ID: <20030504191447.C10659@lst.de>
+Subject: [PATCH] make __bdevname output more similar to bdevname
+Message-ID: <20030504191709.D10659@lst.de>
 Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
-	trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,64 +24,76 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- - both rpciod_up and rpciod_down do a gratious inc/dec of the
-   use count - but we can't ever be inside those function unless
-   it's called from an other module -> totally useless
- - rpciod() (the ernel thread) also bumps the refcount when starting
-   and decrements it when exiting.  but as a different module must
-   initiate this using rpciod_up/rpciod_down this is again not needed.
-   (except when a module does rpciod_up without a matching rpciod_down -
-   but that a big bug anyway and we don't need to partially handle that
-   using module refcounts).
+Currently __bdevname walks the obsolete list of block majors to
+find a name for the given dev_t and falls back to unknown-block(%u,%u)
+if that's not possible.  Replace this with an attempted get_gendisk() +
+disk_name.  This means __bdevname can't be called from irq context
+anymore, but as all old irq context callers are using bdevname() now
+that fine (and I've added a big comment).
 
 
---- 1.24/net/sunrpc/sched.c	Thu Mar 27 12:42:11 2003
-+++ edited/net/sunrpc/sched.c	Thu May  1 16:52:23 2003
-@@ -952,7 +952,6 @@
- 	wait_queue_head_t *assassin = (wait_queue_head_t*) ptr;
- 	int		rounds = 0;
- 
--	MOD_INC_USE_COUNT;
- 	lock_kernel();
- 	/*
- 	 * Let our maker know we're running ...
-@@ -995,7 +994,6 @@
- 
- 	dprintk("RPC: rpciod exiting\n");
- 	unlock_kernel();
--	MOD_DEC_USE_COUNT;
- 	return 0;
+--- 1.83/drivers/block/genhd.c	Fri Apr 25 18:16:28 2003
++++ edited/drivers/block/genhd.c	Sun May  4 08:38:05 2003
+@@ -52,30 +52,6 @@
+ 	return major_to_index(MAJOR(dev));
  }
  
-@@ -1027,7 +1025,6 @@
+-/*
+- * __bdevname may be called from interrupts, and must be atomic
+- */
+-const char *__bdevname(dev_t dev, char *buffer)
+-{
+-	char *name = "unknown-block";
+-	unsigned int major = MAJOR(dev);
+-	unsigned int minor = MINOR(dev);
+-	int index = major_to_index(major);
+-	struct blk_major_name *n;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&major_names_lock, flags);
+-	for (n = major_names[index]; n; n = n->next)
+-		if (n->major == major)
+-			break;
+-	if (n)
+-		name = &(n->name[0]);
+-	snprintf(buffer, BDEVNAME_SIZE, "%s(%u,%u)", name, major, minor);
+-	spin_unlock_irqrestore(&major_names_lock, flags);
+-
+-	return buffer;
+-}
+-
+ /* get block device names in somewhat random order */
+ int get_blkdev_list(char *p)
  {
- 	int error = 0;
- 
--	MOD_INC_USE_COUNT;
- 	down(&rpciod_sema);
- 	dprintk("rpciod_up: pid %d, users %d\n", rpciod_pid, rpciod_users);
- 	rpciod_users++;
-@@ -1051,7 +1048,6 @@
- 	error = 0;
- out:
- 	up(&rpciod_sema);
--	MOD_DEC_USE_COUNT;
- 	return error;
+--- 1.108/fs/partitions/check.c	Tue Apr 29 17:42:50 2003
++++ edited/fs/partitions/check.c	Sun May  4 08:37:43 2003
+@@ -125,6 +112,29 @@
+ 	return disk_name(bdev->bd_disk, part, buf);
  }
  
-@@ -1060,7 +1056,6 @@
++/*
++ * NOTE: this cannot be called from interrupt context.
++ *
++ * But in interrupt context you should really have a struct
++ * block_device anyway and use bdevname() above.
++ */
++const char *__bdevname(dev_t dev, char *buffer)
++{
++	struct gendisk *disk;
++	int part;
++
++	disk = get_gendisk(dev, &part);
++	if (disk) {
++		buffer = disk_name(disk, part, buffer);
++		put_disk(disk);
++	} else {
++		snprintf(buffer, BDEVNAME_SIZE, "unknown-block(%u,%u)",
++				MAJOR(dev), MINOR(dev));
++	}
++
++	return buffer;
++}
++
+ static struct parsed_partitions *
+ check_partition(struct gendisk *hd, struct block_device *bdev)
  {
- 	unsigned long flags;
- 
--	MOD_INC_USE_COUNT;
- 	down(&rpciod_sema);
- 	dprintk("rpciod_down pid %d sema %d\n", rpciod_pid, rpciod_users);
- 	if (rpciod_users) {
-@@ -1097,7 +1092,6 @@
- 	spin_unlock_irqrestore(&current->sighand->siglock, flags);
- out:
- 	up(&rpciod_sema);
--	MOD_DEC_USE_COUNT;
- }
- 
- #ifdef RPC_DEBUG

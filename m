@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277419AbRJJVpF>; Wed, 10 Oct 2001 17:45:05 -0400
+	id <S277424AbRJJVpn>; Wed, 10 Oct 2001 17:45:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277424AbRJJVoy>; Wed, 10 Oct 2001 17:44:54 -0400
-Received: from helios.ankara.gantek.com ([213.74.180.65]:28070 "EHLO
-	helios.ankara.gantek.com") by vger.kernel.org with ESMTP
-	id <S277419AbRJJVol>; Wed, 10 Oct 2001 17:44:41 -0400
-Date: Thu, 11 Oct 2001 00:41:43 +0300
-From: Baurjan Ismagulov <ibr@gantek.com>
-To: linux-kernel@vger.kernel.org
-Subject: window_ret_fault on SPARC
-Message-ID: <20011011004142.A12773@kerberos.local.ankara.gantek.com>
-Mail-Followup-To: Baurjan Ismagulov <ibr@gantek.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="mmm.txt"
-User-Agent: Mutt/1.2.5i
+	id <S277420AbRJJVpe>; Wed, 10 Oct 2001 17:45:34 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:16089 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S277424AbRJJVpU>;
+	Wed, 10 Oct 2001 17:45:20 -0400
+Date: Wed, 10 Oct 2001 17:45:49 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Mingming cao <cmm@us.ibm.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]Fix bug:rmdir could remove current working directory
+In-Reply-To: <3BC4E8AD.72F175E3@us.ibm.com>
+Message-ID: <Pine.GSO.4.21.0110101743140.21168-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-my kernel gets into window_ret_fault while returning from trap to
-user mode.
 
-In the trap return code, SRMMU sets "Fault Address Valid" during
-"save; LOAD_WINDOW(sp); restore". After that, SFSR=00000127 and
-SFAR=efffed18. Loaded %fp value is efffece0, and [efffece0+38]
-contains efffed50 -- at least, that is what I see in kgdb using "p/x
-*(struct reg_window *)0xefffece0". I also tried to see that using
-printk from window_ret_fault, but the kernel hung solidly (L1-A didn't
-work).
+On Wed, 10 Oct 2001, Mingming cao wrote:
 
-I followed all vm_next links in current->mm->mmap; efffd000-effff000
-area seems to be there. However, I was unable to track it via
-current->pgd.
+> Hi Linus, Alan and Al,
+> 
+> I found that rmdir(2) could remove current working directory
+> successfully.  This happens when the given pathname points to current
+> working directory, not ".", but something else. For example, the current
+> working directory's absolute pathname.  I read the man page of
+> rmdir(2).  It says in this case EBUSY error should be returned.  I
+> suspected this is a bug and added a check in vfs_rmdir(). The following
+> patch is against 2.4.10 and has been verified.  Please comment and
+> apply.
 
-So:
+It's not a bug.  Moreover, test you add is obviously bogus - what about
+cwd of other processes?
 
-1. Why do I get multiple (SFSR.OV=1) faults in srmmu_rett_stackchk?
+Actually, rmdir() on a busy directory _is_ OK.  Implementation is allowed
+to refuse doing that, but it's not required to.
 
-2. How can I see whether page directories of the current process are
-   set up correctly?
-
-I would be very grateful if someone could help me to solve this problem. I'm using 2.2.19 on sun4m.
-
-Thanks in advance,
-Baurjan.

@@ -1,60 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269639AbRHCWRJ>; Fri, 3 Aug 2001 18:17:09 -0400
+	id <S269641AbRHCW3w>; Fri, 3 Aug 2001 18:29:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269643AbRHCWQ6>; Fri, 3 Aug 2001 18:16:58 -0400
-Received: from grunt.ksu.ksu.edu ([129.130.12.17]:60097 "EHLO
-	mailhub.cns.ksu.edu") by vger.kernel.org with ESMTP
-	id <S269641AbRHCWQt>; Fri, 3 Aug 2001 18:16:49 -0400
-Date: Fri, 3 Aug 2001 17:16:58 -0500
-From: Joseph Pingenot <jap3003@ksu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Paul G. Allen" <pgallen@randomlogic.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] DMCA loop hole
-Message-ID: <20010803171657.D11011@ksu.edu>
-Reply-To: jap3003+response@ksu.edu
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Paul G. Allen" <pgallen@randomlogic.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010803165221.C11011@ksu.edu> <E15Sn80-00044A-00@the-village.bc.nu>
+	id <S269643AbRHCW3n>; Fri, 3 Aug 2001 18:29:43 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:52145 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S269641AbRHCW3Z>; Fri, 3 Aug 2001 18:29:25 -0400
+Message-Id: <5.1.0.14.2.20010803232810.0415b840@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 03 Aug 2001 23:29:29 +0100
+To: Chris Wedgwood <cw@f00f.org>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync
+  semantic change patch)
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Mason <mason@suse.com>
+In-Reply-To: <20010804100143.A17774@weta.f00f.org>
+In-Reply-To: <9keqr6$egl$1@penguin.transmeta.com>
+ <01080315090600.01827@starship>
+ <Pine.GSO.4.21.0108031400590.3272-100000@weyl.math.psu.edu>
+ <9keqr6$egl$1@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: RE: [Re: [OT] DMCA loop hole]
-X-School: Kansas State University
-X-vi-or-emacs: vi
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Alan Cox on Friday, 03 August, 2001:
->> >From Paul G. Allen on Wednesday, 01 August, 2001:
->> >To take another angle, those of us who actively look for exploits in software (because companies like M$ fail to do so themselves) risk being sued for doing so.
->> Hrm.  Very good point.  However, under most EULA's I've seen, reverse
->>   engineering is already a no-no.
->Most EULA's are not legal contracts. In civilised countries the right to
->disassemble is enshrined in law (ironically it comes in Europe from trying
->to keep car manufacturers from running monopolistic scams not from the
->software people doing the same)
+Your patch down()s a semaphore without calling up() in the error code path...
 
-Very true.  However (I can only vouch for the USA, but I suspect it's
-  a similar situation elsewhere) the company with Loads o' Cash can keep
-  those of use with Loads o' Debt cowed and tied up in red tape and lawsuits
-  until we cry uncle.
+Best regards,
 
->In the USA its a lot less clear. You can find laws explicitly claiming both,
->and since US law is primarily about who has loads of money, its a bit
->irrelevant
+Anton
 
-Heh.  Criticism accepted.  Maybe one of the prerequisites for running for
-  office should be Free Software / Open Source development.  :)  Seriously,
-  though, anyone listening interested in running for office?  Maybe we should
-  start the Free Software Party.
+At 23:01 03/08/2001, Chris Wedgwood wrote:
+>On Fri, Aug 03, 2001 at 06:34:14PM +0000, Linus Torvalds wrote:
+>
+>         fsync(int fd)
+>         {
+>                 dentry = fdget(fd);
+>                 do_fsync(dentry);
+>                 for (;;) {
+>                         tmp = dentry;
+>                         dentry = dentry->d_parent;
+>                         if (dentry == tmp)
+>                                 break;
+>                         do_fdatasync(dentry);
+>                 }
+>         }
+>
+>I really like this idea. Can people please try out the attached patch?
+>
+>Please note, it contains a couple of things that need not be there in
+>the final version.
+>
+>Note, there is also a reiserfs fix in here because we can call
+>f_op->fsync on a directory and without this fix it will BUG!  Chris,
+>perhaps you can suggest a better fix?
+>
+>
+>Linus, one more thing --- the first argument to ->fsync is struct file*
+>and nothing uses it, I'd like to blow it away or would you prefer we
+>wait to 2.5.x as its essentially and API change and will break XFS,
+>JFS, etc.
+>
+>
+>
+>    --cw
 
-                              -Joseph
 -- 
-Joseph==============================================jap3003@ksu.edu
-"IBM were providing source code in the 1960's under similar terms. 
-VMS source code was available under limited licenses to customers 
-from the beginning. Microsoft are catching up with 1960."
-   --Alan Cox,  http://www2.usermagnet.com/cox/index.html
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

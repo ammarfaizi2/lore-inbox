@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270855AbTHQUun (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 16:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270864AbTHQUun
+	id S271026AbTHQU6X (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 16:58:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271037AbTHQU6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 16:50:43 -0400
-Received: from smtp6.wanadoo.fr ([193.252.22.28]:7978 "EHLO
-	mwinf0301.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S270855AbTHQUum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 16:50:42 -0400
-Message-ID: <3F40073D.6090202@wanadoo.fr>
-Date: Sun, 17 Aug 2003 22:52:45 +0000
-From: Philippe Elie <phil.el@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
+	Sun, 17 Aug 2003 16:58:23 -0400
+Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:33387 "HELO
+	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S271026AbTHQU6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 16:58:21 -0400
+Message-ID: <3F3F7C5E.2070607@myrealbox.com>
+Date: Sun, 17 Aug 2003 06:00:14 -0700
+From: walt <wa1ter@myrealbox.com>
+User-Agent: Mozilla/5.0 (X11; U; NetBSD i386; en-US; rv:1.4) Gecko/20030723
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-Cc: michaelc <michaelc@turbolinux.com.cn>, linux-kernel@vger.kernel.org
-Subject: Re: about PENTIUM4 cache line
-References: <865464921.20010309170338@turbolinux.com.cn> <20030817202534.GC3543@mail.jlokier.co.uk>
+To: Patrick Dreker <patrick@dreker.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: nforce2 lockups
+References: <fa.ih2vscq.35m1rs@ifi.uio.no> <fa.gbe06ic.1ki851c@ifi.uio.no>
+In-Reply-To: <fa.gbe06ic.1ki851c@ifi.uio.no>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-> michaelc wrote:
+Patrick Dreker wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
->>     I read the Intel IA-32 developer's manual recently, and I found
->> the cache lines for L1 and L2 caches in Pentium4 are 64 bytes
->> wide, but the thing make me confused is that the default value
->> CONFIG_X86_L1_CACHE_SHIFT option in 2.4.x kernel is 7, why it's
->> not 6?   Any expanation about this would be appreciated!
+> Am Sunday 17 August 2003 21:27 schrieb Jussi Laako <jussi.laako@pp.inet.fi> 
+> zum Thema Re: nforce2 lockups:
+> 
+>>On Fri, 2003-08-15 at 19:38, Alistair J Strachan wrote:
+>>
+>>>>NFORCE2: chipset revision 162
+>>>
+>>>I use APIC and ACPI on my EPoX 8RDA+, and I've never had any IO problems.
+>>>So it seems unlikely that it is tied to a chipset revision.
+>>
+>>I have ASUS A7N8X Deluxe mobo with nForce2 rev 162 without any problems
+>>(if not counting unability to enabe SiI SATA DMA mode with attached
+>>Seagate Barracuda drive).
 > 
 > 
-> I don't recall seeing an answer to this.
-> Was there one?
+> I have the exact same Board (except I'm not using SATA), and it's a nightmare. 
+> Best uptime so far: a little more than 16 hours. Usually it locks up a lot 
+> earlier. When I do network transfers I can cause it to lock within a few 
+> minutes. Under "the other OS" it runs without any problems.
 
-There is some confusion about P4 cache line size but
+A friend had lots of problems with his NForce2 mobo until he ran memtest86
+and found that the memory was flaky.  His machine has been running linux
+very well since he replaced the memory.  (Heh, two days ago  ;-)
 
-Intel Software Developer's Manual VOL 1
-
-Page 2.12, Par 2.6:
-"128-byte cache line size
-  - Two 64-byte sectors"
-
-regards,
-Philippe Elie
+I wonder if the NForce2 is a bit fussier about the quality of the memory
+than other chipsets.
 

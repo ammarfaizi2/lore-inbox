@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269771AbUJGJv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266572AbUJGJuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269771AbUJGJv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 05:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267376AbUJGJvS
+	id S266572AbUJGJuv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 05:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269785AbUJGJri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 05:51:18 -0400
-Received: from cantor.suse.de ([195.135.220.2]:14510 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269779AbUJGJuh (ORCPT
+	Thu, 7 Oct 2004 05:47:38 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:33959 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S269782AbUJGJq4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 05:50:37 -0400
-Date: Thu, 7 Oct 2004 11:50:30 +0200
-From: Andi Kleen <ak@suse.de>
-To: Suresh Siddha <suresh.b.siddha@intel.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, akpm@osdl.org, ak@suse.de,
-       linux-kernel@vger.kernel.org, davej@redhat.com
-Subject: Re: common code between i386 and x86_64 (was Re: [Patch] share i386/x86_64 intel cache descriptors table)
-Message-ID: <20041007095030.GB21807@wotan.suse.de>
-References: <20041006184723.A10900@unix-os.sc.intel.com> <4164B71A.30105@pobox.com> <20041007002550.A12738@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041007002550.A12738@unix-os.sc.intel.com>
+	Thu, 7 Oct 2004 05:46:56 -0400
+Date: Thu, 7 Oct 2004 11:46:31 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Thayne Harbaugh <tharbaugh@lnxi.com>,
+       =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Console: fall back to /dev/null when no console is
+ availlable
+In-Reply-To: <20041007100757.A10716@flint.arm.linux.org.uk>
+Message-ID: <Pine.GSO.4.61.0410071145330.9319@waterleaf.sonytel.be>
+References: <20041005185214.GA3691@wohnheim.fh-wedel.de> <20041006173823.GA26740@kroah.com>
+ <20041006180421.GD10153@wohnheim.fh-wedel.de> <20041006181958.GB27300@kroah.com>
+ <20041006192335.GH10153@wohnheim.fh-wedel.de> <1097097771.3845.28.camel@tubarao>
+ <Pine.GSO.4.61.0410071017020.9319@waterleaf.sonytel.be>
+ <20041007100757.A10716@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 07, 2004 at 12:25:50AM -0700, Siddha, Suresh B wrote:
-> On Wed, Oct 06, 2004 at 11:25:14PM -0400, Jeff Garzik wrote:
-> > 
-> > I have often wondered if there is any value to creating arch/x86 and 
-> > include/asm-x86 for stuff shared between x86-64 and i386.
+On Thu, 7 Oct 2004, Russell King wrote:
+> On Thu, Oct 07, 2004 at 10:18:51AM +0200, Geert Uytterhoeven wrote:
+> > What about letting the kernel open the console without going through
+> > /dev/console? Since the kernel knows /dev/console is the device with major 5
+> > minor 1, why can't it just open (5, 1)? Then we don't need a /dev/console node,
+> > and things will never break.
 > 
-> Yes. There is definitely some value. Currently this kind of code is scattered
-> all around the place. With this demarcation, people touching this common
-> code will be careful of not breaking arch's that are sharing this code.
+> Famous last words.  What about the case where you don't have a console
+> device registered (eg in the case of an embedded device) ?  Currently,
+> opening /dev/console fails in that circumstance.
 
-The current method of just linking between arch/i386 and arch/x86_64
-works fine IMHO. No need to get any fancier. Doing a large scale
-rename would just have the effect of breaking any 3rd party patchkits
-and making merging even more difficult. I doubt it would
-improve the maintainability much.
+Why didn't you quote the next line I wrote?
 
-I don't think they will be more careful just because the code is
-in a separate directory. The only way to enforce both work is
-to compile and test both.
+| Same for /dev/null as a fallback.
 
+which answers your question :-)
 
-> We can avoid duplicate data structure definitions and duplicate prototypes.
+Gr{oetje,eeting}s,
 
-Possible a few more includes could be shared, but the advantage 
-is probably not big. I don't think it makes sense to share
-includes when the main code is not shared.
+						Geert
 
-Also in some ways x86 and x86-64 are diverging more and more, so
-sharing becomes more difficult. e.g. long ago I actually applied
-a lot of patches with sed s/i386/x86_64/g. But these days most
-things need to be ported by hand. And most stuff that can 
-be trivially shared is already shared. Doing significantly
-more sharing would need more changes to arch/i386, and I still
-don't see much support for that. Also in some cases I expect
-code to diverge even more, so having a bit less is not a bad thing.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
--Andi
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

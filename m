@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbUKMSAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbUKMSKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261856AbUKMSAu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 13:00:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbUKMSAu
+	id S261862AbUKMSKl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 13:10:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbUKMSKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 13:00:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8597 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261856AbUKMSAr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 13:00:47 -0500
-Date: Sat, 13 Nov 2004 10:00:38 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: adaplas@pol.net
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Guido Guenther <agx@sigxcpu.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: Fix IO access in rivafb
-In-Reply-To: <200411132000.31465.adaplas@hotpop.com>
-Message-ID: <Pine.LNX.4.58.0411130959280.4100@ppc970.osdl.org>
-References: <200411080521.iA85LbG6025914@hera.kernel.org>
- <1100309972.20511.103.camel@gaston> <20041113112234.GA5523@bogon.ms20.nix>
- <200411132000.31465.adaplas@hotpop.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 13 Nov 2004 13:10:41 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47120 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261862AbUKMSKf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Nov 2004 13:10:35 -0500
+Date: Sat, 13 Nov 2004 18:10:24 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Woodhouse <dwmw2@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Correctly flush 8250 buffers, notify ldisc of line status changes.
+Message-ID: <20041113181024.A15735@flint.arm.linux.org.uk>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1099659997.20469.71.camel@localhost.localdomain> <20041109012212.463009c7.akpm@osdl.org> <1099998437.6081.68.camel@localhost.localdomain> <1099998926.15462.21.camel@localhost.localdomain> <20041109132810.A15570@flint.arm.linux.org.uk> <1100006241.15742.6.camel@localhost.localdomain> <20041109144723.C15570@flint.arm.linux.org.uk> <1100011669.16043.28.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1100011669.16043.28.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Tue, Nov 09, 2004 at 02:47:51PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 09, 2004 at 02:47:51PM +0000, Alan Cox wrote:
+> I'm working on it. It would be helpful if the drivers/serial code would
+> use helpers and not dig in places it shouldnt so that the transition can
+> be cleaner.
 
+Ok - I've just applied your patch to 8250 and expanded it to cover the
+other ARM serial drivers.  Should be merged with Linus' tree tomorrow.
 
-On Sat, 13 Nov 2004, Antonino A. Daplas wrote:
-> 
-> Why not use in_be* and out_be* for __raw_read and raw_write? 
-
-Please don't start using some stupid magic ppc-specific macros for a 
-driver that has no reason to be PPC-specific. It then only causes bugs 
-that show on one platform and not another.
-
-		Linus
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

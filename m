@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264936AbTAEQjv>; Sun, 5 Jan 2003 11:39:51 -0500
+	id <S264915AbTAEQoO>; Sun, 5 Jan 2003 11:44:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264938AbTAEQjv>; Sun, 5 Jan 2003 11:39:51 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:4083 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S264936AbTAEQju>;
-	Sun, 5 Jan 2003 11:39:50 -0500
-Date: Sun, 5 Jan 2003 17:47:35 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Logo crash
-Message-ID: <Pine.GSO.4.21.0301051744260.10559-100000@vervain.sonytel.be>
+	id <S264919AbTAEQoO>; Sun, 5 Jan 2003 11:44:14 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:6921 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S264915AbTAEQoO>; Sun, 5 Jan 2003 11:44:14 -0500
+Date: Sun, 05 Jan 2003 09:52:46 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Paul Rolland <rol@witbe.net>, linux-kernel@vger.kernel.org
+Subject: Re: [2.5.54] Oops IDE-SCSI and failure AIC7xxx
+Message-ID: <452090000.1041785566@aslan.scsiguy.com>
+In-Reply-To: <013401c2b4d2$d9aab390$2101a8c0@witbe>
+References: <013401c2b4d2$d9aab390$2101a8c0@witbe>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Hello,
+> 
+>> > Out of this, two problems :
+>> >  - AIC7xxx fails to use DMA, with :
+>> > aic7xxx: PCI Device 0:8:0 failed memory mapped test.  Using PIO.
+>> > scsi0: PCI error Interrupt at seqaddr = 0x3
+>> > scsi0: Signaled a Target Abort
+>> 
+>> This is because your system is violating the PCI spec.  There 
+> Waouh.... It is a quite new MB... I wasn't expecting it to be
+> so bad...
 
-The local variable palette_cmap.transp is not initialized, so it can contain
-garbage, causing a crash during logo drawing.
-
---- linux-2.5.54/drivers/video/fbmem.c	Thu Jan  2 12:54:58 2003
-+++ linux-m68k-2.5.54/drivers/video/fbmem.c	Sun Jan  5 17:22:57 2003
-@@ -386,6 +386,7 @@
- 	palette_cmap.red = palette_red;
- 	palette_cmap.green = palette_green;
- 	palette_cmap.blue = palette_blue;
-+	palette_cmap.transp = 0;
- 
- 	for (i = 0; i < LINUX_LOGO_COLORS; i += n) {
- 		n = LINUX_LOGO_COLORS - i;
-
-Gr{oetje,eeting}s,
-
-						Geert
+There may be options in your BIOS to disable this "feature".  Look
+for things like "PCI byte-merging" and/or "PCI read prefetch".  I
+haven't had access to one of the new SIS based P4 systems yet, so
+I don't know how they are setup or exactly how they are violating
+the PCI spec.  The test will fail either if byte-merging or read
+prefetch occurs and perhaps if there is an MTTR covering the memory
+mapped region of the chip that is set to write combining mode (I
+don't think that the mb() we issue after every memory write helps
+in this last case).
 
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Justin
 

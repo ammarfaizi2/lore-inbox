@@ -1,37 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311247AbSC1Asq>; Wed, 27 Mar 2002 19:48:46 -0500
+	id <S311270AbSC1BBS>; Wed, 27 Mar 2002 20:01:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311273AbSC1Asg>; Wed, 27 Mar 2002 19:48:36 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:11692 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S311247AbSC1As0>;
-	Wed, 27 Mar 2002 19:48:26 -0500
-Date: Wed, 27 Mar 2002 16:43:36 -0800 (PST)
-Message-Id: <20020327.164336.44273741.davem@redhat.com>
-To: pmanolov@Lnxw.COM
+	id <S311271AbSC1BBI>; Wed, 27 Mar 2002 20:01:08 -0500
+Received: from hermes.toad.net ([162.33.130.251]:5547 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S311270AbSC1BBB>;
+	Wed, 27 Mar 2002 20:01:01 -0500
+Subject: Re: proc_file_read() hack?
+From: Thomas Hood <jdthood@mail.com>
+To: Todd Inglett <tinglett@vnet.ibm.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: is http://bkbits.net down?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3CA266E5.8010009@lnxw.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+In-Reply-To: <3CA20EDF.7080402@vnet.ibm.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 27 Mar 2002 20:02:20 -0500
+Message-Id: <1017277343.865.32.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Petko Manolov <pmanolov@Lnxw.COM>
-   Date: Wed, 27 Mar 2002 16:42:13 -0800
+On Wed, 2002-03-27 at 13:26, Todd Inglett wrote:
+> I guess I don't understand the conflict.
 
-   Is it some sort of scheduled maintenance or the mashine is just
-   down?
-   ...or it is just my ISP?
+There are three cases:
+0)  start == 0
+1)  0 < start < buffer
+2)  start >= buffer
 
-Yes, Larry sent an email earlier today to this list explaining what is
-happening.  It's unfortunate that you did not read it.
+These exhaust all the possible values that can be returned
+in *start.
 
+You propose to change the code so that there are three cases:
+0)  start == 0
+1') 0 < start < PROC_BLOCK_SIZE
+2'/3) start >= PROC_BLOCK_SIZE
 
+However, we can't make the change you propose because it would
+break functions that use case #1 with a *start value greater
+than PROC_BLOCK_SIZE.
 
+>... is there a chance that start >= PROC_BLOCK_SIZE (but start < page)
+> in case #1?
 
-   
+Yes.
+
+> If that is true I am wondering how it could possibly be correct
+> since start will be used as a length which is greater than the
+> size of the page.
+
+start will be used as an offset, not as a length.
+
+If you think the hack was a bad idea, I agree with you.
+But we can't change it without auditing all the proc read
+functions that use case #1.
+
+--
+Thomas Hood
 

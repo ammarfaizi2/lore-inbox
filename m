@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289055AbSA0XKB>; Sun, 27 Jan 2002 18:10:01 -0500
+	id <S289051AbSA0XJb>; Sun, 27 Jan 2002 18:09:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289057AbSA0XJw>; Sun, 27 Jan 2002 18:09:52 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:10246 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S289055AbSA0XJm>;
-	Sun, 27 Jan 2002 18:09:42 -0500
-Date: Sun, 27 Jan 2002 21:52:53 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: alan@lxorguk.ukuu.org.uk
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: preempt & ne2k
-Message-ID: <20020127215253.A793@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S289055AbSA0XJV>; Sun, 27 Jan 2002 18:09:21 -0500
+Received: from zarjazz.demon.co.uk ([194.222.135.25]:44160 "EHLO
+	zarjazz.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S289051AbSA0XJL>; Sun, 27 Jan 2002 18:09:11 -0500
+Message-ID: <00b901c1a787$99dee5f0$0201010a@frodo>
+From: "Vincent Sweeney" <v.sweeney@barrysworld.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16UyCO-0002zE-00@the-village.bc.nu>
+Subject: Re: PROBLEM: high system usage / poor SMP network performance
+Date: Sun, 27 Jan 2002 23:08:58 -0000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > testing the patch complaining about, AND one that seems like it could be 
-> > addressed by using IRQ disabling as a latency guard in addition to spinlocks.
-> 
-> I dont believe anyone has tested the driver hard with pre-empt. Its not that
-> this driver can't be fixed. Its that this is one tiny example of maybe 
-> thousands of other similar flaws lurking. There is no obvious automated way
-> to find them either.
+----- Original Message -----
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: "Vincent Sweeney" <v.sweeney@barrysworld.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Sunday, January 27, 2002 10:54 PM
+Subject: Re: PROBLEM: high system usage / poor SMP network performance
 
-So.... you have shown performance problem in one driver. Maybe *bad*
-performance problem, but only performance problem. There may be other
-performance problems out there. And what?
-								Pavel
--- 
-When do you have heart between your knees?
+
+> >     CPU0 states: 27.2% user, 62.4% system,  0.0% nice,  9.2% idle
+> >     CPU1 states: 28.4% user, 62.3% system,  0.0% nice,  8.1% idle
+>
+> The important bit here is     ^^^^^^^^ that one. Something is causing
+> horrendous lock contention it appears. Is the e100 driver optimised for
+SMP
+> yet ? Do you get better numbers if you use the eepro100 driver ?
+
+It's been a while since I tested with the eepro100 drivers (I switch to e100
+about 2.4.4 due to some unrelated problems) so I cannot give a comparision
+just at present. I will test the eepro100 driver tomorrow on one of the
+servers and post results then.
+
+I will also try Andrew Morton's profiling tips on another box with the e100
+driver.
+
+Vince.
+
+

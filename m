@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268045AbTBMNxx>; Thu, 13 Feb 2003 08:53:53 -0500
+	id <S268051AbTBMOAo>; Thu, 13 Feb 2003 09:00:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268046AbTBMNxx>; Thu, 13 Feb 2003 08:53:53 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:5395 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id <S268045AbTBMNxw>; Thu, 13 Feb 2003 08:53:52 -0500
-Date: Thu, 13 Feb 2003 23:04:41 +0900 (JST)
-Message-Id: <20030213.230441.54189804.yoshfuji@linux-ipv6.org>
-To: Robert.L.Harris@rdlg.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IPv6 in the vanilla tree?
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20030213135702.GE4377@rdlg.net>
-References: <20030213135702.GE4377@rdlg.net>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S268052AbTBMOAo>; Thu, 13 Feb 2003 09:00:44 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:64526 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S268051AbTBMOAn>; Thu, 13 Feb 2003 09:00:43 -0500
+Subject: Re: [PATCH] fix scsi/aha15*.c for 2.5.60
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: rudmer@legolas.dynup.net, "Randy.Dunlap" <randy.dunlap@verizon.net>,
+       Mike Anderson <andmike@us.ibm.com>, linux-kernel@vger.kernel.org,
+       fischer@norbit.de, Tommy.Thorn@irisa.fr
+In-Reply-To: <20030212233121.A20476@infradead.org>
+References: <3E49DC38.52D278C4@verizon.net> <200302122246.19225@gandalf>
+	<1045089866.1763.3.camel@mulgrave>  <20030212233121.A20476@infradead.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 13 Feb 2003 09:10:24 -0500
+Message-Id: <1045145427.2053.48.camel@mulgrave>
+Mime-Version: 1.0
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030213135702.GE4377@rdlg.net> (at Thu, 13 Feb 2003 08:57:02 -0500), "Robert L. Harris" <Robert.L.Harris@rdlg.net> says:
+On Wed, 2003-02-12 at 18:31, Christoph Hellwig wrote:
+> On Wed, Feb 12, 2003 at 05:44:24PM -0500, James Bottomley wrote:
+> > > this gives these modules in /lib/modules/2.5.60/kernel/drivers/scsi/:
+> > > aha152x.ko  scsi_mod.ko  sg.ko
+> > > 
+> > > what am i missing??
+> > 
+> > Nothing really, the symbols need to be exported from the SCSI core. 
+> > I'll add them to the export list.
+> 
+> it should _not_ be exported.  drivers are supposed to use the
+> request-based interface instead.
 
-> alot of web pages out etc.  From the horses mouth though, what's the
-> state of IPv6 in the 2.4.X (20?) kernel trees?  Will it be stable enough
-> in 2.4.21/22 that it won't require usagi patches or will that be in 2.6,
-> etc?
+Yes, if they issue commands via the mid-layer.  This one is queueing a
+message (encapsulated as a pseudo command) on it's internal queue (which
+is a cmd queue) to issue a bus device reset.  In this instance, it
+cannot use the request based interface because the device will be
+in_recovery when this happens, so it would never be issued.
 
-2.4.21 will come with (most of) our changes which are already in 2.5.xx 
-series.  Please not that we'll continue making patches for 2.5.xx and 
-2.4.xx.
+Personally, it would be nice to have a messaging interface to get around
+these problems, but I don't think that one's coming any time soon...
 
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+James
+
+

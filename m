@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129075AbRBOIhW>; Thu, 15 Feb 2001 03:37:22 -0500
+	id <S129104AbRBOIop>; Thu, 15 Feb 2001 03:44:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129104AbRBOIhM>; Thu, 15 Feb 2001 03:37:12 -0500
-Received: from [139.134.6.23] ([139.134.6.23]:57588 "EHLO
-	mailin2.email.bigpond.com") by vger.kernel.org with ESMTP
-	id <S129075AbRBOIhG>; Thu, 15 Feb 2001 03:37:06 -0500
-From: Darren Tucker <dtucker@zip.com.au>
-Message-Id: <200102150836.f1F8axl14743@gate.dodgy.net.au>
-Subject: Re: crash 5/5 w/ memtest86
-To: scott1021@mediaone.net
-Date: Thu, 15 Feb 2001 19:36:59 +1100
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.32.0102141857410.1021-100000@nic-31-c31-100.mn.mediaone.net> from "Scott M. Hoffman" at Feb 14, 2001 07:06:27 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S129161AbRBOIof>; Thu, 15 Feb 2001 03:44:35 -0500
+Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:62653 "EHLO
+	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S129104AbRBOIoX>; Thu, 15 Feb 2001 03:44:23 -0500
+Date: Thu, 15 Feb 2001 03:54:11 -0500
+From: "Michael B. Allen" <mballen@erols.com>
+To: linux-kernel@vger.kernel.org
+Subject: VIA chipset problems with 2.2?
+Message-ID: <20010215035411.A1599@angus.foo.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   After getting several segfaults running fetchmail, I tried memtest86 for
-> the first time on my PC (Celeron 500, i810m/b from e-machines).  Five out
-> of five tries from two different floppy disks crashed at 6% into test 1.
+Hello,
 
-Does the machine in question have 256 MB of RAM, perchance?
+What's the nature of the VIA chipset problems? I want to get a new system
+this weekend but I read on kernel traffic that VIA has problems? I
+wan't to use Hendrick's ide patches on 2.2.18. What board should I
+get? Help, I've searched through usenet and asked on #linux without
+anything conclusive.
 
-I ask because 6% or 256Mb it about 15MB or so and some motherboards have a 
-BIOS setting for a "memory hole at 15MB" (or something like that), which
-might be the cause.
+Thanks,
+Mike
 
-Then again, it might not.
+>From KT:
 
-		-Daz.
+David Riley [*] reported tremendous slowdowns in 2.4.1-pre11 and -pre12
+on his Athlon 900 with a KT133 chipset. Mark Hahn [*] replied, "this is
+known: Linus decreed that, since two people reported disk corruption
+on VIA, any machine with a VIA southbridge must boot in stupid 1992
+mode (PIO). (yes, it might be possible to boot with ide=autodma or
+something, but who would guess?)" He added to Linus Torvalds [*],
+"I hope you don't consider this a releasable state! VIA now owns 40%
+of the chipset market..." Linus replied:
 
+  So find somebody who can figure out why the corruption happens, and
+  I'll be really happy with a patch that fixes it. In the meantime,
+  "releaseable" very much means that we did _everything_ possible to
+  make sure that people don't screw their disks over.
+
+  You have to realize that stability takes precedence over EVERYTHING. 
+
+-- 
+signature pending

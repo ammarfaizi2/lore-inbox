@@ -1,75 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261335AbTDCQd7>; Thu, 3 Apr 2003 11:33:59 -0500
+	id <S261329AbTDCQds>; Thu, 3 Apr 2003 11:33:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261339AbTDCQd7>; Thu, 3 Apr 2003 11:33:59 -0500
-Received: from 12-237-214-24.client.attbi.com ([12.237.214.24]:10094 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S261335AbTDCQd5>;
-	Thu, 3 Apr 2003 11:33:57 -0500
-Message-ID: <3E8C6522.2010208@mvista.com>
-Date: Thu, 03 Apr 2003 10:45:22 -0600
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@redhat.com>
-Subject: Re: IPMI driver version 19 release
-References: <3E8C6022.6060304@mvista.com> <20030403163700.GA13769@gtf.org>
-In-Reply-To: <20030403163700.GA13769@gtf.org>
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	id <S261349AbTDCQds>; Thu, 3 Apr 2003 11:33:48 -0500
+Received: from granite.he.net ([216.218.226.66]:33031 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id <S261329AbTDCQdr>;
+	Thu, 3 Apr 2003 11:33:47 -0500
+Date: Thu, 3 Apr 2003 08:37:57 -0800
+From: Greg KH <greg@kroah.com>
+To: Albert Cranford <ac9410@attbi.com>
+Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: Re: [PATCH] More i2c driver changes for 2.5.66
+Message-ID: <20030403163757.GA4473@kroah.com>
+References: <1049328958830@kroah.com> <3E8BD2D9.8050002@attbi.com> <20030403063359.GA1536@kroah.com> <3E8C31BE.5060000@attbi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E8C31BE.5060000@attbi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Apr 03, 2003 at 08:06:06AM -0500, Albert Cranford wrote:
+> Your right, nobody outside of sensors uses i2c-proc, but
+> why not create a new i2c-sysfs.h in drivers/i2c locally
+> and and adjust the couple of existing drivers.
 
-This only occurs in "run to completion" mode, which is a special mode
-the driver goes into after a panic.  This allows the driver to get
-messages out during a panic to do things like extend the watchdog timer
-and send panic information.
+What would i2c-sysfs.h be needed for?  All of the needed sysfs prototype
+functions are already in device.h.
 
-- -Corey
+> We all know the application library is not going to have
+> access to include/linux/include/i2c-xxxx.h anyhow.
 
-Jeff Garzik wrote:
+It never did :)
 
->On Thu, Apr 03, 2003 at 10:24:02AM -0600, Corey Minyard wrote:
->
->>@@ -563,8 +576,9 @@
->>         spin_lock_irqsave(&(kcs_info->kcs_lock), flags);
->>         result = kcs_event_handler(kcs_info, 0);
->>         while (result != KCS_SM_IDLE) {
->>-            udelay(500);
->>-            result = kcs_event_handler(kcs_info, 500);
->>+            udelay(KCS_SHORT_TIMEOUT_USEC);
->>+            result = kcs_event_handler(kcs_info,
->>+                           KCS_SHORT_TIMEOUT_USEC);
->>         }
->>         spin_unlock_irqrestore(&(kcs_info->kcs_lock), flags);
->>         return;
->
->
->
->Do you really want to udelay this long with interrupts disabled?
->Certainly comments in kcs_event[_handler] indicate you're aware of the
->issue, but the code does not belie this fact :)
->
->Not only is the udelay itself "long" relatively speaking, but it's in a
->loop.  Which also calls a function that contains a loop that is
->potentially infinite is hardware is being wonky.
->
->    Jeff
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+> Later we can completely remove linux/include/linux/i2c-proc.h
+> which the existing application library relies upon.
 
-iD8DBQE+jGUhmUvlb4BhfF4RAp2ZAJ40cXa1O1tv1wITiFzMsTuaTDejEgCfeOzM
-Uw0PgpEhlmDkyF9yejO/r4A=
-=l5ia
------END PGP SIGNATURE-----
+No userspace program should rely on kernel header files.
+And I didn't take away the functionality that i2c-proc.h provided with
+the list of devices supported and such.  Just the unused function
+prototypes that dealt with the proc and sysctl interface.
 
+thanks,
 
+greg k-h

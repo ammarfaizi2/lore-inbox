@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316971AbSFKJ3G>; Tue, 11 Jun 2002 05:29:06 -0400
+	id <S316973AbSFKJaT>; Tue, 11 Jun 2002 05:30:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316973AbSFKJ3F>; Tue, 11 Jun 2002 05:29:05 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11023 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316971AbSFKJ3E>; Tue, 11 Jun 2002 05:29:04 -0400
-Date: Tue, 11 Jun 2002 10:28:59 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.21 kill warnings 4/19
-Message-ID: <20020611102859.F1346@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com> <3D048CFD.2090201@evision-ventures.com> <20020611004000.GH5202@kroah.com> <3D0599AE.7080809@evision-ventures.com> <20020611092637.C1346@flint.arm.linux.org.uk> <3D05B61F.4010609@evision-ventures.com> <20020611100634.D1346@flint.arm.linux.org.uk> <3D05BE5B.1000705@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
+	id <S316978AbSFKJaR>; Tue, 11 Jun 2002 05:30:17 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38925 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316973AbSFKJaP>;
+	Tue, 11 Jun 2002 05:30:15 -0400
+Message-ID: <3D05C401.C9DFC996@zip.com.au>
+Date: Tue, 11 Jun 2002 02:33:53 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 no timestamp update on modified mmapped files
+In-Reply-To: <3D05A6A1.328B7FDE@zip.com.au> <Pine.LNX.4.21.0206111006300.1028-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 11, 2002 at 11:09:47AM +0200, Martin Dalecki wrote:
-> U¿ytkownik Russell King napisa³:
-> > GCC 3.x introduces the dodgy practice of removing the frame pointer
-> > from every function despite telling the compiler not to with
-> > -fno-omit-frame-pointer.  It's also contary to the GCC documentation
-> > when it interferes with debugging.
+Hugh Dickins wrote:
 > 
-> This can not be true - since otherwise task switching wouldn't work
-> at all!
+> On Tue, 11 Jun 2002, Andrew Morton wrote:
+> >
+> > I think it's too late to fix this in 2.4.  If we did, a person
+> > could develop and test an application on 2.4.21, ship it, then
+> > find that it fails on millions of 2.4.17 machines.
+> 
+> Oh, please reconsider that!  Doesn't loss of modification time
+> approach data loss?  Surely we'll continue to fix any data loss
+> issues in 2.4, and be grateful if you fixed this mmap modtime loss.
+> 
 
-It is indeed true.  From your comment, it looks like you don't understand
-the ARM architecture/what a frame pointer is.
+Oh that's easy - I'll complete the patch and let Marcelo worry
+about it.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+-

@@ -1,85 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262491AbVAPMXB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262494AbVAPM0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262491AbVAPMXB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 07:23:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbVAPMXB
+	id S262494AbVAPM0y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 07:26:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbVAPM0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 07:23:01 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:33446 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S262491AbVAPMWu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 07:22:50 -0500
-Message-ID: <41EA5C8D.8070407@drzeus.cx>
-Date: Sun, 16 Jan 2005 13:22:37 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Sun, 16 Jan 2005 07:26:54 -0500
+Received: from static-162-83-93-166.fred.east.verizon.net ([162.83.93.166]:25231
+	"EHLO ccs.covici.com") by vger.kernel.org with ESMTP
+	id S262494AbVAPM0v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 07:26:51 -0500
 MIME-Version: 1.0
-To: Ian Molton <spyro@f2s.com>
-CC: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Richard Purdie <rpurdie@rpsys.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: MMC Driver RFC
-References: <021901c4f8eb$1e9cc4d0$0f01a8c0@max> <20050112214345.D17131@flint.arm.linux.org.uk> <023c01c4f8f3$1d497030$0f01a8c0@max> <20050112221753.F17131@flint.arm.linux.org.uk> <41E5B177.4060307@f2s.com> <41E7AF11.6030005@drzeus.cx> <41E7DD5E.5070901@f2s.com>
-In-Reply-To: <41E7DD5E.5070901@f2s.com>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16874.23937.91624.469146@ccs.covici.com>
+Date: Sun, 16 Jan 2005 07:26:41 -0500
+From: John covici <covici@ccs.covici.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Dave Airlie <airlied@gmail.com>, Helge Hafting <helgehaf@aitel.hist.no>,
+       covici@ccs.covici.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10 dies when X tries to initialize PCI radeon 9200 SE
+In-Reply-To: <9e473391050116033435e5db9c@mail.gmail.com>
+References: <41E64DAB.1010808@hist.no>
+	<16870.21720.866418.326325@ccs.covici.com>
+	<21d7e997050113130659da39c9@mail.gmail.com>
+	<20050115185712.GA17372@hh.idb.hist.no>
+	<21d7e997050116020859687c4a@mail.gmail.com>
+	<20050116105011.GA5882@hh.idb.hist.no>
+	<9e4733910501160304642f7882@mail.gmail.com>
+	<21d7e99705011603072d26727a@mail.gmail.com>
+	<9e473391050116033435e5db9c@mail.gmail.com>
+X-Mailer: VM 7.17 under Emacs 21.3.50.2
+Reply-To: covici@ccs.covici.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Molton wrote:
+OK, I don't have a module called drm except a .a file in the library
+directory for X -- I have some radeon stuff but modprobe radeon
+debug=1 says invalid parameter and loads the module.  Am I missing
+something?
 
->
-> I've been getting errors replying to you but had no alternative 
-> address to use. perhaps you could mail me from another account ?
->
-Afraid everything gets routed to the same account in the end anyway. I 
-checked the logs and the problem is that your mail server has a HELO 
-that differs from its IP (outmail.freedom2surf.net vs. 194.106.33.237). 
-Reverse is ok, but forward points to 194.106.56.14.
+Thanks.
 
->> * Moved SD-specific commands to a separate section in the header so 
->> they are more easily distinguished.
->
->
-> I had been meaning to move all the c code referencing SD to a seperate 
-> sd.c file such that it could be compiled optionally on top of MMC. at 
-> the time it wasnt mature enough to be worth it, but that may be worth 
-> revisiting now.
->
-I've had the same idea. But I think it will be difficult since we need 
-som funky logic during init. Perhaps a model where each mode 
-(MMC/SD/SDIO) each gets their turn trying to find something on the bus. 
-But this would require a rather large rewrite of the MMC layer. We would 
-need to separate MMC logic from the driver interface. And mmc_block and 
-sd_block would more or less be the same. Considering how much is similar 
-(and most people want SD support anyhow), I'm not sure that we have much 
-to gain from separating them.
+on Sunday 01/16/2005 Jon Smirl(jonsmirl@gmail.com) wrote
+ > On Sun, 16 Jan 2005 22:07:13 +1100, Dave Airlie <airlied@gmail.com> wrote:
+ > > > you need to check the output from "modprobe drm debug=1" "modprobe
+ > > > radeon" and see if drm is misidentifying the board as AGP. We don't
+ > > > want to fix something if it isn't broken.
+ > > 
+ > > 
+ > > have a look at bug 255 in fd.o bugzilla, this was what was wrong with
+ > > the original code, I'd seriously think about putting this code into
+ > > the radeon drm not the old stuff..
+ > > 
+ > > Dave.
+ > > 
+ > 
+ > I'm fine with adding this code, but we still don't know if this is the
+ > cause of his problem. The debug output can determine if this really is
+ > the source of the problem or if it is somewhere else.
+ > 
+ > 
+ > -- 
+ > Jon Smirl
+ > jonsmirl@gmail.com
+ > -
+ > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+ > the body of a message to majordomo@vger.kernel.org
+ > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ > Please read the FAQ at  http://www.tux.org/lkml/
 
->> * The mode (SD/MMC) of the host is stored. Since MMC uses a bus 
->> topology and SD uses a star one it is useful to be able to see which 
->> mode the controller is in.
->
->
-> Is this needed? presumably any controller that implements MMC/SD slots 
-> can only have one card/slot anyhow.
->
-> Mind you, I have plans to look at SDIO, so that may alter things...
->
-I need it to determine if the code should send an RCA or ask for one, 
-and to determine if it should try and read the SCR. Your solution used 
-an extra parameter but I thought a mode flag would be better since we 
-might need to know mode later on (after init.).
-
->
-> The toshiba controller appears to want to be told when an ACMD is 
-> issued, compared to a normal CMD.
-
-No hints in the spec about why? Seems very strange since there's no 
-change in what goes over the wire.
-
-Rgds
-Pierre
-
+-- 
+         John Covici
+         covici@ccs.covici.com

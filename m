@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbTJTIWS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 04:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbTJTIWS
+	id S262440AbTJTIim (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 04:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbTJTIil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 04:22:18 -0400
-Received: from dyn-ctb-210-9-246-89.webone.com.au ([210.9.246.89]:48135 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S262153AbTJTIWR
+	Mon, 20 Oct 2003 04:38:41 -0400
+Received: from sol.cc.u-szeged.hu ([160.114.8.24]:32241 "EHLO
+	sol.cc.u-szeged.hu") by vger.kernel.org with ESMTP id S262440AbTJTIil
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 04:22:17 -0400
-Message-ID: <3F939B1E.5020807@cyberone.com.au>
-Date: Mon, 20 Oct 2003 18:21:50 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Svetoslav Slavtchev <svetljo@gmx.de>
-CC: Jens Axboe <axboe@suse.de>, B.Zolnierkiewicz@elka.pw.edu.pl,
-       andre@linux-ide.org, linux-kernel@vger.kernel.org
+	Mon, 20 Oct 2003 04:38:41 -0400
+Date: Mon, 20 Oct 2003 10:38:39 +0200 (CEST)
+From: Geller Sandor <wildy@petra.hos.u-szeged.hu>
+To: Tomi Orava <Tomi.Orava@ncircle.nullnet.fi>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: HighPoint 374
-References: <20031020064831.GT1128@suse.de> <6286.1066637456@www51.gmx.net>
-In-Reply-To: <6286.1066637456@www51.gmx.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <48232.192.168.9.10.1066590873.squirrel@ncircle.nullnet.fi>
+Message-ID: <Pine.LNX.4.58.0310201028260.15393@petra.hos.u-szeged.hu>
+References: <00b801c3955c$7e623100$0514a8c0@HUSH>   
+ <1066579176.7363.3.camel@milo.comcast.net><41102.192.168.9.10.1066584247.squirrel@ncircle.nullnet.fi>
+    <yw1x3cdpgm46.fsf@users.sourceforge.net> <48232.192.168.9.10.1066590873.squirrel@ncircle.nullnet.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 19 Oct 2003, Tomi Orava wrote:
 
+> I'd be really interested to hear if anyone has a working system
+> with kernel included drivers & HPT374-controller integrated in
+> motherboard and using PATA-drives ?
 
-Svetoslav Slavtchev wrote:
+I have an Epox 8k5a3+ with 2 Maxtor drives (80GB) connected. It't running
+fine, from 2.4.18-ac* kernels (currently 2.4.23-pre7-pac2). I haven't seen
+any problems, the disks are mirrored (md driver), ext3, reiserfs, xfs and jfs
+filesystems are on the disks. (I have very bad experiences with HTP372 and
+80GB Maxtor drives)
 
->>On Sun, Oct 19 2003, Bartlomiej Zolnierkiewicz wrote:
->>
->>>Andre, thanks for helpful hint.
->>>Svetoslav, the right person to whine about TCQ stuff is Jens Axboe 8-).
->>>
->>Well that's correct, but this looks more like an AS iosched bug :)
->>
->>>>You do not enable TCQ on highpoint without using the hosted polling
->>>>
->>timer.
->>
->>>>Oh and I have not added it, and so hit Bartlomiej up for the
->>>>
->>additions.
->>
->>For what? TCQ tests fine on a HPT370 here.
->>
->
->cmdline : acpi=off pci=noacpi elevator=deadline
->
-
-Thanks, that would be good if you would test IDE TCQ problems with
-elevator=deadline. If it is working fine there, but you still get
-problems when using the default (AS) elevator then report them to me
-please.
-
-
+  Geller Sandor <wildy@petra.hos.u-szeged.hu>

@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314684AbSEONnI>; Wed, 15 May 2002 09:43:08 -0400
+	id <S315272AbSEONtO>; Wed, 15 May 2002 09:49:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315272AbSEONnH>; Wed, 15 May 2002 09:43:07 -0400
-Received: from a217-118-40-108.bluecom.no ([217.118.40.108]:15125 "EHLO
-	mail.circlestorm.org") by vger.kernel.org with ESMTP
-	id <S314684AbSEONnG>; Wed, 15 May 2002 09:43:06 -0400
-Message-ID: <00bd01c1fc16$6fcfbd50$0d01a8c0@studio2pw0bzm4>
-From: "Dead2" <dead2@circlestorm.org>
-To: "Tigran Aivazian" <tigran@veritas.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0205141938390.1577-100000@einstein.homenet>
-Subject: Re: Initrd or Cdrom as root
-Date: Wed, 15 May 2002 15:43:03 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S315407AbSEONtN>; Wed, 15 May 2002 09:49:13 -0400
+Received: from sprocket.loran.com ([209.167.240.9]:2045 "EHLO
+	ottonexc1.peregrine.com") by vger.kernel.org with ESMTP
+	id <S315272AbSEONtN>; Wed, 15 May 2002 09:49:13 -0400
+Subject: AIC7xxx in 2.4.19-pre8?
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: linux-kernel@vger.kernel.org
+Cc: aic7xxx@freebsd.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 15 May 2002 09:49:12 -0400
+Message-Id: <1021470553.28001.37.camel@dlacoste.ottawa.loran.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Interesting, so you are saying that the modern BIOSes are already capable
-> of booting no-emulation CDs? Last time I tried it (perhaps a year ago)
-> some of my Dell machines couldn't do it so I gave up and decided to live
-> with the 2.88M limit.
-> But if things changed and I should revisit the idea (i.e. if it is now
-> possible to have boot images larger than 2.88M in a portable manner) then
-> I would like to know.
+(Kernel version is 2.4.19-pre8.  Let me know if you want more info :)
 
-Indeed it seems like it works on most computers here atleast, and I would
-like to explore this way of doing it before boiling out of it just to find
-new
-problems arising with other ways.
+(Motherboard is Nexcom Peak 632 : 440BX with Adaptec 7890U2)
 
-So, I now have a new problem I hope someone can help me out with.
-It now mounts the cdrom as root like it should, but then gives me the error:
-"Warning: unable to open an initial console."
+I'm getting (over and over and over and over) the message from line
+1854 of drivers/scsi/aic7xxx/aic7xxx_pci.c :
 
-I have checked everything I can think of, but if someone could point me to
-exactly generates this error, I would be forever grateful.
+scsi0: PCI error Interrupt at seqaddr = 0x8
+scsi0: PCI error Interrupt at seqaddr = 0x9
 
--=Dead2=-
+(0x9 is more common, no pattern detected between 0x8 and 0x9)
+
+It's interlaced with :
+scsi0: Received a Target Abort
+
+which means the status1 flag RTA was set, but I'm now officially out
+of my league :)
+
+This box was going fine till this morning (we upgraded from 2.4.18
+last night) and a second box we did the same thing to also had the
+same problem, so it looks like a kernel issue somehow, not just
+faulty hardware.  Retrograding to 2.4.18 caused the problem to go
+away.
+
+Has anyone else seen this?
+(or if you have suggestions, please let me know!)
+ 
+Dana Lacoste
+Ottawa, Canada
 

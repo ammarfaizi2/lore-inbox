@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262839AbTCWGWB>; Sun, 23 Mar 2003 01:22:01 -0500
+	id <S262837AbTCWG2T>; Sun, 23 Mar 2003 01:28:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262840AbTCWGWA>; Sun, 23 Mar 2003 01:22:00 -0500
-Received: from yuzuki.cinet.co.jp ([61.197.228.219]:30848 "EHLO
+	id <S262840AbTCWG2T>; Sun, 23 Mar 2003 01:28:19 -0500
+Received: from yuzuki.cinet.co.jp ([61.197.228.219]:31872 "EHLO
 	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S262839AbTCWGV7>; Sun, 23 Mar 2003 01:21:59 -0500
-Date: Sun, 23 Mar 2003 15:32:07 +0900
+	id <S262837AbTCWG2T>; Sun, 23 Mar 2003 01:28:19 -0500
+Date: Sun, 23 Mar 2003 15:38:29 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5.65-ac3] Updates for PC-9800 related (0/5) summary
-Message-ID: <20030323063207.GA2803@yuzuki.cinet.co.jp>
+Subject: [PATCH 2.5.65-ac3] Updates for PC-9800 related (1/5) boot98
+Message-ID: <20030323063829.GA2835@yuzuki.cinet.co.jp>
+References: <20030323063207.GA2803@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20030323063207.GA2803@yuzuki.cinet.co.jp>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for merging.
-These are the update patch for NEC PC-9800 subarchitecture related files
-against 2.5.65-ac3. Please apply.
+This is the update patch for NEC PC-9800 subarchitecture related files
+against 2.5.65-ac3. (1/5)
 
-Description:
- o alsa-update.patch (1/5)
-   Update sound/core/Makefile. Restore missing target for PC-98.
-
- o boot98-update.patch (2/5)
-   Update arch/i386/Makefile and arch/i386/boot98/*.
-
- o floppy98-update.patch (3/5)
-   Update PC98 standard floppy driver.
-
- o network_card-update.patch (4/5)
-   Update drivers/net/Kconfig. Remove duplicated entry for PC-98.
-
- o video_card-update.patch (5/5)
-   Add missing files for PC98 Standard text mode video driver.
+Update alsa sound driver for PC-98.
+Add missing target for PC-98 lost between 2.5.65-ac2 and 2.5.65-ac3.
 
 Regards,
-Osamu Tomita <tomita@cinet.co.jp>
+Osamu Tomita
 
+diff -Nru linux-2.5.65-ac3/sound/core/Makefile linux98-2.5.65-ac3/sound/core/Makefile
+--- linux-2.5.65-ac3/sound/core/Makefile	2003-03-23 11:47:19.000000000 +0900
++++ linux98-2.5.65-ac3/sound/core/Makefile	2003-03-23 12:13:28.000000000 +0900
+@@ -95,6 +95,7 @@
+ obj-$(CONFIG_SND_YMFPCI) += snd-pcm.o snd-timer.o snd-page-alloc.o snd.o snd-rawmidi.o snd-hwdep.o
+ obj-$(CONFIG_SND_POWERMAC) += snd-pcm.o snd-timer.o snd-page-alloc.o snd.o
+ obj-$(CONFIG_SND_SA11XX_UDA1341) += snd-pcm.o snd-timer.o snd-page-alloc.o snd.o
++obj-$(CONFIG_SND_PC98_CS4232) += snd-pcm.o snd-timer.o snd-page-alloc.o snd.o snd-rawmidi.o snd-hwdep.o
+ ifeq ($(CONFIG_SND_SB16_CSP),y)
+   obj-$(CONFIG_SND_SB16) += snd-hwdep.o
+   obj-$(CONFIG_SND_SBAWE) += snd-hwdep.o

@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291946AbSBATqw>; Fri, 1 Feb 2002 14:46:52 -0500
+	id <S291929AbSBATnb>; Fri, 1 Feb 2002 14:43:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291939AbSBATp0>; Fri, 1 Feb 2002 14:45:26 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:53767 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S291935AbSBATpS>; Fri, 1 Feb 2002 14:45:18 -0500
-Date: Fri, 1 Feb 2002 20:45:13 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Richard Zidlicky 
+	id <S291926AbSBATnV>; Fri, 1 Feb 2002 14:43:21 -0500
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:13758 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S291935AbSBATnM>; Fri, 1 Feb 2002 14:43:12 -0500
+From: Richard Zidlicky 
 	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>
-Cc: James Simmons <jsimmons@transvirtual.com>, linux-m68k@lists.linux-m68k.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-Id: <200202011943.UAA04625@faui02b.informatik.uni-erlangen.de>
 Subject: Re: [PATCH] Q40 input api support.
-Message-ID: <20020201204513.A18925@suse.cz>
-In-Reply-To: <20020201165538.A17286@suse.cz> <200202011943.UAA04625@faui02b.informatik.uni-erlangen.de>
-Mime-Version: 1.0
+To: vojtech@suse.cz (Vojtech Pavlik)
+Date: Fri, 1 Feb 2002 20:43:04 +0100 (MET)
+Cc: jsimmons@transvirtual.com (James Simmons), linux-m68k@lists.linux-m68k.org,
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <20020201165538.A17286@suse.cz> from "Vojtech Pavlik" at Feb 01, 2002 04:55:38 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200202011943.UAA04625@faui02b.informatik.uni-erlangen.de>; from Richard.Zidlicky@stud.informatik.uni-erlangen.de on Fri, Feb 01, 2002 at 08:43:04PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 01, 2002 at 08:43:04PM +0100, Richard Zidlicky wrote:
 
-> 
-> > > > +static inline void q40kbd_write(unsigned char val)
-> > > > +{
-> > > > +	/* FIXME! We need a way how to write to the keyboard! */
-> > > > +}
-> > > 
-> > > absolutely no way to write to the keyboard.
+> > > +static inline void q40kbd_write(unsigned char val)
+> > > +{
+> > > +	/* FIXME! We need a way how to write to the keyboard! */
+> > > +}
 > > 
-> > Really? Too bad. So no way to set LEDs, no way to detect the keyboard,
-> > no way to set it to "Scancode Set 3"?
+> > absolutely no way to write to the keyboard.
 > 
-> no way to control LED's, keyboard is assumed present, scancode set 
-> is AT
+> Really? Too bad. So no way to set LEDs, no way to detect the keyboard,
+> no way to set it to "Scancode Set 3"?
 
-Ok, in that case we'll need to pass a flag to atkbd.c (via the serio
-layer) telling it not to try any detection / initialization of the
-keyboard.
+no way to control LED's, keyboard is assumed present, scancode set 
+is AT
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Richard
+

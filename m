@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313622AbSDEVda>; Fri, 5 Apr 2002 16:33:30 -0500
+	id <S313649AbSDEWWl>; Fri, 5 Apr 2002 17:22:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313627AbSDEVdT>; Fri, 5 Apr 2002 16:33:19 -0500
-Received: from to-velocet.redhat.com ([216.138.202.10]:1014 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S313622AbSDEVdE>; Fri, 5 Apr 2002 16:33:04 -0500
-Date: Fri, 5 Apr 2002 16:33:01 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: faster boots?
-Message-ID: <20020405163301.B15540@redhat.com>
-In-Reply-To: <20020404220022.F24914@redhat.com> <Pine.LNX.3.96.1020405075636.7802B-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S313657AbSDEWWb>; Fri, 5 Apr 2002 17:22:31 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:9999 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S313649AbSDEWWV>; Fri, 5 Apr 2002 17:22:21 -0500
+Date: Fri, 5 Apr 2002 18:17:47 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Albert Max Lai <amlai@bitsorcery.com>
+Cc: "Marc A. Volovic" <marc@bard.org.il>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x and DAC960 issues
+In-Reply-To: <15533.61664.984655.18344@bitsorcery.com>
+Message-ID: <Pine.LNX.4.21.0204051817180.11472-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 05, 2002 at 08:04:28AM -0500, Bill Davidsen wrote:
-> On Thu, 4 Apr 2002, Benjamin LaHaise wrote:
+
+
+On Fri, 5 Apr 2002, Albert Max Lai wrote:
+
+> On Friday, 5 April 2002, Marc A. Volovic wrote:
 > 
-> > I find that on heavily scsi systems: one machine spins each of 13 disks 
-> > up sequentially.  This makes the initial boot take 3-5 minutes before 
-> > init even gets its foot in the door.  If someone made a patch to spin 
-> > up scsi disks on the first access, I'd gladly give it a test. ;-)
+> > I am using a Mylex 170LP with no problem, running on a dual 550MHz 
+> > MSI 6120S under quite a few 2.4.x kernels, lately 2.4.18 and 2.4.19pre5,
+> > all under reiserfs.  The firmware is 6.00-15, carrying 6 9GB disks
+> > (5 RAID5 + 1 spare).
+> > 
+> > There have been NO lockups under any version of the kernel, not under 
+> > multiple bonnie runs.
+> > 
+> > What is your interrupt breakdown? Could your machine be doing something
+> > naughty with the interrupts?
 > 
->   Look at the specs for startup current. Multiply by 13. That's why they
-> spin up one at a time, many drives draw far more current getting up to
-> speed, and doing all of them at once can be an issue.
+> This what /proc/interrupts says:
+>            CPU0       CPU1       
+>   0:    3874524          0          XT-PIC  timer
+>   1:      18836          0          XT-PIC  keyboard
+>   2:          0          0          XT-PIC  cascade
+>   4:          4          0          XT-PIC  serial
+>   5:      46479          0          XT-PIC  soundblaster
+>   8:     218807          0          XT-PIC  rtc
+>   9:     128424          0          XT-PIC  aic7xxx, aic7xxx
+>  10:      52035          0          XT-PIC  Mylex DAC1164P
+>  12:     342261          0          XT-PIC  PS/2 Mouse
+>  14:     209669          0          XT-PIC  eth0
+>  15:      44772          0          XT-PIC  eth1, usb-uhci
+> NMI:          0          0 
+> LOC:    3874766    3874768 
+> ERR:         16
+> MIS:          0
 
-Really?  I didn't know that.  :-P
+I've forwarded your first message to Leonard (the driver author)... well
+probably get some feedback soon.
 
-Seriously, only 2 of the disks need to be spun up to start the system, 
-so I'd rather be able to login and have only processes which need to 
-access the disks that aren't ready yet wait.  Hence the comment about 
-spinning disks up on first access...
-
-Also, the system has a ~1200W power supply, so I think it can spin more 
-than 1 disk up at a time.  Again, defaulting to 1 is right and good, but 
-making it tunable would be better.
-
-		-ben
--- 
-"A man with a bass just walked in,
- and he's putting it down
- on the floor."

@@ -1,130 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVASI3k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVASIdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261671AbVASI3k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 03:29:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVASI3Z
+	id S261629AbVASIdm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 03:33:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbVASIag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 03:29:25 -0500
-Received: from waste.org ([216.27.176.166]:23980 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261664AbVASIQ7 (ORCPT
+	Wed, 19 Jan 2005 03:30:36 -0500
+Received: from waste.org ([216.27.176.166]:22956 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261663AbVASIQ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 03:16:59 -0500
+	Wed, 19 Jan 2005 03:16:58 -0500
 From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>
 X-PatchBomber: http://selenic.com/scripts/mailpatches
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <7.64403262@selenic.com>
-Message-Id: <8.64403262@selenic.com>
-Subject: [PATCH 7/12] random pt3: Reseed pointer in pool struct
-Date: Wed, 19 Jan 2005 00:17:22 -0800
+In-Reply-To: <6.64403262@selenic.com>
+Message-Id: <7.64403262@selenic.com>
+Subject: [PATCH 6/12] random pt3: Reservation flag in pool struct
+Date: Wed, 19 Jan 2005 00:17:21 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Put pointer to reseed pool in pool struct and automatically pull
-entropy from it if it is set. This lets us remove the
-EXTRACT_SECONDARY flag.
+Move the limit flag to the pool struct, begin process of eliminating
+extract flags.
 
 Signed-off-by: Matt Mackall <mpm@selenic.com>
 
 Index: rnd/drivers/char/random.c
 ===================================================================
---- rnd.orig/drivers/char/random.c	2005-01-18 10:39:34.550137752 -0800
-+++ rnd/drivers/char/random.c	2005-01-18 10:39:47.360504569 -0800
-@@ -406,12 +406,14 @@
-  *
-  **********************************************************************/
- 
-+struct entropy_store;
- struct entropy_store {
- 	/* mostly-read data: */
+--- rnd.orig/drivers/char/random.c	2005-01-18 10:39:25.713264357 -0800
++++ rnd/drivers/char/random.c	2005-01-18 10:39:34.550137752 -0800
+@@ -411,6 +411,7 @@
  	struct poolinfo *poolinfo;
  	__u32 *pool;
  	const char *name;
- 	int limit;
-+	struct entropy_store *pull;
++	int limit;
  
  	/* read-write data: */
  	spinlock_t lock ____cacheline_aligned_in_smp;
-@@ -436,6 +438,7 @@
+@@ -426,6 +427,7 @@
+ static struct entropy_store input_pool = {
+ 	.poolinfo = &poolinfo_table[0],
+ 	.name = "input",
++	.limit = 1,
+ 	.lock = SPIN_LOCK_UNLOCKED,
+ 	.pool = input_pool_data
+ };
+@@ -433,6 +435,7 @@
+ static struct entropy_store blocking_pool = {
  	.poolinfo = &poolinfo_table[1],
  	.name = "blocking",
- 	.limit = 1,
-+	.pull = &input_pool,
++	.limit = 1,
  	.lock = SPIN_LOCK_UNLOCKED,
  	.pool = blocking_pool_data
  };
-@@ -443,6 +446,7 @@
- static struct entropy_store nonblocking_pool = {
- 	.poolinfo = &poolinfo_table[1],
- 	.name = "nonblocking",
-+	.pull = &input_pool,
- 	.lock = SPIN_LOCK_UNLOCKED,
- 	.pool = nonblocking_pool_data
- };
-@@ -1180,7 +1184,6 @@
-  *********************************************************************/
+@@ -1178,7 +1181,6 @@
  
  #define EXTRACT_ENTROPY_USER		1
--#define EXTRACT_ENTROPY_SECONDARY	2
+ #define EXTRACT_ENTROPY_SECONDARY	2
+-#define EXTRACT_ENTROPY_LIMIT		4
  #define TMP_BUF_SIZE			(HASH_BUFFER_SIZE + HASH_EXTRA_SIZE)
  #define SEC_XFER_SIZE			(TMP_BUF_SIZE*4)
  
-@@ -1195,7 +1198,7 @@
- static inline void xfer_secondary_pool(struct entropy_store *r,
- 				       size_t nbytes, __u32 *tmp)
- {
--	if (r->entropy_count < nbytes * 8 &&
-+	if (r->pull && r->entropy_count < nbytes * 8 &&
+@@ -1197,14 +1199,14 @@
  	    r->entropy_count < r->poolinfo->POOLBITS) {
  		int bytes = max_t(int, random_read_wakeup_thresh / 8,
  				min_t(int, nbytes, TMP_BUF_SIZE));
-@@ -1205,7 +1208,7 @@
++		int rsvd = r->limit ? 0 : random_read_wakeup_thresh/4;
+ 
+ 		DEBUG_ENT("going to reseed %s with %d bits "
  			  "(%d of %d requested)\n",
  			  r->name, bytes * 8, nbytes * 8, r->entropy_count);
  
--		bytes=extract_entropy(&input_pool, tmp, bytes,
-+		bytes=extract_entropy(r->pull, tmp, bytes,
- 				      random_read_wakeup_thresh / 8, rsvd, 0);
+ 		bytes=extract_entropy(&input_pool, tmp, bytes,
+-				      random_read_wakeup_thresh / 8, 0,
+-				      EXTRACT_ENTROPY_LIMIT);
++				      random_read_wakeup_thresh / 8, rsvd, 0);
  		add_entropy_words(r, tmp, bytes);
  		credit_entropy_store(r, bytes*8);
-@@ -1219,10 +1222,6 @@
-  * number of bytes that are actually obtained.  If the EXTRACT_ENTROPY_USER
-  * flag is given, then the buf pointer is assumed to be in user space.
-  *
-- * If the EXTRACT_ENTROPY_SECONDARY flag is given, then we are actually
-- * extracting entropy from the secondary pool, and can refill from the
-- * primary pool if needed.
-- *
-  * The min parameter specifies the minimum amount we can pull before
-  * failing to avoid races that defeat catastrophic reseeding while the
-  * reserved parameter indicates how much entropy we must leave in the
-@@ -1242,8 +1241,7 @@
- 	if (r->entropy_count > r->poolinfo->POOLBITS)
- 		r->entropy_count = r->poolinfo->POOLBITS;
+ 	}
+@@ -1254,8 +1256,7 @@
+ 		nbytes = 0;
+ 	} else {
+ 		/* If limited, never pull more than available */
+-		if (flags & EXTRACT_ENTROPY_LIMIT &&
+-		    nbytes + reserved >= r->entropy_count / 8)
++		if (r->limit && nbytes + reserved >= r->entropy_count / 8)
+ 			nbytes = r->entropy_count/8 - reserved;
  
--	if (flags & EXTRACT_ENTROPY_SECONDARY)
--		xfer_secondary_pool(r, nbytes, tmp);
-+	xfer_secondary_pool(r, nbytes, tmp);
+ 		if(r->entropy_count / 8 >= nbytes + reserved)
+@@ -1268,8 +1269,7 @@
+ 	}
  
- 	/* Hold lock while accounting */
- 	spin_lock_irqsave(&r->lock, cpuflags);
-@@ -1358,8 +1356,7 @@
-  */
- void get_random_bytes(void *buf, int nbytes)
- {
--	extract_entropy(&nonblocking_pool, (char *) buf, nbytes, 0, 0,
--			EXTRACT_ENTROPY_SECONDARY);
-+	extract_entropy(&nonblocking_pool, (char *) buf, nbytes, 0, 0, 0);
- }
+ 	DEBUG_ENT("debiting %d entropy credits from %s%s\n",
+-		  nbytes * 8, r->name,
+-		  flags & EXTRACT_ENTROPY_LIMIT ? "" : " (unlimited)");
++		  nbytes * 8, r->name, r->limit ? "" : " (unlimited)");
  
- EXPORT_SYMBOL(get_random_bytes);
-@@ -1449,8 +1446,7 @@
- 		DEBUG_ENT("reading %d bits\n", n*8);
+ 	spin_unlock_irqrestore(&r->lock, cpuflags);
+ 
+@@ -1450,7 +1450,6 @@
  
  		n = extract_entropy(&blocking_pool, buf, n, 0, 0,
--				    EXTRACT_ENTROPY_USER |
--				    EXTRACT_ENTROPY_SECONDARY);
-+				    EXTRACT_ENTROPY_USER);
+ 				    EXTRACT_ENTROPY_USER |
+-				    EXTRACT_ENTROPY_LIMIT |
+ 				    EXTRACT_ENTROPY_SECONDARY);
  
  		DEBUG_ENT("read got %d bits (%d still needed)\n",
- 			  n*8, (nbytes-n)*8);
+@@ -1502,15 +1501,8 @@
+ urandom_read(struct file * file, char __user * buf,
+ 		      size_t nbytes, loff_t *ppos)
+ {
+-	int flags = EXTRACT_ENTROPY_USER;
+-	unsigned long cpuflags;
+-
+-	spin_lock_irqsave(&input_pool.lock, cpuflags);
+-	if (input_pool.entropy_count > input_pool.poolinfo->POOLBITS)
+-		flags |= EXTRACT_ENTROPY_SECONDARY;
+-	spin_unlock_irqrestore(&input_pool.lock, cpuflags);
+-
+-	return extract_entropy(&nonblocking_pool, buf, nbytes, 0, 0, flags);
++	return extract_entropy(&nonblocking_pool, buf, nbytes, 0, 0,
++			       EXTRACT_ENTROPY_USER);
+ }
+ 
+ static unsigned int

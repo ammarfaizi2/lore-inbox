@@ -1,25 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270486AbTHGU4c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 16:56:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270520AbTHGU4b
+	id S270810AbTHGVBP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 17:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270848AbTHGVBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 16:56:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31170 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270486AbTHGU4Z (ORCPT
+	Thu, 7 Aug 2003 17:01:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:48326 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270810AbTHGVBN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 16:56:25 -0400
-Date: Thu, 7 Aug 2003 13:58:19 -0700
+	Thu, 7 Aug 2003 17:01:13 -0400
+Date: Thu, 7 Aug 2003 14:03:10 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: suparna@in.ibm.com, linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: [PATCH][2.6-mm] Readahead issues and AIO read speedup
-Message-Id: <20030807135819.3368ee16.akpm@osdl.org>
-In-Reply-To: <200308071341.50834.pbadari@us.ibm.com>
-References: <20030807100120.GA5170@in.ibm.com>
-	<200308071021.39816.pbadari@us.ibm.com>
-	<20030807103930.69e497a7.akpm@osdl.org>
-	<200308071341.50834.pbadari@us.ibm.com>
+To: Patrick McLean <pmclean@cs.ubishops.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-mm5 x86-64 link errors
+Message-Id: <20030807140310.4e2c8a79.akpm@osdl.org>
+In-Reply-To: <3F32AA2B.20809@cs.ubishops.ca>
+References: <3F32AA2B.20809@cs.ubishops.ca>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,29 +24,28 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
+Patrick McLean <pmclean@cs.ubishops.ca> wrote:
 >
-> On Thursday 07 August 2003 10:39 am, Andrew Morton wrote:
->  > Badari Pulavarty <pbadari@us.ibm.com> wrote:
->  > > We should do readahead of actual pages required by the current
->  > > read would be correct solution. (like Suparna suggested).
->  >
->  > I repeat: what will be the effect of this if all those pages are already in
->  > pagecache?
+>  I get to play with an opteron for a bit, so I'm going to try 2.6 on it, 
+>  but test2-mm5 seems to compile fine, but when it goes to link it, it 
+>  gives these errors:
 > 
->  Hmm !! Do you think just peeking at pagecache and bailing out if
->  nothing needed to be done, is too expensive ? Anyway, slow read
->  code has to do this later. Doing it in readahead one more time causes
->  significant perf. hit ?
+>     LD      init/built-in.o
+>     LD      .tmp_vmlinux1
+>  kernel/built-in.o(.text+0x359): In function `try_to_wake_up':
+>  : undefined reference to `sched_clock'
 
-It has been observed, yes.
+Ingo's scheduler patch requires that the architecture provide a
+sched_clock() function which returns nanoseconds.  We only have ia32, ia64,
+ppc and ppc64 versions thus far.
 
-> And also, do you think this is the most common case ?
+A lame version is to just add
 
-It is a very common case.  It's one we need to care for.  Especially when
-lots of CPUs are hitting the same file.
+unsigned long long sched_clock(void)
+{
+	return (unsigned long long)jiffies * (1000000000 / HZ);
+}
 
-There are things we can do to tweak it up, such as adding a max_index to
-find_get_pages(), then do multipage lookups, etc.  But not doing it at all
-is always the fastest way.
+to arch/<foo>/kernel/timer.c
+
 

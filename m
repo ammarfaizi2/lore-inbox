@@ -1,72 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279593AbRJXUsx>; Wed, 24 Oct 2001 16:48:53 -0400
+	id <S279594AbRJXU7z>; Wed, 24 Oct 2001 16:59:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279594AbRJXUso>; Wed, 24 Oct 2001 16:48:44 -0400
-Received: from home.geizhals.at ([213.229.14.34]:56844 "HELO home.geizhals.at")
-	by vger.kernel.org with SMTP id <S279593AbRJXUsa>;
-	Wed, 24 Oct 2001 16:48:30 -0400
-Message-ID: <3BD729B6.6030902@geizhals.at>
-Date: Wed, 24 Oct 2001 22:51:02 +0200
-From: "Marinos J. Yannikos" <mjy@geizhals.at>
-Organization: Geizhals Preisvergleich
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.5) Gecko/20011011
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: gdth / SCSI read performance issues (2.2.19 and 2.4.10)
-In-Reply-To: <3BD6B278.3070300@geizhals.at> <3BD6ECE6.8C9435C4@zip.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S279596AbRJXU7i>; Wed, 24 Oct 2001 16:59:38 -0400
+Received: from sigint.cs.purdue.edu ([128.10.2.82]:2177 "HELO
+	sigint.cs.purdue.edu") by vger.kernel.org with SMTP
+	id <S279594AbRJXU7d>; Wed, 24 Oct 2001 16:59:33 -0400
+Date: Wed, 24 Oct 2001 16:00:02 -0500
+From: linux@sigint.cs.purdue.edu
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] autofs4 symlink size
+Message-ID: <20011024160002.A190@sigint.cs.purdue.edu>
+In-Reply-To: <20011024102050.A12112@sigint.cs.purdue.edu> <9r781a$q9n$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9r781a$q9n$1@cesium.transmeta.com>; from hpa@zytor.com on Wed, Oct 24, 2001 at 01:24:10PM -0700
+X-Disclaimer: Any similarity to an opinion of Purdue is purely coincidental
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Wed, Oct 24, 2001 at 01:24:10PM -0700, H. Peter Anvin wrote:
+> >
+> > I sent this to the autofs4 maintainer a while ago, but never heard back.
+> > autofs4 doesn't return a size for the symlinks it creates, which is
+> > inconsistent with other filesystems.  (The Almquist shell uses the sizes
+> > of path components to allocate buffers during a walk, so it can't traverse
+> > autofs4-linked paths.)
+> 
+> That's IMNSHO a bug in the Almquist shell, at least if autofs4 returns
+> zero, but it's also a bug in autofs4.
 
-> Well that's pretty bad, isn't it?
-
-
-We could have bought a much cheaper controller and slower disks ;-)
-
-
-> - Disable CONFIG_HIGHMEM 
-
-
-That seems to have no effect on performance. Btw., the 64GB support in
-2.4.10 seemed to be buggy ("0-order allocation failed", then the DB
-crashed), so we were using the 4GB setting.
-
-
-> - Try linux-2.4.13
-
-
-This helped - now performance is up to par with 2.2.19 (~ 85MB/s) - thanks!
-
-
-> - Profile the kernel. [...]  With something like:
-> 	~/kern-prof.sh cp some_huge_file /dev/null
-
-
-I tried this, but with
-  dd if=/dev/sda of=/dev/null bs=1024k count=3000
-
-(the fs is too slow - so "cp" peaks out at 17MB/s!)
-
-The result (last 4 lines):
-c01388fc try_to_free_buffers                          55   0.1511
-c0128b10 file_read_actor                            1179  14.0357
-c01053b0 default_idle                               6784 130.4615
-00000000 total                                      8695   0.0065
-
-Does this suggest that the kernel isn't the bottleneck?
-
-
-Regards,
-  Marinos
--- 
-Marinos Yannikos, CEO
-Preisvergleich Internet Services AG
-Franzensbrückenstraße 8/2/16, A-1020 Wien
-Tel./Fax: (+431) 5811609-52/-55
-
+True, ash could do things differently, but I don't think expecting the
+filesystem to return correct metadata is a bug.  Should we distrust stat(2)
+and count the bytes in a file ourselves, just to be sure?

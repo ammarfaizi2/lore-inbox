@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbULaVQm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbULaVsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbULaVQm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 16:16:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbULaVQm
+	id S262155AbULaVsF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 16:48:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbULaVsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 16:16:42 -0500
-Received: from mail.tmr.com ([216.238.38.203]:64455 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S261163AbULaVQj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 16:16:39 -0500
-Message-ID: <41D5C459.8050601@tmr.com>
-Date: Fri, 31 Dec 2004 16:27:53 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
+	Fri, 31 Dec 2004 16:48:05 -0500
+Received: from pri-dns2.mtco.com ([207.179.200.252]:15546 "HELO
+	pri-dns2.mtco.com") by vger.kernel.org with SMTP id S262155AbULaVsC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 16:48:02 -0500
+From: Tom Felker <tfelker2@uiuc.edu>
+To: gene.heskett@verizon.net
+Subject: Re: the umount() saga for regular linux desktop users
+Date: Fri, 31 Dec 2004 15:48:11 -0600
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org, ofeeley@gmail.com,
+       William <wh@designed4u.net>
+References: <200412311741.02864.wh@designed4u.net> <2b8348ba041231094816d02456@mail.gmail.com> <200412311322.14359.gene.heskett@verizon.net>
+In-Reply-To: <200412311322.14359.gene.heskett@verizon.net>
 MIME-Version: 1.0
-To: Terry Hardie <terryh@orcas.net>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Asus P4C800-E Deluxe and Intel Pro/1000
-References: <200411112003.43598.Gregor.Jasny@epost.de><6.1.1.1.0.20041108074026.01dead50@ptg1.spd.analog.com> <Pine.LNX.4.58.0412262127510.3478@orcas.net>
-In-Reply-To: <Pine.LNX.4.58.0412262127510.3478@orcas.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412311548.11614.tfelker2@uiuc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terry Hardie wrote:
-> Well, this has been plauging me for months, and finally figured it out.
-> 
-> Any 2.6 kernel on my board, would boot, then give errors (paraphrased,
-> sorry) when I tried to bring up the ethernet:
-> 
-> NETDEV WATCHDOG: eth0: transmit timed out
-> IRQ #18: Nobody cared!
-> 
-> And no ethernet conectivity.
-> 
-> The Fix: Update bios from asus' website. I guess their ACPI was screwed
-> up. This is the second time I've had to update this MB to fix
-> incompatibilities with Linux. So, watch out with Asus boards on Linux.
-> 
-> BTW - Linux 2.4's driver worked fine with the old bios. Only 2.6 didn't
-> work.
+On Friday 31 December 2004 12:22 pm, Gene Heskett wrote:
 
-Some additional info, I've been investigating this for a few hours, and 
-it appears that (a) IRQ 18 on my system is shared by ide0 and ide1, and 
-that the IRQ storm seems to start the first time I use ide1 (DVD only).
+> There are some times when the usual 5 second flush schedule should be
+> tossed out the window, and the data written immediately.  A quickly
+> unpluggable usb memory dongle is a prime candidate to bite the user
+> precisely where it hurts.  Floppies also fit this same scenario, I
+> don't know at the times I've written an image with dd, got up out of
+> my chair and went to the machine and slapped the eject button to
+> discover to my horror, that when my hand came away from the button
+> with disk in hand, the frigging access led was now on that wasn't
+> when I tapped the button.
 
-I will be posting a bunch of dmesg results when/if the system reboots, 
-but acpi={off,ht} doesn't help, pollirq doesn't help, and system 
-shutdown leaves the system unbootable without a full (pull the power 
-cord) hardware power cycle.
-
-Questions:
-1 - do you have trouble rebooting after a failure?
-2 - do you see the IRQ 18 storm start just after the first use of ide1?
-3 - and of course if you can get up in console mode, are ide0 and ide1 
-shared?
-
-I may rebuild the kernel with IRQ share off just to see if that helps.
+For that you should add "sync" as an option when mounting the filesystem, in 
+which case writes won't return until the data has actually been written.  man 
+mount doesn't mention that being implemented for FAT, though - is that 
+accurate, and if so, shouldn't it be?
 
 -- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Tom Felker, <tcfelker@mtco.com>
+<http://vlevel.sourceforge.net> - Stop fiddling with the volume knob.
+
+McBride: "I have here in my hand a list of two hundred and five..."

@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpIirf0FrMVU7TkWccSgmCao40A==
+thread-index: AcQVpLRSV3TVYnr/QJanN0Ki6UV3Iw==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sun, 04 Jan 2004 20:46:10 +0000
-Message-ID: <023e01c415a4$88abd940$d100000a@sbs2003.local>
+Delivery-date: Mon, 05 Jan 2004 13:57:35 +0000
+Message-ID: <02f601c415a4$b4527860$d100000a@sbs2003.local>
 Content-Transfer-Encoding: 7bit
 X-Mailer: Microsoft CDO for Exchange 2000
-Date: Mon, 29 Mar 2004 16:43:08 +0100
+Date: Mon, 29 Mar 2004 16:44:21 +0100
 Content-Class: urn:content-classes:message
 Importance: normal
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-From: "Linus Torvalds" <torvalds@osdl.org>
+From: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
 To: <Administrator@smtp.paston.co.uk>
-Cc: "Srivatsa Vaddagiri" <vatsa@in.ibm.com>,
-        "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-        <manfred@colorfullife.com>, <rusty@au1.ibm.com>,
-        "Andrew Morton" <akpm@osdl.org>
-Subject: Re: BUG in x86 do_page_fault?  [was Re: in_atomic doesn't count local_irq_disable?]
-In-Reply-To: <20040104145736.GA11198@elf.ucw.cz>
-References: <3FF044A2.3050503@colorfullife.com> <20031230185615.A9292@in.ibm.com> <20031231185959.A9041@in.ibm.com> <Pine.LNX.4.58.0312311104180.2065@home.osdl.org> <20040104145736.GA11198@elf.ucw.cz>
+Cc: "Andrew Morton" <akpm@osdl.org>, <daniel@osdl.org>, <janetmor@us.ibm.com>,
+        <pbadari@us.ibm.com>, <linux-aio@kvack.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH linux-2.6.0-test10-mm1] filemap_fdatawait.patch
+In-Reply-To: <20040102055020.GA3410@in.ibm.com>
+References: <20031231091828.GA4012@in.ibm.com> <20031231013521.79920efd.akpm@osdl.org> <20031231095503.GA4069@in.ibm.com> <20031231015913.34fc0176.akpm@osdl.org> <20031231100949.GA4099@in.ibm.com> <20031231021042.5975de04.akpm@osdl.org> <20031231104801.GB4099@in.ibm.com> <20031231025309.6bc8ca20.akpm@osdl.org> <20031231025410.699a3317.akpm@osdl.org> <20031231031736.0416808f.akpm@osdl.org> <20040102055020.GA3410@in.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN;
 	charset="US-ASCII"
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:43:11.0078 (UTC) FILETIME=[8A353860:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:44:21.0921 (UTC) FILETIME=[B46F0110:01C415A4]
 
 
 
-On Sun, 4 Jan 2004, Pavel Machek wrote:
-> > 
-> > Please don't do this, it will result in some _really_ nasty problems with 
-> > X and other programs that potentially disable interrupts in user
-> > space.
-> 
-> If user program causes page fault with interrupts disabled, it is
-> certainly buggy, right?
+On Fri, 2 Jan 2004, Suparna Bhattacharya wrote:
 
-No.
+> On Wed, Dec 31, 2003 at 03:17:36AM -0800, Andrew Morton wrote:
+> > Andrew Morton <akpm@osdl.org> wrote:
+> > >
+> > > Let me actually think about this a bit.
+> >
+> > Nasty.  The same race is present in 2.4.x...
 
-It may do a best-effort thing. It may also do a best-_performance_ thing, 
-in leaving interrupts disabled over a piece of code that doesn't care, 
-knowing that disabling interrupts is expensive.  Or it may just be a 
-simple case of simplicity: disable interrupts over the whole region, 
-knowing that only a part of it matters.
+filemap_fdatawait() is always called with i_sem held and
+there is no "!PG_dirty and !PG_writeback" window.
 
-It by no means is automatically a bug. And it unquestionably _does_ 
-happen. We used to warn about it. We stopped.
+Where does the race lies in 2.4 ?
 
-		Linus
+Daniel, Would be interesting to know if the direct IO tests also fail on
+2.4.
+
+> > How's about we start new I/O in filemap_fdatawait() if the page is
+> > dirty?

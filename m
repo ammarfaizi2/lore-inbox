@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129189AbQKTRbX>; Mon, 20 Nov 2000 12:31:23 -0500
+	id <S129702AbQKTReC>; Mon, 20 Nov 2000 12:34:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129345AbQKTRbM>; Mon, 20 Nov 2000 12:31:12 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:46091 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S129189AbQKTRaz>;
-	Mon, 20 Nov 2000 12:30:55 -0500
-Date: Mon, 20 Nov 2000 18:00:32 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: "Charles Turner, Ph.D." <cturner@quark.analogic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Defective Red Hat Distribution poorly represents Linux
-Message-ID: <20001120180032.C599@almesberger.net>
-In-Reply-To: <Pine.LNX.3.95.1001120084920.580A-100000@quark.analogic.com>
-Mime-Version: 1.0
+	id <S129532AbQKTRdx>; Mon, 20 Nov 2000 12:33:53 -0500
+Received: from [151.17.201.167] ([151.17.201.167]:20290 "EHLO proxy.teamfab.it")
+	by vger.kernel.org with ESMTP id <S129702AbQKTRdk>;
+	Mon, 20 Nov 2000 12:33:40 -0500
+Message-ID: <3A195948.C864BB8E@teamfab.it>
+Date: Mon, 20 Nov 2000 18:03:04 +0100
+From: Luca Montecchiani <luca.montecchiani@teamfab.it>
+X-Mailer: Mozilla 4.72C-CCK-MCD Caldera Systems OpenLinux [en] (X11; U; Linux 2.2.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: alan@lxorguk.ukuu.org.uk, davem@redhat.com
+Subject: [PATCH] Re: 2.2.18pre21 - IP kernel level autoconfiguration
+In-Reply-To: <H00000650001a074.0974474275.dublin.innovates.com@MHS> <3A154F7A.6F0F435D@teamfab.it>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1001120084920.580A-100000@quark.analogic.com>; from cturner@quark.analogic.com on Mon, Nov 20, 2000 at 08:53:19AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Charles Turner, Ph.D. wrote:
-> I can even see obvious bugs in the trace, i.e., :
-> stat("/usrusr/lib/ldscripts", 0xbffffa7c) = -1 ENOENT (No such file or directory)
+Luca Montecchiani wrote:
+:
+> Anyway I'll do more investigation about my problem to get bootp
+> work with dhcp compiled into kernel next week
 
-Probably only a cosmetic problem. A regular run (RedHat binutils-2.9.5.0.22-6)
-yields:
+With the 2.2.18pre22 kernel and also pre21 last time I checked
+if you compile the kernel with DHCP and BOOTP, it's impossible 
+to use bootp, you need to recompile the kernel without dhcp.
 
-stat("/usrusr/lib/ldscripts", 0xbffff5c4) = -1 ENOENT (No such file or directory
-)
-stat("/usr/bin/ldscripts", 0xbffff5c4)  = -1 ENOENT (No such file or directory)
-stat("/usr/bin/../lib/ldscripts", {st_mode=S_IFDIR|0755, st_size=1024, ...}) = 0
+The problem (bug) is that dhcp code is _always_ executed also in 
+the case of bootp, breaking the procedure :(
 
-So it's not perfect, but it works. 
+I love to have dhcp and bootp compiled into kernel, so I can
+chose my preferred protocol with the ip=XXXX option.
 
-- Werner
+I don't like this _goto_ patch against 2.2.18pre22, but work :
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+--- ipconfig.c.old      Mon Nov 20 17:01:16 2000
++++ ipconfig.c  Mon Nov 20 17:34:01 2000
+@@ -842,6 +842,8 @@
+                u32 server_id = INADDR_NONE;
+                int mt = 0;
+ 
++               if ( !(ic_proto_enabled & IC_USE_DHCP) ) goto nodhcp;
++
+                ext = &b->exten[4];
+                while (ext < end && *ext != 0xff) {
+                        u8 *opt = ext++;
+@@ -896,6 +898,7 @@
+ 
+ #endif /* IPCONFIG_DHCP */
+ 
++nodhcp:
+                ext = &b->exten[4];
+                while (ext < end && *ext != 0xff) {
+                        u8 *opt = ext++;
+
+
+ciao,
+luca
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267018AbRG3TVy>; Mon, 30 Jul 2001 15:21:54 -0400
+	id <S267484AbRG3TXe>; Mon, 30 Jul 2001 15:23:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267241AbRG3TVo>; Mon, 30 Jul 2001 15:21:44 -0400
-Received: from 64-42-29-14.atgi.net ([64.42.29.14]:62225 "HELO
-	mail.clouddancer.com") by vger.kernel.org with SMTP
-	id <S267018AbRG3TVe>; Mon, 30 Jul 2001 15:21:34 -0400
+	id <S267591AbRG3TXY>; Mon, 30 Jul 2001 15:23:24 -0400
+Received: from mail1.qualcomm.com ([129.46.64.223]:14048 "EHLO
+	mail1.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S267484AbRG3TXP>; Mon, 30 Jul 2001 15:23:15 -0400
+Message-Id: <4.3.1.0.20010730121828.05eaf310@mail1>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
+Date: Mon, 30 Jul 2001 12:24:08 -0700
 To: linux-kernel@vger.kernel.org
-Subject: Re: Test mail
-In-Reply-To: <9k48ju$94b$1@ns1.clouddancer.com>
-In-Reply-To: <Pine.LNX.4.33.0107301115080.4835-100000@kobayashi.soze.net> <Pine.LNX.4.33.0107301334390.27931-100000@terbidium.openservices.net> <9k48ju$94b$1@ns1.clouddancer.com>
-Reply-To: klink@clouddancer.com
-Message-Id: <20010730192138.B78C9784B0@mail.clouddancer.com>
-Date: Mon, 30 Jul 2001 12:21:38 -0700 (PDT)
-From: klink@clouddancer.com (Colonel)
+From: Maksim Krasnyanskiy <maxk@qualcomm.com>
+Subject: [PATCH] netif_rx from non interrupt context
+Cc: davem@redhat.com, andrea@suse.de, torvalds@transmeta.com,
+        kuznet@ms2.inr.ac.ru
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-In clouddancer.list.kernel, you wrote:
->
->On Mon, 30 Jul 2001, Ignacio Vazquez-Abrams wrote:
->
->> The problem is that in plenty of large companies not only are you stuck with
->> Windows, but you're also stuck with either Outlook or Notes because of
->> corporate decisions (i.e., Exchange or Domino). Trust me; been there, done
->> that.
->
->Hmm... linux developers at large corporations are stuck with [only]
->windows?  How do they get anything done?  Just because you're stuck with
->outlook for scheduling or whatever doesn't mean you can't send to mailing
->lists from another mailer, another OS, or another country.
+Hi Folks,
 
-I've dealt with "you've gotta run" before.  I had the required
-hardware & software running over in the corner, with shared disk space
-or remote access from the linux box on the desktop.  It wasn't easy,
-but I simply stuck to my insistance that I _needed_ this (only one
-example required) and that I was meeting the company's requirements.
-Nowdays, that situation is on my checklist to determine if I want to
-work there.
+Generic function for the net drivers that call netif_rx from non interrupt context.
+And TUN/TAP driver patch.
 
-The really funny thing about the initial email is the amount of
-interest in the followups and their meanderings.
+--- linux/include/linux/netdevice.h.old Mon Jul 30 11:37:27 2001
++++ linux/include/linux/netdevice.h     Mon Jul 30 11:48:32 2001
+@@ -563,6 +563,19 @@
+  
+  extern int             netdev_nit;
+  
++
++/* 
++ * netif_rx_ni -       post buffer to the network code from _non interrupt_ context.
++ *                     see net/core/dev.c for netif_rx description.
++ */
++static inline int netif_rx_ni(struct sk_buff *skb)
++{
++       int err = netif_rx(skb);
++       if (softirq_pending(smp_processor_id()))
++               do_softirq();
++       return err;
++}
++
+
+--- linux/drivers/net/tun.c.old Mon Jun 11 19:15:27 2001
++++ linux/drivers/net/tun.c     Mon Jul 30 11:49:01 2001
+@@ -218,7 +218,7 @@
+         if (tun->flags & TUN_NOCHECKSUM)
+                 skb->ip_summed = CHECKSUM_UNNECESSARY;
+   
+-       netif_rx(skb);
++       netif_rx_ni(skb);
+     
+         tun->stats.rx_packets++;
+         tun->stats.rx_bytes += len;
 
 
--- 
-Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
+Thanks
+Max
+
+Maksim Krasnyanskiy	
+Senior Kernel Engineer
+Qualcomm Incorporated
+
+maxk@qualcomm.com
+http://bluez.sf.net
+http://vtun.sf.net
+

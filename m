@@ -1,177 +1,346 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbULCJyG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbULCJ6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262133AbULCJyG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 04:54:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbULCJyG
+	id S262135AbULCJ6V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 04:58:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbULCJ6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 04:54:06 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:41675 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262133AbULCJwg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 04:52:36 -0500
+	Fri, 3 Dec 2004 04:58:21 -0500
+Received: from stud4.tuwien.ac.at ([193.170.75.14]:33787 "EHLO
+	stud4.tuwien.ac.at") by vger.kernel.org with ESMTP id S262135AbULCJ4t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 04:56:49 -0500
+From: Martin Bammer <e9525103@student.tuwien.ac.at>
+To: linux-kernel@vger.kernel.org
+Subject: Patch for: [Bug 3481] lp doesn't recognize parallel port
+Date: Fri, 3 Dec 2004 10:59:40 +0100
+User-Agent: KMail/1.7.1
+Cc: andrea@novell.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16816.14159.597170.829515@alkaid.it.uu.se>
-Date: Fri, 3 Dec 2004 10:52:15 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Greg KH <greg@kroah.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6.10-rc2-mm4] perfctr sysfs update 1/4: core
-In-Reply-To: <20041202185918.GA8264@kroah.com>
-References: <200412021010.iB2AAORk004531@alkaid.it.uu.se>
-	<20041202185918.GA8264@kroah.com>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_MkDsB53PonmNvHA"
+Message-Id: <200412031059.40194.e9525103@stud4.tuwien.ac.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH writes:
- > On Thu, Dec 02, 2004 at 11:10:24AM +0100, Mikael Pettersson wrote:
- > > +static int __init perfctr_class_init(void)
- > > +{
- > > +	int ret;
- > > +
- > > +	ret = class_register(&perfctr_class);
- > > +	if (ret)
- > > +		return ret;
- > > +	ret |= class_create_file(&perfctr_class, &class_attr_driver_version);
- > > +	ret |= class_create_file(&perfctr_class, &class_attr_cpu_type);
- > > +	ret |= class_create_file(&perfctr_class, &class_attr_cpu_features);
- > > +	ret |= class_create_file(&perfctr_class, &class_attr_cpu_khz);
- > > +	ret |= class_create_file(&perfctr_class, &class_attr_tsc_to_cpu_mult);
- > > +	ret |= class_create_file(&perfctr_class, &class_attr_cpus_online);
- > > +	ret |= class_create_file(&perfctr_class, &class_attr_cpus_forbidden);
- > > +	if (ret)
- > > +		class_unregister(&perfctr_class);
- > > +	return ret;
- > 
- > It's easier to use sysfs_create_group() instead of registering all of
- > the individual files.
+--Boundary-00=_MkDsB53PonmNvHA
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Thanks for the hint. While looking around I noticed I can simplify
-it even further by having perfctr_class.class_attrs point to an array
-of attributes at class_register() time.
+Hi!
 
-Perfctr sysfs update:
-- Simplify perfctr sysfs code.
+Current version of parport_pc driver is a bit buggy. It doesn't recognize and 
+register parallel port devices correctly on an "MSI KT880 Delta" and maybe on 
+some other platforms.
+Another problem is that some allocated resources are not freed when the driver 
+is unloaded. So the next loading of the driver will make troubles.
+I have made a patch which solves all these problems. parport_pc now works fine 
+on all my systems and frees all allocated resources correctly.
+Would be nice to have this patch in the next kernel release.
 
-Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
+Cheers, Martin
 
- drivers/perfctr/init.c |   58 ++++++++++++++++++-------------------------------
- 1 files changed, 22 insertions(+), 36 deletions(-)
+--Boundary-00=_MkDsB53PonmNvHA
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="patch-2.6.10-rc2-bk13-parport_pc"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="patch-2.6.10-rc2-bk13-parport_pc"
 
-diff -rupN linux-2.6.10-rc2-mm4/drivers/perfctr/init.c linux-2.6.10-rc2-mm4.perfctr-core-update2/drivers/perfctr/init.c
---- linux-2.6.10-rc2-mm4/drivers/perfctr/init.c	2004-12-03 01:52:19.000000000 +0100
-+++ linux-2.6.10-rc2-mm4.perfctr-core-update2/drivers/perfctr/init.c	2004-12-03 01:51:37.000000000 +0100
-@@ -22,81 +22,67 @@ struct perfctr_info perfctr_info = {
- 	.driver_version = VERSION,
- };
+diff -Nru a/drivers/parport/parport_pc.c b/drivers/parport/parport_pc.c
+--- a/drivers/parport/parport_pc.c	2004-12-01 10:34:06.000000000 +0100
++++ b/drivers/parport/parport_pc.c	2004-12-01 11:31:52.000000000 +0100
+@@ -95,6 +95,9 @@
+ 	int dma;
+ } superios[NR_SUPERIOS] __devinitdata = { {0,},};
  
--static struct class perfctr_class = {
--	.name		= "perfctr",
--};
++/* Extra I/O-Space information will be saved here for later release. */
++static unsigned long configios[NR_SUPERIOS] = { 0, };
++
+ static int user_specified;
+ #if defined(CONFIG_PARPORT_PC_SUPERIO) || \
+        (defined(CONFIG_PARPORT_1284) && defined(CONFIG_PARPORT_PC_FIFO))
+@@ -1195,7 +1198,7 @@
+ 
+ #ifdef CONFIG_PARPORT_PC_SUPERIO
+ /* Super-IO chipset detection, Winbond, SMSC */
+-static void __devinit show_parconfig_smsc37c669(int io, int key)
++static int __devinit show_parconfig_smsc37c669(int io, int key)
+ {
+ 	int cr1,cr4,cra,cr23,cr26,cr27,i=0;
+ 	static const char *modes[]={ "SPP and Bidirectional (PS/2)",	
+@@ -1267,12 +1270,17 @@
+ 				superios[i].dma= d;
+ 			else
+ 				superios[i].dma= PARPORT_DMA_NONE;
++			/* Save extra I/O-Space for later release! */
++			if (io != superios[i].io) configios[i] = io;
++			if (parport_pc_probe_port(superios[i].io, superios[i].io+0x400, superios[i].irq, superios[i].dma, NULL))
++				return 1;
+ 		}
+- 	}
++	}
++	return 0;
+ }
+ 
+ 
+-static void __devinit show_parconfig_winbond(int io, int key)
++static int __devinit show_parconfig_winbond(int io, int key)
+ {
+ 	int cr30,cr60,cr61,cr70,cr74,crf0,i=0;
+ 	static const char *modes[] = {
+@@ -1331,11 +1339,16 @@
+ 			superios[i].irq = cr70&0x0f;
+ 			superios[i].dma = (((cr74 & 0x07) > 3) ?
+ 					   PARPORT_DMA_NONE : (cr74 & 0x07));
++			/* Save extra I/O-Space for later release! */
++			if (io != superios[i].io) configios[i] = io;
++			if (parport_pc_probe_port(superios[i].io, superios[i].io+0x400, superios[i].irq, superios[i].dma, NULL))
++				return 1;
+ 		}
+ 	}
++	return 0;
+ }
+ 
+-static void __devinit decode_winbond(int efer, int key, int devid, int devrev, int oldid)
++static int __devinit decode_winbond(int efer, int key, int devid, int devrev, int oldid)
+ {
+ 	const char *type = "unknown";
+ 	int id,progif=2;
+@@ -1343,7 +1356,7 @@
+ 	if (devid == devrev)
+ 		/* simple heuristics, we happened to read some
+                    non-winbond register */
+-		return;
++		return 0;
+ 
+ 	id=(devid<<8) | devrev;
+ 
+@@ -1368,19 +1381,20 @@
+ 		       efer, key, devid, devrev, oldid, type);
+ 
+ 	if (progif == 2)
+-		show_parconfig_winbond(efer,key);
++		return show_parconfig_winbond(efer,key);
++	return 0;
+ }
+ 
+-static void __devinit decode_smsc(int efer, int key, int devid, int devrev)
++static int __devinit decode_smsc(int efer, int key, int devid, int devrev)
+ {
+         const char *type = "unknown";
+-	void (*func)(int io, int key);
++	int (*func)(int io, int key);
+         int id;
+ 
+         if (devid == devrev)
+ 		/* simple heuristics, we happened to read some
+                    non-smsc register */
+-		return;
++		return 0;
+ 
+ 	func=NULL;
+         id=(devid<<8) | devrev;
+@@ -1396,16 +1410,17 @@
+ 		       efer, key, devid, devrev, type);
+ 
+ 	if (func)
+-		func(efer,key);
++		return func(efer,key);
++	return 0;
+ }
+ 
+ 
+-static void __devinit winbond_check(int io, int key)
++static int __devinit winbond_check(int io, int key)
+ {
+ 	int devid,devrev,oldid,x_devid,x_devrev,x_oldid;
+ 
+ 	if (!request_region(io, 3, __FUNCTION__))
+-		return;
++		return -1;
+ 
+ 	/* First probe without key */
+ 	outb(0x20,io);
+@@ -1426,20 +1441,23 @@
+ 	oldid=inb(io+1);
+ 	outb(0xaa,io);    /* Magic Seal */
+ 
+-	if ((x_devid == devid) && (x_devrev == devrev) && (x_oldid == oldid))
+-		goto out; /* protection against false positives */
 -
- static ssize_t
--perfctr_show_driver_version(struct class *class, char *buf)
-+driver_version_show(struct class *class, char *buf)
- {
- 	return sprintf(buf, "%s\n", perfctr_info.driver_version);
+-	decode_winbond(io,key,devid,devrev,oldid);
+-out:
+-	release_region(io, 3);
++	if ((x_devid == devid) && (x_devrev == devrev) && (x_oldid == oldid)) {
++		release_region(io, 3);
++		return 0; /* protection against false positives */
++	}
++	if (!decode_winbond(io,key,devid,devrev,oldid)) {
++		release_region(io, 3);
++		return 0;
++	}
++	return 1;
  }
--static CLASS_ATTR(driver_version,0444,perfctr_show_driver_version,NULL);
  
- static ssize_t
--perfctr_show_cpu_type(struct class *class, char *buf)
-+cpu_type_show(struct class *class, char *buf)
+-static void __devinit winbond_check2(int io,int key)
++static int __devinit winbond_check2(int io,int key)
  {
- 	return sprintf(buf, "%#x\n", perfctr_info.cpu_type);
- }
--static CLASS_ATTR(cpu_type,0444,perfctr_show_cpu_type,NULL);
+         int devid,devrev,oldid,x_devid,x_devrev,x_oldid;
  
- static ssize_t
--perfctr_show_cpu_features(struct class *class, char *buf)
-+cpu_features_show(struct class *class, char *buf)
+ 	if (!request_region(io, 3, __FUNCTION__))
+-		return;
++		return -1;
+ 
+ 	/* First probe without the key */
+ 	outb(0x20,io+2);
+@@ -1459,20 +1477,23 @@
+         oldid=inb(io+2);
+         outb(0xaa,io);    /* Magic Seal */
+ 
+-	if ((x_devid == devid) && (x_devrev == devrev) && (x_oldid == oldid))
+-		goto out; /* protection against false positives */
+-
+-	decode_winbond(io,key,devid,devrev,oldid);
+-out:
+-	release_region(io, 3);
++	if ((x_devid == devid) && (x_devrev == devrev) && (x_oldid == oldid)) {
++		release_region(io, 3);
++		return 0; /* protection against false positives */
++	}
++	if (!decode_winbond(io,key,devid,devrev,oldid)) {
++		release_region(io, 3);
++		return 0;
++	}
++	return 1;
+ }
+ 
+-static void __devinit smsc_check(int io, int key)
++static int __devinit smsc_check(int io, int key)
  {
- 	return sprintf(buf, "%#x\n", perfctr_info.cpu_features);
- }
--static CLASS_ATTR(cpu_features,0444,perfctr_show_cpu_features,NULL);
+         int id,rev,oldid,oldrev,x_id,x_rev,x_oldid,x_oldrev;
  
- static ssize_t
--perfctr_show_cpu_khz(struct class *class, char *buf)
-+cpu_khz_show(struct class *class, char *buf)
+ 	if (!request_region(io, 3, __FUNCTION__))
+-		return;
++		return -1;
+ 
+ 	/* First probe without the key */
+ 	outb(0x0d,io);
+@@ -1498,36 +1519,45 @@
+         outb(0xaa,io);    /* Magic Seal */
+ 
+ 	if ((x_id == id) && (x_oldrev == oldrev) &&
+-	    (x_oldid == oldid) && (x_rev == rev))
+-		goto out; /* protection against false positives */
+-
+-        decode_smsc(io,key,oldid,oldrev);
+-out:
+-	release_region(io, 3);
++	    (x_oldid == oldid) && (x_rev == rev)) {
++		release_region(io, 3);
++		return 0; /* protection against false positives */
++	}
++	if (!decode_smsc(io,key,oldid,oldrev)) {
++		release_region(io, 3);
++		return 0;
++	}
++	return 1;
+ }
+ 
+ 
+-static void __devinit detect_and_report_winbond (void)
++static int __devinit detect_and_report_winbond (void)
+ { 
++	int count = 0;
++
+ 	if (verbose_probing)
+-		printk(KERN_DEBUG "Winbond Super-IO detection, now testing ports 3F0,370,250,4E,2E ...\n");
+-	winbond_check(0x3f0,0x87);
+-	winbond_check(0x370,0x87);
+-	winbond_check(0x2e ,0x87);
+-	winbond_check(0x4e ,0x87);
+-	winbond_check(0x3f0,0x86);
+-	winbond_check2(0x250,0x88); 
+-	winbond_check2(0x250,0x89);
++	printk(KERN_DEBUG "Winbond Super-IO detection, now testing ports 3F0,370,250,4E,2E ...\n");
++	if (winbond_check(0x3f0,0x87) > 0) count++;
++	if (winbond_check(0x370,0x87) > 0) count++;
++	if (winbond_check(0x02e,0x87) > 0) count++;
++	if (winbond_check(0x04e,0x87) > 0) count++;
++	if (winbond_check(0x3f0,0x86) > 0) count++;
++	if (winbond_check2(0x250,0x88) > 0) count++; 
++	if (winbond_check2(0x250,0x89) > 0) count++;
++	return count;
+ }
+ 
+-static void __devinit detect_and_report_smsc (void)
++static int __devinit detect_and_report_smsc (void)
  {
- 	return sprintf(buf, "%u\n", perfctr_info.cpu_khz);
++	int count = 0;
++
+ 	if (verbose_probing)
+-		printk(KERN_DEBUG "SMSC Super-IO detection, now testing Ports 2F0, 370 ...\n");
+-	smsc_check(0x3f0,0x55);
+-	smsc_check(0x370,0x55);
+-	smsc_check(0x3f0,0x44);
+-	smsc_check(0x370,0x44);
++	printk(KERN_DEBUG "SMSC Super-IO detection, now testing Ports 2F0, 370 ...\n");
++	if (smsc_check(0x3f0,0x55) > 0) count++;
++	if (smsc_check(0x370,0x55) > 0) count++;
++	if (smsc_check(0x3f0,0x44) > 0) count++;
++	if (smsc_check(0x370,0x44) > 0) count++;
++	return count;
  }
--static CLASS_ATTR(cpu_khz,0444,perfctr_show_cpu_khz,NULL);
+ #endif /* CONFIG_PARPORT_PC_SUPERIO */
  
- static ssize_t
--perfctr_show_tsc_to_cpu_mult(struct class *class, char *buf)
-+tsc_to_cpu_mult_show(struct class *class, char *buf)
+@@ -3078,8 +3108,8 @@
+ 	int count = 0, r;
+ 
+ #ifdef CONFIG_PARPORT_PC_SUPERIO
+-	detect_and_report_winbond ();
+-	detect_and_report_smsc ();
++	count += detect_and_report_winbond ();
++	count += detect_and_report_smsc ();
+ #endif
+ 
+ 	/* Onboard SuperIO chipsets that show themselves on the PCI bus. */
+@@ -3098,10 +3128,10 @@
+ 	count += parport_pc_find_nonpci_ports (autoirq, autodma);
+ 
+ 	r = pci_register_driver (&parport_pc_pci_driver);
+-	if (r)
+-		return r;
+-	pci_registered_parport = 1;
+-	count += 1;
++	if (r >= 0) {
++		pci_registered_parport = 1;
++		count += r;
++	}
+ 
+ 	return count;
+ }
+@@ -3354,6 +3384,8 @@
+ 
+ static void __exit parport_pc_exit(void)
  {
- 	return sprintf(buf, "%u\n", perfctr_info.tsc_to_cpu_mult);
++	int i=0;
++
+ 	if (pci_registered_parport)
+ 		pci_unregister_driver (&parport_pc_pci_driver);
+ 	if (pnp_registered_parport)
+@@ -3370,6 +3402,11 @@
+ 		parport_pc_unregister_port(port);
+ 		spin_lock(&ports_lock);
+ 	}
++	/* Release configuration spaces of winbond and smsc chips */
++	while (i<NR_SUPERIOS) {
++		if (configios[i]) release_region(configios[i], 3);
++		i++;
++	}
+ 	spin_unlock(&ports_lock);
  }
--static CLASS_ATTR(tsc_to_cpu_mult,0444,perfctr_show_tsc_to_cpu_mult,NULL);
  
- static ssize_t
--perfctr_show_cpus_online(struct class *class, char *buf)
-+cpus_online_show(struct class *class, char *buf)
- {
- 	int ret = cpumask_scnprintf(buf, PAGE_SIZE-1, cpu_online_map);
- 	buf[ret++] = '\n';
- 	return ret;
- }
--static CLASS_ATTR(cpus_online,0444,perfctr_show_cpus_online,NULL);
- 
- static ssize_t
--perfctr_show_cpus_forbidden(struct class *class, char *buf)
-+cpus_forbidden_show(struct class *class, char *buf)
- {
- 	int ret = cpumask_scnprintf(buf, PAGE_SIZE-1, perfctr_cpus_forbidden_mask);
- 	buf[ret++] = '\n';
- 	return ret;
- }
--static CLASS_ATTR(cpus_forbidden,0444,perfctr_show_cpus_forbidden,NULL);
- 
--static int __init perfctr_class_init(void)
--{
--	int ret;
-+static struct class_attribute perfctr_class_attrs[] = {
-+	__ATTR_RO(driver_version),
-+	__ATTR_RO(cpu_type),
-+	__ATTR_RO(cpu_features),
-+	__ATTR_RO(cpu_khz),
-+	__ATTR_RO(tsc_to_cpu_mult),
-+	__ATTR_RO(cpus_online),
-+	__ATTR_RO(cpus_forbidden),
-+	__ATTR_NULL
-+};
- 
--	ret = class_register(&perfctr_class);
--	if (ret)
--		return ret;
--	ret |= class_create_file(&perfctr_class, &class_attr_driver_version);
--	ret |= class_create_file(&perfctr_class, &class_attr_cpu_type);
--	ret |= class_create_file(&perfctr_class, &class_attr_cpu_features);
--	ret |= class_create_file(&perfctr_class, &class_attr_cpu_khz);
--	ret |= class_create_file(&perfctr_class, &class_attr_tsc_to_cpu_mult);
--	ret |= class_create_file(&perfctr_class, &class_attr_cpus_online);
--	ret |= class_create_file(&perfctr_class, &class_attr_cpus_forbidden);
--	if (ret)
--		class_unregister(&perfctr_class);
--	return ret;
--}
-+static struct class perfctr_class = {
-+	.name		= "perfctr",
-+	.class_attrs	= perfctr_class_attrs,
-+};
- 
- char *perfctr_cpu_name __initdata;
- 
-@@ -112,7 +98,7 @@ static int __init perfctr_init(void)
- 	err = vperfctr_init();
- 	if (err)
- 		return err;
--	err = perfctr_class_init();
-+	err = class_register(&perfctr_class);
- 	if (err) {
- 		printk(KERN_ERR "perfctr: class initialisation failed\n");
- 		return err;
+
+--Boundary-00=_MkDsB53PonmNvHA--

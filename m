@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267531AbUG2XxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267543AbUG3ABm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267531AbUG2XxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 19:53:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUG2XxQ
+	id S267543AbUG3ABm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 20:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267538AbUG3ABl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 19:53:16 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:22943 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267531AbUG2XxN (ORCPT
+	Thu, 29 Jul 2004 20:01:41 -0400
+Received: from cantor.suse.de ([195.135.220.2]:47799 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267535AbUG2Xxl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 19:53:13 -0400
-Date: Thu, 29 Jul 2004 16:51:52 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: hirofumi@mail.parknet.co.jp, aebr@win.tue.nl, vojtech@suse.cz,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix NR_KEYS off-by-one error
-Message-Id: <20040729165152.492faced.pj@sgi.com>
-In-Reply-To: <20040729162423.7452e8f5.akpm@osdl.org>
-References: <87llhjlxjk.fsf@devron.myhome.or.jp>
-	<20040716164435.GA8078@ucw.cz>
-	<20040716201523.GC5518@pclin040.win.tue.nl>
-	<871xjbkv8g.fsf@devron.myhome.or.jp>
-	<20040728115130.GA4008@pclin040.win.tue.nl>
-	<87fz7c9j0y.fsf@devron.myhome.or.jp>
-	<20040728134202.5938b275.pj@sgi.com>
-	<87llh3ihcn.fsf@ibmpc.myhome.or.jp>
-	<20040728231548.4edebd5b.pj@sgi.com>
-	<87oelzjhcx.fsf@ibmpc.myhome.or.jp>
-	<20040729024931.4b4e78e6.pj@sgi.com>
-	<20040729162423.7452e8f5.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Jul 2004 19:53:41 -0400
+To: Greg Edwards <edwardsg@sgi.com>
+Cc: kai@germaschewski.name, sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add ia64 support to rpm Makefile target
+References: <20040729180732.GA15920@sgi.com>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: So this is what it feels like to be potato salad
+Date: Fri, 30 Jul 2004 01:52:01 +0200
+In-Reply-To: <20040729180732.GA15920@sgi.com> (Greg Edwards's message of
+ "Thu, 29 Jul 2004 13:07:32 -0500")
+Message-ID: <jek6wmz80u.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew:
-> ... still waiting ...
+Greg Edwards <edwardsg@sgi.com> writes:
 
-Don't wait on me ... as indicated in my last post on this lkml thread,
-I left this back in the hands of the expert, OGAWA Hirofumi.
+> diff -Nru a/scripts/package/mkspec b/scripts/package/mkspec
+> --- a/scripts/package/mkspec	2004-07-29 13:04:34 -05:00
+> +++ b/scripts/package/mkspec	2004-07-29 13:04:34 -05:00
+> @@ -43,10 +43,21 @@
+>  echo "make clean && make"
+>  echo ""
+>  echo "%install"
+> -echo 'mkdir -p $RPM_BUILD_ROOT/boot $RPM_BUILD_ROOT/lib $RPM_BUILD_ROOT/lib/modules'
+> +
+> +if [[ "$ARCH" != "ia64" ]]; then
+> +	echo 'mkdir -p $RPM_BUILD_ROOT/boot $RPM_BUILD_ROOT/lib $RPM_BUILD_ROOT/lib/modules'
+> +else
+> +	echo 'mkdir -p $RPM_BUILD_ROOT/boot/efi $RPM_BUILD_ROOT/lib $RPM_BUILD_ROOT/lib/modules'
+> +fi
+
+How about using %ifarch ia64 in the generated spec file?
+
+Andreas.
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

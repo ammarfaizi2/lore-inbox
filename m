@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271756AbTHRND2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 09:03:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271741AbTHRNDL
+	id S271823AbTHRNJr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 09:09:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271820AbTHRNJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 09:03:11 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:35565 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S271744AbTHRNDE (ORCPT
+	Mon, 18 Aug 2003 09:09:47 -0400
+Received: from dodge.jordet.nu ([217.13.8.142]:39583 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id S271823AbTHRNJq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 09:03:04 -0400
-Date: Mon, 18 Aug 2003 05:55:55 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: willy@w.ods.org, alan@lxorguk.ukuu.org.uk, carlosev@newipnet.com,
-       lamont@scriptkiddie.org, davidsen@tmr.com, bloemsaa@xs4all.nl,
-       marcelo@conectiva.com.br, netdev@oss.sgi.com, linux-net@vger.kernel.org,
-       layes@loran.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030818055555.248f2a01.davem@redhat.com>
-In-Reply-To: <20030818145316.3a81f70c.skraw@ithnet.com>
-References: <20030728213933.F81299@coredump.scriptkiddie.org>
-	<200308171509570955.003E4FEC@192.168.128.16>
-	<200308171516090038.0043F977@192.168.128.16>
-	<1061127715.21885.35.camel@dhcp23.swansea.linux.org.uk>
-	<200308171555280781.0067FB36@192.168.128.16>
-	<1061134091.21886.40.camel@dhcp23.swansea.linux.org.uk>
-	<200308171759540391.00AA8CAB@192.168.128.16>
-	<1061137577.21885.50.camel@dhcp23.swansea.linux.org.uk>
-	<200308171827130739.00C3905F@192.168.128.16>
-	<1061141045.21885.74.camel@dhcp23.swansea.linux.org.uk>
-	<20030817224849.GB734@alpha.home.local>
-	<20030817223118.3cbc497c.davem@redhat.com>
-	<20030818133957.3d3d51d2.skraw@ithnet.com>
-	<20030818044419.0bc24d14.davem@redhat.com>
-	<20030818143401.1352d158.skraw@ithnet.com>
-	<20030818053007.7852ca77.davem@redhat.com>
-	<20030818145316.3a81f70c.skraw@ithnet.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Mon, 18 Aug 2003 09:09:46 -0400
+Subject: 2.6.0-test3 latest bk hangs when enabling IO-APIC
+From: Stian Jordet <liste@jordet.nu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1061212189.647.2.camel@chevrolet.hybel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 18 Aug 2003 15:09:49 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Aug 2003 14:53:16 +0200
-Stephan von Krawczynski <skraw@ithnet.com> wrote:
+Hello,
 
-> _And_ you did not explain so far why these implementations should
-> not be RFC-conform or else illegal.
+latest bk of 2.6.0-test3 hangs with these three lines:
 
-Both responding and not responding on all interfaces for ARPs
-is RFC conformant.  This means both Linux and other systems
-are within the rules.
+ENABLING IO-APIC IRQs
+Setting 2 in the phys_id_present_map
+...changing IO-APIC physical APIC ID to 2 ... ok.
 
-Under Linux, by default, IP addresses are owned by the system
-not by interfaces.  This increases the likelyhood of successful
-communication on a subnet.
+And there it stays forever. 2.6.0-test3 worked like a charm. This is a
+Asus CUV265-DLS motherboard. Dual P3.
 
-For scenerios where this doesn't work, we have ways to make the
-kernel behave the way you want it to.
+Should I file a bugreport at bugzilla?
 
-There is no discussion about changing the default, because that
-might break things for some people.  So this discussion is pretty
-useless.
+Best regards,
+Stian
+

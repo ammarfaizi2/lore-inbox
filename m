@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130475AbRBCXjz>; Sat, 3 Feb 2001 18:39:55 -0500
+	id <S129094AbRBCXuh>; Sat, 3 Feb 2001 18:50:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130581AbRBCXjp>; Sat, 3 Feb 2001 18:39:45 -0500
-Received: from pilsener.srv.ualberta.ca ([129.128.5.19]:26250 "EHLO
-	pilsener.srv.ualberta.ca") by vger.kernel.org with ESMTP
-	id <S130475AbRBCXjg>; Sat, 3 Feb 2001 18:39:36 -0500
-To: Jean-Eric Cuendet <Jean-Eric.Cuendet@linkvest.com>
-In-Reply-To: <B45465FD9C23D21193E90000F8D0F3DF6838FD@mailsrv.linkvest.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: RAID autodetect and 2.4.1
-From: Chris <cb@speedbump.ucs.ualberta.ca>
-Date: 03 Feb 2001 16:39:25 -0700
-Message-ID: <50zog38hg2.fsf@speedbump.ucs.ualberta.ca>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S129129AbRBCXu1>; Sat, 3 Feb 2001 18:50:27 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:38663 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S129094AbRBCXuN>;
+	Sat, 3 Feb 2001 18:50:13 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200102032349.f13NnnP472493@saturn.cs.uml.edu>
+Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
+To: alan@redhat.com (Alan Cox)
+Date: Sat, 3 Feb 2001 18:49:49 -0500 (EST)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
+        dwmw2@infradead.org (David Woodhouse), alan@redhat.com (Alan Cox),
+        reiser@namesys.com (Hans Reiser), mason@suse.com (Chris Mason),
+        kas@informatics.muni.cz (Jan Kasprzak), linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com,
+        yura@yura.polnet.botik.ru (Yury Yu. Rupasov)
+In-Reply-To: <200102031756.f13Hu4s13521@devserv.devel.redhat.com> from "Alan Cox" at Feb 03, 2001 12:56:04 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi,
-> I have a server with RAID1 partitions with linux 2.4.1 (stock,
-> self-compiled) installed.  It was easy to create the RAID partitions
-> but when booting, no auto-detection is successful.  The kernel says
-> that autodetect is running, then done, but nothing is auto-detected.
-> My devices are IDE devices (hda + hdc) and all drivers are bult-ins
-> (no initrd nor modules).  After the boot, making a raidstart works
-> like a charm...
-> 
-> Any advice?
-> Help welcomed.
+Alan Cox writes:
+> [Albert Cahalan]
+>> David Woodhouse writes:
 
-Sounds like you didn't set the partition type to be "FD" which is what
-the raid autodetect looks for.  (Read the Software-RAID howto).  I
-did the same thing yesterday. :)
+>>>  -a "$CC" = "gcc"
+>> 
+>> Not worth it; they should upgrade the local gcc too.
+>> If anything, they are getting a reminder that they need.
+>
+> The local gcc has no bearing on the compiler. The local
+> compiler might not even be gcc - eg if they are cross
+> building off non Linux systems
 
--- 
-Chris Bayly
+I know, and it still doesn't matter. So we test Solaris cc.
+If it happens to have the same bug as gcc 2.96, then it is
+broken and ought to be replaced.
 
-Email:  Chris.Bayly@UAlberta.CA         | CNS, UNIX Support
-                                        | 151 General Services Building
-                                        | University of Alberta
-Web:    http://www.ualberta.ca/~cbayly/ | Edmonton, Alberta 
-                                        | Canada T6G 2S7
+I wouldn't want "menuconfig" messed up by a broken compiler,
+even if I'm cross-compiling from HP-UX to sh4 Linux.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

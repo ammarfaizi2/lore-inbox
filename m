@@ -1,59 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312579AbSDAUBG>; Mon, 1 Apr 2002 15:01:06 -0500
+	id <S312581AbSDAUL3>; Mon, 1 Apr 2002 15:11:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312581AbSDAUA6>; Mon, 1 Apr 2002 15:00:58 -0500
-Received: from www.wen-online.de ([212.223.88.39]:8467 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S312579AbSDAUAs>;
-	Mon, 1 Apr 2002 15:00:48 -0500
-Date: Mon, 1 Apr 2002 21:02:43 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: -aa VM splitup
-In-Reply-To: <20020401200202.Q1331@dualathlon.random>
-Message-ID: <Pine.LNX.4.10.10204012036030.283-100000@mikeg.wen-online.de>
-MIME-Version: 1.0
+	id <S312584AbSDAULU>; Mon, 1 Apr 2002 15:11:20 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8460 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312582AbSDAULJ>;
+	Mon, 1 Apr 2002 15:11:09 -0500
+Date: Mon, 1 Apr 2002 21:11:08 +0100
+From: "Tux T. Penguin" <tux@nospam.justherring.treblig.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux needs new leadership.
+Message-ID: <20020401201108.GO20205@gallifrey>
+In-Reply-To: <Pine.LNX.4.01.2002ApR11F0015.31337-101723@transmeta.com> <3CA8BB5F.EB685178@storm.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.4.18 (i686)
+X-Uptime: 21:06:50 up 2 days, 18:16,  7 users,  load average: 2.03, 2.12, 2.44
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Apr 2002, Andrea Arcangeli wrote:
+I see the human centered readers of this group have forgotton who made
+Linux great.  It is I  - Tux T. Penguin - who am the right leader for
+the future.  Loveable, slightly chubby and I only need a few herring
+to live on.
 
-> comparing 2.4 with 2.5 is a bit unfair, can you try 2.4.19pre5aa1
-> first? Note that you didn't applied all the vm patches, infact I've no
-> idea how they apply to 2.5 in the first place (I assume they applied
-> cleanly).
-
-Sure, I'll give 2.4.19pre5aa1 a go.  The patches didn't go in clean,
-but the changes made since the split weren't too big to easily plug
-them in.  (I only applied the patches which looked interesting for my
-little UP box)
-
-I was comparing the old 2.4 kernel to 2.5 because of a loss in write
-throughput which I've been tracking for a while, and hoped to get back
-via aa after reading some bits.
-
-> Also it would be interesting to know how much memory you have in use
-> before starting the benchmark, it maybe you're triggering some swap
-
-Mostly empty, but that doesn't matter much.. see below.
-
-> because the VM understand lots of your mappings are unused and that
-> so you're swapping out during the I/O benchmark because of that. the
-> anon pages in the lru are meant exactly for that purpose. If you want a
-> vm that never ever swaps during an I/O benchmark all mapped pages should
-> not be considered by the vm until we run out of unmapped pages, it's
-> quite equivalent to raising vm_mapped_ratio to 10000, you can try with
-> vm_mapped_ratio set to 10000 too infact.
-
-I don't mind if my box swaps a bit when stressed.  In fact, I like it
-to go find bored pages and get them out of the way :)
-
-It's the buffer.c changes (the ones I'm most interested in:) that are
-causing my disk woes.  They look like they're in right, but are causing
-bad (synchronous) IO behavior for some reason.  I have tomorrow yet to
-figure it out.
-
-	-Mike
-
+Tux
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Tux T. Penguin            | Hug a herring and be happy             \ 
+\ __________________________|________________________________________/

@@ -1,237 +1,328 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314546AbSELQMb>; Sun, 12 May 2002 12:12:31 -0400
+	id <S314609AbSELQTU>; Sun, 12 May 2002 12:19:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314609AbSELQMa>; Sun, 12 May 2002 12:12:30 -0400
-Received: from p50887981.dip.t-dialin.net ([80.136.121.129]:23000 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S314546AbSELQM2>; Sun, 12 May 2002 12:12:28 -0400
-Date: Sun, 12 May 2002 10:12:26 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Sparc64 can't boot w/linux 2.5 current
-Message-ID: <Pine.LNX.4.44.0205121000360.4369-100000@hawkeye.luckynet.adm>
+	id <S314870AbSELQTT>; Sun, 12 May 2002 12:19:19 -0400
+Received: from mail001.chicago.lightfirst.com ([216.105.92.11]:24967 "EHLO
+	mail001.chicago.lightfirst.com") by vger.kernel.org with ESMTP
+	id <S314609AbSELQTQ>; Sun, 12 May 2002 12:19:16 -0400
+Message-ID: <3CDE95A1.7F3D005@lightfirst.com>
+Date: Sun, 12 May 2002 11:17:37 -0500
+From: Tom Roberts <TomRoberts@lightfirst.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: CR-RW works on Win98se but not Linux 2.4.18
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+PROBLEM: CR-RW works on Win98se but not Linux 2.4.18
+NOTE: This is probably the Via chipset data corruption bug
 
-I just compiled myself the latest bk kernel for sparc64, and on boot:
+I have installed a Philips PCRW2412 CD writer (24x12x40x). It works
+fine when I boot into Windows 98se, but does not work when I boot into
+Linux 2.4.18.  Gtoaster and cdrecord give no errors, but when I compare
+to the original a few files have permanent compare errors (different
+files for different CDRs); writing while booted in Win98se gets no
+compare errors (comparing while booted in Linux 2.4.18). I have tried
+3 other CD writers with similar results, except that an old HP 4x2x10x
+writer worked mostly (compare errors about 1 out of 10 CDRs). The
+system is as idle as I can make it, but CPU activity does not seem
+to affect this.
 
-Sun Ultra 1 SBus (UltraSPARC 167 MHz), Keyboard Present
-OpenBoot 3.11, 128 MB memory installed, Serial #xxxxxxx.
-Ethernet address x:x:xx:xx:xx:xx, Host ID: xxxxxxxx.
+I have upgraded everything I know how to:
+        RedHat 7.2 (includes cdrecord 1.10)
+        BIOS 1008a (latest from the manufacturer, Asus A7V133)
+        Kernel 2.4.18 (configured and built it myself (:-)) -- system
+           boots just fine using this or the RH 7.2 kernel (2.4.7-10).
+           CD-R problems are the same for both kernels. I had to
+           config it for PentiumIII, because the Athlon config has
+           unsatisfied external _mmx_memcopy() in some modules. I
+           used PCI access = BIOS (see below).
 
-Booting with command: boot
-Boot device: disk  File and args:
-SILO boot:
-Uncompressing image...
-Loading initial ramdisk...
+>From the success in Windows without the updated "4-in-1" driver, I
+believe that the BIOS is configuring the PCI and IDE systems correctly
+(that is Via's way to fix the bug). This implies that Linux is re-
+configuring them incorrectly. I did configure the Kernel to use "BIOS"
+access mode for PCI, hoping that would preserve the BIOS settings which
+work in Windows, but I still get errors.
 
-Remapping the kernel... done.
-Booting Linux...
-(which is the last message I see)
+Here I describe things with a single harddisk (master) and the CD-RW
+(slave) on the first IDE cable. I have a second harddisk (master) on
+the second IDE cable; I can copy ~700 MB ISO images between drives
+(hda and hdc) without errors, so the most common manifestation of the
+"Via chipset data corruption bug" does not affect me (I unmounted
+/dev/hdc while burning, to make sure cable-to-cable was not the
+problem). I also had these errors in an older configuration with both
+harddisks on the first IDE cable and the CD-RW on the second. Both
+cables are 80-wire; trying the CD-RW on a 40-wire second cable still
+had errors (did not try that in Win98se). I am of course using
+ide-scsi for the CD-RW drive.
 
-The machine previously worked well on Linux 2.4.14, I can send you the old 
-.config if you want me to.
+	[I seem to recall comments in via82cxxx.c which said there
+	 is a bug in the 40-wire detection; this may have compromized
+	 my test with the 40-wire cable.]
 
-My question now is: where would you search for a bug? Or does anyone have 
-some objections about my .config:
+So I think I have eliminated hardware problems as the source of these
+errors.  Does anyone have a clue?  Is there some special kernel CONFIG
+I need to select? Do I need to discard this motherboard and start over?
+I recall seeing a Windows program which dumps some PCI config registers,
+and the article discussed how to change them to fix this problem -- is
+there such a program for Linux?
 
-CONFIG_EXPERIMENTAL=y
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-CONFIG_BBC_I2C=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SMP=y
-CONFIG_PREEMPT=y
-CONFIG_SPARC64=y
-CONFIG_HOTPLUG=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_SBUS=y
-CONFIG_SBUSCHAR=y
-CONFIG_BUSMOUSE=y
-CONFIG_SUN_MOUSE=y
-CONFIG_SERIAL=y
-CONFIG_SUN_SERIAL=y
-CONFIG_SERIAL_CONSOLE=y
-CONFIG_SUN_KEYBOARD=y
-CONFIG_SUN_CONSOLE=y
-CONFIG_SUN_AUXIO=y
-CONFIG_SUN_IO=y
-CONFIG_PCI=y
-CONFIG_RTC=y
-CONFIG_PCI_NAMES=y
-CONFIG_SUN_OPENPROMFS=m
-CONFIG_KCORE_ELF=y
-CONFIG_SPARC32_COMPAT=y
-CONFIG_BINFMT_ELF32=y
-CONFIG_BINFMT_AOUT32=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
-CONFIG_SUNOS_EMUL=y
-CONFIG_SOLARIS_EMUL=m
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_1284=y
-CONFIG_PRINTER=m
-CONFIG_ENVCTRL=m
-CONFIG_DISPLAY7SEG=m
-CONFIG_WATCHDOG_CP1XXX=m
-CONFIG_WATCHDOG_RIO=m
-CONFIG_PROM_CONSOLE=y
-CONFIG_FB=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FB_SBUS=y
-CONFIG_FB_CGSIX=y
-CONFIG_FBCON_FONTWIDTH8_ONLY=y
-CONFIG_FONT_SUN8x16=y
-CONFIG_SUN_OPENPROMIO=m
-CONFIG_SUN_MOSTEK_RTC=y
-CONFIG_SAB82532=m
-CONFIG_OBP_FLASH=m
-CONFIG_SUN_AURORA=m
-CONFIG_SPARCAUDIO=m
-CONFIG_SPARCAUDIO_CS4231=m
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_NBD=m
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_UNIX=m
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_NET_IPIP=m
-CONFIG_ARPD=y
-CONFIG_INET_ECN=y
-CONFIG_SYN_COOKIES=y
-CONFIG_IPV6=m
-CONFIG_KHTTPD=m
-CONFIG_IPX=m
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CBQ=m
-CONFIG_NET_SCH_CSZ=m
-CONFIG_NET_SCH_PRIO=m
-CONFIG_NET_SCH_RED=m
-CONFIG_NET_SCH_SFQ=m
-CONFIG_NET_SCH_TEQL=m
-CONFIG_NET_SCH_TBF=m
-CONFIG_NET_SCH_GRED=m
-CONFIG_NET_SCH_DSMARK=m
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_TCINDEX=m
-CONFIG_NET_CLS_ROUTE4=m
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=m
-CONFIG_NET_CLS_U32=m
-CONFIG_NET_CLS_RSVP=m
-CONFIG_NET_CLS_RSVP6=m
-CONFIG_NET_CLS_POLICE=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-CONFIG_CHR_DEV_ST=m
-CONFIG_CHR_DEV_OSST=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_LOGGING=y
-CONFIG_SCSI_SUNESP=y
-CONFIG_FC4=m
-CONFIG_FC4_SOC=m
-CONFIG_FC4_SOCAL=m
-CONFIG_SCSI_PLUTO=m
-CONFIG_SCSI_FCAL=m
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_BONDING=m
-CONFIG_EQUALIZER=m
-CONFIG_TUN=m
-CONFIG_NET_ETHERNET=y
-CONFIG_SUNLANCE=m
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_INPUT=y
-CONFIG_INPUT_KEYBDEV=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=m
-CONFIG_SERIO_SERPORT=m
-CONFIG_QUOTA=y
-CONFIG_AUTOFS_FS=m
-CONFIG_AUTOFS4_FS=m
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_JBD_DEBUG=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_CRAMFS=m
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_MINIX_FS=m
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-CONFIG_DEVFS_DEBUG=y
-CONFIG_DEVPTS_FS=y
-CONFIG_ROMFS_FS=m
-CONFIG_EXT2_FS=y
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_TCP=y
-CONFIG_SUNRPC=m
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=m
-CONFIG_SMB_FS=m
-CONFIG_SMB_NLS_DEFAULT=y
-CONFIG_SMB_NLS_REMOTE="utf8"
-CONFIG_ZISOFS_FS=m
-CONFIG_PARTITION_ADVANCED=y
-CONFIG_SUN_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="utf8"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_NLS_ISO8859_15=m
-CONFIG_NLS_UTF8=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_DEBUG_BUGVERBOSE=y
-CONFIG_CRC32=m
-CONFIG_ZLIB_INFLATE=m?
---
-Was it a black who passed anong in the sand?
-Was it a white who left his footprints?
-Was it an african? An indian?
-Sand says, 'twas human.
+A Google search on "via data corruption bug" returns volumes of
+information, but I cannot separate the wheat from the chaff....
+I have asked this on several Linux newsgroups, but got no answer.
 
+Thanks for any insight or assistance....
+
+
+Tom Roberts     tjroberts@lucent.com	tomroberts@lightfirst.com
+
+
+cat /proc/version:
+Linux version 2.4.18 (root@lucy2) (gcc version 2.96 20000731 \
+(Red Hat Linux 7.1 2.96-98)) #21 Thu May 9 20:14:55 CDT 2002
+
+cat /proc/ide/via:
+----------VIA BusMastering IDE Configuration----------------
+Driver Version:                     3.29
+South Bridge:                       VIA vt82c686b
+Revision:                           ISA 0x40 IDE 0x6
+Highest DMA rate:                   UDMA100
+BM-DMA base:                        0xd800
+PCI clock:                          33MHz
+Master Read  Cycle IRDY:            0ws
+Master Write Cycle IRDY:            0ws
+BM IDE Status Register Read Retry:  yes
+Max DRDY Pulse Width:               No limit
+-----------------------Primary IDE-------Secondary IDE------
+Read DMA FIFO flush:          yes                 yes
+End Sector FIFO flush:         no                  no
+Prefetch Buffer:               no                 yes
+Post Write Buffer:             no                 yes
+Enabled:                      yes                 yes
+Simplex only:                  no                  no
+Cable Type:                   80w                 80w
+-------------------drive0----drive1----drive2----drive3-----
+Transfer Mode:       UDMA      UDMA      UDMA       PIO
+Address Setup:       30ns      30ns      30ns     120ns
+Cmd Active:          90ns      90ns      90ns      90ns
+Cmd Recovery:        30ns      30ns      30ns      30ns
+Data Active:         90ns      90ns      90ns     330ns
+Data Recovery:       30ns      30ns      30ns     270ns
+Cycle Time:          20ns      60ns      20ns     600ns
+Transfer Rate:   99.0MB/s  33.0MB/s  99.0MB/s   3.3MB/s
+
+
+cat /proc/ide/drivers:
+ide-scsi version 0.9
+ide-cdrom version 4.59
+ide-disk version 1.10
+
+
+cat /proc/cpuinfo:
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) Processor
+stepping        : 2
+cpu MHz         : 807.209
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca \
+                  cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 1608.90
+
+
+scripts/ver_linux output:
+Linux lucy2 2.4.18 #21 Thu May 9 20:14:55 CDT 2002 i686 unknown
+
+Gnu C                  2.96
+Gnu make               3.79.1
+binutils               2.11.90.0.8
+util-linux             2.11f
+mount                  2.11g
+modutils               2.4.6
+e2fsprogs              1.23
+reiserfsprogs          3.x.0j
+PPP                    2.4.1
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.3.3
+Sh-utils               2.0.11
+Modules Loaded         es1371 ac97_codec soundcore vmnet parport_pc vmmon \
+                        ide-scsi vfat fat
+
+lspci -vvv:
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 03)
+        Subsystem: Asustek Computer, Inc.: Unknown device 8042
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 8
+        Region 0: Memory at e6000000 (32-bit, prefetchable) [size=32M]
+        Capabilities: [a0] AGP version 2.0
+                Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
+                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP] (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 0
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+        I/O behind bridge: 0000e000-0000dfff
+        Memory behind bridge: e2000000-e3dfffff
+        Prefetchable memory behind bridge: e3f00000-e5ffffff
+        BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B-
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
+        Subsystem: Asustek Computer, Inc.: Unknown device 8042
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:04.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06) (prog-if 8a [Master SecP PriP])
+
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Region 4: I/O ports at d800 [size=16]
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:04.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16) (prog-if 00 [UHCI])
+        Subsystem: Unknown device 0925:1234
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Interrupt: pin D routed to IRQ 5
+        Region 4: I/O ports at d400 [size=32]
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:04.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16) (prog-if 00 [UHCI])
+        Subsystem: Unknown device 0925:1234
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Interrupt: pin D routed to IRQ 5
+        Region 4: I/O ports at d000 [size=32]
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:04.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+        Subsystem: Asustek Computer, Inc.: Unknown device 8042
+        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin ? routed to IRQ 9
+        Capabilities: [68] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
+        Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (8000ns min, 16000ns max)
+        Interrupt: pin A routed to IRQ 5
+        Region 0: I/O ports at a400 [size=256]
+        Region 1: Memory at e1800000 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0-,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0b.0 Multimedia audio controller: Ensoniq CT5880 [AudioPCI] (rev 02)
+        Subsystem: Ensoniq: Unknown device 2003
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort-
+<MAbort+ >SERR- <PERR-
+        Latency: 64 (3000ns min, 32000ns max)
+        Interrupt: pin A routed to IRQ 10
+        Region 0: I/O ports at a000 [size=64]
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:11.0 Unknown mass storage controller: Promise Technology, Inc. 20265 (rev 02)        Subsystem: Promise Technology, Inc.: Unknown device 4d33
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Interrupt: pin A routed to IRQ 10
+        Region 0: I/O ports at 9800 [size=8]
+        Region 1: I/O ports at 9400 [size=4]
+        Region 2: I/O ports at 9000 [size=8]
+        Region 3: I/O ports at 8800 [size=4]
+        Region 4: I/O ports at 8400 [size=64]
+        Region 5: Memory at e1000000 (32-bit, non-prefetchable) [size=128K]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+        Capabilities: [58] Power Management version 1
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+01:00.0 VGA compatible controller: nVidia Corporation Vanta [NV6] (rev 15) (prog-if 00 [VGA])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (1250ns min, 250ns max)
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at e2000000 (32-bit, non-prefetchable) [size=16M]
+        Region 1: Memory at e4000000 (32-bit, prefetchable) [size=32M]
+        Expansion ROM at e3ff0000 [disabled] [size=64K]
+        Capabilities: [60] Power Management version 1
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [44] AGP version 2.0
+                Status: RQ=31 SBA- 64bit- FW- Rate=x1,x2
+                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+
+
+cat /etc/lilo.conf:
+prompt
+timeout=50
+default=linux-2.4.18
+boot=/dev/hda
+map=/boot/map
+install=/boot/boot.b
+message=/boot/message
+lba32
+
+image=/boot/vmlinuz-2.4.18
+        label=linux-2.4.18
+        read-only
+        root=/dev/hda3
+        append="hdb=ide-scsi"
+
+image=/boot/vmlinuz-2.4.7-10
+        label=linux-2.4.7-10
+        initrd=/boot/initrd-2.4.7-10.img
+        read-only
+        root=/dev/hda3
+        append="hdb=ide-scsi"
+
+other=/dev/hda1
+        optional
+        label=Win98

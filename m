@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267013AbTCECNE>; Tue, 4 Mar 2003 21:13:04 -0500
+	id <S267033AbTCECXA>; Tue, 4 Mar 2003 21:23:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267023AbTCECNE>; Tue, 4 Mar 2003 21:13:04 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:35089
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267013AbTCECND>; Tue, 4 Mar 2003 21:13:03 -0500
-Subject: Re: Kernel bloat 2.4 vs. 2.5
-From: Robert Love <rml@tech9.net>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Andrew Morton <akpm@digeo.com>, Daniel Egger <degger@fhm.edu>,
+	id <S267038AbTCECXA>; Tue, 4 Mar 2003 21:23:00 -0500
+Received: from ore.jhcloos.com ([64.240.156.239]:36356 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id <S267033AbTCECXA>;
+	Tue, 4 Mar 2003 21:23:00 -0500
+To: Daniel Phillips <phillips@arcor.de>
+Cc: ext2-devel@lists.sf.net, ext3-users@redhat.com,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20030305015957.GA27985@f00f.org>
-References: <1046817738.4754.33.camel@sonja>
-	 <20030304154105.7a2db7fa.akpm@digeo.com>  <20030305015957.GA27985@f00f.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1046830980.999.78.camel@phantasy.awol.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 04 Mar 2003 21:23:00 -0500
-Content-Transfer-Encoding: 7bit
+Subject: Re: ext3 htree brelse problems look to be fixed!
+References: <m3of4q4rdl.fsf@lugabout.jhcloos.org>
+	<20030305013347.F0C9CECEC3@mx12.arcor-online.net>
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <20030305013347.F0C9CECEC3@mx12.arcor-online.net>
+Date: 04 Mar 2003 21:32:44 -0500
+Message-ID: <m33cm24k6r.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-03-04 at 20:59, Chris Wedgwood wrote:
+>>>>> "Daniel" == Daniel Phillips <phillips@arcor.de> writes:
 
-> I can't see it helping *that* much, for me I have:
-> 
->     charon:~/wk/linux% size 2.4.x-cw/vmlinux bk-2.5.x/vmlinux
->        text    data     bss     dec     hex filename
->     2003887  120260  191657 2315804  23561c 2.4.x-cw/vmlinux
->     2411323  267551  181004 2859878  2ba366 bk-2.5.x/vmlinux
-> 
->     gcc version 2.95.4 20011002 (Debian prerelease)
+Daniel> Good that it's working for you, but it's not quite the last
+Daniel> issue.  There is some apparent cache thrashing to track down,
+Daniel> and I believe there's still an outstanding NFS issue.
 
-Ugh look at that increase in data.  Is this SMP?
+Yes, I forgot about nfs.  But at least, ignoring nfs again, corruption
+type issues seem to be fixed.
 
-	Robert Love
+I guess my post was a bit exuberant....  :-/
+
+-jimc
 

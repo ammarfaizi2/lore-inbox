@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268986AbTBSGHB>; Wed, 19 Feb 2003 01:07:01 -0500
+	id <S268133AbTBSGuB>; Wed, 19 Feb 2003 01:50:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268987AbTBSGHB>; Wed, 19 Feb 2003 01:07:01 -0500
-Received: from are.twiddle.net ([64.81.246.98]:21914 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S268986AbTBSGHB>;
-	Wed, 19 Feb 2003 01:07:01 -0500
-Date: Tue, 18 Feb 2003 22:16:56 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] eliminate warnings in generated module files
-Message-ID: <20030218221656.A23989@twiddle.net>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-References: <20030218194351.A23525@twiddle.net> <Pine.LNX.4.44.0302182115500.1923-100000@home.transmeta.com>
-Mime-Version: 1.0
+	id <S268139AbTBSGuB>; Wed, 19 Feb 2003 01:50:01 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:12460 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S268133AbTBSGuA>; Wed, 19 Feb 2003 01:50:00 -0500
+Date: Tue, 18 Feb 2003 23:00:00 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 379] New: VIA 8235 rear channel playback on front channels?
+Message-ID: <13480000.1045638000@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0302182115500.1923-100000@home.transmeta.com>; from torvalds@transmeta.com on Tue, Feb 18, 2003 at 09:16:35PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 18, 2003 at 09:16:35PM -0800, Linus Torvalds wrote:
-> Some people are still using 2.95, I think anything past that is long since 
-> unsupported and not worth worrying about.
+http://bugme.osdl.org/show_bug.cgi?id=379
 
-[kanga:~] cat z.c
-static char foo []
-  __attribute__((unused))
-  __attribute__((section(".data.foo")))
-  = "asdfasdf";
-[kanga:~] /usr/bin/gcc -Wall -c z.c
-[kanga:~] /usr/bin/gcc -v
-Reading specs from /usr/lib/gcc-lib/alpha-linux/2.95.4/specs
-gcc version 2.95.4 20011002 (Debian prerelease)
-[kanga:~] objdump -h z.o | grep foo
-  3 .data.foo     00000009  0000000000000000  0000000000000000  00000040  2**0
-
-Seems to work, both wrt the warning message and 
-honoring the section directive.
+           Summary: VIA 8235 rear channel playback on front channels?
+    Kernel Version: 2.5.62
+            Status: NEW
+          Severity: normal
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: ricko73@yahoo.com
 
 
-r~
+Distribution:  Slackware 8.1
+Hardware Environment:  EPIA-M 9000
+Software Environment:  VIA 8235 ALSA kernel drivers
+Problem Description:  During DVD playback on Mplayer, (using ALSA sound), sound
+only comes out of the main two channels (front left and right), but that sound
+is supposed to be in the REAR two channels.
+
+Steps to reproduce:  I switched back to 2.5.61 with the same items build into
+the kernel.  Sound was as normal for 2 channel support. (front left and right).
+ Booted back to 2.5.62 and repeated the same problem.
+
+

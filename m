@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264580AbVBDTRP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262955AbVBDTTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264580AbVBDTRP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 14:17:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbVBDTRP
+	id S262955AbVBDTTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 14:19:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265072AbVBDTR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 14:17:15 -0500
-Received: from user-119bnkd.biz.mindspring.com ([66.149.222.141]:42394 "EHLO
-	pxtvjoweb01.primeexalia.com") by vger.kernel.org with ESMTP
-	id S264580AbVBDTRF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 14:17:05 -0500
-Message-ID: <1107544219.4203c89bdfa6a@www.adndrealm.net>
-Date: Fri,  4 Feb 2005 11:10:19 -0800
-From: Gary Smith <linuxkernel@adndrealm.net>
-To: linux-kernel@vger.kernel.org
-Subject: Post install 2.4.29 causes many apps to seg fault.
+	Fri, 4 Feb 2005 14:17:28 -0500
+Received: from mail-gw4.njit.edu ([128.235.251.32]:37566 "EHLO
+	mail-gw4.njit.edu") by vger.kernel.org with ESMTP id S265688AbVBDTRL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 14:17:11 -0500
+Date: Fri, 4 Feb 2005 14:17:10 -0500 (EST)
+From: Rahul Jain <rbj2@oak.njit.edu>
+To: Kernel Traffic Mailing List <linux-kernel@vger.kernel.org>
+Subject: How to add source files in kernel
+Message-ID: <Pine.GSO.4.58.0502041408540.12006@chrome.njit.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
-X-Originating-IP: 171.161.160.10
-X-WebMail-Provided-By: Prime Exalia Technologies (http
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
+Hi All,
 
-I have been running RHEL3 update 3 for some time and need to patch netfilter 
-for PPTP.  After doing so and installing the kernel I found that certain 
-applications (such as MySQL, nslook, etc) began to segfault.  Rolling the 
-kernel back fixed the problem.
+I am trying to add 2 new files (a .h and a .c) in the kernel. I copied my
+.h file in /include/linux and .c in /net/core. I then made the
+following change to the Makefile in /net/core.
 
-I have since then gone back and recompiled the vanilla 2.4.29 kernel (without 
-additing any patches this time - clean from tarball) and installed it and all 
-of the the applications that failed on the custom kernel (with the PPTP 
-patches) continue to fail (clean box as well).
+obj-y := sock.o skbuff.o iovec.o datagram.o scm.o split_helper.o
 
-Is there something more that I need to compile besides the kernel for 
-compatability or is this a sign of some type of bug.  I do realize that RHEL3 
-itself has some proprietary items added to their kernel but replacing it 
-shouldn't make other applications fails.
+where split_helper.o is for the .c file that I am adding.
 
-Any assistance would be greatly appreciated.
+The kernel recompilation went without any problems. I wrote loadable
+module programs that can access the functions defined in .c. When I try to
+install these modules, they came back with the following error
 
-Gary Smith
+/sbin/insmod x.o
+x.o: unresolved symbol enqueue_sfi
+x.o: unresolved symbol init_skbuff_list
+x.o: unresolved symbol get_head_sfi
+x.o: unresolved symbol search_sfi
+x.o: unresolved symbol enqueue_skbuff_list
+x.o: unresolved symbol init_head_sfi
+x.o:
+Hint: You are trying to load a module without a GPL compatible license
+      and it has unresolved symbols.  Contact the module supplier for
+      assistance, only they can help you.
 
+make: *** [install] Error 1
 
+These functions are defined in the .c file and declared with the extern
+keyword in the .h file. In my modules I am including the .h file.
+
+Any suggestions on what I might be missing here ?
+
+Thanks,
+Rahul.

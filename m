@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbUJaXap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbUJaXde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbUJaXap (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 18:30:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbUJaXap
+	id S261692AbUJaXde (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 18:33:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbUJaXde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 18:30:45 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:51209 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261694AbUJaXa0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 18:30:26 -0500
-Date: Mon, 1 Nov 2004 00:29:54 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Ben Collins <bcollins@debian.org>
-Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] ieee1394 cleanup
-Message-ID: <20041031232954.GG2495@stusta.de>
-References: <20041031213250.GD2495@stusta.de> <20041031212858.GC9684@phunnypharm.org>
+	Sun, 31 Oct 2004 18:33:34 -0500
+Received: from gprs214-91.eurotel.cz ([160.218.214.91]:27782 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261692AbUJaXdd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 18:33:33 -0500
+Date: Mon, 1 Nov 2004 00:33:13 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Alexander Nyberg <alexn@dsv.su.se>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH][plugsched 0/28] Pluggable cpu scheduler framework
+Message-ID: <20041031233313.GB6909@elf.ucw.cz>
+References: <4183A602.7090403@kolivas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041031212858.GC9684@phunnypharm.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <4183A602.7090403@kolivas.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 31, 2004 at 04:28:58PM -0500, Ben Collins wrote:
+Hi!
 
-> Need to leave the csr1212 files alone. csr1212.[ch] is used for userspace
-> and kernelspace, and I don't want to have two versions.
+> This code was designed to touch the least number of files, be completely
+> arch-independant, and allow extra schedulers to be coded in by only
+> touching Kconfig, scheduler.c and scheduler.h. It should incur no
+> overhead when run and will allow you to compile in only the scheduler(s)
+> you desire. This allows, for example, embedded hardware to have a tiny
+> new scheduler that takes up minimal code space.
 
-But in this case, these functions don't have to be EXPORT_SYMBOL'ed?
+You are changing 
 
-And besides this, they are global functions meaning that although they 
-are never used inside the kernel, they need space for every user of 
-FireWire.
+some_functions()
 
-What about wrapping them inside #ifndef __KERNEL__ ?
+into
 
-cu
-Adrian
+something->function()
+
+no? I do not think that is 0 overhead...
+									Pavel
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

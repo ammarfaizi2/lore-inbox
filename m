@@ -1,73 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266295AbUIOPWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266449AbUIOP3i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266295AbUIOPWA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 11:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266357AbUIOPWA
+	id S266449AbUIOP3i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 11:29:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266459AbUIOP3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 11:22:00 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:62930 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S266295AbUIOPV5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 11:21:57 -0400
-Date: Wed, 15 Sep 2004 17:20:19 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Ian Campbell <icampbell@arcom.com>
-Cc: "Giacomo A. Catenazzi" <cate@debian.org>, Greg KH <greg@kroah.com>,
-       "Marco d'Itri" <md@Linux.IT>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: udev is too slow creating devices
-Message-ID: <20040915152019.GD24818@thundrix.ch>
-References: <41474926.8050808@nortelnetworks.com> <20040914195221.GA21691@kroah.com> <414757FD.5050209@pixelized.ch> <20040914213506.GA22637@kroah.com> <20040914214552.GA13879@wonderland.linux.it> <20040914215122.GA22782@kroah.com> <20040914224731.GF3365@dualathlon.random> <20040914230409.GA23474@kroah.com> <414849CE.8080708@debian.org> <1095258966.18800.34.camel@icampbell-debian>
+	Wed, 15 Sep 2004 11:29:38 -0400
+Received: from fw.osdl.org ([65.172.181.6]:33488 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266449AbUIOP3h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 11:29:37 -0400
+Date: Wed, 15 Sep 2004 08:25:01 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: anddan@linux-user.net, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] README (resend) - Explain new 2.6.xx.x version number
+Message-Id: <20040915082501.1ce2cc18.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0409151303450.877@scrub.home>
+References: <41476413.1060100@linux-user.net>
+	<Pine.LNX.4.61.0409150255590.981@scrub.home>
+	<1109.4.5.49.23.1095216021.squirrel@www.osdl.org>
+	<Pine.LNX.4.61.0409151303450.877@scrub.home>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lc9FT7cWel8HagAv"
-Content-Disposition: inline
-In-Reply-To: <1095258966.18800.34.camel@icampbell-debian>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 15 Sep 2004 13:06:06 +0200 (CEST) Roman Zippel wrote:
 
---lc9FT7cWel8HagAv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+| Hi,
+| 
+| On Tue, 14 Sep 2004, Randy.Dunlap wrote:
+| 
+| > > Seriously, without knowing about the pre-patches, what would you expect
+| > > about the patch order if you found the patches 2.6.8, 2.6.8.1, 2.6.9?
+| > 
+| > We have evidence that it's confusing to more than one person.
+| 
+| The question is what is more confusing to most of the users?
+| What are the expectation of the average user?
 
-Salut,
+I have no idea.  A decision was made and now there are some
+attempts to document it.  Are you trying to ask for the decision
+to be reconsidered?
 
-On Wed, Sep 15, 2004 at 03:36:06PM +0100, Ian Campbell wrote:
-> I wonder if it would be feasible for modprobe (or some other utility) to
-> have a new option: --wait-for=/dev/something which would wait for the
-> device node to appear. Perhaps by:
-> 	- some mechanism based on HAL, DBUS, whatever
-> 	- dnotify on /dev/?
-> 	- falling back to spinning and waiting.
-
-This would  end up  as hideous misfeature  as you can't  guarantee the
-device to show up *at* *all*.
-
-The reason udev is there is that we can dynamically respond to created
-device nodes and  devices that show up. They  might have changed since
-the last boot. Maybe they don't show up at all.
-
-Thus you should trigger your actions from /etc/dev.d.
-
-			    Tonnerre
-
-
---lc9FT7cWel8HagAv
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
-
-iD8DBQFBSF2y/4bL7ovhw40RAjLuAKCjXQJ7GweUwG85xQufb2IyYsNwEgCgmOdd
-clzNrcOeiBzQy0HaOyPZSFA=
-=SFdQ
------END PGP SIGNATURE-----
-
---lc9FT7cWel8HagAv--
+--
+~Randy

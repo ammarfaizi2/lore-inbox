@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266977AbRGTOlS>; Fri, 20 Jul 2001 10:41:18 -0400
+	id <S266983AbRGTOli>; Fri, 20 Jul 2001 10:41:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266983AbRGTOlI>; Fri, 20 Jul 2001 10:41:08 -0400
-Received: from stanis.onastick.net ([207.96.1.49]:32017 "EHLO
-	stanis.onastick.net") by vger.kernel.org with ESMTP
-	id <S266977AbRGTOkw>; Fri, 20 Jul 2001 10:40:52 -0400
-Date: Fri, 20 Jul 2001 10:40:57 -0400
-From: Disconnect <lkml@sigkill.net>
+	id <S266991AbRGTOl2>; Fri, 20 Jul 2001 10:41:28 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:18313 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id <S266983AbRGTOlT>;
+	Fri, 20 Jul 2001 10:41:19 -0400
+Date: Fri, 20 Jul 2001 16:43:06 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.6-ac5 and VIA Athlon chipsets
-Message-ID: <20010720104057.B23817@sigkill.net>
-In-Reply-To: <3B55D2F2.71BF34D5@pp.htv.fi> <E15NMPS-0000Sg-00@the-village.bc.nu>
+Subject: 2.4.6-ac5: Filesize limit exceeded
+Message-ID: <20010720164306.A4977@ulima.unil.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <E15NMPS-0000Sg-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Will this fix (or get closer to fixing) the K7-optimization crashes? (I'm
-still hoping its something that isn't getting initialized correctly,
-rather than just a bug.  BurnK7/BurnMMX work fine, memtest86 and the MMX
-memtest work, windows seems to be using the full memory bandwidth, etc.)
 
-On Thu, 19 Jul 2001, Alan Cox did have cause to say:
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Excellent. I hope soon to push the official via fix to Linus. The other good
-> news is that I now have some official VIA contacts, so where there is a real 
-> need information should flow to the right places.
+Hello,
 
----
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1 [www.ebb.org/ungeek]
-GIT/CC/CM/AT d--(-)@ s+:-- a-->? C++++$ ULBS*++++$ P- L+++>+++++ 
-E--- W+++ N+@ o+>$ K? w--->+++++ O- M V-- PS+() PE Y+@ PGP++() t
-5--- X-- R tv+@ b++++>$ DI++++ D++(+++) G++ e* h(-)* r++ y++
-------END GEEK CODE BLOCK------
+I have just turned to 2.4.6-ac5, and I can't create tar bigger than
+40Mb, I got Filesize limit exceeded...
+
+Both on ext2 and reiserfs partitions.
+
+Any idea why?
+
+Thanks,
+
+	Greg
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+
+--Q68bSM7Ycu6FN28Q
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.5 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7WEN6FDWhsRXSKa0RAu82AKDNu2B9ytUEWvdnyYYNm3sfo63a8gCeOl/5
+Lu6lumx/aG49UD2sgF16z34=
+=eovb
+-----END PGP SIGNATURE-----
+
+--Q68bSM7Ycu6FN28Q--

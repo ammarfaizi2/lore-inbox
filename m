@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264745AbSLJUcu>; Tue, 10 Dec 2002 15:32:50 -0500
+	id <S264931AbSLJUhR>; Tue, 10 Dec 2002 15:37:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264755AbSLJUct>; Tue, 10 Dec 2002 15:32:49 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:43530 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S264745AbSLJUct>; Tue, 10 Dec 2002 15:32:49 -0500
-Date: Tue, 10 Dec 2002 21:40:31 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       "'Ducrot Bruno'" <poup@poupinou.org>, Pavel Machek <pavel@suse.cz>,
-       Ducrot Bruno <ducrot@poupinou.org>, Patrick Mochel <mochel@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Re: [2.5.50, ACPI] link error
-Message-ID: <20021210204031.GF20049@atrey.karlin.mff.cuni.cz>
-References: <EDC461A30AC4D511ADE10002A5072CAD04C7A581@orsmsx119.jf.intel.com> <1039481341.12046.21.camel@irongate.swansea.linux.org.uk>
+	id <S265177AbSLJUhR>; Tue, 10 Dec 2002 15:37:17 -0500
+Received: from [66.70.28.20] ([66.70.28.20]:1796 "EHLO
+	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
+	id <S264931AbSLJUhQ>; Tue, 10 Dec 2002 15:37:16 -0500
+Date: Tue, 10 Dec 2002 21:45:30 +0100
+From: DervishD <raul@pleyades.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: [BK-2.4] [PATCH] Small do_mmap_pgoff correction
+Message-ID: <20021210204530.GA63@DervishD>
+References: <200212101931.gBAJV1K10639@hera.kernel.org> <20021210.121908.00373632.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1039481341.12046.21.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20021210.121908.00373632.davem@redhat.com>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+    Hi David :)
 
-> > I concur with your pros and cons. This makes me think that if S4BIOS support
-> > ever gets added, it should get added to 2.4 only.
+>    + *	NOTE: in this function we rely on TASK_SIZE being lower than
+>    + *	SIZE_MAX-PAGE_SIZE at least. I'm pretty sure that it is.
+> This assumption is wrong.
 
-And S4BIOS will never get added to 2.4 since it needs driver model
-:-(.
+    OK, then another way of fixing the corner case that exists in
+do_mmap_pgoff is needed. You cannot mmap a chunk of memory whose size
+is bigger than SIZE_MAX-PAGE_SIZE, because 'PAGE_ALIGN' will return 0
+when page-aligning the size.
 
-> That assumes no box exists where S4bios works an S4 doesnt (eg due to
-> bad tables or "knowing" what other-os does)
+    Anyway you cannot use a size larger than SIZE_MAX-PAGE_SIZE even
+on sparc64, since mmap will fail when page aligning such a size,
+returning 0 :((( Reverting the change is worse (IMHO).
 
-We have full control over S4 (== swsusp), so we can fix that in most
-cases.
+> Please revert this change, it adds absolutely nothing.
 
-S4BIOS is still little friendlier to the user -- no need to set up
-swap partition and command line parameter, can't go wrong if you boot
-without resume=, etc.
-								Pavel
+    It corrects the corner case. See below. If you have a better
+solution for the corner case problem that doesn't involve limiting
+the max size you can request for mmaping so it doesn't get the last
+page, it is welcome, of course :))
 
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+    The code says:
+
+    if ((len = PAGE_ALIGN(len)) == 0)
+
+    and this returns 0 if the requested size ('len', here) is between
+SIZE_MAX-PAGE_SIZE and SIZE_MAX. And this is wrong. Don't know if
+under sparc64 the PAGE_ALIGN macro returns correct values, but I
+don't think so, since the correct value for an address in the last
+page is 0 when page aligned. The problem is that we are aligning a
+SIZE, not an address :((
+
+    Maybe a new macro needed here...
+
+    If you want the entire explanation, just tell :) I wrote in the
+past for the same patch. Anyway, nor Linus nor Alan did see anything
+wrong with this :??
+
+    Raúl

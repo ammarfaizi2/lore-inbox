@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318748AbSG0NGD>; Sat, 27 Jul 2002 09:06:03 -0400
+	id <S318749AbSG0NKF>; Sat, 27 Jul 2002 09:10:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318749AbSG0NGC>; Sat, 27 Jul 2002 09:06:02 -0400
-Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:7552 "EHLO
-	DervishD.pleyades.net") by vger.kernel.org with ESMTP
-	id <S318748AbSG0NGC>; Sat, 27 Jul 2002 09:06:02 -0400
-Date: Sat, 27 Jul 2002 15:16:28 +0200
-Organization: Pleyades
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Censorship
-Message-ID: <3D429D2C.mail5SY11TME8@viadomus.com>
-User-Agent: nail 9.31 6/18/02
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-From: DervishD <raul@pleyades.net>
-Reply-To: DervishD <raul@pleyades.net>
-X-Mailer: DervishD TWiSTiNG Mailer
+	id <S318750AbSG0NKF>; Sat, 27 Jul 2002 09:10:05 -0400
+Received: from holomorphy.com ([66.224.33.161]:55970 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318749AbSG0NKE>;
+	Sat, 27 Jul 2002 09:10:04 -0400
+Date: Sat, 27 Jul 2002 06:13:12 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.29 PAE compilefix
+Message-ID: <20020727131312.GL25038@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all :))
+Haven't tried booting it yet, but here's the compilefix:
 
-    Who is 'warden.diginsite.com'?
+Cheers,
+Bill
 
-Place = Linux-kernel; ; ; DervishD
-Sender = DervishD
-Subject = About the need of a swap area
-Delivery Time = July 27, 2002 (Saturday) 05:21:54
-Policy = Dirty Words
-Action on this mail = Quarantine message
-
-Warning message from administrator:
-Sender, Content filter has detected a sensitive e-mail.
-
-    That is so we cannot write the f* word anymore? Maybe if I say
-'Dirty Words' in my mother language they will pass undetected, coño!
-XDDDDDDDD
-
-    Well, absurd...
-
-    Raúl
+===== arch/i386/mm/init.c 1.22 vs edited =====
+--- 1.22/arch/i386/mm/init.c	Fri Jul 26 12:07:32 2002
++++ edited/arch/i386/mm/init.c	Sat Jul 27 05:35:05 2002
+@@ -54,7 +54,7 @@
+ 		
+ #if CONFIG_X86_PAE
+ 	pmd_table = (pmd_t *) alloc_bootmem_low_pages(PAGE_SIZE);
+-	set_pgd(pgd, __pgd(__pa(md_table) | _PAGE_PRESENT));
++	set_pgd(pgd, __pgd(__pa(pmd_table) | _PAGE_PRESENT));
+ 	if (pmd_table != pmd_offset(pgd, 0)) 
+ 		BUG();
+ #else

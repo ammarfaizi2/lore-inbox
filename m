@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130115AbRB1Ic7>; Wed, 28 Feb 2001 03:32:59 -0500
+	id <S130105AbRB1IeT>; Wed, 28 Feb 2001 03:34:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130111AbRB1Icu>; Wed, 28 Feb 2001 03:32:50 -0500
-Received: from t2.redhat.com ([199.183.24.243]:55796 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S130105AbRB1Ich>; Wed, 28 Feb 2001 03:32:37 -0500
-To: lkthomas@hkicable.com
-Cc: Dan Kegel <dank@alumni.caltech.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Wine + kernel ?? How to do that? 
-In-Reply-To: Your message of "Wed, 28 Feb 2001 02:54:45 +0800."
-             <3A9BF7F5.E3AE76AB@hkicable.com> 
-Date: Wed, 28 Feb 2001 08:32:25 +0000
-Message-ID: <6254.983349145@warthog.cambridge.redhat.com>
-From: David Howells <dhowells@cambridge.redhat.com>
+	id <S130111AbRB1IeK>; Wed, 28 Feb 2001 03:34:10 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:5305 "EHLO
+	fungus.svenskatest.se") by vger.kernel.org with ESMTP
+	id <S130105AbRB1IeA>; Wed, 28 Feb 2001 03:34:00 -0500
+Date: Wed, 28 Feb 2001 09:33:31 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: Rainer Mager <rmager@vgkk.com>
+cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Building autofs
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGGENDDCAA.rmager@vgkk.com>
+Message-ID: <Pine.LNX.4.30.0102280915340.8425-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 28 Feb 2001, Rainer Mager wrote:
 
-lkthomas@hkicable.com wrote:
-> hey, I hear that wine ( windows emulator ) can port into kernel and make 
-> it running faster, How can I do it? 
-> or anyone can make a patch to add wine code into kernel? 
-> waiting for answer, Thanks 
+> Hi all,
+> 
+> 	I'm trying to use autofs for the first time and am running into some
+> problems. First,  the documentation seems quite weak, that is, I'm not sure
 
-I've been writing one to provide all the Windows kernel objects in Linux
-kernel space (the speed up appears as though it should be impressive). It is,
-however, not entirely complete yet. You can grab a copy by CVS from the wine
-repository:
+I am sure the maintainer would appreciate if you wrote down what you found
+difficult/missing from the docs (in the form of a patch to the existing
+docs perhaps).
 
-	export CVSROOT=:pserver:cvs@cvs.winehq.com:/home/wine
-	cvs login
-	  (the password is cvs)
-	cvs -z3 checkout kernel-win32
+> if what I have is what I should have. I managed to find an autofs version 4
+> pre 9 tarball on the kernel mirrors. This seem the latest but is still a bit
+> old and the referenced home page doesn't seem any newer. My real problem,
+> however, is that when I try to build it I get this error:
+> 
+> lookup_program.c:147: `OPEN_MAX' undeclared (first use in this function)
 
-Or you can browse it:
+#include <linux/limits.h> gives:
+#define OPEN_MAX         256    /* # open files a process may have */
 
-	http://cvs.winehq.com/cvsweb/kernel-win32/
+But autofs is well behaved and doesn't use kernel headers but that makes
+it fails on newer glibcs (at least I think that was it).
 
-The numbers are looking good: the system call latency appears to be about half
-that of Win2000 on the same box! (however, use this number with caution).
+Just define it. If autofs4 is doing the same as autofs3 then it is only
+used for program lookups (where a program generates the map to use) and
+unless you are going to use those it won't matter at all.
 
-David
+
+There is also some info here, including how to find the autofs
+mailinglist.
+http://www.linux-consulting.com/Amd_AutoFS/autofs.html
+
+Or google for "autofs OPEN_MAX", "autofs mailinglist archive", ...
+There appears to be a autofs-open_max.patch somewhere.
+
+/Urban
+

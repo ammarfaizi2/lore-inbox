@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272909AbTG3OId (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 10:08:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272904AbTG3OI3
+	id S272893AbTG3OXj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 10:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272920AbTG3OXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 10:08:29 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:32441 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S272905AbTG3OIE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 10:08:04 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Wed, 30 Jul 2003 16:08:00 +0200 (MEST)
-Message-Id: <UTC200307301408.h6UE80K25902.aeb@smtp.cwi.nl>
-To: bunk@fs.tum.de, clemens@endorphin.org, hvr@gnu.org
-Subject: Re: [2.6 patch] let BLK_DEV_CRYPTOLOOP depend on EXPERIMENTAL
-Cc: Andries.Brouwer@cwi.nl, akpm@cwi.nl, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
+	Wed, 30 Jul 2003 10:23:36 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:56079 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S272893AbTG3OVN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 10:21:13 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Herbert =?iso-8859-1?q?P=F6tzl?= <herbert@13thfloor.at>
+Subject: Re: ROOT NFS fixes ...
+Date: Wed, 30 Jul 2003 16:20:26 +0200
+User-Agent: KMail/1.5.2
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+References: <20030729211521.GA19594@www.13thfloor.at> <Pine.LNX.4.55L.0307301057030.29278@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.55L.0307301057030.29278@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200307301620.11886.m.c.p@wolk-project.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'd suggest to let BLK_DEV_CRYPTOLOOP depend on EXPERIMENTAL
+On Wednesday 30 July 2003 15:57, Marcelo Tosatti wrote:
 
-I have no objections.
-Maybe you can also make INPUT depend on EXPERIMENTAL.
+Hi Marcelo, Herbert,
 
-On the other hand, a few days ago I needed a serial line and
-couldnt find the option in menuconfig. Turned out that
-SERIAL_8250 depends on EXPERIMENTAL. I suppose that dependence
-should be removed.
+> > just verified that the NFS root bug-fix was not
+> > included in 2.4.22-pre9, unfortunately I have
+> > to ask you again, why you do not want to fix
+> > this issue in 2.4.22 ...
+> > I do not understand why Trond obviously is
+> > ignoring my mails, regarding this particular
+> > issue, maybe he is just too busy to look at
+> > four twoline changes, and more, I do not
+> > understand why this isn't accepted into the
+> > marcelo kernel tree, as it obviously fixes a
+> > misbehaviour?
 
-Andries
+> I do not consider the patch critical enough.
+> Get it in 2.5 first, then come back :)
+err, correct me if I am totally wrong here but does "ROOT NFS fixes" means 
+somewhat like
 
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/serial/Kconfig b/drivers/serial/Kconfig
---- a/drivers/serial/Kconfig	Mon Jul 28 05:39:32 2003
-+++ b/drivers/serial/Kconfig	Mon Jul 28 05:40:13 2003
-@@ -9,8 +9,7 @@
- #
- # The new 8250/16550 serial drivers
- config SERIAL_8250
--	tristate "8250/16550 and compatible serial support (EXPERIMENTAL)"
--	depends on EXPERIMENTAL
-+	tristate "8250/16550 and compatible serial support"
- 	---help---
- 	  This selects whether you want to include the driver for the standard
- 	  serial ports.  The standard answer is Y.  People who might say N
-@@ -40,7 +39,7 @@
- 	  modems and similar devices connecting to the standard serial ports.
- 
- config SERIAL_8250_CONSOLE
--	bool "Console on 8250/16550 and compatible serial port (EXPERIMENTAL)"
-+	bool "Console on 8250/16550 and compatible serial port"
- 	depends on SERIAL_8250=y
- 	---help---
- 	  If you say Y here, it will be possible to use a serial port as the
-@@ -53,8 +52,8 @@
- 	  (/dev/tty0) will still be used as the system console by default, but
- 	  you can alter that using a kernel command line option such as
- 	  "console=ttyS1". (Try "man bootparam" or see the documentation of
--	  your boot loader (lilo or loadlin) about how to pass options to the
--	  kernel at boot time.)
-+	  your boot loader (grub or lilo or loadlin) about how to pass options
-+	  to the kernel at boot time.)
- 
- 	  If you don't have a VGA card installed and you say Y here, the
- 	  kernel will automatically use the first serial line, /dev/ttyS0, as
+append="nfsroot=10.0.0.7:/home/nfsroot \
+    ip=10.0.0.254:10.0.0.7:10.0.0.7:255.255.255.0:temp:eth0:off root=/dev/nfs"
+
+does not work w/o the fix?
+
+ciao, Marc
+

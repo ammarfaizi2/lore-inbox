@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267458AbSLLMCm>; Thu, 12 Dec 2002 07:02:42 -0500
+	id <S263794AbSLLMAq>; Thu, 12 Dec 2002 07:00:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262808AbSLLMCm>; Thu, 12 Dec 2002 07:02:42 -0500
-Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:40133
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267458AbSLLMCk>; Thu, 12 Dec 2002 07:02:40 -0500
-Subject: Re: [BK PATCH] Dynamic MP_BUSSES and IRQ_SOURCES for 2.4.21-pre1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021212015326.GI16615@kroah.com>
-References: <20021212015326.GI16615@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Dec 2002 12:48:08 +0000
-Message-Id: <1039697288.21192.18.camel@irongate.swansea.linux.org.uk>
+	id <S267454AbSLLMAq>; Thu, 12 Dec 2002 07:00:46 -0500
+Received: from cmailm4.svr.pol.co.uk ([195.92.193.211]:31500 "EHLO
+	cmailm4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S263794AbSLLMAq>; Thu, 12 Dec 2002 07:00:46 -0500
+Date: Thu, 12 Dec 2002 12:08:36 +0000
+To: Wil Reichert <wilreichert@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "bio too big" error
+Message-ID: <20021212120836.GA5717@reti>
+References: <1039572597.459.82.camel@darwin>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1039572597.459.82.camel@darwin>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-12 at 01:53, Greg KH wrote:
-> If the machine needs more busses or interrupts, they will be dynamically
-> allocated at boot time.  If not, the existing MAX_MP_BUSSES and
-> MAX_IRW_SOURCES value will be used.  Once nice side effect of this patch
-> is when running a SMP kernel on a UP machine without a MP table, less
-> kernel memory is used than without the patch.
->   
-> This patch was originally written by James Cleverdon, and has been in
-> the -ac tree for quite some time.  I also think Red Hat includes it in
-> their main kernel, but am not sure.
+On Tue, Dec 10, 2002 at 09:17:45PM -0500, Wil Reichert wrote:
+> Hi,
+> 
+> I'm getting a "bio too big" error with 2.5.50.  I've got a 330G lvm2
+> partition formatted with ext3 using the -T largefile4 parameter. 
+> Everything seems ok at first, but any sort of access will die very
+> unhappily with said error messsage after about 10 seconds of operation
+> or so.  The only google search results are the patch submission.  Eeek.
 
-Its certainly been in some of our trees.
+Could you try the patchset below please ?  (you may need to knock out
+patch 5 until we get to the bottom of that particular bug).
 
-Marcelo this patch hasn't caused any problem reports in -ac for a long
-time. I'm all for including it.
+http://people.sistina.com/~thornber/patches/2.5-stable/2.5.51/2.5.51-dm-2.tar.bz2
 
+- Joe

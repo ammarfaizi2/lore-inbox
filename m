@@ -1,35 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268257AbUHQOvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268248AbUHQPBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268257AbUHQOvW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 10:51:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268283AbUHQOvV
+	id S268248AbUHQPBW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 11:01:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268265AbUHQPBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 10:51:21 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:59617 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S268282AbUHQOsp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 10:48:45 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Shawn Starr <shawn.starr@rogers.com>
-Subject: Re: 2.6.8.1-mm1 broke USB driver with ACPI pci irq routing... info follows
-Date: Tue, 17 Aug 2004 08:48:41 -0600
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200408170257.26712.shawn.starr@rogers.com>
-In-Reply-To: <200408170257.26712.shawn.starr@rogers.com>
+	Tue, 17 Aug 2004 11:01:22 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:26533 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S268248AbUHQPAx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 11:00:53 -0400
+Date: Tue, 17 Aug 2004 10:00:50 -0500
+From: Erik Jacobson <erikj@subway.americas.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Process Aggregates for 2.6.8
+In-Reply-To: <20040817000232.36bc64ac.akpm@osdl.org>
+Message-ID: <Pine.SGI.4.53.0408170958550.711096@subway.americas.sgi.com>
+References: <Pine.SGI.4.53.0408161127580.663457@subway.americas.sgi.com>
+ <20040817000232.36bc64ac.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408170848.42173.bjorn.helgaas@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 August 2004 12:57 am, Shawn Starr wrote:
-> here is the lspci info. If I enable pci=routeirq the driver loads fine.
+> Did you get these?
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8.1/2.6.8.1-mm1/broken-out/process-aggregates-warning-fix.patch
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8.1/2.6.8.1-mm1/broken-out/process-aggregates-macro-fix.patch
 
-Thanks!  Could I trouble you to also send the full dmesg logs?  If
-you can get one from the failing case as well, that'd be great (but
-it might require a serial console; not sure exactly where the failure
-you're seeing is).
+Thanks Andrew.  The patch I just posted included the "warning fix".
+However, I didn't catch the "macro fix".  I'm updating my stuff to
+include the "macro fix".  Thanks for asking.
+
+--
+Erik Jacobson - Linux System Software - Silicon Graphics - Eagan, Minnesota

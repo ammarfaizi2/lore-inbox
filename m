@@ -1,75 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUJHTca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUJHTng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbUJHTca (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 15:32:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUJHTca
+	id S262406AbUJHTng (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 15:43:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUJHTng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 15:32:30 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:32268 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S261474AbUJHTcZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 15:32:25 -0400
-Date: Fri, 8 Oct 2004 14:29:59 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, akpm@osdl.org,
-       marcelo.tosatti@cyclades.com
-Subject: Re: [patch 2.4.28-pre3] 3c59x: resync with 2.6
-Message-ID: <20041008142959.H14378@tuxdriver.com>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	linux-kernel@vger.kernel.org, netdev@oss.sgi.com, akpm@osdl.org,
-	marcelo.tosatti@cyclades.com
-References: <20041008121307.C14378@tuxdriver.com> <4166E501.4000708@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4166E501.4000708@pobox.com>; from jgarzik@pobox.com on Fri, Oct 08, 2004 at 03:05:37PM -0400
+	Fri, 8 Oct 2004 15:43:36 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:23744 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262406AbUJHTnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 15:43:33 -0400
+Message-ID: <4166EDC9.7@grupopie.com>
+Date: Fri, 08 Oct 2004 20:43:05 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Albert Cahalan <albert@users.sf.net>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Catalin Marinas <Catalin.Marinas@arm.com>,
+       Richard Earnshaw <Richard.Earnshaw@arm.com>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [RFC] ARM binutils feature churn causing kernel problems
+References: <20040927210305.A26680@flint.arm.linux.org.uk>	 <20041008160456.H17999@flint.arm.linux.org.uk>	 <4166C216.2080305@grupopie.com> <1097259244.2673.2646.camel@cube>
+In-Reply-To: <1097259244.2673.2646.camel@cube>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.3; VDF: 6.28.0.7; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 08, 2004 at 03:05:37PM -0400, Jeff Garzik wrote:
-> John W. Linville wrote:
+Albert Cahalan wrote:
+> ....
 > 
-> >  static struct ethtool_ops vortex_ethtool_ops = {
-> > -	.get_drvinfo		= vortex_get_drvinfo,
-> > +	.get_drvinfo =		vortex_get_drvinfo,
-> >  };
+> No, the /proc/*/wchan file is supposed to be used.
+> For some reason, stat() is failing. Here is the code:
 > 
-> reverting good style.
-
-Hey, I'm not the one who put it in 2.6... :-)
-
-I can fix it, then submit a 2.6 patch as well?
-
-> >  	case SIOCSMIIREG:		/* Write MII PHY register. */
-> > -	case SIOCDEVPRIVATE+2:		/* for binary compat, remove in 2.5 */
+>   // next try the Linux 2.5.xx method
+>   if(!stat("/proc/self/wchan", &sbuf)){
+>     use_wchan_file = 1; // hack
+>     return 0;
+>   }
 > 
-> breaks ABI in the middle of a stable series
-
-Good point...
-
-> > +static inline struct mii_ioctl_data *if_mii(struct ifreq *rq)
-> > +{
-> > +	return (struct mii_ioctl_data *) &rq->ifr_ifru;
-> > +}
-> > +
-> > +
+> See what these commands tell you:
 > 
-> This should be in include/linux/mii.h like it is in 2.6.x.
+> strace -o data -e trace=stat ps alx >> /dev/null ; grep self data
+> stat /proc/self/wchan
+> stat /proc/$$/wchan
+> stat /proc/self/
+> stat /proc/self
 
-I think you missed this part:
+You are right. I just tested this on my system and ps doesn't read any 
+System.map at all, provided there is a /proc/<pid>/wchan file to read from.
 
-> > --- linux-2.4/include/linux/mii.h.orig
-> > +++ linux-2.4/include/linux/mii.h
-> > @@ -9,6 +9,7 @@
-> > #define __LINUX_MII_H__
+>>If this is the case, then after the changes to kallsyms go in, procps 
+>>could start using wchan directly and avoid reading the System.map 
+>>altogether.
+> 
+> 
+> Here's an idea: if both name and number were provided
+> at the same time and I could get notified when a module
+> is loaded or unloaded, then I could cache the
+> number-to-name translation.
 
-The patch must have been too long... :-)
+This is more a question of whether kallsyms is a good feature to have 
+always (modulo embedded or very limited memory systems) or not. If 
+kallsyms is always available, the procps tools already read 
+/proc/<pid>/wchan and don't need to cache anything at all. The only 
+reason to cache would be performance, but if you try a recent -mm kernel 
+you can see that there is no need for that any more.
 
-I'll cook-up another version, plus the tiny 2.6 patch as well...
+ From what I've seen on this list since I've joined (almost a year ago), 
+2.4 stack dumps are almost useless[1] whereas the 2.6 ones give very 
+useful information thanks to the function names (and offsets) that lead 
+to the problem.
 
-John
+IMHO we should try to make kallsyms always available, reducing further 
+the space used by the symbol data if necessary.
+
 -- 
-John W. Linville
-linville@tuxdriver.com
+Paulo Marques - www.grupopie.com
+
+To err is human, but to really foul things up requires a computer.
+Farmers' Almanac, 1978
+
+[1] of course using ksymoops would solve this, but it requires more 
+knowledge from the user than kallsyms, so it is not the same thing

@@ -1,101 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129911AbQK3Ev6>; Wed, 29 Nov 2000 23:51:58 -0500
+        id <S129760AbQK3EwA>; Wed, 29 Nov 2000 23:52:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129760AbQK3Evs>; Wed, 29 Nov 2000 23:51:48 -0500
+        id <S129761AbQK3Evs>; Wed, 29 Nov 2000 23:51:48 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:25872 "EHLO zeus.kernel.org")
-        by vger.kernel.org with ESMTP id <S129911AbQK3Ev3>;
-        Wed, 29 Nov 2000 23:51:29 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
-MIME-Version: 1.0
+        by vger.kernel.org with ESMTP id <S129933AbQK3Ev2>;
+        Wed, 29 Nov 2000 23:51:28 -0500
+Date: Wed, 29 Nov 2000 21:47:32 -0600
+To: linux-kernel@vger.kernel.org
+Subject: kernel BUG at page_alloc.c:84!
+Message-ID: <20001129214732.A2513@intolerance.digitalpassage.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14885.51636.553524.593379@wire.cadcamlab.org>
-Date: Wed, 29 Nov 2000 21:29:56 -0600 (CST)
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [uPATCH] small __initdata fixes
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: Stephen Crowley <stephenc@digitalpassage.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've been noticing some nasty problems with 2.4.0-test11-pre7, constantly
+getting out of memory problems running megahal ( a conversation generator),
+I think it has a memory leak.. nothing else seems to cause this.
 
-gcc has a minor bug[1]: __attribute__(("section")) is ignored for the
-'.rodata' section.  This means that string constants cannot be
-__initdata -- we have to use arrays instead.  The other workaround is
-to use -fwritable-strings, which would be much worse.
+Nov 29 21:36:41 intolerance kernel: kernel BUG at page_alloc.c:84!
+Nov 29 21:36:41 intolerance kernel: invalid operand: 0000
+Nov 29 21:36:41 intolerance kernel: CPU:    0
+Nov 29 21:36:41 intolerance kernel: EIP:    0010:[__free_pages_ok+73/824]
+Nov 29 21:36:41 intolerance kernel: EFLAGS: 00010282
+Nov 29 21:36:41 intolerance kernel: eax: 0000001f   ebx: c100c89c   ecx: c0257828   edx: 00000000
+Nov 29 21:36:41 intolerance kernel: esi: 000003ce   edi: c8c22098   ebp: 00000000   esp: cd80de68
+Nov 29 21:36:41 intolerance kernel: ds: 0018   es: 0018   ss: 0018
+Nov 29 21:36:41 intolerance kernel: Process megahal (pid: 31863, stackpage=cd80d000)
+Nov 29 21:36:41 intolerance kernel: Stack: c0211c72 c0211e60 00000054 c100c89c 000003ce c8c22098 ce67a0c8 c1044010 
+Nov 29 21:36:41 intolerance kernel:        c02588e0 00000207 ffffffff 0000317e c012a847 c012ac7b 00400000 000003ce 
+Nov 29 21:36:41 intolerance kernel:        c011fa5a c100c89c cabbdfa0 08050000 cec55960 024a3000 c8c22098 09800000 
+Nov 29 21:36:41 intolerance kernel: Call Trace: [tvecs+8030/43772] [tvecs+8524/43772] [__free_pages+19/20] [free_page_and_swap_cache+131/136] [zap_page_range+374/504] [exit_mmap+201/288] [mmput+21/44] 
+Nov 29 21:36:41 intolerance kernel:        [do_exit+165/508] [do_signal+544/636] [do_page_fault+0/988] [update_process_times+29/144] [update_wall_time+11/60] [timer_bh+36/604] [timer_interrupt+95/264] [bh_action+27/96] 
+Nov 29 21:36:41 intolerance kernel:        [tasklet_hi_action+60/96] [do_softirq+63/100] [do_IRQ+161/176] [error_code+52/60] [signal_return+20/24] 
+Nov 29 21:36:41 intolerance kernel: Code: 0f 0b 83 c4 0c 89 f6 89 d8 2b 05 38 c8 2b c0 69 c0 f1 f0 f0 
 
-[1] OK so it's arguable whether or not this is a bug, but IMO it is,
-    because the contents of static string constants are handled
-    differently from static arrays and structs.
+Does that backtrace provide anything useful?
 
-A quick grep finds the following violators....
-
-Peter
-
-
-diff -urk~ 2.4.0test12pre2/arch/i386/kernel/setup.c~ 2.4.0test12pre2/arch/i386/kernel/setup.c
---- 2.4.0test12pre2/arch/i386/kernel/setup.c~	Tue Nov 28 21:54:43 2000
-+++ 2.4.0test12pre2/arch/i386/kernel/setup.c	Wed Nov 29 21:10:28 2000
-@@ -2060,7 +2060,7 @@
- 
- 
- /* These need to match <asm/processor.h> */
--static char *cpu_vendor_names[] __initdata = {
-+static char cpu_vendor_names[][10] __initdata = {
- 	"Intel", "Cyrix", "AMD", "UMC", "NexGen", "Centaur", "Rise", "Transmeta" };
- 
- 
-diff -urk~ 2.4.0test12pre2/drivers/char/serial.c~ 2.4.0test12pre2/drivers/char/serial.c
---- 2.4.0test12pre2/drivers/char/serial.c~	Tue Nov 28 21:54:49 2000
-+++ 2.4.0test12pre2/drivers/char/serial.c	Wed Nov 29 21:12:20 2000
-@@ -4972,7 +4972,7 @@
- 			irq->map = map;
- }
- 
--static char *modem_names[] __initdata = {
-+static char modem_names[][8] __initdata = {
-        "MODEM", "Modem", "modem", "FAX", "Fax", "fax",
-        "56K", "56k", "K56", "33.6", "28.8", "14.4",
-        "33,600", "28,800", "14,400", "33.600", "28.800", "14.400",
-diff -urk~ 2.4.0test12pre2/drivers/isdn/hisax/hscx.c~ 2.4.0test12pre2/drivers/isdn/hisax/hscx.c
---- 2.4.0test12pre2/drivers/isdn/hisax/hscx.c~	Tue Nov 28 21:53:44 2000
-+++ 2.4.0test12pre2/drivers/isdn/hisax/hscx.c	Wed Nov 29 21:11:46 2000
-@@ -16,7 +16,7 @@
- #include "isdnl1.h"
- #include <linux/interrupt.h>
- 
--static char *HSCXVer[] __initdata =
-+static char HSCXVer[][6] __initdata =
- {"A1", "?1", "A2", "?3", "A3", "V2.1", "?6", "?7",
-  "?8", "?9", "?10", "?11", "?12", "?13", "?14", "???"};
- 
-diff -urk~ 2.4.0test12pre2/drivers/isdn/hisax/icc.c~ 2.4.0test12pre2/drivers/isdn/hisax/icc.c
---- 2.4.0test12pre2/drivers/isdn/hisax/icc.c~	Tue Nov 28 21:53:45 2000
-+++ 2.4.0test12pre2/drivers/isdn/hisax/icc.c	Wed Nov 29 21:10:53 2000
-@@ -25,7 +25,7 @@
- #define DBUSY_TIMER_VALUE 80
- #define ARCOFI_USE 0
- 
--static char *ICCVer[] __initdata =
-+static char ICCVer[][12] __initdata =
- {"2070 A1/A3", "2070 B1", "2070 B2/B3", "2070 V2.4"};
- 
- void
-diff -urk~ 2.4.0test12pre2/drivers/isdn/hisax/w6692.c~ 2.4.0test12pre2/drivers/isdn/hisax/w6692.c
---- 2.4.0test12pre2/drivers/isdn/hisax/w6692.c~	Tue Nov 28 21:53:50 2000
-+++ 2.4.0test12pre2/drivers/isdn/hisax/w6692.c	Wed Nov 29 21:11:13 2000
-@@ -51,7 +51,7 @@
- 
- #define DBUSY_TIMER_VALUE 80
- 
--static char *W6692Ver[] __initdata =
-+static char W6692Ver[][10] __initdata =
- {"W6692 V00", "W6692 V01", "W6692 V10",
-  "W6692 V11"};
- 
+-- 
+Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

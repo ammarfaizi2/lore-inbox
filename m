@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135704AbRD2JS1>; Sun, 29 Apr 2001 05:18:27 -0400
+	id <S135701AbRD2JR5>; Sun, 29 Apr 2001 05:17:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135706AbRD2JSS>; Sun, 29 Apr 2001 05:18:18 -0400
-Received: from www.linux.org.uk ([195.92.249.252]:48393 "EHLO www.linux.org.uk")
-	by vger.kernel.org with ESMTP id <S135704AbRD2JSM>;
-	Sun, 29 Apr 2001 05:18:12 -0400
-Date: Sun, 29 Apr 2001 10:17:39 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Zerocopy implementation issues
-Message-ID: <20010429101739.D30243@flint.arm.linux.org.uk>
-Mail-Followup-To: Russell King <rmk@flint.arm.linux.org.uk>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010429005206.J21792@flint.arm.linux.org.uk> <15083.40318.158099.137018@pizda.ninka.net> <20010429072342.B30041@flint.arm.linux.org.uk> <15083.52835.992666.897323@pizda.ninka.net>
-Mime-Version: 1.0
+	id <S135704AbRD2JRr>; Sun, 29 Apr 2001 05:17:47 -0400
+Received: from mailg.telia.com ([194.22.194.26]:54237 "EHLO mailg.telia.com")
+	by vger.kernel.org with ESMTP id <S135701AbRD2JRi>;
+	Sun, 29 Apr 2001 05:17:38 -0400
+Message-ID: <3AEBDC24.A6C55D05@canit.se>
+Date: Sun, 29 Apr 2001 11:17:24 +0200
+From: Kenneth Johansson <ken@canit.se>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jonathan Lundell <jlundell@pobox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and 2GB swap partition limit
+In-Reply-To: <200104281804.f3SI4ar368494@saturn.cs.uml.edu> <p05100304b71121ec85c7@[207.213.213.109]>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15083.52835.992666.897323@pizda.ninka.net>; from davem@redhat.com on Sun, Apr 29, 2001 at 01:18:43AM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 29, 2001 at 01:18:43AM -0700, David S. Miller wrote:
-> Occaisionally I find that sparc64 is making a gross error or invalid
-> assumption, and I accept this and fix it up.
+Jonathan Lundell wrote:
 
-Ok, I see precisely what's going on here now, shame you didn't explain
-about these csum_add stuff in your first mail on this subject, and
-we could've saved going down this path.
+>
+> (Does Linux swap out text, by the way, he asks ignorantly?)
 
-I'll fix up the ARM code, but its not going to be nice.
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+.text is just droped and read back from the actuall file it's not put into the swap
 

@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269655AbUJMIPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267760AbUJMIYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269655AbUJMIPu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 04:15:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269656AbUJMIPu
+	id S267760AbUJMIYy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 04:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267746AbUJMIYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 04:15:50 -0400
-Received: from mail4.hitachi.co.jp ([133.145.228.5]:20138 "EHLO
-	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP id S269655AbUJMIPq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 04:15:46 -0400
-Message-ID: <416CE442.7020909@sdl.hitachi.co.jp>
-Date: Wed, 13 Oct 2004 17:16:02 +0900
-From: Hideo AOKI <aoki@sdl.hitachi.co.jp>
-Organization: Systems Development Lab., Hitachi, Ltd.
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: ja
-MIME-Version: 1.0
-To: Wen-chien Jesse Sung <jesse@opnet.com.tw>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc4-mm1
-References: <20041011032502.299dc88d.akpm@osdl.org> <1097653366.6209.15.camel@libra>
-In-Reply-To: <1097653366.6209.15.camel@libra>
-Content-Type: text/plain; charset=us-ascii
+	Wed, 13 Oct 2004 04:24:54 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:56082 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S267678AbUJMIYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 04:24:52 -0400
+Subject: Re: Fw: signed kernel modules?
+From: David Woodhouse <dwmw2@infradead.org>
+To: "Rusty Russell (IBM)" <rusty@au1.ibm.com>
+Cc: Greg KH <greg@kroah.com>, dhowells <dhowells@redhat.com>,
+       rusty@ozlabs.au.ibm.com.kroah.org, Arjan van de Ven <arjanv@redhat.com>,
+       Joy Latten <latten@us.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1097626835.4013.37.camel@localhost.localdomain>
+References: <30797.1092308768@redhat.com>
+	 <20040812111853.GB25950@devserv.devel.redhat.com>
+	 <20040812200917.GD2952@kroah.com> <26280.1092388799@redhat.com>
+	 <27175.1095936746@redhat.com> <30591.1096451074@redhat.com>
+	 <10345.1097507482@redhat.com>
+	 <1097507755.318.332.camel@hades.cambridge.redhat.com>
+	 <1097534090.16153.7.camel@localhost.localdomain>
+	 <1097570159.5788.1089.camel@baythorne.infradead.org>
+	 <20041012190826.GB31353@kroah.com>
+	 <1097626835.4013.37.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 13 Oct 2004 09:24:13 +0100
+Message-Id: <1097655853.5178.31.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 (2.0.1-4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wen-chien Jesse Sung wrote:
-
-> kernel/sysctl.c does not compile if CONFIG_SWAP=n.
+On Wed, 2004-10-13 at 10:20 +1000, Rusty Russell (IBM) wrote:
+> On Wed, 2004-10-13 at 05:08, Greg KH wrote:
+> > On Tue, Oct 12, 2004 at 09:35:59AM +0100, David Woodhouse wrote:
+> > > 
+> > > We know _precisely_ what the kernel looks at -- we wrote its linker. It
+> > > really isn't that hard.
+> > 
+> > I agree.  We have to be able to detect improper header information for
+> > unsigned modules today, nothing new there.
 > 
-> --- 2.6.9-rc4-mm1/kernel/sysctl.c  (revision 16)
-> +++ 2.6.9-rc4-mm1/kernel/sysctl.c  (local)
-> @@ -813,6 +813,7 @@
->  		.mode		= 0644,
->  		.proc_handler	= &proc_dointvec,
->  	},
-> +#ifdef CONFIG_SWAP
->  	{
->  		.ctl_name	= VM_SWAP_TOKEN_TIMEOUT,
->  		.procname	= "swap_token_timeout",
-> @@ -822,6 +823,7 @@
->  		.proc_handler	= &proc_dointvec_jiffies,
->  		.strategy	= &sysctl_jiffies,
->  	},
-> +#endif
->  	{ .ctl_name = 0 }
->  };
+> No, we *don't*.  We check that it's the right arch, and ELF, and not
+> truncated.  Then we trust the contents.
 
-Hello, Wen-chien
+"We have to" != "We actually do". He's right. You're right. We _have_ to
+do this already, but we suck and actually we don't. David's working on
+that, I believe.
 
-Your fix is correct.
-
-Thank you. 
-
-Hideo AOKI
-
-Systems Development Laboratory, Hitachi, Ltd.
+-- 
+dwmw2
 

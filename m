@@ -1,27 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268854AbUJPUkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268864AbUJPUnN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268854AbUJPUkr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 16:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268856AbUJPUkr
+	id S268864AbUJPUnN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 16:43:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268877AbUJPUnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 16:40:47 -0400
-Received: from gprs214-153.eurotel.cz ([160.218.214.153]:49536 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S268854AbUJPUkq (ORCPT
+	Sat, 16 Oct 2004 16:43:12 -0400
+Received: from gprs214-153.eurotel.cz ([160.218.214.153]:50048 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S268864AbUJPUmV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 16:40:46 -0400
-Date: Sat, 16 Oct 2004 22:40:27 +0200
+	Sat, 16 Oct 2004 16:42:21 -0400
+Date: Sat, 16 Oct 2004 22:42:06 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ncunningham@linuxmail.org, pascal.schmidt@email.de,
-       Stefan Seyfried <seife@suse.de>
-Subject: Re: swsusp: 8-order allocation failure on demand (update)
-Message-ID: <20041016204027.GA24434@elf.ucw.cz>
-References: <2HO0C-4xh-29@gated-at.bofh.it> <200410142354.25665.rjw@sisk.pl> <20041016164347.GA2636@atrey.karlin.mff.cuni.cz> <200410162131.19761.rjw@sisk.pl>
+To: M?ns Rullg?rd <mru@mru.ath.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: High pitched noise from laptop: processor.c in linux 2.6
+Message-ID: <20041016204206.GB24434@elf.ucw.cz>
+References: <41650CAF.1040901@unimail.com.au> <20041007103210.GA32260@atrey.karlin.mff.cuni.cz> <yw1x7jq2n6k3.fsf@mru.ath.cx> <20041007143245.GA1698@openzaurus.ucw.cz> <yw1x1xfyl9ia.fsf@ford.guide>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410162131.19761.rjw@sisk.pl>
+In-Reply-To: <yw1x1xfyl9ia.fsf@ford.guide>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,15 +27,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > Unfortunately that's rather ugly. You'd ~32 bytes per 4K page, that's
-> > almost 1% overhead, not nice. Better solution (but more work) is to
-> > switch to link-lists or integrate swsusp2.
+> >> >> code didn't help much, I don't know C. 
+> >> >
+> >> > Change #define HZ 1000 to #define HZ 100...
+> >> 
+> >> ... and lose all the benefits of HZ=1000.  
+> >
+> > What benefits? HZ=1000 takes 1W more on my system.
 > 
-> Well, I wonder if the page allocation failures are a swsusp problem,
-> really.  
+> Isn't it supposed to give more accurate timing?
 
-Yes, they are. Kernel memory allocation is not design to do 8-order
-allocations properly. swsusp really should not use them.
+Well, yes, but if it beeps for you... Accurate timing is probably not
+that important.
+
+> > 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+> 
+> Has that really happened?
+
+Yes. On gprs it is rather easy to reproduce, unfortunately...
+
 								Pavel
 -- 
 People were complaining that M$ turns users into beta-testers...

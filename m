@@ -1,358 +1,199 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285013AbRLKMcS>; Tue, 11 Dec 2001 07:32:18 -0500
+	id <S285005AbRLKM2R>; Tue, 11 Dec 2001 07:28:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285007AbRLKMcK>; Tue, 11 Dec 2001 07:32:10 -0500
-Received: from ucs.co.za ([196.23.43.2]:42769 "EHLO ucs.co.za")
-	by vger.kernel.org with ESMTP id <S285013AbRLKMb6>;
-	Tue, 11 Dec 2001 07:31:58 -0500
-Subject: PROBLEM: Kernel Oops on cat /proc/ioports
-From: Berend De Schouwer <bds@jhb.ucs.co.za>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 11 Dec 2001 14:29:56 +0200
-Message-Id: <1008073796.5535.5.camel@bds.ucs.co.za>
-Mime-Version: 1.0
+	id <S285007AbRLKM2H>; Tue, 11 Dec 2001 07:28:07 -0500
+Received: from pc-e21-41.frm2.tu-muenchen.de ([129.187.179.41]:11921 "EHLO
+	sisyphos.frm2.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S285005AbRLKM2C>; Tue, 11 Dec 2001 07:28:02 -0500
+From: Jens =?iso-8859-1?q?Kr=FCger?= <jens_krueger@frm2.tu-muenchen.de>
+Reply-To: jens_krueger@frm2.tu-muenchen.de
+Organization: FRMII, TU =?iso-8859-1?q?M=FCnchen?=
+Date: Tue, 11 Dec 2001 13:26:55 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_VKI6SBV7VAFD9D1S3E9L"
+To: linux-kernel@vger.kernel.org, "Martin Mares" <mj@ucw.cz>
+Subject: PCI Subsystem
+MIME-Version: 1.0
+Message-Id: <01121113265507.05223@sisyphos>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.] One line summary of the problem:    
 
-Running "cat /proc/ioports" causes a segfault and kernel oops.
+--------------Boundary-00=_VKI6SBV7VAFD9D1S3E9L
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8bit
 
+Hi, 
+I have a little problem with the PCI subsystem. I tried to use two cards of 
+the Meilhaus Co.. If I use the PCI access mode 'any' I don't get the right 
+I/O ports of the cards. Next I tried the access mode 'Direct' ( the output of 
+the lspci -v  command is listed in the attached file lspci.direct) and the 
+access mode 'BIOS' (the output is stored in the file lspci.bios). There are 
+some little differences in the output, but all seems the same except the 
+output of the two Meilhaus cards. I have no idea for this behaviour. I tried 
+these cards under DOS and I got the same information as for the BIOS access 
+mode (the programm access the BIOS too), but in this mode all other cards 
+especially network card and USB don't work, so I can't  use this mode. My 
+question: Is there any idea (or hack) to solve this problem? 
 
-[2.] Full description of the problem/report:
+With regards 
 
-Running "cat /proc/ioports" may cause cat to segfault, and the kernel to
-Oops.  It doesn't happen immediately after boot -- its required to run
-the kernel for some time (minimum two days for me), and make it do some
-work.
-
-
-[3.] Keywords (i.e., modules, networking, kernel):
-
-kernel, proc
-
-
-[4.] Kernel version (from /proc/version):
-
-Linux version 2.4.14 (root@clo002c.clobea.co.za)
-  (gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-81))
-  #3 SMP Mon Nov 12 15:34:14 SAST 2001
-
-
-[5.] Output of Oops.. message (if applicable) with symbolic information 
-     resolved (see Documentation/oops-tracing.txt)
-
-Unable to handle kernel paging request at virtual address f886bc55
- printing eip:
-c02a925b
-*pde = 37bb5067
-*pte = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[vsnprintf+523/1056]    Not tainted
-EIP:    0010:[<c02a925b>]    Not tainted
-EFLAGS: 00010297
-eax: f886bc55   ebx: d957f16c   ecx: f886bc55   edx: fffffffe
-esi: ffffffff   edi: e98ddec4   ebp: ffffffff   esp: e98dde6c
-ds: 0018   es: 0018   ss: 0018
-Process cat (pid: 29869, stackpage=e98dd000)
-Stack: 00000000 ffffffff 0000000a d760e480 d957f15e 00000006 d9580000 c02a94a6 
-       d957f15e 26a80ea2 c02bd8a6 e98ddeb8 c02a94c4 d957f15e c02bd895 e98ddeb8 
-       c011dcfb d957f15e c02bd895 00003000 0000307f f886bc55 c2838478 d957f15e 
-Call Trace: [vsprintf+22/32] [sprintf+20/32] [do_resource_list+75/128] [do_resource_list+107/128] [get_resource_list+66/96] 
-Call Trace: [<c02a94a6>] [<c02a94c4>] [<c011dcfb>] [<c011dd1b>] [<c011dd72>] 
-   [ioports_read_proc+46/96] [proc_file_read+206/400] [sys_read+150/208] [sys_brk+186/240] [system_call+51/56] 
-   [<c0154eae>] [<c0152a3e>] [<c01368f6>] [<c0127caa>] [<c010712b>] 
-Code: 80 38 00 74 07 40 4a 83 fa ff 75 f4 29 c8 f6 04 24 10 89 c6 
-
-and ksymoops < oops:
-
-Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base
-says c0254350, System.map says c01560b0.  Ignoring ksyms_base entry
-
->>EIP; c02a925b <vsnprintf+20b/420>   <=====
-Trace; c02a94a6 <vsprintf+16/20>
-Trace; c02a94c4 <sprintf+14/20>
-Trace; c011dcfb <do_resource_list+4b/80>
-Trace; c011dd1b <do_resource_list+6b/80>
-Trace; c011dd72 <get_resource_list+42/60>
-Trace; c0154eae <ioports_read_proc+2e/60>
-Trace; c0152a3e <proc_file_read+ce/190>
-Trace; c01368f6 <sys_read+96/d0>
-Trace; c0127caa <sys_brk+ba/f0>
-Trace; c010712b <system_call+33/38>
-Code;  c02a925b <vsnprintf+20b/420>
-00000000 <_EIP>:
-Code;  c02a925b <vsnprintf+20b/420>   <=====
-   0:   80 38 00                  cmpb   $0x0,(%eax)   <=====
-Code;  c02a925e <vsnprintf+20e/420>
-   3:   74 07                     je     c <_EIP+0xc> c02a9267 <vsnprintf+217/420>
-Code;  c02a9260 <vsnprintf+210/420>
-   5:   40                        inc    %eax
-Code;  c02a9261 <vsnprintf+211/420>
-   6:   4a                        dec    %edx
-Code;  c02a9262 <vsnprintf+212/420>
-   7:   83 fa ff                  cmp    $0xffffffff,%edx
-Code;  c02a9265 <vsnprintf+215/420>
-   a:   75 f4                     jne    0 <_EIP>
-Code;  c02a9267 <vsnprintf+217/420>
-   c:   29 c8                     sub    %ecx,%eax
-Code;  c02a9269 <vsnprintf+219/420>
-   e:   f6 04 24 10               testb  $0x10,(%esp,1)
-Code;  c02a926d <vsnprintf+21d/420>
-  12:   89 c6                     mov    %eax,%esi
-
-
-
-[6.] A small shell script or example program which triggers the
-     problem (if possible)
-
-cat /proc/ioports
-
-
-[7.] Environment
-[7.1.] Software (add the output of the ver_linux script here)
-
-Linux clo002c.clobea.co.za 2.4.14 #3 SMP Mon Nov 12 15:34:14 SAST 2001 i686 unknown
- 
-Gnu C                  2.96
-Gnu make               3.79.1
-binutils               2.10.91.0.2
-util-linux             2.11b
-mount                  2.11b
-modutils               2.4.2
-e2fsprogs              1.19
-PPP                    2.4.0
-isdn4k-utils           3.1pre1
-Linux C Library        2.2.2
-Dynamic linker (ldd)   2.2.2
-Procps                 2.0.7
-Net-tools              1.57
-Console-tools          0.3.3
-Sh-utils               2.0
-Modules Loaded         cyclades eepro100
-
-
-[7.2.] Processor information (from /proc/cpuinfo):
-
-
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 8
-model name	: Pentium III (Coppermine)
-stepping	: 10
-cpu MHz		: 999.584
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips	: 1992.29
-
-processor	: 1
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 8
-model name	: Pentium III (Coppermine)
-stepping	: 10
-cpu MHz		: 999.584
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips	: 1998.84
-
-
-[7.3.] Module information (from /proc/modules):
-
-cyclades              147616  16 (autoclean)
-eepro100               16960   1 (autoclean)
-
-
-[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
-
-I can't add this :(  It causes the oops.
-
-
-[7.5.] PCI information ('lspci -vvv' as root)
-
-00:00.0 Host bridge: ServerWorks CNB20LE (rev 06)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 32, cache line size 08
-
-00:00.1 Host bridge: ServerWorks CNB20LE (rev 06)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32, cache line size 08
-
-00:07.0 Communication controller: Cyclades Corporation Cyclom_Y below first megabyte (rev 01)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32
-	Interrupt: pin A routed to IRQ 25
-	Region 0: Memory at 61100000 (32-bit, non-prefetchable) [size=128]
-	Region 1: I/O ports at 3000 [size=128]
-	Region 2: Memory at 000dc000 (low-1M, non-prefetchable) [size=16K]
-	Expansion ROM at 61120000 [disabled] [size=4K]
-
-00:0b.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 08)
-	Subsystem: Intel Corporation 82559 Fast Ethernet LAN on Motherboard
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 (2000ns min, 14000ns max), cache line size 08
-	Interrupt: pin A routed to IRQ 17
-	Region 0: Memory at 63200000 (32-bit, non-prefetchable) [size=4K]
-	Region 1: I/O ports at 3800 [size=64]
-	Region 2: Memory at 63300000 (32-bit, non-prefetchable) [size=1M]
-	Expansion ROM at 63400000 [disabled] [size=1M]
-	Capabilities: [dc] Power Management version 2
-		Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
-00:0d.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 65) (prog-if 00 [VGA])
-	Subsystem: ATI Technologies Inc: Unknown device 0008
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 (2000ns min), cache line size 08
-	Interrupt: pin A routed to IRQ 16
-	Region 0: Memory at 62000000 (32-bit, non-prefetchable) [size=16M]
-	Region 1: I/O ports at 3400 [size=256]
-	Region 2: Memory at 61400000 (32-bit, non-prefetchable) [size=4K]
-	Expansion ROM at 61420000 [disabled] [size=128K]
-	Capabilities: [5c] Power Management version 1
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0f.0 ISA bridge: ServerWorks OSB4 (rev 50)
-	Subsystem: ServerWorks OSB4
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-
-00:0f.1 IDE interface: ServerWorks: Unknown device 0211 (prog-if 8a [Master SecP PriP])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32
-	Region 4: I/O ports at 30c0 [size=16]
-
-00:0f.2 USB Controller: ServerWorks: Unknown device 0220 (rev 04) (prog-if 10 [OHCI])
-	Subsystem: ServerWorks: Unknown device 0220
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 (20000ns max), cache line size 08
-	Interrupt: pin A routed to IRQ 15
-	Region 0: Memory at 63f00000 (32-bit, non-prefetchable) [size=4K]
-
-01:03.0 SCSI storage controller: Adaptec 7899P (rev 01)
-	Subsystem: Citicorp TTI: Unknown device 10e3
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 (10000ns min, 6250ns max), cache line size 08
-	Interrupt: pin A routed to IRQ 19
-	BIST result: 00
-	Region 0: I/O ports at 5000 [disabled] [size=256]
-	Region 1: Memory at 63c20000 (64-bit, non-prefetchable) [size=4K]
-	Expansion ROM at 63c40000 [disabled] [size=128K]
-	Capabilities: [dc] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-01:03.1 SCSI storage controller: Adaptec 7899P (rev 01)
-	Subsystem: Citicorp TTI: Unknown device 10e3
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 (10000ns min, 6250ns max), cache line size 08
-	Interrupt: pin B routed to IRQ 18
-	BIST result: 00
-	Region 0: I/O ports at 5400 [disabled] [size=256]
-	Region 1: Memory at 63c21000 (64-bit, non-prefetchable) [size=4K]
-	Expansion ROM at 63c60000 [disabled] [size=128K]
-	Capabilities: [dc] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-01:06.0 PCI bridge: Intel Corporation: Unknown device 0962 (rev 02) (prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32, cache line size 08
-	Bus: primary=01, secondary=02, subordinate=02, sec-latency=32
-	I/O behind bridge: 0000f000-00000fff
-	Memory behind bridge: fff00000-000fffff
-	Prefetchable memory behind bridge: fff00000-000fffff
-	BridgeCtl: Parity+ SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
-
-01:06.1 RAID bus controller: Mylex Corporation: Unknown device 0050 (rev 02)
-	Subsystem: Mylex Corporation: Unknown device 0052
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32, cache line size 08
-	Interrupt: pin A routed to IRQ 20
-	Region 0: Memory at 63e00000 (32-bit, prefetchable) [size=8K]
-	Expansion ROM at 63c00000 [disabled] [size=32K]
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-
-[7.6.] SCSI information (from /proc/scsi/scsi)
-
-Attached devices: 
-Host: scsi1 Channel: 00 Id: 05 Lun: 00
-  Vendor: DEC      Model: DLT2000          Rev: 8B37
-  Type:   Sequential-Access                ANSI SCSI revision: 02
-
-
-[7.7.] Other information that might be relevant to the problem
-       (please look in /proc and include all information that you
-       think to be relevant):
-
-cat /proc/meminfo:
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  1582149632 1576222720  5926912        0   868352 706162688
-Swap: 271392768 15073280 256319488
-MemTotal:      1545068 kB
-MemFree:          5788 kB
-MemShared:           0 kB
-Buffers:           848 kB
-Cached:         685944 kB
-SwapCached:       3668 kB
-Active:        1145656 kB
-Inactive:       334440 kB
-HighTotal:      655296 kB
-HighFree:         2044 kB
-LowTotal:       889772 kB
-LowFree:          3744 kB
-SwapTotal:      265032 kB
-SwapFree:       250312 kB
-
-
-[X.] Other notes, patches, fixes, workarounds:
-
-I've had it with 2.4.12, 2.4.12-ac, and 2.4.14.  I've tested the RAM
-with memtest86, and memtest, and haven't found a problem yet.  Oddly
-enough I can run "cat /proc/ioports" right after the machine boots, but
-not after its done some work.  The address listed in "Cannot handle
-kernel paging request" is always the same.  Workaround: don't do that.
-
-
-Thank you
+Jens
 -- 
-Berend De Schouwer
 
+Jens Krüger
+
+Technische Universität München
+ZBE FRM-II
+Lichtenberg-Str. 1
+D-85747 Garching
+
+Tel: + 49 89 289 14 716
+Fax: + 49 89 289 14 666
+mailto:jens_krueger@frm2.tu-muenchen.de
+http://www.frm2.tu-muenchen.de
+--------------Boundary-00=_VKI6SBV7VAFD9D1S3E9L
+Content-Type: text/plain;
+  name="lspci.bios"
+Content-Transfer-Encoding: base64
+Content-Description: output  from lspci -v with PCI-BIOS access
+Content-Disposition: attachment; filename="lspci.bios"
+
+MDA6MDAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gODI4MTBFIEdNQ0ggW0dyYXBo
+aWNzIE1lbW9yeSBDb250cm9sbGVyIEh1Yl0gKHJldiAwMykKCUZsYWdzOiBidXMgbWFzdGVyLCBm
+YXN0IGRldnNlbCwgbGF0ZW5jeSAwCgowMDowMS4wIFZHQSBjb21wYXRpYmxlIGNvbnRyb2xsZXI6
+IEludGVsIENvcnBvcmF0aW9uIDgyODEwRSBDR0MgW0NoaXBzZXQgR3JhcGhpY3MgQ29udHJvbGxl
+cl0gKHJldiAwMykgKHByb2ctaWYgMDAgW1ZHQV0pCglGbGFnczogYnVzIG1hc3RlciwgNjZNaHos
+IG1lZGl1bSBkZXZzZWwsIGxhdGVuY3kgMCwgSVJRIDEwCglNZW1vcnkgYXQgODAwMDAwMDAgKDMy
+LWJpdCwgcHJlZmV0Y2hhYmxlKQoJTWVtb3J5IGF0IGMwMDAwMDAwICgzMi1iaXQsIG5vbi1wcmVm
+ZXRjaGFibGUpCglDYXBhYmlsaXRpZXM6IFtkY10gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDEK
+CjAwOjFlLjAgUENJIGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gODI4MDFBQSBQQ0kgQnJpZGdl
+IChyZXYgMDIpIChwcm9nLWlmIDAwIFtOb3JtYWwgZGVjb2RlXSkKCUZsYWdzOiBidXMgbWFzdGVy
+LCBmYXN0IGRldnNlbCwgbGF0ZW5jeSAwCglCdXM6IHByaW1hcnk9MDAsIHNlY29uZGFyeT0wMSwg
+c3Vib3JkaW5hdGU9MDIsIHNlYy1sYXRlbmN5PTY0CglJL08gYmVoaW5kIGJyaWRnZTogMDAwMDkw
+MDAtMDAwMGVmZmYKCU1lbW9yeSBiZWhpbmQgYnJpZGdlOiBjMDEwMDAwMC1jMDRmZmZmZgoJUHJl
+ZmV0Y2hhYmxlIG1lbW9yeSBiZWhpbmQgYnJpZGdlOiA4NDAwMDAwMC04NDNmZmZmZgoKMDA6MWYu
+MCBJU0EgYnJpZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA4MjgwMUFBIElTQSBCcmlkZ2UgKExQQykg
+KHJldiAwMikKCUZsYWdzOiBidXMgbWFzdGVyLCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDAKCjAw
+OjFmLjEgSURFIGludGVyZmFjZTogSW50ZWwgQ29ycG9yYXRpb24gODI4MDFBQSBJREUgKHJldiAw
+MikgKHByb2ctaWYgODAgW01hc3Rlcl0pCglTdWJzeXN0ZW06IEludGVsIENvcnBvcmF0aW9uIDgy
+ODAxQUEgSURFCglGbGFnczogYnVzIG1hc3RlciwgbWVkaXVtIGRldnNlbCwgbGF0ZW5jeSAwCglJ
+L08gcG9ydHMgYXQgZmMwMAoKMDA6MWYuMiBVU0IgQ29udHJvbGxlcjogSW50ZWwgQ29ycG9yYXRp
+b24gODI4MDFBQSBVU0IgKHJldiAwMikgKHByb2ctaWYgMDAgW1VIQ0ldKQoJU3Vic3lzdGVtOiBJ
+bnRlbCBDb3Jwb3JhdGlvbiA4MjgwMUFBIFVTQgoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIG1lZGl1bSBk
+ZXZzZWwsIGxhdGVuY3kgMCwgSVJRIDEwCglJL08gcG9ydHMgYXQgZjgwMAoKMDA6MWYuMyBTTUJ1
+czogSW50ZWwgQ29ycG9yYXRpb24gODI4MDFBQSBTTUJ1cyAocmV2IDAyKQoJU3Vic3lzdGVtOiBJ
+bnRlbCBDb3Jwb3JhdGlvbiA4MjgwMUFBIFNNQnVzCglGbGFnczogbWVkaXVtIGRldnNlbCwgSVJR
+IDEwCglJL08gcG9ydHMgYXQgZjQwMAoKMDE6MDQuMCBFdGhlcm5ldCBjb250cm9sbGVyOiBJbnRl
+bCBDb3Jwb3JhdGlvbiA4MjU1OUVSIChyZXYgMDkpCglGbGFnczogYnVzIG1hc3RlciwgbWVkaXVt
+IGRldnNlbCwgbGF0ZW5jeSA2NCwgSVJRIDEwCglNZW1vcnkgYXQgYzAxMDAwMDAgKDMyLWJpdCwg
+bm9uLXByZWZldGNoYWJsZSkKCUkvTyBwb3J0cyBhdCBlZTAwCglNZW1vcnkgYXQgYzAxMjAwMDAg
+KDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkKCUNhcGFiaWxpdGllczogW2RjXSBQb3dlciBNYW5h
+Z2VtZW50IHZlcnNpb24gMgoKMDE6MDYuMCBQQ0kgYnJpZGdlOiBUZXhhcyBJbnN0cnVtZW50czog
+VW5rbm93biBkZXZpY2UgYWMyOCAocHJvZy1pZiAwMCBbTm9ybWFsIGRlY29kZV0pCglGbGFnczog
+YnVzIG1hc3RlciwgbWVkaXVtIGRldnNlbCwgbGF0ZW5jeSA2NAoJQnVzOiBwcmltYXJ5PTAxLCBz
+ZWNvbmRhcnk9MDIsIHN1Ym9yZGluYXRlPTAyLCBzZWMtbGF0ZW5jeT02NAoJSS9PIGJlaGluZCBi
+cmlkZ2U6IDAwMDA5MDAwLTAwMDBkZmZmCglNZW1vcnkgYmVoaW5kIGJyaWRnZTogYzAyMDAwMDAt
+YzAzZmZmZmYKCVByZWZldGNoYWJsZSBtZW1vcnkgYmVoaW5kIGJyaWRnZTogMDAwMDAwMDA4NDEw
+MDAwMC0wMDAwMDAwMDg0MjAwMDAwCglDYXBhYmlsaXRpZXM6IFtkY10gUG93ZXIgTWFuYWdlbWVu
+dCB2ZXJzaW9uIDEKCjAyOjA5LjAgQ29tbXVuaWNhdGlvbiBjb250cm9sbGVyOiBBcHBsaWVkIE1p
+Y3JvIENpcmN1aXRzIENvcnBvcmF0aW9uOiBVbmtub3duIGRldmljZSAwMDA1CglGbGFnczogYnVz
+IG1hc3RlciwgZmFzdCBkZXZzZWwsIGxhdGVuY3kgNjQsIElSUSAxMAoJTWVtb3J5IGF0IGMwMjAw
+MDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpCglNZW1vcnkgYXQgYzAyMDQwMDAgKDMyLWJp
+dCwgbm9uLXByZWZldGNoYWJsZSkKCU1lbW9yeSBhdCBjMDIwODAwMCAoMzItYml0LCBub24tcHJl
+ZmV0Y2hhYmxlKQoKMDI6MGEuMCBDbGFzcyBmZjAwOiBDb21wdXRlciBCb2FyZHM6IFVua25vd24g
+ZGV2aWNlIDAwMGUKCUZsYWdzOiBidXMgbWFzdGVyLCBmYXN0IGRldnNlbCwgbGF0ZW5jeSA2NCwg
+SVJRIDEwCglJL08gcG9ydHMgYXQgZGUwMAoJSS9PIHBvcnRzIGF0IGRhMDAKCUkvTyBwb3J0cyBh
+dCBkNjAwCgowMjowYi4wIENsYXNzIGZmMDA6IEFwcGxpZWQgTWljcm8gQ2lyY3VpdHMgQ29ycG9y
+YXRpb246IFVua25vd24gZGV2aWNlIDgwZmMKCUZsYWdzOiBtZWRpdW0gZGV2c2VsLCBJUlEgMTAK
+CUkvTyBwb3J0cyBhdCBkMjAwCglJL08gcG9ydHMgYXQgY2UwMAoJSS9PIHBvcnRzIGF0IGNhMDAK
+CjAyOjBlLjAgTXVsdGlwb3J0IHNlcmlhbCBjb250cm9sbGVyOiBNZWlsaGF1cyBFbGVjdHJvbmlj
+IEdtYkg6IFVua25vd24gZGV2aWNlIDkxNTQgKHJldiAwMSkKCVN1YnN5c3RlbTogVW5rbm93biBk
+ZXZpY2UgMDAwNDo5OTEyCglGbGFnczogbWVkaXVtIGRldnNlbCwgSVJRIDEwCglJL08gcG9ydHMg
+YXQgYzYwMAoJSS9PIHBvcnRzIGF0IGMyMDAKCUkvTyBwb3J0cyBhdCBiZTAwCglJL08gcG9ydHMg
+YXQgYmEwMAoKMDI6MGYuMCBTaWduYWwgcHJvY2Vzc2luZyBjb250cm9sbGVyOiBNZWlsaGF1cyBF
+bGVjdHJvbmljIEdtYkg6IFVua25vd24gZGV2aWNlIDA5NjAgKHJldiAwMSkKCVN1YnN5c3RlbTog
+VW5rbm93biBkZXZpY2UgMDBkNDo5OTAzCglGbGFnczogbWVkaXVtIGRldnNlbCwgSVJRIDEwCglN
+ZW1vcnkgYXQgYzAyMDgwODAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkKCUkvTyBwb3J0cyBh
+dCBiNjAwCglJL08gcG9ydHMgYXQgYjIwMAoJTWVtb3J5IGF0IGMwMjA4MTAwICgzMi1iaXQsIG5v
+bi1wcmVmZXRjaGFibGUpCglNZW1vcnkgYXQgYzAyMTAwMDAgKDMyLWJpdCwgbm9uLXByZWZldGNo
+YWJsZSkKCU1lbW9yeSBhdCBjMDI0MDAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKQoK
+
+--------------Boundary-00=_VKI6SBV7VAFD9D1S3E9L
+Content-Type: text/plain;
+  name="lspci.direct"
+Content-Transfer-Encoding: base64
+Content-Description: output from lspci -v with PCI-DIRECT access
+Content-Disposition: attachment; filename="lspci.direct"
+
+MDA6MDAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gODI4MTBFIEdNQ0ggW0dyYXBo
+aWNzIE1lbW9yeSBDb250cm9sbGVyIEh1Yl0gKHJldiAwMykKCUZsYWdzOiBidXMgbWFzdGVyLCBm
+YXN0IGRldnNlbCwgbGF0ZW5jeSAwCgowMDowMS4wIFZHQSBjb21wYXRpYmxlIGNvbnRyb2xsZXI6
+IEludGVsIENvcnBvcmF0aW9uIDgyODEwRSBDR0MgW0NoaXBzZXQgR3JhcGhpY3MgQ29udHJvbGxl
+cl0gKHJldiAwMykgKHByb2ctaWYgMDAgW1ZHQV0pCglGbGFnczogYnVzIG1hc3RlciwgNjZNaHos
+IG1lZGl1bSBkZXZzZWwsIGxhdGVuY3kgMCwgSVJRIDEwCglNZW1vcnkgYXQgODAwMDAwMDAgKDMy
+LWJpdCwgcHJlZmV0Y2hhYmxlKSBbc2l6ZT02NE1dCglNZW1vcnkgYXQgYzAwMDAwMDAgKDMyLWJp
+dCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9NTEyS10KCUNhcGFiaWxpdGllczogW2RjXSBQb3dl
+ciBNYW5hZ2VtZW50IHZlcnNpb24gMQoKMDA6MWUuMCBQQ0kgYnJpZGdlOiBJbnRlbCBDb3Jwb3Jh
+dGlvbiA4MjgwMUFBIFBDSSBCcmlkZ2UgKHJldiAwMikgKHByb2ctaWYgMDAgW05vcm1hbCBkZWNv
+ZGVdKQoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIGZhc3QgZGV2c2VsLCBsYXRlbmN5IDAKCUJ1czogcHJp
+bWFyeT0wMCwgc2Vjb25kYXJ5PTAxLCBzdWJvcmRpbmF0ZT0wMiwgc2VjLWxhdGVuY3k9NjQKCUkv
+TyBiZWhpbmQgYnJpZGdlOiAwMDAwOTAwMC0wMDAwZWZmZgoJTWVtb3J5IGJlaGluZCBicmlkZ2U6
+IGMwMTAwMDAwLWMwNGZmZmZmCglQcmVmZXRjaGFibGUgbWVtb3J5IGJlaGluZCBicmlkZ2U6IDg0
+MDAwMDAwLTg0M2ZmZmZmCgowMDoxZi4wIElTQSBicmlkZ2U6IEludGVsIENvcnBvcmF0aW9uIDgy
+ODAxQUEgSVNBIEJyaWRnZSAoTFBDKSAocmV2IDAyKQoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIG1lZGl1
+bSBkZXZzZWwsIGxhdGVuY3kgMAoKMDA6MWYuMSBJREUgaW50ZXJmYWNlOiBJbnRlbCBDb3Jwb3Jh
+dGlvbiA4MjgwMUFBIElERSAocmV2IDAyKSAocHJvZy1pZiA4MCBbTWFzdGVyXSkKCVN1YnN5c3Rl
+bTogSW50ZWwgQ29ycG9yYXRpb24gODI4MDFBQSBJREUKCUZsYWdzOiBidXMgbWFzdGVyLCBtZWRp
+dW0gZGV2c2VsLCBsYXRlbmN5IDAKCUkvTyBwb3J0cyBhdCBmYzAwIFtzaXplPTE2XQoKMDA6MWYu
+MiBVU0IgQ29udHJvbGxlcjogSW50ZWwgQ29ycG9yYXRpb24gODI4MDFBQSBVU0IgKHJldiAwMikg
+KHByb2ctaWYgMDAgW1VIQ0ldKQoJU3Vic3lzdGVtOiBJbnRlbCBDb3Jwb3JhdGlvbiA4MjgwMUFB
+IFVTQgoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIG1lZGl1bSBkZXZzZWwsIGxhdGVuY3kgMCwgSVJRIDEw
+CglJL08gcG9ydHMgYXQgZjgwMCBbc2l6ZT0zMl0KCjAwOjFmLjMgU01CdXM6IEludGVsIENvcnBv
+cmF0aW9uIDgyODAxQUEgU01CdXMgKHJldiAwMikKCVN1YnN5c3RlbTogSW50ZWwgQ29ycG9yYXRp
+b24gODI4MDFBQSBTTUJ1cwoJRmxhZ3M6IG1lZGl1bSBkZXZzZWwsIElSUSAxMAoJSS9PIHBvcnRz
+IGF0IGY0MDAgW3NpemU9MTZdCgowMTowNC4wIEV0aGVybmV0IGNvbnRyb2xsZXI6IEludGVsIENv
+cnBvcmF0aW9uIDgyNTU5RVIgKHJldiAwOSkKCUZsYWdzOiBidXMgbWFzdGVyLCBtZWRpdW0gZGV2
+c2VsLCBsYXRlbmN5IDY0LCBJUlEgMTAKCU1lbW9yeSBhdCBjMDEwMDAwMCAoMzItYml0LCBub24t
+cHJlZmV0Y2hhYmxlKSBbc2l6ZT00S10KCUkvTyBwb3J0cyBhdCBlZTAwIFtzaXplPTY0XQoJTWVt
+b3J5IGF0IGMwMTIwMDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXplPTEyOEtdCglF
+eHBhbnNpb24gUk9NIGF0IGZmMDAwMDAwIFtkaXNhYmxlZF0gW3NpemU9MU1dCglDYXBhYmlsaXRp
+ZXM6IFtkY10gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDIKCjAxOjA2LjAgUENJIGJyaWRnZTog
+VGV4YXMgSW5zdHJ1bWVudHM6IFVua25vd24gZGV2aWNlIGFjMjggKHByb2ctaWYgMDAgW05vcm1h
+bCBkZWNvZGVdKQoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIG1lZGl1bSBkZXZzZWwsIGxhdGVuY3kgNjQK
+CUJ1czogcHJpbWFyeT0wMSwgc2Vjb25kYXJ5PTAyLCBzdWJvcmRpbmF0ZT0wMiwgc2VjLWxhdGVu
+Y3k9NjQKCUkvTyBiZWhpbmQgYnJpZGdlOiAwMDAwOTAwMC0wMDAwZGZmZgoJTWVtb3J5IGJlaGlu
+ZCBicmlkZ2U6IGMwMjAwMDAwLWMwM2ZmZmZmCglQcmVmZXRjaGFibGUgbWVtb3J5IGJlaGluZCBi
+cmlkZ2U6IDAwMDAwMDAwODQxMDAwMDAtMDAwMDAwMDA4NDIwMDAwMAoJQ2FwYWJpbGl0aWVzOiBb
+ZGNdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAxCgowMjowOS4wIENvbW11bmljYXRpb24gY29u
+dHJvbGxlcjogQXBwbGllZCBNaWNybyBDaXJjdWl0cyBDb3Jwb3JhdGlvbjogVW5rbm93biBkZXZp
+Y2UgMDAwNQoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIGZhc3QgZGV2c2VsLCBsYXRlbmN5IDY0LCBJUlEg
+MTAKCU1lbW9yeSBhdCBjMDIwMDAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT02
+NF0KCU1lbW9yeSBhdCBjMDIwNDAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0x
+NktdCglNZW1vcnkgYXQgYzAyMDgwMDAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9
+MzJdCglFeHBhbnNpb24gUk9NIGF0IGZmMDAwMDAwIFtkaXNhYmxlZF0gW3NpemU9MktdCgowMjow
+YS4wIENsYXNzIGZmMDA6IENvbXB1dGVyIEJvYXJkczogVW5rbm93biBkZXZpY2UgMDAwZQoJRmxh
+Z3M6IGJ1cyBtYXN0ZXIsIGZhc3QgZGV2c2VsLCBsYXRlbmN5IDY0LCBJUlEgMTAKCUkvTyBwb3J0
+cyBhdCBkZTAwIFtzaXplPTY0XQoJSS9PIHBvcnRzIGF0IGRhMDAgW3NpemU9MTZdCglJL08gcG9y
+dHMgYXQgZDYwMCBbc2l6ZT0xNl0KCjAyOjBiLjAgQ2xhc3MgZmYwMDogQXBwbGllZCBNaWNybyBD
+aXJjdWl0cyBDb3Jwb3JhdGlvbjogVW5rbm93biBkZXZpY2UgODBmYwoJRmxhZ3M6IG1lZGl1bSBk
+ZXZzZWwsIElSUSAxMAoJSS9PIHBvcnRzIGF0IGQyMDAgW3NpemU9MTI4XQoJSS9PIHBvcnRzIGF0
+IGNlMDAgW3NpemU9NF0KCUkvTyBwb3J0cyBhdCBjYTAwIFtzaXplPTRdCgowMjowZS4wIE11bHRp
+cG9ydCBzZXJpYWwgY29udHJvbGxlcjogTWVpbGhhdXMgRWxlY3Ryb25pYyBHbWJIOiBVbmtub3du
+IGRldmljZSA5MTU0IChyZXYgMDEpCglTdWJzeXN0ZW06IFVua25vd24gZGV2aWNlIDAwMDQ6OTkx
+MgoJRmxhZ3M6IG1lZGl1bSBkZXZzZWwsIElSUSAxMAoJSS9PIHBvcnRzIGF0IGM2MDAgW3NpemU9
+MTI4XQoJSS9PIHBvcnRzIGF0IGMwMjAwMTAwIFtzaXplPTI1Nl0KCUkvTyBwb3J0cyBhdCBjMDIw
+MDIwMCBbc2l6ZT0yNTZdCglJL08gcG9ydHMgYXQgYmEwMCBbc2l6ZT0yNTZdCgowMjowZi4wIFNp
+Z25hbCBwcm9jZXNzaW5nIGNvbnRyb2xsZXI6IE1laWxoYXVzIEVsZWN0cm9uaWMgR21iSDogVW5r
+bm93biBkZXZpY2UgMDk2MCAocmV2IDAxKQoJU3Vic3lzdGVtOiBVbmtub3duIGRldmljZSAwMGQ0
+Ojk5MDMKCUZsYWdzOiBtZWRpdW0gZGV2c2VsLCBJUlEgMTAKCU1lbW9yeSBhdCBjMDIwODA4MCAo
+MzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0xMjhdCglJL08gcG9ydHMgYXQgYzAyMDAw
+ODAgW3NpemU9MTI4XQoJSS9PIHBvcnRzIGF0IGMwMjAwMDQwIFtzaXplPTE2XQoJTWVtb3J5IGF0
+IGMwMjA4MTAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXplPTI1Nl0KCU1lbW9yeSBh
+dCBjMDIxMDAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT02NEtdCglNZW1vcnkg
+YXQgYzAyNDAwMDAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9MjU2S10KCg==
+
+--------------Boundary-00=_VKI6SBV7VAFD9D1S3E9L--

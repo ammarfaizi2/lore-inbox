@@ -1,28 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317799AbSGaGXq>; Wed, 31 Jul 2002 02:23:46 -0400
+	id <S317809AbSGaHBw>; Wed, 31 Jul 2002 03:01:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317802AbSGaGXq>; Wed, 31 Jul 2002 02:23:46 -0400
-Received: from [203.124.152.3] ([203.124.152.3]:38418 "EHLO
-	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
-	id <S317799AbSGaGXq>; Wed, 31 Jul 2002 02:23:46 -0400
-Date: Wed, 31 Jul 2002 12:02:56 +0530 (IST)
-From: "SATHISH.J" <sathish.j@tatainfotech.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Jukebox driver
-Message-ID: <Pine.LNX.4.10.10207311200570.9115-100000@blrmail>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317811AbSGaHBw>; Wed, 31 Jul 2002 03:01:52 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:24200 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S317809AbSGaHBw>; Wed, 31 Jul 2002 03:01:52 -0400
+X-Envelope-From: kraxel@bytesex.org
+From: Gerd Knorr <kraxel@bytesex.org>
+Message-Id: <200207310708.g6V78E15017319@bytesex.org>
+To: "SATHISH.J" <sathish.j@tatainfotech.com>, linux-kernel@vger.kernel.org
+Subject: Re: Jukebox driver
+In-Reply-To: <Pine.LNX.4.10.10207311200570.9115-100000@blrmail>
+References: <Pine.LNX.4.10.10207311200570.9115-100000@blrmail>
+Date: Wed, 31 Jul 2002 09:08:14 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In lists.linux.kernel, you wrote:
+>  Hi,
+>  
+>  I want to get the source code for jukebox driver on linux. Can someone
+>  please tell me where I can get  it.
 
-I want to get the source code for jukebox driver on linux. Can someone
-please tell me where I can get  it.
+scsi media changer?  => http://bytesex.org/changer.html
 
-Thanks in  advance,
-Sathish.J
+  Gerd
 
-PS:Please send a reply to my ID  as I am not subscribed to this list.
-
+-- 
+You can't please everybody.  And usually if you _try_ to please
+everybody, the end result is one big mess.
+				-- Linus Torvalds, 2002-04-20

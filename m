@@ -1,86 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131244AbQLOVDc>; Fri, 15 Dec 2000 16:03:32 -0500
+	id <S129319AbQLOVLE>; Fri, 15 Dec 2000 16:11:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131409AbQLOVDW>; Fri, 15 Dec 2000 16:03:22 -0500
-Received: from blackdog.wirespeed.com ([208.170.106.25]:40453 "EHLO
-	blackdog.wirespeed.com") by vger.kernel.org with ESMTP
-	id <S131244AbQLOVDM>; Fri, 15 Dec 2000 16:03:12 -0500
-Message-ID: <3A3A7F25.2050203@redhat.com>
-Date: Fri, 15 Dec 2000 14:29:25 -0600
-From: Joe deBlaquiere <jadb@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
+	id <S129485AbQLOVKy>; Fri, 15 Dec 2000 16:10:54 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:27659 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S129319AbQLOVKi>; Fri, 15 Dec 2000 16:10:38 -0500
+Date: Fri, 15 Dec 2000 21:37:27 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Pavel Machek <pavel@suse.cz>
+cc: Chris Lattner <sabre@nondot.org>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <20001215212601.A26758@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.3.96.1001215212408.16023A-100000@artax.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-To: Werner Almesberger <Werner.Almesberger@epfl.ch>
-CC: ferret@phonewave.net, Alexander Viro <viro@math.psu.edu>,
-        LA Walsh <law@sgi.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linus's include file strategy redux
-In-Reply-To: <20001215152137.K599@almesberger.net> <Pine.LNX.3.96.1001215090857.16439A-100000@tarot.mentasm.org> <20001215184644.R573@almesberger.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My solution to this has always been to make a cross compiler environment 
-(even if it is the same processor family). Thusly i386-linux-gcc knows 
-that the target system's include files are in:
+> > > > For one of our demos, we ran a file server on a remote linux box (that we 
+> > > > just had a user account on), mounted it on a kORBit'ized box, and ran
+> > > > programs on SPARC Solaris that accessed the kORBit'ized linux box's file
+> > > > syscalls.  If nothing else, it's pretty nifty what you can do in little
+> > > > code...
+> > > 
+> > > Cool!
+> > > 
+> > > However, can you do one test for me? Do _heavy_ writes on kORBit-ized
+> > > box. That might show you some problems.
+> > 
+> > I guess that when you mmap large files over nfs and write to them, you get
+> > similar problems.
+> > 
+> > > Oh, and try to eat atomic memory by ping -f kORBit-ized box.
+> > 
+> > When linux is out of atomic memory, it will die anyway.
+> 
+> Why should it die?
 
-/usr/local/<project>-tools/i386-linux/include (/linux, /asm)
+Because it is written badly :-(
 
-The other advantage to this is that I can switch my host environment 
-(within reason - compatible host glibcs, ok) and not have to change the 
-target compiler.
+> It is quite easy to make machine run out of atomic
+> memory: just bomb it with lots of packets. It should recover, eventually
 
-Werner Almesberger wrote:
-
-> ferret@phonewave.net wrote:
-> 
->> Just out of curiosity, what would happen with redirection if your source
->> tree for 'the currently running kernel' version happens to be configured
->> for a different 'the currently running kernel', perhaps a machine of a
->> foreign arch that you are cross-compiling for?
-> 
-> 
-> Two choices:
->  1) try to find an alternative. If there's none, fail.
->  2) make the corresponding asm or asm/arch branch available (non-trivial
->     and maybe not desirable)
-> 
-> 
->> I do this: I use ONE machine to compile kernels for five: four i386 and
->> one SUN4C. My other machines don't even HAVE /usr/src/linux, so where does
->> this redirection leave them?
-> 
-> 
-> Depends on your distribution: if it doesn't install any kernel-specific
-> headers, you wouldn't be able to compile programs requiring anything
-> beyond what it provided by your libc. Otherwise, there could be a
-> default location (such as /usr/src/linux is a default location now).
-> 
-> The main advantage of a script would be that one could easily compile
-> for multiple kernels, e.g. with
-> 
-> export TARGET_KERNEL=2.0.4
-> make
-> 
-> Even if your system is running 2.4.13-test1.
-> 
-> The architecture could be obtained from the tree or the tree could be
-> picked based on the architecture. This is a policy decision that could
-> be hidden in the script.
-> 
-> - Werner
-
-
--- 
-Joe deBlaquiere
-Red Hat, Inc.
-307 Wynn Drive
-Huntsville AL, 35805
-voice : (256)-704-9200
-fax   : (256)-837-3839
+Mikulas
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129911AbQLaSHn>; Sun, 31 Dec 2000 13:07:43 -0500
+	id <S129324AbQLaSVG>; Sun, 31 Dec 2000 13:21:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130306AbQLaSHd>; Sun, 31 Dec 2000 13:07:33 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:11525 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129911AbQLaSHS>;
-	Sun, 31 Dec 2000 13:07:18 -0500
-Date: Sun, 31 Dec 2000 18:36:50 +0100
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andi Kleen <ak@suse.de>, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test13-pre5
-Message-ID: <20001231183650.A24467@gruyere.muc.suse.de>
-In-Reply-To: <20001231182127.A24348@gruyere.muc.suse.de> <Pine.LNX.4.10.10012310924500.4029-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10012310924500.4029-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sun, Dec 31, 2000 at 09:27:23AM -0800
+	id <S129370AbQLaSU5>; Sun, 31 Dec 2000 13:20:57 -0500
+Received: from waste.org ([209.173.204.2]:1907 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S129324AbQLaSUm>;
+	Sun, 31 Dec 2000 13:20:42 -0500
+Date: Sun, 31 Dec 2000 11:50:14 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: <jerdfelt@valinux.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [patchlet] enable HP 8200e USB CDRW
+Message-ID: <Pine.LNX.4.30.0012311148340.20511-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 31, 2000 at 09:27:23AM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Sun, 31 Dec 2000, Andi Kleen wrote:
-> > 
-> > Sounds good. It could also be controlled by a CONFIG_SPACE_EFFICIENT for
-> > embedded systems, where you could trade a bit of CPU for less memory overhead 
-> > even on systems where u8 is slow and atomicity doesn't come into play
-> > because it's UP anyways. 
-> 
-> UP has nothing to do with it.
-> 
-> The alpha systems I remember this problem on were all SMP.
+This patchlet lets me use my HP CDRW.
 
-AFAIK alpha has byte instructions now.
+--- linux/drivers/usb/Config.in~	Mon Nov 27 20:10:35 2000
++++ linux/drivers/usb/Config.in	Tue Dec 19 12:21:56 2000
+@@ -32,6 +32,9 @@
+    if [ "$CONFIG_USB_STORAGE" != "n" ]; then
+       bool '    USB Mass Storage verbose debug' CONFIG_USB_STORAGE_DEBUG
+       bool '    Freecom USB/ATAPI Bridge support' CONFIG_USB_STORAGE_FREECOM
++      if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
++          bool '    HP8200e support (EXPERIMENTAL)' CONFIG_USB_STORAGE_HP8200e
++      fi
+    fi
+    dep_tristate '  USB Modem (CDC ACM) support' CONFIG_USB_ACM $CONFIG_USB
+    dep_tristate '  USB Printer support' CONFIG_USB_PRINTER $CONFIG_USB
 
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
--Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

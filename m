@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265711AbTBBWqL>; Sun, 2 Feb 2003 17:46:11 -0500
+	id <S265725AbTBBXWo>; Sun, 2 Feb 2003 18:22:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265725AbTBBWqL>; Sun, 2 Feb 2003 17:46:11 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:63157 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S265711AbTBBWqL>; Sun, 2 Feb 2003 17:46:11 -0500
-Date: Sun, 2 Feb 2003 23:55:40 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH *] use 64 bit jiffies
-Message-ID: <Pine.LNX.4.33.0302022347440.24857-100000@gans.physik3.uni-rostock.de>
+	id <S265736AbTBBXWo>; Sun, 2 Feb 2003 18:22:44 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:45462 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S265725AbTBBXWo>; Sun, 2 Feb 2003 18:22:44 -0500
+Date: Mon, 3 Feb 2003 00:32:12 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: 2.0, 2.2, 2.4, 2.5: fsync buffer race
+Message-ID: <Pine.LNX.4.44.0302022354570.11719-100000@artax.karlin.mff.cuni.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a note that I have rediffed for 2.5.55 the patches that use the 64
-bit jiffies value to avoid uptime and process start time wrap after
-49.5 days. I will push them Linus-wards when he's back.
-They can be retrieved from
+Hi
 
-  http://www.physik3.uni-rostock.de/tim/kernel/2.5/jiffies64-33a.patch.gz
-    (1/3: infrastructure)
-  http://www.physik3.uni-rostock.de/tim/kernel/2.5/jiffies64-33b.patch.gz
-    (2/3: fix uptime wrap)
-  http://www.physik3.uni-rostock.de/tim/kernel/2.5/jiffies64-33c.patch.gz
-    (3/3: 64 bit process start time)
+there's a race condition in filesystem
 
-For discussion see
-  http://www.uwsg.indiana.edu/hypermail/linux/kernel/0211.1/0471.html
-and
-  http://www.uwsg.indiana.edu/hypermail/linux/kernel/0211.1/0847.html
+let's have a two inodes that are placed in the same buffer.
 
-Tim
+call fsync on inode 1
+it goes down to ext2_update_inode [update == 1]
+it calls ll_rw_block at the end
+ll_rw_block starts to write buffer
+ext2_update_inode waits on buffer
+
+while the buffer is writing, another process calls fsync on inode 2
+it goes again to ext2_update_inode
+it calls ll_rw_block
+ll_rw_block sees buffer locked and exits immediatelly
+ext2_update_inode waits for buffer
+the first write finished, ext2_update_inode exits and changes made by
+second proces to inode 2 ARE NOT WRITTEN TO DISK.
+
+This bug causes that when you simultaneously fsync two inodes in the same
+buffer, only the first will be really written to disk.
+
+Mikulas
+
+
+
 

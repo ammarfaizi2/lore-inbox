@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVACWEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbVACWEx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbVACWEb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 17:04:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVACWEa
+	id S261893AbVACWEx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 17:04:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbVACWEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 17:04:30 -0500
-Received: from simmts5.bellnexxia.net ([206.47.199.163]:48581 "EHLO
-	simmts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261895AbVACWDU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 17:03:20 -0500
-Message-ID: <36594.10.10.10.28.1104789706.squirrel@linux1>
-In-Reply-To: <0F9DCB4E-5DD1-11D9-892B-000D9352858E@mac.com>
-References: <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl>
-    <0F9DCB4E-5DD1-11D9-892B-000D9352858E@mac.com>
-Date: Mon, 3 Jan 2005 17:01:46 -0500 (EST)
-Subject: Re: starting with 2.7
-From: "Sean" <seanlkml@sympatico.ca>
-To: "Felipe Alfaro Solana" <lkml@mac.com>
-Cc: "Horst von Brand" <vonbrand@inf.utfsm.cl>, "Adrian Bunk" <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, "Rik van Riel" <riel@redhat.com>,
-       "William Lee Irwin III" <wli@holomorphy.com>,
-       "Maciej Soltysiak" <solt2@dns.toxicfilms.tv>,
-       "Andries Brouwer" <aebr@win.tue.nl>,
-       "William Lee Irwin III" <wli@debian.org>
-User-Agent: SquirrelMail/1.4.3a-7
-X-Mailer: SquirrelMail/1.4.3a-7
+	Mon, 3 Jan 2005 17:04:52 -0500
+Received: from terminus.zytor.com ([209.128.68.124]:48541 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261893AbVACWDM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 17:03:12 -0500
+Message-ID: <41D9C111.2090504@zytor.com>
+Date: Mon, 03 Jan 2005 14:02:57 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+To: Nicholas Miell <nmiell@comcast.net>
+CC: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] get/set FAT filesystem attribute bits
+References: <41D9B1C4.5050507@zytor.com>	 <1104787447.3604.9.camel@localhost.localdomain>	 <41D9BA8B.2000108@zytor.com> <1104788816.3604.17.camel@localhost.localdomain>
+In-Reply-To: <1104788816.3604.17.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, January 3, 2005 4:47 pm, Felipe Alfaro Solana said:
-> On 3 Jan 2005, at 21:59, Horst von Brand wrote:
->
->> Felipe Alfaro Solana <lkml@mac.com> said:
->>
->> [...]
->>
->>> I would like to comment in that the issue is not exclusively targeted
->>> to stability, but the ability to keep up with kernel development. For
->>> example, it was pretty common for older versions of VMWare and NVidia
->>> driver to break up whenever a new kernel version was released.
->>
->> That is the price for closed-source drivers.
->>
->>> I think it's a PITA for developers to rework some of the closed-source
->>> code to adopt the new changes in the Linux kernel.
->>
->> Open up the code. Most of the changes will then be done as a matter of
->> course by others.
->
-> Unfortunately, you can't force the entire hardware industry to open up
-> their drivers.
->
+Nicholas Miell wrote:
+> 
+> That's why I put fatattrs in the system namespace, which is wholly owned
+> by the Linux kernel. Any theoretical FAT-with-xattrs variant would put
+> those xattrs in the user namespace.
+> 
+> On another note, NTFS-style xattrs (aka named streams) are unrelated to
+> Linux xattrs. A named stream is a separate file with a funny name, while
+> a Linux xattr is a named extension to struct stat.
+ >
 
-The point is, they'll have to deal with the burrden of any extra work
-created as a result.   It's not the responsibility of the open source
-developers.   Smart users pick hardware that is well supported by Linux
-and doesn't run the risk of becoming obsolete the day the manufacturer
-decides they don't want to provide drivers any longer.
+OK, that does make it more sensible.  I do note, however, that ext2/ext3 
+do not seem to export their attributes (chattr/lsattr) in this way; I do 
+also note that the xattr code wherever it has been implemented is just 
+painfully complex.
 
-Sean
+I'll see if I can weed it down to some kind of sane size.
 
-
+	-hpa
 

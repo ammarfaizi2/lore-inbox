@@ -1,66 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268432AbRHRV6H>; Sat, 18 Aug 2001 17:58:07 -0400
+	id <S268511AbRHRV7h>; Sat, 18 Aug 2001 17:59:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268511AbRHRV55>; Sat, 18 Aug 2001 17:57:57 -0400
-Received: from oboe.it.uc3m.es ([163.117.139.101]:14596 "EHLO oboe.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S268432AbRHRV5x>;
-	Sat, 18 Aug 2001 17:57:53 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200108182157.f7ILvt832092@oboe.it.uc3m.es>
-Subject: Re: scheduling with io_lock held in 2.4.6
-In-Reply-To: <3B7EC41C.9811D384@zip.com.au> from "Andrew Morton" at "Aug 18,
- 2001 12:38:04 pm"
-To: "Andrew Morton" <akpm@zip.com.au>
-Date: Sat, 18 Aug 2001 23:57:55 +0200 (MET DST)
-CC: "linux kernel" <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S268570AbRHRV72>; Sat, 18 Aug 2001 17:59:28 -0400
+Received: from eriador.apana.org.au ([203.14.152.116]:44559 "EHLO
+	eriador.apana.org.au") by vger.kernel.org with ESMTP
+	id <S268511AbRHRV7X>; Sat, 18 Aug 2001 17:59:23 -0400
+Date: Sun, 19 Aug 2001 07:59:07 +1000
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] CramFS and HighMem
+Message-ID: <20010819075907.A19307@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ReaqsoxgOBHFXBhH"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Andrew Morton wrote:"
-> "Peter T. Breuer" wrote:
-> > 
-> > "Andrew Morton wrote:"
-> > > "Peter T. Breuer" wrote:
-> > > >   Aug 17 01:41:01 xilofon kernel: Scheduling with io lock held in process 1141
-> > 
-> > > Replace the printk with a BUG(), feed the result into ksymooops.
-> > > Or use show_trace(0).
 
-> Suggest you add the BUG() when it occurs, feed it into ksymoops
-> and post it.  All will be revealed.
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Whilst I've viewed dozens of the oopses, the call trace hasn't
-enlightened me (there's usually an interrupt in it, which throws me),
-and adding the oops seemed to destabilize the kernel. Does "atomic_set"
-really work? It seems to be just an indirected write. I am suspicious
-that the atomic writes I tried to do for the data aren't atomic. The
-expansion of atomic_set(&io_request_lock_pid, current_pid()) is:
+This patch replaces page_address in fs/cramfs with kmap.
+-- 
+Debian GNU/Linux 2.2 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
- ((( &io_request_lock_pid )->counter) = (  current_pid() )) ;
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
 
-which doesn't look guarded by anything to me. Is the thory that this
-expands to a single machine code instruction, and memory writes are
-atomic anyway?
+diff -u -r1.1.1.6 -r1.6
+--- fs/cramfs/inode.c	19 Jul 2001 23:14:53 -0000	1.1.1.6
++++ fs/cramfs/inode.c	18 Aug 2001 08:11:14 -0000	1.6
+@@ -374,6 +374,7 @@
+ {
+ 	struct inode *inode = page->mapping->host;
+ 	u32 maxblock, bytes_filled;
++	void *pgdata;
+ 
+ 	maxblock = (inode->i_size + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
+ 	bytes_filled = 0;
+@@ -387,15 +388,18 @@
+ 			start_offset = *(u32 *) cramfs_read(sb, blkptr_offset-4, 4);
+ 		compr_len = (*(u32 *) cramfs_read(sb, blkptr_offset, 4)
+ 			     - start_offset);
++		pgdata = kmap(page);
+ 		if (compr_len == 0)
+ 			; /* hole */
+ 		else
+-			bytes_filled = cramfs_uncompress_block(page_address(page),
++			bytes_filled = cramfs_uncompress_block(pgdata,
+ 				 PAGE_CACHE_SIZE,
+ 				 cramfs_read(sb, start_offset, compr_len),
+ 				 compr_len);
+-	}
+-	memset(page_address(page) + bytes_filled, 0, PAGE_CACHE_SIZE - bytes_filled);
++	} else
++		pgdata = kmap(page);
++	memset(pgdata + bytes_filled, 0, PAGE_CACHE_SIZE - bytes_filled);
++	kunmap(page);
+ 	flush_dcache_page(page);
+ 	SetPageUptodate(page);
+ 	UnlockPage(page);
 
-I'll produce some oops for you tomorrow. But they don't go to log, as
-the io spinlock is held. There are no oops in any of the logs in this debian
-2.2 machine, although syslog is supposed to be directing kern mesages
-to kern.log (and bootup messages indeed do go there).
-
-It's hard for me to experiment as the machine won't reboot remotely
-(smp, apm, yadda, yadda).
-
-I'll see ... btw, the problem seemed to track further to
-blkdev_release_request. Aha aha aha aha aha ... the comment at the
-top of that function says that not only must the io_request_lock be
-held but irqs must be disabled. Do they mean locally or globally? I'm
-holding them off locally (via spin_lock_irqsave).
-
-Peter
+--ReaqsoxgOBHFXBhH--

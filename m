@@ -1,27 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267810AbTAHOAP>; Wed, 8 Jan 2003 09:00:15 -0500
+	id <S267811AbTAHOC6>; Wed, 8 Jan 2003 09:02:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267811AbTAHOAP>; Wed, 8 Jan 2003 09:00:15 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:896 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id <S267810AbTAHOAO>; Wed, 8 Jan 2003 09:00:14 -0500
-Date: Wed, 8 Jan 2003 15:08:54 +0100 (CET)
-From: <folkert@vanheusden.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: status of ntfs write-support in 2.4.20
-Message-ID: <Pine.LNX.4.33.0301081507490.13070-100000@muur.intranet.vanheusden.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267812AbTAHOC6>; Wed, 8 Jan 2003 09:02:58 -0500
+Received: from home.wiggy.net ([213.84.101.140]:37858 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S267811AbTAHOC5>;
+	Wed, 8 Jan 2003 09:02:57 -0500
+Date: Wed, 8 Jan 2003 15:09:30 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: ipv6 stack seems to forget to send ACKs
+Message-ID: <20030108140929.GZ22951@wiggy.net>
+Mail-Followup-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
+	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+References: <20030108135253.GW22951@wiggy.net> <Pine.LNX.4.44.0301081455290.12420-100000@dns.toxicfilms.tv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0301081455290.12420-100000@dns.toxicfilms.tv>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Previously Maciej Soltysiak wrote:
+> stable here.
 
-What is the status of NTFS WRITE(!)-support in 2.4.20?
-Is there any kernel which can do safely writing to windows nt(! not 2000
-or xp) partitions?
+Packages are at http://www.wiggy.net/tmp/xmms/ now.
 
+Wichert.
 
-Folkert
-
+-- 
+Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
+A random hacker

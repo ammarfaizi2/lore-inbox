@@ -1,108 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313791AbSDUUFu>; Sun, 21 Apr 2002 16:05:50 -0400
+	id <S313801AbSDUUPK>; Sun, 21 Apr 2002 16:15:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313795AbSDUUFt>; Sun, 21 Apr 2002 16:05:49 -0400
-Received: from [216.250.138.66] ([216.250.138.66]:10960 "HELO guts.pl.net")
-	by vger.kernel.org with SMTP id <S313791AbSDUUFt>;
-	Sun, 21 Apr 2002 16:05:49 -0400
-Message-ID: <3CC30E11.F034B3A7@utah-nac.org>
-Date: Sun, 21 Apr 2002 13:08:01 -0600
-From: "Jeff V. Merkey" <jmerkey@utah-nac.org>
-Organization: Utah Native American Church
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S313803AbSDUUPJ>; Sun, 21 Apr 2002 16:15:09 -0400
+Received: from 24.159.204.122.roc.nc.chartermi.net ([24.159.204.122]:8466 "EHLO
+	tweedle.cabbey.net") by vger.kernel.org with ESMTP
+	id <S313801AbSDUUPJ>; Sun, 21 Apr 2002 16:15:09 -0400
+Date: Sun, 21 Apr 2002 15:14:58 -0500 (CDT)
+From: Chris Abbey <linux@cabbey.net>
+X-X-Sender: <cabbey@tweedle.cabbey.net>
+To: Christoph Hellwig <hch@infradead.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: possible GPL violation involving linux kernel code
+In-Reply-To: <20020421121732.A16765@infradead.org>
+Message-ID: <Pine.LNX.4.33.0204211510030.1048-100000@tweedle.cabbey.net>
 MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Novell ZenWorks and the GPL
-In-Reply-To: <20020420235348.A11687@vger.timpanogas.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Update,
+Today, Christoph Hellwig wrote:
+> Blah.  First thing you'd do if you were serious would be to contact
+> Promise.
 
-Within about two hours of this email being posted to LKML, All sorts of
-"Linux Source Code" started showing up on
-Novell's website.  Thanks Novell for complying with the GPL.  What's in
-the product appears to reflect the code that was posted.
+As I am not the copyright holder of the material in question I
+can not do that. Only the copyright holder can, at least in this
+country. A good reference: http://fsf.org/licenses/gpl-violation.html
 
-:-)
+> Where the heck did you get the impression from that this is required by
+> the GPL?
 
-Jeff
+Section 3.
 
-FYI
+> Dont't feed the trolls.
 
+sage advice, not sure why I am.
 
-                               20 Apr 2002
-                                       NOVELL: Building the ZENworks
-Imaging Kernel (ZENworks Cool
-                                       Solutions)
-
-                       2.
-                           94%
-                               21 Apr 2002
-                                       NOVELL: AppNotes: How to Install
-NDS Corporate Edition on
-                                       Solaris or Linux
-
-                       3.
-                           92%
-                               21 Apr 2002
-                                       NOVELL: Recovery Using the Local
-Linux Partition
-
-                       4.
-                           92%
-                               21 Apr 2002
-                                       NOVELL: Recommendations for NDS
-eDirectory on Windows NT
-                                       and Linux
-
-                       5.
-                           92%
-                               21 Apr 2002
-                                       NOVELL: How to Install NDS
-Corporate Edition on Solaris or Linux
-
-
-                       6.
-                           92%
-                               20 Apr 2002
-                                       NOVELL: Linux (ZENworks Cool
-Solutions)
-
-                       7.
-                           92%
-                               20 Apr 2002
-                                       NOVELL: Linux Kernel Patch Files
-(ZENworks Cool Solutions)
-
-
-                       8.
-                           91%
-                               20 Apr 2002
-                                       NOVELL: Cool Solutions Free Tools
-by Product
-
-                       9.
-                           91%
-                               20 Apr 2002
-                                       NOVELL: Cool Solutions Free Tools
-by Date
-
-                       10.
-                           91%
-                               20 Apr 2002
-                                       NOVELL: Cool Solutions Free Tools
-by Tool Name
-
-
-                       1 2 3 4 5 6  ...  Next >>
-
-
-
-
+-- 
+Never make a technical decision based upon the politics of the situation.
+Never make a political decision based upon technical issues.
+The only place these realms meet is in the mind of the unenlightened.
+			-- Geoffrey James, The Zen of Programming
 

@@ -1,105 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282976AbRLVXtL>; Sat, 22 Dec 2001 18:49:11 -0500
+	id <S282979AbRLVXjW>; Sat, 22 Dec 2001 18:39:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282978AbRLVXtB>; Sat, 22 Dec 2001 18:49:01 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:58632 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S282976AbRLVXss>;
-	Sat, 22 Dec 2001 18:48:48 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Christoph Hellwig <hch@caldera.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DRM 4.0 support for kernel 2.4.17 
-In-Reply-To: Your message of "Sat, 22 Dec 2001 20:36:02 BST."
-             <20011222203602.A15825@caldera.de> 
+	id <S282976AbRLVXjM>; Sat, 22 Dec 2001 18:39:12 -0500
+Received: from jalon.able.es ([212.97.163.2]:21438 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S282979AbRLVXjD>;
+	Sat, 22 Dec 2001 18:39:03 -0500
+Date: Sun, 23 Dec 2001 00:41:04 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Mike Black <mblack@csihq.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.17
+Message-ID: <20011223004104.G6735@werewolf.able.es>
+In-Reply-To: <Pine.LNX.4.21.0112211439390.7313-100000@freak.distro.conectiva> <002701c18adf$b9f0f140$ac542341@cfl.rr.com> <20011222185940.6a646662.skraw@ithnet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 23 Dec 2001 10:48:36 +1100
-Message-ID: <17474.1009064916@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20011222185940.6a646662.skraw@ithnet.com>; from skraw@ithnet.com on Sat, Dec 22, 2001 at 18:59:40 +0100
+X-Mailer: Balsa 1.3.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Dec 2001 20:36:02 +0100, 
-Christoph Hellwig <hch@caldera.de> wrote:
->I've placed a patch to allow optional drm 4.0 support in kernel 2.4.17
->at:
+
+On 20011222 Stephan von Krawczynski wrote:
+>On Sat, 22 Dec 2001 06:56:44 -0500
+>"Mike Black" <mblack@csihq.com> wrote:
 >
->ftp.kernel.org/pub/linux/kernel/people/hch/patches/v2.4/2.4.17/linux-2.4.17-drm40.patch.bz2
+>> My thanks to for Marcelo's efforts...but....
+>> 
+>> Is there any way we can get Marcelo, Rik, and Andrea to work together on the
+>> "stable" version now (a Linux tribunal)?
 >
->Please report any fedback to me.  It has been submitted to Marcelo for inclusion
->into 2.4.18.
+>Would you mind to give us a short hint on the implicit "instability" you are
+>exactly talking about? I think 2.4.17 is in various ways well worked out and
+>maintained. There are further improvements possible for sure, but that is a
+>normal thing. Anyway I cannot really see any major instability issues that
+>require instant brainstorming. I am confident in Marcelo's maintenance.
+>
 
-Only if the new version cleans up the horrible drm 4.0 Makefile.  The
-separate copy of drmlib in each object and/or the kernel goes against
-the rest of the kbuild design, needs an ugly makefile and AFAICT nobody
-needs the separate copy of drmlib.  I will not maintain that crud into
-kbuild 2.5.
+They are not different branches. Perhaps what is confusing him (and sometimes
+also confuses me), is that there are patches in aa kernel (I am not a
+compulsive patcher...) that look like basic bug fixes or simple but effective
+enhancements that never reach mainline, they are only in aa for ages (looking
+at andrea's dir in ftp.kernel.org: all the _vm patches, the spinlock-cacheline,
+compiler.h, rwsem, parent-timeslice, etc.). Nothing wrt numa, tux, uml or lvm.
 
-drivers/char/drm-4.0/Makefile below uses the standard kbuild design.
-One copy of drmlib-4.0 which is built into the kernel if any drm 4.0
-drivers are built in, otherwise drmlib-4.0 is a module if there are any
-drm 4.0 modules.  Totally untested.
+How about a 18-pre1 taking from aa all that is usefull and not really intrusive ?
 
-Some of the code in $(drmlib-4.0-objs) will need EXPORT_SYMBOLS to work
-when drm 4.0 drivers are compiled as modules.
 
-#
-# Makefile for the drm device driver.  This driver provides support for
-# the Direct Rendering Infrastructure (DRI) in XFree86 4.x.
-#
-
-O_TARGET	:= drm.o
-
-export-objs     := gamma_drv.o tdfx_drv.o r128_drv.o ffb_drv.o mga_drv.o \
-		   i810_drv.o
-
-list-multi	:= gamma.o tdfx.o r128.o ffb.o mga.o i810.o drmlib-4.0
-gamma-objs	:= gamma_drv.o  gamma_dma.o
-tdfx-objs	:= tdfx_drv.o                 tdfx_context.o
-r128-objs	:= r128_drv.o   r128_cce.o    r128_context.o r128_bufs.o r128_state.o
-ffb-objs	:= ffb_drv.o                  ffb_context.o
-mga-objs	:= mga_drv.o    mga_dma.o     mga_context.o  mga_bufs.o  mga_state.o
-i810-objs	:= i810_drv.o   i810_dma.o    i810_context.o i810_bufs.o
-radeon-objs	:= radeon_drv.o radeon_cp.o   radeon_context.o radeon_bufs.o radeon_state.o
-drmlib-4.0-objs	:= init.o memory.o proc.o auth.o context.o drawable.o bufs.o \
-		   lists.o lock.o ioctl.o fops.o vm.o dma.o ctxbitmap.o
-
-ifneq ($(subst n,,$(CONFIG_AGP)),)
-  drmlib-4.0-objs  += agpsupport.o
-endif
-
-obj-$(CONFIG_DRM40_GAMMA) += gamma.o	drmlib-4.0.o
-obj-$(CONFIG_DRM40_TDFX)  += tdfx.o	drmlib-4.0.o
-obj-$(CONFIG_DRM40_R128)  += r128.o	drmlib-4.0.o
-obj-$(CONFIG_DRM40_RADEON)+= radeon.o	drmlib-4.0.o
-obj-$(CONFIG_DRM40_FFB)   += ffb.o	drmlib-4.0.o
-obj-$(CONFIG_DRM40_MGA)   += mga.o	drmlib-4.0.o
-obj-$(CONFIG_DRM40_I810)  += i810.o	drmlib-4.0.o
-
-include $(TOPDIR)/Rules.make
-
-drmlib-4.0.o: $(drmlib-4.0-objs)
-	$(LD) -r -o $@ $^
-
-gamma.o: $(gamma-objs)
-	$(LD) -r -o $@ $^
-
-tdfx.o: $(tdfx-objs)
-	$(LD) -r -o $@ $^
-
-mga.o: $(mga-objs)
-	$(LD) -r -o $@ $^
-
-i810.o: $(i810-objs)
-	$(LD) -r -o $@ $^
-
-r128.o: $(r128-objs)
-	$(LD) -r -o $@ $^
-
-radeon.o: $(radeon-objs)
-	$(LD) -r -o $@ $^
-
-ffb.o: $(ffb-objs)
-	$(LD) -r -o $@ $^
-
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.17-beo #1 SMP Fri Dec 21 21:39:36 CET 2001 i686

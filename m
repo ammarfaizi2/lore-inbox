@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261751AbTCLPy0>; Wed, 12 Mar 2003 10:54:26 -0500
+	id <S261767AbTCLP6f>; Wed, 12 Mar 2003 10:58:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261754AbTCLPy0>; Wed, 12 Mar 2003 10:54:26 -0500
-Received: from comtv.ru ([217.10.32.4]:13005 "EHLO comtv.ru")
-	by vger.kernel.org with ESMTP id <S261751AbTCLPyX>;
-	Wed, 12 Mar 2003 10:54:23 -0500
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: ext2-devel@lists.sourceforge.net, Andrew Morton <akpm@digeo.com>,
-       Alex Tomas <bzzz@tmi.comex.ru>
-Subject: [PATCH] minor bugfix agains ext2
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: 12 Mar 2003 18:57:26 +0300
-Message-ID: <m3hea84ly1.fsf@lexa.home.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S261765AbTCLP6f>; Wed, 12 Mar 2003 10:58:35 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:56949 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261767AbTCLP5I>; Wed, 12 Mar 2003 10:57:08 -0500
+Date: Wed, 12 Mar 2003 11:07:48 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: schwidefsky@de.ibm.com
+Cc: linux-kernel@vger.kernel.org, linux390@de.ibm.com
+Subject: "Cross" compilation for s390x
+Message-ID: <20030312110748.A9773@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Martin,
 
-Hi!
+when I build s390x on s390 box, it fails without the
+attached patch. Thought you might want to consder it.
+If you support truly ancient compilers (2.7.2), it cannot
+go in without some conditional compilation as sparc64 does.
+Otherwise, it should be ok at least for 2.5.
 
-looks like following code in 2.5.64 has bug:
+Yours,
+-- Pete
 
-        for (bit = 0; !group_alloc &&
-                        bit < sbi->s_groups_count; bit++) {
-                group_no++;
-                if (group_no >= sbi->s_groups_count)
-                        group_no = 0;
-                desc = ext2_get_group_desc(sb, group_no, &gdp_bh);
-                if (!desc)
-                        goto io_error;
-                group_alloc = group_reserve_blocks(desc, gdp_bh, es_alloc);
-        }
-        if (bit >= sbi->s_groups_count) {
-                *err = -ENOSPC;
-                goto out_release;
-        }
-
-if group_reserve_blocks() finds free blocks on last repeat then if (bit >= ...)
-will be true, and ext2_new_block() will return -ENOSPC.
-
-
-here is the patch:
-
---- linux/fs/ext2/balloc.c	Thu Feb 20 16:18:53 2003
-+++ balloc.c	Wed Mar 12 18:47:21 2003
-@@ -395,7 +395,7 @@
- 			goto io_error;
- 		group_alloc = group_reserve_blocks(desc, gdp_bh, es_alloc);
- 	}
--	if (bit >= sbi->s_groups_count) {
-+	if (!group_alloc) {
- 		*err = -ENOSPC;
- 		goto out_release;
- 	}
-
+diff -urN -X dontdiff linux-2.4.20-2.1.14.s.1/arch/s390x/Makefile linux-2.4.20-2.1.14.s.2/arch/s390x/Makefile
+--- linux-2.4.20-2.1.14.s.1/arch/s390x/Makefile	2002-08-02 20:39:43.000000000 -0400
++++ linux-2.4.20-2.1.14.s.2/arch/s390x/Makefile	2003-03-10 21:07:49.000000000 -0500
+@@ -23,10 +23,11 @@
+ LINKFLAGS =-T $(TOPDIR)/arch/s390x/vmlinux.lds $(LDFLAGS)
+ endif
+ MODFLAGS += -fpic
++AFLAGS += -m64
+ 
+ CFLAGS_PIPE := -pipe
+ CFLAGS_NSR  := -fno-strength-reduce
+-CFLAGS := $(CFLAGS) $(CFLAGS_PIPE) $(CFLAGS_NSR)
++CFLAGS := $(CFLAGS) $(CFLAGS_PIPE) $(CFLAGS_NSR) -m64
+ 
+ HEAD := arch/s390x/kernel/head.o arch/s390x/kernel/init_task.o
+ 
+diff -urN -X dontdiff linux-2.4.20-2.1.14.s.1/arch/s390x/vmlinux.lds linux-2.4.20-2.1.14.s.2/arch/s390x/vmlinux.lds
+--- linux-2.4.20-2.1.14.s.1/arch/s390x/vmlinux.lds	2002-02-25 14:37:56.000000000 -0500
++++ linux-2.4.20-2.1.14.s.2/arch/s390x/vmlinux.lds	2003-03-10 21:07:49.000000000 -0500
+@@ -1,8 +1,8 @@
+-/* ld script to make s390 Linux kernel
++/* ld script to make s390x Linux kernel
+  * Written by Martin Schwidefsky (schwidefsky@de.ibm.com)
+  */
+ OUTPUT_FORMAT("elf64-s390", "elf64-s390", "elf64-s390")
+-OUTPUT_ARCH(s390)
++OUTPUT_ARCH(s390:64-bit)
+ ENTRY(_start)
+ SECTIONS
+ {

@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316826AbSE1QUH>; Tue, 28 May 2002 12:20:07 -0400
+	id <S316837AbSE1QWe>; Tue, 28 May 2002 12:22:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316837AbSE1QUG>; Tue, 28 May 2002 12:20:06 -0400
-Received: from ares.sdinet.de ([195.21.215.20]:39948 "HELO ares.sdinet.de")
-	by vger.kernel.org with SMTP id <S316826AbSE1QUF>;
-	Tue, 28 May 2002 12:20:05 -0400
-Date: Tue, 28 May 2002 18:20:08 +0200 (CEST)
-From: Sven Koch <haegar@sdinet.de>
-X-X-Sender: haegar@space.comunit.de
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: 2.4.19-pre8-ac5 compile error on alpha
-Message-ID: <Pine.LNX.4.44.0205281818130.9506-100000@space.comunit.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316838AbSE1QWd>; Tue, 28 May 2002 12:22:33 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:2291 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316837AbSE1QWb>;
+	Tue, 28 May 2002 12:22:31 -0400
+Date: Tue, 28 May 2002 21:55:35 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Robert Love <rml@tech9.net>
+Cc: "David S. Miller" <davem@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Paul McKenney <paul.mckenney@us.ibm.com>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 8-CPU (SMP) #s for lockfree rtcache
+Message-ID: <20020528215535.A22328@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+In-Reply-To: <20020528171104.D19734@in.ibm.com> <20020528.042514.92633856.davem@redhat.com> <20020528182806.A21303@in.ibm.com> <1022600998.20317.44.camel@sinai>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi...
+Hi Robert,
 
-make[1]: Leaving directory `/usr/src/linux'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
--pipe -mno-fp-regs -ffixed-8 -mcpu=ev5 -Wa,-mev6   -DKBUILD_BASENAME=main
--c -o init/main.o init/main.c
-In file included from init/main.c:30:
-/usr/src/linux/include/linux/suspend.h:4: asm/suspend.h: No such file or
-directory
-In file included from /usr/src/linux/include/asm/semaphore.h:16,
-                 from /usr/src/linux/include/linux/fs.h:200,
-                 from /usr/src/linux/include/linux/capability.h:17,
-                 from /usr/src/linux/include/linux/binfmts.h:5,
-                 from /usr/src/linux/include/linux/sched.h:9,
-                 from /usr/src/linux/include/linux/mm.h:4,
-                 from /usr/src/linux/include/linux/slab.h:14,
-                 from /usr/src/linux/include/linux/proc_fs.h:5,
-                 from init/main.c:15:
-/usr/src/linux/include/linux/rwsem.h: In function `down_read_trylock':
-/usr/src/linux/include/linux/rwsem.h:57: warning: implicit declaration of
-function `__down_read_trylock'
-/usr/src/linux/include/linux/rwsem.h: In function `down_write_trylock':
-/usr/src/linux/include/linux/rwsem.h:79: warning: implicit declaration of
-function `__down_write_trylock'
-make: *** [init/main.o] Error 1
+On Tue, May 28, 2002 at 08:49:58AM -0700, Robert Love wrote:
+> 
+> > Well, the last time RCU was discussed, Linus said that he would
+> > like to see someplace where RCU clearly helps.
+> 
+> I agree the numbers posted are nice, but I remain skeptical like Linus. 
+> Sure, the locking overhead is nearly gone in the profiled function where
+> RCU is used.  But the overhead has just been _moved_ to wherever the RCU
+> work is now done.  Any benchmark needs to include the damage done there,
+> too.
 
+Have you looked at the rt_rcu patch ? Where do you think there
+is overhead compared to what route cache alread does ? In my
+profiles, rcu routines and kernel mechanisms that it uses
+don't show high up. If you have any suggestions, then I can
+do an investigation.
 
-c'ya
-sven
+> 
+> I also balk at implicit locking...
+> 
 
+I agree that it is better to keep things simple and RCU isn't a
+replacement for locking. However the route cache hash table with
+refcount is a relatively simpler use of RCU and since it has
+benefits, we shouldn't shy away from using it if it is useful.
+
+Thanks
 -- 
-
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)
-
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

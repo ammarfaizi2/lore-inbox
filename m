@@ -1,32 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279891AbRKBA6A>; Thu, 1 Nov 2001 19:58:00 -0500
+	id <S279885AbRKBBCA>; Thu, 1 Nov 2001 20:02:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279884AbRKBA5l>; Thu, 1 Nov 2001 19:57:41 -0500
-Received: from sitar.i-cable.com ([210.80.60.11]:33993 "HELO sitar.i-cable.com")
-	by vger.kernel.org with SMTP id <S279888AbRKBA5j>;
-	Thu, 1 Nov 2001 19:57:39 -0500
-Message-ID: <3BE298E3.4090905@rcn.com.hk>
-Date: Fri, 02 Nov 2001 21:00:19 +0800
-From: David Chow <davidchow@rcn.com.hk>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-GB; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-gb
+	id <S279886AbRKBBBu>; Thu, 1 Nov 2001 20:01:50 -0500
+Received: from smtp-rt-7.wanadoo.fr ([193.252.19.161]:50312 "EHLO
+	embelia.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S279885AbRKBBBd> convert rfc822-to-8bit; Thu, 1 Nov 2001 20:01:33 -0500
+Message-ID: <3BE242B0.1010400@free.fr>
+Date: Fri, 02 Nov 2001 01:52:32 -0500
+From: FORT David <popo.enlighted@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011012
+X-Accept-Language: fr, en-us
 MIME-Version: 1.0
 To: Keith Owens <kaos@ocs.com.au>
-CC: FORT David <popo.enlighted@free.fr>, LKML <linux-kernel@vger.kernel.org>
+CC: LKML <linux-kernel@vger.kernel.org>
 Subject: Re: Oops on 2.4.13
 In-Reply-To: <1235.1004655139@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
-I have no output for modinfo even running kernel 2.4.2 .. what's the 
-problem here?
-
-Thanks.
-
-DC
 
 Keith Owens wrote:
 
@@ -47,5 +40,51 @@ Keith Owens wrote:
 >More majordomo info at  http://vger.kernel.org/majordomo-info.html
 >Please read the FAQ at  http://www.tux.org/lkml/
 >
+Looks like there's many candidates, and some quite commonly
+used modules:
+filename:    /lib/modules/2.4.13/kernel/drivers/block/loop.o
+filename:    /lib/modules/2.4.13/kernel/drivers/media/video/cpia.o
+filename:    /lib/modules/2.4.13/kernel/drivers/media/video/cpia_usb.o
+filename:    /lib/modules/2.4.13/kernel/drivers/media/video/mod_quickcam.o
+filename:    /lib/modules/2.4.13/kernel/drivers/net/pppoe.o
+filename:    /lib/modules/2.4.13/kernel/drivers/net/pppox.o
+filename:    
+/lib/modules/2.4.13/kernel/drivers/video/matrox/matroxfb_crtc2.o
+filename:    /lib/modules/2.4.13/kernel/drivers/video/matrox/matroxfb_g450.o
+filename:    
+/lib/modules/2.4.13/kernel/drivers/video/matrox/matroxfb_maven.o
+filename:    /lib/modules/2.4.13/kernel/drivers/video/matrox/matroxfb_misc.o
+filename:    /lib/modules/2.4.13/kernel/fs/coda/coda.o
+filename:    /lib/modules/2.4.13/kernel/fs/msdos/msdos.o
+filename:    /lib/modules/2.4.13/kernel/fs/nfs/nfs.o
+filename:    /lib/modules/2.4.13/kernel/fs/nls/nls_big5.o
+filename:    /lib/modules/2.4.13/kernel/fs/nls/nls_cp936.o
+filename:    /lib/modules/2.4.13/kernel/fs/nls/nls_cp950.o
+filename:    /lib/modules/2.4.13/kernel/fs/nls/nls_gb2312.o
+filename:    /lib/modules/2.4.13/kernel/fs/nls/nls_iso8859-1.o
+filename:    /lib/modules/2.4.13/kernel/fs/nls/nls_iso8859-15.o
+filename:    /lib/modules/2.4.13/kernel/fs/nls/nls_iso8859-2.o
+filename:    /lib/modules/2.4.13/kernel/fs/nls/nls_iso8859-4.o
+filename:    /lib/modules/2.4.13/kernel/fs/nls/nls_utf8.o
+filename:    /lib/modules/2.4.13/kernel/fs/vfat/vfat.o
+filename:    /lib/modules/2.4.13/kernel/net/khttpd/khttpd.o
+filename:    /lib/modules/2.4.13/kernel/net/netlink/netlink_dev.o
+
+
+-- 
+%-------------------------------------------------------------------------%
+% FORT David,                                                  0668373331 %
+% 5 boulevard de solférino                                     0299679330 %
+% 35000 Rennes, France                             popo.enlighted@free.fr %
+% ICU:78064991                                   david.fort@intranode.com %
+%--LINUX-HTTPD-PIOGENE----------------------------------------------------%
+%  -datamining <-/                        |   .~.                         %
+%  -networking/PHP/java/JSPs              |   /V\        L  I  N  U  X    %
+%  -opensource                            |  // \\     >Fear the Penguin< %
+%  -GNOME/enlightenment/GIMP              | /(   )\                       %
+%           feel enlightened....          |  ^^-^^                        %
+%                              HomePage: http://www.enlightened-popo.net  %
+%---------- -- This was sent by Djinn running Linux 2.4.13 -- ------------%
+
 
 

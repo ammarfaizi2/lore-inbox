@@ -1,23 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283080AbRLMDKL>; Wed, 12 Dec 2001 22:10:11 -0500
+	id <S283243AbRLMD1S>; Wed, 12 Dec 2001 22:27:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283234AbRLMDKC>; Wed, 12 Dec 2001 22:10:02 -0500
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:39057 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S283080AbRLMDJ4>; Wed, 12 Dec 2001 22:09:56 -0500
-From: ledzep37@attbi.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: __devexit_p() in linux-2.5.1-preX?
-Date: Thu, 13 Dec 2001 03:09:50 +0000
-X-Mailer: AT&T Message Center Version 1 (Nov 29 2001)
-Message-Id: <20011213030950.SZZS10701.rwcrmhc53.attbi.com@rwcrwbc56>
+	id <S283244AbRLMD1H>; Wed, 12 Dec 2001 22:27:07 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:64648 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S283243AbRLMD0x>;
+	Wed, 12 Dec 2001 22:26:53 -0500
+Date: Wed, 12 Dec 2001 19:26:36 -0800 (PST)
+Message-Id: <20011212.192636.133010681.davem@redhat.com>
+To: ledzep37@attbi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: __devexit_p() in linux-2.5.1-preX?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011213030950.SZZS10701.rwcrmhc53.attbi.com@rwcrwbc56>
+In-Reply-To: <20011213030950.SZZS10701.rwcrmhc53.attbi.com@rwcrwbc56>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Will __devexit_p() be appearing in 2.5.1-preX soon so
-that the latest binutils can bu used for 2.5.1?  It seems
-to work very well for the 2.4.17-preX series.  Thanks for
-any info.
 
-Jordan Breeding
+This brings up a more generic issue.  It would really be nice to have
+someone who syncs up 2.5.X with the bug fixes going into the 2.4.x
+series.  It really is needed, and it really is a boring and thankless
+job :-)

@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbTKRIpc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 03:45:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbTKRIpc
+	id S262386AbTKRJYR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 04:24:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTKRJYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 03:45:32 -0500
-Received: from holomorphy.com ([199.26.172.102]:57510 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262119AbTKRIpb (ORCPT
+	Tue, 18 Nov 2003 04:24:17 -0500
+Received: from CPE-138-130-214-20.qld.bigpond.net.au ([138.130.214.20]:25020
+	"EHLO mx.jeeves.bpa.nu") by vger.kernel.org with ESMTP
+	id S262386AbTKRJYQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 03:45:31 -0500
-Date: Tue, 18 Nov 2003 00:45:29 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
+	Tue, 18 Nov 2003 04:24:16 -0500
+From: Ben Hoskings <ben@jeeves.bpa.nu>
 To: linux-kernel@vger.kernel.org
-Subject: Re: use ELF sections for get_wchan()
-Message-ID: <20031118084529.GK22764@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-References: <20031118074448.GD19856@holomorphy.com> <20031118084336.A28004@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: 2.6.0 yenta_socket eats kernel time on Toshiba Laptop
+Date: Tue, 18 Nov 2003 19:24:10 +1000
+User-Agent: KMail/1.5.93
+References: <43376.138.130.214.20.1068871325.squirrel@jeeves.home.house> <20031115015927.4e31e6ee.akpm@osdl.org> <200311161011.03804.ben@jeeves.bpa.nu>
+In-Reply-To: <200311161011.03804.ben@jeeves.bpa.nu>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20031118084336.A28004@flint.arm.linux.org.uk>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200311181924.10765.ben@jeeves.bpa.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> diff -prauN linux-2.6.0-test9-bk22/arch/arm/boot/compressed/vmlinux.lds.in wchan-2.6.0-test9-bk22-1/arch/arm/boot/compressed/vmlinux.lds.in
-> > --- linux-2.6.0-test9-bk22/arch/arm/boot/compressed/vmlinux.lds.in	2003-10-25 11:43:32.000000000 -0700
-> > +++ wchan-2.6.0-test9-bk22-1/arch/arm/boot/compressed/vmlinux.lds.in	2003-11-17 23:14:03.000000000 -0800
+On Sun, 16 Nov 2003 10:11 am, Ben Hoskings wrote:
+> Thanks for the reply, Andrew.
+>
+> > >  Attepting a modprobe on any of the other PCMCIA bus drivers gives a
+> > >  'device not found' error.
+> > >
+> > >  Under 2.4, the PCMCIA bus uses the i82365 module, which works
+> > > perfectly. Under 2.6, it appears that the related driver has been
+> > > moved to the yenta_socket module (It's a ToPIC100 Controller; see dmesg
+> > > below).
+> >
+> > Have you tried disabling i82365 in kernel config?
+> 
+> All the PCMCIA options are configured as modules, and when I modprobed 
+> yenta_socket, the only one already loaded was pcmcia_core. Disabling in the
+>  kernel config won't make a difference here will it?
+> 
+Anyone else have any suggestions on what I could do to start debugging this 
+problem? I don't like to ask again, but I figure this is too good a chance to 
+miss.
+I'd like to get my laptop working with 2.6, sure, but more importantly a 
+problem like this that affects hardware I own is the perfect chance for me to 
+poke my head into the kernel sources and start learning. ;)
 
-On Tue, Nov 18, 2003 at 08:43:36AM +0000, Russell King wrote:
-> You don't need to add to this file - this linker script takes the binary
-> kernel image and puts the necessary decompressor magic around it.
 
-Aha, thanks. I'll follow up with an amended patch (for both instances).
-
-
--- wli
+ben_h

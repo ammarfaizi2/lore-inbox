@@ -1,50 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136661AbREARH3>; Tue, 1 May 2001 13:07:29 -0400
+	id <S136662AbREARK6>; Tue, 1 May 2001 13:10:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136662AbREARHJ>; Tue, 1 May 2001 13:07:09 -0400
-Received: from chromium11.wia.com ([207.66.214.139]:30219 "EHLO
-	neptune.kirkland.local") by vger.kernel.org with ESMTP
-	id <S136661AbREARG6>; Tue, 1 May 2001 13:06:58 -0400
-Message-ID: <3AEEEE1D.F0C4F1F6@chromium.com>
-Date: Tue, 01 May 2001 10:10:53 -0700
-From: Fabio Riccardi <fabio@chromium.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: mingo@elte.hu
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Christopher Smith <x@xman.org>, Andrew Morton <andrewm@uow.edu.au>,
-        "Timothy D. Witham" <wookie@osdlab.org>, David_J_Morse@Dell.com
-Subject: Re: X15 alpha release: as fast as TUX but in user space
-In-Reply-To: <Pine.LNX.4.33.0105011047540.4266-100000@localhost.localdomain>
+	id <S136666AbREARKk>; Tue, 1 May 2001 13:10:40 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:305 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S136662AbREARK1>; Tue, 1 May 2001 13:10:27 -0400
+Date: Tue, 1 May 2001 19:09:42 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: kuznet@ms2.inr.ac.ru
+Cc: davem@redhat.com, ralf@nyren.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.4: Kernel crash, possibly tcp related
+Message-ID: <20010501190942.B31373@athlon.random>
+In-Reply-To: <20010501124756.B805@athlon.random> <200105011644.UAA32621@ms2.inr.ac.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200105011644.UAA32621@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Tue, May 01, 2001 at 08:44:52PM +0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is actually a bug in the current X15, I know how to fix it (with
-negligible overhead) but I've been lazy :)
+On Tue, May 01, 2001 at 08:44:52PM +0400, kuznet@ms2.inr.ac.ru wrote:
+> Hello!
+> 
+> > this is the strict fix:
+> 
+> Andrea, you caught the problem!
+> 
+> The fix is not right though (it is equivalent to straight
+> tp->send_head=NULL, as you noticed. It also corrupts queue in
+> an opposite manner.) Right fix is appended.
+> 
+> Explanation: in do_fault we must undo effect of enqueueing new segment
+> in the case the segment remained empty. tp->send_head points to
+> the first unsent skb in queue and it is NULL when and only when
+> all the skbs are already sent. (Invariant is: tp->send_head==NULL ||
+> tp->send_head->seq == tp->snd_nxt)
+> I crapped this case except for the case when queue is completely empty,
+> so that the last sent skb was accounted in packets_out twice...
 
-give me a few days...
+I understsand the explanation but I don't think my patch is wrong, I
+think it's simpler and faster instead.
 
- - Fabio
+My argument is very simple, if send_head points to skb and skb->len is
+zero and we are running in such slow path, it is obvious the send_head
+_was_ NULL when we entered the critical section, so it's perfectly fine
+to set send_head back to null and to unlink the skb as the only actions
+to undo the skb_entail. That's all. I don't see how my patch can fail.
+If I'm missing something I'd love a further explanation indeed. Thanks!
 
-Ingo Molnar wrote:
+> 
+> Damn, what a silly mistake was it... shame.
+> 
+> Alexey
+> 
+> 
+> --- ../vger3-010426/linux/net/ipv4/tcp.c	Wed Apr 25 21:02:18 2001
+> +++ linux/net/ipv4/tcp.c	Tue May  1 20:38:44 2001
+> @@ -1185,7 +1187,7 @@
+>  	if (skb->len==0) {
+>  		if (tp->send_head == skb) {
+>  			tp->send_head = skb->prev;
+> -			if (tp->send_head == (struct sk_buff*)&sk->write_queue)
+> +			if (TCP_SKB_CB(skb)->seq == tp->snd_nxt)
+>  				tp->send_head = NULL;
+>  		}
+>  		__skb_unlink(skb, skb->list);
 
-> hm, another X15 caching artifact i noticed: i've changed the index.html
-> file, and while X15 was still serving the old copy, TUX served the new
-> file immediately.
->
-> its cache is apparently not coherent with actual VFS contents. (ie. it's a
-> read-once cache apparently?) TUX has some (occasionally significant)
-> overhead due to non-cached VFS-lookups.
->
->         Ingo
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
+Andrea

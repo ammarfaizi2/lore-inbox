@@ -1,38 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311454AbSDIUhY>; Tue, 9 Apr 2002 16:37:24 -0400
+	id <S313150AbSDHTyz>; Mon, 8 Apr 2002 15:54:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311475AbSDIUhX>; Tue, 9 Apr 2002 16:37:23 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:16011 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S311454AbSDIUhW>;
-	Tue, 9 Apr 2002 16:37:22 -0400
-Date: Mon, 8 Apr 2002 01:25:37 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Jeff Dike <jdike@karaya.com>
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
-Subject: Re: user-mode port 0.56-2.4.18-15
-Message-ID: <20020408012536.A329@toy.ucw.cz>
-In-Reply-To: <200204082056.PAA03749@ccure.karaya.com>
+	id <S313626AbSDHTyy>; Mon, 8 Apr 2002 15:54:54 -0400
+Received: from mnh-1-21.mv.com ([207.22.10.53]:22024 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S313150AbSDHTyy>;
+	Mon, 8 Apr 2002 15:54:54 -0400
+Message-Id: <200204082056.PAA03749@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
+Subject: user-mode port 0.56-2.4.18-15
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Date: Mon, 08 Apr 2002 15:56:59 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I'm breaking with my usual practice of tying full UML releases to major
+kernel releases.  The intervals between successive 2.4.x kernels are getting
+too long for my taste.
 
-> Added SA_SAMPLE_RANDOM to the irq registration flags of some drivers.  This
-> makes apps which read /dev/random work a lot better.  Randomness in UML is
-> more problematic than on the host, but I chose a set of drivers whose
-> interrupts shouldn't be too predictable.
+So, here's a second 2.4.18 UML.  As usual, there are a ton of bug fixes in
+this release.  Some of the more important ones are:
 
-Why don't you just feed your /dev/random from hosts /dev/random?
+The console flow control bug is now fixed.  Flow control works properly
+both with and without Sapan Bhatia's tty output SIGIO fix.
 
-> HZ is now 52.
+Fixed a crash caused by using a tty_struct after it had been freed when there
+was no getty on the main console.
 
-Wow.. Why such strange value?
-								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Daniel Phillips' pgtable fixes are in.
+
+Fixed a crash caused by installing cmucl.
+
+On older processors which don't implement the cmov instructions, UML likely
+would hang on starting init.  Strictly speaking, this is not a UML bug.  The 
+bug was booting a filesystem that executes cmov.  However, UML now detects
+cmov support in the host processor and panics with a useful message when it
+sees init get a SIGILL on a cmov.  The real fix is to get a filesystem that's
+built for earlier processors than P6.
+
+Added SA_SAMPLE_RANDOM to the irq registration flags of some drivers.  This
+makes apps which read /dev/random work a lot better.  Randomness in UML is
+more problematic than on the host, but I chose a set of drivers whose
+interrupts shouldn't be too predictable.
+
+The signal mask is now initialized so that odd environments can't screw
+UML up by passing in bogus masks.  
+
+The consoles and serial lines now support SIGWINCH.
+
+The ubd driver's COW bitmaps are now properly byte-swapped. 
+
+UML is now robust in the face of tmpfs running out of space.
+
+HZ is now 52.
+
+The project's home page is http://user-mode-linux.sourceforge.net
+
+Downloads are available at 
+	http://user-mode-linux.sourceforge.net/dl-sf.html
+
+				Jeff
 

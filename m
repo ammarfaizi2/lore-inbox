@@ -1,74 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268115AbUHYQVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268117AbUHYQ2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268115AbUHYQVl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 12:21:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268117AbUHYQVl
+	id S268117AbUHYQ2R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 12:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268121AbUHYQ2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 12:21:41 -0400
-Received: from cantor.suse.de ([195.135.220.2]:39350 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268115AbUHYQVi (ORCPT
+	Wed, 25 Aug 2004 12:28:17 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:55721 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S268117AbUHYQ2Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 12:21:38 -0400
-Date: Wed, 25 Aug 2004 18:18:37 +0200
-From: Olaf Dabrunz <od@suse.de>
-To: Linux kernel list <linux-kernel@vger.kernel.org>
-Cc: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [Patch] TIOCCONS security
-Message-ID: <20040825161837.GB21687@suse.de>
-Mail-Followup-To: Linux kernel list <linux-kernel@vger.kernel.org>,
-	Christoph Hellwig <hch@infradead.org>
-References: <20040825151106.GA21687@suse.de> <20040825161504.A8896@infradead.org> <20040825161630.B8896@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Wed, 25 Aug 2004 12:28:16 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: acyr@alumni.uwaterloo.ca
+Subject: Re: ACPI + Floppy detection problem in 2.6.8.1-mm4
+Date: Wed, 25 Aug 2004 10:28:08 -0600
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, Petr Vandrovec <vandrove@vc.cvut.cz>
+References: <20040825002220.4867cd17.akpm@osdl.org>
+In-Reply-To: <20040825002220.4867cd17.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040825161630.B8896@infradead.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408251028.08180.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25-Aug-04, Christoph Hellwig wrote:
-> On Wed, Aug 25, 2004 at 04:15:04PM +0100, Christoph Hellwig wrote:
-> > > Still, I believe that administrators and operators would not like any
-> > > user to be able to hijack messages that were written to the console.
-> > > 
-> > > The only user of TIOCCONS that I am aware of is bootlogd/blogd, which
-> > > runs as root. Please comment if there are other users.
-> > 
-> > Oh, common.  Do your basic research - this has been rejected a few times
-> > and there have been better proposals.  Just use goggle a little bit.
-> 
-> Umm, I'm smoking crack.  Sorry, for some reason I took this for another
-> TIOCGDEV submission without reading.
+> inserting floppy driver for 2.6.8.1-mm4
+> acpi_floppy_resource: 6 ioports at 0x3f0
+> acpi_floppy_resource: 1 ioports at 0x3f7
+> floppy: controller ACPI FDC0 at I/O 0x3f0-0x3f5, 0x3f7-0x3f7 irq 6 dma channel 2
+> Floppy drive(s): fd0 is 1.44M
+> floppy0: no floppy controllers found
 
-(Don't do this to me. ;))
+Yup, the current -mm4 code assumes that if you have 6 ports in
+the first region, they are 0x3f2-0x3f7.  But your BIOS reports
+6 ports at 0x3f0-0x3f5.
 
-BTW, I found that xterm -C is using this. xterm(1x) is misleading
-though because it states that /dev/console must belong to the user of
-xterm -C. I did not do a thorough check, but since the availability of
-the "-C" option depends on TIOCCONS (or SRIOCSREDIR) being available,
-this should work without /dev/console belonging to the user of TIOCCONS.
+So I guess we'll have to do something like Petr's approach of
+ignoring the low three bits.  Thanks for the report.  I'll send
+you a patch to try shortly.
 
-Anyway, there are other ways to read log messages from X. One is to use
-xconsole on /dev/xconsole and have syslogd provide filtered messages to
-/dev/xconsole.
-
-Changing the ownership on /dev/console causes security problems (that
-user can usually access the current virtual terminal anytime, and the
-current one may not belong to him). This does not happen with
-/dev/xconsole, so it is possible to change the ownership of
-/dev/xconsole to the first local X user.
-
-While /dev/xconsole may not be the same as /dev/console, e.g. boot
-script messages do go to the console (that's why bootlogd uses
-TIOCCONS), it seems to be the best bet so far. It may even be possible
-to pipe boot messages to /dev/xconsole.
-
-The bottom line is, that I do not see why normal users should be able to
-use TIOCCONS. Hijacking console output is a security problem, which has
-been found quite some time ago on SunOS as well
-(http://www.cert.org/advisories/CA-1990-12.html).
-
--- 
-Olaf Dabrunz (od/odabrunz), SUSE Linux AG, Nürnberg
-
+Bjorn

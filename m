@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272530AbRH3W3r>; Thu, 30 Aug 2001 18:29:47 -0400
+	id <S272532AbRH3Wbr>; Thu, 30 Aug 2001 18:31:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272531AbRH3W3h>; Thu, 30 Aug 2001 18:29:37 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27653 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272530AbRH3W32>; Thu, 30 Aug 2001 18:29:28 -0400
-Subject: Re: Reiserfs: how to mount without journal replay?
-To: pavel@suse.cz (Pavel Machek)
-Date: Thu, 30 Aug 2001 23:32:19 +0100 (BST)
-Cc: reiser@namesys.com (Hans Reiser), Nikita@namesys.com (Nikita Danilov),
-        pavel@ucw.cz (Pavel Machek), linux-kernel@vger.kernel.org,
-        research@suse.de
-In-Reply-To: <20010830235005.B9330@bug.ucw.cz> from "Pavel Machek" at Aug 30, 2001 11:50:05 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272533AbRH3Wbj>; Thu, 30 Aug 2001 18:31:39 -0400
+Received: from mailgate5.cinetic.de ([217.72.192.165]:15008 "EHLO
+	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
+	id <S272532AbRH3Wb3>; Thu, 30 Aug 2001 18:31:29 -0400
+Date: Fri, 31 Aug 2001 00:37:32 +0200 (CEST)
+From: Pascal Schmidt <pleasure.and.pain@web.de>
+To: Tim Moore <timothymoore@bigfoot.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: System crashes with via82cxxx ide driver
+In-Reply-To: <3B8EB3FE.F7FEEAAB@bigfoot.com>
+Message-ID: <Pine.LNX.4.33.0108310035530.2970-100000@neptune.sol.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15caMF-00021I-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Booting from CDROM with SuSE is not such a problem.
-> 
-> ext2 is willing to mount ro even with known inconsistencies. SuSE 7.1
-> does not come with 'live filesystem' and install cd does not have
-> reiserfsck on it. Too bad. You have to install somewhere to be able to
-> run reiserfsck on suse7.1.
+On Thu, 30 Aug 2001, Tim Moore wrote:
 
-You can get ext2 sufficiently hosed that you can't mount it or run fsck off
-it as well. Ok its harder, and "-o mount_me_harder" might be useful for 
-reiserfs in this situation.  
+> 2.2.20p9, ide.2.2.19.05042001.patch.bz2, e2fsck v1.19.
+How did you get both the 2.2.20 pre-patch and the ide patch to apply? I
+get a couple of rejects.
 
-There is another reason for doing rescue without disk writeback which is
-more pressing - bad disks _often_ go close to read only when they begin
-to fail.
+> 00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev
+> 10)
+The IDE part of my chipset is only revision 06, so perhaps this is a bug
+fixed in your revision.
 
-Also you need a true mount purely read only (or some kind of initrd deep
-voodoo) to use ext3 or reiserfs with swsuspend
+-- 
+Ciao, Pascal
 
-Alan
+-<[ pharao90@tzi.de, netmail 2:241/215.72, home http://cobol.cjb.net/) ]>-
+

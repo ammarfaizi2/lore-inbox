@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262348AbUK3WLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262347AbUK3WKn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262348AbUK3WLK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 17:11:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbUK3WLK
+	id S262347AbUK3WKn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 17:10:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbUK3WKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 17:11:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:32743 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262348AbUK3WLG (ORCPT
+	Tue, 30 Nov 2004 17:10:43 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:10409 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262347AbUK3WKi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 17:11:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=pxl4PyKFD6AoTtS6VJiH7YLWqvCcK5hnnYI/T1pll1avgyLL8Hi5+Fsneq2J4dM3RZ5xxpr1yKAwqopSCBdNUzp9B/P9ylyCfs8/9MZ+aJJS8kbsTbr5i6z3CFggW4FRrrzoydLWUJdaPF1WJFiuBkWiw4zUZyJE3acNkaobL4s=
-Message-ID: <ce70c490411301411e8de2ee@mail.gmail.com>
-Date: Tue, 30 Nov 2004 20:11:05 -0200
-From: =?ISO-8859-1?Q?C=EDcero?= <cicero.mota@gmail.com>
-Reply-To: =?ISO-8859-1?Q?C=EDcero?= <cicero.mota@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Information about move_tasks return
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Nov 2004 17:10:38 -0500
+Date: Tue, 30 Nov 2004 23:10:37 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] misleading error message
+In-Reply-To: <Pine.LNX.4.61.0411302251180.3635@dragon.hygekrogen.localhost>
+Message-ID: <Pine.LNX.4.53.0411302310080.31695@yvahk01.tjqt.qr>
+References: <001101c4d715$25a59470$af00a8c0@BEBEL>
+ <Pine.LNX.4.61.0411302251180.3635@dragon.hygekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So as the "documentation" states, it returns the number of tasks
-> actually moved.  For instance, The balancing code may request 4 tasks be
-> moved, but for various reasons, only 2 were actually moved to other
-> CPUs, move_tasks() would return 2.
+>> This may be a BUG REPORT, as I see it, allthough more experienced Linux users
+>> might think differently:
+>>
+>> I compiled built-in support for iptables in my new 2.6.9 kernel, but when my
+>> legacy firewall does a "modprobe ip_tables" , I get the startling message:
+>> "FATAL: module ip_tables not found" .
+>
+>In my oppinion the message is perfectly clear. You told modprobe to load a
+>module, the file was not found so it is forced to give up - and that's
+>exactely what it told you.
 
-hi,
-
-Can you speak more about those various reasons? or tell me where I can
-find out more information ?
+So how would you go about finding out whether something is compiled-in?
 
 
-[]s
-:wq!
+
+
+Jan Engelhardt
+-- 
+ENOSPC

@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318332AbSGYFxL>; Thu, 25 Jul 2002 01:53:11 -0400
+	id <S318341AbSGYFyn>; Thu, 25 Jul 2002 01:54:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318340AbSGYFxL>; Thu, 25 Jul 2002 01:53:11 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:40134 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S318332AbSGYFxK>;
-	Thu, 25 Jul 2002 01:53:10 -0400
-Date: Thu, 25 Jul 2002 07:56:19 +0200
-From: Jens Axboe <axboe@suse.de>
+	id <S318342AbSGYFyn>; Thu, 25 Jul 2002 01:54:43 -0400
+Received: from mortar.viawest.net ([216.87.64.7]:18113 "EHLO
+	mortar.viawest.net") by vger.kernel.org with ESMTP
+	id <S318341AbSGYFym>; Thu, 25 Jul 2002 01:54:42 -0400
+Date: Wed, 24 Jul 2002 22:57:51 -0700
+From: A Guy Called Tyketto <tyketto@wizard.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.5.28
-Message-ID: <20020725055619.GH5159@suse.de>
-References: <1027549801.11619.2.camel@sonja.de.interearth.com> <20020724230613.27190.qmail@eklektix.com>
+Subject: 2.5.28: aty128fb.c:1752: incompatible type
+Message-ID: <20020725055751.GA5875@wizard.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020724230613.27190.qmail@eklektix.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux/2.5.25 (i686)
+X-uptime: 10:50pm  up 3 days,  5:46,  2 users,  load average: 1.57, 1.04, 0.53
+X-RSA-KeyID: 0xE9DF4D85
+X-DSA-KeyID: 0xE319F0BF
+X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 24 2002, Jonathan Corbet wrote:
-> > > <dalecki@evision.ag>:
-> > >   o IDE-101
-> > 
-> > What on earth is this??? I'm really surprised you accept this as a
-> > changelog entry especially when considering that there's no further
-> > information about the latest IDE changes on the mailinglist anymore...
-> 
-> You need to look at the full changelog to see the full entry: see, for
-> example: http://lwn.net/Articles/5577/.  Or, to save the wear on your web
-> browser:
-> 
->   <dalecki@evision.ag>
-> 	[PATCH] IDE-101
-> 	
-> 	Here is a quick fix.  I would like to synchronize with the irq handler
-> 	changes as well.  Becouse right now I know that preemption is killing
-> 	the disk subsystem when moving data between disks using different
-> 	request queues...  In esp.  It get's me in to do_request() with a queue
-> 	in unplugged state.  (Not everything is my fault, after all :-).
-           ^^^^^^^^^
 
-must be a typo, it would be a bug to enter do_request() with the queue
-in a _plugged_ state, not vice versa.
+        Roll of 2.5.28:
 
+  gcc -Wp,-MD,./.aty128fb.o.d -D__KERNEL__ -I/usr/src/linux-2.5.25/include 
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -g -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+-march=i686 -malign-functions=4  -nostdinc -iwithprefix include    
+-DKBUILD_BASENAME=aty128fb   -c -o aty128fb.o aty128fb.c
+aty128fb.c: In function `aty128fb_set_var':
+aty128fb.c:1406: warning: implicit declaration of function `do_install_cmap'
+aty128fb.c: In function `aty128_init':
+aty128fb.c:1752: incompatible type for argument 1 of `fb_alloc_cmap'
+make[2]: *** [aty128fb.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.5.25/drivers/video'
+make[1]: *** [video] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.25/drivers'
+make: *** [drivers] Error 2
+
+        I can live with 1406. it'll get cleaned up towards code freeze time. 
+1752 is:
+
+fb_alloc_cmap(info->fb_info.cmap, size, 0);
+
+        Commenting this out resolves the compilation issue, but I don't think 
+is the right solution.
+
+CONFIG_FB_ATY=y
+CONFIG_FB_ATY_CT=y
+CONFIG_FB_RADEON=y
+CONFIG_FB_ATY128=y
+CONFIG_FBCON_ADVANCED=y
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+
+                                                        BL.
 -- 
-Jens Axboe
+Brad Littlejohn                         | Email:        tyketto@wizard.com
+Unix Systems Administrator,             |           tyketto@ozemail.com.au
+Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
+  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
 

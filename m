@@ -1,69 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbVBGORo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVBGOVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbVBGORo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 09:17:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVBGORo
+	id S261422AbVBGOVp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 09:21:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVBGOVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 09:17:44 -0500
-Received: from lucidpixels.com ([66.45.37.187]:53142 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S261421AbVBGORk (ORCPT
+	Mon, 7 Feb 2005 09:21:45 -0500
+Received: from edu.joroinen.fi ([194.89.68.130]:24238 "EHLO edu.joroinen.fi")
+	by vger.kernel.org with ESMTP id S261422AbVBGOVm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 09:17:40 -0500
-Date: Mon, 7 Feb 2005 09:17:38 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: Xavier Bestel <xavier.bestel@free.fr>
-cc: linux-os@analogic.com, linux-kernel@vger.kernel.org
-Subject: Re: Re: Reading Bad DVD Under 2.6.10 freezes the box.
-In-Reply-To: <1107783980.6191.154.camel@gonzales>
-Message-ID: <Pine.LNX.4.62.0502070914230.8764@p500>
-References: <Pine.LNX.4.62.0502070728520.1743@p500> 
- <Pine.LNX.4.61.0502070757580.21063@chaos.analogic.com> <1107783980.6191.154.camel@gonzales>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463747160-2090657961-1107785858=:8764"
+	Mon, 7 Feb 2005 09:21:42 -0500
+Date: Mon, 7 Feb 2005 16:21:41 +0200
+From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [WATCHDOG] support of motherboards with ICH6]
+Message-ID: <20050207142141.GF1561@edu.joroinen.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Mon, Feb 07, 2005 at 10:00:03AM +0100, P.O. Gaillard wrote:
+> Hi,
+> 
+> I am replying to myself so that people googling for similar problems can 
+> find the answer.
+> 
+> Supermicro says that the internal driver of the southbridge (and also the 
+> W83627HF chip) are not useable because the necessary support hardware is 
+> missing. They say that the P8SCi board has a working watchdog.
+> 
+> 	hope this can help somebody someday,
+> 
+> 	P.O. Gaillard
+> 
 
----1463747160-2090657961-1107785858=:8764
-Content-Type: TEXT/PLAIN; charset=utf-8; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Hi!
 
-Yeah, I can try 2.4.29 later tonight; also, the DVD is not scratched, just=
-=20
-formatted with Joilet/ISO instead of UDF (which is what should be used on=
-=20
-DVDs).
+I have P8SCi motherboard, and I just tried the watchdog with Linux 2.6.10.
 
-However, dd if=3D/dev/hdh of=3Dfile.img
-          Even with bs=3D1 for 1 byte at a time, there seems to be no way t=
-o
-          get the data off, however...
+I loaded w83627hf_wdt driver, and the watchdog was detected:
 
-          With the dd, last time I tried it, it just fails.
-          When I use cp to try and copy the file, it freezes the machine.
+WDT driver for the Winbond(TM) W83627HF Super I/O chip initialising.
+w83627hf WDT: initialized. timeout=60 sec (nowayout=0)
 
-This is all under 2.6.10 with a Toshiba 16X DVD-ROM (I can get model=20
-number later.)
+But it is not working. I tried setting the timeout to 1 minute, and to
+8 minute in the BIOS, but the machine reboots after the delay no matter what
+the delay is.. the watchdog driver is loaded before the timeout of course.
 
+For some reason, the driver is not working.
 
-On Mon, 7 Feb 2005, Xavier Bestel wrote:
+I mailed supermicro support about this, and they told me one of their
+customers is using watchdog with Debian 2.6.10 kernel. 
+So it should work, but..
 
-> Le lundi 07 f=C3=A9vrier 2005 =C3=A0 08:05 -0500, linux-os a =C3=A9crit :
->
->>> Main Question >> Why does Linux 'freeze up' when W2K gives a BadCRC err=
-or msg
->>> (never freezes)?
->>
->> Of course it should not. However, there were many incomplete changes
->> made in 2.6.nn and some may involve problems with locking, etc.
->
-> I don't remember a version of the kernel gracefully handling scratched
-> CD/DVD.
->
-> =09Xav
->
->
----1463747160-2090657961-1107785858=:8764--
+Is there some patches I could try? 
+
+-- Pasi Kärkkäinen
+       
+                                   ^
+                                .     .
+                                 Linux
+                              /    -    \
+                             Choice.of.the
+                           .Next.Generation.
+

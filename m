@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313571AbSHGWDE>; Wed, 7 Aug 2002 18:03:04 -0400
+	id <S313181AbSHGWDA>; Wed, 7 Aug 2002 18:03:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313628AbSHGWDE>; Wed, 7 Aug 2002 18:03:04 -0400
-Received: from waste.org ([209.173.204.2]:28390 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S313571AbSHGWDD>;
-	Wed, 7 Aug 2002 18:03:03 -0400
-Date: Wed, 7 Aug 2002 17:06:37 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Eli Carter <eli.carter@inet.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Idle curiosity: Acting as a SCSI target
-In-Reply-To: <3D519357.7070904@inet.com>
-Message-ID: <Pine.LNX.4.44.0208071659090.16458-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313571AbSHGWDA>; Wed, 7 Aug 2002 18:03:00 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:21253 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S313181AbSHGWC7>; Wed, 7 Aug 2002 18:02:59 -0400
+Date: Wed, 7 Aug 2002 23:06:35 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, mporter@mvista.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Patch: linux-2.5.30/arch/arm/mach-iop310/iq80310-pci.c BUG_ON(cond1 || cond2) separation
+Message-ID: <20020807230635.A13078@flint.arm.linux.org.uk>
+References: <20020805131740.A2433@baldur.yggdrasil.com> <20011101234824.A69@toy.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20011101234824.A69@toy.ucw.cz>; from pavel@suse.cz on Thu, Nov 01, 2001 at 11:48:25PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Aug 2002, Eli Carter wrote:
+On Thu, Nov 01, 2001 at 11:48:25PM +0000, Pavel Machek wrote:
+> it makes code slower/bigger... probably bad idea
 
-> Based on a conversation I had recently, my curiosity got piqued...
->
-> I'm not really sure how to query google on this, and didn't turn up what
-> I was looking for because of that, so here's the random question:
->
-> Is there a way to make a Linux machine with a scsi controller act like a
-> scsi device (is the correct term 'target'?) (such as a disk) using a
-> local block device as storage?
-
-No, not in the stock kernel.
-
-However, if you look up stuff having to do with IP over SCSI (old) or SCSI
-over IP (new), you will find quite a number of the pieces needed for this.
-
-> I'm not sure it would be of general use, but I can see uses in weird or
-> remote prototyping situations...
-
-You're not thinking hard enough. Try this: embedded Linux taking whatever
-form or number of disks together with software RAID _and_ volume
-management / snapshot capability and whatever other intelligence you want
-and presenting it to hosts as an arbitrary number of generic SCSI / FC /
-iSCSI disks.
+Its actually not in a performance critical area, so the "slower" argument
+doesn't apply.
 
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

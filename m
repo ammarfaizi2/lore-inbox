@@ -1,65 +1,102 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315265AbSEFXsM>; Mon, 6 May 2002 19:48:12 -0400
+	id <S315264AbSEFXyn>; Mon, 6 May 2002 19:54:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315264AbSEFXsL>; Mon, 6 May 2002 19:48:11 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:9988 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S315265AbSEFXsK>; Mon, 6 May 2002 19:48:10 -0400
-Date: Mon, 6 May 2002 16:48:00 -0700
-From: jw schultz <jw@pegasys.ws>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.13 IDE 53
-Message-ID: <20020506164800.A28702@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Martin Dalecki <dalecki@evision-ventures.com>,
-	Russell King <rmk@arm.linux.org.uk>,
-	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1019549894.1450.41.camel@turbulence.megapathdsl.net> <3CC7E358.8050905@evision-ventures.com> <20020425172508.GK3542@suse.de> <20020425173439.GM3542@suse.de> <aa9qtb$d8a$1@penguin.transmeta.com> <3CD55601.9030604@evision-ventures.com> <20020506105331.A20048@flint.arm.linux.org.uk> <3CD644E5.4070407@evision-ventures.com>
+	id <S315266AbSEFXym>; Mon, 6 May 2002 19:54:42 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:8461 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S315264AbSEFXyl>;
+	Mon, 6 May 2002 19:54:41 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel 
+In-Reply-To: Your message of "Mon, 06 May 2002 13:33:18 +0200."
+             <Pine.LNX.4.33.0205061129440.19054-100000@cola.enlightnet.local> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+Date: Tue, 07 May 2002 09:54:29 +1000
+Message-ID: <18740.1020729269@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 06, 2002 at 10:55:01AM +0200, Martin Dalecki wrote:
-> Uz.ytkownik Russell King napisa?:
-> > 
-> > Are you at some point going to add the black/white lists back into
-> > icside.c that you removed shortly after you took over the IDE
-> > maintainence?  I've been patiently waiting to see what was going to
-> > happen to them.
-> 
-> What about using the generic udma_black_list() and udma_white_list()?
-> Just tell so and I could prvide the code for testing.
-> 
+On Mon, 6 May 2002 13:33:18 +0200 (CEST), 
+Urban Widmark <urban@teststation.com> wrote:
+>On Mon, 6 May 2002, Keith Owens wrote:
+>
+>> >being able to build over NFS or having stricter integrity checks. I just
+>> >don't get the faster bit, but maybe that's just me.
+>> 
+>> You are not comparing like with like.  Much of your speed difference
+>> from kbuild 2.4 to 2.5 is because you have omitted the make dep time.
+>> kbuild 2.5 does not have a seperate make dep pass.  Instead it checks
+>> the dependencies every time, during phase4.
+>
+>make dep isn't part of a module rebuild given the constriants I work
+>under, the changes are local to the module (which they are).
+>
+>In my world make dep is only relevant for the first build, and the
+>times I mentioned for the full build includes a dependency build.
+>(I know the presentation of that part was crap ... but so was the
+> measurements :)
 
-Just a thought so i'll throw it out there.  I'm just a
-spectator so far on this issue as i haven't yet been burned
-by it. 
+kbuild 2.4 defaults to doing a (possibly) inaccurate build after
+changes.  You have to manually run extra commands to ensure that kbuild
+2.4 does an accurate build.  If you believe that your change has not
+changed the build dependency graph, it _may_ be safe to omit the extra
+commands.
 
-There seem to be several black|white lists floating around.
-This would appear to be an ongoing task keeping up with the
-new and obscure hardware to cope with capabilities and
-compatibilities and often requires kernel or module rebuilds
-and means ever-growing lists.
+kbuild 2.5 defaults to always doing an accurate build, no matter what
+has changed.  You have to specify a command line option to bypass the
+full processing and make it (possibly) inaccurate.  If you believe that
+your change has not changed the build dependency graph, it _may_ be
+safe to specify the command line option.
 
-For some time i have been thinking that a common black|white
-list API might be worthwhile.  Along with this would be the
-ability to examine and modify, or at least add to, the lists
-at runtime.  For hot-plug some of the black|white checks
-might even be better handled by a daemon that can read an
-external file.  That would facilitate testing and allow
-people to add support for their hot-plug devices without
-reboot.
+You have to specify a command line option on kbuild 2.5, to get the
+same behaviour that kbuild 2.4 does by default.  It comes down to what
+should the default be for a build?
 
+* kbuild 2.4 defaults to assuming that nobody ever makes misteaks.
+* kbuild 2.5 defaults to assuming that mistakes occur.
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+This is almost a religious argument, should the build be unsafe and
+assume that everybody is an expert or should the build be safe and
+provide facilities for experts to override it?  I am a true believer in
+"the build must be safe" model.
 
-		Remember Cernan and Schmitt
+>What you are saying is that I should never do:
+>make modules
+>
+>but always:
+>make dep && make bzImage modules
+>
+>Ok, then I see what you meant by kbuild-2.5 being faster.
+
+That is the only way to ensure an accurate build on kbuild 2.4.  Yes,
+if you know that your change has no side effects then you can omit make
+dep bzImage.  The problem is that many people automatically omit the
+extra commands, without considering the implications.
+
+>Documentation/kbuild/commands.txt (2.4.18 kernel, don't have anything more
+>recent at hand) has a section on make dep that says I only have to run it
+>once after the first time I configure the kernel. Maybe that is where I
+>picked up that habit.
+
+The documentation is correct, but incomplete.  It is correct for an end
+user kernel build, i.e. for people who do not change the code or apply
+patches, they just configure the kernel and build it.  It is incomplete
+for developers and for anybody who gets a patch and applies it.
+
+You need to run make dep after any change that affects the build
+dependency graph.  Add or delete #include in a source, add or delete a
+source, add or delete a config option and you must run make dep to
+ensure that the changes rebuild what is required.  Modversions are even
+worse, after any change that might affect an exported symbol or
+structure, you must make mrproper (not dep) to calculate and apply the
+new hashes to the entire kernel.
+
+As more and more people apply patches (how many variants of the kernel
+tree are there now?), more and more people are forgetting to run make
+dep and are building incomplete kernels.
+
+The default for kernel build must be a safe and accurate build.
+

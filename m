@@ -1,102 +1,215 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280221AbRJaNuQ>; Wed, 31 Oct 2001 08:50:16 -0500
+	id <S280217AbRJaNvq>; Wed, 31 Oct 2001 08:51:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280213AbRJaNuH>; Wed, 31 Oct 2001 08:50:07 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:61312 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S280217AbRJaNty>; Wed, 31 Oct 2001 08:49:54 -0500
-Date: Wed, 31 Oct 2001 08:50:29 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: =?iso-8859-1?q?Marco=20Schwarz?= <mschwarz_contron@yahoo.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: AMD SMP Support ?
-In-Reply-To: <20011031133744.78351.qmail@web10303.mail.yahoo.com>
-Message-ID: <Pine.LNX.3.95.1011031084133.8896A-100000@chaos.analogic.com>
+	id <S280213AbRJaNvh>; Wed, 31 Oct 2001 08:51:37 -0500
+Received: from mail104.mail.bellsouth.net ([205.152.58.44]:16347 "EHLO
+	imf04bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S280217AbRJaNv1>; Wed, 31 Oct 2001 08:51:27 -0500
+Message-ID: <3BE00202.1D530305@mandrakesoft.com>
+Date: Wed, 31 Oct 2001 08:52:02 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: pre6 oom killer oops
+In-Reply-To: <3BE00078.FF088117@mandrakesoft.com>
+Content-Type: multipart/mixed;
+ boundary="------------AEDC5EC0F0EC75C3A8537D97"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Oct 2001, [iso-8859-1] Marco Schwarz wrote:
+This is a multi-part message in MIME format.
+--------------AEDC5EC0F0EC75C3A8537D97
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> Hi all,
-> 
-> I will get some new servers next week and I have two
-> questions:
-> 
-> - Does the current kernel support Dual Athlon CPUs ?
-> 
-> - Is it possible to build one kernel for dual Athlon,
-> single Athlon, dual PIII and single PIII boxes ? 
-> 
-> I would wait until next week and try it out, but
-> unfortunately our management asked me about a
-> statement about this :) (They want to be able to swap
-> server hardware in case one of the servers breaks -
-> without any software configuration if possible).
-> 
-> Thanks in advance,
-> 
-> Marco Schwarz
+further comments on that report.
 
-You can use a SMP kernel on a single CPU machine with no problems.
-However, there have been some reported problems trying to use some
-Athlon "features". 
+machine survived, and sysrq-m output was taken a few minutes after I (a)
+noticed the oops and (b) installed the ksymoops RPM :)  So the sysrq-m
+is not from immediately after the oops.
 
-I use this configuration on '486, 586, 686 and the early Athlons
-It works okay although it certainly might not be "optimum".
+I attach vmstat output from the alpha, running pre6.  TAKE THIS OUTPUT
+WITH A GRAIN OF SALT.  I -think- the output starts when I start the rpm
+build, and -think- the output stops when I noticed the oops.  But the
+possibility exists that I stopped the vmstat before the oom killer
+kicked in.
 
-#
-# Processor type and features
-#
-# CONFIG_M386 is not set
-CONFIG_M486=y
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-# CONFIG_M686 is not set
-# CONFIG_MPENTIUMIII is not set
-# CONFIG_MPENTIUM4 is not set
-# CONFIG_MK6 is not set
-# CONFIG_MK7 is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_L1_CACHE_SHIFT=4
-CONFIG_X86_USE_STRING_486=y
-CONFIG_X86_ALIGNMENT_16=y
-CONFIG_TOSHIBA=m
-# CONFIG_MICROCODE is not set
-# CONFIG_X86_MSR is not set
-# CONFIG_X86_CPUID is not set
-CONFIG_NOHIGHMEM=y
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM64G is not set
-# CONFIG_MATH_EMULATION is not set
-# CONFIG_MTRR is not set
-CONFIG_SMP=y
-CONFIG_HAVE_DEC_LOCK=y
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+--------------AEDC5EC0F0EC75C3A8537D97
+Content-Type: text/plain; charset=us-ascii;
+ name="vmstat.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="vmstat.txt"
 
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 1  0  0    808  96536  27888 181040   0   0    38   159 1102   204  60   9  31
+ 3  0  0    808  96688  27928 181040   0   0    29     0 1100   300  80  19   0
+ 1  0  0    808  96352  27928 181024   0   0     0     0 1070   239  81  19   0
+ 1  0  0    808  96664  27928 181024   0   0     0     0 1063   223  80  20   0
+ 1  0  0    808  96616  27928 181024   0   0     0     8 1077   248  80  20   0
+ 1  0  0    808  96432  27928 181024   0   0     0     0 1073   250  78  22   0
+ 1  0  0    808  96512  27928 181024   0   0     0     0 1059   215  80  20   0
+ 1  0  0    808  96336  27928 181024   0   0     0    24 1052   163  83  17   0
+ 1  0  0    808  96648  27928 181024   0   0     0    48 1069   197  82  18   0
+ 1  0  0    808  96328  27928 181024   0   0     0     0 1039   160  83  17   0
+ 1  0  0    808  96304  27928 181024   0   0     0     0 1058   213  81  19   0
+ 1  0  0    808  96336  27928 181016   0   0     0     0 1062   219  80  20   0
+ 1  0  0    808  96416  27928 181016   0   0     0     0 1134   310  79  21   0
+ 1  0  0    808  96616  27928 181016   0   0     0     0 1148   298  79  20   0
+ 1  0  0    808  96336  27928 181016   0   0     0     0 1162   322  80  20   0
+ 1  0  0    808  96504  27928 181008   0   0     0     0 1143   288  80  19   0
+ 2  0  0    808  95944  27928 181008   0   0     0     8 1140   248  85  14   0
+ 1  0  0    808  96568  27928 181008   0   0     0     8 1040   160  88  12   0
+ 2  0  0    808  96320  27928 181008   0   0     0     8 1031   106  89  11   0
+ 2  0  0    808  96320  27928 181008   0   0     0     0 1030   112  88  12   0
+ 1  0  0    808  94952  27928 181008   0   0     0     0 1032   124  89  11   0
+ 1  0  0    808  94936  27928 181008   0   0     0     8 1033   102  90  10   0
+ 1  0  0    808  95160  27928 181008   0   0     0     0 1028    89  90  10   0
+ 1  0  0    808  96376  27928 181296   0   0     0     8 1035   177  85  15   0
+ 1  0  0    808  69520  28584 202488   0   0     0     0 1028   419  86  14   0
+ 1  0  0    808  45432  30168 224912   0   0     2    16 1040   816  92   8   0
+ 1  0  0    808  30824  31640 238048   0   0    12     8 1044   694  95   5   0
+ 1  0  0    808  15632  32776 252096   0   0     1     0 1027   733  96   4   0
+ 2  0  0    808   9208  31472 265232   0   0    32     0 1062   648  84  15   0
+ 1  0  0    808  16032  30696 260584   0   0     1     0 1028   444  67  32   1
+ 1  0  0    808   6904  30536 259304   0   0     1     8 1031   145  91   9   0
+ 1  0  0    808   7424  30560 259560   0   0     0     8 1031    41  97   3   0
+ 1  0  1    808  13704  30592 259464   0   0     0  3032 1053    42  96   4   0
+ 1  0  0    808  12992  30720 260096   0   0     0  3388 1111   280  52  24  24
+ 1  0  0    808  14344  30752 260288   0   0     0     0 1030   475  71  29   0
+ 2  0  0    808  13408  30832 260416   0   0     2     0 1039   242  86  14   0
+ 1  0  0    808  14912  30440 258952   0   0     0     0 1028   128  91   9   0
+ 1  0  0    808  11352  30472 259144   0   0     0     0 1028   187  88  12   0
+ 1  0  0    808  14608  30512 259232   0   0     0     0 1027   210  86  14   0
+ 1  0  0    808  16320  30536 259720   0   0     0     0 1034   389  74  25   0
+ 1  0  0    808  16128  30632 259824   0   0     0     0 1032   408  68  31   0
+ 2  0  0    808  13312  30680 260024   0   0     1     0 1029   369  76  24   0
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 3  0  0    808   6560  30696 260088   0   0     1     0 1028   126  93   7   0
+ 1  0  0    808   7760  30408 256552   0   0     1     0 1028    36  98   2   0
+ 2  0  0    808  16672  30424 256704   0   0     0     0 1027   133  93   7   0
+ 1  0  0    808  11864  30424 256744   0   0     0     0 1027    99  95   5   0
+ 1  0  0    808  12664  30432 256848   0   0     0     0 1027    83  95   5   0
+ 1  1  0    808  19504  30440 256912   0   0     0     0 1032   151  92   8   0
+ 3  0  0    808  18000  30440 256984   0   0     0     0 1027   145  91   9   0
+ 1  0  0    808  11216  30448 257040   0   0     0     0 1027   136  92   8   0
+ 1  0  0    808  13656  30456 257096   0   0     0     0 1027   102  94   6   0
+ 1  0  0    808  12200  30456 257160   0   0     0     0 1028   158  91   9   0
+ 1  0  0    808  13624  30464 257256   0   0     0     0 1028   126  93   7   0
+ 1  0  0    808   6600  30464 257288   0   0     0     0 1028    80  96   4   0
+ 1  0  0    808   5152  29872 255968   0   0     0     0 1027    99  95   5   0
+ 1  0  0    808  12480  28616 251080   0   0     0     0 1027    16  99   1   0
+ 2  0  0    808  26448  28624 251392   0   0     0     0 1027   147  92   8   0
+ 2  0  0    808  22928  28624 251456   0   0     0     0 1028   164  91   9   0
+ 1  0  0    808  18296  28640 251536   0   0     0     0 1028   139  92   8   0
+ 2  0  0    808  21784  28648 251624   0   0     0     0 1027   157  91   9   0
+ 1  0  0    808  20624  28648 251696   0   0     0     0 1027   166  91   9   0
+ 1  0  0    808  18000  28656 251768   0   0     0     0 1027   131  93   7   0
+ 1  0  0    808  19920  28656 251840   0   0     0     0 1027   177  90  10   0
+ 1  0  0    808  19168  28656 251904   0   0     0     0 1027   172  91   9   0
+ 2  0  0    808  25480  28656 251976   0   0     0     0 1027   169  91   9   0
+ 1  0  0    808  20200  28672 252064   0   0     1     0 1028   138  91   8   1
+ 1  0  0    808  19344  28680 252168   0   0     1     0 1028    54  97   3   0
+ 2  0  0    808  24088  28800 253800   0   0     0     0 1030   129  87  13   1
+ 1  0  0    808  16728  28840 254176   0   0     1     0 1029    91  92   8   0
+ 1  0  0    808  23864  28856 254560   0   0     0     0 1027   103  91   9   0
+ 1  1  0    808  23544  28864 254728   0   0     1     0 1031   155  88  12   0
+ 2  0  0    808   9624  28872 254808   0   0     1     0 1028   130  90  10   0
+ 2  0  0    808  22912  28888 254928   0   0     0     0 1027    77  96   4   0
+ 2  0  0    808  22912  28904 255256   0   0     0     0 1028   133  89  11   0
+ 1  0  0    808  27544  28536 251608   0   0     0     0 1032    80  96   4   0
+ 2  0  0    808  91952  30104 187432   0   0     1     0 1047  1098  65  34   1
+ 1  0  1    808  89032  30192 187512   0   0     8   244 1103   476  61  24  14
+ 1  0  1    808  89744  30240 188344   0   0     0  4391 1110   108  86  11   2
+ 1  0  0    808  85720  30264 188536   0   0     0   243 1066   100  90  10   0
+ 1  0  0    808  78528  30280 188792   0   0     1   120 1057    71  96   4   0
+ 1  0  1    808  86880  30312 189608   0   0     2   213 1029    81  93   7   1
+ 1  0  0    808  81424  30336 189608   0   0     0    67 1058   450  57  22  21
+ 2  0  0    808  89184  30384 190296   0   0     0   293 1062    44  91   9   0
+ 2  1  1    808  86416  30416 190648   0   0     0   171 1049   349  84  16   0
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 2  0  0    808  79536  30424 190760   0   0     0     0 1035   109  96   4   0
+ 1  0  0    808  78008  30432 190896   0   0     0    64 1038    82  97   3   0
+ 1  0  0    808  84400  30432 191104   0   0     0    52 1038    91  97   3   0
+ 1  0  0    808  69352  30432 191120   0   0     0    61 1039    81  97   3   0
+ 1  0  0    808  77088  30448 191360   0   0     0    78 1031    82  97   3   0
+ 2  0  0    808  86048  30464 192064   0   0     0     0 1035    84  94   6   0
+ 1  0  0    808  77464  30480 192096   0   0     0   203 1063   457  64  24  11
+ 2  0  0    808  85800  30568 192672   0   0     1   183 1059   116  89  11   0
+ 1  0  0    808  80568  30584 192776   0   0     0     0 1033   124  93   7   0
+ 1  0  0    808  77840  30600 192880   0   0     0    62 1042   126  93   7   0
+ 1  0  0    808  79936  30632 193000   0   0     1    52 1041   105  94   6   0
+ 1  0  0    808  76880  30688 193880   0   0    20   142 1049    85  93   6   1
+ 2  0  0    808  84016  30760 194432   0   0    17     0 1030   394  75  23   2
+ 2  0  0    808  84152  30800 194768   0   0     0   263 1066   313  80  20   0
+ 1  0  0    808  83144  30840 195488   0   0     0   111 1059   401  82  18   0
+ 1  0  1    808  83056  30848 195864   0   0     0   203 1043   434  79  21   0
+ 1  0  0    808  75984  30864 195936   0   0     0    90 1049   497  62  26  12
+ 2  0  0    808  81424  30896 196248   0   0     0   119 1058   281  59  21  21
+ 2  0  0    808  81424  30920 196664   0   0     0   142 1056   344  71  15  14
+ 1  0  0    808  79424  30928 196760   0   0     0     0 1028   445  78  22   0
+ 1  0  0    808  81672  30960 197024   0   0     0   140 1055   429  61  23  17
+ 1  0  0    808 114576  31176 163768   0   0     1     8 1039   386  77  23   0
+ 2  0  0    808 112984  31224 163864   0   0     2     0 1031   421  68  31   1
+ 1  0  0    808 100728  31224 163896   0   0     0     0 1027    62  94   6   0
+ 1  0  0    808  96984  31224 163896   0   0     0     0 1027    32  98   2   0
+ 1  0  0    808 101112  31232 163904   0   0     0     0 1027    45  97   3   0
+ 1  0  0    808  95768  31232 163904   0   0     0     0 1027    33  98   2   0
+ 1  0  0    808  88960  31232 163904   0   0     0     0 1027    15  99   1   0
+ 2  0  0    808  95888  31232 163904   0   0     0     2 1029    39  98   2   0
+ 1  0  0    808  81376  31232 163904   0   0     0     7 1034    21  99   1   0
+ 1  0  0    808  81720  31232 163904   0   0     0     0 1027    13  99   1   0
+ 1  0  0    808  77920  31232 163904   0   0     0     0 1027    11  99   1   0
+ 1  0  0    808  73288  31248 163912   0   0     3     0 1028    13  98   1   1
+ 2  0  0    808  67408  31248 163912   0   0     0     0 1027    14  99   1   0
+ 1  0  0    808 107184  31248 163912   0   0     0     0 1028    55  96   4   0
+ 2  1  0    808 112496  31248 163928   0   0     0     0 1027    49  97   3   0
+ 1  0  0    808  90632  31264 163976   0   0     4     0 1028    43  96   3   1
+ 1  0  0    808  75424  31264 163976   0   0     0     0 1027    10  98   2   0
+ 1  0  0    808  69848  31264 163976   0   0     0     0 1027     4  99   1   0
+ 1  0  0    808  69848  31264 163976   0   0     0     0 1027     4 100   0   0
+ 1  0  0    808  65464  31264 163976   0   0     0     0 1027     4  96   4   0
+ 1  0  0    808  65696  31264 163976   0   0     0     0 1027    11  97   3   0
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 2  0  0    808  63672  31264 163976   0   0     0     0 1028    13 100   0   0
+ 1  0  0    808  95744  31280 164392   0   0     0     0 1027    89  92   8   0
+ 1  0  0    808  94544  31280 164392   0   0     0     0 1027    11  99   1   0
+ 1  0  0    808  98472  31280 164392   0   0     0     0 1027    33  98   2   0
+ 2  0  0    808 111552  31280 164392   0   0     0     0 1027    18  99   1   0
+ 1  0  0    808 101904  31280 164392   0   0     0     0 1027    39  97   3   0
+ 1  0  0    808  98656  31280 164440   0   0     0     0 1027    47  97   3   0
+ 1  0  0    808  92456  31280 164440   0   0     0     0 1028    14  99   1   0
+ 1  0  0    808  84640  31280 164440   0   0     0     0 1027    12  99   1   0
+ 1  0  0    808  94816  31288 164440   0   0     0     0 1027    29  98   2   0
+ 1  0  0    808 103008  31288 164456   0   0     0     0 1027    34  97   3   0
+ 2  0  0    808 112952  31296 164464   0   0     0     0 1027    59  95   5   0
+ 1  0  0    808  98552  31304 164488   0   0     0     0 1027    65  95   5   0
+ 1  0  0    808  92896  31304 164488   0   0     0     0 1027    13  99   1   0
+ 1  0  0    808  88040  31304 164488   0   0     0     0 1028    11  99   1   0
+ 2  0  0    808 100520  31312 164488   0   0     0     0 1027    29  98   2   0
+ 1  0  0    808 103320  31312 164488   0   0     0     0 1029    28  98   2   0
+ 1  0  0    808 100328  31312 164544   0   0     0     0 1027    56  96   4   0
+ 1  0  0    808 100896  31320 164648   0   0     0     0 1027    30  98   2   0
+ 1  0  0    808 102568  31320 164680   0   0     0     0 1041   117  94   6   0
+ 2  0  0    808  99160  31320 164704   0   0     0     0 1065   108  98   2   0
+ 1  0  0    808 104864  31328 164872   0   0     0     0 1035    58  96   4   0
+ 1  0  0    808 100576  31336 164920   0   0     0     0 1028    54  97   3   0
+ 1  0  0    808 101512  31344 165080   0   0     0     0 1028    30  98   2   0
 
-Compiling a kernel like this will allow you to switch boxes at
-will.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+--------------AEDC5EC0F0EC75C3A8537D97--
 
 

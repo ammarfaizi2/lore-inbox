@@ -1,300 +1,317 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbTKRLuA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 06:50:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbTKRLuA
+	id S262344AbTKRMLq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 07:11:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbTKRMLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 06:50:00 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:54226 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261763AbTKRLtw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 06:49:52 -0500
-Date: Tue, 18 Nov 2003 17:25:20 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Daniel McNeil <daniel@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, "linux-aio@kvack.org" <linux-aio@kvack.org>
-Subject: Re: 2.6.0-test9-mm3 - AIO test results
-Message-ID: <20031118115520.GA4291@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20031112233002.436f5d0c.akpm@osdl.org> <1068761038.1805.35.camel@ibm-c.pdx.osdl.net> <20031117052518.GA11184@in.ibm.com> <1069118109.1842.31.camel@ibm-c.pdx.osdl.net> <1069119433.1842.43.camel@ibm-c.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1069119433.1842.43.camel@ibm-c.pdx.osdl.net>
-User-Agent: Mutt/1.4i
+	Tue, 18 Nov 2003 07:11:46 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:51646
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S262344AbTKRMLi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 07:11:38 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Patrick Mochel <mochel@osdl.org>
+Subject: Re: Patrick's Test9 suspend code.
+Date: Tue, 18 Nov 2003 06:02:18 -0600
+User-Agent: KMail/1.5
+Cc: Pavel Machek <pavel@ucw.cz>, <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0311170844230.12994-100000@cherise>
+In-Reply-To: <Pine.LNX.4.44.0311170844230.12994-100000@cherise>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_Kpgu/iRimjxpxm9"
+Message-Id: <200311180602.18511.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't seem to able to recreate this at my end - even with 1k 
-block sizes.  Did you notice if this problem occurs without
-the latest patch ?
 
-Regards
-Suparna
+--Boundary-00=_Kpgu/iRimjxpxm9
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Mon, Nov 17, 2003 at 05:37:14PM -0800, Daniel McNeil wrote:
-> Obviously, the ps output in my previous email showed that the hangs were
-> with 1k i/o sizes.  
-> 
-> More testing using 2k, 4k, 16k, 32k, 64k, 128k, 256k and 512k all
-> completed correctly.
-> 
-> Even 11k and 17k worked.
-> 
-> $ ls -l
-> -rw-------    1 daniel   daniel   88289280 Jun  9 16:54 glibc-2.3.2.tar
-> -rw-rw-r--    1 daniel   daniel   88289280 Nov 17 17:32 ff2
-> 
-> 
-> So, only 1k is hanging so far.
-> 
-> Daniel
-> 
-> On Mon, 2003-11-17 at 17:15, Daniel McNeil wrote:
-> > Suparna,
-> > 
-> > Good news and bad news.  Your patch does fix the non-power of two i/o
-> > size problems where AIO previously did not complete:
-> > 
-> > $ ./aiodio_sparse  -s 1751k -r 18k -w 11k
-> > $ aiodio_sparse -i 9 -dd -s 180k -r 18k -w 18k  
-> > io_submit() return 9
-> > aiodio_sparse: 9 i/o in flight
-> > aiodio_sparse: offset 165888 filesize 184320 inflight 9
-> > aiodio_sparse: io_getevent() returned 1
-> > aiodio_sparse: io_getevent() res 18432 res2 0
-> > io_submit() return 1
-> > AIO DIO write done unlinking file
-> > dio_sparse done writing, kill children
-> > aiodio_sparse 0 children had errors
-> > 
-> > But when testing using aiocp using O_DIRECT to copy a file to
-> > an already allocated file, the aiocp process hangs.  I used i/o
-> > size of 4k and that compeleted.  Using i/o size of 1k and 2k,
-> > the aiocp process hung during io_sumbit() and are unkillable.
-> > Here are the stack traces:
-> > 
-> > # ps -fu daniel | grep aiocp
-> > daniel    1920     1  0 16:45 ?        00:00:07 aiocp -b 1k -n 1 -f DIRECT glibc-2.3.2.tar ff2
-> > daniel    2083  2037  0 17:00 pts/2    00:00:03 aiocp -dd -b 1k -n 8 -f DIRECT glibc-2.3.2.tar ff2
-> > 
-> > 
-> > aiocp         D 00000001  1920      1                1902 (NOTLB)
-> > e70abd04 00200086 c18dbc80 00000001 00000003 c02897fc 00000060 00200246
-> >        f7cdb8b4 c16522f0 c18dbc80 0000309c 640a05eb 0000008b e6d9e660
-> > c0289a16
-> >        f7cdb8b4 e87e95cc c18dbc80 00000000 00000001 e70abd10 c0123712
-> > e70aa000
-> > Call Trace:
-> >  [<c02897fc>] generic_unplug_device+0x50/0xbd
-> >  [<c0289a16>] blk_run_queues+0xa9/0x15c
-> >  [<c0123712>] io_schedule+0x26/0x30
-> >  [<c0192242>] direct_io_worker+0x376/0x5ab
-> >  [<c014840f>] generic_file_direct_IO+0x70/0x89
-> >  [<c019264a>] __blockdev_direct_IO+0x1d3/0x2d5
-> >  [<c01ac73e>] ext3_direct_io_get_blocks+0x0/0xbf
-> >  [<c01ad72d>] ext3_direct_IO+0xc0/0x1e1
-> >  [<c01ac73e>] ext3_direct_io_get_blocks+0x0/0xbf
-> >  [<c014840f>] generic_file_direct_IO+0x70/0x89
-> >  [<c0145e11>] __generic_file_aio_read+0xfb/0x1ff
-> >  [<c0121b70>] schedule+0x3ac/0x7ef
-> >  [<c0145f48>] generic_file_aio_read+0x33/0x37
-> >  [<c0194ad3>] aio_pread+0x34/0x5f
-> >  [<c0193bec>] aio_run_iocb+0xa6/0x1ed
-> >  [<c019316f>] __aio_get_req+0x27/0x158
-> >  [<c0194a9f>] aio_pread+0x0/0x5f
-> >  [<c0194f62>] io_submit_one+0x1ea/0x2b7
-> >  [<c0195110>] sys_io_submit+0xe1/0x194
-> >  [<c03c29a7>] syscall_call+0x7/0xb
-> >  [<c03c007b>] rpc_depopulate+0x1aa/0x24b
-> > 
-> > 
-> > aiocp         D 366EDC94  2083   2037                     (NOTLB)
-> > e758bd04 00200082 f71ba000 366edc94 00000161 c02897fc 00000060 366edc94
-> >        00000161 f71ba000 c18d3c80 000069a9 366f5a0e 00000161 e8d4acc0 c0289a16
-> >        f7cdb8b4 e960465c c18d3c80 00000000 00000001 e758bd10 c0123712 e758a000
-> > Call Trace:
-> >  [<c02897fc>] generic_unplug_device+0x50/0xbd
-> >  [<c0289a16>] blk_run_queues+0xa9/0x15c
-> >  [<c0123712>] io_schedule+0x26/0x30
-> >  [<c0192242>] direct_io_worker+0x376/0x5ab
-> >  [<c019264a>] __blockdev_direct_IO+0x1d3/0x2d5
-> >  [<c01ac73e>] ext3_direct_io_get_blocks+0x0/0xbf
-> >  [<c01ad72d>] ext3_direct_IO+0xc0/0x1e1
-> >  [<c01ac73e>] ext3_direct_io_get_blocks+0x0/0xbf
-> >  [<c014840f>] generic_file_direct_IO+0x70/0x89
-> >  [<c0145e11>] __generic_file_aio_read+0xfb/0x1ff
-> >  [<c0259d3e>] write_chan+0x165/0x21e
-> >  [<c0145f48>] generic_file_aio_read+0x33/0x37
-> >  [<c0194ad3>] aio_pread+0x34/0x5f
-> >  [<c0193bec>] aio_run_iocb+0xa6/0x1ed
-> >  [<c019316f>] __aio_get_req+0x27/0x158
-> >  [<c0194a9f>] aio_pread+0x0/0x5f
-> >  [<c02532ab>] tty_write+0x1e8/0x3b2
-> >  [<c0194f62>] io_submit_one+0x1ea/0x2b7
-> >  [<c0195110>] sys_io_submit+0xe1/0x194
-> >  [<c03c29a7>] syscall_call+0x7/0xb
-> >  [<c03c007b>] rpc_depopulate+0x1aa/0x24b
-> > 
-> > 
-> > 
-> > Daniel
-> > 
-> > On Sun, 2003-11-16 at 21:25, Suparna Bhattacharya wrote:
-> > > On Thu, Nov 13, 2003 at 02:03:58PM -0800, Daniel McNeil wrote:
-> > > > Andrew,
-> > > > 
-> > > > I'm testing test9-mm3 on a 2-proc Xeon with a ext3 file system.
-> > > > I tested using the test programs aiocp and aiodio_sparse.
-> > > > (see http://developer.osdl.org/daniel/AIO/)
-> > > > 
-> > > > Using aiocp with i/o sizes from 1k to 512k to copy files worked
-> > > > without any errors or kernel debug messages.
-> > > > 
-> > > > With 64k i/o, the aiodio_sparse program complete without any errors.
-> > > > There are no kernel error messages, so that is good.
-> > > > 
-> > > > There are still problems with non power of 2 i/o sizes using AIO and
-> > > > O_DIRECT.  It hangs with aio's that do not seem to complete.  The test
-> > > > does exit when hitting ^c and there are no kernel messages.  Test output
-> > > > below:
-> > > 
-> > > Could you check if the following patch fixes the problem for you ?
-> > > 
-> > > Regards
-> > > Suparna
-> > > 
-> > > --------------------------------------------------------------
-> > > 
-> > > With this patch, when the DIO code falls back to buffered i/o after
-> > > having submitted part of the i/o, then buffered i/o is issued only
-> > > for the remaining part of the request (i.e. the part not already 
-> > > covered by DIO).
-> > > 
-> > > diff -ur pure-mm3/fs/direct-io.c linux-2.6.0-test9-mm3/fs/direct-io.c
-> > > --- pure-mm3/fs/direct-io.c	2003-11-14 09:09:06.000000000 +0530
-> > > +++ linux-2.6.0-test9-mm3/fs/direct-io.c	2003-11-17 09:00:47.000000000 +0530
-> > > @@ -74,6 +74,7 @@
-> > >  					   been performed at the start of a
-> > >  					   write */
-> > >  	int pages_in_io;		/* approximate total IO pages */
-> > > +	size_t	size;			/* total request size (doesn't change)*/
-> > >  	sector_t block_in_file;		/* Current offset into the underlying
-> > >  					   file in dio_block units. */
-> > >  	unsigned blocks_available;	/* At block_in_file.  changes */
-> > > @@ -226,7 +227,7 @@
-> > >  			dio_complete(dio, dio->block_in_file << dio->blkbits,
-> > >  					dio->result);
-> > >  			/* Complete AIO later if falling back to buffered i/o */
-> > > -			if (dio->result != -ENOTBLK) {
-> > > +			if (dio->result >= dio->size || dio->rw == READ) {
-> > >  				aio_complete(dio->iocb, dio->result, 0);
-> > >  				kfree(dio);
-> > >  			} else {
-> > > @@ -889,6 +890,7 @@
-> > >  	dio->blkbits = blkbits;
-> > >  	dio->blkfactor = inode->i_blkbits - blkbits;
-> > >  	dio->start_zero_done = 0;
-> > > +	dio->size = 0;
-> > >  	dio->block_in_file = offset >> blkbits;
-> > >  	dio->blocks_available = 0;
-> > >  	dio->cur_page = NULL;
-> > > @@ -925,7 +927,7 @@
-> > >  
-> > >  	for (seg = 0; seg < nr_segs; seg++) {
-> > >  		user_addr = (unsigned long)iov[seg].iov_base;
-> > > -		bytes = iov[seg].iov_len;
-> > > +		dio->size += bytes = iov[seg].iov_len;
-> > >  
-> > >  		/* Index into the first page of the first block */
-> > >  		dio->first_block_in_page = (user_addr & ~PAGE_MASK) >> blkbits;
-> > > @@ -956,6 +958,13 @@
-> > >  		}
-> > >  	} /* end iovec loop */
-> > >  
-> > > +	if (ret == -ENOTBLK && rw == WRITE) {
-> > > +		/*
-> > > +		 * The remaining part of the request will be 
-> > > +		 * be handled by buffered I/O when we return
-> > > +		 */
-> > > +		ret = 0;
-> > > +	}
-> > >  	/*
-> > >  	 * There may be some unwritten disk at the end of a part-written
-> > >  	 * fs-block-sized block.  Go zero that now.
-> > > @@ -986,19 +995,13 @@
-> > >  	 */
-> > >  	if (dio->is_async) {
-> > >  		if (ret == 0)
-> > > -			ret = dio->result;	/* Bytes written */
-> > > -		if (ret == -ENOTBLK) {
-> > > -			/*
-> > > -			 * The request will be reissued via buffered I/O
-> > > -			 * when we return; Any I/O already issued
-> > > -			 * effectively becomes redundant.
-> > > -			 */
-> > > -			dio->result = ret;
-> > > +			ret = dio->result;
-> > > +		if (ret > 0 && dio->result < dio->size && rw == WRITE) {
-> > >  			dio->waiter = current;
-> > >  		}
-> > >  		finished_one_bio(dio);		/* This can free the dio */
-> > >  		blk_run_queues();
-> > > -		if (ret == -ENOTBLK) {
-> > > +		if (dio->waiter) {
-> > >  			/*
-> > >  			 * Wait for already issued I/O to drain out and
-> > >  			 * release its references to user-space pages
-> > > @@ -1032,7 +1035,8 @@
-> > >  		}
-> > >  		dio_complete(dio, offset, ret);
-> > >  		/* We could have also come here on an AIO file extend */
-> > > -		if (!is_sync_kiocb(iocb) && (ret != -ENOTBLK))
-> > > +		if (!is_sync_kiocb(iocb) && !(rw == WRITE && ret >= 0 && 
-> > > +			dio->result < dio->size))
-> > >  			aio_complete(iocb, ret, 0);
-> > >  		kfree(dio);
-> > >  	}
-> > > diff -ur pure-mm3/mm/filemap.c linux-2.6.0-test9-mm3/mm/filemap.c
-> > > --- pure-mm3/mm/filemap.c	2003-11-14 09:15:08.000000000 +0530
-> > > +++ linux-2.6.0-test9-mm3/mm/filemap.c	2003-11-15 11:11:16.000000000 +0530
-> > > @@ -1895,14 +1895,16 @@
-> > >  		 */
-> > >  		if (written >= 0 && file->f_flags & O_SYNC)
-> > >  			status = generic_osync_inode(inode, mapping, OSYNC_METADATA);
-> > > -		if (written >= 0 && !is_sync_kiocb(iocb))
-> > > +		if (written >= count && !is_sync_kiocb(iocb))
-> > >  			written = -EIOCBQUEUED;
-> > > -		if (written != -ENOTBLK)
-> > > +		if (written < 0 || written >= count)
-> > >  			goto out_status;
-> > >  		/*
-> > >  		 * direct-io write to a hole: fall through to buffered I/O
-> > > +		 * for completing the rest of the request.
-> > >  		 */
-> > > -		written = 0;
-> > > +		pos += written;
-> > > +		count -= written;
-> > >  	}
-> > >  
-> > >  	buf = iov->iov_base;
-> > 
-> > --
-> > To unsubscribe, send a message with 'unsubscribe linux-aio' in
-> > the body to majordomo@kvack.org.  For more info on Linux AIO,
-> > see: http://www.kvack.org/aio/
-> > Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
-> 
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-aio' in
-> the body to majordomo@kvack.org.  For more info on Linux AIO,
-> see: http://www.kvack.org/aio/
-> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
+On Monday 17 November 2003 10:45, Patrick Mochel wrote:
+> > Currently, patrick's code isn't working for me anymore either.  I think
+> > it's because I haven't figured out how I had ACPI set up last time
+> > (performance covernor, probably.  If I tell it to use the userspace
+> > governor, there's still nothing in /sys/devices/system/cpu/cpu0, the
+> > directory is empty.  Maybe the documentation isn't up to date anymore, I
+> > don't know...)  When I tried to suspend with it, it sort of worked but
+> > the writing to disk phase (which never caused a problem before) had a
+> > visible pause between each sector written, and writing out the 3000
+> > sectors took over 5 minutes, and the end result wasn't something it could
+> > resume from anyway.  Sigh...
+>
+> Are you using preempt? There was a similar problem reported a while back
+> that was solved by disabling it. Though it's not a true fix, it should at
+> least get you going again.
+>
+> Thanks,
+>
+>
+> 	Pat
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
+Finally got it working again.  Disabling preempt didn't seem to fix anything, 
+but I've left it off for now anyway.  Module unload support also wasn't 
+selected, and that could have been causing problems too.  (It certainly 
+confused cardbus and my shutdown scripts...)
+
+The actual save part was slow because DMA was off (I had generic dma on, but 
+on a laptop with an ALI M5229 IDE controller you need to enable ALI M15x9 
+DMA.  Right.)  Writing out pages is AMAZINGLY slow in PIO mode, by the way.  
+5 minutes vs 5 seconds kind of slow...
+
+It then saved happily but didn't resume because I hadn't told it the default 
+resume partition was /dev/hda2.  (I don't have to specify which partition to 
+save to, why do I have to specify which one to resume from?  Oh well...)
+
+And lo, I hath once again resumed!  (My copy of the suspend code still has a 
+large number of printk statements in it, but at the moment I consider that a 
+GOOD thing.)
+
+On another note, here's a panic I managed to save when one of the suspend 
+attempts decided to go "boing", yet dumped me back to a console that sort of 
+worked for a bit until I tried to shutdown, where it hung shutting down 
+pcmcia.  (Amazingly, it didn't seem to eat my filesystem when I sent dmesg to 
+a file.  Go figure.)
+
+I don't believe this has anything to do with the prink statements or config 
+tweaks I was doing, this is one of those intermittent panics I mentioned 
+earlier where it tries to save and bits wind up on the floor.  This is from a 
+system that, right after it booted, I immediately logged in (text console 1) 
+and ran my suspend script, which got as far as "sync; echo -n disk > 
+/sys/power/state" and panicked trying to stop all the tasks.  X had not run.
+
+Let me know if there's something more recent I should try...
+
+Rob
+--Boundary-00=_Kpgu/iRimjxpxm9
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="out.txt"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename="out.txt"
+
+Linux version 2.6.0-test9-ook (root@localhost.localdomain) (gcc version 3.2=
+=2E2 20030222 (Red Hat Linux 3.2.2-5)) #5 SMP Tue Nov 18 04:20:47 CST 2003
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000000b7e0000 (usable)
+ BIOS-e820: 000000000b7e0000 - 000000000b7f0000 (reserved)
+ BIOS-e820: 000000000b7f0000 - 000000000b7f8000 (ACPI data)
+ BIOS-e820: 000000000b7f8000 - 000000000b800000 (ACPI NVS)
+ BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+183MB LOWMEM available.
+On node 0 totalpages: 47072
+  DMA zone: 4096 pages, LIFO batch:1
+  Normal zone: 42976 pages, LIFO batch:10
+  HighMem zone: 0 pages, LIFO batch:1
+DMI not present.
+ACPI: RSDP (v000 IBM                                       ) @ 0x000eab70
+ACPI: RSDT (v001 IBM    AXXXXXX4 0x00000001 IBM  0x00000000) @ 0x0b7f0000
+ACPI: FADT (v001 IBM    AXXXXXX4 0x00000001 IBM  0x00000000) @ 0x0b7f008c
+ACPI: BOOT (v001 IBM    AXXXXXX4 0x00000001 IBM  0x00000000) @ 0x0b7f0030
+ACPI: DBGP (v001 IBM    AXXXXXX4 0x00000001 IBM  0x00000000) @ 0x0b7f0058
+ACPI: DSDT (v001    IBM AXXXXXX4 0x00000001 MSFT 0x0100000c) @ 0x00000000
+Building zonelist for node : 0
+Kernel command line: ro root=3D/dev/hda1
+Local APIC disabled by BIOS -- reenabling.
+Could not enable APIC!
+Initializing CPU#0
+PID hash table entries: 1024 (order 10: 8192 bytes)
+Detected 697.823 MHz processor.
+Console: colour VGA+ 80x25
+Memory: 181736k/188288k available (2205k kernel code, 5932k reserved, 978k =
+data, 152k init, 0k highmem)
+Calibrating delay loop... 1368.06 BogoMIPS
+Dentry cache hash table entries: 32768 (order: 5, 131072 bytes)
+Inode-cache hash table entries: 16384 (order: 4, 65536 bytes)
+Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+checking if image is initramfs...it isn't (no cpio magic); looks like an in=
+itrd
+=46reeing initrd memory: 219k freed
+CPU:     After generic identify, caps: 0383f9ff 00000000 00000000 00000000
+CPU:     After vendor identify, caps: 0383f9ff 00000000 00000000 00000000
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 128K
+CPU:     After all inits, caps: 0383f9ff 00000000 00000000 00000040
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+CPU0: Intel Celeron (Coppermine) stepping 06
+per-CPU timeslice cutoff: 365.89 usecs.
+task migration cache decay timeout: 1 msecs.
+SMP motherboard not detected.
+Local APIC not detected. Using dummy APIC emulation.
+Starting migration thread for cpu 0
+CPUS done 8
+NET: Registered protocol family 16
+PCI: PCI BIOS revision 2.10 entry at 0xf0200, last bus=3D1
+PCI: Using configuration type 1
+mtrr: v2.0 (20020519)
+ACPI: Subsystem revision 20031002
+ACPI: IRQ 9 was Edge Triggered, setting to Level Triggerd
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: PCI Interrupt Link [PILA] (IRQs 1 3 4 5 6 7 *10 11 12 14 15)
+ACPI: PCI Interrupt Link [PILB] (IRQs 1 3 4 5 6 7 *10 11 12 14 15)
+ACPI: PCI Interrupt Link [PILC] (IRQs 1 3 4 5 *6 7 10 11 12 14 15)
+ACPI: PCI Interrupt Link [PILD] (IRQs 1 3 4 5 6 7 *10 11 12 14 15)
+ACPI: PCI Interrupt Link [PILE] (IRQs 1 3 4 5 6 7 10 11 12 14 15)
+ACPI: PCI Interrupt Link [PILF] (IRQs 1 3 4 5 6 7 10 11 12 14 15)
+ACPI: PCI Interrupt Link [PILG] (IRQs 1 3 4 5 6 7 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [PILH] (IRQs 1 3 4 5 6 7 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [PILI] (IRQs 1 3 4 5 6 7 *10 11 12 14 15)
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+ACPI: Embedded Controller [EC0] (gpe 34)
+Linux Plug and Play Support v0.97 (c) Adam Belay
+SCSI subsystem initialized
+drivers/usb/core/usb.c: registered new driver usbfs
+drivers/usb/core/usb.c: registered new driver hub
+ACPI: PCI Interrupt Link [PILH] enabled at IRQ 11
+ACPI: PCI Interrupt Link [PILC] enabled at IRQ 6
+ACPI: No IRQ known for interrupt pin A of device 0000:00:10.0 - using IRQ 15
+ACPI: PCI Interrupt Link [PILD] enabled at IRQ 10
+ACPI: PCI Interrupt Link [PILI] enabled at IRQ 10
+ACPI: PCI Interrupt Link [PILA] enabled at IRQ 10
+PCI: Using ACPI for IRQ routing
+PCI: if you experience problems, try using option 'pci=3Dnoacpi' or even 'a=
+cpi=3Doff'
+SBF: Simple Boot Flag extension found and enabled.
+SBF: Setting boot flags 0x80
+Machine check exception polling timer started.
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+udf: registering filesystem
+ACPI: AC Adapter [AC] (on-line)
+ACPI: Battery Slot [BAT0] (battery present)
+ACPI: Power Button (FF) [PWRF]
+ACPI: Sleep Button (CM) [SLPB]
+ACPI: Lid Switch [LID]
+ACPI: Processor [CPU0] (supports C1 C2 C3)
+ACPI: Thermal Zone [THR2] (54 C)
+pty: 256 Unix98 ptys configured
+request_module: failed /sbin/modprobe -- parport_lowlevel. error =3D -16
+lp: driver loaded but no devices found
+Linux agpgart interface v0.100 (c) Dave Jones
+[drm:drm_init] *ERROR* Cannot initialize the agpgart module.
+Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
+parport0: PC-style at 0x3bc [PCSPP(,...)]
+lp0: using parport0 (polling).
+Using anticipatory io scheduler
+=46loppy drive(s): fd0 is unknown type 12 (usb?)
+floppy0: no floppy controllers found
+loop: loaded (max 8 devices)
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=3D=
+xx
+hda: IBM-DJSA-220, ATA DISK drive
+hdc: UJDA330, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: max request size: 128KiB
+hda: 39070080 sectors (20003 MB) w/1874KiB Cache, CHS=3D38760/16/63
+ hda: hda1 hda2 hda3
+hdc: ATAPI 24X CD-ROM CD-R/RW drive, 2048kB Cache
+Uniform CD-ROM driver Revision: 3.12
+drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver=
+ v2.1
+drivers/usb/core/usb.c: registered new driver usblp
+drivers/usb/class/usblp.c: v0.13: USB Printer Device Class driver
+Initializing USB Mass Storage driver...
+drivers/usb/core/usb.c: registered new driver usb-storage
+USB Mass Storage support registered.
+drivers/usb/core/usb.c: registered new driver hid
+drivers/usb/input/hid-core.c: v2.0:USB HID core driver
+mice: PS/2 mouse device common for all mice
+input: PS/2 Generic Mouse on isa0060/serio1
+serio: i8042 AUX port at 0x60,0x64 irq 12
+input: AT Translated Set 2 keyboard on isa0060/serio0
+serio: i8042 KBD port at 0x60,0x64 irq 1
+Advanced Linux Sound Architecture Driver Version 0.9.7 (Thu Sep 25 19:16:36=
+ 2003 UTC).
+request_module: failed /sbin/modprobe -- snd-card-0. error =3D -16
+ALSA device list:
+  No soundcards found.
+NET: Registered protocol family 2
+IP: routing cache hash table of 1024 buckets, 8Kbytes
+TCP: Hash tables configured (established 16384 bind 16384)
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+PM: Reading pmdisk image.
+PM: Resume from disk failed.
+ACPI: (supports S0 S1 S4 S5)
+EXT3-fs: INFO: recovery required on readonly filesystem.
+EXT3-fs: write access will be enabled during recovery.
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: recovery complete.
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+=46reeing unused kernel memory: 152k freed
+spurious 8259A interrupt: IRQ7.
+EXT3 FS on hda1, internal journal
+Unable to find swap-space signature
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS on hda3, internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+Unable to find swap-space signature
+pcmcia_core: falsely claims to have parameter  [8=C1set_delay
+Linux Kernel Card Services
+  options:  [pci] [cardbus] [pm]
+PCI: Enabling device 0000:00:0a.0 (0000 -> 0002)
+Yenta: CardBus bridge found at 0000:00:0a.0 [12a3:ab01]
+Yenta: Enabling burst memory read transactions
+Yenta: Using CSCINT to route CSC interrupts to PCI
+Yenta: Routing CardBus interrupts to PCI
+Yenta: ISA IRQ list 0000, PCI irq6
+Socket status: 30000011
+Yenta: CardBus bridge found at 0000:00:13.0 [1014:01a3]
+Yenta: ISA IRQ list 0838, PCI irq10
+Socket status: 30000007
+cs: IO port probe 0x0c00-0x0cff: clean.
+cs: IO port probe 0x0100-0x04ff: excluding 0x2c8-0x2cf 0x3c0-0x3df 0x408-0x=
+40f 0x480-0x48f 0x4d0-0x4d7
+cs: IO port probe 0x0a00-0x0aff: clean.
+cs: memory probe 0xa0000000-0xa0ffffff: clean.
+Unable to handle kernel paging request at virtual address cc044120
+ printing eip:
+c0131bf3
+*pde =3D 01276067
+*pte =3D 00000000
+Oops: 0002 [#1]
+CPU:    0
+EIP:    0060:[<c0131bf3>]    Not tainted
+EFLAGS: 00010246
+EIP is at module_unload_init+0xe/0x52
+eax: cc044120   ebx: cc036df0   ecx: cc043c20   edx: 00000000
+esi: cc039cef   edi: cc0436ff   ebp: c4e1ff28   esp: c4e1ff28
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 920, threadinfo=3Dc4e1e000 task=3Dc4ba7310)
+Stack: c4e1ff9c c0133364 cc043c20 00000000 000003e8 cb015da0 cc013000 00000=
+000=20
+       cc043c20 00000000 00000000 00000000 00000000 00000000 00000008 00000=
+012=20
+       00000010 0000000c 00000000 00000000 00000018 00000017 00000019 cc039=
+3e0=20
+Call Trace:
+ [<c0133364>] load_module+0x4d8/0x7f7
+ [<c01336fa>] sys_init_module+0x77/0x234
+ [<c0108f85>] sysenter_past_esp+0x52/0x71
+
+Code: 89 81 00 05 00 00 89 81 04 05 00 00 89 c8 42 c7 80 00 01 00=20
+ Stopping tasks: =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D
+ stopping tasks failed (1 tasks remaining)
+Restarting tasks...<6> Strange, modprobe not stopped
+ done
+
+--Boundary-00=_Kpgu/iRimjxpxm9--
 

@@ -1,81 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316355AbSGATtu>; Mon, 1 Jul 2002 15:49:50 -0400
+	id <S316342AbSGATwg>; Mon, 1 Jul 2002 15:52:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316342AbSGATts>; Mon, 1 Jul 2002 15:49:48 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:7699 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S316355AbSGATtk>; Mon, 1 Jul 2002 15:49:40 -0400
-Date: Mon, 1 Jul 2002 12:52:00 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Linux console project <linuxconsole-dev@lists.sourceforge.net>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: [PATCH] New Console system BK
-Message-ID: <Pine.LNX.4.44.0207011232450.27788-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316364AbSGATwf>; Mon, 1 Jul 2002 15:52:35 -0400
+Received: from [213.4.129.129] ([213.4.129.129]:59226 "EHLO tsmtp7.mail.isp")
+	by vger.kernel.org with ESMTP id <S316342AbSGATwe>;
+	Mon, 1 Jul 2002 15:52:34 -0400
+Date: Mon, 1 Jul 2002 21:57:18 +0200
+From: Diego Calleja <diegocg@teleline.es>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OKS] Module removal
+Message-Id: <20020701215718.7762962f.diegocg@teleline.es>
+In-Reply-To: <Pine.LNX.3.96.1020701133907.23769A-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1020701133907.23769A-100000@gatekeeper.tmr.com>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 1 Jul 2002 13:48:55 -0400 (EDT)
+Bill Davidsen <davidsen@tmr.com> escribió:
 
-Since 2.5.1 I have placed into the kernel part of the new console system
-code into the DJ tree. So it has been well tested. I was hoping to have
-all the keyboard devices ported over to the input api and the fbdev
-drivers over to the new api. Unfortunely due to time restraints this will
-not be the case. So here goes the first installment of the new console
-system. Please test it yourselves and I will push it to Linus soon.
+> Having read some notes on the Ottawa Kernel Summit, I'd like to offer
+> some comments on points raied.
+> 
+> The suggestion was made that kernel module removal be depreciated or
+> removed. I'd like to note that there are two common uses for this
+> capability, and the problems addressed by module removal should be
+> kept in mind. These are in addition to the PCMCIA issue raised.
 
-The goal is to create a system we can use keyboards without the console
-system and the same true for framebuffer devices. This is most helpful on
-embedded devices. The other goals to make the VT console system more
-modular and lighter weight. The other goal is to make the VT tty system
-multi-desktop.
-
-Here are the changes so far:
-
-I) Removal of struct kbd_struct from the sysrq handler. Why drag itr along
-   when only two sysrq functions actually use it.
-
-II) Massive rewrite and cleanup of keybaord.c.
-
-III) Place struct tty_struct into struct vc_data. This sets up a one to
-     one relationship. Avoids the nasty tricks of playing with fields from
-     console_driver.
-
-IV) Cleanup of VT tty/console initialization. A vty_init function to make
-    it cleaner.
-
-diffstat:
-
- arch/i386/kernel/apm.c         |    2
- arch/ppc/xmon/start.c          |    2
- arch/ppc64/xmon/start.c        |    2
- drivers/acpi/system.c          |    2
- drivers/char/console.c         |   82 ++--
- drivers/char/keyboard.c        |  779 +++++++++++++++++++++--------------------
- drivers/char/sysrq.c           |   46 +-
- drivers/char/tty_io.c          |   15
- include/linux/console_struct.h |    1
- include/linux/sysrq.h          |   13
- 11 files changed, 485 insertions(+), 459 deletions(-)
-
-
-The BK patch is at:
-
- http://linuxconsole.bkbits.net/dev
-
-diff:
-
- http://www.transvirtual.com/~jsimmons/console.diff.gz
-
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'\_   _/`\
- \___)=(___/
-
-
+And why people wants to remove this nice feature? Only because they
+don't use it, or there's a more profund reason?

@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266949AbRGZLId>; Thu, 26 Jul 2001 07:08:33 -0400
+	id <S266698AbRGZLEN>; Thu, 26 Jul 2001 07:04:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267003AbRGZLIN>; Thu, 26 Jul 2001 07:08:13 -0400
-Received: from pD951F257.dip.t-dialin.net ([217.81.242.87]:35968 "EHLO
-	emma1.emma.line.org") by vger.kernel.org with ESMTP
-	id <S266949AbRGZLIE>; Thu, 26 Jul 2001 07:08:04 -0400
-Date: Thu, 26 Jul 2001 13:08:09 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-        "ext3-users@redhat.com" <ext3-users@redhat.com>
-Subject: Re: ext3-2.4-0.9.4
-Message-ID: <20010726130809.D17244@emma1.emma.line.org>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	lkml <linux-kernel@vger.kernel.org>,
-	"ext3-users@redhat.com" <ext3-users@redhat.com>
-In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au>
+	id <S267003AbRGZLEE>; Thu, 26 Jul 2001 07:04:04 -0400
+Received: from charybda.fi.muni.cz ([147.251.48.214]:3332 "HELO
+	charybda.fi.muni.cz") by vger.kernel.org with SMTP
+	id <S266698AbRGZLDx>; Thu, 26 Jul 2001 07:03:53 -0400
+From: Jan Kasprzak <kas@informatics.muni.cz>
+Date: Thu, 26 Jul 2001 13:03:54 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7 cyclades-Y crash
+Message-ID: <20010726130354.A1024@informatics.muni.cz>
+In-Reply-To: <20010724190103.J1033@informatics.muni.cz> <E15P5oK-0000Vs-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au>
-User-Agent: Mutt/1.3.19i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15P5oK-0000Vs-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Jul 24, 2001 at 06:17:32PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, 26 Jul 2001, Andrew Morton wrote:
+Alan Cox wrote:
+: > connected to 16-port box). The 2.4.7 kernel crashes when initializing the
+: > cyclades driver (either as a module or a built-in driver). I've tried
+: > the stock kernel from Red Hat 7.1, and the cyclades.o module causes the
+: > system to lock up when loaded.
+: 
+: Is this an SMP box ?
 
-> data=journal
-> 
->   All data (as well as to metadata) is written to the journal
->   before it is released to the main fs for writeback.
->   
->   This is a specialised mode - for normal fs usage you're better
->   off using ordered data, which has the same benefits of not corrupting
->   data after crash+recovery.  However for applications which require
->   synchronous operation such as mail spools and synchronously exported
->   NFS servers, this can be a performance win.  I have seen dbench
+	No. Pentium 233 MMX, 32M RAM, RedHat 7.1. Can this be a compiler
+problem?
 
-In ordered and journal mode, are meta data operations, namely creating a
-file, rename(), link(), unlink() "synchronous" in the sense that after
-the call has returned, the effect of this call is never lost, i. e., if
-link(2) has returned and the machine crashes immediately, will the next
-recovery ALWAYS recover the link?
-
-Or will ext3 still need chattr +S?
-
-Does it still support chattr +S at all?
-
-Synchronous meta data operations are crucial for mail transfer agents
-such as Postfix or qmail. Postfix has up until now been setting
-chattr +S /var/spool/postfix, making original (esp. soft-updating) BSD
-file systems significantly faster for data (payload) writes in this
-directory than ext2.
-
-Note: I'm not on the ext3-users list. Please Cc: back replies.
+-Y.
 
 -- 
-Matthias Andree
+\ Jan "Yenya" Kasprzak <kas at fi.muni.cz>       http://www.fi.muni.cz/~kas/
+\\ PGP: finger kas at aisa.fi.muni.cz   0D99A7FB206605D7 8B35FCDE05B18A5E //
+\\\             Czech Linux Homepage:  http://www.linux.cz/              ///
+--Just returned after being 10 days off-line. Sorry for the delayed reply.--

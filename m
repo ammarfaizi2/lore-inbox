@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262569AbTJIVIa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 17:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbTJIVIa
+	id S262591AbTJIV0N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 17:26:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbTJIV0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 17:08:30 -0400
-Received: from mail.kroah.org ([65.200.24.183]:3302 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262569AbTJIVI3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 17:08:29 -0400
-Date: Thu, 9 Oct 2003 14:08:05 -0700
-From: Greg KH <greg@kroah.com>
-To: Stian Jordet <liste@jordet.nu>
-Cc: linux-kernel@vger.kernel.org, kraxel@bytesex.org
-Subject: Re: Call trace when rmmod'ing saa7134 and error when compiling static
-Message-ID: <20031009210805.GB12266@kroah.com>
-References: <1065708534.737.2.camel@chevrolet.hybel>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 9 Oct 2003 17:26:13 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:17662 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262591AbTJIV0K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 17:26:10 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Stefan Kaltenbrunner <mm-mailinglist@madness.at>
+Subject: Re: Serverworks CSB5 IDE-DMA Problem (2.4 and 2.6)
+Date: Thu, 9 Oct 2003 23:29:00 +0200
+User-Agent: KMail/1.5.4
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0310091634330.3040-100000@logos.cnet> <200310092313.05371.bzolnier@elka.pw.edu.pl> <3F85D17D.2090006@madness.at>
+In-Reply-To: <3F85D17D.2090006@madness.at>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1065708534.737.2.camel@chevrolet.hybel>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200310092329.00445.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 09, 2003 at 04:08:54PM +0200, Stian Jordet wrote:
-> Hello,
-> 
-> when I try to rmmod the saa7134 module from kernel 2.6.0-test7, I get
-> this call trace:
-> 
-> Device class 'i2c-1' does not have a release() function, it is broken
-> and must be fixed.
 
-This is when you remove the i2c-dev module, right?  Yeah, I know about
-the problem and will fix it.
+2.4.18, 2.4.19 w/o APIC and ACPI
 
-thanks,
+On Thursday 09 of October 2003 23:22, Stefan Kaltenbrunner wrote:
+> Bartlomiej Zolnierkiewicz wrote:
+> >>>These "timeout due to drive busy" needs to be resolved.
+> >>
+> >>Yes - I really hope this will be fixed soon. I was forced to add a
+> >>fiberchannel HBA into this maschine today to integrate it into our SAN
+> >>to get the database up to speed again.
+> >>However I'm willing to move the database to the local disks again if you
+> >>want me to test a patch or something along that line.
+> >
+> > Did some kernel worked okay or this is new system?
+>
+> This is a new system - I can try an older kernel if you can give me some
+> hints about how old it should be :-)
+>
+> Stefan
 
-greg k-h

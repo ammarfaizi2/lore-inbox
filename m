@@ -1,64 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262068AbSJNSBK>; Mon, 14 Oct 2002 14:01:10 -0400
+	id <S262122AbSJNSH5>; Mon, 14 Oct 2002 14:07:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262080AbSJNSBK>; Mon, 14 Oct 2002 14:01:10 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:48565 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262068AbSJNSBI>;
-	Mon, 14 Oct 2002 14:01:08 -0400
-Subject: Re: Evolution and 2.5.x
-From: Andy Pfiffer <andyp@osdl.org>
-To: Robert Love <rml@tech9.net>
-Cc: Eric Blade <eblade@m-net.arbornet.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1034535804.6032.4501.camel@phantasy>
-References: <200210131854.g9DIs1I0062874@m-net.arbornet.org> 
-	<1034535804.6032.4501.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 14 Oct 2002 11:07:01 -0700
-Message-Id: <1034618822.1995.47.camel@andyp>
+	id <S262123AbSJNSH5>; Mon, 14 Oct 2002 14:07:57 -0400
+Received: from inet-mail1.oracle.com ([148.87.2.201]:48116 "EHLO
+	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
+	id <S262122AbSJNSHy>; Mon, 14 Oct 2002 14:07:54 -0400
+Date: Mon, 14 Oct 2002 11:13:38 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: [PATCH] superbh, fractured blocks, and grouped io
+Message-ID: <20021014181338.GF22117@nic1-pc.us.oracle.com>
+References: <20021014135100.GD28283@suse.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021014135100.GD28283@suse.de>
+User-Agent: Mutt/1.4i
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-10-13 at 12:03, Robert Love wrote:
-> On Sun, 2002-10-13 at 14:54, Eric Blade wrote:
-> 
-> >   I'm guessing that not too many of the kernel developers use Evolution as
-> > their email program :)   Since I started picking up the 2.5.x series, at around
-> > 2.5.34, Evolution does not run anywhere near properly.  I'm not sure if that
-> > is a kernel issue, or a problem with Evolution's code..  But it did improve
-> > quite a bit with all the low-level process management that was in the 2.5.3x 
-> > series.  It still doesn't work right though.  (in 2.5.34, evolution would
-> > just plain halt the system ... in 2.5.42, it mostly works right, as long
-> > as you don't try to compose a message.. composing a message will leave you
-> > with a whole buch of zombie processes). 
-> 
-> Hey, I use Evolution ;-)
-> 
-> See this thread:
-> http://lists.ximian.com/archives/public/evolution-hackers/2002-June/004841.html
-> 
-> It is indeed broken in 2.5 and it is not, for once, our fault.  This
-> thread and other discussion seem to point out it is a bug in ORBit.
-> 
-> 	Robert Love
+On Mon, Oct 14, 2002 at 03:51:00PM +0200, Jens Axboe wrote:
 
-I spent some time trying to track this problem down, but reached a wall
-due to the size and nature of the ChangeSet.
+	Just a couple niggles, really.  Looking good.
 
-The bitkeeper ChangeSet that made Evolution's address book hang when
-trying to compose a new message when run on 2.5.x kernels was 1.262.2.2.
+>  	/*
+> -	 * First step, 'identity mapping' - RAID or LVM might
+> -	 * further remap this.
+> +	 * detach each bh and resubmit, or completely and if its a grouped bh
+>  	 */
 
-According to my notes from June, that ChangeSet comprised modifications
-to 116 files, splitting the socket structure from the protocol.  Up to
-that ChangeSet, the problem does not exist.  After applying that
-ChangeSet, the problem is manifest.
+	The last line of the comment means "completely fail if its
+grouped", right?
 
-Sorry I couldn't dig deeper...and I hope this helps someone.
+> +#define MAX_SUPERBH 65535	/* must fit info ->b_size right now */
 
-Andy
+	Why not sizeof(b_size) in case we ever care?
 
+> +extern int submit_bh_linked(int, struct buffer_head *);
+> +extern int submit_bh_grouped(int, struct buffer_head *);
 
+	Why aren't these EXPORT_SYMBOL(), given that a third party
+driver may wish to use them (eg, a filesystem doing its own O_DIRECT
+work)?
+
+Joel
+
+-- 
+
+"We'd better get back, `cause it'll be dark soon,
+ and they mostly come at night.  Mostly."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

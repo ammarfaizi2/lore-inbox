@@ -1,76 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262120AbTD3JqY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 05:46:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbTD3JqX
+	id S261928AbTD3JoD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 05:44:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTD3JoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 05:46:23 -0400
-Received: from [12.47.58.171] ([12.47.58.171]:8200 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262120AbTD3JqU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 05:46:20 -0400
-Date: Wed, 30 Apr 2003 02:59:15 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: 2.5.68-mm3
-Message-Id: <20030430025915.1692ffdd.akpm@digeo.com>
-In-Reply-To: <1051696273.591.4.camel@teapot.felipe-alfaro.com>
-References: <20030429235959.3064d579.akpm@digeo.com>
-	<1051696273.591.4.camel@teapot.felipe-alfaro.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Apr 2003 09:58:33.0213 (UTC) FILETIME=[0F44EAD0:01C30EFF]
+	Wed, 30 Apr 2003 05:44:03 -0400
+Received: from [218.4.63.7] ([218.4.63.7]:17426 "HELO FTP.mitac-mkl.com.cn")
+	by vger.kernel.org with SMTP id S261928AbTD3JoB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 05:44:01 -0400
+Date: Wed, 30 Apr 2003 17:56:14 +0800
+From: Roger.Ling@mitac-mkl.com.cn
+To: <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="----=_NextPartTM-000-097e3da0-0549-4c5e-9f5d-431481594ad6"
+Subject: Mail delivery failure
+Message-Id: <S261928AbTD3JoB/20030430094401Z+926@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
->
-> drivers/pcmcia/cs.c: In function `pcmcia_register_socket':
-> drivers/pcmcia/cs.c:361: `dev' undeclared (first use in this function)
-> drivers/pcmcia/cs.c:361: (Each undeclared identifier is reported only
-> once
-> drivers/pcmcia/cs.c:361: for each function it appears in.)
-> drivers/pcmcia/cs.c: At top level:
-> drivers/pcmcia/cs.c:391: conflicting types for
-> `pcmcia_unregister_socket'
+
+------=_NextPartTM-000-097e3da0-0549-4c5e-9f5d-431481594ad6
+Content-type: text/plain
+
+****** Message from InterScan E-Mail VirusWall NT ******
+
+Sent >>> RCPT TO: <Roger.Ling@mitac.com.cn>
+Received <<< 550 <Roger.Ling@mitac.com.cn>, Recipient unknown
+
+Could not deliver mail to this user.
+*****************     End of message     ***************
+
+------=_NextPartTM-000-097e3da0-0549-4c5e-9f5d-431481594ad6
+Content-type: message/rfc822
+
+Received: from 10.83.30.200 by FTP.mitac-mkl.com.cn (InterScan E-Mail VirusWall NT); Wed, 30 Apr 2003 17:56:13 +0800
+Message-ID: <002e01c30efe$5a10fa50$c81e530a@anson>
+From: "LINUX-KERNEL@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: "=?gb2312?B?Um9nZXIuTGluZyBbwejydoTZXQ==?=" <Roger.Ling@mitac.com.cn>
+References: <71C00BF11D82D611883000306E002CCA01D84D08@mrspdc.mrs.com.cn>
+Subject: =?gb2312?B?0tG2wTog?=
+Date: Wed, 30 Apr 2003 17:53:25 +0800
+MIME-Version: 1.0
+Content-Type: multipart/report;
+	report-type=disposition-notification;
+	boundary="----=_NextPart_000_002A_01C30F41.6632C500"
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_002A_01C30F41.6632C500
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: base64
+
+1eLKx9PKvP672Na0o6zK1bz+yMs6DQogIkFkbWluTUtMIFvApd9fz7W9ebncwO2GVF0iIDxBZG1p
+bk1LTEBtaWMuY29tLnR3PiDT2iAyMDAzLTQtMzAgMTc6NTINCg0KtMu72Na0se3D97jD08q8/tLR
+vq3P1Mq+1NrK1bz+yMu1xLzGy+O7+snPwcujrM/Uyr7KsbzkOiAyMDAzLTQtMzAgMTc6NTM=
+
+------=_NextPart_000_002A_01C30F41.6632C500
+Content-Type: message/disposition-notification
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Final-Recipient: rfc822;Roger.Ling@mitac.com.cn
+Original-Message-ID: <71C00BF11D82D611883000306E002CCA01D84D08@mrspdc.mrs.com.cn>
+Disposition: manual-action/MDN-sent-manually; displayed
 
 
+------=_NextPart_000_002A_01C30F41.6632C500--
 
-diff -puN drivers/pcmcia/cs.c~pcmcia-fix drivers/pcmcia/cs.c
---- 25/drivers/pcmcia/cs.c~pcmcia-fix	2003-04-30 02:55:46.000000000 -0700
-+++ 25-akpm/drivers/pcmcia/cs.c	2003-04-30 02:58:54.000000000 -0700
-@@ -303,7 +303,7 @@ static int proc_read_clients(char *buf, 
- ======================================================================*/
- 
- static int pccardd(void *__skt);
--void pcmcia_unregister_socket(struct device *dev);
-+static void pcmcia_unregister_socket(struct class_device *class_dev);
- 
- #define to_class_data(dev) dev->class_data
- 
-@@ -358,7 +358,7 @@ int pcmcia_register_socket(struct class_
- 		spin_lock_init(&s->thread_lock);
- 		ret = kernel_thread(pccardd, s, CLONE_KERNEL);
- 		if (ret < 0) {
--			pcmcia_unregister_socket(dev);
-+			pcmcia_unregister_socket(class_dev);
- 			break;
- 		}
- 
-@@ -387,7 +387,7 @@ int pcmcia_register_socket(struct class_
- /**
-  * pcmcia_unregister_socket - remove a pcmcia socket device
-  */
--void pcmcia_unregister_socket(struct class_device *class_dev)
-+static void pcmcia_unregister_socket(struct class_device *class_dev)
- {
- 	struct pcmcia_socket_class_data *cls_d = class_get_devdata(class_dev);
- 	unsigned int i;
 
-_
-_
-
+------=_NextPartTM-000-097e3da0-0549-4c5e-9f5d-431481594ad6--

@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268223AbUJDPl7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268230AbUJDPny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268223AbUJDPl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 11:41:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268240AbUJDPkF
+	id S268230AbUJDPny (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 11:43:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268249AbUJDPmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 11:40:05 -0400
-Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:1436 "EHLO
-	smtp.bensa.ar") by vger.kernel.org with ESMTP id S268223AbUJDPjJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 11:39:09 -0400
-From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3-mm2
-Date: Mon, 4 Oct 2004 12:39:05 -0300
-User-Agent: KMail/1.7.1
-Cc: Mathieu Segaud <matt@minas-morgul.org>
-References: <20041004020207.4f168876.akpm@osdl.org> <87oeji93co.fsf@barad-dur.crans.org>
-In-Reply-To: <87oeji93co.fsf@barad-dur.crans.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 4 Oct 2004 11:42:12 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:10952 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S268246AbUJDPkn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 11:40:43 -0400
+Date: Mon, 4 Oct 2004 08:38:03 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: efocht@hpce.nec.com, akpm@osdl.org, nagar@watson.ibm.com,
+       ckrm-tech@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
+       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
+       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
+       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20041004083803.7de17984.pj@sgi.com>
+In-Reply-To: <842970000.1096901859@[10.10.2.4]>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<200410032221.26683.efocht@hpce.nec.com>
+	<20041003134842.79270083.akpm@osdl.org>
+	<200410041605.30395.efocht@hpce.nec.com>
+	<842970000.1096901859@[10.10.2.4]>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410041239.05591.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Segaud wrote:
-> Hum, and I can see that there is a fix to get reiser4 working with 4Kstacks
-> but reiser4 option still doesn't appear if CONFIG_4KSTACKS is enabled.
+Martin wrote:
+> I'd think the problems would be easier to tackle if the systems knew
+> about each other, and talked to each other.
 
-On the contrary, it's a fix so it doesn't show on the menu when 4KSTACKS is 
-selected:
+Clear boundaries should be enough.  If each instance of CKRM is assured
+that it has control of some subset of a system that's separate and
+non-overlapping, with all Memory, CPU, Tasks, and Allowed masks of said
+Tasks either wholly owned by that CKRM instance, or entirely outside,
+then that should do it, right?
 
-
-diff -puN fs/Kconfig.reiser4~resier4-4kstacks-fix fs/Kconfig.reiser4
---- 25/fs/Kconfig.reiser4~resier4-4kstacks-fix 2004-08-21 14:21:30.716818728 
--0700
-+++ 25-akpm/fs/Kconfig.reiser4 2004-08-21 14:21:42.306056896 -0700
-@@ -1,6 +1,6 @@
- config REISER4_FS
-  tristate "Reiser4 (EXPERIMENTAL very fast general purpose filesystem)"
-- depends on EXPERIMENTAL
-+ depends on EXPERIMENTAL && !4KSTACKS
-  default y
-  ---help---
-    Reiser4 is more than twice as fast for both reads and writes as
-
-
-Regards,
-Norberto
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

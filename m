@@ -1,91 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267208AbTBXQCI>; Mon, 24 Feb 2003 11:02:08 -0500
+	id <S267268AbTBXQLA>; Mon, 24 Feb 2003 11:11:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267206AbTBXQCI>; Mon, 24 Feb 2003 11:02:08 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:8719 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S267187AbTBXQCF>;
-	Mon, 24 Feb 2003 11:02:05 -0500
-Date: Mon, 24 Feb 2003 17:12:17 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: State of sparc32 union
-Message-ID: <20030224161217.GA1012@mars.ravnborg.org>
-Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>,
-	sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20030223202233.A20072@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267270AbTBXQLA>; Mon, 24 Feb 2003 11:11:00 -0500
+Received: from mail.permas.de ([195.143.204.226]:2721 "EHLO netserv.local")
+	by vger.kernel.org with ESMTP id <S267268AbTBXQK6>;
+	Mon, 24 Feb 2003 11:10:58 -0500
+From: Hartmut Manz <manz@intes.de>
+Organization: INTES GmbH
+To: linux-kernel@vger.kernel.org
+Subject: INTEL SCSI-Controler (gdth) does not compile on LINUX 2.5.62
+Date: Mon, 24 Feb 2003 17:21:10 +0100
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030223202233.A20072@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200302241721.10321.manz@intes.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  ## 2002/11/13 Incorporate Ravnborg's build cleanups
-> -- make clean does not work right - retest
+I was trying to run linux.2.5.62 on one of my machines.
 
-When using Bitkeeper this is trivial.
-make mrproper
-bk extras -a	=> Will list additional files not supposed to be present
+The machine is a Dual-Xeon System with a 4-way striped filesystem on an INTEL SCSI-controler.
+So I need the following option in .config
+CONFIG_SCSI_GDTH=y
+
+With Linux 2.4.20 all is ok, but while compile linux-2.5.62 I got the following messages.
+
+gcc -Wp,-MD,drivers/scsi/.gdth.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium4 -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=gdth -DKBUILD_MODNAME=gdth -c -o drivers/scsi/.tmp_gdth.o drivers/scsi/gdth.c
+In file included from drivers/scsi/gdth.c:719:
+drivers/scsi/gdth_proc.c: In function `gdth_do_cmd':
+drivers/scsi/gdth_proc.c:1269: request for member `rq_status' in something not a structure or union
+drivers/scsi/gdth_proc.c:1271: request for member `waiting' in something not a structure or union
+drivers/scsi/gdth_proc.c:1272: warning: implicit declaration of function `scsi_do_cmd'
+drivers/scsi/gdth_proc.c: In function `gdth_scsi_done':
+drivers/scsi/gdth_proc.c:1291: request for member `rq_status' in something not a structure or union
+drivers/scsi/gdth_proc.c:1294: request for member `waiting' in something not a structure or union
+drivers/scsi/gdth_proc.c:1295: request for member `waiting' in something not a structure or union
+In file included from drivers/scsi/gdth.c:719:
+drivers/scsi/gdth_proc.c:1393:38: macro "GDTH_LOCK_SCSI_DONE" requires 2 arguments, but only 1 given
+In file included from drivers/scsi/gdth.c:719:
+drivers/scsi/gdth_proc.c: In function `gdth_wait_completion':
+drivers/scsi/gdth_proc.c:1393: `GDTH_LOCK_SCSI_DONE' undeclared (first use in this function)
+drivers/scsi/gdth_proc.c:1393: (Each undeclared identifier is reported only once
+drivers/scsi/gdth_proc.c:1393: for each function it appears in.)
+drivers/scsi/gdth_proc.c:1395: `dev' undeclared (first use in this function)
+drivers/scsi/gdth.c: In function `gdth_copy_internal_data':
+drivers/scsi/gdth.c:2664: structure has no member named `address'
+drivers/scsi/gdth.c:2664: structure has no member named `address'
+drivers/scsi/gdth.c: In function `gdth_fill_cache_cmd':
+drivers/scsi/gdth.c:2839: structure has no member named `address'
+drivers/scsi/gdth.c: In function `gdth_fill_raw_cmd':
+drivers/scsi/gdth.c:2956: structure has no member named `address'
+drivers/scsi/gdth.c:3377:46: macro "GDTH_UNLOCK_SCSI_DONE" passed 2 arguments, but takes just 1
+drivers/scsi/gdth.c: In function `gdth_interrupt':
+drivers/scsi/gdth.c:3377: `GDTH_UNLOCK_SCSI_DONE' undeclared (first use in this function)
+drivers/scsi/gdth.c: At top level:
+drivers/scsi/gdth.c:4762: warning: initialization from incompatible pointer type
+drivers/scsi/gdth.c:4762: warning: initialization from incompatible pointer type
+drivers/scsi/gdth.c:823: warning: `gdthtable' defined but not used
+make[2]: *** [drivers/scsi/gdth.o] Error 1
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
 
 
-> -- what the hell does "make help" do?
+What can I do?
 
-make help just give a brief introduction to available targets, with
-default targets marked.
-See make help as a help to newcomers and an easy way to see targets
-available for the selected platform.
+Thanks for any help
 
-I did a small update:
-1) Moved above mentioned helptext to arch/sparc/Makefile
-2) Added default target as suggested by kai G.
-3) Used more compact notation when calling make recursively
-	- This also supress a warning when using make -jn
+Hartmut Manz
 
-	Sam
+-- 
+-----------------------------------------------------------------------------
+Hartmut Manz                                      WWW:    http://www.intes.de
+INTES GmbH                                        Phone:  +49-711-78499-29
+Schulze-Delitzsch-Str. 16                         Fax:    +49-711-78499-10
+D-70565 Stuttgart                                 E-mail: manz@intes.de
+   Ein Mensch sieht, was vor Augen ist; der Herr aber sieht das Herz an.
+------------------------------------------------------- 1. Samuel 16, 7 -----
 
-===== arch/sparc/Makefile 1.20 vs edited =====
---- 1.20/arch/sparc/Makefile	Tue Feb 11 12:40:52 2003
-+++ edited/arch/sparc/Makefile	Mon Feb 24 17:08:08 2003
-@@ -54,13 +54,16 @@
- LIBS_Y		:= $(patsubst %/, %/lib.a, $(libs-y))
- export INIT_Y CORE_Y DRIVERS_Y NET_Y LIBS_Y HEAD_Y
- 
--makeboot =$(Q)$(MAKE) -f scripts/Makefile.build obj=arch/$(ARCH)/boot $(1)
-+# Default target
-+all: image
-+
-+boot := arch/sparc/boot
- 
- image tftpboot.img: vmlinux
--	$(call makeboot,arch/sparc/boot/$@)
-+	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
- 
- archclean:
--	$(Q)$(MAKE) -f scripts/Makefile.clean obj=arch/$(ARCH)/boot
-+	$(Q)$(MAKE) $(clean)=$(boot)
- 
- prepare: include/asm-$(ARCH)/asm_offsets.h
- 
-@@ -75,3 +78,8 @@
- CLEAN_FILES +=	include/asm-$(ARCH)/asm_offsets.h.tmp	\
- 		include/asm-$(ARCH)/asm_offsets.h	\
- 		arch/$(ARCH)/kernel/asm-offsets.s
-+
-+define archhelp
-+  echo  '* image		- kernel image ($(boot)/image)'
-+  echo  '  tftpboot.img		- image prepared for tftp'
-+endef
-===== arch/sparc/boot/Makefile 1.12 vs edited =====
---- 1.12/arch/sparc/boot/Makefile	Tue Feb 11 12:40:52 2003
-+++ edited/arch/sparc/boot/Makefile	Mon Feb 24 17:05:32 2003
-@@ -32,7 +32,3 @@
- 
- $(obj)/btfix.s: $(obj)/btfixupprep vmlinux FORCE
- 	$(call if_changed,btfix)
--
--archhelp:
--	@echo '* image		- kernel image ($(obj)/image)'
--	@echo '  tftpboot.img	- image prepared for tftp'

@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262269AbTD3PQf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 11:16:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbTD3PQf
+	id S262290AbTD3PZP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 11:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262294AbTD3PZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 11:16:35 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:9878
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262269AbTD3PP6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 11:15:58 -0400
-Subject: Re: IBM x440 problems on 2.4.20 to 2.4.20-rc1-ac3
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Wojciech Sobczak <Wojciech.Sobczak@comarch.pl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <01d601c30f17$f3ffadf0$b312840a@nbsobczak>
-References: <01d601c30f17$f3ffadf0$b312840a@nbsobczak>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051712978.19573.32.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 30 Apr 2003 11:25:15 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:23052 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262290AbTD3PZI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 11:25:08 -0400
+Date: Wed, 30 Apr 2003 16:37:26 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David Howells <dhowells@warthog.cambridge.redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       chas williams <chas@locutus.cmf.nrl.navy.mil>, torvalds@transmeta.com,
+       viro@math.psu.edu, David Howells <dhowells@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add a stub by which a module can bind to the AFS syscall
+Message-ID: <20030430163726.A9495@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Howells <dhowells@warthog.cambridge.redhat.com>,
+	chas williams <chas@locutus.cmf.nrl.navy.mil>,
+	torvalds@transmeta.com, viro@math.psu.edu,
+	David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
+References: <20030430160239.A8956@infradead.org> <27889.1051716620@warthog.warthog>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 30 Apr 2003 15:29:39 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <27889.1051716620@warthog.warthog>; from dhowells@warthog.cambridge.redhat.com on Wed, Apr 30, 2003 at 04:30:20PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-04-30 at 13:56, Wojciech Sobczak wrote:
-> with NUMA support and summit/exa support and clustered apic support kernel
-> boots, found scsi devices but hangs on it with lost interruption, also with
-> ide devices and so on
+On Wed, Apr 30, 2003 at 04:30:20PM +0100, David Howells wrote:
+> The four calls implemented by Linux are:
+> 
+>  (*) int setpag(void)
+> 
+>      Set Process Authentication Group number. This could easily be moved into
+>      the kernel proper, with the PAG being stored in or depending from the
+>      task structure somehow.
 
-That sounds like a bug. Make sure you ACPI off for x440 if you are
-testing and see if that helps
+So please submit a patch for doing this in the kernel proper.
 
+>  (*) int pioctl(const char *path, int cmd, void *arg, int followsymlink)
+> 
+>      Al Viro's favourite:-) Do ioctl() on a file refered to by pathname. Can't
+>      be emulated by open/ioctl/close because:
+> 
+>      (a) it can operate directly on symbolic links.
+> 
+>      (b) some of its functions don't require a file and don't fail if one
+> 	 can't be opened.
 
-For vendor kernels you need Red Hat AS 2.1 or UnitedLinux 1.0. At least
-I don't believe other vendors rolled kernels for x440 but I may be wrong
-about that - certainly I can believe Debian or Gentoo might have.
+You don't expect we merge something that broken?  And then as multiplexer
+inside a multiplexer?  This starts to look worse than sys_ipc()..
 
-x440 is sufficiently weird it needs its own extras and that makes it
-hard to support for vendors.
+> 
+>  (*) int afs_call(...)
+> 
+>      Local client control
+> 
+>  (*) int afs_icl(...)
+> 
+>      Local client status and logging control.
 
-Alan
+What's ...?
 

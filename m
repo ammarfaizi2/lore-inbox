@@ -1,62 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267976AbUHUW1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267977AbUHUWg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267976AbUHUW1s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 18:27:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267981AbUHUW1r
+	id S267977AbUHUWg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 18:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267979AbUHUWg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 18:27:47 -0400
-Received: from cantor.suse.de ([195.135.220.2]:35255 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267976AbUHUW1p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 18:27:45 -0400
-Date: Sun, 22 Aug 2004 00:27:45 +0200
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: [PATCH] remove obsolete htab-reclaim in Documentation/sysctl/kernel.txt
-Message-ID: <20040821222745.GA18734@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Sat, 21 Aug 2004 18:36:26 -0400
+Received: from web41101.mail.yahoo.com ([66.218.93.17]:24922 "HELO
+	web41101.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267977AbUHUWfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 18:35:52 -0400
+Message-ID: <20040821223551.67748.qmail@web41101.mail.yahoo.com>
+Date: Sat, 21 Aug 2004 15:35:51 -0700 (PDT)
+From: Julia M <juliamrus@yahoo.com>
+Subject: Fwd: LowFree memory going down -server freezes
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-1521683739-1093127751=:67414"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--0-1521683739-1093127751=:67414
+Content-Type: text/plain; charset=us-ascii
+Content-Id: 
+Content-Disposition: inline
 
-This entry is long gone, even 2.4 doesnt have it anymore.
 
-Signed-off-by: Olaf Hering <olh@suse.de>
+Note: forwarded message attached.
 
-diff -purN linux-2.6.8.1.orig/Documentation/sysctl/kernel.txt linux-2.6.8.1.olh/Documentation/sysctl/kernel.txt
---- linux-2.6.8.1.orig/Documentation/sysctl/kernel.txt	2004-08-14 12:55:32.000000000 +0200
-+++ linux-2.6.8.1.olh/Documentation/sysctl/kernel.txt	2004-08-22 00:22:11.808796175 +0200
-@@ -23,7 +23,6 @@ show up in /proc/sys/kernel:
- - dentry-state
- - domainname
- - hostname
--- htab-reclaim                [ PPC only ]
- - hotplug
- - java-appletviewer           [ binfmt_java, obsolete ]
- - java-interpreter            [ binfmt_java, obsolete ]
-@@ -145,14 +144,6 @@ see the hostname(1) man page.
- 
- ==============================================================
- 
--htab-reclaim: (PPC only)
--
--Setting this to a non-zero value, the PowerPC htab
--(see Documentation/powerpc/ppc_htab.txt) is pruned
--each time the system hits the idle loop.
-- 
--==============================================================
--
- hotplug:
- 
- Path for the hotplug policy agent.
--- 
-USB is for mice, FireWire is for men!
 
-sUse lINUX ag, nÜRNBERG
+
+		
+_______________________________
+Do you Yahoo!?
+Win 1 of 4,000 free domain names from Yahoo! Enter now.
+http://promotions.yahoo.com/goldrush
+--0-1521683739-1093127751=:67414
+Content-Type: message/rfc822
+
+Received: from [210.11.44.114] by web41109.mail.yahoo.com via HTTP; Wed, 18 Aug 2004 16:44:56 PDT
+Date: Wed, 18 Aug 2004 16:44:56 -0700 (PDT)
+From: Julia M <juliamrus@yahoo.com>
+Subject: LowFree memory going down -server freezes
+To: linux-poweredge@dell.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Length: 1220
+
+Dear Team,
+
+
+
+I am using Linux version 2.4.9-e.3smp
+(bhcompile@stripples.devel.redhat.com) (gcc version 2
+.96 20000731 (Red Hat Linux 7.2 2.96-108.1)) #1 SMP
+Fri May 3 16:48:54 EDT 2002
+on a DELL PowerEdge 6650 server and it got 4GB RAM. It
+freezes after running for about 2 days when it's
+LowMem parameter hits
+32000KB mark.When that happens only a power off could
+save it, and won't allow even to write a shutdown
+command at prompt.
+Please take a look at the meminfo output taken within
+10 minutes apart from each other during normal use of
+the server.Server gets around 250 connections to its
+Informix database during normal use.
+
+
+root@dwh#cat /proc/meminfo
+        total:    used:    free:  shared: buffers: 
+cached:
+Mem:  3692048384 1536348160 2155700224 674283520
+146186240 170840064
+Swap: 2154938368        0 2154938368
+MemTotal:      3605516 kB
+MemFree:       2105176 kB
+MemShared:      658480 kB
+Buffers:        142760 kB
+Cached:         166836 kB
+SwapCached:          0 kB
+Active:          89960 kB
+Inact_dirty:    878116 kB
+Inact_clean:         0 kB
+Inact_target:   917488 kB
+HighTotal:     2752448 kB
+HighFree:      1476612 kB
+LowTotal:       853068 kB
+LowFree:        628564 kB
+SwapTotal:     2104432 kB
+SwapFree:      2104432 kB
+BigPagesFree:        0 kB
+
+
+---
+
+After 10 minutes 
+
+cat /proc/meminfo
+        total:    used:    free:  shared: buffers: 
+cached:
+Mem:  3692048384 1541705728 2150342656 674291712
+146767872 173260800
+Swap: 2154938368        0 2154938368
+MemTotal:      3605516 kB
+MemFree:       2099944 kB
+MemShared:      658488 kB
+Buffers:        143328 kB
+Cached:         169200 kB
+SwapCached:          0 kB
+Active:          89820 kB
+Inact_dirty:    881196 kB
+Inact_clean:         0 kB
+Inact_target:   917488 kB
+HighTotal:     2752448 kB
+HighFree:      1472012 kB
+LowTotal:       853068 kB
+LowFree:        627932 kB
+SwapTotal:     2104432 kB
+SwapFree:      2104432 kB
+BigPagesFree:        0 kB
+
+
+See the LowFree has dropped to 627932 kb from 628564
+kB.
+I don't understand the reason behind this. We have
+test server
+with the same Linux configuration running on an old
+IBM machine.
+No dropping in LowFree Memory. Is there any parameter
+I should tune to
+overcome this??If this a known issue with Linux-Dell
+combination,
+what is the solution??
+Also I was looking through my log 
+files and I am seeing a line in my message log file
+that says bad pte ...
+An answer to this much appreciated.
+
+
+
+Cheers,
+JM
+
+
+
+		
+__________________________________
+Do you Yahoo!?
+Y! Messenger - Communicate in real time. Download now. 
+http://messenger.yahoo.com
+
+--0-1521683739-1093127751=:67414--

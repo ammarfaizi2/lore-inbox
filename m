@@ -1,82 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317753AbSGVRzN>; Mon, 22 Jul 2002 13:55:13 -0400
+	id <S317785AbSGVSFe>; Mon, 22 Jul 2002 14:05:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317754AbSGVRzM>; Mon, 22 Jul 2002 13:55:12 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:42228 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317753AbSGVRzL>; Mon, 22 Jul 2002 13:55:11 -0400
-Subject: Re: [PATCH] low-latency zap_page_range
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: torvalds@transmeta.com, riel@conectiva.com.br,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <3D3B94AF.27A254EA@zip.com.au>
-References: <1027196427.1116.753.camel@sinai> 
-	<3D3B94AF.27A254EA@zip.com.au>
-Content-Type: text/plain
+	id <S317787AbSGVSFe>; Mon, 22 Jul 2002 14:05:34 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:7948 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S317785AbSGVSFb>;
+	Mon, 22 Jul 2002 14:05:31 -0400
+Message-ID: <3D3C48D5.6080500@evision.ag>
+Date: Mon, 22 Jul 2002 20:03:01 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: martin@dalecki.de, Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.27 devfs
+References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com>	<3D3BE1DD.3040803@evision.ag> <200207221728.g6MHSkY15219@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 22 Jul 2002 10:58:04 -0700
-Message-Id: <1027360686.932.33.camel@sinai>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-07-21 at 22:14, Andrew Morton wrote:
+Richard Gooch wrote:
+> Marcin Dalecki writes:
+> 
+>>Kill two inlines which are notwhere used and which don't make sense
+>>in the case someone is not compiling devfs at all.
+> 
+> 
+> Rejected. Linus, please don't apply this bogus patch. External patches
+> and drivers rely on the inline stubs so that #ifdef CONFIG_DEVFS_FS
+> isn't needed.
 
-> This adds probably-unneeded extra work - we shouldn't go
-> dropping the lock unless that is actually required.  ie:
-> poll ->need_resched first.    Possible?
+Dare to actually *name* one of them?
 
-Sure.  What do you think of this?
+> Martin, why are you bothering with this kind of false cleanup? These
+> inline stubs don't take up any space in the object files, so why
+> bother? Also, given that the stubs were carefully added in the first
+> place, it suggests that there is a good reason for their presence.
 
-	spin_lock(&mm->page_table_lock);
+They where not "carefully added".
 
-	while (size) {
-		block = (size > ZAP_BLOCK_SIZE) ? ZAP_BLOCK_SIZE : size;
-		end = address + block;
+The interface you are exposing is bogous.
+Look in md.c for one example why.
 
-		flush_cache_range(vma, address, end);
-		tlb = tlb_gather_mmu(mm, 0);
-		unmap_page_range(tlb, vma, address, end);
-		tlb_finish_mmu(tlb, address, end);
+Last time I counted you provide at least three different ways of object 
+allocations which play nasty games with major minor numbers in repeating
+code in drivers all scattered over the kernel.
+cd-roms are treated special md.c is doing. And you are doing the
+whole object management in a side step instead of embarcing the
+normal structures holding already device information so you get
+of course memmory management problems...
 
-		if (need_resched()) {
-			/*
-			 * If we need to reschedule we will do so
-			 * here if we do not hold any other locks.
-			 */
-			spin_unlock(&mm->page_table_lock);
-			spin_lock(&mm->page_table_lock);
-		}
+> Why didn't you stop and think it through before firing off a patch, or
+> at least ask me if you couldn't see why? This "patch first, think/ask
+> questions later" approach is disturbing.
 
-		address += block;
-		size -= block;
-	}
+You didn't think doing devfs_fs_kernel.h. One simple sample from there:
 
-	spin_unlock(&mm->page_table_lock);
+devfs_get_maj_min(devfs_get_handle_from_inode((inode))
 
-My only issue with the above is it is _ugly_ compared to the more
-natural loop.  I.e., this looks much more like explicit lock breaking /
-conditional rescheduling whereas the original loop just happens to
-acquire and release the lock on each iteration.  Sure, same effect, but
-I think its says something toward the maintainability and cleanliness of
-the function.
+If I look at md.c which is using it... well better don't tell.
 
-One thing about the "overhead" here - the main overhead would be the
-lock bouncing in between cachelines on SMP afaict.  However, either (a)
-there is no SMP contention or (b) there is and dropping the lock
-regardless may be a good idea.  Thoughts?
+And the above of of course inside ({ })...
 
-Hm, the above also ends up checking need_resched twice (the explicit
-need_resched() and again on the final unlock)... we can fix that by
-manually calling _raw_spin_unlock and then preempt_schedule, but that
-could also result in a (much longer) needless call to preempt_schedule
-if an intervening interrupt serviced the request first. 
+Everybody would expect the following to be only a single function:
 
-But maybe that is just me... like this better?  I can redo the patch as
-the above.
+extern devfs_handle_t devfs_get_handle (devfs_handle_t dir, const char
+extern devfs_handle_t devfs_find_handle (devfs_handle_t dir, const char
 
-	Robert Love
+And it was of course too hard to unify ops and handle:
+
+extern void *devfs_get_ops (devfs_handle_t de);
+extern void devfs_put_ops (devfs_handle_t de);
+
+You couldn't resist adding the redundant devfs_ prefix overall in the 
+kernel:
+
+extern devfs_register_chrdev (unsigned int major, const char *name,
+                                   struct file_operations *fops);
+extern int devfs_register_blkdev (unsigned int major, const char *name,
+                                   struct block_device_operations *bdops);
+extern int devfs_unregister_chrdev (unsigned int major, const char *name);
+extern int devfs_unregister_blkdev (unsigned int major, const char *name);
+
+Three different allocators and deallocators for one single subsystem,
+preserving the illusion that there is in linux a real difference between 
+major and minor numbers...
+
+extern int devfs_alloc_major (char type);
+extern void devfs_dealloc_major (char type, int major);
+extern kdev_t devfs_alloc_devnum (char type);
+extern void devfs_dealloc_devnum (char type, kdev_t devnum);
+extern int devfs_alloc_unique_number (struct unique_numspace *space);
+extern void devfs_dealloc_unique_number (struct unique_numspace *space,
+                                          int number);
+
+If flags are invalid -> add an invalid flag! instead of value return 
+through pointer.
+
+static inline int devfs_get_flags (devfs_handle_t de, unsigned int *flags)
+{
+     return 0;
+}
+
+And so on and so on.... Viro is simple right.
 

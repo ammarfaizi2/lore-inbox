@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314500AbSFNWBO>; Fri, 14 Jun 2002 18:01:14 -0400
+	id <S314548AbSFNWSo>; Fri, 14 Jun 2002 18:18:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314529AbSFNWBN>; Fri, 14 Jun 2002 18:01:13 -0400
-Received: from mx1.afara.com ([63.113.218.20]:51525 "EHLO afara-gw.afara.com")
-	by vger.kernel.org with ESMTP id <S314500AbSFNWBN>;
-	Fri, 14 Jun 2002 18:01:13 -0400
-User-Agent: Pan/0.11.3 (Unix)
-From: "Thomas Duffy" <Thomas.Duffy.99@alumni.brown.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4-ac: sparc64 support for O(1) scheduler
-Date: Fri, 14 Jun 2002 15:00:03 -0700
-In-Reply-To: <1023996118.4800.75.camel@sinai> <20020613.212528.08026527.davem@redhat.com>
-Reply-To: linux-kernel@vger.kernel.org
-Message-ID: <AFARA-EXi6YEFmsQSkt00002356@afara-ex.afara.com>
-X-OriginalArrivalTime: 14 Jun 2002 22:01:08.0635 (UTC) FILETIME=[FCED4EB0:01C213EE]
+	id <S314551AbSFNWSn>; Fri, 14 Jun 2002 18:18:43 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:50133 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S314548AbSFNWSn>;
+	Fri, 14 Jun 2002 18:18:43 -0400
+Subject: Re: [Patch] tsc-disable_A5
+From: john stultz <johnstul@us.ibm.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: davej@suse.de, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        lkml <linux-kernel@vger.kernel.org>, marcelo@conectiva.com.br
+In-Reply-To: <200206142153.XAA03026@harpo.it.uu.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 14 Jun 2002 15:11:37 -0700
+Message-Id: <1024092697.29929.195.camel@cog>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-begin  David S. Miller quotation on Thu, 13 Jun 2002 21:32:11 -0700:
+On Fri, 2002-06-14 at 14:53, Mikael Pettersson wrote:
+> Unless my memory is failing me, I believe the simplest approach
+> is to (1) don't set CONFIG_X86_TSC, and (2) pass "notsc" as a
+> kernel boot parameter.
 
->    From: Robert Love <rml@mvista.com>
->    Date: 13 Jun 2002 12:21:58 -0700
->    
->    Patch is against 2.4.19-pre10-ac2, please apply.
->    
-> Ummm what is with all of those switch_mm() hacks?  Is this an attempt to
-> work around the locking problems?  Please don't do that as it is going
-> to kill performance and having ifdef sparc64 sched.c changes is ugly to
-> say the least.
-> 
-> Ingo posted the correct fix to the locking problem with the patch he
-> posted the other day, that is what should go into the -ac patches.
+Correct, and this patch basically does both of the above. 
 
-This part of the patch (the change to kernel/sched.c) can be safely	
-removed without making o1 stop working.
+The problem is that CONFIG_X86_TSC is enabled on PPro and above cpus.
+The machines which are having this problem are multi-node P3 or P4
+systems. Each cpu has a working TSC, its just that because they are not
+synced they should not be used. 
 
-This hack (conservatively) fixes an issue where on bootup, the machine
-would get into a page fault loop and hang.  This only happens a very
-small percentage of the time.  I will investigate whether the patch
-Ingo put out fixes this issue.
+So the patch adds a CONFIG_DISABLE_TSC which is then checked where
+earlier just CONFIG_X86_TSC was used. Additionally, if
+CONFIG_DISABLE_TSC is set, the flag set by "notsc" is also set.
 
--tduffy
+The usage of CONFIG_X86_TSC took me a bit to get my head around
+initially, so your clarification is helpful.
 
--- 
-He who receives an idea from me, receives instruction himself without
-lessening mine; as he who lights his taper at mine, receives light
-without darkening me.                      -- Thomas Jefferson
+Thanks
+-john
+
+
+
+

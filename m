@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275915AbTHOMOz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 08:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTHOMOz
+	id S275924AbTHOM0S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 08:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275925AbTHOM0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 08:14:55 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:29057 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S275915AbTHOMOy
+	Fri, 15 Aug 2003 08:26:18 -0400
+Received: from angband.namesys.com ([212.16.7.85]:52903 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S275924AbTHOM0R
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 08:14:54 -0400
-Date: Fri, 15 Aug 2003 13:10:23 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Charles Lepple <clepple@ghz.cc>
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: PIT, TSC and power management [was: Re: 2.6.0-test3 "loosing ticks"]
-Message-ID: <20030815121023.GC15911@mail.jlokier.co.uk>
-References: <20030813014735.GA225@timothyparkinson.com> <1060793667.10731.1437.camel@cog.beaverton.ibm.com> <20030814171703.GA10889@mail.jlokier.co.uk> <1060882084.10732.1588.camel@cog.beaverton.ibm.com> <3F3C272E.7060702@ghz.cc>
+	Fri, 15 Aug 2003 08:26:17 -0400
+Date: Fri, 15 Aug 2003 16:26:16 +0400
+From: Oleg Drokin <green@namesys.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: reiserfs corruption with 2.6.0-test
+Message-ID: <20030815122616.GA20765@namesys.com>
+References: <20030814221411.GA3916@k3.hellgate.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F3C272E.7060702@ghz.cc>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030814221411.GA3916@k3.hellgate.ch>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Charles Lepple wrote:
-> amd76x_pm is roughly equivalent to ACPI C2 idling, but since my BIOS 
-> doesn't export any C-state functionality to the kernel ACPI code, I am 
-> stuck with letting amd76x_pm frob the chipset registers.
+Hello!
 
-Same here.
+On Fri, Aug 15, 2003 at 12:14:11AM +0200, Roger Luethi wrote:
 
--- Jamie
+> Both 2.6.0-test3 and -test2 produced kernel NULL pointer dereferences with
+> those files. fsck found the corruption fixable. Works again now.
+
+What was the problem reported by reiserfsck?
+
+> Back traces attached for your viewing pleasure.
+
+
+Thank you.
+
+Bye,
+    Oleg

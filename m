@@ -1,91 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264840AbRF3FSY>; Sat, 30 Jun 2001 01:18:24 -0400
+	id <S264846AbRF3FVy>; Sat, 30 Jun 2001 01:21:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264846AbRF3FSP>; Sat, 30 Jun 2001 01:18:15 -0400
-Received: from w234.z209220165.sjc-ca.dsl.cnc.net ([209.220.165.234]:60044
-	"EHLO tetsuo.farm9.com") by vger.kernel.org with ESMTP
-	id <S264840AbRF3FSA>; Sat, 30 Jun 2001 01:18:00 -0400
-Message-ID: <3B3D60FA.DA4FF634@aerizen.com>
-Date: Fri, 29 Jun 2001 22:17:46 -0700
-From: John Silva <jps@aerizen.com>
-Organization: None
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-8mdksmp i686)
+	id <S264847AbRF3FVo>; Sat, 30 Jun 2001 01:21:44 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:43512 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S264846AbRF3FVg>; Sat, 30 Jun 2001 01:21:36 -0400
+Message-ID: <3B3D61D3.CEDACC4D@uow.edu.au>
+Date: Sat, 30 Jun 2001 15:21:23 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Steve Kieu <haiquy@yahoo.com>
-CC: Sam Halliday <10226982@qub.ac.uk>, kernel <linux-kernel@vger.kernel.org>
-Subject: Re: supermount
-In-Reply-To: <20010626003002.74103.qmail@web10406.mail.yahoo.com>
+To: Dylan Griffiths <Dylan_G@bigfoot.com>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: EEPro100 problems in SMP on 2.4.5 ?
+In-Reply-To: <3B3D4A96.A81A13AD@bigfoot.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Supermount has been integrated into the Mandrake 8 kernel (2.4);
-I have been unable to locate the standalone patch for this, however.
+Dylan Griffiths wrote:
+> 
+>         Hi.  While doing some file tranfers to our new server (a Compaq Proliant
+> 8way XEON 500 with 4gb ram and an EEPro100 NIC), the box socked solid (no
+> oops, no response via network, no response via console).  The other hardware
+> in the system was a Compaq Smart Array 9SMART2 driver).  It's running
+> Slackware 7.1.  The other system was a dual P3 450 running Redhat 7.1 (Linux
+> velocity.kuro5hin.org 2.4.2-2smp #1 SMP Sun Apr 8 20:21:34 EDT 2001 i686
+> unknown) w/ 3c59x NIC.  The Redhat machine experienced no problems.
+>         In Uni processor mode, the system is totally stable.  But only using 1/8th
+> of its power :-/  We had to roll back to 2.2.19 with a bigmem patch, but
+> we'd like to have a stable 2.4 kernel to use (since it's so much better SMP
+> wise, throughput wise, etc).
 
-Steve Kieu wrote:
-> 
->  --- Sam Halliday <10226982@qub.ac.uk> wrote: > This
-> email was delivered to you by The Free
-> > Internet,
-> > a Business Online Group company.
-> > http://www.thefreeinternet.net
-> I totally aggree, supermount is nice features and it
-> should be integrated into the main kernel stream (just
-> my HO)
-> 
-> >
-> ---------------------------------------------------------------
-> > hello,
-> >     i am fairly new to linux, i need it's fast
-> > number crunching powers
-> > for my research... and i have only recently begun to
-> > have a look at the
-> > kernel (i believe every workman should know his
-> > tools)..... but i have
-> > noticed that supermount is not a standard part of
-> > the project, is there
-> > any reason why this is? is it due to man power? i
-> > would have been less
-> > shocked by the absense of other features in the
-> >
-> 
-> > radio support, supermount seems to me to be
-> > essential in any operating
-> > system.....
-> >     i apologise if this is a very silly question or
-> > if i have posted
-> > this question in the wrong place, but please excuse
-> > me, im new to this
-> > whole world.
-> >
-> > and keep up the good work, i wish i knew more about
-> > the whole thing so i
-> > could contribute something.
-> >
-> > Sam, Ireland
-> >
-> > -
-> > To unsubscribe from this list: send the line
-> > "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at
-> > http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> =====
-> S.KIEU
-> 
-> _____________________________________________________________________________
-> http://messenger.yahoo.com.au - Yahoo! Messenger
-> - Voice chat, mail alerts, stock quotes and favourite news and lots more!
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Some things to try:
 
---
-John P. Silva                            jps@aerizen.com
+1: Include `magic sysrq' support in the kernel and use ALT-SYSRQ-T and S
+   when it has locked up.   If you get some traces then please feed them
+   into `ksymoops -m System.map' and report back.
+
+2: If the above doesn't work, add `nmi_watchdog=1' to the kernel boot
+   options.  That may catch the lockup.
+
+3: Replace the NIC with another eepro100.  If the problem goes away then
+   chuck the old one.
+
+4: Replace the NIC with one of a different type (ie: swap with the other
+   machine). If that fixes it we look at the ethernet driver.  Otherwise
+   we look at, umm, the rest of the kernel.
+
+-

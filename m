@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264226AbUEXKFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264231AbUEXKLc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264226AbUEXKFq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 06:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbUEXKFp
+	id S264231AbUEXKLc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 06:11:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbUEXKLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 06:05:45 -0400
-Received: from [218.85.121.146] ([218.85.121.146]:41223 "HELO hero")
-	by vger.kernel.org with SMTP id S264226AbUEXKFf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 06:05:35 -0400
-Message-ID: <o22QG3o2ZnR5g@kimo.com>
-From: sale18@citiz.net
-To: DMailer@vger.kernel.org
-Subject: flexible printed circuits
-X-Mailer: jrdgO7ldOR334CexRzx
-Content-Type: text/plain;
-X-Priority: 3
-X-MSMail-Priority: Normal
-Date: Mon, 24 May 2004 06:05:35 -0400
+	Mon, 24 May 2004 06:11:32 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:27113 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S264231AbUEXKLb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 06:11:31 -0400
+Subject: [PATCH] typo in drivers/usb/class/usblp.c (resend)
+From: =?ISO-8859-1?Q?Beno=EEt?= Dejean <TazForEver@free.fr>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1085393489.6815.30.camel@athlon>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.5.5 
+Date: Mon, 24 May 2004 12:11:29 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from Quoted-Printable to 8bit by alpha.home.local id i4OA64dB020345
 
+i think there's a typo error in usblp.c
 
+patch against 2.6.6
+
+--- linux-2.6.6/drivers/usb/class/usblp.c       2004-04-04
+05:36:26.000000000
++0200
++++ linux-2.6.6-modified/drivers/usb/class/usblp.c      2004-05-24
+01:15:20.000000000 +0200
+@@ -305,7 +305,7 @@
  
- 
-
-
-Dear sir,
-    Good luck!
-    We are glad to   introduce   a  flexible printed circuit (FPC) factory. we use
-the latest technology make flexible printed circuits (FPC) for use in any
-electronic products.The FACTURE is ISO9001 and UL certified, and confirmed to IPC
-criteria.
-    THE MAIN CAPACITY:
-1,CAN MAKE DOUBLE SIDED WITH MIN 0.06MM TRACE WIDTH. THE SQUARE HOLE OF THE
-COVERLAYER CAN BE  MIN 0.4 MM.
-2,CAN MAKE 3 LAYERS,4 LAYERS,5 LAYERS,6 LAYERS FPC.
-3,PRODUCTS HAVE EXPORTED TO USA,CANADA,JAPAN,UK,GERMANY,FRANCE,AUSTRALIA ETC
-MORE THEN 20 COUNTRIES.
-4,MAIN CUSTOMER ARE NOKIA,PANASONIC,SONY,DELL,TDK ,PHILIP ETC.
-
-We would welcome you to visit our factory.
-
-Please e-mail your circuit design by Gerber file, Auto Cad, protel files and
-advise us of:
-
-FPC size, and number of layers.  We can make samples for your approval, with
-factory direct pricing.T
-
-If you donot want us to send you again, you can use the latest outlook2003
-soft,to enter this e-mail address as reject e-mail address.you can solve all the
-worry.
-Or send an email with: " Remove" in the subject .we'll delete it from our
-list.
-hank you for your support!
-
-Best regards!
-
-Bai jing qi
-
+        if (~status & LP_PERRORP)
+                newerr = 3;
+-       if (status & LP_POUTPA)
++       if (~status & LP_POUTPA)
+                newerr = 1;
+        if (~status & LP_PSELECD)
+                newerr = 2;
+-- 
+Benoît Dejean
+JID: TazForEver@jabber.org
+http://gdesklets.gnomedesktop.org
+http://www.paulla.asso.fr
 

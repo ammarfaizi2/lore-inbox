@@ -1,73 +1,125 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278940AbRKMUsP>; Tue, 13 Nov 2001 15:48:15 -0500
+	id <S278962AbRKMUxz>; Tue, 13 Nov 2001 15:53:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278927AbRKMUsG>; Tue, 13 Nov 2001 15:48:06 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:19961 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S278924AbRKMUrw>;
-	Tue, 13 Nov 2001 15:47:52 -0500
-Date: Tue, 13 Nov 2001 13:46:53 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: "Peter J . Braam" <braam@clusterfilesystem.com>
-Cc: Andrew Morton <akpm@zip.com.au>, Steve Lord <lord@sgi.com>,
-        Ben Israel <ben@genesis-one.com>, linux-kernel@vger.kernel.org
-Subject: Re: File System Performance
-Message-ID: <20011113134653.O1778@lynx.no>
-Mail-Followup-To: "Peter J . Braam" <braam@clusterfilesystem.com>,
-	Andrew Morton <akpm@zip.com.au>, Steve Lord <lord@sgi.com>,
-	Ben Israel <ben@genesis-one.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3BF02702.34C21E75@zip.com.au>, <00b201c16b81$9d7aaba0$5101a8c0@pbc.adelphia.net> <3BEFF9D1.3CC01AB3@zip.com.au> <00da01c16ba2$96aeda00$5101a8c0@pbc.adelphia.net> <3BF02702.34C21E75@zip.com.au> <1005595583.13307.5.camel@jen.americas.sgi.com> <3BF03402.87D44589@zip.com.au> <20011112171705.Z1778@lynx.no> <20011112174005.N4281@lustre.dyn.ca.clusterfilesystem.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20011112174005.N4281@lustre.dyn.ca.clusterfilesystem.com>; from braam@clusterfilesystem.com on Mon, Nov 12, 2001 at 05:40:05PM -0700
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S278960AbRKMUxs>; Tue, 13 Nov 2001 15:53:48 -0500
+Received: from demai05.mw.mediaone.net ([24.131.1.56]:40173 "EHLO
+	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
+	id <S278962AbRKMUxa>; Tue, 13 Nov 2001 15:53:30 -0500
+Message-Id: <200111132053.fADKrdW07245@demai05.mw.mediaone.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Brian <hiryuu@envisiongames.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Oops in kswapd (2.4.14)
+Date: Tue, 13 Nov 2001 15:53:28 -0500
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 12, 2001  17:40 -0700, Peter J . Braam wrote:
-> The KML in fact doesn't record the writes.  I don't have a large KML,
-> but it is easy to set one up.  Let me know if you need a hand.
+This is a well-loaded web server serving files off the root IDE disk and 
+NFS.  It lasted a week on 2.4.10 and 2.4.14 before nixing kswapd and going 
+haywire.  There were several later oopses, but I would assume the death of 
+kswapd was a major part of those.
 
-We don't actually need to have the data contents, just the file sizes,
-which I think the CLOSE records have, don't they?  The one thing I'm
-unsure of is whether you zero the KML as it is "used", or does it keep
-the data from past transactions?  At one time we were thinking about
-using "punch" to reduce the actual file size, but I doubt that is in
-place yet.
+Unable to handle kernel NULL pointer dereference at virtual address 
+0000000a
+ printing eip:
+c0137498
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[prune_dcache+24/296]    Not tainted
+EFLAGS: 00010212
+eax: c020613c   ebx: cad7b058   ecx: d9da1020   edx: 0000000a
+esi: d9da1cc0   edi: 00000000   ebp: 00002adc   esp: c1873f60
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 4, stackpage=c1873000)
+Stack: 00000001 000001d0 00000020 00000006 c01377fb 00002e45 c01227e0 
+00000006
+       000001d0 00000006 000001d0 c02054e8 00000000 c02054e8 c012281c 
+00000020
+       c02054e8 00000001 c1872000 c01228b3 c0205440 00000000 c1872249 
+0008e000
+Call Trace: [shrink_dcache_memory+27/52] [shrink_caches+108/132]
+   [try_to_free_pages+36/68] [kswapd_balance_pgdat+67/140]
+   [kswapd_balance+18/40] [kswapd+153/188] [kernel_thread+40/56]
+Code: 89 02 89 1b 89 5b 04 8d 73 e8 8b 46 54 a8 08 74 27 24 f7 89
 
-This is purely to measure the effects of repeated file creation, deletion,
-updates in a real setting over a very long period (e.g. many months/years),
-which is why setting something like this up today won't get us anywhere
-(any large amount of activity would just be synthetic).
+The system is a P3/750 and was rock solid on 2.2.  The only disk is a WD 
+on a PIIX4.  The NIC is an eepro100.  The kernel was compiled on Debian 
+sid using "gcc version 2.95.4 20011006 (Debian prerelease)".
 
-Do you think Ron Minnich or the folks at Tacitus would have a KML which
-has been generated on a large server over a long period of time and not
-erased?
+The config for it is:
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_NOHIGHMEM=y
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_PIIX_TUNING=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=4
+CONFIG_SCSI_SYM53C8XX=y
+CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=4
+CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
+CONFIG_SCSI_NCR53C8XX_SYNC=20
+CONFIG_NETDEVICES=y
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=y
+CONFIG_NET_PCI=y
+CONFIG_EEPRO100=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_TMPFS=y
+CONFIG_PROC_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_NFS_FS=y
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_VGA_CONSOLE=y
 
-> On Mon, Nov 12, 2001 at 05:17:05PM -0700, Andreas Dilger wrote:
-> > On Nov 12, 2001  12:41 -0800, Andrew Morton wrote:
-> > > BTW, I've been trying to hunt down a suitable file system aging tool.
-> > > We're not very happy with Keith Smith's workload because the directory
-> > > infomation was lost (he was purely studying FFS algorithmic differences
-> > > - the load isn't 100% suitable for testing other filesystems / algorithms).
-> > >   Constantin Loizides' tools are proving to be rather complex to compile,
-> > >   drive and understand.
-> > 
-> > What _may_ be a very interesting tool for doing "real-world" I/O generation
-> > is to use the InterMezzo KML (kernel modification log), which is basically
-> > a 100% record of every filesystem operation done (e.g. create, write,
-> > delete, mkdir, rmdir, etc).
-> > 
-> > Peter, do you have any very large KML files which would simulate the usage
-> > of a filesystem over a long period of time, or would Tacitus have something
-> > like that?
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+Any help is appreciated
+	-- Brian

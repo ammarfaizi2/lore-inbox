@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267419AbSKQAOz>; Sat, 16 Nov 2002 19:14:55 -0500
+	id <S267417AbSKQAkC>; Sat, 16 Nov 2002 19:40:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267420AbSKQAOz>; Sat, 16 Nov 2002 19:14:55 -0500
-Received: from gateway.cinet.co.jp ([210.166.75.129]:26952 "EHLO
-	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S267419AbSKQAOx>; Sat, 16 Nov 2002 19:14:53 -0500
-Message-ID: <3DD6E10B.EF597421@cinet.co.jp>
-Date: Sun, 17 Nov 2002 09:21:31 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.47-ac5-pc98smp i686)
-X-Accept-Language: ja, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [RFC][PATCH 2.5-ac] Doesn't  boot when compile for i386, i486
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+	id <S267421AbSKQAkB>; Sat, 16 Nov 2002 19:40:01 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:55050 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267417AbSKQAkB>;
+	Sat, 16 Nov 2002 19:40:01 -0500
+Date: Sat, 16 Nov 2002 16:41:00 -0800
+From: Greg KH <greg@kroah.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dead & Dying interfaces
+Message-ID: <20021117004059.GC28824@kroah.com>
+References: <20021115184725.H20070@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021115184725.H20070@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.45-ac1 and 2.5.47-ac[1-5] doesn't boot when compile
- for CPU without TSC.
-By following patch, boot and work at this time.
-Any problems? Please comment.
+On Fri, Nov 15, 2002 at 06:47:25PM +0000, Matthew Wilcox wrote:
+> 
+> pcibios_*
+>  -> Documentation/pci.txt
 
---- linux-2.5.47-ac4/arch/i386/Kconfig.orig	Fri Nov 15 12:13:36 2002
-+++ linux-2.5.47-ac4/arch/i386/Kconfig	Fri Nov 15 13:18:14 2002
-@@ -290,8 +290,10 @@
- 	depends on M686 || MPENTIUMIII || MPENTIUMIV || MK7 || MCRUSOE
- 	default y
- 
--config X86_HAVE_PIT
-+config X86_PIT
-+	bool
- 	depends on M386 || M486 || M586 ||  MGEODE || X86_NUMAQ || VOYAGER || MWINCHIPC6 || MWINCHIP2 || MWINCHIP3D
-+	default y
- 
- config X86_OOSTORE
- 	bool
--- 
-Osamu Tomita
-tomita@cinet.co.jp
+I still have patches that remove all of the instances of this.  I think
+it's already in the -ac kernel.  I'll forward port it next week and send
+it to Linus.
+
+thanks,
+
+greg k-h

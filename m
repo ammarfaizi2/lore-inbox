@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267104AbSLDVqm>; Wed, 4 Dec 2002 16:46:42 -0500
+	id <S267111AbSLDWFO>; Wed, 4 Dec 2002 17:05:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267108AbSLDVqm>; Wed, 4 Dec 2002 16:46:42 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:33687 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267104AbSLDVqm>;
-	Wed, 4 Dec 2002 16:46:42 -0500
-Subject: Re: [PATCH] NMI notifiers for 2.5
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <p731y4xtulg.fsf@oldwotan.suse.de>
-References: <1039027142.20387.11.camel@dell_ss3.pdx.osdl.net.suse.lists.linux.kernel> 
-	<p731y4xtulg.fsf@oldwotan.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 04 Dec 2002 13:54:13 -0800
-Message-Id: <1039038853.20387.19.camel@dell_ss3.pdx.osdl.net>
+	id <S267115AbSLDWFO>; Wed, 4 Dec 2002 17:05:14 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:56790 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267111AbSLDWFN>;
+	Wed, 4 Dec 2002 17:05:13 -0500
+Date: Wed, 04 Dec 2002 14:09:54 -0800 (PST)
+Message-Id: <20021204.140954.89672437.davem@redhat.com>
+To: dan@debian.org
+Cc: torvalds@transmeta.com, george@mvista.com, sfr@canb.auug.org.au,
+       linux-kernel@vger.kernel.org, anton@samba.org, ak@muc.de,
+       davidm@hpl.hp.com, schwidefsky@de.ibm.com, ralf@gnu.org,
+       willy@debian.org
+Subject: Re: [PATCH] compatibility syscall layer (lets try again)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021204205609.GA29953@nevyn.them.org>
+References: <3DEE5DE1.762699E3@mvista.com>
+	<Pine.LNX.4.44.0212041203230.1676-100000@penguin.transmeta.com>
+	<20021204205609.GA29953@nevyn.them.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Daniel Jacobowitz <dan@debian.org>
+   Date: Wed, 4 Dec 2002 15:56:09 -0500
+   
+   Is the necessary information recoverable in
+   Alpha et al.?
 
-> For a more comprehensive variant see include/asm-x86_64/kdebug.h	
-> The x86-64 variant cannot be 1:1 copied because it's still incomplete
-> and e.g. does not implement veto for all places where it's needed.
-> 
-
-Didn't look in x86_64 code.  Would it just make more sense to turn this
-into an architecture independent mechanism and provide sample versions
-for x86_64 and i386?
+No, and Sparc is the same.  It's kept in local registers
+in the assembler of the trap return path.
 

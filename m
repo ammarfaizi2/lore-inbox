@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262433AbVAPFjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbVAPFyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262433AbVAPFjj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 00:39:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbVAPFjj
+	id S262434AbVAPFyj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 00:54:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVAPFyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 00:39:39 -0500
-Received: from almesberger.net ([63.105.73.238]:55559 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S262433AbVAPFjf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 00:39:35 -0500
-Date: Sun, 16 Jan 2005 02:38:30 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, ak@suse.de, mst@mellanox.co.il,
-       tiwai@suse.de, mingo@elte.hu, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org, pavel@suse.cz, gordon.jin@intel.com,
-       VANDROVE@vc.cvut.cz
-Subject: Re: [PATCH] fix: macros to detect existance of unlocked_ioctl and compat_ioctl
-Message-ID: <20050116023830.A22646@almesberger.net>
-References: <20050105144043.GB19434@mellanox.co.il> <s5hd5wjybt8.wl@alsa2.suse.de> <20050105133448.59345b04.akpm@osdl.org> <20050106140636.GE25629@mellanox.co.il> <20050112203606.GA23307@mellanox.co.il> <20050112212954.GA13558@kroah.com> <20050112214326.GB14703@wotan.suse.de> <20050112225230.GA14590@kroah.com> <20050112151049.7473db7d.akpm@osdl.org> <20050112231630.GB15085@kroah.com>
+	Sun, 16 Jan 2005 00:54:38 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:39365 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S262434AbVAPFye (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 00:54:34 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: conglomerate objects in reference*.pl 
+In-reply-to: Your message of "Sat, 15 Jan 2005 20:49:33 -0800."
+             <41E9F25D.5050906@osdl.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050112231630.GB15085@kroah.com>; from greg@kroah.com on Wed, Jan 12, 2005 at 03:16:30PM -0800
+Date: Sun, 16 Jan 2005 16:22:11 +1100
+Message-ID: <14049.1105852931@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Cc:s trimmed a little ]
+On Sat, 15 Jan 2005 20:49:33 -0800, 
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>Hi Keith,
+>
+>I'm seeing some drivers/*/built-in.o that should be ignored AFAIK,
+>but they are not ignored.  Any ideas?
+>
+>This is 2.6.11-rc1-bk3 on i386 with allmodconfig
+>(except DEBUG_INFO=n) and gcc 3.3.3.
+>
+>Error: ./drivers/ide/built-in.o .text refers to 00000939 R_386_PC32 
+>      .init.text
+>Error: ./drivers/ide/legacy/built-in.o .text refers to 00000939 
+>R_386_PC32        .init.text
+>Error: ./drivers/ide/legacy/hd.o .text refers to 00000939 R_386_PC32 
+>       .init.text
 
-Greg KH wrote:
-> Sorry, the "policy" I was referring to was the "out-of-the-tree drivers
-> are on their own" statement.  Not the use of the HAVE macros.
+Output from these commands please.
 
-Not all users of kernel code are in- or out-of-tree drivers and the
-like. E.g. tcsim (from tcng.sf.net) grabs substantial portions of
-the traffic control and netlink code and merges them with user
-space. It also tries to be compatible with most 2.4 kernels.
+rm drivers/ide/built-in.o drivers/ide/legacy/built-in.o
+make SUBDIRS=drivers/ide V=1
+objdump -s -j .comment drivers/ide/built-in.o | head -n15
 
-For feature tests, I use basically anything that doesn't run away
-quickly enough. And I'm sure you want none of *that* kind of code 
-anywhere near mainline ;-)
-
-Not that I currently have more troubles with it than usually. I
-just want to point out that there are other, strange but legitimate
-(at least in the "all shall eventually be GPL" sense) users of the
-kernel, who don't mind a friendly environment.
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

@@ -1,90 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261510AbSJMMPy>; Sun, 13 Oct 2002 08:15:54 -0400
+	id <S261507AbSJMMZe>; Sun, 13 Oct 2002 08:25:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261511AbSJMMPy>; Sun, 13 Oct 2002 08:15:54 -0400
-Received: from smtp.mailix.net ([216.148.213.132]:63708 "EHLO smtp.mailix.net")
-	by vger.kernel.org with ESMTP id <S261510AbSJMMPw>;
-	Sun, 13 Oct 2002 08:15:52 -0400
-Date: Sun, 13 Oct 2002 14:21:39 +0200
-From: Alex Riesen <fork0@users.sf.net>
-To: Greg Kroah-Hartman <greg@kroah.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: 2.5.42-ac1: modprobe uhci-hcd: sleeping function called from illegal context
-Message-ID: <20021013122139.GA377@steel>
-Reply-To: Alex Riesen <fork0@users.sf.net>
+	id <S261508AbSJMMZe>; Sun, 13 Oct 2002 08:25:34 -0400
+Received: from adsl-212-59-30-243.takas.lt ([212.59.30.243]:63994 "EHLO
+	mg.homelinux.net") by vger.kernel.org with ESMTP id <S261507AbSJMMZd>;
+	Sun, 13 Oct 2002 08:25:33 -0400
+Date: Sun, 13 Oct 2002 14:31:05 +0200
+From: Marius Gedminas <mgedmin@centras.lt>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Strange load spikes on 2.4.19 kernel
+Message-ID: <20021013123105.GA6304@gintaras>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.33.0210130202070.17395-100000@coffee.psychology.mcmaster.ca> <113001c27282$93955eb0$1900a8c0@lifebook>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <113001c27282$93955eb0$1900a8c0@lifebook>
 User-Agent: Mutt/1.4i
+X-Message-Flag: If you do not see this message correctly, stop using Outlook.
+X-GPG-Fingerprint: 8121 AD32 F00A 8094 748A  6CD0 9157 445D E7A6 D78F
+X-GPG-Key: http://ice.dammit.lt/~mgedmin/mg-pgp-key.txt
+X-URL: http://ice.dammit.lt/~mgedmin/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just tried "modprobe uhci-hcd". Nothing evil observed besides that.
+On Sun, Oct 13, 2002 at 04:34:21PM +1000, Rob Mueller wrote:
+> Also Let me do a calculation, though I have no idea if this is right or
+> not...
+> a) the first item in the uptime output is 'system load average for the last
+> 1 minute'
+> b) it seems to only update/recalculate every 5 seconds
+> c) it jumps from < 1 to 20 in 1 interval (eg 5 seconds)
+> 
+> This means that for it to jump from < 1 to 20 in 5 seconds, there must be on
+> average about 60/5 * 20 = 240 processes blocked over those 5 seconds waiting
+> for run time of some sort for the load to jump 20 points. Is that right?
 
-syslog:
-Oct 13 13:04:08 steel kernel: drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver v2.0
-Oct 13 13:04:08 steel kernel: PCI: Found IRQ 10 for device 00:04.2
-Oct 13 13:04:08 steel kernel: PCI: Sharing IRQ 10 with 00:04.3
-Oct 13 13:04:08 steel kernel: PCI: Sharing IRQ 10 with 00:0f.0
-Oct 13 13:04:08 steel kernel: drivers/usb/core/hcd-pci.c: uhci-hcd @ 00:04.2, VIA Technologies, Inc. USB
-Oct 13 13:04:08 steel kernel: drivers/usb/core/hcd-pci.c: irq 10, io base 0000b400
-Oct 13 13:04:08 steel kernel: drivers/usb/core/hcd.c: new USB bus registered, assigned bus number 1
-Oct 13 13:04:08 steel kernel: drivers/usb/core/hub.c: USB hub found at 0
-Oct 13 13:04:08 steel kernel: drivers/usb/core/hub.c: 2 ports detected
-Oct 13 13:04:08 steel kernel: PCI: Found IRQ 10 for device 00:04.3
-Oct 13 13:04:08 steel kernel: PCI: Sharing IRQ 10 with 00:04.2
-Oct 13 13:04:08 steel kernel: PCI: Sharing IRQ 10 with 00:0f.0
-Oct 13 13:04:08 steel kernel: drivers/usb/core/hcd-pci.c: uhci-hcd @ 00:04.3, VIA Technologies, Inc. USB (#2)
-Oct 13 13:04:08 steel kernel: drivers/usb/core/hcd-pci.c: irq 10, io base 0000b000
-Oct 13 13:04:08 steel kernel: drivers/usb/core/hcd.c: new USB bus registered, assigned bus number 2
-Oct 13 13:04:08 steel kernel: drivers/usb/core/hub.c: USB hub found at 0
-Oct 13 13:04:08 steel kernel: drivers/usb/core/hub.c: 2 ports detected
-Oct 13 13:04:09 steel kernel: Debug: sleeping function called from illegal context at include/asm/semaphore.h:119
-Oct 13 13:04:09 steel kernel: Call Trace:
-Oct 13 13:04:09 steel kernel:  [<c0116184>] __might_sleep+0x54/0x60
-Oct 13 13:04:09 steel kernel:  [<dc846f56>] .rodata+0x1056/0x1a74 [usbcore]
-Oct 13 13:04:09 steel kernel:  [<dc8419dd>] usb_hub_events+0x65/0x2b8 [usbcore]
-Oct 13 13:04:09 steel kernel:  [<dc846f56>] .rodata+0x1056/0x1a74 [usbcore]
-Oct 13 13:04:09 steel kernel:  [<dc841c65>] usb_hub_thread+0x35/0xe0 [usbcore]
-Oct 13 13:04:09 steel kernel:  [<dc841c30>] usb_hub_thread+0x0/0xe0 [usbcore]
-Oct 13 13:04:09 steel kernel:  [<c0114f60>] default_wake_function+0x0/0x34
-Oct 13 13:04:09 steel kernel:  [<dc84c9ec>] khubd_wait+0x4/0xc [usbcore]
-Oct 13 13:04:09 steel kernel:  [<dc84c9ec>] khubd_wait+0x4/0xc [usbcore]
-Oct 13 13:04:09 steel kernel:  [<c01054a9>] kernel_thread_helper+0x5/0xc
-Oct 13 13:04:09 steel kernel: 
-Oct 13 13:04:09 steel kernel: drivers/usb/core/hub.c: new USB device 00:04.2-2, assigned address 2
+Load is an exponential average, recalculated according to this formula
+(see CALC_LOAD in sched.h) every five seconds:
 
+  load1 = load1 * exp + n * (1 - exp)
 
-some of /proc/pci:
+where exp = 1/exp(5sec/1min) ~= 1884/2048 ~= 0.92
+      n = the number of running tasks at the moment
 
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: VIA Technologies, Inc. VT8605 [ProSavage PM133] (rev 129).
-      Prefetchable 32 bit memory at 0xf8000000 [0xfbffffff].
-  Bus  0, device   1, function  0:
-    PCI bridge: VIA Technologies, Inc. VT8605 [PM133 AGP] (rev 0).
-      Master Capable.  No bursts.  Min Gnt=8.
-  Bus  0, device   4, function  0:
-    ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 34).
-  Bus  0, device   4, function  1:
-    IDE interface: VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE (rev 16).
-      Master Capable.  Latency=32.  
-      I/O at 0xb800 [0xb80f].
+To jump from 0.21 to 27.65 in 5 second (1 update), n would have to be
+343.  Wow.  (Substituting the numbers for 5 and 15 minute averages I get
+n of about 362 and 352).
 
-  Bus  0, device   4, function  2:
-    USB Controller: VIA Technologies, Inc. USB (rev 16).
-      IRQ 10.
-      Master Capable.  Latency=32.  
-      I/O at 0xb400 [0xb41f].
-  Bus  0, device   4, function  3:
-    USB Controller: VIA Technologies, Inc. USB (#2) (rev 16).
-      IRQ 10.
-      Master Capable.  Latency=32.  
-      I/O at 0xb000 [0xb01f].
+Can somebody check my math?
 
-  Bus  0, device   4, function  4:
-    Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 48).
-
+Marius Gedminas
+-- 
+Never trust a computer you can't repair yourself.
 

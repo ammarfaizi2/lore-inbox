@@ -1,69 +1,276 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261773AbTCLQ6F>; Wed, 12 Mar 2003 11:58:05 -0500
+	id <S261756AbTCLRJZ>; Wed, 12 Mar 2003 12:09:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261789AbTCLQ6E>; Wed, 12 Mar 2003 11:58:04 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:9384 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S261773AbTCLQ6C>; Wed, 12 Mar 2003 11:58:02 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 12 Mar 2003 09:17:57 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: bert hubert <ahu@ds9a.nl>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch, rfc] lt-epoll ( level triggered epoll ) ...
-In-Reply-To: <20030312120539.GA25626@outpost.ds9a.nl>
-Message-ID: <Pine.LNX.4.50.0303120910020.2050-100000@blue1.dev.mcafeelabs.com>
-References: <Pine.LNX.4.50.0303101139520.1922-100000@blue1.dev.mcafeelabs.com>
- <20030311093427.GA19658@outpost.ds9a.nl> <Pine.LNX.4.50.0303111015370.1855-100000@blue1.dev.mcafeelabs.com>
- <20030312120539.GA25626@outpost.ds9a.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261792AbTCLRJZ>; Wed, 12 Mar 2003 12:09:25 -0500
+Received: from users.linvision.com ([62.58.92.114]:10430 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S261756AbTCLRJV>; Wed, 12 Mar 2003 12:09:21 -0500
+Date: Wed, 12 Mar 2003 18:19:49 +0100
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [RFC] Userspace serial drivers: PTY changes.
+Message-ID: <20030312181949.A18204@bitwizard.nl>
+References: <20030312142822.A12206@bitwizard.nl> <b4nmsq$3fr$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="lrZ03NoBR/3+SXJZ"
+Content-Disposition: inline
+In-Reply-To: <b4nmsq$3fr$1@cesium.transmeta.com>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Mar 2003, bert hubert wrote:
 
-> On Tue, Mar 11, 2003 at 10:20:38AM -0800, Davide Libenzi wrote:
->
-> > > Most programs will not abandon 'legacy' interfaces like poll and select and
-> > > will only want to offer epoll in addition. Right now that is hard to do.
-> >
-> > I agree here. It took 15 minutes to port thttpd to LT epoll.
->
-> Having level ability will massively speed up epoll adoption. By the way, was
-> there a reason to go to edge in the first place?
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Well, the first version of /dev/epoll was truly ET and it wasn't using
-poll kernel hooks. With the usage of poll hook it became more affordable
-to consider to have both ET and LT behaviours. ET would be my pick if I
-have to start a new application from scratch anyway.
+On Wed, Mar 12, 2003 at 08:22:50AM -0800, H. Peter Anvin wrote:
+> Followup to:  <20030312142822.A12206@bitwizard.nl>
+> By author:    Rogier Wolff <R.E.Wolff@BitWizard.nl>
+> In newsgroup: linux.dev.kernel
+> > 
+> > So we implemented all this. Patch attached. What do you think?
+> > 
+> 
+> -ENOPATCH?
 
-
-
-> > We add a parameter to epoll_create() that will set the interface behaviour
-> > at creation time :
-> ...
-> > We can go at fd granularity by leaving the API the same, and we define :
-> > 	#define EPOLLET (1 << 31)
->
-> This last option would retain the current ABI *and* semantics for unchanged
-> programs. I do wonder if there is a case where you'd want to run in mixed
-> mode, however. But if the code to support mixed operation is truly trivial,
-> I think we should not set policy from the kernel ('only do epoll in one
-> mode') and leave it up to userspace to discover if there is a use for this.
->
-> Anyhow, as a member of the kCowSay [1] association of userspace people
-> meddling in the affairs of kernel coders, I vote strongly for having level
-> triggered epoll on the kernel, with the ability to do mixed mode.
-
-The patch I posted yesterday does the per-fd selectable ET/LT behaviour.
-It ran fine on UP and 2SMP tonight, so I'm going to ping Linus for a merge
-later today.
+--EAGREE
 
 
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* The Worlds Ecosystem is a stable system. Stable systems may experience *
+* excursions from the stable situation. We are currently in such an      * 
+* excursion: The stable situation does not include humans. ***************
 
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="patch-2.4.20.trueport-12-mrt"
 
-- Davide
+diff -ur linux-2.4.20.clean/drivers/char/pty.c linux-2.4.20.trueport2/drivers/char/pty.c
+--- linux-2.4.20.clean/drivers/char/pty.c	Sat Aug  3 02:39:43 2002
++++ linux-2.4.20.trueport2/drivers/char/pty.c	Wed Mar 12 10:56:08 2003
+@@ -262,16 +262,109 @@
+ 	return 0;
+ }
+ 
++static int pty_slave_ioctl(struct tty_struct *tty, struct file *file,
++			unsigned int cmd, unsigned long arg)
++{
++
++	struct tty_struct * real_tty;
++
++	if (!tty) {
++		printk(KERN_ERR "%scalled with NULL tty!\n", __FUNCTION__);
++		return -EIO;
++	}
++
++	if (tty->driver.type == TTY_DRIVER_TYPE_PTY &&
++	    tty->driver.subtype == PTY_TYPE_MASTER)
++		real_tty = tty->link;
++	else
++		real_tty = tty;
++	
++	switch(cmd) {
++	case TIOCSBRK:
++	case TCSBRK:
++	case TCSBRKP:
++		if (tty->link && tty->link->packet) {
++			tty->ctrl_status |= TIOCPKT_BREAK;
++			wake_up_interruptible(&tty->link->read_wait);
++		}
++		return 0;
++	case TIOCMBIC:
++	case TIOCMBIS:
++	case TIOCMSET: {
++		unsigned int new_val;
++
++		get_user(arg, (unsigned int *) arg);
++
++		new_val = real_tty->modem_status;
++		switch (cmd) {
++			case TIOCMBIC:
++				new_val &= ~arg;
++				break;
++			case TIOCMBIS:
++				new_val |=  arg;
++				break;
++			case TIOCMSET: 
++				new_val = arg;
++				break;
++		}
++
++		if (new_val != real_tty->modem_status) {
++			printk ("New status: 0x%x 0x%x\n", new_val ,  real_tty->modem_status);
++			real_tty->modem_status = new_val;
++			real_tty->link->modem_status = new_val;
++		
++			if (real_tty->link && real_tty->link->packet) {
++				real_tty->ctrl_status |= TIOCPKT_SIGNALS;
++				wake_up_interruptible(&real_tty->link->read_wait);
++			}
++		}
++
++		return 0;
++	}
++	case TIOCMGET:
++		printk ("Getting modem status: 0x%x\n", real_tty->modem_status);
++		if (put_user (real_tty->modem_status, (unsigned int*)arg))
++			return -EFAULT;
++		return 0;
++	}
++		
++		
++
++	return -ENOIOCTLCMD;
++}
++
++int set_termios(struct tty_struct * tty, unsigned long arg, int opt);
++
++
+ static int pty_bsd_ioctl(struct tty_struct *tty, struct file *file,
+ 			unsigned int cmd, unsigned long arg)
+ {
++	struct tty_struct * real_tty;
++
+ 	if (!tty) {
+ 		printk("pty_ioctl called with NULL tty!\n");
+ 		return -EIO;
+ 	}
++
++	if (tty->driver.type == TTY_DRIVER_TYPE_PTY &&
++	    tty->driver.subtype == PTY_TYPE_MASTER)
++		real_tty = tty->link;
++	else
++		real_tty = tty;
++	
++
+ 	switch(cmd) {
+ 	case TIOCSPTLCK: /* Set PT Lock (disallow slave open) */
+ 		return pty_set_lock(tty, (int *) arg);
++	case TCGETS:
++		if (kernel_termios_to_user_termios((struct termios *)arg, real_tty->termios))
++			return -EFAULT;
++		return 0;
++	case TIOCMSET: 
++		get_user(arg, (unsigned int *) arg);
++		tty->modem_status = arg;
++		tty->link->modem_status = arg;
++		return 0;
+ 	}
+ 	return -ENOIOCTLCMD;
+ }
+@@ -352,6 +445,11 @@
+ {
+         tty->termios->c_cflag &= ~(CSIZE | PARENB);
+         tty->termios->c_cflag |= (CS8 | CREAD);
++
++	if (tty->link && tty->link->packet) {
++		tty->ctrl_status |= TIOCPKT_TERMIOS;
++		wake_up_interruptible(&tty->link->read_wait);
++	}
+ }
+ 
+ int __init pty_init(void)
+@@ -420,6 +518,7 @@
+ 	pty_slave_driver.termios_locked = ttyp_termios_locked;
+ 	pty_slave_driver.driver_state = pty_state;
+ 	pty_slave_driver.other = &pty_driver;
++	pty_slave_driver.ioctl = pty_slave_ioctl;
+ 
+ 	if (tty_register_driver(&pty_driver))
+ 		panic("Couldn't register pty driver");
+diff -ur linux-2.4.20.clean/drivers/char/tty_ioctl.c linux-2.4.20.trueport2/drivers/char/tty_ioctl.c
+--- linux-2.4.20.clean/drivers/char/tty_ioctl.c	Wed Dec 18 12:09:13 2002
++++ linux-2.4.20.trueport2/drivers/char/tty_ioctl.c	Wed Mar 12 10:56:08 2003
+@@ -138,7 +138,7 @@
+ 		(*tty->ldisc.set_termios)(tty, &old_termios);
+ }
+ 
+-static int set_termios(struct tty_struct * tty, unsigned long arg, int opt)
++int set_termios(struct tty_struct * tty, unsigned long arg, int opt)
+ {
+ 	struct termios tmp_termios;
+ 	int retval = tty_check_change(tty);
+@@ -505,6 +505,44 @@
+ 				((tty->termios->c_cflag & ~CLOCAL) |
+ 				 (arg ? CLOCAL : 0));
+ 			return 0;
++		case TIOCMGET:
++			if (put_user (tty->link->modem_status, (unsigned int*)arg))
++				return -EFAULT;
++			return 0;
++		case TIOCMSET: {
++			unsigned int new_val;
++			get_user(new_val, (unsigned int *) arg);
++			real_tty->modem_status = new_val;
++			real_tty->link->modem_status = new_val;
++			return 0;
++		}	
++		case TIOCMBIC:
++			if (get_user (arg, (unsigned int *) arg))
++				return -EFAULT;
++			
++			if (arg & TIOCM_DTR)
++				tty->link->modem_status &= ~TIOCM_DTR;
++
++			if (arg & TIOCM_RTS)
++				tty->link->modem_status &= ~ TIOCM_RTS;
++
++			wake_up_interruptible(&tty->link->read_wait);
++			return 0;
++
++
++		case TIOCMBIS:
++			if (get_user (arg, (unsigned int *) arg))
++				return -EFAULT;
++			
++			if (arg & TIOCM_DTR)
++				tty->link->modem_status |= TIOCM_DTR;
++
++			if (arg & TIOCM_RTS)
++				tty->link->modem_status |= TIOCM_RTS;
++
++			wake_up_interruptible(&tty->link->read_wait);
++			return 0;
++
+ 		default:
+ 			return -ENOIOCTLCMD;
+ 		}
+diff -ur linux-2.4.20.clean/include/asm-i386/ioctls.h linux-2.4.20.trueport2/include/asm-i386/ioctls.h
+--- linux-2.4.20.clean/include/asm-i386/ioctls.h	Sat Aug  3 02:39:45 2002
++++ linux-2.4.20.trueport2/include/asm-i386/ioctls.h	Wed Mar 12 11:00:37 2003
+@@ -77,6 +77,16 @@
+ #define TIOCPKT_NOSTOP		16
+ #define TIOCPKT_DOSTOP		32
+ 
++/* Ugly hack. We use one bit for two purposes to prevent having to expand
++   the byte (API!). The deal is that you pretend that they are separate bits 
++   when setting or reading these bits. However when you check if a bit is 
++   set (indicating something changed), you have to be prepared that it 
++   in fact didn't change at all..... (As you also have to be prepared to 
++   handle the case where it changed back before you noticed it.) -- REW */
++#define TIOCPKT_SIGNALS         64
++#define TIOCPKT_TERMIOS         64
++#define TIOCPKT_BREAK          128
++
+ #define TIOCSER_TEMT    0x01	/* Transmitter physically empty */
+ 
+ #endif
+diff -ur linux-2.4.20.clean/include/linux/tty.h linux-2.4.20.trueport2/include/linux/tty.h
+--- linux-2.4.20.clean/include/linux/tty.h	Thu Feb 27 15:13:27 2003
++++ linux-2.4.20.trueport2/include/linux/tty.h	Wed Mar 12 10:56:24 2003
+@@ -270,6 +270,7 @@
+ 	unsigned char stopped:1, hw_stopped:1, flow_stopped:1, packet:1;
+ 	unsigned char low_latency:1, warned:1;
+ 	unsigned char ctrl_status;
++	unsigned int  modem_status;
+ 
+ 	struct tty_struct *link;
+ 	struct fasync_struct *fasync;
 
+--lrZ03NoBR/3+SXJZ--

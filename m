@@ -1,137 +1,101 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314138AbSDZTZ4>; Fri, 26 Apr 2002 15:25:56 -0400
+	id <S314137AbSDZTbV>; Fri, 26 Apr 2002 15:31:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314139AbSDZTZz>; Fri, 26 Apr 2002 15:25:55 -0400
-Received: from relay2.EECS.Berkeley.EDU ([169.229.60.28]:59789 "EHLO
-	relay2.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id <S314138AbSDZTZx>; Fri, 26 Apr 2002 15:25:53 -0400
-Message-ID: <3CC9A9BE.7030606@cs.berkeley.edu>
-Date: Fri, 26 Apr 2002 12:25:50 -0700
-From: Hao Chen <hchen@cs.berkeley.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+	id <S314139AbSDZTbV>; Fri, 26 Apr 2002 15:31:21 -0400
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:20802 "EHLO
+	hotmale.boyland.org") by vger.kernel.org with ESMTP
+	id <S314137AbSDZTbU>; Fri, 26 Apr 2002 15:31:20 -0400
+Message-ID: <3CC9AAEC.5010503@blue-labs.org>
+Date: Fri, 26 Apr 2002 15:30:52 -0400
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020418
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: David Wagner <daw@cs.berkeley.edu>, ddean@csl.sri.com,
-        Hao Chen <hchen@eecs.berkeley.edu>
-Subject: A security bug w.r.t. fsuid?
+To: "Woller, Thomas" <twoller@crystal.cirrus.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.3+ sound distortion, cs64xx driver, help please
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We came across a possible security bug with regard to fsuid while doing
-research on Linux's user ID model.  In linux/kernel/sys.c, in the comment
-just before the body of cap_emulate_setxuid(), it says:
+Ugg, guess nobody is interested or cares about this chipset :)
 
-   *  fsuid is handled elsewhere. fsuid == 0 and {r,e,s}uid!= 0 should
-   *  never happen.
+I'll keep fishing until someone who is clued in this chipset can help.
 
-However, the following program shows that a process can enter the state
-where ruid=euid=suid!=0 and fsuid=0.  The problem is with setresuid().
-While setuid() and setreuid() always set fsuid to euid, setresuid(ruid,
-euid, suid) fails to do the same when the euid parameter is -1.
+-d
 
-Normally, a programmer expects that if none of the ruid, euid, and suid of a
-process is zero, the process has no root privileges.  This seems to be the
-reason behind the above comment from linux/kernel/sys.c.  If this invariant
-is not satisfied, i.e. if a process can get ruid=euid=suid!=0 and fsuid=0, 
-an unwary programmer may allow the process to create a file whose data are
-supplied by an untrusted user.  Since fsuid=0, the file will be owned by
-root.   If the file happens to be setuid-root, then the user can gain root
-access (by asking the process to write shell command into the file and then
-running the file).
++++++++++
+March 6th, 2002
 
-We are not sure if this invariant is a true invariant or just a 
-documentation error, and how much kernel code rely on this invariant.  Could 
-anyone point out?
+I have several questions regarding the Santa Cruz Voyetra:
 
-Thanks,
+a) please read the below text and those in the know, please advise me of
+any updates to the current situation where sound is very tinny.  at
+present i have to deal with this constantly.
+b) there have been some vague references made to adjusting the other
+line IN/OUT channels which in the source i read from, stated that this
+seems to act as a fade control and was able to adjust the level of
+tinniness that was heard.
+c) are there any (linux/open source) mixers which have the capability of
+controlling this card in any fashion that is better than the dark age
+mixers currently found on freshmeat?  i.e., something that takes
+advantage of the gobs of onboard features such as the onboard hardware
+equalizer, configurable in/out ports, etc.
+d) if no to (c), is Mr. Woller from cirrus.com interested in helping us
+develop such features in a mixer application?
 
-- Hao
+David
+
+Recap from April of 2001;
+
+Woller, Thomas said:
+
+David,
+your report sounds like a problem that we have seen in the test lab, but no
+one has reported in the field... yet. :)
+if the problem is the same as we have seen... unloading the driver and
+reloading the driver should also clear up the problem. but typically the
+problem only occurs after playing for several hours without a break in the
+audio stream.
+
+we think that we understand the problem (theoretically), in that we believe
+that we need to manipulate a static DSP image location periodically that
+gets too far out of value. the issue is that internal variables for the
+static DSP image are not reinitialized on a task restart (e.g. restarting up
+an audio stream). reloading the static image (i.e. suspend/resume or
+reloading the driver) clears up the *tinny* sound here. it hadn't been
+reported, so I haven't taken the time to plough through the static image map
+to try to figure out where all the locations are for all the task images
+that need manipulation. might take a while, but since we now have a problem
+report, i'll try to find some time to start negotiating the DSP map. i'll
+send the fix to you for testing when/if... i can get the problem resolved.
+thanks
+
+tom
+twoller@crystal.cirrus.com <mailto:twoller@crystal.cirrus.com>
+
+/> -----Original Message-----/
+/> From: David [SMTP:david@blue-labs.org]/
+/> Sent: Sunday, April 22, 2001 10:08 PM/
+/> To: *linux*-kernel@vger.kernel.org <mailto:linux-kernel@vger.kernel.org>/
+/> Subject: Re: 2.4.3+ sound distortion/
+/> /
+/> I have noticed a problem with sound lately. I have a *cs46xx* card and /
+/> it randomly gets distorted. Normally I just reboot but on this last /
+/> occurence I simply left it as it was. The distortion sounds someone /
+/> punched the speaker core, it's *tinny* and mangled. Today it fixed
+itself /
+/> out of the blue in the middle of playing a sound. All sound programs
+are /
+/> equally affected./
+/> /
+/> It's only done this in the 2.4 series, I haven't had the desire to look /
+/> into it./
+/> /
+/> David/
 
 
-Run the following program as user root
--------------------------------------------------------
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
-
-int getresuid(uid_t *ruid, uid_t *euid, uid_t *suid);
-int setresuid(uid_t ruid, uid_t euid, uid_t suid);
-int setfsuid(uid_t);
-
-int getfsuid(uid_t *fsuid)
-{
-    pid_t pid;
-    char filename[1024], str[1024], *str2;
-    FILE *fp;
-    int i;
-
-    if ((pid = getpid()) < 0)
-    {
-      perror("getpid()");
-      exit(1);
-    }
-    sprintf(filename, "/proc/%u/status", pid);
-    if ((fp = fopen(filename, "r")) == NULL)
-    {
-      perror("fopen()");
-      exit(1);
-    }
-    while (fgets(str, 1023, fp) != NULL)
-    {
-      if ((str2 = strstr(str, "Uid:")) == str)
-      {
-        strtok(str, "\t");
-        for (i = 0; i < 4; i++)
-          str2 = strtok(NULL, "\t");
-        *fsuid = atoi(str2);
-        fclose(fp);
-        return 0;
-      }
-    }
-
-    return -1;
-}
-
-int main()
-{
-    uid_t alice = 100;
-    uid_t ruid, euid, suid, fsuid;
-
-    // Now ruid==0, euid==0, suid==0, fsuid==0
-    if (setresuid(alice, alice, -1) < 0)
-    {
-      perror("setresuid");
-      exit(1);
-    }
-    // Now ruid==alice, euid==alice, suid==0, fsuid==alice
-    setfsuid(0);
-    // Now ruid==alice, euid==alice, suid==0, fsuid==0
-    if (setresuid(-1, -1, alice) < 0)
-    {
-      perror("setresuid");
-      exit(1);
-    }
-    // Now ruid==alice, euid==alice, suid==alice, fsuid==0
-    // But according to linux/kernel/sys.c:
-    // "fsuid == 0 and {r,e,s}uid!= 0 should never happen."
-    if (getresuid(&ruid, &euid, &suid) < 0)
-    {
-      perror("getresuid");
-      exit(1);
-    }
-    if (getfsuid(&fsuid) < 0)
-    {
-      fprintf(stderr, "getfsuid failed\n");
-    }
-    printf("ruid=%u  euid=%u  suid=%d  fsuid=%d\n", ruid, euid, suid, fsuid);
-}
 
 

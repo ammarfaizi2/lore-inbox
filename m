@@ -1,66 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264271AbTLESh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 13:37:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbTLESh5
+	id S264310AbTLESmp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 13:42:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264320AbTLESmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 13:37:57 -0500
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:1183 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S264271AbTLEShz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 13:37:55 -0500
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "'Filip Van Raemdonck'" <filipvr@xs4all.be>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: Linux GPL and binary module exception clause?
-Date: Fri, 5 Dec 2003 10:37:51 -0800
-Organization: Cisco Systems
-Message-ID: <002101c3bb5e$e36394e0$ca41cb3f@amer.cisco.com>
+	Fri, 5 Dec 2003 13:42:45 -0500
+Received: from mail.scitechsoft.com ([63.195.13.67]:64237 "EHLO
+	mail.scitechsoft.com") by vger.kernel.org with ESMTP
+	id S264310AbTLESml (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 13:42:41 -0500
+From: "Kendall Bennett" <KendallB@scitechsoft.com>
+Organization: SciTech Software, Inc.
+To: Valdis.Kletnieks@vt.edu
+Date: Fri, 05 Dec 2003 10:44:02 -0800
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <20031205181222.GA24882@debian>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-Importance: Normal
+Subject: Re: Linux GPL and binary module exception clause? 
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3FD06172.6022.4801EF76@localhost>
+In-reply-to: <200312050513.hB55D1ps030713@turing-police.cc.vt.edu>
+References: Your message of "Fri, 05 Dec 2003 15:23:10 +1100." <16336.2094.950232.375620@wombat.chubb.wattle.id.au> 
+X-mailer: Pegasus Mail for Windows (v4.02)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Nope, they #include Linux header files - at least in their 
-> Linux version. 
+Peter Chubb <peter@chubb.wattle.id.au> wrote:
 
-So what? By the same argument they are derived work of Linux too.
-
-This is exactly the flaw of "once you include my code, you are derived
-work of mine".
-
-> Even if one version does #include Unix headers, that 
-> does not mean copyright to the rest of the code automatically belongs 
-> to the Unix copyright holder.
-
-This is not a matter of copyright. This is a matter of "being derived or
-not".
-
-> And we're not even talking about source code; we're talking about
-> _binary modules_. Which do include object code which comes from GPLed
-> (inline) code; and are thus derived works.
-
-I disagree. 
-
-It all depends on how significant the inlined code is compared to the
-whole work of the module. For inline functions, I don't see why using
-them would be a significant part - by definition "inline" means
-"small/trivial", otherwise you would not have inlined them.
-
-Otherwise, since SCO found a few lines of code copied from Unix in Linux
-source, are we saying the whole million lines of code is derived from
-Unix?
-
-> Regards,
+> > As far as I know, interfacing to a published API doesn't infringe
+> > copyright.
 > 
-> Filip
+> Well, if the only thing in the .h files was #defines and structure
+> definitions, it would probably be a slam dunk to decide that, yes.
+> 
+> Here's the part where people's eyes glaze over:
+> 
+> % cd /usr/src/linux-2.6.0-test10-mm1
+> % find include -name '*.h' | xargs egrep 'static.*inline' | wc -l
+>    6288
+> 
+> That's 6,288 chances for you to #include GPL code and end up
+> with executable derived from it in *your* .o file, not the kernel's.
+> 
+> More to the point, look at include/linux/rwsem.h, and ask yourself
+> how to call down_read(), down_write(), up_read(), and up_write()
+> without getting little snippets of GPL all over your .o.  
+
+Clearly that is easy to work around, because all you need to do is have a 
+small GPL wrapper module that includes the Linux kernel headers and would 
+end up having GPL code linked into it, and build the wrapper such that it 
+makes calls via an API *you* define into your code. Then your code is 
+simply interfacing via your own API to the GPL wrapper module and none of 
+your code would be tainted. 
+
+At least via direct inclusion and use of Linux kernel API header files 
+anyway. There is still the issue of whether the specific binary module 
+code you are linking into the kernel is Linux specific or not and would 
+be considered a dervived work. If it is only for Linux and is not very 
+useful for other platforms, one could argue that it is a derived work and 
+hence should be GPL regardless of what API or GPL wrapper it uses.
+
+Then again, if a module is completely Linux specific and the source for 
+it has no use outside of Linux, I doubt a vendor could care less about 
+keeping it proprietary anyway ;-)
+
+Regards,
+
+---
+Kendall Bennett
+Chief Executive Officer
+SciTech Software, Inc.
+Phone: (530) 894 8400
+http://www.scitechsoft.com
+
+~ SciTech SNAP - The future of device driver technology! ~
 

@@ -1,65 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262380AbTARDaz>; Fri, 17 Jan 2003 22:30:55 -0500
+	id <S262384AbTARDmO>; Fri, 17 Jan 2003 22:42:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262384AbTARDay>; Fri, 17 Jan 2003 22:30:54 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:7082 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262380AbTARDay>;
-	Fri, 17 Jan 2003 22:30:54 -0500
-Subject: Re: Fwd: Re: [PATCH] linux-2.5.54_delay-cleanup_A0
-From: john stultz <johnstul@us.ibm.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200301180325.h0I3PGa07081@eng2.beaverton.ibm.com>
-References: <200301180325.h0I3PGa07081@eng2.beaverton.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042860792.32477.36.camel@w-jstultz2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 17 Jan 2003 19:33:12 -0800
+	id <S262392AbTARDmO>; Fri, 17 Jan 2003 22:42:14 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:27870
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S262384AbTARDmN>; Fri, 17 Jan 2003 22:42:13 -0500
+Message-ID: <3E28CF26.6020202@redhat.com>
+Date: Sat, 18 Jan 2003 03:51:02 +0000
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jamie Lokier <jamie@shareable.org>
+CC: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: Question about threads and signals
+References: <20030118032450.GA18282@bjl1.asuk.net>
+In-Reply-To: <20030118032450.GA18282@bjl1.asuk.net>
+X-Enigmail-Version: 0.72.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Hi!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hey! Hmm. Odd, this email never got to me directly, instead I found it
-through lkml. Hopefully my mail isn't bouncing somewhere...
- 
+Jamie Lokier wrote:
 
->  > +static void delay_pit(unsigned long loops)
->  > +{
->  > +    int d0;
->  > +    __asm__ __volatile__(
->  > +            "\tjmp 1f\n"
->  > +            ".align 16\n"
->  > +            "1:\tjmp 2f\n"
->  > +            ".align 16\n"
->  > +            "2:\tdecl %0\n\tjns 2b"
->  > +            :"=&a" (d0)
->  > +            :"0" (loops));
->  > +}
->  > +
->  
->  But... this is not using pit to do the delay, right? It is sensitive
->  to CPU clock changes, pit-delay should not be.
+> 1. If a signal is delivered to a thread, is it masked for the duration of
+>    the handler in (a) just that thread or (b) all threads?
 
-You're right, basically I took the previous __loop_delay() and
-__rtsc_delay() and moved them to delay_pit() and delay_tsc(),
-respectively. I guess the naming is somewhat confusing, but since this
-was meant as just a cleanup, I'm trying to use the same code in the same
-conditions.(ie: when using the PIT time-source, use the loop delay. when
-using the TSC time-source, use the TSC delay). A changing the name or a
-comment explaining it would def clear that up. 
+(a)
 
-You do bring up an interesting idea: actually using the PIT to do
-__delay. I think its possible, but not really worth it, as the PIT is
-such a nasty bit of hardware to deal with. I'd guess that just reading
-the PIT would likely delay for more time then what was actually
-requested.
+>    In other words, if I have 3 threads and SIGIO is not blocked in any
+>    of them, is it possible for my SIGIO handler to be called up to 3
+>    times concurrently?  Or is the blocked mask somehow shared?
 
-Thanks for the feedback!
--john
+Masks are never shared.
 
+
+>    Is the same thing true of SIGCHLD?  SIGSEGV?
+
+Yes.  Up to the point where a fatal signal isn't caught and the process
+is killed.  At that point all threads except the one responsible for the
+termination is stopped and then terminated.
+
+
+> 2. Is this true of POSIX threads in general, or just Linux?
+
+Well, the above is what POSIX requires and what I think we've
+implemented.  These requirements are essential for programs which do
+much of their work in signal handlers.  Creating more threads which
+mainly just sit around but can react to signals is a valid programming
+model.
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+KM8m2ijCOnn/RHQRAlcEAJ0W27Ju6gq4xhT7A0PGr2IJCGfp0ACfa2NY
+2mmvlgXLC2Xm8UYnU+rD6cE=
+=7eDw
+-----END PGP SIGNATURE-----
 

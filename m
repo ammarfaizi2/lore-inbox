@@ -1,72 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264797AbRHEXeh>; Sun, 5 Aug 2001 19:34:37 -0400
+	id <S265249AbRHEXo3>; Sun, 5 Aug 2001 19:44:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264932AbRHEXe0>; Sun, 5 Aug 2001 19:34:26 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:33798
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S264797AbRHEXeS>; Sun, 5 Aug 2001 19:34:18 -0400
-Date: Sun, 05 Aug 2001 19:32:24 -0400
-From: Chris Mason <mason@suse.com>
-To: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
-cc: linux-mm@kvack.org, torvalds@transmeta.com
-Subject: Re: [RFC] using writepage to start io
-Message-ID: <276480000.997054344@tiny>
-In-Reply-To: <01080600380103.00294@starship>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S264942AbRHEXoT>; Sun, 5 Aug 2001 19:44:19 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:57870 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265249AbRHEXoH>; Sun, 5 Aug 2001 19:44:07 -0400
+From: Linus Torvalds <torvalds@transmeta.com>
+Date: Sun, 5 Aug 2001 16:41:43 -0700
+Message-Id: <200108052341.f75Nfhx08227@penguin.transmeta.com>
+To: jakob@unthought.net, linux-kernel@vger.kernel.org
+Subject: Re: /proc/<n>/maps getting _VERY_ long
+Newsgroups: linux.dev.kernel
+In-Reply-To: <20010806010738.B11372@unthought.net>
+In-Reply-To: <20010805171202.A20716@weta.f00f.org> <E15TNbk-0007pu-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Monday, August 06, 2001 12:38:01 AM +0200 Daniel Phillips
-<phillips@bonn-fries.net> wrote:
-
-> On Sunday 05 August 2001 20:34, Chris Mason wrote:
->> I wrote:
->> > Note that the fact that buffers dirtied by ->writepage are ordered
->> > by time-dirtied means that the dirty_buffers list really does have
->> > indirect knowledge of page aging.  There may well be benefits to
->> > your approach but I doubt this is one of them.
+In article <20010806010738.B11372@unthought.net> you write:
 >> 
->> A problem is that under memory pressure, we'll flush a buffer that has
->> been dirty for a long time, even if we are constantly redirtying it
->> and have it more or less pinned.  This might not be common enough to
->> cause problems, but it still isn't optimal.  Yes, it is a good idea to
->> flush that page at some time, but under memory pressure we want to do
->> the least amount of work that will lead to a freeable page.
-> 
-> But we don't have a choice.  The user has set an explicit limit on how 
-> long a dirty buffer can hang around before being flushed.  The 
-> old-buffer rule trumps the need to allocate new memory.  As you noted,
-> it doesn't cost a lot because if the system is that heavily loaded
-> then the rate of dirty buffer production is naturally throttled.
+>> Linus took itout because it was quite complex and nobody seemed to have
+>> cases that triggered it or made it useful
+>
+>What ??
+>
+>It was put back in because RH GCC-2.96 triggers this too.  There was a thread
+>about this some months ago.
 
-there are at least 3 reasons to write buffers to disk
+Strictly speaking, it wasn't put back. 
 
-1) they are too old
-2) the percentage of dirty buffers is too high
-3) you need to reclaim them due to memory pressure
+What recent kernels will do is merge a certain subset of mergeable
+areas: this speeds up anonymous page allocation, whether by
+mmap(MAP_ANONYMOYS) or by brk(). That subset was just made a bit larger
+(and no, the subset hasn't been shrunk).
 
-There are 3 completely different things; there's no trumping of priorities.
-Under memory pressure you write buffers you have a high chance of freeing,
-during write throttling you write buffers that won't get dirty again right
-away, and when writing old buffers you write the oldest first.
+However, it doesn't merge in the generic case (it does not merge
+mappings with backing store, for example), and it also does not merge
+the case of the user actively changing the memory protections, for
+example. 
 
-This doesn't mean you can always make the right decision on all 3 cases, or
-that making the right decision is worth the effort ;-)
+So we certainly used to do more aggressive merging.
 
-> If you must enter it into the page hash you'd be safer generating a 
-> random number for the page index.  But why not just take what you need
-> from add_to_page_cache_locked:
-> 
+We could merge more, but I'm not interested in working around broken
+applications. Right now we sanely merge the cases of consecutive
+anonymous mmaps, but we do _not_ merge cases where the app plays silly
+games, for example.
 
-Mostly to keep down on the cut n' pasted code in the patch.  But I'll try
-this out...
+I'd like to know more than just the app that shows problems - I'd like
+to know what it is doing.
 
--chris
-
+		Linus

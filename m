@@ -1,70 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315928AbSFDLnl>; Tue, 4 Jun 2002 07:43:41 -0400
+	id <S316592AbSFDLqW>; Tue, 4 Jun 2002 07:46:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316592AbSFDLnk>; Tue, 4 Jun 2002 07:43:40 -0400
-Received: from line103-203.adsl.actcom.co.il ([192.117.103.203]:29702 "HELO
-	alhambra.merseine.nu") by vger.kernel.org with SMTP
-	id <S315928AbSFDLnj>; Tue, 4 Jun 2002 07:43:39 -0400
-Date: Tue, 4 Jun 2002 14:41:12 +0300
-From: Muli Ben-Yehuda <mulix@actcom.co.il>
-To: Padraig Brady <padraig@antefacto.com>
-Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Need help tracing regular write activity in 5 s interval
-Message-ID: <20020604144112.H28425@alhambra.actcom.co.il>
-In-Reply-To: <20020602135501.GA2548@merlin.emma.line.org> <3CFCA2B0.4060501@antefacto.com>
+	id <S317479AbSFDLqU>; Tue, 4 Jun 2002 07:46:20 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:19060 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S316592AbSFDLqR>; Tue, 4 Jun 2002 07:46:17 -0400
+Message-Id: <5.1.0.14.2.20020604124216.02087bb0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 04 Jun 2002 12:46:19 +0100
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: [2.5.20-BUG] 3c59x + highmem + acpi + nfs -> kernel panic
+Cc: Andrew Morton <akpm@zip.com.au>, "David S. Miller" <davem@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200206041339.32899.trond.myklebust@fys.uio.no>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="ZYOWEO2dMm2Af3e3"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 12:39 04/06/02, Trond Myklebust wrote:
+>On Tuesday 04 June 2002 08:37, Andrew Morton wrote:
+>
+> > The problem was that pagecache data on the NFS client was showing
+> > incorrect chunks of several k's of zeroes.  No particuar alignment,
+> > either.  And it only happened when the machine is under page-replacement
+> > pressure.  And only when the machine has highmem.
+> >
+> > It'd be nice to understand _why_ it fixed it.  Do we know why NFS
+> > was losing data when using KM_USER0?  As far as I can see the new
+> > and old code look pretty darn similar.   Interested.
+>
+>Anton's Oops showed that kmap_atomic(page, KM_USER0) is sometimes failing to
+>return an address, something that we cannot accept in a networking bottom
+>half (performance and reliability would suck if we had to delay and retry).
+>That indicates that something is calling kmap_atomic() and then getting
+>interrupted before it can call kunmap_atomic().
+>
+> >From what I can see, the only other place where KM_USER0 is employed 
+> would be
+>in the *_highpage() helper routines in include/linux/highmem.h. These
+>routines are used in various places, but are usually not protected against
+>(soft and hard) interrupts or kernel pre-emption. Could it be that the latter
+>is what is causing trouble?
 
---ZYOWEO2dMm2Af3e3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+That would make sense as any user of kmap_atomic() could be preempted at 
+any time. And this is definitely something we should keep in mind for the 
+future. Perhaps we should even go as far to disable preemption in 
+kmap_atomic() and reenable it in kunmap_atomic()? The atomic kmaps are 
+usually only done in critical sections which will execute for a short 
+amount of time so disabling preemption should be ok.
 
-On Tue, Jun 04, 2002 at 12:21:20PM +0100, Padraig Brady wrote:
-> Matthias Andree wrote:
+However, I had the preemptible option disabled in the kernel I reported the 
+Oops on, so it can't be responsible for this particular case.
 
-> > So: is there any trace software that can tell me "at 15:52:43.012345,
-> > process 4321 marked 7 blocks dirty on device /dev/hda5" (or even more
-> > detail so I can figure if it's just an atime update -- as with svscan --
-> > or a write access)? And that is NOT to be attached to a specific process
-> > (hint: strace is not an option).
+Best regards,
 
-> This thread may be of interest:
-> http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D101600745431992&w=3D2
->=20
-> It's very awkward to analyse things like this at present.
-> For user -> kernel you could use something like syscalltrack.
+         Anton
 
-Just a short note to mention that if you want to try and trace this
-activity with syscalltrack, you will want to grab the latest cvs
-version - I commited read(2)/write(2) support a few hours ago.=20
 
-Hope this helps,=20
-Muli.=20
---=20
-Sterday 13 Forelithe 7466
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 
-http://vipe.technion.ac.il/~mulix/
-http://syscalltrack.sf.net/
-
---ZYOWEO2dMm2Af3e3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE8/KdYKRs727/VN8sRAm4zAJ41ilEuyzx/Rpxp8m8RNsfJKXjI2wCgto00
-miOrWf4ZKM3q8LLMkjrtjAw=
-=biR3
------END PGP SIGNATURE-----
-
---ZYOWEO2dMm2Af3e3--

@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132330AbRDCRFA>; Tue, 3 Apr 2001 13:05:00 -0400
+	id <S132316AbRDCRFu>; Tue, 3 Apr 2001 13:05:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132318AbRDCREv>; Tue, 3 Apr 2001 13:04:51 -0400
-Received: from [209.125.249.77] ([209.125.249.77]:20487 "EHLO
-	mobilix.atnf.CSIRO.AU") by vger.kernel.org with ESMTP
-	id <S132316AbRDCREb>; Tue, 3 Apr 2001 13:04:31 -0400
-Date: Tue, 3 Apr 2001 10:02:45 -0700
-Message-Id: <200104031702.f33H2j105370@mobilix.atnf.CSIRO.AU>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dalecki@evision-ventures.com (Martin Dalecki),
-        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
-        Andries.Brouwer@cwi.nl, torvalds@transmeta.com, hpa@transmeta.com,
-        linux-kernel@vger.kernel.org, tytso@MIT.EDU
-Subject: Re: Larger dev_t
-In-Reply-To: <E14kU4P-0008Q3-00@the-village.bc.nu>
-In-Reply-To: <200104031605.f33G5D604937@mobilix.atnf.CSIRO.AU>
-	<E14kU4P-0008Q3-00@the-village.bc.nu>
+	id <S132318AbRDCRFk>; Tue, 3 Apr 2001 13:05:40 -0400
+Received: from mail12.speakeasy.net ([216.254.0.212]:51724 "HELO
+	mail12.speakeasy.net") by vger.kernel.org with SMTP
+	id <S132316AbRDCRF2>; Tue, 3 Apr 2001 13:05:28 -0400
+Message-ID: <3AC9F4E0.1A5E637F@megapathdsl.net>
+Date: Tue, 03 Apr 2001 09:05:52 -0700
+From: Miles Lane <miles@megapathdsl.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2-ac28 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Oliver Xymoron <oxymoron@waste.org>
+CC: Tom Leete <tleete@mountain.net>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        David Lang <dlang@diginsite.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>, lm@bitmover.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: bug database braindump from the kernel summit
+In-Reply-To: <Pine.LNX.4.30.0104021808040.29801-100000@waste.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> > However, a large number of people run devfs on small to large systems,
-> > and these "races" aren't causing problems. People tell me it's quite
+Oliver Xymoron wrote:
 > 
-> They dont have users actively trying to exploit them. I don't
-> consider it a big problem for development trees though. devfs has a
-> maintainer at least
+> On Mon, 2 Apr 2001, Tom Leete wrote:
+> 
+> > Oliver Xymoron wrote:
+> > >
+> > > On Sun, 1 Apr 2001, Jeff Garzik wrote:
+> > >
+> > > > On Sun, 1 Apr 2001, David Lang wrote:
+> > > > > if we want to get the .config as part of the report then we need to make
+> > > > > it part of the kernel in some standard way (the old /proc/config flamewar)
+> > > > > it's difficult enough sometimes for the sysadmin of a box to know what
+> > > > > kernel is running on it, let alone a bug reporting script.
+> > > >
+> > > > Let's hope it's not a flamewar, but here goes :)
+> > > >
+> > > > We -need- .config, but /proc/config seems like pure bloat.
+> > >
+> > > As a former proponent of /proc/config (I wrote one of the much-debated
+> > > patches), I tend to agree. Debian's make-kpkg does the right thing, namely
+> > > treating .config the same way it treats System-map, putting it in the
+> > > package and eventually installing it in /boot/config-x.y.z. If Redhat's
+> > > kernel-install script did the same it would rapidly become a non-issue.
+> >
+> > How about /lib/modules/$(uname -r)/build/.config ? It's already there.
+> 
+> It'd be great if we got away from the config being hidden too.
 
-Agreed. If I were a sysadmin where I had users I didn't trust, then
-I'd be worried. Actually, I'd simply not enable module autoloading.
-In fact, I don't run autoloading because I don't like it personally.
-And I'm lucky that I have users on my network that I feel I can
-trust. Besides, I know where they live, or at least where they store
-their data/theses :-)
+How about adding a config tag that gets spit out along an OOPS
+message.  We could add a flag to ksymoops that would cause that
+flag to be read and the corresponding .config info to get looked
+up (mechanism to be determined).  This might reduce the chances
+of "new kernel tester" reporting an OOPS but sending in the 
+wrong .config data.
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+	Miles

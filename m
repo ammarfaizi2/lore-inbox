@@ -1,43 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264759AbRFSUMX>; Tue, 19 Jun 2001 16:12:23 -0400
+	id <S264766AbRFSUXy>; Tue, 19 Jun 2001 16:23:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264763AbRFSUMN>; Tue, 19 Jun 2001 16:12:13 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:53946 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S264759AbRFSUMC>; Tue, 19 Jun 2001 16:12:02 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Alan Cox quote?
-Date: Tue, 19 Jun 2001 20:12:00 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9gobmg$d8o$1@forge.intermeta.de>
-In-Reply-To: <3B2F769C.DCDB790E@kegel.com> <dank@kegel.com> <Pine.LNX.4.30.0106190940420.28643-100000@gene.pbi.nrc.ca> <3B2F769C.DCDB790E@kegel.com> <20010619090956.R3089@work.bitmover.com> <838x7gT1w-B@khms.westfalen.de>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 992981520 8013 212.34.181.4 (19 Jun 2001 20:12:00 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 19 Jun 2001 20:12:00 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S264767AbRFSUXo>; Tue, 19 Jun 2001 16:23:44 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16914 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264766AbRFSUXb>; Tue, 19 Jun 2001 16:23:31 -0400
+Subject: Re: Linux 2.4.5-ac16  (linux_booted_ok: only on Intel implemented)
+To: martin.frey@compaq.com
+Date: Tue, 19 Jun 2001 21:22:47 +0100 (BST)
+Cc: laughing@shared-source.org ('Alan Cox'), linux-kernel@vger.kernel.org
+In-Reply-To: <014801c0f8fa$a98ebbb0$0100007f@SCHLEPPDOWN> from "Martin Frey" at Jun 19, 2001 04:01:42 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15CS1P-0006cz-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kaih@khms.westfalen.de (Kai Henningsen) writes:
+> linux_booted_ok(), called from init/main.c is not implemented on
+> other architectures than Intel.
 
->Threads are a kind of abstraction.
-
-Thank you.
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Yeah. I just need to drop null functions in. Im still not sure if that should
+in fact be invoked from user space - say on hitting run level 3

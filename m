@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264538AbTGGFex (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 01:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264689AbTGGFex
+	id S266813AbTGGFhA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 01:37:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266818AbTGGFhA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 01:34:53 -0400
-Received: from holomorphy.com ([66.224.33.161]:53140 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264538AbTGGFew (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 01:34:52 -0400
-Date: Sun, 6 Jul 2003 22:47:20 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.74-mm1 (p4-clockmod does not compile)
-Message-ID: <20030707054720.GD15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030703023714.55d13934.akpm@osdl.org> <1057229141.1479.16.camel@LNX.iNES.RO> <20030703110713.GN26348@holomorphy.com> <1057231068.1479.18.camel@LNX.iNES.RO> <20030703112026.GO26348@holomorphy.com> <Pine.LNX.4.53.0307070124050.15575@montezuma.mastecende.com>
+	Mon, 7 Jul 2003 01:37:00 -0400
+Received: from AMarseille-201-1-2-189.w193-253.abo.wanadoo.fr ([193.253.217.189]:22312
+	"EHLO gaston") by vger.kernel.org with ESMTP id S266813AbTGGFg6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 01:36:58 -0400
+Subject: Re: [PATCH][2.4.22-pre3] fix PPC32 compile failure due to
+	SPRN_HID2 being undefined
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200307062243.h66MheGM023893@harpo.it.uu.se>
+References: <200307062243.h66MheGM023893@harpo.it.uu.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1057557063.503.108.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0307070124050.15575@montezuma.mastecende.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 07 Jul 2003 07:51:04 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jul 2003, William Lee Irwin III wrote:
->> Great! Could you send back the diff? (or alternatively, the file
->> contents if you didn't preserve the old contents) so I can send the
->> proper diff upstream?
+On Mon, 2003-07-07 at 00:43, Mikael Pettersson wrote:
+> Compiling 2.4.22-pre3 for a 6xx-class PowerPC fails in cpu_setup_6xx.S:
+> 
+> ppc-unknown-linux-gcc -D__ASSEMBLY__ -D__KERNEL__ -I/tmp/linux-2.4.22-pre3/include -I/tmp/linux-2.4.22-pre3/arch/ppc   -c -o cpu_setup_6xx.o cpu_setup_6xx.S
+> cpu_setup_6xx.S: Assembler messages:
+> cpu_setup_6xx.S:325: Error: unsupported relocation against SPRN_HID2
+> cpu_setup_6xx.S:416: Error: unsupported relocation against SPRN_HID2
+> make[1]: *** [cpu_setup_6xx.o] Error 1
+> make[1]: Leaving directory `/tmp/linux-2.4.22-pre3/arch/ppc/kernel'
+> make: *** [_dir_arch/ppc/kernel] Error 2
+> 
+> SPRN_HID2 should be a #defined constant, but it isn't. The patch
+> below from 2.4.21-ben2 (rediffed for 2.4.22-pre3) fixes the problem.
 
-On Mon, Jul 07, 2003 at 01:24:26AM -0400, Zwane Mwaikambo wrote:
-> Didn't -mm get something for this?
-
-That's a very mysterious resend of a message that's several days old.
+Yup, Marcelo, please apply.
 
 
--- wli

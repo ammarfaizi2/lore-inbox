@@ -1,119 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262605AbTCZWmT>; Wed, 26 Mar 2003 17:42:19 -0500
+	id <S262583AbTCZWqh>; Wed, 26 Mar 2003 17:46:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262606AbTCZWmT>; Wed, 26 Mar 2003 17:42:19 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:25862 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262605AbTCZWmP>;
-	Wed, 26 Mar 2003 17:42:15 -0500
-Date: Wed, 26 Mar 2003 14:52:34 -0800
-From: Greg KH <greg@kroah.com>
-To: Mark Studebaker <mds@paradyne.com>
-Cc: Jan Dittmer <j.dittmer@portrix.net>, azarah@gentoo.org,
-       KML <linux-kernel@vger.kernel.org>, Dominik Brodowski <linux@brodo.de>,
-       sensors@Stimpy.netroedge.com
-Subject: lm sensors sysfs file structure
-Message-ID: <20030326225234.GA27436@kroah.com>
-References: <1048582394.4774.7.camel@workshop.saharact.lan> <20030325175603.GG15823@kroah.com> <1048705473.7569.10.camel@nosferatu.lan> <3E82024A.4000809@portrix.net> <20030326202622.GJ24689@kroah.com> <3E82292E.536D9196@paradyne.com>
+	id <S262606AbTCZWqg>; Wed, 26 Mar 2003 17:46:36 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:24028 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id <S262583AbTCZWqf>;
+	Wed, 26 Mar 2003 17:46:35 -0500
+Date: Wed, 26 Mar 2003 23:56:17 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Lincoln Dale <ltd@cisco.com>, Matt Mackall <mpm@selenic.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, ptb@it.uc3m.es,
+       Justin Cormack <justin@street-vision.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ENBD for 2.5.64
+Message-ID: <20030326225617.GB13344@marowsky-bree.de>
+References: <5.1.0.14.2.20030327091616.03a2ce60@mira-sjcm-3.cisco.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <3E82292E.536D9196@paradyne.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5.1.0.14.2.20030327091616.03a2ce60@mira-sjcm-3.cisco.com>
 User-Agent: Mutt/1.4i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject changed to reflect change in topic, and to call attention to
-others who might be interested.
+On 2003-03-27T09:16:18,
+   Lincoln Dale <ltd@cisco.com> said:
 
-On Wed, Mar 26, 2003 at 05:26:54PM -0500, Mark Studebaker wrote:
-> If you rename the files and/or split multivalue files into separate
-> single value files, or change the format of the contents,
-> and continue these changes across the 30 or so "chip" drivers of ours,
-> you will completely blow up our libsensors library, and userspace programs.
+> what logic do you use to identify "identical devices"?
+> same data reported from SCSI Report_LUNs?  or perhaps the same data 
+> reported from a SCSI_Inquiry?
 
-Well ideally libsensors can change and then userspace programs will
-never know the difference :)
+That would work well.
 
-I need to start digging into the libsensors code to be able to back this
-up, but at first glance I think it's feasible.
+We do parse device specific information in order to auto-configure the md
+multipath at setup time. After that, magic is on disk...
 
-> If all the patches do is move all the files unchanged from
-> /proc/sys/dev/sensors/... to /sysfs/... then that change is much much easier
-> to incorporate in our programs.
+> does one now need to add logic into the kernel to provide some multipathing
+> for HDS disks?
 
-True, but multi-valued files are not allowed in sysfs.  It's especially
-obnoxious that you have 3 value files when you read them, but only
-expect 2 values for writing.  The way I split up the values in the
-lm75.c driver shows a user exactly which values are writable, and
-enforces this on the file system level.
+Topology discovery is user-space! It does not need to live in the kernel.
 
-I don't want to detract from all of the work you, and the lm_sensors
-group has done in the past, it's quite nice.  I'm just trying to fit the
-drivers into current kernel policies in the best way possible.
-Remember, I want this to work, and for everyone to come to an
-understanding.
 
-> lm_sensors /proc naming standars for sensors chip drivers:
-> 
-> http://www2.lm-sensors.nu/~lm78/cvs/lm_sensors2/doc/developers/proc
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
-Thanks for the link.  I don't really think this is a problem.  As an
-example, the temp files, which are currently defined as a proc file with
-this description:
-
-Entry	Values	Function
------	------	--------
-temp,
-temp[1-3]  3	Temperature max, min or hysteresis, and input value.
-	       	Floating point values XXX.X or XXX.XX in degrees Celcius.
-		'temp' is used if there is only one temperature sensor on the
-		chip; for multiple temps. start with 'temp1'.
-		Temp1 is generally the sensor inside the chip itself,
-		generally reported as "motherboard temperature".
-		Temp2 and temp3 are generally sensors external to the chip
-		itself, for example the thermal diode inside the CPU or a
-		termistor nearby. The second value is preferably a hysteresis
-		value, reported as a absolute temperature, NOT a delta from
-		the max value.
-		First two values are read/write and third is read only.
-
-Could be rewritten to say:
-
-Entry		Function
------		--------
-temp_max[1-3]	Temperature max value.
-		Fixed point value in form XXXXX and should be divided by
-		100 to get degrees Celsius.
-		Read/Write value.
-
-temp_min[1-3]	Temperature min or hysteresis value.
-		Fixed point value in form XXXXX and should be divided by
-		100 to get degrees Celsius.  This is preferably a
-		hysteresis value, reported as a absolute temperature, NOT
-		a delta from the max value.
-		Read/Write value.
-
-temp_input[1-3]	Temperature input value.
-		Read only value.
-
-		If there are multiple temperature sensors, temp_*1 is
-		generally the sensor inside the chip itself, generally
-		reported as "motherboard temperature".  temp_*2 and
-		temp_*3 are generally sensors external to the chip
-		itself, for example the thermal diode inside the CPU or a
-		thermistor nearby.
-
-That would give us one value per file, use no floating point in the
-kernel (fake or not) and generally make things a whole lot more orderly.
-Also, if a sensor does not have a max value (for example, I don't really
-know if this is true), instead of having to fake a value, it can just
-not create the file.  Then userspace can easily detect this is not
-supported, and is not a placeholder value.
-
-Does that sound reasonable?
-
-thanks,
-
-greg k-h
-
+-- 
+SuSE Labs - Research & Development, SuSE Linux AG
+  
+"If anything can go wrong, it will." "Chance favors the prepared (mind)."
+  -- Capt. Edward A. Murphy            -- Louis Pasteur

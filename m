@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266806AbUHCTC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266802AbUHCTFW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266806AbUHCTC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 15:02:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266802AbUHCTC0
+	id S266802AbUHCTFW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 15:05:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUHCTFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 15:02:26 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:46292 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S266807AbUHCTCZ (ORCPT
+	Tue, 3 Aug 2004 15:05:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:58087 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266802AbUHCTFO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 15:02:25 -0400
-Date: Tue, 3 Aug 2004 21:02:22 +0200 (MEST)
-Message-Id: <200408031902.i73J2MNx000087@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: updated gcc-3.4 patches for 2.4.27-rc4
+	Tue, 3 Aug 2004 15:05:14 -0400
+Subject: Re: modversion.h in kernel 2.6.x
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Lei Yang <leiyang@nec-labs.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       kernelnewbies <kernelnewbies@nl.linux.org>
+In-Reply-To: <1091570120.5487.82.camel@bijar.nec-labs.com>
+References: <1091570120.5487.82.camel@bijar.nec-labs.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SG7df+OaYzqq8ThEpgMj"
+Organization: Red Hat UK
+Message-Id: <1091559899.2816.16.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 03 Aug 2004 21:05:00 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Resend. 1st post seems to have gone into a /dev/null somewhere.]
 
-The gcc-3.4 patches for the 2.4.27-rc4 kernel have been updated:
-http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc34-fastcall-fixes-2.4.27-rc4
-http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc34-lvalue-fixes-2.4.27-rc4
-http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc34-misc-fixes-2.4.27-rc4
-Download and apply all three of them.
+--=-SG7df+OaYzqq8ThEpgMj
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-After a careful review of all patches, the following changes were made:
-- i386' smp_send_reschedule() now has proper fastcall declarations.
-  The previous patches removed the FASTCALL from <linux/smp.h>,
-  but the new patches instead preserve the behaviour from gcc < 3.4.
-- Several functions had their fastcall annotations moved around a
-  little to match exactly their 2.6.8-rc2 versions.
-- A few void* casts used for cast-as-lvalue fixes were reformatted
-  to match exactly their 2.6.8-rc2 versions.
-- Cleaned up the cast-as-lvalue fix in
-  arch/x86_64/ia32/ia32_ioctl.c:blkpg_ioctl_trans().
+On Tue, 2004-08-03 at 23:55, Lei Yang wrote:
+> Hello,
+>=20
+> Could anyone tell me what happened with modversion.h in 2.6.x? I want to
+> build a module whose makefile indicates that,
 
-The cast-as-lvalue fixes for kernel/sysctl.c result in code doing
-pointer arithmetic on void* values. There has been some discussion
-about replacing those with char* values. I decided against that
-because (1) the diff became larger, and (2) the functions in sysctl.c
-already do void* pointer arithmetic, and there is no strong reason
-for eliminating that (ab)use in the 2.4 kernel.
+this module has a broken makefile for 2.6 .....
 
-The cast-as-lvalue fixes are also needed to silence warnings from
-gcc-3.3.4.
+it really should use the kbuild infrastructure instead.
 
-/Mikael
+--=-SG7df+OaYzqq8ThEpgMj
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBD+HbxULwo51rQBIRAnhZAJ9P7skqX0CujrpKoKfvnpAkXN+ZAACfdphs
+xtSd3TvVHYqPb5UgI3yakn0=
+=0YXb
+-----END PGP SIGNATURE-----
+
+--=-SG7df+OaYzqq8ThEpgMj--
+

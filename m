@@ -1,88 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264027AbTE0RyS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 13:54:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264007AbTE0Rwq
+	id S263970AbTE0R5h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 13:57:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264060AbTE0R4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 13:52:46 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:39664 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264027AbTE0Rv6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 13:51:58 -0400
-Date: Tue, 27 May 2003 13:05:07 -0500
-Mime-Version: 1.0 (Apple Message framework v552)
-Content-Type: multipart/mixed; boundary=Apple-Mail-8-589579874
-Subject: [CHECKER] [PATCH] zortran user-pointer fix
-From: Hollis Blanchard <hollis@austin.ibm.com>
+	Tue, 27 May 2003 13:56:41 -0400
+Received: from web41501.mail.yahoo.com ([66.218.93.84]:15269 "HELO
+	web41501.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264050AbTE0Rwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 13:52:33 -0400
+Message-ID: <20030527180546.15656.qmail@web41501.mail.yahoo.com>
+Date: Tue, 27 May 2003 11:05:46 -0700 (PDT)
+From: Carl Spalletta <cspalletta@yahoo.com>
+Subject: Re: inventing the wheel?
 To: linux-kernel@vger.kernel.org
-Message-Id: <BFD891F0-906D-11D7-AED1-000A95A0560C@austin.ibm.com>
-X-Mailer: Apple Mail (2.552)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I was interested in finding a tool that would tell me all the paths
+through the kernel leading to some particular function, for example in
+the case of do_mmap_pgoff:
 
---Apple-Mail-8-589579874
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	delsp=yes;
-	charset=US-ASCII;
-	format=flowed
+do_mmap_pgoff do_mmap2 old_mmap old_mmap_i386
+do_mmap_pgoff do_mmap2 sys_mmap2
+do_mmap_pgoff do_mmap aio_setup_ring ioctx_alloc sys_io_setup
+do_mmap_pgoff do_mmap elf_map load_elf_binary
+...
 
-Here's what the Stanford checker said:
----------------------------------------------------------
-[BUG] proc_dir_entry.write_proc
+I submitted a tool ('fscope') to do this but no one has picked up
+on the discussion. So I am wondering if there isn't already some
+existing and better way to accomplish the same thing.
 
-/home/junfeng/linux-2.5.63/drivers/media/video/ 
-zoran_procfs.c:122:zoran_write_proc:
-ERROR:TAINTED:122:122: passing tainted ptr 'buffer' to __memcpy
-[Callstack:
-/home/junfeng/linux-2.5.63/net/core/ 
-pktgen.c:991:zoran_write_proc((tainted
-1))]
+Could somebody tell me please, what is that way?
 
-	string = sp = vmalloc(count + 1);
-	if (!string) {
-		printk(KERN_ERR "%s: write_proc: can not allocate
-memory\n", zr->name);
-		return -ENOMEM;
-	}
-
-Error --->
-	memcpy(string, buffer, count);
-	string[count] = 0;
-	DEBUG2(printk(KERN_INFO "%s: write_proc: name=%s count=%lu
-data=%x\n", zr->name, file->f_dentry->d_name.name, count, (int) data));
-	ldelim = " \t\n";
----------------------------------------------------------
-
-Is this patch correct?
-
--- 
-Hollis Blanchard
-IBM Linux Technology Center
-
---Apple-Mail-8-589579874
-Content-Disposition: attachment;
-	filename=zortan-memcpy.diff
-Content-Transfer-Encoding: 7bit
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name="zortan-memcpy.diff"
-
---- linux-2.5.69/drivers/media/video/zoran_procfs.c.orig	2003-05-23 15:42:18.000000000 -0500
-+++ linux-2.5.69/drivers/media/video/zoran_procfs.c	2003-05-23 15:42:40.000000000 -0500
-@@ -119,7 +119,10 @@
- 		printk(KERN_ERR "%s: write_proc: can not allocate memory\n", zr->name);
- 		return -ENOMEM;
- 	}
--	memcpy(string, buffer, count);
-+	if (copy_from_user(string, buffer, count)) {
-+		vfree(string);
-+		return -EFAULT;
-+	}
- 	string[count] = 0;
- 	DEBUG2(printk(KERN_INFO "%s: write_proc: name=%s count=%lu data=%x\n", zr->name, file->f_dentry->d_name.name, count, (int) data));
- 	ldelim = " \t\n";
-
---Apple-Mail-8-589579874--
-
+I know you can do a backtrace w/ gdb but that begs the question
+how are you going to sure you have found every path?

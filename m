@@ -1,46 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278082AbRJZJel>; Fri, 26 Oct 2001 05:34:41 -0400
+	id <S278085AbRJZJjL>; Fri, 26 Oct 2001 05:39:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278086AbRJZJeb>; Fri, 26 Oct 2001 05:34:31 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:64932 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S278085AbRJZJe2>; Fri, 26 Oct 2001 05:34:28 -0400
-Date: Fri, 26 Oct 2001 05:35:03 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Allan Sandfeld <linux@sneulv.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel compiler
-Message-ID: <20011026053503.U25384@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-In-Reply-To: <E15wmgp-0005E8-00@the-village.bc.nu> <3BD841B7.5060405@toughguy.net> <20011026001354.C2245@werewolf.able.es> <E15x38c-0000Dh-00@Princess>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15x38c-0000Dh-00@Princess>; from linux@sneulv.dk on Fri, Oct 26, 2001 at 11:18:46AM +0200
+	id <S278078AbRJZJjC>; Fri, 26 Oct 2001 05:39:02 -0400
+Received: from mail311.mail.bellsouth.net ([205.152.58.171]:4019 "EHLO
+	imf11bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S278081AbRJZJix>; Fri, 26 Oct 2001 05:38:53 -0400
+Message-ID: <3BD92F59.BAD76B6F@mandrakesoft.com>
+Date: Fri, 26 Oct 2001 05:39:37 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, hpa@zytor.com,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: PATCH 2.4.14.2: more inflate_fs build fixes
+Content-Type: multipart/mixed;
+ boundary="------------1D646421290B7064987BA594"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 26, 2001 at 11:18:46AM +0200, Allan Sandfeld wrote:
-> > Last paragraph is the key. Perhaps previous gcc'd did not all his work
-> > as the manual says (ie, did not kill the non-inline version, bug),
-> > but people has got used to the bug, and see it as a feature.
-> 
-> I believe '-fkeep-inline-functions' is your friend in this case. I haven't 
-> tested it though on the kernel.
+This is a multi-part message in MIME format.
+--------------1D646421290B7064987BA594
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Definitely not. -fkeep-inline-functions will not only prevent in compiler
-eyes unused static functions from beeing optimized away, but you'll get tons
-of code you really don't need.
-__attribute__((used)) is what you can use in current gcc trunk to just say
-the compiler that it should not optimize away a particular function even if
-it seems to be unused at -O3 (e.g. it might be referenced from inline assembly,
-whatever).
-No matter what, using -O3 for kernel builds is a bad idea, in vast majority
-functions which make sense to be inlined are in the kernel marked so with
-inline keyword, and the rest does not. With -O3 for kernel you just get
-bigger code with no gains (if there are some gains somewhere, then it should
-be considered to be marked inline on a case by case basis).
+oops.  I forgot to send this part, which is missing also.
 
-	Jakub
+This is required also, in order to build cramfs or zisofs in
+2.4.14-pre2.
+
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+--------------1D646421290B7064987BA594
+Content-Type: text/plain; charset=us-ascii;
+ name="inflate-fs-2.4.14.2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="inflate-fs-2.4.14.2.patch"
+
+--- /home/jgarzik/tmp/linux-2.4.14-pre2/fs/Config.in	Thu Oct  4 18:13:18 2001
++++ linux_2_4/fs/Config.in	Fri Oct 26 05:41:53 2001
+@@ -128,6 +128,24 @@
+    define_bool CONFIG_SMB_FS n
+ fi
+ 
++#
++# Do we need the compression support?
++#
++if [ "$CONFIG_ZISOFS" = "y" ]; then
++   define_tristate CONFIG_ZISOFS_FS $CONFIG_ISO9660_FS
++else
++   define_tristate CONFIG_ZISOFS_FS n
++fi
++if [ "$CONFIG_CRAMFS" = "y" -o "$CONFIG_ZISOFS_FS" = "y" ]; then
++   define_tristate CONFIG_ZLIB_FS_INFLATE y
++else
++  if [ "$CONFIG_CRAMFS" = "m" -o "$CONFIG_ZISOFS_FS" = "m" ]; then
++     define_tristate CONFIG_ZLIB_FS_INFLATE m
++  else
++     define_tristate CONFIG_ZLIB_FS_INFLATE n
++  fi
++fi
++
+ mainmenu_option next_comment
+ comment 'Partition Types'
+ source fs/partitions/Config.in
+--- /home/jgarzik/tmp/linux-2.4.14-pre2/fs/Makefile	Thu Oct  4 18:13:18 2001
++++ linux_2_4/fs/Makefile	Fri Oct 26 05:41:53 2001
+@@ -27,6 +27,7 @@
+ 
+ # Do not add any filesystems before this line
+ subdir-$(CONFIG_EXT2_FS)	+= ext2
++subdir-$(CONFIG_ZLIB_FS_INFLATE) += inflate_fs
+ subdir-$(CONFIG_CRAMFS)		+= cramfs
+ subdir-$(CONFIG_RAMFS)		+= ramfs
+ subdir-$(CONFIG_CODA_FS)	+= coda
+
+--------------1D646421290B7064987BA594--
+
+

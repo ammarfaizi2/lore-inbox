@@ -1,124 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268711AbTBZLHZ>; Wed, 26 Feb 2003 06:07:25 -0500
+	id <S267364AbTBZLEM>; Wed, 26 Feb 2003 06:04:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268712AbTBZLHZ>; Wed, 26 Feb 2003 06:07:25 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:51342 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S268711AbTBZLHX>; Wed, 26 Feb 2003 06:07:23 -0500
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH][2.5] add missing global_flush_tlb() after change_page_attr() calls
-Date: Wed, 26 Feb 2003 12:17:28 +0100
-User-Agent: KMail/1.5
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S268711AbTBZLEM>; Wed, 26 Feb 2003 06:04:12 -0500
+Received: from elixir.e.kth.se ([130.237.48.5]:43268 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S267364AbTBZLEL>;
+	Wed, 26 Feb 2003 06:04:11 -0500
+To: Olaf Dietsche <olaf.dietsche@t-online.de>
+Cc: miquels@cistron-office.nl (Miquel van Smoorenburg),
+       linux-kernel@vger.kernel.org
+Subject: Re: About /etc/mtab and /proc/mounts
+References: <20030219112111.GD130@DervishD> <3E5C8682.F5929A04@daimi.au.dk>
+	<b3i4nv$sud$1@news.cistron.nl> <87u1er71d0.fsf@goat.bogus.local>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 26 Feb 2003 12:14:24 +0100
+In-Reply-To: Olaf Dietsche's message of "Wed, 26 Feb 2003 12:00:43 +0100"
+Message-ID: <yw1xwujn2t0v.fsf@manganonaujakasit.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-03=_JJKX+y6njy07/g7";
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200302261217.29084.schlicht@uni-mannheim.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Olaf Dietsche <olaf.dietsche@t-online.de> writes:
 
---Boundary-03=_JJKX+y6njy07/g7
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_IJKX+BYuUvEQJWO"
-Content-Transfer-Encoding: 7bit
-Content-Description: signed data
-Content-Disposition: inline
+> >>A simpler solution, that does not require changes to the kernel
+> >>would be to just move mtab to a more apropriate location. My
+> >>suggestion would be to change it from /etc/mtab to /mtab.d/mtab.
+> >>Then you could mount a tmpfs filesystem on /mtab.d. Or by making
+> >>/mtab.d a symlink, you can get the mtab file whereever you want,
+> >>including /etc.
+> >
+> > /dev/shm ? Supposed to be there on many systems anyway. Fix
+> > 'mount' and 'umount' so that if they see /etc/mtab is a symlink,
+> > they follow it and create the temp files etc in the destination
+> > directory of the link instead of in /etc. Then
+> > ln -sf /dev/shm/mtab /etc/mtab et voila
+> 
+> I thought, this is what /var is for. So, /var/run, /var/lib/misc or
+> /var/etc might be more appropriate?
 
---Boundary-01=_IJKX+BYuUvEQJWO
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: body text
-Content-Disposition: inline
+What if /var is mounted separately?
 
-After calling change_page_attr() global_flush_tlb() has to be called to=20
-kfree() some structures and make the changed page attributes visible by=20
-flushing the relevant TLB entries.
+> OTOH, "ln -s /proc/mounts /etc/mtab" works just fine here.
 
-This is not done in some places and this patch should fix it...
+The only problem I have with that is that option 'user' is lost.  This
+means that any user can mount /cdrom, but only root can unmount it.
 
-   Thomas Schlichter
-
-P.S.: I sent this patch on friday yet, but I think friday is a bad day for=
-=20
-sending patches... ;-)
---Boundary-01=_IJKX+BYuUvEQJWO
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="missing_global_flush_tlb.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline; filename="missing_global_flush_tlb.patch"
-
-=2D-- linux-2.5.62/arch/i386/mm/ioremap.c.orig	Fri Feb 21 12:26:36 2003
-+++ linux-2.5.62/arch/i386/mm/ioremap.c	Fri Feb 21 12:28:44 2003
-@@ -205,6 +205,7 @@
- 			iounmap(p);=20
- 			p =3D NULL;
- 		}
-+		global_flush_tlb();
- 	}=20
-=20
- 	return p;				=09
-@@ -226,6 +227,7 @@
- 		change_page_attr(virt_to_page(__va(p->phys_addr)),
- 				 p->size >> PAGE_SHIFT,
- 				 PAGE_KERNEL); 				=20
-+		global_flush_tlb();
- 	}=20
- 	kfree(p);=20
- }
-=2D-- linux-2.5.62/arch/x86_64/mm/ioremap.c.orig	Fri Feb 21 12:25:54 2003
-+++ linux-2.5.62/arch/x86_64/mm/ioremap.c	Fri Feb 21 12:27:58 2003
-@@ -205,6 +205,7 @@
- 			iounmap(p);=20
- 			p =3D NULL;
- 		}
-+		global_flush_tlb();
- 	}=20
-=20
- 	return p;				=09
-@@ -226,6 +227,7 @@
- 		change_page_attr(virt_to_page(__va(p->phys_addr)),
- 				 p->size >> PAGE_SHIFT,
- 				 PAGE_KERNEL); 				=20
-+		global_flush_tlb();
- 	}=20
- 	kfree(p);=20
- }
-=2D-- linux-2.5.62/arch/x86_64/kernel/pci-gart.c.orig	Fri Feb 21 12:39:40 2=
-003
-+++ linux-2.5.62/arch/x86_64/kernel/pci-gart.c	Fri Feb 21 12:43:13 2003
-@@ -437,6 +437,7 @@
- 	}
- 	flush_gart();=20
- =09
-+	global_flush_tlb();
- 	=09
- 	printk("PCI-DMA: aperture base @ %x size %u KB\n", aper_base, aper_size>>=
-10);=20
- 	return 0;
-
---Boundary-01=_IJKX+BYuUvEQJWO--
-
---Boundary-03=_JJKX+y6njy07/g7
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+XKJJYAiN+WRIZzQRAoNhAKDN7xGjX1/YLUeAN5Mspjf2yVhsWwCgoR/e
-S5SBVcFP+7POG74JvmmQels=
-=72HX
------END PGP SIGNATURE-----
-
---Boundary-03=_JJKX+y6njy07/g7--
-
+-- 
+Måns Rullgård
+mru@users.sf.net

@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277826AbRJRRFm>; Thu, 18 Oct 2001 13:05:42 -0400
+	id <S277829AbRJRRJW>; Thu, 18 Oct 2001 13:09:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277808AbRJRRFX>; Thu, 18 Oct 2001 13:05:23 -0400
-Received: from linux06.unm.edu ([129.24.15.38]:22290 "HELO linux06.unm.edu")
-	by vger.kernel.org with SMTP id <S277807AbRJRRFR>;
-	Thu, 18 Oct 2001 13:05:17 -0400
-Date: Thu, 18 Oct 2001 11:05:38 -0600 (MDT)
-From: Todd <todd@unm.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: ia64 gcc compile prob
-Message-ID: <Pine.A41.4.33.0110181103240.31982-100000@aix07.unm.edu>
+	id <S277808AbRJRRJC>; Thu, 18 Oct 2001 13:09:02 -0400
+Received: from mail3.svr.pol.co.uk ([195.92.193.19]:19776 "EHLO
+	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S277827AbRJRRIu>; Thu, 18 Oct 2001 13:08:50 -0400
+Posted-Date: Thu, 18 Oct 2001 08:11:44 GMT
+Date: Thu, 18 Oct 2001 09:11:44 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.cx>
+Reply-To: Riley Williams <rhw@MemAlpha.cx>
+To: Jacques Gelinas <jack@solucorp.qc.ca>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: re: re: Re: Announce: many virtual servers on a single box
+In-Reply-To: <20011015215151.7f22bbebdea7@remtk.solucorp.qc.ca>
+Message-ID: <Pine.LNX.4.21.0110180908510.4173-100000@Consulate.UFP.CX>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-folx,
+Hi Jacques.
 
-i've searched archives & the web and can't find reference to this:
+>>>> You might want to announce this on bugtraq. [And give solar
+>>>> designer root account, he might be more creative ;)].
 
-i'm getting:
+>>> You don't understand the issue. Anyone can create his own vserver.
+>>> The system call controlling this are very simple. It is not a "try
+>>> to crack my machine" contest. Anyone can create a vserver and test
+>>> it.
 
-gcc -D__KERNEL__
--I/home/jotto/Cplant/top.10-17/compute/OS/linux-patches/linux-2.4.7/linux/include
--Wall -Wstrict-prototypes -Wno-trigraphs -g -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe  -ffixed-r13
--mfixed-range=f10-f15,f32-f127 -falign-functions=32 -DMODULE   -c -o
-scsi_ioctl.o scsi_ioctl.c
-scsi_ioctl.c: In function `scsi_ioctl_send_command':
-scsi_ioctl.c:366: Internal compiler error in rws_access_regno, at
-config/ia64/ia64.c:3689
+>> But can you crack your way OUT of the vserver - how confident are you
+>> in the isolation provided?
 
+> Highly. Bug pending.
 
-when trying to compile scsi_ioctl.c on ia64 using
+> The concept is both very simple and sound
 
-gcc -v
-Reading specs from /usr/lib/gcc-lib/ia64-redhat-linux/2.96/specs
-gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-81)
+...
 
-on 2.4.7 and 2.4.11 patched with the appropriate patches from ports/ia64.
+> 	set_ipv4root to tie all processes in a vserver to one IP.
 
-are there known issues with gcc 2.96 on ia64 and if so, what are the
-known slns?  thanks,
+How well does this work on an ipv6 only box?
 
-=========================================================
-Todd Underwood, todd@unm.edu
-
-=========================================================
+Best wishes from Riley.
 

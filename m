@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263868AbUFCRRC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265590AbUFCRUZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263868AbUFCRRC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 13:17:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbUFCRRC
+	id S265590AbUFCRUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 13:20:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264850AbUFCRT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 13:17:02 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:29668 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S265655AbUFCRMv (ORCPT
+	Thu, 3 Jun 2004 13:19:58 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:45793 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265517AbUFCRMP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 13:12:51 -0400
-Date: Thu, 3 Jun 2004 10:10:41 -0700
+	Thu, 3 Jun 2004 13:12:15 -0400
+Date: Thu, 3 Jun 2004 10:10:51 -0700
 From: Paul Jackson <pj@sgi.com>
 To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 Cc: Andi Kleen <ak@muc.de>, Ashok Raj <ashok.raj@intel.com>,
@@ -21,8 +21,8 @@ Cc: Andi Kleen <ak@muc.de>, Ashok Raj <ashok.raj@intel.com>,
        Nick Piggin <nickpiggin@yahoo.com.au>, Paul Jackson <pj@sgi.com>,
        Rusty Russell <rusty@rustcorp.com.au>, Simon Derr <Simon.Derr@bull.net>,
        William Lee Irwin III <wli@holomorphy.com>
-Subject: [PATCH] cpumask 6/10 remove 26 no longer used cpumask*.h files
-Message-Id: <20040603101041.412b2ea9.pj@sgi.com>
+Subject: [PATCH] cpumask 7/10 remove obsolete cpumask macro uses - i386 arch
+Message-Id: <20040603101051.112fb3c0.pj@sgi.com>
 In-Reply-To: <20040603094339.03ddfd42.pj@sgi.com>
 References: <20040603094339.03ddfd42.pj@sgi.com>
 Organization: SGI
@@ -33,543 +33,338 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cpumask 6/10 remove 26 no longer used cpumask*.h files
+cpumask 7/10 remove obsolete cpumask macro uses - i386 arch
 
-	With the cpumask rewrite in the previous patch, these
-	various include/asm-*/cpumask*.h headers are no longer used.
+	Remove by recoding i386 uses of the obsolete cpumask const,
+	coerce and promote macros.
 
- include/asm-alpha/cpumask.h                   |    6 -
- include/asm-arm/cpumask.h                     |    6 -
- include/asm-arm26/cpumask.h                   |    6 -
- include/asm-cris/cpumask.h                    |    6 -
- include/asm-generic/cpumask.h                 |   40 ------
- include/asm-generic/cpumask_arith.h           |   49 --------
- include/asm-generic/cpumask_array.h           |   54 ---------
- include/asm-generic/cpumask_const_reference.h |   29 ----
- include/asm-generic/cpumask_const_value.h     |   21 ---
- include/asm-generic/cpumask_up.h              |   59 ----------
- include/asm-h8300/cpumask.h                   |    6 -
- include/asm-i386/cpumask.h                    |    6 -
- include/asm-ia64/cpumask.h                    |    6 -
- include/asm-m68k/cpumask.h                    |    6 -
- include/asm-m68knommu/cpumask.h               |    6 -
- include/asm-mips/cpumask.h                    |    6 -
- include/asm-parisc/cpumask.h                  |    6 -
- include/asm-ppc/cpumask.h                     |    6 -
- include/asm-ppc64/cpumask.h                   |    6 -
- include/asm-s390/cpumask.h                    |    6 -
- include/asm-sh/cpumask.h                      |    6 -
- include/asm-sparc/cpumask.h                   |    6 -
- include/asm-sparc64/cpumask.h                 |    6 -
- include/asm-um/cpumask.h                      |    6 -
- include/asm-v850/cpumask.h                    |    6 -
- include/asm-x86_64/cpumask.h                  |    6 -
- 26 files changed, 372 deletions(-)
+ arch/i386/kernel/io_apic.c                |    2 
+ arch/i386/kernel/smp.c                    |    2 
+ arch/i386/mach-voyager/voyager_smp.c      |   30 +++++-----
+ include/asm-i386/genapic.h                |    2 
+ include/asm-i386/mach-bigsmp/mach_apic.h  |   10 +--
+ include/asm-i386/mach-default/mach_apic.h |   10 +--
+ include/asm-i386/mach-es7000/mach_apic.h  |   10 +--
+ include/asm-i386/mach-numaq/mach_apic.h   |    2 
+ include/asm-i386/mach-summit/mach_apic.h  |    8 +-
+ include/asm-i386/mach-visws/mach_apic.h   |    4 -
+ 10 files changed, 40 insertions(+), 40 deletions(-)
 
 Signed-off-by: Paul Jackson <pj@sgi.com>
 
-Index: 2.6.7-rc2-mm2/include/asm-alpha/cpumask.h
+Index: 2.6.7-rc2-mm2/arch/i386/kernel/io_apic.c
 ===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-alpha/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-alpha/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_ALPHA_CPUMASK_H
--#define _ASM_ALPHA_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_ALPHA_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-arm/cpumask.h
+--- 2.6.7-rc2-mm2.orig/arch/i386/kernel/io_apic.c	2004-06-03 06:42:03.000000000 -0700
++++ 2.6.7-rc2-mm2/arch/i386/kernel/io_apic.c	2004-06-03 07:08:00.000000000 -0700
+@@ -224,7 +224,7 @@
+ 	struct irq_pin_list *entry = irq_2_pin + irq;
+ 	unsigned int apicid_value;
+ 	
+-	apicid_value = cpu_mask_to_apicid(mk_cpumask_const(cpumask));
++	apicid_value = cpu_mask_to_apicid(cpumask);
+ 	/* Prepare to do the io_apic_write */
+ 	apicid_value = apicid_value << 24;
+ 	spin_lock_irqsave(&ioapic_lock, flags);
+Index: 2.6.7-rc2-mm2/arch/i386/kernel/smp.c
 ===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-arm/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-arm/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_ARM_CPUMASK_H
--#define _ASM_ARM_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_ARM_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-arm26/cpumask.h
+--- 2.6.7-rc2-mm2.orig/arch/i386/kernel/smp.c	2004-06-03 06:42:03.000000000 -0700
++++ 2.6.7-rc2-mm2/arch/i386/kernel/smp.c	2004-06-03 07:08:00.000000000 -0700
+@@ -159,7 +159,7 @@
+  */
+ inline void send_IPI_mask_bitmask(cpumask_t cpumask, int vector)
+ {
+-	unsigned long mask = cpus_coerce(cpumask);
++	unsigned long mask = cpus_addr(cpumask)[0];
+ 	unsigned long cfg;
+ 	unsigned long flags;
+ 
+Index: 2.6.7-rc2-mm2/arch/i386/mach-voyager/voyager_smp.c
 ===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-arm26/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-arm26/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_ARM26_CPUMASK_H
--#define _ASM_ARM26_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_ARM26_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-cris/cpumask.h
+--- 2.6.7-rc2-mm2.orig/arch/i386/mach-voyager/voyager_smp.c	2004-06-03 06:42:03.000000000 -0700
++++ 2.6.7-rc2-mm2/arch/i386/mach-voyager/voyager_smp.c	2004-06-03 07:08:00.000000000 -0700
+@@ -153,7 +153,7 @@
+ send_CPI_allbutself(__u8 cpi)
+ {
+ 	__u8 cpu = smp_processor_id();
+-	__u32 mask = cpus_coerce(cpu_online_map) & ~(1 << cpu);
++	__u32 mask = cpus_addr(cpu_online_map)[0] & ~(1 << cpu);
+ 	send_CPI(mask, cpi);
+ }
+ 
+@@ -402,11 +402,11 @@
+ 	/* set up everything for just this CPU, we can alter
+ 	 * this as we start the other CPUs later */
+ 	/* now get the CPU disposition from the extended CMOS */
+-	phys_cpu_present_map = cpus_promote(voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK));
+-	cpus_coerce(phys_cpu_present_map) |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 1) << 8;
+-	cpus_coerce(phys_cpu_present_map) |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 2) << 16;
+-	cpus_coerce(phys_cpu_present_map) |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 3) << 24;
+-	printk("VOYAGER SMP: phys_cpu_present_map = 0x%lx\n", cpus_coerce(phys_cpu_present_map));
++	cpus_addr(phys_cpu_present_map)[0] = voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK);
++	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 1) << 8;
++	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 2) << 16;
++	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 3) << 24;
++	printk("VOYAGER SMP: phys_cpu_present_map = 0x%lx\n", cpus_addr(phys_cpu_present_map)[0]);
+ 	/* Here we set up the VIC to enable SMP */
+ 	/* enable the CPIs by writing the base vector to their register */
+ 	outb(VIC_DEFAULT_CPI_BASE, VIC_CPI_BASE_REGISTER);
+@@ -706,12 +706,12 @@
+ 		/* now that the cat has probed the Voyager System Bus, sanity
+ 		 * check the cpu map */
+ 		if( ((voyager_quad_processors | voyager_extended_vic_processors)
+-		     & cpus_coerce(phys_cpu_present_map)) != cpus_coerce(phys_cpu_present_map)) {
++		     & cpus_addr(phys_cpu_present_map)[0]) != cpus_addr(phys_cpu_present_map)[0]) {
+ 			/* should panic */
+ 			printk("\n\n***WARNING*** Sanity check of CPU present map FAILED\n");
+ 		}
+ 	} else if(voyager_level == 4)
+-		voyager_extended_vic_processors = cpus_coerce(phys_cpu_present_map);
++		voyager_extended_vic_processors = cpus_addr(phys_cpu_present_map)[0];
+ 
+ 	/* this sets up the idle task to run on the current cpu */
+ 	voyager_extended_cpus = 1;
+@@ -909,7 +909,7 @@
+ 
+ 	if (!cpumask)
+ 		BUG();
+-	if ((cpumask & cpus_coerce(cpu_online_map)) != cpumask)
++	if ((cpumask & cpus_addr(cpu_online_map)[0]) != cpumask)
+ 		BUG();
+ 	if (cpumask & (1 << smp_processor_id()))
+ 		BUG();
+@@ -952,7 +952,7 @@
+ 
+ 	preempt_disable();
+ 
+-	cpu_mask = cpus_coerce(mm->cpu_vm_mask) & ~(1 << smp_processor_id());
++	cpu_mask = cpus_addr(mm->cpu_vm_mask)[0] & ~(1 << smp_processor_id());
+ 	local_flush_tlb();
+ 	if (cpu_mask)
+ 		flush_tlb_others(cpu_mask, mm, FLUSH_ALL);
+@@ -968,7 +968,7 @@
+ 
+ 	preempt_disable();
+ 
+-	cpu_mask = cpus_coerce(mm->cpu_vm_mask) & ~(1 << smp_processor_id());
++	cpu_mask = cpus_addr(mm->cpu_vm_mask)[0] & ~(1 << smp_processor_id());
+ 
+ 	if (current->active_mm == mm) {
+ 		if (current->mm)
+@@ -989,7 +989,7 @@
+ 
+ 	preempt_disable();
+ 
+-	cpu_mask = cpus_coerce(mm->cpu_vm_mask) & ~(1 << smp_processor_id());
++	cpu_mask = cpus_addr(mm->cpu_vm_mask)[0] & ~(1 << smp_processor_id());
+ 	if (current->active_mm == mm) {
+ 		if(current->mm)
+ 			__flush_tlb_one(va);
+@@ -1098,7 +1098,7 @@
+ 		   int wait)
+ {
+ 	struct call_data_struct data;
+-	__u32 mask = cpus_coerce(cpu_online_map);
++	__u32 mask = cpus_addr(cpu_online_map)[0];
+ 
+ 	mask &= ~(1<<smp_processor_id());
+ 
+@@ -1789,9 +1789,9 @@
+ 	unsigned long irq_mask = 1 << irq;
+ 	int cpu;
+ 
+-	real_mask = cpus_coerce(mask) & voyager_extended_vic_processors;
++	real_mask = cpus_addr(mask)[0] & voyager_extended_vic_processors;
+ 	
+-	if(cpus_coerce(mask) == 0)
++	if(cpus_addr(mask)[0] == 0)
+ 		/* can't have no cpu's to accept the interrupt -- extremely
+ 		 * bad things will happen */
+ 		return;
+Index: 2.6.7-rc2-mm2/include/asm-i386/genapic.h
 ===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-cris/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-cris/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_CRIS_CPUMASK_H
--#define _ASM_CRIS_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_CRIS_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-generic/cpumask.h
+--- 2.6.7-rc2-mm2.orig/include/asm-i386/genapic.h	2004-06-03 06:42:03.000000000 -0700
++++ 2.6.7-rc2-mm2/include/asm-i386/genapic.h	2004-06-03 07:08:00.000000000 -0700
+@@ -63,7 +63,7 @@
+ 
+ 	unsigned (*get_apic_id)(unsigned long x);
+ 	unsigned long apic_id_mask;
+-	unsigned int (*cpu_mask_to_apicid)(cpumask_const_t cpumask);
++	unsigned int (*cpu_mask_to_apicid)(cpumask_t cpumask);
+ 	
+ 	/* ipi */
+ 	void (*send_IPI_mask)(cpumask_t mask, int vector);
+Index: 2.6.7-rc2-mm2/include/asm-i386/mach-bigsmp/mach_apic.h
 ===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-generic/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-generic/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,40 +0,0 @@
--#ifndef __ASM_GENERIC_CPUMASK_H
--#define __ASM_GENERIC_CPUMASK_H
--
--#include <linux/config.h>
--#include <linux/kernel.h>
--#include <linux/threads.h>
--#include <linux/types.h>
--#include <linux/bitmap.h>
--
--#if NR_CPUS > BITS_PER_LONG && NR_CPUS != 1
--#define CPU_ARRAY_SIZE		BITS_TO_LONGS(NR_CPUS)
--
--struct cpumask
--{
--	unsigned long mask[CPU_ARRAY_SIZE];
--};
--
--typedef struct cpumask cpumask_t;
--
--#else
--typedef unsigned long cpumask_t;
--#endif
--
--#ifdef CONFIG_SMP
--#if NR_CPUS > BITS_PER_LONG
--#include <asm-generic/cpumask_array.h>
--#else
--#include <asm-generic/cpumask_arith.h>
--#endif
--#else
--#include <asm-generic/cpumask_up.h>
--#endif
--
--#if NR_CPUS <= 4*BITS_PER_LONG
--#include <asm-generic/cpumask_const_value.h>
--#else
--#include <asm-generic/cpumask_const_reference.h>
--#endif
--
--#endif /* __ASM_GENERIC_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-generic/cpumask_arith.h
+--- 2.6.7-rc2-mm2.orig/include/asm-i386/mach-bigsmp/mach_apic.h	2004-06-03 06:42:03.000000000 -0700
++++ 2.6.7-rc2-mm2/include/asm-i386/mach-bigsmp/mach_apic.h	2004-06-03 07:08:00.000000000 -0700
+@@ -28,11 +28,11 @@
+ 	static unsigned long cpu = NR_CPUS;
+ 	do {
+ 		if (cpu >= NR_CPUS)
+-			cpu = first_cpu_const(cpu_online_map);
++			cpu = first_cpu(cpu_online_map);
+ 		else
+-			cpu = next_cpu_const(cpu, cpu_online_map);
++			cpu = next_cpu(cpu, cpu_online_map);
+ 	} while (cpu >= NR_CPUS);
+-	return mk_cpumask_const(cpumask_of_cpu(cpu));
++	return cpumask_of_cpu(cpu);
+ }
+ #define TARGET_CPUS	(target_cpus())
+ 
+@@ -150,12 +150,12 @@
+ }
+ 
+ /* As we are using single CPU as destination, pick only one CPU here */
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+ 	int cpu;
+ 	int apicid;	
+ 
+-	cpu = first_cpu_const(cpumask);
++	cpu = first_cpu(cpumask);
+ 	apicid = cpu_to_logical_apicid(cpu);
+ 	return apicid;
+ }
+Index: 2.6.7-rc2-mm2/include/asm-i386/mach-default/mach_apic.h
 ===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-generic/cpumask_arith.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-generic/cpumask_arith.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,49 +0,0 @@
--#ifndef __ASM_GENERIC_CPUMASK_ARITH_H
--#define __ASM_GENERIC_CPUMASK_ARITH_H
--
--/*
-- * Arithmetic type -based cpu bitmaps. A single unsigned long is used
-- * to contain the whole cpu bitmap.
-- */
--
--#define cpu_set(cpu, map)		set_bit(cpu, &(map))
--#define cpu_clear(cpu, map)		clear_bit(cpu, &(map))
--#define cpu_isset(cpu, map)		test_bit(cpu, &(map))
--#define cpu_test_and_set(cpu, map)	test_and_set_bit(cpu, &(map))
--
--#define cpus_and(dst,src1,src2)		do { dst = (src1) & (src2); } while (0)
--#define cpus_or(dst,src1,src2)		do { dst = (src1) | (src2); } while (0)
--#define cpus_clear(map)			do { map = 0; } while (0)
--#define cpus_complement(map)		do { map = ~(map); } while (0)
--#define cpus_equal(map1, map2)		((map1) == (map2))
--#define cpus_empty(map)			((map) == 0)
--#define cpus_addr(map)			(&(map))
--
--#if BITS_PER_LONG == 32
--#define cpus_weight(map)		hweight32(map)
--#elif BITS_PER_LONG == 64
--#define cpus_weight(map)		hweight64(map)
--#endif
--
--#define cpus_shift_right(dst, src, n)	do { dst = (src) >> (n); } while (0)
--#define cpus_shift_left(dst, src, n)	do { dst = (src) << (n); } while (0)
--
--#define any_online_cpu(map)			\
--({						\
--	cpumask_t __tmp__;			\
--	cpus_and(__tmp__, map, cpu_online_map);	\
--	__tmp__ ? first_cpu(__tmp__) : NR_CPUS;	\
--})
--
--#define CPU_MASK_ALL	(~((cpumask_t)0) >> (8*sizeof(cpumask_t) - NR_CPUS))
--#define CPU_MASK_NONE	((cpumask_t)0)
--
--/* only ever use this for things that are _never_ used on large boxen */
--#define cpus_coerce(map)		((unsigned long)(map))
--#define cpus_promote(map)		({ map; })
--#define cpumask_of_cpu(cpu)		({ ((cpumask_t)1) << (cpu); })
--
--#define first_cpu(map)			find_first_bit(&(map), NR_CPUS)
--#define next_cpu(cpu, map)		find_next_bit(&(map), NR_CPUS, cpu + 1)
--
--#endif /* __ASM_GENERIC_CPUMASK_ARITH_H */
-Index: 2.6.7-rc2-mm2/include/asm-generic/cpumask_array.h
+--- 2.6.7-rc2-mm2.orig/include/asm-i386/mach-default/mach_apic.h	2004-06-03 06:42:03.000000000 -0700
++++ 2.6.7-rc2-mm2/include/asm-i386/mach-default/mach_apic.h	2004-06-03 07:08:00.000000000 -0700
+@@ -5,12 +5,12 @@
+ 
+ #define APIC_DFR_VALUE	(APIC_DFR_FLAT)
+ 
+-static inline cpumask_const_t target_cpus(void)
++static inline cpumask_t target_cpus(void)
+ { 
+ #ifdef CONFIG_SMP
+-	return mk_cpumask_const(cpu_online_map);
++	return cpu_online_map;
+ #else
+-	return mk_cpumask_const(cpumask_of_cpu(0));
++	return cpumask_of_cpu(0);
+ #endif
+ } 
+ #define TARGET_CPUS (target_cpus())
+@@ -118,9 +118,9 @@
+ 	return physid_isset(GET_APIC_ID(apic_read(APIC_ID)), phys_cpu_present_map);
+ }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+-	return cpus_coerce_const(cpumask);
++	return cpus_addr(cpumask)[0];
+ }
+ 
+ static inline void enable_apic_mode(void)
+Index: 2.6.7-rc2-mm2/include/asm-i386/mach-es7000/mach_apic.h
 ===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-generic/cpumask_array.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-generic/cpumask_array.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,54 +0,0 @@
--#ifndef __ASM_GENERIC_CPUMASK_ARRAY_H
--#define __ASM_GENERIC_CPUMASK_ARRAY_H
--
--/*
-- * Array-based cpu bitmaps. An array of unsigned longs is used to contain
-- * the bitmap, and then contained in a structure so it may be passed by
-- * value.
-- */
--
--#define CPU_ARRAY_SIZE		BITS_TO_LONGS(NR_CPUS)
--
--#define cpu_set(cpu, map)		set_bit(cpu, (map).mask)
--#define cpu_clear(cpu, map)		clear_bit(cpu, (map).mask)
--#define cpu_isset(cpu, map)		test_bit(cpu, (map).mask)
--#define cpu_test_and_set(cpu, map)	test_and_set_bit(cpu, (map).mask)
--
--#define cpus_and(dst,src1,src2)	bitmap_and((dst).mask,(src1).mask, (src2).mask, NR_CPUS)
--#define cpus_or(dst,src1,src2)	bitmap_or((dst).mask, (src1).mask, (src2).mask, NR_CPUS)
--#define cpus_clear(map)		bitmap_zero((map).mask, NR_CPUS)
--#define cpus_complement(map)	bitmap_complement((map).mask, (map).mask, NR_CPUS)
--#define cpus_equal(map1, map2)	bitmap_equal((map1).mask, (map2).mask, NR_CPUS)
--#define cpus_empty(map)		bitmap_empty(map.mask, NR_CPUS)
--#define cpus_addr(map)		((map).mask)
--#define cpus_weight(map)		bitmap_weight((map).mask, NR_CPUS)
--#define cpus_shift_right(d, s, n)	bitmap_shift_right((d).mask, (s).mask, n, NR_CPUS)
--#define cpus_shift_left(d, s, n)	bitmap_shift_left((d).mask, (s).mask, n, NR_CPUS)
--#define first_cpu(map)		find_first_bit((map).mask, NR_CPUS)
--#define next_cpu(cpu, map)	find_next_bit((map).mask, NR_CPUS, cpu + 1)
--
--/* only ever use this for things that are _never_ used on large boxen */
--#define cpus_coerce(map)	((map).mask[0])
--#define cpus_promote(map)	({ cpumask_t __cpu_mask = CPU_MASK_NONE;\
--					__cpu_mask.mask[0] = map;	\
--					__cpu_mask;			\
--				})
--#define cpumask_of_cpu(cpu)	({ cpumask_t __cpu_mask = CPU_MASK_NONE;\
--					cpu_set(cpu, __cpu_mask);	\
--					__cpu_mask;			\
--				})
--#define any_online_cpu(map)			\
--({						\
--	cpumask_t __tmp__;			\
--	cpus_and(__tmp__, map, cpu_online_map);	\
--	find_first_bit(__tmp__.mask, NR_CPUS);	\
--})
--
--
--/*
-- * um, these need to be usable as static initializers
-- */
--#define CPU_MASK_ALL	((cpumask_t) { {[0 ... CPU_ARRAY_SIZE-1] = ~0UL} })
--#define CPU_MASK_NONE	((cpumask_t) { {[0 ... CPU_ARRAY_SIZE-1] =  0UL} })
--
--#endif /* __ASM_GENERIC_CPUMASK_ARRAY_H */
-Index: 2.6.7-rc2-mm2/include/asm-generic/cpumask_const_reference.h
+--- 2.6.7-rc2-mm2.orig/include/asm-i386/mach-es7000/mach_apic.h	2004-06-03 06:42:03.000000000 -0700
++++ 2.6.7-rc2-mm2/include/asm-i386/mach-es7000/mach_apic.h	2004-06-03 07:08:00.000000000 -0700
+@@ -89,7 +89,7 @@
+ 	int apic = bios_cpu_apicid[smp_processor_id()];
+ 	printk("Enabling APIC mode:  %s.  Using %d I/O APICs, target cpus %lx\n",
+ 		(apic_version[apic] == 0x14) ? 
+-		"Physical Cluster" : "Logical Cluster", nr_ioapics, cpus_coerce(TARGET_CPUS));
++		"Physical Cluster" : "Logical Cluster", nr_ioapics, cpus_addr(TARGET_CPUS)[0]);
+ }
+ 
+ static inline int multi_timer_check(int apic, int irq)
+@@ -159,14 +159,14 @@
+ 	return (1);
+ }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+ 	int num_bits_set;
+ 	int cpus_found = 0;
+ 	int cpu;
+ 	int apicid;	
+ 
+-	num_bits_set = cpus_weight_const(cpumask);
++	num_bits_set = cpus_weight(cpumask);
+ 	/* Return id to all */
+ 	if (num_bits_set == NR_CPUS)
+ #if defined CONFIG_ES7000_CLUSTERED_APIC
+@@ -178,10 +178,10 @@
+ 	 * The cpus in the mask must all be on the apic cluster.  If are not 
+ 	 * on the same apicid cluster return default value of TARGET_CPUS. 
+ 	 */
+-	cpu = first_cpu_const(cpumask);
++	cpu = first_cpu(cpumask);
+ 	apicid = cpu_to_logical_apicid(cpu);
+ 	while (cpus_found < num_bits_set) {
+-		if (cpu_isset_const(cpu, cpumask)) {
++		if (cpu_isset(cpu, cpumask)) {
+ 			int new_apicid = cpu_to_logical_apicid(cpu);
+ 			if (apicid_cluster(apicid) != 
+ 					apicid_cluster(new_apicid)){
+Index: 2.6.7-rc2-mm2/include/asm-i386/mach-numaq/mach_apic.h
 ===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-generic/cpumask_const_reference.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-generic/cpumask_const_reference.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,29 +0,0 @@
--#ifndef __ASM_GENERIC_CPUMASK_CONST_REFERENCE_H
--#define __ASM_GENERIC_CPUMASK_CONST_REFERENCE_H
--
--struct cpumask_ref {
--	const cpumask_t *val;
--};
--
--typedef const struct cpumask_ref cpumask_const_t;
--
--#define mk_cpumask_const(map)		((cpumask_const_t){ &(map) })
--#define cpu_isset_const(cpu, map)	cpu_isset(cpu, *(map).val)
--
--#define cpus_and_const(dst,src1,src2)	cpus_and(dst,*(src1).val,*(src2).val)
--#define cpus_or_const(dst,src1,src2)	cpus_or(dst,*(src1).val,*(src2).val)
--
--#define cpus_equal_const(map1, map2)	cpus_equal(*(map1).val, *(map2).val)
--
--#define cpus_copy_const(map1, map2)	bitmap_copy((map1).mask, (map2).val->mask, NR_CPUS)
--
--#define cpus_empty_const(map)		cpus_empty(*(map).val)
--#define cpus_weight_const(map)		cpus_weight(*(map).val)
--#define first_cpu_const(map)		first_cpu(*(map).val)
--#define next_cpu_const(cpu, map)	next_cpu(cpu, *(map).val)
--
--/* only ever use this for things that are _never_ used on large boxen */
--#define cpus_coerce_const(map)		cpus_coerce(*(map).val)
--#define any_online_cpu_const(map)	any_online_cpu(*(map).val)
--
--#endif /* __ASM_GENERIC_CPUMASK_CONST_REFERENCE_H */
-Index: 2.6.7-rc2-mm2/include/asm-generic/cpumask_const_value.h
+--- 2.6.7-rc2-mm2.orig/include/asm-i386/mach-numaq/mach_apic.h	2004-06-03 06:42:03.000000000 -0700
++++ 2.6.7-rc2-mm2/include/asm-i386/mach-numaq/mach_apic.h	2004-06-03 07:08:00.000000000 -0700
+@@ -136,7 +136,7 @@
+  * We use physical apicids here, not logical, so just return the default
+  * physical broadcast to stop people from breaking us
+  */
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+ 	return (int) 0xF;
+ }
+Index: 2.6.7-rc2-mm2/include/asm-i386/mach-summit/mach_apic.h
 ===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-generic/cpumask_const_value.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-generic/cpumask_const_value.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,21 +0,0 @@
--#ifndef __ASM_GENERIC_CPUMASK_CONST_VALUE_H
--#define __ASM_GENERIC_CPUMASK_CONST_VALUE_H
--
--typedef const cpumask_t cpumask_const_t;
--
--#define mk_cpumask_const(map)		(map)
--#define cpu_isset_const(cpu, map)	cpu_isset(cpu, map)
--#define cpus_and_const(dst,src1,src2)	cpus_and(dst, src1, src2)
--#define cpus_or_const(dst,src1,src2)	cpus_or(dst, src1, src2)
--#define cpus_equal_const(map1, map2)	cpus_equal(map1, map2)
--#define cpus_empty_const(map)		cpus_empty(map)
--#define cpus_copy_const(map1, map2)	do { map1 = (cpumask_t)map2; } while (0)
--#define cpus_weight_const(map)		cpus_weight(map)
--#define first_cpu_const(map)		first_cpu(map)
--#define next_cpu_const(cpu, map)	next_cpu(cpu, map)
--
--/* only ever use this for things that are _never_ used on large boxen */
--#define cpus_coerce_const(map)		cpus_coerce(map)
--#define any_online_cpu_const(map)	any_online_cpu(map)
--
--#endif /* __ASM_GENERIC_CPUMASK_CONST_VALUE_H */
-Index: 2.6.7-rc2-mm2/include/asm-generic/cpumask_up.h
+--- 2.6.7-rc2-mm2.orig/include/asm-i386/mach-summit/mach_apic.h	2004-06-03 06:42:03.000000000 -0700
++++ 2.6.7-rc2-mm2/include/asm-i386/mach-summit/mach_apic.h	2004-06-03 07:08:00.000000000 -0700
+@@ -140,14 +140,14 @@
+ {
+ }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+ 	int num_bits_set;
+ 	int cpus_found = 0;
+ 	int cpu;
+ 	int apicid;	
+ 
+-	num_bits_set = cpus_weight_const(cpumask);
++	num_bits_set = cpus_weight(cpumask);
+ 	/* Return id to all */
+ 	if (num_bits_set == NR_CPUS)
+ 		return (int) 0xFF;
+@@ -155,10 +155,10 @@
+ 	 * The cpus in the mask must all be on the apic cluster.  If are not 
+ 	 * on the same apicid cluster return default value of TARGET_CPUS. 
+ 	 */
+-	cpu = first_cpu_const(cpumask);
++	cpu = first_cpu(cpumask);
+ 	apicid = cpu_to_logical_apicid(cpu);
+ 	while (cpus_found < num_bits_set) {
+-		if (cpu_isset_const(cpu, cpumask)) {
++		if (cpu_isset(cpu, cpumask)) {
+ 			int new_apicid = cpu_to_logical_apicid(cpu);
+ 			if (apicid_cluster(apicid) != 
+ 					apicid_cluster(new_apicid)){
+Index: 2.6.7-rc2-mm2/include/asm-i386/mach-visws/mach_apic.h
 ===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-generic/cpumask_up.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-generic/cpumask_up.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,59 +0,0 @@
--#ifndef __ASM_GENERIC_CPUMASK_UP_H
--#define __ASM_GENERIC_CPUMASK_UP_H
--
--#define cpus_coerce(map)	(map)
--
--#define cpu_set(cpu, map)		do { (void)(cpu); cpus_coerce(map) = 1UL; } while (0)
--#define cpu_clear(cpu, map)		do { (void)(cpu); cpus_coerce(map) = 0UL; } while (0)
--#define cpu_isset(cpu, map)		((void)(cpu), cpus_coerce(map) != 0UL)
--#define cpu_test_and_set(cpu, map)	((void)(cpu), test_and_set_bit(0, &(map)))
--
--#define cpus_and(dst, src1, src2)					\
--	do {								\
--		if (cpus_coerce(src1) && cpus_coerce(src2))		\
--			cpus_coerce(dst) = 1UL;				\
--		else							\
--			cpus_coerce(dst) = 0UL;				\
--	} while (0)
--
--#define cpus_or(dst, src1, src2)					\
--	do {								\
--		if (cpus_coerce(src1) || cpus_coerce(src2))		\
--			cpus_coerce(dst) = 1UL;				\
--		else							\
--			cpus_coerce(dst) = 0UL;				\
--	} while (0)
--
--#define cpus_clear(map)			do { cpus_coerce(map) = 0UL; } while (0)
--
--#define cpus_complement(map)						\
--	do {								\
--		cpus_coerce(map) = !cpus_coerce(map);			\
--	} while (0)
--
--#define cpus_equal(map1, map2)		(cpus_coerce(map1) == cpus_coerce(map2))
--#define cpus_empty(map)			(cpus_coerce(map) == 0UL)
--#define cpus_addr(map)			(&(map))
--#define cpus_weight(map)		(cpus_coerce(map) ? 1UL : 0UL)
--#define cpus_shift_right(d, s, n)	do { cpus_coerce(d) = 0UL; } while (0)
--#define cpus_shift_left(d, s, n)	do { cpus_coerce(d) = 0UL; } while (0)
--#define first_cpu(map)			(cpus_coerce(map) ? 0 : 1)
--#define next_cpu(cpu, map)		1
--
--/* only ever use this for things that are _never_ used on large boxen */
--#define cpus_promote(map)						\
--	({								\
--		cpumask_t __tmp__;					\
--		cpus_coerce(__tmp__) = map;				\
--		__tmp__;						\
--	})
--#define cpumask_of_cpu(cpu)		((void)(cpu), cpus_promote(1))
--#define any_online_cpu(map)		(cpus_coerce(map) ? 0 : 1)
--
--/*
-- * um, these need to be usable as static initializers
-- */
--#define CPU_MASK_ALL	1UL
--#define CPU_MASK_NONE	0UL
--
--#endif /* __ASM_GENERIC_CPUMASK_UP_H */
-Index: 2.6.7-rc2-mm2/include/asm-h8300/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-h8300/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-h8300/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_H8300_CPUMASK_H
--#define _ASM_H8300_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_H8300_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-i386/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-i386/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-i386/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_I386_CPUMASK_H
--#define _ASM_I386_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_I386_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-m68k/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-m68k/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-m68k/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_M68K_CPUMASK_H
--#define _ASM_M68K_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_M68K_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-m68knommu/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-m68knommu/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-m68knommu/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_M68KNOMMU_CPUMASK_H
--#define _ASM_M68KNOMMU_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_M68KNOMMU_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-mips/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-mips/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-mips/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_MIPS_CPUMASK_H
--#define _ASM_MIPS_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_MIPS_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-parisc/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-parisc/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-parisc/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_PARISC_CPUMASK_H
--#define _ASM_PARISC_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_PARISC_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-ppc/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-ppc/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-ppc/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_PPC_CPUMASK_H
--#define _ASM_PPC_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_PPC_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-ppc64/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-ppc64/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-ppc64/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_PPC64_CPUMASK_H
--#define _ASM_PPC64_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_PPC64_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-s390/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-s390/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-s390/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_S390_CPUMASK_H
--#define _ASM_S390_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_S390_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-sh/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-sh/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-sh/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_SH_CPUMASK_H
--#define _ASM_SH_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_SH_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-sparc/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-sparc/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-sparc/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_SPARC_CPUMASK_H
--#define _ASM_SPARC_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_SPARC_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-sparc64/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-sparc64/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-sparc64/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_SPARC64_CPUMASK_H
--#define _ASM_SPARC64_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_SPARC64_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-um/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-um/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-um/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_UM_CPUMASK_H
--#define _ASM_UM_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_UM_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-v850/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-v850/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-v850/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_V850_CPUMASK_H
--#define _ASM_V850_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_V850_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-x86_64/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-x86_64/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-x86_64/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_X86_64_CPUMASK_H
--#define _ASM_X86_64_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_X86_64_CPUMASK_H */
-Index: 2.6.7-rc2-mm2/include/asm-ia64/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-ia64/cpumask.h	2004-06-03 07:03:31.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-ia64/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_IA64_CPUMASK_H
--#define _ASM_IA64_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_IA64_CPUMASK_H */
+--- 2.6.7-rc2-mm2.orig/include/asm-i386/mach-visws/mach_apic.h	2004-06-03 06:42:03.000000000 -0700
++++ 2.6.7-rc2-mm2/include/asm-i386/mach-visws/mach_apic.h	2004-06-03 07:08:00.000000000 -0700
+@@ -84,9 +84,9 @@
+ 	return physid_isset(boot_cpu_physical_apicid, phys_cpu_present_map);
+ }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+-	return cpus_coerce_const(cpumask);
++	return cpus_addr(cpumask)[0];
+ }
+ 
+ static inline u32 phys_pkg_id(u32 cpuid_apic, int index_msb)
 
 
 -- 

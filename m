@@ -1,73 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272559AbTHBJs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 05:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272563AbTHBJs6
+	id S272381AbTHBJm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 05:42:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272404AbTHBJm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 05:48:58 -0400
-Received: from web14202.mail.yahoo.com ([216.136.172.144]:48405 "HELO
-	web14202.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S272559AbTHBJsy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 05:48:54 -0400
-Message-ID: <20030802094854.19141.qmail@web14202.mail.yahoo.com>
-Date: Sat, 2 Aug 2003 02:48:54 -0700 (PDT)
-From: Erik McKee <camhanaich99@yahoo.com>
-Subject: minixfs question
-To: linux-kernel@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 2 Aug 2003 05:42:57 -0400
+Received: from tux.rsn.bth.se ([194.47.143.135]:40598 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S272381AbTHBJmz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 05:42:55 -0400
+Subject: Re: Linux 2.4.22-pre10
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030801224753.GA912@alpha.home.local>
+References: <Pine.LNX.4.44.0308011316490.3656-100000@logos.cnet>
+	 <20030801224753.GA912@alpha.home.local>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1059817370.1868.5.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 02 Aug 2003 11:42:50 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sat, 2003-08-02 at 00:47, Willy Tarreau wrote:
 
-Let me apologize in advance for any ignorance I might exhibit here.  I am
-curious about the following code, from minix_new_inode in fs/minix/bitmap.c. 
-The if statement on line 232 checks !bh.  It seems that if bh was null at this
-point, then sbi->s_imap_blocks == 0, in which case we fail the other half of
-the if.  If bh == NULL in any other case, wouldn't the bh->b_data in the
-minix_find_first_zero_bit call be deref. a NULL pointer, which would trigger a
-kernel panic or some such terminal event?  Also, why does at least this
-filesystem use minix specific version of these bitmap operations?  Isn't there
-a generic set of these operations?  In other functions, it seems like these
-tests have to be protected by the BKL?  Isn't the point of things like
-test_and_set and test_and_clear that they are atomic?  If so, why the need for
-the BKL (for example, minix_free_block)?  Also I noticed this these files seem
-to have very sparse commenting, would a patch consisting of germane commenting
-for this fs be welcome?  Also, would it be beneficial if this fs was converted
-to use one or more minixfs specific locks instead of the BKL?
+> This is the _first_ vanilla 2.4 kernel which I can run _unpatched_ on my
+> customer's firewalls. This one was stressed all the day at 4000 hits/s.
+> Subsystems and drivers include aic7xxx, cpqarray, bonding, tulip, eepro100,
+> sunhme, PIII / PPro SMP, netfilter. Everything looks fine and smooth even at a
+> sustained write rate of 900 kB/s (logs). I only loose and corrupt significant
+> number of firewall logs above 3000 lines/s if I don't extend the log buffer
+> size. I've been using the fairly simple attached patch for a few months now
+> with success (no loss up to 5600 lines/s). I believe Randy Dunlap has already
+> got nearly the same one included in 2.5/2.6, so may want to include it too
+> since it's not really intrusive, although my customer can survive with one
+> patch :-)
 
-223         j = 8192;
-224         bh = NULL;
-225         *error = -ENOSPC;
-226         lock_kernel();
-227         for (i = 0; i < sbi->s_imap_blocks; i++) {
-228                 bh = sbi->s_imap[i];
-229                 if ((j = minix_find_first_zero_bit(bh->b_data, 8192)) <
-8192)
-230                         break;
-231         }
-232         if (!bh || j >= 8192) {
-233                 unlock_kernel();
-234                 iput(inode);
-235                 return NULL;
-236         }
-237         if (minix_test_and_set_bit(j,bh->b_data)) {     /* shouldn't happen
-*/
-238                 printk("new_inode: bit already set");
-239                 unlock_kernel();
-240                 iput(inode);
-241                 return NULL;
-242         }
-243         unlock_kernel();
+Have you tried using the ULOG target and the ulogd userspace daemon?
+It uses netlink and can batch several entries together before it sends
+them to userspace. Works a lot better than syslog.
 
-TIA
-Erik McKee
-*Who is hoping this fs is a good place to start learning about fs in linux.*
-Please cc me in replies, as I am not on list.
+Are you using ip_conntrack on that machine? if you are, be aware that
+ip_conntrack doesn't scale well at all on SMP. It's beeing worked on.
 
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com
+-- 
+/Martin

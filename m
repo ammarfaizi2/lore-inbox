@@ -1,79 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbVAUVUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262516AbVAUVWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262508AbVAUVUY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 16:20:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbVAUVUY
+	id S262516AbVAUVWU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 16:22:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbVAUVWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 16:20:24 -0500
-Received: from gizmo12ps.bigpond.com ([144.140.71.43]:64441 "HELO
-	gizmo12ps.bigpond.com") by vger.kernel.org with SMTP
-	id S262508AbVAUVUQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 16:20:16 -0500
-Message-ID: <41F17208.5000709@bigpond.net.au>
-Date: Sat, 22 Jan 2005 08:20:08 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Fri, 21 Jan 2005 16:22:19 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:49918 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262519AbVAUVVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 16:21:25 -0500
+To: Kevin Corry <kevcorry@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Benjamin LaHaise <bcrl@kvack.org>,
+       Alasdair G Kergon <agk@redhat.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: device-mapper: fix TB stripe data corruption
+X-Message-Flag: Warning: May contain useful information
+References: <20050121181203.GI10195@agk.surrey.redhat.com>
+	<20050121203354.GC2265@kvack.org>
+	<200501211512.45524.kevcorry@us.ibm.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Fri, 21 Jan 2005 13:20:31 -0800
+In-Reply-To: <200501211512.45524.kevcorry@us.ibm.com> (Kevin Corry's message
+ of "Fri, 21 Jan 2005 15:12:45 -0600")
+Message-ID: <52651qqy1s.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>,
-       "Marc E. Fiuczynski" <mef@CS.Princeton.EDU>
-CC: Jens Axboe <axboe@suse.de>, Valdis.Kletnieks@vt.edu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Han <xiphux@gmail.com>
-Subject: Re: [ANNOUNCE][RFC] plugsched-2.0 patches ...
-References: <NIBBJLJFDHPDIBEEKKLPIEDNDIAA.mef@cs.princeton.edu> <41F13120.60108@kolivas.org>
-In-Reply-To: <41F13120.60108@kolivas.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 21 Jan 2005 21:20:32.0113 (UTC) FILETIME=[09E78E10:01C4FFFF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> Marc E. Fiuczynski wrote:
-> 
->> Paraphrasing Jens Axboe:
->>
->>> I don't think you can compare [plugsched with the plugio framework].
->>> Yes they are both schedulers, but that's about where the 'similarity'
->>> stops. The CPU scheduler must be really fast, overhead must be kept
->>> to a minimum. For a disk scheduler, we can affort to burn cpu cycles
->>> to increase the io performance. The extra abstraction required to
->>> fully modularize the cpu scheduler would come at a non-zero cost as
->>> well, but I bet it would have a larger impact there. I doubt you
->>> could measure the difference in the disk scheduler.
->>
->>
->>
->> Modularization usually is done through a level of indirection (function
->> pointers).  I have a can of "indirection be gone" almost ready to 
->> spray over
->> the plugsched framework that would reduce the overhead to zero at 
->> runtime.
->> I'd be happy to finish that work if it makes it more palpable to 
->> integrate a
->> plugsched framework into the kernel?
-> 
-> 
-> The indirection was a minor point. On modern cpus it was suggested by 
-> wli that this would not be a demonstrable hit in perormance. Having said 
-> that, I'm sure Peter would be happy for another developer. I know how 
-> tiring and lonely it can feel maintaining such a monster.
+    Kevin> We have to take a mod of the chunk value and the number of
+    Kevin> stripes (which can be a non-power-of-2, so a shift won't
+    Kevin> work). It's been my understanding that you couldn't mod a
+    Kevin> 64-bit value with a 32-bit value in the kernel.
 
-Indeed, the more hands the lighter the load.
+If I understand you correctly, do_div() (defined in <asm/div64.h>)
+does what you need.  Look at asm-generic/div64.h for a good
+description of the precise semantics of do_div().
 
-Another issue (than indirection) that I think needs to be addressed at 
-some stage is freeing up the memory occupied by the code of the 
-schedulers that were unlucky not to be picked.  Something like what 
-__init offers only more selective.
-
-And the option of allowing more than one CPU per run queue is another 
-direction that needs addressing.  This could allow a better balance 
-between the good scheduling fairness that is obtained by using a single 
-run queue with the better scalability obtained by using separate run queues.
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+ - Roland

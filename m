@@ -1,63 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268174AbUIPP5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268137AbUIPP5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268174AbUIPP5Q (ORCPT <rfc822;willy@w.ods.org>);
+	id S268137AbUIPP5Q (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 16 Sep 2004 11:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268355AbUIPP5G
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268295AbUIPP45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 11:57:06 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:2486 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268176AbUIPPxE (ORCPT
+	Thu, 16 Sep 2004 11:56:57 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:19937 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268130AbUIPPqU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 11:53:04 -0400
-Subject: Re: input: Disable the AUX LoopBack command in i8042.c on Compaq
-	ProLiant
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: vojtech@suse.cz
-In-Reply-To: <200409161509.i8GF90iJ021552@hera.kernel.org>
-References: <200409161509.i8GF90iJ021552@hera.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uukXCIB3lqfy/CkUgFP7"
-Organization: Red Hat UK
-Message-Id: <1095349977.2698.17.camel@laptop.fenrus.com>
+	Thu, 16 Sep 2004 11:46:20 -0400
+Date: Thu, 16 Sep 2004 08:45:49 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Stelian Pop <stelian@popies.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC, 2.6] a simple FIFO implementation
+Message-Id: <20040916084549.4c2b59f5.pj@sgi.com>
+In-Reply-To: <20040916140936.GC3146@crusoe.alcove-fr>
+References: <20040913135253.GA3118@crusoe.alcove-fr>
+	<20040915153013.32e797c8.akpm@osdl.org>
+	<20040916064320.GA9886@deep-space-9.dsnet>
+	<20040916000438.46d91e94.akpm@osdl.org>
+	<20040916104535.GA3146@crusoe.alcove-fr>
+	<20040916065750.106fc170.pj@sgi.com>
+	<20040916140936.GC3146@crusoe.alcove-fr>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 16 Sep 2004 17:52:57 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Did you read my second patch ?
 
---=-uukXCIB3lqfy/CkUgFP7
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+  Not closely enough ... ;).  Yes - your removal of 'len' does
+  indeed seem to have addressed Andrews key initial comment.
 
-On Wed, 2004-06-02 at 13:44, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1722.87.1, 2004/06/02 13:44:20+02:00, vojtech@suse.cz
->=20
-> 	input: Disable the AUX LoopBack command in i8042.c on Compaq ProLiant
-> 	       8-way Xeon ProFusion systems, as it causes crashes and reboots
-> 	       on these machines. DMI data is used for determining if the
-> 	       workaround should be enabled.
-> =09
-> 	Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
->=20
+> 'size' field instead of an 'end'
 
-is there any reason you do this in dmi_scan.c and not via the "new"
-since some time method where the user gives the dmi code a table with
-callbacks instead ????
+  The start, end, put, get names in that *.pdf might be a
+  bit quicker to read.
 
+  I suspect that more readers would come away with the right
+  understanding, first time, if you struct was (taken roughly
+  from the *.pdf, using an 'end' one bigger than *.pdf uses):
 
---=-uukXCIB3lqfy/CkUgFP7
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+	/* kfifo is empty, not full, when head == tail */
+	struct kfifo {
+	    unsigned char *start;	/* [start, end) */
+	    unsigned char *end;
+	    unsigned char *head;	/* next input char goes in here */
+	    unsigned char *tail;	/* next output char comes from here */
+	    spinlock_t lock;
+	};
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+  then your structure:
 
-iD8DBQBBSbbZxULwo51rQBIRAjiUAKCDrM51bxyVOlxUe0PvPUFDLTdi5QCfUwtl
-XH8WwT8sYbh5tNxHBtmvibg=
-=EbYn
------END PGP SIGNATURE-----
+	struct kfifo {
+	    unsigned int head;
+	    unsigned int tail;
+	    unsigned int size;
+	    spinlock_t lock;
+	    unsigned char *buffer;
+	};
 
---=-uukXCIB3lqfy/CkUgFP7--
+  Differences include names, all pointers, ordering of struct elements,
+  and comments.  Perhaps some of these differences will look better to
+  you than others.
 
+> I wonder if replacing the kfifo_get/kfifo_put implementations with
+> something like:
+
+  Quite possibly.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

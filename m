@@ -1,49 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131791AbQLMU6C>; Wed, 13 Dec 2000 15:58:02 -0500
+	id <S131525AbQLMVKS>; Wed, 13 Dec 2000 16:10:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131858AbQLMU5w>; Wed, 13 Dec 2000 15:57:52 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:33034 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S131789AbQLMU5n>;
-	Wed, 13 Dec 2000 15:57:43 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200012132027.XAA15957@ms2.inr.ac.ru>
-Subject: Re: linux ipv6 questions.  bugs?
-To: pete@research.NETsol.COM (Pete Toscano)
-Date: Wed, 13 Dec 2000 23:27:00 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001213144558.L1139@tesla.admin.cto.netsol.com> from "Pete Toscano" at Dec 13, 0 11:15:12 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S131718AbQLMVKJ>; Wed, 13 Dec 2000 16:10:09 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:7697 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S131525AbQLMVJz>; Wed, 13 Dec 2000 16:09:55 -0500
+Date: Wed, 13 Dec 2000 21:37:17 +0100
+From: Christian Ullrich <chris@chrullrich.de>
+To: linux-kernel@vger.kernel.org
+Subject: Slow NFS mounting with 2.2.18
+Message-ID: <20001213213717.A9885@christian.chrullrich.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+X-M$-Free-System: since 1999-11-28
+X-Current-Uptime: 0 d, 23:52:59 h
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello!
 
-> 0.  whenever i ping6 the loopback interface (::1/128), all echo requests
-> seem to be dropped and i get no echo replies.  is this correct?
+After changing kernels from 2.2.17 to 2.2.18 I found that NFS
+mounts now take ages. (Well, 15 seconds.) With 2.2.17, they went
+through in about half a second. Once the mount is done, all
+operations seem to run with the usual speed.
 
-Your guess? 8) Of course, it is incorrect. I even have no idea
-how it is possible to put system into such sad state.
-Though... probably, you forgot to up loopback.
+The client is vanilla 2.2.18, the server is vanilla 2.2.17.
+The fs to mount from the server is reiserfs, as is the mount
+point on the client. Both machines are connected to each other
+and nothing else.
 
+I tried 2.2.18's nfs module both with and without NFSv3 support.
 
-> the destination mac address is set to the linux box's mac address and
-> the source mac address is set to 0:0:0:0:0:0.
+syslog on the client:
+Dec 13 21:26:22 christian automount[9814]: attempting to mount entry /mnt/mp3
+Dec 13 21:26:22 christian automount[9964]: lookup(file): looking up mp3
+Dec 13 21:26:22 christian automount[9964]: lookup(file): mp3 -> -ro,rsize=8192^I
+Dec 13 21:26:22 christian automount[9964]: parse(sun): expanded entry: -ro,rsize
+Dec 13 21:26:22 christian automount[9964]: parse(sun): dequote("ro,rsize=8192^I^
+Dec 13 21:26:22 christian automount[9964]: parse(sun): gathered options: ro,rsiz
+Dec 13 21:26:22 christian automount[9964]: parse(sun): dequote("ser1:/mnt/mp3") 
+Dec 13 21:26:22 christian automount[9964]: parse(sun): core of entry: options=ro
+Dec 13 21:26:22 christian automount[9964]: parse(sun): mounting root /mnt, mount
+Dec 13 21:26:22 christian automount[9964]: mount(nfs):  root=/mnt name=mp3/ what
+Dec 13 21:26:22 christian automount[9964]: mount(nfs): nfs options="ro,rsize=819
+Dec 13 21:26:22 christian automount[9964]: mount(nfs): calling mkdir_path /mnt/m
+Dec 13 21:26:22 christian automount[9964]: mount(nfs): calling mount -t nfs -s -
+Dec 13 21:26:22 christian kernel: nfs warning: mount version older than kernel
+Dec 13 21:26:27 christian kernel: portmap: too small RPC reply size (0 bytes)
+Dec 13 21:26:37 christian automount[9964]: mount(nfs): mounted ser1:/mnt/mp3 on 
+Dec 13 21:26:37 christian kernel: portmap: too small RPC reply size (0 bytes)
 
-I think it is consequence of above. When loopback interface is missing,
-networking does not work.
+syslog on the server:
 
+Dec 13 21:26:23 ser1 mountd[153]: NFS mount of /mnt/mp3 attempted from 192.168.0.2 
+Dec 13 21:26:23 ser1 mountd[153]: /mnt/mp3 has been mounted by 192.168.0.2 
 
-> other way around?  this would explain why the openbsd box doesn't
-> respond to the linux box's n.s. until it starts looking at all the
-> packets in promisc mode, right?
+The server's clock is about one second ahead, so it looks as if the
+server completed the job in the same second, and the client slept
+for a while. The mount process stayed in D state all the time.
 
-Rather it means that openbsd is buggy, its stack accepts packets
-not destined to it. It cannot react to those strange packets, which
-you have just described.
+-- 
+Christian Ullrich		     Registrierter Linux-User #125183
 
-Alexey
+"Sie können nach R'ed'mond fliegen -- aber Sie werden sterben"
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

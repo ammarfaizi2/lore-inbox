@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbTLEEXq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 23:23:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTLEEXq
+	id S263060AbTLEEcC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 23:32:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbTLEEcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 23:23:46 -0500
-Received: from mail015.syd.optusnet.com.au ([211.29.132.161]:58080 "EHLO
-	mail015.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262048AbTLEEXp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 23:23:45 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	Thu, 4 Dec 2003 23:32:02 -0500
+Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:10979 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S263060AbTLEEcA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 23:32:00 -0500
+Message-ID: <3FD00A3B.2030403@backtobasicsmgmt.com>
+Date: Thu, 04 Dec 2003 21:31:55 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back to Basics Network Management
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       =?ISO-8859-1?Q?David_Mart=EDnez_Moreno?= <ender@debian.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       clubinfo.servers@adi.uam.es, Ingo Molnar <mingo@elte.hu>,
+       Nathan Scott <nathans@sgi.com>, Mihai RUSU <dizzy@roedu.net>
+Subject: Re: Errors and later panics in 2.6.0-test11.
+References: <200312031417.18462.ender@debian.org>	<Pine.LNX.4.58.0312030757120.5258@home.osdl.org>	<200312031747.16927.ender@debian.org>	<Pine.LNX.4.58.0312030916080.6950@home.osdl.org>	<20031204124342.GD1086@suse.de>	<20031204140738.GE1086@suse.de> <16335.63095.266710.554162@notabene.cse.unsw.edu.au>
+In-Reply-To: <16335.63095.266710.554162@notabene.cse.unsw.edu.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16336.2094.950232.375620@wombat.chubb.wattle.id.au>
-Date: Fri, 5 Dec 2003 15:23:10 +1100
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Paul Adams <padamsdev@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-In-Reply-To: <3FCFCC3E.8050008@cyberone.com.au>
-References: <20031204235055.62846.qmail@web21503.mail.yahoo.com>
-	<3FCFCC3E.8050008@cyberone.com.au>
-X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Nick" == Nick Piggin <piggin@cyberone.com.au> writes:
+Neil Brown wrote:
 
-Nick> Paul Adams wrote:
+> After staring at the code over and ove again, I finally saw the
+> assumption that I was making that was invalid.  I also found a
+> possible data-corruption bug in the process.
+> 
+> If you have been having problems with raid5, please try this patch and
+> see if it helps.
 
+Initial indications are good here, my system (using XFS on linear DM 
+over a 6-disk RAID-5) just passed a bonnie++ run while the array was 
+resyncing, which it has not done without oopsing before.
 
-Nick> Seriously: What about specifically a module that includes the
-Nick> Linux Kernel's headers and uses its APIs? I don't think you
-Nick> could say that is definitely not a derivative work.
-
-As far as I know, interfacing to a published API doesn't infringe
-copyright.
-
-Note:
-
-
-Paul>   A standard filter is that you eliminate an element if "The
-Paul> element's expression was dictated by external factors, such as
-Paul> using an existing file format or interoperating with another
-Paul> program."  Computer Associates v. Altai specifically discusses
-Paul> the need to filter elements related to "compatibility
-Paul> requirements of other programs with which a program is designed
-Paul> to operate in conjunction." 
-Paul> http://www.bitlaw.com/source/cases/copyright/altai.html
-
-
-If you don't accept this, then maybe you have to start accepting SCO's
-claims on JFS, XFS, &c.
-
-(Disclaimer: I am not a lawyer)
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*

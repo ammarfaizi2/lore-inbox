@@ -1,80 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281454AbRKRVqI>; Sun, 18 Nov 2001 16:46:08 -0500
+	id <S281458AbRKRV4V>; Sun, 18 Nov 2001 16:56:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280132AbRKRVp7>; Sun, 18 Nov 2001 16:45:59 -0500
-Received: from c0mailgw.prontomail.com ([216.163.180.10]:6480 "EHLO
-	c0mailgw07.prontomail.com") by vger.kernel.org with ESMTP
-	id <S281458AbRKRVpu>; Sun, 18 Nov 2001 16:45:50 -0500
-Message-ID: <3BF82BF8.51A8F1D4@starband.net>
-Date: Sun, 18 Nov 2001 16:45:28 -0500
-From: war <war@starband.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S280132AbRKRV4C>; Sun, 18 Nov 2001 16:56:02 -0500
+Received: from mx1out.umbc.edu ([130.85.253.51]:57583 "EHLO mx1out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S281458AbRKRVzn>;
+	Sun, 18 Nov 2001 16:55:43 -0500
+Date: Sun, 18 Nov 2001 16:55:41 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Anders Peter Fugmann <afu@fugmann.dhs.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: SiS630 chipsets && linux 2.4.x kernel == snails pace?
+In-Reply-To: <3BF82B1E.8090305@fugmann.dhs.org>
+Message-ID: <Pine.SGI.4.31L.02.0111181650580.12243284-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
-To: =?iso-8859-1?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Swap
-In-Reply-To: <3BF82443.5D3E2E11@starband.net> <E165ZRi-000718-00@mauve.csi.cam.ac.uk> <3BF827E1.5A2C7427@starband.net> <3BF82B3C.8070303@wanadoo.fr>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I completely agree with you.
-p3/866/1024MB here.
-Everything seems much faster; and I can run 512 processes of varying memory
-"weights" without a hitch.
+On Sun, 18 Nov 2001, Anders Peter Fugmann wrote:
 
-François Cami wrote:
+> Hmm. It seems that these machines are in fact not identical.
+> I would strongly suggest that you try to boot either one with another
+> kernel, and see how it reacts.
+>
+> (if labrat6 is still fast using a 2.4 kernel, or if labrat5 is still
+> slow with a 2.2 kernel, you have successfully shown a hardware/BIOS
+> differnce between the two machines.)
 
-> I don't understand why it should be better with swap then... I mean,
-> my comp seems to run so much faster (it doesn't take time to switch
-> from one app to another, i mean) *without* swap.
-> And I see no benefits to having an active swap, other than making my
-> hard drive work harder.
->
-> comp is PIII933/512MB on ATA100
-> kernel is 2.4.14 with XFS patch.
->
-> François
->
-> war wrote:
->
-> > Well, without the swap, everything seems to be about 100% more responsive when
-> > I execute any task.
-> > I see how it works now.
-> >
-> > James A Sutherland wrote:
-> >
-> >
-> >>On Sunday 18 November 2001 9:12 pm, war wrote:
-> >>
-> >>>It is amazing that I could run all of that stuff, because:
-> >>>
-> >>>When I have swap on, and if I run all of those programs, 200-400MB of
-> >>>swap is used.
-> >>>
-> >>Yep. There's a reason for that: the kernel is *ALWAYS* able to swap pages out
-> >>to disk - even without "swap space". Disabling swapspace simply forces the
-> >>kernel to swap out more code, since it cannot swap out any data.
-> >>
-> >>(This is why you can still get "disk thrashing" without any swap - in fact,
-> >>it's more likely in this case than it is with some swap added - you are just
-> >>forcing your binaries to take more of the swapping load instead.)
-> >>
-> >>So: with swapspace, the kernel swaps out a few hundred Mb of unused data, to
-> >>make room for more code. Without it, the kernel is forced to swap out code
-> >>pages instead. The big news here is...?
-> >>
-> >>James.
-> >>
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> >
+labrat5+linux2.2.19 = decent response times
+labrat6+linux2.2.19 = decent response times
+firewall system + linux2.2.19 = decent response time
+
+labrat5+linux2.4.x, where X=4,7,12 = painfully slow
+labrat6+linux2.4.x, where X=4,7,12 = painfully slow
+firewall system + linux2.4.x, where X=7 = painfully slow
+
+> Another idea could be not to compile in SIS support.
+> It might be that the driver is broken. The 2.2 kernel does not have
+> support for the chipset, and uses general drivers instead. That should
+> explain why throughput is higher in 2.4 kernel.
+
+I'll try it. I just may reboot into 2.2.19, so that the compiles won't
+take until kernel 2.6.2 is out. :/
+
+I'm also thinking of calling up the hardware vendor and suggesting that
+these boards be used for target practise, as the Intel 810 boards that
+they were _supposed_ to replace appear to be superior.
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 

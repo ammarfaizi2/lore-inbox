@@ -1,35 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAIPUN>; Tue, 9 Jan 2001 10:20:13 -0500
+	id <S129742AbRAIPVn>; Tue, 9 Jan 2001 10:21:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129742AbRAIPUE>; Tue, 9 Jan 2001 10:20:04 -0500
-Received: from mail2.megatrends.com ([155.229.80.11]:27400 "EHLO
-	mail2.megatrends.com") by vger.kernel.org with ESMTP
-	id <S129627AbRAIPT4>; Tue, 9 Jan 2001 10:19:56 -0500
-Message-ID: <1355693A51C0D211B55A00105ACCFE64E95139@ATL_MS1>
-From: Venkatesh Ramamurthy <Venkateshr@ami.com>
-To: "'Stephen C. Tweedie'" <sct@redhat.com>,
-        Venkatesh Ramamurthy <Venkateshr@ami.com>
-Cc: "'Pavel Machek'" <pavel@suse.cz>, adefacc@tin.it,
-        linux-kernel@vger.kernel.org
-Subject: RE: Confirmation request about new 2.4.x. kernel limits
-Date: Tue, 9 Jan 2001 10:15:34 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain
+	id <S130870AbRAIPVd>; Tue, 9 Jan 2001 10:21:33 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:3044 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129742AbRAIPV2>;
+	Tue, 9 Jan 2001 10:21:28 -0500
+Date: Tue, 9 Jan 2001 15:17:25 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        "David S. Miller" <davem@redhat.com>, hch@caldera.de,
+        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+Message-ID: <20010109151725.D9321@redhat.com>
+In-Reply-To: <20010109141806.F4284@redhat.com> <Pine.LNX.4.30.0101091532150.4368-100000@e2>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.30.0101091532150.4368-100000@e2>; from mingo@elte.hu on Tue, Jan 09, 2001 at 03:40:56PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Any memory over 1GB is bounce-buffered, but we don't use that memory
-> for anything other than process data pages or file cache, so only
-> swapping and disk IO to regular files gets the extra copy.  In
-> particular, things like network buffers are still all kept in the low
-> 1GB so never need to be buffered.
-	[Venkatesh Ramamurthy]  If anything over 1GB is bounce buffered than
-what is the purpose of setting the pci_dev->dma_mask field.  On a IA32
-system we set it to 32 1's and IA64 to 64 1's - Venkat
->  
+Hi,
+
+On Tue, Jan 09, 2001 at 03:40:56PM +0100, Ingo Molnar wrote:
 > 
+> i'd love to first see these kinds of applications (under Linux) before
+> designing for them.
+
+Things like Beowulf have been around for a while now, and SGI have
+been doing that sort of multimedia stuff for ages.  I don't think that
+there's any doubt that there's a demand for this.
+ 
+> Eg. if an IO operation (eg. streaming video webcast)
+> does a DMA from a camera card to an outgoing networking card, would it be
+> possible to access the packet data in case of a TCP retransmit? 
+
+I'm not thinking about pci-to-pci as much as pci-to-memory-to-pci
+with no memory-to-memory copies.  That's no different to writepage:
+doing a zero-copy writepage on a page cache page still gives you the
+problem of maintaining retransmit semantics if a user mmaps the file
+or writes to it after your initial transmit.
+
+And if you want other examples, we have applications such as Oracle
+who want to do raw disk IO in chunks of at least 128K.  Going through
+a page-by-page interface for large IOs is almost as bad as the
+existing buffer_head-by-buffer_head interface, and we have already
+demonstrated that to be a bottleneck in the block device layer.
+
+Jes has also got hard numbers for the performance advantages of
+jumbograms on some of the networks he's been using, and you ain't
+going to get udp jumbograms through a page-by-page API, ever.
+
+Cheers,
+ Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

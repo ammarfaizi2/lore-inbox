@@ -1,76 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261561AbSI2FgI>; Sun, 29 Sep 2002 01:36:08 -0400
+	id <S262394AbSI2FpX>; Sun, 29 Sep 2002 01:45:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262394AbSI2FgI>; Sun, 29 Sep 2002 01:36:08 -0400
-Received: from paloma14.e0k.nbg-hannover.de ([62.181.130.14]:56470 "HELO
-	paloma14.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S261561AbSI2FgH> convert rfc822-to-8bit; Sun, 29 Sep 2002 01:36:07 -0400
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
-Subject: Re: System very unstable
-Date: Sun, 29 Sep 2002 07:41:40 +0200
-User-Agent: KMail/1.4.3
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S262395AbSI2FpX>; Sun, 29 Sep 2002 01:45:23 -0400
+Received: from [203.117.131.12] ([203.117.131.12]:36568 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S262394AbSI2FpW>; Sun, 29 Sep 2002 01:45:22 -0400
+Message-ID: <3D9694AC.9020907@metaparadigm.com>
+Date: Sun, 29 Sep 2002 13:50:36 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209290741.40679.Dieter.Nuetzel@hamburg.de>
+To: Elladan <elladan@eskimo.com>
+Cc: felix.seeger@gmx.de, "David S. Miller" <davem@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: System very unstable
+References: <200209281155.32668.felix.seeger@gmx.de> <20020928.025900.58828001.davem@redhat.com> <200209281233.21897.felix.seeger@gmx.de> <20020928.033510.40857147.davem@redhat.com> <3D958EF5.7080300@metaparadigm.com> <20020929000056.GB19765@eskimo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-09-29 at 00:42, Kristofer T. Karas wrote:
-> On Sat, 2002-09-28 at 07:34, David S. Miller wrote:
-> > This is old news, they opensource the drivers at a later date,
-> > this is how it's always worked with ATI.
->
-> Note that ATI now has a binary driver available that supports the 8500,
-> written by their German development group.  Available via their standard
-> "find a driver" page, using Linux as OS.  See, for example,
-> http://mirror.ati.com/support/products/pc/radeon8500/linux/radeon8500 \
-> linuxdrivers.html?cboOS=LinuxXFree86&cboProducts=RADEON+8500 \
-> LE&cmdNext=GO%21
->
-> The scripts that build a kernel module and link it against their library
-> work pretty well and are, to their credit, not impossibly tied to one
-> distro over another.  :-)  I run Slackware.
->
->        ktk@madmax:~$ glxgears 
->        10474 frames in 5.0 seconds = 2094.800 FPS
->        10797 frames in 5.0 seconds = 2159.400 FPS
+On 09/29/02 08:00, Elladan wrote:
+> On Sat, Sep 28, 2002 at 07:13:57PM +0800, Michael Clark wrote:
+> 
+>>On 09/28/02 18:35, David S. Miller wrote:
+>>
+>>>  From: Felix Seeger <felix.seeger@gmx.de>
+>>>  Date: Sat, 28 Sep 2002 12:33:21 +0200
+>>>  
+>>>  What card is good (performance for games and 
+>>>  a acceptable licenze for kernel developers)?
+>>>
+>>>ATI Radeon is pretty fast and all except the very latest chips have
+>>>opensource drivers.
+>>
+>>Radeon 7500 is currently the fastest board with an opensource
+>>driver that supports 3D. 8500 XFree support is currently 2D only,
+>>although apparently work on the opensource GL driver is underway.
+> 
+> 
+> Unfortunately, in my experience the open source Radeon 7500 drivers are
+> so unstable as to be basically unusable.  Plus, they seem to still be
+> basically incompatible with a lot of 3d software.
 
-This is slower than the current DRI can do ;-)
+Don't know what version of X you've been running, but i haven't
+had a problem for over 8 months (since XFree86 4.2). Before then,
+the 4.1.99 CVS was needed for radeon support which was of course
+a developer branch, although i never experienced the sort of problems
+you describe.
 
-dual Athlon MP 1900+ (but all XFree and Mesa stuff is single threaded 
-currently):
+Definately rock solid and stable on my 7500 mobility.
 
-Mesa/demos> ./gears
-r200CreateScreen
-6465 frames in  5.000 seconds = 1293.000 FPS
-11955 frames in  5.000 seconds = 2391.000 FPS
-11954 frames in  5.000 seconds = 2390.800 FPS
-11955 frames in  5.000 seconds = 2391.000 FPS
-11954 frames in  5.000 seconds = 2390.800 FPS
+~mc
 
-I wonder why nobody point to the place were "the real development" is?
-
-dri.sourceforge.net
-or the new test site (under construktion)
-http://lfm.sourceforge.net/dritest/
-
-Xv is supported with the current trunk, too.
-If you need the video capabilities take a look at the GATOS page.
-http://gatos.sourceforge.net/
-
-Cheers,
-	Dieter
-
--- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel at hamburg.de (replace at with @)

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315388AbSH0ITR>; Tue, 27 Aug 2002 04:19:17 -0400
+	id <S315406AbSH0Iil>; Tue, 27 Aug 2002 04:38:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315406AbSH0ITR>; Tue, 27 Aug 2002 04:19:17 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25096 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315388AbSH0ITR>; Tue, 27 Aug 2002 04:19:17 -0400
-Date: Tue, 27 Aug 2002 09:23:16 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jeff Chua <jchua@fedex.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] initrd >24MB corruption
-Message-ID: <20020827092316.A13184@flint.arm.linux.org.uk>
-References: <1030355656.16618.32.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208270758080.15296-100000@boston.corp.fedex.com>
+	id <S315415AbSH0Iil>; Tue, 27 Aug 2002 04:38:41 -0400
+Received: from [62.40.73.125] ([62.40.73.125]:58257 "HELO Router")
+	by vger.kernel.org with SMTP id <S315406AbSH0Iik>;
+	Tue, 27 Aug 2002 04:38:40 -0400
+Date: Tue, 27 Aug 2002 10:42:44 +0200
+From: Jan Hudec <bulb@cimice.maxinet.cz>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Jan Hudec <bulb@vagabond.cybernet.cz>, bulb@cimice.maxinet.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: Question about leases
+Message-ID: <20020827084244.GA23077@vagabond>
+Mail-Followup-To: Jan Hudec <bulb@cimice.maxinet.cz>,
+	Stephen Rothwell <sfr@canb.auug.org.au>,
+	Jan Hudec <bulb@vagabond.cybernet.cz>, linux-kernel@vger.kernel.org
+References: <20020827010616.GB16207@vagabond> <20020827143517.40ba04f7.sfr@canb.auug.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0208270758080.15296-100000@boston.corp.fedex.com>; from jchua@fedex.com on Tue, Aug 27, 2002 at 08:05:14AM +0800
+In-Reply-To: <20020827143517.40ba04f7.sfr@canb.auug.org.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 27, 2002 at 08:05:14AM +0800, Jeff Chua wrote:
-> On 26 Aug 2002, Alan Cox wrote:
-> > > 	RAMDISK: Compressed image found at block 0 ... then stuck!
-> > Force a 1K block size when you make the fs
+On Tue, Aug 27, 2002 at 02:35:17PM +1000, Stephen Rothwell wrote:
+> > As far as I figured out process holding a lease is notified when other
+> > process opens the leased file. But I am still not sure how the leases
+> > should then be released and how the process knows which lease was broken
+> > (struct siginfo does not seem to have union member for that case).
 > 
-> That was the default for mke2fs.
-> 
-> Tried compress instead of gzip. Same problem. I guess the compressed file
-> is too big for the kernel. The 8MB compressed (from 24MB) didn't work. 6MB
-> compressed from 18MB worked. The 24MB filesystem has just one extra junk
-> file in /tmp to fill up the filesystem to 90% and this caused the system
-> to hang.
-> 
-> I'm thinking it could be the ungzip function in the kernel that's causing
-> the problem.
+> To release a lease, you use fcntl(fd, F_SETLEASE,  F_UNLCK).  The file
+> descriptor of the file that the lease is on is returned in the
+> siginfo structure.
 
-Out of curiosity, how much RAM do you have available?
+One more question. Does the siginfo contain information weather is's
+read or write that the other process attempted? And does it contain the
+operation type for directory notifications?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+-------------------------------------------------------------------------------
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>

@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262186AbTLSJlM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 04:41:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbTLSJlM
+	id S262195AbTLSJnK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 04:43:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTLSJnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 04:41:12 -0500
-Received: from head.linpro.no ([80.232.36.1]:11711 "EHLO head.linpro.no")
-	by vger.kernel.org with ESMTP id S262186AbTLSJlI (ORCPT
+	Fri, 19 Dec 2003 04:43:09 -0500
+Received: from mail.fh-wedel.de ([213.39.232.194]:60559 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S262195AbTLSJmq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 04:41:08 -0500
-To: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: VM-related (?) oops in 2.4.22 + rmap15k
-References: <uk18ylanke9.fsf@ifconfig.linpro.no>
-From: Sigurd Urdahl <sigurdur@linpro.no>
-Organization: Linpro AS
-Date: 19 Dec 2003 10:40:55 +0100
-In-Reply-To: <uk18ylanke9.fsf@ifconfig.linpro.no>
-Message-ID: <uk1zndpm9g8.fsf@ifconfig.linpro.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	Fri, 19 Dec 2003 04:42:46 -0500
+Date: Fri, 19 Dec 2003 10:41:23 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Nick Piggin <piggin@cyberone.com.au>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Updating real-time and nanokernel maintainers
+Message-ID: <20031219094122.GA23469@wohnheim.fh-wedel.de>
+References: <3FE234E4.8020500@opersys.com> <Pine.LNX.4.58.0312181821270.19491@montezuma.fsmlabs.com> <3FE23966.7060001@opersys.com> <Pine.LNX.4.58.0312181836360.19491@montezuma.fsmlabs.com> <3FE23CD1.4080802@opersys.com> <3FE23E3F.2000801@cyberone.com.au> <3FE2424B.70901@opersys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Score: -4.9 (----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1AXH7w-0005Bb-60*K9d/C84oHA2*
+In-Reply-To: <3FE2424B.70901@opersys.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sigurd Urdahl <sigurdur@linpro.no> writes:
+On Thu, 18 December 2003 19:11:55 -0500, Karim Yaghmour wrote:
+> Nick Piggin wrote:
+> 
+> >As Zwane said, neither have code in the kernel, so I don't see how
+> >you think it is justified...?
+> 
+> It is justified in the same way that the RTLinux entry was justified
+> for those many years.
 
-> I believe that the kernel is also patched with ACL's and a few other
-> things, but as far as I can gather none of the extra patches should
-> impact on the VM. (The guy who patched together the kernel is away on
-> holiday)
+Which is another way of saying not at all.  Unless the file is renamed
+to NEAT_PROJECTS, take out any non-maintainers.
 
-I have some additional info on the applied patchset. The kernel
-started out as a 2.4.22 and has the following applied:
-
-01_-_patch-2.4.22-1000-ckbase-0309132043
-02_-_patch-2422-ck2base-rmap15k-0309210033
-03_-_ea+acl+nfsacl-2.4.22-0.8.64.diff-rmap-compatfixes
-05_-_linux-2.4.21-ipvs-1.0.10.patch
-06_-_linux-2.4.20-VFS-lock.patch-fixed
-07_-_linux-2.4.19-fw-tulip-mtu.patch
-08_-_eepro-vlan-mtu-patch2
-09_-_online-ext3-2.4.19.diff+EA+ACL-compatfixes
-10_-_ebtables-brnf-2_vs_2.4.22.diff
-11_-_rmapfix
-12_-_patch-2.4.22-ck2-fix.patch
-13_-_rmapfix_from_rik
-14_-_do_brk_bounds_check
-
-(for reference, our local maintainer is Tore Andersson)
-
--sig
+Jörn
 
 -- 
-Sigurd Urdahl                           sigurdur@linpro.no
-Systemkonsulent og sånt        Systems consultant and such
-Linpro A/S                           http://www.linpro.no/
+Victory in war is not repetitious.
+-- Sun Tzu

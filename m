@@ -1,96 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266514AbTAUIC4>; Tue, 21 Jan 2003 03:02:56 -0500
+	id <S266379AbTAUIKR>; Tue, 21 Jan 2003 03:10:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266537AbTAUIC4>; Tue, 21 Jan 2003 03:02:56 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:7429 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S266514AbTAUICz>; Tue, 21 Jan 2003 03:02:55 -0500
-Date: Tue, 21 Jan 2003 08:11:58 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Wim Coekaerts <Wim.Coekaerts@oracle.com>
-Subject: Re: [PATCH][2.5] hangcheck-timer
-Message-ID: <20030121081158.A21080@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Joel Becker <Joel.Becker@oracle.com>,
-	lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Wim Coekaerts <Wim.Coekaerts@oracle.com>
-References: <20030121011954.GO20972@ca-server1.us.oracle.com>
-Mime-Version: 1.0
+	id <S266406AbTAUIKR>; Tue, 21 Jan 2003 03:10:17 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:959 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S266379AbTAUIKP>; Tue, 21 Jan 2003 03:10:15 -0500
+Date: Tue, 21 Jan 2003 00:19:11 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.5.59-mjb1 (scalability / NUMA patchset)
+Message-ID: <19610000.1043137151@titus>
+In-Reply-To: <190030000.1042787514@titus>
+References: <19270000.1038270642@flay><134580000.1039414279@titus><32230000.1039502522@titus><568990000.1040112629@titus><21380000.1040717475@titus> <821470000.1041579423@titus> <214500000.1041821919@titus> <676880000.1042101078@titus> <922170000.1042183282@titus> <437220000.1042531505@titus> <190030000.1042787514@titus>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030121011954.GO20972@ca-server1.us.oracle.com>; from Joel.Becker@oracle.com on Mon, Jan 20, 2003 at 05:19:54PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#include <linux/module.h>
-> +#include <linux/config.h>
 
-I can't your see the driver reference CONFIG_* directly anywhere.
+The patchset contains mainly scalability and NUMA stuff, and anything 
+else that stops things from irritating me. It's meant to be pretty stable, 
+not so much a testing ground for new stuff.
 
-> +#define VERSION_STR "0.5.0"
-> +
-> +static void version_hash_print (void)
-> +{
-> +	printk(KERN_INFO "I/O fencing modules %s\n", VERSION_STR);
-> +}
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
-This message is a bit misleading, isn't it?
+http://www.aracnet.com/~fletch/linux/2.5.59/patch-2.5.59-mjb1.bz2
 
-> +static int hangcheck_tick = DEFAULT_IOFENCE_TICK;
-> +static int hangcheck_margin = DEFAULT_IOFENCE_MARGIN;
-> +static int hangcheck_reboot = 0;  /* Do not reboot */
+Since 2.5.58-mjb2 (~ = changed, + = added, - = dropped)
 
-no need to initialize static variables to zero, they'll just go into .bss.
+Notes:
+Lots of good stuff merged up with Linus. x440 distcontigmem seems to have
+problems in some circumstances, but APCI should work in this release.
 
-> +/* options - modular */
-> +MODULE_PARM(hangcheck_tick,"i");
-> +MODULE_PARM_DESC(hangcheck_tick, "Timer delay.");
-> +MODULE_PARM(hangcheck_margin,"i");
-> +MODULE_PARM_DESC(hangcheck_margin, "If the hangcheck timer has been delayed more than hangcheck_margin seconds, the driver will fire.");
-> +MODULE_PARM(hangcheck_reboot,"i");
-> +MODULE_PARM_DESC(hangcheck_reboot, "If nonzero, the machine will reboot when the timer margin is exceeded.");
+merged with Linus:
 
-It might be worth using Rusty's new module paramters for new code submitted
-to 2.5 instead of the legacy interfaces.
+- summit1					James Cleverdon / John Stultz
+- summit2					James Cleverdon / John Stultz
+- summit3					James Cleverdon / John Stultz
+- summit4					James Cleverdon / John Stultz
+- summit5					James Cleverdon / John Stultz
+- min_numasched					Martin J. Bligh
+- numasched_ilb					Michael Hohnbaum
+- numa_rebalancer				Erich Focht
+- vm_enough_memory				Martin J. Bligh
 
-> +#if 0
-> +	printk(KERN_CRIT "tsc_diff = %lu.%lu, predicted diff is %lu.%lu.\n",
-> +	       (unsigned long) ((tsc_diff >> 32) & 0xFFFFFFFFULL),
-> +	       (unsigned long) (tsc_diff & 0xFFFFFFFFULL),
-> +	       (unsigned long) ((hangcheck_tsc_margin >> 32) & 0xFFFFFFFFULL),
-> +	       (unsigned long) (hangcheck_tsc_margin & 0xFFFFFFFFULL));
-> +	printk(KERN_CRIT "hangcheck_margin = %lu, HZ = %lu, current_cpu_data.loops_per_jiffy = %lu.\n", hangcheck_margin, HZ, current_cpu_data.loops_per_jiffy);
-> +#endif
+Other:
 
-#if DEBUG maybe? or VERBOSE?
++ ingosched					Ingo Molar
+~ sched_tunables				Robert Love
++ acpi_x440_hack				Anonymous Coward
++ numaq_ioapicids				William Lee Irwin
++ oprofile_p4					John Levon
++ starfire					Ion Badulescu
 
-> +static int __init hangcheck_init(void)
-> +{
-> +        version_hash_print();
-> +	printk("Hangcheck: starting hangcheck timer (tick is %d seconds, margin is %d seconds).\n",
-> +	       hangcheck_tick, hangcheck_margin);
+Pending:
+Notsc automatic enablement (someone, please ... anyone?)
+scheduler callers profiling (Anton)
+PPC64 NUMA patches (Anton)
+Lockless xtime structures (Andi)
+Child runs first (akpm)
+New qlogic driver (Badari ??)
 
-Two startup messages seems like a bit too much.
 
-> +}  /* hangcheck_init() */
+dcache_rcu					Dipankar / Maneesh
+	Use RCU type locking for the dentry cache.
+ 
+early_printk					Dave Hansen et al.
+	Allow printk before console_init
 
-Bah 8)
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
 
-> +static void __exit hangcheck_exit(void)
-> +{
-> +	printk("Stopping hangcheck timer.\n");
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
 
-Again, this is exteremly verbose.
+vmalloc_stats					Dave Hansen
+	Expose useful vmalloc statistics
 
-> +	lock_kernel();
-> +	del_timer(&hangcheck_ticktock);
-> +	unlock_kernel();
+ingosched					Ingo Molnar
+	Modify NUMA scheduler to have independant tick basis.
 
-No need for BKL here, but you might want to use del_timer_sync.
+sched_tunables					Robert Love
+	Provide tunable parameters for the scheduler (+ NUMA scheduler)
+
+local_pgdat					William Lee Irwin
+	Move the pgdat structure into the remapped space with lmem_map
+
+notsc						Martin Bligh
+	Enable notsc option for NUMA-Q (new version for new config system)
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+kgdb						Andrew Morton / Various People
+	The older version of kgdb, synched with 2.5.54-mm1
+
+noframeptr					Martin Bligh
+	Disable -fomit_frame_pointer
+
+thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
+	Prep work to reduce kernel stacks to 4K
+	
+interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
+	Create a per-cpu interrupt stack.
+
+stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
+	Check for kernel stack overflows.
+
+4k_stack            (4K stacks pt 4)		Dave Hansen
+	Config option to reduce kernel stacks to 4K
+
+mpc_apic_id					Martin J. Bligh
+	Fix null ptr dereference (optimised away, but ...)
+
+doaction					Martin J. Bligh
+	Fix cruel torture of macros and small furry animals in io_apic.c
+
+discontig_x440					Pat Gaughen / Chandra
+	SLIT/SRAT parsing for x440 discontigmem
+
+topo_hack					Pat Gaughen
+	Disable some topo stuff for Summit because we're cowards.
+
+acpi_x440_hack					Anonymous Coward
+	Stops x440 crashing, but owner is ashamed of it ;-)
+
+numaq_ioapicids					William Lee Irwin
+	Stop 8 quad NUMA-Qs from panicing due to phys apicid "exhaustion".
+
+oprofile_p4					John Levon
+	Updates for oprofile for P4s. Needs new userspace tools.
+
+starfire					Ion Badulescu
+	64 bit aware starfire driver	
+
+-mjb						Martin Bligh
+	Add a tag to the makefile
 

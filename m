@@ -1,34 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276299AbRI1UjU>; Fri, 28 Sep 2001 16:39:20 -0400
+	id <S276301AbRI1UmU>; Fri, 28 Sep 2001 16:42:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276300AbRI1UjK>; Fri, 28 Sep 2001 16:39:10 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5748 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S276299AbRI1UjE>; Fri, 28 Sep 2001 16:39:04 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        Padraig Brady <padraig@antefacto.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: CPU frequency shifting "problems"
-In-Reply-To: <Pine.LNX.4.33.0109280902250.1682-100000@penguin.transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 28 Sep 2001 14:29:45 -0600
-In-Reply-To: <Pine.LNX.4.33.0109280902250.1682-100000@penguin.transmeta.com>
-Message-ID: <m11ykr5a9y.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
+	id <S276300AbRI1UmK>; Fri, 28 Sep 2001 16:42:10 -0400
+Received: from [194.213.32.137] ([194.213.32.137]:15108 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S276302AbRI1UmA>;
+	Fri, 28 Sep 2001 16:42:00 -0400
+Message-ID: <20010928224001.B1100@bug.ucw.cz>
+Date: Fri, 28 Sep 2001 22:40:01 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: move resume before mounting root [diff against vanilla 2.4.9]
+In-Reply-To: <20010927163421.C23647@atrey.karlin.mff.cuni.cz> <200109280356.f8S3u5g154813@saturn.cs.uml.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <200109280356.f8S3u5g154813@saturn.cs.uml.edu>; from Albert D. Cahalan on Thu, Sep 27, 2001 at 11:56:05PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+Hi!
 
-> What does exist is the bus clock (well, a multiple of it, but you get the
-> idea), and that one is stable. I bet PCI devices don't like to be randomly
-> driven at frequencies "somewhere between 12 and 33MHz" depending on load ;)
+> > I can't do that: open deleted files.
+> 
+> Tough luck. Either use the same hack as NFS, or have such files
+> return -EIO for all operations and give SIGBUS for mappings.
+> Maybe just refuse to suspend when there are open deleted files.
+> Oh, just create a name in the filesystem root and use that.
+> Something like ".8fe4a979.swsusp" would be fine. Whatever!
 
-I doubt they would like it but it is perfectly legal (PCI spec..) to
-vary the pci clock, depending upon load.   
+...and break locking and similar stuff. NFS is not as good as local
+filesystem.
 
+> >> NFS faces. Between the suspend and resume, filesystems may be
+> >> modified in arbitrary ways.
+> >
+> > No, you don't want to do that. This is swsusp package, meant to
+> > replace suspend-to-disk on your notebook. If you choose random
+> > notebook, it will allow you to suspend to disk, but not to suspend,
+> > boot X, poweron, boot Y, reboot, boot X.
+> >
+> > If you do what you described, you'll corrupt your filesystem. It is
+> > designed that way.
+> 
+> Not "If", but "When". Somebody has already posted a report of
+> doing exactly that, by accident, with a 3-month-old suspension.
+> The filesystems were destroyed.
+> 
+> Right now, swsusp is a serious hazard.
 
-Eric
+That's why its called experimental ;-).
+
+Currently we have "SWSUSP" signature, SWAP-FILE gets replaced with
+SWSUSP on suspend, and SWAP-FILE is written back on resume. That way,
+you can not resume two times from one image.
+
+Additional safety measure could be added: on every swapon, check if
+"SWSUSP" is there, and replace it with "SWAP-FILE" if so. (Currently
+it says -EINVAL). That should make it pretty safe.
+
+Of course, you'll still be able to shoot yourself in the foot even
+with added "security". Just don't do it, then.
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

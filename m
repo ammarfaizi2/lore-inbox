@@ -1,84 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318701AbSG0Fyb>; Sat, 27 Jul 2002 01:54:31 -0400
+	id <S318703AbSG0Fyw>; Sat, 27 Jul 2002 01:54:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318702AbSG0Fyb>; Sat, 27 Jul 2002 01:54:31 -0400
-Received: from admin.nni.com ([216.107.0.51]:39185 "EHLO admin.nni.com")
-	by vger.kernel.org with ESMTP id <S318701AbSG0Fya>;
-	Sat, 27 Jul 2002 01:54:30 -0400
-Date: Sat, 27 Jul 2002 01:57:03 -0400
-From: Andrew Rodland <arodland@noln.com>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Speaker twiddling [was: Re: Panicking in morse code]
-Message-Id: <20020727015703.21f47a37.arodland@noln.com>
-In-Reply-To: <200207270526.g6R5Qw942780@saturn.cs.uml.edu>
-References: <20020727000005.54da5431.arodland@noln.com>
-	<200207270526.g6R5Qw942780@saturn.cs.uml.edu>
-X-Mailer: Sylpheed version 0.7.8claws55 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S318702AbSG0Fyw>; Sat, 27 Jul 2002 01:54:52 -0400
+Received: from adsl-66-136-196-103.dsl.austtx.swbell.net ([66.136.196.103]:19328
+	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
+	id <S318703AbSG0Fyt>; Sat, 27 Jul 2002 01:54:49 -0400
+Subject: RE: 2.5.28 and partitions
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Anton Altaparmakov <aia21@cantab.net>,
+       Linus Torvalds <torvalds@transmeta.com>, Matt_Domsch@Dell.com,
+       Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0207251245530.17621-100000@weyl.math.psu.edu>
+References: <Pine.GSO.4.21.0207251245530.17621-100000@weyl.math.psu.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1027749383.2590.22.camel@UberGeek.digitalroadkill.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 27 Jul 2002 00:56:24 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Jul 2002 01:26:58 -0400 (EDT)
-"Albert D. Cahalan" <acahalan@cs.uml.edu> wrote:
-
-> >> The vast majority of us would need a microphone and
-> >> translator program anyway, so a computer-friendly
-> >> encoding makes more sense. Modems don't do morse.
-> >
-> > "asciimorse" would be possible, just going through the byte and
-> > doing - for 1 and . for 0... as a matter of fact, it would probably
-> > only take about two lines of code to get that to be an option, too.
-> > Does everyone else think that that's really the situation?
-> > (Personally, I can't do morse in my head. But neither do I have any
-> > oops-decoding hardware. >:)
-> >
-> > I'll probably code it anyway. It should allow for a faster
-> > transmission rate, anyway, since you don't have to accomodate
-> > humans. (Anyone who can decode "asciimorse" in their head is a REAL
-> > freak. Er. no offense.)
+On Thu, 2002-07-25 at 11:50, Alexander Viro wrote:
+> On Thu, 25 Jul 2002, Anton Altaparmakov wrote:
 > 
-> Hopefully reasonable idea:
+> > At 12:44 25/07/02, Alexander Viro wrote:
+> > >Al, still thinking that anybody who does mkfs.<whatever> on a multi-Tb
+> > >device should seek professional help of the kind they don't give on l-k...
+> > 
+> > Why? What is wrong with large devices/file systems? Why do we have to break 
+> > up everything into multiple devices? Just because the kernel is "too lazy" 
+> > to implement support for large devices? Nobody cares if 64bit code is 
 > 
-> Start each transmission with 900 HZ for 80 ms.
-> Start each line with 1300 HZ for 40 ms.
-> Each bit is 10 ms at 1600 HZ or 1900 HZ.
-> Transmit the 7 low bits, plus a parity bit.
-> End each line with a '\0' and a checksum byte.
-> End each transmission with silence for 80 ms.
+> Large filesystem => troubles with backups, even more troubles with restoring
+> after disk failure, yadda, yadda.
+
+Right, but that doesn't stop people anyway. Whether you have one or a
+hundred file systems, you still back it up and restore it, and the
+bottleneck is still, usually, the TBU bus(i.e. tbu speed + SCSI||FC
+speed + network speed + disk speed == latency of some kinds for
+restores)
+
+> > database server and we can live with that. At least our applications deal 
+> > with GiBs of data for each experiment, which is shifted over Gigabit 
+> > ethernet to/from a SQL database backend stored on a huge RAID array, so we 
+> > are completely i/o bound.
+> > 
+> > It's one database, and it's huge. And it's going to get bigger as people do 
+> > more experiments. We need mkfs.<whatever> on a huge device... We are just 
+> > lucky that our current RAID array is under 2TiB se we haven't hit the 
+> > "magic" barrier quite yet. But at 1.4TiB we are not far off...
 > 
+> ... and backups of your database are done on...?
 
-Reasonable -- it would still fit within the code framework I've got
-right now, and within the way that panic_blink() works in general.
-Do we use odd-parity, so that we can tell the \0 before the checksum
-from a \0 in the input stream?
+Tape usually, which in itself is a problem. But, more and more people
+are implementing "third mirrors" of types, whether they are snapshot
+types or full copies of the data, people are using FC or fast shared
+SCSI subsystems, or Gigabit NFS to a NAS filer or to a centralized
+system with one large file-systems with many directories for backups. 
 
-Does a crappy, battery-powered micro tape recorder have a chance of
-recording this accurately?
+My shop has several TB+ DBs...and no we don't have TB sized filesystems,
+yet, but it will happen, our largest single FS is 400GB+, and will only
+get bigger in the future. I'm intimately aware though, that regardless
+of having FS under 2TBs, we still backup to tape, but we do it with a
+copy of the data by making a mirror of our already mirrored FS's. 
 
-> That ought to survive telephone transmission.
-> If I'm lucky, it might survive MP3 encoding.
-> It's about 120 WPM, and doesn't slow down on
-> non-English text like an oops report.
+We then mount those FS on a host capable of mounting them, and then
+backup from that storage, to the TBU directly attached to it. 
 
-Anyway, I like it in general. Could you write the decoder software, or
-do we have any other volunteers on the list to do it? I'm not sure that
-my /dev/dsp programming is up to snuff. (Actually, it'd probably be
-easier operating on a .wav/.au unless you want real-time.)
+Bottleneck on all of this is in fact the TBU and associated bus. 
 
-Some final notes/questions:
+> "RAID" doesn't mean that data is safe.  It means that some class of
+> failures will not be immediately catastrophic, but that's it - both
+> hardware and software arrays _do_ go tits up.  Just ask hpa for story
+> of the troubles on kernel.org.
 
-* 10ms is just one jiffie on most arches in 2.4. That means that we
-won't get perfect timing. (I don't think I want to switch to anything
-_other_ than jiffies when we're panicked, but I don't know anything
-about any of the higher-res stuff. Keep in mind that we get called
-inside an infinite loop, and that it's not so easy to change that)
+Sure RAID doesn't mean it's "totally safe", but it does mean it's
+"safer" than it would have been otherwise. What this is often referred
+to as crisis management. The idea is that you do *not* run in a degraded
+mode for very long, and take care of the problematic hardware/software
+ASAP, but to *not* lose your data. 
 
-* Might anything from userland want access to this as a device? This
-sounds nice at first blush, but using the same code to work well both
-as a 'real' driver and for panic situation doesn't seem too easy.
+I say this regardless of the fact that it *can and does* happen
+occasionally, because there are plenty of corner cases where RAID and
+data protection are concerned. 
 
---hobbs
+Support for *large filesystems* TB size + is imperative in the future.
+Things will only get bigger and bigger as far as they are able, and with
+people like Hitatchi and Sony coming out with optical disks the size of
+a 1.44MB floppy holding Terabytes and up, this is just the beginning. 
+
+Mind you the scenario I just described is not nearline or offline
+storage, it is fully re-writeable, faster than a typical hdd, optical
+media and will be available to consumers, if vapor isn't implied,
+withing 12 months. (consumers being corporations first, then general
+consumption.)
+
+
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Austin Gonyou <austin@digitalroadkill.net>

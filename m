@@ -1,76 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262573AbTJTKwT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 06:52:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbTJTKwS
+	id S262529AbTJTKqo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 06:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbTJTKqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 06:52:18 -0400
-Received: from mail1.cc.huji.ac.il ([132.64.1.17]:49883 "EHLO
-	mail1.cc.huji.ac.il") by vger.kernel.org with ESMTP id S262573AbTJTKwQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 06:52:16 -0400
-Message-ID: <3F93BCCB.1050406@mscc.huji.ac.il>
-Date: Mon, 20 Oct 2003 12:45:31 +0200
-From: Voicu Liviu <pacman@mscc.huji.ac.il>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030906
-X-Accept-Language: en-us, en, he
-MIME-Version: 1.0
-To: rob@landley.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Wow.  Suspend to disk works for me in test8. :)
-References: <200310200225.11367.rob@landley.net>
-In-Reply-To: <200310200225.11367.rob@landley.net>
-X-Enigmail-Version: 0.76.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Oct 2003 06:46:44 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:47010 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S262529AbTJTKqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 06:46:42 -0400
+Date: Mon, 20 Oct 2003 12:44:33 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Torben Mathiasen <torben.mathiasen@hp.com>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFT][PATCH] fix ServerWorks PIO auto-tuning
+Message-ID: <20031020104433.GB28755@louise.pinerecords.com>
+References: <200310162344.09021.bzolnier@elka.pw.edu.pl> <20031018130234.GA28095@louise.pinerecords.com> <200310181745.41768.bzolnier@elka.pw.edu.pl> <20031020092445.GB1685@tmathiasen>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031020092445.GB1685@tmathiasen>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
+On Oct-20 2003, Mon, 11:24 +0200
+Torben Mathiasen <torben.mathiasen@hp.com> wrote:
 
->Good grief.  It worked.
->
->echo -n disk > /sys/power/state
->
-How long does it take to do suspend to disk?
+> BTW Tomas, that drive you're adding to your ML350G2, is that just to have
+> a spare IDE disk drive? IIRC, the 350 is a SCSI system with only an ATAPI
+> cdrom drive. But I could be wrong.
 
->
->No special preparations, no funky scripts, I didn't even have to unload any 
->modules or feed strange command line options to grub.  It just... worked.  
->(Even the network connection came back up. :)
->
->Congratulations.
->
->Rob
->
->P.S.  (I am breathlessly waiting for my newly resumed system to panic on me, 
->but so far... :)
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+Yes, Torben, you are corrent, the IDE drive is just a spare
+used for doing nightly backups of the SCSI system partitions.
+We've been using 80GB/120GB WD drives in many OSB4/CSB5-based
+HP/Compaq systems (mostly this Proliant model, HP E800 and HP
+TC3100) with hand-enabled DMA and have so far had no problems.
 
+(Btw, this particular ML350G3 came with an add-on cciss hwraid
+card that seemed to exhibit extremely poor performance, so we
+attached all the SCSI drives directly to the onboard AIC7xxx
+and went for /dev/md*.)
 
+Thanks,
 -- 
-Liviu Voicu
-Assistant Programmer and network support
-Computation Center, Mount Scopus
-Hebrew University of Jerusalem
-Tel: 972(2)-5881253
-E-mail: "Liviu Voicu"<pacman@mscc.huji.ac.il>
-
-/**
- * cat /usr/src/linux/arch/i386/boot/bzImage > /dev/dsp
- * ( and the voice of God will be heard! )
- *
- */
-
-Click here to see my GPG signature:
-----------------------------------
-	http://search.keyserver.net:11371/pks/lookup?template=netensearch%2Cnetennomatch%2Cnetenerror&search=pacman%40mscc.huji.ac.il&op=vindex&fingerprint=on&submit=Get+List
-
-
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,58 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262885AbTIAAuw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 20:50:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262887AbTIAAuw
+	id S262887AbTIABAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 21:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbTIABAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 20:50:52 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:23689 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262885AbTIAAuv
+	Sun, 31 Aug 2003 21:00:09 -0400
+Received: from newsmtp.golden.net ([199.166.210.106]:46353 "EHLO
+	newsmtp.golden.net") by vger.kernel.org with ESMTP id S262887AbTIABAF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 20:50:51 -0400
-Date: Mon, 1 Sep 2003 01:50:41 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Larry McVoy <lm@work.bitmover.com>, Larry McVoy <lm@bitmover.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pascal Schmidt <der.eremit@email.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bandwidth for bkbits.net (good news)
-Message-ID: <20030901005041.GC31531@mail.jlokier.co.uk>
-References: <20030831162243.GC18767@work.bitmover.com> <20030831163350.GY24409@dualathlon.random> <20030831164802.GA12752@work.bitmover.com> <20030831170633.GA24409@dualathlon.random> <20030831211855.GB12752@work.bitmover.com> <20030831224938.GC24409@dualathlon.random> <20030831225639.GB16620@work.bitmover.com> <20030831231305.GE24409@dualathlon.random> <20030901001819.GC29239@mail.jlokier.co.uk> <20030901002815.GB11503@dualathlon.random>
+	Sun, 31 Aug 2003 21:00:05 -0400
+Date: Sun, 31 Aug 2003 21:00:02 -0400
+From: Paul Mundt <lethal@linux-sh.org>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+Message-ID: <20030901010002.GA19430@linux-sh.org>
+Mail-Followup-To: Jamie Lokier <jamie@shareable.org>,
+	linux-kernel@vger.kernel.org
+References: <20030829053510.GA12663@mail.jlokier.co.uk> <20030901002412.GA16537@linux-sh.org> <20030901003750.GB31531@mail.jlokier.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
 Content-Disposition: inline
-In-Reply-To: <20030901002815.GB11503@dualathlon.random>
+In-Reply-To: <20030901003750.GB31531@mail.jlokier.co.uk>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> Depending on the connect/sec of the http server (not bkbits, for the
-> largest part of the conversation I couldn't know about the http server,
-> Larry only mentioned the bkbits.net clone until recently), the
-> "reservation" margin will have to change: the less connect/sec the
-> smaller margin Larry will need to reserve, the more connect/sec the
-> bigger marging will be necessary.
 
-Hi Andrea,
+--gBBFr7Ir9EOA20Yy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Above a certain connection rate, no amount of margin is enough.  The
-connections are a SYN flood.
+On Mon, Sep 01, 2003 at 01:37:50AM +0100, Jamie Lokier wrote:
+> > sh (VIPT cache):
+> >=20
+> > Test separation: 4096 bytes: FAIL - cache not coherent
+> > Test separation: 8192 bytes: FAIL - cache not coherent
+> > Test separation: 16384 bytes: pass
+>=20
+> A VIVT cache can do that, but I think a VIPT cache should always be coher=
+ent.
+> Do I misunderstand?
+>=20
+There's nothing stating that VIPT =3D=3D automatic coherency, as is obvious=
+ly the
+case for sh, where we are completely VIPT, but are also non coherent.
 
-You need to take into account the peak rate, which varies from second
-to second, due to simple statistics plus the tendency of the net to
-make traffic burstier than it started.
 
-Above a certain number of packets/sec, competing VoIP traffic degrades
-- a little added latency is equivalent to dropping with VoIP.  That
-translates to dropouts in the audio.  Acceptable for hackers talking
-over a flakey line, but not corporate telephony.
+--gBBFr7Ir9EOA20Yy
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-At Larry's server, inbound connection rate resembles a low-level SYN
-flood, which is enough to poke holes in VoIP latency.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-Of course the real problem is lack of end to end QoS between Larry's
-nodes.  Two T1s is just a workaround :)
+iD8DBQE/UpoS1K+teJFxZ9wRAtIoAJ9ifnPfuCcp7zlxpRSiOKhup58bRACePPIT
+JQkAV7MzOeDa5ukGLkFWqXY=
+=UzNj
+-----END PGP SIGNATURE-----
 
--- Jamie
+--gBBFr7Ir9EOA20Yy--

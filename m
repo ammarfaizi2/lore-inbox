@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290755AbSBFTN2>; Wed, 6 Feb 2002 14:13:28 -0500
+	id <S290763AbSBFTde>; Wed, 6 Feb 2002 14:33:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290756AbSBFTNZ>; Wed, 6 Feb 2002 14:13:25 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:33391 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S290755AbSBFTNF>; Wed, 6 Feb 2002 14:13:05 -0500
-Date: Wed, 6 Feb 2002 14:13:04 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: zaitcev@redhat.com
-Subject: The IBM order relaxation patch
-Message-ID: <20020206141304.A9349@devserv.devel.redhat.com>
+	id <S290767AbSBFTdY>; Wed, 6 Feb 2002 14:33:24 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:15599
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S290763AbSBFTdJ>; Wed, 6 Feb 2002 14:33:09 -0500
+Date: Wed, 6 Feb 2002 11:33:00 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] List of maintainers (draft #2)
+Message-ID: <20020206193300.GA314@mis-mike-wstn>
+Mail-Followup-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200202061008.g16A8Ct29437@Port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200202061008.g16A8Ct29437@Port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Feb 06, 2002 at 12:08:14PM -0200, Denis Vlasenko wrote:
+> David S. Miller <davem@redhat.com> [5 feb 2002]
 
-I had a look at an IBM patch, which is described thus:
+I am Sparc64 (32?) and Main networking core maintainer.
 
-  - Order 2 allocation relief
+> Greg KH <greg@kroah.com> [5 feb 2002]
+> 	?
 
-  Symptom:  Under stress and after long uptimes of a 64 bit system
-            the error message "__alloc_pages: 2-order allocation failed."
-            appears and either the fork of a new process fails or an
-            active process dies.
+I am USB Maintainer.
 
-  Problem:  The order 2 allocation problem is based in the size of the
-            region and segement tables as defined by the zSeries
-            architecture. A full region or segment table in 64 bit mode
-            takes 16 KB of contigous real memory. The page allocation
-            routines do not guarantee that a higher order allocation
-            will succeed due to memory fragmentation.
+> H. Peter Anvin <hpa@zytor.com> [5 feb 2002]
+> 	?
 
-  Solution: The order 2 allocation fix is supposed to reduce the number
-            of order 2 allocations for the region and segment tables to
-            a minimum. To do so it uses a feature of the architecture
-            that allows to create incomplete region and segment tables.
-            In almost all cases a process does not need full region or
-            segment tables. If a full region or segment table is needed
-            it is reallocated to the full size.
+Kernel.org sysadmin.  Contact me if you notice something breaks, or if you
+want a change make sure you give me at least 1-2 weeks...
 
-  This patch is very s/390 specific and breaks all other architectures.
-  <<they meant "zSeries specific", surely --zaitcev>>
+==================
 
-It's a stupid question, but: why can we not simply
-wait until a desired unfragmented memory area is available,
-with a GPF flag? What they describe does not happen in an
-interrupt context, so we can sleep.
+I'm just filling in a couple blanks from memory.  If someone else has better
+information, use that instead.
 
-And another one: why not to increase a kernel-visible or "soft"
-page size to 16KB for zSeries? It's a 64 bits platform. There
-will be some increase in fragmentation, but nobody measured it.
-Perhaps it's not going to be severe. It may even improve paging
-efficiency.
-
--- Pete
-
-P.S. The patch itself is at:
- http://www10.software.ibm.com/developerworks/opensource/linux390/alpha_src/linux-2.4.7-order2-3.tar.gz
+Mike

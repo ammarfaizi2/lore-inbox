@@ -1,148 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129097AbQKKWxk>; Sat, 11 Nov 2000 17:53:40 -0500
+	id <S129100AbQKKWyV>; Sat, 11 Nov 2000 17:54:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129100AbQKKWxa>; Sat, 11 Nov 2000 17:53:30 -0500
-Received: from boss.staszic.waw.pl ([195.205.163.66]:37650 "EHLO
-	boss.staszic.waw.pl") by vger.kernel.org with ESMTP
-	id <S129097AbQKKWx2>; Sat, 11 Nov 2000 17:53:28 -0500
-Date: Sat, 11 Nov 2000 23:54:04 +0100 (CET)
-From: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] drivers/char/drm gets __init/__exit
-Message-ID: <Pine.LNX.4.21.0011112352260.11176-200000@tricky>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1313542478-973983244=:11176"
+	id <S129615AbQKKWyM>; Sat, 11 Nov 2000 17:54:12 -0500
+Received: from TRAMPOLINE.THUNK.ORG ([216.175.175.172]:32772 "EHLO
+	trampoline.thunk.org") by vger.kernel.org with ESMTP
+	id <S129100AbQKKWyA>; Sat, 11 Nov 2000 17:54:00 -0500
+Date: Sat, 11 Nov 2000 18:54:00 -0500
+Message-Id: <200011112354.eABNs0005918@trampoline.thunk.org>
+To: dpw@doc.ic.ac.uk
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <y7r8zqzqt71.fsf@sytry.doc.ic.ac.uk> (message from David Wragg on
+	04 Nov 2000 22:16:18 +0000)
+Subject: Re: What protects f_pos?
+From: tytso@mit.edu
+Phone: (781) 391-3464
+In-Reply-To: <y7r8zqzqt71.fsf@sytry.doc.ic.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+   From: David Wragg <dpw@doc.ic.ac.uk>
+   Date: 	04 Nov 2000 22:16:18 +0000
 
---8323328-1313542478-973983244=:11176
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+   Since f_pos of struct file is a loff_t, on 32-bit architectures it
+   needs a lock to make accesses atomic (or some more sophisticated form
+   of protection).  But looking in 2.4.0-test10, there doesn't seem to be
+   any such lock.
 
+   The llseek op is called with the Big Kernel Lock, but unlike in 2.2,
+   the read and write ops are called without any locks held, and so
+   generic_file_{read|write} make unprotected accesses to f_pos (through
+   their ppos argument).
 
-Hi
+This looks like it's a bug to me....  although if you have multiple
+threads hitting a file descriptor at the same time, you're pretty much
+asking for trouble.
 
-Patch is against 2.4.0-test11-pre2... subject tells rest...
-
-Regards
---
-Bartlomiej Zolnierkiewicz
-<bkz@linux-ide.org>
-
---8323328-1313542478-973983244=:11176
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="240t11p2-drm_init.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0011112354040.11176@tricky>
-Content-Description: 
-Content-Disposition: attachment; filename="240t11p2-drm_init.diff"
-
-ZGlmZiAtdU5yIGxpbnV4LTI0MHQxMXAyL2RyaXZlcnMvY2hhci9kcm0vZmZi
-X2Rydi5jIGxpbnV4L2RyaXZlcnMvY2hhci9kcm0vZmZiX2Rydi5jDQotLS0g
-bGludXgtMjQwdDExcDIvZHJpdmVycy9jaGFyL2RybS9mZmJfZHJ2LmMJVHVl
-IE9jdCAgMyAwMDoxNzozMiAyMDAwDQorKysgbGludXgvZHJpdmVycy9jaGFy
-L2RybS9mZmJfZHJ2LmMJU2F0IE5vdiAxMSAwMTo1MzoxNSAyMDAwDQpAQCAt
-MjQ0LDcgKzI0NCw3IEBADQogCX07DQogfQ0KIA0KLXN0YXRpYyBpbnQgZmZi
-X2luaXRfb25lKGludCBwcm9tX25vZGUsIGludCBpbnN0YW5jZSkNCitzdGF0
-aWMgaW50IF9faW5pdCBmZmJfaW5pdF9vbmUoaW50IHByb21fbm9kZSwgaW50
-IGluc3RhbmNlKQ0KIHsNCiAJc3RydWN0IGxpbnV4X3Byb202NF9yZWdpc3Rl
-cnMgcmVnc1syKlBST01SRUdfTUFYXTsNCiAJZHJtX2RldmljZV90ICpkZXY7
-DQpAQCAtMzA1LDcgKzMwNSw3IEBADQogCXJldHVybiAwOw0KIH0NCiANCi1z
-dGF0aWMgaW50IGZmYl9pbml0X2Rldl90YWJsZSh2b2lkKQ0KK3N0YXRpYyBp
-bnQgX19pbml0IGZmYl9pbml0X2Rldl90YWJsZSh2b2lkKQ0KIHsNCiAJaW50
-IHJvb3QsIG5vZGU7DQogCWludCB0b3RhbCA9IDA7DQpAQCAtMzI0LDcgKzMy
-NCw3IEBADQogCXJldHVybiAwOw0KIH0NCiANCi1pbnQgZmZiX2luaXQodm9p
-ZCkNCitpbnQgX19pbml0IGZmYl9pbml0KHZvaWQpDQogew0KIAlpbnQgcm9v
-dCwgbm9kZSwgaW5zdGFuY2UsIHJldDsNCiANCkBAIC0zNDUsNyArMzQ1LDcg
-QEANCiAJcmV0dXJuIDA7DQogfQ0KIA0KLXZvaWQgZmZiX2NsZWFudXAodm9p
-ZCkNCit2b2lkIF9fZXhpdCBmZmJfY2xlYW51cCh2b2lkKQ0KIHsNCiAJaW50
-IGluc3RhbmNlOw0KIA0KZGlmZiAtdU5yIGxpbnV4LTI0MHQxMXAyL2RyaXZl
-cnMvY2hhci9kcm0vZ2FtbWFfZHJ2LmMgbGludXgvZHJpdmVycy9jaGFyL2Ry
-bS9nYW1tYV9kcnYuYw0KLS0tIGxpbnV4LTI0MHQxMXAyL2RyaXZlcnMvY2hh
-ci9kcm0vZ2FtbWFfZHJ2LmMJVHVlIE9jdCAgMyAxNDoyNzoyNSAyMDAwDQor
-KysgbGludXgvZHJpdmVycy9jaGFyL2RybS9nYW1tYV9kcnYuYwlTYXQgTm92
-IDExIDAxOjUxOjE0IDIwMDANCkBAIC0zMzksNyArMzM5LDcgQEANCiAvKiBn
-YW1tYV9pbml0IGlzIGNhbGxlZCB2aWEgaW5pdF9tb2R1bGUgYXQgbW9kdWxl
-IGxvYWQgdGltZSwgb3IgdmlhDQogICogbGludXgvaW5pdC9tYWluLmMgKHRo
-aXMgaXMgbm90IGN1cnJlbnRseSBzdXBwb3J0ZWQpLiAqLw0KIA0KLXN0YXRp
-YyBpbnQgZ2FtbWFfaW5pdCh2b2lkKQ0KK3N0YXRpYyBpbnQgX19pbml0IGdh
-bW1hX2luaXQodm9pZCkNCiB7DQogCWludAkJICAgICAgcmV0Y29kZTsNCiAJ
-ZHJtX2RldmljZV90CSAgICAgICpkZXYgPSAmZ2FtbWFfZGV2aWNlOw0KQEAg
-LTM4MCw3ICszODAsNyBAQA0KIA0KIC8qIGdhbW1hX2NsZWFudXAgaXMgY2Fs
-bGVkIHZpYSBjbGVhbnVwX21vZHVsZSBhdCBtb2R1bGUgdW5sb2FkIHRpbWUu
-ICovDQogDQotc3RhdGljIHZvaWQgZ2FtbWFfY2xlYW51cCh2b2lkKQ0KK3N0
-YXRpYyB2b2lkIF9fZXhpdCBnYW1tYV9jbGVhbnVwKHZvaWQpDQogew0KIAlk
-cm1fZGV2aWNlX3QJICAgICAgKmRldiA9ICZnYW1tYV9kZXZpY2U7DQogDQpk
-aWZmIC11TnIgbGludXgtMjQwdDExcDIvZHJpdmVycy9jaGFyL2RybS9pODEw
-X2Rydi5jIGxpbnV4L2RyaXZlcnMvY2hhci9kcm0vaTgxMF9kcnYuYw0KLS0t
-IGxpbnV4LTI0MHQxMXAyL2RyaXZlcnMvY2hhci9kcm0vaTgxMF9kcnYuYwlG
-cmkgTm92IDEwIDE0OjI4OjQyIDIwMDANCisrKyBsaW51eC9kcml2ZXJzL2No
-YXIvZHJtL2k4MTBfZHJ2LmMJU2F0IE5vdiAxMSAwMTo0OTo1MyAyMDAwDQpA
-QCAtMzM4LDcgKzMzOCw3IEBADQogLyogaTgxMF9pbml0IGlzIGNhbGxlZCB2
-aWEgaW5pdF9tb2R1bGUgYXQgbW9kdWxlIGxvYWQgdGltZSwgb3IgdmlhDQog
-ICogbGludXgvaW5pdC9tYWluLmMgKHRoaXMgaXMgbm90IGN1cnJlbnRseSBz
-dXBwb3J0ZWQpLiAqLw0KIA0KLXN0YXRpYyBpbnQgaTgxMF9pbml0KHZvaWQp
-DQorc3RhdGljIGludCBfX2luaXQgaTgxMF9pbml0KHZvaWQpDQogew0KIAlp
-bnQJCSAgICAgIHJldGNvZGU7DQogCWRybV9kZXZpY2VfdAkgICAgICAqZGV2
-ID0gJmk4MTBfZGV2aWNlOw0KQEAgLTM5Nyw3ICszOTcsNyBAQA0KIA0KIC8q
-IGk4MTBfY2xlYW51cCBpcyBjYWxsZWQgdmlhIGNsZWFudXBfbW9kdWxlIGF0
-IG1vZHVsZSB1bmxvYWQgdGltZS4gKi8NCiANCi1zdGF0aWMgdm9pZCBpODEw
-X2NsZWFudXAodm9pZCkNCitzdGF0aWMgdm9pZCBfX2V4aXQgaTgxMF9jbGVh
-bnVwKHZvaWQpDQogew0KIAlkcm1fZGV2aWNlX3QJICAgICAgKmRldiA9ICZp
-ODEwX2RldmljZTsNCiANCmRpZmYgLXVOciBsaW51eC0yNDB0MTFwMi9kcml2
-ZXJzL2NoYXIvZHJtL21nYV9kcnYuYyBsaW51eC9kcml2ZXJzL2NoYXIvZHJt
-L21nYV9kcnYuYw0KLS0tIGxpbnV4LTI0MHQxMXAyL2RyaXZlcnMvY2hhci9k
-cm0vbWdhX2Rydi5jCUZyaSBOb3YgMTAgMTQ6Mjg6NDIgMjAwMA0KKysrIGxp
-bnV4L2RyaXZlcnMvY2hhci9kcm0vbWdhX2Rydi5jCVNhdCBOb3YgMTEgMDE6
-NDU6NTIgMjAwMA0KQEAgLTMzOCw3ICszMzgsNyBAQA0KIC8qIG1nYV9pbml0
-IGlzIGNhbGxlZCB2aWEgaW5pdF9tb2R1bGUgYXQgbW9kdWxlIGxvYWQgdGlt
-ZSwgb3IgdmlhDQogICogbGludXgvaW5pdC9tYWluLmMgKHRoaXMgaXMgbm90
-IGN1cnJlbnRseSBzdXBwb3J0ZWQpLiAqLw0KIA0KLXN0YXRpYyBpbnQgbWdh
-X2luaXQodm9pZCkNCitzdGF0aWMgaW50IF9faW5pdCBtZ2FfaW5pdCh2b2lk
-KQ0KIHsNCiAJaW50CQkgICAgICByZXRjb2RlOw0KIAlkcm1fZGV2aWNlX3QJ
-ICAgICAgKmRldiA9ICZtZ2FfZGV2aWNlOw0KQEAgLTM5OCw3ICszOTgsNyBA
-QA0KIA0KIC8qIG1nYV9jbGVhbnVwIGlzIGNhbGxlZCB2aWEgY2xlYW51cF9t
-b2R1bGUgYXQgbW9kdWxlIHVubG9hZCB0aW1lLiAqLw0KIA0KLXN0YXRpYyB2
-b2lkIG1nYV9jbGVhbnVwKHZvaWQpDQorc3RhdGljIHZvaWQgX19leGl0IG1n
-YV9jbGVhbnVwKHZvaWQpDQogew0KIAlkcm1fZGV2aWNlX3QJICAgICAgKmRl
-diA9ICZtZ2FfZGV2aWNlOw0KIA0KZGlmZiAtdU5yIGxpbnV4LTI0MHQxMXAy
-L2RyaXZlcnMvY2hhci9kcm0vcjEyOF9kcnYuYyBsaW51eC9kcml2ZXJzL2No
-YXIvZHJtL3IxMjhfZHJ2LmMNCi0tLSBsaW51eC0yNDB0MTFwMi9kcml2ZXJz
-L2NoYXIvZHJtL3IxMjhfZHJ2LmMJRnJpIE5vdiAxMCAxNDoyODo0MiAyMDAw
-DQorKysgbGludXgvZHJpdmVycy9jaGFyL2RybS9yMTI4X2Rydi5jCVNhdCBO
-b3YgMTEgMDE6NDU6MTcgMjAwMA0KQEAgLTMyMyw3ICszMjMsNyBAQA0KIC8q
-IHIxMjhfaW5pdCBpcyBjYWxsZWQgdmlhIGluaXRfbW9kdWxlIGF0IG1vZHVs
-ZSBsb2FkIHRpbWUsIG9yIHZpYQ0KICAqIGxpbnV4L2luaXQvbWFpbi5jICh0
-aGlzIGlzIG5vdCBjdXJyZW50bHkgc3VwcG9ydGVkKS4gKi8NCiANCi1zdGF0
-aWMgaW50IHIxMjhfaW5pdCh2b2lkKQ0KK3N0YXRpYyBpbnQgX19pbml0IHIx
-MjhfaW5pdCh2b2lkKQ0KIHsNCiAJaW50CQkgICAgICByZXRjb2RlOw0KIAlk
-cm1fZGV2aWNlX3QJICAgICAgKmRldiA9ICZyMTI4X2RldmljZTsNCkBAIC0z
-ODcsNyArMzg3LDcgQEANCiANCiAvKiByMTI4X2NsZWFudXAgaXMgY2FsbGVk
-IHZpYSBjbGVhbnVwX21vZHVsZSBhdCBtb2R1bGUgdW5sb2FkIHRpbWUuICov
-DQogDQotc3RhdGljIHZvaWQgcjEyOF9jbGVhbnVwKHZvaWQpDQorc3RhdGlj
-IHZvaWQgX19leGl0IHIxMjhfY2xlYW51cCh2b2lkKQ0KIHsNCiAJZHJtX2Rl
-dmljZV90CSAgICAgICpkZXYgPSAmcjEyOF9kZXZpY2U7DQogDQpkaWZmIC11
-TnIgbGludXgtMjQwdDExcDIvZHJpdmVycy9jaGFyL2RybS90ZGZ4X2Rydi5j
-IGxpbnV4L2RyaXZlcnMvY2hhci9kcm0vdGRmeF9kcnYuYw0KLS0tIGxpbnV4
-LTI0MHQxMXAyL2RyaXZlcnMvY2hhci9kcm0vdGRmeF9kcnYuYwlGcmkgTm92
-IDEwIDE0OjI4OjQyIDIwMDANCisrKyBsaW51eC9kcml2ZXJzL2NoYXIvZHJt
-L3RkZnhfZHJ2LmMJU2F0IE5vdiAxMSAwMTo0MzowNyAyMDAwDQpAQCAtMjk4
-LDcgKzI5OCw3IEBADQogLyogdGRmeF9pbml0IGlzIGNhbGxlZCB2aWEgaW5p
-dF9tb2R1bGUgYXQgbW9kdWxlIGxvYWQgdGltZSwgb3IgdmlhDQogICogbGlu
-dXgvaW5pdC9tYWluLmMgKHRoaXMgaXMgbm90IGN1cnJlbnRseSBzdXBwb3J0
-ZWQpLiAqLw0KIA0KLXN0YXRpYyBpbnQgdGRmeF9pbml0KHZvaWQpDQorc3Rh
-dGljIGludCBfX2luaXQgdGRmeF9pbml0KHZvaWQpDQogew0KIAlpbnQJCSAg
-ICAgIHJldGNvZGU7DQogCWRybV9kZXZpY2VfdAkgICAgICAqZGV2ID0gJnRk
-ZnhfZGV2aWNlOw0KQEAgLTM0Niw3ICszNDYsNyBAQA0KIA0KIC8qIHRkZnhf
-Y2xlYW51cCBpcyBjYWxsZWQgdmlhIGNsZWFudXBfbW9kdWxlIGF0IG1vZHVs
-ZSB1bmxvYWQgdGltZS4gKi8NCiANCi1zdGF0aWMgdm9pZCB0ZGZ4X2NsZWFu
-dXAodm9pZCkNCitzdGF0aWMgdm9pZCBfX2V4aXQgdGRmeF9jbGVhbnVwKHZv
-aWQpDQogew0KIAlkcm1fZGV2aWNlX3QJICAgICAgKmRldiA9ICZ0ZGZ4X2Rl
-dmljZTsNCiANCg==
---8323328-1313542478-973983244=:11176--
+						- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

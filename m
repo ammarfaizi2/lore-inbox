@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263653AbUDYWLq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263654AbUDYWPe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263653AbUDYWLq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Apr 2004 18:11:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263654AbUDYWLq
+	id S263654AbUDYWPe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Apr 2004 18:15:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263656AbUDYWPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Apr 2004 18:11:46 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:35784 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S263653AbUDYWLp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Apr 2004 18:11:45 -0400
-Date: Sun, 25 Apr 2004 18:11:24 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Alexey Mahotkin <alexm@w-m.ru>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: flooded by "CPU#0: Running in modulated clock mode"
-In-Reply-To: <20040425204346.GF24375@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.58.0404251810260.3414@montezuma.fsmlabs.com>
-References: <8765btmd9n.fsf@dim.w-m.ru> <Pine.LNX.4.58.0404211355220.2250@montezuma.fsmlabs.com>
- <87y8opkxyo.fsf@dim.w-m.ru> <Pine.LNX.4.58.0404211411390.2250@montezuma.fsmlabs.com>
- <20040424110730.GB2595@openzaurus.ucw.cz> <Pine.LNX.4.58.0404250309080.3414@montezuma.fsmlabs.com>
- <20040425204346.GF24375@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 25 Apr 2004 18:15:34 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:15376 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S263654AbUDYWPd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Apr 2004 18:15:33 -0400
+Date: Mon, 26 Apr 2004 00:15:28 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Remi Colinet <remi.colinet@free.fr>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Questions : disk partition re-reading
+Message-ID: <20040425221528.GB3040@pclin040.win.tue.nl>
+References: <4082819E.10106@free.fr> <20040420074650.GA3040@pclin040.win.tue.nl> <20040420143634.GA12132@bitwizard.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040420143634.GA12132@bitwizard.nl>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
+On Tue, Apr 20, 2004 at 04:36:35PM +0200, Rogier Wolff wrote:
+...
+> then there is a problem and I can understand "Busy".  But if the new
+> scheme is: 
+> 
+> 	<hda1> swap 1G  
+> 	<hda2> root 19G   (active)
+>       <hda3> data 20G   <unformatted>
+> 
+> then I don't understand the reason for refusing the rereadpt request.
+> 
+> Anybody want to code this up?
 
-On Sun, 25 Apr 2004, Pavel Machek wrote:
+The answer is always the same: it exists and is called partx.
 
-> > > > If i recall correctly it's hardware set, i'm not sure if BIOSes can modify
-> > > > that these days. One thing you may want to note is that in the modulated
-> > > > state the processor doesn't process interrupts and runs at a 50% clock
-> > >
-> > > No interrupts? That would mean almost dead machine.
-> > > Are you sure?
-> >
-> > Yep, it's normally 50% modulation for 1ms or until the temperature drops
-> > below threshold, whichever comes first with interrupts remaining pending.
->
-> Ok, but that means (assuming machine is above treshold all the time)
-> that interrupts are only delayed by milisecond, and that machine does
-> no usefull work 50% of time, right?
-
-Correct, it's actually not that observable on a non heavily loaded system.
+Maybe you want to move part of its functionality into the kernel,
+but there is no good reason.

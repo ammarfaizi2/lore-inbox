@@ -1,39 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277335AbRJJRce>; Wed, 10 Oct 2001 13:32:34 -0400
+	id <S277336AbRJJRgE>; Wed, 10 Oct 2001 13:36:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277338AbRJJRcY>; Wed, 10 Oct 2001 13:32:24 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39688 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277335AbRJJRcT>; Wed, 10 Oct 2001 13:32:19 -0400
-Subject: Re: Dilemma: Replace Escalade with Adaptec 2400A or Promise Supertrak66?
-To: jkniiv@hushmail.com
-Date: Wed, 10 Oct 2001 18:33:22 +0100 (BST)
+	id <S277337AbRJJRfy>; Wed, 10 Oct 2001 13:35:54 -0400
+Received: from eispost12.serverdienst.de ([212.168.16.111]:49415 "EHLO imail")
+	by vger.kernel.org with ESMTP id <S277336AbRJJRfl>;
+	Wed, 10 Oct 2001 13:35:41 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Robert Szentmihalyi <robert.szentmihalyi@entracom.de>
+To: Chmouel Boudjnah <chmouel@mandrakesoft.com>,
+        Juan Quintela <quintela@mandrakesoft.com>
+Subject: Re: APM on a HP Omnibook XE3
+Date: Wed, 10 Oct 2001 19:36:00 +0200
+X-Mailer: KMail [version 1.3]
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200110101408.f9AE87w91970@mailserver1.hushmail.com> from "jkniiv@hushmail.com" at Oct 10, 2001 07:08:07 AM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <200108301443355.SM00167@there> <m2elobn7a3.fsf@anano.mitica> <m3sncrh9u8.fsf@giants.mandrakesoft.com>
+In-Reply-To: <m3sncrh9u8.fsf@giants.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15rNER-0008UB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200110101943880.SM00161@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I know that both are based on an I2O architecture so there's some hope, at 
-> least, even if there is very little support officially by Adaptec or Promise.
-> Alan himself has proclaimed that the Supertrak works for him just fine, but 
-> I presume there are no Linux-based utilities available yet. Is there then 
-> any way to find out if a drive has gone south and needs to be replaced --
->  kernel log messages, maybe?
+Am Mittwoch, 10. Oktober 2001 16:02 schrieb Chmouel Boudjnah:
+> Juan Quintela <quintela@mandrakesoft.com> writes:
+> > >>>>> "robert" == Robert Szentmihalyi
+> > >>>>> <robert.szentmihalyi@entracom.de> writes:
+> >
+> > robert> Hi!
+> > robert> Sorry if this is OT.
+> > robert> I'm not sure if this is a kernel issue, but I'm running
+> > out of robert> ideas on this....
+> >
+> > robert> I have a HP Omnibook XE3 with SuSE Linux 7.2 installed.
+> > robert> Everything works fine except suspend-to-disk.
+> > robert> (I have created the partition. It works under
+> > Winblows...) robert> I have tried Kernels 2.4.4 and 2.4.7 (with
+> > SuSE patches) as well as robert> 2.4.9 vanilla, but I keep
+> > getting the same messages: robert> When I do
+> > robert> apm -s
+> > robert> I get
+> > robert> apm: Input/output error
+> > robert> and the Kernel log says:
+> > robert> apm: suspend: Unable to enter requested state
+> >
+> >
+> > robert> Any ideas what I could do?
+> >
+> > For me Fn+F12 works.
+unfortunately not for me....
+> > apm -s & apm -S fails.
+>
+> works only if you have a suspend-on-disk partition.
+I have created one with lphdisk and it works under Win2k...
 
-I2O provides the basic info needed to check stuff (it uses an HTML interface
-bizarrely enough). The DPT/Adaptec doesn't use this so Im not sure what
-its monitoring setup is
+The HP support people say the new omnibook BIOS is not APM 
+compilant any more.
+ACPI only...
 
-As to support
+Suspend-to-disk with API is not yet supported and I can't use 
+software suspend because of reiserfs
 
-Promise sent me the card, and answered questions on firmware funnies
-Adaptec wrote their own open source drivers 
+I guess I have to wait for proper hibernation support with ACPI....
 
-Alan
+-- 
+Where do you want to be tomorrow?
+
+Entracom. Building Linux systems.
+http://www.entracom.de

@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbUDSS1S (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 14:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbUDSS1S
+	id S261678AbUDSSc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 14:32:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbUDSSc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 14:27:18 -0400
-Received: from sankara1.bol.com.br ([200.221.24.109]:15829 "EHLO
-	sankara1.bol.com.br") by vger.kernel.org with ESMTP id S261685AbUDSS1P
+	Mon, 19 Apr 2004 14:32:59 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29101 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261678AbUDSSc5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 14:27:15 -0400
-Subject: task switching at Page Faults
-From: Fabiano Ramos <fabramos@bol.com.br>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1082399579.1146.15.camel@slack.domain.invalid>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 19 Apr 2004 15:32:59 -0300
+	Mon, 19 Apr 2004 14:32:57 -0400
+Message-ID: <40841B4B.4090102@pobox.com>
+Date: Mon, 19 Apr 2004 14:32:43 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andreas Jochens <aj@andaco.de>, "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tg3 driver - address error in TSO firmware code
+References: <20040418135534.GA6142@andaco.de> <20040418180811.0b2e2567.davem@redhat.com> <20040419080439.GB11586@andaco.de> <4083F5CE.5080008@pobox.com> <20040419181238.GA5987@andaco.de>
+In-Reply-To: <20040419181238.GA5987@andaco.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Sender-IP: 200.165.173.234
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+Andreas Jochens wrote:
+> diff -urN linux-2.6.5.orig/drivers/net/tg3.c linux-2.6.5/drivers/net/tg3.c
+> --- linux-2.6.5.orig/drivers/net/tg3.c	2004-04-03 21:37:23.000000000 -0600
+> +++ linux-2.6.5/drivers/net/tg3.c	2004-04-19 12:47:09.254148712 -0500
+> @@ -3842,7 +3842,7 @@
+>  #define TG3_TSO_FW_START_ADDR		0x08000000
+>  #define TG3_TSO_FW_TEXT_ADDR		0x08000000
+>  #define TG3_TSO_FW_TEXT_LEN		0x1a90
+> -#define TG3_TSO_FW_RODATA_ADDR		0x08001a900
+> +#define TG3_TSO_FW_RODATA_ADDR		0x08001a90
+>  #define TG3_TSO_FW_RODATA_LEN		0x60
+>  #define TG3_TSO_FW_DATA_ADDR		0x08001b20
+>  #define TG3_TSO_FW_DATA_LEN		0x20
 
-	I am in doubt about the linux kernel behaviour is this situation:
-supose a have the process A, with the highest realtime
-priority and SCHED_FIFO policy. The process then issues a syscall,
-say read():
 
-	1) Can I be sure that there will be no process switch during the
-syscall processing, even if the system call causes a page fault?
+Agreed this is a bug, good spotting.
 
-	2) What if the process was a non-realtime processes (ordinary
-one, SCHED_OTHER)?
+David, want to merge this one?
+
+	Jeff
 
 
-Thanks a lot.
-Fabiano
 

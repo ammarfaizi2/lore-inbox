@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270384AbTG1TSq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 15:18:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270430AbTG1TSq
+	id S270445AbTG1Sx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 14:53:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270452AbTG1Sx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 15:18:46 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:51341 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S270384AbTG1TSp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 15:18:45 -0400
-Date: Mon, 28 Jul 2003 21:18:34 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: jari.ruusu@pp.inet.fi, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test2: cursor started to disappear
-Message-ID: <20030728191834.GF572@elf.ucw.cz>
-References: <20030728181408.GA499@elf.ucw.cz> <20030728182757.GA1793@win.tue.nl> <20030728183443.GC572@elf.ucw.cz> <20030728190039.GA1802@win.tue.nl>
+	Mon, 28 Jul 2003 14:53:26 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:6632 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S270445AbTG1SxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 14:53:22 -0400
+Date: Mon, 28 Jul 2003 15:08:37 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: pmd_large vs. pmd_huge
+Message-ID: <20030728150837.A29122@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030728190039.GA1802@win.tue.nl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I looked at the 2.6.0-test2 to find out the difference between
+large and huge pages, but it seems they are one and the same.
+The ia64 only implements pmd_huge, so how about just going
+with that everywhere? For starters, we can do this to strike
+down an evil #ifdef:
 
-> > > > Plus I'm seeing some silent data corruption. It may be
-> > > > swsusp or loop related
-> > > 
-> > > Loop is not stable at all. Unsuitable for daily use.
-> > 
-> > Ouch... I have my most important filesystem on loop. Time to go back
-> > to 2.4.X? Or do you have some patches you want me to try?
-> 
-> [maybe an extra backup?]
-
-Hmm, looks like I should do that.
-
-> Jari's version of loop.c has always been solid.
-
-Jari Ruusu? Okay, I'll test that.
-
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+diff -urN -X dontdiff linux-2.6.0-test1-bk2/mm/slab.c linux-2.6.0-test1-bk2-nip/mm/slab.c
+--- linux-2.6.0-test1-bk2/mm/slab.c	2003-07-23 18:20:17.000000000 -0700
++++ linux-2.6.0-test1-bk2-nip/mm/slab.c	2003-07-28 11:58:46.000000000 -0700
+@@ -91,6 +91,7 @@
+ #include	<linux/cpu.h>
+ #include	<linux/sysctl.h>
+ #include	<linux/module.h>
++#include	<linux/hugetlb.h>
+ 
+ #include	<asm/uaccess.h>
+ #include	<asm/cacheflush.h>
+@@ -2728,12 +2729,10 @@
+ 			printk("No pmd.\n");
+ 			break;
+ 		}
+-#ifdef CONFIG_X86
+-		if (pmd_large(*pmd)) {
+-			printk("Large page.\n");
++		if (pmd_huge(*pmd)) {
++			printk("Huge page.\n");
+ 			break;
+ 		}
+-#endif
+ 		printk("normal page, pte_val 0x%llx\n",
+ 		  (unsigned long long)pte_val(*pte_offset_kernel(pmd, addr)));
+ 	} while(0);

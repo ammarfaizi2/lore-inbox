@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVAEBCf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbVAEBFx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261534AbVAEBCf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 20:02:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbVAEBCf
+	id S262173AbVAEBFx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 20:05:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVAEBFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 20:02:35 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:19181 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261534AbVAEBCb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 20:02:31 -0500
-Subject: Re: Prezeroing V3 [1/4]: Allow request for zeroed memory
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0501041512450.1536@schroedinger.engr.sgi.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F02900FBD@scsmsx401.amr.corp.intel.com>
-	 <41C20E3E.3070209@yahoo.com.au>
-	 <Pine.LNX.4.58.0412211154100.1313@schroedinger.engr.sgi.com>
-	 <Pine.LNX.4.58.0412231119540.31791@schroedinger.engr.sgi.com>
-	 <Pine.LNX.4.58.0412231132170.31791@schroedinger.engr.sgi.com>
-	 <Pine.LNX.4.58.0412231133130.31791@schroedinger.engr.sgi.com>
-	 <Pine.GSO.4.61.0501011123550.27452@waterleaf.sonytel.be>
-	 <Pine.LNX.4.58.0501041510430.1536@schroedinger.engr.sgi.com>
-	 <Pine.LNX.4.58.0501041512450.1536@schroedinger.engr.sgi.com>
+	Tue, 4 Jan 2005 20:05:51 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:9911 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262157AbVAEBFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 20:05:41 -0500
+Subject: Re: [7/7] LEON SPARC V8 processor support for linux-2.6.10
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jiri Gaisler <jiri@gaisler.com>
+Cc: sparclinux@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       wli@holomorphy.com
+In-Reply-To: <41DAE8CC.3010904@gaisler.com>
+References: <41DAE8CC.3010904@gaisler.com>
 Content-Type: text/plain
-Date: Tue, 04 Jan 2005 15:45:42 -0800
-Message-Id: <1104882342.16305.12.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
+Message-Id: <1104877702.17166.53.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 05 Jan 2005 00:01:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-04 at 15:13 -0800, Christoph Lameter wrote:
-> +		if (gfp_flags & __GFP_ZERO) {
-> +#ifdef CONFIG_HIGHMEM
-> +			if (PageHighMem(page)) {
-> +				int n = 1 << order;
-> +
-> +				while (n-- >0)
-> +					clear_highpage(page + n);
-> +			} else
-> +#endif
-> +			clear_page(page_address(page), order);
-> +		}
->  		if (order && (gfp_flags & __GFP_COMP))
->  			prep_compound_page(page, order);
+On Maw, 2005-01-04 at 19:04, Jiri Gaisler wrote:
+> +            if (tty->flip.count >= TTY_FLIPBUF_SIZE) {
+> +			tty->flip.work.func((void *)tty);
+> +			if (tty->flip.count >= TTY_FLIPBUF_SIZE) {
+> +				printk(KERN_WARNING "TTY_DONT_FLIP set\n");
+> +				return;
+> +			}
 
-That #ifdef can probably die.  The compiler should get that all by
-itself:
+This code is broken. Please copy the fixes from the other
+drivers/serial/*.c files as you've copied a bug from the reference code.
+There are some other small cleanups in the base code that are worth
+adding too in particular removing direct (ab)use of tty->flip. because
+that will be changing some time in the future (when I finish debugging
+the tty layer mess)
 
-> #ifdef CONFIG_HIGHMEM
-> #define PageHighMem(page)       test_bit(PG_highmem, &(page)->flags)
-> #else
-> #define PageHighMem(page)       0 /* needed to optimize away at compile time */
-> #endif
-
--- Dave
 

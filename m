@@ -1,36 +1,175 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318635AbSICDfZ>; Mon, 2 Sep 2002 23:35:25 -0400
+	id <S318661AbSICEA3>; Tue, 3 Sep 2002 00:00:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318638AbSICDfZ>; Mon, 2 Sep 2002 23:35:25 -0400
-Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:24796
-	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S318635AbSICDfZ> convert rfc822-to-8bit; Mon, 2 Sep 2002 23:35:25 -0400
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net
-To: linux-kernel@vger.kernel.org
-Subject: Memory issues with 2.4.19+
-Date: Mon, 2 Sep 2002 23:42:40 -0400
-User-Agent: KMail/1.4.6
+	id <S318691AbSICEA3>; Tue, 3 Sep 2002 00:00:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27911 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318661AbSICEA1>;
+	Tue, 3 Sep 2002 00:00:27 -0400
+Message-ID: <3D7437AC.74EAE22B@zip.com.au>
+Date: Mon, 02 Sep 2002 21:16:44 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200209022342.40952.spstarr@sh0n.net>
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.100.232.94] using ID <shawn.starr@rogers.com> at Mon, 2 Sep 2002 23:39:42 -0400
+To: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: 2.5.33-mm1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know if this is normal but:
+http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.33/2.5.33-mm1/
 
-when using vmstat 1  in single user mode free memory drops while cpu is 100% 
-idle. When using top the memory drops and buffered memory inreases. When I 
-quit top and go back to vmstat the same memory stats are shown.  Will the 
-kernel free this so called used memory back or is the buffered memory still 
-usable by the system?
 
-I'm not show how Linux's VM works with memory usage.
+Seven new patches - mostly just code cleanups.
 
-Shawn.
++slablru-speedup.patch
 
+  A patch to improve slablru cpu efficiency.  Ed is
+  redoing this.
+
++oom-fix.patch
+
+  Fix an OOM-killing episode on large highmem machines.
+
++tlb-cleanup.patch
+
+  Remove debug code from the tlb_gather rework, tidy up a couple of
+  things.
+
++dump-stack.patch
+
+  Arch-independent stack-dumping debug function
+
++madvise-move.patch
+
+  Move the madvise implementation out of filemap.c into madvise.c
+
++split-vma.patch
+
+  Rationalise lots of the VMA-manipulation code.
+
++buffer-ops-move.patch
+
+  Move the buffer_head IO functions out of ll_rw_blk.c, into buffer.c
+
+
+
+
+scsi_hack.patch
+  Fix block-highmem for scsi
+
+ext3-htree.patch
+  Indexed directories for ext3
+
+rmap-locking-move.patch
+  move rmap locking inlines into their own header file.
+
+discontig-paddr_to_pfn.patch
+  Convert page pointers into pfns for i386 NUMA
+
+discontig-setup_arch.patch
+  Rework setup_arch() for i386 NUMA
+
+discontig-mem_init.patch
+  Restructure mem_init for i386 NUMA
+
+discontig-i386-numa.patch
+  discontigmem support for i386 NUMA
+
+cleanup-mem_map-1.patch
+  Clean up lots of open-coded uese of mem_map[].  For ia32 NUMA
+
+zone-pages-reporting.patch
+  Fix the boot-time reporting of each zone's available pages
+
+enospc-recovery-fix.patch
+  Fix the __block_write_full_page() error path.
+
+fix-faults.patch
+  Back out the initial work for atomic copy_*_user()
+
+spin-lock-check.patch
+  spinlock/rwlock checking infrastructure
+
+refill-rate.patch
+  refill the inactive list more quickly
+
+copy_user_atomic.patch
+
+kmap_atomic_reads.patch
+  Use kmap_atomic() for generic_file_read()
+
+kmap_atomic_writes.patch
+  Use kmap_atomic() for generic_file_write()
+
+throttling-fix.patch
+  Fix throttling of heavy write()rs.
+
+dirty-state-accounting.patch
+  Make the global dirty memory accounting more accurate
+
+rd-cleanup.patch
+  Cleanup and fix the ramdisk driver (doesn't work right yet)
+
+discontig-cleanup-1.patch
+  i386 discontigmem coding cleanups
+
+discontig-cleanup-2.patch
+  i386 discontigmem cleanups
+
+writeback-thresholds.patch
+  Downward adjustments to the default dirtymemory thresholds
+
+buffer-strip.patch
+  Limit the consumption of ZONE_NORMAL by buffer_heads
+
+rmap-speedup.patch
+  rmap pte_chain space and CPU reductions
+
+wli-highpte.patch
+  Resurrect CONFIG_HIGHPTE - ia32 pagetables in highmem
+
+readv-writev.patch
+  O_DIRECT support for readv/writev
+
+slablru.patch
+  age slab pages on the LRU
+
+slablru-speedup.patch
+  slablru optimisations
+
+llzpr.patch
+  Reduce scheduling latency across zap_page_range
+
+buffermem.patch
+  Resurrect buffermem accounting
+
+config-PAGE_OFFSET.patch
+  Configurable kenrel/user memory split
+
+lpp.patch
+  ia32 huge tlb pages
+
+ext3-sb.patch
+  u.ext3_sb -> generic_sbp
+
+oom-fix.patch
+  Fix an OOM condition on big highmem machines
+
+tlb-cleanup.patch
+  Clean up the tlb gather code
+
+dump-stack.patch
+  arch-neutral dump_stack() function
+
+madvise-move.patch
+  move mdavise implementation into mm/madvise.c
+
+split-vma.patch
+  VMA splitting patch
+
+buffer-ops-move.patch
+  Move submit_bh() and ll_rw_block() into fs/buffer.c

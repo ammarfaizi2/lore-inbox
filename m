@@ -1,58 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129373AbRBOTeS>; Thu, 15 Feb 2001 14:34:18 -0500
+	id <S129104AbRBOTnt>; Thu, 15 Feb 2001 14:43:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129118AbRBOTeJ>; Thu, 15 Feb 2001 14:34:09 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:22532 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129110AbRBOTeC>;
-	Thu, 15 Feb 2001 14:34:02 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102151933.WAA20558@ms2.inr.ac.ru>
-Subject: Re: MTU and 2.4.x kernel
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Thu, 15 Feb 2001 22:33:23 +0300 (MSK)
-Cc: roger@kea.GRace.CRi.NZ, linux-kernel@vger.kernel.org
-In-Reply-To: <E14TTRF-0000Ul-00@the-village.bc.nu> from "Alan Cox" at Feb 15, 1 06:47:31 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S129118AbRBOTnj>; Thu, 15 Feb 2001 14:43:39 -0500
+Received: from [62.90.5.51] ([62.90.5.51]:39698 "EHLO salvador.shunra.co.il")
+	by vger.kernel.org with ESMTP id <S129104AbRBOTn2>;
+	Thu, 15 Feb 2001 14:43:28 -0500
+Message-ID: <F1629832DE36D411858F00C04F24847A035905@SALVADOR>
+From: Gabi Davar <gabi@SHUNRA.co.il>
+To: "'Yuri Niyazov'" <yuricake@yahoo.com>
+Cc: "Linux Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: RE: What does the linux kernel need?
+Date: Thu, 15 Feb 2001 21:47:57 +0200
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain;
+	charset="WINDOWS-1255"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-
-> Please cite an exact RFC reference.
-
-No need to cite RFC, this is plain sillogism.
-
-A. Datagram protocols do not work with mtus not allowing to send
-   512 byte frames (even DNS).
-B. Accoutning, classification, resource reervation does not work on
-   fragmented packets.
-
--> IP suite is not full functional with low MTUs and must be eliminated.
+http://linux24.sourceforge.net/ is a good place to start.
 
 
-Current setting of min_adv_mss to 536 is actually occasional.
-I tested pmtu discovery on local clients using mtu 296 and did not
-change the value to less fascist after this. I happened to be not
-mistake, I found some fun talking to people, which suffer of superstition
-that "mtu 296 is good for..." (latency for example) 8)8)8)
+> I am not subscribed to the list yet, please CC to me your reply.
+> Thank you very much,
+
+You should be.
+
+Also I suggest you read the lkml FAQ at http://www.tux.org/lkml/ . It should
+give quite a few starting points.
+
+-gabi
 
 
-> to put it back together. Our handling of DF on syn frames is also broken
-> due to that misassumption, but fortunately only for crazy mtus like 70.
-
-Right observation. It stops to work even earlier: at mtu<128.
-It is strict limit. Pardon, discussing marginal cases is useless.
-If someone has device with mtu of 128, let him to put it back to the place,
-where he found it.
-
-Preventing DoSes requires to block pmtu discovery at 576 or at least 552.
-
-More practical question is mtu=296. There exist old myth that this value
-is good for PPP. This is nothing but myth. 14% of overhead.
-
-I would prefer that minimal MTU on internet stayed on 576, which
-is already fact.
-
-Alexey
+> -----Original Message-----
+> From: Yuri Niyazov [mailto:yuricake@yahoo.com]
+> Sent: Thursday, February 15, 2001 7:13 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: What does the linux kernel need?
+> 
+> 
+> Hello, respected Linux kernel developers,
+>     I am currently a university student taking a "Advanced design of 
+> Operating Systems" class at
+> New York University. We are reviewing some basic and studying a few 
+> advanced issues with regards
+> to kernel design, mostly multithreading, scalability, performance 
+> improvement - its webpage is http://www.scs.cs.nyu.edu/G22.3033-010/
+> take a look if you please. The requirement of the class is a final 
+> project proposal and
+> implementation of a student's own choosing - I would really 
+> like to do 
+> something useful for the
+> linux kernel, but I do not know what kinds of issues are most 
+> imminent 
+> at the linux kernel and
+> have to be worked on. I would greatly appreciate it if people would 
+> send me ideas of what is
+> needed and what I can work on - it can be pretty much anything, any 
+> topic or project, but it must
+> relate to kernel development, thus I am asking it here. 
+> I am not subscribed to the list yet, please CC to me your reply.
+> Thank you very much,
+> Yuri Niyazov
+> 
+> __________________________________________________
+> Do You Yahoo!?
+> Get personalized email addresses from Yahoo! Mail - only $35 
+> a year!  http://personal.mail.yahoo.com/
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

@@ -1,65 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268064AbTBMPp1>; Thu, 13 Feb 2003 10:45:27 -0500
+	id <S268068AbTBMPzB>; Thu, 13 Feb 2003 10:55:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268067AbTBMPp1>; Thu, 13 Feb 2003 10:45:27 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:37834 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S268064AbTBMPpW>; Thu, 13 Feb 2003 10:45:22 -0500
-Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
-From: Rusty Lynch <rusty@linux.co.intel.com>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: wingel@nano-systems.com, lkml <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20030213115545.GA26814@codemonkey.org.uk>
-References: <1045106216.1089.16.camel@vmhack> 
-	<20030213115545.GA26814@codemonkey.org.uk>
-Content-Type: text/plain
+	id <S268069AbTBMPzB>; Thu, 13 Feb 2003 10:55:01 -0500
+Received: from mons.uio.no ([129.240.130.14]:57542 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S268068AbTBMPy7>;
+	Thu, 13 Feb 2003 10:54:59 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 13 Feb 2003 07:34:35 -0800
-Message-Id: <1045150488.1009.3.camel@vmhack>
-Mime-Version: 1.0
+Message-ID: <15947.49657.69111.510604@charged.uio.no>
+Date: Thu, 13 Feb 2003 17:04:09 +0100
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.60 NFS FSX
+In-Reply-To: <20030213155112.GA2070@codemonkey.org.uk>
+References: <20030213152742.GA1560@codemonkey.org.uk>
+	<shs4r78yyjs.fsf@charged.uio.no>
+	<20030213155112.GA2070@codemonkey.org.uk>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-02-13 at 03:55, Dave Jones wrote:
-> On Wed, Feb 12, 2003 at 07:16:55PM -0800, Rusty Lynch wrote:
->  > Basically, with the help of some watchdog infrastructure code, we could make 
->  > each watchdog device register as a platform_device named watchdog, so for 
->  > every watchdog on the system there is a /sys/devices/legacy/watchdogN/ 
->  > directory created for it.  
-> 
-> Why legacy ? That seems an odd place to be putting these.
-> 
-> 		Dave
-> 
-> -- 
-> | Dave Jones.        http://www.codemonkey.org.uk
-> | SuSE Labs
+>>>>> " " == Dave Jones <davej@codemonkey.org.uk> writes:
 
-The watchdogN devices show up under the "legacy" directory because
-they are platform devices.  From reading the driver-model documentation,
-I believe that platform devices are the correct way of categorizing
-watchdog devices.
+     > Last thing I spotted on a serial terminal was..
 
-<pasting from Documentation/driver-model/platform.txt>
+     > RPC: garbage, exit EIO
 
-Platform devices
-~~~~~~~~~~~~~~~~
-Platform devices are devices that typically appear as autonomous
-entities in the system. This includes legacy port-based devices and
-host bridges to peripheral buses. 
+Right: that's what you would expect for corruption.
 
+Was this by the way an SMP setup? If so, could you try the following
+patch (based on a previous patch by Olaf Kirch) and that I sent to Linus
+earlier today. It fixes an issue that could on occasion lead to some
+pretty nasty corruption issues.
 
-Platform drivers
-~~~~~~~~~~~~~~~~
-Drivers for platform devices have typically very simple and
-unstructured. Either the device was present at a particular I/O port
-and the driver was loaded, or there was not. There was no possibility
-of hotplugging or alternative discovery besides probing at a specific
-I/O address and expecting a specific response.
+I don't think SMP can explain all the corruption issues though, as
+I've also been seeing wierdness on my laptop.
 
-</pasting from Documentation/driver-model/platform.txt>
+Cheers,
+  Trond
 
-
+diff -u --recursive --new-file linux-2.5.60-00-fix_pipes/net/sunrpc/xprt.c linux-2.5.60-01-fix_xid/net/sunrpc/xprt.c
+--- linux-2.5.60-00-fix_pipes/net/sunrpc/xprt.c	2003-01-12 22:39:48.000000000 +0100
++++ linux-2.5.60-01-fix_xid/net/sunrpc/xprt.c	2003-02-13 14:17:10.000000000 +0100
+@@ -1273,25 +1273,41 @@
+ }
+ 
+ /*
++ * Allocate a 'unique' XID
++ */
++static u32
++xprt_alloc_xid(void)
++{
++	static spinlock_t xid_lock = SPIN_LOCK_UNLOCKED;
++	static int need_init = 1;
++	static u32 xid;
++	u32 ret;
++
++	spin_lock(&xid_lock);
++	if (unlikely(need_init)) {
++		xid = get_seconds() << 12;
++		need_init = 0;
++	}
++	ret = xid++;
++	spin_unlock(&xid_lock);
++	return ret;
++}
++
++/*
+  * Initialize RPC request
+  */
+ static void
+ xprt_request_init(struct rpc_task *task, struct rpc_xprt *xprt)
+ {
+ 	struct rpc_rqst	*req = task->tk_rqstp;
+-	static u32	xid = 0;
+-
+-	if (!xid)
+-		xid = get_seconds() << 12;
+ 
+-	dprintk("RPC: %4d reserved req %p xid %08x\n", task->tk_pid, req, xid);
+ 	req->rq_timeout = xprt->timeout;
+ 	req->rq_task	= task;
+ 	req->rq_xprt    = xprt;
+-	req->rq_xid     = xid++;
+-	if (!xid)
+-		xid++;
++	req->rq_xid     = xprt_alloc_xid();
+ 	INIT_LIST_HEAD(&req->rq_list);
++	dprintk("RPC: %4d reserved req %p xid %08x\n", task->tk_pid,
++			req, req->rq_xid);
+ }
+ 
+ /*

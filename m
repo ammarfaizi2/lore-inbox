@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312898AbSDBT1h>; Tue, 2 Apr 2002 14:27:37 -0500
+	id <S312903AbSDBTbR>; Tue, 2 Apr 2002 14:31:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312899AbSDBT11>; Tue, 2 Apr 2002 14:27:27 -0500
-Received: from h53n2fls32o986.telia.com ([213.67.49.53]:24592 "EHLO
-	localhost.toothpaste.org") by vger.kernel.org with ESMTP
-	id <S312898AbSDBT1S>; Tue, 2 Apr 2002 14:27:18 -0500
-Date: Tue, 2 Apr 2002 22:23:55 +0200
-From: Erik =?ISO-8859-1?Q?Ljungstr=F6m?= <insight@metalab.unc.edu>
-To: Jens Schmidt <j.schmidt@paradise.net.nz>
-Cc: DiegoCG@teleline.es, linux-kernel@vger.kernel.org
-Subject: Re: Linux needs new leadership.
-Message-Id: <20020402222355.19a25619.insight@metalab.unc.edu>
-In-Reply-To: <3CA9FD21.636C02B6@paradise.net.nz>
-Organization: Independent C0der
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S312901AbSDBTbH>; Tue, 2 Apr 2002 14:31:07 -0500
+Received: from relay1.pair.com ([209.68.1.20]:62731 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S312899AbSDBTbB>;
+	Tue, 2 Apr 2002 14:31:01 -0500
+X-pair-Authenticated: 24.126.75.99
+Message-ID: <3CAA09E0.6549FD7F@kegel.com>
+Date: Tue, 02 Apr 2002 11:43:28 -0800
+From: Dan Kegel <dank@kegel.com>
+Reply-To: dank@kegel.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Chris Friesen <cfriesen@nortelnetworks.com>
+Subject: re: any problems with gcc 3.0/3.1 and compiling 2.4.18 on ppc?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 03 Apr 2002 06:49:05 +1200
-Jens Schmidt <j.schmidt@paradise.net.nz> wrote:
-
-> Hi Erik,
-> what planet are we talking about ?
-> I mean - I know about time zones, - but _December_ ??
-> cheers^2, Jens
+Chris Friesen <cfriesen@nortelnetworks.com> wrote:
+> We're looking at moving to gcc 3.x for 2.4.18, and are trying to decide what
+> version to use.  It appears that there were some ppc-specific fixes that went in
+> to 3.1, and I'm not sure if they were ported back to 3.0.
 > 
-> Erik Ljungström wrote:
-> 
-> > On Tue, 2 Apr 2002 18:56:05 +0200
-> > Diego Calleja <DiegoCG@teleline.es> wrote:
-> >
-> > > > So think on all non-anglo-saxon people reading the list....
-> > > > I took me some time to associate 2002.04.01 with jokes...
-> > >
-> > > In Spain, this day is 28 December. So I didn't tkink it was a joke....
-> > > -
-> >
-> > Are you joking with us? As far as I know, spain has the same date as the rest of Europe? But, you sould know.. isn't it great. You learn something new every day... or ?
-> >
-> > --
-> > Best regards, Erik
+> Has anyone had any successes or failures using either of these versions on ppc? 
+> Any gotchas?
 
-Heh.. read the mail once again, and see who actually said that part about the date being 28 december :) I was questioning Diego Calleja <DiegoCG@teleline.es>
-when he made his statement. I suppose I read his mail the wrong way. 
-What he actually meant was that the day in spain that's equivalent with our 1st of April is 28th December :)
+I'm about to do the same thing.  I'm already using a (patched) gcc3.0.2
+on sh4, and really want to drop gcc2.9x for ppc, too.  Haven't tried
+it yet, though.
 
-
-
---
-Best regards, Erik
+Have you asked on linuxppc-{dev,user}@lists.linuxppc.org yet?
+(Archives at http://lists.linuxppc.org/ )
+- Dan

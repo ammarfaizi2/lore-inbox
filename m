@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315439AbSHXU62>; Sat, 24 Aug 2002 16:58:28 -0400
+	id <S315758AbSHXVLj>; Sat, 24 Aug 2002 17:11:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315758AbSHXU62>; Sat, 24 Aug 2002 16:58:28 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32266
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S315439AbSHXU61>; Sat, 24 Aug 2002 16:58:27 -0400
-Date: Sat, 24 Aug 2002 14:01:30 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: IDE janitoring comments
-In-Reply-To: <1030220051.3196.5.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10208241400360.20141-100000@master.linux-ide.org>
+	id <S316695AbSHXVLj>; Sat, 24 Aug 2002 17:11:39 -0400
+Received: from p50887F28.dip.t-dialin.net ([80.136.127.40]:55205 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315758AbSHXVLi>; Sat, 24 Aug 2002 17:11:38 -0400
+Date: Sat, 24 Aug 2002 15:15:44 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Dag Nygren <dag@newtech.fi>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Preempt note in the logs 
+In-Reply-To: <20020824185548.913.qmail@dag.newtech.fi>
+Message-ID: <Pine.LNX.4.44.0208241513150.3234-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam-Babelsberg; Germany
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Yep, just be careful of how to decouple the hwif->iops from procfs for pci
-and the general lameness of x86 centric issues.
+On Sat, 24 Aug 2002, Dag Nygren wrote:
+> Anyway:
+> - I am not running xfs, but I do run resiserfs.
+> - I also have the ck2 patch that includes the low latency patch,
+>   could that be it?
 
-On 24 Aug 2002, Alan Cox wrote:
+So let's be clear on that:
 
-> On Sat, 2002-08-24 at 16:15, Benjamin Herrenschmidt wrote:
-> >  - Do we really want to keep all those _P versions around ?
-> > A quick grep showed _only_ by the non-portable x86 specific
-> > recovery timer stuff that taps ISA timers (well, I think ports
-> > 0x40 and 0x43 and an ISA timer). I would strongly suggest to
-> 
-> I'd like to keep them around for the moment. They should be using
-> udelay() but thats a general issue with _p inb/outb etc.
-> 
-> > After much thinking about the above, I came to the conslusion
-> > we probably want to just kill all the IN_BYTE, OUT_BYTE, etc.
-> 
-> Agreed entirely
-> 
-> 
-> > Also, getting rid of the _P version would make things a lot
-> > easier as well here too.
-> 
-> What currently uses the _P versions ?
-> 
+2.4.19+preempt + reiserfs = charm
+2.4.19+preempt + ck2 = possibly no problem, dunno
+2.4.19+preempt + ck2 + reiserfs = bad dude
 
-Andre Hedrick
-LAD Storage Consulting Group
+ck2 seems to introduce a problem that reiserfs triggers. It's not a 
+solution to say anything against reiserfs here, never fix the symptoms, 
+but the root cause...
+
+Have a look at ck2 then...
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

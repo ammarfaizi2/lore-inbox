@@ -1,60 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263214AbTJaLVV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 06:21:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263207AbTJaLVU
+	id S263221AbTJaLZU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 06:25:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbTJaLZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 06:21:20 -0500
-Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:11910 "EHLO
-	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S263214AbTJaLVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 06:21:19 -0500
-Message-ID: <20031031112118.32444.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Fri, 31 Oct 2003 06:25:20 -0500
+Received: from mail.gmx.de ([213.165.64.20]:7601 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263221AbTJaLZK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 06:25:10 -0500
+Date: Fri, 31 Oct 2003 12:25:08 +0100 (MET)
+From: "Guennadi Liakhovetski" <g.liakhovetski@gmx.de>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, garloff@suse.de, matthias.andree@gmx.de,
+       gl@dsa-ac.de
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: mario.Ohnewald@gmx.de
-Cc: linux-kernel@vger.kernel.org
-Date: Fri, 31 Oct 2003 19:21:18 +0800
-Subject: Re: Swap usage
-X-Originating-Ip: 62.101.98.215
-X-Originating-Server: ws5-1.us4.outblaze.com
+References: <20031031094645.A14820@infradead.org>
+Subject: Re: [PATCH] Re: AMD 53c974 SCSI driver in 2.6
+X-Priority: 3 (Normal)
+X-Authenticated: #20450766
+Message-ID: <24432.1067599508@www47.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello!
-Hello Mario! 
-or ciao Mario! because your name really sounds Italian ;)
+(Replying fromo the web-interface, hope, the email will not be scrued up 
+completely).
 
-> I am running Kernel 2.4.21 on a unstable Debian box. I have included my IDE
-> Chipset driver
-> I have just ONE game server on it and do not use that box very much,
-> although, it uses its swap space for some reasons.
+> Any reason you fix this driver?  The tmcsim one for the same hardware
+> looks like much better structured (though a bit obsufacted :))?
 
-> load average: 0.00, 0.01, 0.00
-> Mem:    249136k total,   153572k used,    95564k free,    23636k buffers
-> Swap:   512024k total,   143652k used,   368372k free,    24500k cached
+This is the easiest to asnwer: Kurt Garloff wrote to me, saying that he 
+would fix the tmcsim driver, so, I didn't want to duplicate the work. Also, 
+I was considering this mostly as a fun-excersice, not really hoping / aiming
 
-> # hdparm -t /dev/hda
-> /dev/hda:
->  Timing buffered disk reads:  150 MB in  3.01 seconds =  49.83 MB/sec
+at merging it inthe kernel (also given the current freeze). But now, if Kurt
+doesn't mind, I can try fixing the other driver, and, hopefully, with your
+help, I'll try to do it properly.
 
-> How can i find out why it is using so much swap, and how can i prevent it
-> form doing so? 
-> This swap usage makes my box very slow.
+> > +#include <linux/version.h>
+> 
+> What do you need version.h for?
 
-I can only suggest you to try on this machine the 2.4.23-pre9,
-it should really improve the VM.
+Yep, I had my changes encapsulated in #if KERNEL_VERSION... first, but then 
+I removed them, but forgot to remove this include.
 
-Ciao,
-               Paolo
--- 
-______________________________________________
-Check out the latest SMS services @ http://www.linuxmail.org 
-This allows you to send and receive SMS through your mailbox.
+> > +#undef AM53C974_MULTIPLE_CARD
+> > +#ifdef AM53C974_MULTIPLE_CARD
+> > +#error "FIXME! Multiple card support is broken. Looks like it never
+> really worked. Might have to be fixed."
+> >  static struct Scsi_Host *first_host;	/* Head of list of AMD boards */
+> > +#endif
+> 
+> Why do you need the undef?  It looks like you need to kill a #define for
+> this symbol somewhere else :)
 
+So that, when it is fixed, somebody can easily switch it on / off:-)
 
-Powered by Outblaze
+> > -	save_flags(flags);
+> > -	cli();
+> > +	local_irq_save(flags);
+> 
+> That's not safe on SMP, you must mark the driver BROKEN_ON_SMP or better
+> fix this.
+
+Yes. Again - the fix was pretty much mechanical. I didn't understand why it
+was considered SMP-safe to just disable local interrupts, so, just preferred
+to go the "minimal modifications" path.
+
+> >  static void AM53C974_print(struct Scsi_Host *instance)
+> >  {
+> >  	AM53C974_local_declare();
+> > +#if 0 /* Called only from error-handling paths with sufficient
+> protection? */
+> >  	unsigned long flags;
+> > +#endif
+> 
+> So don't if 0 it but completely kill it.
+
+There's a "?" there:-) Which means, I wasn't quite sure, so, is my
+assumption correct? I just saw, that other drivers do not implement any 
+locking in these functions.
+
+> >  /* Set up an interrupt handler if we aren't already sharing an IRQ with
+> another board */
+> > +#ifdef AM53C974_MULTIPLE_CARD
+> >  	for (search = first_host;
+> >  	     search && (((the_template != NULL) && (search->hostt !=
+> the_template)) ||
+> >  		 (search->irq != instance->irq) || (search == instance));
+> >  	     search = search->next);
+> >  	if (!search) {
+> > +#endif
+> 
+> Not sure whether you're interested in fixing this, but the proper way
+> to fix that would be to call request_irq for each card, mark the irq's
+> sharable.  The irq handler then can use the void * argument to find the
+> right host and you can kill all this ugly host list walking.  That shold
+> get multiple host support working again in theory  (ok, except that the
+> driver has a totally broken single state machine..)
+
+Sure - in irq-handler. But are these lists needed anywhere else, where a
+function is called in an "abstract" context without a dev-pointer? Probably,
+not.
+
+> >  	if (cmd->use_sg) {
+> >  		cmd->SCp.buffer = (struct scatterlist *) cmd->buffer;
+> >  		cmd->SCp.buffers_residual = cmd->use_sg - 1;
+> > -		cmd->SCp.ptr = (char *) cmd->SCp.buffer->address;
+> > +		cmd->SCp.ptr = (char *) page_address(cmd->SCp.buffer->page) +
+> cmd->SCp.buffer->offset;
+> 
+> This means you need a dma_mask < highmem to work.  I don't think we
+> want such crude hacks merged, could you please convert it to the proper
+> dma API?
+
+Found in a "working" driver (which has to be fixed too, then). Will try to 
+find a proper fix (for the new driver).
+
+So, thanks a lot for commenting on the patch, and, if nobody minds, I'll try
+to fix the tmcsim driver, will try to do it better this time:-)
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
+

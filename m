@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbULVR6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbULVSGe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbULVR6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 12:58:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbULVR6Y
+	id S261889AbULVSGe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 13:06:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbULVSGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 12:58:24 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:26024 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261442AbULVR6U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 12:58:20 -0500
-Date: Wed, 22 Dec 2004 18:58:18 +0100
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org, linux-kernel@vger.kernel.org
-Cc: marcelo.tosatti@cyclades.com, vandrove@vc.cvut.cz
-Subject: [PATCH] [CAN-2004-1144] Fix int 0x80 hole in 2.4 x86-64 linux kernels
-Message-ID: <20041222175818.GA3363@wotan.suse.de>
+	Wed, 22 Dec 2004 13:06:33 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6804 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261889AbULVSG3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 13:06:29 -0500
+Date: Wed, 22 Dec 2004 13:46:27 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Brent Casavant <bcasavan@sgi.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: Oops on 2.4.x invalid procfs i_ino value
+Message-ID: <20041222154627.GE3088@logos.cnet>
+References: <Pine.SGI.4.61.0412171611120.27132@kzerza.americas.sgi.com> <20041218003835.GD771@holomorphy.com> <20041218004703.GE771@holomorphy.com> <Pine.SGI.4.61.0412201624340.46534@kzerza.americas.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.SGI.4.61.0412201624340.46534@kzerza.americas.sgi.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 20, 2004 at 04:35:18PM -0600, Brent Casavant wrote:
+> On Fri, 17 Dec 2004, William Lee Irwin III wrote:
+> 
+> > On Fri, Dec 17, 2004 at 04:49:44PM -0600, Brent Casavant wrote:
+> > >> On a related note, if it matters, on about half the crash dumps I've
+> > >> looked at, I see a pid of 0 has been assigned to a user process,
+> > >> tripping this same problem.  I suspect there's another bug somewhere
+> > >> that's allowing a pid of 0 to be chosen in the first place -- but I
+> > >> don't totally discount that this problem may lay in SGI's patches to
+> > >> this particular kernel -- I'll need to take a more thorough look.
+> > 
+> > On Fri, Dec 17, 2004 at 04:38:35PM -0800, William Lee Irwin III wrote:
+> > > That's rather ominous. I'll pore over pid.c and see what's going on.
+> > > Also, does the pid.c in your kernel version match 2.6.x-CURRENT?
+> > 
+> > Ouch, 2.4.21; this will be trouble. So next, what patches atop 2.4.21?
+> 
+> I wouldn't worry about the pid=0 issue -- I think it's most likely
+> due to the PAGG patches (http://oss.sgi.com/projects/pagg) causing
+> some sort of problem at process teardown (all the pid=0 processes are
+> in the process of exiting).
+> 
+> I'm more concerned about the (0 == pid & 0xffff) bug, which is present
+> in the unpatched mainline 2.4.x kernel.  It seems that the easiest fix
+> is marking such pids as in-use at pidmap allocation, so that they are
+> never assigned to real tasks.  I've got the code almost done, but need
+> to port it to top-of-tree before submitting a patch.
 
-Petr Vandrovec discovered an exploitable root hole on all 2.4 x86-64 kernels.
-The problem occurs because the eax register on the 32bit int 0x80 syscall
-handler is not properly 64bit zero extended, which can be used to overflow the 
-system call table. 
+Hi Brent,
 
-The problem only occurs on 2.4 x86-64 kernels, 2.6 doesn't have this
-hole because some unrelated changes in 2.5 fixed it as a side effect.
+Wouldnt it be feasible to have another "procfs inode type" to indicate such 
+lower 16-bit zeroed pid's with a new type PROC_PID_INO_ZERO16BIT (or a better
+name) and have fake_ino() handle these case by then using the upper 16-bits on
+the inode for this "special" pid's.
 
-Marcelo should be releasing a new pre* kernel with this fix 
-shortly, there should be also update kernel from the various
-linux distributions.
+And have proc_pid_make_inode() and related code handle this new type? No?
 
-It is recommended that everybody who runs a 2.4 x86-64 kernel with
-shell user access updates to a kernel which has this patch applied.
+I'm not a big fan of making such pids unuseable for real tasks, so it would be 
+nice if we could come up a fix for the buggy proc inode logic.
 
-Patch is for 2.4.29pre2, but should apply to pretty much any 
-2.4.x x86-64 kernel.
+Thanks for finding this out!
 
--Andi
-
-diff -u linux-2.4.29pre2/arch/x86_64/ia32/ia32entry.S-o linux-2.4.29pre2/arch/x86_64/ia32/ia32entry.S
---- linux-2.4.29pre2/arch/x86_64/ia32/ia32entry.S-o	2004-11-06 07:37:32.000000000 +0100
-+++ linux-2.4.29pre2/arch/x86_64/ia32/ia32entry.S	2004-12-22 18:49:05.000000000 +0100
-@@ -52,6 +52,7 @@
- ENTRY(ia32_syscall)
- 	swapgs	
- 	sti
-+	movl %eax,%eax	
- 	pushq %rax
- 	cld
- 	SAVE_ARGS

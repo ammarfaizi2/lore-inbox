@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbUB0A57 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 19:57:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbUB0A4l
+	id S261570AbUB0BCN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 20:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbUB0A74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 19:56:41 -0500
-Received: from fw.osdl.org ([65.172.181.6]:37543 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261585AbUB0Ayv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 19:54:51 -0500
-Date: Thu, 26 Feb 2004 16:54:46 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Carlos Silva" <r3pek@r3pek.homelinux.org>
-Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org
-Subject: Re: kexec "problem" [and patch updates]
-Message-Id: <20040226165446.16a5bb3b.rddunlap@osdl.org>
-In-Reply-To: <28775.62.229.71.110.1077620541.squirrel@webmail.r3pek.homelinux.org>
-References: <20040224160341.GA11739@in.ibm.com>
-	<28775.62.229.71.110.1077620541.squirrel@webmail.r3pek.homelinux.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Thu, 26 Feb 2004 19:59:56 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:40601 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261675AbUB0A6h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 19:58:37 -0500
+Subject: Re: 2.6.3-mm3 hangs on  boot x440 (scsi?)
+From: john stultz <johnstul@us.ibm.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Go Taniguchi <go@turbolinux.co.jp>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1077840891.2857.175.camel@cog.beaverton.ibm.com>
+References: <20040222172200.1d6bdfae.akpm@osdl.org>
+	 <1077668801.2857.63.camel@cog.beaverton.ibm.com>
+	 <20040224170645.392abcff.akpm@osdl.org> <403E0563.9050007@turbolinux.co.jp>
+	 <1077830762.2857.164.camel@cog.beaverton.ibm.com>
+	 <1077836576.2857.168.camel@cog.beaverton.ibm.com>
+	 <20040226231550.GY25779@parcelfarce.linux.theplanet.co.uk>
+	 <1077840891.2857.175.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Message-Id: <1077843492.10076.1.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 26 Feb 2004 16:58:13 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Feb 2004 11:02:21 -0000 (WET) Carlos Silva wrote:
+On Thu, 2004-02-26 at 16:14, john stultz wrote:
+> On Thu, 2004-02-26 at 15:15, Matthew Wilcox wrote:
+> > On Thu, Feb 26, 2004 at 03:02:56PM -0800, john stultz wrote:
+> > > On Thu, 2004-02-26 at 13:26, john stultz wrote:
+> > > > On Thu, 2004-02-26 at 06:40, Go Taniguchi wrote:
+> > > > > Hi,
+> > > > > 
+> > > > > Andrew Morton wrote:
+> > > > > > john stultz <johnstul@us.ibm.com> wrote:
+> > > > > >>I went back to 2.6.3-mm1 (as it was a smaller diff) and the problem was
+> > > > > >>there as well. 
+> > > > > 
+> > > > > Problem patch is expanded-pci-config-space.patch.
+> > > > > x440 can not enable acpi by dmi_scan.
+> > > > > expanded-pci-config-space.patch need acpi support.
+> > > > > So, kernel can not get x440's xAPIC interrupt.
+> > > > 
+> > > > Wow, thanks for that analysis Go! I'll test it here to confirm. 
+> > > 
+> > > Yep, I've confirmed that backing out the expanded-pci-config-space patch
+> > > solves it. Thanks again, Go, for hunting that down! 
+> > > 
+> > > Matthew, any ideas why the patch fails if the system has an ACPI
+> > > blacklist entry?
+> > 
+> > Hrm.  I was just asked to break out some of the ACPI code rearrangement
+> > from the rest of the patch.  Can you try this patch instead of the
+> > expanded-pci-config-space.patch and tell me whether it continues to fail
+> > for you?
+> 
+> Unfortunately it does still hang with that patch. 
 
-| hi guys,
-| 
-| i have just compiled a kernel with the kexec patch. compiled kexec-tools
-| and when i try to load a kernel, it gives me this:
-| # ./do-kexec.sh /boot/bzImage-2.6.2-g
-| kexec_load failed: Invalid argument
-| entry       = 0x91764
-| nr_segments = 2
-| segment[0].buf   = 0x80b3480
-| segment[0].bufsz = 1880
-| segment[0].mem   = 0x90000
-| segment[0].memsz = 1880
-| segment[1].buf   = 0x40001008
-| segment[1].bufsz = 19795a
-| segment[1].mem   = 0x100000
-| segment[1].memsz = 19795a
-| 
-| anyone tried to run kexec and actually did it? i'm trying with kernel 2.6.3
-| -
+Actually, I took a second to actually look at that patch and I realized
+it was just the ACPI changes, rather then just the PCI changes. 
 
-I updated the kexec patch for 2.6.2 and 2.6.3.
-It works fine on 2.6.2.  It works for me on 2.6.3 if not SMP.
-If the kernel is built for SMP, when running kexec, I get a
-BUG in arch/i386/kernel/smp.c at line 359.
-I'm testing various workarounds for that BUG now.
+So yes, it seems that the patch narrows down the issue to just the ACPI
+changes, which isn't so unfortunate!
 
---
-~Randy
+thanks
+-john
 
-kexec updates are at:
-http://developer.osdl.org/rddunlap/kexec/2.6.2/
-and
-http://developer.osdl.org/rddunlap/kexec/2.6.3/
+

@@ -1,32 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129912AbQKEWpu>; Sun, 5 Nov 2000 17:45:50 -0500
+	id <S130065AbQKEWqU>; Sun, 5 Nov 2000 17:46:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130049AbQKEWpk>; Sun, 5 Nov 2000 17:45:40 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22592 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129912AbQKEWpa>; Sun, 5 Nov 2000 17:45:30 -0500
-Subject: Re: non-gcc linux?
-To: jakub@redhat.com
-Date: Sun, 5 Nov 2000 22:46:02 +0000 (GMT)
-Cc: Tim@Rikers.org (Tim Riker), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <20001105160637.Z6207@devserv.devel.redhat.com> from "Jakub Jelinek" at Nov 05, 2000 04:06:37 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S130067AbQKEWqO>; Sun, 5 Nov 2000 17:46:14 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:60369 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S130065AbQKEWqC>;
+	Sun, 5 Nov 2000 17:46:02 -0500
+Date: Sun, 5 Nov 2000 23:45:56 +0100
+From: Andries Brouwer <aeb@veritas.com>
+To: Sean Middleditch <sean.middleditch@iname.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Panic - weird error
+Message-ID: <20001105234556.A14138@veritas.com>
+In-Reply-To: <3A05A724.216E04F3@iname.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13sYY8-0005fb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3A05A724.216E04F3@iname.com>; from sean.middleditch@iname.com on Sun, Nov 05, 2000 at 01:29:56PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That's hard to do, because the whole gcc has copyright assigned to FSF,
-> which means that either gcc steering committee would have to make an
-> exception from this for SGI, or SGI would have to be willing to assign some
-> code to FSF.
+On Sun, Nov 05, 2000 at 01:29:56PM -0500, Sean Middleditch wrote:
 
-Or a third party decides its a silly situation and does it anyway
+> I've installed the Linux-Mandrake 7.2 distro (which uses kernel version
+> 2.2.17) on a PIII system (Asus motherboard, Award Medallion v6.0 BIOS).
+> For some reason, neither LILO nor Grub were able to boot off of the
+> second hard-drive (where Linux is).  I've copied over the kernel, and a
+> few other LILO files to a Windows partition on the primary drive.  Now,
+> LILO can load the kernel, and the kernel begins to boot.
+> 
+> First, I noticed this during the IDE detection:
+>   hdd [PTBL] [784/255/53] hdd1 < hdd5 hdd6 >
+> I've never seen the "[PTBL] [784/255/53]" part before on any Linux
+> system, so I was unsure if this was important.
+
+It says that the disk geometry was taken from the partition table
+(instead of using the heuristics that the kernel would use otherwise).
+Since nobody except fdisk and lilo use the geometry, this is not
+the cause of your booting problem.
+
+
+> Then, after the raid detection (no, I don't have one, this is a default
+> Mandrake kernel), I get this error:
+>     "Invalid session number or type of track"
+> which, after searching through the kernel sources, I found was an isofs
+> error.
+> Right after this error, I get a kernel panic, unable to mount root fs...
+
+An ancient bug in the Linux setup is that one doesnt specify the
+root filesystem type. Instead, the kernel tries to interpret the
+root filesystem in all possible ways until it finds a filesystem type
+willing to recognize it.
+
+Thus, if the root filesystem is xiafs and you have no xiafs
+compiled into the kernel, things will fail this way.
+Or, if the root filesystem is ext2 and ext2 was compiled as
+a module, you'll have the same problem.
+
+Andries
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270519AbRHNI3U>; Tue, 14 Aug 2001 04:29:20 -0400
+	id <S270521AbRHNIbU>; Tue, 14 Aug 2001 04:31:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270524AbRHNI3K>; Tue, 14 Aug 2001 04:29:10 -0400
-Received: from postfix2-1.free.fr ([213.228.0.9]:58630 "HELO
-	postfix2-1.free.fr") by vger.kernel.org with SMTP
-	id <S270519AbRHNI3B>; Tue, 14 Aug 2001 04:29:01 -0400
+	id <S270522AbRHNIbK>; Tue, 14 Aug 2001 04:31:10 -0400
+Received: from mail.erste.de ([195.243.98.251]:39274 "EHLO RalfBurger.com")
+	by vger.kernel.org with ESMTP id <S270521AbRHNIbF>;
+	Tue, 14 Aug 2001 04:31:05 -0400
+Date: Tue, 14 Aug 2001 10:30:58 +0200 (CEST)
+From: "Victoria W." <wicki@terror.de>
 To: linux-kernel@vger.kernel.org
-Subject: problem with PCMCIA and kernel 2.4.x
-Message-ID: <997777753.3b78e159b004c@imp.free.fr>
-Date: Tue, 14 Aug 2001 10:29:13 +0200 (MEST)
-From: benjilr@free.fr
+Subject: module agpgart in 2.4.7
+Message-ID: <Pine.LNX.4.10.10108141022000.4218-100000@csb.terror.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.42
-X-Originating-IP: 172.190.136.142
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've a problem Because when the PCMCIA start, I've the message :
-PCI : NO IRQ known for interrupt pin A of device 01:02.0 please try
-using pci=bios, but when this parametre, IRQ is always unknow.
+hi all,
 
-But when kernel Start, I've this message : 
-PCI : Probing PCI hardware
-Unknow bridge ressource 2: assuming transparent
-PCI : Using IRQ router PIIX [8086/244c] at 00:1f.0
+I'm not shure, if this is the right place for this question, but I'll try
+it.
 
-Thank in advance for help.
+On a new mini-pc "lspci" shows the following:
 
-PS:I've a laptop sony PCG-FX203
-   PCMCIA work with kernel 2.2.19, but with this kernel there's no
-usb-storage (for usb zip) support
+00:01.0 Class 0300: 8086:7125 (rev 03)
+or
+00:01.0 VGA compatible controller: Intel Corporation: Unknown device 7125
+(rev 03)
 
-Benjamin
+I have complied the agpgart-module with intel-support, but "insmod
+agpgart" results in:
+
+kernel: Linux agpgart interface v0.99 (c) Jeff Hartmann
+kernel: agpgart: Maximum main memory to use for agp memory: 93M
+kernel: agpgart: no supported devices found.
+
+Is there a driver availiable, which supports this chipset?
+
+
+best regards
+
+wicki 
+
+------------------------------------------------------
+CONFIG_AGP=m
+CONFIG_AGP_INTEL=y
+CONFIG_AGP_I810=y
+CONFIG_AGP_VIA=y
+CONFIG_AGP_AMD=y
+CONFIG_AGP_SIS=y
+CONFIG_AGP_ALI=y
+CONFIG_AGP_SWORKS=y
+CONFIG_DRM=y
+CONFIG_DRM_TDFX=m
+CONFIG_DRM_GAMMA=m
+CONFIG_DRM_R128=m
+CONFIG_DRM_RADEON=m
+CONFIG_DRM_I810=m
+CONFIG_DRM_MGA=m
+
+
+

@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316856AbSHGBvx>; Tue, 6 Aug 2002 21:51:53 -0400
+	id <S316860AbSHGBv5>; Tue, 6 Aug 2002 21:51:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316860AbSHGBvx>; Tue, 6 Aug 2002 21:51:53 -0400
-Received: from holomorphy.com ([66.224.33.161]:64913 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316856AbSHGBvv>;
-	Tue, 6 Aug 2002 21:51:51 -0400
-Date: Tue, 6 Aug 2002 18:55:37 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Anton Blanchard <anton@samba.org>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-       riel@surriel.com
-Subject: Re: fix CONFIG_HIGHPTE
-Message-ID: <20020807015537.GA4039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@zip.com.au>,
-	linux-kernel@vger.kernel.org, riel@surriel.com
-References: <20020806231522.GJ6256@holomorphy.com> <3D506D43.890EA215@zip.com.au> <20020807010752.GC6343@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020807010752.GC6343@krispykreme>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S316880AbSHGBv5>; Tue, 6 Aug 2002 21:51:57 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:14864 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316860AbSHGBvy>; Tue, 6 Aug 2002 21:51:54 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Linux 2.4.19-ac1
+Date: 7 Aug 2002 01:49:35 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <aipubf$997$1@gatekeeper.tmr.com>
+References: <20020803214239.GA30242@outpost.ds9a.nl> <20020804080843.0e953083.harada@mbr.sphere.ne.jp>
+X-Trace: gatekeeper.tmr.com 1028684975 9511 192.168.12.62 (7 Aug 2002 01:49:35 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, Andrew Morton wrote:
->> We're piling more and more crap in there to support these pte_chains.
->> How much is too much?
->> Is it likely that large pages and/or shared pagetables would allow us to
->> place pagetables and pte_chains in the direct-mapped region, avoid all
->> this?
+In article <20020804080843.0e953083.harada@mbr.sphere.ne.jp>,
+Bruce Harada  <harada@mbr.sphere.ne.jp> wrote:
+| On Sat, 3 Aug 2002 23:42:39 +0200
+| bert hubert <ahu@ds9a.nl> wrote:
+| 
+| > On Sat, Aug 03, 2002 at 02:59:44PM -0400, Alan Cox wrote:
+| > > The HP merge is now down to 4058 lines pending
+| > 
+| > What is the HP merge?
+| 
+| PA-RISC port (http://www.parisc-linux.org/).
 
-On Wed, Aug 07, 2002 at 11:07:52AM +1000, Anton Blanchard wrote:
-> On ppc64 shared pagetables will require significant changes to the way
-> we handle the hardware hashtable. So add that to the "more and more crap
-> in there to support these pte_chains"
-> Will shared pagetables be a requirement or can we turn it on per arch?
-> Anton
+I thought HP was phasing out PA-RISC. Might this carry forward to 2.5 or
+is this a 2.4 only effort?
 
-Actually shared pagetables require significant semantic changes in rmap,
-e.g. every usage of ptep_to_mm() is broken by shared pagetables and
-tracking down assumptions that the (pte, mm) relation is 1:1 is ugly
-too. The existing patch for it is not prepared to cope with these.
-
-If they're not already sitting in a back room in ozlabs or Austin
-somewhere I'll ship the 3 or 4 singletask 64-bit pagetable OOM's to LTP
-etc. to help dispel the 32-bit pagetable space myth, too.
-
-
-Cheers,
-Bill
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

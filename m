@@ -1,95 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263276AbSLBBuY>; Sun, 1 Dec 2002 20:50:24 -0500
+	id <S263362AbSLBBxW>; Sun, 1 Dec 2002 20:53:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263321AbSLBBuX>; Sun, 1 Dec 2002 20:50:23 -0500
-Received: from dp.samba.org ([66.70.73.150]:404 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S263276AbSLBBuW>;
-	Sun, 1 Dec 2002 20:50:22 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG][2.5.50] kallsyms dies badly with module 
-In-reply-to: Your message of "Fri, 29 Nov 2002 11:17:24 CDT."
-             <Pine.LNX.4.50.0211291105440.14410-100000@montezuma.mastecende.com> 
-Date: Mon, 02 Dec 2002 12:49:35 +1100
-Message-Id: <20021202015750.C49922C0B2@lists.samba.org>
+	id <S263491AbSLBBxW>; Sun, 1 Dec 2002 20:53:22 -0500
+Received: from blackbird.intercode.com.au ([203.32.101.10]:10258 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S263362AbSLBBxV>; Sun, 1 Dec 2002 20:53:21 -0500
+Date: Mon, 2 Dec 2002 13:00:27 +1100 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Greg KH <greg@kroah.com>
+cc: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+       <linux-security-module@wirex.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] LSM fix for stupid "empty" functions
+In-Reply-To: <20021201192532.GA9278@kroah.com>
+Message-ID: <Mutt.LNX.4.44.0212021248290.20929-100000@blackbird.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.50.0211291105440.14410-100000@montezuma.mastecende.com> 
-you write:
-> Hi Rusty,
-> 	If kallsyms_lookup tries to get a symbol from tiglusb.c loaded as
-> a module it oopses.
+On Sun, 1 Dec 2002, Greg KH wrote:
 
-Yes, see kallsyms fix patch (attached for your convenience).  I was
-keeping the wrong module section 8(
+> > I think we still want to make sure that the module author has explicitly
+> > accounted for all of the hooks, in case new hooks are added.
+> 
+> But with this patch, if the module author hasn't specified a hook, they
+> get the "dummy" ones.  So the structure should always be full of
+> pointers, making the VERIFY_STRUCT macro pointless.
 
-Hope this helps,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-Name: Kallsyms inside module fix
-Author: Rusty Russell
-Status: Tested on 2.5.50
+Yes, but defaulting unspecified hooks to dummy operations could be
+dangerous.  A module might appear to compile and run perfectly well, but 
+be missing some important new hook.
 
-D: Two fixes.  Firstly, set ALLOC on the right section so we actually
-D: keep the symbol names and don't deref a freed section, and secondly
-D: get the symbol size (more) correct.
 
-diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.50/kernel/module.c working-2.5.50-ksymoops/kernel/module.c
---- linux-2.5.50/kernel/module.c	Mon Nov 25 08:44:19 2002
-+++ working-2.5.50-ksymoops/kernel/module.c	Thu Nov 28 16:22:56 2002
-@@ -892,7 +892,7 @@ static struct module *load_module(void *
- 		}
- #ifdef CONFIG_KALLSYMS
- 		/* symbol and string tables for decoding later. */
--		if (sechdrs[i].sh_type == SHT_SYMTAB || i == hdr->e_shstrndx)
-+		if (sechdrs[i].sh_type == SHT_SYMTAB || i == strindex)
- 			sechdrs[i].sh_flags |= SHF_ALLOC;
- #endif
- #ifndef CONFIG_MODULE_UNLOAD
-@@ -1165,7 +1165,14 @@ static const char *get_ksymbol(struct mo
- 			       unsigned long *size,
- 			       unsigned long *offset)
- {
--	unsigned int i, next = 0, best = 0;
-+	unsigned int i, best = 0;
-+	unsigned long nextval;
-+
-+	/* At worse, next value is at end of module */
-+	if (inside_core(mod, addr))
-+		nextval = (unsigned long)mod->module_core+mod->core_size;
-+	else 
-+		nextval = (unsigned long)mod->module_init+mod->init_size;
- 
- 	/* Scan for closest preceeding symbol, and next symbol. (ELF
-            starts real symbols at 1). */
-@@ -1177,22 +1186,14 @@ static const char *get_ksymbol(struct mo
- 		    && mod->symtab[i].st_value > mod->symtab[best].st_value)
- 			best = i;
- 		if (mod->symtab[i].st_value > addr
--		    && mod->symtab[i].st_value < mod->symtab[next].st_value)
--			next = i;
-+		    && mod->symtab[i].st_value < nextval)
-+			nextval = mod->symtab[i].st_value;
- 	}
- 
- 	if (!best)
- 		return NULL;
- 
--	if (!next) {
--		/* Last symbol?  It ends at the end of the module then. */
--		if (inside_core(mod, addr))
--			*size = mod->module_core+mod->core_size - (void*)addr;
--		else
--			*size = mod->module_init+mod->init_size - (void*)addr;
--	} else
--		*size = mod->symtab[next].st_value - addr;
--
-+	*size = nextval - mod->symtab[best].st_value;
- 	*offset = addr - mod->symtab[best].st_value;
- 	return mod->strtab + mod->symtab[best].st_name;
- }
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+
+

@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263265AbTEIQmU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 12:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTEIQmU
+	id S263298AbTEIQxe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 12:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTEIQxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 12:42:20 -0400
-Received: from holomorphy.com ([66.224.33.161]:2209 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263265AbTEIQmT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 12:42:19 -0400
-Date: Fri, 9 May 2003 09:53:59 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Robert Love <rml@tech9.net>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: how to measure scheduler latency on powerpc?  realfeel doesn't work due to /dev/rtc issues
-Message-ID: <20030509165359.GX8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Robert Love <rml@tech9.net>,
-	Chris Friesen <cfriesen@nortelnetworks.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.50.0305081735040.2094-100000@blue1.dev.mcafeelabs.com> <20030509003825.GR8978@holomorphy.com> <Pine.LNX.4.53.0305082052160.21290@chaos> <3EBB25FD.7060809@nortelnetworks.com> <20030509042659.GS8978@holomorphy.com> <3EBB4735.30701@nortelnetworks.com> <20030509062008.GT8978@holomorphy.com> <3EBB504C.1030001@nortelnetworks.com> <20030509070142.GU8978@holomorphy.com> <1052498824.867.8.camel@icbm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1052498824.867.8.camel@icbm>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Fri, 9 May 2003 12:53:34 -0400
+Received: from watch.techsource.com ([209.208.48.130]:7374 "EHLO
+	techsource.com") by vger.kernel.org with ESMTP id S263298AbTEIQxd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 12:53:33 -0400
+Message-ID: <3EBBE10C.4060900@techsource.com>
+Date: Fri, 09 May 2003 13:10:36 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: A way to shrink process impact on kernel memory usage?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-05-09 at 03:01, William Lee Irwin III wrote:
->> Why not just keep track of it in the scheduler? The statistic is well-
->> defined in terms of things measurable at context switch and wakeup.
+One of the things that's been worked on to reduce kernel memory usage 
+for processes is to shrink the kernel stack from 8k to 4k.  I mean, it's 
+not like you could shrink it to 6k, right?  Well, why not?  Why not 
+allocate an 8k space and put various process-related data structures at 
+the beginning of it?  Sure, a stack overflow could corrupt that data, 
+but a stack overflow would be disasterous anyhow.
 
-On Fri, May 09, 2003 at 12:47:05PM -0400, Robert Love wrote:
-> This would measure context switch latency.  Or something.
-> By definition, scheduling latency is the time from an interrupt which
-> wakes the task up until the task is actually running.
-> Historically, it has been measured by things like realfeel or amlat or
-> whatever which generate interrupts and wake a waiting task up. You then
-> measure the latency between the interrupt and when the task actually
-> runs in user-space.
-> So Chris can then go run this test under varying loads and see how bad
-> the latency gets.  I understand his question, but (sorry Chris) I have
-> no idea of the solution on PPC.
+I'm sure that, in addition to the memory allocated by kmalloc, some data 
+structures are also allocated to track it so that you can know what to 
+free when you use kfree, right?  Well, combining a few things this way 
+would save a few bytes there too.
 
-Not at all. Just stamp at wakeup and difference when it runs.
+Also, if you're really worried about overflow, or you want a guard page 
+or whatever, then put the data structures at the end and set the initial 
+stack pointer appropriately.
 
+Someone complained about a process structure already being too bloated. 
+  Unless it's several K in size already, you can bloat it up all you 
+please this way.
 
--- wli
+Another advantage is that you could make the datastructures growable. 
+The stack grows down, and the data grows up.  As long as they don't 
+meet, all is well.
+

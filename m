@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263771AbTJ0Xok (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 18:44:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbTJ0Xok
+	id S263777AbTJ1AGw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 19:06:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263780AbTJ1AGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 18:44:40 -0500
-Received: from [62.217.245.194] ([62.217.245.194]:13111 "EHLO saytrin")
-	by vger.kernel.org with ESMTP id S263771AbTJ0Xog (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 18:44:36 -0500
-Date: Tue, 28 Oct 2003 01:45:14 +0200
-From: Iustin Pop <iusty@k1024.org>
+	Mon, 27 Oct 2003 19:06:52 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:2308 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263777AbTJ1AGv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 19:06:51 -0500
 To: linux-kernel@vger.kernel.org
-Subject: inode->i_rdev not initialized in 2.4 fs/inode.c, only in 2.6?
-Message-ID: <20031027234514.GA11213@saytrin.hq.k1024.org>
-Mail-Followup-To: Iustin Pop <iusty@k1024.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Linux: This message was written on Linux
-X-Header: /usr/include gives great headers
-User-Agent: Mutt/1.5.4i
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: APM suspend still broken in -test9
+Date: 27 Oct 2003 23:56:41 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bnkbbp$m8c$1@gatekeeper.tmr.com>
+References: <9cfbrs7d695.fsf@rogue.ncsl.nist.gov> <9cfekwy8y7h.fsf@rogue.ncsl.nist.gov>
+X-Trace: gatekeeper.tmr.com 1067299001 22796 192.168.12.62 (27 Oct 2003 23:56:41 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+In article <9cfekwy8y7h.fsf@rogue.ncsl.nist.gov>,
+Ian Soboroff  <ian.soboroff@nist.gov> wrote:
+| 
+| I reported this also on -test8:
+| http://marc.theaimsgroup.com/?l=linux-kernel&m=106694328730337&w=2
+| 
+| and it was confirmed by two other people in that thread.  I just
+| tested it again with -test9.  Putting my laptop to sleep while X is
+| running, then resuming, locks the machine hard.  Suspend works fine
+| without X (plain old console mode).
 
-I'm running 2.4.22 (with XFS and skas patch), but these patches do not
-affect the code in question. /proc/version = Linux version 2.4.22-xfs
-(root@saytrin) (gcc version 3.3.2 20030908 (Debian prerelease))
-
-I get strange results (st.st_rdev != 0) in userspace after stat on some
-non-devices regular file/directory. On one computer, /etc gives 773 and
-/etc/init.d 0, while on another /etc gives 0 and /etc/init.d 13478.
-
-After gdb and seeing it comes from kernel, I looked around and saw that
-in fs/inode.c, i_rdev is not zeroed. Nor does it *seem* that
-kmem_cache_alloc clears the memory, but I could be mistaken, it's
-complicated code (I think it only clears at cache creation). And r_dev
-is what gets transformed into st_rdev in fs/stat.c
-
-2.6 fixes this behavior, by saying "inode->i_rdev = to_kdev_t(0);".
-Shouldn't this be also in 2.4?
-
-Thanks,
-Iustin Pop
-
-Please CC me as I'm not on the list.
+What happens if you change to a text console and suspecnd? Does it
+restart? And if so can you then change back to X?
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

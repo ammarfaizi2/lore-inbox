@@ -1,75 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262850AbTJ3URv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 15:17:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbTJ3URu
+	id S262795AbTJ3UP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 15:15:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbTJ3UP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 15:17:50 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3469 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262850AbTJ3URs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 15:17:48 -0500
-Message-ID: <3FA171DD.5060406@pobox.com>
-Date: Thu, 30 Oct 2003 15:17:33 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Thu, 30 Oct 2003 15:15:27 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:57749 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S262795AbTJ3UPX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 15:15:23 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: 2.6.0-test9-mjb1
-References: <14860000.1067544022@flay>
-In-Reply-To: <14860000.1067544022@flay>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16289.29015.81760.774530@napali.hpl.hp.com>
+Date: Thu, 30 Oct 2003 12:15:19 -0800
+To: David Brownell <david-b@pacbell.net>
+Cc: davidm@hpl.hp.com, Greg KH <greg@kroah.com>, vojtech@suse.cz,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: serious 2.6 bug in USB subsystem?
+In-Reply-To: <3FA12A2E.4090308@pacbell.net>
+References: <200310272235.h9RMZ9x1000602@napali.hpl.hp.com>
+	<20031028013013.GA3991@kroah.com>
+	<200310280300.h9S30Hkw003073@napali.hpl.hp.com>
+	<3FA12A2E.4090308@pacbell.net>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> The patchset contains mainly scalability and NUMA stuff, and anything 
-> else that stops things from irritating me. It's meant to be pretty stable, 
-> not so much a testing ground for new stuff.
-> 
-> I'd be very interested in feedback from anyone willing to test on any 
-> platform, however large or small.
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.6.0-test9/patch-2.6.0-test9-mjb1.bz2
-> 
-> Since 2.6.0-test8-mjb1 (~ = changed, + = added, - = dropped)
-> 
-> Notes: 
-> 	Mostly a merge forwards.
-> 
-> Now in Linus' tree:
-> 
-> Dropped:
-> 
-> New:
-> 
-> + autoswap					Con Kolivas
-> 	Auto-tune swapiness
-> 
-> + ext2_fix					Andrew Morton
-> 	Fix a race in ext2
-> 
-> Pending:
-> lotsa_sds
-> config_numasched
-> 4/4 split
-> new kgdb
-> list_of_lists
-> Hyperthreaded scheduler (Ingo Molnar)
-> scheduler callers profiling (Anton or Bill Hartner)
-> Child runs first (akpm)
-> Kexec
-> e1000 fixes
+>>>>> On Thu, 30 Oct 2003 07:11:42 -0800, David Brownell <david-b@pacbell.net> said:
 
+  David> David Mosberger wrote:
 
-Um...   any e1000 fixes you have, please forward them to me and Intel 
-rather than letting them languish in a tree.
+  >> On x86, there is no OOps, it just freezes.  On ia64, I get a nice MCA
+  >> and from that we can infer that a USB host controller read from
+  >> address 0xf0000000 caused the problem but since this is asynchronous
+  >> to the kernel's code path, the instruction pointer etc. in the MCA
+  >> state dump isn't terribly helpful.
 
-	Jeff
+  David> Does that 0xf0000000 (on ia64) match any obvious address mapping
+  David> of the null pointer -- like a dma mapping?
 
+Not really.  AFAIK, 0xf0000000 is part of the PCI MMIO address space,
+but on the machines that I have access to, this particular address
+isn't assigned to any device:
 
+	$ lspci -v|fgrep 'Memory at'
+        Memory at 0000000080000000 (32-bit, prefetchable) [size=128M]
+        Memory at 0000000088000000 (32-bit, non-prefetchable) [size=512K]
+        Memory at 00000000d0023000 (32-bit, non-prefetchable) [size=4K]
+        Memory at 00000000d0022000 (32-bit, non-prefetchable) [size=4K]
+        Memory at 00000000d0021000 (32-bit, non-prefetchable) [size=256]
+        Memory at 00000000d0020000 (32-bit, non-prefetchable) [size=4K]
+        Memory at 00000000d0000000 (32-bit, non-prefetchable) [size=128K]
+        Memory at 00000000e0200000 (32-bit, non-prefetchable) [size=4K]
+        Memory at 00000000e0100000 (32-bit, non-prefetchable) [size=1M]
 
+  David> I'm not sure that if the HID driver were to pass a null
+  David> buffer pointer, it would be caught anywhere.
+
+OK, I'll try to find some time to trace the I/O MMU calls to see if
+something isn't kosher at that level.  Is there a good way of getting
+a relatively high-level of tracing in the USB subsystem that would
+some me what's going on between the HID and the core USB level?
+
+	--david

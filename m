@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267892AbTBRSIz>; Tue, 18 Feb 2003 13:08:55 -0500
+	id <S268009AbTBRSVj>; Tue, 18 Feb 2003 13:21:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267920AbTBRSIZ>; Tue, 18 Feb 2003 13:08:25 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41225 "EHLO
+	id <S268005AbTBRSUd>; Tue, 18 Feb 2003 13:20:33 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52233 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S267892AbTBRSGc>; Tue, 18 Feb 2003 13:06:32 -0500
-Subject: PATCH: add pio_speed
+	id <S267997AbTBRSS7>; Tue, 18 Feb 2003 13:18:59 -0500
+Subject: PATCH: use ide_execute_command for CD
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Tue, 18 Feb 2003 18:16:54 +0000 (GMT)
+Date: Tue, 18 Feb 2003 18:29:16 +0000 (GMT)
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E18lCIZ-0006Ar-00@the-village.bc.nu>
+Message-Id: <E18lCUW-0006D4-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some drivers need this. Its in the core as the core eventually needs to
-be doing the tracking here
+This is the only user I'll feed you this time. As with 2.4 I want it to
+run for a bit on read only media first 8)
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.61/include/linux/ide.h linux-2.5.61-ac2/include/linux/ide.h
---- linux-2.5.61/include/linux/ide.h	2003-02-10 18:38:20.000000000 +0000
-+++ linux-2.5.61-ac2/include/linux/ide.h	2003-02-18 18:02:56.000000000 +0000
-@@ -770,6 +760,7 @@
-         u8	quirk_list;	/* considered quirky, set for a specific host */
-         u8	suspend_reset;	/* drive suspend mode flag, soft-reset recovers */
-         u8	init_speed;	/* transfer rate set at boot */
-+        u8	pio_speed;      /* unused by core, used by some drivers for fallback from DMA */
-         u8	current_speed;	/* current transfer rate set */
-         u8	dn;		/* now wide spread use */
-         u8	wcache;		/* status of write cache */
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.61/drivers/ide/ide-cd.c linux-2.5.61-ac2/drivers/ide/ide-cd.c
+--- linux-2.5.61/drivers/ide/ide-cd.c	2003-02-10 18:38:30.000000000 +0000
++++ linux-2.5.61-ac2/drivers/ide/ide-cd.c	2003-02-18 18:06:17.000000000 +0000
+@@ -854,13 +855,10 @@
+ 	HWIF(drive)->OUTB(xferlen >> 8  , IDE_BCOUNTH_REG);
+ 	if (IDE_CONTROL_REG)
+ 		HWIF(drive)->OUTB(drive->ctl, IDE_CONTROL_REG);
+-
++ 
+ 	if (CDROM_CONFIG_FLAGS (drive)->drq_interrupt) {
+-		if (HWGROUP(drive)->handler != NULL)
+-			BUG();
+-		ide_set_handler (drive, handler, WAIT_CMD, cdrom_timer_expiry);
+ 		/* packet command */
+-		HWIF(drive)->OUTB(WIN_PACKETCMD, IDE_COMMAND_REG);
++		ide_execute_command(drive, WIN_PACKETCMD, handler, WAIT_CMD, cdrom_timer_expiry);
+ 		return ide_started;
+ 	} else {
+ 		/* packet command */

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268398AbTAMWzL>; Mon, 13 Jan 2003 17:55:11 -0500
+	id <S268405AbTAMW5v>; Mon, 13 Jan 2003 17:57:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268399AbTAMWzL>; Mon, 13 Jan 2003 17:55:11 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:56838 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S268398AbTAMWzK>;
-	Mon, 13 Jan 2003 17:55:10 -0500
-Date: Mon, 13 Jan 2003 15:03:59 -0800
-From: Greg KH <greg@kroah.com>
-To: Adam Belay <ambx1@neo.rr.com>, Jaroslav Kysela <perex@suse.cz>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Zwane Mwaikambo <zwane@holomorphy.com>, Shawn Starr <spstarr@sh0n.net>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PnP update - drivers
-Message-ID: <20030113230359.GA10073@kroah.com>
-References: <Pine.LNX.4.33.0301122025520.611-100000@pnote.perex-int.cz> <20030113173906.GA605@neo.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030113173906.GA605@neo.rr.com>
-User-Agent: Mutt/1.4i
+	id <S268409AbTAMW5u>; Mon, 13 Jan 2003 17:57:50 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:44260 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S268405AbTAMW5s>;
+	Mon, 13 Jan 2003 17:57:48 -0500
+Date: Mon, 13 Jan 2003 16:06:38 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: <linux@brodo.de>
+cc: <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
+Subject: [patch] fix cpufreq compilation 
+Message-ID: <Pine.LNX.4.33.0301131603490.1136-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 13, 2003 at 05:39:06PM +0000, Adam Belay wrote:
-> On Sun, Jan 12, 2003 at 08:30:57PM +0100, Jaroslav Kysela wrote:
-> > 	this patch must be applied after PnP patch v0.94. It contains my
-> > small cleanups of PnP code and I tried to rewrite almost all ISA PnP
-> > drivers to new PnP subsystem except sound drivers (ALSA & OSS). Please,
-> > apply to get away compilation problems.
-> 
-> Hi Jaroslav,
-> 
-> Next time send pnp related changes to me directly.
 
-And Adam, sorry for taking so long in getting your previous changes you
-sent to me to Linus.  That's my fault, it was in my queue to review when
-Jaroslav sent his patches.  I guess now I'll just wait for this merge
-mess to get cleaned up :(
+This is needed to compile kernel/cpufreq.c if the legacy procfs interface 
+is not enabled in the latest BK tree. 
 
-greg k-h
+	-pat
+
+===== kernel/cpufreq.c 1.13 vs edited =====
+--- 1.13/kernel/cpufreq.c	Mon Jan 13 15:57:39 2003
++++ edited/kernel/cpufreq.c	Mon Jan 13 16:05:24 2003
+@@ -21,6 +21,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/spinlock.h>
+ #include <linux/device.h>
++#include <linux/slab.h>
+ 
+ #ifdef CONFIG_CPU_FREQ_PROC_INTF
+ #include <linux/ctype.h>
+

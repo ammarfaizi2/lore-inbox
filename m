@@ -1,42 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVABOnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVABPBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbVABOnO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 09:43:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVABOnO
+	id S261254AbVABPBT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 10:01:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVABPBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 09:43:14 -0500
-Received: from fyrebird.net ([217.70.144.192]:37553 "HELO fyrebird.net")
-	by vger.kernel.org with SMTP id S261256AbVABOnF (ORCPT
+	Sun, 2 Jan 2005 10:01:19 -0500
+Received: from main.gmane.org ([80.91.229.2]:18057 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261254AbVABPBO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 09:43:05 -0500
-X-Qmail-Scanner-Mail-From: lethalman@fyrebird.net via fyrebird
-X-Qmail-Scanner: 1.23 (Clear:RC:0(62.11.84.211):. Processed in 1.88449 secs)
-Message-ID: <41D805A8.9010009@fyrebird.net>
-Date: Sun, 02 Jan 2005 15:31:04 +0100
-From: Lethalman <lethalman@fyrebird.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sun, 2 Jan 2005 10:01:14 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: How to start
-References: <20050102030444.51206.qmail@web51002.mail.yahoo.com> <41D806E8.1040008@mathematica.scientia.net>
-In-Reply-To: <41D806E8.1040008@mathematica.scientia.net>
+From: Georg Schild <dangertools@gmx.net>
+Subject: cpu throttling powernow-k8 and acpi in kernel
+Date: Sun, 02 Jan 2005 16:00:59 +0100
+Message-ID: <41D80CAB.1060903@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 83.215.48.11
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041208)
+X-Accept-Language: en-us, en
 X-Enigmail-Version: 0.89.5.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Anton Mitterer wrote:
-> What about http://kernelnewbies.org/?
-> I'm also extremely new in the kernel-programming scene (have done my
-> first post to lkml just two days ago ;-) ) and I tried to start there...
-> 
-> cam.
-> 
-Me too :) i made some few patch since about a week
+Hi guys!
 
--- 
-www.iosn.it * Amministratore Italian Open Source Network
-www.fyrebird.net * Fyrebird Hosting Provider - Technical Department
+I have an acer aspire 1501 lmi with amd64 @3000+. i am running a gentoo 
+64bit dist with vanilla 2.6.10 kernel on it.
+
+i encounter some problems with the speed throttling of the cpu. this 
+kind of cpu has 3 steps which a gouvernor can reach, 1800, 1600 and 
+800Mhz. i am using the ondemand gouvernor. so far this works quite good, 
+ondemand puts it at 800 until i do something. as it should be. i have 
+also CONFIG_ACPI_PROCESSOR=y and CONFIG_ACPI_THERMAL=y enabled. when 
+acpi thinks the temperature is too high (95° for cpu) it throttles the 
+cpu down to 800Mhz, no care what ondemand tells it. okay, why not, is a 
+good protection for overheating. but i don't think the cpu has 95°, i 
+have run the laptop much hotter once, and there was no downthrottling. 
+it cannot be that i am not able to compile a simple package without 
+getting a critical temperature. i am watching the temps in gkrellm and 
+this leads me to the thing that there is something wrong with it cause 
+it jumps a bit when the temps are getting higher and one thing more, 
+when the laptop is doing nothing, e.g. over night, screen is off, cpu is 
+at 800 the temp is still at about 55° and more, how can that be? but i 
+cannot disable the two acpi-options mentionend above. at first the cpu 
+runs at 800, no problem, fan is almost off. but when i start e.g. a 
+compilation first the fan starts spinning up a bit, the cpu goes to 
+1800mhz but after a while the fan gives all the speed it is able to, 
+much noise, and after one or 2 minutes the laptop switches off immediate.
+
+Has anyone any idea on this? a tipp or something? i hope i did not 
+forget any information.
+
+Regards and keep on the good work
+
+Georg Schild
+

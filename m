@@ -1,54 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292423AbSCIHTI>; Sat, 9 Mar 2002 02:19:08 -0500
+	id <S291471AbSCIHTH>; Sat, 9 Mar 2002 02:19:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292444AbSCIHRV>; Sat, 9 Mar 2002 02:17:21 -0500
+	id <S292550AbSCIHRP>; Sat, 9 Mar 2002 02:17:15 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:61645 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S292473AbSCIHPF>;
-	Sat, 9 Mar 2002 02:15:05 -0500
-Message-ID: <3C8985B5.4D3606C7@webit.com>
-Date: Sat, 09 Mar 2002 04:47:01 +0100
-From: Thomas Winischhofer <tw@webit.com>
-X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
-X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
+	by vger.kernel.org with ESMTP id <S292422AbSCIHPA>;
+	Sat, 9 Mar 2002 02:15:00 -0500
+Date: Fri, 8 Mar 2002 19:15:19 -0800 (PST)
+From: Kelsey Hudson <khudson@compendium-tech.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: gettimeofday() system call timing curiosity
+In-Reply-To: <Pine.LNX.3.95.1020308143013.6910A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.44.0203081908010.17413-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org,
-        Carl-Johan Kjellander <carljohan@kjellander.com>
-Subject: Re: pwc-webcam attached to usb-ohci card blocks on read() indefinitely.
-In-Reply-To: <3C89273D.28BC97DB@webit.com> <20020308223513.GD28541@kroah.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> 
-> On Fri, Mar 08, 2002 at 10:03:57PM +0100, Thomas Winischhofer wrote:
-> > Furthermore, the usb driver(s) behave strangely on
-> > connecting/disconnecting the camera. Sometimes this works flawlessly,
-> > sometimes I get a lot of USB timeout ("usb_control/bulk_msg: timeout")
-> > and/or "USBDEVFS_CONTROL failed dev x rqt 128 rq 6 len 490 ret -110"
-> > messages in the syslog. (Kernel is 2.4.16 and 2.4.18 - no difference)
-> 
-> Try removing /sbin/usbmodules (or renaming it) to see if this problem
-> goes away.  I have the same problem with some devices too, and am
-> working on tracking it down.
+On Fri, 8 Mar 2002, Richard B. Johnson wrote:
 
-This actually made it, thanks so far! (usbmodules is located in
-/usr/sbin/ on my machine)
+> Try it. It doesn't matter. Alan was correct, my computer sucks. However,
 
-Of course, the main problem still exists. Additionally, the USB audio
-module is not loaded any more (for the built-in microphone of this
-camera).
-
-Sorry if I ask something stupid, I am a total USB rookie - what's that
-/usr/sbin/usbmodules file for?
-
-Thomas
+of course he is; all computers suck! :)
 
 
--- 
-Thomas Winischhofer
-Vienna/Austria
-mailto:tw@webit.com                  *** http://www.webit.com/tw

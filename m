@@ -1,61 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283314AbRLILLK>; Sun, 9 Dec 2001 06:11:10 -0500
+	id <S283340AbRLILgs>; Sun, 9 Dec 2001 06:36:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283316AbRLILK7>; Sun, 9 Dec 2001 06:10:59 -0500
-Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:44562 "EHLO
-	alfik.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S283314AbRLILKk>; Sun, 9 Dec 2001 06:10:40 -0500
-Date: Sat, 8 Dec 2001 23:38:17 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Cory Bell <cory.bell@usa.net>
-Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org,
-        Andrew Grover <andrew.grover@intel.com>,
-        John Clemens <john@deater.net>
-Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
-Message-ID: <20011208233816.A118@elf.ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0112070925280.851-100000@segfault.osdlab.org> <1007760235.10687.0.camel@localhost.localdomain>
+	id <S283343AbRLILgj>; Sun, 9 Dec 2001 06:36:39 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:49417 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S283340AbRLILg3>;
+	Sun, 9 Dec 2001 06:36:29 -0500
+Date: Sun, 9 Dec 2001 12:36:13 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: lnz@dandelion.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: Patch(?): linux-2.5.1-pre7/drivers/block/DAC960.c compilation fixes
+Message-ID: <20011209113613.GG20061@suse.de>
+In-Reply-To: <20011208211232.A7241@adam.yggdrasil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1007760235.10687.0.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.23i
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <20011208211232.A7241@adam.yggdrasil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, Dec 08 2001, Adam J. Richter wrote:
+> 	The following patch makes linux-2.5.1-pre7/drivers/block/DAC960.c
+> compile.  I'm not confident in my understanding of the new "bio" system,
+> so it would be helpful if someone more knowledgeable about bio could
+> check it.  The changes are:
+> 
+> 	1. Delete references the nonexistant MaxSectorsPerRequest field.
+> 	   The code already sets RequestQueue->max_sectors.
+> 
+> 	2. Replace the undefined bio_size(BufferHead) with BufferHead->bi_size
+> 	   (in many places, which is why the diff is big).
+> 
+> 	3. Add a missing parameter in one place, changing
+> 		BufferHeader->bi_end_io(BufferHeader)
+> 	   to
+> 		BufferHeader->bi_end_io(BufferHeader, bio_sectors(BufferHeader))
+> 
+> 
+> 	#3 is the one that I have the most doubts about.
 
-> Could I get your comments on a patch against 2.4.16-stock? I'm trying to
-> figure out the best way to automagically work around the bug, and this
-> is the best I've come up with so far. I need more DMI data from other HP
-> 5400 series AMD/ALi laptops with the problem to come up with the most
-> accurate matches - right now it's tied to my machine type and BIOS
-> version.
+It's not as easy as this. Note that you can have more than one page
+entry in a bio, so if you simply use bio_data() on each bio and then
+jump to the next through bi_next, then you are discarding every page but
+the first one.
 
-Yep. Patch looks reasonable.
+You want to do something like this:
 
-I have same problem on HP Omnibook xe3, and yes, your previous patch
-fixed it (as I wrote you). Here's DMI output
+	rq_for_each_bio(bio, rq)
+		bio_for_each_segment(bio_vec, bio, i)
+			/* handle each bio_vec */
 
-DMI 2.2 present.
-29 structures occupying 935 bytes.
-DMI table at 0x000DC010.
-BIOS Vendor: Phoenix Technologies LTD
-BIOS Version:  GD.M1.08
-BIOS Release: 09/27/2001
-System Vendor: Hewlett-Packard.
-Product Name: HP OmniBook PC         .
-Version HP OmniBook XE3 GD           .
-Serial Number T*********.
-Board Vendor: Hewlett-Packard.
-Board Name: N/A.
-Board Version: OmniBook N32N-736.
-Asset Tag: No Asset Tag.
+DAC960 needs a huge cleanup to support highmem as well, Virtual_to_Bus32
+and Virtual_to_Bus64, yuck, chest pains.
 
-But... my maestro3 still does not work properly. Does yours? Or you
-have another soundcard?
-								Pavel
+As a reference, read drivers/block/cciss.c for example which I've
+converted to use the blk_rq_map_sg interface. Basically you don't have
+to worry about any of this. You can check ide-dma.c too, note how easy
+it is to setup a scatterlist mapping for DMA from a request now:
+
+	/*
+	 * map the request into a scatterlist
+	 */
+	nr_sg_entries = blk_rq_map_sg(q, rq, sg_table);
+
+	/*
+	 * map the scatterlist pages for streaming dma
+	 */
+	sg_nents = pci_map_sg(dev, sg_table, nr_sg_entries, data_dir);
+
 -- 
-"I do not steal MS software. It is not worth it."
-                                -- Pavel Kankovsky
+Jens Axboe
+

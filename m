@@ -1,74 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264228AbTDPF3h (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 01:29:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264230AbTDPF3h 
+	id S264232AbTDPFkG (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 01:40:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264233AbTDPFkG 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 01:29:37 -0400
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:41879 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S264228AbTDPF3g 
+	Wed, 16 Apr 2003 01:40:06 -0400
+Received: from granite.he.net ([216.218.226.66]:30992 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S264232AbTDPFkD 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 01:29:36 -0400
-Date: Wed, 16 Apr 2003 08:41:01 +0300 (EEST)
-From: Catalin BOIE <util@deuroconsult.ro>
-To: jamal <hadi@cyberus.ca>
-cc: Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: [PATCH] qdisc oops fix
-In-Reply-To: <20030415084706.O1131@shell.cyberus.ca>
-Message-ID: <Pine.LNX.4.53.0304160838001.25861@hosting.rdsbv.ro>
-References: <20030415084706.O1131@shell.cyberus.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Apr 2003 01:40:03 -0400
+Date: Tue, 15 Apr 2003 22:54:02 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@digeo.com>, Patrick Mochel <mochel@osdl.org>
+Cc: Philippe =?iso-8859-1?Q?Gramoull=E9?= 
+	<philippe.gramoulle@mmania.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.67-mm3: Bad: scheduling while atomic with IEEE1394 then hard freeze ( lockup on CPU0)
+Message-ID: <20030416055402.GC15860@kroah.com>
+References: <20030416000501.342c216f.philippe.gramoulle@mmania.com> <20030415160530.2520c61c.akpm@digeo.com> <20030416011728.196d66ca.philippe.gramoulle@mmania.com> <20030415163456.020f83c1.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030415163456.020f83c1.akpm@digeo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -       sch = kmalloc(size, GFP_KERNEL);
-> +       sch = kmalloc(size, GFP_ATOMIC);
->
-> mysteriously fixes the problem? Could the problem be elsewhere?
-> Can you repost what the issue was? I am not on lk and i just saw the
-> posting on a web page.
+On Tue, Apr 15, 2003 at 04:34:56PM -0700, Andrew Morton wrote:
+> Philippe Gramoullé <philippe.gramoulle@mmania.com> wrote:
+> >
+> > I'll wait for the fix and will happily try it once it's available.
+> 
+> Something like this...
+> 
+> diff -puN lib/kobject.c~kobj_lock-fix lib/kobject.c
+> --- 25/lib/kobject.c~kobj_lock-fix	Tue Apr 15 16:31:28 2003
+> +++ 25-akpm/lib/kobject.c	Tue Apr 15 16:34:33 2003
+> @@ -336,12 +336,14 @@ void kobject_unregister(struct kobject *
+>  struct kobject * kobject_get(struct kobject * kobj)
+>  {
+>  	struct kobject * ret = kobj;
+> -	spin_lock(&kobj_lock);
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&kobj_lock, flags);
+>  	if (kobj && atomic_read(&kobj->refcount) > 0)
+>  		atomic_inc(&kobj->refcount);
+>  	else
+>  		ret = NULL;
+> -	spin_unlock(&kobj_lock);
+> +	spin_unlock_irqrestore(&kobj_lock, flags);
+>  	return ret;
+>  }
+>  
+> @@ -371,10 +373,15 @@ void kobject_cleanup(struct kobject * ko
+>  
+>  void kobject_put(struct kobject * kobj)
+>  {
+> -	if (!atomic_dec_and_lock(&kobj->refcount, &kobj_lock))
+> -		return;
+> -	spin_unlock(&kobj_lock);
+> -	kobject_cleanup(kobj);
+> +	unsigned long flags;
+> +
+> +	local_irq_save(flags);
+> +	if (atomic_dec_and_lock(&kobj->refcount, &kobj_lock)) {
+> +		spin_unlock_irqrestore(&kobj_lock, flags);
+> +		kobject_cleanup(kobj);
+> +	} else {
+> +		local_irq_restore(flags);
+> +	}
+>  }
 
-With many rules (~5000 classes and ~3500 qdiscs and ~50000 filters)
-the kernel oopses in slab.c:1128.
-It happens on high rates (~15mbit).
-On low rates, doesn't.
+CCed Pat, as this is his territory.
 
-Seems that an interrupt come and broke the memory allocation.
+Hm yeah, this will fix the problem.  But is there anyway we can do this
+without a lock at all?  I think we wouldn't need the lock, if we didn't
+test the refcount for > 0, right?  Pat, that just keeps us from getting
+a reference count on a kobject that hasn't been initialized, right?
+That is a good idea to do, but is it really necessary?
+
+If only atomic_inc_return() was defined for all platforms we might be
+able to do the following, dropping the lock entirely:
+
+struct kobject * kobject_get(struct kobject * kobj)
+{
+	struct kobject * ret = kobj;
+	if (kobj)
+		if (atomic_inc_return(kobj->refcount) <= 1) {
+			atomic_dec(kobj->refcount);
+			ret = NULL;
+		}
+	else
+		ret = NULL;
+	return ret;
+}
+
+void kobject_put(struct kobject * kobj)
+{
+	if (!atomic_dec(&kobj->refcount))
+		return;
+	kobject_cleanup(kobj);
+}
 
 
->>EIP; c0127ab4 <kmem_cache_grow+44/1d8>   <=====
+Or am I missing something?
 
->>EAX; ffffffff <END_OF_CODE+3fd31247/????>
->>EBX; c12c52c0 <END_OF_CODE+ff6508/????>
->>EDI; c12c52c0 <END_OF_CODE+ff6508/????>
->>ESP; ceab1c60 <END_OF_CODE+e7e2ea8/????>
+Anyone know how to whip up a atomic_inc_return() for the platforms
+missing it?
 
-Trace; c0127e0f <kmalloc+eb/110>
-Trace; c01d3cac <qdisc_create_dflt+20/bc>
-Trace; d081ecc7 <END_OF_CODE+1054ff0f/????>
-Trace; c01d5265 <tc_ctl_tclass+1cd/214>
-Trace; d0820600 <END_OF_CODE+10551848/????>
-Trace; c01d27e4 <rtnetlink_rcv+298/3bc>
-Trace; c01d0605 <__neigh_event_send+89/1b4>
-Trace; c01d7cd4 <netlink_data_ready+1c/60>
-Trace; c01d7730 <netlink_unicast+230/278>
-Trace; c01d7b73 <netlink_sendmsg+1fb/20c>
-Trace; c01c79d5 <sock_sendmsg+69/88>
-Trace; c01c8b48 <sys_sendmsg+18c/1e8>
-Trace; c0120010 <map_user_kiobuf+8/f8>
+thanks,
 
-
->
-> cheers,
-> jamal
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
----
-Catalin(ux) BOIE
-catab@deuroconsult.ro
+greg k-h

@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270925AbTG0SSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 14:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270926AbTG0SSZ
+	id S270926AbTG0S0G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 14:26:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270928AbTG0S0G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 14:18:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61827 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S270925AbTG0SSY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 14:18:24 -0400
-Date: Sun, 27 Jul 2003 19:33:37 +0100
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test2: Fatal exception in interrupt
-Message-ID: <20030727183337.GA671@gallifrey>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.6.0-test1 (i686)
-X-Uptime: 19:31:29 up 4 min,  1 user,  load average: 0.27, 0.29, 0.13
-User-Agent: Mutt/1.5.4i
+	Sun, 27 Jul 2003 14:26:06 -0400
+Received: from dp.samba.org ([66.70.73.150]:14521 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S270926AbTG0S0D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 14:26:03 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Gianni Tedesco <gianni@scaramanga.co.uk>
+Cc: davem@redhat.com, arjanv@redhat.com, torvalds@transmeta.com,
+       greg@kroah.com, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] Remove module reference counting. 
+In-reply-to: Your message of "25 Jul 2003 23:43:16 +0100."
+             <1059172995.16255.6.camel@sherbert> 
+Date: Sun, 27 Jul 2003 06:18:05 +1000
+Message-Id: <20030727184118.3D7872C003@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dual athlon, (Tyan S2460 board with on board 768 and offboard
-Promise).
+In message <1059172995.16255.6.camel@sherbert> you write:
+> Wasn't the idea once banded about of a 2-stage unload that went
+> something like:
+> 
+> 1. ->cleanup() - unregister IRQ handlers, timers, etc.
+> 2. Quiesce the system
+> 3. Safe to unload
+> 
+> surely if nothing is registered and all CPUs do a voluntary schedule()
+> then there can be no chance of calling back in to the module.
 
-Fatal exception in interrupt - I've got the last page of trace which
-reads:
+Yes, I implemented this, even.  The problem is that the desired module
+semantics are "unload if it'll work, otherwise do nothing and fail".
+This means that you either get halfway through the cleanup function
+and back out (which leaves the race where some interfaces to your
+module is MIA for a while), or you hang forever if things are in use.
 
-cdrom_decode_status
-cdrom_read_intr
-mempool_free
-mempool_free
-mempool_free
-default_wake_function
-__wake_up_common
-cdrom_end_request
-ide_intr
-cdrom_read_intr
-handle_IRQ_event
-do_IRQ
-default_idle
-common_interrupt
-default_idle
-default_idle
-cpu_idle
-rest_idle
-start_kernel
-unknown_bootoption
+It's this "atomically check refcount and deregister" that
+try_module_get() gives us, by effectively unregistering all the
+modules' interfaces at once.
 
-
-Hmm - time to get serial console to log this stuff me thinks.
-
-Dave
-
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

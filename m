@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265256AbTLLPLW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 10:11:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265257AbTLLPLW
+	id S265255AbTLLPLH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 10:11:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbTLLPLH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 10:11:22 -0500
-Received: from main.gmane.org ([80.91.224.249]:34466 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265256AbTLLPLT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 10:11:19 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: PROBLEM: floppy motor spins when floppy module not installed
-Date: Fri, 12 Dec 2003 16:11:17 +0100
-Message-ID: <yw1xy8tixe96.fsf@kth.se>
-References: <16345.51504.583427.499297@l.a> <yw1xd6auyvac.fsf@kth.se>
- <Pine.LNX.4.53.0312121000150.10423@chaos>
+	Fri, 12 Dec 2003 10:11:07 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:58348 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S265255AbTLLPLE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 10:11:04 -0500
+Date: Fri, 12 Dec 2003 07:10:59 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Rui Saraiva <rmps@joel.ist.utl.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sparse/TSCT BitKeeper repository
+Message-ID: <20031212151059.GA11561@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Rui Saraiva <rmps@joel.ist.utl.pt>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0312120414360.8280@joel.ist.utl.pt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:d9FJL8AVPU12VdMTm6Br7rU0eYY=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0312120414360.8280@joel.ist.utl.pt>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> writes:
+kernel.bkbits.net is back online but the repos haven't been restored yet.
+I'm leaving that to Dave and Linus.  I'll nudge them.
 
-> On Fri, 12 Dec 2003, [iso-8859-1] Måns Rullgård wrote:
->
->> Dale Mellor <dale@dmellor.dabsol.co.uk> writes:
->>
->> > 1. Floppy motor spins when floppy module not installed.
->>
->> It's a known problem.  Some broken BIOSes don't turn off the motor
->> after probing for a disk.  One solution is to change the boot priority
->> in the BIOS settings so the hard disk is tried before floppy.  If you
->> ever need to boot from a floppy, you can change it back.
->
-> It is not a broken BIOS! The BIOS timer that ticks 18.206 times
-> per second has an ISR that, in addition to keeping time, turns
-> OFF the FDC motor after two seconds of inactivity. This ISR is taken
-> away by Linux. Therefore Linux must turn off that motor! It is a
-> Linux bug, not a BIOS bug. Linux took control away from the BIOS
-> during boot.
-
-OK, but why doesn't it affect all machines?
+On Fri, Dec 12, 2003 at 04:49:46AM +0000, Rui Saraiva wrote:
+> 
+> Where is the sparse BK repository that used to be
+> bk://kernel.bkbits.net/torvalds/sparse ?
+> It seems there is an older version at bk://linux-dj.bkbits.net/sparse
+> 
+> Also in the subject, I got lots of "attribute 'alias': unknown attribute"
+> warnings in the kernel source in lines with module_init(), module_exit()
+> and others. A simple fix might be
+> 
+> 	if (match_string_ident(attribute, "alias"))
+> 		return NULL;
+> 
+> near the end of handle_attribute() in parse.c
+> 
+> 
+> Regards,
+> 	Rui Saraiva
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Måns Rullgård
-mru@kth.se
-
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

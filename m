@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261871AbTIEDw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 23:52:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbTIEDwO
+	id S262068AbTIEEKG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 00:10:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTIEEKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 23:52:14 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:52679 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261871AbTIEDwI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 23:52:08 -0400
-Date: Thu, 04 Sep 2003 23:41:38 -0400
-From: Chris Heath <chris@heathens.co.nz>
-To: Andries Brouwer <aebr@win.tue.nl>
-Subject: Re: keyboard - was: Re: Linux 2.6.0-test4
-Cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org,
-       vojtech@ucw.cz, Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-In-Reply-To: <20030905021955.A3133@pclin040.win.tue.nl>
-References: <20030904230055.GO31590@mail.jlokier.co.uk> <20030905021955.A3133@pclin040.win.tue.nl>
-Message-Id: <20030904225728.C7CB.CHRIS@heathens.co.nz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.06.02
-X-Antirelay: Good relay from local net1 127.0.0.1/32
+	Fri, 5 Sep 2003 00:10:06 -0400
+Received: from adsl-64-175-243-181.dsl.sntc01.pacbell.net ([64.175.243.181]:6413
+	"EHLO top.worldcontrol.com") by vger.kernel.org with ESMTP
+	id S262068AbTIEEKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 00:10:01 -0400
+From: brian@worldcontrol.com
+Date: Thu, 4 Sep 2003 21:13:16 -0700
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: revert to 2.6.0-test3 state
+Message-ID: <20030905041316.GA1886@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	Patrick Mochel <mochel@osdl.org>, Pavel Machek <pavel@suse.cz>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20030904115824.GD24015@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0309040820520.940-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0309040820520.940-100000@localhost.localdomain>
+X-No-Archive: yes
+X-Noarchive: yes
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Are you saying that it isn't possible for i8042.c to simply pass all
-> > events (including duplicates) to the keyboard driver to sanitise?
-> 
-> I am saying that I would like nothing better than that.
-> But it is a fundamental change of setup.
+On Thu, Sep 04, 2003 at 08:25:38AM -0700, Patrick Mochel wrote:
+> No, you have to understand that I don't want to call software_suspend() at 
+> all. You've made the choice not to accept the swsusp changes, so we're 
+> forking the code. We will have competing implementations of 
+> suspend-to-disk in the kernel. 
 
-Well... I think the overall design is the right one.  The atkbd driver
-expects to be talking to an AT keyboard, usually using Set 2.
+And the fork happened in 2.6.0-test4?
 
-However, the bytes that come from the i8042 are a mixture of Set 1 and
-Set 2.  Set 1 because the key releases have their 8th bits set, and Set
-2 because we get the non-XT keys escaped with E0. I guess the keyboard
-is sending Set 2 and the BIOS is translating the set 2 codes to set 1
-for "compatibility with XT software".
+Some how I thought the 6, being even, meant stable.
 
-So the i8042 layer is IMHO the right place to untranslate this mess back
-into normal Set 2.  The problem is that the BIOS translation is not
-invertible, so we have to hack the untranslation as best we can.  The
-current algorithm is to untranslate all bytes 0x00-0x7f, and to
-untranslate the others only if there was a previous key press.  This
-means the i8042 layer has to know about scancodes, knowledge which
-probably only belongs in the atkbd layer.
+I am at a complete loss how these test3 to test4 major changes
+that broke everything meet with the often repeated definitions
+of how kernel development is to be accomplished.
 
-Probably, now that I think about it, the sanitization of duplicate key
-releases should rightfully be part of the atkbd layer, because those
-codes are actually being sent from the keyboard.
+Perhaps I missed something, development kernels include all
+odd numbers and 6?
 
-But either way, the problem remains to find a good untranslate
-hack^Walgorithm.  Because we are getting duplicate key releases, we have
-to make sure they they are either untranslated or removed.  Sending them
-through unchanged, as we were in -test1 causes lots of grief to the
-atkbd layer.
-
-At this late stage, I don't think it is a good idea to completely
-rewrite the untranslate algorithm.  So we continue to hack it and hack
-it until it works.  :-/
-
-Chris
-
+-- 
+Brian Litzinger

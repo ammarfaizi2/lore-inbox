@@ -1,33 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUEJX2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbUEJXYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUEJX2W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 19:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUEJXYo
+	id S262008AbUEJXYm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 19:24:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUEJXRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 19:24:44 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:57333 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S261763AbUEJXW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 19:22:26 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add path-oriented proc_mkdir_path() function to /proc
-Message-Id: <E1BNK6J-0001Yw-3e@peregrine.corp.google.com>
-From: Edward Falk <efalk@google.com>
-Date: Mon, 10 May 2004 16:22:23 -0700
+	Mon, 10 May 2004 19:17:12 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:32017 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263045AbUEJXOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 19:14:20 -0400
+Date: Tue, 11 May 2004 00:14:18 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm1
+Message-ID: <20040511001418.A9065@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040510024506.1a9023b6.akpm@osdl.org> <20040510223755.A7773@infradead.org> <20040510150203.3257ccac.akpm@osdl.org> <20040510231146.GA5168@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040510231146.GA5168@taniwha.stupidest.org>; from cw@f00f.org on Mon, May 10, 2004 at 04:11:46PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> ... adds the function proc_mkdir_path() ...
->
->Who uses this?
+On Mon, May 10, 2004 at 04:11:46PM -0700, Chris Wedgwood wrote:
+> eh? magic groups are nasty...  and why is this needed?  can't
+> oracle/whatever just run with a wrapper to give the capabilities out
+> as required until a better solution is available
 
-Well, almost nobody yet :)
+Well, easiest thing would be to use mmap on hugetlbfs in oracle, then
+you just need to chown /dev/hugetlb/ group hugetlb and set +x for the
+group - same effect as the kernel hack but keeping policy where it
+belongs.
 
-I'm very shortly going to submit a diagnostic utility that creates
-nested entries in /proc.
-
-I originally wrote proc_mkdir_path() to make the nested entries, and
-someone suggested that it be submitted as a seperate patch since it's
-of general usefulness.
-
-	-ed falk, falk@google.com

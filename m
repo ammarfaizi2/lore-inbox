@@ -1,66 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUFEL6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUFEMMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbUFEL6H (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 07:58:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbUFEL6H
+	id S261169AbUFEMMh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 08:12:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbUFEMMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 07:58:07 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:14549 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261159AbUFEL6D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 07:58:03 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: gelato-technical <gelato-technical@gelato.unsw.edu.au>,
-       lkcd-devl <lkcd-devel@lists.sourceforge.net>
-Cc: suparna bhattacharya <suparna@in.ibm.com>,
-       Prashanth Tamraparni <prasht@in.ibm.com>, jbarnes@sgi.com,
-       davidm@hpl.hp.com, vgoyal@in.ibm.com
-Content-Type: text/plain
-Message-Id: <1086104163.5172.58.camel@2fwv946.in.ibm.com>
+	Sat, 5 Jun 2004 08:12:36 -0400
+Received: from ktown.kde.org ([131.246.103.200]:59270 "HELO ktown.kde.org")
+	by vger.kernel.org with SMTP id S261169AbUFEMMf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 08:12:35 -0400
+Date: Sat, 5 Jun 2004 14:12:33 +0200
+From: Oswald Buddenhagen <ossi@kde.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: shutdown problem with 2.6.7-rc2 / 2.6.7-rc2-mm2
+Message-ID: <20040605121233.GA1787@ugly.local>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040605053052.GA7825@middle.of.nowhere>
 Mime-Version: 1.0
-Subject: Lcrash on IA64 breaks due to duplicate symbol "modules" in
-	System.map
-Organization: 
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 Jun 2004 17:26:11 +0530
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040605053052.GA7825@middle.of.nowhere>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Jun 05, 2004 at 07:30:52AM +0200, Jurriaan wrote:
+> Both 2.6.7-rc2 and 2.6.7-rc2-mm2 don't shut down my systems anymore.
+> They print 'System halted.' but don't switch off.
+> 
+> I use Debian/Unstable (updated as of yesterday),
+> 
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=252547
 
-Lcrash on IA64 breaks due to the presence of multiple appearance of
-symbol "modules" in System.map file. Lcrash tries to load ksyms from
-dump by reading linked list of modules which starts at "modules". 
+greetings
 
-Sometimes Lcrash gets confused due to multiple presence of this symbol
-and is unable to load the module symbols.
-
-On a test system, following is the output when "modules" is grepped in
-System.map. I am using 2.6.5 kernel.
-
-**********************************************************************
-a0000001007d01e8 d modules
-a00000010093cab0 B modules
-**********************************************************************
-
-First one is a static declaration/definition in linux/kernel/module.c.
-This is the symbol lcrash is searching for to get the starting address
-of list of modules.
-
-Second one is a global declaration appearing in
-linux/arch/ia64/sn/io/sn2/module.c. I am not very sure about its usage
-but it seems this is being kept to maintain a list of modules keeping
-some hardware specific details.
-
-Is it a good idea to keep the two names same? If one of these can be
-renamed to resolve the lcrash problem.
-
-Thanks
-Vivek
-
- 
-
-
-  
-
+-- 
+Hi! I'm a .signature virus! Copy me into your ~/.signature, please!
+--
+Chaos, panic, and disorder - my work here is done.

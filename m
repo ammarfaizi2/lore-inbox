@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293007AbSBVVm5>; Fri, 22 Feb 2002 16:42:57 -0500
+	id <S293012AbSBVVoh>; Fri, 22 Feb 2002 16:44:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293009AbSBVVms>; Fri, 22 Feb 2002 16:42:48 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:29195 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S293007AbSBVVmd>; Fri, 22 Feb 2002 16:42:33 -0500
-Date: Fri, 22 Feb 2002 22:40:07 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, G?rard Roudier <groudier@free.fr>,
-        Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-Message-ID: <20020222224007.C7238@suse.cz>
-In-Reply-To: <3C76A053.55A32E77@mandrakesoft.com> <Pine.LNX.4.10.10202221143290.2519-100000@master.linux-ide.org>
+	id <S293009AbSBVVo1>; Fri, 22 Feb 2002 16:44:27 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:48368
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S293010AbSBVVoP>; Fri, 22 Feb 2002 16:44:15 -0500
+Date: Fri, 22 Feb 2002 13:44:08 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, Dan Kegel <dank@kegel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Zach Brown <zab@zabbo.net>
+Subject: Re: is CONFIG_PACKET_MMAP always a win?
+Message-ID: <20020222214408.GI20060@matchmail.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jamie Lokier <lk@tantalophile.demon.co.uk>,
+	Dan Kegel <dank@kegel.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Zach Brown <zab@zabbo.net>
+In-Reply-To: <20020222190431.A16926@kushida.apsleyroad.org> <E16eLoz-0002vD-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10202221143290.2519-100000@master.linux-ide.org>; from andre@linuxdiskcert.org on Fri, Feb 22, 2002 at 11:46:46AM -0800
+In-Reply-To: <E16eLoz-0002vD-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 22, 2002 at 11:46:46AM -0800, Andre Hedrick wrote:
-
-> > > Average user does not care about PCI probing. But it does care on booting
-> > > the expected kernel image and mounting the expected partitions.
-> > > It also doesn't care of code aesthetical issue even with free software
-> > > since average user is not a kernel hacker.
+On Fri, Feb 22, 2002 at 07:57:33PM +0000, Alan Cox wrote:
+> > > You can process them in the ring buffer. If you can't keep up then you
+> > > are screwed any way you look at it 8)
 > > 
-> > Most SCSI drivers are not using the 2.4 PCI API, which has been
-> > documented and stable for a while now.
+> > That still doesn't avoid copying: af_packet copies the whole packet (if
+> > you want the whole packet) from the original skbuff to the ring buffer.
 > 
-> Also not that ATA/IDE drivers were not using 2.4 PCI API and likewise was
-> stable for a while.
-
-But that's a shame on the ATA/IDE drivers actually.
-
-> > This is need for transparented support for cardbus and hotplug PCI, not
+> I'd make a handwaved claim that the first copy of the packet from a DMA
+> receiving source is free. Its certainly pretty close to free because the
+> overhead of sucking it into L1 cache will dominate and you need to do that
+> anyway.
 > 
-> This is HOST level operation not DEVICE, and you do not see the differenc.
 
-Exactly. That's why it is needed for hotplug PCI and CardBus.
+Doesn't DMA access system memory directly and leave processor caches alone?
+If so, then the fewer copies that have to pollute the L1/2 caches the better.
 
-> > some pie-in-the-sky code asthetic.  This will become further important
-> > as 2.5.x transitions more and more to Mochel's driver model work, which
-> > will among other things provide a sane power management model.
-> > 
-> > To tangent, IDE and SCSI hotplug issues are interesting, because a lot
-> > of people forget or mix up the two types of hotplug, board (host)
-> > hotplug and drive hotplug.
-> 
-> It is a shame that I will now have to start from scratch to create another
-> API for hotplug device for ATA/ATAPI that was migrating into SCSI because
-> of the ide-scsi driver.
+Even if it does for UP, I'd immagine that it doesn't for SMP...
 
-Hmm?
-
--- 
-Vojtech Pavlik
-SuSE Labs
+Mike

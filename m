@@ -1,53 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266130AbUBCUup (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 15:50:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266143AbUBCUup
+	id S266135AbUBCVFK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 16:05:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUBCVFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 15:50:45 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:51331 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S266130AbUBCUum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 15:50:42 -0500
-Date: Tue, 3 Feb 2004 20:59:31 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200402032059.i13KxV5v003730@81-2-122-30.bradfords.org.uk>
-To: "Richard B. Johnson" <root@chaos.analogic.com>,
-       =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Cc: John Bradford <john@grabjohn.com>,
-       =?iso-8859-1?q?Martin_Povoln=FD?= <xpovolny@aurora.fi.muni.cz>,
+	Tue, 3 Feb 2004 16:05:10 -0500
+Received: from mailr-2.tiscali.it ([212.123.84.82]:17521 "EHLO
+	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S266135AbUBCVFA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 16:05:00 -0500
+Date: Tue, 3 Feb 2004 22:04:58 +0100
+From: Kronos <kronos@kronoz.cjb.net>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.53.0402031509100.32547@chaos>
-References: <20040203131837.GF3967@aurora.fi.muni.cz>
- <Pine.LNX.4.53.0402030839380.31203@chaos>
- <401FB78A.5010902@zvala.cz>
- <Pine.LNX.4.53.0402031018170.31411@chaos>
- <200402031602.i13G2NFi002400@81-2-122-30.bradfords.org.uk>
- <yw1xsmhsf882.fsf@kth.se>
- <200402031635.i13GZJ9Q002866@81-2-122-30.bradfords.org.uk>
- <20040203174606.GG3967@aurora.fi.muni.cz>
- <200402031853.i13Ir1e0003202@81-2-122-30.bradfords.org.uk>
- <yw1xn080m1d2.fsf@kth.se>
- <Pine.LNX.4.53.0402031509100.32547@chaos>
-Subject: Re: 2.6.0, cdrom still showing directories after being erased
+Subject: Re: [Compile Regression in 2.4.25-pre8][PATCH 11/42]
+Message-ID: <20040203210458.GA1337@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
+References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan> <20040202194452.GK6785@dreamland.darkstar.lan> <Pine.LNX.4.53.0402021622390.28946@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0402021622390.28946@chaos>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I had to borrow a R/W CDROM because most everybody uses CR-R only
-> here. That's why it took so long to check. With SCSI, Linux 2.4.24,
-> cdrecord fails to umount the drive before it burns it. The result
-> is that the previous directory still remains at the mount-point.
-> This, even though cdrecord ejected the drive to "re-read" its
-> status.
+Il Mon, Feb 02, 2004 at 04:25:55PM -0500, Richard B. Johnson ha scritto: 
+> On Mon, 2 Feb 2004, Kronos wrote:
 > 
-> Bottom line: If the CDROM isn't umounted first, you can still
-> get a directory entry even though the CDROM has been written with
-> about 500 magabytes of new data.
+> >
+> > include/asm/smpboot.h:126: warning: deprecated use of label at end of compound statement
+> >
+> > Move the return statement under 'default' label to suppress the warning.
+> >
+> > diff -Nru -X dontdiff linux-2.4-vanilla/include/asm-i386/smpboot.h linux-2.4/include/asm-i386/smpboot.h
+> > --- linux-2.4-vanilla/include/asm-i386/smpboot.h	Tue Nov 11 17:51:14 2003
+> > +++ linux-2.4/include/asm-i386/smpboot.h	Sat Jan 31 17:10:50 2004
+> > @@ -123,8 +123,8 @@
+> >  			cpu = (cpu+1)%smp_num_cpus;
+> >  			return cpu_to_physical_apicid(cpu);
+> >  		default:
+> > +			return cpu_online_map;
+> >  	}
+> > -	return cpu_online_map;
+> >  }
+> >  #else
+> >  #define target_cpus() (cpu_online_map)
+> >
+> 
+> Not correct. This removes the main-line return of a value.
 
-You're describing a different problem.  The original poster is
-unmounting the disc before erasing it.
+Since the original code is this:
 
-It would be nice if cdrecord checked that the device it was about to
-write to wasn't already mounted, and complained if it was.
+        switch(clustered_apic_mode){
+                case CLUSTERED_APIC_NUMAQ:
+                        /* Broadcast intrs to local quad only. */
+                        return APIC_BROADCAST_ID_APIC;
+                case CLUSTERED_APIC_XAPIC:
+                        /*round robin the interrupts*/
+                        cpu = (cpu+1)%smp_num_cpus;
+                        return cpu_to_physical_apicid(cpu);
+                default:
+        }
+        return cpu_online_map;
 
-John.
+my patch doesn't change anything. It may be a bit unclean though. What
+about this one:
+
+diff -Nru -X dontdiff linux-2.4-vanilla/include/asm-i386/smpboot.h linux-2.4/include/asm-i386/smpboot.h
+--- linux-2.4-vanilla/include/asm-i386/smpboot.h	Sun Aug 31 23:04:50 2003
++++ linux-2.4/include/asm-i386/smpboot.h	Tue Feb  3 22:03:06 2004
+@@ -123,6 +123,7 @@
+ 			cpu = (cpu+1)%smp_num_cpus;
+ 			return cpu_to_physical_apicid(cpu);
+ 		default:
++			break;
+ 	}
+ 	return cpu_online_map;
+ }
+
+
+
+Luca
+-- 
+Reply-To: kronos@kronoz.cjb.net
+Home: http://kronoz.cjb.net
+I went to God just to see
+And I was looking at me
+Saw heaven and hell were lies
+When I'm God everyone dies

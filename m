@@ -1,83 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265218AbUEYUbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265213AbUEYUcs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265218AbUEYUbW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 16:31:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265213AbUEYUbW
+	id S265213AbUEYUcs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 16:32:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265221AbUEYUcs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 16:31:22 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31164 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265203AbUEYUbM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 16:31:12 -0400
-Date: Tue, 25 May 2004 13:30:56 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "David S. Miller" <davem@redhat.com>
-cc: wesolows@foobazco.org, willy@debian.org, andrea@suse.de,
-       benh@kernel.crashing.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, bcrl@kvack.org, linux-mm@kvack.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
-In-Reply-To: <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0405251319550.9951@ppc970.osdl.org>
-References: <1085369393.15315.28.camel@gaston> <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
- <1085371988.15281.38.camel@gaston> <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
- <1085373839.14969.42.camel@gaston> <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
- <20040525034326.GT29378@dualathlon.random> <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
- <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org> <20040525153501.GA19465@foobazco.org>
- <Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org> <20040525102547.35207879.davem@redhat.com>
- <Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org> <20040525105442.2ebdc355.davem@redhat.com>
- <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 May 2004 16:32:48 -0400
+Received: from cfcafw.sgi.com ([198.149.23.1]:34137 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S265213AbUEYUce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 16:32:34 -0400
+Date: Tue, 25 May 2004 15:32:15 -0500
+From: Jack Steiner <steiner@sgi.com>
+To: Manfred Spraul <manfred@dbl.q-ag.de>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] [RFC, PATCH] 1/5 rcu lock update: Add per-cpu batch counter
+Message-ID: <20040525203215.GB5127@sgi.com>
+References: <200405250535.i4P5ZKAQ017591@dbl.q-ag.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405250535.i4P5ZKAQ017591@dbl.q-ag.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 25 May 2004, Linus Torvalds wrote:
+On Tue, May 25, 2004 at 07:35:20AM +0200, Manfred Spraul wrote:
+> Hi,
 > 
-> BenH - I'm leaving that ppc64 code to somebody knows what the hell he is
-> doing. Ie you or Anton or something. Ok? I can act as a collector the
-> different architecture things for that "ptep_update_dirty_accessed()"
-> function.
+> Step one for reducing cacheline trashing within rcupdate.c:
+> 
+> The current code uses the rcu_cpu_mask bitmap both for keeping track
+> of the cpus that haven't gone through a quiescent state and for
+> checking if a cpu should look for quiescent states. The bitmap
+> is frequently changed and the check is done by polling - 
+> together this causes cache line trashing.
+> 
+.....
 
-Following up to myself.
 
-I just committed a couple of trivial changesets that allows any 
-architecture to re-define its own "ptep_update_dirty_accessed()" method.
 
-The default one (if none is defined by the architecture) is just
+It looks like the patch fixes the problem that I saw.
 
-	#ifndef ptep_update_dirty_accessed
-	#define ptep_update_dirty_accessed(__ptep, __entry, __dirty) set_pte(__ptep, __entry)
-	#endif
+I ran a 2.6.6+rcupatch kernel on a 512p system. Previously, this system
+showed ALL cpus becoming ~50% busy when running a "ls" loop on a single
+cpu.  This behavior is now fixed.
 
-ie no change in behaviour. As an example of an alternate strategy, this is 
-the one I committed for x86:
+The following shows the system overhead on cpus 0-9 (higher cpus are
+similar):
 
-	#define ptep_update_dirty_accessed(__ptep, __entry, __dirty)	\
-		do {							\
-			if (__dirty) set_pte(__ptep, __entry);		\
-		} while (0)
 
-which is valid if the architecture updates its own accessed bits.
+idle system
+  CPU    0      1      2      3      4      5      6      7      8      9
+      0.70   0.21   0.19   0.17   0.21   0.20   0.20   0.19   0.18   0.19
+      0.72   0.21   0.18   0.17   0.21   0.21   0.21   0.20   0.18   0.19
+      0.70   0.20   0.18   0.17   0.22   0.20   0.19   0.20   0.19   0.20
+      0.71   0.19   0.18   0.17   0.21   0.20   0.19   0.20   0.18   0.19
+      0.71   0.23   0.19   0.17   0.21   0.20   0.19   0.20   0.19   0.20
 
-I just realized that for x86 the _clever_ way of doing this (for highmem
-machines) is actually to only update the low word, which makes for much
-better code for the PAE case (and still does exactle the same for the
-non-PAE case):
 
-	#define ptep_update_dirty_accessed(__ptep, __entry, __dirty)		\
-		do {								\
-			if (__dirty) (__ptep)->pte_low = (__entry).pte_low;	\
-		} while (0)
+runnin "ls" loop on cpu 4 (the number for cpu4 is the ls command - NOT overhead)
+  CPU    0      1      2      3      4      5      6      7      8      9
+      0.83   2.08   0.31   0.29  97.87   1.25   0.32   0.32   0.32   0.33
+      0.88   0.52   0.30   0.28  96.46   1.32   0.32   0.23   0.31   0.30
+      0.84   1.27   0.31   0.29  97.15   1.38   0.33   0.31   0.31   0.31
+      0.83   2.81   0.32   0.30  98.61   1.14   0.31   0.33   0.32   0.37
+      0.84   2.32   0.32   0.40  97.91   1.43   0.33   0.43   0.32   0.36
 
-but I haven't actually tested this.
+There is a small increase in system overhead on all cpus but not the 50% seen
+earlier.
 
-Anybody willing to test the x86 PAE optimization?
+I dont understand, however, why the overhead increased on cpus 1 & 5. This
+may be a test anomaly but I suspect something else. I'll look into that later.
 
-In the meantime, other architectures can now fix their dirty/accessed bit
-setting any way they damn well please.
+I also noticed one other anomaly. /proc/interrupts shows the number of interrupts
+for each cpu. Under most circumstances, /proc/interrupts shows 1024 timer
+interrupts/sec on each cpu. When the "ls" script is running, the number 
+of timer interrupts/sec on the cpu running "ls" drops to ~650. I'm not
+sure why (perhaps running too long somewhere with ints disabled). 
 
-			Linus
+I'll look further....
+
+
+
+
+-- 
+Thanks
+
+Jack Steiner (steiner@sgi.com)          651-683-5302
+Principal Engineer                      SGI - Silicon Graphics, Inc.
+
+

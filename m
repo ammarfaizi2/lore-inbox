@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263013AbUCXGM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 01:12:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263018AbUCXGM0
+	id S263018AbUCXGTH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 01:19:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbUCXGTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 01:12:26 -0500
-Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:49295 "HELO
-	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263013AbUCXGM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 01:12:26 -0500
-Message-ID: <406125F8.1080604@yahoo.com.au>
-Date: Wed, 24 Mar 2004 17:08:56 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Email address change
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Mar 2004 01:19:06 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:16514
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263018AbUCXGTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 01:19:04 -0500
+Date: Wed, 24 Mar 2004 07:19:57 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] anobjrmap 1/6 objrmap
+Message-ID: <20040324061957.GB2065@dualathlon.random>
+References: <Pine.LNX.4.44.0403190642450.17899-100000@localhost.localdomain> <2663710000.1079716282@[10.10.2.4]> <20040320123009.GC9009@dualathlon.random> <2696050000.1079798196@[10.10.2.4]> <20040320161905.GT9009@dualathlon.random> <2924080000.1079886632@[10.10.2.4]> <20040321235207.GC3649@dualathlon.random> <1684742704.1079970781@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1684742704.1079970781@[10.10.2.4]>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+On Mon, Mar 22, 2004 at 07:53:02AM -0800, Martin J. Bligh wrote:
+> Just against 2.6.5-rc1 virgin is easiest - that's what I was doing the
+> rest of it against ...
 
-My old email address piggin@cyberone.com.au is having problems so
-I am using this new address nickpiggin@yahoo.com.au. Please send
-all future messages here.
+here it is:
 
-I haven't been getting most of my mail for the past couple of days
-so if you have sent me anything that I haven't answered, please
-resend. I'm sorry for the inconvenience.
-
-Nick
-
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.5-rc1/anon-vma-2.6.5-rc2-aa2.gz
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.5-rc1/objrmap-core-2.6.5-rc2-aa2.gz

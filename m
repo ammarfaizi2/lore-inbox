@@ -1,81 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265917AbTFSTeh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 15:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265921AbTFSTeh
+	id S265928AbTFSThu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 15:37:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265918AbTFSTht
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 15:34:37 -0400
-Received: from 24-216-225-11.charter.com ([24.216.225.11]:51410 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id S265917AbTFSTeI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 15:34:08 -0400
-Date: Thu, 19 Jun 2003 15:48:01 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Thorsten K?rner <thorstenkoerner@123tkshop.org>
+	Thu, 19 Jun 2003 15:37:49 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:11433 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S265928AbTFSThr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 15:37:47 -0400
+Date: Thu, 19 Jun 2003 12:51:45 -0700
+From: David Mosberger <davidm@napali.hpl.hp.com>
+Message-Id: <200306191951.h5JJpj3A032683@napali.hpl.hp.com>
+To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Troll Tech [was RE: Sco vs. IBM]
-Message-ID: <20030619194801.GI22692@rdlg.net>
-Mail-Followup-To: Thorsten K?rner <thorstenkoerner@123tkshop.org>,
-	linux-kernel@vger.kernel.org
-References: <170EBA504C3AD511A3FE00508BB89A920234CD34@exnanycmbx4.ipc.com> <200306192108.13032.thorstenkoerner@123tkshop.org> <03061914300200.25966@tabby> <200306192141.47313.thorstenkoerner@123tkshop.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="s7VmGO2m7mcnuX8Q"
-Content-Disposition: inline
-In-Reply-To: <200306192141.47313.thorstenkoerner@123tkshop.org>
-User-Agent: Mutt/1.5.4i
+Subject: init_thread_union really needed by modules?
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Reply-To: davidm@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Is it really necessary for init_thread_union to be exported to
+modules?  If not, would you mind applying the attached patch.  (We
+haven't exported the symbol on ia64 for ages, with no apparent ill
+effects.)
 
---s7VmGO2m7mcnuX8Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Furthermore, if this patch can be applied, we should be able to make
+the init_thread_union local to arch/ARCH/kernel/init_task.c and
+that in turn would let us remove its declaration from
+include/linux/sched.h alltogether (i.e., no more ugly #ifdefs).
 
-Thus spake Thorsten K?rner (thorstenkoerner@123tkshop.org):
-> >
-> > It was my understanding that you could download SCO Linux up until abou=
-t a
-> > month after they started the lawsuit. By that time, all/most of the
-> > contested code had to already be in the kernel. Since SCO was supplying=
- it,
-> > it was released (my opinion).
-> The lawsuit has nothing to do with Caldera or SCO-Linux. It's to make mon=
-ey.
-> The SCO-People seem to have read the book "How to make money while doing=
-=20
-> nothing" ;-)
-> >
+Thanks,
 
-Bingo...  These guys make a living sueing people:
+	--david
 
-http://slashdot.org/article.pl?sid=3D03/06/19/1245254&mode=3Dthread&tid=3D1=
-06&tid=3D185&tid=3D187&tid=3D88
-
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu=20
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Diagnosis: witzelsucht  =09
-
-IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
-IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
-
---s7VmGO2m7mcnuX8Q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+8hNx8+1vMONE2jsRAnvHAJ94YYIqZQc4efxQrZF20ITcAZMZdwCfUQ2B
-bTfb7Y1DBkS8TLKrYstxHG8=
-=NTJJ
------END PGP SIGNATURE-----
-
---s7VmGO2m7mcnuX8Q--
+===== kernel/ksyms.c 1.203 vs edited =====
+--- 1.203/kernel/ksyms.c	Wed Jun 11 19:53:38 2003
++++ edited/kernel/ksyms.c	Thu Jun 19 12:46:35 2003
+@@ -592,7 +592,6 @@
+ /* init task, for moving kthread roots - ought to export a function ?? */
+ 
+ EXPORT_SYMBOL(init_task);
+-EXPORT_SYMBOL(init_thread_union);
+ 
+ EXPORT_SYMBOL(tasklist_lock);
+ EXPORT_SYMBOL(find_task_by_pid);

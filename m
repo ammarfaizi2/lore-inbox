@@ -1,70 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264000AbUDGSEf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 14:04:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264042AbUDGSEf
+	id S264042AbUDGSGG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 14:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbUDGSGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 14:04:35 -0400
-Received: from holomorphy.com ([207.189.100.168]:33158 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264000AbUDGSEd (ORCPT
+	Wed, 7 Apr 2004 14:06:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:225 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264042AbUDGSGD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 14:04:33 -0400
-Date: Wed, 7 Apr 2004 11:04:30 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-mc2
-Message-ID: <20040407180430.GA30117@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040406221744.2bd7c7e4.akpm@osdl.org>
-Mime-Version: 1.0
+	Wed, 7 Apr 2004 14:06:03 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040406221744.2bd7c7e4.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16500.17103.665134.7465@neuro.alephnull.com>
+Date: Wed, 7 Apr 2004 14:05:03 -0400
+From: Rik Faith <faith@redhat.com>
+To: paulmck@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, dipankar@in.ibm.com, rusty@au1.ibm.com
+Subject: Re: [RFC] [PATCH] Improve list.h documentation for _rcu() primitives
+In-Reply-To: [Paul E. McKenney <paulmck@us.ibm.com>] Mon  5 Apr 2004 14:55:25 -0700
+References: <20040405215524.GA2173@us.ibm.com>
+X-Key: 7EB57214; 958B 394D AD29 257E 553F  E7C7 9F67 4BE0 7EB5 7214
+X-Url: http://www.redhat.com/
+X-Mailer: VM 7.17; XEmacs 21.4; Linux 2.4.22-1.2163.nptl (neuro)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 10:17:44PM -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mc2/
-> This tree is the accumulation of things which will be sent to Linus next
-> week.
+On Mon  5 Apr 2004 14:55:25 -0700,
+   Paul E. McKenney <paulmck@us.ibm.com> wrote:
+> The attached patch improves the documentation of the _rcu list
+> primitives, as suggested off-list.
+> 
+> 						Thanx, Paul
 
-fs/open.c: In function `vfs_statfs_native':
-fs/open.c:67: warning: comparison is always true due to limited range of data type
-fs/open.c:70: warning: comparison is always true due to limited range of data type
+Thanks for making these changes!
 
+I recently used the _rcu list primitives for the audit framework and I
+found that, even though I read the header file comments and the papers
+that were referenced, and even though I then had a good understanding of
+RCU, I missed some implementation details about how the primitives
+themselves should be used inside the Linux kernel.
 
-Index: wli-2.6.5-3/fs/open.c
-===================================================================
---- wli-2.6.5-3.orig/fs/open.c	2004-04-07 07:18:19.000000000 -0700
-+++ wli-2.6.5-3/fs/open.c	2004-04-07 10:57:00.000000000 -0700
-@@ -44,6 +44,13 @@
- 
- EXPORT_SYMBOL(vfs_statfs);
- 
-+static inline int vfs_statfs_overflow(unsigned long x)
-+{
-+	if (sizeof(unsigned long) == 8)
-+		return 0;
-+	return x != ~0UL && x > ((1UL << (BITS_PER_LONG/2)) - 1);
-+}
-+
- static int vfs_statfs_native(struct super_block *sb, struct statfs *buf)
- {
- 	struct kstatfs st;
-@@ -64,11 +71,9 @@
- 			 * f_files and f_ffree may be -1; it's okay to stuff
- 			 * that into 32 bits
- 			 */
--			if (st.f_files != 0xffffffffffffffffULL &&
--			    (st.f_files & 0xffffffff00000000ULL))
-+			if (vfs_statfs_overflow(st.f_files))
- 				return -EOVERFLOW;
--			if (st.f_ffree != 0xffffffffffffffffULL &&
--			    (st.f_ffree & 0xffffffff00000000ULL))
-+			if (vfs_statfs_overflow(st.f_ffree))
- 				return -EOVERFLOW;
- 		}
- 
+These new comments fill in those missing details -- I hope they are
+accepted into the kernel.
+

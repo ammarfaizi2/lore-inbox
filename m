@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269825AbRHIOzz>; Thu, 9 Aug 2001 10:55:55 -0400
+	id <S269831AbRHIPG5>; Thu, 9 Aug 2001 11:06:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269829AbRHIOzq>; Thu, 9 Aug 2001 10:55:46 -0400
-Received: from cr545978-a.nmkt1.on.wave.home.com ([24.112.25.43]:55569 "HELO
-	saturn.tlug.org") by vger.kernel.org with SMTP id <S269825AbRHIOzc>;
-	Thu, 9 Aug 2001 10:55:32 -0400
-Date: Thu, 9 Aug 2001 10:55:42 -0400
-From: Mike Frisch <mfrisch@saturn.tlug.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Athlon/MSI mobo combo broken?
-Message-ID: <20010809105542.A12182@saturn.tlug.org>
-Mail-Followup-To: Mike Frisch <mfrisch@saturn.tlug.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10108082057430.10284-100000@coffee.psychology.mcmaster.ca> <3B72510C.2020503@grips.com>
-Mime-Version: 1.0
+	id <S269832AbRHIPGr>; Thu, 9 Aug 2001 11:06:47 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:60420 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269831AbRHIPGd>; Thu, 9 Aug 2001 11:06:33 -0400
+Subject: Re: 2.4.4: thread dumping core
+To: Ulrich.Windl@rz.uni-regensburg.de (Ulrich Windl)
+Date: Thu, 9 Aug 2001 16:08:19 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B72C08E.3800.1F80245@localhost> from "Ulrich Windl" at Aug 09, 2001 04:55:46 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B72510C.2020503@grips.com>; from gjury@grips.com on Thu, Aug 09, 2001 at 10:59:56AM +0200
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15UrQ3-0007Qq-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 09, 2001 at 10:59:56AM +0200, gjury wrote:
-> You seem to miss the fact, that >= 40 % of the SDRAM modules are not 
-> even close to the spec.
+> I wonder whether the kernel does the right thing if a thread causes a 
+> segmentation violation: Currently it seems the other LWPs just 
+> continue. However in practice this means that the application does not 
 
-There's something to be said for sticking with brand name memory or at
-least memory from reputable vendors...
+This is a feature in most cases
+
+> I suggest to terminate all LWPs if one receives a fatal signal.
+
+So write some signal handlers. 
+
+In all cases the other threads will continue for some time, so you gain
+nothing by pretending they dont. 
+
+Alan

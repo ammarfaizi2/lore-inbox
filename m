@@ -1,67 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287141AbSAHJCw>; Tue, 8 Jan 2002 04:02:52 -0500
+	id <S287145AbSAHJPC>; Tue, 8 Jan 2002 04:15:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287145AbSAHJCo>; Tue, 8 Jan 2002 04:02:44 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:44998 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S287141AbSAHJCh>; Tue, 8 Jan 2002 04:02:37 -0500
-Message-ID: <3C3AB5AB.2080102@redhat.com>
-Date: Tue, 08 Jan 2002 04:02:35 -0500
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020103
-X-Accept-Language: en-us
+	id <S287177AbSAHJOw>; Tue, 8 Jan 2002 04:14:52 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:16634 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S287145AbSAHJOf>;
+	Tue, 8 Jan 2002 04:14:35 -0500
+Message-Id: <200201080914.g089EHq21694@butler1.beaverton.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux (NUMA)
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] MAX_MP_BUSSES increase
+Date: Tue, 8 Jan 2002 01:14:16 -0800
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.LNX.4.21.0112261341470.9842-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0112261341470.9842-100000@freak.distro.conectiva>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
 MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>
-CC: Thomas Gschwind <tom@infosys.tuwien.ac.at>,
-        Nathan Bryant <nbryant@allegientsystems.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: i810_audio
-In-Reply-To: <20020105031329.B6158@infosys.tuwien.ac.at> <3C3A2B5D.8070707@allegientsystems.com> <3C3A301A.2050501@redhat.com> <3C3AA6F9.5090407@redhat.com> <3C3AA9AD.6070203@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Ledford wrote:
+Back from holiday.
 
-> Doug Ledford wrote:
-> 
-> 
->>> Fixes it applies except for the SiS integration:
->>> * drain_dac
->>>   Use interruptible_sleep_on_timeout instead of schedule_timeout.
->>>   I think this is cleaner. 
->>
->>
->>
->>
->> This is fine.
-> 
-> 
-> 
-> Oops, this is one of the mistakes Ben pointed out to me. 
-> interruptible_sleep_on_timeout(wait_queue head, timeout) overwrites the 
-> wait queue that we've already added ourselves to.  schedule_timeout() 
-> does the right thing here.  (interruptible_sleep_on_timeout doesn't 
-> really buy us much of anything we care about either, so it's find to 
-> stay with schedule_timeout)
-> 
-> 
-> 
-> 
+On Wednesday 26 December 2001 07:43 am, Marcelo Tosatti wrote:
+> James,
+>
+> Don't remove the "#ifdef CONFIG_MULTIQUAD" on your patch: Let the old max
+> (32) for non-multiquad machines.
 
-OK, various clean ups made, and enough of the SiS code included that I think 
-it should work, plus one change to the i810 interrupt handler that will 
-(hopefully) render the other change you made to get_dma_addr and drain_dac 
-unnecessary.  If people could please download and test the new 0.14 version 
-of the driver on my site, I would appreciate it.
+There's a problem with that -- despite its name, CONFIG_MULTIQUAD is used for 
+the old NUMA-Q hardware.  It turns on some memory mapped port I/O code that 
+doesn't have any purpose for other machines.  The PCI bus overflow happens on 
+our new Foster-based boxes that may or may not contain multiple quad CPU 
+boards.
 
-http://people.redhat.com/dledford/i810_audio.c.gz
+Still, CONFIG_MULTIQUAD is better than nothing.  It just may take a little 
+bit of redefinition, so long as we can coax the various distros to build 
+their installation and working kernels with CONFIG_MULTIQUAD turned on....
+
+> Please resend me the patch this way.
+
+OK, what do you think about this:
+
+diff -ru 2.4.17/include/asm-i386/mpspec.h 
+jamesc-2.4.17/include/asm-i386/mpspec.h
+--- 2.4.17/include/asm-i386/mpspec.h	Thu Nov 22 11:46:18 2001
++++ jamesc-2.4.17/include/asm-i386/mpspec.h	Tue Jan  8 01:00:12 2002
+@@ -185,12 +186,13 @@
+  */
+ 
+ #ifdef CONFIG_MULTIQUAD
+-#define MAX_IRQ_SOURCES 512
++#define MAX_MP_BUSSES	257	/* Need max PCI busses for hotplug + 1 for ISA. */
++#define MAX_IRQ_SOURCES (MAX_MP_BUSSES * 4)	/* Four intrs per PCI slot. */
+ #else /* !CONFIG_MULTIQUAD */
++#define MAX_MP_BUSSES	32
+ #define MAX_IRQ_SOURCES 256
+ #endif /* CONFIG_MULTIQUAD */
+ 
+-#define MAX_MP_BUSSES 32
+ enum mp_bustype {
+ 	MP_BUS_ISA = 1,
+ 	MP_BUS_EISA,
+
+
+
+> On Wed, 19 Dec 2001, James Cleverdon wrote:
+> > We've run into a bit of a problem with a forthcoming system.  The BIOS
+> > reserves so many PCI bus numbers for hotplug when maxed out PCI expansion
+> > box(es) are present that some arrays (mp_bus_id_to_node[],
+> > mp_bus_id_to_pci_bus[], etc) overflow, splattering important variables.
 
 -- 
-
-  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-       Please check my web site for aic7xxx updates/answers before
-                       e-mailing me about problems
+James Cleverdon, IBM xSeries Platform (NUMA), Beaverton
+jamesclv@us.ibm.com   |   cleverdj@us.ibm.com
 

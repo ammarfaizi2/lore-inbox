@@ -1,144 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266720AbTAORRR>; Wed, 15 Jan 2003 12:17:17 -0500
+	id <S266735AbTAOR2G>; Wed, 15 Jan 2003 12:28:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266731AbTAORRR>; Wed, 15 Jan 2003 12:17:17 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:34979 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S266720AbTAORRP>;
-	Wed, 15 Jan 2003 12:17:15 -0500
-Date: Wed, 15 Jan 2003 10:23:29 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: <tomlins@cam.org>, <felix-linuxkernel@fefe.de>,
-       <linux-kernel@vger.kernel.org>, <greg@kroah.com>
-Subject: Re: Patch: linux-2.5.58/drivers/base/bus.c ignored pre-existing
- devices
-In-Reply-To: <20030115025256.A8250@baldur.yggdrasil.com>
-Message-ID: <Pine.LNX.4.33.0301151002130.1137-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266736AbTAOR2G>; Wed, 15 Jan 2003 12:28:06 -0500
+Received: from [66.70.28.20] ([66.70.28.20]:3078 "EHLO
+	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
+	id <S266735AbTAOR2F>; Wed, 15 Jan 2003 12:28:05 -0500
+Date: Wed, 15 Jan 2003 18:36:56 +0100
+From: DervishD <raul@pleyades.net>
+To: Jakob Oestergaard <jakob@unthought.net>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Changing argv[0] under Linux. This MUST work...
+Message-ID: <20030115173656.GG86@DervishD>
+References: <20030114220401.GB241@DervishD> <20030114230418.GB4603@doc.pdx.osdl.net> <20030114231141.GC4603@doc.pdx.osdl.net> <20030115044644.GA18608@mark.mielke.cc> <20030115082527.GA22689@pegasys.ws> <20030115114130.GD66@DervishD> <20030115131617.GA8621@unthought.net> <20030115162219.GB86@DervishD> <20030115164731.GB8621@unthought.net> <20030115171009.GF86@DervishD>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030115171009.GF86@DervishD>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi Jakob :)
 
-> 	device_attach() in linux-2.5.5[78]/drivers/base/bus.c has a
-> bug.  Any device that is detected before its driver is loaded is
-> forgotten.
+    Your solution of exec'ing ourselves MUST undoubtly work (well, I
+know that this an affirmation that I will lament XDDDD), because it
+only relies on 'exec()' passing the argv[0] you provide as the
+argv[0] of the invoked binary, and that should work or programs like
+'/bin/login' will stop working... They rely on the same principle,
+since they need to prepend an '-' to the shell name to make it a
+login shell :))) Didn't remember this until now!
 
-> 	Anyhow, getting back to business, the problem arose due to a
-> botched change in drivers/base/bus.c that apprently was intended to
-> allow a driver->probe function to return an error other than -ENODEV
-> and thereby cause the whole binding process to abort.  At least that's
-> what I think the extra code was inteded to do.  If not, I could shrink
-> the code by making device_attach return void.
+    So, if you do 'execl(ourselves, "my new name", ..., NULL)', the
+argv[0] received by the binary specified in 'ourselves' MUST be 'my
+new name'. Otherwise '/bin/login' and a good bunch of shells won't
+work...
 
-The extra code was an attempt at properly handling failure of ->probe(),
-and to make sure that an error from ->probe() (e.g. -ENOMEM) is propogated
-up.
+    If you happen to come to Spain at any point in the future, just
+tell me, I'll buy you a beer (or crack, or whatever you use XDDD).
 
-The cause of the problem you're seeing is that if a device wasn't bound to 
-a driver, -ENODEV was returned, causing it to be removed from the bus's 
-list of devices. 
+    Thanks :)
 
-To remedy this, I've changed the semantics of bus_match() to return the 
-following:
-
-* 1	if device was bound to a driver.
-* 0	if it wasn't 
-* <0	if drv->probe() returned an error. 
-
-This allows the caller to know if binding happened, as well as bubble the 
-error up. 
-
-Greg notified me of this yesterday, and I sent him the following patch. I 
-haven't pushed it upward yet, since he hasn't had a chance to test it. If 
-you get a chance, please try it and let me know if fixes your problem..
-
-Thanks,
-
-	-pat
-
-===== drivers/base/bus.c 1.38 vs edited =====
---- 1.38/drivers/base/bus.c	Mon Jan 13 10:34:12 2003
-+++ edited/drivers/base/bus.c	Tue Jan 14 16:41:22 2003
-@@ -256,22 +256,27 @@
-  *	
-  *	If we find a match, we call @drv->probe(@dev) if it exists, and 
-  *	call attach() above.
-+ *
-+ *	If the deivce is bound to the driver, we return 1. If the bus
-+ *	reports that they do not match (bus->match() returns FALSE), we
-+ *	return 0. Otherwise, we return the error that drv->probe() 
-+ *	returns.
-  */
- static int bus_match(struct device * dev, struct device_driver * drv)
- {
--	int error = -ENODEV;
-+	int ret = 0;
- 	if (dev->bus->match(dev,drv)) {
- 		dev->driver = drv;
- 		if (drv->probe) {
--			if ((error = drv->probe(dev))) {
-+			if ((ret = drv->probe(dev))) {
- 				dev->driver = NULL;
--				return error;
-+				return ret;
- 			}
- 		}
- 		device_bind_driver(dev);
--		error = 0;
-+		ret = 1;
- 	}
--	return error;
-+	return ret;
- }
- 
- 
-@@ -298,8 +303,11 @@
- 
- 	list_for_each(entry,&bus->drivers.list) {
- 		struct device_driver * drv = to_drv(entry);
--		if (!(error = bus_match(dev,drv)))
-+		if ((error = bus_match(dev,drv))) {
-+			if (error > 1)
-+				error = 0;
- 			break;
-+		}
- 	}
- 	return error;
- }
-@@ -322,6 +330,7 @@
- {
- 	struct bus_type * bus = drv->bus;
- 	struct list_head * entry;
-+	int error = 0;
- 
- 	if (!bus->match)
- 		return 0;
-@@ -329,8 +338,12 @@
- 	list_for_each(entry,&bus->devices.list) {
- 		struct device * dev = container_of(entry,struct device,bus_list);
- 		if (!dev->driver) {
--			if (!bus_match(dev,drv) && dev->driver)
--				devclass_add_device(dev);
-+			if ((error = bus_match(dev,drv))) {
-+				if (error > 0)
-+					error = devclass_add_device(dev);
-+				else
-+					break;
-+			}
- 		}
- 	}
- 	return 0;
-@@ -396,7 +409,8 @@
- 		if ((error = device_attach(dev)))
- 			list_del_init(&dev->bus_list);
- 		up_write(&dev->bus->subsys.rwsem);
--		sysfs_create_link(&bus->devices.kobj,&dev->kobj,dev->bus_id);
-+		if (!error)
-+			sysfs_create_link(&bus->devices.kobj,&dev->kobj,dev->bus_id);
- 	}
- 	return error;
- }
-
+    Raúl

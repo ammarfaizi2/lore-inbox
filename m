@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVALVdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVALVhw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261466AbVALVdN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 16:33:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVALVa0
+	id S261474AbVALVhw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 16:37:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVALVg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 16:30:26 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29142 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261329AbVALV2x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 16:28:53 -0500
-Date: Wed, 12 Jan 2005 16:03:40 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050112180340.GB691@logos.cnet>
-References: <20050112094807.K24171@build.pdx.osdl.net> <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <Pine.LNX.4.58.0501121222590.2310@ppc970.osdl.org>
+	Wed, 12 Jan 2005 16:36:57 -0500
+Received: from mail.kroah.org ([69.55.234.183]:62152 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261460AbVALVaM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 16:30:12 -0500
+Date: Wed, 12 Jan 2005 13:29:54 -0800
+From: Greg KH <greg@kroah.com>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Andrew Morton <akpm@osdl.org>, Takashi Iwai <tiwai@suse.de>, ak@suse.de,
+       mingo@elte.hu, rlrevell@joe-job.com, linux-kernel@vger.kernel.org,
+       pavel@suse.cz, discuss@x86-64.org, gordon.jin@intel.com,
+       alsa-devel@lists.sourceforge.net, VANDROVE@vc.cvut.cz
+Subject: Re: [PATCH] fix: macros to detect existance of unlocked_ioctl and compat_ioctl
+Message-ID: <20050112212954.GA13558@kroah.com>
+References: <20041215065650.GM27225@wotan.suse.de> <20041217014345.GA11926@mellanox.co.il> <20050103011113.6f6c8f44.akpm@osdl.org> <20050105144043.GB19434@mellanox.co.il> <s5hd5wjybt8.wl@alsa2.suse.de> <20050105133448.59345b04.akpm@osdl.org> <20050106140636.GE25629@mellanox.co.il> <20050112203606.GA23307@mellanox.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501121222590.2310@ppc970.osdl.org>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20050112203606.GA23307@mellanox.co.il>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12, 2005 at 12:28:14PM -0800, Linus Torvalds wrote:
+On Wed, Jan 12, 2005 at 10:36:06PM +0200, Michael S. Tsirkin wrote:
+> To make life bearable for out-of kernel modules, the following patch
+> adds 2 macros so that existance of unlocked_ioctl and compat_ioctl
+> can be easily detected.
+>  
+> Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
 > 
-> 
-> On Wed, 12 Jan 2005, Linus Torvalds wrote:
-> > 
-> > So if the embargo time starts ticking from _first_ report, I'd personally
-> > be perfectly happy with a policy of, say "5 working days" (aka one week), 
-> > or until it was made public somewhere else.
-> 
-> Btw, the only thing I care about is the embargo on the _fix_.
-> 
-> If a bug reporter is a security house, and wants to put a longer embargo
-> on announcing the bug itself, or on some other aspect of the issue (ie
-> known exploits etc), and wants to make sure that they get the credit and 
-> they get to be the first ones to announce the problem, that's fine by me. 
-> 
-> The only thing I really care about is that we can serve the people who
-> depend on us by giving them source code that is as bug-free and secure as 
-> we can make it. If that means that we should make the changelogs be a bit 
-> less verbose because we don't want to steal the thunder from the people 
-> who found the problem, that's fine.
+> diff -puN include/linux/fs.h~ioctl-rework include/linux/fs.h
+> --- 25/include/linux/fs.h~ioctl-rework	Thu Dec 16 15:48:31 2004
+> +++ 25-akpm/include/linux/fs.h	Thu Dec 16 15:48:31 2004
+> @@ -907,6 +907,12 @@ typedef struct {
+>  
+>  typedef int (*read_actor_t)(read_descriptor_t *, struct page *, unsigned long, unsigned long);
+>  
+> +/* These macros are for out of kernel modules to test that
+> + * the kernel supports the unlocked_ioctl and compat_ioctl
+> + * fields in struct file_operations. */
+> +#define HAVE_COMPAT_IOCTL 1
+> +#define HAVE_UNLOCKED_IOCTL 1
 
-I'm not a big fan of hiding security fixes - having a defined and clear 
-list of security issues is important. Moreover, the code itself is verbose
-enough for some people. 
+No, we do not do that in the kernel today, and I'm pretty sure we don't
+want to start doing it (it would get _huge_ very quickly...)
 
-If you release the code earlier than the embargo date, even with "non verbose 
-changelogs", to best serve the people who depend on us by giving them source 
-code that is as bug-free and secure as possible, you make the issue public. 
+Please don't apply this.  Remember, out-of-the-tree modules are on their
+own.
 
-IMO the best thing is to be very verbose about security problems - giving 
-credit to the people who deserve it accordingly (not stealing the thunder
-from the discovers, but rather making more visible on the changelog who
-they are).
+thanks,
 
-The KSO (Kernel Security Officer, the new buzzword on the block) has to 
-control the embargo date and be strict about it.
-
-> One of the problems with the embargo thing has been exactly the fact that
-> people couldn't even find bugs (or just uglinesses) in the fixes, because
-> they were kept under wraps until the "proper date". 
-
-Exactly, and keeping under wraps means "obscure, unclear list of security issues".
-We want the other way around.
-
+greg k-h

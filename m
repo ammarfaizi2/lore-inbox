@@ -1,119 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266168AbTGDUvE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 16:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266177AbTGDUvE
+	id S266183AbTGDUzS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 16:55:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbTGDUzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 16:51:04 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:48019
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S266168AbTGDUvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 16:51:00 -0400
-Message-ID: <3F05EC0C.2040809@redhat.com>
-Date: Fri, 04 Jul 2003 14:05:16 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030703 Thunderbird/0.1a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: wrong pid in siginfo_t
-X-Enigmail-Version: 0.80.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------070404090000080101080107"
+	Fri, 4 Jul 2003 16:55:17 -0400
+Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:57863 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S266188AbTGDUzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 16:55:08 -0400
+Date: Fri, 4 Jul 2003 14:09:34 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: scsi mode sense broken again
+Message-ID: <20030704140934.B18450@one-eyed-alien.net>
+Mail-Followup-To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org, torvalds@osdl.org
+References: <UTC200307042108.h64L86P22656.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="yEPQxsgoJgBvi8ip"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <UTC200307042108.h64L86P22656.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Fri, Jul 04, 2003 at 11:08:06PM +0200
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070404090000080101080107
+
+--yEPQxsgoJgBvi8ip
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Jul 04, 2003 at 11:08:06PM +0200, Andries.Brouwer@cwi.nl wrote:
+> 	From mdharm@ziggy.one-eyed-alien.net  Fri Jul  4 23:00:41 2003
+>=20
+> 	Do you still get the proper INQUIRY from 2.5.74?
+>=20
+> Yes. But there is no need for you to worry.
+> This device just needs use_10_for_ms =3D 0.
+> When that is set all is well.
 
-If a signal is sent via kill() or tkill() the kernel fills in the wrong
-PID value in the siginfo_t structure (obviously only if the handler has
-SA_SIGINFO set).  POSIX specifies the the si_pid field is filled with
-the process ID.  The kernel currently fills in the thread ID.  The
-thread IDs are not useful at all at userlevel.  They are not exposed
-anywhere.
+Okay, so the question as I see it is this:  Do we go back to use_10_for_ms
+=3D 0 for the default, or do we make the IMM driver set it to 0 in the
+slave_configure() function?
 
-One might argue that sending up the ID of the thread as well is a good
-thing but I don't agree.  This is what sigqueue is for: one can attach
-arbitrary data to the signal and get it transmitted (the sigval_t
-parameter).
+Matt
 
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
-I've attached a patch for the current 2.5 kernel and a test case.
-Whoever collects kernel tests might want to add the program.
+Type "format c:"  That should fix everything.
+					-- Greg
+User Friendly, 12/18/1997
 
-- --
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
+--yEPQxsgoJgBvi8ip
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-iD8DBQE/BewL2ijCOnn/RHQRAtnYAKCmG6vX3YFo9ko8kjwzvNObxrklfACfVga3
-43za5G4ljJwJD1SZEqrr+eU=
-=lfde
+iD8DBQE/Be0OIjReC7bSPZARAhy3AKCC+jpw9MNjGm10eVGvpue896EpcQCeMWKA
++R4uv25X/ssBHalNhZfTRWM=
+=CfHD
 -----END PGP SIGNATURE-----
 
---------------070404090000080101080107
-Content-Type: text/plain;
- name="d-kernel-signal"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="d-kernel-signal"
-
-LS0tIGtlcm5lbC9zaWduYWwuYy1zYXZlCTIwMDMtMDYtMDMgMTA6MTQ6NTUuMDAwMDAwMDAw
-IC0wNzAwCisrKyBrZXJuZWwvc2lnbmFsLmMJMjAwMy0wNy0wNCAxMzo0Njo1NS4wMDAwMDAw
-MDAgLTA3MDAKQEAgLTIwODEsNyArMjA4MSw3IEBAIHN5c19raWxsKGludCBwaWQsIGludCBz
-aWcpCiAJaW5mby5zaV9zaWdubyA9IHNpZzsKIAlpbmZvLnNpX2Vycm5vID0gMDsKIAlpbmZv
-LnNpX2NvZGUgPSBTSV9VU0VSOwotCWluZm8uc2lfcGlkID0gY3VycmVudC0+cGlkOworCWlu
-Zm8uc2lfcGlkID0gY3VycmVudC0+dGdpZDsKIAlpbmZvLnNpX3VpZCA9IGN1cnJlbnQtPnVp
-ZDsKIAogCXJldHVybiBraWxsX3NvbWV0aGluZ19pbmZvKHNpZywgJmluZm8sIHBpZCk7CkBA
-IC0yMTA0LDcgKzIxMDQsNyBAQCBzeXNfdGtpbGwoaW50IHBpZCwgaW50IHNpZykKIAlpbmZv
-LnNpX3NpZ25vID0gc2lnOwogCWluZm8uc2lfZXJybm8gPSAwOwogCWluZm8uc2lfY29kZSA9
-IFNJX1RLSUxMOwotCWluZm8uc2lfcGlkID0gY3VycmVudC0+cGlkOworCWluZm8uc2lfcGlk
-ID0gY3VycmVudC0+dGdpZDsKIAlpbmZvLnNpX3VpZCA9IGN1cnJlbnQtPnVpZDsKIAogCXJl
-YWRfbG9jaygmdGFza2xpc3RfbG9jayk7Cg==
---------------070404090000080101080107
-Content-Type: text/plain;
- name="tst-sipid.c"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="tst-sipid.c"
-
-I2luY2x1ZGUgPHNlbWFwaG9yZS5oPgojaW5jbHVkZSA8c2lnbmFsLmg+CiNpbmNsdWRlIDx1
-bmlzdGQuaD4KCnN0YXRpYyBpbnQgZmFpbGVkOwpzdGF0aWMgcGlkX3QgcGlkOwpzdGF0aWMg
-dWlkX3QgdWlkOwpzdGF0aWMgc2VtX3Qgc2VtOwpzdGF0aWMgaW50IGlzX2tpbGw7CgojZGVm
-aW5lIFRIRVNJRyBTSUdSVE1JTgoKc3RhdGljIHZvaWQKc2ggKGludCBzaWcsIHNpZ2luZm9f
-dCAqc2ksIHZvaWQgKmN0eCkKewogIGlmIChzaWcgIT0gc2ktPnNpX3NpZ25vKQogICAgewog
-ICAgICBwcmludGYgKCJzaWcgIT0gc2ktPnNpX3NpZ25vOiAlZCB2cyAlZFxuIiwgc2lnLCAo
-aW50KSBzaS0+c2lfc2lnbm8pOwogICAgICBmYWlsZWQgPSAxOwogICAgfQogIGlmIChzaS0+
-c2lfY29kZSAhPSBpc19raWxsID8gU0lfVVNFUiA6IFNJX1FVRVVFKQogICAgewogICAgICBw
-cmludGYgKCJzaS0+c2lfY29kZSB3cm9uZzogJWRcbiIsIHNpLT5zaV9jb2RlKTsKICAgICAg
-ZmFpbGVkID0gMTsKICAgIH0KICBpZiAoc2ktPnNpX3BpZCAhPSBwaWQpCiAgICB7CiAgICAg
-IHByaW50ZiAoInNpLT5zaV9waWQgd3Jvbmc6ICVkIHZzICVkXG4iLCAoaW50KSBzaS0+c2lf
-cGlkLCAoaW50KSBwaWQpOwogICAgICBmYWlsZWQgPSAxOwogICAgfQogIGlmIChzaS0+c2lf
-dWlkICE9IHVpZCkKICAgIHsKICAgICAgcHJpbnRmICgic2ktPnNpX3VpZCB3cm9uZzogJWQg
-dnMgJWRcbiIsIChpbnQpIHNpLT5zaV91aWQsIChpbnQpIHVpZCk7CiAgICAgIGZhaWxlZCA9
-IDE7CiAgICB9CiAgc2VtX3Bvc3QgKCZzZW0pOwp9CgoKc3RhdGljIHZvaWQgKgp0ZiAodm9p
-ZCAqYXJnKQp7CiAgcHV0cyAoInRyeWluZyBraWxsIik7CiAgaXNfa2lsbCA9IDE7CiAga2ls
-bCAocGlkLCBUSEVTSUcpOwogIHNlbV93YWl0ICgmc2VtKTsKCiAgcHV0cyAoInRyeWluZyBz
-aWdxdWV1ZSIpOwogIHNpZ3ZhbF90IHN2OwogIHN2LnNpdmFsX2ludCA9IDQyOwogIGlzX2tp
-bGwgPSAwOwogIHNpZ3F1ZXVlIChwaWQsIFRIRVNJRywgc3YpOwogIHNlbV93YWl0ICgmc2Vt
-KTsKfQoKCmludAptYWluICh2b2lkKQp7CiAgcGlkID0gZ2V0cGlkICgpOwogIHVpZCA9IGdl
-dHVpZCAoKTsKCiAgc3RydWN0IHNpZ2FjdGlvbiBzYTsKICBzYS5zYV9zaWdhY3Rpb24gPSBz
-aDsKICBzYS5zYV9mbGFncyA9IFNBX1NJR0lORk87CiAgc2lnZW1wdHlzZXQgKCZzYS5zYV9t
-YXNrKTsKICBzaWdhY3Rpb24gKFRIRVNJRywgJnNhLCBOVUxMKTsKCiAgc2VtX2luaXQgKCZz
-ZW0sIDAsIDApOwoKICBwdGhyZWFkX3QgdGg7CiAgcHV0cyAoInN0YXJ0aW5nIDFzdCB0aHJl
-YWQiKTsKICBwdGhyZWFkX2NyZWF0ZSAoJnRoLCBOVUxMLCB0ZiwgTlVMTCk7CiAgcHRocmVh
-ZF9qb2luICh0aCwgTlVMTCk7CiAgcHV0cyAoInN0YXJ0aW5nIDJuZCB0aHJlYWQiKTsKICBw
-dGhyZWFkX2NyZWF0ZSAoJnRoLCBOVUxMLCB0ZiwgTlVMTCk7CiAgcHRocmVhZF9qb2luICh0
-aCwgTlVMTCk7CgogIHJldHVybiBmYWlsZWQ7Cn0K
---------------070404090000080101080107--
-
+--yEPQxsgoJgBvi8ip--

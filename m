@@ -1,29 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264625AbSJVVIP>; Tue, 22 Oct 2002 17:08:15 -0400
+	id <S264838AbSJVVJb>; Tue, 22 Oct 2002 17:09:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264769AbSJVVIP>; Tue, 22 Oct 2002 17:08:15 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:17339 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264625AbSJVVIO>; Tue, 22 Oct 2002 17:08:14 -0400
-Subject: Re: feature request - why not make netif_rx() a pointer?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S264860AbSJVVJb>; Tue, 22 Oct 2002 17:09:31 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:51595 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S264838AbSJVVJa>;
+	Tue, 22 Oct 2002 17:09:30 -0400
+Date: Wed, 23 Oct 2002 00:15:35 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
 To: Slavcho Nikolov <snikolov@okena.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <00b201c27a0e$3f82c220$800a140a@SLNW2K>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: feature request - why not make netif_rx() a pointer?
+Message-ID: <20021022211535.GZ1111@mea-ext.zmailer.org>
 References: <00b201c27a0e$3f82c220$800a140a@SLNW2K>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 22 Oct 2002 22:30:40 +0100
-Message-Id: <1035322240.31917.177.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <00b201c27a0e$3f82c220$800a140a@SLNW2K>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-22 at 22:01, Slavcho Nikolov wrote:
+On Tue, Oct 22, 2002 at 05:01:53PM -0400, Slavcho Nikolov wrote:
 > Non GPL modules that want to attach themselves between all L2 drivers and
 > upper layers would not have to incur a performance loss if netif_rx() is
+> made a pointer instead of a function (whether or not NET filters are
+> compiled in the kernel).
+> Currently control can be easily wrested from netif_rx() and others through
+> injection of a few instructions into the running kernel (SMC - self
+> modifying code) but decreased performance is one sad consequence.
+> Architecture specific maintenance of SMC slows down portability,
+> too.
+> The following suggestion would lead to the least amount of modifications.
 
-You could of course write GPL code 8)
+  ftp://zmailer.org/linux/netif_rx.patch
 
+  Done for 2.3.99-pre7-3  but should be easy to port to 2.5.x ...
+
+> S.N.
+
+/Matti Aarnio

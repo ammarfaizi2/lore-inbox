@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313096AbSDDC5N>; Wed, 3 Apr 2002 21:57:13 -0500
+	id <S313109AbSDDDBX>; Wed, 3 Apr 2002 22:01:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313098AbSDDC5D>; Wed, 3 Apr 2002 21:57:03 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:1540 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S313096AbSDDC4u>; Wed, 3 Apr 2002 21:56:50 -0500
-Date: Wed, 3 Apr 2002 21:54:30 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andreas Dilger <adilger@clusterfs.com>
-cc: Jauder Ho <jauderho@carumba.com>,
-        Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Ext2 vs. ext3 recovery after crash
-In-Reply-To: <20020403102550.GT4735@turbolinux.com>
-Message-ID: <Pine.LNX.3.96.1020403214341.185C-100000@gatekeeper.tmr.com>
+	id <S313104AbSDDDBO>; Wed, 3 Apr 2002 22:01:14 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20277 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S313103AbSDDDBG>; Wed, 3 Apr 2002 22:01:06 -0500
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 Boot enhancements, pic 16 4/9
+In-Reply-To: <m11ydwu5at.fsf@frodo.biederman.org>
+	<a8fls5$mur$1@cesium.transmeta.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 03 Apr 2002 19:54:28 -0700
+Message-ID: <m17knorx5n.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Apr 2002, Andreas Dilger wrote:
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
+> Followup to:  <m11ydwu5at.fsf@frodo.biederman.org>
+> By author:    ebiederm@xmission.com (Eric W. Biederman)
+> In newsgroup: linux.dev.kernel
+> >
+> > Linus please apply,
+> > 
+> > This patch makes not changes to the generated object code.
+> > 
+> > Instead removes the assumption the code is linked to run at 0.  The
+> > binary code is already PIC, this makes the build process the same way,
+> > making the build requirements more flexible. 
+> > 
+> 
+> Flexible in what way?
 
-> Well, 'mount' output is useless w.r.t. the root filesystem, because it is
-> simply copied from /etc/fstab.  You need to check /proc/mounts to see if
-> it is _ever_ being mounted as ext3 (lots of people have this problem,
-> especially if they use initrds and ext3 as a module).
+In that the object files generated can be treated as ordinary object
+files, instead of needing special treatment.  
 
-  The problem is that the initial mount is changing. I was at one point
-making ext3 a module, and building initrd files with the ext3 modules and
-fstab in the initrd. Didn't seem the way to go so I put ext3 in the
-kernel, and that (usually) works. So I'm not making that particular error.
+Since gas does not have an ASSUME segment directive to tell the
+assembler where base addresses point the current code is arguable
+broken.  And this patch is a bug fix.
 
-  Thanks for the ideas, I'm going to collect dmesg output and post so
-someone can tell me I missed something obvious. Unless someone has a way
-to so it from crashing, in which case I'll duck the problem for the
-moment.
+I don't really need this patch but it sure makes life easier.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Eric

@@ -1,83 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293341AbSCSARe>; Mon, 18 Mar 2002 19:17:34 -0500
+	id <S293326AbSCSAXO>; Mon, 18 Mar 2002 19:23:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293344AbSCSAR0>; Mon, 18 Mar 2002 19:17:26 -0500
-Received: from exchange.macrolink.com ([64.173.88.99]:51716 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S293317AbSCSARJ>; Mon, 18 Mar 2002 19:17:09 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A7717@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'linux-serial'" <linux-serial@vger.kernel.org>
-Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>,
-        "'Roman Kurakin'" <rik@cronyx.ru>, Russell King <rmk@arm.linux.org.uk>
-Subject: RE: Serial.c BUG 2.4.x-2.5x
-Date: Mon, 18 Mar 2002 16:16:57 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S293339AbSCSAXF>; Mon, 18 Mar 2002 19:23:05 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:64388
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S293326AbSCSAWu>; Mon, 18 Mar 2002 19:22:50 -0500
+Date: Mon, 18 Mar 2002 17:22:16 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Jason Li <jli@extremenetworks.com>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: EXPORT_SYMBOL doesn't work
+Message-ID: <20020319002216.GH3762@opus.bloom.county>
+In-Reply-To: <2643.1016433275@kao2.melbourne.sgi.com> <3C963BF2.C9D78479@extremenetworks.com> <20020318191927.GB8155@opus.bloom.county> <3C964358.B4EA3C80@extremenetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Mar 07, 2002, Roman Kurakin wrote:
+On Mon, Mar 18, 2002 at 11:43:20AM -0800, Jason Li wrote:
+> Tom Rini wrote:
+> > 
+> > On Mon, Mar 18, 2002 at 11:11:46AM -0800, Jason Li wrote:
+> > > Keith Owens wrote:
+> > > >
+> > > > On Sun, 17 Mar 2002 22:25:16 -0800,
+> > > > Jason Li <jli@extremenetworks.com> wrote:
+> > > > >int (*fdbIoSwitchHook)(
+> > > > >                           unsigned long arg0,
+> > > > >                           unsigned long arg1,
+> > > > >                           unsigned long arg2)=NULL;
+> > > > >EXPORT_SYMBOL(fdbIoSwitchHook);
+> > > > >gcc -D__KERNEL__ -I/home/jli/cvs2/exos/linux/include -Wall
+> > > > >-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+> > > > >-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+> > > > >-march=i686    -c -o br_ioctl.o br_ioctl.c
+> > > > >br_ioctl.c:26: warning: type defaults to `int' in declaration of
+> > > > >`EXPORT_SYMBOL'
+> > > >
+> > > > #include <linux/module.h>
+> > > >
+> > > > Also add br_ioctl.o to export-objs in Makefile.
+> > >
+> > > Thanks alot. It works.
+> > >
+> > > Now another problem with versioning. It seems even after I have the
+> > > following in my module c file the symbol generated is not versioned:
+> > 
+> > Backup your .config, run 'distclean' or 'mrproper' and try again.
+> > 
+> > --
+> > Tom Rini (TR1265)
+> > http://gate.crashing.org/~trini/
 > 
-> On Wed Mar 06, 2002, Russell King wrote:
-> >
-> >The patch does fine for the most part, but I have two worries:
-> >
-> >1. the possibilities of pushing through changes in the IO or memory space
-> >   by changing the other space at the same time. (ie, port = 1, iomem =
-> >   0xfe007c00 and you already have a line at port = 0, iomem =
-0xfe007c00).
-> >   I dealt with this properly using the resource management subsystem.
-> >
-> I think such code could solve this problem ...
+> Just did a distclean. Now the inluce/linux/modules/netsym.ver has the
+> fdbIoSwitchHook version info. 
 > 
-> - 	    (rs_table[i].port == new_port) &&
-> + 	    ((rs_table[i].port && rs_table[i].port == new_port) ||
-> +	    ((rs_table[i].iomem_base && rs_table[i].iomem_base == new_mem))
-&&
+> Recompiled the module. Did a nm on the module, and saw the version info
+> for the symbol. But when I dod insmod, it still complained about
+> unresolved symbol fdbIoSwitchHook.
+> 
+> It seems now the version is different between the kernel and the module.
+> Should I wait for the bzImage compilation to complete and install the
+> new kernel?
 
-Indeed it would solve this problem, but I'm not sure there is a problem to
-solve here. Have not found a case where ->port and ->iomem_base fields can
-both be non-zero. If one of them is always zero then the previous patch hunk
-in the "address in use" test at about line 2146 is well enough:
+There are annoying depenancies with modversions.  Basically the safe way
+is that if you change any export (add/remove), you should do a
+'distclean', recompile everything and switch to that.
 
-            if ((state != &rs_table[i]) &&
-                (rs_table[i].port == new_port) &&
-+               (rs_table[i].iomem_base == new_mem) &&
-                rs_table[i].type)
-                    return -EADDRINUSE;
-
-Assuming one of the two fields is always zero, demanding both to match for
-the in use condition works anyway. If the non-zero field matches, then they
-both must match. The following hunk at the bottom of function get_pci_port()
-at about line 3931 seems to guarantee that they start out this way:
-
-	[[ The req struct is memset() to zero at about line 4009 in 
-	  function start_pci_pnp_board(). ]]
-
-        if (IS_PCI_REGION_IOPORT(dev, base_idx)) {
-                req->port = port;
-                if (HIGH_BITS_OFFSET)
-                        req->port_high = port >> HIGH_BITS_OFFSET;
-                else
-                        req->port_high = 0;
-                return 0;
-        }
-        req->io_type = SERIAL_IO_MEM;
-        req->iomem_base = ioremap(port, board->uart_offset);
-        req->iomem_reg_shift = board->reg_shift;
-        req->port = 0;
-        return 0;
-
-Does anybody see a need to add the code anyway? Did I miss a lurker? 
-
-Best to all,
-
----------------------------------------------------------------- 
-Ed Vance              serial24@macrolink.com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVBFMuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVBFMxt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbVBFMuI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 07:50:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVBFMuI
+	id S261230AbVBFMxt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 07:53:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVBFMxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 07:50:08 -0500
-Received: from ns.suse.de ([195.135.220.2]:37004 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261202AbVBFMuD (ORCPT
+	Sun, 6 Feb 2005 07:53:49 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:20525 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261244AbVBFMxD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 07:50:03 -0500
-Date: Sun, 6 Feb 2005 13:50:02 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
-       akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       drepper@redhat.com
-Subject: Re: [PROPOSAL/PATCH] Remove PT_GNU_STACK support before 2.6.11
-Message-ID: <20050206125002.GF30109@wotan.suse.de>
-References: <20050206113635.GA30109@wotan.suse.de> <20050206114758.GA8437@infradead.org> <20050206120244.GA28061@elte.hu> <20050206124523.GA762@elte.hu>
+	Sun, 6 Feb 2005 07:53:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ksGfdMNuRz0BFFDNUz/rB6CGiwPzfKmtykbpviDIi+WQjTXBTteQNeHmzE+ngC9dIylbVb/Mv+CnDPNtTSO5ghuUA+H9nHfPmW5GKCyscRCIEz6sXAsjxtrDSJz+8karkfnt/R9bbbptc5EVyt9RXR0czX+1Cimo4+kEI0Z4fSU=
+Message-ID: <58cb370e05020604533657225c@mail.gmail.com>
+Date: Sun, 6 Feb 2005 13:53:02 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <tj@home-tj.org>
+Subject: Re: [PATCH 2.6.11-rc2 11/14] ide_pci: Merges pdc202xx_old.h into pdc202xx_old.c
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050204071319.3E7CB1326FC@htj.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050206124523.GA762@elte.hu>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <42032014.1020606@home-tj.org>
+	 <20050204071319.3E7CB1326FC@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> i.e. all mappings are executable (i.e. READ_IMPLIES_EXEC effect) - the
-> intended change. (although i dont fully agree with PT_GNU_STACK being
-> about something else than the stack, from a security POV if the stack is
-> executable then all bets are off anyway. The heap and all mmaps being
-> executable too in that case makes little difference.)
+On Fri,  4 Feb 2005 16:13:19 +0900 (KST), Tejun Heo <tj@home-tj.org> wrote:
+> 
+> 11_ide_pci_pdc202xx_old_merge.patch
+> 
+>         Merges ide/pci/pdc202xx_old.h into pdc202xx_old.c.
+> 
+> Signed-off-by: Tejun Heo <tj@home-tj.org>
 
-Well, that won't fix mono (and i suspect wine) and the others
-who don't use trampolines that the compiler can detect.
-
-And breaking programs silently definitely doesn't make them secure!
-
--Andi
+applied

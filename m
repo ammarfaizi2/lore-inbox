@@ -1,129 +1,229 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVBVQpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVBVQsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbVBVQpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 11:45:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVBVQpQ
+	id S261169AbVBVQsS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 11:48:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVBVQsC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 11:45:16 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:14836 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261160AbVBVQpA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 11:45:00 -0500
-Message-ID: <421B6188.2060403@mvista.com>
-Date: Tue, 22 Feb 2005 08:44:56 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Puneet Kaushik <puneet_kaushik@persistent.co.in>
-CC: kernel-stuff@comcast.net, linux-kernel@vger.kernel.org
-Subject: Re: Needed faster implementation of do_gettimeofday()
-References: <34373.203.199.147.2.1108897097.squirrel@webmail.persistent.co.in>	 <200502201048.01424.kernel-stuff@comcast.net> <421AA1BD.7020706@mvista.com> <1109080575.21544.264.camel@ps2335.persistent.co.in>
-In-Reply-To: <1109080575.21544.264.camel@ps2335.persistent.co.in>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Feb 2005 11:48:02 -0500
+Received: from cantor.suse.de ([195.135.220.2]:7647 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261163AbVBVQrZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 11:47:25 -0500
+Subject: Re: [patch 12/13] ACL umask handling workaround in nfs client
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Neil Brown <neilb@cse.unsw.edu.au>, Olaf Kirch <okir@suse.de>,
+       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1108490682.10073.57.camel@lade.trondhjem.org>
+References: <20050122203326.402087000@blunzn.suse.de>
+	 <20050122203620.108564000@blunzn.suse.de>
+	 <1108490682.10073.57.camel@lade.trondhjem.org>
+Content-Type: multipart/mixed; boundary="=-Zg/10rPGZToCDIoqJMb3"
+Organization: SUSE Labs
+Message-Id: <1109090843.6102.443.camel@winden.suse.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 22 Feb 2005 17:47:24 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Puneet Kaushik wrote:
-> Hello Parag and George,
-> 
-> Thanks for immediate reply.
-> The main problem is I am working on a SMP system. I have written a small
-> program that just calls the gettimeofday(), one billion times. I have
-> run it with time utility and it takes almost double time on SMP then a
-> UP.
-> 
-> 
-> 
-> with kernel 2.6.10 on UP
-> 
-> real    4m5.495s
-> user    1m17.088s
-> sys     2m48.046s
-> 
-> 
-> With Kernel 2.6.10 on SMP
-> 
-> real    6m24.485s
-> user    1m43.723s
-> sys     4m30.749s
-> 
-> 
-> And the fact is this SMP machine is faster and with more memory than the
-> UP one. In SMP systems it make a spinlock every time it got called,
-> synchronizes both the processors, and unlock them. Thats all I know
-> about it.
 
-On 2.6 the lock is a r/w sequence lock.  The machines are not synchronized or 
-locked, but some of the sequence lock instructions around the locking are 
-"locked".  I find it hard to believe that this would double the time, however.
+--=-Zg/10rPGZToCDIoqJMb3
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Ah..., now I remember.  On SMP x86 boxen, the accounting/ run_timer interrupt 
-comes from the lapic timer.  This is triggered at a 1/HZ rate and means that 
-there is an additional time keeping interrupt.  Actually, over the box, you get 
-(N+1)/HZ interrupts where N is the number of cpus.  Assuming that the PIT and 
-the lapic interrupt take about the same amount of time and that the PIT 
-interrupt is evenly distributed on the CPUs, the interrupt contention should go 
-from 1 to 1.5.  This alone would take your 4.084 sec UP time to 6.125 sec on an 
-SMP boxen (that is amazingly close to what you are seeing if you ask me).
+On Tue, 2005-02-15 at 19:04, Trond Myklebust wrote:
+> lau den 22.01.2005 Klokka 21:34 (+0100) skreiv Andreas Gruenbacher:
+> > vanlig tekstdokument vedlegg (patches.suse)
+> > NFSv3 has no concept of a umask on the server side: The client applies
+> > the umask locally, and sends the effective permissions to the server.
+> > This behavior is wrong when files are created in a directory that has
+> > a default ACL. In this case, the umask is supposed to be ignored, and
+> > only the default ACL determines the file's effective permissions.
+> > 
+> > Usually its the server's task to conditionally apply the umask. But
+> > since the server knows nothing about the umask, we have to do it on the
+> > client side. This patch tries to fetch the parent directory's default
+> > ACL before creating a new file, computes the appropriate create mode to
+> > send to the server, and finally sets the new file's access and default
+> > acl appropriately.
+> 
+> Firstly, this sort of code belongs in the NFSv3-specific code. POSIX
+> acls have no business whatsoever in the generic NFS code.
 
-Again, I recommend my HRT patch.  There the accounting interrupt is generated by 
-an "all-but-self" IPI.  This is generated by the PIT interrupt code which also 
-does the accounting on the cpu handling the PIT interrupt.  Result: total time 
-keeping interrupts N/HZ where N is the number of CPUs.
+See attached patch.
 
+NOTE:
 
-> 
-> George I am just working on your suggestion, let me know if it will work
-> for SMPs.
+  During testing I noticed that without
+  nfsacl-cache-acls-on-the-nfs-client-side.patch, no directories or
+  devices can be created. It's probably a problem with
+  nfs_set_default_acl(). I'll have to debug this tomorrow.
 
-See above.  Should solve your problem.
-> 
-> If there is some good implementation for SMP, please let me know.
-> 
-> Thanks,
-> 
-> - Puneet
-> 
-> 
-> 
-> 
-> On Tue, 2005-02-22 at 08:36, George Anzinger wrote:
-> 
->>Parag Warudkar wrote:
->>
->>>On Sunday 20 February 2005 05:58 am, puneet_kaushik@persistent.co.in wrote:
->>>
->>>
->>>>985913    8.6083  vmlinux                  mark_offset_tsc
->>>>584473    5.1032  libc-2.3.2.so            getc
->>>
->>>
->>>What makes you think mark_offset_tsc is slow? Do you have any comparative 
->>>numbers?  It might just be that the workload you are throwing at it justifies 
->>>it. (For e.g. if your workload does a zillion system calls, system_call will 
->>>show up as a hot spot in oprofile - doesn't necessarily mean it is slow - 
->>>it's just overused.) Can you post the relevant code?
->>
->>He really is right.  Mark offset is reading the PIT counter and that is not only 
->>rather dumb but dog slow.
->>
->>A suggestion, try the high res timers patch.  Even if you don't use the timers 
->>the mark offset there is MUCH faster.  It does not read the PIT.
->>
->>The difference is where we assume the jiffie bump is in time.  If we assume it 
->>is at the point that the PIT interrupts, well then the only way to get to that 
->>is to read the PIT.  If, on the other hand, we assume it is at the time after 
->>the interrrupt where we mark offset, we can observe the "best" time for this 
->>event based on the TSC and avoid reading the PIT.
->>
->>Try the HRT patch (see signature below) and see if if doesn't do better.
->>
+> Secondly, what is the point of doing all this *after* you have created
+> the file with the wrong permissions? How are you avoiding races?
 
+Well, everything but the umask is always correct; that is guaranteed by
+the server. The initial create sets permissions that may be more
+restrictive than necessary, and then the SETACL RPC sets up the final,
+correct permissions. I don't believe that a race-free solution is
+possible.
+
+Cheers,
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX GMBH
+
+--=-Zg/10rPGZToCDIoqJMb3
+Content-Disposition: attachment; filename=nfsacl-acl-umask-handling-workaround-in-nfs-client-fix2.patch
+Content-Type: text/x-patch; name=nfsacl-acl-umask-handling-workaround-in-nfs-client-fix2.patch; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+Index: linux-2.6.11-rc3/fs/nfs/dir.c
+===================================================================
+--- linux-2.6.11-rc3.orig/fs/nfs/dir.c
++++ linux-2.6.11-rc3/fs/nfs/dir.c
+@@ -42,12 +42,15 @@ static int nfs_opendir(struct inode *, s
+ static int nfs_readdir(struct file *, void *, filldir_t);
+ static struct dentry *nfs_lookup(struct inode *, struct dentry *, struct nameidata *);
+ static int nfs_create(struct inode *, struct dentry *, int, struct nameidata *);
++static int nfs3_create(struct inode *, struct dentry *, int, struct nameidata *);
+ static int nfs_mkdir(struct inode *, struct dentry *, int);
++static int nfs3_mkdir(struct inode *, struct dentry *, int);
+ static int nfs_rmdir(struct inode *, struct dentry *);
+ static int nfs_unlink(struct inode *, struct dentry *);
+ static int nfs_symlink(struct inode *, struct dentry *, const char *);
+ static int nfs_link(struct dentry *, struct inode *, struct dentry *);
+ static int nfs_mknod(struct inode *, struct dentry *, int, dev_t);
++static int nfs3_mknod(struct inode *, struct dentry *, int, dev_t);
+ static int nfs_rename(struct inode *, struct dentry *,
+ 		      struct inode *, struct dentry *);
+ static int nfs_fsync_dir(struct file *, struct dentry *, int);
+@@ -77,14 +80,14 @@ struct inode_operations nfs_dir_inode_op
+ 
+ #ifdef CONFIG_NFS_V3
+ struct inode_operations nfs3_dir_inode_operations = {
+-	.create		= nfs_create,
++	.create		= nfs3_create,
+ 	.lookup		= nfs_lookup,
+ 	.link		= nfs_link,
+ 	.unlink		= nfs_unlink,
+ 	.symlink	= nfs_symlink,
+-	.mkdir		= nfs_mkdir,
++	.mkdir		= nfs3_mkdir,
+ 	.rmdir		= nfs_rmdir,
+-	.mknod		= nfs_mknod,
++	.mknod		= nfs3_mknod,
+ 	.rename		= nfs_rename,
+ 	.permission	= nfs_permission,
+ 	.getattr	= nfs_getattr,
+@@ -994,16 +997,14 @@ out_err:
+ 	return error;
+ }
+ 
+-static int nfs_set_default_acl(struct inode *dir, struct inode *inode,
+-			       mode_t mode)
++#ifdef CONFIG_NFS_V3
++static int nfs3_set_default_acl(struct inode *dir, struct inode *inode,
++				mode_t mode)
+ {
+ #ifdef CONFIG_NFS_ACL
+ 	struct posix_acl *dfacl, *acl;
+ 	int error = 0;
+ 
+-	if (NFS_PROTO(inode)->version != 3 ||
+-	    !NFS_PROTO(dir)->getacl || !NFS_PROTO(inode)->setacls)
+-		return 0;
+ 	dfacl = NFS_PROTO(dir)->getacl(dir, ACL_TYPE_DEFAULT);
+ 	if (IS_ERR(dfacl)) {
+ 		error = PTR_ERR(dfacl);
+@@ -1028,6 +1029,7 @@ out:
+ 	return 0;
+ #endif
+ }
++#endif
+ 
+ /*
+  * Following a failed create operation, we drop the dentry rather
+@@ -1060,7 +1062,7 @@ static int nfs_create(struct inode *dir,
+ 		d_instantiate(dentry, inode);
+ 		nfs_renew_times(dentry);
+ 		nfs_set_verifier(dentry, nfs_save_change_attribute(dir));
+-		error = nfs_set_default_acl(dir, inode, mode);
++		error = 0;
+ 	} else {
+ 		error = PTR_ERR(inode);
+ 		d_drop(dentry);
+@@ -1069,6 +1071,22 @@ static int nfs_create(struct inode *dir,
+ 	return error;
+ }
+ 
++#ifdef CONFIG_NFS_V3
++static int nfs3_create(struct inode *dir, struct dentry *dentry, int mode,
++		       struct nameidata *nd)
++{
++	int error;
++
++	lock_kernel();
++	error = nfs_create(dir, dentry, mode, nd);
++	if (!error)
++		error = nfs3_set_default_acl(dir, dentry->d_inode, mode);
++	unlock_kernel();
++
++	return error;
++}
++#endif
++
+ /*
+  * See comments for nfs_proc_create regarding failed operations.
+  */
+@@ -1098,9 +1116,21 @@ nfs_mknod(struct inode *dir, struct dent
+ 		error = nfs_instantiate(dentry, &fhandle, &fattr);
+ 	else
+ 		d_drop(dentry);
++	unlock_kernel();
++	return error;
++}
++
++static int nfs3_mknod(struct inode *dir, struct dentry *dentry, int mode,
++		      dev_t rdev)
++{
++	int error;
++
++	lock_kernel();
++	error = nfs_mknod(dir, dentry, mode, rdev);
+ 	if (!error)
+-		error = nfs_set_default_acl(dir, dentry->d_inode, mode);
++		error = nfs3_set_default_acl(dir, dentry->d_inode, mode);
+ 	unlock_kernel();
++
+ 	return error;
+ }
+ 
+@@ -1138,9 +1168,20 @@ static int nfs_mkdir(struct inode *dir, 
+ 		error = nfs_instantiate(dentry, &fhandle, &fattr);
+ 	else
+ 		d_drop(dentry);
++	unlock_kernel();
++	return error;
++}
++
++static int nfs3_mkdir(struct inode *dir, struct dentry *dentry, int mode)
++{
++	int error;
++
++	lock_kernel();
++	error = nfs_mkdir(dir, dentry, mode);
+ 	if (!error)
+-		error = nfs_set_default_acl(dir, dentry->d_inode, mode);
++		error = nfs3_set_default_acl(dir, dentry->d_inode, mode);
+ 	unlock_kernel();
++
+ 	return error;
+ }
+ 
+
+--=-Zg/10rPGZToCDIoqJMb3--
 

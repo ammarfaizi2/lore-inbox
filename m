@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283688AbRLECAM>; Tue, 4 Dec 2001 21:00:12 -0500
+	id <S283694AbRLECCc>; Tue, 4 Dec 2001 21:02:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283691AbRLECAD>; Tue, 4 Dec 2001 21:00:03 -0500
-Received: from bergeron.research.canon.com.au ([203.12.172.124]:52153 "HELO
-	a.mx.canon.com.au") by vger.kernel.org with SMTP id <S283688AbRLEB7u>;
-	Tue, 4 Dec 2001 20:59:50 -0500
-Date: Wed, 5 Dec 2001 12:59:38 +1100
-From: Cameron Simpson <cs@zip.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org,
-        Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
-        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
-Subject: Re: Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011205125938.A21170@zapff.research.canon.com.au>
-Reply-To: cs@zip.com.au
-In-Reply-To: <20011204120305.A16578@thyrsus.com> <E16BJcB-0002o7-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16BJcB-0002o7-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Dec 04, 2001 at 05:44:19PM +0000
+	id <S283691AbRLECCW>; Tue, 4 Dec 2001 21:02:22 -0500
+Received: from trillium-hollow.org ([209.180.166.89]:59408 "EHLO
+	trillium-hollow.org") by vger.kernel.org with ESMTP
+	id <S283694AbRLECCG>; Tue, 4 Dec 2001 21:02:06 -0500
+To: Larry McVoy <lm@bitmover.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: SMP/cc Cluster description [was Linux/Pro] 
+In-Reply-To: Your message of "Tue, 04 Dec 2001 16:36:46 PST."
+             <20011204163646.M7439@work.bitmover.com> 
+Date: Tue, 04 Dec 2001 18:02:01 -0800
+From: erich@uruk.org
+Message-Id: <E16BRNp-0003Ts-00@trillium-hollow.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 05:44:19PM +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-| > After CML2 has proven itself in 2.5, I do plan to go back to Marcelo
-| > and lobby for him accepting it into 2.4, on the grounds that doing so
-| > will simplify his maintainance task no end.  That's why I'm tracking
-| > both sides of the fork in the rulebase, so it will be an easy drop-in
-| > replacement for Marcelo as well as Linus.
-| 
-| Thats somewhat impractical. You will break all the existing additional
-| configuration tools for the 2.4 stable tree that people expect to continue
-| to work
-| 
-| Breaking them in 2.5 isnt a big issue, but breaking stable kernel trees
-| is a complete nono
 
-Folks, have you forgotten that you're programmers?
+Larry McVoy <lm@bitmover.com> wrote:
 
-ESR, is it practical to have CML2 transcribe a CML1 config file?
-Then as part of the build-the-kernel-src-tarball, Marcelo or whoever's
-make target runs the transcriber.
+> > > There seems to be a little misunderstanding here; from what
+> > > I gathered when talking to Larry, the idea behind ccClusters
+> > > is that they provide a single system image in a NUMA box, but
+> > > with separated operating system kernels.
+> 
+> Right except NUMA is orthogonal, ccClusters work fine on a regular SMP 
+> box.
 
-This would let people fetch a kernel and build with the old tools
-for personal hacking purposes which keeping the source config in CML2
-which is cleans and more powerful. Kernel code _authors_ would need to
-write in CML2, but not kernel end users.
--- 
-Cameron Simpson, DoD#743        cs@zip.com.au    http://www.zip.com.au/~cs/
+...[details omitted for the moment]...
 
-A motorcycle is like a toothbrush.  Everyone should have their own.
-	- roserunr@noller.com
+The basic idea seems a sound one, though maybe consider going from
+a simple/robust cluster solution back to NUMA boxen.  A transparent
+virtual computer image is kind of the goal long-term, right?
+
+That is the plan I have for a different OS/kernel I'm working on,
+and it seems valid so far.
+
+
+Uni-proc design plus simple SMP only in the core kernel code fixes
+SO many little SMP brain-deadnesses.
+
+For example, there should be no reason that most drivers or any other
+random kernel module should know anything about SMP.  Under Linux, it
+annoys me to no end that I have to ever know (and yes, I count compiling
+against "SMP" configuration having to know)...  more and more sources of
+error.
+
+
+Then, as long as you make the simple cluster solution handle "hot-swap/
+bring-up/tear-down" of nodes from the beginning, you can easily do
+things like bring new processor modules, machines, etc. online or out
+of your system.
+
+
+This even argues that you should try working from something like a
+Mosix cluster as a starting point, to test it out.
+
+
+--
+    Erich Stefan Boleyn     <erich@uruk.org>     http://www.uruk.org/
+"Reality is truly stranger than fiction; Probably why fiction is so popular"

@@ -1,27 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315946AbSIIBkx>; Sun, 8 Sep 2002 21:40:53 -0400
+	id <S315942AbSIIBbm>; Sun, 8 Sep 2002 21:31:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315988AbSIIBkw>; Sun, 8 Sep 2002 21:40:52 -0400
-Received: from unix.tamu.edu ([128.194.103.31]:45208 "EHLO scully.tamu.edu")
-	by vger.kernel.org with ESMTP id <S315946AbSIIBkw>;
-	Sun, 8 Sep 2002 21:40:52 -0400
-Date: Sun, 8 Sep 2002 20:45:35 -0500 (CDT)
-From: Vikas Jain <v0j1217@unix.tamu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: How to talk to joystick from kernel space
-Message-ID: <Pine.SOL.3.96.1020908204425.19274A-100000@scully.tamu.edu>
+	id <S315946AbSIIBbm>; Sun, 8 Sep 2002 21:31:42 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:52750 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315942AbSIIBbl>; Sun, 8 Sep 2002 21:31:41 -0400
+Date: Sun, 8 Sep 2002 18:36:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Anton Altaparmakov <aia21@cantab.net>
+cc: mingo@elte.hu, <linux-kernel@vger.kernel.org>
+Subject: Re: pinpointed: PANIC caused by dequeue_signal() in current Linus 
+ BK tree
+In-Reply-To: <5.1.0.14.2.20020909001700.03fdee00@pop.cus.cam.ac.uk>
+Message-ID: <Pine.LNX.4.44.0209081835260.1401-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can anyone give me some guidance on how do we talk to joystick from kernel
-space.
 
-I am using inb and outb but not getting the adequate response.
+On Mon, 9 Sep 2002, Anton Altaparmakov wrote:
 
-Thanks,
-Vikas
+> Hi,
+> 
+> I had a look and the panic actually happens in collect_signal() in here:
+> 
+> static inline int collect_signal(int sig, struct sigpending *list, 
+> siginfo_t *info)
+> {
+>          if (sigismember(&list->signal, sig)) {
+>                  /* Collect the siginfo appropriate to this signal.  */
+>                  struct sigqueue *q, **pp;
+>                  pp = &list->head;
+>                  while ((q = *pp) != NULL) {
+> q becomes 0x5a5a5a5a  ^^^^^^^^^
+>                          if (q->info.si_signo == sig)
+> 0x5a5a5a5a is dereferenced ^^^^^^^^^^^^^^^^
+>                                  goto found_it;
+>                          pp = &q->next;
+>                  }
+> 
+> Hope this helps.
 
+0x5a5a5a5a is the slab poisoning byte, I bet somebody free's the thing, 
+and Ingo and I never noticed because we didn't have slab debugging 
+enabled.
+
+Ingo, mind looking at this a bit?
+
+		Linus
 

@@ -1,108 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268908AbRH0UnK>; Mon, 27 Aug 2001 16:43:10 -0400
+	id <S268861AbRH0Uru>; Mon, 27 Aug 2001 16:47:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268861AbRH0UnA>; Mon, 27 Aug 2001 16:43:00 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:19165 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S268908AbRH0Umk>;
-	Mon, 27 Aug 2001 16:42:40 -0400
-Date: Mon, 27 Aug 2001 16:42:46 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: patch-2.4.10-pre1
-In-Reply-To: <Pine.LNX.4.33.0108271323290.5985-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0108271640590.29700-100000@weyl.math.psu.edu>
+	id <S268926AbRH0Url>; Mon, 27 Aug 2001 16:47:41 -0400
+Received: from alpha.netvision.net.il ([194.90.1.13]:43268 "EHLO
+	alpha.netvision.net.il") by vger.kernel.org with ESMTP
+	id <S268861AbRH0Urc>; Mon, 27 Aug 2001 16:47:32 -0400
+Message-ID: <3B8AB21B.444F868A@netvision.net.il>
+Date: Mon, 27 Aug 2001 23:48:27 +0300
+From: Michael Ben-Gershon <mybg@netvision.net.il>
+Organization: My Office
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: en-GB, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Keyboard and PS/2 mouse lockups
+In-Reply-To: <3B88F25B.8AF25EF9@netvision.net.il>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Patch fixes the use of ioctls in partitions/ibm.c, removing
-a lot of junk in process (fake struct file allocation, set_fs(),
-yodda, yodda - we use blkdev_get() and ioctl_by_bdev() instead).
-Please, apply
+Michael Ben-Gershon wrote:
+> 
+> I know this is not new, but I feel that my input is worth
+> noting.
+> 
+> I recently upgraded my hardware from a Tyan board with a PII 333
+> to an ASUS P4T with a P4 1.5G.
+> 
+> Running either kernel 2.2.19 or 2.4.6, 2.4.7, 2.4.8, 2.4.9, I get
+> a serious conflict between the PS/2 mouse and the keyboard. If the
+> mouse is plugged into the machine and generates any mouse event (by
+> moving it or clicking) the keyboard is completely locked up. I am
+> using a KVM (=kbd-video-mouse) splitter box, and the strange thing
+> is that the box will respond to a 'double scroll lock' keypress to
+> switch from one machine to the next, but if the kbd is locked up by
+> the above trouble it will not respond at all, and the manual switching
+> button must be used. This is very strange, as the 'double scroll lock'
+> action works even if the currently selected machine is switched off!
+> 
+> I get the lockup whether or not gpm is running, and even if the
+> kernel is built with no PS/2 mouse support. If the mouse is removed
+> before the trouble is triggered, all is OK.
 
-diff -urN S10-pre1/fs/partitions/ibm.c S10-pre1-partition/fs/partitions/ibm.c
---- S10-pre1/fs/partitions/ibm.c	Sat Aug 11 14:59:24 2001
-+++ S10-pre1-partition/fs/partitions/ibm.c	Mon Aug 27 16:37:37 2001
-@@ -45,67 +45,22 @@
- static int
- get_drive_geometry(int kdev,struct hd_geometry *geo) 
- {
--	int rc = 0;
--	mm_segment_t old_fs;
--	struct file *filp;
--	struct inode *inode;
--        /* find out offset of volume label (partn table) */
--        filp = (struct file *)kmalloc (sizeof(struct file),GFP_KERNEL);
--        if ( filp == NULL ) {
--                printk (KERN_WARNING __FILE__ " ibm_partition: kmalloc failed fo
--r filp\n");
--                return -ENOMEM;
--        }
--        memset(filp,0,sizeof(struct file));
--        filp ->f_mode = 1; /* read only */
--        inode = get_empty_inode();
--	if ( inode == NULL )
--		return -ENOMEM;
--        inode -> i_rdev = kdev;
--	inode -> i_bdev = bdget(kdev_t_to_nr(kdev));
--	rc = blkdev_open(inode,filp);
--        if ( rc == 0 ) {
--		old_fs=get_fs();
--		set_fs(KERNEL_DS);
--		rc = inode-> i_bdev -> bd_op->ioctl (inode, filp, HDIO_GETGEO, 
--						     (unsigned long)(geo))
--			;
--		set_fs(old_fs);
--	}
--	blkdev_put(inode->i_bdev,BDEV_FILE);
-+	struct block_device *bdev = bdget(kdev_t_to_nr(kdev));
-+	int rc = blkdev_get(bdev, 0, 1, BDEV_FILE);
-+        if ( rc == 0 )
-+		rc = ioctl_by_bdev(bdev, HDIO_GETGEO, (unsigned long)geo);
-+	blkdev_put(bdev,BDEV_FILE);
- 	return rc;
- }
- 
- static int
- get_drive_info(int kdev,dasd_information_t *info) 
- {
--	int rc = 0;
--	mm_segment_t old_fs;
--	struct file *filp;
--	struct inode *inode;
--        /* find out offset of volume label (partn table) */
--        filp = (struct file *)kmalloc (sizeof(struct file),GFP_KERNEL);
--        if ( filp == NULL ) {
--                printk (KERN_WARNING __FILE__ " ibm_partition: kmalloc failed fo
--r filp\n");
--                return -ENOMEM;
--        }
--        memset(filp,0,sizeof(struct file));
--        filp ->f_mode = 1; /* read only */
--        inode = get_empty_inode();
--	if ( inode == NULL )
--		return -ENOMEM;
--        inode -> i_rdev = kdev;
--	inode -> i_bdev = bdget(kdev_t_to_nr(kdev));
--        rc = blkdev_open(inode,filp);
--        if ( rc == 0 ) {
--		old_fs=get_fs();
--		set_fs(KERNEL_DS);
--		rc = inode-> i_bdev -> bd_op->ioctl (inode, filp, BIODASDINFO, 
--						     (unsigned long)(info));
--		set_fs(old_fs);
--	}
--	blkdev_put(inode->i_bdev,BDEV_FILE);
-+	struct block_device *bdev = bdget(kdev_t_to_nr(kdev));
-+	int rc = blkdev_get(bdev, 0, 1, BDEV_FILE);
-+        if ( rc == 0 )
-+		rc = ioctl_by_bdev(bdev, BIODASDINFO, (unsigned long)(info));
-+	blkdev_put(bdev,BDEV_FILE);
- 	return rc;
- }
- 
+That seems to be the problem! If the kernel is compiled without
+busmouse support, and with PS/2 mouse support, then the mouse is
+recognised and the keyboard does not get locked up.
 
+This is, therefore, a warning to all:
 
+Even if you are configuring a system with no need for a mouse (as
+I had been doing until now - a system console for a server, and no
+local X-server required) YOU MUST CONFIGURE THE KERNEL WITH THE
+PS/2 MOUSE DRIVER (and NOT as a module) or else you are likely
+to suffer the consequences!
+
+Michael Ben-Gershon
+mybg@netvision.net.il

@@ -1,44 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbUL3APy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbUL3ARB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbUL3APy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 19:15:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbUL3APx
+	id S261457AbUL3ARB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 19:17:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbUL3ARA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 19:15:53 -0500
-Received: from ridcully.inittab.de ([213.146.113.136]:15572 "EHLO
-	mail1.inittab.de") by vger.kernel.org with ESMTP id S261469AbUL3APd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 19:15:33 -0500
-Date: Thu, 30 Dec 2004 01:15:27 +0100
-From: Norbert Tretkowski <tretkowski@inittab.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Patch: 2.6.10 - CMSPAR in mxser.c undeclared
-Message-ID: <20041230001527.GA32554@rollcage.inittab.de>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20041229081957.GA31981@rollcage.inittab.de> <1104331638.30080.14.camel@localhost.localdomain> <20041229230334.GO26051@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041229230334.GO26051@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 29 Dec 2004 19:17:00 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:23017 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261466AbUL3APG convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 19:15:06 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: [PATCH] SATA support for Intel ICH7 - 2.6.10
+Date: Wed, 29 Dec 2004 16:13:41 -0800
+Message-ID: <26CEE2C804D7BE47BC4686CDE863D0F502AE9F2B@orsmsx410>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] SATA support for Intel ICH7 - 2.6.10
+Thread-Index: AcTuBGsyqmX8Kc99RLmMQYGQtLZACw==
+From: "Gaston, Jason D" <jason.d.gaston@intel.com>
+To: "Jeff Garzik" <jgarzik@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 30 Dec 2004 00:13:44.0095 (UTC) FILETIME=[6C81EAF0:01C4EE04]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Al Viro wrote:
-> On Wed, Dec 29, 2004 at 07:56:45PM +0000, Alan Cox wrote:
-> > On Mer, 2004-12-29 at 08:19, Norbert Tretkowski wrote:
-> > > {standard input}: Assembler messages:
-> > > {standard input}:5: Warning: setting incorrect section attributes for .got
-> > > drivers/char/mxser.c: In function `mxser_ioctl_special':
-> > > drivers/char/mxser.c:1564: error: `CMSPAR' undeclared (first use in this function)
-> > > drivers/char/mxser.c:1564: error: (Each undeclared identifier is reported only once
-> > > drivers/char/mxser.c:1564: error: for each function it appears in.)
-> > 
-> > What environment/architecture are you building this on (having built it
-> > myself just fine ?)
-> 
-> alpha or ppc, for example.
+Jeff,
 
-Yes, alpha.
+This patch adds the Intel ICH7 DID's to the ata_piix SATA driver, ahci
+SATA AHCI driver and quirks.c for ICH7 SATA support.  If acceptable,
+please apply.
 
-Norbert
+Thanks,
+
+Jason Gaston
+
+
+--- linux-2.6.10/drivers/pci/quirks.c.orig	2004-12-24
+13:33:49.000000000 -0800
++++ linux-2.6.10/drivers/pci/quirks.c	2004-12-28 07:07:38.000000000
+-0800
+@@ -1162,6 +1162,10 @@
+ 	case 0x2653:
+ 		ich = 6;
+ 		break;
++	case 0x27c0:
++	case 0x27c4:
++		ich = 7;
++		break;
+ 	default:
+ 		/* we do not handle this PCI device */
+ 		return;
+@@ -1181,7 +1185,7 @@
+ 		else
+ 			return;			/* not in combined mode
+*/
+ 	} else {
+-		WARN_ON(ich != 6);
++		WARN_ON((ich != 6) || (ich != 7));
+ 		tmp &= 0x3;  /* interesting bits 1:0 */
+ 		if (tmp & (1 << 0))
+ 			comb = (1 << 2);	/* PATA port 0, SATA
+port 1 */
+--- linux-2.6.10/drivers/scsi/ata_piix.c.orig	2004-12-24
+13:35:50.000000000 -0800
++++ linux-2.6.10/drivers/scsi/ata_piix.c	2004-12-28
+07:07:38.000000000 -0800
+@@ -60,6 +60,7 @@
+ 	piix4_pata		= 2,
+ 	ich6_sata		= 3,
+ 	ich6_sata_rm		= 4,
++	ich7_sata		= 5,
+ };
+ 
+ static int piix_init_one (struct pci_dev *pdev,
+@@ -90,6 +91,8 @@
+ 	{ 0x8086, 0x2651, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata },
+ 	{ 0x8086, 0x2652, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_rm },
+ 	{ 0x8086, 0x2653, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_rm },
++	{ 0x8086, 0x27c0, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich7_sata },
++	{ 0x8086, 0x27c4, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich7_sata },
+ 
+ 	{ }	/* terminate list */
+ };
+@@ -236,6 +239,18 @@
+ 		.udma_mask	= 0x7f,	/* udma0-6 */
+ 		.port_ops	= &piix_sata_ops,
+ 	},
++
++	/* ich7_sata */
++	{
++		.sht		= &piix_sht,
++		.host_flags	= ATA_FLAG_SATA | ATA_FLAG_SRST |
++				  PIIX_FLAG_COMBINED |
+PIIX_FLAG_CHECKINTR |
++				  ATA_FLAG_SLAVE_POSS | PIIX_FLAG_AHCI,
++		.pio_mask	= 0x1f,	/* pio0-4 */
++		.mwdma_mask	= 0x07, /* mwdma0-2 */
++		.udma_mask	= 0x7f,	/* udma0-6 */
++		.port_ops	= &piix_sata_ops,
++	},
+ };
+ 
+ static struct pci_bits piix_enable_bits[] = {
+--- linux-2.6.10/drivers/scsi/ahci.c.orig	2004-12-24
+13:34:26.000000000 -0800
++++ linux-2.6.10/drivers/scsi/ahci.c	2004-12-28 07:07:38.000000000
+-0800
+@@ -239,9 +239,13 @@
+ 
+ static struct pci_device_id ahci_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_INTEL, 0x2652, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-	  board_ahci },
++	  board_ahci }, /* ICH6 */
+ 	{ PCI_VENDOR_ID_INTEL, 0x2653, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-	  board_ahci },
++	  board_ahci }, /* ICH6M */
++	{ PCI_VENDOR_ID_INTEL, 0x27c1, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ICH7 */
++	{ PCI_VENDOR_ID_INTEL, 0x27c5, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ICH7M */
+ 	{ }	/* terminate list */
+ };
+ 
+
+

@@ -1,40 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316825AbSGBQvW>; Tue, 2 Jul 2002 12:51:22 -0400
+	id <S316826AbSGBRC1>; Tue, 2 Jul 2002 13:02:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316826AbSGBQvV>; Tue, 2 Jul 2002 12:51:21 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:1796 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S316825AbSGBQvV>; Tue, 2 Jul 2002 12:51:21 -0400
-Date: Tue, 2 Jul 2002 18:53:47 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OKS] O(1) scheduler in 2.4
-Message-ID: <20020702165347.GN19132@louise.pinerecords.com>
-References: <20020701234432.GC1697@werewolf.able.es> <Pine.LNX.4.43.0207021802260.29588-100000@cibs9.sns.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.43.0207021802260.29588-100000@cibs9.sns.it>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
-X-Uptime: 28 days, 6:44
+	id <S316827AbSGBRC0>; Tue, 2 Jul 2002 13:02:26 -0400
+Received: from ns.escriba.com.br ([200.250.187.130]:11001 "EHLO
+	alexnunes.lab.escriba.com.br") by vger.kernel.org with ESMTP
+	id <S316826AbSGBRC0>; Tue, 2 Jul 2002 13:02:26 -0400
+Message-ID: <3D21DD2A.2010801@PolesApart.wox.org>
+Date: Tue, 02 Jul 2002 14:04:42 -0300
+From: "Alexandre P. Nunes" <alex@PolesApart.wox.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020610
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4.19-pre10-ac2 bug in page_alloc.c:131
+References: <Pine.LNX.3.96.1020702120824.28259A-100000@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > >> What's the issue?
-> > >
-> > >a) We're at 2.4.19-rc1 right now.  It would be horribly
-> > >counterproductive to put O(1) in right now.
-> >
-> > .20-pre1 would be a good start, but my hope is that this reserved for
-> > the vm updates from -aa ;).
-> 
-> If I am not wrong in the AA tree the O(1) scheduler has been merged, so
-> there is an opportunity do update booth ;).
+Bill Davidsen wrote:
+
+>On Mon, 24 Jun 2002, David S. Miller wrote:
+>
+>  
+>
+>>This has to do with facts, not opinions.  Since we lack the source to
+>>their drivers, we have no idea if some bug in their driver is
+>>scribbling over (ie. corrupting) memory.  It is therefore an unknown
+>>which makes it a waste of time for us to pursue the bug report.
+>>    
+>>
+>
+>By that logic if source is freely available the kernel should not be
+>marked tainted, even if the source license is not GPL, as in you can get
+>it and use it to debug, but the license is something like BSD, or the
+>Kermit limited redistribution, etc.
+>
+>I'm asking in general, not about just one particular binary-only driver.
+>
+>  
+>
+
+How this taint stuff works, actually ? It's just a marker or it impose 
+any restrictions?
+
+While I made all efforts to send nvidia all information pertinent to the 
+reported bug, I also found that the source to o/s dependent parts are in 
+fact (at least partially) available, with an absurdly restrictive 
+license, though. If someone else is interested in looking at, one of the 
+files in the distribution contains the mm code and all general 
+interfacing to the kernel.
+
+I agree it's nvidia responsability for checking its own source, but help 
+is always welcome when it's true help after all.
+
+In last weekend I patched 2.4.19-pre10-ac2 with the last preempt-kernel 
+patch, and since I was unable to reproduce the crash, though I didn't 
+stress the machine enough by lack of time, so it's just informative 
+report in case someone want to try.
+
+Cheers,
+
+Alexandre
 
 
-... and then hope the thing doesn't turn into a suicide booth.
-
-
-T.

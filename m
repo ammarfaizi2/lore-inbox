@@ -1,34 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265921AbUFOULx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265916AbUFOULv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265921AbUFOULx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 16:11:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265922AbUFOULx
+	id S265916AbUFOULv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 16:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265922AbUFOULv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 16:11:53 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:23451 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S265921AbUFOULr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 16:11:47 -0400
-Message-Id: <200406152011.i5FKBBif021275@eeyore.valparaiso.cl>
-To: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: concurrent acces by make menuconfig 
-In-Reply-To: Message from =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com> 
-   of "Tue, 15 Jun 2004 14:18:30 GMT." <20040615141830.A6241@beton.cybernet.src> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Tue, 15 Jun 2004 16:11:11 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 15 Jun 2004 16:11:51 -0400
+Received: from centaur.culm.net ([83.16.203.166]:48647 "EHLO centaur.culm.net")
+	by vger.kernel.org with ESMTP id S265916AbUFOULo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 16:11:44 -0400
+From: Witold Krecicki <adasi@kernel.pl>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.7] [OOPS] Oops while removing mediabay CD
+Date: Tue, 15 Jun 2004 22:10:13 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200406152210.13537.adasi@kernel.pl>
+X-Spam-Score: -4.3 (----)
+X-MIME-Warning: Serious MIME defect detected ()
+X-Scan-Signature: d79fd8e265bf02ec8adf6c0257d9bbc2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-=?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com> said:
-> Is it correct to run make menuconfig (without achanging anything,
-> just to study the current configuration) while a make bzImage is running
-> on another console when the version is 2.4.25?
-
-Should make no difference at all unless you save a changed configuration.
+with not having loaded ide-cd on 2.6.7-rc2:
+mediabay0: switching to 7
+mediabay0: powering down
+media bay 0 is empty
+Unregistering mb 0 ide, index:1
+devfs_remove: ide/host1/bus0/target0/lun0 not found, cannot remove
+Call trace: [c000b244]  [c009b9d8]  [c0117594]  [c0312800]  [c031294c]  
+[c000aa84]
+Oops: kernel access of bad area, sig: 11 [#1]
+NIP: C0097D04 LR: C0098EB0 SP: C1893E50 REGS: c1893da0 TRAP: 0300    Not 
+tainted
+MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+DAR: 00000008, DSISR: 40000000
+TASK = cbe0ad20[156] 'media-bay' THREAD: c1892000Last syscall: -1
+GPR00: C0098EB0 C1893E50 CBE0AD20 00000000 C03418D0 C18AC310 00000000 00000000
+GPR08: 00000001 FFFF0001 C0336384 00009032 FFFFFFFA 00000000 00000000 00000000
+GPR16: 00000000 00000000 00000000 00000000 00000000 00220000 00230000 C0280000
+GPR24: C9C86800 00000001 CBFEE294 00000000 00000001 C0341C40 00000000 C03418D0
+Call trace: [c0098eb0]  [c00fc56c]  [c00fc764]  [c00fb134]  [c00fb1b8]  
+[c0117510]  [c0312800]  [c031294c]  [c000aa84]
+and trying to load ide-cd after that results in hanging it in D+ state...
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Witold Krêcicki (adasi) adasi [at] culm.net
+GPG key: 7AE20871
+http://www.culm.net

@@ -1,51 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278235AbRJMBUM>; Fri, 12 Oct 2001 21:20:12 -0400
+	id <S278238AbRJMBs7>; Fri, 12 Oct 2001 21:48:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278236AbRJMBUC>; Fri, 12 Oct 2001 21:20:02 -0400
-Received: from nsd.mandrakesoft.com ([216.71.84.35]:22113 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S278235AbRJMBTs>; Fri, 12 Oct 2001 21:19:48 -0400
-Date: Fri, 12 Oct 2001 20:20:02 -0500 (CDT)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
-cc: Matt_Domsch@Dell.com, linux-kernel@vger.kernel.org
-Subject: Re: crc32 cleanups 
-In-Reply-To: <200110130109.f9D19cZj023657@sleipnir.valparaiso.cl>
-Message-ID: <Pine.LNX.3.96.1011012201638.20962A-100000@mandrakesoft.mandrakesoft.com>
+	id <S278239AbRJMBst>; Fri, 12 Oct 2001 21:48:49 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:34577 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S278238AbRJMBsc>;
+	Fri, 12 Oct 2001 21:48:32 -0400
+Date: Fri, 12 Oct 2001 18:54:36 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Paul Mackerras <paulus@samba.org>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists
+ with insertion
+In-Reply-To: <15303.37865.489986.425653@cargo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.40.0110121834150.1505-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Oct 2001, Horst von Brand wrote:
-> Matt_Domsch@Dell.com said:
-> > > That leaves (a) unconditionally building 
-> > > it into the kernel, or (b) Makefile and Config.in rules.
-> 
-> > (a) is simple, but needs a 1KB malloc (or alternately, a 1KB static const
-> > array - I've taken the approach that the malloc is better)
-> 
-> Better static (less overhead in size and at runtime), initialized at build
-> time (you could compute it then). In case of _dire_ kernel size problems, it
-> can be left out anyway. AFAIU, there are now a _lot_ of copies of this
-> around, so you'll win overall in any case.
-> 
-> > (b) isn't that much harder, but requires drivers to be sure to call
-> > init_crc32 and cleanup_crc32.  If somehow they manage not to do that, Oops.
-> > I don't want to add a runtime check for the existance of the array in
-> > crc32().
-> 
-> KISS: Keep It Simple, Stupid. Unless it won't cut it, that is.
+On Sat, 13 Oct 2001, Paul Mackerras wrote:
 
-Currently we are only talking about one CRC table, but we can set up
-two crc tables, if we consider ether_crc_be as well.
+> Linus Torvalds writes:
+>
+> > So how about just going all the way and calling it what it is:
+> > "data_dependent_read_barrier()", with a notice in the PPC docs about how
+> > the PPC cannot speculate reads anyway, so it's a no-op.
+>
+> To set the record straight, the PPC architecture spec says that
+> implementations *can* speculate reads, but they have to make it look
+> as if dependent loads have a read barrier between them.
+>
+> And it isn't speculated reads that are the problem in the alpha case,
+> it's the fact that the cache can reorder invalidations that are
+> received from the bus.  That's why you can read the new value of p but
+> the old value of *p on one processor after another processor has just
+> done something like a = 1; wmb(); p = &a.
 
-Being static definitely has the advantage of not needing the refcounting
-scheme; it really depends on what the code size looks like in the end,
-with and without a statically-calculated CRC table.
+I think that necessary condition to have a reordering of bus sent
+invalidations is to have a partitioned cache architecture.
+I don't see any valid reason for a cache controller of a linear cache
+architecture to reorder an invalidation stream coming from a single cpu.
+If the invalidation sequence for cpu1 ( in a linear cache architecture )
+is 1a, 1b, 1c, ... this case can happen :
 
-	Jeff
+1a, 2a, 1b, 2b, 2c, 1c, ...
+|       |           |
+.........................
+
+but not this :
+
+1a, 2a, 2b, 1c, 2c, 1b, ...
+|           |       |
+...............><........
+
+
+> My impression from what Paul McKenney was saying was that on most
+> modern architectures other than alpha, dependent loads act as if they
+> have a read barrier between them.  What we need to know is which
+> architectures specify that behaviour in their architecture spec, as
+> against those which do that today but which might not do it tomorrow.
+
+Uhmm, an architecture that with  a = *p;  schedule the load of  *p  before
+the load of  p  sounds screwy to me.
+The problem is that even if cpu1 schedule the load of  p  before the
+load of  *p  and cpu2 does  a = 1; wmb(); p = &a; , it could happen that
+even if from cpu2 the invalidation stream exit in order, cpu1 could see
+the value of  p  before the value of  *p  due a reordering done by the
+cache controller delivering the stream to cpu1.
+
+
+
+
+- Davide
 
 
 

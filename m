@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267406AbSLEToR>; Thu, 5 Dec 2002 14:44:17 -0500
+	id <S267430AbSLEUCi>; Thu, 5 Dec 2002 15:02:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267407AbSLEToQ>; Thu, 5 Dec 2002 14:44:16 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:43470 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S267406AbSLEToM>; Thu, 5 Dec 2002 14:44:12 -0500
-Date: Thu, 5 Dec 2002 13:50:32 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Burton Windle <bwindle@fint.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.50-bk5: KALLSYMS shows call trace as all _stext
-In-Reply-To: <Pine.LNX.4.43.0212051357230.10336-100000@morpheus>
-Message-ID: <Pine.LNX.4.44.0212051349090.13520-100000@chaos.physics.uiowa.edu>
+	id <S267434AbSLEUCi>; Thu, 5 Dec 2002 15:02:38 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:23291 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S267430AbSLEUCg>;
+	Thu, 5 Dec 2002 15:02:36 -0500
+Message-ID: <3DEFB284.A209E75C@mvista.com>
+Date: Thu, 05 Dec 2002 12:09:40 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [PATCH ] POSIX clocks & timers take 15 (NOT HIGH RES)
+References: <Pine.LNX.4.44.0212050904390.27298-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Dec 2002, Burton Windle wrote:
-
-> Starting in 2.5.50-bk5 (it works in bk4), oopses when CONFIG_KALLSYMS
-> seems to mis-report all functions as _stext.
+Linus Torvalds wrote:
 > 
-> Call Trace:
->  [<c014cec9>] _stext+0x47ec9/0x17ab4e
+> Ok, finally starting to look at merging this, however:
 > 
-> However, as seen in the System.map,
-> bwindle@razor:/giant/linux$ grep c014ce System.map
-> c014ce50 T get_locks_status
+> This must go (we already have a timespec, there's no way it should be
+> here in <asm/signal.h>):
+> 
+>         +#ifndef _STRUCT_TIMESPEC
+>         +#define _STRUCT_TIMESPEC
+>         +struct timespec {
+>         +       time_t  tv_sec;         /* seconds */
+>         +       long    tv_nsec;        /* nanoseconds */
+>         +};
+>         +#endif /* _STRUCT_TIMESPEC */
 
-Thanks, my bad.
+OK.
+> 
+> and you have things like
+> 
+>         +       if ((flags & TIMER_ABSTIME) &&
+>         +           (clock->clock_get != do_posix_clock_monotonic_gettime)) {
+>         +       }else{
+>         +       }
 
-Could you confirm that the appended patch fixes it?
+A hang over from the high res code, I will remove the empty
+else.
+> 
+> and
+> 
+>         +if (!p) {
+>         +printk("in sub_remove for id=%d called with null pointer.\n", id);
+>         +return(0);
+>         +}
 
---Kai
+That is in there!?  I will check into and fix it.
+> 
+> and obviously the "nanosleep()" thing and the CLOCK_NANOSLEEP_ENTRY()
+> stuff has been discussed in the unrelated thread (ie it doesn't work for
+> alpha or other architectures).
 
+Right!  I am merging this now.
 
-===== scripts/kallsyms.c 1.1 vs edited =====
---- 1.1/scripts/kallsyms.c	Wed Dec  4 13:16:58 2002
-+++ edited/scripts/kallsyms.c	Thu Dec  5 13:47:38 2002
-@@ -114,6 +114,7 @@
- 
- 	printf(".globl kallsyms_num_syms\n");
- 	printf("\t.align 8\n");
-+	printf("kallsyms_num_syms:\n");
- 	printf("\t.long\t%d\n", valid);
- 	printf("\n");
- 
-
+I think something went into bk5 yesterday that will require
+an update.  I will update to 2.5.50-bk5 with the above fixes
+and sent it ... soon.
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

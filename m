@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267396AbTAOXYe>; Wed, 15 Jan 2003 18:24:34 -0500
+	id <S267384AbTAOXVb>; Wed, 15 Jan 2003 18:21:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267405AbTAOXYe>; Wed, 15 Jan 2003 18:24:34 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:33804 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267396AbTAOXYd>;
-	Wed, 15 Jan 2003 18:24:33 -0500
-Date: Wed, 15 Jan 2003 15:33:03 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, mdharm-usb@one-eyed-alien.net
-Subject: Re: 2.4.20/2.4.21-pre3 usb Oops
-Message-ID: <20030115233303.GA26255@kroah.com>
-References: <20030115111234.GA1322@finwe.eu.org>
+	id <S267389AbTAOXVa>; Wed, 15 Jan 2003 18:21:30 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:6630 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267384AbTAOXVD>;
+	Wed, 15 Jan 2003 18:21:03 -0500
+Message-Id: <200301152329.h0FNTw025436@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org, lm@bitmover.com
+Subject: 2.5 BK broken?
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030115111234.GA1322@finwe.eu.org>
-User-Agent: Mutt/1.4i
+Date: Wed, 15 Jan 2003 15:29:58 -0800
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 15, 2003 at 12:12:35PM +0100, Jacek Kawa wrote:
-> Hello!
-> 
-> I've got ide disk connected as usb-storage device.
-> 
-> Oops is reproductable (output from ksymoops below). 
-> I had to copy it from screen (I hope effects are 
-> reliable).
 
-Can you switch UHCI drivers and see if the problem is still there?
 
-thanks,
+>From this morning, i can no longer do a 'bk pull' against 2.5:
 
-greg k-h
+linux-2.5 0] bk pull
+Pull bk://linux.bkbits.net/linux-2.5 -> file://var/kernel/bk/linux-2.5
+ERROR-Lock fail: possible permission problem.
+
+This happens on every machine i try, even my home one. 
+bk clone fails also...hep!
+cliffw
+
+
+
+

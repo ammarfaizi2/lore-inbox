@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131012AbRCJLeg>; Sat, 10 Mar 2001 06:34:36 -0500
+	id <S130793AbRCJMhC>; Sat, 10 Mar 2001 07:37:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131015AbRCJLeQ>; Sat, 10 Mar 2001 06:34:16 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:59911 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131012AbRCJLeH>; Sat, 10 Mar 2001 06:34:07 -0500
-Subject: Re: [PATCH]: allow notsc option for buggy cpus
-To: dhd@eradicator.org (David Huggins-Daines)
-Date: Sat, 10 Mar 2001 11:36:17 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <877l1yxtlg.fsf@monolith.eradicator.org> from "David Huggins-Daines" at Mar 09, 2001 09:09:47 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130835AbRCJMgx>; Sat, 10 Mar 2001 07:36:53 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:51395 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130793AbRCJMgn>;
+	Sat, 10 Mar 2001 07:36:43 -0500
+Date: 10 Mar 2001 13:22:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <7xaONpZHw-B@khms.westfalen.de>
+In-Reply-To: <3A959BFD.B18F833@netcomuk.co.uk>
+Subject: Re: Hashing and directories
+X-Mailer: CrossPoint v3.12d.kh5 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14bhfX-0006hg-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <3A959BFD.B18F833@netcomuk.co.uk>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The 600E's CPU doesn't actually use SpeedStep (it's only a 400MHz
-> Mobile Pentium2, SpeedStep made its debut with the 600MHz Mobile
-> Pentium3), but rather some kind of external speed throttling... which
-> accomplishes basically the same thing, and makes one wonder why Intel
-> had to go and trademark the idea of incorporating it into the CPU.
+billc@netcomuk.co.uk (Bill Crawford)  wrote on 22.02.01 in <3A959BFD.B18F833@netcomuk.co.uk>:
 
-Its external on the 'speedstep' mostly. Take a look at what little docs
-there are and you can see the mobile PIII chipset does it
+>  A particular reason for this, apart from filesystem efficiency,
+> is to make it easier for people to find things, as it is usually
+> easier to spot what you want amongst a hundred things than among
+> a thousand or ten thousand.
+>
+>  A couple of practical examples from work here at Netcom UK (now
+> Ebone :), would be say DNS zone files or user authentication data.
+> We use Solaris and NFS a lot, too, so large directories are a bad
+> thing in general for us, so we tend to subdivide things using a
+> very simple scheme: taking the first letter and then sometimes
+> the second letter or a pair of letters from the filename.  This
+> actually works extremely well in practice, and as mentioned above
+> provides some positive side-effects.
 
-> I think this behaviour can be controlled with tpctl for the Thinkpads
-> and possibly with the Toshiba utils on Toshibas...
+So the practical difference between finding a file in a hierarchy if you  
+already know the first N characters (because you need them to find the  
+subdirectory it's in), and finding the same file in a flat directory still  
+knowing the first N characters, is ... well, maybe tab completion is a tad  
+slower.
 
-If tpctl can do it and we know how it does it then that may be sufficient since
-the kernel init code can use DMI to find the 600E, tpctl copied code to go
-to high speed, bogomip it and then drop back.
+Sorry, but I can't see the human angle.
 
+
+MfG Kai

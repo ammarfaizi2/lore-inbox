@@ -1,27 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267196AbTB0XKo>; Thu, 27 Feb 2003 18:10:44 -0500
+	id <S267267AbTB0XN6>; Thu, 27 Feb 2003 18:13:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267206AbTB0XKo>; Thu, 27 Feb 2003 18:10:44 -0500
-Received: from pcp998828pcs.jamsis01.sc.comcast.net ([68.58.231.28]:36361 "HELO
-	eXcuria.com") by vger.kernel.org with SMTP id <S267196AbTB0XKn>;
-	Thu, 27 Feb 2003 18:10:43 -0500
-Date: 2/27/2003 6:19:05 PM
-To: linux-kernel@vger.kernel.org
-From: Zoey <zoey1@excuria.com>
-Subject: Inkjet & Laser Toner Cartridges ~ Save up to 89%
-Message-Id: <20030227231043Z267196-29901+5334@vger.kernel.org>
+	id <S267274AbTB0XN6>; Thu, 27 Feb 2003 18:13:58 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:58255
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267267AbTB0XN5>; Thu, 27 Feb 2003 18:13:57 -0500
+Subject: Re: Problem with compact flash as slave device
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nick Popoff <lkml@tre.bloodletting.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <118.42.1046387492508@tre.bloodletting.com>
+References: <118.42.1046387492508@tre.bloodletting.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046392002.14939.9.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 28 Feb 2003 00:26:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  
-Save up to 89% on Inkjet & Laser Toner Cartridges
-Quality Products w/ 100% Satisfaction Guarantee
-Easy, Fast, Affordable Shipping Worldwide
-Plenty of Payment Options to Meet YOUR Needs!
-  
-Visit us on the web at http://excuria.com/inkstore
-  
-  
-For instruction on how to be permanently remove from
-this distribution system go to http://excuria.com/remove
+On Thu, 2003-02-27 at 23:11, Nick Popoff wrote:
+> I'm unable to boot Linux if a compact flash disk is present as a slave
+> device on the same IDE chain as the Linux hard disk.  The kernel boots
+
+Fixed in 2.4.21pre6
+

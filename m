@@ -1,74 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266060AbUALGVT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 01:21:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266063AbUALGVT
+	id S266063AbUALG3L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 01:29:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266064AbUALG3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 01:21:19 -0500
-Received: from out009pub.verizon.net ([206.46.170.131]:58865 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S266060AbUALGVR
+	Mon, 12 Jan 2004 01:29:11 -0500
+Received: from 66-95-121-230.client.dsl.net ([66.95.121.230]:48590 "EHLO
+	mail.lig.net") by vger.kernel.org with ESMTP id S266063AbUALG3J
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 01:21:17 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.1-mm1: drivers/video/sis/sis_main.c link error
-Date: Mon, 12 Jan 2004 01:21:12 -0500
-User-Agent: KMail/1.5.1
-Cc: torvalds@osdl.org, thomas@winischhofer.net, linux-kernel@vger.kernel.org,
-       jsimmons@infradead.org
-References: <20040109014003.3d925e54.akpm@osdl.org> <200401112353.43282.gene.heskett@verizon.net> <20040111214259.568cff35.akpm@osdl.org>
-In-Reply-To: <20040111214259.568cff35.akpm@osdl.org>
+	Mon, 12 Jan 2004 01:29:09 -0500
+Message-ID: <40023C74.1010109@lig.net>
+Date: Mon, 12 Jan 2004 01:19:32 -0500
+From: "Stephen D. Williams" <sdw@lig.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: High Quality Random sources, was: Re: SecuriKey
+References: <5117BFF0551DD64884B32EE8CA57D3DB01548A3F@revere.nwpump.com> <4001ECBE.1020009@lig.net> <200401112238.32117.tabris@tabris.net> <200401112247.59418.tabris@tabris.net>            <40021E47.1070406@lig.net> <200401120557.i0C5v23e003260@turing-police.cc.vt.edu>
+In-Reply-To: <200401120557.i0C5v23e003260@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401120121.12122.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.56.190] at Mon, 12 Jan 2004 00:21:15 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 January 2004 00:42, Andrew Morton wrote:
->Gene Heskett <gene.heskett@verizon.net> wrote:
->> However, since I've been running 2.6.1-mm1 here, using the rivafb
->> with an elderly gforce2-mx2 32 megger, I've noted that when
->> running kde-3.1.1a with 8 windows, and a couple of them have
->> multimegabyte backdrops, the biggest one being that famous deep
->> space shot from hubble of about 4 or 5 months back.  In any other
->> kernel, switching to that window took about 12 seconds for the
->> backdrop to be converted to 1600x1200x32 and drawn the first time
->> and about 8 seconds for the next time.  But with this 2.6.1-mm1
->> kernel, that repeat window switch is so close to instant that I
->> cannot see it being drawn.
->>
->>  So as far as I'm concerned, this particular set of fb patches to
->>  rivafb *need* to stay in mainline.  I'd sure appreciate it, a
->> bunch.
+It has puzzled me for a while why it doesn't occur to people that a high 
+quality OTP is a high quality source of shared private keys for a good 
+symmetric algorithm.  That is a much better use than 1-to-1 XOR.  Sure, 
+you're still only as secure as the symmetric algorithm but if you can 
+manage distribution of a OTP, you don't have to otherwise worry about 
+key management other than walking through the keys so that they are only 
+used once.  128MB+ (or 200MB or 1GB)  represents a lot of AES keys.  
+With that many, you could just skip around on a non-key aligned random 
+point (using your high-quality random source of course ;-) ), transmit 
+the point you are using as a key selector, and not worry about avoiding 
+reuse management.
+
+PKI is better for many reasons, but it's still interesting that an 
+essentially low-tech technique like OTP could be used in a similar way.  
+You still have an N^2 key exchange problem that PKI solves.
+
+sdw
+
+Valdis.Kletnieks@vt.edu wrote:
+
+>On Sun, 11 Jan 2004 23:10:47 EST, "Stephen D. Williams" said:
 >
->There are no significant fbdev patches in 2.6.1-mm1.  There is a DRM
->update.
-
-Whatever it is, its pure speed on this system here, Andrew.  DRM? 
-lemme see if thats even turned on.  Nope "# CONFIG_DRM is not set"
-Doing a make xconfig, I see that if I turn it on, there is not a 
-driver for my gforce2/nvidia, so I naturally turned it back off.
-
-I do have VIA and agpgart enabled just above it, and over in the 
-framebuffer menu, support for framebuffer and nvidia/riva are both 
-checked.
-
-Anyway, something has made a huge difference in window switching 
-speeds here, someplace between 2.6.0-mm2 and 2.6.1-mm1.  I like it.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty: soap,
-ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+>  
+>
+>>OTP absolutely requires that you share the OTP out of band, i.e. you 
+>>twin a capture of random data.  Any transfer makes it as vulnerable as 
+>>the transfer method.
+>>    
+>>
+>
+>The single most common OTP-related offense of Schneier's "snake oil crypto"
+>has got to be the fact it's almost never only used exactly once and then discarded.
+>
+>So sure you can load 200 meg of OTP into the dongle before you leave the spy agency
+>on a mission.  The fun starts when you get to the 201st megabyte of data. :)
+>  
+>
 

@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265055AbSJRHWR>; Fri, 18 Oct 2002 03:22:17 -0400
+	id <S265045AbSJRHVJ>; Fri, 18 Oct 2002 03:21:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265056AbSJRHWQ>; Fri, 18 Oct 2002 03:22:16 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:25331 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S265055AbSJRHWN>;
-	Fri, 18 Oct 2002 03:22:13 -0400
-Date: Fri, 18 Oct 2002 03:28:10 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Crispin Cowan <crispin@wirex.com>
-cc: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
-       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       linux-security-module@wirex.com
-Subject: Re: [PATCH] remove sys_security
-In-Reply-To: <3DAFB260.5000206@wirex.com>
-Message-ID: <Pine.GSO.4.21.0210180309540.18575-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265047AbSJRHVJ>; Fri, 18 Oct 2002 03:21:09 -0400
+Received: from sv1.valinux.co.jp ([202.221.173.100]:55562 "HELO
+	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S265045AbSJRHVE>;
+	Fri, 18 Oct 2002 03:21:04 -0400
+Date: Fri, 18 Oct 2002 16:19:52 +0900 (JST)
+Message-Id: <20021018.161952.41628057.taka@valinux.co.jp>
+To: trond.myklebust@fys.uio.no
+Cc: habanero@us.ibm.com, neilb@cse.unsw.edu.au, davem@redhat.com,
+       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: Re: [NFS] Re: [PATCH] zerocopy NFS for 2.5.36
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <shs8z0w1f3k.fsf@charged.uio.no>
+References: <001301c275e6$f31d5970$2a060e09@beavis>
+	<20021018.012618.74755132.taka@valinux.co.jp>
+	<shs8z0w1f3k.fsf@charged.uio.no>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-
-On Fri, 18 Oct 2002, Crispin Cowan wrote:
-
->     * server users can choose a highly secure model
->     * workstation users can choose something desktop oriented
->     * embedded people can choose nothing at all, or the specific
->       narrow-cast model that they need
+>      > Congestion avoidance mechanism of NFS clients might cause this
+>      > situation.  I think the congestion window size is not enough
+>      > for high end machines.  You can make the window be larger as a
+>      > test.
 > 
-> On the other hand: what is the big cost here? One system call. Isn't 
-> that actually *lower* overhead than the (say) half dozen 
-> security-oriented syscalls we might convince you to accept if we drop 
-> the sys_security syscall as you suggest? Why the fierce desire to remove 
-> something so cheap?
+> The congestion avoidance window is supposed to adapt to the bandwidth
+> that is available. Turn congestion avoidance off if you like, but my
+> experience is that doing so tends to seriously degrade performance as
+> the number of timeouts + resends skyrockets.
 
-Because ugliness has its price.  As for "highly secure"...  Could we please
-see some proof?  Clearly stated properties with code audit to verify them
-would be nice.
+Yes, you must be right.
 
-I'm yet to see a single shred of evidence that so-called security improvements
-actually do improve security (as opposed to feeling of security - quite
-a different animal).  And in this case burden of proof is clearly on your
-side.
+But I guess Andrew may use a great machine so that the transfer rate
+has exeeded the maximum size of the congestion avoidance window.
+Can we determin preferable maximum window size dynamically?
 
-What I _do_ see is a lucrative market for peddlers of feel-good "solutions"
-that do not make anything secure but have miles-long feature lists that
-can be used to impress PHBs.  Now, I have no particular problems with
-people who help suckers part with their money, but I don't see any reason
-to support them.
-
-3 or 4 patches that might be interesting would be better off without LSM.
-The rest...  care to give a hard evidence that it is worth any support?
-
+Thank you,
+Hirokazu Takahashi.

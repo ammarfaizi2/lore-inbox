@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264529AbUFEHXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264540AbUFEHaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264529AbUFEHXO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 03:23:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUFEHXO
+	id S264540AbUFEHaX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 03:30:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264546AbUFEHaX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 03:23:14 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:42104 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S264529AbUFEHXN (ORCPT
+	Sat, 5 Jun 2004 03:30:23 -0400
+Received: from mail.xor.ch ([212.55.210.163]:19213 "HELO mail.xor.ch")
+	by vger.kernel.org with SMTP id S264540AbUFEHaV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 03:23:13 -0400
-Date: Sat, 5 Jun 2004 00:28:27 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Anton Blanchard <anton@samba.org>
-Cc: wli@holomorphy.com, mikpe@csd.uu.se, nickpiggin@yahoo.com.au,
-       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ak@muc.de, ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       Simon.Derr@bull.net, miltonm@bga.com
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
- implementation
-Message-Id: <20040605002827.2e539991.pj@sgi.com>
-In-Reply-To: <20040604190803.GA6651@krispykreme>
-References: <20040603094339.03ddfd42.pj@sgi.com>
-	<20040603101010.4b15734a.pj@sgi.com>
-	<1086313667.29381.897.camel@bach>
-	<40BFD839.7060101@yahoo.com.au>
-	<20040603221854.25d80f5a.pj@sgi.com>
-	<16576.16748.771295.988065@alkaid.it.uu.se>
-	<20040604090314.56d64f4d.pj@sgi.com>
-	<20040604165601.GC21007@holomorphy.com>
-	<20040604190803.GA6651@krispykreme>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 5 Jun 2004 03:30:21 -0400
+Message-ID: <40C17687.10AADDAA@orpatec.ch>
+Date: Sat, 05 Jun 2004 09:30:16 +0200
+From: Otto Wyss <otto.wyss@orpatec.ch>
+Reply-To: otto.wyss@orpatec.ch
+X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
+X-Accept-Language: de,en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: URL to "Linux kernel coding style"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William, Anton:
+Is there a web link anwhere to the "Linux kernel coding style". I've
+made a reference in the wxGuide guidelines (see
+"http://wxguide.sourceforge.net/guidelines/coding.html") but I need a
+stable URL to make it directly accessable. BTW I'm interested in links
+to other guidelines as well.
 
-If William recoded his bitmap_to_u32_array() routine, provided elsewhere
-on this thread, to take as the length argument 'nwords', not the number
-of source u64 words, but rather the number (possibly an odd number) of
-u32 dest words, then could that routine be used to significantly simply
-this compat_sched_getaffinity() code?
+If you want to discuss anything about the wxGuide guidelines, don't do
+it here but send it to the wxguide-users mailinglist
+("http://lists.sourceforge.net/lists/listinfo/wxguide-users") or make a
+comment here "http://wxguide.sourceforge.net/index.php?page=feedback.php".
+
+Please CC me, I'm not subscribed I only read the archives.
+
+O. Wyss
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+See a huge pile of work at "http://wyodesktop.sourceforge.net/"

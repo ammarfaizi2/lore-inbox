@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315237AbSDWPPh>; Tue, 23 Apr 2002 11:15:37 -0400
+	id <S315239AbSDWPRa>; Tue, 23 Apr 2002 11:17:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315238AbSDWPPg>; Tue, 23 Apr 2002 11:15:36 -0400
-Received: from pD9E12CD1.dip.t-dialin.net ([217.225.44.209]:19702 "HELO
-	smart.cobolt.net") by vger.kernel.org with SMTP id <S315237AbSDWPPf>;
-	Tue, 23 Apr 2002 11:15:35 -0400
-Date: Tue, 23 Apr 2002 17:15:36 +0200
-From: Dennis Schoen <dennis@cns.dnsalias.org>
-To: linux-kernel@vger.kernel.org
-Cc: andrea@suse.de
-Subject: Re: BUG: 2.4.19-pre6aa1 (i586) ?
-Message-ID: <20020423151536.GA25788@smart.cobolt.net>
-Reply-To: Dennis Schoen <dennis@cns.dnsalias.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org, andrea@suse.de
-In-Reply-To: <20020423092731.GA6327@smart.cobolt.net> <20020423150709.A4982@dualathlon.random>
+	id <S315242AbSDWPRa>; Tue, 23 Apr 2002 11:17:30 -0400
+Received: from bitmover.com ([192.132.92.2]:61617 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S315239AbSDWPR2>;
+	Tue, 23 Apr 2002 11:17:28 -0400
+Date: Tue, 23 Apr 2002 08:17:27 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Larry McVoy <lm@bitmover.com>, Jeff Garzik <garzik@havoc.gtf.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+Message-ID: <20020423081727.A26364@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Roman Zippel <zippel@linux-m68k.org>, Larry McVoy <lm@bitmover.com>,
+	Jeff Garzik <garzik@havoc.gtf.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020423075103.A25771@work.bitmover.com> <Pine.LNX.4.21.0204231704140.22075-100000@serv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Mail-Copies-To: never
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 23, 2002 at 03:07:09PM +0200, Andrea Arcangeli wrote:
-> On Tue, Apr 23, 2002 at 11:27:32AM +0200, Dennis Schoen wrote:
-> > Apr 21 21:40:03 opel kernel: kernel BUG at page_alloc.c:234!
-> > Apr 21 21:40:03 opel kernel: invalid operand: 0000
-> > Apr 21 21:40:03 opel kernel: CPU:    0
-> > Apr 21 21:40:03 opel kernel: EIP:    0010:[rmqueue+112/548]    Not tainted
-> > Apr 21 21:40:03 opel kernel: EFLAGS: 00010086
-> > Apr 21 21:40:03 opel kernel: eax: 0000c000   ebx: c119f37c   ecx: 00001000   edx: e8bac588
-> > Apr 21 21:40:03 opel kernel: esi: c119f37c   edi: 00000000   ebp: c0230310   esp: ca569e64
-> > Apr 21 21:40:03 opel kernel: ds: 0018   es: 0018   ss: 0018
-> > Apr 21 21:40:03 opel kernel: Process w3m-en (pid: 1963, stackpage=ca569000)
-> > Apr 21 21:40:03 opel kernel: Stack: c02304d4 00000000 00000001 00000001 c0230310 0000a9b0 00000286 c023034c 
-> > Apr 21 21:40:03 opel kernel:        00000000 c0230310 c012bac4 c1002ccc 00000000 c6ebb274 00000001 c0230310 
-> > Apr 21 21:40:03 opel kernel:        00000001 c0122684 0000000c c0230310 c02304d0 000001d2 0809deb0 c012213b 
-> > Apr 21 21:40:03 opel kernel: Call Trace: [__alloc_pages+116/664] [do_no_page+56/380] [do_wp_page+127/440] [handle_mm_fault+144/208] [do_page_fault+447/1336] 
-> > Apr 21 21:40:03 opel kernel:    [do_page_fault+0/1336] [do_brk+283/508] [sys_brk+193/240] [error_code+52/64] 
-> > Apr 21 21:40:03 opel kernel: 
+On Tue, Apr 23, 2002 at 05:13:25PM +0200, Roman Zippel wrote:
+> > > Free speech is really not at danger here. The problem is something
+> > > completely different. Linux is still a free software project and the
+> > > question is how seriously do we take this? 
+> > 
+> > You might stop and ask yourself how the people who work on this free
+> > software project pay the bills.
 > 
-> I doubt it's a bug in the page freelist management, but it seems the
-> freelist got corrupted somehow. So I'd say it's either a bug in another
-> subsystem or faulty dram. Can you try some memchecker to rule out the
-> hardware possibility?
-Ok, I'll let memtest run that night and report back.
+> That's a decision everyone has to do for himself. Nobody blames you for
+> working on nonfree software, but everyone working on Linux should be aware
+> of what it stands for.
 
-Ciao
-  Dennis
+You're missing the point.  Most of the people here do exactly what I do,
+they work on something else in order to be able to contribute to Linux.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

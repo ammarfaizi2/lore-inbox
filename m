@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261621AbSJJP0u>; Thu, 10 Oct 2002 11:26:50 -0400
+	id <S261624AbSJJP23>; Thu, 10 Oct 2002 11:28:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261624AbSJJP0u>; Thu, 10 Oct 2002 11:26:50 -0400
-Received: from thunk.org ([140.239.227.29]:28870 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S261621AbSJJP0s>;
-	Thu, 10 Oct 2002 11:26:48 -0400
-Date: Thu, 10 Oct 2002 11:32:27 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Larry McVoy <lm@work.bitmover.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Walter Landry <wlandry@ucsd.edu>, linux-kernel@vger.kernel.org
-Subject: Re: A simple request (was Re: boring BK stats)
-Message-ID: <20021010153227.GA19292@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Larry McVoy <lm@work.bitmover.com>, Jeff Garzik <jgarzik@pobox.com>,
-	Walter Landry <wlandry@ucsd.edu>, linux-kernel@vger.kernel.org
-References: <20021009.163920.85414652.wlandry@ucsd.edu> <3DA58B60.1010101@pobox.com> <20021010072818.F27122@work.bitmover.com>
-Mime-Version: 1.0
+	id <S261626AbSJJP23>; Thu, 10 Oct 2002 11:28:29 -0400
+Received: from packet.digeo.com ([12.110.80.53]:50860 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261624AbSJJP22>;
+	Thu, 10 Oct 2002 11:28:28 -0400
+Message-ID: <3DA59DED.6167C13B@digeo.com>
+Date: Thu, 10 Oct 2002 08:34:05 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.41 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: andersen@codepoet.org, Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Mark Mielke <mark@mark.mielke.cc>,
+       Giuliano Pochini <pochini@denise.shiny.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: O_STREAMING has insufficient info - how about fadvise() ?
+References: <20021010032950.GA11683@codepoet.org> <1034249932.2044.128.camel@irongate.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021010072818.F27122@work.bitmover.com>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Oct 2002 15:34:05.0545 (UTC) FILETIME=[77A17D90:01C27072]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 10, 2002 at 07:28:18AM -0700, Larry McVoy wrote:
+Alan Cox wrote:
 > 
-> In low memory situations you really want to run the tree compressed.  
-> ON a fast machine do a "bk -r admin -Z" and then clone that onto your
-> laptop.  I think that will drop the tree to about 145MB which will
-> help, maybe.  I suspect that you use enough of the rest of your 200MB
-> that it still won't fit.
+> ...
+> Instead of O_STREAMING therefore I'd much prefer to have
+> 
+>         fadvise(filehandle, offset, length, FADV_DONTNEED);
 
-I believe it's the case that all of the trees on bkbits.net are
-compressed, so if you originally cloned your kernel tree off of
-bkbits.net, it should already be compressed.  Larry, would this be a
-correct statement?
+fadvise would make some sense - nice that it's a standardised interface.
 
-						- Ted
+It isn't really implementable in 2.4, because of that "offset, length"
+thing.  We either have to do a pagecache probe for each page, which
+gets painful if the user asked for 10,000,000 pages or we do a
+pagelist walk which is painful if the user asked for one page.
+
+In 2.5, the radix tree gang lookup thing will do this search in O(zilch).
+
+The other problem with fadvise is writebehind - there are up to
+30 seconds' worth of dirty pages behind the application's write
+cursor which fadvise wouldn't be able to do anything with.  So
+the application would end up running fadvise(offset=0, length=current-pos)
+all the time.   Which is equivalent to O_STREAMING.
+ 
+
+dropbehind cannot work as effectively because we're basically forced
+to put the pages at the head of the inactive LRU and hope that they're
+written before they reach the tail.  By which time we've evicted
+all the other pagecache on the inactive list.
+
+Could put the pages at the _tail_ of the LRU for reads; but that's
+equivalent to just reclaiming them on the spot.  Which is equivalent
+to O_STREAMING.

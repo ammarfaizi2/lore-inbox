@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262802AbTKCUEX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 15:04:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbTKCUEX
+	id S263062AbTKCUG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 15:06:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbTKCUG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 15:04:23 -0500
-Received: from h80ad25b7.async.vt.edu ([128.173.37.183]:13460 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262802AbTKCUEJ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 15:04:09 -0500
-Message-Id: <200311032003.hA3K3tgv017273@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: how to restart userland? 
-In-Reply-To: Your message of "Mon, 03 Nov 2003 20:39:40 +0100."
-             <20031103193940.GA16820@louise.pinerecords.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20031103193940.GA16820@louise.pinerecords.com>
+	Mon, 3 Nov 2003 15:06:26 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39327 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263062AbTKCUGY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 15:06:24 -0500
+Date: Mon, 3 Nov 2003 12:06:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Daniele Venzano <webvenza@libero.it>
+Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add PM support to sis900 network driver
+Message-Id: <20031103120647.549f0c81.akpm@osdl.org>
+In-Reply-To: <20031103181721.GC852@picchio.gall.it>
+References: <20031102182852.GC18017@picchio.gall.it>
+	<20031102111254.481bcbfd.akpm@osdl.org>
+	<20031103181721.GC852@picchio.gall.it>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-679395698P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Mon, 03 Nov 2003 15:03:55 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-679395698P
-Content-Type: text/plain; charset=us-ascii
+Daniele Venzano <webvenza@libero.it> wrote:
+>
+> On Sun, Nov 02, 2003 at 11:12:54AM -0800, Andrew Morton wrote:
+> > pci_set_power_state() can sleep, so we shouldn't be calling it
+> > under spin_lock_irqsave().  Is it necessary to hold the lock
+> > here?
+> 
+> New patch with locking completely removed, since in a similar
+> function none was used.
 
-On Mon, 03 Nov 2003 20:39:40 +0100, Tomas Szepe <szepe@pinerecords.com>  said:
-> Would anyone know of a proven way to completely restart the userland
-> of a Linux system?
+OK.  I think.  Net driver suspend handlers in general seem a bit racy wrt
+interrupt activity as well as SMP.  Maybe I'm missing something.
 
-This would be distinct from 'shutdown -r' how?  Is there a reason you
-want to "completely" restart userland and *not* reboot (for instance,
-wanting to keep existing mounts, etc)?
+> I think also the 8139too driver has the same locking problem in
+> rtl8139_suspend, do you want a patch ?
 
-A case could be made that for a "complete" restart, you need to trash
-those mounts too (if you're restarting to get a 'clean' setup, you want
-to actually be clean), and so forth.
+Wouldn't hurt, thanks.  It's one way to wake Jeff up ;)
 
---==_Exmh_-679395698P
-Content-Type: application/pgp-signature
+8139too just does netif_device_detach(), whereas your sis900 patch does
+netif_stop_queue() and then netif_device_detach().
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/prSqcC3lWbTT17ARAv/WAJ9CRz76PcQtCBPr0o5p0xokUtlJGgCgv9Wp
-51QRdJomGz6PRmqg5jYLngU=
-=u3y8
------END PGP SIGNATURE-----
-
---==_Exmh_-679395698P--
+I don't know which is right, really.  8139too will end up with a
+non-stopped queue if __LINK_STATE_PRESENT is clear.  The sis900 approach is
+certainly safe enough, but it'd be nice to know what netif_device_detach()
+is trying to do there.

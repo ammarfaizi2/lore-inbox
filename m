@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291787AbSCRTAv>; Mon, 18 Mar 2002 14:00:51 -0500
+	id <S292178AbSCRTIn>; Mon, 18 Mar 2002 14:08:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291948AbSCRTAm>; Mon, 18 Mar 2002 14:00:42 -0500
-Received: from windsormachine.com ([206.48.122.28]:51470 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S291787AbSCRTAd>; Mon, 18 Mar 2002 14:00:33 -0500
-Date: Mon, 18 Mar 2002 14:00:03 -0500 (EST)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help
-In-Reply-To: <Pine.LNX.4.44L.0203181535090.2181-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.33.0203181358540.25105-100000@router.windsormachine.com>
+	id <S292130AbSCRTIc>; Mon, 18 Mar 2002 14:08:32 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40198 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S292122AbSCRTIZ>; Mon, 18 Mar 2002 14:08:25 -0500
+Date: Mon, 18 Mar 2002 11:07:36 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+cc: <linux-kernel@vger.kernel.org>,
+        "Diefenbaugh, Paul S" <paul.s.diefenbaugh@intel.com>
+Subject: RE: Oops in 2.5.7-pre2: ACPI?
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7D07@orsmsx111.jf.intel.com>
+Message-ID: <Pine.LNX.4.33.0203181106590.17467-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Mar 2002, Rik van Riel wrote:
 
-> > The unit here is B, which does conflict with the unit bel, but is
-> > widely used to mean byte in computer contexts.
+
+On Mon, 18 Mar 2002, Grover, Andrew wrote:
 >
-> Also, the kilobell is highly unlikely to be used ;)
->
-> Rik
+> I can see from bkbits looks like you already fixed it post-pre2, so I guess
+> we will just sit tight and everything will be fine once pre3 is out.
 
-Dunno about that, the S/N ratio on slashdot seems to get into the kB's
-somedays.
+I haven't much tested my fixes, but I hope it's close enough to be
+workable.
 
-=)
-
-mike
+		Linus
 

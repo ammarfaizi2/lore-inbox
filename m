@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266154AbUGOO3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266211AbUGOOh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266154AbUGOO3b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 10:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUGOO3b
+	id S266211AbUGOOh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 10:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266209AbUGOOh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 10:29:31 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:44141 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S266154AbUGOOX5 (ORCPT
+	Thu, 15 Jul 2004 10:37:27 -0400
+Received: from holomorphy.com ([207.189.100.168]:5797 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266177AbUGOOhZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 10:23:57 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Chris Wright <chrisw@osdl.org>
-Subject: Re: [RFC] Lock free fd lookup
-Date: Thu, 15 Jul 2004 10:22:53 -0400
-User-Agent: KMail/1.6.2
-Cc: Ravikiran G Thirumalai <kiran@in.ibm.com>, linux-kernel@vger.kernel.org,
-       dipankar@in.ibm.com
-References: <20040714045345.GA1220@obelix.in.ibm.com> <20040714045640.GB1220@obelix.in.ibm.com> <20040714081737.N1973@build.pdx.osdl.net>
-In-Reply-To: <20040714081737.N1973@build.pdx.osdl.net>
-MIME-Version: 1.0
+	Thu, 15 Jul 2004 10:37:25 -0400
+Date: Thu, 15 Jul 2004 07:36:13 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: axboe@suse.de, B.Zolnierkiewicz@elka.pw.edu.pl, akpm@osdl.org,
+       dgilbert@interlog.com, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH][2.6.8-rc1-mm1] drivers/scsi/sg.c gcc341 inlining fix
+Message-ID: <20040715143613.GU3411@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Mikael Pettersson <mikpe@csd.uu.se>, axboe@suse.de,
+	B.Zolnierkiewicz@elka.pw.edu.pl, akpm@osdl.org,
+	dgilbert@interlog.com, jgarzik@pobox.com,
+	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+References: <200407150946.i6F9kqXn010635@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407151022.53084.jbarnes@engr.sgi.com>
+In-Reply-To: <200407150946.i6F9kqXn010635@harpo.it.uu.se>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, July 14, 2004 11:17 am, Chris Wright wrote:
-> * Ravikiran G Thirumalai (kiran@in.ibm.com) wrote:
-> > This makes use of the lockfree refcounting infrastructure (see earlier
-> > posting today) to make files_struct.fd[] lookup lockfree. This is
-> > carrying forward work done by Maneesh and Dipankar earlier.
-> >
-> > With the lockfree fd lookup patch, tiobench performance increases by 13%
-> > for sequential reads, 21 % for random reads on a 4 processor pIII xeon.
->
-> I'm curious, how much of the performance improvement is from RCU usage
-> vs. making the basic syncronization primitive aware of a reader and
-> writer distinction?  Do you have benchmark for simply moving to rwlock_t?
+On Thu, Jul 15, 2004 at 11:46:52AM +0200, Mikael Pettersson wrote:
+> It shows you guys aren't compiler writers.
+[... condescending bullshit ...]
 
-That's a good point.  Also, even though the implementation may be 'lockless', 
-there are still a lot of cachelines bouncing around, whether due to atomic 
-counters or cmpxchg (in fact the latter will be worse than simple atomics).
+Tons of showstopping quality of implementation issues plus copyright
+assignment bullshit are why so many are writing from scratch.
 
-It seems to me that RCU is basically rwlocks on steroids, which means that 
-using it requires the same care to avoid starvation and/or other scalability 
-problems (i.e. we'd better be really sure that a given codepath really should 
-be using rwlocks before we change it).
 
-Jesse
+-- wli

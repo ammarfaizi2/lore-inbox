@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278218AbRJRX7r>; Thu, 18 Oct 2001 19:59:47 -0400
+	id <S278221AbRJSABR>; Thu, 18 Oct 2001 20:01:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278221AbRJRX7h>; Thu, 18 Oct 2001 19:59:37 -0400
-Received: from warden.digitalinsight.com ([208.29.163.2]:34705 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S278218AbRJRX7X>; Thu, 18 Oct 2001 19:59:23 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: linux-kernel@vger.kernel.org
-Date: Thu, 18 Oct 2001 15:38:36 -0700 (PDT)
-Subject: Re: MODULE_LICENSE and EXPORT_SYMBOL_GPL
-In-Reply-To: <20011018180705.B13661@lug-owl.de>
-Message-ID: <Pine.LNX.4.40.0110181536290.8316-100000@dlang.diginsite.com>
+	id <S278222AbRJSABH>; Thu, 18 Oct 2001 20:01:07 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:24965 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S278221AbRJSAA6>;
+	Thu, 18 Oct 2001 20:00:58 -0400
+Date: Thu, 18 Oct 2001 20:01:31 -0400 (EDT)
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: <arjan@fenrus.demon.nl>
+cc: Shaya Potter <spotter@cs.columbia.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: xircom_cb and promiscious mode
+In-Reply-To: <E15uKqE-0004VS-00@fenrus.demon.nl>
+Message-ID: <Pine.LNX.4.33.0110181958290.10380-100000@prague.clic.cs.columbia.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-so what will the export_symbol_gpl stuff do with the BSD license? it may
-or may not have source avilable so is it allowed to use the exported
-symbols or not?
 
-for the tainting module process there is the same problem.
+actually, it seems on my system, if my system goes to sleep (haven't 
+played around with it enough to figure out how to prevent that from 
+happening), it seems to crash on "wakeup" if I use the xircom_tulip_cb, 
+while the xircom_cb doesn't have that problem.
 
-knowing the license the code was released under does not tell you if the
-source is available or not.
+other thing is, xircom_tulip_cb used to work on my system (2.4.10) (xircom 
+realport card, rebranded for IBM), but with 2.4.12-ac3, it can't seem to 
+drive the card.  it loads fine, detects the card, but no blinky lights. 
 
-David Lang
+<shrug/>
 
+if it doesn't need promiscious mode always, shouldn't this be a module 
+param?
 
- On Thu, 18 Oct 2001, Jan-Benedict Glaw wrote:
+thanks,
 
-> Date: Thu, 18 Oct 2001 18:07:06 +0200
-> From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-> To: linux-kernel@vger.kernel.org
-> Subject: Re: MODULE_LICENSE and EXPORT_SYMBOL_GPL
->
-> On Thu, 2001-10-18 11:43:15 -0500, Roy Murphy <murphy@panix.com>
-> wrote in message <3bcef893.4872.0@panix.com>:
-> > 'Twas brillig when Arjan van de Ven scrobe:
-> > >I think you're missing one thing: binary only modules are only allowed
-> > >because of an exception license grant Linus made for functions that are
-> > >marked EXPORT_SYMBOL(). EXPORT_SYMBOL_GPL() just says "not part of
-> > >this exception grant"....
-> >
-> > of the Copyright to the kernel to grant or to restrict.  Does Microsoft have
-> > a legal right to disallow any third-party drivers from
-> > registering themselves with the OS?  Does Linus?
->
-> They do, but they won't use it. They want to *sell* windows and they're
-> (more or less) willing to decode their blue screens produced by 3rd
-> vendor's drivers. However, GPL people may (or may not) be willing to
-> spend time in searching bugs in other company's drivers. However, *I* am
-> not willig to do other people's job, especially if *they* earn money
-> therefor...
->
-> MfG, JBG
->
-> --
-> Jan-Benedict Glaw . jbglaw@lug-owl.de . +49-172-7608481
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+shaya
+
+On Thu, 18 Oct 2001 arjan@fenrus.demon.nl wrote:
+
+> In article <Pine.GSO.4.31.0110181725190.764-100000@diamond.cs.columbia.edu> you wrote:
+> 
+> > in looking through the source for the driver, it seems from the comments
+> > that when the card is in interrupt handler mode, it has to turn
+> > promiscious mode on.  I don't know why, but I do know that it never seems
+> > to turn it off.  I basically stuck a return in the enable_promisc function
+> > before it does anything, and that cleared up all my problems.
+> 
+> It actually doesn't need the promisc for most revisions of the card, but for
+> some it seems to be really needed.
+> 
+> The xircom_tulip_cb driver is more advanced, and probably works well for
+> your system. (It doesn't work for all cards, but I suspect that correlates
+> highly with the revision that needs the promisc)
+> 
+

@@ -1,152 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266347AbUG0O4m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266362AbUG0PE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266347AbUG0O4m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 10:56:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266362AbUG0O4l
+	id S266362AbUG0PE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 11:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUG0PE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 10:56:41 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:11219 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S266347AbUG0Oxl
+	Tue, 27 Jul 2004 11:04:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20096 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266362AbUG0PEZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 10:53:41 -0400
-Date: Tue, 27 Jul 2004 16:53:52 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390: zfcp host adapter.
-Message-ID: <20040727145352.GC8126@mschwid3.boeblingen.de.ibm.com>
+	Tue, 27 Jul 2004 11:04:25 -0400
+Date: Tue, 27 Jul 2004 11:19:35 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Chris Caputo <ccaputo@alt.net>
+Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: inode_unused list corruption in 2.4.26 - spin_lock problem?
+Message-ID: <20040727141935.GB17456@logos.cnet>
+References: <20040703051534.GA4998@devserv.devel.redhat.com> <Pine.LNX.4.44.0407261028470.21394-100000@nacho.alt.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <Pine.LNX.4.44.0407261028470.21394-100000@nacho.alt.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] s390: zfcp host adapter.
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-From: Maxim Shchetynin <maxim@de.ibm.com>
+On Mon, Jul 26, 2004 at 10:41:24AM -0700, Chris Caputo wrote:
+> On Sat, 3 Jul 2004, Arjan van de Ven wrote:
+> > On Fri, Jul 02, 2004 at 01:00:19PM -0700, Chris Caputo wrote:
+> > > On Fri, 25 Jun 2004, Marcelo Tosatti wrote:
+> > > > On Wed, Jun 23, 2004 at 06:50:48PM -0700, Chris Caputo wrote:
+> > > > > Is it safe to assume that the x86 version of atomic_dec_and_lock(), which
+> > > > > iput() uses, is well trusted?  I figure it's got to be, but doesn't hurt
+> > > > > to ask.
+> > > > 
+> > > > Pretty sure it is, used all over. You can try to use non-optimize version 
+> > > > at lib/dec_and_lock.c for a test.
+> > > 
+> > > My current theory is that occasionally when irqbalance changes CPU
+> > > affinities that the resulting set_ioapic_affinity() calls somehow cause
+> > > either inter-CPU locking or cache coherency or ??? to fail.
+> > 
+> > or.... some spinlock is just incorrect and having the irqbalance irqlayout
+> > unhides that.. irqbalance only balances very very rarely so I doubt it's the
+> > cause of anything...
 
-zfcp host adapter changes:
- - Get rid of ZFCP_WAIT_EVENT_TIMEOUT macro.
- - Correct an error log mesage.
+Hi Chris,
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> It has been a while since I have been able to follow up on this but I want
+> to let you know that I _have been able_ to reproduce the problem (believed
+> to be IRQ twiddling resulting in failed spinlock protection) with a stock
+> kernel.
 
-diffstat:
- drivers/s390/scsi/zfcp_def.h |   28 +---------------------------
- drivers/s390/scsi/zfcp_erp.c |   11 +++--------
- drivers/s390/scsi/zfcp_fsf.c |   12 ++++++------
- 3 files changed, 10 insertions(+), 41 deletions(-)
+Well, no manipulation of the inode lists are done under IRQ context. 
 
-diff -urN linux-2.6/drivers/s390/scsi/zfcp_def.h linux-2.6-s390/drivers/s390/scsi/zfcp_def.h
---- linux-2.6/drivers/s390/scsi/zfcp_def.h	Tue Jul 27 16:35:49 2004
-+++ linux-2.6-s390/drivers/s390/scsi/zfcp_def.h	Tue Jul 27 16:36:28 2004
-@@ -33,7 +33,7 @@
- #define ZFCP_DEF_H
- 
- /* this drivers version (do not edit !!! generated and updated by cvs) */
--#define ZFCP_DEF_REVISION "$Revision: 1.75 $"
-+#define ZFCP_DEF_REVISION "$Revision: 1.78 $"
- 
- /*************************** INCLUDES *****************************************/
- 
-@@ -1125,32 +1125,6 @@
- 		if (ZFCP_LOG_CHECK(level)) { \
- 			_zfcp_hex_dump(addr, count); \
- 		}
--/*
-- * Not yet optimal but useful:
-- * Waits until the condition is met or the timeout occurs.
-- * The condition may be a function call. This allows to
-- * execute some additional instructions in addition
-- * to a simple condition check.
-- * The timeout is modified on exit and holds the remaining time.
-- * Thus it is zero if a timeout ocurred, i.e. the condition was 
-- * not met in the specified interval.
-- */
--#define __ZFCP_WAIT_EVENT_TIMEOUT(timeout, condition) \
--do { \
--	set_current_state(TASK_UNINTERRUPTIBLE); \
--	while (!(condition) && timeout) \
--		timeout = schedule_timeout(timeout); \
--	current->state = TASK_RUNNING; \
--} while (0);
--
--#define ZFCP_WAIT_EVENT_TIMEOUT(waitqueue, timeout, condition) \
--do { \
--	wait_queue_t entry; \
--	init_waitqueue_entry(&entry, current); \
--	add_wait_queue(&waitqueue, &entry); \
--	__ZFCP_WAIT_EVENT_TIMEOUT(timeout, condition) \
--	remove_wait_queue(&waitqueue, &entry); \
--} while (0);
- 
- #define zfcp_get_busid_by_adapter(adapter) (adapter->ccw_device->dev.bus_id)
- #define zfcp_get_busid_by_port(port) (zfcp_get_busid_by_adapter(port->adapter))
-diff -urN linux-2.6/drivers/s390/scsi/zfcp_erp.c linux-2.6-s390/drivers/s390/scsi/zfcp_erp.c
---- linux-2.6/drivers/s390/scsi/zfcp_erp.c	Tue Jul 27 16:35:49 2004
-+++ linux-2.6-s390/drivers/s390/scsi/zfcp_erp.c	Tue Jul 27 16:36:28 2004
-@@ -31,7 +31,7 @@
- #define ZFCP_LOG_AREA			ZFCP_LOG_AREA_ERP
- 
- /* this drivers version (do not edit !!! generated and updated by cvs) */
--#define ZFCP_ERP_REVISION "$Revision: 1.56 $"
-+#define ZFCP_ERP_REVISION "$Revision: 1.60 $"
- 
- #include "zfcp_ext.h"
- 
-@@ -436,8 +436,8 @@
- 	int retval = 0;
- 
- 	if (send_els->status != 0) {
--		ZFCP_LOG_NORMAL("ELS request timed out, physical port reopen "
--				"of port 0x%016Lx on adapter %s failed\n",
-+		ZFCP_LOG_NORMAL("ELS request timed out, force physical port "
-+				"reopen of port 0x%016Lx on adapter %s\n",
- 				port->wwpn, zfcp_get_busid_by_port(port));
- 		debug_text_event(port->adapter->erp_dbf, 3, "forcreop");
- 		retval = zfcp_erp_port_forced_reopen(port, 0);
-@@ -2187,11 +2187,6 @@
- 		ZFCP_LOG_INFO("Waiting to allow the adapter %s "
- 			      "to recover itself\n",
- 			      zfcp_get_busid_by_adapter(adapter));
--		/*
--		 * SUGGESTION: substitute by
--		 * timeout = ZFCP_TYPE2_RECOVERY_TIME;
--		 * __ZFCP_WAIT_EVENT_TIMEOUT(timeout, 0);
--		 */
- 		timeout = ZFCP_TYPE2_RECOVERY_TIME;
- 		set_current_state(TASK_UNINTERRUPTIBLE);
- 		schedule_timeout(timeout);
-diff -urN linux-2.6/drivers/s390/scsi/zfcp_fsf.c linux-2.6-s390/drivers/s390/scsi/zfcp_fsf.c
---- linux-2.6/drivers/s390/scsi/zfcp_fsf.c	Tue Jul 27 16:36:28 2004
-+++ linux-2.6-s390/drivers/s390/scsi/zfcp_fsf.c	Tue Jul 27 16:36:28 2004
-@@ -29,7 +29,7 @@
-  */
- 
- /* this drivers version (do not edit !!! generated and updated by cvs) */
--#define ZFCP_FSF_C_REVISION "$Revision: 1.49 $"
-+#define ZFCP_FSF_C_REVISION "$Revision: 1.53 $"
- 
- #include "zfcp_ext.h"
- 
-@@ -4717,14 +4717,14 @@
- 		      unsigned long *lock_flags)
- {
-         int condition;
--        unsigned long timeout = ZFCP_SBAL_TIMEOUT;
-         struct zfcp_qdio_queue *req_queue = &adapter->request_queue;
- 
-         if (unlikely(req_flags & ZFCP_WAIT_FOR_SBAL)) {
--                ZFCP_WAIT_EVENT_TIMEOUT(adapter->request_wq, timeout,
--                                        (condition =
--                                         (zfcp_fsf_req_create_sbal_check)
--                                         (lock_flags, req_queue, 1)));
-+                wait_event_interruptible_timeout(adapter->request_wq,
-+						 (condition =
-+						  zfcp_fsf_req_create_sbal_check
-+						  (lock_flags, req_queue, 1)),
-+						 ZFCP_SBAL_TIMEOUT);
-                 if (!condition) {
-                         return -EIO;
- 		}
+What you think might be happening is that an IRQ comes in __refile_inode() 
+(and other paths) and that causes a problem? 
+
+Thats perfectly fine. Again, no manipulation of the lists are done in 
+IRQ context.
+
+> I would like to come up with a more reliable way to reproduce the problem
+> with a stock kernel (2.4.26), since it is presently very rare (less than
+> once per week) in the way I presently get it to happen, but as yet have
+> not done so. 
+
+What is your workload? I'm more than willing to use the SMP boxes I have 
+access to try to reproduce this. 
+
+You said you also reproduced the same inode_unused corruption with 2.4.24, yes?
+
+> My plan of attack is to remove irqbalance from the equation and repeatedly
+> change with random intervals /proc/irq entries directly from one user mode
+> program while another user mode program does things which inspire a lot of
+> fs/inode.c spinlock activity (since that is where I continue to see list
+> corruption).
+> 
+> A few questions which could help me with this:
+> 
+>   - Which IRQ (if any) is used by CPU's to coordinate inter-CPU locking?
+
+None as far as spinlocks are concerned. On x86 spinlock just does "lock ; dec $x" 
+operation which guarantees the atomicity of the "dec". 
+
+I feel I'm not answering your question, still. What do you mean?
+
+>   - What does it mean if a stack trace is incomplete?  For example, one I 
+>     have gotten is simply the tail end of the code snippet:
+> 
+>          0b 9a 00 5d c8
+> 
+>     And so I have wondered if the failure to make a full stack trace 
+>     indicates something in of itself.
+
+Dont know the answer. I also usually see incomplete stack traces
+that I can make no sense of. 
+
+> Thanks for any assistance.  I hope to find more time to work on this in
+> the coming weeks.
+
+I'm willing to help. Just please do not mix report data which includes
+your own filesystem/modified kernel. Lets work with stock kernels and 
+only that, to make it as simple as possible.
+
+Thanks!
+

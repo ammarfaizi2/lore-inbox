@@ -1,58 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281726AbRLKQTR>; Tue, 11 Dec 2001 11:19:17 -0500
+	id <S281707AbRLKQSq>; Tue, 11 Dec 2001 11:18:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281772AbRLKQTH>; Tue, 11 Dec 2001 11:19:07 -0500
-Received: from mail-smtp.uvsc.edu ([161.28.224.157]:49832 "HELO
-	mail-smtp.uvsc.edu") by vger.kernel.org with SMTP
-	id <S281726AbRLKQSu> convert rfc822-to-8bit; Tue, 11 Dec 2001 11:18:50 -0500
-Message-Id: <sc15ce38.053@mail-smtp.uvsc.edu>
-X-Mailer: Novell GroupWise Internet Agent 5.5.4.1
-Date: Tue, 11 Dec 2001 09:13:13 -0700
-From: "Tyler BIRD" <BIRDTY@uvsc.edu>
-To: <jens_krueger@frm2.tu-muenchen.de>, <mj@ucw.cz>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: PCI Subsystem
+	id <S281726AbRLKQSh>; Tue, 11 Dec 2001 11:18:37 -0500
+Received: from mail.ccur.com ([208.248.32.212]:42762 "EHLO mail.ccur.com")
+	by vger.kernel.org with ESMTP id <S281707AbRLKQSS>;
+	Tue, 11 Dec 2001 11:18:18 -0500
+Subject: Re: [RFC] Multiprocessor Control Interfaces
+From: Jason Baietto <jason.baietto@ccur.com>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1008052151.4300.18.camel@phantasy>
+In-Reply-To: <1008015291.15138.0.camel@soybean> 
+	<1008052151.4300.18.camel@phantasy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 11 Dec 2001 11:18:08 -0500
+Message-Id: <1008087492.16657.2.camel@soybean>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You probably could compile your drivers as modules and load them
-with io ports on the command line.  Then they would for sure use the right ports.
-I don't know why you aren't receiving the correct io/ports from the PCI Config Address Space
-does your driver take advantage of the the PCI standard
+On Tue, 2001-12-11 at 01:29, Robert Love wrote:
+> 
+> One idea would be to allow users to set CPUs processes _can't_
+> run on.
 
->>> Jens Krüger <jens_krueger@frm2.tu-muenchen.de> 12/11/01 05:26AM >>>
-Hi, 
-I have a little problem with the PCI subsystem. I tried to use two cards of 
-the Meilhaus Co.. If I use the PCI access mode 'any' I don't get the right 
-I/O ports of the cards. Next I tried the access mode 'Direct' ( the output of 
-the lspci -v  command is listed in the attached file lspci.direct) and the 
-access mode 'BIOS' (the output is stored in the file lspci.bios). There are 
-some little differences in the output, but all seems the same except the 
-output of the two Meilhaus cards. I have no idea for this behaviour. I tried 
-these cards under DOS and I got the same information as for the BIOS access 
-mode (the programm access the BIOS too), but in this mode all other cards 
-especially network card and USB don't work, so I can't  use this mode. My 
-question: Is there any idea (or hack) to solve this problem? 
+A technique that many of our customers currently use with the run
+command is to shield a sensitive CPU in rc.sysinit by simply using run
+to bias the init process.  For example, on a four CPU system, the
+following command:
 
-With regards 
+   run --bias 1-3 --pid 1
 
-Jens
--- 
+would bias init to only run on CPUs 1, 2 or 3.  Since all children
+inherit CPU affinity, this effectively makes CPU 0 off limits for any
+process that doesn't explicitly bias itself to CPU 0 via "run".
 
-Jens Krnger
+> On high-end systems sometimes a CPU is affined to a particular IRQ
+> (say, network interface).  Another situation is where you bind a RT
+> task to a given CPU.  In these situations, you want everything else
+> to _not_ run on the CPUs.  I.e., `run --bind=!1' (note its easy to
+> generate the bitmask here too, by ANDing the inverse of the given
+> CPU against -1).
 
-Technische UniversitSt Mnnchen
-ZBE FRM-II
-Lichtenberg-Str. 1
-D-85747 Garching
+I like it.  I will add the "!" syntax to the next release of run.
+However, I suspect that this is a more error prone method of providing
+generic process shielding than the init method discussed above as
+processes that don't explicitly get biased can still find their way to
+the shielded CPU.
 
-Tel: + 49 89 289 14 716
-Fax: + 49 89 289 14 666
-mailto:jens_krueger@frm2.tu-muenchen.de 
-http://www.frm2.tu-muenchen.de
+> At any rate, what is needed most is to standardize on an interface for
+> these scheduling mechanisms.  I guess its just CPU affinity we have to
+> go ... since not much progress was made of my (proc-based) method vs.
+> Ingo's (syscall-based) method, at this point either of the two being
+> merged would make me happy.
+
+I will happily add support to "run" for Ingo's system calls if they
+get merged.  However, many of the more powerful features of the "run"
+command currently require /proc for other reasons.  For example,
+setting the CPU bias for all processes in a specified list of process
+groups, or setting the CPU bias for all processes owned by a specified
+list of users all require that I walk /proc to find matching processes.
+
+Also, regarding the mpadvise(3) library service that I've proposed,
+commands like MPA_CPU_ACTIVE and MPA_PRC_GETRUN currently parse files
+in /proc to determine the list of active CPUs on the system and the
+CPU that a process is currently running on.  Thus, until I can get all
+of the CPU-centric information that I need via system calls, adding
+Ingo's system calls doesn't help me too much (though they would allow
+"run" to do simple CPU biasing tasks on systems without /proc).
+
+> I assume you have no problems with it ... 
+
+It's exactly what I needed.  I've been using it for a few weeks
+without any problems.
+
+> I think I'd like to add the change that the CPUs reported correspond
+> to the physical CPU number and not the logical value we derive.  On
+> x86 this won't make a difference, but its a proper method I suspect.
+
+I don't have a strong opinion here, though note that in our
+proprietary RTOS our policy is to try to never expose physical values
+to the user unless they really, really need to know them.  If you
+change the interface to physical values, I will probably abstract back
+to logical inside my code so the user still deals with logical (though
+I could add a --physical option to force the bias to be interpreted as
+physical values).
+
+Take care,
+Jason
+
 

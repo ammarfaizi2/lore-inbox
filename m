@@ -1,34 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316605AbSE3MgW>; Thu, 30 May 2002 08:36:22 -0400
+	id <S316610AbSE3MhG>; Thu, 30 May 2002 08:37:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316614AbSE3MgV>; Thu, 30 May 2002 08:36:21 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:34022 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S316605AbSE3MgU>; Thu, 30 May 2002 08:36:20 -0400
-Date: Thu, 30 May 2002 14:35:24 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: <alan@lxorguk.ukuu.org.uk>, <dalecki@evision-ventures.com>,
-        <vojtech@suse.cz>, <gerald@io.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.18 IDE 73
-Message-ID: <Pine.SOL.4.30.0205301431390.4858-100000@mion.elka.pw.edu.pl>
+	id <S316614AbSE3MhF>; Thu, 30 May 2002 08:37:05 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:46600 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S316610AbSE3MhD>; Thu, 30 May 2002 08:37:03 -0400
+Date: Thu, 30 May 2002 14:36:43 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.enlightnet.local>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Processes stuck in D state with autofs + smbfs
+In-Reply-To: <20020529172616.GB1136@matchmail.com>
+Message-ID: <Pine.LNX.4.33.0205301421540.1921-100000@cola.enlightnet.local>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 29 May 2002, Mike Fedyk wrote:
 
-> On the subject of blacklists -- when downgrading the speed of a drive
-> because it's found a blacklist, or indeed for any other reason, please
-> _print_ the reason for doing so.
-> (...)
+> I'm currently running 2.4.19-pre6-vm33 on this 2x664Mhz P3 machine, but I've
+> also had the problem in the previous UP machine.
+> 
+> I'm not sure what information will be helpful in debugging this probem.
+> Would sysrq+t run through ksymoops be helpful?
 
-fully agreed, already discussed with Martin
-things are going slow because first I clean this fsking mess
-then add new stuff
+Yes, it could show where the process is stuck. Probably what has happened
+is that some process is blocked while holding the smbfs semaphore (there
+is one per mount).
 
-greets
---
-bkz
+All others will then get stuck in 'D' state trying to get that semaphore.
+
+The "classic" way to get this is to have a server that is shutdown while
+it is mounted. There are patches to help with that (and if I wasn't so
+slow sometimes a simple fix would already be in 2.4.something, after
+2.4.19 I promise).
+
+
+> I also have this in my kernel log:
+> May 26 06:33:16 fileserver kernel: Uhhuh. NMI received. Dazed and confused, but trying to continue
+> May 26 06:33:16 fileserver kernel: You probably have a hardware problem with your RAM chips
+
+However, this error could (but I don't really know what the effects are of
+this) potentially stop a process at some random point. If a process
+crashes, for example an oops, while holding the semaphore that semaphore
+will still be held and everyone trying to get in will stop in D state.
+
+
+There are some patches here:
+http://www.hojdpunkten.ac.se/054/samba/index.html
+
+But that server appears to be down right now.
+
+There is one patch that uses poll to help with the problem of a server
+that is gone, and another that changes a lot of how smbfs sends requests
+and additionaly makes the user processes always(?) be interruptible.
+
+But if the NMIs are killing things at random points then none of those
+patches will help.
+
+/Urban
 

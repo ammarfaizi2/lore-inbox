@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268148AbUIPXFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268347AbUIPXIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268148AbUIPXFX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 19:05:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268330AbUIPXFX
+	id S268347AbUIPXIg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 19:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268314AbUIPXHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 19:05:23 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:30158 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S268148AbUIPXEx (ORCPT
+	Thu, 16 Sep 2004 19:07:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30903 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268305AbUIPXFX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 19:04:53 -0400
-Date: Thu, 16 Sep 2004 16:04:09 -0700 (PDT)
-From: Ray Bryant <raybry@sgi.com>
-To: Ray Bryant <raybry@austin.rr.com>, Andrew Morton <akpm@osdl.org>
-Cc: Ray Bryant <raybry@sgi.com>, lse-tech@lists.sourceforge.net,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org
-Message-Id: <20040916230409.23023.97905.94108@tomahawk.engr.sgi.com>
-In-Reply-To: <20040916230344.23023.79384.49263@tomahawk.engr.sgi.com>
-References: <20040916230344.23023.79384.49263@tomahawk.engr.sgi.com>
-Subject: [PATCH 3/3] lockmeter: lockmeter fix for inline in_lock_functions()
+	Thu, 16 Sep 2004 19:05:23 -0400
+Date: Thu, 16 Sep 2004 16:08:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: hunold-ml@web.de, c.pascoe@itee.uq.edu.au, jelle@foks.8m.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] v4l/dvb: cx88 driver update
+Message-Id: <20040916160835.4a6cea02.akpm@osdl.org>
+In-Reply-To: <20040916094323.GA11601@bytesex>
+References: <20040916094323.GA11601@bytesex>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix to lockmeter.c for inline in_lock_functions().
-(Only required if in_lock_functions() is modified to be inline.)
+Gerd Knorr <kraxel@bytesex.org> wrote:
+>
+> 
+> This is a major update of the cx88 driver.
 
+drivers/media/video/cx88/cx88-dvb.c:215: `FE_UNREGISTER' undeclared (first use in this function)
+drivers/media/video/cx88/cx88-dvb.c:215: (Each undeclared identifier is reported only once
+drivers/media/video/cx88/cx88-dvb.c:215: for each function it appears in.)
+drivers/media/video/cx88/cx88-dvb.c: In function `dvb_register':
+drivers/media/video/cx88/cx88-dvb.c:232: `FE_REGISTER' undeclared (first use in this function)
+drivers/media/video/cx88/cx88-dvb.c:294: `FE_UNREGISTER' undeclared (first use in this function)
 
-Signed-off-by: Ray Bryant <raybry@sgi.com>
-
-Index: linux-2.6.9-rc2-mm1/kernel/lockmeter.c
-===================================================================
---- linux-2.6.9-rc2-mm1.orig/kernel/lockmeter.c	2004-09-16 12:29:08.000000000 -0700
-+++ linux-2.6.9-rc2-mm1/kernel/lockmeter.c	2004-09-16 12:53:57.000000000 -0700
-@@ -1510,13 +1510,3 @@
- 	return 0;
- }
- EXPORT_SYMBOL(_spin_trylock_bh);
--
--int in_lock_functions(unsigned long addr)
--{
--	/* Linker adds these: start and end of __lockfunc functions */
--	extern char __lock_text_start[], __lock_text_end[];
--
--	return addr >= (unsigned long)__lock_text_start
--	&& addr < (unsigned long)__lock_text_end;
--}
--EXPORT_SYMBOL(in_lock_functions);
-
--- 
-Best Regards,
-Ray
------------------------------------------------
-Ray Bryant                       raybry@sgi.com
-The box said: "Requires Windows 98 or better",
-           so I installed Linux.
------------------------------------------------
+I'll drop this one - please wholly resend it.

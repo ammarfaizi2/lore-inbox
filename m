@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263736AbUGYICk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263740AbUGYILt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263736AbUGYICk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 04:02:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbUGYICk
+	id S263740AbUGYILt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 04:11:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbUGYILt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 04:02:40 -0400
-Received: from smtpout3.compass.net.nz ([203.97.97.135]:65504 "EHLO
-	smtpout1.compass.net.nz") by vger.kernel.org with ESMTP
-	id S263736AbUGYICi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 04:02:38 -0400
-Date: Sun, 25 Jul 2004 20:03:10 +0000 (UTC)
-From: haiquy@yahoo.com
-X-X-Sender: sk@linuxcd
-Reply-To: haiquy@yahoo.com
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.27-rc3 with gcc-3.4.0 compile error (even with the fix patch)
-Message-ID: <Pine.LNX.4.53.0407251959350.12579@linuxcd>
+	Sun, 25 Jul 2004 04:11:49 -0400
+Received: from camus.xss.co.at ([194.152.162.19]:31749 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id S263740AbUGYILp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 04:11:45 -0400
+Message-ID: <41036B3C.3010105@xss.co.at>
+Date: Sun, 25 Jul 2004 10:11:40 +0200
+From: Andreas Haumer <andreas@xss.co.at>
+Organization: xS+S
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Benjamin Rutt <rutt.4+news@osu.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: clearing filesystem cache for I/O benchmarks
+References: <87vfgeuyf5.fsf@osu.edu>
+In-Reply-To: <87vfgeuyf5.fsf@osu.edu>
+X-Enigmail-Version: 0.74.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hi, I got the error when compiling ...
+Hi!
 
-The kernel has the gcc-3.4 fix patch
+Benjamin Rutt wrote:
+> How can I purge all of the kernel's filesystem caches, so I can trust
+> that my I/O (read) requests I'm trying to benchmark bypass the kernel
+> filesystem cache?
 
-make[3]: Entering directory `/home/linux-2.4.27-rc3/drivers/usb/gadget'
-gcc-4 -D__KERNEL__ -I/home/linux-2.4.27-rc3/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fno-strength-reduce -ffast-math -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon -fno-unit-at-a-time   -nostdinc -iwithprefix include -DKBUILD_BASENAME=net2280  -DEXPORT_SYMTAB -c net2280.c
-net2280.c: In function `write_fifo':
-net2280.c:540: error: `typeof' applied to a bit-field
-net2280.c: In function `handle_ep_small':
-net2280.c:2194: error: `typeof' applied to a bit-field
-make[3]: *** [net2280.o] Error 1
-make[3]: Leaving directory `/home/linux-2.4.27-rc3/drivers/usb/gadget'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/home/linux-2.4.27-rc3/drivers/usb/gadget'
-make[1]: *** [_subdir_usb/gadget] Error 2
-make[1]: Leaving directory `/home/linux-2.4.27-rc3/drivers'
-make: *** [_dir_drivers] Error 2
+Some time ago I was looking for that, too, and found "cfree". Have a
+look at <http://gizmolabs.org/~andrew/andrewweb/project.php?pid=3&tab=0>
 
-with gcc-3.3.3 all were okay.
+It's a small utility and kernel module for linux-2.4 written by
+Andrew de los Reyes. It allows to clear portions of the buffer cache
+(e.g. for a complete sub-directory). I haven't analyzed it so I can't
+say if it does things correctly, though.
 
-Best regards,
+HTH
 
-Steve Kieu
+- - andreas
+
+- --
+Andreas Haumer                     | mailto:andreas@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFBA2s2xJmyeGcXPhERAuaTAKCaxNRjhbzf3G5uL1lsXYg41eF+jQCeP808
+DNcut1YDptMCNsvAeXrt+d8=
+=xPh9
+-----END PGP SIGNATURE-----
+

@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUGBJWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUGBKBi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbUGBJWh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 05:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUGBJWh
+	id S261184AbUGBKBi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 06:01:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUGBKBa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 05:22:37 -0400
-Received: from burro.logi-track.com ([213.239.193.212]:12688 "EHLO
-	mail.logi-track.com") by vger.kernel.org with ESMTP id S261184AbUGBJWY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 05:22:24 -0400
-Date: Fri, 2 Jul 2004 11:21:59 +0200
-From: Markus Schaber <schabios@logi-track.com>
-To: Markus Schaber <schabios@logi-track.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: CCISS driver and Caching (was: Block Device Caching)
-Message-Id: <20040702112159.5cbf0974@kingfisher.intern.logi-track.com>
-In-Reply-To: <20040630083009.18c5e216@kingfisher.intern.logi-track.com>
-References: <20040630002014.4970b82d@kingfisher.intern.logi-track.com>
-	<20040629224622.GQ15166@schnapps.adilger.int>
-	<20040630083009.18c5e216@kingfisher.intern.logi-track.com>
-Organization: logi-track ag, =?ISO-8859-15?Q?z=FCrich?=
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i386-pc-linux-gnu)
-X-Face: Nx5T&>Nj$VrVPv}sC3IL&)TqHHOKCz/|)R$i"*r@w0{*I6w;UNU_hdl1J4NI_m{IMztq=>cmM}1gCLbAF+9\#CGkG8}Y{x%SuQ>1#t:;Z(|\qdd[i]HStki~#w1$TPF}:0w-7"S\Ev|_a$K<GcL?@F\BY,ut6tC0P<$eV&ypzvlZ~R00!A
-X-PGP-Key: http://schabi.de/pubkey.asc
+	Fri, 2 Jul 2004 06:01:30 -0400
+Received: from disk.smurf.noris.de ([192.109.102.53]:55691 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S261184AbUGBKBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 06:01:30 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: [BUGS] [CHECKER] 99 synchronization bugs and a lock summary database
+Date: Fri, 02 Jul 2004 12:00:01 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2004.07.02.10.00.00.617324@smurf.noris.de>
+References: <Pine.LNX.4.44.0407011747040.4015-100000@kaki.stanford.edu> <20040701213837.0b97c21e.akpm@osdl.org>
+NNTP-Posting-Host: kiste.smurf.noris.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Trace: server.smurf.noris.de 1088762401 7389 192.109.102.35 (2 Jul 2004 10:00:01 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Fri, 2 Jul 2004 10:00:01 +0000 (UTC)
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi, Andrew Morton wrote:
 
-We did some additional tests, and just learned that the underlying raid
-itsself is not cached by the linux kernel:
+> If someone wants to volunteer to maintain this list, that would be nice.
 
-
-bear:~/readcachetest# ./readcache /dev/cciss/c0d0p2 1000
-frist run needed 16.006950 seconds, this is 62.472863 MBytes/Sec
-second run needed 15.919336 seconds, this is 62.816690 MBytes/Sec
-third run needed 15.830325 seconds, this is 63.169897 MBytes/Sec
-
-So we now think it's some problem of the cciss driver, and not of lvm.
-
-weird...
-
-Markus
-
+I can do that.
 
 -- 
-markus schaber | dipl. informatiker
-logi-track ag | rennweg 14-16 | ch 8001 zürich
-phone +41-43-888 62 52 | fax +41-43-888 62 53
-mailto:schabios@logi-track.com | www.logi-track.com
+Matthias Urlichs

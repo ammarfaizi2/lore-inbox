@@ -1,43 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288800AbSBZPNb>; Tue, 26 Feb 2002 10:13:31 -0500
+	id <S288248AbSBZPYO>; Tue, 26 Feb 2002 10:24:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288921AbSBZPNW>; Tue, 26 Feb 2002 10:13:22 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:42212 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S288248AbSBZPNK>; Tue, 26 Feb 2002 10:13:10 -0500
-Date: Tue, 26 Feb 2002 16:12:38 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Daniel Shane <daniel.shane@eicon.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PCI driver in userspace
-Message-ID: <20020226151226.GB5337@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-In-Reply-To: <D8E12241B029D411A3A300805FE6A2B9025761A9@montreal.eicon.com>
+	id <S287946AbSBZPYD>; Tue, 26 Feb 2002 10:24:03 -0500
+Received: from [200.29.13.60] ([200.29.13.60]:2059 "EHLO mail.embedded.cl")
+	by vger.kernel.org with ESMTP id <S287421AbSBZPXt>;
+	Tue, 26 Feb 2002 10:23:49 -0500
+Date: Tue, 26 Feb 2002 12:28:21 -0300
+From: Carlos Manuel Duclos Vergara <carlos@embedded.cl>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: PATCH: FrameBuffer Monitor Functions
+Message-Id: <20020226122821.28e0913e.carlos@embedded.cl>
+Organization: Embedded CL
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D8E12241B029D411A3A300805FE6A2B9025761A9@montreal.eicon.com>
-User-Agent: Mutt/1.3.25i
+Content-Type: multipart/mixed;
+ boundary="Multipart_Tue__26_Feb_2002_12:28:21_-0300_08b31920"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 26, 2002 at 09:55:48AM -0500, Daniel Shane wrote:
+This is a multi-part message in MIME format.
 
-> I'm looking for an example of userspace PCI driver, does anyone know where I
-> could find one? (Probably not in the kernel source tree, obviously).
+--Multipart_Tue__26_Feb_2002_12:28:21_-0300_08b31920
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-There are probably better examples than mines, but you can still
-look at the Andrew Tridgell's 'capture' application which drives the
-PCI Motion Eye Camera device (and compare with drivers/media/video/meye.c):
-	http://samba.org/picturebook/
+Hi,
+this patch is to avoid the cooking of monitors from inside the
+framebuffer subsystem. Normally this would be made by
+fbmon_valid_timings function, but actually this function does nothing.
+So i start writing a new implementation that will make some checks, note
+that is not the full answer because it requires to user use another data
+structures normally don't used, but for now it checks the basic stuff.
+(i will continue improving this, i use this on uclinux not on linux so i
+probably have another things in mind when i create this patches)
 
-You'll find in it quite a number of features, including i/o memory
-mapping, i/o port access, etc.
 
-Of course, one could also direct you to the XFree source code... :-)
+ bye
 
-Stelian.
+
+
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+"Solo me arrepiento de unos * de menos y unos ++ de sobra"
+Carlos Manuel Duclos Vergara
+
+
+--Multipart_Tue__26_Feb_2002_12:28:21_-0300_08b31920
+Content-Type: application/octet-stream;
+ name="fbmon_c.patch"
+Content-Disposition: attachment;
+ filename="fbmon_c.patch"
+Content-Transfer-Encoding: base64
+
+LS0tIHVjbGludXgtMi40LngvZHJpdmVycy92aWRlby9mYm1vbi5jCVdlZCBNYXIgIDggMTU6MTg6
+MjUgMjAwMAorKysgZWNsLXVjbGludXgtMi40LngvZHJpdmVycy92aWRlby9mYm1vbi5jCU1vbiBG
+ZWIgMjUgMTQ6MjA6MjUgMjAwMgpAQCAtNDYsMzEgKzQ2LDU0IEBACiBpbnQgZmJtb25fdmFsaWRf
+dGltaW5ncyh1X2ludCBwaXhjbG9jaywgdV9pbnQgaHRvdGFsLCB1X2ludCB2dG90YWwsCiAgICAg
+ICAgICAgICAgICAgICAgICAgICBjb25zdCBzdHJ1Y3QgZmJfaW5mbyAqZmJfaW5mbykKIHsKLSNp
+ZiAwCiAgIC8qCi0gICAqIGxvbmcgbG9uZyBkaXZpc2lvbnMgLi4uLiAkIyUlIyQKKyAgICogT2ho
+aCwgaSBkaXNjb3ZlciB0aGUgU2VjcmV0IG9mIFJhbXNlcyBJSSB0b21iIQorICAgKiBfUExFQVNF
+XyBub3RlIHRoYXQgdGhpcyBpcyBvbmx5IHdvcnRoIGlmIHlvdSBfRklMTF8gX1VQXworICAgKiBh
+IGZiX21vbnNwZWNzIHdpdGggeW91ciBtb25pdG9yIHNwZWNzIQorICAgKiBJZiB5b3UgZG9uJ3Qg
+ZG8gdGhhdCwgdGhpcyB3aWxsIG9ubHkgY2hlY2sgZm9yIHZlc2EgY29tcGF0aWJsZQorICAgKiBt
+b2RlcyBhdCBzb21lICJnZW5lcmljIiBtdWx0aWZyZXF1ZW5jeSBtb25pdG9ycyEgKG5vdCBkb25l
+IHlldCkKKyAgICogSSB3aWxsIHRoaW5rIGluIGhvdyB0byBhdXRvIGRldGVjdCBtb25pdG9ycywg
+b3IgbWF5YmUgaG93IHlvdSBjYW4gdGVsbCBpbgorICAgKiBydW50aW1lIHdoYXQga2luZCBvZiBt
+b25pdG9yIGRvIHlvdSBoYXZlLgorICAgKiBJZiB5b3Ugd2FudCB0byBrbm93IHRoZSBwcm9ncmVz
+cyBvZiB0aGF0LCBlbWFpbCBtZSBhdDogY2FybG9zQGVtYmVkZGVkLmNsCisgICAqIE5vdGUgMTog
+SSBkb24ndCBhc3N1bWUgbm90aGluZywgc28gaW4gaHRvdGFsICYgdnRvdGFsIHVzZSB5b3VyIHZh
+bHVlcy4uLgorICAgKiBpZiB5b3Ugd2FudCBhIHN1Z2VzdGlvbiB1c2U6IGh0b3RhbCA9IGhyZXMg
+KiAxLjIgYW5kIHZ0b3RhbCA9IHZyZXMgKiAxLjEKKyAgICogTm90ZSAyOiBXZSBvbmx5IG5lZWQg
+dG8gY2FsY3VsYXRlIG9uZSB0aGluZyB0byBzZWUgaWYgeW91ciBtb25pdG9yIHdpbGwgY29vawor
+ICAgKiAocGxlYXNlIGRvbid0IGJsYW1lIG1lIGlmIGl0IGNvb2tzIGFueXdheSwgeW91IG11c3Qg
+YmUgYXdhcmUgdGhhdCB0aGlzIGZ1bmN0aW9uCisgICAqIGRvIGl0cyBiZXN0IHRvIGNoZWNrIGJ1
+dCBpcyBub3QgX3RoZV8gZmluYWwgYW5zd2VyIQogICAgKi8KLSAgICB1bnNpZ25lZCBsb25nIGxv
+bmcgaHBpY29zLCB2cGljb3M7Ci0gICAgY29uc3QgdW5zaWduZWQgbG9uZyBsb25nIF8xZTEyID0g
+MTAwMDAwMDAwMDAwMFVMTDsKLSAgICBjb25zdCBzdHJ1Y3QgZmJfbW9uc3BlY3MgKm1vbnNwZWNz
+ID0gJmZiX2luZm8tPm1vbnNwZWNzOwogCi0gICAgaHBpY29zID0gKHVuc2lnbmVkIGxvbmcgbG9u
+ZylodG90YWwqKHVuc2lnbmVkIGxvbmcgbG9uZylwaXhjbG9jazsKLSAgICB2cGljb3MgPSAodW5z
+aWduZWQgbG9uZyBsb25nKXZ0b3RhbCoodW5zaWduZWQgbG9uZyBsb25nKWhwaWNvczsKLSAgICBp
+ZiAoIXZwaWNvcykKLSAgICAgIHJldHVybiAwOwotICAgIAotICAgIGlmIChtb25zcGVjcy0+aGZt
+aW4gPT0gMCkKKyAgaWYoICFmYl9pbmZvLT5tb25zcGVjcyApCisgICAgeworICAgICAgLyoKKyAg
+ICAgICAqIERlYXIgR29kLi4uCisgICAgICAgKi8KKyAgICAgIHByaW50ayggS0VSTl9JTkZPICJm
+YjogV2UgY291bGQgbm90IGNoZWNrIHlvdXIgbW9uaXRvciwgZHVlIGxhY2sgb2YgbW9uc3BlY3Mh
+XG4iICk7CiAgICAgICByZXR1cm4gMTsKLSAgICAKLSAgICBpZiAoaHBpY29zKm1vbnNwZWNzLT5o
+Zm1pbiA+IF8xZTEyIHx8IGhwaWNvcyptb25zcGVjcy0+aGZtYXggPCBfMWUxMiB8fAotICAgICAg
+ICB2cGljb3MqbW9uc3BlY3MtPnZmbWluID4gXzFlMTIgfHwgdnBpY29zKm1vbnNwZWNzLT52Zm1h
+eCA8IF8xZTEyKQorICAgIH0KKworICBpZiggcGl4ZWxjbG9jayA+IChmYl9pbmZvLT5tb25zcGVj
+cy5oZm1heCAqIGh0b3RhbCkgKQorICAgIHsKKyAgICAgIC8qIAorICAgICAgICogV2Ugd2lsbCBj
+b29rIHRoaXMgbW9uaXRvciEKKyAgICAgICAqLworICAgICAgcHJpbnRrKCBLRVJOX0lORk8gImZi
+OiBUbyBhdm9pZCBjb29raW5nIHlvdXIgbW9uaXRvciB3ZSB3b24ndCB1c2UgdGhpcyByZXNvbHV0
+aW9uIVxuIiApOwogICAgICAgcmV0dXJuIDA7Ci0jZW5kaWYKLSAgICByZXR1cm4gMTsKKyAgICB9
+CisKKyAgLyoKKyAgICogSWYgd2UgZ2V0IGhlcmUsIHdlJ3JlIHNhZmUgKGFsbW9zdCkKKyAgICov
+CisKKyAgcmV0dXJuIDE7CiB9CiAKIGludCBmYm1vbl9kcG1zKGNvbnN0IHN0cnVjdCBmYl9pbmZv
+ICpmYl9pbmZvKQogeworICBpZiggIWZiX2luZm8tPm1vbnNwZWNzICkKKyAgICB7CisgICAgICBw
+cmludGsoIEtFUk5fSU5GTyAiZmI6IE5vIG1vbnNwZWNzIVxuIiApOworICAgICAgcmV0dXJuIC1F
+SU5WQUw7CisgICAgfQogICByZXR1cm4gZmJfaW5mby0+bW9uc3BlY3MuZHBtczsKIH0KIAo=
+
+--Multipart_Tue__26_Feb_2002_12:28:21_-0300_08b31920--

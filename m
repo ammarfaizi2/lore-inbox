@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263229AbTDLKcD (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 06:32:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263230AbTDLKcD (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 06:32:03 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:53638 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id S263229AbTDLKcC convert rfc822-to-8bit 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 06:32:02 -0400
-content-class: urn:content-classes:message
-Subject: RE: [BUG] settimeofday(2) succeeds for microsecond value more than USEC_PER_SEC and for negative value
+	id S263233AbTDLKyo (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 06:54:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbTDLKyn (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 06:54:43 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:48512 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263233AbTDLKyn (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 06:54:43 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304121108.h3CB8TVD000392@81-2-122-30.bradfords.org.uk>
+Subject: Re: kernel support for non-English user messages
+To: kaih@khms.westfalen.de (Kai Henningsen)
+Date: Sat, 12 Apr 2003 12:08:29 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <8jkHLjRXw-B@khms.westfalen.de> from "Kai Henningsen" at Apr 12, 2003 10:22:00 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Date: Sat, 12 Apr 2003 16:13:33 +0530
-Message-ID: <94F20261551DC141B6B559DC491086723E10C2@blr-m3-msg.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BUG] settimeofday(2) succeeds for microsecond value more than USEC_PER_SEC and for negative value
-Thread-Index: AcMAcn0J/0sNbQvnT7e1iVshKtvuAgAbUPdg
-From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
-To: "george anzinger" <george@mvista.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 12 Apr 2003 10:43:33.0855 (UTC) FILETIME=[5D8AAEF0:01C300E0]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-|Aniruddha M Marathe wrote:
-|> Even then, I think, we can modify the settimeofday  code to 
-|check -1 and USEC_PER_SEC
-|> Conditions, can't we?
-|> 
+> > > I've used VMS, and error code number encoding is a total heap of crap.
+> >
+> >
+> >  Maybe for developers, but users like it.  I can still remember back in
+> > the Old Days, taking those error codes and looking them up in something
+> > called a "manual" where there was a coherent explanation of
+> > what had gone wrong and even suggestions on what to do about it.
+> 
+> I think that's the real point here: without a manual to look things up in,  
+> none of this actually buys us anything.
 
-George wrote:
+Agreed.
 
-|Uh, sure.  This is the test I prefer:
-|
-|	if( (unsigned long)tv->usec > USEC_PER_SEC)
-|		return EINVAL;
-|
-|
-|This change should go in do_sys_settimeofday() in kernel/time.c.  It 
-|will fix both settimeofday and clock_settime(CLOCK_REALTIME,...  And 
-|also fixes it in all archs.
-|
-|-g
+> The grepme file someone proposed
 
-How about
-If( (unsigned long)tv->usec >= USEC_PER_SEC)
-	return EINVAL;
+It was me.  I'm happy to maintain it, if there is sufficient interest.
 
-Even if tv_usec value is 10^6, it should give EINVAL.
-Man page must also be updated
+> seems to be a reasonable first step,  
+> starting to number or otherways add a code to everything doesn't - it may  
+> or may not be a reasonable thing after there is experience with the grepme  
+> file, but we don't have that experience right now so we don't know.
+
+Agreed.
+
+John.

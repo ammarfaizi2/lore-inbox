@@ -1,44 +1,30 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <154572-14821>; Sat, 1 May 1999 05:15:47 -0400
-Received: by vger.rutgers.edu id <154390-14821>; Sat, 1 May 1999 05:13:05 -0400
-Received: from [207.104.6.26] ([207.104.6.26]:2331 "EHLO piglet.twiddle.net" ident: "davem") by vger.rutgers.edu with ESMTP id <153993-14821>; Sat, 1 May 1999 05:12:45 -0400
-Date: Sat, 1 May 1999 02:59:56 -0700
-Message-Id: <199905010959.CAA24677@piglet.twiddle.net>
+Received: by vger.rutgers.edu via listexpand id <154586-14823>; Sat, 1 May 1999 05:56:53 -0400
+Received: by vger.rutgers.edu id <153993-14823>; Sat, 1 May 1999 05:53:22 -0400
+Received: from [207.104.6.26] ([207.104.6.26]:2385 "EHLO piglet.twiddle.net" ident: "davem") by vger.rutgers.edu with ESMTP id <154063-14823>; Sat, 1 May 1999 05:53:00 -0400
+Date: Sat, 1 May 1999 03:40:14 -0700
+Message-Id: <199905011040.DAA24934@piglet.twiddle.net>
 From: David Miller <davem@twiddle.net>
-To: hpa@transmeta.com
-CC: linux-kernel@vger.rutgers.edu
-In-reply-to: <7gei4f$qsh$1@palladium.transmeta.com> (hpa@transmeta.com)
+To: alex.buell@tahallah.demon.co.uk
+CC: hpa@transmeta.com, linux-kernel@vger.rutgers.edu
+In-reply-to: <Pine.LNX.4.10.9905011108010.2314-100000@tahallah.demon.co.uk> (message from Alex Buell on Sat, 1 May 1999 11:11:21 +0100 (GMT))
 Subject: Re: 64bit port
-References: <E10dUur-0001vY-00@devel2.axiom.internal> <7gei4f$qsh$1@palladium.transmeta.com>
+References: <Pine.LNX.4.10.9905011108010.2314-100000@tahallah.demon.co.uk>
+Reply-To: davem@redhat.com
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-   From: hpa@transmeta.com (H. Peter Anvin)
-   Date: 	1 May 1999 09:39:27 GMT
+   Date: Sat, 1 May 1999 11:11:21 +0100 (GMT)
+   From: Alex Buell <alex.buell@tahallah.demon.co.uk>
 
-   I think that was only UltraSPARC I.
+   Ie. on loading of a binary could quickly scan it for illegal
+   sequences and overwrite with NOPs, then execute it. Of course, this
+   doesn't cater for things that does J-I-T compilation & execution
+   though.
 
-Not true.
+You roughly have described how we hope to work around it.
 
-All currently shipping UltraSparc's have at least one of the two
-64-bit lockup bugs.  On the Ultra-I the user can do it no matter where
-the text section is mapped, this is why Solaris doesn't offer 64-bit
-installation by default on the < 250Mhz Ultra-I's which are the chips
-affected by this first bug.
-
-All UltraSparc chips (to my knowledge) are effected by the second hw
-bug, which can only be triggered if the user can execute code in the
-top of low 2GB of the 64-bit address space (it involves doing a PC
-relative call which over/under-flows the program counter across the
-64-bit top/bottom addresses, while doing an access into the VA space
-hole in the delay slot, or something like this, I don't know the exact
-trigger sequence yet).  This is why Solaris-7 does not allow 64-bit
-userspace to map anything in these areas in 64-bit mode, which as a
-side-effect makes the medium-low code model close to useless.
-
-When Jakub and I get the 64-bit userland bootstrapped, I'll start
-running crashme to learn what the exact instruction sequences are so
-we have a chance at coding a more suitable workaround than what
-Solaris has chosen.
+IRIX does something very similar to work around cpu lockup
+bugs on early MIPS r4k parts.
 
 Later,
 David S. Miller

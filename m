@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261228AbSJQJsu>; Thu, 17 Oct 2002 05:48:50 -0400
+	id <S261271AbSJQJto>; Thu, 17 Oct 2002 05:49:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261271AbSJQJsu>; Thu, 17 Oct 2002 05:48:50 -0400
-Received: from pc-62-31-74-29-ed.blueyonder.co.uk ([62.31.74.29]:64896 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S261228AbSJQJst>; Thu, 17 Oct 2002 05:48:49 -0400
-Date: Thu, 17 Oct 2002 10:54:39 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>, sct@redhat.com,
-       akpm@zip.com.au, adilger@clusterfs.com
-Subject: Re: Latest ext3 merge in mainline lacks 2 hunks ?
-Message-ID: <20021017105439.C3277@redhat.com>
-References: <20021016204648.GA1616@werewolf.able.es>
+	id <S261297AbSJQJto>; Thu, 17 Oct 2002 05:49:44 -0400
+Received: from [66.103.33.250] ([66.103.33.250]:54188 "EHLO spyke.sytes.net")
+	by vger.kernel.org with ESMTP id <S261271AbSJQJtn>;
+	Thu, 17 Oct 2002 05:49:43 -0400
+Date: Thu, 17 Oct 2002 06:55:41 -0300
+From: Spyke <spyke@spyke.sytes.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: VIA82C686 Audio Problem.
+Message-Id: <20021017065541.529b9041.spyke@spyke.sytes.net>
+In-Reply-To: <20021017064218.7ae4dda0.spyke@spyke.sytes.net>
+References: <20021017064218.7ae4dda0.spyke@spyke.sytes.net>
+Reply-To: spyke@spyke.sytes.net
+Organization: Linux
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021016204648.GA1616@werewolf.able.es>; from jamagallon@able.es on Wed, Oct 16, 2002 at 10:46:48PM +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Oops, better give the kernel release too.
+2.4.19
+:)
 
-On Wed, Oct 16, 2002 at 10:46:48PM +0200, J.A. Magallon wrote:
- 
-> I  was patching mainline kernels with the ext3 update until this was
-> merged recently.
-> The merge differs from what I had (taken from LKML) in two missing hunks
-> not present still in -pre11.
-> Some of the maintainers can say if they are important ?
-
-They are just minor performance-related tweaks that Marcelo wants to
-defer merging until 2.4.21-pre opens.
-
-Cheers,
- Stephen
+Brendan
+spyke@spyke.sytes.net

@@ -1,104 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbTEETvm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 15:51:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbTEETvm
+	id S261266AbTEETxT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 15:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbTEETxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 15:51:42 -0400
-Received: from mail1.ewetel.de ([212.6.122.16]:38290 "EHLO mail1.ewetel.de")
-	by vger.kernel.org with ESMTP id S261251AbTEETvk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 15:51:40 -0400
-Date: Mon, 5 May 2003 22:04:03 +0200 (CEST)
-From: Pascal Schmidt <der.eremit@email.de>
-To: linux-kernel@vger.kernel.org
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [IDE] trying to make MO drive work with ide-floppy
-Message-ID: <Pine.LNX.4.44.0305052154200.1105-100000@neptune.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-CheckCompat: OK
+	Mon, 5 May 2003 15:53:19 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:24961 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261260AbTEETxQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 15:53:16 -0400
+Date: Mon, 5 May 2003 13:08:07 -0700
+From: Mike Anderson <andmike@us.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: [RFC] support for sysfs string based properties for SCSI (1/3)
+Message-ID: <20030505200807.GA1314@beaverton.ibm.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	SCSI Mailing List <linux-scsi@vger.kernel.org>,
+	Patrick Mochel <mochel@osdl.org>
+References: <1051989099.2036.7.camel@mulgrave> <1051989565.2036.14.camel@mulgrave> <20030505170202.GA1296@kroah.com> <1052154516.1888.33.camel@mulgrave> <20030505171745.GA1477@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030505171745.GA1477@kroah.com>
+X-Operating-System: Linux 2.0.32 on an i486
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH [greg@kroah.com] wrote:
+> On Mon, May 05, 2003 at 12:08:35PM -0500, James Bottomley wrote:
+> > On Mon, 2003-05-05 at 12:02, Greg KH wrote:
+> > > On Sat, May 03, 2003 at 02:19:23PM -0500, James Bottomley wrote:
+> > > > diff -Nru a/drivers/base/core.c b/drivers/base/core.c
+> > > > --- a/drivers/base/core.c	Sat May  3 14:18:21 2003
+> > > > +++ b/drivers/base/core.c	Sat May  3 14:18:21 2003
+> > > > @@ -42,6 +42,8 @@
+> > > >  
+> > > >  	if (dev_attr->show)
+> > > >  		ret = dev_attr->show(dev,buf);
+> > > > +	else if (dev->bus->show)
+> > > > +		ret = dev->bus->show(dev, buf, attr);
+> > > >  	return ret;
+> > > 
+> > > Can't you do this by using the class interface instead?
+> > 
+> > I don't know, I haven't digested the class interface patches yet, since
+> > they just appeared this morning.
+> 
+> I think Mike has a patch queued up that takes advantage of the class
+> code, which might address all of these issues.  Mike?
+> 
 
-Hi all, Alan,
+The patches I sent add class support for scsi_host, but this only gives
+granularity of attributes specific to scsi_host. There is no built in
+functionality to override show or store handler functions.
 
-I've been trying to make my 640 MB ATAPI MO drive work with the
-ide-floppy driver. I've patched ide-probe.c and ide-floppy.c for
-assigning the MO drive (type ide_optical) to the floppy driver
-(patch against 2.4-bkcvs below).
 
-On bootup, the drive now gets reported as:
-
-hde: FUJITSU MCC3064AP, ATAPI OPTICAL drive
-hde: attached ide-floppy driver.
-hde: No disk in drive
-hde: 520192kB, 508/64/32 CHS, 2000 kBps, 512 sector size, 3600 rpm
-
-These values would be correct for a 512 MB MO disk in the drive. So far,
-so good.
-
-Upon inserting a 640 MB disk and running 'fdisk -l /dev/hde' I get:
-
-hde: 620704kB, 310352 blocks, 2048 sector size
-hde: warning: non 512 bytes block size not fully supported
-hde: 618496kB, 151/64/32 CHS, 2000 kBps, 2048 sector size, 3600 rpm
-hde: The disk reports a capacity of 635600896 bytes, but the drive only handles 633339904
- hde: unknown partition table
-
-The size and geometry stuff reported first looks good (310352 blocks is 
-also reported when using ide-scsi/sd for the drive). The second line
-with slightly different size looks wrong, though.
-
-That "non 512 bytes block size" stuff doesn't look encouraging. On
-trying 'mount -t ext2 -o ro /dev/hde /mnt/mo', I get:
-
-hde: warning: non 512 bytes block size not fully supported
-hde: The disk reports a capacity of 635600896 bytes, but the drive only handles 633339904
- hde: unknown partition table
-hde: unsupported r/w request size
-end_request: I/O error, dev 21:00 (hde), sector 2
-EXT2-fs: unable to read superblock
-hde: warning: non 512 bytes block size not fully supported
-hde: The disk reports a capacity of 635600896 bytes, but the drive only handles 633339904
- hde: unknown partition table
-
-The disk is formatted as a whole (no partition table) and works just fine
-when using ide-scsi.
-
-I cannot test with an MO disk with 512 byte sectors since I don't own 
-any.
-
-Are there any plans to support drives with blocksizes != 512 bytes? What 
-changes would be needed to make it work? Or do I simply have to live with 
-ide-scsi (still broken on 2.5, I assume...)?
-
-Finally, the patch I used:
-
---- ide-probe.c.orig	Mon May  5 21:25:32 2003
-+++ ide-probe.c	Mon May  5 21:25:59 2003
-@@ -222,6 +222,7 @@ static inline void do_identify (ide_driv
- 				break;
- 			case ide_optical:
- 				printk ("OPTICAL");
-+				type = ide_floppy;
- 				drive->removable = 1;
- 				break;
- 			default:
---- ide-floppy.c.orig	Mon May  5 21:25:45 2003
-+++ ide-floppy.c	Mon May  5 21:26:40 2003
-@@ -1962,7 +1962,7 @@ static int idefloppy_identify_device (id
- 
- 	if (gcw.protocol != 2)
- 		printk(KERN_ERR "ide-floppy: Protocol is not ATAPI\n");
--	else if (gcw.device_type != 0)
-+	else if ((gcw.device_type != 0) && (gcw.device_type != 7))
- 		printk(KERN_ERR "ide-floppy: Device type is not set to floppy\n");
- 	else if (!gcw.removable)
- 		printk(KERN_ERR "ide-floppy: The removable flag is not set\n");
-
--- 
-Ciao,
-Pascal
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
 

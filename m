@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268057AbTBRWLg>; Tue, 18 Feb 2003 17:11:36 -0500
+	id <S268052AbTBRWGM>; Tue, 18 Feb 2003 17:06:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268066AbTBRWLg>; Tue, 18 Feb 2003 17:11:36 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:31249 "EHLO
+	id <S268056AbTBRWGM>; Tue, 18 Feb 2003 17:06:12 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:43791 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S268057AbTBRWLb>; Tue, 18 Feb 2003 17:11:31 -0500
-Date: Tue, 18 Feb 2003 23:21:32 +0100
+	id <S268052AbTBRWGI>; Tue, 18 Feb 2003 17:06:08 -0500
+Date: Tue, 18 Feb 2003 23:16:08 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Toshiba keyboard workaroun
-Message-ID: <20030218222132.GF21974@atrey.karlin.mff.cuni.cz>
-References: <mailman.1045603384.24857.linux-kernel2news@redhat.com> <200302182213.h1IMDKX31357@devserv.devel.redhat.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>, davej@suse.de, linux@brodo.de
+Subject: Re: Select voltage manually in cpufreq
+Message-ID: <20030218221608.GE21974@atrey.karlin.mff.cuni.cz>
+References: <20030218214220.GA1058@elf.ucw.cz> <20030218214726.GB15007@f00f.org> <20030218215819.GC21974@atrey.karlin.mff.cuni.cz> <20030218220858.GA15273@f00f.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200302182213.h1IMDKX31357@devserv.devel.redhat.com>
+In-Reply-To: <20030218220858.GA15273@f00f.org>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > --- clean/drivers/char/keyboard.c	2003-02-15 18:51:18.000000000 +0100
-> > +++ linux/drivers/char/keyboard.c	2003-02-15 19:19:45.000000000 +0100
-> > @@ -1020,6 +1041,23 @@
-> >  	struct tty_struct *tty;
-> >  	int shift_final;
-> >  
-> > +        /*
-> > +         * Fix for Toshiba Satellites. Toshiba's like to repeat 
-> > +	 * "key down" event for A in combinations like shift-A.
-> > +	 * Thanx to Andrei Pitis <pink@roedu.net>.
-> > +         */
-> > +        static int prev_scancode = 0;
-> > +        static int stop_jiffies = 0;
-> > +
-> > +        /* new scancode, trigger delay */
-> > +        if (keycode != prev_scancode) 	       stop_jiffies = jiffies;
-> > +        else if (jiffies - stop_jiffies >= 10) stop_jiffies = 0;
-> > +        else {
-> > +	    printk( "Keyboard glitch detected, ignoring keypress\n" );
-> > +            return;
-> > +	}
-> > +        prev_scancode = keycode;
-> > +
-> >  	if (down != 2)
-> >  		add_keyboard_randomness((keycode << 1) ^ down);
+> > Well, and does slow-low-power mean 300MHz, 1.4V as bios said, or
+> > 300MHz, 1.2V which is probably also safe?
 > 
-> This is incredibly broken, on many layers.
+> I have no idea... that's the point... the user almost never knows what
+> *exact* magic values are required, they just want fast-on-power or
+> slow-on-battery sort of thing.
+
+Well, but system also does not know. And *I* need a way to tell my
+system what the right thing is.
+
+> > What about
+> > "as-fast-as-possible-but-not-exceed-140MHz-because-batteries-are-
+> > running-low-and-can-not-give-enough-current"? That's different from
+> > "fast-high-power", but it is *also* different from
+> > "slow-low-power". [This actually matters on beasts like
+> > zaurus]. What about
+> > "as-low-power-as-possible-but-make-sure-you-can-keep-display-up"?
+> > [On some machines cpu must be > some HMz for display to still work].
 > 
-> First, formatting does not respect the original code. Pavel, please,
-> I do not care what crap you write in softsuspend, but this is a
-> generic piece of code. Be kind to those who come next.
-
-Its not originally mine, I should have reformated it. Sorry.
-
-> Second, no HZ or other way to specify a wall clock interval.
-> What if I run with HZ=4000? How do you protect against a
-> jiffies wraparound?
+> this just shows how silly these complex schemes are
 > 
-> Third, I do not see how this is supposed to work at all.
-> What if I hit two letters like in a word "Fool"? The up event
-> is filtered already by this time, so, won't this code eat
-> the second 'o'?
+> you pick two options, a slow and fast option; both should work
 
-The up event is not filtered, AFAICS. Parameter down carries that.
-
-							Pavel
+Well, but this simple user interface means pretty complicated
+insides. 
+								Pavel
 
 -- 
 Casualities in World Trade Center: ~3k dead inside the building,

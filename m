@@ -1,29 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268409AbUIWMNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268411AbUIWMTD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268409AbUIWMNt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 08:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268420AbUIWMNt
+	id S268411AbUIWMTD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 08:19:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268420AbUIWMTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 08:13:49 -0400
-Received: from mails.tsinghua.edu.cn ([166.111.8.16]:51332 "HELO
-	mails.tsinghua.edu.cn") by vger.kernel.org with SMTP
-	id S268409AbUIWMNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 08:13:48 -0400
-Message-ID: <295941326.00351@mails.tsinghua.edu.cn>
-X-scanvirus: By Symantec Scan Engine
-X-scanresult: CLEAN
-Message-ID: <4152BEEA.8040305@mails.tsinghua.edu.cn>
-Date: Thu, 23 Sep 2004 20:17:46 +0800
-From: yeyb03 <yeyb03@mails.tsinghua.edu.cn>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Thu, 23 Sep 2004 08:19:03 -0400
+Received: from holub.nextsoft.cz ([195.122.198.235]:4736 "EHLO
+	holub.nextsoft.cz") by vger.kernel.org with ESMTP id S268411AbUIWMTB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 08:19:01 -0400
+From: Michal Rokos <michal@rokos.info>
+To: thockin@hockin.org
+Subject: Re: [PATCH 2.6] Natsemi - remove compilation warnings
+Date: Thu, 23 Sep 2004 16:18:56 +0200
+User-Agent: KMail/1.7
+References: <200409230958.31758.michal@rokos.info>
+In-Reply-To: <200409230958.31758.michal@rokos.info>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: where can find the early-initcall macro definition.
-Content-Type: text/plain; charset=GB2312
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409231618.56861.michal@rokos.info>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello everyone, where can find the early-initcall macro definition.
-thanks.
+Hi again,
+
+On Thursday 23 of September 2004 09:58, you wrote:
+> natsemi driver emits a lot of warnings.
+> This patch make compilation calm again.
+> Code taken from drivers/net/pci-skeleton.c. Thanks Jeff.
+
+This patch unfortunately makes natsemi stop working... :(
+
+Sorry for sending bad patch - I've been testing it, but loaded the other 
+module.
+
+Sorry once again.
+
+ Michal
+

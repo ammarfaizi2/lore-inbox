@@ -1,140 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312302AbSCYEn7>; Sun, 24 Mar 2002 23:43:59 -0500
+	id <S312045AbSCYFcf>; Mon, 25 Mar 2002 00:32:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312300AbSCYEns>; Sun, 24 Mar 2002 23:43:48 -0500
-Received: from sydney1.au.ibm.com ([202.135.142.193]:61455 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S312302AbSCYEne>; Sun, 24 Mar 2002 23:43:34 -0500
-Date: Mon, 25 Mar 2002 15:46:23 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: pwaechtler@loewe-komp.de, drepper@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-Message-Id: <20020325154623.302f9e11.rusty@rustcorp.com.au>
-In-Reply-To: <E16pKE0-0004Rb-00@wagner.rustcorp.com.au>
-X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+	id <S312133AbSCYFcZ>; Mon, 25 Mar 2002 00:32:25 -0500
+Received: from THANK.THUNK.ORG ([216.175.175.163]:3969 "EHLO thunk.org")
+	by vger.kernel.org with ESMTP id <S312045AbSCYFcP>;
+	Mon, 25 Mar 2002 00:32:15 -0500
+Date: Mon, 25 Mar 2002 00:31:59 -0500
+From: Theodore Tso <tytso@mit.edu>
+To: "H . J . Lu" <hjl@lucon.org>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-mips@oss.sgi.com,
+        linux kernel <linux-kernel@vger.kernel.org>,
+        GNU C Library <libc-alpha@sources.redhat.com>
+Subject: Re: Does e2fsprogs-1.26 work on mips?
+Message-ID: <20020325003159.A2340@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	"H . J . Lu" <hjl@lucon.org>, Andrew Morton <akpm@zip.com.au>,
+	linux-mips@oss.sgi.com, linux kernel <linux-kernel@vger.kernel.org>,
+	GNU C Library <libc-alpha@sources.redhat.com>
+In-Reply-To: <20020323140728.A4306@lucon.org> <3C9D1C1D.E30B9B4B@zip.com.au> <20020323221627.A10953@lucon.org> <3C9D7A42.B106C62D@zip.com.au> <20020324012819.A13155@lucon.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Mar 2002 13:28:44 +1100
-Rusty Russell <rusty@rustcorp.com.au> wrote:
-> So the summary is: futexes not sufficient to implement pthreads
-> locking.
+On Sun, Mar 24, 2002 at 01:28:19AM -0800, H . J . Lu wrote:
+> 
+> The problem is not all arches use (~0UL) for RLIM_INFINITY.
+> 
+> What should we do about it? I know e2fsprogs-1.26 doesn't work on mips
+> nor alpha because of this. I don't think it works on sparc.
 
-So let's go back to the more generic "exporting waitqueues to userspace" idea,
-with a twist: we use a userspace address as the identifier on the waitq, which
-gives us a unique identifier, but the kernel never actually derefs the
-pointer.  (And in my prior kernel code I optimized it so that waking did an
-implicit remove; not sure it's a win, so assumed that was removed here).
+Yeah, I forced the release of e2fsprogs 1.27 because of this, back on
+March 8th.  That was my fault, and I fixed it as soon as I discovered
+it.  (1.26 was released on Feb 3, and I released 1.27 on March 8th).
 
-This gives code as below (Peter, Martin, please check):
+In e2fsprogs 1.27, I do the following:
 
-/* Assume we have the following operations:
+#ifdef __linux__
+#undef RLIM_INFINITY
+#if (defined(__alpha__) || ((defined(__sparc__) || defined(__mips__)) && (SIZEOF_LONG == 4)))
+#define RLIM_INFINITY	((unsigned long)(~0UL>>1))
+#else
+#define RLIM_INFINITY  (~0UL)
+#endif
 
-   uwaitq_add(void *uaddr);
-   uwaitq_remove(void *uaddr);
-   uwaitq_wake(void *uaddr, int wake_all_flag);
-   uwaitq_wait(relative timeout);
-*/
-typedef struct
-{
-	int counter;
-} pthread_mutex_t;
+Basically because I can't depend on the RLIM_INFINITY being "right".
+(Remember, I'm trying to make sure that e2fsprogs can compile on any
+arbitrary glibc, and then run on any other-not-necessarily-the-same
+glibc, which gets "challenging".)
 
-typedef struct 
-{
-	int condition;
-} pthread_cond_t;
+The problem now is that some older glibcs are capping RLIM_INFINITY
+with the older value, and so a combination of a new kernel, new
+e2fsprogs, and old glibc results in problems.  My current feeling
+about how to fix this is to bypass glibc altogether, and simply call
+the setrlimit system call directly.  This is ugly-ugly-ugly, but I
+can't see another way around this.
 
-typedef struct
-{
-	unsigned int num_left;
-	unsigned int initial_count;
-} pthread_barrier_t;
+And just to be clear ---- although in the past I've been really
+annoyed when glibc has made what I've considered to be arbitrary
+changes which have screwed ABI, compile-time, or link-time
+compatibility, and have spoken out against it --- in this particular
+case, I consider the fault to be purely the fault of the kernel
+developers, so there's no need having the glibc folks get all
+defensive....
 
-#define PTHREAD_MUTEX_INITIALIZER { { 1 } }
-#define PTHREAD_COND_INITIALIZER { 0, { 0 }, { 0 } }
+						- Ted
 
-int pthread_barrier_init(struct pthread_barrier_t *barrier,
-			 void *addr,
-			 unsigned int count)
-{
-	barrier->num_left = barrier->initial_count = count;
-}
-
-int pthread_barrier_wait(struct pthread_barrier_t *barrier)
-{
-	/* Use barrier address as uwaitq id. */
-	uwaitq_add(barrier);
-	if (atomic_dec_and_test(&barrier->num_left)) {
-		/* Restore barrier. */
-		barrier->num_left = barrier->initial_count;
-		/* Wake the other threads */
-		uwaitq_wake(barrier, 1 /* WAKE_ALL */);
-		uwaitq_remove(barrier);
-		return 0; /* PTHREAD_BARRIER_SERIAL_THREAD */
-	}
-	while (uwaitq_wait(NULL) == 0 || errno == EINTR);
-	uwaitq_remove(barrier);
-	return 1;
-}
-
-int pthread_cond_signal(pthread_cond_t *cond)
-{
-	return uwaitq_wake(cond, 0 /* WAKE_ONE */);
-}
-
-int pthread_cond_broadcast(pthread_cond_t *cond)
-{
-	return uwaitq_wake(cond, 1 /* WAKE_ALL */);
-}
-
-static int __pthread_cond_wait(pthread_cond_t *cond,
-			       pthread_mutex_t *mutex,
-			       const struct timespec *reltime)
-{
-	int ret;
-
-	uwaitq_add(cond);
-	futex_up(&mutex, 1);
-	while ((ret = uwaitq_wait(reltime)) == 0 || errno == EINTR);
-	uwaitq_remove(cond);
-	futex_down(&mutex, NULL);
-	return ret;
-}
-
-int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
-{
-	return __pthread_cond_wait(cond, mutex, NULL);
-}
-
-int pthread_cond_timedwait(pthread_cond_t *cond,
-			   pthread_mutex_t *mutex,
-			   const struct timespec *abstime)
-{
-	struct timeval _now;
-	struct timespec now, rel;
-
-	/* Absolute to relative */
-	gettimeofday(&_now, NULL);
-	TIMEVAL_TO_TIMESPEC(&_now, &now);
-	if (now.tv_sec > abstime->tv_sec
-	    || (now.tv_sec == abstime->tv_sec
-		&& now.tv_nsec > abstime->tv_nsec))
-		return ETIMEDOUT;
-
-	rel.tv_sec = now.tv_sec - abstime->tv_sec;
-	rel.tv_nsec = now.tv_usec - abstime->tv_usec;
-	if (rel.tv_nsec < 0) {
-		--rel.tv_sec;
-		rel.tv_nsec += 1000000000;
-	}
-	return __pthread_cond_wait(cond, mutex, &rel);
-}
-
--- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270641AbTHOSCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 14:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270659AbTHOSCZ
+	id S270673AbTHOSNL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 14:13:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270688AbTHOSNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 14:02:25 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:46095 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S270641AbTHOSCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 14:02:24 -0400
-Message-ID: <3F3D23BD.6050608@techsource.com>
-Date: Fri, 15 Aug 2003 14:17:33 -0400
-From: Timothy Miller <tim@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Timothy Miller <miller@techsource.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O12.2int for interactivity
-References: <20030804195058.GA8267@cray.fish.zetnet.co.uk> <200308141659.33447.kernel@kolivas.org> <3F3BE9BD.20304@techsource.com> <200308160235.05105.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Aug 2003 14:13:11 -0400
+Received: from main.gmane.org ([80.91.224.249]:46269 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S270673AbTHOSNH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 14:13:07 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jan Rychter <jan@rychter.com>
+Subject: Centrino support
+Date: Fri, 15 Aug 2003 11:13:09 -0700
+Message-ID: <m2wude3i2y.fsf@tnuctip.rychter.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Complaints-To: usenet@sea.gmane.org
+X-Spammers-Please: blackholeme@rychter.com
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:KctIXaatLzf+1lopTc1tCPHdkbk=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=-=-=
+Content-Transfer-Encoding: quoted-printable
 
+From=20http://news.com.com/2100-1006-993896.html:
 
-Con Kolivas wrote:
+  Intel plans Linux support for Centrino
 
->On Fri, 15 Aug 2003 05:57, Timothy Miller wrote:
->  
->
->>>Actually the timeslice handed out is purely dependent on the static
->>>priority, not the priority it is elevated or demoted to by the
->>>interactivity estimator. However lower priority tasks (cpu bound ones if
->>>the estimator has worked correctly) will always be preempted by higher
->>>priority tasks (interactive ones) whenever they wake up.
->>>      
->>>
->>Ok, so tasks at priority, say, 5 are all run before any tasks at
->>priority 6, but when a priority 6 task runs, it gets a longer timeslice?
->>    
->>
->
->All "nice" 0 tasks get the same size timeslice. If their dynamic priority is 
->different (the PRI column in top) they still get the same timeslice.
->  
->
+  Intel is working on Linux support for Centrino, its package of chips for
+  mobile computers with wireless networking abilities, but the company
+  hasn't yet decided how or when to release it.
 
-Why isn't dynamic priority just an extension of static priority?  Why do 
-you modify only the ordering while leaving the timeslice alone?
+That was on March 24, 2003.
 
+Well, that was almost 5 months ago. So I figured I'd ask if there's any
+progress -- so far the built-in wireless in my notebook still doesn't
+work with Linux and the machine is monstrously power-hungry because
+Linux doesn't scale the CPU frequency.
 
-So, tell me if I infer this correctly:  If you have a nice 5 and a nice 
-7, but the nice 5 is a cpu hog, while the nice 7 is interactive, then 
-the interactivity scheduler can modify their dynamic priorities so that 
-the nice 7 is being run before the nice 5.  However, despite that, the 
-nice 7 still gets a shorter timeslice than tha nice 5.
+I know there are some Intel people on the list -- perhaps someone can
+comment?
 
-Have you tried altering this?
+=2D-J.
 
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/PSK1Lth4/7/QhDoRAiCOAJ9FaDfisstMBR5K5Gt8iP52WbhBAACgr+fz
+IJzMNHfT5hqVVGh2+JsNuT8=
+=dkPJ
+-----END PGP SIGNATURE-----
+--=-=-=--
 

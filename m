@@ -1,76 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbUB1TLH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 14:11:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbUB1TLH
+	id S261905AbUB1UIW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 15:08:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbUB1UIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 14:11:07 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38302 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261901AbUB1TK5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 14:10:57 -0500
-Message-ID: <4040E7B5.4020709@pobox.com>
-Date: Sat, 28 Feb 2004 14:10:45 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: [PATCH/RFT] libata "DMA timeout" fix
-Content-Type: multipart/mixed;
- boundary="------------070400050706040108030905"
+	Sat, 28 Feb 2004 15:08:22 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46570 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261909AbUB1UIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 15:08:20 -0500
+Date: Sat, 28 Feb 2004 21:08:13 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] small doc fix for CONFIG_SWAP (fwd)
+Message-ID: <20040228200813.GO5499@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070400050706040108030905
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi Andrew,
+
+the trivial patch forwarded below still applies against 2.6.3-mm4.
+
+Please apply
+Adrian
 
 
-The desired effect of a DMA timeout should be to throw an I/O error, but 
-that doesn't appear to be happening.
+----- Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
 
-Those seeing DMA timeout messages, please test this patch.
+Date:	Wed, 21 Jan 2004 00:17:18 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] small doc fix for CONFIG_SWAP
 
-Kernel hacker note:  James B recommended that I implement my own 
-scsi_done() function, which duplicates the real scsi_done() but omits 
-the scsi_delete_timer() call.  This is probably the best long term fix, 
-but doing so involves exporting several currently-private bits of SCSI 
-mid-layer, which I would rather not do.  Probably best to create a 
-__scsi_done() inside the SCSI mid-layer, and call that.
+"swap" is more known than "Support for paging of anonymous memory".
+The patch below adds "(swap)" to the prompt of CONFIG_SWAP.
 
-	Jeff, the only user of ->eh_strategy_handler() in any kernel
-
-
+Please apply
+Adrian
 
 
---------------070400050706040108030905
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
+--- linux-2.6.1-mm5/init/Kconfig.old	2004-01-21 00:10:59.000000000 +0100
++++ linux-2.6.1-mm5/init/Kconfig	2004-01-21 00:11:10.000000000 +0100
+@@ -66,7 +66,7 @@
+ menu "General setup"
+ 
+ config SWAP
+-	bool "Support for paging of anonymous memory"
++	bool "Support for paging of anonymous memory (swap)"
+ 	depends on MMU
+ 	default y
+ 	help
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
-===== drivers/scsi/libata-core.c 1.19 vs edited =====
---- 1.19/drivers/scsi/libata-core.c	Wed Feb 25 22:41:13 2004
-+++ edited/drivers/scsi/libata-core.c	Sat Feb 28 14:03:18 2004
-@@ -2130,6 +2130,14 @@
- 				cmd->result = SAM_STAT_CHECK_CONDITION;
- 			else
- 				ata_to_sense_error(qc);
-+
-+			/* hack alert! we need this to get past the
-+			 * first check in scsi_done().  libata is the
-+			 * -only- user of ->eh_strategy_handler() in
-+			 * any kernel tree, which exposes some incorrect
-+			 * assumptions in the SCSI layer.
-+			 */
-+			scsi_add_timer(cmd, 2000 * HZ, NULL);
- 		} else {
- 			cmd->result = SAM_STAT_GOOD;
- 		}
-
---------------070400050706040108030905--
+----- End forwarded message -----
 

@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136039AbRAHAwz>; Sun, 7 Jan 2001 19:52:55 -0500
+	id <S136225AbRAHBFw>; Sun, 7 Jan 2001 20:05:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136123AbRAHAwp>; Sun, 7 Jan 2001 19:52:45 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:48907 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S136039AbRAHAwe>;
-	Sun, 7 Jan 2001 19:52:34 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: richbaum@acm.org
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix compile warnings in 2.4.0 
-In-Reply-To: Your message of "Sun, 07 Jan 2001 16:19:50 CDT."
-             <3A589726.5449.291B75@localhost> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 08 Jan 2001 11:52:27 +1100
-Message-ID: <9097.978915147@ocs3.ocs-net>
+	id <S136254AbRAHBFn>; Sun, 7 Jan 2001 20:05:43 -0500
+Received: from mofo.meme.com ([64.1.120.129]:9344 "EHLO mofo.meme.com")
+	by vger.kernel.org with ESMTP id <S136225AbRAHBFc>;
+	Sun, 7 Jan 2001 20:05:32 -0500
+Date: Sun, 7 Jan 2001 19:07:28 -0600
+Message-Id: <200101080107.TAA01299@mofo.meme.com>
+To: linux-kernel@vger.kernel.org
+From: "Karl O. Pinc" <kop@meme.com>
+Cc: C.Pollmeier@gmx.net, lpp@freelords.org
+Subject: Bug: Frame-buffer (icon) rotates right in 2.4.0 when SMP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2001 16:19:50 -0500, 
-"Rich Baum" <baumr1@coral.indstate.edu> wrote:
->This patch should fix the rest of the warnings about #endif 
->statements when using the 20001225 gcc snapshot.  Thanks to 
->Keith Owens for providing a script to automate this process.  It got 
->the job done sooner and found warnings to fix for non x86 platforms.
+Hi,
 
-As reported by Neil Booth, your patch contains errors which do not
-appear in my patched system using my script.  You probably skipped the
-leading '^' in the regexp.  It also turns out that there are a couple
-of m68k assembler lines which have a trailing '#' which starts a
-comment on that assembler.  So treat '#' as a comment marker as well.
+Apoligies in advance if this is not the right place to send this
+report.
 
-Whatever you used, it was not my script.  It should be (with '#' added)
+When displaying a screen-wide icon in the frame buffer for the
+graphics console:
 
-  find -type f -name '*.[chS]' | \
-    xargs perl -lpi -e 's:^(\s*#\s*endif)\s+([^/\s#].*)$:\1\t/* \2 */:;'
+Linux version 2.4.0
 
-BTW, until the patch is correct do not bother sending it to Alan Cox or
-Linus, just to linux-kernel..
+Console Drivers
+  Video mode selection support
+    Support for frame buffer devices (EXPERMENTAL)
+      VESA VGA graphics console
+
+I found the right edge of the image to be displayed on the left edge
+-- perhaps 8 pixels worth?
+
+I compiled for a pentium III, SMP on.  I've a dual processor Pentium
+III with a Matrox Graphics, Inc. MGA G400 AGP video card.  I
+discovered this using the lpp-0.2.0 patch at http://lpp.freelords.org,
+which displays a startup screen.
+
+Fix:  turning SMP off fixed the problem.
+
+FYI: fbcon_show_logo() in drivers/video/fbcon.c seems to have a for
+loop with an odd smp_num_cpus reference.
+
+Please contact me if you need any more information or wish to tell me
+where to send this report.
+
+Regards,
+
+Karl <kop@meme.com>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

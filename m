@@ -1,38 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314242AbSDRGN5>; Thu, 18 Apr 2002 02:13:57 -0400
+	id <S313562AbSDRGtI>; Thu, 18 Apr 2002 02:49:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314243AbSDRGN4>; Thu, 18 Apr 2002 02:13:56 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:55564 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S314242AbSDRGN4>;
-	Thu, 18 Apr 2002 02:13:56 -0400
-Date: Thu, 18 Apr 2002 08:12:09 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Adam Kropelin <akropel1@rochester.rr.com>
-Cc: Dave Jones <davej@suse.de>, Martin Dalecki <dalecki@evision-ventures.com>,
+	id <S314233AbSDRGtH>; Thu, 18 Apr 2002 02:49:07 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:4616 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S313562AbSDRGtH>; Thu, 18 Apr 2002 02:49:07 -0400
+Date: Wed, 17 Apr 2002 23:47:13 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Kent Borg <kentborg@borg.org>,
+        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, nick@snowman.net,
+        Baldur Norddahl <bbn-linux-kernel@clansoft.dk>,
+        Mike Dresser <mdresser_l@windsormachine.com>,
         linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] 2.5.8-dj1 reading /proc/ide/.../identify
-Message-ID: <20020418061209.GE858@suse.de>
-In-Reply-To: <02ac01c1e666$95ddac70$02c8a8c0@kroptech.com>
-Mime-Version: 1.0
+Subject: Re: IDE/raid performance
+In-Reply-To: <20020417232634.GC574@matchmail.com>
+Message-ID: <Pine.LNX.4.10.10204172344150.14953-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 17 2002, Adam Kropelin wrote:
-> The following oops is reproducable on 2.5.8-dj1 here.
-> 
-> cat /proc/ide/ide0/hda/identify a few times and *bang*.
-> 
-> The system usually takes one more command after the oops,
-> then locks solid. The oops never makes it to syslog.
 
-Problem has been solved in later kernels. Fix is in the patch I just
-sent to you in the other thread, the archives should also hold a message
-from me explaining what the problem is and how to fix it (see static ar,
-return to pool, ATA_AR_RETURN/ATA_AR_POOL).
+Already there ...
 
--- 
-Jens Axboe
+It is called "specific configuration".
+I will add support for it in 2.4 soon enough, once I have satatisfied it
+functionally works.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Wed, 17 Apr 2002, Mike Fedyk wrote:
+
+> On Wed, Apr 17, 2002 at 01:47:16PM -0400, Kent Borg wrote:
+> > 
+> > On Wed, Apr 17, 2002 at 10:27:22AM -0700, Jeff V. Merkey wrote:
+> > > From my analysis with 3Ware at 32 drive configurations, you really
+> > > need to power the drives from a separate power supply is you have 
+> > > more than 16 devices.  They really suck the power during initial 
+> > > spinup.
+> > 
+> > It seems an obvious help would be to have the option of spinning up
+> > the drives one at a time at 2-3 second intervals.  I know a fast drive
+> > doesn't get up to speed in 3 seconds, but the nastiest draw is going
+> > to be over by then.
+> > 
+> > A machine with 32 drives is pretty serious stuff and probably isn't
+> > booting in a few seconds anyway--another 60-some seconds might be a
+> > desirable option.
+> > 
+> > Does this exist anywhere?  Would it have to be a BIOS feature?
+> 
+> I doubt it.
+> 
+> All of the IDE drives I have used spin up when power is applied.  Most of
+> the scsi (except for some really old ones) have a jumper that tells the
+> drive to wait until it receives a message from the scsi controller to spin up.
+> 
+> I'd imagine that IDE would need some protocol spec changes before this could
+> be supported (at least a "spin the drive up" message...).
+> 
+> Mike
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

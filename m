@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314058AbSEHNmm>; Wed, 8 May 2002 09:42:42 -0400
+	id <S314274AbSEHNwR>; Wed, 8 May 2002 09:52:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314223AbSEHNml>; Wed, 8 May 2002 09:42:41 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:17672 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S314058AbSEHNmk>;
-	Wed, 8 May 2002 09:42:40 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Dax Kelson <dax@gurulabs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Completely honor prctl(PR_SET_KEEPCAPS, 1) 
-In-Reply-To: Your message of "Wed, 08 May 2002 03:40:11 CST."
-             <Pine.LNX.4.44.0205080136560.8607-100000@mooru.gurulabs.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 08 May 2002 23:42:29 +1000
-Message-ID: <9176.1020865349@ocs3.intra.ocs.com.au>
+	id <S314275AbSEHNwQ>; Wed, 8 May 2002 09:52:16 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:51981 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S314274AbSEHNwQ>; Wed, 8 May 2002 09:52:16 -0400
+Message-Id: <200205081341.g48DfqX23864@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Martin Dalecki <dalecki@evision-ventures.com>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] 2.5.14 IDE 56
+Date: Wed, 8 May 2002 16:46:12 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0205052046590.1405-100000@home.transmeta.com> <3CD7B8FE.1020505@evision-ventures.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 May 2002 03:40:11 -0600 (MDT), 
-Dax Kelson <dax@gurulabs.com> wrote:
->Originally when a process set*uided all capabilities bits were cleared.  
->Then sometime later (wish BK went back 3 years), the behaviour was
->modified according to the comment "A process may, via prctl(), elect to
->keep its capabilites when it calls setuid() and switches away from
->uid==0. Both permitted and effective sets will be retained."
+On 7 May 2002 09:22, Martin Dalecki wrote:
+> Mon May  6 13:29:44 CEST 2002 ide-clean-56
 
-FWIW, the change was in 2.2.18-pre18, between October 26 and 29, 2000.
++	printk("%s: reset timed-out, status=0x%02x\n", ch->name, stat);
 
-I have all the kernel versions from 2.0.21 (1997) through 2.5.14 in a
-set of PRCS repositories.  A binary chop on 2.2 found the change in a
-few minutes.
-
+"timed out" (no dash)
+--
+vda

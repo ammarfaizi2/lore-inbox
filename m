@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269090AbUIBVAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269102AbUIBVEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269090AbUIBVAH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 17:00:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUIBU5r
+	id S269102AbUIBVEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 17:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269124AbUIBVDW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 16:57:47 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:13446 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269090AbUIBU5H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 16:57:07 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Lee Revell <rlrevell@joe-job.com>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Pavel Machek <pavel@ucw.cz>, Spam <spam@tnonline.net>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jamie Lokier <jamie@shareable.org>, David Masover <ninja@slaphack.com>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
+	Thu, 2 Sep 2004 17:03:22 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:63198 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S269078AbUIBUi6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 16:38:58 -0400
+Date: Thu, 2 Sep 2004 22:38:54 +0200
+From: Frank van Maarseveen <frankvm@xs4all.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Alexander Lyamin aka FLX <flx@namesys.com>,
        ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <20040902204949.GA7449@taniwha.stupidest.org>
-References: <rlrevell@joe-job.com>
-	 <1094079071.1343.25.camel@krustophenia.net>
-	 <200409021425.i82EPn9i005192@laptop11.inf.utfsm.cl>
-	 <1535878866.20040902214144@tnonline.net>
-	 <20040902194909.GA8653@atrey.karlin.mff.cuni.cz>
-	 <1094155277.11364.92.camel@krustophenia.net>
-	 <20040902204351.GE8653@atrey.karlin.mff.cuni.cz>
-	 <1094158060.1347.16.camel@krustophenia.net>
-	 <20040902204949.GA7449@taniwha.stupidest.org>
-Content-Type: text/plain
-Message-Id: <1094158626.1347.28.camel@krustophenia.net>
+Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
+Message-ID: <20040902203854.GA4801@janus>
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 02 Sep 2004 16:57:06 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094118362.4847.23.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-02 at 16:49, Chris Wedgwood wrote:
-> On Thu, Sep 02, 2004 at 04:47:40PM -0400, Lee Revell wrote:
+On Thu, Sep 02, 2004 at 10:46:05AM +0100, Alan Cox wrote:
+> On Mer, 2004-09-01 at 21:50, Linus Torvalds wrote:
+> > and quite frankly, I think you can do the above pretty much totally in
+> > user space with a small library and a daemon (in fact, ignoring security
+> > issues you probably don't even need the daemon). And if you can prototype
+> > it like that, and people actually find it useful, I suspect kernel support
+> > for better performance might be possible.
 > 
-> > But how do you cache the information you had to look in the archive
-> > for in a way that other apps can use it?
-> 
-> ~/.object-cache/ or whatever
-> 
+> Gnome already supports this in the gnome-vfs2 layer. "MC" has supported
+> it since the late 1990's.
 
-How are permissions handled?  If root lists the contents of a tar file
-that is world readable, then joeuser comes along and does the same, can
-joeuser sees the cached listing?  Would it depend on root's umask?
+Can it do this:
 
-Lee
+	cd FC2-i386-disc1.iso
+	ls
 
+or this:
+
+	cd /dev/sda1
+	ls
+	cd /dev/floppy
+	ls
+	cd /dev/cdrom
+	ls
+
+?
+
+-- 
+Frank

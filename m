@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbTHSShd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 14:37:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbTHSShQ
+	id S261154AbTHSSod (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 14:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbTHSSmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 14:37:16 -0400
-Received: from [218.18.211.169] ([218.18.211.169]:21060 "ehlo sina.com")
-	by vger.kernel.org with ESMTP id S273252AbTHSSWV (ORCPT
+	Tue, 19 Aug 2003 14:42:52 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:56460 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261179AbTHSShF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 14:22:21 -0400
-From: "HY Tech" <technology_hy@sina.com>
-Subject: Updated price list for mp3 player, digital camera, cd/vcd/mp3 player
- and USB flash driv!
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;charset="GB2312"
-Reply-To: technology_hy@sina.com
-Date: Wed, 20 Aug 2003 02:22:26 +0800
-X-Priority: 2
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-Message-Id: <S273252AbTHSSWV/20030819182221Z+285@vger.kernel.org>
+	Tue, 19 Aug 2003 14:37:05 -0400
+Date: Tue, 19 Aug 2003 11:29:12 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Daniel Gryniewicz <dang@fprintf.net>
+Cc: alan@lxorguk.ukuu.org.uk, richard@aspectgroup.co.uk, skraw@ithnet.com,
+       willy@w.ods.org, carlosev@newipnet.com, lamont@scriptkiddie.org,
+       davidsen@tmr.com, bloemsaa@xs4all.nl, marcelo@conectiva.com.br,
+       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+Message-Id: <20030819112912.359eaea6.davem@redhat.com>
+In-Reply-To: <1061317825.3744.7.camel@athena.fprintf.net>
+References: <353568DCBAE06148B70767C1B1A93E625EAB57@post.pc.aspectgroup.co.uk>
+	<1061296544.30566.8.camel@dhcp23.swansea.linux.org.uk>
+	<1061317825.3744.7.camel@athena.fprintf.net>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear valued customer,
+On 19 Aug 2003 14:30:26 -0400
+Daniel Gryniewicz <dang@fprintf.net> wrote:
 
-We are a professional manufacturer of mp3 player, cd/vcd/mp3 player, digital camera and USB flash 
-drive in Shenzhen, China.
+> If you are not on a shared lan, then it will *ONLY* work if linux is
+> on the other end.  No other system will work.
 
-Please see the price of some products:
-mp3 player with digital recorder and USB flash drive
-64M 39USD      128M   52USD
+And these other systems are broken.  (actually, older Cisco equipment
+correctly responds to the ARP regardless of source IP)
 
-cd/vcd/mp3 player (3 function in 1)
-21.5USD
+Just because some Cisco engineer says that it is correct doesn't
+make it is.
 
-digital camera
-300K pixels  15.5USD      1.3M pixels    24USD
+Consider the situation logically.  When you're replying to an
+ARP, _HOW_ do you know what IP addresses are assigned to _MY_
+outgoing interfaces and _HOW_ do you know what subnets _EXIST_
+on the LAN?
 
-USB flash drive
-64M  17.9USD       128M  29.9USD      256M  54.9USD     
+The answer to both is, you'd don't know these things _EVEN_ if
+you are a router/gateway.
 
-If you have interest, please contacut us and we will give you the detailed catalogue and price 
-list. 
-
-We always try our best to attract our clients with unbeatable prices and quality. Our goal is to 
-treat every 
-client the same as the most potential business partner.So however the client is big or small,we 
-offer the 
-best service. 
-
-Any question, please contact me at any time.
- 
-Have a nice day!
-
-Best Regards,
-
-Frank Ho
-General Manager
-HY Technology (Hong Kong) Company Ltd.
+Therefore there is no valid reason not to respond to an ARP using one
+source address as opposed to another.

@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262142AbSJNUir>; Mon, 14 Oct 2002 16:38:47 -0400
+	id <S262160AbSJNUfr>; Mon, 14 Oct 2002 16:35:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262164AbSJNUir>; Mon, 14 Oct 2002 16:38:47 -0400
-Received: from ns.suse.de ([213.95.15.193]:44555 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S262142AbSJNUir> convert rfc822-to-8bit;
-	Mon, 14 Oct 2002 16:38:47 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SuSE Linux AG
-To: Robson Paniago de Miranda <Robsonm@mpdft.gov.br>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH 0/5] ACL support for ext2/3
-Date: Mon, 14 Oct 2002 22:44:39 +0200
-User-Agent: KMail/1.4.3
-References: <F993807AD0E4D511AF72009027B2268B0147DC1C@saoluis.mpdft>
-In-Reply-To: <F993807AD0E4D511AF72009027B2268B0147DC1C@saoluis.mpdft>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210142244.39506.agruen@suse.de>
+	id <S262164AbSJNUfr>; Mon, 14 Oct 2002 16:35:47 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:16029 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262160AbSJNUfg>;
+	Mon, 14 Oct 2002 16:35:36 -0400
+Date: Mon, 14 Oct 2002 13:33:37 -0700 (PDT)
+Message-Id: <20021014.133337.45996640.davem@redhat.com>
+To: root@chaos.analogic.com
+Cc: genlogic@inrete.it, linux-kernel@vger.kernel.org
+Subject: Re: unhappy with current.h
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.3.95.1021014162539.16867B-100000@chaos.analogic.com>
+References: <3DAB1F00.667B82B5@inrete.it>
+	<Pine.LNX.3.95.1021014162539.16867B-100000@chaos.analogic.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 October 2002 20:34, Robson Paniago de Miranda wrote:
-> I think Andreas Gruenbacher released version 0.8.51 solving a bug in
-> which a user could receive the "others" permission if the group
-> permissions are zero. There is still time to integrate these changes?
+   From: "Richard B. Johnson" <root@chaos.analogic.com>
+   Date: Mon, 14 Oct 2002 16:33:50 -0400 (EDT)
+   
+   This cannot be the reason for your problem. The name of a structure
+   member has no connection whatsoever with the name of any function or
+   definition.
 
-Ted has the patch; it's trivial to fix.
+try instead
 
---Andreas.
-
+#define current foo()

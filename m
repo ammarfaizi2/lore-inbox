@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbUBYV7G (ORCPT <rfc822;willy@w.ods.org>);
+	id S261658AbUBYV7G (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 25 Feb 2004 16:59:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbUBYVru
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbUBYVxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 16:47:50 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:25557 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S261636AbUBYVo6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 16:44:58 -0500
-Subject: Re: cryptoapi OMAC (was: cryptoapi highmem bug)
-From: Christophe Saout <christophe@saout.de>
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-Cc: jmorris@intercode.com.au, linux-kernel@vger.kernel.org
-In-Reply-To: <20040225205952.GB7140@certainkey.com>
-References: <20040224223425.GA32286@certainkey.com>
-	 <1077663682.6493.1.camel@leto.cs.pocnet.net>
-	 <20040225043209.GA1179@certainkey.com>
-	 <20040224220030.13160197.akpm@osdl.org>
-	 <20040225153126.GA7395@leto.cs.pocnet.net>
-	 <20040225155121.GA7148@leto.cs.pocnet.net>
-	 <20040225154453.GB4218@certainkey.com>
-	 <1077725621.7221.0.camel@leto.cs.pocnet.net>
-	 <20040225160935.GD4218@certainkey.com>
-	 <20040225181131.GA8983@leto.cs.pocnet.net>
-	 <20040225205952.GB7140@certainkey.com>
-Content-Type: text/plain
-Message-Id: <1077745486.6707.4.camel@leto.cs.pocnet.net>
+	Wed, 25 Feb 2004 16:53:54 -0500
+Received: from waste.org ([209.173.204.2]:2024 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261644AbUBYVxN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 16:53:13 -0500
+Date: Wed, 25 Feb 2004 15:52:40 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       "Amit S. Kale" <akale@users.sourceforge.net>
+Subject: Re: 3/3 kgdb over netpoll
+Message-ID: <20040225215240.GE3883@waste.org>
+References: <20040222160849.GA9563@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 25 Feb 2004 22:44:47 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040222160849.GA9563@elf.ucw.cz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mi, den 25.02.2004 schrieb Jean-Luc Cooke um 21:59:
-
-> Then apply this:
->   http://jlcooke.ca/lkml/crypto_omac_hmac_ctr_25feb2004.patch
+On Sun, Feb 22, 2004 at 05:08:49PM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> This is my HMAC/OMAC/CTR patch.  I think I fixed your HMAC issue.
-> I was giving a scatterlist a stack memory reference (!).
+> This is kgdb-over-ethernet patch. Depends on netpoll, and is somehow
+> experimental.
 
-Hmm? That's not a problem per se.
+Please pick up the current kgdboe docs from -mm.
 
-I will look at it. But I still see a lot of room for improvement
-especially concerning the cipher.c changes. And I don't think all of
-your changes to the digest code are really necessary.
-
-
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

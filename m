@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316800AbSE1BvF>; Mon, 27 May 2002 21:51:05 -0400
+	id <S316804AbSE1CEp>; Mon, 27 May 2002 22:04:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316801AbSE1BvE>; Mon, 27 May 2002 21:51:04 -0400
-Received: from beth.pinerecords.com ([212.71.161.243]:7186 "EHLO
-	beth.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S316800AbSE1BvD>; Mon, 27 May 2002 21:51:03 -0400
-Date: Mon, 27 May 2002 23:30:16 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Colin Gibbs <colin@gibbs.dhs.org>
-Cc: linux-kernel@vger.kernel.org, tcallawa@redhat.com,
-        sparclinux@vger.kernel.org, aurora-sparc-devel@linuxpower.org
-Subject: Re: 2.4 SRMMU bug revisited
-Message-ID: <20020527213016.GB7155@beth.pinerecords.com>
-In-Reply-To: <20020527092408.GD345@louise.pinerecords.com> <1022525198.19147.29.camel@monolith>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: GNU/Linux 2.4.19-pre8-ac5 
-X-Architecture: i586
-X-Uptime: 11:03
+	id <S316818AbSE1CEo>; Mon, 27 May 2002 22:04:44 -0400
+Received: from squeaker.ratbox.org ([63.216.218.7]:23567 "EHLO
+	squeaker.ratbox.org") by vger.kernel.org with ESMTP
+	id <S316804AbSE1CEn>; Mon, 27 May 2002 22:04:43 -0400
+Date: Mon, 27 May 2002 22:04:41 -0400 (EDT)
+From: Aaron Sethman <androsyn@ratbox.org>
+To: Dan Kegel <dank@kegel.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        <pwaechtler@loewe-komp.de>, <austin@digitalroadkill.net>
+Subject: Re: RT Sigio broken on 2.4.19-pre8
+In-Reply-To: <3CF2D86C.8745D791@kegel.com>
+Message-ID: <Pine.LNX.4.44.0205272203130.6201-100000@simon.ratbox.org>
+X-GPG-FINGRPRINT: 1024D/D4DE2553 0E60 59B5 60DA 2FD3 F6F5  27A3 6CD2 21AD D4DE 2553
+X-GPG-PUBLIC_KEY: http://squeaker.ratbox.org/androsyn.asc
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> --- 2.4.19-pre4/kernel/fork.c	Thu Mar 28 19:49:36 2002
-> +++ tortoise-19-pre4/kernel/fork.c	Sun Apr 21 22:01:18 2002
-> @@ -336,6 +336,9 @@
->  	if (!mm_init(mm))
->  		goto fail_nomem;
->  
-> +	if (init_new_context(tsk,mm))
-> +		goto free_pt;
-> +
->  	down_write(&oldmm->mmap_sem);
->  	retval = dup_mmap(mm);
->  	up_write(&oldmm->mmap_sem);
-> @@ -347,9 +350,6 @@
->  	 * child gets a private LDT (if there was an LDT in the parent)
->  	 */
->  	copy_segments(tsk, mm);
-> -
-> -	if (init_new_context(tsk,mm))
-> -		goto free_pt;
->  
->  good_mm:
->  	tsk->mm = mm;
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
-Hmmm, upon closer inspection I found out this patch had *not* been in
-what I extracted from the linux-2.4 bitkeeper tree, so my report was
-probably not of much value. I'll retest tomorrow with the above applied.
-Sorry for the confusion <-- I still can't see the patch in the listings
-at http://linux.bkbits.net:8080/linux-2.4/
+On Mon, 27 May 2002, Dan Kegel wrote:
+>
+> That sounds like the way I'm clearing the signal queue is not working.
+> Here's a minimal test case for clearing the signal queue.  Could
+> you try it and tell me what it says?
+> - Dan
 
-The patch I used is
-http://www.dragon.cz/~kala/patch-2.4.19-pre8-sparcfixes-upto020523-1.gz
-(I assembled it by hand using the bk web interface, looking up all sparc
-related changes since -pre8.)
+The test passed.  What it looks like is, the kernel for some reason is not
+decrementing the queued count for some reason.  I have a server doing RT
+sigio and after a while, the rtsig-nr count goes up to 1024 and never
+comes back down even if I kill that process.
 
-T.
+Regards,
+
+Aaron
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE88uW7bNIhrdTeJVMRApXSAKCMolB/rzDvdin1byJo36ZYRw6mmACbBkLl
+JGH5UDNRpg0AE0VK3lDaPGw=
+=NUCR
+-----END PGP SIGNATURE-----
+

@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265457AbSLMVeG>; Fri, 13 Dec 2002 16:34:06 -0500
+	id <S265469AbSLMVjJ>; Fri, 13 Dec 2002 16:39:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265469AbSLMVeG>; Fri, 13 Dec 2002 16:34:06 -0500
-Received: from tolkor.sgi.com ([198.149.18.6]:26031 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S265457AbSLMVeF>;
-	Fri, 13 Dec 2002 16:34:05 -0500
-Date: Fri, 13 Dec 2002 23:55:21 -0500
+	id <S265470AbSLMVjJ>; Fri, 13 Dec 2002 16:39:09 -0500
+Received: from tolkor.sgi.com ([198.149.18.6]:40367 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S265469AbSLMVjI>;
+	Fri, 13 Dec 2002 16:39:08 -0500
+Date: Sat, 14 Dec 2002 00:00:35 -0500
 From: Christoph Hellwig <hch@sgi.com>
-To: Adrian Bunk <bunk@fs.tum.de>
+To: marcelo@conectiva.com.br, torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] set_cpus_allowed() for 2.4
-Message-ID: <20021213235521.A8607@sgi.com>
-Mail-Followup-To: Christoph Hellwig <hch@sgi.com>,
-	Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-References: <20021213180814.A2658@sgi.com> <20021213213458.GG4817@fs.tum.de>
+Subject: [PATCH] CREDITS update
+Message-ID: <20021214000035.A8624@sgi.com>
+Mail-Followup-To: Christoph Hellwig <hch@sgi.com>, marcelo@conectiva.com.br,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021213213458.GG4817@fs.tum.de>; from bunk@fs.tum.de on Fri, Dec 13, 2002 at 10:34:59PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 13, 2002 at 10:34:59PM +0100, Adrian Bunk wrote:
-> On Fri, Dec 13, 2002 at 06:08:14PM -0500, Christoph Hellwig wrote:
-> 
-> >...
-> > now that all vendors ship a backport of Ingo's O(1) scheduler, external
-> >...
-> 
-> #include <all-vendors-except-Debian>  ;-)
+hch moved around to work for SGI..
 
-OOPS, I reused the first template again.  I think I owe you a beer :)
 
+--- 1.61/CREDITS	Thu Dec 12 00:10:28 2002
++++ edited/CREDITS	Fri Dec 13 22:42:17 2002
+@@ -1236,11 +1236,13 @@
+ 
+ N: Christoph Hellwig
+ E: hch@infradead.org
+-D: misc driver & makefile hacking
++E: hch@sgi.com
++D: all kinds of driver, filesystem & core kernel hacking
+ D: freevxfs driver
+ D: sysvfs maintainer
+-S: Triftstraﬂe 26
+-S: 38644 Goslar
++D: chief codingstyle nitpicker
++S: Auweg 38
++S: 85748 Garching
+ S: Germany
+ 
+ N: Richard Henderson

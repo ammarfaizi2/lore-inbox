@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275577AbRIZUUw>; Wed, 26 Sep 2001 16:20:52 -0400
+	id <S275578AbRIZUVW>; Wed, 26 Sep 2001 16:21:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275578AbRIZUUn>; Wed, 26 Sep 2001 16:20:43 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:10414 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S275577AbRIZUU1>; Wed, 26 Sep 2001 16:20:27 -0400
-Subject: [Announce] New Release of LTP Available
+	id <S275579AbRIZUVO>; Wed, 26 Sep 2001 16:21:14 -0400
+Received: from [199.247.156.30] ([199.247.156.30]:58511 "HELO
+	whitehorse.blackwire.com") by vger.kernel.org with SMTP
+	id <S275578AbRIZUU7>; Wed, 26 Sep 2001 16:20:59 -0400
+From: pjordan@whitehorse.blackwire.com
+Date: Wed, 26 Sep 2001 11:11:15 -0700
 To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF61628A7D.E8956F9F-ON85256AD3.006FA3A2@raleigh.ibm.com>
-From: "Robert Williamson" <robbiew@us.ibm.com>
-Date: Wed, 26 Sep 2001 15:20:38 -0500
-X-MIMETrack: Serialize by Router on D04NMS96/04/M/IBM(Release 5.0.8 |June 18, 2001) at
- 09/26/2001 04:20:42 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Subject: 2.4.10 SMP on powermac3,3 7400. had to hack.
+Message-ID: <20010926111115.A22056@panama>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Linux Test Project ltp-20010925 was released today. You can download
-the Linux Test Project on SourceForge at
-http://sourceforge.net/projects/ltp.
+find /usr/src/linux -type f -exec grep mmu_gathers -n {} \; -ls
 
-* Over 400+ tests have been added that extend the kernel system call
-  coverage of the LTP.
+and for some funny reason, the arch/ppc/mm/init.c is the only one that does not have the lines 
 
-* Each added test is enhanced with options such as looping, functional
-  coverage, and error tracking for testing reliability and robustness.
+#include <asm/tlb.h>
 
-* Test case structure has been reorganized based on testing area,
-  i.e. system calls, network, io,   etc.
-
-* Descriptions of EVERY test are now located under /doc, as well as
-  under each test category subdirectory.
-
-* Updated INSTALL and README documentation to reflect new
-  LTP structure.
+mmu_gather_t mmu_gathers[NR_CPUS];
 
 
-Test results on the 2.4.9 kernel have also been posted.
+in it.
 
-For more information about the Linux Test Project, visit our web site at
-http://ltp.sf.net
 
+Sorry for no proper patch.  It is too late and I am too lazy.
+
+Anyway, there is some funny video driver issue or something, I have to use prevent xdm from trying to start
+or this bugger will hang .. or at least I lose the video display and the monitor power light blinks on and off.
+
+Also if I run gpm and select a line of text on the console I get the highlighted area turning into
+funny non-printable characters and happy faces and such.
+
+Good night.
+
+oh: Without the above patch the kernel build fails right at the end when linking mm.o with others and complains
+about no reference to mm_gathers in zap_page_reg or something like that.
+
+
+Peter

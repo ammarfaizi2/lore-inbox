@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280832AbRKYLyj>; Sun, 25 Nov 2001 06:54:39 -0500
+	id <S280840AbRKYMF3>; Sun, 25 Nov 2001 07:05:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280825AbRKYLya>; Sun, 25 Nov 2001 06:54:30 -0500
-Received: from mail305.mail.bellsouth.net ([205.152.58.165]:19670 "EHLO
-	imf05bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S280832AbRKYLyP>; Sun, 25 Nov 2001 06:54:15 -0500
-Message-ID: <3C00DBE1.7A523308@mandrakesoft.com>
-Date: Sun, 25 Nov 2001 06:54:09 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: john slee <indigoid@higherplane.net>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Network hardware: "Network Media Detection"
+	id <S280838AbRKYMFU>; Sun, 25 Nov 2001 07:05:20 -0500
+Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:20000 "EHLO
+	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S280840AbRKYMFF>;
+	Sun, 25 Nov 2001 07:05:05 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
+To: linux-kernel@vger.kernel.org
+Subject: linux 2.4.13 Kernel and Ext3 vs Ext2
+Date: Sun, 25 Nov 2001 12:05:55 +0000
+X-Mailer: KMail [version 1.3.1]
 In-Reply-To: <E167ja2-0004fF-00@carbon.btinternet.com> <9tpiio$n4u$1@cesium.transmeta.com> <20011125224259.A4844@higherplane.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20011125224259.A4844@higherplane.net>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <EXCH01SMTP011Np7vXe00002de9@smtp.netcabo.pt>
+X-OriginalArrivalTime: 25 Nov 2001 12:04:33.0801 (UTC) FILETIME=[58835790:01C175A9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john slee wrote:
-> 
-> On Sat, Nov 24, 2001 at 05:47:04PM -0800, H. Peter Anvin wrote:
-> > > Hi
-> > > I was wondering if there was any way in linux to use what redmond calls
-> > > "Network Media Detection"?
-> > This is basically taking the interface down when the link disappears
-> > (and vice versa.)  Rather useful for portable systems.  Don't think
-> > anyone has implemented it, but it should be easy enough to do.
-> 
-> is there a common field in net_device{} for link state (not just up or
-> down, but media type too)?
-> 
-> all the various ethernet drivers seem to handle link changes rather
-> differently.  being able to notify userspace of media changes in a
-> not-driver-specific manner would be nice as links flapping from 10 to
-> 100Mbps and back often means problems are afoot.
-> 
-> also i am undecided on _how_ to tell userspace about it...  the current
-> hotplug system only seems to handle plug/unplug, whereas this is a
-> device state change and as such doesn't really fit the mould...
+With the kernel bug from the past few weeks, i saw my self in a situation 
+where i had to upgrade/change my kernel, but didn't knew which version to 
+choose.
 
-Functions provided by kernel that net drivers should be using:
-netif_carrier_on
-netif_carrier_off
-netif_carrier_ok
+I am currently running my old 2.4.7 stable version with no known bugs ( i 
+think ) but this is not what i want, So i went digging and found out that the 
+kernel 2.4.13 hasn't also got no known major bugs, and so  i am wondering if 
+i should compile that kernel version or wait to the 2.4.16 final one!!!
 
-ioctl that should be handled by net drivers, to provide link status to
-userspace:
-ETHTOOL_GLINK
+My question is, which kernel version support the ext3 partition format?
 
-Long term, we want to send a netlink message when link status changes.
-
-	Jeff
+My current kernel supports it, it has to as i running it, but the 2.4.14 
+didn't, so i don't know which versions do support this partition type!
 
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+Another matter now:
 
+When i first installed linux red hat 7.2 one  month ago, i saw that there had 
+appeard a new partition format, but as i am new to linux, and as the 
+installation info about ext3 advised me that ext3 had lots of advantages over 
+ext2, i choosen ext3!
+
+I want to know whether i did the right or the wrong thing, and which are the 
+main differences between these two types!!!
+
+
+ha, and before saying goodbye, where can read the complete information about 
+each and every kernel release?
+
+tks, Astinus

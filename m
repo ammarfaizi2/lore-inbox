@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264858AbSJ3TLA>; Wed, 30 Oct 2002 14:11:00 -0500
+	id <S264867AbSJ3TJa>; Wed, 30 Oct 2002 14:09:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264834AbSJ3TK7>; Wed, 30 Oct 2002 14:10:59 -0500
-Received: from pullyou.nist.gov ([129.6.16.93]:17569 "EHLO postmark.nist.gov")
-	by vger.kernel.org with ESMTP id <S264858AbSJ3TKz>;
-	Wed, 30 Oct 2002 14:10:55 -0500
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: post-halloween 0.2
-References: <Pine.LNX.4.44.0210301111130.983-100000@cherise.pdx.osdl.net>
-From: Ian Soboroff <ian.soboroff@nist.gov>
-Date: 30 Oct 2002 14:16:39 -0500
-In-Reply-To: <Pine.LNX.4.44.0210301111130.983-100000@cherise.pdx.osdl.net>
-Message-ID: <9cfk7jzspns.fsf@rogue.ncsl.nist.gov>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	id <S264863AbSJ3TJ3>; Wed, 30 Oct 2002 14:09:29 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:37522 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S264867AbSJ3TJ0>; Wed, 30 Oct 2002 14:09:26 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 30 Oct 2002 11:25:21 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Zach Brown <zab@zabbo.net>
+cc: John Gardiner Myers <jgmyers@netscape.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-aio@kvack.org>, <lse-tech@lists.sourceforge.net>
+Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
+In-Reply-To: <20021030135920.K4044@bitchcake.off.net>
+Message-ID: <Pine.LNX.4.44.0210301114400.1446-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel <mochel@osdl.org> writes:
+On Wed, 30 Oct 2002, Zach Brown wrote:
 
-> > sysfs == Sisyphus, a character of Greek mythology doomed by the gods
-> > to roll a boulder up a hill for all time.  When he gets to the top, it
-> > rolls back down.
-> 
-> sysfs != Sisyphus. They are coincidental hominems. 
+> > It is very easy for me to remain calm here. You're a funny guy. You're in
+> > the computer science by many many years and still you're not able to
+> > understand how edge triggered events works. And look, this apply to every
+> > field, form ee to cs. Book suggestions would be requested here, but since
+> > I believe grasping inside a technical library to be pretty fun, I'll leave
+> > you this pleasure.
+>
+> 	http://www.infidels.org/news/atheism/logic.html#hominem
+>
+> I know its hard, but can we try and avoid the most pathetic pitfalls of
+> arguing over email?
 
-Homonyms.  Or is this an ad-homonym attack?
+Zach, on one side it's very easy for me. I just won't reply. This should
+cut this very short. Looking at the whole thread you'll find that he
+wanted to pass his non agreement with the interface, that is a pretty
+normal and legitimate thing, for a bug of the interface. Now, while non
+agreement imply a very own subjective way to see a thing, a bug means a
+very objective thing. That is, "it does not work". Now, when someone state
+something that is proven to be false ( it's not even an RTQA, it's a
+NOT-A-BUG ), and when this someone tried in every way to kill the
+interface ( for reason that I'm not aware about ), and also implied that
+"I do not understand", well I've been educated to respond. Look, I'm a
+very simple guy. You don't touch me and I'll be transparent like a ghost
+for you. You touch me personally, and I retaliate.
 
-> > Kind of like fixing /proc.  <ducks>
-> 
-> Recall also that (Feature Freeze != Code Freeze). There will be a lot of 
-> cleanup and conversion happening the next few months, from old school 
-> driver models to the new driver models, and the population of a sane sysfs 
-> layout. 
-> 
-> driverfs will hopefully die today. Stay tuned..
-> 
-> 	-pat
+
+
+- Davide
+
+
 

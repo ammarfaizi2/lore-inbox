@@ -1,33 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131349AbRARAli>; Wed, 17 Jan 2001 19:41:38 -0500
+	id <S130117AbRARAls>; Wed, 17 Jan 2001 19:41:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131340AbRARAlW>; Wed, 17 Jan 2001 19:41:22 -0500
-Received: from [129.94.172.186] ([129.94.172.186]:28655 "EHLO
+	id <S131340AbRARAli>; Wed, 17 Jan 2001 19:41:38 -0500
+Received: from [129.94.172.186] ([129.94.172.186]:35311 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S130117AbRARAk6>; Wed, 17 Jan 2001 19:40:58 -0500
-Date: Wed, 17 Jan 2001 19:33:23 +1100 (EST)
+	id <S130117AbRARAl3>; Wed, 17 Jan 2001 19:41:29 -0500
+Date: Wed, 17 Jan 2001 19:46:44 +1100 (EST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@localhost.localdomain>
 To: Daniel Phillips <phillips@innominate.de>
-cc: "Stephen C. Tweedie" <sct@redhat.com>, Christoph Rohland <cr@sap.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: VM subsystem bug in 2.4.0 ?
-In-Reply-To: <3A5B401F.9D4BCBDF@innominate.de>
-Message-ID: <Pine.LNX.4.31.0101171932460.31432-100000@localhost.localdomain>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Subtle MM bug
+In-Reply-To: <3A5B61F7.FB0E79C1@innominate.de>
+Message-ID: <Pine.LNX.4.31.0101171942550.31432-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, 9 Jan 2001, Daniel Phillips wrote:
+> Linus Torvalds wrote:
+> > (This is why I worked so hard at getting the PageDirty semantics right in
+> > the last two months or so - and why I released 2.4.0 when I did. Getting
+> > PageDirty right was the big step to make all of the VM stuff possible in
+> > the first place. Even if it probably looked a bit foolhardy to change the
+> > semantics of "writepage()" quite radically just before 2.4 was released).
+>
+> On the topic of writepage, it's not symmetric with readpage at
+> the moment - it still takes (struct file *).  Is this in the
+> cleanup pipeline?  It looks like nfs_readpage already ignores
+> the struct file *, but maybe some other net filesystems are
+> still depending on it.
 
-> Call it 'pinned'... the pinned list would have pages with use
-> count = 2 or more.  A page gets off the pinned list when its use
-> count goes to 1 in put_page.
+writepage() and readpage() will never be symmetric...
 
-I don't even want to start thinking about how this would
-screw up the (already fragile) page aging balance...
+readpage()
+	program can't continue until data is there
+	reading in larger clusters eats (wastes?) more memory
+	done when we think a process needs data
+
+writepage()
+	called after the process has written data and moved on
+	writing larger clusters has no influence on memory use
+	often done to free up memory
+
+Since readpage() needs to tune readahead behaviour, we will
+always want to give it some information (eg. in the file *)
+so it can do the extra things it needs to do.
+
+regards,
 
 Rik
 --

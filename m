@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263129AbTICPTi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 11:19:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263488AbTICPTi
+	id S262702AbTICPNX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 11:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263043AbTICPNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 11:19:38 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:17405 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S263129AbTICPTh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 11:19:37 -0400
-MIME-Version: 1.0
+	Wed, 3 Sep 2003 11:13:23 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:20135 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262702AbTICPNT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 11:13:19 -0400
+Date: Wed, 3 Sep 2003 17:13:18 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Greg KH <greg@kroah.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>, rmk@arm.linux.org.uk
+Subject: Re: Fix up power managment in 2.6
+Message-ID: <20030903151318.GB30629@atrey.karlin.mff.cuni.cz>
+References: <20030831232812.GA129@elf.ucw.cz> <Pine.LNX.4.44.0309010925230.7908-100000@home.osdl.org> <20030901211220.GD342@elf.ucw.cz> <20030901225243.D22682@flint.arm.linux.org.uk> <20030901221920.GE342@elf.ucw.cz> <20030901233023.F22682@flint.arm.linux.org.uk> <20030901224018.GA470@elf.ucw.cz> <20030902171729.GB17807@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16214.1666.850426.454153@gargle.gargle.HOWL>
-Date: Wed, 3 Sep 2003 17:19:30 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Damian Kolkowski <deimos@deimos.one.pl>,
-       Danny ter Haar <dth@ncc1701.cistron.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test4(-mmX) via-rhine ethernet onboard C3 mini-itx
-	doesn't work
-In-Reply-To: <1062598918.19059.54.camel@dhcp23.swansea.linux.org.uk>
-References: <bj447c$el6$1@news.cistron.nl>
-	<20030903074902.GA1786@deimos.one.pl>
-	<16213.46254.376174.466098@gargle.gargle.HOWL>
-	<1062598918.19059.54.camel@dhcp23.swansea.linux.org.uk>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <20030902171729.GB17807@kroah.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
- > On Mer, 2003-09-03 at 10:30, Mikael Pettersson wrote:
- > > It's impossible to have an APIC bug on a C3 board, because the processor
- > > simply doesn't have one!
- > 
- > The chipset does and not writing PCI_INTERRUPT_LINE and other things
- > properly can cause problems if its directing interrupts to the chipset
- > I/O APIC wrongly not the PIC and thus the CPU
+Hi!
 
-You mean PCI initialisation (and thus ACPI) can break the I/O-APIC
-even though the kernel never actually accesses the I/O-APIC per se?
-Ok, I see how that could happen.
+> > > I don't think PCI device support broke - Pat seems to have fixed up
+> > > all that fairly nicely, so the driver model change should be
+> > > transparent.
+> > 
+> > As far as I can test, yes, at least UHCI looks broken :-(. It is true
+> > that calling convention at PCI level did not change.
+> 
+> UHCI is broken?  How?  
+> 
+> Hey, I don't think that the USB code will work at all with suspend
+> without just unloading the whole USB core.
 
-/Mikael
+Well, it did work okay in -test3. UHCI has support (leftover from APM
+times or something like that), and it was properly called from suspend
+sequence. USB devices were "disconnected/reconnected", but it all
+worked.
+
+								Pavel
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263319AbTGTIGi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 04:06:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbTGTIGi
+	id S263281AbTGTIHt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 04:07:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbTGTIHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 04:06:38 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:25869 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S263319AbTGTIGQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 04:06:16 -0400
-Date: Sun, 20 Jul 2003 10:20:41 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AMD Athlon MP Machine check exceptions
-Message-ID: <20030720082041.GD643@alpha.home.local>
-References: <20030719225935.GA628@gallifrey>
+	Sun, 20 Jul 2003 04:07:48 -0400
+Received: from [213.39.233.138] ([213.39.233.138]:27583 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S263281AbTGTIHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 04:07:41 -0400
+Date: Sun, 20 Jul 2003 10:22:17 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: junkio@cox.net
+Cc: David Dillow <dave@thedillows.org>, linux-kernel@vger.kernel.org,
+       Phillip Lougher <phillip@lougher.demon.co.uk>
+Subject: Re: [PATCH] Port SquashFS to 2.6
+Message-ID: <20030720082217.GA25468@wohnheim.fh-wedel.de>
+References: <7vk7ae15ty.fsf@assigned-by-dhcp.cox.net> <1058657738.4233.4.camel@ori.thedillows.org> <7vu19hrc1l.fsf@assigned-by-dhcp.cox.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030719225935.GA628@gallifrey>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <7vu19hrc1l.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Sat, 19 July 2003 22:40:22 -0700, junkio@cox.net wrote:
+> >>>>> "DD" == David Dillow <dave@thedillows.org> writes:
+> 
+> DD> Hmm, isn't that 4K allocated on the stack? Ouch.
+> 
+> Ouch indeed.  I was not looking for these things (I was just
+> porting not fixing).  Thank you for pointing it out.  Have a
+> couple of questions:
+> 
+>  - Would it be an acceptable alternative here to use blocking
+>    kmalloc upon entry with matching kfree before leaving?
+> 
+>  - I would imagine that the acceptable stack usage for functions
+>    would depend on where they are called and what they call.
+>    Coulc you suggest a rule-of-thumb number for
+>    address_space_operations.readpage (say, would 1kB be OK but
+>    not 3kB?)
 
-You should feed it through Dave Jones' parsemce program. BTW, he already
-replied a few months ago to exactly the same report (search 940040000000017a
-on google, you have it already decoded :-))
+As a rule of thumb, stay below 1k or you will get regular email from
+me. :)
 
-Cheers,
-Willy
+Depending on where and what you do, a bit more could be ok, but this
+is hard to prove and also depends a bit on the architecture.  s390 has
+giant stacks because function call overhead is huge, i386 will likely
+halve the kernel stack sometime during 2.7 and there is no point is
+hiding more easter eggs now - there is enough hidden already.
 
-On Sat, Jul 19, 2003 at 11:59:35PM +0100, Dr. David Alan Gilbert wrote:
-> Hi,
->   Is there any information on decoding AMD Athlon MP Machine
-> check exceptions?  I can't seem to find the appropriate AMD
-> document on their website - it would be nice to know
-> if this is RAM or cache or something else that gave it.
-> 
-> The error reported is:
-> 
-> Jul 19 21:07:37 gallifrey kernel: MCE: The hardware reports a non fatal,
-> correctable incident occurred on CPU 0.
-> Jul 19 21:07:37 gallifrey kernel: Bank 2: 940040000000017a
-> 
-> Thats from 2.5.75 on a dual Athlon MP on a Tyan 760MP motherboard.
-> 
-> The machine has apparently been running fine for some time now - perhaps
-> this is heat related due to the unusually warm weather over here,
-> or perhaps it is the machine check polling picking
-> up something that has been going dodgy for a while.
-> 
-> Dave
->  -----Open up your eyes, open up your mind, open up your code -------   
-> / Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-> \ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
->  \ _________________________|_____ http://www.treblig.org   |_______/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Jörn
+
+-- 
+"Security vulnerabilities are here to stay."
+-- Scott Culp, Manager of the Microsoft Security Response Center, 2001

@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310174AbSCETpi>; Tue, 5 Mar 2002 14:45:38 -0500
+	id <S310180AbSCETpR>; Tue, 5 Mar 2002 14:45:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310175AbSCETp2>; Tue, 5 Mar 2002 14:45:28 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:24076 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S310174AbSCETpN>;
-	Tue, 5 Mar 2002 14:45:13 -0500
-Date: Tue, 5 Mar 2002 11:37:32 -0800
-From: Greg KH <greg@kroah.com>
-To: James Curbo <jcurbo@acm.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: a couple of USB related Oopses
-Message-ID: <20020305193732.GC10151@kroah.com>
-In-Reply-To: <20020305184604.GA4590@carthage> <20020305192307.GB10151@kroah.com> <20020305193317.GA5339@carthage>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020305193317.GA5339@carthage>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Tue, 05 Feb 2002 17:08:27 -0800
+	id <S310175AbSCETpH>; Tue, 5 Mar 2002 14:45:07 -0500
+Received: from dyn14.sndg-pm4-2.nethere.net ([216.188.7.14]:13184 "EHLO
+	temerity.net") by vger.kernel.org with ESMTP id <S310174AbSCEToy>;
+	Tue, 5 Mar 2002 14:44:54 -0500
+Date: Tue, 5 Mar 2002 11:52:17 -0800 (PST)
+From: Mike <mohr@temerity.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel upgrade
+Message-ID: <Pine.LNX.4.33.0203051141460.342-100000@temerity.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 05, 2002 at 01:33:17PM -0600, James Curbo wrote:
-> On Mar 05, Greg KH wrote:
-> > Can you reproduce these with the 2.4.6-pre2 kernel?
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> I presume you mean 2.5.6-pre2, as 2.4 is way past that.. I will try it
-> tonight after I get in from work...
+Hello all:
 
-Yes, sorry about that :)
+I am writing you because I recently upgraded my kernel from Slackware's
+stock version 2.4.5 to 2.4.18 and have noticed some strange behavior.  My
+computer, when left booted up but unused, seems to just decide to reboot
+every few hours on its own.  I don't know why it does this, but the same
+behavior was observed in kernel 2.4.17.  I would boot my machine up, use
+it for whatever (email, surfing, adding software, etc), then log out and
+leave the system up overnight.  The next morning, after touching the
+keyboard to unblank the console, it would appear that the system had been
+rebooted because I would be looking at tty1 with kernel boot messages
+above it.  Yet I had been asleep while it apparently had been rebooted.
 
-greg k-h
+To see if I wasn't going crazy, I appended "date >> /root/boot.log" to
+rc.local last night, echoed the system's uptime to the file, and went to sleep.
+  Lo and behold, the next morning I woke up to see a rebooted system.
+Checking boot.log this morning, I saw that indeed there was an entry for a
+system reboot at about 7 am.
+
+It might be worth noting that the computer is a 200MHz Compaq Presario
+1220 notebook (about 5 years old).  It originally shipped with Windows 95.
+How can I stop this reboot from happening?  Is it a problem with the
+kernel or something else?  Any help is appreciated.
+
+Michael
+

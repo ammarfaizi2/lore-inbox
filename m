@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267519AbTAHQfQ>; Wed, 8 Jan 2003 11:35:16 -0500
+	id <S267374AbTAHQrK>; Wed, 8 Jan 2003 11:47:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267606AbTAHQfQ>; Wed, 8 Jan 2003 11:35:16 -0500
-Received: from home.wiggy.net ([213.84.101.140]:4329 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id <S267519AbTAHQfP>;
-	Wed, 8 Jan 2003 11:35:15 -0500
-Date: Wed, 8 Jan 2003 17:43:47 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: ipv6 stack seems to forget to send ACKs
-Message-ID: <20030108164347.GK22951@wiggy.net>
-Mail-Followup-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
-	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-References: <20030108150201.GA30490@wiggy.net> <Pine.LNX.4.44.0301081718340.4542-100000@dns.toxicfilms.tv>
+	id <S267387AbTAHQrK>; Wed, 8 Jan 2003 11:47:10 -0500
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:17679 "EHLO
+	ns.higherplane.net") by vger.kernel.org with ESMTP
+	id <S267374AbTAHQrJ>; Wed, 8 Jan 2003 11:47:09 -0500
+Date: Thu, 9 Jan 2003 03:55:17 +1100
+From: john slee <indigoid@higherplane.net>
+To: John Bradford <john@grabjohn.com>
+Cc: jeff-lk@gerard.st, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][TRIVIAL] menuconfig color sanity
+Message-ID: <20030108165517.GG18508@higherplane.net>
+References: <20030108155623.GA26882@kanoe.ludicrus.net> <200301081609.h08G929Q001835@darkstar.example.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301081718340.4542-100000@dns.toxicfilms.tv>
+In-Reply-To: <200301081609.h08G929Q001835@darkstar.example.net>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Maciej Soltysiak wrote:
-> I do not know how many tunnels are in my path, i know that hop distance to
-> my tunnel is exactly 1 hop (ipv6 broker and ipv4 provider are the same)
+On Wed, Jan 08, 2003 at 04:09:02PM +0000, John Bradford wrote:
+> > using yellow and green text with a "white" background in
+> > menuconfig works all right on console
+> 
+> I have seen the original problem, where the first letter is not
+> visible in an xterm.
+> 
+> Just add a colour/monochrome toggle, that way people can choose which
+> they prefer.
 
-My tunnel provider is 5 hops away. To my knowledge non of the ipv4 or
-ipv6 hops in the path are congested and no traffic shaping is done.
+'export TERM=xterm-mono' works fine here
 
-> If there is immense traffic at one of the routers (total traffic on an
-> interface) stream packets can be simply dropped if there are no queuing
-> disciplines that would take eg. flow control into account.
-
-I'll ask the ISPs involved to check if this might be happening, but I
-highly doubt it.
-
-> btw. what the hell is JunOs ?
-
-Juniper OS, running on Juniper routers.
-
-Wichert.
+j.
 
 -- 
-Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
-A random hacker
+toyota power: http://indigoid.net/

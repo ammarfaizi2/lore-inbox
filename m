@@ -1,110 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272505AbTHAVpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 17:45:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274957AbTHAVpQ
+	id S274957AbTHAVwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 17:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274965AbTHAVwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 17:45:16 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:49161 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S272505AbTHAVpB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 17:45:01 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] 2.6: races between modprobe and depmod in rc.sysinit
-Date: Sat, 2 Aug 2003 01:22:55 +0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <20030801064916.46F842C2B9@lists.samba.org>
-In-Reply-To: <20030801064916.46F842C2B9@lists.samba.org>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_votK/+LqUjB7uHm"
-Message-Id: <200308020122.55169.arvidjaar@mail.ru>
+	Fri, 1 Aug 2003 17:52:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:13777 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S274957AbTHAVwS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 17:52:18 -0400
+Message-Id: <200308012151.h71LpnR05998@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Grant Grundler <grundler@parisc-linux.org>
+cc: Andi Kleen <ak@suse.de>, davem@redhat.com, alan@lxorguk.ukuu.org.uk,
+       James.Bottomley@SteelEye.com, axboe@suse.de, suparna@in.ibm.com,
+       linux-kernel@vger.kernel.org, alex_williamson@hp.com,
+       bjorn_helgaas@hp.com, cliffw@osdl.org
+Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II 
+In-Reply-To: Message from Grant Grundler <grundler@parisc-linux.org> 
+   of "Tue, 29 Jul 2003 20:31:47 MDT." <20030730023147.GA31757@dsl2.external.hp.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 01 Aug 2003 14:51:49 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Mon, Jul 28, 2003 at 01:15:13PM +0200, Andi Kleen wrote:
+> > Run it with 100-500 users (reaim -f workfile... -s 100 -e 500 -i 100) 
+> > I tested with ext3 on a single SCSI disk.
+> 
+> andi, davem, jens,
+> sorry for the long delay. Here's the data for ZX1 using u320 HBA
+> (LSI 53c1030) and ST373453LC disk (running U160 IIRC).
+> If you need more runs on this config, please ask.
+> 
+> Executive summary: < %1 difference for this config.
+> 
+> I'd still like to try a 53c1010 but don't have any installed right now.
+> I suspect 53c1010 is alot less efficient at retrieving SG lists
+> and will see a bigger difference in perf.
+> 
+> 
+> One minor issue when starting re-aim-7, but not during the run:
+> 
+> reaim(343): floating-point assist fault at ip 4000000000017a81, isr 0000020000000008                                                                            
+> reaim(343): floating-point assist fault at ip 4000000000017a61, isr 0000020000000008
+> 
+> 
+> For the record, I retrieved source from:
+>     http://umn.dl.sourceforge.net/sourceforge/re-aim-7/reaim-0.1.8.tar.gz
+> 
+> This should be renamed to osdl-aim-7 (or something like that).
+> The name space collision is unfortunate and annoying.
 
---Boundary-00=_votK/+LqUjB7uHm
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Apoligies, the naming was not good.
+I'll attempt to change it. ( i like osdl-aim-7 )
+In the meantime, you can also get the source from
 
-On Friday 01 August 2003 10:34, Rusty Russell wrote:
-> In message <200307312145.01711.arvidjaar@mail.ru> you write:
-> > the only reason I can imagine is that it hits depmod -A that runs in
-> > rc.sysinit and does
-> >
-> > truncate /lib/modules/`uname -r`/modules.*
-> > scan modules
-> > write files
-> >
-> > So, quesitons
-> >
-> > - would anybody (Rusty?) object if I change depmod to do
-> >   build temp name
-> >   move temp name into original
->
-> No, that's definitely my preferred method anyway: please send patch.
-> Although I double this causes your problem here.
->
+bk://developer.osdl.org/reaim
+cliffw
 
-this does :) I have seen even more incredible races during boot recently. It 
-affects other modules as well, like input loaded by hotplug triggered by USB 
-load. depmod on current 2.6 takes some not negligible time.
+> 
+> hth,
+> grant
+> 
+> 
+> 
+> 
+> #define BIO_VMERGE_BOUNDARY     0 /* (ia64_max_iommu_merge_mask + 1) */
+> iota:/mnt# reaim -f /mnt/usr/local/share/reaim/workfile.new_dbase -s100 -e 500 -i 100
+> 
+> REAIM Workload
+> Times are in seconds - Child times from tms.cstime and tms.cutime
+> 
+> Num     Parent   Child   Child  Jobs per   Jobs/min/  Std_dev  Std_dev  JTI
+> Forked  Time     SysTime UTime   Minute     Child      Time     Percent 
+> 100     110.25   12.67   206.35  5605.19    56.05      3.48     3.29     96   
+> 200     219.07   25.56   411.93  5642.06    28.21      7.83     3.73     96   
+> 300     327.59   38.23   615.83  5659.46    18.86      12.79    4.09     95   
+> 400     436.66   51.19   821.30  5661.19    14.15      18.34    4.42     95   
+> 500     548.21   65.76   1029.15 5636.54    11.27      23.34    4.47     95   
+> Max Jobs per Minute 5661.19
+> iota:/mnt#
+> 
+> 
+> 
+> #define BIO_VMERGE_BOUNDARY     (ia64_max_iommu_merge_mask + 1)                 
+> 
+> iota:/mnt# PATH=$PATH:/mnt/usr/local/bin       
+> iota:/mnt# reaim -f /mnt/usr/local/share/reaim/workfile.new_dbase -s100 -e 500 -i 100
+> 
+> REAIM Workload
+> Times are in seconds - Child times from tms.cstime and tms.cutime
+> 
+> Num     Parent   Child   Child  Jobs per   Jobs/min/  Std_dev  Std_dev  JTI
+> Forked  Time     SysTime UTime   Minute     Child      Time     Percent 
+> 100     108.72   12.47   203.78  5684.17    56.84      4.46     4.32     95   
+> 200     217.64   25.59   408.90  5679.16    28.40      8.65     4.16     95   
+> 300     326.48   37.88   613.62  5678.81    18.93      13.80    4.44     95   
+> 400     434.87   50.53   817.64  5684.46    14.21      17.40    4.18     95   
+> 500     544.69   65.23   1022.92 5672.92    11.35      21.53    4.12     95   
+> Max Jobs per Minute 5684.46
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-anyway here is patch against 0.9.13-pre that makes depmod output in temp file 
-and rename it after. It fixed the problem for sure for me (like commenting 
-out depmod in rc.sysinit did but most people seem to object to it).
-
-> > - Chmouel, Fred - is depmod on every boot really neccessary? When people
-> > install modules they are expected to run it actually ...
->
-> People get it wrong, and you still want them to boot.  Increasingly we
-> can live without depmod though: I might fix this in a near-future
-> version to live without it.
->
-
-would be nice.
-
--andrey
---Boundary-00=_votK/+LqUjB7uHm
-Content-Type: application/x-bzip2;
-  name="module-init-tools-0.9.13-tempfile.patch.bz2"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="module-init-tools-0.9.13-tempfile.patch.bz2"
-
-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
-Jgdfm1TwBdahJVQwYDEwoX+LuSKcKEhk6EqSgA==
-
---Boundary-00=_votK/+LqUjB7uHm--
 

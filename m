@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265564AbSLTU4m>; Fri, 20 Dec 2002 15:56:42 -0500
+	id <S265667AbSLTVBB>; Fri, 20 Dec 2002 16:01:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265567AbSLTU4m>; Fri, 20 Dec 2002 15:56:42 -0500
-Received: from [203.199.93.15] ([203.199.93.15]:61711 "EHLO
-	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
-	id <S265564AbSLTU4l>; Fri, 20 Dec 2002 15:56:41 -0500
-From: "arun4linux" <arun4linux@indiatimes.com>
-Message-Id: <200212202058.CAA09541@WS0005.indiatimes.com>
-To: "Mark Hahn" <hahn@physics.mcmaster.ca>
-CC: <linux-kernel@vger.kernel.org>
-Reply-To: "arun4linux" <arun4linux@indiatimes.com>
-Subject: Re: Re: Data-loss bug stings Linux
-Date: Sat, 21 Dec 2002 02:37:05 +0530
-X-URL: http://indiatimes.com
-Content-Type: text/plain; charset=us-ascii
+	id <S265661AbSLTVA6>; Fri, 20 Dec 2002 16:00:58 -0500
+Received: from [66.62.77.7] ([66.62.77.7]:29853 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id <S265656AbSLTVAy>;
+	Fri, 20 Dec 2002 16:00:54 -0500
+Date: Fri, 20 Dec 2002 14:08:58 -0700 (MST)
+From: Dax Kelson <dax@gurulabs.com>
+X-X-Sender: dkelson@mooru.gurulabs.com
+To: Jurgen Kramer <gtm.kramer@inter.nl.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OT: Which Gigabit ethernet card?
+In-Reply-To: <1040391936.973.14.camel@paragon.slim>
+Message-ID: <Pine.LNX.4.44.0212201406560.25977-100000@mooru.gurulabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-<<select an unusual mode for Linux's ext3 file system software
->>Could you please bit elaborate on this regard?
 
-Have a nice time.
+I've been very very happy with the Intel PRO1000 MT desktop adapter. 
+only $50 USD.
 
-Warm Regards
-Arun
+On 20 Dec 2002, Jurgen Kramer wrote:
 
-"Mark Hahn" wrote:
-
-
-
-&gt; select an unusual mode for Linux's ext3 file system software, which
-
-you would know if you had done this; therefore you have no risk.
-
-
-
-
-Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
-
- Buy the best in Movies at http://www.videos.indiatimes.com
-
-Now bid just 7 Days in Advance and get Huge Discounts on Indian Airlines Flights. So log on to http://indianairlines.indiatimes.com and Bid Now!
+> I am looking for a couple of PCI Gigabit ethernet adapters to play
+> around with SAN/NAS stuff like iSCSI and HyperSCSI and the like. There
+> are variuos adapters around which work with Linux. My choice would be
+> based on the following:
+> 
+> - Relatively cheap, around $100/EUR100
+> - 32 bit/33MHz PCI compatible
+> - Low cpu usage
+> - Busmaster DMA
+> - Opensource Linux driver
+> - zero-copy capable
+> - etc.
+> 
+> What card is best? 3Com, Intel or National Semi based?
+> 
+> Thanks,
+> 
+> Jurgen
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288308AbSATLWZ>; Sun, 20 Jan 2002 06:22:25 -0500
+	id <S288246AbSATLVy>; Sun, 20 Jan 2002 06:21:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288283AbSATLWR>; Sun, 20 Jan 2002 06:22:17 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:40624 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S288245AbSATLWJ>;
-	Sun, 20 Jan 2002 06:22:09 -0500
-Date: Sun, 20 Jan 2002 14:19:35 +0100 (CET)
+	id <S288245AbSATLVp>; Sun, 20 Jan 2002 06:21:45 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:39344 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S288246AbSATLV2>;
+	Sun, 20 Jan 2002 06:21:28 -0500
+Date: Sun, 20 Jan 2002 14:18:54 +0100 (CET)
 From: Ingo Molnar <mingo@elte.hu>
 Reply-To: <mingo@elte.hu>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [sched] [patch] fork-cleanup-2.5.3-pre2-A0
-In-Reply-To: <Pine.LNX.4.33.0201201415530.7972-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0201201419160.7972-200000@localhost.localdomain>
+Subject: Re: [sched] [patch] activate-task-speedup-2.5.3-pre2-A0
+In-Reply-To: <Pine.LNX.4.33.0201201414080.7972-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0201201418320.7972-200000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-904188463-1011532775=:7972"
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1600496942-1011532734=:7972"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -23,39 +23,41 @@ X-Mailing-List: linux-kernel@vger.kernel.org
   while the remaining parts are likely unreadable without MIME-aware tools.
   Send mail to mime@docserver.cac.washington.edu for more info.
 
---8323328-904188463-1011532775=:7972
+--8323328-1600496942-1011532734=:7972
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
-> the attached patch against 2.5.3-pre2 removes the child-runs-first
-> ifdefs from kernel/fork.c. Very few of the bugreports were related to
-> child-runs-first, and for 2.5 i think it's acceptable to introduce
-> unconditional child-runs-first.
+> the attached patch against 2.5.3-pre2 is an optimization of
+> activate_task(), to not call effective_prio() if no jiffy passed since
+> ->sleep_timestamp was updated. This optimizes high-frequency wakeups.
 
-(attached.)
+[attached for real this time.]
 
 	Ingo
 
---8323328-904188463-1011532775=:7972
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="fork-cleanup-2.5.3-pre2-A0"
+--8323328-1600496942-1011532734=:7972
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="activate-task-speedup-2.5.3-pre2-A0"
 Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0201201419350.7972@localhost.localdomain>
+Content-ID: <Pine.LNX.4.33.0201201418540.7972@localhost.localdomain>
 Content-Description: 
-Content-Disposition: attachment; filename="fork-cleanup-2.5.3-pre2-A0"
+Content-Disposition: attachment; filename="activate-task-speedup-2.5.3-pre2-A0"
 
-LS0tIGxpbnV4L2tlcm5lbC9mb3JrLmMub3JpZwlTdW4gSmFuIDIwIDEwOjMx
-OjUzIDIwMDINCisrKyBsaW51eC9rZXJuZWwvZm9yay5jCVN1biBKYW4gMjAg
-MTA6NTc6MTcgMjAwMg0KQEAgLTc0NywyMyArNzQ3LDE2IEBADQogCWlmIChw
-LT5wdHJhY2UgJiBQVF9QVFJBQ0VEKQ0KIAkJc2VuZF9zaWcoU0lHU1RPUCwg
-cCwgMSk7DQogDQotI2RlZmluZSBSVU5fQ0hJTERfRklSU1QgMQ0KLSNpZiBS
-VU5fQ0hJTERfRklSU1QNCiAJd2FrZV91cF9mb3JrZWRfcHJvY2VzcyhwKTsJ
-CS8qIGRvIHRoaXMgbGFzdCAqLw0KLSNlbHNlDQotCXdha2VfdXBfcHJvY2Vz
-cyhwKTsJCQkvKiBkbyB0aGlzIGxhc3QgKi8NCi0jZW5kaWYNCiAJKyt0b3Rh
-bF9mb3JrczsNCiAJaWYgKGNsb25lX2ZsYWdzICYgQ0xPTkVfVkZPUkspDQog
-CQl3YWl0X2Zvcl9jb21wbGV0aW9uKCZ2Zm9yayk7DQotI2lmIFJVTl9DSElM
-RF9GSVJTVA0KIAllbHNlDQogCQkvKg0KIAkJICogTGV0IHRoZSBjaGlsZCBw
-cm9jZXNzIHJ1biBmaXJzdCwgdG8gYXZvaWQgbW9zdCBvZiB0aGUNCiAJCSAq
-IENPVyBvdmVyaGVhZCB3aGVuIHRoZSBjaGlsZCBleGVjKClzIGFmdGVyd2Fy
-ZHMuDQogCQkgKi8NCiAJCWN1cnJlbnQtPm5lZWRfcmVzY2hlZCA9IDE7DQot
-I2VuZGlmDQogDQogZm9ya19vdXQ6DQogCXJldHVybiByZXR2YWw7DQo=
---8323328-904188463-1011532775=:7972--
+LS0tIGxpbnV4L2tlcm5lbC9zY2hlZC5jLm9yaWcJU3VuIEphbiAyMCAxMToz
+NzowNCAyMDAyDQorKysgbGludXgva2VybmVsL3NjaGVkLmMJU3VuIEphbiAy
+MCAxMTozNzoyMSAyMDAyDQpAQCAtMTI2LDkgKzEyNiwxMCBAQA0KIA0KIHN0
+YXRpYyBpbmxpbmUgdm9pZCBhY3RpdmF0ZV90YXNrKHRhc2tfdCAqcCwgcnVu
+cXVldWVfdCAqcnEpDQogew0KKwl1bnNpZ25lZCBsb25nIHNsZWVwX3RpbWUg
+PSBqaWZmaWVzIC0gcC0+c2xlZXBfdGltZXN0YW1wOw0KIAlwcmlvX2FycmF5
+X3QgKmFycmF5ID0gcnEtPmFjdGl2ZTsNCiANCi0JaWYgKCFydF90YXNrKHAp
+KSB7DQorCWlmICghcnRfdGFzayhwKSAmJiBzbGVlcF90aW1lKSB7DQogCQkv
+Kg0KIAkJICogVGhpcyBjb2RlIGdpdmVzIGEgYm9udXMgdG8gaW50ZXJhY3Rp
+dmUgdGFza3MuIFdlIHVwZGF0ZQ0KIAkJICogYW4gJ2F2ZXJhZ2Ugc2xlZXAg
+dGltZScgdmFsdWUgaGVyZSwgYmFzZWQgb24NCkBAIC0xMzYsNyArMTM3LDcg
+QEANCiAJCSAqIHRoZSBoaWdoZXIgdGhlIGF2ZXJhZ2UgZ2V0cyAtIGFuZCB0
+aGUgaGlnaGVyIHRoZSBwcmlvcml0eQ0KIAkJICogYm9vc3QgZ2V0cyBhcyB3
+ZWxsLg0KIAkJICovDQotCQlwLT5zbGVlcF9hdmcgKz0gamlmZmllcyAtIHAt
+PnNsZWVwX3RpbWVzdGFtcDsNCisJCXAtPnNsZWVwX2F2ZyArPSBzbGVlcF90
+aW1lOw0KIAkJaWYgKHAtPnNsZWVwX2F2ZyA+IE1BWF9TTEVFUF9BVkcpDQog
+CQkJcC0+c2xlZXBfYXZnID0gTUFYX1NMRUVQX0FWRzsNCiAJCXAtPnByaW8g
+PSBlZmZlY3RpdmVfcHJpbyhwKTsNCg==
+--8323328-1600496942-1011532734=:7972--

@@ -1,129 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbULYME7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbULYMSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261505AbULYME7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 07:04:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbULYME7
+	id S261298AbULYMSN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 07:18:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbULYMSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 07:04:59 -0500
-Received: from smtp.gentoo.org ([156.56.111.197]:12743 "EHLO smtp.gentoo.org")
-	by vger.kernel.org with ESMTP id S261505AbULYMEb (ORCPT
+	Sat, 25 Dec 2004 07:18:13 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:52419 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S261277AbULYMR6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 07:04:31 -0500
-Subject: [PATCH][2/2] - catch ignored copy_*_user() - fs/compat_ioctl.c
-From: Jeremy Huddleston <eradicator@gentoo.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0l3IuQoGY5qugfU4q1Hc"
-Date: Sat, 25 Dec 2004 04:04:27 -0800
-Message-Id: <1103976267.1006.34.camel@cid.outersquare.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Sat, 25 Dec 2004 07:17:58 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: kdb@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Announce: kdb v4.4 is available for kernel 2.6.10 
+Date: Sat, 25 Dec 2004 23:17:39 +1100
+Message-ID: <18921.1103977059@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---=-0l3IuQoGY5qugfU4q1Hc
-Content-Type: multipart/mixed; boundary="=-fJqG+A8SxdMicTGN3ee5"
+KDB (Linux Kernel Debugger) has been updated.
 
+ftp://oss.sgi.com/projects/kdb/download/v4.4/
+ftp://ftp.ocs.com.au/pub/mirrors/oss.sgi.com/projects/kdb/download/v4.4/
 
---=-fJqG+A8SxdMicTGN3ee5
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Current versions are :-
 
-And one more...
-
---=-fJqG+A8SxdMicTGN3ee5
-Content-Disposition: attachment; filename=dontignore-fs-compat_ioctl.patch
-Content-Type: text/x-patch; name=dontignore-fs-compat_ioctl.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
-
-Q2F0Y2ggYW5kIGhhbmRsZSBzb21lIHByZXZpb3VzbHkgaWdub3JlZCBjb3B5XypfdXNlcigpIGNh
-bGxzDQoNClNpZ25lZC1vZmYtYnk6IEplcmVteSBIdWRkbGVzdG9uIDxlcmFkaWNhdG9yQGdlbnRv
-by5vcmc+DQoNCmRpZmYgLU5hdXJwIGxpbnV4LTIuNi4xMC1yYzMtYms4L2ZzL2NvbXBhdF9pb2N0
-bC5jIGxpbnV4LTIuNi4xMC1yYzMtYms4LmVkaXQvZnMvY29tcGF0X2lvY3RsLmMNCi0tLSBsaW51
-eC0yLjYuMTAtcmMzLWJrOC9mcy9jb21wYXRfaW9jdGwuYwkyMDA0LTEyLTE1IDAwOjE1OjQ1LjAw
-MDAwMDAwMCAtMDgwMA0KKysrIGxpbnV4LTIuNi4xMC1yYzMtYms4LmVkaXQvZnMvY29tcGF0X2lv
-Y3RsLmMJMjAwNC0xMi0xNSAwMjo1NjoxOC4wMDAwMDAwMDAgLTA4MDANCkBAIC02NDUsOCArNjQ1
-LDkgQEAgaW50IHNpb2NkZXZwcml2YXRlX2lvY3RsKHVuc2lnbmVkIGludCBmZA0KIAkvKiBEb24n
-dCBjaGVjayB0aGVzZSB1c2VyIGFjY2Vzc2VzLCBqdXN0IGxldCB0aGF0IGdldCB0cmFwcGVkDQog
-CSAqIGluIHRoZSBpb2N0bCBoYW5kbGVyIGluc3RlYWQuDQogCSAqLw0KLQljb3B5X3RvX3VzZXIo
-JnVfaWZyZXE2NC0+aWZyX2lmcm4uaWZybl9uYW1lWzBdLCAmdG1wX2J1ZlswXSwgSUZOQU1TSVop
-Ow0KLQlfX3B1dF91c2VyKGRhdGE2NCwgJnVfaWZyZXE2NC0+aWZyX2lmcnUuaWZydV9kYXRhKTsN
-CisJaWYoY29weV90b191c2VyKCZ1X2lmcmVxNjQtPmlmcl9pZnJuLmlmcm5fbmFtZVswXSwgJnRt
-cF9idWZbMF0sIElGTkFNU0laKSB8fA0KKwkgICBfX3B1dF91c2VyKGRhdGE2NCwgJnVfaWZyZXE2
-NC0+aWZyX2lmcnUuaWZydV9kYXRhKSkNCisJCXJldHVybiAtRUZBVUxUOw0KIA0KIAlyZXR1cm4g
-c3lzX2lvY3RsKGZkLCBjbWQsICh1bnNpZ25lZCBsb25nKSB1X2lmcmVxNjQpOw0KIH0NCkBAIC0y
-MzM0LDE3ICsyMzM1LDE5IEBAIHN0YXRpYyBpbnQgbXRkX3J3X29vYih1bnNpZ25lZCBpbnQgZmQs
-IHUNCiBzdGF0aWMgbG9uZw0KIHB1dF9kaXJlbnQzMiAoc3RydWN0IGRpcmVudCAqZCwgc3RydWN0
-IGNvbXBhdF9kaXJlbnQgX191c2VyICpkMzIpDQogew0KLSAgICAgICAgaW50IHJldDsNCisJaW50
-IHJldDsNCiANCi0gICAgICAgIGlmICgocmV0ID0gdmVyaWZ5X2FyZWEoVkVSSUZZX1dSSVRFLCBk
-MzIsDQotICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNpemVvZihzdHJ1Y3QgY29tcGF0
-X2RpcmVudCkpKSkNCi0gICAgICAgICAgICAgICAgcmV0dXJuIHJldDsNCisJaWYgKChyZXQgPSB2
-ZXJpZnlfYXJlYShWRVJJRllfV1JJVEUsIGQzMiwNCisJICAgICAgICAgICAgICAgICAgICAgICBz
-aXplb2Yoc3RydWN0IGNvbXBhdF9kaXJlbnQpKSkpDQorCQlyZXR1cm4gcmV0Ow0KKw0KKwlpZihf
-X3B1dF91c2VyKGQtPmRfaW5vLCAmZDMyLT5kX2lubykgfHwNCisJICAgX19wdXRfdXNlcihkLT5k
-X29mZiwgJmQzMi0+ZF9vZmYpIHx8DQorCSAgIF9fcHV0X3VzZXIoZC0+ZF9yZWNsZW4sICZkMzIt
-PmRfcmVjbGVuKSB8fA0KKwkgICBfX2NvcHlfdG9fdXNlcihkMzItPmRfbmFtZSwgZC0+ZF9uYW1l
-LCBkLT5kX3JlY2xlbikgKQ0KKwkJcmV0dXJuIC1FRkFVTFQ7DQogDQotICAgICAgICBfX3B1dF91
-c2VyKGQtPmRfaW5vLCAmZDMyLT5kX2lubyk7DQotICAgICAgICBfX3B1dF91c2VyKGQtPmRfb2Zm
-LCAmZDMyLT5kX29mZik7DQotICAgICAgICBfX3B1dF91c2VyKGQtPmRfcmVjbGVuLCAmZDMyLT5k
-X3JlY2xlbik7DQotICAgICAgICBfX2NvcHlfdG9fdXNlcihkMzItPmRfbmFtZSwgZC0+ZF9uYW1l
-LCBkLT5kX3JlY2xlbik7DQotICAgICAgICByZXR1cm4gcmV0Ow0KKwlyZXR1cm4gcmV0Ow0KIH0N
-CiANCiBzdGF0aWMgaW50IHZmYXRfaW9jdGwzMih1bnNpZ25lZCBmZCwgdW5zaWduZWQgY21kLCB1
-bnNpZ25lZCBsb25nIGFyZykNCkBAIC0yNDg0LDI4ICsyNDg3LDI4IEBAIHN0YXRpYyBpbnQgc2Vy
-aWFsX3N0cnVjdF9pb2N0bCh1bnNpZ25lZCANCiAgICAgICAgIF9fdTMyIHVkYXRhOw0KIA0KICAg
-ICAgICAgaWYgKGNtZCA9PSBUSU9DU1NFUklBTCkgew0KLSAgICAgICAgICAgICAgICBpZiAodmVy
-aWZ5X2FyZWEoVkVSSUZZX1JFQUQsIHNzMzIsIHNpemVvZihTUzMyKSkpDQotICAgICAgICAgICAg
-ICAgICAgICAgICAgcmV0dXJuIC1FRkFVTFQ7DQotICAgICAgICAgICAgICAgIF9fY29weV9mcm9t
-X3VzZXIoJnNzLCBzczMyLCBvZmZzZXRvZihTUzMyLCBpb21lbV9iYXNlKSk7DQotICAgICAgICAg
-ICAgICAgIF9fZ2V0X3VzZXIodWRhdGEsICZzczMyLT5pb21lbV9iYXNlKTsNCisgICAgICAgICAg
-ICAgICAgaWYgKHZlcmlmeV9hcmVhKFZFUklGWV9SRUFELCBzczMyLCBzaXplb2YoU1MzMikpIHx8
-DQorICAgICAgICAgICAgICAgICAgICBfX2NvcHlfZnJvbV91c2VyKCZzcywgc3MzMiwgb2Zmc2V0
-b2YoU1MzMiwgaW9tZW1fYmFzZSkpIHx8DQorICAgICAgICAgICAgICAgICAgICBfX2dldF91c2Vy
-KHVkYXRhLCAmc3MzMi0+aW9tZW1fYmFzZSkgKQ0KKwkJCXJldHVybiAtRUZBVUxUOw0KICAgICAg
-ICAgICAgICAgICBzcy5pb21lbV9iYXNlID0gY29tcGF0X3B0cih1ZGF0YSk7DQotICAgICAgICAg
-ICAgICAgIF9fZ2V0X3VzZXIoc3MuaW9tZW1fcmVnX3NoaWZ0LCAmc3MzMi0+aW9tZW1fcmVnX3No
-aWZ0KTsNCi0gICAgICAgICAgICAgICAgX19nZXRfdXNlcihzcy5wb3J0X2hpZ2gsICZzczMyLT5w
-b3J0X2hpZ2gpOw0KKyAgICAgICAgICAgICAgICBpZiAoX19nZXRfdXNlcihzcy5pb21lbV9yZWdf
-c2hpZnQsICZzczMyLT5pb21lbV9yZWdfc2hpZnQpIHx8DQorICAgICAgICAgICAgICAgICAgICBf
-X2dldF91c2VyKHNzLnBvcnRfaGlnaCwgJnNzMzItPnBvcnRfaGlnaCkgKQ0KKwkJCXJldHVybiAt
-RUZBVUxUOw0KICAgICAgICAgICAgICAgICBzcy5pb21hcF9iYXNlID0gMFVMOw0KICAgICAgICAg
-fQ0KICAgICAgICAgc2V0X2ZzKEtFUk5FTF9EUyk7DQogICAgICAgICAgICAgICAgIGVyciA9IHN5
-c19pb2N0bChmZCxjbWQsKHVuc2lnbmVkIGxvbmcpKCZzcykpOw0KICAgICAgICAgc2V0X2ZzKG9s
-ZHNlZyk7DQogICAgICAgICBpZiAoY21kID09IFRJT0NHU0VSSUFMICYmIGVyciA+PSAwKSB7DQot
-ICAgICAgICAgICAgICAgIGlmICh2ZXJpZnlfYXJlYShWRVJJRllfV1JJVEUsIHNzMzIsIHNpemVv
-ZihTUzMyKSkpDQorICAgICAgICAgICAgICAgIGlmICh2ZXJpZnlfYXJlYShWRVJJRllfV1JJVEUs
-IHNzMzIsIHNpemVvZihTUzMyKSkgfHwNCisgICAgICAgICAgICAgICAgICAgIF9fY29weV90b191
-c2VyKHNzMzIsJnNzLG9mZnNldG9mKFNTMzIsaW9tZW1fYmFzZSkpIHx8DQorICAgICAgICAgICAg
-ICAgICAgICBfX3B1dF91c2VyKCh1bnNpZ25lZCBsb25nKXNzLmlvbWVtX2Jhc2UgID4+IDMyID8N
-CisgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMHhmZmZmZmZmZiA6ICh1bnNpZ25lZCko
-dW5zaWduZWQgbG9uZylzcy5pb21lbV9iYXNlLA0KKyAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgJnNzMzItPmlvbWVtX2Jhc2UpIHx8DQorICAgICAgICAgICAgICAgICAgICBfX3B1dF91
-c2VyKHNzLmlvbWVtX3JlZ19zaGlmdCwgJnNzMzItPmlvbWVtX3JlZ19zaGlmdCkgfHwNCisgICAg
-ICAgICAgICAgICAgICAgIF9fcHV0X3VzZXIoc3MucG9ydF9oaWdoLCAmc3MzMi0+cG9ydF9oaWdo
-KSApDQogICAgICAgICAgICAgICAgICAgICAgICAgcmV0dXJuIC1FRkFVTFQ7DQotICAgICAgICAg
-ICAgICAgIF9fY29weV90b191c2VyKHNzMzIsJnNzLG9mZnNldG9mKFNTMzIsaW9tZW1fYmFzZSkp
-Ow0KLSAgICAgICAgICAgICAgICBfX3B1dF91c2VyKCh1bnNpZ25lZCBsb25nKXNzLmlvbWVtX2Jh
-c2UgID4+IDMyID8NCi0gICAgICAgICAgICAgICAgICAgICAgICAgICAgMHhmZmZmZmZmZiA6ICh1
-bnNpZ25lZCkodW5zaWduZWQgbG9uZylzcy5pb21lbV9iYXNlLA0KLSAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAmc3MzMi0+aW9tZW1fYmFzZSk7DQotICAgICAgICAgICAgICAgIF9fcHV0X3Vz
-ZXIoc3MuaW9tZW1fcmVnX3NoaWZ0LCAmc3MzMi0+aW9tZW1fcmVnX3NoaWZ0KTsNCi0gICAgICAg
-ICAgICAgICAgX19wdXRfdXNlcihzcy5wb3J0X2hpZ2gsICZzczMyLT5wb3J0X2hpZ2gpOw0KLQ0K
-ICAgICAgICAgfQ0KICAgICAgICAgcmV0dXJuIGVycjsNCiB9DQo=
+  kdb-v4.4-2.6.10-common-1.bz2
+  kdb-v4.4-2.6.10-i386-1.bz2
+  kdb-v4.4-2.6.10-ia64-1.bz2
+  kdb-v4.4-2.6.9-rc2-x86-64-1.bz2 (may or may not work with 2.6.10).
 
 
---=-fJqG+A8SxdMicTGN3ee5--
+Changelog extract since kdb-v4.4-2.6.9-common-1.
 
---=-0l3IuQoGY5qugfU4q1Hc
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+2004-12-25 Keith Owens  <kaos@sgi.com>
+
+	* Add kobject command.
+	* Ignore low addresses and large offsets in kdbnearsym().
+	* Console updates for sn2 simulator.
+	* kdb v4.4-2.6.10-common-1.
+
+2004-12-07 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.10-rc3-common-1.
+
+2004-11-23 Keith Owens  <kaos@sgi.com>
+
+	* Remove warning message from kdb_get_one_user_page(), it was too noisy.
+	* kdb v4.4-2.6.10-rc2-common-1.
+
+2004-11-02 Keith Owens  <kaos@sgi.com>
+
+	* Build with kdb patch applied but CONFIG_KDB=n.
+	* kdb v4.4-2.6.10-rc1-common-2.
+
+2004-10-29 Keith Owens  <kaos@sgi.com>
+
+	* Handle new compression scheme for kallsyms.
+	* Handle move of DEAD and ZOMBIE for task->state to task->exit_state.
+	* Tweak the concept of a valid kernel address to get all symbols,
+	  including the symbols in the ia64 gate page.
+	* kdb v4.4-2.6.10-rc1-common-1.
+
+2004-10-21 Keith Owens  <kaos@sgi.com>
+
+	* Handle variable size for the kernel log buffer.
+	* kdb v4.4-2.6.9-common-2.
+
+
+Changelog extract since kdb-v4.4-2.6.9-i386-1.
+
+2004-12-25 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.10-i386-1.
+
+2004-12-07 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.10-rc3-i386-1.
+
+2004-11-23 Keith Owens  <kaos@sgi.com>
+
+	* Coexist with asmlinkage/fastcall changes.
+	* kdb v4.4-2.6.10-rc2-i386-1.
+
+2004-10-29 Keith Owens  <kaos@sgi.com>
+
+	* Handle change defintions for hard and soft irq context.
+	* Make stack switch in kdb backtrace look more like the oops output.
+	* kdb v4.4-2.6.10-rc1-i386-1.
+
+
+
+Changelog extract since kdb v4.4-2.6.9-ia64-1.
+
+2004-12-25 Keith Owens  <kaos@sgi.com>
+
+	* Add cpuinfo command.
+	* kdb-v4.4-2.6.10-ia64-1.
+
+2004-12-07 Keith Owens  <kaos@sgi.com>
+
+	* Clean up error path in kdba_mca_init.
+	* kdb-v4.4-2.6.10-rc3-ia64-1.
+
+2004-11-15 Keith Owens  <kaos@sgi.com>
+
+	* kdb-v4.4-2.6.10-rc2-ia64-1.
+
+2004-10-29 Keith Owens  <kaos@sgi.com>
+
+	* kdb-v4.4-2.6.10-rc1-ia64-1.
+
+
+ps.  Bah, Hum{de}bug!
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
 
-iD8DBQBBzVdLOpjtAl+gMRURAphEAJ9Gto5qzNcdMR4S2KOMpJzH0iaokQCggSCS
-id0w852SsH/1TpKKlGFiBY8=
-=ihcp
+iD8DBQFBzVpji4UHNye0ZOoRAmy+AJ4iSaztTqGLjr+Ck0X8+TMdXB41IQCghc/P
+p7GtfCEOmVPDj/SVHdecFyw=
+=oO+Z
 -----END PGP SIGNATURE-----
-
---=-0l3IuQoGY5qugfU4q1Hc--
 

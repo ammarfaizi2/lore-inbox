@@ -1,61 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265592AbUABW2l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 17:28:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265667AbUABW2l
+	id S265683AbUABWmN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 17:42:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265690AbUABWmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 17:28:41 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:128 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S265592AbUABW2k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 17:28:40 -0500
-Subject: Re: JFS resize=0 problem in 2.6.0
-From: Christophe Saout <christophe@saout.de>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Elliott Bennett <lkml@dhtns.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040102212417.GG1882@matchmail.com>
-References: <20031228153028.GB22247@faraday.dhtns.com>
-	 <20031229000503.GD1882@matchmail.com>
-	 <20040102201221.GA28116@faraday.dhtns.com>
-	 <20040102212417.GG1882@matchmail.com>
-Content-Type: text/plain
-Message-Id: <1073082525.28665.10.camel@leto.cs.pocnet.net>
+	Fri, 2 Jan 2004 17:42:13 -0500
+Received: from mail.shareable.org ([81.29.64.88]:55180 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S265683AbUABWmL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 17:42:11 -0500
+Date: Fri, 2 Jan 2004 22:41:50 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Manfred Spraul <manfred@colorfullife.com>, lse-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC,PATCH] use rcu for fasync_lock
+Message-ID: <20040102224150.GA5864@mail.shareable.org>
+References: <3FE492EF.2090202@colorfullife.com> <20031221113640.GF3438@mail.shareable.org> <3FE594D0.8000807@colorfullife.com> <20031221141456.GI3438@mail.shareable.org> <3FF5DF59.3090905@tmr.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 02 Jan 2004 23:28:45 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FF5DF59.3090905@tmr.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Fr, den 02.01.2004 schrieb Mike Fedyk um 22:24:
-
-> I would be careful of DM and MD RAID in 2.6.0.  There are some bugs flying
-> around mentioning XFS->DM->MD RAID, , but also reproducable with Ext3->DM.
+Bill Davidsen wrote:
+> Jamie Lokier wrote:
+> >We have found the performance impact of the extra ->poll calls
+> >negligable with epoll.  They're simply not slow calls.  It's
+> >only when you're doing select() or poll() of many descriptors
+> >repeatedly that you notice, and that's already poor usage in other
+> >ways.
 > 
-> So if you're using DM, you might want to do some extra consistancy checks in
-> your tests, and don't use it with important data.
+> I do agree with you, but there is a lot of old software, and software 
+> written on/for BSD, which does do this. I'm not prepared to say that BSD 
+> does it better, but it's easier to fix in one place, the kernel, than 
+> many other places.
+> 
+> Your point about the complexity is also correct, but perhaps someone 
+> will offer a better solution to speeding up select(). I think anything 
+> as major as this might be better off in a development series, and that's 
+> a clear prod for someone to find a simpler way to do it ;-)
 
-Only DM or DM->RAID? There is one bug on bugzilla mentioning XFS
-problems on a >2TB LVM volume dating back to 2.5.73. DM uses sector_t
-everywhere, so perhaps it might be a different problem.
+Eliminating up to half of the ->poll calls using wake_up_info() and
+reducing the number of wakeups using an event mask argument to ->poll
+are not the best ways to speed up select() or poll() for large numbers
+of descriptors.
 
-DM has a workaround included since one of the later test kernels so that
-it should not break on top of the raid code. Also someone posted
-bugfixes not too long ago that fixed some hard to trigger bugs with
-bi_idx not always starting at zero (which should have affected raid and
-dm code under rare circumstances). These bugfixes are in 2.6.1-pre1 I
-think.
+The best way is to maintain poll state in each "struct file".  The
+order of complexity for the bitmap scan is still significant, but
+->poll calls are limited to the number of transitions which actually
+happen.
 
-There is also one bug that isn't fixed in 2.6.0 (but in the -mm kernels
-for some time and also in 2.6.1-pre1), it concerns online resizing of
-mounted filesystems.
+I think somebody, maybe Richard Gooch, has a patch to do this that's
+several years old by now.
 
-At least I think the core DM code should be safe under normal usage. I
-bombed it with all kinds of BIOs, not only the page sized ones most
-filesystems and swap code create, using an IDE disk. I'm using it on all
-my systems for a long time now.
-
-Elliot's problem is a different though, the jfs option parser doesn't do
-what he wants. ;)
-
-
+-- Jamie

@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288071AbSBZXQK>; Tue, 26 Feb 2002 18:16:10 -0500
+	id <S288896AbSBZXSK>; Tue, 26 Feb 2002 18:18:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288019AbSBZXQA>; Tue, 26 Feb 2002 18:16:00 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:11503 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S288086AbSBZXPv>; Tue, 26 Feb 2002 18:15:51 -0500
-Message-ID: <3C7C16AC.D08F8152@mvista.com>
-Date: Tue, 26 Feb 2002 15:13:48 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S288557AbSBZXRd>; Tue, 26 Feb 2002 18:17:33 -0500
+Received: from dsl-213-023-039-032.arcor-ip.net ([213.23.39.32]:42893 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S288174AbSBZXRK>;
+	Tue, 26 Feb 2002 18:17:10 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Steve Lord <lord@sgi.com>
+Subject: Re: Congrats Marcelo,
+Date: Mon, 25 Feb 2002 01:10:01 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Andreas Dilger <adilger@turbolabs.com>,
+        "Dennis, Jim" <jdennis@snapserver.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD4@cdserv.meridian-data.com> <E16f8Ey-0002qn-00@starship.berlin> <1014764852.9994.191.camel@jen.americas.sgi.com>
+In-Reply-To: <1014764852.9994.191.camel@jen.americas.sgi.com>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolabs.com>
-CC: Tim Schmielau <tim@physik3.uni-rostock.de>, linux-kernel@vger.kernel.org
-Subject: Re: [patch][rfc] enable uptime display > 497 days on 32 bit
-In-Reply-To: <Pine.LNX.4.33.0202261754030.14645-100000@gans.physik3.uni-rostock.de> <3C7BE53E.BB789BC6@mvista.com> <20020226135006.R12832@lynx.adilger.int>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16f8iP-0002rj-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
+On February 27, 2002 12:07 am, Steve Lord wrote:
+> On Sun, 2002-02-24 at 17:39, Daniel Phillips wrote:
+> > I'd really like to see XFS go in, but don't you think 2.5 is the place,
+> > with a view to 2.4 submission in due course?
 > 
-> On Feb 26, 2002  11:42 -0800, george anzinger wrote:
-> > Well, since you asked (thank you), the high-res-timers patch needs to
-> > get the full 64-bit uptime to implement CLOCK_MONOTONIC.
-> > This means that the 64-bit jiffies is used "often" in this code.
-> > Unlike this patch, it keeps the 64-bit rational (i.e. always current)
-> 
-> Well, if you use the get_jiffies64() interface the 64-bit value is
-> always coherent as well, and the direct access to the 32-bit value
-> is monotonic.  While the high and low words of the 64-bit jiffies
-> values may be incoherent at times, as long as you always access the
-> 64-bit value with the get_jiffies64() interface it should be OK.
-> 
-> Do you think that doing a 64-bit add-with-carry to memory on each
-> timer interrupt and doing multiple volatile reads is faster than
-> doing a spinlock with an optional 32-bit increment?  
+> This is my thinking, but the way 2.5 is diverging the argument that
+> xfs being stable in 2.5 prior to going into 2.4 probably will not mean
+> too much at the end of the day since the interfaces will probably
+> have diverged so much by then - and the interfaces are where the
+> nasties tend to come out. The core of XFS is pretty darn stable.
 
-I think the memory cycle is "almost" free as we are also updating
-jiffies which is in the same cache line, so, yes, in the overall scheme
-of things the overhead of the additional add-with-carry is very small. 
-On the read side of things, the issue is not so much the lock, but the
-irq nature of it.  This will be VERY long, much longer than the double
-load of the high order bits, again from the same cache line.
-
-> Do you think
-> there would be a lot of contention on this lock, given that you
-> only need to lock when you need the full 64-bit value?
-
-A question that arises is if you can use an independant lock.  For the
-high-res code, we need to be coherent with the sub-jiffie part also, and
-this is all updated in the interrupt code, so the lock, it would seem,
-should be the one that is taken there, which is the xtime read/write irq
-lock.  Again, it is the irq nature of things that is slow.
-
-> 
-> Cheers, Andreas
-> --
-> Andreas Dilger
-> http://sourceforge.net/projects/ext2resize/
-> http://www-mddsp.enel.ucalgary.ca/People/adilger/
+It will mean a lot.  It will mean Linus signed off on the integration,
+and that the issues were examined.  Marcelo is perfectly capable of
+determining what the additional 2.4 issues are, if any.
 
 -- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+Daniel

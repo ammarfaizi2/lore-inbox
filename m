@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135207AbQL3MVv>; Sat, 30 Dec 2000 07:21:51 -0500
+	id <S135208AbQL3MeZ>; Sat, 30 Dec 2000 07:34:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135208AbQL3MVl>; Sat, 30 Dec 2000 07:21:41 -0500
-Received: from [195.84.105.112] ([195.84.105.112]:12462 "HELO
-	petrus.schuldei.org") by vger.kernel.org with SMTP
-	id <S135207AbQL3MVZ>; Sat, 30 Dec 2000 07:21:25 -0500
-Date: Sat, 30 Dec 2000 12:54:17 +0100
-From: Andreas Schuldei <andreas@schuldei.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext2's inode i_version gone, what now? (stable branch)
-Message-ID: <20001230125417.B29582@sigrid.schuldei.com>
-In-Reply-To: <20001229220820.C28926@sigrid.schuldei.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20001229220820.C28926@sigrid.schuldei.com>; from andreas@schuldei.org on Fri, Dec 29, 2000 at 10:08:20PM +0100
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+	id <S135222AbQL3MeP>; Sat, 30 Dec 2000 07:34:15 -0500
+Received: from 151-CORU-X34.libre.retevision.es ([62.83.57.151]:26628 "HELO
+	relativistic") by vger.kernel.org with SMTP id <S135208AbQL3MeA> convert rfc822-to-8bit;
+	Sat, 30 Dec 2000 07:34:00 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Timeout: AT keyboard not present?
+From: kuantiko@escomposlinux.org. (Jesús Carrete Montaña)
+Date: 30 Dec 2000 13:03:39 +0100
+Message-ID: <87vgs2m7z8.fsf@relativistic.homeip.net>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andreas Schuldei (andreas@schuldei.org) [001229 22:08]:
-> However a real problem (for me) is that the author (whom I can not reach by
-> email) build stegfs on top of the ext2 filesystem. There he uses ext2's inode
-> structure and at some places reads/writes from ext2 inode's i_version.
-> However, this is not there in ext2_fs_i.h. But I am working with source for
-> 2.2.18 and a lot could have happend since 2.2.14. I would not have expected
-> the inode struct to change, though.
-> 
-> Why was it taken away? How is compatibility maintained? What could I use 
-> instead to fix the problem?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Now I think i_version was moved from ext2_fs_i.h (struct ext2_inode_info) to
-fs.h (struct inode). stegfs still has i_version in it's own stegfs_inode_info.
-I guess to cleanly move the stegfs from 2.2.14 to 2.2.18 it would be good to
-not have a own stegfs i_version. Are there any mean, hidden, desasterous
-implications waiting if I move it?
 
-> Anyone who is interested in this:
-> http://ban.joh.cam.ac.uk/~adm36/StegFS/download.html
+I receive this message very often in console, in every situation: when
+I'm coding and when I'm playing tetrinet. It's quite annoying, mostly
+because it fills my screen of garbage (I'll have to buy a new CTRL and
+L keys). What's the prolem? It only happens (I think) with >2.2.17
+kernels (including 2.4.0-test12).
+Please let me know if you need more information.
 
+Un saludo.
+- -- 
+"I use free software."| ¡Feliz Navidad y buen 2001!
+- --
+    .~.     |/    ,_|-.|
+    /V\     |\L|(||||_||<() @ escomposlinux.org
+   // \\    Linux Registered User #158442
+  /(   )\   Public PGP Key avaliable via e-mail
+   ^`~'^    and pgp.rediris.es
+
+- -- Versions installed: (if some fields are empty or look
+- -- unusual then possibly you have very old versions)
+Linux relativistic 2.4.0-test12-withoutfb #1 sáb dic 23 02:39:30 CET 2000 i586 unknown
+Kernel modules         2.3.19
+Gnu C                  2.95.2
+Gnu Make               3.79.1
+Binutils               2.9.5.0.37
+Linux C Library        > libc.2.2
+Dynamic linker         ldd (GNU libc) 2.2
+Procps                 2.0.6
+Mount                  2.10q
+Net-tools              2.05
+Console-tools          0.2.3
+Sh-utils               2.0i
+Modules Loaded         adlib_card opl3 sb sb_lib uart401 sound soundcore lp nls_iso8859-15 nls_cp437
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.5 and Gnu Privacy Guard <http://www.gnupg.org/>
+
+iD8DBQE6Tc8afUtQQKOnZ1IRAlH/AKDdLcjIgWREYEGepW5JDRQukDBlJACgucI4
+4SxGczkC4QhDgKbWqEXpnL0=
+=s3aJ
+-----END PGP SIGNATURE-----
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262951AbUDAQT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 11:19:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262953AbUDAQT0
+	id S262953AbUDAQVX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 11:21:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbUDAQU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 11:19:26 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:40459 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262951AbUDAQTX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 11:19:23 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "Jinu M." <jinum@esntechnologies.co.in>,
-       "Oliver Neukum" <oliver@neukum.org>,
-       "Arjan van de Ven" <arjanv@redhat.com>
-Subject: Re: Flash Media block driver problem!
-Date: Thu, 1 Apr 2004 19:19:06 +0300
-User-Agent: KMail/1.5.4
-Cc: <linux-kernel@vger.kernel.org>,
-       "Surendra I." <surendrai@esntechnologies.co.in>
-References: <1118873EE1755348B4812EA29C55A972176FD1@esnmail.esntechnologies.co.in>
-In-Reply-To: <1118873EE1755348B4812EA29C55A972176FD1@esnmail.esntechnologies.co.in>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404011919.06511.vda@port.imtp.ilyichevsk.odessa.ua>
+	Thu, 1 Apr 2004 11:20:29 -0500
+Received: from a34-mta01.direcpc.com ([66.82.4.90]:6604 "EHLO
+	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
+	id S262956AbUDAQUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 11:20:03 -0500
+Date: Thu, 01 Apr 2004 10:19:53 -0600
+From: Matt Gulick <gulickconsulting@direcway.com>
+Subject: Re: TI Firewire controller ?
+In-reply-to: <200403312354.17104.gene.heskett@verizon.net>
+To: gene.heskett@verizon.net
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Reply-to: gulickconsulting@direcway.com
+Message-id: <1080836393.5300.20.camel@localhost.localdomain>
+Organization: Gulick Consulting
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5)
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <200403312354.17104.gene.heskett@verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 April 2004 16:07, Jinu M. wrote:
-> On Thursday 01 April 2004 14:13, Oliver Neukum wrote:
-> > Am Donnerstag, 1. April 2004 12:47 schrieb Jinu M.:
-> > > cool; linux can use a GPL driver for such things...
-> > >
-> > > [jinum] guess the question/clarification is not clear!
-> > > This is a driver for our own controller (PCI). Which is a PCI based
-> > > card.
-> > > This card is not based on the SCSI or IDE interface so how will some
-> > > other driver work for it unless we write ( or get it written sharing
-> > > our hardware spec) a driver for the interface?
-> >
-> > It will not work. A block driver must be written for such hardware to
-> > make it work.
->
-> Hmm, they are willing to release specs... that's good.
->
-> [Jinum]
-> This going way off from the original question...
->
-> * NO SPECS * will be out ;)
+On Wed, 2004-03-31 at 22:54, Gene Heskett wrote:
+> Greetings;
+> 
+> I bought, 3 or so years back, a 1394 controller, thinking
+> that maybe it had a chance to become a standard, like USB
+> is now.
+> 
+> lspci -vv reports this:
+> 00:0b.0 FireWire (IEEE 1394): Texas Instruments FireWire Controller (rev 01) (prog-if 10 [OHCI])
+>         Subsystem: Texas Instruments: Unknown device 8010
+>         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 32 (750ns min, 1000ns max), cache line size 08
+>         Interrupt: pin A routed to IRQ 11
+>         Region 0: Memory at e3007000 (32-bit, non-prefetchable) [size=2K]
+>         Region 1: Memory at e3000000 (32-bit, non-prefetchable) [size=16K]
+>         Capabilities: [44] Power Management version 1
+>                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot+,D3cold-)
+>                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+> 
+> Is there any chance that this card can actually be used with modern devices?
+> Or should I bin it and save the couple of watts its burning?
 
-Why? That's a good way to have driver written and debugged for free.
---
-vda
+There should probably be a mail list for 1394 (and USB for that matter)
+as this is the kernel mail list.
+
+I will respond to your query though.
+
+If the information is correct and the card is OHCI (not the same as USB
+OHCI), then it should work just fine.  OHCI is a standard interface to
+the 1394 link chip.  If you plug that card into a Mac or Windose box, it
+would be recognized as such and the drivers loaded. The same holds true
+for Linux.
+
+Matt
+
+----------------------------------------
+Matt Gulick
+Sr. Staff Engineer
+Adaptec, Inc.
+gulickconsulting@direcway.com
+matt_gulick@adaptec.com
+(715) 426-0884
+
 

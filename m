@@ -1,61 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266431AbUBLBIu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 20:08:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266428AbUBLBIu
+	id S266293AbUBLBVf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 20:21:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266255AbUBLBVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 20:08:50 -0500
-Received: from nwkea-mail-2.sun.com ([192.18.42.14]:55699 "EHLO
-	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
-	id S266414AbUBLBIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 20:08:48 -0500
-Date: Wed, 11 Feb 2004 17:08:22 -0800
-From: Tim Hockin <thockin@sun.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, viro@parcelfarce.linux.theplanet.co.uk,
-       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH - raise max_anon limit
-Message-ID: <20040212010822.GP9155@sun.com>
-Reply-To: thockin@sun.com
-References: <20040211203306.GI9155@sun.com> <Pine.LNX.4.58.0402111236460.2128@home.osdl.org> <20040211210930.GJ9155@sun.com> <20040211135325.7b4b5020.akpm@osdl.org> <20040211222849.GL9155@sun.com> <20040211144844.0e4a2888.akpm@osdl.org> <20040211233852.GN9155@sun.com> <20040211155754.5068332c.akpm@osdl.org> <20040212003840.GO9155@sun.com> <20040211164233.5f233595.akpm@osdl.org>
+	Wed, 11 Feb 2004 20:21:35 -0500
+Received: from mail.kroah.org ([65.200.24.183]:25772 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266293AbUBLBVX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 20:21:23 -0500
+Date: Wed, 11 Feb 2004 17:19:46 -0800
+From: Greg KH <greg@kroah.com>
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+Cc: linux-hotplug-devel@lists.sourceforge.net,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] udev 016 release
+Message-ID: <20040212011946.GC15983@kroah.com>
+References: <20040203201359.GB19476@kroah.com> <1075844602.7473.75.camel@nosferatu.lan> <20040211221324.GC14231@kroah.com> <1076538429.22542.12.camel@nosferatu.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040211164233.5f233595.akpm@osdl.org>
+In-Reply-To: <1076538429.22542.12.camel@nosferatu.lan>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 11, 2004 at 04:42:33PM -0800, Andrew Morton wrote:
-On Wed, Feb 11, 2004 at 04:42:33PM -0800, Andrew Morton wrote:
-> > Indeed.  MKDEV() already masks off the high order stuff, so that is OK.
->_
-> That means that we've lost the original idr key and can no longer remove
-> the thing, doesn't it?
+On Thu, Feb 12, 2004 at 12:27:09AM +0200, Martin Schlemmer wrote:
+> On Thu, 2004-02-12 at 00:13, Greg KH wrote:
+> > On Tue, Feb 03, 2004 at 11:43:22PM +0200, Martin Schlemmer wrote:
+> > > On Tue, 2004-02-03 at 22:13, Greg KH wrote:
+> > > 
+> > > Once again, patch to make logging a config option.
+> > > 
+> > > Reason for this (since you asked for it =):
+> > > - In our setup it is easy (although still annoying) .. just
+> > > edit the ebuild, add logging support (or remove it) and rebuild.
+> > > For say a binary distro, having the logging is useful for debugging
+> > > some times, but its more a once of, or rare thing, as you do not
+> > > add or change config files every day.  Sure, we can have logging
+> > > by default, but many do not want ~300 lines of extra debugging in
+> > > their logs is not pleasant, and they will complain.  Rebuilding
+> > > the package for that binary package (given the users it is targeted
+> > > to) is usually not within most users grasp.
+> > 
+> > Ok, I applied this patch.
+> > 
+> > And then I went back and fixed it so it actually would work :(
+> > 
+> > Here's the changes I had to make to get everything to build properly,
+> > and to let us have a boolean type for the config files.
+> > 
+> 
+> Interest sake ... when did it actually fail?  (When linking with
+> klibc maybe?  Been using here without problems).
 
-No, it doesn't store the counter with the id.  They expect you to do that.
-My best understanding is that thi sis to prevent re-use of the same key.
-I'm not sure I grok why it is useful.  If you release a key, it should be
-safe to reuse.  Period.  I assume there was some use case that brought about
-this "feature" but if so, I don't know what it is.  The big comment about it
-is just confusing me.
+Did you build udevinfo?  udevsend?  udevd?  None of those files ended up
+including the udev_log_* variable.
 
-> > On idr_get_new(), we can just check for
-> > 	dev & ((1<<MINORBITS)-1) == (1<<MINORBITS)-1)
-> > and return -EMFILE.
-> >_
-> > That combined with a gfp mask to idr and the assumption that idr's
-> > counter
-> > won't ever grow beyond (sizeof(int)*8 - MINORBITS) (12) bits
-> >_
-> > Shall I whip that up and test it?  Do you prefer a gfp mask to idr_init
-> > that
-> > sticks around for all allocations or a GFP mask to idr_pre_get?
+Anyway, it's cleaner this way :)
 
-Offer repeated. :)
+thanks,
 
--- 
-Tim Hockin
-Sun Microsystems, Linux Software Engineering
-thockin@sun.com
-All opinions are my own, not Sun's
+greg k-h

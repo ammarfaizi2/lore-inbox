@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281059AbRLBQgd>; Sun, 2 Dec 2001 11:36:33 -0500
+	id <S280814AbRLBQgi>; Sun, 2 Dec 2001 11:36:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282895AbRLBQgV>; Sun, 2 Dec 2001 11:36:21 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26641 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282894AbRLBQgO>; Sun, 2 Dec 2001 11:36:14 -0500
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
-To: dalecki@evision.ag
-Date: Sun, 2 Dec 2001 16:42:59 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), lm@bitmover.com (Larry McVoy),
-        davidel@xmailserver.org (Davide Libenzi),
-        akpm@zip.com.au (Andrew Morton),
-        phillips@bonn-fries.net (Daniel Phillips),
-        hps@intermeta.de (Henning Schmiedehausen),
-        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
-In-Reply-To: <3C0A54F4.C70C815C@evision-ventures.com> from "Martin Dalecki" at Dec 02, 2001 05:21:08 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281128AbRLBQgf>; Sun, 2 Dec 2001 11:36:35 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:20492 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S280814AbRLBQgX>; Sun, 2 Dec 2001 11:36:23 -0500
+Message-ID: <3C0A5612.12E9007C@evision-ventures.com>
+Date: Sun, 02 Dec 2001 17:25:54 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+Reply-To: dalecki@evision.ag
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
+        Larry McVoy <lm@bitmover.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Henning Schmiedehausen <hps@intermeta.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: Coding style - a non-issue
+In-Reply-To: <Pine.LNX.4.33L.0112010914430.4079-100000@imladris.surriel.com>
+Content-Type: text/plain; charset=iso-8859-2
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16AZhj-0003pe-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Question: What happens when people stick 8 threads of execution on a die with
-> > a single L2 cache ?
+Rik van Riel wrote:
 > 
-> That had been already researched. Gogin bejoind 2 threads on a single
-> CPU
-> engine doesn't give you very much... The first step is giving about 25%
-> the second only about 5%. There are papers in the IBM research magazine
-> on
+> On Fri, 30 Nov 2001, Linus Torvalds wrote:
+> 
+> > And don't EVER make the mistake that you can design something better than
+> > what you get from ruthless massively parallel trial-and-error with a
+> > feedback cycle. That's giving your intelligence _much_ too much credit.
+> 
+> So, are we going to take out the appendix in 2.5 or will
+> we continue hoping our kernel doesn't catch an illness
+> without actually doing anything preventive ?
+> 
+> Biological selection does nothing except removing the weak
+> ones, it cannot automatically create systems which work well.
+> 
+> In short, I believe the biological selection is just that,
+> selection. The creation of stuff will need some direction.
+> 
+> regards,
 
-The IBM papers make certain architectural assumptions. With some of the
-tiny modern CPU cores its going to perfectly viable to put 4 or 8 of them
-on one die. At that point cccluster still has to have cluster nodes scaling
-to 8 way
+One thing Linus doesn't realize is that the most successfull
+results of the biological selection are not the high mamals but
+simle archaic bacterias. This is the point where his
+analogy breaks badly.
 
+One one thing he simple appears to have forgotten: Operating 
+systems have a *purpose*. Therefore the stuff one wan't to do with
+a system is what is driving it's true developement - this is most
+pertinent in the developement of a driver - one does it to
+use some kind of hardware it's that simple.
+
+However I agree with him fully that most of the so called 
+software engineering methods do not have much in common with
+the reality out there and are basically a self exercise.

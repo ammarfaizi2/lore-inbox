@@ -1,56 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263297AbUKAOWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265273AbUKAO0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263297AbUKAOWG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 09:22:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262631AbUKAOWF
+	id S265273AbUKAO0m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 09:26:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265265AbUKAO0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 09:22:05 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:14782 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S263546AbUKAOU4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 09:20:56 -0500
-Date: Mon, 1 Nov 2004 15:20:54 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: John M Collins <jmc@xisl.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Fchown on unix domain sockets?
-In-Reply-To: <200410312255.00621.jmc@xisl.com>
-Message-ID: <Pine.LNX.4.53.0411011517570.29275@yvahk01.tjqt.qr>
-References: <200410312255.00621.jmc@xisl.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+	Mon, 1 Nov 2004 09:26:41 -0500
+Received: from phoenix.infradead.org ([81.187.226.98]:14854 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263527AbUKAOW5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 09:22:57 -0500
+Date: Mon, 1 Nov 2004 14:22:45 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org
+Subject: Re: [PATCH 475] HP300 LANCE
+Message-ID: <20041101142245.GA28253@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>,
+	linux-net@vger.kernel.org
+References: <200410311003.i9VA3UMN009557@anakin.of.borg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410311003.i9VA3UMN009557@anakin.of.borg>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Please CC any reply to jmc AT xisl.com as I'm not subscribed.
->
->I wanted to change the ownership on a unix domain socket in a program (running
->as root) I was writing and I was wondering if "fchown" worked on the socket
->descriptor (after I'd run "bind" of course).
->
->It doesn't, you have to use "chown" on the path name - however "fchown"
->silently does nothing, it doesn't report an error.
+On Sun, Oct 31, 2004 at 11:03:30AM +0100, Geert Uytterhoeven wrote:
+> HP300 LANCE updates from Kars de Jong:
+>   - Updated HP LANCE driver to use the new DIO semantics
+>   - If only HP LANCE or MVME147 LANCE is selected, enable compile-time
+>     choice of LANCE register access. If both are defined, go through the
+>     function pointer
+>   - Added support for CONFIG_NET_POLL_CONTROLLER
+>   - Fixed problem with disabling board interrupts in hplance_close() which
+>     caused the driver to lock up
 
-I think that's normal, because chown() applies to an object in the filesystem,
-while fchown() applies to the FD. (In fact, it applies to an inode.)
-However, socket fd of any kind don't have an associated inode, because, well
-sockets are not stored on the filesystem.
+There's tons of leaks in the hplcance probing code, and it doesn't release
+he memory region on removal either.
 
-As some manpage might say, the socket thing you see in "ls -l" is just a
-reference thing. When you connect to it, ls -l /proc/pidofprogram/fd/ does not
-show the path, but [socket:xxxx] which shows that the filesystem object is not
-used anymore.
+Untested patch to fix those issues below:
 
->I don't mind it not working but I think it should report an error. This is on
->2.6.3 kernel.
-
-What would you like it to do? EINVAL like the others or change the actual
-inode's permission?
-
-
-
-Jan Engelhardt
--- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+--- 1.12/drivers/net/hplance.c	2004-10-06 22:44:40 +02:00
++++ edited/drivers/net/hplance.c	2004-11-01 10:20:17 +01:00
+@@ -71,30 +71,42 @@
+ 	.remove    = __devexit_p(hplance_remove_one),
+ };
+ 
++/* XXX(hch): should probably move to a better place */
++#define dio_resource_start(d) \
++	((d)->resource.start)
++#define dio_resource_len(d) \
++	((d)->resource.end - (d)->resource.start)
++
+ /* Find all the HP Lance boards and initialise them... */
+ static int __devinit hplance_init_one(struct dio_dev *d,
+ 				const struct dio_device_id *ent)
+ {
+ 	struct net_device *dev;
+-	int err;
++	int err = -ENOMEM;
+ 
+ 	dev = alloc_etherdev(sizeof(struct hplance_private));
+ 	if (!dev)
+-		return -ENOMEM;
++		goto out;
+ 
+-	if (!request_mem_region(d->resource.start, d->resource.end-d->resource.start, d->name))
+-		return -EBUSY;
++	err = -EBUSY;
++	if (!request_mem_region(dio_resource_start(d),
++				dio_resource_len(d), d->name))
++		goto out_free_netdev;
+ 
+-	SET_MODULE_OWNER(dev);
+-        
+ 	hplance_init(dev, d);
+ 	err = register_netdev(dev);
+-	if (err) {
+-		free_netdev(dev);
+-		return err;
+-	}
++	if (err)
++		goto out_free_netdev;
++
+ 	dio_set_drvdata(d, dev);
+ 	return 0;
++
++ out_release_mem_region:
++	release_mem_region(dio_resource_start(d), dio_resource_len(d));
++ out_free_netdev:
++	free_netdev(dev);
++ out:
++	return err;
+ }
+ 
+ static void __devexit hplance_remove_one(struct dio_dev *d)
+@@ -102,6 +114,7 @@
+ 	struct net_device *dev = dio_get_drvdata(d);
+ 
+ 	unregister_netdev(dev);
++	release_mem_region(dio_resource_start(d), dio_resource_len(d));
+ 	free_netdev(dev);
+ }
+ 

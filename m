@@ -1,46 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130065AbRCLMqN>; Mon, 12 Mar 2001 07:46:13 -0500
+	id <S129855AbRCLMlD>; Mon, 12 Mar 2001 07:41:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130073AbRCLMqD>; Mon, 12 Mar 2001 07:46:03 -0500
-Received: from [62.122.5.33] ([62.122.5.33]:1543 "HELO milkplus")
-	by vger.kernel.org with SMTP id <S130065AbRCLMp5>;
-	Mon, 12 Mar 2001 07:45:57 -0500
-Subject: Re: Interesting fs corruption story
-From: Ettore Perazzoli <ettore@ximian.com>
-To: timw@splhi.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010307122222.A1254@kochanski.internal.splhi.com>
-In-Reply-To: <Pine.LNX.4.21.0103042043320.27829-100000@trna.ximian.com>
-	<20010306170102.B1095@kochanski.internal.splhi.com>
-	<983927410.11517.0.camel@milkplus.unknown.domain> 
-	<20010307122222.A1254@kochanski.internal.splhi.com>
-Content-Type: text/plain
-X-Mailer: Evolution/0.9 (Preview Release)
-Date: 12 Mar 2001 07:44:40 -0500
-Message-Id: <984401080.15372.4.camel@milkplus.unknown.domain>
-Mime-Version: 1.0
+	id <S130037AbRCLMkn>; Mon, 12 Mar 2001 07:40:43 -0500
+Received: from roma.axis.se ([193.13.178.2]:62219 "EHLO roma.axis.se")
+	by vger.kernel.org with ESMTP id <S129855AbRCLMkf>;
+	Mon, 12 Mar 2001 07:40:35 -0500
+Message-ID: <050a01c0aaf1$1984aea0$0a070d0a@axis.se>
+From: "Johan Adolfsson" <johan.adolfsson@axis.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Missing use of TcpPassiveOpens counter?
+Date: Mon, 12 Mar 2001 13:36:45 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2314.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07 Mar 2001 12:22:22 -0800, Tim Wright wrote:
-> On Tue, Mar 06, 2001 at 08:10:10PM -0500, Ettore Perazzoli wrote:
-> > On 06 Mar 2001 17:01:02 -0800, Tim Wright wrote:
-> Yes, it does. I have the drive running in UDMA mode 2, and get ~16MB/s from
-> 'hdparm -t -T'. I have the "use DMA automatically" option turned on in the
-> kernel, so I inherit the BIOS settings which are correct.
-> 
-> I've used standby and hibernation with complete success since.
+While trying to track down a possible select()/accept()
+problem in 2.0.38 I noticed that theTcpPassiveOpens counter
+is never increased (not in 2.0, 2.2 nor 2.4)
 
-  This seemed to fix the problem for me as well.  I have had DMA turned
-on since then, and I have experienced no file system corruption anymore.
-Thanks!
+When checking more of the Tcp: fields in
+/proc/net/snmp
+it looks like some more fields are not set correctly
+(tcpRto*, tcpMaxConn )
 
-  Maybe the help message for this kernel option (CONFIG_APM_ALLOW_INTS)
-should report in big blocky letters that disabling it might cause major
-data loss with some drive/bios combinations?..  I was not aware that I
-was touching such a sensitive parameter when I rebuilt the kernel, and
-the help message didn't warn me in any way.
+Just overlooked and forgotten or does nobody care?
+(or both:)
 
--- 
-Ettore
+The following patch for 2.0 increases the TcpPassiveOpen counter,
+the case where you have crossed SYN's is not handled,
+but I don't think it should anyway?
+At first I was tempted to put it in the tcp_accept() function,
+but it should really be when we change state from 
+LISTEN to SYN_RECVD.
+
+diff -u -p -r1.7 tcp_input.c
+--- tcp_input.c 2000/03/30 15:53:22     1.7
++++ tcp_input.c 2001/03/12 12:11:18
+@@ -747,7 +747,9 @@ static void tcp_conn_request(struct sock
+        newsk->dummy_th.source = skb->h.th->dest;
+        newsk->dummy_th.dest = skb->h.th->source;
+        newsk->users=0;
+-
++
++      tcp_statistics.TcpPassiveOpens++; /* LISTEN to SYN_RECV */
++
+ #ifdef CONFIG_IP_TRANSPARENT_PROXY
+        /* 
+         *      Deal with possibly redirected traffic by setting num to
+
+
+In 2.4 I'm not sure where to put the
+TCP_INC_STATS(TcpPassiveOpens); or
+TCP_INC_STATS_BH(TcpPassiveOpens);
+
+tcp_minisocks.c:tcp_create_openreq_child() ?
+
+
+/Johan
+
+
+
+

@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbULWAsD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbULWAzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbULWAsD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 19:48:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbULWApt
+	id S262103AbULWAzn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 19:55:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbULWAzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 19:45:49 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18445 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262103AbULWAha (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 19:37:30 -0500
-Date: Thu, 23 Dec 2004 01:37:28 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/char/tty_ioctl.c: make a function static (fwd)
-Message-ID: <20041223003728.GI5217@stusta.de>
+	Wed, 22 Dec 2004 19:55:42 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:23773 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262103AbULWAzZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 19:55:25 -0500
+Subject: Re: swsusp bigdiff [was Re: [PATCH] Software Suspend split to two
+	stage V2.]
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: hugang@soulinfo.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041222213208.GA23761@elf.ucw.cz>
+References: <20041119194007.GA1650@hugang.soulinfo.com>
+	 <20041120003010.GG1594@elf.ucw.cz>
+	 <1103585300.26640.47.camel@desktop.cunninghams>
+	 <20041222202831.GB7051@elf.ucw.cz>
+	 <1103750502.10045.27.camel@desktop.cunninghams>
+	 <20041222213208.GA23761@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1103763137.10045.37.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 23 Dec 2004 11:52:17 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch forwarded below still applies and compiles against 
-2.6.10-rc3-mm1.
+Hi.
 
-Please apply.
+On Thu, 2004-12-23 at 08:32, Pavel Machek wrote:
+> You mean proposal for one-device-suspend? Well, I'd really like to
+> have whole machine case working, first... Then, yes, that would be
+> nice. It needs to be discussed at linux-pm list.
 
+Yes - a proposal for one-device-suspend.
 
------ Forwarded message from Adrian Bunk <bunk@stusta.de> -----
+When you say linux-pm list, do you mean linux-pm-devel on lists dot
+sourceforge dot net? I've subscribed there, but it seems to be just
+about about dead, so I'm wondering if there's another location.
 
-Date:	Sun, 5 Dec 2004 18:24:24 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/char/tty_ioctl.c: make a function static
+Regards,
 
-The patch below makes a needlessly global function static.
+Nigel
+-- 
+Nigel Cunningham
+Cyclades Software Engineer
+Canberra, Australia
 
+http://www.cyclades.com
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm3-full/drivers/char/tty_ioctl.c.old	2004-11-07 01:28:51.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/tty_ioctl.c	2004-11-07 01:29:04.000000000 +0100
-@@ -372,7 +372,7 @@
- /*
-  * Send a high priority character to the tty.
-  */
--void send_prio_char(struct tty_struct *tty, char ch)
-+static void send_prio_char(struct tty_struct *tty, char ch)
- {
- 	int	was_stopped = tty->stopped;
- 
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
++61 (2) 6292 8028
++61 (417) 100 574
 

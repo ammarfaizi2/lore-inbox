@@ -1,125 +1,178 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbRAMRgk>; Sat, 13 Jan 2001 12:36:40 -0500
+	id <S129704AbRAMSLP>; Sat, 13 Jan 2001 13:11:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129413AbRAMRgb>; Sat, 13 Jan 2001 12:36:31 -0500
-Received: from maile.telia.com ([194.22.190.16]:11781 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S129406AbRAMRgR>;
-	Sat, 13 Jan 2001 12:36:17 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Roger Larsson <roger.larsson@norran.net>
-To: george anzinger <george@mvista.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Latency: allowing resheduling while holding spin_locks
-Date: Sat, 13 Jan 2001 18:31:43 +0100
-X-Mailer: KMail [version 1.2]
-Cc: Nigel Gamble <nigel@nrg.org>
+	id <S129735AbRAMSLF>; Sat, 13 Jan 2001 13:11:05 -0500
+Received: from icemserv.folkwang.uni-essen.de ([132.252.170.129]:40718 "EHLO
+	icemserv.folkwang.uni-essen.de") by vger.kernel.org with ESMTP
+	id <S129704AbRAMSKq>; Sat, 13 Jan 2001 13:10:46 -0500
+Message-ID: <3A609A55.7F80CF31@folkwang.uni-essen.de>
+Date: Sat, 13 Jan 2001 19:11:33 +0100
+From: Jörn Nettingsmeier 
+	<nettings@folkwang.uni-essen.de>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test13-pre3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01011315231600.01469@dox>
-Content-Transfer-Encoding: 7BIT
+To: Andrew Morton <andrewm@uow.edu.au>
+CC: jayts@bigfoot.com, lkml <linux-kernel@vger.kernel.org>,
+        lad <linux-audio-dev@ginette.musique.umontreal.ca>, xpert@xfree86.org,
+        "mcrichto@mpp.ecs.umass.edu" <mcrichto@mpp.ecs.umass.edu>,
+        alsa-devel@alsa-project.org
+Subject: video drivers hog pci bus ? [was:[linux-audio-dev] low-latency 
+ scheduling patch for 2.4.0]
+In-Reply-To: <3A57DA3E.6AB70887@uow.edu.au> from "Andrew Morton" at Jan 07, 2001 01:53:50 PM <200101110312.UAA06343@toltec.metran.cx> <3A5D994A.1568A4D5@uow.edu.au>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+[alsa folks, i'd appreciate a comment on this thread from
+linux-audio-dev]
 
-A rethinking of the rescheduling strategy...
+hello everyone !
 
-I have come to this conclusion.
+in a post related to his latest low-latency patch, andrew morton
+gave a pointer to
+http://www.zefiro.com/vgakills.txt , which addresses the problem of
+dropped samples due to agressive video drivers hogging the pci bus
+with retry attempts to optimize benchmark results while producing a
+"zipper" noise, e.g. when moving windows around with the mouse while
+playing a soundfile.
+some may have tried fiddling with the "pci retry" option in the
+XF86Config (see the linux audio quality howto by paul winkler at
+http://www.linuxdj.com/audio/quality for details).
 
-A spinlock prevents other processes to enter that specific region.
-But interrupts are allowed they might delay 
-execution of a spin locked
-reqion for a undefined (small but anyway) time.
+i recall some people having reported mysterious l/r swaps w/ alsa
+drivers on some cards, and iirc, most of these reports were not
+easily reproduced and explained. 
+the zefiro paper states that the zefiro cards would swap channels
+occasionally under the circumstances mentioned. it sounds probable
+to me that all drivers using interleaved data would suffer from this
+problem.
 
-Code with critical maximum times should use spin_lock_irq !
+can some more experienced people comment on this ?
+is my assumption correct that the bus hogging behaviour is affected
+by the pci_retry option ?
 
-=> spin_locks are not about disallowing reschedules.
+btw: the text only mentions pci video cards. will agp cards also
+clog the pci bus ?
 
-
-Prior to the introduction of spin locks it did not make sense to
-allow reschedules in kernel since the big kernel lock was so big...
-Any code that wanted do any non pure computation task would
-hit it very quickly.
-
-Now with spin locks the situation is quite different...
-
-[First assume UP kernel for simplicity]
-
-Suppose you have two processes one that normal (P) and one high priority 
-(RTP).
-
-P runs user code, makes a system call, enters a spin lock region.
-
-Interrupt!
-
-The interrupt service routine wakes up RTP, which marks P as need_reschedule, 
-and returns, on return from interrupt it detects that P needs_reschedule -
-do it even if it is executing in kernel and holding a spin_lock.
-
-RTP starts, and if it does not hit the same spin_lock there is nothing 
-special happening until it goes to sleep again. But suppose it does!
-
-RTP tries to get the spin_lock but fails, since it is the currently highest 
-prio process and P is running it wants to reschedule to P to get its own 
-stuff done.
-
-P runs the final part of its spin_locked region, upon spin_unlock it needs to
-get RTP running.
-
-Something like this:
-
-spin_lock(lock)
-{
-	while (test_and_set(lock->lock)) {
-		schedule_spinlock(); /* kind of yield, giving low goodness, sticky */
-	}
-}
-
-spin_unlock(lock)
-{
-	clear(lock);
-
-	/* note: someone with higher prio than me,
-	   might steal the lock from even higher prio waiters here */
-
-	if (lock->queue)
-		wakeup_spinlock_yielder(lock);
-}
+please give some detail in your answers - i would like to include
+this in the linux-audio-dev faq and resources pages. (so chances are
+you will only have to answer this once :)
 
 
-schedule_spinlock()
-{
-	/* note: owner can not run here, it has lower prio */
-
-	addqueue(lock->queue, current);
-
-	p->policy |= SCHED_SPINLOCK;
-	schedule();
-}
-
-wakeup_spinlock_yielder(lock)
-{
-	int need_resched = 0;
-
-	int my_goodness = goodness(current);
-
-	forall p in lock->queue
-		p->policy &= ~SCHED_SPINLOCK;
-		if (goodness(p) > my_goodness)
-			need_resched = 1;
-	}
-
-	if (need_resched)
-		schedule();
-}
+sorry if this has been dealt with before, i seem to have trouble to
+follow all my mailing lists...
 
 
-A final note on spin_lock_irq, since they prevent IRQs there will be no 
-requests to wakeup any process during their locked region => no problems.
+regards,
+
+jörn
+
+
+Andrew Morton wrote:
+> 
+> >
+> > > A patch against kernel 2.4.0 final which provides low-latency
+> > > scheduling is at
+> > >
+> > >       http://www.uow.edu.au/~andrewm/linux/schedlat.html#downloads
+> > >
+> > > Some notes:
+> > >
+> > > - Worst-case scheduling latency with *very* intense workloads is now
+> > >   0.8 milliseconds on a 500MHz uniprocessor.
+> Neither, I think.
+> 
+> We can't apply some patch and say "there; it's low-latency".
+> 
+> We (or "he") need to decide up-front that Linux is to become
+> a low latency kernel. Then we need to decide the best way of
+> doing that.
+> 
+> Making the kernel internally preemptive is probably the best way of
+> doing this.  But it's a *big* task to which must beard-scratching must
+> be put.  It goes way beyond the preemptive-kernel patches which have
+> thus far been proposed.
+> 
+> I could propose a simple patch for 2.4 (say, the ten most-needed
+> scheduling points).  This would get us down to maybe 5-10 milliesconds
+> under heavy load (10-20x improvement).
+> 
+> That would probably be a great and sufficient improvement for
+> the HA heartbeat monitoring apps, the database TP monitors,
+> the QuakeIII players and, of course, people who are only
+> interested in audio record and playback - I'd need advice
+> from the audio experts for that.
+> 
+> I hope that one or more of the desktop-oriented Linux distributors
+> discover that hosing HTML out of gigE ports is not really the
+> One True Appplication of Linux, and that they decide to offer
+> a low-latency kernel for the other 99.99% of Linux users.
+> >
+> > Well it's extremely nice to see NFS included at least.  I was really
+> > worried about that one.  What about Samba?  (Keeping in mind that
+> > serious "professional" musicians will likely have their Linux systems
+> > networked to a Windows box, at least until they have all the necessary
+> > tools on Linux.
+> 
+> > > - If you care about latency, be *very* cautious about upgrading to
+> > >   XFree86 4.x.  I'll cover this issue in a separate email, copied
+> > >   to the XFree team.
+> 
+> I haven't gathered the energy to send it.
+> 
+> The basic problem with many video cards is this:
+> 
+> Video adapters have on-board command FIFOs.  They also
+> have a "FIFO has spare room" control bit.
+> 
+> If you write to the FIFO when there is no spare room,
+> the damned thing busies the PCI bus until there *is*
+> room.  This can be up to twenty *milliseconds*.
+> 
+> This will screw up realtime operating systems,
+> will cause network receive overruns, will screw
+> up isochronous protocols such as USB and 1394
+> and will of course screw up scheduling latency.
+> 
+> In xfree3 it was OK - the drivers polled the "spare room"
+> bit before writing.  But in xfree4 the drivers are starting
+> to take advantage of this misfeature.  I am told that
+> a significant number of people are backing out xfree4
+> upgrades because of this.  For audio.
+> 
+> The manufacturers got caught out by the trade press
+> in '98 and '99 and they added registry flags to their
+> drivers to turn off this obnoxious behaviour.
+> 
+> What needs to happen is for the xfree guys to add a
+> control flag to XF86Config for this.  I believe they
+> have - it's called `PCIRetry'.
+> 
+> I believe PCIRetry defaults to `off'.  This is bad.
+> It should default to `on'.
+> 
+> You can read about this minor scandal at the following
+> URLs:
+> 
+>         http://www.zefiro.com/vgakills.txt
+>         http://www.zdnet.com/pcmag/news/trends/t980619a.htm
+>         http://www.research.microsoft.com/~mbj/papers/tr-98-29.html
+> 
+> So,  we need to talk to the xfree team.
+> 
+> Whoops!  I accidentally Cc'ed them :-)
+> 
+> -
 
 -- 
-Home page:
-  no currently
+Jörn Nettingsmeier     
+home://Kurfürstenstr.49.45138.Essen.Germany      
+phone://+49.201.491621
+http://www.folkwang.uni-essen.de/~nettings/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

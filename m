@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273990AbRIYVZF>; Tue, 25 Sep 2001 17:25:05 -0400
+	id <S273997AbRIYVYp>; Tue, 25 Sep 2001 17:24:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274185AbRIYVY4>; Tue, 25 Sep 2001 17:24:56 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:45316 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S273990AbRIYVYi>; Tue, 25 Sep 2001 17:24:38 -0400
-Date: Tue, 25 Sep 2001 17:01:41 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Rick Haines <rick@kuroyi.net>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10 VM: what avoids from having lots of unwriteable inactive
- pages
-In-Reply-To: <20010925172016.B860@sasami.kuroyi.net>
-Message-ID: <Pine.LNX.4.21.0109251700370.2193-100000@freak.distro.conectiva>
+	id <S273995AbRIYVY0>; Tue, 25 Sep 2001 17:24:26 -0400
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:21188 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S273990AbRIYVYR>; Tue, 25 Sep 2001 17:24:17 -0400
+Message-ID: <8FB7D6BCE8A2D511B88C00508B68C2081971BD@orsmsx102.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Pavel Machek'" <pavel@ucw.cz>
+Cc: "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: ACPI sleep, proc error checking, and proc info patches
+Date: Tue, 25 Sep 2001 14:24:34 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Pavel,
 
+I like the proc info and the error-checking patches. (although I think you
+meant to check against proc, not proc_entry, in a few places).
 
-On Tue, 25 Sep 2001, Rick Haines wrote:
+I don't like the sleep problem workaround. One, because it uses DMI
+information. The ACPI tables contain machine name and table version, and we
+want to use that, instead of DMI information that will not necessarily be
+updated when the BIOS is fixed. Two, I am extremely loathe to take
+workarounds for broken BIOSes. I know we don't have a blacklist at this
+point but I think having one would be cleaner - if *anything* is wrong, we
+shouldn't enable ACPI.
 
-> On Tue, Sep 25, 2001 at 01:13:37PM -0300, Rik van Riel wrote:
-> > On Tue, 25 Sep 2001, Linus Torvalds wrote:
-> > > On Tue, 25 Sep 2001, Rik van Riel wrote:
-> > > > >
-> > > > > swap_out() will deactivate everything it finds to be not-recently used,
-> > > > > and that's how the inactive list ends up getting replenished.
-> > > >
-> > > > mlock()
-> > >
-> > > Hey, if you've mlock'ed more than your available memory, there's nothing
-> > > the VM layer can do. Except maybe a nice printk("Kiss your *ss goodbye");
-> 
-> Shouldn't there be a threshold where mlock will fail?
+I admit, we *do* have one workaround in the code, for the PIIX4 C3 issue.
+That was a chipset problem, not an ACPI BIOS problem, and affected a huge
+number of machines.
 
-There is (for users). Take a look at ulimit:
+ACPI BIOS problems usually are obviously wrong code, and I have had some
+success in getting vendors to fix them. If we do workarounds, vendors will
+never fix it. If we politely but insistently contact them and ask nicely,
+maybe they will, and if they don't, we can blacklist that table version for
+that machine.
 
- -l     The maximum size that may be locked into memory
+So if you implement an ACPI bios blacklist I'd probably take that.
 
-
-
-> Or are you saying that in general mlocking lots of memory will screw the
-> VM?
-
-Yes it will.
-
+Regards -- Andy
+	

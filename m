@@ -1,48 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132325AbRBRRrn>; Sun, 18 Feb 2001 12:47:43 -0500
+	id <S129144AbRBRRtw>; Sun, 18 Feb 2001 12:49:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132436AbRBRRrW>; Sun, 18 Feb 2001 12:47:22 -0500
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:15366 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S132325AbRBRRrO>;
-	Sun, 18 Feb 2001 12:47:14 -0500
-Date: Sun, 18 Feb 2001 18:47:08 +0100
-From: Frank de Lange <frank@unternet.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs on 2.4.1,2.4.2-pre (with null bytes patch) breaks mozilla compile
-Message-ID: <20010218184708.B27092@unternet.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S129993AbRBRRtm>; Sun, 18 Feb 2001 12:49:42 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:14047 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129144AbRBRRta>;
+	Sun, 18 Feb 2001 12:49:30 -0500
+Date: Sun, 18 Feb 2001 18:49:26 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200102181749.SAA171185.aeb@vlet.cwi.nl>
+To: linux-kernel@vger.kernel.org, zzed@cyberdude.com
+Subject: Re: [PROBLEM] 2.4.1 can't mount ext2 CD-ROM
+Cc: alan@lxorguk.ukuu.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Minor nit, but I'd rather clear it up now. Which distribution you run
-> doesn't matter for debugging. What does matter is that we've got known
-> problems with a given compiler, and that compiler goes by a few different
-> flavors with the same version number. Since there are known problems, if
-> you don't provide the compiler version, I'll ask. If your bug is *really*
-> odd, I might ask a few different ways, just to make sure you give the same
-> answer every time ;-)
+    From: Jon Forsberg <zzed@cyberdude.com>
 
-Well, a nit to a nit... In my experience it surely matters which distribution
-somebody runs, since that tells a lot about the basic system (libc, probable
-compiler, binutils, etc). RH7 is broken in many respects. Since it uses
-glibc-2.2 as well, I usually add the notice that I do NOT run RH7 to messages
-like these where I mention I use glibc-2.2.x, if only to ward off the usual
-'are you running RH7 if yes please upgrade so and so' cycle. Bits and electrons
-are much to precious to waste on
-useless banter like that...
+    I have two ext2 CD-ROMs. One of them I can mount the normal way,
+    the other I can't. Both are ok according to debugfs and e2fsck
+    and if I do
+	'mount -t ext2 -o loop /dev/cdrom /cdrom'
+    instead, both work.
 
-Cheers//Frank
--- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+    The one that doesn't work have a blocksize of 1024 according to debugfs:
+      Block size = 1024, fragment size = 1024
+    And the other:
+      Block size = 4096, fragment size = 4096
+
+    What happens:
+
+    # mount -t ext2 /dev/cdrom /cdrom        
+    mount: block device /dev/cdrom is write-protected, mounting read-only
+    mount: wrong fs type, bad option, bad superblock on /dev/cdrom,
+           or too many mounted file systems
+
+    kern.log:
+    Feb 18 14:54:34 pc1 kernel: VFS: Unsupported blocksize on dev sr(11,0).
+
+    I'm pretty sure both worked with 2.2.17.
+
+You are being bitten by two bugs. By some coincidence I sent a
+patch for the first one to Linus and Alan yesterday.
+(That was fs/ext2/super.c - the same bug occurs in both 2.2 and 2.4.)
+However, the second one will then still prevent you from mounting,
+and it occurs only in 2.4.
+
+Someone has added
+        /*
+         * These are good guesses for the time being.
+         */
+        for (i = 0; i < sr_template.dev_max; i++) {
+                sr_blocksizes[i] = 2048;
+                sr_hardsizes[i] = 2048;
+        }
+        blksize_size[MAJOR_NR] = sr_blocksizes;
+        hardsect_size[MAJOR_NR] = sr_hardsizes;
+setting of hardsect_size to drivers/scsi/sr.c.
+
+A value of hardsect_size[] means: this is the smallest size
+the hardware can work with. It is therefore a serious mistake
+just to come with "a good guess". This value is used only
+to reject impossible sizes, and everywhere the kernel accepts 0
+meaning "don't know".
+
+So, probably all will work fine if you change the second
+2048 here to say 512 or 0. Or, if you, more drastically,
+remove all references to sr_hardsizes[] from sr.c.
+
+Andries

@@ -1,89 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316833AbSFQGyj>; Mon, 17 Jun 2002 02:54:39 -0400
+	id <S316780AbSFQGwj>; Mon, 17 Jun 2002 02:52:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316777AbSFQGwp>; Mon, 17 Jun 2002 02:52:45 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:35616 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S316778AbSFQGwK>; Mon, 17 Jun 2002 02:52:10 -0400
-Date: Mon, 17 Jun 2002 08:53:06 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andi Kleen <ak@suse.de>, Benjamin LaHaise <bcrl@redhat.com>,
-       linux-kernel@vger.kernel.org, Richard Brunner <richard.brunner@amd.com>,
-       mark.langsdorf@amd.com
-Subject: Re: another new version of pageattr caching conflict fix for 2.4
-Message-ID: <20020617065306.GD2187@dualathlon.random>
-References: <20020614062754.A11232@wotan.suse.de> <20020614112849.A22888@redhat.com> <20020614181328.A18643@wotan.suse.de> <20020614173133.GH2314@inspiron.paqnet.com> <20020614200537.A5418@wotan.suse.de> <m17kkzv8lq.fsf@frodo.biederman.org> <20020616184801.A15227@wotan.suse.de> <m13cvnun7o.fsf@frodo.biederman.org> <20020616204305.A32022@wotan.suse.de> <m1y9dft2t8.fsf@frodo.biederman.org>
-Mime-Version: 1.0
+	id <S316777AbSFQGwE>; Mon, 17 Jun 2002 02:52:04 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29710 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316778AbSFQGt0>;
+	Mon, 17 Jun 2002 02:49:26 -0400
+Message-ID: <3D0D8768.90C71B84@zip.com.au>
+Date: Sun, 16 Jun 2002 23:53:28 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: [patch 16/19] clean up alloc_buffer_head()
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1y9dft2t8.fsf@frodo.biederman.org>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 16, 2002 at 01:56:51PM -0600, Eric W. Biederman wrote:
-> Andi Kleen <ak@suse.de> writes:
-> 
-> > On Sun, Jun 16, 2002 at 11:50:51AM -0600, Eric W. Biederman wrote:
-> > > Andi Kleen <ak@suse.de> writes:
-> > > 
-> > > > On Sun, Jun 16, 2002 at 04:08:49AM -0600, Eric W. Biederman wrote:
-> > > > > 
-> > > > > Don't allow the change_page_attr if page->count > 1 is an easy solution,
-> > > > > and it probably suffices.  Beyond that anything mmaped can be found
-> > > > 
-> > > > Erm, what should it do then? Fail the AGP map ?
-> > > 
-> > > Why not.  If user-space has already mapped the memory one way, turning
-> > > around and using it another way is a problem.  If the memory is
-> > > dynamically allocated for AGP I don't even see how this case
-> > > could occur.
-> > 
-> > It's a random error. AGP randomly gets some page that is already mapped
-> > by /dev/mem somewhere. There is nothing that it can do to avoid this.
-> > As /dev/mem is root only and root can already cause much damage it is
-> > probably not worth avoiding the particular breakage.
-> 
-> Sorry my confusion I thought mmapping /dev/mem increased the page count,
-> in which case it would be easy to detect, and avoid.  I just looked
-> and it doesn't so there appears no trivial way to detect or handle
-> that case.
 
-yep, because remap_page_range is used to work on things that doesn't
-have a page structure in the first place too. We cannot trap /dev/mem,
-unless additional infrastructure is developed for it. I would ignore it,
-/dev/mem should be necessary only to non-ram pages, and so it should
-never be a problem. If it's a problem it falls into Al's category of the
-"doctor it hurts".
 
-> My preferred fix is to use PAT, to override the buggy mtrrs.  Which
-> brings up the same aliasing issues.  Which makes it related but
-> outside the scope of the problem.
+alloc_bufer_head() does not need the additional argument - GFP_NOFS is
+always correct.
 
-I don't see why you keep wondering about cacheability attributes. We
-simply need to avoid the aliasing, then you don't care about the cache
-attributes. It is a matter of the agp code if it wants write-back
-write-combining or uncached then. the corruption happens because of the
-physical aliases, if you remove the physical aliases in the cache then
-you don't need to care about the cache-type.
 
-So my suggestion, besides changing the API to the device drivers so that
-the arch returns an array of pages ready to handle physical aliasing (so
-moving the allocation/freeing in the arch/ section), is to mark the pte
-of the aliased 4k pages as invalid. No need to care about cacheability
-then. Just mark the pte invalid, flush the tlb, and flush the caches.
-When you drop pages from the aperture, drop the agp mapping, flush the
-tlb for the agp mapping, flush caches and reeanble the original
-pagetable possibly making it again a largepage. No need to care about
-mtrr or pte cacheability attributes this way, and even better this way
-we'll oops any bogus user that is trying to access the page via the
-kernel direct mapping while there's a physical alias, such guy should
-use the agp virtual mapping instead, not the kernel direct mapping.
-Marking the pte invalid is's even simpler than marking it uncacheable,
-so it's very simple to change Andi's patch that way.
 
-Andrea
+--- 2.5.22/fs/buffer.c~cleanup-alloc_buffer_head	Sun Jun 16 23:12:52 2002
++++ 2.5.22-akpm/fs/buffer.c	Sun Jun 16 23:22:44 2002
+@@ -947,12 +947,12 @@ void invalidate_inode_buffers(struct ino
+  * the size of each buffer.. Use the bh->b_this_page linked list to
+  * follow the buffers created.  Return NULL if unable to create more
+  * buffers.
+- * The async flag is used to differentiate async IO (paging, swapping)
+- * from ordinary buffer allocations, and only async requests are allowed
+- * to sleep waiting for buffer heads. 
++ *
++ * The retry flag is used to differentiate async IO (paging, swapping)
++ * which may not fail from ordinary buffer allocations.
+  */
+ static struct buffer_head *
+-create_buffers(struct page * page, unsigned long size, int async)
++create_buffers(struct page * page, unsigned long size, int retry)
+ {
+ 	struct buffer_head *bh, *head;
+ 	long offset;
+@@ -961,7 +961,7 @@ try_again:
+ 	head = NULL;
+ 	offset = PAGE_SIZE;
+ 	while ((offset -= size) >= 0) {
+-		bh = alloc_buffer_head(async);
++		bh = alloc_buffer_head();
+ 		if (!bh)
+ 			goto no_grow;
+ 
+@@ -998,7 +998,7 @@ no_grow:
+ 	 * become available.  But we don't want tasks sleeping with 
+ 	 * partially complete buffers, so all were released above.
+ 	 */
+-	if (!async)
++	if (!retry)
+ 		return NULL;
+ 
+ 	/* We're _really_ low on memory. Now we just
+@@ -2396,7 +2396,7 @@ asmlinkage long sys_bdflush(int func, lo
+ static kmem_cache_t *bh_cachep;
+ static mempool_t *bh_mempool;
+ 
+-struct buffer_head *alloc_buffer_head(int async)
++struct buffer_head *alloc_buffer_head(void)
+ {
+ 	return mempool_alloc(bh_mempool, GFP_NOFS);
+ }
+--- 2.5.22/fs/jbd/journal.c~cleanup-alloc_buffer_head	Sun Jun 16 23:12:52 2002
++++ 2.5.22-akpm/fs/jbd/journal.c	Sun Jun 16 23:12:52 2002
+@@ -463,7 +463,7 @@ int journal_write_metadata_buffer(transa
+ 	 * Right, time to make up the new buffer_head.
+ 	 */
+ 	do {
+-		new_bh = alloc_buffer_head(0);
++		new_bh = alloc_buffer_head();
+ 		if (!new_bh) {
+ 			printk (KERN_NOTICE "%s: ENOMEM at alloc_buffer_head, "
+ 				"trying again.\n", __FUNCTION__);
+--- 2.5.22/include/linux/buffer_head.h~cleanup-alloc_buffer_head	Sun Jun 16 23:12:52 2002
++++ 2.5.22-akpm/include/linux/buffer_head.h	Sun Jun 16 23:22:44 2002
+@@ -164,7 +164,7 @@ void __brelse(struct buffer_head *);
+ void __bforget(struct buffer_head *);
+ struct buffer_head * __bread(struct block_device *, int, int);
+ void wakeup_bdflush(void);
+-struct buffer_head *alloc_buffer_head(int async);
++struct buffer_head *alloc_buffer_head(void);
+ void free_buffer_head(struct buffer_head * bh);
+ void FASTCALL(unlock_buffer(struct buffer_head *bh));
+ 
+
+-

@@ -1,25 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269653AbRHAFt0>; Wed, 1 Aug 2001 01:49:26 -0400
+	id <S269655AbRHAGOc>; Wed, 1 Aug 2001 02:14:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269652AbRHAFtQ>; Wed, 1 Aug 2001 01:49:16 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:56594 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S269651AbRHAFtI>; Wed, 1 Aug 2001 01:49:08 -0400
-Date: Tue, 31 Jul 2001 22:49:03 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] DMCA loop hole
-In-Reply-To: <Pine.GSO.4.21.0108010132200.24601-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.10.10107312247380.13241-100000@transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269656AbRHAGOV>; Wed, 1 Aug 2001 02:14:21 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:53518 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S269655AbRHAGOR>;
+	Wed, 1 Aug 2001 02:14:17 -0400
+From: Andrew Tridgell <tridge@valinux.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0107312326080.8866-100000@freak.distro.conectiva>
+	(message from Marcelo Tosatti on Tue, 31 Jul 2001 23:26:59 -0300
+	(BRT))
+Subject: Re: 2.4.8preX VM problems
+Reply-To: tridge@valinux.com
+In-Reply-To: <Pine.LNX.4.21.0107312326080.8866-100000@freak.distro.conectiva>
+Message-Id: <20010801060942.ABC16440B@lists.samba.org>
+Date: Tue, 31 Jul 2001 23:09:42 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Marcelo,
 
-Thank you. I seen someone else with that sig. and I had to take it.
+I've narrowed it down some more. If I apply the whole zone patch
+except for this bit:
 
++		/* 
++		 * If we are doing zone-specific laundering, 
++		 * avoid touching pages from zones which do 
++		 * not have a free shortage.
++		 */
++		if (zone && !zone_free_shortage(page->zone)) {
++			list_del(page_lru);
++			list_add(page_lru, &inactive_dirty_list);
++			continue;
++		}
++
 
+then the behaviour is much better:
+
+[root@fraud trd]# ~/readfiles /dev/ddisk 
+202 MB    202.125 MB/sec
+394 MB    192.525 MB/sec
+580 MB    185.487 MB/sec
+755 MB    175.319 MB/sec
+804 MB    41.3387 MB/sec
+986 MB    182.5 MB/sec
+1115 MB    114.862 MB/sec
+1297 MB    182.276 MB/sec
+1426 MB    128.983 MB/sec
+1603 MB    164.939 MB/sec
+1686 MB    82.9556 MB/sec
+1866 MB    179.861 MB/sec
+1930 MB    63.959 MB/sec
+
+Even given that, the performance isn't exactly stunning. The
+"dummy_disk" driver doesn't even do a memset or memcpy so it should
+really run at the full memory bandwidth of the machine. We are only
+getting a fraction of that (it is a dual PIII/800 server). If I get
+time I'll try some profiling.
+
+I also notice that the system peaks at a maximum of just under 750M in
+the buffer cache. The system has 1.2G of completely unused memory
+which I really expected to be consumed by something that is just
+reading from a never-ending block device.
+
+For example:
+
+CPU0 states:  0.0% user, 67.1% system,  0.0% nice, 32.3% idle
+CPU1 states:  0.0% user, 65.3% system,  0.0% nice, 34.1% idle
+Mem:  2059660K av,  842712K used, 1216948K free,       0K shrd,  740816K buff
+Swap: 1052216K av,       0K used, 1052216K free                    9496K cached
+
+  PID USER     PRI  NI  SIZE  RSS SHARE LC STAT %CPU %MEM   TIME COMMAND
+  615 root      14   0   452  452   328  1 R    99.9  0.0   3:52 readfiles
+    5 root       9   0     0    0     0  1 SW   31.3  0.0   1:03 kswapd
+    6 root       9   0     0    0     0  0 SW    0.5  0.0   0:04 kreclaimd
+
+I know this is a *long* way from a real world benchmark, but I think
+it is perhaps indicative of our buffer cache system getting a bit too
+complex again :)
+
+Cheers, Tridge

@@ -1,50 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268920AbUIQRpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268861AbUIQRsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268920AbUIQRpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 13:45:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268916AbUIQRpZ
+	id S268861AbUIQRsv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 13:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268916AbUIQRsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 13:45:25 -0400
-Received: from cantor.suse.de ([195.135.220.2]:14744 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268861AbUIQRoo (ORCPT
+	Fri, 17 Sep 2004 13:48:51 -0400
+Received: from fw.osdl.org ([65.172.181.6]:62893 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268861AbUIQRsV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 13:44:44 -0400
-Date: Fri, 17 Sep 2004 19:42:40 +0200
-From: Olaf Hering <olh@suse.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: akpm <akpm@osdl.org>, linux-kernel@vger.kernel.org, sam@ravnborg.org
-Subject: Re: [PATCH] kconfig: OVERRIDE: save kernel version in .config file
-Message-ID: <20040917174240.GA16049@suse.de>
-References: <20040917154346.GA15156@suse.de> <20040917102024.50188756.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+	Fri, 17 Sep 2004 13:48:21 -0400
+Date: Fri, 17 Sep 2004 10:43:34 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: olh@suse.de, akpm@osdl.org, sam@ravnborg.org
+Subject: [PATCH] kconfig: OVERRIDE: save kernel version in .config file
+Message-Id: <20040917104334.1b7d7d19.rddunlap@osdl.org>
 In-Reply-To: <20040917102024.50188756.rddunlap@osdl.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+References: <20040917154346.GA15156@suse.de>
+	<20040917102024.50188756.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Fri, Sep 17, Randy.Dunlap wrote:
+On Fri, 17 Sep 2004 10:20:24 -0700 Randy.Dunlap wrote:
 
-> On Fri, 17 Sep 2004 17:43:46 +0200 Olaf Hering wrote:
-> 
-> | Randy,
-> | 
-> | we need a way to turn the timestamp off when running make oldconfig.
-> | Running make oldconfig gives always a delta, even if the .config is
-> | unchanged. This is bad for cvs repos, it generates conflicts now if 2
-> | people work on the same config file.
-> | Please provide a patch to not call ctime if a non-empty enviroment
-> | variable of your choice is set.
-> 
-> How's this?
+| On Fri, 17 Sep 2004 17:43:46 +0200 Olaf Hering wrote:
+| 
+| | Randy,
+| | 
+| | we need a way to turn the timestamp off when running make oldconfig.
+| | Running make oldconfig gives always a delta, even if the .config is
+| | unchanged. This is bad for cvs repos, it generates conflicts now if 2
+| | people work on the same config file.
+| | Please provide a patch to not call ctime if a non-empty enviroment
+| | variable of your choice is set.
+| 
+| How's this?
 
-good, thanks!
+Let's be a little safer in checking "NOTIMESTAMP".
 
--- 
-USB is for mice, FireWire is for men!
+Omit .config file timestamp in the file if the environment variable
+"NOTIMESTAMP" exists and is non-null.
 
-sUse lINUX ag, nÜRNBERG
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+
+
+diffstat:=
+ scripts/kconfig/confdata.c |   16 ++++++++++++----
+ 1 files changed, 12 insertions(+), 4 deletions(-)
+
+diff -Naurp ./scripts/kconfig/confdata.c~nostamp ./scripts/kconfig/confdata.c
+--- ./scripts/kconfig/confdata.c~nostamp	2004-09-14 14:21:50.855120560 -0700
++++ ./scripts/kconfig/confdata.c	2004-09-17 09:31:22.655220200 -0700
+@@ -270,6 +270,8 @@ int conf_write(const char *name)
+ 	int type, l;
+ 	const char *str;
+ 	time_t now;
++	int use_timestamp = 1;
++	char *env;
+ 
+ 	dirname[0] = 0;
+ 	if (name && name[0]) {
+@@ -306,22 +308,28 @@ int conf_write(const char *name)
+ 	sym = sym_lookup("KERNELRELEASE", 0);
+ 	sym_calc_value(sym);
+ 	time(&now);
++	env = getenv("NOTIMESTAMP");
++	if (env && *env)
++		use_timestamp = 0;
++
+ 	fprintf(out, "#\n"
+ 		     "# Automatically generated make config: don't edit\n"
+ 		     "# Linux kernel version: %s\n"
+-		     "# %s"
++		     "%s%s"
+ 		     "#\n",
+ 		     sym_get_string_value(sym),
+-		     ctime(&now));
++		     use_timestamp ? "# " : "",
++		     use_timestamp ? ctime(&now) : "");
+ 	if (out_h)
+ 		fprintf(out_h, "/*\n"
+ 			       " * Automatically generated C config: don't edit\n"
+ 			       " * Linux kernel version: %s\n"
+-			       " * %s"
++			       "%s%s"
+ 			       " */\n"
+ 			       "#define AUTOCONF_INCLUDED\n",
+ 			       sym_get_string_value(sym),
+-			       ctime(&now));
++			       use_timestamp ? " * " : "",
++			       use_timestamp ? ctime(&now) : "");
+ 
+ 	if (!sym_change_count)
+ 		sym_clear_all_valid();
+
+
+--

@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267083AbTAUOKF>; Tue, 21 Jan 2003 09:10:05 -0500
+	id <S267090AbTAUO3L>; Tue, 21 Jan 2003 09:29:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267084AbTAUOKF>; Tue, 21 Jan 2003 09:10:05 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:7686 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267083AbTAUOKF>; Tue, 21 Jan 2003 09:10:05 -0500
-Date: Tue, 21 Jan 2003 09:16:21 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: DervishD <raul@pleyades.net>
-cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Changing argv[0] under Linux.
-In-Reply-To: <20030114191420.GA162@DervishD>
-Message-ID: <Pine.LNX.3.96.1030121091135.30318C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267091AbTAUO3L>; Tue, 21 Jan 2003 09:29:11 -0500
+Received: from pc-62-31-74-42-ed.blueyonder.co.uk ([62.31.74.42]:44673 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S267090AbTAUO3K>; Tue, 21 Jan 2003 09:29:10 -0500
+Subject: Re: 2.4.21-pre3 - problems with ext3 (long)
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Bartlomiej Solarz-Niesluchowski 
+	<B.Solarz-Niesluchowski@wsisiz.edu.pl>
+Cc: Lukasz Trabinski <lukasz@wsisiz.edu.pl>, akpm@zip.com.au,
+       Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <5.2.0.9.0.20030121152101.02c1e740@oceanic.wsisiz.edu.pl>
+References: <Pine.LNX.4.51.0301210029010.30053@oceanic.wsisiz.edu.pl>
+	<Pine.LNX.4.51.0301141401260.6636@oceanic.wsisiz.edu.pl>
+	<1043102297.13050.59.camel@sisko.scot.redhat.com>
+	<Pine.LNX.4.51.0301210029010.30053@oceanic.wsisiz.edu.pl> 
+	<5.2.0.9.0.20030121152101.02c1e740@oceanic.wsisiz.edu.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Jan 2003 14:38:13 +0000
+Message-Id: <1043159893.2424.59.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Jan 2003, DervishD wrote:
+Hi,
 
-> > > libc, but I think that is more on the kernel side, that's why I ask
-> > Last time I checked argv[0] was 512 bytes. Many daemons overwrite
-> > it with no problem.
+On Tue, 2003-01-21 at 14:22, Bartlomiej Solarz-Niesluchowski wrote:
+> At 13:56 2003-01-21 +0000, Stephen C. Tweedie wrote:
 > 
->     Any header where I can see the length for argv[0] or is this some
-> kind of unoficial standard? Just doing strcpy seems dangerous to me
-> (you can read 'paranoid'...).
+> >If that happens again, serial console is the best way of getting the
+> >full oops.  How much memory does your system have?  Have you ever seen
+> >this error before?
+> 
+> Yes - we have seen this error before.....
 
-The method used in INN is to make arg 1 some space. So
-  nnrpd -s'                             ' -D ...
-You can check that argv[1] is -s, and what its length is, then happily
-write over argv[0]. That's portable in practical terms, since most C
-implementations just have the variable length args in sequence, while a
-few have a fixed length array for args. You're safe in either case.
+Well, the kmap() bug looks like kunmap() being done twice on a page.  If
+that's happening, we really do need to find out where, so capturing that
+trace via serial console would be a _big_ help, thanks.
 
-Ex:
-  if (strncmp(argv[1], "-s", 2) && strlen(argv[1]) > REPLACELEN) {
-    sprintf(argv[0], "format", atuff...);
-  }
-
-Some systems have setproctitle() but it doesn't appear to be posix.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Cheers,
+ Stephen
 

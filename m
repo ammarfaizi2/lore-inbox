@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135952AbREDIrd>; Fri, 4 May 2001 04:47:33 -0400
+	id <S136107AbREDIvy>; Fri, 4 May 2001 04:51:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135985AbREDIrY>; Fri, 4 May 2001 04:47:24 -0400
-Received: from aeon.tvd.be ([195.162.196.20]:22492 "EHLO aeon.tvd.be")
-	by vger.kernel.org with ESMTP id <S135952AbREDIrN>;
-	Fri, 4 May 2001 04:47:13 -0400
-Date: Fri, 4 May 2001 10:44:15 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-        Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH] Penguin logos
-In-Reply-To: <Pine.LNX.4.05.10105032105310.28685-100000@callisto.of.borg>
-Message-ID: <Pine.LNX.4.05.10105041043380.2886-100000@callisto.of.borg>
+	id <S136078AbREDIvn>; Fri, 4 May 2001 04:51:43 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:28683 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S135946AbREDIv1>;
+	Fri, 4 May 2001 04:51:27 -0400
+Date: Fri, 4 May 2001 10:49:49 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Fabio Riccardi <fabio@chromium.com>
+Cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Christopher Smith <x@xman.org>, Andrew Morton <andrewm@uow.edu.au>,
+        "Timothy D. Witham" <wookie@osdlab.org>, <David_J_Morse@Dell.com>
+Subject: Re: X15 alpha release: as fast as TUX but in user space
+In-Reply-To: <3AF20CE3.63C92B3C@chromium.com>
+Message-ID: <Pine.LNX.4.33.0105041028430.2178-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 May 2001, Geert Uytterhoeven wrote:
-> Finally I found some time to incorporate the very nice logos contributed by
-> Simon Budig. Thank you Simon!
-> 
-> Patches (for both 2.4.5-pre1 and 2.4.4-ac4) can be downloaded from:
-> 
->     http://home.tvd.be/cr26864/Linux/fbdev/logo.html
 
-Sorry, I had forgotten to upload the new logo for SPARC. Fixed.
+yet another anomaly i noticed. X15 does not appear to handle pipelined
+HTTP/1.1 requests properly, it ignores the second request if two requests
+arrive in the same packet.
 
-Gr{oetje,eeting}s,
+SPECweb99 does not send pipelined requests, but a number of RL web clients
+do. (Mozilla, apt-get, etc.)
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+	Ingo
 

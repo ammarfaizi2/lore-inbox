@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263371AbTIWS3j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 14:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263366AbTIWS3j
+	id S263423AbTIWSlC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 14:41:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbTIWSlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 14:29:39 -0400
-Received: from home.kvack.org ([216.138.200.138]:34523 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S263346AbTIWS3f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 14:29:35 -0400
-Date: Tue, 23 Sep 2003 14:29:25 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: "David S. Miller" <davem@redhat.com>, davidm@hpl.hp.com,
-       davidm@napali.hpl.hp.com, peter@chubb.wattle.id.au, ak@suse.de,
-       iod00d@hp.com, peterc@gelato.unsw.edu.au, linux-ns83820@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-Message-ID: <20030923142925.A16490@kvack.org>
-References: <DD755978BA8283409FB0087C39132BD101B01194@fmsmsx404.fm.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <DD755978BA8283409FB0087C39132BD101B01194@fmsmsx404.fm.intel.com>; from tony.luck@intel.com on Tue, Sep 23, 2003 at 11:21:35AM -0700
+	Tue, 23 Sep 2003 14:41:01 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:52997 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263423AbTIWSk7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 14:40:59 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Can we kill f inb_p, outb_p and other random I/O on port 0x80, in 2.6?
+Date: 23 Sep 2003 18:31:41 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bkq3id$f0u$1@gatekeeper.tmr.com>
+References: <m1isnlk6pq.fsf@ebiederm.dsl.xmission.com> <1064248391.8895.6.camel@dhcp23.swansea.linux.org.uk> <20030922190054.GC27209@mail.jlokier.co.uk> <m1wuc0io78.fsf@ebiederm.dsl.xmission.com>
+X-Trace: gatekeeper.tmr.com 1064341901 15390 192.168.12.62 (23 Sep 2003 18:31:41 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 23, 2003 at 11:21:35AM -0700, Luck, Tony wrote:
-> Looking at a couple of ia64 build servers here I see zero unaligned
-> access messages in the logs.
+In article <m1wuc0io78.fsf@ebiederm.dsl.xmission.com>,
+Eric W. Biederman <ebiederm@xmission.com> wrote:
+| Jamie Lokier <jamie@shareable.org> writes:
 
-ip options can still be an odd number of bytes.  Having itanic spew bogus 
-log messages is just plain wrong (yet another hardware issue pushed off on 
-software for no significant gain).
+| > Unfortunately, there are a lot of drivers, and a lot of x86
+| > arch-specific code, which use the delay operaters.  There's no real
+| > way to verify that all the drivers are fine when the delay is reduced
+| > or removed.
+| 
+| We just need something sufficiently good.  If the delay is removed
+| on a system that needs it someone will complain.
 
-		-ben
+The only problem with that is that is that (a) a complaint and a dollar
+will get you a cheap beer, but this is Linux and no one *needs* to fix
+it, therefore not breaking it becomes more important. The top developers
+are not running legacy 386's, I bet. And (b) if the problem comes up
+months from now, will anyone think to try timing changes for "every once
+in a while" problems.
+
+I really like the isa_delay() idea, or similar, which will be in a
+single place and probably get enough attention to make it work. It just
+sounds like a safer way to go with equal benefits.
 -- 
-"The software industry today survives only through an unstated agreement 
-not to stir things up too much.  We must hope this lawsuit [by SCO] isn't 
-the big stirring spoon." -- Ian Lance Taylor, Linux Journal, June 2003
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,298 +1,420 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262564AbVCKGaD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263206AbVCKGqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262564AbVCKGaD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 01:30:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263206AbVCKGaD
+	id S263206AbVCKGqW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 01:46:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263207AbVCKGqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 01:30:03 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:4254 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262564AbVCKG3R (ORCPT
+	Fri, 11 Mar 2005 01:46:22 -0500
+Received: from gate.crashing.org ([63.228.1.57]:38874 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263206AbVCKGpy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 01:29:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=meg0AH1ZThV3q0fytA+mIhc0SnatAgKCmFkHGya/dXs5gK+KqzjqyFpY15MinUdlHkZKXZTtRu7EqGHy1uS6IkjmXqXXSgcHoqBxYCRqjd4sa1U9JEiqYQ12P1d/sNYVWwwCJ0lsboESesqMyR7ALvCMJp/VsRpT5aNwWO6Vai4=
-Date: Fri, 11 Mar 2005 15:29:08 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [PATCH] ide: hdio.txt update
-Message-ID: <20050311062908.GA11552@htj.dyndns.org>
-References: <20050302235457.GA21352@htj.dyndns.org> <20050303021638.GA24150@htj.dyndns.org> <58cb370e05031008307a0163c1@mail.gmail.com>
+	Fri, 11 Mar 2005 01:45:54 -0500
+Subject: [PATCH] ppc64: Add IDE-pmac support for new "Shasta" chipset
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 11 Mar 2005 17:45:40 +1100
+Message-Id: <1110523540.5751.52.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <58cb370e05031008307a0163c1@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Greetings Bartlomiej,
+Hi !
 
- I've updated the following
+The iMac G5 and new single CPU PowerMac G5 come with a new revision of
+the K2 ASIC called Shasta. The PATA cell in there now does 133Mhz. This
+patch adds support for it. It also adds some power management bits to
+the old 100MHz cell that was in Intrepid based ppc32 machines.
+The original iMac G5 bits are from J. Mayer <l_indien@magic.fr>
 
- * in_flags modification when out_flags != 0 && in_flags == 0
- * more than one -> one or more than one
- * tf_{in|out}_flags -> {in|out}_flags as tf_* are in-kernel names
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
- I'll update the taskfile patch series after receiving your comments
-about the patches.  Also, if you have a big picture for the IDE
-driver, do you care to spill?  What I have in mind now are
-
- 1. Completion-based taskfile (no direct ending/error handling of
-    requests), so that we can use it for specials/rw_disk/eh/etc...
- 2. Make specials (set_geometry, set_multmode...) more regular.
- 3. Do error-handling/resetting in a exception handler thread.
-    Maybe this and #2 should happen together.
-
- So, please let me know what you think.  Updated patch for hdio.txt
-follows.
-
-
- This patch updates Documentation/ioctl/hdio.txt to include more
-detailed descriptions about HDIO_DRIVE_{CMD|TASK|TASKFILE} ioctls.
-
- Signed-off-by: Tejun Heo <htejun@gmail.com>
-
-Index: linux-taskfile-ng/Documentation/ioctl/hdio.txt
+Index: linux-work/drivers/ide/ppc/pmac.c
 ===================================================================
---- linux-taskfile-ng.orig/Documentation/ioctl/hdio.txt	2005-03-11 15:10:59.068016786 +0900
-+++ linux-taskfile-ng/Documentation/ioctl/hdio.txt	2005-03-11 15:27:32.718915939 +0900
-@@ -573,26 +573,43 @@ HDIO_DRIVE_TASKFILE		execute raw taskfil
- 	  EFAULT	req_cmd == TASKFILE_IN_OUT (not implemented as of 2.6.8)
- 	  EPERM		req_cmd == TASKFILE_MULTI_OUT and drive
- 	  		multi-count not yet set.
+--- linux-work.orig/drivers/ide/ppc/pmac.c	2005-01-31 14:18:21.000000000 +1100
++++ linux-work/drivers/ide/ppc/pmac.c	2005-03-10 14:58:19.000000000 +1100
+@@ -68,6 +68,7 @@
+ 	struct device_node*		node;
+ 	struct macio_dev		*mdev;
+ 	u32				timings[4];
++	volatile u32 __iomem *		*kauai_fcr;
+ #ifdef CONFIG_BLK_DEV_IDEDMA_PMAC
+ 	/* Those fields are duplicating what is in hwif. We currently
+ 	 * can't use the hwif ones because of some assumptions that are
+@@ -89,7 +90,8 @@
+ 	controller_kl_ata3,	/* KeyLargo ATA-3 */
+ 	controller_kl_ata4,	/* KeyLargo ATA-4 */
+ 	controller_un_ata6,	/* UniNorth2 ATA-6 */
+-	controller_k2_ata6	/* K2 ATA-6 */
++	controller_k2_ata6,	/* K2 ATA-6 */
++	controller_sh_ata6,	/* Shasta ATA-6 */
+ };
+ 
+ static const char* model_name[] = {
+@@ -99,6 +101,7 @@
+ 	"KeyLargo ATA-4",	/* KeyLargo ATA-4 (UDMA/66) */
+ 	"UniNorth ATA-6",	/* UniNorth2 ATA-6 (UDMA/100) */
+ 	"K2 ATA-6",		/* K2 ATA-6 (UDMA/100) */
++	"Shasta ATA-6",		/* Shasta ATA-6 (UDMA/133) */
+ };
+ 
+ /*
+@@ -122,6 +125,15 @@
+ #define IDE_SYSCLK_NS		30	/* 33Mhz cell */
+ #define IDE_SYSCLK_66_NS	15	/* 66Mhz cell */
+ 
++/* 133Mhz cell, found in shasta.
++ * See comments about 100 Mhz Uninorth 2...
++ * Note that PIO_MASK and MDMA_MASK seem to overlap
++ */
++#define TR_133_PIOREG_PIO_MASK		0xff000fff
++#define TR_133_PIOREG_MDMA_MASK		0x00fff800
++#define TR_133_UDMAREG_UDMA_MASK	0x0003ffff
++#define TR_133_UDMAREG_UDMA_EN		0x00000001
++
+ /* 100Mhz cell, found in Uninorth 2. I don't have much infos about
+  * this one yet, it appears as a pci device (106b/0033) on uninorth
+  * internal PCI bus and it's clock is controlled like gem or fw. It
+@@ -209,6 +221,13 @@
+ #define IDE_INTR_DMA			0x80000000
+ #define IDE_INTR_DEVICE			0x40000000
+ 
++/*
++ * FCR Register on Kauai. Not sure what bit 0x4 is  ...
++ */
++#define KAUAI_FCR_UATA_MAGIC		0x00000004
++#define KAUAI_FCR_UATA_RESET_N		0x00000002
++#define KAUAI_FCR_UATA_ENABLE		0x00000001
++
+ #ifdef CONFIG_BLK_DEV_IDEDMA_PMAC
+ 
+ /* Rounded Multiword DMA timings
+@@ -322,6 +341,48 @@
+ 	{ 0	, 0 },
+ };
+ 
++static struct kauai_timing	shasta_pio_timings[] __pmacdata =
++{
++	{ 930	, 0x08000fff },
++	{ 600	, 0x0A000c97 },
++	{ 383	, 0x07000712 },
++	{ 360	, 0x040003cd },
++	{ 330	, 0x040003cd },
++	{ 300	, 0x040003cd },
++	{ 270	, 0x040003cd },
++	{ 240	, 0x040003cd },
++	{ 239	, 0x040003cd },
++	{ 180	, 0x0400028b },
++	{ 120	, 0x0400010a }
++};
++
++static struct kauai_timing	shasta_mdma_timings[] __pmacdata =
++{
++	{ 1260	, 0x00fff000 },
++	{ 480	, 0x00820800 },
++	{ 360	, 0x00820800 },
++	{ 270	, 0x00820800 },
++	{ 240	, 0x00820800 },
++	{ 210	, 0x00820800 },
++	{ 180	, 0x00820800 },
++	{ 150	, 0x0028b000 },
++	{ 120	, 0x001ca000 },
++	{ 0	, 0 },
++};
++
++static struct kauai_timing	shasta_udma133_timings[] __pmacdata =
++{
++	{ 120   , 0x00035901, },
++	{ 90    , 0x000348b1, },
++	{ 60    , 0x00033881, },
++	{ 45    , 0x00033861, },
++	{ 30    , 0x00033841, },
++	{ 20    , 0x00033031, },
++	{ 15    , 0x00033021, },
++	{ 0	, 0 },
++};
++
++
+ static inline u32
+ kauai_lookup_timing(struct kauai_timing* table, int cycle_time)
+ {
+@@ -547,7 +608,9 @@
+ 	if (pmif == NULL)
+ 		return;
+ 
+-	if (pmif->kind == controller_un_ata6 || pmif->kind == controller_k2_ata6)
++	if (pmif->kind == controller_sh_ata6 ||
++	    pmif->kind == controller_un_ata6 ||
++	    pmif->kind == controller_k2_ata6)
+ 		pmac_ide_kauai_selectproc(drive);
+ 	else
+ 		pmac_ide_selectproc(drive);
+@@ -665,6 +728,14 @@
+ 	pio = ide_get_best_pio_mode(drive, pio, 4, &d);
+ 
+ 	switch (pmif->kind) {
++	case controller_sh_ata6: {
++		/* 133Mhz cell */
++		u32 tr = kauai_lookup_timing(shasta_pio_timings, d.cycle_time);
++		if (tr == 0)
++			return;
++		*timings = ((*timings) & ~TR_133_PIOREG_PIO_MASK) | tr;
++		break;
++		}
+ 	case controller_un_ata6:
+ 	case controller_k2_ata6: {
+ 		/* 100Mhz cell */
+@@ -776,6 +847,26 @@
+ }
+ 
+ /*
++ * Calculate Shasta ATA/133 UDMA timings
++ */
++static int __pmac
++set_timings_udma_shasta(u32 *pio_timings, u32 *ultra_timings, u8 speed)
++{
++	struct ide_timing *t = ide_timing_find_mode(speed);
++	u32 tr;
++
++	if (speed > XFER_UDMA_6 || t == NULL)
++		return 1;
++	tr = kauai_lookup_timing(shasta_udma133_timings, (int)t->udma);
++	if (tr == 0)
++		return 1;
++	*ultra_timings = ((*ultra_timings) & ~TR_133_UDMAREG_UDMA_MASK) | tr;
++	*ultra_timings = (*ultra_timings) | TR_133_UDMAREG_UDMA_EN;
++
++	return 0;
++}
++
++/*
+  * Calculate MDMA timings for all cells
+  */
+ static int __pmac
+@@ -803,6 +894,7 @@
+ 		cycleTime = 150;
+ 	/* Get the proper timing array for this controller */
+ 	switch(intf_type) {
++	        case controller_sh_ata6:
+ 		case controller_un_ata6:
+ 		case controller_k2_ata6:
+ 			break;
+@@ -836,6 +928,14 @@
+ #endif
+ 	}
+ 	switch(intf_type) {
++	case controller_sh_ata6: {
++		/* 133Mhz cell */
++		u32 tr = kauai_lookup_timing(shasta_mdma_timings, cycleTime);
++		if (tr == 0)
++			return 1;
++		*timings = ((*timings) & ~TR_133_PIOREG_MDMA_MASK) | tr;
++		*timings2 = (*timings2) & ~TR_133_UDMAREG_UDMA_EN;
++		}
+ 	case controller_un_ata6:
+ 	case controller_k2_ata6: {
+ 		/* 100Mhz cell */
+@@ -930,9 +1030,13 @@
+ 	
+ 	switch(speed) {
+ #ifdef CONFIG_BLK_DEV_IDEDMA_PMAC
++		case XFER_UDMA_6:
++		        if (pmif->kind != controller_sh_ata6)
++				return 1;
+ 		case XFER_UDMA_5:
+ 			if (pmif->kind != controller_un_ata6 &&
+-			    pmif->kind != controller_k2_ata6)
++			    pmif->kind != controller_k2_ata6 &&
++			    pmif->kind != controller_sh_ata6)
+ 				return 1;
+ 		case XFER_UDMA_4:
+ 		case XFER_UDMA_3:
+@@ -946,6 +1050,8 @@
+ 			else if (pmif->kind == controller_un_ata6
+ 				 || pmif->kind == controller_k2_ata6)
+ 				ret = set_timings_udma_ata6(timings, timings2, speed);
++			else if (pmif->kind == controller_sh_ata6)
++				ret = set_timings_udma_shasta(timings, timings2, speed);
+ 			else
+ 				ret = 1;		
+ 			break;
+@@ -992,6 +1098,10 @@
+ 	unsigned int value, value2 = 0;
+ 	
+ 	switch(pmif->kind) {
++		case controller_sh_ata6:
++			value = 0x0a820c97;
++			value2 = 0x00033031;
++			break;
+ 		case controller_un_ata6:
+ 		case controller_k2_ata6:
+ 			value = 0x08618a92;
+@@ -1101,6 +1211,13 @@
+ 	/* Disable the bus */
+ 	ppc_md.feature_call(PMAC_FTR_IDE_ENABLE, pmif->node, pmif->aapl_bus_id, 0);
+ 
++	/* Kauai has it different */
++	if (pmif->kauai_fcr) {
++		u32 fcr = readl(pmif->kauai_fcr);
++		fcr &= ~(KAUAI_FCR_UATA_RESET_N | KAUAI_FCR_UATA_ENABLE);
++		writel(fcr, pmif->kauai_fcr);		
++	}
++
+ 	return 0;
+ }
+ 
+@@ -1119,6 +1236,13 @@
+ 		msleep(10);
+ 		ppc_md.feature_call(PMAC_FTR_IDE_RESET, pmif->node, pmif->aapl_bus_id, 0);
+ 		msleep(jiffies_to_msecs(IDE_WAKEUP_DELAY));
++
++		/* Kauai has it different */
++		if (pmif->kauai_fcr) {
++			u32 fcr = readl(pmif->kauai_fcr);
++			fcr |= KAUAI_FCR_UATA_RESET_N | KAUAI_FCR_UATA_ENABLE;
++			writel(fcr, pmif->kauai_fcr);		
++		}
+ 	}
+ 
+ 	/* Sanitize drive timings */
+@@ -1142,7 +1266,9 @@
+ 
+ 	pmif->cable_80 = 0;
+ 	pmif->broken_dma = pmif->broken_dma_warn = 0;
+-	if (device_is_compatible(np, "kauai-ata"))
++	if (device_is_compatible(np, "shasta-ata"))
++		pmif->kind = controller_sh_ata6;
++	else if (device_is_compatible(np, "kauai-ata"))
+ 		pmif->kind = controller_un_ata6;
+ 	else if (device_is_compatible(np, "K2-UATA"))
+ 		pmif->kind = controller_k2_ata6;
+@@ -1163,11 +1289,25 @@
+ 
+ 	/* Get cable type from device-tree */
+ 	if (pmif->kind == controller_kl_ata4 || pmif->kind == controller_un_ata6
+-	    || pmif->kind == controller_k2_ata6) {
++	    || pmif->kind == controller_k2_ata6
++	    || pmif->kind == controller_sh_ata6) {
+ 		char* cable = get_property(np, "cable-type", NULL);
+ 		if (cable && !strncmp(cable, "80-", 3))
+ 			pmif->cable_80 = 1;
+ 	}
++	/* G5's seem to have incorrect cable type in device-tree. Let's assume
++	 * they have a 80 conductor cable, this seem to be always the case unless
++	 * the user mucked around
++	 */
++	if (device_is_compatible(np, "K2-UATA") ||
++	    device_is_compatible(np, "shasta-ata"))
++		pmid->cable_80 = 1;
++
++	/* On Kauai-type controllers, we make sure the FCR is correct */
++	if (pmif->kauai_fcr)
++		writel(KAUAI_FCR_UATA_MAGIC |
++		       KAUAI_FCR_UATA_RESET_N |
++		       KAUAI_FCR_UATA_ENABLE, pmif->kauai_fcr);
+ 
+ 	pmif->mediabay = 0;
+ 	
+@@ -1217,7 +1357,9 @@
+ 	hwif->drives[0].unmask = 1;
+ 	hwif->drives[1].unmask = 1;
+ 	hwif->tuneproc = pmac_ide_tuneproc;
+-	if (pmif->kind == controller_un_ata6 || pmif->kind == controller_k2_ata6)
++	if (pmif->kind == controller_un_ata6
++	    || pmif->kind == controller_k2_ata6
++	    || pmif->kind == controller_sh_ata6)
+ 		hwif->selectproc = pmac_ide_kauai_selectproc;
+ 	else
+ 		hwif->selectproc = pmac_ide_selectproc;
+@@ -1327,6 +1469,7 @@
+ 	pmif->node = mdev->ofdev.node;
+ 	pmif->regbase = regbase;
+ 	pmif->irq = irq;
++	pmif->kauai_fcr = NULL;
+ #ifdef CONFIG_BLK_DEV_IDEDMA_PMAC
+ 	if (macio_resource_count(mdev) >= 2) {
+ 		if (macio_request_resource(mdev, 1, "ide-pmac (dma)"))
+@@ -1440,13 +1583,9 @@
+ 	pmif->regbase = (unsigned long) base + 0x2000;
+ #ifdef CONFIG_BLK_DEV_IDEDMA_PMAC
+ 	pmif->dma_regs = base + 0x1000;
+-#endif /* CONFIG_BLK_DEV_IDEDMA_PMAC */	
 -
-+	  EIO		Drive failed the command.
+-	/* We use the OF node irq mapping */
+-	if (np->n_intrs == 0)
+-		pmif->irq = pdev->irq;
+-	else
+-		pmif->irq = np->intrs[0].line;
++#endif /* CONFIG_BLK_DEV_IDEDMA_PMAC */
++	pmif->kauai_fcr = base;
++	pmif->irq = pdev->irq;
  
- 	notes:
+ 	pci_set_drvdata(pdev, hwif);
  
--	  [1] Currently (2.6.8), both the input and output buffers are
--	  copied from the user and written back to the user, even when
--	  not used.  This may be a bug.
--
--	  [2] The out_flags and in_flags are returned to the user after
--	  the ioctl completes.	Currently (2.6.8) these are the same
--	  as the input values, unchanged.  In the future, they may have
--	  more significance.
--
--	  Extreme caution should be used with using this ioctl.  A
--	  mistake can easily corrupt data or hang the system.
--
--	  The argument to the ioctl is a pointer to a region of memory
--	  containing a ide_task_request_t structure, followed by an
--	  optional buffer of data to be transmitted to the drive,
--	  followed by an optional buffer to receive data from the drive.
-+	  [1] READ THE FOLLOWING NOTES *CAREFULLY*.  THIS IOCTL IS
-+	  FULL OF GOTCHAS.  Extreme caution should be used with using
-+	  this ioctl.  A mistake can easily corrupt data or hang the
-+	  system.
-+
-+	  [2] Both the input and output buffers are copied from the
-+	  user and written back to the user, even when not used.
-+
-+	  [3] If one or more bits are set in out_flags and in_flags is
-+	  zero, the following values are used for in_flags.all and
-+	  written back into in_flags on completion.
-+
-+	   * IDE_TASKFILE_STD_IN_FLAGS | (IDE_HOB_STD_IN_FLAGS << 8)
-+	     if LBA48 addressing is enabled for the drive
-+	   * IDE_TASKFILE_STD_IN_FLAGS
-+	     if CHS/LBA28
-+
-+	  The association between in_flags.all and each enable
-+	  bitfield flips depending on endianess; fortunately, TASKFILE
-+	  only uses inflags.b.data bit and ignores all other bits.
-+	  The end result is that, on any endian machines, it has no
-+	  effect other than modifying in_flags on completion.
-+
-+	  [4] The default value of SELECT is (0xa0|DEV_bit|LBA_bit)
-+	  except for four drives per port chipsets.  For four drives
-+	  per port chipsets, it's (0xa0|DEV_bit|LBA_bit) for the first
-+	  pair and (0x80|DEV_bit|LBA_bit) for the second pair.
-+
-+	  [5] The argument to the ioctl is a pointer to a region of
-+	  memory containing a ide_task_request_t structure, followed
-+	  by an optional buffer of data to be transmitted to the
-+	  drive, followed by an optional buffer to receive data from
-+	  the drive.
+@@ -1530,6 +1669,8 @@
+ 	{ PCI_VENDOR_ID_APPLE, PCI_DEVIEC_ID_APPLE_UNI_N_ATA, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
+ 	{ PCI_VENDOR_ID_APPLE, PCI_DEVICE_ID_APPLE_IPID_ATA100, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
+ 	{ PCI_VENDOR_ID_APPLE, PCI_DEVICE_ID_APPLE_K2_ATA100, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
++	{ PCI_VENDOR_ID_APPLE, PCI_DEVICE_ID_APPLE_SH_ATA,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
+ };
  
- 	  Command is passed to the disk drive via the ide_task_request_t
- 	  structure, which contains these fields:
-@@ -611,11 +628,66 @@ HDIO_DRIVE_TASKFILE		execute raw taskfil
- 	    out_size		output (user->drive) buffer size, bytes
- 	    in_size		input (drive->user) buffer size, bytes
+ static struct pci_driver pmac_ide_pci_driver = {
+@@ -1737,10 +1878,15 @@
+ 	timing_local[1] = *timings2;
+ 	
+ 	/* Calculate timings for interface */
+-	if (pmif->kind == controller_un_ata6 || pmif->kind == controller_k2_ata6)
++	if (pmif->kind == controller_un_ata6
++	    || pmif->kind == controller_k2_ata6)
+ 		ret = set_timings_udma_ata6(	&timing_local[0],
+ 						&timing_local[1],
+ 						mode);
++	else if (pmif->kind == controller_sh_ata6)
++		ret = set_timings_udma_shasta(	&timing_local[0],
++						&timing_local[1],
++						mode);
+ 	else
+ 		ret = set_timings_udma_ata4(&timing_local[0], mode);
+ 	if (ret)
+@@ -1791,14 +1937,19 @@
+ 		short mode;
+ 		
+ 		map = XFER_MWDMA;
+-		if (pmif->kind == controller_kl_ata4 || pmif->kind == controller_un_ata6
+-		    || pmif->kind == controller_k2_ata6) {
++		if (pmif->kind == controller_kl_ata4
++		    || pmif->kind == controller_un_ata6
++		    || pmif->kind == controller_k2_ata6
++		    || pmif->kind == controller_sh_ata6) {
+ 			map |= XFER_UDMA;
+ 			if (pmif->cable_80) {
+ 				map |= XFER_UDMA_66;
+ 				if (pmif->kind == controller_un_ata6 ||
+-				    pmif->kind == controller_k2_ata6)
++				    pmif->kind == controller_k2_ata6 ||
++				    pmif->kind == controller_sh_ata6)
+ 					map |= XFER_UDMA_100;
++				if (pmif->kind == controller_sh_ata6)
++					map |= XFER_UDMA_133;
+ 			}
+ 		}
+ 		mode = ide_find_best_mode(drive, map);
+@@ -2028,6 +2179,11 @@
  
--	  This ioctl does not necessarily respect all flags in the
--	  out_flags and in_flags values -- some taskfile registers
--	  may be written or read even if not requested in the flags.
--	  Unused fields of io_ports[] and hob_ports[] should be set
--	  to zero.
-+	  When out_flags is zero, the following registers are loaded.
-+
-+	    HOB_FEATURE		If the drive supports LBA48
-+	    HOB_NSECTOR		If the drive supports LBA48
-+	    HOB_SECTOR		If the drive supports LBA48
-+	    HOB_LCYL		If the drive supports LBA48
-+	    HOB_HCYL		If the drive supports LBA48
-+	    FEATURE
-+	    NSECTOR
-+	    SECTOR
-+	    LCYL
-+	    HCYL
-+	    SELECT		First, masked with 0xE0 if LBA48, 0xEF
-+				otherwise; then, or'ed with the default
-+				value of SELECT.
-+
-+	  If any bit in out_flags is set, the following registers are loaded.
-+
-+	    HOB_DATA		If out_flags.b.data is set.  HOB_DATA will
-+				travel on DD8-DD15 on little endian machines
-+				and on DD0-DD7 on big endian machines.
-+	    DATA		If out_flags.b.data is set.  DATA will
-+				travel on DD0-DD7 on little endian machines
-+				and on DD8-DD15 on big endian machines.
-+	    HOB_NSECTOR		If out_flags.b.nsector_hob is set
-+	    HOB_SECTOR		If out_flags.b.sector_hob is set
-+	    HOB_LCYL		If out_flags.b.lcyl_hob is set
-+	    HOB_HCYL		If out_flags.b.hcyl_hob is set
-+	    FEATURE		If out_flags.b.feature is set
-+	    NSECTOR		If out_flags.b.nsector is set
-+	    SECTOR		If out_flags.b.sector is set
-+	    LCYL		If out_flags.b.lcyl is set
-+	    HCYL		If out_flags.b.hcyl is set
-+	    SELECT		Or'ed with the default value of SELECT and
-+				loaded regardless of out_flags.b.select.
-+
-+	  Taskfile registers are read back from the drive into
-+	  {io|hob}_ports[] after the command completes iff one of the
-+	  following conditions is met; otherwise, the original values
-+	  will be written back, unchanged.
-+
-+	    1. The drive fails the command (EIO).
-+	    2. One or more than one bits are set in out_flags.
-+	    3. The requested data_phase is TASKFILE_NO_DATA.
-+
-+	    HOB_DATA		If in_flags.b.data is set.  It will contain
-+				DD8-DD15 on little endian machines and
-+				DD0-DD7 on big endian machines.
-+	    DATA		If in_flags.b.data is set.  It will contain
-+				DD0-DD7 on little endian machines and
-+				DD8-DD15 on big endian machines.
-+	    HOB_FEATURE		If the drive supports LBA48
-+	    HOB_NSECTOR		If the drive supports LBA48
-+	    HOB_SECTOR		If the drive supports LBA48
-+	    HOB_LCYL		If the drive supports LBA48
-+	    HOB_HCYL		If the drive supports LBA48
-+	    NSECTOR
-+	    SECTOR
-+	    LCYL
-+	    HCYL
- 
- 	  The data_phase field describes the data transfer to be
- 	  performed.  Value is one of:
-@@ -626,27 +698,30 @@ HDIO_DRIVE_TASKFILE		execute raw taskfil
- 	    TASKFILE_MULTI_OUT
- 	    TASKFILE_IN_OUT
- 	    TASKFILE_IN_DMA
--	    TASKFILE_IN_DMAQ
-+	    TASKFILE_IN_DMAQ		== IN_DMA (queueing not supported)
- 	    TASKFILE_OUT_DMA
--	    TASKFILE_OUT_DMAQ
--	    TASKFILE_P_IN
--	    TASKFILE_P_IN_DMA
--	    TASKFILE_P_IN_DMAQ
--	    TASKFILE_P_OUT
--	    TASKFILE_P_OUT_DMA
--	    TASKFILE_P_OUT_DMAQ
-+	    TASKFILE_OUT_DMAQ		== OUT_DMA (queueing not supported)
-+	    TASKFILE_P_IN		unimplemented
-+	    TASKFILE_P_IN_DMA		unimplemented
-+	    TASKFILE_P_IN_DMAQ		unimplemented
-+	    TASKFILE_P_OUT		unimplemented
-+	    TASKFILE_P_OUT_DMA		unimplemented
-+	    TASKFILE_P_OUT_DMAQ		unimplemented
- 
- 	  The req_cmd field classifies the command type.  It may be
- 	  one of:
- 
- 	    IDE_DRIVE_TASK_NO_DATA
--	    IDE_DRIVE_TASK_SET_XFER
-+	    IDE_DRIVE_TASK_SET_XFER	unimplemented
- 	    IDE_DRIVE_TASK_IN
--	    IDE_DRIVE_TASK_OUT
-+	    IDE_DRIVE_TASK_OUT		unimplemented
- 	    IDE_DRIVE_TASK_RAW_WRITE
- 
--
--
-+	  [6] Do not access {in|out}_flags->all except for resetting
-+	  all the bits.  Always access individual bit fields.  ->all
-+	  value will flip depending on endianess.  For the same
-+	  reason, do not use IDE_{TASKFILE|HOB}_STD_{OUT|IN}_FLAGS
-+	  constants defined in hdreg.h.
- 
- 
- 
-@@ -663,7 +738,13 @@ HDIO_DRIVE_CMD			execute a special drive
- 
- 	inputs:
- 
--	  Taskfile register values:
-+	  Commands other than WIN_SMART
-+	    args[0]	COMMAND
-+	    args[1]	NSECTOR
-+	    args[2]	FEATURE
-+	    args[3]	NSECTOR
-+
-+	  WIN_SMART
- 	    args[0]	COMMAND
- 	    args[1]	SECTOR
- 	    args[2]	FEATURE
-@@ -682,11 +763,28 @@ HDIO_DRIVE_CMD			execute a special drive
- 	error returns:
- 	  EACCES	Access denied:  requires CAP_SYS_RAWIO
- 	  ENOMEM	Unable to allocate memory for task
-+	  EIO		Drive reports error
- 
- 	notes:
- 
--	  Taskfile registers IDE_LCYL, IDE_HCYL, and IDE_SELECT are
--	  set to zero before executing the command.
-+	  [1] For commands other than WIN_SMART, args[1] should equal
-+	  args[3].  SECTOR, LCYL and HCYL are undefined.  For
-+	  WIN_SMART, 0x4f and 0xc2 are loaded into LCYL and HCYL
-+	  respectively.  In both cases SELECT will contain the default
-+	  value for the drive.  Please refer to HDIO_DRIVE_TASKFILE
-+	  notes for the default value of SELECT.
-+
-+	  [2] If NSECTOR value is greater than zero and the drive sets
-+	  DRQ when interrupting for the command, NSECTOR * 512 bytes
-+	  are read from the device into the area following NSECTOR.
-+	  In the above example, the area would be
-+	  args[4..4+XFER_SIZE].  16bit PIO is used regardless of
-+	  HDIO_SET_32BIT setting.
-+
-+	  [3] If COMMAND == WIN_SETFEATURES && FEATURE == SETFEATURES_XFER
-+	  && NSECTOR >= XFER_SW_DMA_0 && the drive supports any DMA
-+	  mode, IDE driver will try to tune the transfer mode of the
-+	  drive accordingly.
- 
- 
- 
-@@ -726,7 +824,14 @@ HDIO_DRIVE_TASK			execute task and speci
- 	error returns:
- 	  EACCES	Access denied:  requires CAP_SYS_RAWIO
- 	  ENOMEM	Unable to allocate memory for task
-+	  ENOMSG	Device is not a disk drive.
-+	  EIO		Drive failed the command.
-+
-+	notes:
- 
-+	  [1] DEV bit (0x10) of SELECT register is ignored and the
-+	  appropriate value for the drive is used.  All other bits
-+	  are used unaltered.
- 
- 
- 
+ 	hwif->atapi_dma = 1;
+ 	switch(pmif->kind) {
++		case controller_sh_ata6:
++			hwif->ultra_mask = pmif->cable_80 ? 0x7f : 0x07;
++			hwif->mwdma_mask = 0x07;
++			hwif->swdma_mask = 0x00;
++			break;
+ 		case controller_un_ata6:
+ 		case controller_k2_ata6:
+ 			hwif->ultra_mask = pmif->cable_80 ? 0x3f : 0x07;
+
+

@@ -1,116 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbVCJNma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbVCJNtj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261721AbVCJNma (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 08:42:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbVCJNma
+	id S262602AbVCJNtj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 08:49:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbVCJNtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 08:42:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56551 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261721AbVCJNmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 08:42:20 -0500
-Date: Thu, 10 Mar 2005 13:42:19 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: jayalk@intworks.biz
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 2.6.11.2 1/1] PCI Allow OutOfRange PIRQ table address
-Message-ID: <20050310134219.GE21986@parcelfarce.linux.theplanet.co.uk>
-References: <200503101329.j2ADTZU0030146@intworks.biz>
-Mime-Version: 1.0
+	Thu, 10 Mar 2005 08:49:39 -0500
+Received: from [192.139.46.150] ([192.139.46.150]:3789 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S262602AbVCJNtd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 08:49:33 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: hch@infradead.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch -mm series] ia64 specific /dev/mem handlers
+References: <16923.193.128608.607599@jaguar.mkp.net>
+	<20050222020309.4289504c.akpm@osdl.org>
+	<yq0ekf8lksf.fsf@jaguar.mkp.net>
+	<20050222175225.GK28741@parcelfarce.linux.theplanet.co.uk>
+	<20050222112513.4162860d.akpm@osdl.org>
+	<yq0zmxwgqxr.fsf@jaguar.mkp.net>
+	<20050222153456.502c3907.akpm@osdl.org>
+	<yq0sm3negtb.fsf@jaguar.mkp.net>
+	<20050223223404.GA21383@infradead.org>
+	<yq0k6oydjjv.fsf@jaguar.mkp.net>
+	<20050309225516.55195ddc.akpm@osdl.org>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 10 Mar 2005 08:49:22 -0500
+In-Reply-To: <20050309225516.55195ddc.akpm@osdl.org>
+Message-ID: <yq0y8cvzk4d.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503101329.j2ADTZU0030146@intworks.biz>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 10, 2005 at 05:29:35AM -0800, jayalk@intworks.biz wrote:
+>>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
 
-Nice work, I like it.  You could make it even prettier:
+Andrew> Jes Sorensen <jes@wildopensource.com> wrote:
+>>  Convert /dev/mem read/write calls to use arch_translate_mem_ptr if
+>> available. Needed on ia64 for pages converted fo uncached mappings
+>> to avoid it being accessed in cached mode after the conversion
+>> which can lead to memory corruption. Introduces PG_uncached page
+>> flag for marking pages uncached.
 
-> diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/irq.c linux-2.6.11.2/arch/i386/pci/irq.c
-> --- linux-2.6.11.2-vanilla/arch/i386/pci/irq.c	2005-03-10 16:31:25.000000000 +0800
-> +++ linux-2.6.11.2/arch/i386/pci/irq.c	2005-03-10 20:43:02.479487640 +0800
-> @@ -58,6 +58,35 @@ struct irq_router_handler {
->  int (*pcibios_enable_irq)(struct pci_dev *dev) = NULL;
->  
->  /*
-> + *  Check passed address for the PCI IRQ Routing Table signature 
-> + *  and perform checksum verification.
-> + */
-> +
-> +static inline struct irq_routing_table * __init pirq_check_routing_table(u8 *addr)
-> +{
-> +	struct irq_routing_table *rt;
-> +	int i;
-> +	u8 sum;
-> +
-> +	rt = (struct irq_routing_table *) addr;
+Andrew> For some reason this patch still gives me the creeps.  Maybe
+Andrew> it's because we lose a page flag for something so obscure.
 
-static inline struct irq_routing_table * __init pirq_check_routing_table(unsigned long phys)
-{
-	struct irq_routing_table *rt = __va(phys);
-[...]
+Andrew> Nothing ever clears PG_uncached.  We'll end up with every page
+Andrew> in the machine marked as being uncached.
 
-> @@ -65,21 +94,16 @@ static struct irq_routing_table * __init
->  {
->  	u8 *addr;
+Actually there's restrictions to how many pages are getting converted
+as converting pages over from cached to uncached isn't trivial on ia64.
 
-	unsigned long addr;
+Andrew> But then, nothing ever sets PG_uncached, either.  Is there
+Andrew> some patch which you're hiding from me?
 
->  	struct irq_routing_table *rt;
-> -	int i;
-> -	u8 sum;
->  
-> +	if (pirq_table_addr) {
-> +		rt = pirq_check_routing_table((u8 *) __va(pirq_table_addr));
-> +		if (rt) {
-> +			return rt;
-> +		}
-> +	}
+Actually I posted that earlier, but it must have gotten lost in the
+noise. It's part of the genalloc/mspec patchset. I'll send it to you
+directly.
 
-	if (pirq_table_addr) {
-		rt = pirq_check_routing_table(pirq_table_addr);
-		if (rt)
-			return rt;
-	}
+Andrew> If a page is marked uncached then it'll remain marked as
+Andrew> uncached even after it's unmapped.  Or will it?  Would like to
+Andrew> see the other patch, please.
 
-Should we fall back to searching if someone's specified an address?  If not,
-it becomes even simpler:
+Coming your way in a jiffy.
 
-	if (pirq_table_addr) {
-		return pirq_check_routing_table(pirq_table_addr);
-	}
+Andrew> We should add PG_uncached checks to the page allocator.  Is
+Andrew> this OK?
 
->  	for(addr = (u8 *) __va(0xf0000); addr < (u8 *) __va(0x100000); addr += 16) {
+I don't see any problems with that. The way it's meant to be used is
+that once pages are converted over, they don't go back into the
+allocator.
 
-This loop would become:
-
-	for (addr = 0xf0000; addr < 0x100000; addr += 16) {
-
-> @@ -27,6 +27,7 @@
->  #define PCI_ASSIGN_ALL_BUSSES	0x4000
->  
->  extern unsigned int pci_probe;
-> +extern unsigned int pirq_table_addr;
-
-Completely nitpicking, but I think this should be an unsigned long rather
-than an int -- physical addresses are normally expressed in terms of
-unsigned long.
-
-> +		pirqaddr=0xAAAAA	[IA-32] Specify the physical address
-> +					of the PIRQ table (normally generated
-> +					by the BIOS) if it is outside the .  
-> +					F0000h-100000h range.
-
-And you even bothered to update the documentation!  This is definitely
-a cut above most of the patches I review ;-)
-
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Cheers,
+Jes

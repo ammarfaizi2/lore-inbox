@@ -1,111 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132834AbRC2UY2>; Thu, 29 Mar 2001 15:24:28 -0500
+	id <S132832AbRC2U26>; Thu, 29 Mar 2001 15:28:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132836AbRC2UYS>; Thu, 29 Mar 2001 15:24:18 -0500
-Received: from maila.telia.com ([194.22.194.231]:45833 "EHLO maila.telia.com")
-	by vger.kernel.org with ESMTP id <S132834AbRC2UYI>;
-	Thu, 29 Mar 2001 15:24:08 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@norran.net>
-To: "Richard B. Johnson" <root@quark.analogic.com>,
-   <linux-kernel@vger.kernel.org>
-Subject: Re: Linux connectivity trashed.
-Date: Thu, 29 Mar 2001 22:21:04 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <000701c0b854$f2cf4f10$1428b2cc@DJLAPTOP>
-In-Reply-To: <000701c0b854$f2cf4f10$1428b2cc@DJLAPTOP>
+	id <S132836AbRC2U2j>; Thu, 29 Mar 2001 15:28:39 -0500
+Received: from front7m.grolier.fr ([195.36.216.57]:15555 "EHLO
+	front7m.grolier.fr") by vger.kernel.org with ESMTP
+	id <S132832AbRC2U21> convert rfc822-to-8bit; Thu, 29 Mar 2001 15:28:27 -0500
+Date: Thu, 29 Mar 2001 19:16:59 +0200 (CEST)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
+To: "Butter, Frank" <Frank.Butter@otto.de>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: WG: 2.4 on COMPQ Proliant
+In-Reply-To: <4B6025B1ABF9D211B5860008C75D57CC0271B9E1@NTOVMAIL04>
+Message-ID: <Pine.LNX.4.10.10103291902560.1515-100000@linux.local>
 MIME-Version: 1.0
-Message-Id: <01032922210401.01482@jeloin>
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I assume that it is ok to sue any company that forwards viruses too...
-(not only the author...)
 
-Are Raytheon suing the company were you work, or some
-unknown/unnamed company made up by Microsoft?
-(you were not specific about this)
+On Thu, 29 Mar 2001, Butter, Frank wrote:
 
-/RogerL
+> 2.2.16 claimes to find a ncr53c1510D-chipset, supported by
+> the driver ncr53c8xx. Which kernel-param would be the correct one for this?
 
-On Thursday 29 March 2001 15:34, Richard B. Johnson wrote:
-> This is for information only.
->
-> Last week a standard RH distribution of  Linux was rooted from what looks
-> like a Russian invasion. The penetration used the method taught in the CERT
-> Advisory CA-2000-17.
->
-> The intruder(s) then attempted  to perform additional penetrations from
-> this site. One of  the sites attacked was alleged to be Raytheon. Raytheon
-> makes products for national security such as guided missiles.
->
-> I was told that Raytheon is now suing this company.  Therefore all Linux
-> machines
-> are being denied access to the Internet.
+There is no specific kernel option apart configuring the NCR53C8XX and/or
+the SYM53C8XX driver. (And not the 53c7,8xx driver as I have to repeat
+since 5 years).
 
->
-> The penetration occurred because somebody changed our  firewall
-> configuration
-> so that all of the non-DHCP addresses, i.e., all the real IP addresses had
-> complete
-> connectivity to the outside world. This meant that every Linux and Sun
-> Workstation
-> in this facility was exposed to tampering from anywhere in the world. This
-> appears
-> to be part of a plan to remove all non-DHCP machines by getting them
-> trashed.
-> In other words, we were set up to take a hard fall because no machine that
-> allows
-> NFS mounts  can be safely exposed to the outside world without blocking
-> portmap.
->
-> There is a concerted effort to eliminate both Sun Workstations and Linux
-> machines
-> as tools in this facility. This happens as the "yuppies",  who have never,
-> ever, contributed
-> to product development are Peter-Principled into positions of authority.
->
-> The email addresses of  those who have declared that only Windows machines
-> will
-> be allowed access to the outside world are:
->
->     Thor T. Wallace   twallace@analogic.com
->     David Pothier       dpothier@analogic.com
->
-> David Pothier was a beta tester for Windows/NT. Of course he wants all
-> machines to
-> be Windows and,  naturally, under his control.
->
-> Thor Wallace is our new "security" administrator so I am told.
->
-> The only  Linux  advocate in a position of authority is:
->
->    Alex Shekhel        ashekhel@analogic.com
->
-> So,  now I hooked up my lap-top,  installed Windows.... and here I am. 
-> Only windows
-> machines are allowed to access the outside world.
->
->
->     Cheers,
->
->     Richard B. Johnson
->     Formally root@chaos.analogic.com
->
->
->
+For the 53c1510D, you must ensure that the chip is configured for behaving
+as a 53c8xx chip (and not as an intelligent controller).
+To know about the 1510 configuration, you may check the PCI device id
+claimed by the chip. Value 0xa is the expected value if the chip is
+configured for 53c8xx mode.
+
+Btw, I donnot know how to change the 1510 from intelligent mode to 53c8xx
+mode and vice-versa. You may ask your vendor for that.
+
+  Gérard.
+
+> Frank
+> 
+> > -----Ursprüngliche Nachricht-----
+> > Von: Butter, Frank 
+> > Gesendet: Donnerstag, 29. März 2001 17:11
+> > An: 'linux-kernel@vger.kernel.org'
+> > Betreff: 2.4 on COMPQ Proliant
+> > 
+> > 
+> > 
+> > Has anyone experiences with 2.4.x on recent Compaq Proliant 
+> > Servers (e.g. ML570)?
+> > 
+> > I've installed RedHat7 and it worked fine out of the box.
+> > Except that the SMP-enabled kernel stated there was no 
+> > SMP-board detected ;-/
+> > For some reasons (Fibrechannel drivers and so on) I've compiled
+> > 2.4.2 and installed it. Although I've compiled the support 
+> > in, the NCR-SCSI-chip was not found and therefore no 
+> > root-partition. It is a model supported by 53c8xx - detected 
+> > by the original RedHat-kernel.  
+> > 
+> > For testing I compiled a kernel with all (!) scsi-low-level-drivers -
+> > with the same result. The SMP-board also was NOT detected by 2.4.2.
+> > 
+> > Any hint?
+> > 
+> > Frank
+> > 
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
 
--- 
-Roger Larsson
-Skellefteå
-Sweden
+

@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289811AbSA2S0M>; Tue, 29 Jan 2002 13:26:12 -0500
+	id <S289795AbSA2SeN>; Tue, 29 Jan 2002 13:34:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289795AbSA2SZx>; Tue, 29 Jan 2002 13:25:53 -0500
-Received: from quasar.osc.edu ([192.148.249.15]:24002 "EHLO quasar.osc.edu")
-	by vger.kernel.org with ESMTP id <S289796AbSA2SZh>;
-	Tue, 29 Jan 2002 13:25:37 -0500
-Date: Tue, 29 Jan 2002 13:25:32 -0500
-From: Pete Wyckoff <pw@osc.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S289796AbSA2SeD>; Tue, 29 Jan 2002 13:34:03 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:44188 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S289795AbSA2Sdu>; Tue, 29 Jan 2002 13:33:50 -0500
+To: John Weber <weber@nyc.rr.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] typo in i386 machine check code
-Message-ID: <20020129132532.B10960@osc.edu>
-Mime-Version: 1.0
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <3C5600A6.3080605@nyc.rr.com>
+From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
+Date: 29 Jan 2002 19:33:29 +0100
+Message-ID: <87n0yxqa6e.fsf@tigram.bogus.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Our old PIII Xeons are dying, as shown by more frequent panics
-due to bad hardware:
+Hi John,
 
-    kernel: CPU 3: Machine Check Exception: 0000000000000007 
-    kernel: Bank 0: b678600022000800 at 3678600022000800 
+John Weber <weber@nyc.rr.com> writes:
 
-The part after the "at" is supposed to be the memory address which
-was being accessed when the fault was detected.  Instead the code
-prints out the status field again (with the high bit removed for
-no apparent reason).
+> I am currently writing code to scan the usual places for linux patches
+> and automatically add them to our databases.  This would be really
+> simplified by having patches sent to us.  And, since we already have a
 
-Patch is against 2.5.2.
+How about extracting patches from lkml with procmail?
 
-		-- Pete
+---cut here-->8---
+:0 :
+* ^sender: linux-kernel-owner@vger.kernel.org
+* ^subject:.*patch
+{
+	:0 Bc:
+	* ^--- .*/
+	* ^+++ .*/
+	linux-kernel-patches
+}
+---8<--cut here---
 
---- linux/arch/i386/kernel/bluesmoke.c.orig	Tue Jan 29 12:04:46 2002
-+++ linux/arch/i386/kernel/bluesmoke.c	Tue Jan 29 12:04:48 2002
-@@ -40,21 +40,21 @@ static void intel_machine_check(struct p
- 			high&=~(1<<31);
- 			if(high&(1<<27))
- 			{
- 				rdmsr(MSR_IA32_MC0_MISC+i*4, alow, ahigh);
- 				printk("[%08x%08x]", alow, ahigh);
- 			}
- 			if(high&(1<<26))
- 			{
- 				rdmsr(MSR_IA32_MC0_ADDR+i*4, alow, ahigh);
- 				printk(" at %08x%08x", 
--					high, low);
-+					ahigh, alow);
- 			}
- 			printk("\n");
- 			/* Clear it */
- 			wrmsr(MSR_IA32_MC0_STATUS+i*4, 0UL, 0UL);
- 			/* Serialize */
- 			wmb();
- 		}
- 	}
- 	
- 	if(recover&2)
+This recipe has its limits, but it's a start.
+
+Regards, Olaf.

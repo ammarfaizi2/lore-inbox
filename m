@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbUEZXo0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbUEZXvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbUEZXo0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 19:44:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbUEZXo0
+	id S261231AbUEZXvy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 19:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUEZXvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 19:44:26 -0400
-Received: from mail.tpgi.com.au ([203.12.160.101]:16329 "EHLO
-	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S261210AbUEZXoZ
+	Wed, 26 May 2004 19:51:54 -0400
+Received: from amber.ccs.neu.edu ([129.10.116.51]:17623 "EHLO
+	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S261231AbUEZXvw convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 19:44:25 -0400
-Message-ID: <40B52A7D.6090102@linuxmail.org>
-Date: Thu, 27 May 2004 09:38:37 +1000
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: davej@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP support for drain local pages v2.
-References: <40B473F7.4000100@linuxmail.org>	<20040526223255.GB15278@redhat.com>	<40B520A2.2060508@linuxmail.org> <20040526162607.0f177009.akpm@osdl.org>
-In-Reply-To: <20040526162607.0f177009.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+	Wed, 26 May 2004 19:51:52 -0400
+Subject: Re: Bad X-performance on 2.6.6 & 2.6.7-rc1 on x86-64
+From: Stan Bubrouski <stan@ccs.neu.edu>
+To: MalteSch@gmx.de
+Cc: Andi Kleen <ak@muc.de>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040526122658.2121389e@highlander.Home.LAN>
+References: <1ZqbC-5Gl-13@gated-at.bofh.it>
+	 <m3r7t9d3li.fsf@averell.firstfloor.org>
+	 <20040525122659.395783f4@highlander.Home.LAN>
+	 <20040525123636.GA13817@colin2.muc.de> <1085520021.1393.4168.camel@duergar>
+	 <20040526122658.2121389e@highlander.Home.LAN>
+Content-Type: text/plain; charset=utf-8
+Message-Id: <1085615502.4543.26.camel@duergar>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 26 May 2004 19:51:43 -0400
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, 2004-05-26 at 06:26, Malte Schröder wrote:
+> > And Malte, are you using emu10k1 driver per chance?
+> Yes, emu10k1/alsa on sb audigy.
 
-Andrew Morton wrote:
-> I think we only need a single entry point.  Make it a new "drain_percpu_pages()"
-> or such to break unconverted callers, switch callers of drain_local_pages()
-> over to the new function.   It needs no SMP ifdefs in it - on_each_cpu() will
-> do the right thing on UP.
-> 
-> But until something which needs this change is merged into the tree I'd say
-> that this patch should live with the patch which requires it.
+I asked because I'm using the emu10k1 driver and I've noticed frequent
+bizarre behviour when watching videos in xine AND mplayer...
 
-CPU hotplugging uses drain_local_pages, and shouldn't drain the pcp lists for all cpus. That's why I 
-left the original version alone.
+While this could be written off as a xine bug, my friends who have other
+audio cards can watch the same files without issue in both media
+players.  I hadn't thought much of it, until now.
 
-I'm submitting it now in preparation for merging, but Pavel's work on SMP support for swsusp should 
-be using this too. (It's not, but it should be).
+So here's the low-down... I'm thinking there are some bad bugs in the
+emu10k1 driver (not surprisingly, it's given me problems for *4* years,
+using OSS and ALSA, though I must say the OSS driver seems to be ALOT
+better).
 
-Nigel
--- 
-Nigel & Michelle Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6254 0216 (home)
+For completeness could you test the OSS emu10k driver (which supports
+PCM, while the ALSA driver does not) and see if you experience better
+overall performance?  Like less CPU utilization etc... I'm very
+interested in finding out where the bottlenecks are.  The emu10k1 driver
+isn't perfect and neither are xine or mplayer so I'd like figure out
+what  exactly  is going on here.  I'll of course do the same.  It's just
+kind of hard to judge for me seeing as my system is now 4 years old.
 
-Evolution (n): A hypothetical process whereby infinitely improbable events occur
-with alarming frequency, order arises from chaos, and no one is given credit.
+-sb
+

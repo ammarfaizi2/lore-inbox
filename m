@@ -1,64 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261914AbSLJAtC>; Mon, 9 Dec 2002 19:49:02 -0500
+	id <S266407AbSLJBGv>; Mon, 9 Dec 2002 20:06:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266407AbSLJAtC>; Mon, 9 Dec 2002 19:49:02 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:51983 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261914AbSLJAtB>; Mon, 9 Dec 2002 19:49:01 -0500
-Date: Mon, 9 Dec 2002 19:55:03 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Peter Waechtler <pwaechtler@mac.com>
-cc: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>,
-       linux-kernel@vger.kernel.org, wrona@mat.uni.torun.pl
-Subject: Re: POSIX message queues, 2.5.50
-In-Reply-To: <1039390666.19736.1.camel@picklock>
-Message-ID: <Pine.LNX.3.96.1021209194238.9066B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266435AbSLJBGv>; Mon, 9 Dec 2002 20:06:51 -0500
+Received: from [216.38.156.94] ([216.38.156.94]:62480 "EHLO
+	mail.networkfab.com") by vger.kernel.org with ESMTP
+	id <S266407AbSLJBGu>; Mon, 9 Dec 2002 20:06:50 -0500
+Subject: Re: grub and 2.5.50
+From: Dmitri <dmitri@users.sourceforge.net>
+To: wz6b@arrl.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200212091640.35716.wz6b@arrl.net>
+References: <200212091640.35716.wz6b@arrl.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-TBFkNgIuSmHBbP8WDMHE"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 09 Dec 2002 17:11:58 -0800
+Message-Id: <1039482718.23280.92.camel@usb.networkfab.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Dec 2002, Peter Waechtler wrote:
 
-> On Sun, 2002-12-08 at 18:38, Krzysztof Benedyczak wrote:
-> > On Fri, 6 Dec 2002, Peter Waechtler wrote:
-> > >
-> > > >  - our implementation does support priority scheduling which is omitted in
-> > > > Peter's version (meaning that if many processes wait e.g. for a message
-> > > > _random_ one will get it). It is important because developers could rely
-> > > > on this feature - and it is as I think the most difficult part of
-> > > > implementation
-> > >
-> > > Well, can you give an realistic and sensible example where an app design
-> > > really takes advantage on this?
-> > >
-> > > If I've got a thread pool listening on the queue, I _expect_ non
-> > > predictability on which thread gets which message:
-> > 
-> > But someone could. When you implement POSIX message queues you have to
-> > follow the standard and not write something similar to it.
-> > Even if you mention in docs that your mqueues aren't strictly POSIX,
-> > someone can miss it and end up with hard to explain "bug" in his program.
-> > BTW as your implementation will act randomly I can't see how you will
-> > handle multiple readers (maybe except some trivial cases).
-> > 
-> 
-> Just iterating over and over again does not produce the truth.
-> It's not "random" - it's highly deterministic: the longest waiter
-> will be woken up.
+--=-TBFkNgIuSmHBbP8WDMHE
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I think your original post saying you expect non-predictability is/was
-very misleading. I think you meant the application can't make assumptions
-based on knowing which thread will be scheduled next, but even then the
-truth is that if it is always deterministic then assumptions could be
-legitimately be made. 
+On Mon, 2002-12-09 at 16:40, Matt Young wrote:
 
-If it was random then a thread could wait forever, and Murphy's law says
-it would happen most of the time:-(
+> These grub commands work with SUSE 2.4.19-4GB:
+>=20
+>    kernel (hd0,0)/bzImage root=3D/dev/hda3   vga=3D791
+>    initrd (hd0,0)/initrd
+>=20
+> But with 2.5.50 the kernel panics after Freeing the initrd memory with=20
+> "Unable te mount root FS, please correct the root=3D cammand line"
+> I have compiled with the required file systems (EXT2,EXT3,REISERFS).
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+grub that came with RH 8.0 can boot 2.5.50 with no problems.
+
+- what is the filesystem on /dev/hda3 ?
+- do you have the FS *compiled into the kernel* ?
+- did you rebuild your initrd?
+
+Otherwise your old initrd will have old modules, and the FS module won't
+load into your new kernel. If you compile them *into* the 2.5.50 then it
+will just complain. That's what I did.
+
+Dmitri
+
+
+
+--=-TBFkNgIuSmHBbP8WDMHE
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA99T9eiqqasvm69/IRAiZFAKDUqcWGQs3m7zTlpZMLCgaGdC4yGQCfX8Nv
+mlYT2GRf0ScToEl/U33OA4w=
+=x2Jc
+-----END PGP SIGNATURE-----
+
+--=-TBFkNgIuSmHBbP8WDMHE--
 

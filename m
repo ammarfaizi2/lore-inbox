@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288604AbSANBxd>; Sun, 13 Jan 2002 20:53:33 -0500
+	id <S288623AbSANByb>; Sun, 13 Jan 2002 20:54:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288623AbSANBxW>; Sun, 13 Jan 2002 20:53:22 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:36812 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S288604AbSANBxL>; Sun, 13 Jan 2002 20:53:11 -0500
-Message-Id: <5.1.0.14.2.20020114014458.04c1d0b0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 14 Jan 2002 01:53:09 +0000
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Linux 2.4.18pre3-ac1-aia21 (IDE patches)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16PwJO-0000F8-00@the-village.bc.nu>
-In-Reply-To: <5.1.0.14.2.20020113232757.04f34ec0@pop.cus.cam.ac.uk>
+	id <S288632AbSANByW>; Sun, 13 Jan 2002 20:54:22 -0500
+Received: from zero.tech9.net ([209.61.188.187]:51218 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S288623AbSANByL>;
+	Sun, 13 Jan 2002 20:54:11 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+From: Robert Love <rml@tech9.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Kenneth Johansson <ken@canit.se>, arjan@fenrus.demon.nl,
+        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0201132349450.32617-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0201132349450.32617-100000@imladris.surriel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 13 Jan 2002 20:56:52 -0500
+Message-Id: <1010973413.814.35.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 01:53 14/01/02, Alan Cox wrote:
-> > Alan's -ac series is back! To celebrate this I added in the IDE patches 
-> and
-> > an NTFS update which dramatically reduces the number of vmalloc()s and 
-> have
-> > posted the resulting (tested) patch (to be applied on top of
-> > 2.4.18pre3-ac1) at below URL.
->
->Andre's IDE patch is in the ac2 cut. I took it out just to make testing easier
->in case other people found -ac1 wasnt as reliable as I did 8)
+On Sun, 2002-01-13 at 20:50, Rik van Riel wrote:
 
-That's ok. -ac2 isn't out yet AFAICS... (-;
+> > So far I haven't seen any evidence, that preempt introduces any _new_
+> > serious problems, so I'd rather like to see to get the best out of
+> > both.
+> 
+> Are you seriously suggesting you haven't read a single
+> email in this thread yet ?
 
-Do you have the configure help entries in there, too?
+No, I think he is suggesting he doesn't consider any of the problems
+serious.  A lot of it is just smoke.  What is "bad" wrt 2.5?
 
-btw. -ac1-aia1 is working very well on my desktop here. At least I wasn't 
-able to break it with anything I threw at it. In fact it is working much 
-better than before both interactivity wise and io wise. (-8
+	Robert Love
 
-Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

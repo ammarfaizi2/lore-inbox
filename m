@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267506AbTAMQSs>; Mon, 13 Jan 2003 11:18:48 -0500
+	id <S267619AbTAMQTi>; Mon, 13 Jan 2003 11:19:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267503AbTAMQSr>; Mon, 13 Jan 2003 11:18:47 -0500
-Received: from static24-72-2-224.reverse.accesscomm.ca ([24.72.2.224]:7067
-	"EHLO rapfast.petcom.com") by vger.kernel.org with ESMTP
-	id <S267431AbTAMQSm>; Mon, 13 Jan 2003 11:18:42 -0500
-From: Roe Peterson <roe@rapfast.petcom.com>
-Message-Id: <200301131627.h0DGRX101413@rapfast.petcom.com>
-Subject: Dell precision M50 and _very_ slow process startup
-To: linux-laptop@vger.kernel.org, linux-kernel@vger.kernel.org
-Date: Mon, 13 Jan 2003 10:27:32 -0600 (CST)
-X-Mailer: ELM [version 2.5 PL5]
+	id <S267631AbTAMQTi>; Mon, 13 Jan 2003 11:19:38 -0500
+Received: from web13709.mail.yahoo.com ([216.136.175.251]:64086 "HELO
+	web13709.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S267619AbTAMQTh>; Mon, 13 Jan 2003 11:19:37 -0500
+Message-ID: <20030113162827.46498.qmail@web13709.mail.yahoo.com>
+Date: Mon, 13 Jan 2003 08:28:27 -0800 (PST)
+From: Mad Hatter <slokus@yahoo.com>
+Subject: bootsect.S: 2 questions
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-After _quite_ a bit more investigation, and some good pointers from
-the net (thanks, all!), this has turned out _not_ to be a problem
-with swapping/paging at all.
+I was looking through the linux (2.5.56) arch/i386/boot/bootsect.S and was
+puzzled about a couple of things:
 
-For some reason, the magicdev process slows the system to a crawl!
+1. Near line 221 we have:
+       sread:  .word 0             # sectors read of current track
+       head:   .word 0             # current head
+       track:  .word 0             # current track
 
-I'm guessing that this process watches for cd insertion, changes
-to home directory, et. al.
+   However, since a diskette can have at most 2 heads, 80 tracks and 36 sectors
+   per track, why are these not bytes instead of words especially since space is
+   at such a tight premium in this code ?
 
-There seems to be no man page or info for magicdev itself.
+2. Near line 272 we have "movw    $7, %bx" but the documentation I've
+    been able to find about the "int 0x10" BIOS call says that for service
+    code 0xe (write character and advance cursor), it does not take an
+    attribute byte input parameter but rather uses the existing attribute. Is
+    this movw instruction superfluous ?
 
-Does anyone know more about this beast?
+Thanks. 
 
-I've solved the problem temporarily by simply renameing
-/usr/bin/magicdev...
-
-
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
+http://mailplus.yahoo.com

@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313088AbSDDNhZ>; Thu, 4 Apr 2002 08:37:25 -0500
+	id <S313165AbSDDNn1>; Thu, 4 Apr 2002 08:43:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313167AbSDDNhQ>; Thu, 4 Apr 2002 08:37:16 -0500
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:38302 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S313088AbSDDNhG>;
-	Thu, 4 Apr 2002 08:37:06 -0500
-Message-Id: <5.1.0.14.2.20020404142914.00a6aa70@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 04 Apr 2002 14:37:02 +0100
-To: Padraig Brady <padraig@antefacto.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: ANN: NTFS 2.0.1 for kernel 2.5.7 released
-Cc: Joachim Breuer <jmbreuer@gmx.net>,
-        Nerijus Baliunas <nerijus@users.sourceforge.net>,
-        <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-ntfs-dev@lists.sourceforge.net>
-In-Reply-To: <3CA87ABE.9000709@antefacto.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S313167AbSDDNnQ>; Thu, 4 Apr 2002 08:43:16 -0500
+Received: from inet-mail1.oracle.com ([148.87.2.201]:11934 "EHLO
+	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
+	id <S313165AbSDDNnL>; Thu, 4 Apr 2002 08:43:11 -0500
+Message-ID: <3CAC57B0.5090902@oracle.com>
+Date: Thu, 04 Apr 2002 15:40:00 +0200
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Support Services
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020326
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stelian Pop <stelian.pop@fr.alcove.com>
+CC: "Adam J. Richter" <adam@yggdrasil.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Patch: linux-2.5.8-pre1/kernel/exit.c change caused BUG() at
+ boot time
+In-Reply-To: <20020404035910.A281@baldur.yggdrasil.com> <20020404125614.GE9820@come.alcove-fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 16:20 01/04/02, Padraig Brady wrote:
->Joachim Breuer wrote:
->>Nerijus Baliunas <nerijus@users.sourceforge.net> writes:
->>
->>>On Fri, 29 Mar 2002 12:57:07 +0000 (GMT) Anton Altaparmakov 
->>><aia21@cus.cam.ac.uk> wrote:
->>>
->>>[...] Discussion about default fmask, mc, being able to run in place
->>>      snipped
->>>
->>>People using Linux usually keep data files on fat and ntfs permissions, not
->>>executables (IMHO).
->>
->>For the sake of another vote: Yes, I do use NTFS primarily for data
->>storage, and No, I don't like gratuitous x-bits. Not *at all*.
->
->Anton, there have been no votes the other way. What do you think now?
+Stelian Pop wrote:
+> On Thu, Apr 04, 2002 at 03:59:10AM -0800, Adam J. Richter wrote:
+> 
+> 
+>>	When I attempted to boot linux-2.5.8-pre1, I got a kernel
+>>BUG() for exit.c line 519.  The was a small change to to kernel/exit.c
+>>in 2.5.8-pre1 which deleted a kernel_lock() call.  Restoring that line
+>>resulted in a kernel that booted fine.  I am sending this email from
+>>the machine running that kernel (so I guess a matching release of
+>>the kernel lock is already in the code).
+> 
+> 
+> It should be added that the bug is hit only if CONFIG_PREEMPT is on.
 
-I am tending towards a default fmask of 0177 now. I will change it for the 
-next release.
+Just to say that
 
-Happy? (-;
+  * I hit the bug
+  * I have CONFIG_PREEMPT
+  * Adam's fix "works for me (TM)"
 
-Cheers,
+--alessandro
 
-         Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+  "time is never time at all / you can never ever leave
+    without leaving a piece of youth"
+                    (Smashing Pumpkins, "Tonight, tonight")
 

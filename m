@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130364AbQKRSWJ>; Sat, 18 Nov 2000 13:22:09 -0500
+	id <S130294AbQKRSbq>; Sat, 18 Nov 2000 13:31:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130294AbQKRSV7>; Sat, 18 Nov 2000 13:21:59 -0500
-Received: from 13dyn189.delft.casema.net ([212.64.76.189]:3338 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S130434AbQKRSVi>; Sat, 18 Nov 2000 13:21:38 -0500
-Message-Id: <200011181751.SAA14566@cave.bitwizard.nl>
-Subject: Re: Linux 2.2.18pre21
-In-Reply-To: <200011181747.UAA16349@ms2.inr.ac.ru> from "kuznet@ms2.inr.ac.ru"
- at "Nov 18, 2000 08:47:56 pm"
-To: kuznet@ms2.inr.ac.ru
-Date: Sat, 18 Nov 2000 18:51:23 +0100 (MET)
-CC: Rogier Wolff <R.E.Wolff@BitWizard.NL>, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.NL (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S130415AbQKRSbg>; Sat, 18 Nov 2000 13:31:36 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:49417 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S130294AbQKRSbX>;
+	Sat, 18 Nov 2000 13:31:23 -0500
+Date: Sat, 18 Nov 2000 19:01:07 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] linux/time.h name space pollution in 2.4.0-test11-pre6/pre7
+Message-ID: <20001118190107.D23033@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
-> Hello!
-> 
-> > Well, because lots of people seem to THINK that chroot imprisons
-> > someone. And "jail" actually does....
-> 
-> Also many of people work to add to linux jail-like functionality,
-> which is expected to be real security tool unlike bsd jail.
-> 
-> I think from the same source where you read about jail
-> you know that jail is full of holes like colander. 8)
+Hi Linus,
 
-Nope I didn't read that. 
+include/linux/time.h leaks out mktime, creating a possible conflict with
+POSIX mktime. This patch puts mktime and a few helper functions into
+#ifdef __KERNEL__
 
-				Roger.
+Originally for 2.4.0-test11-pre6, but applies also to 2.4.0-test11-pre7
+
+Cheers, Werner
+
+---------------------------------- cut here -----------------------------------
+
+--- linux.orig/include/linux/time.h	Mon Oct  2 20:01:17 2000
++++ linux/include/linux/time.h	Sat Nov 18 18:45:15 2000
+@@ -12,6 +12,8 @@
+ };
+ #endif /* _STRUCT_TIMESPEC */
+ 
++#ifdef __KERNEL__
++
+ /*
+  * Change timeval to jiffies, trying to avoid the
+  * most obvious overflows..
+@@ -79,6 +81,8 @@
+ 	  )*60 + min /* now have minutes */
+ 	)*60 + sec; /* finally seconds */
+ }
++
++#endif /* __KERNEL__ */
+ 
+ 
+ struct timeval {
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

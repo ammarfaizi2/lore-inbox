@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner+ralf=40uni-koblenz.de@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S314514AbSE0Ipo>; Mon, 27 May 2002 04:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S314559AbSE0Ipn>; Mon, 27 May 2002 04:45:43 -0400
-Received: from mailbox-2.st1.spray.net ([212.78.202.102]:16086 "EHLO mailbox-2.st1.spray.net") by vger.kernel.org with ESMTP id <S314514AbSE0Ipm> convert rfc822-to-8bit; Mon, 27 May 2002 04:45:42 -0400
-Posted-Date: Mon, 27 May 2002 10:45:32 +0200 (DST)
-Message-Id: <200205270845.KAA11720@mailbox-2.st1.spray.net>
-From: "WWW.BAU-CENTER.COM" <bau-center@firemail.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: CD ROM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S316848AbSE1Q72>; Tue, 28 May 2002 12:59:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S316849AbSE1Q71>; Tue, 28 May 2002 12:59:27 -0400
+Received: from blackhole.adamant.ua ([212.26.128.69]:62002 "EHLO blackhole.adamant.net") by vger.kernel.org with ESMTP id <S316848AbSE1Q70>; Tue, 28 May 2002 12:59:26 -0400
+Date: Tue, 28 May 2002 19:59:18 +0300
+From: Alexander Trotsai <mage@adamant.ua>
+To: linux-kernel@vger.kernel.org
+Subject: vlan dotQ vs 2.4.19pre8-ac5 vs big packets trouble
+Message-ID: <20020528165918.GT1365@blackhole.adamant.ua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Date: Mon, 27 May 2002 10:48:14 +0200
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-You are offering or searching for used and new Construction equipment in Europe? You can reach with our program contening the whole database of our web site www.bau-center.com ( 10 000 E-Mail worlwide in Construction Industry), new customers in East and West Europe. You can order this program by clicking on the link below:
+I try to use vlan with 2.4.19pre8-ac5 and
+00:10.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M
+[Tornado] (rev 74)
+network card
 
-http://www.bau-center.com/german.php3?german=order
+I successfully setup vlan and got ping's (traffic)
+But only with small packets
 
-You can also add your advert for free in our web site, the most visited web site for used construction material in Europe.
+At main interface all work good
+[root@watcher linux]# ping -s 1480 x.x.x.1
+PING x.x.x.1 (x.x.x.1) from x.x.x.11 : 1480(1508) bytes of data.
+1488 bytes from x.x.x.1: icmp_seq=1 ttl=255 time=6.93 ms
+1488 bytes from x.x.x.1: icmp_seq=2 ttl=255 time=3.05 ms
 
-Best Regards.
+--- x.x.x.1 ping statistics ---
+2 packets transmitted, 2 received, 0% loss, time 1007ms
+rtt min/avg/max/mdev = 3.056/4.993/6.930/1.937 ms
 
-Your BMC Euronewspaper team.
+Vlan interface
+[root@watcher linux]# ping -s 1480 x.x.x.242
+PING x.x.x.242 (x.x.x.242) from x.x.x.244 : 1480(1508) bytes of data.
 
-Madame, Monsieur,
+--- x.x.x.242 ping statistics ---
+3 packets transmitted, 0 received, 100% loss, time 2017ms
 
-Nous vous ofrons la possibilite de contacter an un click tous les clients potentiels en EUrope de l'Est et Europe de l'Ouest. Notre CD Rom contient 10 000 adresses E Mail de notre base de donnees ( Entreprises BTP et Negociants Materiel BTP en Europe de l'Est et de l'Ouest. Ce CD Rom est en vente au prix de 100 EUROS.
-Vous pouvez le commander en cliquant sur le link suivant:
+Both pinged addresses in same subnet for approved interface
+And vlan is work
+[root@watcher linux]# ping -s 1400 x.x.x.242
+PING x.x.x.242 (x.x.x.242) from x.x.x.244 : 1400(1428) bytes of data.
+1408 bytes from x.x.x.242: icmp_seq=1 ttl=255 time=2.31 ms
+1408 bytes from x.x.x.242: icmp_seq=2 ttl=255 time=1.79 ms
 
-http://www.bau-center.com/german.php3?german=order
+--- x.x.x.242 ping statistics ---
+2 packets transmitted, 2 received, 0% loss, time 1010ms
+rtt min/avg/max/mdev = 1.794/2.056/2.319/0.266 ms
 
-Salutations.
+I'm try to search information about this trouble found such
+patch
 
-L'equipe BMC Euronewspaper
+# My 3C59X has MTU problems.
 
-Sehr geehrte Damen und Herren,
+Edit the 3C59x.c, find the place where it says:
 
-wir bitten CD ROM mit Mailing programm und 10 000 E mail Adresse in der Bau bzw Baumaschinen Branche. Damit koennen Sie Ihre neue Kunde in West und Ost Europa erreichen. Kicken Sie dafuer:
+static const int mtu = 1500;
+and replace 1500 with
+static const int mtu = 1504;
 
-http://www.bau-center.com/german.php3?german=order
+but I got same trouble with this patch
 
-Mit freundlichen Gruessen.
-
-Ihre BMC Team.
+-- 
+Best regard, Alexander Trotsai aka MAGE-RIPE aka MAGE-UANIC
+My PGP at ftp://blackhole.adamant.net/pgp/trotsai.key[.asc]
+Big trouble - Post-it Note Sludge leaked into the monitor.

@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135833AbRDYHvC>; Wed, 25 Apr 2001 03:51:02 -0400
+	id <S135837AbRDYH5X>; Wed, 25 Apr 2001 03:57:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135834AbRDYHuw>; Wed, 25 Apr 2001 03:50:52 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:8905 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S135833AbRDYHue>; Wed, 25 Apr 2001 03:50:34 -0400
-Date: Wed, 25 Apr 2001 09:50:32 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: mshiju@in.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with DHCP when using tokenring on 2.4.x
-Message-ID: <20010425095032.A19553@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <CA256A38.0060F2DE.00@d73mta05.au.ibm.com>
+	id <S135836AbRDYH5O>; Wed, 25 Apr 2001 03:57:14 -0400
+Received: from [203.36.158.121] ([203.36.158.121]:29059 "EHLO
+	piro.kabuki.openfridge.net") by vger.kernel.org with ESMTP
+	id <S135835AbRDYH5B>; Wed, 25 Apr 2001 03:57:01 -0400
+Date: Wed, 25 Apr 2001 17:55:52 +1000
+From: Daniel Stone <daniel@kabuki.openfridge.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Daniel Stone <daniel@kabuki.openfridge.net>,
+        Aaron Lehmann <aaronl@vitelus.com>, imel96@trustix.co.id,
+        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Single user linux
+Message-ID: <20010425175552.A12423@piro.kabuki.openfridge.net>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Daniel Stone <daniel@kabuki.openfridge.net>,
+	Aaron Lehmann <aaronl@vitelus.com>, imel96@trustix.co.id,
+	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010425103246.C11099@piro.kabuki.openfridge.net> <E14sJzL-0003x6-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <CA256A38.0060F2DE.00@d73mta05.au.ibm.com>; from mshiju@in.ibm.com on Tue, Apr 24, 2001 at 06:30:59PM +0530
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <E14sJzL-0003x6-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Apr 25, 2001 at 08:45:25AM +0100
+Organisation: Sadly lacking
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 24, 2001 at 06:30:59PM +0530, mshiju@in.ibm.com wrote:
->            I have a problem with DHCP when using tokenring card on 2.4.x
-> kernel . When I am using IBM tokenring adapter( all) and trying to hook on
-> to the lan n/w using DHCP ,I get an error message "operation failed " from
-> the dhcp client . The dhcp server is getting the broadcast message when the
-> dhcp client  is run. I am using pump that comes with 6.2 redhat
-> distribution .
+On Wed, Apr 25, 2001 at 08:45:25AM +0100, Alan Cox wrote:
+> > True, but then imagine trying to hack C (no, that's a CURLY BRACE, and a
+> > tab! not space! you just broke my makefiles! aargh!), and compiling
+> > Netfilter (it takes HOW MANY hours to compile init/main.c?!?) on a PDA.
+> 
+> Usual misguided assumptions
+> 
+> 1.	Many PDA's have a keyboard
+> 2.	The ipaq has an optional fold up keyboard
+> 3.	Modern PDA's have 200Mhz processors and XScale will see some of them
+> 	hitting 600MHz+
 
-Try at least stracing pump and find out _which_ operation fails.
+I stand corrected. Too broke to get one, but corrected nevertheless.
 
-Then find out where in the source there are messages "operation
-failed" and whatever messages are around that message and compare
-these positions with the call trace you get from strace and an
-static analysis of the code paths leading to this message.
+(I've only seen the agenda in action, and it seemed a lot of time writing
+"date" for relatively little action - the date). 
 
-As a last resort try to run a debugger over pump (you have to
-rebuild it without optimization and with debugging symbols).
-
-This sounds like an user space problem until now, but once you
-tried all this, we can decide whether it is a kernel bug or a bug
-in pump, which got triggered by more correct behavior of the
-lastest kernels.
-
-Regards
-
-Ingo Oeser
 -- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>
+Daniel Stone
+daniel@kabuki.openfridge.net

@@ -1,88 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317566AbSHHJVI>; Thu, 8 Aug 2002 05:21:08 -0400
+	id <S317537AbSHHJ35>; Thu, 8 Aug 2002 05:29:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317586AbSHHJVI>; Thu, 8 Aug 2002 05:21:08 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:14603 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317566AbSHHJVH>; Thu, 8 Aug 2002 05:21:07 -0400
-Message-ID: <3D52377D.3040403@evision.ag>
-Date: Thu, 08 Aug 2002 11:18:53 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: martin@dalecki.de, Andries.Brouwer@cwi.nl,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [bug, 2.5.29, (not IDE)] partition table (not) corruption?
-References: <Pine.LNX.4.44.0208081057150.2542-100000@localhost.localdomain>
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
+	id <S317538AbSHHJ35>; Thu, 8 Aug 2002 05:29:57 -0400
+Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:6538 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id <S317537AbSHHJ3z>; Thu, 8 Aug 2002 05:29:55 -0400
+Date: Thu, 8 Aug 2002 02:33:35 -0700
+To: linux-kernel@vger.kernel.org
+Cc: "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+Subject: bad: schedule() with irqs disabled!
+Message-ID: <20020808093335.GA11179@gnuppy.monkey.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Ingo Molnar napisa?:
-> On Thu, 8 Aug 2002, Marcin Dalecki wrote:
-> 
-> 
->>If you look at the boot messages from a kernel:
->>
->>ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
->>  hda: 78140160 sectors, CHS=77520/16/63, UDMA(33)
->>  hda: hda1 hda4
->>
->>You can actually see the CHS info field.
-> 
-> 
-> okay, here are the 2.4.18(-ish) and 2.5.30 CHS fields:
-> 
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> ide1 at 0x170-0x177,0x376 on irq 15
-> hda: 8418816 sectors (4310 MB) w/80KiB Cache, CHS=524/255/63, UDMA(33)
-> hdc: 40132503 sectors (20548 MB) w/1900KiB Cache, CHS=39813/16/63, UDMA(33)
-> hdb: ATAPI 32X CD-ROM CD-R/RW drive, 2048kB Cache
-> 
-> hda: QUANTUM FIREBALL SE4.3A, DISK drive
-> hdb: RICOH CD-R/RW MP7083A, ATAPI CD/DVD-ROM drive
-> hdc: QUANTUM FIREBALLP LM20.5, DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> ide1 at 0x170-0x177,0x376 on irq 15
->  hda: 8418816 sectors w/80KiB Cache, CHS=14848/9/63, UDMA(33)
->  hda: hda1 hda2 < hda5 hda6 >
->  hdc: 40132503 sectors w/1900KiB Cache, CHS=39813/16/63, UDMA(33)
->  hdc: hdc1
-> hdb: Disabling (U)DMA for RICOH CD-R/RW MP7083A
-> hdb: DMA disabled
-> hdb: ATAPI 32X CD-ROM CD-R/RW drive, 2048kB Cache
-> 
-> i have the bootlogs of this system back to 2.5.25 only, which also shows
-> the wrong(?) CHS:
-> 
-> Linux version 2.5.25 (mingo@mars) (gcc version 2.96 20000731 (Red Hat Linux 7.2
-> 2.96-101.9)) #3 SMP Tue Jul 9 21:12:18 CEST 2002
-> 
-> hda: QUANTUM FIREBALL SE4.3A, DISK drive
-> hdb: RICOH CD-R/RW MP7083A, ATAPI CD/DVD-ROM drive
-> hdc: QUANTUM FIREBALLP LM20.5, DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> ide1 at 0x170-0x177,0x376 on irq 15
->  hda: 8418816 sectors w/80KiB Cache, CHS=14848/9/63
->  hda: [PTBL] [524/255/63] hda1 hda2 < hda5 hda6 >
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^ This is actually the interresting
-part. Well this is actually printed by
-the partition grocking code. 255/63 *is* indicating LBA (linear)
-access to the drive. It is really lilo who didn't parse the partition
-table and was relying on the value returned by GETGEO ioctl instead.
-At least lilo should automatically resort to LBA if C > 1024.
+Hello,
 
->  hdc: 40132503 sectors w/1900KiB Cache, CHS=39813/16/63
->  hdc: hdc1
-> 
-> 	Ingo
-> 
-> 
+Looks like some critical section got botched.
 
+I don't do bug reports very often, so don't know exactly if this is
+helpful. If somebody would like point me to something more exact, I'll
+be happy to help out trying to trigger this again.
+
+It happened under very high IDE activity, heavy VM and file system IO.
+
+================================
+
+bad: schedule() with irqs disabled!
+d2895d5c c024a360 c1521580 d2895d84 c0110c58 00000001 c02fabf8 fffffffa 
+       d2895d80 00000046 d2895d94 c0110c6f c1521580 00000000 c02fabe0 c0118ae0 
+       d2894000 00000003 c02b3060 00000002 00000246 c0203c30 d4625e94 d2789460 
+Call Trace: [<c0110c58>] [<c0110c6f>] [<c0118ae0>] [<c0203c30>] [<c020d53a>] 
+   [<c020e450>] [<c021bd7e>] [<c021be2d>] [<c021e00c>] [<c0220514>] [<c022d21c>] 
+   [<c01f7297>] [<c01f7f47>] [<c010a561>] [<c01082c2>] [<c01f6469>] [<c01f763e>] 
+   [<c01f7660>] [<c01f7bc4>] [<c0106de3>] 
+bad: schedule() with irqs disabled!
+d2895d5c c024a360 c1521580 d2895d84 c0110c58 00000001 c02fabf8 fffffffa 
+       d2895d80 00000046 d2895d94 c0110c6f c1521580 00000000 c02fabe0 c0118ae0 
+       d2894000 00000003 c02b3060 00000002 00000246 c0203c30 d4625c94 d2789aa0 
+Call Trace: [<c0110c58>] [<c0110c6f>] [<c0118ae0>] [<c0203c30>] [<c020d53a>] 
+   [<c020e450>] [<c021bd7e>] [<c021be2d>] [<c021e00c>] [<c0220514>] [<c022d21c>] 
+   [<c01f7297>] [<c01f7f47>] [<c01f6469>] [<c01f763e>] [<c01f7660>] [<c01f7bc4>] 
+   [<c0106de3>] 
+bad: schedule() with irqs disabled!
+d2895d5c c024a360 c1521580 d2895d84 c0110c58 00000001 c02fabf8 fffffffa 
+       d2895d80 00000046 d2895d94 c0110c6f c1521580 00000000 c02fabe0 c0118ae0 
+       d2894000 00000003 c02b3060 00000002 00000246 c0203c30 d4625c94 d27895a0 
+Call Trace: [<c0110c58>] [<c0110c6f>] [<c0118ae0>] [<c0203c30>] [<c020d53a>] 
+   [<c020e450>] [<c0106f28>] [<c021bd7e>] [<c021be2d>] [<c021e00c>] [<c0220514>] 
+   [<c022d21c>] [<c01f7297>] [<c01f7f47>] [<c010a561>] [<c01f6469>] [<c01f763e>] 
+   [<c01f7660>] [<c01f7bc4>] [<c0106de3>] 
+bad: schedule() with irqs disabled!
+c3701d64 c024a360 c1521580 c3701d8c c0110c58 00000001 c02fabf0 fffffffc 
+       c3701d88 00000046 c3701d9c c0110c6f c1521580 00000000 c02fabe0 c0118ae0 
+       c3700000 00000003 d7cf6800 00000002 00000246 c0203c30 d4625e9c c8f096c0 
+Call Trace: [<c0110c58>] [<c0110c6f>] [<c0118ae0>] [<c0203c30>] [<c020d53a>] 
+   [<c020e450>] [<c0106f28>] [<c0210018>] [<c021be09>] [<c021be2d>] [<c021e223>] 
+   [<c0213250>] [<c0213dfe>] [<c01dbec6>] [<c022d601>] [<c01f6649>] [<c01f674b>] 
+   [<c01358cb>] [<c0135aa6>] [<c0106de3>] 
+bad: schedule() with irqs disabled!
+cb8e7d64 c024a360 c1521580 cb8e7d8c c0110c58 00000001 c02fabf0 fffffffc 
+       cb8e7d88 00000046 cb8e7d9c c0110c6f c1521580 00000000 c02fabe0 c0118ae0 
+       cb8e6000 00000003 d7cf6800 00000002 00000246 c0203c30 d4625e9c d707bda0 
+Call Trace: [<c0110c58>] [<c0110c6f>] [<c0118ae0>] [<c0203c30>] [<c020d53a>] 
+   [<c020e450>] [<c021bd7e>] [<c021be2d>] [<c021e223>] [<c0213250>] [<c0213dfe>] 
+   [<c022d601>] [<c01f6649>] [<c01f674b>] [<c014475f>] [<c01358cb>] [<c0135aa6>] 
+   [<c0106de3>] 
+bad: schedule() with irqs disabled!
+cf9d5d5c c024a360 c1521580 cf9d5d84 c0110c58 00000001 c02fabf8 fffffffa 
+       cf9d5d80 00000046 cf9d5d94 c0110c6f c1521580 00000000 c02fabe0 c0118ae0 
+       cf9d4000 00000003 c02b3060 00000002 00000246 c0203c30 d4625e94 c6442d40 
+Call Trace: [<c0110c58>] [<c0110c6f>] [<c0118ae0>] [<c0203c30>] [<c020d53a>] 
+   [<c020e450>] [<c021bd7e>] [<c021be2d>] [<c021e00c>] [<c0220514>] [<c022d21c>] 
+   [<c01f7297>] [<c01f7f47>] [<c01f6469>] [<c01f763e>] [<c01f7660>] [<c01f7bc4>] 
+   [<c0106de3>] 
+
+================================
 

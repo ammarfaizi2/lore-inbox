@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317349AbSFRHds>; Tue, 18 Jun 2002 03:33:48 -0400
+	id <S317353AbSFRHjE>; Tue, 18 Jun 2002 03:39:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317353AbSFRHdr>; Tue, 18 Jun 2002 03:33:47 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:46860 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S317349AbSFRHdq>; Tue, 18 Jun 2002 03:33:46 -0400
-Message-ID: <3D0EE24D.DABA5C69@aitel.hist.no>
-Date: Tue, 18 Jun 2002 09:33:33 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.20-dj3 i686)
-X-Accept-Language: no, en, en
+	id <S317354AbSFRHjD>; Tue, 18 Jun 2002 03:39:03 -0400
+Received: from pc1-camb4-0-cust108.cam.cable.ntl.com ([62.253.133.108]:9600
+	"EHLO lain.perlfu.co.uk") by vger.kernel.org with ESMTP
+	id <S317353AbSFRHjC>; Tue, 18 Jun 2002 03:39:02 -0400
+Date: Tue, 18 Jun 2002 08:38:48 +0100 (BST)
+From: Carl Ritson <critson@perlfu.co.uk>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+cc: "David S. Miller" <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <netdev@oss.sgi.com>
+Subject: Re: [PATCH][2.5.22] OOPS in tcp_v6_get_port
+In-Reply-To: <20020618005735.GB1146@conectiva.com.br>
+Message-ID: <Pine.LNX.4.44.0206180832040.1778-100000@lain.perlfu.co.uk>
 MIME-Version: 1.0
-To: Raphael Manfredi <Raphael_Manfredi@pobox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: The buggy APIC of the Abit BP6
-References: <004901c213c3$7a73b8f0$020da8c0@nitemare> <aeddc2$jva$1@lyon.ram.loc>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Raphael Manfredi wrote:
-> 
-> Quoting Robbert Kouprie <robbert@radium.jvb.tudelft.nl> from ml.linux.kernel:
-> :BTW, did you get any explanation why this wasn't applied in -ac or main
-> :kernel?
-> 
-> None.
-> 
-> But I know that this patch is dirty because it attacks a hardware-dependent
-> layer from a rather generic one.  This may be why it's rejected.  And it
-> may also be completely APIC-BP6 specific.
-> 
-> I also know is that it works for me. ;-)
+On Mon, 17 Jun 2002, Arnaldo Carvalho de Melo wrote:
 
-I'll try it.  Have you considered resubmitting the patch,
-hidden behind a CONFIG_BROKEN_APIC?  That'll keep the code
-clean for those with better hardware.
+> Em Mon, Jun 17, 2002 at 02:33:19PM -0700, David S. Miller escreveu:
+> > 
+> > This is a known bug introduced by the struct sock splitup into
+> > external per-protocol pieces done by Arnaldo de Melo.  He is working
+> > on the proper fix, your proposed change will just paper over the real
+> > bug.
 
-Helge Hafting
+I suspected something like that.
+
+> Carl,
+> 
+> 	Can you try this patch?
+> 
+> - Arnaldo
+> 
+> --- orig/net/ipv6/tcp_ipv6.c    Sat May 25 23:13:56 2002
+> +++ linux/net/ipv6/tcp_ipv6.c   Fri Jun 14 23:23:07 2002
+> <diff snipped> 
+
+This patch doesn't help, it produces exactly the same oops when decoded, I 
+assume the newer patch you mention to Dave is the correct fix?
+
+Thanks,
+Carl
+

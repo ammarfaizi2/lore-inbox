@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262303AbTLSJt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 04:49:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbTLSJt1
+	id S262188AbTLSJun (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 04:50:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbTLSJun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 04:49:27 -0500
-Received: from mail.velocity.net ([208.3.88.4]:7600 "EHLO mail.velocity.net")
-	by vger.kernel.org with ESMTP id S262188AbTLSJtZ (ORCPT
+	Fri, 19 Dec 2003 04:50:43 -0500
+Received: from holomorphy.com ([199.26.172.102]:29334 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262188AbTLSJuk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 04:49:25 -0500
-Subject: [2.4] Server stops serving nfs files (possibly ext3 or quota
-	related)
-From: Dale Blount <linux-kernel@dale.us>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1071827364.1518.39.camel@rock.dale.us>
+	Fri, 19 Dec 2003 04:50:40 -0500
+Date: Fri, 19 Dec 2003 01:50:36 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Alexander Poquet <atp@csbd.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 fails to complete boot - Sony VAIO laptop
+Message-ID: <20031219095036.GH31393@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Alexander Poquet <atp@csbd.org>, linux-kernel@vger.kernel.org
+References: <20031219093021.50D9E1E030CA3@csbd.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 19 Dec 2003 04:49:24 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031219093021.50D9E1E030CA3@csbd.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello List,
+On Fri, Dec 19, 2003 at 09:40:32AM +0000, Alexander Poquet wrote:
+> I downloaded and compiled the stock 2.6.0 kernel (no patches applied) and
+> attempted to get it to boot on my Sony VAIO laptop (which is running Debian
+> testing).  I followed the instructions in README and checked all the relevant
+> software in Documentation/Changes; I believe I'm doing everything
+> correctly.  I always compile my own kernel.
+> Initially, it appeared to not get passed the Loading Linux.... phase;
+> the screen would simply blank.  Setting vga=normal however
+> demonstrated that the kernel does in fact begin to boot before
+> becoming unresponsive; however, the screen still blanks and does so
+> too quickly for me to see any relevant printks.
 
-I'm not sure where to start tracking this down so this seems like the
-best place.  I have a decently loaded server with the following
-configuration:
+Could you post your lilo.conf and/or grub.conf and /etc/fstab?
 
-2.4.22 custom compiled kernel (all drivers static)
-2 x 1.3Ghz P3 (ServerWorks Chipset)
-2GB ECC DDR ram
-Adaptec aacraid controller card
-7 SCSI disks in a hardware array
-D-link gigabit ethernet
-330GB ext3 filesystem with 128MB journal (enlarged after problem
-	appeared)
-OS (RH7.3 currently) is on separate software MD devices and SCSI disks.
-/aac0/users/home mounted on /home using -o bind
 
-Every so often (this last time had a span of just over a week) the
-server will stop writing/reading nfs files to its clients (approx 8). I
-couldn't test this most recent time, but as of last time files could
-still be written locally to the nfs exported array.
-
-This has happened since install using 2.4.18-acX (-ac needed for new
-style quotas at the time) and is still happening as of 2.4.22.  The
-server has been upgraded to 2.4.23 but has only been up a few hours.
-
-I'm attaching a pslist at the time of reboot.  The loadavg was somewhere
-in the mid 30s.  If you'll notice, quite a few scripts are stuck in D
-state.  find_over_quota.sh (spawns repquota) runs every quarter hour,
-and remove_old_junkmail.sh (spawns the find stuck in D) runs 4 times per
-day.  It seems heavy disk IO can cause it, but it's hard to tell.
-
-Please do not hesitate to contact me for additional information.
-
-Regards,
-
-Dale Blount
-
+-- wli

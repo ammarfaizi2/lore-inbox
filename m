@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131980AbQKJW0f>; Fri, 10 Nov 2000 17:26:35 -0500
+	id <S131627AbQKJW0f>; Fri, 10 Nov 2000 17:26:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132012AbQKJW0Y>; Fri, 10 Nov 2000 17:26:24 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:35332 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S131983AbQKJW0Q>; Fri, 10 Nov 2000 17:26:16 -0500
-Message-ID: <3A0C7517.FB96CF08@timpanogas.org>
-Date: Fri, 10 Nov 2000 15:22:15 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: sendmail-bugs@Sendmail.ORG, linux-kernel@vger.kernel.org
+	id <S131980AbQKJW0Z>; Fri, 10 Nov 2000 17:26:25 -0500
+Received: from natted.Sendmail.COM ([63.211.143.38]:6226 "EHLO
+	wiz.Sendmail.COM") by vger.kernel.org with ESMTP id <S131627AbQKJW0Q>;
+	Fri, 10 Nov 2000 17:26:16 -0500
+Date: Fri, 10 Nov 2000 14:25:47 -0800
+From: Claus Assmann <sendmail+ca@sendmail.org>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>, sendmail-bugs@sendmail.org,
+        linux-kernel@vger.kernel.org
 Subject: Re: sendmail fails to deliver mail with attachments in /var/spool/mqueue
-In-Reply-To: <Pine.GSO.4.21.0011101712390.17943-100000@weyl.math.psu.edu>
+Message-ID: <20001110142547.F16213@sendmail.com>
+Reply-To: sendmail-bugs@sendmail.org
+In-Reply-To: <3A0C6E01.EFA10590@timpanogas.org> <Pine.LNX.4.21.0011101450060.11307-100000@dlang.diginsite.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.21.0011101450060.11307-100000@dlang.diginsite.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Alexander Viro wrote:
+On Fri, Nov 10, 2000, David Lang wrote:
+> how many CPUs in these high loadave boxes? unless you have a very
+> impressive machine (8+SMP) the defaults should be plenty high.
 > 
-> On Fri, 10 Nov 2000, Jeff V. Merkey wrote:
-> 
-> >
-> > Then perhaps qmail's time has finally come .... If sendmail cannot run
-> > on a machine with minimal background loading from a dozen or so FTP
-> > clients downloading files, it's clearly sick.  BTW.  I have another box
-> > running qmail, and it doesn't have these problems.
-> 
-> If you have permanently high load average - sure, you need to bump
-> the limits. Always had been that way, nothing to do with the kernel.
-> OTOH, I really don't see WTF are FTP clients giving that kind of LA -
-> unless you've got really thick pipe on a box, that is. If it's a server -
-> WTF are they doing there at all? And if it isn't... Nice connectivity
-> you have there.
+> also I thought the QueueLA default was 8 and the RefuseLA was 12 or have
+> they been bumped up since I last examined them (8.8/8.9 timeframes)
 
-I have dual T1 lines going into the box, and I just added a 4-way ADSL
-circuit as well (4 x 550K).  Claus claimed there were TCPIP timeout bugs
-in Linux (which we have now disproved).  Even despite the limits being
-low, a "sendmail -v -q" command should always force delivery, and this
-wasn't even working right.  This box gets hammered day and night with
-FTP activity.  Had to upgrade since I learned when you post a free Linux
-distriution, everyone beats a path to your door.   
+Those are the defaults. Jeff quoted the values from the .cf file
+I edited on his machine to get the e-mails through.
 
-Jeff
+> > We got to the bottom of the sendmail problem.  The line:
+> > 
+> >  -O QueueLA=20 
+> > 
+> > and
+> > 
+> >  -O RefuseLA=18
+
+Why does Linux report a LA of 10 if there are only two processes
+running?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

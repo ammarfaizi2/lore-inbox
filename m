@@ -1,79 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271721AbTHMJFe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 05:05:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271718AbTHMJFe
+	id S271713AbTHMJMD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 05:12:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271699AbTHMJMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 05:05:34 -0400
-Received: from smtp013.mail.yahoo.com ([216.136.173.57]:57359 "HELO
-	smtp013.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S271721AbTHMJF0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 05:05:26 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: Gerd Knorr <kraxel@bytesex.org>
-Subject: Re: [2.6-test3] bttv driver confuses PS2 mouse
-Date: Wed, 13 Aug 2003 11:05:09 +0200
-User-Agent: KMail/1.5.3
-References: <200308092104.48878.fsdeveloper@yahoo.de> <20030811121546.GA8998@bytesex.org> <200308111813.56558.fsdeveloper@yahoo.de>
-In-Reply-To: <200308111813.56558.fsdeveloper@yahoo.de>
-Cc: video4linux-list@redhat.com,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Wed, 13 Aug 2003 05:12:03 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:29098 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S271714AbTHMJL7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 05:11:59 -0400
+Message-ID: <020c01c3617a$f1b7ba00$4600a8c0@edumazet>
+From: "dada1" <dada1@cosmosbay.com>
+To: <linux-kernel@vger.kernel.org>
+References: <20030813013156.49200358.akpm@osdl.org>
+Subject: How to use hugetlb for the text of a program ?
+Date: Wed, 13 Aug 2003 11:11:54 +0200
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200308131105.21689.fsdeveloper@yahoo.de>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+x-mimeole: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi all
 
-Hi.
+I'm trying to use a 4Mo page on a i686 to map the text portion of a
+statically linked program.
+I used a link script to make the text mapped to 0x00400000
+The datas start at next 4M boundary (0x00800000)
 
-I'm running linux-2.6.0-test3 with this patch:
-(without the patch, bttv doesn't run)
-http://bytesex.org/patches/2.6.0-test3/patch-2.6.0-test3-kraxel.gz
+architecture: i386, flags 0x00000112:
+EXEC_P, HAS_SYMS, D_PAGED
+start address 0x00400100
 
-My tv application runs fine, but every few minutes, the
-bttv driver re-initializes itself:
+Program Header:
+    LOAD off    0x00000000 vaddr 0x00400000 paddr 0x00400000 align 2**12
+         filesz 0x00080ebc memsz 0x00080ebc flags r-x
+    LOAD off    0x00081000 vaddr 0x00800000 paddr 0x00800000 align 2**12
+         filesz 0x00005994 memsz 0x00047870 flags rw-
+    NOTE off    0x00000094 vaddr 0x00400094 paddr 0x00400094 align 2**2
+         filesz 0x00000020 memsz 0x00000020 flags r--
 
-Aug 12 23:36:29 lfs kernel: bttv0: IRQ lockup, cleared int mask
-Aug 12 23:36:29 lfs kernel: rtc: lost some interrupts at 1024Hz.
-Aug 12 23:36:29 lfs kernel: bttv0: timeout: risc=185357c4, bits: VSYNC HSYNC RISCI
-Aug 12 23:36:29 lfs kernel: bttv0: reset, reinitialize
-Aug 12 23:36:29 lfs kernel: bttv0: PLL: 28636363 => 35468950 .. ok
-Aug 12 23:37:33 lfs kernel: bttv0: skipped frame. no signal? high irq latency?
+Next, I tried to use the following function in a hope to copy the text into
+a single 4Mo page :
 
-Sometimes during this re-initialization, my
-ps/2 mouse looses synchronization:
+#include <sys/mman.h>
+#include <fcntl.h>
 
-Aug 12 23:37:33 lfs kernel: bttv0: IRQ lockup, cleared int mask
-Aug 12 23:37:33 lfs kernel: psmouse.c: Lost synchronization, throwing 2 bytes away.
-Aug 12 23:37:33 lfs kernel: bttv0: timeout: risc=08e8f9e4, bits: VSYNC HSYNC RISCI
-Aug 12 23:37:33 lfs kernel: bttv0: reset, reinitialize
-Aug 12 23:37:33 lfs kernel: bttv0: PLL: 28636363 => 35468950 .. ok
-Aug 12 23:37:33 lfs kernel: psmouse.c: Lost synchronization, throwing 2 bytes away.
-Aug 12 23:38:01 lfs kernel: bttv0: skipped frame. no signal? high irq latency?
+#define HUGESZ           0x400000   /* size of one 4M page*/
+#define TEXTSTART (char*)0x00400000 /* see ldscript */
 
-Then the mouse jumps randomly over the screen and I have to
-restart X.
+void hugerelocate()
+{
+int fd = open("/huge/textfile", O_RDWR | O_CREAT, 0644) ;
+char *ptr ;
+extern int _etext ;
+if (fd == -1) return ;
+ftruncate(fd, 0) ;
+ftruncate(fd, HUGESZ) ;
+ptr = mmap((char *)0x10000000, HUGESZ, PROT_READ|PROT_WRITE, MAP_SHARED, fd,
+0) ;
+if (ptr == (char *)1) { close(fd);return;}
+memcpy(ptr, TEXTSTART, (char *)&_etext - TEXTSTART) ;
+msync(ptr, HUGESZ, MS_SYNC) ;
+mmap(TEXTSTART, HUGESZ, PROT_READ|PROT_EXEC,
+MAP_SHARED|MAP_FIXED|MAP_POPULATE, fd, 0) ;
+close(fd) ;
+munmap(ptr, HUGESZ) ;
+}
 
-I'm running a bt878 card with tvtime as tv-app.
+The msync() call produces this kernel message (linux-2.6.0-test3)
+mm/msync.c:52: bad pmd 108000e7.
 
-I hope this helps.
+The problem I have is the last mmap(), trying to replace the program text by
+the 4M page, just kills the program.
 
-- -- 
-Regards Michael Buesch  [ http://www.8ung.at/tuxsoft ]
-Animals on this machine: some GNUs and Penguin 2.6.0-test3
+If I try to use a regular file (not on a hugetlbfs), the program is killed
+to.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+I tried other MAP_??? flags without success.
 
-iD8DBQE/Of9NoxoigfggmSgRAk/SAJ9QoyyjU9sM3m7vj2S6n5PnE7UeMACfRxk1
-Wid502ZTxWmhE6LxPGYMH7A=
-=uShv
------END PGP SIGNATURE-----
+Do you know if what I'm trying to do is possible ? ie is a hugetlb page OK
+with PROT_EXEC ?
+
+Alternatives :
+
+- I was thinking to write a special loader to load the program, but I dont
+know how to cope with the brk()
+
+- A combination of a linker/kernel new feature :
+    ELF tagged program to ask the kernel to use 4Mo pages if possible to
+load the text of a program from the executable file, instead of mapping it
+(only for superuser users)
+
+Thanks
+
+Eric Dumazet
 

@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288809AbSANSyW>; Mon, 14 Jan 2002 13:54:22 -0500
+	id <S288891AbSANS5G>; Mon, 14 Jan 2002 13:57:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288862AbSANSyS>; Mon, 14 Jan 2002 13:54:18 -0500
-Received: from mail.myrio.com ([63.109.146.2]:31217 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S288809AbSANSx1> convert rfc822-to-8bit;
-	Mon, 14 Jan 2002 13:53:27 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] Rx FIFO Overrun error found
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-Date: Mon, 14 Jan 2002 10:52:17 -0800
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CB2D@mail0.myrio.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Rx FIFO Overrun error found
-Thread-Index: AcGdIgapp60g6HV5Tp6wzqBA9yB8NgAA/UdA
-From: "Torrey Hoffman" <torrey.hoffman@myrio.com>
-To: "Manfred Spraul" <manfred@colorfullife.com>,
-        "Jeff Garzik" <jgarzik@mandrakesoft.com>
-Cc: "Tim Hockin" <thockin@sun.com>, <linux-kernel@vger.kernel.org>
+	id <S288834AbSANS4T>; Mon, 14 Jan 2002 13:56:19 -0500
+Received: from h24-71-103-168.ss.shawcable.net ([24.71.103.168]:42504 "HELO
+	discworld.dyndns.org") by vger.kernel.org with SMTP
+	id <S288891AbSANSza>; Mon, 14 Jan 2002 13:55:30 -0500
+Date: Mon, 14 Jan 2002 12:55:08 -0600
+From: Charles Cazabon <charlesc@discworld.dyndns.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Eli Carter <eli.carter@inet.com>,
+        "Michael Lazarou \(ETL\)" <Michael.Lazarou@etl.ericsson.se>
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Message-ID: <20020114125508.A3358@twoflower.internal.do>
+In-Reply-To: <20020114125228.B14747@thyrsus.com> <E16QBwD-0002So-00@the-village.bc.nu> <20020114132618.G14747@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020114132618.G14747@thyrsus.com>; from esr@thyrsus.com on Mon, Jan 14, 2002 at 01:26:18PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric S. Raymond <esr@thyrsus.com> wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > Now to do everything you describe does not need her to configure a custom
+> > kernel tree. Not one bit. You think apt or up2date build each user a custom
+> > kernel tree ?
+> 
+> Is it OK in your world that Aunt Tillie is dependent on a distro maker?  Is
+> it OK that she never gets to have a kernel compiled for anything above the
+> least-common-denominator chip?  
 
-Manfred Spraul wrote, and my ears perked up:
-...
-> Attached is the patch against the nic hang. Now all rx error bits
-> trigger netdev_rx - it doesn't hurt and could catch further hardware
-> oddities.
+Yes, and yes.  Aunt Tillie is running Linux because someone installed a
+distribution for her.
 
-hello natsemi-users ...  
+She is never going to need anything out of her kernel that her vendor-shipped
+update kernels do not provide.  She is never going to need the 1% performance
+difference she might she if she custom-compiled a kernel for her architecture
+rather than using the closest one shipped by her vendor.
 
-We've been having difficult-to-reproduce problems with IP 
-multicast receive on our natsemi hardware, could this be 
-related?
+> But the point of this game is for Aunt Tillie to have more and better
+> choices.  Isn't that what we're supposed to be about?
 
-Our application receives an IP multicast stream (MPEG-2
-video) at about 4 Mb/sec, and sometimes, randomly, 
-multicast packets just stop showing up at the app layer.
-This typically happens after hours of no problems.
-(Kernel is 2.4.16 with low-latency patch)
+No.  We're supposed to be about stuff that works.  Vendor-shipped kernels work
+for 99.9% of people.  The remaining 0.1% have no need for an
+"auto-configurator".
 
-When this happens, tcpdump on the same machine doesn't 
-see the multicast packets either, but: TCP connections 
-like FTP still work fine, and other machines on the same 
-hub still see the multicast traffic, so we are sure the 
-packets are on the wire.
-
-Our app detects the unexpected loss of the stream and 
-repeatedly does multicast joins to try to get it back, 
-but this does not seem to help.  However, switching to a 
-different IP multicast address works - if we change to
-a different channel and then back again, everything
-will work again... until next time.
-
-I wonder if the multicast hash table is getting corrupted 
-somehow...
-
-Maybe I should force the multicast hash table to be
-rebuilt on any rx error?
-
-Advice welcome, even suggestions on where to put printk
-statements...
-
-Torrey
-
+Charles
+-- 
+-----------------------------------------------------------------------
+Charles Cazabon                         <charlesc@discworld.dyndns.org>
+GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
+-----------------------------------------------------------------------

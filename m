@@ -1,288 +1,293 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbVCIWUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262487AbVCIWUI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbVCIWUP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 17:20:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbVCIWRP
+	id S262487AbVCIWUI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 17:20:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbVCIWSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 17:17:15 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:2046 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262117AbVCIWJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 17:09:33 -0500
-Date: Wed, 9 Mar 2005 22:08:46 +0000 (GMT)
+	Wed, 9 Mar 2005 17:18:40 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:5106 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262116AbVCIWIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 17:08:54 -0500
+Date: Wed, 9 Mar 2005 22:08:11 +0000 (GMT)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/15] ptwalk: unuse_mm
+Subject: [PATCH 3/15] ptwalk: sync_page_range
 In-Reply-To: <Pine.LNX.4.61.0503092201070.6070@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0503092208170.6070@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0503092207250.6070@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0503092201070.6070@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Convert unuse_process pagetable walkers to loops using p?d_addr_end; but
-correct its name to unuse_mm, rename its levels to _range as elsewhere.
+Convert filemap_sync pagetable walkers to loops using p?d_addr_end; use
+similar loop to split filemap_sync into chunks.  Merge filemap_sync_pte
+into sync_pte_range, cut filemap_ off the longer names, vma arg first.
 
-Leave unuse_pte out-of-line since it's so rarely called; but move the
-funny activate_page inside it.  foundaddr was a leftover from before: we
-still want to break out once page is found, but no need to pass addr up.
-And we need not comment on the page_table_lock at every level.
-
-Whereas most objects shrink ~200 bytes text, swapfile.o grows slightly:
-it had earlier been converted to the addr,end style to fix a 4level bug.
+There is no error from filemap_sync, nor is any use made of the flags:
+if it should do something else for MS_INVALIDATE, reinstate it when that
+is implemented.  Remove the redundant flush_tlb_range from afterwards:
+as its comment noted, each dirty pte has already been flushed.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- mm/swapfile.c |  148 +++++++++++++++++++++-------------------------------------
- 1 files changed, 56 insertions(+), 92 deletions(-)
+ mm/msync.c |  180 ++++++++++++++++++++++---------------------------------------
+ 1 files changed, 67 insertions(+), 113 deletions(-)
 
---- ptwalk3/mm/swapfile.c	2005-03-09 01:35:49.000000000 +0000
-+++ ptwalk4/mm/swapfile.c	2005-03-09 01:36:25.000000000 +0000
-@@ -412,154 +412,121 @@ void free_swap_and_cache(swp_entry_t ent
- }
- 
- /*
-- * The swap entry has been read in advance, and we return 1 to indicate
-- * that the page has been used or is no longer needed.
-- *
-  * Always set the resulting pte to be nowrite (the same as COW pages
-  * after one process has exited).  We don't know just how many PTEs will
-  * share this swap entry, so be cautious and let do_wp_page work out
-  * what to do if a write is requested later.
-+ *
-+ * vma->vm_mm->page_table_lock is held.
+--- ptwalk2/mm/msync.c	2005-03-09 01:35:49.000000000 +0000
++++ ptwalk3/mm/msync.c	2005-03-09 01:36:14.000000000 +0000
+@@ -21,155 +21,109 @@
+  * Called with mm->page_table_lock held to protect against other
+  * threads/the swapper from ripping pte's out from under us.
   */
--/* vma->vm_mm->page_table_lock is held */
--static void
--unuse_pte(struct vm_area_struct *vma, unsigned long address, pte_t *dir,
--	swp_entry_t entry, struct page *page)
-+static void unuse_pte(struct vm_area_struct *vma, pte_t *pte,
-+		unsigned long addr, swp_entry_t entry, struct page *page)
- {
- 	vma->vm_mm->rss++;
- 	get_page(page);
--	set_pte_at(vma->vm_mm, address, dir,
-+	set_pte_at(vma->vm_mm, addr, pte,
- 		   pte_mkold(mk_pte(page, vma->vm_page_prot)));
--	page_add_anon_rmap(page, vma, address);
-+	page_add_anon_rmap(page, vma, addr);
- 	swap_free(entry);
-+	/*
-+	 * Move the page to the active list so it is not
-+	 * immediately swapped out again after swapon.
-+	 */
-+	activate_page(page);
- }
+-static int filemap_sync_pte(pte_t *ptep, struct vm_area_struct *vma,
+-	unsigned long address, unsigned int flags)
+-{
+-	pte_t pte = *ptep;
+-	unsigned long pfn = pte_pfn(pte);
+-	struct page *page;
  
--/* vma->vm_mm->page_table_lock is held */
--static unsigned long unuse_pmd(struct vm_area_struct *vma, pmd_t *dir,
--	unsigned long address, unsigned long end,
--	swp_entry_t entry, struct page *page)
-+static int unuse_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
-+				unsigned long addr, unsigned long end,
-+				swp_entry_t entry, struct page *page)
+-	if (pte_present(pte) && pfn_valid(pfn)) {
+-		page = pfn_to_page(pfn);
+-		if (!PageReserved(page) &&
+-		    (ptep_clear_flush_dirty(vma, address, ptep) ||
+-		     page_test_and_clear_dirty(page)))
+-			set_page_dirty(page);
+-	}
+-	return 0;
+-}
+-
+-static int filemap_sync_pte_range(pmd_t * pmd,
+-	unsigned long address, unsigned long end, 
+-	struct vm_area_struct *vma, unsigned int flags)
++static void sync_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
++				unsigned long addr, unsigned long end)
  {
  	pte_t *pte;
- 	pte_t swp_pte = swp_entry_to_pte(entry);
+-	int error;
  
--	if (pmd_none_or_clear_bad(dir))
-+	if (pmd_none_or_clear_bad(pmd))
- 		return 0;
--	pte = pte_offset_map(dir, address);
+ 	if (pmd_none_or_clear_bad(pmd))
+-		return 0;
+-	pte = pte_offset_map(pmd, address);
+-	if ((address & PMD_MASK) != (end & PMD_MASK))
+-		end = (address & PMD_MASK) + PMD_SIZE;
+-	error = 0;
++		return;
 +	pte = pte_offset_map(pmd, addr);
  	do {
- 		/*
- 		 * swapoff spends a _lot_ of time in this loop!
- 		 * Test inline before going to call unuse_pte.
- 		 */
- 		if (unlikely(pte_same(*pte, swp_pte))) {
--			unuse_pte(vma, address, pte, entry, page);
-+			unuse_pte(vma, pte, addr, entry, page);
- 			pte_unmap(pte);
--
--			/*
--			 * Move the page to the active list so it is not
--			 * immediately swapped out again after swapon.
--			 */
--			activate_page(page);
--
--			/* add 1 since address may be 0 */
--			return 1 + address;
-+			return 1;
- 		}
+-		error |= filemap_sync_pte(pte, vma, address, flags);
 -		address += PAGE_SIZE;
 -		pte++;
--	} while (address < end);
+-	} while (address && (address < end));
++		unsigned long pfn;
++		struct page *page;
+ 
+-	pte_unmap(pte - 1);
++		if (!pte_present(*pte))
++			continue;
++		pfn = pte_pfn(*pte);
++		if (!pfn_valid(pfn))
++			continue;
++		page = pfn_to_page(pfn);
++		if (PageReserved(page))
++			continue;
+ 
+-	return error;
++		if (ptep_clear_flush_dirty(vma, addr, pte) ||
++		    page_test_and_clear_dirty(page))
++			set_page_dirty(page);
 +	} while (pte++, addr += PAGE_SIZE, addr != end);
- 	pte_unmap(pte - 1);
- 	return 0;
++	pte_unmap(pte - 1);
  }
  
--/* vma->vm_mm->page_table_lock is held */
--static unsigned long unuse_pud(struct vm_area_struct *vma, pud_t *pud,
--        unsigned long address, unsigned long end,
--	swp_entry_t entry, struct page *page)
-+static int unuse_pmd_range(struct vm_area_struct *vma, pud_t *pud,
-+				unsigned long addr, unsigned long end,
-+				swp_entry_t entry, struct page *page)
+-static inline int filemap_sync_pmd_range(pud_t * pud,
+-	unsigned long address, unsigned long end, 
+-	struct vm_area_struct *vma, unsigned int flags)
++static inline void sync_pmd_range(struct vm_area_struct *vma, pud_t *pud,
++				unsigned long addr, unsigned long end)
  {
- 	pmd_t *pmd;
- 	unsigned long next;
--	unsigned long foundaddr;
+-	pmd_t * pmd;
+-	int error;
++	pmd_t *pmd;
++	unsigned long next;
  
  	if (pud_none_or_clear_bad(pud))
- 		return 0;
+-		return 0;
 -	pmd = pmd_offset(pud, address);
+-	if ((address & PUD_MASK) != (end & PUD_MASK))
+-		end = (address & PUD_MASK) + PUD_SIZE;
+-	error = 0;
++		return;
 +	pmd = pmd_offset(pud, addr);
  	do {
--		next = (address + PMD_SIZE) & PMD_MASK;
--		if (next > end || !next)
--			next = end;
--		foundaddr = unuse_pmd(vma, pmd, address, next, entry, page);
--		if (foundaddr)
--			return foundaddr;
--		address = next;
+-		error |= filemap_sync_pte_range(pmd, address, end, vma, flags);
+-		address = (address + PMD_SIZE) & PMD_MASK;
 -		pmd++;
--	} while (address < end);
+-	} while (address && (address < end));
+-	return error;
 +		next = pmd_addr_end(addr, end);
-+		if (unuse_pte_range(vma, pmd, addr, next, entry, page))
-+			return 1;
++		sync_pte_range(vma, pmd, addr, next);
 +	} while (pmd++, addr = next, addr != end);
- 	return 0;
  }
  
--/* vma->vm_mm->page_table_lock is held */
--static unsigned long unuse_pgd(struct vm_area_struct *vma, pgd_t *pgd,
+-static inline int filemap_sync_pud_range(pgd_t *pgd,
 -	unsigned long address, unsigned long end,
--	swp_entry_t entry, struct page *page)
-+static int unuse_pud_range(struct vm_area_struct *vma, pgd_t *pgd,
-+				unsigned long addr, unsigned long end,
-+				swp_entry_t entry, struct page *page)
+-	struct vm_area_struct *vma, unsigned int flags)
++static inline void sync_pud_range(struct vm_area_struct *vma, pgd_t *pgd,
++				unsigned long addr, unsigned long end)
  {
  	pud_t *pud;
- 	unsigned long next;
--	unsigned long foundaddr;
+-	int error;
++	unsigned long next;
  
  	if (pgd_none_or_clear_bad(pgd))
- 		return 0;
+-		return 0;
 -	pud = pud_offset(pgd, address);
+-	if ((address & PGDIR_MASK) != (end & PGDIR_MASK))
+-		end = (address & PGDIR_MASK) + PGDIR_SIZE;
+-	error = 0;
++		return;
 +	pud = pud_offset(pgd, addr);
  	do {
--		next = (address + PUD_SIZE) & PUD_MASK;
--		if (next > end || !next)
--			next = end;
--		foundaddr = unuse_pud(vma, pud, address, next, entry, page);
--		if (foundaddr)
--			return foundaddr;
--		address = next;
+-		error |= filemap_sync_pmd_range(pud, address, end, vma, flags);
+-		address = (address + PUD_SIZE) & PUD_MASK;
 -		pud++;
--	} while (address < end);
+-	} while (address && (address < end));
+-	return error;
 +		next = pud_addr_end(addr, end);
-+		if (unuse_pmd_range(vma, pud, addr, next, entry, page))
-+			return 1;
++		sync_pmd_range(vma, pud, addr, next);
 +	} while (pud++, addr = next, addr != end);
- 	return 0;
  }
  
--/* vma->vm_mm->page_table_lock is held */
--static unsigned long unuse_vma(struct vm_area_struct *vma,
--	swp_entry_t entry, struct page *page)
-+static int unuse_vma(struct vm_area_struct *vma,
-+				swp_entry_t entry, struct page *page)
+-static int __filemap_sync(struct vm_area_struct *vma, unsigned long address,
+-			size_t size, unsigned int flags)
++static void sync_page_range(struct vm_area_struct *vma,
++				unsigned long addr, unsigned long end)
  {
++	struct mm_struct *mm = vma->vm_mm;
  	pgd_t *pgd;
--	unsigned long address, next, end;
--	unsigned long foundaddr;
-+	unsigned long addr, end, next;
- 
- 	if (page->mapping) {
--		address = page_address_in_vma(page, vma);
--		if (address == -EFAULT)
-+		addr = page_address_in_vma(page, vma);
-+		if (addr == -EFAULT)
- 			return 0;
- 		else
--			end = address + PAGE_SIZE;
-+			end = addr + PAGE_SIZE;
- 	} else {
--		address = vma->vm_start;
-+		addr = vma->vm_start;
- 		end = vma->vm_end;
- 	}
+-	unsigned long end = address + size;
+ 	unsigned long next;
+-	int i;
+-	int error = 0;
+-
+-	/* Aquire the lock early; it may be possible to avoid dropping
+-	 * and reaquiring it repeatedly.
+-	 */
+-	spin_lock(&vma->vm_mm->page_table_lock);
+-
 -	pgd = pgd_offset(vma->vm_mm, address);
-+
-+	pgd = pgd_offset(vma->vm_mm, addr);
- 	do {
+-	flush_cache_range(vma, address, end);
+ 
+ 	/* For hugepages we can't go walking the page table normally,
+ 	 * but that's ok, hugetlbfs is memory based, so we don't need
+ 	 * to do anything more on an msync() */
+ 	if (is_vm_hugetlb_page(vma))
+-		goto out;
+-
+-	if (address >= end)
+-		BUG();
+-	for (i = pgd_index(address); i <= pgd_index(end-1); i++) {
 -		next = (address + PGDIR_SIZE) & PGDIR_MASK;
--		if (next > end || !next)
+-		if (next <= address || next > end)
 -			next = end;
--		foundaddr = unuse_pgd(vma, pgd, address, next, entry, page);
--		if (foundaddr)
--			return foundaddr;
+-		error |= filemap_sync_pud_range(pgd, address, next, vma, flags);
 -		address = next;
 -		pgd++;
--	} while (address < end);
+-	}
+-	/*
+-	 * Why flush ? filemap_sync_pte already flushed the tlbs with the
+-	 * dirty bits.
+-	 */
+-	flush_tlb_range(vma, end - size, end);
+- out:
+-	spin_unlock(&vma->vm_mm->page_table_lock);
++		return;
+ 
+-	return error;
++	BUG_ON(addr >= end);
++	pgd = pgd_offset(mm, addr);
++	flush_cache_range(vma, addr, end);
++	spin_lock(&mm->page_table_lock);
++	do {
 +		next = pgd_addr_end(addr, end);
-+		if (unuse_pud_range(vma, pgd, addr, next, entry, page))
-+			return 1;
++		sync_pud_range(vma, pgd, addr, next);
 +	} while (pgd++, addr = next, addr != end);
- 	return 0;
++	spin_unlock(&mm->page_table_lock);
  }
  
--static int unuse_process(struct mm_struct * mm,
--			swp_entry_t entry, struct page* page)
-+static int unuse_mm(struct mm_struct *mm,
-+				swp_entry_t entry, struct page *page)
+ #ifdef CONFIG_PREEMPT
+-static int filemap_sync(struct vm_area_struct *vma, unsigned long address,
+-			size_t size, unsigned int flags)
++static void filemap_sync(struct vm_area_struct *vma,
++				unsigned long addr, unsigned long end)
  {
--	struct vm_area_struct* vma;
--	unsigned long foundaddr = 0;
-+	struct vm_area_struct *vma;
+ 	const size_t chunk = 64 * 1024;	/* bytes */
+-	int error = 0;
+-
+-	while (size) {
+-		size_t sz = min(size, chunk);
++	unsigned long next;
  
--	/*
--	 * Go through process' page directory.
--	 */
- 	if (!down_read_trylock(&mm->mmap_sem)) {
- 		/*
- 		 * Our reference to the page stops try_to_unmap_one from
-@@ -571,16 +538,13 @@ static int unuse_process(struct mm_struc
- 	}
- 	spin_lock(&mm->page_table_lock);
- 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
--		if (vma->anon_vma) {
--			foundaddr = unuse_vma(vma, entry, page);
--			if (foundaddr)
--				break;
--		}
-+		if (vma->anon_vma && unuse_vma(vma, entry, page))
-+			break;
- 	}
- 	spin_unlock(&mm->page_table_lock);
- 	up_read(&mm->mmap_sem);
- 	/*
--	 * Currently unuse_process cannot fail, but leave error handling
-+	 * Currently unuse_mm cannot fail, but leave error handling
- 	 * at call sites for now, since we change it from time to time.
- 	 */
- 	return 0;
-@@ -724,7 +688,7 @@ static int try_to_unuse(unsigned int typ
- 			if (start_mm == &init_mm)
- 				shmem = shmem_unuse(entry, page);
- 			else
--				retval = unuse_process(start_mm, entry, page);
-+				retval = unuse_mm(start_mm, entry, page);
- 		}
- 		if (*swap_map > 1) {
- 			int set_start_mm = (*swap_map >= swcount);
-@@ -756,7 +720,7 @@ static int try_to_unuse(unsigned int typ
- 					set_start_mm = 1;
- 					shmem = shmem_unuse(entry, page);
- 				} else
--					retval = unuse_process(mm, entry, page);
-+					retval = unuse_mm(mm, entry, page);
- 				if (set_start_mm && *swap_map < swcount) {
- 					mmput(new_start_mm);
- 					atomic_inc(&mm->mm_users);
+-		error |= __filemap_sync(vma, address, sz, flags);
++	do {
++		next = addr + chunk;
++		if (next > end || next < addr)
++			next = end;
++		sync_page_range(vma, addr, next);
+ 		cond_resched();
+-		address += sz;
+-		size -= sz;
+-	}
+-	return error;
++	} while (addr = next, addr != end);
+ }
+ #else
+-static int filemap_sync(struct vm_area_struct *vma, unsigned long address,
+-			size_t size, unsigned int flags)
++static void filemap_sync(struct vm_area_struct *vma,
++				unsigned long addr, unsigned long end)
+ {
+-	return __filemap_sync(vma, address, size, flags);
++	sync_page_range(vma, addr, end);
+ }
+ #endif
+ 
+@@ -184,19 +138,19 @@ static int filemap_sync(struct vm_area_s
+  * So my _not_ starting I/O in MS_ASYNC we provide complete flexibility to
+  * applications.
+  */
+-static int msync_interval(struct vm_area_struct * vma,
+-	unsigned long start, unsigned long end, int flags)
++static int msync_interval(struct vm_area_struct *vma,
++			unsigned long addr, unsigned long end, int flags)
+ {
+ 	int ret = 0;
+-	struct file * file = vma->vm_file;
++	struct file *file = vma->vm_file;
+ 
+ 	if ((flags & MS_INVALIDATE) && (vma->vm_flags & VM_LOCKED))
+ 		return -EBUSY;
+ 
+ 	if (file && (vma->vm_flags & VM_SHARED)) {
+-		ret = filemap_sync(vma, start, end-start, flags);
++		filemap_sync(vma, addr, end);
+ 
+-		if (!ret && (flags & MS_SYNC)) {
++		if (flags & MS_SYNC) {
+ 			struct address_space *mapping = file->f_mapping;
+ 			int err;
+ 
+@@ -221,7 +175,7 @@ static int msync_interval(struct vm_area
+ asmlinkage long sys_msync(unsigned long start, size_t len, int flags)
+ {
+ 	unsigned long end;
+-	struct vm_area_struct * vma;
++	struct vm_area_struct *vma;
+ 	int unmapped_error, error = -EINVAL;
+ 
+ 	if (flags & MS_SYNC)

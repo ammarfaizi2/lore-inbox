@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267457AbSLEVJ7>; Thu, 5 Dec 2002 16:09:59 -0500
+	id <S267448AbSLEVM1>; Thu, 5 Dec 2002 16:12:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267455AbSLEVJN>; Thu, 5 Dec 2002 16:09:13 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21767 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267429AbSLEVI7>; Thu, 5 Dec 2002 16:08:59 -0500
-Message-ID: <3DEFC1E8.6070408@zytor.com>
-Date: Thu, 05 Dec 2002 13:15:20 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021119
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Large block device patch, part 1 of 9
-References: <p73u1l7qbxs.fsf@oldwotan.suse.de> <Pine.LNX.4.44.0209030113420.12861-100000@kiwi.transmeta.com> <asgsir$p18$1@cesium.transmeta.com> <20021205105817.GC127@elf.ucw.cz>
-In-Reply-To: <20021205105817.GC127@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267425AbSLEVEK>; Thu, 5 Dec 2002 16:04:10 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:18692 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267436AbSLEU50>;
+	Thu, 5 Dec 2002 15:57:26 -0500
+Date: Thu, 5 Dec 2002 11:42:03 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Manish Lachwani <manish@Zambeel.com>
+Cc: "'Jeff Garzik'" <jgarzik@pobox.com>, hps@intermeta.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: LM sensors into kernel?
+Message-ID: <20021205104203.GB127@elf.ucw.cz>
+References: <233C89823A37714D95B1A891DE3BCE5202AB1A69@xch-a.win.zambeel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <233C89823A37714D95B1A891DE3BCE5202AB1A69@xch-a.win.zambeel.com>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
->>
->>While we're talking about printk()... is there any reason *not* to
->>rename it printf()?
-> 
-> I believe printf() is good idea. I put printk() into userland programs
-> too many times now, and used printf() too many times from kernel.
- >
+Hi!
 
-The only reason I can think of *not* to call it printf() is that you may 
-want to do something for userspace testing like:
+> Sometime back, I had put the sensors support in the 2.4.17 SMP kernel. It
+> did not give me any problems and we have been using it successfully. The
+> following are some of the details:
 
-#define printk(X, Y...) fprintf(stderr, X, ## Y)
+There's port to 2.5.49 available from lm_sensors website... Seems to
+work okay.
+								Pavel
 
-	-hpa
-
-
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

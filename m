@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262978AbUCXCpx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 21:45:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbUCXCpx
+	id S262986AbUCXCr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 21:47:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbUCXCr1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 21:45:53 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:52626 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262978AbUCXCpv convert rfc822-to-8bit (ORCPT
+	Tue, 23 Mar 2004 21:47:27 -0500
+Received: from fep01-mail.bloor.is.net.cable.rogers.com ([66.185.86.71]:36424
+	"EHLO fep01-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S262986AbUCXCrW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 21:45:51 -0500
-content-class: urn:content-classes:message
+	Tue, 23 Mar 2004 21:47:22 -0500
+From: "Shawn Starr" <shawn.starr@rogers.com>
+To: "'Kai Makisara'" <Kai.Makisara@kolumbus.fi>,
+       "'Andrew Morton'" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [PANIC][2.6.5-rc2-bk1] st_probe - Detection of a SCSI tape drive (HP Colorado T4000s) - Dump included now - Resolved
+Date: Tue, 23 Mar 2004 21:50:51 -0500
+Message-ID: <000101c4114a$d160ca50$030aa8c0@PANIC>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: PCI bug?
-Date: Wed, 24 Mar 2004 10:45:47 +0800
-Message-ID: <571ACEFD467F7749BC50E0A98C17CDD803300BA2@PDSMSX403.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PCI bug?
-Thread-Index: AcQRShyVGf0yYHsFTlmdKvULF/JHmA==
-From: "Li, Shaohua" <shaohua.li@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Greg KH" <greg@kroah.com>
-X-OriginalArrivalTime: 24 Mar 2004 02:45:48.0516 (UTC) FILETIME=[1D025240:01C4114A]
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+Importance: Normal
+In-Reply-To: <Pine.LNX.4.58.0403222004170.1092@kai.makisara.local>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep01-mail.bloor.is.net.cable.rogers.com from [67.60.40.239] using ID <shawn.starr@rogers.com> at Tue, 23 Mar 2004 21:46:36 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have two questions.There are one p2p bridge and 2 card bus bridges
-under the p2p bridge. Firmware assign 8 for p2p bridge's subordinate bus
-number. Since the bridge has default bridge number, PCI will not assign
-again. But PCI does assign bus number 3~6 and 7~10 to the cardbus
-bridge. And it's oversized. I must add pci=assign-busses. I guess many
-systems with cardbus bridge have the problem. My question is if
-pci=assign-busses should be the default behave.
+Yes, I can confirm this is fixed in -bk2,-bk3
 
-And another question. Some bridges allocate many bus numbers, but they
-don't use them right
-now. A case is cardbus bridge. So should pci_bus_max_busnr return max
-allocated bus number?
+-----Original Message-----
+From: Kai Makisara [mailto:Kai.Makisara@kolumbus.fi] 
+Sent: Monday, March 22, 2004 01:05 PM
+To: Shawn Starr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PANIC][2.6.5-rc2-bk1] st_probe - Detection of a SCSI tape
+drive (HP Colorado T4000s) - Dump included now
 
-pci_bus_max_busnr(struct pci_bus* bus)
-{
-	struct list_head *tmp;
-	unsigned char max, n;
 
--	max = bus->number;
-+	max = bus->subordinate;
-	list_for_each(tmp, &bus->children) {
-		n = pci_bus_max_busnr(pci_bus_b(tmp));
-		if(n > max)
-			max = n;
-	}
-	return max;
-}
+On Sun, 21 Mar 2004, Shawn Starr wrote:
 
-thanks,
-David
+> Here is the captured dump, the st driver appears to be broken:
+> 
+Please try 2.6.5-rc2-bk2, it includes a change that should fix this.
+
+-- 
+Kai
+

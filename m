@@ -1,86 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264088AbUFKPqo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUFKPwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264088AbUFKPqo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 11:46:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbUFKPqn
+	id S264085AbUFKPwF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 11:52:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264096AbUFKPwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 11:46:43 -0400
-Received: from smtp-out2.blueyonder.co.uk ([195.188.213.5]:47915 "EHLO
-	smtp-out2.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S264088AbUFKPqO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 11:46:14 -0400
-Message-ID: <40C9D3C1.4040108@blueyonder.co.uk>
-Date: Fri, 11 Jun 2004 16:46:09 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-CC: Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc2-mm1 (nforce2 lockup)
-References: <A6974D8E5F98D511BB910002A50A6647615FD33E@hdsmsx403.hd.intel.com> <200406050937.29163.bjorn.helgaas@hp.com> <40C2444B.4080403@blueyonder.co.uk> <200406101651.23895.bjorn.helgaas@hp.com>
-In-Reply-To: <200406101651.23895.bjorn.helgaas@hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 11 Jun 2004 11:52:04 -0400
+Received: from gate.crashing.org ([63.228.1.57]:18097 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264085AbUFKPwC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 11:52:02 -0400
+Subject: Re: [PATCH][RFC] Spinlock-timeout
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jake Moilanen <moilanen@austin.ibm.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Jan-Benedict Glaw <jbglaw@lug-owl.de>
+In-Reply-To: <1086962704.3476.53.camel@dyn95394175.austin.ibm.com>
+References: <1086467486.20906.59.camel@dhcp-client215.upt.austin.ibm.com>
+	 <1086560618.10538.32.camel@gaston>
+	 <1086962704.3476.53.camel@dyn95394175.austin.ibm.com>
+Content-Type: text/plain
+Message-Id: <1086968975.1885.11.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 11 Jun 2004 10:49:36 -0500
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Jun 2004 15:46:14.0465 (UTC) FILETIME=[3A155B10:01C44FCB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch applied, boot with "lnoapic" and without works. In 
-/var/log/boot.msg there were lines saying "APIC enabled" and "APIC probe 
-not done" with option "lnoapic", sorry I didn't save boot.msg that time.
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-Regards
-Sid.
 
-Bjorn Helgaas wrote:
-
->Hi Sid,
->
->Can you try the attached patch, please?  I reproduced the problem on
->my Proliant DL360, and this patch fixes it for me.
->
->The problem was that drivers/serial/8250_acpi.c found COM1 in the
->ACPI namespace and called acpi_register_gsi() to set up its IRQ.
->ACPI tells us that the COM1 IRQ is edge triggered, active high,
->but acpi_register_gsi() was ignoring the edge_level argument,
->so it blindly set the COM1 IRQ to be level-triggered.
->
->This is against 2.6.7-rc3-mm1.
->
->diff -u -Nur linux-2.6.7-rc3-mm1.orig/arch/i386/kernel/acpi/boot.c linux-2.6.7-rc3-mm1/arch/i386/kernel/acpi/boot.c
->--- linux-2.6.7-rc3-mm1.orig/arch/i386/kernel/acpi/boot.c	2004-06-10 16:26:55.000000000 -0600
->+++ linux-2.6.7-rc3-mm1/arch/i386/kernel/acpi/boot.c	2004-06-10 16:30:22.000000000 -0600
->@@ -451,10 +451,12 @@
-> 		static u16 irq_mask;
-> 		extern void eisa_set_level_irq(unsigned int irq);
+> Here's a revision to the patch that uses a HAVE_ARCH_GET_TB to allow
+> archs use their timebases if they have one, and if they don't, it uses
+> jiffies.  time_after_eq() is used to do the jiffy checking.
 > 
->-		if ((gsi < 16) && !((1 << gsi) & irq_mask)) {
->-			Dprintk(KERN_DEBUG PREFIX "Setting GSI %u as level-triggered\n", gsi);
->-			irq_mask |= (1 << gsi);
->-			eisa_set_level_irq(gsi);
->+		if (edge_level == ACPI_LEVEL_SENSITIVE) {
->+			if ((gsi < 16) && !((1 << gsi) & irq_mask)) {
->+				Dprintk(KERN_DEBUG PREFIX "Setting GSI %u as level-triggered\n", gsi);
->+				irq_mask |= (1 << gsi);
->+				eisa_set_level_irq(gsi);
->+			}
-> 		}
-> 	}
-> #endif
->
->
->
->  
->
+> I also left all of the arch/*/Kconfig changes in until a debug Kconfig
+> is done.  I pretty much added in the spinlock timeout on all archs that
+> have CONFIG_DEBUG_SPINLOCK.  If I missed your arch, I'm sorry.    
 
+Nah, that's not how the abstraction should be done. Much simpler in
+fact. Just do something like this in the generic code:
 
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-===== LINUX ONLY USED HERE =====
+#ifndef ARCH_HAS_SPINLOCK_TIMEOUT
+#define get_spinlock_timeout() (jiffies + (SPINLOCK_TIMEOUT * HZ))
+#define check_spinlock_timeout(timeout) (time_after_eq(jiffies, timeout))
+#endif
+
+That's all. Then, any arch who has it's own implementation of these 2
+function will #define ARCH_HAS_SPINLOCK_TIMEOUT and implement them the
+way it wants. We shouldn't let anything like get_tb() slip into a common
+file, it's totally PPC specific. Other archs may have different counters
+they can use to impement the same thing. That part should be entirely
+self contained in asm-xxx
+
+Ben.
+
 

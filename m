@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271697AbRIDRFs>; Tue, 4 Sep 2001 13:05:48 -0400
+	id <S272015AbRIDRGs>; Tue, 4 Sep 2001 13:06:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272015AbRIDRFj>; Tue, 4 Sep 2001 13:05:39 -0400
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:49604 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S271697AbRIDRF1>; Tue, 4 Sep 2001 13:05:27 -0400
-Importance: Normal
-Subject: Re: [SOLVED + PATCH]: documented Oops running big-endian reiserfs on parisc
- architecture
-To: John Alvord <jalvo@mbay.net>
-Cc: Jeff Mahoney <jeffm@suse.com>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OFF77409CC.FF70C78C-ONC1256ABD.005CEB95@de.ibm.com>
-From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
-Date: Tue, 4 Sep 2001 19:04:37 +0200
-X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.8 |June 18, 2001) at
- 04/09/2001 19:04:42
+	id <S272019AbRIDRGi>; Tue, 4 Sep 2001 13:06:38 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:24572 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S272015AbRIDRG0>;
+	Tue, 4 Sep 2001 13:06:26 -0400
+From: David Mosberger <davidm@hpl.hp.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15253.2580.147168.364079@napali.hpl.hp.com>
+Date: Tue, 4 Sep 2001 10:06:28 -0700
+To: Richard Henderson <rth@twiddle.net>
+Cc: David Mosberger <davidm@hpl.hp.com>, Paul Mackerras <paulus@samba.org>,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: [PATCH] avoid unnecessary cache flushes
+In-Reply-To: <20010904093725.A18163@twiddle.net>
+In-Reply-To: <15247.29338.3671.548678@cargo.ozlabs.ibm.com>
+	<20010903131436.A16069@twiddle.net>
+	<15251.59286.154267.431231@napali.hpl.hp.com>
+	<20010903134125.B16069@twiddle.net>
+	<15251.61303.411698.310497@napali.hpl.hp.com>
+	<20010904093725.A18163@twiddle.net>
+X-Mailer: VM 6.76 under Emacs 20.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Alvord wrote:
+>>>>> On Tue, 4 Sep 2001 09:37:25 -0700, Richard Henderson <rth@twiddle.net> said:
 
->> It is only *atomic* accesses (those implemented using the S/390
->> compare-and-swap instruction) that need to be word aligned; this
-includes
->> the atomic bit operations that reiserfs appears to be using.
->
->Aren't their some other "must align" instructions like CVB? Or have they
->all been relaxed...
+  Richard> On Mon, Sep 03, 2001 at 02:00:39PM -0700, David Mosberger
+  Richard> wrote:
+  >> I didn't think there was any path where the kernel would on its
+  >> own update code after the fact, but I could be missing something.
 
-CVB doesn't have any alignment requirement (I'm not sure it ever had one).
-Execpt for the 'atomic' operations (CS, CSG, CDS, CDSG, LPQ, STPQ, PLO)
-I know only of two general-purpose instructions with operand alignment
-requirement, and that's LAM and STAM.  As access registers are not
-normally used in Linux this shouldn't be a problem.
+  Richard> ptrace?
 
-There *is* a whole bunch of privileged system instructions that have
-various aligment requirements; but here I'd say it's fair to require the
-user to provide correct aligment in these special cases.
+ptrace() is handled separately (it's like a user in that sense: it
+takes care of establishing coherence by calling the appropriate
+flushing routine).
 
-
-Mit freundlichen Gruessen / Best Regards
-
-Ulrich Weigand
-
---
-  Dr. Ulrich Weigand
-  Linux for S/390 Design & Development
-  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
-  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
-
+	--david

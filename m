@@ -1,135 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267657AbUJHAgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269962AbUJHAt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267657AbUJHAgj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 20:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269886AbUJHAck
+	id S269962AbUJHAt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 20:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269958AbUJHAr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 20:32:40 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:35955 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269896AbUJHAWk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 20:22:40 -0400
-Message-ID: <4165DDB4.1070806@yahoo.com.au>
-Date: Fri, 08 Oct 2004 10:22:12 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: colpatch@us.ibm.com
-CC: Paul Jackson <pj@sgi.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
-       LSE Tech <lse-tech@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>, simon.derr@bull.net,
-       frankeh@watson.ibm.com
-Subject: Re: [RFC PATCH] scheduler: Dynamic sched_domains
-References: <1097110266.4907.187.camel@arrakis>	 <4164A664.9040005@yahoo.com.au> <1097186290.17473.13.camel@arrakis>
-In-Reply-To: <1097186290.17473.13.camel@arrakis>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 7 Oct 2004 20:47:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:7094 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269965AbUJHAob (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 20:44:31 -0400
+Date: Thu, 7 Oct 2004 17:42:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: chrisw@osdl.org, linux-kernel@vger.kernel.org, piggin@cyberone.com.au
+Subject: Re: kswapd in tight loop 2.6.9-rc3-bk-recent
+Message-Id: <20041007174242.3dd6facd.akpm@osdl.org>
+In-Reply-To: <4165E0A7.7080305@yahoo.com.au>
+References: <20041007142019.D2441@build.pdx.osdl.net>
+	<20041007164044.23bac609.akpm@osdl.org>
+	<4165E0A7.7080305@yahoo.com.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dobson wrote:
 
->On Wed, 2004-10-06 at 19:13, Nick Piggin wrote:
->
->>Matthew Dobson wrote:
->>
->
->>>This should allow us to support hotplug more easily, simply removing the
->>>domain belonging to the going-away CPU, rather than throwing away the
->>>whole domain tree and rebuilding from scratch.
->>>
->>Although what we have in -mm now should support CPU hotplug just fine.
->>The hotplug guys really seem not to care how disruptive a hotplug
->>operation is.
->>
->
->I wasn't trying to imply that CPU hotplug isn't supported right now. 
->But it is currently a very disruptive operation, throwing away the
->entire sched_domains & sched_groups tree and then rebuilding it from
->scratch just to remove a single CPU!  I also understand that this is
->supposed to be a rare event (CPU hotplug), but that doesn't mean it
->*has* to be a slow, disruptive event. :)
->
->
+OK, after backing out the `goto spaghetti;' patch and cleaning up a few
+thing I'll test the below.  It'll make kswapd much less aggressive.
 
-Well no... but it already is disruptive :)
 
->
->>> This should also allow
->>>us to support multiple, independent (ie: no shared root) domain trees
->>>which will facilitate isolated CPU groups and exclusive domains.  I also
->>>
->>Hmm, what was my word for them... yeah, disjoint. We can do that now,
->>see isolcpus= for a subset of the functionality you want (doing larger
->>exclusive sets would probably just require we run the setup code once
->>for each exclusive set we want to build).
->>
->
->The current code doesn't, to my knowledge support multiple isolated
->domains.  You can set up a single 'isolated' group with boot time
->options, but you can't set up *multiple* isolated groups, nor is there
->the ability to do any partitioning/isolation at runtime.  This was more
->of the motivation for my code than the hotplug simplification.  That was
->more of a side-benefit.
->
->
 
-No, the isolcpus= option allows you to set up n *single CPU* isolated
-domains. You currently can't setup isolated groups with multiple CPUs
-in them, no. You can't do runtime partitioning either.
-
-I think both would be pretty trivial to do though with the current
-code though.
-
->
->>>hope this will allow us to leverage the existing topology infrastructure
->>>to build domains that closely resemble the physical structure of the
->>>machine automagically, thus making supporting interesting NUMA machines
->>>and SMT machines easier.
->>>
->>>This patch is just a snapshot in the middle of development, so there are
->>>certainly some uglies & bugs that will get fixed.  That said, any
->>>comments about the general design are strongly encouraged.  Heck, any
->>>feedback at all is welcome! :) 
->>>
->>>Patch against 2.6.9-rc3-mm2.
->>>
->>This is what I did in my first (that nobody ever saw) implementation of
->>sched domains. Ie. no sched_groups, just use sched_domains as the balancing
->>object... I'm not sure this works too well.
->>
->>For example, your bottom level domain is going to basically be a redundant,
->>single CPU on most topologies, isn't it?
->>
->>Also, how will you do overlapping domains that SGI want to do (see
->>arch/ia64/kernel/domain.c in -mm kernels)?
->>
->>node2 wants to balance between node0, node1, itself, node3, node4.
->>node4 wants to balance between node2, node3, itself, node5, node6.
->>etc.
->>
->>I think your lists will get tangled, no?
->>
->
->Yes.  I have to put my thinking cap on snug, but I don't think my
->version would support this kind of setup.  It sounds, from Jesse's
->follow up to your mail, that this is not a requirement, though.  I'll
->take a closer look at the IA64 code and see if it would be supported or
->if I could make some small changes to support it.
->
->
-
-I they might find that it will be a requirement. If not now, then soon.
-Your periodic balancing happens from the timer interrupt as you know...
-that means pulling a cacheline off every CPU.
-
-But anyway..
-
->Thanks for the feedback!!
->
-
-OK... I still don't know exactly how your system is an improvement over what
-we have, but I'll try to be open minded :)
+diff -puN mm/vmscan.c~no-wild-kswapd-2 mm/vmscan.c
+--- 25/mm/vmscan.c~no-wild-kswapd-2	2004-10-07 17:38:20.342906376 -0700
++++ 25-akpm/mm/vmscan.c	2004-10-07 17:38:20.348905464 -0700
+@@ -964,6 +964,17 @@ out:
+  * of the number of free pages in the lower zones.  This interoperates with
+  * the page allocator fallback scheme to ensure that aging of pages is balanced
+  * across the zones.
++ *
++ * kswapd can be semi-livelocked if some other process is allocating pages
++ * while kswapd is simultaneously trying to balance the same zone.  That's OK,
++ * because we _want_ kswapd to work continuously in this situation.  But a
++ * side-effect of kswapd's ongoing work is that the pageout priority keeps on
++ * winding up so we bogusly start doing swapout.
++ *
++ * To fix this we take a snapshot of the number of pages which need to be
++ * reclaimed from each zone in zone->pages_to_reclaim and never reclaim more
++ * pages than that.  Once the required number of pages have been reclaimed from
++ * each zone, we're done.  kwsapd will go back to sleep until someone wakes it.
+  */
+ static int balance_pgdat(pg_data_t *pgdat, int nr_pages)
+ {
+@@ -984,6 +995,7 @@ static int balance_pgdat(pg_data_t *pgda
+ 		struct zone *zone = pgdat->node_zones + i;
+ 
+ 		zone->temp_priority = DEF_PRIORITY;
++		zone->pages_to_reclaim = zone->pages_high - zone->pages_free;
+ 	}
+ 
+ 	for (priority = DEF_PRIORITY; priority >= 0; priority--) {
+@@ -1003,7 +1015,7 @@ static int balance_pgdat(pg_data_t *pgda
+ 						priority != DEF_PRIORITY)
+ 					continue;
+ 
+-				if (zone->free_pages <= zone->pages_high) {
++				if (zone->pages_to_reclaim > 0) {
+ 					end_zone = i;
+ 					break;
+ 				}
+@@ -1036,10 +1048,11 @@ static int balance_pgdat(pg_data_t *pgda
+ 			if (zone->all_unreclaimable && priority != DEF_PRIORITY)
+ 				continue;
+ 
+-			if (nr_pages == 0) {	/* Not software suspend */
+-				if (zone->free_pages <= zone->pages_high)
+-					all_zones_ok = 0;
+-			}
++			if (zone->pages_to_reclaim <= 0)
++				continue;
++
++			if (nr_pages == 0)	/* Not software suspend */
++				all_zones_ok = 0;
+ 			zone->temp_priority = priority;
+ 			if (zone->prev_priority > priority)
+ 				zone->prev_priority = priority;
+@@ -1049,6 +1062,10 @@ static int balance_pgdat(pg_data_t *pgda
+ 			shrink_zone(zone, &sc);
+ 			reclaim_state->reclaimed_slab = 0;
+ 			shrink_slab(sc.nr_scanned, GFP_KERNEL, lru_pages);
++
++			/* This fails to account for slab reclaim */
++			zone->pages_to_reclaim -= sc.nr_reclaimed;
++
+ 			sc.nr_reclaimed += reclaim_state->reclaimed_slab;
+ 			total_reclaimed += sc.nr_reclaimed;
+ 			total_scanned += sc.nr_scanned;
+diff -puN include/linux/mmzone.h~no-wild-kswapd-2 include/linux/mmzone.h
+--- 25/include/linux/mmzone.h~no-wild-kswapd-2	2004-10-07 17:38:20.343906224 -0700
++++ 25-akpm/include/linux/mmzone.h	2004-10-07 17:40:20.847586880 -0700
+@@ -137,8 +137,9 @@ struct zone {
+ 	unsigned long		nr_scan_inactive;
+ 	unsigned long		nr_active;
+ 	unsigned long		nr_inactive;
+-	int			all_unreclaimable; /* All pages pinned */
+-	unsigned long		pages_scanned;	   /* since last reclaim */
++	long			pages_to_reclaim;	/* kswapd usage */
++	int			all_unreclaimable;	/* All pages pinned */
++	unsigned long		pages_scanned;		/* since last reclaim */
+ 
+ 	ZONE_PADDING(_pad2_)
+ 
+_
 

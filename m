@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277891AbRJIUvB>; Tue, 9 Oct 2001 16:51:01 -0400
+	id <S277965AbRJIUzW>; Tue, 9 Oct 2001 16:55:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277962AbRJIUuv>; Tue, 9 Oct 2001 16:50:51 -0400
-Received: from adsl-216-102-163-254.dsl.snfc21.pacbell.net ([216.102.163.254]:32659
-	"EHLO windmill.gghcwest.com") by vger.kernel.org with ESMTP
-	id <S277891AbRJIUuj>; Tue, 9 Oct 2001 16:50:39 -0400
-Date: Tue, 9 Oct 2001 13:48:27 -0700 (PDT)
-From: "Jeffrey W. Baker" <jwbaker@acm.org>
-X-X-Sender: <jwb@windmill.gghcwest.com>
-To: "Trever L. Adams" <trever_adams@yahoo.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: iptables in 2.4.10, 2.4.11pre6 problems
-In-Reply-To: <1002652844.3356.1.camel@aurora>
-Message-ID: <Pine.LNX.4.33.0110091348010.15092-100000@windmill.gghcwest.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277963AbRJIUzN>; Tue, 9 Oct 2001 16:55:13 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:1263
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S277967AbRJIUzD>; Tue, 9 Oct 2001 16:55:03 -0400
+Date: Tue, 9 Oct 2001 13:55:28 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: kernel-list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.11.p4 and dd
+Message-ID: <20011009135528.A20914@mikef-linux.matchmail.com>
+Mail-Followup-To: kernel-list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0110081343280.1775-100000@boris.prodako.se> <3BC2A130.CFEBBE2D@isg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BC2A130.CFEBBE2D@isg.de>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 09, 2001 at 09:03:12AM +0200, Constantin Loizides wrote:
+> Hi!
+> 
+> > > 2.4.3 uses a large amount of buffer, 2.4.11p4 only chache.
+> > 
+> > Block devices are handled by the page cache in 2.4.10 and up.
+> > 
+> 
+> Eh, did I miss something? 
 
+Yes.
 
-On 9 Oct 2001, Trever L. Adams wrote:
+>Thought, that meta data are still
+> cached in buffer cache?
 
-> On Tue, 2001-10-09 at 14:31, Jeffrey W. Baker wrote:
-> > I mean connections originating from userland processes running on the
-> > machine with iptables configured.  This machine does not act as a NAT or
-> > router for any other machine.
-> >
-> > We make about 200000 outbound connections to web sites in a day.  Of these
-> > connections, a few thousand get fucked up by iptables (iptables suddenly
-> > decides to drop packets on this connection).
-> >
-> > -jwb
+FSes still use the buffer cache, but the block devices now use page cache.
+
+>Did it change from 2.4.9 to 2.4.10?
+
+Yes, in 2.4.10pre11
+
+> What about the ac kernels? 
 >
-> Mine does NAT.  So it appears this is not NAT related (though it may be
-> further aggravated by NAT).  My connection rate is FAR lower than
-> yours.  Our total connections may be 100,000 on a high rate day (just a
-> guess... I really do not know).
 
-My machine has three IP addrs bound to one physical interface and uses
-policy routing.  Do you use any of those?
+Block devices use Buffer Cache.  Alan has stated that he doesn't plan to
+merge this change any time soon, if at all.
 
--jwb
+> Constantin
 
+Mike

@@ -1,107 +1,167 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289025AbSCQLBT>; Sun, 17 Mar 2002 06:01:19 -0500
+	id <S310546AbSCQLTK>; Sun, 17 Mar 2002 06:19:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289046AbSCQLBK>; Sun, 17 Mar 2002 06:01:10 -0500
-Received: from mail.crol.net ([213.191.143.189]:18048 "EHLO crolvax.crol.net")
-	by vger.kernel.org with ESMTP id <S289025AbSCQLBA>;
-	Sun, 17 Mar 2002 06:01:00 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.18 - strange Oops (Bug report)
-X-face: GK)@rjKTDPkyI]TBX{!7&/#rT:#yE\QNK}s(-/!'{dG0r^_>?tIjT[x0aj'Q0u>a
-              yv62CGsq'Tb_=>f5p|$~BlO2~A&%<+ry%+o;k'<(2tdowfysFc:?@($aTGX
-              4fq`u}~4,0;}y/F*5,9;3.5[dv~C,hl4s*`Hk|1dUaTO[pd[x1OrGu_:1%-lJ]W@
-Organization: CRoL d.o.o.
-X-Operating-System: GNU/Linux 2.4.18
-From: Miroslav Zubcic <mvz@crol.net>
-Date: 17 Mar 2002 12:00:49 +0100
-Message-ID: <lzwuwb4fxa.fsf@crolvax.crol.net>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
+	id <S289226AbSCQLTA>; Sun, 17 Mar 2002 06:19:00 -0500
+Received: from bjgate.bj-ig.de ([194.127.182.253]:44674 "EHLO tower.bj-ig.de")
+	by vger.kernel.org with ESMTP id <S289191AbSCQLSv>;
+	Sun, 17 Mar 2002 06:18:51 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ralf =?iso-8859-15?q?M=FCller?= <ralf@bj-ig.de>
+Message-Id: <200203171153.48705@bj-ig.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] add Promise 20276 to supported IDE controllers
+Date: Sun, 17 Mar 2002 12:18:27 +0100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Last night my workstation crashed. There was no heavy load and machine
-was locked with xscreensaver.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-4 seconds before that, logrotate was rotating logs, and after that
-smbd(8) and nmbd(8) get couple of _strange_ SIGHUP's. There was no
-mounted smbfs volumes, I'm using NFS.
+We had to do the following patch to get an onboard Promise 20276 ide
+controller working on our system - maybe one of you is interested.
 
-This box is on Linux 1 and half years without problems, there was no
-hardware upgrades in the last 5 months, and before 2.4.18 there was
-2.4.14, 2.4.13.
+The patch is against 2.4.19-pre3.
 
-System main components: (nothing special or weird ...)
+Ralf
 
-PIII 500Mhz (Katmai)
-256 RAM
-IBM IDE disk 40MB
-Riva TNT card
+===========[cut here]==============
+*** linux-2.4.19-pre3/drivers/ide/pdc202xx.c    Sun Mar 17 01:18:05 2002
+- --- linux/drivers/ide/pdc202xx.c        Sun Mar 17 11:44:22 2002
+***************
+*** 218,223 ****
+- --- 218,226 ----
+                case PCI_DEVICE_ID_PROMISE_20275:
+                        p += sprintf(p, "\n                                PDC20275 Chipset.\n");
+                        break;
++               case PCI_DEVICE_ID_PROMISE_20276:
++                       p += sprintf(p, "\n                                PDC20276 Chipset.\n");
++                       break;
+                case PCI_DEVICE_ID_PROMISE_20269:
+                        p += sprintf(p, "\n                                PDC20269 TX2 Chipset.\n");
+                        break;
+***************
+*** 237,242 ****
+- --- 240,246 ----
+        char *p = buffer;
+        switch(bmide_dev->device) {
+                case PCI_DEVICE_ID_PROMISE_20275:
++               case PCI_DEVICE_ID_PROMISE_20276:
+                case PCI_DEVICE_ID_PROMISE_20269:
+                case PCI_DEVICE_ID_PROMISE_20268:
+                case PCI_DEVICE_ID_PROMISE_20268R:
+***************
+*** 730,735 ****
+- --- 734,740 ----
 
-When I come in the morning machine was dead, no response. I have found this in
-logs: (ksymoops output):
+        switch(dev->device) {
+                case PCI_DEVICE_ID_PROMISE_20275:
++               case PCI_DEVICE_ID_PROMISE_20276:
+                case PCI_DEVICE_ID_PROMISE_20269:
+                        udma_133 = (udma_66) ? 1 : 0;
+                        udma_100 = (udma_66) ? 1 : 0;
+***************
+*** 987,992 ****
+- --- 992,998 ----
 
----------------------------------------------------------------------------------
-(root){crolvax}[mqueue]# ksymoops -v /usr/src/linux/vmlinux /tmp/oops
-ksymoops 2.4.1 on i686 2.4.18.  Options used
-     -v /usr/src/linux/vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.18/ (default)
-     -m /boot/System.map-2.4.18 (default)
+        switch (dev->device) {
+                case PCI_DEVICE_ID_PROMISE_20275:
++               case PCI_DEVICE_ID_PROMISE_20276:
+                case PCI_DEVICE_ID_PROMISE_20269:
+                case PCI_DEVICE_ID_PROMISE_20268R:
+                case PCI_DEVICE_ID_PROMISE_20268:
+***************
+*** 1119,1124 ****
+- --- 1125,1131 ----
 
-Mar 17 04:02:26 crolvax kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000080
-Mar 17 04:02:26 crolvax kernel: c0113504
-Mar 17 04:02:26 crolvax kernel: *pde = 00000000
-Mar 17 04:02:26 crolvax kernel: Oops: 0000
-Mar 17 04:02:26 crolvax kernel: CPU:    0
-Mar 17 04:02:26 crolvax kernel: EIP:    0010:[__wake_up+36/176]    Not tainted
-Mar 17 04:02:26 crolvax kernel: EIP:    0010:[<c0113504>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Mar 17 04:02:26 crolvax kernel: EFLAGS: 00010082
-Mar 17 04:02:26 crolvax kernel: eax: cabc84e0   ebx: 00000080   ecx: 00000001   edx: 00000001
-Mar 17 04:02:26 crolvax kernel: esi: ccfbfda0   edi: 00000001   ebp: cc789f44   esp: cc789f2c
-Mar 17 04:02:26 crolvax kernel: ds: 0018   es: 0018   ss: 0018
-Mar 17 04:02:26 crolvax kernel: Process uniq (pid: 23189, stackpage=cc789000)
-Mar 17 04:02:26 crolvax kernel: Stack: 00000282 00000001 cabc84e0 cabc84e0 ccfbfda0 ccfbfda0 ca0e2520 c0139121 
-Mar 17 04:02:26 crolvax kernel:        c9e2f8a0 c1405260 c013914e ccfbfda0 00000001 00000000 c0131d5d ccfbfda0 
-Mar 17 04:02:26 crolvax kernel:        c9e2f8a0 c9e2f8a0 ffffffea 00001000 00000000 c9e2f8a0 00000000 00000000 
-Mar 17 04:02:26 crolvax kernel: Call Trace: [pipe_release+113/144] [pipe_read_release+14/32] [fput+77/208] [filp_close+83/96] [sys_close+67/80] 
-Mar 17 04:02:26 crolvax kernel: Call Trace: [<c0139121>] [<c013914e>] [<c0131d5d>] [<c0130ce3>] [<c0130d33>] 
-Mar 17 04:02:26 crolvax kernel:    [<c0106cfb>] 
-Mar 17 04:02:26 crolvax kernel: Code: 8b 13 0f 18 02 eb 6b 90 8d 74 26 00 8b 4b fc 8b 01 85 45 ec 
+        switch (dev->device) {
+                case PCI_DEVICE_ID_PROMISE_20275:
++               case PCI_DEVICE_ID_PROMISE_20276:
+                case PCI_DEVICE_ID_PROMISE_20269:
+                case PCI_DEVICE_ID_PROMISE_20268R:
+                case PCI_DEVICE_ID_PROMISE_20268:
+***************
+*** 1213,1218 ****
+- --- 1220,1226 ----
 
->>EIP; c0113504 <__wake_up+24/b0>   <=====
-Trace; c0139121 <pipe_release+71/90>
-Trace; c013914e <pipe_read_release+e/20>
-Trace; c0131d5d <fput+4d/d0>
-Trace; c0130ce3 <filp_close+53/60>
-Trace; c0130d33 <sys_close+43/50>
-Trace; c0106cfb <system_call+33/38>
-Code;  c0113504 <__wake_up+24/b0>
-00000000 <_EIP>:
-Code;  c0113504 <__wake_up+24/b0>   <=====
-   0:   8b 13                     mov    (%ebx),%edx   <=====
-Code;  c0113506 <__wake_up+26/b0>
-   2:   0f 18 02                  prefetchnta (%edx)
-Code;  c0113509 <__wake_up+29/b0>
-   5:   eb 6b                     jmp    72 <_EIP+0x72> c0113576 <__wake_up+96/b0>
-Code;  c011350b <__wake_up+2b/b0>
-   7:   90                        nop    
-Code;  c011350c <__wake_up+2c/b0>
-   8:   8d 74 26 00               lea    0x0(%esi,1),%esi
-Code;  c0113510 <__wake_up+30/b0>
-   c:   8b 4b fc                  mov    0xfffffffc(%ebx),%ecx
-Code;  c0113513 <__wake_up+33/b0>
-   f:   8b 01                     mov    (%ecx),%eax
-Code;  c0113515 <__wake_up+35/b0>
-  11:   85 45 ec                  test   %eax,0xffffffec(%ebp)
----------------------------------------------------------------------------------
+          switch(hwif->pci_dev->device) {
+                case PCI_DEVICE_ID_PROMISE_20275:
++               case PCI_DEVICE_ID_PROMISE_20276:
+                case PCI_DEVICE_ID_PROMISE_20269:
+                case PCI_DEVICE_ID_PROMISE_20268:
+                case PCI_DEVICE_ID_PROMISE_20268R:
+***************
+*** 1231,1236 ****
+- --- 1239,1245 ----
 
-Hope this helps ...
+          switch(hwif->pci_dev->device) {
+                case PCI_DEVICE_ID_PROMISE_20275:
++               case PCI_DEVICE_ID_PROMISE_20276:
+                case PCI_DEVICE_ID_PROMISE_20269:
+                case PCI_DEVICE_ID_PROMISE_20268:
+                case PCI_DEVICE_ID_PROMISE_20268R:
+*** linux-2.4.19-pre3/drivers/ide/ide-pci.c     Sun Mar 17 01:20:00 2002
+- --- linux/drivers/ide/ide-pci.c Sun Mar 17 11:39:11 2002
+***************
+*** 56,61 ****
+- --- 56,62 ----
+  #define DEVID_PDC20268R ((ide_pci_devid_t){PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20268R})
+  #define DEVID_PDC20269        ((ide_pci_devid_t){PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20269})
+  #define DEVID_PDC20275        ((ide_pci_devid_t){PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20275})
++ #define DEVID_PDC20276        ((ide_pci_devid_t){PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20276})
+  #define DEVID_RZ1000  ((ide_pci_devid_t){PCI_VENDOR_ID_PCTECH,  PCI_DEVICE_ID_PCTECH_RZ1000})
+  #define DEVID_RZ1001  ((ide_pci_devid_t){PCI_VENDOR_ID_PCTECH,  PCI_DEVICE_ID_PCTECH_RZ1001})
+  #define DEVID_SAMURAI ((ide_pci_devid_t){PCI_VENDOR_ID_PCTECH,  PCI_DEVICE_ID_PCTECH_SAMURAI_IDE})
+***************
+*** 420,425 ****
+- --- 421,427 ----
+        {DEVID_PDC20268R,"PDC20270",    PCI_PDC202XX,   ATA66_PDC202XX, INIT_PDC202XX,  NULL,           {{0x00,0x00,0x00}, {0x00,0x00,0x00}},   OFF_BOARD,      0 },
+        {DEVID_PDC20269,"PDC20269",     PCI_PDC202XX,   ATA66_PDC202XX,  INIT_PDC202XX, NULL,           {{0x00,0x00,0x00}, {0x00,0x00,0x00}},   OFF_BOARD,      0 },
+        {DEVID_PDC20275,"PDC20275",     PCI_PDC202XX,   ATA66_PDC202XX, INIT_PDC202XX,  NULL,           {{0x00,0x00,0x00}, {0x00,0x00,0x00}},   OFF_BOARD,      0 },
++       {DEVID_PDC20276,"PDC20276",     PCI_PDC202XX,   ATA66_PDC202XX, INIT_PDC202XX,  NULL,           {{0x00,0x00,0x00}, {0x00,0x00,0x00}},   OFF_BOARD,      0 },
+        {DEVID_RZ1000,  "RZ1000",       NULL,           NULL,           INIT_RZ1000,    NULL,           {{0x00,0x00,0x00}, {0x00,0x00,0x00}},   ON_BOARD,       0 },
+        {DEVID_RZ1001,  "RZ1001",       NULL,           NULL,           INIT_RZ1000,    NULL,           {{0x00,0x00,0x00}, {0x00,0x00,0x00}},   ON_BOARD,       0 },
+        {DEVID_SAMURAI, "SAMURAI",      NULL,           NULL,           INIT_SAMURAI,   NULL,           {{0x00,0x00,0x00}, {0x00,0x00,0x00}},   ON_BOARD,       0 },
+***************
+*** 481,486 ****
+- --- 483,489 ----
+                case PCI_DEVICE_ID_PROMISE_20268R:
+                case PCI_DEVICE_ID_PROMISE_20269:
+                case PCI_DEVICE_ID_PROMISE_20275:
++               case PCI_DEVICE_ID_PROMISE_20276:
+                case PCI_DEVICE_ID_ARTOP_ATP850UF:
+                case PCI_DEVICE_ID_ARTOP_ATP860:
+                case PCI_DEVICE_ID_ARTOP_ATP860R:
+***************
+*** 810,815 ****
+- --- 813,819 ----
+                    IDE_PCI_DEVID_EQ(d->devid, DEVID_PDC20268R) ||
+                    IDE_PCI_DEVID_EQ(d->devid, DEVID_PDC20269) ||
+                    IDE_PCI_DEVID_EQ(d->devid, DEVID_PDC20275) ||
++                   IDE_PCI_DEVID_EQ(d->devid, DEVID_PDC20276) ||
+                    IDE_PCI_DEVID_EQ(d->devid, DEVID_AEC6210) ||
+                    IDE_PCI_DEVID_EQ(d->devid, DEVID_AEC6260) ||
+                    IDE_PCI_DEVID_EQ(d->devid, DEVID_AEC6260R) ||
+*** linux-2.4.19-pre3/include/linux/pci_ids.h   Sun Mar 17 01:32:41 2002
+- --- linux/include/linux/pci_ids.h       Sun Mar 17 11:48:02 2002
+***************
+*** 606,611 ****
+- --- 606,612 ----
+  #define PCI_DEVICE_ID_PROMISE_20268R  0x6268
+  #define PCI_DEVICE_ID_PROMISE_20269   0x4d69
+  #define PCI_DEVICE_ID_PROMISE_20275   0x1275
++ #define PCI_DEVICE_ID_PROMISE_20276   0x5275
+  #define PCI_DEVICE_ID_PROMISE_5300    0x5300
 
--- 
-This signature intentionally left blank
+  #define PCI_VENDOR_ID_N9              0x105d
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iEYEARECAAYFAjyUe4sACgkQZcF+4X5mWz9PdwCfWcMYTVtDAO9VhUQVHvD7Hljl
+408AnR4cIk/W5nbHn/QAMminLO6MCyIT
+=f6yE
+-----END PGP SIGNATURE-----

@@ -1,65 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263394AbUECBQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263415AbUECBTn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263394AbUECBQe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 21:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263399AbUECBQe
+	id S263415AbUECBTn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 21:19:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbUECBTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 21:16:34 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48565 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263394AbUECBQa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 21:16:30 -0400
-Date: Mon, 3 May 2004 02:16:29 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [RFC] removal of legacy cdrom drivers (Re: [PATCH] mcdx.c insanity removal)
-Message-ID: <20040503011629.GY17014@parcelfarce.linux.theplanet.co.uk>
-References: <20040502024637.GV17014@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0405011953140.18014@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0405011953140.18014@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Sun, 2 May 2004 21:19:43 -0400
+Received: from bsnelson14.august.net ([216.87.134.14]:62226 "HELO
+	bsnelson14.august.net") by vger.kernel.org with SMTP
+	id S263413AbUECBT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 21:19:27 -0400
+Message-ID: <40959E1C.6040205@bsnelson.com>
+Date: Sun, 02 May 2004 20:19:24 -0500
+From: Brad Nelson <lkmldd001@bsnelson.com>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Turning off LBA48
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aiiee...
+I'm running kernel 2.4.26, and I have a specific need to be able to turn 
+off LBA48 support on a per-device basis. Specifically, I need such 
+drives to appear with a capacity of ~137GB as they would if there were 
+no LBA48 support. Below is a small patch that I applied to this kernel 
+to accomplish the goal. Some cursory tests indicate that it works in my 
+configuration, but I may have broken some taboos. I didn't know if there 
+were non-obvious side effects to increasing the size of the ide_drive_t 
+struct, so I renamed an existing and (apparently) unused flag. I also 
+exposed a new kernel command line option ("hdx=nolba48"); this seems to 
+add to a very small list, so obviously additions aren't taken lightly.
 
-You know, mcdx.c is like a roadkill - just can't stop looking at the thing.
+Does anyone else see value (or danger!) in this or a similar patch? The 
+reason I need it: I use this machine to manipulate hard drives for other 
+machines that aren't LBA48 aware. In the case of a >137GB, it's fine to 
+let the machine (TiVo) just see the first 137GB.
 
-a) it doesn't initialize when non-modular.  Since 2.5.0.  Fixed, can send.
-b) it leaks on failure exits; since forever.  Fixed, can send.
-c) it has several lovely bugs (e.g. foo = bar | SINGLE ? ... : ..., where
-SINGLE is defined as 1; from the context it's obvious that it should've
-been bar & SINGLE; there since 1.3.71).  Fixed, can send.
-d) it has tons of crimes against decency - e.g.
-	foo = bar > (foo += baz) ? bar : foo;
-where foo, bar and baz and fairly long expressions.  Partially fixed, can send.
-Oh, and let's not forget the lovely variable names - e.g. "stuffp" through
-the entire thing.  That's "pointer to all stuff we have about that device".
+Thanks!
 
-e) it does *entire* *damn* *IO* without dropping queue lock.  And yes, it
-*does* block in there.  A lot.  Always had.
+Brad
 
-I can fix the last one, however at that point I'm really starting to wonder
-if we want to keep the FPOS in the tree.  I don't have the hardware and while
-I'm reasonably sure that I can split the transition into provably correct
-small steps, I doubt that there's any point in doing that.  Driver is obviously
-not used by anyone and hadn't been used for years.
+diff -ru -X /root/Xkernel linux-2.4.26.stock/drivers/ide/ide-disk.c 
+linux-2.4.26/drivers/ide/ide-disk.c
+--- linux-2.4.26.stock/drivers/ide/ide-disk.c   2004-04-30 
+18:29:50.000000000 -0500
++++ linux-2.4.26/drivers/ide/ide-disk.c 2004-05-01 12:20:42.000000000 -0500
+@@ -1567,6 +1567,9 @@
+        if (HWIF(drive)->addressing)
+                return 0;
 
-The same goes for the rest of drivers/cdrom - cdrom.c is used, all right
-(ide-cd, sr, pcd), but everything else is
-	* abandoned by maintainers 5-6 years ago
-	* broken
-	* obviously not used by anybody
-	* impossible to debug due to lack of hardware
-	* fucking ugly
++       if (drive->nolba48)
++               return 0;
++
+        if (!(drive->id->cfs_enable_2 & 0x0400))
+                 return -EIO;
+        drive->addressing = arg;
+diff -ru -X /root/Xkernel linux-2.4.26.stock/drivers/ide/ide.c 
+linux-2.4.26/drivers/ide/ide.c
+--- linux-2.4.26.stock/drivers/ide/ide.c        2004-04-30 
+18:29:50.000000000 -0500
++++ linux-2.4.26/drivers/ide/ide.c      2004-05-01 00:50:48.000000000 -0500
+@@ -1821,7 +1821,7 @@
 
-How about removing all that stuff instead of keeping the known broken shit
-in the tree?  If somebody wants it back, they can always pick the versions
-circa 2.6.0 from archives.
+                case HDIO_GET_NICE:
+                        return put_user(drive->dsc_overlap      <<      
+IDE_NICE_DSC_OVERLAP    |
+-                                       drive->atapi_overlap    <<      
+IDE_NICE_ATAPI_OVERLAP  |
++                                       /* drive->atapi_overlap <<      
+IDE_NICE_ATAPI_OVERLAP  | */
+                                        drive->nice0            <<      
+IDE_NICE_0              |
+                                        drive->nice1            <<      
+IDE_NICE_1              |
+                                        drive->nice2            <<      
+IDE_NICE_2,
+@@ -2070,6 +2070,7 @@
+  * "hdx=cdrom"         : drive is present, and is a cdrom drive
+  * "hdx=cyl,head,sect" : disk drive is present, with specified geometry
+  * "hdx=noremap"       : do not remap 0->1 even though EZD was detected
++ * "hdx=nolba48"       : do not use lba48 even if hardware supports it
+  * "hdx=autotune"      : driver will attempt to tune interface speed
+  *                             to the fastest PIO mode supported,
+  *                             if possible for this drive only.
+@@ -2188,7 +2189,7 @@
+                const char *hd_words[] = {"none", "noprobe", "nowerr", 
+"cdrom",
+                                "serialize", "autotune", "noautotune",
+                                "slow", "swapdata", "bswap", "flash",
+-                               "remap", "noremap", "scsi", NULL};
++                               "remap", "noremap", "scsi", "nolba48", 
+NULL};
+                unit = s[2] - 'a';
+                hw   = unit / MAX_DRIVES;
+                unit = unit % MAX_DRIVES;
+@@ -2254,6 +2255,9 @@
+                        case -14: /* "scsi" */
+                                drive->scsi = 1;
+                                goto done;
++                       case -15: /* "nolba48" */
++                               drive->nolba48 = 1;
++                               goto done;
+                        case 3: /* cyl,head,sect */
+                                drive->media    = ide_disk;
+                                drive->cyl      = drive->bios_cyl  = 
+vals[0];
+diff -ru -X /root/Xkernel linux-2.4.26.stock/include/linux/ide.h 
+linux-2.4.26/include/linux/ide.h
+--- linux-2.4.26.stock/include/linux/ide.h      2004-04-30 
+20:33:22.000000000 -0500
++++ linux-2.4.26/include/linux/ide.h    2004-05-01 12:58:13.000000000 -0500
+@@ -738,7 +738,7 @@
+        unsigned no_io_32bit    : 1;    /* disallow enabling 32bit I/O */
+        unsigned nobios         : 1;    /* do not probe bios for drive */
+        unsigned revalidate     : 1;    /* request revalidation */
+-       unsigned atapi_overlap  : 1;    /* ATAPI overlap (not supported) */
++       unsigned nolba48        : 1;    /* force lba48 off even if 
+hardware supports it */
+        unsigned nice0          : 1;    /* give obvious excess bandwidth */
+        unsigned nice2          : 1;    /* give a share in our own 
+bandwidth */
+        unsigned doorlocking    : 1;    /* for removable only: door 
+lock/unlock works */
 
-If you are OK with that (and nobody on l-k stands up and claims that they want
-it alive and *claims* *that* *right* *fucking* *NOW*) I'll send you a patch
-putting these buggers out of their misery.

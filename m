@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282204AbRKWS3G>; Fri, 23 Nov 2001 13:29:06 -0500
+	id <S282199AbRKWS14>; Fri, 23 Nov 2001 13:27:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282201AbRKWS25>; Fri, 23 Nov 2001 13:28:57 -0500
-Received: from dsl-213-023-043-128.arcor-ip.net ([213.23.43.128]:15119 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S282200AbRKWS2l>;
-	Fri, 23 Nov 2001 13:28:41 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Anton Altaparmakov <aia21@cam.ac.uk>, war <war@starband.net>
-Subject: Re: Which gcc version?
-Date: Fri, 23 Nov 2001 19:30:27 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011123125137Z282133-17408+17815@vger.kernel.org> <5.1.0.14.2.20011123135801.00aad970@pop.cus.cam.ac.uk>
-In-Reply-To: <5.1.0.14.2.20011123135801.00aad970@pop.cus.cam.ac.uk>
+	id <S282200AbRKWS1g>; Fri, 23 Nov 2001 13:27:36 -0500
+Received: from [206.196.53.54] ([206.196.53.54]:32480 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S282199AbRKWS12>;
+	Fri, 23 Nov 2001 13:27:28 -0500
+Date: Fri, 23 Nov 2001 12:29:18 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Tim Tassonis <timtas@cubic.ch>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.15-greased-turkey ???
+In-Reply-To: <Pine.LNX.4.33.0111230953240.1294-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.40.0111231220590.6347-100000@waste.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E167L5w-0002Oi-00@starship.berlin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 23, 2001 02:59 pm, Anton Altaparmakov wrote:
-> At 13:51 23/11/01, war wrote:
-> >You should use gcc-2.95.3.
-> 
-> That's not true. gcc-2.96 as provided with RedHat 7.2 is perfectly fine.
-> 
-> gcc-3x OTOH is not a good idea at the moment.
+On Fri, 23 Nov 2001, Linus Torvalds wrote:
 
-Do you have any particular reason for saying that?
+> It'sa worthy follow-up to the 2.2.x "greased weasel" releases, but as
+> yesterday was Thanksgiving here in the US, and a lot of turkeys offered
+> their lives in celebration of the new 2.5.0 tree, the 2.4.x series got
+> christened a "greased turkey" instead of a weasel.
 
-Just for the record, I've been building kernels exclusively with 3.0x 
-(currently 3.02) for more than a month without problems.  At some point you 
-just have to take a deep breath and take the plunge ;-)
+I had to apply the following patch before I could run this on my system:
 
-I agree that it's a good idea for comercial distributions, large corporations 
-and to like, to be as a year or two behind the compiler curve, but for a 
-kernel developer or unstable kernel addict to be paranoid about gcc 3.0 is in 
-my mind, just plain silly.  If you are building the latest kernel you might 
-as well build it with the latest compiler, the risks are roughly the same.
+--- Makefile~	Thu Nov 22 13:22:58 2001
++++ Makefile	Fri Nov 23 11:53:46 2001
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 4
+ SUBLEVEL = 15
+-EXTRAVERSION =-greased-turkey
++EXTRAVERSION =-greased-tofurkey
 
-Through widespread use, whatever wrinkles still remain in gcc3 will be ironed 
-out.  In fact, I'd say it's something of a moral responsibility to adopt the 
-new compiler sooner, rather than later.  It helps make our tool chain 
-stronger.
+ KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 
 --
-Daniel
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

@@ -1,158 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbULHJag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbULHJeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbULHJag (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 04:30:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbULHJag
+	id S261167AbULHJeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 04:34:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbULHJeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 04:30:36 -0500
-Received: from yacht.ocn.ne.jp ([222.146.40.168]:65533 "EHLO
+	Wed, 8 Dec 2004 04:34:09 -0500
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:58828 "EHLO
 	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
-	id S261165AbULHJaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 04:30:16 -0500
+	id S261167AbULHJeB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 04:34:01 -0500
 From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
 To: phil.el@wanadoo.fr
-Subject: [mm patch] oprofile: backtrace operation does not initialized 
-Date: Wed, 8 Dec 2004 18:30:51 +0900
+Subject: Re: [mm patch] oprofile: backtrace operation does not initialized
+Date: Wed, 8 Dec 2004 18:34:38 +0900
 User-Agent: KMail/1.5.4
 Cc: John Levon <levon@movementarian.org>, linux-kernel@vger.kernel.org
+References: <200412081830.51607.amgta@yacht.ocn.ne.jp>
+In-Reply-To: <200412081830.51607.amgta@yacht.ocn.ne.jp>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200412081830.51607.amgta@yacht.ocn.ne.jp>
+Message-Id: <200412081834.38462.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Wednesday 08 December 2004 18:30, Akinobu Mita wrote:
 
-When I forced the oprofile to use timer interrupt with specifying
-"timer=1" module parameter. "oprofile_operations->backtrace" did
-not initialized on i386.
+> Please apply this patch, or make oprofile initialize the backtrace
+> operation in case of using timer interrupt in your preferable way.
 
-Please apply this patch, or make oprofile initialize the backtrace
-operation in case of using timer interrupt in your preferable way.
+Acutually, I want this change to work my own tailor-made profiler.
+It simply moves the point where timer_hook is called.
 
----
+e.g. move timer_hook to the entry point of schedule().
 
-Signed-off-by: Akinobu Mita <amgta@yacht.ocn.ne.jp>
-
- arch/alpha/oprofile/common.c |    3 +++
- arch/arm/oprofile/init.c     |    3 +++
- arch/i386/oprofile/init.c    |    5 ++++-
- arch/ia64/oprofile/init.c    |    5 ++++-
- arch/ppc64/oprofile/common.c |    3 +++
- drivers/oprofile/oprof.c     |    4 ++--
- include/linux/oprofile.h     |    2 ++
- 7 files changed, 21 insertions(+), 4 deletions(-)
-
-diff -Nurp 2.6-mm.orig/arch/alpha/oprofile/common.c 2.6-mm/arch/alpha/oprofile/common.c
---- 2.6-mm.orig/arch/alpha/oprofile/common.c	2004-12-07 00:11:29.000000000 +0900
-+++ 2.6-mm/arch/alpha/oprofile/common.c	2004-12-07 23:35:48.000000000 +0900
-@@ -143,6 +143,9 @@ oprofile_arch_init(struct oprofile_opera
- {
- 	struct op_axp_model *lmodel = NULL;
+--- 2.6-mm/kernel/profile.c.orig	2004-12-07 23:52:56.000000000 +0900
++++ 2.6-mm/kernel/profile.c	2004-12-07 23:53:29.000000000 +0900
+@@ -383,8 +383,6 @@ void profile_hit(int type, void *__pc)
  
-+	if (ops->force_timer)
-+		return;
-+
- 	switch (implver()) {
- 	case IMPLVER_EV4:
- 		lmodel = &op_model_ev4;
-diff -Nurp 2.6-mm.orig/arch/arm/oprofile/init.c 2.6-mm/arch/arm/oprofile/init.c
---- 2.6-mm.orig/arch/arm/oprofile/init.c	2004-12-07 00:11:32.000000000 +0900
-+++ 2.6-mm/arch/arm/oprofile/init.c	2004-12-07 23:37:26.000000000 +0900
-@@ -14,6 +14,9 @@
- 
- void __init oprofile_arch_init(struct oprofile_operations *ops)
+ void profile_tick(int type, struct pt_regs *regs)
  {
-+	if (ops->force_timer)
-+		return;
-+
- #ifdef CONFIG_CPU_XSCALE
- 	pmu_init(ops, &op_xscale_spec);
- #endif
-diff -Nurp 2.6-mm.orig/arch/i386/oprofile/init.c 2.6-mm/arch/i386/oprofile/init.c
---- 2.6-mm.orig/arch/i386/oprofile/init.c	2004-12-07 00:11:15.000000000 +0900
-+++ 2.6-mm/arch/i386/oprofile/init.c	2004-12-07 23:29:31.000000000 +0900
-@@ -25,6 +25,10 @@ void __init oprofile_arch_init(struct op
- {
- 	int ret __attribute_used__ = -ENODEV;
- 
-+	ops->backtrace = x86_backtrace;
-+	if (ops->force_timer)
-+		return;
-+
- #ifdef CONFIG_X86_LOCAL_APIC
- 	ret = nmi_init(ops);
- #endif
-@@ -32,7 +36,6 @@ void __init oprofile_arch_init(struct op
- 	if (ret < 0)
- 		ret = nmi_timer_init(ops);
- #endif
--	ops->backtrace = x86_backtrace;
+-	if (type == CPU_PROFILING && timer_hook)
+-		timer_hook(regs);
+ 	if (!user_mode(regs) && cpu_isset(smp_processor_id(), prof_cpu_mask))
+ 		profile_hit(type, (void *)profile_pc(regs));
  }
+--- 2.6-mm/kernel/sched.c.orig	2004-12-08 16:08:13.000000000 +0900
++++ 2.6-mm/kernel/sched.c	2004-12-08 16:10:01.000000000 +0900
+@@ -2665,6 +2665,30 @@ EXPORT_SYMBOL(sub_preempt_count);
  
- 
-diff -Nurp 2.6-mm.orig/arch/ia64/oprofile/init.c 2.6-mm/arch/ia64/oprofile/init.c
---- 2.6-mm.orig/arch/ia64/oprofile/init.c	2004-12-07 00:11:29.000000000 +0900
-+++ 2.6-mm/arch/ia64/oprofile/init.c	2004-12-07 23:35:02.000000000 +0900
-@@ -18,11 +18,14 @@ extern void ia64_backtrace(struct pt_reg
- 
- void __init oprofile_arch_init(struct oprofile_operations * ops)
- {
-+	ops->backtrace = ia64_backtrace;
-+	if (ops->force_timer)
-+		return;
-+
- #ifdef CONFIG_PERFMON
- 	/* perfmon_init() can fail, but we have no way to report it */
- 	perfmon_init(ops);
  #endif
--	ops->backtrace = ia64_backtrace;
- }
  
- 
-diff -Nurp 2.6-mm.orig/arch/ppc64/oprofile/common.c 2.6-mm/arch/ppc64/oprofile/common.c
---- 2.6-mm.orig/arch/ppc64/oprofile/common.c	2004-12-07 00:11:30.000000000 +0900
-+++ 2.6-mm/arch/ppc64/oprofile/common.c	2004-12-07 23:36:59.000000000 +0900
-@@ -129,6 +129,9 @@ void __init oprofile_arch_init(struct op
- {
- 	unsigned int pvr;
- 
-+	if (ops->force_timer)
-+		return;
++#ifdef __i386__
++#define GET_CURRENT_REGS(regs)						\
++do {									\
++	__asm__ __volatile__("movl %%ebx,%0" : "=m"(regs.ebx));	\
++	__asm__ __volatile__("movl %%ecx,%0" : "=m"(regs.ecx));	\
++	__asm__ __volatile__("movl %%edx,%0" : "=m"(regs.edx));	\
++	__asm__ __volatile__("movl %%esi,%0" : "=m"(regs.esi));	\
++	__asm__ __volatile__("movl %%edi,%0" : "=m"(regs.edi));	\
++	__asm__ __volatile__("movl %%ebp,%0" : "=m"(regs.ebp));	\
++	__asm__ __volatile__("movl %%eax,%0" : "=m"(regs.eax));	\
++	__asm__ __volatile__("movl %%esp,%0" : "=m"(regs.esp));	\
++	__asm__ __volatile__("movw %%ss, %%ax;" :"=a"(regs.xss));	\
++	__asm__ __volatile__("movw %%cs, %%ax;" :"=a"(regs.xcs));	\
++	__asm__ __volatile__("movw %%ds, %%ax;" :"=a"(regs.xds));	\
++	__asm__ __volatile__("movw %%es, %%ax;" :"=a"(regs.xes));	\
++	__asm__ __volatile__("pushfl; popl %0" :"=m"(regs.eflags));	\
++									\
++	regs.eip = (unsigned long)current_text_addr();			\
++} while(0)
 +
- 	pvr = mfspr(SPRN_PVR);
- 
- 	switch (PVR_VER(pvr)) {
-diff -Nurp 2.6-mm.orig/drivers/oprofile/oprof.c 2.6-mm/drivers/oprofile/oprof.c
---- 2.6-mm.orig/drivers/oprofile/oprof.c	2004-12-07 00:12:07.000000000 +0900
-+++ 2.6-mm/drivers/oprofile/oprof.c	2004-12-07 22:51:21.000000000 +0900
-@@ -159,10 +159,10 @@ static int __init oprofile_init(void)
- 	oprofile_timer_init(&oprofile_ops);
- 
- 	if (timer) {
-+		oprofile_ops.force_timer = 1;
- 		printk(KERN_INFO "oprofile: using timer interrupt.\n");
--	} else {
--		oprofile_arch_init(&oprofile_ops);
++#else
++#error please define get_current_regs()
++#endif
++
+ /*
+  * schedule() is the main scheduler function.
+  */
+@@ -2692,7 +2716,12 @@ asmlinkage void __sched schedule(void)
+ 			dump_stack();
+ 		}
  	}
-+	oprofile_arch_init(&oprofile_ops);
+-	profile_hit(SCHED_PROFILING, __builtin_return_address(0));
++	if (timer_hook) {
++		struct pt_regs regs;
++
++		GET_CURRENT_REGS(regs);
++		timer_hook(&regs);
++	}
  
- 	err = oprofilefs_register();
- 	if (err)
-diff -Nurp 2.6-mm.orig/include/linux/oprofile.h 2.6-mm/include/linux/oprofile.h
---- 2.6-mm.orig/include/linux/oprofile.h	2004-12-07 00:12:32.000000000 +0900
-+++ 2.6-mm/include/linux/oprofile.h	2004-12-07 22:50:07.000000000 +0900
-@@ -39,6 +39,8 @@ struct oprofile_operations {
- 	void (*backtrace)(struct pt_regs * const regs, unsigned int depth);
- 	/* CPU identification string. */
- 	char * cpu_type;
-+	/* Force use of timer interrupt */
-+	int force_timer;
- };
- 
- /**
+ need_resched:
+ 	preempt_disable();
 
 

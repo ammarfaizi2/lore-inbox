@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275290AbRIZQJ3>; Wed, 26 Sep 2001 12:09:29 -0400
+	id <S275289AbRIZQQ2>; Wed, 26 Sep 2001 12:16:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275289AbRIZQJT>; Wed, 26 Sep 2001 12:09:19 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18692 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S275288AbRIZQJJ>; Wed, 26 Sep 2001 12:09:09 -0400
-Subject: Re: BSD-Linux FlameWar over SoftRAID.
-To: andre@aslab.com (Andre Hedrick)
-Date: Wed, 26 Sep 2001 17:13:40 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (lkml),
-        torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        arjanv@redhat.com (Arjan van de Ven)
-In-Reply-To: <Pine.LNX.4.31.0109251448490.29600-100000@postbox.aslab.com> from "Andre Hedrick" at Sep 26, 2001 12:03:06 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S275291AbRIZQQS>; Wed, 26 Sep 2001 12:16:18 -0400
+Received: from bgm-24-95-140-16.stny.rr.com ([24.95.140.16]:32753 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S275289AbRIZQQI>; Wed, 26 Sep 2001 12:16:08 -0400
+Date: Wed, 26 Sep 2001 12:19:44 -0400 (EDT)
+From: Steven Rostedt <rostedt@stny.rr.com>
+X-X-Sender: <rostedt@localhost.localdomain>
+Reply-To: Steven Rostedt <srostedt@stny.rr.com>
+To: <duwe@informatik.uni-erlangen.de>
+cc: <torvalds@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] mc146818rtc.h for user land programs (2.4.10)
+Message-ID: <Pine.LNX.4.33.0109261152100.5923-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15mHJc-0000kH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It is clear that BSD is going off the deep end.
+The following patch is for linux-2.4.10
+This is needed for user land programs to use the
+mc146818rtc.h header.
 
-Andre - 99% of the BSD developers are sane reasonable people. They have
-their kooks we have ours. Since both headers appear to be representations
-of a third party datastructure the matter is also completely irrelevant.
-I would suggest folks read up a little on copyright law with regard to
-interfaces and definitions.
 
-Now if Arjan did copy the stuff by reference to the BSD drivers, then no
-he didn't do anything wrong - but I agree it would have been polite to have
-duly credited it. It would also have been polite if the BSD person concerned
-had contacted him privately and asked too
 
-Alan
+--- include/linux/mc146818rtc.h.orig    Wed Sep 26 23:43:00 2001
++++ include/linux/mc146818rtc.h Wed Sep 26 23:43:25 2001
+@@ -16,7 +16,9 @@
+ #include <linux/spinlock.h>            /* spinlock_t */
+ #include <asm/mc146818rtc.h>           /* register access macros */
+
++#ifdef __KERNEL__
+ extern spinlock_t rtc_lock;            /* serialize CMOS RAM access */
++#endif
+
+ /**********************************************************************
+  * register summary
+
+
+

@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266425AbRGCCpV>; Mon, 2 Jul 2001 22:45:21 -0400
+	id <S266428AbRGCCvl>; Mon, 2 Jul 2001 22:51:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266426AbRGCCpL>; Mon, 2 Jul 2001 22:45:11 -0400
-Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:14803 "EHLO
-	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S266425AbRGCCpE>; Mon, 2 Jul 2001 22:45:04 -0400
-Message-Id: <3.0.6.32.20010702224503.007ab870@popserver.panix.com>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Mon, 02 Jul 2001 22:45:03 -0400
+	id <S266427AbRGCCvc>; Mon, 2 Jul 2001 22:51:32 -0400
+Received: from ns.kias.re.kr ([210.98.29.2]:37007 "EHLO ns.kias.re.kr")
+	by vger.kernel.org with ESMTP id <S266428AbRGCCvU>;
+	Mon, 2 Jul 2001 22:51:20 -0400
+Date: Tue, 3 Jul 2001 11:52:10 +0900 (KST)
+From: <newton@ns.kias.re.kr>
 To: linux-kernel@vger.kernel.org
-From: Jim Rankin <jrankin@panix.com>
-Subject: RH kernel 2.2.19-6.2.7, md_setup_drive, reference undefined
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Subject: [Q] IP Autoconfiguration problem..???
+Message-ID: <Pine.GSO.3.96K.1010703114612.10699A-100000@ns.kias.re.kr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I attempt to build a custom version of the Red Hat kernel 2.2.19-6.2.7
-in Red Hat 6.2, the compile aborts with
 
-init/main.o(.data.init+0x13c): undefined reference to `md_setup'
-drivers/block/block.a(genhd.o): In function `device_setup':
-genhd.o(.text.init+0x13a): undefined reference to `md_setup_drive'
-make: *** [vmlinux] Error 1
+Hi,
 
-Anybody know what's wrong?
+I use kernel 2.4.5 with IP Autoconfiguration included
+dhcp, bootp, rarp .
 
-Jim
+but, This kernel has not request IP to my dhcp server.
+so, kernel panic...
 
+But, kernel 2.4.3 has no any problem.
 
+Help me!
 
+Peace be with you...:)
+
+                           Kihyung Ju
+
+------------------------------------------------------------------
+I love Jesus Christ who is my savior. He gives me meanning of life.
+In Christ, I have become shepherd and bible teacher.
+ 
+e-mail : newton@kias.re.kr
+home   : http://newton.skku.ac.kr/~newton (My old home page)
+ 
+------------------------------------------------------------------
 

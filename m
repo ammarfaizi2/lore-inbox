@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293013AbSBVVvh>; Fri, 22 Feb 2002 16:51:37 -0500
+	id <S293009AbSBVVth>; Fri, 22 Feb 2002 16:49:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293014AbSBVVv1>; Fri, 22 Feb 2002 16:51:27 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:58896 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S293013AbSBVVvK>;
-	Fri, 22 Feb 2002 16:51:10 -0500
-Date: Fri, 22 Feb 2002 13:45:32 -0800
-From: Greg KH <greg@kroah.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: G?rard Roudier <groudier@free.fr>, Arjan van de Ven <arjanv@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-Message-ID: <20020222214532.GB10333@kroah.com>
-In-Reply-To: <20020222154011.B5783@suse.cz> <20020221211606.F1418-100000@gerard> <20020222223444.A7238@suse.cz>
+	id <S293011AbSBVVtU>; Fri, 22 Feb 2002 16:49:20 -0500
+Received: from casbah.gatech.edu ([130.207.165.18]:2261 "EHLO
+	casbah.gatech.edu") by vger.kernel.org with ESMTP
+	id <S293009AbSBVVtF>; Fri, 22 Feb 2002 16:49:05 -0500
+Subject: Re: more detailed information about the AMD 1.6+ GHz MP smp-problem
+From: Rob Myers <rob.myers@gtri.gatech.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: mw@suk.net, linux-kernel@vger.kernel.org
+In-Reply-To: <E16dtT5-0006wD-00@the-village.bc.nu>
+In-Reply-To: <E16dtT5-0006wD-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 22 Feb 2002 16:49:24 -0500
+Message-Id: <1014414565.1231.263.camel@ransom>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020222223444.A7238@suse.cz>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Fri, 25 Jan 2002 19:36:42 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 22, 2002 at 10:34:44PM +0100, Vojtech Pavlik wrote:
+On Thu, 2002-02-21 at 08:41, Alan Cox wrote:
+> > if anyone knows what bios settings and kernel bits make this board
+> > stable please pass that info along...
 > 
-> And because of that, I do not think that having the host adapters decide
-> what device gets what number is a good idea. They should provide the
-> information if they have it, but the final decision should definitely be
-> done in userspace, by the hotplug agent.
+> MP table on 
+> MP table version 1.1
 > 
-> Ie. it should be configurable.
+> You want 2.4.18-rc2 in order to get the fixups for what appears to be a BIOS
+> PCI compliance config problem. You also may need to remove any 3com gige
+> cards using broadcom chipsets.
 
-I totally agree.  Network devices are now configured by the hotplug
-agent and can handle different PCI probe order, rearranging cards in a
-system, and other fun things that cause them to be initialized in a
-different order.  All of this now "just works" as far as the user is
-concerned.
+ah thank you, those settings work nicely.  turns out i had a bad
+motherboard.  the new one seems rock solid (after one day).  redhat 7.2
+kernels 2.4.7-10 and 2.4.9-21 worked for me, as does 2.4.18-rc4.  
 
-I don't see why SCSI should be any different.
+so if anyone else is having trouble with an asus a7m266d *with the
+proper bios settings*, its possible (likely?) you've got a bad
+motherboard.
 
-thanks,
+rob.
 
-greg k-h
+ps- for the record my stable configuration includes 2 AMD Athlon(TM) XP
+1900+, matrox g200, intel eepro100, hdd, and floppy.
+
+[root@localhost root]# lspci
+00:00.0 Host bridge: Advanced Micro Devices [AMD]: Unknown device 700c
+(rev 11)
+00:01.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 700d
+00:07.0 ISA bridge: Advanced Micro Devices [AMD]: Unknown device 7440
+(rev 04)
+00:07.1 IDE interface: Advanced Micro Devices [AMD]: Unknown device 7441
+(rev 04)
+00:07.3 Bridge: Advanced Micro Devices [AMD]: Unknown device 7443 (rev
+03)
+00:10.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 7448
+(rev 04)
+01:05.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 AGP
+(rev 01)
+02:04.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev
+10)
+02:06.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100]
+(rev 08)
+
+

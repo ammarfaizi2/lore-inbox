@@ -1,105 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269237AbUJQRoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269242AbUJQRyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269237AbUJQRoz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 13:44:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269239AbUJQRoz
+	id S269242AbUJQRyk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 13:54:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269243AbUJQRyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 13:44:55 -0400
-Received: from pop.gmx.de ([213.165.64.20]:16875 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S269237AbUJQRnG (ORCPT
+	Sun, 17 Oct 2004 13:54:40 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:30841 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269242AbUJQRyF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 13:43:06 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
-Date: Sun, 17 Oct 2004 19:46:31 +0200
-User-Agent: KMail/1.7
-Cc: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Daniel Walker <dwalker@mvista.com>,
-       Bill Huey <bhuey@lnxw.com>, Andrew Morton <akpm@osdl.org>,
-       Adam Heath <doogie@debian.org>,
-       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
-       Andrew Rodland <arodland@entermail.net>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <200410162344.41533.dominik.karall@gmx.net> <87k6tpwebi.fsf@devron.myhome.or.jp>
-In-Reply-To: <87k6tpwebi.fsf@devron.myhome.or.jp>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2517290.xttWXIDIS9";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Sun, 17 Oct 2004 13:54:05 -0400
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=gJNJvZKP0vEhB3K9N6vYCgk1eAySHHuSNY4wVM3nGg2ujaT5Qo08MFx1XlnM5sNMJp7i4e/+Q+eHKKqSkzpBiJ85x0/Nl2TYaMs22PjbHi4lqzclVWWzF3AAIylZADyjrRogj0nv2AuAeHqiZnhP2J0NYnKpxM4pPN9SloVADG8
+Message-ID: <5d6b657504101710542e054f53@mail.gmail.com>
+Date: Sun, 17 Oct 2004 19:54:04 +0200
+From: Buddy Lucas <buddy.lucas@gmail.com>
+Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Cc: David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041017172244.GM7468@marowsky-bree.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410171946.33472.dominik.karall@gmx.net>
+References: <20041016062512.GA17971@mark.mielke.cc>
+	 <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com>
+	 <20041017133537.GL7468@marowsky-bree.de>
+	 <5d6b657504101707175aab0fcb@mail.gmail.com>
+	 <20041017172244.GM7468@marowsky-bree.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2517290.xttWXIDIS9
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Sun, 17 Oct 2004 19:22:44 +0200, Lars Marowsky-Bree <lmb@suse.de> wrote:
+> On 2004-10-17T16:17:06, Buddy Lucas <buddy.lucas@gmail.com> wrote:
+> 
+> > > The SuV spec is actually quite detailed about the options here:
+> > >
+> > >         A descriptor shall be considered ready for reading when a call
+> > >         to an input function with O_NONBLOCK clear would not block,
+> > >         whether or not the function would transfer data successfully.
+> > >         (The function might return data, an end-of-file indication, or
+> > >         an error other than one indicating that it is blocked, and in
+> > >         each of these cases the descriptor shall be considered ready for
+> > >         reading.)
+> > But it says nowhere that the select()/recvmsg() operation is atomic, right?
+> 
+> See, Buddy, the point here is that Linux _does_ violate the
+> specification. You can try weaseling out of it, but it's not going to
+> work.
 
-On Sunday 17 October 2004 17:32, OGAWA Hirofumi wrote:
-> Dominik Karall <dominik.karall@gmx.net> writes:
-> > i could reproduce it now, but only once. it appeared when i started an
-> > avi movie from my fat32 partition. mplayer stopped at buffering 2% and
-> > does not play the movie. i tried to start mplayer again and reproduce i=
-t,
-> > but the bug does not appear again. mplayer only stopped at 2% buffering
-> > and does nothing more. it seems like the file couldn't be read clearly
-> > now from the fat32 partition, as it does not work with xine and others
-> > too.
-> > here is the bug i get now:
-> >
-> > ------------[ cut here ]------------
-> > kernel BUG at fs/fat/cache.c:150!
->
-> Probably this BUG_ON() was wrong. Does this bug occur only by the
-> specific file?
->
-> If so, please do "filefrag -v filename" against that file.
->
-> Then, can you try the attached patch? This patch removes the BUG_ON(),
-> and instead adds printk() for debugging. When the bug occured, it prints
-> the current cache.
->
-> Thanks.
+Sigh. Read the quote to which I responded again. Not a word about
+atomicity. Nowhere does it say that a descriptor which was ready for
+reading at select() time is still readable at recvmsg() time. There is
+no doubt that it would be very nice if select() would say something
+useful, but that's not the issue here.
 
-yes, the bug only occurs on a specific file.
-as the bug is present in -mm1 (without vp) too, i applied your patch to tha=
-t=20
-one. here is the output:
+> This isn't per se the same as saying that it's not a sensible violation,
+> but very clearly the specs disagree with the current Linux behaviour.
 
-fat_cache_check: id 0, contig 6415, fclus 38231, dclus 1010103
-contig 6416, fclus 38231, dclus 1010103
-contig 0, fclus 32, dclus 603964
-contig 1, fclus 30, dclus 603960
-contig 7, fclus 22, dclus 603950
-contig 4, fclus 17, dclus 603943
-contig 1, fclus 15, dclus 603940
-contig 6, fclus 8, dclus 603931
-contig 0, fclus 7, dclus 603929
+So document it.
 
-and the movie starts to play in mplayer without problems. tell me if you ne=
-ed=20
-more debugging!
+> It's impossible to claim that you are allowed by the spec to block on a
+> recvmsg directly following a successful select. You are not. You could
+> claim that, but you'd be wrong.
 
-best regards,
-dominik
+Empty statement.
 
---nextPart2517290.xttWXIDIS9
-Content-Type: application/pgp-signature
+> If the packet has been dropped in between, which _could_ have happened
+> because UDP is allowed to be dropped basically anywhere, EIO may be
+> returned. But blocking or returning EAGAIN/EWOULDBLOCK is verboten. The
+> spec is very clearly on that.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Obviously returning EAGAIN/EWOULDBLOCK while reading from a blocking
+fd is not what we want (in the situation at hand). I don't see how it
+relates to the discussion.
 
-iQCVAwUAQXKv+QvcoSHvsHMnAQIjzgP/R3C9RgbwnCoYPeGjcVINlMgQGMvsioob
-9jXOj4tYd+g1jcALyLhpQDGisySsnkk99jB+Deq0GV2SupWlPkUVwjjaSMkE/i2W
-D9IRsKwtlW8BW3A3qGQW8bmVPkMmZL0IXapDKoe+QR/VgI45YwlHU7LoMmEWu0dU
-+aA0EuGFEwE=
-=w52T
------END PGP SIGNATURE-----
+> (Now I'd claim that returning EIO after a succesful select is also
+> slightly suboptimal - the performance optimizations should be turned off
+> for blocking sockets, IMHO, and the data which caused the select() to
+> return should be considered comitted - but it would be allowed.)
+> I'm not so sure what's so hard to accept about that. It may be well that
+> Linux is following the de-facto industry standard (or even setting it)
+> here, and I'd agree that if you don't want blocking use O_NONBLOCK, but
+> in no way can Linux claim POSIX/SuV spec compliance for this behaviour.
 
---nextPart2517290.xttWXIDIS9--
+It doesn't.
+
+
+Cheers,
+Buddy

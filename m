@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131816AbRCQVkO>; Sat, 17 Mar 2001 16:40:14 -0500
+	id <S131774AbRCQVop>; Sat, 17 Mar 2001 16:44:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131819AbRCQVkE>; Sat, 17 Mar 2001 16:40:04 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:44029 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S131816AbRCQVjs>;
-	Sat, 17 Mar 2001 16:39:48 -0500
-Date: Sat, 17 Mar 2001 13:43:18 -0800
+	id <S131815AbRCQVoe>; Sat, 17 Mar 2001 16:44:34 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:35823 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S131774AbRCQVo2>;
+	Sat, 17 Mar 2001 16:44:28 -0500
+Date: Sat, 17 Mar 2001 13:47:58 -0800
 From: Greg KH <greg@kroah.com>
-To: Junfeng Yang <yjf@stanford.edu>
-Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu
-Subject: Re: [CHECKER] 120 potential dereference to invalid pointers errors for linux 2.4.1
-Message-ID: <20010317134318.A6382@wirex.com>
-Mail-Followup-To: Greg KH <greg@kroah.com>, Junfeng Yang <yjf@stanford.edu>,
-	linux-kernel@vger.kernel.org, mc@cs.stanford.edu
-In-Reply-To: <Pine.GSO.4.31.0103170126540.14147-100000@elaine24.Stanford.EDU>
+To: Seth Andrew Hallem <shallem@Stanford.EDU>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Potential free/use-after-free bugs
+Message-ID: <20010317134758.B6382@wirex.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	Seth Andrew Hallem <shallem@Stanford.EDU>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010316221730.B17586@elaine23.stanford.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.31.0103170126540.14147-100000@elaine24.Stanford.EDU>; from yjf@stanford.edu on Sat, Mar 17, 2001 at 01:30:54AM -0800
+In-Reply-To: <20010316221730.B17586@elaine23.stanford.edu>; from shallem@Stanford.EDU on Fri, Mar 16, 2001 at 10:17:30PM -0800
 X-Operating-System: Linux 2.4.2-immunix (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 17, 2001 at 01:30:54AM -0800, Junfeng Yang wrote:
-> ---------------------------------------------------------
-> [BUG] dereference to invalid pointer "bluetooth" in error message
-> /u2/acc/oses/linux/2.4.1/drivers/usb/bluetooth.c:924:bluetooth_read_bulk_callback: ERROR:NULL:828:924: Using NULL ptr "bluetooth" illegally! set by 'get_usb_bluetooth':828
+On Fri, Mar 16, 2001 at 10:17:30PM -0800, Seth Andrew Hallem wrote:
+> [BUG] Potential double or more free.
+> /home/shallem/oses/linux/2.4.1/drivers/usb/serial/belkin_sa.c:236:belkin_sa_shutdown:
+> ERROR:FREE:237:236: Use-after-free of 'private'! set by 'kfree':237
 > 
+> 		}
+> 		/* My special items, the standard routines free my urbs */
+> 		if (serial->port->private)
+> Error --->
 > Start --->
-> 	struct usb_bluetooth *bluetooth = get_usb_bluetooth ((struct usb_bluetooth *)urb->context, __FUNCTION__);
-> 	unsigned char *data = urb->transfer_buffer;
-> 	unsigned int count = urb->actual_length;
-> 	unsigned int i;
-> 	unsigned int packet_size;
-> 
-> 	... DELETED 88 lines ...
-> 
-> 		bluetooth->bulk_packet_pos = 0;
+> 			kfree(serial->port->private);
 > 	}
 > 
-> exit:
-> Error --->
-> 	FILL_BULK_URB(bluetooth->read_urb, bluetooth->dev,
-> 		      usb_rcvbulkpipe(bluetooth->dev, bluetooth->bulk_in_endpointAddress),
+> [BUG] Copy paste of above potential bug.
+> /home/shallem/oses/linux/2.4.1/drivers/usb/serial/mct_u232.c:277:mct_u232_shutdown:
+> ERROR:FREE:278:277: Use-after-free of 'private'! set by 'kfree':278
+> 
+> [BUG]
 
-This has already been fixed in a patch that was sent to the
-linux-usb-devel and bluetooth mailing lists, but hasn't made it into the
-kernel tree yet.
+Damn fine catch, the author meant to say serial->port[i].private there.
 
-But good catch!
-
-thanks,
+Thanks, I'll fix these up.
 
 greg k-h
 
 -- 
 greg@(kroah|wirex).com
-http://immunix.org/~greg

@@ -1,75 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261809AbTDQUyv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 16:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262637AbTDQUyv
+	id S261885AbTDQUw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 16:52:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbTDQUw0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 16:54:51 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:5542 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261809AbTDQUyt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 16:54:49 -0400
-Message-ID: <3E9F175E.1000504@nortelnetworks.com>
-Date: Thu, 17 Apr 2003 17:06:38 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	Thu, 17 Apr 2003 16:52:26 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:56557 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S261885AbTDQUwX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 16:52:23 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780C2630D5@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'karim@opersys.com'" <karim@opersys.com>
+Cc: "'Martin Hicks'" <mort@wildopensource.com>,
+       "'Daniel Stekloff'" <dsteklof@us.ibm.com>,
+       "'Patrick Mochel'" <mochel@osdl.org>,
+       "'Randy.Dunlap'" <rddunlap@osdl.org>, "'hpa@zytor.com'" <hpa@zytor.com>,
+       "'pavel@ucw.cz'" <pavel@ucw.cz>,
+       "'jes@wildopensource.com'" <jes@wildopensource.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'wildos@sgi.com'" <wildos@sgi.com>,
+       "'Tom Zanussi'" <zanussi@us.ibm.com>
+Subject: RE: [patch] printk subsystems
+Date: Thu, 17 Apr 2003 14:03:47 -0700
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: trying to understand mmap, msync, O_SYNC, and devices
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-With the discussions over the past while, it is now clear that shared mappings 
-of normal files will not be written out until forced to, and that this is the 
-correct thing to do in almost all cases.
 
-In this case, changing something in the mapped area will make the changes 
-visible to all other processes mapping the same area, but the changes are not 
-guaranteed to be flushed to the backing store.
+> From: Karim Yaghmour [mailto:karim@opersys.com]
+> 
+> "Perez-Gonzalez, Inaky" wrote:
+> > But you don't need to provide buffers, because normally the data
+> > is already in the kernel, so why need to copy it to another buffer
+> > for delivery?
+> 
+> There is no copying going on. As with kue, you have to have a
+> packaged structure somewhere to send to the recipient. As per
+> your code:
+> +       _m4 = kmalloc (sizeof (*_m4), GFP_KERNEL);
+> +       memcpy (_m4, &m4, sizeof (m4));
+> +       _m4->kue.flags = KUE_KFREE;
+> +       kue_send_event (&_m4->kue);
+> 
+> _m4 and m4 are placeholders that must exist before being queued,
+> there's just no way around that. 
 
-What I am not clear on is how this interacts with mapping *devices*.  Does it 
-still go through the buffer cache?
+Yep, that is the point, and it is small enough (5 ulongs) that 
+it can be embedded anywhere without being of high impact and 
+having to allocate it [first example that comes to mind is
+for sending a device connection message; you can embed a short
+message in the device structure and query that for delivery;
+no buffer, no nothing, the data straight from the source].
 
+I didn't want to use buffers for all the reasons people has
+exposed. They involve allocation of space, somehow [inside
+of the buffer for example] and there is a time when you
+have to start dropping things. When kue you can avoid that
+when your messages are embedded in your dat structs [provided
+you keep them small, if they are huge, well, you loose -
+that is a conceptual limitation].
 
-Details follow for those who are interested:
+> When the channel buffer is mmap'ed in the user-process' address space,
+> all that is needed is a write() with a pointer to the buffer for it
+> to go to storage. There is zero-copying going on here.
 
-I have hardware which does not wipe ram on reset as long as it is not powered 
-off.  On boot I force a limit on the amount of memory used by the kernel, which 
-leaves a chunk of unused memory beyond normally-accessable memory.  I have a 
-char driver which then implements mmap by mapping this memory to the calling 
-process.  This mapping is shared between many processes and is used for logging, 
-with appropriate locking mechanisms.
+That's a nice thing of your approach; kue cannot do mmap().
 
-My key issue is this--how do I ensure that the contents of this memory are 
-consistant and up to date when the board may be rebooted at any time?
+> Plus, kue uses lists with next & prev pointers. That simply won't
+> scale if you have a buffer filling at the rate of 10,000 events/s.
 
-I have three levels of enforcement that I have considered:
+Well, the total overhead for queuing an event is strictly O(1),
+bar the acquisition of the queue's semaphore in the middle [I
+still hadn't time to finish this and post it, btw]. I think it
+is pretty scalable assuming you don't have the whole system 
+delivering to a single queue.
 
-1) Opening the device with O_SYNC.  This also tells the mmap code in the driver 
-to set the memory to uncached, the same way that mem.c does in pgprot_noncached().
+Total is four lines if I unfold __kue_queue(), and the list_add_tail()
+is not that complex. That's versus relay_write(), that I think is the
+equivalent function [bar the extra goodies] is more complex
+[disclaimer: this is just looking over the 030317 patch's shoulder,
+I am in kind of a rush - feel free to correct me here].
 
-2) Calls to wmb() in the code to enforce order when setting critical fields.
+> Also, at that rate, you simply can't wait on the reader to read
+> events one-by-one until you can reuse the structure where you
+> stored the data to be read.
 
-3) Explicit calls to msync() in place of the wmb() calls. (Which slows it down 
-by a factor of 2.5 as compared to #2.)
+That's the difference. I don't intend to have that. The data 
+storage can be reused or not, that is up to the client of the
+kernel API. They still can reuse it if needed by reclaiming the
+event (recall_event), refilling the data and re-sending it.
 
+That's where the send-and-forget method helps: provide a 
+destructor [will replace the 'flags' field - have it cooking
+on my CVS] that will be called once the event is delivered 
+to all parties [if not NULL]. Then you can implement your 
+own recovery system using a circular buffer, or kmalloc or
+whatever you wish.
 
-I assume that #1 is required to guard against resetting of the board.  Beyond 
-that is #2 sufficient, or is #3 required?
+> relayfs) and the reader has to read events by the thousand every
+> time.
+
+The reader can do that, in user space; as many events as
+fit into the reader-provided buffer will be delivered.
+
+> > This is where I think relayfs is doing too much, and that is the
+> > reason why I implemented the kue stuff. It is very lightweight
+> > and does almost the same [of course, it is not bidirectional, but
+> > still nobody asked for that].
+> 
+> relayfs is there to solve the data transfer problems for the most
+> demanding of applications. Sending a few messages here and there
+> isn't really a problem. Sending messages/events/what-you-want-to-call-it
+> by the thousand every second, while using as little locking as possible
+> (lockless-logging is implemented in the case of relayfs' buffer handling
+> routines), and providing per-cpu buffering requires a different beast.
+
+Well, you are doing an IRQ lock (relay_lock_channel()), so it is not
+lockless. Or am I missing anything here? Please let me know, I am
+really interested on how to reduce locking in for logging to the 
+minimal.
 
 Thanks,
 
-Chris
+BTW: I am going to be out of town from five minutes from now until
+Monday ... not that I don't want to keep reading :)
 
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

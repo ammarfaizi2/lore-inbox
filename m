@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266517AbUF0CIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267240AbUF0CJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266517AbUF0CIi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 22:08:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267240AbUF0CIi
+	id S267240AbUF0CJq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 22:09:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267241AbUF0CJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 22:08:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:57740 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266517AbUF0CIh (ORCPT
+	Sat, 26 Jun 2004 22:09:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:24263 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267240AbUF0CJe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 22:08:37 -0400
-Date: Sat, 26 Jun 2004 19:08:27 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-Cc: greg@kroah.com, arjanv@redhat.com, jgarzik@redhat.com, tburke@redhat.com,
-       linux-kernel@vger.kernel.org,
-       USB Storage List <usb-storage@lists.one-eyed-alien.net>,
-       stern@rowland.harvard.edu, david-b@pacbell.net, oliver@neukum.org,
-       zaitcev@redhat.com
-Subject: Re: drivers/block/ub.c
-Message-Id: <20040626190827.7c919940@lembas.zaitcev.lan>
-In-Reply-To: <20040626201225.GA2149@one-eyed-alien.net>
-References: <20040626130645.55be13ce@lembas.zaitcev.lan>
-	<20040626201225.GA2149@one-eyed-alien.net>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 26 Jun 2004 22:09:34 -0400
+Date: Sat, 26 Jun 2004 19:08:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Luca Risolia <luca.risolia@studio.unibo.it>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: [BUG 2.6.7-mm1] sysfs - possible bug
+Message-Id: <20040626190835.68eb63cb.akpm@osdl.org>
+In-Reply-To: <20040627065816.11c3e28d.luca.risolia@studio.unibo.it>
+References: <20040627065816.11c3e28d.luca.risolia@studio.unibo.it>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 Jun 2004 13:12:25 -0700
-Matthew Dharm <mdharm-kernel@one-eyed-alien.net> wrote:
+Luca Risolia <luca.risolia@studio.unibo.it> wrote:
+>
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> This code causes some problems:
+> 
+> static ssize_t sn9c102_show_i2c_val(struct class_device* cd, char* buf)
+> {
+> 	return -EIO;
+> }
+> static CLASS_DEVICE_ATTR(i2c_val, S_IRUGO | S_IWUSR, sn9c102_show_i2c_val, sn9c102_store_i2c_val);
 
-> Would I be correct in the following assessments:
-> (1) UB only supports direct-access type devices
-> (2) UB only supports 'transparent scsi' devices
-> (3) UB only supports 'bulk-only transport' devices
+Indeed it does.
 
-Yes, you would. Someone mentioned on usb-storage list that Windows supports
-two things only without extra drivers: Transparent SCSI over Bulk, and UFI.
-IIRC, it was Pat. So, I thought maybe to tackle drivers/block/ufi.c later,
-to share design concept and some libraries with ub. The rest stays with
-usb-storage. But the real life always introduces corrections to plans, so
-let's not get too far ahead.
+> kernel BUG at fs/sysfs/file.c:93!
 
--- Pete
+	BUG_ON(count > PAGE_SIZE);
+
+isn't right, because PAGE_SIZE is unsigned.
+
+I'll send the below fix to Linus.
+
+--- 25/fs/sysfs/file.c~sysfs-fill_read_buffer-fix	2004-06-26 19:03:11.821870464 -0700
++++ 25-akpm/fs/sysfs/file.c	2004-06-26 19:03:20.119609016 -0700
+@@ -83,7 +83,7 @@ static int fill_read_buffer(struct file 
+ 		return -ENOMEM;
+ 
+ 	count = ops->show(kobj,attr,buffer->page);
+-	BUG_ON(count > PAGE_SIZE);
++	BUG_ON(count > (ssize_t)PAGE_SIZE);
+ 	if (count >= 0)
+ 		buffer->count = count;
+ 	else
+_
+

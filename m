@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263589AbSKFKLm>; Wed, 6 Nov 2002 05:11:42 -0500
+	id <S263249AbSKFKII>; Wed, 6 Nov 2002 05:08:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263711AbSKFKLm>; Wed, 6 Nov 2002 05:11:42 -0500
-Received: from pc-80-195-35-58-ed.blueyonder.co.uk ([80.195.35.58]:57472 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S263589AbSKFKLl>; Wed, 6 Nov 2002 05:11:41 -0500
-Date: Wed, 6 Nov 2002 10:18:06 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Christopher Li <chrisl@vmware.com>
-Cc: "'Jens Axboe '" <axboe@suse.de>,
-       "'Linux Kernel '" <linux-kernel@vger.kernel.org>,
-       "'ext2-devel@lists.sourceforge.net '" 
-	<ext2-devel@lists.sourceforge.net>
-Subject: Re: [Ext2-devel] Re: 2.5.46 ext3 errors
-Message-ID: <20021106101806.B2663@redhat.com>
-References: <3C77B405ABE6D611A93A00065B3FFBBA36A493@PA-EXCH2>
-Mime-Version: 1.0
+	id <S263589AbSKFKII>; Wed, 6 Nov 2002 05:08:08 -0500
+Received: from web20502.mail.yahoo.com ([216.136.226.137]:34060 "HELO
+	web20502.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S263249AbSKFKIH>; Wed, 6 Nov 2002 05:08:07 -0500
+Message-ID: <20021106101445.42142.qmail@web20502.mail.yahoo.com>
+Date: Wed, 6 Nov 2002 02:14:45 -0800 (PST)
+From: vasya vasyaev <vasya197@yahoo.com>
+Subject: RE: Machine's high load when HIGHMEM is enabled
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+In-Reply-To: <F2DBA543B89AD51184B600508B68D4000F2ED497@fmsmsx103.fm.intel.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C77B405ABE6D611A93A00065B3FFBBA36A493@PA-EXCH2>; from chrisl@vmware.com on Wed, Nov 06, 2002 at 01:43:45AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
+It seems "mem=2016M" is what we need, box works
+approximately as fast as without enabled HIGHMEM.
+Thank you!
 
-On Wed, Nov 06, 2002 at 01:43:45AM -0800, Christopher Li wrote:
-> Can you put the e2image of that device to some URL I can
-> download?
+BTW, we are using 4x512 Mb ECC Registered memory
+modules, so they seems not to be mixed...
 
-It's unlikely to be useful.  A journal abort will cause existing
-transactions to be suspended midstream, so any errors afterwards may
-be due to updates which were in progress at the time and which didn't
-complete.  And since a fsck has been done, we've lost those errors
-anyway.
 
-Is the problem reproducible?  The basic
 
-> EXT3-fs error (device ide1(22,1)): ext3_new_inode: Free inodes count
-> corrupted in group 688 Aborting journal on device ide1(22,1).
+As this problem has gone, there is last question (I
+hope ;-):
+How can I control amount of memory used for disk cache
+in recent kernels (2.4.18, 19)?
+("Cached:" field in `cat /proc/meminfo`)
+I have to be sure that free memory is not used for
+caching of disk operations (or how many of it is used
+for caching)
 
-error is just ext3's normal reaction to a fatal error detected in the
-filesystem, so that in itself isn't a worry.  The cause of the problem
-it spotted is the worry; is this reproducible?
+Thanks and please CC.
 
-Cheers,
- Stephen
+
+
+--- "Nakajima, Jun" <jun.nakajima@intel.com> wrote:
+> To me it looks this MTRR does not cover the memory
+> range reported by E820.
+> 
+> > reg05: base=0x7c000000 (1984MB), size=  32MB:
+> > write-back, count=1
+> 
+> This covers [0x7c000000 - 0x7e000000).
+> 
+> >  BIOS-e820: 0000000000100000 - 000000007f800000
+> > (usable)
+> But it says memory is available up to 0x7f800000. 
+> So try mem=2016M ?  
+> (2048 - 32 = 2016)
+> 
+> I guess you are mixing various memory modules.
+> 
+> Jun
+
+
+__________________________________________________
+Do you Yahoo!?
+HotJobs - Search new jobs daily now
+http://hotjobs.yahoo.com/

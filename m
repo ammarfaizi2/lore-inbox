@@ -1,155 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265552AbUBAXjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 18:39:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265557AbUBAXjQ
+	id S265573AbUBAXnd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 18:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265567AbUBAXnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 18:39:16 -0500
-Received: from sputnik.bioma.se ([212.112.42.34]:46984 "EHLO sputnik.bktv.se")
-	by vger.kernel.org with ESMTP id S265552AbUBAXjJ (ORCPT
+	Sun, 1 Feb 2004 18:43:33 -0500
+Received: from s4.uklinux.net ([80.84.72.14]:37844 "EHLO mail2.uklinux.net")
+	by vger.kernel.org with ESMTP id S265573AbUBAXnc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 18:39:09 -0500
-Message-ID: <401D8E17.1020805@lmpnet.se>
-Date: Mon, 02 Feb 2004 00:39:03 +0100
-From: Michael Jonsson <micke@lmpnet.se>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Sun, 1 Feb 2004 18:43:32 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1 slower than 2.4, smp/scsi/sw-raid/reiserfs
+References: <87oesieb75.fsf@codematters.co.uk>
+	<20040201151111.4a6b64c3.akpm@osdl.org>
+From: Philip Martin <philip@codematters.co.uk>
+Date: Sun, 01 Feb 2004 23:42:55 +0000
+In-Reply-To: <20040201151111.4a6b64c3.akpm@osdl.org> (Andrew Morton's
+ message of "Sun, 1 Feb 2004 15:11:11 -0800")
+Message-ID: <87k736e58g.fsf@codematters.co.uk>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Common Lisp, linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: smbfs build error kernel-2.6.1
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton <akpm@osdl.org> writes:
 
-I get an error when I try to build kernel-2.6.1 with smbfs,
+> Philip Martin <philip@codematters.co.uk> wrote:
+>>
+>>  My test is a software build of about 200 source files (written in C)
+>>  that I usually build using "nice make -j4".
+>
+> Tried -j3?
 
-************************************************
-make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-  CHK     include/linux/compile.h
-  CC [M]  fs/smbfs/proc.o
-fs/smbfs/proc.c:33:19: proto.h: No such file or directory
-fs/smbfs/proc.c: In function `smb_request_ok':
-fs/smbfs/proc.c:826: warning: implicit declaration of function 
-`smb_add_request'
-fs/smbfs/proc.c: In function `smb_newconn':
-fs/smbfs/proc.c:874: warning: implicit declaration of function 
-`smb_valid_socket'
-fs/smbfs/proc.c:903: error: `smb_data_ready' undeclared (first use in 
-this function)
-fs/smbfs/proc.c:903: error: (Each undeclared identifier is reported only 
-once
-fs/smbfs/proc.c:903: error: for each function it appears in.)
-fs/smbfs/proc.c:968: error: `smb_dir_inode_operations_unix' undeclared 
-(first use in this function)
-fs/smbfs/proc.c:981: warning: implicit declaration of function 
-`smbiod_wake_up'
-fs/smbfs/proc.c: In function `smb_proc_seek':
-fs/smbfs/proc.c:1071: warning: implicit declaration of function 
-`smb_alloc_request'
-fs/smbfs/proc.c:1071: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c:1088: warning: implicit declaration of function `smb_rput'
-fs/smbfs/proc.c: In function `smb_proc_open':
-fs/smbfs/proc.c:1121: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_open':
-fs/smbfs/proc.c:1192: warning: implicit declaration of function 
-`smb_renew_times'
-fs/smbfs/proc.c: In function `smb_proc_close':
-fs/smbfs/proc.c:1215: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_close_inode':
-fs/smbfs/proc.c:1270: warning: implicit declaration of function 
-`smb_get_inode_attr'
-fs/smbfs/proc.c: In function `smb_proc_read':
-fs/smbfs/proc.c:1339: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_write':
-fs/smbfs/proc.c:1387: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_readX':
-fs/smbfs/proc.c:1461: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_writeX':
-fs/smbfs/proc.c:1507: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_create':
-fs/smbfs/proc.c:1551: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_mv':
-fs/smbfs/proc.c:1584: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_generic_command':
-fs/smbfs/proc.c:1619: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_unlink':
-fs/smbfs/proc.c:1690: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_flush':
-fs/smbfs/proc.c:1742: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_trunc64':
-fs/smbfs/proc.c:1776: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_readdir_short':
-fs/smbfs/proc.c:1978: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c:2065: warning: implicit declaration of function 
-`smb_fill_cache'
-fs/smbfs/proc.c: In function `smb_proc_readdir_long':
-fs/smbfs/proc.c:2308: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_getattr_ff':
-fs/smbfs/proc.c:2512: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_getattr_core':
-fs/smbfs/proc.c:2594: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_getattr_trans2_std':
-fs/smbfs/proc.c:2679: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_getattr_trans2_all':
-fs/smbfs/proc.c:2729: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_getattr_unix':
-fs/smbfs/proc.c:2760: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_setattr_core':
-fs/smbfs/proc.c:2846: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_setattr_ext':
-fs/smbfs/proc.c:2908: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_setattr_trans2':
-fs/smbfs/proc.c:2954: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_setattr_unix':
-fs/smbfs/proc.c:3028: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_dskattr':
-fs/smbfs/proc.c:3179: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_read_link':
-fs/smbfs/proc.c:3209: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_symlink':
-fs/smbfs/proc.c:3258: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_link':
-fs/smbfs/proc.c:3301: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_query_cifsunix':
-fs/smbfs/proc.c:3346: warning: assignment makes pointer from integer 
-without a cast
-make[2]: *** [fs/smbfs/proc.o] Error 1
-make[1]: *** [fs/smbfs] Error 2
-make: *** [fs] Error 2
-***********************************************************
+I've tried -j2 and -j3, the results are much the same as -j4.
 
-Regards
-Micke
-
-
+-- 
+Philip Martin

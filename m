@@ -1,57 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319783AbSIMUcL>; Fri, 13 Sep 2002 16:32:11 -0400
+	id <S319774AbSIMUiC>; Fri, 13 Sep 2002 16:38:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319786AbSIMUcL>; Fri, 13 Sep 2002 16:32:11 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:49612 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S319783AbSIMUcK>;
-	Fri, 13 Sep 2002 16:32:10 -0400
-Date: Fri, 13 Sep 2002 13:28:42 -0700 (PDT)
-Message-Id: <20020913.132842.97163812.davem@redhat.com>
-To: akropel1@rochester.rr.com
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: Re: Streaming DMA mapping question
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020913202150.GA24340@www.kroptech.com>
-References: <20020913193916.GA5004@www.kroptech.com>
-	<20020913.123641.50140065.davem@redhat.com>
-	<20020913202150.GA24340@www.kroptech.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S319778AbSIMUiC>; Fri, 13 Sep 2002 16:38:02 -0400
+Received: from [213.4.129.129] ([213.4.129.129]:20794 "EHLO tsmtp9.mail.isp")
+	by vger.kernel.org with ESMTP id <S319774AbSIMUiA>;
+	Fri, 13 Sep 2002 16:38:00 -0400
+Date: Fri, 13 Sep 2002 22:41:39 +0200
+From: Arador <diegocg@teleline.es>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.34-mm2 kernel BUG at sched.c:944! only with CONFIG_PREEMPT=y
+Message-Id: <20020913224139.72df14ba.diegocg@teleline.es>
+In-Reply-To: <1031840041.1990.378.camel@spc9.esa.lanl.gov>
+References: <1031840041.1990.378.camel@spc9.esa.lanl.gov>
+X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Adam Kropelin <akropel1@rochester.rr.com>
-   Date: Fri, 13 Sep 2002 16:21:50 -0400
+On 12 Sep 2002 08:14:01 -0600
+Steven Cole <elenstev@mesatop.com> escribió:
 
-   On Fri, Sep 13, 2002 at 12:36:41PM -0700, David S. Miller wrote:
-   > Actually, rather it appears that the i386 pci_unmap_*() routines need
-   > the write buffer flush as well.
-   
-   Ah, a bug then. 
-   
-On further discussion with Alan Cox, the bug is actually that
-pci_map_*() needs the write buffer flush added.  pci_map_*()
-and pci_dma_sync_*() transfer ownership from CPU to PCI controller
-as abstracted in DMA-mapping.txt   Therefore these are the cases
-where the CPU write buffers need to be flushed.
+> I got the following BUG at sched.c:944! with 2.5.34-mm2 and PREEMPT on.
+> This was repeatable. 
 
-pci_unmap_*() is ok as-is.
+Same for me:
+POSIX conformance testing by UNIFIX
+Kernel BUG at sched.c:944!
 
-   I was looking at the x86 implementation to help me narrow down the possible
-   source of a bug I'm seeing in the driver. I noticed the driver was examining a
-   DMA buffer without unmapping or syncing.
+preempt, no smp, HUGETLB_PAGE
 
-Really, the cases handled by the x86 write buffer fluses are very
-marginal and unlikely to happen.  In fact the write buffer flush on
-x86 is done on winchip and ppro chips only.
+a cyrix 6x86MX 233+ with 32 MB of ram...
 
-I think you're problems are elsewhere :-)
-   
-   Kudos to you and others who spent time writing it.
-
-Thank you.
-
-   
+> 
+> With no PREEMPT, 2.5.34-mm2 booted and is running fine.  Some other
+> options used: SMP, HUGETLB_PAGE, HIGHPTE, HIGHMEM4G. 
+> 
+> System is dual p3, scsi, 1GB.
+> 
+> Steven
+> 
+> ksymoops 2.4.4 on i686 2.5.34.  Options used
+>      -v vmlinux (specified)
+>      -K (specified)
+>      -L (specified)
+>      -O (specified)
+>      -m System.map (specified)
+> 
+> kernel BUG at sched.c:944!
+> invalid operand: 0000
+> CPU:    0
+> EIP:    0060:[<c01176ff>]  Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010206
+> eax: c02d4000   ebx: c02d4000     ecx: 00000000       edx: 00000000
+> esi: 0009b800   edi: c0105000     ebp: c02d5c8        esp: c02d5fa8
+> ds: 068         es: 0068       ss: 0068
+> Stack:  c01072c4 00000060 00000286 00000000 00000000 c02d4000 0009b800 c0105000
+>         c02d5fd4 c0117ad6 00000000 0008e000 c010504b c02d68c2 c02ba3a0 00000000
+>         c027e980 0003fff0 0003fff0 c033e660 00000002 c01001b1
+> Call Trace: [<c01072c4>] [<c0105000>] [<c0117ad6>] [<c010504b>]
+> Code: 0f 0b b0 03 5f 52 28 c0 b9 00 e0 ff ff 21 e1 ff 41 10 9b 01
+> 
+> >>EIP; c01176ff <schedule+1f/3c0>   <=====
+> Trace; c01072c4 <kernel_thread_helper+0/c>
+> Trace; c0105000 <_stext+0/0>
+> Trace; c0117ad6 <preempt_schedule+36/50>
+> Trace; c010504b <rest_init+4b/50>
+> Code;  c01176ff <schedule+1f/3c0>
+> 00000000 <_EIP>:
+> Code;  c01176ff <schedule+1f/3c0>   <=====
+>    0:   0f 0b                     ud2a      <=====
+> Code;  c0117701 <schedule+21/3c0>
+>    2:   b0 03                     mov    $0x3,%al
+> Code;  c0117703 <schedule+23/3c0>
+>    4:   5f                        pop    %edi
+> Code;  c0117704 <schedule+24/3c0>
+>    5:   52                        push   %edx
+> Code;  c0117705 <schedule+25/3c0>
+>    6:   28 c0                     sub    %al,%al
+> Code;  c0117707 <schedule+27/3c0>
+>    8:   b9 00 e0 ff ff            mov    $0xffffe000,%ecx
+> Code;  c011770c <schedule+2c/3c0>
+>    d:   21 e1                     and    %esp,%ecx
+> Code;  c011770e <schedule+2e/3c0>
+>    f:   ff 41 10                  incl   0x10(%ecx)
+> Code;  c0117711 <schedule+31/3c0>
+>   12:   9b                        fwait
+> Code;  c0117712 <schedule+32/3c0>
+>   13:   01 00                     add    %eax,(%eax)
+> 
+>  <0>Kernel panic: Attempted to kill the idle task!
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,230 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130384AbRBQIkb>; Sat, 17 Feb 2001 03:40:31 -0500
+	id <S130490AbRBQIun>; Sat, 17 Feb 2001 03:50:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130490AbRBQIkV>; Sat, 17 Feb 2001 03:40:21 -0500
-Received: from [64.160.188.242] ([64.160.188.242]:45060 "HELO
-	mail.hislinuxbox.com") by vger.kernel.org with SMTP
-	id <S130384AbRBQIkL>; Sat, 17 Feb 2001 03:40:11 -0500
-Date: Sat, 17 Feb 2001 00:40:09 -0800 (PST)
-From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Asus CUV4X-D mobo
-Message-ID: <Pine.LNX.4.30.0102162000100.782-200000@ns-01.hislinuxbox.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1606356292-2039652837-982399209=:782"
+	id <S130619AbRBQIud>; Sat, 17 Feb 2001 03:50:33 -0500
+Received: from msp-65-25-214-194.mn.rr.com ([65.25.214.194]:59088 "EHLO
+	msp-65-25-214-194.mn.rr.com") by vger.kernel.org with ESMTP
+	id <S130490AbRBQIub>; Sat, 17 Feb 2001 03:50:31 -0500
+Date: Sat, 17 Feb 2001 02:49:48 -0600
+From: Rick Richardson <rickr@mn.rr.com>
+To: Anton Blanchard <anton@linuxcare.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Whats the rvmalloc() story?
+Message-ID: <20010217024948.A1726@mn.rr.com>
+In-Reply-To: <20010210220808.A18488@mn.rr.com> <20010217184633.A2484@linuxcare.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010217184633.A2484@linuxcare.com>; from anton@linuxcare.com.au on Sat, Feb 17, 2001 at 06:46:34PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Sat, Feb 17, 2001 at 06:46:34PM +1100, Anton Blanchard wrote:
+>  
+> > I note that at least 5 device drivers have similar implementations
+> > of rvmalloc()/rvfree() et al:
+> > 
+> > 	ieee1394/video1394.c
+> > 	usb/ibmcam.c
+> > 	usb/ov511.c
+> > 	media/video/bttv-driver.c
+> > 	media/video/cpia.c
+> > 
+> > rvmalloc()/rvfree() are functions that are used to allocate large
+> > amounts of physically non-contiguous kernel virtual memory that will
+> > then be mmap()'ed into a user process.
+> 
+> I had to rewrite rvmalloc and friends in the bttv driver to support the
+> new pci dynamic mapping interface. This sounds like a good time to clean
+> up all these multiple definitions.
+> 
+> Anton
 
----1606356292-2039652837-982399209=:782
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+If you are offering to do this work now, here is a thread worth
+reading which includes a patch to start from...
 
+	http://www.uwsg.iu.edu/hypermail/linux/kernel/0002.1/0586.html
 
-Well, once again, VIA chipsets cause havok. The Asus CUV4X-D
-VIA694XDP/VT82C686B chipset. The southbridge (686b) could NOT see
-it's way clear to understand what my hard drives' geometry was.
+BTW, Alan Cox sent me the following additional information in a
+private email.  Might as well get this in the mailing list archives
+for posterity so that the terms "rvmalloc" and "kiovecs" actually
+appear in the same post.  This way, at least, we all know what the
+plan for 2.6 should be.
 
-Kept getting LI every single reboot. Put the drives back on the Promise
-PDC20267 ATA100 controller and things worked just fine.
+On Tue, Feb 13 2001 at 14:21:50 -0500 (EST), Alan Cox wrote:
+> > Whats the story behind rvmalloc() et al? From what I could tell,
+> > about a year ago there were some patches to move rvmalloc() into
+> > vmalloc() as a blessed feature of the kernel. But it looks to
+> > me like these patches didn't "take".
+>  
+> The plan was to move to kiovecs for this but that didnt make 2.4.
+>  
+> > Is there some other way of doing this now? If so, does somebody
+> > need to go into these drivers and patch them for the blessed way?
+> > If not, is there some plan in place to bless these functions and
+> > remove the code duplication?
+>  
+> I have no problem with someone verifying they are duplicates and doing
+> that work.
 
-The APIC errors are gone and things have settled down with the drives
-working fine @ UDMA5. (hdparm -A1 -c1 -d1 -X69 /dev/hd#). Average disk
-speed is 32MB/s with no data corruption.
+-Rick
 
-Has anyone else experienced problems with this specific motherboard and
-the VIA chipset? I'm interested in folks using the 2.4.1-ac1# kernel or
-pristine 2.4.1 + 3.20 via82cxxx patch.
+-- 
+Rick Richardson  rickr@mn.rr.com      http://home.mn.rr.com/richardsons/
+Twins Cities traffic animations are at http://members.nbci.com/tctraffic/#1
 
-I'm also wondering if the 1/09/2001 BIOS this board has is known to have
-translation problems with Western Digital drives (specifically the
-WDC300BB00-UA1-A 30GB 7200 RPM EIDE drives) or if it's just this board.
-
-BIOS reports CHS as being 1024x16x63+LBA.
-hdparm -I /dev/hda reports CHS of 16383x16x63+LBA.
-fdisk reports CHS as 58168x16x63+LBA
-
-using neither what the drive reports or what fdisk sees as the CHS count
-in BIOS stopped the reproducable (and irritating) LI error.
-
-Switch to the Promise PDC20267 ATA100 offboard card, run lilo again and
-bam, instant LILO.
-
-Hope fully this is thorough enough. I've attached the lspci -vv output to
-this email as well.
-
-(I'm really starting to dislike this VT82C686 chipset. grrr)
-
-
----
-David D.W. Downey - RHCE
-Consulting Engineer
-Ensim Corporation - Sunnyvale, CA
-
----1606356292-2039652837-982399209=:782
-Content-Type: TEXT/plain; name="lspci-asus.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0102170040090.782@ns-01.hislinuxbox.com>
-Content-Description: lspci output asus cuv4x-d mobo
-Content-Disposition: attachment; filename="lspci-asus.txt"
-
-MDA6MDAuMCBIb3N0IGJyaWRnZTogVklBIFRlY2hub2xvZ2llcywgSW5jLiBW
-VDgyQzY5MSBbQXBvbGxvIFBST10gKHJldiBjNCkNCglTdWJzeXN0ZW06IEFz
-dXN0ZWsgQ29tcHV0ZXIsIEluYy46IFVua25vd24gZGV2aWNlIDgwMzgNCglD
-b250cm9sOiBJL08tIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJ
-TlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJC
-LQ0KCVN0YXR1czogQ2FwKyA2Nk1oei0gVURGLSBGYXN0QjJCLSBQYXJFcnIt
-IERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydCsgPlNF
-UlItIDxQRVJSKw0KCUxhdGVuY3k6IDANCglSZWdpb24gMDogTWVtb3J5IGF0
-IGZjMDAwMDAwICgzMi1iaXQsIHByZWZldGNoYWJsZSkgW3NpemU9MzJNXQ0K
-CUNhcGFiaWxpdGllczogW2EwXSBBR1AgdmVyc2lvbiAyLjANCgkJU3RhdHVz
-OiBSUT0zMSBTQkErIDY0Yml0LSBGVy0gUmF0ZT14MSx4Mg0KCQlDb21tYW5k
-OiBSUT0wIFNCQS0gQUdQLSA2NGJpdC0gRlctIFJhdGU9PG5vbmU+DQoJQ2Fw
-YWJpbGl0aWVzOiBbYzBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAyDQoJ
-CUZsYWdzOiBQTUVDbGstIERTSS0gRDEtIEQyLSBBdXhDdXJyZW50PTBtQSBQ
-TUUoRDAtLEQxLSxEMi0sRDNob3QtLEQzY29sZC0pDQoJCVN0YXR1czogRDAg
-UE1FLUVuYWJsZS0gRFNlbD0wIERTY2FsZT0wIFBNRS0NCg0KMDA6MDEuMCBQ
-Q0kgYnJpZGdlOiBWSUEgVGVjaG5vbG9naWVzLCBJbmMuIFZUODJDNTk4IFtB
-cG9sbG8gTVZQMyBBR1BdIChwcm9nLWlmIDAwIFtOb3JtYWwgZGVjb2RlXSkN
-CglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1l
-bVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0
-QjJCLQ0KCVN0YXR1czogQ2FwKyA2Nk1oeisgVURGLSBGYXN0QjJCLSBQYXJF
-cnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydCsg
-PlNFUlItIDxQRVJSLQ0KCUxhdGVuY3k6IDANCglCdXM6IHByaW1hcnk9MDAs
-IHNlY29uZGFyeT0wMSwgc3Vib3JkaW5hdGU9MDEsIHNlYy1sYXRlbmN5PTAN
-CglJL08gYmVoaW5kIGJyaWRnZTogMDAwMGQwMDAtMDAwMGRmZmYNCglNZW1v
-cnkgYmVoaW5kIGJyaWRnZTogZjYwMDAwMDAtZjlkZmZmZmYNCglQcmVmZXRj
-aGFibGUgbWVtb3J5IGJlaGluZCBicmlkZ2U6IGY5ZjAwMDAwLWZiZmZmZmZm
-DQoJQnJpZGdlQ3RsOiBQYXJpdHktIFNFUlItIE5vSVNBLSBWR0ErIE1BYm9y
-dC0gPlJlc2V0LSBGYXN0QjJCLQ0KCUNhcGFiaWxpdGllczogWzgwXSBQb3dl
-ciBNYW5hZ2VtZW50IHZlcnNpb24gMg0KCQlGbGFnczogUE1FQ2xrLSBEU0kt
-IEQxKyBEMi0gQXV4Q3VycmVudD0wbUEgUE1FKEQwLSxEMS0sRDItLEQzaG90
-LSxEM2NvbGQtKQ0KCQlTdGF0dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBE
-U2NhbGU9MCBQTUUtDQoNCjAwOjA0LjAgSVNBIGJyaWRnZTogVklBIFRlY2hu
-b2xvZ2llcywgSW5jLiBWVDgyQzY4NiBbQXBvbGxvIFN1cGVyXSAocmV2IDQw
-KQ0KCVN1YnN5c3RlbTogQXN1c3RlayBDb21wdXRlciwgSW5jLjogVW5rbm93
-biBkZXZpY2UgODAzOA0KCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIr
-IFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBp
-bmcrIFNFUlItIEZhc3RCMkItDQoJU3RhdHVzOiBDYXArIDY2TWh6LSBVREYt
-IEZhc3RCMkItIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFi
-b3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItDQoJTGF0ZW5jeTogMA0KCUNh
-cGFiaWxpdGllczogW2MwXSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMg0K
-CQlGbGFnczogUE1FQ2xrLSBEU0ktIEQxLSBEMi0gQXV4Q3VycmVudD0wbUEg
-UE1FKEQwLSxEMS0sRDItLEQzaG90LSxEM2NvbGQtKQ0KCQlTdGF0dXM6IEQw
-IFBNRS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MCBQTUUtDQoNCjAwOjA0LjEg
-SURFIGludGVyZmFjZTogVklBIFRlY2hub2xvZ2llcywgSW5jLiBWVDgyQzU4
-NiBJREUgW0Fwb2xsb10gKHJldiAwNikgKHByb2ctaWYgOGEgW01hc3RlciBT
-ZWNQIFByaVBdKQ0KCUNvbnRyb2w6IEkvTysgTWVtLSBCdXNNYXN0ZXItIFNw
-ZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmct
-IFNFUlItIEZhc3RCMkItDQoJU3RhdHVzOiBDYXArIDY2TWh6LSBVREYtIEZh
-c3RCMkIrIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0
-LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItDQoJUmVnaW9uIDQ6IEkvTyBwb3J0
-cyBhdCBiODAwIFtzaXplPTE2XQ0KCUNhcGFiaWxpdGllczogW2MwXSBQb3dl
-ciBNYW5hZ2VtZW50IHZlcnNpb24gMg0KCQlGbGFnczogUE1FQ2xrLSBEU0kt
-IEQxLSBEMi0gQXV4Q3VycmVudD0wbUEgUE1FKEQwLSxEMS0sRDItLEQzaG90
-LSxEM2NvbGQtKQ0KCQlTdGF0dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBE
-U2NhbGU9MCBQTUUtDQoNCjAwOjA0LjIgVVNCIENvbnRyb2xsZXI6IFZJQSBU
-ZWNobm9sb2dpZXMsIEluYy4gVlQ4MkM1ODZCIFVTQiAocmV2IDE2KSAocHJv
-Zy1pZiAwMCBbVUhDSV0pDQoJU3Vic3lzdGVtOiBVbmtub3duIGRldmljZSAw
-OTI1OjEyMzQNCglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVj
-Q3ljbGUtIE1lbVdJTlYrIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBT
-RVJSLSBGYXN0QjJCLQ0KCVN0YXR1czogQ2FwKyA2Nk1oei0gVURGLSBGYXN0
-QjJCLSBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0g
-PE1BYm9ydC0gPlNFUlItIDxQRVJSLQ0KCUxhdGVuY3k6IDMyLCBjYWNoZSBs
-aW5lIHNpemUgMDgNCglJbnRlcnJ1cHQ6IHBpbiBEIHJvdXRlZCB0byBJUlEg
-MTgNCglSZWdpb24gNDogSS9PIHBvcnRzIGF0IGI0MDAgW3NpemU9MzJdDQoJ
-Q2FwYWJpbGl0aWVzOiBbODBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAy
-DQoJCUZsYWdzOiBQTUVDbGstIERTSS0gRDEtIEQyLSBBdXhDdXJyZW50PTBt
-QSBQTUUoRDAtLEQxLSxEMi0sRDNob3QtLEQzY29sZC0pDQoJCVN0YXR1czog
-RDAgUE1FLUVuYWJsZS0gRFNlbD0wIERTY2FsZT0wIFBNRS0NCg0KMDA6MDQu
-MyBVU0IgQ29udHJvbGxlcjogVklBIFRlY2hub2xvZ2llcywgSW5jLiBWVDgy
-QzU4NkIgVVNCIChyZXYgMTYpIChwcm9nLWlmIDAwIFtVSENJXSkNCglTdWJz
-eXN0ZW06IFVua25vd24gZGV2aWNlIDA5MjU6MTIzNA0KCUNvbnRyb2w6IEkv
-TysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVisgVkdBU25v
-b3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItDQoJU3RhdHVz
-OiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkItIFBhckVyci0gREVWU0VMPW1l
-ZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlIt
-DQoJTGF0ZW5jeTogMzIsIGNhY2hlIGxpbmUgc2l6ZSAwOA0KCUludGVycnVw
-dDogcGluIEQgcm91dGVkIHRvIElSUSAxOA0KCVJlZ2lvbiA0OiBJL08gcG9y
-dHMgYXQgYjAwMCBbc2l6ZT0zMl0NCglDYXBhYmlsaXRpZXM6IFs4MF0gUG93
-ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDINCgkJRmxhZ3M6IFBNRUNsay0gRFNJ
-LSBEMS0gRDItIEF1eEN1cnJlbnQ9MG1BIFBNRShEMC0sRDEtLEQyLSxEM2hv
-dC0sRDNjb2xkLSkNCgkJU3RhdHVzOiBEMCBQTUUtRW5hYmxlLSBEU2VsPTAg
-RFNjYWxlPTAgUE1FLQ0KDQowMDowNC40IEhvc3QgYnJpZGdlOiBWSUEgVGVj
-aG5vbG9naWVzLCBJbmMuIFZUODJDNjg2IFtBcG9sbG8gU3VwZXIgQUNQSV0g
-KHJldiA0MCkNCglDb250cm9sOiBJL08tIE1lbS0gQnVzTWFzdGVyLSBTcGVj
-Q3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBT
-RVJSLSBGYXN0QjJCLQ0KCVN0YXR1czogQ2FwKyA2Nk1oei0gVURGLSBGYXN0
-QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0g
-PE1BYm9ydC0gPlNFUlItIDxQRVJSLQ0KCUNhcGFiaWxpdGllczogWzY4XSBQ
-b3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMg0KCQlGbGFnczogUE1FQ2xrLSBE
-U0ktIEQxLSBEMi0gQXV4Q3VycmVudD0wbUEgUE1FKEQwLSxEMS0sRDItLEQz
-aG90LSxEM2NvbGQtKQ0KCQlTdGF0dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9
-MCBEU2NhbGU9MCBQTUUtDQoNCjAwOjBhLjAgRXRoZXJuZXQgY29udHJvbGxl
-cjogTGl0ZS1PbiBDb21tdW5pY2F0aW9ucyBJbmMgTE5FMTAwVFggKHJldiAy
-MCkNCglTdWJzeXN0ZW06IE5ldGdlYXIgRkEzMTBUWA0KCUNvbnRyb2w6IEkv
-TysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25v
-b3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItDQoJU3RhdHVz
-OiBDYXAtIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1l
-ZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlIt
-DQoJTGF0ZW5jeTogMzINCglJbnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJ
-UlEgMTgNCglSZWdpb24gMDogSS9PIHBvcnRzIGF0IGE4MDAgW3NpemU9MjU2
-XQ0KCVJlZ2lvbiAxOiBNZW1vcnkgYXQgZjU4MDAwMDAgKDMyLWJpdCwgbm9u
-LXByZWZldGNoYWJsZSkgW3NpemU9MjU2XQ0KCUV4cGFuc2lvbiBST00gYXQg
-PHVuYXNzaWduZWQ+IFtkaXNhYmxlZF0gW3NpemU9MjU2S10NCg0KMDA6MGIu
-MCBVbmtub3duIG1hc3Mgc3RvcmFnZSBjb250cm9sbGVyOiBQcm9taXNlIFRl
-Y2hub2xvZ3ksIEluYy46IFVua25vd24gZGV2aWNlIDRkMzAgKHJldiAwMikN
-CglTdWJzeXN0ZW06IFByb21pc2UgVGVjaG5vbG9neSwgSW5jLjogVW5rbm93
-biBkZXZpY2UgNGQzMw0KCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIr
-IFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBp
-bmctIFNFUlItIEZhc3RCMkItDQoJU3RhdHVzOiBDYXArIDY2TWh6LSBVREYt
-IEZhc3RCMkItIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFi
-b3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItDQoJTGF0ZW5jeTogMzINCglJ
-bnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgMTcNCglSZWdpb24gMDog
-SS9PIHBvcnRzIGF0IGE0MDAgW3NpemU9OF0NCglSZWdpb24gMTogSS9PIHBv
-cnRzIGF0IGEwMDAgW3NpemU9NF0NCglSZWdpb24gMjogSS9PIHBvcnRzIGF0
-IDk4MDAgW3NpemU9OF0NCglSZWdpb24gMzogSS9PIHBvcnRzIGF0IDk0MDAg
-W3NpemU9NF0NCglSZWdpb24gNDogSS9PIHBvcnRzIGF0IDkwMDAgW3NpemU9
-NjRdDQoJUmVnaW9uIDU6IE1lbW9yeSBhdCBmNTAwMDAwMCAoMzItYml0LCBu
-b24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0xMjhLXQ0KCUV4cGFuc2lvbiBST00g
-YXQgPHVuYXNzaWduZWQ+IFtkaXNhYmxlZF0gW3NpemU9NjRLXQ0KCUNhcGFi
-aWxpdGllczogWzU4XSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMQ0KCQlG
-bGFnczogUE1FQ2xrLSBEU0ktIEQxLSBEMi0gQXV4Q3VycmVudD0wbUEgUE1F
-KEQwLSxEMS0sRDItLEQzaG90LSxEM2NvbGQtKQ0KCQlTdGF0dXM6IEQwIFBN
-RS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MCBQTUUtDQoNCjAwOjBkLjAgU0NT
-SSBzdG9yYWdlIGNvbnRyb2xsZXI6IEFkdmFuY2VkIFN5c3RlbSBQcm9kdWN0
-cywgSW5jIEFCUDk0MC1VVw0KCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0
-ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVisgVkdBU25vb3AtIFBhckVyci0gU3Rl
-cHBpbmctIFNFUlItIEZhc3RCMkItDQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBV
-REYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8
-VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItDQoJTGF0ZW5jeTogMzIg
-KDE1MDBucyBtaW4sIDMyNTBucyBtYXgpLCBjYWNoZSBsaW5lIHNpemUgMDgN
-CglJbnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgMTkNCglSZWdpb24g
-MDogSS9PIHBvcnRzIGF0IDg4MDAgW3NpemU9NjRdDQoJUmVnaW9uIDE6IE1l
-bW9yeSBhdCBmNDgwMDAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBb
-c2l6ZT0yNTZdDQoJRXhwYW5zaW9uIFJPTSBhdCA8dW5hc3NpZ25lZD4gW2Rp
-c2FibGVkXSBbc2l6ZT02NEtdDQoNCjAxOjAwLjAgVkdBIGNvbXBhdGlibGUg
-Y29udHJvbGxlcjogM0RmeCBJbnRlcmFjdGl2ZSwgSW5jLiBWb29kb28gMyAo
-cmV2IDAxKSAocHJvZy1pZiAwMCBbVkdBXSkNCglTdWJzeXN0ZW06IDNEZngg
-SW50ZXJhY3RpdmUsIEluYy4gVm9vZG9vMyBBR1ANCglDb250cm9sOiBJL08r
-IE1lbSsgQnVzTWFzdGVyLSBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29w
-LSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQ0KCVN0YXR1czog
-Q2FwKyA2Nk1oeisgVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1mYXN0
-ID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUisNCglJ
-bnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgMTYNCglSZWdpb24gMDog
-TWVtb3J5IGF0IGY2MDAwMDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUp
-IFtzaXplPTMyTV0NCglSZWdpb24gMTogTWVtb3J5IGF0IGZhMDAwMDAwICgz
-Mi1iaXQsIHByZWZldGNoYWJsZSkgW3NpemU9MzJNXQ0KCVJlZ2lvbiAyOiBJ
-L08gcG9ydHMgYXQgZDgwMCBbc2l6ZT0yNTZdDQoJRXhwYW5zaW9uIFJPTSBh
-dCBmOWZmMDAwMCBbZGlzYWJsZWRdIFtzaXplPTY0S10NCglDYXBhYmlsaXRp
-ZXM6IFs1NF0gQUdQIHZlcnNpb24gMS4wDQoJCVN0YXR1czogUlE9NyBTQkEr
-IDY0Yml0KyBGVy0gUmF0ZT14MSx4Mg0KCQlDb21tYW5kOiBSUT0wIFNCQS0g
-QUdQLSA2NGJpdC0gRlctIFJhdGU9PG5vbmU+DQoJQ2FwYWJpbGl0aWVzOiBb
-NjBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAxDQoJCUZsYWdzOiBQTUVD
-bGstIERTSSsgRDEtIEQyLSBBdXhDdXJyZW50PTBtQSBQTUUoRDAtLEQxLSxE
-Mi0sRDNob3QtLEQzY29sZC0pDQoJCVN0YXR1czogRDAgUE1FLUVuYWJsZS0g
-RFNlbD0wIERTY2FsZT0wIFBNRS0NCg0K
----1606356292-2039652837-982399209=:782--
+High oil prices encourage drilling and alternative energy research.

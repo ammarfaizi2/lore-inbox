@@ -1,61 +1,208 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVCORiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVCORfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbVCORiE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 12:38:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbVCORgB
+	id S261610AbVCORfg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 12:35:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVCORes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 12:36:01 -0500
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:39694 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id S261543AbVCORe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 12:34:26 -0500
-Message-ID: <42370B14.50608@lougher.demon.co.uk>
-Date: Tue, 15 Mar 2005 16:19:32 +0000
-From: Phillip Lougher <phillip@lougher.demon.co.uk>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041012)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: Paul Jackson <pj@engr.sgi.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [PATCH][1/2] SquashFS
-References: <4235BAC0.6020001@lougher.demon.co.uk> <20050315003802.GH3163@waste.org> <42363EAB.3050603@yahoo.com.au> <20050315004759.473f6a0b.pj@engr.sgi.com> <42370442.7020401@lougher.demon.co.uk> <20050315172724.GO32638@waste.org>
-In-Reply-To: <20050315172724.GO32638@waste.org>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Mar 2005 12:34:48 -0500
+Received: from fed1rmmtao07.cox.net ([68.230.241.32]:39661 "EHLO
+	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
+	id S261610AbVCORcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 12:32:16 -0500
+Date: Tue, 15 Mar 2005 10:32:09 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matt Porter <mporter@kernel.crashing.org>
+Subject: [PATCH] ppc32: Delete arch/ppc/syslib/ppc4xx_serial.c
+Message-ID: <20050315173208.GR8345@smtp.west.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
-> On Tue, Mar 15, 2005 at 03:50:26PM +0000, Phillip Lougher wrote:
-> 
->>Paul Jackson wrote:
->>
->>>In the overall kernel (Linus's bk tree) I count:
->>>
->>>	733 lines matching 'for *( *; *; *)'
->>>	718 lines matching 'while *( *1 *)'
->>>
->>>In the kernel/*.c files, I count 15 of the 'for(;;)' style and 1 of the
->>>'while(1)' style.
->>>
->>>Certainly the 'for(;;)' style is acceptable, and even slightly to
->>>substantially dominant, depending on which piece of code you're in.
->>>
->>
->>I prefer the 'while' style, and only used 'for' because that's what I 
->>thought the kernel used.
->>
->>If no-one objects I'll change it back to while...
->>
->>Shouldn't issues like this be in the coding style document?
-> 
-> 
-> This particular point is rather trivial. Do whatever suits you.
-> 
+arch/ppc/syslib/ppc4xx_serial.c is unused cruft, delete.
 
-It's a shame the 'rather trivial' issue got picked up in the first place 
-then :-)  I didn't raise the issue.
+Signed-off-by: Tom Rini <trini@kernel.crashing.org>
 
+diff -urN linux-2.6.11/arch/ppc/syslib/ppc4xx_serial.c linuxppc-2.6.11/arch/ppc/syslib/ppc4xx_serial.c
+--- linux-2.6.11/arch/ppc/syslib/ppc4xx_serial.c	Wed Mar 02 00:38:34 2005
++++ linuxppc-2.6.11/arch/ppc/syslib/ppc4xx_serial.c	Wed Dec 31 17:00:00 1969
+@@ -1,171 +0,0 @@
+-/*
+- * arch/ppc/syslib/ppc405_serial.c
+- *
+- * Author: MontaVista Software, Inc.
+- *         	frank_rowand@mvista.com or source@mvista.com
+- * 	   	debbie_chu@mvista.com
+- *
+- * This is a fairly standard 165xx type device that will eventually
+- * be merged with other similar processor/boards.	-- Dan
+- *
+- * 2000 (c) MontaVista, Software, Inc.  This file is licensed under
+- * the terms of the GNU General Public License version 2.  This program
+- * is licensed "as is" without any warranty of any kind, whether express
+- * or implied.
+- *
+- * Console I/O support for Early kernel bringup.
+- */
+-
+-#include <linux/config.h>
+-
+-#if defined(CONFIG_IBM405GP) || defined(CONFIG_IBM405CR)
+-
+-#ifdef CONFIG_KGDB
+-#include <asm/kgdb.h>
+-#include <linux/init.h>
+-#endif
+-
+-#ifdef CONFIG_DEBUG_BRINGUP
+-
+-#include <linux/console.h>
+-
+-extern void ftr_reset_preferred_console(void);
+-
+-
+-static int ppc405_sercons_setup(struct console *co, char *options)
+-{
+-#ifdef CONFIG_UART0_DEBUG_CONSOLE
+-    volatile unsigned char *uart_dll  = (char *)0xef600300;
+-    volatile unsigned char *uart_fcr  = (char *)0xef600302;
+-    volatile unsigned char *uart_lcr  = (char *)0xef600303;
+-#endif
+-
+-#ifdef CONFIG_UART1_DEBUG_CONSOLE
+-    volatile unsigned char *uart_dll  = (char *)0xef600400;
+-    volatile unsigned char *uart_fcr  = (char *)0xef600402;
+-    volatile unsigned char *uart_lcr  = (char *)0xef600403;
+-#endif
+-
+-    *uart_lcr = *uart_lcr | 0x80;   /* DLAB on  */
+-
+-/* ftr revisit - there is no config option for this
+-**  also see include/asm-ppc/ppc405_serial.h
+-**
+-** #define CONFIG_IBM405GP_INTERNAL_CLOCK
+-*/
+-
+-
+-#ifdef  CONFIG_IBM405GP_INTERNAL_CLOCK
+-    /* ftr revisit
+-    ** why is bit 19 of chcr0 (0x1000) being set?
+-    */
+-    /* 0x2a results in data corruption, kgdb works with 0x28 */
+-    *uart_dll = 0x28;		    /* 9600 baud */
+-    _put_CHCR0((_get_CHCR0() & 0xffffe000) | 0x103e);
+-#else
+-    *uart_dll = 0x48;		    /* 9600 baud */
+-#endif
+-    *uart_lcr = *uart_lcr & 0x7f;   /* DLAB off */
+-
+-    return 0;
+-}
+-
+-
+-/*
+- * This is a bringup hack, writing directly to uart0 or uart1
+- */
+-
+-static void
+-ppc405_sercons_write(struct console *co, const char *ptr,
+-            unsigned nb)
+-{
+-    int i;
+-
+-#ifdef CONFIG_UART0_DEBUG_CONSOLE
+-    volatile unsigned char *uart_xmit = (char *)0xef600300;
+-    volatile unsigned char *uart_lsr  = (char *)0xef600305;
+-#endif
+-
+-#ifdef CONFIG_UART1_DEBUG_CONSOLE
+-    volatile unsigned char *uart_xmit = (char *)0xef600400;
+-    volatile unsigned char *uart_lsr  = (char *)0xef600405;
+-#endif
+-
+-    for (i = 0; i < nb; ++i) {
+-
+-	/* wait for transmit reg (possibly fifo) to empty */
+-	while ((*uart_lsr & 0x40) == 0)
+-	    ;
+-
+-	*uart_xmit = (ptr[i] & 0xff);
+-
+-	if (ptr[i] == '\n') {
+-
+-	    /* add a carriage return */
+-
+-	    /* wait for transmit reg (possibly fifo) to empty */
+-	    while ((*uart_lsr & 0x40) == 0)
+-		;
+-
+-	    *uart_xmit = '\r';
+-	}
+-    }
+-
+-    return;
+-}
+-
+-
+-static int
+-ppc405_sercons_read(struct console *co, char *ptr, unsigned nb)
+-{
+-#ifdef CONFIG_UART0_DEBUG_CONSOLE
+-    volatile unsigned char *uart_rcv  = (char *)0xef600300;
+-    volatile unsigned char *uart_lsr  = (char *)0xef600305;
+-#endif
+-
+-#ifdef CONFIG_UART1_DEBUG_CONSOLE
+-    volatile unsigned char *uart_rcv  = (char *)0xef600400;
+-    volatile unsigned char *uart_lsr  = (char *)0xef600405;
+-#endif
+-
+-
+-    /* ftr revisit: not tested */
+-
+-    if (nb == 0)
+-	return(0);
+-
+-    if (!ptr)
+-	return(-1);
+-
+-    /* wait for receive reg (possibly fifo) to contain data */
+-    while ((*uart_lsr & 0x01) == 0)
+-	;
+-
+-    *ptr = *uart_rcv;
+-
+-    return(1);
+-}
+-
+-static struct console ppc405_sercons = {
+-	.name =		"dbg_cons",
+-	.write =	ppc405_console_write,
+-	.setup =	ppc405_console_setup,
+-	.flags =	CON_PRINTBUFFER,
+-	.index =	-1,
+-};
+-
+-void
+-register_debug_console(void)
+-{
+-	register_console(&ppc405_sercons);
+-}
+-
+-void
+-unregister_debug_console(void)
+-{
+-	unregister_console(&ppc405_sercons);
+-}
+-
+-#endif	/* CONFIG_DEBUG_BRINGUP */
+-
+-#endif	/* #if defined(CONFIG_IBM405GP) || defined(CONFIG_IBM405CR) */
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

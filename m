@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263234AbTC1Xxe>; Fri, 28 Mar 2003 18:53:34 -0500
+	id <S263242AbTC2AS1>; Fri, 28 Mar 2003 19:18:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263238AbTC1Xxe>; Fri, 28 Mar 2003 18:53:34 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:22796 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263234AbTC1Xxd>;
-	Fri, 28 Mar 2003 18:53:33 -0500
-Date: Fri, 28 Mar 2003 16:03:20 -0800
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Andrew Morton <akpm@digeo.com>,
-       davej@codemonkey.org.uk, linux-kernel@vger.kernel.org, aeb@cwi.nl
-Subject: Re: NICs trading places ?
-Message-ID: <20030329000320.GA1150@kroah.com>
-References: <20030328221037.GB25846@suse.de> <20030328224843.GA11980@win.tue.nl> <20030328150234.7f73d916.akpm@digeo.com> <20030328232022.GA12005@win.tue.nl> <20030328234114.GA992@kroah.com> <3E84E126.2040103@pobox.com>
+	id <S263301AbTC2AS1>; Fri, 28 Mar 2003 19:18:27 -0500
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:21966 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S263242AbTC2AS0>; Fri, 28 Mar 2003 19:18:26 -0500
+Subject: Re: 3c59x gives HWaddr FF:FF:...
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030328230510.GA5124@werewolf.able.es>
+References: <20030328145159.GA4265@werewolf.able.es>
+	 <20030328124832.44243f83.akpm@digeo.com>
+	 <20030328230510.GA5124@werewolf.able.es>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048897765.601.5.camel@teapot>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E84E126.2040103@pobox.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 29 Mar 2003 01:29:26 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 28, 2003 at 06:56:22PM -0500, Jeff Garzik wrote:
-> Greg KH wrote:
-> >On Sat, Mar 29, 2003 at 12:20:22AM +0100, Andries Brouwer wrote:
-> >
-> >>And: ifconfig does not give the card types.
-> >>So presently one needs both boot messages and ifconfig.
-> >>
-> >>And: in some situations the system does not boot because of
-> >>eth numbering mixup, and one never gets the opportunity to
-> >>ask ifconfig.
-> >
-> >
-> >ifconfig can bind cards to devices based on mac addresses.
-> >/sbin/hotplug can also be used for this.
-> >
-> >I recommend doing this for anyone with more than one nic card in their
-> >machine.
+On Sat, 2003-03-29 at 00:05, J.A. Magallon wrote:
+> > > What happens ? Any solution available ?
+> > 
+> > The eeprom wasn't powered up.
+> > 
+> > Please take the 2.4.20 3c59x.c and place that into the 2.5 tree and confirm
+> > that it does the same thing (it will).> 
 > 
+> Hum, I suppose you want to say take the _2.5_ one and put into my _2.4_ tree ?
+> Some previous answer also talked about a more recent version in -ac.
+> (btw, can 2.5 be useful for something ? does not the driver depend on a new
+> arch of, for example, the PCI layer ? )
 > 
-> Actually nameif(8) is the preferred way of doing this.
+> > Then try disabling APCI and/or otherwise fiddling with your power management
+> > options (maybe in BIOS too).> 
+> 
+> I don't build ACPI, just APM power-off (SMP box).
+> Will take a look at 2.4-ac (it looks like the most similar thing to what I have)
+> and to 2.5.
 
-Oops, sorry, that's what I meant.  Call nameif in a /sbin/hotplug script
-when the network interface is registered.
+I had exactly the same issue as you, but this time it was on my laptop
+when using a 3CCFE575CT CardBus 10/100 NIC. The only solution I found
+was to use SourceForge's PCMCIA-CS instead of the built-in PCMCIA
+support.
 
-greg k-h
+I tracked down the problem to PCI resource allocation, although never
+knew what was causing it: the CardBus bridge was using the PCI subsystem
+to allocate resources for my CardBus NIC, but it failed and tried to
+assign an invalid I/O range (the starting I/O address was higher than
+the ending I/O address). I wasn't able to fix it, but in newer kernel
+releases, the problem was fixed.
+
+Now, I've got other problems: the card works correctly and I get full
+throughput when sending data using FTP/NFS/SCP (~12MBps) but no more
+than 4MBps when receiving files.
+
+________________________________________________________________________
+        Felipe Alfaro Solana
+   Linux Registered User #287198
+http://counter.li.org
+

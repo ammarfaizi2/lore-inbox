@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129200AbQKFRXo>; Mon, 6 Nov 2000 12:23:44 -0500
+	id <S129508AbQKFROe>; Mon, 6 Nov 2000 12:14:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129765AbQKFRXe>; Mon, 6 Nov 2000 12:23:34 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45908 "EHLO
+	id <S129519AbQKFRO2>; Mon, 6 Nov 2000 12:14:28 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16468 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129388AbQKFRX3>; Mon, 6 Nov 2000 12:23:29 -0500
+	id <S129508AbQKFRON>; Mon, 6 Nov 2000 12:14:13 -0500
 Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-To: vonbrand@inf.utfsm.cl (Horst von Brand)
-Date: Mon, 6 Nov 2000 17:23:11 +0000 (GMT)
-Cc: dwmw2@infradead.org (David Woodhouse), linux-kernel@vger.kernel.org
-In-Reply-To: <200011061631.eA6GVkw07051@pincoya.inf.utfsm.cl> from "Horst von Brand" at Nov 06, 2000 01:31:46 PM
+To: jas88@cam.ac.uk (James A. Sutherland)
+Date: Mon, 6 Nov 2000 17:12:30 +0000 (GMT)
+Cc: dwmw2@infradead.org (David Woodhouse),
+        jgarzik@mandrakesoft.com (Jeff Garzik), goemon@anime.net (Dan Hollis),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        oxymoron@waste.org (Oliver Xymoron), kaos@ocs.com.au (Keith Owens),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <00110613370501.01541@dax.joh.cam.ac.uk> from "James A. Sutherland" at Nov 06, 2000 01:35:28 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13spzE-0006Q3-00@the-village.bc.nu>
+Message-Id: <E13spou-0006P0-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No funny "persistent data" mechanisms or screwups when the worker gets
-> removed and reinserted. In many cases the data module could be shared among
-> several others, in other cases it would have to be able lo load several
-> times or manage several incarnations of its payload.
+> So autoload the module with a "dont_screw_with_mixer" option. When the kernel
+> first boots, initialise the mixer to suitable settings (load the module with 
+> "do_screw_with_mixer" or whatever); thereafter, the driver shouldn't change
+> the mixer settings on load.
 
-It actually seems the persistent data mechanism in user space wouldnt be
-much different in implementation.
+Which is part of what persistent module data lets you do. And without having
+to mess with dont_screw_with_mixer (which if you get it wrong btw can be 
+fatal and hang the hardware)
 
-Add a 'preserved' tag for one section of module memory. On load look up the
-data, if its from this boot memcpy it into the module. On unload write it
-back to disk. No kernel code needed.
-
-Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261519AbSJDHaO>; Fri, 4 Oct 2002 03:30:14 -0400
+	id <S261512AbSJDH1c>; Fri, 4 Oct 2002 03:27:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261520AbSJDHaN>; Fri, 4 Oct 2002 03:30:13 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:25250 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S261519AbSJDHaN>;
-	Fri, 4 Oct 2002 03:30:13 -0400
-Date: Fri, 4 Oct 2002 09:46:16 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Nick Piggin <piggin@cyberone.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: Re: [rfc][patch] kernel/sched.c oddness?
-In-Reply-To: <3D9CB35D.90503@us.ibm.com>
-Message-ID: <Pine.LNX.4.44.0210040945290.7007-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261516AbSJDH1c>; Fri, 4 Oct 2002 03:27:32 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:26126 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261512AbSJDH1a>;
+	Fri, 4 Oct 2002 03:27:30 -0400
+Date: Fri, 4 Oct 2002 00:30:10 -0700
+From: Greg KH <greg@kroah.com>
+To: jbradford@dial.pipex.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] 2.6 not 3.0 - (WAS Re: [PATCH-RFC] 4 of 4 - New problem
+Message-ID: <20021004073010.GC4260@kroah.com>
+References: <20021004063738.GB4260@kroah.com> <200210040717.g947Hx2P000478@darkstar.example.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210040717.g947Hx2P000478@darkstar.example.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 3 Oct 2002, Matthew Dobson wrote:
-
-> /* It needs an at least ~50% imbalance to trigger balancing. */
+On Fri, Oct 04, 2002 at 08:17:58AM +0100, jbradford@dial.pipex.com wrote:
+> > Hm, must have missed those.  I haven't seen any USB 2.0 complaints in
+> > quite some time.  The majority of USB "issues" are crappy usb storage
+> > devices that don't match the USB storage spec, or PCI IRQ routing
+> > problems.
 > 
-> Either way works for me.  I'd like to see something done, as the
-> comments don't match the code right now...
+> We have to code for the devices that are out there.  Big deal if we
+> follow the spec to the letter - if Mr Average plugs in his USB device
+> and it doesn't work, well, it doesn't work.  It's no good lecturing
+> him on the spec.  I don't usually take that view, but when there are a
+> large number of broken devices, what are the other options?
 
-the patch looks good to me - i'll add it to my next scheduler patchset,
-after some testing on bigger SMP boxes. Balancing tends to be a very
-volatile area.
+I agree, we must make these devices work.  But when your dealing with
+odd devices, that violate the spec in random ways, and you don't have
+documentation on how these devices are broken, and you aren't getting
+paid to provide support for these devices, development can be a bit slow
+at times.  And because of these factors, we will almost always lag
+behind the OSes that manufacturers directly support.
 
-	Ingo
+> > But hey, no one cares about USB, I'm used to it :)
+> 
+> I certainly don't care about USB, I don't even have a USB port on my
+> main box, but if you're saying that the current support is 3.0
+> material, then I totally disagree.
 
+I didn't say that it was "3.0 material", you did.
+
+What is pretty major is the core device model.  Lots of driver api
+changes and cleanups have happened in 2.5.  It's almost starting to look
+sane in places :)
+
+greg k-h

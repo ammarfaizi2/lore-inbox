@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262636AbSJaO3N>; Thu, 31 Oct 2002 09:29:13 -0500
+	id <S262750AbSJaO3Z>; Thu, 31 Oct 2002 09:29:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262750AbSJaO3N>; Thu, 31 Oct 2002 09:29:13 -0500
-Received: from ppp-217-133-222-193.dialup.tiscali.it ([217.133.222.193]:3969
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S262636AbSJaO3L>; Thu, 31 Oct 2002 09:29:11 -0500
-Date: Thu, 31 Oct 2002 15:34:39 +0100
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH] Clear TLS on execve
-Message-ID: <20021031143439.GA1697@home.ldb.ods.org>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-	Ingo Molnar <mingo@elte.hu>
+	id <S262782AbSJaO3Y>; Thu, 31 Oct 2002 09:29:24 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:59781 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262750AbSJaO3X>; Thu, 31 Oct 2002 09:29:23 -0500
+Subject: Re: What's left over.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Russell King <rmk@arm.linux.org.uk>,
+       Peter Chubb <peter@chubb.wattle.id.au>, tridge@samba.org, tytso@mit.edu
+In-Reply-To: <3DC13D81.4050008@pobox.com>
+References: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com>
+	<20021031030143.401DA2C150@lists.samba.org>
+	<20021031101558.GB7487@fib011235813.fsnet.co.uk> 
+	<3DC13D81.4050008@pobox.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 31 Oct 2002 14:55:22 +0000
+Message-Id: <1036076122.8852.68.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-10-31 at 14:26, Jeff Garzik wrote:
+> Yeah, historically we have avoided things like this.
+> kcalloc gets proposed every year or so too.
 
---d6Gm4EdcadzBjdND
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I would like to see both of these in because tons of kernel fixing that
+has been done through audits has been about
 
-This trivial patch causes the TLS to be cleared on execve (code is in flush=
-_thread).
-This is necessary to avoid ESRCH errors when set_thread_area is asked
-to choose a free TLS entry after several nested execve's.
 
-The LDT also has a similar problem, but it is less serious because the
-LDT code doesn't scan for free entries. I'll probably send a patch to
-fix this too, unless there is something important relying on this behavior.
+	get_user(a, ...)
+	kmalloc(a * sizeof(b), ..)
 
-diff --exclude-from=3D/home/ldb/src/linux-exclude -urNdp linux-2.5.45/arch/=
-i386/kernel/process.c linux-2.5.45_ldb/arch/i386/kernel/process.c
---- linux-2.5.45/arch/i386/kernel/process.c	2002-10-12 06:21:02.000000000 +=
-0200
-+++ linux-2.5.45_ldb/arch/i386/kernel/process.c	2002-10-31 14:23:18.0000000=
-00 +0100
-@@ -247,6 +247,7 @@ void flush_thread(void)
- 	struct task_struct *tsk =3D current;
-=20
- 	memset(tsk->thread.debugreg, 0, sizeof(unsigned long)*8);
-+	memset(tsk->thread.tls_array, 0, sizeof(tsk->thread.tls_array));=09
- 	/*
- 	 * Forget coprocessor state..
- 	 */
+We end up with loads of ugly  > MAXINT/sizeof(foo) if checks in the code
+that ought to be in one place
 
---d6Gm4EdcadzBjdND
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE9wT9+djkty3ft5+cRAtiOAKCNGWGecmDu1O5KkGp/6CNl3pmvGACglepm
-ipp3BOlokVRNwoVBeKxJdU0=
-=UHUY
------END PGP SIGNATURE-----
-
---d6Gm4EdcadzBjdND--

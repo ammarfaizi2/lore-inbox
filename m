@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUF2HZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265531AbUF2ITw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263893AbUF2HZr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 03:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265520AbUF2HZr
+	id S265531AbUF2ITw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 04:19:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265534AbUF2ITw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 03:25:47 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:41857 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263893AbUF2HZp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 03:25:45 -0400
-Date: Tue, 29 Jun 2004 09:25:50 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/19] New set of input patches
-Message-ID: <20040629072550.GA1238@ucw.cz>
-References: <20040628145454.9403.qmail@web81305.mail.yahoo.com> <20040628150736.GA1059@ucw.cz> <200406290201.28433.dtor_core@ameritech.net>
+	Tue, 29 Jun 2004 04:19:52 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:7684 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S265531AbUF2ITv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 04:19:51 -0400
+Subject: Re: 2.6.7-ck1
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040628224623.GA11333@elf.ucw.cz>
+References: <200406162122.51430.kernel@kolivas.org>
+	 <1087576093.2057.1.camel@teapot.felipe-alfaro.com>
+	 <20040628224623.GA11333@elf.ucw.cz>
+Content-Type: text/plain
+Date: Tue, 29 Jun 2004 10:19:46 +0200
+Message-Id: <1088497186.2733.0.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406290201.28433.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 1.5.9.2 (1.5.9.2-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 29, 2004 at 02:01:28AM -0500, Dmitry Torokhov wrote:
-> On Monday 28 June 2004 10:07 am, Vojtech Pavlik wrote:
-> > On Mon, Jun 28, 2004 at 07:54:53AM -0700, Dmitry Torokhov wrote:
-> > > 
-> > > Sysfs changes should be useable even without platform device changes
-> > > and I would like start syncing with you. Would you take patches 2 
-> > > through 10 (I will drop the legacy_position stuff)?
-> >  
-> > Yes.
-> > 
-> 
-> Vojtech,
-> 
-> As we discussed I dropped the legacy_position sysfs attribute and moved
-> patches 2 through 10 to my repository on bkbits.net. I also moved patch
-> #14 because sa1111ps2, gscps2, ambakmi and pcips2 have already been 
-> integrated with sysfs so linking their serio ports to their devices
-> are simple one-liners not depending on anything I sent to Greg.
-> 
-> Please do:
-> 
-> 	bk pull bk://dtor.bkbits.net/input
- 
-Thanks!
+On Tue, 2004-06-29 at 00:46 +0200, Pavel Machek wrote:
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+> > I've found some interaction problems between, what I think it's, the
+> > staircase scheduler and swsusp. With vanilla 2.6.7, swsusp is able to
+> > save ~9000 pages to disk in less than 5 seconds, where as 2.6.7-ck1
+> > takes more than 1 minute to save the same amount of pages when
+> > suspending to disk.
+> 
+> That's probably bug in io subsystem. That happened few times in suse
+> kernel. Missing unplug?
+
+It seems it was a bug in the yield() logic with the staircase scheduler,
+as it has been fixed in -ck2 and -ck3. Surely, it was *not* a problemw
+with swsusp.
+

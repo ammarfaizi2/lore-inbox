@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263574AbUFQU7v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263457AbUFQVF3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263574AbUFQU7v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 16:59:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbUFQU7u
+	id S263457AbUFQVF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 17:05:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263685AbUFQVF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 16:59:50 -0400
-Received: from mail.kroah.org ([65.200.24.183]:1735 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263629AbUFQU7h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 16:59:37 -0400
-Date: Thu, 17 Jun 2004 13:58:25 -0700
-From: Greg KH <greg@kroah.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Zwane Mwaikambo <zwane@fsmlabs.com>, "David S. Miller" <davem@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6] fix bridge sysfs improperly initialised knobject
-Message-ID: <20040617205825.GB3138@kroah.com>
-References: <Pine.LNX.4.58.0406161247140.1944@montezuma.fsmlabs.com> <20040617134636.216f430e@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
+	Thu, 17 Jun 2004 17:05:29 -0400
+Received: from sanosuke.troilus.org ([66.92.173.88]:6544 "EHLO
+	sanosuke.troilus.org") by vger.kernel.org with ESMTP
+	id S263457AbUFQVFX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 17:05:23 -0400
+To: Flavio Stanchina <flavio@stanchina.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: more files with licenses that aren't GPL-compatible
+From: mdpoole@troilus.org
+References: <200406180629.i5I6Ttn04674@freya.yggdrasil.com>
+	<87n032xk82.fsf@sanosuke.troilus.org> <20040617100930.A9108@adam>
+	<96BD7BAE-C092-11D8-8574-000393ACC76E@mac.com>
+	<40D20449.5000107@stanchina.net>
+Date: Thu, 17 Jun 2004 17:05:22 -0400
+In-Reply-To: <40D20449.5000107@stanchina.net> (Flavio Stanchina's message of
+ "Thu, 17 Jun 2004 22:51:21 +0200")
+Message-ID: <877ju5yjxp.fsf@sanosuke.troilus.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040617134636.216f430e@dell_ss3.pdx.osdl.net>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 17, 2004 at 01:46:36PM -0700, Stephen Hemminger wrote:
-> Yes, this would get rid of the name, but then wouldn't bridge show up
-> as top level subsystem /sys/bridge. 
+Flavio Stanchina writes:
 
-If you register it, yes it would.  Hm, what happens if you don't
-register it...
+> In this case, if I followed the discussion correctly, there are files
+> and binary blobs in the kernel whose license explicitly disallows some
+> of the freedoms the GPL grants. So they *have* to get out of the
+> kernel proper *now*, period. There is no other choice, legally.
 
-> Is there no way to register without causing bogus hotplug events?
+Sure there is: To the extent that there is a real license problem,
+work with the copyright owner(s) for the files and binary blobs to
+resolve the problem.  If the copyright owner intentionally contributed
+them to Linux, they should be willing to resolve it by changing their
+license.  Contrary to your (and SCO's) allegations, kernel gatekeepers
+generally exercise care with respect to new contributions.
 
-You are wanting to prevent hotplug events for a subset of a subsystem's
-devices, right?  You faked out the core by providing a fake subsystem.
-How about just using the filter of the subsystem you really want these
-entries to show up under?  Would that work?
+If you see a lit match in a movie theater, it is reasonable to ask the
+person to put it out *before* you shout "fire" and evacuate.
 
-> I am getting a bad taste about the whole sysfs programming model, since
-> it seems like programming by side effect. it would be better for sysfs
-> to handle the case of hidden subsystems, or provide an alternate way
-> not to generate hotplug events.
-
-Well, we never considered that you would want to nest subsystems in such
-a wierd way :)
-
-Anyway, take a look at the filter ability to see if that would work out
-for you instead of having to create a new subsystem.
-
-thanks,
-
-greg k-h
+Michael

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131709AbRCXQQR>; Sat, 24 Mar 2001 11:16:17 -0500
+	id <S131710AbRCXQy6>; Sat, 24 Mar 2001 11:54:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131708AbRCXQQH>; Sat, 24 Mar 2001 11:16:07 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:4308 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S131709AbRCXQPw>;
-	Sat, 24 Mar 2001 11:15:52 -0500
-Date: Sat, 24 Mar 2001 17:13:59 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200103241613.RAA08378.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, jgarzik@mandrakesoft.com
-Subject: Re: Larger dev_t
-Cc: alan@lxorguk.ukuu.org.uk, hpa@transmeta.com, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com, tytso@MIT.EDU, viro@math.psu.edu
+	id <S131712AbRCXQyt>; Sat, 24 Mar 2001 11:54:49 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:55104 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S131710AbRCXQye>;
+	Sat, 24 Mar 2001 11:54:34 -0500
+Message-ID: <3ABCD0B2.21465AC1@sgi.com>
+Date: Sat, 24 Mar 2001 08:52:02 -0800
+From: LA Walsh <law@sgi.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en, en-US, en-GB, fr
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: NCR53c8xx driver and multiple controllers...(not new prob)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also for 2.5, kdev_t needs to go away, along with all those arrays
+I have a machine with 3 of these controllers (a 4 CPU server).  The
+3 controllers are:
+ncr53c810a-0: rev=0x23, base=0xfa101000, io_port=0x2000, irq=58
+ncr53c810a-0: ID 7, Fast-10, Parity Checking
+ncr53c896-1: rev=0x01, base=0xfe004000, io_port=0x3000, irq=57
+ncr53c896-1: ID 7, Fast-40, Parity Checking
+ncr53c896-2: rev=0x01, base=0xfe004400, io_port=0x3400, irq=56
+ncr53c896-2: ID 7, Fast-40, Parity Checking
+ncr53c896-2: on-chip RAM at 0xfe002000
 
-Yes, it has been said many times, and I get the impression
-that many people actually did it.
+I'd like to be able to make a kernel with the driver compiled in and
+no loadable module support.  It don't see how to do this from the
+documentation -- it seems to require a separate module loaded for
+each controller.  When I compile it in, it only see the 1st controller
+and the boot partition I think is on the 3rd.  Any ideas?
 
-Maybe everybody with code or at least a detailed setup
-should demonstrate what was done so that we can compare merits
-of several approaches.
+This problem is present in the 2.2.x series as well as 2.4.x (x up to 2).
 
-The stuff I sent earlier today was the dev_t part.
-The next part I hope to send one of these days is the
-interface between dev_t and kdev_t.
-(Most people think that kdev_t is an integer, I think that
-it is a pointer. Since dev_t now can be large and arrays
-cannot be used, we need some hash lookup to find the
-structure corresponding to the number. And the code is
-roughly speaking identical to Al's bdev code, only now used
-both for bdev and cdev.)
-
-(Funny enough Al's code does not solve the only small problem
-I had six years ago: a mknod with funny numbers does not mean
-that some such device actually exists. In reality we only
-want to convert number into device pointer when the device is
-opened, but the current kernel code does
-	init_special_inode(inode, mode, rdev);
-for a mknod, and if it was a block device
-	inode->i_bdev = bdget(rdev);
-so that it does allocate a struct to this nonsense device.)
-
-Andries
+Thanks,
+-linda
+-- 
+L A Walsh                        | Trust Technology, Core Linux, SGI
+law@sgi.com                      | Voice: (650) 933-5338

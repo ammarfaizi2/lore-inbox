@@ -1,70 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132613AbRAQOBD>; Wed, 17 Jan 2001 09:01:03 -0500
+	id <S131799AbRAQOWB>; Wed, 17 Jan 2001 09:22:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132885AbRAQOAy>; Wed, 17 Jan 2001 09:00:54 -0500
-Received: from [212.155.128.25] ([212.155.128.25]:13061 "EHLO
-	hallucinogen.duke") by vger.kernel.org with ESMTP
-	id <S132613AbRAQOAj>; Wed, 17 Jan 2001 09:00:39 -0500
-Date: Wed, 17 Jan 2001 15:00:23 +0100
-From: Stephane Jourdois <stephane@duke-interactive.com>
-To: "Michael D. Crawford" <crawford@goingware.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Where to get reiserfs-utils?
-Message-ID: <20010117150023.A1450@duke-interactive.com>
-In-Reply-To: <3A650902.7D2FA957@goingware.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3A650902.7D2FA957@goingware.com>; from crawford@goingware.com on Wed, Jan 17, 2001 at 02:52:50AM +0000
-X-Operating-System: Linux 2.4.1-pre8
-X-Send-From: mafalda
+	id <S132230AbRAQOVl>; Wed, 17 Jan 2001 09:21:41 -0500
+Received: from penguin-ext.wise.edt.ericsson.se ([194.237.142.110]:49385 "EHLO
+	penguin-ext.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
+	id <S131799AbRAQOVb>; Wed, 17 Jan 2001 09:21:31 -0500
+To: linux-kernel@vger.kernel.org
+Subject: SCHED_FIFO/SCHED_RR in 2.4 vs 2.2
+Date: Wed, 17 Jan 2001 15:21:31 +0100
+From: Patrik Hagglund <patha@softlab.ericsson.se>
+Message-Id: <20010117142125.D4F2E583A@hunny.softlab.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a server program that communicates with a number of client
+programs via TCP sockets. I have tried to measure the response time
+of the server program by using a program similar to tcpdump (that
+uses a packet socket).
 
---wRRV7LY7NUeQGEoC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+However, when I run the server program on 2.4.0 within a
+SCHED_FIFO or SCHED_RR scheduling class (instead of SCHED_OTHER)
+the average response time gets better (and is more predictable)
+but I occasionally get delays that seems to be multiples of 2
+seconds, in the range of 2 to 26 seconds. I don't get this
+behavior with 2.2.18.
 
-On Wed, Jan 17, 2001 at 02:52:50AM +0000, Michael D. Crawford wrote:
-> www & ftp.namesys.com seem to be down (or at least I get "no route to hos=
-t) so I
-> can't go look there.
+Does anybody have some idea why I get this strange behavior on 2.4.0?
 
-kwisatz@mafalda:~ (pts/7) -> nslookup www.namesys.com
-[snip snip snip]
-Addresses:  212.16.0.238, 212.16.7.66, 212.16.7.65
-[snip snip snip]
-
-http://212.16.7.66/ seems to work...
-
-Cheers,
-
---=20
-Stephane Jourdois
-Ing=E9nieur d=E9veloppement
-DUKE - Digital Age Agency
-10, avenue de Friedland
-75008 Paris - France
-
---wRRV7LY7NUeQGEoC
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Pour information voir http://www.gnupg.org
-
-iEYEARECAAYFAjplpXcACgkQk2dpMN4A2NN+YQCfbZ/q8Ld1UWqxHmTsMaBJe623
-NN8An3fccFRrRNWRJ0RwuNGqMiJ9nrMe
-=ObT5
------END PGP SIGNATURE-----
-
---wRRV7LY7NUeQGEoC--
+--
+Patrik Hägglund
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

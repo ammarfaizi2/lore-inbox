@@ -1,148 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313202AbSG3ScX>; Tue, 30 Jul 2002 14:32:23 -0400
+	id <S315279AbSG3SbO>; Tue, 30 Jul 2002 14:31:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315928AbSG3ScX>; Tue, 30 Jul 2002 14:32:23 -0400
-Received: from [64.105.35.245] ([64.105.35.245]:62111 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S313202AbSG3ScU>; Tue, 30 Jul 2002 14:32:20 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Tue, 30 Jul 2002 11:35:27 -0700
-Message-Id: <200207301835.LAA02863@baldur.yggdrasil.com>
-To: martin@dalecki.de
-Subject: Re: cli/sti removal from linux-2.5.29/drivers/ide?
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+	id <S313202AbSG3SbN>; Tue, 30 Jul 2002 14:31:13 -0400
+Received: from gatekeeper.agave.com ([209.241.135.2]:30112 "EHLO agave.com")
+	by vger.kernel.org with ESMTP id <S315279AbSG3SbK>;
+	Tue, 30 Jul 2002 14:31:10 -0400
+Message-ID: <3D46DC36.4469328E@caseta.com>
+Date: Tue, 30 Jul 2002 13:34:30 -0500
+From: Jim Duchek <jduchek@caseta.com>
+Organization: Caseta Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18pre21 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Quick Q on kernel threads and RT thread priorities
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Please just send me a single diff against 2.5.29 + 108 + 109 just
->posted. This would make me happy. Thanks.
+Hello.  I'm using kernel 2.4.18 in a semi-RT application.  I'm using the
+SCHED_RR scheduler with a number of processes, priorities running from 5
+up through 90.  Default processes, of course, run under SCHED_OTHER at
+priority 0.  There are a number of kernel threads running, quick example
+from busybox's ps (modified to show scheduling prios), see bottom of
+email.   I have tested and the priorities do work correctly -- a prio 50
+process can completely starve a prio 49 process, as it should be.  My
+question is:  Do I need to worry about kernel processes, such as
+[keventd], [eth0], etc, running at 0 priority?  Should I run them at
+99?  I have experienced no problems seeing ethernet traffic with process
+53 in the list below at prio 0 and a CPU-starving test process running
+at prio 50.   I am worried that the kernel may lock up if it's processes
+get starved.  I am also worried that some of these processes may depend
+on the fact that everyone can get equal scheduling and setting them to
+99 will starve my application.  Any advice?
 
-	Here is a patch against 108+109, but without Alan and Andre's
-cmd640 changes, because of the questions that I just emailed about
-that patch.  I can make a patch for that one later.
+Thanks in advance,
+Jim Duchek
+Caseta Technologies, inc.
 
-	I am also holding off on submitting the patch to have
-ide/probe.c disable interrupts before calling ch->tuneproc, as
-I do not think anything else will touch the IO ports in question
-and I haven't gotten an answer on whether an unrelated interrupt
-could cause a problem with the tuning just on account of timing
-and unrelated bus activity.
+sample PS output:
 
-	Anyhow, this patch includes the following changes:
+ PID  Uid     Pri VmSize Stat Command
+    1 root       0   1724 S    init
+    2 root       0        S    [keventd]
+    3 root       0        S    [ksoftirqd_CPU0]
+    4 root       0        S    [kswapd]
+    5 root       0        S    [bdflush]
+    6 root       0        S    [kupdated]
+    7 root       0        S    [mtdblockd]
+   20 root       0   1700 S    syslogd -m 0
+   22 root       0   1708 S    klogd
+   53 root       0        S    [eth0]
+   63 root      50   1676 S    /usr/sbin/inetd /etc/inetd.conf
+   64 root       0   1724 S    init
+   65 root       0   1728 S    init
+   66 root      50   2112 S    telnetd
+   67 root      50   1784 S    -sh
+  142 root      50   2112 R    telnetd
+  143 root      50   1784 S    -sh
+  871 root      50   1844 R    ps
 
-	1. Alan Cox's cs5530 patches, plus I deleted two variables that
-	   are no longer used as a result of Alan's changes.
 
-	2. umc8672.c cli/sti removal.  I must have missed this file before.
-
-	3. qd65xx.c cil/sti removal.  I changed cli/sti to
-	   local_irq_{save,restore} in what appears to be a
-	   probably obselete sanity check routine.  It does not
-	   cause any additional detections of problems, although it
-	   could fail to discover a problem in a very improbable
-	   situation on a multiprocesor.  However, the detection was not
-	   perfect to begin with anyhow.
-
-	I plan to submit the cmd640 and probe.c changes, but I thought
-I ought not delay the cs5530 and umc8672 changes in the meantime.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
-
-diff -u linux-2.5.29-ide109/drivers/ide/cs5530.c linux/drivers/ide/cs5530.c
---- linux-2.5.29-ide109/drivers/ide/cs5530.c	2002-07-30 07:27:09.000000000 -0700
-+++ linux/drivers/ide/cs5530.c	2002-07-30 08:39:29.000000000 -0700
-@@ -203,8 +203,6 @@
- static unsigned int __init pci_init_cs5530(struct pci_dev *dev)
- {
- 	struct pci_dev *master_0 = NULL, *cs5530_0 = NULL;
--	unsigned short pcicmd = 0;
--	unsigned long flags;
- 
- 	pci_for_each_dev(dev) {
- 		if (dev->vendor == PCI_VENDOR_ID_CYRIX) {
-@@ -218,6 +216,7 @@
- 			}
- 		}
- 	}
-+
- 	if (!master_0) {
- 		printk("%s: unable to locate PCI MASTER function\n", dev->name);
- 		return 0;
-@@ -227,15 +226,11 @@
- 		return 0;
- 	}
- 
--	local_irq_save(flags); /* There should only be one CPU with this
--				  chipset. */
--
- 	/*
- 	 * Enable BusMaster and MemoryWriteAndInvalidate for the cs5530:
--	 * -->  OR 0x14 into 16-bit PCI COMMAND reg of function 0 of the cs5530
- 	 */
--	pci_read_config_word (cs5530_0, PCI_COMMAND, &pcicmd);
--	pci_write_config_word(cs5530_0, PCI_COMMAND, pcicmd | PCI_COMMAND_MASTER | PCI_COMMAND_INVALIDATE);
-+	pci_set_master(cs5530_0);
-+	pci_set_mwi(cs5530_0);
- 
- 	/*
- 	 * Set PCI CacheLineSize to 16-bytes:
-@@ -274,8 +269,6 @@
- 	pci_write_config_byte(master_0, 0x42, 0x00);
- 	pci_write_config_byte(master_0, 0x43, 0xc1);
- 
--	local_irq_restore(flags);
--
- 	return 0;
- }
- 
-diff -u linux-2.5.29-ide109/drivers/ide/qd65xx.c linux/drivers/ide/qd65xx.c
---- linux-2.5.29-ide109/drivers/ide/qd65xx.c	2002-07-30 07:27:09.000000000 -0700
-+++ linux/drivers/ide/qd65xx.c	2002-07-30 08:43:30.000000000 -0700
-@@ -264,14 +264,18 @@
- 	u8 readreg;
- 	unsigned long flags;
- 
--	save_flags(flags);	/* all CPUs */
--	cli();			/* all CPUs */
-+	/* As of 2.5.29, we no longer have cli(), and there is no lock that
-+	   we can take on all IO ports, so we can only lock out local
-+	   interrupts.  This routine is an unreliable debugging aid that
-+	   has served its purpose and should probably be removed anyhow.
-+	   -Adam J. Richter, 2002.07.30 */
-+	local_irq_save(flags);
- 	savereg = inb_p(port);
- 	outb_p(QD_TESTVAL, port);	/* safe value */
- 	readreg = inb_p(port);
- 	outb(savereg, port);
--	restore_flags(flags);	/* all CPUs */
-+	local_irq_restore(flags);
- 
- 	if (savereg == QD_TESTVAL) {
- 		printk(KERN_ERR "Outch ! the probe for qd65xx isn't reliable !\n");
-diff -u linux-2.5.29-ide109/drivers/ide/umc8672.c linux/drivers/ide/umc8672.c
---- linux-2.5.29-ide109/drivers/ide/umc8672.c	2002-07-28 08:24:39.000000000 -0700
-+++ linux/drivers/ide/umc8672.c	2002-07-30 07:50:08.000000000 -0700
-@@ -108,19 +108,14 @@
- 
- static void tune_umc(struct ata_device *drive, u8 pio)
- {
--	unsigned long flags;
--
- 	if (pio == 255)
- 		pio = ata_timing_mode(drive, XFER_PIO | XFER_EPIO) - XFER_PIO_0;
- 	else
- 		pio = min_t(u8, pio, 4);
- 
- 	printk("%s: setting umc8672 to PIO mode%d (speed %d)\n", drive->name, pio, pio_to_umc[pio]);
--	save_flags(flags);	/* all CPUs */
--	cli();			/* all CPUs */
- 	current_speeds[drive->name[2] - 'a'] = pio_to_umc[pio];
- 	umc_set_speeds (current_speeds);
--	restore_flags(flags);	/* all CPUs */
- }
- 
- void __init init_umc8672(void)	/* called from ide.c */

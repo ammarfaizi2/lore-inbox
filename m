@@ -1,73 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264648AbUIWGBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265697AbUIWGHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264648AbUIWGBc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 02:01:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUIWGBb
+	id S265697AbUIWGHA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 02:07:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268293AbUIWGHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 02:01:31 -0400
-Received: from holomorphy.com ([207.189.100.168]:41428 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264648AbUIWGB3 (ORCPT
+	Thu, 23 Sep 2004 02:07:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:61322 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265697AbUIWGG5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 02:01:29 -0400
-Date: Wed, 22 Sep 2004 23:01:22 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm2
-Message-ID: <20040923060122.GC9106@holomorphy.com>
-References: <20040922131210.6c08b94c.akpm@osdl.org> <20040923050740.GZ9106@holomorphy.com> <41526341.8070902@bigpond.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41526341.8070902@bigpond.net.au>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Thu, 23 Sep 2004 02:06:57 -0400
+Message-ID: <415267E4.4080302@redhat.com>
+Date: Wed, 22 Sep 2004 23:06:28 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a4) Gecko/20040915
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Simplify last lib/idr.c change
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> Something's a tad off here. Should be easy enough to fix up.
-[...]
->> TPC: <sched_clock+0xc/0x40>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Thu, Sep 23, 2004 at 03:46:41PM +1000, Peter Williams wrote:
-> This looks the problem of sched_clock() being called before it's ready 
-> (that we experienced with 2.6.9-rc2 on IA32 systems) only this time it's 
-> fatal :-(
-> A quick workaround for this would be to initialize idle->sched_timestamp 
-> in init_idle() and current->sched_timestamp in sched_init() to the 
-> INITIAL_JIFFIES converted to nanoseconds instead of using sched_clock().
-> Another solution would be to set them to a value much greater than the 
-> nanosecond equivalent of INITIAL_JIFFIES (e.g. 1ULL << 63) and let the 
-> code that handles the non monotonic behaviour of sched_clock() sort it 
-> out later.
-
-Well, I posted a quick hack to get it to tolerate being called so early.
-Might be better if I statically initialized the thing to a dummy driver
-so only the indirect call remains at runtime. e.g.:
+The last change to alloc_layer in lib/idr.c unnecessarily complicates
+the code and depending on the definition of spin_unlock will cause worse
+code to be generated than necessary.  The following patch should improve
+the situation.
 
 
--- wli
+Signed-off-by: Ulrich Drepper <drepper@redhat.com>
 
-Index: mm2-2.6.9-rc2/arch/sparc64/kernel/time.c
-===================================================================
---- mm2-2.6.9-rc2.orig/arch/sparc64/kernel/time.c	2004-09-22 21:33:03.000000000 -0700
-+++ mm2-2.6.9-rc2/arch/sparc64/kernel/time.c	2004-09-22 22:59:35.980157226 -0700
-@@ -64,7 +64,16 @@
- 
- static int set_rtc_mmss(unsigned long);
- 
--struct sparc64_tick_ops *tick_ops;
-+static __init unsigned long dummy_get_tick(void)
-+{
-+	return 0;
-+}
-+
-+static __initdata struct sparc64_tick_ops dummy_tick_ops = {
-+	.get_tick	= dummy_get_tick,
-+};
-+
-+struct sparc64_tick_ops *tick_ops = &dummy_tick_ops;
- 
- #define TICK_PRIV_BIT	(1UL << 63)
- 
+- --- lib/idr.c-old	2004-09-22 23:02:15.000000000 -0700
++++ lib/idr.c	2004-09-22 23:03:06.000000000 -0700
+@@ -39,13 +39,11 @@ static struct idr_layer *alloc_layer(str
+ 	struct idr_layer *p;
+
+ 	spin_lock(&idp->lock);
+- -	if (!(p = idp->id_free)) {
+- -		spin_unlock(&idp->lock);
+- -		return NULL;
++	if ((p = idp->id_free)) {
++		idp->id_free = p->ary[0];
++		idp->id_free_cnt--;
++		p->ary[0] = NULL;
+ 	}
+- -	idp->id_free = p->ary[0];
+- -	idp->id_free_cnt--;
+- -	p->ary[0] = NULL;
+ 	spin_unlock(&idp->lock);
+ 	return(p);
+ }
+
+
+- --
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFBUmfk2ijCOnn/RHQRAvJ4AKCpd1bkrRkcHaDm+mDyfh1tMpj9EgCgqu2N
+voeHnNuVH5cpBCDtafFjZoc=
+=XUFL
+-----END PGP SIGNATURE-----

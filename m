@@ -1,88 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266231AbTGDXBo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 19:01:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266214AbTGDXBo
+	id S266224AbTGDXFL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 19:05:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266222AbTGDXES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 19:01:44 -0400
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:33552 "EHLO
-	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id S266224AbTGDW7B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 18:59:01 -0400
-To: torvalds@osdl.org, akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5] [6/6] EISA support updates
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-References: <wrpk7axvqv1.fsf@hina.wild-wind.fr.eu.org>
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: Sat, 05 Jul 2003 01:10:35 +0200
-Message-ID: <wrpllvdubv8.fsf@hina.wild-wind.fr.eu.org>
-In-Reply-To: <wrpk7axvqv1.fsf@hina.wild-wind.fr.eu.org> (Marc Zyngier's
- message of "Sat, 05 Jul 2003 01:01:22 +0200")
+	Fri, 4 Jul 2003 19:04:18 -0400
+Received: from maile.telia.com ([194.22.190.16]:19938 "EHLO maile.telia.com")
+	by vger.kernel.org with ESMTP id S266219AbTGDXD7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 19:03:59 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+Date: Sat, 5 Jul 2003 01:09:11 +0200 (CEST)
+From: Peter Osterlund <petero2@telia.com>
+X-X-Sender: petero@best.localdomain
+To: "P. Christeas" <p_christ@hol.gr>
+cc: Vojtech Pavlik <vojtech@suse.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: Early mail about synaptics driver
+In-Reply-To: <200306241846.26953.p_christ@hol.gr>
+Message-ID: <Pine.LNX.4.44.0307050014560.2344-100000@telia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Virtual root :
+On Tue, 24 Jun 2003, P. Christeas wrote:
 
-- By default, do not try to probe the bus if the mainboard does not
-seems to support EISA (allow this behaviour to be changed through a
-command-line option).
+> I am trying to use your synaptics kernel driver. I do have the touchpad,
+> which means that as from 2.573 the kernel tries to use that by default.
+> 
+> The other important part (which I have solved) is that you set "disable
+> gestures" by default. I don't know if this is required in absolute mode,
+> but it surely makes the touchpad less useful in relative mode. That is,
+> if I unload the module and reload it with 'psmouse_noext=1' [1], then
+> the previous setting [2] applies and gestures are disabled.
 
-	M.
+I think it would be better to restore default settings when the driver is
+unloaded, as in the patch below. I have verified that this patch solves
+the problem on my computer using kernel 2.5.74.
 
-diff -ruN linux-latest/drivers/eisa/virtual_root.c linux-eisa/drivers/eisa/virtual_root.c
---- linux-latest/drivers/eisa/virtual_root.c	2003-07-04 09:43:35.000000000 +0200
-+++ linux-eisa/drivers/eisa/virtual_root.c	2003-07-04 09:45:31.000000000 +0200
-@@ -7,12 +7,22 @@
-  * This code is released under the GPL version 2.
-  */
- 
-+#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/device.h>
- #include <linux/eisa.h>
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/init.h>
- 
-+#if defined(CONFIG_ALPHA_JENSEN) || defined(CONFIG_EISA_VLB_PRIMING)
-+#define EISA_FORCE_PROBE_DEFAULT 1
-+#else
-+#define EISA_FORCE_PROBE_DEFAULT 0
-+#endif
-+
-+static int force_probe = EISA_FORCE_PROBE_DEFAULT;
-+
- /* The default EISA device parent (virtual root device).
-  * Now use a platform device, since that's the obvious choice. */
- 
-@@ -29,6 +39,7 @@
- 	.bus_base_addr = 0,
- 	.res	       = &ioport_resource,
- 	.slots	       = EISA_MAX_SLOTS,
-+	.dma_mask      = 0xffffffff,
- };
- 
- static int virtual_eisa_root_init (void)
-@@ -39,6 +50,8 @@
-                 return r;
-         }
- 
-+	eisa_bus_root.force_probe = force_probe;
-+	
- 	eisa_root_dev.dev.driver_data = &eisa_bus_root;
- 
- 	if (eisa_root_register (&eisa_bus_root)) {
-@@ -51,4 +64,6 @@
- 	return 0;
+diff -u -r linux/drivers/input/mouse.orig/psmouse-base.c linux/drivers/input/mouse/psmouse-base.c
+--- linux/drivers/input/mouse.orig/psmouse-base.c	Sat Jul  5 00:10:56 2003
++++ linux/drivers/input/mouse/psmouse-base.c	Fri Jul  4 23:57:40 2003
+@@ -478,9 +478,10 @@
+ static void psmouse_disconnect(struct serio *serio)
+ {
+ 	struct psmouse *psmouse = serio->private;
++	if (psmouse->type == PSMOUSE_SYNAPTICS)
++		synaptics_disconnect(psmouse);
+ 	input_unregister_device(&psmouse->dev);
+ 	serio_close(serio);
+-	synaptics_disconnect(psmouse);
+ 	kfree(psmouse);
  }
  
-+module_param (force_probe, int, 0444);
+diff -u -r linux/drivers/input/mouse.orig/synaptics.c linux/drivers/input/mouse/synaptics.c
+--- linux/drivers/input/mouse.orig/synaptics.c	Sat Jul  5 00:11:07 2003
++++ linux/drivers/input/mouse/synaptics.c	Sat Jul  5 00:09:30 2003
+@@ -144,7 +144,7 @@
+ static void print_ident(struct synaptics_data *priv)
+ {
+ 	printk(KERN_INFO "Synaptics Touchpad, model: %ld\n", SYN_ID_MODEL(priv->identity));
+-	printk(KERN_INFO " Firware: %ld.%ld\n", SYN_ID_MAJOR(priv->identity),
++	printk(KERN_INFO " Firmware: %ld.%ld\n", SYN_ID_MAJOR(priv->identity),
+ 	       SYN_ID_MINOR(priv->identity));
+ 
+ 	if (SYN_MODEL_ROT180(priv->model_id))
+@@ -228,7 +228,7 @@
+ 	/*
+ 	 * The x/y limits are taken from the Synaptics TouchPad interfacing Guide,
+ 	 * which says that they should be valid regardless of the actual size of
+-	 * the senser.
++	 * the sensor.
+ 	 */
+ 	set_bit(EV_ABS, psmouse->dev.evbit);
+ 	set_abs_params(&psmouse->dev, ABS_X, 1472, 5472, 0, 0);
+@@ -259,6 +259,9 @@
+ {
+ 	struct synaptics_data *priv = psmouse->private;
+ 
++	/* Restore touchpad to power on default state */
++	synaptics_set_mode(psmouse, 0);
 +
- device_initcall (virtual_eisa_root_init);
+ 	kfree(priv);
+ }
+ 
 
 -- 
-Places change, faces change. Life is so very strange.
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340
+

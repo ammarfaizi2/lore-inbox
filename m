@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVDESc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVDESgZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261877AbVDESc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 14:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVDESbV
+	id S261848AbVDESgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 14:36:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVDESdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 5 Apr 2005 14:33:21 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:406 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261874AbVDESbV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 5 Apr 2005 14:31:21 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:30594
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261861AbVDES2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 14:28:04 -0400
-Date: Tue, 5 Apr 2005 11:26:08 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, stable@kernel.org,
-       shemminger@osdl.org, netdev@oss.sgi.com
-Subject: Re: [07/08] [TCP] Fix BIC congestion avoidance algorithm error
-Message-Id: <20050405112608.0b3c07f0.davem@davemloft.net>
-In-Reply-To: <20050405182202.GA11979@thunk.org>
-References: <20050405164539.GA17299@kroah.com>
-	<20050405164758.GH17299@kroah.com>
-	<20050405182202.GA11979@thunk.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Jason Gaston <jason.d.gaston@intel.com>
+Organization: Intel Corp.
+To: bzolnier@gmail.com
+Subject: [PATCH 2.6.11.6 2/6] piix: IDE PATA patch for Intel ESB2
+Date: Tue, 5 Apr 2005 08:07:16 -0700
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, jason.d.gaston@intel.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200504050807.16788.jason.d.gaston@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Apr 2005 14:22:02 -0400
-Theodore Ts'o <tytso@mit.edu> wrote:
+Hello,
 
-> If the congestion control alogirthm is "Reno-like", what is
-> user-visible impact to users?  There are OS's out there with TCP/IP
-> stacks that are still using Reno, aren't there?  
+This patch adds the Intel ESB2 DID's to the piix.c file for IDE PATA support.  This patch was built against the 2.6.11.6 kernel.  
+If acceptable, please apply.   Note:  This patch depends on the previous 1/6 patch for pci_ids.h
 
-An incorrect implementation of any congestion control algorithm
-has ramifications not considered when the congestion control
-author verified the design of his algorithm.
+Thanks,
 
-This has a large impact on every user on the internet, not just
-Linux machines.
+Jason Gaston
 
-Perhaps on a microscopic scale "this" part of the BIC algorithm
-was just behaving Reno-like due to the bug, but what implications
-does that error have as applied to the other heuristics in BIC?
-This is what I'm talking about.  BIC operates in several modes,
-one of which is a pseudo binary search mode, and another is a
-less aggressive slower increase mode.
+Signed-off-by:  Jason Gaston <Jason.d.gaston@intel.com>
 
-Therefore I think fixes to congestion control algorithms which
-are enabled by default always should take a high priority in
-the stable kernels.
+--- linux-2.6.11.6/drivers/ide/pci/piix.c.orig	2005-03-28 08:54:23.801062400 -0800
++++ linux-2.6.11.6/drivers/ide/pci/piix.c	2005-03-28 08:58:05.332384520 -0800
+@@ -134,6 +134,7 @@
+ 		case PCI_DEVICE_ID_INTEL_ESB_2:
+ 		case PCI_DEVICE_ID_INTEL_ICH6_19:
+ 		case PCI_DEVICE_ID_INTEL_ICH7_21:
++		case PCI_DEVICE_ID_INTEL_ESB2_18:
+ 			mode = 3;
+ 			break;
+ 		/* UDMA 66 capable */
+@@ -447,6 +448,7 @@
+ 		case PCI_DEVICE_ID_INTEL_ESB_2:
+ 		case PCI_DEVICE_ID_INTEL_ICH6_19:
+ 		case PCI_DEVICE_ID_INTEL_ICH7_21:
++		case PCI_DEVICE_ID_INTEL_ESB2_18:
+ 		{
+ 			unsigned int extra = 0;
+ 			pci_read_config_dword(dev, 0x54, &extra);
+@@ -572,6 +574,7 @@
+ 	/* 20 */ DECLARE_PIIX_DEV("ICH6"),
+ 	/* 21 */ DECLARE_PIIX_DEV("ICH7"),
+ 	/* 22 */ DECLARE_PIIX_DEV("ICH4"),
++	/* 23 */ DECLARE_PIIX_DEV("ESB2"),
+ };
+ 
+ /**
+@@ -647,6 +650,7 @@
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_19, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 20},
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH7_21, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 21},
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 22},
++	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB2_18, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 23},
+ 	{ 0, },
+ };
+ MODULE_DEVICE_TABLE(pci, piix_pci_tbl);

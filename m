@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261402AbUCIKM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 05:12:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbUCIKM0
+	id S261832AbUCIKQK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 05:16:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbUCIKQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 05:12:26 -0500
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:63750 "EHLO
-	ford.pronto.tv") by vger.kernel.org with ESMTP id S261402AbUCIKMZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 05:12:25 -0500
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: GPLv2 or not GPLv2? (no license bashing)
-References: <200403040838.31412.eike-kernel@sf-tec.de>
-	<200403090916.08626.vda@port.imtp.ilyichevsk.odessa.ua>
-	<yw1xhdwy8k8c.fsf@kth.se>
-	<200403091153.23593.vda@port.imtp.ilyichevsk.odessa.ua>
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Tue, 09 Mar 2004 11:12:07 +0100
-In-Reply-To: <200403091153.23593.vda@port.imtp.ilyichevsk.odessa.ua> (vda@port.imtp.ilyichevsk.odessa.ua's
- message of "Tue, 9 Mar 2004 11:53:23 +0200")
-Message-ID: <yw1xznaq72iw.fsf@kth.se>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Tue, 9 Mar 2004 05:16:10 -0500
+Received: from mx13.mail.ru ([194.67.23.56]:53254 "EHLO mx13.mail.ru")
+	by vger.kernel.org with ESMTP id S261832AbUCIKQH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 05:16:07 -0500
+Message-ID: <404D9966.6080903@mail.ru>
+Date: Tue, 09 Mar 2004 14:16:06 +0400
+From: rihad <rihad@mail.ru>
+User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.6) Gecko/20040303
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel-digest@lists.us.dell.com, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: [ANNOUNCE] udev 021 release
+References: <20040303153403.21649.81059.Mailman@linux.us.dell.com> <4048D503.10808@mail.ru> <20040309081948.GI22057@kroah.com>
+In-Reply-To: <20040309081948.GI22057@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vda <vda@port.imtp.ilyichevsk.odessa.ua> writes:
-
-> On Tuesday 09 March 2004 11:04, Måns Rullgård wrote:
->> vda <vda@port.imtp.ilyichevsk.odessa.ua> writes:
->> > Well, Linux kernel is GPLed. If one adds his/hers code to the kernel
->> > (s)he is automatically agrees to the terms of GPL.
->> >
->> > Because "adds code" is actually incorrect here.  "modifies existing
->> > GPLed code" is more accurate.
+Greg KH wrote:
+> On Fri, Mar 05, 2004 at 11:29:07PM +0400, rihad wrote:
+> 
+>>Date: 	Wed, 3 Mar 2004 07:14:33 -0800
+>>From: Greg KH <greg@kroah.com>
 >>
->> Suppose I write a new kernel module, without touching any existing
->> code, and this module gets included in the kernel tree.  Have I added
->> code?  Yes.  Have I modified GPLed code?  I think not.
->
-> I believe Linus said so too wrt out-of-tree modules.
->
-> I think modules included in 'official' tree better be GPLed
-> or else phrase 'Linux kernel is GPLed' becomes meaningless.
+>>>Users need to learn that the kernel is changing models from one which
+>>>automatically loaded modules when userspace tried to access the device,
+>>>to one where the proper modules are loaded when the hardware is found.
+>>
+>>Does this mean that I will have modules for all my hardware hanging 
+>>around even if I'm not, say, using cdrom at the moment?
+> 
+> 
+> Yup, why not?
+> 
 
-That is true, but it doesn't necessarily make my code derived from
-anything at all.
+I suspect there's nothing wrong with that under many common scenarios 
+(apart from the one thing I seem to dislike so much that if a cdrom 
+isn't being used, no driver for it should be loaded). But it does impose 
+certain amount of strict policy that Unix (and Linux more so) has long 
+been doing a great job of avoiding.
 
--- 
-Måns Rullgård
-mru@kth.se
+> 
+>>And does it mean that if I rmmod -a the unused cdrom module and later
+>>try to mount /cdrom, the correct module won't be magically insmod'ed?
+> 
+> 
+> If you don't have the /dev entry there, how would anything know to load
+> the module?
+> 
+
+Does the devfs/udev /dev entry get removed when doing rmmod? I though 
+not. But since the module isn't there anymore, doing mount /dev/cdrom 
+/cdrom would give "No such device". Not a problem per se, but then 
+probably rmmod -a isn't as a wise thing to do with udev as it is with 
+devfs. Bad.

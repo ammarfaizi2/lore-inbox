@@ -1,355 +1,387 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S159776AbRA2HMD>; Mon, 29 Jan 2001 02:12:03 -0500
+	id <S145168AbRA2HLd>; Mon, 29 Jan 2001 02:11:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S145183AbRA2HMA>; Mon, 29 Jan 2001 02:12:00 -0500
-Received: from mailgate.rz.uni-karlsruhe.de ([129.13.64.97]:17926 "EHLO
-	mailgate.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
-	id <S159776AbRA2HLm>; Mon, 29 Jan 2001 02:11:42 -0500
-To: torvalds@transmeta.com
-Cc: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-Subject: Re: PCI IRQ routing problem in 2.4.0
-From: Robert Siemer <Robert.Siemer@gmx.de>
-In-Reply-To: <Pine.LNX.4.10.10101282220460.5605-100000@penguin.transmeta.com>
-In-Reply-To: <20010129070810S.siemer@panorama.hadiko.de>
-	<Pine.LNX.4.10.10101282220460.5605-100000@penguin.transmeta.com>
-X-Mailer: Mew version 1.94b25 on Emacs 20.5 / Mule 4.0 (HANANOEN)
-Reply-To: Robert Siemer <siemer@panorama.hadiko.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S145183AbRA2HLY>; Mon, 29 Jan 2001 02:11:24 -0500
+Received: from mail.mojomofo.com ([208.248.233.19]:63247 "EHLO mojomofo.com")
+	by vger.kernel.org with ESMTP id <S145168AbRA2HLJ>;
+	Mon, 29 Jan 2001 02:11:09 -0500
+Message-ID: <004e01c089c2$a3a11ec0$0300a8c0@methusela>
+From: "Aaron Tiensivu" <mojomofo@mojomofo.com>
+To: "Linus Torvalds" <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10101282143570.5509-100000@penguin.transmeta.com>
+Subject: Re: PCI IRQ routing problem in 2.4.0 (SiS results part 2)
+Date: Mon, 29 Jan 2001 02:10:46 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20010129081132I.siemer@panorama.hadiko.de>
-Date: Mon, 29 Jan 2001 08:11:32 +0100
-X-Dispatcher: imput version 990425(IM115)
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Linus Torvalds <torvalds@transmeta.com>
-> On Mon, 29 Jan 2001, Robert Siemer wrote:
-> > > 
-> > > and see if that changes the behaviour. 
-> > 
-> > It doesn't.   A diff from the kernel output is following. Maybe it
-> > helps...
-> 
-> Actually, this looks like it _did_ fix something - now the kernel no
-> longer thinks there is a IRQ routing conflict, so it does seem to be
-> happier.
-> 
-> Also, while you're unhappy that it assigns irq 12 instead of 9, the pirq
-> table actually says that it's ok, and again the code seems to say that
-> this was actually what the system was set up for.
+| Which one was it you got a PIRQ conflict for before? as it te device at
+| 00:01.00 with the strange "0x62" entry?
 
-I'm not just unhappy to be unable to control the IRQs with the bios
-anymore, sym53c8xx doesn't want to share IRQs with the usb
-subsystem in this case... (kernel panic (killing interrupt handler(?))
-and reboot (rebooting in 60 seconds))
+Yes.
 
-2.4.0-test9 behaviour was different. It really used what the 'bios
-box' stated during bootup. - A way to set the IRQ distribution via
-kernel-params is okay for me, too.
+| How about you try adding the line
+| pirq = (pirq-1) & 3;
+| at the top of both pirq_sis_get() and pirq_sis_set() (with my "alternate"
+| SiS routines). What happens then?
 
-> Can you re-iterate what the failure mode is, again? Preferable with
-> this kernel that definitely looks like it at least agrees with what
-> the BIOS tells it.
+Done.
 
-I'm native German - what is 'failure mode'?
+Linux version 2.4.0-ac12 (root@usr1-ip012-cs.wmis.net) (gcc version 2.95.3
+20010125 (prerelease)) #4 Mon Jan 29 01:53:12 EST 2001
+BIOS-provided physical RAM map:
+ BIOS-e820: 00000000000a0000 @ 0000000000000000 (usable)
+ BIOS-e820: 0000000000010000 @ 00000000000f0000 (reserved)
+ BIOS-e820: 0000000003efd000 @ 0000000000100000 (usable)
+ BIOS-e820: 0000000000002000 @ 0000000003ffd000 (ACPI data)
+ BIOS-e820: 0000000000001000 @ 0000000003fff000 (ACPI NVS)
+ BIOS-e820: 0000000000010000 @ 00000000ffff0000 (reserved)
+Scan SMP from c0000000 for 1024 bytes.
+Scan SMP from c009fc00 for 1024 bytes.
+Scan SMP from c00f0000 for 65536 bytes.
+Scan SMP from c0000000 for 4096 bytes.
+On node 0 totalpages: 16381
+zone(0): 4096 pages.
+zone(1): 12285 pages.
+zone(2): 0 pages.
+APIC turned off by hardware.
+mapped APIC to ffffe000 (01112000)
+Kernel command line: auto BOOT_IMAGE=lnew ro root=341
+BOOT_FILE=/home/kernel/kernel/linux/arch/i386/boot/bzImage
+Initializing CPU#0
+Detected 374.227 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 747.11 BogoMIPS
+Memory: 62368k/65524k available (940k kernel code, 2772k reserved, 327k
+data, 188k init, 0k highmem)
+Dentry-cache hash table entries: 8192 (order: 4, 65536 bytes)
+Buffer-cache hash table entries: 1024 (order: 0, 4096 bytes)
+Page-cache hash table entries: 16384 (order: 4, 65536 bytes)
+Inode-cache hash table entries: 4096 (order: 3, 32768 bytes)
+VFS: Diskquotas version dquot_6.5.0 initialized
+CPU: Before vendor init, caps: 008021bf 808029bf 00000000, vendor = 2
+CPU: L1 I Cache: 32K (32 bytes/line), D cache 32K (32 bytes/line)
+CPU: After vendor init, caps: 008021bf 808029bf 00000000 00000002
+CPU: After generic, caps: 008021bf 808029bf 00000000 00000002
+CPU: Common caps: 008021bf 808029bf 00000000 00000002
+CPU: AMD-K6(tm) 3D processor stepping 0c
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+mtrr: v1.37 (20001109) Richard Gooch (rgooch@atnf.csiro.au)
+mtrr: detected mtrr type: AMD K6
+PCI: BIOS32 Service Directory structure at 0xc00f9b50
+PCI: BIOS32 Service Directory entry at 0xf04d0
+PCI: BIOS probe returned s=00 hw=11 ver=02.10 l=00
+PCI: PCI BIOS revision 2.10 entry at 0xf0500, last bus=0
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+PCI: Setting max latency to 32
+PCI: IDE base address trash cleared for 00:01.1
+PCI: IDE base address fixup for 00:01.1
+PCI: Scanning for ghost devices on bus 0
+PCI: IRQ init
+PCI: Interrupt Routing Table found at 0xc00f0af0
+00:0c slot=01 0:41/1eb8 1:42/1eb8 2:43/1eb8 3:44/1eb8
+00:0b slot=02 0:42/1eb8 1:43/1eb8 2:44/1eb8 3:41/1eb8
+00:0a slot=03 0:43/1eb8 1:44/1eb8 2:41/1eb8 3:42/1eb8
+00:09 slot=04 0:44/1eb8 1:41/1eb8 2:42/1eb8 3:43/1eb8
+00:01 slot=00 0:62/1eb8 1:00/0000 2:00/0000 3:00/0000
+00:13 slot=00 0:41/1eb8 1:42/1eb8 2:43/1eb8 3:44/1eb8
+PCI: Using IRQ router SIS [1039/0008] at 00:01.0
+PCI: IRQ fixup
+PCI: Allocating resources
+PCI: Resource 0000d000-0000d00f (f=101, d=0, p=0)
+PCI: Resource dd000000-dd000fff (f=200, d=0, p=0)
+PCI: Resource 0000b800-0000b807 (f=101, d=0, p=0)
+PCI: Resource dc800000-dc87ffff (f=200, d=0, p=0)
+PCI: Resource e0000000-e7ffffff (f=1208, d=0, p=0)
+PCI: Resource df000000-df000fff (f=1208, d=0, p=0)
+PCI: Resource 0000b400-0000b41f (f=101, d=0, p=0)
+PCI: Resource dc000000-dc0fffff (f=200, d=0, p=0)
+PCI: Resource de000000-de3fffff (f=1208, d=1, p=1)
+PCI: Resource db800000-db80ffff (f=200, d=1, p=1)
+PCI: Resource 0000b000-0000b07f (f=101, d=1, p=1)
+PCI: Sorting device list...
+Disabling direct PCI/PCI transfers.
+isapnp: Scanning for Pnp cards...
+isapnp: No Plug & Play device found
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+apm: BIOS version 1.2 Flags 0x03 (Driver version 1.14)
+Starting kswapd v1.8
+pty: 256 Unix98 ptys configured
+block: queued sectors max/low 41341kB/31006kB, 128 slots per queue
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+SIS5513: IDE controller on PCI bus 00 dev 09
+IRQ for 00:01.1:0 -> PIRQ 62, mask 1eb8, excl 0000 -> newirq=10 -> got IRQ
+10
+PCI: Found IRQ 10 for device 00:01.1
+PCI: The same IRQ used for device 00:01.2
+SIS5513: chipset revision 208
+SIS5513: not 100% native mode: will probe irqs later
+SiS5597
+    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:pio
+keyboard: Timeout - AT keyboard not present?
+keyboard: Timeout - AT keyboard not present?
+hda: ST5660A, ATA DISK drive
+hdb: IBM-DJAA-31700, ATA DISK drive
+hdc: Maxtor 72700 AP, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 1066184 sectors (546 MB) w/256KiB Cache, CHS=528/32/63, DMA
+hdb: 3334464 sectors (1707 MB) w/96KiB Cache, CHS=827/64/63, DMA
+hdc: 5290320 sectors (2709 MB) w/128KiB Cache, CHS=5248/16/63, DMA
+Partition check:
+ /dev/ide/host0/bus0/target0/lun0: p1 p2
+ /dev/ide/host0/bus0/target1/lun0: p1
+ /dev/ide/host0/bus1/target0/lun0: [PTBL] [656/128/63] p1
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a post-1991 82077
+Serial driver version 5.02 (2000-08-09) with MANY_PORTS SHARE_IRQ DETECT_IRQ
+SERIAL_PCI ISAPNP enabled
+ttyS00 at 0x03f8 (irq = 4) is a 16550A
+ttyS01 at 0x02f8 (irq = 3) is a 16550A
+IRQ for 00:0a.0:0 -> PIRQ 43, mask 1eb8, excl 0000 -> newirq=5 -> got IRQ 11
+IRQ routing conflict in pirq table! Try 'pci=autoirq'
+ttyS02 at port 0xb800 (irq = 5) is a 16550A
+Real Time Clock Driver v1.10d
+eepro100.c:v1.09j-t 9/29/99 Donald Becker
+http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
+eepro100.c: $Revision: 1.35 $ 2000/11/17 Modified by Andrey V. Savochkin
+<saw@saw.sw.com.sg> and others
+IRQ for 00:0c.0:0 -> PIRQ 41, mask 1eb8, excl 0000 -> newirq=10 -> assigning
+IRQ 10 ... OK
+PCI: Assigned IRQ 10 for device 00:0c.0
+eth0: Intel Corporation 82557 [Ethernet Pro 100], 00:A0:C9:0D:A6:1F, IRQ 10.
+  Board assembly 352509-003, Physical connectors present: RJ45
+  Primary interface chip DP83840 PHY #1.
+  DP83840 specific setup, setting register 23 to 8462.
+  General self-test: passed.
+  Serial sub-system self-test: passed.
+  Internal registers self-test: passed.
+  ROM checksum self-test: passed (0x49caa8d6).
+  Receiver lock-up workaround activated.
+PPP generic driver version 2.4.1
+PPP Deflate Compression module registered
+PPP BSD Compression module registered
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP, IGMP
+IP: routing cache hash table of 512 buckets, 4Kbytes
+TCP: Hash tables configured (established 4096 bind 4096)
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+devfs: v0.102 (20000622) Richard Gooch (rgooch@atnf.csiro.au)
+devfs: boot_options: 0x0
+reiserfs: checking transaction log (device 03:41) ...
+Using r5 hash to sort names
+ReiserFS version 3.6.25
+VFS: Mounted root (reiserfs filesystem) readonly.
+Mounted devfs on /dev
+Freeing unused kernel memory: 188k freed
+Adding Swap: 18136k swap-space (priority -1)
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+IRQ for 00:01.2:0 -> PIRQ 62, mask 1eb8, excl 0000 -> newirq=10 -> got IRQ
+10
+PCI: Found IRQ 10 for device 00:01.2
+PCI: The same IRQ used for device 00:01.1
+usb-ohci.c: USB OHCI at membase 0xc48c6000, IRQ 10
+usb-ohci.c: usb-00:01.2, Silicon Integrated Systems [SiS] 7001
+usb.c: new USB bus registered, assigned bus number 1
+hub.c: USB hub found
+hub.c: 2 ports detected
+reiserfs: checking transaction log (device 03:01) ...
+Using r5 hash to sort names
+ReiserFS version 3.6.25
+Adding Swap: 65528k swap-space (priority -2)
+Adding Swap: 131064k swap-space (priority -3)
 
-2.4.0-test9 agrees with the bios. [Currently I gave my VGA card (the
-S3) an IRQ - without one in the bios 2.4.0-test9 was happy, but 2.4.0
-gave it IRQ 8 on its own.]
+I also attached my dmesg from the original pre-modded SiS after this.
 
-> Oh, and please do a "lspci -vvvxxx" as root and send me that as
-> well.
-
-Okay. For 2.4.0-test9 it's following immediately. After that a
-diff of "lspci -vvx" from 2.4.0-test9 to 2.4.0 is included.
-
-Full "lspci -vvx" are in my original post:
-http://boudicca.tux.org/hypermail/linux-kernel/latest/0130.html
-
-To mention it: I have also an ASUS SP97 like Aaron Tiensivu. But the
-XV version with (unused) onboard VGA.
-
-Further I always see '09' in the Configuration Space at Interrupt_Line
-(0x3c) for the 00:01.2 USB Controller. But 2.4.0 says:
-  Interrupt: pin A routed to IRQ 12
-while 2.4.0-test9 states:
-  Interrupt: pin A routed to IRQ 9
-
-Please tell me if it helps te see a "lspci -vvvxxx" from 2.4.0 and
-whether I should give some 2.4.0-test?? a try...
-I must go to bed now - otherwise my mother kills me when she reads
-linux-kernel tomorrow... (-:
-
-
-00:00.0 Host bridge: Silicon Integrated Systems [SiS] 5597 [SiS5582] (rev 02)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 32 set
-00: 39 10 97 55 07 00 00 22 02 00 00 06 00 20 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: c0 ea c0 1e fc 04 43 01 60 00 00 00 00 00 00 00
-60: e6 00 00 f9 00 ff 00 ff 00 ff 00 ff 80 02 00 00
-70: cc 88 00 00 88 88 88 00 00 00 00 00 00 00 00 00
-80: 7c c8 ce f7 40 00 10 40 00 00 00 00 00 00 00 00
-90: 02 00 03 44 00 00 00 00 00 00 00 07 00 00 ff ff
-a0: ff ff 00 80 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513 (rev 01)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0 set
-00: 39 10 08 00 07 00 00 02 01 00 01 06 00 00 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: fa 0c 0e 0a 0b 64 00 00 ff ff 10 0f 11 20 04 01
-50: 11 28 02 01 60 0b 64 0b 9c 2e 12 00 a6 0b 00 00
-60: ff 80 49 00 88 00 00 02 00 80 80 00 20 19 00 00
-70: 1a 00 00 c1 00 c1 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 ec 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:01.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0) (prog-if 8f [Master SecP SecO PriP PriO])
-	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 12
-	Region 0: I/O ports at <ignored>
-	Region 1: I/O ports at <ignored>
-	Region 2: I/O ports at <ignored>
-	Region 3: I/O ports at <ignored>
-	Region 4: I/O ports at d000 [size=16]
-00: 39 10 13 55 01 00 00 00 d0 8f 01 01 00 20 80 00
-10: 01 e4 00 00 01 e0 00 00 01 d8 00 00 01 d4 00 00
-20: 01 d0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 0c 01 00 00
-40: 00 00 00 00 00 00 00 00 00 07 e0 00 00 02 00 02
-50: 00 01 07 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:01.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 10) (prog-if 10 [OHCI])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 set, cache line size 08
-	Interrupt: pin A routed to IRQ 9
-	Region 0: Memory at e5000000 (32-bit, non-prefetchable) [size=4K]
-00: 39 10 01 70 17 00 80 02 10 10 03 0c 08 20 80 00
-10: 00 00 00 e5 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 09 01 00 00
-40: 00 00 0f 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:09.0 Multimedia video controller: Brooktree Corporation Bt878 (rev 02)
-	Subsystem: Hauppage computer works Inc.: Unknown device 13eb
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 16 min, 40 max, 32 set
-	Interrupt: pin A routed to IRQ 11
-	Region 0: Memory at e7800000 (32-bit, prefetchable) [size=4K]
-00: 9e 10 6e 03 06 00 80 02 02 00 00 04 00 20 80 00
-10: 08 00 80 e7 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 70 00 eb 13
-30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 01 10 28
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:09.1 Multimedia controller: Brooktree Corporation Bt878 (rev 02)
-	Subsystem: Hauppage computer works Inc.: Unknown device 13eb
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 4 min, 255 max, 32 set
-	Interrupt: pin A routed to IRQ 11
-	Region 0: Memory at e7000000 (32-bit, prefetchable) [size=4K]
-00: 9e 10 78 08 06 00 80 02 02 00 80 04 00 20 80 00
-10: 08 00 00 e7 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 70 00 eb 13
-30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 01 04 ff
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:0a.0 Ethernet controller: Winbond Electronics Corp W89C940 (rev 0b)
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 10
-	Region 0: I/O ports at b800 [size=32]
-00: 50 10 40 09 03 00 80 02 0b 00 00 02 00 00 00 00
-10: 01 b8 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 0a 01 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:0b.0 VGA compatible controller: S3 Inc. 86c968 [Vision 968 VRAM] rev 0 (prog-if 00 [VGA])
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 14
-	Region 0: Memory at 10000000 (32-bit, non-prefetchable) [size=64M]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-00: 33 53 f0 88 83 00 00 02 00 00 00 03 00 00 00 00
-10: 00 00 00 10 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 0e 01 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:0c.0 SCSI storage controller: Symbios Logic Inc. (formerly NCR) 53c875 (rev 03)
-	Subsystem: Tekram Technology Co.,Ltd. DC390F Ultra Wide SCSI Controller
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr+ Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 17 min, 64 max, 32 set, cache line size 08
-	Interrupt: pin A routed to IRQ 12
-	Region 0: I/O ports at b400 [size=256]
-	Region 1: Memory at e1800000 (32-bit, non-prefetchable) [size=256]
-	Region 2: Memory at e1000000 (32-bit, non-prefetchable) [size=4K]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-00: 00 10 0f 00 57 00 00 02 03 00 00 01 08 20 00 00
-10: 01 b4 00 00 00 00 80 e1 00 00 00 e1 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 e1 1d 04 39
-30: 00 00 00 00 00 00 00 00 00 00 00 00 0c 01 11 40
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: da 00 00 9d 47 0f 09 07 04 00 89 00 80 00 0f 0a
-90: ff 60 2a 01 00 ff ff ff 20 f0 35 30 98 03 00 e1
-a0: 00 08 24 00 00 00 00 50 b8 03 00 e1 c0 03 00 e1
-b0: 00 00 00 e1 b0 76 2a 01 46 6d 00 81 c0 03 00 e1
-c0: 8f 05 00 00 75 00 70 0f 0c 00 80 00 76 0c 00 80
-d0: 00 00 00 80 00 00 00 80 00 00 00 80 00 84 00 20
-e0: 43 d1 e6 21 d0 18 28 00 f8 41 22 81 aa ff cf 53
-f0: 12 0f 80 20 6f bf 02 81 8e 84 22 a8 d5 f3 45 73
-
-00:13.0 VGA compatible controller: Silicon Integrated Systems [SiS] 5597/5598 VGA (rev 65) (prog-if 00 [VGA])
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Region 0: Memory at e6000000 (32-bit, prefetchable) [disabled] [size=4M]
-	Region 1: Memory at e0800000 (32-bit, non-prefetchable) [disabled] [size=64K]
-	Region 2: I/O ports at b000 [disabled] [size=128]
-	Expansion ROM at e5ff0000 [disabled] [size=32K]
-00: 39 10 00 02 00 00 00 02 65 00 00 03 00 00 00 00
-10: 08 00 00 e6 00 00 80 e0 01 b0 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 ff e5 00 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 80 e0 01 b0 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 80 e0 01 b0 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 80 e0 01 b0 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Linux version 2.4.0-ac12 (root@lucretia.wmis.net) (gcc version 2.95.3
+20010125 (prerelease)) #5 Mon Jan 29 01:59:59 EST 2001
+BIOS-provided physical RAM map:
+ BIOS-e820: 00000000000a0000 @ 0000000000000000 (usable)
+ BIOS-e820: 0000000000010000 @ 00000000000f0000 (reserved)
+ BIOS-e820: 0000000003efd000 @ 0000000000100000 (usable)
+ BIOS-e820: 0000000000002000 @ 0000000003ffd000 (ACPI data)
+ BIOS-e820: 0000000000001000 @ 0000000003fff000 (ACPI NVS)
+ BIOS-e820: 0000000000010000 @ 00000000ffff0000 (reserved)
+Scan SMP from c0000000 for 1024 bytes.
+Scan SMP from c009fc00 for 1024 bytes.
+Scan SMP from c00f0000 for 65536 bytes.
+Scan SMP from c0000000 for 4096 bytes.
+On node 0 totalpages: 16381
+zone(0): 4096 pages.
+zone(1): 12285 pages.
+zone(2): 0 pages.
+APIC turned off by hardware.
+mapped APIC to ffffe000 (01112000)
+Kernel command line: auto BOOT_IMAGE=lnew ro root=341
+BOOT_FILE=/home/kernel/kernel/linux/arch/i386/boot/bzImage
+Initializing CPU#0
+Detected 374.224 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 747.11 BogoMIPS
+Memory: 62368k/65524k available (940k kernel code, 2772k reserved, 327k
+data, 188k init, 0k highmem)
+Dentry-cache hash table entries: 8192 (order: 4, 65536 bytes)
+Buffer-cache hash table entries: 1024 (order: 0, 4096 bytes)
+Page-cache hash table entries: 16384 (order: 4, 65536 bytes)
+Inode-cache hash table entries: 4096 (order: 3, 32768 bytes)
+VFS: Diskquotas version dquot_6.5.0 initialized
+CPU: Before vendor init, caps: 008021bf 808029bf 00000000, vendor = 2
+CPU: L1 I Cache: 32K (32 bytes/line), D cache 32K (32 bytes/line)
+CPU: After vendor init, caps: 008021bf 808029bf 00000000 00000002
+CPU: After generic, caps: 008021bf 808029bf 00000000 00000002
+CPU: Common caps: 008021bf 808029bf 00000000 00000002
+CPU: AMD-K6(tm) 3D processor stepping 0c
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+mtrr: v1.37 (20001109) Richard Gooch (rgooch@atnf.csiro.au)
+mtrr: detected mtrr type: AMD K6
+PCI: BIOS32 Service Directory structure at 0xc00f9b50
+PCI: BIOS32 Service Directory entry at 0xf04d0
+PCI: BIOS probe returned s=00 hw=11 ver=02.10 l=00
+PCI: PCI BIOS revision 2.10 entry at 0xf0500, last bus=0
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+PCI: Setting max latency to 32
+PCI: IDE base address trash cleared for 00:01.1
+PCI: IDE base address fixup for 00:01.1
+PCI: Scanning for ghost devices on bus 0
+PCI: IRQ init
+PCI: Interrupt Routing Table found at 0xc00f0af0
+00:0c slot=01 0:41/1eb8 1:42/1eb8 2:43/1eb8 3:44/1eb8
+00:0b slot=02 0:42/1eb8 1:43/1eb8 2:44/1eb8 3:41/1eb8
+00:0a slot=03 0:43/1eb8 1:44/1eb8 2:41/1eb8 3:42/1eb8
+00:09 slot=04 0:44/1eb8 1:41/1eb8 2:42/1eb8 3:43/1eb8
+00:01 slot=00 0:62/1eb8 1:00/0000 2:00/0000 3:00/0000
+00:13 slot=00 0:41/1eb8 1:42/1eb8 2:43/1eb8 3:44/1eb8
+PCI: Using IRQ router SIS [1039/0008] at 00:01.0
+PCI: IRQ fixup
+PCI: Allocating resources
+PCI: Resource 0000d000-0000d00f (f=101, d=0, p=0)
+PCI: Resource dd000000-dd000fff (f=200, d=0, p=0)
+PCI: Resource 0000b800-0000b807 (f=101, d=0, p=0)
+PCI: Resource dc800000-dc87ffff (f=200, d=0, p=0)
+PCI: Resource e0000000-e7ffffff (f=1208, d=0, p=0)
+PCI: Resource df000000-df000fff (f=1208, d=0, p=0)
+PCI: Resource 0000b400-0000b41f (f=101, d=0, p=0)
+PCI: Resource dc000000-dc0fffff (f=200, d=0, p=0)
+PCI: Resource de000000-de3fffff (f=1208, d=1, p=1)
+PCI: Resource db800000-db80ffff (f=200, d=1, p=1)
+PCI: Resource 0000b000-0000b07f (f=101, d=1, p=1)
+PCI: Sorting device list...
+Disabling direct PCI/PCI transfers.
+isapnp: Scanning for Pnp cards...
+isapnp: No Plug & Play device found
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+apm: BIOS version 1.2 Flags 0x03 (Driver version 1.14)
+Starting kswapd v1.8
+pty: 256 Unix98 ptys configured
+block: queued sectors max/low 41341kB/31006kB, 128 slots per queue
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+SIS5513: IDE controller on PCI bus 00 dev 09
+IRQ for 00:01.1:0 -> PIRQ 62, mask 1eb8, excl 0000 -> newirq=10 -> got IRQ 7
+IRQ routing conflict in pirq table! Try 'pci=autoirq'
+SIS5513: chipset revision 208
+SIS5513: not 100% native mode: will probe irqs later
+SiS5597
+    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:pio
+keyboard: Timeout - AT keyboard not present?
+keyboard: Timeout - AT keyboard not present?
+hda: ST5660A, ATA DISK drive
+hdb: IBM-DJAA-31700, ATA DISK drive
+hdc: Maxtor 72700 AP, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 1066184 sectors (546 MB) w/256KiB Cache, CHS=528/32/63, DMA
+hdb: 3334464 sectors (1707 MB) w/96KiB Cache, CHS=827/64/63, DMA
+hdc: 5290320 sectors (2709 MB) w/128KiB Cache, CHS=5248/16/63, DMA
+Partition check:
+ /dev/ide/host0/bus0/target0/lun0: p1 p2
+ /dev/ide/host0/bus0/target1/lun0: p1
+ /dev/ide/host0/bus1/target0/lun0: [PTBL] [656/128/63] p1
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a post-1991 82077
+Serial driver version 5.02 (2000-08-09) with MANY_PORTS SHARE_IRQ DETECT_IRQ
+SERIAL_PCI ISAPNP enabled
+ttyS00 at 0x03f8 (irq = 4) is a 16550A
+ttyS01 at 0x02f8 (irq = 3) is a 16550A
+IRQ for 00:0a.0:0 -> PIRQ 43, mask 1eb8, excl 0000 -> newirq=5 -> got IRQ 5
+PCI: Found IRQ 5 for device 00:0a.0
+ttyS02 at port 0xb800 (irq = 5) is a 16550A
+Real Time Clock Driver v1.10d
+eepro100.c:v1.09j-t 9/29/99 Donald Becker
+http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
+eepro100.c: $Revision: 1.35 $ 2000/11/17 Modified by Andrey V. Savochkin
+<saw@saw.sw.com.sg> and others
+IRQ for 00:0c.0:0 -> PIRQ 41, mask 1eb8, excl 0000 -> newirq=10 -> got IRQ
+10
+PCI: Found IRQ 10 for device 00:0c.0
+eth0: Intel Corporation 82557 [Ethernet Pro 100], 00:A0:C9:0D:A6:1F, IRQ 10.
+  Board assembly 352509-003, Physical connectors present: RJ45
+  Primary interface chip DP83840 PHY #1.
+  DP83840 specific setup, setting register 23 to 8462.
+  General self-test: passed.
+  Serial sub-system self-test: passed.
+  Internal registers self-test: passed.
+  ROM checksum self-test: passed (0x49caa8d6).
+  Receiver lock-up workaround activated.
+PPP generic driver version 2.4.1
+PPP Deflate Compression module registered
+PPP BSD Compression module registered
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP, IGMP
+IP: routing cache hash table of 512 buckets, 4Kbytes
+TCP: Hash tables configured (established 4096 bind 4096)
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+devfs: v0.102 (20000622) Richard Gooch (rgooch@atnf.csiro.au)
+devfs: boot_options: 0x0
+reiserfs: checking transaction log (device 03:41) ...
+Warning, log replay starting on readonly filesystem
+Using r5 hash to sort names
+ReiserFS version 3.6.25
+VFS: Mounted root (reiserfs filesystem) readonly.
+Mounted devfs on /dev
+Freeing unused kernel memory: 188k freed
+Adding Swap: 18136k swap-space (priority -1)
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+IRQ for 00:01.2:0 -> PIRQ 62, mask 1eb8, excl 0000 -> newirq=7 -> got IRQ 7
+PCI: Found IRQ 7 for device 00:01.2
+PCI: The same IRQ used for device 00:01.1
+usb-ohci.c: USB OHCI at membase 0xc48c6000, IRQ 7
+usb-ohci.c: usb-00:01.2, Silicon Integrated Systems [SiS] 7001
+usb.c: new USB bus registered, assigned bus number 1
+hub.c: USB hub found
+hub.c: 2 ports detected
+reiserfs: checking transaction log (device 03:01) ...
+Using r5 hash to sort names
+ReiserFS version 3.6.25
+Adding Swap: 65528k swap-space (priority -2)
+Adding Swap: 131064k swap-space (priority -3)
+ip_tables: (c)2000 Netfilter core team
+ip_conntrack (511 buckets, 4088 max)
 
 
 
-
---- lspci-vvx.2.4.0-test9	Sun Jan 28 16:47:43 2001
-+++ lspci-vvx.2.4.0	Mon Jan 29 06:25:53 2001
-@@ -16,7 +16,7 @@
- 20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- 30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- 
--00:01.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0) (prog-if 8f [Master SecP SecO PriP PriO])
-+00:01.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0) (prog-if 8a [Master SecP PriP])
- 	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
- 	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
- 	Interrupt: pin A routed to IRQ 12
-@@ -25,7 +25,7 @@
- 	Region 2: I/O ports at <ignored>
- 	Region 3: I/O ports at <ignored>
- 	Region 4: I/O ports at d000 [size=16]
--00: 39 10 13 55 01 00 00 00 d0 8f 01 01 00 20 80 00
-+00: 39 10 13 55 01 00 00 00 d0 8a 01 01 00 20 80 00
- 10: 01 e4 00 00 01 e0 00 00 01 d8 00 00 01 d4 00 00
- 20: 01 d0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- 30: 00 00 00 00 00 00 00 00 00 00 00 00 0c 01 00 00
-@@ -34,7 +34,7 @@
- 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
- 	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
- 	Latency: 32 set, cache line size 08
--	Interrupt: pin A routed to IRQ 9
-+	Interrupt: pin A routed to IRQ 12
- 	Region 0: Memory at e5000000 (32-bit, non-prefetchable) [size=4K]
- 00: 39 10 01 70 17 00 80 02 10 10 03 0c 08 20 80 00
- 10: 00 00 00 e5 00 00 00 00 00 00 00 00 00 00 00 00
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

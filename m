@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262529AbVAPQJr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262530AbVAPQNH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262529AbVAPQJr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 11:09:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVAPQJr
+	id S262530AbVAPQNH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 11:13:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbVAPQNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 11:09:47 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:33347 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262529AbVAPQJe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 11:09:34 -0500
-Date: Sun, 16 Jan 2005 17:09:48 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Cross-compilation broken (was: Re: Linux 2.6.11-rc1)
-Message-ID: <20050116160948.GA3090@mars.ravnborg.org>
-Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Linus Torvalds <torvalds@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0501112100250.2373@ppc970.osdl.org> <Pine.GSO.4.61.0501161016240.25137@waterleaf.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.61.0501161016240.25137@waterleaf.sonytel.be>
-User-Agent: Mutt/1.5.6i
+	Sun, 16 Jan 2005 11:13:07 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:32748 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262530AbVAPQNF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 11:13:05 -0500
+Date: Sun, 16 Jan 2005 11:13:03 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: christos gentsis <christos_gentsis@yahoo.co.uk>
+cc: Valdis.Kletnieks@vt.edu, root <root@mail.gadugi.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Cherokee Nation Posts Open Source Legisation - Invites comments
+ from Community Members
+In-Reply-To: <41E4CBC3.4070302@yahoo.co.uk>
+Message-ID: <Pine.LNX.4.61.0501161112190.31402@chimarrao.boston.redhat.com>
+References: <20050106180414.GA11597@mail.gadugi.org>
+ <200501061836.j06IakHo030551@turing-police.cc.vt.edu>           
+ <20050106183725.GA12028@mail.gadugi.org> <200501061935.j06JZMq4013855@turing-police.cc.vt.edu>
+ <41E4CBC3.4070302@yahoo.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 16, 2005 at 10:22:43AM +0100, Geert Uytterhoeven wrote:
-> Changing
-> 
-> | NOSTDINC_FLAGS := -nostdinc -isystem $(shell $(CC) -print-file-name=include)
-> 
-> to
-> 
-> | NOSTDINC_FLAGS = -nostdinc -isystem $(shell $(CC) -print-file-name=include)
-> 
-> fixed it. I guess it picked up the definition for $(CC) before it became
-> $(CROSS_COMPILE)gcc.
+On Wed, 12 Jan 2005, christos gentsis wrote:
 
-Main culprint here is m68k fiddelign with definition of CROSS_COMPILE in
-arch/m68k/Makefile.
-If I find no better fix I will take your version.
+> second: does this US law means that everything could be a "trade 
+> secret"? even something like the GUI? or a process bar? and in case that 
+> someone will register them what is going to happens?
 
-	Sam
+Only secrets can be trade secrets.
+
+As soon as somebody else figures it out and publishes it,
+it's no longer a secret, and can no longer be a trade
+secret.
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267917AbUGaJNz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267921AbUGaJce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267917AbUGaJNz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 05:13:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267919AbUGaJNz
+	id S267921AbUGaJce (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 05:32:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267922AbUGaJce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 05:13:55 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:53135 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S267917AbUGaJNx (ORCPT
+	Sat, 31 Jul 2004 05:32:34 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:21638 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S267921AbUGaJcb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 05:13:53 -0400
-Date: Sat, 31 Jul 2004 10:13:19 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: linux-kernel@vger.kernel.org
-Cc: dri-devel@lists.sf.net
-Subject: drm - first steps towards 64-bit correctness..
-Message-ID: <Pine.LNX.4.58.0407310940540.6368@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 31 Jul 2004 05:32:31 -0400
+Date: Sat, 31 Jul 2004 11:33:53 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Kristian H??gsberg <krh@bitplanet.net>
+Cc: Olav Kongas <olav@enif.ee>, linux-kernel@vger.kernel.org
+Subject: Re: input system: EVIOCSABS(abs) ioctl disabled, why?
+Message-ID: <20040731093353.GA1579@ucw.cz>
+References: <Pine.LNX.4.58.0407281453560.16069@serv.enif.ee> <20040728134313.GB4831@ucw.cz> <410B0486.6060706@bitplanet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <410B0486.6060706@bitplanet.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi,
-        As a first step towards sorting getting the DRM into shape for
-proper use on 32/64-bit systems, I'd like to sort out all the type
-definitions in drivers/char/drm/drm.h, this file is also included in
-userspace and BSD builds...
-
-After reading the thread "32/64bit issues in ioctl struct passing" on
-dri-devel, I'm still not 100% sure what we need to do, I just know we to
-do something sooner rather than later!! we are getting more and more
-32/64-bit users everyday....
-While avoiding breakage of current users is "a good thing" I'm not sure it
-overrides "getting it right", at the moment mixed 32/64-bit is broken for
-most cards anyways... I'd like to try and not break pure-32 or pure-64 bit
-setups alright but I think pure-64 bit might take some collateral damage
-:-(..
-
-I've looked across the SuSE patch[1] for 64-bit, but it looks like it will
-add complexity and making future maintenance nightmareish...
-
-We do need to sort this out ASAP, and I also would like to say I'm
-probably not the best person to do the work, I've no non-32bit hardware to
-test this stuff on, I've little 32/64 mixed environment experience,
-everytime I think I've grasped the issues I dig a bit further :-), though
-I also believe this is the single biggest issue with the DRM currently (as
-the maintainer..)
-
-Regards,
-Dave.
-
-[1] http://marc.theaimsgroup.com/?l=dri-devel&m=109040871011904&w=2
+On Sat, Jul 31, 2004 at 04:31:34AM +0200, Kristian H??gsberg wrote:
+> Vojtech Pavlik wrote:
+> >On Wed, Jul 28, 2004 at 03:41:28PM +0300, Olav Kongas wrote:
+> >
+> >
+> >>When trying to feed calibration information to a touchscreen driver with
+> >>the EVIOCSABS(abs) ioctl command, I noticed that this command is disabled
+> >>in 2.6.7. Only after the modification given in the patch below it was
+> >>possible to use this ioctl command.
+> >>
+> >>Why is the EVIOCSABS command disabled? I cannot imagine that nobody uses
+> >
+> >
+> >It's a bug. I'll fix it.
+> 
+> On a related note - shouldn't there also be a EVIOCSLED, or am I missing 
+> something obvious?  How do you set keyboard LEDs?
+ 
+You write() an LED event to the device. EVIOCSABS is intended for
+modifying the absolute valuator range, not the value itself.
 
 -- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265137AbUAOXVY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 18:21:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265156AbUAOXVX
+	id S265228AbUAOX37 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 18:29:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbUAOX37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 18:21:23 -0500
-Received: from mail.kroah.org ([65.200.24.183]:37544 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265137AbUAOXVM (ORCPT
+	Thu, 15 Jan 2004 18:29:59 -0500
+Received: from fw.osdl.org ([65.172.181.6]:28865 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265228AbUAOX36 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 18:21:12 -0500
-Date: Thu, 15 Jan 2004 15:03:42 -0800
-From: Greg KH <greg@kroah.com>
-To: Nuno Silva <nuno.silva@vgertech.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 013 release
-Message-ID: <20040115230342.GN22433@kroah.com>
-References: <20040113235213.GA7659@kroah.com> <4004D084.1050106@vgertech.com> <20040114171527.GB5472@kroah.com> <40058086.5000106@nortelnetworks.com> <4005971F.4020608@vgertech.com> <20040114211417.GC6650@kroah.com> <400645D9.1040400@vgertech.com>
+	Thu, 15 Jan 2004 18:29:58 -0500
+Date: Thu, 15 Jan 2004 15:26:26 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [announce] kmsgdump update for 2.6.1
+Message-Id: <20040115152626.1c81e496.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <400645D9.1040400@vgertech.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 07:48:41AM +0000, Nuno Silva wrote:
-> Hi!
-> 
-> Greg KH wrote:
-> >On Wed, Jan 14, 2004 at 07:23:11PM +0000, Nuno Silva wrote:
-> >
-> >>This would be nice but I think that full info for every new hotplugged 
-> >>device is even better. It's only 1 line :-)
-> >
-> >
-> >Heh, care to make that one line patch?  :)
-> >
-> 
-> Ehehehe I was talking about the extra line ending up in syslog. :-)
-> 
-> Anyway, attached is a simple patch that outputs 50% of what I'd like to 
-> see - still missing the SYSFS_model, serial, etc because 
-> sysfs_get_classdev_attributes didn't work at my first try, but that's my 
-> faulty C showing :)
 
-Hm, I just took Kay's patch instead.  Care to make up a patch for this
-based off of it?
+The kmsgdump patch is now available for 2.6.0 and 2.6.1.
 
-thanks,
+The patches can be found in:
+  http://developer.osdl.org/rddunlap/kmsgdump/
 
-greg k-h
+
+These patches work for me on some host platforms and not on
+some others.  E.g., works on
+  Pentium classic UP
+  Pentium III Thinkpad
+
+not working on
+  IBM dual-proc Pentium 4
+
+I'm guessing that this is APIC or IOAPIC related and working
+on solving it (slowly).
+
+--
+~Randy
+Everything is relative.

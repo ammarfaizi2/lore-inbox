@@ -1,66 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262710AbUCHS65 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 13:58:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbUCHS65
+	id S261151AbUCHTOq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 14:14:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbUCHTNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 13:58:57 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:23734 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S262530AbUCHS6y (ORCPT
+	Mon, 8 Mar 2004 14:13:55 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:41146 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S262539AbUCHTNo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 13:58:54 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Mon, 8 Mar 2004 14:13:44 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Takayoshi Kochi <t-kochi@bq.jp.nec.com>, benjamin.liu@intel.com,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [PATCH] fix PCI interrupt setting for ia64
+Date: Mon, 8 Mar 2004 12:13:22 -0700
+User-Agent: KMail/1.5.4
+Cc: iod00d@hp.com, kaneshige.kenji@jp.fujitsu.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <3ACA40606221794F80A5670F0AF15F8401B1A017@PDSMSX403.ccr.corp.intel.com> <20040308.182552.55855095.t-kochi@bq.jp.nec.com>
+In-Reply-To: <20040308.182552.55855095.t-kochi@bq.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16460.49761.482020.911821@napali.hpl.hp.com>
-Date: Mon, 8 Mar 2004 10:58:41 -0800
-To: Grant Grundler <iod00d@hp.com>
-Cc: David Brownell <david-b@pacbell.net>, davidm@hpl.hp.com,
-       Greg KH <greg@kroah.com>, vojtech@suse.cz,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, pochini@shiny.it
-Subject: Re: [linux-usb-devel] Re: serious 2.6 bug in USB subsystem?
-In-Reply-To: <20040308061802.GA25960@cup.hp.com>
-References: <20031028013013.GA3991@kroah.com>
-	<200310280300.h9S30Hkw003073@napali.hpl.hp.com>
-	<3FA12A2E.4090308@pacbell.net>
-	<16289.29015.81760.774530@napali.hpl.hp.com>
-	<16289.55171.278494.17172@napali.hpl.hp.com>
-	<3FA28C9A.5010608@pacbell.net>
-	<16457.12968.365287.561596@napali.hpl.hp.com>
-	<404959A5.6040809@pacbell.net>
-	<16457.26208.980359.82768@napali.hpl.hp.com>
-	<4049FE57.2060809@pacbell.net>
-	<20040308061802.GA25960@cup.hp.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Message-Id: <200403081213.22095.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Sun, 7 Mar 2004 22:18:02 -0800, Grant Grundler <iod00d@hp.com> said:
+On Monday 08 March 2004 2:25 am, Takayoshi Kochi wrote:
+> I think that's still true for IDE / serial port drivers.
+> Kaneshige-san, could you confirm your changes are compatible
+> with probe_irq_on()?
+> 
+> Itanium-generation machines (such as BigSur) depends on
+> probe_irq_on() for finding serial port IRQ.
 
-  >> `Such a write-buffering mechanism is clearly a type of
-  >> (write-)caching effect,
+Strictly speaking, since ACPI tells us about IRQs, we shouldn't need
+probe_irq_on() on ia64, should we?
 
-  Grant> No - the data is still in flight and in some deterministic
-  Grant> time frame will become visible to the CPU.  Calling it a
-  Grant> "caching effect" confuses the issues even worse.
+I don't see any ACPI smarts in the IDE driver, but I think the
+serial driver needs only the attached patch to make it avoid
+the use of probe_irq_on().  I tested this on i2k and various
+HP zx1 boxes, and it works fine.
 
-That's why I'm so unhappy that the PCI interface used the term
-"consistent" memory, when it should have said "coherent".  We
-should nail a plate on everbody's forehead saying:
+Russell, if you agree, would you mind applying this?
 
- consistency = coherency + ordering
+ACPI and HCDP tell us what IRQ the serial port uses, so there's
+no need to have the driver probe for the IRQ.
 
-Perhaps then people would start to have a clear distincition between
-the meaning of the two terms (or at least it would force them to think
-about it! ;-).
+===== drivers/serial/8250_acpi.c 1.7 vs edited =====
+--- 1.7/drivers/serial/8250_acpi.c	Fri Jan 16 15:01:45 2004
++++ edited/drivers/serial/8250_acpi.c	Mon Mar  8 11:14:51 2004
+@@ -134,8 +134,7 @@
+ 	}
+ 
+ 	serial_req.baud_base = BASE_BAUD;
+-	serial_req.flags = UPF_SKIP_TEST | UPF_BOOT_AUTOCONF |
+-			   UPF_AUTO_IRQ  | UPF_RESOURCES;
++	serial_req.flags = UPF_SKIP_TEST | UPF_BOOT_AUTOCONF | UPF_RESOURCES;
+ 
+ 	priv->line = register_serial(&serial_req);
+ 	if (priv->line < 0) {
+===== drivers/serial/8250_hcdp.c 1.2 vs edited =====
+--- 1.2/drivers/serial/8250_hcdp.c	Sun Jan 11 16:27:13 2004
++++ edited/drivers/serial/8250_hcdp.c	Mon Mar  8 11:28:27 2004
+@@ -186,8 +186,6 @@
+ 		port.irq = gsi;
+ #endif
+ 		port.flags = UPF_SKIP_TEST | UPF_BOOT_AUTOCONF | UPF_RESOURCES;
+-		if (gsi)
+-			port.flags |= ASYNC_AUTO_IRQ;
+ 
+ 		/*
+ 		 * Note: the above memset() initializes port.line to 0,
 
-But in any case, as later experimentation confirmed, the USB bug isn't
-(just) an ordering issue.  The order of operation described in the
-OHCI spec does not rely on any specific order of interrupt delivery at
-all, so I was wrong about that.
-
-	--david

@@ -1,44 +1,385 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262441AbSJ0P4P>; Sun, 27 Oct 2002 10:56:15 -0500
+	id <S262449AbSJ0QTl>; Sun, 27 Oct 2002 11:19:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262442AbSJ0P4P>; Sun, 27 Oct 2002 10:56:15 -0500
-Received: from momus.sc.intel.com ([143.183.152.8]:37602 "EHLO
-	momus.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S262441AbSJ0P4O> convert rfc822-to-8bit; Sun, 27 Oct 2002 10:56:14 -0500
-content-class: urn:content-classes:message
-Subject: typo in 2.4.19 free_area_init_core()?
-Date: Sun, 27 Oct 2002 08:01:23 -0800
-Message-ID: <51568623CC066847A1DC7EB0D95B587AD2CD@fmsmsx405.fm.intel.com>
-X-MS-Has-Attach: 
+	id <S262450AbSJ0QTl>; Sun, 27 Oct 2002 11:19:41 -0500
+Received: from sycorax.lbl.gov ([128.3.5.196]:1479 "EHLO sycorax.lbl.gov")
+	by vger.kernel.org with ESMTP id <S262449AbSJ0QTh>;
+	Sun, 27 Oct 2002 11:19:37 -0500
+To: linux-kernel@vger.kernel.org
+Subject: kernel BUG at drivers/serial/core.c:1067 with 2.5.44
+From: Alex Romosan <romosan@sycorax.lbl.gov>
+Date: 27 Oct 2002 08:25:53 -0800
+Message-ID: <87elabdf1q.fsf@sycorax.lbl.gov>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MS-TNEF-Correlator: 
-Thread-Topic: typo in 2.4.19 free_area_init_core()?
-Thread-Index: AcJ90hWzCuWr4VhvQMauUl7wXJmKFA==
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: <marcelo@conectiva.com.br>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 27 Oct 2002 16:01:24.0324 (UTC) FILETIME=[19711240:01C27DD2]
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
+--=-=-=
 
-Is this a typo in function free_area_init_core()?  The information on realsize is more interesting than the size variable.
+i get the following on a pentium iii 650 MHz sony vaio at boot time:
+
+ksymoops 2.4.6 on i686 2.5.44.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.44/ (default)
+     -m /boot/System.map-2.5.44 (default)
+     -x
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Oct 27 07:39:54 trinculo kernel: kernel BUG at drivers/serial/core.c:1067!
+Oct 27 07:39:54 trinculo kernel: invalid operand: 0000
+Oct 27 07:39:54 trinculo kernel: 3c574_cs irtty irda autofs4 microcode ppp_async uhci-hcd ohci-hcd usbcore nls_cp437 vfat snd-pcm-oss snd-mixer-oss snd-ymfpci snd-pcm snd-mpu401-uart snd-rawmidi snd-ac97-codec snd-opl3-lib snd-timer snd-hwdep snd-seq-device snd soundcore
+Oct 27 07:39:54 trinculo kernel: CPU:    0
+Oct 27 07:39:54 trinculo kernel: EIP:    0060:[uart_set_termios+41/356]    Not tainted
+Oct 27 07:39:54 trinculo kernel: EFLAGS: 00010286
+Oct 27 07:39:54 trinculo kernel: eax: cfd21900   ebx: cab74000   ecx: 000008bd   edx: c13b1ecc
+Oct 27 07:39:54 trinculo kernel: esi: c13b1ef0   edi: 000008bd   ebp: cb71cd3c   esp: cab75e58
+Oct 27 07:39:54 trinculo kernel: ds: 0068   es: 0068   ss: 0068
+Oct 27 07:39:54 trinculo kernel: Stack: cb7cde00 c13b1ef0 cab75ea8 00000000 00000001 d11b05f8 ca932000 cab75e84
+Oct 27 07:39:54 trinculo kernel:        ca932000 cb7cde00 ca814000 00000005 00000000 000008bd 00000000 7f1c030b
+Oct 27 07:39:54 trinculo kernel:        01000415 1a131100 170f1200 2f000016 d11b1321 cb7cde00 00000000 ca814000
+Oct 27 07:39:54 trinculo kernel: Call Trace: [<d11b05f8>]  [<d11b1321>]  [vsnprintf+987/1052]  [dev_open+76/164]  [dev_change_flags+81/260]  [dev_ifsioc+117/868]  [dev_ioctl+783/1064]  [<d11a1f49>]  [sock_ioctl+203/240]  [sys_ioctl+637/724]  [syscall_call+7/11]
+Oct 27 07:39:54 trinculo kernel: Code: 0f 0b 2b 04 9e 56 27 c0 8d b4 26 00 00 00 00 8b 4c 24 1c 3b
+Using defaults from ksymoops -t elf32-i386 -a i386
 
 
+>>eax; cfd21900 <_end+261855052/282709676>
+>>ebx; cab74000 <_end+176209484/282709676>
+>>edx; c13b1ecc <_end+17079576/282709676>
+>>esi; c13b1ef0 <_end+17079612/282709676>
+>>ebp; cb71cd3c <_end+188435336/282709676>
+>>esp; cab75e58 <_end+176217252/282709676>
 
---- mm/page_alloc.c~	Sun Oct 27 00:46:10 2002
-+++ mm/page_alloc.c	Sun Oct 27 00:46:35 2002
-@@ -735,7 +735,7 @@
- 		if (zholes_size)
- 			realsize -= zholes_size[j];
- 
--		printk("zone(%lu): %lu pages.\n", j, size);
-+		printk("zone(%lu): %lu pages.\n", j, realsize);
- 		zone->size = size;
- 		zone->name = zone_names[j];
- 		zone->lock = SPIN_LOCK_UNLOCKED;
+Trace; d11b05f8 <.data.end+31521/????>
+Trace; d11b1321 <END_OF_CODE+34890/????>
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   0f 0b                     ud2a   
+Code;  00000002 Before first symbol
+   2:   2b 04 9e                  sub    (%esi,%ebx,4),%eax
+Code;  00000005 Before first symbol
+   5:   56                        push   %esi
+Code;  00000006 Before first symbol
+   6:   27                        daa    
+Code;  00000007 Before first symbol
+   7:   c0 8d b4 26 00 00 00      rorb   $0x0,0x26b4(%ebp)
+Code;  0000000e Before first symbol
+   e:   00 8b 4c 24 1c 3b         add    %cl,0x3b1c244c(%ebx)
+
+
+1 warning issued.  Results may not be reliable.
+
+the funny thing is i've been running this kernel since it came out and
+the oops didn't happen until today. i disabled irda in the bios and
+now i can boot again. i am attaching my .config file.
+
+--alex--
+
+
+--=-=-=
+Content-Disposition: attachment; filename=config.new
+Content-Description: config-2.5.44
+
+CONFIG_X86=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HUGETLB_PAGE=y
+CONFIG_PREEMPT=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_MCE=y
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PM=y
+CONFIG_APM=y
+CONFIG_APM_CPU_IDLE=y
+CONFIG_APM_ALLOW_INTS=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_HOTPLUG=y
+CONFIG_PCMCIA=y
+CONFIG_CARDBUS=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_PNP=y
+CONFIG_PNP_NAMES=y
+CONFIG_ISAPNP=y
+CONFIG_PNPBIOS=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_LBD=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETFILTER=y
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_MROUTE=y
+CONFIG_IP_PIMSM_V1=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_UNCLEAN=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_SNMP_BASIC=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_PPP=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_NET_PCMCIA=y
+CONFIG_PCMCIA_3C574=m
+CONFIG_IRDA=m
+CONFIG_IRLAN=m
+CONFIG_IRNET=m
+CONFIG_IRCOMM=m
+CONFIG_IRDA_ULTRA=y
+CONFIG_IRDA_CACHE_LAST_LSAP=y
+CONFIG_IRDA_FAST_RR=y
+CONFIG_IRDA_DEBUG=y
+CONFIG_IRTTY_SIR=m
+CONFIG_IRPORT_SIR=m
+CONFIG_NSC_FIR=m
+CONFIG_WINBOND_FIR=m
+CONFIG_TOSHIBA_FIR=m
+CONFIG_SMC_IRCC_FIR=m
+CONFIG_ALI_FIR=m
+CONFIG_VLSI_FIR=m
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_JOYDEV=m
+CONFIG_INPUT_EVDEV=y
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=m
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_JOYSTICK=y
+CONFIG_JOYSTICK_WARRIOR=m
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=m
+CONFIG_INPUT_UINPUT=m
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_CS=m
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_INTEL_RNG=m
+CONFIG_RTC=y
+CONFIG_SONYPI=y
+CONFIG_AUTOFS4_FS=m
+CONFIG_REISERFS_FS=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_CRAMFS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_ROMFS_FS=m
+CONFIG_EXT2_FS=y
+CONFIG_UDF_FS=m
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_TCP=y
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+CONFIG_SMB_FS=m
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_SMB_NLS_REMOTE="cp437"
+CONFIG_ZISOFS_FS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="cp437"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_UTF8=m
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_NEOMAGIC=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_ACCEL=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_SOUND=m
+CONFIG_SND=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_SEQ_DUMMY=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=m
+CONFIG_SND_DUMMY=m
+CONFIG_SND_VIRMIDI=m
+CONFIG_SND_MTPAV=m
+CONFIG_SND_SERIAL_U16550=m
+CONFIG_SND_MPU401=m
+CONFIG_SND_YMFPCI=m
+CONFIG_USB=m
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_OHCI_HCD=m
+CONFIG_USB_UHCI_HCD_ALT=m
+CONFIG_USB_BLUETOOTH_TTY=m
+CONFIG_USB_PRINTER=m
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_HID_FF=y
+CONFIG_HID_PID=y
+CONFIG_LOGITECH_FF=y
+CONFIG_USB_HIDDEV=y
+CONFIG_USB_KBD=m
+CONFIG_USB_MOUSE=m
+CONFIG_USB_AIPTEK=m
+CONFIG_USB_MDC800=m
+CONFIG_USB_SCANNER=m
+CONFIG_USB_RIO500=m
+CONFIG_DEBUG_KERNEL=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+CONFIG_DEBUG_SLAB=y
+CONFIG_DEBUG_IOVIRT=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_SPINLOCK=y
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_SECURITY_CAPABILITIES=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_X86_BIOS_REBOOT=y
+
+--=-=-=
+
+
+-- 
+| I believe the moment is at hand when, by a paranoiac and active |
+|  advance of the mind, it will be possible (simultaneously with  |
+|  automatism and other passive states) to systematize confusion  |
+|  and thus to help to discredit completely the world of reality. |
+
+--=-=-=--

@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317102AbSGXNMt>; Wed, 24 Jul 2002 09:12:49 -0400
+	id <S317035AbSGXNKb>; Wed, 24 Jul 2002 09:10:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317110AbSGXNMt>; Wed, 24 Jul 2002 09:12:49 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:56333 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317102AbSGXNMs>; Wed, 24 Jul 2002 09:12:48 -0400
-Message-ID: <3D3EA74F.4090706@evision.ag>
-Date: Wed, 24 Jul 2002 15:10:39 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
+	id <S317066AbSGXNKb>; Wed, 24 Jul 2002 09:10:31 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:43476 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317035AbSGXNKa>; Wed, 24 Jul 2002 09:10:30 -0400
+Date: Wed, 24 Jul 2002 15:13:22 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Ingo Molnar <mingo@elte.hu>
+cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] irqlock patch 2.5.27-H4
+In-Reply-To: <Pine.LNX.4.44.0207241344160.14551-100000@localhost.localdomain>
+Message-ID: <Pine.SOL.4.30.0207241505430.15605-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: martin@dalecki.de, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: please DON'T run 2.5.27 with IDE!
-References: <Pine.SOL.4.30.0207241440500.15605-100000@mion.elka.pw.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On Wed, 24 Jul 2002, Marcin Dalecki wrote:
-> 
-> 
->>[root@localhost block]# grep \>special *.c
->>elevator.c:         !rq->waiting && !rq->special)
->>^^^^^^ This one is supposed to have the required barrier effect.
-> 
-> 
-> Go reread, no barrier effect, requests can slip in before your
-> REQ_SPECIAL. They cannon only be merged with REQ_SPECIAL.
 
-Erm. Please note that I don't see any problem here. It's just
-a matter of completeness.
+On Wed, 24 Jul 2002, Ingo Molnar wrote:
 
+> the latest irqlock patch can be found at:
+>
+>    http://redhat.com/~mingo/remove-irqlock-patches/remove-irqlock-2.5.27-H4
+>
+> Changes in -H4:
+>
+>  - fix the cli()/sti() hack in ide/main.c, per Marcin Dalecki's
+>    suggestion. [this leaves the tty layer as the only remaining subsystem
+>    that still has cli()/sti() related hacks.]
+
+Hi Ingo,
+
+Marcin's suggestions will bring you nowhere.
+
+You should remove all these locking from ide_unregister_subdriver()
+because in 100% cases it is already called with ide_lock held.
+
+Also in ide subsystem ide-tape.c needs fixing, however it is already
+broken and proper locking fixing may be non-trivial task.
+
+Regards
+--
+Bartlomiej
 

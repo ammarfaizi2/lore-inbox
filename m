@@ -1,29 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281437AbRKEXup>; Mon, 5 Nov 2001 18:50:45 -0500
+	id <S281441AbRKEXyD>; Mon, 5 Nov 2001 18:54:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281440AbRKEXue>; Mon, 5 Nov 2001 18:50:34 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62725 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281439AbRKEXuT>; Mon, 5 Nov 2001 18:50:19 -0500
-Subject: Re: PCI interrupts
-To: matt@eee.nott.ac.uk (Matthew Clark)
-Date: Mon, 5 Nov 2001 23:57:27 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.OSF.4.31.0111052332160.25619-100000@perry> from "Matthew Clark" at Nov 05, 2001 11:43:35 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281442AbRKEXxx>; Mon, 5 Nov 2001 18:53:53 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51472 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281441AbRKEXxn>; Mon, 5 Nov 2001 18:53:43 -0500
+Date: Mon, 5 Nov 2001 15:50:38 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext2-devel] disk throughput
+In-Reply-To: <Pine.GSO.4.21.0111051811150.27086-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0111051543440.15533-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E160tcN-00078L-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In my development system the PCI card I am developing  the
-> driver for reports (from the PCI config region) that it is using
-> interrupt 5.  I can't register this interrupt as it is already
-> in use by the USB controller.
 
-PCI interrupts are shared, and must be sharable. Generally the bus wiring
-determines what gets shared
+On Mon, 5 Nov 2001, Alexander Viro wrote:
+>
+> Ideally we would need to predict how many (and how large) files
+> will go into directory.  We can't - we have no time machines.  But
+> heuristics you've mentioned is clearly broken.  It will end up with
+> mostly empty trees squeezed into a single cylinder group and when
+> they start to get populated that will be pure hell.
+
+Why? Squeezing into a single cylinder group is _good_. Fragmentation is
+bad.
+
+Where's the hell? You move over to the next cylinder group when you have
+90% filled one ("pick percentage randomly", and there are others that are
+clearly less used.
+
+> Benchmarks that try to stress that code tend to be something like
+> cvs co, tar x, yodda, yodda.  _All_ of them deal only with "fast-growth"
+> pattern.  And yes, FFS inode allocator sucks for that scenario - no
+> arguments here.  Unfortunately, the variant you propose will suck for
+> slow-growth one and that is going to hurt a lot.
+
+I don't see any arguments for _why_ you claim it would hurt a lot.
+
+Fast-growth is what we should care about from a performance standpoint -
+slow growth can be sanely handled with slower-paced maintenance issues
+(including approaches like "defragment the disk once a month").
+
+By definition, "slow growth" is amenable to defragmentation. And by
+definition, fast growth isn't. And if we're talking about speedups on the
+order of _five times_ for something as simple as a "cvs co", I don't see
+where your "pure hell" comes in.
+
+A five-time slowdown on real work _is_ pure hell. You've not shown a
+credible argument that the slow-growth behaviour would ever result in a
+five-time slowdown for _anything_.
+
+		Linus
+

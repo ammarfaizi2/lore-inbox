@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266477AbUBRQkA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 11:40:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264446AbUBRQkA
+	id S266501AbUBRQua (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 11:50:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266494AbUBRQsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 11:40:00 -0500
-Received: from fw.osdl.org ([65.172.181.6]:56761 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266428AbUBRQj6 (ORCPT
+	Wed, 18 Feb 2004 11:48:42 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:2693 "EHLO terminus.zytor.com")
+	by vger.kernel.org with ESMTP id S266340AbUBRQsf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 11:39:58 -0500
-Date: Wed, 18 Feb 2004 08:39:34 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: viro@parcelfarce.linux.theplanet.co.uk, Dave Jones <davej@redhat.com>,
-       Santiago Leon <santil@us.ibm.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH][2.6] IBM PowerPC Virtual Ethernet Driver
-In-Reply-To: <1077080607.1078.109.camel@gaston>
-Message-ID: <Pine.LNX.4.58.0402180834460.2686@home.osdl.org>
-References: <40329A24.5070209@us.ibm.com> <1077065118.1082.83.camel@gaston>
-  <20040218040130.GC26304@redhat.com>  <20040218042340.GW8858@parcelfarce.linux.theplanet.co.uk>
-  <Pine.LNX.4.58.0402172044321.2686@home.osdl.org> <1077080607.1078.109.camel@gaston>
+	Wed, 18 Feb 2004 11:48:35 -0500
+Message-ID: <4033974F.4090706@zytor.com>
+Date: Wed, 18 Feb 2004 08:48:15 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
+X-Accept-Language: en, sv, es, fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+CC: tridge@samba.org, Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: UTF-8 and case-insensitivity
+References: <16434.58656.381712.241116@samba.org> <200402181105.58425.robin.rosenberg.lists@dewire.com> <16435.20457.610841.62521@samba.org> <200402181331.36859.robin.rosenberg.lists@dewire.com>
+In-Reply-To: <200402181331.36859.robin.rosenberg.lists@dewire.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 18 Feb 2004, Benjamin Herrenschmidt wrote:
+Robin Rosenberg wrote:
 > 
-> Well... I still think it's asking for trouble in the long term
-> to rely on them .... It's definitely broken for drivers of devices
-> that can be used on different archs (PCI cards for example) since
-> the layout of the bitfields is different at least with gcc between
-> big and little endian machines. But I've also been bitten by
-> alignement issues within the bitfield in the past (not with gcc
-> though) and other funny things like that...
+> I believe (please correct me if this is wrong) that Windows never actually
+> supported any of the UCS-2 code that were in conflict with UTF-16. The cost
+> of this operation was that some of the "private" code blocks of unicode 2.0, i.e. 
+> U+D800..U+DFFF were redefined as "surrogates" in Unicode 3.0 making the 
+> UTF-16 encoding more or less backwards compatible with UCS-2. And it's 
+> UTF-16LE and UCS-2LE, but I suspect you knew that :-)
+> 
 
-I mostly agree. 
+Make that Unicode 1.0 and 1.1, and you're correct.
 
-You _can_ get bitfields correct, but it takes some care. And btw, bit
-endianness within a word does not necessarily match the byte endianness,
-although they are usually connected. 
-
-See for example <linux/tcp.h> for what you need to do to make bitfields 
-work right across architectures.
-
-> So overall, I just recommend to get rid of them.
-
-In general, yes. You can make bitfields be more readable, but you need to 
-be careful. And we all know how careful most driver writers tend to be.
-
-		Linus
+	-hpa

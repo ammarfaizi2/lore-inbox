@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313713AbSDUSRP>; Sun, 21 Apr 2002 14:17:15 -0400
+	id <S313706AbSDUSSq>; Sun, 21 Apr 2002 14:18:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313666AbSDUSPu>; Sun, 21 Apr 2002 14:15:50 -0400
-Received: from panic.tn.gatech.edu ([130.207.137.62]:21413 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S313724AbSDUSPU>;
-	Sun, 21 Apr 2002 14:15:20 -0400
-Date: Sun, 21 Apr 2002 14:15:19 -0400
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: linux-kernel@vger.kernel.org
+	id <S313666AbSDUSRQ>; Sun, 21 Apr 2002 14:17:16 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:38414 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S313706AbSDUSQX>;
+	Sun, 21 Apr 2002 14:16:23 -0400
+Date: Sun, 21 Apr 2002 15:15:50 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: John Alvord <jalvo@mbay.net>
+Cc: Jochen Friedrich <jochen@scram.de>, Ian Molton <spyro@armlinux.org>,
+        Russell King <rmk@arm.linux.org.uk>, phillips@bonn-fries.net,
+        ebiederm@xmission.com, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020421141519.E8142@havoc.gtf.org>
-In-Reply-To: <20020421101731.D10525@work.bitmover.com> <E16yyya-0000l7-00@starship> <20020421135529.A8142@havoc.gtf.org> <E16yzMr-0000lO-00@starship>
+Message-ID: <20020421181550.GF4571@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	John Alvord <jalvo@mbay.net>, Jochen Friedrich <jochen@scram.de>,
+	Ian Molton <spyro@armlinux.org>, Russell King <rmk@arm.linux.org.uk>,
+	phillips@bonn-fries.net, ebiederm@xmission.com,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204211123590.18496-100000@alpha.bocc.de> <Pine.LNX.4.20.0204211110450.22439-100000@otter.mbay.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.28i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 20, 2002 at 08:13:48PM +0200, Daniel Phillips wrote:
-> On Sunday 21 April 2002 19:55, Jeff Garzik wrote:
-> > On Sat, Apr 20, 2002 at 07:48:44PM +0200, Daniel Phillips wrote:
-> > > On Sunday 21 April 2002 19:22, Jeff Garzik wrote:
-> > > > Daniel Phillips wrote:
-> > > > > How much less convenient is it to click on a link?  So much harder that it's
-> > > > > worth pissing off some key developers?
+Em Sun, Apr 21, 2002 at 11:11:52AM -0700, John Alvord escreveu:
+> On Sun, 21 Apr 2002, Jochen Friedrich wrote:
+> > > > We dont allow proprietary modules in the kernel, why should docs be any
+> > > > different?
+> > > 
+> > > The documentation being discussed is not proprietary, it only talks about a non
+> > > essential proprietary tool used now by lots of kernel hackers.
 > > 
-> > > > Linus has already explained why he put it into the kernel sources.
-> > 
-> > > So far the only argument I've seen is: it's convenient.  Did I miss something? 
-> > > The convenience argument is bogus.  A url is just as convenient,
-> >
-> > If you say this, then you either missed, or are willfully ignoring,
-> > what Linus said.  Search for the string "helsinki.fi".
-> 
-> Linus said:
-> 
-> > As to why the docs are in the kernel sources rather than on any web-sites:
-> > it's simply because I don't even _have_ a web page of my own (I've long
-> > since forgotten the password to my old helsinki.fi account ;),
-> 
-> Larry has offered to host it, so Linus's argument is answered.
+> > So would Linus accept a document on how to run Linux/390 on hercules (yet 
+> > another proprietary emulator)? This also was a FAQ on the linux-390 
+> > mailing list until the documentation is available on the hercules home 
+> > page...
+> <Puzzled> I thought hercules was an open source project... There are some
+> prioriatery 390 emulators (UMX, Flex) but not hercules.
 
-These are docs-about-Linus, not docs-about-Larry.
+As I said, its QPLed, so non-proprietary but subject to flamefest, but lets
+stick (not me, thanks) to the regular bk ones ;)
 
-Do you propose to move SubmittingPatches and all info related to CVS, to
-Larry's web site?
-
-If not... (see the last line of Linus's first response in this thread)
-
-	Jeff
-
-
-
-
+- Arnaldo

@@ -1,42 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262496AbUKDXGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262479AbUKDXUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262496AbUKDXGd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 18:06:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbUKDWg3
+	id S262479AbUKDXUW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 18:20:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbUKDXUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 17:36:29 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:47620 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S262349AbUKDWV3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 17:21:29 -0500
-Date: Thu, 4 Nov 2004 22:21:22 +0000
-From: John Levon <levon@movementarian.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>, Jack Steiner <steiner@sgi.com>,
-       linux-kernel@vger.kernel.org, edwardsg@sgi.com, dipankar@in.ibm.com
-Subject: Re: contention on profile_lock
-Message-ID: <20041104222122.GA55794@compsoc.man.ac.uk>
-References: <200411021152.16038.jbarnes@engr.sgi.com> <20041104201257.GA14786@holomorphy.com> <200411041249.21718.jbarnes@engr.sgi.com> <200411041355.27228.jbarnes@engr.sgi.com>
+	Thu, 4 Nov 2004 18:20:22 -0500
+Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:41680 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262489AbUKDXRk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 18:17:40 -0500
+Date: Fri, 5 Nov 2004 00:17:34 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Matthias Andree <matthias.andree@gmx.de>,
+       netfilter-devel@lists.netfilter.org, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Fix ip_conntrack_amanda data corruption bug that breaks amanda dumps
+Message-ID: <20041104231734.GA30029@merlin.emma.line.org>
+Mail-Followup-To: Patrick McHardy <kaber@trash.net>,
+	netfilter-devel@lists.netfilter.org, linux-net@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20041104121522.GA16547@merlin.emma.line.org> <418A7B0B.7040803@trash.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200411041355.27228.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Graham Coxon - Happiness in Magazines
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CPpyu-000LZ0-9W*HGxjWiPdRbU*
+In-Reply-To: <418A7B0B.7040803@trash.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 01:55:27PM -0800, Jesse Barnes wrote:
+On Thu, 04 Nov 2004, Patrick McHardy wrote:
 
-> +/* Oprofile timer tick hook */
-> +int (*oprofile_timer_notify)(struct pt_regs *);
+> Matthias Andree wrote:
+> 
+> >You can use "bk receive" to patch with this mail.
+> >
+> >BK: Parent repository is bk://linux.bkbits.net/linux-2.5
+> >
+> >Patch description:
+> >ChangeSet@1.2427, 2004-11-04 13:00:54+01:00, matthias.andree@gmx.de
+> >   Fix ip_conntrack_amanda data corruption bug that breaks amanda dumps.
+> > 
+> >   Fix a bug where the ip_conntrack_amanda module replaces the first LF
+> >   after "CONNECT " by a NUL byte. This causes the UDP checksum to become
+> >   corrupt and strips off the OPTIONS argument from the received packet,
+> >   breaking amanda's sendbackup component altogether.  Replace the LF
+> >   character before releasing the buffer.
+> >
+> The data that is changed is only a copy, the actual packet is not touched.
 
-How is the module going to access this if you don't EXPORT_SYMBOL_GPL()
-it ?
+Why then does the application not see the packets as long as
+ip_conntrack_amanda is loaded and starts seeing them again as soon as
+"rmmod ip_conntrack_amanda" has completed?
 
-Do you have some specific objection to keeping the register/unregister
-functions as I showed?
+And I'm not even arguing with tcpdump which may get the altered copy of the packet.
 
-john
+I am unaware of two things:
+1. detailed packet flow and SKBs
+2. internal ip_conntrack API.
+
+I am however seeing that ip_conntrack_amanda
+1. jams the application's protocol
+2. modifies the packet.
+
+So is there any evidence to support the "only a copy" theory?
+
+-- 
+Matthias Andree

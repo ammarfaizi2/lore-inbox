@@ -1,95 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbUCVXSP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 18:18:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbUCVXSP
+	id S261610AbUCVXR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 18:17:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbUCVXR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 18:18:15 -0500
-Received: from gprs214-233.eurotel.cz ([160.218.214.233]:9856 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261491AbUCVXSF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 18:18:05 -0500
-Date: Tue, 23 Mar 2004 00:17:38 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: swsusp problems [was Re: Your opinion on the merge?]
-Message-ID: <20040322231737.GA9125@elf.ucw.cz>
-References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <20040318193703.4c02f7f5.akpm@osdl.org> <1079661410.15557.38.camel@calvin.wpcb.org.au> <20040318200513.287ebcf0.akpm@osdl.org> <1079664318.15559.41.camel@calvin.wpcb.org.au> <20040321220050.GA14433@elf.ucw.cz> <1079988938.2779.18.camel@calvin.wpcb.org.au>
+	Mon, 22 Mar 2004 18:17:27 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42768 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261610AbUCVXRY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 18:17:24 -0500
+Date: Mon, 22 Mar 2004 23:17:18 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Muli Ben-Yehuda <mulix@mulix.org>, Jos Hulzink <jos@hulzink.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OSS: cleanup or throw away
+Message-ID: <20040322231718.G11212@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
+	Muli Ben-Yehuda <mulix@mulix.org>, Jos Hulzink <jos@hulzink.net>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200403221955.52767.jos@hulzink.net> <20040322202220.GA13042@mulix.org> <20040322215921.GU16746@fs.tum.de> <20040322220326.GF13042@mulix.org> <20040322222329.GW16746@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1079988938.2779.18.camel@calvin.wpcb.org.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040322222329.GW16746@fs.tum.de>; from bunk@fs.tum.de on Mon, Mar 22, 2004 at 11:23:29PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Now I have _proof_ that eye-candy is harmfull. What is see on screen is:
-> 
-> No, that's not proof; just a bug in the code. It's not using the right
-> code to display the error message. I'll fix it asap.
-
-:-)
-
-I'd really like eye-candy code to be gone. Its long, and its not worth
-the trouble.
-
-> >                                                               N
-> > umber of free pages a[                              ]h! (285723 != 285754)
-> >  (Press SPACE to continue)
-> 
-> By thw way, to get this message, you probably removed the memory pool
-> hooks. I'm getting the picture more and more clearly. I need to write a
-> series of emails explaining why each part of the changes exists. I'll
-> try to do that shortly.
-
-No, this was actually with unmodified swsusp2. [I'm not sure if
-highmem was enabled at that point. I do not think it was.]
-
-> > Was it really neccessary to rename IOTHREAD to NOFREEZE? This way you
-> 
-> Not really, but I felt that IOTHREAD wasn't a good description of the
-> way the flag is used. The name implies that it is intended for threads
-> used for doing I/O, but it is also used for some threads that aren't I/O
-> related but cannot/should not be refrigerated.
-
-I agree that NOFREEZE is better name. Try submitting separate patch to
-rename it; if it gets rejected, modify swsusp2 to use IOTHREAD name...
-
-> >         if (likely(!(current->state & (TASK_DEAD | TASK_ZOMBIE)))) {
-> >                 if (unlikely(in_atomic())) {
-> > -                       printk(KERN_ERR "bad: scheduling while
-> > atomic!\n");
-> > -                       dump_stack();
-> > +                       if (likely(!(software_suspend_state &
-> > SOFTWARE_SUSPEND_RUNNING))) {
-> > +                               printk(KERN_ERR "bad: scheduling while
-> > atomic!\n");
-> > +                               dump_stack();
-> > +                       }
-> >                 }
-> >         }
+On Mon, Mar 22, 2004 at 11:23:29PM +0100, Adrian Bunk wrote:
+> On Tue, Mar 23, 2004 at 12:03:27AM +0200, Muli Ben-Yehuda wrote:
+> > On Mon, Mar 22, 2004 at 10:59:21PM +0100, Adrian Bunk wrote:
+> > > Wouldn't it be better to get the ALSA drivers working in such cases?
 > > 
-> > Were you lazy or is there some reason why scheduling while atomic is
-> > not bad for swsusp2?
+> > It would; but until they do, ditching OSS is a regression. 
+> >...
 > 
-> I like the way you're forcing me to remember why I've done things the
-> way I have :>. I'll need to get look at this again and get back to you.
-> There is a good reason and I did try to avoid doing this. I just don't
-> remember the logic right now.
+> Clearly.
+> 
+> Ditching OSS at the beginning of 2.7 will give several years to identify 
+> and fix such regressions.
 
-Not enough comments, then :-). [I wish I had followed swsusp2
-development more closely, but I guess its too late for that by now.]
+Seriously, ALSA has some issues at the moment which OSS doesn't have.
+The main one is that OSS does not require mmap() access, whereas ALSA
+native does at present - and there are architectures where the ALSA
+method of mmap() both the ring buffer and the control data does not
+work.
 
-> Thanks for the comments. I really appreciate them.
+These issues aren't simple to resolve - as can be seen from the
+recent lkml threads on the subject.  I've been seriously considering
+submitting the existing OSS drivers I have here for ARM hardware
+instead of trying to convert them to ALSA drivers first, and
+considering whether I should be writing new OSS drivers in
+preference to ALSA drivers.
 
-I'm looking forward to better swsusp2.
-								Pavel
+That's not to say I don't want to see ALSA progress though - which is
+why I'm working to try to get these issues resolved.
+
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

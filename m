@@ -1,82 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbUCaCeA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 21:34:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbUCaCeA
+	id S261690AbUCaCgf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 21:36:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUCaCgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 21:34:00 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57747 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261710AbUCaCdQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 21:33:16 -0500
-Message-ID: <406A2DDE.8050001@pobox.com>
-Date: Tue, 30 Mar 2004 21:33:02 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: Petr Sebor <petr@scssoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: [sata] libata update
-References: <4064E691.2070009@pobox.com> <200403310139.36003.bzolnier@elka.pw.edu.pl> <406A0704.7060706@pobox.com> <200403310228.54580.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200403310228.54580.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 30 Mar 2004 21:36:35 -0500
+Received: from ozlabs.org ([203.10.76.45]:16105 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261690AbUCaCgd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 21:36:33 -0500
+Subject: Re: route cache DoS testing and softirqs
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Dipankar Sarma <dipankar@in.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com, Robert Olsson <Robert.Olsson@data.slu.se>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, Dave Miller <davem@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Andrew Morton <akpm@osdl.org>,
+       rusty@au1.ibm.com
+In-Reply-To: <20040330050614.GA4669@in.ibm.com>
+References: <20040329184550.GA4540@in.ibm.com>
+	 <20040329222926.GF3808@dualathlon.random>
+	 <20040330050614.GA4669@in.ibm.com>
+Content-Type: text/plain
+Message-Id: <1080700584.17686.237.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 31 Mar 2004 12:36:25 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On Wednesday 31 of March 2004 01:47, Jeff Garzik wrote:
+On Tue, 2004-03-30 at 15:06, Srivatsa Vaddagiri wrote:
+> On Tue, Mar 30, 2004 at 01:07:12AM +0000, Andrea Arcangeli wrote:
+> > btw, the set_current_state(TASK_INTERRUPTIBLE) before
+> > kthread_should_stop seems overkill w.r.t. smp locking, plus the code is
+> > written in the wrong way around, all set_current_state are in the wrong
+> > place. It's harmless but I cleaned up that bit as well.
 > 
->>Bartlomiej Zolnierkiewicz wrote:
->>
->>>On Wednesday 31 of March 2004 01:16, Jeff Garzik wrote:
->>>
->>>>Petr Sebor wrote:
->>>>
->>>>>Hi Jeff,
->>>>>
->>>>>I have upgraded from 2.6.3 to 2.6.5-rc3 and can't see the secondary
->>>>>sata drive anymore...
->>>>>
->>>>>I am seeing this:
->>>>>-------------------------------------------------------------------
->>>>>libata version 1.02 loaded.
->>>>>sata_via version 0.20
->>>>>sata_via(0000:00:0f.0): routed to hard irq line 11
->>>>>ata1: SATA max UDMA/133 cmd 0xC400 ctl 0xC802 bmdma 0xD400 irq 20
->>>>>ata2: SATA max UDMA/133 cmd 0xCC00 ctl 0xD002 bmdma 0xD408 irq 20
->>>>>ata1: dev 0 cfg 49:2f00 82:346b 83:7f21 84:4003 85:3469 86:3c01 87:4003
->>>>>88:203f
->>>>>ata1: dev 0 ATA, max UDMA/100, 488397168 sectors (lba48)
->>>>>ata1: dev 0 configured for UDMA/100
->>>>>scsi0 : sata_via
->>>>>ata2: no device found (phy stat 00000000)
->>>>>ata2: thread exiting
->>>>>scsi1 : sata_via
->>>>
->>>>oh, and are both disks SATA?
->>>>
->>>>Or is the 37G drive a PATA drive on a PATA->SATA adapter (a.k.a. bridge)?
->>>
->>>   Vendor: ATA       Model: WDC WD360GD-00FN  Rev: 1.00
->>>   Type:   Direct-Access                      ANSI SCSI revision: 05
->>>
->>>WD Raptor electronics includes PATA->SATA bridge.
->>
->>Yes, a lot of drives do.
->>
->>I meant outside the drive, an adapter/bridge the user plugs into the
->>device, that allows it to pretend it is a SATA device.
-> 
-> 
-> Is there any difference (except cabling and power) ?
+> I think set_current_state(TASK_INTERRUPTIBLE) before kthread_should_stop()
+> _is_ required, otherwise kthread_stop can fail to destroy a kthread.
 
-Most drives use the well-known Marvell phy chip, while adapters are a 
-bit more random...
+The problem is that kthread_stop used to send a signal to the kthread,
+which meant we didn't have to beware of races (since it would never
+sleep any more): kthread_should_stop() was called signal_pending 8)
 
-	Jeff
+Andrew hated the signal mechanism, so I abandoned it, but didn't go back
+and fix all the users.  It's tempting to send a signal anyway to make
+life simpler, though, although that might set a bad example for others.
 
-
-
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

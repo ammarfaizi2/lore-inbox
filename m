@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbTHYTTU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 15:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbTHYTTU
+	id S262074AbTHYTN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 15:13:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbTHYTN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 15:19:20 -0400
-Received: from kde.informatik.uni-kl.de ([131.246.103.200]:28606 "EHLO
-	dot.kde.org") by vger.kernel.org with ESMTP id S262123AbTHYTTR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 15:19:17 -0400
-Date: Mon, 25 Aug 2003 21:06:15 +0200 (CEST)
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-X-X-Sender: bero@dot.kde.org
-To: Gerardo Exequiel Pozzi <djgeray2k@yahoo.com.ar>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-[p]ac1
-In-Reply-To: <20030825154356.759ff545.djgeray2k@yahoo.com.ar>
-Message-ID: <Pine.LNX.4.53.0308252105420.16422@dot.kde.org>
-References: <Pine.LNX.4.53.0308251916340.16422@dot.kde.org>
- <20030825154356.759ff545.djgeray2k@yahoo.com.ar>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 25 Aug 2003 15:13:27 -0400
+Received: from www.13thfloor.at ([212.16.59.250]:57547 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S262074AbTHYTN0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 15:13:26 -0400
+Date: Mon, 25 Aug 2003 21:13:39 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: linux-kernel@vger.kernel.org
+Subject: [OT] sizeof C types ...
+Message-ID: <20030825191339.GA28525@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Aug 2003, Gerardo Exequiel Pozzi wrote:
 
-> Very Nice! Thanks!
-> 
-> then, the patches that create I can send with CC to you?
+Hi Everyone!
 
-Yes, please do. I currently don't have the time to look into all patches 
-posted on linux-kernel.
+this time not sooo off topic but ...
 
-LLaP
-bero
+anyway, ist there some kind of overview how
+large the basic C types are on the different
+architectures Linux runs on?
 
--- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
+char, short, int, long, long int, long long, ...
 
-Redistribution and processing of this message is subject to
-http://www.arklinux.org/terms.php
+TIA,
+Herbert
+

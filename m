@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135709AbRDXSkA>; Tue, 24 Apr 2001 14:40:00 -0400
+	id <S135717AbRDXStl>; Tue, 24 Apr 2001 14:49:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135714AbRDXSjv>; Tue, 24 Apr 2001 14:39:51 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:57840 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S135709AbRDXSji>;
-	Tue, 24 Apr 2001 14:39:38 -0400
-Date: Tue, 24 Apr 2001 11:39:20 -0700
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: David Gibson <david@gibson.dropbear.id.au>
-Subject: orinoco_cs & IrDA
-Message-ID: <20010424113920.B31666@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S135716AbRDXStb>; Tue, 24 Apr 2001 14:49:31 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:684 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S135714AbRDXSt0>;
+	Tue, 24 Apr 2001 14:49:26 -0400
+Date: Tue, 24 Apr 2001 14:49:23 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andreas Dilger <adilger@turbolinux.com>
+cc: Christoph Rohland <cr@sap.com>, David Woodhouse <dwmw2@infradead.org>,
+        Jan Harkes <jaharkes@cs.cmu.edu>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        "David L. Parsley" <parsley@linuxjedi.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: hundreds of mount --bind mountpoints?
+In-Reply-To: <200104241837.f3OIb0ii016925@webber.adilger.int>
+Message-ID: <Pine.GSO.4.21.0104241441560.6992-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Linus,
 
-	I've got a question... I would like where to send my driver
-patches...
 
-	One month ago, I sent a small update for the orinoco_cs driver
-and Wireless Extensions. I didn't put all the changes I had for
-orinoco_cs because I believe in small incremental updates limited to a
-specific area (even if all the changes are trivial). You ignored my
-patch (without feedback), whereas Alan picked it up (if I remember
-correctly it was included in his 'patch-2.4.2-ac28').
-	So now, what should I do with the rest of my updates and the
-new one that have accumulated since ? Should I wait until you grab the
-first patch from Alan's tree ? Should I send the new patches directly
-to Alan so that he can accumulate a monster patch ? Should I just
-accumulate the patches on my web page ?
+On Tue, 24 Apr 2001, Andreas Dilger wrote:
 
-	Another day, I will also tell you about the IrDA patches...
+> One thing to watch out for is that the current code zeros the u. struct
+> for us (as you pointed out to me previously), but allocating from the
+> slab cache will not...  This could be an interesting source of bugs for
+> some filesystems that assume zero'd inode_info structs.
 
-	Have fun...
+True, but easy to catch.
+ 
+> Well, if we get rid of NFS (50 x __u32) and HFS (44 * __u32) (sizes are
+> approximate for 32-bit arches - I was just counting by hand and not
+> strictly checking alignment), then almost all other filesystems are below
+> 25 * __u32 (i.e. half of the previous size).
 
-	Jean
+Yeah, but NFS suddenly takes 25+50 words... That's the type of complaints
+I'm thinking about.
+ 
+> Maybe the size of the union can depend on CONFIG_*_FS?  There should be
+> an absolute minimum size (16 * __u32 or so), but then people who want
+> reiserfs as their primary fs do not need to pay the memory penalty of ext2.
+> For ext2 (the next largest and most common fs), we could make it part of
+> the union if it is compiled in, and on a slab cache if it is a module?
+
+NO. Sorry about shouting, but that's the way to madness. I can understand
+code depending on SMP vs. UP and similar beasts, but presense of specific
+filesystems.... <shudder>
+
+> Should uncommon-but-widely-used things like socket and shmem have their
+> own slab cache, or should they just allocate from the generic size-32 slab?
+
+That's pretty interesting - especially for sockets. I wonder whether
+we would get problems with separate allocation of these - we don't
+go from inode to socket all that often, but...
+

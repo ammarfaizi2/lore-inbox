@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265222AbSKSNxw>; Tue, 19 Nov 2002 08:53:52 -0500
+	id <S265368AbSKSN5Z>; Tue, 19 Nov 2002 08:57:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265306AbSKSNxw>; Tue, 19 Nov 2002 08:53:52 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:25271 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S265222AbSKSNxv>;
-	Tue, 19 Nov 2002 08:53:51 -0500
-Date: Tue, 19 Nov 2002 15:00:53 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: CaT <cat@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.48 and ALSA
-Message-ID: <20021119140053.GA9690@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>, CaT <cat@zip.com.au>,
-	linux-kernel@vger.kernel.org
-References: <20021119133959.GA818@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021119133959.GA818@zip.com.au>
-User-Agent: Mutt/1.3.28i
+	id <S265373AbSKSN5Z>; Tue, 19 Nov 2002 08:57:25 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:29364 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id <S265368AbSKSN5Y>; Tue, 19 Nov 2002 08:57:24 -0500
+Date: Tue, 19 Nov 2002 14:05:30 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@digeo.com>
+cc: lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: 2.5.48-mm1
+In-Reply-To: <3DDA0153.A1971C76@digeo.com>
+Message-ID: <Pine.LNX.4.44.0211191338590.1596-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 20, 2002 at 12:39:59AM +1100, CaT wrote:
-> Is it supposed to work when compiled into the kernel? I have it compiled
-> with OSS emulation and it worked as modules with 2.5.47 but not compiled
-> in to 2.5.48 (trying to avoid the whole modules changes here :)
-
-Works for me with snd-trident on 2.5.48 as modules.
+On Tue, 19 Nov 2002, Andrew Morton wrote:
 > 
+> +loop-balance-pages.patch
+> 
+>  Small optimisation to loop
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+I disagree with this one (changing balance_dirty_pages to _ratelimited
+when loop_thread writes to file): it's a step in the right direction,
+but I think you should remove that balance_dirty_pages call completely.
+
+I'm experimenting with what's needed to prevent deadoralivelock in
+loop over tmpfs under heavy memory pressure (thank you for eliminating
+wait_on_page_bit from shrink_list!).  One element of that is to ignore
+balance_dirty_pages below loop (I hadn't noticed the explicit call,
+offhand I'm unsure whether that's the only possible instance).
+
+The loop_thread is working towards undirtying memory (completing
+writeback): a loop of blk_congestion_waits is appropriate at the
+upper level where the user task generating dirt needs to be throttled,
+but I don't believe it's appropriate at this level - we wouldn't want
+to throttle the disk, no more should we throttle the loop_thread.
+
+Hugh
+

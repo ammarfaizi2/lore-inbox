@@ -1,27 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312560AbSEDMHJ>; Sat, 4 May 2002 08:07:09 -0400
+	id <S312558AbSEDMLQ>; Sat, 4 May 2002 08:11:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312576AbSEDMHI>; Sat, 4 May 2002 08:07:08 -0400
-Received: from mailgate5.cinetic.de ([217.72.192.165]:2229 "EHLO
-	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
-	id <S312560AbSEDMHI>; Sat, 4 May 2002 08:07:08 -0400
-Date: Sat, 4 May 2002 14:07:02 +0200
-Message-Id: <200205041207.g44C72X30485@mailgate5.cinetic.de>
-MIME-Version: 1.0
-Organization: http://freemail.web.de/
-From: Christian Neumair <christian-neumair@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: GNU/linux 2.5.14 (?)
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S312576AbSEDMLQ>; Sat, 4 May 2002 08:11:16 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:19217 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S312558AbSEDMLP>;
+	Sat, 4 May 2002 08:11:15 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: kbuild 2.5 release 2.4 
+In-Reply-To: Your message of "Sat, 04 May 2002 13:26:48 +0200."
+             <Pine.LNX.4.44.0205041322080.12156-100000@netfinity.realnet.co.sz> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 04 May 2002 22:11:05 +1000
+Message-ID: <23974.1020514265@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following entangles me:
-Although kernelnewbies.org/status tells me that some features are merged in the 2.4.14 release i can't find it on kernel.org.
-Please clear me up :-)
+On Sat, 4 May 2002 13:26:48 +0200 (SAST), 
+Zwane Mwaikambo <zwane@linux.realnet.co.sz> wrote:
+>	Just a minor nit, could you change the rm parameter to have -r 
+>too? I've found that ^C halfway through a make can leave some old 
+>directories (.tmp_include or somesuch).
 
-see you,
-Christian Neumair
+You will have to provide more details of the problem that you think you
+are seeing.  The .tmp_include files are part of the infrastructure that
+lets me separate source and object trees, they are meant to be there.
+make -f Makefile-2.5 mrproper deletes .tmp_include.
 

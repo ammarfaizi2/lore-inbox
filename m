@@ -1,74 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262704AbUCORNL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 12:13:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262708AbUCORNL
+	id S262708AbUCOROA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 12:14:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbUCORN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 12:13:11 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:16044 "EHLO
+	Mon, 15 Mar 2004 12:13:59 -0500
+Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:17324 "EHLO
 	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262704AbUCORND convert rfc822-to-8bit (ORCPT
+	id S262708AbUCORNr convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 12:13:03 -0500
+	Mon, 15 Mar 2004 12:13:47 -0500
 MIME-Version: 1.0
 To: torvalds@osdl.org, marcelo.tosatti@cyclades.com.br
-Subject: BK-kernel-tools/shortlog update
-Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
+Subject: lk-changelog.pl 0.245
+Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de
 From: Matthias Andree <matthias.andree@gmx.de>
-Content-ID: <Mon_Mar_15_17_12_46_UTC_2004_0@merlin.emma.line.org>
+Content-ID: <Mon_Mar_15_17_13_41_UTC_2004_0@merlin.emma.line.org>
 Content-type: text/plain; charset=iso-8859-1
 Content-Description: An object packed by metasend
 Content-Transfer-Encoding: 8BIT
-Message-Id: <20040315171247.772AAAAE5A@merlin.emma.line.org>
-Date: Mon, 15 Mar 2004 18:12:47 +0100 (CET)
+Message-Id: <20040315171343.AE7A7AAF6B@merlin.emma.line.org>
+Date: Mon, 15 Mar 2004 18:13:43 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linus,
+This is a semi-automatic announcement.
 
-you can either use "bk receive" to patch with this mail,
-or you can
-Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
-or in cases of dire need, you can apply the patch below.
+lk-changelog.pl aka. shortlog version 0.245 has been released.
 
-BK: Parent repository is http://bktools.bkbits.net/bktools
+This script is used by Linus and Marcelo to rearrange and reformat BK
+ChangeSet logs into a more human-readable format, and the official
+repository is Parent repository is http://bktools.bkbits.net/bktools
 
-Patch description:
-ChangeSet@1.133, 2004-03-12 23:59:32+01:00, matthias.andree@gmx.de
-  Five new addresses.
+As the script has grown large, this mail only contains a diff against
+the last released version.
 
-Matthias
+You can always download the full script and GPG signatures from
+http://home.pages.de/~mandree/linux/kernel/
 
-------------------------------------------------------------------------
+My thanks go to Vitezslav Samel who has spent a lot of time on digging
+out the real names for addresses sending in BK ChangeSets.
 
-##### DIFFSTAT #####
-# shortlog |    7 ++++++-
-# 1 files changed, 6 insertions(+), 1 deletion(-)
+Note that your mailer must be MIME-capable to save this mail properly,
+because it is in the "quoted-printable" encoding.
 
-##### GNUPATCH #####
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/03/12 23:59:32+01:00 matthias.andree@gmx.de 
-#   Five new addresses.
-# 
-# shortlog
-#   2004/03/12 23:59:32+01:00 matthias.andree@gmx.de +6 -1
-#   Five new addresses.
-# 
-diff -Nru a/shortlog b/shortlog
---- a/shortlog	Mon Mar 15 18:12:45 2004
-+++ b/shortlog	Mon Mar 15 18:12:45 2004
+= <- if you see just an equality sign, but no "3D", your mailer is fine.
+= <- if you see 3D on this line, then upgrade your mailer or pipe this mail
+= <- into metamail.
+
+-- 
+A sh script on behalf of Matthias Andree
+-------------------------------------------------------------------------
+Changes since last release:
+
+----------------------------
+revision 0.245
+date: 2004/03/15 17:12:08;  author: emma;  state: Exp;  lines: +3 -1
+Add two new mappings.
+----------------------------
+revision 0.244
+date: 2004/03/14 12:34:55;  author: emma;  state: Exp;  lines: +2 -1
+Add mapping for hjm, red hat.
+----------------------------
+revision 0.243
+date: 2004/03/12 22:59:31;  author: emma;  state: Exp;  lines: +6 -1
+Five new addresses.
+----------------------------
+revision 0.242
+date: 2004/03/08 15:40:55;  author: vita;  state: Exp;  lines: +5 -2
+3 new addresses; resort with "LC_ALL=POSIX sort -u"
+----------------------------
+revision 0.241
+date: 2004/03/06 20:43:17;  author: emma;  state: Exp;  lines: +2 -1
+Add one address mapping for Igmar Palsenberg.
+=============================================================================
+Index: lk-changelog.pl
+===================================================================
+RCS file: /var/CVS/lk-changelog/lk-changelog.pl,v
+retrieving revision 0.241
+retrieving revision 0.245
+diff -u -r0.241 -r0.245
+--- lk-changelog.pl	6 Mar 2004 20:43:17 -0000	0.241
++++ lk-changelog.pl	15 Mar 2004 17:12:08 -0000	0.245
 @@ -8,7 +8,7 @@
  #			Tomas Szepe <szepe@pinerecords.com>
  #			Vitezslav Samel <samel@mail.cz>
  #
--# $Id: lk-changelog.pl,v 0.242 2004/03/08 15:40:55 vita Exp $
-+# $Id: lk-changelog.pl,v 0.243 2004/03/12 22:59:31 emma Exp $
+-# $Id: lk-changelog.pl,v 0.241 2004/03/06 20:43:17 emma Exp $
++# $Id: lk-changelog.pl,v 0.245 2004/03/15 17:12:08 emma Exp $
  # ----------------------------------------------------------------------
  # Distribution of this script is permitted under the terms of the
  # GNU General Public License (GNU GPL) v2.
-@@ -839,6 +839,7 @@
+@@ -485,6 +485,7 @@
+ 'dmo:osdl.org' => 'Dave Olien',
+ 'doj:cubic.org' => 'Dirk Jagdmann',
+ 'dok:directfb.org' => 'Denis Oliver Kropp',
++'dolbeau:irisa.fr' => 'Romain Dolbeau',
+ 'domen:coderock.org' => 'Domen Puncer',
+ 'dougg:torque.net' => 'Douglas Gilbert',
+ 'drb:med.co.nz' => 'Ross Boswell',
+@@ -660,6 +661,7 @@
+ 'herbert:gondor.apana.org.au' => 'Herbert Xu',
+ 'hermes:gibson.dropbear.id.au' => 'David Gibson',
+ 'hirofumi:mail.parknet.co.jp' => 'Hirofumi Ogawa', # corrected by himself
++'hjm:redhat.com' => 'Heinz Mauelshagen', # lbdb
+ 'hoho:binbash.net' => 'Colin Slater',
+ 'hollisb:us.ibm.com' => 'Hollis Blanchard',
+ 'horms:verge.net.au' => 'Simon Horman',
+@@ -669,6 +671,7 @@
+ 'hunold:convergence.de' => 'Michael Hunold',
+ 'hunold:linuxtv.org' => 'Michael Hunold',
+ 'hwahl:hwahl.de' => 'Hartmut Wahl',
++'i.palsenberg:jdirmedia.nl' => 'Igmar Palsenberg', # lbdb
+ 'ian.abbott:mev.co.uk' => 'Ian Abbott',
+ 'ianw:gelato.unsw.edu.au' => 'Ian Wienand', # lbdb
+ 'ica2_ts:csv.ica.uni-stuttgart.de' => 'Thiemo Seufer', # google
+@@ -683,7 +686,6 @@
+ 'ionut:badula.org' => 'Ion Badulescu',
+ 'ionut:cs.columbia.edu' => 'Ion Badulescu',
+ 'ioshadij:hotmail.com' => 'Ishan O. Jayawardena',
+-'i.palsenberg:jdirmedia.nl' => 'Igmar Palsenberg', # lbdb
+ 'irohlfs:irohlfs.de' => 'Ingo Rohlfs',
+ 'ishikawa:linux.or.jp' => 'Mutsumi Ishikawa',
+ 'ivangurdiev:linuxfreemail.com' => 'Ivan Gyurdiev',
+@@ -721,6 +723,7 @@
+ 'jay.estabrook:hp.com' => 'Jay Estabrook',
+ 'jb:jblache.org' => 'Julien Blache',
+ 'jbarnes:sgi.com' => 'Jesse Barnes',
++'jbaron:redhat.com' => 'Jason Baron',
+ 'jbglaw:lug-owl.de' => 'Jan-Benedict Glaw',
+ 'jblack:linuxguru.net' => 'James Blackwell',
+ 'jbm:joshisanerd.com' => 'Josh Myer',
+@@ -837,6 +840,7 @@
  'kai:zephyr.physics.uiowa.edu' => 'Kai Germaschewski',
  'kala:pinerecords.com' => 'Tomas Szepe',
  'kambo77:hotmail.com' => 'Kambo Lohan',
@@ -76,7 +139,7 @@ diff -Nru a/shortlog b/shortlog
  'kanoj:vger.kernel.org' => 'Kanoj Sarcar', # sent by Arnaldo Carvalho de Melo
  'kanojsarcar:yahoo.com' => 'Kanoj Sarcar',
  'kaos:ocs.com.au' => 'Keith Owens',
-@@ -1041,6 +1042,7 @@
+@@ -1039,6 +1043,7 @@
  'michael.krauth:web.de' => 'Michael Krauth',
  'michael:metaparadigm.com' => 'Michael Clark',
  'michael_e_brown:dell.com' => 'Michael E. Brown', # lbdb
@@ -84,7 +147,15 @@ diff -Nru a/shortlog b/shortlog
  'michaelw:foldr.org' => 'Michael Weber', # google
  'michal:harddata.com' => 'Michal Jaegermann',
  'michal:logix.cz' => 'Michal Ludvig',
-@@ -1112,6 +1114,7 @@
+@@ -1072,6 +1077,7 @@
+ 'mlang:delysid.org' => 'Mario Lang', # google
+ 'mlindner:syskonnect.de' => 'Mirko Lindner',
+ 'mlocke:mvista.com' => 'Montavista Software, Inc.',
++'mlord:pobox.com' => 'Mark Lord',
+ 'mludvig:suse.cz' => 'Michal Ludvig',
+ 'mmagallo:debian.org' => 'Marcelo E. Magallon',
+ 'mmcclell:bigfoot.com' => 'Mark McClelland',
+@@ -1109,6 +1115,7 @@
  'nahshon:actcom.co.il' => 'Itai Nahshon',
  'nathans:bruce.melbourne.sgi.com' => 'Nathan Scott',
  'nathans:sgi.com' => 'Nathan Scott',
@@ -92,7 +163,7 @@ diff -Nru a/shortlog b/shortlog
  'neilb:cse.unsw.edu.au' => 'Neil Brown',
  'neilt:slimy.greenend.org.uk' => 'Neil Turton',
  'nemosoft:smcc.demon.nl' => 'Nemosoft Unv.',
-@@ -1174,6 +1177,7 @@
+@@ -1171,6 +1178,7 @@
  'paubert:iram.es' => 'Gabriel Paubert',
  'paul.clements:steeleye.com' => 'Paul Clements',
  'paul.mundt:timesys.com' => 'Paul Mundt', # google
@@ -100,7 +171,7 @@ diff -Nru a/shortlog b/shortlog
  'paulkf:microgate.com' => 'Paul Fulghum',
  'paulm:routefree.com' => 'Paul Mielke',
  'paulus:au1.ibm.com' => 'Paul Mackerras',
-@@ -1242,6 +1246,7 @@
+@@ -1239,6 +1247,7 @@
  'pp:ee.oulu.fi' => 'Pekka Pietikäinen',
  'pp:netppl.fi' => 'Pekka Pietikäinen',
  'ppc64:brule.rchland.ibm.com' => 'Peter Bergner',
@@ -108,26 +179,20 @@ diff -Nru a/shortlog b/shortlog
  'prom:berlin.ccc.de' => 'Ingo Albrecht',
  'proski:gnu.org' => 'Pavel Roskin',
  'proski:org.rmk' => 'Pavel Roskin',
-
-##### BKPATCH #####
-This BitKeeper patch contains the following changesets:
-1.133
-## Wrapped with gzip_uu ##
-
-
-M'XL(  WD54   [U476^;,!1]CG_%E5(I#RV.;2 $I%1=/]95V4?4JMJS S= 
-M 1-A2#.)'S^3+$E3K0_=IH&%9/N>>\\]/K@/CQJKH%?(NDY2J:E4485(^O"I
-MU'70BXLUC;KI?5F:Z5 W&H<95@KSX>74#&L[L>JRS#4Q@3-9APFLL-)!CU-[
-MOU+_6&+0N[^Y??S\X9Z0R02N$JEB?, :)A-2E]5*YI&^6***FU31NI)*%UA+
-M&I9%NX]M!6/"O%S8;.3ZK?!'KMNB0-<-'2[GWMC#4)!7_5QL^SA.XS";^8SQ
-MD?!:DX\YY!HXY;8-S!DR>\@%"#MP_< 6IXP'C,'OL\(I!XN12_C'/5R1$#ZF
-M*P2%SR C4U%KU)1,P9#UR.P@(+'>^1#")"/G!\9)6> KNCHIJSHOXRU;EX^9
-MYWA\W-K<\]UV@;Y<A![S)<-(SJ,WM#G*8@3G0@C7MT7K,H^Y&QOL(HY<\-=\
-MWG+ *SY[ XBQR]C6 &ST;@.,P.+_TP!;];Z!53VONV&MC1UVK?V!&ZXY!T[N
-M-M\^G-Q% >29%6[XFHQTF9^M@%'AV-#IMA-';,3A@$4AX6:]A!-R-W:Z)(-,
-M*M1)&B/-4#VEP=.2+IJGM-9-)\4 )N<PF'8[,-U%#LZ@#_D\FALBS%0R68K4
-M<, \#$)-GU,=4HR:+?9+FJ'Y :I4U^D1DG.G0RJY0E3S(#2H\E#RZV89+INJ
-M2(]0WJA#+663!UFCXD59AF6$%2VK>(N<F2WX+N/<'/U+I' V]9:5U%(I&9A3
-M3^?%H>+LUP8\4',3*M-/T63)B^+[&S),,,QT4TPBMK#'OB?(3RD&2E.>!0  
- 
+@@ -1273,6 +1282,7 @@
+ 'reeja.john:amd.com' => 'Reeja John',
+ 'reiser:namesys.com' => 'Hans Reiser',
+ 'rem:osdl.org' => 'Bob Miller',
++'rene.herman:keyaccess.nl' => 'Rene Herman', # lbdb
+ 'rene.herman:nl.rmk.(none)' => 'Rene Herman',
+ 'rgcrettol:datacomm.ch' => 'Roger Crettol',
+ 'rgooch:atnf.csiro.au' => 'Richard Gooch',
+@@ -1515,6 +1525,7 @@
+ 'trond.myklebust:fys.uio.no' => 'Trond Myklebust',
+ 'tsk:ibakou.com' => 'Kawazoe Tomonori',
+ 'tspat:de.ibm.com' => 'Thomas Spatzier',
++'tuncer.ayaz:gmx.de' => 'Tuncer M. Zayamut Ayaz', # lbdb
+ 'tv:debian.org' => 'Tommi Virtanen',
+ 'tvignaud:mandrakesoft.com' => 'Thierry Vignaud',
+ 'tvrtko:net4u.hr' => 'Tvrtko A. Ursulin',
 

@@ -1,63 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287279AbSACN3Y>; Thu, 3 Jan 2002 08:29:24 -0500
+	id <S287284AbSACN3F>; Thu, 3 Jan 2002 08:29:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287276AbSACN3P>; Thu, 3 Jan 2002 08:29:15 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:10758 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287283AbSACN3E>;
-	Thu, 3 Jan 2002 08:29:04 -0500
-Date: Thu, 3 Jan 2002 11:28:45 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Harald Holzer <harald.holzer@eunet.at>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Timothy D. Witham" <wookie@osdl.org>
-Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
-In-Reply-To: <1010015450.15492.19.camel@hh2.hhhome.at>
-Message-ID: <Pine.LNX.4.33L.0201031106590.24031-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287279AbSACN2y>; Thu, 3 Jan 2002 08:28:54 -0500
+Received: from NILE.GNAT.COM ([205.232.38.5]:58086 "HELO nile.gnat.com")
+	by vger.kernel.org with SMTP id <S287276AbSACN2n>;
+	Thu, 3 Jan 2002 08:28:43 -0500
+From: dewar@gnat.com
+To: Dautrevaux@microprocess.com, paulus@samba.org
+Subject: RE: [PATCH] C undefined behavior fix
+Cc: Franz.Sirl-kernel@lauterbach.com, benh@kernel.crashing.org,
+        gcc@gcc.gnu.org, jtv@xs4all.nl, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.linuxppc.org, minyard@acm.org, rth@redhat.com,
+        trini@kernel.crashing.org, velco@fadata.bg
+Message-Id: <20020103132837.71EFBF3257@nile.gnat.com>
+Date: Thu,  3 Jan 2002 08:28:37 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 Jan 2002, Harald Holzer wrote:
+<<No, in fact the kernel isn't written in ANSI C. :)
+If nothing else, the fact that it uses a lot of gcc-specific
+extensions rules that out.  And it assumes that you can freely cast
+pointers to unsigned longs and back again.  I'm sure others can add to
+this list.
+>>
 
-> at 1GB ram, are 16,936kB low mem reserved.
-> 4GB ram, 72,824kB reserved
-> 8GB ram, 142,332kB reserved
-> 16GB ram, 269,424kB reserved
-> 32GB ram, 532,080kB reserved, usable low mem: 352 MB
-> 64GB ram ??
->
-> Which function does the reserved memory fulfill ?
-> Is it all for paging ?
+Most certainly this list should exist in precise defined form. It is not
+unreasonable to have a specific list of features that
 
-The kernel stores various data structures there, in particular
-the mem_map[] array, which has one data structure for each
-page.
+a) significant programs rely on, and are allowed to rely on
+b) gcc promises to implement as specified, regardless of the standard
 
-In the standard kernel, that is 52 bytes per page, giving you
-a space usage of 416 MB for the mem_map[] array.
-
-I'm currently integrating a patch into my VM tree which removes
-the wait queue from the page struct, bringing the size down to
-36 bytes per page, or 288 MB, giving a space saving of 128 MB.
-
-Another item to look into is removing the page cache hash table
-and replacing it by a radix tree or hash trie, in the hopes of
-improving scalability while at the same time saving some space.
-
-As for page table overhead, on machines like yours we really
-should be using 4 MB pages for the larger data segments, which
-will cut down the page table size by a factor of 512 ;)
-
-regards,
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+What is not reasonable is to have various people informally guess at things
+that "obviously" can be expected to work in any "reasonable" C implementation.
+It is this kind of informality that is asking for trouble.

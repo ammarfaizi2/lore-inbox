@@ -1,57 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265860AbTFSRbF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 13:31:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265862AbTFSRbE
+	id S265862AbTFSRdh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 13:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265863AbTFSRdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 13:31:04 -0400
-Received: from mail.hometree.net ([212.34.181.120]:3794 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S265860AbTFSRa7
+	Thu, 19 Jun 2003 13:33:37 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:24311 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S265862AbTFSRbk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 13:30:59 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: SCM domains [was Re: Linux 2.5.71]
-Date: Thu, 19 Jun 2003 17:44:56 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <bcssqo$c6l$1@tangens.hometree.net>
-References: <20030615002153.GA20896@work.bitmover.com> <bcneo1$osd$1@cesium.transmeta.com> <20030618013940.GA19176@work.bitmover.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1056044696 12501 212.34.181.4 (19 Jun 2003 17:44:56 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 19 Jun 2003 17:44:56 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	Thu, 19 Jun 2003 13:31:40 -0400
+Subject: [patch] setscheduler fix
+From: Robert Love <rml@tech9.net>
+To: Joe Korty <joe.korty@ccur.com>
+Cc: george anzinger <george@mvista.com>,
+       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       "'Andrew Morton'" <akpm@digeo.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'mingo@elte.hu'" <mingo@elte.hu>, "Li, Adam" <adam.li@intel.com>
+In-Reply-To: <20030619171950.GA936@rudolph.ccur.com>
+References: <A46BBDB345A7D5118EC90002A5072C780DD16DB0@orsmsx116.jf.intel.com>
+	 <3EF1DE35.20402@mvista.com>  <20030619171950.GA936@rudolph.ccur.com>
+Content-Type: text/plain
+Message-Id: <1056044732.8770.39.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 19 Jun 2003 10:45:33 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy <lm@bitmover.com> writes:
+Here is my patch. It is the same idea as Joe's. Is there a better fix?
 
->I'm happy to buy, register, and manage a neutral domain if someone can
->think of one.  Obviously, one of the BK based domains is not going to 
->cut it because people will think we're using it to advertise how BK is
->going to rule the world, etc. etc.  The only really neutral domain I 
->have is reggaeware.com and I'm not sure the world is ready to fill their
->CVS needs from cvs.reggaeware.com, eh?  
+Basically, the problem is that setscheduler() does not set need_resched
+when needed. There are two basic cases where this is needed:
 
->If someone can think of a cool name so we could have
+	- the task is running, but now it is no longer the highest
+	  priority task on the rq
+	- the task is not running, but now it is the highest
+	  priority task on the rq
 
->    bk.coolname.com
->    cvs.coolname.com
->    svn.coolname.com
+In either case, we need to set need_resched to invoke the scheduler.
 
-According to InterNIC, hereisthesource.org is free... :-)
+Patch is against 2.5.72. Comments?
 
-	Regards
-		Henning
+	Robert Love
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
 
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire
+setschedule() needs to force a reschedule in some situations.
+
+ kernel/sched.c |   15 ++++++++++++++-
+ 1 files changed, 14 insertions(+), 1 deletion(-)
+
+
+diff -urN linux-2.5.72/kernel/sched.c linux/kernel/sched.c
+--- linux-2.5.72/kernel/sched.c	2003-06-16 21:20:20.000000000 -0700
++++ linux/kernel/sched.c	2003-06-17 13:44:15.509894276 -0700
+@@ -1691,6 +1691,7 @@
+ {
+ 	struct sched_param lp;
+ 	int retval = -EINVAL;
++	int oldprio;
+ 	prio_array_t *array;
+ 	unsigned long flags;
+ 	runqueue_t *rq;
+@@ -1757,12 +1758,24 @@
+ 	retval = 0;
+ 	p->policy = policy;
+ 	p->rt_priority = lp.sched_priority;
++	oldprio = p->prio;
+ 	if (policy != SCHED_NORMAL)
+ 		p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
+ 	else
+ 		p->prio = p->static_prio;
+-	if (array)
++	if (array) {
+ 		__activate_task(p, task_rq(p));
++		/*
++		 * Reschedule if we are currently running on this runqueue and
++		 * our priority decreased, or if we are not currently running on
++		 * this runqueue and our priority is higher than the current's
++		 */
++		if (rq->curr == p) {
++			if (p->prio > oldprio)
++				resched_task(rq->curr);
++		} else if (p->prio < rq->curr->prio)
++			resched_task(rq->curr);
++	}
+ 
+ out_unlock:
+ 	task_rq_unlock(rq, &flags);
+
+

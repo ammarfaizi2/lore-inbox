@@ -1,48 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269811AbUHZXsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269784AbUHZX6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269811AbUHZXsP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 19:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269670AbUHZXnw
+	id S269784AbUHZX6j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 19:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUHZX4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 19:43:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13955 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269671AbUHZXkv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 19:40:51 -0400
-Date: Fri, 27 Aug 2004 00:40:48 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Rik van Riel <riel@redhat.com>, Diego Calleja <diegocg@teleline.es>,
-       jamie@shareable.org, christophe@saout.de, christer@weinigel.se,
-       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
-       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
+	Thu, 26 Aug 2004 19:56:04 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:17615 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S269435AbUHZXyj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 19:54:39 -0400
+Message-ID: <412E783C.9050202@namesys.com>
+Date: Thu, 26 Aug 2004 16:54:36 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christophe Saout <christophe@saout.de>
+CC: Andrew Morton <akpm@osdl.org>, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
        reiserfs-list@namesys.com
-Subject: Re: [some sanity for a change] possible design issues for hybrids
-Message-ID: <20040826234048.GD21964@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0408261132150.2304@ppc970.osdl.org> <20040826191323.GY21964@parcelfarce.linux.theplanet.co.uk> <20040826203228.GZ21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408261344150.2304@ppc970.osdl.org> <20040826212853.GA21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408261436480.2304@ppc970.osdl.org> <20040826223625.GB21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408261538030.2304@ppc970.osdl.org> <20040826225308.GC21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408261619230.2304@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408261619230.2304@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+Subject: Re: silent semantic changes with reiser4
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>	 <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com>	 <20040826014542.4bfe7cc3.akpm@osdl.org> <1093522729.9004.40.camel@leto.cs.pocnet.net>
+In-Reply-To: <1093522729.9004.40.camel@leto.cs.pocnet.net>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 04:24:51PM -0700, Linus Torvalds wrote:
-> So basically: the "d_mounted++" just makes sure we get into
-> "lookup_mnt()". That's where we will usually find the actual mount thing.
-> 
-> And that's also where the special case comes in: if we _don't_ find the 
-> mount thing there, that's where we need to create it. That will only 
-> happen if somebody looks it up using another namespace, though, so it 
-> should be rare.
+Christophe Saout wrote:
 
-No.  Trivial example:
+>Am Donnerstag, den 26.08.2004, 01:45 -0700 schrieb Andrew Morton:
+>
+>  
+>
+>>And describe the "plugin" system.  Why does the filesystem need such a
+>>thing (other filesystems get their features via `patch -p1')?
+>>    
+>>
+>
+>Ok, let me try. (Hans, please don't shoot me if I don't get every detail
+>right, I'm trying to simplify and translate)
+>
+>The reiser4 core is just a big and fast storage layer using a single
+>tree. It is bound to a mount point and uses the page cache to manage its
+>memory. The only thing it can do on its own is to flush dirty data to
+>the disk when the VM wants to (memory pressure) or the VFS wants to
+>(unmount, sync) or some "plugin" wants to.
+>Additionally it's completely atomic (with respect to crashes, no
+>isolation like in databases), comparable to data=journal but without the
+>overhead of using a journal for everything.
+>
+>Up to this point there are no users of this "database" and it does not
+>implement any of the VFS methods for a filesystem (except mount and
+>unmount perhaps).
+>
+>All the functionality is provided to
+>
+^to^via
+apologies for the correction but it might confuse some
 
-mount --bind /foo /bar
-mount /dev/sda1 /bar/baz
+> the plugins. You can insert,
+>remove, lookup or modify key:object pairs (with an index into the
+>object). The object
+>
+^object^item
+perform that substitution everywhere in this email
 
-do lookup for /foo/baz.  No namespaces involved, no vfsmounts found, d_mounted
-positive and we certainly do *not* want anything to be created at that point.
+> is a sequence of units. For files a unit would be 1
+>byte and the index would be the byte offset. For directories the unit
+>would be 1 entry and the index would be the filename.
+>
+>Now there are some plugins that define how the storage layout on the
+>disk is (some kind of "backend" plugins).
+>
+>*And* there are plugins which are users of the "reiser4 client API" and
+>implement the actual VFS methods.
+>
+>There's a UNIX directory plugin and a UNIX file plugin.
+>
+>Directories, inodes and file content are just key:object pairs and the
+>plugins know how to operate on these.
+>
+>There's a new plugin in work that also implements UNIX file semantics
+>but stores the data for that file encrypted and/or compressed.
+>
+>These plugins live between the VFS and the storage layer.
+>
+>Just like the filesystems live between the VFS and the block layer (Hans
+>would say that filesystems are VFS plugins ;-)).
+>
+>  
+>
+>>And what are the licensing implications of plugins?  Are they derived
+>>works?  Must they be GPL'ed?
+>>    
+>>
+>
+>I suppose yes, at least currently, since they can only be linked with
+>reiser4, there's no module infrastructure.
+>
+>  
+>
+

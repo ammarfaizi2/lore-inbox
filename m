@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269290AbTGOSjv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 14:39:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269268AbTGOSju
+	id S269289AbTGOSiB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 14:38:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269465AbTGOSgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 14:39:50 -0400
-Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:14763
-	"HELO adsl-63-202-77-221.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with SMTP id S269324AbTGOSiI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 14:38:08 -0400
-Message-ID: <3F144D88.8000401@tupshin.com>
-Date: Tue, 15 Jul 2003 11:52:56 -0700
-From: Tupshin Harper <tupshin@tupshin.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030618
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: "Ranga Reddy M - CTD ,Chennai." <rangareddym@ctd.hcltech.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: setting year to 2094 casuing Error.
-References: <EF836A380096D511AD9000B0D021B5270153C968@narmada.techmas.hcltech.com>            <3F13A0B7.6050103@tupshin.com> <200307151417.h6FEHkMQ010873@turing-police.cc.vt.edu>
-In-Reply-To: <200307151417.h6FEHkMQ010873@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Jul 2003 14:36:52 -0400
+Received: from [213.39.233.138] ([213.39.233.138]:4560 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S269463AbTGOSgp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 14:36:45 -0400
+Date: Tue, 15 Jul 2003 20:49:09 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       James Simmons <jsimmons@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, dank@reflexsecurity.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test1-ac1 Matrox Compile Error
+Message-ID: <20030715184909.GD8240@wohnheim.fh-wedel.de>
+References: <1058290204.3857.51.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.44.0307151833310.7746-100000@phoenix.infradead.org> <20030715175758.GC15505@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030715175758.GC15505@suse.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
+On Tue, 15 July 2003 18:57:59 +0100, Dave Jones wrote:
+> 
+> One bug at a time. With the CONFIG_EMBEDDED hack, yes it will 'hide'
+> this problem, but it'll likely be many months before embedded folks
+> start thinking of using 2.6 anyways.
 
->On Mon, 14 Jul 2003 23:35:35 PDT, Tupshin Harper said:
->  
->
->>Ranga Reddy M - CTD ,Chennai. wrote:
->>    
->>
->>>I have set the system time from BIOS to 17/03/2094.After setting this
->>>,booted with linux O.S. 
->>>
->>>Now its showing system date as year=1994.I did not get how this happend.
->>>      
->>>
->
->  
->
->>http://www.howstuffworks.com/question75.htm
->>    
->>
->
->Yes, but if it was a 2038 problem, you'd expect a date in 2094 to roll over to 2026 (as
->2094 is 56 years past 2038, and 2026 is 56 past 1970).
->
->I suspect he has a crippled clock chip that only keeps 2 digits of year.
->  
->
-Agreed...I didn't do the math to verify that was his only problem, but 
-he seemed unaware that there are *any* known problems with dates in the 
-future, and the URL i sent was merely designed to point out that such 
-dates are unsupported for now.
+s/many month/half a second/
 
--Tupshin
+Even for embedded, 2.[56] is so much nicer that I wouldn't want to do
+any new project with 2.4 anymore.  Continue the old ones, all right,
+but that's about it.
 
+Jörn
+
+-- 
+Premature optimization is the root of all evil.
+-- Donald Knuth

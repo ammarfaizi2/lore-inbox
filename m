@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264380AbTFKUSA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 16:18:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264374AbTFKUSA
+	id S264363AbTFKUVF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 16:21:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264412AbTFKUVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 16:18:00 -0400
-Received: from slider.rack66.net ([212.3.252.135]:55018 "EHLO
-	slider.rack66.net") by vger.kernel.org with ESMTP id S264380AbTFKUR5
+	Wed, 11 Jun 2003 16:21:04 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:27886 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264363AbTFKUUz convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 16:17:57 -0400
-Date: Wed, 11 Jun 2003 22:31:40 +0200
-From: Filip Van Raemdonck <filipvr@xs4all.be>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: "any third party" (Re: Linksys WRT54G and the GPL)
-Message-ID: <20030611203140.GD18726@debian>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030611192232.GB16164@fs.tum.de> <MDEHLPKNGKAHNMBLJOLKIEJKDJAA.davids@webmaster.com>
+	Wed, 11 Jun 2003 16:20:55 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10553638061285@kroah.com>
+Subject: Re: [PATCH] More i2c driver changes for 2.5.70
+In-Reply-To: <10553638061293@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 11 Jun 2003 13:36:46 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEJKDJAA.davids@webmaster.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 01:12:59PM -0700, David Schwartz wrote:
-> Adrian Bunk wrote:
-> > On Wed, Jun 11, 2003 at 10:39:36AM -0700, Randolph Bentson wrote:
-> > >
-> > > If the distributor elects to distribute the object code or executable
-> > > form under clause 3b, one might reasonably argue that the distributor
-> > > need only distribute the source to those third parties in possession
-> > > of the written offer which must be included.  Others may argue that
-> > 
-> > "Accompany it with a written offer, ..., to give any third party, ..., a
-> > complete machine-readable copy of the corresponding source code..."
-> >
-> > This is non-ambiguous. You might _not_ "reasonably argue" about it, the
-> > "any third party" leaves no room for other interpretations.
-> 
-> 	Think about this logically. Suppose a company releases a product and
-> (maybe) accompanies it with such a written offer (I mean, how could you know
-> for sure if you hadn't seen it?). You call the company up to try to enforce
-> the offer. They say, "What offer?" You say, "the written offer that
-> accompanied some copies of your product." You can't cite the text of the
-> written offer, you can't specify any specific person they made the offer to.
-<snip>
-> Why specify a written offer if it just meant that you had to offer it?
+ChangeSet 1.1419.1.6, 2003/06/11 12:29:21-07:00, greg@kroah.com
 
-Because:
-
-http://www.gnu.org/licenses/gpl-faq.html#TOCWhatDoesWrittenOfferValid
+[PATCH] I2C: fix some errors found by sparse in include/linux/i2c.h
 
 
-Regards,
+ include/linux/i2c.h |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Filip
 
--- 
-"Computers are not intelligent.  They only think they are."
-	-- Martin Schulze
+diff -Nru a/include/linux/i2c.h b/include/linux/i2c.h
+--- a/include/linux/i2c.h	Wed Jun 11 13:25:03 2003
++++ b/include/linux/i2c.h	Wed Jun 11 13:25:03 2003
+@@ -176,7 +176,7 @@
+ 
+ static inline void i2c_set_clientdata (struct i2c_client *dev, void *data)
+ {
+-	return dev_set_drvdata (&dev->dev, data);
++	dev_set_drvdata (&dev->dev, data);
+ }
+ 
+ #define I2C_DEVNAME(str)   .dev = { .name = str }
+@@ -261,7 +261,7 @@
+ 
+ static inline void i2c_set_adapdata (struct i2c_adapter *dev, void *data)
+ {
+-	return dev_set_drvdata (&dev->dev, data);
++	dev_set_drvdata (&dev->dev, data);
+ }
+ 
+ /*flags for the driver struct: */
+

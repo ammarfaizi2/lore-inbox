@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313638AbSFVAQ6>; Fri, 21 Jun 2002 20:16:58 -0400
+	id <S316860AbSFVKgz>; Sat, 22 Jun 2002 06:36:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314403AbSFVAQ5>; Fri, 21 Jun 2002 20:16:57 -0400
-Received: from codepoet.org ([166.70.99.138]:59030 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S313638AbSFVAQ5>;
-	Fri, 21 Jun 2002 20:16:57 -0400
-Date: Fri, 21 Jun 2002 18:17:00 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Anyone get Linux on a Shuttle SpaceWalker SS40?
-Message-ID: <20020622001659.GA4339@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Ben Greear <greearb@candelatech.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <3D13BE09.40608@candelatech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D13BE09.40608@candelatech.com>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.18-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S316861AbSFVKgy>; Sat, 22 Jun 2002 06:36:54 -0400
+Received: from pD9E235A7.dip.t-dialin.net ([217.226.53.167]:45786 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316860AbSFVKgx>; Sat, 22 Jun 2002 06:36:53 -0400
+Date: Sat, 22 Jun 2002 04:36:53 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [Q] change_parent() - would this work?
+Message-ID: <Pine.LNX.4.44.0206220435310.4307-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri Jun 21, 2002 at 05:00:09PM -0700, Ben Greear wrote:
-> I got a cute (and very quiet) SS40 bare-bones system.  I put an
-> Athlon 1.8 and 256MB DDR (Generic, Samsung chips), and a cheap Maxtor 20GB 
-> HD.
+Hi,
 
-Perhaps the "very quiet" is a clue...  No fan?
+My question is: would this work?
 
- -Erik
+Index: thunder-2.5/include/linux/sched.h
+===================================================================
+RCS file: thunder-2.5/include/linux/sched.h,v
+retrieving revision 1.2
+diff -u -r1.2 thunder-2.5/include/linux/sched.h
+--- thunder-2.5/include/linux/sched.h	22 Jun 2002 01:51:33 -0000	1.2
++++ thunder-2.5/include/linux/sched.h	22 Jun 2002 10:33:57 -0000
+@@ -716,6 +716,7 @@
+ 
+ #define remove_parent(p)	list_del_init(&(p)->sibling)
+ #define add_parent(p, parent)	list_add_tail(&(p)->sibling,&(parent)->children)
++#define change_parent(p)	list_move_tail(&(p)->sibling,&(parent)->children)
+ 
+ #define REMOVE_LINKS(p) do {				\
+ 	list_del_init(&(p)->tasks);			\
+Index: thunder-2.5/kernel/exit.c
+===================================================================
+RCS file: thunder-2.5/kernel/exit.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 thunder-2.5/kernel/exit.c
+--- thunder-2.5/kernel/exit.c	20 Jun 2002 22:53:49 -0000	1.1.1.1
++++ thunder-2.5/kernel/exit.c	22 Jun 2002 10:33:57 -0000
+@@ -636,8 +636,7 @@
+ 
+ 				/* move to end of parent's list to avoid starvation */
+ 				write_lock_irq(&tasklist_lock);
+-				remove_parent(p);
+-				add_parent(p, p->parent);
++				change_parent(p, p->parent);
+ 				write_unlock_irq(&tasklist_lock);
+ 				retval = ru ? getrusage(p, RUSAGE_BOTH, ru) : 0; 
+ 				if (!retval && stat_addr) 
 
+							Regards,
+							Thunder
 --
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+"You must cut down the mighties tree in the forest with - a herring!"
+					-- chief of the knights who to
+					   recently said "NIH"
+

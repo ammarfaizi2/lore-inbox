@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263338AbTIWS3e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 14:29:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263346AbTIWS3e
+	id S263330AbTIWS1v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 14:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263285AbTIWS1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 14:29:34 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:47365 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263338AbTIWS3b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 14:29:31 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: Can we kill f inb_p, outb_p and other random I/O on port 0x80,
-	in 2.6?
-Date: 23 Sep 2003 18:20:15 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bkq2sv$esv$1@gatekeeper.tmr.com>
-References: <m165jkk5vn.fsf@ebiederm.dsl.xmission.com> <1064275788.9832.1.camel@dhcp23.swansea.linux.org.uk>
-X-Trace: gatekeeper.tmr.com 1064341215 15263 192.168.12.62 (23 Sep 2003 18:20:15 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 23 Sep 2003 14:27:51 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:32394 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S262241AbTIWS1S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 14:27:18 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16240.36993.148535.613568@napali.hpl.hp.com>
+Date: Tue, 23 Sep 2003 11:27:13 -0700
+To: "David S. Miller" <davem@redhat.com>
+Cc: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>, davidm@hpl.hp.com,
+       davidm@napali.hpl.hp.com, peter@chubb.wattle.id.au, bcrl@kvack.org,
+       ak@suse.de, iod00d@hp.com, peterc@gelato.unsw.edu.au,
+       linux-ns83820@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
+In-Reply-To: <20030923105712.552dbb1e.davem@redhat.com>
+References: <BFF315B8E1D7F845B8FC1C28778693D70AFEC6@usslc-exch1.na.uis.unisys.com>
+	<20030923105712.552dbb1e.davem@redhat.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1064275788.9832.1.camel@dhcp23.swansea.linux.org.uk>,
-Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
-| On Llu, 2003-09-22 at 19:58, Eric W. Biederman wrote:
-| > Alan, can you describe a little more what the original delay is needed
-| > for?  I don't see it documented in my 8254 data sheet.  The better I
-| > can understand the problem the better I can write the comments on this
-| > magic bit of code as I fix it.
-| 
-| If I remember rightly its because it is a 2Mhz part on an 8Mhz bus.
+>>>>> On Tue, 23 Sep 2003 10:57:12 -0700, "David S. Miller" <davem@redhat.com> said:
 
-And I thought I was a hotshot overclocker ;-)
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+  DaveM> On Tue, 23 Sep 2003 12:58:59 -0500
+  DaveM> "Van Maren, Kevin" <kevin.vanmaren@unisys.com> wrote:
+
+  >> Rate-limited unaligned loads in user space make a lot more sense, since
+  >> they _may_ point out issues in the code.
+
+  DaveM> That's what generates the bulk of the noise in people's ia64
+  DaveM> dmesg output.
+
+At the moment, there are two ways to control the unaligned message printing:
+
+ - use the dmesg command to lower the printing threshold below KERN_WARNING
+   ("dmesg -n4", IIRC)
+
+ - use prctl --unalign=silent to turn off unaligned printing for a
+   particular task and its children
+
+If these mechanisms are not sufficient, there is nothing to stop
+anyone from cooking up a patch.  For my puposes, what's there works
+nicely so I myself have no plans to make changes in this area.
+
+	--david

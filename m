@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278905AbRJVUuK>; Mon, 22 Oct 2001 16:50:10 -0400
+	id <S278914AbRJVUvX>; Mon, 22 Oct 2001 16:51:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278896AbRJVUuA>; Mon, 22 Oct 2001 16:50:00 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:31652 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S278901AbRJVUty>; Mon, 22 Oct 2001 16:49:54 -0400
-Message-ID: <3BD486BA.B7E86F82@idcomm.com>
-Date: Mon, 22 Oct 2001 14:51:06 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
-X-Accept-Language: en
+	id <S278909AbRJVUvL>; Mon, 22 Oct 2001 16:51:11 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:57868 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278908AbRJVUvA>; Mon, 22 Oct 2001 16:51:00 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] gcc 3.0.1 warnings about multi-line literals
+Date: 22 Oct 2001 13:51:29 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9r20sh$aqr$1@cesium.transmeta.com>
+In-Reply-To: <200110222005.f9MK5AJ15012@oss.sgi.com> <20011022161527.K23213@redhat.com>
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <Pine.LNX.4.33L.0110221432490.22127-100000@duckman.distro.conectiva>
-		<200110221652.f9MGqpF04073@schroeder.cs.wisc.edu>
-		<3BD475FF.93273D9D@idcomm.com> <m3vgh7jvzs.fsf@belphigor.mcnaught.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug McNaught wrote:
+Followup to:  <20011022161527.K23213@redhat.com>
+By author:    Benjamin LaHaise <bcrl@redhat.com>
+In newsgroup: linux.dev.kernel
+>
+> On Mon, Oct 22, 2001 at 01:05:10PM -0700, John Hawkes wrote:
+> > This patch eliminates gcc 3.0.1 warnings, "multi-line string literals are
+> > deprecated", in two include/asm-i386 files.  Patches cleanly for at least
+> > 2.4.10 and 2.4.12, and tested in 2.4.10.
 > 
-> "D. Stimits" <stimits@idcomm.com> writes:
+> Please reject this patch.  The gcc folks are wrong in this case.
 > 
-> > In one location, I see senator Hollings listed as party
-> > "Democrat-Disney". Disney is another spot to boycott, they are trying to
-> > have Linux and open source o/s's declared illegal to even touch
-> > copyright media...not as a web server, a home machine, or anything (say
-> > bye to IBM's Linux efforts). I think the vote for this killer SSSCA is
-> > somewhere around the 25th of this month, so you better hurry.
-> 
-> Committee hearings, not a vote.
 
-Even better...as much influence against Disney and politicians that
-support SSSCA should be put in as soon as possible. Would you rather
-have your input a few days before a final vote, or while minds could
-still be open? SSSCA is more dangerous than the Taliban, all the Taliban
-can kill are people...SSSCA can kill more than that.
+It's not gcc even, it's C99 which are making these explicitly
+deprecated.  If you want a string literal which includes \n and are
+mapped in that form, do either:
 
-D. Stimits, stimits@idcomm.com
+       "foo\n"
+       "bar\n"
+       "baz\n"
 
-> 
-> -Doug
-> --
-> Let us cross over the river, and rest under the shade of the trees.
->    --T. J. Jackson, 1863
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+... or ..
+
+	"foo\n\
+	bar\n\
+	baz"
+
+I usually do the former.
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

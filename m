@@ -1,449 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262057AbTJXGzr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 02:55:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbTJXGzr
+	id S262056AbTJXHDP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 03:03:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbTJXHDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 02:55:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43959 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262057AbTJXGzA (ORCPT
+	Fri, 24 Oct 2003 03:03:15 -0400
+Received: from twin.jikos.cz ([213.151.79.26]:10625 "EHLO twin.jikos.cz")
+	by vger.kernel.org with ESMTP id S262056AbTJXHDN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 02:55:00 -0400
-Date: Thu, 23 Oct 2003 23:53:27 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: linux-fsdevel@vger.kernel.org
-Subject: [PATCH,RFC] umsdos FS in 2.6.x
-Message-Id: <20031023235327.3ff12194.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Oct 2003 03:03:13 -0400
+Date: Fri, 24 Oct 2003 09:03:01 +0200 (CEST)
+From: Jirka Kosina <jikos@jikos.cz>
+To: Nathan Scott <nathans@sgi.com>
+cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: 2.6.0-test8 XFS bug
+In-Reply-To: <20031024000951.GH858@frodo>
+Message-ID: <Pine.LNX.4.58.0310240853500.30731@twin.jikos.cz>
+References: <Pine.LNX.4.58.0310232336180.6971@twin.jikos.cz> <20031024000951.GH858@frodo>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 24 Oct 2003, Nathan Scott wrote:
 
-This patch enables umsdos filesystem to build, although a few things
-still need to be fixed, such as:
+> > I've installed 2.6.0-test8 on machine attached to HW raid, made 5.5TB 
+> 5.5 Tb -- are you using the LBD option, or a 64 bit platform?
 
-. updating {acm}time, since those fields changed from time_t to
-  struct timespec:  for backward compatibility, do these fields
-  need to remain as time_t (i.e., keep the same size) ?
+Using LBD.
 
-. I kept using a 16-bit dev_t.  Does this need to change?
-  If yes, to 32-bit, or to use whatever size is passed to it?
+> > partition (using LVM) and made XFS filesystem on this partition. This 
+> > partittion was exported to cca 25 nodes. I started some stress tests 
+> What does that mean?  (cca?)  thanks.
 
-. fill_super/read_super probably still need a little bit of work,
-  such as which inode_operations structure to use.
+It means 'approximately'. To be more precise, there were 24 nodes copying 
+data to and from the partition via NFS.
 
-. I'll begin testing it soon.
+> > Oct 22 13:12:56 storage2 kernel: Filesystem "dm-0": XFS internal error xfs_alloc_read_agf at line 2208 of file fs/xfs/xfs_alloc.c.  Caller 0xc01e8f5c
+> > Oct 22 13:12:56 storage2 kernel: Call Trace:
+> > Oct 22 13:12:56 storage2 kernel:  [<c01e93d4>] xfs_alloc_read_agf+0x19e/0x214
+> > Oct 22 13:12:56 storage2 kernel:  [<c01e8f5c>] xfs_alloc_fix_freelist+0x458/0x46e
+> > Oct 22 13:12:56 storage2 last message repeated 2 times
+> > Oct 22 13:12:56 storage2 kernel:  [<c023cdf8>] xfs_trans_log_buf+0x6e/0xa8
+> > Oct 22 13:12:56 storage2 kernel:  [<c0204733>] xfs_bmbt_get_state+0x2f/0x3c
+> > Oct 22 13:12:56 storage2 kernel:  [<c01e973e>] xfs_alloc_vextent+0x2f4/0x520
+> > Oct 22 13:12:56 storage2 kernel:  [<c01f89d9>] xfs_bmap_alloc+0x8eb/0x1856
+> > Oct 22 13:12:56 storage2 kernel:  [<c02515b0>] xfs_iomap_write_delay+0x35e/0x40a
+> You're allocating real disk space for delayed allocate file data
+> down this path, and the read of the allocation group header found
+> something that didn't look at all like metadata on disk.
+> So, you definately have corruption and will need to xfs_repair.
+> Any ideas as to what operations triggered the initial problem?
+> (is it reproducible for you?)
 
---
-~Randy
+I can simply reproduce it - the only thing needed is to nfsmount this
+partition from clients and start writing a file to it, as I've written
+before. The crash occurs immediately after the transfer begins.
 
+As I've said, I wouldn't blame HW failure or things like this, because 
+ext3 does the job flawlessly, as far as I can see.
 
-> Hi folks,
-> 
-> Does kernel 2.6 supports UMSDOS file system?
-
-Not unless it gets very massive fixes.  (--viro)
-
-
-
- fs/Kconfig                  |    6 +--
- fs/umsdos/Makefile          |    4 +-
- fs/umsdos/dir.c             |   25 +++++++++------
- fs/umsdos/inode.c           |   71 ++++++++++++++++++++++++++++++++------------
- fs/umsdos/ioctl.c           |   17 ++++++----
- fs/umsdos/namei.c           |    2 +
- fs/umsdos/rdir.c            |    1 
- include/linux/umsdos_fs.p   |   14 +++-----
- include/linux/umsdos_fs_i.h |    4 ++
- 9 files changed, 96 insertions(+), 48 deletions(-)
-
-diff -Naurp linux-260-test8-efs/include/linux/umsdos_fs_i.h linux-260-test8/include/linux/umsdos_fs_i.h
---- linux-260-test8-efs/include/linux/umsdos_fs_i.h	2003-10-17 14:43:20.000000000 -0700
-+++ linux-260-test8/include/linux/umsdos_fs_i.h	2003-10-23 16:13:10.000000000 -0700
-@@ -55,4 +55,8 @@ struct umsdos_inode_info {
- 	off_t pos;		/* Entry offset in the emd_owner file */
- };
- 
-+static inline struct umsdos_inode_info *UMSDOS_I(struct inode *inode)
-+{
-+	return (struct umsdos_inode_info *)inode->u.generic_ip;
-+}
- #endif
-diff -Naurp linux-260-test8-efs/include/linux/umsdos_fs.p linux-260-test8/include/linux/umsdos_fs.p
---- linux-260-test8-efs/include/linux/umsdos_fs.p	2003-10-17 14:43:00.000000000 -0700
-+++ linux-260-test8/include/linux/umsdos_fs.p	2003-10-23 23:20:36.000000000 -0700
-@@ -37,8 +37,10 @@ void UMSDOS_write_inode (struct inode *,
- int UMSDOS_notify_change (struct dentry *, struct iattr *attr);
- int umsdos_notify_change_locked(struct dentry *, struct iattr *attr);
- void UMSDOS_put_inode (struct inode *);
--int UMSDOS_statfs (struct super_block *, struct statfs *);
--struct super_block *UMSDOS_read_super (struct super_block *, void *, int);
-+struct statfs;
-+int UMSDOS_statfs (struct super_block *, struct kstatfs *);
-+int UMSDOS_read_super (struct super_block *, void *, int,
-+		struct inode_operations *, int);
- void UMSDOS_put_super (struct super_block *);
- 
- void umsdos_setup_dir(struct dentry *);
-@@ -74,7 +76,8 @@ int UMSDOS_link (struct dentry *olddentr
- 		 struct dentry *dentry);
- int UMSDOS_create (struct inode *dir,
- 		   struct dentry *dentry,
--		   int mode);
-+		   int mode,
-+		   struct nameidata *nd);
- 
- int UMSDOS_mkdir (struct inode *dir,
- 		  struct dentry *dentry,
-@@ -93,8 +96,3 @@ int UMSDOS_rename (struct inode *old_dir
- /* rdir.c 22/03/95 03.31.42 */
- struct dentry *umsdos_rlookup_x (struct inode *dir, struct dentry *dentry, int nopseudo);
- struct dentry *UMSDOS_rlookup (struct inode *dir, struct dentry *dentry, struct nameidata *nd);
--
--static inline struct umsdos_inode_info *UMSDOS_I(struct inode *inode)
--{
--	return &inode->u.umsdos_i;
--}
---- linux-260-test8-efs/fs/Kconfig	2003-10-17 14:43:15.000000000 -0700
-+++ linux-260-test8/fs/Kconfig	2003-10-23 13:01:50.000000000 -0700
-@@ -621,9 +621,9 @@ config VFAT_FS
- 	  vfat.
- 
- config UMSDOS_FS
--#dep_tristate '    UMSDOS: Unix-like file system on top of standard MSDOS fs' CONFIG_UMSDOS_FS $CONFIG_MSDOS_FS
--# UMSDOS is temprory broken
--	bool
-+	tristate '    UMSDOS: Unix-like file system on top of standard MSDOS fs'
-+	depends on MSDOS_FS || BROKEN
-+# UMSDOS is BROKEN until someone spends some time to fix it
- 	help
- 	  Say Y here if you want to run Linux from within an existing DOS
- 	  partition of your hard drive. The advantage of this is that you can
-diff -Naurp linux-260-test8-efs/fs/umsdos/inode.c linux-260-test8/fs/umsdos/inode.c
---- linux-260-test8-efs/fs/umsdos/inode.c	2003-10-17 14:42:54.000000000 -0700
-+++ linux-260-test8/fs/umsdos/inode.c	2003-10-23 23:18:39.000000000 -0700
-@@ -11,16 +11,21 @@
- #include <linux/fs.h>
- #include <linux/msdos_fs.h>
- #include <linux/kernel.h>
-+#include <linux/namei.h>
- #include <linux/time.h>
- #include <linux/errno.h>
- #include <asm/uaccess.h>
- #include <linux/string.h>
- #include <linux/stat.h>
-+#include <linux/statfs.h>
-+#include <linux/smp_lock.h>
- #include <linux/umsdos_fs.h>
-+#include <linux/umsdos_fs_i.h>
- #include <linux/list.h>
- #include <linux/pagemap.h>
- 
- extern struct dentry_operations umsdos_dentry_operations;
-+extern dev_t ROOT_DEV;
- 
- struct dentry *saved_root;	/* Original root if changed */
- struct inode *pseudo_root;	/* Useful to simulate the pseudo DOS */
-@@ -49,7 +54,9 @@ void UMSDOS_put_inode (struct inode *ino
- void UMSDOS_put_super (struct super_block *sb)
- {
- 	Printk ((KERN_DEBUG "UMSDOS_put_super: entering\n"));
--	if (saved_root && pseudo_root && kdev_same(sb->s_dev, ROOT_DEV)) {
-+	if (saved_root && pseudo_root &&
-+	    old_encode_dev(sb->s_dev) == old_encode_dev(ROOT_DEV)) {
-+	    /* TBD: is using 16-bit dev_t OK here? */
- 		shrink_dcache_parent(saved_root);
- 		dput(saved_root);
- 		saved_root = NULL;
-@@ -150,7 +157,7 @@ dentry, f_pos));
- 		inode->i_op = &umsdos_symlink_inode_operations;
- 	} else
- 		init_special_inode(inode, inode->i_mode,
--					kdev_t_to_nr(inode->i_rdev));
-+					inode->i_rdev);
- }
- 
- 
-@@ -282,12 +289,15 @@ dentry->d_parent->d_name.name, dentry->d
- 		entry->gid = cpu_to_le16(attr->ia_gid);
- 	if (attr->ia_valid & ATTR_MODE)
- 		entry->mode = cpu_to_le16(attr->ia_mode);
-+	/* TBD: fix times */
-+#if 0
- 	if (attr->ia_valid & ATTR_ATIME)
- 		entry->atime = cpu_to_le32(attr->ia_atime);
- 	if (attr->ia_valid & ATTR_MTIME)
- 		entry->mtime = cpu_to_le32(attr->ia_mtime);
- 	if (attr->ia_valid & ATTR_CTIME)
- 		entry->ctime = cpu_to_le32(attr->ia_ctime);
-+#endif
- 	entry->nlink = cpu_to_le16(inode->i_nlink);
- 	ret=mapping->a_ops->commit_write(NULL,page,offs,offs+UMSDOS_REC_SIZE);
- 	if (ret)
-@@ -343,7 +353,7 @@ static struct super_operations umsdos_so
- 	.clear_inode	= fat_clear_inode,
- };
- 
--int UMSDOS_statfs(struct super_block *sb,struct statfs *buf)
-+int UMSDOS_statfs(struct super_block *sb, struct kstatfs *buf)
- {
- 	int ret;
- 	ret = fat_statfs (sb, buf);
-@@ -355,26 +365,27 @@ int UMSDOS_statfs(struct super_block *sb
- /*
-  * Read the super block of an Extended MS-DOS FS.
-  */
--struct super_block *UMSDOS_read_super (struct super_block *sb, void *data,
--				      int silent)
-+int UMSDOS_read_super (struct super_block *sb,
-+			void *data, int silent,
-+			struct inode_operations *fs_dir_inode_ops,
-+			int isvfat)
- {
--	struct super_block *res;
- 	struct dentry *new_root;
-+	int res;
- 
- 	/*
- 	 * Call msdos-fs to mount the disk.
--	 * Note: this returns res == sb or NULL
-+	 * Note: this returns res == 0 (success) else error.
- 	 */
- 	MSDOS_SB(sb)->options.isvfat = 0;
--	res = fat_read_super(sb, data, silent, &umsdos_rdir_inode_operations);
--
--	if (IS_ERR(res))
--		return NULL;
--	if (res == NULL) {
-+	// TBD: which inode_operations to use:
-+	res = fat_fill_super(sb, data, silent,
-+			&umsdos_rdir_inode_operations, isvfat);
-+	if (res) {
- 		if (!silent)
- 			printk(KERN_INFO "VFS: Can't find a valid "
- 			       "UMSDOS filesystem on dev %s.\n", sb->s_id);
--		return NULL;
-+		return res;
- 	}
- 
- 	printk (KERN_INFO "UMSDOS 0.86k "
-@@ -402,14 +413,13 @@ struct super_block *UMSDOS_read_super (s
- 		printk(KERN_INFO "UMSDOS: changed to alternate root\n");
- 		dget (sb->s_root); sb->s_root = dget(new_root);
- 	}
--	return sb;
-+	return 0;
- }
- 
- /*
-  * Check for an alternate root if we're the root device.
-  */
- 
--extern kdev_t ROOT_DEV;
- static struct dentry *check_pseudo_root(struct super_block *sb)
- {
- 	struct dentry *root, *sbin, *init;
-@@ -419,14 +429,15 @@ static struct dentry *check_pseudo_root(
- 	 * must check like this, because we can be used with initrd
- 	 */
- 		
--	if (!kdev_same(sb->s_dev, ROOT_DEV))
-+	if (old_encode_dev(sb->s_dev) != old_encode_dev(ROOT_DEV))
- 		goto out_noroot;
- 
- 	/* 
- 	 * lookup_dentry needs a (so far non-existent) root. 
- 	 */
- 	printk(KERN_INFO "check_pseudo_root: mounted as root\n");
--	root = lookup_one_len(UMSDOS_PSDROOT_NAME, sb->s_root,UMSDOS_PSDROOT_LEN); 
-+	root = lookup_one_len(UMSDOS_PSDROOT_NAME,
-+			sb->s_root, UMSDOS_PSDROOT_LEN); 
- 	if (IS_ERR(root))
- 		goto out_noroot;
- 		
-@@ -464,7 +475,31 @@ out_noroot:
- }
- 
- 
--static DECLARE_FSTYPE_DEV(umsdos_fs_type, "umsdos", UMSDOS_read_super);
-+static int umsdos_fill_super(struct super_block *sb, void *data, int silent)
-+{
-+	int res;
-+
-+	res = UMSDOS_read_super(sb, data, silent, &umsdos_dir_inode_operations, 0);
-+
-+	return res;
-+}
-+
-+static struct super_block *umsdos_get_sb(struct file_system_type *fs_type,
-+	int flags, const char *dev_name, void *data)
-+{
-+	return get_sb_bdev(fs_type, flags, dev_name, data, umsdos_fill_super);
-+}
-+
-+//TBD: must EXPORT all entry points;
-+//and use UMSDOS_ for them by local convention;
-+
-+static struct file_system_type umsdos_fs_type = {
-+	.owner		= THIS_MODULE,
-+	.name		= "umsdos",
-+	.get_sb		= umsdos_get_sb,
-+	.kill_sb	= kill_block_super,
-+	.fs_flags	= FS_REQUIRES_DEV,
-+};
- 
- static int __init init_umsdos_fs (void)
- {
-diff -Naurp linux-260-test8-efs/fs/umsdos/ioctl.c linux-260-test8/fs/umsdos/ioctl.c
---- linux-260-test8-efs/fs/umsdos/ioctl.c	2003-10-17 14:42:54.000000000 -0700
-+++ linux-260-test8/fs/umsdos/ioctl.c	2003-10-23 21:22:53.000000000 -0700
-@@ -402,9 +402,10 @@ new_dentry->d_parent->d_name.name, new_d
- 			data.stat.st_ino = inode->i_ino;
- 			data.stat.st_mode = inode->i_mode;
- 			data.stat.st_size = inode->i_size;
--			data.stat.st_atime = inode->i_atime;
--			data.stat.st_ctime = inode->i_ctime;
--			data.stat.st_mtime = inode->i_mtime;
-+			/* TBD: fix times */
-+			///data.stat.st_atime = inode->i_atime;
-+			///data.stat.st_ctime = inode->i_ctime;
-+			///data.stat.st_mtime = inode->i_mtime;
- 			ret = -EFAULT;
- 			if (!copy_to_user (&idata->stat, &data.stat, 
- 						sizeof (data.stat)))
-@@ -414,6 +415,7 @@ new_dentry->d_parent->d_name.name, new_d
- 		goto out;
- 	}
- 	else if (cmd == UMSDOS_DOS_SETUP) {
-+		struct msdos_sb_info *msdossbi = (struct msdos_sb_info *)dir->i_sb->s_fs_info;
- 		/* #Specification: ioctl / UMSDOS_DOS_SETUP
- 		 * The UMSDOS_DOS_SETUP ioctl allow changing the
- 		 * default permission of the MS-DOS filesystem driver
-@@ -433,10 +435,11 @@ new_dentry->d_parent->d_name.name, new_d
- 		 * umsdos_dirent.uid and gid sets the owner and group.
- 		 * umsdos_dirent.mode set the permissions flags.
- 		 */
--		dir->i_sb->u.msdos_sb.options.fs_uid = data.umsdos_dirent.uid;
--		dir->i_sb->u.msdos_sb.options.fs_gid = data.umsdos_dirent.gid;
--		dir->i_sb->u.msdos_sb.options.fs_fmask =
--			dir->i_sb->u.msdos_sb.options.fs_dmask =
-+		msdossbi->options.fs_uid = data.umsdos_dirent.uid;
-+		msdossbi->options.fs_gid = data.umsdos_dirent.gid;
-+		msdossbi->options.fs_fmask =
-+				data.umsdos_dirent.mode;
-+		msdossbi->options.fs_dmask =
- 				data.umsdos_dirent.mode;
- 		ret = 0;
- 	}
-diff -Naurp linux-260-test8-efs/fs/umsdos/Makefile linux-260-test8/fs/umsdos/Makefile
---- linux-260-test8-efs/fs/umsdos/Makefile	2003-10-17 14:42:58.000000000 -0700
-+++ linux-260-test8/fs/umsdos/Makefile	2003-10-23 13:05:13.000000000 -0700
-@@ -2,9 +2,9 @@
- # Makefile for the umsdos Unix-like filesystem routines.
- #
- 
--obj-$(CONFIG_UMSDOS) += umsdos.o
-+obj-$(CONFIG_UMSDOS_FS) += umsdos.o
- 
--umsdos-objs := dir.o  inode.o ioctl.o mangle.o namei.o rdir.o emd.o
-+umsdos-objs := dir.o inode.o ioctl.o mangle.o namei.o rdir.o emd.o
- 
- p:
- 	proto *.c >/usr/include/linux/umsdos_fs.p
-diff -Naurp linux-260-test8-efs/fs/umsdos/namei.c linux-260-test8/fs/umsdos/namei.c
---- linux-260-test8-efs/fs/umsdos/namei.c	2003-10-17 14:43:23.000000000 -0700
-+++ linux-260-test8/fs/umsdos/namei.c	2003-10-23 21:46:02.000000000 -0700
-@@ -16,10 +16,12 @@
- #include <linux/time.h>
- #include <linux/types.h>
- #include <linux/fcntl.h>
-+#include <linux/sched.h>
- #include <linux/stat.h>
- #include <linux/string.h>
- #include <linux/msdos_fs.h>
- #include <linux/umsdos_fs.h>
-+#include <linux/umsdos_fs_i.h>
- #include <linux/slab.h>
- 
- #define UMSDOS_DIR_LOCK
-diff -Naurp linux-260-test8-efs/fs/umsdos/rdir.c linux-260-test8/fs/umsdos/rdir.c
---- linux-260-test8-efs/fs/umsdos/rdir.c	2003-10-17 14:42:56.000000000 -0700
-+++ linux-260-test8/fs/umsdos/rdir.c	2003-10-23 20:11:33.000000000 -0700
-@@ -14,6 +14,7 @@
- #include <linux/stat.h>
- #include <linux/limits.h>
- #include <linux/umsdos_fs.h>
-+#include <linux/umsdos_fs_i.h>
- #include <linux/slab.h>
- #include <linux/smp_lock.h>
- 
-diff -Naurp linux-260-test8-efs/fs/umsdos/dir.c linux-260-test8/fs/umsdos/dir.c
---- linux-260-test8-efs/fs/umsdos/dir.c	2003-10-17 14:43:11.000000000 -0700
-+++ linux-260-test8/fs/umsdos/dir.c	2003-10-23 23:45:19.000000000 -0700
-@@ -15,6 +15,7 @@
- #include <linux/stat.h>
- #include <linux/limits.h>
- #include <linux/umsdos_fs.h>
-+#include <linux/umsdos_fs_i.h>
- #include <linux/slab.h>
- #include <linux/pagemap.h>
- #include <linux/smp_lock.h>
-@@ -368,13 +369,16 @@ void umsdos_lookup_patch_new(struct dent
- 	if (UMSDOS_I(inode)->i_patched)
- 		goto out;
- 	UMSDOS_I(inode)->i_patched = 1;
--	if (S_ISREG (entry->mode))
--		entry->mtime = inode->i_mtime;
-+	/* TBD: fix mtime */
-+	///if (S_ISREG (entry->mode))
-+		///entry->mtime = inode->i_mtime;
- 	inode->i_mode = entry->mode;
--	inode->i_rdev = to_kdev_t (entry->rdev);
--	inode->i_atime = entry->atime;
--	inode->i_ctime = entry->ctime;
--	inode->i_mtime = entry->mtime;
-+	/* TBD: still using 16-bit dev_t; is this a problem? */
-+	inode->i_rdev = old_decode_dev (entry->rdev);
-+	/* TBD: fix times */
-+	///inode->i_atime = entry->atime;
-+	///inode->i_ctime = entry->ctime;
-+	///inode->i_mtime = entry->mtime;
- 	inode->i_uid = entry->uid;
- 	inode->i_gid = entry->gid;
- 
-@@ -593,7 +597,7 @@ struct dentry *umsdos_covered(struct den
- 	dentry = d_alloc(parent, &qstr);
- 	if (dentry) {
- 		/* XXXXXXXXXXXXXXXXXXX Race alert! */
--		result = UMSDOS_rlookup(parent->d_inode, dentry);
-+		result = UMSDOS_rlookup(parent->d_inode, dentry, NULL);
- 		d_drop(dentry);
- 		if (result)
- 			goto out_fail;
-@@ -628,8 +632,8 @@ struct dentry *umsdos_lookup_dentry(stru
- 		dentry = d_alloc(parent, &qstr);
- 		if (dentry) {
- 			result = real ?
--				UMSDOS_rlookup(parent->d_inode, dentry) :
--				UMSDOS_lookup(parent->d_inode, dentry);
-+				UMSDOS_rlookup(parent->d_inode, dentry, NULL) :
-+				UMSDOS_lookup(parent->d_inode, dentry, NULL);
- 			if (result)
- 				goto out_fail;
- 			return dentry;
-@@ -655,7 +659,8 @@ char * umsdos_d_path(struct dentry *dent
- 	old_root = dget(current->fs->root);
- 	read_unlock(&current->fs->lock);
- 	spin_lock(&dcache_lock);
--	path = __d_path(dentry, current->fs->rootmnt, dentry->d_sb->s_root, current->fs->rootmnt, buffer, len); /* FIXME: current->fs->rootmnt */
-+	/* FIXME: current->fs->rootmnt: */
-+	path = d_path(dentry, current->fs->rootmnt, buffer, len);
- 	spin_unlock(&dcache_lock);
- 
- 	if (*path == '/')
-
+-- 
+JiKos.

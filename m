@@ -1,46 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318502AbSHURSi>; Wed, 21 Aug 2002 13:18:38 -0400
+	id <S318460AbSHURWu>; Wed, 21 Aug 2002 13:22:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318503AbSHURSi>; Wed, 21 Aug 2002 13:18:38 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:63471 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318502AbSHURSh>; Wed, 21 Aug 2002 13:18:37 -0400
-Subject: Re: Overcommit_memory logic fails when swap is off
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: josip@icase.edu
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D63C9DE.7479D2E9@icase.edu>
-References: <3D63C9DE.7479D2E9@icase.edu>
-Content-Type: text/plain
+	id <S318468AbSHURWt>; Wed, 21 Aug 2002 13:22:49 -0400
+Received: from [212.96.2.89] ([212.96.2.89]:260 "HELO vger.kernel.org")
+	by vger.kernel.org with SMTP id <S318460AbSHURWs>;
+	Wed, 21 Aug 2002 13:22:48 -0400
+From: "idris" <idrial@geekly.net>
+Date: Wed, 21 Aug 2002 10:26:14
+To: linux-kernel@vger.kernel.org
+Subject: I need your help
+MIME-Version: 1.0
+Content-Type: text/plain;charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 21 Aug 2002 18:23:39 +0100
-Message-Id: <1029950619.26845.106.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Message-Id: <20020821172248Z318460-685+35126@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-21 at 18:11, Josip Loncaric wrote:
-> Hello,
-> 
-> I've found some minor logic flaws in mmap.c::vm_enough_memory() which you may
-> want to fix.  The problem is simple: overcommit_memory strategies "2" and "3"
-> misbehave on machines operated without swap space.  Strategy "2" results in a
-> very restrictive memory policy, while strategy "3" crashes the system because
-> no memory can be allocated when total_swap_pages is zero.  May I suggest that
+Date:August 20,2002.
+Email:idrial@geekly.net  
 
-The behaviour it provides is correct and intentional. The documentation
-is also quite plain on the fact you need swap for mode 3.
 
-Since the kernel needs memory for its own purposes you cannot run
-swapless with no overcommit and allow user space all of memory.
+To your Good Attention
 
-2.5 propses including the ability to set the %age between the 0% of mode
-3, the 50 of mode 2 and upwards to things relevant in some embedded
-system cases. So for 2.6 you will be able to tune it in different ways
-according to precise understanding of workload.
+My name is Mr. Idris A.Alameyah. I was a director in ministry of
+Land and Natural Resources in the Western Saharan Republic. 
 
-As far as your hang goes I'd grab a standard 2.4.19 or 2.4.19-ac4 kernel
-and try that.
+My country is of about 10 million people,very happy and rich but
+developing. I have an offer to make to you which will benefit both
+of us.
+
+Through the award of contracts to three German Companies in three
+years, I was able to make US$55 million. Due to the small size of my
+country, if this fund is injected into the economy, it will instantly
+attract suspicion so I decided to use a foreigner to secure it out of
+Western Sahara. I have properly rendered and closed the accounts for
+the three years last December of 2001 and so the US$55 Million is
+safely 
+mine now.
+
+The money is secured in two separate ways of US$25m and US$30m. Due
+to our poor banking system here I want you to assist me to secure the
+funds for me in
+Europe. You will have to travel to the European nation, which I will
+later tell you and secure the funds for me. For this assistance, I
+will give you US$10million. The rest will be mine and you will also
+help me in investing it in real estates and other
+profitable businesses. This transaction is planned to be concluded
+quickly. I will give you the necessary documentations to claim
+ownership of the money on my
+behalf. The documentations will officially legalize the transaction
+in your name so that it will be completely safe for both of us.
+I am also aware of the attention large movement of funds attract
+now
+since the September 11th 2001 attack on New York, so I will provide
+you with Clearance Certificate.
+
+Once again, I assure you it is going to be a risk free transaction. 
+Once 
+I get your response, I will give you further information/details
+of how we are going to
+quickly and safely conclude the transaction and start investments.
+
+I await your response through my above e-mail address.
+
+Best regards,
+
+
+Mr.Idris A.Alameyah 
 

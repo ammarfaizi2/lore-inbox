@@ -1,31 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132664AbRC2EWZ>; Wed, 28 Mar 2001 23:22:25 -0500
+	id <S132667AbRC2Enh>; Wed, 28 Mar 2001 23:43:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132671AbRC2EWP>; Wed, 28 Mar 2001 23:22:15 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:33805 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132664AbRC2EWB>; Wed, 28 Mar 2001 23:22:01 -0500
-Subject: Re: Linux-2.4.2-ac27 - read on /proc/bus/pci/devices never finishes after rmmod aic7xxx
-To: gibbs@scsiguy.com (Justin T. Gibbs)
-Date: Thu, 29 Mar 2001 05:21:37 +0100 (BST)
-Cc: jeffrey.hundstad@mnsu.edu (Jeffrey Hundstad),
-   linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-   alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <200103290320.f2T3KNs02696@aslan.scsiguy.com> from "Justin T. Gibbs" at Mar 28, 2001 08:20:23 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132670AbRC2En1>; Wed, 28 Mar 2001 23:43:27 -0500
+Received: from albatross.prod.itd.earthlink.net ([207.217.120.120]:41186 "EHLO
+	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S132667AbRC2EnW>; Wed, 28 Mar 2001 23:43:22 -0500
+Date: Wed, 28 Mar 2001 20:43:34 -0800 (PST)
+From: James Simmons <jsimmons@linux-fbdev.org>
+X-X-Sender: <jsimmons@linux.local>
+To: <linas@linas.org>
+cc: Vojtech Pavlik <vojtech@suse.cz>,
+   Gunther Mayer <Gunther.Mayer@t-online.de>, <linas@linas.org>,
+   Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: mouse problems in 2.4.2 -> lost byte
+Message-ID: <Pine.LNX.4.31.0103282038120.1748-100000@linux.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14iTwJ-00075c-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What version of the aic7xxx driver is embedded in 2.4.2-ac27?  This
-> particular issue was fixed just after 6.1.5 was released.
 
-The last patch you sent to me + small other fixups for aicdb.h. I dont have
-time to chase after peoples drivers. If you want a newer aic7xxx in -ac just
-mail me a diff to update to it
+>> The new input psmouse driver can resync when bytes are lost and also
+>> shouldn't lose any bytes if there are not transmission problems on the
+>> wire. But this is 2.5 stuff.
+>
+>umm linux kernel 2.5? Umm, given that a stable linux 2.6/3.0 might be
+>years away ... and this seems 'minor', wouldn't it be better to
+>submit this as a teeny-weeny new kind of mouse device driver as a 2.4.x
+>patch?  e.g. CONFIG_MOUSE_PSAUX_SUPERSYNC or something?   I mean this
+>cant be more than a few hundred lines of code? Requireing no other
+>changes to the kernel?
+
+Its more than a few hundred lines. Mind you it wouldn't be hard to patch
+2.4.X to use the new PS/2 drivers but it is a pretty big change. I
+seriously don't it would go in. Your welcomed to try out these drivers. I
+have personally been using these new PS/2 drivers for several months now
+with now problems. In fact this driver can trick my i8042 chipset to allow
+me to plug two PS/2 keyboards in :-)
+
+MS: (n) 1. A debilitating and surprisingly widespread affliction that
+renders the sufferer barely able to perform the simplest task. 2. A disease.
+
+James Simmons  [jsimmons@linux-fbdev.org]               ____/|
+fbdev/console/gfx developer                             \ o.O|
+http://www.linux-fbdev.org                               =(_)=
+http://linuxgfx.sourceforge.net                            U
+http://linuxconsole.sourceforge.net
 

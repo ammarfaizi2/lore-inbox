@@ -1,74 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282540AbRLRNFQ>; Tue, 18 Dec 2001 08:05:16 -0500
+	id <S282646AbRLRNFQ>; Tue, 18 Dec 2001 08:05:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282705AbRLRNFH>; Tue, 18 Dec 2001 08:05:07 -0500
-Received: from inet-mail3.oracle.com ([148.87.2.203]:33468 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id <S282483AbRLRNEu>; Tue, 18 Dec 2001 08:04:50 -0500
-Message-ID: <3C1F3F3D.14B515F0@oracle.com>
-Date: Tue, 18 Dec 2001 14:06:05 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.1-pre11 i686)
-X-Accept-Language: en
+	id <S282483AbRLRNFI>; Tue, 18 Dec 2001 08:05:08 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:24587 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S282655AbRLRNEv>; Tue, 18 Dec 2001 08:04:51 -0500
+Message-ID: <3C1F3EF5.D1A6D0C1@idb.hist.no>
+Date: Tue, 18 Dec 2001 14:04:53 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.1-pre10 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
-To: _PepeR_ <peper@wsisiz.edu.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.1 crashed during sending processes TERM signal
-In-Reply-To: <Pine.LNX.4.42.0112181226460.20596-100000@oceanic.wsisiz.edu.pl>
+To: Martin Diehl <lists@mdiehl.de>, linux-kernel@vger.kernel.org
+Subject: Re: zap_page_range in a module
+In-Reply-To: <Pine.LNX.4.21.0112162341400.444-100000@notebook.diehl.home>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-_PepeR_ wrote:
+Martin Diehl wrote:
 > 
-> Hello,
+> On Fri, 14 Dec 2001, Benjamin LaHaise wrote:
 > 
-> At shutdown the system stops at the message "Sending all precesses TERM
-> signal...". The isn't any messages of possible failure in logs.
-> I'm using 2.5.1 kernel. If it's matter my system is an Athlon 1GHz on ECS
-> K7S5A mainboard. If you need some detailed information please contact me
-> on my e-mail 'coz I'm not subscribed to lkml.
+> > > I have a 64k sliding "window" into a 1MB region. You can only access
+> > > 64k at a time then you have to switch the "bank" to access the next
+> > > 64k. Address 0xa0000-0xaffff is the 64k window. The actual 1MB of
+> > > memory is above the top of memory and not directly addressable by the
+> > > CPU, you have to go through the banks.
+> >
+> > Stop right there.  You can't do that.  The code will deadlock on page
+> > faults for certain usage patterns.  It's slow, inefficient and a waste
+> > of effort.
+> 
+> Would you mind giving a hint how the predicted deadlock path would look
+> like or what the usage pattern might be, please?
+> 
+> I'm asking because I'm happily doing something very similar to what
+> Matthew describes without ever running into trouble - and this operates
+> at major page fault rates up to 1000/sec here. What I'm doings is:
 
-No, this is generic, and is due to a recent patch (from -pre11 to -final)
- that should have made Linux more standards-compliant. Linus already
- reverted it in his tree so I assume the correctly-working shutdown
- sequence will work again in 2.5.2-preX. zdiff'ing -pre11 from -final
- patches I'd say it's this chunk (don't try to apply with 'patch', I
- just cut'n'pasted from my xterm):
+Some processors have instructions that require 2 or more pages
+present simultaneously to execute.  That _will_ fail
+spectacularly if the two pages belongs to different banks
+in the above scenario, as only one bank can be present at a time.
 
-> --- v2.5.0/linux/kernel/signal.c      Wed Nov 21 16:26:27 2001
-> +++ linux/kernel/signal.c     Fri Dec 14 12:25:24 2001
-> @@ -649,8 +649,10 @@
->  /*
->   * kill_something_info() interprets pid in interesting ways just like kill(2).
->   *
-> - * POSIX specifies that kill(-1,sig) is unspecified, but what we have
-> - * is probably wrong.  Should make it like BSD or SYSV.
-> + * POSIX (2001) specifies "If pid is -1, sig shall be sent to all processes
-> + * (excluding an unspecified set of system processes) for which the process
-> + * has permission to send that signal."
-> + * So, probably the process should also signal itself.
->   */
->  
->  static int kill_something_info(int sig, struct siginfo *info, int pid)
-> @@ -663,7 +665,7 @@
->  
->               read_lock(&tasklist_lock);
->               for_each_task(p) {
-> -                     if (p->pid > 1 && p != current) {
-> +                     if (p->pid > 1) {
->                               int err = send_sig_info(sig, info, p);
->                               ++count;
->                               if (err != -EPERM)
+Some examples for x86 processors:
 
+1. The string move/compare instructions.  Fine for copying blocks of
+   memory around.  The above case is a framebuffer, using
+   "movsd" to copy from one location to another isn't
+   all that uncommon.  The two locations might be in different banks.
 
-I see the same behavior on RedHat 7.2.
+2. An unaligned read or write, such as writing a 32-bit quantity
+   to the last even address in the first bank.  The the rest hits
+   the first part of the next bank.  (A 16-bit quantity written to
+   the last odd address does the same thing.)
 
---alessandro
+3. An instruction that cross a bank bounddary, or lives in one
+   and access data in another bank.  Of course you don't usually
+   store instructions in a frame buffer. :-)
 
- "we live as we dream alone / to break the spell we mix with the others
-  we were not born in isolation / but sometimes it seems that way"
-     (R.E.M., live intro to 'World Leader Pretend')
+4. Processor-specific structures (page tables, interrupt
+   vectors... stored so they cross a bank.)  Not applicable
+   to framebuffers, but there might be strange machines with
+   bank-switched main memory around.
+
+In any of these cases, the following happens:
+1. You get a page fault for the page in the missing bank.
+2. The page fault handler switch banks.
+3. The instruction is restarted as the page fault handler returns
+4. You get a page fault for the now missing page in the bank
+   that was switched off.
+5. The page fault handler switch banks
+7. the instruction is restarted.  Repeat from 1 in
+   an endless loop.  Your machine is now deadlocked.  Perhaps
+   you're so lucky that some other processes still gets 
+   scheduled - lets hope none of them need the bank-switched 
+   memory _at all_.
+
+Helge Hafting

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264812AbTFVRnr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 13:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264825AbTFVRnr
+	id S264825AbTFVRof (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 13:44:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264839AbTFVRof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 13:43:47 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14862 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264812AbTFVRnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 13:43:46 -0400
-Date: Sun, 22 Jun 2003 10:56:57 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: Daniel Phillips <phillips@arcor.de>, <acme@conectiva.com.br>,
-       <cw@f00f.org>, <geert@linux-m68k.org>, <alan@lxorguk.ukuu.org.uk>,
-       <perex@suse.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: GCC speed (was [PATCH] Isapnp warning)
-In-Reply-To: <20030622103251.158691c3.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0306221049280.15159-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 22 Jun 2003 13:44:35 -0400
+Received: from smtp-out.comcast.net ([24.153.64.116]:1112 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S264825AbTFVRob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 13:44:31 -0400
+Date: Sun, 22 Jun 2003 13:55:17 -0400
+From: Chris Heath <chris@heathens.co.nz>
+Subject: [PATCH][Trivial] Columns in n_tty.c
+To: linux-kernel@vger.kernel.org
+Message-id: <20030622133048.801E.CHRIS@heathens.co.nz>
+MIME-version: 1.0
+X-Mailer: Becky! ver. 2.06.02
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+X-Antirelay: Good relay from local net1 127.0.0.1/32
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here's a column counting bug that was lurking in a corner of n_tty.c.
 
-On Sun, 22 Jun 2003, Andrew Morton wrote:
-> 
-> I compile with -O1 all the time and couldn't care the teeniest little bit
-> about the performance of the generated code - it just doesn't matter.
+The patch is against 2.5.72, but it applies to 2.4.21 too (with an
+offset). 
 
-Well, sometimes it _does_ matter from a correctness standpoint. For 
-example, gcc without optimizations was simply unusable, because of the 
-lack of inlining or the lack of even trivial optimizations (ie static dead 
-code removal).
+Chris
 
-And a (unrelated) gcc list thread showed that even with just -O1, one 
-particular project had gone from 131 seconds (gcc-2.7.2) to 180 seconds 
-(2.95.3) to 282 seconds (3.3) to 327 seconds (the tree-ssa branch).
 
-		Linus
+--- a/drivers/char/n_tty.c	2003-06-19 21:51:27.000000000 -0400
++++ b/drivers/char/n_tty.c	2003-06-22 12:30:32.000000000 -0400
+@@ -325,7 +325,7 @@
+ {
+ 	if (tty->erasing) {
+ 		put_char('/', tty);
+-		tty->column += 2;
++		tty->column++;
+ 		tty->erasing = 0;
+ 	}
+ }
+
 

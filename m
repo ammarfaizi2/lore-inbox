@@ -1,62 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262188AbTKWACQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 19:02:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbTKWACP
+	id S263053AbTKWAYN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 19:24:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbTKWAYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 19:02:15 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:7687 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S262188AbTKWACO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 19:02:14 -0500
-Date: Sun, 23 Nov 2003 11:02:02 +1100
-To: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [I810_AUDIO] 9/x: Fix drain_dac loop when signals_allowed == 0
-Message-ID: <20031123000202.GA9424@gondor.apana.org.au>
-References: <20031122070931.GA27231@gondor.apana.org.au> <20031122071345.GA27303@gondor.apana.org.au> <20031122071935.GA27371@gondor.apana.org.au> <20031122082227.GA27692@gondor.apana.org.au> <20031122082635.GA27752@gondor.apana.org.au> <20031122083912.GA27884@gondor.apana.org.au> <20031122235101.GA9276@gondor.apana.org.au> <20031122235323.GA9326@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="XsQoSWH+UP9D9v3l"
-Content-Disposition: inline
-In-Reply-To: <20031122235323.GA9326@gondor.apana.org.au>
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Sat, 22 Nov 2003 19:24:13 -0500
+Received: from www.mail15.com ([62.118.249.44]:777 "EHLO www.mail15.com")
+	by vger.kernel.org with ESMTP id S263053AbTKWAYI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Nov 2003 19:24:08 -0500
+Message-ID: <3FBFF7D8.8070404@myrealbox.com>
+Date: Sat, 22 Nov 2003 15:57:12 -0800
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031119
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: tg3 / Broadcom question for Jeff
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Jeff,
 
---XsQoSWH+UP9D9v3l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+If you'll recall, I'm the one with the ASUS A7V8X with the built-in Broadcom ethernet
+chip which won't work until I do an ifconfig down/up cycle.
 
-This patch fixes another bug in the drain_dac wait loop when it is
-called with signals_allowed == 0.
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+I just learned about the -xxx flag to lspci and I hope the info below may shed some
+light on this long-standing bug.
 
---XsQoSWH+UP9D9v3l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p9
+This is lspci -vvv -xxx right after booting the machine (ethernet not yet working):
 
-Index: kernel-source-2.4/drivers/sound/i810_audio.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/drivers/sound/i810_audio.c,v
-retrieving revision 1.16
-diff -u -r1.16 i810_audio.c
---- kernel-source-2.4/drivers/sound/i810_audio.c	22 Nov 2003 23:53:34 -0000	1.16
-+++ kernel-source-2.4/drivers/sound/i810_audio.c	22 Nov 2003 23:55:57 -0000
-@@ -1281,7 +1281,8 @@
- 		 * instead of actually sleeping and waiting for an
- 		 * interrupt to wake us up!
- 		 */
--		__set_current_state(TASK_INTERRUPTIBLE);
-+		__set_current_state(signals_allowed ?
-+				    TASK_INTERRUPTIBLE : TASK_UNINTERRUPTIBLE);
- 		spin_unlock_irqrestore(&state->card->lock, flags);
- 
- 		if (count <= 0)
+00:09.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5702 Gigabit Ethernet (rev 02)
+         Subsystem: Asustek Computer, Inc.: Unknown device 80a9
+         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 64 (16000ns min), cache line size 08
+         Interrupt: pin A routed to IRQ 10
+         Region 0: Memory at f1800000 (64-bit, non-prefetchable) [size=64K]
+         Expansion ROM at f7ff0000 [disabled] [size=64K]
+         Capabilities: [40] PCI-X non-bridge device.
+                 Command: DPERE- ERO- RBC=0 OST=0
+                 Status: Bus=255 Dev=31 Func=1 64bit+ 133MHz+ SCD- USC-, DC=simple, DMMRBC=2, DMOST=0, DMCRS=1, RSCEM
+-       Capabilities: [48] Power Management version 2
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot+,D3cold+)
+                 Status: D0 PME-Enable- DSel=0 DScale=1 PME-
+         Capabilities: [50] Vital Product Data
+         Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/3 Enable-
+                 Address: be7dffbff9fb5cfc  Data: d5fd
+00: e4 14 a6 16 06 00 b0 02 02 00 00 02 08 40 00 00
+10: 04 00 80 f1 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 43 10 a9 80
+30: 00 00 00 00 40 00 00 00 00 00 00 00 0a 01 40 00
+40: 07 48 00 00 f9 ff 43 04 01 50 02 c0 00 20 00 64
+50: 03 58 f4 00 fd ed fb 79 05 00 86 00 fc 5c fb f9
+60: bf ff 7d be fd d5 00 00 98 00 02 10 00 00 bf 76
+70: 96 10 00 00 3f 00 00 80 bc 56 03 00 00 00 00 00
+80: 00 00 00 00 99 b8 d5 89 34 00 11 24 82 00 08 00
+90: 09 02 00 01 01 00 00 00 00 00 00 00 c8 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00
+c0: 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00
+d0: 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00
+e0: 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00
+f0: 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00
+======================================================================
 
---XsQoSWH+UP9D9v3l--
+This is the diff between the above and again right after an ifconfig down/up:
+
+#diff lspci.1 lspci.2
+143c143
+< 90: 09 02 00 01 01 00 00 00 00 00 00 00 c8 00 00 00
+---
+ > 90: 09 02 00 01 00 00 00 00 00 00 00 00 c8 00 00 00
+145,149c145,149
+< b0: 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00
+< c0: 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00
+< d0: 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00
+< e0: 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00
+< f0: 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00
+---
+ > b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ > c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ > d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ > e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ > f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+You can see that only a few bits have flipped, but it makes everything
+work until the next reboot.  I got the same result three different
+times, so this is not random behavior.
+
+Is this of any help to you?

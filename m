@@ -1,84 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135772AbREICMP>; Tue, 8 May 2001 22:12:15 -0400
+	id <S132571AbREICYJ>; Tue, 8 May 2001 22:24:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135775AbREICMG>; Tue, 8 May 2001 22:12:06 -0400
-Received: from smtp.mountain.net ([198.77.1.35]:27662 "EHLO riker.mountain.net")
-	by vger.kernel.org with ESMTP id <S135772AbREICL6>;
-	Tue, 8 May 2001 22:11:58 -0400
-Message-ID: <3AF8A73A.C02F119E@mountain.net>
-Date: Tue, 08 May 2001 22:11:06 -0400
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.3 i486)
-X-Accept-Language: English/United, States, en-US, English/United, Kingdom, en-GB, English, en, French, fr, Spanish, es, Italian, it, German, de, , ru
+	id <S132580AbREICX7>; Tue, 8 May 2001 22:23:59 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:61960
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S132571AbREICXr>; Tue, 8 May 2001 22:23:47 -0400
+Date: Tue, 08 May 2001 22:22:43 -0400
+From: Chris Mason <mason@suse.com>
+To: Michael Stiller <michael@ping.de>, linux-kernel@vger.kernel.org
+cc: nfs@lists.sourceforge.net
+Subject: Re: 2.2.19 + reiserfs 3.5.32 nfsd wait_on_buffer/down_failed
+Message-ID: <1164860000.989374963@tiny>
+In-Reply-To: <20010508164243.A23213@ping.de>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: REVISED: Experimentation with Athlon and fast_page_copy
-In-Reply-To: <E14vmpN-000822-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+
+
+On Tuesday, May 08, 2001 04:42:43 PM +0200 Michael Stiller <michael@ping.de> wrote:
+
+> Hi,
 > 
-> > the memory copy in the fast_page_copy routine.  The machine then
-> > proceeded
-> > not to stop at my panic, but I got my "normal" oopses.  I then had an
+> we run a nfs server utilizing 2.2.19 + ReiserFS version 3.5.32 on a
+> P 3 550 machine. Disk subsystem is a GDT7518RN using 4 UW disks as raid 5
+> device. After upgrading from 2.2.17 + reiserfs to 2.2.19 we experience
+> many (very much more than with 2.2.17) problems with our nfs clients
+> about 12 (linux). Network ist 100Mbit full duplex / switched. 
+> I do not think this is network related, cause ping -f doesnt show any
+> packet loss. 
 > 
-> Ok
-> 
-> > idea and removed all the prefetch instructions from the beginning of the
-> > routine and tried the resultin kernel.  I now have no crashes.
-> > What could this mean?
-> 
-> I think it has to mean a hardware problem.
+> During not so heavy IO on the exported fs
+> one nfsd thread seems to be waiting for the disk:
 
-I don't think so, reasons below
- 
-> What still stands out is that exactly _zero_ people have reported the same
-> problem with non VIA chipset Athlons.
+Are you running any patches to make knfsd deal with the reiserfs iget issues?
 
-Not any more :-(
+-chris
 
-Hi Alan,
-
-IIRC this thread is about boot going catatonic right after unloading
-__initmem.
-I'm seeing that in 2.4.5-pre1 with Athlon stepping 2, AMD 751, MS-6195 mobo,
-128M.
-The machine is fine with kernels up through 2.4.4-pre3, and still works with
-them.
-
-On that gear, there is no crash. The keyboard and display are alive and
-SysRq works.
-I have copied the stack trace for pid=1 and the processor dump. I'm short of
-time
-but I have a kind typist electrifying the trace, and I'll try to generate
-something
-ksymoops can digest.
-
-Here is what a quick eyeballing of System.map shows.
-
-The code is at the end of init/main.c:init(). The processor dump shows
-init() halted
-in default_idle() from the sequence L6 -> init -> cpu_idle.
-
-Trace of pid 1 shows it stuck in D state. The last addresses listed are from
-filemap_nopage -> do_execve -> do_no_page -> handle_mm_fault -> __pmd_alloc
--> rwsem_down_write_failed -> stext_lock -> system_call. That looks fishy.
-
-Earlier, it looks like handle_mm_fault is being triggered from
-fast_clear_page.
-
-I'll post the full dump soon as I have it.
-
-Btw, above happens with both gcc-2.95.3 and gcc-3.0-[20010423] compiled
-kernels.
-
-Cheers,
-Tom
-
--- 
-The Daemons lurk and are dumb. -- Emerson

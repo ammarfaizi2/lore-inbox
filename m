@@ -1,56 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264259AbTDOEot (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 00:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbTDOEos (for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 00:44:48 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:53890 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S264259AbTDOEor (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 00:44:47 -0400
-Date: Tue, 15 Apr 2003 05:56:37 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory mapped files question
-Message-ID: <20030415045637.GB25139@mail.jlokier.co.uk>
-References: <A46BBDB345A7D5118EC90002A5072C780BEBAD8D@orsmsx116.jf.intel.com> <004301c302bd$ed548680$fe64a8c0@webserver> <b7fbhg$sq4$1@cesium.transmeta.com>
+	id S264262AbTDOEnt (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 00:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264263AbTDOEnt (for <rfc822;linux-kernel-outgoing>);
+	Tue, 15 Apr 2003 00:43:49 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:48434 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264262AbTDOEns (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 00:43:48 -0400
+Date: Mon, 14 Apr 2003 21:55:41 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.67-mm3
+Message-Id: <20030414215541.0aff47bc.akpm@digeo.com>
+In-Reply-To: <20030415043947.GD706@holomorphy.com>
+References: <20030414015313.4f6333ad.akpm@digeo.com>
+	<20030415020057.GC706@holomorphy.com>
+	<20030415041759.GA12487@holomorphy.com>
+	<20030414213114.37dc7879.akpm@digeo.com>
+	<20030415043947.GD706@holomorphy.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b7fbhg$sq4$1@cesium.transmeta.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Apr 2003 04:55:31.0996 (UTC) FILETIME=[3E391DC0:01C3030B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> > Hi, everyone.  Thanks for all your responses.  Our confusion is
-> > that in Unix environments, when we modify memory in memory-mapped
-> > files the underlying system flusher manages to flush the files for
-> > us before the files are munmap'ed or msysnc'ed.
-> 
-> Bullshit.  It might work on one particular Unix implementation, but
-> the definition of Unix, the Single Unix Standard, does explicitly
-> *not* require this behavior.
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+> Page clustering wants something similar but slightly different. The
+> unit it wants as its stride (MMUPAGE_SIZE) isn't present so this doesn't
+> really help or hurt it. I believe I actually dodged this bullet by
+> ensuring (or incorrectly assuming) the callers used sizes <= MMUPAGE_SIZE
+> and left it either unaltered and suboptimal or (worst-case) buggy.
 
-I presume that if you do write(), the Single Unix Standard allows the
-data to remain dirty in RAM for an arbitrary duration too.
+Callers will use sizes between 1 and PAGE_CACHE_SIZE, with arbitrary
+alignment.  So you may need to fault in up to
 
-If I write() a file I expect it to be automatically written to disk
-within a few minutes at most, where that is plausible.
+	(PAGE_CACHE_SIZE / MMUPAGE_SIZE) + 1
+	
+pte's.  And up to two PAGE_CACHE_SIZE pages.
 
-Frank van Maarseveen wrote:
-> Shared mmaped files are _never_ flushed, at least in 2.4.x. So,
-> without an explicit msync() a process (innd comes to mind) may loose
-> years of updates upon a system crash or power outage.
+Sort-of.  The code is doing two things.
 
-It's a quality of implementation issue if data can remain dirty in RAM
-forever without ever being flushed.
+a) Make sure that all the relevant pte's are established in the correct
+   state so we don't take a fault while holding the subsequent atomic kmap.
 
-Can this really happen with normal open/mmap/munmap/close usage, or
-does it only occur with long-lived processes like innd which mmap a
-file, dirty the pages but never munmap them?
+   This is just an optimisation.  If we _do_ take the fault while holding
+   an atomic kmap, we fall back to sleeping kmap, and do the whole copy
+   again.  It almost never happens.
 
-If the former case does happen, I'd say we're failing on quality of
-implementation.  If it's only the latter case, though, fair enough: the
-application writer will have to use msync().
+b) Making sure that the pagecache page is present before we lock it.  This
+   is to handle the icky deadlock which occurs when someone is doing a
+   write() into a MAP_SHARED region of the file, where the source and dest of
+   the copy are the same physical page.  If we take a fault and then try to
+   bring the page uptodate in the fault handler we deadlock because the page
+   is already locked.
 
--- Jamie
+   The fault-by-hand-before-locking-the-page is racy - if the VM steals
+   the page again before we lock it (rare), the deadlock can still occur.
+
+   I've been able to trigger the fault which causes fallback to kmap()
+   occasionally, under heavy load.  But never the deadlock.
+
+   We don't know how to fix this for real.  I had patch for a while which
+   added current->locked_page, and filemap_nopage() would compare that with
+   the to-be-locked page and say "ah-hah!" and take avoiding action.
+
+   But then Hugh rudely pointed out that the deadlock was still present if
+   two tasks were involved, each trying to fault in the other's locked page.
+
+
+> I'm just going down the list of FIXME's in the VM I turned up by grepping.
+> Should we do the following instead?
+
+OK ;)
+

@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130820AbRDYSOZ>; Wed, 25 Apr 2001 14:14:25 -0400
+	id <S130487AbRDYS15>; Wed, 25 Apr 2001 14:27:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130900AbRDYSOP>; Wed, 25 Apr 2001 14:14:15 -0400
-Received: from [193.120.224.170] ([193.120.224.170]:906 "EHLO florence.itg.ie")
-	by vger.kernel.org with ESMTP id <S130820AbRDYSN6>;
-	Wed, 25 Apr 2001 14:13:58 -0400
-Date: Wed, 25 Apr 2001 19:13:46 +0100 (IST)
-From: Paul Jakma <paulj@itg.ie>
-To: <imel96@trustix.co.id>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: problem found (was Re: [PATCH] Single user linux)
-In-Reply-To: <Pine.LNX.4.33.0104242046250.16242-100000@tessy.trustix.co.id>
-Message-ID: <Pine.LNX.4.33.0104251908120.11153-100000@rossi.itg.ie>
+	id <S130900AbRDYS1r>; Wed, 25 Apr 2001 14:27:47 -0400
+Received: from adsl-216-102-91-127.dsl.snfc21.pacbell.net ([216.102.91.127]:58631
+	"EHLO ns1.serialhacker.net") by vger.kernel.org with ESMTP
+	id <S130487AbRDYS1e>; Wed, 25 Apr 2001 14:27:34 -0400
+From: Drew Bertola <drew@drewb.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15079.5908.713649.443565@champ.serialhacker.net>
+Date: Wed, 25 Apr 2001 18:27:32 +0000 ()
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        netdev@oss.sgi.com
+Subject: Re: Announce: ECN vendor support page
+In-Reply-To: <3AE6D007.4F519933@mandrakesoft.com>
+In-Reply-To: <3AE6D007.4F519933@mandrakesoft.com>
+X-Mailer: VM 6.75 under Emacs 19.34.1
+Reply-To: drew@drewb.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi imel,
+little typo:
 
-On Tue, 24 Apr 2001 imel96@trustix.co.id wrote:
+>From 5. External resources (notice "Congrestion"):
 
-> problem is you guys are to unix-centric, try to be user-centric a little.
+Sally Floyd's page on Explicit Congrestion Notification in TCP/IP. 
+http://www.aciri.org/floyd/ecn.html 
 
-with all respect: the problem is that you do not listen.
 
-as people keep trying to point out to you:
 
-- you can have your single-user centric user environment (no logon)
-
-while
-
-- retaining advantages of multi-user security
-
-no kernel changes needed.
-
-ie: you can have your phone's user environment come straight up
-(without needing a login or anything) and have security so that the
-phone user can't do harmful things like delete system files.
-
-you can have the best of all worlds...
-
-> 		imel
-
---paulj
+-- 
+Drew Bertola  | Send a text message to my pager or cell ... 
+              |   http://jpager.com/Drew
 

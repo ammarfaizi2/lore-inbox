@@ -1,69 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132644AbRDKQol>; Wed, 11 Apr 2001 12:44:41 -0400
+	id <S132653AbRDKQ5L>; Wed, 11 Apr 2001 12:57:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132636AbRDKQoc>; Wed, 11 Apr 2001 12:44:32 -0400
-Received: from zcamail03.zca.compaq.com ([161.114.32.103]:22020 "HELO
-	zcamail03.zca.compaq.com") by vger.kernel.org with SMTP
-	id <S132642AbRDKQoW>; Wed, 11 Apr 2001 12:44:22 -0400
-Message-ID: <3AD489D1.D5FCCB4B@zk3.dec.com>
-Date: Wed, 11 Apr 2001 12:44:01 -0400
-From: Peter Rival <frival@zk3.dec.com>
-Organization: Tru64 QMG Performance Engineering
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22 i686)
-X-Accept-Language: en
+	id <S132655AbRDKQ5C>; Wed, 11 Apr 2001 12:57:02 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:54288 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S132653AbRDKQ4v>;
+	Wed, 11 Apr 2001 12:56:51 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200104111656.UAA08925@ms2.inr.ac.ru>
+Subject: Re: Bug report: tcp staled when send-q != 0, timers == 0.
+To: berd@elf.ihep.su (Eugene B. Berdnikov)
+Date: Wed, 11 Apr 2001 20:56:41 +0400 (MSK DST)
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com
+In-Reply-To: <20010411141645.B12573@elf.ihep.su> from "Eugene B. Berdnikov" at Apr 11, 1 02:16:45 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Alpha "process table hang"
-In-Reply-To: <20010411104040.A8773@draal.physics.wisc.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You wouldn't happen to have khttpd loaded as a module, would you?  I've seen
-this type of problem caused by that before...
+Hello!
 
- - Pete
+>  At last, I tried several MTUs on 3d computer, running "right" 2.2.17, and
+>  could not find conditions, under which any loss of ACKs can be detected.
 
-Bob McElrath wrote:
+8)8)8)
 
-> I've been experiencing a particular kind of hang for many versions
-> (since 2.3.99 days, recently seen with 2.4.1, 2.4.2, and 2.4.2-ac4) on
-> the alpha architecture.  The symptom is that any program that tries to
-> access the process table will hang. (ps, w, top) The hang will go away
-> by itself after ~10minutes - 1 hour or so.  When it hangs I run ps and
-> see that it gets halfway through the process list and hangs.  The
-> process that comes next in the list (after hang goes away) almost always
-> has nonsensical memory numbers, like multi-gigabyte SIZE.
->
-> Linux draal.physics.wisc.edu 2.3.99-pre5 #8 Sun Apr 23 16:21:48 CDT 2000
-> alpha unknown
->
-> Gnu C                  2.96
-> Gnu make               3.78.1
-> binutils               2.10.0.18
-> util-linux             2.11a
-> modutils               2.4.5
-> e2fsprogs              1.18
-> PPP                    2.3.11
-> Linux C Library        2.2.1
-> Dynamic linker (ldd)   2.2.1
-> Procps                 2.0.7
-> Net-tools              1.54
-> Kbd                    0.94
-> Sh-utils               2.0
-> Modules Loaded         nfsd lockd sunrpc af_packet msdos fat pas2 sound
-> soundcore
->
-> Has anyone else seen this?  Is there a fix?
->
-> -- Bob
->
-> Bob McElrath (rsmcelrath@students.wisc.edu)
-> Univ. of Wisconsin at Madison, Department of Physics
->
->   ------------------------------------------------------------------------
->    Part 1.2Type: application/pgp-signature
+ppp also inclined to the mss/mtu bug, it allocates too large buffers
+and never breaks them. The difference between kernels looks funny, but
+I think it finds explanation in differences between mss/mtu's.
 
+Alexey
+
+[ I will be absent since tomorrow for some time. ]

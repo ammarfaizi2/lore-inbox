@@ -1,106 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbULWKup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbULWKwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbULWKup (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 05:50:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbULWKup
+	id S261202AbULWKwt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 05:52:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbULWKwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 05:50:45 -0500
-Received: from ns.suse.de ([195.135.220.2]:62636 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261201AbULWKuc (ORCPT
+	Thu, 23 Dec 2004 05:52:44 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:65163 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261202AbULWKw1 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 05:50:32 -0500
-Date: Thu, 23 Dec 2004 11:50:20 +0100
-From: Andi Kleen <ak@suse.de>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: An apparent x86_64 ptrace bug
-Message-ID: <20041223105020.GA14560@wotan.suse.de>
-References: <200412230759.iBN7xEBG005840@ccure.user-mode-linux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412230759.iBN7xEBG005840@ccure.user-mode-linux.org>
+	Thu, 23 Dec 2004 05:52:27 -0500
+MIME-Version: 1.0
+To: torvalds@osdl.org
+Subject: BK-kernel-tools/shortlog update
+Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
+From: Matthias Andree <matthias.andree@gmx.de>
+Content-ID: <Thu,_23_Dec_2004_10_52_22_+0000_0@merlin.emma.line.org>
+Content-type: text/plain; charset=iso-8859-1
+Content-Description: An object packed by metasend
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20041223105223.2226378B19@merlin.emma.line.org>
+Date: Thu, 23 Dec 2004 11:52:23 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 23, 2004 at 02:59:14AM -0500, Jeff Dike wrote:
-> I'm seeing some odd ptrace behavior on x86_64.  Namely,
-> 	singlestep hitting the same IP twice,
-> 	r11 and rcx changing values to those in eflags and rip, respectively
-> 
-> Singlestep stopping at the same instruction twice is suspicious in itself.
-> In looking through entry.S, I notice that the r11/eflags and rcx/rip pairs
-> have the same relation, namely that one member is stored in the stack slot
-> reserved for the other.
-> 
-> It looks like this is not being fixed up correctly in all cases before
-> returning to userspace.
+Hello Linus,
 
-That only happens for the system call entry path, and there is no
-system call in your example.
+you can either use "bk receive" to patch with this mail,
+or you can
+Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
+or in cases of dire need, you can apply the patch below.
 
-> 
-> Does this ring any bells?  The kernel here is stock FC3, 
-> config-2.6.9-1.681_FC3smp.
+BK: Parent repository is http://bktools.bkbits.net/bktools
+
+Patch description:
+ChangeSet@1.254, 2004-12-23 09:09:25+01:00, samel@mail.cz
+  shortlog: added 2 new addresses
+
+ChangeSet@1.253, 2004-12-20 07:13:44+01:00, samel@mail.cz
+  shortlog: added 2 new addresses
+
+Matthias
+
+------------------------------------------------------------------------
+
+##### DIFFSTAT #####
+ shortlog |    4 ++++
+ 1 files changed, 4 insertions(+)
+
+##### GNUPATCH #####
+--- 1.224/shortlog	2004-12-16 07:22:04 +01:00
++++ 1.226/shortlog	2004-12-23 09:09:10 +01:00
+@@ -734,6 +734,7 @@
+ 'drow:nevyn.them.org' => 'Daniel Jacobowitz',
+ 'drzeus-list:cx.rmk.(none)' => 'Pierre Ossman',
+ 'drzeus-list:drzeus.cx' => 'Pierre Ossman',
++'drzeus:cx.rmk.(none)' => 'Pierre Ossman',
+ 'ds-fraser:comcast.net' => 'Douglas Fraser',
+ 'dsaxena:com.rmk' => 'Deepak Saxena',
+ 'dsaxena:com.rmk.(none)' => 'Deepak Saxena',
+@@ -1878,6 +1879,7 @@
+ 'paul:kungfoocoder.org' => 'Paul Wagland', # lbdb
+ 'paul:serice.net' => 'Paul Serice',
+ 'paul:wagland.net' => 'Paul Wagland', # lbdb
++'pauld:egenera.com' => 'Philip R. Auld',
+ 'paulkf:microgate.com' => 'Paul Fulghum',
+ 'paulm:routefree.com' => 'Paul Mielke',
+ 'paulmck:us.ibm.com' => 'Paul E. McKenney',
+@@ -2062,6 +2064,7 @@
+ 'riel:redhat.com' => 'Rik van Riel',
+ 'riel:surriel.com' => 'Rik van Riel',
+ 'rjweryk:uwo.ca' => 'Rob Weryk',
++'rkagan:mail.ru' => 'Roman Kagan',
+ 'rl:hellgate.ch' => 'Roger Luethi',
+ 'rlievin:free.fr' => 'Romain Liévin',
+ 'rlrevell:joe-job.com' => 'Lee Revell',
+@@ -2107,6 +2110,7 @@
+ 'rostedt:goodmis.org' => 'Steven Rostedt',
+ 'rover:tob.ru' => 'Sergei Golod',
+ 'rpjday:mindspring.com' => 'Robert P. J. Day',
++'rpurdie:net.rmk.(none)' => 'Richard Purdie',
+ 'rread:clusterfs.com' => 'Robert Read',
+ 'rsa:us.ibm.com' => 'Ryan S. Arnold',
+ 'rscott:attbi.com' => 'Rob Scott',
 
 
-You could try to revert 
 
-http://linux.bkbits.net:8080/linux-2.6/cset@412a49d0Duv_YlSqDMoYxkNhiBwoWw?nav=index.html|src/|src/arch|src/arch/x86_64|src/arch/x86_64/kernel|related/arch/x86_64/kernel/entry.S
+##### BKPATCH #####
 
-I never liked this patch and I bet it can cause strange problems
-like that.
+## Wrapped with gzip_b64 ##
+H4sIAGajykECA9WVa2vbMBSGP0e/QtAP2ejiHMlXCVJ6G1vpoCGjP0CxTmMTX4LktFnxj58v
+S0uyG90y6GxhdDlHvHofHXxEry7loCrNvcq0PV1hsVinhVMZVdgcK+XEZV5fJKpY4Gesag7A
+m5dxFwJf1FwEvl8jR9+PPabmYRRizMkRvbVo5CBXVZWkyjqq0Aaxmf9Y2koOFvnG0e1wVpbN
+cHyvzHieVkvEFZrx+fVoiabAbFSVZWZJEzdVVZzQezRWDpjjPs1UX1YoB7P3H24/nc0ImUzo
+k1Q6mZADH8uqHLPTXKWZEz/uZnuMswACzpmoA59HjFxS5nDfpeCNGR9zoBBK5krPOwYmAejO
+ZvSY0RGQc3pgxRckpjYpTZWVC0mV1qgppwU+tH2D1qIl17QXPH32joxe+BACCsjJs/ykzHFP
++1ZHL91nEYReyKLaZaHw6zsU6i4OQShAreZ615+d5Mbr5hswl7MaBAhBfkOmj/a8HTLelkyD
+SMimcf9Vkgmj/4uMCxEIBjXzPZ91JbmN2KnIv5ZBfimjL0bwamBC8B459/eLkbMfI+f/DPnP
+QHfX+IaOzMOmbaNNA317pD9gfsWiCCgjw5VaZ1riAgs0neohnZzQ4TRJs3RFZw49a9aH78gV
+ZyDaBLNaG52iLLByTL503hRlgW/7rFkaJ8poOu1CmizykiLtGQT7ZcfgtTDob+wBIYRu0Fqq
+zSOurYw33xk6TdEYpDfW5qroKDTaOwpLtVCF7Mww62/ul00QvW4XWuu3v8A4wXhp1/lEz8GF
+eO6Sr6cayRrTBwAA
 
-Another potential issue is a bug I just fixed in that signals could sometimes
-jump two bytes backwards.
-
-> Below is the gdb session in question.  The first stepi seems to be gdb seeing
-> the queued SIGSTOP, which it has been told not to pass along to the process.
-> There are no register changes here.  The next stepi is the interesting one.
-> Here we get the same IP again, plus the rip/rcx and eflags/r11 copying.
-> 
-This could be the "signal restart" bug. Apply this patch.
-
--Andi
-
----------------------------------------------------------------
-
-Fix a pretty bad bug that caused sometimes signals on x86-64 
-to be restarted like system calls. This corrupted the RIP and 
-in general caused undesirable effects.
-
-The problem happens because orig_rax is unsigned on x86-64,
-but it originally was signed when the signal code was written.
-And gcc didn't warn about this, because the warning is only in 
--Wextra. 
-
-In 2.4 we still had a cast for it, but somehow it got dropped
-in 2.5. 
-
-Credit goes to John Slice for tracking it down and Erich Boleyn
-for the original fix. I fixed it at another place too.
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-
-Index: linux/arch/x86_64/kernel/signal.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/signal.c	2004-12-19 15:23:48.%N +0100
-+++ linux/arch/x86_64/kernel/signal.c	2004-12-20 21:38:01.%N +0100
-@@ -357,7 +357,7 @@
- #endif
- 
- 	/* Are we from a system call? */
--	if (regs->orig_rax >= 0) {
-+	if ((long)regs->orig_rax >= 0) {
- 		/* If so, check system call restarting.. */
- 		switch (regs->rax) {
- 		        case -ERESTART_RESTARTBLOCK:
-@@ -442,7 +442,7 @@
- 
-  no_signal:
- 	/* Did we come from a system call? */
--	if (regs->orig_rax >= 0) {
-+	if ((long)regs->orig_rax >= 0) {
- 		/* Restart the system call - no handlers present */
- 		long res = regs->rax;
- 		if (res == -ERESTARTNOHAND ||

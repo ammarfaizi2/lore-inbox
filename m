@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267399AbUHJCID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267400AbUHJCMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267399AbUHJCID (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 22:08:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267400AbUHJCID
+	id S267400AbUHJCMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 22:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267401AbUHJCMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 22:08:03 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:39375 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267399AbUHJCH7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 22:07:59 -0400
-Subject: Re: [0/3] via-rhine: experimental patches
-From: Lee Revell <rlrevell@joe-job.com>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040808140216.GA8181@k3.hellgate.ch>
-References: <20040808140216.GA8181@k3.hellgate.ch>
-Content-Type: text/plain
-Message-Id: <1092103694.761.5.camel@mindpipe>
+	Mon, 9 Aug 2004 22:12:16 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:51379 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S267400AbUHJCMO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 22:12:14 -0400
+Date: Mon, 9 Aug 2004 19:12:09 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: greg@kroah.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6] Remove spaces from PCI IDE pci_driver.name field
+Message-ID: <20040810021209.GA10495@plexity.net>
+Reply-To: dsaxena@plexity.net
+References: <20040810001316.GA7292@plexity.net> <1092096699.14934.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 09 Aug 2004 22:08:14 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092096699.14934.4.camel@localhost.localdomain>
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-08 at 10:02, Roger Luethi wrote:
-> The following batch needs testing. I don't expect any notable
-> regressions, but I could do with some reports on WOL (already in -mm)
-> and suspend/resume.
+On Aug 10 2004, at 01:11, Alan Cox was caught saying:
+> On Maw, 2004-08-10 at 01:13, Deepak Saxena wrote:
+> > Spaces in driver names show up as spaces in sysfs. Annoying.  
+> > I went ahead and changed ones that don't have spaces to use
+> > ${NAME}_IDE so they are all consistent.
 > 
+> I don't see the problem with spaces in the filenames. I do see the 
+> problem in changing stuff under people for now reason other than
+> "I don't like it".
+> 
+> The existing format with spaces looks a lot better in all the
+> graphical file managers.
 
-Maybe this is a known issue by now, but the via-rhine bug is still not
-fixed in 2.6.8-rc3.  I had to replace it with the via-rhine.c from -mm2
-to get online.
+Files w/o spaces look better and is easier to work with if running 
+from cmd line, but if we ignore the "prettyness" issue, we should at 
+least try to be consistent. Either we have spaces and _all_ driver 
+names are in the format "xxx IDE", "xxx i2c", etc, or we don't allow
+space at all. 
 
-Lee
+~Deepak
 
+-- 
+Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
+
+"Unlike me, many of you have accepted the situation of your imprisonment and
+ will die here like rotten cabbages." - Number 6

@@ -1,57 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265593AbRFVXyA>; Fri, 22 Jun 2001 19:54:00 -0400
+	id <S265594AbRFVX4u>; Fri, 22 Jun 2001 19:56:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265594AbRFVXxt>; Fri, 22 Jun 2001 19:53:49 -0400
-Received: from pat.uio.no ([129.240.130.16]:52115 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S265593AbRFVXxa>;
-	Fri, 22 Jun 2001 19:53:30 -0400
+	id <S265595AbRFVX4k>; Fri, 22 Jun 2001 19:56:40 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:22289 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S265594AbRFVX40>; Fri, 22 Jun 2001 19:56:26 -0400
+Date: Fri, 22 Jun 2001 20:56:18 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: <andreas@conectiva.com.br>, <andreas@netbank.com.br>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix RLIMIT_NPROC accounting
+Message-ID: <Pine.LNX.4.33L.0106222053170.4442-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Message-ID: <15155.55920.648446.700067@charged.uio.no>
-Date: Sat, 23 Jun 2001 01:53:20 +0200
-To: Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        NFS maillist <nfs@lists.sourceforge.net>
-Subject: [2.4.5]Patch - fix page leak in nfs_prepare_write()
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Hi,
 
-  The following patch fixes a leak in high memory in case a
-process is signalled while in nfs_prepare_write().
+due to something which I consider to be a kernel bug it's
+impossible for pam to do its job and set the per-user
+RLIMIT_NPROC (number of processes limit) to something which
+is lower than the amount of processes root is running at that
+moment.
 
-Cheers,
-  Trond
+At least, it fails with all programs which set RLIMIT_NPROC
+and fork()+exec() afterwards.
 
-diff -u --recursive --new-file linux-2.4.6-mmap/fs/nfs/file.c linux-2.4.6-file/fs/nfs/file.c
---- linux-2.4.6-mmap/fs/nfs/file.c	Tue May 22 18:26:06 2001
-+++ linux-2.4.6-file/fs/nfs/file.c	Fri Jun 22 18:43:34 2001
-@@ -162,9 +162,18 @@
-  */
- static int nfs_prepare_write(struct file *file, struct page *page, unsigned offset, unsigned to)
- {
-+	int status;
-+
- 	kmap(page);
--	return nfs_flush_incompatible(file, page);
-+	status = nfs_flush_incompatible(file, page);
-+	if (status)
-+		goto out_err;
-+	return 0;
-+ out_err:
-+	kunmap(page);
-+	return status;
- }
-+
- static int nfs_commit_write(struct file *file, struct page *page, unsigned offset, unsigned to)
- {
- 	long status;
+The attached patch should bring us back to the behaviour we
+had in 2.2.  Comments?
+
+regards,
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+
+
+
+--- kernel/fork.c.orig	Fri Jun 22 20:27:27 2001
++++ kernel/fork.c	Fri Jun 22 20:52:41 2001
+@@ -576,7 +576,14 @@
+ 	*p = *current;
+
+ 	retval = -EAGAIN;
+-	if (atomic_read(&p->user->processes) >= p->rlim[RLIMIT_NPROC].rlim_cur)
++	/*
++	 * Check if we are over our maximum process limit, but be sure to
++	 * exclude root. This is needed to make it possible for login and
++	 * friends to set the per-user process limit to something lower
++	 * than the amount of processes root is running. -- Rik
++	 */
++	if (atomic_read(&p->user->processes) >= p->rlim[RLIMIT_NPROC].rlim_cur
++	              && !capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RESOURCE))
+ 		goto bad_fork_free;
+ 	atomic_inc(&p->user->__count);
+ 	atomic_inc(&p->user->processes);
+

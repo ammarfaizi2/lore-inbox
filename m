@@ -1,248 +1,310 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVA2WXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVA2WXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbVA2WXo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 17:23:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVA2WW4
+	id S261589AbVA2WXg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 17:23:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVA2WWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 17:22:56 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:26287 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261579AbVA2WTy (ORCPT
+	Sat, 29 Jan 2005 17:22:06 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:25775 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261578AbVA2WTu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 17:19:54 -0500
-Date: Sat, 29 Jan 2005 23:19:47 +0100 (CET)
+	Sat, 29 Jan 2005 17:19:50 -0500
+Date: Sat, 29 Jan 2005 23:19:23 +0100 (CET)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 4/8] Kconfig: cleanup kernel hacking menu
-Message-ID: <Pine.LNX.4.61.0501292319300.7644@scrub.home>
+cc: cpufreq@lists.linux.org.uk
+Subject: [PATCH 3/8] Kconfig: cleanup cpufreq menu
+Message-ID: <Pine.LNX.4.61.0501292319140.7641@scrub.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This properly indents the kernel hacking menu.
-Move LOG_BUF_SHIFT into kernel hacking menu (it already depended on DEBUG_KERNEL).
-Add DEBUG_KERNEL dependency to EARLY_PRINTK, DEBUG_PREEMPT and FRAME_POINTER.
-Remove overlong dependency, which included practically every arch.
-Merge the two MAGIC_SYSRQ menu entries.
-Remove unnecessary "default n" options.
+This properly indents the cpufreq menu.
+Remove CPU_FREQ_TABLE as visible option and use select instead.
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
 ---
 
- arch/i386/Kconfig.debug |    3 +-
- init/Kconfig            |   20 ------------------
- lib/Kconfig.debug       |   53 +++++++++++++++++++++++++++---------------------
- 3 files changed, 32 insertions(+), 44 deletions(-)
+ arch/i386/kernel/cpu/cpufreq/Kconfig |   54 +++++++++++++++--------------------
+ drivers/cpufreq/Kconfig              |   20 ++++++------
+ 2 files changed, 34 insertions(+), 40 deletions(-)
 
-Index: linux-2.6.11/init/Kconfig
+Index: linux-2.6.11/arch/i386/kernel/cpu/cpufreq/Kconfig
 ===================================================================
---- linux-2.6.11.orig/init/Kconfig	2005-01-29 22:50:43.457937076 +0100
-+++ linux-2.6.11/init/Kconfig	2005-01-29 22:56:22.470544173 +0100
-@@ -157,7 +157,6 @@ config SYSCTL
- config AUDIT
- 	bool "Auditing support"
- 	default y if SECURITY_SELINUX
--	default n
- 	help
- 	  Enable auditing infrastructure that can be used with another
- 	  kernel subsystem, such as SELinux (which requires this for
-@@ -168,29 +167,11 @@ config AUDITSYSCALL
- 	bool "Enable system-call auditing support"
- 	depends on AUDIT && (X86 || PPC64 || ARCH_S390 || IA64)
- 	default y if SECURITY_SELINUX
--	default n
- 	help
- 	  Enable low-overhead system-call auditing infrastructure that
- 	  can be used independently or with another kernel subsystem,
- 	  such as SELinux.
+--- linux-2.6.11.orig/arch/i386/kernel/cpu/cpufreq/Kconfig	2005-01-29 22:50:43.507928466 +0100
++++ linux-2.6.11/arch/i386/kernel/cpu/cpufreq/Kconfig	2005-01-29 22:55:57.343872448 +0100
+@@ -6,22 +6,14 @@ menu "CPU Frequency scaling"
  
--config LOG_BUF_SHIFT
--	int "Kernel log buffer size (16 => 64KB, 17 => 128KB)" if DEBUG_KERNEL
--	range 12 21
--	default 17 if ARCH_S390
--	default 16 if X86_NUMAQ || IA64
--	default 15 if SMP
--	default 14
--	help
--	  Select kernel log buffer size as a power of 2.
--	  Defaults and Examples:
--	  	     17 => 128 KB for S/390
--		     16 => 64 KB for x86 NUMAQ or IA-64
--	             15 => 32 KB for SMP
--	             14 => 16 KB for uniprocessor
--		     13 =>  8 KB
--		     12 =>  4 KB
+ source "drivers/cpufreq/Kconfig"
+ 
+-config CPU_FREQ_TABLE
+-       tristate "CPU frequency table helpers"
+-       depends on CPU_FREQ
+-       default y
+-       help
+-         Many CPUFreq drivers use these helpers, so only say N here if
+-	 the CPUFreq driver of your choice doesn't need these helpers.
 -
- config HOTPLUG
- 	bool "Support for hot-pluggable devices" if !ARCH_S390
- 	default ARCH_S390
-@@ -304,7 +285,6 @@ config EPOLL
- config CC_OPTIMIZE_FOR_SIZE
- 	bool "Optimize for size" if EMBEDDED
- 	default y if ARM || H8300
--	default n
- 	help
- 	  Enabling this option will pass "-Os" instead of "-O2" to gcc
- 	  resulting in a smaller kernel.
-Index: linux-2.6.11/arch/i386/Kconfig.debug
-===================================================================
---- linux-2.6.11.orig/arch/i386/Kconfig.debug	2005-01-29 22:50:43.458936904 +0100
-+++ linux-2.6.11/arch/i386/Kconfig.debug	2005-01-29 22:56:22.470544173 +0100
-@@ -3,7 +3,7 @@ menu "Kernel hacking"
- source "lib/Kconfig.debug"
+-	 If in doubt, say Y.
++if CPU_FREQ
  
- config EARLY_PRINTK
--	bool "Early printk" if EMBEDDED
-+	bool "Early printk" if EMBEDDED && DEBUG_KERNEL
+ comment "CPUFreq processor drivers"
+-       depends on CPU_FREQ
+ 
+ config X86_ACPI_CPUFREQ
+ 	tristate "ACPI Processor P-States driver"
+-	depends on CPU_FREQ_TABLE && ACPI_PROCESSOR
++	select CPU_FREQ_TABLE
++	depends on ACPI_PROCESSOR
+ 	help
+ 	  This driver adds a CPUFreq driver which utilizes the ACPI
+ 	  Processor Performance States.
+@@ -32,7 +24,8 @@ config X86_ACPI_CPUFREQ
+ 
+ config ELAN_CPUFREQ
+ 	tristate "AMD Elan"
+-	depends on CPU_FREQ_TABLE && X86_ELAN
++	select CPU_FREQ_TABLE
++	depends on X86_ELAN
+ 	---help---
+ 	  This adds the CPUFreq driver for AMD Elan SC400 and SC410
+ 	  processors.
+@@ -47,7 +40,7 @@ config ELAN_CPUFREQ
+ 
+ config X86_POWERNOW_K6
+ 	tristate "AMD Mobile K6-2/K6-3 PowerNow!"
+-	depends on CPU_FREQ_TABLE
++	select CPU_FREQ_TABLE
+ 	help
+ 	  This adds the CPUFreq driver for mobile AMD K6-2+ and mobile
+ 	  AMD K6-3+ processors.
+@@ -58,7 +51,7 @@ config X86_POWERNOW_K6
+ 
+ config X86_POWERNOW_K7
+ 	tristate "AMD Mobile Athlon/Duron PowerNow!"
+-	depends on CPU_FREQ_TABLE
++	select CPU_FREQ_TABLE
+ 	help
+ 	  This adds the CPUFreq driver for mobile AMD K7 mobile processors.
+ 
+@@ -68,12 +61,14 @@ config X86_POWERNOW_K7
+ 
+ config X86_POWERNOW_K7_ACPI
+ 	bool
+-	depends on ((X86_POWERNOW_K7 = "m" && ACPI_PROCESSOR) || (X86_POWERNOW_K7 = "y" && ACPI_PROCESSOR = "y"))
++	depends on X86_POWERNOW_K7 && ACPI_PROCESSOR
++	depends on !(X86_POWERNOW_K7 = y && ACPI_PROCESSOR = m)
+ 	default y
+ 
+ config X86_POWERNOW_K8
+ 	tristate "AMD Opteron/Athlon64 PowerNow!"
+-	depends on CPU_FREQ_TABLE && EXPERIMENTAL
++	select CPU_FREQ_TABLE
++	depends on EXPERIMENTAL
+ 	help
+ 	  This adds the CPUFreq driver for mobile AMD Opteron/Athlon64 processors.
+ 
+@@ -83,12 +78,12 @@ config X86_POWERNOW_K8
+ 
+ config X86_POWERNOW_K8_ACPI
+ 	bool
+-	depends on ((X86_POWERNOW_K8 = "m" && ACPI_PROCESSOR) || (X86_POWERNOW_K8 = "y" && ACPI_PROCESSOR = "y"))
++	depends on X86_POWERNOW_K8 && ACPI_PROCESSOR
++	depends on !(X86_POWERNOW_K8 = y && ACPI_PROCESSOR = m)
+ 	default y
+ 
+ config X86_GX_SUSPMOD
+ 	tristate "Cyrix MediaGX/NatSemi Geode Suspend Modulation"
+-	depends on CPU_FREQ
+ 	help
+ 	 This add the CPUFreq driver for NatSemi Geode processors which
+ 	 support suspend modulation.
+@@ -99,7 +94,7 @@ config X86_GX_SUSPMOD
+ 
+ config X86_SPEEDSTEP_CENTRINO
+ 	tristate "Intel Enhanced SpeedStep"
+-	depends on CPU_FREQ_TABLE
++	select CPU_FREQ_TABLE
+ 	select X86_SPEEDSTEP_CENTRINO_TABLE if (!X86_SPEEDSTEP_CENTRINO_ACPI)
+ 	help
+ 	  This adds the CPUFreq driver for Enhanced SpeedStep enabled
+@@ -114,8 +109,8 @@ config X86_SPEEDSTEP_CENTRINO
+ 
+ config X86_SPEEDSTEP_CENTRINO_ACPI
+ 	bool "Use ACPI tables to decode valid frequency/voltage pairs"
+-	depends on X86_SPEEDSTEP_CENTRINO
+-	depends on ((X86_SPEEDSTEP_CENTRINO = "m" && ACPI_PROCESSOR) || (X86_SPEEDSTEP_CENTRINO = "y" && ACPI_PROCESSOR = "y"))
++	depends on X86_SPEEDSTEP_CENTRINO && ACPI_PROCESSOR
++	depends on !(X86_SPEEDSTEP_CENTRINO = y && ACPI_PROCESSOR = m)
  	default y
  	help
- 	  Write kernel log output directly into the VGA buffer or to a serial
-@@ -48,6 +48,7 @@ config DEBUG_PAGEALLOC
+ 	  Use primarily the information provided in the BIOS ACPI tables
+@@ -136,7 +131,7 @@ config X86_SPEEDSTEP_CENTRINO_TABLE
  
- config 4KSTACKS
- 	bool "Use 4Kb for kernel stacks instead of 8Kb"
-+	depends on DEBUG_KERNEL
+ config X86_SPEEDSTEP_ICH
+ 	tristate "Intel Speedstep on ICH-M chipsets (ioport interface)"
+-	depends on CPU_FREQ_TABLE
++	select CPU_FREQ_TABLE
  	help
- 	  If you say Y here the kernel will use a 4Kb stacksize for the
- 	  kernel stack attached to each process/thread. This facilitates
-Index: linux-2.6.11/lib/Kconfig.debug
+ 	  This adds the CPUFreq driver for certain mobile Intel Pentium III
+ 	  (Coppermine), all mobile Intel Pentium III-M (Tualatin) and all
+@@ -149,7 +144,8 @@ config X86_SPEEDSTEP_ICH
+ 
+ config X86_SPEEDSTEP_SMI
+ 	tristate "Intel SpeedStep on 440BX/ZX/MX chipsets (SMI interface)"
+-	depends on CPU_FREQ_TABLE && EXPERIMENTAL
++	select CPU_FREQ_TABLE
++	depends on EXPERIMENTAL
+ 	help
+ 	  This adds the CPUFreq driver for certain mobile Intel Pentium III
+ 	  (Coppermine), all mobile Intel Pentium III-M (Tualatin)  
+@@ -161,7 +157,7 @@ config X86_SPEEDSTEP_SMI
+ 
+ config X86_P4_CLOCKMOD
+ 	tristate "Intel Pentium 4 clock modulation"
+-	depends on CPU_FREQ_TABLE
++	select CPU_FREQ_TABLE
+ 	help
+ 	  This adds the CPUFreq driver for Intel Pentium 4 / XEON
+ 	  processors.
+@@ -172,7 +168,7 @@ config X86_P4_CLOCKMOD
+ 
+ config X86_CPUFREQ_NFORCE2
+ 	tristate "nVidia nForce2 FSB changing"
+-	depends on CPU_FREQ && EXPERIMENTAL
++	depends on EXPERIMENTAL
+ 	help
+ 	  This adds the CPUFreq driver for FSB changing on nVidia nForce2
+ 	  platforms.
+@@ -183,7 +179,6 @@ config X86_CPUFREQ_NFORCE2
+ 
+ config X86_LONGRUN
+ 	tristate "Transmeta LongRun"
+-	depends on CPU_FREQ
+ 	help
+ 	  This adds the CPUFreq driver for Transmeta Crusoe and Efficeon processors
+ 	  which support LongRun.
+@@ -194,7 +189,7 @@ config X86_LONGRUN
+ 
+ config X86_LONGHAUL
+ 	tristate "VIA Cyrix III Longhaul"
+-	depends on CPU_FREQ_TABLE
++	select CPU_FREQ_TABLE
+ 	help
+ 	  This adds the CPUFreq driver for VIA Samuel/CyrixIII, 
+ 	  VIA Cyrix Samuel/C3, VIA Cyrix Ezra and VIA Cyrix Ezra-T 
+@@ -205,7 +200,6 @@ config X86_LONGHAUL
+ 	  If in doubt, say N.
+ 
+ comment "shared options"
+-	depends on CPU_FREQ
+ 
+ config X86_ACPI_CPUFREQ_PROC_INTF
+         bool "/proc/acpi/processor/../performance interface (deprecated)"
+@@ -220,8 +214,7 @@ config X86_ACPI_CPUFREQ_PROC_INTF
+ 
+ config X86_SPEEDSTEP_LIB
+ 	tristate
+-	depends on (X86_SPEEDSTEP_ICH || X86_SPEEDSTEP_SMI || X86_P4_CLOCKMOD)
+-	default (X86_SPEEDSTEP_ICH || X86_SPEEDSTEP_SMI || X86_P4_CLOCKMOD)
++	default X86_SPEEDSTEP_ICH || X86_SPEEDSTEP_SMI || X86_P4_CLOCKMOD
+ 
+ config X86_SPEEDSTEP_RELAXED_CAP_CHECK
+ 	bool "Relaxed speedstep capability checks"
+@@ -233,5 +226,6 @@ config X86_SPEEDSTEP_RELAXED_CAP_CHECK
+ 	  option lets the probing code bypass some of those checks if the
+ 	  parameter "relaxed_check=1" is passed to the module.
+ 
++endif	# CPU_FREQ
+ 
+ endmenu
+Index: linux-2.6.11/drivers/cpufreq/Kconfig
 ===================================================================
---- linux-2.6.11.orig/lib/Kconfig.debug	2005-01-29 22:50:43.458936904 +0100
-+++ linux-2.6.11/lib/Kconfig.debug	2005-01-29 22:56:22.471544001 +0100
-@@ -1,14 +1,13 @@
+--- linux-2.6.11.orig/drivers/cpufreq/Kconfig	2005-01-29 22:50:43.507928466 +0100
++++ linux-2.6.11/drivers/cpufreq/Kconfig	2005-01-29 22:55:57.343872448 +0100
+@@ -13,9 +13,13 @@ config CPU_FREQ
  
- config DEBUG_KERNEL
- 	bool "Kernel debugging"
--	depends on (ALPHA || ARM || CRIS || H8300 || X86 || IA64 || M32R || M68K || M68KNOMMU || MIPS || PARISC || PPC32 || PPC64 || ARCH_S390 || SUPERH || SUPERH64 || SPARC32 || SPARC64 || USERMODE || V850 || X86_64)
+ 	  If in doubt, say N.
+ 
++if CPU_FREQ
++
++config CPU_FREQ_TABLE
++       def_tristate m
++
+ config CPU_FREQ_DEBUG
+ 	bool "Enable CPUfreq debugging"
+-	depends on CPU_FREQ
  	help
- 	  Say Y here if you are developing drivers or trying to debug and
- 	  identify kernel problems.
+ 	  Say Y here to enable CPUfreq subsystem (including drivers)
+ 	  debugging. You will need to activate it via the kernel
+@@ -29,7 +33,7 @@ config CPU_FREQ_DEBUG
  
- config MAGIC_SYSRQ
- 	bool "Magic SysRq key"
--	depends on DEBUG_KERNEL && (ALPHA || ARM || X86 || IA64 || M32R || M68K || MIPS || PARISC || PPC32 || PPC64 || ARCH_S390 || SUPERH || SUPERH64 || SPARC32 || SPARC64 || X86_64 || USERMODE)
-+	depends on DEBUG_KERNEL
+ config CPU_FREQ_STAT
+        tristate "CPU frequency translation statistics"
+-       depends on CPU_FREQ && CPU_FREQ_TABLE
++       select CPU_FREQ_TABLE
+        default y
+        help
+          This driver exports CPU frequency statistics information through sysfs
+@@ -37,17 +41,15 @@ config CPU_FREQ_STAT
+ 
+ config CPU_FREQ_STAT_DETAILS
+        bool "CPU frequency translation statistics details"
+-       depends on CPU_FREQ && CPU_FREQ_STAT
+-       default n
++       depends on CPU_FREQ_STAT
+        help
+          This will show detail CPU frequency translation table in sysfs file
+          system
+ 
+ choice
+ 	prompt "Default CPUFreq governor"
+-	depends on CPU_FREQ
+-	default CPU_FREQ_DEFAULT_GOV_PERFORMANCE if !CPU_FREQ_SA1100 && !CPU_FREQ_SA1110
+ 	default CPU_FREQ_DEFAULT_GOV_USERSPACE if CPU_FREQ_SA1100 || CPU_FREQ_SA1110
++	default CPU_FREQ_DEFAULT_GOV_PERFORMANCE
  	help
- 	  If you say Y here, you will have some control over the system even
- 	  if the system crashes for example during kernel debugging (e.g., you
-@@ -20,12 +19,22 @@ config MAGIC_SYSRQ
- 	  keys are documented in <file:Documentation/sysrq.txt>. Don't say Y
- 	  unless you really know what this hack does.
+ 	  This option sets which CPUFreq governor shall be loaded at
+ 	  startup. If in doubt, select 'performance'.
+@@ -73,7 +75,6 @@ endchoice
  
--config MAGIC_SYSRQ
--	bool "Magic SysRq key"
--	depends on DEBUG_KERNEL && (H8300 || M68KNOMMU || V850)
--	help
--	  Enables console device to interpret special characters as
--	  commands to dump state information.
-+config LOG_BUF_SHIFT
-+	int "Kernel log buffer size (16 => 64KB, 17 => 128KB)" if DEBUG_KERNEL
-+	range 12 21
-+	default 17 if ARCH_S390
-+	default 16 if X86_NUMAQ || IA64
-+	default 15 if SMP
-+	default 14
-+	help
-+	  Select kernel log buffer size as a power of 2.
-+	  Defaults and Examples:
-+	  	     17 => 128 KB for S/390
-+		     16 => 64 KB for x86 NUMAQ or IA-64
-+	             15 => 32 KB for SMP
-+	             14 => 16 KB for uniprocessor
-+		     13 =>  8 KB
-+		     12 =>  4 KB
+ config CPU_FREQ_GOV_PERFORMANCE
+        tristate "'performance' governor"
+-       depends on CPU_FREQ
+        help
+ 	  This cpufreq governor sets the frequency statically to the
+ 	  highest available CPU frequency.
+@@ -82,7 +83,6 @@ config CPU_FREQ_GOV_PERFORMANCE
  
- config SCHEDSTATS
- 	bool "Collect scheduler statistics"
-@@ -41,7 +50,7 @@ config SCHEDSTATS
+ config CPU_FREQ_GOV_POWERSAVE
+        tristate "'powersave' governor"
+-       depends on CPU_FREQ
+        help
+ 	  This cpufreq governor sets the frequency statically to the
+ 	  lowest available CPU frequency.
+@@ -91,7 +91,6 @@ config CPU_FREQ_GOV_POWERSAVE
  
- config DEBUG_SLAB
- 	bool "Debug memory allocations"
--	depends on DEBUG_KERNEL && (ALPHA || ARM || X86 || IA64 || M32R || M68K || MIPS || PARISC || PPC32 || PPC64 || ARCH_S390 || SPARC32 || SPARC64 || USERMODE || X86_64)
-+	depends on DEBUG_KERNEL
+ config CPU_FREQ_GOV_USERSPACE
+        tristate "'userspace' governor for userspace frequency scaling"
+-       depends on CPU_FREQ 
+        help
+ 	  Enable this cpufreq governor when you either want to set the
+ 	  CPU frequency manually or when an userspace program shall
+@@ -104,7 +103,6 @@ config CPU_FREQ_GOV_USERSPACE
+ 
+ config CPU_FREQ_GOV_ONDEMAND
+ 	tristate "'ondemand' cpufreq policy governor"
+-	depends on CPU_FREQ
  	help
- 	  Say Y here to have the kernel do limited verification on memory
- 	  allocation as well as poisoning memory on free to catch use of freed
-@@ -49,7 +58,7 @@ config DEBUG_SLAB
+ 	  'ondemand' - This driver adds a dynamic cpufreq policy governor.
+ 	  The governor does a periodic polling and 
+@@ -116,3 +114,5 @@ config CPU_FREQ_GOV_ONDEMAND
+ 	  For details, take a look at linux/Documentation/cpu-freq.
  
- config DEBUG_PREEMPT
- 	bool "Debug preemptible kernel"
--	depends on PREEMPT
-+	depends on DEBUG_KERNEL && PREEMPT
- 	default y
- 	help
- 	  If you say Y here then the kernel will use a debug variant of the
-@@ -59,7 +68,7 @@ config DEBUG_PREEMPT
- 
- config DEBUG_SPINLOCK
- 	bool "Spinlock debugging"
--	depends on DEBUG_KERNEL && (ALPHA || ARM || X86 || IA64 || M32R || MIPS || PARISC || PPC32 || (SUPERH && !SUPERH64) || SPARC32 || SPARC64 || USERMODE || X86_64)
-+	depends on DEBUG_KERNEL
- 	help
- 	  Say Y here and build SMP to catch missing spinlock initialization
- 	  and certain other kinds of spinlock errors commonly made.  This is
-@@ -68,7 +77,7 @@ config DEBUG_SPINLOCK
- 
- config DEBUG_SPINLOCK_SLEEP
- 	bool "Sleep-inside-spinlock checking"
--	depends on DEBUG_KERNEL && (X86 || IA64 || M32R || MIPS || PPC32 || PPC64 || ARCH_S390 || SPARC32 || SPARC64 || USERMODE)
-+	depends on DEBUG_KERNEL
- 	help
- 	  If you say Y here, various routines which may sleep will become very
- 	  noisy if they are called with a spinlock held.
-@@ -82,7 +91,7 @@ config DEBUG_KOBJECT
- 
- config DEBUG_HIGHMEM
- 	bool "Highmem debugging"
--	depends on DEBUG_KERNEL && HIGHMEM && (X86 || PPC32 || MIPS || SPARC32)
-+	depends on DEBUG_KERNEL && HIGHMEM
- 	help
- 	  This options enables addition error checking for high memory systems.
- 	  Disable for production systems.
-@@ -98,7 +107,7 @@ config DEBUG_BUGVERBOSE
- 
- config DEBUG_INFO
- 	bool "Compile the kernel with debug info"
--	depends on DEBUG_KERNEL && (ALPHA || CRIS || X86 || IA64 || M32R || M68K || MIPS || PARISC || PPC32 || PPC64 || ARCH_S390 || (SUPERH && !SUPERH64) || SPARC64 || V850 || X86_64)
-+	depends on DEBUG_KERNEL
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-@@ -109,13 +118,13 @@ config DEBUG_INFO
- 	bool "Enable kernel debugging symbols"
- 	depends on DEBUG_KERNEL && USERMODE
- 	help
--        When this is enabled, the User-Mode Linux binary will include
--        debugging symbols.  This enlarges the binary by a few megabytes,
--        but aids in tracking down kernel problems in UML.  It is required
--        if you intend to do any kernel development.
-+	  When this is enabled, the User-Mode Linux binary will include
-+	  debugging symbols.  This enlarges the binary by a few megabytes,
-+	  but aids in tracking down kernel problems in UML.  It is required
-+	  if you intend to do any kernel development.
- 
--        If you're truly short on disk space or don't expect to report any
--        bugs back to the UML developers, say N, otherwise say Y.
-+	  If you're truly short on disk space or don't expect to report any
-+	  bugs back to the UML developers, say N, otherwise say Y.
- 
- config DEBUG_IOREMAP
- 	bool "Enable ioremap() debugging"
-@@ -150,13 +159,11 @@ config PAGE_OWNER
- 
- 	  If unsure, say N.
- 
--if !X86_64
- config FRAME_POINTER
- 	bool "Compile the kernel with frame pointers"
--	depends on X86 || CRIS || M68KNOMMU
-+	depends on DEBUG_KERNEL && ((X86 && !X86_64) || CRIS || M68K || M68KNOMMU)
- 	help
- 	  If you say Y here the resulting kernel image will be slightly larger
- 	  and slower, but it will give very useful debugging information.
- 	  If you don't debug the kernel, you can say N, but we may not be able
- 	  to solve problems without frame pointers.
--endif
+ 	  If in doubt, say N.
++
++endif	# CPU_FREQ

@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318518AbSIBW1a>; Mon, 2 Sep 2002 18:27:30 -0400
+	id <S318539AbSIBWfZ>; Mon, 2 Sep 2002 18:35:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318526AbSIBW1a>; Mon, 2 Sep 2002 18:27:30 -0400
-Received: from hacksaw.org ([216.41.5.170]:14729 "EHLO
-	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
-	id <S318518AbSIBW13>; Mon, 2 Sep 2002 18:27:29 -0400
-Message-Id: <200209022233.g82MXXgB015673@habitrail.home.fools-errant.com>
-X-Mailer: exmh version 2.5 08/15/2002 with nmh-1.0.4
-To: Thunder from the hill <thunder@lightweight.ods.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c 
-In-reply-to: Your message of "Mon, 02 Sep 2002 15:43:56 MDT."
-             <Pine.LNX.4.44.0209021542590.3270-100000@hawkeye.luckynet.adm> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 02 Sep 2002 18:33:33 -0400
-From: Hacksaw <hacksaw@hacksaw.org>
+	id <S318536AbSIBWfZ>; Mon, 2 Sep 2002 18:35:25 -0400
+Received: from pD952A8C0.dip.t-dialin.net ([217.82.168.192]:20865 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318526AbSIBWfY>; Mon, 2 Sep 2002 18:35:24 -0400
+Date: Mon, 2 Sep 2002 16:39:53 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Thunder from the hill <thunder@lightweight.ods.org>,
+       <Andries.Brouwer@cwi.nl>, <aebr@win.tue.nl>,
+       <linux-kernel@vger.kernel.org>, <linux-raid@vger.kernel.org>,
+       <neilb@cse.unsw.edu.au>
+Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c
+In-Reply-To: <Pine.LNX.4.44.0209021501080.1401-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0209021638230.3270-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Speaking from the perspective of a long time computer user and sys-admin, I'm 
-trying to understand life without a partition table.
+Hi,
 
-I operate under the following assumptions:
+On Mon, 2 Sep 2002, Linus Torvalds wrote:
+> On Mon, 2 Sep 2002, Thunder from the hill wrote:
+> > 
+> > Why not the faraway goal: no partition tables any more? They're annoying.
+> 
+> Guys, Linux is not a research project.
+> 
+> Partition tables are a fact of life.
 
-1. It's useful to have a physical disk divided into multiple logical disks.
-2. It's therefore important that the bootloader know about them, assuming that 
-we want to be able to boot from any logical disk.
-3. We can either have the bootloader spend time divining the structure of the 
-logical disks by scanning the physical disk or we can write it down in some 
-useful place.
-4. That useful place is very near the front of the physical disk.
+Linus, can you spell "faraway"? I wasn't talking about kicking 
+partitioning code from Linux 2.5, I was talking about inventing a better 
+way in 2010.
 
-Of course, I'd be the first to admit that the current partition table is a 
-stupid design, but I can't see not having one at all.
-
-
+			Thunder
 -- 
-We have three rights:
-   the right to work, the right to pay to work, and the right to suffer the 
-consequences of our work.
-We have three obligations:
-   the obligation to work, the obligation to pay to work, and the obligation 
-to suffer the consequences of our work.
-http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
-
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

@@ -1,282 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265283AbUETXJP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265238AbUETXJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265283AbUETXJP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 19:09:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265292AbUETXJP
+	id S265238AbUETXJt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 19:09:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265272AbUETXJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 19:09:15 -0400
-Received: from [141.156.69.115] ([141.156.69.115]:25252 "EHLO
-	mail.infosciences.com") by vger.kernel.org with ESMTP
-	id S265283AbUETXI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 19:08:56 -0400
-Message-ID: <40AD3A88.2000002@infosciences.com>
-Date: Thu, 20 May 2004 19:08:56 -0400
-From: nardelli <jnardelli@infosciences.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [PATCH] visor: Fix Oops on disconnect
-Content-Type: multipart/mixed;
- boundary="------------080300050207050505090000"
+	Thu, 20 May 2004 19:09:49 -0400
+Received: from pao-nav01.pao.digeo.com ([12.47.58.24]:43271 "HELO
+	pao-nav01.pao.digeo.com") by vger.kernel.org with SMTP
+	id S265238AbUETXJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 19:09:43 -0400
+Date: Thu, 20 May 2004 16:11:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: adi@hexapodia.org, ak@muc.de, linux-kernel@vger.kernel.org
+Subject: Re: overlaping printk
+Message-Id: <20040520161143.5677e9b7.akpm@osdl.org>
+In-Reply-To: <20040520185745.GA7706@elte.hu>
+References: <1XBEP-Mc-49@gated-at.bofh.it>
+	<1XBXw-13D-3@gated-at.bofh.it>
+	<1XWpp-zy-9@gated-at.bofh.it>
+	<m3lljnnoa0.fsf@averell.firstfloor.org>
+	<20040520151939.GA3562@elte.hu>
+	<20040520155323.GA4750@elte.hu>
+	<20040520161901.GD13601@hexapodia.org>
+	<20040520185745.GA7706@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 May 2004 23:09:03.0483 (UTC) FILETIME=[715D44B0:01C43EBF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080300050207050505090000
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> i've attached a new patch that does what Andi suggested too - 
+> timestamping of the oopses. This way we will zap no sooner than 10 
+> seconds after the first oops.
 
-Here is a proposed patch for Oops on disconnect in the visor module.
-For details of the problem, please see
-http://bugzilla.kernel.org/show_bug.cgi?id=2289
+I think that will do the wrong thing between 23 and 47 days uptime because
+time_after() will return an incorrect answer.
 
-I would really appreciate it if anyone that uses this module could please
-try this patch to make sure that it works as intended.  Also, as this is
-the first patch that I've submitted, please feel free to be brutally
-honest regarding content, formatting, etc.
+How's this look?
 
 
 
--- 
-Joe Nardelli
-jnardelli@infosciences.com
 
---------------080300050207050505090000
-Content-Type: text/plain;
- name="patch.treo"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch.treo"
+- Bump the timeout to 30 seconds - 9600 baud is slow.
 
---- old/linux-2.6.6/drivers/usb/serial/visor.c	2004-05-09 22:32:27.000000000 -0400
-+++ new/linux-2.6.6/drivers/usb/serial/visor.c	2004-05-20 18:04:24.000000000 -0400
-@@ -12,6 +12,13 @@
-  *
-  * See Documentation/usb/usb-serial.txt for more information on using this driver
-  *
-+ * (5/20/2004) Joe Nardelli
-+ *	Reduced possibility for unitialized data access in palm_os_3_probe.
-+ *	Modified workaround for treo endpoint setup in treo_attach.
-+ *	Removed assumptions that port->read_urb was always valid (is not true
-+ *	for usb serial devices with more bulk out or interrupt endpoints than
-+ *	bulk in endpoints).
-+ *
-  * (06/03/2003) Judd Montgomery <judd at jpilot.org>
-  *     Added support for module parameter options for untested/unknown
-  *     devices.
-@@ -398,7 +405,8 @@
- 	
- 	dbg("%s - port %d", __FUNCTION__, port->number);
+- Handle jiffy wraps: change the logic so that we only skip the lockbust if
+  the current time is within 30 seconds of the previous lockbusting attempt.
+
+
+
+---
+
+ 25-akpm/kernel/printk.c |   11 ++++++-----
+ 1 files changed, 6 insertions(+), 5 deletions(-)
+
+diff -puN kernel/printk.c~mangled-printk-oops-output-fix-tweaks kernel/printk.c
+--- 25/kernel/printk.c~mangled-printk-oops-output-fix-tweaks	Thu May 20 16:01:53 2004
++++ 25-akpm/kernel/printk.c	Thu May 20 16:10:32 2004
+@@ -55,9 +55,6 @@ EXPORT_SYMBOL(console_printk);
  
--	if (!port->read_urb) {
-+	if ((serial->dev->descriptor.idVendor != SONY_VENDOR_ID && !port->read_urb))
-+	{
- 		/* this is needed for some brain dead Sony devices */
- 		dev_err(&port->dev, "Device lied about number of ports, please use a lower one.\n");
- 		return -ENODEV;
-@@ -416,17 +424,19 @@
- 		port->tty->low_latency = 1;
+ int oops_in_progress;
  
- 	/* Start reading from the device */
--	usb_fill_bulk_urb (port->read_urb, serial->dev,
--			   usb_rcvbulkpipe (serial->dev, 
--					    port->bulk_in_endpointAddress),
--			   port->read_urb->transfer_buffer,
--			   port->read_urb->transfer_buffer_length,
--			   visor_read_bulk_callback, port);
--	result = usb_submit_urb(port->read_urb, GFP_KERNEL);
--	if (result) {
--		dev_err(&port->dev, "%s - failed submitting read urb, error %d\n",
--			__FUNCTION__, result);
--		goto exit;
-+	if (port->read_urb) {
-+		usb_fill_bulk_urb (port->read_urb, serial->dev,
-+			usb_rcvbulkpipe (serial->dev, 
-+				port->bulk_in_endpointAddress),
-+			port->read_urb->transfer_buffer,
-+			port->read_urb->transfer_buffer_length,
-+			visor_read_bulk_callback, port);
-+		result = usb_submit_urb(port->read_urb, GFP_KERNEL);
-+		if (result) {
-+			dev_err(&port->dev, "%s - failed submitting read urb, error %d\n",
-+				__FUNCTION__, result);
-+			goto exit;
-+		}
- 	}
- 	
- 	if (port->interrupt_in_urb) {
-@@ -456,7 +466,8 @@
- 		return;
- 	
- 	/* shutdown our urbs */
--	usb_unlink_urb (port->read_urb);
-+	if (port->read_urb)
-+		usb_unlink_urb (port->read_urb);
- 	if (port->interrupt_in_urb)
- 		usb_unlink_urb (port->interrupt_in_urb);
- 
-@@ -622,15 +633,18 @@
- 	bytes_in += urb->actual_length;
- 
- 	/* Continue trying to always read  */
--	usb_fill_bulk_urb (port->read_urb, serial->dev,
--			   usb_rcvbulkpipe (serial->dev,
--					    port->bulk_in_endpointAddress),
--			   port->read_urb->transfer_buffer,
--			   port->read_urb->transfer_buffer_length,
--			   visor_read_bulk_callback, port);
--	result = usb_submit_urb(port->read_urb, GFP_ATOMIC);
--	if (result)
--		dev_err(&port->dev, "%s - failed resubmitting read urb, error %d\n", __FUNCTION__, result);
-+	if (port->read_urb) {
-+		usb_fill_bulk_urb (port->read_urb, serial->dev,
-+			usb_rcvbulkpipe (serial->dev,
-+			port->bulk_in_endpointAddress),
-+			port->read_urb->transfer_buffer,
-+			port->read_urb->transfer_buffer_length,
-+			visor_read_bulk_callback, port);
-+		result = usb_submit_urb(port->read_urb, GFP_ATOMIC);
-+		if (result)
-+			dev_err(&port->dev, "%s - failed resubmitting read urb, error %d\n", __FUNCTION__, result);
-+	}
-+  
- 	return;
- }
- 
-@@ -675,7 +689,9 @@
- static void visor_throttle (struct usb_serial_port *port)
- {
- 	dbg("%s - port %d", __FUNCTION__, port->number);
--	usb_unlink_urb (port->read_urb);
-+	if (port->read_urb) {
-+		usb_unlink_urb (port->read_urb);
-+	}
- }
- 
- 
-@@ -685,10 +701,12 @@
- 
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
--	port->read_urb->dev = port->serial->dev;
--	result = usb_submit_urb(port->read_urb, GFP_ATOMIC);
--	if (result)
--		dev_err(&port->dev, "%s - failed submitting read urb, error %d\n", __FUNCTION__, result);
-+	if (port->read_urb) {
-+		port->read_urb->dev = port->serial->dev;
-+		result = usb_submit_urb(port->read_urb, GFP_ATOMIC);
-+		if (result)
-+			dev_err(&port->dev, "%s - failed submitting read urb, error %d\n", __FUNCTION__, result);
-+	}
- }
- 
- static int palm_os_3_probe (struct usb_serial *serial, const struct usb_device_id *id)
-@@ -710,6 +728,13 @@
- 		return -ENOMEM;
- 	}
- 
-+	/*
-+	* We don't know how much data gets written into transfer_buffer, so let's
-+	* at least set it all to 0 to avoid putting random data into num_ports
-+	* (which causes unitialized, and possibly unallocated data to be accessed)
-+	*/
-+	memset (transfer_buffer, 0, sizeof(*connection_info));
-+  
- 	/* send a get connection info request */
- 	retval = usb_control_msg (serial->dev,
- 				  usb_rcvctrlpipe(serial->dev, 0),
-@@ -726,11 +751,20 @@
- 
- 	le16_to_cpus(&connection_info->num_ports);
- 	num_ports = connection_info->num_ports;
--	/* handle devices that report invalid stuff here */
--	if (num_ports > 2)
-+	/*
-+	* Handle devices that report invalid stuff here.  I think that this will
-+	* work for both big and little endian architectures that do not report
-+	* back valid connect info, but I'd still like to verify this on a big
-+	* endian machine.  Any testers?
-+	*/
-+	if (num_ports <= 0 || num_ports > 2) {
-+		dev_warn (dev, "%s: No valid connect info available\n",
-+			serial->type->name);
- 		num_ports = 2;
-+	}
-+  
- 	dev_info(dev, "%s: Number of ports: %d\n", serial->type->name,
--		connection_info->num_ports);
-+		num_ports);
- 
- 	for (i = 0; i < num_ports; ++i) {
- 		switch (connection_info->connections[i].port_function_id) {
-@@ -887,8 +921,7 @@
-  
- static int treo_attach (struct usb_serial *serial)
- {
--	struct usb_serial_port *port;
--	int i;
-+	struct usb_serial_port swap_port;
- 
- 	/* Only do this endpoint hack for the Handspring devices with
- 	 * interrupt in endpoints, which for now are the Treo devices. */
-@@ -898,31 +931,32 @@
- 
- 	dbg("%s", __FUNCTION__);
- 
--	/* Ok, this is pretty ugly, but these devices want to use the
--	 * interrupt endpoint as paired up with a bulk endpoint for a
--	 * "virtual serial port".  So let's force the endpoints to be
--	 * where we want them to be. */
--	for (i = serial->num_bulk_in; i < serial->num_ports; ++i) {
--		port = serial->port[i];
--		port->read_urb = serial->port[0]->read_urb;
--		port->bulk_in_endpointAddress = serial->port[0]->bulk_in_endpointAddress;
--		port->bulk_in_buffer = serial->port[0]->bulk_in_buffer;
--	}
+-/* zap spinlocks only once: */
+-unsigned long oops_timestamp;
 -
--	for (i = serial->num_bulk_out; i < serial->num_ports; ++i) {
--		port = serial->port[i];
--		port->write_urb = serial->port[0]->write_urb;
--		port->bulk_out_size = serial->port[0]->bulk_out_size;
--		port->bulk_out_endpointAddress = serial->port[0]->bulk_out_endpointAddress;
--		port->bulk_out_buffer = serial->port[0]->bulk_out_buffer;
--	}
--
--	for (i = serial->num_interrupt_in; i < serial->num_ports; ++i) {
--		port = serial->port[i];
--		port->interrupt_in_urb = serial->port[0]->interrupt_in_urb;
--		port->interrupt_in_endpointAddress = serial->port[0]->interrupt_in_endpointAddress;
--		port->interrupt_in_buffer = serial->port[0]->interrupt_in_buffer;
--	}
-+	/*
-+	* It appears that Treos want to use the 1st interrupt endpoint to communicate
-+	* with the 2nd bulk out endpoint, so let's swap the 1st and 2nd bulk in
-+	* and interrupt endpoints.  Note that swapping the bulk out endpoints would
-+	* break lots of apps that want to communicate on the second port.
-+	*/
-+	swap_port.read_urb = serial->port[0]->read_urb;
-+	swap_port.bulk_in_endpointAddress = serial->port[0]->bulk_in_endpointAddress;
-+	swap_port.bulk_in_buffer = serial->port[0]->bulk_in_buffer;
-+	swap_port.interrupt_in_urb = serial->port[0]->interrupt_in_urb;
-+	swap_port.interrupt_in_endpointAddress = serial->port[0]->interrupt_in_endpointAddress;
-+	swap_port.interrupt_in_buffer = serial->port[0]->interrupt_in_buffer;
-+ 
-+	serial->port[0]->read_urb = serial->port[1]->read_urb;
-+	serial->port[0]->bulk_in_endpointAddress = serial->port[1]->bulk_in_endpointAddress;
-+	serial->port[0]->bulk_in_buffer = serial->port[1]->bulk_in_buffer;
-+	serial->port[0]->interrupt_in_urb = serial->port[1]->interrupt_in_urb;
-+	serial->port[0]->interrupt_in_endpointAddress = serial->port[1]->interrupt_in_endpointAddress;
-+	serial->port[0]->interrupt_in_buffer = serial->port[1]->interrupt_in_buffer;
+ /*
+  * console_sem protects the console_drivers list, and also
+  * provides serialisation for access to the entire console
+@@ -479,10 +476,14 @@ static void emit_log_char(char c)
+  * every 10 seconds, to leave time for slow consoles to print a
+  * full oops.
+  */
+-static inline void zap_locks(void)
++static void zap_locks(void)
+ {
+-	if (!time_after(jiffies, oops_timestamp + 10*HZ))
++	static unsigned long oops_timestamp;
 +
-+	serial->port[1]->read_urb = swap_port.read_urb;
-+	serial->port[1]->bulk_in_endpointAddress = swap_port.bulk_in_endpointAddress;
-+	serial->port[1]->bulk_in_buffer = swap_port.bulk_in_buffer;
-+	serial->port[1]->interrupt_in_urb = swap_port.interrupt_in_urb;
-+	serial->port[1]->interrupt_in_endpointAddress = swap_port.interrupt_in_endpointAddress;
-+	serial->port[1]->interrupt_in_buffer = swap_port.interrupt_in_buffer;
++	if (time_after_eq(jiffies, oops_timestamp) &&
++			!time_after(jiffies, oops_timestamp + 30*HZ))
+ 		return;
++
+ 	oops_timestamp = jiffies;
  
- 	return 0;
- }
+ 	/* If a crash is occurring, make sure we can't deadlock */
 
---------------080300050207050505090000--
+_
+

@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264622AbUEUXxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264682AbUEUXxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264622AbUEUXxd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 19:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbUEUXww
+	id S264682AbUEUXxc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 19:53:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264622AbUEUXw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 19:52:52 -0400
-Received: from imap.gmx.net ([213.165.64.20]:9878 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264857AbUEUXiD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 19:38:03 -0400
-X-Authenticated: #4512188
-Message-ID: <40ACE1AC.3000803@gmx.de>
-Date: Thu, 20 May 2004 18:49:48 +0200
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040504)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: john weber <weber@sixbit.org>, linux-kernel@vger.kernel.org
-Subject: Re: Performance Tuning
-References: <20040520120514.GA29540@sixbit.org> <200405201642.i4KGgDgJ000683@turing-police.cc.vt.edu>
-In-Reply-To: <200405201642.i4KGgDgJ000683@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 21 May 2004 19:52:58 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:28084 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S264858AbUEUXif (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 19:38:35 -0400
+Message-Id: <200405212338.i4LNcV8Z007967@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Jon Smirl <jonsmirl@yahoo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Exporting PCI ROMs via syfs 
+In-Reply-To: Your message of "Thu, 20 May 2004 18:05:10 PDT."
+             <20040521010510.84867.qmail@web14928.mail.yahoo.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040521010510.84867.qmail@web14928.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_674656690P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Fri, 21 May 2004 19:38:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 20 May 2004 12:05:15 -0000, john weber <weber@sixbit.org>  said:
-> 
-> 
->>Kernel compiles take 6m38s on my P4 2.8GHz (with HT enabled) and 
->>512 MB RAM as compared to 20-30 seconds reported by folks online. 
->>I am running kernel 2.6.6.
-[snip]
-> Seriously - the only way to do a kernel build in 20 seconds is to use 'make
-> -j20' or so, and have enough processors to handle it, and enough RAM so that
-> you can basically do the whole thing in the fin-core cache rather than beating
-> on the disk....
+--==_Exmh_674656690P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-20sec sounds very far from reality for me. I have athlon xp@2.2GHz and 
-with gcc3.4 it takes about 4min to compile a 2.6.6-mm kernel. Using 
-gcc3.3.x it needs minutes more.
+On Thu, 20 May 2004 18:05:10 PDT, Jon Smirl <jonsmirl@yahoo.com>  said:
+> GregKH has suggested that a good interface for accessing the contents o=
+f PCI
+> ROMs from user space would be to make them available from sysfs. What w=
+ould be a
+> good way to structure the code for doing this? Should this be part of t=
+he pci
+> driver, and how would this interface into class_simple to make the attr=
+ibute
+> appear?
 
-Prakash
+Hmm... how do you make that fit with the "one file, one value" rule for s=
+ysfs?
+Have the "one value" be a nnnK binary blob representing the ROM image?
+
+
+--==_Exmh_674656690P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFArpL3cC3lWbTT17ARAl02AJ0TcVoIlTwnxTMIB603LVTxP+ff+gCcCnH2
+9O9RCcVjKPZYjxkU1XZvoYU=
+=ZflD
+-----END PGP SIGNATURE-----
+
+--==_Exmh_674656690P--

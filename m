@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263720AbTDTVxO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 17:53:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263721AbTDTVxO
+	id S263721AbTDTVzp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 17:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263722AbTDTVzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 17:53:14 -0400
-Received: from diale081.ppp.lrz-muenchen.de ([129.187.28.81]:22495 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id S263720AbTDTVxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 17:53:13 -0400
-Subject: 2.5: daemonize() playing tricks with ttys?
-From: Daniel Egger <degger@fhm.edu>
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0XmjepjCGN+sml5UaOSJ"
-Organization: 
-Message-Id: <1050875983.899.2.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 20 Apr 2003 23:59:43 +0200
+	Sun, 20 Apr 2003 17:55:45 -0400
+Received: from [80.190.48.67] ([80.190.48.67]:29188 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S263721AbTDTVzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 17:55:44 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Neil Schemenauer <nas@python.ca>, Andrew Morton <akpm@digeo.com>
+Subject: Re: [PATCH][CFT] new IO scheduler for 2.4.20
+Date: Mon, 21 Apr 2003 00:06:23 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <20030417172818.GA8848@glacier.arctrix.com> <20030417134103.4e69fc1b.akpm@digeo.com> <20030420182648.GA18120@glacier.arctrix.com>
+In-Reply-To: <20030420182648.GA18120@glacier.arctrix.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304210006.23762.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 20 April 2003 20:26, Neil Schemenauer wrote:
 
---=-0XmjepjCGN+sml5UaOSJ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hi Neil,
 
-Hija,
+> Okay, nas1 is the patch I orginally posted.  With nas2, I am counting
+> requests instead of sectors.  The times below are for the find/cat
+> command to complete while the dd command is running.
+>     2.4.20  ????????? (I gave up after about 15 minutes)
+>     -nas1   1m56.746s
+>     -nas2   2m36.928s
+> Here's the contest results:
+what about i/o throughput, bonnie or such?
 
-I'm trying to spawn new threads from a function called from alloc_uid
-using daemonize () as soon as a new user appears on the system. Somehow=20
-this detaches the original shell from the tty causing an exit not
-only of the child but also it's parent.
+ciao, Marc
 
-A diagram of the situation would lock like this:
-
-getty -> (login of root) bash -> (su to another user) bash ->
-[new thread is spawned] (whatever) -> exit -> getty
-
-Alternativly, when directly logging in a non-root user:
-getty -> (login of foo) motd -> [hang]
-
-How can I daemonize something without disturbing other processes?
-I already tried playing with reparent_to_init and some signal stuff
-as done by other parts of the kernel but to no avail.
-
---=20
-Servus,
-       Daniel
-
---=-0XmjepjCGN+sml5UaOSJ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+oxhPchlzsq9KoIYRAmYAAKCxxX2XZ2Vcd1oLB/ZWTH0s/h/rcwCcCsJa
-F7ebi5YuROF4/MMGx0LHx/4=
-=z6OT
------END PGP SIGNATURE-----
-
---=-0XmjepjCGN+sml5UaOSJ--
 

@@ -1,84 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266837AbUJRQZ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266833AbUJRQbS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266837AbUJRQZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 12:25:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266833AbUJRQZ6
+	id S266833AbUJRQbS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 12:31:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266838AbUJRQbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 12:25:58 -0400
-Received: from dfw-gate4.raytheon.com ([199.46.199.233]:28210 "EHLO
-	dfw-gate4.raytheon.com") by vger.kernel.org with ESMTP
-	id S266837AbUJRQZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 12:25:40 -0400
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>
-From: Mark_H_Johnson@raytheon.com
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
-Date: Mon, 18 Oct 2004 11:24:46 -0500
-Message-ID: <OFF2CA4065.A5BB2E79-ON86256F31.005A287D-86256F31.005A2895@raytheon.com>
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 10/18/2004 11:24:51 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+	Mon, 18 Oct 2004 12:31:18 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:34262 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S266833AbUJRQbI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 12:31:08 -0400
+Subject: [PATCH] add unschedule_delayed_work to the workqueue API
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: mingo@elte.hu
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 18 Oct 2004 11:31:00 -0500
+Message-Id: <1098117067.2011.64.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->i have released the -U5 Real-Time Preemption patch:
->
->
-http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U5
+I'm in the process of moving some of our scsi timers which do more work
+than just a few lines of code into schedule_work() instead.  The problem
+is that the workqueue API lacks the equivalent of del_timer_sync(). 
+This patch adds it as unschedule_delayed_work() (and also adds the
+unschedule_work() API---it's probably much less useful, but
+unschedule_delayed_work() is best constructed on top of it).
 
-I am getting build problems - specifically with:
+The idea is that unschedule_delayed_work() will return 0 if the work has
+already executed and 1 if it hasn't.  It is guaranteed that either the
+work was removed or has been executed by the time
+unschedule_delayed_work() returns (and thus it needs process context to
+wait for the work function if necessary).
 
-  CC [M]  drivers/char/ipmi/ipmi_watchdog.o
-  CC [M]  fs/jfs/jfs_dmap.o
-drivers/char/ipmi/ipmi_watchdog.c:389: warning: type defaults to `int' in
-declaration of `DECLARE_MUTEX_LOCKED'
-drivers/char/ipmi/ipmi_watchdog.c:389: warning: parameter names (without
-types) in function declaration
-drivers/char/ipmi/ipmi_watchdog.c: In function `heartbeat_free_smi':
-drivers/char/ipmi/ipmi_watchdog.c:393: error: `heartbeat_wait_lock'
-undeclared (first use in this function)
-drivers/char/ipmi/ipmi_watchdog.c:393: error: (Each undeclared identifier
-is reported only once
-drivers/char/ipmi/ipmi_watchdog.c:393: error: for each function it appears
-in.)
-drivers/char/ipmi/ipmi_watchdog.c: In function `heartbeat_free_recv':
-drivers/char/ipmi/ipmi_watchdog.c:398: error: `heartbeat_wait_lock'
-undeclared (first use in this function)
-drivers/char/ipmi/ipmi_watchdog.c: In function `ipmi_heartbeat':
-drivers/char/ipmi/ipmi_watchdog.c:476: error: `heartbeat_wait_lock'
-undeclared (first use in this function)
-drivers/char/ipmi/ipmi_watchdog.c: At top level:
-drivers/char/ipmi/ipmi_watchdog.c:389: warning: `DECLARE_MUTEX_LOCKED'
-declared `static' but never defined
+Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
 
-If I read the patch correctly, this should be recoded as
-  DECLARE_MUTEX
-instead, but a quick grep of the source code indicates we have about
-20 more places where DECLARE_MUTEX_LOCKED is still used. Should I do
-a global replace on that or is something else needed?
+James
 
-I also had a compile failure in XFS. The messages are:
-  CC [M]  fs/xfs/quota/xfs_dquot_item.o
-  CC [M]  fs/xfs/quota/xfs_trans_dquot.o
-fs/xfs/quota/xfs_dquot_item.c: In function `xfs_qm_dquot_logitem_pushbuf':
-fs/xfs/quota/xfs_dquot_item.c:266: error: structure has no member named
-`count'
-fs/xfs/quota/xfs_dquot_item.c:279: error: structure has no member named
-`count'
-
-This refers to a macro defined at
-fs/xfs/linux-2.6/sema.h:51:#define valusema(sp)
-(atomic_read(&(sp)->count))
-
-Not quite sure if this is an error due to type changes or yet another
-name collision.
-
-Please advise how to proceed.
-
-  --Mark
+===== include/linux/workqueue.h 1.9 vs edited =====
+--- 1.9/include/linux/workqueue.h	2004-08-23 03:14:58 -05:00
++++ edited/include/linux/workqueue.h	2004-10-18 10:01:54 -05:00
+@@ -69,6 +69,11 @@
+ extern int current_is_keventd(void);
+ extern int keventd_up(void);
+ 
++extern int remove_work(struct workqueue_struct *wq, struct work_struct *work);
++extern int remove_delayed_work(struct workqueue_struct *wq, struct work_struct *work);
++extern int unschedule_work(struct work_struct *work);
++extern int unschedule_delayed_work(struct work_struct *work);
++
+ extern void init_workqueues(void);
+ 
+ /*
+===== kernel/workqueue.c 1.28 vs edited =====
+--- 1.28/kernel/workqueue.c	2004-09-08 01:33:10 -05:00
++++ edited/kernel/workqueue.c	2004-10-18 09:55:09 -05:00
+@@ -81,6 +81,7 @@
+ 
+ 	spin_lock_irqsave(&cwq->lock, flags);
+ 	work->wq_data = cwq;
++	clear_bit(1, &work->pending);
+ 	list_add_tail(&work->entry, &cwq->worklist);
+ 	cwq->insert_sequence++;
+ 	wake_up(&cwq->more_work);
+@@ -170,6 +171,7 @@
+ 		BUG_ON(work->wq_data != cwq);
+ 		clear_bit(0, &work->pending);
+ 		f(data);
++		set_bit(1, &work->pending);
+ 
+ 		spin_lock_irqsave(&cwq->lock, flags);
+ 		cwq->remove_sequence++;
+@@ -517,13 +519,94 @@
+ 	BUG_ON(!keventd_wq);
+ }
+ 
++/**
++ * remove_work - try to remove a piece of queued work from a workqueue
++ * @wq:		the workqueue to remove it from
++ * @work:	the item of work queued on the workqueue
++ *
++ * Tries to remove the work before it is executed.  Guarantees that
++ * when it returns either the work is removed or it has been executed.
++ * Requires process context since it may sleep if the work function is
++ * executing.
++ *
++ * Returns 1 if work was successfully removed without executing and 0
++ * if the work was executed.
++ */
++int remove_work(struct workqueue_struct *wq, struct work_struct *work)
++{
++	int ret = 1, cpu = get_cpu();
++	struct cpu_workqueue_struct *cwq;
++	unsigned long flags;
++
++	if (unlikely(is_single_threaded(wq)))
++		cpu = 0;
++
++	cwq = &wq->cpu_wq[cpu];
++
++	spin_lock_irqsave(&cwq->lock, flags);
++	list_del_init(&work->entry);
++	if (test_and_clear_bit(0, &work->pending))
++		goto out_unlock;
++	/* work is not pending.  It has either executed or is in the
++	 * process of executing */
++	ret = 0;
++	while (!test_bit(1, &work->pending)) {
++		DEFINE_WAIT(wait);
++		prepare_to_wait(&cwq->work_done, &wait,
++				TASK_UNINTERRUPTIBLE);
++		spin_unlock_irq(&cwq->lock);
++		schedule();
++		spin_lock_irq(&cwq->lock);
++		finish_wait(&cwq->work_done, &wait);
++	}
++
++ out_unlock:
++	spin_unlock_irqrestore(&cwq->lock, flags);
++
++	put_cpu();
++	return ret;
++}
++
++/**
++ * remove_delayed_work - try to remove a piece of queued work from a workqueue
++ * @wq:		the workqueue to remove it from
++ * @work:	the item of work queued on the workqueue
++ *
++ * Tries to remove the work before it is executed.  Guarantees that
++ * when it returns either the work is removed or it has been executed.
++ * Requires process context since it may sleep if the work function is
++ * executing.
++ *
++ * Returns 1 if work was successfully removed without executing and 0
++ * if the work was executed.
++ */
++int remove_delayed_work(struct workqueue_struct *wq, struct work_struct *work)
++{
++	if (del_timer_sync(&work->timer))
++		return 1;
++	return remove_work(wq, work);
++}
++
++int unschedule_work(struct work_struct *work)
++{
++	return remove_work(keventd_wq, work);
++}
++
++int unschedule_delayed_work(struct work_struct *work)
++{
++	return remove_delayed_work(keventd_wq, work);
++}
++
+ EXPORT_SYMBOL_GPL(__create_workqueue);
+ EXPORT_SYMBOL_GPL(queue_work);
+ EXPORT_SYMBOL_GPL(queue_delayed_work);
+ EXPORT_SYMBOL_GPL(flush_workqueue);
+ EXPORT_SYMBOL_GPL(destroy_workqueue);
++EXPORT_SYMBOL_GPL(remove_work);
+ 
+ EXPORT_SYMBOL(schedule_work);
+ EXPORT_SYMBOL(schedule_delayed_work);
+ EXPORT_SYMBOL(schedule_delayed_work_on);
+ EXPORT_SYMBOL(flush_scheduled_work);
++EXPORT_SYMBOL(unschedule_work);
++EXPORT_SYMBOL(unschedule_delayed_work);
 

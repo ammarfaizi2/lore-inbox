@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291081AbSBRTZN>; Mon, 18 Feb 2002 14:25:13 -0500
+	id <S291258AbSBRT1u>; Mon, 18 Feb 2002 14:27:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291021AbSBRSid>; Mon, 18 Feb 2002 13:38:33 -0500
-Received: from smtp2.vol.cz ([195.250.128.42]:2565 "EHLO smtp2.vol.cz")
-	by vger.kernel.org with ESMTP id <S290157AbSBRS33>;
-	Mon, 18 Feb 2002 13:29:29 -0500
-Date: Sun, 17 Feb 2002 13:45:29 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18-pre9-mjc2
-Message-ID: <20020217134529.A36@toy.ucw.cz>
-In-Reply-To: <20020214114335.GA4058@merlin.emma.line.org> <E16bL89-0008Jl-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S290926AbSBRTZR>; Mon, 18 Feb 2002 14:25:17 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17159 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S287287AbSBRTXU>; Mon, 18 Feb 2002 14:23:20 -0500
+Subject: Re: Non-root IPX
+To: nix@go-nix.ca (Nix N. Nix)
+Date: Mon, 18 Feb 2002 19:37:21 +0000 (GMT)
+Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <1013922173.20865.12.camel@tux> from "Nix N. Nix" at Feb 17, 2002 12:02:53 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E16bL89-0008Jl-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Feb 14, 2002 at 12:36:53PM +0000
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16ctbF-0006ZK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> Is this true ?  If so, what can I do to allow regular users to make IPX
+> sockets ?  Is that a wise thing to do ?  I'm interested in running a
+> Windows game (Starcraft) as a normal user.  WineX has gotten to the
+> point where that is possible, minus IPX.
 
-> > Hum, the last time I merged that stuff into my own kernel, the
-> > patch-generator that they ship did not include all of the drivers I
-> > needed. Also, I'm missing i2c from your patch list. Is that intentional
-> > or is the i2c patch not needed? Which lm_sensors version did you merge?
-> 
-> Be very careful merging lm_sensors. Incorrect use of it is a wonderful
-> way to do things like totally destroy (back to factory) an ibm thinkpad.
-> Thats why I've always stayed clear of it
-
-They deserve it! Shipping hardware that commits suicide on i2o access is 
-bad thing (tm).
-								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+IPX sockets can be created by normal users. Server range sockets cannot
+(as with most other non toy OS's). You need the right capabilities for
+that. You can use a setuid helper to an app if its an issue, or just keep
+the right capabiltiy bit

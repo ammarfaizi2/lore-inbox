@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265377AbRGEPR2>; Thu, 5 Jul 2001 11:17:28 -0400
+	id <S265407AbRGEPWs>; Thu, 5 Jul 2001 11:22:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265381AbRGEPRS>; Thu, 5 Jul 2001 11:17:18 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:1836 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S265390AbRGEPRF>; Thu, 5 Jul 2001 11:17:05 -0400
-Date: Thu, 5 Jul 2001 16:06:32 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Miquel van Smoorenburg <miquels@cistron-office.nl>
-Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: O_DIRECT! or O_DIRECT?
-Message-ID: <20010705160632.A9968@redhat.com>
-In-Reply-To: <E15HWsV-0000lM-00@f12.port.ru> <20010704185230.F28793@redhat.com> <9hvn61$rkb$1@ncc1701.cistron.net> <20010704193402.A6403@redhat.com> <9hvtvd$9o2$1@ncc1701.cistron.net>
-Mime-Version: 1.0
+	id <S265410AbRGEPWi>; Thu, 5 Jul 2001 11:22:38 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:46469 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S265407AbRGEPWa>; Thu, 5 Jul 2001 11:22:30 -0400
+Message-ID: <3B448684.8355DB69@uow.edu.au>
+Date: Fri, 06 Jul 2001 01:23:48 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Manfred H. Winter" <mahowi@gmx.net>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: [2.4.6] kernel BUG at softirq.c:206!
+In-Reply-To: <3B4450DF.82EEC851@uow.edu.au> <20010705162812.A602@marvin.mahowi.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <9hvtvd$9o2$1@ncc1701.cistron.net>; from miquels@cistron-office.nl on Wed, Jul 04, 2001 at 08:23:10PM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, Jul 04, 2001 at 08:23:10PM +0000, Miquel van Smoorenburg wrote:
-
-> >huge copies.  But what part of the normal handling of sequential files
-> >would O_SEQUENTIAL change?  Good handling of sequential files should
-> >be the default, not an explicitly-requested feature.
+"Manfred H. Winter" wrote:
 > 
-> exactly what I meant, since that is what MADV_SEQUENTIAL seems to do:
+> ...
+> > --- linux-2.4.6/kernel/softirq.c      Wed Jul  4 18:21:32 2001
+> > +++ lk-ext3/kernel/softirq.c  Thu Jul  5 21:32:08 2001
+> > @@ -202,8 +202,10 @@ static void tasklet_hi_action(struct sof
+> >               if (!tasklet_trylock(t))
+> >                       BUG();
+> >  repeat:
+> > -             if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
+> > +             if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state)) {
+> > +                     printk("func: %p\n", t->func);
+> >                       BUG();
+> > +             }
+> >               if (!atomic_read(&t->count)) {
+> >                       local_irq_enable();
+> >                       t->func(t->data);
+> >
 > 
-> linux/mm/filemap.c:
+> Okay, here's the output of gdb:
 > 
->  *  MADV_SEQUENTIAL - pages in the given range will probably be accessed
->  *              once, so they can be aggressively read ahead, and
->  *              can be freed soon after they are accessed.
+> (gdb) x/10i 0xc0118028
+> 0xc0118028 <bh_action>: mov    0x4(%esp,1),%eax
+> 0xc011802c <bh_action+4>:       cmpl   $0x0,0xc025c2e4
+> 0xc0118033 <bh_action+11>:      jne    0xc0118043 <bh_action+27>
+> 0xc0118035 <bh_action+13>:      mov    0xc024af20(,%eax,4),%eax
+> 0xc011803c <bh_action+20>:      test   %eax,%eax
+> 0xc011803e <bh_action+22>:      je     0xc0118042 <bh_action+26>
+> 0xc0118040 <bh_action+24>:      call   *%eax
+> 0xc0118042 <bh_action+26>:      ret
+> 0xc0118043 <bh_action+27>:      lea    (%eax,%eax,4),%eax
+> 0xc0118046 <bh_action+30>:      lea    0xc025bf80(,%eax,4),%eax
+> 
 
-We already have "drop-behind" for sequential reads --- we lower the
-priority of recently read-in pages so that if they don't get accessed
-again, they can be reclaimed.  This should be, and is, part of the
-default kernel behaviour for such things.
+Well I guess it tells us it's not random uninitialised
+crud.
 
-The trouble is that you still need the VM to go around and clean up
-those pages if you need the memory for something else.  There's a big
-difference between "can be freed" and "are forcibly freed".  O_DIRECT
-behaves like the latter: the memory is automatically reclaimed after
-use so it results in no memory pressure at all, whereas the
-MADV_SEQUENTIAL type of behaviour just allows the VM to reclaim those
-pages on demand --- the VM still has to do the work.
+Just for interest: what happens if you swap around the lines
 
-Cheers,
- Stephen
+        time_init();
+        softirq_init();
+
+in init/main.c?
+
+-

@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316835AbSGBQQX>; Tue, 2 Jul 2002 12:16:23 -0400
+	id <S316833AbSGBQPe>; Tue, 2 Jul 2002 12:15:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316836AbSGBQQW>; Tue, 2 Jul 2002 12:16:22 -0400
-Received: from cibs9.sns.it ([192.167.206.29]:22534 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S316835AbSGBQQT>;
-	Tue, 2 Jul 2002 12:16:19 -0400
-Date: Tue, 2 Jul 2002 18:05:04 +0200 (CEST)
-From: venom@sns.it
-To: "J.A. Magallon" <jamagallon@able.es>
-cc: Tom Rini <trini@kernel.crashing.org>, Bill Davidsen <davidsen@tmr.com>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OKS] O(1) scheduler in 2.4
-In-Reply-To: <20020701234432.GC1697@werewolf.able.es>
-Message-ID: <Pine.LNX.4.43.0207021802260.29588-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316835AbSGBQPd>; Tue, 2 Jul 2002 12:15:33 -0400
+Received: from OL65-148.fibertel.com.ar ([24.232.148.65]:36566 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S316833AbSGBQPc>;
+	Tue, 2 Jul 2002 12:15:32 -0400
+Date: Tue, 2 Jul 2002 13:22:23 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: RE2: [OKS] Module removal
+Message-ID: <20020702132223.H2295@almesberger.net>
+References: <31042.1025576745@kao2.melbourne.sgi.com> <3D2169CB.73126A47@aitel.hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D2169CB.73126A47@aitel.hist.no>; from helgehaf@aitel.hist.no on Tue, Jul 02, 2002 at 10:52:27AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Jul 2002, J.A. Magallon wrote:
+Helge Hafting wrote:
+> decrement_usecount will return to the module _if_ the count
+> didn't reach 0.  If it does, it goes straight to whatever 
+> usually happens after the module returns.
 
-> Date: Tue, 2 Jul 2002 01:44:32 +0200
-> From: J.A. Magallon <jamagallon@able.es>
-> To: Tom Rini <trini@kernel.crashing.org>
-> Cc: Bill Davidsen <davidsen@tmr.com>,
->      Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-> Subject: Re: [OKS] O(1) scheduler in 2.4
->
->
-> On 2002.07.01 Tom Rini wrote:
-> >On Mon, Jul 01, 2002 at 01:52:54PM -0400, Bill Davidsen wrote:
-> >
-> >> What's the issue?
-> >
-> >a) We're at 2.4.19-rc1 right now.  It would be horribly
-> >counterproductive to put O(1) in right now.
->
-> .20-pre1 would be a good start, but my hope is that this reserved for
-> the vm updates from -aa ;).
+This looks appealing, but you still need an unconditional
+"decrement_module_count_and_return", like I proposed earlier,
+because multiple decrement_usecount could race with removal,
+so you'd still hit removed code.
 
-If I am not wrong in the AA tree the O(1) scheduler has been merged, so
-there is an opportunity do update booth ;).
+Example:
 
+	...
+	decrement_usecount();
+	return; /* unsafe */
+}
 
->
-> >c) I also suspect that it hasn't been as widley tested on !x86 as the
-> >stuff currently in 2.4.  And again, 2.4 is the stable tree.
-> >
->
-Well, I think it has been supposed to high quality test, also if the
-tester basis was quite reduced...
+Now we have two CPUs executing this, and the third one will
+remove the module.
 
+Use count	CPU 1		CPU 2		CPU 3
+    2		decrement	...		...
+    1		return 1x	decrement	...
+    0		-		return 2x	remove
+    0		*CRASH*		...		...
+
+The only case where decrement_usecount would work is if all
+possible callers of decrement_usecount are serialized. I
+can't think of any case where this is true, and just moving
+the decrementing before the return(s) would improve anything
+but perhaps the code structure, so I'm not sure if this would
+be worth the potential and easily overlooked problems.
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://icapeople.epfl.ch/almesber/_____________________________________/

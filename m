@@ -1,38 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbRCZWV7>; Mon, 26 Mar 2001 17:21:59 -0500
+	id <S129524AbRCZW37>; Mon, 26 Mar 2001 17:29:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129509AbRCZWVu>; Mon, 26 Mar 2001 17:21:50 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:60033 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S129506AbRCZWVh>;
-	Mon, 26 Mar 2001 17:21:37 -0500
-Message-ID: <3ABFC0C6.44A3B7EA@mandrakesoft.com>
-Date: Mon, 26 Mar 2001 17:20:54 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Junfeng Yang <yjf@stanford.edu>
-Cc: linux-kernel@vger.kernel.org, mc@CS.Stanford.EDU
-Subject: Re: [CHECKER] Questions about  *_do_scsi & create_proc_entry
-In-Reply-To: <Pine.GSO.4.31.0103261400360.2886-100000@elaine24.Stanford.EDU>
+	id <S129568AbRCZW3t>; Mon, 26 Mar 2001 17:29:49 -0500
+Received: from ns0.petreley.net ([64.170.109.178]:10142 "EHLO petreley.com")
+	by vger.kernel.org with ESMTP id <S129524AbRCZW3k>;
+	Mon, 26 Mar 2001 17:29:40 -0500
+Date: Mon, 26 Mar 2001 14:28:58 -0800
+From: Nicholas Petreley <nicholas@petreley.com>
+To: Kirill Kozmin <kozkir-8@student.luth.se>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: VIA686b chipset and dma_intr errors, and 3c905B errors
+Message-ID: <20010326142858.A664@petreley.com>
+In-Reply-To: <Pine.LNX.4.10.10103161041040.14210-100000@master.linux-ide.org> <3AB93A75.D18A78EE@student.luth.se>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <3AB93A75.D18A78EE@student.luth.se>; from kozkir-8@student.luth.se on Thu, Mar 22, 2001 at 12:34:13AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   Another question is that by inspecting the NULL checker's result, I
-> found that *_do_scsi is always used in the following way "SRpnt =
-> *_do_scsi(SRPnt, ...)" no matther SRPnt is NULL or not. If SRpnt is not
-> NULL, why don't just use
->      *_do_scsi(SRPnt, ...);
-> The same thing happens to init_etherdev.
+> 
+> Ok, now its clear that I have a big troubles with hardware.
+> I compiled kernel 2.2.18+IDE_patches with support for VIA chipset and still get
+> errors of type:
+> 
+> kernel: hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> kernel: hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> 
+> before these kernel reports a long string of messages
+> 
 
-WRT init_etherdev, that's the intended effect, because it's 'dev' arg
-might indeed by NULL.
+I got those errors on a brand new IBM ATA100 drive.  I
+exchanged it for a new one which worked fine for a couple
+of weeks, but now the new one is beginning to give me the
+same errors.  I've noticed a rash of people reporting these
+errors since 2.4.x.  Is it really that the new kernel is
+simply better at reporting bad drives?  Or is there
+something else going on with the kernel?  (Or are IBM
+drives just crappy?)
+
+Here's a portion of the messages I'm getting...
+
+hda: dma_intr: status=0x51 { DriveReady SeekComplete Error}
+hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=48973752, sector=1854944
+end_request: I/O error, dev 03:08 (hda), sector 1854944
+
+asus a7v/kt133
+IDE is Via 686b
+
+By the way, my 3c905B went bahooties since about ac21 I
+think.  I was under the impression that Alan backed out of
+the suspected changes for ac23 but the problem remained.  I
+replaced it with an eepro100, but I don't know if it's the
+card or what.
+
+-Nick
+
 
 -- 
-Jeff Garzik       | May you have warm words on a cold evening,
-Building 1024     | a full moon on a dark night,
-MandrakeSoft      | and a smooth road all the way to your door.
+**********************************************************
+Nicholas Petreley   Caldera Systems - LinuxWorld/InfoWorld
+nicholas@petreley.com - http://www.petreley.com - Eph 6:12
+**********************************************************
+.

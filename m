@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274368AbRKDTcn>; Sun, 4 Nov 2001 14:32:43 -0500
+	id <S274813AbRKDTjD>; Sun, 4 Nov 2001 14:39:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274875AbRKDTcd>; Sun, 4 Nov 2001 14:32:33 -0500
-Received: from ns.suse.de ([213.95.15.193]:53257 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S274368AbRKDTcU> convert rfc822-to-8bit;
-	Sun, 4 Nov 2001 14:32:20 -0500
-Date: Sun, 4 Nov 2001 20:32:17 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S274875AbRKDTiy>; Sun, 4 Nov 2001 14:38:54 -0500
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:36025 "EHLO
+	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S274813AbRKDTil>; Sun, 4 Nov 2001 14:38:41 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Tim Jansen <tim@tjansen.de>
+To: Jakob =?iso-8859-1?q?=D8stergaard=20?= <jakob@unthought.net>
 Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-In-Reply-To: <20011104202034.M14001@unthought.net>
-Message-ID: <Pine.LNX.4.30.0111042030360.15260-100000@Appserv.suse.de>
+Date: Sun, 4 Nov 2001 20:41:34 +0100
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15zF9H-0000NL-00@wagner> <160Skz-1rDDSyC@fmrl05.sul.t-online.com> <20011104202406.N14001@unthought.net>
+In-Reply-To: <20011104202406.N14001@unthought.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
+Message-ID: <160T6C-1RvGb2C@fmrl05.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Nov 2001, Jakob Østergaard wrote:
+On Sunday 04 November 2001 20:24, Jakob Østergaard wrote:
+> Does this work ?   Yes of course.  But what if I ported my program to
+> a 64 bit arch...  The program still compiles.  It also runs.  But the
+> values are no longer correct.   Now *that* is hell.
 
-> Now this isn't even bad - the fun begins when a resync is running, when
-> mdstat contains *progress meters* like  "[====>      ] 42%".  While being
-> nicely readable for a human, this is a parsing nightmare.  Especially
-> because stuff like this changes over time.
+Actually I worry more about those programs that are already compiled and will 
+break when the kernel changes. But even if you recompile the code, how can 
+you be sure that the programmer uses longs instead of ints for those 64 bit 
+types? The C compiler allows the implicit conversion without warning. If you 
+change the type the program has to be changed, no matter what you do.
 
-Any program needing to parse this would just ignore the bits between [],
-and convert the percentage to an int. Hardly a 'nightmare'.
+> I want type information.
 
-Dave.
+BTW nobody says to one-value-files can not have types (see my earlier posts 
+in this thread).
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
-
+bye...

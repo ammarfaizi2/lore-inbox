@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262713AbVAQGrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262714AbVAQHJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262713AbVAQGrO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 01:47:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbVAQGrO
+	id S262714AbVAQHJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 02:09:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbVAQHJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 01:47:14 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:22449 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262713AbVAQGrG (ORCPT
+	Mon, 17 Jan 2005 02:09:59 -0500
+Received: from fw.osdl.org ([65.172.181.6]:31197 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262714AbVAQHJ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 01:47:06 -0500
-Date: Mon, 17 Jan 2005 12:19:42 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: karim@opersys.com
-Cc: trz@us.ibm.com, ak@muc.de, maneesh@in.ibm.com,
+	Mon, 17 Jan 2005 02:09:58 -0500
+Date: Sun, 16 Jan 2005 23:09:22 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: torvalds@osdl.org, mingo@elte.hu, cw@f00f.org, benh@kernel.crashing.org,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc1-mm1
-Message-ID: <20050117064942.GC16105@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
+Subject: Re: Horrible regression with -CURRENT from "Don't busy-lock-loop in
+ preemptable spinlocks" patch
+Message-Id: <20050116230922.7274f9a2.akpm@osdl.org>
+In-Reply-To: <20050117055044.GA3514@taniwha.stupidest.org>
+References: <20050117055044.GA3514@taniwha.stupidest.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Karim,
-
-> Thomas Gleixner wrote:
->> It's not only me, who needs constant time. Everybody interested in
->> tracing will need that. In my opinion its a principle of tracing.
+Chris Wedgwood <cw@f00f.org> wrote:
+>
+> Linus,
 > 
-> relayfs is a generalized buffering mechanism. Tracing is one application
-> it serves. Check out the web site: "high-speed data-relay filesystem."
-> Fancy name huh ...
+> The change below is causing major problems for me on a dual K7 with
+> CONFIG_PREEMPT enabled (cset -x and rebuilding makes the machine
+> usable again).
 > 
->> The "lockless" mechanism is _FAKE_ as I already pointed out. It replaces
->> locks by do { } while loops. So what ?
-> 
+> ...
+> +BUILD_LOCK_OPS(spin, spinlock_t, spin_is_locked);
+> +BUILD_LOCK_OPS(read, rwlock_t, rwlock_is_locked);
+> +BUILD_LOCK_OPS(write, rwlock_t, spin_is_locked);
 
-How about combining "buffering mechansim of relayfs" and
-"kernel-> user space tranport by debugfs"
-This will also remove lots of compilcated code from realyfs.
+If you replace the last line with
 
-Thanks
-Prasanna
--- 
+	BUILD_LOCK_OPS(write, rwlock_t, rwlock_is_locked);
 
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
+does it help?

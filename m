@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261880AbUCLA6d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 19:58:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbUCLA6d
+	id S261887AbUCLBGH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 20:06:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbUCLBGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 19:58:33 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:65242 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S261880AbUCLA6a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 19:58:30 -0500
-Date: Fri, 12 Mar 2004 00:57:43 +0000
-From: Dave Jones <davej@redhat.com>
-To: Dax Kelson <dax@gurulabs.com>
-Cc: Christophe Saout <christophe@saout.de>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LKM rootkits in 2.6.x
-Message-ID: <20040312005743.GL28660@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Dax Kelson <dax@gurulabs.com>,
-	Christophe Saout <christophe@saout.de>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200403112033.i2BKX9B6005538@eeyore.valparaiso.cl> <1079037332.8048.3.camel@leto.cs.pocnet.net> <20040311235021.GB21330@redhat.com> <1079052692.5345.0.camel@mentor.gurulabs.com>
+	Thu, 11 Mar 2004 20:06:07 -0500
+Received: from mail.kroah.org ([65.200.24.183]:57817 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261887AbUCLBFu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 20:05:50 -0500
+Date: Thu, 11 Mar 2004 16:34:06 -0800
+From: Greg KH <greg@kroah.com>
+To: Leann Ogasawara <ogasawara@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Hanna Linder <hannal@us.ibm.com>,
+       faith@valinux.com
+Subject: Re: [Dri-devel][PATCH] sysfs simple class support for DRI char device
+Message-ID: <20040312003406.GB26958@kroah.com>
+References: <1078517655.29095.32.camel@ibm-d.pdx.osdl.net> <20040311185221.GA20223@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1079052692.5345.0.camel@mentor.gurulabs.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040311185221.GA20223@kroah.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 11, 2004 at 05:51:33PM -0700, Dax Kelson wrote:
- > On Thu, 2004-03-11 at 16:50, Dave Jones wrote:
- > > On Thu, Mar 11, 2004 at 09:35:32PM +0100, Christophe Saout wrote:
- > > 
- > >  > > It _is_ forbidden. This isn't any kind of accident we are talking about,
- > >  > > this is out and out fraud.
- > >  > 
- > >  > I'm talking about binary modules, not rootkits. Vendors aren't doing
- > >  > forbidden things, are they?
- > > Yes.
- > What Vendors and modules?
+On Thu, Mar 11, 2004 at 10:52:21AM -0800, Greg KH wrote:
+> >  	DRM_DEBUG("\n");
+> > -	if (register_chrdev(DRM_MAJOR, "drm", &DRM(stub_fops)))
+> > +	ret1 = register_chrdev(DRM_MAJOR, "drm", &DRM(stub_fops));
+> > +	if (!ret1) {
+> > +		drm_class = class_simple_create(THIS_MODULE, "drm");
+> > +		if (IS_ERR(drm_class)) {
+> > +			printk (KERN_ERR "Error creating drm class.\n");
+> > +			unregister_chrdev(DRM_MAJOR, "drm");
+> > +			return PTR_ERR(drm_class);
+> > +		}
+> > +	}
+> > +	else if (ret1 == -EBUSY)
+> >  		i = (struct drm_stub_info *)inter_module_get("drm");
+> > +	else
+> > +		return -1;
+> 
+> If ret1 == -EBUSY then we never create the "drm" class_simple structure,
+> right?  That's not good.
+> 
+> Care to fix this up and send a new patch?
 
-Most recent one I saw was some 'antivirus' filescanning module.
-The name escapes me. It was mentioned on l-k at the time.
-It wasn't the first by any means however. This trick has been used
-since vendors stopped exporting sys_call_table.
+In talking about this on irc, I agree I was wrong.  I'll go apply this
+patch now.
 
-		Dave
+thanks,
 
+greg k-h

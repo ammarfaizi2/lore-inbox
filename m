@@ -1,77 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263188AbSJJDbq>; Wed, 9 Oct 2002 23:31:46 -0400
+	id <S263077AbSJJDcV>; Wed, 9 Oct 2002 23:32:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263193AbSJJDbq>; Wed, 9 Oct 2002 23:31:46 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:26109 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S263188AbSJJDbp>;
-	Wed, 9 Oct 2002 23:31:45 -0400
-Message-ID: <3DA4F5DD.8D4587B6@mvista.com>
-Date: Wed, 09 Oct 2002 20:37:01 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-CC: Linus <torvalds@transmeta.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix __SI_CODE
-References: <20021010123822.64c9bbc1.sfr@canb.auug.org.au>
-Content-Type: text/plain; charset=us-ascii
+	id <S263193AbSJJDcU>; Wed, 9 Oct 2002 23:32:20 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:13326
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S263077AbSJJDcO>; Wed, 9 Oct 2002 23:32:14 -0400
+Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
+From: Robert Love <rml@tech9.net>
+To: andersen@codepoet.org
+Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Mark Mielke <mark@mark.mielke.cc>,
+       Giuliano Pochini <pochini@denise.shiny.it>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20021010032950.GA11683@codepoet.org>
+References: <1034104637.29468.1483.camel@phantasy>
+	<XFMail.20021009103325.pochini@shiny.it>
+	<20021009170517.GA5608@mark.mielke.cc> <3DA4852B.7CC89C09@denise.shiny.it>
+	<20021009222438.GD5608@mark.mielke.cc>
+	<20021009232002.GC2654@bjl1.asuk.net>  <20021010032950.GA11683@codepoet.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 09 Oct 2002 23:37:46 -0400
+Message-Id: <1034221067.794.505.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Rothwell wrote:
-> 
-> Hi Linus,
-> 
-> This small patch is extracted from George Anzinger's High-res-timer
-> patches.  Even if George's patches do not go in, this patch is necessary
-> to fix up something I missed when I consolidated the siginfo stuff.
+On Wed, 2002-10-09 at 23:29, Erik Andersen wrote:
 
-Yeah, that has been there for a long time.  The fix to
-nano_sleep should also go in.  I am sure there are others...
+> I don't think grep is a very good candidate for O_STREAMING.  I
+> usually want the stuff I grep to stay in cache.  O_STREAMING is
+> much better suited to applications like ogle, vlc, xine, xmovie,
+> xmms etc since there is little reason for the OS to cache things
+> like songs and movies you aren't likely to hear/see again any
+> time soon.
 
-You might try this on a 2.5.4x system:
+Yes.  Good point.  People are taking this too far.  There is a big
+difference between being just sequential and use-once.  Grep(1) is a
+great example of something that _should_ use the pagecache.  Subsequent
+file accesses, which will occur, should hit.
 
-time sleep 60
+Look, the pagecache is already smart.  New stuff will replace unusued
+old stuff.  On VM pressure, the pagecache will be pruned.  Streaming I/O
+is a fundamentally different problem in that the data is so large it
+_continually_ thrashes the pagecache.  Such I/O is sequential and
+use-once.  You end up with a permanent waste of memory (the cached
+I/O).  
 
-Now remember the standard says NO timer should finish
-early.  On most boxes this will sleep less than 60 seconds.
+Let's prove we have a solution to this problem before going after
+tangent ones.
 
-Bad Bad timer :)
+	Robert Love
 
--g
-> 
-> Thanks, George.
-> 
-> --
-> Cheers,
-> Stephen Rothwell                    sfr@canb.auug.org.au
-> http://www.canb.auug.org.au/~sfr/
-> 
-> diff -ruN 2.5.41-1.715/include/asm-generic/siginfo.h 2.5.41-1.715-si.2/include/asm-generic/siginfo.h
-> --- 2.5.41-1.715/include/asm-generic/siginfo.h  2002-06-09 16:12:33.000000000 +1000
-> +++ 2.5.41-1.715-si.2/include/asm-generic/siginfo.h     2002-10-10 12:26:46.000000000 +1000
-> @@ -91,7 +91,7 @@
->  #define __SI_FAULT     (3 << 16)
->  #define __SI_CHLD      (4 << 16)
->  #define __SI_RT                (5 << 16)
-> -#define __SI_CODE(T,N) ((T) << 16 | ((N) & 0xffff))
-> +#define __SI_CODE(T,N) ((T) | ((N) & 0xffff))
->  #else
->  #define __SI_KILL      0
->  #define __SI_TIMER     0
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml

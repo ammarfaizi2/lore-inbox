@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268703AbUHTUC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268708AbUHTUFA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268703AbUHTUC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 16:02:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268692AbUHTUC6
+	id S268708AbUHTUFA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 16:05:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268696AbUHTUE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 16:02:58 -0400
-Received: from pop.gmx.de ([213.165.64.20]:28382 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268696AbUHTUCl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 16:02:41 -0400
-X-Authenticated: #14776911
-From: Stefan =?iso-8859-1?q?D=F6singer?= <stefandoesinger@gmx.at>
-Reply-To: stefandoesinger@gmx.at
-To: acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] [PATCH][RFC] fix ACPI IRQ routing after S3 suspend
-Date: Fri, 20 Aug 2004 22:01:54 +0200
-User-Agent: KMail/1.6.2
-References: <88056F38E9E48644A0F562A38C64FB6002A934AC@scsmsx403.amr.corp.intel.com> <41265443.9050800@optonline.net>
-In-Reply-To: <41265443.9050800@optonline.net>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       "Brown, Len" <len.brown@intel.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       "Li, Shaohua" <shaohua.li@intel.com>,
-       Nathan Bryant <nbryant@optonline.net>
+	Fri, 20 Aug 2004 16:04:59 -0400
+Received: from lakermmtao06.cox.net ([68.230.240.33]:59603 "EHLO
+	lakermmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S268708AbUHTUEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 16:04:39 -0400
+Message-ID: <32995.172.20.32.77.1093032267.squirrel@172.20.32.77>
+Date: Fri, 20 Aug 2004 15:04:27 -0500 (CDT)
+Subject: Strange NFS client behavior on 2.6.6 and higher {Scanned}
+From: "Rett D. Walters" <rettw@rtwnetwork.com>
+To: linux-kernel@vger.kernel.org
+Reply-To: rettw@rtwnetwork.com
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408202201.54083.stefandoesinger@gmx.at>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-rtwnetwork.com-MailScanner-Information: Please contact the ISP for more information
+X-rtwnetwork.com-MailScanner: Found to be clean
+X-MailScanner-From: rettw@rtwnetwork.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have been working towards moving my systems to kernel
+2.6 and I have noticed that 2.6.6 and higher NFS client
+code exhibits some strange behavior when writing files
+using cat /dev/video0 > <some file on NFS mount>.
 
-> Something else to watch out for on ICH2 and similar chipsets is that, as
-> long as the IRQ router is steering a PCI link onto a certain IRQ, LPC
-> ISA device are blocked from triggering that IRQ via the SERIRQ protocol.
-> But if we move the all the PCI links elsewhere, the SERIRQ is no longer
-> blocked, and if some ISA LPC device is holding a high level, which
-> normally wouldn't trigger IRQ's under ISA, then the IRQ line will get
-> disabled because the PIC is probably set to level-trigger because it was
-> PCI at one point. I've seen this happen with IRQ 12 when the BIOS
-> decided there was no PS/2 mouse present so it could re-use the IRQ. The
-> real cause is that the i850 has  a register that allows IRQ1 and IRQ12
-> to be disabled on the LPC bus, and this register isn't restored on
-> resume. This probably doesn't apply to IRQ11 on Stefan's system, though...
-If I re-programm the IRQ to something else than IRQ10, the device doesn't 
-resume too. So it's not only a problem of IRQ 11.
+Using a 2.4 client, the file slowly counts up as data is
+written when pushing to a 2.4 server.  Using 2.6.6 against
+a 2.6 server the file is written in large multi-megabyte
+clumps instead.  However using a 2.6.6 client against a
+2.4 server acts just like it used to, with a "trickle"
+write.  A tcpdump trace of the 2.6.6 client against a 2.6
+server show no traffic being transmitted and then suddenly
+a burst of 20,000 packets sent then nothing, until the
+next burst.
 
-> Maybe it's time to look at the suspend/resume callbacks on the ipw2100
-> driver, anyway.
-The ipw2100 driver calls pci_disable_device in it's suspend handler. But I 
-think the ipw2100 maintainers need help with suspend/resume because James 
-Ketrenos can't test it on his own system.
+It appears to me that the 2.6.6 client against a 2.6
+server scenario that the 2.6.6 client is caching the data
+then writing it in these large clumps.  As a data comm
+engineer by profession, this seems a little strange. 
+Sending 20000 packets in large, very fast bursts will
+increase the likelyhood of causing congestion at the
+receiver which could lead to packet loss. I am using NFS
+v3 over UDP, and have tried using async and sync, and
+setting the rsize/wsize to 8k etc to no avail.
 
-I'll change another devices IRQ line to test if it's only an ipw2100 issue.
+The /dev/video0 device is an MPEG encoder card.  Encoding
+at  8Mbit/sec.
 
-Stefan
+Another concern I have here is that in kernel versions
+higher than 2.6.6 the cat seems to hang and never write
+data to the nfs mount after about 70 or so MB, no matter
+if its going to a 2.6 server or a 2.4 server.
+
+Can anyone out there in kernel land shed some light on
+this behavior?
+
+Thanks in advance
+
+Rett Walters
+

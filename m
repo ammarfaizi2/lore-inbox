@@ -1,69 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318306AbSGRTW1>; Thu, 18 Jul 2002 15:22:27 -0400
+	id <S318308AbSGRT3D>; Thu, 18 Jul 2002 15:29:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318308AbSGRTW1>; Thu, 18 Jul 2002 15:22:27 -0400
-Received: from hoemail1.lucent.com ([192.11.226.161]:57040 "EHLO
-	hoemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id <S318306AbSGRTWZ>; Thu, 18 Jul 2002 15:22:25 -0400
-From: stoffel@lucent.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15671.5657.312779.438143@gargle.gargle.HOWL>
-Date: Thu, 18 Jul 2002 15:25:13 -0400
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-Cc: Robert Love <rml@tech9.net>, <linux-mm@kvack.org>,
-       <linux-kernel@vger.kernel.org>
+	id <S318315AbSGRT3D>; Thu, 18 Jul 2002 15:29:03 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:46978 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S318308AbSGRT3C>; Thu, 18 Jul 2002 15:29:02 -0400
+Date: Thu, 18 Jul 2002 15:35:06 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Robert Love <rml@tech9.net>
+cc: Szakacsits Szabolcs <szaka@sienet.hu>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] strict VM overcommit for stock 2.4
-In-Reply-To: <Pine.LNX.4.30.0207181942240.30902-100000@divine.city.tvnet.hu>
-References: <1027016939.1086.127.camel@sinai>
-	<Pine.LNX.4.30.0207181942240.30902-100000@divine.city.tvnet.hu>
-X-Mailer: VM 6.95 under Emacs 20.6.1
+In-Reply-To: <1027019414.1085.143.camel@sinai>
+Message-ID: <Pine.LNX.3.95.1020718152142.1373B-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 18 Jul 2002, Robert Love wrote:
 
-Szakacsits> About 99% of the people don't know about, don't understand
-Szakacsits> or don't care about resource limits. But they do care
-Szakacsits> about cleaning up when mess comes. Adding reserved root
-Szakacsits> memory would be a couple of lines
+> On Thu, 2002-07-18 at 11:56, Richard B. Johnson wrote:
+> 
+> > What should have happened is each of the tasks need only about
+> > 4k until they actually access something. Since they can't possibly
+> > access everything at once, we need to fault in pages as needed,
+> > not all at once. This is what 'overcomit' is, and it is necessary.
+> 
+> I should also mention this is demand paging, not overcommit.
+> 
+> Overcommit is the property of succeeded more allocations than their is
+> memory in the address space.  The idea being that allocations are lazy,
+> things often do not use their full allocations, etc. etc. as you
+> mentioned.
+> 
+> It is typical a good thing since it lowers VM pressure.
+> 
+> It is not always a good thing, for numerous reasons, and it becomes
+> important in those scenarios to ensure that all allocations can be met
+> by the backing store and consequently we never find ourselves with more
+> memory committed than available and thus never OOM.
+> 
+> This has nothing to do with paging and resource limits as you say.  Btw,
+> without this it is possible to OOM any machine.  OOM is a by-product of
+> allowing overcommit and poor accounting (and perhaps poor
+> software/users), not an incorrectly configured machine.
 
-So what does this buy you when root itself runs the box into the
-ground?  Or if a dumb user decides to run his process as root, and it
-takes down the system?
+It has everything to do with demand-paging. Since on single CPU
+machines, there is only one task executing at any one time, that
+single task can own and use every bit of RAM on the whole machine
+is virtual memory works correctly. For performance reasons, it
+may not actually use all the RAM but, in principle, it is possible.
 
-You're arguing for the wrong thing here.  What Robert is doing is
-making sure that when a process asks for memory, it can only succeed
-when there is physical memory available.
+If you don't allow that, the single task can use only the RAM that
+was not allocated to other tasks. At the time an allocation is made,
+the kernel cannot know what resources may be available when the task
+requesting the allocation actually starts to use those allocated
+resources. Instead, the kernel allocates resources based upon what
+it 'knows' at the present time. Since it can't see the future anymore
+than you or I, the fact that N processes just called exit() before
+the requesting task touched a single page can't be known.
 
-Linux currently runs in over-commit mode, since it actually makes alot
-of sense.  Most processes ask for potentially huge amounts of memory,
-but never use it.  So if I have 10mb of RAM, and process A asks for
-5mb, and process b asks for 5mb I'm ok.  If process B asks for 6mb
-then one of two things happens:
+FYI multiple CPU machines have compounded the problems because there
+can be several things happening at the same time. Although the MM
+is locked so it's single-threaded, you have a before/after resource 
+history condition that can't be anticipated.
 
-  Over commit mode:
-       process B succeeds.
+Cheers,
+Dick Johnson
 
-  Strict overcommit mode:
-       process B gets a malloc failure and can't proceed. 
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
 
-Even if A and B only want to use 2mb of RAM each, and the system would
-have 6mb free, they could *ask* for the extra RAM and overcommit the
-system and hit the OOM situation.
-
-DEC OSF/1 had a toggle way back when in the early 90s to turn this
-feature on and off.  Generally, being a school, we turned if off
-(i.e. allowed lazy allocation) but for some core servers, we turned it
-on to make sure the system was more stable.
-
-In any case, what you're asking for is a *stupid user safety buffer*
-and that's not sane.  As I said before, keeping around a few Mb for
-root doesn't do shit when a root process runs and pushes the system
-into OOM.
-
-John
-
+                 Windows-2000/Professional isn't.
 
 

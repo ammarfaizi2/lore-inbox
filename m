@@ -1,128 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268033AbUHKMF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268038AbUHKMGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268033AbUHKMF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 08:05:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268035AbUHKMF0
+	id S268038AbUHKMGx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 08:06:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268037AbUHKMGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 08:05:26 -0400
-Received: from mail.gmx.de ([213.165.64.20]:18837 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268033AbUHKMFI (ORCPT
+	Wed, 11 Aug 2004 08:06:52 -0400
+Received: from mail.gmx.de ([213.165.64.20]:421 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268038AbUHKMGn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 08:05:08 -0400
-X-Authenticated: #4512188
-Message-ID: <411A0B71.4030503@gmx.de>
-Date: Wed, 11 Aug 2004 14:05:05 +0200
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler fairness problem on 2.6 series
-References: <20040811022143.4892.qmail@web13910.mail.yahoo.com> <cone.1092193795.772385.25569.502@pc.kolivas.org> <4119F3D9.7040708@gmx.de> <411A024B.6060100@kolivas.org>
-In-Reply-To: <411A024B.6060100@kolivas.org>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 11 Aug 2004 08:06:43 -0400
+X-Authenticated: #4399952
+Date: Wed, 11 Aug 2004 14:16:49 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O5
+Message-Id: <20040811141649.447f112f@mango.fruits.de>
+In-Reply-To: <20040811090639.GA8354@elte.hu>
+References: <20040726124059.GA14005@elte.hu>
+	<20040726204720.GA26561@elte.hu>
+	<20040729222657.GA10449@elte.hu>
+	<20040801193043.GA20277@elte.hu>
+	<20040809104649.GA13299@elte.hu>
+	<20040810132654.GA28915@elte.hu>
+	<1092174959.5061.6.camel@mindpipe>
+	<20040811073149.GA4312@elte.hu>
+	<20040811074256.GA5298@elte.hu>
+	<1092210765.1650.3.camel@mindpipe>
+	<20040811090639.GA8354@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 11 Aug 2004 11:06:39 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
-Con Kolivas wrote:
-| Prakash K. Cheemplavam wrote:
-|
-|> Con Kolivas wrote:
-|> | I tried this on the latest staircase patch (7.I) and am not getting any
-|> | output from your script when tested up to 60 threads on my hardware.
-|> Can
-|> | you try this version of staircase please?
-|> |
-|> | There are 7.I patches against 2.6.8-rc4 and 2.6.8-rc4-mm1
-|> |
-|> | http://ck.kolivas.org/patches/2.6/2.6.8/
-|>
-|> Hi,
-|>
-|> I just updated to 2.6.8-rc4-ck2 and tried the two options interactive
-|> and compute. Is the compute stuff functional? I tried setting it to 1
-|> within X and after that X wasn't usable anymore (meaning it looked like
-|> locked up, frozen/gone mouse cursor even). I managed to switch back to
-|> console and set it to 0 and all was OK again.
-|
-|
-| Compute is very functional. However it isn't remotely meant to be run on
-| a desktop because of very large scheduling latencies (on purpose).
+> i'm currently running a loop of mlockall-test 100MB on a 466 MHz
+> Celeron, and not a single blip on the radar with a 1000 usecs
+> threshold, after 1 hour of runtime ...
 
-Uhm, OK, I didn't know it would have such drastic effect. Perhpas you
-should add a warnign that this setting shouldn't be used on X. :-)
+I suppose you're not using jackd. As i have noticed that these critical
+sections only get reported when jackd is running. It seems jackd is
+producing a certain kind of load which exposes them..
 
-|
-|> The interactive to 0 setting helped me with runnign locally multiple
-|> processes using mpi. Nevertheless (only with interactive 1 regression to
-|> vanilla scheduler, else same) can't this be enhanced?
-|
-|
-| I don't understand your question. Can what be enhanced?
-|
-|> Details: I am working on a load balancing class using mpi. For testing
-|> purpises I am running multiple processes on my machine. So for a given
-|> problem I can say, it needs x time to solve. Using more processes opn a
-|> single machine, this time (except communication and balancing overhead)
-|> shouldn't be much larger. Unfortunately this happens. Eg. a given
-|> probelm using two processes needs about 20 seconds to finish. But using
-|> 8 it already needs 47s (55s with interactiv set to 1). No, my balancing
-|> framework is quite good. On a real (small, even larger till 128 nodes
-|> tested) cluster overhead is just as low as 3% to 5%, ie. it scales quite
-|> linearly.
-|
-|
-| Once again I dont quite understand you. Are you saying that there is
-| more than 50% cpu overhead when running 8 processes? Or that the cpu is
-| distributed unfairly such that the longest will run for 47s?
+Flo
 
-I don't think it is the overhead. I rather think the way the kernel
-schedulers gives mpich and the cpu bound program  resources is unfair.
-Or the timeslice is tto big? Those 8 processes in my test usually do a
-load-balancing after 1 second of work. In this second all of those
-processes should use the CPU at the same time. I rather have the
-impression that the processes get CPU time one after the other, so it
-fools the load balancer to think the cpu is fast (the job is done in
-"regular" time but the overhead seems to be big, as each process after
-having finished now waits for the next one to finish and communicate
-with it.
+-- 
+Palimm Palimm!
+http://affenbande.org/~tapas/
 
-Or to put it more graphically (with 4 processes consisting of 3 parts
-just for making it clear and final communication:)
-
-What is done now (xy, x: process, y:part or communication):
-
-11 12 13 1c 21 22 23 2c 31 32 33 3c 41 42 43 4c
-
-What the sheduler should rather do:
-
-11 21 31 41 12 22 32 42 13 23 33 43 1c 2c 3c 4c
-
-So the balancer would rather find the CPU to be slower by the factor of
-used processes instead of thinking the overhead is big. (I am not sure
-whether this really explains the steep increase of time wasted with more
-processes used. Perheaps it really is mpich, though I don't understand
-why it would use up so much time. Any way for me to find out? Via
-profiling?)
-
-This is just a guess of what I think goes wrong. (Is the timeslice
-simply too big which the scheduler gives each process?)
-
-hth,
-
-Prakash
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBGgtxxU2n/+9+t5gRAp4HAJ0eN4j3RHvTmvQDzMi+fpa2YAuU3QCgpQRQ
-6zbDInJz3DqrJrzh3DUTiIw=
-=Yk5C
------END PGP SIGNATURE-----

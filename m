@@ -1,28 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262189AbREQVp1>; Thu, 17 May 2001 17:45:27 -0400
+	id <S262192AbREQWFe>; Thu, 17 May 2001 18:05:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262190AbREQVpS>; Thu, 17 May 2001 17:45:18 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3847 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262189AbREQVpG>; Thu, 17 May 2001 17:45:06 -0400
-Subject: Re: Linux 2.4.4-ac10: Oops
-To: greg@ulima.unil.ch (FAVRE Gregoire)
-Date: Thu, 17 May 2001 22:41:39 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20010517225232.A8072@ulima.unil.ch> from "FAVRE Gregoire" at May 17, 2001 10:52:32 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S262194AbREQWFY>; Thu, 17 May 2001 18:05:24 -0400
+Received: from [213.96.224.204] ([213.96.224.204]:50958 "HELO manty.net")
+	by vger.kernel.org with SMTP id <S262192AbREQWFN>;
+	Thu, 17 May 2001 18:05:13 -0400
+Date: Fri, 18 May 2001 00:04:50 +0200
+From: Santiago Garcia Mantinan <manty@udc.es>
+To: linux-kernel@vger.kernel.org
+Cc: Jens David <dg1kjd@afthd.tu-darmstadt.de>
+Subject: 8139too on 2.2.19 doesn't close file descriptors
+Message-ID: <20010518000450.A3755@man.beta.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E150VWd-0006Cz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> SCSI subsystem driver Revision: 1.00
-> PCI: Found IRQ 11 for device 00:0b.0
-> Unable to handle kernel NULL pointer dereference at virtual address 0000000
-> printing eip:
+Hi!
 
-What scsi drivers do you have and which are on IRQ 11
+I was tracking down a problem with Debian installation freezing when doing
+the ifconfig of the 8139too driver on 2.2.19 kernel, and found that this was
+caused by 8139too for 2.2.19 not closing it's file descriptors.
+
+The original code by Jeff for the 2.4 series is ok, and searching for the
+cause of the problem I have found a difference in the way rtl8139_thread
+exits on both versions:
+
+2.2 version:
+        up (&tp->thr_exited);
+        return 0;
+
+2.4 version:
+        up_and_exit (&tp->thr_exited, 0);
+
+I think the problem must be there, not doing the do_exit on the 2.2 version,
+but I may be wrong, can anybody look this up?
+
+Thanks in advance!
+
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net

@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVAGIPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVAGIU2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbVAGIPo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 03:15:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261310AbVAGIPo
+	id S261311AbVAGIU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 03:20:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVAGIU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 03:15:44 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:55224 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261308AbVAGIPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 03:15:40 -0500
-Date: Fri, 7 Jan 2005 08:15:35 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: paulmck@us.ibm.com, Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
-       wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
-       greghk@us.ibm.com
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-Message-ID: <20050107081535.GB4511@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Arjan van de Ven <arjan@infradead.org>, paulmck@us.ibm.com,
-	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
-	pbadari@us.ibm.com, markv@us.ibm.com, greghk@us.ibm.com
-References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <1105083213.4179.1.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105083213.4179.1.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 7 Jan 2005 03:20:28 -0500
+Received: from l247169.ppp.asahi-net.or.jp ([218.219.247.169]:48281 "EHLO
+	web2.davelinux.com") by vger.kernel.org with ESMTP id S261311AbVAGIUV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 03:20:21 -0500
+Message-ID: <35179.210.175.245.132.1105085918.squirrel@www.davelinux.com>
+In-Reply-To: <20050107002333.21133.qmail@web52602.mail.yahoo.com>
+References: <20050107002333.21133.qmail@web52602.mail.yahoo.com>
+Date: Fri, 7 Jan 2005 17:18:38 +0900 (JST)
+Subject: Re: how to find all threads of a given process?
+From: "David Blomberg" <dblomber@davelinux.com>
+To: linux-kernel@vger.kernel.org
+Reply-To: dblomber@davelinux.com
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2005 at 08:33:32AM +0100, Arjan van de Ven wrote:
-> eh maybe a weird question, but why are you and not the MVFS guys asking
-> for this export then? They can probably better explain why they need
-> it ....
 
-Because an person known to the communicity can justify IBM's illegal and
-copyright-infringe than someone totally unkown?  Paul did the same already
-for GPFS and the unmapping_range stuff, and Greg told me has was asked
-similar things repeatedly but refused.
+jesse said:
+> suppose I already know the PID of a process, how could
+> i quickly identify all threads of this process?
+>
+> As i know, under /proc, threads of all processes have
+> prefix ".", one way is to iterate each one and do the
+> check. the approach is too expensive. any other
+> suggestions?
+>
+> for instance,
 
-It really seems like IBM wants to abuse the positition the it's employees
-archived contribution to opesource projects.
+wouldn't this be easier in user space using "ps H" then one of two options
+happens depending on the use of fork and other issues (making the question
+hard to answer as stated) either A: they will all have the same PID or
+B:they will all have varying PIDs in the later case you could use looks
+for all PIDs sharing the same ancestor PPID (depending on how far down you
+are in the fork list)

@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131947AbRBKHaL>; Sun, 11 Feb 2001 02:30:11 -0500
+	id <S131980AbRBKHbb>; Sun, 11 Feb 2001 02:31:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131948AbRBKHaB>; Sun, 11 Feb 2001 02:30:01 -0500
-Received: from [200.243.227.68] ([200.243.227.68]:61961 "EHLO
-	ns.netmaxi.com.br") by vger.kernel.org with ESMTP
-	id <S131947AbRBKH3q>; Sun, 11 Feb 2001 02:29:46 -0500
-From: Marcel Silva e Sousa <marcel@netmaxi.com.br>
-Organization: Data Factory Inc.
-To: linux-kernel@vger.kernel.org
-Subject: OOPS: CRITICAL BUG IN KERNEL 2.4.0 and 2.4.1
-Date: Sun, 11 Feb 2001 05:33:35 -0200
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
+	id <S131981AbRBKHbL>; Sun, 11 Feb 2001 02:31:11 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:45840 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S131980AbRBKHbI>; Sun, 11 Feb 2001 02:31:08 -0500
+Message-ID: <3A86381B.ED93B55@namesys.com>
+Date: Sun, 11 Feb 2001 09:58:35 +0300
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-Message-Id: <01021105333500.02394@john>
-Content-Transfer-Encoding: 7BIT
+To: Chris Wedgwood <cw@f00f.org>
+CC: Daniel Stone <daniel@kabuki.eyep.net>, Chris Mason <mason@suse.com>,
+        David Rees <dbr@spoke.nols.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+In-Reply-To: <479040000.981564496@tiny> <E14QkfM-0004EL-00@piro.kabuki.eyep.net> <20010211020200.A9570@metastasis.f00f.org>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all, i see a critical bug in kernel version 2.4.0 and 2.4.1, look it:
-i use Linux Slackware 7.1
+Chris Wedgwood wrote:
+> 
+> On Thu, Feb 08, 2001 at 05:34:44PM +1100, Daniel Stone wrote:
+> 
+>     I run Reiser on all but /boot, and it seems to enjoy corrupting my
+>     mbox'es randomly.
+> 
+> what kind of corruption are you seeing?
+> 
+>     This also occurs in some log files, but I put it down to syslogd
+>     crashing or something.
+> 
+> syslogd crashing shouldn't corrupt files...
+> 
+>   --cw
 
-My Hard Disk:
-hda: IBM-DPTA-372730, ATA DISK drive
-hda: 53464320 sectors (27374 MB) w/1961KiB Cache, CHS=3328/255/63, UDMA(33)
+There is a known bug in which nulls get added to log files.  We are having
+trouble reproducing it on our machines.
 
-I have instaled in this hard disk 3 OS (OpenBSD, Linux Slack and Windows 2K 
-(NTFS).
+There is an elevator bug in 2.4 which just got found/fixed.  We don't know what
+part of our bug reports are due to it.
 
-==============
-OpenBSD --> 2GB
-Linux -----> 7GB
-Win2k ----> 18GB
-==============
-
-Windows2K is automount in fstab. When i run command "df -h" the values of 
-capacity its REALLY wrong, look it:
-
-[root@john /]:: df -h
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/hda1             5.4G  3.7G  1.5G  71% /
-/dev/hda2             143G  136G  6.8G  95% /mnt/hda2
-[root@john /]:: 
-
-When i had kernel 2.2.18 i did not have this problem....
-
-Sorry for my really BAD English...
-
-Att,
-Marcel Silva e Sousa
-marcel@netmaxi.com.br
+Hans
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

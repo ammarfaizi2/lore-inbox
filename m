@@ -1,71 +1,556 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280979AbRKCQRb>; Sat, 3 Nov 2001 11:17:31 -0500
+	id <S280981AbRKCQSw>; Sat, 3 Nov 2001 11:18:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280980AbRKCQRK>; Sat, 3 Nov 2001 11:17:10 -0500
-Received: from nic-131-c196-222.mw.mediaone.net ([24.131.196.222]:14865 "EHLO
-	moonweaver.awesomeplay.com") by vger.kernel.org with ESMTP
-	id <S280979AbRKCQRE>; Sat, 3 Nov 2001 11:17:04 -0500
-Subject: Re: Via onboard audio
-From: Sean Middleditch <elanthis@awesomeplay.com>
+	id <S280980AbRKCQSl>; Sat, 3 Nov 2001 11:18:41 -0500
+Received: from [212.34.128.4] ([212.34.128.4]:60434 "EHLO mailer.ran.es")
+	by vger.kernel.org with ESMTP id <S280981AbRKCQSR>;
+	Sat, 3 Nov 2001 11:18:17 -0500
+Date: Sat, 3 Nov 2001 17:18:13 +0100
+From: victor <ixnay@infonegocio.com>
+X-Mailer: The Bat! (v1.53d)
+Reply-To: victor <ixnay@infonegocio.com>
+X-Priority: 3 (Normal)
+Message-ID: <82158106975.20011103171813@infonegocio.com>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <1004723462.4883.12.camel@smiddle>
-In-Reply-To: <E15zh4S-0002oT-00@the-village.bc.nu> 
-	<1004723462.4883.12.camel@smiddle>
-Content-Type: text/plain
+CC: debian-alpha@lists.debian.org
+Subject: linux 2.2.20 compile fails on alpha
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.100 (Preview Release)
-Date: 03 Nov 2001 11:21:33 -0500
-Message-Id: <1004804493.8567.7.camel@stargrazer>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm, OK, I downloaded 2.4.13-0.3 RPMs from Rawhide (ya, I'm a wuss, oh
-well) and it didn't like my laptop at all.
+hi,
 
-Sound did work somewhat better...  XMMS didn't skip and freeze, and
-cat'ing a wav to /dev/dsp didn't finish immediately (looked like it was
-taking time to play, actually), but I still heard no sound.  I *did*
-check the mixer, and all the relevant devices are right on up there.
+i forgot to include in my last mail the .config, sorry.
 
-HOwever, 2.4.13 started freaking on me.  My project I was working on
-ceased to compile (gcc kept crashing, which it didn't do on 2.4.12), and
-when I shut down the machine to reboot into 2.4.12, I saw a bunch of
-kernel oops error message, the first of which was the VM, which had
-decided to kill "sh".
+alpha:/usr/src/linux# make
+make: Circular /usr/src/linux/include/asm/smp.h <- /usr/src/linux/include/linux/sched.h dependency dropped.
+make: Circular /usr/src/linux/include/asm/pci.h <- /usr/src/linux/include/linux/pci.h dependency dropped.
+cc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mno-fp-regs -ffixed-8  -c -o init/main.o init/main.c
+In file included from /usr/src/linux/include/linux/pci.h:1448,
+                 from init/main.c:35:
+/usr/src/linux/include/asm/pci.h: In function `pci_controller_num':
+/usr/src/linux/include/asm/pci.h:62: structure has no member named `pci_host_index'
+/usr/src/linux/include/asm/pci.h:63: warning: control reaches end of non-void function
+make: *** [init/main.o] Error 1
 
-In any event, I have no clue how to debug a kernel properly properly, so
-I don't know what more to say.  Perhaps someone can give me some
-pointers?  Or this is a known issue that has aready been rectified?
+alpha:/usr/src/linux# uname -a
+Linux alpha 2.2.19 #2 Fri Nov 2 16:53:16 CET 2001 alpha unknown
 
-BTW, I won't be on the list much longer, the traffic is killer.  ~,^  So
-please make sure CC's or whatnot have me in them.
+alpha:/usr/src/linux# dpkg -la | grep gcc
+ii  gcc            2.95.4-8       The GNU C compiler.
+ii  gcc-2.95       2.95.4-0.01100 The GNU C compiler.
 
-Thanks,
-Sean Etc.
+alpha:/usr/src/linux# dpkg -la |grep libc
+ii  libc6.1        2.2.4-4        GNU C Library: Shared libraries and Timezone
+ii  libc6.1-dbg    2.2.4-4        GNU C Library: Libraries with debugging symb
+ii  libc6.1-dev    2.2.4-4        GNU C Library: Development Libraries and Hea
+ii  libc6.1-pic    2.2.4-4        GNU C Library: PIC archive library
+ii  libc6.1-prof   2.2.4-4        GNU C Library: Profiling Libraries.
+ii  libgpmg1       1.17.8-18      General Purpose Mouse Library [libc6]
 
-On Fri, 2001-11-02 at 12:51, Sean Middleditch wrote:
-> OK, will do that.  RedHat uses your kernel trees, right?  I'll download
-> new RPM's from rawhide if they're there (I'm in no hurry.)
-> 
-> Thanks!
-> Sean Etc.
-> 
-> On Fri, 2001-11-02 at 11:21, Alan Cox wrote:
-> > Try the current 2.4.13-ac ones - there are some via audio updates there
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+alpha:/usr/src/linux#
 
+
+here is my .config
+#
+# Automatically generated by make menuconfig: don't edit
+#
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+# CONFIG_MODVERSIONS is not set
+CONFIG_KMOD=y
+
+#
+# General setup
+#
+# CONFIG_ALPHA_GENERIC is not set
+CONFIG_ALPHA_ALCOR=y
+# CONFIG_ALPHA_XL is not set
+# CONFIG_ALPHA_BOOK1 is not set
+# CONFIG_ALPHA_AVANTI is not set
+# CONFIG_ALPHA_CABRIOLET is not set
+# CONFIG_ALPHA_DP264 is not set
+# CONFIG_ALPHA_EB164 is not set
+# CONFIG_ALPHA_EB64P is not set
+# CONFIG_ALPHA_EB66 is not set
+# CONFIG_ALPHA_EB66P is not set
+# CONFIG_ALPHA_EIGER is not set
+# CONFIG_ALPHA_JENSEN is not set
+# CONFIG_ALPHA_LX164 is not set
+# CONFIG_ALPHA_MIATA is not set
+# CONFIG_ALPHA_MIKASA is not set
+# CONFIG_ALPHA_NAUTILUS is not set
+# CONFIG_ALPHA_NONAME is not set
+# CONFIG_ALPHA_NORITAKE is not set
+# CONFIG_ALPHA_PC164 is not set
+# CONFIG_ALPHA_P2K is not set
+# CONFIG_ALPHA_RAWHIDE is not set
+# CONFIG_ALPHA_RUFFIAN is not set
+# CONFIG_ALPHA_RX164 is not set
+# CONFIG_ALPHA_SX164 is not set
+# CONFIG_ALPHA_SABLE is not set
+# CONFIG_ALPHA_TAKARA is not set
+CONFIG_PCI=y
+CONFIG_ALPHA_EV5=y
+CONFIG_ALPHA_CIA=y
+CONFIG_ALPHA_SRM=y
+CONFIG_ALPHA_EISA=y
+CONFIG_PCI_QUIRKS=y
+# CONFIG_PCI_OPTIMIZE is not set
+CONFIG_PCI_OLD_PROC=y
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+# CONFIG_BINFMT_JAVA is not set
+CONFIG_BINFMT_EM86=y
+# CONFIG_PARPORT is not set
+
+#
+# Plug and Play support
+#
+CONFIG_PNP=y
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+# CONFIG_BLK_DEV_IDE is not set
+# CONFIG_BLK_DEV_HD_ONLY is not set
+CONFIG_BLK_DEV_LOOP=y
+# CONFIG_BLK_DEV_NBD is not set
+# CONFIG_BLK_DEV_MD is not set
+# CONFIG_BLK_DEV_RAM is not set
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+CONFIG_PARIDE_PARPORT=y
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_HD is not set
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+CONFIG_NETLINK=y
+# CONFIG_RTNETLINK is not set
+# CONFIG_NETLINK_DEV is not set
+CONFIG_FIREWALL=y
+# CONFIG_FILTER is not set
+CONFIG_UNIX=y
+CONFIG_INET=y
+# CONFIG_IP_MULTICAST is not set
+# CONFIG_IP_ADVANCED_ROUTER is not set
+# CONFIG_IP_PNP is not set
+# CONFIG_IP_FIREWALL is not set
+# CONFIG_IP_ROUTER is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+CONFIG_IP_ALIAS=y
+CONFIG_SYN_COOKIES=y
+CONFIG_INET_RARP=y
+CONFIG_SKB_LARGE=y
+# CONFIG_IPV6 is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_LLC is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+# CONFIG_CPU_IS_SLOW is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# SCSI support
+#
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+# CONFIG_CHR_DEV_ST is not set
+# CONFIG_CHR_DEV_OSST is not set
+CONFIG_BLK_DEV_SR=y
+CONFIG_BLK_DEV_SR_VENDOR=y
+# CONFIG_CHR_DEV_SG is not set
+# CONFIG_SCSI_MULTI_LUN is not set
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+
+#
+# SCSI low-level drivers
+#
+# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
+# CONFIG_SCSI_7000FASST is not set
+# CONFIG_SCSI_ACARD is not set
+# CONFIG_SCSI_AHA152X is not set
+# CONFIG_SCSI_AHA1542 is not set
+# CONFIG_SCSI_AHA1740 is not set
+# CONFIG_SCSI_AIC7XXX is not set
+# CONFIG_SCSI_IPS is not set
+# CONFIG_SCSI_ADVANSYS is not set
+# CONFIG_SCSI_IN2000 is not set
+# CONFIG_SCSI_AM53C974 is not set
+# CONFIG_SCSI_MEGARAID is not set
+# CONFIG_SCSI_BUSLOGIC is not set
+# CONFIG_SCSI_CPQFCTS is not set
+# CONFIG_SCSI_DTC3280 is not set
+# CONFIG_SCSI_EATA is not set
+# CONFIG_SCSI_EATA_DMA is not set
+# CONFIG_SCSI_EATA_PIO is not set
+# CONFIG_SCSI_FUTURE_DOMAIN is not set
+# CONFIG_SCSI_GDTH is not set
+# CONFIG_SCSI_GENERIC_NCR5380 is not set
+# CONFIG_SCSI_INITIO is not set
+# CONFIG_SCSI_INIA100 is not set
+# CONFIG_SCSI_NCR53C406A is not set
+# CONFIG_SCSI_SYM53C416 is not set
+# CONFIG_SCSI_SIM710 is not set
+# CONFIG_SCSI_NCR53C7xx is not set
+# CONFIG_SCSI_NCR53C8XX is not set
+# CONFIG_SCSI_SYM53C8XX is not set
+# CONFIG_SCSI_PAS16 is not set
+# CONFIG_SCSI_PCI2000 is not set
+# CONFIG_SCSI_PCI2220I is not set
+# CONFIG_SCSI_PSI240I is not set
+# CONFIG_SCSI_QLOGIC_FAS is not set
+CONFIG_SCSI_QLOGIC_ISP=y
+# CONFIG_SCSI_QLOGIC_FC is not set
+# CONFIG_SCSI_SEAGATE is not set
+# CONFIG_SCSI_DC390T is not set
+# CONFIG_SCSI_T128 is not set
+# CONFIG_SCSI_U14_34F is not set
+# CONFIG_SCSI_ULTRASTOR is not set
+# CONFIG_SCSI_DEBUG is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+CONFIG_DUMMY=y
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_ETHERTAP is not set
+# CONFIG_NET_SB1000 is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+# CONFIG_NET_VENDOR_3COM is not set
+# CONFIG_LANCE is not set
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+# CONFIG_RTL8139 is not set
+# CONFIG_RTL8139TOO is not set
+# CONFIG_NET_ISA is not set
+CONFIG_NET_EISA=y
+# CONFIG_PCNET32 is not set
+# CONFIG_ADAPTEC_STARFIRE is not set
+# CONFIG_AC3200 is not set
+# CONFIG_APRICOT is not set
+# CONFIG_LP486E is not set
+# CONFIG_CS89x0 is not set
+# CONFIG_DM9102 is not set
+# CONFIG_DE4X5 is not set
+CONFIG_DEC_ELCP=y
+# CONFIG_DGRS is not set
+# CONFIG_EEXPRESS_PRO100 is not set
+# CONFIG_LNE390 is not set
+# CONFIG_NE3210 is not set
+# CONFIG_NE2K_PCI is not set
+# CONFIG_TLAN is not set
+# CONFIG_VIA_RHINE is not set
+# CONFIG_SIS900 is not set
+# CONFIG_ES3210 is not set
+# CONFIG_EPIC100 is not set
+# CONFIG_ZNET is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
+# CONFIG_NET_RADIO is not set
+
+#
+# Token ring devices
+#
+# CONFIG_TR is not set
+# CONFIG_NET_FC is not set
+# CONFIG_RCPCI is not set
+# CONFIG_SHAPER is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_HOSTESS_SV11 is not set
+# CONFIG_COSA is not set
+# CONFIG_SEALEVEL_4021 is not set
+# CONFIG_SYNCLINK_SYNCPPP is not set
+# CONFIG_LANMEDIA is not set
+# CONFIG_COMX is not set
+# CONFIG_HDLC is not set
+# CONFIG_DLCI is not set
+# CONFIG_XPEED is not set
+# CONFIG_SBNI is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Old CD-ROM drivers (not SCSI, not IDE)
+#
+# CONFIG_CD_NO_IDESCSI is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+# CONFIG_SERIAL_CONSOLE is not set
+# CONFIG_SERIAL_EXTENDED is not set
+# CONFIG_SERIAL_NONSTANDARD is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_MOUSE=y
+
+#
+# Mice
+#
+# CONFIG_ATIXL_BUSMOUSE is not set
+# CONFIG_BUSMOUSE is not set
+# CONFIG_MS_BUSMOUSE is not set
+CONFIG_PSMOUSE=y
+# CONFIG_82C710_MOUSE is not set
+# CONFIG_PC110_PAD is not set
+
+#
+# Joysticks
+#
+# CONFIG_JOYSTICK is not set
+# CONFIG_QIC02_TAPE is not set
+# CONFIG_WATCHDOG is not set
+# CONFIG_NVRAM is not set
+CONFIG_RTC=y
+# CONFIG_INTEL_RNG is not set
+# CONFIG_AGP is not set
+# CONFIG_DRM is not set
+
+#
+# Video For Linux
+#
+# CONFIG_VIDEO_DEV is not set
+# CONFIG_DTLK is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+
+#
+# USB support
+#
+# CONFIG_USB is not set
+
+#
+# Filesystems
+#
+# CONFIG_QUOTA is not set
+CONFIG_AUTOFS_FS=y
+# CONFIG_ADFS_FS is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_FAT_FS is not set
+# CONFIG_MSDOS_FS is not set
+# CONFIG_UMSDOS_FS is not set
+# CONFIG_VFAT_FS is not set
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+# CONFIG_MINIX_FS is not set
+# CONFIG_NTFS_FS is not set
+# CONFIG_HPFS_FS is not set
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_EXT2_FS=y
+# CONFIG_SYSV_FS is not set
+# CONFIG_UFS_FS is not set
+# CONFIG_EFS_FS is not set
+
+#
+# Network File Systems
+#
+# CONFIG_CODA_FS is not set
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+# CONFIG_NFSD is not set
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_SMB_FS=y
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_SMB_NLS_REMOTE="cp850"
+# CONFIG_NCP_FS is not set
+
+#
+# Partition Types
+#
+# CONFIG_BSD_DISKLABEL is not set
+# CONFIG_MAC_PARTITION is not set
+# CONFIG_MINIX_SUBPARTITION is not set
+# CONFIG_SMD_DISKLABEL is not set
+# CONFIG_SOLARIS_X86_PARTITION is not set
+# CONFIG_UNIXWARE_DISKLABEL is not set
+CONFIG_NLS=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS_DEFAULT="cp850"
+# CONFIG_NLS_CODEPAGE_437 is not set
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+CONFIG_NLS_CODEPAGE_850=y
+# CONFIG_NLS_CODEPAGE_852 is not set
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_ISO8859_1 is not set
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+CONFIG_NLS_ISO8859_15=y
+# CONFIG_NLS_KOI8_R is not set
+# CONFIG_NLS_KOI8_RU is not set
+
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=y
+# CONFIG_FB is not set
+
+#
+# Sound
+#
+CONFIG_SOUND=y
+# CONFIG_SOUND_CMPCI is not set
+# CONFIG_SOUND_CS4281 is not set
+# CONFIG_SOUND_FUSION is not set
+# CONFIG_SOUND_EMU10K1 is not set
+# CONFIG_SOUND_ES1370 is not set
+# CONFIG_SOUND_ES1371 is not set
+# CONFIG_SOUND_MAESTRO is not set
+# CONFIG_SOUND_MAESTRO3 is not set
+# CONFIG_SOUND_ESSSOLO1 is not set
+# CONFIG_SOUND_ICH is not set
+# CONFIG_SOUND_SONICVIBES is not set
+# CONFIG_SOUND_TRIDENT is not set
+# CONFIG_SOUND_MSNDCLAS is not set
+# CONFIG_SOUND_MSNDPIN is not set
+# CONFIG_SOUND_VIA82CXXX is not set
+CONFIG_SOUND_OSS=y
+CONFIG_SOUND_DMAP=y
+# CONFIG_SOUND_PAS is not set
+CONFIG_SOUND_SB=y
+CONFIG_SB_BASE=220
+CONFIG_SB_IRQ=7
+CONFIG_SB_DMA=1
+CONFIG_SB_DMA2=5
+CONFIG_SB_MPU_BASE=330
+CONFIG_SB_MPU_IRQ=-1
+# CONFIG_SOUND_GUS is not set
+# CONFIG_SOUND_MPU401 is not set
+# CONFIG_SOUND_PSS is not set
+# CONFIG_SOUND_MSS is not set
+# CONFIG_SOUND_SSCAPE is not set
+# CONFIG_SOUND_TRIX is not set
+# CONFIG_SOUND_MAD16 is not set
+# CONFIG_SOUND_WAVEFRONT is not set
+# CONFIG_SOUND_CS4232 is not set
+# CONFIG_SOUND_OPL3SA2 is not set
+# CONFIG_SOUND_MAUI is not set
+# CONFIG_SOUND_SGALAXY is not set
+# CONFIG_SOUND_AD1816 is not set
+# CONFIG_SOUND_OPL3SA1 is not set
+# CONFIG_SOUND_SOFTOSS is not set
+# CONFIG_SOUND_YM3812 is not set
+# CONFIG_SOUND_VMIDI is not set
+# CONFIG_SOUND_UART6850 is not set
+# CONFIG_SOUND_NM256 is not set
+# CONFIG_SOUND_YMFPCI is not set
+
+#
+# Additional low level sound drivers
+#
+CONFIG_LOWLEVEL_SOUND=y
+# CONFIG_ACI_MIXER is not set
+# CONFIG_VIDEO_MSP3400 is not set
+CONFIG_AWE32_SYNTH=y
+# CONFIG_AEDSP16 is not set
+
+#
+# Kernel hacking
+#
+CONFIG_MATHEMU=y
+CONFIG_MAGIC_SYSRQ=y
 

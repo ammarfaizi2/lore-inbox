@@ -1,56 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262927AbUEBCAK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbUEBDXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262927AbUEBCAK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 22:00:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbUEBCAK
+	id S261582AbUEBDXH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 23:23:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUEBDXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 22:00:10 -0400
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:42912 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S262927AbUEBCAG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 22:00:06 -0400
-Date: Sun, 2 May 2004 03:59:34 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: johnstul@us.ibm.com, george@mvista.com, kaukasoi@elektroni.ee.tut.fi,
-       linux-kernel@vger.kernel.org
-Subject: Re: /proc or ps tools bug?  2.6.3, time is off
-In-Reply-To: <20040501184105.2cd1c784.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.53.0405020352480.26994@gockel.physik3.uni-rostock.de>
-References: <403D0F63.3050101@mvista.com> <1077760348.2857.129.camel@cog.beaverton.ibm.com>
- <403E7BEE.9040203@mvista.com> <1077837016.2857.171.camel@cog.beaverton.ibm.com>
- <403E8D5B.9040707@mvista.com> <1081895880.4705.57.camel@cog.beaverton.ibm.com>
- <Pine.LNX.4.53.0404141353450.21779@gockel.physik3.uni-rostock.de>
- <1081967295.4705.96.camel@cog.beaverton.ibm.com> <20040415103711.GA320@elektroni.ee.tut.fi>
- <Pine.LNX.4.53.0404151302140.28278@gockel.physik3.uni-rostock.de>
- <20040415161436.GA21613@elektroni.ee.tut.fi>
- <Pine.LNX.4.53.0405011540390.25435@gockel.physik3.uni-rostock.de>
- <20040501184105.2cd1c784.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 1 May 2004 23:23:07 -0400
+Received: from nessie.weebeastie.net ([220.233.7.36]:21636 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S261582AbUEBDXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 23:23:05 -0400
+Date: Sun, 2 May 2004 13:22:53 +1000
+From: CaT <cat@zip.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.6-rc3, nvidia sound, tulip eth and apic don't play well together
+Message-ID: <20040502032253.GA6222@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 May 2004, Andrew Morton wrote:
+It's a case of one or the other really. If I try to use both at the same
+time they both die. The ethernet driver stops transmitting packets until
+I bring down the interface and then bringit back up and the sound stops
+playing, period.
 
-> Tim Schmielau <tim@physik3.uni-rostock.de> wrote:
-> >
-> >  +#if (TICK_NSEC % (NSEC_PER_SEC / USER_HZ)) == 0
-> 
-> I think this has an inclusion ordering problem.
-> 
-> In file included from net/ipv6/route.c:30:
-> include/linux/times.h:11:42: division by zero in #if
-> include/linux/times.h:42:42: division by zero in #if                            
-> 
-> either NSEC_PER_SEC or USER_HZ hasn't been defined yet.
-> 
+There are no kernel messages until the watchdog kicks in.
 
-Yep, we'd need to include timex.h for it. This get's messy. 
+Turning off APIC (I compiled it out) solves the problem totally. I'm now
+transferring files over the net and listening to my music without a 
+problem.
 
-OK, I found why John's original patch didn't fix the issue, but I'd like
-to hand the patch off to someone with a vision of how time shall be
-handled in the kernel.
-
-Sorry,
-Tim
+-- 
+    Red herrings strewn hither and yon.

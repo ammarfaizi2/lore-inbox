@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267491AbUHPJnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267494AbUHPJri@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267491AbUHPJnl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 05:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267494AbUHPJnl
+	id S267494AbUHPJri (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 05:47:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267495AbUHPJri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 05:43:41 -0400
-Received: from shockwave.systems.pipex.net ([62.241.160.9]:54957 "EHLO
-	shockwave.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S267491AbUHPJnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 05:43:39 -0400
-Message-ID: <412081C6.20601@tungstengraphics.com>
-Date: Mon, 16 Aug 2004 10:43:34 +0100
-From: Keith Whitwell <keith@tungstengraphics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: arjanv@redhat.com
+	Mon, 16 Aug 2004 05:47:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1711 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267494AbUHPJrg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 05:47:36 -0400
+Date: Mon, 16 Aug 2004 11:46:22 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Keith Whitwell <keith@tungstengraphics.com>
 Cc: Dave Airlie <airlied@linux.ie>, dri-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
 Subject: Re: DRM and 2.4 ...
-References: <Pine.LNX.4.58.0408160652350.9944@skynet> <1092640312.2791.6.camel@laptop.fenrus.com>
-In-Reply-To: <1092640312.2791.6.camel@laptop.fenrus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040816094622.GA31696@devserv.devel.redhat.com>
+References: <Pine.LNX.4.58.0408160652350.9944@skynet> <1092640312.2791.6.camel@laptop.fenrus.com> <412081C6.20601@tungstengraphics.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="NzB8fVQJ5HfG6fxh"
+Content-Disposition: inline
+In-Reply-To: <412081C6.20601@tungstengraphics.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Mon, 2004-08-16 at 07:56, Dave Airlie wrote:
-> 
->>At the moment we are adding a lot of 2.6 stuff to the DRM under
->>development in the DRM CVS tree and what will be merged into the -mm and
->>Linus trees eventually, this has meant ifdefing stuff out so 2.4 will
->>still work,
-> 
-> 
-> which is uglyfying the code significantly if done wrong
-> 
-> 
->>So the question is do we want to a final stable DRM for 2.4 in the next
->>2.4 release? and after that point I can tag the 2.4 release in the DRM CVS
->>tree (and maybe branch it ...),
-> 
-> 
-> I would strongly urge you to no longer update DRM in 2.4 in significant
-> ways. 2.4 is the release for doing strict maintenance; people who want
-> to run newer X will generally run 2.6 kernels as well anyway.
 
-I'm not at all convinced we (ie the DRI project) can abandon 2.4 support.  In 
-fact we made this mistake with the 2.2/2.4 transition - we didn't support 2.2 
-at all, only 2.4 and for a long time this was a big inconvenience to users.
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-We may not be feeding our changes into the 2.4 kernel (or maybe we are), but I 
-definitely view 2.4 support as important for probably 1 to 2 years to come.
+On Mon, Aug 16, 2004 at 10:43:34AM +0100, Keith Whitwell wrote:
+> 
+> If we can manage to support FreeBSD and Linux from one codebase, surely 
+> supporting 2.4 and 2.6 isn't too difficult?
 
-If we can manage to support FreeBSD and Linux from one codebase, surely 
-supporting 2.4 and 2.6 isn't too difficult?
+It for sure is possible.
+However the DRM codebase proves that it's incapable of even doing BSD
+support properly (eg without the right abstractions but instead fouling up
+the entire codebase to the point of unreadability). That gives me no
+confidence the "keep 2.4 support" will not turn out to be at least as
+ugly/broken/wrong.
 
-Keith
 
+--NzB8fVQJ5HfG6fxh
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBIIJtxULwo51rQBIRAmqVAJ9KaVZCj402mDSkgeSiezXLbY5bCwCggowe
+BHQj0aPW/mYvSEB1YPY1tkU=
+=eLGw
+-----END PGP SIGNATURE-----
+
+--NzB8fVQJ5HfG6fxh--

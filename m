@@ -1,63 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262503AbVCJKSx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262501AbVCJKWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262503AbVCJKSx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 05:18:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVCJKSw
+	id S262501AbVCJKWW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 05:22:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbVCJKWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 05:18:52 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:33174 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262508AbVCJKR7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 05:17:59 -0500
-Subject: Re: [RFC] -stable, how it's going to work.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <16944.6867.858907.990990@cse.unsw.edu.au>
-References: <20050309072833.GA18878@kroah.com>
-	 <16944.6867.858907.990990@cse.unsw.edu.au>
-Content-Type: text/plain
-Date: Thu, 10 Mar 2005 11:17:51 +0100
-Message-Id: <1110449872.6291.64.camel@laptopd505.fenrus.org>
+	Thu, 10 Mar 2005 05:22:22 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:39091 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S262501AbVCJKWQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 05:22:16 -0500
+Subject: Re: [0/many] Acrypto - asynchronous crypto layer for linux kernel
+	2.6
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Joshua Jackson <lkernel@vortech.net>
+Cc: linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>,
+       cryptoapi@lists.logix.cz
+In-Reply-To: <200503080824.35464.lkernel@vortech.net>
+References: <11102278521318@2ka.mipt.ru> <1110229998.13172.48.camel@ghanima>
+	 <20050308004944.60fedb51@zanzibar.2ka.mipt.ru>
+	 <200503080824.35464.lkernel@vortech.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-p/gzwMLDQkfL1tMLfaDV"
+Organization: MIPT
+Date: Thu, 10 Mar 2005 13:27:30 +0300
+Message-Id: <1110450450.21110.39.camel@uganda>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Thu, 10 Mar 2005 13:21:04 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-10 at 21:00 +1100, Neil Brown wrote:
-> On Tuesday March 8, greg@kroah.com wrote:
-> > So here's a first cut at how this 2.6 -stable release process is going
-> > to work that Chris and I have come up with.  Does anyone have any
-> > problems/issues/questions with this?
-> 
-> One rule that I thought would make sense, but that I don't see listed
-> is:
-> 
->  - must fix a regression
-> 
-> If some problem was in 2.6.X and is still there in 2.6.X+1, then there
-> is no great rush to fix it for 2.6.(X+1).1, it can wait for 2.6.(X+2).
 
-this is tricky. I mean, what if it's a datacorruption thing? Sure older
-kernels may have it too... yet at the same time it'd be nice to get it
-fixed. And once you go down this slipperly slope you end up with the
-original ruleset again, eg it must be "somehow relatively important".
+--=-p/gzwMLDQkfL1tMLfaDV
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Tue, 2005-03-08 at 08:24 -0500, Joshua Jackson wrote:
+> On Monday 07 March 2005 4:49 pm, Evgeniy Polyakov wrote:
+> >
+> > Unfortunately acrypto patch is more than 200kb, so neither mail list
+> > will accept it, so I've sent it in such form :)
+> >
+>=20
+> As per the FAQ, very large patches are often best submitted as a URL. In =
+case=20
+> you don't have a place to host it, you are welcome to email me the comple=
+te=20
+> patch and I will post a URL link.
+
+Patch on the web has quite small interest for the majority of the
+people,
+but probably it is better than 50+ e-mails...
+
+The latest sources which can be compiled as external module=20
+are available at=20
+http://tservice.net.ru/~s0mbre/archive/acrypto/acrypto_latest.tar.gz
+
+> I am very interested in your async changes and possibly porting some of t=
+he=20
+> Free/OpenBSD HW crypto drivers over to it.
+
+That would be very good.
+You can find HIFN, VIA, FCRYPT drivers created for acrypto at
+http://tservice.net.ru/~s0mbre/archive/acrypto/drivers
+
+P.S. Above site is currently down, it will be turned on asap.
+
+--=20
+        Evgeniy Polyakov
+
+Crash is better than data corruption -- Arthur Grabowski
+
+--=-p/gzwMLDQkfL1tMLfaDV
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCMCESIKTPhE+8wY0RAhpjAJ9r1hYu/jBmCIG7k7ONyLP1rBPucACfYAWH
+xzzPXmY3Ir5k/xvF2U/LrZU=
+=7z/P
+-----END PGP SIGNATURE-----
+
+--=-p/gzwMLDQkfL1tMLfaDV--
 

@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVAGCvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVAGC7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVAGCvE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 21:51:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVAGCvE
+	id S261188AbVAGC7G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 21:59:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVAGC7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 21:51:04 -0500
-Received: from mail.renesas.com ([202.234.163.13]:48841 "EHLO
-	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S261161AbVAGCvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 21:51:01 -0500
-Date: Fri, 07 Jan 2005 11:50:52 +0900 (JST)
-Message-Id: <20050107.115052.957827809.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, John Levon <levon@movementarian.org>,
-       Greg Banks <gnb@melbourne.sgi.com>, takata@linux-m32r.org
-Subject: [PATCH 2.6.10-mm2] oprofile: update m32r for api changes
-From: Hirokazu Takata <takata@linux-m32r.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.16 (Corporate Culture)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 6 Jan 2005 21:59:06 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:51647 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261188AbVAGC7D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 21:59:03 -0500
+Subject: Re: [PATCH] kernel/printk.c  lockless access
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@osdl.org>,
+       Linas Vepstas <linas@austin.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+In-Reply-To: <41DDD6FA.2050403@osdl.org>
+References: <20050106195812.GL22274@austin.ibm.com>
+	 <20050106161241.11a8d07c.akpm@osdl.org>
+	 <20050107002648.GD14239@krispykreme.ozlabs.ibm.com>
+	 <41DDD6FA.2050403@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1105062162.24896.311.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 07 Jan 2005 01:54:41 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-oprofile m32r arch updates, including some API changes.
+On Gwe, 2005-01-07 at 00:25, Randy.Dunlap wrote:
+> > Actually Id love to do this on ppc64 too. Its always difficult to get a
+> > customer to remember to save away an oops report.
+> 
+> We need /proc/kallsyms, /proc/modules, etc. also....
+> can you capture all of that for a complete oops/panic analysis?
+> (short of kdump, that is)
 
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
+Ditto on x86 - several of us raised the ideal of ACPI actually defining
+a "log area" in the E820 map types or some other ACPI resource that
+would be a chunk of RAM used for logs that wasn't going to get bios
+eaten on a soft reboot but could be reclaimed by the OS but we didn't
+get it.
 
-diff -x CVS -ruNp b/arch/m32r/oprofile/init.c /work/kernel/linux-2.6_edge/source/arch/m32r/oprofile/init.c
---- b/arch/m32r/oprofile/init.c	2004-12-25 06:33:50.000000000 +0900
-+++ /work/kernel/linux-2.6_edge/source/arch/m32r/oprofile/init.c	2004-11-15 11:56:19.000000000 +0900
-@@ -12,11 +12,8 @@
- #include <linux/errno.h>
- #include <linux/init.h>
- 
--extern void timer_init(struct oprofile_operations ** ops);
--
--int __init oprofile_arch_init(struct oprofile_operations ** ops)
-+void __init oprofile_arch_init(struct oprofile_operations * ops)
- {
--	return -ENODEV;
- }
- 
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/

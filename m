@@ -1,122 +1,224 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267443AbTAGU1F>; Tue, 7 Jan 2003 15:27:05 -0500
+	id <S267491AbTAGUdR>; Tue, 7 Jan 2003 15:33:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267449AbTAGU1F>; Tue, 7 Jan 2003 15:27:05 -0500
-Received: from atlrel9.hp.com ([156.153.255.214]:45737 "HELO atlrel9.hp.com")
-	by vger.kernel.org with SMTP id <S267443AbTAGU1D>;
-	Tue, 7 Jan 2003 15:27:03 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Bjorn Helgaas <bjorn_helgaas@hp.com>
-To: Dave Jones <davej@codemonkey.org.uk>
-Subject: [PATCH] AGP 1/7: factor device command updates
-Date: Tue, 7 Jan 2003 13:35:36 -0700
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org, davidm@hpl.hp.com
+	id <S267501AbTAGUcG>; Tue, 7 Jan 2003 15:32:06 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:22733 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267492AbTAGUbO>; Tue, 7 Jan 2003 15:31:14 -0500
+Date: Tue, 07 Jan 2003 12:28:55 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] (5/7) cleanup apicid <-> cpu mapping
+Message-ID: <599350000.1041971335@titus>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200301071335.36360.bjorn_helgaas@hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a series of minor AGP cleanups for 2.5.  The point of
-doing these is to reduce all the code duplication in the agp_enable
-functions.  The next step will be to wean hp-agp from its dependence
-on "fake PCI devices," which requires a new agp_enable function, and
-I didn't have the stomach to copy-n-paste all the stuff in there again.
+To be honest, I have no idea what I was smoking when I wrote this
+originally, and it's kind of coincidental that it works at all currently.
 
-Summary:
-    1:  factor device command updates
-    2:  fix old pci_find_capability merge botch
-    3:  remove unused var in amd-k8-agp.c
-    4:  add generic print of AGP version & mode when programming devices
-    5:  factor device capability collection
-    6:  use PCI_AGP_* constants
-    7:  use pci_find_capability in sworks-agp.c
+We never use physical apicids after the cpus are all booted, so we should
+just store the logical IDs which all subsequent things use. The only things
+that were using the apicid->cpu mapping were hokey anyway, and it's hard to
+maintain for machines that have a large apic addressing space (eg P4s
+in clustered mode). Rips out everything except the mapping from
+logical_apic_id -> cpu.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.971   -> 1.972  
-#	drivers/char/agp/generic.c	1.10    -> 1.11   
-#	drivers/char/agp/sworks-agp.c	1.12    -> 1.13   
-#	drivers/char/agp/amd-k8-agp.c	1.15    -> 1.16   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/01/07	bjorn_helgaas@hp.com	1.972
-# Factor out updating AGP device command registers.
-# --------------------------------------------
-#
-diff -Nru a/drivers/char/agp/amd-k8-agp.c b/drivers/char/agp/amd-k8-agp.c
---- a/drivers/char/agp/amd-k8-agp.c	Tue Jan  7 12:51:49 2003
-+++ b/drivers/char/agp/amd-k8-agp.c	Tue Jan  7 12:51:49 2003
-@@ -435,11 +435,7 @@
- 	 *        command registers.
- 	 */
- 
--	pci_for_each_dev(device) {
--		cap_ptr = pci_find_capability(device, PCI_CAP_ID_AGP);
--		if (cap_ptr != 0x00)
--			pci_write_config_dword(device, cap_ptr + 8, command);
+diff -urpN -X /home/fletch/.diff.exclude 04-more_numaq1/arch/i386/kernel/smpboot.c 05-cleanup_cpu_apicid/arch/i386/kernel/smpboot.c
+--- 04-more_numaq1/arch/i386/kernel/smpboot.c	Tue Jan  7 09:26:53 2003
++++ 05-cleanup_cpu_apicid/arch/i386/kernel/smpboot.c	Tue Jan  7 09:27:26 2003
+@@ -405,6 +405,7 @@ void __init smp_callin(void)
+ 	if (clustered_apic_mode)
+ 		clear_local_APIC();
+ 	setup_local_APIC();
++	map_cpu_to_logical_apicid();
+
+ 	local_irq_enable();
+
+@@ -536,61 +537,21 @@ static inline void unmap_cpu_to_node(int
+
+ #endif /* CONFIG_NUMA */
+
+-/* which physical APIC ID maps to which logical CPU number */
+-volatile int physical_apicid_2_cpu[MAX_APICID];
+-/* which logical CPU number maps to which physical APIC ID */
+-volatile int cpu_2_physical_apicid[NR_CPUS];
+-
+-/* which logical APIC ID maps to which logical CPU number */
+-volatile int logical_apicid_2_cpu[MAX_APICID];
+-/* which logical CPU number maps to which logical APIC ID */
+-volatile int cpu_2_logical_apicid[NR_CPUS];
+-
+-static inline void init_cpu_to_apicid(void)
+-/* Initialize all maps between cpu number and apicids */
+-{
+-	int apicid, cpu;
+-
+-	for (apicid = 0; apicid < MAX_APICID; apicid++) {
+-		physical_apicid_2_cpu[apicid] = -1;
+-		logical_apicid_2_cpu[apicid] = -1;
 -	}
-+	agp_device_command(command);
- }
- 
- 
-diff -Nru a/drivers/char/agp/generic.c b/drivers/char/agp/generic.c
---- a/drivers/char/agp/generic.c	Tue Jan  7 12:51:49 2003
-+++ b/drivers/char/agp/generic.c	Tue Jan  7 12:51:49 2003
-@@ -313,6 +313,20 @@
- 
- 
- /* Generic Agp routines - Start */
-+
-+void agp_device_command(u32 command)
-+{
-+	struct pci_dev *device;
-+
-+	pci_for_each_dev(device) {
-+		u8 agp = pci_find_capability(device, PCI_CAP_ID_AGP);
-+		if (!agp)
-+			continue;
-+
-+		pci_write_config_dword(device, agp + 8, command);
-+	}
-+}
-+
- void agp_generic_agp_enable(u32 mode)
+-	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+-		cpu_2_physical_apicid[cpu] = -1;
+-		cpu_2_logical_apicid[cpu] = -1;
+-	}
+-}
++volatile u8 cpu_2_logical_apicid[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
+
+-static inline void map_cpu_to_boot_apicid(int cpu, int apicid)
+-/*
+- * set up a mapping between cpu and apicid. Uses logical apicids for multiquad,
+- * else physical apic ids
+- */
++void map_cpu_to_logical_apicid(void)
  {
- 	struct pci_dev *device = NULL;
-@@ -395,11 +409,7 @@
- 	 *        command registers.
- 	 */
- 
--	pci_for_each_dev(device) {
--		cap_ptr = pci_find_capability(device, PCI_CAP_ID_AGP);
--		if (cap_ptr != 0x00)
--			pci_write_config_dword(device, cap_ptr + 8, command);
+-	if (clustered_apic_mode) {
+-		logical_apicid_2_cpu[apicid] = cpu;	
+-		cpu_2_logical_apicid[cpu] = apicid;
+-		map_cpu_to_node(cpu, apicid_to_node(apicid));
+-	} else {
+-		physical_apicid_2_cpu[apicid] = cpu;	
+-		cpu_2_physical_apicid[cpu] = apicid;
 -	}
-+	agp_device_command(command);
++	int cpu = smp_processor_id();
++	int apicid = logical_smp_processor_id();
++
++	cpu_2_logical_apicid[cpu] = apicid;
++	map_cpu_to_node(cpu, apicid_to_node(apicid));
  }
- 
- int agp_generic_create_gatt_table(void)
-diff -Nru a/drivers/char/agp/sworks-agp.c b/drivers/char/agp/sworks-agp.c
---- a/drivers/char/agp/sworks-agp.c	Tue Jan  7 12:51:49 2003
-+++ b/drivers/char/agp/sworks-agp.c	Tue Jan  7 12:51:49 2003
-@@ -506,11 +506,7 @@
- 	 *        command registers.
- 	 */
- 
--	pci_for_each_dev(device) {
--		cap_ptr = pci_find_capability(device, PCI_CAP_ID_AGP);
--		if (cap_ptr != 0x00)
--			pci_write_config_dword(device, cap_ptr + 8, command);
+
+-static inline void unmap_cpu_to_boot_apicid(int cpu, int apicid)
+-/*
+- * undo a mapping between cpu and apicid. Uses logical apicids for multiquad,
+- * else physical apic ids
+- */
++void unmap_cpu_to_logical_apicid(int cpu)
+ {
+-	if (clustered_apic_mode) {
+-		logical_apicid_2_cpu[apicid] = -1;	
+-		cpu_2_logical_apicid[cpu] = -1;
+-		unmap_cpu_to_node(cpu);
+-	} else {
+-		physical_apicid_2_cpu[apicid] = -1;	
+-		cpu_2_physical_apicid[cpu] = -1;
 -	}
-+	agp_device_command(command);
++	cpu_2_logical_apicid[cpu] = BAD_APICID;
++	unmap_cpu_to_node(cpu);
  }
- 
- static int __init serverworks_setup (struct pci_dev *pdev)
+
+ #if APIC_DEBUG
+@@ -838,8 +799,6 @@ static int __init do_boot_cpu(int apicid
+ 	 */
+ 	init_idle(idle, cpu);
+
+-	map_cpu_to_boot_apicid(cpu, apicid);
+-
+ 	idle->thread.eip = (unsigned long) start_secondary;
+
+ 	unhash_process(idle);
+@@ -928,7 +887,7 @@ static int __init do_boot_cpu(int apicid
+ 	}
+ 	if (boot_error) {
+ 		/* Try to put things back the way they were before ... */
+-		unmap_cpu_to_boot_apicid(cpu, apicid);
++		unmap_cpu_to_logical_apicid(cpu);
+ 		clear_bit(cpu, &cpu_callout_map); /* was set here (do_boot_cpu()) */
+ 		clear_bit(cpu, &cpu_initialized); /* was set by cpu_init() */
+ 		cpucount--;
+@@ -1018,8 +977,6 @@ static void __init smp_boot_cpus(unsigne
+ 		prof_multiplier[cpu] = 1;
+ 	}
+
+-	init_cpu_to_apicid();
+-
+ 	/*
+ 	 * Setup boot CPU information
+ 	 */
+@@ -1028,7 +985,6 @@ static void __init smp_boot_cpus(unsigne
+ 	print_cpu_info(&cpu_data[0]);
+
+ 	boot_cpu_logical_apicid = logical_smp_processor_id();
+-	map_cpu_to_boot_apicid(0, boot_cpu_apicid);
+
+ 	current_thread_info()->cpu = 0;
+ 	smp_tune_scheduling();
+@@ -1085,6 +1041,7 @@ static void __init smp_boot_cpus(unsigne
+
+ 	connect_bsp_APIC();
+ 	setup_local_APIC();
++	map_cpu_to_logical_apicid();
+
+ 	if (GET_APIC_ID(apic_read(APIC_ID)) != boot_cpu_physical_apicid)
+ 		BUG();
+diff -urpN -X /home/fletch/.diff.exclude 04-more_numaq1/include/asm-i386/smp.h 05-cleanup_cpu_apicid/include/asm-i386/smp.h
+--- 04-more_numaq1/include/asm-i386/smp.h	Tue Jan  7 09:26:53 2003
++++ 05-cleanup_cpu_apicid/include/asm-i386/smp.h	Tue Jan  7 09:27:26 2003
+@@ -62,15 +62,7 @@ extern void smp_invalidate_rcv(void);		/
+ extern void (*mtrr_hook) (void);
+ extern void zap_low_mappings (void);
+
+-/*
+- * Some lowlevel functions might want to know about
+- * the real APIC ID <-> CPU # mapping.
+- */
+ #define MAX_APICID 256
+-extern volatile int cpu_to_physical_apicid[NR_CPUS];
+-extern volatile int physical_apicid_to_cpu[MAX_APICID];
+-extern volatile int cpu_to_logical_apicid[NR_CPUS];
+-extern volatile int logical_apicid_to_cpu[MAX_APICID];
+
+ /*
+  * This function is needed by all SMP systems. It must _always_ be valid
+@@ -99,6 +91,15 @@ static inline int num_booting_cpus(void)
+ {
+ 	return hweight32(cpu_callout_map);
+ }
++
++/* Mapping from cpu number to logical apicid */
++extern volatile u8 cpu_2_logical_apicid[];
++static inline int cpu_to_logical_apicid(int cpu)
++{
++	return (int)cpu_2_logical_apicid[cpu];
++}
++extern void map_cpu_to_logical_apicid(void);
++extern void unmap_cpu_to_logical_apicid(int cpu);
+
+ extern inline int any_online_cpu(unsigned int mask)
+ {
+diff -urpN -X /home/fletch/.diff.exclude 04-more_numaq1/include/asm-i386/smpboot.h 05-cleanup_cpu_apicid/include/asm-i386/smpboot.h
+--- 04-more_numaq1/include/asm-i386/smpboot.h	Sun Nov 17 20:29:56 2002
++++ 05-cleanup_cpu_apicid/include/asm-i386/smpboot.h	Tue Jan  7 09:29:11 2003
+@@ -23,26 +23,5 @@
+  #define boot_cpu_apicid boot_cpu_physical_apicid
+ #endif /* CONFIG_CLUSTERED_APIC */
+
+-/*
+- * Mappings between logical cpu number and logical / physical apicid
+- * The first four macros are trivial, but it keeps the abstraction consistent
+- */
+-extern volatile int logical_apicid_2_cpu[];
+-extern volatile int cpu_2_logical_apicid[];
+-extern volatile int physical_apicid_2_cpu[];
+-extern volatile int cpu_2_physical_apicid[];
+-
+-#define logical_apicid_to_cpu(apicid) logical_apicid_2_cpu[apicid]
+-#define cpu_to_logical_apicid(cpu) cpu_2_logical_apicid[cpu]
+-#define physical_apicid_to_cpu(apicid) physical_apicid_2_cpu[apicid]
+-#define cpu_to_physical_apicid(cpu) cpu_2_physical_apicid[cpu]
+-#ifdef CONFIG_CLUSTERED_APIC			/* use logical IDs to bootstrap */
+-#define boot_apicid_to_cpu(apicid) logical_apicid_2_cpu[apicid]
+-#define cpu_to_boot_apicid(cpu) cpu_2_logical_apicid[cpu]
+-#else /* !CONFIG_CLUSTERED_APIC */		/* use physical IDs to bootstrap */
+-#define boot_apicid_to_cpu(apicid) physical_apicid_2_cpu[apicid]
+-#define cpu_to_boot_apicid(cpu) cpu_2_physical_apicid[cpu]
+-#endif /* CONFIG_CLUSTERED_APIC */
+-
+
+ #endif
 

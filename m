@@ -1,64 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262472AbTCIIGJ>; Sun, 9 Mar 2003 03:06:09 -0500
+	id <S262474AbTCIIYq>; Sun, 9 Mar 2003 03:24:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262473AbTCIIGJ>; Sun, 9 Mar 2003 03:06:09 -0500
-Received: from packet.digeo.com ([12.110.80.53]:36537 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262472AbTCIIGH>;
-	Sun, 9 Mar 2003 03:06:07 -0500
-Date: Sun, 9 Mar 2003 00:17:06 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: cobra@compuserve.com, linux-kernel@vger.kernel.org,
-       george anzinger <george@mvista.com>
-Subject: Re: Runaway cron task on 2.5.63/4 bk?
-Message-Id: <20030309001706.75467db1.akpm@digeo.com>
-In-Reply-To: <20030309000839.31041e3e.akpm@digeo.com>
-References: <3E6AEDA5.D4C0FC83@compuserve.com>
-	<20030309000839.31041e3e.akpm@digeo.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Mar 2003 08:16:39.0823 (UTC) FILETIME=[35ECA1F0:01C2E614]
+	id <S262476AbTCIIYq>; Sun, 9 Mar 2003 03:24:46 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:28420
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S262474AbTCIIYp>; Sun, 9 Mar 2003 03:24:45 -0500
+Date: Sun, 9 Mar 2003 00:17:54 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andries Brouwer <aebr@win.tue.nl>, Bill Davidsen <davidsen@tmr.com>,
+       Harald.Schaefer@gls-germany.com, Thomas.Mieslinger@gls-germany.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, aeb@cwi.nl
+Subject: Re: ide-problem still with 2.4.21-pre5-ac1
+In-Reply-To: <1047173438.26884.60.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10303090012290.14535-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> wrote:
->
-> errr, OK.  This returns -EINVAL:
+
+Unless it is native and legacy addressed on the mainboard via the system
+bios, Linux can not query the proper geometry.
+
+I have always argued to defautl to LBA when beyond 8.4GB, but people want
+to use the orphan sectors, why ... ??  Best guess is not wanting to leave
+used sectors.  The was a holy war some time back and I gave up on the
+issue.  CHS is dead, but it lives as a Zombie until there are only drives
+which support 48-bit feature sets in existance.  Then the problem goes
+away.
+
+
+On 9 Mar 2003, Alan Cox wrote:
+
+> On Sat, 2003-03-08 at 23:23, Andries Brouwer wrote:
+> > Really strange values, as if someone wanted to force a H=255.
+> > Must read current 2.4 source some time. What does hdparm say
+> > under 2.2.22?
 > 
-> #include <time.h>
+> What I'm trying to work out is why its not honouring PTBL
+> values in his case apparently. I don't care too much what shape
+> the disk is but I do care that if the partition table says
+> its this interpretation we use it
 > 
-> main()
-> {
-> 	struct timespec req;
-> 	struct timespec rem;
-> 	int ret;
-> 
-> 	req.tv_sec = 5000000;
-> 	req.tv_nsec = 0;
-> 
-> 	ret = nanosleep(&req, &rem);
-> 	if (ret)
-> 		perror("nanosleep");
-> }
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
-OK, I give up.
-
-			/*
-			 * This is a considered response, not exactly in
-			 * line with the standard (in fact it is silent on
-			 * possible overflows).  We assume such a large 
-			 * value is ALMOST always a programming error and
-			 * try not to compound it by setting a really dumb
-			 * value.
-			 */
-			return -EINVAL;
-
-George, RH7.3 and RH8.0 cron daemons are triggering this (trying to sleep
-for 4,500,000 seconds) and it causes them to go into a busy loop.
-
-I think we need to just sleep for as long as we can and return an
-appropriate partial result.
+Andre Hedrick
+LAD Storage Consulting Group
 

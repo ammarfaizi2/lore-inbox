@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUEWLr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262606AbUEWLvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262605AbUEWLr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 07:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbUEWLr3
+	id S262606AbUEWLvy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 07:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbUEWLvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 07:47:29 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:7955 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262605AbUEWLr1
+	Sun, 23 May 2004 07:51:54 -0400
+Received: from out012pub.verizon.net ([206.46.170.137]:41434 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S262606AbUEWLvw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 07:47:27 -0400
-Date: Sun, 23 May 2004 13:49:36 +0200
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Christoph Hellwig <hch@lst.de>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: i486 emu in mainline?
-Message-ID: <20040523114936.GA26157@hh.idb.hist.no>
-References: <20040522234059.GA3735@infradead.org> <1085296400.2781.2.camel@laptop.fenrus.com> <20040523084415.GB16071@alpha.home.local> <20040523091356.GD5889@devserv.devel.redhat.com> <20040523094853.GA16448@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 23 May 2004 07:51:52 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: scsi debugging question
+Date: Sun, 23 May 2004 07:51:51 -0400
+User-Agent: KMail/1.6
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040523094853.GA16448@alpha.home.local>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405230751.51331.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.56.33] at Sun, 23 May 2004 06:51:52 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 23, 2004 at 11:48:53AM +0200, Willy Tarreau wrote:
-> 
-> You mean like when a user does a malloc() and the memory is not physically
-> allocated because not used yet ? or even in case memory has been swapped
-> out ? I believe I begin to understand, but the corner case is not really
-> clear to me. It yet seems strange to me that the user can reference memory
-> areas that the kernel cannot access. 
+Greetings;
 
-The user referencing non-present memory is not a problem, because:
-1. It is always pssoible to block the user process and let it wait
-   (a long time) for swapping to happen. That might not be an
-   option for the kernel - it can't wait while holding a
-   spinlock, for example.
-2. It is always ok to kill the user process if it uses memory it
-   doesn't have.  It is not ok to "kill" the kernel.  The indirect ways
-   of using user memory from the kernel side ensures that the
-   normal mechanisms (swap-wait or kill) applies to the process owning
-   the memory.  Direct reference from kernel does not invoke normal page 
-   fault mechanisms when memory goes wrong.
+I have one of the advansys cards, and since the original check_region 
+patch has been reverted now, I thought I'd turn on scsi debugging 
+(kernel size += 12k) in my kernel build, and have rebooted to that 
+2.6.6-mm5 kernel well before last nights amanda run.
 
-Helge Hafting 
+However, no additional data seems to have been generated, either 
+in /var/log/messages, nor anyplace else in the /var/log tree.
+
+If it was generated, where did it go?
+
+Amanda moved about 5 Gb of data thru that card ;ast night, and that 
+*should* have generated some noise someplace I'd think.
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.23% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

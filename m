@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262631AbUKXQ52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262645AbUKXRFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262631AbUKXQ52 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 11:57:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbUKXQzq
+	id S262645AbUKXRFK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 12:05:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbUKXREk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 11:55:46 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:14 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262668AbUKXQxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 11:53:10 -0500
-Date: Wed, 24 Nov 2004 16:41:58 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-cc: akpm@osdl.org, <nanhai.zou@intel.com>, <chrisw@osdl.org>,
-       <torvalds@osdl.org>, <tony.luck@intel.com>, <ak@suse.de>,
-       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-Subject: Re: [PATCH 1/2] setup_arg_pages can insert overlapping vma
-In-Reply-To: <20041124152250.GA4797@mschwid3.boeblingen.de.ibm.com>
-Message-ID: <Pine.LNX.4.44.0411241631310.5118-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Wed, 24 Nov 2004 12:04:40 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:57236 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262645AbUKXRDQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 12:03:16 -0500
+Subject: Suspend 2 merge: 6/51
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1101292194.5805.180.camel@desktop.cunninghams>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+Content-Type: text/plain
+Message-Id: <1101301256.5805.405.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 25 Nov 2004 00:03:30 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Nov 2004, Martin Schwidefsky wrote:
-> 
-> In principle the patch is fine (it works and fixes a problem).
-> 
-> I tried to find out why s390 needs its own setup_arg_pages32 function.
-> After I've compared the function with the common setup_arg_pages several
-> times and still couldn't find a reason for it I just removed the function.
-> Still works fine. I think the reason to introduce setup_arg_pages32 has
-> been the STACK_TOP define which needs to reflect the smaller address
-> space for 31 bit programs. Since the change that made TASK_SIZE look
-> at the TIF_31BIT bit to return the correct value for 31 and 64 bit
-> programs STACK_TOP is just correct as well. 
-> 
-> In short, just remove setup_arg_pages32.
+Ooh.
 
-Tell me I'm being silly, Martin, but wouldn't it be wiser to stick with
-setup_arg_pages32 (with Nanhai's patch) for 2.6.10, then remove it after?
+6/51 is missing.
 
-I'm cautious here because about six months ago I sent Andrew a patch
-which eliminated setup_arg_pages32 (or equiv) from the three arches,
-but the x86_64 one just wouldn't boot on Andrew's machine.  Both hch
-and I spent hours staring at the code, neither of us could work out why.
+Let's just say I can't count. I've checked the directory and the reboot
+handler is the next one after workthreads :>
 
-Now, s390 may be greatly superior ;) but all the setup_arg_pages32
-redefining is twisty weird stuff - good to be rid of it, but right now?
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-Hugh
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 

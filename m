@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbTIYSMp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 14:12:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTIYSLC
+	id S261612AbTIYSQg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 14:16:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbTIYSPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 14:11:02 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12245 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261820AbTIYSJs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 14:09:48 -0400
-Date: Thu, 25 Sep 2003 11:05:40 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@localhost.localdomain
-To: Jon Smirl <jonsmirl@yahoo.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: sysfs - which driver for a device?
-In-Reply-To: <20030924020344.55460.qmail@web14905.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.44.0309251102270.947-100000@localhost.localdomain>
+	Thu, 25 Sep 2003 14:15:32 -0400
+Received: from smtp1.fre.skanova.net ([195.67.227.94]:25054 "EHLO
+	smtp1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S261326AbTIYSNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 14:13:55 -0400
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: akpm@osdl.org, dtor_core@ameritech.net, Andries.Brouwer@cwi.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: My current patches
+References: <20030925164845.GA30105@ucw.cz>
+From: Peter Osterlund <petero2@telia.com>
+Date: 25 Sep 2003 20:13:43 +0200
+In-Reply-To: <20030925164845.GA30105@ucw.cz>
+Message-ID: <m2zngsg2i0.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vojtech Pavlik <vojtech@suse.cz> writes:
 
-> In sysfs it is easy to see which devices a driver is supporting.
-> For example /sys/bus/pci/drivers/e1000 links to 0000:02:0c.0 in my system.
-> 
-> But how do you go the other way; starting from 0000:02:0c.0 to determine the
-> driver? Is the best solution to loop though the drivers directories searching
-> for the device? Or would it be better to change sysfs to add an attribute to
-> each device containing the driver name?
+> I'm sending you my current set of patches for review and testing.
+> Please forward to whoever can test them. If no problems are found, I'll
+> be sending them to Linus for inclusion in 2.6 tomorrow or so.
 
-Well, one could use a script to ascertain the driver name for a given 
-device. Or, you could use the patch below, which will insert a 'driver' 
-symlink that points to the device driver's directory. 
+I tried this patch set on my Clevo laptop and the touchpad is working
+fine. The patch set also fixes keyboard problems that I started seeing
+a few days ago. (Very slow auto repeat and randomly stuck CTRL key.)
 
-
-	Pat
-
-===== drivers/base/bus.c 1.51 vs edited =====
---- 1.51/drivers/base/bus.c	Fri Aug 29 14:18:26 2003
-+++ edited/drivers/base/bus.c	Thu Sep 25 10:55:14 2003
-@@ -243,6 +243,7 @@
- 	list_add_tail(&dev->driver_list,&dev->driver->devices);
- 	sysfs_create_link(&dev->driver->kobj,&dev->kobj,
- 			  kobject_name(&dev->kobj));
-+	sysfs_create_link(&dev->kobj,&dev->driver->kobj,"driver");
- }
- 
- 
-@@ -365,6 +366,7 @@
- 	struct device_driver * drv = dev->driver;
- 	if (drv) {
- 		sysfs_remove_link(&drv->kobj,kobject_name(&dev->kobj));
-+		sysfs_remove_link(&dev->kobj,"driver");
- 		list_del_init(&dev->driver_list);
- 		device_detach_shutdown(dev);
- 		if (drv->remove)
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

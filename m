@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281021AbRKTLG1>; Tue, 20 Nov 2001 06:06:27 -0500
+	id <S281022AbRKTLPG>; Tue, 20 Nov 2001 06:15:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281019AbRKTLGQ>; Tue, 20 Nov 2001 06:06:16 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:10248 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S281022AbRKTLF7>; Tue, 20 Nov 2001 06:05:59 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: James A Sutherland <jas88@cam.ac.uk>,
-        Horst von Brand <vonbrand@inf.utfsm.cl>
-Subject: Re: x bit for dirs: misfeature?
-Date: Tue, 20 Nov 2001 13:03:05 +0000
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200111191644.fAJGileU019108@pincoya.inf.utfsm.cl> <01111919395802.07749@nemo> <E165tl7-00023G-00@mauve.csi.cam.ac.uk>
-In-Reply-To: <E165tl7-00023G-00@mauve.csi.cam.ac.uk>
+	id <S281023AbRKTLO5>; Tue, 20 Nov 2001 06:14:57 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:27147 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S281022AbRKTLOp>;
+	Tue, 20 Nov 2001 06:14:45 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Dan Merillat <harik@chaos.ao.net>
+Date: Tue, 20 Nov 2001 12:14:08 MET-1
 MIME-Version: 1.0
-Message-Id: <01112013030502.00810@nemo>
-Content-Transfer-Encoding: 7BIT
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: radeonfb bug: text ends up scrolling in the middle of t
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <9B5C5851B1E@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 November 2001 19:07, James A Sutherland wrote:
-> On Monday 19 November 2001 7:39 pm, vda wrote:
-> > On Monday 19 November 2001 17:24, James A Sutherland wrote:
-> > > > > Yes, I see... All I can do is to add workarounds (ok,ok, 'support')
-> > > > > to chmod and friends:
-> > > > >
-> > > > > chmod -R a+R dir  - sets r for files and rx for dirs
-> > > >
-> > > > X sets x for dirs, leaves files alone.
-> > >
-> > > Which sounds like exactly the behaviour the original poster wanted,
-> > > AFAICS?
-> >
-> > Yes, that sounds like the behaviour I want. But X flag does not do that.
-> > Sorry.
->
-> Oh? I just checked, and X *does* set the x bit on directories only, leaving
-> files unaffected. What's wrong with that? Does it not do this on your
-> system? Or do you want some other behaviour?
+On 19 Nov 01 at 23:38, Dan Merillat wrote:
+> > they'll shed some light on the problem.
+> 
+> Yes, yes.  The boot messages are normal, and typing 'reset' once I login 
+> restores normal console.  The code that sets up a scrolling window below tux
+> is well, missing the mark.
+> 
+> Tux looks like he's about 5 lines high, so lines 1-3 are tux, 4 is the one
+> line of scroll, 5 is his feet, and 6-30 is the previous kernel boot
+> messages.
 
-I just checked it too (not olny read the manpage but conducted an
-experiment). If a file has any of three x bits set, chmod a+X will
-set all three x bits, making it world-executable.
+It is known problem. At least known to me. After reboot and typing 'reset'
+type 'dmesg' and then look for 'Console: switching to colour frame buffer 
+device...'. Above that message you'll find couple of radeon messages - 
+and you have to remove all printed during register_framebuffer() from
+driver source - it looks to me like that '#if 1'-ed code in radeon_write_code
+is suspect.
 
-That is not what I want. I want to make whole tree world-readable (and
-browsable), i.e. a+r on files and a+rx on dirs. There is no chmod flag
-which will do that.
-
-[I'd like to take this silliness off the lkml but jas88@cam.ac.uk
- rejects my direct emails:
-   ----- Transcript of session follows -----
-... while talking to navy.csi.cam.ac.uk.:
->>> RCPT To:<jas88@cam.ac.uk>
-<<< 550 mail from 195.66.192.167 rejected: administrative prohibition (host 
-is blacklisted)
-550 5.1.1 <jas88@cam.ac.uk>... User unknown  ]
---
-vda
+You must not do any output during register framebuffer. If you'll output
+one line, I believe that it will still work, but if you'll do more, 
+kernel output is catched in upper Tux window instead of in the bottom half 
+of screen. And if you'll print really much of info during 
+register_framebuffer, kernel will die...
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

@@ -1,31 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263076AbSJGPKX>; Mon, 7 Oct 2002 11:10:23 -0400
+	id <S263083AbSJGPK5>; Mon, 7 Oct 2002 11:10:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263083AbSJGPKW>; Mon, 7 Oct 2002 11:10:22 -0400
-Received: from vitelus.com ([64.81.243.207]:23815 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S263076AbSJGPKR>;
-	Mon, 7 Oct 2002 11:10:17 -0400
-Date: Mon, 7 Oct 2002 08:15:52 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bkbits.net down
-Message-ID: <20021007151551.GA16348@vitelus.com>
-References: <200210070306.g9736E304064@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210070306.g9736E304064@work.bitmover.com>
-User-Agent: Mutt/1.5.1i
+	id <S263084AbSJGPK4>; Mon, 7 Oct 2002 11:10:56 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:38394 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S263083AbSJGPKy> convert rfc822-to-8bit;
+	Mon, 7 Oct 2002 11:10:54 -0400
+Message-ID: <3DA1A532.9BF70424@mvista.com>
+Date: Mon, 07 Oct 2002 08:16:02 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Eduardo =?iso-8859-1?Q?P=E9rez?= <100018135@alumnos.uc3m.es>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] namespace clean
+References: <a6cf5427338512cb0ae6b015e16b896a@alumnos.uc3m.es>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 06, 2002 at 08:06:14PM -0700, Larry McVoy wrote:
-> We rebooted to unwedge some VM problems (we really need to upgrade to
-> Rik's rmap stuff, it's better that 2.4.5, that's for sure).  Unfortunately,
-> it's been so long since we rebooted that the drives are being checked and
-> there are several million inodes so it's taking a while.  Maybe another 
-> half hour.
+Eduardo Pérez wrote:
+> 
+> Currently the Linux kernel has a cryptic api namespace that confuses
+> many people when trying to code for the Linux kernel. People can't know
+> by direct examination of a symbol to what package belongs. Also symbols
+> can't be easily sorted by package.
+> 
+> I'm suggesting to use a cleaner namespace like
+> package_object_method and package_function
+> If this is accepted, symbols from new code should follow this
+> naming, and current symbols should start the transition to this cleaner
+> namespace.
+> 
+> If anybody like me think that this would help people to code for the
+> Linux kernel it would be a good idea to start this transition to a
+> cleaner namespace.
+> 
+> Most drivers and new core kernel api have a very clean namespace but
+> some old api don't.
+> 
+> What are your thoughts about this ?
 
-Let's hope it doesn't take 6 months...
+Then if it is a static symbol, one could use anything?  I.e.
+static symbols would not follow the rule, right?
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

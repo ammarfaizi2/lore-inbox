@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131349AbRA1EAz>; Sat, 27 Jan 2001 23:00:55 -0500
+	id <S135972AbRA1EKf>; Sat, 27 Jan 2001 23:10:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135972AbRA1EAe>; Sat, 27 Jan 2001 23:00:34 -0500
-Received: from femail1.rdc1.on.home.com ([24.2.9.88]:18430 "EHLO
-	femail1.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S131349AbRA1EAc>; Sat, 27 Jan 2001 23:00:32 -0500
-Message-ID: <3A73993F.DA35B57E@Home.net>
-Date: Sat, 27 Jan 2001 22:59:59 -0500
-From: Shawn Starr <Shawn.Starr@Home.net>
-Organization: Visualnet
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i586)
-X-Accept-Language: en
+	id <S136763AbRA1EKZ>; Sat, 27 Jan 2001 23:10:25 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:54032 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S135972AbRA1EKG>; Sat, 27 Jan 2001 23:10:06 -0500
+Date: Sun, 28 Jan 2001 00:20:36 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: ps hang in 241-pre10
+In-Reply-To: <94vu5o$1c6$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0101280010320.12703-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Andrew Morton <andrewm@uow.edu.au>
-CC: Shawn Starr <Shawn.Starr@Home.com>, Chris Mason <mason@suse.com>,
-        Gregory Maxwell <greg@linuxpower.cx>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.x and 2.4.1-preX - Higher latency then 2.2.xkernels?
-In-Reply-To: <186870000.980100593@tiny> <3A6B6FDE.93AF69CC@Home.net> <3A72820A.1488BDC@uow.edu.au> <3A7280F5.F122FE35@Home.com> <3A738A36.F6294623@Home.net> <3A739205.7C71EF89@uow.edu.au>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It should also be noted, that while using GCC and other tasks, the latency has returned to 2.2
-levels from my point. Before. If you want to me to do any testing I can do that.
 
-I applied the timepegs patch:
+(ugh, sorry about last mail)
 
-Kernel timepegs enabled. See http://www.uow.edu.au/~andrewm/linux/
+On 27 Jan 2001, Linus Torvalds wrote:
 
-Shawn.
-
+> In article <3A737061.F1B914A3@linux.com>, David Ford  <david@linux.com> wrote:
+> >Unfortunately klogd reads /proc....erg.
 > >
-> > Andrew, the patch HAS made a difference. For example, while untaring glibc-2.2.1.tar.gz the
-> > system was not sluggish (mouse movements in X) etc.
+> >So the following is a painstakingly slow hand translation, I'll only print
+> >the D state entries unless someone asks otherwise.
+> 
+> You seem to be pretty much able to reproduce this at will, right?
+> 
+> I'd really like to see the raw System.map and dmesg output if your
+> syslogd doesn't do a proper job of getting the symbols interpreted: just
+> send the things by email, and I'll put something together.  It's too
+> hard to interpret your half-way decoded thing, and I really want to see
+> what this xmms thing is doing.. 
+> 
+> >xmms      D CACC5EA8  4116   713    155   715  (NOTLB)    1493   674
+> >Call Trace: [<c0124966>] [<c012412f>] [<c01242b8>] [<c0144138>] [<c014238e>]
+> >[<c0131cd0>] [<c01236b2>]
+> >       [<c01239f2>] [<c01ac5ca>] [<c010d1f6>] [<c0108e7c>] [<c0108d5f>]
 > >
-> > Seems to be a go for latency improvements on this system.
->
-> hmm..  OK, thanks.
->
-> Chris, this seems to be a worthwhile improvement to mainstream
-> reiserfs, independent of the low-latency thing.   You can
-> probably achieve 10 milliseconds with just a few lines of
-> code - a subset of the patch which Shawn tested. (Unless you
-> were planning on magical algorithmic improvements...).
->
-> I'm all set up to generate those few lines of code, so
-> I'll propose a patch later this week.
->
-> -
+> >c01248e4 T ___wait_on_page
+> >c0124984 t __lock_page
+> >
+> >c01240dc t truncate_list_pages
+> >c0124268 T truncate_inode_pages
+> >c01242d4 t writeout_one_page
+> 
+> This is the smoking gun here, I bet, but I'd like to make sure I see the
+> whole thing. I don't see _why_ we'd have deadlocked on __wait_on_page(),
+> but I think this is the thread that hangs on to the mm semaphore.
+
+I was able to reproduce it here with dbench. 
+
+Nothing is locked except this dbench thread (the only dbench thread):
+
+dbench    D C1C9FE64  5200  1013      1        (L-TLB)    1370   785 
+Call Trace: [___wait_on_page+130/160] [truncate_list_pages+100/404] [truncate_inode_pages+93/128] [iput+162/360] [dput+262/356] [fput+121/232] [exit_mmap+218/292]  
+[mmput+56/80] [do_exit+208/680] [do_signal+566/656] [dput+25/356] [path_release+13/60] [sys_newstat+100/112] [sys_read+188/196] [signal_return+20/24]  
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312938AbSDMI5h>; Sat, 13 Apr 2002 04:57:37 -0400
+	id <S313482AbSDMI6m>; Sat, 13 Apr 2002 04:58:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313482AbSDMI5g>; Sat, 13 Apr 2002 04:57:36 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:9993 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S312938AbSDMI5g>; Sat, 13 Apr 2002 04:57:36 -0400
-Date: Sat, 13 Apr 2002 09:57:28 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: blesson paul <blessonpaul@msn.com>, linux-kernel@vger.kernel.org
-Subject: Re: put_user_byte()
-Message-ID: <20020413095728.A19090@flint.arm.linux.org.uk>
-In-Reply-To: <F38uSbh29cM3oryKFRJ00031d09@hotmail.com> <3CB56D05.6040702@didntduck.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S313580AbSDMI6l>; Sat, 13 Apr 2002 04:58:41 -0400
+Received: from web10404.mail.yahoo.com ([216.136.130.96]:43788 "HELO
+	web10404.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S313482AbSDMI6k>; Sat, 13 Apr 2002 04:58:40 -0400
+Message-ID: <20020413085840.75689.qmail@web10404.mail.yahoo.com>
+Date: Sat, 13 Apr 2002 18:58:40 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: 2.4.19-pre6aa1 (possible all kernel after 2.4.19-pre2) athlon PCI workaround
+To: kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 11, 2002 at 07:01:25AM -0400, Brian Gerst wrote:
-> Use put_user(val, uaddr).
 
-Correct.
+Hi,
 
-> val must be of type unsigned char (or casted to it).
+This is a known problem I know, the screen problem
+with some athlon computer due to some PCI optimization
+code  etc..; but how can I work around this. For
+2.4.19-pre2 I remember to go somewhere to find pci.c
+and comment out the code related, but in
+2.4.19-pre6aa1 I got stuck..
 
-put_user does not care what value you pass it as val.  It only cares
-about the type of uaddr.  The following are all equivalent as far as
-the size of the data type written to user space:
+Is there an official way to overcome/fix this problem
+? (kernel build option?) Or just anyone interested in
+doing such job?
 
-	put_user((int)foo, (char *)bar);
-	put_user((char)foo, (char *)bar);
-	put_user((long)foo, (char *)bar);
+Please help and copy your reply to my email address.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Thanks a lot
 
+
+
+
+=====
+Steve Kieu
+
+http://messenger.yahoo.com.au - Yahoo! Messenger
+- A great way to communicate long-distance for FREE!

@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268024AbUHKLmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268028AbUHKLpV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268024AbUHKLmw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 07:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268028AbUHKLmw
+	id S268028AbUHKLpV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 07:45:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268030AbUHKLpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 07:42:52 -0400
-Received: from [220.91.48.222] ([220.91.48.222]:7951 "EHLO auroraadvisors.com")
-	by vger.kernel.org with ESMTP id S268024AbUHKLmn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 07:42:43 -0400
-From: "Jake Waters" <jwaters_wo@gcr1.com>
-To: linux-kernel@vger.kernel.org
-Message-ID: <5ce401c47f9b$f0b45018$d516a916@fekxkf>
-Subject: =?ISO-8859-1?B?UGxlYXNlIGRvbid0IGZvcmdldA==?=
-Date: Wed, 11 Aug 2004 12:07:50 +0000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 11 Aug 2004 07:45:20 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:52720 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S268028AbUHKLpQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 07:45:16 -0400
+Date: Wed, 11 Aug 2004 13:44:26 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200408111144.i7BBiQxK015041@burner.fokus.fraunhofer.de>
+To: root@chaos.analogic.com, schilling@fokus.fraunhofer.de
+Cc: alan@lxorguk.ukuu.org.uk, axboe@suse.de, diablod3@gmail.com,
+       dwmw2@infradead.org, eric@lammerts.org, james.bottomley@steeleye.com,
+       linux-kernel@vger.kernel.org, skraw@ithnet.com
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Ra[t]es dropped last week ... Jump on it!
-Need more of these? $$$$ JustR-efin-ance your house/prop and you can get it
+>From root@chaos.analogic.com  Tue Aug 10 18:07:24 2004
 
-Use this for the site: http://holdtiff.com/prime/dWorld/
+>Sorry to break into this wonderful conversation, but it seems
+>I have all the actors corralled in one place.
 
-You must visit the link  in 24 hrs to confirm your eligibility. 
+>The fascist US government forced 321software out-of-business. It
+>was a company that provided software that could copy DVDs.
 
+cdrtools do not have the problem as they do not include everything you need in 
+order to copy CSS DVDs. Cdrtools however allow you to create UDF images from
+DVD file trees and to write the UDF images to a DVD.
 
+If ever, I believe that deCSS could be problematic although I believe that it 
+may still be distributed from European sites.
 
-Sincerely,
+Jörg
 
-Shawn Davis
-Account Manager
-Holland Holdings Co.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-The Organization for Security and Cooperation in Europe was invited to monitor the election by the State Department. The observers will come from the OSCE's Office for Democratic Institutions and Human Rights.It will be the first time such a team has been present for a U.S. presidential election."The U.S. is obliged to invite us, as all OSCE countries should," spokeswoman Urdur Gunnarsdottir said. "It's not legally binding, but it's a political commitment. They signed a document 10 years ago to ask OSCE to observe elections."Thirteen Democratic members of the House of Representatives, raising the specter of possible civil rights violations that they said took place in Florida and elsewhere in the 2000 election, wrote to U.N. Secretary-General Kofi Annan in July, asking him to send observers.After Annan rejected their request, saying the administration must make the application, the Democrats asked Secretary of State Colin Powell to do so.The issue was hotly debated in the House, and Republicans got an amendment to a foreign aid bill that barred federal funds from being used for the United Nations to monitor U.S. elections, The Associated Press reported.In a letter dated July 30 and released last week, 
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

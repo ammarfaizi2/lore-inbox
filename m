@@ -1,127 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268243AbUHKUgt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268225AbUHKUlf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268243AbUHKUgt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 16:36:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268254AbUHKUgS
+	id S268225AbUHKUlf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 16:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268196AbUHKUlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 16:36:18 -0400
-Received: from CS2075.cs.fsu.edu ([128.186.122.75]:18873 "EHLO mail.cs.fsu.edu")
-	by vger.kernel.org with ESMTP id S268229AbUHKUdU (ORCPT
+	Wed, 11 Aug 2004 16:41:35 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:57740 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268229AbUHKUkv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 16:33:20 -0400
-Message-ID: <1092256397.512046f64c822@system.cs.fsu.edu>
-Date: Wed, 11 Aug 2004 16:33:17 -0400
-From: khandelw@cs.fsu.edu
-To: Alex Riesen <fork0@users.sourceforge.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Nick Palmer <nick@sluggardy.net>, netdev@oss.sgi.com
-Subject: Re: select implementation not POSIX compliant?
-References: <20040811194018.GA3971@steel.home>
-In-Reply-To: <20040811194018.GA3971@steel.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Disposition: inline
+	Wed, 11 Aug 2004 16:40:51 -0400
+Date: Wed, 11 Aug 2004 13:40:18 -0700
+From: Paul Jackson <pj@sgi.com>
+To: dino@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] [PATCH] new bitmap list format (for cpusets)
+Message-Id: <20040811134018.1551e03b.pj@sgi.com>
+In-Reply-To: <20040811180558.GA4066@in.ibm.com>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<20040811131155.GA4239@in.ibm.com>
+	<20040811091732.411edb6d.pj@sgi.com>
+	<20040811180558.GA4066@in.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) 4.0-cvs
-X-Originating-IP: 12.151.80.14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-select should work for any type of socket. Its based on the type of file
-descriptor not whether it is stream/dgram.
+Paul wrote:
+> Another approach that might work, in order to ensure that the top_cpuset
+> has its cpus_allowed set to the proper value of cpu_possible_map, would
+> be to add a routine, say cpuset_init_smp(),
 
-man recvmsg -
+Dinakar replied:
+> Yes that would be fine too.
 
-recvmsg() may be used to receive data on a socket whether it
-     is in a connected state or not. s is a socket  created  with
-     socket(3SOCKET).
+Since I've gotten this far without having the definition of 'struct cpuset'
+exposed in a header file, I'd like to see if I can continue that.  I'll
+give this other approach a try - though it will be a day or so before I
+can get to it - prior commitments.  Unless of course, someone sends me such
+a patch first ;).
 
-so why should recvmsg return error???? upon closing the socket in other thread?
-wouldn't the socket linger around for some time...
+Paul wrote:
+> If you take your approach, should we remove the __init qualifier from
+> kernel/cpuset.c cpuset_init()?
 
-If no messages are available at the socket, the receive call
-     waits  for  a  message  to arrive, unless the socket is non-
-     blocking (see fcntl(2)) in which case -1  is  returned  with
-     the external variable errno set to EWOULDBLOCK.
+Dinakar replied:
+> The qualifier would still be valid I think, no ?
 
+What led me to ask that question was the following bit of code at the
+bottom of start_kernel(), in init/main.c:
 
-Quoting Alex Riesen <fork0@users.sourceforge.net>:
+=========================================================
+        /* rootfs populating might need page-writeback */
+        page_writeback_init();
+#ifdef CONFIG_PROC_FS
+        proc_root_init();
+#endif
+        cpuset_init();
 
-> On linux-kernel, Nick Palmer wrote:
-> > I am working on porting some software from Solaris to Linux 2.6.7. I
-> > have run into a problem with the interaction of select and/or
-> > recvmsg and close in our multi-threaded application. The application
-> > expects that a close call on a socket that another thread is
-> > blocking in select and/or recvmsg on will cause select and/or
-> > recvmsg to return with an error. Linux does not seem to do this. (I
-> > also verified that the same issue exists in Linux 2.4.25, just to be
-> > sure it wasn't introduced in 2.6 in case you were wondering.)
->
-> It works always for stream sockets and does not at all (even with
-> shutdown, even using poll(2) or read(2) instead of select) for dgram
-> sockets.
->
-> What domain (inet, local) are your sockets in?
-> What type (stream, dgram)?
->
-> There will probably be a problem anyway with changing the behaviour:
-> there surely is lots of code, which start complaining about select and
-> poll finishing "unexpectedly".
->
-> I used this to check:
->
-> #include <unistd.h>
-> #include <stdio.h>
-> #include <stdlib.h>
-> #include <sys/socket.h>
-> #include <sys/wait.h>
-> #include <netinet/in.h>
-> #include <fcntl.h>
->
-> int main(int argc, char* argv[])
-> {
->     int status;
->     int fds[2];
->     fd_set set;
-> #if 0
->     puts("stream");
->     if (  socketpair(PF_LOCAL, SOCK_STREAM, 0, fds) < 0 )
-> #else
->     puts("dgram");
->     if (  socketpair(PF_LOCAL, SOCK_DGRAM, 0, fds) < 0 )
-> #endif
->     {
-> 	perror("socketpair");
-> 	exit(1);
->     }
->     fcntl(fds[0], F_SETFL, fcntl(fds[0], F_GETFL) | O_NONBLOCK);
->     fcntl(fds[1], F_SETFL, fcntl(fds[1], F_GETFL) | O_NONBLOCK);
->     switch ( fork() )
->     {
->     case 0:
-> 	sleep(1);
-> 	close(fds[0]);
-> 	shutdown(fds[1], SHUT_RD);
-> 	close(fds[1]);
-> 	exit(0);
-> 	break;
->     case -1:
-> 	perror("fork");
-> 	exit(1);
->     }
->     close(fds[1]);
->     FD_ZERO(&set);
->     FD_SET(fds[0], &set);
->     select(fds[0] + 1, &set, NULL, NULL, 0);
->     wait(&status);
->     return 0;
-> }
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+        check_bugs();
+
+        /* Do the rest non-__init'ed, we're now alive */
+        rest_init();
+}
+=========================================================
+
+Since this is where your patch was moving the cpuset_init() call _away_
+from, in order to put the call later, I took the comment about
+"non-__init'ed" to mean that your patch was moving the cpuset_init()
+call past the place where an __init qualifier was valid.
+
+But I haven't studied the code to know this for sure, and if my other
+scheme pans out to address the problem you found (that cpu_possible_map,
+upon which cpuset initialization depends, does not get fully initialized
+until smp_prepare_cpus gets called by init(),) then this detail won't
+matter anyway.
+
+However an equivalent detail would matter.  Can I mark cpuset_init_smp()
+as "__init" ?  Hmmm ... likely I can, since two routines called at the
+same time, sched_init_smp() and smp_init(), are marked __init.  This
+suggests that my interpretation of that comment was wrong, and that
+you're entirely right -- calls made in either place can be marked
+__init.  Is that comment above misleading?
 
 
+> A related Q, I was wondering why the nodemask_t needed to be part 
+> of the task_struct, since cpuset would anyway have a reference to it.
+
+Good question.
+
+The nodemasks current->mems_allowed and current->cpuset->mems_allowed,
+can be out of sync, by design.  Changes made via the cpuset file system
+affect the second of these.  But not until the affected task goes
+through the numa code in an mbind or set_mempolicy system call does that
+task pick up the new value of mems_allowed and put it in its task struct
+as current->mems_allowed to control memory placement.
+
+This seems necessary, because there is no way for one task to affect
+anothers mm, vma and zonelist structures.  So all of these structures
+must be managed directly by a task on itself.  So a tasks mems_allowed,
+which must be consistent with its zonelists, must also be managed
+directly by itself.
+
+If one task directly manipulated anothers current->mems_allowed, we
+could end up in the situation that a task had done say an MPOL_BIND
+setting up some zonelists for one set of nodes, then had its
+current->mems_allowed changed to some non-overlapping set, leaving the
+task completely unable to allocate memory on its own behalf, which would
+likely send us into portions of the allocator code we should only arrive
+in if very short on memory and desperate, which risks causing further
+grief to the rest of the system ... not good (tm).
+
+Hmmm ... as I write this, I am suspecting that there is a bit of code
+that is missing in this solution.  Any given task may have multiple
+memory policies, a default one (set_mempolicy) and zero or more ones
+specific to some range of memory (mbind).  We must deal with the case
+that any change in a tasks current->mems_allowed could break any of the
+memory policies affecting it (leave the policy non-overlapping with the
+mems_allowed).  My crystal ball sees some more nodemasks, perhaps one
+per numa struct mempolicy, and a little bit more code, in my future ;).
+I'll have to think about this.  Suggestions welcome.
+
+As I said -- good question.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

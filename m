@@ -1,14 +1,14 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313760AbSDEXrX>; Fri, 5 Apr 2002 18:47:23 -0500
+	id <S313493AbSDEU3F>; Fri, 5 Apr 2002 15:29:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313761AbSDEXrM>; Fri, 5 Apr 2002 18:47:12 -0500
-Received: from ithilien.qualcomm.com ([129.46.51.59]:37028 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S313760AbSDEXrF>; Fri, 5 Apr 2002 18:47:05 -0500
-Message-Id: <5.1.0.14.2.20020405154615.0aa676f0@mail1.qualcomm.com>
+	id <S313494AbSDEU2z>; Fri, 5 Apr 2002 15:28:55 -0500
+Received: from numenor.qualcomm.com ([129.46.51.58]:53648 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S313493AbSDEU2n>; Fri, 5 Apr 2002 15:28:43 -0500
+Message-Id: <5.1.0.14.2.20020405112232.0a863da0@mail1.qualcomm.com>
 X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 05 Apr 2002 15:46:24 -0800
+Date: Fri, 05 Apr 2002 12:27:51 -0800
 To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
 From: Maksim Krasnyanskiy <maxk@qualcomm.com>
 Subject: [PATCH] Bluetooth subsystem sync up

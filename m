@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136610AbREALTZ>; Tue, 1 May 2001 07:19:25 -0400
+	id <S132724AbREAOdH>; Tue, 1 May 2001 10:33:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136613AbREALTQ>; Tue, 1 May 2001 07:19:16 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:4100 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S136610AbREALTF>;
-	Tue, 1 May 2001 07:19:05 -0400
-Message-ID: <20010430104231.C3294@bug.ucw.cz>
-Date: Mon, 30 Apr 2001 10:42:31 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
-In-Reply-To: <Pine.LNX.4.33.0104281752290.10866-100000@localhost.localdomain> <20010428215301.A1052@gruyere.muc.suse.de> <200104282256.f3SMuRW15999@vindaloo.ras.ucalgary.ca> <9cg7t7$gbt$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <9cg7t7$gbt$1@cesium.transmeta.com>; from H. Peter Anvin on Sat, Apr 28, 2001 at 10:13:11PM -0700
+	id <S135363AbREAOc6>; Tue, 1 May 2001 10:32:58 -0400
+Received: from www.topmail.de ([212.255.16.226]:3227 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S132724AbREAOcu>;
+	Tue, 1 May 2001 10:32:50 -0400
+Message-ID: <000001c0d24b$9864d8e0$de00a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <p05100300b712a75c31b2@[207.213.214.37]>
+Subject: Re: deregister?
+Date: Mon, 30 Apr 2001 11:39:28 -0000
+Organization: eccesys.net Linux development
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> >>Not to mention in various comments and documentation.  Deregister,
+> >>according to www.m-w.com (and many other dictionaries), is not a
+word.
+> >>Is there some sort of historical significance to this being used, in
+> >>place of "unregister"?
 
-> > > In x86-64 there are special vsyscalls btw to solve this problem that export
-> > > a lockless kernel gettimeofday()
-> > 
-> > Whatever happened to that hack that was discussed a year or two ago?
-> > The one where (also on IA32) a magic page was set up by the kernel
-> > containing code for fast system calls, and the kernel would write
-> > calibation information to that magic page. The code written there
-> > would use the TSC in conjunction with that calibration data.
-> > 
-> > There was much discussion about this idea, even Linus was keen on
-> > it. But IIRC, nothing ever happened.
-> > 
-> 
-> We discussed this at the Summit, not a year or two ago.  x86-64 has
-> it, and it wouldn't be too bad to do in i386... just noone did.
+> At 10:03 PM -0400 2001-04-29, Andres Salomon wrote:
+> >Americans can spell?  Since when?
+>
+> OED 2nd Ed:
+>
+> deregister. v. trans. To remove from a register. Hence
+> deregistration. (first citation 1925)
+>
+> unregistered. ppl. a. Not entered in a register; unrecorded. (first
+> citation 1604)
+>
+> The OED has no entry for "unregister".
 
-Just wait what kind of problems it is able to bring on i386.
+My DCE here has no opposite word, just register, but because
+register comes from Latin registrare, and due to the DCE's
+explanation of how to build opposite words, I'd rather
+prefer deregister over disregister over unregister.
 
-								Pavel
-PS: Hmm, how do you do timewarp for just one userland appliation with
-this installed?
 
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+A message of love and openness: translate linux into Latin!
+
+It has strict grammar, no such problems, and a single
+person on top - the pope, actually. We could replace
+his function by Linus ;-) or Alan... dunno
+
+-mirabilos
+
+

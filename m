@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268515AbRHCKJo>; Fri, 3 Aug 2001 06:09:44 -0400
+	id <S268427AbRHCKNo>; Fri, 3 Aug 2001 06:13:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268427AbRHCKJY>; Fri, 3 Aug 2001 06:09:24 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:47521 "EHLO
+	id <S268537AbRHCKNf>; Fri, 3 Aug 2001 06:13:35 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:58785 "EHLO
 	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S268382AbRHCKJX>; Fri, 3 Aug 2001 06:09:23 -0400
-Message-ID: <3B6A7962.B5B586C5@veritas.com>
-Date: Fri, 03 Aug 2001 15:43:54 +0530
+	id <S268427AbRHCKNW>; Fri, 3 Aug 2001 06:13:22 -0400
+Message-ID: <3B6A7A72.C2BF8C26@veritas.com>
+Date: Fri, 03 Aug 2001 15:48:26 +0530
 From: "Amit S. Kale" <akale@veritas.com>
 Organization: Veritas Software (India)
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Rajeev Bector <rajeev_bector@yahoo.com>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: finding out module name from an address  ?
-In-Reply-To: <GIEMIEJKPLDGHDJKJELAGECPCCAA.rajeev_bector@yahoo.com>
+To: Sujal Shah <sujal@sujal.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        tigran@veritas.com
+Subject: Re: FS Development (or interrupting ls)
+In-Reply-To: <3B69EF9C.74DF18D6@sujal.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rajeev Bector wrote:
-> 
-> Hi,
->   I am trying to write a patched kmalloc() which
-> will track the caller function using
-> __builtin_return_address(0). From that address,
-> is there a clean way to figure out if the address
-> belongs to a loadable module and if yes, get
-> to the module structure of that module so
-> that I can log on the basis of module->name
+Tigran Aivazian had a patch for doing a forced unmount.
+It will solve your problem.
+You can check whether he has a patch for the kernel you 
+are using.
 
-You can traverse module_list. An element of the
-list (struct module) also describes size of the module.
-So if an address is between struct module pointer and
-struct module pointer + mdoule size, you know that the module
-contains the code.
-
+Sujal Shah wrote:
 > 
-> Thanks
-> Rajeev
+> I'm working on a userspace filesystem daemon which replaces Venus (from
+> CODA) or podfuk (UserVFS) using the CODA driver.  I'm still early in my
+> development process, but I've run into one frustrating problem.  While
+> testing my code, I have started causing ls to hang.
 > 
-> _________________________________________________________
-> Do You Yahoo!?
-> Get your free @yahoo.com address at http://mail.yahoo.com
+> It keeps the directory open, which means I can't do things like, oh,
+> unmount the filesystem. :-)  Anyone have any suggestions on recovering
+> gracefully when this happens short of rebooting (which is what I do
+> now)?  Basically, 'ls' hangs, and can't be killed (even kill -9) and
+> 'lsof' lists the directory as open (which is furthered confirmed by
+> umount complaining about the filesystem being busy).
 > 
+> Thanks,
+> 
+> Sujal
+> 
+> --
+> ------ Sujal Shah ---- sujal@sujal.net
+> 
+>            http://www.sujal.net/
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

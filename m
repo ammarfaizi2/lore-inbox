@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292130AbSC0VC3>; Wed, 27 Mar 2002 16:02:29 -0500
+	id <S288748AbSC0VFu>; Wed, 27 Mar 2002 16:05:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292316AbSC0VCJ>; Wed, 27 Mar 2002 16:02:09 -0500
-Received: from orinoco.cisco.com ([64.101.176.25]:56203 "EHLO cisco.com")
-	by vger.kernel.org with ESMTP id <S292130AbSC0VCA>;
-	Wed, 27 Mar 2002 16:02:00 -0500
-Message-ID: <3CA232A1.7040702@cisco.com>
-Date: Wed, 27 Mar 2002 14:59:13 -0600
-From: Stephen Baker <stbaker@cisco.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S288012AbSC0VFk>; Wed, 27 Mar 2002 16:05:40 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:50146 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S287631AbSC0VF1>; Wed, 27 Mar 2002 16:05:27 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: Rusty Russell <rusty@rustcorp.com.au>, Martin Wirth <martin.wirth@dlr.de>
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+Date: Wed, 27 Mar 2002 16:05:51 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: Peter =?iso-8859-1?q?W=E4chtler?= <pwaechtler@loewe-komp.de>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E16q059-00088e-00@wagner.rustcorp.com.au>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Linux Kernel Patch; setpriority
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020327210454.BBB763FE06@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+On Tuesday 26 March 2002 06:10 pm, Rusty Russell wrote:
+> In message <3CA02E80.1000600@dlr.de> you write:
+> > >   And on top of them:
+> > >   futex_down(struct futex *);
+> > >   futex_up(struct futex *);
+> >
+> > Why not keep the simple one-sys-call interface for the fuxtexes. The
+> > code is so small that it is
+> >  not worth to delete it.
+>
+>
 
-This patch will allow a process or thread to changes it's priority 
-dynamically based on it's capabilities.  In our case we wanted to use 
-threads with Linux.  To have true priorities we need root to use 
-SCHED_FIFO or SCHED_RR; in many case root access is not allowed but we 
-still wanted priorities.  So we started using setpriority to change a 
-threads priority.  Now we used nice values from 19 to 0 which did not 
-require root access.  In some cases a thread need to raise it's nice 
-level and this would fail.  I also saw a note man renice(8) that said 
-this bug exists.
-So the following patch address this problem.  It allows any process or 
-thread to raise or lower it's nice value for it's current capability. 
-For example a CAP_SYS_NICE process can use 19 to -20 for it's value and 
-a normal user can use 19 to 0.  By capping normal user to zero then we 
-don't have any problems with conflicts with higher priority programs in 
-the system since zero is the default value.
+Rusty, you lost me in all these discussions now.
+Is the current position to export wait queues and drop the futex interface ?
+I would recommend against that. If we need 2 syscalls to implement
+the futex behavior that certainly will create quite some overhead.
 
-SB
-
-
---- linux-2.4.9-31/kernel/sys.c    Wed Mar 27 13:11:10 2002
-+++ linux/kernel/sys.c    Wed Mar 27 13:09:36 2002
-@@ -194,6 +194,12 @@
-    return 0;
-}
-
-+/*
-+ * Allow the process to adjust it's priority higher or lower.
-+ * If the process has CAP_SYS_NICE set then we can use
-+ * -20 to 19.  Otherwise we use 0 to 19 as our valid priority
-+ * range.
-+ */
-asmlinkage long sys_setpriority(int which, int who, int niceval)
-{
-    struct task_struct *p;
-@@ -220,7 +226,8 @@
-        }
-        if (error == -ESRCH)
-            error = 0;
--        if (niceval < p->nice && !capable(CAP_SYS_NICE))
-+        if ((niceval < 0) &&
-+            (niceval < p->nice && !capable(CAP_SYS_NICE)))
-            error = -EACCES;
-        else
-            p->nice = niceval;
+>From my own implementation, I exported the wait queues and I didn't need the
+add/wait sequence. This as you know is/was due to the fact that I used 
+semaphores in the kernel. While that created some allocation problems and 
+won't allow for usage of the wait queues, it seems more compact.
+Any chance to move the semaphore behavior into the futexes.
 
 
+
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)

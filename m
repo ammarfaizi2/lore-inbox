@@ -1,62 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285829AbSBGIAx>; Thu, 7 Feb 2002 03:00:53 -0500
+	id <S285935AbSBGIAn>; Thu, 7 Feb 2002 03:00:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285747AbSBGIAo>; Thu, 7 Feb 2002 03:00:44 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:61714 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S285829AbSBGIAg>; Thu, 7 Feb 2002 03:00:36 -0500
-Message-Id: <200202070758.g177wlt05475@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Greg KH <greg@kroah.com>
-Subject: Re: [RFC] List of maintainers
-Date: Thu, 7 Feb 2002 09:58:49 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200202051015.g15AFDt19761@Port.imtp.ilyichevsk.odessa.ua> <200202051357.g15DvDt22229@Port.imtp.ilyichevsk.odessa.ua> <20020205180037.GC1052@kroah.com>
-In-Reply-To: <20020205180037.GC1052@kroah.com>
+	id <S285747AbSBGIAe>; Thu, 7 Feb 2002 03:00:34 -0500
+Received: from borderworlds.dk ([193.162.142.101]:41478 "HELO
+	klingon.borderworlds.dk") by vger.kernel.org with SMTP
+	id <S285935AbSBGIAS>; Thu, 7 Feb 2002 03:00:18 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problems with iso9660 as initrd
+In-Reply-To: <m3r8ny8by5.fsf@borg.borderworlds.dk>
+	<a3sei4$h5p$1@cesium.transmeta.com>
+From: Christian Laursen <xi@borderworlds.dk>
+Date: 07 Feb 2002 09:00:16 +0100
+In-Reply-To: <a3sei4$h5p$1@cesium.transmeta.com>
+Message-ID: <m3n0yl90xb.fsf@borg.borderworlds.dk>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 February 2002 16:00, Greg KH wrote:
-> > > Vojtech Pavlik <vojtech@ucw.cz> [5 feb 2002]
-> > > 	Input device drivers (drivers/input/*, drivers/char/joystick/*).
-> > > 	Some USB drivers (printer, acm, catc, hid*, usbmouse, usbkbd, wacom).
-> > > 	VIA IDE support.
-> >
-> > I want these entries to sound like "Hey, I am working on these parts of
-> > the kernel, if you have something, send it to me not to Linus". With
-> > precise indication of those parts and your level of involvement:
->
-> Um, isn't that what Vojtech said?  You just converted his response into
-> full sentances.
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-I am happy with his entry. "I want these entries...." was targeted mostly at
-other entry makers.
+> Followup to:  <m3r8ny8by5.fsf@borg.borderworlds.dk>
+> By author:    Christian Laursen <xi@borderworlds.dk>
+> In newsgroup: linux.dev.kernel
+> > 
+> > Am I doing something terribly unusual, or just something wrong here?
+> > 
+> 
+> Also, you don't have CONFIG_ZISOFS set...
 
-> But I'm curious why you want to sort the list of maintainers by the
-> maintainer name.  Isn't the format of the current MAINTAINERS file much
-> nicer in that it's sorted by subsystem and driver type?  For if you want
-> to know who to send your USB Printer driver changes to, you just look
-> that up, instead of having to search through your file, which is ordered
-> in the other way.
+Sorry for not being precise enough. It is not a zisofs, just compressed
+with gzip as usual for an initrd image.
 
-Hmm. Don't know how to do it best... reverse date sort clearly shows obsolete 
-entries, I like it. Also people might like to see who is in the upper part of 
-the list (i.e. who is active), I like it too.
-
-> So in short, why are you trying to do this?
-
-To improve lk development process. To help bug reports and patches reach
-_relevant_ addresses. This is big problem now, big guys may ignore small 
-fixes, fixes posted to lkml are likely to never even _reach_ big guys who 
-don't read lkml (guess who :-). This confuse newcomers and J. Random Hackers.
-
-I hope patchbot and dynamically updated maintainer list may help lk 
-development scale better.
---
-vda
+-- 
+Best regards
+    Christian Laursen

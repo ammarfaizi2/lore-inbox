@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263531AbSITUTa>; Fri, 20 Sep 2002 16:19:30 -0400
+	id <S263593AbSITUYh>; Fri, 20 Sep 2002 16:24:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263546AbSITUT3>; Fri, 20 Sep 2002 16:19:29 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:62455 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S263531AbSITUT3>;
-	Fri, 20 Sep 2002 16:19:29 -0400
-Date: Sat, 21 Sep 2002 01:58:58 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: maneesh@in.ibm.com, William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       viro@math.psu.edu, Hanna Linder <hannal@us.ibm.com>
+	id <S263594AbSITUYh>; Fri, 20 Sep 2002 16:24:37 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:24482 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S263593AbSITUYg>;
+	Fri, 20 Sep 2002 16:24:36 -0400
+Date: Fri, 20 Sep 2002 13:32:54 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, viro@math.psu.edu
+cc: Hanna Linder <hannal@us.ibm.com>
 Subject: Re: 2.5.36-mm1 dbench 512 profiles
-Message-ID: <20020921015858.C4357@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20020919223007.GP28202@holomorphy.com> <68630000.1032477517@w-hlinder> <3D8A5FE6.4C5DE189@digeo.com> <20020920000815.GC3530@holomorphy.com> <200209200747.g8K7la9B174532@northrelay01.pok.ibm.com> <3D8B31F8.40900@us.ibm.com> <20020920231020.A4357@in.ibm.com>
-Mime-Version: 1.0
+Message-ID: <69960000.1032553974@w-hlinder>
+In-Reply-To: <61200000.1032547873@w-hlinder>
+References: <20020919223007.GP28202@holomorphy.com> <68630000.1032477517@w-hlinder> <3D8A5FE6.4C5DE189@digeo.com> <20020920000815.GC3530@holomorphy.com> <200209200747.g8K7la9B174532@northrelay01.pok.ibm.com> <20020920080628.GK3530@holomorphy.com> <20020920120358.GV28202@holomorphy.com> <61200000.1032547873@w-hlinder>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020920231020.A4357@in.ibm.com>; from dipankar@in.ibm.com on Fri, Sep 20, 2002 at 11:10:20PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 20, 2002 at 11:10:20PM +0530, Dipankar Sarma wrote:
-> > 
-> > In any case, we all know often acquired global locks are a bad idea on 
-> > a 32-way, and should be avoided like the plague.  I just wish we had a 
-> > dcache solution that didn't even need locks as much... :)
+--On Friday, September 20, 2002 11:51:13 -0700 Hanna Linder <hannal@us.ibm.com> wrote:
+
 > 
-> You have one - dcache_rcu. It reduces the dcache_lock acquisition
-> by about 65% over fastwalk.
+> 	Perhaps it is time to reconsider replacing fastwalk with dcache_rcu. 
 
-I should clarify, this was with a webserver benchmark.
+These patches were written by Maneesh Soni. Since the Read-Copy Update
+infrastructure has not been accepted into the mainline kernel yet (although
+there were murmurings of it being acceptable) you will need to apply
+those first. Here they are, apply in this order. Too big to post
+inline text though. These are provided against 2.5.36-mm1.
 
-For those who want to use them, Maneesh's dcache_rcu-12 patch and my
-RCU "performance" infrastructure patches are in -
 
-http://sourceforge.net/project/showfiles.php?group_id=8875&release_id=111743
+http://prdownloads.sourceforge.net/lse/rcu_ltimer-2.5.36-mm1
 
-The latest release is 2.5.36-mm1.
-rcu_ltimer and read_barrier_depends are pre-requisites for dcache_rcu.
+http://prdownloads.sourceforge.net/lse/read_barrier_depends-2.5.36-mm1
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+http://prdownloads.sourceforge.net/lse/dcache_rcu-12-2.5.36-mm1
+
+There has been quite a bit of testing done on this and it has proven
+quite stable. If anyone wants to do any additional testing that would
+be great.
+
+Thanks.
+
+Hanna
+

@@ -1,73 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262389AbUDDOKR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 10:10:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262415AbUDDOKR
+	id S262391AbUDDOMO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 10:12:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbUDDOMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 10:10:17 -0400
-Received: from main.gmane.org ([80.91.224.249]:44430 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262412AbUDDOKL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 10:10:11 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: 2.6.x: Multimedia keys for the Dell Inspiron 8x00 in console and X
-Date: Sun, 4 Apr 2004 15:55:33 +0200
-Message-ID: <MPG.1ada226fab8987f2989690@news.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
+	Sun, 4 Apr 2004 10:12:14 -0400
+Received: from postman2.arcor-online.net ([151.189.0.152]:3995 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S262391AbUDDOMK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 10:12:10 -0400
+Message-ID: <407017B3.7000705@bndlg.de>
+Date: Sun, 04 Apr 2004 14:12:03 +0000
+From: Johannes Deisenhofer <joe@bndlg.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Justin Cormack <justin@street-vision.com>
+CC: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Undecoded Interrupt with SiL3112 IDE?
+References: <406DA2DD.6040700@bndlg.de> <1080928106.30729.140.camel@lotte.street-vision.com>
+In-Reply-To: <1080928106.30729.140.camel@lotte.street-vision.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-63-140.29-151.libero.it
-X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Justin Cormack wrote:
+> siimage driver has buggy interrupt handling - have seen similar
+> behaviour. It appears to be unmaintained. Recommend using libata
+> instead.
+> 
 
-since I switched to the 2.6.x kernel series I am having problems 
-properly setting up the multimedia keys available on the keyboard of 
-my Dell Inspiron 8200 laptop, both in console and in X.
+I tried libata from 2.6.5-rc3. Previous versions are considered broken by the 
+author, especially for error handling.
 
-First of all, four of these keys (Play/Pause, Stop, Prev, Next) are 
-not recognized by the at keyboard driver; their scancodes go from 
-e001 to e004. This isn't really a problem because I can map them to 
-the values used in previous kernels (129 to 132) with setkeycodes.
+However, I had far worse problems:
 
-In console, the problem is that even after the mapping, the 
-i8kbuttons daemon that monitors usage of these key in console doesn't 
-seem to act. This is both with the keys that have to be mapped and 
-with e.g. the volume control keys that are properly seen by the 
-default driver with no additional user intervention. The utility 
-worked fine with 2.4.x kernels.
+Apr  3 10:18:10 urmel kernel:  <3>ata1: DMA timeout, stat 0x0
+Apr  3 10:18:10 urmel kernel: ATA: abnormal status 0x58 on port 0xF8854087
+Apr  3 10:18:10 urmel kernel: scsi0: ERROR on channel 0, id 0, lun 0, CDB: 
+Read (10) 00 00 07 65 3f 00 00 c8 00
+Apr  3 10:18:10 urmel kernel: Current sda: sense key Medium Error
+Apr  3 10:18:10 urmel kernel: Additional sense: Unrecovered read error - auto 
+reallocate failed
+Apr  3 10:18:10 urmel kernel: end_request: I/O error, dev sda, sector 484671
+Apr  3 10:18:10 urmel kernel: ATA: abnormal status 0x58 on port 0xF8854087
+Apr  3 10:18:10 urmel last message repeated 2 times
+Apr  3 10:19:47 urmel PAM_pwdb[3086]: (login) session opened for user root by 
+(uid=0)
 
-In X, the volume control buttons are seen correctly, and propetly 
-mapped to XF86AudioLower, Raise and Mute. The problems are with the 
-other four keys:
+This probably was a hardware problem. A new SATA cable seems to have fixed it. 
+  Can't explain the 'medium error'.
+SMART status of the drive is ok. No bad sectors according to SMART, none 
+reallocated.
 
-* if I do not map them with setkeycodes, X doesn't see them at all (I 
-can press them but xev shows no action)
-
-* if I map them to the proper keycodes with setkeycodes, X seems to 
-see them "shifted" by a certain amount; for example, if I do
-
-setkeycodes e001 129
-
-and press the Play/Pause key, xev reports a keycode of 133 (with no 
-symbol attached). OTOH, the keycodes 129 to 132 are correctly mapped 
-to the XF86Audio* feature by the inet(inspiron) xkb configs, so it's 
-really a problem of the wrong keycodes getting passed through.
-
-I would suspect xkb, if it wasn't for the i8kbuttons utility failing 
-too ... is there a way to have the keys behave properly?
-
--- 
-Giuseppe "Oblomov" Bilotta
-
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
+Jo
 

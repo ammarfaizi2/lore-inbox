@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315111AbSENCba>; Mon, 13 May 2002 22:31:30 -0400
+	id <S315115AbSENClo>; Mon, 13 May 2002 22:41:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315115AbSENCb3>; Mon, 13 May 2002 22:31:29 -0400
-Received: from ns.neureal.com ([64.29.18.145]:14084 "HELO mail2.neureal.com")
-	by vger.kernel.org with SMTP id <S315111AbSENCb3>;
-	Mon, 13 May 2002 22:31:29 -0400
-Message-ID: <003501c1faef$4fa621e0$050010ac@niunia.org>
-From: "Artur Jasowicz" <arturj@mousebusiness.com>
-To: "dean gaudet" <dean-list-linux-kernel@arctic.org>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0205131521160.17160-100000@twinlark.arctic.org>
-Subject: Re: downgrade ata udma mode at boot time?
-Date: Mon, 13 May 2002 21:30:17 -0500
-Organization: mousebusiness.com
+	id <S315119AbSENCln>; Mon, 13 May 2002 22:41:43 -0400
+Received: from [210.175.4.211] ([210.175.4.211]:56581 "EHLO nagi.cinet.co.jp")
+	by vger.kernel.org with ESMTP id <S315115AbSENCln>;
+	Mon, 13 May 2002 22:41:43 -0400
+Message-ID: <3CE0795B.62C956F0@cinet.co.jp>
+Date: Tue, 14 May 2002 11:41:31 +0900
+From: tomita <tomita@cinet.co.jp>
+X-Mailer: Mozilla 4.79C-ja  [ja/Vine] (X11; U; Linux 2.5.15-pc98 i586)
+X-Accept-Language: ja
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Martin Dalecki <dalecki@evision-venures.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] IDE PIO write Fix #2
+Content-Type: text/plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am having problems with building/resyncing RAID as well. Here's what I did
-for my two RH 7.2 machines:
-In /etc/sysconfig/ I created new file called hdparm.cfg with following
-content
+Hi.
+This patch solves problem (for me)
+"kernel stops without message at heavy usage of IDE HDD".
+But, "hda: lost interrupt" message appears, instead. 
+My BOX has both IDE and SCSI HDD.
+This message appears at accessing SCSI HDD by another
+task, during IDE heavy accsess.
+I guess, IDE driver has "critical section" needing "cli"
+(and so on).
+Any suggestions ?
 
--d 0 /dev/hde
--d 0 /dev/hdg
--d 0 /dev/hdi
--d 0 /dev/hdk
-
-In /etc/rc.d/rc.sysinit right before root partition gets remounted r/w
-(there may be a better spot for that, suggestions, anyone?) I added the
-following:
-
-# adjust hd parameters
-if [ -e /etc/sysconfig/hdparm.cfg -a -x /sbin/hdparm ]; then
-        action $"Adjusting hdparm:" /sbin/hdparm $(/bin/cat
-/etc/sysconfig/hdparm.cfg)
-fi
-
-Crude, but works.
-
-Artur
-
+--- linux-2.5.15/drivers/ide/ide-taskfile.c.orig	Fri May 10 11:49:35 2002
++++ linux-2.5.15/drivers/ide/ide-taskfile.c	Tue May 14 10:40:43 2002
+@@ -606,7 +606,7 @@
+ 		if (!ide_end_request(drive, rq, 1))
+ 			return ide_stopped;
+ 
+-	if ((rq->current_nr_sectors==1) ^ (stat & DRQ_STAT)) {
++	if ((rq->nr_sectors == 1) ^ ((stat & DRQ_STAT) != 0)) {
+ 		pBuf = ide_map_rq(rq, &flags);
+ 		DTF("write: %p, rq->current_nr_sectors: %d\n", pBuf, (int) rq->current_nr_sectors);

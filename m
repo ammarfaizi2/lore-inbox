@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266892AbUIERkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265477AbUIER62@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266892AbUIERkn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 13:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266903AbUIERkn
+	id S265477AbUIER62 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 13:58:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266895AbUIER62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 13:40:43 -0400
-Received: from host-63-144-52-41.concordhotels.com ([63.144.52.41]:49685 "EHLO
-	080relay.CIS.CIS.com") by vger.kernel.org with ESMTP
-	id S266892AbUIERkg convert rfc822-to-8bit (ORCPT
+	Sun, 5 Sep 2004 13:58:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:55787 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265477AbUIER60 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 13:40:36 -0400
-Subject: Re: [BUG] r200 dri driver deadlocks
-From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-To: Patrick McFarland <diablod3@gmail.com>
-Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
-In-Reply-To: <d577e56904090501224f252dbc@mail.gmail.com>
-References: <d577e569040904021631344d2e@mail.gmail.com>
-	 <1094321696.31459.103.camel@admin.tel.thor.asgaard.local>
-	 <d577e56904090413365f5e223d@mail.gmail.com>
-	 <1094366099.31457.112.camel@admin.tel.thor.asgaard.local>
-	 <d577e56904090501224f252dbc@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Date: Sun, 05 Sep 2004 13:40:54 -0400
-Message-Id: <1094406055.31464.118.camel@admin.tel.thor.asgaard.local>
-Mime-Version: 1.0
+	Sun, 5 Sep 2004 13:58:26 -0400
+Date: Sun, 5 Sep 2004 10:58:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/3] beat kswapd with the proverbial clue-bat
+In-Reply-To: <1094405830.2809.8.camel@laptop.fenrus.com>
+Message-ID: <Pine.LNX.4.58.0409051051120.2331@ppc970.osdl.org>
+References: <413AA7B2.4000907@yahoo.com.au>  <20040904230210.03fe3c11.davem@davemloft.net>
+  <413AAF49.5070600@yahoo.com.au> <413AE6E7.5070103@yahoo.com.au> 
+ <Pine.LNX.4.58.0409051021290.2331@ppc970.osdl.org> <1094405830.2809.8.camel@laptop.fenrus.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-09-05 at 04:22 -0400, Patrick McFarland wrote:
-> On Sun, 05 Sep 2004 02:34:59 -0400, Michel Dänzer <michel@daenzer.net> wrote:
-> > 
-> > Where did you get r200_dri.so from?
+
+
+On Sun, 5 Sep 2004, Arjan van de Ven wrote:
 > 
-> From the one that comes with the Deb X I mentioned above.
+> well... we have a reverse mapping now. What is stopping us from doing
+> physical defragmentation ?
 
-Please try something newer, e.g. my xlibmesa-gl1-dri-trunk or a binary
-snapshot from dri.sf.net.
+Nothing but replacement policy, really, and the fact that not everything
+is rmappable.
 
+I think we should _normally_ honor replacement policy, the way we do now.  
+Only if we are in the situation "we have enough memory, but not enough
+high-order-pages" should we go to a separate physical defrag algorithm.
 
--- 
-Earthling Michel Dänzer      |     Debian (powerpc), X and DRI developer
-Libre software enthusiast    |   http://svcs.affero.net/rm.php?r=daenzer
+So either kswapd should have a totally different mode, or there should be
+a separate "kdefragd". It would potentially also be good if it is user-
+triggerable, so that you could, for example, have a heavier defragd run
+from the daily "cron" runs - something that doesn't seem to make much
+sense from a traditional kswapd standpoint.
+
+In other words, I don't think the physical thing should be triggered at 
+all by normal memory pressure. A large-order allocation failure would 
+trigger it "somewhat", and maybe it might run very slowly in the 
+background (wake up every five minutes or so to see if it is worth doing 
+anything), and then some user-triggerable way to make it more aggressive.
+
+Does that sound sane to people?
+
+		Linus

@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289455AbSAJONO>; Thu, 10 Jan 2002 09:13:14 -0500
+	id <S289457AbSAJOPE>; Thu, 10 Jan 2002 09:15:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289459AbSAJONF>; Thu, 10 Jan 2002 09:13:05 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:17549
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S289455AbSAJOMw>; Thu, 10 Jan 2002 09:12:52 -0500
-Date: Thu, 10 Jan 2002 09:22:10 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: David Balazic <david.balazic@uni-mb.si>
-Cc: matthias.andree@stud.uni-dortmund.de,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Simple local DOS
-Message-ID: <20020110092209.A1357@animx.eu.org>
-In-Reply-To: <3C3D9B2B.2DDB72CB@uni-mb.si>
+	id <S289461AbSAJOOy>; Thu, 10 Jan 2002 09:14:54 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:58606 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S289457AbSAJOOi>; Thu, 10 Jan 2002 09:14:38 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <25006.1010627525@kao2.melbourne.sgi.com> 
+In-Reply-To: <25006.1010627525@kao2.melbourne.sgi.com> 
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Corey Minyard <minyard@acm.org>, linux-kernel@vger.kernel.org
+Subject: Re: Moving zlib so that others may use it 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <3C3D9B2B.2DDB72CB@uni-mb.si>; from David Balazic on Thu, Jan 10, 2002 at 02:46:19PM +0100
+Date: Thu, 10 Jan 2002 14:13:58 +0000
+Message-ID: <25702.1010672038@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > log in on some virtual terminal, then run the following line 
-> > > in a bourne type shell, like bash : 
-> > > 
-> > > X 2>&1 | less 
-> 
-> > or by just not piping X 
 
-into less or more.
+kaos@ocs.com.au said:
+>  I am assuming that you can satisfy hpa's concerns about using a
+> single version of zlib for everybody.  Also note that arch/ppc/boot/
+> lib has its own version of zlib which is quite different to the
+> others.  First make sure that you can build one version of zlib that
+> works for everybody. 
 
-> I didn't do it on purpose to lock up my system and risk FS corruption
-> durin unclean reboot. I was interested in the server output and " 2>&1 | less"
-> is the logical way to do that.
-> 
-> I could also "solve" this problem by not running linux. And I can "solve" all
-> gcc bugs by not using gcc. Those are not solutions. Not to me at least.
+I can confirm that the JFFS2 and PPP zlib are compatible - differing in 
+cosmetics only. Moving it to lib/zlib would be a good thing.
 
-You could also solve all your computer problems by not using a computer.
+We can verify compatibility for other zlib users as an when those other
+users are converted to use lib/zlib instead of their own private copy.
 
-> > output into interactive programs. tail -f is a viable workaround -- and 
-> 
-> tail -f ? what is the difference between :
-> $ X 2>&1 | tail -f
-> and
-> $ X 
-> ?
-> 
-> > all this is off-topic on linux-kernel,
-> 
-> non-root user locked up the console code. console code is part of kernel.
-> it is a kernel topic.
 
-This is not the problem. It's not the kernel's fault, it's less's fault. 
-When you pipe to less, it only reads enough to display on the screen.  X is
-sending tons more information than less is willing to read therefor X will
-block (stop) until less reads more.  I've done this myself.  my work around
-is to press END as soon as I hit enter.  That way less will go to the end
-and not block.
+> The best option is to build zlib.o for the kernel (not module) and
+> store it in lib.a.  Compile zlib.o if any consumer of zlib has been
+> selected and add a dummy reference to zlib code in vmlinux to ensure
+> that zlib is pulled from the archive if anybody needs it, even if all
+> the consumers are in modules. 
 
-You're better off doing:
-X > somefile 2>&1
-then lessing "somefile".  this won't block the X server.
+AUIU you've since decided this isn't necessary - which is good. Making the
+static kernel image differ according to which modules happened to be
+compiled at the time is not a good thing. Sometimes we do it, but we should
+avoid it when we can.
 
-I agree with matt that this is off-topic as it's not a kernel issue, it's
-userland.
+If zlib.o is used in modules only, compile it as a module. Don't put it 
+into the kernel.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+--
+dwmw2
+
+

@@ -1,33 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263104AbTEGLnD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 07:43:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263096AbTEGLnD
+	id S263086AbTEGLmI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 07:42:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263096AbTEGLmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 07:43:03 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:1160 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S263104AbTEGLnD
+	Wed, 7 May 2003 07:42:08 -0400
+Received: from host62-24-231-35.dsl.vispa.com ([62.24.231.35]:5132 "HELO
+	analogue.hn.org") by vger.kernel.org with SMTP id S263086AbTEGLmI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 07:43:03 -0400
-Message-Id: <200305071154.h47BsbsD027038@post.webmailer.de>
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
-To: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Date: Wed, 07 May 2003 13:51:11 +0200
-References: <20030507104008$12ba@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+	Wed, 7 May 2003 07:42:08 -0400
+To: linux-kernel@vger.kernel.org
+From: Steve Spencer <spamme@analogue.hn.org>
+Subject: Tyan Tiger MP + 2.4.20
+Message-Id: <S263086AbTEGLmI/20030507114208Z+5636@vger.kernel.org>
+Date: Wed, 7 May 2003 07:42:08 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+Hey folks,
 
-> Only change *needed* in each architecture is moving A() macros into
-> compat.h, so that generic code can use it. Please apply,
+Has anyone else experiencesd stability issues with 2.4.20 and Tyan Tiger MP mobo/Athlon MP processors?
 
-Please don't use A() in new code, we now have compat_ptr() and
-compat_uptr_t for this.
+I think it may be an power meneanagement issue since onreboot doesn't work properly; the machine powersscreens go into power save mode but the box doesnt come back up ...
 
-        Arnd <><
+Any thoughts?
+
+Cheers
+asteve.

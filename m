@@ -1,116 +1,236 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261902AbUCIMsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 07:48:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbUCIMsZ
+	id S261907AbUCINFe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 08:05:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbUCINFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 07:48:25 -0500
-Received: from cable209a180.usuarios.retecal.es ([212.183.209.180]:10624 "EHLO
-	debian") by vger.kernel.org with ESMTP id S261902AbUCIMsV (ORCPT
+	Tue, 9 Mar 2004 08:05:33 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:39301 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261907AbUCINFF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 07:48:21 -0500
-Subject: [BUG][2.6.4-rc2-mm1] kernel BUG at fs/proc/generic.c:664!
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Yv9Zman43oibetAwpJhc"
-Organization: Hispalinux - http://www.hispalinux.es
-Message-Id: <1078836492.23461.7.camel@debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 09 Mar 2004 13:48:13 +0100
+	Tue, 9 Mar 2004 08:05:05 -0500
+Date: Tue, 9 Mar 2004 14:04:52 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Simmons <jsimmons@infradead.org>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux/PPC on APUS development 
+	<linux-apus-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] New Permedia2 framebuffer driver.
+In-Reply-To: <Pine.LNX.4.44.0403032220410.30666-100000@phoenix.infradead.org>
+Message-ID: <Pine.GSO.4.58.0403091400530.28127@waterleaf.sonytel.be>
+References: <Pine.LNX.4.44.0403032220410.30666-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 3 Mar 2004, James Simmons wrote:
+> This patch fixes the permedia2 framebuffer driver. Currently it doesn't
+> event compile. This patch only touches the current permedia driver.
+> Regular patch is valiable at
+>
+> http://phoenix.infradead.org/~jsimmons/pm2fb.diff
 
---=-Yv9Zman43oibetAwpJhc
-Content-Type: multipart/mixed; boundary="=-FTwGO7nkFa719yd4bVe+"
+I suggest the following changes:
+  - Mark FB_PM2 broken on Amiga, until somebody fixes it (pm2fb.c explicitly
+    tests for CONFIG_PCI right now)
+  - Always use the standard barrier macros (they do exist on m68k, and map to
+    barrier())
+  - Fix set_aperture() on big endian (pm2fb_par->depth doesn't exist)
 
+--- linux-2.6.4-rc2/drivers/video/Kconfig	2004-03-04 11:31:17.000000000 +0100
++++ linux-m68k-2.6.4-rc2/drivers/video/Kconfig	2004-03-04 16:35:00.000000000 +0100
+@@ -55,7 +55,7 @@
 
---=-FTwGO7nkFa719yd4bVe+
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+ config FB_PM2
+ 	tristate "Permedia2 support"
+-	depends on FB && (AMIGA || PCI)
++	depends on FB && ((AMIGA && BROKEN) || PCI)
+ 	help
+ 	  This is the frame buffer device driver for the Permedia2 AGP frame
+ 	  buffer card from ASK, aka `Graphic Blaster Exxtreme'.  There is a
+--- linux-2.6.4-rc2/drivers/video/pm2fb.c	2004-03-04 11:31:17.000000000 +0100
++++ linux-m68k-2.6.4-rc2/drivers/video/pm2fb.c	2004-03-04 16:30:48.000000000 +0100
+@@ -62,17 +62,6 @@
+ #define DPRINTK(a,b...)
+ #endif
 
-Hi.
+-/* Memory barriers. */
+-#ifdef __mc68000__
+-#define DEFW()
+-#define DEFR()
+-#define DEFRW()
+-#else
+-#define DEFW()		wmb()
+-#define DEFR()		rmb()
+-#define DEFRW()		mb()
+-#endif
+-
+ /*
+  * Driver data
+  */
+@@ -182,7 +171,7 @@
+ 		index = PM2VR_RD_INDEXED_DATA;
+ 		break;
+ 	}
+-	DEFRW();
++	mb();
+ 	return pm2_RD(p, index);
+ }
 
-I get this with latest -mm kernel.
---=20
-Ram=C3=B3n Rey Vicente       <ramon dot rey at hispalinux dot es>
-        jabber ID       <rreylinux at jabber dot org>
-GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
+@@ -198,21 +187,21 @@
+ 		index = PM2VR_RD_INDEXED_DATA;
+ 		break;
+ 	}
+-	DEFRW();
++	mb();
+ 	pm2_WR(p, index, v);
+ }
 
---=-FTwGO7nkFa719yd4bVe+
-Content-Disposition: inline; filename=syslog
-Content-Type: text/plain; name=syslog; charset=UTF-8
-Content-Transfer-Encoding: base64
+ inline static u32 pm2v_RDAC_RD(struct pm2fb_par* p, s32 idx)
+ {
+ 	pm2_WR(p, PM2VR_RD_INDEX_LOW, idx & 0xff);
+-	DEFRW();
++	mb();
+ 	return pm2_RD(p, PM2VR_RD_INDEXED_DATA);
+ }
 
-TWFyICA5IDAyOjQzOjA1IGRlYmlhbiBrZXJuZWw6IGtlcm5lbCBCVUcgYXQgZnMvcHJvYy9nZW5l
-cmljLmM6NjY0IQ0KTWFyICA5IDAyOjQzOjA1IGRlYmlhbiBrZXJuZWw6IGludmFsaWQgb3BlcmFu
-ZDogMDAwMCBbIzFdDQpNYXIgIDkgMDI6NDM6MDUgZGViaWFuIGtlcm5lbDogUFJFRU1QVCANCk1h
-ciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiBDUFU6ICAgIDANCk1hciAgOSAwMjo0MzowNSBk
-ZWJpYW4ga2VybmVsOiBFSVA6ICAgIDAwNjA6W3JlbW92ZV9wcm9jX2VudHJ5KzIxNi8yODhdICAg
-IE5vdCB0YWludGVkIFZMSQ0KTWFyICA5IDAyOjQzOjA1IGRlYmlhbiBrZXJuZWw6IEVGTEFHUzog
-MDAwMTAyODINCk1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiBFSVAgaXMgYXQgcmVtb3Zl
-X3Byb2NfZW50cnkrMHhkOC8weDEyMA0KTWFyICA5IDAyOjQzOjA1IGRlYmlhbiBrZXJuZWw6IGVh
-eDogY2VlZmMxMjAgICBlYng6IGNmMzEyMzkwICAgZWN4OiBjZmEwNzQ2MCAgIGVkeDogY2ZmZjBh
-MDANCk1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiBlc2k6IDAwMDAwMDA1ICAgZWRpOiBj
-ZjJjMGE0MCAgIGVicDogY2Y1NjhjMDAgICBlc3A6IGNmNmFmZTk4DQpNYXIgIDkgMDI6NDM6MDUg
-ZGViaWFuIGtlcm5lbDogZHM6IDAwN2IgICBlczogMDA3YiAgIHNzOiAwMDY4DQpNYXIgIDkgMDI6
-NDM6MDUgZGViaWFuIGtlcm5lbDogUHJvY2VzcyBtb2Rwcm9iZSAocGlkOiA2MjExLCB0aHJlYWRp
-bmZvPWNmNmFlMDAwIHRhc2s9Y2Y5YTJjMjApDQpNYXIgIDkgMDI6NDM6MDUgZGViaWFuIGtlcm5l
-bDogU3RhY2s6IGNmMmMwYTg4IGQwOGU5NjEwIGNmMmMwYWEwIDAwMDAwMDAwIGQwOGRmOGVjIGNm
-MmMwYTg4IGNmMzEyMzYwIGNmNTY4YzAwIA0KTWFyICA5IDAyOjQzOjA1IGRlYmlhbiBrZXJuZWw6
-ICAgICAgICBjZjU2OGMwMCBkMDhkZjQyNiBjZjJjMGFhMCBjZjU2OGMwMCBkMDhkZGQ1OCBjZjU2
-OGMwMCBjZWVmYzE4MCBjZWRlMTMwMCANCk1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiAg
-ICAgICAgY2VkZDViNDAgYzAxNjA4N2EgY2ZmZjdhNDQgY2VkZDViNDAgY2VmODc1ZTAgY2VmODc1
-ZTAgYzAxNWVhN2EgYzEyZWNjNDQgDQpNYXIgIDkgMDI6NDM6MDUgZGViaWFuIGtlcm5lbDogQ2Fs
-bCBUcmFjZToNCk1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiAgW19fY3JjX25mX3VucmVn
-aXN0ZXJfaG9vaysxNjQwNzkvMTIxMjk5Nl0gc25kX2luZm9fdW5yZWdpc3RlcisweDJjLzB4NjAg
-W3NuZF0NCk1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiAgW19fY3JjX25mX3VucmVnaXN0
-ZXJfaG9vaysxNjI4NTcvMTIxMjk5Nl0gc25kX2luZm9fY2FyZF9mcmVlKzB4MjYvMHg2MCBbc25k
-XQ0KTWFyICA5IDAyOjQzOjA1IGRlYmlhbiBrZXJuZWw6ICBbX19jcmNfbmZfdW5yZWdpc3Rlcl9o
-b29rKzE1NzAxOS8xMjEyOTk2XSBzbmRfY2FyZF9mcmVlKzB4ZDgvMHgyMjAgW3NuZF0NCk1hciAg
-OSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiAgW2Rlc3Ryb3lfaW5vZGUrNTgvNjRdIGRlc3Ryb3lf
-aW5vZGUrMHgzYS8weDQwDQpNYXIgIDkgMDI6NDM6MDUgZGViaWFuIGtlcm5lbDogIFtkcHV0KzI2
-LzYwOF0gZHB1dCsweDFhLzB4MjYwDQpNYXIgIDkgMDI6NDM6MDUgZGViaWFuIGtlcm5lbDogIFtf
-X2NyY19uZl91bnJlZ2lzdGVyX2hvb2srMzUxOTg3LzEyMTI5OTZdIHNuZF9hdWRpb3BjaV9yZW1v
-dmUrMHgxMC8weDQwIFtzbmRfZW5zMTM3MV0NCk1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVs
-OiAgW3BjaV9kZXZpY2VfcmVtb3ZlKzQ2LzY0XSBwY2lfZGV2aWNlX3JlbW92ZSsweDJlLzB4NDAN
-Ck1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiAgW2RldmljZV9yZWxlYXNlX2RyaXZlcis3
-NC85Nl0gZGV2aWNlX3JlbGVhc2VfZHJpdmVyKzB4NGEvMHg2MA0KTWFyICA5IDAyOjQzOjA1IGRl
-YmlhbiBrZXJuZWw6ICBbZHJpdmVyX2RldGFjaCsyNy82NF0gZHJpdmVyX2RldGFjaCsweDFiLzB4
-NDANCk1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiAgW2J1c19yZW1vdmVfZHJpdmVyKzQx
-Lzk2XSBidXNfcmVtb3ZlX2RyaXZlcisweDI5LzB4NjANCk1hciAgOSAwMjo0MzowNSBkZWJpYW4g
-a2VybmVsOiAgW2RyaXZlcl91bnJlZ2lzdGVyKzExLzI3XSBkcml2ZXJfdW5yZWdpc3RlcisweGIv
-MHgxYg0KTWFyICA5IDAyOjQzOjA1IGRlYmlhbiBrZXJuZWw6ICBbcGNpX3VucmVnaXN0ZXJfZHJp
-dmVyKzE0LzMyXSBwY2lfdW5yZWdpc3Rlcl9kcml2ZXIrMHhlLzB4MjANCk1hciAgOSAwMjo0Mzow
-NSBkZWJpYW4ga2VybmVsOiAgW19fY3JjX25mX3VucmVnaXN0ZXJfaG9vayszNTIwNDUvMTIxMjk5
-Nl0gYWxzYV9jYXJkX2VuczEzN3hfZXhpdCsweGEvMHhjIFtzbmRfZW5zMTM3MV0NCk1hciAgOSAw
-Mjo0MzowNSBkZWJpYW4ga2VybmVsOiAgW3N5c19kZWxldGVfbW9kdWxlKzI2Ni8zMjBdIHN5c19k
-ZWxldGVfbW9kdWxlKzB4MTBhLzB4MTQwDQpNYXIgIDkgMDI6NDM6MDUgZGViaWFuIGtlcm5lbDog
-IFtkb19tdW5tYXArMjQ4LzMyMF0gZG9fbXVubWFwKzB4ZjgvMHgxNDANCk1hciAgOSAwMjo0Mzow
-NSBkZWJpYW4ga2VybmVsOiAgW3N5c19tdW5tYXArNDkvOTZdIHN5c19tdW5tYXArMHgzMS8weDYw
-DQpNYXIgIDkgMDI6NDM6MDUgZGViaWFuIGtlcm5lbDogIFtzeXNjYWxsX2NhbGwrNy8xMV0gc3lz
-Y2FsbF9jYWxsKzB4Ny8weGINCk1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiANCk1hciAg
-OSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiBDb2RlOiBmZiA1OCBlYiBhMyA4YiA0NyA0MCBjNyA0
-NyA0NCAwMSAwMCAwMCAwMA0KNTAgZmYgNzcgMDQgOGIgNDQgMjQgMjAgZmYgNzAgMDQgNjggMDAg
-YzAgMjQgYzAgZTggNzAgMjMgZmEgZmYgODMgYzQgMTAgZTkgN2MNCmZmIGZmIGZmIDwwZj4gMGIg
-OTggMDIgM2EgYTUgMjQgYzAgZWIgYmYgOGIgNDQgMjQgMTggNjYgZmYgNDggMGEgZWIgOTIgODkg
-DQo=
+ inline static void pm2v_RDAC_WR(struct pm2fb_par* p, s32 idx, u32 v)
+ {
+ 	pm2_WR(p, PM2VR_RD_INDEX_LOW, idx & 0xff);
+-	DEFRW();
++	mb();
+ 	pm2_WR(p, PM2VR_RD_INDEXED_DATA, v);
+ }
 
---=-FTwGO7nkFa719yd4bVe+--
+@@ -222,7 +211,7 @@
+ inline static void WAIT_FIFO(struct pm2fb_par* p, u32 a)
+ {
+ 	while( pm2_RD(p, PM2R_IN_FIFO_SPACE) < a );
+-	DEFRW();
++	mb();
+ }
+ #endif
 
---=-Yv9Zman43oibetAwpJhc
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
+@@ -342,7 +331,7 @@
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+ 	WAIT_FIFO(p, 1);
+ 	pm2_WR(p, PM2R_RD_PALETTE_WRITE_ADDRESS, 0);
+-	DEFW();
++	wmb();
+ 	while (i--) {
+ 		WAIT_FIFO(p, 3);
+ 		pm2_WR(p, PM2R_RD_PALETTE_DATA, 0);
+@@ -366,14 +355,14 @@
+ 	if (p->type == PM2_TYPE_PERMEDIA2V)
+ 		pm2_WR(p, PM2VR_RD_INDEX_HIGH, 0);
+ 	pm2_WR(p, PM2R_RESET_STATUS, 0);
+-	DEFRW();
++	mb();
+ 	while (pm2_RD(p, PM2R_RESET_STATUS) & PM2F_BEING_RESET)
+ 		;
+-	DEFRW();
++	mb();
+ #ifdef CONFIG_FB_PM2_FIFO_DISCONNECT
+ 	DPRINTK("FIFO disconnect enabled\n");
+ 	pm2_WR(p, PM2R_FIFO_DISCON, 1);
+-	DEFRW();
++	mb();
+ #endif
+ }
+ #endif
+@@ -434,14 +423,14 @@
+ 	pm2_RDAC_WR(p, PM2I_RD_BLUE_KEY, 0);
+ }
 
-iD8DBQBATb0LRGk68b69cdURAimMAJ48xS8BDPowqwT4T5LHbYZdIQ/fwACfeWxy
-N0xggLg25FQorMomeIhwF0o=
-=t7uC
------END PGP SIGNATURE-----
+-static void set_aperture(struct pm2fb_par* p)
++static void set_aperture(struct pm2fb_par *p, u32 depth)
+ {
+ 	WAIT_FIFO(p, 4);
+ #ifdef __LITTLE_ENDIAN
+ 	pm2_WR(p, PM2R_APERTURE_ONE, 0);
+ 	pm2_WR(p, PM2R_APERTURE_TWO, 0);
+ #else
+-	switch (p->depth) {
++	switch (depth) {
+ 	case 8:
+ 	case 24:
+ 		pm2_WR(p, PM2R_APERTURE_ONE, 0);
+@@ -464,11 +453,11 @@
+ {
+ 	WAIT_FIFO(p, 4);
+ 	pm2_WR(p, PM2R_RD_PALETTE_WRITE_ADDRESS, regno);
+-	DEFW();
++	wmb();
+ 	pm2_WR(p, PM2R_RD_PALETTE_DATA, r);
+-	DEFW();
++	wmb();
+ 	pm2_WR(p, PM2R_RD_PALETTE_DATA, g);
+-	DEFW();
++	wmb();
+ 	pm2_WR(p, PM2R_RD_PALETTE_DATA, b);
+ }
 
---=-Yv9Zman43oibetAwpJhc--
+@@ -482,14 +471,14 @@
+ 		pm2_mnp(clk, &m, &n, &p);
+ 		WAIT_FIFO(par, 8);
+ 		pm2_RDAC_WR(par, PM2I_RD_PIXEL_CLOCK_A3, 0);
+-		DEFW();
++		wmb();
+ 		pm2_RDAC_WR(par, PM2I_RD_PIXEL_CLOCK_A1, m);
+ 		pm2_RDAC_WR(par, PM2I_RD_PIXEL_CLOCK_A2, n);
+-		DEFW();
++		wmb();
+ 		pm2_RDAC_WR(par, PM2I_RD_PIXEL_CLOCK_A3, 8|p);
+-		DEFW();
++		wmb();
+ 		pm2_RDAC_RD(par, PM2I_RD_PIXEL_CLOCK_STATUS);
+-		DEFR();
++		rmb();
+ 		for (i = 256;
+ 		     i && !(pm2_RD(par, PM2R_RD_INDEXED_DATA) & PM2F_PLL_LOCKED);
+ 		     i--)
+@@ -744,9 +733,9 @@
+ 		pm2_WR(par, PM2VR_RD_INDEX_HIGH, 0);
+ 	}
+
+-	set_aperture(par);
++	set_aperture(par, depth);
+
+-	DEFRW();
++	mb();
+ 	WAIT_FIFO(par, 19);
+ 	pm2_RDAC_WR(par, PM2I_RD_COLOR_KEY_CONTROL,
+ 		    ( depth == 8 ) ? 0 : PM2F_COLOR_KEY_TEST_OFF);
+@@ -794,13 +783,13 @@
+ 	pm2_WR(par, PM2R_VS_END, vsend);
+ 	pm2_WR(par, PM2R_VB_END, vbend);
+ 	pm2_WR(par, PM2R_SCREEN_STRIDE, stride);
+-	DEFW();
++	wmb();
+ 	pm2_WR(par, PM2R_WINDOW_ORIGIN, 0);
+ 	pm2_WR(par, PM2R_SCREEN_SIZE, (height << 16) | width);
+ 	pm2_WR(par, PM2R_SCISSOR_MODE, PM2F_SCREEN_SCISSOR_ENABLE);
+-	DEFW();
++	wmb();
+ 	pm2_WR(par, PM2R_SCREEN_BASE, base);
+-	DEFW();
++	wmb();
+ 	set_video(par, video);
+ 	WAIT_FIFO(par, 4);
+ 	switch (par->type) {
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

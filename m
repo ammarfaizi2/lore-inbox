@@ -1,64 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266886AbSKKR7t>; Mon, 11 Nov 2002 12:59:49 -0500
+	id <S266876AbSKKSBr>; Mon, 11 Nov 2002 13:01:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266888AbSKKR7t>; Mon, 11 Nov 2002 12:59:49 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52298 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S266886AbSKKR7p>; Mon, 11 Nov 2002 12:59:45 -0500
+	id <S266874AbSKKSBq>; Mon, 11 Nov 2002 13:01:46 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:11229 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S266876AbSKKSAb>;
+	Mon, 11 Nov 2002 13:00:31 -0500
+Subject: Re: [PATCH] NCR53C9x ESP: C99 designated initializers
+From: Arjan van de Ven <arjanv@redhat.com>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Werner Almesberger <wa@almesberger.net>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Andy Pfiffer <andyp@osdl.org>,
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
+       geert@linux-m68k.org, Christoph Hellwig <hch@infradead.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mike Galbraith <efault@gmx.de>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Subject: Re: [lkcd-devel] Re: What's left over.
-References: <Pine.LNX.4.44.0211091901240.2336-100000@home.transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 11 Nov 2002 11:03:43 -0700
-In-Reply-To: <Pine.LNX.4.44.0211091901240.2336-100000@home.transmeta.com>
-Message-ID: <m1znsg9e68.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+       dledford@redhat.com, Jens Axboe <axboe@suse.de>
+In-Reply-To: <Pine.LNX.4.44.0211110915470.1805-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0211110915470.1805-100000@home.transmeta.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-uLeu0/b3ArapwEqVeLaS"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 11 Nov 2002 18:43:15 +0100
+Message-Id: <1037036596.2441.3.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
 
-> On 9 Nov 2002, Eric W. Biederman wrote:
-> > 
-> > And despite my utter puzzlement on why you want the syscall cut in two.
-> 
-> I'm amazed about your puzzlement, since everybody else seem to get my 
-> arguments, but as long as you play along I don't much care.
+--=-uLeu0/b3ArapwEqVeLaS
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I think this comes from being the guy down in the trenches implementing
-the code.   And it is sometimes hard to look up, far enough to have design
-discussions.
+On Mon, 2002-11-11 at 18:24, Linus Torvalds wrote:
+>=20
+> On 11 Nov 2002, Alan Cox wrote:
+> >=20
+> > The stupid thing is we take the lock then call the eh function then dro=
+p
+> > it. You can drop the lock, wait and retake it. I need to fix a couple o=
+f
+> > other drivers to do a proper wait and in much the same way.
+>=20
+> Hmm.. I wonder if the thing should disable the queue (plug it) and releas=
+e=20
+> the lock before calling reset. I assume we don't want any new requests at=
+=20
+> this point anyway, and having the low-level drivers know about stopping=20
+> the queue etc sounds like a bad idea..
 
-I totally agree that having a load/exec split is the right
-approach now that I can imagine an implementation where the code will
-actually work for the panic case.  Before it felt like lying.  Doing
-the  split-up, promising that kexec on panic will work eventually,
-when I could not even see it as a possibility was at the core of my
-objections.
+something similar is needed in the scsi layer for other reasons too; I
+can imagine something that behaves similar as the network layer's=20
+netif_stop_queue() and allows drivers to inform the upper layer to stop
+trying to submit requests to the lower level driver. Fiber channel
+drivers can do this for example on LIP down (and enable again on LIP
+up). LIP is not the only reason this is useful; overall I estimate that
+over half of the code in the (out of tree) qlogic 2x00 driver can be
+removed if this functionality was available.
 
-What brought me around is that I can add a flag field to kexec_load.
-With that flag field I can tell the kernel please step extra carefully
-this code will be used to handle kexec on panic.  Without that I may
-be up a creek without a paddle for figuring out how to debug that code.
+Greetings,
+   Arjan van de Ven
 
-To be able to support this at all I have had to be very creative in
-inventing debugging code.  Which is why I have the serial console
-program kexec_test.  It provides visibility into what is happening
-when nothing else will.  That and memtest86 which will occasionally
-catch DMA's that have not been stopped, (memory errors on good ram) I
-at least have a place to start rather than a blank screen when
-guessing why the new kernel did not start up.
 
-Eric
+--=-uLeu0/b3ArapwEqVeLaS
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9z+wyxULwo51rQBIRAtUOAJwO07AEb/55GQeaD8qw2oRwvbBsbQCgkhKN
+jbU+AtgUuf70jin7Fur9xG0=
+=v/lt
+-----END PGP SIGNATURE-----
+
+--=-uLeu0/b3ArapwEqVeLaS--
+

@@ -1,43 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbUFEOQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbUFEOYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbUFEOQE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 10:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUFEOQE
+	id S261500AbUFEOYy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 10:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUFEOYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 10:16:04 -0400
-Received: from adsl-67-121-155-154.dsl.pltn13.pacbell.net ([67.121.155.154]:19717
-	"EHLO coyote") by vger.kernel.org with ESMTP id S261530AbUFEOQC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 10:16:02 -0400
-Date: Sat, 05 Jun 2004 07:16:20 -0800
-From: EXPERIENCE.SUPPORT@SHAREYEXP.US
-Subject: A user is trying to find experiences about: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Message-ID: <ROADRUNNERBUzN8I2lr00014612@coyote>
-X-OriginalArrivalTime: 05 Jun 2004 14:16:20.0656 (UTC) FILETIME=[ACA4EB00:01C44B07]
+	Sat, 5 Jun 2004 10:24:54 -0400
+Received: from port-212-202-157-212.reverse.qsc.de ([212.202.157.212]:34489
+	"EHLO bender.portrix.net") by vger.kernel.org with ESMTP
+	id S261500AbUFEOYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 10:24:52 -0400
+Message-ID: <40C1D798.2040406@portrix.net>
+Date: Sat, 05 Jun 2004 16:24:24 +0200
+From: Jan Dittmer <j.dittmer@portrix.net>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Who has record no. of  DriveReady SeekComplete DataRequest
+ errors?
+References: <200406060007.10150.kernel@kolivas.org>
+In-Reply-To: <200406060007.10150.kernel@kolivas.org>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig8D0ED85BBF80C98DEB253D82"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-######POSTING ADVISORY######
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig8D0ED85BBF80C98DEB253D82
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-ALERT! - A user is trying to share experiences and opinions about you via our website. 
+Con Kolivas wrote:
+> Well since 2.6.3 I think I've been getting the record number of 
+> 
+> hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+> hdd: status error: error=0x00
+> hdd: drive not ready for command
+> hdd: ATAPI reset complete
+> 
+> errors from my cdrw on hdd; and it's only one drive's worth.
+> 
+> 
+> dmesg -s 32768 | grep DataRequest | wc -l
+> 88
 
-The purpose of this email is to inform you that a posting has been made about you at our website.  This is email is not commercial in nature.  
+Same count here: (2.6.7-rc1)
 
-If this email message was delivered to your spam or bulk email folder please notify your ISP or spam filtering company regarding this mistake on their part.
+$ dmesg -s 65536 | grep DataRequest | wc -l
+88
 
-To see what the user posted about you use this link:
+I never bothered to report this, because it just kept working and I was 
+shuffling hardware at the same time. Don't really know with which kernel 
+release it started. Drive is a sony cdrw on hdc.
 
-http://1.shyx.biz/lx.php?a=search&b=5&c=linux-kernel%40vger.kernel.org
+Jan
 
-ShareYourExperiences.com, as the name suggests, is a place where users can meet each other for the purpose of sharing the experiences they have had with people and businesses.
+--------------enig8D0ED85BBF80C98DEB253D82
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-IMPORTANT - If you prefer not to be informed if a user posts about you at our website in the future please add your email address to our Do Not Email List here:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-http://7.shyxp.us/lx.php?a=donotemail&b=linux-kernel%40vger.kernel.org
+iD8DBQFAwdegLqMJRclVKIYRAkInAJ9sUCjJjyORg2LyEoSg+qoZENtXeQCeOP9d
+BzgU+Sa9HClRbIp4CxRRyVI=
+=B7cD
+-----END PGP SIGNATURE-----
 
-Sincerely,
-
-SYEC Support 
-
-
+--------------enig8D0ED85BBF80C98DEB253D82--

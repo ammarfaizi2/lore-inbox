@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312245AbSCRIT0>; Mon, 18 Mar 2002 03:19:26 -0500
+	id <S312246AbSCRIVG>; Mon, 18 Mar 2002 03:21:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312243AbSCRITR>; Mon, 18 Mar 2002 03:19:17 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:17414 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S312239AbSCRITC>; Mon, 18 Mar 2002 03:19:02 -0500
-Message-ID: <3C95A291.F34986A2@zip.com.au>
-Date: Mon, 18 Mar 2002 00:17:21 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S312248AbSCRIUu>; Mon, 18 Mar 2002 03:20:50 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59406 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312243AbSCRIU1>;
+	Mon, 18 Mar 2002 03:20:27 -0500
+Date: Mon, 18 Mar 2002 08:20:26 +0000
+From: Joel Becker <jlbec@evilplan.org>
 To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org,
+Cc: Joel Becker <jlbec@evilplan.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
+        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org
 Subject: Re: fadvise syscall?
-In-Reply-To: <3C945635.4050101@mandrakesoft.com> <3C945A5A.9673053F@zip.com.au> <5.1.0.14.2.20020317131910.0522b490@pop.cus.cam.ac.uk> <3C959716.6040308@mandrakesoft.com> <3C959D55.14768770@zip.com.au> <3C95A031.6070107@mandrakesoft.com>
+Message-ID: <20020318082026.X4836@parcelfarce.linux.theplanet.co.uk>
+Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Anton Altaparmakov <aia21@cam.ac.uk>,
+	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org
+In-Reply-To: <3C945635.4050101@mandrakesoft.com> <3C945A5A.9673053F@zip.com.au> <3C945D7D.8040703@mandrakesoft.com> <5.1.0.14.2.20020317131910.0522b490@pop.cus.cam.ac.uk> <20020318080531.W4836@parcelfarce.linux.theplanet.co.uk> <3C95A0DB.40008@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> ...
-> >Given this, I don't see a persuasive need to implement a non-standard
-> >interface.  It takes an off_t, so posix_fadvise64() is also needed.
-> >
-> agreed WRT non-standard.
-> 
-> Are we required to have both foo and foo64 variants?  If I had my
-> druthers, I would just do the foo64 version.
+On Mon, Mar 18, 2002 at 03:10:03AM -0500, Jeff Garzik wrote:
+> to be fair, fcntl(2) could be used in conjunction with open(2), to do 
+> dynamic hints.
 
-That would be good.  I can't see a reason why
+	I wasn't speaking to the exact interface, just to the real world
+usefulness of hints after open(2).  But yes, surely :-)
 
-	#define posix_fadvise posix_fadvise64
+Joel
 
-would not suffice.  That doesn't mean there isn't one :)
 
--
+-- 
+
+"Baby, even the losers
+ Get luck sometimes.
+ Even the losers
+ Keep a little bit of pride."
+
+			http://www.jlbec.org/
+			jlbec@evilplan.org

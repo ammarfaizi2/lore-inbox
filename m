@@ -1,75 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268975AbTBWWRP>; Sun, 23 Feb 2003 17:17:15 -0500
+	id <S268980AbTBWWSZ>; Sun, 23 Feb 2003 17:18:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268980AbTBWWRO>; Sun, 23 Feb 2003 17:17:14 -0500
-Received: from newmail.somanetworks.com ([216.126.67.42]:1749 "EHLO
-	mail.somanetworks.com") by vger.kernel.org with ESMTP
-	id <S268975AbTBWWRN>; Sun, 23 Feb 2003 17:17:13 -0500
-Date: Sun, 23 Feb 2003 17:27:20 -0500 (EST)
-From: Scott Murray <scottm@somanetworks.com>
-X-X-Sender: scottm@rancor.yyz.somanetworks.com
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] Make hot unplugging of PCI buses work
-In-Reply-To: <20030223212432.J20405@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0302231648360.2559-100000@rancor.yyz.somanetworks.com>
+	id <S268981AbTBWWSZ>; Sun, 23 Feb 2003 17:18:25 -0500
+Received: from 251.017.dsl.syd.iprimus.net.au ([210.50.55.251]:56534 "EHLO
+	file1.syd.nuix.com.au") by vger.kernel.org with ESMTP
+	id <S268980AbTBWWSX> convert rfc822-to-8bit; Sun, 23 Feb 2003 17:18:23 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Song Zhao <song.zhao@nuix.com.au>
+Reply-To: song.zhao@nuix.com.au
+Organization: Nuix
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Subject: Re: Supermicro X5DL8-GG (ServerWorks Grandchampion LE chipset) slow
+Date: Mon, 24 Feb 2003 09:28:07 -0500
+User-Agent: KMail/1.4.3
+References: <Pine.LNX.4.44.0302221437250.2686-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.44.0302221437250.2686-100000@coffee.psychology.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302240928.07841.song.zhao@nuix.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Feb 2003, Russell King wrote:
+On Sat, 22 Feb 2003 02:43 pm, you wrote:
+> > >  > 10x 120GB WD HDD, ServerWorks Grand Champion LE.
+> > >  > I am running RH7.3 with 2.4.20 kernel. The performance of this box
+> > >  > is about half of an almost identical box (Supermicro X5DP8-G2 mobo,
+> > >  > E7501
+>
+> well, I've rarely seen anyone claiming good performance for any SW chipset,
+> especially compared to i75xx's.
 
-> On Sun, Feb 23, 2003 at 04:01:10PM -0500, Scott Murray wrote:
-> > Having beaten out something roughly similiar for the cPCI hotplug code, 
-> > I have a couple of comments:
-> > 1) The description of pci_remove_bus_device says "informing the drivers 
-> >    that the device has been removed", yet unless I'm missing some sysfs
-> >    wrinkle, no call will be made to an attached driver's remove callback.
-> 
-> pci_remove_all_bus_devices => pci_remove_bus_device =>
->  pci_remove_device => device_unregister => device_del =>
->   bus_remove_device => device_release_driver => driver->remove
+I wonder where the problem lies? Is it hardware/software?
 
-Okay, cool.  My cursory browsing of drivers/base/core.c missed this,
-my apologies.
- 
-> > 2) The recursive bus handling in pci_remove_bus_device should probably 
-> >    call pci_proc_detach_bus
-> 
-> Good catch - I'll create a new patch for Monday.
-> 
-> >    and potentially should also update the parent bridge's subordinate
-> >    field.
-> 
-> Yes - I think this is something we may consider when sorting out the
-> insertion.
+>
+> > Here is a rough comparison of E7500, E7501 and the ServerWorks Chipset:
+>
+> I don't really understand the column headed "E7500E7501".  which is it?
+> 7500 (dual PC1600) or 7501 (dual pc2100)?
+>
+> > | Benchmark 				| E7500E7501 	| ServerWorks 	| GrandChampion LE 	|
+> >
+> > =========================================================================
+> >=
+> >
+> > | Nbench (integer index) 		| 33.47 		| 38.78 		| 10.61 			|
+>
+> oh, maybe the headers are just broken?  I can readily believe that
 
-Your previous example wouldn't, but depending on how the BIOS assigns bus 
-numbers at boot time, I could see some docking station hardware suffering 
-from the problems I see on cPCI.  For example, if the BIOS does not leave 
-a hole in the bus numbers for the docking station's bridge, and there 
-happens to be another bridge on the laptop, then you would have the same 
-overlapping range problem after docking that I see after hot-inserting a 
-peripheral card with a bridge.
+You are right, the header is broken. 
 
-> However, whether x86 PCs will survive bus renumbering or not remains to
-> be seen.  We currently try to leave as much of the configuration intact
-> from the BIOS.
+> 7500 is 33, 7501 is a little higher, and GCLE is a lot lower.
+> remember that this benchmark spends most of its time in strcpy/strcmp...
+>
+> hmm, I'd be curious to see whether lmbench indicates the GCLE's memory
+> latency is much higher than Intel's.  your hdparm -t score indicates that
+> the GCLE doesn't have a memory *bandwidth* problem.
 
-I suspect I'm going to have to try and find out sooner or later, as all of 
-the x86 based cPCI system boards that I've seen use either Phoenix or 
-Award BIOSes that started their lives in desktop PCs.
+Yeah, I noticed that too, buffer cache read is pretty impressive actually. 
 
-Scott
-
-
--- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-e-mail: scottm@somanetworks.com
-
+I haven't had a chance to run lmbench as it takes about 5 hours to complete. 
+Will probably do it within these couple of days. 
 

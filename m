@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261527AbSLUChc>; Fri, 20 Dec 2002 21:37:32 -0500
+	id <S261593AbSLUCuZ>; Fri, 20 Dec 2002 21:50:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261593AbSLUChc>; Fri, 20 Dec 2002 21:37:32 -0500
-Received: from mnh-1-22.mv.com ([207.22.10.54]:48645 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S261527AbSLUChb>;
-	Fri, 20 Dec 2002 21:37:31 -0500
-Message-Id: <200212210249.VAA04704@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: John Reiser <jreiser@BitWagon.com>
-Cc: linux-kernel@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Julian Seward <jseward@acm.org>
-Subject: Re: Valgrind meets UML 
-In-Reply-To: Your message of "Fri, 20 Dec 2002 15:32:30 PST."
-             <3E03A88E.50200@BitWagon.com> 
-Mime-Version: 1.0
+	id <S261594AbSLUCuZ>; Fri, 20 Dec 2002 21:50:25 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:46736 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261593AbSLUCuY>; Fri, 20 Dec 2002 21:50:24 -0500
+Date: Fri, 20 Dec 2002 18:52:08 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Hanna Linder <hannal@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, kniht@us.ibm.com
+Subject: Re: Dedicated kernel bug database
+Message-ID: <186480000.1040439128@flay>
+In-Reply-To: <31080000.1040418947@w-hlinder>
+References: <200212192155.gBJLtV6k003254@darkstar.example.net> <3E0240CA.4000502@inet.com> <42790000.1040337942@w-hlinder> <50260000.1040348396@flay> <31080000.1040418947@w-hlinder>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 20 Dec 2002 21:49:27 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jreiser@BitWagon.com said:
-> I suggest that useful partial progress can be made sooner by
-> identifying the allocators, telling valgrind about them and their
-> external semantics, and having valgrind trust them.  
+Only the owner of the bug (or an admin) can change that, I think.
+However, as you file the bug, you could change the default owner
+to yourself, which would fix it. I'll fix this one for you.
 
-This is likely what will happen anyway.  It will likely generate noise
-from inside the allocators until they are described.
+M.
 
-> In particular, do
-> not valgrind allocators at first.
 
-This isn't possible without performing surgery on valgrind.  It has no idea
-what's considered an allocator and what's not.
+--On Friday, December 20, 2002 13:15:48 -0800 Hanna Linder <hannal@us.ibm.com> wrote:
 
-> Waiting for the globally correct description can take a long time,
-> perhaps about as long as waiting for the authors of device drivers to
-> update to a new device I/O model.
+> --On Thursday, December 19, 2002 05:39:56 PM -0800 "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+> 
+>> People should move it to "ASSIGNED" if they're working on it.
+> 
+> I just created a bug to put better documentation on the site 
+> about how this stuff works.
+> 
+> However, It won't let me assign it to myself even though 
+> I submitted it. Are the only people who are allowed to
+> change status the subsystem maintainer of the category?
+> If we volunteer to be part of the bugme-janitors mailing
+> list then could we change status of bugs?
+> 
+> I understand you dont want the whole world messing with 
+> the database so if the answer is no you cant touch it then
+> that is fine.
+> 
+> Thanks.
+> 
+> Hanna
+> 
+> 
 
-Nonsense.  They aren't going to be that complicated, and they don't change
-very often anyway.
-
-				Jeff
 

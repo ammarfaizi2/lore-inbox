@@ -1,63 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274865AbRJALDL>; Mon, 1 Oct 2001 07:03:11 -0400
+	id <S274866AbRJALJL>; Mon, 1 Oct 2001 07:09:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274866AbRJALDB>; Mon, 1 Oct 2001 07:03:01 -0400
-Received: from heimdall.inter.net.il ([192.114.186.17]:818 "EHLO
-	heimdall.inter.net.il") by vger.kernel.org with ESMTP
-	id <S274865AbRJALCv>; Mon, 1 Oct 2001 07:02:51 -0400
-Message-Id: <5.1.0.14.2.20011001124524.028e54a0@pop3.norton.antivirus>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 01 Oct 2001 12:59:05 +0200
-To: linux-kernel@vger.kernel.org
-From: Gil Disatnik <Jewnix@technohac.com>
-Subject: Strange behavior of kernel 2.4.10 & APM problems.
+	id <S274868AbRJALJB>; Mon, 1 Oct 2001 07:09:01 -0400
+Received: from c207-202-243-179.sea1.cablespeed.com ([207.202.243.179]:52798
+	"EHLO darklands.localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S274866AbRJALIz>; Mon, 1 Oct 2001 07:08:55 -0400
+Date: Mon, 1 Oct 2001 04:09:14 -0700
+From: Thomas Zimmerman <thomas@zimres.net>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.10-ac1-Preempt-kernel-1
+Message-ID: <20011001040914.A1567@darklands.zimres.net>
+Reply-To: Thomas <thomas@zimres.net>
+Mail-Followup-To: Robert Love <rml@tech9.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22i
+X-Operating-System: Linux darklands 2.4.10-ac1
+X-Operating-Status: 02:08:51 up 10 min,  1 user,  load average: 12.32, 5.67, 2.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello there,
-Not a while ago I have upgraded from Kernel 2.4.9 to 2.4.10 and I noticed 2 
-strange things:
-After I am done with the compilation and I am setting my lilo to load the 
-new kernel, and then I am booting the machine
-my machine gets stuck at boot time (before the init gets into action). this 
-problem does NOT happen once I reboot the machine again and the kernel 
-loads up straight with no problems, I then had to change a few things in 
-the kernel's configuration (Tried playing with the APM a bit to see how 
-come it's not working for me (I'll get to the apm issue soon...)) and I 
-noticed that again - My machine gets stucked at boot time. Another reboot 
-and that's it - works like a charm...
-I played with it some more and I found out this:
-Every fresh kernel I am running for the first time gets my machine freeze, 
-after another boot everything is working well.
-Please tell me what other information you need - I'll supply it (Please cc 
-to me as well and not just the mailing list since I am not registered in 
-the majordomo due to a serious bandwidth problems...)
 
-Another issue is an APM problem on my Dell Latitude C600 laptop (The same 
-machine with the 2.4.10 boot problems... which runs slack8 b.t.w.)
-I can't suspend it, it gives a note stating "apm: Resource temporarily 
-unavailable"...
-I've attached an strace of the command and my kernel configuration.
+--pWyiEgJYm5f9v55/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks in advance.
+Just for fun:
+$cd /usr/src/linux [2.4.10-ac1+netrand+preempt+reempt-stats]
+$cat /proc/latencytimes
+[snip empty report]
+$make -j dep
+[snip long make]
+$cat /proc/latencytimes
+Worst 20 latency times of 2604 measured in this period.
+  usec      cause     mask   start line/file      address   end line/fil
+e
+ 25673   reacqBKL        1  1374/sched.c         c0113219   696/sched.c
+ 22718  spin_lock        1   547/sched.c         c0111644   696/sched.c
+ 10238  spin_lock        1   547/sched.c         c0111644   303/namei.c
+  7599      timer        5    76/softirq.c       c011a437   119/softirq.
+c
+  6832  spin_lock        0   547/sched.c         c0111644   280/time.c
+  6731  spin_lock        1   708/open.c          c01370c8   757/open.c
+  6174        BKL        0    59/ioctl.c         c0148204   121/ioctl.c
+  6097       ide0        0   585/irq.c           c01084ef   647/irq.c
+  4753        BKL        1  1462/inode.c         c0178979  1470/inode.c
+  4008        BKL        1  1462/inode.c         c0178979   143/attr.c
+  3961  spin_lock        0   547/sched.c         c0111644   647/irq.c
+  3791   reacqBKL        0  1374/sched.c         c0113219  1378/sched.c
+  3753        BKL        0  2687/buffer.c        c013cbe6   696/sched.c
+  3519  spin_lock        0   547/sched.c         c0111644   133/file_tab
+le.c
+  2925  spin_lock        0  1308/audio.c         c01e5c0b  1319/audio.c
+  1990  spin_lock        0   547/sched.c         c0111644   172/select.c
+  1793  spin_lock        0   547/sched.c         c0111644   700/namei.c
+  1500        BKL        0   301/namei.c         c0143757   133/file_tab
+le.c
+  1387        BKL        0   837/inode.c         c01776d3   647/irq.c
+  1208   reacqBKL        0  1374/sched.c         c0113219  1470/inode.c
+qubes@darklands:/usr/src/linux>
+-------------
+For full disclosure: I use the binary only nvidia driver and have vmware2.x
+modules loaded (but unused yet). This is in X with kde loaded, gkrellm
+running (reported ~280 procs at height of make), xmms running. Only one skip
+in play back, and the mouse jumped a bit sometimes. :)
 
+Now, it's off to build a kernel w/o the stats, to see it that changes
+anything....and it does. The sound didn't skip this time, and the proc load
+"only" got upto ~200.=20
 
-Regards
+This is a AMD Athlon 800 w/512 Meg ram, ext3 root, reiserfs /usr on sw raid=
+0=20
+over two sw raid1s.=20
 
-Gil Disatnik
-UNIX system/security administrator@netish inc.
-www.netish.com
+Thomas
+--pWyiEgJYm5f9v55/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-GibsonLP@EFnet
-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-"Windows NT has detected mouse movement, you MUST restart
-your computer before the new settings will take effect, [ OK ]"
---------------------------------------------------------------------
-Windows is a 32 bit patch to a 16 bit GUI based on a 8 bit operating
-system, written for a 4 bit processor by a 2 bit company which can
-not stand 1 bit of competition.
--_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
 
+iD8DBQE7uE7aUHPW3p9PurIRAqo0AJ9RKZnUKIrpT2uWaxRtJ/ZSUdhxqwCfdY9v
+ZegZ6cJ54r6oPq8UyW/SI00=
+=PBMY
+-----END PGP SIGNATURE-----
+
+--pWyiEgJYm5f9v55/--

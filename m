@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264166AbTDKFAk (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 01:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbTDKFAk (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 01:00:40 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:58770 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id S264166AbTDKFAj convert rfc822-to-8bit 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 01:00:39 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
+	id S264237AbTDKFQX (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 01:16:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbTDKFQX (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 01:16:23 -0400
+Received: from [12.47.58.73] ([12.47.58.73]:44406 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S264237AbTDKFQW (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 01:16:22 -0400
+Date: Thu, 10 Apr 2003 22:28:00 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: alan@lxorguk.ukuu.org.uk, davidm@hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: proc_misc.c bug
+Message-Id: <20030410222800.6afa25ae.akpm@digeo.com>
+In-Reply-To: <32880.4.64.197.106.1050037303.squirrel@webmail.osdl.org>
+References: <200304102202.h3AM2YH3021747@napali.hpl.hp.com>
+	<1050011057.12930.134.camel@dhcp22.swansea.linux.org.uk>
+	<20030410154902.32f48f9c.rddunlap@osdl.org>
+	<32880.4.64.197.106.1050037303.squirrel@webmail.osdl.org>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: [BUG] settimeofday(2) succeeds for microsecond value more than USEC_PER_SEC and for negative value
-Date: Fri, 11 Apr 2003 10:42:04 +0530
-Message-ID: <94F20261551DC141B6B559DC491086723E0EB7@blr-m3-msg.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BUG] settimeofday(2) succeeds for microsecond value more than USEC_PER_SEC and for negative value
-Thread-Index: AcL/6OPOorCeX+eqSaqNS5lYbaKqBg==
-From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
-To: <george@mvista.com>
-Cc: <linux-kernel@vger.kernel.org>,
-       "Chandrashekhar RS" <chandra.smurthy@wipro.com>
-X-OriginalArrivalTime: 11 Apr 2003 05:12:04.0461 (UTC) FILETIME=[E42041D0:01C2FFE8]
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Apr 2003 05:28:00.0541 (UTC) FILETIME=[1DFE7CD0:01C2FFEB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Settimeofday(2) should return EINVAL in case where tv.tv_usec parameter is more than 
-USEC_PER_SEC (more than 10^6 ) or for negative values of tv.tv_usec. 
-It returns 0 (success) instead.
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>
+> Maybe the reason to modify it is that NR_CPUS is not a good
+> approximation/hint/clue.
 
-Clock_settimeofday(2) (kernel/posix-timers.c) also uses do_sys_settimeofday() and faces the
-Same problem.
+NR_CPUS is not tooooo bad an approximation.  After all, the output size is
+approximately proportional to the number of CPUs.
 
-I think this is a bug. If you confirm, I will send a patch.
+Multiplied by the number of interrupts :(
 
-Regards,
-Aniruddha Marathe
-WIPRO Technologies, India
+           CPU0       CPU1       
+  0:   11982656          0    IO-APIC-edge  timer
+  1:         26          0    IO-APIC-edge  i8042
+  2:          0          0          XT-PIC  cascade
+
+
+We could perhaps just convert it to num_online_cpus() and run away.  Depends
+how heoric you're feeling.
+
+

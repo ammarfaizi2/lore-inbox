@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272721AbRITAEU>; Wed, 19 Sep 2001 20:04:20 -0400
+	id <S274281AbRITAYG>; Wed, 19 Sep 2001 20:24:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274277AbRITAEJ>; Wed, 19 Sep 2001 20:04:09 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:4082 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S272721AbRITAEB>;
-	Wed, 19 Sep 2001 20:04:01 -0400
-Date: Thu, 20 Sep 2001 02:01:00 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: pre12 VM doubts and patch
-Message-ID: <20010920020100.H720@athlon.random>
-In-Reply-To: <20010919232818.T720@athlon.random> <Pine.LNX.4.21.0109200022360.1221-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0109200022360.1221-100000@localhost.localdomain>; from hugh@veritas.com on Thu, Sep 20, 2001 at 12:51:06AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S274282AbRITAX4>; Wed, 19 Sep 2001 20:23:56 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:61189 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S274281AbRITAXj>; Wed, 19 Sep 2001 20:23:39 -0400
+Date: Wed, 19 Sep 2001 20:25:39 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@portland.hansa.lan>
+To: <linux-kernel@vger.kernel.org>
+cc: Fabian Arias <dewback@vtr.net>, <reiserfs-list@namesys.com>
+Subject: [PATCH] 2.4.9-ac12 - problem mounting reiserfs (parse error?)
+In-Reply-To: <Pine.LNX.4.40.0109191248360.5460-100000@ronto.dewback.cl>
+Message-ID: <Pine.LNX.4.33.0109192018010.1016-100000@portland.hansa.lan>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 20, 2001 at 12:51:06AM +0100, Hugh Dickins wrote:
-> I'm off-by-one when I try it tomorrow.
+Hello!
 
-yes you're off by one but that was because of something I wasn't allowed
-to do safely ;) sorry (see my last email to Linus).
+> But in my case I don't have "defaults" on fstab on my reiserfs partitions:
+>
+> /dev/hdc1  /      ext2          defaults,errors=remount-ro      0 1
+> /dev/hdc5  /home  reiserfs      rw                              0 2
 
-> I don't think so: as the comment says, one for the page cache,
-> one for the caller of writepage, one (perhaps) for page->buffers.
+The common part is that you only have options recognized before they come
+to the reiserfs level.  So the option list is empty at this point, with
+reiserfs cannot deal with it.
 
-btw, we should be even smarter, even if there are buffers we should
-still drop both the buffers and then the page from the pagecaceh. It's
-just an orphan, it must be collected away cleanly without any I/O even
-if there are buffers.  The other option would be to cleanup the orphans
-from free_page_and_swap_cache but that would not be optimal as we try to
-be lazy and to avoid the swap_count checks in the exit(2)/munmap(2) fast
-paths.
+Here's the fix for 2.4.9-ac12:
 
-Andrea
+---------------------------------
+--- linux.orig/fs/reiserfs/super.c
++++ linux/fs/reiserfs/super.c
+@@ -223,7 +223,7 @@ static int parse_options (
+ 	{"0", 0}
+     };
+     *blocks = 0;
+-    if (!options)
++    if (!options || !*options)
+ 	/* use default configuration: create tails, journaling on, no
+            conversion to newest format */
+ 	return 1;
+---------------------------------
+
+If the string is empty, there is nothing to parse in it.  Another question
+is that the parser could be made more robust, but my patch is correct,
+minimal and works for me.
+
+> > "reiserfs kgetopt: there is not option" appears on the console and in the
+> > dmesg output, it's not coming from mount.
+
+To reiserfs team: please check spelling.  It should be "there is no
+option".  Also there are "pounters" in the comments.
+
+-- 
+Regards,
+Pavel Roskin
+

@@ -1,261 +1,785 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262486AbSJ0Sq0>; Sun, 27 Oct 2002 13:46:26 -0500
+	id <S262482AbSJ0SoH>; Sun, 27 Oct 2002 13:44:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262490AbSJ0Sq0>; Sun, 27 Oct 2002 13:46:26 -0500
-Received: from crack.them.org ([65.125.64.184]:14088 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S262486AbSJ0SqO>;
-	Sun, 27 Oct 2002 13:46:14 -0500
-Date: Sun, 27 Oct 2002 13:53:04 -0500
+	id <S262484AbSJ0SoH>; Sun, 27 Oct 2002 13:44:07 -0500
+Received: from crack.them.org ([65.125.64.184]:11784 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S262482AbSJ0Sn6>;
+	Sun, 27 Oct 2002 13:43:58 -0500
+Date: Sun, 27 Oct 2002 13:50:39 -0500
 From: Daniel Jacobowitz <dan@debian.org>
-To: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
-Subject: PATCH: ptrace support for fork/vfork/clone events [3/3]
-Message-ID: <20021027185304.GB28347@nevyn.them.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
-References: <20021027185038.GA27979@nevyn.them.org>
+To: linux-kernel@vger.kernel.org
+Cc: Rob Landley <landley@trommello.org>, Alan Cox <alan@redhat.com>
+Subject: PATCH: ptrace support for fork/vfork/clone events [1/3]
+Message-ID: <20021027185038.GA27979@nevyn.them.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Rob Landley <landley@trommello.org>, Alan Cox <alan@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021027185038.GA27979@nevyn.them.org>
 User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 27, 2002 at 01:50:38PM -0500, Daniel Jacobowitz wrote:
->  3. Add PTRACE_GETEVENTMSG and four new flags to PTRACE_SETOPTIONS, to allow
->     tracing fork, vfork, clone, and exec events.
+I've submitted this a couple of times and gotten no feedback, but I'm a
+sucker for pain, so here it is again - I'd really like to see this patch in
+2.6.
 
-This is the fun one.
+Why?  Without it, there are some things GDB can't do.  You can't step over a
+call to fork(), because when you do, the child process will hit the
+parent's step breakpoint and exit with SIGTRAP.  You also can't choose to
+debug the child instead of the parent, because GDB doesn't have a chance to
+attach to it.
+
+The code is in three parts:
+ 1. Factor out some common ptrace code; implement PTRACE_O_TRACESYSGOOD
+    and PTRACE_SETOPTIONS for every architecture.  This one will let me unify
+    a great deal more of the architecture ptrace implementations later.
+ 2. Add a new clone flag, CLONE_UNTRACED, and force it in all kernel_thread
+    implementations.  Needed by the next patch.  This one touches every
+    architecture and some of them in assembly; I've tried to get them all
+    correct.
+ 3. Add PTRACE_GETEVENTMSG and four new flags to PTRACE_SETOPTIONS, to allow
+    tracing fork, vfork, clone, and exec events.
+
+The patches have been tested on i386, and a 2.4 backport tested on SH, MIPS,
+i386, PowerPC, and ARM; I have GDB using this mechanism and have run that
+through more stress tests than I really want to remember on the weekend.
+
+The three patches are available at:
+  http://crack.them.org/~drow/forks/
+
+or from the BK tree at:
+  bk://nevyn.them.org:5000
+
+Here's the first one.
 
 # This is a BitKeeper generated patch for the following project:
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.810   -> 1.811  
-#	include/linux/sched.h	1.95.1.1 -> 1.97   
-#	       kernel/fork.c	1.77.1.10 -> 1.79   
-#	include/linux/ptrace.h	1.4     -> 1.5    
-#	    fs/binfmt_aout.c	1.12.1.1 -> 1.14   
-#	     fs/binfmt_elf.c	1.29    -> 1.30   
-#	     kernel/ptrace.c	1.19    -> 1.20   
+#	           ChangeSet	1.808   -> 1.809  
+#	include/asm-i386/ptrace.h	1.2.1.1 -> 1.4    
+#	arch/s390x/kernel/ptrace.c	1.7.1.1 -> 1.9    
+#	include/linux/ptrace.h	1.3     -> 1.4    
+#	arch/arm/kernel/ptrace.c	1.12.1.2 -> 1.14   
+#	arch/sh/kernel/ptrace.c	1.7     -> 1.8    
+#	arch/parisc/kernel/ptrace.c	1.4     -> 1.5    
+#	include/asm-s390x/ptrace.h	1.3.1.1 -> 1.5    
+#	arch/mips64/kernel/ptrace.c	1.6     -> 1.7    
+#	arch/ppc/kernel/ptrace.c	1.10    -> 1.11   
+#	arch/i386/kernel/ptrace.c	1.13    -> 1.14   
+#	arch/x86_64/ia32/ptrace32.c	1.2.1.1 -> 1.4    
+#	arch/ppc64/kernel/ptrace.c	1.3.1.1 -> 1.5    
+#	arch/m68k/kernel/ptrace.c	1.7     -> 1.8    
+#	include/asm-x86_64/ptrace.h	1.3.1.1 -> 1.5    
+#	arch/x86_64/kernel/ptrace.c	1.3.1.1 -> 1.5    
+#	arch/cris/kernel/ptrace.c	1.8     -> 1.9    
+#	arch/ppc64/kernel/ptrace32.c	1.5.1.1 -> 1.7    
+#	include/asm-arm/ptrace.h	1.2     -> 1.3    
+#	include/asm-mips/ptrace.h	1.2     -> 1.3    
+#	arch/ia64/ia32/sys_ia32.c	1.23    -> 1.24   
+#	include/asm-ia64/ptrace.h	1.4     -> 1.5    
+#	include/asm-s390/ptrace.h	1.5.1.1 -> 1.7    
+#	include/asm-sh/ptrace.h	1.2     -> 1.3    
+#	arch/alpha/kernel/ptrace.c	1.9     -> 1.10   
+#	arch/s390/kernel/ptrace.c	1.8.1.1 -> 1.10   
+#	include/asm-mips64/ptrace.h	1.1     -> 1.2    
+#	arch/sparc64/kernel/ptrace.c	1.16    -> 1.17   
+#	arch/ia64/kernel/ptrace.c	1.11.1.1 -> 1.13   
+#	arch/sparc/kernel/ptrace.c	1.11    -> 1.12   
+#	arch/mips/kernel/ptrace.c	1.8     -> 1.9    
+#	     kernel/ptrace.c	1.18    -> 1.19   
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/10/26	drow@nevyn.them.org	1.811
-# Merge
+# 02/10/26	drow@nevyn.them.org	1.809
+# Merge kernel.org changes
 # --------------------------------------------
 #
-diff -Nru a/fs/binfmt_aout.c b/fs/binfmt_aout.c
---- a/fs/binfmt_aout.c	Sat Oct 26 20:09:37 2002
-+++ b/fs/binfmt_aout.c	Sat Oct 26 20:09:37 2002
-@@ -425,8 +425,12 @@
- 	regs->gp = ex.a_gpvalue;
+diff -Nru a/arch/alpha/kernel/ptrace.c b/arch/alpha/kernel/ptrace.c
+--- a/arch/alpha/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/alpha/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -383,7 +383,7 @@
+ 		goto out;
+ 
+ 	default:
+-		ret = -EIO;
++		ret = ptrace_request(child, request, addr, data);
+ 		goto out;
+ 	}
+  out:
+@@ -400,7 +400,8 @@
+ 		return;
+ 	if (!(current->ptrace & PT_PTRACED))
+ 		return;
+-	current->exit_code = SIGTRAP;
++	current->exit_code = SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD)
++					? 0x80 : 0);
+ 	current->state = TASK_STOPPED;
+ 	notify_parent(current, SIGCHLD);
+ 	schedule();
+diff -Nru a/arch/arm/kernel/ptrace.c b/arch/arm/kernel/ptrace.c
+--- a/arch/arm/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/arm/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -692,16 +692,8 @@
+ 			ret = ptrace_setfpregs(child, (void *)data);
+ 			break;
+ 
+-		case PTRACE_SETOPTIONS:
+-			if (data & PTRACE_O_TRACESYSGOOD)
+-				child->ptrace |= PT_TRACESYSGOOD;
+-			else
+-				child->ptrace &= ~PT_TRACESYSGOOD;
+-			ret = 0;
+-			break;
+-
+ 		default:
+-			ret = -EIO;
++			ret = ptrace_request(child, request, addr, data);
+ 			break;
+ 	}
+ 
+diff -Nru a/arch/cris/kernel/ptrace.c b/arch/cris/kernel/ptrace.c
+--- a/arch/cris/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/cris/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -292,7 +292,7 @@
+ 		}
+ 
+ 		default:
+-			ret = -EIO;
++			ret = ptrace_request(child, request, addr, data);
+ 			break;
+ 	}
+ out_tsk:
+@@ -307,10 +307,8 @@
+ 	if ((current->ptrace & (PT_PTRACED | PT_TRACESYS)) !=
+ 	    (PT_PTRACED | PT_TRACESYS))
+ 		return;
+-	/* TODO: make a way to distinguish between a syscall stop and SIGTRAP
+-	 * delivery like in the i386 port ? 
+-	 */
+-	current->exit_code = SIGTRAP;
++	current->exit_code = SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD)
++					? 0x80 : 0);
+ 	current->state = TASK_STOPPED;
+ 	notify_parent(current, SIGCHLD);
+ 	schedule();
+diff -Nru a/arch/i386/kernel/ptrace.c b/arch/i386/kernel/ptrace.c
+--- a/arch/i386/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/i386/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -425,17 +425,8 @@
+ 		break;
+ 	}
+ 
+-	case PTRACE_SETOPTIONS: {
+-		if (data & PTRACE_O_TRACESYSGOOD)
+-			child->ptrace |= PT_TRACESYSGOOD;
+-		else
+-			child->ptrace &= ~PT_TRACESYSGOOD;
+-		ret = 0;
+-		break;
+-	}
+-
+ 	default:
+-		ret = -EIO;
++		ret = ptrace_request(child, request, addr, data);
+ 		break;
+ 	}
+ out_tsk:
+diff -Nru a/arch/ia64/ia32/sys_ia32.c b/arch/ia64/ia32/sys_ia32.c
+--- a/arch/ia64/ia32/sys_ia32.c	Sat Oct 26 20:09:49 2002
++++ b/arch/ia64/ia32/sys_ia32.c	Sat Oct 26 20:09:49 2002
+@@ -3090,7 +3090,7 @@
+ 		break;
+ 
+ 	      default:
+-		ret = -EIO;
++		ret = ptrace_request(child, request, addr, data);
+ 		break;
+ 
+ 	}
+diff -Nru a/arch/ia64/kernel/ptrace.c b/arch/ia64/kernel/ptrace.c
+--- a/arch/ia64/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/ia64/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -1268,16 +1268,8 @@
+ 		ret = ptrace_setregs(child, (struct pt_all_user_regs*) data);
+ 		goto out_tsk;
+ 
+-	      case PTRACE_SETOPTIONS:
+-		if (data & PTRACE_O_TRACESYSGOOD)
+-			child->ptrace |= PT_TRACESYSGOOD;
+-		else
+-			child->ptrace &= ~PT_TRACESYSGOOD;
+-		ret = 0;
+-		break;
+-
+ 	      default:
+-		ret = -EIO;
++		ret = ptrace_request(child, request, addr, data);
+ 		goto out_tsk;
+ 	}
+   out_tsk:
+diff -Nru a/arch/m68k/kernel/ptrace.c b/arch/m68k/kernel/ptrace.c
+--- a/arch/m68k/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/m68k/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -355,7 +355,7 @@
+ 		}
+ 
+ 		default:
+-			ret = -EIO;
++			ret = ptrace_request(child, request, addr, data);
+ 			break;
+ 	}
+ out_tsk:
+@@ -370,7 +370,8 @@
+ 	if (!current->thread.work.delayed_trace &&
+ 	    !current->thread.work.syscall_trace)
+ 		return;
+-	current->exit_code = SIGTRAP;
++	current->exit_code = SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD)
++					? 0x80 : 0);
+ 	current->state = TASK_STOPPED;
+ 	notify_parent(current, SIGCHLD);
+ 	schedule();
+diff -Nru a/arch/mips/kernel/ptrace.c b/arch/mips/kernel/ptrace.c
+--- a/arch/mips/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/mips/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -304,16 +304,8 @@
+ 		res = ptrace_detach(child, data);
+ 		break;
+ 
+-	case PTRACE_SETOPTIONS:
+-		if (data & PTRACE_O_TRACESYSGOOD)
+-			child->ptrace |= PT_TRACESYSGOOD;
+-		else
+-			child->ptrace &= ~PT_TRACESYSGOOD;
+-		res = 0;
+-		break;
+-
+ 	default:
+-		res = -EIO;
++		res = ptrace_request(child, request, addr, data);
+ 		goto out;
+ 	}
+ out_tsk:
+diff -Nru a/arch/mips64/kernel/ptrace.c b/arch/mips64/kernel/ptrace.c
+--- a/arch/mips64/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/mips64/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -275,17 +275,8 @@
+ 		ret = ptrace_detach(child, data);
+ 		break;
+ 
+-	case PTRACE_SETOPTIONS: {
+-		if (data & PTRACE_O_TRACESYSGOOD)
+-			child->ptrace |= PT_TRACESYSGOOD;
+-		else
+-			child->ptrace &= ~PT_TRACESYSGOOD;
+-		ret = 0;
+-		break;
+-	}
+-
+ 	default:
+-		ret = -EIO;
++		ret = ptrace_request(child, request, addr, data);
+ 		break;
+ 	}
+ 
+@@ -535,17 +526,8 @@
+ 		ret = ptrace_detach(child, data);
+ 		break;
+ 
+-	case PTRACE_SETOPTIONS: {
+-		if (data & PTRACE_O_TRACESYSGOOD)
+-			child->ptrace |= PT_TRACESYSGOOD;
+-		else
+-			child->ptrace &= ~PT_TRACESYSGOOD;
+-		ret = 0;
+-		break;
+-	}
+-
+ 	default:
+-		ret = -EIO;
++		ret = ptrace_request(child, request, addr, data);
+ 		break;
+ 	}
+ 
+diff -Nru a/arch/parisc/kernel/ptrace.c b/arch/parisc/kernel/ptrace.c
+--- a/arch/parisc/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/parisc/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -244,7 +244,7 @@
+ 		goto out_tsk;
+ 
+ 	default:
+-		ret = -EIO;
++		ret = ptrace_request(child, request, addr, data);
+ 		goto out_tsk;
+ 	}
+ 
+@@ -269,7 +269,8 @@
+ 	if ((current->ptrace & (PT_PTRACED|PT_TRACESYS)) !=
+ 			(PT_PTRACED|PT_TRACESYS))
+ 		return;
+-	current->exit_code = SIGTRAP;
++	current->exit_code = SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD)
++					? 0x80 : 0);
+ 	current->state = TASK_STOPPED;
+ 	notify_parent(current, SIGCHLD);
+ 	schedule();
+diff -Nru a/arch/ppc/kernel/ptrace.c b/arch/ppc/kernel/ptrace.c
+--- a/arch/ppc/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/ppc/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -339,7 +339,7 @@
  #endif
- 	start_thread(regs, ex.a_entry, current->mm->start_stack);
--	if (current->ptrace & PT_PTRACED)
--		send_sig(SIGTRAP, current, 0);
-+	if (unlikely(current->ptrace & PT_PTRACED)) {
-+		if (current->ptrace & PT_TRACE_EXEC)
-+			ptrace_notify ((PTRACE_EVENT_EXEC << 8) | SIGTRAP);
-+		else
-+			send_sig(SIGTRAP, current, 0);
-+	}
- 	return 0;
+ 
+ 	default:
+-		ret = -EIO;
++		ret = ptrace_request(child, request, addr, data);
+ 		break;
+ 	}
+ out_tsk:
+@@ -354,7 +354,8 @@
+         if (!test_thread_flag(TIF_SYSCALL_TRACE)
+ 	    || !(current->ptrace & PT_PTRACED))
+ 		return;
+-	current->exit_code = SIGTRAP;
++	current->exit_code = SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD)
++					? 0x80 : 0);
+ 	current->state = TASK_STOPPED;
+ 	notify_parent(current, SIGCHLD);
+ 	schedule();
+diff -Nru a/arch/ppc64/kernel/ptrace.c b/arch/ppc64/kernel/ptrace.c
+--- a/arch/ppc64/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/ppc64/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -276,7 +276,7 @@
+ 	}
+ 
+ 	default:
+-		ret = -EIO;
++		ret = ptrace_request(child, request, addr, data);
+ 		break;
+ 	}
+ out_tsk:
+@@ -292,7 +292,8 @@
+ 		return;
+ 	if (!(current->ptrace & PT_PTRACED))
+ 		return;
+-	current->exit_code = SIGTRAP;
++	current->exit_code = SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD)
++					? 0x80 : 0);
+ 	current->state = TASK_STOPPED;
+ 	notify_parent(current, SIGCHLD);
+ 	schedule();
+diff -Nru a/arch/ppc64/kernel/ptrace32.c b/arch/ppc64/kernel/ptrace32.c
+--- a/arch/ppc64/kernel/ptrace32.c	Sat Oct 26 20:09:49 2002
++++ b/arch/ppc64/kernel/ptrace32.c	Sat Oct 26 20:09:49 2002
+@@ -413,7 +413,7 @@
+ 
+ 
+ 	default:
+-		ret = -EIO;
++		ret = ptrace_request(child, request, addr, data);
+ 		break;
+ 	}
+ out_tsk:
+diff -Nru a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+--- a/arch/s390/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/s390/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -307,15 +307,8 @@
+ 			copied += sizeof(unsigned long);
+ 		}
+ 		return 0;
+-
+-	case PTRACE_SETOPTIONS:
+-		if (data & PTRACE_O_TRACESYSGOOD)
+-			child->ptrace |= PT_TRACESYSGOOD;
+-		else
+-			child->ptrace &= ~PT_TRACESYSGOOD;
+-		return 0;
+ 	}
+-	return -EIO;
++	return ptrace_request(child, request, addr, data);
  }
  
-diff -Nru a/fs/binfmt_elf.c b/fs/binfmt_elf.c
---- a/fs/binfmt_elf.c	Sat Oct 26 20:09:37 2002
-+++ b/fs/binfmt_elf.c	Sat Oct 26 20:09:37 2002
-@@ -792,8 +792,12 @@
+ asmlinkage int sys_ptrace(long request, long pid, long addr, long data)
+diff -Nru a/arch/s390x/kernel/ptrace.c b/arch/s390x/kernel/ptrace.c
+--- a/arch/s390x/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/s390x/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -261,7 +261,7 @@
+ 		}
+ 		return 0;
+ 	}
+-	return -EIO;
++	return ptrace_request(child, request, addr, data);
+ }
+ 
+ #ifdef CONFIG_S390_SUPPORT
+@@ -469,7 +469,7 @@
+ 		}
+ 		return 0;
+ 	}
+-	return -EIO;
++	return ptrace_request(child, request, addr, data);
+ }
  #endif
  
- 	start_thread(regs, elf_entry, bprm->p);
--	if (current->ptrace & PT_PTRACED)
--		send_sig(SIGTRAP, current, 0);
-+	if (unlikely(current->ptrace & PT_PTRACED)) {
-+		if (current->ptrace & PT_TRACE_EXEC)
-+			ptrace_notify ((PTRACE_EVENT_EXEC << 8) | SIGTRAP);
+@@ -538,12 +538,6 @@
+ 		/* detach a process that was attached. */
+ 		return ptrace_detach(child, data);
+ 
+-	case PTRACE_SETOPTIONS:
+-		if (data & PTRACE_O_TRACESYSGOOD)
+-			child->ptrace |= PT_TRACESYSGOOD;
+-		else
+-			child->ptrace &= ~PT_TRACESYSGOOD;
+-		return 0;
+ 	/* Do requests that differ for 31/64 bit */
+ 	default:
+ #ifdef CONFIG_S390_SUPPORT
+@@ -551,8 +545,8 @@
+ 			return do_ptrace_emu31(child, request, addr, data);
+ #endif
+ 		return do_ptrace_normal(child, request, addr, data);
+-		
+ 	}
++	/* Not reached.  */
+ 	return -EIO;
+ }
+ 
+diff -Nru a/arch/sh/kernel/ptrace.c b/arch/sh/kernel/ptrace.c
+--- a/arch/sh/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/sh/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -356,17 +356,8 @@
+ 		ret = ptrace_detach(child, data);
+ 		break;
+ 
+-	case PTRACE_SETOPTIONS: {
+-		if (data & PTRACE_O_TRACESYSGOOD)
+-			child->ptrace |= PT_TRACESYSGOOD;
+-		else
+-			child->ptrace &= ~PT_TRACESYSGOOD;
+-		ret = 0;
+-		break;
+-	}
+-
+ 	default:
+-		ret = -EIO;
++		ret = ptrace_request(child, request, addr, data);
+ 		break;
+ 	}
+ out_tsk:
+diff -Nru a/arch/sparc/kernel/ptrace.c b/arch/sparc/kernel/ptrace.c
+--- a/arch/sparc/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/sparc/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -584,10 +584,15 @@
+ 
+ 	/* PTRACE_DUMPCORE unsupported... */
+ 
+-	default:
+-		pt_error_return(regs, EIO);
++	default: {
++		int err = ptrace_request(child, request, addr, data);
++		if (err)
++			pt_error_return(regs, -err);
 +		else
-+			send_sig(SIGTRAP, current, 0);
++			pt_succ_return(regs, 0);
+ 		goto out_tsk;
+ 	}
 +	}
- 	retval = 0;
- out:
- 	return retval;
+ out_tsk:
+ 	if (child)
+ 		put_task_struct(child);
+@@ -604,7 +609,8 @@
+ 		return;
+ 	if (!(current->ptrace & PT_PTRACED))
+ 		return;
+-	current->exit_code = SIGTRAP;
++	current->exit_code = SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD)
++					? 0x80 : 0);
+ 	current->state = TASK_STOPPED;
+ 	current->thread.flags ^= MAGIC_CONSTANT;
+ 	notify_parent(current, SIGCHLD);
+diff -Nru a/arch/sparc64/kernel/ptrace.c b/arch/sparc64/kernel/ptrace.c
+--- a/arch/sparc64/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/sparc64/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -571,10 +571,15 @@
+ 
+ 	/* PTRACE_DUMPCORE unsupported... */
+ 
+-	default:
+-		pt_error_return(regs, EIO);
++	default: {
++		int err = ptrace_request(child, request, addr, data);
++		if (err)
++			pt_error_return(regs, -err);
++		else
++			pt_succ_return(regs, 0);
+ 		goto out_tsk;
+ 	}
++	}
+ flush_and_out:
+ 	{
+ 		unsigned long va;
+@@ -612,7 +617,8 @@
+ 		return;
+ 	if (!(current->ptrace & PT_PTRACED))
+ 		return;
+-	current->exit_code = SIGTRAP;
++	current->exit_code = SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD)
++					? 0x80 : 0);
+ 	current->state = TASK_STOPPED;
+ 	notify_parent(current, SIGCHLD);
+ 	schedule();
+diff -Nru a/arch/x86_64/ia32/ptrace32.c b/arch/x86_64/ia32/ptrace32.c
+--- a/arch/x86_64/ia32/ptrace32.c	Sat Oct 26 20:09:49 2002
++++ b/arch/x86_64/ia32/ptrace32.c	Sat Oct 26 20:09:49 2002
+@@ -185,17 +185,6 @@
+ 	__u32 val;
+ 
+ 	switch (request) { 
+-	case PTRACE_TRACEME:
+-	case PTRACE_ATTACH:
+-	case PTRACE_SYSCALL:
+-	case PTRACE_CONT:
+-	case PTRACE_KILL:
+-	case PTRACE_SINGLESTEP:
+-	case PTRACE_DETACH:
+-	case PTRACE_SETOPTIONS:
+-		ret = sys_ptrace(request, pid, addr, data); 
+-		return ret;
+-
+ 	case PTRACE_PEEKTEXT:
+ 	case PTRACE_PEEKDATA:
+ 	case PTRACE_POKEDATA:
+@@ -211,7 +200,8 @@
+ 		break;
+ 		
+ 	default:
+-		return -EIO;
++		ret = sys_ptrace(request, pid, addr, data); 
++		return ret;
+ 	} 
+ 
+ 	child = find_target(request, pid, &ret);
+diff -Nru a/arch/x86_64/kernel/ptrace.c b/arch/x86_64/kernel/ptrace.c
+--- a/arch/x86_64/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/arch/x86_64/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -405,17 +405,8 @@
+ 		break;
+ 	}
+ 
+-	case PTRACE_SETOPTIONS: {
+-		if (data & PTRACE_O_TRACESYSGOOD)
+-			child->ptrace |= PT_TRACESYSGOOD;
+-		else
+-			child->ptrace &= ~PT_TRACESYSGOOD;
+-		ret = 0;
+-		break;
+-	}
+-
+ 	default:
+-		ret = -EIO;
++		ret = ptrace_request(child, request, addr, data);
+ 		break;
+ 	}
+ out_tsk:
+diff -Nru a/include/asm-arm/ptrace.h b/include/asm-arm/ptrace.h
+--- a/include/asm-arm/ptrace.h	Sat Oct 26 20:09:49 2002
++++ b/include/asm-arm/ptrace.h	Sat Oct 26 20:09:49 2002
+@@ -6,10 +6,7 @@
+ #define PTRACE_GETFPREGS	14
+ #define PTRACE_SETFPREGS	15
+ 
+-#define PTRACE_SETOPTIONS	21
+-
+-/* options set using PTRACE_SETOPTIONS */
+-#define PTRACE_O_TRACESYSGOOD	0x00000001
++#define PTRACE_OLDSETOPTIONS	21
+ 
+ #include <asm/proc/ptrace.h>
+ 
+diff -Nru a/include/asm-i386/ptrace.h b/include/asm-i386/ptrace.h
+--- a/include/asm-i386/ptrace.h	Sat Oct 26 20:09:49 2002
++++ b/include/asm-i386/ptrace.h	Sat Oct 26 20:09:49 2002
+@@ -49,10 +49,7 @@
+ #define PTRACE_GETFPXREGS         18
+ #define PTRACE_SETFPXREGS         19
+ 
+-#define PTRACE_SETOPTIONS         21
+-
+-/* options set using PTRACE_SETOPTIONS */
+-#define PTRACE_O_TRACESYSGOOD     0x00000001
++#define PTRACE_OLDSETOPTIONS         21
+ 
+ #ifdef __KERNEL__
+ #define user_mode(regs) ((VM_MASK & (regs)->eflags) || (3 & (regs)->xcs))
+diff -Nru a/include/asm-ia64/ptrace.h b/include/asm-ia64/ptrace.h
+--- a/include/asm-ia64/ptrace.h	Sat Oct 26 20:09:49 2002
++++ b/include/asm-ia64/ptrace.h	Sat Oct 26 20:09:49 2002
+@@ -287,9 +287,6 @@
+ #define PTRACE_GETREGS		18	/* get all registers (pt_all_user_regs) in one shot */
+ #define PTRACE_SETREGS		19	/* set all registers (pt_all_user_regs) in one shot */
+ 
+-#define PTRACE_SETOPTIONS	21
+-
+-/* options set using PTRACE_SETOPTIONS */
+-#define PTRACE_O_TRACESYSGOOD	0x00000001
++#define PTRACE_OLDSETOPTIONS	21
+ 
+ #endif /* _ASM_IA64_PTRACE_H */
+diff -Nru a/include/asm-mips/ptrace.h b/include/asm-mips/ptrace.h
+--- a/include/asm-mips/ptrace.h	Sat Oct 26 20:09:49 2002
++++ b/include/asm-mips/ptrace.h	Sat Oct 26 20:09:49 2002
+@@ -59,10 +59,7 @@
+ /* #define PTRACE_GETFPXREGS		18 */
+ /* #define PTRACE_SETFPXREGS		19 */
+ 
+-#define PTRACE_SETOPTIONS	21
+-
+-/* options set using PTRACE_SETOPTIONS */
+-#define PTRACE_O_TRACESYSGOOD	0x00000001
++#define PTRACE_OLDSETOPTIONS	21
+ 
+ #ifdef _LANGUAGE_ASSEMBLY
+ #include <asm/offset.h>
+diff -Nru a/include/asm-mips64/ptrace.h b/include/asm-mips64/ptrace.h
+--- a/include/asm-mips64/ptrace.h	Sat Oct 26 20:09:49 2002
++++ b/include/asm-mips64/ptrace.h	Sat Oct 26 20:09:49 2002
+@@ -64,10 +64,7 @@
+ /* #define PTRACE_GETFPXREGS		18 */
+ /* #define PTRACE_SETFPXREGS		19 */
+ 
+-#define PTRACE_SETOPTIONS	21
+-
+-/* options set using PTRACE_SETOPTIONS */
+-#define PTRACE_O_TRACESYSGOOD	0x00000001
++#define PTRACE_OLDSETOPTIONS	21
+ 
+ #ifdef _LANGUAGE_ASSEMBLY
+ #include <asm/offset.h>
+diff -Nru a/include/asm-s390/ptrace.h b/include/asm-s390/ptrace.h
+--- a/include/asm-s390/ptrace.h	Sat Oct 26 20:09:49 2002
++++ b/include/asm-s390/ptrace.h	Sat Oct 26 20:09:49 2002
+@@ -105,10 +105,7 @@
+ 
+ #define STACK_FRAME_OVERHEAD	96	/* size of minimum stack frame */
+ 
+-#define PTRACE_SETOPTIONS         21
+-
+-/* options set using PTRACE_SETOPTIONS */
+-#define PTRACE_O_TRACESYSGOOD     0x00000001
++#define PTRACE_OLDSETOPTIONS         21
+ 
+ #ifndef __ASSEMBLY__
+ #include <linux/config.h>
+diff -Nru a/include/asm-s390x/ptrace.h b/include/asm-s390x/ptrace.h
+--- a/include/asm-s390x/ptrace.h	Sat Oct 26 20:09:49 2002
++++ b/include/asm-s390x/ptrace.h	Sat Oct 26 20:09:49 2002
+@@ -85,10 +85,7 @@
+ 
+ #define STACK_FRAME_OVERHEAD    160      /* size of minimum stack frame */
+ 
+-#define PTRACE_SETOPTIONS         21
+-
+-/* options set using PTRACE_SETOPTIONS */
+-#define PTRACE_O_TRACESYSGOOD     0x00000001
++#define PTRACE_OLDSETOPTIONS         21
+ 
+ #ifndef __ASSEMBLY__
+ #include <linux/config.h>
+diff -Nru a/include/asm-sh/ptrace.h b/include/asm-sh/ptrace.h
+--- a/include/asm-sh/ptrace.h	Sat Oct 26 20:09:49 2002
++++ b/include/asm-sh/ptrace.h	Sat Oct 26 20:09:49 2002
+@@ -44,10 +44,7 @@
+ #define REG_XDREG14	47
+ #define REG_FPSCR	48
+ 
+-#define PTRACE_SETOPTIONS         21
+-
+-/* options set using PTRACE_SETOPTIONS */
+-#define PTRACE_O_TRACESYSGOOD     0x00000001
++#define PTRACE_OLDSETOPTIONS         21
+ 
+ /*
+  * This struct defines the way the registers are stored on the
+diff -Nru a/include/asm-x86_64/ptrace.h b/include/asm-x86_64/ptrace.h
+--- a/include/asm-x86_64/ptrace.h	Sat Oct 26 20:09:49 2002
++++ b/include/asm-x86_64/ptrace.h	Sat Oct 26 20:09:49 2002
+@@ -32,10 +32,7 @@
+ /* top of stack page */ 
+ #define FRAME_SIZE 168
+ 
+-#define PTRACE_SETOPTIONS         21
+-
+-/* options set using PTRACE_SETOPTIONS */
+-#define PTRACE_O_TRACESYSGOOD     0x00000001
++#define PTRACE_OLDSETOPTIONS         21
+ 
+ /* Dummy values for ptrace */ 
+ #define FS 1000 
 diff -Nru a/include/linux/ptrace.h b/include/linux/ptrace.h
---- a/include/linux/ptrace.h	Sat Oct 26 20:09:37 2002
-+++ b/include/linux/ptrace.h	Sat Oct 26 20:09:37 2002
-@@ -25,9 +25,20 @@
+--- a/include/linux/ptrace.h	Sat Oct 26 20:09:49 2002
++++ b/include/linux/ptrace.h	Sat Oct 26 20:09:49 2002
+@@ -23,6 +23,12 @@
  
- /* 0x4200-0x4300 are reserved for architecture-independent additions.  */
- #define PTRACE_SETOPTIONS	0x4200
-+#define PTRACE_GETEVENTMSG	0x4201
+ #define PTRACE_SYSCALL		  24
  
- /* options set using PTRACE_SETOPTIONS */
- #define PTRACE_O_TRACESYSGOOD	0x00000001
-+#define PTRACE_O_TRACEFORK	0x00000002
-+#define PTRACE_O_TRACEVFORK	0x00000004
-+#define PTRACE_O_TRACECLONE	0x00000008
-+#define PTRACE_O_TRACEEXEC	0x00000010
++/* 0x4200-0x4300 are reserved for architecture-independent additions.  */
++#define PTRACE_SETOPTIONS	0x4200
 +
-+/* Wait extended result codes for the above trace options.  */
-+#define PTRACE_EVENT_FORK	1
-+#define PTRACE_EVENT_VFORK	2
-+#define PTRACE_EVENT_CLONE	3
-+#define PTRACE_EVENT_EXEC	4
- 
++/* options set using PTRACE_SETOPTIONS */
++#define PTRACE_O_TRACESYSGOOD	0x00000001
++
  #include <asm/ptrace.h>
  #include <linux/sched.h>
-@@ -39,6 +50,7 @@
+ 
+@@ -32,6 +38,7 @@
+ extern int ptrace_detach(struct task_struct *, unsigned int);
  extern void ptrace_disable(struct task_struct *);
  extern int ptrace_check_attach(struct task_struct *task, int kill);
- extern int ptrace_request(struct task_struct *child, long request, long addr, long data);
-+extern void ptrace_notify(int exit_code);
++extern int ptrace_request(struct task_struct *child, long request, long addr, long data);
  extern void __ptrace_link(struct task_struct *child,
  				struct task_struct *new_parent);
  extern void __ptrace_unlink(struct task_struct *child);
-diff -Nru a/include/linux/sched.h b/include/linux/sched.h
---- a/include/linux/sched.h	Sat Oct 26 20:09:37 2002
-+++ b/include/linux/sched.h	Sat Oct 26 20:09:37 2002
-@@ -392,6 +392,8 @@
- 	void *journal_info;
- 	struct dentry *proc_dentry;
- 	struct backing_dev_info *backing_dev_info;
-+
-+	unsigned long ptrace_message;
- };
- 
- extern void __put_task_struct(struct task_struct *tsk);
-@@ -431,6 +433,10 @@
- #define PT_DTRACE	0x00000002	/* delayed trace (used on m68k, i386) */
- #define PT_TRACESYSGOOD	0x00000004
- #define PT_PTRACE_CAP	0x00000008	/* ptracer can follow suid-exec */
-+#define PT_TRACE_FORK	0x00000010
-+#define PT_TRACE_VFORK	0x00000020
-+#define PT_TRACE_CLONE	0x00000040
-+#define PT_TRACE_EXEC	0x00000080
- 
- /*
-  * Limit the stack by to some sane default: root can always
-diff -Nru a/kernel/fork.c b/kernel/fork.c
---- a/kernel/fork.c	Sat Oct 26 20:09:37 2002
-+++ b/kernel/fork.c	Sat Oct 26 20:09:37 2002
-@@ -937,6 +937,22 @@
- 	goto fork_out;
+diff -Nru a/kernel/ptrace.c b/kernel/ptrace.c
+--- a/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
++++ b/kernel/ptrace.c	Sat Oct 26 20:09:49 2002
+@@ -248,3 +248,35 @@
+ 	}
+ 	return copied;
  }
- 
-+static inline int fork_traceflag (unsigned clone_flags)
++
++int ptrace_setoptions(struct task_struct *child, long data)
 +{
-+	if (clone_flags & (CLONE_UNTRACED | CLONE_IDLETASK))
-+		return 0;
-+	else if (clone_flags & CLONE_VFORK) {
-+		if (current->ptrace & PT_TRACE_VFORK)
-+			return PTRACE_EVENT_VFORK;
-+	} else if ((clone_flags & CSIGNAL) != SIGCHLD) {
-+		if (current->ptrace & PT_TRACE_CLONE)
-+			return PTRACE_EVENT_CLONE;
-+	} else if (current->ptrace & PT_TRACE_FORK)
-+		return PTRACE_EVENT_FORK;
++	if (data & PTRACE_O_TRACESYSGOOD)
++		child->ptrace |= PT_TRACESYSGOOD;
++	else
++		child->ptrace &= ~PT_TRACESYSGOOD;
++
++	if ((data & PTRACE_O_TRACESYSGOOD) != data)
++		return -EINVAL;
 +
 +	return 0;
 +}
 +
- /*
-  *  Ok, this is the main fork-routine.
-  *
-@@ -950,6 +966,13 @@
- 			    int *user_tid)
- {
- 	struct task_struct *p;
-+	int trace = 0;
-+
-+	if (unlikely(current->ptrace)) {
-+		trace = fork_traceflag (clone_flags);
-+		if (trace)
-+			clone_flags |= CLONE_PTRACE;
-+	}
- 
- 	p = copy_process(clone_flags, stack_start, regs, stack_size, user_tid);
- 	if (!IS_ERR(p)) {
-@@ -965,6 +988,12 @@
- 
- 		wake_up_forked_process(p);		/* do this last */
- 		++total_forks;
-+
-+		if (unlikely (trace)) {
-+			current->ptrace_message = (unsigned long) p->pid;
-+			ptrace_notify ((trace << 8) | SIGTRAP);
-+		}
-+
- 		if (clone_flags & CLONE_VFORK)
- 			wait_for_completion(&vfork);
- 		else
-diff -Nru a/kernel/ptrace.c b/kernel/ptrace.c
---- a/kernel/ptrace.c	Sat Oct 26 20:09:37 2002
-+++ b/kernel/ptrace.c	Sat Oct 26 20:09:37 2002
-@@ -249,14 +249,37 @@
- 	return copied;
- }
- 
--int ptrace_setoptions(struct task_struct *child, long data)
-+static int ptrace_setoptions(struct task_struct *child, long data)
- {
- 	if (data & PTRACE_O_TRACESYSGOOD)
- 		child->ptrace |= PT_TRACESYSGOOD;
- 	else
- 		child->ptrace &= ~PT_TRACESYSGOOD;
- 
--	if ((data & PTRACE_O_TRACESYSGOOD) != data)
-+	if (data & PTRACE_O_TRACEFORK)
-+		child->ptrace |= PT_TRACE_FORK;
-+	else
-+		child->ptrace &= ~PT_TRACE_FORK;
-+
-+	if (data & PTRACE_O_TRACEVFORK)
-+		child->ptrace |= PT_TRACE_VFORK;
-+	else
-+		child->ptrace &= ~PT_TRACE_VFORK;
-+
-+	if (data & PTRACE_O_TRACECLONE)
-+		child->ptrace |= PT_TRACE_CLONE;
-+	else
-+		child->ptrace &= ~PT_TRACE_CLONE;
-+
-+	if (data & PTRACE_O_TRACEEXEC)
-+		child->ptrace |= PT_TRACE_EXEC;
-+	else
-+		child->ptrace &= ~PT_TRACE_EXEC;
-+
-+	if ((data & (PTRACE_O_TRACESYSGOOD | PTRACE_O_TRACEFORK
-+		    | PTRACE_O_TRACEVFORK | PTRACE_O_TRACECLONE
-+		    | PTRACE_O_TRACEEXEC))
-+	    != data)
- 		return -EINVAL;
- 
- 	return 0;
-@@ -274,9 +297,23 @@
- 	case PTRACE_SETOPTIONS:
- 		ret = ptrace_setoptions(child, data);
- 		break;
-+	case PTRACE_GETEVENTMSG:
-+		ret = put_user(child->ptrace_message, (unsigned long *) data);
-+		break;
- 	default:
- 		break;
- 	}
- 
- 	return ret;
-+}
-+
-+void ptrace_notify(int exit_code)
++int ptrace_request(struct task_struct *child, long request,
++		   long addr, long data)
 +{
-+	BUG_ON (!(current->ptrace & PT_PTRACED));
++	int ret = -EIO;
 +
-+	/* Let the debugger run.  */
-+	current->exit_code = exit_code;
-+	set_current_state(TASK_STOPPED);
-+	notify_parent(current, SIGCHLD);
-+	schedule();
- }
++	switch (request) {
++#ifdef PTRACE_OLDSETOPTIONS
++	case PTRACE_OLDSETOPTIONS:
++#endif
++	case PTRACE_SETOPTIONS:
++		ret = ptrace_setoptions(child, data);
++		break;
++	default:
++		break;
++	}
++
++	return ret;
++}
 
 
 -- 

@@ -1,276 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266661AbUFWUnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUFWUpD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266661AbUFWUnk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 16:43:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266662AbUFWUnk
+	id S266663AbUFWUpD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 16:45:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266665AbUFWUpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 16:43:40 -0400
-Received: from stud4.tuwien.ac.at ([193.170.75.21]:43733 "EHLO
-	stud4.tuwien.ac.at") by vger.kernel.org with ESMTP id S266661AbUFWUlh
+	Wed, 23 Jun 2004 16:45:03 -0400
+Received: from mail-gw5.njit.edu ([128.235.251.173]:5341 "EHLO
+	mail-gw5.njit.edu") by vger.kernel.org with ESMTP id S266663AbUFWUox
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 16:41:37 -0400
-Message-ID: <40D9EAFF.8070403@chello.at>
-Date: Wed, 23 Jun 2004 22:41:35 +0200
-From: Roland Lezuo <roland.lezuo@chello.at>
-User-Agent: Mozilla Thunderbird 0.7 (X11/20040618)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 23 Jun 2004 16:44:53 -0400
+Date: Wed, 23 Jun 2004 16:43:27 -0400 (EDT)
+From: rahul b jain cs student <rbj2@oak.njit.edu>
 To: linux-kernel@vger.kernel.org
-Subject: usb-storage, sd_mod problem, with debugging infos ;)
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+cc: davem@redhat.com
+Subject: Re: Question about ip_rcv() function
+In-Reply-To: <20040623133226.022684a4.davem@redhat.com>
+Message-ID: <Pine.GSO.4.58.0406231640330.7099@chrome.njit.edu>
+References: <20040622212403.21346.qmail@lwn.net> <Pine.GSO.4.58.0406231441500.7099@chrome.njit.edu>
+ <20040623115027.11ef0902.davem@redhat.com> <Pine.GSO.4.58.0406231615220.7099@chrome.njit.edu>
+ <20040623133226.022684a4.davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Sorry, but I was not aware of this. I would really appreciate if you could
+answer my questions. Thanks. :)
 
-Hello,
+On Wed, 23 Jun 2004, David S. Miller wrote:
 
-I feel a bit ignored about this topic, but well I'll simply retry. Since
-2.6.4 my usb stick does not work with linux any more. When searching the
-internet for a solution I just find people with similar problems but no
-solutions...
-
-This happens when I plug in my stick (Traxdata EZ drive)
-
-P.S.: please CC me personally, i'll try any patches...
-
-
-usb 1-4: new high speed USB device using address 2
-usb-storage: USB Mass Storage device detected
-usb-storage: altsetting is 0, id_index is 92
-usb-storage: -- associate_dev
-usb-storage: Transport: Bulk
-usb-storage: Protocol: Transparent SCSI
-usb-storage: Endpoints: In: 0xd315ef54 Out: 0xd315ef68 Int: 0x00000000
-(Period 0)
-usb-storage: usb_stor_control_msg: rq=fe rqtype=a1 value=0000 index=00 len=1
-usb-storage: GetMaxLUN command result is 1, data is 0
-usb-storage: *** thread sleeping.
-scsi0 : SCSI emulation for USB Mass Storage devices
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Command INQUIRY (6 bytes)
-usb-storage:  12 00 00 00 24 00
-usb-storage: Bulk Command S 0x43425355 T 0x1 L 36 F 128 Trg 0 LUN 0 CL 6
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_buf: xfer 36 bytes
-usb-storage: Status code 0; transferred 36/36
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk Status S 0x53425355 T 0x1 R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-~  Vendor: Generic   Model:                   Rev:
-~  Type:   Direct-Access                      ANSI SCSI revision: 02
-Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Bad LUN (0:1)
-usb-storage: scsi cmd done, result=0x40000
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Bad target number (1:0)
-usb-storage: scsi cmd done, result=0x40000
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Bad target number (2:0)
-usb-storage: scsi cmd done, result=0x40000
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Bad target number (3:0)
-usb-storage: scsi cmd done, result=0x40000
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Bad target number (4:0)
-usb-storage: scsi cmd done, result=0x40000
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Bad target number (5:0)
-usb-storage: scsi cmd done, result=0x40000
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Bad target number (6:0)
-usb-storage: scsi cmd done, result=0x40000
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Bad target number (7:0)
-usb-storage: scsi cmd done, result=0x40000
-usb-storage: *** thread sleeping.
-USB Mass Storage device found at 2
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Command TEST_UNIT_READY (6 bytes)
-usb-storage:  00 00 00 00 00 00
-usb-storage: Bulk Command S 0x43425355 T 0xa L 0 F 0 Trg 0 LUN 0 CL 6
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk Status S 0x53425355 T 0xa R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Command READ_CAPACITY (10 bytes)
-usb-storage:  25 00 00 00 00 00 00 00 00 00
-usb-storage: Bulk Command S 0x43425355 T 0xb L 8 F 128 Trg 0 LUN 0 CL 10
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_buf: xfer 8 bytes
-usb-storage: Status code 0; transferred 8/8
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk Status S 0x53425355 T 0xb R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-SCSI device sda: 251904 512-byte hdwr sectors (129 MB)
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Command MODE_SENSE (6 bytes)
-usb-storage:  1a 00 3f 00 04 00
-usb-storage: Bulk Command S 0x43425355 T 0xc L 4 F 128 Trg 0 LUN 0 CL 6
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_buf: xfer 4 bytes
-usb-storage: Status code 0; transferred 4/4
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk Status S 0x53425355 T 0xc R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-sda: Write Protect is off
-sda: Mode Sense: 03 00 00 00
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Command MODE_SENSE (6 bytes)
-usb-storage:  1a 00 08 00 04 00
-usb-storage: Bulk Command S 0x43425355 T 0xd L 4 F 128 Trg 0 LUN 0 CL 6
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_buf: xfer 4 bytes
-
-HERE: 1 minute delay
-
-usb-storage: command_abort called
-usb-storage: usb_stor_stop_transport called
-usb-storage: -- cancelling URB
-usb-storage: Status code -104; transferred 0/4
-usb-storage: -- transfer cancelled
-usb-storage: Bulk data transfer result 0x4
-usb-storage: -- command was aborted
-usb-storage: usb_stor_Bulk_reset called
-usb-storage: usb_stor_control_msg: rq=ff rqtype=21 value=0000 index=00 len=0
-usb-storage: Soft reset failed: -32
-usb-storage: scsi command aborted
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Command TEST_UNIT_READY (6 bytes)
-usb-storage:  00 00 00 00 00 00
-usb-storage: Bulk Command S 0x43425355 T 0xd L 0 F 0 Trg 0 LUN 0 CL 6
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code -32; transferred 0/13
-usb-storage: clearing endpoint halt for pipe 0xc0008280
-usb-storage: usb_stor_control_msg: rq=01 rqtype=02 value=0000 index=81 len=0
-usb-storage: usb_stor_clear_halt: result = -71
-usb-storage: Bulk status result = 4
-usb-storage: -- transport indicates error, resetting
-usb-storage: usb_stor_Bulk_reset called
-usb-storage: usb_stor_control_msg: rq=ff rqtype=21 value=0000 index=00 len=0
-usb-storage: Soft reset failed: -71
-usb-storage: scsi cmd done, result=0x70000
-usb-storage: *** thread sleeping.
-usb-storage: device_reset called
-usb-storage: usb_stor_Bulk_reset called
-usb-storage: usb_stor_control_msg: rq=ff rqtype=21 value=0000 index=00 len=0
-usb-storage: Soft reset failed: -71
-usb-storage: bus_reset called
-usb-storage: usb_reset_device returns -19
-scsi: Device offlined - not ready after error recovery: host 0 channel 0
-id 0 lun 0
-sda: asking for cache data failed
-sda: assuming drive cache: write through
-Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
-usb-storage: usb_stor_exit() called
-usb-storage: -- calling usb_deregister()
-usbcore: deregistering driver usb-storage
-usb-storage: storage_disconnect() called
-usb-storage: usb_stor_stop_transport called
-usb-storage: -- dissociate_dev
-devfs_remove: scsi/host0/bus0/target0/lun0/generic not found, cannot remove
-~ [<c0104e2e>] dump_stack+0x1e/0x20
-~ [<c01df1f6>] devfs_remove+0xa6/0xb0
-~ [<c02af2bf>] sg_remove+0xdf/0x260
-~ [<c026c693>] class_device_del+0xc3/0xd0
-~ [<c026c6b4>] class_device_unregister+0x14/0x20
-~ [<c02a91a9>] scsi_remove_device+0x39/0xb0
-~ [<c02a84f4>] scsi_forget_host+0x44/0x90
-~ [<c02a13bc>] scsi_remove_host+0x2c/0x60
-~ [<e09b0605>] storage_disconnect+0x45/0x51 [usb_storage]
-~ [<e09ba0f6>] usb_unbind_interface+0x76/0x80 [usbcore]
-~ [<c026b8c6>] device_release_driver+0x66/0x70
-~ [<c026b8f2>] driver_detach+0x22/0x40
-~ [<c026bb95>] bus_remove_driver+0x55/0x90
-~ [<c026bffa>] driver_unregister+0x1a/0x42
-~ [<e09ba1d3>] usb_deregister+0x33/0x40 [usbcore]
-~ [<e09b0caa>] usb_stor_exit+0x2a/0x2c [usb_storage]
-~ [<c012e62f>] sys_delete_module+0x14f/0x1c0
-~ [<c010402f>] syscall_call+0x7/0xb
-
-usb-storage: -- sending exit command to thread
-usb-storage: *** thread awakened.
-usb-storage: -- exit command received
-usb-storage: -- usb_stor_release_resources finished
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFA2er/5qlVDPzJ7R4RAh33AJ9IUkP1n3POJK+PPQ9QB37YQDsIxgCgpm9S
-6qb9SrQ3EmzOm0p4zkBdjoI=
-=pqZm
------END PGP SIGNATURE-----
+> On Wed, 23 Jun 2004 16:22:53 -0400 (EDT)
+> rahul b jain cs student <rbj2@oak.njit.edu> wrote:
+>
+> > Thanks for your response.
+>
+> Thanks for not putting me on the CC: list when replying.
+>
+> If you want
+> people specifically to continue the thread discussion with
+> you, you put them on the CC: list so that they know you are
+> addressing them.
+>

@@ -1,79 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130417AbRA2MzP>; Mon, 29 Jan 2001 07:55:15 -0500
+	id <S130919AbRA2M6z>; Mon, 29 Jan 2001 07:58:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130919AbRA2MzF>; Mon, 29 Jan 2001 07:55:05 -0500
-Received: from kullstam.ne.mediaone.net ([66.30.138.210]:13208 "HELO
-	kullstam.ne.mediaone.net") by vger.kernel.org with SMTP
-	id <S130417AbRA2My5>; Mon, 29 Jan 2001 07:54:57 -0500
-From: "Johan Kullstam" <kullstam@ne.mediaone.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Poor SCSI drive performance on SMP machine, 2.2.16
-In-Reply-To: <F65Jqj0CYixMwInhdAH00002ef1@hotmail.com>
-	<001601c089b0$b1ec80d0$b001a8c0@caesar>
-Organization: none
-Date: 29 Jan 2001 07:58:13 -0500
-In-Reply-To: <001601c089b0$b1ec80d0$b001a8c0@caesar>
-Message-ID: <m2bssqikgq.fsf@euler.axel.nom>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	id <S131425AbRA2M6p>; Mon, 29 Jan 2001 07:58:45 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:43787 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S130919AbRA2M63>; Mon, 29 Jan 2001 07:58:29 -0500
+Date: Mon, 29 Jan 2001 06:57:53 -0600
+To: James Sutherland <jas88@cam.ac.uk>
+Cc: jamal <hadi@cyberus.ca>, linux-kernel@vger.kernel.org
+Subject: Re: ECN: Clearing the air (fwd)
+Message-ID: <20010129065752.A10024@cadcamlab.org>
+In-Reply-To: <Pine.GSO.4.30.0101280700580.24762-100000@shell.cyberus.ca> <Pine.SOL.4.21.0101281324210.26837-100000@yellow.csi.cam.ac.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.SOL.4.21.0101281324210.26837-100000@yellow.csi.cam.ac.uk>; from jas88@cam.ac.uk on Sun, Jan 28, 2001 at 01:29:52PM +0000
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"paradox3" <paradox3@maine.rr.com> writes:
 
-> Here is the output from dmesg. How do I tell if it is improperly
-> terminated?
+[James Sutherland]
+> That depends what you mean by "retry"; I wanted the ability to
+> attempt a non-ECN connection. i.e. if I'm a mailserver, and try
+> connecting to one of Hotmail's MX hosts with ECN, I'll get RST every
+> time.  I would like to be able to retry with ECN disabled for that
+> connection.
 
-you never gave the model of the hard drive (or if you did, i didn't
-see it), but you did say a 10k rpm ibm.  i am going to assume it is
-u2w/lvd capable.  no lvd hard drive has termination built in.  you
-must use a seperate termination device at the end of the ribbon.  or
-you can use a terminating cable.  since your controller is a
-single-ended device, get a single-ended, wide, active terminator and
-plug it into the end of the ribbon.  put the hard drive in the middle
-somewhere.
+So write a script to disable ECN via sysctl, retry your outgoing MTA
+queue, and re-enable ECN.  Run it via cron about once a day.
 
-see <URL:http://www.scsifaq.org/> for more information.
-
-> Thanks, Para-dox (paradox3@maine.rr.com)
-> 
-> 
-> 
-> 
-> ----- Original Message -----
-> From: "Michael Brown" <flight666@hotmail.com>
-> To: <paradox3@maine.rr.com>
-> Sent: Sunday, January 28, 2001 11:12 PM
-> Subject: Re: Poor SCSI drive performance on SMP machine, 2.2.16
-> 
-> 
-> > Your problem appears to be improper SCSI termination.
-> >
-> > You need to either
-> >   1) make sure your SCSI drive has termination enabled
-> > or
-> >   2) move your SCSI drive to the middle connector and put a terminator on
-> > the last connector
-> >
-> > Check your syslog and post to l-k the part where it detects your drives.
-> > I'll bet the adapter is throttling back quite dramatically in the presence
-> > of improper termination.
-> >
-> > --
-> > Michael Brown
-> >
-> > _________________________________________________________________
-> > Get your FREE download of MSN Explorer at http://explorer.msn.com
-> >
-> >
-> 
-
--- 
-J o h a n  K u l l s t a m
-[kullstam@ne.mediaone.net]
-Don't Fear the Penguin!
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

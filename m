@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbTIKUXv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 16:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbTIKUXv
+	id S261494AbTIKUQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 16:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbTIKUQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 16:23:51 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55302 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261497AbTIKUXm
+	Thu, 11 Sep 2003 16:16:57 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:53510 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261494AbTIKUQ4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 16:23:42 -0400
+	Thu, 11 Sep 2003 16:16:56 -0400
 To: linux-kernel@vger.kernel.org
 Path: gatekeeper.tmr.com!davidsen
 From: davidsen@tmr.com (bill davidsen)
 Newsgroups: mail.linux-kernel
 Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Date: 11 Sep 2003 20:14:47 GMT
+Date: 11 Sep 2003 20:08:01 GMT
 Organization: TMR Associates, Schenectady NY
-Message-ID: <bjql3n$tde$1@gatekeeper.tmr.com>
-References: <1063289641.2967.3.camel@dhcp23.swansea.linux.org.uk> <20030911162421.419f4432.ak@suse.de>
-X-Trace: gatekeeper.tmr.com 1063311287 30126 192.168.12.62 (11 Sep 2003 20:14:47 GMT)
+Message-ID: <bjqkn1$tbq$1@gatekeeper.tmr.com>
+References: <3F6087FC.7090508@pobox.com> <20030911165826.06f2fd16.ak@suse.de>
+X-Trace: gatekeeper.tmr.com 1063310881 30074 192.168.12.62 (11 Sep 2003 20:08:01 GMT)
 X-Complaints-To: abuse@tmr.com
 Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030911162421.419f4432.ak@suse.de>,
+In article <20030911165826.06f2fd16.ak@suse.de>,
 Andi Kleen  <ak@suse.de> wrote:
-| On Thu, 11 Sep 2003 15:14:02 +0100
-| Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-| 
-| > 
-| > There is *one* change needed. We shouldnt call is_prefetch unless the
-| > current CPU is an Athlon. That way its a performance improvement for
-| > PIV, and Athlon in general, fixes the bug and causes no fancy athlon
-| > fixup code for non AMD processors.
-| 
-| I considered that when writing the patch, but: is_prefetch is a single byte 
-| memory access for something already in cache. Checking for an Athlon
-| CPU needs two memory accesses in boot_cpu_data at least (checking vendor
-| and model) 
 
-You are still missing the point, what's needed is not a better way to do
-useless work, it's a way to avoid doing it at all. This code should only
-be built for CPU's which need it, no accesses needed except in .config.
+| If you really want to save text space just use .bz2 compression 
+| or compile the kernel with -Os. There are also other subsystems
+| that would benefit much more (better effort/cost ratio) than adding
+| micro #ifdefs to core code.
+
+Good idea, let's put stuff like this in hardware-dependent includes, and
+just have a single line in the core code  like
+  check_special_pfault_cases;
+and that documents what is happening as well as avoiding reading around
+it. It seems silly to leave a big hunk of code in when developers are
+making efforts to drop cruft and keep Linux practical for embedded
+systems.
+
+People were willing to drop the whole prefetch feature, I don't see that
+micro ifdefs are a bad thing, it's just that thought needs to go into
+making the code readable.
 -- 
 bill davidsen <davidsen@tmr.com>
   CTO, TMR Associates, Inc

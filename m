@@ -1,71 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264684AbUDVVar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264686AbUDVVbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264684AbUDVVar (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 17:30:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264686AbUDVVar
+	id S264686AbUDVVbY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 17:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264687AbUDVVbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 17:30:47 -0400
-Received: from fmr10.intel.com ([192.55.52.30]:44693 "EHLO
-	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
-	id S264684AbUDVVao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 17:30:44 -0400
-Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
-	for idle=C1halt, 2.6.5
-From: Len Brown <len.brown@intel.com>
-To: Jesse Allen <the3dfxdude@hotmail.com>
-Cc: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
-       Craig Bradney <cbradney@zip.com.au>, ross@datscreative.com.au,
-       christian.kroener@tu-harburg.de, linux-kernel@vger.kernel.org,
-       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-       Jamie Lokier <jamie@shareable.org>, Daniel Drake <dan@reactivated.net>,
-       Ian Kumlien <pomac@vapor.com>, a.verweij@student.tudelft.nl,
-       Allen Martin <AMartin@nvidia.com>
-In-Reply-To: <1082654469.16333.351.camel@dhcppc4>
-References: <200404131117.31306.ross@datscreative.com.au>
-	 <200404131703.09572.ross@datscreative.com.au>
-	 <1081893978.2251.653.camel@dhcppc4>
-	 <200404160110.37573.ross@datscreative.com.au>
-	 <1082060255.24425.180.camel@dhcppc4>
-	 <1082063090.4814.20.camel@amilo.bradney.info>
-	 <1082578957.16334.13.camel@dhcppc4> <4086E76E.3010608@gmx.de>
-	 <1082587298.16336.138.camel@dhcppc4>  <20040422163958.GA1567@tesore.local>
-	 <1082654469.16333.351.camel@dhcppc4>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1082669345.16332.411.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 22 Apr 2004 17:29:05 -0400
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Apr 2004 17:31:24 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:8576 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264686AbUDVVbR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 17:31:17 -0400
+Date: Thu, 22 Apr 2004 17:31:31 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Agri <agri@desnol.ru>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG: fork do not copy /proc/<PID>/cmdline permissions
+In-Reply-To: <20040423012115.36fa0fe8@agri-home>
+Message-ID: <Pine.LNX.4.53.0404221725010.1203@chaos>
+References: <20040422215322.19475d98@agri-home> <Pine.LNX.4.53.0404221628300.940@chaos>
+ <20040423012115.36fa0fe8@agri-home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-22 at 13:21, Len Brown wrote:
+On Fri, 23 Apr 2004, Agri wrote:
 
-> > As for your patch, I get a fast timer, and gain about 1 sec per 5 minutes.
-> > The only patch that seemed to work without a fast timer so far was the one 
-> > removed by Linus in a testing version.  The AN35N has the timer override 
-> > bug.
-> 
-> Hmm, I didn't notice fast time on my FN41, i'll look for it.
-> 
-> I'm not familiar with the "one removed by Linux in a testing version",
-> perhaps you could point me to that?
+> On Thu, 22 Apr 2004 16:36:28 -0400 (EDT)
+> "Richard B. Johnson" <root@chaos.analogic.com> wrote:
+>
+> > On Thu, 22 Apr 2004, Agri wrote:
+> >
+> > > I expected from fork to make a rather complete copy of a process,
+> > > but it does not copy /proc/<PID>/cmdline access permissions.
+> > > Therefore, the only way (at least i know) to hide all args of
+> > > processes is to start every program within shell script:
+> > > bash -c 'chmod /proc/$$/cmdline; exec userprogramm ...'
+> > >
+> > > Tested on 2.6.5.
+> > >
+> > > Agri
+> >
+> > Huh? /proc/$PID/cmdline doesn't exist until after a task is
+> > created.
+> So setting all /proc/$PID/* file parameters should be a part of task creation.
+>
 
-date seems to gain 9sec/hour on my Shuttle/SN41G2/FN41 when using IOAPIC
-timer.
+You didn't bother to read the line above nor the fact that /proc
+has NOTHING TO DO WITH A PROCESS.
 
-booted with "noapic" for XT-PIC timer, it stays locked
-onto my wristwatch after an hour.  If the workaround is disabled,
-and XT-PIC timer is used, it matches the "noapic" behaviour -- no drift.
+If you don't want to share information amongst tasks, you simply
+execute `umount /proc` as root. Then nobody except root can see
+anything about any other task if the home directories of other
+tasks are not world readable.
 
-I can't explain it.  I think it is a timer problem independent of the
-IRQ routing.
+Each task then becomes isolated in its own little cocoon.
+[SNIPPED...]
 
--Len
-
-ps. when i ran in XT-PIC mode there were lots of ERR's registered in
-/proc/interrupts -- doesn't look healthy.
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

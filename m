@@ -1,78 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277572AbRJRDXr>; Wed, 17 Oct 2001 23:23:47 -0400
+	id <S277576AbRJRDZr>; Wed, 17 Oct 2001 23:25:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277573AbRJRDXi>; Wed, 17 Oct 2001 23:23:38 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:52363 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S277572AbRJRDX3>;
-	Wed, 17 Oct 2001 23:23:29 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: MODULE_LICENSE and EXPORT_SYMBOL_GPL
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 18 Oct 2001 13:23:53 +1000
-Message-ID: <8658.1003375433@kao2.melbourne.sgi.com>
+	id <S277578AbRJRDZi>; Wed, 17 Oct 2001 23:25:38 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14867 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S277576AbRJRDZf>; Wed, 17 Oct 2001 23:25:35 -0400
+Message-ID: <3BCE4BB5.8060603@zytor.com>
+Date: Wed, 17 Oct 2001 20:25:41 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: paulus@samba.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: libz, libbz2, ramfs and cramfs
+In-Reply-To: <19978.1003206943@kao2.melbourne.sgi.com>	<3BCBE29D.CFEC1F05@alacritech.com>	<9qjfki$ob5$1@cesium.transmeta.com> <15310.18125.367838.562789@cargo.ozlabs.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That has been a lot of uninformed and confused comment on l-k about
-MODULE_LICENSE and EXPORT_SYMBOL_GPL.  I will try to make this as
-simple as possible, to improve the signal to noise ration on this list.
+Paul Mackerras wrote:
 
-Don't bother cc'ing me on any replies.  Also I don't care what your
-view of the GPL is or should be.
+> 
+> PPP uses a variant of zlib with some extensions.  I believe that I
+> didn't break zlib for normal use when I added the extensions but I
+> would have to check that to be 100% sure.  The PPP zlib.c is based on
+> zlib-1.0.4, which is no longer the most recent version.
+> 
 
-MODULE_LICENSE
 
-MODULE_LICENSE() allows kernel developers to identify kernels that have
-been tainted by modules whose source code is not generally available.
-No source code means that only the supplier can debug the problem so
-send the bug report to them, not l-k.  Precisely which license string
-indicates that source is freely available is still being fine tuned.
+What kind of extensions?
 
-A module without a license must be assumed to be proprietary.  Not all
-existing modules have a MODULE_LICENSE() yet but most do, the rest are
-not far behind.  For code that is not in the standard kernel tree, it
-is up to the supplier to set the license string accordingly.  I
-recommend that binary only modules contain a string like :-
 
-  MODULE_LICENSE("Proprietary.  Send bug reports to joe.bloggs@somewhere")
+> I think it would be possible to make PPP use the standard zlib but
+> with decreased performance.  It's a long time since I looked at that
+> stuff though.
 
-Modutils marks the kernel as tainted when it loads a module without a
-GPL compatible MODULE_LICENSE(), reporting the license string so users
-know where to send bug reports.  Oops reports the tainted status of the
-kernel.  Kernel developers can decide if they want to look at tainted
-bug reports or not.  End of story.
+ >
 
-Somebody raised the red herring of linking proprietary code into the
-kernel.  If you compile and link code into the kernel and do not
-provide the source then you cannot distribute the resulting kernel.  To
-do so is a breach of GPL conditions, read the GPL if you don't believe
-me.  There is nothing to stop you building your own kernel with binary
-only code and using it internally, but any bugs are your problem and
-you cannot distribute the result.
+>>A major problem is that the module name "deflate" is used by PPP,
+>>despite it being a nonstandard format...
+>>
+> 
+> No, the module name is "ppp_deflate".
+> 
 
-EXPORT_SYMBOL_GPL
 
-Some kernel developers are unhappy with providing external interfaces
-to their code, only to see those interfaces being used by binary only
-modules.  They view it as their work being appropriated.  Whether you
-agree with that view or not is completely irrelevant, the person who
-owns the copyright decides how their work can be used.
+Oh.  Well, then ...
 
-EXPORT_SYMBOL_GPL() allows for new interfaces to be marked as only
-available to modules with a GPL compatible license.  This is
-independent of the kernel tainting, but obviously takes advantage of
-MODULE_LICENSE() strings.
+	-hpa
 
-EXPORT_SYMBOL_GPL() may only be used for new exported symbols, Linus
-has spoken.  I believe the phrase involved killer penguins with
-chainsaws for anybody who changed existing exported interfaces.
-
-System calls are not affected and cannot be, that is yet another red
-herring.  Anybody who thinks otherwise does not understand the GPL.
-System calls define how user space code accesses the kernel, nobody
-pretends that a binary only user space program cannot use a syscall.
 

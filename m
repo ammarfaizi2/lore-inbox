@@ -1,60 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268604AbRGYSHV>; Wed, 25 Jul 2001 14:07:21 -0400
+	id <S268603AbRGYSEL>; Wed, 25 Jul 2001 14:04:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268605AbRGYSHL>; Wed, 25 Jul 2001 14:07:11 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1664 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S268604AbRGYSG5>; Wed, 25 Jul 2001 14:06:57 -0400
-Date: Wed, 25 Jul 2001 14:06:47 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "TO. Wilderman Ceren" <wceren@cioh.org.co>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: problems with dmfe.o in 2.4.7 (fwd)
-In-Reply-To: <Pine.LNX.4.33L2.0107251238260.7542-100000@sigma.cioh.org.co>
-Message-ID: <Pine.LNX.3.95.1010725140313.551A-100000@chaos.analogic.com>
+	id <S268604AbRGYSEB>; Wed, 25 Jul 2001 14:04:01 -0400
+Received: from [213.82.86.194] ([213.82.86.194]:23050 "EHLO fatamorgana.net")
+	by vger.kernel.org with ESMTP id <S268603AbRGYSDy>;
+	Wed, 25 Jul 2001 14:03:54 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roberto Arcomano <berto@fatamorgana.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Patch suggestion for proxy arp on shaper interface
+Date: Wed, 25 Jul 2001 20:06:34 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <200107242231.CAA00481@mops.inr.ac.ru>
+In-Reply-To: <200107242231.CAA00481@mops.inr.ac.ru>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01072520063402.01036@berto.casa.it>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Wed, 25 Jul 2001, TO. Wilderman Ceren wrote:
+Il 00:31, mercoledì 25 luglio 2001, Alexey Kuznetsov ha scritto:
+> Hello!
+>
+> > Recently I have had a problem with Linux proxy arp feature (using with
+> > shaper
+>
+> You must not enable proxy arp, when routing is asymmetric or configure
+> it manually. Shaper device is one of cases, when proxy arp cannot work
+> correctly.
+>
+> Alexey
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-> Hello linux.kernel deja newsgroup &  mailing list users!!.
-> 
-> 
-> I have a problem., i compile this morning the kernel 2.4.7, when i
-> reboot and load the new compiled bzImage, the module is not loaded by
-> insmod., errors found:
-> 
-> /lib/modules/2.4.7/kernel/drivers/net/dmfe.o: init_module: No such
-> device
-> Hint: insmod errors can be caused by incorrect module parameters,
-> including invalid IO or IRQ parameters
-> /lib/modules/2.4.7/kernel/drivers/net/dmfe.o: insmod
-> /lib/modules/2.4.7/kernel/drivers/net/dmfe.o failed
-> /lib/modules/2.4.7/kernel/drivers/net/dmfe.o: insmod dmfe failed
-> 
-[SNIPPED...]
-In /etc/modules.conf, look at eth0 alias and/or eth1 alias. It
-should be the name of the driver you intend to use. You don't
-have to reboot for tests, just put the right stuff in and
-do your `ifconfig` stuff by hand.
+Hello,
+First thank you for your answer. I must enable proxy arp cause I need it with 
+shaper interface. During configuration in user mode I noticed that kernel 
+sees shaper device instead of using its device attached (in fact I received 
+from a lan machine a "IP conflit"): I think that it is more correct to use 
+the device attached to shaper, for 2 reasons:
+1-) shaper is not a "real" interface (I mean directly connected to a wire or 
+wireless physical interface), while proxy arp sends "ARP REPLY" using 
+physical devices only.
 
-Also, sometime, with your new kernel running, do `depmod -a` this
-will update the dependencies.
+2-) Proxy arp would become more flexible, also using proxy arp interface: 
+proxy arp is a great thing, particulary with complex wireless networks. Like 
+all good thinks I think that we have to keep it under kernel to keep simplify 
+sysadmin life!
 
+Anyway, there are some applications that need shaper and proxy arp (for 
+example using a traffic manager behind a firewall).
 
+As I said in my first message, I tested it with 2.4.6 and it "appears" (I 
+tested it in a very little net) to work well (but I think performance aren't 
+so well...).
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+Thank you for your help.
+Best regards
+Roberto Arcomano

@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbULUQOj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbULUQRV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261780AbULUQOj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 11:14:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbULUQOj
+	id S261781AbULUQRV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 11:17:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbULUQRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 11:14:39 -0500
-Received: from gate.crashing.org ([63.228.1.57]:27827 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261780AbULUQOe (ORCPT
+	Tue, 21 Dec 2004 11:17:21 -0500
+Received: from mail.gadugi.org ([69.155.252.3]:51584 "EHLO mail.gadugi.org")
+	by vger.kernel.org with ESMTP id S261781AbULUQRR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 11:14:34 -0500
-Subject: Re: [PATCH] add PCI API to sysfs
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Greg KH <greg@kroah.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>, willy@debian.org
-In-Reply-To: <20041221123146.GA16109@parcelfarce.linux.theplanet.co.uk>
-References: <200412201450.47952.jbarnes@engr.sgi.com>
-	 <20041220225817.GA21404@kroah.com>
-	 <200412201501.12575.jbarnes@engr.sgi.com>
-	 <1103613121.21771.28.camel@gaston>
-	 <20041221123146.GA16109@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Date: Tue, 21 Dec 2004 17:13:58 +0100
-Message-Id: <1103645638.28670.43.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Tue, 21 Dec 2004 11:17:17 -0500
+Message-ID: <41C84D0C.3020008@gadugi.org>
+Date: Tue, 21 Dec 2004 09:19:24 -0700
+From: "Jeff V. Merkey" <jmerkey@gadugi.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: "Jeff V. Merkey" <jmerkey@mail.gadugi.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.9 and the GPL Buyout
+References: <200412211234.iBLCYVec006232@laptop11.inf.utfsm.cl>
+In-Reply-To: <200412211234.iBLCYVec006232@laptop11.inf.utfsm.cl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-12-21 at 12:31 +0000, Matthew Wilcox wrote:
-> On Tue, Dec 21, 2004 at 08:12:01AM +0100, Benjamin Herrenschmidt wrote:
-> > treat all busses of a domain the same, but it leaves us with the
-> > necessary flexibility for setups with bridges that can remap the legacy
-> > space or that kind of thing.
-> 
-> Do any such bridges exist?  I've never heard of them.  io space accesses
-> are implemented by the host bridge, so I think the most generic we need
-> to support is one per host bridge, ie root bus.
+Horst von Brand wrote:
 
-I've seen PCI->ISA stuffs that could remap the legacy ISA memory space
-at some random place, though don't ask me the details, I forgot.
+>Right. But the Cherokee Nation would have to be recognized, and it would
+>have to adhere to the Berne Convention and a lot of other stuff for this to
+>make any kind of difference. Plus they would need the international clout
+>to make their decisions stick. I.e., it won't help a bit.
+>  
+>
 
-Also, per-bus avoids the work of having to walk the tree up, etc... and
-doesn't make thing more complicated for the sysfs code so ...
+We are an A8 classified orgnaization with the Federal Government.  This 
+means we come
+before handicapped businesses and minorities for government purchases, 
+and the highest
+levels of the Federal Government are aware of this project.  This also 
+means is a situation
+where the United States is using Open source, Federal Law requires ours 
+be used instead
+of Linux or BSD. 
 
-Ben
+>What is wrong with GPL for the kernel? That could be a useful discussion
+>(just not here, please). Also note that some 80% of OSS is under GPL/LPGL,
+>so staying compatible with those licenses is very important on its own
+>right.
+>
+>What is wrong with starting with the *BSDs for the merged OS, if GPL won't
+>do for some weird reason?
+>
+>Besides, had you asked politely if the LKML crowd would consider a change
+>in license to the kernel _for a purpose like you say here_, and _coherent_
+>reasons for a change in license, there would have been quite a bit more
+>receptiveness. But, as the kernel has thousands of contributors whose work
+>is _very_ difficult to separate (probably more than just building the whole
+>shebang from scratch), the point is moot anyway.
+>
+>[...]
+>  
+>
+I don't believe this one bit.  LKML has some very good folks but it also 
+has some very immature and childish folks with thier own agendas.  It 
+also has a lot of folks from post-
+communist Europe and the views of many of these people are not aligned 
+with captilist
+viewpoints.  There will always be hecklers and idiots who just don't get 
+it, and it really
+doesn't matter one bit.  The verdict's in, the light moves forward.
 
+:-)
+
+Jeff
 

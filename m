@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbUKGQ4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbUKGQ6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbUKGQ4a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 11:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUKGQ4a
+	id S261652AbUKGQ6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 11:58:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbUKGQ6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 11:56:30 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:8200 "EHLO probity.mcc.ac.uk")
-	by vger.kernel.org with ESMTP id S261403AbUKGQ40 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 11:56:26 -0500
-Date: Sun, 7 Nov 2004 16:56:23 +0000
-From: John Levon <levon@movementarian.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, cliffw@osdl.org
-Subject: Re: [PATCH][OPROFILE] disable preempt when calling smp_processor_id()
-Message-ID: <20041107165623.GA36328@compsoc.man.ac.uk>
-References: <20041105163221.J14339@build.pdx.osdl.net>
+	Sun, 7 Nov 2004 11:58:25 -0500
+Received: from mail.lenhof.eu.org ([82.224.168.19]:14086 "EHLO
+	www.lenhof.eu.org") by vger.kernel.org with ESMTP id S261652AbUKGQ6Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 11:58:16 -0500
+Subject: Problem with USB 1.1 Storage plugged in USB 2.0
+From: Jean-Yves LENHOF <jean-yves@lenhof.eu.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1099846698.6045.7.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041105163221.J14339@build.pdx.osdl.net>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Graham Coxon - Happiness in Magazines
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CQqL3-0000MD-Al*xC5Fqh0zgtA*
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 07 Nov 2004 17:58:18 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 05, 2004 at 04:32:21PM -0800, Chris Wright wrote:
+Hi kernel folks,
 
-> smp_processor_id() is called w/out preempt disabled.  Use
-> get_cpu()/put_cpu() instead.  Should this be put_cpu_no_resched()?
+I just enter this bug because I want to buy a new laptop and very often
+there's only USB 2.0 port on new ones...
 
-No, the patch below looks fine
+Quickly my problem :
+I try to mount as a usb-storage my Minolta DiMAGE F200 (which seems to
+be USB
+1.1)  on a kernel 2.6
 
-regards
-john
+If I plug it on a USB 2.0 plug, it hangs
+If I plug it on a USB 1.1 plug, it works
 
-> Signed-off-by: Chris Wright <chrisw@osdl.org>
-> 
-> --- linux-2.6.10-rc1-mm3-smp_processor_id/drivers/oprofile/buffer_sync.c~orig	2004-11-05 15:21:21.551984200 -0800
-> +++ linux-2.6.10-rc1-mm3-smp_processor_id/drivers/oprofile/buffer_sync.c	2004-11-05 15:23:29.000000000 -0800
-> @@ -62,7 +62,8 @@
->  	/* To avoid latency problems, we only process the current CPU,
->  	 * hoping that most samples for the task are on this CPU
->  	 */
-> -	sync_buffer(smp_processor_id());
-> +	sync_buffer(get_cpu());
-> +	put_cpu();
->    	return 0;
->  }
->  
-> @@ -86,7 +87,8 @@
->  		/* To avoid latency problems, we only process the current CPU,
->  		 * hoping that most samples for the task are on this CPU
->  		 */
-> -		sync_buffer(smp_processor_id());
-> +		sync_buffer(get_cpu());
-> +		put_cpu();
->  		return 0;
->  	}
->  
+With kernel 2.4 (module usb-uhci) it works whatever the plug I use.
+
+I've posted more information there :
+http://bugme.osdl.org/show_bug.cgi?id=3711
+
+If there's a patch around or something that I can test, ask.
+
+Thanks for your job.
+
+PS : Please cc me as I'm not on the list
+
+-- 
+Jean-Yves LENHOF <jean-yves@lenhof.eu.org>
+

@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269205AbUJKTvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269192AbUJKT5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269205AbUJKTvU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 15:51:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269206AbUJKTvT
+	id S269192AbUJKT5T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 15:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269214AbUJKT5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 15:51:19 -0400
-Received: from fw.osdl.org ([65.172.181.6]:25748 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269205AbUJKTvQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 15:51:16 -0400
-Date: Mon, 11 Oct 2004 12:55:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc4-mm1
-Message-Id: <20041011125507.3d733256.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0410111844450.2873@musoma.fsmlabs.com>
-References: <20041011032502.299dc88d.akpm@osdl.org>
-	<Pine.LNX.4.61.0410111844450.2873@musoma.fsmlabs.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 11 Oct 2004 15:57:19 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:18914 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S269192AbUJKT5N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 15:57:13 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
+Date: Mon, 11 Oct 2004 21:58:48 +0200
+User-Agent: KMail/1.6.2
+Cc: Stefan Seyfried <seife@suse.de>, Pavel Machek <pavel@suse.cz>,
+       ncunningham@linuxmail.org, pascal.schmidt@email.de
+References: <2HO0C-4xh-29@gated-at.bofh.it> <20041011145911.GB2672@elf.ucw.cz> <416AC081.7050504@suse.de>
+In-Reply-To: <416AC081.7050504@suse.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410112158.49203.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
->
-> How about the following?
+On Monday 11 of October 2004 19:18, Stefan Seyfried wrote:
+> Hi,
 > 
-> remove-lock_section-from-x86_64-spin_lock-asm.patch
->   remove LOCK_SECTION from x86_64 spin_lock asm
+> Pavel Machek wrote:
+> 
+> > Ok... And I guess it is nearly impossible to trigger this on demand,
+> > right?
 
-OK.
+I think it is possible.  Seemingly, on my box it's only a question of the 
+number of apps started.  I think I can work out a method to trigger it 90% of 
+the time or so.  Please let me know if it's worthy of doing.
 
-> allow-x86_64-to-reenable-interrupts-on-contention.patch
->   Allow x86_64 to reenable interrupts on contention
+Greets,
+RJW
 
-IIRC Andi made skeptical noises about this one.
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

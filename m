@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbTEAItQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 04:49:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbTEAItP
+	id S261180AbTEAI6m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 04:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbTEAI6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 04:49:15 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36584 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261176AbTEAItP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 04:49:15 -0400
-Date: Thu, 1 May 2003 11:01:31 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@digeo.com>, David Woodhouse <dwmw2@redhat.com>
-Cc: Grzegorz Jaskiewicz <gj@pointblue.com.pl>, linux-kernel@vger.kernel.org,
-       greg@kroah.com, rddunlap@osdl.org
-Subject: Re: 2.5.68-bk10 blkmtd.c:219: warning: implicit declaration offunction `alloc_kiovec'
-Message-ID: <20030501090131.GQ14959@fs.tum.de>
-References: <1051745126.5274.22.camel@flat41> <1051747119.5315.28.camel@flat41> <20030430171047.2f22ed70.akpm@digeo.com>
+	Thu, 1 May 2003 04:58:42 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:39150 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261180AbTEAI6l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 04:58:41 -0400
+Subject: Re: [RFC] clustered apic irq affinity fix for i386
+From: Arjan van de Ven <arjan@fenrus.demon.nl>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Keith Mannthey <kmannth@us.ibm.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030430163637.04f06ba6.akpm@digeo.com>
+References: <1051744032.16886.80.camel@dyn9-47-17-180.beaverton.ibm.com>
+	 <20030430163637.04f06ba6.akpm@digeo.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-N+l8Z6REJhVY4VDEXBPF"
+Organization: 
+Message-Id: <1051780253.1406.4.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030430171047.2f22ed70.akpm@digeo.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 01 May 2003 11:10:54 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 30, 2003 at 05:10:47PM -0700, Andrew Morton wrote:
-> Grzegorz Jaskiewicz <gj@pointblue.com.pl> wrote:
+
+--=-N+l8Z6REJhVY4VDEXBPF
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, 2003-05-01 at 01:36, Andrew Morton wrote:
+> Keith Mannthey <kmannth@us.ibm.com> wrote:
 > >
-> >   struct kiobuf *iobuf;
-> > 	^^^^^^^
-> >   unsigned long *blocks;
-> > 
-> > Fast fgrep in kernel sources gives me no answer about this structure declaration.
-> > 
-> 
-> blkmtd died when kiobufs were removed.  The maintainer said "oh well, OK, I
-> need to rewrite it anyway" but that obviously has not yet happened.
+> > Hello all,
+> > 	Machines with clustered apics are buggy when it comes to setting irq
+> > affinity.
+>=20
+> You stand accused of crimes against whitespace.
 
-There's a new blkmtd in the MTD CVS.
+The final verdict is: guilty. The punishment will consist of being
+forced to read the sourcecode of indent for one hour.
 
-David:
-What are your current plans regarding merging the MTD CVS into 2.5?
 
-cu
-Adrian
+--=-N+l8Z6REJhVY4VDEXBPF
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-[1] http://www.linux-mtd.infradead.org/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
--- 
+iD8DBQA+sOSdbpJDcQVaBT0RAulBAJsHEdSDI6UTyby9J+R5QF9LklT/sgCdFvjn
+57nfh7MQSqpDxCtawNTi2M4=
+=EPhB
+-----END PGP SIGNATURE-----
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--=-N+l8Z6REJhVY4VDEXBPF--

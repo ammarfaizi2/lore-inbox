@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267360AbUBSQiO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 11:38:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267363AbUBSQiN
+	id S267363AbUBSQiq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 11:38:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267371AbUBSQip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 11:38:13 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:16115 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267360AbUBSQiI
+	Thu, 19 Feb 2004 11:38:45 -0500
+Received: from mail.shareable.org ([81.29.64.88]:10368 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S267363AbUBSQin
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 11:38:08 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Kianusch Sayah Karadji <kianusch@sk-tech.net>, greg@kroah.com
-Subject: Re: PCI-Scan Hangup ...
-Date: Thu, 19 Feb 2004 17:44:19 +0100
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0402191426360.27436@kryx.sk-tech.net>
-In-Reply-To: <Pine.LNX.4.58.0402191426360.27436@kryx.sk-tech.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Feb 2004 11:38:43 -0500
+Date: Thu, 19 Feb 2004 16:38:38 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: tridge@samba.org, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 and case-insensitivity
+Message-ID: <20040219163838.GC2308@mail.shareable.org>
+References: <Pine.LNX.4.58.0402171919240.2686@home.osdl.org> <16435.55700.600584.756009@samba.org> <Pine.LNX.4.58.0402181422180.2686@home.osdl.org> <Pine.LNX.4.58.0402181427230.2686@home.osdl.org> <16435.60448.70856.791580@samba.org> <Pine.LNX.4.58.0402181457470.18038@home.osdl.org> <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402191744.19633.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 19 of February 2004 14:35, Kianusch Sayah Karadji wrote:
-> Hi!
+Linus Torvalds wrote:
+> For example, the rule can be that _any_ regular dentry create will 
+> invalidate all the "case-insensitive" dentries. Just to be simple about 
+> it.
 
-Hi,
+If that's the rule, then with exactly the same algorithmic efficiency,
+readdir+dnotify can be used to maintain the cache in userspace
+instead.  There is nothing gained by using the helper module in that case.
 
-> There I have a Soekris bord with some weird PCI Handup while booting
-> Linux during PCI-Scan .
->
-> # lspci
->
-> 00:00.0 Host bridge: Cyrix Corporation PCI Master
-> 00:12.0 ISA bridge: National Semiconductor Corporation: Unknown device 0510
-> 00:12.1 Bridge: National Semiconductor Corporation: Unknown device 0511
-> 00:12.2 IDE interface: National Semiconductor Corporation SCx200 IDE (rev
-> 01) 00:12.5 Bridge: National Semiconductor Corporation: Unknown device 0515
-> 00:13.0 USB Controller: Compaq Computer Corporation ZFMicro Chipset USB
-> (rev 08)
->
-> There was a patch on 2.4.x which worked fine.
->
-> Now I tried to patch Kernel 2.6.x - well I'm no programmer
-> - I had no idea where to put it ... so I started putting some debug
-> messages into some files ... and suddenly including a printk(".") into
-> drivers/pci/probe.c fixed the whole PCI-Hangup ??? - That was not what the
-> 2.4.x Patch did.
->
-> Hmmm ...
->
-> I've no idea why that printk fixes the Problem nor if it's a good idea to
-> have that printk there ...
+It follows that a helper module is only useful if readdir+dnotify
+isn't fast enough, and the invalidation rule has to be more selective.
 
-printk() adds some delay -> this delay fixes your problem, but I dunno why.
+(Although, maybe there are atomicity concerns I haven't thought of).
 
+-- Jamie

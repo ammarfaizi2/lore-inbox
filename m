@@ -1,37 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266090AbUFIKWH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265692AbUFIK1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266090AbUFIKWH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 06:22:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266088AbUFIKWH
+	id S265692AbUFIK1n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 06:27:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265574AbUFIK1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 06:22:07 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:10654 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266090AbUFIKWF
+	Wed, 9 Jun 2004 06:27:43 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:14751 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265692AbUFIK1a
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 06:22:05 -0400
+	Wed, 9 Jun 2004 06:27:30 -0400
 From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Brian Lazara <blazara@nvidia.com>
-Subject: Re: [PATCH 2.4.27-pre5] add new nForce SATA/IDE ids
-Date: Wed, 9 Jun 2004 12:25:47 +0200
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [PATCH] tiny patch to kill warning in drivers/ide/ide.c
+Date: Wed, 9 Jun 2004 12:31:20 +0200
 User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <1086750417.32222.172.camel@dhcp-175-55.nvidia.com>
-In-Reply-To: <1086750417.32222.172.camel@dhcp-175-55.nvidia.com>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+References: <Pine.LNX.4.56.0406090335260.25359@jjulnx.backbone.dif.dk>
+In-Reply-To: <Pine.LNX.4.56.0406090335260.25359@jjulnx.backbone.dif.dk>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200406091225.47276.bzolnier@elka.pw.edu.pl>
+Message-Id: <200406091231.20049.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 of June 2004 05:06, Brian Lazara wrote:
-> Patch against 2.4.27-pre5 to add new NVIDIA IDE and SATA controller
-> device IDs. Note this is a resend of a previous patch submittal against
-> 2.4.27-pre2 that must have been too late to make it in.
+On Wednesday 09 of June 2004 03:38, Jesper Juhl wrote:
+> To kill this warning :
+>
+> drivers/ide/ide.c: In function `ide_unregister_subdriver':
+> drivers/ide/ide.c:2216: warning: implicit declaration of function
+> `pnpide_init'
+>
+> I added a simple declaration of pnpide_init to drivers/ide/ide.c
+>
+> Here's a patch against 2.6.7-rc3 - please consider including it (or if
+> that's not the way to do it, then don't) :)
 
-I already sent it to Marcelo and he merged it yesterday.
-
-Thanks.
+Thanks but the real bug is to call pnpide_init() from
+ide_unregister_subdriver(), I'll push ide-pnp update soon.
 

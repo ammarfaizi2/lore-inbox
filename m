@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262932AbSJBCSn>; Tue, 1 Oct 2002 22:18:43 -0400
+	id <S262946AbSJBCdk>; Tue, 1 Oct 2002 22:33:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262933AbSJBCSn>; Tue, 1 Oct 2002 22:18:43 -0400
-Received: from quattro.sventech.com ([205.252.248.110]:16538 "EHLO
-	quattro.sventech.com") by vger.kernel.org with ESMTP
-	id <S262932AbSJBCSm>; Tue, 1 Oct 2002 22:18:42 -0400
-Date: Tue, 1 Oct 2002 22:24:11 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Greg KH <greg@kroah.com>
-Cc: Krishnakumar B <kitty@cse.wustl.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Multiple OOPS with Linux-2.5.40
-Message-ID: <20021001222411.A3685@sventech.com>
-References: <15770.19197.730535.272727@samba.doc.wustl.edu> <20021002021713.GC11453@kroah.com>
+	id <S262948AbSJBCdk>; Tue, 1 Oct 2002 22:33:40 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:32266 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S262946AbSJBCdj>; Tue, 1 Oct 2002 22:33:39 -0400
+Date: Wed, 2 Oct 2002 03:39:01 +0100
+From: John Levon <levon@movementarian.org>
+To: linux-kernel@vger.kernel.org
+Cc: willy@debian.org
+Subject: flock(fd, LOCK_UN) taking 500ms+ ?
+Message-ID: <20021002023901.GA91171@compsoc.man.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021002021713.GC11453@kroah.com>; from greg@kroah.com on Tue, Oct 01, 2002 at 07:17:13PM -0700
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *17wZPh-000NI9-00*RnMxuSCwpDM* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002, Greg KH <greg@kroah.com> wrote:
-> On Tue, Oct 01, 2002 at 08:25:17PM -0500, Krishnakumar B wrote:
-> > hcd-pci.c: uhci-hcd @ 00:1f.2, Intel Corp. 82801AA USB
-> > hcd-pci.c: irq 19, io base 0000ff80
-> > hcd.c: new USB bus registered, assigned bus number 1
-> > hub.c: USB hub found at 0
-> > hub.c: 2 ports detected
-> > Debug: sleeping function called from illegal context at /u/scratch/downloads/kernel/linux-2.5.40/include/asm/semaphore.h:119
-> > df675f70 e2886692 e28926c0 00000077 df675fa8 df808760 df664f88 df66e0d0 
-> >        df674000 dfb36100 00000286 df674000 df674000 df675fc0 df674000 e28869f5 
-> >        dfa1b860 dfb36100 df674000 df81df34 00000000 dfa1b860 c0118260 00000000 
-> > Call Trace:
-> >  [<e2886692>]usb_hub_events+0x82/0x3b0 [usbcore]
-> >  [<e28926c0>].rodata.str1.32+0xd20/0x28e2 [usbcore]
-> >  [<e28869f5>]usb_hub_thread+0x35/0x100 [usbcore]
-> >  [<c0118260>]default_wake_function+0x0/0x40
-> >  [<e28869c0>]usb_hub_thread+0x0/0x100 [usbcore]
-> >  [<c0105665>]kernel_thread_helper+0x5/0x10
-> 
-> I think this is due to the following lines of code in
-> drivers/usb/core/hub.c:
-> 		spin_lock_irqsave(&hub_event_lock, flags);
-> 
-> 		....
-> 
-> 		down(&hub->khubd_sem); /* never blocks, we were on list */
-> 		spin_unlock_irqrestore(&hub_event_lock, flags);
-> 
-> Johannes, any reason for the down() when we have a spinlock held?
 
-It was a patch from Pete to fix a race condition in the hub driver. It
-looks to be safe, but obviously should be cleaned up.
+In 2.5.40, our application is getting seemingly very large
+flock(LOCK_UN) latencies :
 
-I'm working on a reference counting patch to remove this bit.
+Unlock, took 541386 usecs
+Old was 567999237 secs, 131042 usecs
+now is 567999237 secs, 672428 usecs
+Unlock, took 125083 usecs
+Old was 567999237 secs, 699310 usecs
+now is 567999237 secs, 824393 usecs
+Unlock, took 151245 usecs
+Old was 567999237 secs, 825119 usecs
+now is 567999237 secs, 976364 usecs
 
-See the thread on linux-usb-devel that David started about this problem.
+(using gettimeofday ...)
 
-JE
+No similar times are observed during the corresponding LOCK_EX call.
 
+Is this just a silly app bug somewhere, or something funny in locks.c ?
+
+More details, testing etc. on request ...
+
+regards
+john
+
+-- 
+"I never understood what's so hard about picking a unique
+ first and last name - and not going beyond the 6 character limit."
+ 	- Toon Moene

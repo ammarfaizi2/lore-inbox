@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269337AbUIYOLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269340AbUIYOvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269337AbUIYOLw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 10:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269340AbUIYOLw
+	id S269340AbUIYOvv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 10:51:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269344AbUIYOvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 10:11:52 -0400
-Received: from 1-1-4-20a.ras.sth.bostream.se ([82.182.72.90]:55996 "EHLO
-	garbo.kenjo.org") by vger.kernel.org with ESMTP id S269337AbUIYOLu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 10:11:50 -0400
-Subject: Re: Sluggishness in 2.6.7 caused by IDE stack
-From: Kenneth Johansson <ken@kenjo.org>
-To: Scott A Crosby <scrosby@cs.rice.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <oydsm964jro.fsf@bert.cs.rice.edu>
-References: <oydsm964jro.fsf@bert.cs.rice.edu>
-Content-Type: text/plain
-Date: Sat, 25 Sep 2004 16:11:25 +0200
-Message-Id: <1096121485.2760.5.camel@tiger>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
-Content-Transfer-Encoding: 7bit
+	Sat, 25 Sep 2004 10:51:51 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:58524 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S269340AbUIYOvt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 10:51:49 -0400
+Date: Sat, 25 Sep 2004 07:51:32 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Ulrich Drepper <drepper@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [time] add support for CLOCK_THREAD_CPUTIME_ID and
+ CLOCK_PROCESS_CPUTIME_ID
+In-Reply-To: <41550B77.1070604@redhat.com>
+Message-ID: <Pine.LNX.4.58.0409250743230.15887@schroedinger.engr.sgi.com>
+References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
+ <Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com>
+ <4154F349.1090408@redhat.com> <Pine.LNX.4.58.0409242253080.13099@schroedinger.engr.sgi.com>
+ <41550B77.1070604@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-09-25 at 07:26 -0500, Scott A Crosby wrote:
-> Much of the CPU time was spent in system mode. I setup a quick
-> oprofile, which blamed the function task_no_data_intr, but an
-> opannotate reports confusing results, possibly from interrupts? dmesg
-> reported nothing interesting.
-> 
-> 
-> Scott
-> 
-> 
-> *** vmstat output ***
-> 
-> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
->  1  1 410496   8520  14224 1253716    0    0  2180    16  409   633 10 43  0 48
->  7  1 410496   6920  14236 1255380    0    0  1668    20  589   832  9 18  0 73
->  3  0 410496   8264  14232 1253988    0    0  2436    80  334   438 18 82  0  0
->  0  1 410496   8384  14244 1253860    0    0  1932     0  464   706 13 35  0 52
->  5  1 410496   8056  14264 1253872  328    0  2280     0  717   965 14 20  0 65
->  8  1 410496   7352  14268 1254640    0    0  2692     0  351   485 17 83  0  0
->  2  2 410496   6968  14264 1255036   32    0  2336     0  332   522 17 83  0  0
->  5  0 410496   8568  14276 1253384    0    0  2192    12  464   794 19 33  0 48
+On Fri, 24 Sep 2004, Ulrich Drepper wrote:
 
-I think you have the same problem as me. The interrupt rate drops under
-1000 during use of the DVD and that is strange as the HZ is 1000 and
-that should be the lowest possible value unless I misunderstood
-something.  
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Christoph Lameter wrote:
+>
+> > Then please sign off on the following patch:
+>
+> Sorry, I fail to see the point.  The CPUTIME stuff will either way be
+> entire implemented at userlevel.  If we use TSC, we compute the
+> resolution from the CPU clock speed (no need to comment, I know it's not
+> reliable everywhere).  If we fall back on realtime, we will simply in
+> glibc map
 
+I thought I heard you asking for CPUTIME returning the actual cputime
+used in the last message. I have proposed falling back to realtime in the
+past but that was not acceptable.
 
+>
+>    clock_getres (CLOCK_PROCESS_CPUTIME_ID, &ts)
+>
+> to
+>
+>    clock_getres (CLOCK_REALTIME, &ts)
+>
+> The kernel knows nothing about this clock.
 
+Yes and glibc will have to get through contortions to
+simulate a clock that returns the actual cpu time used. Why not cleanly
+do the clock_gettime syscall without doing any redirection of clocks?
 
+Any implementation of the CPUTIME clocks is always easier to do in the
+kernel with just a few lines.
 
+> The comment changes are OK, of course.
+>
+> If there is more to change this is in glibc.  So far I have not heard of
+> anybody wanting to use the clocks this way.  This is why we do not have
+> the fallback to realtime implemented.  If you say you need it I have no
+> problem adding appropriate patches.
+
+Ok, I will dig out my old patch and repost it to glibc-alpha.

@@ -1,158 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262996AbUDPMgn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 08:36:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbUDPMgn
+	id S263014AbUDPMgx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 08:36:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263033AbUDPMgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 08:36:43 -0400
-Received: from sigma.informatik.hu-berlin.de ([141.20.20.51]:57249 "EHLO
-	sigma.informatik.hu-berlin.de") by vger.kernel.org with ESMTP
-	id S262996AbUDPMgg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 08:36:36 -0400
-From: Axel Weiss <aweiss@informatik.hu-berlin.de>
-Organization: Humboldt-Universitaet zu Berlin
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: compiling external modules
-Date: Fri, 16 Apr 2004 14:34:25 +0200
-User-Agent: KMail/1.5.4
-References: <200404152305.49456.aweiss@informatik.hu-berlin.de> <20040415215907.GD2656@mars.ravnborg.org> <200404161406.17241.aweiss@informatik.hu-berlin.de>
-In-Reply-To: <200404161406.17241.aweiss@informatik.hu-berlin.de>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Apr 2004 08:36:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:32730 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263014AbUDPMgt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 08:36:49 -0400
+Date: Fri, 16 Apr 2004 14:36:20 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: John Bradford <john@grabjohn.com>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: SATA support merge in 2.4.27
+Message-ID: <20040416123620.GB13211@devserv.devel.redhat.com>
+References: <Pine.LNX.4.10.10404160259480.22035-100000@master.linux-ide.org> <200404161020.i3GAKSv9000256@81-2-122-30.bradfords.org.uk> <1082111045.9600.0.camel@laptop.fenrus.com> <200404161030.i3GAUrcB000356@81-2-122-30.bradfords.org.uk> <20040416102820.GD14796@devserv.devel.redhat.com> <200404161237.i3GCb9Jf000164@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qlTNgmc+xy1dBmNv"
 Content-Disposition: inline
-Message-Id: <200404161434.25608.aweiss@informatik.hu-berlin.de>
+In-Reply-To: <200404161237.i3GCb9Jf000164@81-2-122-30.bradfords.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Sam,
 
-excuse me (and forget my previous mail), I've found the reason for the missing 
-exported symbols in the C-source.
+--qlTNgmc+xy1dBmNv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I will continue simplifying the Makefile...
+On Fri, Apr 16, 2004 at 01:37:09PM +0100, John Bradford wrote:
+> of local root exploits around 2.6.0 that had been fixed in 2.4 but never
+> applied to 2.6.
 
-Regards,
-Axel
+we're at 2.6.6-rc1 now, and afaik all those got applied.
 
-On Friday 16 April 2004 14:06, Axel Weiss wrote:
-> Hi, Sam,
->
-> I have patched to 2.6.6-rc1 (patch-2.6.6-rc1 over kernel 2.6.5 - am I right
-> or am I missing some patches in between?), and now symbol exports between
-> modules fails. An example with two module-objects - one exports some
-> symbols used by the other - shows compile output:
->
-> scripts/Makefile.build:36: kbuild: /home/axel/freeSP-1.0.4/drivers/linux/
-> adc64/busmaster/Makefile - Usage of export-objs is obsolete in 2.6. Please
-> fix!
->
-> 8<
->
-> *** Warning: "adc64_count" [/home/axel/freeSP-1.0.4/drivers/linux/adc64/
-> driver/adc64.ko] undefined!
-> *** Warning: "release_adc64_busmaster"
-> [/home/axel/freeSP-1.0.4/drivers/linux/ adc64/driver/adc64.ko] undefined!
-> *** Warning: "get_adc64_busmaster" [/home/axel/freeSP-1.0.4/drivers/linux/
-> adc64/driver/adc64.ko] undefined!
->
-> 8<
->
-> The first (exporting) module loads cleanly (lsmod shows the loaded module),
-> but insmod'ing the second fails with:
->
-> insmod: error inserting './adc64.ko': -1 Unknown symbol in module
->
-> What's the trick in 2.6.6?
->
-> Regards,
-> Axel
->
-> On Thursday 15 April 2004 23:59, Sam Ravnborg wrote:
-> > On Thu, Apr 15, 2004 at 11:05:49PM +0200, Axel Weiss wrote:
-> > > Hi,
-> > >
-> > > after some study of kernel Makefiles, I'm able now to compile externel
-> > > modules for both, 2.4 and 2.6 kernels correctly. I'd like to share my
-> > > Makefiles here, maybe somebody finds them useful.
-> >
-> > Thanks.
-> >
-> > > 2.6-compilation of drivers consisting of more than one module leaded to
-> > > very ugly warnings from scripts/Makefile.modpost, when make was invoked
-> > > after 'make clean'. The reason were lying-around objects in
-> > > .tmp_versions directory which were not deleted by 'make clean'.
-> > > Solution: clean must explicitly delete the version-object in
-> > > .tmp_versions.
-> >
-> > With 2.6.5-rc1 the warning are gone.
-> >
-> > > 2.4-compilation requires inclusion of Rules.make and an additional rule
-> > > for module-object linkage. In 2.6 Rules.make does not exist, and the
-> > > linking rule would conflict with an already defined one. Solution:
-> > > distinct current kernel version.
-> >
-> > You should be able to use:
-> > -include Rules.make
-> >
-> > See 'info make' - look after the include directive.
-> >
-> > > When I gave the rule:
-> > > clean:
-> > > 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) clean
-> > > the whole kernel tree was cleaned. This is not my intention, when I'm
-> > > working on external modules and want to make clean e.g. for cvs
-> > > commits. So I defined my own clean rule, kicking away everything but
-> > > source files.
-> >
-> > With 2.6.5-rc1 this will only cause files in the $(PWD) dir to be
-> > deleted, not the kernel tree.
-> >
-> > > So far the difficulties. Next I propose an assumption about filenames,
-> > > when a module consists of several objects which will be linked
-> > > together. Let <module-name> be a basic name for the module, so
-> > > <module-name>.(k)o (with k for 2.6, without for 2.4) will be the final
-> > > target. I assume that all elementary object-filenames begin with
-> > > <module-name>, for
-> > > clarification. E.g. the module adc64.ko is composed of adc64_module.o,
-> > > adc64_device.o, adc64_io.o and so on. Generally, the name of an object
-> > > is <module-name>_<object-name>.o, and the object-names can be collected
-> > > in a symbol <module-name>-obj-names. Some objects may export symbols to
-> > > other modules, they can be collected in a <module-name>-exp-names list.
-> >
-> > I really do not see the benefit compared to the current more free
-> > naming scheme - which works.
-> >
-> > > Finally, all the modules' Makefiles were very similar, so I split them
-> > > into two files: one Makefile for every module and a common
-> > > Makefile.module which is included by each Makefile. Each
-> > > module-specific Makefile contains the definition of
-> > > - <module-name>
-> > > - <module-name>-obj-names
-> > > - <module-name>-exp-names
-> > > - EXTRA_CFLAGS
-> > > which makes up all information Makfile.module needs.
-> >
-> > The general feedback is that it looks like you have
-> > made it less simple than it ought to be.
-> >
-> > You should also consider that you end up with files
-> > that does not look like ordinary kbuild makefiles.
-> >
-> > When I get some spare time I will try to come up with a simpler example.
-> >
-> > 	Sam
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--qlTNgmc+xy1dBmNv
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAf9NDxULwo51rQBIRAke9AJ97VJO7Va3+RlebOBHKH9nOg2GxkgCfat0B
+VyGMCRy1GI1Qi2VoP2NH5Gc=
+=LeDu
+-----END PGP SIGNATURE-----
+
+--qlTNgmc+xy1dBmNv--

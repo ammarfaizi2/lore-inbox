@@ -1,105 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319443AbSILFod>; Thu, 12 Sep 2002 01:44:33 -0400
+	id <S319444AbSILFvq>; Thu, 12 Sep 2002 01:51:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319444AbSILFod>; Thu, 12 Sep 2002 01:44:33 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:13752 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S319443AbSILFob>;
-	Thu, 12 Sep 2002 01:44:31 -0400
-Date: Thu, 12 Sep 2002 07:49:15 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Richard Zidlicky <rz@linux-m68k.org>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] q40kbd.c fixes
-Message-ID: <20020912074915.A18918@ucw.cz>
-References: <20020911162206.A3861@linux-m68k.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020911162206.A3861@linux-m68k.org>; from rz@linux-m68k.org on Wed, Sep 11, 2002 at 04:22:07PM +0200
+	id <S319445AbSILFvq>; Thu, 12 Sep 2002 01:51:46 -0400
+Received: from dsl-213-023-043-193.arcor-ip.net ([213.23.43.193]:23428 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319444AbSILFvp>;
+	Thu, 12 Sep 2002 01:51:45 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC] Raceless module interface
+Date: Thu, 12 Sep 2002 07:58:02 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: lk@tantalophile.demon.co.uk, oliver@neukum.name, zippel@linux-m68k.org,
+       viro@math.psu.edu, kaos@ocs.com.au, linux-kernel@vger.kernel.org
+References: <20020912031345.760A32C061@lists.samba.org> <E17pKxR-0007by-00@starship> <20020912145244.4cc6fb98.rusty@rustcorp.com.au>
+In-Reply-To: <20020912145244.4cc6fb98.rusty@rustcorp.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17pMzL-0007fx-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 11, 2002 at 04:22:07PM +0200, Richard Zidlicky wrote:
-
-> Hi,
+On Thursday 12 September 2002 06:52, Rusty Russell wrote:
+> On Thu, 12 Sep 2002 05:47:57 +0200
+> Daniel Phillips <phillips@arcor.de> wrote:
 > 
-> a few small fixes, works nicely.
+> > On Thursday 12 September 2002 05:13, Rusty Russell wrote:
+> > > B) We do not handle the "half init problem" where a module fails to 
+> > >    load, eg.
+> > > 	a = register_xxx();
+> > > 	b = register_yyy();
+> > > 	if (!b) {
+> > > 		unregister_xxx(a);
+> > > 		return -EBARF;
+> > > 	}
+> > >   Someone can start using "a", and we are in trouble when we remove
+> > >   the failed module.
+> > 
+> > No we are not.  The module remains in the 'stopped' state
+> > throughout the entire initialization process, as it should and
+> > does, in my model.
 > 
-> Richard
+> Um, so register_xxx interfaces all use try_inc_mod_count (ie. a
+> struct module *  extra arg to register_xxx)?
 
-Thanks; applied.
+In that case they are filesystems or some other thing that fits the
+model closely enough for try_ind_mod_count to be efficient.  This
+case is easy and solved as far as I'm concerned, do correct me if
+I'm wrong.  Assuming I'm not wrong, on to a hard and interesting
+case.
 
-> 
-> --- linux-m68k-2.5.x/drivers/input/serio/q40kbd.c	Sat Jul 27 21:09:46 2002
-> +++ linux-m68k-2.5.x-my/drivers/input/serio/q40kbd.c	Wed Sep 11 16:40:08 2002
-> @@ -47,12 +47,24 @@
->  MODULE_DESCRIPTION("Q40 PS/2 keyboard controller driver");
->  MODULE_LICENSE("GPL");
->  
-> +
-> +static int q40kbd_open(struct serio *port)
-> +{
-> +	return 0;
-> +}
-> +static void q40kbd_close(struct serio *port)
-> +{
-> +	return 0;
-> +}
-> +
->  static struct serio q40kbd_port =
->  {
->  	.type	= SERIO_8042,
-> +	.name	= "Q40 kbd port",
-> +	.phys	= "Q40",
->  	.write	= NULL,
-> -	.name	= "Q40 PS/2 kbd port",
-> -	.phys	= "isa0060/serio0",
-> +	.open	= q40kbd_open,
-> +	.close	= q40kbd_close,
->  };
->  
->  static void q40kbd_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-> @@ -70,13 +82,10 @@
->  {
->  	int maxread = 100;
->  
-> -	/* Get the keyboard controller registers (incomplete decode) */
-> -	request_region(0x60, 16, "q40kbd");
-> -
->  	/* allocate the IRQ */
->  	request_irq(Q40_IRQ_KEYBOARD, q40kbd_interrupt, 0, "q40kbd", NULL);
->  
-> -	/* flush any pending input. */
-> +	/* flush any pending input */
->  	while (maxread-- && (IRQ_KEYB_MASK & master_inb(INTERRUPT_REG)))
->  		master_inb(KEYCODE_REG);
->  	
-> @@ -84,15 +93,17 @@
->  	master_outb(-1,KEYBOARD_UNLOCK_REG);
->  	master_outb(1,KEY_IRQ_ENABLE_REG);
->  
-> -	register_serio_port(&q40kbd_port);
-> -	printk(KERN_INFO "serio: Q40 PS/2 kbd port irq %d\n", Q40_IRQ_KEYBOARD);
-> +	serio_register_port(&q40kbd_port);
-> +	printk(KERN_INFO "serio: Q40 kbd registered\n");
->  }
->  
->  void __exit q40kbd_exit(void)
->  {
-> -	unregister_serio_port(&q40kbd_port);
-> +	master_outb(0,KEY_IRQ_ENABLE_REG);
-> +	master_outb(-1,KEYBOARD_UNLOCK_REG);
-> +
-> +	serio_unregister_port(&q40kbd_port);
->  	free_irq(Q40_IRQ_KEYBOARD, NULL);
-> -	release_region(0x60, 16);	
->  }
->  
->  module_init(q40kbd_init);
+> Or those entry points
+> are not protected by try_inc_mod_count, so it must bump the refcnt, so
+> you need to sleep in load until the module becomes unused again.
+
+Let's consider LSM as a really hard case, and let's suppose that the 
+register_*'s just plug new functions into function tables.  These functions 
+are just called indirectly, there is no module entry/exit accounting 
+whatsoever, except that the inc/dec rule must be followed where module code 
+itself might sleep.
+
+Anyway, at the -EBARF point, all the function pointers have been restored to 
+their original state, but we may have some tasks executing in the module 
+already, which got in while _xxx was there.  The solution is to do the 
+magic_wait_for_quiescence (yes I know it has a real name, I forgot it) before 
+returning -EBARF.  Refcounts never come into it.
+
+What did I miss?  It was too easy.
+
+Ah, I'm glossing over how the "I need to sleep" intramodule refcounts 
+interact with the magic quiescence test.  Let's see if some sleep fixes that. 
+I doubt this is any central issue though.  We could, for instance, pass the 
+address of the count variable to the quiescence tester, and it will be 
+examined at schedule time, however that works (I promise to find out soon).
+
+> You have the same issue in the "wait for schedule" case on unload,
+> where someone jumps in while you are unregistering.
+
+We don't.  Our LSM module will first restore all the function pointers to
+their original state, then wait for everyone to schedule.
+
+> My implementation
+> decided to ignore this problem (ie. potentially wait forever with the
+> module half-loaded) but it is an issue.
+
+I don't see the endless wait.  It looks to me like it's just the time 
+required for everyone to schedule, which is unbounded all right, but not in 
+any interesting sense.
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Daniel

@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266580AbUHVJJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266598AbUHVJPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266580AbUHVJJY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 05:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266598AbUHVJJY
+	id S266598AbUHVJPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 05:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUHVJPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 05:09:24 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:57028 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S266580AbUHVJJV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 05:09:21 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.8.1 - intermittent unblanking problem on Radeon Mobility 7500
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 22 Aug 2004 19:09:12 +1000
-Message-ID: <2306.1093165752@ocs3.ocs.com.au>
+	Sun, 22 Aug 2004 05:15:16 -0400
+Received: from qfep05.superonline.com ([212.252.122.162]:9667 "EHLO
+	qfep05.superonline.com") by vger.kernel.org with ESMTP
+	id S266598AbUHVJOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 05:14:50 -0400
+From: "Josan Kadett" <corporate@superonline.com>
+To: "'Brad Campbell'" <brad@wasp.net.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Entirely ignoring TCP and UDP checksum in kernel level
+Date: Sun, 22 Aug 2004 12:14:52 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <41285DB3.6070605@wasp.net.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Thread-Index: AcSIJJ7wfQIqxlydS1qy90CZVF8lEQAC+Kgg
+Message-Id: <S266598AbUHVJOu/20040822091450Z+189@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an intermittent unblanking problem with a Compaq Evo N800v
-laptop, running 2.6.8.1 with xorg x11 6.7.0-2 (Fedora Core 2).  This
-occurs from just blanking the screen, I am not shutting the lid.
+It is certainly the solution to the issue. Indeed, everything works fine
+including NAT because the hack is in the kernel level. Your assistance is
+greatly appreciated. The first issue is complete but for now I think I will
+get into a lesser one. (I will write about it when I get have all the
+details)
 
-The screen and backlight correctly turn off after a few minutes.  Most
-of the time pressing any key will bring the display back.  On rare
-occasions, the backlight comes on but there is no data displayed, just
-a blank screen.  Switching back to a text console makes no difference,
-nothing is displayed.  Shutting down X and restarting it makes no
-difference.  Once the display is gone, the only fix is to reboot the
-laptop.
+Best Regards...
 
-What diagnostics are worth getting for this intermittent problem?  Any
-useful card registers that can be dumped?
+-----Original Message-----
+From: Brad Campbell [mailto:brad@wasp.net.au] 
+Sent: Sunday, August 22, 2004 10:48 AM
+To: Josan Kadett
+Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
 
-lspci -v
+No.. this should work for you.. Try it and see anyway.
 
-01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M7 LW [Radeon Mobility 7500] (prog-if 00 [VGA])
-        Subsystem: Compaq Computer Corporation: Unknown device 004a
-        Flags: bus master, stepping, 66Mhz, medium devsel, latency 66, IRQ 11
-        Memory at 88000000 (32-bit, prefetchable)
-        I/O ports at 3000 [size=256]
-        Memory at 80380000 (32-bit, non-prefetchable) [size=64K]
-        Capabilities: [58] AGP version 2.0
-        Capabilities: [50] Power Management version 2
+Regards,
+Brad
 
-.config extract. ACPI but no APM.  radeon and agpgart modules are
-loaded but have a use count of 0.
 
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_AC=m
-CONFIG_ACPI_BATTERY=m
-CONFIG_ACPI_BUTTON=m
-CONFIG_ACPI_FAN=m
-CONFIG_ACPI_PROCESSOR=m
-CONFIG_ACPI_THERMAL=m
-CONFIG_ACPI_ASUS=m
-CONFIG_ACPI_TOSHIBA=m
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_X86_ACPI_CPUFREQ=m
-CONFIG_AGP=m
-CONFIG_AGP_INTEL=m
-CONFIG_DRM=y
-CONFIG_DRM_RADEON=m
+
 

@@ -1,45 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266050AbRF1R24>; Thu, 28 Jun 2001 13:28:56 -0400
+	id <S266047AbRF1RbZ>; Thu, 28 Jun 2001 13:31:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266047AbRF1R2p>; Thu, 28 Jun 2001 13:28:45 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:5762 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S266050AbRF1R2o>; Thu, 28 Jun 2001 13:28:44 -0400
-Date: Thu, 28 Jun 2001 13:28:35 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Michael J Clark <clarkmic@pobox.upenn.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: A system call in the kernel
-In-Reply-To: <200106281714.f5SHEmJ14746@pobox.upenn.edu>
-Message-ID: <Pine.LNX.3.95.1010628132417.30920A-100000@chaos.analogic.com>
+	id <S266054AbRF1RbP>; Thu, 28 Jun 2001 13:31:15 -0400
+Received: from polypc17.chem.rug.nl ([129.125.25.92]:30594 "EHLO
+	polypc17.chem.rug.nl") by vger.kernel.org with ESMTP
+	id <S266047AbRF1RbC>; Thu, 28 Jun 2001 13:31:02 -0400
+Date: Thu, 28 Jun 2001 19:31:00 +0200 (CEST)
+From: "J.R. de Jong" <jdejong@chem.rug.nl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.5 NFS io errors
+Message-ID: <Pine.LNX.4.21.0106281918160.3048-100000@polypc17.chem.rug.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jun 2001, Michael J Clark wrote:
+Hi all,
 
-> Any ideas on hot to easily call an outside program from the kernel (like 
-> system(), exec()....)  Is this possible?  Thanks
-> 
-> Mike
-> -
+Recently I upgraded from 2.4.4 to 2.4.5, but after that I got users
+complaining about io errors on some mounted NFS systems on some files,
+whenever they tried to stat (ls) or open the file. Even after several
+reboots (other files failed tho).
 
-Look through the drivers and check upon "kernel_thread()". This shares
-the process context of 'init' so you can do a lot of "user-mode" things
-in the kernel. But.... beware.... User mode stuff should be done in
-user-mode, not in the kernel.
+Going back to 2.4.4 solved the problem. I don't know if this problem has
+been adressed already.
 
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+- Johan de Jong.
 
 

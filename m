@@ -1,81 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265103AbUELPTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265104AbUELPZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265103AbUELPTE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 11:19:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265104AbUELPTE
+	id S265104AbUELPZX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 11:25:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265105AbUELPZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 11:19:04 -0400
-Received: from metawire.org ([24.73.230.118]:40253 "EHLO mail.metawire.org")
-	by vger.kernel.org with ESMTP id S265103AbUELPTA (ORCPT
+	Wed, 12 May 2004 11:25:23 -0400
+Received: from maxipes.logix.cz ([81.0.234.97]:2693 "EHLO maxipes.logix.cz")
+	by vger.kernel.org with ESMTP id S265104AbUELPZT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 11:19:00 -0400
-Date: Wed, 12 May 2004 10:19:07 -0500 (EST)
-From: jnf <jnf@datakill.org>
-X-X-Sender: jnf@metawire.org
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: new laptop woes
-In-Reply-To: <40A1CEEF.5090309@aitel.hist.no>
-Message-ID: <Pine.BSO.4.58.0405121014380.4366@metawire.org>
-References: <Pine.BSO.4.58.0405111058520.5233@metawire.org>
- <40A1CEEF.5090309@aitel.hist.no>
-X-SUPPORT: 0xDEADFED5 lab pr0ud supp0rt3rz 0f pr0j3kt m4yh3m
-X-GPG-FINGRPRINT: 7DB1 AEED B2C7 FE09 433C  5106 B0A0 1E4C 084B 8821
-X-GPG-PUBLIC_KEY: http://www.bombtrack.org/~jnf/jnf.asc
+	Wed, 12 May 2004 11:25:19 -0400
+Date: Wed, 12 May 2004 17:25:18 +0200 (CEST)
+From: Michal Ludvig <michal@logix.cz>
+To: James Morris <jmorris@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] Support for VIA PadLock crypto engine
+In-Reply-To: <Xine.LNX.4.44.0405121046250.11214-100000@thoron.boston.redhat.com>
+Message-ID: <Pine.LNX.4.53.0405121707280.32352@maxipes.logix.cz>
+References: <Xine.LNX.4.44.0405121046250.11214-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 12 May 2004, James Morris wrote:
 
-> Looking at other card drivers, you'll find out what a driver look like.
-> You'll learn how a card driver interfaces to the kernel.
-> To write a driver for this card you _need_ to know how that particular
-> card is programmed. (What io adresses do it use, what do they mean,
-> what are the timing requirements, and so on.)
-> Looking at other drivers won't help you with that, unless one of the
-> other drivers happens to use the same chips. This information is in the
-> specs that broadcom so far haven't released.  Of course you can
-> write to broadcom, perhaps they'll inform you when they see you
-> are serious about this.
+> On Wed, 12 May 2004, Michal Ludvig wrote:
+>
+> > In fact I believe that the hardware-specific drivers (e.g. the S/390 one)
+> > should be used in the cryptoapi as well and then the kernel should provide
+> > a single, universal device with read/write/ioctl calls for all of them.
+> > Not making a separete device for every piece of hardware on the market.
+> > Am I wrong?
+>
+> Providing a userspace API is an orthogonal issue, and really needs to be
+> designed in conjunction with the async hardware API.
+>
+> What I am suggesting is that you simply implement something like
+> des_z990.c so that C3 users can load crypto alg modules which use their
+> hardware.
 
-I figured as much, and I intend to use some of the other wlan drivers as a 
-framework and to get a better idea of how to interface it, as for the io 
-addresses/timing/etc, I was thinking that if you can use (i could be 
-misremembering the name of the project) ... use the ndis wrappers and use 
-an xp driver, it should be possible to just make the wrapper very verbose, 
-id think anyways- although id have to look through the wrappers source and 
-get a feel for how it works before i could really make that statement.
-This is somewhat off topic to the discussion, but really its not- does the 
-dmca restrict me from doing such a thing?
+Sorry, I overlooked that one as I was using the 2.6.5 source.
 
- 
-> The card is not assigned an irq precicely because it has no driver.
-> IRQ's aren't handed out because devices exists - they are handed
-> out because device drivers request them from the kernel.
+If I'd do it the same way and only implement .cia_encrypt/.cia_decrypt
+functions I wouldn't gain too much from the PadLock. The great thing is
+that it can encrypt/decrypt the whole block of data (e.g. the whole disk
+sector, 512B) at once using a selected mode (ECB, CBC, ...). With
+.cia_encrypt/.cia_decrypt the block chaining is done in software and the
+hardware is only called for encryption of a single block (e.g. 16B in case
+of AES) at a time. This is a big overhead and throws away most of the
+PadLock potential.
 
-i was pretty sure thats how it worked, but my level of programming in this 
-specific arena is fairley minimal. Anyways, thanks for the tips/advice.
+That's why I added .cia_ecb/.cia_cbc/... and modified cipher.c to call
+these whole-block-at-once methods instead of doing
+software-chaining+hardware-encryption. This way it's much much faster and
+I don't think that the changes to the cipher.c are somehow unclean.
 
- 
-> Helge Hafting
+Or can I achieve the same without extending the API?
 
-
-jnf
-
-- --
-
-It is only the great men who are truly obscene.  If they had not dared to 
-be obscene, they could never have dared to be great.
-                -- Havelock Ellis
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (OpenBSD)
-
-iD8DBQFAokBusKAeTAhLiCERAvEZAJ4rr9Hyz8loJhcwJ8EuhMjH6XQ4WgCfb+Pt
-ljtdzfPIn2p6SCQEMahuN44=
-=gDkG
------END PGP SIGNATURE-----
+Michal Ludvig
+-- 
+* A mouse is a device used to point at the xterm you want to type in.
+* Personal homepage - http://www.logix.cz/michal

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316204AbSE3Cbe>; Wed, 29 May 2002 22:31:34 -0400
+	id <S316210AbSE3CnX>; Wed, 29 May 2002 22:43:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316210AbSE3Cbd>; Wed, 29 May 2002 22:31:33 -0400
-Received: from dsl-213-023-039-142.arcor-ip.net ([213.23.39.142]:11995 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316204AbSE3Cbd>;
-	Wed, 29 May 2002 22:31:33 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Nicolas Pitre <nico@cam.org>
-Subject: Re: 2.5.19 - What's up with the kernel build?
-Date: Thu, 30 May 2002 04:30:58 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Thunder from the hill <thunder@ngforever.de>,
-        Tomas Szepe <szepe@pinerecords.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Paul P Komkoff Jr <i@stingr.net>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0205292139210.23147-100000@xanadu.home>
+	id <S316214AbSE3CnW>; Wed, 29 May 2002 22:43:22 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:61195 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S316210AbSE3CnW>;
+	Wed, 29 May 2002 22:43:22 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200205300243.g4U2hIZ369399@saturn.cs.uml.edu>
+Subject: Re: [PATCH] intel-x86 model config cleanup
+To: davej@suse.de (Dave Jones)
+Date: Wed, 29 May 2002 22:43:18 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        jamagallon@able.es (J.A. Magallon),
+        linux-kernel@vger.kernel.org (Lista Linux-Kernel),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds)
+In-Reply-To: <20020530021159.B26821@suse.de> from "Dave Jones" at May 30, 2002 02:11:59 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17DFiN-0007Zl-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 May 2002 04:23, you wrote:
-> On Thu, 30 May 2002, Daniel Phillips wrote:
-> If that's not the case then let's go people and speak up, advocate for
-> patches in secondary trees, send your appreciation to Linus and lkml, but
-> don't stay still.  The preemptive kernel patch just to name that example 
-> got much more visibility, adoption and promotion than what kb25 had up to 
-> now.
+Dave Jones writes:
+> On Wed, May 29, 2002 at 06:05:40PM -0400, Albert D. Cahalan wrote:
 
-Sure, and I had a large hand in that.  But I'll tell you this, I'm *tired*
-of uphill battles.  It's a major use or waste of my time, even when
-successful, and I do not like making a pest of myself.  I'm sure this
-particular battle is going to be successful, but I'm not going to fight
-it.  I've said my piece and I have other things to do.
+>> This is still a mess. It's better to have one boolean
+>> per processor, and order the processors by the year
+>> in which they were most commonly sold.
+>
+> The information hiding of irrelevant options was one of the
+> motivations behind that original patch. If I know I have
+> an AMD Athlon, showing me all the Intel CPUs just gets in the way.
 
--- 
-Daniel
+No, it's like this:
+
+I want one kernel. I have a Pentium-MMX and a Pentium Pro.
+I don't need support for a 386, 486, Athlon, or Xeon.
+
+It's also like this:
+
+We have a lab full of Athlon and Pentium III boxes.
+There's not a Pentium 4 in sight, and no Pentium II
+either. It's too much work to manage multiple kernels;
+every box must boot from the same disk image.

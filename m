@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261589AbSJAMKo>; Tue, 1 Oct 2002 08:10:44 -0400
+	id <S261591AbSJAMNL>; Tue, 1 Oct 2002 08:13:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261590AbSJAMKo>; Tue, 1 Oct 2002 08:10:44 -0400
-Received: from mail.internet-factory.de ([62.134.147.34]:38558 "EHLO
-	mail.internet-factory.de") by vger.kernel.org with ESMTP
-	id <S261589AbSJAMKn>; Tue, 1 Oct 2002 08:10:43 -0400
+	id <S261592AbSJAMNL>; Tue, 1 Oct 2002 08:13:11 -0400
+Received: from tbaytel3.tbaytel.net ([206.47.150.179]:15338 "EHLO tbaytel.net")
+	by vger.kernel.org with ESMTP id <S261591AbSJAMNK> convert rfc822-to-8bit;
+	Tue, 1 Oct 2002 08:13:10 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Garrett Kajmowicz <gkajmowi@tbaytel.net>
+Reply-To: gkajmowi@tbaytel.net
+Organization: Garrett Kajmowicz
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Holger Lubitz <holger@lubitz.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: PIIX4 problem
-Date: Tue, 01 Oct 2002 14:16:10 +0200
-Organization: Internet Factory AG
-Message-ID: <3D99920A.5070905@lubitz.org>
-References: <3D998F27.2090403@lubitz.org>
-NNTP-Posting-Host: gatekeeper.webserv-it.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: darkstar.internet-factory.de 1033474569 25541 62.134.144.10 (1 Oct 2002 12:16:09 GMT)
-X-Complaints-To: usenet@internet-factory.de
-NNTP-Posting-Date: 1 Oct 2002 12:16:09 GMT
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
+Subject: Re: [ANNOUNCE, TRIVIAL, RFC] Linux source strip/bundle script
+Date: Tue, 1 Oct 2002 08:14:17 -0400
+User-Agent: KMail/1.4.1
+References: <200210010734.14949.garrett@tbaytel.net> <3D998C95.9060606@corvil.com>
+In-Reply-To: <3D998C95.9060606@corvil.com>
+Cc: padraig.brady@corvil.com
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210010814.17353.gkajmowi@tbaytel.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Holger Lubitz wrote:
+> 2. When trashing the source like this you may as well remove
+>     trailing whitespace (reduces kernel by 200K after compression).
 
-sorry, first dmesg output was from a boot with dma disabled in the bios.
-drives are set to mdma2 (disk) and mdma0 (cd) in this case. with udma 
-enabled in the bios the output is
+	I do not modify the source code files themselves.  I simply 'prune' the tree, 
+creating 'dummy' Config.in and Makefiles as requred to prevent things from 
+breaking too much.  The only file that I edit in any way is the config.in in 
+arch/i386 to change the scsi enabled default from y to n. This was so that 
+people who don't download the scsi 'module' don't run into problems with 
+compile failing.  I will be making a few patches to the source tree for the 
+Config.in files to make this and other relted things less likely to happen.
 
-hda: 78177792 sectors (40027 MB) w/1819KiB Cache, CHS=4866/255/63, UDMA(33)
-hdb: ATAPI 52X CD-ROM drive, 120kB Cache, UDMA(33)
 
-and the non working output had this as a copy and paste error. in fact, 
-the kernel with piix support _always_ detects the disk as UDMA(33) 
-regardless of what I try to disable DMA (bootparameters, bios) and then 
-the errors follow.
+> 3. What's the difference in size between 2.4.19.tar.bz2 and
+>     2.4.19-bastardized.tar.bz2 ?
 
-Holger
+Size of some of the packages that I have done with this script:
 
+linux-2.4.19-base.tar.bz2	-	11 MB
+linux-2.4.19-scsi.tar.bz2	-	2.5 MB
+There are currently 15 other 'modules', not listed here
+
+> 4. Is this just for (a) removing redundant code after installation or
+>     (b) providing subset version(s) for download.
+
+This will provide a subset for download.  Due to not having the ability to 
+host, it may be applied to the full code after download for testing purposes.
+
+> 5. If 4(a) wouldn't you need to parse the .config to find the appropriate
+>     bits to remove?
+
+I prune the tree at the directory level.  If I do not want/need irda support, 
+I wipe out the irda directory, recreate it with a dummy Makefile and 
+Config.in file so the make menuconfig script doesn't break, and the kernel 
+will compile.  This results in less savings, but in higher stability/ 
+reliability.

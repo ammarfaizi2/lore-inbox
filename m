@@ -1,121 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266869AbTGHGs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 02:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266877AbTGHGs1
+	id S266897AbTGHGwV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 02:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266899AbTGHGwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 02:48:27 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:18940 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S266869AbTGHGsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 02:48:25 -0400
-Subject: Re: 2.5.74-mm2 + nvidia (and others)
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Thomas Schlichter <schlicht@uni-mannheim.de>, smiler@lanil.mine.nu,
-       KML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-In-Reply-To: <20030707123012.47238055.akpm@osdl.org>
-References: <1057590519.12447.6.camel@sm-wks1.lan.irkk.nu>
-	 <200307071734.01575.schlicht@uni-mannheim.de>
-	 <20030707123012.47238055.akpm@osdl.org>
-Content-Type: multipart/mixed; boundary="=-IuPP3Uv/7izq0kKKuTlu"
-Organization: 
-Message-Id: <1057647818.5489.385.camel@workshop.saharacpt.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 08 Jul 2003 09:03:39 +0200
+	Tue, 8 Jul 2003 02:52:21 -0400
+Received: from routeree.utt.ro ([193.226.8.102]:37326 "EHLO klesk.etc.utt.ro")
+	by vger.kernel.org with ESMTP id S266897AbTGHGvx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 02:51:53 -0400
+Message-ID: <26071.194.138.39.55.1057648284.squirrel@webmail.etc.utt.ro>
+Date: Tue, 8 Jul 2003 10:11:24 +0300 (EEST)
+Subject: Re: [PATCH] O3int interactivity for 2.5.74-mm2
+From: "Szonyi Calin" <sony@etc.utt.ro>
+To: <kernel@kolivas.org>
+In-Reply-To: <200307071319.57511.kernel@kolivas.org>
+References: <200307070317.11246.kernel@kolivas.org>
+        <1057516609.818.4.camel@teapot.felipe-alfaro.com>
+        <200307071319.57511.kernel@kolivas.org>
+X-Priority: 3
+Importance: Normal
+Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
+X-Mailer: SquirrelMail (version 1.2.8)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
+X-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-IuPP3Uv/7izq0kKKuTlu
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Con Kolivas said:
+>
+> Thanks to Felipe who picked this up I was able to find the one bug
+> causing me  grief. The idle detection code was allowing the sleep_avg to
+> get to  ridiculously high levels. This is corrected in the following
+> replacement  O3int patch. Note this fixes the mozilla issue too. Kick
+> arse!!
+>
+> Con
 
-On Mon, 2003-07-07 at 21:30, Andrew Morton wrote:
+Not really.
+No change on my system.
+No fancy gui (just fvwm). Testing is very simple:
+In one xterm window make bzImage
+in other mplayer /some/movie.avi
+... and the movie is jerky :-(
 
-> Well that will explode if someone enables highpmd and has highmem.
-> This would be better:
-> 
-> --- nv.c.orig	2003-07-05 22:55:10.000000000 -0700
-> +++ nv.c	2003-07-05 22:55:58.000000000 -0700
-> @@ -2105,11 +2105,14 @@
->      if (pgd_none(*pg_dir))
->          goto failed;
->  
-> -    pg_mid_dir = pmd_offset(pg_dir, address);
-> -    if (pmd_none(*pg_mid_dir))
-> +    pg_mid_dir = pmd_offset_map(pg_dir, address);
-> +    if (pmd_none(*pg_mid_dir)) {
-> +	pmd_unmap(pg_mid_dir);
->          goto failed;
-> +    }
->  
->      NV_PTE_OFFSET(address, pg_mid_dir, pte);
-> +    pmd_unmap(pg_mid_dir);
->  
->      if (!pte_present(pte))
->          goto failed;
-> 
-> -
+In the weekend i did some experiments with the defines in kernel/sched.c
+It seems that changing in MAX_TIMESLICE the "200" to "100" or even "50"
+helps a little bit. (i was able to do a make bzImage and watch a movie
+without noticing that is a kernel compile in background)
 
-Bit too specific to -mm2, what about the the attached?
+system is AMD DURON chipset via KT/KM 133, Ati Radeon VE.
 
-
-Regards,
+I remeber with nostalgicaly about the times when i could (with a 2.5
+kernel) do a make -j 5 bzImage AND watch a movie in the same time
 
 -- 
-Martin Schlemmer
+# fortune
+fortune: write error on /dev/null -- please empty the bit bucket
 
 
---=-IuPP3Uv/7izq0kKKuTlu
-Content-Disposition: attachment; filename=NVIDIA_kernel-1.0-4363-highpmd.diff
-Content-Type: text/x-patch; name=NVIDIA_kernel-1.0-4363-highpmd.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+-----------------------------------------
+This email was sent using SquirrelMail.
+   "Webmail for nuts!"
+http://squirrelmail.org/
 
-diff -urpN NVIDIA_kernel-1.0-4363.orig/nv-linux.h NVIDIA_kernel-1.0-4363/nv-linux.h
---- NVIDIA_kernel-1.0-4363.orig/nv-linux.h	2003-04-20 03:57:19.000000000 +0200
-+++ NVIDIA_kernel-1.0-4363/nv-linux.h	2003-07-08 07:53:49.000000000 +0200
-@@ -186,6 +186,15 @@
-     }
- #endif
- 
-+#if defined(pmd_offset_map)
-+#define NV_PMD_OFFSET(address, pg_dir) \
-+    pmd_offset_map(pg_dir, address);
-+#define NV_PMD_OFFSET_UNMAP 1
-+#else
-+#define NV_PMD_OFFSET(address, pg_dir) \
-+    pmd_offset(pg_dir, address)
-+#endif
-+
- #define NV_PAGE_ALIGN(addr)             ( ((addr) + PAGE_SIZE - 1) / PAGE_SIZE)
- #define NV_MASK_OFFSET(addr)            ( (addr) & (PAGE_SIZE - 1) )
- 
-diff -urpN NVIDIA_kernel-1.0-4363.orig/nv.c NVIDIA_kernel-1.0-4363/nv.c
---- NVIDIA_kernel-1.0-4363.orig/nv.c	2003-04-20 03:57:19.000000000 +0200
-+++ NVIDIA_kernel-1.0-4363/nv.c	2003-07-08 07:55:09.000000000 +0200
-@@ -2191,11 +2191,18 @@ nv_get_phys_address(unsigned long addres
-     if (pgd_none(*pg_dir))
-         goto failed;
- 
--    pg_mid_dir = pmd_offset(pg_dir, address);
--    if (pmd_none(*pg_mid_dir))
-+    pg_mid_dir = NV_PMD_OFFSET(pg_dir, address);
-+    if (pmd_none(*pg_mid_dir)) {
-+#if defined(NV_PMD_OFFSET_UNMAP)
-+       pmd_unmap(pg_mid_dir);
-+#endif
-         goto failed;
-+    }
- 
-     NV_PTE_OFFSET(address, pg_mid_dir, pte);
-+#if defined(NV_PMD_OFFSET_UNMAP)
-+    pmd_unmap(pg_mid_dir);
-+#endif
- 
-     if (!pte_present(pte))
-         goto failed;
-
---=-IuPP3Uv/7izq0kKKuTlu--
 

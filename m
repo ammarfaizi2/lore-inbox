@@ -1,32 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbTDKR4g (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 13:56:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbTDKR4g (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 13:56:36 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:19647 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S261360AbTDKR4d (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 13:56:33 -0400
-From: Scott Lee <scottlee@redhot.rose.hp.com>
-Message-Id: <200304111808.LAA06725@redhot.rose.hp.com>
-Subject: Re: Debugging hard lockups (hardware?)
-To: linux-kernel@vger.kernel.org
-Date: Fri, 11 Apr 2003 11:08:16 -0700 (PDT)
-X-Mailer: ELM [$Revision: 1.17.214.2 $]
-MIME-Version: 1.0
+	id S261335AbTDKSAr (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:00:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTDKSAr (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 14:00:47 -0400
+Received: from mail-01.med.umich.edu ([141.214.93.149]:55080 "EHLO
+	mail-01.med.umich.edu") by vger.kernel.org with ESMTP
+	id S261335AbTDKSAo convert rfc822-to-8bit 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 14:00:44 -0400
+Message-Id: <se96cd49.002@mail-01.med.umich.edu>
+X-Mailer: Novell GroupWise Internet Agent 6.0.2
+Date: Fri, 11 Apr 2003 14:12:16 -0400
+From: "Nicholas Berry" <nikberry@med.umich.edu>
+To: <john@grabjohn.com>, <freesoftwaredeveloper@web.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] udev 0.1 release
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, April 06, 2003 at 11:34 AM Alan Cox wrote:
-> For the NMI watchdog to fail (if you have it enabled) requires pretty
-> major disaster to have occurred since the NMI will be delivered through
-> any kind of system hang
 
-Has anyone ever thought about that fact that although the dog might bark (printk), klogd may be deaf in some cases?  It seems to me that there will be cases where this happens and thus we see no data.
+Hit hit hit.
 
-I don't know if all x86 hardware has this, but I know that the couple of systems I typically use have a small amount of battery backed ram that is available for use in the RTC.  Anyone ever write a patch to dump data (small stack trace) to this memory so it can be retrieved after a reboot?  It seems to me that some data is better than none...  Of course it would be nice to know what the lowest common denominator is so that one patch will work with all PC hardware but I don't even know if a general approach is really feasible.
+Could be wrong, but I make it 1939.
 
-Regards,
+Nik
 
-Scott
+>>> Michael Buesch <freesoftwaredeveloper@web.de> 04/11/03 02:03PM >>>
+On Friday 11 April 2003 19:46, John Bradford wrote:
+> [Puzzle]
+> Say the power supply had five 5.25" drive power connecters, how many 1
+> into 3 power cable splitters would you need to connect all 4000 disks?
+
+400 (hit me if this is wrong :)
+
+Regards
+Michael Buesch.
+
+
+-- 
+My homepage: http://www.8ung.at/tuxsoft 
+fighting for peace is like fu**ing for virginity
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org 
+More majordomo info at  http://vger.kernel.org/majordomo-info.html 
+Please read the FAQ at  http://www.tux.org/lkml/
+

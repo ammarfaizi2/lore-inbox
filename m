@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313240AbSDDQWw>; Thu, 4 Apr 2002 11:22:52 -0500
+	id <S313238AbSDDQUw>; Thu, 4 Apr 2002 11:20:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313242AbSDDQWg>; Thu, 4 Apr 2002 11:22:36 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8758 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S313240AbSDDQVK>; Thu, 4 Apr 2002 11:21:10 -0500
-To: Craig <penguin@wombat.ca>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-        <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] 2.4: BOOTPC /proc info.
-In-Reply-To: <Pine.LNX.4.42.0204031837450.711-100000@wombat>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 04 Apr 2002 09:13:54 -0700
-Message-ID: <m1pu1fqw59.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S313242AbSDDQUn>; Thu, 4 Apr 2002 11:20:43 -0500
+Received: from pool-141-154-203-50.bos.east.verizon.net ([141.154.203.50]:2688
+	"EHLO book.ducksong.com") by vger.kernel.org with ESMTP
+	id <S313238AbSDDQUX>; Thu, 4 Apr 2002 11:20:23 -0500
+Date: Thu, 4 Apr 2002 11:21:12 -0500
+From: "Patrick R. McManus" <mcmanus@ducksong.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, minyard@acm.org
+Subject: Re: 2.4.19-pre4-ac4 kills my gdm
+Message-ID: <20020404162112.GA1171@ducksong.com>
+In-Reply-To: <20020404142308.GA1177@ducksong.com> <E16t8yO-00068s-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Craig <penguin@wombat.ca> writes:
+Alan,
 
-> Yes, Alan mentions the same thing.
-> We didn't realize that was the long term plan.  Is that documented anywhere, or
-> was it discussed on this list eons ago and 'decided'? ;)
+mea culpa on this one - my problem appears to be with the only other
+patch I was running - I believed I was also running it on ac3, but it
+now appears that I was thinking of another box.
 
-It has been discussed on this list several times.  In fact every time
-this has come up.  There are a lot of policy decisions the in kernel
-dhcp/bootpc code that are generally best left to user space.  
+The other patch was corey minyard's "allow signal handler to not call
+handler" patch that I was interested in seeing its impact on a
+userspace project of mine. It kills gdm (at least with ac4.. maybe
+others?)
 
-Al Viro has gone so far as proposed moving a lot of other parts into
-user space as well.  But initramfs needs to be in the kernel for that.
+thanks,
+-Pat
 
-Eric
+[Alan Cox: Thu, Apr 04, 2002 at 04:16:24PM +0100]
+> > X does start successfully.. but not gdm. I can go to runlevel 3 and
+> > run startx without a problem (i.e. get a window manager, etc..)
+> > 
+> > If I boot back to 2.4.19-pre4-ac3 all is well again.
+> > 
+> 
+> Can you do a clean build with pre4-ac4 for non athlon cpu, try that, then
+> a clean built back to with athlon cpu just to verify that is the actual
+> issue ?

@@ -1,134 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264994AbTGBNkc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 09:40:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265001AbTGBNkc
+	id S265001AbTGBNtg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 09:49:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265002AbTGBNtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 09:40:32 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:22925 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S264994AbTGBNk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 09:40:27 -0400
-Date: Wed, 2 Jul 2003 10:52:02 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Erik Andersen <andersen@codepoet.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] fix 2.4.22-pre broken x86 math-emu
-In-Reply-To: <20030702030013.GA3405@codepoet.org>
-Message-ID: <Pine.LNX.4.55L.0307021051420.11896@freak.distro.conectiva>
-References: <20030702030013.GA3405@codepoet.org>
+	Wed, 2 Jul 2003 09:49:36 -0400
+Received: from Mail1.kontent.de ([81.88.34.36]:53734 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S265001AbTGBNtf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 09:49:35 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: ranty@debian.org, Manuel Estrada Sainz <ranty-bulk@ranty.pantax.net>,
+       Oliver Neukum <neukum@fachschaft.cup.uni-muenchen.de>
+Subject: Re: orinoco_usb Request For Comments
+Date: Wed, 2 Jul 2003 16:02:47 +0200
+User-Agent: KMail/1.5.1
+Cc: LKML <linux-kernel@vger.kernel.org>, orinoco-usb-devel@ranty.pantax.net
+References: <20030626205811.GA25783@ranty.pantax.net> <Pine.LNX.4.53.0306271213350.5135@fachschaft.cup.uni-muenchen.de> <20030702101747.GA4137@ranty.pantax.net>
+In-Reply-To: <20030702101747.GA4137@ranty.pantax.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307021602.47534.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Mittwoch, 2. Juli 2003 12:17 schrieb Manuel Estrada Sainz:
+> On Fri, Jun 27, 2003 at 12:15:04PM +0200, Oliver Neukum wrote:
+> > 
+> > 
+> > On Fri, 27 Jun 2003, Manuel Estrada Sainz wrote:
+> > 
+> > > On Thu, Jun 26, 2003 at 11:41:18PM +0200, Oliver Neukum wrote:
+> > > > 		/* We don't like racing :) */
+> > > > 		ctx->outurb->transfer_flags &= ~URB_ASYNC_UNLINK;
+> > > > 		usb_unlink_urb(ctx->outurb);
+> > > > 		del_timer_sync(&ctx->timer);
+> > > >
+> > > > But neither do we like sleeping in interrupt. You can't simply unset the flag
+> > > > if somebody else may be needing it.
+> > > >
+> > > > More when I am rested :-)
+> > >
+> > >  How about the attached patch, not pretty, but it should work.
+> > 
+> > It is much too ugly. Please use a struct completion or a waitqueue.
+>  
+>  How about this?
+> 
+>  The other choice is to just wait on the completion unconditionally and
+>  let timers expire on their own if needed.
+>  
+>  That would probably be more robust, and waiting a few extra seconds on
+>  module removal (which would just happen when the card hangs) is
+>  probably OK.  What do you think?
 
+You also need this code path on hotunplugging.
+Please take out the test for EINPROGRESS and examine the return
+value of usb_unlink_urb() to decide whether you have to wait.
+ 
+>  PS: Ideas on how to make the PCMCIA vs. USB integration (specially the
+>  locking) cleaner would be very, very welcomed. 
 
-I'm no GCC nor asm guru, so, Alan?
+I know too little about the PCMCIA cards. Sorry.
 
+	Regards
+		Oliver
 
-On Tue, 1 Jul 2003, Erik Andersen wrote:
-
-> As of today's "fix up gcc 3.3 bits" patch [1], x86 math emulation
-> is now even more broken, since this latest patch has added some
-> mismatched quotes while still failing to address the actual
-> problems preventing this code from compiling with gcc 3.3.
->
-> This patch, first sent to you on Jun 21st, fixes the missing
-> semicolons and missing quotes in the x86 math-emu code, allowing
-> it to compile with gcc 3.3.  I have updated things to also fix
-> the mismatched quotes that were added today.  Unlike the patch
-> you applied earlier today, my patch is actually tested...
->
-> Please apply,
->
->  -Erik
->
-> [1] http://www.kernel.org/diff/diffview.cgi?file=/pub/linux/kernel/v2.4/testing/cset/cset-alan@lxorguk.ukuu.org.uk|ChangeSet|20030701183359|14011.txt
->
-> --
-> Erik B. Andersen             http://codepoet-consulting.com/
-> --This message was written using 73% post-consumer electrons--
->
->
-> --- linux/arch/i386/math-emu/poly.h.orig	2003-07-01 20:39:49.000000000 -0600
-> +++ linux/arch/i386/math-emu/poly.h	2003-07-01 20:39:57.000000000 -0600
-> @@ -64,7 +64,7 @@
->  				      const unsigned long arg2)
->  {
->    int retval;
-> -  asm volatile ("mull %2; movl %%edx,%%eax" \
-> +  asm volatile ("mull %2; movl %%edx,%%eax; " \
->  		:"=a" (retval) \
->  		:"0" (arg1), "g" (arg2) \
->  		:"dx");
-> @@ -75,11 +75,11 @@
->  /* Add the 12 byte Xsig x2 to Xsig dest, with no checks for overflow. */
->  static inline void add_Xsig_Xsig(Xsig *dest, const Xsig *x2)
->  {
-> -  asm volatile ("movl %1,%%edi; movl %2,%%esi;" \
-> -                 movl (%%esi),%%eax; addl %%eax,(%%edi);" \
-> -                 movl 4(%%esi),%%eax; adcl %%eax,4(%%edi);" \
-> -                 movl 8(%%esi),%%eax; adcl %%eax,8(%%edi);"
-> -                 :"=g" (*dest):"g" (dest), "g" (x2)
-> +  asm volatile ("movl %1,%%edi; movl %2,%%esi; " \
-> +                 "movl (%%esi),%%eax; addl %%eax,(%%edi); " \
-> +                 "movl 4(%%esi),%%eax; adcl %%eax,4(%%edi); " \
-> +                 "movl 8(%%esi),%%eax; adcl %%eax,8(%%edi); " \
-> +                 :"=g" (*dest):"g" (dest), "g" (x2) \
->                   :"ax","si","di");
->  }
->
-> @@ -90,19 +90,19 @@
->     problem, but keep fingers crossed! */
->  static inline void add_two_Xsig(Xsig *dest, const Xsig *x2, long int *exp)
->  {
-> -  asm volatile ("movl %2,%%ecx; movl %3,%%esi;
-> -                 movl (%%esi),%%eax; addl %%eax,(%%ecx);
-> -                 movl 4(%%esi),%%eax; adcl %%eax,4(%%ecx);
-> -                 movl 8(%%esi),%%eax; adcl %%eax,8(%%ecx);
-> -                 jnc 0f;
-> -		 rcrl 8(%%ecx); rcrl 4(%%ecx); rcrl (%%ecx)
-> -                 movl %4,%%ecx; incl (%%ecx)
-> -                 movl $1,%%eax; jmp 1f;
-> -                 0: xorl %%eax,%%eax;
-> -                 1:"
-> -		:"=g" (*exp), "=g" (*dest)
-> -		:"g" (dest), "g" (x2), "g" (exp)
-> -		:"cx","si","ax");
-> +  asm volatile ("movl %2,%%ecx; movl %3,%%esi; " \
-> +                 "movl (%%esi),%%eax; addl %%eax,(%%ecx); " \
-> +                 "movl 4(%%esi),%%eax; adcl %%eax,4(%%ecx); " \
-> +                 "movl 8(%%esi),%%eax; adcl %%eax,8(%%ecx); " \
-> +                 "jnc 0f; " \
-> +		 "rcrl 8(%%ecx); rcrl 4(%%ecx); rcrl (%%ecx); " \
-> +                 "movl %4,%%ecx; incl (%%ecx); " \
-> +                 "movl $1,%%eax; jmp 1f; " \
-> +                 "0: xorl %%eax,%%eax; " \
-> +                 "1: " \
-> +		:"=g" (*exp), "=g" (*dest) \
-> +		:"g" (dest), "g" (x2), "g" (exp) \
-> +		:"cx","si","ax");
->  }
->
->
-> @@ -110,11 +110,11 @@
->  /* This is faster in a loop on my 386 than using the "neg" instruction. */
->  static inline void negate_Xsig(Xsig *x)
->  {
-> -  asm volatile("movl %1,%%esi; "
-> -               "xorl %%ecx,%%ecx; "
-> -               "movl %%ecx,%%eax; subl (%%esi),%%eax; movl %%eax,(%%esi); "
-> -               "movl %%ecx,%%eax; sbbl 4(%%esi),%%eax; movl %%eax,4(%%esi); "
-> -               "movl %%ecx,%%eax; sbbl 8(%%esi),%%eax; movl %%eax,8(%%esi); "
-> +  asm volatile("movl %1,%%esi; " \
-> +               "xorl %%ecx,%%ecx; " \
-> +               "movl %%ecx,%%eax; subl (%%esi),%%eax; movl %%eax,(%%esi); " \
-> +               "movl %%ecx,%%eax; sbbl 4(%%esi),%%eax; movl %%eax,4(%%esi); " \
-> +               "movl %%ecx,%%eax; sbbl 8(%%esi),%%eax; movl %%eax,8(%%esi); " \
->                 :"=g" (*x):"g" (x):"si","ax","cx");
->  }
->
->

@@ -1,142 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262148AbVAYVoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbVAYVoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbVAYVoV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 16:44:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbVAYVlw
+	id S262176AbVAYVoU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 16:44:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbVAYVm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 16:41:52 -0500
-Received: from mail.joq.us ([67.65.12.105]:9366 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S262169AbVAYVgO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 16:36:14 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Paul Davis <paul@linuxaudiosystems.com>, Con Kolivas <kernel@kolivas.org>,
-       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [patch, 2.6.11-rc2] sched: /proc/sys/kernel/rt_cpu_limit
- tunable
-References: <200501201542.j0KFgOwo019109@localhost.localdomain>
-	<87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>
-	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>
-	<87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu>
-	<20050124125814.GA31471@elte.hu> <87k6q2umla.fsf@sulphur.joq.us>
-	<20050125083724.GA4812@elte.hu>
-From: "Jack O'Quin" <joq@io.com>
-Date: Tue, 25 Jan 2005 15:36:34 -0600
-In-Reply-To: <20050125083724.GA4812@elte.hu> (Ingo Molnar's message of "Tue,
- 25 Jan 2005 09:37:24 +0100")
-Message-ID: <87oefdfaxp.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 25 Jan 2005 16:42:26 -0500
+Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:30989 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S262174AbVAYVky
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 16:40:54 -0500
+Date: Tue, 25 Jan 2005 22:40:51 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
+       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
+Message-Id: <20050125224051.190b5ff9.khali@linux-fr.org>
+In-Reply-To: <20050126003927.189640d4@zanzibar.2ka.mipt.ru>
+References: <20050124021516.5d1ee686.akpm@osdl.org>
+	<20050124175449.GK3515@stusta.de>
+	<20050124213442.GC18933@kroah.com>
+	<20050124214751.GA6396@infradead.org>
+	<20050125060256.GB2061@kroah.com>
+	<20050125195918.460f2b10.khali@linux-fr.org>
+	<20050126003927.189640d4@zanzibar.2ka.mipt.ru>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
+Hi Evgeniy & all,
 
-> * Jack O'Quin <joq@io.com> wrote:
->
->> It works great...
->> 
->>   http://www.joq.us/jack/benchmarks/rt_cpu_limit
->>   http://www.joq.us/jack/benchmarks/rt_cpu_limit+compile
->>   http://www.joq.us/jack/benchmarks/.SUMMARY
->> 
->> I'll experiment with it some more, but this seems to meet all my
->> needs.  As one would expect, the results are indistinguishable from
->> SCHED_FIFO...
+> > 1* This was 5 months ago. I'd expect Evgeniy's code to have
+> > significantly evolved since, so an additional review now would
+> > certainly be welcome.
+> 
+> superio core was not changed much, all related changes were posted
+> into  lm_sensors mail list and discussed.
 
-> very good. Could you try another thing, and set the rt_cpu_limit to less
-> than the CPU utilization 'top' reports during the test (or to less than
-> the DSP CPU utilization in the stats), to deliberately trigger the
-> limiting code? This both tests the limit and shows the effects it has. 
-> (there should be xruns and a large Delay Maximum.)
+Well, according to the mailing-list archives, which have a better memory
+than I do, I skipped at least one:
 
-Here are some runs with rt_cpu_limit set to 30%.  (No point in trying
-to compile in the background.)
+http://archives.andrew.net.au/lm-sensors/msg18655.html
 
-   http://www.joq.us/jack/benchmarks/rt_cpu_limit.30
+So I suspect that this update at least was never reviewed by anyone (on
+the sensors list at least).
 
-As expected, the Delay Max and XRUN Count do go to hell...
+And while we are at it, this post by Andrew is certainly of interest
+too:
 
-# rt_cpu_limit
-Delay Maximum . . . . . . . . :   290   usecs
-Delay Maximum . . . . . . . . :   443   usecs
-Delay Maximum . . . . . . . . :   232   usecs
+http://archives.andrew.net.au/lm-sensors/msg18749.html
 
-# rt_cpu_limit.30
-Delay Maximum . . . . . . . . : 60294   usecs
-Delay Maximum . . . . . . . . : 77742   usecs
-Delay Maximum . . . . . . . . : 589697   usecs
+> > 3* Some of my objections have been ignored by Evgeniy. Among others,
+> > the choice of "sc" as a prefix for the superio stuff is definitely
+> > poor and has to be changed.
+> >
+> > http://archives.andrew.net.au/lm-sensors/msg27847.html
+> 
+> Yep %)
+> SuperIO Control - is a good name, sio_ I've seen somewhere...
 
-# rt_cpu_limit
-XRUN Count  . . . . . . . . . :     0
-XRUN Count  . . . . . . . . . :     0
-XRUN Count  . . . . . . . . . :     0
+Sure, sio would be better, or even superio in whole. Anything that
+reminds "Super-I/O" is fine with me. sc doesn't.
 
-# rt_cpu_limit.30
-XRUN Count  . . . . . . . . . :    25
-XRUN Count  . . . . . . . . . :    12
-XRUN Count  . . . . . . . . . :    15
+> GPIO and AccessBus are very simple devices, and I added them just
+> because 1. people often asked exactly about GPIO
+> 2. I had only GPIO and ACB to test. Actually I had a RTC and WDT too, 
+> but noone never asked in any mail list about them, but I think it
+> worth to implement.
+> 
+> Addind SuperIO itself does not have much sence that it can not be 
+> tested without at least one logical device, thus I added two.
+> 
+> Porting existing SuperIO devices to the new schema is a very good
+> task,  but I had only SC1100 processor and PC87366 chip, so I created
+> and tested  superio chip drivers for them.
 
-So, the throttling obviously does work, in the sense of the system
-being able to protect itself from RT CPU hogging.  The failure of the
-JACK subsystem is rather catastophic, however.
+The PC87366 has integrated sensors, some of which have to be connected
+whatever your configuration: voltage inputs 7 to 10 and third
+temperature channel. We have a driver for it in the kernel:
+drivers/i2c/chips/pc87360. So if you have such a chip, this is actually
+someone you can use as a test for your superio subsystem.
 
-Look at this graph...
+If you can provide a patch which adds your superio core driver and one
+which modifies the pc87360 driver to take make use of it, and only that,
+this would certainly be easier for everyone (and especially me) to
+review your superio code. Once this is in, incremental patches for the
+additional features should be easier for you to generate and for the
+rest of us to review.
 
-   http://www.joq.us/jack/benchmarks/rt_cpu_limit.30/jack_test3-2.6.11-rc2-q2-200501251346.png
-
-At around 55 seconds into the run, JACK got in trouble and throttled
-itself back to approximately the 30% limit (actually a little above).
-Then, around second 240 it got in trouble again, this time collapsing
-completely.  I'm a bit confused by all the messages in that log, but
-it appears that approximately 9 of the 20 clients were evertually shut
-down by the JACK server.  It looks like the second collapse around 240
-also caused the scheduler to revoke RT privileges for the rest of the
-run (just a guess).
-
-This brings us to the issue of graceful degradation.  IMHO, if we
-follow the LKML bias for seeing questions from a kernel and not user
-perspective, the results will not be very satisfactory.
-
-JACK can probably do a better job of shutting down hyperactive
-realtime clients than the kernel, because it knows more about what the
-user is trying to do.  Multiplying incomprehesible rlimits values does
-not help much that I can see.
-
-Sometimes musicians want to "push the envelope" using CPU-hungry
-realtime effects like reverbs or Fourier Transforms.  It is often hard
-to predict how much of this sort of load a given system can handle.
-JACK reports its subsystem-wide "DSP load" as a moving average,
-allowing users to monitor it.  It might be helpful if the kernel's
-estimate of this number were also available somewhere (but maybe that
-value has no meaning to users).  Often, the easiest method is to push
-things to the breaking point, and then back off a bit.
-
-For this kind of usage scenario, the simpler `rt_cpu_limit' (B4) patch
-works much better than the `rt_cpu_ratio' (D4) patch, allowing a
-suitably privileged user to adjust the per-CPU limit directly while
-experimenting with system limits.  (Don't ask me what any of this
-means in an SMP complex.)
-
-The equivalent rlimits experiment probably requires: 
-
-  (1) editing /etc/security/limits.conf
-  (2) shutting everything down
-  (3) logout
-  (4) login
-  (5) restarting the test
-
-Eventually there will be ulimit support in the shells.  Then, I
-suppose this can be streamlined a little, but not much.  The problem
-is that there are often many audio applications running, with complex
-connections between them.  So, this is not a simple matter of stopping
-and starting a single program (as most of you probably imagine).
+Thanks,
 -- 
-  joq
+Jean Delvare
+http://khali.linux-fr.org/

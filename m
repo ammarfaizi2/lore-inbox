@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274160AbRI0X5T>; Thu, 27 Sep 2001 19:57:19 -0400
+	id <S274168AbRI1AEL>; Thu, 27 Sep 2001 20:04:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274161AbRI0X5J>; Thu, 27 Sep 2001 19:57:09 -0400
-Received: from host-029.nbc.netcom.ca ([216.123.146.29]:16914 "EHLO
-	mars.infowave.com") by vger.kernel.org with ESMTP
-	id <S274160AbRI0X5D>; Thu, 27 Sep 2001 19:57:03 -0400
-Message-ID: <6B90F0170040D41192B100508BD68CA1015A81B0@earth.infowave.com>
-From: Alex Cruise <acruise@infowave.com>
-To: "'Randy.Dunlap'" <rddunlap@osdlab.org>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: apm suspend broken in 2.4.10
-Date: Thu, 27 Sep 2001 16:56:36 -0700
+	id <S274161AbRI1AEA>; Thu, 27 Sep 2001 20:04:00 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48651 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S274168AbRI1ADp>; Thu, 27 Sep 2001 20:03:45 -0400
+Date: Thu, 27 Sep 2001 17:03:49 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Robert Macaulay <robert_macaulay@dell.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Craig Kulesa <ckulesa@as.arizona.edu>, <linux-kernel@vger.kernel.org>,
+        Bob Matthews <bmatthews@redhat.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: highmem deadlock fix [was Re: VM in 2.4.10(+tweaks) vs.
+ 2.4.9-ac14/15(+stuff)]
+In-Reply-To: <20010928014720.Z14277@athlon.random>
+Message-ID: <Pine.LNX.4.33.0109271700001.32086-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy.Dunlap [mailto:rddunlap@osdlab.org]
 
-> > -0xe1a
-> {little-endian n[iy]bbles ?}
+On Fri, 28 Sep 2001, Andrea Arcangeli wrote:
+>
+> Moving clear_bit just above submit_bh will fix it (please Robert make
+> this change before testing it), because if we block in submit_bh in the
+> bounce, then we won't deadlock on ourself because of the pagehighmem
+> check
 
-It's just the closest I can get to my own name in hex. ;)
+We won't block on _ourselves_, but we can block on _two_ people doing it,
+and blocking on each others requests that are blocked waiting on a bounce
+buffer. Both will have one locked buffer, both will be waiting for the
+other person unlocking that buffer, and neither will ever make progress.
 
-> Sounds like our 2.4.10's are different then.  :)
+You could clear that bit _after_ the bounce buffer allocation, I suspect.
 
-It's possible... I got mine from kernel.org, applied the preemptible-kernel
-and ext3fs patches, and  compiled with RH's "kgcc" 
+But I also suspect that it doesn't matter much, and as I can imagine
+similar problems with GFP_NOIO and loopback etc (do you see any reason why
+loopback couldn't deadlock on waiting for itself?), I think the GFP_XXX
+thing is the proper fix.
 
-> Without this patch, mine didn't create /proc/apm, register as a
-> misc device, or create the kapmd-idle kernel thread.
-> Must be a distro thingy.
+		Linus
 
-Did you have apm=on set before, or nothing at all?  Here's what I've seen so
-far:
-
-In all cases, I've got apm compiled into the kernel, not a module.
-
-- With 2.4.10, Before your patch, with no apm= option in the kernel command
-line, APM in general works, but suspend doesn't.  When I append apm=on or
-apm=off to my kernel command line, APM is disabled.
-- With 2.4.10, After applying your patch, apm=on no longer disables APM, but
-suspend still doesn't work.
-
-> Return of EAGAIN from the SUSPEND ioctl means that
-> send_event() failed, which means that some device driver
-> didn't want suspend to happen...which means that some
-> device driver got changed. :(
-
-Just for fun, I tried removing all of my loaded 2.4.10 modules one by one,
-and attempting 'apm --suspend' in between, and still had the same problem
-when I got down to the bare minimum (ext3 and jbd)
-
-> What was the last working kernel AFAUK (for this APM stuff)?
-
-I just checked, and the RH-compiled 2.4.9-0.5 doesn't suspend either.  It
-appears to suffer from the same "apm=on" command-line bug too.  I'm gonna go
-try the 2.4.7 from RH's "Roswell" beta now.
-
--0xe1a

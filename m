@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbULCPB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbULCPCb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262208AbULCPB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 10:01:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbULCPB2
+	id S262220AbULCPCb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 10:02:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262230AbULCPCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 10:01:28 -0500
-Received: from vvv.conterra.de ([212.124.44.162]:7081 "EHLO conterra.de")
-	by vger.kernel.org with ESMTP id S262208AbULCPBZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 10:01:25 -0500
-Message-ID: <41B07FC3.9040506@conterra.de>
-Date: Fri, 03 Dec 2004 16:01:23 +0100
-From: Dieter Stueken <stueken@conterra.de>
-Organization: con terra GmbH
-MIME-Version: 1.0
+	Fri, 3 Dec 2004 10:02:31 -0500
+Received: from web60510.mail.yahoo.com ([216.109.116.131]:58285 "HELO
+	web60510.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262220AbULCPCX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 10:02:23 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=qtlyIbQR3Drg5d+OY+Px8MKAJ+957Aa1GGcc5sTUrFLYl+yE/xreX5o9Z3wRaRLbHfo2IBCj1JpYoOsyx2fqiM2Xfx/zftd1OyAhirA6fEcZcwQHJUl0ApsmrM4ojTsWr9ipWSsqLfY1JzI48DJuR04Bv+HyVPw/9TOATSXDpBE=  ;
+Message-ID: <20041203150219.9838.qmail@web60510.mail.yahoo.com>
+Date: Fri, 3 Dec 2004 07:02:19 -0800 (PST)
+From: K G <gege86hu@yahoo.com>
+Subject: Re: "irq 16: nobody cared!" -errors after motherboard-switch (ABIT IS7-E2 motherboard)
 To: linux-kernel@vger.kernel.org
-Subject: Re: libata-dev queue updated
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <1101936835.30819.69.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> * ATA passthru (read: SMART support)
+Ok, I'll try to find out the cause in the hardware.
 
-is it still unsafe to use passthru concurrently
-to normal disk I/O, as stated earlier?
+Thank you very much for your replies.
 
-an other question:
+Kalman Gergely
 
-will some "coldplug" be possible with SATA?
 
-I currently may unload the sata module, exchange the disk(s)
-and reload the module again. Works file, but instead I want
-to exchange a single disk of my LVM system, while all other
-disks are still active.
-
-I found some advice, on how to do that with SCSI disks.
-Will it be possible with SATA, too?
-
-Dieter.
--- 
-Dieter Stüken, con terra GmbH, Münster
-     stueken@conterra.de
-     http://www.conterra.de/
-     (0)251-7474-501
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - Easier than ever with enhanced search. Learn more.
+http://info.mail.yahoo.com/mail_250

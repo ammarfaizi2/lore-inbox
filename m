@@ -1,66 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263609AbUDFDRW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 23:17:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263606AbUDFDRW
+	id S263606AbUDFDT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 23:19:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263610AbUDFDT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 23:17:22 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61923 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263607AbUDFDRU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 23:17:20 -0400
-Date: Mon, 5 Apr 2004 20:10:52 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: John Cherry <cherry@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New compiler warning: 2.6.4->2.6.5
-Message-Id: <20040405201052.2be56c2e.rddunlap@osdl.org>
-In-Reply-To: <1081220649.13965.15.camel@lightning>
-References: <1081220649.13965.15.camel@lightning>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 5 Apr 2004 23:19:56 -0400
+Received: from mail01.hansenet.de ([213.191.73.61]:34514 "EHLO
+	webmail.hansenet.de") by vger.kernel.org with ESMTP id S263606AbUDFDTy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 23:19:54 -0400
+Date: Tue, 6 Apr 2004 05:19:49 +0200
+From: Bjoern Michaelsen <bmichaelsen@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: volker.hemmann@heim9.tu-clausthal.de
+Subject: Re: AGP problem SiS 746FX Linux 2.6.5-rc3
+Message-ID: <20040406031949.GA8351@lord.sinclair>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05 Apr 2004 20:04:09 -0700 John Cherry <cherry@osdl.org> wrote:
 
-| 9 new compiler warnings between 2.6.4 and 2.6.5.
-| 
-| gcc: 3.2.2
-| arch: i386
-| 
-| drivers/acpi/events/evmisc.c:143: warning: too many arguments for format
-| drivers/char/applicom.c:523:2: warning: #warning "Je suis stupide. DW. -
-| copy*user in cli"
-| drivers/char/watchdog/cpu5wdt.c:305: warning: initialization discards
-| qualifiers from pointer target type
-| drivers/char/watchdog/cpu5wdt.c:305: warning: return discards qualifiers
-| from pointer target type
-| drivers/media/dvb/frontends/tda1004x.c:191: warning: `errno' defined but
-| not used
-| drivers/pcmcia/i82365.c:71: warning: `version' defined but not used
-| drivers/pcmcia/tcic.c:64: warning: `version' defined but not used
-| sound/isa/wavefront/wavefront_synth.c:1923: warning: `errno' defined but
-| not used
-| sound/oss/wavfront.c:2498: warning: `errno' defined but not used
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-hi john,
+On Thu, Apr 01, 2004 at 07:00:47PM +0200, Hemmann, Volker Armin
+wrote:
+[...]
+Hi,
 
-i didn't check all of these, but the #warning in applicom.c
-(Je suis stupide.) has been around forever and it's listed in
-both your 2.6.4 and 2.6.5 warning logs:
+I wrote a patch against 2.6.5 to let the SiS 746 take advantage
+of the SiS 648 patches too.
+http://bugzilla.kernel.org/show_bug.cgi?id=3D2327
 
-http://developer.osdl.org/cherry/compile/2.6/linux-2.6.4.results/2.6.4.allmodconfig.modules.txt:
-drivers/char/applicom.c:522:2: warning: #warning "Je suis stupide. DW. - copy*user in cli"
+Your sincerly,
 
-and
-http://developer.osdl.org/cherry/compile/2.6/linux-2.6.5.results/2.6.5.allmodconfig.modules.txt:
-drivers/char/applicom.c:523:2: warning: #warning "Je suis stupide. DW. - copy*user in cli"
+Bj=F6rn
+--=20
+Bj=F6rn Michaelsen
+pub  1024D/C9E5A256 2003-01-21 Bj=F6rn Michaelsen <bmichaelsen@gmx.de>
+   Key fingerprint =3D D649 8C78 1CB1 23CF 5CCF  CA1A C1B5 BBEC C9E5 A256
 
-Ooh, was it the line number change that made it look new???
+--bp/iNruPH9dso1Pn
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
---
-~Randy
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAciHVwbW77MnlolYRAoLuAJ991E6/15tCkD4x6W/KdASwAtNtAQCgmR9Y
+Pb2dflyvXadyhvXvkqmSkdc=
+=OrFR
+-----END PGP SIGNATURE-----
+
+--bp/iNruPH9dso1Pn--

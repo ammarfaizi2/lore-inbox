@@ -1,67 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbUKOTu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbUKOTwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbUKOTu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 14:50:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbUKOTuZ
+	id S261672AbUKOTwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 14:52:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbUKOTwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 14:50:25 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:19352 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261668AbUKOTuM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 14:50:12 -0500
-Date: Mon, 15 Nov 2004 14:50:01 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Stephen Smalley <sds@epoch.ncsc.mil>, Kaigai Kohei <kaigai@ak.jp.nec.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/3] SELinux scalability - add spin_trylock_irq and
- spin_trylock_irqsave
-In-Reply-To: <Xine.LNX.4.44.0411151431090.21180-100000@thoron.boston.redhat.com>
-Message-ID: <Xine.LNX.4.44.0411151447570.21180-100000@thoron.boston.redhat.com>
+	Mon, 15 Nov 2004 14:52:24 -0500
+Received: from postfix3-2.free.fr ([213.228.0.169]:9115 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S261669AbUKOTvZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 14:51:25 -0500
+Message-ID: <419908B8.10202@free.fr>
+Date: Mon, 15 Nov 2004 20:51:20 +0100
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: fr-fr, en, en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: dtor_core@ameritech.net
+Cc: linux-kernel@vger.kernel.org, Adam Belay <ambx1@neo.rr.com>,
+       bjorn.helgaas@hp.com, vojtech@suse.cz
+Subject: Re: [PATCH] PNP support for i8042 driver
+References: <41960AE9.8090409@free.fr>	 <200411140148.02811.dtor_core@ameritech.net>	 <41974DFD.5070603@free.fr> <d120d50004111506416237ff1b@mail.gmail.com>
+In-Reply-To: <d120d50004111506416237ff1b@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch from Kaigai Kohei <kaigai@ak.jp.nec.com> adds irq and irqsave
-trylock spinlock variants for use by the SELinux AVC RCU patch.
+Dmitry Torokhov wrote:
+> On Sun, 14 Nov 2004 13:22:21 +0100, matthieu castet
+> <castet.matthieu@free.fr> wrote:
+> 
+>>Dmitry Torokhov wrote:
+>>
+>>
+>>
+>>>On Saturday 13 November 2004 08:23 am, matthieu castet wrote:
+>>>
+>>>
+>>>>Hi,
+>>>>this patch add PNP support for the i8042 driver in 2.6.10-rc1-mm5. Acpi
+>>>>is try before the pnp driver so if you don't disable ACPI or apply
+>>>>others pnpacpi patches, it won't change anything.
+>>>>
+>>>>Please review it and apply if possible
+>>>>
+>>>>thanks,
+>>>>
+>>>>Matthieu CASTET
+>>>>
+>>>>Signed-Off-By: Matthieu Castet <castet.matthieu@free.fr>
+>>>>
+>>>Hi,
+>>>
+>>
+>>Hi,
+>>
+>>>Do we really need to keep those drivers loaded - i8042 will not
+>>>be hotplugged and ports are reserved anyway. We are only interested
+>>>in presence of the keyboard and mouse ports. Can we unregister
+>>>the drivers (both ACPI and PNP) right after registering and mark
+>>>all that stuff as __init/__initdata as in the patch below?
+>>
+>>It is better to keep pnp driver loaded because when it unload, the
+>>resources will be disabled, so for the motherboards that allow it the
+>>irq won't work anymore, and so the keyboard and mouse won't work...
+> 
+> 
+> Is it possible to leave the device in enabled state or enable device
+> after unloading the driver with PNP? 
+Yes you could do a very ugly hack : set pnp_can_disable(dev) to 0 before 
+  unregister. With that the device won't be disabled (no resource 
+desalocation), but the device will be mark as not active in pnp layer.
 
-Please apply.
+> All we need from PNP layer
+> for i8042 is to verify presence of the KBC, we don't need resource
+> management.The ports range is already marked as reserved, IRQ
+> will be requested if needed...
+> 
+I don't agree at all :
+- the pci layer allow you to find the device like pnp layer, then you 
+register resource with request_region or equivalent. Do we need to do 
+the same for all pci driver ?
+- actually the resources are registered in the kernel, but not in the 
+bios, why some strange bios can allow to use irq 12 to an other device 
+if it isn't used ?
+- Do you save lot's of memory with __init/__initdata ? The pnp code is 
+quite small.
 
-Signed-off-by: Kaigai Kohei <kaigai@ak.jp.nec.com>
-Signed-off-by: Stephen Smalley <sds@epoch.ncsc.mil>
-Signed-off-by: James Morris <jmorris@redhat.com>
-
----
-
- include/linux/spinlock.h |   14 ++++++++++++++
- 1 files changed, 14 insertions(+)
-
-diff -purN -X dontdiff linux-2.6.10-rc2.p/include/linux/spinlock.h linux-2.6.10-rc2.w/include/linux/spinlock.h
---- linux-2.6.10-rc2.p/include/linux/spinlock.h	2004-11-15 13:18:55.000000000 -0500
-+++ linux-2.6.10-rc2.w/include/linux/spinlock.h	2004-11-15 13:36:12.572317408 -0500
-@@ -468,6 +468,20 @@ do { \
- 
- #define spin_trylock_bh(lock)			__cond_lock(_spin_trylock_bh(lock))
- 
-+#define spin_trylock_irq(lock) \
-+({ \
-+	local_irq_disable(); \
-+	_spin_trylock(lock) ? \
-+	1 : ({local_irq_enable(); 0; }); \
-+})
-+
-+#define spin_trylock_irqsave(lock, flags) \
-+({ \
-+	local_irq_save(flags); \
-+	_spin_trylock(lock) ? \
-+	1 : ({local_irq_restore(flags); 0;}); \
-+})
-+
- #ifdef CONFIG_LOCKMETER
- extern void _metered_spin_lock   (spinlock_t *lock);
- extern void _metered_spin_unlock (spinlock_t *lock);
-
-
-
+Matthieu

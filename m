@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284147AbRLMPUi>; Thu, 13 Dec 2001 10:20:38 -0500
+	id <S284239AbRLMPYI>; Thu, 13 Dec 2001 10:24:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284204AbRLMPU3>; Thu, 13 Dec 2001 10:20:29 -0500
-Received: from mailgate.bodgit-n-scarper.com ([62.49.233.146]:14856 "HELO
-	mould.bodgit-n-scarper.com") by vger.kernel.org with SMTP
-	id <S284147AbRLMPUS>; Thu, 13 Dec 2001 10:20:18 -0500
-Date: Thu, 13 Dec 2001 15:26:24 +0000
-From: Matt <matt@bodgit-n-scarper.com>
+	id <S284204AbRLMPX6>; Thu, 13 Dec 2001 10:23:58 -0500
+Received: from os.inf.tu-dresden.de ([141.76.48.99]:56816 "EHLO
+	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
+	id <S284239AbRLMPXk>; Thu, 13 Dec 2001 10:23:40 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Frank Mehnert <fm3@os.inf.tu-dresden.de>
+Organization: Dept. of CS, Dresden University of Technology
 To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel-2.4.17pre8 & invalidate: busy buffer
-Message-ID: <20011213152624.A742@mould.bodgit-n-scarper.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011213092908.6764@smtp.wanadoo.fr> <XFMail.20011213124137.ast@domdv.de> <20011213143513.GB1810@sky.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011213143513.GB1810@sky.net>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 on i686 SMP (mould)
+Subject: Asynchronous Video Console =?iso-8859-15?q?f=FCr?= Linux?
+Date: Thu, 13 Dec 2001 16:23:38 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: fm3@os.inf.tu-dresden.de
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16EXhy-0004eC-00@noys.inf.tu-dresden.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 13, 2001 at 03:35:13PM +0100, Ulrich Wiederhold wrote:
-> * Andreas Steinmetz <ast@domdv.de> [011213 12:41]:
-> > You will see this message with LVM too when issuing vgscan/vgchange.
-> > 
-> Yes, same here with lvm.
-> 
-> 2 HD's, no RAID, reiserfs.
+Hi,
 
-I've got LVM and one of said AACRAID adapters. If I do vgscan then I get about
-15 copies of the message written, but I haven't been able to trigger it by
-accessing the RAID partitions.
+are there exist any projects for connecting video consoles to the Linux
+kernel asynchronous? We would like to write a Linux video console for a
+(comparatively) slow device which is able to run simple console 
+applications upto the fbdev X-server.
 
-Matt
+Please cc your answer to me.
+
+Frank
 -- 
-"Phase plasma rifle in a forty-watt range?"
-"Only what you see on the shelves, buddy"
+Frank Mehnert
+## Dept. of Computer Science, Dresden University of Technology, Germany ##
+## E-Mail: fm3@os.inf.tu-dresden.de    http://os.inf.tu-dresden.de/~fm3 ##

@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263225AbTCZDyk>; Tue, 25 Mar 2003 22:54:40 -0500
+	id <S264532AbTCZEBW>; Tue, 25 Mar 2003 23:01:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263279AbTCZDyk>; Tue, 25 Mar 2003 22:54:40 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:23044 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263225AbTCZDyi>;
-	Tue, 25 Mar 2003 22:54:38 -0500
-Date: Tue, 25 Mar 2003 20:05:05 -0800
+	id <S264531AbTCZEBW>; Tue, 25 Mar 2003 23:01:22 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:24836 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S264532AbTCZEBT>;
+	Tue, 25 Mar 2003 23:01:19 -0500
+Date: Tue, 25 Mar 2003 20:11:46 -0800
 From: Greg KH <greg@kroah.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: addition to visor.c
-Message-ID: <20030326040505.GB20858@kroah.com>
-References: <20030326021847.GA21363@localhost>
+To: Pavel Roskin <proski@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Preferred way to load non-free firmware
+Message-ID: <20030326041146.GD20858@kroah.com>
+References: <Pine.LNX.4.50.0303252007420.6656-100000@marabou.research.att.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030326021847.GA21363@localhost>
+In-Reply-To: <Pine.LNX.4.50.0303252007420.6656-100000@marabou.research.att.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 26, 2003 at 02:18:47AM +0000, iain d broadfoot wrote:
-> First off, hi all and thanks for all the kernels. :D
+On Tue, Mar 25, 2003 at 08:32:50PM -0500, Pavel Roskin wrote:
 > 
-> I have fiddled together the following info for a sony clie nz90, which i
-> believe should go in drivers/usb/serial/visor.{h,c}.
+> 1) Register a file on procfs and use "cat" to load the firmware into the
+> kernel.
 
-Thanks, but this device is already supported in the latest 2.5 kernel :)
+That would work.
 
-And it's in my queue of patches to send to Marcelo for 2.4, so it will
-show up there too eventually.
+> 2) Register a device for the same purpose.
+> 
+> 3) Register a device, but use ioctl().
+> 
+> 4) Open a network socket and use ioctl() on it (like ifconfig does).
 
-> ok, it recognizes, but none of the apps i have seem to like the clie - i
-> get 'please press hotsync button now' messages, despite the fact that
-> the /dev/ttyUSB1 device is only there after the button has been
-> pressed... :(
+That's a nice way, as you don't need to register a device.
 
-Try the latest version of pilot-link, from pilot-link.org.  You need
-that.  If that doesn't work, try ttyUSB0, that might be the correct port
-for this device.
+> 5) Use one of the the above ways to send the filename to the module and
+> let the module load the firmware from file using do_generic_file_read().
 
-Thanks,
+Ick, I wouldn't recommend having the kernel do this, it's nicer to have
+userspace do the firmware send.
+
+> 6) Provide a script to wrap firmware into a module and load it using
+> modprobe.
+
+I don't think that this would be accepted into the main kernel tree, and
+vendors might have a problem with it.
+
+> 7) Encode the firmware into a header file, add it to the driver and
+> pretend that the copyright issue doesn't exist (like it's done in the
+> Keyspan USB driver).
+
+Hey, that's the way I like doing this stuff :)
+
+Almost any of the above would probably work well, and I think all except
+#5 and #6 are currently done in the main kernel tree.
+
+Good luck,
 
 greg k-h

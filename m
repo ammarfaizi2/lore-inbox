@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279717AbRKOBsl>; Wed, 14 Nov 2001 20:48:41 -0500
+	id <S279963AbRKOBuK>; Wed, 14 Nov 2001 20:50:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279998AbRKOBsa>; Wed, 14 Nov 2001 20:48:30 -0500
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:30881 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S279717AbRKOBsW>;
-	Wed, 14 Nov 2001 20:48:22 -0500
-Message-ID: <3BF31F92.27CF811@randomlogic.com>
-Date: Wed, 14 Nov 2001 17:51:14 -0800
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Stuart Young <sgy@amc.com.au>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: What Athlon chipset is most stable in Linux?
-In-Reply-To: <3BF31459.BB4BE456@randomlogic.com> <5.1.0.14.0.20011115122046.02028de0@mail.amc.localnet>
+	id <S279998AbRKOBt4>; Wed, 14 Nov 2001 20:49:56 -0500
+Received: from ppp-RAS1-1-87.dialup.eol.ca ([64.56.224.87]:26631 "EHLO
+	node0.opengeometry.ca") by vger.kernel.org with ESMTP
+	id <S279963AbRKOBtC>; Wed, 14 Nov 2001 20:49:02 -0500
+Date: Wed, 14 Nov 2001 20:48:48 -0500
+From: William Park <opengeometry@yahoo.ca>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Cc: "Peter T. Breuer" <ptb@it.uc3m.es>, dalecki@evision.ag
+Subject: Re: blocks or KB? (was: .. current meaning of blk_size array)
+Message-ID: <20011114204848.A3266@node0.opengeometry.ca>
+Mail-Followup-To: linux kernel <linux-kernel@vger.kernel.org>,
+	"Peter T. Breuer" <ptb@it.uc3m.es>, dalecki@evision.ag
+In-Reply-To: <3BF23D01.F7E879E8@evision-ventures.com> <200111142041.fAEKfBN15594@oboe.it.uc3m.es> <20011114141639.P5739@lynx.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011114141639.P5739@lynx.no>; from adilger@turbolabs.com on Wed, Nov 14, 2001 at 02:16:39PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stuart Young wrote:
+On Wed, Nov 14, 2001 at 02:16:39PM -0700, Andreas Dilger wrote:
+> > I at least am getting up to devicesizes at the 8TB range.
 > 
-> At 05:15 PM 14/11/01 -0800, Dan Hollis wrote:
-> >On Wed, 14 Nov 2001, Paul G. Allen wrote:
-> > > I am running 2.4.9ac10 with a few minor tweaks, agpgart slightly tweaked
-> > > compiled in, and a tweaked Detonator 3 nVidia driver
-> >                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> >???
+> If you are in that ballpark, then get the 64-bit blocknumber patch,
+> and start testing/fixing, instead of complaining.
 > 
+> Cheers, Andreas
 
-I made a couple small changes so that it would recognize the MP chipset and not drop to a generic operational mode. The generic mode did not work properly and
-would cause occasional system hangs. Fast writes still won't work, but I think a BIOS upgrade might fix that.
+Hi Andreas, can you give us URL for this 64-bit patch?  I also want to
+go past 1TB (512 * 2^31) filesystem size.
 
-> Damn binary thing.
-> 
-> It's the same core code as the Windows Detonator 3 driver. Hence the mention.
-> 
-> The next one will be based on the Detonator 4 core code, so things like
-> OpenGL 1.3 (which is supposedly available with the Detonator 4 drivers
-> under Windows) will be available.
-> 
-> Paul, you may want to see my post earlier re 2.4.14 vanilla and my
-> experiences so far, which have all been good.
-> 
-
-I just saw it. I am a registered nVidia developer, but have been too busy with other things (mainly working on the V12 game engine) to look into updating my
-actual system software and ping on nVidia about their Linux driver. I asked them once a while back, and they said "A new driver will be released soon, so wait
-for that."
-
-I'm getting ready to do it though, since I need to wait for another developer to fix some code (in the game engine) before I can continue.
-
-PGA
 -- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Akamai Technologies, Inc.
-www.akamai.com
-Work: (858)909-3630
+William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>.
+8 CPU cluster, NAS, (Slackware) Linux, Python, LaTeX, Vim, Mutt, Tin

@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261476AbTCYGhv>; Tue, 25 Mar 2003 01:37:51 -0500
+	id <S261474AbTCYGgf>; Tue, 25 Mar 2003 01:36:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261480AbTCYGhv>; Tue, 25 Mar 2003 01:37:51 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:64209 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261476AbTCYGhu>;
-	Tue, 25 Mar 2003 01:37:50 -0500
-Date: Mon, 24 Mar 2003 22:46:27 -0800 (PST)
-Message-Id: <20030324.224627.70037101.davem@redhat.com>
-To: sfr@canb.auug.org.au
-Cc: jgrimm2@us.ibm.com, linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: [PATCH] warning and unused in sctp.h
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030325142400.194987b0.sfr@canb.auug.org.au>
-References: <20030325142400.194987b0.sfr@canb.auug.org.au>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S261480AbTCYGgf>; Tue, 25 Mar 2003 01:36:35 -0500
+Received: from verein.lst.de ([212.34.181.86]:29203 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S261474AbTCYGge>;
+	Tue, 25 Mar 2003 01:36:34 -0500
+Date: Tue, 25 Mar 2003 07:47:39 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Miles Bader <miles@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: !CONFIG_MMU stubs in 2.5.66
+Message-ID: <20030325074739.A16342@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Miles Bader <miles@gnu.org>, linux-kernel@vger.kernel.org
+References: <buod6kgaxhb.fsf@mcspd15.ucom.lsi.nec.co.jp>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <buod6kgaxhb.fsf@mcspd15.ucom.lsi.nec.co.jp>; from miles@lsi.nec.co.jp on Tue, Mar 25, 2003 at 01:20:16PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Stephen Rothwell <sfr@canb.auug.org.au>
-   Date: Tue, 25 Mar 2003 14:24:00 +1100
-   
-   This patch changes a flags argument to spin_lock_irq_save to unsigned long
-   and removes its unused attribute.  The first gets rid of several warnings
-   and the second is "obviously correct" (at least according to Rusty) :-).
-   
-Applied, thank you.
+On Tue, Mar 25, 2003 at 01:20:16PM +0900, Miles Bader wrote:
+> The following change in 2.5.66:
+> 
+>    [PATCH] a few missing stubs for !CONFIG_MMU
+> 
+>    Patch from Christoph Hellwig <hch@lst.de>
+> 
+>    This is from the uClinux patches - there are a few more stubs needed
+>    in nommu.c to get the mmuless plattforms working.
+> 
+> Adds definitions for vmalloc_to_page, follow_page, and remap_page_range,
+> to mm/mmnommu.c.  However, there are already inline definitions of those
+> functions (predicated on !CONFIG_MMU) in linux/mm.h, so compilation
+> fails.
+> 
+> Which is the correct location?
 
-   Thanks to DaveM for forcing me to build kernels with a 64 cross compiler :-)
+OOPS, it looks like Greg & me submitted paches in parallel.  Personally I
+prefer the out of line ones over the inlines, especially as they handle
+vmalloc_to_page properly.  I'll submit a patch to Linus to fix this
+mess.
 
-No problem. :)

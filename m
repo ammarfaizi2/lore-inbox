@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312409AbSDJJG5>; Wed, 10 Apr 2002 05:06:57 -0400
+	id <S312556AbSDJJKK>; Wed, 10 Apr 2002 05:10:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312532AbSDJJG4>; Wed, 10 Apr 2002 05:06:56 -0400
-Received: from mailhost.mipsys.com ([62.161.177.33]:30418 "EHLO
-	mailhost.mipsys.com") by vger.kernel.org with ESMTP
-	id <S312409AbSDJJGz>; Wed, 10 Apr 2002 05:06:55 -0400
-From: <benh@kernel.crashing.org>
-To: Peter Horton <pdh@berserk.demon.co.uk>, <linux-kernel@vger.kernel.org>
-Cc: <phorton@bitbox.co.uk>, <ajoshi@unixbox.com>
-Subject: Re: [PATCH] Radeon frame buffer driver
-Date: Wed, 10 Apr 2002 11:06:38 +0200
-Message-Id: <20020410090638.1550@mailhost.mipsys.com>
-In-Reply-To: <20020410001249.GA2010@berserk.demon.co.uk>
-X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S312558AbSDJJKJ>; Wed, 10 Apr 2002 05:10:09 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:10756 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S312556AbSDJJKJ>; Wed, 10 Apr 2002 05:10:09 -0400
+Date: Wed, 10 Apr 2002 11:10:01 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROMBLEM: CD burning at 16x uses excessive CPU, although DMA is enabled
+Message-ID: <20020410091001.GB14339@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200204092206.02376.roger.larsson@norran.net> <Pine.LNX.4.10.10204091320450.25275-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Another installment of the Radeon frame buffer driver patch (still
->against 2.4.19-pre2).
->
->* All colour modes > 8bpp are now DIRECTCOLOR (Geert inspired).
->
->* Driver now uses 'ypan' to speed up scrolling even further.
->
->* Fix CRTC pitch to match accelerator pitch (800x600x256 works again).
->
->Driver seems okay now, plays nicely with X etc. etc. Please test if you
->can
->
->P.
+On Tue, 09 Apr 2002, Andre Hedrick wrote:
 
-I really don't like all the hacks related to the palette in 15/16/32bpp 
-mode. You shouldn't affect whatever palette gets passed from userland or
-apps that rely on full access to the gamma table will fail. Also, iirc,
-the chip's palette in 16 bits mode is 64 entries and 32 in 15 bpp, you
-can verify this by seeing how much entries get passed by xfbdev when
-it configures the 1:1 color ramp. The old code worked except for the
-cursor in console mode which tends to have crazy colors, I think due to
-fbdev code brokenness but I'm too sure about that last one.
+> This is because there are not a proper and correct state diagram data
+> handler set for ATAPI, period.  Initially the driver evolved out of PIO
+> calls to the PACKET_COMMAND opcode for the ATA command set.  Since there
+> has been zero updates/attempts to create a proper ATAPI/ASPI by anyone,
+> you can expect PIO transactions.
+> 
+> Who knows once I finally have taskfile completed and the kernel fixed to
+> not violate the basics of hardware atomic for storage devices, I may fix
+> all of the atapi/aspi transport.  It is a real mess to grunt through all
+> the docs.  However, I suspect I could get some help (co-author a
+> standard's proposal) with the original author to outline and create a 500+
+> page techincal referrence guide.  So if there are any companies want to
+> fund such an adventure, please let me know off-line.
+> 
+> Understand that only in PIO can you be sure of how much data you could get
+> from a device, argh it still s a pig in a poke.
 
-Ben.
+How about Andrew Morton's akpm-ide patch?
+http://www.zipworld.com.au/~akpm/linux/patches/2.4/2.4.18-pre9/ide-akpm.patch
 
-
-
-
+-- 
+Matthias Andree

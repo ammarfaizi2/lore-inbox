@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263068AbTDQFef (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 01:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbTDQFef
+	id S263067AbTDQFeB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 01:34:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263068AbTDQFeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 01:34:35 -0400
-Received: from NS5.Sony.CO.JP ([137.153.0.45]:26824 "EHLO ns5.sony.co.jp")
-	by vger.kernel.org with ESMTP id S263068AbTDQFee (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 01:34:34 -0400
-Message-ID: <3E9E3FA9.6060509@sm.sony.co.jp>
-Date: Thu, 17 Apr 2003 14:46:17 +0900
-From: Yusuf Wilajati Purna <purna@sm.sony.co.jp>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
-X-Accept-Language: en-us
+	Thu, 17 Apr 2003 01:34:00 -0400
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:38800 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP id S263067AbTDQFeA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 01:34:00 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Eric Altendorf <EricAltendorf@orst.edu>
+Reply-To: EricAltendorf@orst.edu
+To: Linus Torvalds <torvalds@transmeta.com>, John Bradford <john@grabjohn.com>
+Subject: Re: kernel support for non-English user messages
+Date: Tue, 15 Apr 2003 11:02:15 -0700
+User-Agent: KMail/1.4.3
+Cc: vda@port.imtp.ilyichevsk.odessa.ua,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0304141024250.19302-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0304141024250.19302-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk, arjanv@redhat.com,
-       alan@lxorguk.ukuu.org.uk
-CC: purna@sm.sony.co.jp
-Subject: Re: 2.4+ptrace exploit fix breaks root's ability to strace
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200304141645.48020.EricAltendorf@orst.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday 14 April 2003 10:29, Linus Torvalds wrote:
+> Personally, I don't write documentation. I don't much even write
+> comments in my code. My personal feeling is that as long as
+> functions are small and readable (and logical), and global
+> variables have good names, that's all I need to do. Others - who do
+> care about comments and docs - can do that part.
 
-On 2003-03-22 17:28:54, Arjan van de Ven wrote:
->On Sat, Mar 22, 2003 at 05:13:12PM +0000, Russell King wrote:
->> 
->> int ptrace_check_attach(struct task_struct *child, int kill)
->> {
->> 	...
->> +       if (!is_dumpable(child))
->> +               return -EPERM;
->> }
->> 
->> So, we went from being able to ptrace daemons as root, to being able to
->> attach daemons and then being unable to do anything with them, even if
->> you're root (or have the CAP_SYS_PTRACE capability).  I think this
->> behaviour is getting on for being described as "insane" 8) and is
->> clearly wrong.
->
->ok it seems this check is too strong. It *has* to check
->child->task_dumpable and return -EPERM, but child->mm->dumpable is not
->needed.
+This is true, even from a software engineering perspective.
 
-So, do you mean that the following is enough:
+If you find yourself having to write comments and documentation to 
+explain your code, probably your identifiers are not well named, your 
+functions are not short enough, and your code is not well structured 
+enough.
 
-int ptrace_check_attach(struct task_struct *child, int kill)
-{
-      ...
-+       if (!child->task_dumpable)
-+               return -EPERM;
-}
+Ideal code is completely self-documenting.
 
-Regards,
-
-Purna
-         		
+Eric
 
 

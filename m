@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282069AbRKVIQk>; Thu, 22 Nov 2001 03:16:40 -0500
+	id <S281717AbRKVIOu>; Thu, 22 Nov 2001 03:14:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282071AbRKVIQa>; Thu, 22 Nov 2001 03:16:30 -0500
-Received: from sydney1.au.ibm.com ([202.135.142.193]:19986 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S282069AbRKVIQO>; Thu, 22 Nov 2001 03:16:14 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Updated parameter and modules rewrite (2.4.14)
-Date: Thu, 22 Nov 2001 19:15:49 +1100
-Message-Id: <E166p1R-0004ll-00@wagner>
+	id <S282069AbRKVIOl>; Thu, 22 Nov 2001 03:14:41 -0500
+Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:64425
+	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
+	id <S281717AbRKVIOV>; Thu, 22 Nov 2001 03:14:21 -0500
+Message-ID: <3BFCF30E.4030605@debian.org>
+Date: Thu, 22 Nov 2001 13:43:58 +0100
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Ben Collins <bcollins@debian.org>
+CC: vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
+Subject: Re: Asm style
+In-Reply-To: <fa.d6k3juv.16q3on@ifi.uio.no> <fa.cbkkrrv.m72ejr@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Ben Collins wrote:
+> 
+> There's also:
+> 
+> 	asm("\
+> 	cmd	r,r\n\
+> lbl:	cmd	r,r\n\
+> 	cmd	r,r\n" : spec : spec);
+> 
+> 
+> Or something similar (the trailing "\" added for continuation). Probably
+> the easiest way to patch existing asm.
+> 
 
-   http://ftp.kernel.org/pub/linux/kernel/people/rusty
+not ANSI C. The trailing \ is understood only in marco definitions
+(and outside strings)
 
-	Unified boot/module parameter and module loader rewrite
-updated to 2.4.14.  I'm off to Linux Kongress, so I'll be difficult to
-contact for 10 days or so.
+	giacomo
 
-Main TODOS:
-	1) Should the PARAM() macros also declare the variables?
-		Lots of people seem to like writing INT_MODULE_PARM macros...
 
-	2) Need a less-sucky /proc|/proc/sys patch, to add access to
-	   parameters through that.
 
-Cheers!
-Rusty.
---
-Premature optmztion is rt of all evl. --DK

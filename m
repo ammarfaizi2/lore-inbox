@@ -1,79 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267693AbUHPPSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267712AbUHPPSs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267693AbUHPPSs (ORCPT <rfc822;willy@w.ods.org>);
+	id S267712AbUHPPSs (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 16 Aug 2004 11:18:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267697AbUHPPRX
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267693AbUHPPRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 11:17:23 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:47585 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267693AbUHPPPf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 11:15:35 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Alan Cox <alan@redhat.com>
-Subject: Re: PATCH: quieten some IDE diagnostics we will be using much more
-Date: Mon, 16 Aug 2004 17:14:40 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-References: <20040815144624.GA8168@devserv.devel.redhat.com>
-In-Reply-To: <20040815144624.GA8168@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 16 Aug 2004 11:17:35 -0400
+Received: from vsmtp14.tin.it ([212.216.176.118]:56998 "EHLO vsmtp14.tin.it")
+	by vger.kernel.org with ESMTP id S267712AbUHPPPt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 11:15:49 -0400
+Subject: Packet writing problems
+From: Frediano Ziglio <freddyz77@tin.it>
+To: petero2@telia.com, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1092669361.4254.24.camel@freddy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 16 Aug 2004 17:16:02 +0200
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408161714.40398.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm trying to do packet writing with my new DVD writer.
 
-This PATCH is intermixed with PATCH: IDE - do spin up for all platforms ...
+# cat /proc/ide/hdc/model
+PIONEER DVD-RW DVR-107D
 
-On Sunday 15 August 2004 16:46, Alan Cox wrote:
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude
-> linux.vanilla-2.6.8-rc3/drivers/ide/ide-probe.c
-> linux-2.6.8-rc3/drivers/ide/ide-probe.c ---
-> linux.vanilla-2.6.8-rc3/drivers/ide/ide-probe.c	2004-08-09
-> 15:51:00.000000000 +0100 +++
-> linux-2.6.8-rc3/drivers/ide/ide-probe.c	2004-08-14 21:03:03.000000000 +0100
-> @@ -635,12 +680,11 @@
->  	device_register(&hwif->gendev);
->  }
->
-> -#ifdef CONFIG_PPC
->  static int wait_hwif_ready(ide_hwif_t *hwif)
->  {
->  	int rc;
->
-> -	printk(KERN_INFO "Probing IDE interface %s...\n", hwif->name);
-> +	printk(KERN_DEBUG "Probing IDE interface %s...\n", hwif->name);
->
->  	/* Let HW settle down a bit from whatever init state we
->  	 * come from */
-> @@ -671,7 +715,6 @@
->
->  	return rc;
->  }
-> -#endif
->
->  /*
->   * This routine only knows how to look for drive units 0 and 1
-> @@ -717,7 +760,6 @@
->
->  	local_irq_set(flags);
->
-> -#ifdef CONFIG_PPC
->  	/* This is needed on some PPCs and a bunch of BIOS-less embedded
->  	 * platforms. Typical cases are:
->  	 *
-> @@ -738,8 +780,7 @@
->  	 *  BenH.
->  	 */
->  	if (wait_hwif_ready(hwif))
-> -		printk(KERN_WARNING "%s: Wait for ready failed before probe !\n",
-> hwif->name); -#endif /* CONFIG_PPC */
-> +		printk(KERN_DEBUG "%s: Wait for ready failed before probe !\n",
-> hwif->name);
->
->  	/*
->  	 * Second drive should only exist if first drive was found,
+dma enabled.
+After some tests with 2.4 I decided to switch to 2.6.
+I used Fedora Core 2 with a vanilla kernel 2.6.8.1 + patch from
+http://w1.894.telia.com/~u89404340/patches/packet/2.6/, udftools with
+Petero patch (http://w1.894.telia.com/~u89404340/patches/packet/, same
+site and author).
+
+However I get a lot of problems mount/unmounting devices...
+
+DVD+RW
+mkudffs /dev/hdc does not works... doing a strace opening /dev/hdc for
+read/write open returns EROFS (or similar). I tried with blockdev
+--setrw but still same errors... Than I used pktsetup. mkudffs with
+packet device (/dev/pktcdvd/test) worked so I mounted it (still /dev/hdc
+report readonly so I used /dev/pktcdvd/test). I copied a directory (4
+MB) an deleted it. Then I unmounted device and then waited... after a
+while DVD led turned off and DVD spin down... umount command still not
+exited... I waited 20 minutes but still hangs so I restarted my PC.
+
+DVD-RW
+After a lot of tests I realized that I have to use dvd+rw-format with
+-force=full cause DVD was not empty. Then I used pktsetup and mkudffs
+(with no problem). I tried to mount my DVD but mount (not umount) hangs.
+Using ps it seems than mount call wait_to_buffer. After 10/15 minutes I
+restarted my PC...
+
+I have also a SCSI CD recorder (Waitec WT4260) and a CDRW formatted with
+UDF (using 2.4.23 and an old patch from Petero site) and it works
+without problems... Is the problem related to IDE or to DVD ??
+
+I'm not (still :) ? ) a linux guru and I don't know how to debug or what
+check should I execute... Should I send my .config ? Stop some daemons ?
+Work without X ?
+
+freddy77
+
+

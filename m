@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289752AbSAJWlu>; Thu, 10 Jan 2002 17:41:50 -0500
+	id <S289764AbSAJWlk>; Thu, 10 Jan 2002 17:41:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289756AbSAJWln>; Thu, 10 Jan 2002 17:41:43 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:38606 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289752AbSAJWl2>;
-	Thu, 10 Jan 2002 17:41:28 -0500
-Date: Fri, 11 Jan 2002 01:38:51 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [patch] O(1) scheduler, -H5
-Message-ID: <Pine.LNX.4.33.0201110130290.11478-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289756AbSAJWle>; Thu, 10 Jan 2002 17:41:34 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6417 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S289747AbSAJWkl>; Thu, 10 Jan 2002 17:40:41 -0500
+Date: Thu, 10 Jan 2002 23:40:36 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+Cc: Daniel Tuijnman <daniel@ATComputing.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Memory management problems in 2.4.16
+Message-ID: <20020110224036.GA32522@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020109143434.A20955@ATComputing.nl> <Pine.LNX.4.33.0201090640080.13260-100000@shell1.aracnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0201090640080.13260-100000@shell1.aracnet.com>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-the -H5 patch adds a debugging check:
+> > I installed a 2.4.16 kernel on a 486DX2-50 machine with 8MB memory and
+> > 24MB swap and got insurmountable problems.
+> 
+> [snip]
+> 
+> > It seems to me that something definitely is wrong with the kernel's
+> > memory management.
+> 
+> Well ... maybe *in theory* 2.4.16 should work on a machine with that
+> little RAM but I'd say in practice Linux has simply outgrown your
+> machine. Have you tried any other 2.4 kernels, say, before 2.4.10 when
+> the VM changed?  Have you considered going to a garage sale and spending
+> the local equivalent of $25 or $30 US for a more powerful computer?
 
-    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-pre11-H5.patch
-
-it adds code to catch places that call schedule() from global-cli()
-sections. Right now release_kernel_lock() doesnt automatically release the
-IRQ lock if there is no kernel lock held. A fair amount of code does this
-still, and i think we should fix them in 2.5.
-
-(Such code, while of questionable quality, is safe if it also holds the
-big kernel lock, but it's definitely SMP-unsafe it doesnt hold the bkl -
-the BUG() assert only catches the later case.)
-
-(Andi Kleen noticed this on the first day the patch was released, and
-Andrew Morton reminded me today that i forgot to fix it ... :-| )
-
-my systems do not trigger the BUG(), so there cannot be all that much
-broken code left.
-
-	Ingo
-
+8MB should be enough. I was running 2.4.0-test7 on 8MB machine with no
+swap, because it had no disk to swap to.
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

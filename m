@@ -1,80 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266488AbUIELoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266474AbUIELqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266488AbUIELoN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 07:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266485AbUIELoN
+	id S266474AbUIELqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 07:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUIELqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 07:44:13 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:33801 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S266488AbUIELnk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 07:43:40 -0400
-Message-ID: <20040905154336.B9202@castle.nmd.msu.ru>
-Date: Sun, 5 Sep 2004 15:43:36 +0400
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Q about pagecache data never written to disk
-References: <20040905120147.A9202@castle.nmd.msu.ru> <20040905035233.6a6b5823.akpm@osdl.org>
+	Sun, 5 Sep 2004 07:46:24 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:49081 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S266474AbUIELpK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 07:45:10 -0400
+Date: Sun, 5 Sep 2004 13:46:45 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, Linus Torvalds <torvalds@osdl.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [sched] fix sched_domains hotplug bootstrap ordering vs. cpu_online_map issue
+Message-ID: <20040905114645.GA11422@elte.hu>
+References: <1094246465.1712.12.camel@mulgrave> <20040903145925.1e7aedd3.akpm@osdl.org> <20040903222212.GV3106@holomorphy.com> <20040903153434.15719192.akpm@osdl.org> <20040903224507.GX3106@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <20040905035233.6a6b5823.akpm@osdl.org>; from "Andrew Morton" on Sun, Sep 05, 2004 at 03:52:33AM
+Content-Disposition: inline
+In-Reply-To: <20040903224507.GX3106@holomorphy.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
 
-On Sun, Sep 05, 2004 at 03:52:33AM -0700, Andrew Morton wrote:
-> Andrey Savochkin <saw@saw.sw.com.sg> wrote:
-> >
-> > Let's suppose an mmap'ed (SHARED, RW) file has a hole.
-> >  AFAICS, we allow to dirty the file pages without allocating the space for the
-> >  hole - filemap_nopage just "reads" the page filling it with zeroes, and
-> >  nothing is done about the on-disk data until writepage.
-> > 
-> >  So, if the page can't be written to disk (no space), the dirty data just
-> >  stays in the pagecache.  The data can be read or seen via mmap, but it isn't
-> >  and never be on disk.  The pagecache stays unsynchronized with the on-disk
-> >  content forever.
-> 
-> The kernel will make one attampt to write the data to disk.  If that write
-> hits ENOSPC, the page is not redirtied (ie: the data can be lost).
-> 
-> When that write hits ENOSPC an error flag is set in the address_space and
-> that will be returned from a subsequent msync().  The application will then
-> need to do something about it.
-> 
-> If your application doesn't msync() the memory then it doesn't care about
-> its data anyway.  If your application _does_ msync the pages then we
-> reliably report errors.
+* William Lee Irwin III <wli@holomorphy.com> wrote:
 
-This question came to my mind when I was thinking about journal_start in
-ext3_prepare_write and copy_from_user issue...
-Did you follow that discussion?
-
-In the considered scenario not only the application is not
-guaranteed anything till msync(), but all other programs doing regular read()
-may also be fooled about the file content, and this idea surprised me.
-On the other hand, after a write() other programs also see the new content
-without a guarantee that this content corresponds with what is on the disk...
-
+> William Lee Irwin III <wli@holomorphy.com> wrote:
+> >> This is the whole thing; the "other half" referred to a new hunk added to
+> >> the patch (identical to this one) posted in its entirety.
 > 
-> >  Is it the intended behavior?
-> >  Shouldn't we call the filesystem to fill the hole at the moment of the first
-> >  write access?
+> On Fri, Sep 03, 2004 at 03:34:34PM -0700, Andrew Morton wrote:
+> > ho-hum. changelog, please?
 > 
-> That would be a retrograde step - it would be nice to move in the other
-> direction: perform disk allocation at writeback time rather than at write()
-> time, even for regular write() data.  To do that we (probably) need space
-> reservation APIs.  And yes, we perhaps could reserve space in the
-> filesystem when that page is first written to.
+> cpu_online_map is not set up at the time of sched domain
+> initialization when hotplug cpu paths are used for SMP booting. At
+> this phase of bootstrapping, cpu_possible_map can be used by the
+> various architectures using cpu hotplugging for SMP bootstrap, but the
+> manipulations of cpu_online_map done on behalf of NUMA architectures,
+> done indirectly via node_to_cpumask(), can't, because cpu_online_map
+> starts depopulated and hasn't yet been populated. On true NUMA
+> architectures this is a distinct cpumask_t from cpu_online_map and so
+> the unpatched code works on NUMA; on non-NUMA architectures the
+> definition of node_to_cpumask() this way breaks and would require an
+> invasive sweeping of users of node_to_cpumask() to change it to e.g.
+> cpu_possible_map, as cpu_possible_map is not suitable for use at
+> runtime as a substitute for cpu_online_map.
 > 
-> But then what would we do if there's no space?  SIGBUS?  SIGSEGV? 
-> Inappropriate.  SIGENOSPC?
+> Signed-off-by: William Irwin <wli@holomorphy.com>
 
-Should the space be allocated on close()?
-Who will get the signal if nobody accesses the file anymore?
-I'm also thinking about various shell scripts with redirects to files...
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-	Andrey
+	Ingo

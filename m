@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265333AbSJRVka>; Fri, 18 Oct 2002 17:40:30 -0400
+	id <S265324AbSJRVjp>; Fri, 18 Oct 2002 17:39:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265334AbSJRVka>; Fri, 18 Oct 2002 17:40:30 -0400
-Received: from dsl-213-023-020-002.arcor-ip.net ([213.23.20.2]:28850 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S265333AbSJRVk0>;
-	Fri, 18 Oct 2002 17:40:26 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@digeo.com>, Andi Kleen <ak@muc.de>
-Subject: Re: 2.5 and lowmemory boxens
-Date: Fri, 18 Oct 2002 23:46:43 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Samium Gromoff <_deepfire@mail.ru>, linux-kernel@vger.kernel.org
-References: <E182V29-000Pfa-00@f15.mail.ru> <m37kggyo7r.fsf@averell.firstfloor.org> <3DB03BC9.F2986C53@digeo.com>
-In-Reply-To: <3DB03BC9.F2986C53@digeo.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E182ex9-0004yc-00@starship>
+	id <S265333AbSJRVjp>; Fri, 18 Oct 2002 17:39:45 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:238 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265324AbSJRVjn>;
+	Fri, 18 Oct 2002 17:39:43 -0400
+Subject: Re: x86 timer clean ups
+From: john stultz <johnstul@us.ibm.com>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200210182133.g9ILX0F15855@eng2.beaverton.ibm.com>
+References: <200210182133.g9ILX0F15855@eng2.beaverton.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 18 Oct 2002 14:37:25 -0700
+Message-Id: <1034977045.4047.27.camel@cog>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 October 2002 18:50, Andrew Morton wrote:
-> > "Samium Gromoff" <_deepfire@mail.ru> writes:
-> > >    first: i`ve successfully ran 2.5.43 on a 386sx20/4M ram notebook.
->
-> ...
->
-> timer.c and sched.c have significant NR_CPUS bloat problems on SMP.
-> Working on that.
+>  I need a flag for the TSC stuff that allows me to turn it off completely 
+> (the 
+>  voyagers run CPUs from physically different clocks, and TSC drift causes 
+> huge 
+>  jitters in this case).
+>  
+>  How about two compile options:
+>  
+>  CONFIG_X86_TSC meaning check for TSC and use it if it's OK
+>  CONFIG_X86_PIT meaning use the PIT timer if the TSC isn't OK (or isn't 
+> wanted)
 
-Oooh, yes!  So 2.6 will be just fine for my smp dsl router...
+Hmmm. I was thinking of possibly doing something similar to the 2.4
+CONFIG_X86_HAS_TSC and CONFGI_X86_TSC_DISABLE, but I believe Linus
+wasn't super happy about negative config options. You're usage sounds
+reasonable, but since this is a cleanup item, do you mind if we both
+look at the issue a bit more next week?
 
-Seriously, we are getting closer to the day notebooks start shipping with
-multi-core processors, and it's not beyond belief that a dsl router would
-benefit from this as well.  I.e., super-high processing power, but hardly
-any memory/flash required.  Xmeta, listening?  What better geek trophy than
-a 4-way notebook.
+>  P.S. what about this CONFIG_X86_CYCLONE thing?  It doesn't seem to be 
+> hooked 
+>  into the timer infrastructure, should it be?
 
--- 
-Daniel
+Not right this second. I'm waiting for the summit subarch code to
+stabilize, then I'll hook it in correctly.
+
+thanks
+-john
+

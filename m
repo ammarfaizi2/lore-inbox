@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267647AbTA3WEj>; Thu, 30 Jan 2003 17:04:39 -0500
+	id <S267648AbTA3WRa>; Thu, 30 Jan 2003 17:17:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267648AbTA3WEi>; Thu, 30 Jan 2003 17:04:38 -0500
-Received: from packet.digeo.com ([12.110.80.53]:45240 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267647AbTA3WEi>;
-	Thu, 30 Jan 2003 17:04:38 -0500
-Message-ID: <3E39A3A2.7807FF00@digeo.com>
-Date: Thu, 30 Jan 2003 14:13:54 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
-X-Accept-Language: en
+	id <S267650AbTA3WRa>; Thu, 30 Jan 2003 17:17:30 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:3478 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S267648AbTA3WR3>; Thu, 30 Jan 2003 17:17:29 -0500
+Date: Thu, 30 Jan 2003 17:29:56 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Howard Shane <ozymandias@charter.net>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel craps out accessing Sony CDRW with ide-scsi
+In-Reply-To: <3E399431.2080603@charter.net>
+Message-ID: <Pine.LNX.3.95.1030130172833.7083A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Oliver Xymoron <oxymoron@waste.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5] Report write errors to applications
-References: <20030129060916.GA3186@waste.org> <20030128232929.4f2b69a6.akpm@digeo.com> <20030129162411.GB3186@waste.org> <20030129134205.3e128777.akpm@digeo.com> <20030130211212.GB4357@waste.org> <3E399B93.90B32D12@digeo.com> <20030130220011.GC4357@waste.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Jan 2003 22:13:55.0067 (UTC) FILETIME=[E0C40CB0:01C2C8AC]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron wrote:
+On Thu, 30 Jan 2003, Howard Shane wrote:
+
+> FYI I am running 2.4.20, and the CDRW in question is the master on the 
+> bus it is attached to. I'll be happy to send more logs of the event or 
+> any other info you request.  Thanks
 > 
-> The comment suggests that we need to distinguish read errors from
-> write errors and I tend to agree.
 
-OK, well you could call set_buffer_write_io_error/set_buffer_read_io_error()
-in the end_io handlers, and pick that up later on.
+Look at yesterday's mail. Somebody posted a fix. It was a definite
+"doing something out-of-order" fix.
 
-To avoid adding a couple of new clear_bits in submit_bh,
-you could do:
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
-	if (test_set_buffer_req(bh)) {
-		clear_buffer_write_io_error(bh);
-		clear_buffer_read_io_error(bh);
-	}
+

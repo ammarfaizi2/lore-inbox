@@ -1,69 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261765AbSIXRfo>; Tue, 24 Sep 2002 13:35:44 -0400
+	id <S261739AbSIXRl0>; Tue, 24 Sep 2002 13:41:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261738AbSIXRed>; Tue, 24 Sep 2002 13:34:33 -0400
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:49102 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S261739AbSIXRWs> convert rfc822-to-8bit; Tue, 24 Sep 2002 13:22:48 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Organization: IBM Deutschland GmbH
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.38 s390 fixes.
-Date: Tue, 24 Sep 2002 19:26:02 +0200
-X-Mailer: KMail [version 1.4]
+	id <S261721AbSIXRlF>; Tue, 24 Sep 2002 13:41:05 -0400
+Received: from web40509.mail.yahoo.com ([66.218.78.126]:53577 "HELO
+	web40509.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261723AbSIXReB>; Tue, 24 Sep 2002 13:34:01 -0400
+Message-ID: <20020924173910.9940.qmail@web40509.mail.yahoo.com>
+Date: Tue, 24 Sep 2002 10:39:10 -0700 (PDT)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re: scsi error.
+To: jbradford@dial.pipex.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200209241609.g8OG9deO000280@darkstar.example.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209241914.14579.schwidefsky@de.ibm.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-I put together a set of patches for s/390 again. There are 24 patches, each
-starting with a small description. To get a useful s390/s390x kernel at
-least the first 5 patches are needed.
+Ahh, I forgot to mention that none of my drives were supplying term power.
 
-The list of patches and some comments:
+I believe I'm using a high quality cable: the wires between the connectors
+are braided; it only about two feet long.
 
-01_minimal:    Minimal patch to get the kernel without any device drivers 
-               compiled and working again.
-02_syscalls:   Add the new system calls.
-03_partition:  Get the bloody ibm partition code to work.
-04_config:     I removed some unnecessary config options and restructure
-               the configuration menu a bit.
-05_dasd:       I picked up Al Viros changes to the dasd driver and made
-               it even better.
-06_xpram:      No comment.
-07_tasklet:    Get rid of the bottom halves in the s/390 device drivers.
-08_bitops:     A bug fix for the (unused) option ALIGN_CS == 1.
-09_emu31:      Latest 31 bit emulation fixes.
-10_vmlinux:    Unify the two linker scripts.
-11_preempt:    Add preemption support. It still complains about about
-               "scheduling while atomic" though.
-12_inline:     Inline all tcpip checksum functions and optimize xchg.
-13_diag44:     Make use of the diag 0x44 in 64 bit spinlock code. The diag 0x44
-               yields a virtual cpu under VM and LPAR.
-14_time:       I removed the dependency on the boot cpu in the timer interrupt.
-               This makes it easier with the timer patch and with switching
-               cpus on and off.
-15_beauty:     Some beautification.
-16_fpu:        Optimization for loading/storing of fpu registers. Got rid
-               of another stupid file in arch/s390/kernel.
-17_ptrace:     Make ptrace readable.
-18_quiesce:    Add signal quiesce support.
-19_syncisc:    Fix and simplify synchronous i/o functions.
-20_ending:     Simplify s390_process_IRQ.
-21_chpid:      Do the right thing if channel paths are not available.
-22_boot:       Reworked boot sequence.
-23_boot_common:Remove s390 specific init call from init/main.c. 22_boot
-               and 23_boot_common are related.
-24_proc_misc:  /proc/interrupts does not make sense on s390. There are
-               65536 i/o and 65536 external interrupts. We do not really
-               want to have a file with #cpus * 128K zeros.
+I have an LVD/SE terminator on the last connector.
 
-blue skies,
-  Martin.
+As for parity, the drive doesn't have a parity jumper on it. I'll assume that
+parity is enabled.
+
+BTW, it is really difficult to find the small jumpers these newer drives need.
+Especially since a lot of online resellers sell the drive only, with no accessories.
+
+Thanks for your input.
+
+-Alex
+
+--- jbradford@dial.pipex.com wrote:
+> Hmmm, that is a bit strange - you don't specifically need to enable term power on the last
+> device on the chain - both ends have to be terminated, but any device can supply the termination
+> power to the bus, and only one device needs to do that> 
+> John.
 
 
+__________________________________________________
+Do you Yahoo!?
+New DSL Internet Access from SBC & Yahoo!
+http://sbc.yahoo.com

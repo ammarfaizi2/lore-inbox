@@ -1,98 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261191AbUCHUgE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 15:36:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUCHUgE
+	id S261207AbUCHUkE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 15:40:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbUCHUkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 15:36:04 -0500
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:59909 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S261191AbUCHUfD convert rfc822-to-8bit (ORCPT
+	Mon, 8 Mar 2004 15:40:04 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:7296 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S261207AbUCHUj6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 15:35:03 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6529.0
-content-class: urn:content-classes:message
+	Mon, 8 Mar 2004 15:39:58 -0500
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Paul Jackson <pj@sgi.com>, kangur@polcom.net, mmazur@kernel.pl,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.3.0
+References: <200402291942.45392.mmazur@kernel.pl>
+	<200403031829.41394.mmazur@kernel.pl>
+	<m3brnc8zun.fsf@defiant.pm.waw.pl>
+	<200403042149.36604.mmazur@kernel.pl>
+	<m3brnb8bxa.fsf@defiant.pm.waw.pl>
+	<Pine.LNX.4.58.0403060022570.5790@alpha.polcom.net>
+	<m38yidk3rg.fsf@defiant.pm.waw.pl>
+	<20040306171535.5cbf2494.pj@sgi.com>
+	<m38yiclby8.fsf@defiant.pm.waw.pl>
+	<20040307172847.46708dcc.pj@sgi.com>
+	<m3hdwzwfcp.fsf@defiant.pm.waw.pl>
+	<404C932B.8050307@nortelnetworks.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Mon, 08 Mar 2004 21:27:23 +0100
+In-Reply-To: <404C932B.8050307@nortelnetworks.com> (Chris Friesen's message
+ of "Mon, 08 Mar 2004 10:37:15 -0500")
+Message-ID: <m33c8jhyok.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: cciss per device queue patch for 2.6.4
-Date: Mon, 8 Mar 2004 14:35:00 -0600
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF105BC1EA6@cceexc23.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: cciss per device queue patch for 2.6.4
-Thread-Index: AcQFRhW40EfNoweaQAqsa9XcJppw3AABrGEw
-From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-To: "Jens Axboe" <axboe@suse.de>
-Cc: <apkm@osdl.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 08 Mar 2004 20:35:01.0375 (UTC) FILETIME=[D47BC0F0:01C4054C]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, Jens. I'll fix it & resubmit.
+Chris Friesen <cfriesen@nortelnetworks.com> writes:
 
------Original Message-----
-From: Jens Axboe [mailto:axboe@suse.de]
-Sent: Monday, March 08, 2004 1:46 PM
-To: Miller, Mike (OS Dev)
-Cc: apkm@osdl.org; linux-kernel@vger.kernel.org
-Subject: Re: cciss per device queue patch for 2.6.4
+> Generally it cannot be caused by changing kernel config (although
+> kernel config can cause syscalls to be valid or not).
+>
+> However, new kernel versions can add/remove stuff.  Usually stuff
+> isn't removed for a while after its deprecated, but there have been
+> instances where stuff has been added/changed/removed during unstable
+> kernel development.
 
-
-On Mon, Mar 08 2004, mikem@beardog.cca.cpqcorp.net wrote:
->  	/*
->  	 * See if we can queue up some more IO
-> +	 * check every disk that exists on this controller 
-> +	 * and start it's IO
->  	 */
-> -	blk_start_queue(h->queue);
-> +	for(j=0;j < NWD; j++) {
-> +		/* make sure the disk has been added and the drive is real */
-> +		/* because this can be called from the middle of init_one */
-> +		if(!(h->gendisk[j]->queue) || !(h->drv[j].nr_blocks) )
-> +			continue;
-> +		blk_start_queue(h->gendisk[j]->queue);
-> +	}
->  	spin_unlock_irqrestore(CCISS_LOCK(h->ctlr), flags);
->  	return IRQ_HANDLED;
-
-You can't do this, you must hold the specific queue lock for calling
-blk_start_queue() for it. The comment for that functions states that,
-too. It's even more important now that blk_start_queue() actually works
-properly (included).
-
-===== drivers/block/ll_rw_blk.c 1.228 vs edited =====
---- 1.228/drivers/block/ll_rw_blk.c	Sun Feb  1 19:09:12 2004
-+++ edited/drivers/block/ll_rw_blk.c	Mon Mar  8 20:41:21 2004
-@@ -1188,13 +1193,23 @@
-  * Description:
-  *   blk_start_queue() will clear the stop flag on the queue, and call
-  *   the request_fn for the queue if it was in a stopped state when
-- *   entered. Also see blk_stop_queue(). Must not be called from driver
-- *   request function due to recursion issues. Queue lock must be held.
-+ *   entered. Also see blk_stop_queue(). Queue lock must be held.
-  **/
- void blk_start_queue(request_queue_t *q)
- {
- 	clear_bit(QUEUE_FLAG_STOPPED, &q->queue_flags);
--	schedule_work(&q->unplug_work);
-+
-+	/*
-+	 * one level of recursion is ok and is much faster than kicking
-+	 * the unplug handling
-+	 */
-+	if (!test_and_set_bit(QUEUE_FLAG_REENTER, &q->queue_flags)) {
-+		q->request_fn(q);
-+		clear_bit(QUEUE_FLAG_REENTER, &q->queue_flags);
-+	} else {
-+		blk_plug_device(q);
-+		schedule_work(&q->unplug_work);
-+	}
- }
- 
- EXPORT_SYMBOL(blk_start_queue);
-
-
+Well, _this_ fits nicely my own idea of the situation.
 -- 
-Jens Axboe
-
+Krzysztof Halasa, B*FH

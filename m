@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286502AbRLUAi0>; Thu, 20 Dec 2001 19:38:26 -0500
+	id <S286507AbRLUBV5>; Thu, 20 Dec 2001 20:21:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286503AbRLUAiP>; Thu, 20 Dec 2001 19:38:15 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:29354 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S286502AbRLUAiL>; Thu, 20 Dec 2001 19:38:11 -0500
-Date: Fri, 21 Dec 2001 00:39:42 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-        andrea@suse.de, davej@codemonkey.org.uk, Chuck Lever <cel@monkey.org>
-Subject: Re: Possible O_DIRECT problems ?
-Message-ID: <20011221003942.B26268@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, andrea@suse.de,
-	Chuck Lever <cel@monkey.org>
-In-Reply-To: <20011221000806.A26849@suse.de> <shssna58lpq.fsf@charged.uio.no>
+	id <S286508AbRLUBVq>; Thu, 20 Dec 2001 20:21:46 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:20184 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S286507AbRLUBVh>;
+	Thu, 20 Dec 2001 20:21:37 -0500
+Date: Thu, 20 Dec 2001 17:21:24 -0800
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Wireless Extension - new driver API - phase 2
+Message-ID: <20011220172124.E15923@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <shssna58lpq.fsf@charged.uio.no>
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 21, 2001 at 01:23:45AM +0100, Trond Myklebust wrote:
+	Hi,
 
- >    O_DIRECT for NFS isn't yet merged into the kernel. Are these Chuck
- > Lever's NFS patches you've been testing?
+	I'm continuing the work on the new driver API for Wireless
+Extensions. The second phase was adding Wireless Events, and it's
+working.
+	If you are interested, grab the patches from my web page :
+http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html#newapi
 
-Nope, stock 2.4.17rc2 & 2.5.1. 
-I thought NFS might just ignore the O_DIRECT flag if it didn't
-understand it yet, I wasn't expecting such a dramatic failure.
+	More on this in January (hopefully). Happy Chrismas...
 
-I just got reminded of the bugs Andrew Morton & some others
-found in O_DIRECT, so this may be hitting the same problems
-already found.
-
-Dave.
-
+	Jean

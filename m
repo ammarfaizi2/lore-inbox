@@ -1,148 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264246AbRFFXSf>; Wed, 6 Jun 2001 19:18:35 -0400
+	id <S264245AbRFFX2H>; Wed, 6 Jun 2001 19:28:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264241AbRFFXS0>; Wed, 6 Jun 2001 19:18:26 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:20358 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S264240AbRFFXSQ>;
-	Wed, 6 Jun 2001 19:18:16 -0400
-Date: Thu, 7 Jun 2001 01:18:08 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200106062318.BAA216606.aeb@vlet.cwi.nl>
-To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org, mdharm-usb@one-eyed-alien.net,
-        torvalds@transmeta.com
-Subject: [PATCH] scsi_scan fix (for usb)
+	id <S264249AbRFFX16>; Wed, 6 Jun 2001 19:27:58 -0400
+Received: from p4.nas4.is5.u-net.net ([195.102.201.132]:1012 "EHLO
+	keston.u-net.com") by vger.kernel.org with ESMTP id <S264245AbRFFX1w>;
+	Wed, 6 Jun 2001 19:27:52 -0400
+Message-ID: <015201c0eee0$4a6a9d80$1901a8c0@node0.idium.eu.org>
+From: "David Flynn" <Dave@keston.u-net.com>
+To: "Maciej Zenczykowski" <maze@druid.if.uj.edu.pl>,
+        "Kipp Cannon" <kipp@sgl.crestech.ca>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0106070057001.31904-100000@druid.if.uj.edu.pl>
+Subject: Re: temperature standard - global config option?
+Date: Thu, 7 Jun 2001 00:27:44 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-MDRemoteIP: 192.168.1.25
+X-Return-Path: Dave@keston.u-net.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recently I reported for 2.4.3 and 2.4.5 a failure to detect
-a USB CF card reader caused by the occurrence of a Unit Attention
-at boot time. An ugly solution is to remove this "error" in
-usb/storage/transport.c, but since this is perfectly normal
-SCSI behaviour, and can in principle occur with all kinds of
-hosts and drivers, it is probably better to test for Unit Attention
-is scan_scsis. (In the good old days we did TEST UNIT READY there,
-but not anymore.)
-No doubt the actual test will have to become more complicated,
-but I just wrote the minimum required to make my hardware work.
+> On Wed, 6 Jun 2001, Kipp Cannon wrote:
+>
+> > If the kernel tells me the temperature is 1 (one) what should that mean?
+> > If it's spitting out 0.1*<temperature in K> as people are claiming the
+> > ACPI stuff does then 1 means 10 kelvin or 1 dekakelvin, not a
+> >                                             ^^^^
+> > decikelvin as other people are saying they would prefer to see used.  Or
+> > are people being braindamaged and by "0.1*K" they mean that ACPI spits
+out
+> > 10*<temperature in K>?  Which would then mean that everyone does agree
+> > afterall that the unit should be a decikelvin although they don't
+> > necessarily know what multiplication means :-).
+>
+> I do believe that by 0.1*K everyone means a basic unit of 0.1 K, i.e. with
+> an int of 1 meaning 0.1 Kelvin, analogically 0.01*K meaning an int of 1
+> means 0.01 Kelvin - hence the proper names of deci and centi-Kelvins.
+>
+> Perosnally I believe we should take normal (32 bit) ints (perhaps more on
+> 64bit architectures?) and encode using 0.001*K (i.e. miliKelvins),
 
-The things other than in scsi_scan.c are just minor polishing.
-For example, sd.c printed an "extended sense code" that was in
-reality the sense key. I started adding ASC and ASCQ, but we
-already have a function for that in constants.c.
+One question here which has been bugging me all through this thread, is
+there any hardware that actually measures to that precision and accuracy ??
+certanally 0.1K intervals, but 0.01 ?, and at 0.001K intervals ? is this
+going ott ? and what use would people have with measureing system temp to
+0.01K precision ? --i would assume that the accuracy of the temp sensors is
+less than that...
 
-Andries
-
-diff -u --recursive --new-file ../linux-2.4.5/linux/drivers/scsi/constants.c ./linux/drivers/scsi/constants.c
---- ../linux-2.4.5/linux/drivers/scsi/constants.c	Mon Jan 15 22:08:15 2001
-+++ ./linux/drivers/scsi/constants.c	Thu Jun  7 00:36:41 2001
-@@ -689,7 +689,7 @@
- 			  kdev_t dev)
- {
-     int i, s;
--    int sense_class, valid, code;
-+    int sense_class, valid, code, info;
-     const char * error = NULL;
-     
-     sense_class = (sense_buffer[0] >> 4) & 0x07;
-@@ -701,11 +701,14 @@
- 	if(s > SCSI_SENSE_BUFFERSIZE)
- 	   s = SCSI_SENSE_BUFFERSIZE;
- 	
--	if (!valid)
--	    printk("[valid=0] ");
--	printk("Info fld=0x%x, ", (int)((sense_buffer[3] << 24) |
--	       (sense_buffer[4] << 16) | (sense_buffer[5] << 8) |
--	       sense_buffer[6]));
-+	info = ((sense_buffer[3] << 24) | (sense_buffer[4] << 16) |
-+		(sense_buffer[5] << 8) | sense_buffer[6]);
-+	if (info || !valid) {
-+		printk("Info fld=0x%x", info);
-+		if (!valid)	/* info data not according to standard */
-+			printk(" (nonstd)");
-+		printk(", ");
-+	}
- 	if (sense_buffer[2] & 0x80)
-            printk( "FMK ");	/* current command has read a filemark */
- 	if (sense_buffer[2] & 0x40)
-diff -u --recursive --new-file ../linux-2.4.5/linux/drivers/scsi/scsi_scan.c ./linux/drivers/scsi/scsi_scan.c
---- ../linux-2.4.5/linux/drivers/scsi/scsi_scan.c	Sun Apr  8 19:10:01 2001
-+++ ./linux/drivers/scsi/scsi_scan.c	Thu Jun  7 00:10:27 2001
-@@ -328,8 +328,8 @@
- 	}
- 
- 	/*
--	 * We need to increment the counter for this one device so we can track when
--	 * things are quiet.
-+	 * We need to increment the counter for this one device so we can track
-+	 * when things are quiet.
- 	 */
- 	if (hardcoded == 1) {
- 		Scsi_Device *oldSDpnt = SDpnt;
-@@ -485,8 +485,8 @@
- 	SDpnt->type = -1;
- 
- 	/*
--	 * Assume that the device will have handshaking problems, and then fix this
--	 * field later if it turns out it doesn't
-+	 * Assume that the device will have handshaking problems, and then fix
-+	 * this field later if it turns out it doesn't
- 	 */
- 	SDpnt->borken = 1;
- 	SDpnt->was_reset = 0;
-@@ -524,9 +524,21 @@
- 	SCSI_LOG_SCAN_BUS(3, printk("scsi: INQUIRY %s with code 0x%x\n",
- 		SRpnt->sr_result ? "failed" : "successful", SRpnt->sr_result));
- 
-+	/*
-+	 * Now that we don't do TEST_UNIT_READY anymore, we must be prepared
-+	 * for media change conditions here, so cannot require zero result.
-+	 */
- 	if (SRpnt->sr_result) {
--		scsi_release_request(SRpnt);
--		return 0;	/* assume no peripheral if any sort of error */
-+		if ((driver_byte(SRpnt->sr_result) & DRIVER_SENSE) != 0 &&
-+		    (SRpnt->sr_sense_buffer[2] & 0xf) == UNIT_ATTENTION &&
-+		    SRpnt->sr_sense_buffer[12] == 0x28 &&
-+		    SRpnt->sr_sense_buffer[13] == 0) {
-+			/* not-ready to ready transition - good */
-+		} else {
-+			/* assume no peripheral if any other sort of error */
-+			scsi_release_request(SRpnt);
-+			return 0;
-+		}
- 	}
- 
- 	/*
-diff -u --recursive --new-file ../linux-2.4.5/linux/drivers/scsi/sd.c ./linux/drivers/scsi/sd.c
---- ../linux-2.4.5/linux/drivers/scsi/sd.c	Fri May 25 18:54:50 2001
-+++ ./linux/drivers/scsi/sd.c	Wed Jun  6 23:58:46 2001
-@@ -861,8 +861,7 @@
- 		       driver_byte(the_result)
- 		    );
- 		if (driver_byte(the_result) & DRIVER_SENSE)
--			printk("%s : extended sense code = %1x \n",
--			       nbuff, SRpnt->sr_sense_buffer[2] & 0xf);
-+			print_req_sense("sd", SRpnt);
- 		else
- 			printk("%s : sense not available. \n", nbuff);
- 
-diff -u --recursive --new-file ../linux-2.4.5/linux/drivers/usb/storage/debug.c ./linux/drivers/usb/storage/debug.c
---- ../linux-2.4.5/linux/drivers/usb/storage/debug.c	Sat Sep  9 01:39:12 2000
-+++ ./linux/drivers/usb/storage/debug.c	Wed Jun  6 22:39:31 2001
-@@ -302,6 +302,8 @@
- 	case 0x1C00: what="defect list not found"; break;
- 	case 0x2400: what="invalid field in CDB"; break;
- 	case 0x2703: what="associated write protect"; break;
-+	case 0x2800: what="not ready to ready transition (media change?)";
-+		break;
- 	case 0x2903: what="bus device reset function occurred"; break;
- 	case 0x2904: what="device internal reset"; break;
- 	case 0x2B00: what="copy can't execute since host can't disconnect"; 
+well, there are my two cents ...
 
 
-PS - It is funny, I had added one more case to debug.c,
-and compiled, and booted, and the newly booted kernel
-has this additional code, but debug.c doesnt have it anymore,
-so probably it never reached disk before the reboot.
+> I do believe space is not an issue here and this leaves us the most
+> precision and logical system - Farenhait is screwed, and
+> Celsius/Centigrade are not to good since don't begin at absolute zero.
+>
+
+Farenhait is irritating, yes, and the brits that suggested it are becoming a
+dying bread, although still large in number, things more so use Celsius
+nowerdays.
+
+btw, the kelvin scale is a centigrade scale, like wise, so is the celsius
+scale ...
+
+
+Thanks,,
+Dave
+
+> Anyway just my two cents.
+>
+> Maciej.
+>
+
+

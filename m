@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262780AbSKHWmV>; Fri, 8 Nov 2002 17:42:21 -0500
+	id <S262796AbSKHW45>; Fri, 8 Nov 2002 17:56:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262796AbSKHWmV>; Fri, 8 Nov 2002 17:42:21 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:38128 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S262780AbSKHWmU>; Fri, 8 Nov 2002 17:42:20 -0500
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-To: linux-kernel@vger.kernel.org
-Subject: RFC: mmap(PROT_READ, MAP_SHARED) fails if !writepage.
-Mime-Version: 1.0
+	id <S262810AbSKHW45>; Fri, 8 Nov 2002 17:56:57 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:9866 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262796AbSKHW45>;
+	Fri, 8 Nov 2002 17:56:57 -0500
+From: Krishna Kumar <krkumar@us.ibm.com>
+Message-Id: <200211082302.gA8N2Fv16472@eng2.beaverton.ibm.com>
+Subject: [PATCH] memory leak in ndisc_router_discovery
+To: kuznet@ms2.inr.ac.ru, davem@redhat.com
+Date: Fri, 8 Nov 2002 15:02:15 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 08 Nov 2002 22:49:02 +0000
-Message-ID: <24305.1036795742@passion.cambridge.redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why does a _readonly_ mapping fail if the file system has no writepage 
-method? 
+Hi Alexey & Dave,
 
-do_mmap_pgoff() sets VM_MAYWRITE on the vma and then generic_file_mmap() 
-refuses to allow it. 
+There is a bug in router advertisement handling code, where the reference
+(and memory) to the inet6_dev pointer can get leaked. Following is the patch
+to fix it (patch against 2.5.46) :
 
-Suggested patch below.... or should I just hack fsx-linux to use 
-MAP_PRIVATE for its readonly mappings and ignore it?
+thanks,
 
---- 1.157/mm/filemap.c  Sun Nov  3 02:55:27 2002
-+++ edited/mm/filemap.c Fri Nov  8 22:08:22 2002
-@@ -1311,9 +1311,12 @@
-        struct address_space *mapping = file->f_dentry->d_inode->i_mapping;
-        struct inode *inode = mapping->host;
+- KK
 
--       if ((vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_MAYWRITE)) {
--               if (!mapping->a_ops->writepage)
-+       if ((vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_MAYWRITE) &&
-+           !mapping->a_ops->writepage) {
-+               if (vma->vm_flags & VM_WRITE)
-                        return -EINVAL;
-+               else
-+                       vma->vm_flags &= ~VM_MAYWRITE;
-        }
-        if (!mapping->a_ops->readpage)
-                return -ENOEXEC;
-
-
---
-dwmw2
-
-
+diff -ruN linux.org/net/ipv6/ndisc.c linux/net/ipv6/ndisc.c
+--- linux.org/net/ipv6/ndisc.c	Fri Nov  7 10:02:11 2002
++++ linux/net/ipv6/ndisc.c	Fri Nov  8 14:37:27 2002
+@@ -871,6 +871,7 @@
+ 	}
+ 
+ 	if (!ndisc_parse_options(opt, optlen, &ndopts)) {
++		in6_dev_put(in6_dev);
+ 		if (net_ratelimit())
+ 			ND_PRINTK2(KERN_WARNING
+ 				   "ICMP6 RA: invalid ND option, ignored.\n");

@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317463AbSHTWiK>; Tue, 20 Aug 2002 18:38:10 -0400
+	id <S317471AbSHTWn1>; Tue, 20 Aug 2002 18:43:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317471AbSHTWiK>; Tue, 20 Aug 2002 18:38:10 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:44168 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317463AbSHTWiJ>; Tue, 20 Aug 2002 18:38:09 -0400
-Date: Tue, 20 Aug 2002 15:45:03 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: davidm@hpl.hp.com
-cc: David Mosberger <davidm@napali.hpl.hp.com>, linux-kernel@vger.kernel.org,
-       linux-ia64@linuxia64.org
-Subject: Re: PCI Cleanup
-Message-ID: <69600000.1029883502@w-hlinder>
-In-Reply-To: <15714.48930.918372.268605@napali.hpl.hp.com>
-References: <36220000.1029866315@w-hlinder><15714.33709.181011.773290@napali.hpl.hp.com><39680000.1029868258@w-hlinder><15714.36383.143413.598935@napali.hpl.hp.com><68750000.1029881681@w-hlinder> <15714.48930.918372.268605@napali.hpl.hp.com>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S317488AbSHTWn1>; Tue, 20 Aug 2002 18:43:27 -0400
+Received: from mail2.fw-bc.sony.com ([160.33.98.69]:62983 "EHLO
+	mail2.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id <S317471AbSHTWn0>; Tue, 20 Aug 2002 18:43:26 -0400
+Message-ID: <3D62C6DD.9000306@itvd.sel.sony.com>
+Date: Tue, 20 Aug 2002 15:46:53 -0700
+From: Alex Pelts <alexp@itvd.sel.sony.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org, alexp@itvd.sel.sony.com
+Subject: mtdblock with gcc 2.95.4 patch
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Tuesday, August 20, 2002 15:13:54 -0700 David Mosberger <davidm@napali.hpl.hp.com> wrote:
+Hi,
+After installing new debian stable with gcc 2.95.4, kernel 2.4.17 
+stopped linking. The error is "undefined reference to local symbols...". 
+Problem seems to appear in different parts of the kernel at some time or 
+another. This is patch against 2.4.17 that I am using at this time. This 
+patch should apply to 2.4.18 and 2.4.19 as well. There seems to be 
+something tricky about __exit macro and 2.95.4 compiler.
+For people getting error:
+drivers/mtd/mtdlink.o(.text.lock+0x26c): undefined reference to `local 
+symbols in discarded section .text.exit'
 
-> 
->   Hanna> Should there have been another patch that would go before the
->   Hanna> 2.5.30 test patch on top of a kernel.org clean 2.5.30 kernel?
->   Hanna> It is not applying cleanly and before I dig into code Im not
->   Hanna> very familiar with I thought I would ask here. Yes, this is
->   Hanna> my first time on an ia64 system.
-> 
-> The patch should be self-contained.  Can you check whether your mailer
-> perhaps auto-wrapped long lines?
-> 
-> 	--david
-> 
+here is the patch that seems to fix it.
+Thanks,
+Alex
 
-I got it off the archives web site, that must have line wrapped. 
-Is there a place I could ftp it or could you mail it to me?
+--- linux/drivers/mtd/mtdblock.c	Thu Oct 25 13:58:35 2001
++++ linux-2.4.17/drivers/mtd/mtdblock.c	Tue Aug 20 14:13:38 2002
+@@ -641,7 +641,7 @@
+  	return 0;
+  }
 
-Thanks a lot.
-
-Hanna
-
-
+-static void __exit cleanup_mtdblock(void)
++static void __devexit cleanup_mtdblock(void)
+  {
+  	leaving = 1;
+  	wake_up(&thr_wq);
 

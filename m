@@ -1,288 +1,256 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262682AbUKLXvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262714AbUKLXxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262682AbUKLXvH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 18:51:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262722AbUKLXsO
+	id S262714AbUKLXxH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 18:53:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262722AbUKLXwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 18:48:14 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:58001 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262717AbUKLX0w convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 18:26:52 -0500
-Subject: Re: [PATCH] I2C fixes for 2.6.10-rc1
-In-Reply-To: <11003020051927@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 12 Nov 2004 15:26:45 -0800
-Message-Id: <11003020051859@kroah.com>
+	Fri, 12 Nov 2004 18:52:47 -0500
+Received: from pool-151-203-245-3.bos.east.verizon.net ([151.203.245.3]:19204
+	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S262714AbUKLXro (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 18:47:44 -0500
+Message-Id: <200411130200.iAD20dpT005849@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: akpm@osdl.org, Blaisorblade <blaisorblade_spam@yahoo.it>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/11] - UML 64-bit cleanups in the system calls
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 12 Nov 2004 21:00:39 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2096, 2004/11/12 13:21:22-08:00, paubert@iram.es
+[ The beginning of a series of 11 patches, the signal ones bang heavily on
+the same code, so merging will be much more pleasant if they are applied in
+order ]
 
-[PATCH] I2C: Recent I2C "dead code removal" breaks pmac sound.
+64-bit cleanup - this fixes the return values of the system calls to
+be longs.
 
-> Put the function back, and change the pmac.h file to delete the #define,
-> and replace the snd_pmac_keywest_write function with a real call to
-> i2c_smbus_write_block_data so things like this don't happen again.
->
-> Care to write a patch to do this?
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-It follows, along with an update of the include/linux/i2c.h to only
-declare functions that actually exist, but grepping the whole sound
-subtree shows that at least sound/oss/dmasound/tas_common.h defines
-a few inline functions that call i2c_smbus_write_{byte,block}_data.
-
-
-[I2C part]
-Ressuscitate i2c_smbus_write_block_data since it's actually
-used. Update include/linux/i2c.h to reflect the existing
-functions.
-
-[Sound part]
-Remove snd_pmac_keywest_write* wrapper macros and directly
-call the i2c_smbus_* functions instead.
-
-Signed-off-by: Gabriel Paubert <paubert@iram.es>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
-===== include/linux/i2c.h 1.41 vs edited =====
-
-
- drivers/i2c/i2c-core.c |   17 +++++++++++++++++
- include/linux/i2c.h    |   16 ++++------------
- sound/ppc/daca.c       |   24 +++++++++++++-----------
- sound/ppc/pmac.h       |    2 --
- sound/ppc/tumbler.c    |   41 +++++++++++++++++++++++------------------
- 5 files changed, 57 insertions(+), 43 deletions(-)
-
-
-diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
---- a/drivers/i2c/i2c-core.c	2004-11-12 15:22:30 -08:00
-+++ b/drivers/i2c/i2c-core.c	2004-11-12 15:22:30 -08:00
-@@ -1021,6 +1021,22 @@
- 	                      I2C_SMBUS_WORD_DATA,&data);
+Index: 2.6.9/arch/um/include/syscall_user.h
+===================================================================
+--- 2.6.9.orig/arch/um/include/syscall_user.h	2004-11-08 19:14:45.000000000 -0500
++++ 2.6.9/arch/um/include/syscall_user.h	2004-11-12 13:31:46.000000000 -0500
+@@ -7,7 +7,7 @@
+ #define __SYSCALL_USER_H
+ 
+ extern int record_syscall_start(int syscall);
+-extern void record_syscall_end(int index, int result);
++extern void record_syscall_end(int index, long result);
+ 
+ #endif
+ 
+Index: 2.6.9/arch/um/kernel/exec_kern.c
+===================================================================
+--- 2.6.9.orig/arch/um/kernel/exec_kern.c	2004-11-08 19:14:45.000000000 -0500
++++ 2.6.9/arch/um/kernel/exec_kern.c	2004-11-12 13:31:46.000000000 -0500
+@@ -34,9 +34,9 @@
+ 
+ extern void log_exec(char **argv, void *tty);
+ 
+-static int execve1(char *file, char **argv, char **env)
++static long execve1(char *file, char **argv, char **env)
+ {
+-        int error;
++        long error;
+ 
+ #ifdef CONFIG_TTY_LOG
+ 	log_exec(argv, current->tty);
+@@ -51,19 +51,19 @@
+         return(error);
  }
  
-+/* Returns the number of bytes transferred */
-+s32 i2c_smbus_write_block_data(struct i2c_client *client, u8 command,
-+			       u8 length, u8 *values)
-+{
-+	union i2c_smbus_data data;
-+	int i;
-+	if (length > I2C_SMBUS_BLOCK_MAX)
-+		length = I2C_SMBUS_BLOCK_MAX;
-+	for (i = 1; i <= length; i++)
-+		data.block[i] = values[i-1];
-+	data.block[0] = length;
-+	return i2c_smbus_xfer(client->adapter,client->addr,client->flags,
-+			      I2C_SMBUS_WRITE,command,
-+			      I2C_SMBUS_BLOCK_DATA,&data);
-+}
-+
- /* Returns the number of read bytes */
- s32 i2c_smbus_block_process_call(struct i2c_client *client, u8 command, u8 length, u8 *values)
+-int um_execve(char *file, char **argv, char **env)
++long um_execve(char *file, char **argv, char **env)
  {
-@@ -1279,6 +1295,7 @@
- EXPORT_SYMBOL(i2c_smbus_write_byte_data);
- EXPORT_SYMBOL(i2c_smbus_read_word_data);
- EXPORT_SYMBOL(i2c_smbus_write_word_data);
-+EXPORT_SYMBOL(i2c_smbus_write_block_data);
- EXPORT_SYMBOL(i2c_smbus_read_i2c_block_data);
- 
- EXPORT_SYMBOL(i2c_get_functionality);
-diff -Nru a/include/linux/i2c.h b/include/linux/i2c.h
---- a/include/linux/i2c.h	2004-11-12 15:22:30 -08:00
-+++ b/include/linux/i2c.h	2004-11-12 15:22:30 -08:00
-@@ -88,20 +88,12 @@
- extern s32 i2c_smbus_read_word_data(struct i2c_client * client, u8 command);
- extern s32 i2c_smbus_write_word_data(struct i2c_client * client,
-                                      u8 command, u16 value);
--extern s32 i2c_smbus_process_call(struct i2c_client * client,
--                                  u8 command, u16 value);
--/* Returns the number of read bytes */
--extern s32 i2c_smbus_read_block_data(struct i2c_client * client,
--                                     u8 command, u8 *values);
-+/* Returns the number of bytes transferred */
- extern s32 i2c_smbus_write_block_data(struct i2c_client * client,
--                                      u8 command, u8 length,
--                                      u8 *values);
-+				      u8 command, u8 length,
-+				      u8 *values);
- extern s32 i2c_smbus_read_i2c_block_data(struct i2c_client * client,
--                                         u8 command, u8 *values);
--extern s32 i2c_smbus_write_i2c_block_data(struct i2c_client * client,
--                                          u8 command, u8 length,
--                                          u8 *values);
+-	int err;
 -
-+					 u8 command, u8 *values);
- 
- /*
-  * A driver is capable of handling one or more physical devices present on
-diff -Nru a/sound/ppc/daca.c b/sound/ppc/daca.c
---- a/sound/ppc/daca.c	2004-11-12 15:22:30 -08:00
-+++ b/sound/ppc/daca.c	2004-11-12 15:22:30 -08:00
-@@ -56,10 +56,11 @@
- 	unsigned short wdata = 0x00;
- 	/* SR: no swap, 1bit delay, 32-48kHz */
- 	/* GCFG: power amp inverted, DAC on */
--	if (snd_pmac_keywest_write_byte(i2c, DACA_REG_SR, 0x08) < 0 ||
--	    snd_pmac_keywest_write_byte(i2c, DACA_REG_GCFG, 0x05) < 0)
-+	if (i2c_smbus_write_byte_data(i2c->client, DACA_REG_SR, 0x08) < 0 ||
-+	    i2c_smbus_write_byte_data(i2c->client, DACA_REG_GCFG, 0x05) < 0)
- 		return -EINVAL;
--	return snd_pmac_keywest_write(i2c, DACA_REG_AVOL, 2, (unsigned char*)&wdata);
-+	return i2c_smbus_write_block_data(i2c->client, DACA_REG_AVOL,
-+					  2, (unsigned char*)&wdata);
++	long err;
++	
+ 	err = execve1(file, argv, env);
+-	if(!err) 
++	if(!err)
+ 		do_longjmp(current->thread.exec_buf, 1);
+ 	return(err);
  }
  
- /*
-@@ -81,9 +82,10 @@
- 	else
- 		data[1] = mix->right_vol;
- 	data[1] |= mix->deemphasis ? 0x40 : 0;
--	if (snd_pmac_keywest_write(&mix->i2c, DACA_REG_AVOL, 2, data) < 0) {
--		snd_printk("failed to set volume \n");  
--		return -EINVAL; 
-+	if (i2c_smbus_write_block_data(mix->i2c.client, DACA_REG_AVOL,
-+				       2, data) < 0) {
-+		snd_printk("failed to set volume \n");
-+		return -EINVAL;
- 	}
- 	return 0;
- }
-@@ -188,8 +190,8 @@
- 	change = mix->amp_on != ucontrol->value.integer.value[0];
- 	if (change) {
- 		mix->amp_on = ucontrol->value.integer.value[0];
--		snd_pmac_keywest_write_byte(&mix->i2c, DACA_REG_GCFG,
--					    mix->amp_on ? 0x05 : 0x04);
-+		i2c_smbus_write_byte_data(mix->i2c.client, DACA_REG_GCFG,
-+					  mix->amp_on ? 0x05 : 0x04);
- 	}
- 	return change;
- }
-@@ -220,9 +222,9 @@
- static void daca_resume(pmac_t *chip)
+-int sys_execve(char *file, char **argv, char **env)
++long sys_execve(char *file, char **argv, char **env)
  {
- 	pmac_daca_t *mix = chip->mixer_data;
--	snd_pmac_keywest_write_byte(&mix->i2c, DACA_REG_SR, 0x08);
--	snd_pmac_keywest_write_byte(&mix->i2c, DACA_REG_GCFG,
--				    mix->amp_on ? 0x05 : 0x04);
-+	i2c_smbus_write_byte_data(mix->i2c.client, DACA_REG_SR, 0x08);
-+	i2c_smbus_write_byte_data(mix->i2c.client, DACA_REG_GCFG,
-+				  mix->amp_on ? 0x05 : 0x04);
- 	daca_set_volume(mix);
- }
- #endif /* CONFIG_PMAC_PBOOK */
-diff -Nru a/sound/ppc/pmac.h b/sound/ppc/pmac.h
---- a/sound/ppc/pmac.h	2004-11-12 15:22:30 -08:00
-+++ b/sound/ppc/pmac.h	2004-11-12 15:22:30 -08:00
-@@ -199,8 +199,6 @@
+-	int error;
++	long error;
+ 	char *filename;
  
- int snd_pmac_keywest_init(pmac_keywest_t *i2c);
- void snd_pmac_keywest_cleanup(pmac_keywest_t *i2c);
--#define snd_pmac_keywest_write(i2c,cmd,len,data) i2c_smbus_write_block_data((i2c)->client, cmd, len, data)
--#define snd_pmac_keywest_write_byte(i2c,cmd,data) i2c_smbus_write_byte_data((i2c)->client, cmd, data)
+ 	lock_kernel();
+Index: 2.6.9/arch/um/kernel/ptrace.c
+===================================================================
+--- 2.6.9.orig/arch/um/kernel/ptrace.c	2004-11-12 13:24:54.000000000 -0500
++++ 2.6.9/arch/um/kernel/ptrace.c	2004-11-12 13:31:46.000000000 -0500
+@@ -26,7 +26,7 @@
+ 	child->thread.singlestep_syscall = 0;
+ }
  
- /* misc */
- int snd_pmac_boolean_stereo_info(snd_kcontrol_t *kcontrol, snd_ctl_elem_info_t *uinfo);
-diff -Nru a/sound/ppc/tumbler.c b/sound/ppc/tumbler.c
---- a/sound/ppc/tumbler.c	2004-11-12 15:22:30 -08:00
-+++ b/sound/ppc/tumbler.c	2004-11-12 15:22:30 -08:00
-@@ -109,7 +109,8 @@
- 	while (*regs > 0) {
- 		int err, count = 10;
- 		do {
--			err =  snd_pmac_keywest_write_byte(i2c, regs[0], regs[1]);
-+			err = i2c_smbus_write_byte_data(i2c->client,
-+							regs[0], regs[1]);
- 			if (err >= 0)
- 				break;
- 			mdelay(10);
-@@ -220,9 +221,10 @@
- 	block[4] = (right_vol >> 8)  & 0xff;
- 	block[5] = (right_vol >> 0)  & 0xff;
-   
--	if (snd_pmac_keywest_write(&mix->i2c, TAS_REG_VOL, 6, block) < 0) {
--		snd_printk("failed to set volume \n");  
--		return -EINVAL; 
-+	if (i2c_smbus_write_block_data(mix->i2c.client, TAS_REG_VOL,
-+				       6, block) < 0) {
-+		snd_printk("failed to set volume \n");
-+		return -EINVAL;
- 	}
- 	return 0;
- }
-@@ -320,9 +322,10 @@
- 		val[1] = 0;
- 	}
- 
--	if (snd_pmac_keywest_write(&mix->i2c, TAS_REG_DRC, 2, val) < 0) {
--		snd_printk("failed to set DRC\n");  
--		return -EINVAL; 
-+	if (i2c_smbus_write_block_data(mix->i2c.client, TAS_REG_DRC,
-+				       2, val) < 0) {
-+		snd_printk("failed to set DRC\n");
-+		return -EINVAL;
- 	}
- 	return 0;
- }
-@@ -355,9 +358,10 @@
- 	val[4] = 0x60;
- 	val[5] = 0xa0;
- 
--	if (snd_pmac_keywest_write(&mix->i2c, TAS_REG_DRC, 6, val) < 0) {
--		snd_printk("failed to set DRC\n");  
--		return -EINVAL; 
-+	if (i2c_smbus_write_block_data(mix->i2c.client, TAS_REG_DRC,
-+				       6, val) < 0) {
-+		snd_printk("failed to set DRC\n");
-+		return -EINVAL;
- 	}
- 	return 0;
- }
-@@ -459,9 +463,10 @@
- 	vol = info->table[vol];
- 	for (i = 0; i < info->bytes; i++)
- 		block[i] = (vol >> ((info->bytes - i - 1) * 8)) & 0xff;
--	if (snd_pmac_keywest_write(&mix->i2c, info->reg, info->bytes, block) < 0) {
--		snd_printk("failed to set mono volume %d\n", info->index);  
--		return -EINVAL; 
-+	if (i2c_smbus_write_block_data(mix->i2c.client, info->reg,
-+				       info->bytes, block) < 0) {
-+		snd_printk("failed to set mono volume %d\n", info->index);
-+		return -EINVAL;
- 	}
- 	return 0;
- }
-@@ -588,9 +593,9 @@
- 		for (j = 0; j < 3; j++)
- 			block[i * 3 + j] = (vol >> ((2 - j) * 8)) & 0xff;
- 	}
--	if (snd_pmac_keywest_write(&mix->i2c, reg, 9, block) < 0) {
--		snd_printk("failed to set mono volume %d\n", reg);  
--		return -EINVAL; 
-+	if (i2c_smbus_write_block_data(mix->i2c.client, reg, 9, block) < 0) {
-+		snd_printk("failed to set mono volume %d\n", reg);
-+		return -EINVAL;
- 	}
- 	return 0;
- }
-@@ -689,8 +694,8 @@
+-int sys_ptrace(long request, long pid, long addr, long data)
++long sys_ptrace(long request, long pid, long addr, long data)
  {
- 	if (! mix->i2c.client)
- 		return -ENODEV;
--	return snd_pmac_keywest_write_byte(&mix->i2c, TAS_REG_ACS,
--					   mix->capture_source ? 2 : 0);
-+	return i2c_smbus_write_byte_data(mix->i2c.client, TAS_REG_ACS,
-+					 mix->capture_source ? 2 : 0);
+ 	struct task_struct *child;
+ 	int i, ret;
+Index: 2.6.9/arch/um/kernel/signal_kern.c
+===================================================================
+--- 2.6.9.orig/arch/um/kernel/signal_kern.c	2004-11-12 13:26:07.000000000 -0500
++++ 2.6.9/arch/um/kernel/signal_kern.c	2004-11-12 18:05:29.000000000 -0500
+@@ -167,7 +167,7 @@
+ /*
+  * Atomically swap in the new signal mask, and wait for a signal.
+  */
+-int sys_sigsuspend(int history0, int history1, old_sigset_t mask)
++long sys_sigsuspend(int history0, int history1, old_sigset_t mask)
+ {
+ 	sigset_t saveset;
+ 
+@@ -187,7 +187,7 @@
+ 	}
  }
  
- static int snapper_info_capture_source(snd_kcontrol_t *kcontrol, snd_ctl_elem_info_t *uinfo)
+-int sys_rt_sigsuspend(sigset_t __user *unewset, size_t sigsetsize)
++long sys_rt_sigsuspend(sigset_t __user *unewset, size_t sigsetsize)
+ {
+ 	sigset_t saveset, newset;
+ 
+@@ -245,7 +245,7 @@
+ 	return ret;
+ }
+ 
+-int sys_sigaltstack(const stack_t *uss, stack_t *uoss)
++long sys_sigaltstack(const stack_t *uss, stack_t *uoss)
+ {
+ 	return(do_sigaltstack(uss, uoss, PT_REGS_SP(&current->thread.regs)));
+ }
+@@ -263,7 +263,7 @@
+ 	return(ret);
+ }
+ 
+-int sys_sigreturn(struct pt_regs regs)
++long sys_sigreturn(struct pt_regs regs)
+ {
+ 	void __user *sc = sp_to_sc(PT_REGS_SP(&current->thread.regs));
+ 	void __user *mask = sp_to_mask(PT_REGS_SP(&current->thread.regs));
+@@ -281,7 +281,7 @@
+ 	return(PT_REGS_SYSCALL_RET(&current->thread.regs));
+ }
+ 
+-int sys_rt_sigreturn(struct pt_regs regs)
++long sys_rt_sigreturn(struct pt_regs regs)
+ {
+ 	unsigned long sp = PT_REGS_SP(&current->thread.regs);
+ 	struct ucontext __user *uc = sp_to_uc(sp);
+Index: 2.6.9/arch/um/kernel/syscall_kern.c
+===================================================================
+--- 2.6.9.orig/arch/um/kernel/syscall_kern.c	2004-11-08 19:14:45.000000000 -0500
++++ 2.6.9/arch/um/kernel/syscall_kern.c	2004-11-12 13:31:46.000000000 -0500
+@@ -104,11 +104,11 @@
+ 	unsigned long offset;
+ };
+ 
+-int old_mmap(unsigned long addr, unsigned long len,
++long old_mmap(unsigned long addr, unsigned long len,
+ 	     unsigned long prot, unsigned long flags,
+ 	     unsigned long fd, unsigned long offset)
+ {
+-	int err = -EINVAL;
++	long err = -EINVAL;
+ 	if (offset & ~PAGE_MASK)
+ 		goto out;
+ 
+@@ -120,10 +120,10 @@
+  * sys_pipe() is the normal C calling standard for creating
+  * a pipe. It's not the way unix traditionally does this, though.
+  */
+-int sys_pipe(unsigned long * fildes)
++long sys_pipe(unsigned long * fildes)
+ {
+         int fd[2];
+-        int error;
++        long error;
+ 
+         error = do_pipe(fd);
+         if (!error) {
+@@ -218,9 +218,9 @@
+ 	}
+ }
+ 
+-int sys_uname(struct old_utsname * name)
++long sys_uname(struct old_utsname * name)
+ {
+-	int err;
++	long err;
+ 	if (!name)
+ 		return -EFAULT;
+ 	down_read(&uts_sem);
+@@ -229,9 +229,9 @@
+ 	return err?-EFAULT:0;
+ }
+ 
+-int sys_olduname(struct oldold_utsname * name)
++long sys_olduname(struct oldold_utsname * name)
+ {
+-	int error;
++	long error;
+ 
+ 	if (!name)
+ 		return -EFAULT;
+Index: 2.6.9/arch/um/kernel/syscall_user.c
+===================================================================
+--- 2.6.9.orig/arch/um/kernel/syscall_user.c	2004-11-08 19:14:45.000000000 -0500
++++ 2.6.9/arch/um/kernel/syscall_user.c	2004-11-12 13:31:46.000000000 -0500
+@@ -11,7 +11,7 @@
+ struct {
+ 	int syscall;
+ 	int pid;
+-	int result;
++	long result;
+ 	struct timeval start;
+ 	struct timeval end;
+ } syscall_record[1024];
+@@ -30,7 +30,7 @@
+ 	return(index);
+ }
+ 
+-void record_syscall_end(int index, int result)
++void record_syscall_end(int index, long result)
+ {
+ 	syscall_record[index].result = result;
+ 	gettimeofday(&syscall_record[index].end, NULL);
+Index: 2.6.9/include/asm-um/unistd.h
+===================================================================
+--- 2.6.9.orig/include/asm-um/unistd.h	2004-11-08 19:14:45.000000000 -0500
++++ 2.6.9/include/asm-um/unistd.h	2004-11-12 13:31:46.000000000 -0500
+@@ -84,7 +84,7 @@
+ 	KERNEL_CALL(pid_t, sys_setsid)
+ }
+ 
+-static inline long lseek(unsigned int fd, off_t offset, unsigned int whence)
++static inline off_t lseek(unsigned int fd, off_t offset, unsigned int whence)
+ {
+ 	KERNEL_CALL(long, sys_lseek, fd, offset, whence)
+ }
+@@ -102,13 +102,12 @@
+ long sys_mmap2(unsigned long addr, unsigned long len,
+ 		unsigned long prot, unsigned long flags,
+ 		unsigned long fd, unsigned long pgoff);
+-int sys_execve(char *file, char **argv, char **env);
++long sys_execve(char *file, char **argv, char **env);
+ long sys_clone(unsigned long clone_flags, unsigned long newsp,
+ 		int *parent_tid, int *child_tid);
+ long sys_fork(void);
+ long sys_vfork(void);
+-int sys_pipe(unsigned long *fildes);
+-int sys_ptrace(long request, long pid, long addr, long data);
++long sys_pipe(unsigned long *fildes);
+ struct sigaction;
+ asmlinkage long sys_rt_sigaction(int sig,
+ 				const struct sigaction __user *act,
 

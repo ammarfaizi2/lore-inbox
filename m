@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317110AbSGXNNX>; Wed, 24 Jul 2002 09:13:23 -0400
+	id <S317176AbSGXNP6>; Wed, 24 Jul 2002 09:15:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317112AbSGXNNW>; Wed, 24 Jul 2002 09:13:22 -0400
-Received: from rogue.ncsl.nist.gov ([129.6.101.41]:55760 "EHLO
-	rogue.ncsl.nist.gov") by vger.kernel.org with ESMTP
-	id <S317110AbSGXNM4>; Wed, 24 Jul 2002 09:12:56 -0400
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Boot problem, 2.4.19-rc3-ac1
-From: Ian Soboroff <ian.soboroff@nist.gov>
-Date: 24 Jul 2002 09:16:05 -0400
-Message-ID: <9cfu1mp5kru.fsf@rogue.ncsl.nist.gov>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S317180AbSGXNP6>; Wed, 24 Jul 2002 09:15:58 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:59149 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317176AbSGXNP5>; Wed, 24 Jul 2002 09:15:57 -0400
+Message-ID: <3D3EA801.5090608@evision.ag>
+Date: Wed, 24 Jul 2002 15:13:37 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] irqlock patch 2.5.27-H4
+References: <Pine.SOL.4.30.0207241505430.15605-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bartlomiej Zolnierkiewicz wrote:
+> On Wed, 24 Jul 2002, Ingo Molnar wrote:
+> 
+> 
+>>the latest irqlock patch can be found at:
+>>
+>>   http://redhat.com/~mingo/remove-irqlock-patches/remove-irqlock-2.5.27-H4
+>>
+>>Changes in -H4:
+>>
+>> - fix the cli()/sti() hack in ide/main.c, per Marcin Dalecki's
+>>   suggestion. [this leaves the tty layer as the only remaining subsystem
+>>   that still has cli()/sti() related hacks.]
+> 
+> 
+> Hi Ingo,
+> 
+> Marcin's suggestions will bring you nowhere.
+> 
+> You should remove all these locking from ide_unregister_subdriver()
+> because in 100% cases it is already called with ide_lock held.
 
-Alan,
+Indeed they can be just removed.
 
-2.4.19-rc3-ac1 hangs on boot on my laptop (Fujitsu P-series, TM5800
-CPU), whereas plain[1] rc3 boots fine.  The hang appears to be during IDE
-detection:
-
-...
-block: 704 slots per queue, batch=176
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=XX
-ALI15X3: IDE controller on PCI bus 00 dev 78
-PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try using pci=biosirq
-ALI15X3: chipset revision 195
-ALI15X3: not 100% native mode: will probe irqs later
-
-With rc-3, I get this same error unless I have 'ide0=ata66 ide1=ata66'
-on the kernel command line.  However, -ac1 hangs with or without these
-options.
-
-
-
-[1] Actually, two one-liner patches... one to extend the ext3 journal
-commit interval to 30 seconds, and another to fix suspend issues in
-sound/trident.c.

@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316375AbSEWKVg>; Thu, 23 May 2002 06:21:36 -0400
+	id <S316434AbSEWLFm>; Thu, 23 May 2002 07:05:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316431AbSEWKVf>; Thu, 23 May 2002 06:21:35 -0400
-Received: from mailhost.mipsys.com ([62.161.177.33]:62151 "EHLO
-	mailhost.mipsys.com") by vger.kernel.org with ESMTP
-	id <S316375AbSEWKVf>; Thu, 23 May 2002 06:21:35 -0400
-From: <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Halil Demirezen <halild@bilmuh.ege.edu.tr>, <linux-kernel@vger.kernel.org>
-Subject: Re: Support for HCF modem.?
-Date: Wed, 22 May 2002 22:40:30 +0200
-Message-Id: <20020522204030.30304@mailhost.mipsys.com>
-In-Reply-To: <20020522201327.GA162@elf.ucw.cz>
-X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
+	id <S316456AbSEWLFl>; Thu, 23 May 2002 07:05:41 -0400
+Received: from [194.228.240.2] ([194.228.240.2]:55818 "EHLO chudak.century.cz")
+	by vger.kernel.org with ESMTP id <S316434AbSEWLFk>;
+	Thu, 23 May 2002 07:05:40 -0400
+Message-ID: <3CECCCDC.8030709@century.cz>
+Date: Thu, 23 May 2002 13:05:00 +0200
+From: Petr Titera <P.Titera@century.cz>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.0+) Gecko/20020519
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: ipfwadm problems
+In-Reply-To: <003301c201c5$04af5620$3701a8c0@maranti.com> 	<017201c201ca$13054810$320e10ac@irvine.hnc.com> <1022139239.265.0.camel@ADMIN>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AntiVirus: OK (checked by AntiVir Version 6.10.0.16)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > Is there any driver for the HCF Conexant PCI modem in the latest kernel?
->> 
->> Conexant have not afaik released source code or documentation, so
-don't hold
->> your breath
->
->Actually, both source code and docs is useless for winmodems, at least
->until someone writes v.34 stack :-(.
+Frank Schaefer wrote:
 
-There is a driver for these. The driver shell is open sourced but links
-against
-a binary lib containing the soft modem core from conexant.
+> 
+> BTW: A collegue of mine has the problem, that a host has 4 NICs; 2 to
+> the LAN and 2 to the internet. Packets coming from LAN NIC 1 shall be
+> forwarded through WWW NIC 1 and Packets from LAN NIC 2 through WWW NIC
+> 2. Is there any way to perform this on a 2.2.x kernel using ipchains?
 
-The driver is maintained by Marc Boucher and available at
+It can be done with advanced routing (look at www.lartc.org). You can 
+specify different routing tables for each interface.
 
-<http://www.mbsi.ca/cnxtlindrv/>
+> And even whorse; They need destination NAT in the reverse manner of the
+> above.
+> 
 
-Ben.
+With ipchains it can be tricky with iptables it is a piece of cake :)
+
+Petr Titera
+P.Titera@century.cz
+
+
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
 

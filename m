@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264879AbUASM6R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 07:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUASM6R
+	id S264604AbUASM5I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 07:57:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264879AbUASM5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 07:58:17 -0500
-Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:30922 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S264879AbUASM6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 07:58:14 -0500
-Date: Mon, 19 Jan 2004 13:58:07 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: No module sym53c8xx found for kernel 2.6.1
-Message-ID: <20040119125807.GA15292@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <400BC220.6070909@ms.sapientia.ro>
+	Mon, 19 Jan 2004 07:57:08 -0500
+Received: from ctb-mesg6.saix.net ([196.25.240.78]:34779 "EHLO
+	ctb-mesg6.saix.net") by vger.kernel.org with ESMTP id S264604AbUASM5G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 07:57:06 -0500
+Subject: Re: PROBLEM: ISDN CAPI (avm b1pci) doesn't work, occasionally
+	freezes Kernel (2.6.1)
+From: fcp <fcp@pop.co.za>
+To: "Georg C. F. Greve" <greve@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m3r7xwqjue.fsf@reason.gnu-hamburg>
+References: <200401181746.i0IHkO2G002776@reason.gnu-hamburg>
+	 <1074468927.2722.2.camel@server>  <m3r7xwqjue.fsf@reason.gnu-hamburg>
+Content-Type: text/plain
+Message-Id: <1074531587.1833.5.camel@server>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <400BC220.6070909@ms.sapientia.ro>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 19 Jan 2004 14:59:48 -0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jan 2004, Budai Laszlo wrote:
+On Mon, 2004-01-19 at 09:05, Georg C. F. Greve wrote:
+>  || On Sun, 18 Jan 2004 21:35:27 -0200
+>  || fcp <fcp@pop.co.za> wrote: 
+> 
+>  f> I had similar problems. Running RH9, 2.6.1, W6692 pci card. Spent
+>  f> quite some time chasing this and in the end installed mISDN beta
+>  f> and it worked the first time. No nonsense. Hope this helps
+> 
+> Thanks.
+> 
+> I wonder. If it is a known problem that ISDN doesn't work for multiple
+> cards in 2.6.1: Are there plans to incorporate mISDN officially?
+> 
+> Regards,
+> Georg
 
-> Hi there,
-> 
-> I try to compile the 2.6.1 kernel downloaded from www.kernel.org.
-> 
-> Everything seems ok until I give the "make install" command when I got 
-> the following message:
-> 
-> [root@fuji linux-2.6.1]# make install
-> make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
->   CHK     include/linux/compile.h
-> Kernel: arch/i386/boot/bzImage is ready
-> sh /root/linux-2.6.1/arch/i386/boot/install.sh 2.6.1 
-> arch/i386/boot/bzImage System.map ""
-> No module sym53c8xx found for kernel 2.6.1
-> mkinitrd failed
-> make[1]: *** [install] Error 1
-> make: *** [install] Error 2
-> 
-> 
-> The module sym53c8xx is in the linux-2.6.1/drivers/scsi/sym53c8xx_2 
-> directory but it seems that there is some problem with it.
+Don't know but you could ask Fritz at isdn4linux.de.  
 
-Is your mkinitrd script ready to install 2.6? Check
-Documentation/Changes for any necessary tool updates.
+He advised me this morning that the latest i4l cvs branch kernel26
+version (old isdn system) fixes the problems we are having with the
+2.6.1 kernel. Haven't had a chance to test this yet.
 
--- 
-Matthias Andree
-
-Encrypt your mail: my GnuPG key ID is 0x052E7D95

@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270253AbRHMPWO>; Mon, 13 Aug 2001 11:22:14 -0400
+	id <S270247AbRHMPVe>; Mon, 13 Aug 2001 11:21:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270252AbRHMPWF>; Mon, 13 Aug 2001 11:22:05 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:18192 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S270250AbRHMPWA>;
-	Mon, 13 Aug 2001 11:22:00 -0400
-Date: Mon, 13 Aug 2001 17:22:11 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH 2.4.8 and 2.4.8-ac2] sonypi driver documentation updates.
-Message-ID: <20010813172211.K24523@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+	id <S270250AbRHMPVY>; Mon, 13 Aug 2001 11:21:24 -0400
+Received: from [65.100.125.89] ([65.100.125.89]:62962 "EHLO golux.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S270247AbRHMPVO>;
+	Mon, 13 Aug 2001 11:21:14 -0400
+Date: Mon, 13 Aug 2001 11:18:50 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: S2464 (K7 Thunder) hangs -- some lessons learned
+Message-ID: <20010813111850.D21008@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010812212430.A9300@thyrsus.com> <E15WGvO-0007Ig-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.20i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15WGvO-0007Ig-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Aug 13, 2001 at 01:34:30PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > Alas, the 2.4.8+ emu10k1 driver does not completely banish the K7 Thunder
+> > lockups problem.  It makes them a lot rarer, though, and enabled us to get
+> > to the next level of diagnosis.
+> 
+> What version of the chipset do you have. The current ones can hang
+> the PCI bus during IDE transfers if you have IDE read/write prefetch
+> enabled in the bios setup.
 
-This patch updates the documentation for the sonypi driver, 
-reporting some issues found by several users.
+I don't know what version we have.  Is there a way to query it through /proc?
 
-Linus, Alan, please apply.
+We have IDE disabled in the BIOS, so we're not likely to see this bug.
 
---- linux-2.4.8-ac2.orig/Documentation/sonypi.txt	Wed Jul  4 23:41:33 2001
-+++ linux-2.4.8-ac2/Documentation/sonypi.txt	Mon Aug 13 17:19:34 2001
-@@ -65,6 +65,19 @@
- Bugs:
- -----
- 
-+	- several users reported that this driver disables the BIOS-managed
-+	  Fn-keys which put the laptop in sleeping state, or switch the
-+	  external monitor on/off. There is no workaround yet, since this
-+	  driver disables all APM management for those keys, by enabling the
-+	  ACPI management (and the ACPI core stuff is not complete yet). If
-+	  you have one of those laptops with working Fn keys and want to 
-+	  continue to use them, don't use this driver.
-+
-+	- some users reported that the laptop speed is lower (dhrystone
-+	  tested) when using the driver with the fnkeyinit parameter. I cannot
-+	  reproduce it on my laptop and not all users have this problem.
-+	  Still under investigation.
-+	
- 	- since all development was done by reverse engineering, there is
- 	  _absolutely no guarantee_ that this driver will not crash your
- 	  laptop. Permanently.
+> It also has problems with the APIC implementation where an IRQ masked in
+> the APIC re-occurs which can hang the system. Worrying this one is marked
+> 'nofix'. You might want to trying running "noapic"
+
+I'll bear that in mind if the lockups recur.  I'll copy this to Gary, who
+might find himself building IDE systems around this board.
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|---------------- Free Software Engineer -----------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|------------- Alcôve, liberating software ---------------|
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+"America is at that awkward stage.  It's too late to work within the system,
+but too early to shoot the bastards."
+	-- Claire Wolfe

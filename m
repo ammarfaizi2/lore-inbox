@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270093AbTGUN1e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 09:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270094AbTGUN1e
+	id S270094AbTGUN2C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 09:28:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270103AbTGUN2B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 09:27:34 -0400
-Received: from sina187-156.sina.com.cn ([202.106.187.156]:9993 "HELO sina.com")
-	by vger.kernel.org with SMTP id S270093AbTGUN1d (ORCPT
+	Mon, 21 Jul 2003 09:28:01 -0400
+Received: from netrealtor.ca ([216.209.85.42]:3082 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id S270094AbTGUN17 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 09:27:33 -0400
-Message-ID: <3F1C613C.6070109@sina.com>
-Date: Mon, 21 Jul 2003 21:55:08 +0000
-From: snoopyzwe <snoopyzwe@sina.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; zh-CN; rv:1.2.1) Gecko/20021130
-X-Accept-Language: zh-cn,zh
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: how to calculate the system idle time
-References: <3F1C570E.8080607@sina.com> <Pine.LNX.4.53.0307210935180.17719@chaos>
-In-Reply-To: <Pine.LNX.4.53.0307210935180.17719@chaos>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jul 2003 09:27:59 -0400
+Date: Mon, 21 Jul 2003 09:42:47 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: RAMON_GARCIA_F <RAMON_GARCIA_F@terra.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Suggestion for a new system call: convert file handle to a cookie for transfering file handles between processes.
+Message-ID: <20030721134247.GA14943@mark.mielke.cc>
+References: <4cace4bf68.4bf684cace@teleline.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4cace4bf68.4bf684cace@teleline.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thanks for you advice
-one foolish question
-what "top" means?
-could you tell me more about how to watch the system?
-thank you very much
-I am a newbie
+On Mon, Jul 21, 2003 at 11:49:15AM +0200, RAMON_GARCIA_F wrote:
+> Although it is posible to use unix sockets, my proposal
+> integrates better with shell scripts.
 
->On Mon, 21 Jul 2003, snoopyzwe wrote:
->
->  
->
->>I want to implement a module, whose main task is to check the system
->>idle time(no keyboard and mouse input) and suspend the whole system(when
->>the idle time is long enough). But there comes the problem, how to
->>calculate the system idle time. How can I get the time user has no
->>operation.
->>thanks
->>snoopyzwe
->>
->>    
->>
->
->The the source-code of `top` and review it. Make a user-mode
->daemon to watch the system...
->
->
->Cheers,
->Dick Johnson
->Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
->            Note 96.31% of all statistics are fiction.
->
->
->
->
->  
->
+How?
 
+Whether you put magic into the kernel, or you build a user space server,
+the interface can be the exact same. I don't buy the 'integrates better'
+argument.
 
+It looks like you want simpler code in user space, at the cost of
+complicating the kernel, for a feature that will be not be used very
+frequently at all. Is this not correct?
+
+mark
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

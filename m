@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264459AbTDPPY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 11:24:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264462AbTDPPY2
+	id S264530AbTDPPcm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 11:32:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264532AbTDPPcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 11:24:28 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:58307
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264459AbTDPPY1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 11:24:27 -0400
-Subject: Re: kernel support for non-English user messages
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Timothy Miller <miller@techsource.com>
-Cc: Gerrit Huizenga <gh@us.ibm.com>, John Bradford <john@grabjohn.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E9D688F.5040204@techsource.com>
-References: <E195cDL-00013K-00@w-gerrit2>  <3E9D688F.5040204@techsource.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050503867.28586.91.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 16 Apr 2003 15:37:48 +0100
+	Wed, 16 Apr 2003 11:32:42 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:190 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id S264530AbTDPPcl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 11:32:41 -0400
+Date: Wed, 16 Apr 2003 10:44:33 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: davidm@hpl.hp.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: size of CRCs in module versions
+In-Reply-To: <16028.63307.771533.129067@napali.hpl.hp.com>
+Message-ID: <Pine.LNX.4.44.0304161038001.5477-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-04-16 at 15:28, Timothy Miller wrote:
-> The point of this painfully off-topic rant is that messages being 
-> written in English are a disadvantage for no one since they all already 
-> know English.  The messages are also simple enough that anyone
+On Tue, 15 Apr 2003, David Mosberger wrote:
 
-Thats a hopeless simplification for non techies and for some techies.
+> >>>>> On Wed, 16 Apr 2003 00:43:06 -0500 (CDT), Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> said:
+> 
+>   Kai> You're right that 32 bits would be enough to hold the
+>   Kai> CRC. However, we do not yet know the checksum at compile time,
+>   Kai> so the trick I came up with is to use the linker to fill in the
+>   Kai> crcs afterwards, using assignment to absolute values. So while
+>   Kai> the crcs appear to be numbers to the C code, they are handled
+>   Kai> like addresses from the linker side, and things would most
+>   Kai> likely go badly wrong if the sizes aren't equal, though I have
+>   Kai> to admit I didn't try.
+> 
+> Yes, it's not easy (possible) to do it in C, but I suspect most 64-bit
+> assemblers/linkers can do it.  For example, on ia64, you can do:
+> 
+> 	.global foo
+> 
+> 	data4 foo
+> 
+> Which will yield a DIR32LSB relocation (32-bit direct value), which is
+> exactly what we'd need here.
 
-> I personally have a list of every kernel message I could extract from 
-> the source code of 2.4.20, and I've examined a lot of them.  It's a lot 
-> like reading Dr. Seuss.  Although some of the words are long, the 
-> vocabulary is incredibly small.  A lot of text is abbreviations and 
-> acronyms that you wouldn't translate anyhow!
+I looked at ppc64, since I have a cross-compile tool chain for that, it 
+seems to have an appropriate relocation type (R_PPC64_UADDR32), but the
+obvious way of doing
 
-I would be interested in how you extracted them, since a tool that can
-do this is the relevant 99% of the discussion, whether its for building
-message explanations, translation, reducing messages for embedded...
+static const u32 __kcrctab_##sym				\
+	__attribute__((section("__kcrctab" sec), unused))	\
+	= (u32) &__crc_##sym;
+
+and hoping for the compiler to generate appropriate assembler code doesn't 
+work ("initializer element is not computable at load time"), so we'd need
+to code this in asm explicitly, which I'd rather avoid at this time.
+
+--Kai
 
 

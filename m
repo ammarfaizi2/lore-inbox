@@ -1,73 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263539AbTLJNtq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 08:49:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263543AbTLJNtq
+	id S262788AbTLJNmW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 08:42:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbTLJNmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 08:49:46 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:27403
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S263539AbTLJNto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 08:49:44 -0500
-Date: Wed, 10 Dec 2003 05:43:51 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Maciej Zenczykowski <maze@cela.pl>
-cc: David Schwartz <davids@webmaster.com>,
-       Jason Kingsland <Jason_Kingsland@hotmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: RE: Linux GPL and binary module exception clause?
-In-Reply-To: <Pine.LNX.4.44.0312051332580.11626-100000@gaia.cela.pl>
-Message-ID: <Pine.LNX.4.10.10312100538320.3805-100000@master.linux-ide.org>
+	Wed, 10 Dec 2003 08:42:22 -0500
+Received: from relay01.roc.ny.frontiernet.net ([66.133.131.34]:56979 "EHLO
+	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S262788AbTLJNmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 08:42:17 -0500
+Message-ID: <3FD722BC.1000205@xfs.org>
+Date: Wed, 10 Dec 2003 07:42:20 -0600
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Mihai RUSU <dizzy@roedu.net>
+CC: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at fs/xfs/support/debug.c:106!
+References: <Pine.LNX.4.56L0.0312100953310.8346@ahriman.bucharest.roedu.net>
+In-Reply-To: <Pine.LNX.4.56L0.0312100953310.8346@ahriman.bucharest.roedu.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mihai RUSU wrote:
 
-Lets have some fun now and play this game.
+>-----BEGIN PGP SIGNED MESSAGE-----
+>Hash: SHA1
+>
+>Hi
+>
+>Another problem now, on another system. This one is a 2xP3 1.1 Ghz, 3 GB 
+>RAM, MB Intel SCB2, Adaptec 7899 Controller onboard having one 18 GB SCSI 
+>disk connected to it (for XFS external journal, swap and / partition which 
+>is on ext3), Mylex 170 RAID connected to external storage enclosure with 3 
+>x 70 GB SCSI RAID5. The kernel error message is:
+>
+>  
+>
 
-As principle author of the "taskfile transport", any an all operations
-using, storing, execution, transfering, copying, opening ... anything 
-may not operate with non-source-published binary modules.
+Mihai,
 
-So everyone one with/sells a PVR, NAS, SAN, Laptop, Workstation, Server
-which uses IDE/ATA/SATA is forbidden to operate unless written terms of
-use are set forward.
+You missed one thing out of your report, the console message xfs output 
+before
+this.
 
-We can kill Linux in minutes, shall we?
+I suspect it would have been this: xfs_iget_core: ambiguous vns: vp/0x .....
+but it would be good to confirm it. This was supposed to be a dead code
+path which there was no longer a route to, it is possible something in the
+NFS interface in 2.6 has changed to cause this though. Basically a race
+between two threads looking up the same inode, xfs has it cached already
+and two threads raced to setup the mapping from the linux inode.
 
-Andre Hedrick
-LAD Storage Consulting Group
+The use of iget_locked when looking up new inodes is supposed to protect
+against just this condition.
 
-On Fri, 5 Dec 2003, Maciej Zenczykowski wrote:
+Steve
 
-> > > My personal view is that Linux should mandate GPL for all modules
-> > > in 2.6 and
-> > > beyond.
-> > 
-> > 	I'm baffled how you think this is a choice that can be made. The license is
-> > the GPL itself and even the Linux kernel developers have no power to change
-> > it.
-> 
-> I'm not so sure about that. If Linus and a few core developers decide to 
-> explicitly state that you can't use the Linux kernel with binary only 
-> modules than you can't.  They have the right under copyright to restrict 
-> the usage of their contributions - if this means that they say "you can't 
-> use our contributions to the kernel with any binary only ring 0 code" - 
-> then you can't.  And it is totally irrelevant whether your work is derived 
-> or not.  They can't force you to release your work as GPL - but they can 
-> forbid you to utilise the linux kernel with non-GPL'ed work - which in the 
-> end is quite close.
-> 
-> Or am I totally wrong here?
-> 
-> Cheers,
-> MaZe.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 

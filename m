@@ -1,71 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270622AbTGaXh6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 19:37:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270623AbTGaXh6
+	id S269623AbTHAAB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 20:01:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270605AbTHAAB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 19:37:58 -0400
-Received: from ns2.eclipse.net.uk ([212.104.129.133]:35090 "EHLO
-	smtp2.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
-	id S270622AbTGaXhz convert rfc822-to-8bit (ORCPT
+	Thu, 31 Jul 2003 20:01:26 -0400
+Received: from users.ccur.com ([208.248.32.211]:24502 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id S269623AbTHAABY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 19:37:55 -0400
-From: Ian Hastie <ianh@iahastie.clara.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Turning off automatic screen clanking
-Date: Fri, 1 Aug 2003 00:35:06 +0100
-User-Agent: KMail/1.5.2
-References: <Pine.LNX.4.44.0307291750170.5874-100000@phoenix.infradead.org> <20030731162037.GB32759@www.13thfloor.at> <3F297429.1010302@techsource.com>
-In-Reply-To: <3F297429.1010302@techsource.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Thu, 31 Jul 2003 20:01:24 -0400
+Date: Thu, 31 Jul 2003 20:01:14 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, rml@tech9.net
+Subject: Re: [PATCH] protect migration/%d etc from sched_setaffinity
+Message-ID: <20030801000113.GF7852@rudolph.ccur.com>
+Reply-To: Joe Korty <joe.korty@ccur.com>
+References: <20030731224604.GA24887@tsunami.ccur.com> <20030731154740.4e21a6e2.akpm@osdl.org> <20030731231154.GB7852@rudolph.ccur.com> <20030731161703.210470ea.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308010035.13158.ianh@iahastie.local.net>
+In-Reply-To: <20030731161703.210470ea.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 31 Jul 2003 20:55, Timothy Miller wrote:
-> Herbert Pötzl wrote:
-> >>Why don't we borrow a trick from my old Atari 8-bit computer.  Instead
-> >>of blanking, cycle the colors.  Best of both worlds:  You save your
-> >>monitor AND you get to see what's on the screen.
+On Thu, Jul 31, 2003 at 04:17:03PM -0700, Andrew Morton wrote:
+> Joe Korty <joe.korty@ccur.com> wrote:
 > >
-> > hmm, ignoring the issue that modern monitors will not
-> > suffer the burnin, how would it help to cycle the colors?
-> > the only valid solution would be inverting the image on
-> > a regular basis, and I don't think that this would be
-> > appreciated ...
->
-> So, if there's no point to having screen-blanking, why is it in there to
-> begin with?  To protect OLD monitors from burnin?
->
-> Is screen-blanking there just to make people feel better who think they
-> need screen-blanking?  As I understand, it doesn't do any
-> power-management stuff anyhow.
+> > I'd like to be able to write shell scrips that operate on the set of
+> > /proc/[0-9]* without having to know which of the ever-changing list
+> > of processes need to be avoided and which not.
+> 
+> Like this?
+> 
+> #!/bin/sh
+> 
+> #
+> # can_set_affinity pid
+> #
+> can_set_affinity()
+> {
+> 	if [ "$(cat /proc/$1/maps)" != "" ]
+> 	then
+> 		return 0
+> 	fi
+> 	if head -1 /proc/$1/status | egrep "events|migration"
+> 	then
+> 		return 1
+> 	else
+> 		return 0
+> 	fi
+> }
+> 
+> if can_set_affinity $1
+> then
+> 	echo can set affinity of pid $1
+> else
+> 	echo cannot set affinity of pid $1
+> fi
 
-You say that, and I certainly remember it saying just about the same thing in 
-the kernel configuration help.  However there is also this from the Debian 
-init file /etc/init.d/console-screen.sh
 
-    # screensaver stuff
-    setterm_args=""
-    if [ "$BLANK_TIME" ]; then
-        setterm_args="$setterm_args -blank $BLANK_TIME"
+Good stuff.  I reduced it to (having trouble easily reading the original
+output):
+
+    name=$(head -1 /proc/$1/status | awk '{print $2}')
+    echo -n '[' $1 '] ' $name ' '
+    if [ "$(cat /proc/$1/maps)" == "" ]
+    then
+	    echo SAFE
+    else
+	    echo changeable
     fi
-    if [ "$BLANK_DPMS" ]; then
-        setterm_args="$setterm_args -powersave $BLANK_DPMS"
-    fi
-    if [ "$POWERDOWN_TIME" ]; then
-        setterm_args="$setterm_args -powerdown $POWERDOWN_TIME"
-    fi
-    if [ "$setterm_args" ]; then
-        setterm $setterm_args
 
-I know for sure it worked with 2.4 and am fairly sure it still works with 
-2.6.0-test#.
+It catches all those that need catching, plus denies changes to some
+daemons that could survive sched_setaffinity: khubd, kirqd, pdflush*,
+kswapd0, scsi_eh_[01], ahc_dv_[01], kseriod, and kjournald*.
 
--- 
-Ian.
-
+Joe

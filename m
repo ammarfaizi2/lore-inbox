@@ -1,66 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262549AbUBYA2e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 19:28:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbUBYA2e
+	id S262342AbUBYAeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 19:34:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbUBYAeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 19:28:34 -0500
-Received: from mail.zmailer.org ([62.78.96.67]:57766 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S262549AbUBYA20 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 19:28:26 -0500
-Date: Wed, 25 Feb 2004 02:28:19 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
-       "Woodruff, Robert J" <woody@co.intel.com>, linux-kernel@vger.kernel.org,
-       "Hefty, Sean" <sean.hefty@intel.com>,
-       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-       "Davis, Arlin R" <arlin.r.davis@intel.com>,
-       marcelo.tosatti@cyclades.com, torvalds@osdl.org
-Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
-Message-ID: <20040225002819.GP1751@mea-ext.zmailer.org>
-References: <20040224195745.GA777@kroah.com> <Pine.LNX.4.44.0402241728460.21522-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 24 Feb 2004 19:34:16 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:772 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262342AbUBYAeK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 19:34:10 -0500
+From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Linux 2.2.26 aka "2.2 is not dead" released
+Date: Wed, 25 Feb 2004 01:33:47 +0100
+User-Agent: KMail/1.6.1
+X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0402241728460.21522-100000@chimarrao.boston.redhat.com>
+Message-Id: <200402231313.48706@WOLK>
+Organization: Linux-Systeme GmbH
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 05:29:16PM -0500, Rik van Riel wrote:
-> On Tue, 24 Feb 2004, Greg KH wrote:
-> > On Tue, Feb 24, 2004 at 07:50:18PM +0000, Christoph Hellwig wrote:
-> > > I don't understand why anyone is wasting time on this.  Without available
-> > > hardware drivers this huge midlayer is completely useless.
-> > You mean this whole huge chunk of code doesn't have any hardware
-> > drivers?  What good is it then?
-> 
-> Beats me. I hope we can just bury this infiniband stuff
-> before we waste any more time on it.
-> 
-> I really can't see any reason why we would want to have
-> this.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Maybe you don't, but some do.  Uses are rare, of course, but:
-  http://www.apple.com/education/science/profiles/vatech/
+Hi all,
 
-People building "cheap supercomputers" will be going that way
-most definitely.  Slowest version is 2.5 Gbit/s, and most
-common one appears to be running 4x that.
+so here we go, 2.2.26 final. I am very proud to announce this because it fixes
+several of security bugs including the last mremap() bug, the longer known
+hashing exploit possibility in the network stack and /dev/rtc leakage.
+
+I encourage all 2.2 kernel users to update.
+
+Please send me all fixes/patches/etc. I've forgotton for 2.2.27-pre/rc
+inclusion.
 
 
-Another thing (for which I would have use at hand right away, actually)
-is to have fully functional Fibre Channel subsystem in Linux along
-with drivers to modern cards e.g. JNI's.  (2 Gbit/s FC)
-
-Plugging tens of terabytes of disks on a box is somewhat challenging
-without resorting to that technology...
-
-I just don't have luxury of having a year or two to spend on
-development of necessary things, I need to choose systems with
-the support readily in place so I can load in my applications,
-and start using them.  :-/
+Have fun :)
 
 
-/Matti Aarnio
+2.2.26
+- ------
+o	CAN-2004-0077: behave safely in case of do_munmap()	(Solar Designer)
+	  failures in mremap(2)
+o	CAN-2003-0984: /dev/rtc can leak parts of kernel	(Solar Designer)
+	  memory to unprivileged users (2.4 backport)
+o	CAN-2003-0244: hashing exploits in network stack	(David S. Miller)
+o	update_atime() performance improvement (2.4 backport)	(Solar Designer)
+o	ability to swapoff after a device file might		(Solar Designer)
+	  have been re-created
+o	MAINTAINERS correction for Kernel 2.2 and 2.2 fixes	(me)
+o	fixed some typos					(Solar Designer, me)
+
+
+
+Expect my 2.2-secure tree updated within the next days.
+
+
+
+Thanks/Kudos:
+- -------------
+- - to Alan Cox for 2.2 mainline handover 8-)
+- - to Solar for almost all the work
+- - to Linux-Systeme GmbH for sponsoring my kernel maintenance
+
+
+
+- --
+Kind regards
+        Marc-Christian Petersen
+
+http://sourceforge.net/projects/wolk
+
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint:  3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
+Key available at http://pgp.mit.edu. Encrypted e-mail preferred
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAO+1rVp3i49tEGhYRAsAEAKD8XAqfW/V4GFlSgqyXb1RtzI50JwCfXutZ
+pB/NBvPaVvyaS+SnwB1l76Q=
+=VuUi
+-----END PGP SIGNATURE-----

@@ -1,78 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268746AbUH3Rvl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268706AbUH3R41@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268746AbUH3Rvl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 13:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268718AbUH3RtD
+	id S268706AbUH3R41 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 13:56:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268707AbUH3RwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 13:49:03 -0400
-Received: from pop.gmx.de ([213.165.64.20]:21705 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268697AbUH3RrU (ORCPT
+	Mon, 30 Aug 2004 13:52:23 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:31910 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S268706AbUH3RtZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 13:47:20 -0400
-X-Authenticated: #4512188
-Message-ID: <41336824.1040206@gmx.de>
-Date: Mon, 30 Aug 2004 19:47:16 +0200
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040815)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "John W. Linville" <linville@tuxdriver.com>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [patch] libata: add ioctls to support SMART
-References: <200408301531.i7UFVBg29089@ra.tuxdriver.com>
-In-Reply-To: <200408301531.i7UFVBg29089@ra.tuxdriver.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 30 Aug 2004 13:49:25 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: HIGHMEM4G config for 1GB RAM on desktop?
+Date: Mon, 30 Aug 2004 17:49:24 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <cgvpb4$ljq$1@news.cistron.nl>
+References: <200408021602.34320.swsnyder@insightbb.com> <20040804120633.4dca57b3.akpm@osdl.org> <411ABF85.2080200@techsource.com> <41336CB1.6030105@techsource.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1093888164 22138 62.216.29.200 (30 Aug 2004 17:49:24 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+In article <41336CB1.6030105@techsource.com>,
+Timothy Miller  <miller@techsource.com> wrote:
+>Timothy Miller wrote:
+>> Hey, that rings a bell.  I have a 3ware 7000-2 controller with two 
+>> WD1200JB drives in RAID1.  I find that if I dd from the disk, I get 
+>> exactly the read throughput that is the max for the drives (47MB/sec). 
+>> However, if I do a WRITE test, the performance is miserable.
+>> 
+>> I have been going back and forth with 3ware for months, and what's odd 
+>> is that my drives with my controller in any machine other than the 
+>> primary box get great write throughput, BUT on my main box with 1G of 
+>> RAM, I get MISERABLE write throughput.  When I should be getting 
+>> 36MB/sec or faster, I get 8 to 12 MB/sec.
+>> 
+>> Now, I have tried limiting the memory with a mem= boot option, but that 
+>> doesn't change the performance any.
+>
+>Scratch all this.  Even if I physically remove half the memory, I STILL 
+>get the performance problem.
 
-John W. Linville wrote:
-| Support for HDIO_DRIVE_CMD and HDIO_DRIVE_TASK in libata.  Useful for
-| supporting SMART w/ unmodified smartctl and smartd userland binaries.
-|
-| Not happy w/ loop after failed ata_qc_new_init(), but needed because
-smartctl
-| and smartd did not retry after failure.  Likely need an option to wait for
-| available qc?  Also not sure all the error return codes are correct...
+3ware eh?
 
-Hi,
+Try setting /sys/block/sda/queue/nr_requests to twice the number
+in /sys/block/sda/device/queue_depth
 
-I just tried to give it a go with libata from 2.6.9-rc1. I had to fix
-one rejects but the patching seemed to go fine beside that. Nevertheless
-after a boot with patched libata I get:
+Mike.
+-- 
+"In times of universal deceit, telling the truth becomes
+ a revolutionary act." -- George Orwell.
 
-smartctl -a /dev/sda
-smartctl version 5.30 Copyright (C) 2002-4 Bruce Allen
-Home page is http://smartmontools.sourceforge.net/
-
-Device: ATA      SAMSUNG SP1614N  Version: TM10
-Serial number: 0735J1FW702444
-Device type: disk
-Local Time is: Mon Aug 30 19:44:23 2004 CEST
-Device does not support SMART
-
-Device does not support Error Counter logging
-
-[GLTSD (Global Logging Target Save Disable) set. Enable Save with '-S on']
-Device does not support Self Test logging
-
-
-I am pretty sure my drive supports SMART. I hope that I understood your
-post correctly that with this patch it should work.
-
-Cheers,
-
-Prakash
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBM2gkxU2n/+9+t5gRAh1ZAJ0T1/zurwQZg7ddQx4X2aS5x8UMIgCg0hra
-3D+Bhyp5MKpLVGdh7WIdPYA=
-=Axdm
------END PGP SIGNATURE-----

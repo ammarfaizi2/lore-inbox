@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264595AbRFZADz>; Mon, 25 Jun 2001 20:03:55 -0400
+	id <S264621AbRFZAJf>; Mon, 25 Jun 2001 20:09:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264616AbRFZADp>; Mon, 25 Jun 2001 20:03:45 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34579 "EHLO
+	id <S264641AbRFZAJZ>; Mon, 25 Jun 2001 20:09:25 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6916 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264595AbRFZADh>; Mon, 25 Jun 2001 20:03:37 -0400
-Subject: Re: Linux 2.4.5-ac18
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Tue, 26 Jun 2001 01:03:07 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9h898a$nam$1@cesium.transmeta.com> from "H. Peter Anvin" at Jun 25, 2001 02:08:26 PM
+	id <S264621AbRFZAJM>; Mon, 25 Jun 2001 20:09:12 -0400
+Subject: Re: Linux and system area networks
+To: zaitcev@redhat.com (Pete Zaitcev)
+Date: Tue, 26 Jun 2001 01:08:47 +0100 (BST)
+Cc: roland@hellmouth.digitalvampire.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200106252230.f5PMUDE26001@devserv.devel.redhat.com> from "Pete Zaitcev" at Jun 25, 2001 06:30:13 PM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15EgJw-0002o0-00@the-village.bc.nu>
+Message-Id: <E15EgPP-0002oq-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > o	Lave 1uS gaps in the eepro100 cmd probe, and	(Masaru Kawashima)
-> > 	probe for longer on cmd timeout
-> 
-> <Whimper>
-> 
-> Please, people... S is siemens, not seconds.  Seconds is "s" (lower
-> case.)  The rule is simple: units named after people have their
-> symbols, but not their names, capitalized.
+> a properly written host based stack works much better in
+> the face of a changing environment: Faster CPUs, new CPUs
+> (IA-64), new network protocols (ECN). Besides, it is easy
+> to "accelerate" a bad network stack, but try to outdo a
+> well done stack.
 
-The day everyone learns to spell weird properly I'll learn to get seconds right
-- deal ?
-
-Alan
+Putting the stack partly in user spacd can sometimes be a benefit. Linux 8086
+does this to cut down kernel size for example ;)

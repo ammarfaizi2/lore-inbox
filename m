@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272715AbRHaOvX>; Fri, 31 Aug 2001 10:51:23 -0400
+	id <S272716AbRHaO4n>; Fri, 31 Aug 2001 10:56:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272716AbRHaOvN>; Fri, 31 Aug 2001 10:51:13 -0400
-Received: from mailgate5.cinetic.de ([217.72.192.165]:4538 "EHLO
-	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
-	id <S272715AbRHaOvD>; Fri, 31 Aug 2001 10:51:03 -0400
-Date: Fri, 31 Aug 2001 16:56:55 +0200 (CEST)
-From: Pascal Schmidt <pleasure.and.pain@web.de>
-To: Stephen von Voros <stevon@hicom.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: fix pppd daemon
-In-Reply-To: <MLEPIMPCNOKIBHIBMPMFIEKKCAAA.stevon@hicom.net>
-Message-ID: <Pine.LNX.4.33.0108311656090.863-100000@neptune.sol.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272717AbRHaO4e>; Fri, 31 Aug 2001 10:56:34 -0400
+Received: from e23.nc.us.ibm.com ([32.97.136.229]:1748 "EHLO e23.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S272716AbRHaO4Y>;
+	Fri, 31 Aug 2001 10:56:24 -0400
+Date: Fri, 31 Aug 2001 07:52:01 -0700
+From: Jonathan Lahr <lahr@us.ibm.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: lahr@beaverton.ibm.com, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: io_request_lock/queue_lock patch
+Message-ID: <20010831075201.N23680@us.ibm.com>
+In-Reply-To: <20010830134930.F23680@us.ibm.com> <20010831075613.A2855@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010831075613.A2855@suse.de>; from axboe@suse.de on Fri, Aug 31, 2001 at 07:56:13AM +0200
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Aug 2001, Stephen von Voros wrote:
 
-> SvV- something is wrong with pppd, I wonder what error (exit code=10)
-> means?
-The exit codes are explained in the pppd manpage and this is not very
-likely to be a kernel problem...
+Jens,
+
+Please elaborate on "no, no, no".   Are you suggesting that no further
+improvements can be made or should be attempted on the 2.4 i/o subsystem?
+
+Jonathan
+
+Jens Axboe [axboe@suse.de] wrote:
+> On Thu, Aug 30 2001, Jonathan Lahr wrote:
+> > 
+> > Included below is a snapshot of a patch I am developing to reduce 
+> > io_request_lock contention in 2.4.  
+> 
+> No no no, you are opening a serious can of worms. No offense, but did
+> you really think this would fly?! This is already being taken care of
+> for 2.5, lets leave 2.4 alone in this regard.
+> 
+> -- 
+> Jens Axboe
 
 -- 
-Ciao, Pascal
-
--<[ pharao90@tzi.de, netmail 2:241/215.72, home http://cobol.cjb.net/) ]>-
+Jonathan Lahr
+IBM Linux Technology Center
+Beaverton, Oregon
+lahr@us.ibm.com
+503-578-3385
 

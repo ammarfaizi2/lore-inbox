@@ -1,56 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbTK0UPU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 15:15:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbTK0UPU
+	id S261176AbTK0UYR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 15:24:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbTK0UYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 15:15:20 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:59800 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261152AbTK0UPQ
+	Thu, 27 Nov 2003 15:24:17 -0500
+Received: from adsl-216-102-91-59.dsl.snfc21.pacbell.net ([216.102.91.59]:55471
+	"EHLO nasledov.com") by vger.kernel.org with ESMTP id S261176AbTK0UYP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 15:15:16 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 27 Nov 2003 12:15:11 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: David Hinds <dhinds@sonic.net>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] Ricoh Cardbus -> Can't get interrupts
-In-Reply-To: <20031127105612.B28106@sonic.net>
-Message-ID: <Pine.LNX.4.44.0311271213040.2011-100000@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 27 Nov 2003 15:24:15 -0500
+Date: Thu, 27 Nov 2003 12:22:45 -0800
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: APM Suspend Problem
+Message-ID: <20031127202245.GA3892@nasledov.com>
+References: <20031127062057.GA31974@nasledov.com> <1069933566.2144.1.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1069933566.2144.1.camel@teapot.felipe-alfaro.com>
+User-Agent: Mutt/1.5.4i
+From: Misha Nasledov <misha@nasledov.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Nov 2003, David Hinds wrote:
+No luck; my ThinkPad still does not go into the proper power-saving mode. The LCD
+blanks out and the HD spins down, but it is not a real sleep mode.
 
-> On Mon, Nov 24, 2003 at 07:08:26PM -0800, Davide Libenzi wrote:
-> > 
-> > I didn't want to post this because I was ashamed of the fix, but w/out 
-> > this my orinoco cardbus gets an interrupt one every ten boots. This is 
-> > against 2.4.20 ...
-> > 
-> > - Davide
+On Thu, Nov 27, 2003 at 12:46:06PM +0100, Felipe Alfaro Solana wrote:
+> On Thu, 2003-11-27 at 07:20, Misha Nasledov wrote:
+> > Since about 2.6.0-test9, my ThinkPad T21 no longer suspends with APM. I had
+> > issues with it suspending before, I don't remember exactly what issues, but I
+> > know that it definitely worked in -test2. When I hit the key on my laptop to
+> > suspend, it will turn off the LCD and the HD will spin down, but the machine
+> > will not actually suspend. Here is what is printed out on the console when I
+> > hit the suspend key and then when I hit another key to "wake" it up:
 > 
-> Your patch seems to do two things:
-> 
-> First, it automatically falls back on using a socket's PCI interrupt
-> if its ISA interrupts are not available.  That part seems ok.
-> 
-> But, it also falls back on sharing an interrupt if a driver requested
-> an exclusive interrupt and that was not available.  This part is not
-> ok.  The original code will share a PCI interrupt automatically, but
-> will not share an ISA interrupt except under certain circumstances
-> (for multifunction cards or when the driver specifically requests it).
-> Sharing ISA interrupts is unsafe and should never be done blindly.
+> Could you please try the attached patch? It allows my system to suspend
+> and resume using APM flawlessly.
 
-I told you it was bogus :) Seriously, I don't even know if the "bogus path"
-is ever taken, I believe not. I did a quick fix at the beginning and I 
-did not look at it anymore. I'll give it a shot ...
+> --- 1.11/drivers/base/power/resume.c	Mon Aug 25 11:08:21 2003
+> +++ edited/drivers/base/power/resume.c	Fri Oct 10 21:06:07 2003
+> @@ -22,8 +22,17 @@
+>  
+>  int resume_device(struct device * dev)
+>  {
+> -	if (dev->bus && dev->bus->resume)
+> -		return dev->bus->resume(dev);
+> +	if (dev->bus && dev->bus->resume) {
+> +		int retval;
+> +
+> +		/* drop lock so the call can use device_del() to clean up
+> +		 * after unplugged (or otherwise vanished) child devices
+> +		 */
+> +		up(&dpm_sem);
+> +		retval = dev->bus->resume(dev);
+> +		down(&dpm_sem);
+> +		return retval;
+> +	}
+>  	return 0;
+>  }
 
-
-
-- Davide
-
-
+-- 
+Misha Nasledov
+misha@nasledov.com
+http://nasledov.com/misha/

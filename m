@@ -1,32 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310972AbSCHRYZ>; Fri, 8 Mar 2002 12:24:25 -0500
+	id <S310971AbSCHRYf>; Fri, 8 Mar 2002 12:24:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310970AbSCHRYG>; Fri, 8 Mar 2002 12:24:06 -0500
-Received: from virgo.i-cable.com ([210.80.60.87]:12185 "HELO virgo.i-cable.com")
-	by vger.kernel.org with SMTP id <S310971AbSCHRYD>;
-	Fri, 8 Mar 2002 12:24:03 -0500
-Message-ID: <00ea01c1c6c6$083faea0$eb4a0a3d@homeuc1hfbdu7w>
-From: "Jacky Lam" <snakie@ismart.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Kernel patches
-Date: Sat, 9 Mar 2002 01:23:58 +0800
+	id <S310970AbSCHRYZ>; Fri, 8 Mar 2002 12:24:25 -0500
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:12238 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S310971AbSCHRYO>; Fri, 8 Mar 2002 12:24:14 -0500
+Message-ID: <3C88F211.3090504@antefacto.com>
+Date: Fri, 08 Mar 2002 17:17:05 +0000
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
+To: androsyn@ratbox.org
+CC: linux-kernel@vger.kernel.org
+Subject: linux 2.4.18 fails to load static /bin/init
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ > I noticed this problem when trying to boot 2.4.18 on a Netra t1 200.
+ > Basically what will happen is the kernel will mount / read-only, then try
+ > to load /sbin/init, at which point it hangs.  If I a dynamically linked
+ > wrapper around /sbin/init then all is happy and the system boots fine.
+ >
+ > Any ideas or clues?
 
-    I want to make some statistics on all kernel patches. Could someone tell
-me how can I gather all the patches sending to Linus, Alan Cox.....?
-    Thanks.
+Sounds like you statically linked against the wrong libc?
 
-Jacky
+Padraig.
 

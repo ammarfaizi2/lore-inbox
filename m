@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136401AbREDOe6>; Fri, 4 May 2001 10:34:58 -0400
+	id <S136410AbREDOl2>; Fri, 4 May 2001 10:41:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136403AbREDOes>; Fri, 4 May 2001 10:34:48 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:10571 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S136401AbREDOeh>; Fri, 4 May 2001 10:34:37 -0400
-Date: Fri, 4 May 2001 16:33:59 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.4 alpha semaphores optimization
-Message-ID: <20010504163359.F3762@athlon.random>
-In-Reply-To: <20010503194747.A552@jurassic.park.msu.ru> <20010503192848.V1162@athlon.random> <20010504131528.A2228@jurassic.park.msu.ru>
+	id <S136411AbREDOlT>; Fri, 4 May 2001 10:41:19 -0400
+Received: from geos.coastside.net ([207.213.212.4]:21980 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S136410AbREDOlK>; Fri, 4 May 2001 10:41:10 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010504131528.A2228@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Fri, May 04, 2001 at 01:15:28PM +0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Message-Id: <p05100303b71862b98488@[207.213.214.37]>
+In-Reply-To: <15090.23187.739430.925103@pizda.ninka.net>
+In-Reply-To: <3AF10E80.63727970@alsa-project.org>
+ <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg>
+ <15089.979.650927.634060@pizda.ninka.net>	<11718.988883128@redhat.com>
+ <3AF12B94.60083603@alsa-project.org>
+ <15089.63036.52229.489681@pizda.ninka.net>
+ <3AF25700.19889930@alsa-project.org>
+ <15090.23187.739430.925103@pizda.ninka.net>
+Date: Fri, 4 May 2001 06:53:26 -0700
+To: "David S. Miller" <davem@redhat.com>,
+        Abramo Bagnara <abramo@alsa-project.org>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: unsigned long ioremap()?
+Cc: David Woodhouse <dwmw2@infradead.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 04, 2001 at 01:15:28PM +0400, Ivan Kokshaysky wrote:
-> However, there are 3 reasons why I prefer 16-bit counters:
+At 12:30 AM -0700 2001-05-04, David S. Miller wrote:
+>Abramo Bagnara writes:
+>  > it's perfectly fine to have:
+>  >
+>  > regs = (struct reg *) ioremap(addr, size);
+>  > foo = readl((unsigned long)&regs->bar);
+>  >
+>
+>I don't see how one can find this valid compared to my preference of
+>just plain readl(&regs->bar); You're telling me it's nicer to have the
+>butt ugly cast there which serves no purpose?
+>
+>One could argue btw that structure offsets are less error prone to
+>code than register offset defines out the wazoo.
+>
+>I think your argument here is bogus.
 
-I assume you mean 32bit counter. (that gives max 2^16 sleepers)
+The proposed API change serves to avoid the worse-than-butt-ugly:
 
-> a. "max user processes" ulimit is much lower than 64K anyway;
+	foo = regs->bar;
 
-the 2^16 limit is not a per-user limit it is a global one so the max
-user process ulimit is irrelevant.
+which on the evidence of the current kernel source is in fact a real problem.
 
-Only the number of pid and the max number of tasks supported by the
-architecture is a relevant limit for this.
+One could imagine a pointer-type-modifier in C that says "this 
+pointer can't be dereferenced, but pointer arithmetic is OK, and any 
+derived pointers inherit the property", with syntax similar to 
+volatile, or some kind of C++ dereference overloading, but absent 
+that, a correct API offsets the marginal burden of having to cast in 
+order to treat non-pointers as pointers.
 
-> b. "long" count would cost extra 8 bytes in the struct rw_semaphore;
-
-correct but that's the "feature" to be able to support 2^32 concurrent
-sleepers at not relevant runtime cost 8).
-
-> c. I can use existing atomic routines which deal with ints.
-
-I was thinking at a dedicated routine that implements the slow path by
-hand as well like x86 just do. Then using ldq instead of ldl isn't
-really a big deal programmer wise.
-
-Andrea
+As Abramo points out, if you can't abide the above cast, you can 
+create a relatively trivial macro to hide the dirty work.
+-- 
+/Jonathan Lundell.

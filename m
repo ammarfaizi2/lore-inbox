@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131205AbRCUFKZ>; Wed, 21 Mar 2001 00:10:25 -0500
+	id <S131206AbRCUGag>; Wed, 21 Mar 2001 01:30:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131206AbRCUFKP>; Wed, 21 Mar 2001 00:10:15 -0500
-Received: from platan.vc.cvut.cz ([147.32.240.81]:12298 "EHLO
-	platan.vc.cvut.cz") by vger.kernel.org with ESMTP
-	id <S131205AbRCUFJ4>; Wed, 21 Mar 2001 00:09:56 -0500
-Message-ID: <3AB83740.B54D67BA@vc.cvut.cz>
-Date: Wed, 21 Mar 2001 06:08:16 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-Organization: Czech Technical University - Computing and Information Centre
-X-Mailer: Mozilla 4.75 [en] (Win98; U)
-X-Accept-Language: cs,cz,en
+	id <S131207AbRCUGa0>; Wed, 21 Mar 2001 01:30:26 -0500
+Received: from SLASH.REM.CMU.EDU ([128.2.87.44]:14598 "EHLO SLASH.REM.CMU.EDU")
+	by vger.kernel.org with ESMTP id <S131206AbRCUGaN>;
+	Wed, 21 Mar 2001 01:30:13 -0500
+From: agrawal@ais.org
+Date: Wed, 21 Mar 2001 01:33:39 -0500 (EST)
+To: hingwah@programmer.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Hang when using loop device
+In-Reply-To: <20010321121605.A822@hingwah>
+Message-ID: <Pine.LNX.4.10.10103210132420.4004-100000@SLASH.REM.CMU.EDU>
 MIME-Version: 1.0
-To: German Gomez Garcia <german@piraos.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Matrox framebuffer dualhead and utilities
-In-Reply-To: <20010320191543.23457.qmail@piraos.com>
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-German Gomez Garcia wrote:
 
->         I'm trying to set the Matrox framebuffer to dualhead or TV output,
-> but the utilities mentioned in the docs seem to be outdated (ioctl failed
-> with incorrect command). Any idea about where to get up to date tools?
-> I'm using kernel 2.4.2-ac20 (quite stable 5 days uptime with heavy DRI
-> testing and heavy disk working).
+> Hello all,
+> 
+> 	Recently my ext2 partition out of space so I have made a regular file
+> in the FAT32 partition and format it  as ext2 partiton and mount it as 
+> loop device.However,occasionaly when I extract a large tar to the loop device..
+> The computer will hang while extracting. I wonder if deadlock occur.
+> I'm using kernel 2.4.1 now and there is no problem when I am using
+> kernel 2.2.x kernel
 
-matroxset-0.3 is latest one. You are probably doing something wrong:
-(1) With fbset you are trying to use 8bpp or 24bpp color depth.
-Secondary
-    head supports only 16/32bpp.
-(2) You did not insmod all needed modules if you compiled matroxfb as
-    modular (you should compile everything into the kernel...)
-(3) You are trying to do some illegal thing, like connecting both
-    /dev/fb0 and /dev/fb1 into same output...
-							Petr Vandrovec
-							vandrove@vc.cvut.cz
+There are known problems with some of the 2.4 series kernels and loopback
+device support. Look through the kernel archives for Jens Axboe's patches,
+or grab one of the latest ac (Alan Cox) kernels.
+
+

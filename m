@@ -1,90 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbUA3PF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 10:05:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbUA3PF5
+	id S261733AbUA3PUz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 10:20:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUA3PUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 10:05:57 -0500
-Received: from integer.pobox.com ([208.58.1.194]:16029 "EHLO integer.pobox.com")
-	by vger.kernel.org with ESMTP id S261681AbUA3PFw (ORCPT
+	Fri, 30 Jan 2004 10:20:55 -0500
+Received: from kiuru.kpnet.fi ([193.184.122.21]:64677 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S261733AbUA3PUy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 10:05:52 -0500
-From: "Dave Paris" <dparis@w3works.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <rspchan@starhub.net.sg>
-Subject: RE: [CRYPTO]: Miscompiling sha256.c by gcc 3.2.3 and arch pentium3,4
-Date: Fri, 30 Jan 2004 10:04:00 -0500
-Message-ID: <PLEIIGNDLGEDDKABPLHBAECPCHAA.dparis@w3works.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <Xine.LNX.4.44.0401300939070.15830-100000@thoron.boston.redhat.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
+	Fri, 30 Jan 2004 10:20:54 -0500
+Subject: Re: Linux 2.4.25-pre4
+From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+To: Andreas Metzler <lkml-2004-01@downhill.at.eu.org>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040130135730.GB1215@balrog.logic.univie.ac.at>
+References: <1b0nY-2vi-13@gated-at.bofh.it> <1b3OA-7FV-17@gated-at.bofh.it>
+	 <1b4hG-8kh-21@gated-at.bofh.it>
+	 <20040130135730.GB1215@balrog.logic.univie.ac.at>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-C/zpII5Xv4aIc8tNhxP2"
+Message-Id: <1075475962.18944.0.camel@midux>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 30 Jan 2004 17:19:22 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has this been demonstrated on *any* system/arch using GCC 3.2.3 (or other
-3.2 series) or is it limited in scope to the description below?  Does it
-seem to do this with other implementations (other than sha256.c) or other
-kernels?  Just trying to get an idea if this is a complier optimization bug
-or something much more limited in scope.
 
-My personal lab is currently being unboxed and I won't be able to run my own
-tests for another week or so.  (apologies in advance)
+--=-C/zpII5Xv4aIc8tNhxP2
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-In any case, this is *extremely* serious from a number of angles.
+On Fri, 2004-01-30 at 15:57, Andreas Metzler wrote:
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> > On Tue, 6 Jan 2004, Mike Fedyk wrote:
+> >> On Tue, Jan 06, 2004 at 12:14:23PM -0200, Marcelo Tosatti wrote:
+> >> > It contains an ext2/3 update (mostly forward compatibility related),=
+ the
+> >>
+> >> Do you plan to merge htree?
+> >=20
+> > Yes, in the next -pre.
+>=20
+> Hm. Afaict this has not happened yet (-pre8), is it still planned for
+> .25?
+I think he meant for the 2.4.26-pre tree.
 
-Kind Regards,
--dsp
+	Markus
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of James Morris
-Sent: Friday, January 30, 2004 9:40 AM
-To: R CHAN
-Cc: linux-kernel@vger.kernel.org; David S. Miller
-Subject: Re: [CRYPTO]: Miscompiling sha256.c by gcc 3.2.3 and arch
-pentium3,4
+--=-C/zpII5Xv4aIc8tNhxP2
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-On Fri, 30 Jan 2004, R CHAN wrote:
+iD8DBQBAGnX53+NhIWS1JHARAudcAKCX7hGqLqTktGHdZNjZoi8haN8PFgCgqqzL
+JIeBiC8ePvCLC5TJTvuzb/o=
+=FEjE
+-----END PGP SIGNATURE-----
 
-> 2.6.2-rc2 sha256.c is miscompiled with gcc 3.2.3.
-> (User space is RedHat 3ES.)
->
-> Just an observation:
->
-> gcc 3.2.3 is miscompiling sha256.c when using
-> -O2 -march=pentium3
-> or pentium4.
->
-> gcc 3.3.x is ok, or the problem disappears
-> if I use arch=i686 or reduce the optimisation level to -O2.
->
-> Sympthoms are all the sha256 test vectors fail.
-> If I extract the guts of the file to compile in user space
-> the same problem occurs.
-
-Have you noticed if this happens for any of the other crypto algorithms?
-
-
-
-- James
---
-James Morris
-<jmorris@redhat.com>
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+--=-C/zpII5Xv4aIc8tNhxP2--
 

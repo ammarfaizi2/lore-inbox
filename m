@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263926AbRFEJGJ>; Tue, 5 Jun 2001 05:06:09 -0400
+	id <S263929AbRFEJIJ>; Tue, 5 Jun 2001 05:08:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263929AbRFEJF7>; Tue, 5 Jun 2001 05:05:59 -0400
-Received: from t2.redhat.com ([199.183.24.243]:44785 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S263926AbRFEJFn>; Tue, 5 Jun 2001 05:05:43 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <15132.40298.80954.434805@pizda.ninka.net> 
-In-Reply-To: <15132.40298.80954.434805@pizda.ninka.net>  <15132.22933.859130.119059@pizda.ninka.net> <13942.991696607@redhat.com> <3B1C1872.8D8F1529@mandrakesoft.com> <15132.15829.322534.88410@pizda.ninka.net> <20010605155550.C22741@metastasis.f00f.org> <25587.991730769@redhat.com> 
-To: "David S. Miller" <davem@redhat.com>
-Cc: Chris Wedgwood <cw@f00f.org>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        bjornw@axis.com, linux-kernel@vger.kernel.org,
-        linux-mtd@lists.infradead.org
-Subject: Re: Missing cache flush. 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 05 Jun 2001 10:05:35 +0100
-Message-ID: <25831.991731935@redhat.com>
+	id <S263930AbRFEJH7>; Tue, 5 Jun 2001 05:07:59 -0400
+Received: from mail.iwr.uni-heidelberg.de ([129.206.104.30]:33928 "EHLO
+	mail.iwr.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S263929AbRFEJHo>; Tue, 5 Jun 2001 05:07:44 -0400
+Date: Tue, 5 Jun 2001 11:07:06 +0200 (CEST)
+From: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Frazer <mark@somanetworks.com>,
+        Pete Zaitcev <zaitcev@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <netdev@oss.sgi.com>, <saw@saw.sw.com.sg>
+Subject: Re: MII access (was [PATCH] support for Cobalt Networks (x86 only)
+In-Reply-To: <3B1A2982.C53B159C@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0106051104140.5137-100000@kenzo.iwr.uni-heidelberg.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 3 Jun 2001, Jeff Garzik wrote:
 
-davem@redhat.com said:
->  One way to do this, (even portably :-) is via displacement flushes.
-> Linus mentioned this.
+> Bogdan Costescu wrote:
+> > With clearer mind, I have to make some a correction to one of the previous
+> > messages: the problem of not checking arguments range does not apply to
+> > 3c59x which has in the ioctl function '& 0x1f' for both transceiver number
+> > and register number. However, eepro100 and tulip don't do that. (I'm
+> > checking now with 2.4.3 from Mandrake 8, but I don't think that there were
+> > recent changes in these areas).
+>
+> half right -- tulip does this for the phy id but not the MII register
+> number.  I'll fix that up.  Please bug Andrey about fixing up
+> eepro100...
 
-> Basically if you know the L2 cache size and the assosciativity you can
-> do this as long as you can get a "2 * L2 cache size * assosciativity"
-> piece of contiguous physical memory.  When you need this "simon says"
-> flush, you basically read this physical memory span and this will
-> guarentee that all dirty data has exited the L2 cache. 
+OK, Andrey is now CC-ed. However, I only checked the 3 mentioned drivers,
+while MII ioctl's are used in many more... I was hoping that the
+mantainers would jump in!
 
-Fine. So it should be possible to do it on all architectures with 
-physically-indexed caches - that's good. Architectures with 
-virtually-indexed caches are going to have explicit cache management 
-functionality anyway, presumably :)
+-- 
+Bogdan Costescu
 
-Obviously the algorithm you describe should not be implemented in
-arch-independent drivers. It should be in include/asm-*, for those
-architectures which _can't_ do it with a single cache management instruction
-(or loop of same).
-
-What shall we call this function? The intuitive "flush_dcache_range" appears
-to have already been taken.
-
---
-dwmw2
-
+IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
+Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
+Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
+E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
 

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266292AbSKLHtb>; Tue, 12 Nov 2002 02:49:31 -0500
+	id <S265773AbSKLHrt>; Tue, 12 Nov 2002 02:47:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266295AbSKLHta>; Tue, 12 Nov 2002 02:49:30 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:53215 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S266292AbSKLHta>;
-	Tue, 12 Nov 2002 02:49:30 -0500
-Date: Tue, 12 Nov 2002 10:11:46 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       "'Mark Mielke'" <mark@mark.mielke.cc>, <linux-kernel@vger.kernel.org>
-Subject: Re: Users locking memory using futexes
-In-Reply-To: <20021112052113.GA12452@bjl1.asuk.net>
-Message-ID: <Pine.LNX.4.44.0211121000280.5877-100000@localhost.localdomain>
+	id <S265821AbSKLHrt>; Tue, 12 Nov 2002 02:47:49 -0500
+Received: from imrelay-2.zambeel.com ([209.240.48.8]:37389 "EHLO
+	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
+	id <S265773AbSKLHrs>; Tue, 12 Nov 2002 02:47:48 -0500
+Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB18BE@xch-a.win.zambeel.com>
+From: Manish Lachwani <manish@Zambeel.com>
+To: linux-kernel@vger.kernel.org
+Cc: Manish Lachwani <manish@Zambeel.com>
+Subject: Hangs seen with the 3ware controller and the 2.4.17 kernel ...
+Date: Mon, 11 Nov 2002 23:54:27 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On Tue, 12 Nov 2002, Jamie Lokier wrote:
+I am using a 2.4.17 SMP kernel and .018 version of the 3ware driver. This
+happens when we have two controllers (8-port and 4-port), IO is going on
+with both the controllers and on one controller (4-port in my experiment),
+there is  command timeout and the reset sequence fails. This is a hard
+kernel hang. The last message on the window is "reset sequence failed"
 
-> It would be nice if the futex waitqueues could be re-hashed against swap
-> entries when pages are swapped out, somehow, but this sounds hard.
+kdb for the eh_1 shows:
 
-yes it sounds hard (and somewhat expensive). The simple solution would be
-to hash against the pte address, which is an invariant over swapout - but
-that breaks inter-process futexes. The hard way would be to rehash the
-futex at the pte address upon swapout, and rehash it with the new physical
-page upon swapin. The pte chain case has to be careful, and rehashing
-should only be done when the physical page is truly unmapped even in the
-last process context.
+scsi_error_handler -> scsi_unjam_host -> scsi_try_host_reset -> schedule
 
-but this should indeed solve the page lockdown problem.
+I do know that the scsi_try_host_reset(..) calls scsi_sleep for 10*HZ. 
 
-	Ingo
+Anyway, another scenario that causes a hang:
+
+scsi_error_handler -> scsi_unjam_host -> scsi_try_to_abort_command ->
+schedule
+
+Also, This hang seems to occur when there are two controllers only. When I
+tried with 
+one controller numerous times, I could not reproduce this problem. Is it
+possible that scsi_unjam_host is getting confused with two devices and when
+reset fails on one host?
+
+Any help is appreciated ...
 

@@ -1,37 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268175AbUIGRZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268139AbUIGQtV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268175AbUIGRZM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 13:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268356AbUIGRJZ
+	id S268139AbUIGQtV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 12:49:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268165AbUIGQr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 13:09:25 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:7078 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S268342AbUIGRGs
+	Tue, 7 Sep 2004 12:47:29 -0400
+Received: from mail.mellanox.co.il ([194.90.237.34]:51041 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S268130AbUIGOib
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 13:06:48 -0400
-Date: Tue, 7 Sep 2004 19:04:18 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Terje Kvernes <terjekv@math.uio.no>
-Cc: Kasper Sandberg <lkml@metanurb.dk>, Andrew Morton <akpm@osdl.org>,
-       LKML Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc1-mm4
-Message-ID: <20040907170418.GA31407@electric-eye.fr.zoreil.com>
-References: <20040907020831.62390588.akpm@osdl.org> <wxxoekil26x.fsf@nommo.uio.no> <1094567096.11870.0.camel@localhost> <wxxwtz6i1zr.fsf@nommo.uio.no>
+	Tue, 7 Sep 2004 10:38:31 -0400
+Date: Tue, 7 Sep 2004 17:37:02 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Andi Kleen <ak@suse.de>
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel
+Message-ID: <20040907143702.GC1016@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20040901072245.GF13749@mellanox.co.il> <20040903080058.GB2402@wotan.suse.de> <20040907104017.GB10096@mellanox.co.il> <20040907121418.GC25051@wotan.suse.de> <20040907134517.GA1016@mellanox.co.il> <20040907141524.GA13862@wotan.suse.de> <20040907142530.GB1016@mellanox.co.il> <20040907142945.GB20981@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <wxxwtz6i1zr.fsf@nommo.uio.no>
+In-Reply-To: <20040907142945.GB20981@wotan.suse.de>
 User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terje Kvernes <terjekv@math.uio.no> :
-[...]
->   <url: http://www.math.uio.no/~terjekv/kernel/sk98lin_v7.07_2.6.9-rc1-mm4.patch >
+Hello!
+Quoting r. Andi Kleen (ak@suse.de) "Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel":
+> On Tue, Sep 07, 2004 at 05:25:30PM +0300, Michael S. Tsirkin wrote:
+> > > It may help your module, but won't solve the general problem shorter
+> > > term.
+> > But longer term it will be better, so why not go there?
+> > Once the infrastructure is there, drivers will be able to be
+> > migrated as required.
+> 
+> I have no problems with that. You would need two new entry points:
+> one 64bit one without BKL and a 32bit one also without BKL. 
+> 
+> I think there were some objections to this scheme in the past,
+> but I cannot think of a good alternative. 
+> 
 
-Will you consider spliting this stuff into a serie of smaller, self
-contained patches ?
+Maybe one entry point with a flag?
+Compatible ioctls could just ignore the flag.
 
---
-Ueimor
+MST

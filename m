@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbUKMVVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbUKMVYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbUKMVVq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 16:21:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbUKMVTB
+	id S261181AbUKMVYe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 16:24:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbUKMVYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 16:19:01 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:17885 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S261176AbUKMVSV (ORCPT
+	Sat, 13 Nov 2004 16:24:34 -0500
+Received: from fw.osdl.org ([65.172.181.6]:42946 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261195AbUKMVWs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 16:18:21 -0500
-Date: Sat, 13 Nov 2004 22:18:16 +0100
-From: Luc Saillard <luc@saillard.org>
-To: Gergely Nagy <algernon@bonehunter.rulez.org>
-Cc: Jan De Luyck <lkml@kcore.org>, linux-kernel@vger.kernel.org
-Subject: Re: pwc driver status?
-Message-ID: <20041113211816.GC22949@sd291.sivit.org>
-References: <200411132134.52872.lkml@kcore.org> <1100378556.16772.18.camel@melkor> <200411132203.32908.lkml@kcore.org> <1100380178.16772.23.camel@melkor>
+	Sat, 13 Nov 2004 16:22:48 -0500
+Date: Sat, 13 Nov 2004 13:22:32 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc1-mm5 [u]
+Message-Id: <20041113132232.5c201000.akpm@osdl.org>
+In-Reply-To: <1100380593.12663.1.camel@nosferatu.lan>
+References: <20041111012333.1b529478.akpm@osdl.org>
+	<1100368553.12239.3.camel@nosferatu.lan>
+	<1100380593.12663.1.camel@nosferatu.lan>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1100380178.16772.23.camel@melkor>
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 13, 2004 at 10:09:38PM +0100, Gergely Nagy wrote:
-> > Unfortunately, upgrading is not an option right now for other reasons...
+"Martin Schlemmer [c]" <azarah@nosferatu.za.org> wrote:
+>
+> > I want to imagine there is some reason why some threading apps will have
+>  > issues?  I have since rc1-mm4 issues with evolution - some threads do
+>  > not seem to come out of sleep or get running time for some reason.
+>  > Unfortunately I cannot find the thread again.  Is there a patch I can
+>  > apply/revert to get it to work for now?
+>  > 
 > 
-> That's a pity... because there is no 2.4 version of Luc's driver as far
-> as I know :(
+>  I should note that if I killall -STOP and then killall -CONT all
+>  evolution processes (evolution-data-server-1.0, evolution-alarm-notify
+>  and evolution-2.0) it works again for a while.  The issue happens pretty
+>  quick after I start evo ...
 
-I don't use a 2.4 kernel, so i can produce patch for older kernel, but i'll
-not test them. If someone want a 2.4 kernel tell me, and i'll try to mande a
-patch using difftools. I prefer to add features like v4l2, than supporting
-and testing old kernel (or writing documentation).
+Could you please try:
 
-> > Is this driver also supporting the Logitech Quickcam for Notebooks? I found 
-> > some references that the 'official' one used to do that, but I can't find 
-> > much docs... 
-> 
-> As far as I know, yes. The source code seems to indicate the same.
+wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm5/broken-out/futex_wait-fix.patch
+patch -R -p1 < futex_wait-fix.patch
 
-If the old driver supports, mine too (minor some very old webcam).
-
-Luc
+the retest?

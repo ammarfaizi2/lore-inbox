@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbVBAXMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVBAXSg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262154AbVBAXMh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 18:12:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbVBAXMh
+	id S262163AbVBAXSg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 18:18:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVBAXSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 18:12:37 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:23789 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262154AbVBAXMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 18:12:20 -0500
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A2)
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: John Stultz <johnstul@us.ibm.com>
-Cc: Tim Bird <tim.bird@am.sony.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1107298089.2040.184.camel@cog.beaverton.ibm.com>
-References: <1106607089.30884.10.camel@cog.beaverton.ibm.com>
-	 <41FFFD4F.9050900@am.sony.com>
-	 <1107298089.2040.184.camel@cog.beaverton.ibm.com>
+	Tue, 1 Feb 2005 18:18:36 -0500
+Received: from gate.crashing.org ([63.228.1.57]:26294 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262163AbVBAXS1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 18:18:27 -0500
+Subject: Re: Linux hangs during IDE initialization at boot for 30 sec
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: ee21rh@surrey.ac.uk
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       list linux-ide <linux-ide@vger.kernel.org>
+In-Reply-To: <pan.2005.02.01.20.21.46.334334@surrey.ac.uk>
+References: <200502011257.40059.brade@informatik.uni-muenchen.de>
+	 <pan.2005.02.01.20.21.46.334334@surrey.ac.uk>
 Content-Type: text/plain
-Message-Id: <1107299672.13413.25.camel@desktop.cunninghams>
+Date: Wed, 02 Feb 2005 10:18:20 +1100
+Message-Id: <1107299901.5624.28.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 02 Feb 2005 10:14:32 +1100
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi John and Tim.
-
-On Wed, 2005-02-02 at 09:48, john stultz wrote:
-> > I didn't scan for all uses of read_persistent_clock, but
-> > in my experience get_cmos_time() has a latency of up to
-> > 1 second on x86 because it synchronizes with the rollover
-> > of the RTC seconds.
+On Tue, 2005-02-01 at 20:22 +0000, Richard Hughes wrote:
+> On Tue, 01 Feb 2005 12:57:33 +0100, Michael Brade wrote:
 > 
-> I believe you're right. Although we don't call read_persistent_clock()
-> very frequently, nor do we call it in ways we don't already call
-> get_cmos_time(). So I'm not sure exactly what the concern is.
+> > Hi,
+> > 
+> > since at least kernel 2.6.9 I'm having a problem booting linux - it hangs 
+> > after this
+> > 
+> > Probing IDE interface ide0...
+> > hda: HITACHI_DK23DA-30, ATA DISK drive
+> > elevator: using anticipatory as default io scheduler
+> > ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> > Probing IDE interface ide1...
+> > hdc: TOSHIBA DVD-ROM SD-R2212, ATAPI CD/DVD-ROM drive
+> > ide1 at 0x170-0x177,0x376 on irq 15
+> > 
+> > After about 30 seconds everything continues fine with
+> > 
+> > hda: max request size: 128KiB
+> > 
+> > I found additional lines in the log just before the line above:
+> 
+> Same here on 2.6.11-rc2-bk3 using a *Toshiba* Satellite Pro A10.
+> 
+> messages can be found here:
+> 
+> http://hughsie.no-ip.com/write/kernel/messages
 
-Tim and I talked about this at the recent CELF conference. I have a
-concern in that suspend-to-disk calls the suspend methods and then
-(after the atomic copy) the resume methods. Since the copy usually takes
-< 1s, and the suspend and resume methods both make two calls to
-get_coms_time, that's an average of 1.5s per suspend call and 1.5s per
-resume call - but if the copy does take next to no time (as normal),
-it's really 1.5s + 2s = 3.5s average just for getting the time. I
-believe Tim has similar issues in code he is working on. It's a concern
-if your battery is running out and you're trying to hibernate!
+This looks like bogus HW, or bogus list of IDE interfaces ...
 
-[...]
+The IDE layer waits up to 30 seconds for a device to drop it's busy bit,
+which is necessary for some drives that aren't fully initialized yet.
 
-> I've only lightly tested the suspend code, but on my system I didn't see
-> very much drift appear. Regardless, it should be better then what the
-> current suspend/resume code does, which doesn't keep any sub-second
-> resolution across suspend.
+I suspect in your case, it's reading "ff", which indicates either that
+there is no hardware where the kernel tries to probe, or that there is
+bogus IDE interfaces which don't properly have the D7 line pulled low so
+that BUSY appears not set in absence of a drive.
 
-My question is, "Is there a way we can get sub-second resolution without
-waiting for the start of a new second four times in a row?" I'm sure
-there must be.
+I'm not sure how the list of intefaces is probed on this machine, that's
+probably where the problem is.
 
-Regards,
+Ben.
 
-Nigel
-
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-
-Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
 

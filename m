@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313529AbSC3ScU>; Sat, 30 Mar 2002 13:32:20 -0500
+	id <S313531AbSC3Sga>; Sat, 30 Mar 2002 13:36:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313530AbSC3ScK>; Sat, 30 Mar 2002 13:32:10 -0500
-Received: from [195.163.186.27] ([195.163.186.27]:38828 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S313529AbSC3Sb6>;
-	Sat, 30 Mar 2002 13:31:58 -0500
-Date: Sat, 30 Mar 2002 20:31:56 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: george anzinger <george@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Majordomo@vger.kernel.org down?
-Message-ID: <20020330203156.V17545@mea-ext.zmailer.org>
-In-Reply-To: <3CA5F6C6.6659D56F@mvista.com>
-Mime-Version: 1.0
+	id <S313532AbSC3SgU>; Sat, 30 Mar 2002 13:36:20 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:51716 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313531AbSC3SgI>; Sat, 30 Mar 2002 13:36:08 -0500
+Subject: Re: [patch] block/IDE/interrupt lockup
+To: akpm@zip.com.au (Andrew Morton)
+Date: Sat, 30 Mar 2002 18:52:18 +0000 (GMT)
+Cc: manfred@colorfullife.com (Manfred Spraul), linux-kernel@vger.kernel.org,
+        marcelo@conectiva.com.br (Marcelo Tosatti)
+In-Reply-To: <3CA603B0.8B73FD4C@zip.com.au> from "Andrew Morton" at Mar 30, 2002 10:28:00 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16rNxa-0003UM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 30, 2002 at 09:32:54AM -0800, george anzinger wrote:
-> I seem to have been "pruned" from the list sometime Wed. and
-> Majordomo@verger.kernel.org is ignoring my attempts to re subscribe me. 
-> What gives?
+> The kernel calls request_irq() inside cli() in lots of places.
+> That's the same bug: "if you called cli(), how come you're
+> allowing kmalloc to clear it?".
 
-  For past 5+ days VGER has been unable to connect any MX server
-  of your domain.  Why ?  I have no idea.  Diagnostics says:
-  "connection timed out".
-
-  Somebody has tweaked a firewall there, and is now rejecting
-  connections with TCP/ECN ?
-
-  Use  http://vger.kernel.org/mxverify.html  tool to see how things
-  are working.
-
-> George Anzinger   george@mvista.com
-
-/Matti Aarnio  -- co-postmaster of vger.kernel.org
+Those places should if possible be fixed. I take patches. If we can get 2.4
+to BUG() on those kmalloc violations and clean them up it sounds like
+progress

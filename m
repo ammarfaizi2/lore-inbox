@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264027AbTICCZV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 22:25:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264043AbTICCZU
+	id S264022AbTICCZE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 22:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264027AbTICCZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 22:25:20 -0400
-Received: from hoemail2.lucent.com ([192.11.226.163]:10372 "EHLO
-	hoemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S264027AbTICCZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 22:25:17 -0400
+	Tue, 2 Sep 2003 22:25:04 -0400
+Received: from ms-smtp-03.rdc-kc.rr.com ([24.94.166.129]:51164 "EHLO
+	ms-smtp-03.rdc-kc.rr.com") by vger.kernel.org with ESMTP
+	id S264022AbTICCZB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 22:25:01 -0400
+From: "Will L G" <diskman@kc.rr.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Compressed VMLINUX Kernel
+Date: Tue, 2 Sep 2003 21:20:46 -0500
+Message-ID: <004801c371c1$fc64b0f0$6501a8c0@zephyr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16213.20743.792304.759727@gargle.gargle.HOWL>
-Date: Tue, 2 Sep 2003 22:25:11 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <greg@kroah.com>, stoffel@lucent.com, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.6.0-test4-mm4 - USD disconnect oops
-In-Reply-To: <20030902181336.5dfe624f.akpm@osdl.org>
-References: <16210.44543.579049.520185@gargle.gargle.HOWL>
-	<20030901065928.GB22647@kroah.com>
-	<16213.12008.527588.874265@gargle.gargle.HOWL>
-	<20030903000448.GA21173@kroah.com>
-	<20030902181336.5dfe624f.akpm@osdl.org>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+Importance: Normal
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+In-Reply-To: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I was wondering, is there some method or utility that will allow me to
+compress my kernel (vmlinux)? I was running an alpha and bzImage and zImage
+don’t work.  I read all the mans that I could lay my grubby little hands on
+but none of them mentioned HOW one is the compress a vmlinux kernel.  
+ 
+The reason ask this is, I boot to linux using an OLD IDE drive and it takes
+sometime to read a 7mb file. I noticed that the original kernel
+(Redhat/Compaq derivative) was compressed and somewhat smaller, about less
+than half the size. Thanks, Will L G
+ 
 
-Andrew & Greg,
 
-Yup, that patch fixed the USB issues I had.  And since I've upgraded
-the lspci tools, I can even see what drivers to use for each port, so
-I've gone back to the stock usb.rc script.
-
-Thanks to both of you!  
-
-John

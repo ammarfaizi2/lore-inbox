@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266566AbUAWOid (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 09:38:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266568AbUAWOid
+	id S266562AbUAWOj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 09:39:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266564AbUAWOj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 09:38:33 -0500
-Received: from ns1.s2io.com ([216.209.86.101]:54410 "EHLO ns1.s2io.com")
-	by vger.kernel.org with ESMTP id S266566AbUAWOic (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 09:38:32 -0500
-From: "Leonid Grossman" <leonid.grossman@s2io.com>
-To: "'Jes Sorensen'" <jes@wildopensource.com>
-Cc: "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
-       "'ravinandan arakali'" <ravinandan.arakali@s2io.com>
-Subject: RE: pci_alloc_consistent()
-Date: Fri, 23 Jan 2004 06:37:47 -0800
-Message-ID: <000001c3e1be$79904640$0400a8c0@S2IOtech.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-Importance: Normal
-In-Reply-To: <yq07jzj2gmx.fsf@wildopensource.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Spam-Score: -106.2
-X-Spam-Outlook-Score: ()
-X-Spam-Features: BAYES_01,IN_REP_TO,QUOTED_EMAIL_TEXT,USER_IN_WHITELIST
+	Fri, 23 Jan 2004 09:39:56 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:36521 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S266562AbUAWOjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 09:39:54 -0500
+Date: Fri, 23 Jan 2004 14:38:06 +0000
+From: Dave Jones <davej@redhat.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Evaldo Gardenali <evaldo@gardenali.biz>, linux-kernel@vger.kernel.org
+Subject: Re: buggy raid checksumming selection?
+Message-ID: <20040123143806.GL9327@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Nick Piggin <piggin@cyberone.com.au>,
+	Evaldo Gardenali <evaldo@gardenali.biz>,
+	linux-kernel@vger.kernel.org
+References: <40112465.8040801@gardenali.biz> <20040123141352.GA19002@redhat.com> <40112E29.4060800@cyberone.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40112E29.4060800@cyberone.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jes,
+On Sat, Jan 24, 2004 at 01:22:33AM +1100, Nick Piggin wrote:
 
-> Leonid,
-> 
-> What type of Itanium box? It's possible what you're seeing is 
-> caused by a bug in the IOMMU code, but we would need to know 
-> which one (HP, SGI or someone else's).
+ > >> Uhh. correct me if I am wrong, but shouldnt it select the fastest 
+ > >algorithm?
+ > >
+ > >No, if it can choose a function which avoids polluting the cache over
+ > >one that doesn't, it will.  Even if that means slightly less raw throughput
+ > >
+ > >This comes up time after time, maybe we need a printk in that case ?
+ > 
+ > How about removing the entire output? Is it really needed?
 
-The problem with pci_alloc_consistent()above 1MB happens on HP rx2600
-(this is 2U dual-Itanium 900MHz pci-x 133 box). I don't believe it
-happens on 64 bit Opterons. Today we are going to test Dell and SGI
-Itanium systems, as well as a bit newer rx 2600 with Itanium-2 1.5GHz -
-I'll let you know by the end of the day.
+It's probably on a par with http://www.hadess.net/files/stuff/vpenis.c  8-)
+You have a point though, it probably is pointless these days.
 
-Thanks, Leonid
-
-
-> 
-> Cheers,
-> Jes
-> 
+		Dave
 

@@ -1,347 +1,181 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbTERIzv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 04:55:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbTERIzv
+	id S261244AbTERIz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 04:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbTERIz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 04:55:51 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:1994 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261243AbTERIzp (ORCPT
+	Sun, 18 May 2003 04:55:58 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:3018 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261244AbTERIzq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 04:55:45 -0400
-Message-ID: <3EC74622.9070805@colorfullife.com>
-Date: Sun, 18 May 2003 10:36:50 +0200
+	Sun, 18 May 2003 04:55:46 -0400
+Message-ID: <3EC746E4.5020406@colorfullife.com>
+Date: Sun, 18 May 2003 10:40:04 +0200
 From: Manfred Spraul <manfred@colorfullife.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Improve inter-cpu object passing in slab 1/3
+Subject: [PATCH] Improve inter-cpu object passing in slab 2/3
 Content-Type: multipart/mixed;
- boundary="------------020003070304050805040109"
+ boundary="------------080209010100080703070908"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------020003070304050805040109
+--------------080209010100080703070908
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Hi,
+2nd part for faster object transfer between cpus:
 
-slab.c is not very efficient for passing objects between cpu. Usually 
-this is a rare event, but with network routing and cpu bound interrupt 
-handlers, it's possible that all alloc operations happen on one cpu, and 
-all free operations on another cpu.
+Make it tunable by writing to /proc/slabinfo.
 
-The attached patch solves that by adding a shared array for fast object 
-transfer.
+The patch is against 2.5.69-mm6, it applies to 2.5.69-bk12 with some 
+offsets.
 
-What do you think? The patch is against 2.5.69-bk12, it's already 
-included in 2.5.69-mm6.
+What do you think? The change breaks backward compatibility: previously 
+/proc/slabinfo expected two numbers (batchcount, limit), now it expects 
+three numbers (batchcount, limit, sharedfactor). Calls with the wrong 
+number of arguments just fail.
 
 --
     Manfred
 
---------------020003070304050805040109
+--------------080209010100080703070908
 Content-Type: text/plain;
- name="slab-magazine-layer.patch"
+ name="patch-slab-arraytune"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="slab-magazine-layer.patch"
+ filename="patch-slab-arraytune"
 
-
- mm/slab.c |  142 +++++++++++++++++++++++++++++++++++++++++++++++++-------------
- 1 files changed, 113 insertions(+), 29 deletions(-)
-
-diff -puN mm/slab.c~slab-magazine-layer mm/slab.c
---- 25/mm/slab.c~slab-magazine-layer	2003-05-08 00:25:52.000000000 -0700
-+++ 25-akpm/mm/slab.c	2003-05-08 00:25:52.000000000 -0700
-@@ -201,6 +201,7 @@ struct arraycache_init {
+--- 2.5/mm/slab.c	2003-05-16 23:43:44.000000000 +0200
++++ build-2.5/mm/slab.c	2003-05-17 00:05:02.000000000 +0200
+@@ -203,7 +203,6 @@
   * into this structure, too. Figure out what causes
   * fewer cross-node spinlock operations.
   */
-+#define SHARED_ARRAY_FACTOR	16
+-#define SHARED_ARRAY_FACTOR	16
  struct kmem_list3 {
  	struct list_head	slabs_partial;	/* partial list first, better asm code */
- 	struct list_head	slabs_full;
-@@ -208,6 +209,7 @@ struct kmem_list3 {
- 	unsigned long	free_objects;
- 	int		free_touched;
- 	unsigned long	next_reap;
-+	struct array_cache	*shared;
- };
- 
- #define LIST3_INIT(parent) \
-@@ -1195,6 +1197,7 @@ static void smp_call_function_all_cpus(v
- }
- 
- static void free_block (kmem_cache_t* cachep, void** objpp, int len);
-+static void drain_array_locked(kmem_cache_t* cachep, struct array_cache *ac);
- 
- static void do_drain(void *arg)
- {
-@@ -1203,13 +1206,20 @@ static void do_drain(void *arg)
- 
- 	check_irq_off();
- 	ac = ac_data(cachep);
-+	spin_lock(&cachep->spinlock);
- 	free_block(cachep, &ac_entry(ac)[0], ac->avail);
-+	spin_unlock(&cachep->spinlock);
- 	ac->avail = 0;
- }
- 
- static void drain_cpu_caches(kmem_cache_t *cachep)
- {
- 	smp_call_function_all_cpus(do_drain, cachep);
-+	check_irq_on();
-+	spin_lock_irq(&cachep->spinlock);
-+	if (cachep->lists.shared)
-+		drain_array_locked(cachep, cachep->lists.shared);
-+	spin_unlock_irq(&cachep->spinlock);
+ 	struct list_head	slabs_free;
+@@ -2176,7 +2175,7 @@
  }
  
  
-@@ -1307,6 +1317,8 @@ int kmem_cache_destroy (kmem_cache_t * c
- 		for (i = 0; i < NR_CPUS; i++)
- 			kfree(cachep->array[i]);
- 		/* NUMA: free the list3 structures */
-+		kfree(cachep->lists.shared);
-+		cachep->lists.shared = NULL;
- 	}
- 	kmem_cache_free(&cache_cache, cachep);
- 
-@@ -1649,6 +1661,19 @@ retry:
- 
- 	BUG_ON(ac->avail > 0);
- 	spin_lock(&cachep->spinlock);
-+	if (l3->shared) {
-+		struct array_cache *shared_array = l3->shared;
-+		if (shared_array->avail) {
-+			if (batchcount > shared_array->avail)
-+				batchcount = shared_array->avail;
-+			shared_array->avail -= batchcount;
-+			ac->avail = batchcount;
-+			memcpy(ac_entry(ac), &ac_entry(shared_array)[shared_array->avail],
-+					sizeof(void*)*batchcount);
-+			shared_array->touched = 1;
-+			goto alloc_done;
-+		}
-+	}
- 	while (batchcount > 0) {
- 		struct list_head *entry;
- 		struct slab *slabp;
-@@ -1672,6 +1697,7 @@ retry:
- 
- must_grow:
- 	l3->free_objects -= ac->avail;
-+alloc_done:
- 	spin_unlock(&cachep->spinlock);
- 
- 	if (unlikely(!ac->avail)) {
-@@ -1770,13 +1796,11 @@ static inline void * __cache_alloc (kmem
-  * the l3 structure
-  */
- 
--static inline void
--__free_block(kmem_cache_t *cachep, void **objpp, int nr_objects)
-+static void free_block(kmem_cache_t *cachep, void **objpp, int nr_objects)
- {
- 	int i;
- 
--	check_irq_off();
--	spin_lock(&cachep->spinlock);
-+	check_spinlock_acquired(cachep);
- 
- 	/* NUMA: move add into loop */
- 	cachep->lists.free_objects += nr_objects;
-@@ -1814,12 +1838,6 @@ __free_block(kmem_cache_t *cachep, void 
- 				&list3_data_ptr(cachep, objp)->slabs_partial);
- 		}
- 	}
--	spin_unlock(&cachep->spinlock);
--}
--
--static void free_block(kmem_cache_t* cachep, void** objpp, int len)
--{
--	__free_block(cachep, objpp, len);
- }
- 
- static void cache_flusharray (kmem_cache_t* cachep, struct array_cache *ac)
-@@ -1831,14 +1849,28 @@ static void cache_flusharray (kmem_cache
- 	BUG_ON(!batchcount || batchcount > ac->avail);
- #endif
- 	check_irq_off();
--	__free_block(cachep, &ac_entry(ac)[0], batchcount);
-+	spin_lock(&cachep->spinlock);
-+	if (cachep->lists.shared) {
-+		struct array_cache *shared_array = cachep->lists.shared;
-+		int max = shared_array->limit-shared_array->avail;
-+		if (max) {
-+			if (batchcount > max)
-+				batchcount = max;
-+			memcpy(&ac_entry(shared_array)[shared_array->avail],
-+					&ac_entry(ac)[0],
-+					sizeof(void*)*batchcount);
-+			shared_array->avail += batchcount;
-+			goto free_done;
-+		}
-+	}
- 
-+	free_block(cachep, &ac_entry(ac)[0], batchcount);
-+free_done:
- #if STATS
- 	{
- 		int i = 0;
- 		struct list_head *p;
- 
--		spin_lock(&cachep->spinlock);
- 		p = list3_data(cachep)->slabs_free.next;
- 		while (p != &(list3_data(cachep)->slabs_free)) {
- 			struct slab *slabp;
-@@ -1850,9 +1882,9 @@ static void cache_flusharray (kmem_cache
- 			p = p->next;
- 		}
- 		STATS_SET_FREEABLE(cachep, i);
--		spin_unlock(&cachep->spinlock);
- 	}
- #endif
-+	spin_unlock(&cachep->spinlock);
- 	ac->avail -= batchcount;
- 	memmove(&ac_entry(ac)[0], &ac_entry(ac)[batchcount],
- 			sizeof(void*)*ac->avail);
-@@ -2096,6 +2128,7 @@ static void do_ccupdate_local(void *info
- static int do_tune_cpucache (kmem_cache_t* cachep, int limit, int batchcount)
+-static int do_tune_cpucache (kmem_cache_t* cachep, int limit, int batchcount)
++static int do_tune_cpucache (kmem_cache_t* cachep, int limit, int batchcount, int shared)
  {
  	struct ccupdate_struct new;
-+	struct array_cache *new_shared;
- 	int i;
- 
- 	memset(&new.new,0,sizeof(new.new));
-@@ -2129,11 +2162,29 @@ static int do_tune_cpucache (kmem_cache_
- 		struct array_cache *ccold = new.new[i];
- 		if (!ccold)
- 			continue;
--		local_irq_disable();
-+		spin_lock_irq(&cachep->spinlock);
- 		free_block(cachep, ac_entry(ccold), ccold->avail);
--		local_irq_enable();
-+		spin_unlock_irq(&cachep->spinlock);
+ 	struct array_cache *new_shared;
+@@ -2218,12 +2217,12 @@
+ 		spin_unlock_irq(&cachep->spinlock);
  		kfree(ccold);
  	}
-+	new_shared = kmalloc(sizeof(void*)*batchcount*SHARED_ARRAY_FACTOR+
-+				sizeof(struct array_cache), GFP_KERNEL);
-+	if (new_shared) {
-+		struct array_cache *old;
-+		new_shared->avail = 0;
-+		new_shared->limit = batchcount*SHARED_ARRAY_FACTOR;
-+		new_shared->batchcount = 0xbaadf00d;
-+		new_shared->touched = 0;
-+
-+		spin_lock_irq(&cachep->spinlock);
-+		old = cachep->lists.shared;
-+		cachep->lists.shared = new_shared;
-+		if (old)
-+			free_block(cachep, ac_entry(old), old->avail);
-+		spin_unlock_irq(&cachep->spinlock);
-+		kfree(old);
-+	}
-+
- 	return 0;
- }
+-	new_shared = kmalloc(sizeof(void*)*batchcount*SHARED_ARRAY_FACTOR+
++	new_shared = kmalloc(sizeof(void*)*batchcount*shared+
+ 				sizeof(struct array_cache), GFP_KERNEL);
+ 	if (new_shared) {
+ 		struct array_cache *old;
+ 		new_shared->avail = 0;
+-		new_shared->limit = batchcount*SHARED_ARRAY_FACTOR;
++		new_shared->limit = batchcount*shared;
+ 		new_shared->batchcount = 0xbaadf00d;
+ 		new_shared->touched = 0;
  
-@@ -2176,6 +2227,47 @@ static void enable_cpucache (kmem_cache_
+@@ -2243,7 +2242,7 @@
+ static void enable_cpucache (kmem_cache_t *cachep)
+ {
+ 	int err;
+-	int limit;
++	int limit, shared;
+ 
+ 	/* The head array serves three purposes:
+ 	 * - create a LIFO ordering, i.e. return objects that are cache-warm
+@@ -2258,11 +2257,25 @@
+ 	else if (cachep->objsize > PAGE_SIZE)
+ 		limit = 8;
+ 	else if (cachep->objsize > 1024)
+-		limit = 54;
++		limit = 24;
+ 	else if (cachep->objsize > 256)
+-		limit = 120;
++		limit = 54;
+ 	else
+-		limit = 248;
++		limit = 120;
++
++	/* Cpu bound tasks (e.g. network routing) can exhibit cpu bound
++	 * allocation behaviour: Most allocs on one cpu, most free operations
++	 * on another cpu. For these cases, an efficient object passing between
++	 * cpus is necessary. This is provided by a shared array. The array
++	 * replaces Bonwick's magazine layer.
++	 * On uniprocessor, it's functionally equivalent (but less efficient)
++	 * to a larger limit. Thus disabled by default.
++	 */
++	shared = 0;
++#ifdef CONFIG_SMP
++	if (cachep->objsize <= PAGE_SIZE)
++		shared = 8;
++#endif
+ 
+ #if DEBUG
+ 	/* With debugging enabled, large batchcount lead to excessively
+@@ -2272,7 +2285,7 @@
+ 	if (limit > 32)
+ 		limit = 32;
+ #endif
+-	err = do_tune_cpucache(cachep, limit, (limit+1)/2);
++	err = do_tune_cpucache(cachep, limit, (limit+1)/2, shared);
+ 	if (err)
+ 		printk(KERN_ERR "enable_cpucache failed for %s, error %d.\n",
  					cachep->name, -err);
- }
+@@ -2580,7 +2593,7 @@
  
-+static void drain_array(kmem_cache_t *cachep, struct array_cache *ac)
-+{
-+	int tofree;
-+
-+	check_irq_off();
-+	if (ac->touched) {
-+		ac->touched = 0;
-+	} else if (ac->avail) {
-+		tofree = (ac->limit+4)/5;
-+		if (tofree > ac->avail) {
-+			tofree = (ac->avail+1)/2;
-+		}
-+		spin_lock(&cachep->spinlock);
-+		free_block(cachep, ac_entry(ac), tofree);
-+		spin_unlock(&cachep->spinlock);
-+		ac->avail -= tofree;
-+		memmove(&ac_entry(ac)[0], &ac_entry(ac)[tofree],
-+					sizeof(void*)*ac->avail);
-+	}
-+}
-+
-+static void drain_array_locked(kmem_cache_t *cachep, struct array_cache *ac)
-+{
-+	int tofree;
-+
-+	check_spinlock_acquired(cachep);
-+	if (ac->touched) {
-+		ac->touched = 0;
-+	} else if (ac->avail) {
-+		tofree = (ac->limit+4)/5;
-+		if (tofree > ac->avail) {
-+			tofree = (ac->avail+1)/2;
-+		}
-+		free_block(cachep, ac_entry(ac), tofree);
-+		ac->avail -= tofree;
-+		memmove(&ac_entry(ac)[0], &ac_entry(ac)[tofree],
-+					sizeof(void*)*ac->avail);
-+	}
-+}
-+
-+
+ #define MAX_SLABINFO_WRITE 128
  /**
-  * cache_reap - Reclaim memory from caches.
-  *
-@@ -2202,7 +2294,6 @@ static inline void cache_reap (void)
- 		kmem_cache_t *searchp;
- 		struct list_head* p;
- 		int tofree;
--		struct array_cache *ac;
- 		struct slab *slabp;
+- * slabinfo_write - SMP tuning for the slab allocator
++ * slabinfo_write - Tuning for the slab allocator
+  * @file: unused
+  * @buffer: user buffer
+  * @count: data len
+@@ -2590,7 +2603,7 @@
+ 				size_t count, loff_t *ppos)
+ {
+ 	char kbuf[MAX_SLABINFO_WRITE+1], *tmp;
+-	int limit, batchcount, res;
++	int limit, batchcount, shared, res;
+ 	struct list_head *p;
+ 	
+ 	if (count > MAX_SLABINFO_WRITE)
+@@ -2604,10 +2617,8 @@
+ 		return -EINVAL;
+ 	*tmp = '\0';
+ 	tmp++;
+-	limit = simple_strtol(tmp, &tmp, 10);
+-	while (*tmp == ' ')
+-		tmp++;
+-	batchcount = simple_strtol(tmp, &tmp, 10);
++	if (sscanf(tmp, " %d %d %d", &limit, &batchcount, &shared) != 3)
++		return -EINVAL;
  
- 		searchp = list_entry(walk, kmem_cache_t, next);
-@@ -2212,19 +2303,8 @@ static inline void cache_reap (void)
- 
- 		check_irq_on();
- 		local_irq_disable();
--		ac = ac_data(searchp);
--		if (ac->touched) {
--			ac->touched = 0;
--		} else if (ac->avail) {
--			tofree = (ac->limit+4)/5;
--			if (tofree > ac->avail) {
--				tofree = (ac->avail+1)/2;
--			}
--			free_block(searchp, ac_entry(ac), tofree);
--			ac->avail -= tofree;
--			memmove(&ac_entry(ac)[0], &ac_entry(ac)[tofree],
--					sizeof(void*)*ac->avail);
--		}
-+		drain_array(searchp, ac_data(searchp));
-+
- 		if(time_after(searchp->lists.next_reap, jiffies))
- 			goto next_irqon;
- 
-@@ -2233,6 +2313,10 @@ static inline void cache_reap (void)
- 			goto next_unlock;
+ 	/* Find the cache in the chain of caches. */
+ 	down(&cache_chain_sem);
+@@ -2618,10 +2629,11 @@
+ 		if (!strcmp(cachep->name, kbuf)) {
+ 			if (limit < 1 ||
+ 			    batchcount < 1 ||
+-			    batchcount > limit) {
++			    batchcount > limit ||
++			    shared < 0) {
+ 				res = -EINVAL;
+ 			} else {
+-				res = do_tune_cpucache(cachep, limit, batchcount);
++				res = do_tune_cpucache(cachep, limit, batchcount, shared);
+ 			}
+ 			break;
  		}
- 		searchp->lists.next_reap = jiffies + REAPTIMEOUT_LIST3;
-+
-+		if (searchp->lists.shared)
-+			drain_array_locked(searchp, searchp->lists.shared);
-+
- 		if (searchp->lists.free_touched) {
- 			searchp->lists.free_touched = 0;
- 			goto next_unlock;
 
-_
-
---------------020003070304050805040109--
+--------------080209010100080703070908--
 
 

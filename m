@@ -1,86 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263143AbSITRiE>; Fri, 20 Sep 2002 13:38:04 -0400
+	id <S263165AbSITRir>; Fri, 20 Sep 2002 13:38:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263274AbSITRiE>; Fri, 20 Sep 2002 13:38:04 -0400
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:59666 "EHLO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S263143AbSITRiB> convert rfc822-to-8bit; Fri, 20 Sep 2002 13:38:01 -0400
-x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: TPC-C benchmark used standard RH kernel
-Date: Fri, 20 Sep 2002 12:43:00 -0500
-Message-ID: <45B36A38D959B44CB032DA427A6E106402D09E49@cceexc18.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: TPC-C benchmark used standard RH kernel
-Thread-Index: AcJgyev5fdnZVlzFRR+6+25odA9togAACyRA
-From: "Bond, Andrew" <Andrew.Bond@hp.com>
-To: "Mike Anderson" <andmike@us.ibm.com>, "Dave Hansen" <haveblue@us.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 Sep 2002 17:43:01.0001 (UTC) FILETIME=[2A0F6790:01C260CD]
+	id <S263167AbSITRiq>; Fri, 20 Sep 2002 13:38:46 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:52200 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S263165AbSITRio>;
+	Fri, 20 Sep 2002 13:38:44 -0400
+Date: Fri, 20 Sep 2002 23:18:42 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, maneesh@in.ibm.com,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       viro@math.psu.edu, Hanna Linder <hannal@us.ibm.com>
+Subject: Re: 2.5.36-mm1 dbench 512 profiles
+Message-ID: <20020920231842.B4357@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20020919223007.GP28202@holomorphy.com> <68630000.1032477517@w-hlinder> <3D8A5FE6.4C5DE189@digeo.com> <20020920000815.GC3530@holomorphy.com> <200209200747.g8K7la9B174532@northrelay01.pok.ibm.com> <3D8B31F8.40900@us.ibm.com> <509891064.1032512823@[10.10.2.3]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <509891064.1032512823@[10.10.2.3]>; from mbligh@aracnet.com on Fri, Sep 20, 2002 at 04:17:10PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 20, 2002 at 04:17:10PM +0000, Martin J. Bligh wrote:
+> > Isn't increased hold time _good_ on NUMA-Q?  I thought that the 
+> > really costy operation was bouncing the lock around the interconnect, 
+> > not holding it. 
+> 
+> Depends what you get it return. The object of fastwalk was to stop the
+> cacheline bouncing on all the individual dentry counters, at the cost
+> of increased dcache_lock hold times. It's a tradeoff ... and in this
+> instance it wins. In general, long lock hold times are bad.
 
-> -----Original Message-----
-> From: Mike Anderson [mailto:andmike@us.ibm.com]
-> Sent: Friday, September 20, 2002 1:21 PM
-> To: Dave Hansen
-> Cc: Bond, Andrew; linux-kernel@vger.kernel.org
-> Subject: Re: TPC-C benchmark used standard RH kernel
-> 
-> 
-> 
-> Dave Hansen [haveblue@us.ibm.com] wrote:
-> > Bond, Andrew wrote:
-> > > This isn't as recent as I would like, but it will give 
-> you an idea.
-> > > Top 75 from readprofile.  This run was not using bigpages though.
-> > >
-> > > 00000000 total                                      7872   0.0066
-> > > c0105400 default_idle                               1367  21.3594
-> > > c012ea20 find_vma_prev                               462   2.2212
-> 
-> > > c0142840 create_bounce                               378   1.1250
-> > > c0142540 bounce_end_io_read                          332   0.9881
-> 
-> .. snip..
-> > 
-> > Forgive my complete ignorane about TPC-C...  Why do you 
-> have so much 
-> > idle time?  Are you I/O bound? (with that many disks, I 
-> sure hope not 
-> > :) )  Or is it as simple as leaving profiling running for a 
-> bit before 
-> > or after the benchmark was run?
-> 
-> The calls to create_bounce and bounce_end_io_read are indications that
-> some of your IO is being bounced and will not be running a peak
-> performance. 
-> 
-> This is avoided by using the highmem IO changes which I 
-> believe are not
-> in the standard RH kernel. Unknown if that would address your 
-> idle time
-> question.
-> 
-> -andmike
-> 
-> -- 
-> Michael Anderson
-> andmike@us.ibm.com
-> 
-> 
+I don't think individual dentry counters are as much a problem as
+acquisition of dcache_lock for every path component lookup as done
+by the earlier path walking algorithm. The big deal with fastwalk
+is that it decreases the number of acquisitions of dcache_lock
+for a webserver workload by 70% on an 8-CPU machine. That is avoiding
+a lot of possible cacheline bouncing of dcache_lock.
 
-Yes, bounce buffers were definitely a problem and could be contributing to our idle time issues. Highmem IO is in the RH Advanced Server kernel.  Our problem was that 64-bit DMA for SCSI devices wasn't working, so all our IO to memory >4GB still required bounce buffers since the Qlogic controllers use the SCSI layer to present their drives.  So we weren't paying the full penalty as we would without any highmem support, but since 3/4 of our memory was above 4GB it was still a heavy penalty.
 
-If we had used block device IO with our HP cciss driver, we could have done 64-bit DMA in the RHAS 2.1 environment.  However, we needed shared storage capability for the cluster.  Hence, a fibre channel HBA.
+> > In any case, we all know often acquired global locks are a bad idea 
+> > on a 32-way, and should be avoided like the plague.  I just wish we 
+> > had a dcache solution that didn't even need locks as much... :)
+> 
+> Well, avoiding data corruption is a preferable goal too. The point of
+> RCU is not to have to take a lock for the common read case. I'd expect
+> good results from it on the NUMA machines - never been benchmarked, as
+> far as I recall.
 
-The problem was more of a "what can we support in this benchmark timeframe" issue rather than a technical one.  The technical problems are already solved.
+You can see that in wli's dbench 512 results on his NUMA box.
 
-Regards,
-Andy
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

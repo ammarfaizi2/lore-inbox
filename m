@@ -1,78 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262976AbUKRWBu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262990AbUKRWQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262976AbUKRWBu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 17:01:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbUKRV7i
+	id S262990AbUKRWQa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 17:16:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263022AbUKRWPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 16:59:38 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:25235 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263002AbUKRV60 (ORCPT
+	Thu, 18 Nov 2004 17:15:48 -0500
+Received: from fmr11.intel.com ([192.55.52.31]:56294 "EHLO
+	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262990AbUKRWMA convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 16:58:26 -0500
-Date: Thu, 18 Nov 2004 13:58:09 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Fabio Coatti <cova@ferrara.linux.it>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com
-Subject: Re: 2.6.10-rc2-mm2 usb storage still oopses
-Message-ID: <20041118135809.3314ce41@lembas.zaitcev.lan>
-In-Reply-To: <20041118133557.72f3b369.akpm@osdl.org>
-References: <200411182203.02176.cova@ferrara.linux.it>
-	<20041118133557.72f3b369.akpm@osdl.org>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.13; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 18 Nov 2004 17:12:00 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: e820 and shared VGA memory problem
+Date: Thu, 18 Nov 2004 14:11:44 -0800
+Message-ID: <88056F38E9E48644A0F562A38C64FB600360C70D@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: e820 and shared VGA memory problem
+Thread-Index: AcTNuiJ/qRWudVE8QyqVIPuss+egZAAAIHogAAAs96A=
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       "Magnus Damm" <magnus.damm@gmail.com>, "Dave Jones" <davej@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 18 Nov 2004 22:11:44.0941 (UTC) FILETIME=[9703E5D0:01C4CDBB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Nov 2004 13:35:57 -0800, Andrew Morton <akpm@osdl.org> wrote:
+ 
 
-> Fabio Coatti <cova@ferrara.linux.it> wrote:
-> >
-> > Just a reminder: it's possible to cause a kernel oops simply inserting and 
-> > removing a usb storage (flash pen); using ub driver doesn't improve the 
-> > situation; noticed in 2.6.9-rc4-mm1 and present in 2.6.10-rc2-mm2.
-> > The same device works just fine with 2.6.8.1 (mdk cooker)
+>-----Original Message-----
+>From: Pallipadi, Venkatesh 
+>Sent: Thursday, November 18, 2004 2:09 PM
+>To: 'Magnus Damm'; Dave Jones; linux-kernel@vger.kernel.org
+>Subject: RE: e820 and shared VGA memory problem
+>
 > 
-> OK, that's something we'd like to get fixed prior to 2.6.10.
+>
+>>-----Original Message-----
+>>From: linux-kernel-owner@vger.kernel.org 
+>>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Magnus Damm
+>>Sent: Thursday, November 18, 2004 1:50 PM
+>>To: Dave Jones; Magnus Damm; linux-kernel@vger.kernel.org
+>>Subject: Re: e820 and shared VGA memory problem
+>>
+>>On Thu, 18 Nov 2004 16:44:31 -0500, Dave Jones 
+>><davej@redhat.com> wrote:
+>>> In the past such problems have been attributed to BIOS's not
+>>> setting up MTRRs correctly, or in extreme situations, running
+>>> out of available MTRRS.  How does /proc/mtrr look ?
+>>
+>>reg00: base=0x00000000 (   0MB), size=1024MB: write-back, count=1
+>>reg01: base=0x40000000 (1024MB), size= 512MB: write-back, count=1
+>>reg02: base=0x60000000 (1536MB), size= 256MB: write-back, count=1
+>>reg03: base=0x70000000 (1792MB), size= 128MB: write-back, count=1
+>>reg04: base=0x78000000 (1920MB), size=  64MB: write-back, count=1
+>>reg05: base=0x7c000000 (1984MB), size=  32MB: write-back, count=1
+>
+>The issue is with the bad MTRR setting by BIOS.
+>It only sets 0-2016MB as write-back. 2016MB-2048MB is set as 
+>uncached. Due to this whenever you use that memory you will 
+>see the slowness. Probably BIOS is assuming that Video will 
+>always use 32MB.
+>
 
-Actually Fabio told me that his oops was fixed by the patch present in
-2.6.10-rc2. The problem is that his device needs special handling which
-I do not know how to provide, so it does not work in the end. I hope it
-will resolve itself eventually, as I get testers.
+Oops. Probably I spoke a bit too early. Was this mtrr setting for the
+working (mem=2026M) case?
+Can you get mtrr for one of the non-working case.
 
-There was one last oops from Martin Schleminger ("Sahara") which I think
-I fixed but I need a confirmation before pushing to Greg. Apparently, it
-only happens on kernels with preempt enabled. If anyone knows of any other
-problems, I'm all ears.
-
--- Pete
-
-P.S. Current updates:
-
---- linux-2.6.10-rc2-usb/drivers/block/ub.c	2004-11-16 17:03:02.000000000 -0800
-+++ linux-2.6.10-rc1-ub/drivers/block/ub.c	2004-11-07 19:01:03.000000000 -0800
-@@ -36,7 +36,7 @@
- #define DRV_NAME "ub"
- #define DEVFS_NAME DRV_NAME
- 
--#define UB_MAJOR 125	/* Stolen from Experimental range for a week - XXX */
-+#define UB_MAJOR 180
- 
- /*
-  * Definitions which have to be scattered once we understand the layout better.
-@@ -1535,8 +1535,11 @@
- 
- 	ub_revalidate(sc);
- 	/* This is pretty much a long term P3 */
--	printk(KERN_INFO "%s: device %u capacity nsec %ld bsize %u\n",
--	    sc->name, sc->dev->devnum, sc->capacity.nsec, sc->capacity.bsize);
-+	if (!atomic_read(&sc->poison)) {		/* Cover sc->dev */
-+		printk(KERN_INFO "%s: device %u capacity nsec %ld bsize %u\n",
-+		    sc->name, sc->dev->devnum,
-+		    sc->capacity.nsec, sc->capacity.bsize);
-+	}
- 
- 	/* XXX Support sector size switching like in sr.c */
- 	blk_queue_hardsect_size(disk->queue, sc->capacity.bsize);
+-Venki

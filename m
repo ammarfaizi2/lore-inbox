@@ -1,74 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262536AbSI0Pk6>; Fri, 27 Sep 2002 11:40:58 -0400
+	id <S262534AbSI0Pj2>; Fri, 27 Sep 2002 11:39:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262539AbSI0Pk6>; Fri, 27 Sep 2002 11:40:58 -0400
-Received: from netlx010.civ.utwente.nl ([130.89.1.92]:58583 "EHLO
-	netlx010.civ.utwente.nl") by vger.kernel.org with ESMTP
-	id <S262536AbSI0Pk5>; Fri, 27 Sep 2002 11:40:57 -0400
-Date: Fri, 27 Sep 2002 17:43:02 +0200 (CEST)
-From: Gcc k6 testing account <caligula@cam029208.student.utwente.nl>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: linux-kernel@vger.kernel.org, <nfs@lists.sourceforge.net>
-Subject: Re: 2.5.32 bootfailure for nfsroot
-In-Reply-To: <200209271239.g8RCdIp09188@Port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.44.0209271729230.26871-100000@cam029208.student.utwente.nl>
+	id <S262536AbSI0Pj2>; Fri, 27 Sep 2002 11:39:28 -0400
+Received: from nameservices.net ([208.234.25.16]:17845 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S262534AbSI0Pj0>;
+	Fri, 27 Sep 2002 11:39:26 -0400
+Message-ID: <3D947DC3.EEC6C0A6@opersys.com>
+Date: Fri, 27 Sep 2002 11:48:19 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Yumiko Sugita <sugita@sdl.hitachi.co.jp>
+CC: robert@schwebel.de, lkst-develop@lists.sourceforge.jp,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Lkst-develop] Re: Release of LKST 1.3
+References: <5.0.2.6.2.20020918210036.05287a40@sdl99c>
+	 <5.0.2.6.2.20020918210036.05287a40@sdl99c> <5.0.2.6.2.20020926182552.0506a898@sdl99c>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Sep 2002, Denis Vlasenko wrote:
 
-> > > The subject says it all.
-> > > 2.5.32 doesn't boot when using nfsroot.
-> > > same systems running fine with 2.4.19/2.5.31
-> > >
-> > > SYSTEMS:
-> > >    athlon with/without preempt. (flatbak)
-> > >    i586 with preempt.           (cam029205)
-> > >
-> > > The relevant configs/dmesg/lspci are on
-> > > cam029208.student.utwente.nl/~caligula.
-> > >
-> > > SYMPTOMS:
-> > > I'm using loadlin to load the kernels. I see the kernel loading,unzipping
-> > > and then...black screen followed by reboot.
-> >
-> > Small update.
-> > Still no joy with 2.5.33. Same results,same symptoms :(
+Just a couple of general observations here.
+
+Yumiko Sugita wrote:
+>    Consequently, LKST, which is oriented to enterprise systems,
+> has the following features different from those of LTT.
+> # These LKST features are also being enhanced at this time.
 > 
-> Why do you think it is nfsroot related?
-> Does it boot off local filesystem?
-> --
-> vda
-> 
+> (1) Little overhead and good scalability when tracing on a large-scale
+>     SMP system
+>    * To make lock mechanism overhead as little as possible, we
+>       designed that the buffers are not shared among CPUs.
 
+I was wondering whether you followed the recent discussion about LTT on the
+LKML? Clearly this is not a problem for LTT since we don't use any form
+of locking whatsoever anymore. IBM's work on the lockless scheme has
+solved this problem and their current work on the per-CPU buffering solves
+the rest of the issue.
 
-Well, it was a guess. And a very wrong one too,it appeard later on.
+> (2) Easy to extend/expand the function (User-based extendibility)
+>    * Without recompiling kernel, user can change/add/modify the kind
+>      of events and information to be recorded at anytime.
 
-After I posted the message and got no reaction,I tried some different 
-kernel configs,and finally a very lean one.  No preempt,i386 only,no 
-mtrr,no ide,no nfsroot. The idea was let the kernel boot,and then 
-let it complain  it can't find a rootsystem. Even that wouldn't work.
-Same symptoms. Loadlin unzapping kernel and than whush...black screen 
-followed by reboot.
+Ditto with LTT.
 
-A very lean kernel >2.5.32 won't boot with loadlin on my system.
-So no relation to nfsroot (my mistake).
+>       For example, LKST usually traces very few events for the purpose
+>     of good performance.  Once the kernel get into the particular status
+>     that user specified, LKST will trace and record more detail information.
 
-So my GUESS is,it has something to do with the interaction between loadlin 
-and the kernel.
+This implies callbacks, which do exist in LTT and which Ingo Molnar explicitly
+asked us to remove.
 
-Greetz Mu
+> (3) Preservation of trace information
+>    * Recovery of trace information collected at the time of a system crash
+>      in connection with LKCD.
 
+Connection with LKCD is really not a problem, but this points to the main
+purpose of the tool, which in the case of LKCD is kernel debugging. LTT isn't
+aimed as a kernel debugger, so although LKCD is on our to-do list, it's
+certainly not our priority.
 
+As for handling multiple output streams (which LKCD can be one of them), we
+already have very detailed plans on how LTT is going to integrate this (as I've
+mentioned a number of times before on this list). However, before we go down
+this road we need to make sure that the core tracing functionality is
+lightweight and fits the general requirements set for kernel code. Once this
+core lighweight functionality is there, we can build a rich and solid feature
+set around it.
 
- 
+>    * Saving of specific event information during tracing.
+>       For example, switching to another buffer after the occurrence of
+>      a specific event enables the information on that event to be left
+>      in the previous buffer.
 
+Again, callbacks and triggers. A while back, I had written a state machine
+engine for LTT. Basically, you could provide it with an event-driven state
+machine and it would callback your functions depending on the sequence of
+events. All of this obviously implies callbacks, which, as I said earlier,
+we've been explicitly asked to remove.
 
+> (4) Collection of even more kernel event information
+>    * Information on more than 50 kernel events can be collected for
+>      kernel debugging.
 
+Well, I think this is where LTT and LKST cannot be compared. If LKST is
+a kernel debugging tool, as it has always been advertised, then any comparison
+of LKST should be made with the other tracing tools which are used for
+kernel debugging, such as the ones mentioned by Ingo and Andi earlier on
+this list.
 
+LTT was built from the ground up to help users understand the dynamic
+behavior of the system. As such, it cannot be compared to any kernel
+debugging tool since it isn't one.
 
+>   The demand for RAS functions in Linux should grow in the years to come.
+> It is our hope that LKST becomes one means of implementing such functions.
 
+There was a RAS BoF at the OLS this year where tracing was intensively discussed.
+All the attendees agreed to unify their efforts around LTT. At this meeting,
+Richard Moore of IBM presented a tracing to-do list
+(http://opersys.com/LTT/ltt-to-do-list.txt) which we are using a basic
+check list for our ongoing work. Instead of implementing yet another tracing
+system, I think that the LKST team would benefit much from contributing to
+LTT, which has already a proven track record and has been adopted by the
+community as much as the industry.
 
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

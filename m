@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262708AbSKYIxm>; Mon, 25 Nov 2002 03:53:42 -0500
+	id <S262789AbSKYJmM>; Mon, 25 Nov 2002 04:42:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262712AbSKYIxm>; Mon, 25 Nov 2002 03:53:42 -0500
-Received: from ns.tasking.nl ([195.193.207.2]:30469 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id <S262708AbSKYIxl>;
-	Mon, 25 Nov 2002 03:53:41 -0500
-Message-ID: <3DE1E665.1060907@netscape.net._>
-Date: Mon, 25 Nov 2002 09:59:17 +0100
-From: David Zaffiro <DavZaffiro@tasking.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: nl, en-us
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: Compiling x86 with and without frame pointer
-References: <19005.1037854033@kao2.melbourne.sgi.com> <224900000.1037900678@flay>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262792AbSKYJmL>; Mon, 25 Nov 2002 04:42:11 -0500
+Received: from point41.gts.donpac.ru ([213.59.116.41]:55051 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S262789AbSKYJmK>;
+	Mon, 25 Nov 2002 04:42:10 -0500
+Date: Mon, 25 Nov 2002 12:48:28 +0300
+From: Andrey Panin <pazke@orbita1.ru>
+To: Pavel Jan?k <Pavel@Janik.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI serial card with PCI 9052?
+Message-ID: <20021125094828.GA6016@pazke.ipt>
+Mail-Followup-To: Pavel Jan?k <Pavel@Janik.cz>,
+	linux-kernel@vger.kernel.org
+References: <m3smxx1aaf.fsf@Janik.cz> <20021120095618.GB319@pazke.ipt> <m3fztrcinh.fsf@Janik.cz> <20021124114307.A25408@flint.arm.linux.org.uk> <m3vg2naupr.fsf@Janik.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
+Content-Disposition: inline
+In-Reply-To: <m3vg2naupr.fsf@Janik.cz>
+User-Agent: Mutt/1.4i
+X-Uname: Linux pazke 2.2.17
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I looked at 2.5.47 (with a splattering of performance patches) using 
-> gcc 2.95.4 (Debian Woody), on a 16-way NUMA-Q, and did some kernel
-> compile testing. The times to do the tests were almost identical
-> (within error noise), but the kernel was indeed smaller
-> 
->    text    data     bss     dec     hex filename
-> 1873293  396231  459388 2728912  29a3d0 2.5.47-mjb1/vmlinux
-> 1427355  396875  455356 2279586  22c8a2 2.5.47-mjb1-frameptr/vmlinux
-> 
 
-I can't think of any reason why the data- and bss-part of the kernel are 
-influenced by a framepointer option, this seems highly illogical. It 
-shouldn't make any difference as far as I can tell, maybe you altered 
-other options as well? (Could be strange compilerbehaviour though)
+--+QahgC5+KEYLbs62
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Keith's results seem more reliable:
+Hi,=20
 
-# size 2.4.20-rc2-*/vmlinux
-    text    data     bss     dec     hex filename
-2669584  337972  402697 3410253  34094d 2.4.20-rc2-fp/vmlinux
-2676919  337972  402697 3417588  3425f4 2.4.20-rc2-nofp/vmlinux
+patch looks good, but here is yet another thing to test.
+We need to know base baudrate of this card. I failed to find=20
+HT6552 datasheet on Holtek site, so we need another experiment.
 
+You can test it this way:
+
+1) connect one port of this card with normal serial port or any=20
+   serial device with known baudrate;
+2) test data transfer, if it fails try to set lower speed on PCI card's por=
+t.
+3) if you found needed speed, calculate base baudrate
+ <base baudrate> =3D (<speed of normal port> / <speed of PCI card port>) * =
+115200
+
+Good luck.
+
+--=20
+Andrey Panin            | Embedded systems software developer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+
+--+QahgC5+KEYLbs62
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE94fHsBm4rlNOo3YgRAj0sAJ99Ao9vAuG7vOtqxXya3reNTkW5ZgCfUEp5
+/2Vpg/4rqk9lqBKpk2FT9JM=
+=CztE
+-----END PGP SIGNATURE-----
+
+--+QahgC5+KEYLbs62--

@@ -1,71 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273115AbRI3IR3>; Sun, 30 Sep 2001 04:17:29 -0400
+	id <S273108AbRI3IXj>; Sun, 30 Sep 2001 04:23:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273108AbRI3IRT>; Sun, 30 Sep 2001 04:17:19 -0400
-Received: from otter.mbay.net ([206.40.79.2]:59653 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S273137AbRI3IRJ> convert rfc822-to-8bit;
-	Sun, 30 Sep 2001 04:17:09 -0400
-From: John Alvord <jalvo@mbay.net>
-To: arjan@fenrus.demon.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel changes
-Date: Sun, 30 Sep 2001 01:17:31 -0700
-Message-ID: <ltkdrt4cie5s1ecggktl6m4aj7ht9n5dv6@4ax.com>
-In-Reply-To: <Pine.LNX.4.20.0109290937510.18362-100000@otter.mbay.net> <E15nNpb-0002KX-00@fenrus.demon.nl>
-In-Reply-To: <E15nNpb-0002KX-00@fenrus.demon.nl>
-X-Mailer: Forte Agent 1.8/32.553
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	id <S273132AbRI3IX3>; Sun, 30 Sep 2001 04:23:29 -0400
+Received: from vega.digitel2002.hu ([213.163.0.181]:29598 "EHLO
+	vega.digitel2002.hu") by vger.kernel.org with ESMTP
+	id <S273108AbRI3IXW>; Sun, 30 Sep 2001 04:23:22 -0400
+Date: Sun, 30 Sep 2001 10:23:42 +0200
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2 GB file limitation
+Message-ID: <20010930102342.A13042@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+In-Reply-To: <Pine.LNX.4.33.0109290816480.10053-100000@boston.corp.fedex.com> <Pine.LNX.4.33.0109291549180.30595-100000@Expansa.sns.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.33.0109291549180.30595-100000@Expansa.sns.it>
+User-Agent: Mutt/1.3.22i
+X-Operating-System: vega Linux 2.4.10-grsecurity-1.8 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Sep 2001 18:23:15 +0100, arjan@fenrus.demon.nl wrote:
+On Sat, Sep 29, 2001 at 03:51:53PM +0200, Luigi Genoni wrote:
+> > > ?? slackware 8 has large file support (I've been useing it for a while
+> > > now)
+> > I think you can get >2GB support if you've Gcc 3.0. Even with the latest
+> >
+> ???
+> I am using it and I am using gcc 2.95.3 for normal things,
+> and to compiled my kernel and my libc, because gcc
+> 3.0.1 produces slower binaries on my Athlons (yes, with athlon
+> optimizzations turned on), at less for my programs, and it is better to
+> avoid it for glibc compilation because of back compatibility issues.
 
->In article <Pine.LNX.4.20.0109290937510.18362-100000@otter.mbay.net> you wrote:
->
->> One aspect that bothers me is the absence of a success criteria.
->
->I disagree here. Red Hat uses "must pass the cerberus test" as one of the
->criteria for kernels. The are other similar criteria, most are obvious (must
->boot :). All other distributions have similar tests and a few even use the
->cerberus testsuite as well.
-I believe you. I was worrying about the developer transition from 2.4
-to 2.5, not the excellent work that the distributors do.
+Yes, gcc3 is (well at least NOW) a piece of shit. It produces BIGGER and
+SLOWER binaries ... Checked on: Athlon, AMD K6-2.
+With the same gcc command line ...
 
->
->Maybe your problem is "absence of tests before Linus releases", well 
->even that isn't fully true as distros run these tests on -pre kernels as
->well (or -ac kernels, which are mostly in sync with -pre kernels)...
-As mentioned, I am not worried about the distributions.
-
->
->> The current competition for best VM is a good example. The fact is that
->> every operating system will fail with a high enough load. The best you can
->> hope for is a better degradation then the prior release.
->
->There are a few basic creteria here as well, and 2.4.10 fails on some of
->them so far:
->
->1) Must not kill processes as long as there is plenty of swap
->   or (possibly dirty) cache memory
->2) Must not deadlock (as that is a code-bug)
->3) Must not livelock without any progress
-Is this criteria explicity accepted by all parties? And is it the only
-criteria?
-
->
->Note that no 2.4 kernel so far really achieves 1) in the presence of
->highmem; the obvious deadlocks are just pushed further by tuning.
->
->> At the moment both 2.4.10 and 2.4.9-ac16 are better then 2.2.19. But
->> people keep testing under higher and higher loads and (surprise) they both
->> fail... initiating a search for better degradation logic.
->
->2.4.10 isn't better than 2.2.19 given the criteria above. 2.4.10aa2 might
->be though... and 2.4.9acX+Rik's patches are solid in testing. 
-
-I read all sorts of reports, many positive and some negative.
-
-john alvord
+-- 
+ --[ Gábor Lénárt ]---[ Vivendi Telecom Hungary ]---------[ lgb@lgb.hu ]--
+ U have 8 bit comp or chip of them and it's unused or to be sold? Call me!
+ -------[ +36 30 2270823 ]------> LGB <-----[ Linux/UNIX/8bit 4ever ]-----

@@ -1,132 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbUKEK5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262641AbUKELLx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261593AbUKEK5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 05:57:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbUKEK5Z
+	id S262641AbUKELLx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 06:11:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbUKELLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 05:57:25 -0500
-Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:51658 "EHLO
-	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261593AbUKEK5P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 05:57:15 -0500
-Message-ID: <418B5C70.7090206@kolivas.org>
-Date: Fri, 05 Nov 2004 21:56:48 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 5 Nov 2004 06:11:52 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:14488 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262641AbUKELLn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 06:11:43 -0500
+Date: Fri, 5 Nov 2004 12:09:51 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Lorenzo Allegrucci <l_allegrucci@yahoo.it>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>
 Subject: Re: 2.6.10-rc1-mm3
-References: <20041105001328.3ba97e08.akpm@osdl.org>
-In-Reply-To: <20041105001328.3ba97e08.akpm@osdl.org>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig167006BD1BE457BF1601A081"
+Message-ID: <20041105110951.GA29702@elte.hu>
+References: <20041105001328.3ba97e08.akpm@osdl.org> <200411051041.17940.l_allegrucci@yahoo.it> <20041105102204.GA4730@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041105102204.GA4730@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig167006BD1BE457BF1601A081
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-It's life Jim but not as we know it...
+* Ingo Molnar <mingo@elte.hu> wrote:
 
+> > ------------[ cut here ]------------
+> > kernel BUG at mm/memory.c:156!
+> 
+> > Process shmt04 (pid: 4854, threadinfo=dca51000 task=de374510)
+> 
+> reproducible here too, just running LTP's shmt04 directly triggers it
+> immediately. Looks like there's interaction of 4-level pagetables with
+> ipc/shm.c or mm/shmem.c.
 
-This happened during modprobe of alsa modules. Keyboard still alive, 
-everything else dead; not even sysrq would do anything, netconsole had 
-no output, luckily this made it to syslog:
+due to the PML4 feature, the clear_page_tables() function changed to
+clear_page_range(), changing its (first,size) argument to (first,last). 
+Normally it's called with (0,TASK_SIZE) which normally is PML4-aligned,
+but in the (relatively rare) do_munmap() use this is not the case. We
+correctly calculate the range that could be cleared, but it's not
+PML4_SIZE aligned.
 
-Nov  5 21:39:27 pc kernel: Unable to handle kernel paging request at 
-virtual address f8c00000
-Nov  5 21:39:27 pc kernel:  printing eip:
-Nov  5 21:39:27 pc kernel: c02bddce
-Nov  5 21:39:27 pc kernel: *pde = 00000000
-Nov  5 21:39:27 pc kernel: Oops: 0002 [#1]
-Nov  5 21:39:27 pc kernel: PREEMPT SMP
-Nov  5 21:39:27 pc kernel: Modules linked in: soundcore intel_agp 
-agpgart bttv video_buf firmware_class i2c_algo_bit btcx_risc i2c_core us
-blp ehci_hcd uhci_hcd
-Nov  5 21:39:27 pc kernel: CPU:    0
-Nov  5 21:39:27 pc kernel: EIP:    0060:[<c02bddce>]    Not tainted VLI
-Nov  5 21:39:27 pc kernel: EFLAGS: 00010246   (2.6.10-rc1-mm3)
-Nov  5 21:39:27 pc kernel: EIP is at __lock_text_end+0xbe3/0x119a
-Nov  5 21:39:27 pc kernel: eax: 00000000   ebx: 000a151a   ecx: 0002851a 
-   edx: b7c82008
-Nov  5 21:39:27 pc kernel: esi: b7cfb008   edi: f8c00000   ebp: f6c1c000 
-   esp: f6c1cf14
-Nov  5 21:39:27 pc kernel: ds: 007b   es: 007b   ss: 0068
-Nov  5 21:39:27 pc kernel: Process modprobe (pid: 955, 
-threadinfo=f6c1c000 task=f76ef530)
-Nov  5 21:39:27 pc kernel: Stack: 00000002 0002851a f8b87000 b7c82008 
-c01d2a10 b7c82008 000a151a 08049410
-Nov  5 21:39:27 pc kernel:        c012f697 00000000 00000001 00008000 
-00000000 00000000 c1707400 f6a41580
-Nov  5 21:39:27 pc kernel:        f58c4ac4 f58c4ac4 00000046 00000000 
-f6a41580 00000246 00000246 00000000
-Nov  5 21:39:27 pc kernel: Call Trace:
-Nov  5 21:39:27 pc kernel:  [<c01d2a10>] copy_from_user+0x29/0x4d
-Nov  5 21:39:27 pc kernel:  [<c012f697>] load_module+0x73/0x916
-Nov  5 21:39:27 pc kernel:  [<c0142007>] do_munmap+0x10e/0x11c
-Nov  5 21:39:27 pc kernel:  [<c012ff87>] sys_init_module+0x4d/0x207
-Nov  5 21:39:27 pc kernel:  [<c0104b31>] sysenter_past_esp+0x52/0x71
-Nov  5 21:39:27 pc kernel: Code: 88 00 51 50 31 c0 f3 aa 58 59 e9 75 4b 
-f1 ff 01 c1 e9 a9 4b f1 ff 8d 4c 88 00 e9 a0 4b f1 ff 01 c1 eb 04
-8d 4c 88 00 51 50 31 c0 <f3> aa 58 59 e9 d1 4b f1 ff ba f2 ff ff ff e9 
-60 96 f1 ff b9 f2
+The solution is to clip both 'first' and 'last' to PML4_SIZE boundary.
+Since when we calculate 'first' we add at least +PML4_SIZE to the value,
+it is safe to clip 'first'. It is obviously safe to clip 'last'.
 
-*__lock_text_end+0xbe3: hidden in inlined functions
+The patch below implements this fix - it boots & works fine and shmt04
+doesnt crash anymore. Andi, do you agree with this fix?
 
-*copy_from_user+0x29: hidden in inlined functions
+	Ingo
 
-*load_module+0x73:
-0xc012f697 is in load_module (kernel/module.c:1457).
-1452            /* Suck in entire file: we'll want most of it. */
-1453            /* vmalloc barfs on "unusual" numbers.  Check here */
-1454            if (len > 64 * 1024 * 1024 || (hdr = vmalloc(len)) == NULL)
-1455                    return ERR_PTR(-ENOMEM);
-1456            if (copy_from_user(hdr, umod, len) != 0) {
-1457                    err = -EFAULT;
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-*do_munmap+0x10e:
-0xc0142007 is in do_munmap (mm/mmap.c:1753).
-1748            spin_unlock(&mm->page_table_lock);
-1749
-1750            /* Fix up all other VM information */
-1751            unmap_vma_list(mm, mpnt);
-1752
-1753            return 0;
-
-*sys_init_module+0x4d: inlined
-
-*sysenter_past_esp+0x52:
-0xc0104b31 is at arch/i386/kernel/entry.S:243.
-238             testb 
-$(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT),TI_flags(%ebp)
-239             jnz syscall_trace_entry
-240             cmpl $(nr_syscalls), %eax
-241             jae syscall_badsys
-242             call *sys_call_table(,%eax,4)
-243             movl %eax,EAX(%esp)
-
-
-Con
-
---------------enig167006BD1BE457BF1601A081
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBi1xyZUg7+tp6mRURAqvlAJ9ZWEn5Ap19xvTnIif3DZEyjQsjWwCeL2C0
-OOt4zWPgIcz1VoVw3c3d9a4=
-=dFqw
------END PGP SIGNATURE-----
-
---------------enig167006BD1BE457BF1601A081--
+--- linux/mm/mmap.c.orig
++++ linux/mm/mmap.c
+@@ -1545,7 +1545,7 @@ no_mmaps:
+ 	}
+ 	if (pml4_index(last) > start_pml4_index ||
+ 	    pgd_index(last) > start_pgd_index) {
+-		clear_page_range(tlb, first, last);
++		clear_page_range(tlb, first & PML4_MASK, last & PML4_MASK);
+ 		flush_tlb_pgtables(mm, first & PML4_MASK, last & PML4_MASK);
+ 	}
+ }

@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270070AbTGMCJf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 22:09:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270073AbTGMCJf
+	id S270074AbTGMCcK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 22:32:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270076AbTGMCcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 22:09:35 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:9663 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S270070AbTGMCJe
+	Sat, 12 Jul 2003 22:32:10 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:23680 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270074AbTGMCcI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 22:09:34 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: smiler@lanil.mine.nu
-Subject: Re: [RFC][PATCH] SCHED_ISO for interactivity
-Date: Sun, 13 Jul 2003 12:26:29 +1000
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org, phillips@arcor.de
-References: <200307112053.55880.kernel@kolivas.org> <200307130139.45477.kernel@kolivas.org> <1058027317.4363.8.camel@sm-wks1.lan.irkk.nu>
-In-Reply-To: <1058027317.4363.8.camel@sm-wks1.lan.irkk.nu>
+	Sat, 12 Jul 2003 22:32:08 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 12 Jul 2003 19:39:25 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Bill Huey <billh@gnuppy.monkey.org>
+cc: Jamie Lokier <jamie@shareable.org>,
+       Miguel Freitas <miguel@cetuc.puc-rio.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] SCHED_SOFTRR linux scheduler policy ...
+In-Reply-To: <20030712224246.GA5354@gnuppy.monkey.org>
+Message-ID: <Pine.LNX.4.55.0307121928540.3528@bigblue.dev.mcafeelabs.com>
+References: <1058017391.1197.24.camel@mf> <Pine.LNX.4.55.0307120735540.4351@bigblue.dev.mcafeelabs.com>
+ <20030712154942.GB9547@mail.jlokier.co.uk> <Pine.LNX.4.55.0307120845470.4351@bigblue.dev.mcafeelabs.com>
+ <20030712224246.GA5354@gnuppy.monkey.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307131226.29452.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Jul 2003 02:28, Christian Axelsson wrote:
-> On Sat, 2003-07-12 at 17:39, Con Kolivas wrote:
-> > On Sat, 12 Jul 2003 10:13, Con Kolivas wrote:
-> > > On Sat, 12 Jul 2003 09:37, Christian Axelsson wrote:
-> > > > On Fri, 2003-07-11 at 16:30, Con Kolivas wrote:
-> > > > > On Fri, 11 Jul 2003 22:48, Christian Axelsson wrote:
-> >
-> > snip snip snip
-> >
-> > Mike G suggested expiring tasks which use up too much cpu
-> > time like in Davide's softrr patch which is a much better
-> > solution to the forever reinserted into the active array concern.
-> >
-> > patch-SI-0307130021 is also available at
-> > http://kernel.kolivas.org/2.5
+On Sat, 12 Jul 2003, Bill Huey wrote:
+
+> Have any of you folks seen this ?
 >
-> Problem seems to be gone (cant be 100% sure as I aint really sure WHAT
-> trigged this behavior).
+> 	http://www.linuxdevices.com/articles/AT6078481804.html
+> 	http://research.microsoft.com/~mbj/papers/tr-99-59_abstract.html
+>
+> Neat stuff. This with a fully preemptive kernel is one of Linux kernel
+> dreams for multimedia.
 
-I'm as close to sure as I can be since this addressed it. Thanks to your 
-feedback I would not have been able to figure it out or even know it was an 
-issue. 
+This is funny. Every time I found something interesting to read (papers) I
+print them and I stock on my desk. The are 25Kg of papers piled on my desk
+right now. Thanks to you, 25.05Kg now ;) Upon a brief read, The Italian Job,
+hemm ... paper, is very similar to SOFTRR. Once you change their "server"
+notion with the per-user allocation I have in mind, it'll come even
+closer. I really didn't have time to read the MS paper though. The problem
+is not if it can be done, the problem is how bad ppl wants it.
 
-Surprisingly noone has said whether this patch does any good for their setup 
-though.
 
-Con
+
+- Davide
 

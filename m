@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267328AbTBFPWs>; Thu, 6 Feb 2003 10:22:48 -0500
+	id <S267335AbTBFP2W>; Thu, 6 Feb 2003 10:28:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267330AbTBFPWs>; Thu, 6 Feb 2003 10:22:48 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:58270
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267328AbTBFPWr>; Thu, 6 Feb 2003 10:22:47 -0500
-Subject: Re: [PATCH] 2.4.20 still can't detect my SCSI disk
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1470960000.1044432921@aslan.scsiguy.com>
-References: <200302050738.h157c5s16708@Port.imtp.ilyichevsk.odessa.ua>
-	 <1470960000.1044432921@aslan.scsiguy.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1044548899.10374.16.camel@irongate.swansea.linux.org.uk>
+	id <S267330AbTBFP2W>; Thu, 6 Feb 2003 10:28:22 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:61454 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S267335AbTBFP2V>; Thu, 6 Feb 2003 10:28:21 -0500
+Date: Thu, 6 Feb 2003 16:37:57 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>, ducrot@poupinou.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI List <acpi-devel@lists.sourceforge.net>
+Subject: Re: [ACPI] Re: [PATCH] s4bios for 2.5.59 + apci-20030123
+Message-ID: <20030206153757.GB19350@atrey.karlin.mff.cuni.cz>
+References: <F760B14C9561B941B89469F59BA3A847137FFE@orsmsx401.jf.intel.com> <20030204221003.GA250@elf.ucw.cz> <1044477704.1648.19.camel@laptop-linux.cunninghams>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 06 Feb 2003 16:28:20 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1044477704.1648.19.camel@laptop-linux.cunninghams>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-05 at 08:15, Justin T. Gibbs wrote:
-> I've tried to get Marcello to update the aic7xxx driver in the 2.4.X
-> tree to no avail.  The Olvetti support was added to my version of
-> the aic7xxx driver some time ago.  You can get my latest driver
-> versions from here:
+Hi!
+
+> > Some people apparently want slower suspend/resume but have all caches
+> > intact when resumed. Thats not easy for swsusp but they can have that
+> > with S4bios. And S4bios is usefull for testing device support; it
+> > seems to behave slightly differently to S3 meaning better testing.
 > 
-> http://people.FreeBSD.org/~gibbs/linux/SRC/
+> Whether its slower depends on the hardware; on my 128MB Celeron 933
+> laptop (17MB/s HDD), I can write an image of about 120MB, reboot and get
+> back up and running in around a minute and a half. That's about the same
+> as far as I remember, but has (as you say) the advantage of not still
+> having to get things swapped back in.
+> 
+> > If you already have hibernation partition from factory, which you are
+> > using anyway for w98, S4bios is easier to use and more foolproof
+> > (i.e. you can't boot into wrong kernel which does not resume but does
+> > fsck instead).
+> 
+> It doesn't really matter what kernel is loaded when we start a resume
+> anyway, does it? Could they not be different versions because one is
+> going to replace the other anyway?
 
-The files here prohibit redistribution in part. I assume this is an oversight ?
+No, no. It has to be exactly the same kernel, otherwise you get a nice
+crash (if you are lucky) and ugly data corruption (when you are not);
+there's check to prevent that and panic, however.
 
-(c) 2002 Adaptec, Inc. All Rights Reserved. No part of this
-publication may be reproduced, stored in a retrieval system, or
-transmitted in any form or by any means, electronic, mechanical,
-photocopying, recording or otherwise, without prior written consent
-of Adaptec, Inc., 691 South Milpitas Blvd., Milpitas, CA 95035.
-
-I've merged the rest into the -ac tree however.
-
+That's why I call S4bios more foolproof.
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

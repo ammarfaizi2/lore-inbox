@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263799AbRFHOe2>; Fri, 8 Jun 2001 10:34:28 -0400
+	id <S263987AbRFHOj6>; Fri, 8 Jun 2001 10:39:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263967AbRFHOeS>; Fri, 8 Jun 2001 10:34:18 -0400
-Received: from [151.17.201.167] ([151.17.201.167]:50554 "EHLO proxy.teamfab.it")
-	by vger.kernel.org with ESMTP id <S263799AbRFHOeB>;
-	Fri, 8 Jun 2001 10:34:01 -0400
-Message-ID: <3B20E1B2.C2198491@teamfab.it>
-Date: Fri, 08 Jun 2001 16:31:14 +0200
-From: Luca Montecchiani <luca.montecchiani@teamfab.it>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19-i586-SMP-modular i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: m.luca@iname.com, tytso@mit.edu
-Subject: [PATCH] Support Timedia/Sunix/Exsys PCI card problem in Serial 5.0.5 / 
- Kernel 2.4.xx
+	id <S263991AbRFHOjs>; Fri, 8 Jun 2001 10:39:48 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:35588 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S263987AbRFHOjf>; Fri, 8 Jun 2001 10:39:35 -0400
+Date: Fri, 8 Jun 2001 18:18:04 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Tom Vier <tmv5@home.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        rth@twiddle.net
+Subject: Re: [patch] Re: Linux 2.4.5-ac6
+Message-ID: <20010608181804.A613@jurassic.park.msu.ru>
+In-Reply-To: <20010607214808.A18298@jurassic.park.msu.ru> <Pine.GSO.3.96.1010607202832.16852C-100000@delta.ds2.pg.gda.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.3.96.1010607202832.16852C-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Thu, Jun 07, 2001 at 08:31:46PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Jun 07, 2001 at 08:31:46PM +0200, Maciej W. Rozycki wrote:
+>  Why can't mozilla be fixed?  With the -taso option there is actually less
+> encouragement to do so.
 
-I've found a bug in the serial driver 5.0.5, the problem is
-that the Sunix pci 4port serial card wasn't correctly detected.
+Mozilla is 64-bit clean. Roughly speaking, I meant that mozilla is
+[cleanly] fixed netscape, but that "fix" took 2 years and lot of
+people involved, and still it's not quite usable. But we're way OT...
 
-I'm using the serial 5.0.5 serial driver on a vanilla 2.2.19 kernel.
-
-Searching the web I've found this changes that looks wrong :
-
-http://www.linuxhq.com/kernel/v2.3/patch/patch-2.4.0-test7/linux_drivers_char_serial.c.html
-
-here the obvious patch that made it work again here on 2.2.19 kernel.
-Should be applied also on 2.4.x :
-
---- serial.c.ori        Fri Jun  8 16:12:16 2001
-+++ serial.c    Fri Jun  8 16:12:30 2001
-@@ -4178,7 +4178,7 @@
-        for (i=0; timedia_data[i].num; i++) {
-                ids = timedia_data[i].ids;
-                for (j=0; ids[j]; j++) {
--                       if (pci_get_subvendor(dev) == ids[j]) {
-+                       if (pci_get_subdevice(dev) == ids[j]) {
-                                board->num_ports = timedia_data[i].num;
-                                return 0;
-                        }
-
-ciao,
-luca
+Ivan.

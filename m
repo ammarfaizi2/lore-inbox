@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbTJ2KLI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 05:11:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTJ2KLI
+	id S262041AbTJ2KVU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 05:21:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbTJ2KVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 05:11:08 -0500
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:18183 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S261950AbTJ2KLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 05:11:05 -0500
-Subject: Re: [PATCH] Fix PCMCIA card detection
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-pcmcia@lists.infradead.org
-In-Reply-To: <20031028212749.B31337@flint.arm.linux.org.uk>
-References: <20031028212749.B31337@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1067422257.798.0.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-5) 
-Date: Wed, 29 Oct 2003 11:10:57 +0100
+	Wed, 29 Oct 2003 05:21:20 -0500
+Received: from auth22.inet.co.th ([203.150.14.104]:14341 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S262041AbTJ2KVS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 05:21:18 -0500
+From: Michael Frank <mhf@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test8/test9 repeatable lockups at high loads - please reproduce
+Date: Wed, 29 Oct 2003 18:21:04 +0800
+User-Agent: KMail/1.5.2
+References: <200310280544.33247.mhf@linuxmail.org>
+In-Reply-To: <200310280544.33247.mhf@linuxmail.org>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310291821.04864.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-10-28 at 22:27, Russell King wrote:
-> I'm intending sending Linus the following patch to fix PCMCIA card
-> detection about 24 hours (on 21:26 GMT on Oct 29th.)  A couple of
-> people have tested it and reported that it fixes their card detection
-> problems.  I'd like people _without_ this problem to try the patch
-> and report if they see any breakages.
 
-There seems to be no problems while using this patch.
+And in case you ask...
 
-00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge
-(rev 03)
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge
-(rev 03)
-00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 03)
-00:09.0 Multimedia audio controller: Yamaha Corporation YMF-754 [DS-1E
-Audio Controller]
-00:0c.0 CardBus bridge: Texas Instruments PCI4450 PC card Cardbus
-Controller
-00:0c.1 CardBus bridge: Texas Instruments PCI4450 PC card Cardbus
-Controller
-00:0c.2 FireWire (IEEE 1394): Texas Instruments: Unknown device 8011
-00:0f.0 Communication controller: Lucent Microelectronics LT WinModem
-01:00.0 VGA compatible controller: ATI Technologies Inc Rage Mobility
-P/M AGP 2x (rev 64)
-02:00.0 Ethernet controller: 3Com Corporation 3CCFE575CT Cyclone CardBus
-(rev 10)
+15) Why is it done this way
+---------------------------
 
+Experience shows that randomness of activities and events over a broad spectrum
+cause substantial stress in any system.
+
+A simple example is the fact that an instable system often can perform one
+function at a time (such as run an editor or a single compiler wo make), but
+fails when several tasks are demanded such as building a kernel.
+
+Another example is the 68000 based STD bus system which could run multiuser
+turbodos perfectly but died with version 7 because the powersupply could not
+handle the random fluctuations of power consumption and started oscillating
+and going out of spec. The local unix guru at the time always said "you listen
+it makes noise like doors on the enterprise" ;) and hooking up a storage scope
+validated his opinion after some time and trial. Interestingly even some bad
+grounding (loops) of the 10MB 8" drive made trouble specific to V7.
+
+When developing tests for swsusp, criteria were applied as follows
+- randomness was of first interest
+- the desire to excercise a broad spectrum of system functions was next
+- the desire to utilize mature functionality in order not to reinvent the wheel
+- software must be available freely
+
+The ancient unixbench suite meets these requirements and is complemented
+by make, gcc for generic user level stress and dd for brute force IO loads.
+A little bit of bash scripting completes the test suite.
+
+It is noted that the CPU related unixbench functions such as dhrystone,
+whetstone, etc are not used here as these have shown to do little more than burn
+processor clocks on-die. A  bad (CPU) chip being used according to datasheet
+is a tiny fraction of 1 in millions and we do not want to test for this anyway.
+
+As to randomness, unixbench tests are timed, but by asynchronous events the
+timing is not perfect, thus several of these tests gradually drift relative to
+each other and greatly interfere looking from the system(call) perspective.
+
+Opinion of the gut, and experience with failures is that the  spectrum of tests
+excercises most system functions heavily.
+
+The tests have however not been profiled as I have not yet learned how to use
+profiling. There is always too much to do.
 

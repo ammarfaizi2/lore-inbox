@@ -1,75 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263413AbTJUVTc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 17:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbTJUVTb
+	id S263370AbTJUVQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 17:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263396AbTJUVQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 17:19:31 -0400
-Received: from fluorine.one-2-one.net ([217.115.142.97]:19214 "EHLO
-	fluorine.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S263413AbTJUVTF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 17:19:05 -0400
-Message-ID: <007f01c39817$1ffadd70$fb457dc0@tgasterix>
-From: "Thomas Giese" <thomas.giese@tgsoftware.de>
-To: "James Simmons" <jsimmons@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0310212141290.32738-100000@phoenix.infradead.org>
-Subject: Re: 2.6.0-test8-mm1
-Date: Tue, 21 Oct 2003 23:05:52 +0200
+	Tue, 21 Oct 2003 17:16:27 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:54424 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263370AbTJUVQU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 17:16:20 -0400
+Date: Tue, 21 Oct 2003 14:16:08 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Nick Piggin <piggin@cyberone.com.au>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+cc: ricklind@us.ibm.com
+Subject: Re: Nick's scheduler v16
+Message-ID: <56890000.1066770968@flay>
+In-Reply-To: <3F913704.5040707@cyberone.com.au>
+References: <3F913704.5040707@cyberone.com.au>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this 2.6.0-mm1 is really very good,
+> I'm starting to do some large SMP / NUMA testing. Fixed and changed quite
+> a bit. It isn't too bad, although I'm only testing dbench, tbench, and
+> volanomark at the moment.
+> 
+> These SMP and NUMA changes are not tied to my interactivity stuff, so its
+> possible they could get included if they turn out well. If you find any
+> problems with it (high end or interactivity), please let me know.
 
-but i would VERY enjoy to have the cloop-device from knopper in it!
-we have the cryptloop, why not the very good cloop?
+Interesting ... some things get getter, some worse:
 
-this would be a wonderful combination?
+Kernbench: (make -j N vmlinux, where N = 2 x num_cpus)
+                              Elapsed      System        User         CPU
+              2.6.0-test8       45.20      100.97      566.65     1476.25
+         2.6.0-test8-nick       44.81       93.98      568.49     1477.50
+        2.6.0-test8-nick2       44.78       94.69      568.81     1482.00
 
-best Regards
-
-Thomas Giese
-
------Ursprüngliche Nachricht----- 
-Von: "James Simmons" <jsimmons@infradead.org>
-An: "Thomas Schlichter" <schlicht@uni-mannheim.de>
-Cc: "Helge Hafting" <helgehaf@aitel.hist.no>; "Andrew Morton"
-<akpm@osdl.org>; <Valdis.Kletnieks@vt.edu>; <linux-kernel@vger.kernel.org>;
-<linux-mm@kvack.org>
-Gesendet: Dienstag, 21. Oktober 2003 22:42
-Betreff: Re: 2.6.0-test8-mm1
+elapsed is a tiny bit faster, system is significantly less, but with
+higher parallelism:
 
 
->
-> > > This patch was fine.  2.6.0-test8 with this patch booted and
-> > > looked no different from plain 2.6.0-test8.  I am using it for
-> > > writing this.  The problems must be in mm1 somehow.
-> > >
-> > > Helge Hafting
->
-> Yeah!!!
->
-> > Well here I've got same problems for -test8 + fbdev-patch as
-with -test8-mm1.
-> > I've compiled the kernel with most DEBUG_* options enabled (all but
-> > DEBUG_INFO and KGDB) and see the same cursor and image corruption as
-with
-> > -mm1 and the same options enabled.
-> >
-> > Should I try compiling this kernel without the DEBUG_* options and watch
-if I
-> > get the invalidate_list Oops again?
->
-> Yes. I'm using vesafb and I have no problems. I liek to see what the
-> problem really is.
->
->
+Kernbench: (make -j vmlinux, maximal tasks)
+                              Elapsed      System        User         CPU
+              2.6.0-test8       45.86      119.41      569.66     1502.00
+         2.6.0-test8-nick       47.00      112.75      590.40     1495.00
+        2.6.0-test8-nick2       47.11      112.86      590.31     1491.50
+
+elapsed is definitely worse now.
+SDET is a happy bunny though:
+
+SDET 128  (see disclaimer)
+                           Throughput    Std. Dev
+              2.6.0-test8       100.0%         0.3%
+         2.6.0-test8-nick       109.9%         0.2%
+
+Much of the changes there might just be backing out Con's interactivity
+changes ...
+
+M.
 

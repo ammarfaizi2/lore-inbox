@@ -1,95 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263427AbTJLHOz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 03:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbTJLHOz
+	id S263429AbTJLHdT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 03:33:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263430AbTJLHdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 03:14:55 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:19729 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S263427AbTJLHOw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 03:14:52 -0400
-Date: Sun, 12 Oct 2003 00:14:48 -0700
-From: jw schultz <jw@pegasys.ws>
+	Sun, 12 Oct 2003 03:33:18 -0400
+Received: from holomorphy.com ([66.224.33.161]:60545 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263429AbTJLHdR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 03:33:17 -0400
+Date: Sun, 12 Oct 2003 00:36:28 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS patch for updating ctimes of renamed files
-Message-ID: <20031012071447.GJ8724@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+Subject: silence smp_read_mpc_oem() declared static but never defined warning
+Message-ID: <20031012073628.GA765@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
 	linux-kernel@vger.kernel.org
-References: <JIEIIHMANOCFHDAAHBHOIELODAAA.alex_a@caltech.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <JIEIIHMANOCFHDAAHBHOIELODAAA.alex_a@caltech.edu>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: The contents of this message may cause sleeplessness, irritability, loss of appetite, anxiety, depression, or other psychological disorders.  Consult your doctor if these symptoms persist.
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 12, 2003 at 01:05:19AM -0500, Alex Adriaanse wrote:
-> Hi,
-> 
-> I ran into some trouble trying to do incremental backups with GNU tar
-> (using --listed-incremental) where renaming a file in between backups would
-> cause the file to disappear upon restoration.  When investigating the issue
-> I discovered that this doesn't happen on ext2, ext3, and tmpfs filesystems
-> but only on ReiserFS filesystems.  I also noticed that for example ext3
-> updates the affected file's ctime upon rename whereas ReiserFS doesn't, so
-> I'm thinking this causes tar to believe that the file existed before the
-> first backup was taking under the new name, and as a result it doesn't back
-> it up during the second backup.  So I believe ReiserFS needs to update
-> ctimes for renamed files in order for incremental GNU tar backups to work
-> reliably.
-> 
-> I made some changes to the reiserfs_rename function that I *think* should
-> fix the problem.  However, I don't know much about ReiserFS's internals, and
-> I haven't been able to test them out to see if things work now since I can't
-> afford to deal with potential FS corruption with my current Linux box.
-> 
-> I included a patch below against the 2.4.22 kernel with my changes.  Would
-> somebody mind taking a look at this to see if I did things right here (and
-> perhaps wouldn't mind testing it out either)?  If it works then I (and I'm
-> sure others who've experienced the same problem) would like to see the
-> changes applied to the next 2.4.x (and 2.6.x?) release.
+Moving the static function prototype within the calling inline silences
+this annoying warning.
 
-Hmm.  I'm conflicted.
-
-rename(2) manpage:
-	Any other hard links to the file (as created using
-	link(2)) are unaffected.
-
-A change to ctime would affect the other links.
-
-stat(2) manpage:
-	The field st_ctime is changed by writing or by
-	setting inode information (i.e., owner, group, link
-	count, mode, etc.).
-
-I am not aware of any field in the inode structure that must
-be changed by an atomic rename.  Per documentation the only
-reason rename should update st_ctime is if it does a
-link+unlink sequence which would alter st_nlink briefly.
-
-On the other hand it does seem to me there ought to be some
-record that something about the inode changed.  st_ctime would
-be the only appropriate indicator.
-
-rename() SUSv3:
-	Some implementations mark for update the st_ctime
-	field of renamed files and some do not. Applications
-	which make use of the st_ctime field may behave
-	differently with respect to renamed files unless
-	they are designed to allow for either behavior.
-
-So reiserfs is on this point definitely standards conformant
-already.  A change could at best be seen as an enhancement.
-
-
-
-
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+diff -prauN linux-2.6.0-test7-bk3/include/asm-i386/mach-numaq/mach_mpparse.h numaq-2.6.0-test7-bk3-1/include/asm-i386/mach-numaq/mach_mpparse.h
+--- linux-2.6.0-test7-bk3/include/asm-i386/mach-numaq/mach_mpparse.h	2003-10-08 12:24:04.000000000 -0700
++++ numaq-2.6.0-test7-bk3-1/include/asm-i386/mach-numaq/mach_mpparse.h	2003-10-12 00:22:31.000000000 -0700
+@@ -1,9 +1,6 @@
+ #ifndef __ASM_MACH_MPPARSE_H
+ #define __ASM_MACH_MPPARSE_H
+ 
+-static void __init smp_read_mpc_oem(struct mp_config_oemtable *oemtable,
+-		        unsigned short oemsize);
+-
+ static inline void mpc_oem_bus_info(struct mpc_config_bus *m, char *name, 
+ 				struct mpc_config_translation *translation)
+ {
+@@ -27,6 +24,7 @@ static inline void mpc_oem_pci_bus(struc
+ static inline void mps_oem_check(struct mp_config_table *mpc, char *oem, 
+ 		char *productid)
+ {
++	static void smp_read_mpc_oem(struct mp_config_oemtable *, unsigned short);
+ 	if (strncmp(oem, "IBM NUMA", 8))
+ 		printk("Warning!  May not be a NUMA-Q system!\n");
+ 	if (mpc->mpc_oemptr)

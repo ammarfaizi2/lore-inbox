@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266607AbUGKWSU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266662AbUGKWyZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266607AbUGKWSU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 18:18:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266630AbUGKWSU
+	id S266662AbUGKWyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 18:54:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUGKWyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 18:18:20 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:28059 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S266607AbUGKWST (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 18:18:19 -0400
-Date: Mon, 12 Jul 2004 00:18:18 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Sid Boyce <sboyce@blueyonder.co.uk>
+	Sun, 11 Jul 2004 18:54:25 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:6366 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266662AbUGKWyW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 18:54:22 -0400
+Date: Mon, 12 Jul 2004 00:54:09 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: sc2@gmx.at
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x Scheduler, preemption and responsiveness - puzzlement
-Message-ID: <20040711221818.GA30704@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Sid Boyce <sboyce@blueyonder.co.uk>, linux-kernel@vger.kernel.org
-References: <40F1BA46.9000207@blueyonder.co.uk>
+Subject: Re: question kernel 2.6 problem
+Message-ID: <20040711225409.GE4701@fs.tum.de>
+References: <S265049AbUGGKsc/20040707104832Z+1012@vger.kernel.org> <002001c46415$4bb9dfe0$6bda6c50@b>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40F1BA46.9000207@blueyonder.co.uk>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <002001c46415$4bb9dfe0$6bda6c50@b>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 11, 2004 at 11:08:06PM +0100, Sid Boyce wrote:
-> With the 2.6 kernel I expected that my boxes would be responsive under 
-> heavy loads such as exacted by updatedb. What I'm finding is that when 
-> updatedb and other heavy hitters are running, I'm often unable to switch 
-> desktops or start other tasks. I'm currently using 2.6.7-mm1, but this 
+On Wed, Jul 07, 2004 at 01:26:42PM +0200, sc2@gmx.at wrote:
 
-Can you run vmstat 1 while this happens? Can you make your .config
-available?
+> hello
+> when i try to make the 2.6.7 kernel this error is coming
+> i use gcc 3.2.1
+> any ideas what i did wrong? (i did same stuff likle every time)
+> thx
+>  CC      arch/i386/kernel/asm-offsets.s
+> In Datei, eingef?gt von include/asm/system.h:5,
+>                     von include/asm/processor.h:18,
+>                     von include/asm/thread_info.h:16,
+>                     von include/linux/thread_info.h:21,
+>                     von include/linux/spinlock.h:12,
+>                     von include/linux/capability.h:45,
+>                     von include/linux/sched.h:7,
+>                     von arch/i386/kernel/asm-offsets.c:7:
+> include/linux/kernel.h:10:20: stdarg.h: Datei oder Verzeichnis nicht
+> gefunden
+>...
 
-Output of dmesg during boot would also be great. Especially check the output
-of hdparm /dev/hda - DMA might be off.
+Seems to be a bug in your compiler installation.
 
-Good luck!
+This file should be found by your compiler at a path like
+  /usr/lib/gcc-lib/i486-linux/3.2.1/include/stdarg.h
+(depending on how you configured gcc, it might be slightly different)
+
+cu
+Adrian
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

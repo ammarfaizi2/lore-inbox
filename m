@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265219AbUFRPNk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265225AbUFRPQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265219AbUFRPNk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 11:13:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265227AbUFRPNj
+	id S265225AbUFRPQE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 11:16:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbUFRPQD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 11:13:39 -0400
-Received: from holomorphy.com ([207.189.100.168]:18308 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265219AbUFRPNa (ORCPT
+	Fri, 18 Jun 2004 11:16:03 -0400
+Received: from 206-176-252-18.vbbn.com ([206.176.252.18]:6660 "Helo vxyuhp.com")
+	by vger.kernel.org with SMTP id S265212AbUFRPPF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 11:13:30 -0400
-Date: Fri, 18 Jun 2004 08:13:15 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rik van Riel <riel@redhat.com>
-Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
-       4Front Technologies <dev@opensound.com>, linux-kernel@vger.kernel.org
-Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040618151315.GC1863@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rik van Riel <riel@redhat.com>, Jens Axboe <axboe@suse.de>,
-	Andrew Morton <akpm@osdl.org>,
-	4Front Technologies <dev@opensound.com>,
-	linux-kernel@vger.kernel.org
-References: <20040618082708.GD12881@suse.de> <Pine.LNX.4.44.0406181037180.8065-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0406181037180.8065-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 18 Jun 2004 11:15:05 -0400
+From: colson@summit-e.com
+To: sarcher@vger.kernel.org
+Date: Fri, 18 Jun 2004 15:13:30 GMT
+MIME-Version: 1.0
+Subject: EU gibt Erwerbslosen volle Freizuegigkeit
+Importance: Normal
+X-Mailer: Mail-SMTP V6.65
+X-Priority: 3 (Normal)
+Message-ID: <3e377fb80ee9a3.2e815.qmail@summit-e.com>
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 18, 2004 at 10:43:19AM -0400, Rik van Riel wrote:
-> Yes, this is a hint at certain embedded developers.  You
-> know who you are and chances are you also know what you would
-> like to develop if you no longer had to spend your time porting
-> the same old patches from one version of the product to the next.
+Einwanderungswelle osteuropaeischer Sozialhilfe-Empfaenger befuerchtet
 
-The shame of things is that the economic/effort problem appears to
-often be "solved" by never migrating to new kernel versions, or
-otherwise by amortizing the work involved with infrequent migrations.
+Muenchen (rpo). Hans-Werner Sinn, Praesident des ifo-Institut hat in der 'Sueddeutschen Zeitung' vor einer massiven Einwanderungswelle osteuropaeischer Sozialhilfe-Empfaenger nach Deutschland gewarnt. Zwar habe die EU Uebergangsfristen fuer Arbeitnehmer verankert, doch Erwerbslose duerften sofort einwandern und haetten von Anfang an 'Anspruch auf alle sozialen Leistungen'.
 
-I wish I had answers.
+Diese Regelung sei grotesk und werde die westeuropaeischen Sozialstaaten zerstoeren. Nur eine Aenderung der EU-Verfassung koenne das noch verhindern. Die Folgen der vom EU-Parlament gebilligten Freizuegigkeits-Richtlinie fuer Wanderungen innerhalb der EU seien 'von Politik und Oeffentlichkeit total uebersehen' worden, kritisierte der Wirtschaftswissenschaftler. Osteuropaeer duerfen waehrend einer mehrjaehrigen Uebergangsfrist zwar 'nicht als Arbeitnehmer kommen.
+
+Als Selbststaendige und nicht erwerbstaetige Personen duerfen sie sich jedoch sofort in Deutschland niederlassen', erklaerte Sinn. 'Von Anfang an hat auch der nicht Erwerbstaetige Anspruch auf alle sozialen Leistungen des Staates wie ein Einheimischer. Das wird viele, die in den aermeren Regionen Europas zu Hause sind, veranlassen, in die reichen Sozialstaaten der EU zu wandern.' Die Anreize seien uebermaechtig. Die deutsche Sozialhilfe sei fuenf Mal so hoch wie ein slowakischer Lohn.
+
+Die bevorstehende Armutswanderung aus Osteuropa werde die westeuropaeischen Sozialstaaten erodieren: 'Die Staaten werden ihre Leistungen in einer Art Abschreckungswettbewerb zurueckschrauben, weil keiner zum Ziel der Wohlfahrtswanderungen werden will', und 'im Endeffekt wird Europa nur noch so sozial sein koennen, wie es Amerika heute ist'. Um dies abzuwenden, muessten die EU-Staaten 'das Recht der Migration in den Sozialstaat' streichen: Das Heimatland muesste fuer die Sozialleistungen an nicht erwerbstaetige Zuwanderer zustaendig bleiben, forderte der ifo-Praesident.
 
 
--- wli
+Link's:
+http://www.rp-online.de/public/article/nachrichten/politik/deutschland/48909
+
+http://www.rhein-main.net/sixcms/list.php?page=fnp2_news_article&id=1685544

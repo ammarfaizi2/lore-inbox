@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291518AbSBHJtA>; Fri, 8 Feb 2002 04:49:00 -0500
+	id <S291509AbSBHJxb>; Fri, 8 Feb 2002 04:53:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291510AbSBHJsv>; Fri, 8 Feb 2002 04:48:51 -0500
-Received: from mail4.messagelabs.com ([212.125.75.12]:51205 "HELO
-	mail4.messagelabs.com") by vger.kernel.org with SMTP
-	id <S291509AbSBHJsl>; Fri, 8 Feb 2002 04:48:41 -0500
-X-VirusChecked: Checked
-Date: Fri, 8 Feb 2002 09:48:38 +0000 (GMT)
-From: Catalin Marinas <c_marinas@yahoo.com>
-X-X-Sender: marinasc@stargate.simoco.com
-To: Felipe Contreras <al593181@mail.mty.itesm.mx>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Weird bug in linux, glibc, gcc or what?
-In-Reply-To: <20020207135749.GA4545@sion.mty.itesm.mx>
-Message-ID: <Pine.LNX.4.44.0202080942300.4228-100000@stargate.simoco.com>
+	id <S291510AbSBHJxV>; Fri, 8 Feb 2002 04:53:21 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:47371 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S291509AbSBHJxF>; Fri, 8 Feb 2002 04:53:05 -0500
+Message-Id: <200202080951.g189pJt14876@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Jim Treadway <jim@stardot-tech.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add support for Lava Octopus PCI serial card
+Date: Fri, 8 Feb 2002 11:51:22 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.44.0202071722230.11456-100000@cerberus.stardot-tech.com>
+In-Reply-To: <Pine.LNX.4.44.0202071722230.11456-100000@cerberus.stardot-tech.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Feb 2002, Felipe Contreras wrote:
-
-> I've found a weird problem in linuxthreads. When I get out of a thread it
-> happends one of three, the new thread get's defuct and the proccess never
-> ends, it segfaults, or it works.
-[snip]
-> #include <pthread.h>
+On 7 February 2002 23:38, Jim Treadway wrote:
+> This patch (against 2.4.17) adds support for the "Lava Octopus-550" (a
+> multiport PCI serial card).
 >
-> void *test(void *arg) {
-> 	puts("Thread2");
-> 	return 0;
-> }
+> I'm not sure exactly who the maintainer of the serial driver for the 2.4.X
+> branch is, and the linux-serial list seems to be rather dead, so I'm
+> sending it here.
 >
-> int main() {
-> 	pthread_t tt;
-> 	puts("Before Thread2");
-> 	pthread_create(&tt,NULL,test,NULL);
-> 	puts("After Thread2");
-> 	return 0;
-> }
+> If anyone knows of a better place to send this, please let me know. ;)
 
-Try this patch and see if it works:
+Don't know for 2.4, but:
 
---- thr_test.c	Fri Feb  8 09:45:35 2002
-+++ thr_test1.c	Fri Feb  8 09:45:36 2002
-@@ -10,5 +10,6 @@ int main() {
- 	puts("Before Thread2");
- 	pthread_create(&tt,NULL,test,NULL);
- 	puts("After Thread2");
-+	pthread_join(tt, NULL);
- 	return 0;
- }
+Russell King <rmk@arm.linux.org.uk> [06 feb 2002]
+	ARM architecture maintainer.  Please send all ARM patches through
+	the patch system at http://www.arm.linux.org.uk/developer/patches/
+	New serial drivers maintainer for 2.5.  Submit patches to
+	rmk+serial@arm.linux.org.uk
 
--- 
-Catalin
+Alan Cox <alan@lxorguk.ukuu.org.uk> [5 feb 2002]
+	2.2 maintainer.
+	He collects various bits and pieces for inclusion in 2.4.
 
+Dave Jones <davej@suse.de> [5 feb 2002]
+	Collects various bits and pieces for inclusion in 2.5,
+	espesially small and trivial ones and driver updates.
 
-________________________________________________________________________
-This email has been scanned for all viruses by the MessageLabs SkyScan
-service. For more information on a proactive anti-virus service working
-around the clock, around the globe, visit http://www.messagelabs.com
-________________________________________________________________________
+--
+vda

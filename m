@@ -1,87 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286326AbSAAW4B>; Tue, 1 Jan 2002 17:56:01 -0500
+	id <S286322AbSAAW5t>; Tue, 1 Jan 2002 17:57:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286331AbSAAWzt>; Tue, 1 Jan 2002 17:55:49 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:16577 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S286326AbSAAWzm>; Tue, 1 Jan 2002 17:55:42 -0500
-To: zaitcev@redhat.com
-Path: post-office.corp.redhat.com!not-for-mail
-From: Linus Torvalds <torvalds@transmeta.com>
-Newsgroups: linux-kernel
-Subject: NFS "dev_t" issues..
-Date: Tue, 1 Jan 2002 14:15:58 -0800 (PST)
-Organization: Red Hat Inc. Internal News
-Message-ID: <mailman.1009923541.1261.linux-kernel2news@redhat.com>
-NNTP-Posting-Host: post-office.redhat.com
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Trace: post-office.corp.redhat.com 1009923542 1262 172.16.44.227 (1 Jan 2002 22:19:02 GMT)
-X-Complaints-To: abuse@redhat.com
-NNTP-Posting-Date: 1 Jan 2002 22:19:02 GMT
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	id <S286325AbSAAW5j>; Tue, 1 Jan 2002 17:57:39 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:23499 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S286331AbSAAW51>;
+	Tue, 1 Jan 2002 17:57:27 -0500
+Date: Tue, 1 Jan 2002 17:57:09 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Neil Brown <neilb@cse.unsw.edu.au>
-Xref: post-office.corp.redhat.com linux-kernel:44659
+Subject: Re: NFS "dev_t" issues..
+In-Reply-To: <Pine.LNX.4.33.0201011402560.13397-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0201011752200.16467-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I made a pre6, which contains a new-and-anal "kdev_t".
 
-The format of the thing is the same as it used to be, ie 16 bits of
-information, but I made it a structure so that you _couldn't_ mix up
-"dev_t" and "kdev_t", or use the "kdev_t" as a number (so when kdev_t
-expands to 12+20 bits later in 2.5.x you shouldn't get surprises)
+On Tue, 1 Jan 2002, Linus Torvalds wrote:
 
-I fixed up the stuff I use and which showed up in compiles (on a source
-level, it's so far totally untested), but I'd really like people to check
-out their own subsystems. _Especially_ NFS and NFSD, which had several
-cases of mixing the two dev_t's around, and which also used them as
-numbers. Trond, Neil?
+> Apart from some knfsd issues, most of the kdev_t users were proper. The
+> strict type-checking found one bug in the SCSI layer (which I knew about,
+> and was one of the impetuses for doing it in the first place), and found a
+> lot of small "works-but-will-break-with-a-bigger-kdev_t" issues).
 
-Because the types aren't at all compatible any more, the macros that are
-used for user-level "dev_t" are no longer working for a kdev_t. So we have
+Sigh...  Most of the ->i_dev instances are crap and ought to be replaced
+with ->i_sb.  At the very least, let's
 
-	dev_t			kdev_t
-
-	MKDEV(major,minor)	mk_kdev(major, minor)
-	MAJOR(dev)		major(dev)
-	MINOR(dev)		minor(dev)
-	dev == dev2		kdev_same(dev, dev2)
-	!dev			kdev_none(dev)
-
-and _most_ of the time the fixes are trivial - just translate as above. It
-only gets interesting when you have code that looks at the value or starts
-mixing the two and compares a "dev_t" against a "kdev_t", which can be
-quite interesting.
-
-The knfsd file handle thing is also an issue - Neil, please check out that
-what I did looks sane, and would be on-the-wire-compatible with the old
-behaviour, even when we expand kdev_t to 12+20 bits, ok?
-
-(Marcelo, for easier backporting of drivers to 2.4.x, we'll probably want
-to eventually add
-
-	#define mk_kdev(a,b) MKDEV(a,b)
-	#define major(d) MAJOR(d)
-	...
-
-to the 2.4.x <linux/kdev_t.h> so that you can move drivers back and
-forth).
-
-Apart from some knfsd issues, most of the kdev_t users were proper. The
-strict type-checking found one bug in the SCSI layer (which I knew about,
-and was one of the impetuses for doing it in the first place), and found a
-lot of small "works-but-will-break-with-a-bigger-kdev_t" issues).
-
-			Linus
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+--- C2-pre6/fs/namei.c	Tue Jan  1 17:49:13 2002
++++ /tmp/namei.c	Tue Jan  1 17:54:08 2002
+@@ -1589,7 +1589,7 @@
+ 		goto exit_lock;
+ 
+ 	error = -EXDEV;
+-	if (!kdev_same(dir->i_dev, inode->i_dev))
++	if (dir->i_sb != inode->i_sb)
+ 		goto exit_lock;
+ 
+ 	/*
+@@ -1707,7 +1707,7 @@
+ 	if (error)
+ 		return error;
+ 
+-	if (!kdev_same(new_dir->i_dev, old_dir->i_dev))
++	if (new_dir->i_sb != old_dir->i_sb)
+ 		return -EXDEV;
+ 
+ 	if (!new_dentry->d_inode)
+@@ -1787,7 +1787,7 @@
+ 	if (error)
+ 		return error;
+ 
+-	if (!kdev_same(new_dir->i_dev, old_dir->i_dev))
++	if (new_dir->i_sb != old_dir->i_sb)
+ 		return -EXDEV;
+ 
+ 	if (!new_dentry->d_inode)
 

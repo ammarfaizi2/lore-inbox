@@ -1,60 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270656AbTG0DNF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 23:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270657AbTG0DNF
+	id S270657AbTG0Dd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 23:33:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270658AbTG0Dd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 23:13:05 -0400
-Received: from h80ad2442.async.vt.edu ([128.173.36.66]:4246 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S270656AbTG0DND (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 23:13:03 -0400
-Message-Id: <200307270328.h6R3S3Kp014744@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Daniel Egger <degger@fhm.edu>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3) 
-In-Reply-To: Your message of "Sat, 26 Jul 2003 17:21:37 +0200."
-             <1059232897.10692.37.camel@sonja> 
-From: Valdis.Kletnieks@vt.edu
-References: <3F1EF7DB.2010805@namesys.com> <1059062380.29238.260.camel@sonja> <16160.4704.102110.352311@laputa.namesys.com> <1059093594.29239.314.camel@sonja> <16161.10863.793737.229170@laputa.namesys.com> <1059142851.6962.18.camel@sonja> <1059143985.19594.3.camel@haron.namesys.com> <1059181687.10059.5.camel@sonja> <1059203990.21910.13.camel@haron.namesys.com> <1059228808.10692.7.camel@sonja> <1059231274.28094.40.camel@haron.namesys.com>
-            <1059232897.10692.37.camel@sonja>
+	Sat, 26 Jul 2003 23:33:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2791 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270657AbTG0Ddz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 23:33:55 -0400
+Date: Sat, 26 Jul 2003 20:46:23 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [TRIVIAL] sanitize power management config menus
+Message-Id: <20030726204623.47b08882.rddunlap@osdl.org>
+In-Reply-To: <20030727025647.GB17724@louise.pinerecords.com>
+References: <20030726200213.GD16160@louise.pinerecords.com>
+	<20030726194651.5e3f00bb.rddunlap@osdl.org>
+	<20030727025647.GB17724@louise.pinerecords.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-929320262P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Sat, 26 Jul 2003 23:28:02 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-929320262P
-Content-Type: text/plain; charset=us-ascii
+On Sun, 27 Jul 2003 04:56:47 +0200 Tomas Szepe <szepe@pinerecords.com> wrote:
 
-On Sat, 26 Jul 2003 17:21:37 +0200, Daniel Egger said:
-> > Also reiserfs does not use compression, that would be very nice of it
-> > :), because flash has limited number of erase cycles per block (in range
-> > 100.000)
-> 
-> I don't see what the compression has to do with the limited number of
-> erase/write cycles.
+| > 3.  The help text for Software Suspend (not part of this patch)
+| > really needs some help.  Would you address that or shall I?
+| 
+| Sure, it would be nice if you could fish out an entry from somewhere.
 
-It's a subtle point - let's say you have a 32K blob of data and a 4K block/
-erase/whatever size on the flash.   If you write it uncompressed, then 8 blocks
-are going to get an erase cycle.  If however you can compress it down to 12K
-(not at all unusual for text), then only 3 blocks get an erase cycle, and the
-other 5 blocks get to live longer...
+OK, how's this look?
+
+--
+~Randy
 
 
---==_Exmh_-929320262P
-Content-Type: application/pgp-signature
+patch_name:	sws_help.patch
+patch_version:	2003-07-26.20:32:10
+author:		Randy.Dunlap <rddunlap@osdl.org>
+description:	make software_suspend help readable
+product:	Linux
+product_versions: 2.6.0-test1
+diffstat:	=
+ arch/i386/Kconfig   |   30 +++++++++++++++---------------
+ arch/x86_64/Kconfig |   20 ++++++++++----------
+ 2 files changed, 25 insertions(+), 25 deletions(-
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE/I0bCcC3lWbTT17ARArFDAJ9dqeOaejZZy7frPv7+6jNuoYxtmgCg7joF
-D6YzmxWxs248eghz6dpj6Bo=
-=+P9G
------END PGP SIGNATURE-----
-
---==_Exmh_-929320262P--
+diff -Naur ./arch/i386/Kconfig~swshelp ./arch/i386/Kconfig
+--- ./arch/i386/Kconfig~swshelp	2003-07-25 10:23:11.000000000 -0700
++++ ./arch/i386/Kconfig	2003-07-26 20:30:50.000000000 -0700
+@@ -824,27 +824,27 @@
+ 	bool "Software Suspend (EXPERIMENTAL)"
+ 	depends on EXPERIMENTAL && PM && SWAP
+ 	---help---
+-	  Enable the possibilty of suspendig machine. It doesn't need APM.
+-	  You may suspend your machine by 'swsusp' or 'shutdown -z <time>' 
+-	  (patch for sysvinit needed). 
+-
+-	  It creates an image which is saved in your active swaps. By the next
+-	  booting the, pass 'resume=/path/to/your/swap/file' and kernel will 
+-	  detect the saved image, restore the memory from
+-	  it and then it continues to run as before you've suspended.
+-	  If you don't want the previous state to continue use the 'noresume'
+-	  kernel option. However note that your partitions will be fsck'd and
+-	  you must re-mkswap your swap partitions/files.
++	  Enable the possibility of suspending the machine. It doesn't need
++	  APM. You may suspend your machine by 'swsusp' or 'shutdown -z <time>'
++	  (patch for sysvinit is needed). 
++
++	  This creates an image which is saved in your active swap space. On
++	  the next boot, pass the 'resume=/path/to/your/swap/file' option and
++	  the kernel will detect the saved image, restore the memory from it,
++	  and then continue to run as before you suspended.
++	  If you don't want the previous state to continue, use the 'noresume'
++	  kernel option. However, note that your partitions will appear to be
++	  damaged so you must re-mkswap your swap partitions/files to use them.
+ 
+ 	  Right now you may boot without resuming and then later resume but
+-	  in meantime you cannot use those swap partitions/files which were
++	  in the meantime you cannot use those swap partitions/files which were
+ 	  involved in suspending. Also in this case there is a risk that buffers
+ 	  on disk won't match with saved ones.
+ 
+-	  SMP is supported ``as-is''. There's a code for it but doesn't work.
+-	  There have been problems reported relating SCSI.
++	  SMP is supported ``as-is''. There's code for it but doesn't work.
++	  There have been problems reported relating to SCSI.
+ 
+-	  This option is about getting stable. However there is still some
++	  This option is close to getting stable. However there is still some
+ 	  absence of features.
+ 
+ 	  For more information take a look at Documentation/swsusp.txt.
+diff -Naur ./arch/x86_64/Kconfig~swshelp ./arch/x86_64/Kconfig
+--- ./arch/x86_64/Kconfig~swshelp	2003-07-13 20:37:13.000000000 -0700
++++ ./arch/x86_64/Kconfig	2003-07-26 20:31:04.000000000 -0700
+@@ -300,17 +300,17 @@
+ 	bool "Software Suspend (EXPERIMENTAL)"
+ 	depends on EXPERIMENTAL && PM && SWAP
+ 	---help---
+-	  Enable the possibilty of suspending the machine. It doesn't need APM.
+-	  You may suspend your machine by 'swsusp' or 'shutdown -z <time>' 
+-	  (patch for sysvinit needed). 
+-
+-	  It creates an image which is saved in your active swaps. On the next
+-	  boot, pass the 'resume=/path/to/your/swap/file' option and the kernel
+-	  will detect the saved image, restore the memory from
+-	  it, and then continue to run as before you suspended.
++	  Enable the possibility of suspending the machine. It doesn't need
++	  APM. You may suspend your machine by 'swsusp' or 'shutdown -z <time>' 
++	  (patch for sysvinit is needed). 
++
++	  This creates an image which is saved in your active swap space. On
++	  the next boot, pass the 'resume=/path/to/your/swap/file' option and
++	  the kernel will detect the saved image, restore the memory from it,
++	  and then continue to run as before you suspended.
+ 	  If you don't want the previous state to continue, use the 'noresume'
+-	  kernel option. However, note that your partitions will be fsck'd and
+-	  you must re-mkswap your swap partitions/files.
++	  kernel option. However, note that your partitions will appear to be
++	  damaged so you must re-mkswap your swap partitions/files to use them.
+ 
+ 	  Right now you may boot without resuming and then later resume but
+ 	  in the meantime you cannot use those swap partitions/files which were

@@ -1,65 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268257AbUIKTf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268297AbUIKTlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268257AbUIKTf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 15:35:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268297AbUIKTf5
+	id S268297AbUIKTlw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 15:41:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268299AbUIKTlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 15:35:57 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:18314 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S268257AbUIKTfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 15:35:55 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: swsusp: kill crash when too much memory is free
-Date: Sat, 11 Sep 2004 21:22:24 +0200
-User-Agent: KMail/1.6.2
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>,
-       Patrick Mochel <mochel@digitalimplant.org>
-References: <20040909154219.GB11742@atrey.karlin.mff.cuni.cz> <20040910222915.GC1347@elf.ucw.cz> <200409111150.28457.rjw@sisk.pl>
-In-Reply-To: <200409111150.28457.rjw@sisk.pl>
-MIME-Version: 1.0
+	Sat, 11 Sep 2004 15:41:52 -0400
+Received: from stingr.net ([212.193.32.15]:49896 "EHLO stingr.net")
+	by vger.kernel.org with ESMTP id S268297AbUIKTlO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 15:41:14 -0400
+Date: Sat, 11 Sep 2004 23:41:08 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: netdev@oss.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] [RFC] Support for wccp version 1 and 2 in ip_gre.c
+Message-ID: <20040911194108.GS28258@stingr.sgu.ru>
+Mail-Followup-To: netdev@oss.sgi.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409112122.24194.rjw@sisk.pl>
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 11 of September 2004 11:50, Rafael J. Wysocki wrote:
-> On Saturday 11 of September 2004 00:29, Pavel Machek wrote:
-[- snip -]
-> 
-> However, I think the problem is with the hardware, not with the driver: if 
-the 
-> sound driver is unloaded before suspend and loaded again after resume, the 
-> box behaves as though it were loaded all the time (ie IRQ #5 goes mad).  Are 
-> there any boot options that may help get around this?
+Hello!
 
-Some good news here. :-)
+Some time ago I posted the following patch.
+It indeed adds support for wccp version 1 and 2 decapsulation in
+ip_gre.c. But there is an open question.
+I surrounded all decapsulation stuff in if (1).
+Which knob I should use instead of that 1 to make this change
+acceptable into mainline kernel?
 
-If the kernel is booted with pci=routeirq and nmi_watchdog=0, almost all of 
-the problems that I had with swsusp "magically" disappear.
+Thanks in advance.
 
-One issue that remains is a USB-related crash (trace available at: 
-http://www.sisk.pl/kernel/040911/swsusp-usb-trace.log), which does not 
-prevent the box from waking up (as you can see in the trace), but requires 
-the ohci_hcd module to be reloaded.  I have got rid of it by compiling the 
-USB drivers into the kernel.
-
-The second remaining "thing" is that the network interface on eth0 (sk98lin) 
-does not come up properly after resume and I have to restart networking to 
-make it work, but this is a non-issue.
-
-Thanks a lot for your help, and if I can do something for you (like testing 
-new code etc.), please let me know.
-
-Greets,
-RJW
+diff -urN linux-2.6.6-1.435/net/ipv4/ip_gre.c linux-2.6.6-1.435a/net/ipv4/ip_gre.c
+--- linux-2.6.6-1.435/net/ipv4/ip_gre.c	2004-05-10 06:32:54.000000000 +0400
++++ linux-2.6.6-1.435a/net/ipv4/ip_gre.c	2004-06-30 16:38:43.781838344 +0400
+@@ -553,6 +553,8 @@
+ 	return INET_ECN_encapsulate(tos, inner);
+ }
+ 
++#define ETH_P_WCCP 0x883E
++
+ int ipgre_rcv(struct sk_buff *skb)
+ {
+ 	struct iphdr *iph;
+@@ -605,13 +607,21 @@
+ 	if ((tunnel = ipgre_tunnel_lookup(iph->saddr, iph->daddr, key)) != NULL) {
+ 		secpath_reset(skb);
+ 
++		skb->protocol = *(u16*)(h + 2);
++		if (1) {
++			if ((flags == 0) && (skb->protocol == __constant_htons(ETH_P_WCCP))) {
++				skb->protocol = __constant_htons(ETH_P_IP);
++				if ((*(h + offset) & 0xF0) != 0x40) 
++					offset += 4;
++			}
++		}
++
+ 		skb->mac.raw = skb->nh.raw;
+ 		skb->nh.raw = __pskb_pull(skb, offset);
+ 		memset(&(IPCB(skb)->opt), 0, sizeof(struct ip_options));
+ 		if (skb->ip_summed == CHECKSUM_HW)
+ 			skb->csum = csum_sub(skb->csum,
+ 					     csum_partial(skb->mac.raw, skb->nh.raw-skb->mac.raw, 0));
+-		skb->protocol = *(u16*)(h + 2);
+ 		skb->pkt_type = PACKET_HOST;
+ #ifdef CONFIG_NET_IPGRE_BROADCAST
+ 		if (MULTICAST(iph->daddr)) {
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Paul P 'Stingray' Komkoff Jr // http://stingr.net/key <- my pgp key
+ This message represents the official view of the voices in my head

@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263147AbTIAQ7m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 12:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTIAQ7m
+	id S263116AbTIAQ66 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 12:58:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTIAQ66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 12:59:42 -0400
-Received: from sunpizz1.rvs.uni-bielefeld.de ([129.70.123.31]:27617 "EHLO
-	mail.rvs.uni-bielefeld.de") by vger.kernel.org with ESMTP
-	id S263147AbTIAQ7e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 12:59:34 -0400
-Subject: Re: [PATCH] Firmware loading depends on hotplug support
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030901163505.GA27754@ip68-0-152-218.tc.ph.cox.net>
-References: <200309011502.h81F2Mq6003467@hera.kernel.org> 
-	<20030901163505.GA27754@ip68-0-152-218.tc.ph.cox.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 01 Sep 2003 18:59:15 +0200
-Message-Id: <1062435561.30892.193.camel@pegasus>
+	Mon, 1 Sep 2003 12:58:58 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:27116 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263116AbTIAQ6z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 12:58:55 -0400
+Date: Mon, 1 Sep 2003 09:58:49 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+Message-ID: <20030901165849.GG1327@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Jamie Lokier <jamie@shareable.org>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <20030829053510.GA12663@mail.jlokier.co.uk> <20030829154101.GB16319@work.bitmover.com> <20030901054413.GF748@mail.jlokier.co.uk> <20030901144304.GA1327@work.bitmover.com> <20030901163354.GA3556@mail.jlokier.co.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030901163354.GA3556@mail.jlokier.co.uk>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=1.1,
+	required 7, AWL, DATE_IN_PAST_06_12, UPPERCASE_25_50)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Tom,
-
-> > 	[PATCH] Firmware loading depends on hotplug support
-> > 	
-> > 	This patch makes the firmware loading support only selectable if the
-> > 	hotplug support is also enabled.
-> > 
-> > 
-> > # This patch includes the following deltas:
-> > #	           ChangeSet	1.1065.2.2 -> 1.1065.2.3
-> > #	       lib/Config.in	1.4     -> 1.5    
-> > #
-> > 
-> >  Config.in |    3 ++-
-> >  1 files changed, 2 insertions(+), 1 deletion(-)
-> > 
-> > 
-> > diff -Nru a/lib/Config.in b/lib/Config.in
-> > --- a/lib/Config.in	Mon Sep  1 08:02:24 2003
-> > +++ b/lib/Config.in	Mon Sep  1 08:02:24 2003
-> > @@ -41,7 +41,8 @@
-> >    fi
-> >  fi
-> >  
-> > -if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
-> > +if [ "$CONFIG_EXPERIMENTAL" = "y" -a \
-> > +     "$CONFIG_HOTPLUG" = "y" ]; then
-> >     tristate 'Hotplug firmware loading support (EXPERIMENTAL)' CONFIG_FW_LOADER
-> >  fi
+On Mon, Sep 01, 2003 at 05:33:54PM +0100, Jamie Lokier wrote:
+> Your freebsds don't what CPU they are, but let me guess..
 > 
-> Is this really a good idea, given that USB devices may be hot-plugged,
-> without CONFIG_HOTPLUG set (drivers are compiled in, for example) ?
+>      freebsd isn't an AMD
+>      freebsd3 and freebsd4 are both AMD K6, and freebsd3 is the faster
 
-this option is only provided for drivers outside the kernel. If a driver
-inside the kernel needs it, it is selected automaticly like the CRC32
-routines.
+Right you are on all points.  
 
-If you disable hotplug support the request_firmware() routine will
-return an error and this must be handled by the driver.
+freebsd:
+    CPU: Unknown 80686 (400.91-MHz 686-class CPU)
+    Origin = "GenuineIntel"  Id = 0x660  Stepping=0
+    Features=0x183f9ff<FPU,VME,DE,PSE,TSC,MSR,PAE,MCE,CX8,SEP,MTRR,PGE,MCA,CMOV,<b16>,<b17>,MMX,<b24>>
 
-Regards
+freebsd3
+    CPU: AMD-K6(tm) 3D processor (451.03-MHz 586-class CPU)
+    Origin = "AuthenticAMD"  Id = 0x58c  Stepping=12
+    Features=0x8021bf<FPU,VME,DE,PSE,TSC,MSR,MCE,CX8,PGE,MMX>
 
-Marcel
-
-
+freebsd4
+    CPU: AMD-K6tm w/ multimedia extensions (233.87-MHz 586-class CPU)
+    Origin = "AuthenticAMD"  Id = 0x562  Stepping = 2
+    Features=0x8001bf<FPU,VME,DE,PSE,TSC,MSR,MCE,CX8,MMX>
+    AMD Features=0x400<<b10>>
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

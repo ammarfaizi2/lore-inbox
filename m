@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262655AbTJGTHt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 15:07:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbTJGTHt
+	id S262708AbTJGTRI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 15:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262725AbTJGTRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 15:07:49 -0400
-Received: from mail15.speakeasy.net ([216.254.0.215]:18869 "EHLO
-	mail.speakeasy.net") by vger.kernel.org with ESMTP id S262655AbTJGTHs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 15:07:48 -0400
-Date: Tue, 7 Oct 2003 12:07:44 -0700
-Message-Id: <200310071907.h97J7i4a004576@magilla.sf.frob.com>
-MIME-Version: 1.0
+	Tue, 7 Oct 2003 15:17:08 -0400
+Received: from gprs149-208.eurotel.cz ([160.218.149.208]:11651 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262708AbTJGTRF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 15:17:05 -0400
+Date: Tue, 7 Oct 2003 21:16:51 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Jesse Pollard <jesse@cats-chateau.net>,
+       "Giacomo A. Catenazzi" <cate@pixelized.ch>,
+       Krishna Akella <akellak@onid.orst.edu>, Paul Jakma <paul@clubi.ie>,
+       kartikey bhatt <kartik_me@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Can't X be elemenated?
+Message-ID: <20031007191651.GD610@elf.ucw.cz>
+References: <Pine.LNX.4.44.0309301209590.19804-100000@shell> <3F82780C.8080408@pixelized.ch> <20031007121825.GA323@elf.ucw.cz> <03100709470200.30416@tabby> <20031007153703.GD323@elf.ucw.cz> <Pine.LNX.4.58.0310071206370.19220@dlang.diginsite.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-X-Fcc: ~/Mail/linus
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] dump read-only anonymous memory in core files
-In-Reply-To: Linus Torvalds's message of  Tuesday, 7 October 2003 02:06:34 -0700 <Pine.LNX.4.44.0310070155110.1749-100000@home.osdl.org>
-X-Fcc: ~/Mail/linus
-X-Shopping-List: (1) Ambivalent nougat corruption
-   (2) Graphic tables
-   (3) Delicious breeze auctions
-   (4) Vivacious amphibious protein ambition
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0310071206370.19220@dlang.diginsite.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
+
+> > > And yet.. there are times when I need something VERY light weight, and
+> > > globally portable. So I started my own for a specific application
+> > > where
+> >
+> > Well, in one of previous mails I said that "one per goal" is the right
+> > thing. So it is okay for "small" toolkits to exists, but I do not like
+> > qt vs. gtk, because they have identical goals.
+> >
+> > Anyway, this is off-topic for linux-kernel, and I guess we should end
+> > here.
 > 
-> What about shared mappings (that test should be VM_MAYSHARE)?
-> 
-> My inclination would be to not dump them if they are backed by a file, 
-> even if the mmap is writable.
+> *BSD and Linux have the same goals (at least as close as GTK and QT do),
+> does this mean that Linus should not have started writing Linux?
 
-That sounds reasonable to me (perhaps modulo the shmfs issue).  I intended
-my patch not to omit any vmas that were dumped before, so I didn't consider
-omitting any writable areas.  (I don't really understand the difference
-between VM_MAYSHARE and VM_SHARED, so I might be assuming something wrong
-when saying you are right.)
+I'm not saying that work on GTK or QT should not have started. I
+understand why they did. Still its a pity.
 
-> Also, the VM_WRITE test should possibly be VM_MAYWRITE, since the thing
-> could have been mprotect()'ed. Alternatively, we could really add a "this
-> mapping has been writable" flag (a kind of "sticky VM_WRITE" bit). It's
-> only mprotect that can do this, anyway.
+Anyway Linux vs. FreeBSD is completely another situation, because
+Linux is clearly dominant. I have no problem with that. But GTK vs. QT
+have roughly equivalent usage... Thats bad.
+								Pavel
 
-Actually the ideal would be "this mapping has been written to" (or might
-have been, i.e. it at least was writable in a pte, if not actually dirty).
-Then if you mmap some pages PROT_READ|PROT_WRITE, and then mprotect them
-PROT_READ before ever touching them, you don't dump those pages just as you
-wouldn't dump always-read-only pages.  (If you had that, you could apply it
-to anonymous mappings as well and omit all zero-fill pages.)  Ideally this
-would dump PROT_NONE pages that have been written in the past as well,
-which is ruled out by the VM_READ test at the top of maydump.  Despite the
-comment, it looks to me like dump_write's use of get_user_pages will make
-it work, so it could be a VM_MAYREAD check. 
-
-
-Thanks,
-Roland
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

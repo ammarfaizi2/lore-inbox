@@ -1,68 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270727AbTHLQJl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 12:09:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270471AbTHLQJl
+	id S270749AbTHLQU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 12:20:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270816AbTHLQU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 12:09:41 -0400
-Received: from mail.suse.de ([213.95.15.193]:36104 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S270462AbTHLQJj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 12:09:39 -0400
-To: Valdis.Kletnieks@vt.edu
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>,
-       linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: generic strncpy - off-by-one error
-References: <m21xvrynnk.wl%ysato@users.sourceforge.jp>
-	<m2y8xzx74x.wl%ysato@users.sourceforge.jp>
-	<200308121503.h7CF3JfZ009007@turing-police.cc.vt.edu>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: I'm an East Side TYPE..
-Date: Tue, 12 Aug 2003 18:09:27 +0200
-In-Reply-To: <200308121503.h7CF3JfZ009007@turing-police.cc.vt.edu> (Valdis
- Kletnieks's message of "Tue, 12 Aug 2003 11:03:18 -0400")
-Message-ID: <jewudix3go.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 12 Aug 2003 12:20:58 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:13206 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270749AbTHLQUz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 12:20:55 -0400
+Subject: Re: Requested FAQ addition - Mandrake and partial-i686 platforms
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Brandon Stewart <rbrandonstewart@yahoo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F38FE5B.1030102@yahoo.com>
+References: <3F38FE5B.1030102@yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1060705037.12532.49.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 12 Aug 2003 17:17:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Maw, 2003-08-12 at 15:48, Brandon Stewart wrote:
+> Apparently, there is an issue with glibc on versions less than 2.3.1-15 
+> (and maybe others), where it mistakenly treats CPUs as full i686 
+> compliant when they only execute a subset of the i686 instructions
 
-Valdis.Kletnieks@vt.edu writes:
+VIA C3 has the full set of i686 required instructions. The whole story
+is a lot more complex
 
-|> On Tue, 12 Aug 2003 23:50:06 +0900, Yoshinori Sato <ysato@users.sourcefo=
-rge.jp>  said:
-|>=20
-|> > -	while (count) {
-|> > +	while (count > 1) {
-|>=20
-|> Given that count is a size_t, which seems to be derived from 'unsigned i=
-nt'  or
-|> 'unsigned long' on every platform, how are these any different?
+gcc i686 mode outputs cmov instruction sequences without checking cmov
+is present at runtime. So gcc "i686" is actually "i686 and a bit". It
+actually doesn't really make sense to do a true i686 mode without cmov
+either.
 
-Let's suppose count =3D=3D 1.
+Red Hat's rpm knows about this so I'm suprised the Mandrake one gets it
+wrong and installs arch=686 packages without checking for cmov.
 
-Andreas.
-
-=2D-=20
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 N=FCrnberg
-Key fingerprint =3D 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/ORFBRNUhS4J2TtURApMyAJ0Ztlec1ahWQHzzasyEZ+dzGVDBagCgxTz/
-lsfE7oym0DfoXjyvgNgv+RM=
-=MKNC
------END PGP SIGNATURE-----
---=-=-=--

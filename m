@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267150AbUBSJ4q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 04:56:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267165AbUBSJ4q
+	id S267153AbUBSKFY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 05:05:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267155AbUBSKFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 04:56:46 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:62880 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S267150AbUBSJ4o convert rfc822-to-8bit
+	Thu, 19 Feb 2004 05:05:24 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:25875 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S267153AbUBSKFS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 04:56:44 -0500
-Subject: Re: sys_tux stolen @s390 in 2.6
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>
-X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
-Message-ID: <OF40839756.8606BD1D-ON41256E3F.00366EED-41256E3F.00369D21@de.ibm.com>
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Thu, 19 Feb 2004 10:56:31 +0100
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 6.0.2CF2|July 23, 2003) at
- 19/02/2004 10:56:35
+	Thu, 19 Feb 2004 05:05:18 -0500
+Message-ID: <40348D70.8090103@aitel.hist.no>
+Date: Thu, 19 Feb 2004 11:18:24 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
+To: tridge@samba.org
+CC: "Theodore Ts'o" <tytso@mit.edu>, Pascal Schmidt <der.eremit@email.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 and case-insensitivity
+References: <1qqzv-2tr-3@gated-at.bofh.it>	<1qqJc-2A2-5@gated-at.bofh.it>	<1qHAR-2Wm-49@gated-at.bofh.it>	<1qIwr-5GB-11@gated-at.bofh.it>	<1qIwr-5GB-9@gated-at.bofh.it>	<1qIQ1-5WR-27@gated-at.bofh.it>	<1qIZt-6b9-11@gated-at.bofh.it>	<1qJsF-6Be-45@gated-at.bofh.it>	<E1Atbi7-0004tf-O7@localhost>	<16436.2817.900018.285167@samba.org>	<20040219024426.GA3901@thunk.org> <16436.11148.231014.822067@samba.org>
+In-Reply-To: <16436.11148.231014.822067@samba.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+tridge@samba.org wrote:
+> Ted,
+> 
+>  > Actually, not necessarily.  What if Samba gets notifications of all
+>  > filename renames and creates in the directory, so that after the
+>  > initial directory scan, it can keep track of what filenames are
+>  > present in the directory?  It can then "prove the negative", as you
+>  > put it, without having to continuously do directory scans.
+> 
+> Currently dnotify doesn't give you the filename that is being
+> added/deleted/renamed. It just tells you that something has happened,
+> but not enough to actually maintain a name cache in user space.
+> 
+You can still keep per-directory caches that you simply invalidate on each dnotify,
+and rebuild when necessary.  At least it would help the "repeated
+lookup of nonexistant filenames" case.  
+Path searches for executables usually happens on directories that don't 
+see much writing.
 
-
-
-
-
-Hi Arnd,
-
-> In my copy of tux-3.2.13, the number 242 is used correctly. That number
-> is the one that is reserved in the official linux sources. Martin
-> allocated it exactly one year ago when I sent the patch enabling
-> s390 in tux to Florian La Roche <laroche@redhat.com>.
->
-> If you have a really old version of the tux sources, there might
-> be the fallback to number 222 still there (which is a pretty dumb
-> idea, btw).
-
-Ahh, this explains it. I was already worried that I have misplaced
-some mail that reserved #222 for tux. The official number is indeed
-#242.
-
-blue skies,
-   Martin
-
-Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
-Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
-E-Mail: schwidefsky@de.ibm.com
-
+Helge Hafting
 

@@ -1,61 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269233AbUJQRlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269237AbUJQRoz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269233AbUJQRlt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 13:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269239AbUJQRka
+	id S269237AbUJQRoz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 13:44:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269239AbUJQRoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 13:40:30 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:57241 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269237AbUJQRji (ORCPT
+	Sun, 17 Oct 2004 13:44:55 -0400
+Received: from pop.gmx.de ([213.165.64.20]:16875 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S269237AbUJQRnG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 13:39:38 -0400
-Date: Sun, 17 Oct 2004 19:40:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U4
-Message-ID: <20041017174043.GA28906@elte.hu>
-References: <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041017190330.7a226190@mango.fruits.de> <20041017165509.GA26791@elte.hu> <20041017195358.4e473893@mango.fruits.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041017195358.4e473893@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 17 Oct 2004 13:43:06 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
+Date: Sun, 17 Oct 2004 19:46:31 +0200
+User-Agent: KMail/1.7
+Cc: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Daniel Walker <dwalker@mvista.com>,
+       Bill Huey <bhuey@lnxw.com>, Andrew Morton <akpm@osdl.org>,
+       Adam Heath <doogie@debian.org>,
+       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
+       Andrew Rodland <arodland@entermail.net>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <200410162344.41533.dominik.karall@gmx.net> <87k6tpwebi.fsf@devron.myhome.or.jp>
+In-Reply-To: <87k6tpwebi.fsf@devron.myhome.or.jp>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2517290.xttWXIDIS9";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410171946.33472.dominik.karall@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart2517290.xttWXIDIS9
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
+On Sunday 17 October 2004 17:32, OGAWA Hirofumi wrote:
+> Dominik Karall <dominik.karall@gmx.net> writes:
+> > i could reproduce it now, but only once. it appeared when i started an
+> > avi movie from my fat32 partition. mplayer stopped at buffering 2% and
+> > does not play the movie. i tried to start mplayer again and reproduce i=
+t,
+> > but the bug does not appear again. mplayer only stopped at 2% buffering
+> > and does nothing more. it seems like the file couldn't be read clearly
+> > now from the fat32 partition, as it does not work with xine and others
+> > too.
+> > here is the bug i get now:
+> >
+> > ------------[ cut here ]------------
+> > kernel BUG at fs/fat/cache.c:150!
+>
+> Probably this BUG_ON() was wrong. Does this bug occur only by the
+> specific file?
+>
+> If so, please do "filefrag -v filename" against that file.
+>
+> Then, can you try the attached patch? This patch removes the BUG_ON(),
+> and instead adds printk() for debugging. When the bug occured, it prints
+> the current cache.
+>
+> Thanks.
 
-> > ok, does the patch below fix those messages? (gameport.c used its own,
-> > private, incompatible prototype for i8253_lock which breaks raw spinlock
-> > handling.)
-> > 
-> 
-> it seems to fix it. i don't see any more messages like the reported
-> anymore.
+yes, the bug only occurs on a specific file.
+as the bug is present in -mm1 (without vp) too, i applied your patch to tha=
+t=20
+one. here is the output:
 
-good!
+fat_cache_check: id 0, contig 6415, fclus 38231, dclus 1010103
+contig 6416, fclus 38231, dclus 1010103
+contig 0, fclus 32, dclus 603964
+contig 1, fclus 30, dclus 603960
+contig 7, fclus 22, dclus 603950
+contig 4, fclus 17, dclus 603943
+contig 1, fclus 15, dclus 603940
+contig 6, fclus 8, dclus 603931
+contig 0, fclus 7, dclus 603929
 
-> snd-cs46xx might have some other issues though: Upon rmmod snd-cs46xx
-> i see:
-> 
-> Oct 17 19:43:04 mango kernel: Sound Fusion CS46xx 0000:00:0f.0: Device
-> was removed without properly calling pci_disable_device(). This may
-> need fixing.
-> 
-> but i should probably report that to alsa-devel instead right?
+and the movie starts to play in mplayer without problems. tell me if you ne=
+ed=20
+more debugging!
 
-yeah, i think so.
+best regards,
+dominik
 
-	Ingo
+--nextPart2517290.xttWXIDIS9
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iQCVAwUAQXKv+QvcoSHvsHMnAQIjzgP/R3C9RgbwnCoYPeGjcVINlMgQGMvsioob
+9jXOj4tYd+g1jcALyLhpQDGisySsnkk99jB+Deq0GV2SupWlPkUVwjjaSMkE/i2W
+D9IRsKwtlW8BW3A3qGQW8bmVPkMmZL0IXapDKoe+QR/VgI45YwlHU7LoMmEWu0dU
++aA0EuGFEwE=
+=w52T
+-----END PGP SIGNATURE-----
+
+--nextPart2517290.xttWXIDIS9--

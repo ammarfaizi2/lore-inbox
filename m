@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262120AbTJKEpT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 00:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263224AbTJKEpT
+	id S263255AbTJKFkg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 01:40:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbTJKFkf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 00:45:19 -0400
-Received: from web13005.mail.yahoo.com ([216.136.174.15]:31505 "HELO
-	web13005.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262120AbTJKEpP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 00:45:15 -0400
-Message-ID: <20031011044514.19799.qmail@web13005.mail.yahoo.com>
-Date: Fri, 10 Oct 2003 21:45:14 -0700 (PDT)
-From: asdfd esadd <retu834@yahoo.com>
-Subject: 2.7 thoughts: common well-architected object model
-To: linux-kernel@vger.kernel.org
-Cc: retu834@yahoo.com
+	Sat, 11 Oct 2003 01:40:35 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:9988 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S263255AbTJKFke (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 01:40:34 -0400
+Date: Fri, 10 Oct 2003 22:37:14 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Florian Schirmer <jolt@tuxbox.org>, linux-kernel@vger.kernel.org,
+       David Turner <novalis@fsf.org>, andrew@mikl.as, rob@nocat.net
+Subject: Re: Linksys/Cisco GPL Violations
+In-Reply-To: <1065795953.24015.329.camel@hades.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.10.10310102233461.12324-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With due respect, what 2.7 really needs is a
-consistent well architected _single component model.
-Why it should be spawned from kernel development -
-because coming up with a consistent one from higher
-layers has shown to be difficult/futile/impossible. 
 
-Many of the feature ideas listed are great but it's
-rather back to architecture at this stage.
+David,
 
-A consistent component model is needed on which people
-can extend and Linux will lap the other OSs, otherwise
-it will be rather difficult to
-compete on the application side in the end (argument
-will be: Linux is is difficult to program and has
-flagrant duplication). There are many good component
-models out there but the parallel re-implementation of
-everything somewhat lacks cast.
+If you still have not paid and gotten legal advise on the position, you 
+are still talking out of your ARSE.  Clearly you have horses and wishes
+confused on what GPL is and is not.
 
-So here is the feature request:
+If there is not boundary for modules then SCO will eat Linux alive in
+court.  You can't have it both ways.
 
-* a unified well architected core component model
-which is extensible
+Regards,
 
+Andre Hedrick
+LAD Storage Consulting Group
 
-- RETU 
+I am done with the subject, good day sir!
 
+On Fri, 10 Oct 2003, David Woodhouse wrote:
 
+> On Fri, 2003-10-10 at 16:18 +0200, Florian Schirmer wrote:
+> > Dont get me wrong. I agreee that there are still issues with the wireless
+> > driver. IMHO binary modules aren't legal at all. I just don't wanted to
+> > start the binary discussion and therefore posted the misleading statement.
+> 
+> OK. Let's agree that your statement was indeed slightly misleading (it
+> certainly misled me) and drop the discussion, lest we incur the wrath of
+> davem again :)
+> 
+> -- 
+> dwmw2
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com

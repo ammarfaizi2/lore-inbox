@@ -1,36 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266303AbRGJNv7>; Tue, 10 Jul 2001 09:51:59 -0400
+	id <S266365AbRGJOCK>; Tue, 10 Jul 2001 10:02:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266181AbRGJNvt>; Tue, 10 Jul 2001 09:51:49 -0400
-Received: from weta.f00f.org ([203.167.249.89]:39042 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S266303AbRGJNve>;
-	Tue, 10 Jul 2001 09:51:34 -0400
-Date: Wed, 11 Jul 2001 01:51:28 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How many pentium-3 processors does SMP support?
-Message-ID: <20010711015128.E31799@weta.f00f.org>
-In-Reply-To: <Pine.GSO.4.21.0107092315140.493-100000@faith.cs.utah.edu> <9ie450$d1p$1@cesium.transmeta.com>
-Mime-Version: 1.0
+	id <S266347AbRGJOBv>; Tue, 10 Jul 2001 10:01:51 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:1222 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S266326AbRGJOBs>; Tue, 10 Jul 2001 10:01:48 -0400
+Message-ID: <3B4B0B1F.92EC5C0E@uow.edu.au>
+Date: Wed, 11 Jul 2001 00:03:11 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chris Wedgwood <cw@f00f.org>
+CC: Andrea Arcangeli <andrea@suse.de>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: msync() bug
+In-Reply-To: <20010709170835.J1594@athlon.random> <20010711012524.A31799@weta.f00f.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9ie450$d1p$1@cesium.transmeta.com>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 09, 2001 at 10:34:24PM -0700, H. Peter Anvin wrote:
+Chris Wedgwood wrote:
+> 
+> (cc' list snipped)
+> 
+> This stuff is gold.
+> 
+> Anyone clueful want to comment things so this will end up in the
+> documentation when you do a make docbook or something?
+> 
 
-    It supports up to 32, if you can find a machine that has that
-    many.
+One can but try.
 
-I think 8-way is about as high as anything common goes to, maybe
-16. The cpu array is declared 32 long, maybe this should be changed to
-8 by default?
+Linus included the test for non-null page->mapping
+as well.  I wonder why.
+
+Also, the change means that the TLB flush is not performed
+for invalid or reserved pages.  Is this correct?  (Why is there
+a TLB flush there in the first place?)
+
+There's a flush_tlb_range() down in filemap_sync() as well, so
+we appear to end up flushing the affected TLBs twice?
 
 
-
-  --cw
+--- linux-2.4.7-pre5/mm/memory.c	Tue Jul 10 22:32:53 2001
++++ linux-akpm/mm/memory.c	Tue Jul 10 23:37:45 2001
+@@ -766,6 +766,8 @@ int zeromap_page_range(unsigned long add
+  * maps a range of physical memory into the requested pages. the old
+  * mappings are removed. any references to nonexistent pages results
+  * in null mappings (currently treated as "copy-on-access")
++ * We forbid mapping of valid, unreserved pages because that would
++ * allow corruption of their reference counts via this additional mapping.
+  */
+ static inline void remap_pte_range(pte_t * pte, unsigned long address, unsigned long size,
+ 	unsigned long phys_addr, pgprot_t prot)
+--- linux-2.4.7-pre5/mm/filemap.c	Tue Jul 10 22:32:53 2001
++++ linux-akpm/mm/filemap.c	Tue Jul 10 23:45:28 2001
+@@ -1643,6 +1643,8 @@ page_not_uptodate:
+ 
+ /* Called with mm->page_table_lock held to protect against other
+  * threads/the swapper from ripping pte's out from under us.
++ * Mappings from remap_pte_range() can cover invalid or reserved
++ * pages, so we must check for that here.
+  */
+ static inline int filemap_sync_pte(pte_t * ptep, struct vm_area_struct *vma,
+ 	unsigned long address, unsigned int flags)

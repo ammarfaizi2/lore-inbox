@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267225AbSLEFPW>; Thu, 5 Dec 2002 00:15:22 -0500
+	id <S267224AbSLEFOG>; Thu, 5 Dec 2002 00:14:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267226AbSLEFPW>; Thu, 5 Dec 2002 00:15:22 -0500
-Received: from h-64-105-35-8.SNVACAID.covad.net ([64.105.35.8]:28827 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S267225AbSLEFPU>; Thu, 5 Dec 2002 00:15:20 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Wed, 4 Dec 2002 21:20:49 -0800
-Message-Id: <200212050520.VAA03472@adam.yggdrasil.com>
-To: david@gibson.dropbear.id.au
-Subject: Re: [RFC] generic device DMA implementation
-Cc: davem@redhat.com, James.Bottomley@steeleye.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, miles@gnu.org
+	id <S267225AbSLEFOG>; Thu, 5 Dec 2002 00:14:06 -0500
+Received: from ip68-4-86-174.oc.oc.cox.net ([68.4.86.174]:37104 "EHLO
+	ip68-4-86-174.oc.oc.cox.net") by vger.kernel.org with ESMTP
+	id <S267224AbSLEFOG>; Thu, 5 Dec 2002 00:14:06 -0500
+Date: Wed, 4 Dec 2002 21:21:39 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Parallel build broken in latest BK
+Message-ID: <20021205052139.GB17498@ip68-4-86-174.oc.oc.cox.net>
+References: <Pine.LNX.4.33.0212042215540.924-100000@localhost.localdomain> <20021205044913.GA30035@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021205044913.GA30035@gtf.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At the risk of beating a dead horse, I'd like to clarify a potential
-ambiguity.
+On Wed, Dec 04, 2002 at 11:49:13PM -0500, Jeff Garzik wrote:
+> Try the GNU-and-improved:
+> 
+> 	make -j4
+> 
+> I just tried that and it works fine.
+> 
+> I think MAKE= is a remnant of the old kbuild.  Shouldn't be needed
+> anymore since the build doesn't descend into directories the way it used
+> to.
 
-David Gibson wrote:
->It seems the "try to get consistent memory, but otherwise give me
->inconsistent" is only useful on machines which:
->	(1) Are not fully consisent, BUT
->	(2) Can get consistent memory without disabling the cache, BUT
->	(3) Not very much of it, so you might run out.
+AFAIK MAKE= is a remnant of old/non-GNU make's -- even with the old
+kbuild, it's unneeded with newer GNU make releases AFAIK.
 
->The point is, there has to be an advantage to using consistent memory
->if it is available AND the possibility of it not being available.
-
-	It is enough that there is an advantage to using consistent
-memory on one platform (such as sparc64?) and the possibility of it
-not being available on another platform (such as parisc), given that
-you want the driver on both platforms (such as 53c700).  In that case,
-we have identified three possible choices so far:
-
-APPROACH				PROBLEMS
-
-1. Use both memory allocators.		Increased source and object size,
-   (as 53c700 currently does)		rarely used code branches, unneeded
-					"if (!consistent)" tests on platforms
-					where the answer is constant.
-
-2. Assume only inconsistent memory.	Slower on platforms where consistent
-					memory has speed advantage
-
-3. Have "maybe consistent" allocation
-   and {w,r}mb_maybe(addr,len) macros.
-
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
-
+-Barry K. Nathan <barryn@pobox.com>

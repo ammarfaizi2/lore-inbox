@@ -1,79 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278943AbRJ2B5b>; Sun, 28 Oct 2001 20:57:31 -0500
+	id <S278945AbRJ2B6v>; Sun, 28 Oct 2001 20:58:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278945AbRJ2B5V>; Sun, 28 Oct 2001 20:57:21 -0500
-Received: from rosebud.imaginos.net ([64.173.180.66]:29829 "EHLO
-	rosebud.imaginos.net") by vger.kernel.org with ESMTP
-	id <S278943AbRJ2B5J> convert rfc822-to-8bit; Sun, 28 Oct 2001 20:57:09 -0500
-Date: Sun, 28 Oct 2001 17:57:36 -0800 (PST)
-From: Jim Hull <imaginos@imaginos.net>
-X-X-Sender: <imaginos@rosebud>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Intel EEPro 100 with kernel drivers
-In-Reply-To: <20011029021339.B23985@stud.ntnu.no>
-Message-ID: <Pine.LNX.4.33.0110281751180.15693-100000@rosebud>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+	id <S278950AbRJ2B6l>; Sun, 28 Oct 2001 20:58:41 -0500
+Received: from [63.231.122.81] ([63.231.122.81]:19515 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S278945AbRJ2B63>;
+	Sun, 28 Oct 2001 20:58:29 -0500
+Date: Sun, 28 Oct 2001 18:58:44 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: jgarzik@mandrakesoft.com, miles@megapathdsl.net, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: What is standing in the way of opening the 2.5 tree?
+Message-ID: <20011028185844.C1311@lynx.no>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
+	jgarzik@mandrakesoft.com, miles@megapathdsl.net,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1004219488.11749.19.camel@stomata.megapathdsl.net> <3BDB91D7.C7975C44@mandrakesoft.com> <20011027.224602.74750641.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20011027.224602.74750641.davem@redhat.com>; from davem@redhat.com on Sat, Oct 27, 2001 at 10:46:02PM -0700
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Oct 27, 2001  22:46 -0700, David S. Miller wrote:
+> In particular, the quota stuff, which has sat in Alan's tree forever.
+> If Linus is ignoring the changes it probably is for a good reason
+> but it would be nice for him to let Alan know what that reason is :-)
 
-I actually have the same issue but I am not seeing any performance
-loss. I do extensive NFS transfers as this box also stores a software raid
-array, and aside from the kernel message, I am unaffected.
+AFAIK (not much, since I don't use quotas), the on-disk quota format used
+by Alan's tree was changed to support 32-bit UID/GIDs, which makes it
+incompatible with that used in the Linus tree.  However, there was also
+some quota merging done in 2.4.13 or so, which _may_ have resolved this.
 
-- From what I understand the problem is a hardware bug, and I believe I read
-somewhere that by forcing the network card to use its own IRQ and not
-having it share an IRQ will alleviate this problem.
+Yes, it's vague, but nobody else has answered yet.  I'm only aware of these
+issues because the ext3 code had to work with both trees, and the quota
+compat stuff was removed in the most recent ext3 release.  That may have
+only been an in-kernel API issue and not the on-disk format, I don't know.
 
-Hope this helps ....
-
-On a side note I run this nic on about 10 production web servers running
-fbsd 3.5 receiving extensive traffic loads and have no problems with them
-at all.
-
-
-				Jim
-
-
-============================
-They that give up essential liberty to obtain a little temporary
-safety deserve neither liberty nor safety.
-
-- --Benjamin Franklin,
-Historical Review of Pennyslvania, 1759
-
-
-
-On Mon, 29 Oct 2001, [iso-8859-1] Thomas Langås wrote:
-
-Hi!
-
-We've got a lot of machines with the eepro 100 from intel onboard, and when
-we try to stress-test the network (running bonnie++ on a nfs-shared
-directory on a machine), the network-card says "eth0: Card reports no
-resources" to dmesg, and then the "line" appear dead for some time (one
-minutte or more). What can be done to remove this error? NFS timesout with
-this error (obviously)...
-
-- -- 
-Thomas
-- -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE73LeWdygyS8O4zQ0RAnB8AJ4xqGShA8xlANM9pFmbvNWf4Ia2GgCgusjL
-ZgmY6+MW8+vzzYIHCdSRDts=
-=ql0B
------END PGP SIGNATURE-----
-
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

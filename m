@@ -1,49 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268744AbRG0AYZ>; Thu, 26 Jul 2001 20:24:25 -0400
+	id <S268748AbRG0Ar4>; Thu, 26 Jul 2001 20:47:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268746AbRG0AYP>; Thu, 26 Jul 2001 20:24:15 -0400
-Received: from [209.250.53.142] ([209.250.53.142]:7942 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S268744AbRG0AYJ>; Thu, 26 Jul 2001 20:24:09 -0400
-Date: Thu, 26 Jul 2001 19:23:15 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: "Manuel A. McLure" <mmt@unify.com>
+	id <S268749AbRG0Arr>; Thu, 26 Jul 2001 20:47:47 -0400
+Received: from mail1.qualcomm.com ([129.46.64.223]:23731 "EHLO
+	mail1.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S268748AbRG0Arh>; Thu, 26 Jul 2001 20:47:37 -0400
+Message-Id: <4.3.1.0.20010726165025.0574cdc0@mail1>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
+Date: Thu, 26 Jul 2001 17:47:50 -0700
+To: Andrea Arcangeli <andrea@suse.de>, kuznet@ms2.inr.ac.ru
+From: Maksim Krasnyanskiy <maxk@qualcomm.com>
+Subject: Re: 2.4.7 softirq incorrectness.
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Dri-devel] Error compiling glide3 cvs tree from 26 Juli
-Message-ID: <20010726192315.B25074@hapablap.dyn.dhs.org>
-In-Reply-To: <419E5D46960FD211A2D5006008CAC79902E5C3D1@pcmailsrv1.sac.unify.com>
+In-Reply-To: <20010726202939.D22784@athlon.random>
+In-Reply-To: <200107261746.VAA31697@ms2.inr.ac.ru>
+ <20010726002357.D32148@athlon.random>
+ <200107261746.VAA31697@ms2.inr.ac.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <419E5D46960FD211A2D5006008CAC79902E5C3D1@pcmailsrv1.sac.unify.com>; from mmt@unify.com on Thu, Jul 26, 2001 at 03:49:25PM -0700
-X-Uptime: 5:41pm  up 10:05,  0 users,  load average: 1.14, 1.12, 1.21
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, Jul 26, 2001 at 03:49:25PM -0700, Manuel A. McLure wrote:
-> Actually, I believe the 3DNow stuff is turned off by default - at least
-> configure.in says so. When (a long time ago) I tried to build a
-> 3DNow-enabled Glide, I found that I had to modify Makefile.autoconf.am in
-> h5/glide3/src to get it to compile. The resulting Glide library would work
-> for simple things (like gears), but would hang if I tried something more
-> complicated like q3demo (in fact it would hand on the splash screen). As a
-> result I am back to non-3DNow Glide. I'd like to see a 3DNow-enabled Glide,
-> but I definitely don't have the skills to figure it out myself...
-> 
-> --
-> Manuel A. McLure - Unify Corp. Technical Support <mmt@unify.com>
-> Zathras is used to being beast of burden to other peoples needs. Very sad
-> life. Probably have very sad death, but at least there is symmetry.
 
-You're right.  I've examined it some more, and it turns out I'm wrong.
-The 3DNow! routines aren't actually used by default.
+>If there are lots of users of netif_rx outside bh or irq context I guess
+>this is the simpler way is:
+I'm not sure about a lot but there are certainly some. TUN/TAP driver for example.
+It calls netif_rx from user context (syscall). 
 
-Just out of curiousity, how much of a speed improvement could one expect
-with 3DNow! versus the code used currently?
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
+> > > after netif_rx.
+> > 
+> > But why not to do just local_bh_disable(); netif_rx(); local_bh_enable()?
+> > Is this not right?
+>
+>That is certainly right. However it is slower than just doing if (pending) do_softirq()  after netif_rx().
+Should we then create generic function (something like netif_rx_from_user) than will call do_softirq 
+after calling netif_rx ?
+
+btw I think I just found another problem with softirqs. Actually with tasklets. May be you guys can help me with that.
+The problem is that my tasklet is getting run on 2 cpu simultaneously and according to description in linux/interrupt.h 
+it shouldn't.
+I have a simple tx_task. All it does is sending queued stuff to the device. Whenever I need to send something 
+I queue it and do tasklet_schedule(tx_task). Everything works just fine but on SMP machine I noticed that sometimes 
+data is sent in the wrong order. And the only reason why reordering could happen is if several tx_tasks are runing at the 
+same time. So I added a simple check in tasklet function to complain if it's already running. 
+Here is the simplified code example:
+
+tasklet_init(&hdev->tx_task, hci_tx_task, (unsigned long) hdev);
+
+static void hci_tx_task(unsigned long arg)
+{
+         struct hci_dev *hdev = (struct hci_dev *) arg;
+         struct sk_buff *skb;
+
+         static __u32 r = 0;
+
+         if (test_and_set_bit(1, &r)) {
+                 ERR("already running cpu %d", smp_processor_id());
+                 return;
+         }
+
+         /* Send next queued packet */
+         while ((skb = skb_dequeue(&hdev->raw_q)))
+                 hci_send_frame(skb);
+
+         clear_bit(1, &r);
+}
+
+tasklet_schedule(&hdev->tx_task);
+
+Now everything is in order and I'm getting bunch of "already running" messages with different cpu_id.
+(hci_tx_task is never called directly).
+
+So, I looked at the tasklet_schedule and tasklet_action code. And it seems to me that tasklet can be scheduled on several 
+cpus at the same time. Here is scenario:
+         tasklet X is running on cpu 1. tasklet_action clears STATE_SCHED bit and calls tasklet function.
+         tasklet_schedule(taskletX) is called on cpu 2. Since STATE_SCHED is cleared tasklet X is scheduled.
+         tasklet_action is called on cpu 2 (tasklet X functions is still running on cpu 1)
+In that case tasklet_action on cpu 2 should hit a:
+         if (!tasklet_trylock(t))
+                 BUG();
+because tasklet is still locked by cpu 1. For some reason it doesn't though (I don't see any "kernel bug" messages). 
+But my tx_task is run second time.
+
+Comments ?
+
+Max
+
+Maksim Krasnyanskiy	
+Senior Kernel Engineer
+Qualcomm Incorporated
+
+maxk@qualcomm.com
+http://bluez.sf.net
+http://vtun.sf.net
+

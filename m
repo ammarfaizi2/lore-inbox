@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282418AbRLAW5U>; Sat, 1 Dec 2001 17:57:20 -0500
+	id <S282329AbRLAW4T>; Sat, 1 Dec 2001 17:56:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282430AbRLAW5M>; Sat, 1 Dec 2001 17:57:12 -0500
-Received: from cpe.atm0-0-0-122182.0x3ef30264.bynxx2.customer.tele.dk ([62.243.2.100]:20100
-	"HELO fugmann.dhs.org") by vger.kernel.org with SMTP
-	id <S282418AbRLAW5F>; Sat, 1 Dec 2001 17:57:05 -0500
-Message-ID: <3C09603F.2070005@fugmann.dhs.org>
-Date: Sat, 01 Dec 2001 23:57:03 +0100
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S282328AbRLAW4C>; Sat, 1 Dec 2001 17:56:02 -0500
+Received: from 119-LASP-X11.libre.retevision.es ([62.83.114.119]:56449 "HELO
+	rendevouz.ddts.net") by vger.kernel.org with SMTP
+	id <S282039AbRLAWzn>; Sat, 1 Dec 2001 17:55:43 -0500
+Message-ID: <XFMail.20011201230159.kernelin@softhome.net>
+X-Mailer: XFMail 1.4.7p2 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Incremental prepatches
-In-Reply-To: <3C089BDB.4020801@zytor.com> <3C08B2FA.10709@fugmann.dhs.org> <9ubhqs$ep8$1@cesium.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3C0952F5.2050802@twobit.net>
+Date: Sat, 01 Dec 2001 23:01:59 -0000 (WET)
+Reply-To: debianiz@softhome.net
+From: kernelin@softhome.net
+To: linux-kernel@vger.kernel.org
+Subject: RE: rivafb
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thats about as perfect as it gets.
+Hi:
 
-Regards
-Anders Fugmann
+        I've the same problem. It's seems like a conflict of the nvidia drivers
+and rivafb. Try to unload the nvidia_kernel module and use in X the nv
+driver who comes with the X, that works (at least with my GForce2 Pro), but if
+you do this, you'll loose the nvidia hardware acceleration...
 
-On 12/01/2001 10:24 PM, H. Peter Anvin wrote:
+        
+>Hi all you smart folk.
+>    I've been trying to use the rivafb driver for my console, because I 
+>like 1024x768 console resolution, but dislike the slowness of the vesa 
+>framebuffer.  Every time I start X and then switch to a text console, it 
+>begins to mess up (my cursor turns into 2 purple dots) and if I try to 
+>switch back to X the console is completely corrupted, forcing me to 
+>reboot.  Is there a conflict that makes it incorrect to use a 
+>framebuffer text console and a different accelerated X console?  Or is 
+>this a bug in the memory handling of the rivafb that makes it conflict 
+>with the NVidia accelerated stuff, OR can I not ask this here, because 
+>I'm using the unlicensed NVidia kernel drivers?
 
-> 
-> I thought there was something I'd forgotten...
-> 
-> patch-2.4.16-pre1-final.gz is there now; others will be generated when
-> the time comes.
-> 
-> 	-hpa
-> 
+>Thanks!
 
 
 

@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278617AbRKHWYk>; Thu, 8 Nov 2001 17:24:40 -0500
+	id <S278643AbRKHWbV>; Thu, 8 Nov 2001 17:31:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278662AbRKHWYa>; Thu, 8 Nov 2001 17:24:30 -0500
-Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:31241 "HELO
-	jose.vato.org") by vger.kernel.org with SMTP id <S278617AbRKHWYQ>;
-	Thu, 8 Nov 2001 17:24:16 -0500
-From: "Tim Pepper" <tpepper@vato.org>
-Date: Thu, 8 Nov 2001 14:24:12 -0800
-To: linux-kernel@vger.kernel.org
-Subject: Big USB speed difference when compiled as module (was Re: speed difference between using hard-linked and modular drives?)
-Message-ID: <20011108142412.A19451@vato.org>
-Mime-Version: 1.0
+	id <S278662AbRKHWbL>; Thu, 8 Nov 2001 17:31:11 -0500
+Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:7328 "EHLO
+	pga.intervu.net") by vger.kernel.org with ESMTP id <S278643AbRKHWax>;
+	Thu, 8 Nov 2001 17:30:53 -0500
+Message-ID: <3BEB0862.D945D354@randomlogic.com>
+Date: Thu, 08 Nov 2001 14:34:10 -0800
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCE] Kernel 2.4.14 Metrics and Documentation
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 08 Nov at 17:01:24 +0100 roy@karlsbakk.net done said:
-> 
-> Are there any speed difference between hard-linked device drivers and
-> their modular counterparts?
+Kernel 2.4.14 source code metrics and documentation is being uploaded NOW to my web site (it usually takes about 10 min). The archive is also available there as
+well.
 
-I've been wondering this as well.  I've got a curious situation:  With usbcore
-and the uhci driver compiled into the kernel I can initiate transfers to a usb
-device I have (Creative Nomad Jukebox) at what I'm eyeballing to be near the
-12Mbps USB speed.  These tranfers always fail.  With both drivers compiled as
-modules the transfers are over an order of magnitude slower, not even
-appearing to reach the 1.5Mbps USB speed, but they succeed.  I haven't had a
-chance to try to figure out what's going on for sure.
+http://www.randomlogic.com
+http://www2.randomlogic.com/linux_html.tar.gz
 
-It's been a little while since I was playing with this but I believe I saw
-the same thing with the usb-uhci driver as well but it didn't seem to like
-talking to the Nomad regardless of it being compiled as a module or not.
-This was with the 2.4.13 kernel.  I can provide more details upon request.
-
-BTW: is there a way to do USB sniffing in software in linux?  I'd imagine it's
-possible, but just can't find anything that does...
-
-
-Tim
+PGA
+-- 
+Paul G. Allen
+UNIX Admin II/Programmer
+Akamai Technologies, Inc.
+www.akamai.com
+Work: (858)909-3630

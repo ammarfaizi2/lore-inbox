@@ -1,70 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262452AbSJ2Wsj>; Tue, 29 Oct 2002 17:48:39 -0500
+	id <S262448AbSJ2Wqj>; Tue, 29 Oct 2002 17:46:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262480AbSJ2Wsj>; Tue, 29 Oct 2002 17:48:39 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:52134 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262452AbSJ2Wsg>; Tue, 29 Oct 2002 17:48:36 -0500
-Date: Tue, 29 Oct 2002 23:54:20 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: bert hubert <ahu@ds9a.nl>
-Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
-Message-ID: <20021029225419.GA1463@admingilde.org>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	bert hubert <ahu@ds9a.nl>
-References: <3DBDCC02.6060100@netscape.com> <Pine.LNX.4.44.0210281606390.966-100000@blue1.dev.mcafeelabs.com> <20021029125904.GA6840@admingilde.org> <20021029151923.GA16263@outpost.ds9a.nl>
+	id <S262449AbSJ2Wqj>; Tue, 29 Oct 2002 17:46:39 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:18948 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262448AbSJ2Wqh>;
+	Tue, 29 Oct 2002 17:46:37 -0500
+Date: Wed, 30 Oct 2002 00:18:10 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: swsusp -- small fixes
+Message-ID: <20021029231810.GA158@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021029151923.GA16263@outpost.ds9a.nl>
 User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Do not oops when no swapfile is available and make it compile on
+DISCONTIGMEM machines. Please apply,
+								Pavel
 
-hi :)
+--- clean/kernel/suspend.c	2002-10-14 18:18:54.000000000 +0200
++++ linux-swsusp/kernel/suspend.c	2002-10-18 20:26:11.000000000 +0200
+@@ -57,12 +57,13 @@
+ #include <linux/pm.h>
+ #include <linux/device.h>
+ #include <linux/buffer_head.h>
++#include <linux/swapops.h>
++#include <linux/bootmem.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/mmu_context.h>
+ #include <asm/pgtable.h>
+ #include <asm/io.h>
+-#include <linux/swapops.h>
+ 
+ extern void signal_wake_up(struct task_struct *t);
+ extern int sys_sync(void);
+@@ -225,7 +226,7 @@
+ 			todo++;
+ 		} while_each_thread(g, p);
+ 		read_unlock(&tasklist_lock);
+-		yield();
++		yield();			/* Yield is okay here */
+ 		if (time_after(jiffies, start_time + TIMEOUT)) {
+ 			printk( "\n" );
+ 			printk(KERN_ERR " stopping tasks failed (%d tasks remaining)\n", todo );
+@@ -309,6 +311,9 @@
+ 	union diskpage *cur;
+ 	struct page *page;
+ 
++	if (root_swap == 0xFFFF)  /* ignored */
++		return;
++
+ 	page = alloc_page(GFP_ATOMIC);
+ 	if (!page)
+ 		panic("Out of memory in mark_swapfiles");
+@@ -474,9 +480,9 @@
+ #ifdef CONFIG_DISCONTIGMEM
+ 	panic("Discontingmem not supported");
+ #else
+-	BUG_ON (max_mapnr != num_physpages);
++	BUG_ON (max_pfn != num_physpages);
+ #endif
+-	for (pfn = 0; pfn < max_mapnr; pfn++) {
++	for (pfn = 0; pfn < max_pfn; pfn++) {
+ 		page = pfn_to_page(pfn);
+ 		if (PageHighMem(page))
+ 			panic("Swsusp not supported on highmem boxes. Send 1GB of RAM to <pavel@ucw.cz> and try again ;-).");
+@@ -686,6 +702,7 @@
+ 	if(nr_free_pages() < nr_needed_pages) {
+ 		printk(KERN_CRIT "%sCouldn't get enough free pages, on %d pages short\n",
+ 		       name_suspend, nr_needed_pages-nr_free_pages());
++		root_swap = 0xFFFF;
+ 		spin_unlock_irq(&suspend_pagedir_lock);
+ 		return 1;
+ 	}
 
-On Tue, Oct 29, 2002 at 04:19:23PM +0100, bert hubert wrote:
-> It is edge based instead of level based -
-seems i have to look closer at your papers/code
-
-what is the motivation to make it edge based?
-
-> > the unified event mechanism introduced in bsd is a good example imho.
-> > we should build something that is similar useful for applications.
-> Sounds 2.7-ish.=20
-difinitely.
-
---=20
-CU,		  / Friedrich-Alexander University Erlangen, Germany
-Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
-______________/// - - - - - - - - - - - - - - - - - - - - ///
-dies ist eine manuell generierte mail, sie beinhaltet    //
-tippfehler und ist auch ohne grossbuchstaben gueltig.   /
-			    -
-Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
-kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
-noch Sicherheit verdient.
-			Benjamin Franklin  (1706 - 1790)
-
---ReaqsoxgOBHFXBhH
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE9vxGaj/Eaxd/oD7IRAmXpAJwMZ7Kc1XHCE+kfatHQJdwlngb8/QCeNSVT
-214fecw5+T70qNqyA0Hfocw=
-=zFIT
------END PGP SIGNATURE-----
-
---ReaqsoxgOBHFXBhH--
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

@@ -1,39 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317306AbSG1S62>; Sun, 28 Jul 2002 14:58:28 -0400
+	id <S317114AbSG1TI2>; Sun, 28 Jul 2002 15:08:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317308AbSG1S62>; Sun, 28 Jul 2002 14:58:28 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:50448 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317306AbSG1S60>;
-	Sun, 28 Jul 2002 14:58:26 -0400
-Date: Sun, 28 Jul 2002 12:00:49 -0700
-From: Greg KH <greg@kroah.com>
-To: Tommy Faasen <faasen@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] agpgart splitup and cleanup for 2.5.25
-Message-ID: <20020728190049.GA5959@kroah.com>
-References: <20020711230222.GA5143@kroah.com> <32918.192.168.0.100.1027865196.squirrel@thuis.zwanebloem.nl>
+	id <S317115AbSG1TI2>; Sun, 28 Jul 2002 15:08:28 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:21460 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S317114AbSG1TI1>;
+	Sun, 28 Jul 2002 15:08:27 -0400
+Date: Sun, 28 Jul 2002 21:12:04 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] block/elevator updates + deadline i/o scheduler
+Message-ID: <20020728211204.A3203@suse.de>
+References: <20020726120248.GI14839@suse.de> <3D419583.DFE940DA@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <32918.192.168.0.100.1027865196.squirrel@thuis.zwanebloem.nl>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Sun, 30 Jun 2002 17:54:50 -0700
+In-Reply-To: <3D419583.DFE940DA@zip.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 28, 2002 at 04:06:36PM +0200, Tommy Faasen wrote:
-> Hi,
+On Fri, Jul 26 2002, Andrew Morton wrote:
+> Jens Axboe wrote:
+> > 
+> > The layout of the deadline i/o scheduler is roughly:
+> > 
+> >         [1]       [2]
+> >          |         |
+> >          |         |
+> >          |         |
+> >          ====[3]====
+> >               |
+> >               |
+> >               |
+> >               |
+> >              [4]
+> > 
+> > where [1] is the regular ascendingly sorted pending list of requests,
+> > [2] is a fifo list (well really two lists, one for reads and one for
+> > writes) of pending requests which each have an expire time assigned, [3]
+> > is the elv_next_request() worker, and [4] is the dispatch queue
+> > (q->queue_head again). When a request enters the i/o scheduler, it is
+> > sorted into the [1] list, assigned an expire time, and sorted into the
+> > fifo list [2] (the fifo list is really two lists, one for reads and one
+> > for writes).
+> > 
+> > [1] is the main list where we serve requests from. If a request deadline
+> > gets exceeded, we move a number of entries (known as the 'fifo_batch'
+> > count) from the sorted list starting from the expired entry onto the
+> > dispatch queue. This makes sure that we at least attempt to start an
+> > expired request immediately, but don't completely fall back to FCFS i/o
+> > scheduling (well set fifo_batch == 1, and you will get FCFS with an
+> > appropriately low expire time).
 > 
-> I just tried to compile 2.5.29, haven't tried dev kernels since 2.5.24 and
-> it seems that although the nvidia kernel module builds ok when I try to
-> start X I get a freeze or a reboot. Any chance it has something to do with
-> this?
+> I don't quite understand...  When expired requests are moved from the
+> fifo [2] onto the dispatch queue [4], is merging performed at the
+> dispatch queue?
 
-No, I do not.  Without the nvidia kernel module, does everything work
-just fine?
+There are not moved from the fifo queue as such, a single entry (the
+front one of course, always the oldest one) is chosen and the sorted
+listed is followed from that request. So fifo_batch entries are moved
+from the sorted list, starting at location X where X is the front of the
+fifo and might be anywhere on the sorted list.
 
-thanks,
+Merging has already been done etc, this takes place on the sorted queue
+'as usual'. So it's just a matter of moving entries.
 
-greg k-h
+> In other words, if the fifo queue has blocks (1,3,5,7,2,4,6,8) or
+> (1,10,20,5,15,25), and they expire, will they be sorted in some manner
+> before going to the hardware?  If so, where?
+
+If the fifo queue has the following entries (5,1,4,2,8,7,3,9) then the
+sorted list looks like this (1,2,3,4,5,7,8,9). If fifo_batch is 4 in
+this case, we would move (5,7,8,9) to the dispatch queue.
+
+Think of it as applying deadlines to any type if i/o scheduler. The
+fifo queue could essentially be tacked on to any type of other queue,
+not just a plain sorted one.
+
+> > Finally, I've done some testing on it. No testing on whether this really
+> > works well in real life (that's what I want testers to do), and no
+> > testing on benchmark performance changes etc. What I have done is
+> > beat-up testing, making sure it works without corrupting your data.
+> 
+> I'll give it a whizz over the weekend.
+
+Cool. I'd be interested in latency and throughput results at this point,
+I have none of these. BTW, does anyone know of a good benchmark that
+also cares about latency?
+
+-- 
+Jens Axboe
+

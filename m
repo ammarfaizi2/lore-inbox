@@ -1,51 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315345AbSDWVYX>; Tue, 23 Apr 2002 17:24:23 -0400
+	id <S315352AbSDWVh6>; Tue, 23 Apr 2002 17:37:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315347AbSDWVYW>; Tue, 23 Apr 2002 17:24:22 -0400
-Received: from tolkor.sgi.com ([192.48.180.13]:4841 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S315345AbSDWVYV>;
-	Tue, 23 Apr 2002 17:24:21 -0400
-Message-ID: <3CC5D19D.5000006@sgi.com>
-Date: Tue, 23 Apr 2002 16:26:53 -0500
-From: Stephen Lord <lord@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Miles Lane <miles@megapathdsl.net>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.9 -- Build error -- scsidrv.o: In function `ahc_linux_halt':	undefined reference to `ahc_tailq'
-In-Reply-To: <1019529784.24480.14.camel@turbulence.megapathdsl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315343AbSDWVh5>; Tue, 23 Apr 2002 17:37:57 -0400
+Received: from jalon.able.es ([212.97.163.2]:64495 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S315352AbSDWVh5>;
+	Tue, 23 Apr 2002 17:37:57 -0400
+Date: Tue, 23 Apr 2002 23:37:50 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: m.knoblauch@TeraPort.de
+Cc: Stephen Lord <lord@sgi.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: XFS in the main kernel
+Message-ID: <20020423213750.GA1704@werewolf.able.es>
+In-Reply-To: <3CC56355.E5086E46@TeraPort.de> <3CC56FE9.1080303@sgi.com> <3CC581F5.2FBEA0C1@TeraPort.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane wrote:
 
->I searched on http://marc.theaimsgroup.com/?l=linux-kernel
->and didn't find this mentioned.
+On 2002.04.23 Martin Knoblauch wrote:
+>Stephen Lord wrote:
+>> 
+>> Martin Knoblauch wrote:
+>> 
+>> >
+>> > definitely. Unless XFS is in the mainline kernel (marked as
+>> >experimantal if necessary) it will not get good exposure.
+>> >
+[...]
 >
->drivers/scsi/scsidrv.o: In function `ahc_linux_halt':
->drivers/scsi/scsidrv.o(.text+0x78cd): undefined reference to `ahc_tailq'
->drivers/scsi/scsidrv.o(.text+0x78e2): undefined reference to
->`ahc_shutdown'
->drivers/scsi/scsidrv.o: In function `ahc_linux_detect':
->drivers/scsi/scsidrv.o(.text+0x7fb7): undefined reference to `ahc_tailq'
->drivers/scsi/scsidrv.o: In function `ahc_linux_register_host':
->drivers/scsi/scsidrv.o(.text+0x80c6): undefined reference to
->`ahc_set_unit'
->drivers/scsi/scsidrv.o(.text+0x8109): undefined reference to
->`ahc_set_name'
+> From a mainline point of view XFS on Linux will only be successfull if
+>it is "in the kernel". Fully maintained and "Linus approved". I am not
+>sure when SGI started the port (could even go back to the time when I
+>worked for them, late 1997). Definitely quite some time. By now it
+>should be in the kernel. Maybe marked "experimental". As I see it now
+>EXT3, ReiserFS and maybe JFS are just eating the XFS lunch away.
 >
->and so on.
->
->Excerpts from my .config file info:
+> In any case, the Vanderbilt comment is right on.
 >
 
-I reverted the makefile in the aic directory to the 2.5.8 version and it 
-builds.
+If XFS is so good (i do not doubt it), I see some issues (plz correct me
+if I'm wrong...):
 
-Steve
+- XFS needs substantial changes in the VFS layer to work
+- This changes are good (or make xfs so good)
+- *THE THING* to do is to integrate this changes in mainline tree VFS,
+  so XFS will stop duplicating half the kernel code.
 
+Why those features are not merged ? Incompatibilities ? Licensing ?
+Religious wars about some way of doing things ?
 
+Plz, if SGI splits XFS in small chunks and starts feeding linus with
+changes in the VFS, what will happen ? Why that doesn't happen ?
+
+Just some ideas...
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre7-jam6 #2 SMP mar abr 23 16:56:56 CEST 2002 i686

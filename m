@@ -1,75 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282223AbRK2AkE>; Wed, 28 Nov 2001 19:40:04 -0500
+	id <S282235AbRK2AnN>; Wed, 28 Nov 2001 19:43:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282228AbRK2Aj5>; Wed, 28 Nov 2001 19:39:57 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:45828 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S282223AbRK2AiM>;
-	Wed, 28 Nov 2001 19:38:12 -0500
-Date: Wed, 28 Nov 2001 16:38:10 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix for drivers/char/pc_keyb.c in 2.5.1-pre3
-Message-ID: <20011128163810.C2512@kroah.com>
+	id <S282238AbRK2AnG>; Wed, 28 Nov 2001 19:43:06 -0500
+Received: from [212.18.232.186] ([212.18.232.186]:46093 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S282235AbRK2Alb>; Wed, 28 Nov 2001 19:41:31 -0500
+Date: Thu, 29 Nov 2001 00:41:13 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "David C. Hansen" <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove BKL from drivers' release functions
+Message-ID: <20011129004113.D2561@flint.arm.linux.org.uk>
+In-Reply-To: <E169EFX-0006TA-00@the-village.bc.nu> <3C057410.3090201@us.ibm.com> <20011128234505.C2561@flint.arm.linux.org.uk> <3C0580A8.5030706@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 31 Oct 2001 22:18:48 -0800
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C0580A8.5030706@us.ibm.com>; from haveblue@us.ibm.com on Wed, Nov 28, 2001 at 04:26:16PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Nov 28, 2001 at 04:26:16PM -0800, David C. Hansen wrote:
+> I wrote a quick and dirty char device driver to see if this happened. 
+>  If I run two tasks doing a bunch of opens and closes, the -EBUSY 
+> condition in the open function does happen.  Is my driver doing 
+> something wrong?
 
-Here's a patch for 2.5.1-pre3 to fix the compile time problems in
-drivers/char/pc_keyb.c.  It also fixes the places where the flags
-variable is the wrong type.
+What's happening is:
 
-thanks,
+task 1				task 2
+-> sys_open
+ -> lock_kernel
+  -> testdev_open
+   -> test_and_set_bit
+     return success
+    unlock kernel
+				-> sys_open
+				 -> lock_kernel (blocks on it)
+				  -> testdev_open
+				   -> test_and_set_bit
+				     return -EBUSY
+				    unlock kernel
+				   return
+   return
 
-greg k-h
+The BKL is only held for the duration of the open, not until you close the
+device.
 
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-diff -Nru a/drivers/char/pc_keyb.c b/drivers/char/pc_keyb.c
---- a/drivers/char/pc_keyb.c	Wed Nov 28 16:34:37 2001
-+++ b/drivers/char/pc_keyb.c	Wed Nov 28 16:34:37 2001
-@@ -420,7 +420,7 @@
- 			       kbd_write_command(KBD_CCMD_WRITE_MODE);
- 			       kb_wait();
- 			       kbd_write_output(AUX_INTS_OFF);
--			       spin_unlock(&kbd_controller_lock, flags);
-+			       spin_unlock(&kbd_controller_lock);
- 		       }
- 		       spin_unlock_irqrestore( &aux_count_lock,flags );
- 	       }
-@@ -433,7 +433,7 @@
- static inline void handle_mouse_event(unsigned char scancode)
- {
- #ifdef CONFIG_PSMOUSE
--	int flags;
-+	unsigned long flags;
- 	static unsigned char prev_code;
- 	if (mouse_reply_expected) {
- 		if (scancode == AUX_ACK) {
-@@ -1052,9 +1052,9 @@
- 
- static int release_aux(struct inode * inode, struct file * file)
- {
--	int flags;
-+	unsigned long flags;
- 	fasync_aux(-1, file, 0);
--	spin_lock_irqsave( &aux_count, flags );
-+	spin_lock_irqsave( &aux_count_lock, flags );
- 	if ( --aux_count ) {
- 		spin_unlock_irqrestore( &aux_count_lock );
- 		return 0;
-@@ -1073,7 +1073,7 @@
- 
- static int open_aux(struct inode * inode, struct file * file)
- {
--	int flags;
-+	unsigned long flags;
- 	spin_lock_irqsave( &aux_count_lock, flags );
- 	if ( aux_count++ ) {
- 		spin_unlock_irqrestore( &aux_count_lock );

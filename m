@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263441AbUACONN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 09:13:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbUACONM
+	id S263310AbUACOLc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 09:11:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263357AbUACOLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 09:13:12 -0500
-Received: from main.gmane.org ([80.91.224.249]:13768 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263441AbUACONI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 09:13:08 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Sat, 3 Jan 2004 09:11:32 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:1554 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263310AbUACOLa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 09:11:30 -0500
 To: linux-kernel@vger.kernel.org
-From: Andreas Schwarz <usenet@andreas-s.net>
-Subject: Badness in local_bh_enable at kernel/softirq.c:121
-Date: Sat, 3 Jan 2004 14:13:06 +0000 (UTC)
-Message-ID: <slrnbvdjfj.6ip.usenet@213-203-244-47.kunde.vdserver.de>
-X-Complaints-To: usenet@sea.gmane.org
-X-TCPA-ist-scheisse: yes
-User-Agent: slrn/0.9.7.4 (Linux)
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: The survival of ide-scsi in 2.6.x
+Date: Sat, 03 Jan 2004 09:11:35 -0500
+Organization: TMR Associates, Inc
+Message-ID: <bt6hs5$apq$1@gatekeeper.tmr.com>
+References: <20031226181242.GE1277@linnie.riede.org> <3FED7E80.20800@planet.nl> <20031227131724.GG1277@linnie.riede.org> <3FEF4EF2.4080303@planet.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1073138373 11066 192.168.12.10 (3 Jan 2004 13:59:33 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+In-Reply-To: <3FEF4EF2.4080303@planet.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Stef van der Made wrote:
+> 
+> Hi Willem,
+> 
+> The standard stuff like mt -f /dev/ht0 status etc etc works. But tar 
+> doesn't wan't to-do backups anymore both with and witout the patch on a 
+> 2.6.0 kernel. I don't have a 2.4.x kernel handy to test if it still 
+> works with those kernels and my drive.
+> 
+> What I've done is the following:
+> 
+> bash-2.05# tar -cvb 64 -f /dev/ht0 /
+> tar: Removing leading `/' from absolute path names in the archive
+> 
+> lost+found/
+> usr/
+> usr/X11
+> usr/adm
+> usr/bin/
+> usr/bin/w
+> usr/bin/ar
+> tar: Cannot write to /dev/ht0: Invalid argument
+> tar: Error is not recoverable: exiting now
+> 
+> It looks as if the backup starts but it almost immediatly ends after the 
+> drive does some spinning and reading and or writing.
 
-I'm not sure if this is a bug in the kernel (2.6.0-gentoo) or in hostap:
+It sounds stupid, but you did set the tape block size as appropriate, 
+didn't you? I've seen similar with incorrect block size writes in the 
+past, but I don't have the correct hardware home to try it.
 
-Jan  3 15:06:33 d700 kernel: Badness in local_bh_enable at kernel/softirq.c:121
-Jan  3 15:06:33 d700 kernel: Call Trace:
-Jan  3 15:06:33 d700 kernel:  [<c0120dec>] local_bh_enable+0x8c/0x90
-Jan  3 15:06:33 d700 kernel:  [<e1b783a4>] prism2_transmit_cb+0xd4/0x120 [hostap_pci]
-Jan  3 15:06:33 d700 kernel:  [<e1b787bf>] prism2_cmd_ev+0x30f/0x3b0 [hostap_pci]
-Jan  3 15:06:33 d700 kernel:  [<e1b7b6d0>] prism2_interrupt+0x250/0x2a0 [hostap_pci]
-Jan  3 15:06:33 d700 kernel:  [<e1938fa6>] usb_hcd_irq+0x36/0x60 [usbcore]
-Jan  3 15:06:33 d700 kernel:  [<c010b65a>] handle_IRQ_event+0x3a/0x70
-Jan  3 15:06:33 d700 kernel:  [<c010ba07>] do_IRQ+0x97/0x140
-Jan  3 15:06:33 d700 kernel:  [<c0109c88>] common_interrupt+0x18/0x20
-Jan  3 15:06:33 d700 kernel:  [<e1b7603a>] hfa384x_from_bap+0x3a/0x60 [hostap_pci]
-Jan  3 15:06:33 d700 kernel:  [<e1b79cd2>] prism2_rx+0x382/0x530 [hostap_pci]
-Jan  3 15:06:33 d700 kernel:  [<c027420e>] ip_rcv+0x40e/0x4d0
-Jan  3 15:06:33 d700 kernel:  [<e1b7b318>] hostap_bap_tasklet+0xc8/0xe0 [hostap_pci]
-Jan  3 15:06:33 d700 kernel:  [<c0120f36>] tasklet_action+0x46/0x70
-Jan  3 15:06:33 d700 kernel:  [<c0120d55>] do_softirq+0x95/0xa0
-Jan  3 15:06:33 d700 kernel:  [<c0120dc1>] local_bh_enable+0x61/0x90
-Jan  3 15:06:33 d700 kernel:  [<c012548b>] schedule_timeout+0x6b/0xc0
-Jan  3 15:06:33 d700 kernel:  [<c02b7ff2>] packet_poll+0x72/0x90
-Jan  3 15:06:33 d700 kernel:  [<c02549e9>] sock_poll+0x29/0x40
-Jan  3 15:06:33 d700 kernel:  [<c0164923>] do_select+0x2c3/0x2e0
-Jan  3 15:06:33 d700 kernel:  [<c01644b0>] __pollwait+0x0/0xd0
-Jan  3 15:06:33 d700 kernel:  [<c0164c4b>] sys_select+0x2db/0x500
-Jan  3 15:06:33 d700 kernel:  [<c010931b>] syscall_call+0x7/0xb
-
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,132 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262199AbVAYWTe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVAYWXx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262199AbVAYWTe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 17:19:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVAYWSC
+	id S262185AbVAYWXx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 17:23:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVAYWUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 17:18:02 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:42889 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S262172AbVAYWNJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 17:13:09 -0500
-Date: Wed, 26 Jan 2005 01:35:56 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
-Message-ID: <20050126013556.247b74bc@zanzibar.2ka.mipt.ru>
-In-Reply-To: <20050125224051.190b5ff9.khali@linux-fr.org>
-References: <20050124021516.5d1ee686.akpm@osdl.org>
-	<20050124175449.GK3515@stusta.de>
-	<20050124213442.GC18933@kroah.com>
-	<20050124214751.GA6396@infradead.org>
-	<20050125060256.GB2061@kroah.com>
-	<20050125195918.460f2b10.khali@linux-fr.org>
-	<20050126003927.189640d4@zanzibar.2ka.mipt.ru>
-	<20050125224051.190b5ff9.khali@linux-fr.org>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 25 Jan 2005 17:20:51 -0500
+Received: from gizmo03ps.bigpond.com ([144.140.71.13]:23720 "HELO
+	gizmo03ps.bigpond.com") by vger.kernel.org with SMTP
+	id S262188AbVAYWTC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 17:19:02 -0500
+Message-ID: <41F6C5CE.9050303@bigpond.net.au>
+Date: Wed, 26 Jan 2005 09:18:54 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: "Jack O'Quin" <joq@io.com>, Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+References: <200501201542.j0KFgOwo019109@localhost.localdomain> <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu> <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu>
+In-Reply-To: <20050125135613.GA18650@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jan 2005 22:40:51 +0100
-Jean Delvare <khali@linux-fr.org> wrote:
-
-> Hi Evgeniy & all,
+Ingo Molnar wrote:
+> pretty much the only criticism of the RT-CPU patch was that the global
+> sysctl is too rigid and that it doesnt allow privileged tasks to ignore
+> the limit. I've uploaded a new RT-CPU-limit patch that solves this
+> problem:
 > 
-> > > 1* This was 5 months ago. I'd expect Evgeniy's code to have
-> > > significantly evolved since, so an additional review now would
-> > > certainly be welcome.
-> > 
-> > superio core was not changed much, all related changes were posted
-> > into  lm_sensors mail list and discussed.
+>   http://redhat.com/~mingo/rt-limit-patches/
 > 
-> Well, according to the mailing-list archives, which have a better memory
-> than I do, I skipped at least one:
+> i've removed the global sysctl and implemented a new rlimit,
+> RT_CPU_RATIO: the maximum amount of CPU time RT tasks may use, in
+> percent. For testing purposes it defaults to 80%.
 > 
-> http://archives.andrew.net.au/lm-sensors/msg18655.html
+> the RT-limit being an rlimit makes it much more configurable: root tasks
+> can have unlimited CPU time limit, while users could have a more
+> conservative setting of say 30%. This also makes it per-process and
+> runtime configurable as well. The scheduler will instantly act upon any
+> new RT_CPU_RATIO rlimit.
 > 
-> So I suspect that this update at least was never reviewed by anyone (on
-> the sensors list at least).
-
-I have one rule - if noone answers that it means noone objects,
-or it is not interesting for anyone, and thus noone objects.
-
-> And while we are at it, this post by Andrew is certainly of interest
-> too:
+> (this approach is fundamentally different from the previous patch that
+> made the "maximum RT-priority available to an unprivileged task" value
+> an rlimit - with priorities being an rlimit we still havent made RT
+> priorities safe against deadlocks.)
 > 
-> http://archives.andrew.net.au/lm-sensors/msg18749.html
-
-I believe he commented connector patch mostly - we had some very little
-private discussion that time about it.
-
-I've posted connector patch several times to lkml - no answers except 
-Alan Cox, thus noone objects but patch is very usefull.
-
-> > > 3* Some of my objections have been ignored by Evgeniy. Among others,
-> > > the choice of "sc" as a prefix for the superio stuff is definitely
-> > > poor and has to be changed.
-> > >
-> > > http://archives.andrew.net.au/lm-sensors/msg27847.html
-> > 
-> > Yep %)
-> > SuperIO Control - is a good name, sio_ I've seen somewhere...
+> multiple tasks can have different rlimits as well, and the scheduler
+> interprets it the following way: it maintains a per-CPU "RT CPU use"
+> load-average value and compares it against the per-task rlimit. If e.g. 
+> the task says "i'm in the 60% range" and the current average is 70%,
+> then the scheduler delays this RT task - if the next task has an 80%
+> rlimit then it will be allowed to run. This logic is straightforward and
+> can be used as a further control mechanism against runaway highprio RT
+> tasks.
 > 
-> Sure, sio would be better, or even superio in whole. Anything that
-> reminds "Super-I/O" is fine with me. sc doesn't.
+> other properties of the RT_CPU_RATIO rlimit:
 > 
-> > GPIO and AccessBus are very simple devices, and I added them just
-> > because 1. people often asked exactly about GPIO
-> > 2. I had only GPIO and ACB to test. Actually I had a RTC and WDT too, 
-> > but noone never asked in any mail list about them, but I think it
-> > worth to implement.
-> > 
-> > Addind SuperIO itself does not have much sence that it can not be 
-> > tested without at least one logical device, thus I added two.
-> > 
-> > Porting existing SuperIO devices to the new schema is a very good
-> > task,  but I had only SC1100 processor and PC87366 chip, so I created
-> > and tested  superio chip drivers for them.
+>  - if there's idle time in the system then RT tasks will be
+>    allowed to use more than the limit.
 > 
-> The PC87366 has integrated sensors, some of which have to be connected
-> whatever your configuration: voltage inputs 7 to 10 and third
-> temperature channel. We have a driver for it in the kernel:
-> drivers/i2c/chips/pc87360. So if you have such a chip, this is actually
-> someone you can use as a test for your superio subsystem.
+>  - if an RT task goes above the limit all the time then there
+>    is no guarantee that exactly the limit will be allowed for
+>    it. (i.e. you should set the limit to somewhat above the real
+>    needs of the RT task in question.)
+> 
+>  - a zero RLIMIT_RT_CPU_RATIO value means unlimited CPU time to that
+>    RT task. If the task is not an RT task then it may not change to RT
+>    priority. (i.e. a zero value makes it fully compatible with previous
+>    RT scheduling semantics.)
+> 
+>  - a nonzero rt_cpu_limit value also has the effect of allowing
+>    the use of RT priorities to nonprivileged users.
+> 
+>  - on SMP the limit is measured and enforced per-CPU.
+> 
+>  - runtime overhead is minimal, especially if the limit is set to 0.
+> 
+>  - the CPU-use measurement code has a 'memory' of roughly 300 msecs.
+>    I.e. if an RT task runs 100 msecs nonstop then it will increase
+>    its CPU use by about 30%. This should be fast enough for users for
+>    the limit to be human-inperceptible, but slow enough to allow
+>    occasional longer timeslices to RT tasks.
 
-Btw, they appeared almost the same time :)
-Difference was about several days...
+As I understand this (and I may be wrong), the intention is that if a 
+task has its RT_CPU_RATIO rlimit set to a value greater than zero then 
+setting its scheduling policy to SCHED_RR or SCHED_FIFO is allowed. 
+This causes me to ask the following questions:
 
-I have pc8736x logical devices in my TODO list, but they are currently 
-preempted by acrypto, but I definitely will get it very soon.
+1. Why is current->signal->rlim[RLIMIT_RT_CPU_RATIO].rlim_cur being used 
+in setscheduler() instead of p->signal->rlim[RLIMIT_RT_CPU_RATIO].rlim_cur?
 
-> If you can provide a patch which adds your superio core driver and one
-> which modifies the pc87360 driver to take make use of it, and only that,
-> this would certainly be easier for everyone (and especially me) to
-> review your superio code. Once this is in, incremental patches for the
-> additional features should be easier for you to generate and for the
-> rest of us to review.
+2. What stops a task that had a non zero RT_CPU_RATIO rlimit and changed 
+its policy to SCHED_RR or SCHED_FIFO from then setting RT_CPU_RATIO 
+rlimit back to zero and escaping the controls?  As far as I can see 
+(and, once again, I may be wrong) the mechanism for setting rlimits only 
+requires CAP_SYS_RESOURCE privileges in order to increase the value.
 
-pc87360.c can not be used with superio as is, it requires big rewrite, 
-since you implemented it as part of i2c core, 
-that is why I created parts that was not touched by your driver.
-Since GPIO can be used with w1 it had greater priority.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Your driver is part of i2c core, it just not supposed to be used 
-in superio, although many hardware routings could be used.
-
-I will use it as a base for other superio logical devices.
-
-> Thanks,
-> -- 
-> Jean Delvare
-> http://khali.linux-fr.org/
-
-
-	Evgeniy Polyakov
-
-Only failure makes us experts. -- Theo de Raadt
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

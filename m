@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293193AbSBWTtV>; Sat, 23 Feb 2002 14:49:21 -0500
+	id <S291290AbSBWUAX>; Sat, 23 Feb 2002 15:00:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293192AbSBWTtK>; Sat, 23 Feb 2002 14:49:10 -0500
-Received: from petkele.almamedia.fi ([194.215.205.158]:904 "HELO
-	petkele.almamedia.fi") by vger.kernel.org with SMTP
-	id <S293193AbSBWTsy>; Sat, 23 Feb 2002 14:48:54 -0500
-Message-ID: <3C77F1EC.27B32446@pp.inet.fi>
-Date: Sat, 23 Feb 2002 21:47:56 +0200
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
-X-Accept-Language: en
+	id <S293192AbSBWUAO>; Sat, 23 Feb 2002 15:00:14 -0500
+Received: from tolkor.sgi.com ([192.48.180.13]:4555 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S291290AbSBWUAA>;
+	Sat, 23 Feb 2002 15:00:00 -0500
+Message-ID: <3C77F503.1060005@sgi.com>
+Date: Sat, 23 Feb 2002 14:01:07 -0600
+From: Stephen Lord <lord@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: mailerror@hushmail.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: loop under 2.2.20 - relative block support?
-In-Reply-To: <200202230132.g1N1WYJ27596@mailserver2.hushmail.com>
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@zip.com.au>
+CC: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] only irq-safe atomic ops
+In-Reply-To: <3C773C02.93C7753E@zip.com.au>,		<1014444810.1003.53.camel@phantasy> 		<3C773C02.93C7753E@zip.com.au> <1014449389.1003.149.camel@phantasy> <3C774AC8.5E0848A2@zip.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mailerror@hushmail.com wrote:
-> What exactly is the status of the loopback device in 2.2.20 with regards
-> to relative block support? Is it *really* supported?
+Andrew Morton wrote:
+
+>Robert Love wrote:
+>
+>>...
+>>
+>>Question: if (from below) you are going to use atomic operations, why
+>>make it per-CPU at all?  Just have one counter and atomic_inc and
+>>atomic_read it.  You won't need a spin lock.
+>>
+>
+>Oh that works fine.   But then it's a global counter, so each time
+>a CPU marks a page dirty, the counter needs to be pulled out of
+>another CPU's cache.   Which is not a thing I *need* to do.
+>
+>As I said, it's a micro-issue.  But it's a requirement which 
+>may pop up elsewhere.
 > 
-> The reason I am asking is that I've run into trouble retrieving data off
-> of a loopback file after I switched to a new machine. I was using loopback
-> in combination with the kerneli patch to mount an encrypted filesystem
-> and backup my data to it for safe transport to another machine. The
-> decryption seems to be largely successful, since I am able to see most of
-> the data when peering at the decrypted file using a hexeditor.
+>
+I can tell you that Irix has just such a global counter for the amount of
+delayed allocate pages - and it gets to be a major point of cache contention
+once you get to larger cpu counts. So avoiding that from the start would
+be good.
 
-Kerneli patches use block size dependant IV computation (also called "time
-bomb" IV). Shit hits the fan when you move files to a device with different
-block size. Search linux-crypto archives for more information.
+Steve
 
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
+
+

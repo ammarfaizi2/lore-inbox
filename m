@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265811AbUAPVJL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 16:09:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265826AbUAPVJL
+	id S265791AbUAPVTT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 16:19:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265794AbUAPVTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 16:09:11 -0500
-Received: from hermes.uci.kun.nl ([131.174.93.58]:12270 "EHLO
-	hermes.uci.kun.nl") by vger.kernel.org with ESMTP id S265811AbUAPVJH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 16:09:07 -0500
-Date: Fri, 16 Jan 2004 22:09:05 +0100
-From: Sebastian Kugler <sebas1@gmx.de>
-Subject: Re: [Swsusp-devel] [PREVIEW] Announce: Software Suspend Core Patch	2.0
- rc4.
-In-reply-to: <1074282072.5328.52.camel@laptop-linux>
-To: ncunningham@users.sourceforge.net
-Cc: swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+	Fri, 16 Jan 2004 16:19:19 -0500
+Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:40076 "EHLO
+	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
+	id S265791AbUAPVTS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 16:19:18 -0500
+To: Romain Lievin <romain@rlievin.dyndns.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1074287344.3660.11.camel@dali>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.5
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1074282072.5328.52.camel@laptop-linux>
+Subject: Re: True story: "gconfig" removed root folder...
+References: <1074177405.3131.10.camel@oebilgen>
+	<Pine.LNX.4.58.0401151558590.27223@serv>
+	<20040115212304.GA25296@rlievin.dyndns.org>
+	<Pine.LNX.4.58.0401152245030.27223@serv>
+	<20040116074341.GA26419@rlievin.dyndns.org>
+From: Doug McNaught <doug@mcnaught.org>
+Date: Fri, 16 Jan 2004 16:18:31 -0500
+In-Reply-To: <20040116074341.GA26419@rlievin.dyndns.org> (Romain Lievin's
+ message of "Fri, 16 Jan 2004 08:43:41 +0100")
+Message-ID: <873caf3848.fsf@asmodeus.mcnaught.org>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/20.7 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-01-16 at 20:41, Nigel Cunningham wrote:
-> - Fixed issues with preemption resulting in 'bad: scheduling while
-> atomic' messages in 2.6.
+Romain Lievin <romain@rlievin.dyndns.org> writes:
 
-Just gave it a shot. It works like a charm. :>
+> I mean "destroyed" because my 'root' directory did not exist anymore. When I do
+> a 'ls', I just see a 'root' file with config within.
 
-> Further documentation is to be added and one minor quirk addressed, but codewise, I'm wondering if
-> this might be 2.0 by another name.
+Try 'ls -a' -- it sounds like the old one is being renamed to a name
+that starts with a dot.
 
-Looks really good, congrats, Nigel and everyone else.
-
-regards,
-
-sebas
-
- - - - - - - 
-
-Magic is always the best solution, especially reliable magic.
-
+-Doug

@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267524AbRGZCFG>; Wed, 25 Jul 2001 22:05:06 -0400
+	id <S267586AbRGZCSb>; Wed, 25 Jul 2001 22:18:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267534AbRGZCE4>; Wed, 25 Jul 2001 22:04:56 -0400
-Received: from e24.nc.us.ibm.com ([32.97.136.230]:15572 "EHLO
-	e24.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267524AbRGZCEw>; Wed, 25 Jul 2001 22:04:52 -0400
-Importance: Normal
-Subject: Subtleties of the 0.0.0.0 netmask (inet_ifa_match)
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3  March 21, 2000
-Message-ID: <OFDE143062.D41C03AC-ON85256A95.000B439D@raleigh.ibm.com>
-From: "Allen Lau" <pflau@us.ibm.com>
-Date: Wed, 25 Jul 2001 22:04:31 -0400
-X-MIMETrack: Serialize by Router on D04NMS38/04/M/IBM(Release 5.0.6 |December 14, 2000) at
- 07/25/2001 10:04:57 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S267564AbRGZCSU>; Wed, 25 Jul 2001 22:18:20 -0400
+Received: from stine.vestdata.no ([195.204.68.10]:51218 "EHLO
+	stine.vestdata.no") by vger.kernel.org with ESMTP
+	id <S267552AbRGZCSO>; Wed, 25 Jul 2001 22:18:14 -0400
+Date: Thu, 26 Jul 2001 04:18:21 +0200
+From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+To: Ben LaHaise <bcrl@redhat.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        mike@bigstorage.com, kevin@bigstorage.com
+Subject: Re: [PATCH] 64 bit scsi read/write
+Message-ID: <20010726041821.C19238@vestdata.no>
+In-Reply-To: <20010703065312.J4841@vestdata.no> <Pine.LNX.4.33.0107032211120.30968-100000@toomuch.toronto.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.5i
+In-Reply-To: <Pine.LNX.4.33.0107032211120.30968-100000@toomuch.toronto.redhat.com>; from Ben LaHaise on Tue, Jul 03, 2001 at 10:19:36PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
+On Tue, Jul 03, 2001 at 10:19:36PM -0400, Ben LaHaise wrote:
+> Here's the [completely untested] generic scsi fixup, but I'm told that
+> some controllers will break with it.  Give it a whirl and let me know how
+> many pieces you're left holding. =)  Please note that msdos partitions do
+> *not* work on devices larger than 2TB, so you'll have to use the scsi disk
+> directly.  This patch applies on top of v2.4.6-pre8-largeblock4.diff.
 
-This is a load balancing specific question. We configure load balancer IP addresses (which are regular
-addresses like 10.1.1.1) on the loopback interface with 0.0.0.0 netmask. The purpose is to receive
-clients requests with those address, and for routing to ignore them when sending the replies.
+I just trid this, but when I can't load the md modules becuase of
+missing symbols for __divdi3 and __umoddi3. 
 
-  o Does addresses with 0.0.0.0 netmask have scope RT_SCOPE_NOWHERE?
-  o and does it imply that routing would never route to them?
+Theese are the messages from make install:
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{}
+pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.6-pre8;
+fi
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre8/kernel/drivers/md/linear.o
+depmod: 	__udivdi3
+depmod: 	__umoddi3
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre8/kernel/drivers/md/lvm-mod.o
+depmod: 	__udivdi3
+depmod: 	__umoddi3
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre8/kernel/drivers/md/md.o
+depmod: 	__udivdi3
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre8/kernel/drivers/md/raid0.o
+depmod: 	__udivdi3
+depmod: 	__umoddi3
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre8/kernel/drivers/md/raid5.o
+depmod: 	__udivdi3
+depmod: 	__umoddi3
 
-We also configure load balancer IP address with 255.255.255.255 netmask which should not match any
-route entry except the host entry itself within the box.
 
-  o Are there subtle differences between 0.0.0.0 and 255.255.255.255 netmasks?
+Did you forget something in your patch, or was it not supposed to work
+on ia32?
 
-The inet_ifa_match function seems to be wrong with 0.0.0.0 netmask.  Who uses it?
-
-extern __inline__ int inet_ifa_match(u32 addr, struct in_ifaddr *ifa)
-{
-        return !((addr^ifa->ifa_address)&ifa->ifa_mask);
-}
-
-The 0.0.0.0 netmask matches everything! For example:
-        addr=9.9.9.9  ifa_address=10.1.1.1  ifa_mask=0.0.0.0          inet_ifa_match=1
-        addr=9.9.9.9  ifa_address=10.1.1.1  ifa_mask=255.255.255.255  inet_ifa_match=0
-
-Will there be any routing problems if we use the 0.0.0.0 netmask?
-
-Thanks for any info.
-Allen Lau
+This is kind of urgent, because I will temporarely be without testing
+equipment pretty soon. Tips are appreciated!
 
 
+
+-- 
+Ragnar Kjorstad
+Big Storage

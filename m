@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261696AbSJYXxV>; Fri, 25 Oct 2002 19:53:21 -0400
+	id <S261713AbSJZABE>; Fri, 25 Oct 2002 20:01:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261698AbSJYXxU>; Fri, 25 Oct 2002 19:53:20 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:26332 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S261696AbSJYXxU>;
-	Fri, 25 Oct 2002 19:53:20 -0400
-Message-ID: <F2DBA543B89AD51184B600508B68D4000ECE70C8@fmsmsx103.fm.intel.com>
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: Robert Love <rml@tech9.net>, "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "'Dave Jones'" <davej@codemonkey.org.uk>,
-       "'akpm@digeo.com'" <akpm@digeo.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'chrisl@vmware.com'" <chrisl@vmware.com>,
-       "'Martin J. Bligh'" <mbligh@aracnet.com>
-Subject: RE: [PATCH] hyper-threading information in /proc/cpuinfo
-Date: Fri, 25 Oct 2002 16:59:29 -0700
+	id <S261714AbSJZABE>; Fri, 25 Oct 2002 20:01:04 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:19432 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261713AbSJZABD>;
+	Fri, 25 Oct 2002 20:01:03 -0400
+Date: Fri, 25 Oct 2002 17:02:21 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Erich Focht <efocht@ess.nec.de>, Michael Hohnbaum <hohnbaum@us.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Crunch time -- the musical.  (2.5 merge candidate list 1.5)
+Message-ID: <519740000.1035590541@flay>
+In-Reply-To: <515310000.1035588399@flay>
+References: <200210242351.56719.efocht@ess.nec.de> <2862423467.1035473915@[10.10.2.3]> <200210251015.46388.efocht@ess.nec.de> <515310000.1035588399@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-RedHat 8.0 is using
-	"Physical processor ID\t:"
-	"Number of siblings\t:"
-This implies they need to change it anyway, because 2.4-ac is
-	"physical id\t:"
-	"siblings\t:"
+>> I thought this problem is well understood! For some reasons independent of
+>> my patch you have to boot your machines with the "notsc" option. This
+>> leaves the cache_decay_ticks variable initialized to zero which my patch
+>> doesn't like. I'm trying to deal with this inside the patch but there is
+>> still a small window when the variable is zero. In my opinion this needs
+>> to be fixed somewhere in arch/i386/kernel/smpboot.c. Booting a machine
+>> with cache_decay_ticks=0 is pure nonsense, as it switches off cache
+>> affinity which you absolutely need! So even if "notsc" is a legal option,
+>> it should be fixed such that it doesn't leave your machine without cache
+>> affinity. That would anyway give you a falsified behavior of the O(1)
+>> scheduler.
 
-Jun
------Original Message-----
-From: Robert Love [mailto:rml@tech9.net]
-Sent: Friday, October 25, 2002 2:54 PM
-To: Nakajima, Jun
-Cc: Alan Cox; 'Dave Jones'; 'akpm@digeo.com';
-'linux-kernel@vger.kernel.org'; 'chrisl@vmware.com'; 'Martin J. Bligh'
-Subject: RE: [PATCH] hyper-threading information in /proc/cpuinfo
+> EIP is at task_to_steal+0x118/0x260
 
+This turned out to be:
 
-On Fri, 2002-10-25 at 17:50, Nakajima, Jun wrote:
+weight = (jiffies - tmp->sleep_timestamp)/cache_decay_ticks;
 
-> Can you please change "siblings\t" to "threads\t\t". SuSE 8.1, for
-example,
-> is already doing it:
+So I guess that window is still biting you. I'll see if I can fix it properly.
 
-But RedHat apparently is using siblings.  2.4-ac also uses siblings.
-And I like "siblings" better so it wins in my opinion.
+M.
 
-	Robert Love
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

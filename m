@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbTJOFc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 01:32:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbTJOFc2
+	id S262424AbTJOFqV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 01:46:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbTJOFqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 01:32:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:29417 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261660AbTJOFc1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 01:32:27 -0400
-Date: Tue, 14 Oct 2003 22:34:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: eyal@eyal.emu.id.au, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test7: saa7134 breaks on gcc 2.95
-Message-Id: <20031014223425.6ee72e10.akpm@osdl.org>
-In-Reply-To: <200310150716.58737.ioe-lkml@rameria.de>
-References: <3F8C9705.26CA0B63@eyal.emu.id.au>
-	<20031014175938.04d94087.akpm@osdl.org>
-	<200310150716.58737.ioe-lkml@rameria.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 15 Oct 2003 01:46:21 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:39655 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S262424AbTJOFqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 01:46:19 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Andrew Morton <akpm@osdl.org>
+Date: Wed, 15 Oct 2003 15:46:11 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16268.57123.661746.500616@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange dcache memory pressure when highmem enabled
+In-Reply-To: message from Andrew Morton on Tuesday October 14
+References: <16268.52761.907998.436272@notabene.cse.unsw.edu.au>
+	<20031014224352.0171e971.akpm@osdl.org>
+X-Mailer: VM 7.17 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser <ioe-lkml@rameria.de> wrote:
->
-> GCC 2.95 doesn't like no space BEFORE AND AFTER the comma in the argument right
->  before the "## arg".
+On Tuesday October 14, akpm@osdl.org wrote:
+> Neil Brown <neilb@cse.unsw.edu.au> wrote:
+> >
+> > I noticed that shrink_caches calls shrink_dcache_memory independant
+> >   of the classzone that is being shrunk.  So if we are trying to
+> >   shrink ZONE_HIGHMEM, the dentry_cache is shrunk, even though the
+> >   dentry_cache doesn't live in highmem.  However I'm not sure if I have
+> >   understood the classzones well enough for that observation even to
+> >   make sense.
+> 
+> Makes heaps of sense.  Here's an instabackport of what we did in
+> 2.6:
 
-Yup.
+Hey!!! That's what I call *Service*.
 
---- 25/drivers/media/video/saa7134/saa7134-core.c~a	Tue Oct 14 22:29:09 2003
-+++ 25-akpm/drivers/media/video/saa7134/saa7134-core.c	Tue Oct 14 22:29:25 2003
-@@ -95,7 +95,7 @@ struct list_head  saa7134_devlist;
- unsigned int      saa7134_devcount;
- 
- #define dprintk(fmt, arg...)	if (core_debug) \
--	printk(KERN_DEBUG "%s/core: " fmt, dev->name, ## arg)
-+	printk(KERN_DEBUG "%s/core: " fmt, dev->name , ## arg)
- 
- /* ------------------------------------------------------------------ */
- /* debug help functions                                               */
+I'll give it a try tomorrow (let the poor students get a feeling of
+stability first before I start changing things again :-)
 
-_
+> +			if (classzone - classzone->zone_pgdat->node_zones <
+> +						ZONE_HIGHMEM) {
 
+That's the bit I was missing.  I feel that once I fully understand
+that, I will be a long way towards understanding the zones memory
+management :-)
+
+NeilBrown

@@ -1,141 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262619AbUKRBDw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262657AbUKRBKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262619AbUKRBDw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 20:03:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbUKRBB5
+	id S262657AbUKRBKM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 20:10:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUKRBJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 20:01:57 -0500
-Received: from coriana6.CIS.McMaster.CA ([130.113.128.17]:27018 "EHLO
-	coriana6.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S262631AbUKRBAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 20:00:47 -0500
-Subject: Re: [patch] inotify: add sysfs store support
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Robert Love <rml@novell.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1100722226.4981.46.camel@betsy.boston.ximian.com>
-References: <1100710677.6280.2.camel@betsy.boston.ximian.com>
-	 <1100714560.6280.7.camel@betsy.boston.ximian.com>
-	 <1100722226.4981.46.camel@betsy.boston.ximian.com>
+	Wed, 17 Nov 2004 20:09:29 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:36815 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262674AbUKRBEn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 20:04:43 -0500
+Subject: Re: [patch 2] Xen core patch : arch_free_page return value
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Keir.Fraser@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk
+In-Reply-To: <E1CUZXm-00053v-00@mta1.cl.cam.ac.uk>
+References: <E1CUZXm-00053v-00@mta1.cl.cam.ac.uk>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 17 Nov 2004 20:00:41 -0500
-Message-Id: <1100739641.8984.10.camel@vertex>
+Message-Id: <1100739876.12373.262.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-PMX-Version-Mac: 4.7.0.111621, Antispam-Engine: 2.0.2.0, Antispam-Data: 2004.11.17.1
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0, __SANE_MSGID 0'
-X-Spam-Flag: NO
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 17 Nov 2004 17:04:36 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Awesome work! But I am going to hold off applying this, until the
-mainline kernel gets the misc device changes.
+On Wed, 2004-11-17 at 15:48, Ian Pratt wrote:
+> This patch adds a return value to the existing arch_free_page function
+> that indicates whether the normal free routine still has work to
+> do. The only architecture that currently uses arch_free_page is arch
+> 'um'. arch-xen needs this for 'foreign pages' - pages that don't
+> belong to the page allocator but are instead managed by custom
+> allocators.
 
-John
+But, you're modifying page allocator functions to do this.  Why would
+you call __free_pages_ok() on a page that didn't belong to the page
+allocator?
 
-On Wed, 2004-11-17 at 15:10 -0500, Robert Love wrote:
-> Attached patch implements the final chunk of our sysfs solution: store
-> support.  I added basic write support with some simple checking (do not
-> allow zero) to the existing sysfs attributes.
-> 
-> I made a few other changes.  I added a newline after the values in the
-> show function.  The other sysfs attributes do this and it makes
-> sense--do a "cat *" in our sysfs directory before and after.  I also
-> just return sprintf() directly instead of the strlen().  I also made
-> max_queued_events unsigned, since dev->max_events is unsigned.  If we
-> don't do this we need to add checking in store_max_queued_events to
-> ensure that the given value is less than or equal to INT_MAX so this
-> seems easier and more optimal anyhow.  The other values I kept at int
-> since that is the range of atomic_t's.
-> 
-> I am running it now.  I can read and write the values fine.  Works
-> great.
-> 
-> 	Robert Love
-> 
-> 
-> Add store support to our sysfs attributes and a few other changes.
-> 
->  inotify.c |   35 +++++++++++++++++++++++++----------
->  1 files changed, 25 insertions(+), 10 deletions(-)
-> 
-> diff -u linux/drivers/char/inotify.c linux/drivers/char/inotify.c
-> --- linux/drivers/char/inotify.c	2004-11-16 14:42:11.929575168 -0500
-> +++ linux/drivers/char/inotify.c	2004-11-17 12:28:27.921136656 -0500
-> @@ -40,7 +40,7 @@
->  
->  static int sysfs_attrib_max_user_devices;
->  static int sysfs_attrib_max_user_watches;
-> -static int sysfs_attrib_max_queued_events;
-> +static unsigned int sysfs_attrib_max_queued_events;
->  
->  /*
->   * struct inotify_device - represents an open instance of an inotify device
-> @@ -82,38 +82,53 @@
->  
->  static ssize_t show_max_queued_events(struct class_device *class, char *buf)
->  {
-> -	sprintf(buf, "%d", sysfs_attrib_max_queued_events);
-> -	return strlen(buf) + 1;
-> +	return sprintf(buf, "%d\n", sysfs_attrib_max_queued_events);
->  }
->  
->  static ssize_t store_max_queued_events(struct class_device *class,
->  				       const char *buf, size_t count)
->  {
-> -	return 0;
-> +	unsigned int max;
-> +
-> +	if (sscanf(buf, "%u", &max) > 0 && max > 0) {
-> +		sysfs_attrib_max_queued_events = max;
-> +		return strlen(buf);
-> +	}
-> +	return -EINVAL;
->  }
->  
->  static ssize_t show_max_user_devices(struct class_device *class, char *buf)
->  {
-> -	sprintf(buf, "%d", sysfs_attrib_max_user_devices);
-> -	return strlen(buf) + 1;
-> +	return sprintf(buf, "%d\n", sysfs_attrib_max_user_devices);
->  }
->  
->  static ssize_t store_max_user_devices(struct class_device *class,
->  				      const char *buf, size_t count)
->  {
-> -	return 0;
-> +	int max;
-> +
-> +	if (sscanf(buf, "%d", &max) > 0 && max > 0) {
-> +		sysfs_attrib_max_user_devices = max;
-> +		return strlen(buf);
-> +	}
-> +	return -EINVAL;
->  }
->  
->  static ssize_t show_max_user_watches(struct class_device *class, char *buf)
->  {
-> -	sprintf(buf, "%d", sysfs_attrib_max_user_watches);
-> -	return strlen(buf) + 1;
-> +	return sprintf(buf, "%d\n", sysfs_attrib_max_user_watches);
->  }
->  
->  static ssize_t store_max_user_watches(struct class_device *class,
->  				      const char *buf, size_t count)
->  {
-> -	return 0;
-> +	int max;
-> +
-> +	if (sscanf(buf, "%d", &max) > 0 && max > 0) {
-> +		sysfs_attrib_max_user_watches = max;
-> +		return strlen(buf);
-> +	}
-> +	return -EINVAL;
->  }
->  
->  static CLASS_DEVICE_ATTR(max_queued_events, S_IRUGO | S_IWUSR,
-> 
-> 
--- 
-John McCutchan <ttb@tentacle.dhs.org>
+-- Dave
+

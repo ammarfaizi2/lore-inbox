@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275870AbSIUDdP>; Fri, 20 Sep 2002 23:33:15 -0400
+	id <S275871AbSIUDl7>; Fri, 20 Sep 2002 23:41:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275871AbSIUDdO>; Fri, 20 Sep 2002 23:33:14 -0400
-Received: from twinlark.arctic.org ([208.44.199.239]:47340 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S275870AbSIUDdO>; Fri, 20 Sep 2002 23:33:14 -0400
-Date: Fri, 20 Sep 2002 20:38:20 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Bill Huey <billh@gnuppy.monkey.org>
-cc: Ingo Molnar <mingo@elte.hu>, Ulrich Drepper <drepper@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-In-Reply-To: <20020920231133.GA2599@gnuppy.monkey.org>
-Message-ID: <Pine.LNX.4.44.0209202033360.22066-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275872AbSIUDl7>; Fri, 20 Sep 2002 23:41:59 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:7924 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S275871AbSIUDl7>; Fri, 20 Sep 2002 23:41:59 -0400
+Date: Fri, 20 Sep 2002 23:47:05 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-ns83820@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ns83820.c v0.20 -- a brown paper bag edition
+Message-ID: <20020920234705.A32159@redhat.com>
+References: <20020920223424.B30874@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020920223424.B30874@redhat.com>; from bcrl@redhat.com on Fri, Sep 20, 2002 at 10:34:24PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Sep 2002, Bill Huey wrote:
+On Fri, Sep 20, 2002 at 10:34:24PM -0400, Benjamin LaHaise wrote:
+> Hey Marcelo et al,
+> 
+> Ummm, I screwed up.  The v0.19 patch for ns83820.c I sent yesterday killed 
+> the ability of the driver to receive packets.  Instead, apply this shiny 
+> new ns83820.c v0.20 patch that has all the amazing goodness of 0.19, plus 
+> the ability to receive packets!
 
-> On Fri, Sep 20, 2002 at 03:30:19PM -0700, dean gaudet wrote:
-> > > It's better to have an explict pthread_suspend_[thread,all]() function
-> >
-> > could this be implemented by having a gc thread in a unique process group
-> > and then suspending the jvm process group?
->
-> Suspending how ? via signal ?
+And I did it again.  Please apply the following patch on top of the other.  
+Ugggggggh.
 
-yeah SIGSTOP to the jvm process group.
+		-ben
 
-> Possibly, but having an explicit syscall() call is important since interrupts
-> are also suspended under that condition, pthread_cond_timedwait(), etc...
-> It really needs to be suspended in a way that's different than the SIGSOMETHING
-> mechanism. I was fixing bugs in libc_r, so I know the issues to a certain degree
-> and bad logic those particular corner cases was screwing me up.
 
-SIGSTOP is different from other signals because it will stop the whole
-process group from continuing.  i am completely aware of how much of a
-pain it is to actually trap signals and do something (for apache 2.0's
-design i outlawed the use of signals because of the pains of getting
-things working in 1.3.x :).
-
-doesn't the hotspot GC work something like this:
-
-- stop all threads
-- go read each thread's $pc, and find its nearest "safety point"
-- go overwrite that safety point (YUCK SELF MODIFYING CODE!! :) with
-  something which will stop the thread
-- start the threads and wait for them all to get to their safety points
-- perform gc
-- undo the above mess
-
-the only part of that which looks challenging with kernel threads is the
-$pc reading part...  ptrace will certainly get it for you, but that's a
-lot of syscall overhead.
-
-or am i missing something?
-
--dean
-
+Index: linux/drivers/net/ns83820.c
+===================================================================
+RCS file: /home/bcrl/CVSROOT/ns83820/drivers/net/ns83820.c,v
+retrieving revision 1.34.2.24
+diff -u -u -r1.34.2.24 linux/drivers/net/ns83820.c
+--- linux/drivers/net/ns83820.c	21 Sep 2002 03:33:08 -0000	1.34.2.24
++++ linux/drivers/net/ns83820.c	21 Sep 2002 04:40:55 -0000
+@@ -1001,7 +1001,6 @@
+ 					le32_to_cpu(desc[DESC_CMDSTS]) & CMDSTS_LEN_MASK,
+ 					PCI_DMA_TODEVICE);
+ 			dev_kfree_skb_irq(skb);
+-			dev_kfree_skb(skb);
+ 			atomic_dec(&dev->nr_tx_skbs);
+ 		}
+ 	}

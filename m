@@ -1,45 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262653AbRFNNy1>; Thu, 14 Jun 2001 09:54:27 -0400
+	id <S262856AbRFNN6S>; Thu, 14 Jun 2001 09:58:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262684AbRFNNyR>; Thu, 14 Jun 2001 09:54:17 -0400
-Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:14028 "EHLO
-	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S262653AbRFNNyB>; Thu, 14 Jun 2001 09:54:01 -0400
-Message-ID: <3B28C1F2.3090604@sponsera.com>
-Date: Thu, 14 Jun 2001 09:53:54 -0400
-From: "Christopher B. Liebman" <liebman@sponsera.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5-ac10+kdb+acpi i686; en-US; 0.7) Gecko/20010316
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marco <biancio@club-internet.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: hda timeout (busy)
-In-Reply-To: <20010614140728.A1826@bianciotto.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262684AbRFNN6H>; Thu, 14 Jun 2001 09:58:07 -0400
+Received: from pa147.bialystok.sdi.tpnet.pl ([213.25.59.147]:30389 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S262856AbRFNN5x>; Thu, 14 Jun 2001 09:57:53 -0400
+Date: Thu, 14 Jun 2001 15:55:21 +0200
+From: Jacek =?iso-8859-2?Q?Pop=B3awski?= <jp@ulgo.koti.com.pl>
+To: linux-kernel@vger.kernel.org
+Subject: PPP: VJ uncompressed error
+Message-ID: <20010614155521.A16551@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marco wrote:
+I see this message few times daily:
 
-> Hello, here is my problem :
-> 
-> [1.] 2.4.x kernels sends hda: status timeout: status=0xd0 { Busy }
-> errors
-> 
-> [2.] I have tried some 2.4.x kernels (2.4.0, 2.4.4, and now
-> 2.4.5, from debs). They all produce the same error message : 
-> Jun 14 13:32:19 debian kernel: hda: status timeout: status=0xd0 { Busy }
-> Jun 14 13:32:19 debian kernel: ide0: reset: success
-> It happens often but irregularly. It does not occur with 2.2 kernels.
+PPP: VJ uncompressed error
 
-[snip]
-
-Are you running with ACPI enabled *and* ide with dma enabled?  I can 
-hang my system regularly that way...  disabling acpi processor power 
-states (really state C3) or disabling ide dma gives me a system that 
-won't hang....
-
-   -- Chris
+What does it mean? I searched news archives, HOWTOs, WWW, but only place I found that
+string is kernel source.
 

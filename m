@@ -1,33 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264724AbTAWAKM>; Wed, 22 Jan 2003 19:10:12 -0500
+	id <S264748AbTAWAOQ>; Wed, 22 Jan 2003 19:14:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264745AbTAWAKL>; Wed, 22 Jan 2003 19:10:11 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:65380 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S264724AbTAWAKL>; Wed, 22 Jan 2003 19:10:11 -0500
-Date: Wed, 22 Jan 2003 19:19:17 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200301230019.h0N0JHE01172@devserv.devel.redhat.com>
-To: "Jacek Radajewski" <jacek@usq.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2650 - tg3 on 2.4.18-19.7.xsmp rh7.3 ... OOPS YET AGAIN
-In-Reply-To: <mailman.1043278441.2751.linux-kernel2news@redhat.com>
-References: <mailman.1043278441.2751.linux-kernel2news@redhat.com>
+	id <S264749AbTAWAOQ>; Wed, 22 Jan 2003 19:14:16 -0500
+Received: from echo.sound.net ([205.242.192.21]:43509 "HELO echo.sound.net")
+	by vger.kernel.org with SMTP id <S264748AbTAWAOQ>;
+	Wed, 22 Jan 2003 19:14:16 -0500
+Date: Wed, 22 Jan 2003 18:20:23 -0600 (CST)
+From: Hal Duston <hald@sound.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ANN: LKMB (Linux Kernel Module Builder) version 0.1.16
+Message-ID: <Pine.GSO.4.10.10301221816580.22843-100000@sound.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ksymoops 2.4.4 on i686 2.4.18-19.7.xsmp.  Options used
+I use "INSTALL_MOD_PATH=put/the/modules/here/instead/of/lib/modules" in my
+.profile or whatever in order to drop the modules into another directory
+at "make modules_install" time.  Is this one of the things folks are
+talking about?
 
-2.4.18-19.7.x should not need ksymoops, because it ships with
-kksymoops. In fact, it's harmful, because ksymoops ate the EIP
-decoding:
+Hal Duston
 
-> EIP:    0010:[<f897f51d>]    Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010246
-
-Also, the oops does not seem to be related to the BCM card.
-Probably your IDE cabling is flakey :)
-
--- Pete

@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265087AbUHAMlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265248AbUHANCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265087AbUHAMlF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 08:41:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUHAMlF
+	id S265248AbUHANCe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 09:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265928AbUHANCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 08:41:05 -0400
-Received: from holomorphy.com ([207.189.100.168]:166 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265087AbUHAMlC (ORCPT
+	Sun, 1 Aug 2004 09:02:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:65160 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265248AbUHANCc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 08:41:02 -0400
-Date: Sun, 1 Aug 2004 05:40:53 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH][2.6] first/next_cpu returns values > NR_CPUS
-Message-ID: <20040801124053.GS2334@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>, Paul Jackson <pj@sgi.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <Pine.LNX.4.58.0407311347270.4094@montezuma.fsmlabs.com> <20040731232126.1901760b.pj@sgi.com> <Pine.LNX.4.58.0408010316590.4095@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408010316590.4095@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.5.6+20040523i
+	Sun, 1 Aug 2004 09:02:32 -0400
+Date: Sun, 1 Aug 2004 09:02:28 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@dhcp030.home.surriel.com
+To: linux-mm@kvack.org
+cc: sjiang@cs.wm.edu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] token based thrashing control
+In-Reply-To: <Pine.LNX.4.58.0407301730440.9228@dhcp030.home.surriel.com>
+Message-ID: <Pine.LNX.4.58.0408010856240.13053@dhcp030.home.surriel.com>
+References: <Pine.LNX.4.58.0407301730440.9228@dhcp030.home.surriel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 01, 2004 at 03:22:56AM -0400, Zwane Mwaikambo wrote:
-> NR_CPUS was 3, the test case may as well be passing first_cpu or next_cpu
-> a value of 0 for the map. The "bug" in the i386 find_next_bit really
-> looks like a feature if you look at the code.
+On Fri, 30 Jul 2004, Rik van Riel wrote:
 
-Hmm. I'm actually somewhat puzzled by this also. Shouldn't things only
-check for inequalities between the results of these and NR_CPUS? i.e.
-things like:
-	if (any_online_cpu(cpus) >= NR_CPUS)
-and
-	for (cpu = first_cpu(cpus); cpu < NR_CPUS; cpu = next_cpu(cpus))
-etc.?
+> I have run a very unscientific benchmark on my system to test
+> the effectiveness of the patch, timing how a 230MB two-process
+> qsbench run takes, with and without the token thrashing
+> protection present.
+> 
+> normal 2.6.8-rc2:	6m45s
+> 2.6.8-rc2 + token:	4m24s
 
-Maybe the few callers that are sensitive to the precise return value
-should use min_t(int, NR_CPUS, ...) instead of all callers taking the
-branch on behalf of those few.
+OK, I've now also ran day-long kernel compilate tests,
+3 times each with make -j 10, 20, 30, 40, 50 and 60 on
+my dual pIII w/ 384 MB and a 180 MB named in the background.
 
+For make -j 10 through make -j 50 the differences are in
+the noise, basically giving the same result for each kernel.
 
--- wli
+However, for make -j 60 there's a dramatic difference between
+a kernel with the token based swapout and a kernel without.
+
+normal 2.6.8-rc2:	1h20m runtime / ~26% CPU use average
+2.6.8-rc2 + token:	  42m runtime / ~52% CPU use average
+
+Time to dig out a dedicated test machine at the office and
+do some testing with (RE-)AIM7, I wonder if the max number
+of users supported will grow...
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

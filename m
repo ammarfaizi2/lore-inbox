@@ -1,74 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136115AbRASAnb>; Thu, 18 Jan 2001 19:43:31 -0500
+	id <S135463AbRASAoV>; Thu, 18 Jan 2001 19:44:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135463AbRASAnV>; Thu, 18 Jan 2001 19:43:21 -0500
-Received: from innerfire.net ([208.181.73.33]:19981 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id <S136126AbRASAnM>;
-	Thu, 18 Jan 2001 19:43:12 -0500
-Date: Thu, 18 Jan 2001 16:43:15 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Mike Kravetz <mkravetz@sequent.com>
-cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: multi-queue scheduler update
-In-Reply-To: <20010118155311.B8637@w-mikek.des.sequent.com>
-Message-ID: <Pine.LNX.4.10.10101181642200.16244-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136466AbRASAoN>; Thu, 18 Jan 2001 19:44:13 -0500
+Received: from [200.43.20.94] ([200.43.20.94]:16136 "EHLO albinux.ddts.net")
+	by vger.kernel.org with ESMTP id <S135463AbRASAoA>;
+	Thu, 18 Jan 2001 19:44:00 -0500
+Date: Thu, 18 Jan 2001 21:41:43 -0300
+From: Alberto Bertogli <albertogli@altavista.net>
+To: Venkatesh Ramamurthy <Venkateshr@ami.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux MegaRAID Driver Version 1.14b Release
+Message-ID: <20010118214143.A518@altavista.net>
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E951B6@ATL_MS1>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E951B6@ATL_MS1>; from Venkateshr@ami.com on Thu, Jan 18, 2001 at 06:58:22PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What affect does this scheduler have on 1 - 5 tasks??
 
-	Gerhard
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Jan 18, 2001 at 06:58:22PM -0500, Venkatesh Ramamurthy wrote:
+> This driver replaces version 1.07b present in the standard 2.4.0 kernel. =
+The
+> driver features are
+> 1. Supports more than 4 GB Addressing (full 64 bit addressing)
+> 2. IA32 / IA64 platform support
+> 3. Supports 2.2.XX & 2.4.XX kernels=20
+>  <<m114b.tar.gz>>=20
+>=20
+
+Does it fix the loading bug present in 2.4.0?
+
+--=20
+	Alberto
+
+albertogli@altavista.net
 
 
-On Thu, 18 Jan 2001, Mike Kravetz wrote:
+--d6Gm4EdcadzBjdND
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> I just posted an updated version of the multi-queue scheduler
-> for the 2.4.0 kernel.  This version also contains support for
-> realtime tasks.  The patch can be found at:
-> 
-> http://lse.sourceforge.net/scheduling/
-> 
-> Here are some very preliminary numbers from sched_test_yield
-> (which was previously posted to this (lse-tech) list by Bill
-> Hartner).  Tests were run on a system with 8 700 MHz Pentium
-> III processors.
-> 
->                            microseconds/yield
-> # threads      2.2.16-22           2.4        2.4-multi-queue
-> ------------   ---------         --------     ---------------
-> 16               18.740            4.603         1.455
-> 32               17.702            5.134         1.456
-> 64               23.300            5.586         1.466
-> 128              47.273           18.812         1.480
-> 256             105.701           71.147         1.517
-> 512               FRC            143.500         1.661
-> 1024              FRC            196.425         6.166
-> 2048              FRC              FRC          23.291
-> 4096              FRC              FRC          47.117
-> 
-> *FRC = failed to reach confidence level
-> 
-> -- 
-> Mike Kravetz                                 mkravetz@sequent.com
-> IBM Linux Technology Center
-> 15450 SW Koll Parkway
-> Beaverton, OR 97006-6063                     (503)578-3494
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.2 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
---
-Gerhard Mack
+iD8DBQE6Z41GtRVPVxHTdS4RAg7iAJ9X9g8C3fqrAJ9x5NI/JmQdHHQYbQCeN2uc
+Tdz9A0iyGWCzNpJ8pUpB948=
+=Ya1W
+-----END PGP SIGNATURE-----
 
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+--d6Gm4EdcadzBjdND--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

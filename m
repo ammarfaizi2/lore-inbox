@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262066AbTJALvq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 07:51:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbTJALvq
+	id S262064AbTJALwv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 07:52:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbTJALwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 07:51:46 -0400
-Received: from [217.70.17.156] ([217.70.17.156]:22290 "EHLO mail.rusbiz.com")
-	by vger.kernel.org with ESMTP id S262066AbTJALvp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 07:51:45 -0400
-Subject: Re: How to use module in 2.6
-From: ocsy <ocsy@rusbiz.com>
-Reply-To: ocsy@rusbiz.com
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200310011136.24176.johann.lombardi@bull.net>
-References: <1065006634.1144.39.camel@ocsy>
-	 <200310011136.24176.johann.lombardi@bull.net>
-Content-Type: text/plain
-Organization: Ocsy individual
-Message-Id: <1065009486.1144.50.camel@ocsy>
+	Wed, 1 Oct 2003 07:52:51 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:26126 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S262064AbTJALwu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 07:52:50 -0400
+Date: Wed, 1 Oct 2003 12:52:48 +0100
+From: John Levon <levon@movementarian.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       perfctr-devel@lists.sourceforge.net, albert@users.sourceforge.net
+Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
+Message-ID: <20031001115248.GC23819@compsoc.man.ac.uk>
+References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <16250.38688.152166.875893@gargle.gargle.HOWL>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 01 Oct 2003 15:58:06 +0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16250.38688.152166.875893@gargle.gargle.HOWL>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: King of Woolworths - L'Illustration Musicale
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1A4fXE-0009tk-Tl*HUS/SSV/dRY*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Did you upgrade your module-init-tools (insmod, lsmod, ....) ?
->(http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
+On Wed, Oct 01, 2003 at 10:58:08AM +0200, Mikael Pettersson wrote:
 
-Ok!I do that now))
-I think it's possible that you can help me to understand what different
-between old module for kernell 2.4 and new module fo 2.6?
-And where can I look for the modutils ver 2.6?
-ocsy
+> Linus' 2.6.0-test6 announcement doesn't seem to mention the
+> fact that 2.6.0-test5-bk9 fundamentally changed the semantics
+> of /proc/self and the /proc/<pid> name space. These used to
 
+Are these Albert Calahan's changes ?
+
+For some reason I can't fathom they were sent privately to Linus without
+them first being posted publicly anywhere ...
+
+john
+
+-- 
+Khendon's Law:
+If the same point is made twice by the same person, the thread is over.

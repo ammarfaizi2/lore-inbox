@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272980AbRIUJtp>; Fri, 21 Sep 2001 05:49:45 -0400
+	id <S273137AbRIUKEH>; Fri, 21 Sep 2001 06:04:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273137AbRIUJtg>; Fri, 21 Sep 2001 05:49:36 -0400
-Received: from nobugconsulting.ro ([213.157.160.38]:11270 "EHLO
-	nobugconsulting.ro") by vger.kernel.org with ESMTP
-	id <S272980AbRIUJta>; Fri, 21 Sep 2001 05:49:30 -0400
-Message-ID: <3BAB0D41.5732661B@nobugconsulting.ro>
-Date: Fri, 21 Sep 2001 12:49:53 +0300
-From: lonely wolf <wolfy@nobugconsulting.ro>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8-ac12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S273213AbRIUKD5>; Fri, 21 Sep 2001 06:03:57 -0400
+Received: from mail4.svr.pol.co.uk ([195.92.193.211]:49694 "EHLO
+	mail4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S273137AbRIUKDr>; Fri, 21 Sep 2001 06:03:47 -0400
+Date: Fri, 21 Sep 2001 11:04:10 +0100
+From: Adrian Cox <adrian@humboldt.co.uk>
 To: linux-kernel@vger.kernel.org
-Subject: Re: probable hardware bug: clock timer configuration lost
-In-Reply-To: <3BAA9008.9837EA52@nobugconsulting.ro> <E15kEkB-0006nQ-00@the-village.bc.nu> <20010920221610.A14451@redhat.com>
+Cc: sailer@scs.ch
+Subject: [PATCH] Midi close race
+Message-ID: <20010921110410.B17701@gallimaufry.freeserve.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-RAVMilter-Version: 8.2(snapshot 20010817) (mail)
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
+The patch below fixes a race condition when closing the MIDI input device. The
+previous code left the timer running while freeing buffers used by the timer
+routine, leading to frequent OOPSes. Thomas: you seem to have been the last
+person to touch this file. Any comments?
 
-> > Its harmless. When we detect this we restore the state of the chip
-> > correctly. If anything I should kill the printk but I'd still like to
-> > figure the precise errata issue out
->
-> Odd, I just got this during booting of my ALi based boards (never had seen
-> it before).  Are we certain the test is correct?
-
-actually I get the message with RH's 7.1 stock kernel, with 2.4.7 (patched
-with mosix 1.1.2) and with 2.4.9-ac12. it's always there, waiting for me. I
-kind of think to remove the printk, just as Alan suggested, because they are
-_very_ annoying. I have big hard disks, but I wouldn't like to have them
-filled with logs containing mostly this message :)
-
---
-      Manuel Wolfshant       linux registered user #131416
-       network administrator    NoBug Consulting Romania
-The degree of technical confidence is inversely proportional to the
-level of management.
-
-
-
+--- 1.1/drivers/sound/midibuf.c	Sat Jan  6 07:28:25 2001
++++ 1.2/drivers/sound/midibuf.c	Thu Jun 14 16:33:40 2001
+@@ -253,13 +253,13 @@
+ 
+ 	midi_devs[dev]->close(dev);
+ 
++	if (open_devs < 2)
++		del_timer(&poll_timer);
++	open_devs--;
+ 	vfree(midi_in_buf[dev]);
+ 	vfree(midi_out_buf[dev]);
+ 	midi_in_buf[dev] = NULL;
+ 	midi_out_buf[dev] = NULL;
+-	if (open_devs < 2)
+-		del_timer(&poll_timer);;
+-	open_devs--;
+ 
+ 	if (midi_devs[dev]->owner)
+ 		__MOD_DEC_USE_COUNT (midi_devs[dev]->owner);

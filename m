@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263274AbTCNIjS>; Fri, 14 Mar 2003 03:39:18 -0500
+	id <S263283AbTCNInQ>; Fri, 14 Mar 2003 03:43:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263275AbTCNIjS>; Fri, 14 Mar 2003 03:39:18 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:10167 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263274AbTCNIjR>;
-	Fri, 14 Mar 2003 03:39:17 -0500
-Date: Fri, 14 Mar 2003 09:49:53 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: vojtech@suse.cz, linux-kernel@vger.kernel.org, janekh@cvotech.com
-Subject: Re: [PATCH] 2.5.62: /proc/ide/via reads return incomplete data, Bug #374
-Message-ID: <20030314094953.A28232@ucw.cz>
-References: <20030220215519.GA1181@ttnet.net.tr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030220215519.GA1181@ttnet.net.tr>; from faikuygur@ttnet.net.tr on Thu, Feb 20, 2003 at 11:55:19PM +0200
+	id <S263287AbTCNInQ>; Fri, 14 Mar 2003 03:43:16 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:17600 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S263283AbTCNInP>;
+	Fri, 14 Mar 2003 03:43:15 -0500
+Date: Fri, 14 Mar 2003 09:53:58 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Larry McVoy <lm@bitmover.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
+In-Reply-To: <20030313232659.GM7275@work.bitmover.com>
+Message-ID: <Pine.GSO.4.21.0303140953010.3569-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 20, 2003 at 11:55:19PM +0200, Faik Uygur wrote:
+On Thu, 13 Mar 2003, Larry McVoy wrote:
+> On Thu, Mar 13, 2003 at 10:43:53AM +0100, Geert Uytterhoeven wrote:
+> > Apparently linux-2.5/ChangeSet is an empty file?
 > 
-> This patch fixes the incomplete data return problem of /proc/ide/via and 
-> addresses Bug #374 of Bugzilla.
-> 
-> When the number of consecutive read bytes are smaller than the total data 
-> in via_get_info(), the second read() returns 0.
-> 
-> --- linux-2.5.62-vanilla/drivers/ide/pci/via82cxxx.c    Thu Feb 20 18:51:52 2003
-> +++ linux-2.5.62/drivers/ide/pci/via82cxxx.c    Thu Feb 20 23:09:23 2003
-> @@ -145,6 +145,7 @@
->                  uen[4], udma[4], umul[4], active8b[4], recover8b[4];
->         struct pci_dev *dev = bmide_dev;
->         unsigned int v, u, i;
-> +       int len;
->         u16 c, w;
->         u8 t, x;
->         char *p = buffer;
-> @@ -274,7 +275,10 @@
->                 speed[i] / 1000, speed[i] / 100 % 10);
-> 
->         /* hoping it is less than 4K... */
-> -       return p - buffer;
-> +       len = (p - buffer) - offset;
-> +       *addr = buffer + offset;
-> +
-> +       return len > count ? count : len;
->  }
-> 
->  #endif /* DISPLAY_VIA_TIMINGS && CONFIG_PROC_FS */
+> Yeah, it's just a place holder for the ChangeSet comments.  The changeset
+> boundaries are implicit in the dates and explict with the (Logical change x.y)
+> markers.
 
-Thanks; applied.
+Ah, IC. Then I must have misread your mail, and incorrectly understood that you
+added a ChangeSet file with a list of comments.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

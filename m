@@ -1,44 +1,144 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272233AbRIOKi2>; Sat, 15 Sep 2001 06:38:28 -0400
+	id <S272235AbRIOKpa>; Sat, 15 Sep 2001 06:45:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272247AbRIOKiR>; Sat, 15 Sep 2001 06:38:17 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:48140 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S272244AbRIOKiM>; Sat, 15 Sep 2001 06:38:12 -0400
-Date: Sat, 15 Sep 2001 12:38:31 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Arjan Filius <iafilius@xs4all.nl>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: Feedback on preemptible kernel patch
-Message-ID: <20010915123831.G7988@arthur.ubicom.tudelft.nl>
-In-Reply-To: <1000479851.2156.12.camel@phantasy> <Pine.LNX.4.33.0109151131320.32167-100000@sjoerd.sjoerdnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0109151131320.32167-100000@sjoerd.sjoerdnet>; from iafilius@xs4all.nl on Sat, Sep 15, 2001 at 11:44:57AM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S272240AbRIOKpU>; Sat, 15 Sep 2001 06:45:20 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:27788 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S272235AbRIOKpJ>; Sat, 15 Sep 2001 06:45:09 -0400
+Message-ID: <3BA33116.40305@korseby.net>
+Date: Sat, 15 Sep 2001 12:44:38 +0200
+From: Kristian <kristian@korseby.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: ext2fs corruption again
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 15, 2001 at 11:44:57AM +0200, Arjan Filius wrote:
+Hello.
 
-Hi Arjan,
+For about 3 weeks I sent a report that I've got very strange kernel error messages.
 
-> But /proc/interrupts shows only those irq's which are currently in use, is
-> there any way to show usage of currenlty unused interrupts?
+I changed my harddrive to IBM 75 GB because someone said that IBM's 40 GB
+harddisks are not very stable.
 
-Yes, /proc/stat. The "intr" line shows the total number of interrupts
-and the number of interrupts for each interrupt line.
+Today I've got these from the kernel (with the new hd):
+
+Sep 15 10:01:58 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4215
+Sep 15 10:01:58 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4217
+Sep 15 10:01:59 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4234
+Sep 15 10:01:59 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4236
+Sep 15 10:01:59 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4239
+Sep 15 10:02:03 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4847
+Sep 15 10:02:03 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4848
+Sep 15 10:02:03 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4852
+Sep 15 10:02:03 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4855
+Sep 15 10:02:06 adlib kernel: EXT2-fs error (device ide0(3,5)): ext2_new_block:
+Allocating block in system zone - block = 174
+Sep 15 10:02:06 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: Freeing blocks in system zones - Block = 179, count = 3
+Sep 15 10:02:09 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4839
+
+Then I did an e2fsck on that device (hda5) and the errors occured after the
+check (and a complete reboot) again:
+
+Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4163
+Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4166
+Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4131
+Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4132
+Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4155
+Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4156
+Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4157
+Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4161
+Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 4162
+Sep 15 10:10:43 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 716
+Sep 15 10:10:43 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 717
+Sep 15 10:10:43 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 720
+Sep 15 10:10:43 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 723
+Sep 15 10:10:43 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 724
+Sep 15 10:10:43 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 725
+Sep 15 10:10:43 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 726
+Sep 15 10:10:43 adlib kernel: EXT2-fs error (device ide0(3,5)):
+ext2_free_blocks: bit already cleared for block 727
+
+I've written down all e2fsck messages by hand. ;-) And I compared them.
+
+The following messages from e2fsck are always the same even on the old and on
+the new hd. Here they are:
+
+Duplicate/bad bock(s) in inode:  97: 643
+Duplicate/bad bock(s) in inode: 100: 649
+Duplicate/bad bock(s) in inode: 101: 650 651
+Duplicate/bad bock(s) in inode: 102: 652
+Duplicate/bad bock(s) in inode: 103: 653 656
+Duplicate/bad bock(s) in inode: 104: 659 660
+Duplicate/bad bock(s) in inode: 105: 661 662 663 664 665 666
+Duplicate/bad bock(s) in inode: 106: 667 668
+Duplicate/bad bock(s) in inode: 107: 669 671
+Duplicate/bad bock(s) in inode: 108: 672 673 674
+Duplicate/bad bock(s) in inode: 110: 678
+
+Inodes 643-678 are always connected to faults.
+
+The following files are always in connection with these errors:
+/var/log/wtmp
+/var/log/messages
+
+The old hd was hda: IBM-DTLA-305040, ATA DISK drive. The new is: hda:
+IBM-DTLA-307075, ATA DISK drive.
+
+hdparm says:
+   Model=IBM-DTLA-307075, FwRev=TXAOA50C, SerialNo=YSDYSFN9998
+   Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+   RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
+   BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=8
+   CurCHS=17475/15/63, CurSects=-78446341, LBA=yes, LBAsects=150136560
+   IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+   PIO modes: pio0 pio1 pio2 pio3 pio4
+   DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2
+   AdvancedPM=yes: disabled (255)
+   Drive Supports : ATA/ATAPI-5 T13 1321D revision 1 : ATA-2 ATA-3 ATA-4 ATA-5
+
+I currently use linux 2.4.9 and e2fsprogs 1.23 and fileutils-4.1 and a modified
+RedHat 6.2. These errors only occured with linux>=2.4.5-ac11.
+
+I might say this is definitely an error with ext2 !
+
+Kristian
+
+·· · · reach me :: · ·· ·· ·  · ·· · ··  · ··· · ·
+                           :: http://www.korseby.net
+                           :: http://www.tomlab.de
+kristian@korseby.net ....::
 
 
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,67 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262343AbREXV2E>; Thu, 24 May 2001 17:28:04 -0400
+	id <S262353AbREXVgL>; Thu, 24 May 2001 17:36:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262344AbREXV1v>; Thu, 24 May 2001 17:27:51 -0400
-Received: from enhanced.ppp.eticomm.net ([206.228.183.5]:37870 "EHLO
-	intech19.enhanced.com") by vger.kernel.org with ESMTP
-	id <S262343AbREXV1q>; Thu, 24 May 2001 17:27:46 -0400
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19+ide: corrupts ide tape output
-In-Reply-To: <200105212149.XAA10612@harpo.it.uu.se>
-From: Camm Maguire <camm@enhanced.com>
-Date: 24 May 2001 17:27:22 -0400
-In-Reply-To: Mikael Pettersson's message of "Mon, 21 May 2001 23:49:14 +0200 (MET DST)"
-Message-ID: <543d9uv3np.fsf@intech19.enhanced.com>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S262361AbREXVgB>; Thu, 24 May 2001 17:36:01 -0400
+Received: from juicer14.bigpond.com ([139.134.6.23]:43767 "EHLO
+	mailin2.email.bigpond.com") by vger.kernel.org with ESMTP
+	id <S262353AbREXVfp>; Thu, 24 May 2001 17:35:45 -0400
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andi Kleen <ak@suse.de>, Andreas Dilger <adilger@turbolinux.com>,
+        monkeyiq <monkeyiq@users.sourceforge.net>,
+        linux-kernel@vger.kernel.org, Nikita Danilov <god@namesys.com>
+Subject: Re: Dying disk and filesystem choice.
+In-Reply-To: <m3bsoj2zsw.fsf@kloof.cr.au>
+	<200105240658.f4O6wEWq031945@webber.adilger.int>
+	<20010524103145.A9521@gruyere.muc.suse.de>
+	<3B0D3C99.255B5A24@namesys.com>
+From: monkeyiq <monkeyiq@users.sourceforge.net>
+X-Home-Page: http://witme.sourceforge.net
+Date: 25 May 2001 07:35:39 +1000
+In-Reply-To: Hans Reiser's message of "Thu, 24 May 2001 09:53:45 -0700"
+Message-ID: <m3n182xwes.fsf@kloof.cr.au>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings, and thank you for this information!  I've just confirmed
-this.  Both of my ATAPI tapes don't work reliably with the Promise
-Ultra100, but do work with the on board ALI 15x3 chipsets.  Both disks
-in this box appear to work with both sets of controllers.  After
-considerable difficulty, I'm now booting off of the off-board Promise,
-and all looks stable.
+Hans Reiser <reiser@namesys.com> writes:
 
-Question -- is the lack of support for ATAPI on the Promise Ultra100 a
-hardware, or a driver/software, issue?
+> 
+> 
+> No, reiserfs does have badblock support!!!!
+> 
+> You just have to get it as a separate patch from us because it was written after
+> code freeze.
+> 
+> Hans
+> 
 
-Take care,
+It might be nice to have a link to that patch from the "download" page.
+I didn't see that patch the first time from
+ftp://ftp.namesys.com/pub/misc-patches/
 
-Mikael Pettersson <mikpe@csd.uu.se> writes:
+because I assumed that the interesting patches were linked from the 
+downloads page. Atleast a hint that there is a badblocks patch available
+on the ftp site on the downloads page, so that the reader can go grab 
+this patch. 
 
-> On 21 May 2001 14:49:55 -0400, Camm Maguire <camm@enhanced.com> wrote:
-> 
-> >Greetings!  2.2.19+ide, applied the patch because this box has a new
-> >Promise PDC20267 ide controller.  14GB HP Colorado tape drive.  Before
-> >we installed the new ide controller and patched the kernel, i.e. with
-> >unpatched 2.2.19 running on a different ide controller, this setup
-> >works just fine.  Now I get the following occasionally, which results
-> >in corrupted dumps to tape:
-> >
-> >May 21 10:27:47 intech9 kernel: hdh: status error: status=0x40 { DriveReady }
-> >May 21 10:27:47 intech9 kernel: ide-scsi: Strange, packet command initiated yet DRQ isn't asserted
-> 
-> You added a Promise Ultra100 PCI card, right?
-> >From what I hear, it doesn't support ATAPI devices well, only disks.
-> So if you moved the HP tape drive to the PDC, move it back to
-> the mainboard's IDE controller.
-> Also, don't disable the mainboard's controller thinking you can save
-> some interrupts that way. Andre Hedrick (Linux IDE guy) once wrote
-> that this could cause the PDC to grab IRQ 14, which had some nasty
-> side-effects.
-> 
-> (My main box runs with disks on a Promise Ultra100 card and
-> ATAPI CD-RW and tape on the mainboard's IDE (440BX) controller.
-> Both 2.2+ide and 2.4 work fine.)
-> 
-> /Mikael
-> 
-> 
+Hopefully this will extend my mileage until drive replacement :)
+Though I think I'll back a few more things up before attempting 
+a kernel compile.
+
 
 -- 
-Camm Maguire			     			camm@enhanced.com
-==========================================================================
-"The earth is but one country, and mankind its citizens."  --  Baha'u'llah
+---------------------------------------------------
+It's the question, http://witme.sourceforge.net
+If you think education is expensive, try ignorance.
+		-- Derek Bok, president of Harvard
+

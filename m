@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261381AbTCYDI2>; Mon, 24 Mar 2003 22:08:28 -0500
+	id <S261410AbTCYDNX>; Mon, 24 Mar 2003 22:13:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261393AbTCYDI1>; Mon, 24 Mar 2003 22:08:27 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:65032 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261381AbTCYDIY>; Mon, 24 Mar 2003 22:08:24 -0500
-Date: Tue, 25 Mar 2003 03:19:31 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Toplica Tanaskovic <toptan@EUnet.yu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [REPRODUCABLE BUGS] Linux 2.5.66
-In-Reply-To: <200303250255.10510.toptan@EUnet.yu>
-Message-ID: <Pine.LNX.4.44.0303250313520.22808-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261413AbTCYDNW>; Mon, 24 Mar 2003 22:13:22 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:54502 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S261410AbTCYDNV>;
+	Mon, 24 Mar 2003 22:13:21 -0500
+Date: Tue, 25 Mar 2003 14:24:00 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: jgrimm2@us.ibm.com
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Trivial Kernel Patches <trivial@rustcorp.com.au>,
+       "David S. Miller" <davem@redhat.com>
+Subject: [PATCH] warning and unused in sctp.h
+Message-Id: <20030325142400.194987b0.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> 	I've encountered two reproducable bugs, and one feature which can and can not 
-> be called bug:
-> 
-> 1. Radeon frame buffer driver doesn't support mode change in kernel boot 
-> params. In 2.6.65 it is OK.
-> 
-> 	append line from lilo.conf
-> 
->     append = " hdd=ide-scsi video=radeon:1024x768-24@100"
-> 
-> 	No mether what is in video=radeon:..., resolution is always set to 80x30 with 
-> 60Hz refresh.
+This patch changes a flags argument to spin_lock_irq_save to unsigned long
+and removes its unused attribute.  The first gets rid of several warnings
+and the second is "obviously correct" (at least according to Rusty) :-).
 
-Its radeonfb now instead of radeon. Alot of drivers where broken in this 
-way. Now every driver follows a standard.
+Thanks to DaveM for forcing me to build kernels with a 64 cross compiler :-)
 
-> 2. Radeon frame buffer mode switching gives unexpected results. When switching 
-> from lower res to higher, switching is ok but you still have old chararcter 
-> res. eg. 80x30. The text is located in upper left corner, and the right side 
-> off the text area is filled with garbage. Bellow text area there is nothing.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-For console resizing try using stty cols xxx rows xx.
-
-Fbset hasn't been updated to the new changes yet. I plan to fix up fbset 
-and also maybe stty. The tty layer can work on the pixel level. See struct 
-winsize in asm/termios.h
- 	
-> 3. Cursor disapears when moving with cursor keys. This is very annoying when 
-> you are editing text for example.
-> 
-> 	My config is attached, gcc version is 2.95.3, modutils 2.4.21.
-
-I didn't notice this. I will track it down.
-
-
+diff -ruN 2.5.66/include/net/sctp/sctp.h 2.5.66-warnings.1/include/net/sctp/sctp.h
+--- 2.5.66/include/net/sctp/sctp.h	2003-03-25 12:08:26.000000000 +1100
++++ 2.5.66-warnings.1/include/net/sctp/sctp.h	2003-03-25 14:19:04.000000000 +1100
+@@ -356,7 +356,7 @@
+ static inline void sctp_skb_list_tail(struct sk_buff_head *list,
+ 				      struct sk_buff_head *head)
+ {
+-	int flags __attribute__ ((unused));
++	unsigned long flags;
+ 
+ 	sctp_spin_lock_irqsave(&head->lock, flags);
+ 	sctp_spin_lock(&list->lock);

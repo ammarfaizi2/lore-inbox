@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286374AbRLTVIZ>; Thu, 20 Dec 2001 16:08:25 -0500
+	id <S286380AbRLTVIp>; Thu, 20 Dec 2001 16:08:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286375AbRLTVIP>; Thu, 20 Dec 2001 16:08:15 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:60169 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S286374AbRLTVH6>; Thu, 20 Dec 2001 16:07:58 -0500
-Date: Thu, 20 Dec 2001 16:07:53 -0500 (EST)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: proski@marabou.research.att.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Making TI bridges work with kernel PCMCIA
-In-Reply-To: <20011220204911.25097@smtp.noos.fr>
-Message-ID: <Pine.LNX.4.43.0112201557090.17379-100000@marabou.research.att.com>
+	id <S286377AbRLTVIg>; Thu, 20 Dec 2001 16:08:36 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:11780 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S286375AbRLTVI1>; Thu, 20 Dec 2001 16:08:27 -0500
+Date: Thu, 20 Dec 2001 13:11:23 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [RFC] Scheduler issue 1, RT tasks ...
+Message-ID: <Pine.LNX.4.40.0112201252450.1622-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Benjamin!
 
-> I have to use a similar workaround on pmac laptops. However, I do that
-> in the platform specific quirks.
+I'd like to have some comments about RT tasks implementation in a SMP
+system because POSIX it's not clear about how the priority rules apply to
+multiprocessor systems.
+The Balanced Multi Queue Scheduler ( BMQS, http://www.xmailserver.org/linux-patches/mss-2.html )
+i'm working on tries to keep CPU schedulers the more independent as
+possible and currently implements two kind of RT tasks, local one and
+global ones.
+Local RT tasks apply POSIX priority rules inside the local CPU, that means
+that an RT task running on CPU0 cannot preempt another task ( being it
+normal or RT ) on CPU1. This keeps schedulers interlocking very low
+because of the very fast path in reschedule_idle() ( no multi lock
+acquisition, CPU queue loops, etc...).
+Global RT tasks, that live in a separate run queue, have the ability to
+preempt remote CPU and this can lead ( in the unfortunate case that the
+last CPU running the RT task is running another RT task ) to an higher
+cost in reschedule_idle().
+The check for a global RT task selection is done in a very fast way before
+checking the local queue :
 
-Yes, I found it in arch/ppc/kernel/pci.c, function pcibios_fixup_cardbus.
+    if (!list_empty(&runqueue_head(RT_QID)))
+        goto rt_queue_select;
+rt_queue_select_back:
 
-I believe it should be safe to remove that "fixup" once my patch is
-applied.  There is no reason to believe that BIOS or OpenFirmware know
-better than the Linux kernel how to route interrupts on PCMCIA bridges.
+and this does not affect the scheduler latency at all.
+On the contrary, by having a separate queue for global RT tasks, can
+improve it in high run queue load cases.
+The local/global RT task selection is done with setscheduler() with a new
+( or'ed ) flag SCHED_RTGLOBAL, and this means that the default is RT task
+local.
+I'd like to have comments on this before jumping to the next Scheduler
+issue ( balancing mode ).
 
-I believe that relying on proprietary firmware (i.e BIOS) or on power-on
-defaults is only justified when we have insufficient information how to
-initialize the chip.  That's not the case for TI bridges.
 
-By the way, I'll appreciate if somebody applies my patch, removes the PPC
-fixup and tests it on PPC.  I'm 99% sure that it will work, but still it
-will be good to know for sure.
 
--- 
-Regards,
-Pavel Roskin
+
+- Davide
+
 

@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275378AbRIZRpC>; Wed, 26 Sep 2001 13:45:02 -0400
+	id <S275370AbRIZRnl>; Wed, 26 Sep 2001 13:43:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275377AbRIZRol>; Wed, 26 Sep 2001 13:44:41 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20236 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S275373AbRIZRo3>; Wed, 26 Sep 2001 13:44:29 -0400
-Date: Wed, 26 Sep 2001 10:44:14 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "David S. Miller" <davem@redhat.com>, <bcrl@redhat.com>,
-        <marcelo@conectiva.com.br>, <andrea@suse.de>,
+	id <S275366AbRIZRnb>; Wed, 26 Sep 2001 13:43:31 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:29408 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S275370AbRIZRnR>; Wed, 26 Sep 2001 13:43:17 -0400
+Date: Wed, 26 Sep 2001 11:43:25 -0600
+Message-Id: <200109261743.f8QHhPU08423@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
+        <bcrl@redhat.com>, <marcelo@conectiva.com.br>, <andrea@suse.de>,
         <linux-kernel@vger.kernel.org>
 Subject: Re: Locking comment on shrink_caches()
-In-Reply-To: <E15mIfQ-0001E5-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0109261036260.8445-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.33.0109261003480.8327-200000@penguin.transmeta.com>
+In-Reply-To: <E15mHjL-0000t8-00@the-village.bc.nu>
+	<Pine.LNX.4.33.0109261003480.8327-200000@penguin.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds writes:
+>   This message is in MIME format.  The first part should be readable text,
+>   while the remaining parts are likely unreadable without MIME-aware tools.
+>   Send mail to mime@docserver.cac.washington.edu for more info.
 
-On Wed, 26 Sep 2001, Alan Cox wrote:
+Yuk! MIME! I thought you hated it too?
 
-> > 	PIII:
-> > 		nothing: 32 cycles
-> > 		locked add: 50 cycles
-> > 		cpuid: 170 cycles
-> >
-> > 	P4:
-> > 		nothing: 80 cycles
-> > 		locked add: 184 cycles
-> > 		cpuid: 652 cycles
->
->
-> Original core Athlon (step 2 and earlier)
->		nothing: 11 cycles
->		locked add: 22 cycles
->		cpuid: 67 cycles
->
-> generic Athlon:
->		nothing: 11 cycles
->		locked add: 11 cycles
->		cpuid: 64 cycles
+> 	PIII:
+> 		nothing: 32 cycles
+> 		locked add: 50 cycles
+> 		cpuid: 170 cycles
+> 
+> 	P4:
+> 		nothing: 80 cycles
+> 		locked add: 184 cycles
+> 		cpuid: 652 cycles
+> 
+>    Remember: these are for the already-exclusive-cache cases. ]
+> 
+> What are the athlon numbers?
 
-Do you have an actual SMP Athlon to test? I'd love to see if that "locked
-add" thing is really SMP-safe - it may be that it's the old "AMD turned
-off the 'lock' prefix synchronization because it doesn't matter in UP".
-They used to have a bit to do that..
+Athalon 850 MHz:
+nothing: 11 cycles
+locked add: 12 cycles
+cpuid: 64 cycles
 
-That said, it _can_ be real even on SMP. There's no reason why a memory
-barrier would have to be as heavy as it is on some machines (even the P4
-looks positively _fast_ compared to most older machines that did memory
-barriers on the bus and took hundreds of much slower cycles to do it).
+BTW: your code had horrible control-M's on each line. So the compiler
+choked (with a less-than-helpful error message). Of course, cat t.c
+showed nothing amiss. Fortunately emacs doesn't hide information.
 
-> Wait for AMD to publish graphs of CPUid performance for PIV versus Athlon 8)
+				Regards,
 
-The sad thing is, I think Intel used to suggest that people use "cpuid" as
-the thing to serialize the cores. So people may actually be _using_ it for
-something like semaphores. I remember that Ingo or somebody suggested we'd
-use it for the Linux "mb()" macro - I _much_ prefer the saner locked zero
-add into the stack, and the prediction that Intel would be more likely to
-optimize for "add" than for "cpuid" certainly ended up being surprisingly
-true on the P4.
-
-		Linus
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316611AbSE0NkU>; Mon, 27 May 2002 09:40:20 -0400
+	id <S316617AbSE0Nnw>; Mon, 27 May 2002 09:43:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316616AbSE0NkT>; Mon, 27 May 2002 09:40:19 -0400
-Received: from beth.pinerecords.com ([212.71.161.243]:20231 "EHLO
-	beth.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S316611AbSE0NkS>; Mon, 27 May 2002 09:40:18 -0400
-Date: Mon, 27 May 2002 11:24:42 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: me@vger.org
-Cc: Simen Timian Thoresen <simentt@dolphinics.no>,
-        linux-kernel@vger.kernel.org
-Subject: Re: /dev/hd[ijkl] only using udma (not udma 100)
-Message-ID: <20020527092441.GA7155@beth.pinerecords.com>
-In-Reply-To: <200205271322.g4RDMgi11561@scispor.dolphinics.no> <Pine.LNX.4.21.0205271606390.7794-100000@kenny.worldonline.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: GNU/Linux 2.4.19-pre8-ac5 
-X-Architecture: i586
-X-Uptime: 11:03
+	id <S316620AbSE0Nnv>; Mon, 27 May 2002 09:43:51 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:54535 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S316617AbSE0Nnt>; Mon, 27 May 2002 09:43:49 -0400
+Message-ID: <3CF23893.207@loewe-komp.de>
+Date: Mon, 27 May 2002 15:45:55 +0200
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Andreas Hartmann <andihartmann@freenet.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Memory management in Kernel 2.4.x
+In-Reply-To: <fa.iklie8v.5k2hbj@ifi.uio.no> <fa.na0lviv.e2a93a@ifi.uio.no> <actahk$6bp$1@ID-44327.news.dfncis.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It would realy be nice to find a way to force transfer mode on boot up but
-> i cant see to find any way.
+Andreas Hartmann wrote:
+> Zwane Mwaikambo wrote:
+> 
+> 
+>>On Mon, 27 May 2002, Andreas Hartmann wrote:
+>>
+>>
+>>>rsync allocates all of the memory the machine has (256 MB RAM, 128 MB
+>>>swap). When this occures, processes get killed like described in the
+>>>posting before. The machine doesn't respond as long as the rsync -
+>>>process isn't killed, because it fetches all the memory which gets free
+>>>after a process has been killed.
+>>>
+>>And the rsync process never gets singled out? nice!
+>>
+> 
+> Until it's killed by the kernel (if overcommitment isn't deactivated). If 
+> overcommitment is deactivated, the services of the machine are dead 
+> forever. There will be nothing, which kills such a process. Or am I wrong?
+> 
 
-I've been using "ide2=ata66" to force ATA66/ATA100 transfer modes
-on a Promise Ultra100 TX2 controller.
+There is still the oom killer (Out Of Memory).
+But it doesn't trigger and the machine pages "forever".
+Usually kswapd eats the CPU then, discarding and reloading pages,
+searching lists for pages to evict and so on.
 
-T.

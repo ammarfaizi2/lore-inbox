@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266769AbSKHHrt>; Fri, 8 Nov 2002 02:47:49 -0500
+	id <S266771AbSKHH7k>; Fri, 8 Nov 2002 02:59:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266770AbSKHHrt>; Fri, 8 Nov 2002 02:47:49 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:59141 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S266769AbSKHHrs>;
-	Fri, 8 Nov 2002 02:47:48 -0500
-Date: Thu, 7 Nov 2002 23:50:07 -0800
-From: Greg KH <greg@kroah.com>
-To: Luca Barbieri <ldb@ldb.ods.org>
-Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-       Linux-USB-Users <linux-usb-users@lists.sourceforge.net>
-Subject: Re: USB broken in 2.5.4[56]
-Message-ID: <20021108075007.GA2282@kroah.com>
-References: <20021106132022.GA2101@home.ldb.ods.org> <20021106183046.GA23770@kroah.com> <1036701797.2841.17.camel@ldb> <20021108074334.GE2152@kroah.com>
+	id <S266772AbSKHH7k>; Fri, 8 Nov 2002 02:59:40 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:40112 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S266771AbSKHH7k>;
+	Fri, 8 Nov 2002 02:59:40 -0500
+Date: Fri, 8 Nov 2002 09:05:58 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Adam Kropelin <akropel1@rochester.rr.com>
+Cc: Andrew Morton <akpm@digeo.com>, MdkDev <mdkdev@starman.ee>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.46: ide-cd cdrecord success report
+Message-ID: <20021108080558.GR32005@suse.de>
+References: <32851.62.65.205.175.1036691341.squirrel@webmail.starman.ee> <20021107180709.GB18866@www.kroptech.com> <32894.62.65.205.175.1036692849.squirrel@webmail.starman.ee> <20021108015316.GA1041@www.kroptech.com> <3DCB1D09.EE25507D@digeo.com> <20021108024905.GA10246@www.kroptech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021108074334.GE2152@kroah.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20021108024905.GA10246@www.kroptech.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 07, 2002 at 11:43:34PM -0800, Greg KH wrote:
-> On Thu, Nov 07, 2002 at 09:43:17PM +0100, Luca Barbieri wrote:
-> > > Anyway, which USB drivers are you using?  That might help us narrow this
-> > > down a bit.
-> > 
-> > speedtouch              8932   3
+On Thu, Nov 07 2002, Adam Kropelin wrote:
+> > Try changing drivers/block/deadline-iosched.c:fifo_batch to 16.
 > 
-> Oops, I don't think I fixed up that driver based on the other changes
-> that happened in the USB core.  I'll try to find some time to look at
-> it, but can't guarantee anything...
+> Works! A 12x burn succeeded with a parallell dd *and* and make -j20.
+> Overall disk throughput suffered by a couple MB/s but there was a solid
+> 2 MB/s left for the recorder.
 
-Hm, no, I take that back, I did fix up the obvious compile time fixes
-for that driver.  I wonder what broke it...
+Ok I'm just about convinced now, I'll make 16 the default batch count.
+I'm very happy to hear that the deadline scheduler gets the job done
+there.
 
-What's the symptoms of it not working?
+-- 
+Jens Axboe
 
-thanks,
-
-greg k-h

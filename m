@@ -1,73 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264769AbSJOWcZ>; Tue, 15 Oct 2002 18:32:25 -0400
+	id <S264652AbSJOW3r>; Tue, 15 Oct 2002 18:29:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264877AbSJOWbN>; Tue, 15 Oct 2002 18:31:13 -0400
-Received: from mail.hometree.net ([212.34.181.120]:9168 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S264771AbSJOWaD>; Tue, 15 Oct 2002 18:30:03 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: nfs-server slowdown in 2.4.20-pre10 with client 2.2.19
-Date: Tue, 15 Oct 2002 22:35:57 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <aoi58d$hp3$1@forge.intermeta.de>
-References: <20021013172138.0e394d96.skraw@ithnet.com> <20021015194538.10f54ef3.skraw@ithnet.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1034721357 32101 212.34.181.4 (15 Oct 2002 22:35:57 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 15 Oct 2002 22:35:57 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S264622AbSJOW33>; Tue, 15 Oct 2002 18:29:29 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:38154 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S264830AbSJOW1c>; Tue, 15 Oct 2002 18:27:32 -0400
+Date: Tue, 15 Oct 2002 23:33:26 +0100
+From: John Levon <levon@movementarian.org>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [5/7] oprofile - MSR defines
+Message-ID: <20021015223326.GE41906@compsoc.man.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski <skraw@ithnet.com> writes:
 
->On Mon, 14 Oct 2002 13:38:32 +1000
->Neil Brown <neilb@cse.unsw.edu.au> wrote:
+Add the MSR defines oprofile uses
 
->Hello Neil,
->hello Trond,
 
->> This night I will try to reduce rsize/wsize from the current 8192 down to
->> 1024 as suggested by Jeff.
-
->Ok. The result is: it is again way slower. I was not even capable to transfer 5
->GB within 18 hours, that's when I shot the thing down.
->Anything else I can test?
-
-nfs v2 or v3? tcp or udp? I assume nfs v3, udp and 100 Mbit switched
-network between your hosts and no firewalls, routers or something like
-this.
-
-Could you post a small (some ten lines or so) tcp dump of a data transfer?
-
-I had a hell of a time with a) a firewall dropping fragments; b) a
-trunked network connection where one VLAN "pushed" another running the
-NFS traffic off the trunk (Also vice versa, letting 97 Mbit/sec NFS
-traffic pushing almost everything else from the trunk but this is
-obviously not your problem. :-) )
-
-If lowering the blocksize speeds up your transfers, dropping fragments
-could be the problem (shorter blocks result in less fragments per
-packets and increase the chance that all fragments make it over the
-connection).
-
-Could you watch the Ip: InDiscards ReasmTimeout ReasmReqds ReasmFails
-and Udp: InErrors counters in /proc/net/snmp. Is any of them steadily
-increasing?
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+diff -Naur -X dontdiff linux-linus/include/asm-i386/msr.h linux/include/asm-i386/msr.h
+--- linux-linus/include/asm-i386/msr.h	Sun Oct 13 19:51:03 2002
++++ linux/include/asm-i386/msr.h	Tue Oct 15 21:45:52 2002
+@@ -99,7 +99,13 @@
+ #define MSR_K6_PFIR			0xC0000088
+ 
+ #define MSR_K7_EVNTSEL0			0xC0010000
++#define MSR_K7_EVNTSEL1			0xC0010001
++#define MSR_K7_EVNTSEL2			0xC0010002
++#define MSR_K7_EVNTSEL3			0xC0010003
+ #define MSR_K7_PERFCTR0			0xC0010004
++#define MSR_K7_PERFCTR1			0xC0010005
++#define MSR_K7_PERFCTR2			0xC0010006
++#define MSR_K7_PERFCTR3			0xC0010007
+ #define MSR_K7_HWCR			0xC0010015
+ #define MSR_K7_FID_VID_CTL		0xC0010041
+ #define MSR_K7_VID_STATUS		0xC0010042

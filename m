@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265667AbTCDX0B>; Tue, 4 Mar 2003 18:26:01 -0500
+	id <S266210AbTCDX1R>; Tue, 4 Mar 2003 18:27:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265863AbTCDX0A>; Tue, 4 Mar 2003 18:26:00 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:25263 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S265667AbTCDXZ7>;
-	Tue, 4 Mar 2003 18:25:59 -0500
-Date: Wed, 5 Mar 2003 10:36:19 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: sys32_ioctl -> compat_ioctl -- generic
-Message-Id: <20030305103619.52ccdfe2.sfr@canb.auug.org.au>
-In-Reply-To: <20030303232122.GA24018@elf.ucw.cz>
-References: <20030303232122.GA24018@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S266932AbTCDX1R>; Tue, 4 Mar 2003 18:27:17 -0500
+Received: from FORT-POINT-STATION.MIT.EDU ([18.7.7.76]:9977 "EHLO
+	fort-point-station.mit.edu") by vger.kernel.org with ESMTP
+	id <S266210AbTCDX0e>; Tue, 4 Mar 2003 18:26:34 -0500
+To: linux-kernel@vger.kernel.org
+Subject: ipsec-tools package at sourceforge
+From: Derek Atkins <warlord@MIT.EDU>
+Date: 04 Mar 2003 18:37:03 -0500
+Message-ID: <sjmadgaya8w.fsf@kikki.mit.edu>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Mar 2003 00:21:22 +0100 Pavel Machek <pavel@ucw.cz> wrote:
->
-> +asmlinkage long compat_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
+Hi,
 
-For consistancy, this should be called compat_sys_ioctl.
+I've uploaded a new version of ipsec-tools to sourceforge.
+IPsec-Tools is a port of KAME's "libipsec", "setkey", and "racoon"
+programs to Linux.  The setkey program lets you set IPsec policy and
+manually manipulate IPsec SAs; racoon is an Internet Key Exchange
+(IKE) keying daemon for automatically negotiating IPsec SAs with
+peers.
 
-> +{
-> +	struct file * filp;
+These tools have been updated from the version in Alexey's ip-utils
+snapshot (which was using year-old KAME code).
 
-> +	filp = fget(fd);
+You can find the source tarball at the Sourceforge project page:
 
-> +			/* find the name of the device. */
-> +			if (path) {
-> +				struct file *f = fget(fd); 
+        http://ipsec-tools.sourceforge.net/
 
-Is it really necessary to do another fget(fd) ?
+Testers are certainly encouraged.
 
-Also, if you are adding this much code, you should add a copyright notice
-to the top of the file ...
+Thanks,
+
+-derek
 
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
+       Derek Atkins, SB '93 MIT EE, SM '95 MIT Media Laboratory
+       Member, MIT Student Information Processing Board  (SIPB)
+       URL: http://web.mit.edu/warlord/    PP-ASEL-IA     N1NWH
+       warlord@MIT.EDU                        PGP key available

@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317191AbSIHRaS>; Sun, 8 Sep 2002 13:30:18 -0400
+	id <S317404AbSIHRfs>; Sun, 8 Sep 2002 13:35:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317351AbSIHRaS>; Sun, 8 Sep 2002 13:30:18 -0400
-Received: from 62-190-216-149.pdu.pipex.net ([62.190.216.149]:50182 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S317191AbSIHRaR>; Sun, 8 Sep 2002 13:30:17 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209081742.g88HgUeO003421@darkstar.example.net>
-Subject: Re: ide drive dying?
-To: Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-15?q?N=FCtzel?=)
-Date: Sun, 8 Sep 2002 18:42:29 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200209080159.47115.Dieter.Nuetzel@hamburg.de> from "Dieter =?iso-8859-15?q?N=FCtzel?=" at Sep 08, 2002 02:02:35 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S318107AbSIHRfs>; Sun, 8 Sep 2002 13:35:48 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:29446 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S317404AbSIHRfr>; Sun, 8 Sep 2002 13:35:47 -0400
+Date: Mon, 9 Sep 2002 03:40:22 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Performance issue in 2.5.32+
+In-Reply-To: <200209081545.g88FjQZ10714@penguin.transmeta.com>
+Message-ID: <Mutt.LNX.4.44.0209090326100.21359-100000@blackbird.intercode.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Andre, can you fix start/stop counts, please?
+On Sun, 8 Sep 2002, Linus Torvalds wrote:
+
+> That "something else" may be some process that is constantly running one
+> one CPU or something.
 > 
-> unWave1 /home/nuetzel# /usr/local/sbin/smartctl -a /dev/sda
-> Device: IBM      DDYS-T18350N     Version: S96H
-> Device supports S.M.A.R.T. and is Enabled
-> Temperature Warning Disabled or Not Supported
-> S.M.A.R.T. Sense: Okay!
-> Current Drive Temperature:     31 C
-> Drive Trip Temperature:        85 C
-> Current start stop count:      131072 times
-> Recommended start stop count:  2555920 times
-> 
-> SunWave1 /home/nuetzel# /usr/local/sbin/smartctl -a /dev/sdb
-> Device: IBM      DDRS-34560D      Version: DC1B
-> Device supports S.M.A.R.T. and is Enabled
-> Temperature Warning Disabled or Not Supported
-> S.M.A.R.T. Sense: Okay!
-> 
-> SunWave1 /home/nuetzel# /usr/local/sbin/smartctl -a /dev/sdc
-> Device: IBM      DDRS-34560W      Version: S71D
-> Device supports S.M.A.R.T. and is Enabled
-> Temperature Warning Disabled or Not Supported
-> S.M.A.R.T. Sense: Okay!
-> 
-> Smartsuite-2.1 (at least) missing some feather for SCSI.
+> Maybe something got confused by the kernel change, and is now getting
+> stuck in the background? 
 
-Are you sure that it is not just the drive mis-reporting the start/stop counts?  S.M.A.R.T. implementions are often flakey.
+Not as far as I can tell.  The system is RH 7.3 with errata, and I've run
+the tests again after shutting down everything except console login with
+no change.  No processes seem to be running abnormally.
 
-> BTW
-> I had a double disk crash (same symptoms as in this thread) in a school's 
-> RAID5 with four Fujitsu MPG3204AT-EF (the ones with gel-lager, silent and 
-> reliable we hoped) last week...
-> The shop for which I work from time to time got 71 disks of this type back 
-> (sold over the last 1.5 years). We switched to them after the "IBM" disaster. 
-> Maybe a "misdecision" ;-)
-> What shall we sell safely, now...?
-> MAXTOR?
+I guess it could be an existing hardware problem which has been triggered 
+by some innocuous change.
 
-I have *never* lost data to a Maxtor disk.  I have had IBM, Fujitsu, Western Digital, and DEC drives all fail on me before.
 
-It's dissapointing that Maxtor are reducing their warranty from 3 years to 1 year, but on the other hand, I've never needed it at all.
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 
-John.
+

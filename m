@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263031AbUDORZq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 13:25:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbUDORZB
+	id S263081AbUDORYL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 13:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbUDORYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 13:25:01 -0400
-Received: from mail.kroah.org ([65.200.24.183]:15022 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263100AbUDORYD convert rfc822-to-8bit
+	Thu, 15 Apr 2004 13:24:10 -0400
+Received: from mail.kroah.org ([65.200.24.183]:13486 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263081AbUDORYC convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 13:24:03 -0400
+	Thu, 15 Apr 2004 13:24:02 -0400
 X-Fake: the user-agent is fake
 Subject: Re: [PATCH] PCI and PCI Hotplug update for 2.6.6-rc1
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <1082049825348@kroah.com>
-Date: Thu, 15 Apr 2004 10:23:46 -0700
-Message-Id: <1082049826312@kroah.com>
+In-Reply-To: <10820498251037@kroah.com>
+Date: Thu, 15 Apr 2004 10:23:45 -0700
+Message-Id: <1082049825348@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,63 +23,27 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1692.3.10, 2004/03/31 14:57:52-08:00, dsaxena@plexity.net
+ChangeSet 1.1692.3.9, 2004/03/31 14:55:47-08:00, johnrose@austin.ibm.com
 
-[PATCH] PCI: Allow arch-specific pci_set_dma_mask and friends
+[PATCH] PCI Hotplug: RPA PCI Hotplug - redundant free
 
-The patch provides the ability for architectures to have custom
-implementations of pci_set_dma_mask() and friends (dac_set_dma_mask
-and set_consistent_dma_mask). The reason I need this is b/c I have
-a chipset (Intel ARM IXP425) that has a broken PCI interface that
-only allows PCI dma to/from the bottom 64MB of system memory.  To get
-around this limitation, I trap a custom dma-mapping implementation that
-bounces buffers outside the 64MB window. At device discover time, my
-custom platform_notify() function gets called and it sets the dma_mask
-to (64MB-1) and in ARM's dma-mapping code, I check for dma_mask != 0xffffffff
-and if that is true, I call the special bounce helpers. This works great
-except that certain drivers (e100, ide-pci) call pci_set_dma_mask()
-with 0xffffffff and the generic implementation only allows for the
-architecture-defined pci_dma_supported() to return true or false. There
-is no method for the architecture to tell the PCI layer "I can't set
-the mask to 0xffffffff, but I can set it to this other value" and there
-is no way to pass that back to the driver. What this means is that if
-I have pci_set_dma_supported() return failure on full 32-bit DMA, the
-driver will not initialize the card; however, if I return true,
-pci_set_dma_mask() will set the dma mask to full 32-bits and I can no
-longer trap and will have buffers that are not dma-able and cause
-PCI master aborts.  Both of those are not acceptable.  IMHO, the
-driver shouldn't care if the architecture has to bounce DMA outside of
-64MB and since this is not something most architectures have to worry
-about, the easiest way to get around the issue is by allowing custom
-pci_set_dma_mask() for arches that need it but keeping the generic
-implementation for those that do not.  In my case, it simply returns
-0 to the driver but keeps the device mask set to 64MB-1 so I can trap.
+Please commit the following patch, which removes a redundant call to a
+cleanup function from an error path of the module init code.
 
 
- drivers/pci/pci.c |    5 +++++
- 1 files changed, 5 insertions(+)
+ drivers/pci/hotplug/rpaphp_pci.c |    1 -
+ 1 files changed, 1 deletion(-)
 
 
-diff -Nru a/drivers/pci/pci.c b/drivers/pci/pci.c
---- a/drivers/pci/pci.c	Thu Apr 15 10:04:10 2004
-+++ b/drivers/pci/pci.c	Thu Apr 15 10:04:10 2004
-@@ -700,6 +700,10 @@
+diff -Nru a/drivers/pci/hotplug/rpaphp_pci.c b/drivers/pci/hotplug/rpaphp_pci.c
+--- a/drivers/pci/hotplug/rpaphp_pci.c	Thu Apr 15 10:04:29 2004
++++ b/drivers/pci/hotplug/rpaphp_pci.c	Thu Apr 15 10:04:29 2004
+@@ -304,7 +304,6 @@
+ 	if (slot->hotplug_slot->info->adapter_status == NOT_VALID) {
+ 		dbg("%s: NOT_VALID: skip dn->full_name=%s\n",
+ 		    __FUNCTION__, slot->dn->full_name);
+-		dealloc_slot_struct(slot);
+ 		return (-1);
  	}
- }
- 
-+#ifndef HAVE_ARCH_PCI_SET_DMA_MASK
-+/*
-+ * These can be overridden by arch-specific implementations
-+ */
- int
- pci_set_dma_mask(struct pci_dev *dev, u64 mask)
- {
-@@ -732,6 +736,7 @@
- 
- 	return 0;
- }
-+#endif
-      
- static int __devinit pci_init(void)
- {
+ 	return (0);
 

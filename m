@@ -1,60 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266679AbUI0LSt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266680AbUI0LRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266679AbUI0LSt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 07:18:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266683AbUI0LSt
+	id S266680AbUI0LRc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 07:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUI0LRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 07:18:49 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:14642
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S266679AbUI0LSo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 07:18:44 -0400
-Message-Id: <s1580520.021@emea1-mh.id2.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 6.5.2 Beta
-Date: Mon, 27 Sep 2004 13:19:24 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <ak@muc.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: i386 entry.S problems
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Mon, 27 Sep 2004 07:17:32 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:19876 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266680AbUI0LRO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 07:17:14 -0400
+Date: Mon, 27 Sep 2004 13:17:05 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jochen Friedrich <jochen@scram.de>
+cc: "Christian T. Steigies" <cts@debian.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: sprintf -> strcpy (was: Re: gcc-3.4)
+In-Reply-To: <Pine.LNX.4.58.0409262049380.1809@localhost>
+Message-ID: <Pine.GSO.4.61.0409271315230.15815@waterleaf.sonytel.be>
+References: <20040925145454.GA16191@skeeve> <20040925221427.GA30105@skeeve>
+ <Pine.LNX.4.58.0409262049380.1809@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Andi Kleen <ak@muc.de> 27.09.04 12:58:57 >>>
->"Jan Beulich" <JBeulich@novell.com> writes:
->>
->> I don't think so. Otherwise, why would arch/i386/Makefile
-specifically
->> deal with this situation?
->
->It shouldn't be enabled for 2.95, there are known miscompilations
->caused by it there.  The i386 Makefile enforces this:
->
->cflags-$(CONFIG_REGPARM) 	+= $(shell if [ $(GCC_VERSION) -ge 0300
-] ; then echo "-mregparm=3"; fi ;)
 
-But that is exactly what I'm trying to account for: As we appear to all
-agree, with CONFIG_REGPARM but too old a gcc (which is unknown at
-configuration time and thus the user can't be prevented from turning
-this option on), mismatches between assembly and C would result. Thus
-the need for checking the gcc version in (some) assembly files (of
-course this implies that for preprocessing assembly files one would not
-try to use a different gcc than that used for compiling the C stuff).
+(CC'ing lkml)
 
-I do, however, believe that it is an inherent weakness of gcc that it
-doesn't decorate names of functions employing non-standard parameter
-passing schemes in some way (i.e. similar to the __stdcall decoration on
-Windows); with such functionality, it'd be much easier and safer to use
-mixed schemes.
+On Sun, 26 Sep 2004, Jochen Friedrich wrote:
+> > Or maybe it is the binutils? After downgrading to 2.14 from a previous
+> > toolchain source, I could build linux-2.6.8 with gcc-3.4.
+> 
+> I'm using binutils 2.15 and gcc 3.4.2 on Alpha to cross compile 2.6. All i
+> noticed is that the compiler optimizes sprintf(x,"%s",y) to strcpy(x,y)
+> which then fails to link or causes unresolved externals because strcpy is
+> an inline function on m68k. The fix is to do the replacement in the
+> source, like here:
 
->However this points to a bug in that when someone sets this
->on 2.95 the assembly functions who check for CONFIG_REGPARM
->explicitely will be subtly miscompiled. Perhaps having 
->a #error for this case would be better, although that
->would break allyesconfig on prehistoric compilers. Maybe 
->it needs to be special cased in autoconf.h
+I remember seeing a similar discussion on lkml about some other automatic
+replacements a while ago, but I cannot remember the details...
 
-Jan
+Is this the correct(TM) way to fix this issue, or is there a better solution?
+
+> diff -c -r1.1.1.21 binfmt_misc.c
+> *** fs/binfmt_misc.c    15 Aug 2004 14:18:10 -0000      1.1.1.21
+> --- fs/binfmt_misc.c    26 Sep 2004 18:54:27 -0000
+> ***************
+> *** 461,467 ****
+>         dp = page + strlen(page);
+> 
+>         /* print the special flags */
+> !       sprintf (dp, "%s", flags);
+>         dp += strlen (flags);
+>         if (e->flags & MISC_FMT_PRESERVE_ARGV0) {
+>                 *dp ++ = 'P';
+> --- 461,467 ----
+>         dp = page + strlen(page);
+> 
+>         /* print the special flags */
+> !       strcpy (dp, flags);
+>         dp += strlen (flags);
+>         if (e->flags & MISC_FMT_PRESERVE_ARGV0) {
+>                 *dp ++ = 'P';
+> 
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129538AbRAFFFZ>; Sat, 6 Jan 2001 00:05:25 -0500
+	id <S131378AbRAFFJg>; Sat, 6 Jan 2001 00:09:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131510AbRAFFFQ>; Sat, 6 Jan 2001 00:05:16 -0500
-Received: from cr949225-b.rchrd1.on.wave.home.com ([24.112.58.97]:61444 "HELO
-	enfusion-group.com") by vger.kernel.org with SMTP
-	id <S129538AbRAFFFJ>; Sat, 6 Jan 2001 00:05:09 -0500
-Date: Sat, 6 Jan 2001 00:05:07 -0500
-From: Adrian Chung <adrian@enfusion-group.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andre Hedrick <andre@linux-ide.org>
-Subject: Re: Promise Ultra66 DMA problems.
-Message-ID: <20010106000507.A2278@rogue.enfusion-group.com>
+	id <S131510AbRAFFJ3>; Sat, 6 Jan 2001 00:09:29 -0500
+Received: from c-025.static.AT.KPNQwest.net ([193.154.188.25]:52977 "EHLO
+	stefan.sime.com") by vger.kernel.org with ESMTP id <S131466AbRAFFJY>;
+	Sat, 6 Jan 2001 00:09:24 -0500
+Date: Sat, 6 Jan 2001 06:08:46 +0100
+From: Stefan Traby <stefan@hello-penguin.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Stefan Traby <stefan@hello-penguin.com>, linux-kernel@vger.kernel.org
+Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
+Message-ID: <20010106060846.A770@stefan.sime.com>
+Reply-To: Stefan Traby <stefan@hello-penguin.com>
+In-Reply-To: <20010106054615.A2958@stefan.sime.com> <Pine.GSO.4.21.0101052350460.25336-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010105170838.A1674@rogue.enfusion-group.com>; from adrian@enfusion-group.com on Fri, Jan 05, 2001 at 05:08:38PM -0500
-Organization: enfusion-group
+In-Reply-To: <Pine.GSO.4.21.0101052350460.25336-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Fri, Jan 05, 2001 at 11:52:31PM -0500
+Organization: Stefan Traby Services && Consulting
+X-Operating-System: Linux 2.4.0-fijiji0 (i686)
+X-APM: 100% 400 min
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2001 at 05:08:38PM -0500, Adrian Chung wrote:
-> hde: Maxtor 91024U3, ATA DISK drive
-> hdf: Maxtor 94098U8, ATA DISK drive
-> hdg: QUANTUM FIREBALLP LM15, ATA DISK drive
-> hdh: QUANTUM FIREBALLP LM30, ATA DISK drive
+On Fri, Jan 05, 2001 at 11:52:31PM -0500, Alexander Viro wrote:
+> On Sat, 6 Jan 2001, Stefan Traby wrote:
+> 
+> > Then I tried to unlink the file by running rm lfs.file log.
+> > 
+> > The rm process (and an ls process that I started after that)
+> > are now in "D" state...
+> > 
+> > root      2934  0.0  0.2  1292  452 pts/5    D    05:38   0:00 ls /ramfs
+> > root      2952  0.0  1.5  4028 2384 pts/3    S    05:40   0:00 vi sdlkhfd
+> 
+> Add UnlockPage(page) at the end of ramfs_writepage().
 
-I initially added only the two quantum drives to the pdc_quirk_list,
-and that had no effect, the machine still hung on boot up at the same
-place.  After this, I added the other two Maxtor's as well, and with
-all four drives in the pdc_quirk_list, the system booted up fine.
+Shit. You are quite fast. Works.
 
-Should I narrow this down further?  Will it be detrimental in any way
-to have all four drives listed in the quirks table if they needn't be?
+It was the first D-state case here where sync(1) did not fall
+into D-state, too. (ok, I know why :)
 
-cat /proc/ide/pdc:
-                            PDC20262 Chipset.
----------------------------- General Status ---------------------------------
-Burst Mode                           : enabled
-Host Mode                            : Normal
-Bus Clocking                         : 33 PCI Internal
-IO pad select                        : 4 mA
-Status Polling Period                : 0
-Interrupt Check Status Polling Delay : 0
------------- Primary Channel ---------------- Secondary Channel -------------
-                enabled                          enabled 
-66 Clocking     enabled                          enabled 
-           Mode PCI                         Mode PCI   
-                FIFO Empty                       FIFO Empty  
------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
-DMA enabled:    yes              yes             yes               yes
-DMA Mode:       UDMA 4           UDMA 4          UDMA 4            UDMA 4
-PIO Mode:       PIO 4            PIO 4           PIO 4            PIO 4
+-- 
 
-and hdparm yields about 25Mbit/s.
-
-I'm trying to get the runtime system to hang like it did before as
-well...  I'm running "dd if=/dev/hdX of=/dev/null &" on all four
-drives simultaneously, and about 3 times per drive to hit the
-controller and disk I/O system really hard.  So far, it's all been
-fine.  Hopefully that means that the problems gone away. :)
-
-Thanks for the help!
-
---
-Adrian
+    Stefan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

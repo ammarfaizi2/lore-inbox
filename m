@@ -1,99 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262074AbSJITvD>; Wed, 9 Oct 2002 15:51:03 -0400
+	id <S262085AbSJITyn>; Wed, 9 Oct 2002 15:54:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262076AbSJITvD>; Wed, 9 Oct 2002 15:51:03 -0400
-Received: from gw.openss7.com ([142.179.199.224]:23563 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id <S262074AbSJITvB>;
-	Wed, 9 Oct 2002 15:51:01 -0400
-Date: Wed, 9 Oct 2002 13:54:42 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org, LiS <linux-streams@gsyc.escet.urjc.es>,
-       davem@redhat.com
-Subject: Re: [PATCH] Re: export of sys_call_table
-Message-ID: <20021009135442.E16773@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-	linux-kernel@vger.kernel.org,
-	LiS <linux-streams@gsyc.escet.urjc.es>, davem@redhat.com
-References: <41C1FEE0A55@vcnet.vc.cvut.cz>
+	id <S262093AbSJITyn>; Wed, 9 Oct 2002 15:54:43 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:11794
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S262085AbSJITyl>; Wed, 9 Oct 2002 15:54:41 -0400
+Subject: Re: BK kernel commits list
+From: Robert Love <rml@tech9.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, Ben Collins <bcollins@debian.org>,
+       linux-kernel@vger.kernel.org, davem@redhat.com
+In-Reply-To: <3DA4882A.8000909@pobox.com>
+References: <20021009144414.GZ26771@phunnypharm.org> 
+	<20021009.045845.87764065.davem@redhat.com>
+	<18079.1034115320@passion.cambridge.redhat.com>
+	<20021008.175153.20269215.davem@redhat.com>
+	<200210091149.g99BnWQ5000628@pool-141-150-241-241.delv.east.verizon.net>
+	<7908.1034165878@passion.cambridge.redhat.com> <3DA4392B.8070204@pobox.com>
+	<27367.1034175300@passion.cambridge.redhat.com> 
+	<3DA4882A.8000909@pobox.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 09 Oct 2002 15:59:17 -0400
+Message-Id: <1034193558.29463.4400.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <41C1FEE0A55@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Wed, Oct 09, 2002 at 02:20:19PM +0200
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr,
+On Wed, 2002-10-09 at 15:48, Jeff Garzik wrote:
 
-Thanks you for the constructive suggestions.  I'll see if we
-can add those in an test it up.
+> Actually, after subscribing to bk-commits-* and seeing the output,
+> I really think the only addition needed is to pipe the output
+> through diffstat.
 
---brian
+I think this would be cool, too.
 
-On Wed, 09 Oct 2002, Petr Vandrovec wrote:
+I think simplicity is important, but more information is always helper.
 
-> On  8 Oct 02 at 18:21, Brian F. G. Bidulock wrote:
-> > --- kernel/sys.c.orig   2002-08-02 19:39:46.000000000 -0500
-> > +++ kernel/sys.c    2002-10-08 16:46:55.000000000 -0500
-> ...
-> 
-> I believe that you should check that nobody else has registered its
-> own streams module. You can also allow for multiple streams modules
-> in parallel (and fall through when module returns on -ENOIOCTLCMD or -ENOTTY),
-> but I believe that usually only one module will be registered.
-> 
-> And I believe that export symbols should NOT be _GPL_ONLY: before
-> (non-GPL) export of syscall_table was available, non-GPL modules were
-> able to hook syscalls, and when _GPL_ONLY was introduced into kernel
-> it was promised that we'll never make currently provided functionality
-> GPL-only (as far as I remember).
->                                                     Best regards,
->                                                         Petr Vandrovec
->                                                         
-> int register_streams_calls(...)
-> > +void register_streams_calls(int (*putpmsg) (int, void *, void *, int, int),
-> > +               int (*getpmsg) (int, void *, void *, int, int))
-> > +{
-> 
-> int err;
-> if (!putpmsg || !getpmsg) return -EINVAL;
-> 
-> > +   down_write(&streams_call_sem);
-> 
-> err = -EBUSY;
-> if (!do_putpmsg) {
->   err = 0;
-> 
-> > +   do_putpmsg = putpmsg;
-> > +   do_getpmsg = getpmsg;
-> 
-> }
-> 
-> > +   up_write(&streams_call_sem);
-> 
-> return err;
-> 
-> > +}
-> > +
-> > +void unregister_streams_calls(void)
-> > +{
-> 
->    down_write(&streams_call_sem);
->    do_putpmsg = NULL;
->    do_getpmsg = NULL;
->    up_write(&streams_call_sem);
-> }
->     
+I also like Daniel's suggestion of having the sender's _name_ by the
+name attributed with the patch (or at least "BK Commit" or something).
 
--- 
-Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
-bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
-http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
-                        ¦ Therefore  all  progress  depends on the ¦
-                        ¦ unreasonable man. -- George Bernard Shaw ¦
+But nothing _needs_ to be done.  This works great.  Good job, Dave and
+Co.
+
+	Robert Love
+

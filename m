@@ -1,64 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbTJZWqM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 17:46:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbTJZWqM
+	id S263155AbTJZXMw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 18:12:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263227AbTJZXMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 17:46:12 -0500
-Received: from zero.aec.at ([193.170.194.10]:52741 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S262164AbTJZWqJ (ORCPT
+	Sun, 26 Oct 2003 18:12:52 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:61431 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263155AbTJZXMt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 17:46:09 -0500
-To: Simon Roscic <simon.roscic@chello.at>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [2.6.0-test8/9] ethertap oops
-From: Andi Kleen <ak@muc.de>
-Date: Sun, 26 Oct 2003 23:45:52 +0100
-In-Reply-To: <L1fo.3gb.9@gated-at.bofh.it> (Simon Roscic's message of "Sun,
- 26 Oct 2003 23:10:14 +0100")
-Message-ID: <m3ekwz7h3z.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <L1fo.3gb.9@gated-at.bofh.it>
+	Sun, 26 Oct 2003 18:12:49 -0500
+Date: Sun, 26 Oct 2003 14:03:59 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "Mudama, Eric" <eric_mudama@Maxtor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: Blockbusting news, results get worse
+In-Reply-To: <785F348679A4D5119A0C009027DE33C105CDB39B@mcoexc04.mlm.maxtor.com>
+Message-ID: <Pine.LNX.4.10.10310261400580.14405-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simon Roscic <simon.roscic@chello.at> writes:
 
-> EIP is at ethertap_rx+0x131/0x2a0 [ethertap]
+Eric,
 
-Does this patch fix it?
+Item "3" in your list is not practical, because no drive maker allows the
+same drives that large oem's purchase to be placed in retail.  There are
+obvious reasons, but your position stated for the average joe consumer is
+flawed.
 
--Andi
+Why don't you guys offer extended warrenty purchase service contracts?
 
-diff -u linux-2.6.0test7mm1-averell/drivers/net/ethertap.c-o linux-2.6.0test7mm1-averell/drivers/net/ethertap.c
---- linux-2.6.0test7mm1-averell/drivers/net/ethertap.c-o	2003-09-11 04:12:33.000000000 +0200
-+++ linux-2.6.0test7mm1-averell/drivers/net/ethertap.c	2003-10-26 23:41:17.000000000 +0100
-@@ -302,11 +302,12 @@
- 
- static void ethertap_rx(struct sock *sk, int len)
- {
--	struct net_device *dev = tap_map[sk->sk_protocol];
-+	unsigned unit = sk->sk_protocol - NETLINK_TAPBASE; 
-+	struct net_device *dev;
- 	struct sk_buff *skb;
- 
--	if (dev==NULL) {
--		printk(KERN_CRIT "ethertap: bad unit!\n");
-+	if (unit >= max_taps || (dev = tap_map[unit]) == NULL) { 
-+		printk(KERN_CRIT "ethertap: bad unit %u!\n", unit);
- 		skb_queue_purge(&sk->sk_receive_queue);
- 		return;
- 	}
-diff -u linux-2.6.0test7mm1-averell/net/netlink/af_netlink.c-o linux-2.6.0test7mm1-averell/net/netlink/af_netlink.c
---- linux-2.6.0test7mm1-averell/net/netlink/af_netlink.c-o	2003-10-09 00:29:02.000000000 +0200
-+++ linux-2.6.0test7mm1-averell/net/netlink/af_netlink.c	2003-10-26 23:42:44.000000000 +0100
-@@ -777,6 +777,7 @@
- 	if (input)
- 		nlk_sk(sk)->data_ready = input;
- 
-+	sk->sk_protocol = unit;
- 	netlink_insert(sk, 0);
- 	return sk;
- }
+DCO the dog out of the replacements and be done.
+
+Cheers,
+
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Sun, 26 Oct 2003, Mudama, Eric wrote:
+
+> 
+> 
+> > -----Original Message-----
+> > From: Norman Diamond [mailto:ndiamond@wta.att.ne.jp]
+> >
+> > 
+> > 4.  When writing ZEROES to the bad sector, the drive reports SUCCESS.
+> > But it lies.  Subsequent attempts to read still fail.  
+> > Subsequent writing of
+> > zeroes appears to succeed again.  Subsequent attempts to read 
+> > still fail.
+> 
+> *That* is the fundamental problem with the drive.  If it knows it has had
+> trouble with that block in the past, and it gets a new write, it should know
+> that is a troublesome area and verify that it was able to put the new block
+> in the old location.
+> 
+> If it can verify that, then there's no need to reallocate it at all, since
+> the write most likely cured whatever was wrong.
+> 
+> If it can't verify it, then it should need to reallocate and verify at the
+> new location.
+> 
+> > They said that they warranty Toshiba disk drives for 1 year.  So
+> > if a customer buys a Toshiba disk drive with firmware that 
+> > was defective on the day of purchase and defective on the dates
+> > of design and manufacture, but if the customer doesn't detect
+> > the defective firmware until 366 days later, the customer still
+> > gets shafted.
+> 
+> In theory, I don't see the problem with this.
+> 
+> It isn't realistic for a vendor to warranty a product forever, and this is
+> why OEMs do large qualifications on drives themselves before they purchase a
+> single unit, since they know they'll bear the brunt of the support headache
+> if the product fails.
+> 
+> That being said, there are three options:
+> 
+> 1. Pay a premium for longer warranty.  I know this is available in both IDE
+> and SCSI, not sure if it is available in notebook drives.
+> 
+> 2. Do qualification tests yourself during the first year of operation.
+> Hi/low temperature/humidity/air pressure, random command generator, and make
+> sure the drive never miscompares or has a hard error it can't "fix".
+> (Writing a zero and reading non-zero is a miscompare)
+> 
+> 3. Look at what products are being shipped in large volume from OEMs, and
+> buy the same product yourself.  Dell or HP or IBM can't afford to ship
+> products that don't have the lowest in-the-field failure rates, so buying
+> what they buy would make sense since they'll run their own tests like #2.
+> 
+> 
+> --eric
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

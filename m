@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264447AbTGGUh6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 16:37:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264456AbTGGUh5
+	id S264472AbTGGUmL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 16:42:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264476AbTGGUmL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 16:37:57 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:24573 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264447AbTGGUhw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 16:37:52 -0400
-Date: Mon, 7 Jul 2003 22:52:17 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Steven Cole <elenstev@mesatop.com>, Alan Cox <alan@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.22-pre3-ac1
-Message-ID: <20030707205217.GO753@fs.tum.de>
-References: <200307071634.h67GYZo06861@devserv.devel.redhat.com> <20030707170047.GC13102@louise.pinerecords.com> <1057600778.13991.57.camel@spc9.esa.lanl.gov> <20030707191342.GE13102@louise.pinerecords.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030707191342.GE13102@louise.pinerecords.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 7 Jul 2003 16:42:11 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:60035 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264472AbTGGUmI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 16:42:08 -0400
+Date: Mon, 7 Jul 2003 17:00:02 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: syscall __NR_mmap2
+Message-ID: <Pine.LNX.4.53.0307071655470.22074@chaos>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 07, 2003 at 09:13:42PM +0200, Tomas Szepe wrote:
-> > [elenstev@mesatop.com]
-> > 
-> > From the -not-a-real-fix- department, and only for the terminally
-> > impatient, this gets 2.4.22-pre3-ac1 up and running on SMP.
-> 
-> This might actually be a real fix, as the conditions are in place
-> because of a piece of code that apparently hasn't been merged.
-> Alan?
 
-It was merged in 2.4.21-ac4, it seems the changes to 
-arch/i386/kernel/mpparse.c got lost at the update of -ac to -pre3.
+Is anybody using __NR_mmap2 function call? It doesn't work in Linux
+2.4.20. It returns nice values, but the address returned does not
+have any relationship to what's really there!!
 
-cu
-Adrian
+write(1, "Addr = 000b8000\n", 16)       = 16
+open("/dev/mem", O_RDWR)                = 3
+mmap2(0xb8000, 8192, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_FIXED, 3, 0xb8000) = 0xb8000
+write(1, "000B8000  FF FF FF FF FF FF FF F"..., 77) = 77
+write(1, "000B8010  FF FF FF FF FF FF FF F"..., 77) = 77
+write(1, "000B8020  FF FF FF FF FF FF FF F"..., 77) = 77
+close(3)                                = 0
+munmap(0xb8000, 8192)                   = 0
+This should be displaying screen memory (it doesn't).
 
--- 
+Does anybody care? Isn't this supposed to replace old_mmap() using
+__NR_mmap? `strace` seems to think I have the right values in
+the right registers. The returned value is correct, but as a
+caddr_t, it doesn't point to what it's supposed to point to.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

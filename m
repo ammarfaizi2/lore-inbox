@@ -1,66 +1,213 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbUJaEC5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbUJaELX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbUJaEC5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 00:02:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbUJaEC4
+	id S261489AbUJaELX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 00:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbUJaELX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 00:02:56 -0400
-Received: from smtpout.mac.com ([17.250.248.88]:26057 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261494AbUJaECy (ORCPT
+	Sun, 31 Oct 2004 00:11:23 -0400
+Received: from soundwarez.org ([217.160.171.123]:10901 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S261489AbUJaELO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 00:02:54 -0400
-In-Reply-To: <20041031033428.GB27728@work.bitmover.com>
-References: <41827B89.4070809@hispalinux.es> <20041029173642.GA5318@work.bitmover.com> <41828707.3050803@hispalinux.es> <57875.65.208.227.246.1099074830.squirrel@www.lrsehosting.com> <4182923D.5040500@hispalinux.es> <40231.65.208.227.246.1099077274.squirrel@www.lrsehosting.com> <2540F67A-2A31-11D9-857E-000393ACC76E@mac.com> <31064.65.208.227.246.1099168970.squirrel@www.lrsehosting.com> <20041030233532.GA24640@work.bitmover.com> <CB531A18-2AE5-11D9-857E-000393ACC76E@mac.com> <20041031033428.GB27728@work.bitmover.com>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <9B777DD2-2AF1-11D9-857E-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: James Bruce <bruce@andrew.cmu.edu>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrea Arcangeli <andrea@novell.com>,
-       Xavier Bestel <xavier.bestel@free.fr>,
-       Scott Lockwood <lkml@www.lrsehosting.com>,
-       Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: BK kernel workflow
-Date: Sun, 31 Oct 2004 00:01:56 -0400
-To: Larry McVoy <lm@bitmover.com>
-X-Mailer: Apple Mail (2.619)
+	Sun, 31 Oct 2004 00:11:14 -0400
+Date: Sun, 31 Oct 2004 05:11:12 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Greg KH <greg@kroah.com>
+Cc: Andrew <cmkrnl@speakeasy.net>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] 2.6.10.rc1.bk6 /lib/kobject_uevent.c buffer issues
+Message-ID: <20041031041112.GA1711@vrfy.org>
+References: <20041027142925.GA17484@imladris.arnor.me> <20041027152134.GA13991@kroah.com> <417FCD78.6020807@speakeasy.net> <20041029201314.GA29171@kroah.com> <20041029212856.GA12582@vrfy.org> <20041029231319.GA503@kroah.com> <20041030000045.GA13356@vrfy.org> <20041030002523.GA13425@vrfy.org> <20041030025429.GA13757@vrfy.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041030025429.GA13757@vrfy.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 30, 2004, at 23:34, Larry McVoy wrote:
-> Even that's not true.  You have to accept the terms of the GPL to get
-> the code in the first place.  It's not "no rules as long as you don't
-> distribute", it's the "the GPL rules" or you don't get the code in the
-> first place.
+On Sat, Oct 30, 2004 at 04:54:29AM +0200, Kay Sievers wrote:
+> On Sat, Oct 30, 2004 at 02:25:23AM +0200, Kay Sievers wrote:
+> > On Sat, Oct 30, 2004 at 02:00:45AM +0200, Kay Sievers wrote:
+> > > On Fri, Oct 29, 2004 at 06:13:19PM -0500, Greg KH wrote:
+> > > > On Fri, Oct 29, 2004 at 11:28:56PM +0200, Kay Sievers wrote:
+> > > > > > But there might still be a problem.  With this change, the sequence
+> > > > > > number is not sent out the kevent message.  Kay, do you think this is an
+> > > > > > issue?  I don't think we can get netlink messages out of order, right?
+> > > > > 
+> > > > > Right, especially not the events with the same DEVPATH, like "remove"
+> > > > > beating an "add". But I'm not sure if the number isn't useful. Whatever
+> > > > > we may do with the hotplug over netlink in the future, we will only have
+> > > > > /sbin/hotplug for the early boot and it may be nice to know, what events
+> > > > > we have already handled...
+> > > > > 
+> > > > > > I'll hold off on applying this patch until we figure this out...
+> > > > > 
+> > > > > How about just reserving 20 bytes for the number (u64 will never be
+> > > > > more than that), save the pointer to that field, and fill the number in
+> > > > > later?
+> > > > 
+> > > > Ah, something like this instead?  I like it, it's even smaller than the
+> > > > previous patch.  Compile tested only...
+> > > 
+> > > I like that. How about the following. It will keep the buffer clean from
+> > > random chars, cause the kevent does not have the vector and relies on
+> > > the '\0' to separate the strings from each other.
+> > > I've tested it. The netlink-hotplug message looks like this:
+> > > 
+> > > recv(3, "remove@/class/input/mouse2\0ACTION=remove\0DEVPATH=/class/input/mouse2\0SUBSYSTEM=input\0SEQNUM=961                 \0", 1024, 0) = 113
+> > 
+> > Hmm, these trailing spaces are just bad, sorry. I'll better pass the
+> > envp array over to send_uevent() and clean up the keys while copying
+> > the env values into the skb buffer. This will make the event payload
+> > more safe too. So your first version looks better.
+> 
+> How about this? We copy over key by key into the skb buffer and the
+> netlink message can get the envp array without depending on a single
+> continuous buffer.
+> 
+> The netlink message looks nice like this now:
+> 
+> recv(3, "
+>   add@/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0\0
+>   HOME=/\0
+>   PATH=/sbin:/bin:/usr/sbin:/usr/bin\0
+>   ACTION=add\0
+>   DEVPATH=/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0\0
+>   SUBSYSTEM=usb\0
+>   SEQNUM=991\0
+>   DEVICE=/proc/bus/usb/003/008\0
+>   PRODUCT=46d/c03e/2000\0
+>   TYPE=0/0/0\0
+>   INTERFACE=3/1/2\0
+> ", 1024, 0) = 268
 
-This statement is *completely* incorrect.  If I want to download GPL
-software I can do so _without_ agreeing to the GPL.  I can download
-it, burn a hundred private copies onto CD and smash them all with
-a hammer without agreeing to the GPL(1).  However, whoever gives
-me the copy _must_ agree to the GPL, or they can't give copies out
-to others.  The only time I must agree to the GPL is if I want to take
-one of the hundred CDs that I'm going to smash and give it to
-somebody else (AKA distribution).
+Here is an improved version that uses skb_put() to fill the skb buffer,
+instead of trimming the buffer to the final size after we've copied over
+all keys.
 
-I can do the same thing with Starcraft.  I can burn myself a bunch of
-copies and put them in a box on my desk to look at because they're
-pretty, or I can smash them all to pieces to relieve anger, or I can
-make a mobile out of the duplicate CDs, as long as I don't give a
-_single_ copy to anybody else.
+Thanks,
+Kay
 
-Cheers,
-Kyle Moffett
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
 
+===== lib/kobject_uevent.c 1.10 vs edited =====
+--- 1.10/lib/kobject_uevent.c	2004-10-23 00:42:52 +02:00
++++ edited/lib/kobject_uevent.c	2004-10-31 04:58:32 +01:00
+@@ -23,6 +23,9 @@
+ #include <linux/kobject.h>
+ #include <net/sock.h>
+ 
++#define BUFFER_SIZE	1024	/* buffer for the hotplug env */
++#define NUM_ENVP	32	/* number of env pointers */
++
+ #if defined(CONFIG_KOBJECT_UEVENT) || defined(CONFIG_HOTPLUG)
+ static char *action_to_string(enum kobject_action action)
+ {
+@@ -53,12 +56,11 @@ static struct sock *uevent_sock;
+  *
+  * @signal: signal name
+  * @obj: object path (kobject)
+- * @buf: buffer used to pass auxiliary data like the hotplug environment
+- * @buflen:
+- * gfp_mask:
++ * @envp: possible hotplug environment to pass with the message
++ * @gfp_mask:
+  */
+-static int send_uevent(const char *signal, const char *obj, const void *buf,
+-			int buflen, int gfp_mask)
++static int send_uevent(const char *signal, const char *obj,
++		       char **envp, int gfp_mask)
+ {
+ 	struct sk_buff *skb;
+ 	char *pos;
+@@ -69,16 +71,25 @@ static int send_uevent(const char *signa
+ 
+ 	len = strlen(signal) + 1;
+ 	len += strlen(obj) + 1;
+-	len += buflen;
+ 
+-	skb = alloc_skb(len, gfp_mask);
++	/* allocate buffer with the maximum possible message size */
++	skb = alloc_skb(len + BUFFER_SIZE, gfp_mask);
+ 	if (!skb)
+ 		return -ENOMEM;
+ 
+ 	pos = skb_put(skb, len);
++	sprintf(pos, "%s@%s", signal, obj);
+ 
+-	pos += sprintf(pos, "%s@%s", signal, obj) + 1;
+-	memcpy(pos, buf, buflen);
++	/* copy the environment key by key to our continuous buffer */
++	if (envp) {
++		int i;
++
++		for (i = 2; envp[i]; i++) {
++			len = strlen(envp[i]) + 1;
++			pos = skb_put(skb, len);
++			strcpy(pos, envp[i]);
++		}
++	}
+ 
+ 	return netlink_broadcast(uevent_sock, skb, 0, 1, gfp_mask);
+ }
+@@ -107,10 +118,10 @@ static int do_kobject_uevent(struct kobj
+ 		if (!attrpath)
+ 			goto exit;
+ 		sprintf(attrpath, "%s/%s", path, attr->name);
+-		rc = send_uevent(signal, attrpath, NULL, 0, gfp_mask);
++		rc = send_uevent(signal, attrpath, NULL, gfp_mask);
+ 		kfree(attrpath);
+ 	} else {
+-		rc = send_uevent(signal, path, NULL, 0, gfp_mask);
++		rc = send_uevent(signal, path, NULL, gfp_mask);
+ 	}
+ 
+ exit:
+@@ -169,8 +180,6 @@ static inline int send_uevent(const char
+ u64 hotplug_seqnum;
+ static spinlock_t sequence_lock = SPIN_LOCK_UNLOCKED;
+ 
+-#define BUFFER_SIZE	1024	/* should be enough memory for the env */
+-#define NUM_ENVP	32	/* number of env pointers */
+ /**
+  * kobject_hotplug - notify userspace by executing /sbin/hotplug
+  *
+@@ -182,6 +191,7 @@ void kobject_hotplug(struct kobject *kob
+ 	char *argv [3];
+ 	char **envp = NULL;
+ 	char *buffer = NULL;
++	char *seq_buff;
+ 	char *scratch;
+ 	int i = 0;
+ 	int retval;
+@@ -258,6 +268,11 @@ void kobject_hotplug(struct kobject *kob
+ 	envp [i++] = scratch;
+ 	scratch += sprintf(scratch, "SUBSYSTEM=%s", name) + 1;
+ 
++	/* reserve space for the sequence,
++	 * put the real one in after the hotplug call */
++	envp[i++] = seq_buff = scratch;
++	scratch += strlen("SEQNUM=18446744073709551616") + 1;
++
+ 	if (hotplug_ops->hotplug) {
+ 		/* have the kset specific function add its stuff */
+ 		retval = hotplug_ops->hotplug (kset, kobj,
+@@ -273,15 +288,13 @@ void kobject_hotplug(struct kobject *kob
+ 	spin_lock(&sequence_lock);
+ 	seq = ++hotplug_seqnum;
+ 	spin_unlock(&sequence_lock);
+-
+-	envp [i++] = scratch;
+-	scratch += sprintf(scratch, "SEQNUM=%lld", (long long)seq) + 1;
++	sprintf(seq_buff, "SEQNUM=%lld", (long long)seq);
+ 
+ 	pr_debug ("%s: %s %s seq=%lld %s %s %s %s %s\n",
+ 		  __FUNCTION__, argv[0], argv[1], (long long)seq,
+ 		  envp[0], envp[1], envp[2], envp[3], envp[4]);
+ 
+-	send_uevent(action_string, kobj_path, buffer, scratch - buffer, GFP_KERNEL);
++	send_uevent(action_string, kobj_path, envp, GFP_KERNEL);
+ 
+ 	if (!hotplug_path[0])
+ 		goto exit;
 

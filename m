@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261645AbTIZVtW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 17:49:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbTIZVtW
+	id S261640AbTIZVll (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 17:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbTIZVll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 17:49:22 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:19962 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261645AbTIZVtV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 17:49:21 -0400
-Date: Fri, 26 Sep 2003 23:49:11 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: John Cherry <cherry@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: IA32 - 6 New warnings (gcc 3.2.2)
-Message-ID: <20030926214911.GC2881@fs.tum.de>
-References: <200309260548.h8Q5mZt3015714@cherrypit.pdx.osdl.net> <20030926155654.GO15696@fs.tum.de> <1064608625.10304.52.camel@cherrytest.pdx.osdl.net> <1064610791.10304.75.camel@cherrytest.pdx.osdl.net>
+	Fri, 26 Sep 2003 17:41:41 -0400
+Received: from mail.ccur.com ([208.248.32.212]:64775 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S261640AbTIZVlk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 17:41:40 -0400
+Date: Fri, 26 Sep 2003 17:17:41 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Jim Deas <jdeas@jadsystems.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Prefered method to map PCI memory into userspace.
+Message-ID: <20030926211740.GA27352@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+References: <1064609623.16160.11.camel@ArchiveLinux>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1064610791.10304.75.camel@cherrytest.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1064609623.16160.11.camel@ArchiveLinux>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 26, 2003 at 02:13:12PM -0700, John Cherry wrote:
->...
-> The bug is that linux/sisfb.h should be video/sisfb.h on line 37 of
-> sis_m.c.  The latest linus bk tree and mm kernel seem to have it right.
-> The snapshot for this build last night must have been between
-> changesets.
->...
+On Fri, Sep 26, 2003 at 01:53:43PM -0700, Jim Deas wrote:
+> I am looking for the most current (blessed) structure
+> for mapping PCI memory to a user process. One that allows
+> both PIO and busmastering to work on a common block of
+> PCI RAM. I am not concerned with backporting to older
+> kernels but it would be nice if the solution wasn't ibm specific.
+> 
+> My problem is a 64M window into a frame buffer that I would
+> like to map into user space. I am more than willing to put
+> forth the effort, I just want to make sure I'm heading in
+> the right direction.
+> 
+> Is there a better forum for posting this? Regards,
+> J. Deas
+> 
+> RH9.0 2.4.20-6smp kernel and above.
 
-Ah, thanks for the explanations and sorry for the noise.
+Albert Cahalan wrote a patch, for 2.6, that makes mmappable all PCI device
+memory regions.  They show up as files in the appropriate subdirectories
+under /proc/bus/pci.  See http://lkml.org/lkml/2003/7/13/258 for the
+patch and details.
 
-> John
->...
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Joe

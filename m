@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264573AbUEDSz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264579AbUEDSze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264573AbUEDSz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 14:55:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264579AbUEDSz1
+	id S264579AbUEDSze (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 14:55:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264582AbUEDSze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 14:55:27 -0400
-Received: from cernmx05.cern.ch ([137.138.166.161]:59974 "EHLO
-	cernmx05.cern.ch") by vger.kernel.org with ESMTP id S264573AbUEDSzX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 14:55:23 -0400
-Keywords: CERN SpamKiller Note: -52 Charset: west-latin
-X-Filter: CERNMX05 SMTPGW CERN Spam Sink v1.0
-From: Alexander ZVYAGIN <Alexander.Zviagine@cern.ch>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Problems with USB/Sound.
-Date: Tue, 4 May 2004 20:55:20 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net
-References: <200405041135.55950.Alexander.Zviagine@cern.ch> <20040504162252.GC20453@kroah.com>
-In-Reply-To: <20040504162252.GC20453@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 4 May 2004 14:55:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:10671 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264579AbUEDSzc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 14:55:32 -0400
+Date: Tue, 4 May 2004 11:55:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Jose R. Santos" <jrsantos@austin.ibm.com>
+Cc: linux-kernel@vger.kernel.org, anton@samba.org, dheger@us.ibm.com
+Subject: Re: [PATCH] dentry and inode cache hash algorithm performance
+ changes.
+Message-Id: <20040504115510.696184dc.akpm@osdl.org>
+In-Reply-To: <20040504131223.GA28009@austin.ibm.com>
+References: <20040430191539.GC14271@rx8.ibm.com>
+	<20040430131832.45be6956.akpm@osdl.org>
+	<20040430205701.GG14271@rx8.ibm.com>
+	<20040430213324.GK14271@rx8.ibm.com>
+	<20040430150256.25735762.akpm@osdl.org>
+	<20040504131223.GA28009@austin.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405042055.20946.Alexander.Zviagine@cern.ch>
-X-OriginalArrivalTime: 04 May 2004 18:55:21.0787 (UTC) FILETIME=[59EAC8B0:01C43209]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 May 2004 18:22, Greg KH wrote:
-> On Tue, May 04, 2004 at 11:35:55AM +0200, Alexander ZVYAGIN wrote:
-> > Hello,
-> >
-> > It seems that linux  2.6.5 has some problems with my USB ports...
-> > See config-1, dmesg-1.
-> >
-> > Whatever I connect to the USB ports, I see no reaction at all.
+"Jose R. Santos" <jrsantos@austin.ibm.com> wrote:
 >
-> Care to file a bug at bugzilla.kernel.org for this?
+> * Andrew Morton <akpm@osdl.org> [2004-04-30 15:02:56 -0700]:
+> > Also, I'd be interested in understanding what the input to the hashing
+> > functions looked like in this testing.  It could be that the new hash just
+> > happens to work well with one particular test's dataset.  Please convince
+> > us otherwise ;)
+> 
+> Andrew - Is there any workload you want me to run to show that this hash
+> function is going to be equal or better that the one already provided
+> in Linux?
 
-The bug report is there:
-http://bugme.osdl.org/show_bug.cgi?id=2637
+Not really - it sounds like you've covered it pretty well.  Did you try SDET?
 
-I am not a kernel hacker, so if somebody tell me how to debug/fix the kernel, 
-that would be nice...
+It could be that reducing the hash table size will turn pretty much any
+workload into a test of the hash quality.
 
-Alexander.

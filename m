@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbUGCSu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265236AbUGCS4Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265234AbUGCSu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 14:50:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265236AbUGCSu6
+	id S265236AbUGCS4Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 14:56:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUGCS4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 14:50:58 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:33977 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S265234AbUGCSuu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 14:50:50 -0400
-Date: Sat, 3 Jul 2004 20:50:45 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Philippe Gerum <rpm@xenomai.org>
+	Sat, 3 Jul 2004 14:56:24 -0400
+Received: from verein.lst.de ([212.34.189.10]:14035 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S265236AbUGCS4W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 14:56:22 -0400
+Date: Sat, 3 Jul 2004 20:56:06 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: torvalds@osdl.org, pavel@ucw.cz
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] HYADES (ITEA) project -- Adeos/ia64
-Message-ID: <20040703205045.A3275@electric-eye.fr.zoreil.com>
-References: <1088420554.1137.108.camel@localhost>
+Subject: current BK compilation failure on ppc32
+Message-ID: <20040703185606.GA4718@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, torvalds@osdl.org, pavel@ucw.cz,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1088420554.1137.108.camel@localhost>; from rpm@xenomai.org on Mon, Jun 28, 2004 at 01:02:35PM +0200
-X-Organisation: Land of Sunshine Inc.
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philippe Gerum <rpm@xenomai.org> :
-[...]
-> The Adeos/ia64 patch and others can also be found at the usual place:
-> http://download.gna.org/adeos/patches/
+kernel/power/smp.c: In function `smp_pause':
+kernel/power/smp.c:24: error: storage size of `ctxt' isn't known
+kernel/power/smp.c:24: warning: unused variable `ctxt'
 
-Two boring things you may consider:
-- split the big patch before it's too late
-- read the <censored> Documentation/CodingStyle 
+kernel/power/smp.c seems to be inherently swsusp-specific but is
+compiled for CONFIG_PM. (Same seems to be true for amny other files
+in kernel/power/, but as they compile it only causes bloat..)
 
-The doc is nice btw.
 
---
-Ueimor
+--- 1.10/kernel/power/Makefile	2004-07-02 07:23:47 +02:00
++++ edited/kernel/power/Makefile	2004-07-03 22:07:29 +02:00
+@@ -1,5 +1,7 @@
+ obj-y				:= main.o process.o console.o pm.o
++ifeq ($(CONFIG_SOFTWARE_SUSPEND), y)
+ obj-$(CONFIG_SMP)		+= smp.o
++endif
+ obj-$(CONFIG_SOFTWARE_SUSPEND)	+= swsusp.o
+ obj-$(CONFIG_PM_DISK)		+= disk.o pmdisk.o
+ 

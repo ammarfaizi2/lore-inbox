@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263365AbRFKDSY>; Sun, 10 Jun 2001 23:18:24 -0400
+	id <S263370AbRFKDY4>; Sun, 10 Jun 2001 23:24:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263370AbRFKDSE>; Sun, 10 Jun 2001 23:18:04 -0400
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:60122 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id <S263365AbRFKDRz>; Sun, 10 Jun 2001 23:17:55 -0400
-Date: Sun, 10 Jun 2001 22:17:46 -0500
-From: "Glenn C. Hofmann" <hofmanng@swbell.net>
-Subject: Re: 3C905b partial  lockup in 2.4.5-pre5 and up to 2.4.6-pre1
-In-Reply-To: <15140.5762.589629.252904@pizda.ninka.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "David S. Miller" <davem@redhat.com>
-Cc: Russell King <rmk@arm.linux.org.uk>, Ben LaHaise <bcrl@redhat.com>,
-        Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com
-Reply-to: ghofmann@pair.com
-Message-id: <3B23F20A.22574.10AD93@localhost>
-MIME-version: 1.0
-X-Mailer: Pegasus Mail for Win32 (v3.12c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-In-Reply-To: <3B23A4BB.7B4567A3@mandrakesoft.com>
+	id <S263375AbRFKDYr>; Sun, 10 Jun 2001 23:24:47 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:30686 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S263372AbRFKDYe>;
+	Sun, 10 Jun 2001 23:24:34 -0400
+Message-ID: <3B2439E5.493B0472@mandrakesoft.com>
+Date: Sun, 10 Jun 2001 23:24:21 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Aron Lentsch <lentsch@nal.go.jp>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IRQ problems on new Toshiba Libretto
+In-Reply-To: <Pine.LNX.4.21.0106111107270.1065-100000@triton.nal.go.jp>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Aron,
 
-I have, as was suggested, built as a module, and get unresolved symbol do_softirq, so 
-this appears to be another problem in this driver with 2.4.6-pre2.  If I can help in any 
-way, please let me know, although I am by no means a programmer, just a tester.  
-Thanks.
+Can you also include your kernel .config?
 
-Glenn C. Hofmann
+Looking at your dmesg output, there is no mention of a PCI BIOS at all. 
+That either implies there is no kernel support for PCI BIOS built in
+(ok) or your BIOS doesn't support PCI BIOS (ug).
 
-
-On 10 Jun 2001, at 17:53 David S. Miller wrote:
-
-> 
-> Jeff Garzik writes:
->  > > [note I've not found anything in 2.4.5 where netif_carrier_ok prevents
->  > > the net layers queueing packets for an interface, and forwarding them
->  > > on for transmission].
->  > 
->  > we want netif_carrier_{on,off} to emit netlink messages.  I don't know
->  > how DaveM would feel about such getting implemented in 2.4.x though,
->  > even if well tested.
-> 
-> If someone sent me patches which did this (and minded the
-> restrictions, if any, this adds to the execution contexts in
-> which the carrier on/off stuff can be invoked) I would consider
-> the patch seriously for 2.4.x
-> 
-> Later,
-> David S. Miller
-> davem@redhat.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Further, there is no PCI interrupt routing table found by direct scan of
+memory, so it looks like your BIOS is not providing interrupt routing
+info at all.  Without that, we can only route irqs on "a wing and a
+prayer"
 
 
+Suggestions:
+* Build kernel with CONFIG_PCI_GOANY config option.
+* Do not build an SMP kernel (CONFIG_SMP) unless you are really using a
+multiprocessor machine.
+* Go through BIOS setup.  Check for and enable "PNP OS" setting, and
+similar settings which reflect an automatically assignment of machine
+resources.
+
+It is also possible that this machine's interrupt routing info is in
+ACPI tables..  though I do not believe the Linux ACPI can make use of
+this yet.
+
+
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

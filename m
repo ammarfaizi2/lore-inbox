@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268836AbUJUJRe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268964AbUJUJRf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268836AbUJUJRe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 05:17:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268900AbUJUJNU
+	id S268964AbUJUJRf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 05:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270384AbUJUJL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 05:13:20 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:10425 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269092AbUJTSyX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 14:54:23 -0400
-Date: Wed, 20 Oct 2004 11:54:04 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>,
-       kernel-janitors <kernel-janitors@lists.osdl.org>
-cc: Hanna Linder <hannal@us.ibm.com>, greg@kroah.com, davej@codemonkey.org.uk
-Subject: [RFT 2.6] isoch.c: replace pci_find_device with pci_get_device
-Message-ID: <18340000.1098298444@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Thu, 21 Oct 2004 05:11:58 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30985 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270517AbUJUJJR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 05:09:17 -0400
+Date: Thu, 21 Oct 2004 10:09:03 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>
+Subject: Am I paranoid or is everyone out to break my kernel builds (Breakage in drivers/pcmcia)
+Message-ID: <20041021100903.A3089@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Andrew Morton <akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It would appear that this change:
 
-As pci_find_device is going away soon I have converted this file to use
-pci_get_device instead. for_each_pci_dev is just a macro wrapper around
-pci_get_device.  I have compile tested it. If anyone has this hardware
-and could test it that would be great.
+-module_param_array(irq_list, int, irq_list_count, 0444);
++module_param_array(irq_list, int, &irq_list_count, 0444);
 
-Hanna Linder
-IBM Linux Technology Center
+given:
 
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
----
-diff -Nrup linux-2.6.9cln/drivers/char/agp/isoch.c linux-2.6.9patch/drivers/char/agp/isoch.c
---- linux-2.6.9cln/drivers/char/agp/isoch.c	2004-10-18 16:35:52.000000000 -0700
-+++ linux-2.6.9patch/drivers/char/agp/isoch.c	2004-10-19 16:02:16.634192424 -0700
-@@ -347,7 +347,7 @@ int agp_3_5_enable(struct agp_bridge_dat
- 	INIT_LIST_HEAD(head);
- 
- 	/* Find all AGP devices, and add them to dev_list. */
--	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-+	for_each_pci_dev(dev) {
- 		mcapndx = pci_find_capability(dev, PCI_CAP_ID_AGP);
- 		if (mcapndx == 0)
- 			continue;
+static int irq_list[16];
+static int irq_list_count;
 
+breaks PCMCIA drivers.  Why?
+
+#define module_param_array(name, type, num, perm)               \
+        module_param_array_named(name, name, type, num, perm)
+
+#define module_param_array_named(name, array, type, num, perm)          \
+        static struct kparam_array __param_arr_##name                   \
+        = { ARRAY_SIZE(array), &num, param_set_##type, param_get_##type,\
+            sizeof(array[0]), array };                                  \
+        module_param_call(name, param_array_set, param_array_get,       \
+                          &__param_arr_##name, perm)
+
+Take special note of the '&' before 'num' in the above initialiser, and
+check the structure:
+
+struct kparam_array
+{
+        unsigned int max;
+        unsigned int *num;
+        param_set_fn set;
+        param_get_fn get;
+        unsigned int elemsize;
+        void *elem;
+};
+
+Therefore, module_param_array() does _NOT_ take a pointer to an integer.
+Rusty - please fix.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

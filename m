@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264213AbUGYQiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264236AbUGYQg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264213AbUGYQiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 12:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbUGYQiZ
+	id S264236AbUGYQg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 12:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbUGYQg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 12:38:25 -0400
-Received: from lakermmtao09.cox.net ([68.230.240.30]:51423 "EHLO
-	lakermmtao09.cox.net") by vger.kernel.org with ESMTP
-	id S264213AbUGYQiW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 12:38:22 -0400
-In-Reply-To: <200407250943.05592.gene.heskett@verizon.net>
-References: <200407242156.40726.gene.heskett@verizon.net> <200407250012.52743.gene.heskett@verizon.net> <200407250909.00227.vda@port.imtp.ilyichevsk.odessa.ua> <200407250943.05592.gene.heskett@verizon.net>
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <0A8CE086-DE59-11D8-9612-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
+	Sun, 25 Jul 2004 12:36:26 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:5349 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S264236AbUGYQfc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 12:35:32 -0400
+Date: Sun, 25 Jul 2004 18:33:38 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Ferenc Kubinszky <ferenc.kubinszky@wit.mht.bme.hu>
 Cc: linux-kernel@vger.kernel.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: 2.6.8-rc2 crash(s)?
-Date: Sun, 25 Jul 2004 12:38:21 -0400
-To: Gene Heskett <gene.heskett@verizon.net>
-X-Mailer: Apple Mail (2.618)
+Subject: Re: via-velocity problem
+Message-ID: <20040725183338.A27442@electric-eye.fr.zoreil.com>
+References: <20040725002518.A14684@electric-eye.fr.zoreil.com> <Pine.LNX.4.44.0407251603190.23775-100000@wit.wit.mht.bme.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0407251603190.23775-100000@wit.wit.mht.bme.hu>; from ferenc.kubinszky@wit.mht.bme.hu on Sun, Jul 25, 2004 at 04:12:18PM +0200
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 25, 2004, at 09:43, Gene Heskett wrote:
-> Humm, maybe I missunderstand you:
-> [root@coyote linux-2.6.8-rc2-nf2]# objdump -d
-> </boot/vmlinuz-2.6.8-rc2-nf2>.o >file.objdump
-> objdump: a.out: No such file or directory
+Ferenc Kubinszky <ferenc.kubinszky@wit.mht.bme.hu> :
+[...]
+> I patched the kernel and copied the driver into 2.6.8-rc2.
+> Now i does not hang the machine at all, but there is an other problem.
 
-Heh.  You aren't supposed to put the angle-brackets around the file.
-The shell reads this like thie following:
-# cat '/boot/vmlinux-2.6.8-rc2-nfs>.o' | objdump -d >file.objdump..
-Then objdump doesn't get an input file, so it looks for the default
-input file, "a.out", which it can't find.  Just write it like the 
-following:
-# objdump -d /boot/vmlinux-2.6.8-rc2-nf2 >file.objdump
-Or the following:
-# objdump -d dcache.o >file.objdump
+Did this problem exist when you used the modular form of the kernel that
+you referred to in your previous message ?
 
-Cheers,
-Kyle Moffett
+> wget become stalled after ~100kbytes and tcpdump shows broken ip packets.
+[...]
+> I'm not sure where is the error, in my card, my cable modem or at the
+> TV-NET provider.
+> 
+> With my e100 everithing OK.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+Probably not beyond the card.
 
+I'll welcome the ritual 'lspci -vx', 'lsmod', /proc/interrupts, ifconfig
+output (before/after problem) and the complete dmesg from the boot until
+the breakage happens.
 
+--
+Ueimor

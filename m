@@ -1,29 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269067AbRHBSYM>; Thu, 2 Aug 2001 14:24:12 -0400
+	id <S269081AbRHBS3m>; Thu, 2 Aug 2001 14:29:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269073AbRHBSYC>; Thu, 2 Aug 2001 14:24:02 -0400
-Received: from imo-d02.mx.aol.com ([205.188.157.34]:44784 "EHLO
-	imo-d02.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S269067AbRHBSXy>; Thu, 2 Aug 2001 14:23:54 -0400
-Date: Thu, 02 Aug 2001 14:23:50 -0400
-From: hochakhung@netscape.net
-To: linux-kernel@vger.kernel.org
-Subject: TCP zero-copy
-Message-ID: <663CE32D.1D4A9213.0F45C3B8@netscape.net>
-X-Mailer: Atlas Mailer 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S269076AbRHBS3c>; Thu, 2 Aug 2001 14:29:32 -0400
+Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:52361 "EHLO
+	windmill.gghcwest.com") by vger.kernel.org with ESMTP
+	id <S269057AbRHBS30>; Thu, 2 Aug 2001 14:29:26 -0400
+Date: Thu, 2 Aug 2001 11:29:27 -0700 (PDT)
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+X-X-Sender: <jwb@heat.gghcwest.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Ongoing 2.4 VM suckage
+Message-ID: <Pine.LNX.4.33.0108021122400.21298-100000@heat.gghcwest.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there currently a stable implementation for zero copy on TCP stack for linux2.4? Would anyone please point me to the patch if there is any?
-Thanks a lot
+This just in: Linux 2.4 VM still useless.
 
-Steven
+I have 2 GB main memory and 4GB swap on a 2-way intel machine running a
+variety of 2.4 kernels (we upgrade every time we have to reboot), and we
+have to power cycle the machine weekly because too much memory usage + too
+much disk I/O == thrash for hours.
 
+Gosh, I guess it is silly to use all of the available RAM and I/O
+bandwidth on my machines.  My company will just go out of their way to
+do less work on smaller sets of data.
 
-__________________________________________________________________
-Your favorite stores, helpful shopping tools and great gift ideas. Experience the convenience of buying online with Shop@Netscape! http://shopnow.netscape.com/
-
-Get your own FREE, personal Netscape Mail account today at http://webmail.netscape.com/
+-jwb
 

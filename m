@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264828AbTFLOLC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 10:11:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264829AbTFLOLC
+	id S264829AbTFLOWK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 10:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264830AbTFLOWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 10:11:02 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:18705 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S264828AbTFLOLA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 10:11:00 -0400
-Date: Thu, 12 Jun 2003 16:05:52 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: eric.valette@free.fr, marcelo@conectiva.com.br,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22 timeline was RE: 2.4.21-rc7 ACPI broken
-Message-Id: <20030612160552.770bd15e.skraw@ithnet.com>
-In-Reply-To: <20030611211506.GD16164@fs.tum.de>
-References: <3EE66C86.8090708@free.fr>
-	<20030611211506.GD16164@fs.tum.de>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 12 Jun 2003 10:22:10 -0400
+Received: from msgdirector2.onetel.net.uk ([212.67.96.149]:31054 "EHLO
+	msgdirector2.onetel.net.uk") by vger.kernel.org with ESMTP
+	id S264829AbTFLOWI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 10:22:08 -0400
+Date: Thu, 12 Jun 2003 15:35:51 +0100
+From: Ian Packer <lkml@fireclaw.org>
+X-Mailer: The Bat! (v1.62r) Personal
+Reply-To: Ian Packer <lkml@fireclaw.org>
+X-Priority: 3 (Normal)
+Message-ID: <1281338613.20030612153551@onetel.net.uk>
+To: Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org
+Subject: Re: Anybody gotta list archive tarball?
+In-Reply-To: <20030612141446.16634.qmail@eklektix.com>
+References: <20030612141446.16634.qmail@eklektix.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Jun 2003 23:15:06 +0200
-Adrian Bunk <bunk@fs.tum.de> wrote:
+Jonathan,
 
-> [...]
-> The important thing is that this is inside a stable kernel series and an 
-> update that makes things better for 100 people but makes things worse 
-> for one person is IMHO bad since it's a regression for one person.
+http://www.ussg.iu.edu/hypermail/linux/kernel/
 
-You cannot fulfill that in reality. Looking at the broad variety of software
-out there you simply cannot know all the implications a simple bug fix may
-have. There may well be boxes that rely on a broken code you just fixed. Only
-god knows. So you sometimes simply have to do "the right thing"(tm) knowing
-there will always be people who shoot you for it.
+But you'll have to use google to search it.
 
 Regards,
-Stephan
+Ian Packer
+lkml@fireclaw.org
+
+Thursday, June 12, 2003, 3:14:46 PM, you wrote:
+
+JC> Hi,
+
+JC> Does anybody happen to have (and is willing to share) a tarball containing
+JC> archives of this list going back well into the 90's?  I am, shall we say,
+JC> researching the activities of certain companies (when I should really be
+JC> working on driver books) and something greppable would be most helpful.
+
+JC> Thanks,
+
+JC> jon
+
+
+JC> -
+JC> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+JC> the body of a message to majordomo@vger.kernel.org
+JC> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+JC> Please read the FAQ at  http://www.tux.org/lkml/
+

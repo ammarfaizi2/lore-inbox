@@ -1,47 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbVDEJHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVDEJJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbVDEJHe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 05:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVDEJHe
+	id S261634AbVDEJJp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 05:09:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVDEJJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 05:07:34 -0400
-Received: from rproxy.gmail.com ([64.233.170.194]:28168 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261638AbVDEJH3 (ORCPT
+	Tue, 5 Apr 2005 05:09:27 -0400
+Received: from black.click.cz ([62.141.0.10]:49367 "EHLO click.cz")
+	by vger.kernel.org with ESMTP id S261634AbVDEJJI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 05:07:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=O0aqMOwioTlYBUk9fWv55X5LqPGxQEIoA90U4OxQLAXYaJY7HMzugRrJ/J7K9NDhQYWwDehKlxz0kOGnOr5/l4GtMLI9RqV4mApd4IaSBbct9f6Iwi/6qMbf0B1eSAB3L8/9NI9BmyYYtBQsr2av7CdB9yufeqksSPYXffXqBBY=
-Message-ID: <21d7e99705040502073dfa5e5@mail.gmail.com>
-Date: Tue, 5 Apr 2005 19:07:27 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>
-Subject: Re: 2.6.12-rc2-mm1
-In-Reply-To: <20050405074405.GE26208@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 5 Apr 2005 05:09:08 -0400
+From: Michal Rokos <michal@rokos.info>
+To: Jean Tourrilhes <jt@hpl.hp.com>, linux-kernel@vger.kernel.org
+Subject: [IrDA] Oops with NULL deref in irda_device_set_media_busy
+Date: Tue, 5 Apr 2005 11:02:26 +0200
+User-Agent: KMail/1.8
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-References: <20050405000524.592fc125.akpm@osdl.org>
-	 <20050405074405.GE26208@infradead.org>
+Content-Disposition: inline
+Message-Id: <200504051102.27533.michal@rokos.info>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 5, 2005 5:44 PM, Christoph Hellwig <hch@infradead.org> wrote:
-> On Tue, Apr 05, 2005 at 12:05:24AM -0700, Andrew Morton wrote:
-> > +officially-deprecate-register_ioctl32_conversion.patch
-> >
-> >  deprecate a compat function (mainly affects DRI)
-> 
-> Those DRI callers aren't in mainline but introduced in bk-drm.patch,
-> looks like the DRI folks need beating with a big stick..
+Hello,
 
-Paulus these look like your patches care to update them with the "new"
-method of doing stuff..
+I've problems with IrDA - when debug is off, I'm getting oops for obvious 
+reason...
+(I don't have a log, this is just rewrite from screen:
+EIP: irda_device_set_media_busy+0x15/0x40 [irda]
+ali_ircc_sir_receive+0x4a/0x70
+ali_ircc_sir_interrupt+0x66/0x70
+ali_ircc_interrupt+0x5e/0x80
+.....
+)
+When I turn debug on, I get just
+Assertion failed! net/irda/irda_device.c:irda_device_set_media_busy:128 
+self != NULL
 
-Deprecating would be no fun if the DRI didn't produce a bucket of
-warnings every time..
+The obvious reason is that I don't have irlap module in that inits 
+dev->atalk_ptr, so I'm getting assertion exception in irda_device.c:489.
 
-Dave.
+A few info that could be handy:
+
+$ uname -a # It's yesterday bk snapshot
+Linux csas 2.6.12-rc1-mr #14 Mon Apr 4 13:42:14 CEST 2005 i686 GNU/Linux
+
+$ lsmod | grep ir
+ircomm_tty             39176  3
+ircomm                 22404  1 ircomm_tty
+ali_ircc               26032  0
+irda                  192316  3 ircomm_tty,ircomm,ali_ircc
+crc_ccitt               2176  2 ppp_async,irda
+
+$ grep IR .config
+CONFIG_IRDA=m
+# CONFIG_IRLAN is not set
+CONFIG_IRNET=m
+CONFIG_IRCOMM=m
+CONFIG_IRDA_ULTRA=y
+CONFIG_IRDA_CACHE_LAST_LSAP=y
+CONFIG_IRDA_FAST_RR=y
+CONFIG_IRDA_DEBUG=y
+# SIR device drivers
+# CONFIG_IRTTY_SIR is not set
+# Old SIR device drivers
+# CONFIG_IRPORT_SIR is not set
+# FIR device drivers
+# CONFIG_USB_IRDA is not set
+# CONFIG_SIGMATEL_FIR is not set
+# CONFIG_NSC_FIR is not set
+# CONFIG_WINBOND_FIR is not set
+# CONFIG_TOSHIBA_FIR is not set
+# CONFIG_SMC_IRCC_FIR is not set
+CONFIG_ALI_FIR=m
+# CONFIG_VLSI_FIR is not set
+# CONFIG_VIA_FIR is not set
+# CONFIG_USB_SERIAL_IR is not set
+
+ Michal

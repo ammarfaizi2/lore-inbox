@@ -1,58 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbVAOTVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262313AbVAOTWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262322AbVAOTVx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 14:21:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbVAOTVo
+	id S262313AbVAOTWF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 14:22:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbVAOTWC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 14:21:44 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:63142 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S262338AbVAOTTx (ORCPT
+	Sat, 15 Jan 2005 14:22:02 -0500
+Received: from verein.lst.de ([213.95.11.210]:14538 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S262313AbVAOTVp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 14:19:53 -0500
-Date: Sat, 15 Jan 2005 19:19:52 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Avoiding fragmentation through different allocator
-In-Reply-To: <20050115013106.GC3474@holomorphy.com>
-Message-ID: <Pine.LNX.4.58.0501151918440.17278@skynet>
-References: <Pine.LNX.4.58.0501122101420.13738@skynet> <20050113073146.GB1226@holomorphy.com>
- <20050114214218.GB3336@logos.cnet> <20050115013106.GC3474@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 15 Jan 2005 14:21:45 -0500
+Date: Sat, 15 Jan 2005 20:21:34 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cleanup virtual console <-> selection.c interface
+Message-ID: <20050115192134.GA1834@lst.de>
+References: <20041231143457.GA9165@lst.de> <Pine.LNX.4.61.0501150431360.6118@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0501150431360.6118@scrub.home>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jan 2005, William Lee Irwin III wrote:
+On Sat, Jan 15, 2005 at 04:36:55AM +0100, Roman Zippel wrote:
+> I should really sent out my own patches faster. :)
+> I have three patches which take this a bit further and removes these 
+> macros completely and does some other small cleanups. It saves a bit more 
+> than 3KB.
 
-> On Wed, Jan 12, 2005 at 11:31:46PM -0800, William Lee Irwin III wrote:
-> >> I'd expect to do better with kernel/user discrimination only, having
-> >> address-ordering biases in opposite directions for each case.
->
-> On Fri, Jan 14, 2005 at 07:42:18PM -0200, Marcelo Tosatti wrote:
-> > What you mean with "address-ordering biases in opposite directions
-> > for each case" ?
-> > You mean to have each case allocate from the top and bottom of the
-> > free list, respectively, and in opposite address direction ? What you
-> > gain from that?
-> > And what that means during a long period of VM stress ?
->
-> It's one of the standard anti-fragmentation tactics. The large free
-> areas come from the middle, address ordering disposes of holes in the
-> used areas, and the areas at opposite ends reflect expected lifetimes.
->
-> It's more useful for cases where there is not an upper bound on the
-> size of an allocation (or power-of-two blocksizes). On second thought,
-> Mel's approach exploits both the bound and the power-of-two restriction
-> advantageously.
->
-
-I think so too and I reckon I have the figures to prove it. Patches with
-test tools and figures are on the way. Working at the moment at running
-the last of the tests and getting the patches in order.
-
--- 
-Mel Gorman
+I was planning to do that aswell and have a few patches ontop already.
+But obviously I don't care which set gets in as long as the mess gets
+sorted out.

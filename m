@@ -1,61 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129391AbQKUSvx>; Tue, 21 Nov 2000 13:51:53 -0500
+	id <S129255AbQKUSyd>; Tue, 21 Nov 2000 13:54:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129682AbQKUSvn>; Tue, 21 Nov 2000 13:51:43 -0500
-Received: from isolaweb.it ([213.82.132.2]:7691 "EHLO web.isolaweb.it")
-	by vger.kernel.org with ESMTP id <S129391AbQKUSvZ> convert rfc822-to-8bit;
-	Tue, 21 Nov 2000 13:51:25 -0500
-Message-Id: <4.3.2.7.2.20001121190033.00d23bc0@mail.tekno-soft.it>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Tue, 21 Nov 2000 19:16:19 +0100
-To: Jakob Østergaard <jakob@unthought.net>
-From: Roberto Fichera <kernel@tekno-soft.it>
-Subject: Re: Ext2 & Performances
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001121190023.R4635@unthought.net>
-In-Reply-To: <4.3.2.7.2.20001121174403.00d3e450@mail.tekno-soft.it>
- <4.3.2.7.2.20001121174403.00d3e450@mail.tekno-soft.it>
+	id <S129682AbQKUSyX>; Tue, 21 Nov 2000 13:54:23 -0500
+Received: from nat-dial-160.valinux.com ([198.186.202.160]:21742 "EHLO
+	tytlal.z.streaker.org") by vger.kernel.org with ESMTP
+	id <S129255AbQKUSyM>; Tue, 21 Nov 2000 13:54:12 -0500
+Date: Tue, 21 Nov 2000 10:18:36 -0800
+From: Chip Salzenberg <chip@valinux.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: nfs@lists.sourceforge.net
+Subject: [PATCH] 2.2.18: d_move() with self-root dentries (Dentry Corruption!)
+Message-ID: <20001121101836.C7075@valinux.com>
+In-Reply-To: <20001121011744.A2147@valinux.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001121011744.A2147@valinux.com>; from chip@valinux.com on Tue, Nov 21, 2000 at 01:17:45AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 19.00 21/11/00 +0100, Jakob Østergaard wrote:
+This may be 2.2.18 material after all....  I wrote last night:
+> Making nfsd's d_splice() compensate for d_move's limitations is not
+> only a kludge, but also it harder to keep nfsd correct.
+> someday, nfsd may not be the only creator of this kind of dentry.
 
->On Tue, Nov 21, 2000 at 05:58:58PM +0100, Roberto Fichera wrote:
-> > Hi All,
-> >
-> > I need to know if there are some differences, in performances, between
-> > a ext2 filesystem in a 10Gb partition and another that reside in a 130Gb,
-> > each one have 4Kb block size.
-> >
-> > I'm configuring a Compaq ML350 2x800PIII, 1Gb RAM, 5x36Gb UWS3 RAID 5
-> > with Smart Array 4300, as database SQL server. So I need to chose 
-> between a
-> > single
-> > partition of 130Gb or multiple small partitions, depending by the 
-> performances.
->
->Does your database *require* a filesystem ?   At least Oracle can do without,
->but I don't know about others...
+Sure enough, there is just such a bug *already* in nfsd.  Nfsd's
+cleanup after d_move is incomplete: It handles one of the dentries
+being parentless, but not the other one.  This bug *will* cause dentry
+corruption.[1]  It may well be what's been causing the hangs that my
+recent patches seem to have fixed.
 
-Currently I'm using PostgreSQL.
+Therefore, in the mainline kernel, we need either the below patch to
+d_move (along with a trivial simplifcation of nfsd's use of it), or an
+expansion of the kludge in nfsd.  You can guess which one I favor....
 
->Usually, if you want performance, you let the database use the block device
->without putting a filesystem on top of it.
+[1] The bug can only show up when reconstructing pruned dentries, and
+    only under a specific pattern of client requests, so it's not
+    surprising that it is rarely observed in the wild.
 
-Yes! I know! Oracle should be a good choice for that.
-
->You probably don't want a 130G ext2 if there is any chance that a power
->surge etc. can cause the machine to reboot without umount()'ing the
->filesystem.  A fsck on a 130G filesystem is going to take a *long* time.
-
-Yes! I know :-((!!! I'm looking for other fs that are journaled like ext3 
-or raiserfs
-but I don't know which are a good choice for stability and performances.
-
+Index: fs/dcache.c
+--- fs/dcache.c.prev
++++ fs/dcache.c	Mon Nov 20 22:31:09 2000
+@@ -749,16 +749,28 @@ void d_move(struct dentry * dentry, stru
+ 	INIT_LIST_HEAD(&target->d_hash);
+ 
++	/* Switch the names */
++	switch_names(dentry, target);
++	do_switch(dentry->d_name.len, target->d_name.len);
++	do_switch(dentry->d_name.hash, target->d_name.hash);
++
++	/* Switch parentage, allowing for self-parents */
++
+ 	list_del(&dentry->d_child);
+ 	list_del(&target->d_child);
+ 
+-	/* Switch the parents and the names.. */
+-	switch_names(dentry, target);
+ 	do_switch(dentry->d_parent, target->d_parent);
+-	do_switch(dentry->d_name.len, target->d_name.len);
+-	do_switch(dentry->d_name.hash, target->d_name.hash);
+ 
+-	/* And add them back to the (new) parent lists */
+-	list_add(&target->d_child, &target->d_parent->d_subdirs);
+-	list_add(&dentry->d_child, &dentry->d_parent->d_subdirs);
++	if (dentry->d_parent != target)
++		list_add(&dentry->d_child, &dentry->d_parent->d_subdirs);
++	else {
++		INIT_LIST_HEAD(&dentry->d_child);
++		dentry->d_parent = dentry;
++	}
++	if (target->d_parent != dentry)
++		list_add(&target->d_child, &target->d_parent->d_subdirs);
++	else {
++		INIT_LIST_HEAD(&target->d_child);
++		target->d_parent = target;
++	}
+ }
+ 
+-- 
+Chip Salzenberg            - a.k.a. -            <chip@valinux.com>
+   "Give me immortality, or give me death!"  // Firesign Theatre
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

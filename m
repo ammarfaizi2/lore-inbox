@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbTIXDPP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 23:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbTIXDPP
+	id S261754AbTIXDck (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 23:32:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbTIXD3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 23:15:15 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:54732 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S261332AbTIXDPG (ORCPT
+	Tue, 23 Sep 2003 23:29:35 -0400
+Received: from dp.samba.org ([66.70.73.150]:63947 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261585AbTIXD3Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 23:15:06 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16240.42563.834328.584444@napali.hpl.hp.com>
-Date: Tue, 23 Sep 2003 13:00:03 -0700
-To: "David S. Miller" <davem@redhat.com>
-Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, kevin.vanmaren@unisys.com,
-       peter@chubb.wattle.id.au, bcrl@kvack.org, ak@suse.de, iod00d@hp.com,
-       peterc@gelato.unsw.edu.au, linux-ns83820@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-In-Reply-To: <20030923121044.483d3a5c.davem@redhat.com>
-References: <BFF315B8E1D7F845B8FC1C28778693D70AFEC6@usslc-exch1.na.uis.unisys.com>
-	<20030923105712.552dbb1e.davem@redhat.com>
-	<16240.36993.148535.613568@napali.hpl.hp.com>
-	<20030923114744.137d5dac.davem@redhat.com>
-	<16240.40001.632466.644215@napali.hpl.hp.com>
-	<20030923121044.483d3a5c.davem@redhat.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+	Tue, 23 Sep 2003 23:29:24 -0400
+From: Rusty Trivial Russell <trivial@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [TRIVIAL] [2.{4,5} TRIVIAL PATCH] Change list_emtpy() to take a const pointer
+Date: Wed, 24 Sep 2003 12:49:59 +1000
+Message-Id: <20030924032923.02E712C260@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 23 Sep 2003 12:10:44 -0700, "David S. Miller" <davem@redhat.com> said:
+From:  "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
 
-  >> Look, this may be difficult for you to understand, but different
-  >> people find different policies useful.
+  
+  Hi Rusty, list
+  
+  Didn't know what was the best place to submit this one, I
+  guessed trivial.
+  
+  Just change the definition of list_empty() to take a const
+  pointer. I have some upper layers of code that do all the
+  const/non-const thing and list_empty() breaks it without
+  this.
+  
 
-  David> You, sure.  But you are not the only user of the ia64 port just
-  David> as I am not the only user of the sparc64 port and if sparc64 generated
-  David> diagnostic messages not useful to people other than me I'd have to
-  David> quiet them by default.
-
-But they _are_ useful.  Peter certainly noticed very quickly that
-there was a problem with the ns83820 driver.  Do you think it would
-have been better for the kernel to run silently at greatly degraded
-performance?  I think not.
-
-The optimistic assumption that the network stack is making about
-headers being aligned works as long as unaligned headers are
-relatively rare.  If unaligned headers are common, we'll have to do
-something about that for ia64 (and Alpha, SPARC, PA-RISC, MIPS, etc.),
-because performance will otherwise suck.
-
-BTW: Peter, I'm not quite sure I understand why your machine got into
-real problems because of the printks.  The messages are supposed to be
-rated limited to at most 5 per 5 second interval.  Each message is
-about 80 bytes in size, so we're talking about 80 bytes/s.  Do you
-know what really went wrong here?  Did the rate limiting not work as
-expected or is there something strange about your setup?
-
-	--david
+--- trivial-2.6.0-test5-bk10/include/linux/list.h.orig	2003-09-24 12:27:13.000000000 +1000
++++ trivial-2.6.0-test5-bk10/include/linux/list.h	2003-09-24 12:27:13.000000000 +1000
+@@ -203,7 +203,7 @@
+  * list_empty - tests whether a list is empty
+  * @head: the list to test.
+  */
+-static inline int list_empty(struct list_head *head)
++static inline int list_empty(const struct list_head *head)
+ {
+ 	return head->next == head;
+ }
+-- 
+  What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
+  Don't blame me: the Monkey is driving
+  File: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>: [2.{4,5} TRIVIAL PATCH] Change list_emtpy() to take a const pointer

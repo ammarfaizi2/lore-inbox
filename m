@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262685AbVAKBDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262683AbVAKBDX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262685AbVAKBDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 20:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbVAKBAt
+	id S262683AbVAKBDX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 20:03:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbVAKBAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 20:00:49 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:26033 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262648AbVAKA4b (ORCPT
+	Mon, 10 Jan 2005 20:00:31 -0500
+Received: from waste.org ([216.27.176.166]:43492 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262562AbVAKAzG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 19:56:31 -0500
-Date: Mon, 10 Jan 2005 16:56:30 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: kj <kernel-janitors@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: [UPDATE PATCH] sbus/envctrl: replace schedule_timeout() with msleep_interruptible()
-Message-ID: <20050111005630.GL9186@us.ibm.com>
-References: <20050110164703.GD14307@nd47.coderock.org>
+	Mon, 10 Jan 2005 19:55:06 -0500
+Date: Mon, 10 Jan 2005 16:54:39 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Dave Airlie <airlied@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       John Richard Moser <nigelenki@comcast.net>, znmeb@cesmail.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: starting with 2.7
+Message-ID: <20050111005439.GI2995@waste.org>
+References: <1105045853.17176.273.camel@localhost.localdomain> <1105115671.12371.38.camel@DreamGate> <41DEC5F1.9070205@comcast.net> <1105237910.11255.92.camel@DreamGate> <41E0A032.5050106@comcast.net> <1105278618.12054.37.camel@localhost.localdomain> <41E1CCB7.4030302@comcast.net> <21d7e99705010917281c6634b8@mail.gmail.com> <1105361337.12054.66.camel@localhost.localdomain> <21d7e99705011014197b8a9767@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050110164703.GD14307@nd47.coderock.org>
-X-Operating-System: Linux 2.6.10 (i686)
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <21d7e99705011014197b8a9767@mail.gmail.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 05:47:03PM +0100, Domen Puncer wrote:
-> Patchset of 171 patches is at http://coderock.org/kj/2.6.10-bk13-kj/
+On Tue, Jan 11, 2005 at 09:19:24AM +1100, Dave Airlie wrote:
+> Say theoretically ATI decide tomorrow:
+> 1. GPL in kernel source code (ATI is based on the DRM so it isn't such
+> a leap of faith as say NVIDIA doing it...)
+> 2. clean it all up so that it follows every single kernel coding
+> practice to the letter
+> 3. submit it for inclusion into the kernel as a device driver,
+> drivers/char/drm/fglrx.c
 > 
-> Quick patch summary: about 30 new, 30 merged, 30 dropped.
-> Seems like most external trees are merged in -linus, so i'll start
-> (re)sending old patches.
+> Now would you include it? we can't use the no-one is using it excuse,
+> as people are using fglrx already and many have no choice, the driver
+> would have no userspace applications other than the binary only 2D/3D
+> drivers they supply for X... ATI would then benefit from the kernel
+> development process for keeping the things up-to-date with respect to
+> interfaces etc...
 
-<snip>
+I think so, yes. We'd be able to fix kernelspace bugs in it, for
+starters.
 
-> msleep_interruptible-drivers_sbus_char_envctrl.patch
+> In this way, people who are running on ppc etc would still not have or
+> be any closer to 3D acceleration for their graphics cards, but ATI
+> would have followed the rules as far as the kernel is concerned....
 
-Please consider updating to the following patch:
+They'd certainly be closer in that userspace code is significantly
+easier to emulate and/or reverse engineer.
 
-Description: Use msleep_interruptible() instead of
-schedule_timeout() to guarantee the task delays as expected. Change the units of
-poll_interval to msecs as it is only used in this delay.
+> The main reason 3D graphics drivers are the big one here as of course
+> we can't put OpenGL into the kernel, so it requires a split
+> kernel/userspace solution, and one is of little use without the other,
+> if the kernel one is GPL and userspace one is closed source how do
+> people sit with it? (uneasy?)
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+If the userspace portion is using a standard API and not just using
+the driver to open gaping holes in the kernel/user barrier, I see it
+as a step forward.
 
-
---- 2.6.10-v/drivers/sbus/char/envctrl.c	2004-12-24 13:34:01.000000000 -0800
-+++ 2.6.10/drivers/sbus/char/envctrl.c	2005-01-05 14:23:05.000000000 -0800
-@@ -1007,7 +1007,7 @@ static int kenvctrld(void *__unused)
- 		return -ENODEV;
- 	}
- 
--	poll_interval = 5 * HZ; /* TODO env_mon_interval */
-+	poll_interval = 5000; /* TODO env_mon_interval */
- 
- 	daemonize("kenvctrld");
- 	allow_signal(SIGKILL);
-@@ -1016,10 +1016,7 @@ static int kenvctrld(void *__unused)
- 
- 	printk(KERN_INFO "envctrl: %s starting...\n", current->comm);
- 	for (;;) {
--		current->state = TASK_INTERRUPTIBLE;
--		schedule_timeout(poll_interval);
--
--		if(signal_pending(current))
-+		if(msleep_interruptible(poll_interval))
- 			break;
- 
- 		for (whichcpu = 0; whichcpu < ENVCTRL_MAX_CPU; ++whichcpu) {
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,66 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263037AbTCWMH0>; Sun, 23 Mar 2003 07:07:26 -0500
+	id <S263049AbTCWMRQ>; Sun, 23 Mar 2003 07:17:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263040AbTCWMH0>; Sun, 23 Mar 2003 07:07:26 -0500
-Received: from sysdoor.net ([62.212.103.239]:55565 "EHLO celia")
-	by vger.kernel.org with ESMTP id <S263037AbTCWMHZ>;
-	Sun, 23 Mar 2003 07:07:25 -0500
-Date: Sun, 23 Mar 2003 13:18:18 +0100
-From: Michael Vergoz <mvergoz@sysdoor.com>
-To: "shesha bhushan" <bhushan_vadulas@hotmail.com>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: inet_addr Equivalent
-Message-Id: <20030323131818.0a66b59a.mvergoz@sysdoor.com>
-In-Reply-To: <F110LwR2ozm2F4mOKbA0000952b@hotmail.com>
-References: <F110LwR2ozm2F4mOKbA0000952b@hotmail.com>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S263048AbTCWMRQ>; Sun, 23 Mar 2003 07:17:16 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:63891 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S263044AbTCWMRO>;
+	Sun, 23 Mar 2003 07:17:14 -0500
+Date: Sun, 23 Mar 2003 13:28:10 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Subodh S <subodh_s_1975@mail.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Servicing of requests
+Message-ID: <20030323122810.GC2371@suse.de>
+References: <20030323121850.48607.qmail@mail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030323121850.48607.qmail@mail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Mar 23 2003, Subodh S wrote:
+> Hi,
+> 
+> Whenever I read data of 'x'k size using one read() system call, I find
+> batches of some 'y' no. of make_requests calls followed by the same
+> no. of end_io's. Something like :
 
-Look at : 
-/* Convert from presentation format of an Internet number in buffer
-   starting at CP to the binary network format and store result for
-   interface type AF in buffer starting at BUF.  */
-extern int inet_pton (int __af, __const char *__restrict __cp,
-                      void *__restrict __buf) __THROW;
+> make_req
+> make_req
+> make_req
+> end_io
+> end_io
+> end_io
+> make_req
+> make_req
+> make_req
+> end_io
+> end_io
+> end_io
+> 
+> The output above gives me an idea that 3(hypothetical no.)
+> buffer_heads above form a request.  (since 1 make_request corresponds
+> to 1 buffer_head) and maybe since 1 request is serviced at a time I
+> can see 3 make_req's together. Is my understanding right ??
+> 
+> But, I have read that sd uses some optimization algorithm to club
+> requests so that the disk seek time is reduced. In which case since
+> all requests are to adjecents sectors it should create a single
+> request of all 'x'k assuming 1 buffer_head is of size 1k.
+> 
+> Does this make sense ??
 
-If it doesn't work look in the libc source code :)
+First of all, please line wrap your emails at 72 chars. Your mail reads
+horribly.
 
-regards,
-Michael
+Second, what is your question? Yes typically buffer_heads can get
+clustered into a request so that contig regions on disk are handed to
+the driver as a single request that may contain X buffer_heads. sd
+doesn't do this on its own, the block layer does it for the driver. And
+it happens for all drivers.
 
-On Sun, 23 Mar 2003 07:32:05 +0000
-"shesha bhushan" <bhushan_vadulas@hotmail.com> wrote:
+-- 
+Jens Axboe
 
-> 
-> Hi all,
-> 
-> IF i want to use the inet_addr in kernel modules, then how to use. What is 
-> the equivalent function to this or which is the header file that I have to 
-> include. If I include "arpa/inet.h" and compile as kernel module, I gives 
-> whole bunch of errors.
-> 
-> So please help me how to convert doted IP address to unsigned long inside 
-> kernel modules. All help is very mucg apperciated.
-> 
-> Tahnking You
-> Shesha
-> 
-> 
-> 
-> 
-> 
-> _________________________________________________________________
-> Get more buddies in your list. Win prizes http://messenger.msn.co.in/promo
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

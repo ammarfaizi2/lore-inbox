@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271906AbRH2Fez>; Wed, 29 Aug 2001 01:34:55 -0400
+	id <S271909AbRH2FjR>; Wed, 29 Aug 2001 01:39:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271909AbRH2Fep>; Wed, 29 Aug 2001 01:34:45 -0400
-Received: from smtp6.mindspring.com ([207.69.200.110]:60716 "EHLO
-	smtp6.mindspring.com") by vger.kernel.org with ESMTP
-	id <S271906AbRH2Fej>; Wed, 29 Aug 2001 01:34:39 -0400
-Subject: Updated Linux 2.4.9/2.4.10 kernel preemption patches
-From: Robert Love <rml@tech9.net>
+	id <S271910AbRH2FjH>; Wed, 29 Aug 2001 01:39:07 -0400
+Received: from snoopy.apana.org.au ([202.12.87.129]:35333 "HELO
+	snoopy.apana.org.au") by vger.kernel.org with SMTP
+	id <S271909AbRH2FjE>; Wed, 29 Aug 2001 01:39:04 -0400
 To: linux-kernel@vger.kernel.org
-Cc: cliff@oisec.net, jjs@toyota.com, andy@spylog.ru, nigel@nrg.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
-Date: 29 Aug 2001 01:35:26 -0400
-Message-Id: <999063343.2134.84.camel@phantasy>
-Mime-Version: 1.0
+Subject: USB flash card reader
+From: Brian May <bam@snoopy.apana.org.au>
+X-Home-Page: http://snoopy.apana.org.au/~bam/
+Date: 29 Aug 2001 15:38:48 +1000
+Message-ID: <847kvn4e8n.fsf@scrooge.chocbit.org.au>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (GTK)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Updated patches are at:
-http://tech9.net/rml/linux/patch-rml-2.4.9-ac3-preempt-kernel-1
-and,
-http://tech9.net/rml/linux/patch-rml-2.4.10-pre2-preempt-kernel-1
-for kernels 2.4.9-ac3 and 2.4.10-pre2.
+Hello,
 
-These are updates of Nigel Gamble's kernel preemption patches for recent
-kernels.  See http://kpreempt.sourceforge.net/.  These patches create a
-configure option to enable a preemptible kernel using SMP lock points.
-A preemptible kernel will yield control of execution to higher priority
-processes as needed.  Ie, the process timeslice now applies to kernel
-space.
+I have a usb-storage.o USB device, that to /proc/bus/usb/devices looks
+like this:
 
-Changes since my previous patch:
-* update for 2.4.9-ac3 and 2.4.10-pre2
-* fix the compile bug (yay!) -- the linking dependency of dec_and_lock
-requires CONFIG_HAVE_DEC_LOCK which SMP sets in recent kernels.  now
-CONFIG_PREEMPT sets, too
+T:  Bus=01 Lev=02 Prnt=03 Port=01 Cnt=02 Dev#=  7 Spd=12  MxCh= 0
+D:  Ver= 1.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=0781 ProdID=0001 Rev= 2.00
+S:  Manufacturer=SanDisk Corporation
+S:  Product=SanDisk USB ImageMate
+C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=100mA
+I:  If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=usb-storage
+E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
+E:  Ad=83(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
 
-So, yes, this should fix the kernel compile buggy.  At least it did for
-me, after I was finally able to reproduce the problem.
+When "mount /dev/camera" has been entered, the first time it complains
+that it can't find the device (something funny with hotplug here). So
+I unplug the USB device and plug it back in again.  This is normal.
 
-Enjoy and please comment, test, and benchmark.
+Now, the same mount command in entered, the process hangs in kernel
+mode (so kill -9 will not work). Furthermore, the computer hangs when
+shutting down, making a clean shutdown impossible. (Or perhaps I am
+just being too impatient and not waiting longer enough for something
+to timeout?)
 
+Only problem is that when I go to reproduce this problem with/without
+strace, it works!
+
+As far as I know the only potentially serious mistakes the user could
+make are unplugging the USB device or removing the flash card when it
+is mounted, but as far as I am aware, neither of those cases apply
+here.
+
+Any ideas?
+
+Only problem is that I have been telling others how reliable and
+robust Linux is, but what does it do, but crash! Argghh!
 -- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+Brian May <bam@snoopy.apana.org.au>

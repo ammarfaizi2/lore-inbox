@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131115AbRCJSvf>; Sat, 10 Mar 2001 13:51:35 -0500
+	id <S131132AbRCJTQq>; Sat, 10 Mar 2001 14:16:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131116AbRCJSvP>; Sat, 10 Mar 2001 13:51:15 -0500
-Received: from albireo.ucw.cz ([62.168.0.14]:57605 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id <S131115AbRCJSvF>;
-	Sat, 10 Mar 2001 13:51:05 -0500
-Date: Sat, 10 Mar 2001 19:50:06 +0100
-From: Martin Mares <mj@suse.cz>
-To: Michal Jaegermann <michal@harddata.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: quicksort for linked list
-Message-ID: <20010310195006.A2670@albireo.ucw.cz>
-In-Reply-To: <3AA89624.46DBADD7@idb.hist.no> <200103091152.MAA31645@cave.bitwizard.nl> <20010309152902.A1219@mail.harddata.com>
-Mime-Version: 1.0
+	id <S131139AbRCJTQg>; Sat, 10 Mar 2001 14:16:36 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:7564 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S131132AbRCJTQ2>;
+	Sat, 10 Mar 2001 14:16:28 -0500
+Message-ID: <3AAA7D5F.A16AA1C7@mirai.cx>
+Date: Sat, 10 Mar 2001 11:15:43 -0800
+From: J Sloan <jjs@mirai.cx>
+Organization: Mirai Consulting
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre3 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Miquel van Smoorenburg <miquels@cistron-office.nl>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.4.1 on RHL 6.2
+In-Reply-To: <001401c0a970$ec3c9b00$1d9509ca@pentiumiii> <200103101754.f2AHsUL04580@mailout1-100bt.midsouth.rr.com> <98drnp$qq0$1@ncc1701.cistron.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010309152902.A1219@mail.harddata.com>; from michal@harddata.com on Fri, Mar 09, 2001 at 03:29:02PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Miquel van Smoorenburg wrote:
 
-> Well, not really in this situation, after a simple modification.  It is
-> trivial to show that using "shorter interval sorted first" approach one
-> can bound an amount of an extra memory, on stack or otherwise, and by a
-> rather small number.
+> Note! You only have to have those symlinks on broken systems such
+> as Redhat.
 
-By O(log N) which is in reality a small number :)
+This is silly, Red Hat works fine for a great many people.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares <mj@ucw.cz> <mj@suse.cz> http://atrey.karlin.mff.cuni.cz/~mj/
-"Dijkstra probably hates me." -- /usr/src/linux/kernel/sched.c
+He probably removed the original kernel-devel package,
+which contained the links above, so they would have to
+be remade.
+
+> Sane systems such as Debian have a copy of the kernel header files
+> that the C library was compiled against in /usr/include/{linux,asm}
+
+I'm glad you admit that Red Hat is every bit as sane as
+debian, since the current shipping version does indeed
+have the sort of /usr/include/linux hierarchy you have just
+described.
+
+jjs
+
+

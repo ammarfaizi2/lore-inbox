@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263484AbVBDXTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264859AbVBDX0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263484AbVBDXTd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 18:19:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266108AbVBDWwf
+	id S264859AbVBDX0m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 18:26:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265573AbVBDX0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 17:52:35 -0500
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:49525 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266705AbVBDWST (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 17:18:19 -0500
-Message-ID: <4203F4A7.2010705@yahoo.com.au>
-Date: Sat, 05 Feb 2005 09:18:15 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Terje_F=E5berg?= <terje_fb@yahoo.no>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: 2.6.10: kswapd spins like crazy
-References: <20050204172618.51558.qmail@web51602.mail.yahoo.com>
-In-Reply-To: <20050204172618.51558.qmail@web51602.mail.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 4 Feb 2005 18:26:41 -0500
+Received: from mail.kroah.org ([69.55.234.183]:36231 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264859AbVBDX01 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 18:26:27 -0500
+Date: Fri, 4 Feb 2005 15:25:25 -0800
+From: Greg KH <greg@kroah.com>
+To: "Mark A. Greer" <mgreer@mvista.com>
+Cc: LM Sensors <sensors@Stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][I2C] ST M41T00 I2C RTC chip driver
+Message-ID: <20050204232525.GA28571@kroah.com>
+References: <41FE7368.1000307@mvista.com> <20050131210319.44a69d49.khali@linux-fr.org> <41FFE9EE.3000504@mvista.com> <420401EB.5080700@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <420401EB.5080700@mvista.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terje Fåberg wrote:
-> Terje Fåberg <terje_fb@yahoo.no> skrev: 
+On Fri, Feb 04, 2005 at 04:14:51PM -0700, Mark A. Greer wrote:
+> From http://archives.andrew.net.au/lm-sensors/msg29319.html:
+> 
+> Mark A. Greer wrote:
+> 
+> ><snip>
+> >
+> >Here is a replacement patch that should address Jean Delvare and Dick 
+> >Johnson's issues.  Please let me know if there are any more issues.
+> >
+> >Thanks,
+> >
+> >Mark
+> >
+> >Signed-off-by: Mark A. Greer <mgreer@mvista.com>
+> >-- 
 > 
 > 
->>I'll continue to do the same things I did yesterday
->>before kswapd started to spin. 
-> 
-> 
-> Looks very good so far. I am unable to reproduce the
-> bad kswapd behaviour with your patch, Nick.
-> 
-> To double-check I booted into the old kernel an hour
-> ago and I _could_ reproduce the bad behaviour within a
-> few minutes. 
-> 
-> Looks like your patch fixes it for my workload.
-> 
+> I haven't heard of any more problems so can I get this patch applied?
 
-OK that's good to know. At this stage it is only working
-around the intermediate symptoms, and we might want a
-different fix for 2.6.11...
+Can you resend it with a proper Changelog description in the top of the
+email and the signed-off-by line?  thanks,
 
-So hopefully you'll be able to test a patch or two if
-you get time.
-
-Thanks,
-Nick
-
+greg k-h

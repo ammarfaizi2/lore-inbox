@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292764AbSBZTyf>; Tue, 26 Feb 2002 14:54:35 -0500
+	id <S292754AbSBZTzO>; Tue, 26 Feb 2002 14:55:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292754AbSBZTyY>; Tue, 26 Feb 2002 14:54:24 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:25227 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S292767AbSBZTyN>; Tue, 26 Feb 2002 14:54:13 -0500
-Date: Tue, 26 Feb 2002 14:57:10 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: schedule()
-Message-ID: <Pine.LNX.3.95.1020226145622.5179A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292766AbSBZTyz>; Tue, 26 Feb 2002 14:54:55 -0500
+Received: from ns.suse.de ([213.95.15.193]:22801 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S292754AbSBZTyr>;
+	Tue, 26 Feb 2002 14:54:47 -0500
+Date: Tue, 26 Feb 2002 20:54:22 +0100
+From: Dave Jones <davej@suse.de>
+To: petter wahlman <petter@bluezone.no>
+Cc: linux-kernel@vger.kernel.org, info@melware.de
+Subject: Re: [PATCH] 2.4.18 Eicon ISDN driver fix.
+Message-ID: <20020226205422.N2222@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	petter wahlman <petter@bluezone.no>, linux-kernel@vger.kernel.org,
+	info@melware.de
+In-Reply-To: <1014679267.27236.6.camel@BadEip>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1014679267.27236.6.camel@BadEip>; from petter@bluezone.no on Tue, Feb 26, 2002 at 08:26:18PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 26, 2002 at 08:26:18PM +0100, petter wahlman wrote:
+ > +++ linux-2.4.18-pw/drivers/isdn/eicon/eicon_mod.c      Mon Feb 25
 
+ > -                       if (user)
+ > +                       if (user) {
+ > +                               spin_unlock_irqrestore(&eicon_lock,
+ > flags);
+ >                                 copy_to_user(p, skb->data, cnt);
+ > +                               spin_lock_irqsave(&eicon_lock, flags);
+ > +                       }
 
-I just read on this list that:
+What happens if something else adds/removes to card->statq, or
+frees the skb after you drop the lock?  I'm not familiar with
+this code, but from a quick look, it looks like this introduces
+a race no ?
 
-    while(something)
-    {
-      current->policy |= SCHED_YIELD;
-      schedule();
-    }
-
-Will no longer be allowed in a kernel module! If this is true, how
-do I loop, waiting for a bit in a port, without wasting CPU time?
-
-A lot of hardware does not generate interrupts upon a condition,
-there is no CPU activity that could send a wake_up_interruptible()
-to something sleeping.
-
-For instance, I need to write data to a hardware FIFO, one long-word
-at a time, but I can't just write. I have to wait for a bit to be
-set or reset for each and every write. I'm going to be burning a
-lot of CPU cycles if I can't schedule() while the trickle-down-effect
-of the hardware is happening.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-        111,111,111 * 111,111,111 = 12,345,678,987,654,321
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

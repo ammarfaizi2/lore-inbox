@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263264AbTDRWAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 18:00:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263265AbTDRWAJ
+	id S263265AbTDRWJW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 18:09:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbTDRWJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 18:00:09 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:36364 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263264AbTDRWAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 18:00:08 -0400
-Date: Fri, 18 Apr 2003 23:12:04 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>,
-       Andrei Ivanov <andrei.ivanov@ines.ro>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.67-mm4
-Message-ID: <20030418231204.A8747@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrei Ivanov <andrei.ivanov@ines.ro>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.50L0.0304182236480.1931-100000@webdev.ines.ro> <20030418205403.GA3366@nikolas> <20030418225447.A8626@infradead.org> <20030418221029.GA3956@nikolas>
+	Fri, 18 Apr 2003 18:09:22 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:13553 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263265AbTDRWJV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 18:09:21 -0400
+Date: Fri, 18 Apr 2003 15:21:32 -0700
+From: Greg KH <greg@kroah.com>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "'linux-hotplug-devel@lists.sourceforge.net'" 
+	<linux-hotplug-devel@lists.sourceforge.net>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] /sbin/hotplug multiplexor - take 2
+Message-ID: <20030418222132.GB8703@kroah.com>
+References: <A46BBDB345A7D5118EC90002A5072C780BEBB10B@orsmsx116.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030418221029.GA3956@nikolas>; from bugfixer@list.ru on Fri, Apr 18, 2003 at 06:10:29PM -0400
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780BEBB10B@orsmsx116.jf.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 18, 2003 at 06:10:29PM -0400, Nick Orlov wrote:
-> No, I don't.
+On Tue, Apr 15, 2003 at 05:01:40PM -0700, Perez-Gonzalez, Inaky wrote:
+> 
+> > From: Greg KH [mailto:greg@kroah.com]
+> >
+> > ...
+> >
+> > for I in "${DIR}/$1/"* "${DIR}/"all/* ; do
+> > 	test -x $I && $I $1 ;
+> 
+> test -x "$I" && "$I" "$1"
+> 
+> Just in case?
 
-Please mount it.  The code duplication has been removed from devfs
-as stated in the changelog.
+Good idea, I've changed it.
 
+thanks,
+
+greg k-h

@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbULJHg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbULJHjR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbULJHg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 02:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbULJHg2
+	id S261719AbULJHjR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 02:39:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbULJHjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 02:36:28 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:39401 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261718AbULJHgZ (ORCPT
+	Fri, 10 Dec 2004 02:39:17 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:50921 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261719AbULJHjP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 02:36:25 -0500
-Date: Fri, 10 Dec 2004 08:36:23 +0100 (MET)
+	Fri, 10 Dec 2004 02:39:15 -0500
+Date: Fri, 10 Dec 2004 08:39:14 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [audit] Upstream solution for auditing file system objects
-In-Reply-To: <20041209174610.K469@build.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.53.0412100832530.27203@yvahk01.tjqt.qr>
-References: <f2833c760412091602354b4c95@mail.gmail.com>
- <20041209174610.K469@build.pdx.osdl.net>
+Subject: Re: [RFC][PATCH] jobfs - new virtual filesystem for job kernel/user
+In-Reply-To: <200412091724.iB9HOEf26056@dbear.engr.sgi.com>
+Message-ID: <Pine.LNX.4.53.0412100837050.27203@yvahk01.tjqt.qr>
+References: <200412091724.iB9HOEf26056@dbear.engr.sgi.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Some notable design problems to introduce now are with the "identity"
->> of Y file/directory with respect to the kernel.  In fact, we only
->> really care about paths of which file/directory Y completes.  I.e: If
->> we want to audit /etc/shadow, we might not care if /etc/shadow is
->> moved to /tmp/shadow.  This means that any access/alteration of
->
->Of course you would.  A mv to /tmp/shadow includes an unlink, which
->should be an auditable event.
+>>>I maintain my position that this belongs in /proc.
+>This is a question I try to find an answer. If the community agrees
+>the /proc is the right place for it, I would be very happy to move it
+>to /proc and implement it with procfs.
+>>>Why not have a structure something like:
+>>>/proc/<pid>/job -> ../jobs/<jid>
+>But adding /proc/<pid>/job needs to patch fs/proc/base.c, we can not
+>do that in a module. Of course if job gets accepted, this won't be a problem.
 
-Does it really? If /etc and /tmp reside on the same filesystem, only a rename()
-is done as to my knowledge (and possibly, an fs-specific rebalance). And if
-they are on the same fs, they might even keep the inode number.
-
->> /tmp/shadow would go unnoticed (unless otherwise specified).  However,
->> if /tmp/shadow were a hardlink to /etc/shadow, we would then still
->> care, because we are still effectively /etc/shadow... if that makes
->> sense :-)
-
-(Your mentioning of hardlinks proves my assumption of you having /etc and /tmp
-on the same fs.)
-
+That depends on whether the community (read: the standard user) needs it. Maybe
+we could make some procfs functions exported and let jobfs be dependent on
+procfs (let jobfs using proc_create_dir() for example).
 
 Jan Engelhardt
 -- 

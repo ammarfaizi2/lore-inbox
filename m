@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313924AbSDPWRB>; Tue, 16 Apr 2002 18:17:01 -0400
+	id <S313925AbSDPWXj>; Tue, 16 Apr 2002 18:23:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313925AbSDPWRA>; Tue, 16 Apr 2002 18:17:00 -0400
-Received: from bitsorcery.com ([161.58.175.48]:23311 "EHLO bitsorcery.com")
-	by vger.kernel.org with ESMTP id <S313924AbSDPWQ7>;
-	Tue, 16 Apr 2002 18:16:59 -0400
-From: Albert Max Lai <amlai@bitsorcery.com>
-MIME-Version: 1.0
+	id <S313929AbSDPWXi>; Tue, 16 Apr 2002 18:23:38 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:47603 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S313925AbSDPWXi>; Tue, 16 Apr 2002 18:23:38 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Tue, 16 Apr 2002 16:21:56 -0600
+To: bert hubert <ahu@ds9a.nl>, Olaf Fraczyk <olaf@navi.pl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Why HZ on i386 is 100 ?
+Message-ID: <20020416222156.GB20464@turbolinux.com>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>, Olaf Fraczyk <olaf@navi.pl>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020416074748.GA16657@venus.local.navi.pl> <20020416233457.A1731@outpost.ds9a.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15548.41687.486102.179631@bitsorcery.com>
-Date: Tue, 16 Apr 2002 22:16:55 +0000
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x and DAC960 issues
-In-Reply-To: <20020406182101.GA27414@glamis.bard.org.il>
-X-Mailer: VM 7.01 under Emacs 20.4.2
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the summary of the off-list discussion and solution to my
-DAC960 problem.
+On Apr 16, 2002  23:34 +0200, bert hubert wrote:
+> On Tue, Apr 16, 2002 at 08:12:22AM +0000, Olaf Fraczyk wrote:
+> > Hi,
+> > I would like to know why exactly this value was choosen.
+> > Is it safe to change it to eg. 1024? Will it break anything?
+> > What else should I change to get it working:
+> > CLOCKS_PER_SEC?
+> > Please CC me.
+> 
+> Your uptime wraps to zero after 49 days. I think 'top' gets confused.
 
--Albert
+Trivially fixed with the existing 64-bit jiffies patches.  As it is,
+your uptime wraps to zero after 472 days or something like that if you
+don't have the 64-bit jiffies patch, which is totally in the realm of
+possibility for Linux servers.
 
-On Saturday, 6 April 2002, Marc A. Volovic wrote:
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-> Quoth Leonard N. Zubkoff:
-> 
-> >   From: Albert Max Lai <amlai@bitsorcery.com>
-> > 
-> >   I moved the card into the slot closest to the CPU that I could, and
-> >   voila!  everything works correctly; no lockups, ext3 works, even
-> > 
-> > Excellent news.  That's not a fix I've heard of before.
-> 
-> Hi,
-> 
-> Alas, it is very simple. Many (most? in my experience - Tyan, MSI, ASUS)
-> motherboards leave their outer (farthest from the CPU area) PCI slots 
-> ___NON-bus mastering___. In most cases, this is the outermost slot, but
-> sometimes it is more than one slot, but again, the outermost, leftmost.
-> 
-> Sometimes, the masterlessness is dynamic - i.e. based on the number of
-> populated slots, counting from the CPU. This is EXTREMELY rare. I saw
-> it only once, I think, and on a board I did not trust even as far as 
-> I could toss it. (Well, I could toss it some reasonable distance, which
-> I did ;-)...
-> 
-> In some rare cases (errrr... ummmm... SOME Tyan board, I cannot
-> currently remember the model) ran in the reverse direction.
-> 
-> Populating these masterless slots with anything but a sound card (and in
-> many cases even by a sound card) leads to loss of stability. 
-> 
-> Moving a board INWARD (i.e. toward the CPU) in many cases solves the
-> problem.
-> 
-> -- 
-> ---MAV
->                        Linguists Do It Cunningly
-> Marc A. Volovic                                          marc@bard.org.il

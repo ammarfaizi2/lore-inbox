@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129878AbRAAUOG>; Mon, 1 Jan 2001 15:14:06 -0500
+	id <S129664AbRAAUXS>; Mon, 1 Jan 2001 15:23:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129999AbRAAUN4>; Mon, 1 Jan 2001 15:13:56 -0500
-Received: from echo.sound.net ([205.242.192.21]:21469 "HELO echo.sound.net")
-	by vger.kernel.org with SMTP id <S129878AbRAAUNo>;
-	Mon, 1 Jan 2001 15:13:44 -0500
-Date: Mon, 1 Jan 2001 13:35:18 -0600 (CST)
-From: Hal Duston <hald@sound.net>
-To: linux-kernel@vger.kernel.org
-Subject: PS2ESDI
-Message-ID: <Pine.GSO.4.10.10101011318090.5177-100000@sound.net>
+	id <S129752AbRAAUXJ>; Mon, 1 Jan 2001 15:23:09 -0500
+Received: from d78.as9.nwbl0.wi.voyager.net ([169.207.132.206]:1540 "EHLO
+	giuseppe") by vger.kernel.org with ESMTP id <S129664AbRAAUXC>;
+	Mon, 1 Jan 2001 15:23:02 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: 2.4.0-pre compile err (pcxx)
+In-Reply-To: <E14D9My-00017N-00@the-village.bc.nu>
+From: apgarcia@uwm.edu (A. P. Garcia)
+Date: 01 Jan 2001 19:49:49 +0000
+In-Reply-To: Alan Cox's message of "Mon, 1 Jan 2001 18:07:38 +0000 (GMT)"
+Message-ID: <871yun6oiq.fsf@uwm.edu>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In moving from 2.2.x to 2.4.x I have found that
-PS/2 Esdi will no longer boot.  The problem was 
-introduced by what appears to have been a small
-architectural change that shouldn't have had an
-impact.  I am looking into it, if anyone has an
-idea of what could be causing this, please mail
-me.  The relevant change occured at 2.3.32-pre3
-A new parameter was add to xxx_do_request.  The
-parameter isn't used by ps2esdi_do_request, but
-I can't see why it should have caused any drive
-problems.  Hopefully, I will figure the problem
-out within the next week.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Not on the list,
-Hal Duston
-hald@sound.net
+> > when i make bzimage with the pc/xx driver configured as a module, it
+> > compiles ok.  configuring it as built-in gives the following error:
+> 
+> Im amazed it built as a module - thats why I missed the error
 
+well, the kernel compiled, but i kind of forgot to make modules
+
+:-)
+many thanks
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

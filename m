@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281932AbSABIAr>; Wed, 2 Jan 2002 03:00:47 -0500
+	id <S286825AbSABIjH>; Wed, 2 Jan 2002 03:39:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286268AbSABIAh>; Wed, 2 Jan 2002 03:00:37 -0500
-Received: from TheForce.com.au ([203.18.20.200]:4869 "EHLO ob1.theforce.com.au")
-	by vger.kernel.org with ESMTP id <S281932AbSABIAZ>;
-	Wed, 2 Jan 2002 03:00:25 -0500
-Subject: Re: Why would a valid DVD show zero files on Linux?
-From: Grahame Jordan <gbj@theforce.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bryce Nesbitt <bryce@obviously.com>, linux-kernel@vger.kernel.org,
-        Lionel Bouton <Lionel.Bouton@free.fr>, Andries.Brouwer@cwi.nl
-In-Reply-To: <E16LYix-0001wN-00@the-village.bc.nu>
-In-Reply-To: <E16LYix-0001wN-00@the-village.bc.nu>
-Content-Type: text/plain
+	id <S286780AbSABIi5>; Wed, 2 Jan 2002 03:38:57 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47112 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286779AbSABIii>; Wed, 2 Jan 2002 03:38:38 -0500
+Subject: Re: [RFC] Embedded X86 systems Was: [PATCH][RFC] AMD Elan patch
+To: wingel@t1.ctrl-c.liu.se
+Date: Wed, 2 Jan 2002 08:45:25 +0000 (GMT)
+Cc: hpa@zytor.com, robert@schwebel.de, linux-kernel@vger.kernel.org,
+        jason@mugwump.taiga.com, anders@alarsen.net, rkaiser@sysgo.de
+In-Reply-To: <20020102010727.E0BEC36F9F@hog.ctrl-c.liu.se> from "Christer Weinigel" at Jan 02, 2002 02:07:27 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 02 Jan 2002 18:57:46 +1100
-Message-Id: <1009958271.5016.6.camel@falcon>
-Mime-Version: 1.0
+Message-Id: <E16Lh1Z-0003Go-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We should be able to use cp or read it though.
+> There is the basic Cx5530 chipset, which could have support in the
+> Linux kernel (IDE, graphics and sound).
 
-I will look into util-linux.
+It already does. Has done for ages. The non SB emulation mode of the audio
+is not supported but that I don't think matters.
 
-Thanks
+> for all chips, some are specific for a variant, such as the video
+> input port and graphics overlay/genlock.
 
-Grahame Jordan
+X11
 
+In general if we want to support lots of weird crap then the ARM folks have
+a very nice model and a lot of weird crap to have developed their ideas
+against. Personal preference
 
-On Wed, 2002-01-02 at 10:53, Alan Cox wrote:
-> > Is this similar to the VCD problem I have where I can mount the cd and
-> > read the smaller files but cannot read the mpg file (avseq01.dat)?
-> 
-> Unrelated. The .dat files are not normal ISO9660 files they are indexes into
-> the VCD data which is physical layer stuff and sorted into tracks audio
-> style.
-> 
-> > it should be done there.  If it nees to be done in userspace then where
-> > in userspace does this need to be fixed?  I am willing to help but know
-> > not where to start.
-> 
-> Xine seems to play my videocd's nicely.
-> 
-> Alan
--- 
-Grahame Jordan
-TheForce
+	Type of system	(PC, Embedded)
 
+then for PC leave as is, for embedded
+	
+	Board type (blah, blah , blah)
+	Firmware (PC BIOS, LinuxBIOS, RedBoot)

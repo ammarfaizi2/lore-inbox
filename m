@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269144AbUIHUuq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269155AbUIHUwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269144AbUIHUuq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 16:50:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269133AbUIHUuq
+	id S269155AbUIHUwb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 16:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269151AbUIHUwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 16:50:46 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:17845 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S269144AbUIHUuf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 16:50:35 -0400
-Date: Wed, 8 Sep 2004 15:50:20 -0500
-From: Erik Jacobson <erikj@subway.americas.sgi.com>
-To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] sgiioc4 driver needs /proc/ide entries
-In-Reply-To: <Pine.SGI.4.53.0409081323210.87183@subway.americas.sgi.com>
-Message-ID: <Pine.SGI.4.53.0409081533420.98673@subway.americas.sgi.com>
-References: <Pine.SGI.4.53.0409081059500.77854@subway.americas.sgi.com>
- <200409081940.13597.bzolnier@elka.pw.edu.pl>
- <Pine.SGI.4.53.0409081323210.87183@subway.americas.sgi.com>
+	Wed, 8 Sep 2004 16:52:31 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:43696 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S269133AbUIHUwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 16:52:05 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: swsusp on x86-64 w/ nforce3
+Date: Wed, 8 Sep 2004 22:52:38 +0200
+User-Agent: KMail/1.6.2
+Cc: Tony Lindgren <tony@atomide.com>, pavel@suse.cz, Andi Kleen <ak@suse.de>
+References: <200409061836.21505.rjw@sisk.pl> <200409062123.08476.rjw@sisk.pl> <20040908204249.GG8142@atomide.com>
+In-Reply-To: <20040908204249.GG8142@atomide.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409082252.38350.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that I understand we don't need to create /proc/ide/sgiioc4, the patch
-is very simple.
+On Wednesday 08 of September 2004 22:42, Tony Lindgren wrote:
+> * Rafael J. Wysocki <rjw@sisk.pl> [040906 12:31]:
+> > On Monday 06 of September 2004 18:36, Rafael J. Wysocki wrote:
+> > > Pavel,
+> > > 
+> > > Can you tell me, please, if swsusp, as in the 2.6.9-rc1-bk12 kernel, is 
+> > > supposed to work on x86-64-based systems (specifically, with the nforce3 
+> > > chipset)?
+> > 
+> > Anyway, on such a system (.config and the output of dmesg are attached), I 
+get 
+> > the following:
+> > 
+> > Stopping tasks: 
+> > ==============================================================|
+> > Freeing 
+> > 
+memory: ............................................................................................................|
+> > Suspending devices... /critical section: counting pages to copy..[nosave 
+pfn 
+> > 0x59b]..................................................)
+> > Alloc pagedir
+> > ..[nosave pfn 
+> > 
+0x59b]................................................................................critical 
+> > section/: done (40890 pa)
+> > APIC error on CPU0: 80(08)
+> > 
+> 
+> Just FYI, swsusp works nicely here on my m6805 laptop :)
 
-Below you will find the new patch.  I just tested it now and it works
-properly - /proc/ide is properly populated with this patch (and not
-populated on altix without it).
+Can you, please, send me your .config?
 
+Greets,
+RJW
 
-
-Add create_proc_ide_interfaces() call to sgiioc4_ide_setup_pci_device()
-so /proc/ide gets populated properly.
-
-Signed-off-by: Erik Jacobson <erikj@sgi.com>
----
-
- drivers/ide/pci/sgiioc4.c |    4 ++++
- 1 files changed, 4 insertions(+)
-
-
-diff -Naru linux-2.6.8-orig/drivers/ide/pci/sgiioc4.c linux-2.6.8/drivers/ide/pci/sgiioc4.c
---- linux-2.6.8-orig/drivers/ide/pci/sgiioc4.c	2004-08-14 01:36:58.000000000 -0400
-+++ linux-2.6.8/drivers/ide/pci/sgiioc4.c	2004-09-08 16:12:29.677605262 -0400
-@@ -702,6 +702,10 @@
- 		       hwif->name, d->name);
-
- 	probe_hwif_init(hwif);
-+
-+	/* Create /proc/ide entries */
-+	create_proc_ide_interfaces();
-+
- 	return 0;
- }
-
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

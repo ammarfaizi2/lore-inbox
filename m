@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264372AbTLVJiH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 04:38:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbTLVJiH
+	id S264367AbTLVJgP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 04:36:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbTLVJgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 04:38:07 -0500
-Received: from mail.kroah.org ([65.200.24.183]:26028 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264372AbTLVJiC (ORCPT
+	Mon, 22 Dec 2003 04:36:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:37258 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264367AbTLVJgO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 04:38:02 -0500
-Date: Mon, 22 Dec 2003 01:37:59 -0800
-From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Manuel Estrada Sainz <ranty@debian.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: [2.6 PATCH/RFC] Firmware loader - fix races and resource dealloocation problems
-Message-ID: <20031222093759.GB30235@kroah.com>
-References: <200312210137.41343.dtor_core@ameritech.net>
+	Mon, 22 Dec 2003 04:36:14 -0500
+Date: Mon, 22 Dec 2003 01:36:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: albert@users.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: atomic copy_from_user?
+Message-Id: <20031222013613.7e0741f5.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0312212024230.6448@home.osdl.org>
+References: <1072054100.1742.156.camel@cube>
+	<Pine.LNX.4.58.0312212024230.6448@home.osdl.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200312210137.41343.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 21, 2003 at 01:37:39AM -0500, Dmitry Torokhov wrote:
-> Hi,
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> > From some naughty place in the code where might_sleep
+>  > would trigger, I'd like to read from user memory.
+>  > I'll pretty much assume that mlockall() has been
+>  > called. Suppose that "current" is correct as well.
+>  > I'd just use a pointer directly, except that:
+>  > 
+>  > a. it isn't OK for the 4g/4g feature, s390, or sparc64
+>  > b. it causes the "sparse" type checker to complain
+>  > c. it will oops or worse if the user screwed up
+>  > 
+>  > If the page is swapped out, I want a failed copy.
 > 
-> It seems that implementation of the firmware loader is racy as it relies
-> on kobject hotplug handler. Unfortunately that handler runs too early,
-> before firmware class attributes controlling the loading process, are
-> created. This causes firmware loading fail at least half of the times on
-> my laptop.
+>  the sequence
+> 
+>  	local_bh_disable();
+>  	err = get_user(n, ptr);
+>  	local_bh_enable();
+>  	if (!err)
+>  		.. 'n' .. was the value
+> 
+>  will do this in 2.6.x, except it will complain loudly about the unatomic 
+>  access. Other than that, it will do what you ask for.
 
-Um, why not have your script wait until the files are present?  That
-will remove any race conditions you will have.
+An explicit inc_preempt_count() would be clearer.  See how ia32's
+kmap_atomic() does it.  And filemap_copy_from_user().
 
-> Another problem that I see is that the present implementation tries to free
-> some of the allocated resources manually instead of relying on driver model.
-> Particularly damaging is freeing fw_priv in request_firmware. Although the
-> code calls fw_remove_class_device (which in turns calls 
-> class_device_unregister) the freeing of class device and all its attributes
-> can be delayed as the attribute files may still be held open by the
-> userspace handler or any other program. Subsequent access to these files
-> could cause trouble.
 
-Cleanups should happen in the release function.  If the firmware code
-doesn't do this, it's wrong.
-
-thanks,
-
-greg k-h

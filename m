@@ -1,65 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261742AbSJZArs>; Fri, 25 Oct 2002 20:47:48 -0400
+	id <S261746AbSJZAwM>; Fri, 25 Oct 2002 20:52:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261745AbSJZArs>; Fri, 25 Oct 2002 20:47:48 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:64502 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S261742AbSJZArr>;
-	Fri, 25 Oct 2002 20:47:47 -0400
-Message-ID: <F2DBA543B89AD51184B600508B68D4000ECE70E1@fmsmsx103.fm.intel.com>
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Nakajima, Jun" <jun.nakajima@intel.com>, Robert Love <rml@tech9.net>,
-       "'Dave Jones'" <davej@codemonkey.org.uk>,
-       "'akpm@digeo.com'" <akpm@digeo.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'chrisl@vmware.com'" <chrisl@vmware.com>,
-       "'Martin J. Bligh'" <mbligh@aracnet.com>
-Subject: RE: [PATCH] hyper-threading information in /proc/cpuinfo
-Date: Fri, 25 Oct 2002 17:54:00 -0700
+	id <S261750AbSJZAwM>; Fri, 25 Oct 2002 20:52:12 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:64150 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S261746AbSJZAwM> convert rfc822-to-8bit; Fri, 25 Oct 2002 20:52:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+To: jim.houston@ccur.com, linux-kernel@vger.kernel.org, george@mvista.com
+Subject: Re: Crunch time -- the musical.  (2.5 merge candidate list 1.5)
+Date: Fri, 25 Oct 2002 14:58:21 -0500
+User-Agent: KMail/1.4.3
+References: <3DB88F6D.F408FF06@ccur.com>
+In-Reply-To: <3DB88F6D.F408FF06@ccur.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210251458.21284.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't understand. HT is one implementaion of (true) SMT. 
+On Thursday 24 October 2002 19:25, Jim Houston wrote:
+> Hi Rob,
+>
+> The Posix timers entry in your list is confused.  I don't know how
+> my patch got the name Google.
 
-Thanks,
-Jun
+Sorry, misread "George's version" as "Google's version" at 5 am one morning.
+Lot of late nights recently... :)
 
------Original Message-----
-From: Rik van Riel [mailto:riel@conectiva.com.br]
-Sent: Friday, October 25, 2002 5:49 PM
-To: Alan Cox
-Cc: Nakajima, Jun; Robert Love; 'Dave Jones'; 'akpm@digeo.com';
-'linux-kernel@vger.kernel.org'; 'chrisl@vmware.com'; 'Martin J. Bligh'
-Subject: RE: [PATCH] hyper-threading information in /proc/cpuinfo
+> I think Dan Kegel misunderstood George's answer to my previous
+> announcement.  George might be picking up some of my changes, but there
+> will still be two patches for Linus to choose from.  You included the URL to 
+> George's answer which quoted my patch, rather than the URL I sent you.
 
+Had it in, then took it out.  I'm trying to collate down the list wherever I 
+can.
 
-On 25 Oct 2002, Alan Cox wrote:
-> On Fri, 2002-10-25 at 22:50, Nakajima, Jun wrote:
+> Here is the URL for an archived copy of my latest patch:
+>      Jim Houston's  [PATCH] alternate Posix timer patch3
+>      http://marc.theaimsgroup.com/?l=linux-kernel&m=103549000027416&w=2
 
-> > Can you please change "siblings\t" to "threads\t\t". SuSE 8.1, for
-example,
-> > is already doing it:
+It's back now.
 
-> Im just wondering what we would then use to describe a true multiple cpu
-> on a die x86. Im curious what the powerpc people think since they have
-> this kind of stuff - is there a generic terminology they prefer ?
+> I would be happy to see either version go into 2.5.
 
-Agreed.  Siblings is probably best for HT stuff and threads
-are probably best reserved for true SMT CPUs.
+So what exactly is the difference between them?
 
-Then there's the SMP-on-a-chip, but we should probably just
-call those CPUs.
+> The URLs for George's patches are incomplete.  I believe this is the
+> most recent (it's from Oct 18).  The Sourceforge.net reference has the
+> user space library and test programs, but I did not see 2.5 kernel
+> patches.
+>
+>   [PATCH ] POSIX clocks & timers take 3 (NOT HIGH RES)
+>      http://marc.theaimsgroup.com/?l=linux-kernel&m=103489669622397&w=2
 
-regards,
+He's up to version 4 now.
 
-Rik
+> Thanks
+> Jim Houston - Concurrent Computer Corp.
+
+Rob
+
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a
-href=mailto:"october@surriel.com">october@surriel.com</a>
+http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
+CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?

@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262758AbTLULg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 06:36:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbTLULg4
+	id S262747AbTLULsE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 06:48:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbTLULsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 06:36:56 -0500
-Received: from mail.shareable.org ([81.29.64.88]:41351 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262758AbTLULgz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 06:36:55 -0500
-Date: Sun, 21 Dec 2003 11:36:40 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] use rcu for fasync_lock
-Message-ID: <20031221113640.GF3438@mail.shareable.org>
-References: <3FE492EF.2090202@colorfullife.com>
+	Sun, 21 Dec 2003 06:48:04 -0500
+Received: from ns1.skjellin.no ([80.239.42.66]:46563 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S262747AbTLULsC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 06:48:02 -0500
+Subject: Re: 3ware driver broken with 2.4.22/23 ?
+From: Andre Tomt <lkml@tomt.net>
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031221112113.GE916@mail.muni.cz>
+References: <20031221112113.GE916@mail.muni.cz>
+Content-Type: text/plain
+Message-Id: <1072007285.1088.223.camel@slurv.pasop.tomt.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FE492EF.2090202@colorfullife.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 21 Dec 2003 12:48:06 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> What about switching to rcu?
+On Sun, 2003-12-21 at 12:21, Lukas Hejtmanek wrote:
+> Hello,
+> 
+> I have 3ware Escalade 8500-8 card with 8 SATA WD 250GB drives. I set up HW RAID5
+> configuration over all drives.
+> I'm using kernel 2.4.23 vanilla with XFS patch. RAID5 partition is formated to
+> XFS.
 
-What about killing fasync_helper altogether and using the method that
-epoll uses to register "listeners" which send a signal when the poll
-state of a device changes?
+Reproducing with a different filesystem would probably be a useful
+datapoint.
 
-That would trim off code all over the place, make the fast paths a
-little bit faster (in the case that there aren't any listeners), and
-most importantly make SIGIO reliable for every kind of file descriptor,
-instead of the pot luck you get now.
 
-Just an idea :)
-
--- Jamie

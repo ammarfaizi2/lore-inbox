@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269090AbUIHKO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269091AbUIHKSg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269090AbUIHKO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 06:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269091AbUIHKO6
+	id S269091AbUIHKSg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 06:18:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269092AbUIHKSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 06:14:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:26269 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269090AbUIHKO4 (ORCPT
+	Wed, 8 Sep 2004 06:18:36 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:10476 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S269091AbUIHKSc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 06:14:56 -0400
-Subject: Re: [patch] to add device+inode check to ipt_owner.c - HACKED UP
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040908100946.GA9795@lkcl.net>
-References: <20040908100946.GA9795@lkcl.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PuojXLU0AbLCZUsSkziM"
-Organization: Red Hat UK
-Message-Id: <1094638489.2800.7.camel@laptop.fenrus.com>
+	Wed, 8 Sep 2004 06:18:32 -0400
+Date: Wed, 8 Sep 2004 12:17:19 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] max-sectors-2.6.9-rc1-bk14-A0
+Message-ID: <20040908101719.GH2258@suse.de>
+References: <20040908100448.GA4994@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 08 Sep 2004 12:14:50 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040908100448.GA4994@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 08 2004, Ingo Molnar wrote:
+> 
+> this is a re-send of the max-sectors patch against 2.6.9-rc1-bk14.
+> 
+> the attached patch introduces two new /sys/block values:
+> 
+>   /sys/block/*/queue/max_hw_sectors_kb
+>   /sys/block/*/queue/max_sectors_kb
+> 
+> max_hw_sectors_kb is the maximum that the driver can handle and is
+> readonly. max_sectors_kb is the current max_sectors value and can be
+> tuned by root. PAGE_SIZE granularity is enforced.
+> 
+> It's all locking-safe and all affected layered drivers have been updated
+> as well. The patch has been in testing for a couple of weeks already as
+> part of the voluntary-preempt patches and it works just fine - people
+> use it to reduce IDE IRQ handling latencies. Please apply.
 
---=-PuojXLU0AbLCZUsSkziM
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Wasn't the move of the ide_lock grabbing enough to solve this problem by
+itself?
 
-On Wed, 2004-09-08 at 12:09, Luke Kenneth Casson Leighton wrote:
-> dear kernel people,
->=20
-> this is a first pass at attempting to add per-program firewall rule
-> checking to iptables.
 
-question: any reason you didn't use something like selinux-like contexts
-instead of dentry/device pairs ?=20
-
---=-PuojXLU0AbLCZUsSkziM
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBPtuZxULwo51rQBIRAr9eAJ0YwzhWKEIzvAkCjiPHaLnMwrIq7wCghqMp
-gh6y/sss4JEfWvDbrsW7J4k=
-=0C+T
------END PGP SIGNATURE-----
-
---=-PuojXLU0AbLCZUsSkziM--
+-- 
+Jens Axboe
 

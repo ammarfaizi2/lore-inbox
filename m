@@ -1,87 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316262AbSEKTJg>; Sat, 11 May 2002 15:09:36 -0400
+	id <S316264AbSEKTPD>; Sat, 11 May 2002 15:15:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316263AbSEKTJf>; Sat, 11 May 2002 15:09:35 -0400
-Received: from smtp3.wanadoo.nl ([194.134.35.186]:15850 "EHLO smtp3.wanadoo.nl")
-	by vger.kernel.org with ESMTP id <S316262AbSEKTJe>;
-	Sat, 11 May 2002 15:09:34 -0400
-Message-Id: <4.1.20020511205025.009703a0@pop.cablewanadoo.nl>
-X-Mailer: QUALCOMM Windows Eudora Pro Version 4.1
-Date: Sat, 11 May 2002 21:04:20 +0200
-To: Dave Jones <davej@suse.de>
-From: Rudmer van Dijk <rudmer@legolas.dynup.net>
-Subject: Re: Linux 2.5.14-dj2
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, marcelo@conectiva.com.br,
-        andre@linux-ide.org, vojtech@suse.cz
-In-Reply-To: <20020511191406.S5262@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S316265AbSEKTPC>; Sat, 11 May 2002 15:15:02 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:54033
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S316264AbSEKTPB>; Sat, 11 May 2002 15:15:01 -0400
+Date: Sat, 11 May 2002 12:12:18 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.15 IDE 60
+In-Reply-To: <3CDD6749.6080209@wanadoo.fr>
+Message-ID: <Pine.LNX.4.10.10205111210320.3133-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 19:14 11-5-02 +0200, Dave Jones wrote:
-> > found a few other problems:
-> > 1) the pio fix posted last week is not included in your tree or Linus' and
->
->Erm. That went into my tree a while back, and a day or so later, into
->one of Martin's IDE-5x patches.  It also went into Linus' tree a while
->back. See changeset 1.513.1.14 at
->http://linus.bkbits.net:8080/linux-2.5/cset@1.513.1.14?nav=index.html
 
-and still the patch I included applied to 2.5.14-dj2... 
+You have to specify which of the 6 revisions of the chipset you have.
+Also in some cases which of the 13 sub-revisions, and the latter is
+determined by the sub-vender-device.
 
-> > I found this the hard way: severe filesystem damage and system lockup and a
-> > kernel (2.4.19-pre8) panic because the root partition could not be mounted
-> > (as reported before). 
->
->Ah, 2.4.19 would be Marcelo's world.
+On Sat, 11 May 2002, Pierre Rousselet wrote:
 
-sorry for the misunderstanding, after the crash I booted into 2.4.19-pre8
-to recover my system and that did not work because the 2.5.14-dj2 kernel
-destroyed the first descriptors of my ext2-filesystem. It was not meant to
-report the kernel panic but to show the severity of the problem that was
-done by the 2.5.14-dj2 kernel...
+> Martin Dalecki wrote:
+>  > Fri May 10 16:17:01 CEST 2002 ide-clean-60
+>  >
+>  > Synchronize with 2.5.15
+>  >
+>  > - Rewrite ioctl handling.
+>  >
+>  > - Apply fix for hpt366 "hang on boot" by Andre.
+> 
+> No, it doesn't fix it for me.
+> 
+> -- 
+> Pierre
+> ------------------------------------------------
+>    Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+> ------------------------------------------------
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-> > The following patch fixes this, apllies with an offset of -2 lines:
-> > -- begin patch --
-> > --- linux-2.5.10/drivers/ide/ide-taskfile.c    Wed Apr 24 16:15:19 2002
-> > +++ linux/drivers/ide/ide-taskfile.c  Fri Apr 26 15:44:42 2002
-> > @@ -202,7 +202,7 @@
-> >  			ata_write_slow(drive, buffer, wcount);
-> >  		else
-> >  #endif
-> > - 			ata_write_16(drive, buffer, wcount<<1);
-> > + 			ata_write_16(drive, buffer, wcount);
-> >  	}
-> >  }
->
->Yes, it does look like a variant of this patch is missing there too.
->Andre, Confirm?  Line 112 looks suspect back there. Or is 2.4 doing
->different voodoo with the wcount ?
+Andre Hedrick
+LAD Storage Consulting Group
 
-So this patch applied to 2.5.14-dj2 and I did not try to apply it to a 2.4
-tree... again sorry for the misunderstanding.
-
->
-> > 2) After boot the system is not responsive to the keyboard, logging in via
-> > ssh and doing a `insmod psmouse` followed by a `rmmod psmouse` results in a
-> > working keyboard...
-> > before and after insmod there is no interrupt 1 listed in /proc/interrupts,
-> > but after doing the rmmod it is listed: "  1:         52          XT-PIC
-> > i8042"
-> > the mouse interrupt is listed as " 12:        154          XT-PIC  i8042"
-> > the following message was issued after `rmmod psmouse`: "input: AT Set 2
-> > keyboard on isa0060/serio0"
->
->Odd, That's one for Vojtech to think about 8-)
-
-2.5.13-dj2 also had this problem, I can't remember if 2.5.13-dj1 had the
-same problem.
-
->Thanks for the report.
-
-No thanks, it's fun to play with these kernels (even to recover a heavily
-damaged system :)
-
-	Rudmer

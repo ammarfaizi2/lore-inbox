@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289947AbSAKNTk>; Fri, 11 Jan 2002 08:19:40 -0500
+	id <S289942AbSAKNPt>; Fri, 11 Jan 2002 08:15:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289948AbSAKNTZ>; Fri, 11 Jan 2002 08:19:25 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:28164 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S289944AbSAKNTH>;
-	Fri, 11 Jan 2002 08:19:07 -0500
-Date: Fri, 11 Jan 2002 14:18:50 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Adam J. Richter" <adam@yggdrasil.com>
+	id <S289944AbSAKNPj>; Fri, 11 Jan 2002 08:15:39 -0500
+Received: from mout04.kundenserver.de ([195.20.224.89]:41272 "EHLO
+	mout04.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S289942AbSAKNPX>; Fri, 11 Jan 2002 08:15:23 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hans-Peter Jansen <hpj@urpla.net>
+To: trond.myklebust@fys.uio.no
+Subject: [NFS] some strangeness (at least) with linux-2.4.17-NFS_ALL patch
+Date: Fri, 11 Jan 2002 14:15:11 +0100
+X-Mailer: KMail [version 1.3.2]
+Organization: LISA GmbH
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Big patch: linux-2.5.2-pre11/drivers/scsi compilation fixes
-Message-ID: <20020111141850.B19814@suse.de>
-In-Reply-To: <20020111051456.A12788@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020111051456.A12788@baldur.yggdrasil.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020111131528.44F8613E6@shrek.lisa.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 11 2002, Adam J. Richter wrote:
-> 	Today I plan to post patches to make everything in
-> linux-2.5.2-pre11/drivers/scsi compile, at least everything under
-> x86, compiled as modules.  They compile, and, the only undefined
-> symbol in when I boot is scsi_mark_host_reset in BusLogic.c.
-> However, the 2.5.2-pre11 patches are completely untested.
+Hi Trond et al.,
 
-Please hang on with this for a week or so, there will be other changes
-to SCSI drivers required. You'll just end up doing the work twice.
+after applying $subject and resolving the rej with 2.4.18-pre1, 
+I found the following strangeness in my SuSE 7.3 based NFS diskless setup:
 
--- 
-Jens Axboe
+Trying to start openuniverse for the first time (ever), it complaint about
+a missing config file. SuSE installed it's data at /usr/share/openuniverse 
+with the config file conf/ou.conf symlinked to ../../../../etc/ou.conf (=> 
+/etc/ou.conf), which was missing within my diskless setup.
 
+The problem is, ls on the client side complains about an I/O error, when 
+listing the conf/ dir.
+
+After removing this symlink (within the server), ls is OK within
+the client. Trying to copy servers /etc/ou.conf file to
+/usr/share/openuniverse within the client, cp complains about to many levels 
+of symlinks?!? (/usr is shared)
+
+May be I missed/confused some patches. I could send you a plain
+copy of the interresting modules, if you like. 
+
+Somehow, the dir entry on the client survived the rm from the server.
+
+Compiling/KDE 2.2.2 Desktop is working fine so far.
+
+Any ideas?
+
+Cheers,
+Hans-Peter

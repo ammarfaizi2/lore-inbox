@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311203AbSCVLIf>; Fri, 22 Mar 2002 06:08:35 -0500
+	id <S310864AbSCVLWp>; Fri, 22 Mar 2002 06:22:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311211AbSCVLIZ>; Fri, 22 Mar 2002 06:08:25 -0500
-Received: from pat.uio.no ([129.240.130.16]:24565 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S311203AbSCVLIP>;
-	Fri, 22 Mar 2002 06:08:15 -0500
-MIME-Version: 1.0
+	id <S311211AbSCVLWg>; Fri, 22 Mar 2002 06:22:36 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:51075 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S310864AbSCVLWS>;
+	Fri, 22 Mar 2002 06:22:18 -0500
+Date: Fri, 22 Mar 2002 12:21:21 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Martin Dalecki <dalecki@evision-ventures.com>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: IDE suspend small fixes
+Message-ID: <20020322112120.GA6343@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15515.4235.679887.998891@charged.uio.no>
-Date: Fri, 22 Mar 2002 12:07:55 +0100
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: green@namesys.com, sneakums@zork.net, linux-kernel@vger.kernel.org
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-In-Reply-To: <20020322120010.16a53cc9.skraw@ithnet.com>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Stephan von Krawczynski <skraw@ithnet.com> writes:
+Hi!
 
-     > This is a knfsd setup.
+Its bad idea to try to restore state twice for one suspend, this fixes
+it. Please apply,
+								Pavel
 
-Good...
+--- clean/drivers/ide/ide-disk.c	Thu Mar 21 11:35:59 2002
++++ linux-acpi/drivers/ide/ide-disk.c	Fri Mar 22 12:08:58 2002
+@@ -123,7 +123,7 @@
+ 
+ 	while (drive->blocked) {
+ 		yield();
+-		// panic("ide: Request while drive blocked?");
++		printk("ide: Request while drive blocked?");
+ 	}
+ 
+ 	if (!(rq->flags & REQ_CMD)) {
+@@ -915,6 +915,9 @@
+ 	 * already been done...
+ 	 */
+ 
++	if (level != SUSPEND_SAVE_STATE)
++		return 0;
++
+ 	/* wait until all commands are finished */
+ 	printk("ide_disk_suspend()\n");
+ 	while (HWGROUP(drive)->handler)
+@@ -934,6 +937,9 @@
+ static int idedisk_resume(struct device *dev, u32 level)
+ {
+ 	ide_drive_t *drive = dev->driver_data;
++
++	if (level != RESUME_RESTORE_STATE)
++		return 0;
+ 	if (!drive->blocked)
+ 		panic("ide: Resume but not suspended?\n");
+ 
 
-    >> The client will only return ESTALE if the server has first told
-    >> it to do so. For knfsd, this is only supposed to occur if the
-    >> file has actually been deleted on the server (knfsd is supposed
-    >> to be able to retrieve ReiserFS file that have fallen out of
-    >> cache).
-
-     > The files are obviously not deleted from the server. Can you
-     > give me a short hint in where to look after this specific case
-     > (source location). I will try to do some debugging around the
-     > place to see what is going on.
-
-Those decisions are supposed to be made in the fh_to_dentry()
-'struct super_operations' method. For ReiserFS, that would be in
-fs/reiserfs/inode.c:reiserfs_fh_to_dentry().
-
-It would indeed be a good idea to try sticking some debugging
-'printk's in there in order to see what is failing...
-
-Cheers,
-  Trond
-
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

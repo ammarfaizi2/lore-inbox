@@ -1,98 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266527AbTBPL5C>; Sun, 16 Feb 2003 06:57:02 -0500
+	id <S266473AbTBPMUl>; Sun, 16 Feb 2003 07:20:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266564AbTBPL5C>; Sun, 16 Feb 2003 06:57:02 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:11268 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266527AbTBPL47>;
-	Sun, 16 Feb 2003 06:56:59 -0500
-Date: Sun, 16 Feb 2003 13:05:16 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: John Levon <levon@movementarian.org>, linux-kernel@vger.kernel.org
-Subject: Re: Switch APIC (+nmi, +oprofile) to driver model
-Message-ID: <20030216120515.GB589@elf.ucw.cz>
-References: <200302091407.PAA14076@kim.it.uu.se> <20030210110108.GE2838@atrey.karlin.mff.cuni.cz> <20030210115034.GF22600@compsoc.man.ac.uk> <20030210200606.GE154@elf.ucw.cz> <20030211111231.GG53481@compsoc.man.ac.uk> <20030211120059.GB892@elf.ucw.cz> <15947.41003.250547.617866@kim.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15947.41003.250547.617866@kim.it.uu.se>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	id <S266540AbTBPMUl>; Sun, 16 Feb 2003 07:20:41 -0500
+Received: from zodiac.mimuw.edu.pl ([193.0.96.128]:2249 "EHLO
+	students.mimuw.edu.pl") by vger.kernel.org with ESMTP
+	id <S266473AbTBPMUk>; Sun, 16 Feb 2003 07:20:40 -0500
+Date: Sun, 16 Feb 2003 13:30:34 +0100 (CET)
+From: Tomasz Malesinski <tm201069@students.mimuw.edu.pl>
+X-X-Sender: tm201069@zodiac.mimuw.edu.pl
+To: linux-kernel@vger.kernel.org
+Cc: Tomasz Malesinski <tm201069@students.mimuw.edu.pl>
+Subject: Floppy driver doesn't stop on errors
+Message-ID: <Pine.LNX.4.44.0302161324550.1520-100000@zodiac.mimuw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I am using 2.5.56 kernel. I haven't tested it with newer versions, but I 
+haven't found any changes in sources referencing this.
 
-> Here is my modified version of Pavel's latest patch to convert
-> apm/apic/nmi to the driver model. It's a minimalistic patch,
-> intendended ONLY to convert the old-fashioned PM support code
-> to the driver model. It seems to work for me, except that
-> initiating a suspend (via apm --suspend) triggers a BUG_ON
-> somewhere in ide-disk.c, which prevents the suspend and causes a
-> hang at shutdown.
+The problem is that when reading a floppy disk with an error the kernel
+tries to read the bad sector forever and I found no other way to stop it
+than a reboot. It happens because when the floppy driver tries to read a
+track with an error it reads all sectors until the error, writes the
+number of them to current_count_sectors and passes that number to
+end_that_request_first. That's ok, but if the buffer isn't full the next
+read starts at the bad sector, no correct sectors are read,
+current_count_sectors becomes 0 and the buffer state does not change.
 
+I am not sure what a proper way to fix this is. I changed the beginning of
+end_request routine in floppy.c from:
 
+static inline void end_request(struct request *req, int uptodate)
+{
+	if (end_that_request_first(req, uptodate, current_count_sectors))
+		return;
 
-> --- linux-2.5.60/arch/i386/kernel/apm.c.~1~	2003-02-10 23:36:54.000000000 +0100
-> +++ linux-2.5.60/arch/i386/kernel/apm.c	2003-02-12 21:01:51.000000000 +0100
-> @@ -218,6 +218,7 @@
->  #include <linux/time.h>
->  #include <linux/sched.h>
->  #include <linux/pm.h>
-> +#include <linux/device.h>
->  #include <linux/kernel.h>
->  #include <linux/smp.h>
->  #include <linux/smp_lock.h>
-> @@ -1263,6 +1264,11 @@
->  		}
->  		printk(KERN_CRIT "apm: suspend was vetoed, but suspending anyway.\n");
->  	}
-> +
-> +	device_suspend(3, SUSPEND_NOTIFY);
-> +	device_suspend(3, SUSPEND_SAVE_STATE);
+to:
 
-Comment these two lines... and all RESTORE_STATEs. System needs to be
-stopped in order for SAVE_STATE to work, and it is not in apm case.
+static inline void end_request(struct request *req, int uptodate)
+{
+	if (end_that_request_first(req, uptodate,
+	    (!current_count_sectors && !uptodate) ? 1 : current_count_sectors))
+		return;
 
-> +static struct device_driver local_apic_nmi_driver = {
-> +	.name		= "local_apic_nmi",
-> +	.bus		= &system_bus_type,
-> +	.resume		= nmi_resume,
-> +	.suspend	= nmi_suspend,
-> +};
+It works for me, but probably it would be better to pass some other value
+in case of an error, for example the current bio size in sectors.
 
-Do you think it is neccessary to call it "*local_*apic_nmi_driver"? It
-seems way too long.
+Tomasz Malesinski
 
-> +extern struct sys_device device_local_apic;
-> +
-> +static struct sys_device device_local_apic_nmi = {
-> +	.name		= "local_apic_nmi",
-> +	.id		= 0,
-> +	.dev		= {
-> +		.name	= "local_apic_nmi",
-> +		.driver	= &local_apic_nmi_driver,
-> +		.parent = &device_local_apic.dev,
-> +	},
-> +};
-
-Why did you convert device_apic_nmi to *sys_*device?
-
-> @@ -402,3 +423,7 @@
->  		wrmsr(nmi_perfctr_msr, -(cpu_khz/nmi_hz*1000), -1);
->  	}
->  }
-> +
-> +EXPORT_SYMBOL(nmi_watchdog);
-> +EXPORT_SYMBOL(disable_local_apic_nmi_watchdog);
-> +EXPORT_SYMBOL(enable_local_apic_nmi_watchdog);
-
-This is good, if we have disable_, we should have enable_, not setup_;
-but I killed _local_ part as it is way too long, then.
-
-								Pavel
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

@@ -1,67 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317749AbSFSCzq>; Tue, 18 Jun 2002 22:55:46 -0400
+	id <S317751AbSFSC7J>; Tue, 18 Jun 2002 22:59:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317750AbSFSCzp>; Tue, 18 Jun 2002 22:55:45 -0400
-Received: from h-64-105-35-162.SNVACAID.covad.net ([64.105.35.162]:2962 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S317749AbSFSCzp>; Tue, 18 Jun 2002 22:55:45 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Tue, 18 Jun 2002 19:55:39 -0700
-Message-Id: <200206190255.TAA09402@adam.yggdrasil.com>
-To: kai@tp1.ruhr-uni-bochum.de, sam@ravnborg.org
-Subject: Re: Various kbuild problems in 2.5.22
-Cc: linux-kernel@vger.kernel.org
+	id <S317752AbSFSC7I>; Tue, 18 Jun 2002 22:59:08 -0400
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:20484
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S317751AbSFSC7H>; Tue, 18 Jun 2002 22:59:07 -0400
+X-All-Your-Base: Are Belong To Us!!!
+X-Envelope-Recipient: davids@webmaster.com
+X-Envelope-Sender: stevie@qrpff.net
+Message-Id: <5.1.0.14.2.20020618222449.00ac5738@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 18 Jun 2002 22:52:36 -0400
+To: David Schwartz <davids@webmaster.com>, <rml@tech9.net>,
+       Chris Friesen <cfriesen@nortelnetworks.com>
+From: Stevie O <stevie@qrpff.net>
+Subject: Re: Question about sched_yield()
+Cc: <mgix@mgix.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020619021154.AAA2518@shell.webmaster.com@whenever>
+References: <5.1.0.14.2.20020618184424.00ab6418@whisper.qrpff.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> = Adam Richter
->>  = Sam Ravnborg
+At 07:11 PM 6/18/2002 -0700, David Schwartz wrote:
+>>By this form of ESP: sched_yield() means "I have nothing better to do right
+>>now, give my time to someone who does".
+>
+>        No, this is not what sched_yield means. What 'sched_yield' means is that 
+>you're at a point where it's convenient for another process to run. For 
+>example, perhaps you just released a mutex that you held for a long period of 
+>time, or perhaps you could function more efficiently if you could acquire a 
+>resource another thread holds.
 
->>>         If I want to the kernel to build to continue even when a module
->>>  fails to compile, I should be able to do that by just using "-k".  Not
->>>  being able to build include/linux/modversions.h prevents me from doing
->>>  that.
->>>  From a conceptual point I disagree here. I would like make to
->> avoid completion in case an error is flagged.
->> My prediction is that the new behaviour may result in more errors being
->> corrected, due to the incentitive to do it.
+To-may-to, to-mah-to. Okay. I'll try again.
 
-	For most drivers, the result of these changes will simply be
-that more device drivers are compiled out and they get less attention.
-For example, Alan Cox has said that he does not want anyone trying to
-fix the i2o drivers unless they have hardware to test the potential
-bugs that he is worried about, especially 64-bit and big endian
-issues.  Russell King, for example, has complained on linux-kernel
-that the pressure to "make it compile" lead to bad fixes which are now
-more hidden because just the compiler symptoms have been fixed.
+sched_yield() means "It would be convenient (or I would function more efficiently) if another process or thread were to run right now." i.e., "Would you be so kind as to run somebody else? As in, not me.".
 
-       Even if you do succeed at getting people to over-prioritize
-making certain files compile, it will be at the expense of whatever
-else they might have done with that time, such as working on quality
-of code that they are more specialized to handle, security,
-implementing facilities that would subsequently have made the driver
-adjustments much easier, smaller and cleaner.
+ From what I've gathered in this thread, something akin to this happens:
 
->>Today you ignore it
->> and hardly cannot spot it in all the noise generated during the build
->> process.
+  You are trying to get information out of any of three people. Two of the three people will have better/more reliable information, so you give them a higher priority.
 
-	Baloney.  If you did "make modules" without "-k" before, the
-build stopped at the first error, and I'm not asking for that to change.
+        You choose a person to ask for information -> schedule()
+        You ask person #1 for information.
+        Person #1 says: "Ask someone else" -> sched_yield()
+
+        You choose a person to ask for information -> schedule()
+        You ask person #2 for information.
+        Person #2 says: "Ask someone else" -> sched_yield()
+
+        You choose a person to ask for information -> schedule()
+Now, any rational human being (who actually wants this information) will certainly proceed as such:
+
+        You ask person #3 for information.
+        Person #3 says: "Here is the information you need." 
+        You go on your merry way.
+
+However, the Linux scheduler will look at its options, see that Person #1 has a higher priority than Person #3, and that Person #1 is marked ready-to-run, it proceeds:
+
+        You ask person #1 for information.
+        Person #1 says: "Ask someone else" -> sched_yield()
+
+        Proceed to thrash between #1 and #2, ignoring #3.
+
+Now, don't get me wrong; I understand your argument.  Like I said, Person #1 is not blocking (sched_yield() does not block), and is a higher priority than #3. All other things being equal, Person #1 should be scheduled after Person #2 yields. 
+
+But things aren't equal. There's a crucial difference here: Person #1 has relinquished his timeslice, and Person #3 hasn't.  And I'm arguing that, if a thread/process/whatever calls sched_yield, then that thread should only be run in that timeslice if:
+        * There are no other threads that are ready-to-run on that processor, or
+        * Every other thread has called sched_yield().
+
+Yes, the current behavior is technically correct; sched_yield() properly gives up control to another process. But it will sometimes give up the processor to another process that previously did a sched_yield() in the current timeslice. And that's just stupid.
 
 
-> = Kai Germaschewski
->Let me second this. In particular, there is no way to reliably generate
->module versions when the affected files cannot even be preprocessed.
+>>If a thread is doing useful work,
+>>why would it call sched_yield() ?!?
+>
+>        Perhaps to allow other threads to make forward progress. Perhaps to give 
+>other threads a chance to use a resource it just released. Perhaps in hopes 
+>that another thread will release a resource it could benefit from being able 
+>to acquire.
 
-	It worked fine before.  I am not concerned about the versioning
-of symbols in files that do not compile, as attempts to link to them
-will fail anyhow.  I may have to rebuild modversions.h if I fixed a
-file that exports symbols, but that can often be true if the file
-compiled before.
+Yeah. And if two threads decide to be 'nice' -- to allow a third thread to make forward progress -- neither will. The scheduler with thrash between the two threads, in preference to scheduling the third thread.  This is in accordance with the strictest interpretation of sched_yield()'s definition.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+
+--
+Stevie-O
+
+Real programmers use COPY CON PROGRAM.EXE
+

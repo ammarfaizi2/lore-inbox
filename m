@@ -1,71 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262057AbTJILka (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 07:40:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbTJILka
+	id S261988AbTJILw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 07:52:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbTJILw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 07:40:30 -0400
-Received: from smtp2.actcom.co.il ([192.114.47.15]:36482 "EHLO
-	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S262057AbTJILk3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 07:40:29 -0400
-Date: Thu, 9 Oct 2003 13:40:23 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Mark Hounschell <markh@compro.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can't build external module against 2.6.0-test6 kernel
-Message-ID: <20031009114023.GI4699@actcom.co.il>
-References: <3F8544DF.85E7CA81@compro.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tctmm6wHVGT/P6vA"
-Content-Disposition: inline
-In-Reply-To: <3F8544DF.85E7CA81@compro.net>
-User-Agent: Mutt/1.5.4i
+	Thu, 9 Oct 2003 07:52:58 -0400
+Received: from catv-50624ad9.szolcatv.broadband.hu ([80.98.74.217]:65154 "EHLO
+	catv-50624ad9.szolcatv.broadband.hu") by vger.kernel.org with ESMTP
+	id S261988AbTJILw4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 07:52:56 -0400
+Message-ID: <3F854C13.3010902@freemail.hu>
+Date: Thu, 09 Oct 2003 13:52:51 +0200
+From: Boszormenyi Zoltan <zboszor@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.4.1) Gecko/20031003
+X-Accept-Language: hu, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Gabor MICSKO <gmicsko@szintezis.hu>
+Subject: Re: [patch] exec-shield-2.6.0-test6-G3
+References: <3F77F752.7020404@externet.hu> <Pine.LNX.4.56.0309301655330.9692@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.56.0309301655330.9692@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, Ingo, Gabor,
 
---tctmm6wHVGT/P6vA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I tried exec-shield-2.6.0-test6-G3 on 2.6.0-test7 patched with
+http://www.kernel.org/pub/linux/kernel/v2.6/testing/cset/cset-20031009_0504.txt.gz
+(up to cset-1.1320), it patched with some fuzz and offset differences.
 
-On Thu, Oct 09, 2003 at 07:22:07AM -0400, Mark Hounschell wrote:
+I got the following exploit differences with libsafe and paxtest:
 
-> I'm trying to build a driver external to the kernel. I'm running 2.6.0-te=
-st6
-> kernel.
-> It appears to me (I'm probably wrong) that there is a kernel include
-> file issue.=20
->=20
-> gcc -c rtom.c -D__KERNEL__ -DMODULE -DDEBUG -DDEBUG_LEVEL=3D6
-> -I/lib/modules/2.6.0-test6/build/include -I../include/linux/sys
-> -I../include/linux -I../include -O -o rtom
+libsafe-2.0-16:
+[zozo@catv-50624ad9 exploits]$ ./t6
+This program tries to use scanf() to overflow the buffer.
+If you get a /bin/sh prompt, then the exploit has worked.
+Press any key to continue...
+If you see this statement, it means that the buffer
+overflow never occurred.
 
-This compilation command line dos not look like it came from the kerel
-build system? If indeed you're using your own build system, please use
-the kernel's build system to compile external modules. See
-Documentation/kbuild/* for details, as well as lwn.net's "Compling
-External Modules" article - http://lwn.net/Articles/21823/. I'm
-guessing that you do not have something set up properly that the
-kernel's build system would've set up for you.=20
---=20
-Muli Ben-Yehuda
-http://www.mulix.org
+Should I worry about it?
 
+paxtest-0.9.1:
+[zozo@catv-50624ad9 paxtest-0.9.1]$ ./paxtest
+It may take a while for the tests to complete
+Test results:
+Executable anonymous mapping             : Killed
+Executable bss                           : Killed
+Executable data                          : Killed
+Executable heap                          : Killed
+Executable stack                         : Killed
+Executable anonymous mapping (mprotect)  : Killed
+Executable bss (mprotect)                : Vulnerable
+Executable data (mprotect)               : Vulnerable
+Executable heap (mprotect)               : Vulnerable
+Executable shared library bss (mprotect) : Vulnerable
+Executable shared library data (mprotect): Vulnerable
+Executable stack (mprotect)              : Vulnerable
+Anonymous mapping randomisation test     : 16 bits (guessed) *
+Heap randomisation test (ET_EXEC)        : 13 bits (guessed) * these 3 are varying
+Heap randomisation test (ET_DYN)         : 13 bits (guessed) *
+Main executable randomisation (ET_EXEC)  : No randomisation
+Main executable randomisation (ET_DYN)   : 12 bits (guessed)
+Shared library randomisation test        : No randomisation  *** this changed ***
+Stack randomisation test (SEGMEXEC)      : 17 bits (guessed)
+Stack randomisation test (PAGEEXEC)      : 17 bits (guessed)
+Return to function (strcpy)              : Vulnerable
+Return to function (memcpy)              : Vulnerable
+Executable shared library bss            : Killed
+Executable shared library data           : Killed
+Writable text segments                   : Vulnerable
 
---tctmm6wHVGT/P6vA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+$ uname -a
+Linux catv-50624ad9.szolcatv.broadband.hu 2.6.0-test7-exec-shield-nptl #2 SMP Thu Oct 9 10:39:04 CEST 2003 i686 i686 i386 GNU/Linux
+$ cat /proc/sys/kernel/exec-shield
+2
+$ cat /proc/sys/kernel/exec-shield-randomize
+1
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+The system is an almost up-to-date "fedora core".
+$ rpm -q glibc gcc gcc32 binutils
+glibc-2.3.2-98
+gcc-3.3.1-6
+gcc32-3.2.3-6
+binutils-2.14.90.0.6-3
 
-iD8DBQE/hUknKRs727/VN8sRAqPjAKC6tAyM0GalQqagTw0XF01iFcOqWwCgglyx
-9FKNJNBIlL3Kk+nctMGMlMc=
-=G3hM
------END PGP SIGNATURE-----
+Gabor MICSKO írta:
 
---tctmm6wHVGT/P6vA--
+> 
+> Hi!
+> 
+> I`ve made a port of the Ingo's last exec-shield patch. This is my second
+> patch, so please test this one carefully. 
+> 
+> Against vanilla 2.6.0-test6:
+> http://www.hup.hu/old/stuff/kernel/exec-shield/exec-shield-2.6.0-test6-G3
+> 
+> 
+> Comments, feedbacks welcome.
+
+-- 
+Best regards,
+Zoltán Böszörményi
+
+---------------------
+What did Hussein say about his knife?
+One in Bush worth two in the hand.
+

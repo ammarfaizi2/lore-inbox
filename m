@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264881AbUHHAGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264884AbUHHA2T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264881AbUHHAGp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 20:06:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264900AbUHHAGp
+	id S264884AbUHHA2T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 20:28:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264903AbUHHA2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 20:06:45 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17367 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264881AbUHHAGo (ORCPT
+	Sat, 7 Aug 2004 20:28:19 -0400
+Received: from ozlabs.org ([203.10.76.45]:41659 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S264884AbUHHA2R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 20:06:44 -0400
-Date: Sat, 7 Aug 2004 17:05:03 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Pekka Pietikainen <pp@ee.oulu.fi>
-Cc: jgarzik@pobox.com, jolt@tuxbox.org, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: [PATCH] b44 1GB DMA workaround (was: b44: add 47xx support)
-Message-Id: <20040807170503.3b05255a.davem@redhat.com>
-In-Reply-To: <20040807224019.GA24817@ee.oulu.fi>
-References: <200407232335.37809.jolt@tuxbox.org>
-	<20040726141128.GA5435@ee.oulu.fi>
-	<20040804003108.GA10445@ee.oulu.fi>
-	<20040803183919.2990d045.davem@redhat.com>
-	<20040807224019.GA24817@ee.oulu.fi>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Sat, 7 Aug 2004 20:28:17 -0400
+Date: Sun, 8 Aug 2004 10:23:55 +1000
+From: Anton Blanchard <anton@samba.org>
+To: linux-kernel@vger.kernel.org
+Cc: chrisw@osdl.org, sds@epoch.ncsc.mil, jmorris@redhat.com
+Subject: SELINUX performance issues
+Message-ID: <20040808002355.GA24690@krispykreme>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Aug 2004 01:40:19 +0300
-Pekka Pietikainen <pp@ee.oulu.fi> wrote:
 
-> On Tue, Aug 03, 2004 at 06:39:19PM -0700, David S. Miller wrote:
-> > Changing skb->data is not legal.  Please implement this in
-> > such a way that skb->data does not get modified.  By modifying
-> > skb->data you will break things such as packet sniffers and
-> > netfilter, and that's just the tip of the iceberg. :-)
-> > 
-> Haven't noticed any breakage (tm) but I'm just a x86 weenie :-)
+Hi,
 
-Not an x86 specific problem :-)  Just run tcpdump in a shell when
-one of these TX bounce cases happen, your skb->data modification could
-will make tcpdump see a corrupt packet.
+During SLES9 testing we noticed SELINUX caused rather large performance
+regressions in network benchmarks. To retest this, I fired up
+2.6.8-rc3-BK on a small POWER5 box (3 CPUs).
 
-> Current approach is:
-> 
->         if(1 (just for testing ;) ) || mapping+len > B44_DMA_MASK) {
->                 /* Chip can't handle DMA to/from >1GB, use bounce buffer */
->                 pci_unmap_single(bp->pdev, mapping, len,PCI_DMA_TODEVICE);
->                 memcpy(bp->tx_bufs+entry*TX_PKT_BUF_SZ,skb->data,skb->len);
->                 mapping = pci_map_single(bp->pdev,bp->tx_bufs+entry*TX_PKT_BUF_SZ, len, PCI_DMA_TODEVICE);
->         }
+I enabled a bunch of stuff in my .config:
 
-This looks a bit better.
+CONFIG_SECURITY=y
+CONFIG_SECURITY_NETWORK=y
+CONFIG_SECURITY_CAPABILITIES=y
+CONFIG_SECURITY_ROOTPLUG=y
+CONFIG_SECURITY_SELINUX=y
+CONFIG_SECURITY_SELINUX_BOOTPARAM=y
+CONFIG_SECURITY_SELINUX_DISABLE=y
+CONFIG_SECURITY_SELINUX_DEVELOP=y
+CONFIG_SECURITY_SELINUX_MLS=y
+
+I then ran a number of copies of socklib to localhost. Socklib is a tool
+from tridge which just pumps bytes down a TCP stream. Very simple stuff.
+I found just over a 15% regression between enabling and disabling
+selinux (using the same kernel, just specifying the selinux=off boot
+option).
+
+Oprofile shows where the problems are:
+
+%       function
+3.0880  avc_has_perm_noaudit
+1.7677  selinux_socket_sock_rcv_skb
+0.8400  avc_has_perm
+0.5687  security_node_sid
+0.5324  security_port_sid
+0.5164  sel_netif_lookup
+0.5141  avc_lookup
+0.5003  sel_netif_put
+0.3001  sel_netif_find
+0.2899  selinux_file_permission
+
+The biggest problem is the global lock:
+
+avc_has_perm_noaudit:
+        spin_lock_irqsave(&avc_lock, flags);
+
+Any chance we can get rid of it? Maybe with RCU?
+
+Anton

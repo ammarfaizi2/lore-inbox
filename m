@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbVCCGI2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVCCGgB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261533AbVCCGI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 01:08:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVCCFeN
+	id S261561AbVCCGgB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 01:36:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbVCCGfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 00:34:13 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:54897 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261485AbVCCFbs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 00:31:48 -0500
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][9/11] IB/ipoib: small fixes
-In-Reply-To: <2005322131.OKEJHXn13XfMX2Aa@topspin.com>
-X-Mailer: Roland's Patchbomber
-Date: Wed, 2 Mar 2005 21:31:22 -0800
-Message-Id: <2005322131.kDy0lnKe0rjDV0tv@topspin.com>
+	Thu, 3 Mar 2005 01:35:36 -0500
+Received: from gate.crashing.org ([63.228.1.57]:59348 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261550AbVCCGdT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 01:33:19 -0500
+Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: "David S. Miller" <davem@davemloft.net>, Paul Mackerras <paulus@samba.org>,
+       Andrew Morton <akpm@osdl.org>, clameter@sgi.com,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, Anton Blanchard <anton@samba.org>
+In-Reply-To: <42274727.2070200@yahoo.com.au>
+References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
+	 <Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
+	 <20050302174507.7991af94.akpm@osdl.org>
+	 <Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>
+	 <20050302185508.4cd2f618.akpm@osdl.org>
+	 <Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>
+	 <20050302201425.2b994195.akpm@osdl.org>
+	 <16934.39386.686708.768378@cargo.ozlabs.ibm.com>
+	 <20050302213831.7e6449eb.davem@davemloft.net>
+	 <1109829248.5679.178.camel@gaston>  <42274727.2070200@yahoo.com.au>
+Content-Type: text/plain
+Date: Thu, 03 Mar 2005 17:30:28 +1100
+Message-Id: <1109831428.5680.187.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: akpm@osdl.org
-Content-Transfer-Encoding: 7BIT
-From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 03 Mar 2005 05:31:22.0960 (UTC) FILETIME=[3C802D00:01C51FB2]
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Shirley Ma <xma@us.ibm.com>
+On Fri, 2005-03-04 at 04:19 +1100, Nick Piggin wrote:
 
-IPoIB small fixes: Initialize path->ah to NULL, and fix dereference
-after free of neigh in error path of neigh_add_path().
+> You don't want to do that for all architectures, as I said earlier.
+> eg. i386 can concurrently set the dirty bit with the MMU (which won't
+> honour the lock).
+> 
+> So you then need an atomic lock, atomic pte operations, and atomic
+> unlock where previously you had only the atomic pte operation. This is
+> disastrous for performance.
 
-Signed-off-by: Shirley Ma <xma@us.ibm.com>
-Signed-off-by: Roland Dreier <roland@topspin.com>
+Of course, but I was answering to David about sparc64 which uses
+software TLB load :)
 
+Ben.
 
---- linux-export.orig/drivers/infiniband/ulp/ipoib/ipoib_main.c	2005-03-02 20:26:13.207621227 -0800
-+++ linux-export/drivers/infiniband/ulp/ipoib/ipoib_main.c	2005-03-02 20:26:13.653524436 -0800
-@@ -346,8 +346,9 @@
- 	if (!path)
- 		return NULL;
- 
--	path->dev = dev;
-+	path->dev          = dev;
- 	path->pathrec.dlid = 0;
-+	path->ah           = NULL;
- 
- 	skb_queue_head_init(&path->queue);
- 
-@@ -450,8 +451,8 @@
- err:
- 	*to_ipoib_neigh(skb->dst->neighbour) = NULL;
- 	list_del(&neigh->list);
--	kfree(neigh);
- 	neigh->neighbour->ops->destructor = NULL;
-+	kfree(neigh);
- 
- 	++priv->stats.tx_dropped;
- 	dev_kfree_skb_any(skb);
 

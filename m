@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131931AbQLIVwm>; Sat, 9 Dec 2000 16:52:42 -0500
+	id <S131091AbQLIVzw>; Sat, 9 Dec 2000 16:55:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132119AbQLIVwd>; Sat, 9 Dec 2000 16:52:33 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:11404 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S131931AbQLIVwQ>;
-	Sat, 9 Dec 2000 16:52:16 -0500
-Date: Sat, 9 Dec 2000 13:05:44 -0800
-Message-Id: <200012092105.NAA31335@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: matthew@hairy.beasts.org
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10012092113440.32548-100000@sphinx.mythic-beasts.com>
-	(message from Matthew Kirkwood on Sat, 9 Dec 2000 21:16:51 +0000
-	(GMT))
-Subject: Re: skbuff.c BUG() pedantry
-In-Reply-To: <Pine.LNX.4.10.10012092113440.32548-100000@sphinx.mythic-beasts.com>
+	id <S131863AbQLIVzm>; Sat, 9 Dec 2000 16:55:42 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:2308 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131091AbQLIVzX>;
+	Sat, 9 Dec 2000 16:55:23 -0500
+Message-ID: <20001209222427.A1542@bug.ucw.cz>
+Date: Sat, 9 Dec 2000 22:24:28 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: swapoff weird
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Sat, 9 Dec 2000 21:16:51 +0000 (GMT)
-   From: Matthew Kirkwood <matthew@hairy.beasts.org>
+Hi!
 
-   I guess it should probably be removed (or replace with a
-   call to something which doesn't try to kill the attached
-   process.
+It is possible to remove swapfile in use. Great, but how do you swap
+off then? Who is to blame?
 
-BUG is supposed to give a backtrace, nothing more.
-If it happens to kill the machine too, so be it, state
-is corrupted anyways...
+root@bug:~# swapoff /tmp/swap
+swapoff: /tmp/swap: No such file or directory
+root@bug:~# > /tmp/swap
+root@bug:~# swapoff /tmp/swap
+swapoff: /tmp/swap: Invalid argument
+root@bug:~#
 
-Later,
-David S. Miller
-davem@redhat.com
+How do I get out of this bad situation?
+							Pavel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

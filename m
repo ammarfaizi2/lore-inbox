@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287932AbSATDzK>; Sat, 19 Jan 2002 22:55:10 -0500
+	id <S287848AbSATEFu>; Sat, 19 Jan 2002 23:05:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287944AbSATDzB>; Sat, 19 Jan 2002 22:55:01 -0500
-Received: from weta.f00f.org ([203.167.249.89]:64966 "EHLO weta.f00f.org")
-	by vger.kernel.org with ESMTP id <S287932AbSATDyy>;
-	Sat, 19 Jan 2002 22:54:54 -0500
-Date: Sun, 20 Jan 2002 16:55:14 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Miquel van Smoorenburg <miquels@cistron.nl>, linux-kernel@vger.kernel.org
-Subject: Re: rm-ing files with open file descriptors
-Message-ID: <20020120035514.GA5987@weta.f00f.org>
-In-Reply-To: <a2bk6e$t2u$1@ncc1701.cistron.net> <Pine.GSO.4.21.0201190627310.3523-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0201190627310.3523-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.3.25i
-X-No-Archive: Yes
+	id <S287944AbSATEFl>; Sat, 19 Jan 2002 23:05:41 -0500
+Received: from svr.cih.com ([204.69.206.128]:2526 "HELO cih.com")
+	by vger.kernel.org with SMTP id <S287848AbSATEF3>;
+	Sat, 19 Jan 2002 23:05:29 -0500
+Date: Sat, 19 Jan 2002 20:06:34 -0800 (PST)
+From: "Craig I. Hagan" <hagan@cih.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Would anyone be willing to host a second kernel.org site?
+In-Reply-To: <20020119173001.A29711@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0201192005530.16457-100000@svr.cih.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 19, 2002 at 06:28:36AM -0500, Alexander Viro wrote:
+> Do you have any statistics on what percentage of the download traffic
+> is whole kernels versus patches?  If most of the traffic is whole kernels,
+> I think I might be able to offer up a fix for that.
 
-    It's also a security hole.
+this is something that hooking into a cache heirarchy (e.g. NLANR)
+might help resolve.
 
-As such would an flink impementation also be considered a bad thing?
+-- craig
 
 
 
+-------------------------------------------------------------------------------
+Craig I. Hagan     "It's a small world, but I wouldn't want to back it up"
+hagan(at)cih.com        "True hackers don't die, their ttl expires"
+  	"It takes a village to raise an idiot, but an idiot can raze a village"
 
-  --cw
+	Stop the spread of spam, use a sendmail condom!
+	     http://www.cih.com/~hagan/smtpd-hacks
+
+                       In Bandwidth we trust
+

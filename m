@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265400AbSJRVu3>; Fri, 18 Oct 2002 17:50:29 -0400
+	id <S265267AbSJRVrH>; Fri, 18 Oct 2002 17:47:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265407AbSJRVu3>; Fri, 18 Oct 2002 17:50:29 -0400
-Received: from grassmarket.ucs.ed.ac.uk ([129.215.166.64]:3246 "EHLO
-	grassmarket.ucs.ed.ac.uk") by vger.kernel.org with ESMTP
-	id <S265400AbSJRVu2>; Fri, 18 Oct 2002 17:50:28 -0400
-Date: Fri, 18 Oct 2002 22:56:29 +0100 (BST)
-From: Bruce Cran <b.j.cran@sms.ed.ac.uk>
-X-X-Sender: <brucec@tweed.dcs.ed.ac.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: ipv4 /proc/net/route bug in 2.4 and 2.5 kernels
-Message-ID: <Pine.LNX.4.33.0210182250450.17991-100000@tweed.dcs.ed.ac.uk>
+	id <S265375AbSJRVrH>; Fri, 18 Oct 2002 17:47:07 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:13227 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S265267AbSJRVrC>; Fri, 18 Oct 2002 17:47:02 -0400
+Date: Fri, 18 Oct 2002 16:52:52 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Module loader preparation 
+In-Reply-To: <20021018025632.009BE2C0BB@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0210181650340.10010-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've discovered a bug in the 2.4 and 2.5 kernels relating to the
-information in /proc.   The values reported in /proc/net/route are wrong -
-the main error is the MTU field which should be MSS, and should be the
-MTU-40.  The route command has the header fixed, but still gets the value
-from /proc, and so reports the wrong value of
-40.
+On Fri, 18 Oct 2002, Rusty Russell wrote:
 
-I'm currently using 2.5.43, and have tracked it down to line 1031 in
-net/ipv4/fib_semantics.c in function fib_node_seq_show.  It appears that
-fi->fib_advmss is 0, because when I change the '+40' to '+45' that is the
-value which appears in the MTU field in /proc/net/route, and in the MSS
-field when running '/sbin/route -e'.
+> > Did you consider just generating the info you need unconditionally in 
+> > include/linux/module.h and then removing duplicates for multi-part modules 
+> > using ld's link-once (I didn't try that yet, but it seems doable and would 
+> > also remove duplicated .modinfo.kernel_version strings and the like)
+> 
+> Didn't think of it, to be honest, and I can't find any reference to
+> link-once glancing through the ld info page.
+> 
+> You'll still have problems with objects linked into two modules
+> (ip_conntrack_core being the typical one), but we could ban these and
+> just #include the .c file rather than linking.
 
-Also, on line 191 of net/ipv4/ip_proc.c (in function fib_seq_show), I
-think the 'MTU' should be 'MSS' according to the comments in route.c, and
-to make the output of the route command and the proc entry consistent.
+Right, they'd be a problem (I'm not sure if having this kind of code
+sharing is a good idea, generally, but that's another issue).
 
---
-Bruce Cran
+> Really, the number of modules which do this is so small, the code to
+> add init function to them is less than the change in the build system
+> to get tricky.
+
+I tend to agree, in particular taking into account the problem you 
+mentioned above...
+
+--Kai
+
 
 

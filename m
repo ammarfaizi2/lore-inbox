@@ -1,127 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262796AbUCRRZh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 12:25:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262797AbUCRRZg
+	id S262797AbUCRRa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 12:30:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262793AbUCRRa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 12:25:36 -0500
-Received: from devonshire.concentric.net ([207.155.248.12]:25472 "EHLO
-	devonshire.cnchost.com") by vger.kernel.org with ESMTP
-	id S262796AbUCRRZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 12:25:32 -0500
-Reply-To: <greggr@transquest.com>
-From: "Gregg Ruoti" <greggr@transquest.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: in need of a filesystems developer-for release under GPL
-Date: Thu, 18 Mar 2004 12:24:00 -0500
-Organization: TransQuest Ventures
-Message-ID: <003401c40d0d$d54fcfd0$6325010a@Gregg>
+	Thu, 18 Mar 2004 12:30:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12687 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262772AbUCRRaY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 12:30:24 -0500
+Date: Thu, 18 Mar 2004 09:30:16 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Howells <dhowells@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+Subject: Re: fcntl error
+In-Reply-To: <7051.1079628297@redhat.com>
+Message-ID: <Pine.LNX.4.58.0403180923190.880@ppc970.osdl.org>
+References: <7051.1079628297@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
------Original Message-----
-From: Gregg Ruoti [mailto:greggr@transquest.com] 
-Sent: Thursday, March 18, 2004 12:06 PM
-To: 'linux-kernel@vger.kernel.org'
-Subject: in need of a filesystems developer-for release under GPL
+On Thu, 18 Mar 2004, David Howells wrote:
+> 
+> The attached patch fixes a minor problem with fcntl.
 
-I'm hoping this will be found relevant for some members in your
-organization.  I wanted to make them aware of this unique filesystems
-developer opportunity for the Linux platform::
+I agree that it is a cleanup, but I disagree on the "problem" part.
 
-I am working on behalf of a software vendor that has formerly retained
-our search firm to help them identify an accomplished FILESYSTEMS
-DEVELOPER. Portions of the finished work will be released under GPL and
-will offer the hired individual that much more visibility in the
-Linux/Open Source world. It's a great opportunity for the right person
-to make the leap over to a Linux filesystems based environment if not
-there already. The position is located in the CA Bay Area.
+> get_close_on_exec() uses FD_ISSET() to determine the fd state. However,
+> FD_ISSET() does not return 0 or 1 on all archs. On some it returns 0 or non-0,
+> which is fine by POSIX.
 
-I came across your organization as being a very visible & active in this
-community/subject. My client has a management team which includes one of
-the originators of SGI's IRIX, a former Wind River senior executive at
-the CxO level as well as former IBM Labs & Apple Labs people in their
-core engineering team.
+FD_ISSET() is broken if it returns anything but 0/1, in my not-so-humble 
+opinion.
 
-As you are well aware, there are very few engineers that have developed
-a true disk-based filesystem (as opposed to working with one). I
-understand from my client that the hired individual will have the
-freedom & opportunity to build changes to the filesystem's robustness to
-malicious modification, and greatly enhance its auditing capabilities.
-This would include defining what actions the filesystem will
-automatically take to changes, etc. The challenges of this filesystem
-work should make it most attractive to the more creative individual.
- 
-If you are aware of any professional acquaintances (SIGs,etc.) that you
-may be inclined to enlighten about this opportunity, I have copied the
-requirements below. If they would need more information, please feel
-free to contact me and I will provide what I can. Obviously, we would be
-grateful for any referral from you. If that does happen and we are
-successful in a hire, I am prepared to donate to your favorite SIG/User
-group, pay for a training class or offer a referral bonus to your
-organization to fund a trip to a conference etc. Thanks for your time
-(and my apologies for the long-winded email!).
+Looking at the implementations, you are right that some architectures 
+don't do this right, but that is a bug, and it's a bug in FD_ISSET(), not 
+in fcntl.
 
-Regards,
-Gregg 
-===============================
-Position info:
-130k to 160K USD per annum
-This is my confidential client's most critical & visible position for
-building their next generation architecture to be deployed on the Intel
-platform. In the area of Linux management & deployment software, they
-are one of the few proven sources for their line of robust Linux
-solutions for the enterprise level customer. They are a small firm that
-is breaking ground with the commercial potential of Linux. 
-Their flexibility to pay full-time in the 130k to 160K range per annum
-proves the importance they are placing on this opportunity. This is a
-full-time position to be located in their northern California Bay Area
-headquarters. They will assist with relocation expenses for the right
-individual.
+The fact is, FD_ISSET() isn't always used in just as a conditional, and
+you're supposed to be able to do
 
- 
-REQUIREMENTS:
-1) Professional experience focused in the development of disk based
-Filesystems, not network filesystems. (Though NFS, cifs, or samba design
-skills are fine to have, they are NOT applicable to this position)
+	int was_set = FD_ISSET(..);
+	...
 
-2) Development in UNIX-compatible filesystems such as Linux (would be
-great to have), but AIX, Solaris, *BSD, etc. are all acceptable if the
-individual is interested in making the transition over to Linux
-filesystems.
+and in fact I'd suggest very _strongly_ that it also should work with
 
-3) Worked with at least one of the following:
--Linux Inodes (or other BSD like flavor Inodes)
--Unix Vnodes
+	bool is_set = FD_ISSET(..);
 
-4) Done development specifically within the VFS (Virtual System File
-Layer)
+where some people use "char" for booleans for space reasons.
 
-5) Must be familiar with the architecture of at least 1 of the following
-filesystems: -EXT2 or EXT3 filesystem -jfs filesystem (IBM's journaled
-file system technology, currently used in IBM enterprise servers)
--reiserfs filesystem (Reiser4) -XFS (SGI's filesystem)
--HFS+ (Mac OS-X)
--VxFS (Veritas)
--ufs (Berkeley BSD filesystem) ====================================
+That implies that while non-zero for "set" is ok, that non-zero had better
+have the _low_ bits set. Which is not true on architectures that use just
+a logical and with the bits in the word.
 
+Which implies that FD_ISSET() really must NOT be of that "logical and" 
+approach, which in turn implies that it should be either a inequality 
+expression, or it should be a "shift down and then and with 1".
 
-Gregg Ruoti
-Director Business Development
-908.684.3660 Office
-973.919.4019 Mobile
-greggr@transquest.com
-TransQuest Ventures, Inc.
+And in both of those cases, the result ends up being 0/1. So we might as 
+well just make it so.
 
+In short, the real bug is elsewhere.
 
+> Also, the argument of set_close_on_exec() is being AND'ed with literal 1. This
+> is incorrect - there's no requirement for FD_CLOEXEC to be 1.
+
+Not in theory, no. In practice, it always is.
+
+I'd suggest architecture maintainers fix their __FD_ISSET() 
+implementations to conform to the proper return value.
+
+		Linus

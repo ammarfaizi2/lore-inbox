@@ -1,64 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129939AbQLTOAB>; Wed, 20 Dec 2000 09:00:01 -0500
+	id <S129401AbQLTOkA>; Wed, 20 Dec 2000 09:40:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130142AbQLTN7w>; Wed, 20 Dec 2000 08:59:52 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:10090 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129939AbQLTN7m>; Wed, 20 Dec 2000 08:59:42 -0500
-Date: Wed, 20 Dec 2000 14:28:58 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.19pre2
-Message-ID: <20001220142858.A7381@athlon.random>
-In-Reply-To: <E147MkJ-00036t-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E147MkJ-00036t-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Dec 16, 2000 at 07:11:47PM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S129410AbQLTOju>; Wed, 20 Dec 2000 09:39:50 -0500
+Received: from cocopah.gate.net ([216.219.246.49]:9464 "EHLO cocopah.gate.net")
+	by vger.kernel.org with ESMTP id <S129401AbQLTOjf>;
+	Wed, 20 Dec 2000 09:39:35 -0500
+Message-ID: <000e01c06a8e$6945db60$bc1a24cf@master>
+From: "Steve Grubb" <ddata@gate.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: [Patch] performance enhancement for simple_strtoul
+Date: Wed, 20 Dec 2000 09:09:03 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 16, 2000 at 07:11:47PM +0000, Alan Cox wrote:
-> o	E820 memory detect backport from 2.4		(Michael Chen)
+Hello,
 
-It's broken, it will crash machines:
+The following patch is a faster implementation of the simple_strtoul
+function. This function differs from the original in that it reduces the
+multiplies to shifts and logical operations wherever possible. My testing
+shows that it adds around 100 bytes, but is about 6% faster on a K6-2. (It
+is 40% faster that glibc's strtoul, but that's a different story.) My guess
+is that the performance gain will be higher on platforms with slower
+multiplication instructions. I have tested it for numerical accuracy so I
+think this is safe to apply. If anyone is interested, I can also supply a
+test application that demonstrates the performance gain. This patch was
+generated against 2.2.16, but should apply to 2.2.19 cleanly. In
+2.4.0-test9, simple_strtoul starts on line 19 rather than 17, hopefully
+that's not a problem.
 
-       for (i = 0; i < e820.nr_map; i++) {
-               unsigned long start, end;
-               /* RAM? */
-               if (e820.map[i].type != E820_RAM)
-                       continue;
-               start = PFN_UP(e820.map[i].addr);
-               end = PFN_DOWN(e820.map[i].addr + e820.map[i].size);
-               if (start >= end)
-                       continue;
-               if (end > max_pfn)
-                       max_pfn = end;
-       }
-       memory_end = (max_pfn << PAGE_SHIFT);
+Cheers,
+Steve Grubb
 
-this will threat non-RAM holes as RAM. On 2.4.x we do a different things, that
-is we collect the max_pfn but then we don't assume that there are no holes
-between 1M and max_pfn ;), we instead fill the bootmem allocator _only_ with
-E820_RAM segments.
+-------------------------
 
-I was in the process of fixing this (I also just backported the thinkpad
-%edx clobber fix), but if somebody is going to work on this please let
-me know so we stay in sync.
+--- lib/vsprintf.orig Fri Dec  1 08:58:02 2000
++++ lib/vsprintf.c Wed Dec 20 08:42:26 2000
+@@ -14,10 +14,13 @@
+ #include <linux/string.h>
+ #include <linux/ctype.h>
 
-> o	wake_one semantics for accept()			(Andrew Morton)
++/*
++* This function converts base 8, 10, or 16 only - Steve Grubb
++*/
+ unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base)
+ {
+- unsigned long result = 0,value;
+-
++ unsigned char c;
++ unsigned long result = 0;
+  if (!base) {
+   base = 10;
+   if (*cp == '0') {
+@@ -29,11 +32,36 @@
+    }
+   }
+  }
+- while (isxdigit(*cp) && (value = isdigit(*cp) ? *cp-'0' : (islower(*cp)
+-     ? toupper(*cp) : *cp)-'A'+10) < base) {
+-  result = result*base + value;
+-  cp++;
+- }
++ c = *cp;
++        switch (base) {
++                case 10:
++                        while (isdigit(c)) {
++                                result = (result*10) + (c & 0x0f);
++                                c = *(++cp);
++                        }
++                        break;
++                case 16:
++                        while (isxdigit(c)) {
++                                result = result<<4;
++                                if (c&0x40)
++                                         result += (c & 0x07) + 9;
++                                else
++                                        result += c & 0x0f;
++                                c = *(++cp);
++                        }
++                        break;
++                case 8:
++                        while (isdigit(c)) {
++                                if ((c&0x37) == c)
++                                        result = (result<<3) + (c & 0x07);
++                                else
++                                        break;
++                                c = *(++cp);
++                        }
++                        break;
++                default: /* Is anything else used by the kernel? */
++                        break;
++        }
+  if (endp)
+   *endp = (char *)cp;
+  return result;
 
-I dislike the implementation. I stick with my faster and nicer implementation
-that was just included in aa kernels for some time (2.2.18aa2 included it for
-example). Andrew, I guess you didn't noticed I just implemented the wakeone for
-accept. (I just ported it on top of 2.2.19pre2 after backing out the wakeone in
-pre2)
 
-Andrea
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

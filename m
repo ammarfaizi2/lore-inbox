@@ -1,56 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261773AbVDCOwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbVDCPBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbVDCOwN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 10:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbVDCOwN
+	id S261782AbVDCPBs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 11:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbVDCPBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 10:52:13 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:971 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261773AbVDCOwJ (ORCPT
+	Sun, 3 Apr 2005 11:01:48 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:3034 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261782AbVDCPBo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 10:52:09 -0400
-Message-ID: <42500480.17FA45AB@tv-sign.ru>
-Date: Sun, 03 Apr 2005 18:58:08 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] resend, unneeded cli/sti in ret_from_intr path
+	Sun, 3 Apr 2005 11:01:44 -0400
+Date: Sun, 3 Apr 2005 17:01:02 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: kenneth.w.chen@intel.com, torvalds@osdl.org, nickpiggin@yahoo.com.au,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db benchmark result on recent 2.6 kernels]
+Message-ID: <20050403150102.GA25442@elte.hu>
+References: <200504020100.j3210fg04870@unix-os.sc.intel.com> <20050402145351.GA11601@elte.hu> <20050402215332.79ff56cc.pj@engr.sgi.com> <20050403070415.GA18893@elte.hu> <20050403043420.212290a8.pj@engr.sgi.com> <20050403071227.666ac33d.pj@engr.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20050403071227.666ac33d.pj@engr.sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i386/kernel/entry.S:resume_kernel: is used on return path
-from do_IRQ() which leaves interrupts disabled. And we have
-preempt_stop == cli in ret_from_exception: case, before
-ret_from_intr. So this 'cli' is unneeded.
 
-It is ok to enter schedule() with interrupts disabled, so
-this 'sti' in preempt_schedule_irq() seems to be unneeded too.
+* Paul Jackson <pj@engr.sgi.com> wrote:
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+> Three more observations.
+> 
+>  1) The slowest measure_one() calls are, not surprisingly, those for the
+>     largest sizes.  At least on my test system of the moment, the plot
+>     of cost versus size has one major maximum (a one hump camel, not two).
+>     
+>     Seems like if we computed from smallest size upward, instead of largest
+>     downward, and stopped whenever two consecutive measurements were less
+>     than say 70% of the max seen so far, then we could save a nice chunk
+>     of the time.
+> 
+>     Of course, if two hump systems exist, this is not reliable on them.
 
---- 2.6.12-rc1/arch/i386/kernel/entry.S~CLI	2005-03-21 19:55:51.000000000 +0300
-+++ 2.6.12-rc1/arch/i386/kernel/entry.S	2005-03-21 19:57:58.000000000 +0300
-@@ -176,7 +176,6 @@ ENTRY(resume_userspace)
- 
- #ifdef CONFIG_PREEMPT
- ENTRY(resume_kernel)
--	cli
- 	cmpl $0,TI_preempt_count(%ebp)	# non-zero preempt_count ?
- 	jnz restore_all
- need_resched:
---- 2.6.12-rc1/kernel/sched.c~CLI	2005-03-19 14:16:53.000000000 +0300
-+++ 2.6.12-rc1/kernel/sched.c	2005-03-21 19:57:58.000000000 +0300
-@@ -2851,7 +2851,6 @@ need_resched:
- 	saved_lock_depth = task->lock_depth;
- 	task->lock_depth = -1;
- #endif
--	local_irq_enable();
- 	schedule();
- 	local_irq_disable();
- #ifdef CONFIG_PREEMPT_BKL
+yes, this is the approach i'm currently working on, but it's not 
+reliable yet. (one of the systems i have drifts its cost into infinity 
+after the hump, which shouldnt happen)
+
+>  2) Trivial warning fix for printf format mismatch:
+
+thx.
+
+>  3) I was noticing that my test system was only showing a couple of 
+>     distinct values for cpu_distance, even though it has 4 distinct 
+>     distances for values of node_distance.  So I coded up a variant of 
+>     cpu_distance that converts the problem to a node_distance problem, 
+>     and got the following cost matrix:
+> 
+> =================================== begin ===================================
+> Total of 8 processors activated (15515.64 BogoMIPS).
+> ---------------------
+> migration cost matrix (max_cache_size: 0, cpu: -1 MHz):
+> ---------------------
+>           [00]    [01]    [02]    [03]    [04]    [05]    [06]    [07]
+> [00]:     -     4.0(0) 21.7(1) 21.7(1) 25.2(2) 25.2(2) 25.3(3) 25.3(3)
+> [01]:   4.0(0)    -    21.7(1) 21.7(1) 25.2(2) 25.2(2) 25.3(3) 25.3(3)
+> [02]:  21.7(1) 21.7(1)    -     4.0(0) 25.3(3) 25.3(3) 25.2(2) 25.2(2)
+> [03]:  21.7(1) 21.7(1)  4.0(0)    -    25.3(3) 25.3(3) 25.2(2) 25.2(2)
+> [04]:  25.2(2) 25.2(2) 25.3(3) 25.3(3)    -     4.0(0) 21.7(1) 21.7(1)
+> [05]:  25.2(2) 25.2(2) 25.3(3) 25.3(3)  4.0(0)    -    21.7(1) 21.7(1)
+> [06]:  25.3(3) 25.3(3) 25.2(2) 25.2(2) 21.7(1) 21.7(1)    -     4.0(0)
+> [07]:  25.3(3) 25.3(3) 25.2(2) 25.2(2) 21.7(1) 21.7(1)  4.0(0)    -
+> ---------------------
+> cacheflush times [4]: 4.0 (4080540) 21.7 (21781380) 25.2 (25259428) 25.3 (25372682)
+
+i'll first try the bottom-up approach to speed up detection (getting to
+the hump is very fast most of the time). The hard part was to create a
+workload that generates the hump reliably on a number of boxes - i'm
+happy it works on ia64 too.
+
+then we can let the arch override the cpu_distance() method, although i
+do think that _if_ there is a significant hierarchy between CPUs it
+should be represented via a matching sched-domains hierarchy, and the
+full hierarchy should be tuned accordingly.
+
+btw., the migration cost matrix we can later use to tune all the other 
+sched-domains balancing related tunables as well - cache_hot_time is 
+just the first obvious step. (which also happens to make the most 
+difference.)
+
+	Ingo

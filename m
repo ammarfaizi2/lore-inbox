@@ -1,29 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130521AbRCIPDF>; Fri, 9 Mar 2001 10:03:05 -0500
+	id <S130531AbRCIPLg>; Fri, 9 Mar 2001 10:11:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130528AbRCIPCy>; Fri, 9 Mar 2001 10:02:54 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64018 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130521AbRCIPCs>; Fri, 9 Mar 2001 10:02:48 -0500
-Subject: Re: [linux-usb-devel] Re: SLAB vs. pci_alloc_xxx in usb-uhci patc
-To: linux-usb-devel@lists.sourceforge.net
-Date: Fri, 9 Mar 2001 15:04:17 +0000 (GMT)
-Cc: david-b@pacbell.net (David Brownell),
-        manfred@colorfullife.com (Manfred Spraul), zaitcev@redhat.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <879158D1D558D4118DBD0008C7CF32A9015834A7@tayexc07.tay.cpqcorp.net> from "Hicks, Jamey" at Mar 09, 2001 09:27:53 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130529AbRCIPL0>; Fri, 9 Mar 2001 10:11:26 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:64244 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130528AbRCIPLP>; Fri, 9 Mar 2001 10:11:15 -0500
+Date: Fri, 9 Mar 2001 19:22:57 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] documentation mm.h + swap.h
+In-Reply-To: <5.0.2.1.2.20010309003257.00abeac0@pop.cus.cam.ac.uk>
+Message-ID: <Pine.LNX.4.33.0103091922460.2283-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14bORJ-00055Y-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> USB controller driver?  If not, then let's just set up an uncached mapping
-> of all of DRAM and use a modified version of virt_to_bus and bus_to_virt.
+On Fri, 9 Mar 2001, Anton Altaparmakov wrote:
+> At 21:10 08/03/2001, Rik van Riel wrote:
+> >+ * There is also a hash table mapping (inode,offset) to the page
+> >+ * in memory if present. The lists for this hash table use the fields
+> >+ * page->next_hash and page->pprev_hash.
+>
+> Shouldn't (inode,offset) be (inode,index), or possibly (mapping,index)?
 
-If your CPU supports uncached mappings..
+> And here, too?
+
+Indeed, thanks.
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

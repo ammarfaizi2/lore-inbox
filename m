@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269291AbUJWDN7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269085AbUJWDFU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269291AbUJWDN7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 23:13:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269297AbUJWDNr
+	id S269085AbUJWDFU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 23:05:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269297AbUJWDDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 23:13:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54662 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269291AbUJWDMM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 23:12:12 -0400
-Message-ID: <4179CB07.8000405@osdl.org>
-Date: Fri, 22 Oct 2004 20:07:51 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>
-CC: Clemens Schwaighofer <cs@tequila.co.jp>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Fri, 22 Oct 2004 23:03:19 -0400
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:42431
+	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S269256AbUJWC6T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 22:58:19 -0400
+Date: Fri, 22 Oct 2004 23:03:56 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: The naming wars continue...
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>	 <41798F74.9090200@tequila.co.jp> <7aaed09104102216131170194b@mail.gmail.com>
-In-Reply-To: <7aaed09104102216131170194b@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Message-ID: <20041023030356.GA5005@animx.eu.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041022234631.GF28904@waste.org> <20041023011549.GK17038@holomorphy.com> <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Espen Fjellvær Olsen wrote:
-> On 10/23/2004 07:05 AM, Linus Torvalds wrote:
-> 
->>Ok,
->> Linux-2.6.10-rc1 is out there for your pleasure.
->>
->>I thought long and hard about the name of this release (*), since one of
->>the main complaints about 2.6.9 was the apparently release naming scheme.
->>
->>Should it be "-rc1"? Or "-pre1" to show it's not really considered release
->>quality yet? Or should I make like a rocket scientist, and count _down_
->>instead of up? Should I make names based on which day of the week the
->>release happened? Questions, questions..
-> 
-> 
-> Do the -rcs first, let them contain everything that should go into the
-> next release.
-> And when you feel that you have released enough -rcs(Uh, whenever that
-> is...) release the -pres.
-> They should only contain critical bugfixes before the final release.
+> The fact is, Linux naming has always sucked. Well, at least the versioning 
+> I've used. Others tend to be more organized. Me, I'm the "artistic" type, 
+> so I sometimes try to do something new, and invariably stupid. 
 
-Well, several of us think that -pre's should come before the
--rc's and not after them.
-
-It appears that we should concentrate on the
-NAME=Zonked Quokka
-part of Makefile for our sanity.
+Given that the versioning was supposedly <major>.<minor>.<patchlevel> and
+the difference between 2.4 and 2.6 was substantial, why not just bump
+<major> instead of the minor.  Then we'd have 3.0, 3.1, 4.0, 4.1.1 (for
+stupid mistakes).  Isn't it time we move off the 2.x series and start
+thinking of the 3.x series?
 
 -- 
-~Randy
+ Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316997AbSEWTwq>; Thu, 23 May 2002 15:52:46 -0400
+	id <S316998AbSEWTzb>; Thu, 23 May 2002 15:55:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316999AbSEWTwp>; Thu, 23 May 2002 15:52:45 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37901 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316997AbSEWTwn>;
-	Thu, 23 May 2002 15:52:43 -0400
-Message-ID: <3CED4843.2783B568@zip.com.au>
-Date: Thu, 23 May 2002 12:51:31 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S317004AbSEWTza>; Thu, 23 May 2002 15:55:30 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:782 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316998AbSEWTz2>; Thu, 23 May 2002 15:55:28 -0400
+Date: Thu, 23 May 2002 12:54:58 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Pete Zaitcev <zaitcev@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.17 /dev/ports
+In-Reply-To: <3CED2F54.8000809@evision-ventures.com>
+Message-ID: <Pine.LNX.4.33.0205231251430.2815-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: "chen, xiangping" <chen_xiangping@emc.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Poor read performance when sequential write presents
-In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D1A7A@srgraham.eng.emc.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"chen, xiangping" wrote:
+
+On Thu, 23 May 2002, Martin Dalecki wrote:
 > 
-> Hi,
-> 
-> I did a IO test with one sequential read and one sequential write
-> to different files. I expected somewhat similar throughput on read
-> and write. But it seemed that the read is blocked until the write
-> finishes. After the write process finished, the read process slowly
-> picks up the speed. Is Linux buffer cache in favor of write? How
-> to tune it?
-> 
+> Hey and finally if someone want's to use /dev/port for
+> developement on some slow control experimental hardware for example.
+> Why doesn't he just delete the - signs at the front lines
+> of the patch deleting it plus module register/unregister trivia and
+> compile it as a *separate* character device module ?
 
-Reads and writes are very different beasts - writes deal with
-the past and have good knowledge of what to do.  But reads
-must predict the future.
+That's not a productive approach, Martin.
 
-You need to do two things:
+Yes, with open source you can do whatever you want.
 
-1: Configure the device for a really big readahead window.
+HOWEVER, there is a huge amount of advantage to having a common base that 
+is big enough to matter: why do you think MS does well commercially? 
 
-   Configuring readahead in 2.4 is a pig.  Try one of the
-   following:
+It's important to _not_ have to force people to do site-specific (or 
+problem-specific) hacks, even if they could do so. Because having to have 
+site-specific hacks detracts from the general usability of the code.
 
-     echo file_readahead:N > /proc/ide/hda/settings   (N is kilobytes)
-     blockdev --setra M /dev/hda                      (M is in 512 byte sectors)
-     echo K > /prov/sys/vm/max-readahead              (K is in pages - 4k on x86)
+So when simplifying, it's not just important to say "we could do without 
+this". You have to also say "and nobody can reasonably expect to need it".
 
-   You'll find that one of these makes a difference.
+Which doesn't seem to be the case with /dev/ports. So it stays.
 
-2: Apply http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.19-pre5/read-latency2.patch
-   which will prevent reads from being penalised by writes.
-   Or use a -ac kernel, which already has this patch.
+		Linus
 
--

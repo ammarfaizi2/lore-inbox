@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315541AbSECEVj>; Fri, 3 May 2002 00:21:39 -0400
+	id <S315550AbSECEWG>; Fri, 3 May 2002 00:22:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315550AbSECEVi>; Fri, 3 May 2002 00:21:38 -0400
-Received: from ns.crrstv.net ([209.128.25.4]:32165 "EHLO mail.crrstv.net")
-	by vger.kernel.org with ESMTP id <S315541AbSECEVh>;
-	Fri, 3 May 2002 00:21:37 -0400
-Date: Fri, 3 May 2002 01:22:05 -0300
-From: "skidley" <skidley@crrstv.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: thumb stuff
-Message-ID: <20020503042205.GA1618@crrstv.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020503022859.516708ee.spyro@armlinux.org> <20020503040220.1b3057f0.spyro@armlinux.org> <20020503033502.GA1606@crrstv.net> <20020502234019.J30294@marta>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S315551AbSECEWF>; Fri, 3 May 2002 00:22:05 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:57605 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S315550AbSECEWE>;
+	Fri, 3 May 2002 00:22:04 -0400
+Date: Thu, 2 May 2002 21:22:09 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.5.13 P4 thermal link error
+Message-ID: <Pine.LNX.4.33L2.0205022117580.11832-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 02, 2002 at 11:40:19PM -0400, Kurt Wall wrote:
-> Scribbling feverishly on May 03, skidley managed to emit:
-> > On Fri, May 03, 2002 at 04:02:20AM +0100, Ian Molton wrote:
-> > > 
-> > > Shit, wrong list. please ignore :)
-> > > -
-> > how the hell does one do that????? Realize you have the wrong 
-> > list while yer writing the email yet you still send it????
-> > Doesn't make sense!
-> 
-> Take yer clue pill:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=102038900914628&w=2
-> 
-> Kurt
 
-ok sorry my mistake :P
+arch/i386/kernel/kernel.o: In function `intel_thermal_interrupt':
+arch/i386/kernel/kernel.o(.text+0x7751): undefined reference to
+`ack_APIC_irq'
+arch/i386/kernel/kernel.o: In function `intel_init_thermal':
+arch/i386/kernel/kernel.o(.text.init+0x2d0c): undefined reference to
+`apic_read'
+arch/i386/kernel/kernel.o(.text.init+0x2d48): undefined reference to
+`apic_write_around'
+arch/i386/kernel/kernel.o(.text.init+0x2d69): undefined reference to
+`apic_read'
+arch/i386/kernel/kernel.o(.text.init+0x2d79): undefined reference to
+`apic_write_around'
+make: *** [vmlinux] Error 1
+
 -- 
-Chad Young
-Linux User #195191 
+~Randy
+
+

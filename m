@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272143AbTHNDts (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 23:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272148AbTHNDts
+	id S272161AbTHNEJT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 00:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272162AbTHNEJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 23:49:48 -0400
-Received: from CPEdeadbeef0000-CM000039d4cc6a.cpe.net.cable.rogers.com ([24.192.190.108]:32386
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id S272143AbTHNDtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 23:49:47 -0400
-Date: Wed, 13 Aug 2003 23:49:39 -0400 (EDT)
-From: Shawn Starr <spstarr@sh0n.net>
-To: linux-kernel@vger.kernel.org
-cc: trivial@rustcorp.com.au, Jaroslav Kysela <perex@suse.cz>
-Subject: [PATCH][TRIVIAL][2.6.0-test3][SOUND-OPL3] Don't free struct opl3 we
- need it for snd_printd
-Message-ID: <Pine.LNX.4.44.0308132253280.3489-100000@coredump.sh0n.net>
+	Thu, 14 Aug 2003 00:09:19 -0400
+Received: from mta11.adelphia.net ([64.8.50.205]:13299 "EHLO
+	mta11.adelphia.net") by vger.kernel.org with ESMTP id S272161AbTHNEJS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 00:09:18 -0400
+Message-ID: <002c01c36219$d45376d0$6401a8c0@wa1hco>
+From: "jeff millar" <wa1hco@adelphia.net>
+To: "Paul Dickson" <dickson@permanentmail.com>, <linux-kernel@vger.kernel.org>
+Cc: <herbert@13thfloor.at>, <preining@logic.at>,
+       "Thomas Molina" <tmolina@cablespeed.com>
+References: <005001c360cf$815cb860$6401a8c0@wa1hco><Pine.LNX.4.44.0308121849220.5163-100000@localhost.localdomain> <20030813095913.23c1e0a8.dickson@permanentmail.com>
+Subject: Re: 2.6.0-test3 cannot mount root fs
+Date: Thu, 14 Aug 2003 00:09:16 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+----- Original Message ----- 
+From: "Paul Dickson" <dickson@permanentmail.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <wa1hco@adelphia.net>; <herbert@13thfloor.at>; <preining@logic.at>;
+"Thomas Molina" <tmolina@cablespeed.com>
+Sent: Wednesday, August 13, 2003 12:59 PM
+Subject: Re: 2.6.0-test3 cannot mount root fs
 
-This trivial patch fixes a panic when we try to display OPL3 debug info on
-init.
 
-Please apply, tested and works.
+> If you're running RH9, try the non-kernel RPMs found at
+> http://people.redhat.com/arjanv/2.5/RPMS.kernel/
+>
+> I haven't had any trouble getting 2.6.0-test started with these.
 
-Shawn Starr.
+Already have all those installed
 
-diff -Nrup linux-2.6.0-test3-vanilla/sound/drivers/opl3/opl3_lib.c linux-2.6.0-test3-fixes/sound/drivers/opl3/opl3_lib.c
---- linux-2.6.0-test3-vanilla/sound/drivers/opl3/opl3_lib.c	2003-08-13 23:27:35.000000000 -0400
-+++ linux-2.6.0-test3-fixes/sound/drivers/opl3/opl3_lib.c	2003-08-13 23:29:51.000000000 -0400
-@@ -440,9 +440,9 @@ int snd_opl3_create(snd_card_t * card,
- 	default:
- 		opl3->command = &snd_opl2_command;
- 		if ((err = snd_opl3_detect(opl3)) < 0) {
--			snd_opl3_free(opl3);
- 			snd_printd("OPL2/3 chip not detected at 0x%lx/0x%lx\n",
- 				   opl3->l_port, opl3->r_port);
-+			snd_opl3_free(opl3);
- 			return err;
- 		}
- 		/* detect routine returns correct hardware type */
 

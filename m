@@ -1,81 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289012AbSBDPL5>; Mon, 4 Feb 2002 10:11:57 -0500
+	id <S289013AbSBDPN5>; Mon, 4 Feb 2002 10:13:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289014AbSBDPLr>; Mon, 4 Feb 2002 10:11:47 -0500
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:12416 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S289012AbSBDPLb>;
-	Mon, 4 Feb 2002 10:11:31 -0500
-Date: Mon, 4 Feb 2002 10:11:31 -0500 (EST)
-From: "Calin A. Culianu" <calin@ajvar.org>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Steven Walter <srwalter@hapablap.dyn.dhs.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: VIA Northing workaround /causing/ problems
-In-Reply-To: <200202041247.g14ClUt12479@Port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.30.0202041009510.2423-100000@rtlab.med.cornell.edu>
+	id <S289017AbSBDPNr>; Mon, 4 Feb 2002 10:13:47 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47367 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289013AbSBDPNk>;
+	Mon, 4 Feb 2002 10:13:40 -0500
+Message-ID: <3C5EA521.B7D2F8C2@mandrakesoft.com>
+Date: Mon, 04 Feb 2002 10:13:37 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andi Kleen <ak@suse.de>
+CC: Chris Mason <mason@suse.com>, Andrea Arcangeli <andrea@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: O_DIRECT fails in some kernel and FS
+In-Reply-To: <E16WkQj-0005By-00@antoli.uib.es.suse.lists.linux.kernel> <3C5AFE2D.95A3C02E@zip.com.au.suse.lists.linux.kernel> <1012597538.26363.443.camel@jen.americas.sgi.com.suse.lists.linux.kernel> <20020202093554.GA7207@tapu.f00f.org.suse.lists.linux.kernel> <234710000.1012674008@tiny.suse.lists.linux.kernel> <20020202205438.D3807@athlon.random.suse.lists.linux.kernel> <242700000.1012680610@tiny.suse.lists.linux.kernel> <3C5C4929.5080403@sgi.com.suse.lists.linux.kernel> <20020202155028.B26147@havoc.gtf.org.suse.lists.linux.kernel> <p737kpvauvv.fsf@oldwotan.suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Feb 2002, Denis Vlasenko wrote:
-
-> On 3 February 2002 02:40, Steven Walter wrote:
-> > I recently upgraded my kernel from 2.4.10-pre6 to 2.4.18-pre2.  After
-> > doing so, X acted extremely weird; whenever just about anything
-> > happened, lines would appear across the screen, almost like static.
+Andi Kleen wrote:
+> 
+> Jeff Garzik <garzik@havoc.gtf.org> writes:
+> 
+> > On Sat, Feb 02, 2002 at 02:16:41PM -0600, Stephen Lord wrote:
+> > > Can't you fall back to buffered I/O for the tail? OK it complicates the
+> > > code, probably a lot, but it keeps things sane from the user's point of
+> > > view.
 > >
-> > After playing around with a few config options that I'd changed, with no
-> > results, I noticed the message about the VIA northbridge bug in dmesg.
-> > I commented out the line listing this chipset in pci-pc.c, recompiled,
-> > and sure enough that fixed the problem!
-> >
-> > This board is based on the KT33 chipset.  If anyone would like more
-> > information, email me.
->
-> Can you play with it a bit more?
-> Go to that file, uncomment it back, fiddle with
-> pci_fixup_via_northbridge_bug(): try to clear only bit 7,
-> then only 7 and 6 and see which cause it...
-> Make it print reg#, old, new contents:
+> > For O_DIRECT, IMHO you should fail not fallback.  You're simply lying
+> > to the underlying program otherwise.
+> 
+> It's just impossible to write a tail which is smaller than a disk block
+> without another buffer.
 
-Yes, this is a good point.  The via 'specs' (really they may not even be
-from via.. but that's a different story) say that bits 5,6,7 are for the
-MWQ Timer, but some people have reported really good results just clearing
-bit 5 and leaving 6 and 7 alone (actually this was the original MWQ timer
-patch).  I would be interested to see what bits are on for this guy by
-default from his bios and which one causes problems when touched...
+I argue, for reiserfs:
 
--Calin
+For O_DIRECT writes, the preferred behavior is to write disk blocks
+obtained through the normal methods (get_block, etc.), and fully support
+inodes for which file tails do not exist.
 
-> ...
-> printk("Trying to stomp on VIA Northbridge bug: [%02x] %02x->%02x\n", where, v, v & 0x1f);
-> ...
-> etc.
-> Original function for your reference:
->
-> static void __init pci_fixup_via_northbridge_bug(struct pci_dev *d)
-> {
->         u8 v;
->         int where = 0x55;
->         if (d->device == PCI_DEVICE_ID_VIA_8367_0) {
->                 where = 0x95; /* the memory write queue timer register is
->                                  different for the kt266x's: 0x95 not 0x55 */
->         }
->         pci_read_config_byte(d, where, &v);
->         if (v & 0xe0) {
->                 printk("Trying to stomp on VIA Northbridge bug...\n");
->                 v &= 0x1f; /* clear bits 5, 6, 7 */
->                 pci_write_config_byte(d, where, v);
->         }
-> }
-> --
-> vda
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+For O_DIRECT reads, if the data is determined to be in a file tail,
+->direct_IO should either (a) fail or (b) dump the file tail to a normal
+disk block before performing ->direct_IO.
 
+-- 
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

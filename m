@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbQL1Tug>; Thu, 28 Dec 2000 14:50:36 -0500
+	id <S130330AbQL1Tw4>; Thu, 28 Dec 2000 14:52:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129340AbQL1TuQ>; Thu, 28 Dec 2000 14:50:16 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:41993 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129257AbQL1TuE>;
-	Thu, 28 Dec 2000 14:50:04 -0500
-Message-ID: <3A4B91B6.9354E666@innominate.de>
-Date: Thu, 28 Dec 2000 20:17:10 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
+	id <S130159AbQL1Twr>; Thu, 28 Dec 2000 14:52:47 -0500
+Received: from d185fcbd7.rochester.rr.com ([24.95.203.215]:24847 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S130382AbQL1Twe>; Thu, 28 Dec 2000 14:52:34 -0500
+Date: Thu, 28 Dec 2000 14:19:19 -0500
+From: Chris Mason <mason@suse.com>
+To: Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org,
+        Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
+Message-ID: <447650000.978031159@coffee>
+In-Reply-To: <3A4B60FA.FD05ED4C@innominate.de>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: innd mmap bug in 2.4.0-test12
-In-Reply-To: <3A4B8895.CEDA8311@innominate.de> <Pine.LNX.4.10.10012281051480.12260-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> No, I'd much rather have
-> 
->         if (PageDirty(page)) BUG();
-> 
-> there, and then have the free_swap_cache code clear the dirty bit.
-> 
-> We don't want to lose dirty bits by mistake. The only cases where it's ok
-> to clear the dirty bit is when we truncate a page completely (so it won't
-> be needed and obviously really shouldn't be written out) and when we've
-> lost the last user of a swap cache entry.
-> 
-> Any other cases might be bugs, where we remove a page from a mapping
-> without noticing that it is dirty (we had this bug in reclaim_pages(), for
-> example).
 
-And in this case it's clear we lose data with nfs and smbfs that way. 
-Maybe this is more like it:
 
---- 2.4.0-test13.clean/mm/filemap.c	Fri Dec 29 03:14:58 2000
-+++ 2.4.0-test13/mm/filemap.c	Fri Dec 29 04:13:27 2000
-@@ -132,7 +132,7 @@
- 		curr = curr->next;
+On Thursday, December 28, 2000 16:49:14 +0100 Daniel Phillips <phillips@innominate.de> wrote:
+
+[ dbench 48 test on the anon space mapping patch ]
+
+> 
+> This benchmark doesn't seem to suffer a lot from noise, so the 7%
+> slowdown with your patch likely real.
+> 
+
+Ok, page_launder is supposed to run through the inactive dirty
+list twice, and on the second run, it wants to start i/o.  But,
+if the page is dirty, writepage is called on the first run.  With
+my patch, this flushes lots more data than it used to.  
+
+I have writepage doing all the i/o, and try_to_free_buffers
+only waits on it.  This diff makes it so writepage is only called
+on the second loop through the inactive dirty list, could you 
+please give it a try (slightly faster in my tests).
+
+Linus and Rik are cc'd in to find out if this is a good idea in
+general.
+
+-chris
+
+--- linux-test13-pre4/mm/vmscan.c	Sat Dec 23 13:14:26 2000
++++ linux/mm/vmscan.c	Thu Dec 28 15:02:08 2000
+@@ -609,7 +609,7 @@
+ 				goto page_active;
  
- 		/* We cannot invalidate a locked page */
--		if (TryLockPage(page))
-+		if (PageDirty(page) || TryLockPage(page))
- 			continue;
- 
- 		/* Neither can we invalidate something in use.. */
+ 			/* Can't start IO? Move it to the back of the list */
+-			if (!can_get_io_locks) {
++			if (!launder_loop || !can_get_io_locks) {
+ 				list_del(page_lru);
+ 				list_add(page_lru, &inactive_dirty_list);
+ 				UnlockPage(page);
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

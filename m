@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291198AbSBLVQc>; Tue, 12 Feb 2002 16:16:32 -0500
+	id <S291195AbSBLVQd>; Tue, 12 Feb 2002 16:16:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291195AbSBLVQM>; Tue, 12 Feb 2002 16:16:12 -0500
-Received: from smtp2.vol.cz ([195.250.128.42]:3853 "EHLO smtp2.vol.cz")
-	by vger.kernel.org with ESMTP id <S291192AbSBLVPk>;
-	Tue, 12 Feb 2002 16:15:40 -0500
-Date: Tue, 12 Feb 2002 18:14:22 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "David S. Miller" <davem@redhat.com>
-Cc: davidm@hpl.hp.com, anton@samba.org, linux-kernel@vger.kernel.org,
-        zippel@linux-m68k.org
-Subject: Re: thread_info implementation
-Message-ID: <20020212171421.GE148@elf.ucw.cz>
-In-Reply-To: <15464.33256.837784.657759@napali.hpl.hp.com> <20020211.185100.68039940.davem@redhat.com> <15464.34183.282646.869983@napali.hpl.hp.com> <20020211.190449.55725714.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020211.190449.55725714.davem@redhat.com>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S291192AbSBLVQP>; Tue, 12 Feb 2002 16:16:15 -0500
+Received: from mail.myrio.com ([63.109.146.2]:25594 "HELO mail.myrio.com")
+	by vger.kernel.org with SMTP id <S291193AbSBLVPn> convert rfc822-to-8bit;
+	Tue, 12 Feb 2002 16:15:43 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
+Subject: RE: secure erasure of files?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Tue, 12 Feb 2002 13:14:14 -0800
+Message-ID: <A015F722AB845E4B8458CBABDFFE63420FE3A9@mail0.myrio.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: secure erasure of files?
+Thread-Index: AcGzyj6jIVUwhSuQRqONInSC2R8+3QAPhV6w
+From: "Torrey Hoffman" <Torrey.Hoffman@myrio.com>
+To: "Roy Sigurd Karlsbakk" <roy@karlsbakk.net>,
+        "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 12 Feb 2002 21:15:09.0355 (UTC) FILETIME=[59DF17B0:01C1B40A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+IIRC, last time this topic came up, the best answer was:
 
->    No, it will slow down ia64 and you haven't shown that it helps others.
-> 
-> That's crap.  You haven't shown this yet, it didn't slow down sparc64
-> so I doubt you'll be able to.
-> 
-> You don't have any facts, you just "think" it will slow things down
-> because of the pointer dereference.  I challenge you to show it
-> actually shows up on the performance radar.
-> 
-> The thing is going to be fully hot in the cache all the time, there
-> is no way you'll take a cache miss for this dereference.
+Given modern disk hardware (block remapping) and operating 
+system behavior, no, there is no way to securely delete files 
+regardless of OS or filesystem.  
 
-So you essentially made your cache one cacheline smaller.
+(AFAIK, the transparent hardware block remapping cannot be
+detected or worked around in software - any software - but 
+perhaps the IDE experts here know otherwise. )
 
-I guess it is easy to add 100 minor modifications, none of them
-showing on performance radar, and slowing kernel 2 times in result.
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+If you don't want a sufficiently determined attacker to be
+able to read your data from the disk, don't write it.
+
+The solution is to use encryption and make sure your data is 
+never, ever written to disk unencrypted.  In particular, use 
+encrypted swap and encrypted loopback filesystems.
+
+Torrey
+

@@ -1,126 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVAGJxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVAGJx7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbVAGJxg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 04:53:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVAGJxg
+	id S261336AbVAGJx7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 04:53:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbVAGJx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 04:53:36 -0500
-Received: from gprs215-114.eurotel.cz ([160.218.215.114]:36746 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261335AbVAGJxb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 04:53:31 -0500
-Date: Fri, 7 Jan 2005 10:53:16 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: hugang@soulinfo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [hugang@soulinfo.com: [PATH]software suspend for ppc.]
-Message-ID: <20050107095316.GB1300@elf.ucw.cz>
-References: <20050103122653.GB8827@hugang.soulinfo.com> <20050103221718.GC25250@elf.ucw.cz> <20050106160306.GA20127@hugang.soulinfo.com> <20050106223132.GD25913@elf.ucw.cz> <20050107014023.GA29740@hugang.soulinfo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050107014023.GA29740@hugang.soulinfo.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 7 Jan 2005 04:53:58 -0500
+Received: from smail4.alcatel.fr ([62.23.212.167]:62373 "EHLO
+	smail4.alcatel.fr") by vger.kernel.org with ESMTP id S261336AbVAGJxw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 04:53:52 -0500
+Message-ID: <41DE5B99.1040602@linux-fr.org>
+Date: Fri, 07 Jan 2005 10:51:21 +0100
+From: Jean Delvare <khali@linux-fr.org>
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.8a5) Gecko/20041222
+X-Accept-Language: fr-fr, en, en-us
+MIME-Version: 1.0
+To: "J.A. Magallon" <jamagallon@able.es>
+CC: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>,
+       LM Sensors <sensors@stimpy.netroedge.com>
+Subject: Re: i2c: lost sensors with 2.6.10(-mm1)
+References: <1105058791l.5580l.0l@werewolf.able.es>
+In-Reply-To: <1105058791l.5580l.0l@werewolf.able.es>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Alcanet-MTA-scanned-and-authorized: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+J.A. Magallon wrote:
 
-> > > adding a option to freeze/thaw_processes, first freeze all user
-> > > processess, from now only kernel processess running, Now we can shrink
-> > > more memory than current version, after that freeze all processes.
-> > > that's mean if your swap space enough, swsusp will not fail. 
-> > 
-> > Thanks for the port... ...what is the test case this fixes?
-> > 
-> > Patch is pretty pretty simple, that's good...
+> I have lost my sensors info with 2.6.10, in particular -mm1.
+> They work fine with 2.6.9-mm1 (current state of the box, booted on
+> 2.6.9 or 10, no other difference).
+ > (...)
+> I have noticed different contents in /sys:
+> under 2.6.9:
+> /sys/devices/platform/i2c-1:
+> /sys/devices/platform/i2c-1/1-0290:
+> /sys/devices/platform/i2c-1/1-0290/power:
+> /sys/devices/platform/i2c-1/power:
 > 
-> # free
-> ....
-> Mem:        256368     198148
-> ...
-> Swap:       524280     140108
+> under 2.6.10:
+> /sys/devices/platform/i2c-1:
+> /sys/devices/platform/i2c-1/power:
 > 
-> # ./eatmem 256
-> 
-> now do swsusp, the current swsusp will fail, with the patch it works.
+> So some /sys nodes are missing !!!
+> (the isa bus)
 
-It worked here:
+This basically means that the i2c client was not registered.
 
-pavel@amd:~/misc$ gcc eatmem.c -o eatmem
-eatmem.c: In function `do_malloc':
-eatmem.c:10: warning: assignment makes pointer from integer without a
-cast
-pavel@amd:~/misc$ cat /proc/swaps
-Filename                                Type            Size    Used
-Priority
-/dev/hda1                               partition       1953464 0
--2
-pavel@amd:~/misc$ free
-             total       used       free     shared    buffers
-cached
-Mem:       1031568     989672      41896          0      34340
-788156
--/+ buffers/cache:     167176     864392
-Swap:      1953464          0    1953464
-pavel@amd:~/misc$ ./eatmem 1024
-1023
+> Debug output from 2.6.10-mm1:
+> (...)
+> Jan  7 01:33:11 werewolf kernel: i2c-core: driver w83627hf registered.
+> Jan  7 01:33:11 werewolf kernel: i2c_adapter i2c-1: found normal isa entry for adapter 9191, addr 0290
 
-(When it was printing around 900, I switched to another console and
-tried swsusp (worked ok), then tried again when it printed 1023).
+However, this suggests that the driver loaded properly and the base 
+address was correctly read from Super-I/O space. This would mean that 
+the problem happened later, in w83627hf_detect(). The most likely reason 
+for this would be if the region request failed (unfortunately we have no 
+message, not even debug, if this happens).
 
-I'm using patched kernel, however, and this patch might be
-relevant. Can you try to apply it and see if problem goes away? [This
-patch is ugly hack, but if it helps, we'll simply ask akpm to fix
-free_some_memory :-)].
+> Some ideas ?
 
-								Pavel
+Three things to try, in order:
 
---- clean/kernel/power/disk.c	2004-12-25 13:35:03.000000000 +0100
-+++ linux/kernel/power/disk.c	2004-12-25 13:05:45.000000000 +0100
-@@ -86,23 +86,25 @@
- 
- static void free_some_memory(void)
- {
--	unsigned int i = 0;
--	unsigned int tmp;
--	unsigned long pages = 0;
--	char *p = "-\\|/";
--
--	printk("Freeing memory...  ");
--	while ((tmp = shrink_all_memory(10000))) {
--		pages += tmp;
--		printk("\b%c", p[i]);
--		i++;
--		if (i > 3)
--			i = 0;
-+	int i;
-+	for (i=0; i<5; i++) {
-+		int i = 0, tmp;
-+		long pages = 0;
-+		char *p = "-\\|/";
-+
-+		printk("Freeing memory...  ");
-+		while ((tmp = shrink_all_memory(10000))) {
-+			pages += tmp;
-+			printk("\b%c", p[i]);
-+			i++;
-+			if (i > 3)
-+				i = 0;
-+		}
-+		printk("\bdone (%li pages freed)\n", pages);
-+		msleep_interruptible(200);
- 	}
--	printk("\bdone (%li pages freed)\n", pages);
- }
- 
--
- static inline void platform_finish(void)
- {
- 	if (pm_disk_mode == PM_DISK_PLATFORM) {
- 
+1* Compare /proc/ioports in 2.6.9-mm1 and 2.6.10-mm1. I suspect that the 
+0x290-0x297 range is held by some device in 2.6.10-mm1.
 
+2* Try reverting this patch in 2.6.10-mm1:
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10/2.6.10-mm1/broken-out/bk-i2c.patch
+It does indeed include a change in the way the I/O region is requested. 
+It should not make any difference, but maybe we are missing something 
+and it actually does.
+
+3* Try a vanilla 2.6.10 kernel and report how it is going.
+
+Thanks,
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Jean Delvare

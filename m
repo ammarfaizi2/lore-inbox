@@ -1,77 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263653AbUDFHZd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 03:25:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263659AbUDFHZd
+	id S263648AbUDFHYi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 03:24:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263653AbUDFHYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 03:25:33 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:64457 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263653AbUDFHZZ (ORCPT
+	Tue, 6 Apr 2004 03:24:38 -0400
+Received: from ozlabs.org ([203.10.76.45]:50088 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S263648AbUDFHYg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 03:25:25 -0400
-Date: Tue, 6 Apr 2004 09:25:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Cc: rusty@au1.ibm.com, nickpiggin@yahoo.com.au, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, lhcs-devel@lists.sourceforge.net
-Subject: Re: [Experimental CPU Hotplug PATCH] - Move migrate_all_tasks to CPU_DEAD handling
-Message-ID: <20040406072543.GA21626@elte.hu>
-References: <20040405121824.GA8497@in.ibm.com>
+	Tue, 6 Apr 2004 03:24:36 -0400
+Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Paul Jackson <pj@sgi.com>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mbligh@aracnet.com, Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
+       colpatch@us.ibm.com
+In-Reply-To: <20040405234552.23f810cd.pj@sgi.com>
+References: <20040329041253.5cd281a5.pj@sgi.com>
+	 <1081128401.18831.6.camel@bach> <20040405000528.513a4af8.pj@sgi.com>
+	 <1081150967.20543.23.camel@bach> <20040405010839.65bf8f1c.pj@sgi.com>
+	 <1081227547.15274.153.camel@bach> <20040405230601.62c0b84c.pj@sgi.com>
+	 <1081233543.15274.190.camel@bach>  <20040405234552.23f810cd.pj@sgi.com>
+Content-Type: text/plain
+Message-Id: <1081235999.28514.9.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040405121824.GA8497@in.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 06 Apr 2004 17:24:22 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-04-06 at 16:45, Paul Jackson wrote:
+> > That'd be a noop, I think.
+> 
+> Huh?
 
-* Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
+You passed the structs by value: you wanted to pass the address.
 
-> Hi Rusty,
-> 	migrate_all_tasks is currently run with rest of the machine
-> stopped. It iterates thr' the complete task table, turning off cpu
-> affinity of any task that it finds affine to the dying cpu. Depending
-> on the task table size this can take considerable time. All this time
-> machine is stopped, doing nothing.
+Linus dislikes typedefs for various reasons: if it's actually a struct
+on some archs and not on others, he likes it.  Otherwise he historically
+prefers the struct.  However, Linus is not the most reliable barometer.
 
-this is being done to keep things simple and fast - to avoid the
-special-cases (hotplug hooks) in various bits of scheduler code.
+Ingo added task_t because it make some lines fit in the sched.c code,
+for example.  We removed list_t in 2.5.34.
 
-> The solution that I came up with (which can be shot down if you think
-> its not correct/good :-) which meets both the above goals was to have
-> idle task put to the _front_ of the dying CPU's runqueue at the
-> highest priority possible. This cause idle thread to run _immediately_
-> after kstopmachine thread yields. Idle thread notices that its cpu is
-> offline and dies quickly. Task migration can then be done at leisure
-> in CPU_DEAD notification, when rest of the CPUs are running.
+I dislike typedefs because you have an extra name for something, and can
+predeclare structs, which saves gratuitous header file inclusion.
 
-nice. The best thing is that your patch also removes a special-case from
-the hot path.
+Hope that clarifies,
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 
-> +/* Add task at the _front_ of it's priority queue - Used by CPU offline code */
-> +static inline void __enqueue_task(struct task_struct *p, prio_array_t *array)
-
-btw., there's now an enqueue_task_head() function in the -mm scheduler
-[to do cache-cold migration], if you build ontop of -mm you'll have one
-less infrastructure bit to worry about.
-
-the question is, how much actual latency does the current 'freeze
-everything' solution cause? We should prefer simplicity and
-debuggability over cleverness of implementation - it's not like we'll
-have hotplug systems on everyone's desk in the next year or so.
-
-also, even assuming a hotplug CPU system, CPU replacement events are not
-that common, so the performance of the CPU-down op should not be a big
-issue. The function depends on the # of tasks only linearly, and we have
-tons of other code that is linear on the # of tasks - in fact we just
-finished removing all the quadratic functions.
-
-	Ingo

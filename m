@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288197AbSACE0W>; Wed, 2 Jan 2002 23:26:22 -0500
+	id <S288154AbSACE3m>; Wed, 2 Jan 2002 23:29:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288200AbSACE0M>; Wed, 2 Jan 2002 23:26:12 -0500
-Received: from gear.torque.net ([204.138.244.1]:51720 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S288197AbSACE0C>;
-	Wed, 2 Jan 2002 23:26:02 -0500
-Message-ID: <3C33DDED.7212F2F9@torque.net>
-Date: Wed, 02 Jan 2002 23:28:29 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Peter Osterlund <petero2@telia.com>
-CC: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] kernel BUG at scsi_merge.c:83
+	id <S288158AbSACE3c>; Wed, 2 Jan 2002 23:29:32 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:30341
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S288154AbSACE3T>; Wed, 2 Jan 2002 23:29:19 -0500
+Date: Wed, 2 Jan 2002 23:15:41 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Dave Jones <davej@suse.de>, Lionel Bouton <Lionel.Bouton@free.fr>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+Message-ID: <20020102231541.A30988@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Brian Gerst <bgerst@didntduck.org>, Dave Jones <davej@suse.de>,
+	Lionel Bouton <Lionel.Bouton@free.fr>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020102220333.A26713@thyrsus.com> <Pine.LNX.4.33.0201030420160.6449-100000@Appserv.suse.de> <20020102221845.A27252@thyrsus.com> <3C33D1B0.4DFDF76E@didntduck.org> <20020102223523.A27644@thyrsus.com> <3C33DAC8.E6872F16@didntduck.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C33DAC8.E6872F16@didntduck.org>; from bgerst@didntduck.org on Wed, Jan 02, 2002 at 11:15:04PM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> wrote:
-
-> Jens Axboe <axboe@suse.de> writes:
+Brian Gerst <bgerst@didntduck.org>:
+> > Nobody has told me this is a real failure case yet.  To cause a problem,
+> > the situation would have to be that DMI read fails to detect a card in
+> > use in an ISA slot.  It's OK if it reports no slots when all slots are
+> > empty.
 > 
-> > On Wed, Jan 02 2002, Peter Osterlund wrote:
-> > > Hi!
-> > > 
-> > > While doing some stress testing on the 2.5.2-pre5 kernel, I am hitting
-> > > a kernel BUG at scsi_merge.c:83, followed by a kernel panic. The
-> > > problem is that scsi_alloc_sgtable fails because the request contains
-> > > too many physical segments. I think this patch is the correct fix:
-> > 
-> > Correct, ll_rw_blk default is ok now. I missed this when killing
-> > scsi_malloc/scsi_dma, thanks.
-> 
-> It turns out this is still not enough to fix the problem for me,
-> because ll_new_hw_segment is still allowing nr_phys_segments to become
-> too large. Is the following patch the correct way to deal with this
-> problem, or is that case supposed to be prevented by some other means?
-> At least, this patch prevents the kernel panic during my stress test.
+> Well, I just popped in an old 3com 509TP network card (non-PnP) into my
+> main box and dmidecode still failed to show the single ISA slot, only 4
+> PCI and 1 AGP.
 
-<snipped patches/>
+I realize this may sound like a dumb question...but are sure the card works
+and is not just an inert mass o' silicon?  I have couple of 3c509s knocking
+around here myself and I'm not at all sure they're alive.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Peter,
-I was able to get a repeatable oops at that line copying
-files from /boot onto a "fake" scsi_debug disk with "pre5".
-The first largish file it attempted to copy caused the
-oops (which I sent to Jens).
-
-Anyway, I just applied your 2 patches (to scsi.c and ll_rw_blk.c)
-and the oops is no more.
-
-Good work.
-
-Doug Gilbert
+The day will come when the mystical generation of Jesus by the Supreme
+Being as his father, in the womb of a virgin, will be classed with the
+fable of the generation of Minerva in the brain of Jupiter.
+	-- Thomas Jefferson, 1823

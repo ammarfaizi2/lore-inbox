@@ -1,73 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272011AbRH2Q5x>; Wed, 29 Aug 2001 12:57:53 -0400
+	id <S272020AbRH2RUI>; Wed, 29 Aug 2001 13:20:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272014AbRH2Q5o>; Wed, 29 Aug 2001 12:57:44 -0400
-Received: from mailf.telia.com ([194.22.194.25]:5858 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id <S272011AbRH2Q5e>;
-	Wed, 29 Aug 2001 12:57:34 -0400
-Message-Id: <200108291657.f7TGvlw27738@mailf.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Subject: Re: Memory Problem in 2.4.10-pre2 / __alloc_pages failed
-Date: Wed, 29 Aug 2001 18:47:54 +0200
-X-Mailer: KMail [version 1.3]
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010829140706.3fcb735c.skraw@ithnet.com>
-In-Reply-To: <20010829140706.3fcb735c.skraw@ithnet.com>
+	id <S272021AbRH2RT7>; Wed, 29 Aug 2001 13:19:59 -0400
+Received: from warden.digitalinsight.com ([208.29.163.2]:53485 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S272020AbRH2RTl>; Wed, 29 Aug 2001 13:19:41 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Date: Wed, 29 Aug 2001 09:02:07 -0700 (PDT)
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <20010829153552Z16100-32383+2289@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.33.0108290858410.19372-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesdayen den 29 August 2001 14:07, Stephan von Krawczynski wrote:
+one question that I thought of in context with the other e-mails in this
+thread.
 
-> Aug 29 13:43:34 admin kernel: __alloc_pages: 2-order allocation failed
-> (gfp=0x20/0). Aug 29 13:43:34 admin kernel: pid=1207;
-> __alloc_pages(gfp=0x20, order=2, ...) 
-> Aug 29 13:43:34 admin kernel: Call Trace: [_alloc_pages+22/24] 
-> [__get_free_pages+10/24] [<fdcec845>]
-> [<fdcec913>] [<fdceb7d7>] [<fdcec0f5>] [<fdcea589>]
-> [ip_local_deliver_finish+0/368]
-I think this is the okfn parameter to nf_hook_slow below (0/368).
-And that skb_linearize(skp, GFP_ATOMIC) is much more likely candidate
-especially since it calls kmalloc...
+when you write a signed/unsigned comparison is it defined in any standard
+which type the compiler should generate or is it somethign that could be
+different in different compilers (and versions)
 
-Why does skb_linearize need to be GFP_ATOMIC? Lets see, furter down we have
-do_softirq... hmm.. not good to sleep in...
+(also when comparing different size items same question)
 
-Next question: do we really need to linearize?
+if there are cases that are not defined in a standard and could vary by
+compiler/version then we definantly need to have the current version with
+the type argument.
 
-Third question: order of the package is 2 => 4096 << 2 = 16k quite big
-for a packet... (MRU MTU network settings?)
+David Lang
 
-> [nf_hook_slow+272/404]
-> [ip_rcv_finish+0/480] [ip_local_deliver+436/444] 
-> [ip_local_deliver_finish+0/368] [ip_rcv_finish+0/480]
-> [ip_rcv_finish+413/480] [ip_rcv_finish+0/480] [nf_hook_slow+272/404]
-> [ip_rcv+870/944] [ip_rcv_finish+0/480] [net_rx_action+362/628] 
-> [do_softirq+111/204] [do_IRQ+219/236] [ret_from_intr+0/7] 
-> [sys_ioctl+443/532] [system_call+51/56]
 
+ On Wed, 29 Aug 2001,
+Daniel Phillips wrote:
+
+> Date: Wed, 29 Aug 2001 17:42:39 +0200
+> From: Daniel Phillips <phillips@bonn-fries.net>
+> To: Linus Torvalds <torvalds@transmeta.com>
+> Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+> Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
 >
-> Unfortunately I cannot tell what pid 1207 is, for it is gone when I do a ps
-> afterwards.
-
-Change the printout of 'current->pid' to 'current->comm' format '%s'
-
-> This test setup shows vm errors on every 2.4 I tested so far,
-> but on various occasions, all 2.4 below 10-pre1 fail during reading /
-> writing. All 10-pre-x fail afterwards. If I can provide additional
-> information please tell me. I am very willing to test anything you like
-> with chances it doesn't corrupt my filesystems ;-) 
-
-No guarantees...
-
-/RogerL
-
--- 
-Roger Larsson
-Skellefteå
-Sweden
+> On August 29, 2001 03:13 am, Linus Torvalds wrote:
+> > On Wed, 29 Aug 2001, Daniel Phillips wrote:
+> > >
+> > >     min(host->scsi.SCp.this_residual, (unsigned) DMAC_BUFFER_SIZE / 2);
+> >
+> > Sure.
+> >
+> > If you put the type information explicitly, you can get it right.
+> >
+> > Which is, btw, _exactly_ why the min() function takes the type explicitly.
+>
+> My point is that proper programming discipline would have prevented the
+> problem from arising in the first place.  It would be far more appropriate
+> for kernel programmers to exercise such discpline than to treat them like
+> babies, breaking well-known syntax in the process.
+>
+> It seems trivial to pick up all potential min/max problems with the Stanford
+> Checker in the case some programmer has been too clueless to think about
+> their code as they write it.  A simple policy statement for users of min/max
+> would have avoided this entire mess.
+>
+> Not that I you're going to back down, it just made me feel better to get this
+> off my chest ;-)
+>
+> --
+> Daniel
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,83 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266161AbTAJSt6>; Fri, 10 Jan 2003 13:49:58 -0500
+	id <S266356AbTAJSzA>; Fri, 10 Jan 2003 13:55:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265886AbTAJS2g>; Fri, 10 Jan 2003 13:28:36 -0500
-Received: from [193.158.237.250] ([193.158.237.250]:19848 "EHLO
-	mail.intergenia.de") by vger.kernel.org with ESMTP
-	id <S265786AbTAJS0S>; Fri, 10 Jan 2003 13:26:18 -0500
-Date: Fri, 10 Jan 2003 19:34:20 +0100
-Message-Id: <200301101834.h0AIYKY03757@mail.intergenia.de>
-To: William Lee Irwin III <wli@holomorphy.com>
-From: Brian Tinsley <btinsley@emageon.com>
-Subject: Re: 2.4.20, .text.lock.swap cpu usage? (ibm x440) [rescued]
-CC: linux-kernel@vger.kernel.org
+	id <S266257AbTAJSyC>; Fri, 10 Jan 2003 13:54:02 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:57269 "HELO palrel10.hp.com")
+	by vger.kernel.org with SMTP id <S266353AbTAJSxN>;
+	Fri, 10 Jan 2003 13:53:13 -0500
+Date: Fri, 10 Jan 2003 11:00:30 -0800
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Paul Mackerras <paulus@samba.org>,
+       davidm@hpl.hp.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       greg@kroah.com
+Subject: Re: [patch 2.5] 2-pass PCI probing, generic part
+Message-ID: <20030110190030.GA23108@cup.hp.com>
+References: <20030110021904.A15863@localhost.park.msu.ru> <Pine.LNX.4.44.0301091531260.1506-100000@penguin.transmeta.com> <20030110010906.GC18141@cup.hp.com> <m1y95tzbdq.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1y95tzbdq.fsf@frodo.biederman.org>
+User-Agent: Mutt/1.4i
+From: grundler@cup.hp.com (Grant Grundler)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->William Lee Irwin III wrote:
->  
->
->>>IMHO multiprogramming is as valid a use for memory as any other. Or
->>>even otherwise, it's not something I care to get in design debates
->>>about, it's just how the things are used.
->>>      
->>>
->
->On Thu, Jan 09, 2003 at 09:42:06PM -0600, Brian Tinsley wrote:
->  
->
->>I agree with the philosophy in general, but if I sit down to write a 
->>threaded application for Linux on IA-32 and wind up with a design that 
->>uses 800+ threads in any instance (other than a bug, which was our 
->>case), it's time to give up the day job and start riding on the back of 
->>the garbage truck ;)
->>    
->>
->
->I could care less what userspace does: mechanism, not policy. Userspace
->wants, and I give if I can, just as the kernel does with system calls.
->
->800 threads isn't even a high thread count anyway, the 2.5.x testing
->was with a peak thread count of 100,000. 800 threads, even with an 8KB
->stack, is no more than 6.4MB of lowmem for stacks and so shouldn't
->stress the system unless many instances of it are run.
->
-I understand your perspective here. I won't get into application design 
-issues as it is far out of context from this list.
+On Fri, Jan 10, 2003 at 12:56:17AM -0700, Eric W. Biederman wrote:
+> For what it is worth these cards exist though.
 
->I suspect your issue is elsewhere. I'll submit accounting patches for Marcelo's and/or Andrea's trees so you can find out what's actually going on.
->
-Much appreciated! I look forward to it.
+yes.
+
+> Quadris cards have a 256MB bar, and dolphin cards default to having a 512MB bar.
+> Both are high performance I/O adapters.
+
+I'm not familiar with "dolphin" cards.
+I'm aware of "Quadrics" but I've not heard anyone try those with parisc-linux.
+Quadrics cards do work on ia64 (for some definition of "work").
+
+> If someone leaves a big enough hole for hotplug cards I guess it can work...
+
+Or dynamically assigns windows to PCI Bus controllers as PCI devices
+are brought on-line. For PCI Hotplug, the role of managing MMIO/IRQ
+resources has moved to the OS since these services are needed
+after the OS has taken control of the box.
+
+> How you define a potential boot device, and what it saves you to not assign
+> it resources I don't know.  
+
+You have it backwards. firmware only assigns resources to boot devices
+and "console" devices. ie firmware does minimal configuration.
+Why? An OS with hotplug support can do it anyway.
+
+A "potential boot device" has firmware support which the primary boot
+loader can use to load the OS or a secondary boot loader. But firmware
+only needs to configure a single boot/console device that is
+actually being used.
 
 
->On Thu, Jan 09, 2003 at 09:42:06PM -0600, Brian Tinsley wrote:
->  
->
->>In all honesty, I would enjoy nothing more than contributing to kernel 
->>development. Unfortunately it's a bit out of my scope right now (but not forever). If I only believed aliens seeded our gene pool with clones, I could hook up with those folks that claim to have cloned a human and get one of me made! ;)
->>    
->>
->
->I don't know what to tell you here. I'm lucky that this is my day job
->and that I can contribute so much. However, there are plenty who
->contribute major changes (many even more important than my own) without
->any such sponsorship. Perhaps emulating them would satisfy your wish.
->
-It would!
+> I am still recovering from putting a 256MB bar and 4GB of ram in a 4GB hole,
+> with minimal loss on x86, so my imagination of what can be sanely done
+> on a 64bit arch may be a little stunted..
 
-I cannot say thanks enough for the efforts of you and everyone else out 
-there. Frankly, I would not have my day job and would not have been able 
-to make Emageon what it is today were it not for you all!
+both ia64 and later parisc boxes from HP reserve GB's of LMMIO address space
+for IO uses (LMMIO == MMIO < 4GB). AFAIK, physical memory behind that address
+space gets remapped to higher "physical" addresses by the memory controller.
+But making 256MB still fit in that space can still be a challenge.
+One 256MB BAR isn't so bad. It's when the customer wants to have a central
+server that has 2 or more such cards...64-bit BARs on 64-bit architecture
+make life alot easier.
 
-Oh, please excuse the stupid humor tonight. I'm in a giddy mood for some 
-reason. Must be the excitement from the prospect of getting resolution 
-to this problem!
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+grant

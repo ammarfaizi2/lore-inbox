@@ -1,61 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132743AbRDINXg>; Mon, 9 Apr 2001 09:23:36 -0400
+	id <S132745AbRDIN3i>; Mon, 9 Apr 2001 09:29:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132746AbRDINX0>; Mon, 9 Apr 2001 09:23:26 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:48503 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S132743AbRDINXK>; Mon, 9 Apr 2001 09:23:10 -0400
-Date: Mon, 9 Apr 2001 14:23:04 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Jakob Kemi <jakob.kemi@post.utfors.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail
-Message-ID: <20010409142304.H1136@redhat.com>
-In-Reply-To: <3.0.1.32.20010402212043.00dadd18@post.utfors.se>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="QDd5rp1wjxlDmy9q"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3.0.1.32.20010402212043.00dadd18@post.utfors.se>; from jakob.kemi@post.utfors.se on Mon, Apr 02, 2001 at 09:20:43PM +0200
+	id <S132746AbRDIN32>; Mon, 9 Apr 2001 09:29:28 -0400
+Received: from medusa.sparta.lu.se ([194.47.250.193]:29224 "EHLO
+	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
+	id <S132745AbRDIN3T>; Mon, 9 Apr 2001 09:29:19 -0400
+Date: Mon, 9 Apr 2001 14:13:10 +0200 (MET DST)
+From: Bjorn Wesen <bjorn@sparta.lu.se>
+To: linux-kernel@vger.kernel.org
+Subject: parport initialisation
+Message-ID: <Pine.LNX.3.96.1010409141107.9826A-100000@medusa.sparta.lu.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---QDd5rp1wjxlDmy9q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+regarding drivers/parport/*
 
-On Mon, Apr 02, 2001 at 09:20:43PM +0200, Jakob Kemi wrote:
+is there any particular reason as to why the different parport drivers
+aren't initialized using module_init() ? Like weird init order
+dependencies and stuff.
 
-> Ok, maybe this isn't the right list for this question. In 2.2.x the
-> parport_probe module extracted the ieee1284 device id correctly and
-> added to the proc fs. However this doesn't seem to work for me in
-> 2.4.x
+Looking at parport_init itself (which has hardcoded init calls to the
+different drivers right now) it does not look like it does anything
+particularly special except some proc filesystem registering.
 
-It changed place: perhaps that's the problem?  /proc/parport/$n is now
-/proc/sys/dev/parport/$name.
+Is it just because nobody has gotten around to "fixing" it or is there a
+deeper reason ?
 
-> Is there some option I need to enable. As far as I understand the
->  CONFIG_PARPORT_1284 should be enough??
+Regards
+Bjorn
 
-Yes, it should.
-
-Tim.
-*/
-
---QDd5rp1wjxlDmy9q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE60be4ONXnILZ4yVIRAvFSAJ9r9+t8auFaSs7I8100A8R18M7QagCgmN17
-QJQPUkHUnnFS8e6tgR3fBd0=
-=eDcm
------END PGP SIGNATURE-----
-
---QDd5rp1wjxlDmy9q--

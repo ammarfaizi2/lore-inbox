@@ -1,36 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268786AbUIQOQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268791AbUIQORS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268786AbUIQOQt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 10:16:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268776AbUIQOQs
+	id S268791AbUIQORS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 10:17:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268776AbUIQOQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 10:16:48 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:23328 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S268791AbUIQOKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 10:10:49 -0400
-Message-ID: <414AF06F.3090603@hotmail.com>
-Date: Fri, 17 Sep 2004 07:10:55 -0700
-From: walt <wa1ter@hotmail.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a4) Gecko/20040916
+	Fri, 17 Sep 2004 10:16:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55520 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268794AbUIQONt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 10:13:49 -0400
+Message-ID: <414AF109.6010206@pobox.com>
+Date: Fri, 17 Sep 2004 10:13:29 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.9-rc2-bk] Freeze during boot (kernel panic)
-References: <fa.fufkpc9.15ki31p@ifi.uio.no>
-In-Reply-To: <fa.fufkpc9.15ki31p@ifi.uio.no>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: andrea.carpani@criticalpath.net
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SATA Sil 3114 Hotplug
+References: <414AB129.1050100@criticalpath.net>
+In-Reply-To: <414AB129.1050100@criticalpath.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-walt wrote:
-> Something committed in the last 24 hours is causing my machine
-> to halt partway thru bootup...
+Andrea Carpani wrote:
+> Hi everybody: is hotplug for the SATA 3114 chipset by Silicon Image 
+> supposed to work?
 
-I compiled everything into the kernel and now I can see that the
-problem is a kernel panic caused by ifconfig while configuring
-the loopback interface (not the ethernet chip, which is a tg3).
+No, not yet.
 
-I'll copy and post the traceback when I get home from work.
+http://linux.yyz.us/sata/sata-status.html
+
+	Jeff
+
+

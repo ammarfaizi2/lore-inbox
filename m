@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbTK0XJO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 18:09:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbTK0XJO
+	id S261670AbTK0Xbo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 18:31:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbTK0Xbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 18:09:14 -0500
-Received: from h192n2fls310o1003.telia.com ([81.224.187.192]:7040 "EHLO
-	cambrant.com") by vger.kernel.org with ESMTP id S261575AbTK0XJL
+	Thu, 27 Nov 2003 18:31:44 -0500
+Received: from adsl-216-102-91-59.dsl.snfc21.pacbell.net ([216.102.91.59]:50865
+	"EHLO nasledov.com") by vger.kernel.org with ESMTP id S261670AbTK0Xbn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 18:09:11 -0500
-Date: Fri, 28 Nov 2003 01:07:26 +0100
-From: Tim Cambrant <tim@cambrant.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test11 setup.S assembler messages
-Message-ID: <20031128000726.GA4215@cambrant.com>
+	Thu, 27 Nov 2003 18:31:43 -0500
+Date: Thu, 27 Nov 2003 15:33:58 -0800
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: APM Suspend Problem
+Message-ID: <20031127233357.GA12525@nasledov.com>
+References: <20031127062057.GA31974@nasledov.com> <1069921674.6691.202.camel@gaston>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1069921674.6691.202.camel@gaston>
 User-Agent: Mutt/1.5.4i
+From: Misha Nasledov <misha@nasledov.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not sure if this problem appeared in earlier test-versions,
-or if it's just a problem with my current system somehow, but
-I thought it would be best to report this warning I get at the
-very end of the compiling-process. I'm no programmer or kernel-
-developer, so there is no way for me to tell of what significance
-this is.
+I figured as much, but my laptop still fails to suspend as it did in -test2
+and the 2.4 kernel series.
 
-Anyway, I get this message even after a 'make mrproper', so I'm
-quite sure it's not a problem with old junk-files or something.
-When I look in setup.S at line 165, I find nothing but a reference
-to MAXMEM-1 or something like that, and it does seem odd that the
-value gets truncated into an identical value (unless the value was
-truncated before the message got printed, that is).
-
----------------------------------------
-  AS      arch/i386/boot/setup.o
-arch/i386/boot/setup.S: Assembler messages:
-arch/i386/boot/setup.S:165: Warning: value 0x37ffffff truncated to 0x37ffffff
-  LD      arch/i386/boot/setup
----------------------------------------
-
-I'm running i386-systems with the test11-kernel. I got the same
-message on two different computers, one AMD Athlon TBird, and one
-Intel Celeron.
-
-Is this a known problem, and is there a fix to this somehow?
+On Fri, Nov 28, 2003 at 09:58:21AM +1100, Benjamin Herrenschmidt wrote:
+> > hdc: start_power_step(step: 0)
+> > hdc: completing PM request, suspend
+> > hda: start_power_step(step: 0)
+> > hda: start_power_step(step: 1)
+> > hda: complete_power_step(step: 1, stat: 50, err: 0)
+> > hda: completing PM request, suspend
+> > hda: Wakeup request inited, waiting for !BSY...
+> > hda: start_power_step(step: 1000)
+> > blk: queue c138fa00, I/O limit 4095Mb (mask 0xffffffff)
+> > hda: completing PM request, resume
+> > hdc: Wakeup request inited, waiting for !BSY...
+> > hdc: start_power_step(step: 1000)
+> > hdc: completing PM request, resume
+> 
+> Those messages are harmless, they just show normal operations
+> of the IDE suspend code. I beleive it's probably time to disable
+> the debug code in there ;)
 
 -- 
-Tim Cambrant <tim@cambrant.com> 
-GPG KeyID 0x59518702
-Fingerprint: 14FE 03AE C2D1 072A 87D0  BC4D FA9E 02D8 5951 8702
+Misha Nasledov
+misha@nasledov.com
+http://nasledov.com/misha/

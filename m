@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312901AbSDSPLJ>; Fri, 19 Apr 2002 11:11:09 -0400
+	id <S312643AbSDSPNA>; Fri, 19 Apr 2002 11:13:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312931AbSDSPLI>; Fri, 19 Apr 2002 11:11:08 -0400
-Received: from NS.iNES.RO ([193.230.220.1]:6637 "EHLO Master.iNES.RO")
-	by vger.kernel.org with ESMTP id <S312901AbSDSPLH>;
-	Fri, 19 Apr 2002 11:11:07 -0400
-Subject: Re: [PATCH] Wrong IRQ for USB on Sony Vaio (dmi_scan.c, pci-irq.c)
-From: Dumitru Ciobarcianu <cioby@lnx.ro>
-To: Dave Jones <davej@suse.de>
-Cc: Jan Slupski <jslupski@email.com>, linux-kernel@vger.kernel.org,
-        alan@redhat.com
-In-Reply-To: <20020419165615.A23782@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-3) 
-Date: 19 Apr 2002 18:10:09 +0300
-Message-Id: <1019229009.1928.24.camel@LNX.iNES.RO>
-Mime-Version: 1.0
+	id <S312680AbSDSPM7>; Fri, 19 Apr 2002 11:12:59 -0400
+Received: from ns1.advfn.com ([212.161.99.144]:58898 "EHLO mail.advfn.com")
+	by vger.kernel.org with ESMTP id <S312643AbSDSPM6>;
+	Fri, 19 Apr 2002 11:12:58 -0400
+Message-Id: <200204191512.g3JFCvl18558@mail.advfn.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Kay <timk@advfn.com>
+Reply-To: timk@advfn.com
+Organization: Advfn.com
+To: linux-kernel@vger.kernel.org
+Subject: TCP: Treason uncloaked DoS ??
+Date: Fri, 19 Apr 2002 16:15:22 +0100
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[posted here because the message itself apparantly only appears with debug 
+stuff on.]
 
-On Vi, 2002-04-19 at 17:56, Dave Jones wrote:
-> On Fri, Apr 19, 2002 at 04:43:15PM +0200, Jan Slupski wrote:
-> 
->  > Do you know any simple tool to retrieve DMI information?
-> 
-> http://people.redhat.com/arjanv/dmidecode.c
-> 
+Please forgive my igonorance but our cluster of load balanced web servers 
+suddenly produced a run of:
 
+TCP: Treason uncloaked! Peer XXX.XXX.XXX.XXX:4968/6666 shrinks window 
+2154146057:2154152518. Repaired.
 
+lines in our error logs. I have tracked this down to timer.c and I can see 
+sort of what's going on [ please correct me if I'm wrong but I think  a 
+client is saying 'send me something - ah but not at the moment because I'm 
+not ready to receive - but don't close the connection']. Question is are 
+multiple instances of this from multiple IPs a DoS possiblility. I assume 
+that the connections are kept open if the client connecting doesn't actually 
+go away so surely lots of these ocurring at once would overload a server. I 
+have googled this and an occasional instance seems normal and could be down 
+to a broken client, but lots from different IP addr's at once??
 
-On my machine (Toshiba Satellite Pro 4300 series) running dmidecode
-gives me this....
+I'm a bit concerned that maybe someone is warming up for a hit or something.
 
+Thanks
 
-[root@LNX root]# ./dmidecode  
-RSD PTR found at 0xF0170
-checksum failed.
-OEM TOSHIB
-SMBIOS 2.3 present.
-DMI 2.3 present.
-46 structures occupying 1369 bytes.
-DMI table at 0x0FFF0000.
-dmi: read: Success
-read: Illegal seek
-DMI 2.3 present.
-46 structures occupying 1369 bytes.
-DMI table at 0x0FFF0000.
-dmi: read: Illegal seek
-read: Illegal seek
-...
-
-And keeps repeating...
-
-Any hint why?
-
-//Cioby
-
+Tim
 

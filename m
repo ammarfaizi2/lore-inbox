@@ -1,59 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262078AbUCOADw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 19:03:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUCOADw
+	id S262080AbUCOANT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 19:13:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUCOANT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 19:03:52 -0500
-Received: from waste.org ([209.173.204.2]:40330 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262078AbUCOADu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 19:03:50 -0500
-Date: Sun, 14 Mar 2004 18:03:40 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: [patch] proper alignment of init task in kernel image
-Message-ID: <20040315000340.GZ20174@waste.org>
+	Sun, 14 Mar 2004 19:13:19 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:20742
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262080AbUCOANR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 19:13:17 -0500
+Date: Mon, 15 Mar 2004 01:14:00 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: marcelo.tosatti@cyclades.com, j-nomura@ce.jp.nec.com,
+       linux-kernel@vger.kernel.org, riel@redhat.com, torvalds@osdl.org
+Subject: Re: [2.4] heavy-load under swap space shortage
+Message-ID: <20040315001400.GX30940@dualathlon.random>
+References: <20040310.195707.521627048.nomura@linux.bs1.fc.nec.co.jp> <Pine.LNX.4.44.0403141638390.1554-100000@dmt.cyclades> <20040314121503.13247112.akpm@osdl.org> <20040314230138.GV30940@dualathlon.random> <20040314152253.05c58ecc.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040314152253.05c58ecc.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This keeps the alignment of the init task matched with the stack size.
-Saves 4k for 4k stacks, keeps system from exploding with 16k. Please apply.
+On Sun, Mar 14, 2004 at 03:22:53PM -0800, Andrew Morton wrote:
+> Andrea Arcangeli <andrea@suse.de> wrote:
+> >
+> > > 
+> > > Having a magic knob is a weak solution: the majority of people who are
+> > > affected by this problem won't know to turn it on.
+> > 
+> > that's why I turned it _on_ by default in my tree ;)
+> 
+> So maybe Marcelo should apply this patch, and also turn it on by default.
 
- test-mpm/arch/i386/kernel/vmlinux.lds.S |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+yes, I would suggest so. If anybody can find any swap-regression on
+small UP machines then reporting to us on l-k will be welcome. So far
+nobody could notice any swap difference at swap regime AFIK, and the
+improvement for the fast path is dramatic on the big smp boxes.
 
-diff -puN arch/i386/kernel/vmlinux.lds.S~init-task-align arch/i386/kernel/vmlinux.lds.S
---- test/arch/i386/kernel/vmlinux.lds.S~init-task-align	2004-03-14 17:57:42.000000000 -0600
-+++ test-mpm/arch/i386/kernel/vmlinux.lds.S	2004-03-14 18:00:02.000000000 -0600
-@@ -6,7 +6,8 @@
- #include <linux/config.h>
- #include <asm/page.h>
- #include <asm/asm_offsets.h>
--	
-+#include <asm/thread_info.h>
-+
- OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
- OUTPUT_ARCH(i386)
- ENTRY(startup_32)
-@@ -61,7 +62,7 @@ SECTIONS
- 
-   _edata = .;			/* End of data section */
- 
--  . = ALIGN(8192);		/* init_task */
-+  . = ALIGN(THREAD_SIZE);	/* init_task */
-   .data.init_task : { *(.data.init_task) }
- 
-   /* will be freed after init */
+> > There are workloads where adding anonymous pages to the lru is
+> > suboptimal for both the vm (cache shrinking) and the fast path too
+> > (lru_cache_add), not sure how 2.6 optimizes those bits, since with 2.6
+> > you're forced to add those pages to the lru somehow and that implies
+> > some form of locking.
+> 
+> Basically a bunch of tweeaks:
+> 
+> - Per-zone lru locks (which implicitly made them per-node)
 
-_
+the 16-ways weren't numa, and these days 16-ways HT (8-ways phys) are
+not so uncommon anymore.
 
+> 
+> - Adding/removing sixteen pages for one taking of the lock.
+> 
+> - Making the lock irq-safe (it had to be done for other reasons, but
+>   reduced contention by 30% on 4-way due to not having a CPU wander off to
+>   service an interrupt while holding a critical lock).
+> 
+> - In page reclaim, snip 32 pages off the lru completely and drop the
+>   lock while we go off and process them.
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+sounds good, thanks.
+
+I don't see other ways to optimize it (and I never enjoyed too much the
+per-zone lru since it has some downside too with a worst case on 2G
+systems). peraphs a further optimization could be a transient per-cpu
+lru refiled only by the page reclaim (so absolutely lazy while lots of
+ram is free), but maybe that's already what you're doing when you say
+"Adding/removing sixteen pages for one taking of the lock". Though the
+fact you say "sixteen pages" sounds like it's not as lazy as it could
+be.

@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132795AbRC2RRD>; Thu, 29 Mar 2001 12:17:03 -0500
+	id <S132817AbRC2R4E>; Thu, 29 Mar 2001 12:56:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132796AbRC2RQx>; Thu, 29 Mar 2001 12:16:53 -0500
-Received: from atlrel2.hp.com ([156.153.255.202]:17393 "HELO atlrel2.hp.com")
-	by vger.kernel.org with SMTP id <S132795AbRC2RQk>;
-	Thu, 29 Mar 2001 12:16:40 -0500
-Message-ID: <3AC36DB2.64C9A3D1@fc.hp.com>
-Date: Thu, 29 Mar 2001 10:15:30 -0700
-From: Khalid Aziz <khalid@fc.hp.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S132816AbRC2Rzz>; Thu, 29 Mar 2001 12:55:55 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:6930 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S132797AbRC2Rzs>; Thu, 29 Mar 2001 12:55:48 -0500
+Date: Thu, 29 Mar 2001 12:55:51 -0500 (EST)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@fonzie.nine.com>
+To: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
+Subject: [PATCH] Support for "mode" parameter in ramfs
+Message-ID: <Pine.LNX.4.33.0103291234360.800-100000@fonzie.nine.com>
 MIME-Version: 1.0
-To: Eli Carter <eli.carter@inet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: rate limiting error messages
-In-Reply-To: <3AC3659D.BD56E640@inet.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eli Carter wrote:
-> 
-> Can someone point me to a "standard way" of doing rate limiting of error
-> messages in the kernel?
-> 
-> TIA,
-> 
-> Eli
-> -----------------------.           Rule of Accuracy: When working toward
-> Eli Carter             |            the solution of a problem, it always
-> eli.carter(at)inet.com `------------------ helps if you know the answer.
+Hello!
 
-Here is how it is done in IA-64 kernel:
+This patch adds support for the "mode" parameter in ramfs. This parameter
+only affects one inode - the top-level directory (since you can specify
+mode in open() and mkdir() for everything else) and thus eliminates the
+race condition between "mount" and "chmod" by eliminating the need to use
+"chmod".
 
-static int
-within_logging_rate_limit (void)
-{
-        static unsigned long count, last_time;
+Like other filesystems, the "mode" is parsed as an octal number.
 
-        if (count > 5 && jiffies - last_time > 5*HZ)
-                count = 0;
-        if (++count < 5) {
-                last_time = jiffies;
-                return 1;
-        }
-        return 0;
+It is now possible to put the following line in /etc/fstab:
 
-}
+none      /tmp         ramfs     mode=1777     0 0
 
-If this fundction returns 0, error messages have been rate limited. This
-code is not MP-safe. So, if you need your code to be MP-safe, you may
-need to rewrite it somewhat.
+but please make sure that untrusted users cannot kill your system by
+creating huge files in /tmp!
 
--- 
-Khalid
+The patch is also available online at
+http://www.red-bean.com/~proski/linux/root_mode.diff
 
-====================================================================
-Khalid Aziz                             Linux Development Laboratory
-(970)898-9214                                        Hewlett-Packard
-khalid@fc.hp.com                                    Fort Collins, CO
+Regards,
+Pavel Roskin
+

@@ -1,76 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268553AbUJDTaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268568AbUJDTff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268553AbUJDTaI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 15:30:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268467AbUJDTYY
+	id S268568AbUJDTff (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 15:35:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268486AbUJDTch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 15:24:24 -0400
-Received: from mail.gmx.net ([213.165.64.20]:10931 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268457AbUJDTPr (ORCPT
+	Mon, 4 Oct 2004 15:32:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:52621 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268502AbUJDTYE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 15:15:47 -0400
-X-Authenticated: #20450766
-Date: Mon, 4 Oct 2004 21:11:18 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Paul Jackson <pj@sgi.com>
-cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>, alan@lxorguk.ukuu.org.uk,
-       olaf+list.linux-kernel@olafdietsche.de, george@mvista.com,
-       akpm@osdl.org, juhl-lkml@dif.dk, clameter@sgi.com, drepper@redhat.com,
-       johnstul@us.ibm.com, Ulrich.Windl@rz.uni-regensburg.de, jbarnes@sgi.com,
-       linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com,
-       Simon.Derr@bull.net
-Subject: Re: [OT] Re: patches inline in mail
-In-Reply-To: <20041003232033.7790445f.pj@sgi.com>
-Message-ID: <Pine.LNX.4.60.0410042108490.3871@poirot.grange>
-References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
- <4154F349.1090408@redhat.com> <Pine.LNX.4.58.0409242253080.13099@schroedinger.engr.sgi.com>
- <41550B77.1070604@redhat.com> <B6E8046E1E28D34EB815A11AC8CA312902CD327E@mtv-atc-605e--n.corp.sgi.com>
- <Pine.LNX.4.58.0409271344220.32308@schroedinger.engr.sgi.com>
- <4159B920.3040802@redhat.com> <Pine.LNX.4.58.0409282017340.18604@schroedinger.engr.sgi.com>
- <415AF4C3.1040808@mvista.com> <Pine.LNX.4.58.0409291054230.25276@schroedinger.engr.sgi.com>
- <415B0C9E.5060000@mvista.com> <Pine.LNX.4.61.0409292143050.2744@dragon.hygekrogen.localhost>
- <415B4FEE.2000209@mvista.com> <20040930222928.1d38389f.akpm@osdl.org>
- <1096633681.21867.14.camel@localhost.localdomain> <415DD31A.3020004@mvista.com>
- <87vfdtglrx.fsf@goat.bogus.local> <1096730402.25131.18.camel@localhost.localdomain>
- <Pine.LNX.4.60.0410032255360.5054@poirot.grange> <20041003232033.7790445f.pj@sgi.com>
+	Mon, 4 Oct 2004 15:24:04 -0400
+Message-ID: <4161A3BF.4020908@RedHat.com>
+Date: Mon, 04 Oct 2004 15:25:51 -0400
+From: Steve Dickson <SteveD@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: nfs@lists.sourceforge.net, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] lockd
+References: <41617958.2020406@RedHat.com> <1096912231.22446.60.camel@lade.trondhjem.org>
+In-Reply-To: <1096912231.22446.60.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Oct 2004, Paul Jackson wrote:
 
-> Guennadi wrote:
-> > However, everybody (not pine-users) complains, that white spaces got 
-> > corrupted. And if I export the email I see ...
-> 
-> I complained about the same extra space to a colleague of mine,
-> Simon Derr <Simon.Derr@bull.net>.
-> 
-> A day later, Simon wrote back to me:
-> > I think I found the culprit:
-> > pine 4.60 and later have a feature about 'flowed text' that has to be
-> > explicitely turned off and that messes with whitespaces.
-> 
-> And indeed, that fixed his patches, from my perspective.
 
-Thanks to all, who replied. This:
+Trond Myklebust wrote:
 
---- .pinerc~	Sat Oct  2 22:59:50 2004
-+++ .pinerc	Mon Oct  4 20:13:03 2004
-@@ -82,6 +82,7 @@
- 	signature-at-bottom,
- 	no-pass-control-characters-as-is,
- 	prefer-plain-text,
-+	quell-flowed-text,
- 	slash-collapses-entire-thread,
- 	enable-bounce-cmd,
- 	enable-msg-view-urls,
+>På må , 04/10/2004 klokka 18:24, skreiv Steve Dickson:
+>
+>  
+>
+>>Hey Neil,
+>>    
+>>
+>
+>Hey! This is the client side NLM code... 8-)
+>  
+>
+Sorry buddy.... I'm having one of those days!!!! :-\
 
-helped (I hope).
+>Note that you probably also want to move the call to
+>set_current_state(TASK_INTERRUPTIBLE) inside the loop. In that case you
+>can also remove the call to set_current_state(TASK_RUNNING) ('cos
+>schedule_timeout() will do that for you).
+>
+>  
+>
+Ok...
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+>Also, why aren't you using the more standard DECLARE_WAITQUEUE(__wait)?
+>  
+>
+I guess I didn't realize that would be a better way to do it... I'll 
+look into to...
+
+thanks,
+
+SteveD.
 

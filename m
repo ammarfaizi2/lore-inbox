@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbRBIGCp>; Fri, 9 Feb 2001 01:02:45 -0500
+	id <S129026AbRBIHDh>; Fri, 9 Feb 2001 02:03:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129201AbRBIGCg>; Fri, 9 Feb 2001 01:02:36 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:28288 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129072AbRBIGCV>;
-	Fri, 9 Feb 2001 01:02:21 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S129030AbRBIHD1>; Fri, 9 Feb 2001 02:03:27 -0500
+Received: from www.wen-online.de ([212.223.88.39]:48652 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S129026AbRBIHDS>;
+	Fri, 9 Feb 2001 02:03:18 -0500
+Date: Fri, 9 Feb 2001 08:03:14 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: christophe barbe <christophe.barbe@inup.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
+In-Reply-To: <20010208150859.A19950@pc8.inup.com>
+Message-ID: <Pine.Linu.4.10.10102090732320.1612-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14979.34718.343041.528559@pizda.ninka.net>
-Date: Thu, 8 Feb 2001 22:01:02 -0800 (PST)
-To: Werner Almesberger <Werner.Almesberger@epfl.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cosmetic: missing includes (net/sched)
-In-Reply-To: <20010209020453.Q13984@almesberger.net>
-In-Reply-To: <20010209020453.Q13984@almesberger.net>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 8 Feb 2001, christophe barbe wrote:
 
-Werner Almesberger writes:
- > This patch for 2.4.2-pre1 adds a few includes I forgot in sch_atm.c and
- > sch_dsmark.c
+> Ok it seems not important to have a nice boot process but each time you show a linux machine to a M$ normal user (normal = not a programmer) his first reaction is something like ""what are all these strange output lines?". And it's the first thing that keep Windows user in the dark side. 
+> Windows hides (or try to do) all messages by a blue screen (light blue, when you are lucky). 
+> 
+> For these reason, I use LPP (linux patch progress). It's a little patch. The main idea is : redirect all boot messages on the second console, display on the first one a bigger framebuffer logo (screen size) and draw on it the progress bar, progress text and warning messages. A proc interface is provided for the second part of the boot process (echo "starting X Font Server" > /proc/progress).
+> 
+> The boot is not significantly longer (and with a well fitted kernel, is really faster than M$ Wx) and suddendly the first linux impression is really good.
+> 
+> I hope this kind of patch can be integrated in the kernel.
 
-Applied, thanks.
+I hope that nothing like this is _ever_ integrated (and doubt I need
+be concerned;).  IMHO, hiding output from users arrogantly assumes
+that they are too stupid/ignorant to have any use for such information.
 
-Later,
-David S. Miller
-davem@redhat.com
+	-Mike
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

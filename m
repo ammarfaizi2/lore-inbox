@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264699AbTBXXpz>; Mon, 24 Feb 2003 18:45:55 -0500
+	id <S263215AbTBXXoD>; Mon, 24 Feb 2003 18:44:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264705AbTBXXpz>; Mon, 24 Feb 2003 18:45:55 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41991 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264699AbTBXXpx>; Mon, 24 Feb 2003 18:45:53 -0500
-Date: Mon, 24 Feb 2003 15:51:01 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andreas Schwab <schwab@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
-In-Reply-To: <1046133600.2216.12.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0302241549140.1282-100000@penguin.transmeta.com>
+	id <S263313AbTBXXnz>; Mon, 24 Feb 2003 18:43:55 -0500
+Received: from scrye.com ([216.17.180.1]:56792 "EHLO scrye.com")
+	by vger.kernel.org with ESMTP id <S262838AbTBXXnq>;
+	Mon, 24 Feb 2003 18:43:46 -0500
+Message-ID: <20030224235355.30878.qmail@scrye.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Date: Mon, 24 Feb 2003 16:53:51 -0700
+From: Kevin Fenzi <kevin-linux-kernel@scrye.com>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Subject: Re: 2.4.x end of tape handling error
+References: <mailman.1044901620.21591.linux-kernel2news@redhat.com>
+	<200302101904.h1AJ4US05141@devserv.devel.redhat.com>
+	<20030218021039.28335.qmail@scrye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On 25 Feb 2003, Alan Cox wrote:
-> 
-> gcc-3.3 doesnt exist yet. Maybe it wont do that now 8)
 
-Right now there are some other problems with gcc-3.3 too, ie the inlining
-is apparently broken enough that we'll either have to start using
-__attribute__((force_inline)) or we'd better hope that the gcc people
-decide to take the "inline" keyword more seriously (it's being discussed
-on the gcc lists, so we'll see)
+Some more information on this problem discovered by Tim Jones
+<tjones@tolisgroup.com>:
 
-But yes, these are all obviously with "early versions", and it may be that 
-it changes before the real release.
+Tim> Additional news.
 
-		Linus
+Tim> This is actually related to the check sense bit not being
+Tim> propagated up to the ST driver.  A simpler test (beats writing
+Tim> 40GB to a tape ...):
 
+Tim> use a 2.2.19/20/21 or 22 kernel, or a 2.4.9-34 kernel Remove the
+Tim> tape from the tape device execute:
+
+Tim>   tar -cvvf /dev/nst0 /etc
+
+Tim> You will receive a "No medium found" message
+
+Tim> Replace the kernel with 2.4.11+ and repeat the tar write test.
+Tim> This time, you will receive a write failure.
+
+Tim> This is caused by the check sense not being set and the ST driver
+Tim> sending up a EIO instead of the ENOMEDIUM.
+
+So, it looks like this problem is _not_ in the st driver itself, but
+somewhere in the SCSI layer. 
+
+Anyone have any ideas how to better track it down?
+
+Happy to run debug code/test cases here. 
+
+anyone?
+
+kevin
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
+
+iD8DBQE+WrCT3imCezTjY0ERAoNDAJ9kx5aTtxJZlxKL04IJmVTztvM5MQCeIuFS
+Y4RxoYEC619ckzSxXGIAlcM=
+=A5/e
+-----END PGP SIGNATURE-----

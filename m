@@ -1,78 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbUBYRHI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 12:07:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbUBYRHI
+	id S261440AbUBYRJY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 12:09:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbUBYRJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 12:07:08 -0500
-Received: from mail.acu.edu ([150.252.135.93]:9941 "EHLO nicanor.acu.edu")
-	by vger.kernel.org with ESMTP id S261423AbUBYRHE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 12:07:04 -0500
-Date: Wed, 25 Feb 2004 11:06:29 -0600
-From: Michael Joy <mdj00b@acu.edu>
-Subject: Re: 2.6.3 Boot Failure on Nforce2 Board
-In-reply-to: <403CCAA2.5070800@pobox.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Message-id: <1077728789.14230.3.camel@physx01.acu.edu>
-Organization: Abilene Christian University
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.5-2.norlug
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <1077723571.9844.22.camel@physx01.acu.edu>
- <403CCAA2.5070800@pobox.com>
+	Wed, 25 Feb 2004 12:09:23 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:9994 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S261440AbUBYRIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 12:08:55 -0500
+Message-ID: <403CD900.6080003@techsource.com>
+Date: Wed, 25 Feb 2004 12:18:56 -0500
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Intel vs AMD x86-64
+References: <7F740D512C7C1046AB53446D37200173EA2718@scsmsx402.sc.intel.com> <403CCBE0.7050100@techsource.com> <c1ihqh$e0r$1@terminus.zytor.com>
+In-Reply-To: <c1ihqh$e0r$1@terminus.zytor.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This problem is completely independent of nvnet as I'm not using it for
-2.6.3.. the dmesg dump is from our WORKING configuration. I can't use
-forcedeth as the kernel won't even get to module loading to boot!
 
-Again, this has nothing to do with binary driver problems.
 
-Michael
+H. Peter Anvin wrote:
+> Followup to:  <403CCBE0.7050100@techsource.com>
+> By author:    Timothy Miller <miller@techsource.com>
+> In newsgroup: linux.dev.kernel
+> 
+>>
+>>Nakajima, Jun wrote:
+>>
+>>>No, it's not a problem. Branches with 16-bit operand size are not useful
+>>>for compilers.
+>>
+>> From AMD's documentation, I got the impression that 66H caused near 
+>>branches to be 32 bits in long mode (default is 64).
+>>
+>>So, Intel makes it 16 bits, and AMD makes it 32 bits?
+>>
+>>Either way, I don't see much use for either one.
+>>
+> 
+> 
+> Both claims are pretty bogus.  Shorter branches are quite nice for
+> intraprocedural jumps; it reduces the cache footprint.
 
-On Wed, 2004-02-25 at 10:17, Jeff Garzik wrote:
-> Michael Joy wrote:
-> > Hello,
-> > We're having an interesting problem with the latest kernel release. On
-> > an Albatron KM18G, latest bios, 1024MB system with athlon xp proc, 2.6.3
-> > refuses to boot. It hangs on initializing the ide devices.
-> > 
-> > [2.] Full description of the problem/report: The problem is most
-> > definately related to the ide controller changes made in 2.6.3 as in
-> > 2.4.22 we did not have this issue. We haven't tried any of the previous
-> > kernels as this is a production system.
-> > 
-> > When booting the 2.6.3 kernel, either compiled by Mandrake (cooker) or
-> > using the straight up source, the kernel hangs without any error on hda:
-> > max request size : 128KiB.
-> > 
-> > I don't have a log of this as it won't initialize the HD (wd1200jb on an
-> > 80pin cable) to log the dmesg dump. Anyways we have two identical
-> > machines that do this. Both are nforce2 integrated gpu's, using onboard
-> > networking and sound. They have 2x512 Kingston HyperX memory modules
-> > which have been thouroughly tested in these machines with memtest and no
-> > errors are found.
-> > 
-> > Of note is that these machines exhibit the random freezes (blank screen,
-> > hard lock, normally associated with heavy disk thrashing) many other
-> > nforce2 boards seem to be experiencing. To fix this, we boot them with
-> > the noapic and nolapic option and the problem does not reappear. 
-> 
-> > i2c-nforce2             4392   0 (unused)
-> 
-> > nvnet                  30880   1 (autoclean)
-> 
-> 
-> You appear to have a binary-only module, nvnet, loaded...  we cannot 
-> debug problems with closed source code in your kernel.  Try "forcedeth" 
-> NIC driver instead.
-> 
-> 	Jeff
-> 
--- 
-Michael Joy <mdj00b@acu.edu>
-Abilene Christian University
+I think we were talking about absolute branches when referring to "near 
+branches".  For absolute branches, having a 32-bit address restricts you 
+to the lower 4G of the address space.
+
+For long mode on AMD64, default operand size for _relative_ branch is 32 
+bits.  I get the impression that the size of the relative branch operand 
+is handled differently from the "segment default word size".
+
 

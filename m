@@ -1,129 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262819AbTJ3VRx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 16:17:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbTJ3VRx
+	id S262887AbTJ3VL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 16:11:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbTJ3VLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 16:17:53 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29841 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262819AbTJ3VRt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 16:17:49 -0500
-Message-ID: <3FA17FEC.2080203@pobox.com>
-Date: Thu, 30 Oct 2003 16:17:32 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Thu, 30 Oct 2003 16:11:25 -0500
+Received: from [62.38.227.254] ([62.38.227.254]:8578 "EHLO pfn1.pefnos")
+	by vger.kernel.org with ESMTP id S262887AbTJ3VLY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 16:11:24 -0500
+From: "P. Christeas" <p_christ@hol.gr> (by way of P. Christeas
+	<p_christ@hol.gr>)
+Date: Fri, 31 Oct 2003 00:12:47 +0200
+User-Agent: KMail/1.5.3
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test9 breaks cdrecord w. ide-scsi device  
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Re: 2.6.0-test9-mjb1
-References: <14860000.1067544022@flay>  <3FA171DD.5060406@pobox.com> <1067548047.1028.19.camel@nighthawk>
-In-Reply-To: <1067548047.1028.19.camel@nighthawk>
-Content-Type: multipart/mixed;
- boundary="------------080303000003020903000101"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310310012.47580.p_christ@hol.gr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080303000003020903000101
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Dave Hansen wrote:
-> On Thu, 2003-10-30 at 12:17, Jeff Garzik wrote:
-> 
->>Martin J. Bligh wrote:
->>
->>>e1000 fixes
->>
->>Um...   any e1000 fixes you have, please forward them to me and Intel 
->>rather than letting them languish in a tree.
-> 
-> 
-> There aren't any in there right now.  The patches that Martin is
-> referring to were probably a couple from Anton that got fixed and merged
-> long, long ago.  There's one that we keep around for ppc64, but it's not
-> applicable to any other architectures and it's not really mainline
-> material anyway.  
+Just rebooted my long-running machine and now strongly suspect that it is a 
+kernel bug:
+I try to burn (dummy mode) 20 tracks of audio on a 'PIONEER DVD-RW  DVR-106D' 
+drive.
+At -test8 it would work (tested 4 times now, several with even older kernels).
+On -test 9 I always (> 15 times tested) get the messages quoted.
+The drive is on ide-scsi [M],  sg is built-in, sr is a module. Ask me anything 
+else you may want me to try..
 
 
-well, there's still this patch...
+cdrecord 2.01.xx :
+Track 01:   31 of   38 MB written (fifo 100%) [buf  90%]  19.8x.cdrecord:
+ Input/output error. write_g1: scsi sendcmd: no error CDB:  2A 00 00 00 36 F3
+ 00 00 1B 00
+status: 0x2 (CHECK CONDITION)
+Sense Bytes: 70 00 04 00 D3 10 FA 0E 26 01 30 FE 08 01 00 00
+Sense Key: 0x4 Hardware Error, Segment 0
+Sense Code: 0x08 Qual 0x01 (logical unit communication time-out) Fru 0x0
+Sense flags: Blk 13832442 (not valid)
+cmd finished after 2.004s timeout 200s
 
---------------080303000003020903000101
-Content-Type: text/plain;
- name="e1000_patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="e1000_patch"
+write track data: error after 33085584 bytes
+cdrecord: A write error occured.
+cdrecord: Please properly read the error message above.
+Writing  time:   28.974s
+Average write speed 154.5x.
+Min drive buffer fill was 79%
+Fixating...
 
---- ./drivers/net/e1000/e1000_hw.c.orig	2003-10-30 09:29:52.000000000 -0500
-+++ ./drivers/net/e1000/e1000_hw.c	2003-10-30 09:30:39.000000000 -0500
-@@ -4522,8 +4522,8 @@ uint32_t
- e1000_read_reg_io(struct e1000_hw *hw,
-                   uint32_t offset)
- {
--    uint32_t io_addr = hw->io_base;
--    uint32_t io_data = hw->io_base + 4;
-+    unsigned long io_addr = hw->io_base;
-+    unsigned long io_data = hw->io_base + 4;
- 
-     e1000_io_write(hw, io_addr, offset);
-     return e1000_io_read(hw, io_data);
-@@ -4542,8 +4542,8 @@ e1000_write_reg_io(struct e1000_hw *hw,
-                    uint32_t offset,
-                    uint32_t value)
- {
--    uint32_t io_addr = hw->io_base;
--    uint32_t io_data = hw->io_base + 4;
-+    unsigned long io_addr = hw->io_base;
-+    unsigned long io_data = hw->io_base + 4;
- 
-     e1000_io_write(hw, io_addr, offset);
-     e1000_io_write(hw, io_data, value);
---- ./drivers/net/e1000/e1000_hw.h.orig	2003-10-30 09:30:48.000000000 -0500
-+++ ./drivers/net/e1000/e1000_hw.h	2003-10-30 09:32:04.000000000 -0500
-@@ -317,9 +317,9 @@ void e1000_pci_clear_mwi(struct e1000_hw
- void e1000_read_pci_cfg(struct e1000_hw *hw, uint32_t reg, uint16_t * value);
- void e1000_write_pci_cfg(struct e1000_hw *hw, uint32_t reg, uint16_t * value);
- /* Port I/O is only supported on 82544 and newer */
--uint32_t e1000_io_read(struct e1000_hw *hw, uint32_t port);
-+uint32_t e1000_io_read(struct e1000_hw *hw, unsigned long port);
- uint32_t e1000_read_reg_io(struct e1000_hw *hw, uint32_t offset);
--void e1000_io_write(struct e1000_hw *hw, uint32_t port, uint32_t value);
-+void e1000_io_write(struct e1000_hw *hw, unsigned long port, uint32_t value);
- void e1000_write_reg_io(struct e1000_hw *hw, uint32_t offset, uint32_t value);
- int32_t e1000_config_dsp_after_link_change(struct e1000_hw *hw, boolean_t link_up);
- int32_t e1000_set_d3_lplu_state(struct e1000_hw *hw, boolean_t active);
-@@ -978,7 +978,7 @@ struct e1000_hw {
-     e1000_ms_type master_slave;
-     e1000_ms_type original_master_slave;
-     e1000_ffe_config ffe_config_state;
--    uint32_t io_base;
-+    unsigned long io_base;
-     uint32_t phy_id;
-     uint32_t phy_revision;
-     uint32_t phy_addr;
---- ./drivers/net/e1000/e1000_main.c.orig	2003-10-30 09:32:12.000000000 -0500
-+++ ./drivers/net/e1000/e1000_main.c	2003-10-30 09:32:39.000000000 -0500
-@@ -2621,13 +2621,13 @@ e1000_write_pci_cfg(struct e1000_hw *hw,
- }
- 
- uint32_t
--e1000_io_read(struct e1000_hw *hw, uint32_t port)
-+e1000_io_read(struct e1000_hw *hw, unsigned long port)
- {
- 	return inl(port);
- }
- 
- void
--e1000_io_write(struct e1000_hw *hw, uint32_t port, uint32_t value)
-+e1000_io_write(struct e1000_hw *hw, unsigned long port, uint32_t value)
- {
- 	outl(value, port);
- }
 
---------------080303000003020903000101--
+cdrecord 1.10:
+Track 04:   1 of  33 MB written (fifo  98%).cdrecord.old: Input/output error.
+ write_g1: scsi sendcmd: no error CDB:  2A 00 00 00 BE 9D 00 00 1B 00
+status: 0x2 (CHECK CONDITION)
+Sense Bytes: 70 00 04 00 D3 10 FA 0E 26 01 30 FE 08 01 00 00
+Sense Key: 0x4 Hardware Error, Segment 0
+Sense Code: 0x08 Qual 0x01 (logical unit communication time-out) Fru 0x0
+Sense flags: Blk 13832442 (not valid)
+cmd finished after 2.004s timeout 200s
+
+write track data: error after 1460592 bytes
+Sense Bytes: 70 00 00 00 00 00 00 0E 00 00 00 00 00 00 00 00 00 00
+Writing  time:   57.892s
+Fixating...
 

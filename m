@@ -1,88 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267439AbSLLI0T>; Thu, 12 Dec 2002 03:26:19 -0500
+	id <S267442AbSLLIij>; Thu, 12 Dec 2002 03:38:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267440AbSLLI0T>; Thu, 12 Dec 2002 03:26:19 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:57353
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267439AbSLLI0R>; Thu, 12 Dec 2002 03:26:17 -0500
-Date: Thu, 12 Dec 2002 00:33:01 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Ted Kaminski <mouschi@wi.rr.com>
-cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>
-Subject: Re: pnp/IDE question- help fixing up a patch
-In-Reply-To: <007e01c2a19b$934e9a00$6400a8c0@win01>
-Message-ID: <Pine.LNX.4.10.10212120025570.7114-100000@master.linux-ide.org>
+	id <S267443AbSLLIij>; Thu, 12 Dec 2002 03:38:39 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:6116 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S267442AbSLLIii>; Thu, 12 Dec 2002 03:38:38 -0500
+Date: 12 Dec 2002 08:50:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8biA6J4Xw-B@khms.westfalen.de>
+In-Reply-To: <3DF77410.3010103@alvie.com>
+Subject: Re: Is this going to be true ?
+X-Mailer: CrossPoint v3.12d.kh10 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+References: <001801c2a0a9$02613f40$2e863841@joe> <072501c2a138$8365c2c0$9c094d8e@wcom.ca> <3DF77410.3010103@alvie.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+alvieboy@alvie.com (Alvaro Lopes)  wrote on 11.12.02 in <3DF77410.3010103@alvie.com>:
 
-Ted,
+> Serge Kuznetsov wrote:
+>
+> >I totaly agree with you.
+> >
+> >But why do you think Microsoft will come back to *nix lane?
+> >AFAIK, they closed their Xenix project back in 80s.
+> >Do you think they will resurrect it?
+> >
+> >
+> I just remembered... what happened to SCO ? Isn't it still from Microsoft?
 
-Somebody asked me to poke my nose in here, so here goes.
+Well, I suppose there are still a few MS copyright notices in there, but  
+MS sold it off a *long* time ago.
 
-The difference in the two locations has to do with early initalization.
-One the issues of concern in the patch, is the usage of "passive".
-A stronger position for setup would have a hwif->intq_mode operator.
-Regardless if it is a bit field or not.
+It was not quite recently borged by Caldera, the same people who borged Dr  
+DOS^W^WNovell DOS. Remember what OS *they* started out with?
 
-This would force ide-probe to initialize the hwif_intr properly.
-Next the mask of the field would provide a method for poking the
-drive_is_ready().
-
-This would remove several issue.
-
-One the config option for share or not interrupts goes away.
-
-The list is short and obvious.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Wed, 11 Dec 2002, Ted Kaminski wrote:
-
-> Hello all,
-> 
-> I've got an ide, and an idepnp question... (for 2.4)
-> 
-> I'm working on refining a patch sent previously
-> (http://groups.google.com/groups?selm=20021108061020.A14168%40localhost) to
-> be less intrusive. I'll be refering to things done in that patch...
-> 
-> The short of it is, this sb16 pnpide interface apparently cannot use
-> ALTSTATUS at a certain point. (I'm no ide whiz, I'm just simplifying the
-> code that David Meybohm wrote, so maybe I'm off a bit) at any rate, this
-> seems to require a new flag be listed along with the hardware information.
-> 
-> His solution was to add
-> + int  no_passive;  /* no passive status tests */
-> to hw_reg_s in ide.h and check that flag in drive_is_ready()
-> 
-> I *think* it's out of place. It seems to me it'd be more appropriate to add
-> + unsigned no_passive : 1;   /* no passive status tests */
-> to hwif_s in ide.h.  Right next to a few other bitfields
-> 
-> Which is better? or is there a different, even better spot?
-> 
-> As for the idepnp part, he added a "dev = NULL" into the loop, and was
-> unsure of whether or not this was a good idea.  I have the same question.
-> Or perhaps this smells of a seperate patch?
-> 
-> I'd rather ask these question in the form of my own patch, but... I'm a bit
-> short on time, atm. sorry.
-> 
-> Thanks in advace,
-> -Ted
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+MfG Kai

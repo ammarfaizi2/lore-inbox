@@ -1,89 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135623AbRDSLYV>; Thu, 19 Apr 2001 07:24:21 -0400
+	id <S135625AbRDSLdc>; Thu, 19 Apr 2001 07:33:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135624AbRDSLYL>; Thu, 19 Apr 2001 07:24:11 -0400
-Received: from oboe.it.uc3m.es ([163.117.139.101]:35598 "EHLO oboe.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S135623AbRDSLYB>;
-	Thu, 19 Apr 2001 07:24:01 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200104191123.f3JBNfM17858@oboe.it.uc3m.es>
-Subject: Re: block devices don't work without plugging in 2.4.3
-In-Reply-To: <20010419125140.M16822@suse.de> from "Jens Axboe" at "Apr 19, 2001
- 12:51:40 pm"
-To: "Jens Axboe" <axboe@suse.de>
-Date: Thu, 19 Apr 2001 13:23:41 +0200 (MET DST)
-CC: "linux kernel" <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S135626AbRDSLdW>; Thu, 19 Apr 2001 07:33:22 -0400
+Received: from quechua.inka.de ([212.227.14.2]:29454 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S135625AbRDSLdO>;
+	Thu, 19 Apr 2001 07:33:14 -0400
+To: linux-kernel@vger.kernel.org
+Subject: SCSI tape test results
+Organization: private Linux site, southern Germany
+Date: Thu, 19 Apr 2001 13:10:53 +0200
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E14qCKs-0008NQ-00@g212.hadiko.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK .. thanks Jens. Sorry about the repeat .. my nameserver lost its fix
-on the root servers thanks to some hurried upgrades, and sendmail
-started quietly bouncing mail for "not having" a dns entry, and you
-know about deja. Probably the list dropped me for the bounces.
-Those are my excuses. Apologies again.
+I tested my systems to try to reproduce the recently reported SCSI
+tape corruptions. I did not find any errors, the tape works OK.
 
-"Jens Axboe wrote:"
-> > The result is that a block device that doesn't do plugging doesn't
-> > work.
-> > 
-> > If it has called blk_queue_pluggable() to register a no-op plug_fn,
-> > then q->plugged will never be set (it's the duty of the plug_fn), and
-> > the devices registered request function will never be called.
-> > 
-> > This behaviour is distinct from 2.4.0, where registering a no-op
-> > plug_fn made things work fine.
-> 
-> Check the archives, I replied to this days ago. But since I'm taking the
-> subject up anyway, let me expand on it a bit further.
+Linux version 2.4.3 (olaf@bigred) (gcc version 2.95.2 20000220 (Debian GNU/Linux)) #1 Sat Mar 31 11:51:54 CEST 2001
+K6-III-400, 96MB
+NCR53C815 SCSI controller
+HP C1533A DDS-2 tape drive
+Tape drive compression turned off
 
-Yes, please.
+These were the tests:
+1. Copied (with "cp") and verified (with "cmp") two 650MB CD images
+   from an NFS server.
+2. In a  directory on an IDE disk:
+   tar cSvf /dev/tape .
+   tar df /dev/tape .
+3. On the same disk, ~6.5GB directory:
+   tar cSf - . | tarmill -F1500 -m8M -C6M zip 3 list >/dev/tape
+   tarmill -m8M -C6M unzip  </dev/tape | tar df -
+   (tarmill is a tar archive compression/encryption program, available
+   from <URL:http://sites.inka.de/~bigred/sw/>. It reads/writes in
+   blocks the same size as tar, just in case this is relevant.)
 
-> Not using plugging is gone, blk_queue_pluggable has been removed from
-> the current 2.4.4-pre series if you check that. The main reason for
-> doing this, is that there are generally no reasons for _not_ using
-> plugging in the 2.4 series kernels. In 2.2 and previous, not using the
+Still have to test copying from a SCSI disk on the same bus as the
+tape drive.
 
-I agree.
-
-> builtin plugging was generally done to disable request merging. In 2.4,
-> the queues have good control over what happens there with the
-> back/front/request merging functions -- so drivers can just use that.
-
-They can indeed. And I agree, it had become necessary to both enable
-plugging and to enable request merging separately (via control over
-these two sets of things), in order to get request merging. That was
-silly.
-
-> Besides, the above hunk was removed because it is wrong. For devices
-> using plugging, we would re-call the request_fn while the device was
-> already active and serving requests. Not only is this a performance hit
-
-Not sure about that ...
-
-> we don't need to take, it also gave problems on some drivers.
-
-Well, I know scsi used to be treating the first element while still on
-the queue, but presumably you are not referring to that.
-
-So the consensus is that I should enable plugging while the plugging
-function is still here and do nothing when it goes? I must say I don't
-think it should really "go", since that means I have to add a no-op
-macro to replace it, and I don't like #ifdefs. 
-
-BTW, I don't need request merging (and therefore don't need plugging)
-because requests eventually go out over the net. Nevertheless, I have
-always been interested in seeing the difference it could cause. I
-have never seen the measurements reflect the gain that I would have
-expected from request merging, although I would have naively expected
-some (in MY case).
-
-Thanks again.
-
-Peter
+Olaf

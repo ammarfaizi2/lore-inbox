@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263857AbTDDQxM (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 11:53:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263848AbTDDQwN (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 11:52:13 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:53995 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S263834AbTDDQm5 (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 11:42:57 -0500
-Date: Fri, 4 Apr 2003 18:54:23 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org, steve.cameron@hp.com
-Subject: Re: [PATCH] reduce stack in cpqarray.c::ida_ioctl()
-Message-ID: <20030404165423.GA12155@wohnheim.fh-wedel.de>
-References: <20030403120308.620e5a14.rddunlap@osdl.org> <20030404003044.GB16832@wohnheim.fh-wedel.de> <20030403173352.0311312a.rddunlap@osdl.org> <20030404075652.GA13651@wohnheim.fh-wedel.de> <20030404084409.7d04dc46.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id S263839AbTDDQlp (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 11:41:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263834AbTDDQk6 (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 11:40:58 -0500
+Received: from siaag2ab.compuserve.com ([149.174.40.132]:55446 "EHLO
+	siaag2ab.compuserve.com") by vger.kernel.org with ESMTP
+	id S263836AbTDDQhU (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 11:37:20 -0500
+Date: Fri, 4 Apr 2003 11:46:02 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [BUG?][2.5.66] was: Re: How to fix the ptrace flaw without
+  rebooting
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200304041148_MC3-1-32FC-A9A9@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030404084409.7d04dc46.rddunlap@osdl.org>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 April 2003 08:44:09 +0000, Randy.Dunlap wrote:
-> On Fri, 4 Apr 2003 09:56:52 +0200 Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
-> 
-> | On Thu, 3 April 2003 17:33:52 +0000, Randy.Dunlap wrote:
-> | > 
-> | > | > +		error = copy_to_user(io, my_io, sizeof(*my_io)) ? -EFAULT : 0;
-> | > | 
-> | > | copy_to_user returns the bytes successfully copied.
-> | > | error is set to -EFAULT, if there was actually data transferred?
-> | > 
-> | > Did you verify that?
-> | 
-> | Yes, but I do make mistakes. Better double-check it yourself.
-> 
-> Oh, I did.  That's why I am asking you.
+Alan wrote:
 
-It was my mistake. I got confused reading uaccess.h. Sorry about that.
+.>>    # echo 'x'>/proc/sys/kernel/modprobe
+.>>    bash: /proc/sys/kernel/modprobe: No such file or directory
 
-Jörn
+.>Thats not a sufficient fix except for people blindly running the
+.>example exploit
 
--- 
-Time? What's that? Time is only worth what you do with it.
--- Theo de Raadt
+I know that -- it's why I wrote pt_fix after seeing the problems
+people were having coming up with a stopgap.
+
+BTW putting a "ud2a" instruction at the
+entry point to sys_ptrace causes problems on SMP 2.5.66.
+On uniprocessor, all attempts to use strace fail with SIGSEGV as
+expected, but on SMP only the first time does.  Further
+attempts to use strace result in a zombie strace child process hung
+up at the end of do_exit() (hand copied from sysrq-t):
+
+        do_exit+0x2f7/0x310
+        die+0x7f/0x90
+        do_invalid_op+0x0/0xa0
+        do_invalid_op+0x87/0xa0
+        sys_ptrace+0x0/0x6c0
+        do_page_fault+0x120/0x426
+        error_code+0x2d/0x38
+        sys_ptrace+0x0/0x6c0
+        syscall_call+0x7/0xb
+
+2.4.21pre6 handles this OK.
+
+--
+ Chuck

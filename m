@@ -1,64 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbUDPEOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 00:14:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUDPEOZ
+	id S262224AbUDPERh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 00:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUDPERh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 00:14:25 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:38598 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262119AbUDPEOV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 00:14:21 -0400
-Message-Id: <200404160413.i3G4DcF13729@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'David Gibson'" <david@gibson.dropbear.id.au>
-Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>,
-       <lse-tech@lists.sourceforge.net>, <raybry@sgi.com>,
-       "'Andy Whitcroft'" <apw@shadowen.org>,
-       "'Andrew Morton'" <akpm@osdl.org>
-Subject: RE: hugetlb demand paging patch part [2/3]
-Date: Thu, 15 Apr 2004 21:13:38 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcQjY+tTs7rQMCHIR5ebddNRyYZy+QAAXTSA
-In-Reply-To: <20040416032725.GG12735@zax>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Fri, 16 Apr 2004 00:17:37 -0400
+Received: from ozlabs.org ([203.10.76.45]:10136 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262224AbUDPERe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 00:17:34 -0400
+Date: Fri, 16 Apr 2004 14:12:31 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org,
+       linuxppc64-dev@lists.linuxppc.org
+Subject: Fix bogus get_page() calls in hugepage code
+Message-ID: <20040416041231.GB13552@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>,
+	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+	linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson wrote on Thursday, April 15, 2004 8:27 PM
-> Ah!  So it's just an optimiziation - it makes a bit more sense to me
-> now.  I had assumed that this case (hugepage get_user_pages()) would
-> be sufficiently rare that it would not require optimization.
-> Apparently not.
+Andrew, please apply:
 
-It's a huge deal because for *every* I/O, kernel has to do get_user_pages()
-to lock the page, it's really gets in the way with the spin_lock as well.
-
-        spin_lock(&mm->page_table_lock);
-        do {
-                struct page *map;
-                int lookup_write = write;
-                while (!(map = follow_page(mm, start, lookup_write))) {
-
-With current state of art platform, I/O requirement pushes into 200K
-per second, this become quite significant.
+On some archs the functions used to implement follow_page() for
+hugepages do a get_page().  This is unlike the normal-page path for
+follow_page(), so presumably a bug.  This patch fixes it.
 
 
-> Do you know where the cycles are going without this optimization?  In
-> particular, could it be just the find_vma() in hugepage_vma() called
-> before follow_huge_addr()?  I note that IA64 is the only arch to have
-> a non-trivial hugepage_vma()/follow_huge_addr() and that its
-> follow_huge_addr() doesn't actually use the vma passed in.
+Index: working-2.6/arch/ppc64/mm/hugetlbpage.c
+===================================================================
+--- working-2.6.orig/arch/ppc64/mm/hugetlbpage.c	2004-04-13 11:42:35.000000000 +1000
++++ working-2.6/arch/ppc64/mm/hugetlbpage.c	2004-04-16 13:45:22.000000000 +1000
+@@ -360,10 +360,8 @@
+ 	BUG_ON(! pmd_hugepage(*pmd));
+ 
+ 	page = hugepte_page(*(hugepte_t *)pmd);
+-	if (page) {
++	if (page)
+ 		page += ((address & ~HPAGE_MASK) >> PAGE_SHIFT);
+-		get_page(page);
+-	}
+ 	return page;
+ }
+ 
+Index: working-2.6/arch/i386/mm/hugetlbpage.c
+===================================================================
+--- working-2.6.orig/arch/i386/mm/hugetlbpage.c	2004-04-13 11:42:35.000000000 +1000
++++ working-2.6/arch/i386/mm/hugetlbpage.c	2004-04-16 13:45:22.000000000 +1000
+@@ -206,10 +206,8 @@
+ 	struct page *page;
+ 
+ 	page = pte_page(*(pte_t *)pmd);
+-	if (page) {
++	if (page)
+ 		page += ((address & ~HPAGE_MASK) >> PAGE_SHIFT);
+-		get_page(page);
+-	}
+ 	return page;
+ }
+ #endif
+Index: working-2.6/arch/ia64/mm/hugetlbpage.c
+===================================================================
+--- working-2.6.orig/arch/ia64/mm/hugetlbpage.c	2004-04-14 12:22:48.000000000 +1000
++++ working-2.6/arch/ia64/mm/hugetlbpage.c	2004-04-16 13:45:22.000000000 +1000
+@@ -170,7 +170,6 @@
+ 	ptep = huge_pte_offset(mm, addr);
+ 	page = pte_page(*ptep);
+ 	page += ((addr & ~HPAGE_MASK) >> PAGE_SHIFT);
+-	get_page(page);
+ 	return page;
+ }
+ int pmd_huge(pmd_t pmd)
 
-That's one, plus the spin lock mentioned above.
-
-
-> If we could get rid of follow_hugetlb_pages() it would remove an ugly
-> function from every arch, which would be nice.
-
-I hope the goal here is not to trim code for existing prefaulting scheme.
-That function has to go for demand paging, and demand paging comes with
-a performance price most people don't realize.  If the goal here is to
-make the code prettier, I vote against that.
-
-
+-- 
+David Gibson			| For every complex problem there is a
+david AT gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

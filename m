@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbUDIK6e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 06:58:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbUDIK6e
+	id S261184AbUDILHf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 07:07:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbUDILHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 06:58:34 -0400
-Received: from fw.osdl.org ([65.172.181.6]:17100 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261181AbUDIK6c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 06:58:32 -0400
-Date: Fri, 9 Apr 2004 03:58:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
-Cc: linux-kernel@vger.kernel.org, tomc@compaqnet.fr
-Subject: Re: bsd accounting lockups on smp 2.6.x machines
-Message-Id: <20040409035812.70d33081.akpm@osdl.org>
-In-Reply-To: <20040225184724.GA2618@butterfly.hjsoft.com>
-References: <20040225184724.GA2618@butterfly.hjsoft.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 9 Apr 2004 07:07:35 -0400
+Received: from out001pub.verizon.net ([206.46.170.140]:61162 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S261184AbUDILHd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 07:07:33 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.5-mm3, cdrom gotcha
+Date: Fri, 9 Apr 2004 07:07:32 -0400
+User-Agent: KMail/1.6
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200404090707.32577.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.9.226] at Fri, 9 Apr 2004 06:07:32 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John M Flinchbaugh <glynis@butterfly.hjsoft.com> wrote:
->
-> i originally reported kernel oopses and locks here against 2.6.1:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=107488761716255&w=2
-> 
-> then another person reported it against 2.6.2:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=107697407107875&w=2
-> 
-> i just saw it happen against 2.6.3, but i couldn't capture an
-> oops.  it's still out there.  does anyone have any leads on what
-> causes it?  disabling  bsd accounting seems to aleviate the
-> crashes.
-> 
-> running tomcat's stop script (java processes) triggers it at
-> times for me.
+Greetings all;
 
-Guys, are either of you still able to reproduce this oops in BSD accounting?
+I just rebooted to 2.6.5-mm3 while a cd with the Planet CCRMA image on 
+it was in the writer.  It took the boot about 5 seconds to get past 
+the IDE1 piece of the scan, and it squawked about the drive having 
+'incompatible media'.  I have a line in my rc.local that uses hdparm 
+to turn the dma back on after the kernel decides to turn it off, and 
+that also spit out a media error although an hdparm -d indicates dma 
+is on.  dma works just fine with that drive.
 
-If so, would you be able to determine whether this fixes it?   Thanks.
+After bootup, I tried to mount the disk, but again got the media error 
+and fail message.  Removing the disk and rebooting again, and its all 
+working again.
 
-diff -puN kernel/acct.c~acct-oops-fix kernel/acct.c
---- 25/kernel/acct.c~acct-oops-fix	2004-04-09 03:52:59.816330248 -0700
-+++ 25-akpm/kernel/acct.c	2004-04-09 03:54:08.671862616 -0700
-@@ -347,7 +347,10 @@ static void do_acct_process(long exitcod
- 	/* we really need to bite the bullet and change layout */
- 	ac.ac_uid = current->uid;
- 	ac.ac_gid = current->gid;
-+
-+	read_lock(&tasklist_lock);	/* pin current->tty */
- 	ac.ac_tty = current->tty ? old_encode_dev(tty_devnum(current->tty)) : 0;
-+	read_unlock(&tasklist_lock);
- 
- 	ac.ac_flag = 0;
- 	if (current->flags & PF_FORKNOEXEC)
+Is this a bug?  Seems like it to me.  Its not something I've noted 
+before, but then the drive is usually empty, so this is a new error 
+to me and I cannot say when it started happening.
 
-_
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

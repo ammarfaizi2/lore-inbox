@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbUHaQpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUHaQqY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261711AbUHaQpg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 12:45:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUHaQpg
+	id S263893AbUHaQqY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 12:46:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264153AbUHaQqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 12:45:36 -0400
-Received: from yacht.ocn.ne.jp ([222.146.40.168]:41957 "EHLO
-	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
-	id S261711AbUHaQpd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 12:45:33 -0400
-From: mita akinobu <amgta@yacht.ocn.ne.jp>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [util-linux] readprofile ignores the last element in /proc/profile
-Date: Wed, 1 Sep 2004 01:45:51 +0900
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, Andries Brouwer <aeb@cwi.nl>,
-       Alessandro Rubini <rubini@ipvvis.unipv.it>
-References: <200408250022.09878.amgta@yacht.ocn.ne.jp> <20040829162252.GG5492@holomorphy.com>
-In-Reply-To: <20040829162252.GG5492@holomorphy.com>
+	Tue, 31 Aug 2004 12:46:24 -0400
+Received: from mail.stdbev.com ([63.161.72.3]:35484 "EHLO
+	mail.standardbeverage.com") by vger.kernel.org with ESMTP
+	id S263893AbUHaQqS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 12:46:18 -0400
+Message-ID: <d40d2dbcd4c9aaaeb94073ca00d7b3b7@stdbev.com>
+Date: Tue, 31 Aug 2004 11:54:00 -0500
+From: "Jason Munro" <jason@stdbev.com>
+Subject: Re: 2.6.9-rc1-mm2 nvidia breakage
+To: Sid Boyce <sboyce@blueyonder.co.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-to: <jason@stdbev.com>
+In-Reply-To: <4134A5EE.5090003@blueyonder.co.uk>
+References: <4134A5EE.5090003@blueyonder.co.uk>
+X-Mailer: Hastymail 1.3-CVS
+x-priority: 3
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409010145.51224.amgta@yacht.ocn.ne.jp>
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 August 2004 01:22, William Lee Irwin III wrote:
-> Well, since I couldn't stop vomiting for hours after I looked at the
-> code for readprofile(1), here's a reimplementation, with various
-> misfeatures removed, included as a MIME attachment.
+On 11:23:10 am 2004-08-31 Sid Boyce <sboyce@blueyonder.co.uk> wrote:
+nvidia-installer log file '/var/log/nvidia-installer.log'
+creation time: Tue Aug 31 17:05:05 2004
 
-The rewritten readprofile still ignores the last element on my machine.
+[snip]
 
-Boot option:
-	profile=2
-
-System.map:
-	c0100264 t ignore_int
-	c0100298 T _stext
-	c0100298 T calibrate_delay
-	[...]
-	c03acbf1 T __spinlock_text_end
-	c03ae0af A _etext
-	c03ae0b0 A __start___ex_table
-
-This is quick fix.
+   `PM_SAVE_STATE' undeclared (first use in this function)
+   /tmp/selfgz12280/NVIDIA-Linux-x86-1.0-6111-pkg1/usr/src/nv/nv.c:3697:
 
 
---- readprofile.c.orig	2004-08-31 23:01:23.000000000 +0900
-+++ readprofile.c	2004-09-01 01:39:00.316750264 +0900
-@@ -25,6 +25,7 @@ struct profile_state {
- 	int fd, shift;
- 	uint32_t *buf;
- 	size_t bufsz;
-+	size_t bufcnt;
- 	struct sym syms[2], *last, *this;
- 	unsigned long long stext, vaddr;
- 	unsigned long total;
-@@ -101,8 +102,8 @@ static int state_transition(struct profi
- 			exit(EXIT_FAILURE);
- 		}
- 	}
--	if (read(state->fd, state->buf, end - start) == end - start) {
--		for (off = 0; off < (end - start)/sizeof(uint32_t); ++off)
-+	if ((state->bufcnt = read(state->fd, state->buf, end - start)) >= 0) {
-+		for (off = 0; off < (state->bufcnt)/sizeof(uint32_t); ++off)
- 			state->last->hits += state->buf[off];
- 	} else {
- 		ret = 1;
+A patch was posted a week or so ago to fix this which works for me.
+
+http://lkml.org/lkml/2004/8/20/209
+
+I also had to change calls to pci_find_class in nv.c to pci_get_class to
+get the module to load with 2.6.9-rc1-mm2.
+
+Hope that helps
+
+\__ Jason Munro
+ \__ jason@stdbev.com
+  \__ http://hastymail.sourceforge.net/
 

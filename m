@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbTIUNuW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 09:50:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbTIUNuW
+	id S262412AbTIUODm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 10:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262415AbTIUODm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 09:50:22 -0400
-Received: from sea2-f31.sea2.hotmail.com ([207.68.165.31]:30992 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S262409AbTIUNuV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 09:50:21 -0400
-X-Originating-IP: [212.143.127.195]
-X-Originating-Email: [zstingx@hotmail.com]
-From: "sting sting" <zstingx@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: EXPORT_SYMBOL MACRO definition (in 2.4.18-3) - newbie
-Date: Sun, 21 Sep 2003 15:50:18 +0200
+	Sun, 21 Sep 2003 10:03:42 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:20379
+	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
+	id S262412AbTIUODm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 10:03:42 -0400
+Date: Sun, 21 Sep 2003 16:04:04 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Shantanu Goel <sgoel01@yahoo.com>
+Cc: linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Subject: Re: A couple of 2.4.23-pre4 VM nits
+Message-ID: <20030921140404.GA16399@velociraptor.random>
+References: <20030921024649.GB16294@velociraptor.random> <20030921053209.45935.qmail@web12803.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Sea2-F317wbaj3ywtsI00006dd5@hotmail.com>
-X-OriginalArrivalTime: 21 Sep 2003 13:50:18.0719 (UTC) FILETIME=[4B14BEF0:01C38047]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030921053209.45935.qmail@web12803.mail.yahoo.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello ,
-I want to know where EXPORT_SYMBOL macro is defined  (in 2.4.18-3 kernel).
+On Sat, Sep 20, 2003 at 10:32:09PM -0700, Shantanu Goel wrote:
+> Agreed on all counts.  I just blindly copied the
+> max_scan decrement from 2.4.22.  Even there your
+> suggestion would make sense.  Attached is a new patch
+> which adds support for vm_vfs_scan_interval sysctl and
+> also fixes the location of max_scan decrement.
 
-I saw in module.h that there are some #ifndef EXPORT_SYMBOL
-that print an error if this symbols is nor defined , but searching
-in the kernel sources did not gave me more results.
+this patch looks fine to me thanks. Marcelo, feel free to merge this one
+instead of my one liner fix.
 
-I also saw in the kernel Makefile that EXPORT_SYMBOL
-appears in tags, but I do'nt know how to find the definition
-for this macro.
-
-Does somebody know ?
-
-regards,
-sting
-
-_________________________________________________________________
-Tired of spam? Get advanced junk mail protection with MSN 8. 
-http://join.msn.com/?page=features/junkmail
-
+Andrea - If you prefer relying on open source software, check these links:
+	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
+	    http://www.cobite.com/cvsps/
+	    svn://svn.kernel.org/linux-2.[46]/trunk

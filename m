@@ -1,135 +1,233 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbUAUGjM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 01:39:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbUAUGjM
+	id S261877AbUAUGkw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 01:40:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbUAUGkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 01:39:12 -0500
-Received: from h80ad25e2.async.vt.edu ([128.173.37.226]:2688 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261928AbUAUGjB (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 01:39:01 -0500
-Message-Id: <200401210638.i0L6cpeU003057@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: 2.6.1-mm5 - oops during network initialization
-In-Reply-To: Message from Andrew Morton <akpm@osdl.org> 
-   of "Tue, 20 Jan 2004 00:05:35 PST." <20040120000535.7fb8e683.akpm@osdl.org> 
-References: <20040120000535.7fb8e683.akpm@osdl.org> 
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1486477894P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Wed, 21 Jan 2004 01:40:52 -0500
+Received: from CPE-65-30-34-80.kc.rr.com ([65.30.34.80]:46547 "EHLO
+	cognition.home.hanaden.com") by vger.kernel.org with ESMTP
+	id S261877AbUAUGk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 01:40:26 -0500
+Message-ID: <400E1EC5.5090809@hanaden.com>
+Date: Wed, 21 Jan 2004 00:40:05 -0600
+From: hanasaki <hanasaki@hanaden.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031204 Thunderbird/0.4RC1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LIST - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: kernel 2.6 - wrong identifcation of kt600 and usb 2.0 as 1.1 - kernel
+ issue? wrong mobo in the box? .....
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 21 Jan 2004 01:38:50 -0500
-From: Valdis Kletnieks <valdis@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1486477894P
-Content-Type: text/plain; charset="us-ascii"
-Content-Id: <3040.1074667119.1@turing-police.cc.vt.edu>
+Hello All,
 
-(linux-net people, please cc: on replies, am only on lkml)
+I just bought the Soyo KT600 Dragon Ultra Platinum Edition
+	http://www.soyousa.com/products/proddesc.php?id=280
+The below lspci and dmesg output appears to be telling me that the 
+motherboard has:
+	REPORTED
+	========
+	KT400
+	8 usb 1.1 ports
+	2 usb 2.0 ports
 
-Under 2.6.1-mm4, at boot I'd get the following:
+	IN THE MOTHERBOARD SPEC
+	=======================
+	KT600
+	8 usb 2.0 ports
+	0 usb 1.1 ports
 
-Jan 20 10:00:46 turing-police kernel: Initializing IPsec netlink socket
-Jan 20 10:00:46 turing-police kernel: NET: Registered protocol family 1
-Jan 20 10:00:46 turing-police kernel: NET: Registered protocol family 10
-Jan 20 10:00:46 turing-police kernel: IPv6 over IPv4 tunneling driver
-Jan 20 10:00:46 turing-police kernel: NET: Registered protocol family 17
-Jan 20 10:00:46 turing-police kernel: NET: Registered protocol family 15
-Jan 20 10:00:46 turing-police kernel: RAMDISK: Compressed image found at block 0
+I am not much of a kernel guru and know zero about USB.  Can someone 
+explain this to me?  Is it a kernel issue of misidentifying hardware? 
+Did someone put the wrong motherboard in the box?  I tried looking at 
+the kt600/kt400 chips under the fan/heatsink but the darn thing seems to 
+be glued onto the motherboard.
 
-and the initrd would kick off and we'd be happy.
+Also worth noting is that video, and X, seem to work fine with the 
+ATI9000 without loading the via-agp kernel module.  If the module is 
+loaded, it seems to correctly identify the agp; however, running X locks 
+the video in a black screen.  ^ALT<backspace> does not restart X and GDM 
+but the system is not locked.  I can ssh into the box and kill X/GDM but 
+the screen is still locked black.  I can ^ALT<delete> and the system 
+does reboot.  The screen is black the entire time (until the reboot).
 
-Under 2.6.1-mm5, I get this: (hand-copied..
+Thank you!
 
-NET: Registered protocol family 10
-Unable to handle kernel NULL pointer dereference at virtual address 00000068
- printing eip:
-c01186f9
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT
-CPU: 0
-EIP: 0060:[<c01180f9>]  Not tainted VLI
-EFLAGS: 0010217
-EIP is at do_page_fault+0x53/0x4b2
-eax: cfe84000 ebx: cfe86000 ecx: 0000007b edx: 00000000
-esi: 00000000 edi: 00000000 ebp: cfe84048 esp: cfe8405c
-ds: 007b es: 007b ss: 0068
-process ksoftirqd/0 (pid:2, threadinfo=cfe82000 task=cff81310
-stack: 00000000 00000068 00000000 00000000 00000000 00030001 00000000 00000000
-       00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-       00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-call trace:
+======================
+== output of lspci  ==
+00:00.0 Host bridge: VIA Technologies, Inc. VT8377 [KT400 AGP]
+	Host Bridge (rev 80)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI Bridge
+00:07.0 Ethernet controller: Broadcom Corporation NetXtreme
+	BCM5705 Gigabit Ethernet (rev 03)
+00:0d.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394
+	Host Controller (rev 46)
+00:0e.0 Multimedia audio controller: C-Media Electronics Inc
+	CM8738 (rev 10)
+00:0f.0 RAID bus controller: VIA Technologies, Inc.: Unknown
+	device 3149 (rev 80)
+00:0f.1 IDE interface: VIA Technologies, Inc.
+	VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC
+	Bus Master IDE (rev 06)
+00:10.0 USB Controller: VIA Technologies, Inc. USB (rev 81)
+00:10.1 USB Controller: VIA Technologies, Inc. USB (rev 81)
+00:10.2 USB Controller: VIA Technologies, Inc. USB (rev 81)
+00:10.3 USB Controller: VIA Technologies, Inc. USB (rev 81)
+00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
+00:11.0 ISA bridge: VIA Technologies, Inc.: Unknown device 3227
+00:13.0 RAID bus controller: CMD Technology Inc Silicon Image
+	SiI 3112 SATARaid Controller (rev 02)
+01:00.0 VGA compatible controller: ATI Technologies Inc
+	Radeon R250 If [Radeon 9000] (rev 01)
+01:00.1 Display controller: ATI Technologies Inc Radeon R250
+	[Radeon 9000] (Secondary) (rev 01)
 
-(I had to stick a 'for (;;);' into the code at this point to keep it from scrolling off the
-screen - was do_page_fault and 2 other routines in a loop over and over again).
+=======================
+== output from dmesg ==
+ohci_hcd: 2003 Oct 13 USB 1.1 'Open' Host Controller
+	(OHCI) Driver (PCI)
+ohci_hcd: block sizes: ed 64 td 64
+ehci_hcd: block sizes: qh 128 qtd 96 itd 128 sitd 64
+ehci_hcd 0000:00:10.4: EHCI Host Controller
+ehci_hcd 0000:00:10.4: reset hcs_params 0x4208 dbg=0 cc=4
+	pcc=2 ordered !ppc ports=8
+ehci_hcd 0000:00:10.4: reset hcc_params 6872 thresh
+	7 uframes 256/512/1024
+ehci_hcd 0000:00:10.4: capability 0001 at 68
+ehci_hcd 0000:00:10.4: irq 21, pci mem f89e9000
+ehci_hcd 0000:00:10.4: new USB bus registered, assigned bus number 1
+ehci_hcd 0000:00:10.4: reset command 080002 (park)=0 ithresh=8
+	period=1024 Reset HALT
+ehci_hcd 0000:00:10.4: init command 010009 (park)=0
+	ithresh=1 period=256 RUN
+ehci_hcd 0000:00:10.4: USB 2.0 enabled, EHCI 1.00, driver 2003-Jun-13
+ehci_hcd 0000:00:10.4: root hub device address 1
+usb usb1: new device strings: Mfr=3, Product=2, SerialNumber=1
+drivers/usb/core/message.c: USB device number 1
+	default language ID 0x409
+usb usb1: Product: EHCI Host Controller
+usb usb1: Manufacturer: Linux 2.6.0 ehci_hcd
+usb usb1: SerialNumber: 0000:00:10.4
+usb usb1: registering 1-0:1.0 (config #1, interface 0)
+hub 1-0:1.0: usb_probe_interface
+hub 1-0:1.0: usb_probe_interface - got id
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 8 ports detected
+hub 1-0:1.0: standalone hub
+hub 1-0:1.0: ganged power switching
+hub 1-0:1.0: individual port over-current protection
+hub 1-0:1.0: Single TT
+hub 1-0:1.0: TT requires at most 8 FS bit times
+hub 1-0:1.0: Port indicators are not supported
+hub 1-0:1.0: power on to power good time: 0ms
+hub 1-0:1.0: hub controller current requirement: 0mA
+hub 1-0:1.0: local power source is good
+hub 1-0:1.0: no over-current condition exists
+hub 1-0:1.0: enabling power on all ports
+drivers/usb/host/uhci-hcd.c: USB Universal Host
+	Controller Interface driver v2.1
+uhci_hcd 0000:00:10.0: UHCI Host Controller
+uhci_hcd 0000:00:10.0: irq 21, io base 0000c400
+uhci_hcd 0000:00:10.0: new USB bus registered, assigned bus number 2
+drivers/usb/host/uhci-hcd.c: detected 2 ports
+uhci_hcd 0000:00:10.0: root hub device address 1
+usb usb2: new device strings: Mfr=3, Product=2, SerialNumber=1
+drivers/usb/core/message.c: USB device number 1 default
+	language ID 0x409
+usb usb2: Product: UHCI Host Controller
+usb usb2: Manufacturer: Linux 2.6.0 uhci_hcd
+usb usb2: SerialNumber: 0000:00:10.0
+usb usb2: registering 2-0:1.0 (config #1, interface 0)
+hub 2-0:1.0: usb_probe_interface
+hub 2-0:1.0: usb_probe_interface - got id
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 2 ports detected
+hub 2-0:1.0: standalone hub
+hub 2-0:1.0: ganged power switching
+hub 2-0:1.0: global over-current protection
+hub 2-0:1.0: Port indicators are not supported
+hub 2-0:1.0: power on to power good time: 2ms
+hub 2-0:1.0: hub controller current requirement: 0mA
+hub 2-0:1.0: local power source is good
+hub 2-0:1.0: no over-current condition exists
+hub 2-0:1.0: enabling power on all ports
+uhci_hcd 0000:00:10.1: UHCI Host Controller
+uhci_hcd 0000:00:10.1: irq 21, io base 0000c800
+uhci_hcd 0000:00:10.1: new USB bus registered, assigned bus number 3
+drivers/usb/host/uhci-hcd.c: detected 2 ports
+uhci_hcd 0000:00:10.1: root hub device address 1
+usb usb3: new device strings: Mfr=3, Product=2, SerialNumber=1
+drivers/usb/core/message.c: USB device number 1 default language ID 0x409
+usb usb3: Product: UHCI Host Controller
+usb usb3: Manufacturer: Linux 2.6.0 uhci_hcd
+usb usb3: SerialNumber: 0000:00:10.1
+usb usb3: registering 3-0:1.0 (config #1, interface 0)
+hub 3-0:1.0: usb_probe_interface
+hub 3-0:1.0: usb_probe_interface - got id
+hub 3-0:1.0: USB hub found
+hub 3-0:1.0: 2 ports detected
+hub 3-0:1.0: standalone hub
+hub 3-0:1.0: ganged power switching
+hub 3-0:1.0: global over-current protection
+hub 3-0:1.0: Port indicators are not supported
+hub 3-0:1.0: power on to power good time: 2ms
+hub 3-0:1.0: hub controller current requirement: 0mA
+hub 3-0:1.0: local power source is good
+hub 3-0:1.0: no over-current condition exists
+hub 3-0:1.0: enabling power on all ports
+uhci_hcd 0000:00:10.2: UHCI Host Controller
+uhci_hcd 0000:00:10.2: irq 21, io base 0000cc00
+uhci_hcd 0000:00:10.2: new USB bus registered, assigned
+	bus number 4
+drivers/usb/host/uhci-hcd.c: detected 2 ports
+uhci_hcd 0000:00:10.2: root hub device address 1
+usb usb4: new device strings: Mfr=3, Product=2, SerialNumber=1
+drivers/usb/core/message.c: USB device number 1 default
+	language ID 0x409
+usb usb4: Product: UHCI Host Controller
+usb usb4: Manufacturer: Linux 2.6.0 uhci_hcd
+usb usb4: SerialNumber: 0000:00:10.2
+usb usb4: registering 4-0:1.0 (config #1, interface 0)
+hub 4-0:1.0: usb_probe_interface
+hub 4-0:1.0: usb_probe_interface - got id
+hub 4-0:1.0: USB hub found
+hub 4-0:1.0: 2 ports detected
+hub 4-0:1.0: standalone hub
+hub 4-0:1.0: ganged power switching
+hub 4-0:1.0: global over-current protection
+hub 4-0:1.0: Port indicators are not supported
+hub 4-0:1.0: power on to power good time: 2ms
+hub 4-0:1.0: hub controller current requirement: 0mA
+hub 4-0:1.0: local power source is good
+hub 4-0:1.0: no over-current condition exists
+hub 4-0:1.0: enabling power on all ports
+uhci_hcd 0000:00:10.3: UHCI Host Controller
+uhci_hcd 0000:00:10.3: irq 21, io base 0000d000
+uhci_hcd 0000:00:10.3: new USB bus registered, assigned bus number 5
+drivers/usb/host/uhci-hcd.c: detected 2 ports
+uhci_hcd 0000:00:10.3: root hub device address 1
+usb usb5: new device strings: Mfr=3, Product=2, SerialNumber=1
+drivers/usb/core/message.c: USB device number 1 default
+	language ID 0x409
+usb usb5: Product: UHCI Host Controller
+usb usb5: Manufacturer: Linux 2.6.0 uhci_hcd
+usb usb5: SerialNumber: 0000:00:10.3
+usb usb5: registering 5-0:1.0 (config #1, interface 0)
+hub 5-0:1.0: usb_probe_interface
+hub 5-0:1.0: usb_probe_interface - got id
+hub 5-0:1.0: USB hub found
+hub 5-0:1.0: 2 ports detected
+hub 5-0:1.0: standalone hub
+hub 5-0:1.0: ganged power switching
+hub 5-0:1.0: global over-current protection
+hub 5-0:1.0: Port indicators are not supported
+hub 5-0:1.0: power on to power good time: 2ms
+hub 5-0:1.0: hub controller current requirement: 0mA
+hub 5-0:1.0: local power source is good
+hub 5-0:1.0: no over-current condition exists
+hub 5-0:1.0: enabling power on all ports
 
-So it's choking somewhere in IPv6 init.  Only change I can spot in -mm5 in that
-area is ipv6-sysctl-oops-fix.patch but I'm not seeing how that one can *cause* this oops.
-
-For the record, built *without* regparm-3, with the Fedora gcc-3.3.2-5 compiler.
-
-IPv6-related .config:
-
-CONFIG_IPV6=y
-CONFIG_IPV6_PRIVACY=y
-CONFIG_INET6_AH=y
-CONFIG_INET6_ESP=y
-CONFIG_INET6_IPCOMP=y
-# CONFIG_IPV6_TUNNEL is not set
-# CONFIG_DECNET is not set
-# CONFIG_BRIDGE is not set
-CONFIG_NETFILTER=y
-# CONFIG_NETFILTER_DEBUG is not set
-
-#
-# IPv6: Netfilter Configuration
-#
-# CONFIG_IP6_NF_QUEUE is not set
-CONFIG_IP6_NF_IPTABLES=m
-CONFIG_IP6_NF_MATCH_LIMIT=m
-CONFIG_IP6_NF_MATCH_MAC=m
-CONFIG_IP6_NF_MATCH_RT=m
-CONFIG_IP6_NF_MATCH_OPTS=m
-CONFIG_IP6_NF_MATCH_FRAG=m
-CONFIG_IP6_NF_MATCH_HL=m
-CONFIG_IP6_NF_MATCH_MULTIPORT=m
-CONFIG_IP6_NF_MATCH_OWNER=m
-CONFIG_IP6_NF_MATCH_MARK=m
-CONFIG_IP6_NF_MATCH_IPV6HEADER=m
-CONFIG_IP6_NF_MATCH_AHESP=m
-CONFIG_IP6_NF_MATCH_LENGTH=m
-CONFIG_IP6_NF_MATCH_EUI64=m
-CONFIG_IP6_NF_FILTER=m
-CONFIG_IP6_NF_TARGET_LOG=m
-CONFIG_IP6_NF_MANGLE=m
-CONFIG_IP6_NF_TARGET_MARK=m
-CONFIG_XFRM=y
-CONFIG_XFRM_USER=y
-
-#
-# SCTP Configuration (EXPERIMENTAL)
-#
-CONFIG_IPV6_SCTP__=y
-
-I'll play binary-search on the IPv6 config options, see if one of them is
-involved, but that will have to wait for morning....
-
---==_Exmh_1486477894P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFADh56cC3lWbTT17ARAhLxAJ43BcaA/2gQutk6opzQMHphQU7BwQCg27oj
-bXNZMn58dIIcc4Bf51KtZB4=
-=6ZbG
------END PGP SIGNATURE-----
-
---==_Exmh_1486477894P--

@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266243AbUHII1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266254AbUHII3G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266243AbUHII1t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 04:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266254AbUHII1t
+	id S266254AbUHII3G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 04:29:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUHII3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 04:27:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:33673 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266243AbUHII1l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 04:27:41 -0400
-Date: Mon, 9 Aug 2004 01:25:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Rick Lindsley <ricklind@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, mjbligh@us.ibm.com,
-       Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: 2.6.8-rc3-mm2
-Message-Id: <20040809012555.4ca63fcb.akpm@osdl.org>
-In-Reply-To: <200408090820.i798Kbj07417@owlet.beaverton.ibm.com>
-References: <20040808152936.1ce2eab8.akpm@osdl.org>
-	<200408090820.i798Kbj07417@owlet.beaverton.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 9 Aug 2004 04:29:06 -0400
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:32130 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S266254AbUHII2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 04:28:50 -0400
+Message-ID: <411735BD.3000303@eidetix.com>
+Date: Mon, 09 Aug 2004 10:28:45 +0200
+From: "David N. Welton" <davidw@eidetix.com>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jamesl@appliedminds.com
+CC: Sascha Wilde <wilde@sha-bang.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
+References: <auto-000000462036@appliedminds.com>
+In-Reply-To: <auto-000000462036@appliedminds.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rick Lindsley <ricklind@us.ibm.com> wrote:
->
-> Got complaints from arch/i386/mm/discontig.c:
-> 
-> arch/i386/mm/discontig.c: In function `zone_sizes_init':
-> arch/i386/mm/discontig.c:422: warning: passing arg 4 of `free_area_init_node' makes integer from pointer without a cast
-> arch/i386/mm/discontig.c:422: warning: passing arg 5 of `free_area_init_node' makes pointer from integer without a cast
-> arch/i386/mm/discontig.c:422: too many arguments to function `free_area_init_node'
-> arch/i386/mm/discontig.c:430: warning: passing arg 3 of `free_area_init_node' from incompatible pointer type
-> arch/i386/mm/discontig.c:430: warning: passing arg 4 of `free_area_init_node' makes integer from pointer without a cast
-> arch/i386/mm/discontig.c:430: warning: passing arg 5 of `free_area_init_node' makes pointer from integer without a cast
-> arch/i386/mm/discontig.c:430: too many arguments to function `free_area_init_node'
-> 
-> Looks like I can't get by with just deleting the third argument in the
-> second case.
+James Lamanna wrote:
 
-Gargh.  I really want to ritually incinerate that damn patch.
+> Without having a USB keyboard plugged in, and having DEBUG #defined, can you post
+> the command printks?
+> I suspect that David posted the printks as his machine was starting up. What we
+> really need to look at is what happens on shutdown and if one of those commands
+> hangs for some reason.
 
-Please send .config.
+
+Without keyboard:
+
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [357624] 
+
+drivers/input/serio/i8042.c: 9a -> i8042 (parameter) [357624]
+
+With keyboard:
+
+drivers/input/serio/i8042.c: ff -> i8042 (kbd-data) [33392] 
+
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [33464] 
+
+drivers/input/serio/i8042.c: aa <- i8042 (interrupt, kbd, 1) [33841] 
+
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [33976] 
+
+drivers/input/serio/i8042.c: 65 -> i8042 (parameter) [33976]
+
+The shutdown sequence is not hanging, though, as far as I can tell.  You 
+can triple fault the machine immediately after the first WCTR command 
+during initialization (triple fault reboots it just fine just before the 
+same command) and it doesn't cause a reboot, and yet it's no longer 
+executing instructions from the kernel (or at least not printk's or 
+anything meaningful).  I don't think it's the parameters that it's 
+passing to the WCTR command either, because if you look in the previous 
+batch of printk's, it's putting back in exactly what it got out.
+
+-- 
+David N. Welton
+davidw@eidetix.com
+

@@ -1,70 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbTD2WML (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 18:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTD2WML
+	id S261727AbTD2WWp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 18:22:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbTD2WWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 18:12:11 -0400
-Received: from Mail1.KONTENT.De ([81.88.34.36]:37597 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261320AbTD2WMK (ORCPT
+	Tue, 29 Apr 2003 18:22:45 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:40118 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261727AbTD2WWn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 18:12:10 -0400
-From: Oliver Neukum <oliver@neukum.org>
-Reply-To: oliver@neukum.name
-To: Greg KH <greg@kroah.com>
-Subject: Re: [linux-usb-devel] Re: [Bluetooth] HCI USB driver update. Support for SCO over HCI USB.
-Date: Wed, 30 Apr 2003 00:24:26 +0200
-User-Agent: KMail/1.5
-Cc: Max Krasnyansky <maxk@qualcomm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-References: <200304290317.h3T3HOdA027579@hera.kernel.org> <200304292334.19447.oliver@neukum.org> <20030429214004.GA8891@kroah.com>
-In-Reply-To: <20030429214004.GA8891@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 29 Apr 2003 18:22:43 -0400
+Date: Tue, 29 Apr 2003 15:32:44 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Gabriel Devenyi <devenyga@mcmaster.ca>
+Cc: alan@redhat.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] KernelJanitor: Convert remaining error returns to
+ return -E Linux 2.5.68
+Message-Id: <20030429153244.19c32b3c.rddunlap@osdl.org>
+In-Reply-To: <200304292215.20590.devenyga@mcmaster.ca>
+References: <200304292215.20590.devenyga@mcmaster.ca>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304300024.26133.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 29. April 2003 23:40 schrieb Greg KH:
-> On Tue, Apr 29, 2003 at 11:34:19PM +0200, Oliver Neukum wrote:
-> > > +int usb_init_urb(struct urb *urb)
-> > > +{
-> > > +	if (!urb)
-> > > +		return -EINVAL;
-> > > +	memset(urb, 0, sizeof(*urb));
-> > > +	urb->count = (atomic_t)ATOMIC_INIT(1);
-> > > +	spin_lock_init(&urb->lock);
-> > > +
-> > > +	return 0;
-> > > +}
-> >
-> > Greg, please don't do it this way. Somebody will
-> > try to free this urb. If the urb is part of a structure
-> > this must not lead to a kfree. Please init it to some
-> > insanely high dummy value in this case.
->
-> We can't init it to a high value, if we want to use it ourself in
-> usb_alloc_urb().
+On Tue, 29 Apr 2003 22:15:20 +0000 Gabriel Devenyi <devenyga@mcmaster.ca> wrote:
 
-So don't or make that value a parameter. 
+| This patch applies to 2.5.68. It converts all the remaining error returns to 
+| the new return -E form, this is in the KernelJanitor TODO list.
+| 
+| http://muss.mcmaster.ca/~devenyga/patch-linux-2.5.68-return-errors.patch
+| 
+| Please CC me with any discussion since I do not subscribe to lkml
+| -- 
 
-> And yes, I agree this is a very dangerous function to use on your own,
-> I thought I conveyed that in the documentation for the function.
+I'd have to say that it really depends on whether the caller can
+handle negative return values.  Did you check/audit the callers too?
 
-It's not any more dangerous than what worked quite well for 2.4.
+If it's a well-defined Unix/Linux error code (like s/ENOMEM/-ENOMEM/),
+this should be made to work (at least in most cases).
 
-> But if we don't have such a function, then people like Max will just
-> roll their own, like he just did :)
->
-> Might as well make it easy for him to shoot himself in the foot if he
-> really wants to...
+And don't change ones that use ERR_PTR, like this:
 
-Sure, why not.
+-		return ERR_PTR(-ENOMEM);
++		return -ENOMEM;
 
-	Regards
-		Oliver
 
+Local variable returns of positive/negative are probably not correct...
+without auditing the callers, it's hard to say.  E.g.:
+
+-	return ErrFlag;
++	return -ErrFlag;
+
+(same type of change in DAC960 driver)
+
+
+I'm a bit suspicious of:
+
+-	return EOF;
++	return -EOF;
+
+and
+
+-		return E05;
++		return -E05;
+
+It's not just a global search & replace...
+
+
+One more thing... did you build and boot that modified kernel?
+If so, did it build with the same number or fewer warnings than the
+unmodified version?
+
+--
+~Randy

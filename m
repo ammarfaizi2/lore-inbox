@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUKIFga@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbUKIFhr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbUKIFga (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 00:36:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbUKIFdK
+	id S261400AbUKIFhr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 00:37:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUKIFh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 00:33:10 -0500
-Received: from mail.kroah.org ([69.55.234.183]:53918 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261375AbUKIFYy convert rfc822-to-8bit
+	Tue, 9 Nov 2004 00:37:26 -0500
+Received: from mail.kroah.org ([69.55.234.183]:54430 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261376AbUKIFYz convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 00:24:54 -0500
+	Tue, 9 Nov 2004 00:24:55 -0500
 Subject: Re: [PATCH] I2C update for 2.6.10-rc1
-In-Reply-To: <10999778551027@kroah.com>
+In-Reply-To: <10999778553443@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Mon, 8 Nov 2004 21:24:15 -0800
-Message-Id: <10999778552595@kroah.com>
+Message-Id: <10999778554@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
@@ -22,542 +22,638 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2014.1.7, 2004/11/05 13:41:46-08:00, jthiessen@penguincomputing.com
+ChangeSet 1.2014.1.9, 2004/11/05 13:42:51-08:00, khali@linux-fr.org
 
-[PATCH] I2C: lm85.c driver update
+[PATCH] I2C: New LM63 chip driver
 
-Signed off by: Justin Thiessen <jthiessen@penguincomputing.com
+This is a new I2C chip driver named lm63, which supports National
+Semiconductor's LM63 hardware monitoring chip. The LM63 is similar to
+the LM86 (which we do support through our lm90 driver) with additional
+monitoring and control of a single fan. It is obviously aimed at the CPU
+and high-end graphics adapters markets. This new driver is very similar
+in nature to the lm83 and lm90 driver so I don't have much to add.
+
+I developed the driver on a request from Hard Data Ltd. which are using
+Tyan S4882 boards where four LM63 chips are used (one for each CPU).
+Tyan provided remote access to a test system so that I could test my
+driver on real LM63 chips.
+
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/i2c/chips/lm85.c |  417 +++++++++++++++++++++++++++++++++++++++++++----
- 1 files changed, 388 insertions(+), 29 deletions(-)
+ drivers/i2c/chips/Kconfig  |   13 +
+ drivers/i2c/chips/Makefile |    1 
+ drivers/i2c/chips/lm63.c   |  569 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 583 insertions(+)
 
 
-diff -Nru a/drivers/i2c/chips/lm85.c b/drivers/i2c/chips/lm85.c
---- a/drivers/i2c/chips/lm85.c	2004-11-08 18:55:54 -08:00
-+++ b/drivers/i2c/chips/lm85.c	2004-11-08 18:55:54 -08:00
-@@ -4,6 +4,7 @@
-     Copyright (c) 1998, 1999  Frodo Looijaard <frodol@dds.nl> 
-     Copyright (c) 2002, 2003  Philip Pokorny <ppokorny@penguincomputing.com>
-     Copyright (c) 2003        Margit Schubert-While <margitsw@t-online.de>
-+    Copyright (c) 2004        Justin Thiessen <jthiessen@penguincomputing.com>
+diff -Nru a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
+--- a/drivers/i2c/chips/Kconfig	2004-11-08 18:55:43 -08:00
++++ b/drivers/i2c/chips/Kconfig	2004-11-08 18:55:43 -08:00
+@@ -97,6 +97,19 @@
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called it87.
  
-     Chip details at	      <http://www.national.com/ds/LM/LM85.pdf>
- 
-@@ -29,11 +30,6 @@
- #include <linux/i2c.h>
- #include <linux/i2c-sensor.h>
- #include <linux/i2c-vid.h>
--/*
--#include <asm/io.h>
--*/
--
--#undef	LM85EXTENDEDFUNC	/* Extended functionality */
- 
- /* Addresses to scan */
- static unsigned short normal_i2c[] = { 0x2c, 0x2d, 0x2e, I2C_CLIENT_END };
-@@ -163,8 +159,6 @@
- 
- #define EXT_FROM_REG(val,sensor)	(((val)>>(sensor * 2))&0x03)
- 
--#ifdef	LM85EXTENDEDFUNC	/* Extended functionality */
--
- /* ZONEs have the following parameters:
-  *    Limit (low) temp,           1. degC
-  *    Hysteresis (below limit),   1. degC (0-15)
-@@ -183,20 +177,32 @@
-  *    Filter constant (or disabled)   .1 seconds
-  */
- 
--/* These are the zone temperature range encodings */
--static int lm85_range_map[] = {   /* .1 degC */
--		 20,  25,  33,  40,  50,  66,
--		 80, 100, 133, 160, 200, 266,
--		320, 400, 533, 800
-+/* These are the zone temperature range encodings in .001 degree C */
-+static int lm85_range_map[] = {   
-+		2000,  2500,  3300,  4000,  5000,  6600,
-+		8000, 10000, 13300, 16000, 20000, 26600,
-+		32000, 40000, 53300, 80000
- 	};
- static int RANGE_TO_REG( int range )
- {
- 	int i;
- 
--	if( range >= lm85_range_map[15] ) { return 15 ; }
--	for( i = 0 ; i < 15 ; ++i )
--		if( range <= lm85_range_map[i] )
--			break ;
-+	if ( range < lm85_range_map[0] ) { 
-+		return 0 ;
-+	} else if ( range > lm85_range_map[15] ) {
-+		return 15 ;
-+	} else {  /* find closest match */
-+		for ( i = 14 ; i >= 0 ; --i ) {
-+			if ( range > lm85_range_map[i] ) { /* range bracketed */
-+				if ((lm85_range_map[i+1] - range) < 
-+					(range - lm85_range_map[i])) {
-+					i++;
-+					break;
-+				}
-+				break;
-+			}
++config SENSORS_LM63
++	tristate "National Semiconductor LM63"
++	depends on I2C && EXPERIMENTAL
++	select I2C_SENSOR
++	help
++	  If you say yes here you get support for the National Semiconductor
++	  LM63 remote diode digital temperature sensor with integrated fan
++	  control.  Such chips are found on the Tyan S4882 (Thunder K8QS Pro)
++	  motherboard, among others.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called lm63.
++
+ config SENSORS_LM75
+ 	tristate "National Semiconductor LM75 and compatibles"
+ 	depends on I2C && EXPERIMENTAL
+diff -Nru a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
+--- a/drivers/i2c/chips/Makefile	2004-11-08 18:55:43 -08:00
++++ b/drivers/i2c/chips/Makefile	2004-11-08 18:55:43 -08:00
+@@ -15,6 +15,7 @@
+ obj-$(CONFIG_SENSORS_FSCHER)	+= fscher.o
+ obj-$(CONFIG_SENSORS_GL518SM)	+= gl518sm.o
+ obj-$(CONFIG_SENSORS_IT87)	+= it87.o
++obj-$(CONFIG_SENSORS_LM63)	+= lm63.o
+ obj-$(CONFIG_SENSORS_LM75)	+= lm75.o
+ obj-$(CONFIG_SENSORS_LM77)	+= lm77.o
+ obj-$(CONFIG_SENSORS_LM78)	+= lm78.o
+diff -Nru a/drivers/i2c/chips/lm63.c b/drivers/i2c/chips/lm63.c
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/drivers/i2c/chips/lm63.c	2004-11-08 18:55:43 -08:00
+@@ -0,0 +1,569 @@
++/*
++ * lm63.c - driver for the National Semiconductor LM63 temperature sensor
++ *          with integrated fan control
++ * Copyright (C) 2004  Jean Delvare <khali@linux-fr.org>
++ * Based on the lm90 driver.
++ *
++ * The LM63 is a sensor chip made by National Semiconductor. It measures
++ * two temperatures (its own and one external one) and the speed of one
++ * fan, those speed it can additionally control. Complete datasheet can be
++ * obtained from National's website at:
++ *   http://www.national.com/pf/LM/LM63.html
++ *
++ * The LM63 is basically an LM86 with fan speed monitoring and control
++ * capabilities added. It misses some of the LM86 features though:
++ *  - No low limit for local temperature.
++ *  - No critical limit for local temperature.
++ *  - Critical limit for remote temperature can be changed only once. We
++ *    will consider that the critical limit is read-only.
++ *
++ * The datasheet isn't very clear about what the tachometer reading is.
++ * I had a explanation from National Semiconductor though. The two lower
++ * bits of the read value have to be masked out. The value is still 16 bit
++ * in width.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/i2c.h>
++#include <linux/i2c-sensor.h>
++
++/*
++ * Addresses to scan
++ * Address is fully defined internally and cannot be changed.
++ */
++
++static unsigned short normal_i2c[] = { 0x4c, I2C_CLIENT_END };
++static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
++static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
++static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
++
++/*
++ * Insmod parameters
++ */
++
++SENSORS_INSMOD_1(lm63);
++
++/*
++ * The LM63 registers
++ */
++
++#define LM63_REG_CONFIG1		0x03
++#define LM63_REG_CONFIG2		0xBF
++#define LM63_REG_CONFIG_FAN		0x4A
++
++#define LM63_REG_TACH_COUNT_MSB		0x47
++#define LM63_REG_TACH_COUNT_LSB		0x46
++#define LM63_REG_TACH_LIMIT_MSB		0x49
++#define LM63_REG_TACH_LIMIT_LSB		0x48
++
++#define LM63_REG_PWM_VALUE		0x4C
++#define LM63_REG_PWM_FREQ		0x4D
++
++#define LM63_REG_LOCAL_TEMP		0x00
++#define LM63_REG_LOCAL_HIGH		0x05
++
++#define LM63_REG_REMOTE_TEMP_MSB	0x01
++#define LM63_REG_REMOTE_TEMP_LSB	0x10
++#define LM63_REG_REMOTE_OFFSET_MSB	0x11
++#define LM63_REG_REMOTE_OFFSET_LSB	0x12
++#define LM63_REG_REMOTE_HIGH_MSB	0x07
++#define LM63_REG_REMOTE_HIGH_LSB	0x13
++#define LM63_REG_REMOTE_LOW_MSB		0x08
++#define LM63_REG_REMOTE_LOW_LSB		0x14
++#define LM63_REG_REMOTE_TCRIT		0x19
++#define LM63_REG_REMOTE_TCRIT_HYST	0x21
++
++#define LM63_REG_ALERT_STATUS		0x02
++#define LM63_REG_ALERT_MASK		0x16
++
++#define LM63_REG_MAN_ID			0xFE
++#define LM63_REG_CHIP_ID		0xFF
++
++/*
++ * Conversions and various macros
++ * For tachometer counts, the LM63 uses 16-bit values.
++ * For local temperature and high limit, remote critical limit and hysteresis
++ * value, it uses signed 8-bit values with LSB = 1 degree Celcius.
++ * For remote temperature, low and high limits, it uses signed 11-bit values
++ * with LSB = 0.125 degree Celcius, left-justified in 16-bit registers.
++ */
++
++#define FAN_FROM_REG(reg)	((reg) == 0xFFFC || (reg) == 0 ? 0 : \
++				 5400000 / (reg))
++#define FAN_TO_REG(val)		((val) <= 82 ? 0xFFFC : \
++				 (5400000 / (val)) & 0xFFFC)
++#define TEMP8_FROM_REG(reg)	((reg) * 1000)
++#define TEMP8_TO_REG(val)	((val) <= -128000 ? -128 : \
++				 (val) >= 127000 ? 127 : \
++				 (val) < 0 ? ((val) - 500) / 1000 : \
++				 ((val) + 500) / 1000)
++#define TEMP11_FROM_REG(reg)	((reg) / 32 * 125)
++#define TEMP11_TO_REG(val)	((val) <= -128000 ? 0x8000 : \
++				 (val) >= 127875 ? 0x7FE0 : \
++				 (val) < 0 ? ((val) - 62) / 125 * 32 : \
++				 ((val) + 62) / 125 * 32)
++#define HYST_TO_REG(val)	((val) <= 0 ? 0 : \
++				 (val) >= 127000 ? 127 : \
++				 ((val) + 500) / 1000)
++
++/*
++ * Functions declaration
++ */
++
++static int lm63_attach_adapter(struct i2c_adapter *adapter);
++static int lm63_detach_client(struct i2c_client *client);
++
++static struct lm63_data *lm63_update_device(struct device *dev);
++
++static int lm63_detect(struct i2c_adapter *adapter, int address, int kind);
++static void lm63_init_client(struct i2c_client *client);
++
++/*
++ * Driver data (common to all clients)
++ */
++
++static struct i2c_driver lm63_driver = {
++	.owner		= THIS_MODULE,
++	.name		= "lm63",
++	.flags		= I2C_DF_NOTIFY,
++	.attach_adapter	= lm63_attach_adapter,
++	.detach_client	= lm63_detach_client,
++};
++
++/*
++ * Client data (each client gets its own)
++ */
++
++struct lm63_data {
++	struct i2c_client client;
++	struct semaphore update_lock;
++	char valid; /* zero until following fields are valid */
++	unsigned long last_updated; /* in jiffies */
++
++	/* registers values */
++	u8 config, config_fan;
++	u16 fan1_input;
++	u16 fan1_low;
++	u8 pwm1_freq;
++	u8 pwm1_value;
++	s8 temp1_input;
++	s8 temp1_high;
++	s16 temp2_input;
++	s16 temp2_high;
++	s16 temp2_low;
++	s8 temp2_crit;
++	u8 temp2_crit_hyst;
++	u8 alarms;
++};
++
++/*
++ * Sysfs callback functions and files
++ */
++
++#define show_fan(value) \
++static ssize_t show_##value(struct device *dev, char *buf) \
++{ \
++	struct lm63_data *data = lm63_update_device(dev); \
++	return sprintf(buf, "%d\n", FAN_FROM_REG(data->value)); \
++}
++show_fan(fan1_input);
++show_fan(fan1_low);
++
++static ssize_t set_fan1_low(struct device *dev, const char *buf,
++	size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct lm63_data *data = i2c_get_clientdata(client);
++	unsigned long val = simple_strtoul(buf, NULL, 10);
++	data->fan1_low = FAN_TO_REG(val);
++	i2c_smbus_write_byte_data(client, LM63_REG_TACH_LIMIT_LSB,
++				  data->fan1_low & 0xFF);
++	i2c_smbus_write_byte_data(client, LM63_REG_TACH_LIMIT_MSB,
++				  data->fan1_low >> 8);
++	return count;
++}
++
++static ssize_t show_pwm1(struct device *dev, char *buf)
++{
++	struct lm63_data *data = lm63_update_device(dev);
++	return sprintf(buf, "%d\n", data->pwm1_value >= 2 * data->pwm1_freq ?
++		       255 : (data->pwm1_value * 255 + data->pwm1_freq) /
++		       (2 * data->pwm1_freq));
++}
++
++static ssize_t set_pwm1(struct device *dev, const char *buf, size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct lm63_data *data = i2c_get_clientdata(client);
++	unsigned long val;
++	
++	if (!(data->config_fan & 0x20)) /* register is read-only */
++		return -EPERM;
++
++	val = simple_strtoul(buf, NULL, 10);
++	data->pwm1_value = val <= 0 ? 0 :
++			   val >= 255 ? 2 * data->pwm1_freq :
++			   (val * data->pwm1_freq * 2 + 127) / 255;
++	i2c_smbus_write_byte_data(client, LM63_REG_PWM_VALUE, data->pwm1_value);
++	return count;
++}
++
++static ssize_t show_pwm1_enable(struct device *dev, char *buf)
++{
++	struct lm63_data *data = lm63_update_device(dev);
++	return sprintf(buf, "%d\n", data->config_fan & 0x20 ? 1 : 2);
++}
++
++#define show_temp8(value) \
++static ssize_t show_##value(struct device *dev, char *buf) \
++{ \
++	struct lm63_data *data = lm63_update_device(dev); \
++	return sprintf(buf, "%d\n", TEMP8_FROM_REG(data->value)); \
++}
++#define show_temp11(value) \
++static ssize_t show_##value(struct device *dev, char *buf) \
++{ \
++	struct lm63_data *data = lm63_update_device(dev); \
++	return sprintf(buf, "%d\n", TEMP11_FROM_REG(data->value)); \
++}
++show_temp8(temp1_input);
++show_temp8(temp1_high);
++show_temp11(temp2_input);
++show_temp11(temp2_high);
++show_temp11(temp2_low);
++show_temp8(temp2_crit);
++
++#define set_temp8(value, reg) \
++static ssize_t set_##value(struct device *dev, const char *buf, \
++	size_t count) \
++{ \
++	struct i2c_client *client = to_i2c_client(dev); \
++	struct lm63_data *data = i2c_get_clientdata(client); \
++	long val = simple_strtol(buf, NULL, 10); \
++	data->value = TEMP8_TO_REG(val); \
++	i2c_smbus_write_byte_data(client, reg, data->value); \
++	return count; \
++}
++#define set_temp11(value, reg_msb, reg_lsb) \
++static ssize_t set_##value(struct device *dev, const char *buf, \
++	size_t count) \
++{ \
++	struct i2c_client *client = to_i2c_client(dev); \
++	struct lm63_data *data = i2c_get_clientdata(client); \
++	long val = simple_strtol(buf, NULL, 10); \
++	data->value = TEMP11_TO_REG(val); \
++	i2c_smbus_write_byte_data(client, reg_msb, data->value >> 8); \
++	i2c_smbus_write_byte_data(client, reg_lsb, data->value & 0xff); \
++	return count; \
++}
++set_temp8(temp1_high, LM63_REG_LOCAL_HIGH);
++set_temp11(temp2_high, LM63_REG_REMOTE_HIGH_MSB, LM63_REG_REMOTE_HIGH_LSB);
++set_temp11(temp2_low, LM63_REG_REMOTE_LOW_MSB, LM63_REG_REMOTE_LOW_LSB);
++
++/* Hysteresis register holds a relative value, while we want to present
++   an absolute to user-space */
++static ssize_t show_temp2_crit_hyst(struct device *dev, char *buf)
++{
++	struct lm63_data *data = lm63_update_device(dev);
++	return sprintf(buf, "%d\n", TEMP8_FROM_REG(data->temp2_crit)
++		       - TEMP8_FROM_REG(data->temp2_crit_hyst));
++}
++
++/* And now the other way around, user-space provides an absolute
++   hysteresis value and we have to store a relative one */
++static ssize_t set_temp2_crit_hyst(struct device *dev, const char *buf,
++	size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct lm63_data *data = i2c_get_clientdata(client);
++	int hyst = TEMP8_FROM_REG(data->temp2_crit) -
++		   simple_strtol(buf, NULL, 10);
++	i2c_smbus_write_byte_data(client, LM63_REG_REMOTE_TCRIT_HYST,
++				  HYST_TO_REG(hyst));
++	return count;
++}
++
++static ssize_t show_alarms(struct device *dev, char *buf)
++{
++	struct lm63_data *data = lm63_update_device(dev);
++	return sprintf(buf, "%u\n", data->alarms);
++}
++
++static DEVICE_ATTR(fan1_input, S_IRUGO, show_fan1_input, NULL);
++static DEVICE_ATTR(fan1_min, S_IWUSR | S_IRUGO, show_fan1_low,
++	set_fan1_low);
++
++static DEVICE_ATTR(pwm1, S_IWUSR | S_IRUGO, show_pwm1, set_pwm1);
++static DEVICE_ATTR(pwm1_enable, S_IRUGO, show_pwm1_enable, NULL);
++
++static DEVICE_ATTR(temp1_input, S_IRUGO, show_temp1_input, NULL);
++static DEVICE_ATTR(temp1_max, S_IWUSR | S_IRUGO, show_temp1_high,
++	set_temp1_high);
++
++static DEVICE_ATTR(temp2_input, S_IRUGO, show_temp2_input, NULL);
++static DEVICE_ATTR(temp2_min, S_IWUSR | S_IRUGO, show_temp2_low,
++	set_temp2_low);
++static DEVICE_ATTR(temp2_max, S_IWUSR | S_IRUGO, show_temp2_high,
++	set_temp2_high);
++static DEVICE_ATTR(temp2_crit, S_IRUGO, show_temp2_crit, NULL);
++static DEVICE_ATTR(temp2_crit_hyst, S_IWUSR | S_IRUGO, show_temp2_crit_hyst,
++	set_temp2_crit_hyst);
++
++static DEVICE_ATTR(alarms, S_IRUGO, show_alarms, NULL);
++
++/*
++ * Real code
++ */
++
++static int lm63_attach_adapter(struct i2c_adapter *adapter)
++{
++	if (!(adapter->class & I2C_CLASS_HWMON))
++		return 0;
++	return i2c_detect(adapter, &addr_data, lm63_detect);
++}
++
++/*
++ * The following function does more than just detection. If detection
++ * succeeds, it also registers the new chip.
++ */
++static int lm63_detect(struct i2c_adapter *adapter, int address, int kind)
++{
++	struct i2c_client *new_client;
++	struct lm63_data *data;
++	int err = 0;
++
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
++		goto exit;
++
++	if (!(data = kmalloc(sizeof(struct lm63_data), GFP_KERNEL))) {
++		err = -ENOMEM;
++		goto exit;
++	}
++	memset(data, 0, sizeof(struct lm63_data));
++
++	/* The common I2C client data is placed right before the
++	   LM63-specific data. */
++	new_client = &data->client;
++	i2c_set_clientdata(new_client, data);
++	new_client->addr = address;
++	new_client->adapter = adapter;
++	new_client->driver = &lm63_driver;
++	new_client->flags = 0;
++
++	/* Default to an LM63 if forced */
++	if (kind == 0)
++		kind = lm63;
++
++	if (kind < 0) { /* must identify */
++		u8 man_id, chip_id, reg_config1, reg_config2;
++		u8 reg_alert_status, reg_alert_mask;
++
++		man_id = i2c_smbus_read_byte_data(new_client,
++			 LM63_REG_MAN_ID);
++		chip_id = i2c_smbus_read_byte_data(new_client,
++			  LM63_REG_CHIP_ID);
++		reg_config1 = i2c_smbus_read_byte_data(new_client,
++			      LM63_REG_CONFIG1);
++		reg_config2 = i2c_smbus_read_byte_data(new_client,
++			      LM63_REG_CONFIG2);
++		reg_alert_status = i2c_smbus_read_byte_data(new_client,
++				   LM63_REG_ALERT_STATUS);
++		reg_alert_mask = i2c_smbus_read_byte_data(new_client,
++				 LM63_REG_ALERT_MASK);
++
++		if (man_id == 0x01 /* National Semiconductor */
++		 && chip_id == 0x41 /* LM63 */
++		 && (reg_config1 & 0x18) == 0x00
++		 && (reg_config2 & 0xF8) == 0x00
++		 && (reg_alert_status & 0x20) == 0x00
++		 && (reg_alert_mask & 0xA4) == 0xA4) {
++			kind = lm63;
++		} else { /* failed */
++			dev_dbg(&adapter->dev, "Unsupported chip "
++				"(man_id=0x%02X, chip_id=0x%02X).\n",
++				man_id, chip_id);
++			goto exit_free;
 +		}
 +	}
- 	return( i & 0x0f );
- }
- #define RANGE_FROM_REG(val) (lm85_range_map[(val)&0x0f])
-@@ -240,7 +246,7 @@
- 
- /* These are the PWM frequency encodings */
- static int lm85_freq_map[] = { /* .1 Hz */
--		100, 150, 230, 300, 380, 470, 620, 980
-+		100, 150, 230, 300, 380, 470, 620, 940
- 	};
- static int FREQ_TO_REG( int freq )
- {
-@@ -266,13 +272,9 @@
-  *     -2 -- PWM responds to manual control
-  */
- 
--#endif		/* Extended functionality */
--
- static int lm85_zone_map[] = { 1, 2, 3, -1, 0, 23, 123, -2 };
- #define ZONE_FROM_REG(val) (lm85_zone_map[((val)>>5)&0x07])
- 
--#ifdef	LM85EXTENDEDFUNC	/* Extended functionality */
--
- static int ZONE_TO_REG( int zone )
- {
- 	int i;
-@@ -285,10 +287,8 @@
- 	return( (i & 0x07)<<5 );
- }
- 
--#endif		/* Extended functionality */
--
--#define HYST_TO_REG(val) (SENSORS_LIMIT((-(val)+5)/10,0,15))
--#define HYST_FROM_REG(val) (-(val)*10)
-+#define HYST_TO_REG(val) (SENSORS_LIMIT(((val)+500)/1000,0,15))
-+#define HYST_FROM_REG(val) ((val)*1000)
- 
- #define OFFSET_TO_REG(val) (SENSORS_LIMIT((val)/25,-127,127))
- #define OFFSET_FROM_REG(val) ((val)*25)
-@@ -338,6 +338,14 @@
- 	u8 hyst;	/* Low limit hysteresis. (0-15) */
- 	u8 range;	/* Temp range, encoded */
- 	s8 critical;	/* "All fans ON" temp limit */
-+	u8 off_desired; /* Actual "off" temperature specified.  Preserved 
-+			 * to prevent "drift" as other autofan control
-+			 * values change.
-+			 */
-+	u8 max_desired; /* Actual "max" temperature specified.  Preserved 
-+			 * to prevent "drift" as other autofan control
-+			 * values change.
-+			 */
- };
- 
- struct lm85_autofan {
-@@ -448,7 +456,8 @@
- {									\
- 	return set_fan_min(dev, buf, count, offset - 1);		\
- }									\
--static DEVICE_ATTR(fan##offset##_input, S_IRUGO, show_fan_##offset, NULL);\
-+static DEVICE_ATTR(fan##offset##_input, S_IRUGO, show_fan_##offset,	\
-+		NULL);							\
- static DEVICE_ATTR(fan##offset##_min, S_IRUGO | S_IWUSR, 		\
- 		show_fan_##offset##_min, set_fan_##offset##_min);
- 
-@@ -615,7 +624,8 @@
- {									\
- 	return set_in_max(dev, buf, count, offset);			\
- }									\
--static DEVICE_ATTR(in##offset##_input, S_IRUGO, show_in_##offset, NULL);	\
-+static DEVICE_ATTR(in##offset##_input, S_IRUGO, show_in_##offset, 	\
-+		NULL);							\
- static DEVICE_ATTR(in##offset##_min, S_IRUGO | S_IWUSR, 		\
- 		show_in_##offset##_min, set_in_##offset##_min);		\
- static DEVICE_ATTR(in##offset##_max, S_IRUGO | S_IWUSR, 		\
-@@ -695,7 +705,8 @@
- {									\
- 	return set_temp_max(dev, buf, count, offset - 1);		\
- }									\
--static DEVICE_ATTR(temp##offset##_input, S_IRUGO, show_temp_##offset, NULL);	\
-+static DEVICE_ATTR(temp##offset##_input, S_IRUGO, show_temp_##offset,	\
-+		NULL);							\
- static DEVICE_ATTR(temp##offset##_min, S_IRUGO | S_IWUSR, 		\
- 		show_temp_##offset##_min, set_temp_##offset##_min);	\
- static DEVICE_ATTR(temp##offset##_max, S_IRUGO | S_IWUSR, 		\
-@@ -706,6 +717,330 @@
- show_temp_reg(3);
- 
- 
-+/* Automatic PWM control */
 +
-+static ssize_t show_pwm_auto_channels(struct device *dev, char *buf, int nr)
-+{
-+	struct lm85_data *data = lm85_update_device(dev);
-+	return sprintf(buf,"%d\n", ZONE_FROM_REG(data->autofan[nr].config));
-+}
-+static ssize_t set_pwm_auto_channels(struct device *dev, const char *buf,
-+	size_t count, int nr)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct lm85_data *data = i2c_get_clientdata(client);
-+	int     val;
++	strlcpy(new_client->name, "lm63", I2C_NAME_SIZE);
++	data->valid = 0;
++	init_MUTEX(&data->update_lock);
 +
-+	down(&data->update_lock);
-+	val = simple_strtol(buf, NULL, 10);
-+	data->autofan[nr].config = (data->autofan[nr].config & (~0xe0))
-+		| ZONE_TO_REG(val) ;
-+	lm85_write_value(client, LM85_REG_AFAN_CONFIG(nr),
-+		data->autofan[nr].config);
-+	up(&data->update_lock);
-+	return count;
-+}
-+static ssize_t show_pwm_auto_pwm_min(struct device *dev, char *buf, int nr)
-+{
-+	struct lm85_data *data = lm85_update_device(dev);
-+	return sprintf(buf,"%d\n", PWM_FROM_REG(data->autofan[nr].min_pwm));
-+}
-+static ssize_t set_pwm_auto_pwm_min(struct device *dev, const char *buf,
-+	size_t count, int nr)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct lm85_data *data = i2c_get_clientdata(client);
-+	int     val;
++	/* Tell the I2C layer a new client has arrived */
++	if ((err = i2c_attach_client(new_client)))
++		goto exit_free;
 +
-+	down(&data->update_lock);
-+	val = simple_strtol(buf, NULL, 10);
-+	data->autofan[nr].min_pwm = PWM_TO_REG(val);
-+	lm85_write_value(client, LM85_REG_AFAN_MINPWM(nr),
-+		data->autofan[nr].min_pwm);
-+	up(&data->update_lock);
-+	return count;
-+}
-+static ssize_t show_pwm_auto_pwm_minctl(struct device *dev, char *buf, int nr)
-+{
-+	struct lm85_data *data = lm85_update_device(dev);
-+	return sprintf(buf,"%d\n", data->autofan[nr].min_off);
-+}
-+static ssize_t set_pwm_auto_pwm_minctl(struct device *dev, const char *buf,
-+	size_t count, int nr)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct lm85_data *data = i2c_get_clientdata(client);
-+	int     val;
++	/* Initialize the LM63 chip */
++	lm63_init_client(new_client);
 +
-+	down(&data->update_lock);
-+	val = simple_strtol(buf, NULL, 10);
-+	data->autofan[nr].min_off = val;
-+	lm85_write_value(client, LM85_REG_AFAN_SPIKE1, data->smooth[0]
-+		| data->syncpwm3
-+		| (data->autofan[0].min_off ? 0x20 : 0)
-+		| (data->autofan[1].min_off ? 0x40 : 0)
-+		| (data->autofan[2].min_off ? 0x80 : 0)
-+	);
-+	up(&data->update_lock);
-+	return count;
-+}
-+static ssize_t show_pwm_auto_pwm_freq(struct device *dev, char *buf, int nr)
-+{
-+	struct lm85_data *data = lm85_update_device(dev);
-+	return sprintf(buf,"%d\n", FREQ_FROM_REG(data->autofan[nr].freq));
-+}
-+static ssize_t set_pwm_auto_pwm_freq(struct device *dev, const char *buf,
-+		size_t count, int nr)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct lm85_data *data = i2c_get_clientdata(client);
-+	int     val;
-+
-+	down(&data->update_lock);
-+	val = simple_strtol(buf, NULL, 10);
-+	data->autofan[nr].freq = FREQ_TO_REG(val);
-+	lm85_write_value(client, LM85_REG_AFAN_RANGE(nr),
-+		(data->zone[nr].range << 4)
-+		| data->autofan[nr].freq
-+	); 
-+	up(&data->update_lock);
-+	return count;
-+}
-+#define pwm_auto(offset)						\
-+static ssize_t show_pwm##offset##_auto_channels (struct device *dev,	\
-+	char *buf)							\
-+{									\
-+	return show_pwm_auto_channels(dev, buf, offset - 1);		\
-+}									\
-+static ssize_t set_pwm##offset##_auto_channels (struct device *dev,	\
-+	const char *buf, size_t count)					\
-+{									\
-+	return set_pwm_auto_channels(dev, buf, count, offset - 1);	\
-+}									\
-+static ssize_t show_pwm##offset##_auto_pwm_min (struct device *dev,	\
-+	char *buf)							\
-+{									\
-+	return show_pwm_auto_pwm_min(dev, buf, offset - 1);		\
-+}									\
-+static ssize_t set_pwm##offset##_auto_pwm_min (struct device *dev,	\
-+	const char *buf, size_t count)					\
-+{									\
-+	return set_pwm_auto_pwm_min(dev, buf, count, offset - 1);	\
-+}									\
-+static ssize_t show_pwm##offset##_auto_pwm_minctl (struct device *dev,	\
-+	char *buf)							\
-+{									\
-+	return show_pwm_auto_pwm_minctl(dev, buf, offset - 1);		\
-+}									\
-+static ssize_t set_pwm##offset##_auto_pwm_minctl (struct device *dev,	\
-+	const char *buf, size_t count)					\
-+{									\
-+	return set_pwm_auto_pwm_minctl(dev, buf, count, offset - 1);	\
-+}									\
-+static ssize_t show_pwm##offset##_auto_pwm_freq (struct device *dev,	\
-+	char *buf)							\
-+{									\
-+	return show_pwm_auto_pwm_freq(dev, buf, offset - 1);		\
-+}									\
-+static ssize_t set_pwm##offset##_auto_pwm_freq(struct device *dev,	\
-+	const char *buf, size_t count)					\
-+{									\
-+	return set_pwm_auto_pwm_freq(dev, buf, count, offset - 1);	\
-+}									\
-+static DEVICE_ATTR(pwm##offset##_auto_channels, S_IRUGO | S_IWUSR,	\
-+		show_pwm##offset##_auto_channels,			\
-+		set_pwm##offset##_auto_channels);			\
-+static DEVICE_ATTR(pwm##offset##_auto_pwm_min, S_IRUGO | S_IWUSR,	\
-+		show_pwm##offset##_auto_pwm_min,			\
-+		set_pwm##offset##_auto_pwm_min);			\
-+static DEVICE_ATTR(pwm##offset##_auto_pwm_minctl, S_IRUGO | S_IWUSR,	\
-+		show_pwm##offset##_auto_pwm_minctl,			\
-+		set_pwm##offset##_auto_pwm_minctl);			\
-+static DEVICE_ATTR(pwm##offset##_auto_pwm_freq, S_IRUGO | S_IWUSR,	\
-+		show_pwm##offset##_auto_pwm_freq,			\
-+		set_pwm##offset##_auto_pwm_freq);              
-+pwm_auto(1);
-+pwm_auto(2);
-+pwm_auto(3);
-+
-+/* Temperature settings for automatic PWM control */
-+
-+static ssize_t show_temp_auto_temp_off(struct device *dev, char *buf, int nr)
-+{
-+	struct lm85_data *data = lm85_update_device(dev);
-+	return sprintf(buf,"%d\n", TEMP_FROM_REG(data->zone[nr].limit) -
-+		HYST_FROM_REG(data->zone[nr].hyst));
-+}
-+static ssize_t set_temp_auto_temp_off(struct device *dev, const char *buf,
-+	size_t count, int nr)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct lm85_data *data = i2c_get_clientdata(client);
-+	int    min, val;
-+
-+	down(&data->update_lock);
-+	val = simple_strtol(buf, NULL, 10);
-+	min = TEMP_FROM_REG(data->zone[nr].limit);
-+	data->zone[nr].off_desired = TEMP_TO_REG(val);
-+	data->zone[nr].hyst = HYST_TO_REG(min - val);
-+	if ( nr == 0 || nr == 1 ) {
-+		lm85_write_value(client, LM85_REG_AFAN_HYST1,
-+			(data->zone[0].hyst << 4)
-+			| data->zone[1].hyst
-+			);
-+	} else {
-+		lm85_write_value(client, LM85_REG_AFAN_HYST2,
-+			(data->zone[2].hyst << 4)
-+		);
++	/* Register sysfs hooks */
++	if (data->config & 0x04) { /* tachometer enabled */
++		device_create_file(&new_client->dev, &dev_attr_fan1_input);
++		device_create_file(&new_client->dev, &dev_attr_fan1_min);
 +	}
-+	up(&data->update_lock);
-+	return count;
++	device_create_file(&new_client->dev, &dev_attr_pwm1);
++	device_create_file(&new_client->dev, &dev_attr_pwm1_enable);
++	device_create_file(&new_client->dev, &dev_attr_temp1_input);
++	device_create_file(&new_client->dev, &dev_attr_temp2_input);
++	device_create_file(&new_client->dev, &dev_attr_temp2_min);
++	device_create_file(&new_client->dev, &dev_attr_temp1_max);
++	device_create_file(&new_client->dev, &dev_attr_temp2_max);
++	device_create_file(&new_client->dev, &dev_attr_temp2_crit);
++	device_create_file(&new_client->dev, &dev_attr_temp2_crit_hyst);
++	device_create_file(&new_client->dev, &dev_attr_alarms);
++
++	return 0;
++
++exit_free:
++	kfree(data);
++exit:
++	return err;
 +}
-+static ssize_t show_temp_auto_temp_min(struct device *dev, char *buf, int nr)
++
++/* Idealy we shouldn't have to initialize anything, since the BIOS
++   should have taken care of everything */
++static void lm63_init_client(struct i2c_client *client)
 +{
-+	struct lm85_data *data = lm85_update_device(dev);
-+	return sprintf(buf,"%d\n", TEMP_FROM_REG(data->zone[nr].limit) );
-+}
-+static ssize_t set_temp_auto_temp_min(struct device *dev, const char *buf,
-+	size_t count, int nr)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct lm85_data *data = i2c_get_clientdata(client);
-+	int    val;
++	struct lm63_data *data = i2c_get_clientdata(client);
 +
-+	down(&data->update_lock);
-+	val = simple_strtol(buf, NULL, 10);
-+	data->zone[nr].limit = TEMP_TO_REG(val);
-+	lm85_write_value(client, LM85_REG_AFAN_LIMIT(nr),
-+		data->zone[nr].limit);
++	data->config = i2c_smbus_read_byte_data(client, LM63_REG_CONFIG1);
++	data->config_fan = i2c_smbus_read_byte_data(client,
++						    LM63_REG_CONFIG_FAN);
 +
-+/* Update temp_auto_max and temp_auto_range */
-+	data->zone[nr].range = RANGE_TO_REG(
-+		TEMP_FROM_REG(data->zone[nr].max_desired) -
-+		TEMP_FROM_REG(data->zone[nr].limit));
-+	lm85_write_value(client, LM85_REG_AFAN_RANGE(nr),
-+		((data->zone[nr].range & 0x0f) << 4)
-+		| (data->autofan[nr].freq & 0x07));
-+
-+/* Update temp_auto_hyst and temp_auto_off */
-+	data->zone[nr].hyst = HYST_TO_REG(TEMP_FROM_REG(
-+		data->zone[nr].limit) - TEMP_FROM_REG(
-+		data->zone[nr].off_desired));
-+	if ( nr == 0 || nr == 1 ) {
-+		lm85_write_value(client, LM85_REG_AFAN_HYST1,
-+			(data->zone[0].hyst << 4)
-+			| data->zone[1].hyst
-+			);
-+	} else {
-+		lm85_write_value(client, LM85_REG_AFAN_HYST2,
-+			(data->zone[2].hyst << 4)
-+		);
++	/* Start converting if needed */
++	if (data->config & 0x40) { /* standby */
++		dev_dbg(&client->dev, "Switching to operational mode");
++		data->config &= 0xA7;
++		i2c_smbus_write_byte_data(client, LM63_REG_CONFIG1,
++					  data->config);
 +	}
-+	up(&data->update_lock);
-+	return count;
++
++	/* We may need pwm1_freq before ever updating the client data */
++	data->pwm1_freq = i2c_smbus_read_byte_data(client, LM63_REG_PWM_FREQ);
++	if (data->pwm1_freq == 0)
++		data->pwm1_freq = 1;
++
++	/* Show some debug info about the LM63 configuration */
++	dev_dbg(&client->dev, "Alert/tach pin configured for %s\n",
++		(data->config & 0x04) ? "tachometer input" :
++		"alert output");
++	dev_dbg(&client->dev, "PWM clock %s kHz, output frequency %u Hz\n",
++		(data->config_fan & 0x04) ? "1.4" : "360",
++		((data->config_fan & 0x04) ? 700 : 180000) / data->pwm1_freq);
++	dev_dbg(&client->dev, "PWM output active %s, %s mode\n",
++		(data->config_fan & 0x10) ? "low" : "high",
++		(data->config_fan & 0x20) ? "manual" : "auto");
 +}
-+static ssize_t show_temp_auto_temp_max(struct device *dev, char *buf, int nr)
++
++static int lm63_detach_client(struct i2c_client *client)
 +{
-+	struct lm85_data *data = lm85_update_device(dev);
-+	return sprintf(buf,"%d\n", TEMP_FROM_REG(data->zone[nr].limit) +
-+		RANGE_FROM_REG(data->zone[nr].range));
++	int err;
++
++	if ((err = i2c_detach_client(client))) {
++		dev_err(&client->dev, "Client deregistration failed, "
++			"client not detached\n");
++		return err;
++	}
++
++	kfree(i2c_get_clientdata(client));
++	return 0;
 +}
-+static ssize_t set_temp_auto_temp_max(struct device *dev, const char *buf,
-+	size_t count, int nr)
++
++static struct lm63_data *lm63_update_device(struct device *dev)
 +{
 +	struct i2c_client *client = to_i2c_client(dev);
-+	struct lm85_data *data = i2c_get_clientdata(client);
-+	int    min, val;
++	struct lm63_data *data = i2c_get_clientdata(client);
 +
 +	down(&data->update_lock);
-+	min = TEMP_FROM_REG(data->zone[nr].limit);
-+	val = simple_strtol(buf, NULL, 10);
-+	data->zone[nr].max_desired = TEMP_TO_REG(val);
-+	data->zone[nr].range = RANGE_TO_REG(
-+		val - min);
-+	lm85_write_value(client, LM85_REG_AFAN_RANGE(nr),
-+		((data->zone[nr].range & 0x0f) << 4)
-+		| (data->autofan[nr].freq & 0x07));
-+	up(&data->update_lock);
-+	return count;
-+}
-+static ssize_t show_temp_auto_temp_crit(struct device *dev, char *buf, int nr)
-+{
-+	struct lm85_data *data = lm85_update_device(dev);
-+	return sprintf(buf,"%d\n", TEMP_FROM_REG(data->zone[nr].critical));
-+}
-+static ssize_t set_temp_auto_temp_crit(struct device *dev, const char *buf,
-+		size_t count, int nr)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct lm85_data *data = i2c_get_clientdata(client);
-+	int     val;
 +
-+	down(&data->update_lock);
-+	val = simple_strtol(buf, NULL, 10);
-+	data->zone[nr].critical = TEMP_TO_REG(val);
-+	lm85_write_value(client, LM85_REG_AFAN_CRITICAL(nr),
-+		data->zone[nr].critical);
-+	up(&data->update_lock);
-+	return count;
-+}
-+#define temp_auto(offset)						\
-+static ssize_t show_temp##offset##_auto_temp_off (struct device *dev,	\
-+	char *buf)							\
-+{									\
-+	return show_temp_auto_temp_off(dev, buf, offset - 1);		\
-+}									\
-+static ssize_t set_temp##offset##_auto_temp_off (struct device *dev,	\
-+	const char *buf, size_t count)					\
-+{									\
-+	return set_temp_auto_temp_off(dev, buf, count, offset - 1);	\
-+}									\
-+static ssize_t show_temp##offset##_auto_temp_min (struct device *dev,	\
-+	char *buf)							\
-+{									\
-+	return show_temp_auto_temp_min(dev, buf, offset - 1);		\
-+}									\
-+static ssize_t set_temp##offset##_auto_temp_min (struct device *dev,	\
-+	const char *buf, size_t count)					\
-+{									\
-+	return set_temp_auto_temp_min(dev, buf, count, offset - 1);	\
-+}									\
-+static ssize_t show_temp##offset##_auto_temp_max (struct device *dev,	\
-+	char *buf)							\
-+{									\
-+	return show_temp_auto_temp_max(dev, buf, offset - 1);		\
-+}									\
-+static ssize_t set_temp##offset##_auto_temp_max (struct device *dev,	\
-+	const char *buf, size_t count)					\
-+{									\
-+	return set_temp_auto_temp_max(dev, buf, count, offset - 1);	\
-+}									\
-+static ssize_t show_temp##offset##_auto_temp_crit (struct device *dev,	\
-+	char *buf)							\
-+{									\
-+	return show_temp_auto_temp_crit(dev, buf, offset - 1);		\
-+}									\
-+static ssize_t set_temp##offset##_auto_temp_crit (struct device *dev,	\
-+	const char *buf, size_t count)					\
-+{									\
-+	return set_temp_auto_temp_crit(dev, buf, count, offset - 1);	\
-+}									\
-+static DEVICE_ATTR(temp##offset##_auto_temp_off, S_IRUGO | S_IWUSR,	\
-+		show_temp##offset##_auto_temp_off,			\
-+		set_temp##offset##_auto_temp_off);			\
-+static DEVICE_ATTR(temp##offset##_auto_temp_min, S_IRUGO | S_IWUSR,	\
-+		show_temp##offset##_auto_temp_min,			\
-+		set_temp##offset##_auto_temp_min);			\
-+static DEVICE_ATTR(temp##offset##_auto_temp_max, S_IRUGO | S_IWUSR,	\
-+		show_temp##offset##_auto_temp_max,			\
-+		set_temp##offset##_auto_temp_max);			\
-+static DEVICE_ATTR(temp##offset##_auto_temp_crit, S_IRUGO | S_IWUSR,	\
-+		show_temp##offset##_auto_temp_crit,			\
-+		set_temp##offset##_auto_temp_crit);
-+temp_auto(1);
-+temp_auto(2);
-+temp_auto(3);
++	if ((jiffies - data->last_updated > HZ) ||
++	    (jiffies < data->last_updated) ||
++	    !data->valid) {
++		if (data->config & 0x04) { /* tachometer enabled  */
++			/* order matters for fan1_input */
++			data->fan1_input = i2c_smbus_read_byte_data(client,
++					   LM63_REG_TACH_COUNT_LSB) & 0xFC;
++			data->fan1_input |= i2c_smbus_read_byte_data(client,
++					    LM63_REG_TACH_COUNT_MSB) << 8;
++			data->fan1_low = (i2c_smbus_read_byte_data(client,
++					  LM63_REG_TACH_LIMIT_LSB) & 0xFC)
++				       | (i2c_smbus_read_byte_data(client,
++					  LM63_REG_TACH_LIMIT_MSB) << 8);
++		}
 +
- int lm85_attach_adapter(struct i2c_adapter *adapter)
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
-@@ -879,6 +1214,30 @@
- 	device_create_file(&new_client->dev, &dev_attr_vrm);
- 	device_create_file(&new_client->dev, &dev_attr_cpu0_vid);
- 	device_create_file(&new_client->dev, &dev_attr_alarms);
-+	device_create_file(&new_client->dev, &dev_attr_pwm1_auto_channels);
-+	device_create_file(&new_client->dev, &dev_attr_pwm2_auto_channels);
-+	device_create_file(&new_client->dev, &dev_attr_pwm3_auto_channels);
-+	device_create_file(&new_client->dev, &dev_attr_pwm1_auto_pwm_min);
-+	device_create_file(&new_client->dev, &dev_attr_pwm2_auto_pwm_min);
-+	device_create_file(&new_client->dev, &dev_attr_pwm3_auto_pwm_min);
-+	device_create_file(&new_client->dev, &dev_attr_pwm1_auto_pwm_minctl);
-+	device_create_file(&new_client->dev, &dev_attr_pwm2_auto_pwm_minctl);
-+	device_create_file(&new_client->dev, &dev_attr_pwm3_auto_pwm_minctl);
-+	device_create_file(&new_client->dev, &dev_attr_pwm1_auto_pwm_freq);
-+	device_create_file(&new_client->dev, &dev_attr_pwm2_auto_pwm_freq);
-+	device_create_file(&new_client->dev, &dev_attr_pwm3_auto_pwm_freq);
-+	device_create_file(&new_client->dev, &dev_attr_temp1_auto_temp_off);
-+	device_create_file(&new_client->dev, &dev_attr_temp2_auto_temp_off);
-+	device_create_file(&new_client->dev, &dev_attr_temp3_auto_temp_off);
-+	device_create_file(&new_client->dev, &dev_attr_temp1_auto_temp_min);
-+	device_create_file(&new_client->dev, &dev_attr_temp2_auto_temp_min);
-+	device_create_file(&new_client->dev, &dev_attr_temp3_auto_temp_min);
-+	device_create_file(&new_client->dev, &dev_attr_temp1_auto_temp_max);
-+	device_create_file(&new_client->dev, &dev_attr_temp2_auto_temp_max);
-+	device_create_file(&new_client->dev, &dev_attr_temp3_auto_temp_max);
-+	device_create_file(&new_client->dev, &dev_attr_temp1_auto_temp_crit);
-+	device_create_file(&new_client->dev, &dev_attr_temp2_auto_temp_crit);
-+	device_create_file(&new_client->dev, &dev_attr_temp3_auto_temp_crit);
- 
- 	return 0;
- 
-@@ -1162,7 +1521,7 @@
-  *     post 2.7.0 CVS changes.
-  */
- MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Philip Pokorny <ppokorny@penguincomputing.com>, Margit Schubert-While <margitsw@t-online.de>");
-+MODULE_AUTHOR("Philip Pokorny <ppokorny@penguincomputing.com>, Margit Schubert-While <margitsw@t-online.de>, Justin Thiessen <jthiessen@penguincomputing.com");
- MODULE_DESCRIPTION("LM85-B, LM85-C driver");
- 
- module_init(sm_lm85_init);
++		data->pwm1_freq = i2c_smbus_read_byte_data(client,
++				  LM63_REG_PWM_FREQ);
++		if (data->pwm1_freq == 0)
++			data->pwm1_freq = 1;
++		data->pwm1_value = i2c_smbus_read_byte_data(client,
++				   LM63_REG_PWM_VALUE);
++
++		data->temp1_input = i2c_smbus_read_byte_data(client,
++				    LM63_REG_LOCAL_TEMP);
++		data->temp1_high = i2c_smbus_read_byte_data(client,
++				   LM63_REG_LOCAL_HIGH);
++
++		/* order matters for temp2_input */
++		data->temp2_input = i2c_smbus_read_byte_data(client,
++				    LM63_REG_REMOTE_TEMP_MSB) << 8;
++		data->temp2_input |= i2c_smbus_read_byte_data(client,
++				     LM63_REG_REMOTE_TEMP_LSB);
++		data->temp2_high = (i2c_smbus_read_byte_data(client,
++				   LM63_REG_REMOTE_HIGH_MSB) << 8)
++				 | i2c_smbus_read_byte_data(client,
++				   LM63_REG_REMOTE_HIGH_LSB);
++		data->temp2_low = (i2c_smbus_read_byte_data(client,
++				  LM63_REG_REMOTE_LOW_MSB) << 8)
++				| i2c_smbus_read_byte_data(client,
++				  LM63_REG_REMOTE_LOW_LSB);
++		data->temp2_crit = i2c_smbus_read_byte_data(client,
++				   LM63_REG_REMOTE_TCRIT);
++		data->temp2_crit_hyst = i2c_smbus_read_byte_data(client,
++					LM63_REG_REMOTE_TCRIT_HYST);
++
++		data->alarms = i2c_smbus_read_byte_data(client,
++			       LM63_REG_ALERT_STATUS) & 0x7F;
++
++		data->last_updated = jiffies;
++		data->valid = 1;
++	}
++
++	up(&data->update_lock);
++
++	return data;
++}
++
++static int __init sensors_lm63_init(void)
++{
++	return i2c_add_driver(&lm63_driver);
++}
++
++static void __exit sensors_lm63_exit(void)
++{
++	i2c_del_driver(&lm63_driver);
++}
++
++MODULE_AUTHOR("Jean Delvare <khali@linux-fr.org>");
++MODULE_DESCRIPTION("LM63 driver");
++MODULE_LICENSE("GPL");
++
++module_init(sensors_lm63_init);
++module_exit(sensors_lm63_exit);
 

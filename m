@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbVAZIL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbVAZINQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbVAZIL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 03:11:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbVAZIL2
+	id S262382AbVAZINQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 03:13:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbVAZINQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 03:11:28 -0500
-Received: from fw.osdl.org ([65.172.181.6]:47006 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262380AbVAZIL0 (ORCPT
+	Wed, 26 Jan 2005 03:13:16 -0500
+Received: from relay.unizar.es ([155.210.11.72]:3014 "EHLO relay.unizar.es")
+	by vger.kernel.org with ESMTP id S262389AbVAZINF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 03:11:26 -0500
-Date: Wed, 26 Jan 2005 00:11:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: torvalds@osdl.org, alexn@dsv.su.se, kas@fi.muni.cz,
-       linux-kernel@vger.kernel.org, lennert.vanalboom@ugent.be
-Subject: Re: Memory leak in 2.6.11-rc1?
-Message-Id: <20050126001113.30933eef.akpm@osdl.org>
-In-Reply-To: <20050126080152.GA2751@suse.de>
-References: <20050121161959.GO3922@fi.muni.cz>
-	<1106360639.15804.1.camel@boxen>
-	<20050123091154.GC16648@suse.de>
-	<20050123011918.295db8e8.akpm@osdl.org>
-	<20050123095608.GD16648@suse.de>
-	<20050123023248.263daca9.akpm@osdl.org>
-	<1106528219.867.22.camel@boxen>
-	<20050124204659.GB19242@suse.de>
-	<20050124125649.35f3dafd.akpm@osdl.org>
-	<Pine.LNX.4.58.0501241435010.4191@ppc970.osdl.org>
-	<20050126080152.GA2751@suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 26 Jan 2005 03:13:05 -0500
+From: Jorge Bernal <koke@amedias.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] therm_adt746x: smooth fan
+Date: Wed, 26 Jan 2005 09:12:26 +0100
+User-Agent: KMail/1.7.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501260912.27216.koke@amedias.org>
+X-Mail-Scanned: Criba 2.0 + Clamd en Unizar
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
->
-> But the 2.6.11-rcX vm is still very
->  screwy, to get something close to nice and smooth behaviour I have to
->  run a fillmem every now and then to reclaim used memory.
+Hi all!
 
-Can you provide more details?
+This patchs allows a smoother fan speed switching with therm_adt746x. Instead 
+of setting 0 or 128, it scales speed according to temperature.
+
+It would be even better if I'd have more precise temp data, but I'm not sure 
+if it's even supported by the chip.
+
+--- linux-source-2.6.9.orig/drivers/macintosh/therm_adt746x.c 2005-01-26 02:50:31.941528728 +0100
++++ linux-source-2.6.9/drivers/macintosh/therm_adt746x.c 2005-01-26 03:10:36.925343344 +0100
+@@ -272,7 +272,10 @@
+       printk(KERN_INFO "adt746x: Limit exceeded by %d, setting speed to specified for %s.\n",
+        var, fan_number?"GPU":"CPU");     
+      th->overriding[fan_number] = 0;
+-     write_fan_speed(th, fan_speed, fan_number);
++     if ((var > 2) && (var < 8))
++      write_fan_speed(th, (int)(fan_speed * var / 6), fan_number);
++     else
++      write_fan_speed(th, fan_speed, fan_number);
+      started = 1;
+     } else if (var < -1) {
+      /

@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288050AbSA3C1z>; Tue, 29 Jan 2002 21:27:55 -0500
+	id <S288028AbSA3C10>; Tue, 29 Jan 2002 21:27:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288083AbSA3C1t>; Tue, 29 Jan 2002 21:27:49 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22028 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288050AbSA3C1f>;
-	Tue, 29 Jan 2002 21:27:35 -0500
-Message-ID: <3C57586B.7B145D16@zip.com.au>
-Date: Tue, 29 Jan 2002 18:20:27 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5: push BKL out of llseek
-In-Reply-To: <3C574BD1.E5343312@zip.com.au>,
-		<Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com>,
-		<Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com>
-		<1012351309.813.56.camel@phantasy>  <3C574BD1.E5343312@zip.com.au> <1012357211.817.67.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii
+	id <S288050AbSA3C1P>; Tue, 29 Jan 2002 21:27:15 -0500
+Received: from sombre.2ka.mipt.ru ([194.85.82.77]:28550 "EHLO
+	sombre.2ka.mipt.ru") by vger.kernel.org with ESMTP
+	id <S288028AbSA3C1J>; Tue, 29 Jan 2002 21:27:09 -0500
+Date: Wed, 30 Jan 2002 05:26:43 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Mingming cao <cmm@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com, linux-raid@vger.kernel.org
+Subject: Re: Could not compile md/raid5.c and md/multipath.c in 2.5.3-pre3
+Message-Id: <20020130052643.5a0a8f61.johnpol@2ka.mipt.ru>
+In-Reply-To: <3C575435.C123186@us.ibm.com>
+In-Reply-To: <3C571DB2.4E0C0436@us.ibm.com>
+	<20020130042025.051ee424.johnpol@2ka.mipt.ru>
+	<3C575435.C123186@us.ibm.com>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> 
-> On Tue, 2002-01-29 at 20:26, Andrew Morton wrote:
-> 
-> > Just a little word of caution here.  Remember the
-> > apache-flock-synchronisation fiasco, where removal
-> > of the BKL halved Apache throughput on 8-way x86.
-> >
-> > This was because the BKL removal turned serialisation
-> > on a quick codepath from a spinlock into a schedule().
-> 
-> I feared this too, but eventually I decided it was worth it and
-> benchmarks backed that up.  If nothing else this is yet-another-excuse
-> for locks that can spin-then-sleep.
-> 
-> I posted dbench results, which show a positive gain even on 2-way for
-> multiple client loads.
-> 
+On Tue, 29 Jan 2002 18:02:29 -0800
+Mingming cao <cmm@us.ibm.com> wrote:
 
-But dbench does lots of seeking against *different* files,
-so removal of a shared lock will help there.
+> I omitted similar compile errors in the last email.  raid5.c and
+> multipath.c referenced a lot data structures defined in
+> md_compatible.h,  besides the two you added in your fix......
 
-But an application where multiple CPUs lseek and write
-the *same* file could take a hit....
+As you mention md_compatible.h does not exist, it was introduced in 2.5.2
+patch only in drivers/md/xor.c. But in at least pre5 all structures were
+correctly defined in various md_{p,u,k}.h files. I've tried to find others
+undefined symbols, but cann't. So i suggest you to upgrade a bit to pre6
+or pre5 kernel ;), apply my litle patch and remove mention of
+md_compatible.h in drivers/md/xor.c. And feel free to write all others
+erorrs, if they will appear again.
 
-(And where's the locking for (non-atomic) i_size in sys_stat())
+> Thank you for your help.
+
+Good luck.
+
+> -- 
+> Mingming Cao
 
 
--
+	Evgeniy Polyakov ( s0mbre ).

@@ -1,76 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131446AbREEGZP>; Sat, 5 May 2001 02:25:15 -0400
+	id <S131317AbREEGVZ>; Sat, 5 May 2001 02:21:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131472AbREEGZG>; Sat, 5 May 2001 02:25:06 -0400
-Received: from smarty.smart.net ([207.176.80.102]:26641 "EHLO smarty.smart.net")
-	by vger.kernel.org with ESMTP id <S131446AbREEGYy>;
-	Sat, 5 May 2001 02:24:54 -0400
-From: Rick Hohensee <humbubba@smarty.smart.net>
-Message-Id: <200105050627.CAA21713@smarty.smart.net>
-Subject: Re: inserting a Forth-like language into the Linux kernel
-To: linux-kernel@vger.kernel.org
-Date: Sat, 5 May 2001 02:27:05 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL3]
+	id <S131446AbREEGVP>; Sat, 5 May 2001 02:21:15 -0400
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:37200 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S131317AbREEGU6>; Sat, 5 May 2001 02:20:58 -0400
+Date: Sat, 5 May 2001 02:20:55 -0400 (EDT)
+From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+To: Seth Goldberg <bergsoft@home.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Athlon and fast_page_copy: What's it worth ? :)
+In-Reply-To: <3AF389BD.81F9B398@home.com>
+Message-ID: <Pine.LNX.4.10.10105050155020.15185-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.4.0-test10, in my kspamd kernel-thread that's like a hollowed-out
-kswapd, I have x86 asm code like this...
+On Fri, 4 May 2001, Seth Goldberg wrote:
 
-[enter from in-kernel init]
+> Hi,
+> 
+>   Before I go any further with this investigation, I'd like to get an
+> idea
+> of how much of a performance improvement the K7 fast_page_copy will give
+> me.
+> Can someone suggest the best benchmark to test the speed of this
+> routine?
 
-[open 3 FDs on tty1]
+Arjan van de Ven did the code, and he wrote a little test harness.
+I've hacked it a bit (http://brain.mcmaster.ca/~hahn/athlon.c);
+on my duron/600, kt133, pc133 cas2, it looks like this:
 
-LOOP:
-	pushf
-	pusha
-	call schedule
-	popa
-	popf
+clear_page by 'normal_clear_page'        took 7221 cycles (324.6 MB/s)
+clear_page by 'slow_zero_page'           took 7232 cycles (324.1 MB/s)
+clear_page by 'fast_clear_page'          took 6110 cycles (383.6 MB/s)
+clear_page by 'faster_clear_page'        took 2574 cycles (910.6 MB/s)
 
-	[ here is some code to use the write syscall to send 
-		one byte to FD 1. A d, for example. ]
+copy_page by 'normal_copy_page'  took 7224 cycles (324.4 MB/s)
+copy_page by 'slow_copy_page'    took 7223 cycles (324.5 MB/s)
+copy_page by 'fast_copy_page'    took 4662 cycles (502.7 MB/s)
+copy_page by 'faster_copy'       took 2746 cycles (853.5 MB/s)
+copy_page by 'even_faster'       took 2802 cycles (836.5 MB/s)
 
-jmp LOOP
-
-
-The d's get written until a syslog happens. If I do do_syslog(6,6,6); in
-the C kspamd wrapper code it's about like so...
-
-
-
-<gobs of d's>ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-dddddddddddddddINIT: entering runlevel 8
-
-	[more normal logging stuff, ext2 warnings and so on]
-
-
-
-If I don't do the do_syslog() the same thing happens somewhat earlier,
-i.e. on a from-the-kernel-itself syslog.
-
-Boot is normal. I can't shift&pg_up vt1, which normally I can, but I can
-switch vt's, email you, etc.  /proc/4/status for kspamd shows
-
-Name:   kspamd
-State:  R (running)
-Pid:    4
-PPid:   1
-
-PIDs 1, 2 and 3 don't have any open FD's. My simplistic wrapper pegs CPU
-use at 1.0. 
-
-
-Why don't my d's continue?
-
-Might this be easier to do in a 2.0 kernel?
-
-
-Rick Hohensee
-www.clienux.com
+70% faster!
 

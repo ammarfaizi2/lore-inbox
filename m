@@ -1,70 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263290AbSKDNb2>; Mon, 4 Nov 2002 08:31:28 -0500
+	id <S264649AbSKDNch>; Mon, 4 Nov 2002 08:32:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264641AbSKDNb2>; Mon, 4 Nov 2002 08:31:28 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:44553 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S263290AbSKDNb1>;
-	Mon, 4 Nov 2002 08:31:27 -0500
-Message-ID: <3DC67809.30101@domdv.de>
-Date: Mon, 04 Nov 2002 14:37:13 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20021020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.20rc1 compile fix for in2000.c
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------070103030402020509090705"
+	id <S264660AbSKDNcg>; Mon, 4 Nov 2002 08:32:36 -0500
+Received: from point41.gts.donpac.ru ([213.59.116.41]:45576 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S264649AbSKDNc0>;
+	Mon, 4 Nov 2002 08:32:26 -0500
+Date: Mon, 4 Nov 2002 16:35:55 +0300
+From: Andrey Panin <pazke@orbita1.ru>
+To: Ralf Baechle <ralf@uni-koblenz.de>
+Cc: Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Q] SGI Visual Workstation datasheets
+Message-ID: <20021104133555.GA305@pazke.ipt>
+Mail-Followup-To: Ralf Baechle <ralf@uni-koblenz.de>,
+	Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+	linux-kernel@vger.kernel.org
+References: <20021104103651.GA305@pazke.ipt> <20021104130432.A19377@bacchus.dhis.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LQksG6bCIzRHxTLp"
+Content-Disposition: inline
+In-Reply-To: <20021104130432.A19377@bacchus.dhis.org>
+User-Agent: Mutt/1.4i
+X-Uname: Linux pazke 2.2.17 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070103030402020509090705
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-The attached patch fixes some section type conflict errors.
--- 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+--LQksG6bCIzRHxTLp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---------------070103030402020509090705
-Content-Type: text/plain;
- name="in2000.c.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="in2000.c.diff"
+On Mon, Nov 04, 2002 at 01:04:32PM +0100, Ralf Baechle wrote:
+> On Mon, Nov 04, 2002 at 01:36:51PM +0300, Andrey Panin wrote:
+>=20
+> > arch/i386/config.in contains line below:
+> > "If you want to see it working mail an VW540 to hch@infradead.org 8)"
+> >=20
+> > arch/i386/mach-visws/visws-apic.c also contains interesting line:
+> > "Copyright (C) 1999 Bent Hagemark, Ingo Molnar"
+> >=20
+> > May be you have some VISWS docs hidden in your attic ?
+>=20
+> Almost certainly chained by an NDA.  Bent btw. has long left SGI.
 
---- ./drivers/scsi/in2000.c.orig	2002-11-04 14:15:38.000000000 +0100
-+++ ./drivers/scsi/in2000.c	2002-11-04 14:18:58.000000000 +0100
-@@ -1909,21 +1909,21 @@
-  * special macros declared in 'asm/io.h'. We use readb() and readl()
-  * when reading from the card's BIOS area in in2000_detect().
-  */
--static u32 bios_tab[] in2000__INITDATA = {
-+static u32 bios_tab[] = {
-    0xc8000,
-    0xd0000,
-    0xd8000,
-    0
-    };
- 
--static const unsigned short base_tab[] in2000__INITDATA = {
-+static const unsigned short base_tab[] = {
-    0x220,
-    0x200,
-    0x110,
-    0x100,
-    };
- 
--static const int int_tab[] in2000__INITDATA = {
-+static const int int_tab[] = {
-    15,
-    14,
-    11,
+If NDA permits source code relase than it's ok, but SGI site doesnt't=20
+contain meaningfull information about these issues.
 
---------------070103030402020509090705--
+Anyone with good contacts at SGI ?
 
+--=20
+Andrey Panin            | Embedded systems software developer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+--LQksG6bCIzRHxTLp
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9xne7Bm4rlNOo3YgRAsCQAJ4ua7m5JBYg12S7qunXZhb/+QkSlACeJ5v0
+8Mi1tnXVmVUg1eqE3KBsQ/4=
+=tcGJ
+-----END PGP SIGNATURE-----
+
+--LQksG6bCIzRHxTLp--

@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262355AbRERPpO>; Fri, 18 May 2001 11:45:14 -0400
+	id <S262354AbRERPrX>; Fri, 18 May 2001 11:47:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262350AbRERPpD>; Fri, 18 May 2001 11:45:03 -0400
-Received: from pobox.sibyte.com ([208.12.96.20]:64777 "HELO pobox.sibyte.com")
-	by vger.kernel.org with SMTP id <S262356AbRERPot>;
-	Fri, 18 May 2001 11:44:49 -0400
-From: Justin Carlson <carlson@sibyte.com>
-Reply-To: carlson@sibyte.com
-Organization: Sibyte
-To: Jes Sorensen <jes@sunsite.dk>
+	id <S262356AbRERPrP>; Fri, 18 May 2001 11:47:15 -0400
+Received: from sal.qcc.sk.ca ([198.169.27.3]:1551 "HELO sal.qcc.sk.ca")
+	by vger.kernel.org with SMTP id <S262354AbRERPrD>;
+	Fri, 18 May 2001 11:47:03 -0400
+Date: Fri, 18 May 2001 09:47:02 -0600
+From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
+To: linux-kernel@vger.kernel.org
 Subject: Re: CML2 design philosophy heads-up
-Date: Fri, 18 May 2001 08:37:30 -0700
-X-Mailer: KMail [version 1.0.29]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010505192731.A2374@thyrsus.com> <20010515173316.A8308@thyrsus.com> <d3wv7eptuz.fsf@lxplus015.cern.ch>
-In-Reply-To: <d3wv7eptuz.fsf@lxplus015.cern.ch>
-MIME-Version: 1.0
-Message-Id: <01051808442800.27946@plugh.sibyte.com>
-Content-Transfer-Encoding: 7BIT
+Message-ID: <20010518094702.A21217@qcc.sk.ca>
+In-Reply-To: <20010518093414.A21164@qcc.sk.ca> <Pine.LNX.4.33.0105180727270.17872-100000@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.33.0105180727270.17872-100000@dlang.diginsite.com>; from david.lang@digitalinsight.com on Fri, May 18, 2001 at 07:30:07AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 May 2001, Jes Sorensen wrote:
+David Lang <david.lang@digitalinsight.com> wrote:
 
-> Oh I don't, on the other hand I see you consistently ignoring the
-> needs and requirements of the users. So far I haven't heard a single
-> developer say something positive about CML2, the most positive I have
-> heard so far has been "whatever", "it's his choice", "I don't care",
-> "I want to hack". The majority are of the "NO!" and "you got to be
-> kiddin'".
+> > Whether this is desirable or not is debatable.  The big question is:  why
+> > on earth would Aunt Tillie _want_ to compile a kernel at all, let alone
+> > re-configure one?  If she's using Linux, she's installing her
+> > distribution's pre-compiled kernel, and has no need for anything else.
 
-Perhaps your hearing has gone more than a bit selective.  Please, allow
-me to be the first to get through:
+> why is it that so many people seem to think that it's a good thing to only
+> use precompiled kernels from the distro?  a kernel tuned for a particular
+> machine can boot faster and run faster then a 'stock' kernel.
 
-I think CML2 looks very interesting, and while it's not quite primetime yet,
-it's definitely a movement in the right direction.  I'd even go sofar as to 
-say I think CML2 is a GOOD THING.
+I'm not saying it's a good thing.  I'm saying that the 5% performance increase
+that results is not something that the average "I just want to use the system"
+will even notice, let alone care about.
 
-Or perhaps you have a more selective definition of developer?
+> unless you want to replace the kernel compile config options with a
+> similar sized menu to select between precompiled kernels with the correct
+> options (never mind what that will do to the size of the distros to ship
+> so many kernels)
 
--Justin
-carlson@sibyte.com
+They don't need to ship a mass of kernels.  Modern distributions probably
+don't need to worry about shipping three or four modular kernels.  Any user
+who cares about the minor performance benefits of a custom-configured kernel
+is going to reconfigure and recompile regardless of how dumbed-down the
+interface is.
+
+Charles
+-- 
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
+Any opinions expressed are just that -- my opinions.
+-----------------------------------------------------------------------

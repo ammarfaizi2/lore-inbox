@@ -1,19 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268253AbTB1VkT>; Fri, 28 Feb 2003 16:40:19 -0500
+	id <S268190AbTB1VfO>; Fri, 28 Feb 2003 16:35:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268230AbTB1Vjt>; Fri, 28 Feb 2003 16:39:49 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:1157 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S268215AbTB1ViP>;
-	Fri, 28 Feb 2003 16:38:15 -0500
-Date: Fri, 28 Feb 2003 13:38:51 -0800
+	id <S268198AbTB1VeY>; Fri, 28 Feb 2003 16:34:24 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:48368 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268192AbTB1VdO>; Fri, 28 Feb 2003 16:33:14 -0500
+Date: Fri, 28 Feb 2003 13:34:16 -0800
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 423] New: make -j X bzImage gives a warning
-Message-ID: <362820000.1046468331@flay>
-In-Reply-To: <20030228212504.GA21843@mars.ravnborg.org>
-References: <347860000.1046465385@flay> <20030228212504.GA21843@mars.ravnborg.org>
+Subject: [PATCH] 6/7 need PIT timer available for NUMA-Q
+Message-ID: <361450000.1046468056@flay>
 X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,48 +20,38 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, Feb 28, 2003 at 12:49:45PM -0800, Martin J. Bligh wrote:
->> http://bugme.osdl.org/show_bug.cgi?id=423
->> 
->>            Summary: make -j X bzImage gives a warning
->>     Kernel Version: 2.5.63
->>             Status: NEW
->>           Severity: low	
->>              Owner: zippel@linux-m68k.org
-> 
-> Feel free to bug me with kbuild related issues.
-> In this area Roman is 'only' taking care of kconfig & related issues AFAIK.
-> 
->> make -j X bzImage gives a warning:
->> 
->> make[1]: warning: jobserver unavailable: using -j1.  Add `+' to parent make
->> rule.
->> 
->> Can we get rid of this one way or the other?
-> 
-> I have tried before - no luck.
-> This one happens due to a $(Q)$(MAKE) used as part of a $(if
-> construct in the top-level Makefile.
-> See around line 335 - 345.
-> It requires more than trivial changes to get rid of this one.
+This simple patch just makes sure the PIT code is available for NUMA-Q
+(as its TSCs are not synced).
 
-This bit?
+Has been tested in my tree for over a month on UP, SMP, and NUMA and 
+compile tested against a variety of different configs.
 
-define rule_vmlinux__
-        set -e
-        $(if $(filter .tmp_kallsyms%,$^),,
-          echo '  Generating build number'
-          . $(src)/scripts/mkversion > .tmp_version
-          mv -f .tmp_version .version
-          $(Q)$(MAKE) $(build)=init
-        )
-        $(call cmd,vmlinux__)
-        echo 'cmd_$@ := $(cmd_vmlinux__)' > $(@D)/.$(@F).cmd
-endef
 
-Is it possible to define $(SINGLE_MAKE) or something as well as $(MAKE),
-where it strips the -j, and use that in the instances where it can't
-take a -j? Would be nice to get rid of that one last warning ... ;-)
-
-M.
+diff -urpN -X /home/fletch/.diff.exclude 014-no_kirq/arch/i386/Kconfig 015-notsc/arch/i386/Kconfig
+--- 014-no_kirq/arch/i386/Kconfig	Tue Feb 25 23:03:43 2003
++++ 015-notsc/arch/i386/Kconfig	Fri Feb 28 08:05:36 2003
+@@ -337,11 +337,6 @@ config X86_ALIGNMENT_16
+ 	depends on MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCYRIXIII || MELAN || MK6 || M586MMX || M586TSC || M586 || M486 || MVIAC3_2
+ 	default y
+ 
+-config X86_TSC
+-	bool
+-	depends on MWINCHIP3D || MWINCHIP2 || MCRUSOE || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || M586TSC || MK8 || MVIAC3_2
+-	default y
+-
+ config X86_GOOD_APIC
+ 	bool
+ 	depends on MK7 || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || MK8
+@@ -493,6 +488,11 @@ config DISCONTIGMEM
+ config HAVE_ARCH_BOOTMEM_NODE
+ 	bool
+ 	depends on NUMA
++	default y
++
++config X86_TSC
++	bool
++	depends on (MWINCHIP3D || MWINCHIP2 || MCRUSOE || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || M586TSC || MK8 || MVIAC3_2) && !X86_NUMAQ
+ 	default y
+ 
+ config X86_MCE
 

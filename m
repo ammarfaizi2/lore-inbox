@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267720AbUJCDz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267721AbUJCEEb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267720AbUJCDz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 23:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267721AbUJCDz6
+	id S267721AbUJCEEb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 00:04:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267730AbUJCEEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 23:55:58 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:14569 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267720AbUJCDz4 (ORCPT
+	Sun, 3 Oct 2004 00:04:31 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:16305 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267721AbUJCEEa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 23:55:56 -0400
-Message-ID: <9e47339104100220553c57624a@mail.gmail.com>
-Date: Sat, 2 Oct 2004 23:55:55 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: dri-devel@lists.sf.net, lkml <linux-kernel@vger.kernel.org>
-Subject: Merging DRM and fbdev
+	Sun, 3 Oct 2004 00:04:30 -0400
+Date: Sat, 2 Oct 2004 21:02:13 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       mbligh@aracnet.com, lse-tech@lists.sourceforge.net, hch@infradead.org,
+       steiner@sgi.com, jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
+       ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20041002210213.61d14992.pj@sgi.com>
+In-Reply-To: <20041002201933.41e4cdc4.pj@sgi.com>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<20040805190500.3c8fb361.pj@sgi.com>
+	<247790000.1091762644@[10.10.2.4]>
+	<200408061730.06175.efocht@hpce.nec.com>
+	<20040806231013.2b6c44df.pj@sgi.com>
+	<411685D6.5040405@watson.ibm.com>
+	<20041001164118.45b75e17.akpm@osdl.org>
+	<20041001230644.39b551af.pj@sgi.com>
+	<20041002145521.GA8868@in.ibm.com>
+	<415ED3E3.6050008@watson.ibm.com>
+	<415F37F9.6060002@bigpond.net.au>
+	<20041002201933.41e4cdc4.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've started on a merged fbdev and DRM driver model. 
-It doesn't work yet but here's what the modules look like:
-
-Module                  Size  Used by
-fbcon                  38080  0
-radeon                123598  1
-fb                     34344  2 fbcon,radeon
-drm                    59044  1 radeon
-
-fbcon and fb modules are almost unmodified from the kernel source.
-radeonfb and radeondrm have been merged into a single driver. The
-merged driver uses both the drm and fb modules as libraries. It wasn't
-possible to build this model until drm supported drm-core.
-
-The radeon and fb modules will get smaller, I'm just beginning to use
-the delete key on them. There is still a lot of duplicated code inside
-the radeon driver.
-
-In this model a non-drm, fb only driver like cyber2000 could load only
-the fb and fbcon modules. I need to do some work rearranging generic
-library support functions to allow this.
-
-This is the next phase in the work described in this email:
-http://lkml.org/lkml/2004/8/2/111
+Paul wrote:
+> (2) adding new calls that are try these API's again
+                            ^^^
+Drop that word 'are' - don't know how it snuck in there ;)
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

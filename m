@@ -1,61 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292586AbSBTXeR>; Wed, 20 Feb 2002 18:34:17 -0500
+	id <S292589AbSBTXoH>; Wed, 20 Feb 2002 18:44:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292583AbSBTXeI>; Wed, 20 Feb 2002 18:34:08 -0500
-Received: from ns3.efi.com ([192.68.228.85]:12050 "HELO fcexgw02.efi.internal")
-	by vger.kernel.org with SMTP id <S292582AbSBTXdu>;
-	Wed, 20 Feb 2002 18:33:50 -0500
-Message-ID: <3C7433F8.8FB86B39@efi.com>
-Date: Wed, 20 Feb 2002 15:40:40 -0800
-From: Kallol Biswas <kallol@efi.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S292588AbSBTXn7>; Wed, 20 Feb 2002 18:43:59 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:46985 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S292582AbSBTXnp>; Wed, 20 Feb 2002 18:43:45 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Robert Love <rml@tech9.net>
+Date: Thu, 21 Feb 2002 10:43:33 +1100 (EST)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: lseek SEEK_END fails on a Toshiba 6007MB disk.
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15476.13477.917508.854100@notabene.cse.unsw.edu.au>
+Cc: Miles Lane <miles@megapathdsl.net>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.5 -- filesystems.c:30: In function `sys_nfsservctl':
+	dereferencing pointer to incomplete type
+In-Reply-To: message from Robert Love on  February 20
+In-Reply-To: <1014228802.6910.29.camel@turbulence.megapathdsl.net>
+	<15476.1699.209321.808094@notabene.cse.unsw.edu.au>
+	<1014238274.18361.62.camel@phantasy>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-#include <stdio.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <unistd.h>
+On  February 20, rml@tech9.net wrote:
+> On Wed, 2002-02-20 at 15:27, Neil Brown wrote:
+> 
+> > Opps, my mistake.
+> > 
+> > Please try this.
+> 
+> This does not apply to my include/linux/nfsd/interface.h ?
+> 
+> In 2.5.5, that file is 24 lines long.  The first hunk applies, but the
+> second, at line 155, obviously does not.
+
+Post in haste ... repent at leisure....
+
+I made that patch against my current, heavily patches tree as I though
+that the changes to interface.h wouldn't conflict... I was wrong.
+
+The correct patch, which applies against 2.5.5 and compiles with out
+errors for several combinationg of CONFIG_MODULES enabled or not, and
+CONFIG_NFSD being Y, M, or N, is below.
+
+NeilBrown
 
 
 
-main(int argc, char *argv[])
-{
-int fd;
-int offset;
-int loffset;
+ ----------- Diffstat output ------------
+ ./include/linux/nfsd/interface.h |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletion(-)
 
-fd = open("/dev/hda", O_RDONLY);
+--- ./include/linux/nfsd/interface.h	2002/02/20 21:58:11	1.1
++++ ./include/linux/nfsd/interface.h	2002/02/20 23:35:19	1.2
+@@ -12,13 +12,15 @@
+ 
+ #include <linux/config.h>
+ 
+-#ifdef CONFIG_NFSD_MODULE
++#ifndef CONFIG_NFSD
++#ifdef CONFIG_MODULES
+ 
+ extern struct nfsd_linkage {
+ 	long (*do_nfsservctl)(int cmd, void *argp, void *resp);
+ 	struct module *owner;
+ } * nfsd_linkage;
+ 
++#endif
+ #endif
+ 
+ #endif /* LINUX_NFSD_INTERFACE_H */
 
-if (fd < 0) {
-        perror("open");
-        return;
-}
-
-offset = lseek(fd, 0, SEEK_END);
-
-if (offset < 0) {
-        perror("lseek");
-}
-
-}
-
-
-# ./seek
-lseek: Value too large for defined data type
-
-The system runs 2.4.17 kernel.
-
-A fix may be found reading the source code, but if someone already knows
-
-the solution, please reply  to me.
-
-Kallol
-
+> 
+> 	Robert Love

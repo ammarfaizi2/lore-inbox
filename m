@@ -1,57 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277106AbRJDEJt>; Thu, 4 Oct 2001 00:09:49 -0400
+	id <S277108AbRJDEMt>; Thu, 4 Oct 2001 00:12:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277107AbRJDEJj>; Thu, 4 Oct 2001 00:09:39 -0400
-Received: from dsl.206.191.149.197.emeraldnet.net ([206.191.149.197]:8202 "HELO
-	mail.seattlefirewall.dyndns.org") by vger.kernel.org with SMTP
-	id <S277106AbRJDEJ1>; Thu, 4 Oct 2001 00:09:27 -0400
-Message-ID: <3BBBE113.4080105@seattlefirewall.dyndns.org>
-Date: Wed, 03 Oct 2001 21:09:55 -0700
-From: Tom Eastep <teastep@seattlefirewall.dyndns.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Stephen Torri <storri@ameritech.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: HTTP problem running v2.4 kernel
-In-Reply-To: <Pine.LNX.4.33.0110032351450.1056-100000@base.torri.linux>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S277109AbRJDEMj>; Thu, 4 Oct 2001 00:12:39 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:34566 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S277108AbRJDEM1>; Thu, 4 Oct 2001 00:12:27 -0400
+Date: Thu, 4 Oct 2001 00:12:52 -0400
+Message-Id: <200110040412.f944CqS08736@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <Pine.LNX.4.33.0110030920500.9427-100000@penguin.transmeta.com>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.33.0110030920500.9427-100000@penguin.transmeta.com> 
+    torvalds@transmeta.com wrote:
+>Note that the big question here is WHO CARES?
+>
+>There are two issues, and they are independent:
+> (a) handling of network packet flooding nicely
+> (b) handling screaming devices nicely.
+>
+>First off, some comments:
+> (a) is not a major security issue. If you allow untrusted users full
+>     100/1000Mbps access to your internal network, you have _other_
+>     security issues, like packet sniffing etc that are much much MUCH
+>     worse. So the packet flooding thing is very much a corner case, and
+>     claiming that we have a big problem is silly.
 
+  Did something give you the idea that this only happens on internal
+networks? Generally we have untrusted users on external networks, and
+lots of them. I have seen problems on heavily loaded DNS and news
+servers, and can easily imagine that routers would get it as well. It
+doesn't take someone running a load generator to generate load! I have a
+syslog server which gets packets from the cluster, and the irq rate on
+that gets high enough to worry me, although that tends to be spike load.
 
-Stephen Torri wrote:
+|      HOWEVER, (a) _can_ be a performance issue under benchmark load.
+|      Benchmarks (unlike real life) are almost always set up to have full
+|      network bandwidth access, and can show this issue.
 
-> Has anyone noticed that certain websites that use to load reliable are no
-> longer accessible? I used to be able to get into www.nvidia.com and now it
-> doesn't load. The reason I believe this might be a kernel problem is what
-> happened when I changed on the same system to kernel 2.2.19-7.0.8smp
-> (RedHat 7.0 kernel). When I switched to that kernel the website loaded
-> with out problems. Nothing changed on the same. Same software used with
-> all the kernels I have used.
-> 
-> The kernel version that I have noticed the problem:
-> 
-> 2.4.10-ac4
+| Ingo tries to fix both of these with a sledgehammer. I'd rather use a bit
+| more finesse, and as I do not actually agree with the people who seem to
+| think that this is a major problem TODAY, I'll be more than happy to have
+| people think about it. The NAPI people have thought about it - but it has
+| obviously not been descussed _nearly_ widely enough.
 
+  It is a problem which happens today, on production servers in use
+today, and is currently solved by using more servers than would be
+needed if the system didn't fall over under this type of load.
 
-www.nvidia.com loads fine here:
+| I personally am very nervous about Ingo's approach. I do not believe that
+| it will work well over a wide range of machines, and I suspect that the
+| "tunables" have been tuned for one load and one machine. I would not be
+| surprised if Ingo finds that trying to put the machine under heavy disk
+| load with multiple disk controllers might also cause interrupt mitigation,
+| which would be unacceptably BAD.
 
-[teastep@ursa teastep]$ uname -a
-Linux ursa.seattlefirewall.dyndns.org 2.4.10-ac4 #1 Tue Oct 2 17:01:38 
-PDT 2001 i686 unknown
-[teastep@ursa teastep]$
+  I will agree that some care is going to be needed to avoid choking the
+system, but honestly I doubt that there will be a rush of people going
+out and bothering with the feature unless they neeed it. There is some
+rate limiting stuff in iptables, and I would bet a six pack of good beer
+very few people bother to use them at all unless they are having a
+problem. I don't recall any posts saying "I shot myself in the foot with
+packet rate limiting."
 
+  As I understand the patch, it applies to individual irq and not to the
+system as a whole. I admit I read the description and not the source.
+But even with multiple SCSI controllers, I can't imagine hitting 20k
+irq/sec, which you can with a few NICs. I am amazed that Linux can
+function at 70k context switches/sec, but it sure doesn't function well!
 
+  I think the potential for harm is pretty small, and generally when you
+have the problem you run vmstat (or vmstat2) to see what's happening,
+and if the system melts just after irq rate hits N, you might start with
+80% of N as a first guess. The performance of a locked-up system is
+worse than one dropping packets.
 
--Tom
+  The full fix you want is probably a good thing for 2.5, I think it's
+just too radical to drop into a stable serveis (my opinion only).
 
 -- 
-Tom Eastep          \  teastep@seattlefirewall.dyndns.org
-ICQ: #60745924       \  http://shorewall.sourceforge.net
-AIM: tmeastep         \__________________________________
-Shoreline, Washington
-
+bill davidsen <davidsen@tmr.com>
+ "If I were a diplomat, in the best case I'd go hungry.  In the worst
+  case, people would die."
+		-- Robert Lipe

@@ -1,37 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132426AbRDJQfr>; Tue, 10 Apr 2001 12:35:47 -0400
+	id <S132427AbRDJQg1>; Tue, 10 Apr 2001 12:36:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132427AbRDJQfh>; Tue, 10 Apr 2001 12:35:37 -0400
-Received: from [62.225.70.66] ([62.225.70.66]:28164 "EHLO rerecognition.com")
-	by vger.kernel.org with ESMTP id <S132426AbRDJQf3>;
-	Tue, 10 Apr 2001 12:35:29 -0400
-From: "Tamas Nagy" <nagytam@rerecognition.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: SiS 630
-Date: Tue, 10 Apr 2001 18:35:10 +0200
-Message-ID: <NFBBIDPOFIIFCBDDFGLEIEFNCBAA.nagytam@rerecognition.com>
+	id <S132428AbRDJQgR>; Tue, 10 Apr 2001 12:36:17 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36614 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132427AbRDJQgE>; Tue, 10 Apr 2001 12:36:04 -0400
+Subject: Re: Documentation/Configure.help garbage collection, part 2
+To: esr@snark.thyrsus.com (Eric S. Raymond)
+Date: Tue, 10 Apr 2001 17:37:29 +0100 (BST)
+Cc: torvalds@transmeta.com, axel@uni-paderborn.de,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <200104101631.f3AGV2U32046@snark.thyrsus.com> from "Eric S. Raymond" at Apr 10, 2001 12:31:02 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+Message-Id: <E14n193-0004Zn-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> This patch removes duplicate help entries.
 
-I'm just wondering, whether somebody use this SiS 630 chip (VGA, MODEM, LAN,
-etc...). If yes, what is the status of the support in the newest kernel
-version? Any help is really appreciated to configure video, and other
-drivers...
-
-Thanks for the infos in advance,
-Tamas Nagy
-
-
+Yep. Already fixed in -ac. 
 

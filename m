@@ -1,40 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbUEQWTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262974AbUEQWUR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262951AbUEQWTU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 18:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbUEQWTU
+	id S262974AbUEQWUR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 18:20:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbUEQWTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 18:19:20 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:47069 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262951AbUEQWS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 18:18:29 -0400
-Subject: Re: [PATCH] init. mca_bus_type even if !MCA_bus
-From: James Bottomley <James.Bottomley@steeleye.com>
+	Mon, 17 May 2004 18:19:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42659 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262910AbUEQWRm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 18:17:42 -0400
+Date: Mon, 17 May 2004 15:08:28 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org, james.bottomley@steeleye.com
+Subject: Re: [PATCH] init. mca_bus_type even if !MCA_bus
+Message-Id: <20040517150828.2d5afc1a.rddunlap@osdl.org>
 In-Reply-To: <20040517151412.1f7fb7d4.akpm@osdl.org>
-References: <20040517144603.1c63895f.rddunlap@osdl.org> 
+References: <20040517144603.1c63895f.rddunlap@osdl.org>
 	<20040517151412.1f7fb7d4.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 17 May 2004 17:18:23 -0500
-Message-Id: <1084832306.2092.67.camel@mulgrave>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-05-17 at 17:14, Andrew Morton wrote:
-> Why is it appropriate to register the MCA bus type when there is no
-> MCA bus present?
+On Mon, 17 May 2004 15:14:12 -0700 Andrew Morton wrote:
 
-The legacy bus functions all have a bus_for_each_dev in them.  This
-can't execute correctly unless the bus is registered.  So either a check
-for MCA_bus has to be added to each of them, or we register the bus but
-attach no devices, so the loop exits without doing anything.
+| "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+| >
+| > -	if(mca_system_init()) {
+| > +	if (mca_system_init()) {
+| >  		printk(KERN_ERR "MCA bus system initialisation failed\n");
+| >  		return -ENODEV;
+| >  	}
+| >  
+| > +	if (!MCA_bus)
+| > +		return -ENODEV;
+| 
+| Why is it appropriate to register the MCA bus type when there is no
+| MCA bus present?
 
-James
+Mostly because it was selected with CONFIG_MCA=y.
 
+Another option (I think, need to test) is to check !MCA_bus
+in drivers/mca/mca-legacy.c::find_mca_adapter(), so that
+mca_bus_type isn't used when it shouldn't be.
 
+Do you prefer that approach?
+
+--
+~Randy

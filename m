@@ -1,60 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272588AbTG1AUy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 20:20:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272582AbTG1AGJ
+	id S270978AbTG1AJD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 20:09:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270976AbTG1AIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:06:09 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61409 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272475AbTG0XXD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 19:23:03 -0400
-Date: Sun, 27 Jul 2003 16:38:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Ruvolo <chris@ruvolo.net>
-Cc: linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net,
-       Jaroslav Kysela <perex@suse.cz>, Adam Belay <ambx1@neo.rr.com>
-Subject: Re: 2.6.0-t1 garbage in /proc/ioports and oops
-Message-Id: <20030727163812.75b98b02.akpm@osdl.org>
-In-Reply-To: <20030718150429.GE15716@ruvolo.net>
-References: <20030718011101.GD15716@ruvolo.net>
-	<20030717211533.77c0f943.akpm@osdl.org>
-	<20030718150429.GE15716@ruvolo.net>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 27 Jul 2003 20:08:25 -0400
+Received: from 5.Red-80-32-157.pooles.rima-tde.net ([80.32.157.5]:16646 "EHLO
+	smtp.newipnet.com") by vger.kernel.org with ESMTP id S270978AbTG0X46 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 19:56:58 -0400
+Message-ID: <200307280211590888.10957DD9@192.168.128.16>
+In-Reply-To: <20030727165831.05904792.davem@redhat.com>
+References: <Pine.LNX.4.53.0307272239570.2743@vialle.bloemsaat.com>
+ <200307280140470646.1078EC67@192.168.128.16>
+ <20030727164649.517b2b88.davem@redhat.com>
+ <200307280158250677.10891156@192.168.128.16>
+ <20030727165831.05904792.davem@redhat.com>
+X-Mailer: Calypso Version 3.30.00.00 (4)
+Date: Mon, 28 Jul 2003 02:11:59 +0200
+From: "Carlos Velasco" <carlosev@newipnet.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Ruvolo <chris@ruvolo.net> wrote:
+On 27/07/2003 at 16:58 David S. Miller wrote:
+
+>> On 27/07/2003 at 16:46 David S. Miller wrote:
+>> >Bas's problem can be solved by him giving a "preferred source"
+>> >to each of his IPV4 routes and setting the "arpfilter" sysctl
+>> >variable for his devices to "1".
+>> 
+>> Yes, it's another approach to solve his problem. But he must play with
+>routing.
 >
-> (adding alsa-devel)
-> 
-> On Thu, Jul 17, 2003 at 09:15:33PM -0700, Andrew Morton wrote:
-> > You could load all those modules one at a time, doing a `cat /proc/ioports'
-> > after each one.  One sneaky way of doing that would be to make your
-> > modprobe executable be:
-> 
-> Ok, this let me track it down to the ALSA snd-sbawe module.  I did not have
-> isapnp compiled into the kernel and was relying on the userspace isapnp to
-> configure the device (carried over from 2.4).  Apparently the module didn't
-> like this.
+>Precisely he must, because he has misconfigured routes for the
+>behavior he desires.
+>
+>His problem is about source address selection when trying to
+>contact a given destination.
 
-OK, thanks for that.
+Bas said:
+==
+>but it turned out that this wasn't the case. On closer examination it
+>turned out that any ARP request to a local IP resulted in a response,
+>even if the devices were on different subnets or ethernet segments.
+==
 
->From my reading, snd_sb16_probe() is, in the case of !CONFIG_PNP, doing:
+It's the "hidden" switch.... again.
+I suppose that Bas can confirm it.
 
-	/* block the 0x388 port to avoid PnP conflicts */
-	acard->fm_res = request_region(0x388, 4, "SoundBlaster FM");
+>It's totally illogical to say that it's easier for him to patch his
+>kernel and reboot it than fix his route configuration.
 
-but this reservation is never undone.  So later, after the module is
-unloaded, a read of /proc/ioports is oopsing when trying to access that
-string "SoundBlaster FM".  Because it now resides in vfree'd memory.
+Sure... it WOULD be the easiest thing if it would be into the kernel main stream. But it isn't, making linux behave different to other OS and systems without any way or feature to make it behave like the others.
 
-The fix would be to run release_region() either at the end of
-snd_sb16_probe() or on module unload.
+Regards,
+Carlos Velasco
 
-Adam or Jaroslav, could you please take care of this?
 
-Thanks.

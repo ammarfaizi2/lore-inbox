@@ -1,81 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266398AbRGBHcv>; Mon, 2 Jul 2001 03:32:51 -0400
+	id <S266401AbRGBIJD>; Mon, 2 Jul 2001 04:09:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266400AbRGBHcl>; Mon, 2 Jul 2001 03:32:41 -0400
-Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:48240 "HELO
-	lunchbox.oisec.net") by vger.kernel.org with SMTP
-	id <S266399AbRGBHcc>; Mon, 2 Jul 2001 03:32:32 -0400
-Date: Mon, 2 Jul 2001 09:32:02 +0200
-From: Cliff Albert <cliff@oisec.net>
-To: linux-kernel@vger.kernel.org, meskes@debian.org, mvw@planets.elm.net,
-        jack@atrey.karlin.mff.cuni.cz, Alan.Cox@linux.org
-Subject: quotaoff OOPS (2.4.5-ac22)
-Message-ID: <20010702093202.A26673@oisec.net>
+	id <S266402AbRGBIIx>; Mon, 2 Jul 2001 04:08:53 -0400
+Received: from fe000.worldonline.dk ([212.54.64.194]:10503 "HELO
+	fe000.worldonline.dk") by vger.kernel.org with SMTP
+	id <S266401AbRGBIIm>; Mon, 2 Jul 2001 04:08:42 -0400
+Date: Mon, 2 Jul 2001 10:09:19 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jes Sorensen <jes@sunsite.dk>, "David S. Miller" <davem@redhat.com>,
+        "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m achi ne
+Message-ID: <20010702100919.B600@suse.de>
+In-Reply-To: <d3u2109rho.fsf@lxplus015.cern.ch> <E15FkH1-0007l5-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
+In-Reply-To: <E15FkH1-0007l5-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 28 2001, Alan Cox wrote:
+> We will also have to address those cards that have 28/30/31 bit limits (yes
+> they exist) when we start doing direct I/O for 32bits of memory - one reason
+> I'm very wary of Jens patch ever being in 2.4
 
-After issuing quotaoff -a the kernel oopses. All filesystems which have quotas are ext2 and are using the new quota system.
+The patch can handle those too, FWIW. The fact that it just sets 32-bit
+limit now is unrelated, and it is also just set for devices that have
+been sort-of tested :-)
 
-Oops:
-
-Jul  2 09:08:49 girly kernel: Unable to handle kernel NULL pointer dereference at virtual address 0000032a            
-Jul  2 09:08:49 girly kernel:  printing eip:                                                                          
-Jul  2 09:08:49 girly kernel: c0146886                                                                                
-Jul  2 09:08:49 girly kernel: *pde = 00000000                                                                         
-Jul  2 09:08:49 girly kernel: Oops: 0000                                                                              
-Jul  2 09:08:49 girly kernel: CPU:    1                                                                               
-Jul  2 09:08:49 girly kernel: EIP:    0010:[<c0146886>]                                                               
-Jul  2 09:08:49 girly kernel: EFLAGS: 00010282                                                                        
-Jul  2 09:08:49 girly kernel: eax: d0735f4c   ebx: ccdda800   ecx: 00000000   edx: d0735f4c                           
-Jul  2 09:08:49 girly kernel: esi: ccdda87c   edi: 00000306   ebp: d0735fa4   esp: d0735f30                           
-Jul  2 09:08:49 girly kernel: ds: 0018   es: 0018   ss: 0018                                                          
-Jul  2 09:08:49 girly kernel: Process quotaoff (pid: 1892, stackpage=d0735000)                                        
-Jul  2 09:08:49 girly kernel: Stack: ccdda800 ccdda87c 00000000 d0735fa4 00000000 d0735fa4 00005fa4 d0735f4c          
-Jul  2 09:08:49 girly kernel:        d0735f4c c014a62c 00000306 00000000 ccdda800 00000200 00000000 d0735fa4          
-Jul  2 09:08:49 girly kernel:        ccdda894 ccdda87c 00000000 c014ab8c ccdda800 00000000 d0734000 00000000          
-Jul  2 09:08:49 girly kernel: Call Trace: [<c014a62c>] [<c014ab8c>] [<c0131953>] [<c0106cbb>]                         
-Jul  2 09:08:49 girly kernel:                                                                                         
-Jul  2 09:08:49 girly kernel: Code: 83 7f 24 00 0f 84 0f 01 00 00 f0 fe 0d d4 01 25 c0 0f 88 09                       
-
-KSymoops:
-
->>EIP; c0146886 <remove_dquot_ref+22/14c>   <=====
-Trace; c014a62c <quota_off+cc/154>
-Trace; c014ab8c <sys_quotactl+268/3bc>
-Trace; c0131953 <sys_read+bf/c8>
-Trace; c0106cbb <system_call+33/38>
-Code;  c0146886 <remove_dquot_ref+22/14c>
-00000000 <_EIP>:
-Code;  c0146886 <remove_dquot_ref+22/14c>   <=====
-   0:   83 7f 24 00               cmpl   $0x0,0x24(%edi)   <=====
-Code;  c014688a <remove_dquot_ref+26/14c>
-   4:   0f 84 0f 01 00 00         je     119 <_EIP+0x119> c014699f <remove_dquot_ref+13b/14c>
-Code;  c0146890 <remove_dquot_ref+2c/14c>
-   a:   f0 fe 0d d4 01 25 c0      lock decb 0xc02501d4
-Code;  c0146897 <remove_dquot_ref+33/14c>
-  11:   0f 88 09 00 00 00         js     20 <_EIP+0x20> c01468a6 <remove_dquot_ref+42/14c>
-
-
-
-Linux Version: 
-
-Linux girly 2.4.5-ac22 #2 SMP Sun Jul 1 12:54:40 CEST 2001 i686 unknown
-
-Distribution:
-
-Debian SID
-
-Quota Version:
-
-ii  quota                   3.00pre01-8             An implementation of the diskquota system.
-Jul  2 09:18:40 girly kernel: VFS: Diskquotas version dquot_6.5.0 initialized      
+Anyhoo, my point is that the bounce limit is variable on a page
+granularity.
 
 -- 
-Cliff Albert		| RIPE:	     CA3348-RIPE | www.oisec.net
-cliff@oisec.net		| 6BONE:     CA2-6BONE	 | icq 18461740
+Jens Axboe

@@ -1,52 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266834AbRGFUlr>; Fri, 6 Jul 2001 16:41:47 -0400
+	id <S266842AbRGFUvu>; Fri, 6 Jul 2001 16:51:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266838AbRGFUlh>; Fri, 6 Jul 2001 16:41:37 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:28176 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S266834AbRGFUlZ>; Fri, 6 Jul 2001 16:41:25 -0400
-Date: Fri, 6 Jul 2001 17:41:16 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Sasha Pachev <sasha@mysql.com>
-Cc: Mike Kravetz <mkravetz@sequent.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Strange thread behaviour on 8-way x86 machine
-In-Reply-To: <01070614353314.17811@mysql>
-Message-ID: <Pine.LNX.4.33L.0107061740560.17825-100000@duckman.distro.conectiva>
+	id <S266843AbRGFUvk>; Fri, 6 Jul 2001 16:51:40 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17670 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S266842AbRGFUv2>; Fri, 6 Jul 2001 16:51:28 -0400
+Subject: Re: funky tyan s2510
+To: arjan@fenrus.demon.nl
+Date: Fri, 6 Jul 2001 21:51:44 +0100 (BST)
+Cc: skulcap@mammoth.org (josh), linux-kernel@vger.kernel.org
+In-Reply-To: <m15IcNe-000OzHC@amadeus.home.nl> from "arjan@fenrus.demon.nl" at Jul 06, 2001 09:39:14 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15IcZk-0004v9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Jul 2001, Sasha Pachev wrote:
-> On Friday 06 July 2001 13:24, Rik van Riel wrote:
-> > On Fri, 6 Jul 2001, Sasha Pachev wrote:
-> >
-> > > Upon further investigation and testing, it turned out that the kernel was
-> not
-> > > at fault - the problem was high mutex contention, which caused frequent
-> > > context switches, and the idle CPU was apparently from the scheduler
-> waiting
-> > > for the original CPU to become available too often.
-> > >
-> > > On a side note, it would be nice if a process could communicate
-> > > to the kernel that it would rather run on the first available
-> > > CPU than wait for the perfect one to become available.
-> >
-> > The kernel already does this.
->
-> Thanks for the info. Would you mind proving a one line pointer
-> on how to tell this to the kernel?
+> > 2.4.2 i get a variety of kernel messages:
+> > #############################################
+> > vs-5150: search_by_key: invalid format found in block 0. Fsck?
+> 
+> IDE on a serverworks chipset ? If so try Alan's latest patches for an
+> updated driver
 
-It always does this, by default.  AFAIK you cannot turn it off.
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+The serverworks IDE fixes dont fit the reports , and the gcc one so says
+'hardware problem'

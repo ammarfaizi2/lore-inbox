@@ -1,51 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbULLCM3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbULLCwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbULLCM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 21:12:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbULLCLx
+	id S261397AbULLCwV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 21:52:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbULLCwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 21:11:53 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:34309 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262045AbULLCLK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 21:11:10 -0500
-Date: Sun, 12 Dec 2004 03:11:01 +0100
-From: Adrian Bunk <bunk@stusta.de>
+	Sat, 11 Dec 2004 21:52:20 -0500
+Received: from adsl-70-241-115-85.dsl.hstntx.swbell.net ([70.241.115.85]:8832
+	"EHLO leamonde.no-ip.org") by vger.kernel.org with ESMTP
+	id S261397AbULLCwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 21:52:19 -0500
+Date: Sat, 11 Dec 2004 20:52:17 -0600
+From: "Camilo A. Reyes" <camilo@leamonde.no-ip.org>
 To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] i386 setup.c: make 4 variables static
-Message-ID: <20041212021101.GN22324@stusta.de>
+Subject: Re: modprobe: QM_MODULES: Funtion not implemented on kernel 2.6.9
+Message-ID: <20041212025217.GA16761@leamonde.no-ip.org>
+References: <20041211195133.GA2210@leamonde.no-ip.org> <41BBA98F.9080002@g-house.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <41BBA98F.9080002@g-house.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below makes four needlessly global variables static.
+On Sun, Dec 12, 2004 at 03:14:39AM +0100, Christian Kujau wrote:
+>
+> this (and other interesting things) is described here:
+> http://www.linux.org.uk/~davej/docs/post-halloween-2.6.txt
+> 
 
-
-diffstat output:
- arch/i386/kernel/setup.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/setup.c.old	2004-12-11 23:44:49.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/setup.c	2004-12-11 23:46:04.000000000 +0100
-@@ -425,10 +425,10 @@
- 	struct e820entry *pbios; /* pointer to original bios entry */
- 	unsigned long long addr; /* address for this change point */
- };
--struct change_member change_point_list[2*E820MAX] __initdata;
--struct change_member *change_point[2*E820MAX] __initdata;
--struct e820entry *overlap_list[E820MAX] __initdata;
--struct e820entry new_bios[E820MAX] __initdata;
-+static struct change_member change_point_list[2*E820MAX] __initdata;
-+static struct change_member *change_point[2*E820MAX] __initdata;
-+static struct e820entry *overlap_list[E820MAX] __initdata;
-+static struct e820entry new_bios[E820MAX] __initdata;
- 
- static int __init sanitize_e820_map(struct e820entry * biosmap, char * pnr_map)
- {
-
+Wow! Now, thats the stuff! How come that's not included in the
+kernel distro documentation, I'm sure lots of people that are new
+to the kernel will have the same problem. Anyway thanks alot...

@@ -1,73 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbULJTBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbULJTGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261800AbULJTBh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 14:01:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbULJTBg
+	id S261788AbULJTGb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 14:06:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbULJTGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 14:01:36 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:8351 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261800AbULJTBe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 14:01:34 -0500
-Date: Fri, 10 Dec 2004 13:00:25 -0600
-From: Robin Holt <holt@sgi.com>
-To: yoshfuji@linux-ipv6.org, akpm@osdl.org, hirofumi@parknet.co.jp,
-       davem@davemloft.net, torvalds@osdl.org, dipankar@ibm.com,
-       laforge@gnumonks.org, bunk@stusta.de, herbert@apana.org.au,
-       paulmck@ibm.com
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-       ^Greg Banks <gnb@sgi.com>
-Subject: [RFC] Limit the size of the IPV4 route hash.
-Message-ID: <20041210190025.GA21116@lnx-holt.americas.sgi.com>
+	Fri, 10 Dec 2004 14:06:30 -0500
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:38579 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S261788AbULJTGa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 14:06:30 -0500
+Date: Fri, 10 Dec 2004 20:05:48 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+       marcelo.tosatti@cyclades.com, LKML <linux-kernel@vger.kernel.org>,
+       nickpiggin@yahoo.com.au
+Subject: Re: [PATCH] oom killer (Core)
+Message-ID: <20041210190548.GB16322@dualathlon.random>
+References: <1102013716.13353.226.camel@tglx.tec.linutronix.de> <20041202233459.GF32635@dualathlon.random> <20041203022854.GL32635@dualathlon.random> <20041210163614.GN2714@holomorphy.com> <20041210173554.GW16322@dualathlon.random> <20041210174336.GP2714@holomorphy.com> <20041210175504.GY16322@dualathlon.random> <20041210180031.GT2714@holomorphy.com> <20041210181529.GZ16322@dualathlon.random> <20041210181954.GU2714@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20041210181954.GU2714@holomorphy.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 10, 2004 at 10:19:54AM -0800, William Lee Irwin III wrote:
+> Maybe the whole init_mm check should die since nothing in-tree could
+> cause it?
 
-I have sent a couple emails concerning the IPv4 route hash size in the
-past week with no response.  I am now sending to everyone that has made
-changes to the net/ipv4/route.c file in the last six months to hopefully
-get some direction.  Sorry for the wide net, but I do not know how to
-proceed.
-
-The first post was asking for direction on the maximum size for the
-route cache.  The link is here:  (NOTE: I never saw this come back from
-the netdev list)
-
-What is a reasonable upper limit to the rt_hash_table.
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110244057617765&w=2
-
-I then did some testing/experimenting with systems that are in production,
-determined the size calculation is definitely too large and then came
-to the following conclusion:
-
-Limit the route hash size.
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110260977405809&w=2
-
-In the second, I included the patch, but did not intend this to be a
-patch submission.  Sorry for the Signed-off-by.
-
-
-Where do I go from here?  I hate to just submit this as a patch without
-any other discussion.  I have checked route cache size on many machines
-and they have all been in the 30-100 range except for some on ISP machines
-that are serving web pages where I have seen three machines with a cache
-size of up to 800 entries.  And one university email server where they
-have set the secret_interval to 86,400 which has peaked at 18,434 entries.
-
-With those sizes noted, the cache size of one page does not appear to
-have any negative impact for any except the email server.  For that
-machine, they have already reviewed the code and decided to adjust
-tunable values so I can not believe they would be upset with having to
-provide an rhash_entries= append on the boot line.
-
-Are there any benchmarks I am supposed to run prior to asking for this
-patch to be incorporated?
-
-Any guidance would be greatly appreciated.  Thank you for you attention.
-Again, sorry for the wide net.
-
-Robin Holt
+Well it's a bugcheck after all so it certainly can be removed. I
+wouldn't mind to remove it completely, but this is just to be sure
+nothing is going wrong, though I agree it isn't going to help very much ;).

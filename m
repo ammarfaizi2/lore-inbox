@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263034AbRFTLGH>; Wed, 20 Jun 2001 07:06:07 -0400
+	id <S262934AbRFTLAH>; Wed, 20 Jun 2001 07:00:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263675AbRFTLFr>; Wed, 20 Jun 2001 07:05:47 -0400
-Received: from [142.176.139.106] ([142.176.139.106]:44036 "EHLO ve1drg.com")
-	by vger.kernel.org with ESMTP id <S263034AbRFTLFm>;
-	Wed, 20 Jun 2001 07:05:42 -0400
-Date: Wed, 20 Jun 2001 08:05:41 -0300 (ADT)
-From: Ted Gervais <ve1drg@ve1drg.com>
+	id <S263034AbRFTK75>; Wed, 20 Jun 2001 06:59:57 -0400
+Received: from mailhub2.shef.ac.uk ([143.167.2.154]:41640 "EHLO
+	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
+	id <S262934AbRFTK7n>; Wed, 20 Jun 2001 06:59:43 -0400
+Newsgroups: linux.dev.kernel
+Date: Wed, 20 Jun 2001 11:59:36 +0100 (BST)
+From: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
 To: linux-kernel@vger.kernel.org
-Subject: ip_tables/ipchains
-Message-ID: <Pine.LNX.4.21.0106200804160.2944-100000@ve1drg.com>
+Subject: VIA KT133 status, please?
+Message-ID: <Pine.LNX.4.21.0106201130590.11888-100000@erdos.shef.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wondering something..
-I ran insmod to bring up ip_tables.o and I received the following error:
+Hello
 
-/lib/modules/2.4.5/kernel/net/ipv4/netfilter/ip_tables.o: unresolved
-symbol nf_unregister_sockopt
-/lib/modules/2.4.5/kernel/net/ipv4/netfilter/ip_tables.o: unresolved
-symbol nf_register_sockopt
+I am looking into buying a QDI Kinetiz 7E-A motherboard with the VIA
+Apollo KT-133 chipset (famous vt82c686b south bridge). From the March
+thread "Re: Linux 2.4.2ac12 (vt82c686 info)"
+(http://www.uwsg.indiana.edu/hypermail/linux/kernel/0103.1/0013.html)
+it looks like Vojtech Pavlik's VIA drivers from 2.4.2-ac12 (and
+up?) kernels work stably with this chipset. Can somebody just confirm my
+assumption, or maybe somebody is using exactly this motherboard?
 
-This is with kernel 2.4.5 and Slackware 7.1 is the distribution.
-Does anyone know what these unresolved symbols are about??
+BTW, wouldn't it be a good idea to have somewhere (kernelnewbies/
+kernel.org?) a list of known kernel-hardware/whatever problems and their
+progress, so that people like me don't bother the list.
 
----
-Doubt is not a pleasant condition, but certainty is absurd.
-                -- Voltaire
-                
-Ted Gervais <ve1drg@ve1drg.com>
-44.135.34.201 linux.ve1drg.ampr.org
+Sorry, I am not subscribed to the list (not any longer - couldn't cope
+with the traffic:-(), I will look through the archive, but CC would be
+highly appreciated.
+
+Thanks
+Guennadi
+___
+
+Dr. Guennadi V. Liakhovetski
+Department of Applied Mathematics
+University of Sheffield, Sheffield, U.K.
+email: g.liakhovetski@sheffield.ac.uk
 
 

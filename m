@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265718AbUF2LX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265736AbUF2LX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265718AbUF2LX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 07:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265729AbUF2LX2
+	id S265736AbUF2LX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 07:23:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265732AbUF2LXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 07:23:28 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:62660 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S265718AbUF2LXC (ORCPT
+	Tue, 29 Jun 2004 07:23:55 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:59333 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265719AbUF2LXQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 07:23:02 -0400
-Date: Tue, 29 Jun 2004 04:22:20 -0700 (PDT)
+	Tue, 29 Jun 2004 07:23:16 -0400
+Date: Tue, 29 Jun 2004 04:22:33 -0700 (PDT)
 From: Paul Jackson <pj@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: Christoph Hellwig <hch@infradead.org>, Jack Steiner <steiner@sgi.com>,
@@ -17,228 +17,197 @@ Cc: Christoph Hellwig <hch@infradead.org>, Jack Steiner <steiner@sgi.com>,
        Dan Higgins <djh@sgi.com>, Matthew Dobson <colpatch@us.ibm.com>,
        Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>,
        Simon <Simon.Derr@bull.net>
-Message-Id: <20040629112219.24730.32878.82888@sam.engr.sgi.com>
+Message-Id: <20040629112232.24730.5398.96214@sam.engr.sgi.com>
 In-Reply-To: <20040629112140.24730.18796.34300@sam.engr.sgi.com>
 References: <20040629112140.24730.18796.34300@sam.engr.sgi.com>
-Subject: [patch 5/8] cpusets v3 - New bitmap lists format
+Subject: [patch 7/8] cpusets v3 - The few, small kernel hooks needed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A bitmap print and parse format that provides lists of ranges
-of numbers, to be first used for by cpusets.
+cpuset kernel hooks in init, exit, fork, sched_setaffinity,
+Kconfig and sched.h.
 
-Index: 2.6.7-mm1/include/linux/bitmap.h
+These hooks establish and propogate cpusets, and enforce
+their CPU placement limitations on sched_setaffinity, and
+Memory Node placement limitations on mbind, sys_set_mempolicy.
+
+Index: 2.6.7-mm4/include/linux/sched.h
 ===================================================================
---- 2.6.7-mm1.orig/include/linux/bitmap.h	2004-06-23 02:44:49.000000000 -0700
-+++ 2.6.7-mm1/include/linux/bitmap.h	2004-06-23 02:44:56.000000000 -0700
-@@ -41,7 +41,8 @@
-  * bitmap_shift_right(dst, src, n, nbits)	*dst = *src >> n
-  * bitmap_shift_left(dst, src, n, nbits)	*dst = *src << n
-  * bitmap_scnprintf(buf, len, src, nbits)	Print bitmap src to buf
-- * bitmap_parse(ubuf, ulen, dst, nbits)		Parse bitmap dst from buf
-+ * bitmap_parse(ubuf, ulen, dst, nbits)		Parse bitmap dst from user buf
-+ * bitmap_parselist(buf, dst, nbits)		Parse bitmap dst from list
-  */
+--- 2.6.7-mm4.orig/include/linux/sched.h	2004-06-29 03:54:46.000000000 -0700
++++ 2.6.7-mm4/include/linux/sched.h	2004-06-29 03:55:38.000000000 -0700
+@@ -366,6 +366,7 @@ struct k_itimer {
  
- /*
-@@ -98,6 +99,8 @@ extern int bitmap_scnprintf(char *buf, u
- 			const unsigned long *src, int nbits);
- extern int bitmap_parse(const char __user *ubuf, unsigned int ulen,
- 			unsigned long *dst, int nbits);
-+extern int bitmap_parselist(const char *buf, unsigned long *maskp,
-+			int nmaskbits);
+ struct io_context;			/* See blkdev.h */
+ void exit_io_context(void);
++struct cpuset;
  
- #define BITMAP_LAST_WORD_MASK(nbits)					\
- (									\
-Index: 2.6.7-mm1/include/linux/cpumask.h
+ #define NGROUPS_SMALL		32
+ #define NGROUPS_PER_BLOCK	((int)(PAGE_SIZE / sizeof(gid_t)))
+@@ -535,6 +536,10 @@ struct task_struct {
+   	struct mempolicy *mempolicy;
+   	short il_next;		/* could be shared with used_math */
+ #endif
++
++#ifdef CONFIG_CPUSETS
++	struct cpuset *cpuset;
++#endif
+ };
+ 
+ static inline pid_t process_group(struct task_struct *tsk)
+Index: 2.6.7-mm4/init/Kconfig
 ===================================================================
---- 2.6.7-mm1.orig/include/linux/cpumask.h	2004-06-23 02:44:49.000000000 -0700
-+++ 2.6.7-mm1/include/linux/cpumask.h	2004-06-23 02:44:56.000000000 -0700
-@@ -10,6 +10,8 @@
-  *
-  * For details of cpumask_scnprintf() and cpumask_parse(),
-  * see bitmap_scnprintf() and bitmap_parse() in lib/bitmap.c.
-+ * For details of cpulist_parse(), see bitmap_parselist(), also
-+ * in lib/bitmap.c.
-  *
-  * The available cpumask operations are:
-  *
-@@ -46,6 +48,7 @@
-  *
-  * int cpumask_scnprintf(buf, len, mask) Format cpumask for printing
-  * int cpumask_parse(ubuf, ulen, mask)	Parse ascii string as cpumask
-+ * int cpulist_parse(buf, map)		Parse ascii string as cpulist
-  *
-  * for_each_cpu_mask(cpu, mask)		for-loop cpu over mask
-  *
-@@ -262,14 +265,20 @@ static inline int __cpumask_scnprintf(ch
- 	return bitmap_scnprintf(buf, len, srcp->bits, nbits);
- }
+--- 2.6.7-mm4.orig/init/Kconfig	2004-06-29 03:54:39.000000000 -0700
++++ 2.6.7-mm4/init/Kconfig	2004-06-29 03:55:38.000000000 -0700
+@@ -279,6 +279,16 @@ config EPOLL
+ 	  Disabling this option will cause the kernel to be built without
+ 	  support for epoll family of system calls.
  
--#define cpumask_parse(ubuf, ulen, src) \
--			__cpumask_parse((ubuf), (ulen), &(src), NR_CPUS)
-+#define cpumask_parse(ubuf, ulen, dst) \
-+			__cpumask_parse((ubuf), (ulen), &(dst), NR_CPUS)
- static inline int __cpumask_parse(const char __user *buf, int len,
- 					cpumask_t *dstp, int nbits)
++config CPUSETS
++	bool "Cpuset support"
++	help
++	  This options will let you create and manage CPUSET's which
++	  allow dynamically partitioning a system into sets of CPUs and
++	  Memory Nodes and assigning tasks to run only within those sets.
++	  This is primarily useful on large SMP or NUMA systems.
++
++	  Say N if unsure.
++
+ source "drivers/block/Kconfig.iosched"
+ 
+ config CC_OPTIMIZE_FOR_SIZE
+Index: 2.6.7-mm4/init/main.c
+===================================================================
+--- 2.6.7-mm4.orig/init/main.c	2004-06-29 03:54:43.000000000 -0700
++++ 2.6.7-mm4/init/main.c	2004-06-29 03:55:38.000000000 -0700
+@@ -41,6 +41,7 @@
+ #include <linux/writeback.h>
+ #include <linux/cpu.h>
+ #include <linux/efi.h>
++#include <linux/cpuset.h>
+ #include <linux/unistd.h>
+ #include <linux/rmap.h>
+ #include <linux/mempolicy.h>
+@@ -536,6 +537,8 @@ asmlinkage void __init start_kernel(void
+ #ifdef CONFIG_PROC_FS
+ 	proc_root_init();
+ #endif
++	cpuset_init();
++
+ 	check_bugs();
+ 
+ 	/* Do the rest non-__init'ed, we're now alive */
+Index: 2.6.7-mm4/kernel/exit.c
+===================================================================
+--- 2.6.7-mm4.orig/kernel/exit.c	2004-06-29 03:54:39.000000000 -0700
++++ 2.6.7-mm4/kernel/exit.c	2004-06-29 03:55:38.000000000 -0700
+@@ -28,6 +28,7 @@
+ #include <asm/unistd.h>
+ #include <asm/pgtable.h>
+ #include <asm/mmu_context.h>
++#include <linux/cpuset.h>
+ 
+ extern void sem_exit (void);
+ extern struct task_struct *child_reaper;
+@@ -800,6 +801,7 @@ asmlinkage NORET_TYPE void do_exit(long 
+ 	__exit_fs(tsk);
+ 	exit_namespace(tsk);
+ 	exit_thread();
++	cpuset_exit(tsk);
+ #ifdef CONFIG_NUMA
+ 	mpol_free(tsk->mempolicy);
+ #endif
+Index: 2.6.7-mm4/kernel/fork.c
+===================================================================
+--- 2.6.7-mm4.orig/kernel/fork.c	2004-06-29 03:54:43.000000000 -0700
++++ 2.6.7-mm4/kernel/fork.c	2004-06-29 03:55:38.000000000 -0700
+@@ -36,6 +36,7 @@
+ #include <linux/mount.h>
+ #include <linux/audit.h>
+ #include <linux/rmap.h>
++#include <linux/cpuset.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+@@ -1093,6 +1094,8 @@ struct task_struct *copy_process(unsigne
+ 	if (p->ptrace & PT_PTRACED)
+ 		__ptrace_link(p, current->parent);
+ 
++	cpuset_fork(p);
++
+ 	attach_pid(p, PIDTYPE_PID, p->pid);
+ 	if (thread_group_leader(p)) {
+ 		attach_pid(p, PIDTYPE_TGID, p->tgid);
+Index: 2.6.7-mm4/kernel/sched.c
+===================================================================
+--- 2.6.7-mm4.orig/kernel/sched.c	2004-06-29 03:54:43.000000000 -0700
++++ 2.6.7-mm4/kernel/sched.c	2004-06-29 03:55:38.000000000 -0700
+@@ -41,6 +41,7 @@
+ #include <linux/percpu.h>
+ #include <linux/perfctr.h>
+ #include <linux/kthread.h>
++#include <linux/cpuset.h>
+ #include <asm/tlb.h>
+ 
+ #include <asm/unistd.h>
+@@ -2908,7 +2909,7 @@ out_unlock:
+ asmlinkage long sys_sched_setaffinity(pid_t pid, unsigned int len,
+ 				      unsigned long __user *user_mask_ptr)
  {
- 	return bitmap_parse(buf, len, dstp->bits, nbits);
- }
+-	cpumask_t new_mask;
++	cpumask_t new_mask, cpus_allowed;
+ 	int retval;
+ 	task_t *p;
  
-+#define cpulist_parse(buf, dst) __cpulist_parse((buf), &(dst), NR_CPUS)
-+static inline int __cpulist_parse(const char *buf, cpumask_t *dstp, int nbits)
-+{
-+	return bitmap_parselist(buf, dstp->bits, nbits);
-+}
-+
- #if NR_CPUS > 1
- #define for_each_cpu_mask(cpu, mask)		\
- 	for ((cpu) = first_cpu(mask);		\
-Index: 2.6.7-mm1/include/linux/nodemask.h
+@@ -2941,6 +2942,8 @@ asmlinkage long sys_sched_setaffinity(pi
+ 			!capable(CAP_SYS_NICE))
+ 		goto out_unlock;
+ 
++	cpus_allowed = cpuset_cpus_allowed(p);
++	cpus_and(new_mask, new_mask, cpus_allowed);
+ 	retval = set_cpus_allowed(p, new_mask);
+ 
+ out_unlock:
+@@ -3520,7 +3523,9 @@ static void migrate_all_tasks(int src_cp
+ 		if (dest_cpu == NR_CPUS)
+ 			dest_cpu = any_online_cpu(tsk->cpus_allowed);
+ 		if (dest_cpu == NR_CPUS) {
+-			cpus_setall(tsk->cpus_allowed);
++			tsk->cpus_allowed = cpuset_cpus_allowed(tsk);
++			if (!cpus_intersects(tsk->cpus_allowed, cpu_online_map))
++				cpus_setall(tsk->cpus_allowed);
+ 			dest_cpu = any_online_cpu(tsk->cpus_allowed);
+ 
+ 			/* Don't tell them about moving exiting tasks
+Index: 2.6.7-mm4/mm/mempolicy.c
 ===================================================================
---- 2.6.7-mm1.orig/include/linux/nodemask.h	2004-06-23 02:44:49.000000000 -0700
-+++ 2.6.7-mm1/include/linux/nodemask.h	2004-06-23 02:44:56.000000000 -0700
-@@ -10,7 +10,9 @@
-  *
-  * For details of nodemask_scnprintf() and nodemask_parse(),
-  * see bitmap_scnprintf() and bitmap_parse() in lib/bitmap.c.
-- *
-+ * For details of nodelist_parse(), see bitmap_parselist(), also
-+ * in lib/bitmap.c.
-+
-  * The available nodemask operations are:
-  *
-  * void node_set(node, mask)		turn on bit 'node' in mask
-@@ -46,6 +48,7 @@
-  *
-  * int nodemask_scnprintf(buf, len, mask) Format nodemask for printing
-  * int nodemask_parse(ubuf, ulen, mask)	Parse ascii string as nodemask
-+ * int nodelist_parse(buf, map)		Parse ascii string as nodelist
-  *
-  * for_each_node_mask(node, mask)	for-loop node over mask
-  *
-@@ -275,14 +278,20 @@ static inline int __nodemask_scnprintf(c
- 	return bitmap_scnprintf(buf, len, srcp->bits, nbits);
+--- 2.6.7-mm4.orig/mm/mempolicy.c	2004-06-29 03:55:33.000000000 -0700
++++ 2.6.7-mm4/mm/mempolicy.c	2004-06-29 03:55:38.000000000 -0700
+@@ -67,6 +67,7 @@
+ #include <linux/sched.h>
+ #include <linux/mm.h>
+ #include <linux/nodemask.h>
++#include <linux/cpuset.h>
+ #include <linux/gfp.h>
+ #include <linux/slab.h>
+ #include <linux/string.h>
+@@ -132,6 +133,7 @@ static int get_nodes(unsigned long *node
+ 	unsigned long k;
+ 	unsigned long nlongs;
+ 	unsigned long endmask;
++	nodemask_t mems_allowed;
+ 
+ 	--maxnode;
+ 	bitmap_zero(nodes, MAX_NUMNODES);
+@@ -164,6 +166,9 @@ static int get_nodes(unsigned long *node
+ 	if (copy_from_user(nodes, nmask, nlongs*sizeof(unsigned long)))
+ 		return -EFAULT;
+ 	nodes[nlongs-1] &= endmask;
++	/* Ignore nodes not allowed in current cpuset */
++	mems_allowed = cpuset_mems_allowed(current);
++	bitmap_and(nodes, nodes, nodes_addr(mems_allowed), MAX_NUMNODES);
+ 	return mpol_check_policy(mode, nodes);
  }
  
--#define nodemask_parse(ubuf, ulen, src) \
--			__nodemask_parse((ubuf), (ulen), &(src), MAX_NUMNODES)
-+#define nodemask_parse(ubuf, ulen, dst) \
-+			__nodemask_parse((ubuf), (ulen), &(dst), MAX_NUMNODES)
- static inline int __nodemask_parse(const char __user *buf, int len,
- 					nodemask_t *dstp, int nbits)
- {
- 	return bitmap_parse(buf, len, dstp->bits, nbits);
- }
- 
-+#define nodelist_parse(buf, dst) __nodelist_parse((buf), &(dst), MAX_NUMNODES)
-+static inline int __nodelist_parse(const char *buf, nodemask_t *dstp, int nbits)
-+{
-+	return bitmap_parselist(buf, dstp->bits, nbits);
-+}
-+
- #if MAX_NUMNODES > 1
- #define for_each_node_mask(node, mask)			\
- 	for ((node) = first_node(mask);			\
-Index: 2.6.7-mm1/lib/bitmap.c
-===================================================================
---- 2.6.7-mm1.orig/lib/bitmap.c	2004-06-23 02:44:49.000000000 -0700
-+++ 2.6.7-mm1/lib/bitmap.c	2004-06-23 02:44:56.000000000 -0700
-@@ -291,6 +291,7 @@ EXPORT_SYMBOL(__bitmap_weight);
- #define nbits_to_hold_value(val)	fls(val)
- #define roundup_power2(val,modulus)	(((val) + (modulus) - 1) & ~((modulus) - 1))
- #define unhex(c)			(isdigit(c) ? (c - '0') : (toupper(c) - 'A' + 10))
-+#define BASEDEC 10		/* fancier cpuset lists input in decimal */
- 
- /**
-  * bitmap_scnprintf - convert bitmap to an ASCII hex string.
-@@ -408,3 +409,86 @@ int bitmap_parse(const char __user *ubuf
- 	return 0;
- }
- EXPORT_SYMBOL(bitmap_parse);
-+
-+/**
-+ * bitmap_parselist - parses a more flexible format for inputting bit masks
-+ * @buf: read nul-terminated user string from this buffer
-+ * @mask: write resulting mask here
-+ * @nmaskbits: number of bits in mask to be written
-+ *
-+ * The input format supports a space separated list of one or more comma
-+ * separated sequences of ascii decimal bit numbers and ranges.  Each
-+ * sequence may be preceded by one of the prefix characters '=',
-+ * '-', '+', or '!', which have the following meanings:
-+ *    '=': rewrite the mask to have only the bits specified in this sequence
-+ *    '-': turn off the bits specified in this sequence
-+ *    '+': turn on the bits specified in this sequence
-+ *    '!': same as '-'.
-+ *
-+ * If no such initial character is specified, then the default prefix '='
-+ * is presumed.  The list is evaluated and applied in left to right order.
-+ *
-+ * Eamples of input format:
-+ *	0-4,9				# rewrites to 0,1,2,3,4,9
-+ *	-9				# removes 9
-+ *	+6-8				# adds 6,7,8
-+ *	1-6 -0,2-4 +11-14,16-19 -14-16	# same as 1,5,6,11-13,17-19
-+ *	1-6 -0,2-4 +11-14,16-19 =14-16	# same as just 14,15,16
-+ *
-+ * Possible errno's returned for invalid input strings are:
-+ *      -EINVAL:   second number in range smaller than first
-+ *      -ERANGE:   bit number specified too large for mask
-+ *      -EINVAL: invalid prefix char (not '=', '-', '+', or '!')
-+ */
-+
-+int bitmap_parselist(const char *buf, unsigned long *maskp, int nmaskbits)
-+{
-+	char *p, *q;
-+	int masklen = BITS_TO_LONGS(nmaskbits);
-+
-+	while ((p = strsep((char **)(&buf), " ")) != NULL) { /* blows const XXX */
-+		char op = isdigit(*p) ? '=' : *p++;
-+		unsigned long m[masklen];
-+		int maskbytes = sizeof(m);
-+		int i;
-+
-+		if (op == ' ')
-+			continue;
-+		memset(m, 0, maskbytes);
-+
-+		while ((q = strsep(&p, ",")) != NULL) {
-+			unsigned a = simple_strtoul(q, 0, BASEDEC);
-+			unsigned b = a;
-+			char *cp = strchr(q, '-');
-+			if (cp)
-+				b = simple_strtoul(cp + 1, 0, BASEDEC);
-+			if (!(a <= b))
-+				return -EINVAL;
-+			if (b >= nmaskbits)
-+				return -ERANGE;
-+			while (a <= b) {
-+				set_bit(a, m);
-+				a++;
-+			}
-+		}
-+
-+		switch (op) {
-+			case '=':
-+				memcpy(maskp, m, maskbytes);
-+				break;
-+			case '!':
-+			case '-':
-+				for (i = 0; i < masklen; i++)
-+					maskp[i] &= ~m[i];
-+				break;
-+			case '+':
-+				for (i = 0; i < masklen; i++)
-+					maskp[i] |= m[i];
-+				break;
-+			default:
-+				return -EINVAL;
-+		}
-+	}
-+	return 0;
-+}
-+EXPORT_SYMBOL(bitmap_parselist);
 
 -- 
                           I won't rest till it's the best ...

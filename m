@@ -1,60 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267203AbSLKTVW>; Wed, 11 Dec 2002 14:21:22 -0500
+	id <S267289AbSLKTQH>; Wed, 11 Dec 2002 14:16:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267278AbSLKTVW>; Wed, 11 Dec 2002 14:21:22 -0500
-Received: from ostia.INS.CWRU.Edu ([129.22.8.4]:29907 "EHLO ostia.INS.cwru.edu")
-	by vger.kernel.org with ESMTP id <S267203AbSLKTVV>;
-	Wed, 11 Dec 2002 14:21:21 -0500
-Date: Wed, 11 Dec 2002 14:30:49 -0500
-From: Justin Hibbits <jrh29@po.cwru.edu>
-To: Robert Love <rml@tech9.net>
+	id <S267291AbSLKTQH>; Wed, 11 Dec 2002 14:16:07 -0500
+Received: from ns.aspic.com ([213.193.2.5]:11013 "EHLO off.aspic.com")
+	by vger.kernel.org with ESMTP id <S267289AbSLKTQC>;
+	Wed, 11 Dec 2002 14:16:02 -0500
+Date: Wed, 11 Dec 2002 20:23:42 +0100
+From: Philippe =?ISO-8859-1?B?R3JhbW91bGzp?= 
+	<philippe.gramoulle@mmania.com>
+To: eric lin <fsshl@centurytel.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Destroying processes
-Message-ID: <20021211193049.GH147@lothlorien.cwru.edu>
-References: <20021211190132.GF147@lothlorien.cwru.edu> <1039634515.833.57.camel@phantasy>
+Subject: Re: how do you successful compile or install 2.5.50?
+Message-Id: <20021211202342.5285bbbe.philippe.gramoulle@mmania.com>
+In-Reply-To: <3DF5EC8E.9050603@centurytel.net>
+References: <3DF5EC8E.9050603@centurytel.net>
+Organization: Lycos Europe
+X-Mailer: Sylpheed version 0.8.6claws100 (GTK+ 1.2.10; )
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1039634515.833.57.camel@phantasy>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 02:21:55PM -0500, Robert Love wrote:
-> Cases where kill -9 fail to work are cases where it is supposed to fail.
-> 
-> You cannot kill zombies, that would break POSIX compliance when the
-> parent's called wait.  If you task's parents are not properly calling
-> wait() that is an application bug.  If the parent exits, the children
-> should be reparented to init and init will reap them via wait().
-> 
-> You also cannot kill tasks that are sleeping (D in ps/top).  They may
-> hold a semaphore or otherwise be in the middle of a critical section. 
-> Killing them would be bad bad bad.
-> 
-> 	Robert Love
+On Tue, 10 Dec 2002 06:30:54 -0700
+eric lin <fsshl@centurytel.net> wrote:
 
-Ok, thanks for clearing that up.  My reasoning for wanting this is because a CD
-I had mounted with cdfs was screwed up in the mount (file sizes were
-misreported, etc), and I couldn't umount it, even tho I could eject it with
-cdrecord -eject.  The umount process then went to sleep (with teh 'D' showing
-in ps/top), and I couldn't use that drive again until after a reboot.  That's
-when I got the idea that I should be able to destroy the process completely,
-annihilating everything with it, destroying any connections it has with the
-kernel, etc.  I guess it's a bad idea, given your statement :P
 
-Anyway, thanks for the reply,
+You might want to give 2.5.51 a try as i successfully buit it and modules have been working fine
+(you need latest modules tools found here:
 
-Justin
+  | On Tue, 10 Dec 2002 18:04:27 +1100
+  | Rusty Russell <rusty@rustcorp.com.au> wrote:
 
--- 
-Registered Linux user 260206
+  |  Hi all,
+  |  
+  |  	module-init-tools 0.9.3 and the associated RPM
+  |  modutils-2.4.21-7.src.rpm are out.
+  |  
+  |  	http://www.[CC].kernel.org/pub/linux/kernel/people/rusty/modules/
 
-"One World, One Web, One Program"
-	- Microsoft Promo Ad
-"Ein Volk, Ein Reich, Ein Fuhrer"
-	- Adolf Hitler
+Bye
 
-I'm not paranoid.  They really *are* out to get me!
+Philippe.
 
+# uname -a
+Linux test 2.5.51 #5 SMP Wed Dec 11 19:05:40 CET 2002 i686 unknown unknown GNU/Linux
+
+# lsmod
+
+Module                  Size  Used by
+dummy                   1720  1
+hid                    21186  0
+sb_lib                 43181  0 [permanent]
+uart401                 8461  1 sb_lib
+sound                  74003  2 sb_lib uart401
+uhci_hcd               27941  0
+usbcore                88471  4 hid uhci_hcd
+nls_utf8                1230  0
+smbfs                  58934  0
+ymfpci                 46876  0
+ac97_codec             11702  1 ymfpci [permanent]
+soundcore               6306  3 sb_lib sound ymfpci
+nfs                   122403  0
+nfsd                  112661  0
+exportfs                4558  1 nfsd [permanent]
+lockd                  58356  2 nfs nfsd
+sunrpc                101860  3 nfs nfsd lockd
+
+
+  |  
+  |     I just wonder how do you successful compile or install that 2.5.50? 
+  |  do you meet error at make modules?  if yes, how do you do ?(modify by 
+  |  yourself or postto author or public waiting for reply?)
+  |  
+  |     highly appreciate your experience on compile or install new kernel 
+  |  especailly experiamental kernel
+  |  
+  |  sincere ERic
+  |  www.linuxspice.com
+  |  linux pc for sale
+  |  
+  |  -
+  |  To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+  |  the body of a message to majordomo@vger.kernel.org
+  |  More majordomo info at  http://vger.kernel.org/majordomo-info.html
+  |  Please read the FAQ at  http://www.tux.org/lkml/
+  |  

@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265851AbUBCIwd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 03:52:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265941AbUBCIwd
+	id S265940AbUBCJDj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 04:03:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265947AbUBCJDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 03:52:33 -0500
-Received: from mail.shareable.org ([81.29.64.88]:54477 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S265851AbUBCIwc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 03:52:32 -0500
-Date: Tue, 3 Feb 2004 08:52:24 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, john stultz <johnstul@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
-Message-ID: <20040203085224.GA15738@mail.shareable.org>
-References: <1075344395.1592.87.camel@cog.beaverton.ibm.com> <401894DA.7000609@redhat.com> <20040201012803.GN26076@dualathlon.random> <401F251C.2090300@redhat.com>
+	Tue, 3 Feb 2004 04:03:38 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7383 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265940AbUBCJDe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 04:03:34 -0500
+Date: Tue, 3 Feb 2004 01:04:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Vladimir Saveliev <vs@namesys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2-rc3-mm1
+Message-Id: <20040203010456.3f3a2618.akpm@osdl.org>
+In-Reply-To: <1075798370.1829.80.camel@tribesman.namesys.com>
+References: <20040202235817.5c3feaf3.akpm@osdl.org>
+	<1075798370.1829.80.camel@tribesman.namesys.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <401F251C.2090300@redhat.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> You got to be kidding.  Some object fixed in the address space which can
-> perform system calls.  Nothing is more welcome to somebody trying to
-> exploit some bugs.
+Vladimir Saveliev <vs@namesys.com> wrote:
+>
+>  What would we have to provide to get reiser4 included? Or, do you think
+>  that it is not mature enough for inclusion?
 
-Two approaches to randomising the vdso address:
+I haven't looked at it.  Please send me the two patches (core kernel diff
+and the fs) along with complete usage instructions so that people know
+where to find the userspace tools, how to run them etc.  Also please ensure
+that all mount options are documented and that any known bugs are
+described.
 
-  1. Selecting a random address at boot time.  All tasks have the same
-     vdso for that run of the kernel.  Advantages: no MSR write at
-     each context switch; could patch libsyscall.so at boot time with
-     address if we were fanatical about optimisation (i.e. other
-     libcs, not Glibc :)  Disadvantages: the attacker may eventually
-     learn the address.
+Be aware that the barriers for a new filesystem are relatively high: each
+one adds a significant maintenance burden to the VFS and MM developers.  It
+will need cautious review.
 
-  2. Select a random address for every new task.  Advantages: harder
-     to guess from studying a machine for a long time.  Disadvantages:
-     slower context switches; the gain from randomising each task is
-     nothing if all the tasks are very long lived anyway.
-
--- Jamie
+But that doesn't mean we cannot get it out there, get you some more testing
+and exposure.  

@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284251AbRLAVJH>; Sat, 1 Dec 2001 16:09:07 -0500
+	id <S284253AbRLAVKG>; Sat, 1 Dec 2001 16:10:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284252AbRLAVI4>; Sat, 1 Dec 2001 16:08:56 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:30985 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S284251AbRLAVIo>; Sat, 1 Dec 2001 16:08:44 -0500
-Message-ID: <3C0946C7.798208C3@zip.com.au>
-Date: Sat, 01 Dec 2001 13:08:23 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
-X-Accept-Language: en
+	id <S284257AbRLAVJs>; Sat, 1 Dec 2001 16:09:48 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54540 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284252AbRLAVJm>; Sat, 1 Dec 2001 16:09:42 -0500
+Subject: Re: Coding style - a non-issue
+To: stano@meduna.org (Stanislav Meduna)
+Date: Sat, 1 Dec 2001 21:18:15 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200112012039.fB1KdGq03665@meduna.org> from "Stanislav Meduna" at Dec 01, 2001 09:39:16 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Erik Elmore <lk@bigsexymo.com>
-CC: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: EXT3 - freeze ups during disk writes
-In-Reply-To: <20011130235414.E489@mikef-linux.matchmail.com> <Pine.LNX.4.33.0112011209190.3893-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16AHWZ-0008IS-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Elmore wrote:
-> 
-> ahhhh... woops... every official kernel since ext3 made it into the
-> official tree, 2.4.14 if memory serves.  I'm using gcc 2.95.3.  And to
-> clarify the bug, say on a large disk write, the pause isn't constant,
-> it just pauses for a second every few seconds during the write.  For
-> smaller writes, it will pause only once, I assume while performing the
-> actual write to disk.
-> 
+> "it works/does not work for me" is not testing. Testing
+> is _actively_ trying to break things, _very_ preferably
+> by another person that wrote the code and to do it
+> in documentable and reproducible way. I don't see many
+> people doing it.
 
-I've seen a couple of reports where ext3 appears to exacerbate
-the effects of poor hdparm settings.  What is your raw disk
-throughput, from `hdparm -t /dev/hda'?
+If you want a high quality, tested supported kernel which has been through
+extensive QA then use kernel for a reputable vendor, or do the QA work
+yourself or with other people. We have kernel janitors, so why not kernel QA
+projects ?
+
+However you'll need a lot of time, a lot of hardware and a lot of attention
+to procedure
+
+Alan

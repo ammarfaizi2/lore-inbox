@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265097AbUFGWwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265104AbUFGWyB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265097AbUFGWwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 18:52:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265103AbUFGWwY
+	id S265104AbUFGWyB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 18:54:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265103AbUFGWyB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 18:52:24 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:33546 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S265097AbUFGWwP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 18:52:15 -0400
-Subject: 2.6.7-rc3: waiting for eth0 to become free
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 08 Jun 2004 00:52:21 +0200
-Message-Id: <1086648742.1740.1.camel@teapot.felipe-alfaro.com>
+	Mon, 7 Jun 2004 18:54:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20904 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265104AbUFGWxt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 18:53:49 -0400
+Date: Mon, 7 Jun 2004 23:53:47 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: BlaisorBlade <blaisorblade_spam@yahoo.it>, Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Missing BKL in sys_chroot() for 2.6
+Message-ID: <20040607225347.GK12308@parcelfarce.linux.theplanet.co.uk>
+References: <200406061958.48262.blaisorblade_spam@yahoo.it> <Pine.LNX.4.58.0406071150560.1637@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 (1.5.9.1-1) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0406071150560.1637@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Jun 07, 2004 at 11:56:37AM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Sun, 6 Jun 2004, BlaisorBlade wrote:
+> >
+> > (PLEASE cc me on replies as I'm not subscribed).
+> > 
+> > Set_fs_root *claims* it wants the BKL held:
+> 
+> I think the set_fs_root() comment is just wrong.
+> 
+> We properly lock the accesses to root/rootmnt with "fs->lock", and in fact 
+> no other users will have the BKL when accessing them anyway, so I don't 
+> see what the BKL would help in this case.
+> 
+> However, from a quick grep of users, it does look like some other users 
+> aren't real careful with "fs->lock" (ie chroot_fs_refs() looks like it 
+> could have problems - probably purely theoretical).
+> 
+> Al, do your eagle-eyes see something I missed?
 
-On my laptop, when using a CardBus 3c59x-based NIC, I need to run
-"cardctl eject" so the system won't freeze when resuming. "cardctl
-eject" worked fine in 2.6.7-rc2-mm2, even when there were programs with
-network sockets opened (for example, Evolution mantaining a connection
-against an IMAP server): the card is ejected (well, not physically),
-even when there are ESTABLISHED connections.
+chroot_fs_refs() is OK - it's a part of pivot_root(2) and it's just as
+"if process looks like the have root and/or cwd in old root, we assume
+they want to have those flipped to new one; if they are not, assume
+that they know what they are doing and wouldn't like us to pull anything
+on them".  IOW, here we don't really care.
 
-However, starting with 2.6.7-rc3, "cardctl eject" hangs if a program
-holds any socket open. After a while the "unregister_netdevice: waiting
-for eth0 to become free" message starts appearing on the kernel message
-ring. The only apparent solution is killing that program, ejecting the
-card from its slot and wait until 3c59x.o usage count reaches zero.
+selinux open_devnull(), OTOH, is bogus - they already have an fs of their
+own that is not going away; so why not put the damn device node on it and
+be done with that?
 
-Can someone tell me what's going on here?
-Thank you very much.
-
-
+In any case, BKL is irrelevant - that comment should've been dropped a long
+time ago.

@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264624AbTAJKLS>; Fri, 10 Jan 2003 05:11:18 -0500
+	id <S264797AbTAJKNC>; Fri, 10 Jan 2003 05:13:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264767AbTAJKLR>; Fri, 10 Jan 2003 05:11:17 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:44548 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S264624AbTAJKLQ>;
-	Fri, 10 Jan 2003 05:11:16 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301101019.h0AAJx5w003433@darkstar.example.net>
-Subject: Re: Problem in IDE Disks cache handling in kernel 2.4.XX
-To: fverscheure@wanadoo.fr
-Date: Fri, 10 Jan 2003 10:19:59 +0000 (GMT)
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-In-Reply-To: <20030110095558.E144CFF11@postfix4-1.free.fr> from "Francis Verscheure" at Jan 10, 2003 10:54:53 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264815AbTAJKNC>; Fri, 10 Jan 2003 05:13:02 -0500
+Received: from dp.samba.org ([66.70.73.150]:24004 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S264797AbTAJKM7>;
+	Fri, 10 Jan 2003 05:12:59 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Richard Henderson <rth@twiddle.net>
+Cc: Miles Bader <miles@gnu.org>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: [PATCH] Make `obsolete params' work correctly if MODULE_SYMBOL_PREFIX is non-empty 
+In-reply-to: Your message of "Fri, 10 Jan 2003 01:52:03 -0800."
+             <20030110015203.A16268@twiddle.net> 
+Date: Fri, 10 Jan 2003 21:20:31 +1100
+Message-Id: <20030110102144.4BE3C2C113@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And by the way how are powered off the IDE drives ?
-> Because a FLUSH CACHE or STANDY or SLEEP is MANDATORY before
-> powering off the drive with cache enabled or you will enjoy lost
-> data.
+In message <20030110015203.A16268@twiddle.net> you write:
+> On Wed, Jan 08, 2003 at 10:56:51PM +1100, Rusty Russell wrote:
+> > +		char sym_name[strlen(obsparm[i].name) + 2];
+> 
+> Are you really intending to use variable sized allocation
+> on the kernel stack?
 
-This was discussed on the list a few months ago:
+Yep.  Maximum length of obsolete parameter name in current kernel:
+seq_default_timer_resolution (28 chars).
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103188486216124&w=2
+It's far more likely that someone will hit the unchecked kmalloc
+allocations in arch/alpha/kernel/modules.c 8)
 
-I'm not sure it really got fully resolved, I had disks that would
-spin down and then spin up again, because of the order that the
-standby and flush cache commands were sent.
-
-John
+Hope that helps,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

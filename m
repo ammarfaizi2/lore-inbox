@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUCANPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 08:15:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUCANPZ
+	id S261255AbUCANUF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 08:20:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbUCANUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 08:15:25 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:37804 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261252AbUCANPX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 08:15:23 -0500
-Date: Mon, 1 Mar 2004 08:15:43 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Urban Widmark <urban@teststation.com>
-cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>, <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>
-Subject: Re: [SELINUX] Handle fuse binary mount data.
-In-Reply-To: <Pine.LNX.4.44.0403011007300.6156-100000@cola.local>
-Message-ID: <Xine.LNX.4.44.0403010809470.24584-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 1 Mar 2004 08:20:05 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:53227 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261255AbUCANUC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 08:20:02 -0500
+Date: Mon, 1 Mar 2004 13:46:10 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Cc: Pavel Machek <pavel@ucw.cz>, M?ns Rullg?rd <mru@kth.se>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Dropping CONFIG_PM_DISK?
+Message-ID: <20040301124610.GA1744@openzaurus.ucw.cz>
+References: <1ulUA-33w-3@gated-at.bofh.it> <20040229161721.GA16688@hell.org.pl> <20040229162317.GC283@elf.ucw.cz> <yw1x4qt93i6y.fsf@kth.se> <20040229181053.GD286@elf.ucw.cz> <yw1xznb120zn.fsf@kth.se> <20040301094023.GF352@elf.ucw.cz> <yw1xhdx8ani6.fsf@kth.se> <20040301103946.GA9171@atrey.karlin.mff.cuni.cz> <1078135138.3884.19.camel@laptop-linux.wpcb.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1078135138.3884.19.camel@laptop-linux.wpcb.org.au>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Mar 2004, Urban Widmark wrote:
+Hi!
 
-> On Sun, 29 Feb 2004, James Morris wrote:
+> Can you provide specific examples? I can fix bugs if I'm given
+> reproducible issues instead of hand waving :>
 > 
-> > It seems more like a property of the filesystem type: perhaps add 
-> > FS_BINARY_MOUNTDATA to fs_flags for such filesystems, per the patch below.
-> ...
-> > diff -urN -X dontdiff linux-2.6.3-mm4.o/fs/smbfs/inode.c linux-2.6.3-mm4.w/fs/smbfs/inode.c
-> > --- linux-2.6.3-mm4.o/fs/smbfs/inode.c	2003-10-15 08:53:19.000000000 -0400
-> > +++ linux-2.6.3-mm4.w/fs/smbfs/inode.c	2004-02-29 19:50:58.172037088 -0500
-> > @@ -778,6 +778,7 @@
-> >  	.name		= "smbfs",
-> >  	.get_sb		= smb_get_sb,
-> >  	.kill_sb	= kill_anon_super,
-> > +	.fs_flags	= FS_BINARY_MOUNTDATA,
-> >  };
-> >  
-> >  static int __init init_smb_fs(void)
-> 
-> smbfs does not have a binary mountdata, unless the smbmount used is really
-> old (samba 2.0). If that means that it should get a FS_BINARY_MOUNTDATA
-> flag or not, I don't know.
 
-Well, smb_fill_super() looks like it is dealing with binary mount data 
-initially, and we need to treat it as such.  This should be fixed properly 
-so that different versions of smbfs have different filesystem types, like 
-NFS.
-
-
-- James
+Try compiling with regparm=3; you are likely to find some
+missing asmlinkages.
+				Pavel
 -- 
-James Morris
-<jmorris@redhat.com>
-
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

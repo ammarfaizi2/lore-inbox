@@ -1,78 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbUE0Lfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbUE0LgA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbUE0Lfu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 07:35:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbUE0Lfu
+	id S261947AbUE0LgA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 07:36:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbUE0LgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 07:35:50 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:42756 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261939AbUE0Lfs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 07:35:48 -0400
-Subject: Re: tvtime and the Linux 2.6 scheduler
-From: Redeeman <lkml@metanurb.dk>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040523154859.GC22399@dumbterm.net>
-References: <20040523154859.GC22399@dumbterm.net>
-Content-Type: text/plain
-Message-Id: <1085657741.10917.0.camel@redeeman.kaspersandberg.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 27 May 2004 13:35:41 +0200
+	Thu, 27 May 2004 07:36:00 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:65259 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261937AbUE0Lf4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 07:35:56 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: linux@horizon.com
+Date: Thu, 27 May 2004 21:35:33 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16565.53893.357718.79@cse.unsw.edu.au>
+Cc: Olaf Kirch <okir@suse.de>, akpm@osdl.org, kerndev@sc-software.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6 is crashing repeatedly
+In-Reply-To: message from linux@horizon.com on  May 27
+References: <20040520060805.1620.qmail@science.horizon.com>
+	<20040527112508.24292.qmail@science.horizon.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-using nicksched solves this, now tvtime only uses 1% again! yay!
+On  May 27, linux@horizon.com wrote:
+> Even with neilb's patch, I just got an nfs oops:
 
-On Sun, 2004-05-23 at 17:48, Billy Biggs wrote:
->   I am the author of tvtime, a TV application with advanced image
-> processing algorithms.  Some users are complaining about poor
-> performance under Linux 2.6, and I would like more information about how
-> tvtime will be treated by the scheduler.  Here is an example of the
-> intended usage:
-> 
->   - Program running as root and SCHED_FIFO
->   - NTSC, input ~30 fps, each field processed for an output of ~60 fps
->   - CPU intensive processing, say 9 ms per field on my P3-733
->   - with a typical AGP card, the X driver takes 4 ms to draw
->   - Wait using /dev/rtc set to 1024 Hz
-> 
->   for(;;)
->       9 ms : process frame
->       4 ms : draw frame
->       3 ms : wait until next field time using /dev/rtc
->       9 ms : process frame
->       4 ms : draw frame
->       3 ms : block on /dev/video0 for next frame
->      -----
->      33 ms : time per NTSC frame
-> 
->   The theory is that Linux classifies this as a CPU hog regardless of
-> its priority, and preempts tvtime with other processes.  Oswald
-> Buddenhagen describes the effect as this:
-> 
->   "[...] it starts up fine, but after a few seconds (when the scheduler
-> gathered some stats) ... well, it looks funny: the scene goes roughly
-> exponentially into slow motion, then there is a frame drop and the
-> process starts over.  this behaviour can be observed at any priority,
-> which is clearly against the claim "no normally priorized interactive
-> process will preempt a highly priorized cpu-hog" that i've read
-> somewhere.  the xserver priority does not change anything, either;"
-> 
->   Avoiding root/SCHED_FIFO and using usleep() instead of /dev/rtc seems
-> to exhibit the same behavior.
-> 
->   Thoughts?
-> 
->   -Billy
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Regards, Redeeman
-redeeman@metanurb.dk
+As Olaf Kirch just said on nfs@lists.sourceforge.net:
 
+> Hi Neil,
+> 
+> you recently posted a patch that should fix readdir encoding in
+> nfsd. You say there
+> 
+> 	Note that as the offset and whole response is known to be
+> 	4byte-aligned, the offset pointer will never be split over
+> 	two pages.
+> 
+> This is not true. The dirent offset is a 64bit quantity, so it's quite
+> possible it will be split across the page boundary. I'm working on a
+> patch...
+
+And that is exactly the problem you have hit:
+
+> Unable to handle kernel paging request at virtual address f2590000
+>  printing eip:
+> c01a99a1
+> *pde = 004b1067
+> *pte = 32590000
+> Oops: 0002 [#1]
+> DEBUG_PAGEALLOC
+> CPU:    0
+> EIP:    0060:[<c01a99a1>]    Not tainted
+> EFLAGS: 00010246   (2.6.6) 
+> EIP is at encode_entry+0x51/0x530
+> eax: cc010000   ebx: 00000000   ecx: 000001cc   edx: f32dcdf8
+> esi: f258fffc   edi: d4ec21cc   ebp: 000001e0   esp: ebfd9b98
+
+Note that "esi" is pointing to 4 bytes from the end of a page, and you
+are getting a bad reference at the start of the next page.
+The code is storing a 64bit value here, and it doesn't fit.
+
+Stay tuned....
+
+NeilBrown

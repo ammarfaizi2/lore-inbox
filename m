@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264711AbSLHJMx>; Sun, 8 Dec 2002 04:12:53 -0500
+	id <S265247AbSLHJVe>; Sun, 8 Dec 2002 04:21:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264962AbSLHJMx>; Sun, 8 Dec 2002 04:12:53 -0500
-Received: from ip68-4-86-174.oc.oc.cox.net ([68.4.86.174]:1939 "EHLO
-	ip68-4-86-174.oc.oc.cox.net") by vger.kernel.org with ESMTP
-	id <S264711AbSLHJMx>; Sun, 8 Dec 2002 04:12:53 -0500
-Date: Sun, 8 Dec 2002 01:20:32 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "Joseph D. Wagner" <wagnerjd@prodigy.net>
-Cc: "'rtilley'" <rtilley@vt.edu>,
-       Linux Kernel Development List <linux-kernel@vger.kernel.org>
-Subject: Re: lilo append mem problem in 2.4.20
-Message-ID: <20021208092032.GD17498@ip68-4-86-174.oc.oc.cox.net>
-References: <3DFDE59F@zathras> <000c01c29e90$bae7d530$5b1c1c43@joe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <000c01c29e90$bae7d530$5b1c1c43@joe>
-User-Agent: Mutt/1.4i
+	id <S265255AbSLHJVe>; Sun, 8 Dec 2002 04:21:34 -0500
+Received: from mail.hometree.net ([212.34.181.120]:48821 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S265247AbSLHJVd>; Sun, 8 Dec 2002 04:21:33 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [BUG] 2.4.20-BK
+Date: Sun, 8 Dec 2002 09:29:12 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <asv3d8$nr$1@forge.intermeta.de>
+References: <200212071434.11514.m.c.p@wolk-project.de> <200212072036.08500.m.c.p@wolk-project.de>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1039339752 5754 212.34.181.4 (8 Dec 2002 09:29:12 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Sun, 8 Dec 2002 09:29:12 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 08, 2002 at 02:06:34AM -0600, Joseph D. Wagner wrote:
-> > Compaq proliant 5000 4 way Pentium Pro
-> 
-> You mean Quad processors?  Wow!
-> 
-> > I used RH's 686-smp kernel config file to build the
-> > 2.4.20-ac1 kernel. I turned High Mem support off as
-> > I don't think 1 GB is high mem... is it?
-> 
-> Actually, anything over 896 or so MB is considered High Mem.  Don't ask me
-> why.  I didn't write the code.  If I did, I would have used a nice round
-> number.
-> 
-> IN OTHER WORDS, TURN HIGH MEM SUPPORT BACK ON!
+Marc-Christian Petersen <m.c.p@wolk-project.de> writes:
 
-The original poster should still have access to 896MB of RAM even with
-highmem off. Something else is actually wrong. (I don't have any useful
-ideas for troubleshooting it though.)
+>pdc202xx_new: static build, module build do not have Special FastTrack 
+>features so the system will say neither IDE port enabled (BIOS) so it won't 
+>work.
+[...]
+>    ide0: BM-DMA at 0x9400-0x9407, BIOS settings: hda:pio, hdb:pio
+>    ide1: BM-DMA at 0x9408-0x940f, BIOS settings: hdc:pio, hdd:pio
+[...]
+>    ide2: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
+>    ide3: BM-DMA at 0xffa8-0xffaf, BIOS settings: hda:pio, hdb:DMA
 
-> Now, this part is just my guess, but try compiling the kernel for 586-smp
-> instead of a 686-smp.  IMHO, the documentation isn't really clear about
-> exactly which processor crosses the threshold, and Intel's naming convention
-> doesn't help either.
-> 
-> But I could be wrong.
+Shouldn't these bei hde - hdh ? I'd be scared by my machine reporting
+hda thrice. :-)
 
-You could say the difference between "586" and "686" is essentially the
-difference between the original Pentium and the Pentium Pro.
+	Regards
+		Henning
 
-Thus the original Pentium, and its variant the Pentium MMX, are 586.
-The Pentium Pro, and its variants the Pentium II and III (and their
-Celeron variants too) are 686. The Pentium IV identifies itself as
-a 1586 (as has been mentioned on this list in the past, it's a bad
-pun involving roman numerals), but Linux considers that to be 686.
 
-I hope that helps.
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
--Barry K. Nathan <barryn@pobox.com>
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

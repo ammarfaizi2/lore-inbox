@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbTEVGRf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 02:17:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbTEVGRf
+	id S262182AbTEVGjM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 02:39:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbTEVGjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 02:17:35 -0400
-Received: from dp.samba.org ([66.70.73.150]:12960 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262499AbTEVGRc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 02:17:32 -0400
-Date: Thu, 22 May 2003 16:27:23 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Anton Blanchard <anton@samba.org>
-Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] Implicit declaration in ppc64 signal32.c
-Message-ID: <20030522062723.GE14009@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Anton Blanchard <anton@samba.org>, trivial@rustcorp.com.au,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 22 May 2003 02:39:12 -0400
+Received: from h2.prohosting.com.ua ([217.106.231.81]:6080 "EHLO
+	h2.prohosting.com.ua") by vger.kernel.org with ESMTP
+	id S262182AbTEVGjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 02:39:10 -0400
+From: Artemio <artemio@artemio.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: HELP: kernel won't boot from /dev/sdb1
+Date: Thu, 22 May 2003 09:47:38 +0300
+User-Agent: KMail/1.5
+References: <3ECC3D18.201@torque.net>
+In-Reply-To: <3ECC3D18.201@torque.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Message-Id: <200305220927.26405.artemio@artemio.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - h2.prohosting.com.ua
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
+X-AntiAbuse: Sender Address Domain - artemio.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton, please apply.  do_signal32() is used before it is defined, this
-prototype squashes the warning.
+On Thursday 22 May 2003 05:59, Douglas Gilbert wrote:
+> Those number are in hex, so "811" is major 8, minor 17 which
+> is (or should be) /dev/sdb1. Look earlier in the boot up
+> sequence, where the aic79xx driver is loaded and scans
+> for devices. It should say that it has attached /dev/sdb .
+> You may need a later version of that driver. Visit:
+>      http://people.FreeBSD.org/~gibbs/linux
+>
+> Doug Gilbert
 
-diff -urN for-linus-ppc64/arch/ppc64/kernel/signal32.c linux-congo/arch/ppc64/kernel/signal32.c
---- for-linus-ppc64/arch/ppc64/kernel/signal32.c	2003-05-07 15:10:18.000000000 +1000
-+++ linux-congo/arch/ppc64/kernel/signal32.c	2003-05-22 15:54:55.000000000 +1000
-@@ -97,7 +97,7 @@
- 	struct ucontext32 uc;
- };
- 
--
-+int do_signal32(sigset_t *oldset, struct pt_regs *regs);
- 
- /*
-  *  Start of nonRT signal support
+Thank you very much! 
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+I found the source tarball there - aic79xx-linux-2.4-20030520-tar.gz. 
+
+(Also, what is aic79xx-linux-2.4-20030520.bksend.gz - seems to be some 
+changelog?)
+
+I will to build everything today (I have two AIC 7902 drives on that machine).
+
+
+Many thanks again.
+
+Artemio.
+
+
+
+

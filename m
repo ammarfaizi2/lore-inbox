@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268777AbUHLU5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268670AbUHLU60@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268777AbUHLU5m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 16:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268786AbUHLU5l
+	id S268670AbUHLU60 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 16:58:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268774AbUHLU6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 16:57:41 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:42965 "EHLO
+	Thu, 12 Aug 2004 16:58:23 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:44757 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268784AbUHLU4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 16:56:42 -0400
-Subject: Re: [RFC, PATCH] sys_revoke(), just a try. (was: Re: dynamic /dev
-	security hole?)
+	id S268670AbUHLU6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 16:58:13 -0400
+Subject: Re: IDE hackery: lock fixes and hotplug controller stuff
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Michael Buesch <mbuesch@freenet.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       Eric Lammerts <eric@lammerts.org>, Marc Ballarin <Ballarin.Marc@gmx.de>,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <200408121849.20227.mbuesch@freenet.de>
-References: <20040808162115.GA7597@kroah.com>
-	 <1092057570.5761.215.camel@cube> <200408111912.21469.mbuesch@freenet.de>
-	 <200408121849.20227.mbuesch@freenet.de>
+To: Ian Hastie <ianh@iahastie.clara.net>
+Cc: Alan Cox <alan@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <200408110136.06137.ianh@iahastie.local.net>
+References: <20040810161911.GA10565@devserv.devel.redhat.com>
+	 <200408102148.57602.ianh@iahastie.local.net>
+	 <20040810210630.GA30906@devserv.devel.redhat.com>
+	 <200408110136.06137.ianh@iahastie.local.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1092340279.22362.6.camel@localhost.localdomain>
+Message-Id: <1092340539.22362.11.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 12 Aug 2004 20:51:19 +0100
+Date: Thu, 12 Aug 2004 20:55:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-08-12 at 17:49, Michael Buesch wrote:
-> +static ssize_t revoke_read(struct file *filp,
-> +			   char *buf,
-> +			   size_t count,
-> +			   loff_t *ppos)
-> +{
-> +	return 0;
-> +}
+On Mer, 2004-08-11 at 01:36, Ian Hastie wrote:
+> Yes it does.  It's certainly sold as a RAID card and it does have a RAID setup 
+> menu.  I haven't had the opportunity to use it fully as the discs I needed to 
+> use on it were already set up for software RAID.  Maybe I'll have a couple 
+> spare(!) discs to play with if I upgrade to SATA.
 
--EIO I think but I'm not sure I remember the BSD behaviour in full
+Much obliged - I got one from Novatech and I've been doing a bit more
+hammering on it. For non raid configurations but in smart mode my card
+now seems to be working. Its in part dependant on a core IDE change
+however so I'll push the relevant bits to Bart in order.
 
-> +static int filp_revoke(struct file *filp, struct inode *inode)
-> +{
+I've not tried raid yet (case logistics) but will do so very soon.
 
-First problem here is that the handle might still be in use
-for mmap, so you'd need to undo mmaps on it. A second is that 
-while you can ->flush() here you can't really close it until the
-file usage count hits zero. 
-
-You are btw tackling a really really hard problem and its more likely
-the way to do this is to add revoke() methods to drivers and do it at
-the driver level - as the tty layer does with vhangup.
 

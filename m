@@ -1,50 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267934AbTBEMNO>; Wed, 5 Feb 2003 07:13:14 -0500
+	id <S267936AbTBEMUq>; Wed, 5 Feb 2003 07:20:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267939AbTBEMNO>; Wed, 5 Feb 2003 07:13:14 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:50882 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S267934AbTBEMMf>; Wed, 5 Feb 2003 07:12:35 -0500
-Date: Wed, 5 Feb 2003 13:22:05 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Oleg Drokin <green@namesys.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: use 64 bit jiffies broke HZ=100 case (and fix)
-In-Reply-To: <20030205144206.A25320@namesys.com>
-Message-ID: <Pine.LNX.4.33.0302051315450.6650-100000@gans.physik3.uni-rostock.de>
+	id <S267937AbTBEMUq>; Wed, 5 Feb 2003 07:20:46 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:60755 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267936AbTBEMUq>; Wed, 5 Feb 2003 07:20:46 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200302051230.h15CUHd04248@devserv.devel.redhat.com>
+Subject: Re: 2.4.21pre4-ac2 IDE status on PDC20268
+To: szepe@pinerecords.com (Tomas Szepe)
+Date: Wed, 5 Feb 2003 07:30:17 -0500 (EST)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20030205102059.GG27959@louise.pinerecords.com> from "Tomas Szepe" at Feb 05, 2003 11:20:59 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Feb 2003, Oleg Drokin wrote:
+> > The 20268 code explicitly enforces that rule. I need to talk to Andre
+> > to find out exactly why. It is being done intentionally
+> 
+> Hmm, could you point me to the code in question?
+> I can't find it.  Thanks.
 
-> In order to get UML to compile again (and pretty much any other HZ=100 arch)
-> I need to apply this patch below:
->
-[ further '>'s removed to allow direkt feeding to 'patch']
-
-===== fs/proc/proc_misc.c 1.63 vs edited =====
---- 1.63/fs/proc/proc_misc.c	Tue Nov 12 12:37:55 2002
-+++ edited/fs/proc/proc_misc.c	Wed Feb  5 14:28:50 2003
-@@ -121,8 +121,7 @@
- 	}
- #else
- 	{
--		unsigned long idle = init_task.times.tms_utime
--		                     + init_task.times.tms_stime;
-+		unsigned long idle = init_task.utime + init_task.stime;
-
- 		len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
- 			(unsigned long) uptime,
->
->
-Yep. Unfortunately I tested HZ=100 only with the original patch and missed
-these when rediffing. Thanks for spotting this.
-
-Linus, please apply.
-
-Tim
-
+Hash collision, I was remembering something else. The 20268 should be
+setting up ATA66/100 unless the drive matches the blacklist
 

@@ -1,48 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266317AbRGBAuC>; Sun, 1 Jul 2001 20:50:02 -0400
+	id <S266325AbRGBA4y>; Sun, 1 Jul 2001 20:56:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266318AbRGBAtm>; Sun, 1 Jul 2001 20:49:42 -0400
-Received: from 35.roland.net ([65.112.177.35]:39180 "EHLO earth.roland.net")
-	by vger.kernel.org with ESMTP id <S266317AbRGBAta>;
-	Sun, 1 Jul 2001 20:49:30 -0400
-Message-ID: <009901c10290$e86b5920$bb1cfa18@JimWS>
-From: "Jim Roland" <jroland@roland.net>
-To: "Ben Ford" <ben@kalifornia.com>, "David Schwartz" <davids@webmaster.com>
-Cc: "Marius Nita" <marius@pdx.edu>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <NOEJJDACGOHCKNCOGFOMKEMFCDAA.davids@webmaster.com> <3B3FBA4C.60409@kalifornia.com>
+	id <S266326AbRGBA4p>; Sun, 1 Jul 2001 20:56:45 -0400
+Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:4484
+	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
+	id <S266325AbRGBA4g>; Sun, 1 Jul 2001 20:56:36 -0400
+Date: Sun, 1 Jul 2001 18:00:25 -0700 (PDT)
+From: Justin Guyett <justin@soze.net>
+X-X-Sender: <tyme@gw.soze.net>
+To: <linux-kernel@vger.kernel.org>
 Subject: Re: Uncle Sam Wants YOU!
-Date: Sun, 1 Jul 2001 19:49:53 -0500
+In-Reply-To: <20010701153250.A7939@pdx.edu>
+Message-ID: <Pine.LNX.4.33.0107011549230.27884-100000@gw.soze.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 1 Jul 2001, Marius Nita wrote:
 
------ Original Message -----
-From: "Ben Ford" <ben@kalifornia.com>
-To: "David Schwartz" <davids@webmaster.com>
-Cc: "Marius Nita" <marius@pdx.edu>; <linux-kernel@vger.kernel.org>
-Sent: Sunday, July 01, 2001 7:03 PM
-Subject: Re: Uncle Sam Wants YOU!
+> _I_ think it's childish to claim the above. You _may_ have a choice, yes, but
+> is that choice equal or fair? Microsoft has infected both the user area as
+
+Problem: I don't like company policy
+Solution: Deal or get another job
+
+<whine>
+Why should I have to spend time finding another job, it's the company's
+fault for having company policies that I can't live with!  They should
+change their policy for me!
+</whine>
+
+> So what I call a choice is a fare choice. And I don't see one here.
+
+Peon:   Help!  I installed linux at work and got fired!
+Oracle: You made a bad choice.
+
+Are you saying that the fact that there's only one good choice in this
+situation is Microsoft's fault?  I hope you wouldn't say "Microsoft MADE
+me install linux."
 
 
-> >
-> >
-> >It's hard to understand the point of such arguments. Surely you shouldn't
-> >be upset at someone for providing you the best option you have, should
-you?
-> >
->
+On Sun, 1 Jul 2001, Ben Ford wrote:
+
 > The point is they aren't offering the best solution!  They are taking
 > away all others!  That is why people dislike the company.
->
 
-I don't see them taking RedHat or Slackware away from me!
+They aren't taking away anything.  They're flooding the market with their
+software, and people are *still buying the stuff*.  And people who say
+Excel and Powerpoint aren't the best-in-class solutions for the needs of
+most executives are kidding themselves.
+
+
+On Sun, 1 Jul 2001, Dan Hollis wrote:
+
+> On Sun, 1 Jul 2001, Kurt Maxwell Weber wrote:
+> As demonstrated many times over the past several years, it is becoming
+> increasingly difficult to buy a PC without bundled m$-ware. Even if you
+> dont use m$-ware you are still forced to pay for it.
+
+And you can get a refund if you don't agree to the license.  Or you can
+build your own computer.  The OS isn't the only thing Dell or Compaq or
+anyone else forces on you.  Would you complain if you couldn't get a
+machine from a major vendor with a certain disk drive, and were then
+"forced" to buy it anyway, and trash the original drive?
+
+
+Can this thread die please?  Some people see choices, some don't.  Some
+people hate microsoft, some don't.  Perhaps someone should start a mailing
+list for "Microsoft killed my cat, wrecked my car.. now I want to sue"
+discussions.
+
+
+justin
 

@@ -1,58 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277192AbRJDRZD>; Thu, 4 Oct 2001 13:25:03 -0400
+	id <S277194AbRJDR1X>; Thu, 4 Oct 2001 13:27:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277189AbRJDRYx>; Thu, 4 Oct 2001 13:24:53 -0400
-Received: from ECE.CMU.EDU ([128.2.136.200]:4555 "EHLO ece.cmu.edu")
-	by vger.kernel.org with ESMTP id <S277192AbRJDRYm>;
-	Thu, 4 Oct 2001 13:24:42 -0400
-Date: Thu, 4 Oct 2001 13:24:55 -0400 (EDT)
-From: Nilmoni Deb <ndeb@ece.cmu.edu>
-Reply-To: Nilmoni Deb <ndeb@ece.cmu.edu>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: Bob Proulx <bob@proulx.com>, "Eric W. Biederman" <ebiederm@xmission.com>,
-        Jim Meyering <jim@meyering.net>, viro@math.psu.edu,
-        bug-fileutils@gnu.org, Remy.Card@linux.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: fs/ext2/namei.c: dir link/unlink bug? [Re: mv changes dir timestamp
-In-Reply-To: <200110040750.f947orU470874@saturn.cs.uml.edu>
-Message-ID: <Pine.GSO.3.96L.1011004131850.7119A-100000@hendrix.ece.cmu.edu>
+	id <S277189AbRJDR1O>; Thu, 4 Oct 2001 13:27:14 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:59656 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S277194AbRJDR0y>;
+	Thu, 4 Oct 2001 13:26:54 -0400
+Date: Thu, 4 Oct 2001 10:32:10 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: Robert Olsson <Robert.Olsson@data.slu.se>, <mingo@elte.hu>,
+        jamal <hadi@cyberus.ca>, <linux-kernel@vger.kernel.org>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <20011003162210.L8954@turbolinux.com>
+Message-ID: <Pine.LNX.4.40.0110041024180.1607-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 3 Oct 2001, Andreas Dilger wrote:
+
+> If you get to the stage where you are turning off IRQs and going to a
+> polling mode, then don't turn IRQs back on until you have a poll (or
+> two or whatever) that there is no work to be done.  This will at worst
+> give you 50% polling success, but in practise you wouldn't start polling
+> until there is lots of work to be done, so the real success rate will
+> be much higher.
+>
+> At this point (no work to be done when polling) there are clearly no
+> interrupts would be generated (because no packets have arrived), so it
+> should be reasonable to turn interrupts back on and stop polling (assuming
+> non-broken hardware).  You now go back to interrupt-driven work until
+> the rate increases again.  This means you limit IRQ rates when needed,
+> but only do one or two excess polls before going back to IRQ-driven work.
+>
+> Granted, I don't know what the overhead of turning the IRQs on and off
+> is, but since we do it all the time already (for each ISR) it can't be
+> that bad.
+>
+> If you are always having work to do when polling, then interrupts will
+> never be turned on again, but who cares at that point because the work
+> is getting done?  Similarly, if you have IRQs disabled, but are sharing
+> IRQs there is nothing wrong in polling all devices sharing that IRQ
+> (at least conceptually).
+>
+> I don't know much about IRQ handlers, but I assume that this is already
+> what happens if you are sharing an IRQ - you don't know which of many
+> sources it comes from, so you poll all of them to see if they have any
+> work to be done.  If you are polling some of the shared-IRQ devices too
+> frequently (i.e. they never have work to do), you could have some sort
+> of progressive backoff, so you skip polling those for a growing number
+> of polls (this could also be set by the driver if it knows that it could
+> only generate real work every X ms, so we skip about X/poll_rate polls).
+
+This seems a pretty nice solution that achieve 1) to limit the irq
+frequency 2) avoid the huge shared irqs latency given by the irq masking.
+By having a per irq # poll callbacks could give the opportunity to poll
+"time to time" sharing devices during the offending device poll loop.
 
 
-On Thu, 4 Oct 2001, Albert D. Cahalan wrote:
 
-> Bob Proulx writes:
-> 
-> > I tested this on both HP-UX, IBM AIX and Linux.  HP-UX always
-> > preserved the previous timestamps.  The same with 2.2.x versions of
-> > Linux.  AIX was different and preserved the previous timestamp if
-> > the .. entry was the same as before but updated the timestamp if .. was
-> > different than before.  But in the case where no real changes occurred
-> > none updated the timestamp.  It would be interesting to see what
-> > Sun's Solaris and other systems do in those cases.  This does not seem
-> > like a huge deal.  There were differences in the different commercial
-> > flavors.  But I like to think that we can do better than that.
-> 
-> Compaq Tru64 5    No time change in any case.
-> 
+- Davide
 
-I tested it on Solaris 2.7 . No time stamp change in any of these two
-cases ->
-
-mv tmp tmp1
-mv tmp ..
-
-In the 1st case there is no justification for time change bcos even the ..
-link inside the dir has not changed. In the 2nd case, there may be some
-justification but it will lead to a lot of confusion. When there is
-nothing to gain and something to lose why make such a change from
-traditional behavior ?
-
-thanks
-- Nil
 

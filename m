@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131508AbRAASNl>; Mon, 1 Jan 2001 13:13:41 -0500
+	id <S131954AbRAASQL>; Mon, 1 Jan 2001 13:16:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131954AbRAASNa>; Mon, 1 Jan 2001 13:13:30 -0500
-Received: from mail.dol.net ([204.183.91.8]:32267 "HELO dol.net")
-	by vger.kernel.org with SMTP id <S131508AbRAASNS>;
-	Mon, 1 Jan 2001 13:13:18 -0500
-Message-ID: <3A50BD68.2030002@dol.net>
-Date: Mon, 01 Jan 2001 12:24:56 -0500
-From: Robert Baruch <autophile@dol.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test10 i686; en-US; m18) Gecko/20001206
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux USB Storage List <usb-storage@one-eyed-alien.net>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-        Linux USB Storage List <usb-storage@one-eyed-alien.net>
-Subject: Re: [usb-storage] Re: [patchlet] enable HP 8200e USB CDRW
-In-Reply-To: <Pine.LNX.4.30.0012311255470.29214-100000@waste.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S132081AbRAASQB>; Mon, 1 Jan 2001 13:16:01 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:8036 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S131954AbRAASP4>; Mon, 1 Jan 2001 13:15:56 -0500
+Date: Mon, 1 Jan 2001 18:37:29 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: nfs@lists.sourceforge.net, nfs-devel@linux.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: kNFSd maintenance in 2.2.19pre
+Message-ID: <20010101183729.C13560@athlon.random>
+In-Reply-To: <14913.22373.943123.320678@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <14913.22373.943123.320678@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Thu, Dec 21, 2000 at 12:05:41PM +1100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 21, 2000 at 12:05:41PM +1100, Neil Brown wrote:
+>  So, I have started putting some patches together and they can be
+>  found at
+>     http://www.cse.unsw.edu.au/~neilb/patches/knfsd-2.2/
 
-> On Sun, 31 Dec 2000, Matthew Dharm wrote:
-> 
-> 
->> Um, I'm not sure that this driver is even ready for the EXPERIMENTAL label.
->> What does the driver's author say?
+I included the interesting ones in my tree.
 
-I'd say it's ready for prime-time. So far the problems that have been 
-described to me have to do with not being able to burn CD's because of 
-too high a write speed. There is still an unresolved problem with 
-disk-at-once writing, but nothing that prevents work from being done.
+Here two fixes against the vfs backport:
 
---Rob
+--- ./fs/nfsd/vfs.c.~1~	Fri Dec 29 18:02:01 2000
++++ ./fs/nfsd/vfs.c	Mon Jan  1 18:09:46 2001
+@@ -1603,9 +1603,11 @@
+ 	eof = !cd.eob;
+ 
+ 	if (cd.offset) {
++#ifdef CONFIG_NFSD_V3
+ 		if (rqstp->rq_vers == 3)
+ 			(void)enc64(cd.offset, file.f_pos);
+ 		else
++#endif /* CONFIG_NFSD_V3 */
+ 			*cd.offset = htonl(file.f_pos);
+ 	}
+ 
+@@ -1624,6 +1626,7 @@
+ 	return err;
+ 
+ out_nfserr:
++	up(&inode->i_sem);
+ 	err = nfserrno(-err);
+ 	goto out_close;
+ }
 
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,148 +1,269 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbTKIO5R (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 09:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbTKIO5R
+	id S262529AbTKIPJS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 10:09:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbTKIPJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 09:57:17 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:63914 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S262522AbTKIO5O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 09:57:14 -0500
-Date: Sun, 9 Nov 2003 15:56:51 +0100
-From: Tobias Diedrich <ranma@gmx.at>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cdrom blocksize reset bug with 2.4.x kernels
-Message-ID: <20031109145651.GA1203@melchior.yamamaya.is-a-geek.org>
-Mail-Followup-To: Tobias Diedrich <ranma@gmx.at>,
-	Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030702111835.GC839@suse.de>
-X-GPG-Fingerprint: 7168 1190 37D2 06E8 2496  2728 E6AF EC7A 9AC7 E0BC
-X-GPG-Key: http://studserv.stud.uni-hannover.de/~ranma/gpg-key
-User-Agent: Mutt/1.5.4i
-X-Seen: false
-X-ID: VadC9oZBwezBKIUgIs3uJGzOx+GryVax78fkl-JIAmtEljZBc-spEa@t-dialin.net
+	Sun, 9 Nov 2003 10:09:18 -0500
+Received: from smtp4.cern.ch ([137.138.131.165]:2499 "EHLO smtp4.cern.ch")
+	by vger.kernel.org with ESMTP id S262529AbTKIPJH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 10:09:07 -0500
+Keywords: CERN SpamKiller Note: -52
+From: Alexander ZVYAGIN <Alexander.Zviagine@cern.ch>
+To: Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: PCI with SiS: Cannot allocate resource.
+Date: Sun, 9 Nov 2003 16:09:04 +0100
+User-Agent: KMail/1.5
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0311081555380.2122-100000@bigblue.dev.mdolabs.com>
+In-Reply-To: <Pine.LNX.4.44.0311081555380.2122-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_Qilr/SPLFDlf3PQ"
+Message-Id: <200311091609.04985.Alexander.Zviagine@cern.ch>
+X-OriginalArrivalTime: 09 Nov 2003 15:09:05.0087 (UTC) FILETIME=[6A7504F0:01C3A6D3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As it seems Attila did not write a follow up, I had a look at his patch
-and the problem.  The following patch fixes it for me (Plextor PX-32TS).
 
-Please CC me on replies, I am not subscribed to the list.
+--Boundary-00=_Qilr/SPLFDlf3PQ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
---- linux-2.4.22/include/linux/cdrom.h	2003-10-28 01:30:34.000000000 +0100
-+++ linux/include/linux/cdrom.h	2003-11-09 15:44:20.000000000 +0100
-@@ -743,7 +743,8 @@
-     	char name[20];                  /* name of the device type */
- /* per-device flags */
-         __u8 sanyo_slot		: 2;	/* Sanyo 3 CD changer support */
--        __u8 reserved		: 6;	/* not used yet */
-+        __u8 use_read10	: 1;		/* Use READ10 instead of READCD */
-+        __u8 reserved		: 5;	/* not used yet */
- 	struct cdrom_write_settings write;
- };
- 
---- linux-2.4.22/drivers/cdrom/cdrom.c	2003-11-07 23:46:49.000000000 +0100
-+++ linux/drivers/cdrom/cdrom.c	2003-11-09 15:52:14.000000000 +0100
-@@ -1400,6 +1400,8 @@
- 	return 0;
- }
- 
-+static int cdrom_switch_blocksize(struct cdrom_device_info *cdi, int size);
-+
- /*
-  * Specific READ_10 interface
-  */
-@@ -1408,6 +1410,7 @@
- 			 int blocksize, int nblocks)
- {
- 	struct cdrom_device_ops *cdo = cdi->ops;
-+	int ret = 0;
- 
- 	memset(&cgc->cmd, 0, sizeof(cgc->cmd));
- 	cgc->cmd[0] = GPCMD_READ_10;
-@@ -1419,7 +1422,22 @@
- 	cgc->cmd[7] = (nblocks >>  8) & 0xff;
- 	cgc->cmd[8] = nblocks & 0xff;
- 	cgc->buflen = blocksize * nblocks;
--	return cdo->generic_packet(cdi, cgc);
-+
-+	if (blocksize != CD_FRAMESIZE) {
-+		ret = cdrom_switch_blocksize(cdi, blocksize);
-+		ret |= cdo->generic_packet(cdi, cgc);
-+		ret |= cdrom_switch_blocksize(cdi, CD_FRAMESIZE);
-+	} else ret = cdo->generic_packet(cdi, cgc);
-+
-+	/*
-+	 * Switch cdrom_read_block back to default behaviour
-+	 * if we get an error.
-+	 * FIXME: Maybe this should not be done on all errors.
-+	 */
-+	if (ret != 0)
-+		cdi->use_read10 = 0;
-+
-+	return ret;
- }
- 
- /* very generic interface for reading the various types of blocks */
-@@ -1428,8 +1446,15 @@
- 			    int lba, int nblocks, int format, int blksize)
- {
- 	struct cdrom_device_ops *cdo = cdi->ops;
-+	int ret;
-+
-+	if (cdi->use_read10)
-+		return cdrom_read_cd(cdi, cgc, lba, blksize, nblocks);
- 
- 	memset(&cgc->cmd, 0, sizeof(cgc->cmd));
-+	/*
-+	 * SCSI-II devices are not required to support READ_CD.
-+	 */
- 	cgc->cmd[0] = GPCMD_READ_CD;
- 	/* expected sector size - cdda,mode1,etc. */
- 	cgc->cmd[1] = format << 2;
-@@ -1452,7 +1477,15 @@
- 	default			: cgc->cmd[9] = 0x10;
- 	}
- 	
--	return cdo->generic_packet(cdi, cgc);
-+	ret = cdo->generic_packet(cdi, cgc);
-+	if (ret && cgc->sense && cgc->sense->sense_key==0x05 && cgc->sense->asc==0x20 && cgc->sense->ascq==0x00) {
-+		ret = cdrom_read_cd(cdi, cgc, lba, blksize, nblocks);
-+		if (ret == 0) {
-+			cdi->use_read10 = 1;
-+			printk(KERN_INFO "cdrom.c: drive does not like READ_CD for blksize=%d, switching to READ_10.\n", blksize);
-+		}
-+	}
-+	return ret;
- }
- 
- /* Just about every imaginable ioctl is supported in the Uniform layer
-@@ -1956,20 +1989,6 @@
- 		cgc.sense = &sense;
- 		cgc.data_direction = CGC_DATA_READ;
- 		ret = cdrom_read_block(cdi, &cgc, lba, 1, format, blocksize);
--		if (ret && sense.sense_key==0x05 && sense.asc==0x20 && sense.ascq==0x00) {
--			/*
--			 * SCSI-II devices are not required to support
--			 * READ_CD, so let's try switching block size
--			 */
--			/* FIXME: switch back again... */
--			if ((ret = cdrom_switch_blocksize(cdi, blocksize))) {
--				kfree(cgc.buffer);
--				return ret;
--			}
--			cgc.sense = NULL;
--			ret = cdrom_read_cd(cdi, &cgc, lba, blocksize, 1);
--			ret |= cdrom_switch_blocksize(cdi, blocksize);
--		}
- 		if (!ret && copy_to_user((char *)arg, cgc.buffer, blocksize))
- 			ret = -EFAULT;
- 		kfree(cgc.buffer);
+Hello Davide,
 
--- 
-Tobias						PGP: http://9ac7e0bc.2ya.com
+and thanks for the answer.
+
+> Can you try to apply this over test9:
+>
+> http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.0-test9-bk1
+>3.bz2
+
+I see the same messages...
+
+Alexander.
+
+--Boundary-00=_Qilr/SPLFDlf3PQ
+Content-Type: application/x-gzip;
+  name="config.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="config.gz"
+
+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
+Uv4Rjszl/z9DJAh23E0AAA==
+
+--Boundary-00=_Qilr/SPLFDlf3PQ
+Content-Type: application/x-gzip;
+  name="dmesg.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="dmesg.gz"
+
+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
+
+--Boundary-00=_Qilr/SPLFDlf3PQ
+Content-Type: application/x-gzip;
+  name="lspci.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="lspci.gz"
+
+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
++zN13KYytX8AGpLpK6lJAAA=
+
+--Boundary-00=_Qilr/SPLFDlf3PQ--
+

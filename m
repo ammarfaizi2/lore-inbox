@@ -1,145 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267234AbUI0TTe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267254AbUI0TZb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267234AbUI0TTe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 15:19:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267254AbUI0TSU
+	id S267254AbUI0TZb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 15:25:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267180AbUI0TZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 15:18:20 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:58003 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S267234AbUI0TMT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 15:12:19 -0400
-Date: Mon, 27 Sep 2004 12:11:45 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: akpm@osdl.org
-cc: Andy Lutomirski <luto@myrealbox.com>, ak@suse.de, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org
-Subject: page fault scalability patch V9: [5/7] atomic pte operations for
- i386
-In-Reply-To: <B6E8046E1E28D34EB815A11AC8CA312902CD3282@mtv-atc-605e--n.corp.sgi.com>
-Message-ID: <Pine.LNX.4.58.0409271211060.31769@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0409201348070.4628@schroedinger.engr.sgi.com>
- <20040920205752.GH4242@wotan.suse.de> <200409211841.25507.vda@port.imtp.ilyichevsk.odessa.ua>
- <20040921154542.GB12132@wotan.suse.de> <41527885.8020402@myrealbox.com>
- <20040923090345.GA6146@wotan.suse.de> <B6E8046E1E28D34EB815A11AC8CA312902CD3282@mtv-atc-605e--n.corp.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 27 Sep 2004 15:25:31 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:6715 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S267254AbUI0TZE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 15:25:04 -0400
+Subject: 2.6.9-rc2-mm4 e100 enable_irq unbalanced from
+From: Paul Fulghum <paulkf@microgate.com>
+To: scott.feldman@intel.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1096313095.2601.20.camel@deimos.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 27 Sep 2004 14:24:55 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changelog
-	* Atomic pte operations for i386
-	* Needs the general cmpxchg patch for i386
+The e100 module is generating a warning:
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+Sep 27 13:30:29 deimos kernel: e100: Intel(R) PRO/100 Network Driver, 3.1.4-NAPI
+Sep 27 13:30:29 deimos kernel: e100: Copyright(c) 1999-2004 Intel Corporation
+Sep 27 13:30:29 deimos kernel: e100: eth0: e100_probe: addr 0xfecfc000, irq 16, MAC addr 00:90:27:3A:C5:E3
+Sep 27 13:30:29 deimos kernel: enable_irq(16) unbalanced from ec83ff33
+Sep 27 13:30:29 deimos kernel:  [<c010923f>] enable_irq+0xcf/0xe0
+Sep 27 13:30:29 deimos kernel:  [<ec83ff33>] e100_up+0xf3/0x1f0 [e100]
+Sep 27 13:30:29 deimos kernel:  [<ec83ff33>] e100_up+0xf3/0x1f0 [e100]
+Sep 27 13:30:29 deimos kernel:  [<ec83f410>] e100_intr+0x0/0x140 [e100]
+Sep 27 13:30:29 deimos kernel:  [<ec841131>] e100_open+0x31/0x80 [e100]
+Sep 27 13:30:29 deimos kernel:  [<c0318d4c>] dev_open+0x8c/0xa0
+Sep 27 13:30:29 deimos kernel:  [<c031cc74>] dev_mc_upload+0x24/0x40
+Sep 27 13:30:29 deimos kernel:  [<c031a4ea>] dev_change_flags+0x12a/0x150
+Sep 27 13:30:29 deimos kernel:  [<c0318c0d>] dev_load+0x2d/0x80
+Sep 27 13:30:29 deimos kernel:  [<c0355b37>] devinet_ioctl+0x277/0x730
 
-Index: linus/include/asm-i386/pgtable.h
-===================================================================
---- linus.orig/include/asm-i386/pgtable.h	2004-09-18 14:25:23.000000000 -0700
-+++ linus/include/asm-i386/pgtable.h	2004-09-18 15:41:52.000000000 -0700
-@@ -412,6 +412,7 @@
- #define __HAVE_ARCH_PTEP_SET_WRPROTECT
- #define __HAVE_ARCH_PTEP_MKDIRTY
- #define __HAVE_ARCH_PTE_SAME
-+#define __HAVE_ARCH_ATOMIC_TABLE_OPS
- #include <asm-generic/pgtable.h>
+e100_up calls disable_irq, request_irq, then enable_irq
+as shown below.
 
- #endif /* _I386_PGTABLE_H */
-Index: linus/include/asm-i386/pgtable-3level.h
-===================================================================
---- linus.orig/include/asm-i386/pgtable-3level.h	2004-09-18 14:25:23.000000000 -0700
-+++ linus/include/asm-i386/pgtable-3level.h	2004-09-18 15:41:52.000000000 -0700
-@@ -6,7 +6,8 @@
-  * tables on PPro+ CPUs.
-  *
-  * Copyright (C) 1999 Ingo Molnar <mingo@redhat.com>
-- */
-+ * August 26, 2004 added ptep_cmpxchg and ptep_xchg <christoph@lameter.com>
-+*/
+static int e100_up(struct nic *nic)
+{
+	...
+	disable_irq(nic->pdev->irq);
+	...
+	if((err = request_irq(nic->pdev->irq, e100_intr, SA_SHIRQ,
+		nic->netdev->name, nic->netdev)))
+		goto err_no_irq;
+	e100_enable_irq(nic);
+	enable_irq(nic->pdev->irq);
+	netif_wake_queue(nic->netdev);
+	return 0;
+	...
+}
 
- #define pte_ERROR(e) \
- 	printk("%s:%d: bad pte %p(%08lx%08lx).\n", __FILE__, __LINE__, &(e), (e).pte_high, (e).pte_low)
-@@ -141,4 +142,26 @@
- #define __pte_to_swp_entry(pte)		((swp_entry_t){ (pte).pte_high })
- #define __swp_entry_to_pte(x)		((pte_t){ 0, (x).val })
+On this machine, the e100 is the only device on that IRQ.
 
-+/* Atomic PTE operations */
-+static inline pte_t ptep_xchg(struct mm_struct *mm, pte_t *ptep, pte_t newval)
-+{
-+	pte_t res;
-+
-+	/* xchg acts as a barrier before the setting of the high bits.
-+	 * (But we also have a cmpxchg8b. Why not use that? (cl))
-+	  */
-+	res.pte_low = xchg(&ptep->pte_low, newval.pte_low);
-+	res.pte_high = ptep->pte_high;
-+	ptep->pte_high = newval.pte_high;
-+
-+	return res;
-+}
-+
-+
-+static inline int ptep_cmpxchg(struct mm_struct *mm, unsigned long address, pte_t *ptep, pte_t oldval, pte_t newval)
-+{
-+	return cmpxchg(ptep, pte_val(oldval), pte_val(newval)) == pte_val(oldval);
-+}
-+
-+
- #endif /* _I386_PGTABLE_3LEVEL_H */
-Index: linus/include/asm-i386/pgtable-2level.h
-===================================================================
---- linus.orig/include/asm-i386/pgtable-2level.h	2004-09-18 14:25:23.000000000 -0700
-+++ linus/include/asm-i386/pgtable-2level.h	2004-09-18 15:41:52.000000000 -0700
-@@ -82,4 +82,8 @@
- #define __pte_to_swp_entry(pte)		((swp_entry_t) { (pte).pte_low })
- #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
+request_irq calls setup_irq which clears the irq descriptor
+depth member to 0 and enables the interrupt because this
+is the first device to use that interrupt. 
+This results in the warning on the next enable_irq().
 
-+/* Atomic PTE operations */
-+#define ptep_xchg(mm,xp,a)       __pte(xchg(&(xp)->pte_low, (a).pte_low))
-+#define ptep_cmpxchg(mm,a,xp,oldpte,newpte) (cmpxchg(&(xp)->pte_low, (oldpte).pte_low, (newpte).pte_low)==(oldpte).pte_low)
-+
- #endif /* _I386_PGTABLE_2LEVEL_H */
-Index: linus/include/asm-i386/pgalloc.h
-===================================================================
---- linus.orig/include/asm-i386/pgalloc.h	2004-09-18 14:25:23.000000000 -0700
-+++ linus/include/asm-i386/pgalloc.h	2004-09-18 15:41:52.000000000 -0700
-@@ -7,6 +7,8 @@
- #include <linux/threads.h>
- #include <linux/mm.h>		/* for struct page */
+I'm not sure why the driver is calling disable_irq
+IRQ before calling request_irq. You can't get that
+interrupt until you call request_irq, and once you
+call request_irq you can (at least when this is
+the first device on that IRQ) even before the
+call to enable_irq.
 
-+#define PMD_NONE 0L
-+
- #define pmd_populate_kernel(mm, pmd, pte) \
- 		set_pmd(pmd, __pmd(_PAGE_TABLE + __pa(pte)))
+I suspect the correct thing is to remove
+disable_irq/enable_irq from e100_up.
+I don't see any purpose for these calls in e100_up.
 
-@@ -16,6 +18,19 @@
- 		((unsigned long long)page_to_pfn(pte) <<
- 			(unsigned long long) PAGE_SHIFT)));
- }
-+
-+/* Atomic version */
-+static inline int pmd_test_and_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
-+{
-+#ifdef CONFIG_X86_PAE
-+	return cmpxchg8b( ((unsigned long long *)pmd), PMD_NONE, _PAGE_TABLE +
-+		((unsigned long long)page_to_pfn(pte) <<
-+			(unsigned long long) PAGE_SHIFT) ) == PMD_NONE;
-+#else
-+	return cmpxchg( (unsigned long *)pmd, PMD_NONE, _PAGE_TABLE + (page_to_pfn(pte) << PAGE_SHIFT)) == PMD_NONE;
-+#endif
-+}
-+
- /*
-  * Allocate and free page tables.
-  */
-@@ -49,6 +64,7 @@
- #define pmd_free(x)			do { } while (0)
- #define __pmd_free_tlb(tlb,x)		do { } while (0)
- #define pgd_populate(mm, pmd, pte)	BUG()
-+#define pgd_test_and_populate(mm, pmd, pte)	({ BUG(); 1; })
-
- #define check_pgt_cache()	do { } while (0)
-
+-- 
+Paul Fulghum
+paulkf@microgate.com
 

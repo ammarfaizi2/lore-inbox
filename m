@@ -1,62 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317500AbSHCK0v>; Sat, 3 Aug 2002 06:26:51 -0400
+	id <S317508AbSHCLC3>; Sat, 3 Aug 2002 07:02:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317508AbSHCK0v>; Sat, 3 Aug 2002 06:26:51 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:22957 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317500AbSHCK0u>;
-	Sat, 3 Aug 2002 06:26:50 -0400
-Date: Sat, 03 Aug 2002 03:17:40 -0700 (PDT)
-Message-Id: <20020803.031740.84726417.davem@redhat.com>
-To: trond.myklebust@fys.uio.no
-Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-Subject: Re: Fragment flooding in 2.4.x/2.5.x
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200207011414.50465.trond.myklebust@fys.uio.no>
-References: <200206281821.WAA00420@mops.inr.ac.ru>
-	<200207011414.50465.trond.myklebust@fys.uio.no>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317512AbSHCLC2>; Sat, 3 Aug 2002 07:02:28 -0400
+Received: from cm72-24.liwest.at ([212.241.72.24]:516 "EHLO bartonsoftware.com")
+	by vger.kernel.org with ESMTP id <S317508AbSHCLC2>;
+	Sat, 3 Aug 2002 07:02:28 -0400
+Date: Sat, 3 Aug 2002 13:05:01 +0200
+Message-Id: <200208031105.g73B51412951@bartonsoftware.com>
+From: Eric Barton <eric@bartonsoftware.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Profiling RH7.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Trond Myklebust <trond.myklebust@fys.uio.no>
-   Date: Mon, 1 Jul 2002 14:14:50 +0200
-   
-   I've now got the application and a demonstration of what kind of fix is 
-   needed. I hope you and Dave can work out a better patch in for 2.4.20-pre  
-   ;-)...
 
-Trond does this patch fix your problem?  It is exactly how Alexey
-described the fix and it should work.
+Hi,
 
-I think the memory failure issue is totally moot.  In fact your
-"accumulate skb till we have them all, then send the whole bunch"
-version of the fix is very bad because it defers the transmit
-on the device until the whole set of fragments have been created.
+Does anyone know of a kernel profiler that works with loadable modules?
 
---- net/ipv4/ip_output.c.~1~	Sat Aug  3 03:14:35 2002
-+++ net/ipv4/ip_output.c	Sat Aug  3 03:20:49 2002
-@@ -520,8 +520,18 @@
- 		/*
- 		 *	Get the memory we require with some space left for alignment.
- 		 */
--
--		skb = sock_alloc_send_skb(sk, fraglen+hh_len+15, flags&MSG_DONTWAIT, &err);
-+		if (!(flags & MSG_DONTWAIT) || nfrags == 0) {
-+			skb = sock_alloc_send_skb(sk, fraglen + hh_len + 15,
-+						  (flags & MSG_DONTWAIT), &err);
-+		} else {
-+			/* On a non-blocking write, we check for send buffer
-+			 * usage on the first fragment only.
-+			 */
-+			skb = sock_wmalloc(sk, fraglen + hh_len + 15, 1,
-+					   sk->allocation);
-+			if (!skb)
-+				err = -ENOBUFS;
-+		}
- 		if (skb == NULL)
- 			goto error;
- 
+-- 
+
+                Cheers,
+                        Eric
+
+----------------------------------------------------
+|Eric Barton        Barton Software                |
+|9 York Gardens     Tel:    +44 (117) 330 1575     |
+|Clifton            Mobile: +44 (7909) 680 356     |
+|Bristol BS8 4LL    Fax:    call first             |
+|United Kingdom     E-Mail: eric@bartonsoftware.com|
+----------------------------------------------------

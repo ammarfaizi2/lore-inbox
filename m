@@ -1,39 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266532AbUGPPGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266519AbUGPPLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266532AbUGPPGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 11:06:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266519AbUGPPGJ
+	id S266519AbUGPPLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 11:11:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266549AbUGPPLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 11:06:09 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:5033 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S266532AbUGPPGH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 11:06:07 -0400
-Date: Fri, 16 Jul 2004 08:04:18 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       John Hawkes <hawkes@sgi.com>
-Subject: Re: [PATCH] reduce inter-node balancing frequency
-Message-ID: <20040716150418.GA5195@taniwha.stupidest.org>
-References: <200407151829.20069.jbarnes@engr.sgi.com> <2700000.1089956404@[10.10.2.4]> <40F76D3F.8050309@yahoo.com.au> <200407161045.38983.jbarnes@engr.sgi.com>
+	Fri, 16 Jul 2004 11:11:09 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:49302 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S266519AbUGPPLH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 11:11:07 -0400
+Subject: Re: [LTP] LTP Results - July 15, 2004
+From: Paul Larson <plars@linuxtestproject.org>
+To: Bryce Harrington <bryce@osdl.org>
+Cc: ltp-list@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0407152041550.5901-100000@osdlab.pdx.osdl.net>
+References: <Pine.LNX.4.33.0407152041550.5901-100000@osdlab.pdx.osdl.net>
+Content-Type: text/plain
+Message-Id: <1089990640.3151.108.camel@plars.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407161045.38983.jbarnes@engr.sgi.com>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 16 Jul 2004 10:10:40 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 16, 2004 at 10:45:38AM -0400, Jesse Barnes wrote:
+On Thu, 2004-07-15 at 22:42, Bryce Harrington wrote:
+> (Sorry, this time _with_ a subject line)
+> 
+> LTP version LTP-20040506:
+> 
+> Patch Name           TestReq#     CPU  PASS  FAIL  WARN  BROK  RunTime
+> ----------------------------------------------------------------------
+> 2.6.7-mm7              294831  2-way  7184    45     3     6    44.0
+These are clearly not valid failures.  How are you running ltp?  Any
+chance you are running out of disk space in /tmp?
 
-> For sn2 at least, there are quite a few ways we could dice up the
-> topology.  We'll have to experiment with things a bit to find some
-> good defaults.
+-Paul Larson
 
-The PROM can export topology details so presumably there is enough to
-derive something sane on boot surely?
-
-
-  --cw

@@ -1,100 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264903AbUELSlz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265162AbUELSmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264903AbUELSlz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 14:41:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265162AbUELSlz
+	id S265162AbUELSmX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 14:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265164AbUELSmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 14:41:55 -0400
-Received: from wblv-251-231.telkomadsl.co.za ([165.165.251.231]:42635 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S264903AbUELSlw
+	Wed, 12 May 2004 14:42:23 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29568 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265162AbUELSmS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 14:41:52 -0400
-Subject: Re: Sound with noise since 2.6.5
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Adrian Almenar <aalmenar@conectium.com>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <s5hzn8ddbre.wl@alsa2.suse.de>
-References: <20040511144540.1ab51299@er-murazor.conectium.com>
-	 <s5hzn8ddbre.wl@alsa2.suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-zYR31sMK3FEXYXCOV1Zd"
-Message-Id: <1084387533.19414.8.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 12 May 2004 20:45:34 +0200
+	Wed, 12 May 2004 14:42:18 -0400
+Message-ID: <40A26FFA.4030701@pobox.com>
+Date: Wed, 12 May 2004 14:42:02 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       Netdev <netdev@oss.sgi.com>
+Subject: Re: MSEC_TO_JIFFIES is messed up...
+References: <20040512020700.6f6aa61f.akpm@osdl.org> <20040512181903.GG13421@kroah.com>
+In-Reply-To: <20040512181903.GG13421@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-zYR31sMK3FEXYXCOV1Zd
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, 2004-05-12 at 15:18, Takashi Iwai wrote:
-> At Tue, 11 May 2004 14:45:40 -0400,
-> Adrian Almenar wrote:
-> >=20
-> > [1  <text/plain; US-ASCII (7bit)>]
-> > Hi,
-> >=20
-> > Since i installed 2.6.5 i cant get sound to work ok, i always have nois=
-e like a tv without a signal but the sound its there but with that noise.
-> > I tried with 2.6.6 but its the same, 2.6.4 doesnt have this problem.
-> >=20
-> > Module: intel8x0
-> >=20
-> > lspci -v reports:
-> > 0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801BA/BAM AC'97=
- Audio (rev 12)
-> >         Subsystem: GVC/BCM Advanced Research: Unknown device 2147
-> >         Flags: bus master, medium devsel, latency 0, IRQ 17
-> >         I/O ports at ec00
-> >         I/O ports at e800 [size=3D64]
-> >=20
-> >=20
-> > dmesg says:
-> > May 11 12:37:52 er-murazor kernel: intel8x0_measure_ac97_clock: measure=
-d 49263 usecs
-> > May 11 12:37:52 er-murazor kernel: intel8x0: clocking to 48000
-> >=20
-> >=20
-> > Im attaching my .config
-> >=20
-> > Also i have alsa-lib 1.0.4.
-> >=20
-> > Anything else you need please ask me i will gladly help on this issue.
->=20
-> which ac97 codec chip?
->=20
-> a typical problem is 'IEC958 Input Monitor' is turned on.
-> if you have such one, turn it off.
->=20
->=20
-
-Hi
-
-Pretty much the same issue.  I have much the same setup software side,
-but its a Asus P4C800-E with a SoundMax AD1985 chip.  If more is needed,
-let me know.
+Greg KH wrote:
+> On Wed, May 12, 2004 at 02:07:00AM -0700, Andrew Morton wrote:
+> 
+>>drivers/usb/host/ehci.h:599: warning: `MSEC_TO_JIFFIES' redefined
+>>include/asm/param.h:9: warning: this is the location of the previous definition
+>>In file included from drivers/usb/host/ohci-hcd.c:127:
+>>drivers/usb/host/ohci.h:400: warning: `MSEC_TO_JIFFIES' redefined
+>>include/asm/param.h:9: warning: this is the location of the previous definition
+> 
+> 
+> Woah, that's new.  And wrong.  The code in include/asm-i386/param.h that
+> says:
+> 	# define JIFFIES_TO_MSEC(x)     (x)
+> 	# define MSEC_TO_JIFFIES(x)     (x)
+> 
+> Is not correct.  Look at kernel/sched.c for verification of this :)
 
 
-Thanks,
+Yes, that is _massively_ broken.
 
---=20
-Martin Schlemmer
+Tangent:
+One of the SCTP folks was cleaning up all the random jif-to-msec and 
+msec-to-jif macros into include/linux/time.h.  Need to dig that up and 
+merge it.
 
---=-zYR31sMK3FEXYXCOV1Zd
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+	Jeff
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBAonDNqburzKaJYLYRAvejAJ4rL27EbSh+Rqz6nnvCleYXDi5MxgCfWIDq
-D5OJG+JBXwFGxMuzCxDvK6o=
-=sn4i
------END PGP SIGNATURE-----
-
---=-zYR31sMK3FEXYXCOV1Zd--
 

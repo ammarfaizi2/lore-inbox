@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288233AbSAHSyp>; Tue, 8 Jan 2002 13:54:45 -0500
+	id <S288248AbSAHTAF>; Tue, 8 Jan 2002 14:00:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288242AbSAHSyf>; Tue, 8 Jan 2002 13:54:35 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:56594 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S288233AbSAHSy0>; Tue, 8 Jan 2002 13:54:26 -0500
-Message-ID: <3C3B3DBC.9070801@evision-ventures.com>
-Date: Tue, 08 Jan 2002 19:43:08 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: "Cameron, Steve" <Steve.Cameron@compaq.com>
-CC: linux-kernel@vger.kernel.org, "White, Charles" <Charles.White@compaq.com>
-Subject: Re: PATCH 2.5.2-pre9 scsi cleanup
-In-Reply-To: <45B36A38D959B44CB032DA427A6E10640167CF1C@cceexc18.americas.cpqcorp.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S288253AbSAHS74>; Tue, 8 Jan 2002 13:59:56 -0500
+Received: from ns.caldera.de ([212.34.180.1]:2537 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S288248AbSAHS7r>;
+	Tue, 8 Jan 2002 13:59:47 -0500
+Date: Tue, 8 Jan 2002 19:59:21 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: Robert Love <rml@tech9.net>
+Cc: David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
+        arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] preempt abstraction
+Message-ID: <20020108195920.A14642@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	Robert Love <rml@tech9.net>, David Howells <dhowells@redhat.com>,
+	torvalds@transmeta.com, arjanv@redhat.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <10940.1010511619@warthog.cambridge.redhat.com> <1010516250.3229.21.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1010516250.3229.21.camel@phantasy>; from rml@tech9.net on Tue, Jan 08, 2002 at 01:57:28PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cameron, Steve wrote:
+On Tue, Jan 08, 2002 at 01:57:28PM -0500, Robert Love wrote:
+> Why not use the more commonly named conditional_schedule instead of
+> preempt() ?  In addition to being more in-use (low-latency, lock-break,
+> and Andrea's aa patch all use it) I think it better conveys its meaning,
+> which is a schedule() but only conditionally.
 
->Martin Dalecki [mailto:dalecki@evision-ventures.com] wrote,
->regarding removal of scsi_device_types[] from drivers/scsi/scsi.c
->
->>Cameron, Steve wrote:
->>
->[...]
->
->>>Hmmm, I was using that.... (In, for example, 
->>>the cciss patch here: http://www.geocities.com/smcameron 
->>>It's not any big deal, though.)
->>>
->>Precisely this "not any big deal" is the point: It was the wrong 
->>approach to a trivial problem ;-).
->>
->
->So what's the right approach?  I can invent my own easily enough, 
->but each driver doing its own thing doesn't seem right.  I assumed 
->that it was in scsi.c foi common usage, so each driver that wanted 
->to say, use these device type strings in diagnostic messages or 
->some such wouldn't have to reinvent this wheel, and so all the 
->drivers would consistently use the same names.  Will it be 
->replaced with something else?
->
->Just want to know so I don't waste (even more :-) time 
->doing something dumb.
->
+I think the choice is very subjective, but I prefer preempt().
+It's nicely short to type (!) and similar in spirit to Ingo's yield()..
 
-Please just case in the ->type enum. And if you wan't to provide special 
-messages, well
-then please do it yourself, the removal showed, that nearly no one 
-driver used the generic
-stuff, so it wasn't trully generic at all. (It should be handled by some 
-userlevel stuff anyway...)
-
+	Christoph
 

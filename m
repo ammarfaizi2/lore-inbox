@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311844AbSCNWqG>; Thu, 14 Mar 2002 17:46:06 -0500
+	id <S311836AbSCNWwS>; Thu, 14 Mar 2002 17:52:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311847AbSCNWpr>; Thu, 14 Mar 2002 17:45:47 -0500
-Received: from mars.wil.waw.pl ([148.81.118.4]:23682 "EHLO mars.wil.waw.pl")
-	by vger.kernel.org with ESMTP id <S311844AbSCNWpd>;
-	Thu, 14 Mar 2002 17:45:33 -0500
-Message-ID: <001501c1cba9$efce22a0$0c765194@wil.waw.pl>
-From: "Marek Malowidzki" <malowidz@wil.waw.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: Default kernel configuration
-Date: Thu, 14 Mar 2002 23:45:27 +0100
+	id <S311845AbSCNWwI>; Thu, 14 Mar 2002 17:52:08 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9739 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311836AbSCNWvz>;
+	Thu, 14 Mar 2002 17:51:55 -0500
+Message-ID: <3C912977.2030604@mandrakesoft.com>
+Date: Thu, 14 Mar 2002 17:51:35 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
+To: Juan Quintela <quintela@mandrakesoft.com>
+CC: Richard Gooch <rgooch@ras.ucalgary.ca>, Andrew Morton <akpm@zip.com.au>,
+        kernel <kernel@linux-mandrake.com>, linux-kernel@vger.kernel.org,
+        dhinds@sonic.net
+Subject: Re: pcmcia oops (with ksymoops output this time)
+In-Reply-To: <m2henircqz.fsf@trasno.mitica>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+With oops tracing in IRC, we narrowed the problem in 2.4.x down to, 
+serial_cs and ide_cs drivers, and other 16-bit pcmcia drivers possibly, 
+call their release functions from a timer when ejected.  The 
+per-subsystem release functions then proceed to do all manner of 
+in-process-context type work, including calling devfs_unregister, whose 
+call path can eventually cause a schedule()
 
-I hope that this question is not too simple for this list. After many attempts I
-finally gave up and ask for some help.
+Suggested fix, call schedule_task() in each timer-based release 
+function, to queue a task in process context to do the actual work. 
+ This is how 32-bit cardbus gets such things done...
 
-I would like to recompile the kernel (after some code modification - no hacking,
-just a research project). So the first step would be to try to recompile the
-kernel in the default (that is, installed) configuration. But where is it (the
-config file)? /usr/src/linux-2.4/.config is far from the installed
-configuration. Should it be
-/usr/src/linux-2.4.7-10/configs/kernel-2.4.7-10-i686.config? When I copy this
-file to /usr/src/linux-2.4/.config and perform make dep, make clean and make
-bzImage, I get errors in apic.c (e.g. 389: nmi_watchdog undefined, and some more
-undefined symbols).
+    Jeff
 
-So my question is: where is the config file with the default (installation)
-configuration?
 
-RedHat 7.2, kernel 2.4.7-10, Pentium II machine.
 
-Best regards,
-
-Marek
 
 

@@ -1,30 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261418AbREUQj4>; Mon, 21 May 2001 12:39:56 -0400
+	id <S261492AbREUQig>; Mon, 21 May 2001 12:38:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261489AbREUQjq>; Mon, 21 May 2001 12:39:46 -0400
-Received: from biglinux.tccw.wku.edu ([161.6.10.206]:19339 "EHLO
-	biglinux.tccw.wku.edu") by vger.kernel.org with ESMTP
-	id <S261418AbREUQje>; Mon, 21 May 2001 12:39:34 -0400
-Date: Mon, 21 May 2001 11:39:30 -0500 (CDT)
-From: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
-To: <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
-In-Reply-To: <E151ooP-0003i0-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0105211138150.14726-100000@biglinux.tccw.wku.edu>
+	id <S261489AbREUQiQ>; Mon, 21 May 2001 12:38:16 -0400
+Received: from viper.haque.net ([66.88.179.82]:53705 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S261418AbREUQiG>;
+	Mon, 21 May 2001 12:38:06 -0400
+Message-ID: <3B094401.502463F7@haque.net>
+Date: Mon, 21 May 2001 12:36:17 -0400
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Harald Dunkel <harri@synopsys.COM>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Giant disk on 2.2.17: Any concerns?
+In-Reply-To: <3B094183.24148B9D@Synopsys.COM>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> #2 is fixed by rewriting tools in C
+Harald Dunkel wrote:
+> 
+> Hi folks,
+> 
+> For running some kind of database application (ClearCase 4.1) I would
+> like to attach an external RAID array with 6*30GByte to a RedHat 6.2
+> machine, using kernel 2.2.17. I don't expect huge files (maximum file
+> size should be about 250MByte), but a lot of middle size files and
+> millions of tiny files.
+> 
+> Will this work?
+> 
+> Do you expect any problems with the partition table?
 
-didn't Eric say that this has stalled though?  Is that not the case?
+I've used a 250GB and 400GB RAID array with 2.2.x kernels w/o any
+problems. We have several thousands of ~1 MB
+and >100 MB files.
 
-Brent Norris
+-- 
 
-Executive Advisor -- WKU-Linux
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
 
-System Administrator -- WKU-Center for Biodiversity
-                        Best Mechanical
-
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================

@@ -1,31 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131630AbRC0VfH>; Tue, 27 Mar 2001 16:35:07 -0500
+	id <S131590AbRC0VhR>; Tue, 27 Mar 2001 16:37:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131631AbRC0Ve5>; Tue, 27 Mar 2001 16:34:57 -0500
-Received: from vp175062.reshsg.uci.edu ([128.195.175.62]:2308 "EHLO
-	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
-	id <S131630AbRC0Vet>; Tue, 27 Mar 2001 16:34:49 -0500
-Date: Tue, 27 Mar 2001 13:34:06 -0800
-Message-Id: <200103272134.f2RLY6801637@moisil.dev.hydraweb.com>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-To: Jun Sun <jsun@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: eepro100 question: why SCBCmd byte is 0x80?
-In-Reply-To: <3ABB892C.A47D6BA9@mvista.com>
-User-Agent: tin/1.5.7-20001104 ("Paradise Regained") (UNIX) (Linux/2.2.19 (i586))
+	id <S131595AbRC0VhI>; Tue, 27 Mar 2001 16:37:08 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:52484 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131590AbRC0Vg4>; Tue, 27 Mar 2001 16:36:56 -0500
+Date: Tue, 27 Mar 2001 13:35:23 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "H. Peter Anvin" <hpa@transmeta.com>, <Andries.Brouwer@cwi.nl>,
+        <linux-kernel@vger.kernel.org>, <tytso@MIT.EDU>
+Subject: Re: Larger dev_t
+In-Reply-To: <E14i0u8-0004N1-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.31.0103271333160.25014-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Mar 2001 09:34:36 -0800, Jun Sun <jsun@mvista.com> wrote:
 
-> BTW, does the eepro100 patch for 2.2.19pre apply to 2.4.2?  Or it is already
-> in it?
 
-It was backported from 2.4.1, so yes, it's already in.
+On Tue, 27 Mar 2001, Alan Cox wrote:
+>
+> > layer made it impossible for a driver writer to be nice to the user, so
+> > instead they got their own major numbers.
+>
+> Not deficiencies in the SCSI layer, there is no way the scsi layer can
+> handle high end raid controllers. In fact one of the reasons we can beat
+> NT with some of these controllers is because NT does exactly what you
+> suggest with scsi miniport driver hacks and it _sucks_. Its an ugly hack.
 
-Ion
+We could do this fairly _trivially_ today.
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+With absolutely no performance degradation.
+
+With a simple "queue" mapping for the SCSI majors. Just look up which
+queue to use for requests to which major, and you're done. The actual
+IO may by-pass the SCSI layer altogether.
+
+So I'm absolutely not advocating using the SCSI layer for the
+high-end-disks. Rather the reverse. I'm advocating the SCSI layer not
+hogging a major number, but letting low-level drivers get at _their_
+requests directly.
+
+		Linus
+

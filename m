@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271128AbUJUXWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271083AbUJUXRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271128AbUJUXWR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 19:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271123AbUJUXWA
+	id S271083AbUJUXRP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 19:17:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271080AbUJUXLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 19:22:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:58568 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S271104AbUJUXLA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 19:11:00 -0400
-Message-ID: <417841ED.6040903@redhat.com>
-Date: Thu, 21 Oct 2004 16:10:37 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: NPTL: Parent thread receives SIGHUP when child thread terminates?
-References: <20041021101313.GA19246@vana.vc.cvut.cz>
-In-Reply-To: <20041021101313.GA19246@vana.vc.cvut.cz>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Thu, 21 Oct 2004 19:11:33 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:14572 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S271067AbUJUXHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 19:07:19 -0400
+Subject: How is user space notified of CPU speed changes?
+From: Lee Revell <rlrevell@joe-job.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Robert Love <rml@novell.com>
+Content-Type: text/plain
+Message-Id: <1098399709.4131.23.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 21 Oct 2004 19:01:49 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This issue came up on the JACK (http://jackit.sf.net) mailing list. 
+Google was not helpful so I ask here.
 
-Petr Vandrovec wrote:
+JACK needs to know the CPU speed, in order to calculate the DSP load
+among other things.  It used to be a valid assumption that you could
+calculate it on startup and it would not change.
 
->   When process is session leader, is it supposed to receive SIGHUP when child
-> thread terminates?
+Now with frequency scaling (apparently desktops do this as well as
+laptops) this doesn't work anymore.  Is there a sane way for jackd to be
+notified when the CPU speed changes?  Polling a file in /sys is not good
+enough, the overhead is unacceptable and we need to know _now_.
 
-No, it's not.  I hope somebody knowing the signal code will look at
-this.  I've forwarded the mail to Roland.
+Is this the kind of thing that would require the new kernel event
+interface?
 
-- --
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+Lee
 
-iD8DBQFBeEHt2ijCOnn/RHQRAsSmAJ9RXjR71D/rLDEG2IxKt5++VYfRGACdELgM
-uxry9CwYy5/j/a2dHGyKdX0=
-=V+53
------END PGP SIGNATURE-----

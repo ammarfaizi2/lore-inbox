@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261538AbSIZVQk>; Thu, 26 Sep 2002 17:16:40 -0400
+	id <S261507AbSIZVWP>; Thu, 26 Sep 2002 17:22:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261535AbSIZVQk>; Thu, 26 Sep 2002 17:16:40 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:2820 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261529AbSIZVPr>; Thu, 26 Sep 2002 17:15:47 -0400
-Date: Thu, 26 Sep 2002 22:20:58 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] 2.5.38 - Config.in: Second extended fs rename / move Ext3 to a wiser place
-Message-ID: <20020926222058.A604@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Marc-Christian Petersen <m.c.p@wolk-project.de>,
-	linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <200209261944.23447.m.c.p@wolk-project.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200209261944.23447.m.c.p@wolk-project.de>; from m.c.p@wolk-project.de on Thu, Sep 26, 2002 at 09:53:56PM +0200
+	id <S261513AbSIZVWP>; Thu, 26 Sep 2002 17:22:15 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:61149 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261507AbSIZVWO>; Thu, 26 Sep 2002 17:22:14 -0400
+Date: Thu, 26 Sep 2002 17:27:24 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200209262127.g8QLROv26197@devserv.devel.redhat.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sparc32 sunrpc.o
+In-Reply-To: <mailman.1033072381.13688.linux-kernel2news@redhat.com>
+References: <mailman.1033072381.13688.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 09:53:56PM +0200, Marc-Christian Petersen wrote:
-> Hi there,
+> Since 2.4.20-pre2 or 3, sunrpc.o has had this problem on sparc32:
 > 
-> these are just cosmetic fixes.
-> 
-> I think we can do the following:
-> 
-> 1. rename: "Second extended fs support" to "Ext2 file system support"
->     (to be equal to Ext3fs)
-> 
-> 2. move: "Ext3 journalling file system support" near under to Ext2 fs.
-> 
-> Coments?
+> depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre8/kernel/net/sunrpc/sunrpc.o
+> depmod:         ___illegal_use_of_BTFIXUP_SETHI_in_module
+> depmod:         ___f_set_pte
+> depmod:         fix_kmap_begin
+> depmod:         ___f_flush_cache_all
+> depmod:         ___f_pte_clear
+> depmod:         ___f_mk_pte
+> depmod:         ___f_flush_tlb_all
 
-What's the point?
+Try these two things:
 
-> I also thought about splitting the "Journal Filesystems" into an extra menu 
-> option just to clear up the whole menu a bit since we have: ReiserFS, Ext3, 
-> XFS, JFS, JFFS and JFFSv2. I cooked up a patch which does it, also attached!
+1. diff -urN -X dontdiff linux-2.4.19 linux-2.4.20-pre2 > x.diff
+   vi x.diff
+I've got Tigran's dontdiff updated at
+ http://people.redhat.com/zaitcev/linux/dontdiff.fix
 
-The idea makes zero sense.  Blockbased filesystems sounds like more
-useful split if the menu is really to big for you.
+2. make vmlinux modules > build.out 2>&1 </dev/null
+   grep -i warning build.out
 
+-- Pete

@@ -1,73 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269593AbUJSSSw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269605AbUJSSVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269593AbUJSSSw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 14:18:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269563AbUJSSSr
+	id S269605AbUJSSVw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 14:21:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269916AbUJSSUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 14:18:47 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:35499 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S270019AbUJSRoc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 13:44:32 -0400
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=efUYNOGyBJagX6+s/S6Jg2nY21ZaB15tQiCW1Azs8zgkxsb2P6I7G1+xhH3d7qHx2jqmEAO+vs6lNjdZIiOK/YRwX2yM6II6RBM9xv3G89Ao+Z69MCW2B2/L9auPf1a+g/XKoZvjW/9arYq1jEwuCFHWWvFUDT2/uen8JT3fSLo
-Message-ID: <8783be6604101910443a76e223@mail.gmail.com>
-Date: Tue, 19 Oct 2004 13:44:32 -0400
-From: Ross Biro <ross.biro@gmail.com>
-Reply-To: Ross Biro <ross.biro@gmail.com>
-To: Johan Groth <jgroth@dsl.pipex.com>
-Subject: Re: Dma problems with Promise IDE controller
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <41754D7B.8090203@dsl.pipex.com>
+	Tue, 19 Oct 2004 14:20:45 -0400
+Received: from yue.linux-ipv6.org ([203.178.140.15]:26121 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S269886AbUJSRZo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 13:25:44 -0400
+Date: Wed, 20 Oct 2004 02:26:22 +0900 (JST)
+Message-Id: <20041020.022622.27982693.yoshfuji@linux-ipv6.org>
+To: lukasz@trabinski.net
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: unregister_netdevice 2.6.9
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <Pine.LNX.4.58LT.0410191738420.2725@lt.wsisiz.edu.pl>
+References: <Pine.LNX.4.58LT.0410191738420.2725@lt.wsisiz.edu.pl>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-References: <41741CDB.5010300@dsl.pipex.com>
-	 <58cb370e04101813221d36b793@mail.gmail.com>
-	 <8783be660410181420683d1341@mail.gmail.com>
-	 <41753E1D.8010608@dsl.pipex.com>
-	 <8783be660410191013230a1b48@mail.gmail.com>
-	 <41754D7B.8090203@dsl.pipex.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Oct 2004 18:23:07 +0100, Johan Groth <jgroth@dsl.pipex.com> wrote:
-> Ross Biro wrote:
-> [snip]
+In article <Pine.LNX.4.58LT.0410191738420.2725@lt.wsisiz.edu.pl> (at Tue, 19 Oct 2004 17:58:58 +0200 (CEST)), Lukasz Trabinski <lukasz@trabinski.net> says:
+
+> After shutdown/reboot :
 > 
-> >
-> > The drive still has a bad sector.  You are having trouble because the
-> > error recover in the Linux ide code is not the same as Windows and
-> > most drive vendors care about Windows, not the ATA-Spec.  On top of
-> > that Linux switches out of DMA mode once it hits a bad sector, so the
-> > drive will be very slow from the on.
-> >
-> > The only way you are going to fix the problem is if your drive has
-> > some spare sectors still available, and you do a write with out a read
-> > to the bad sector.
-> 
-> Ok, I pretty sure it has spare sectors. How do I write to that sector
-> without a read and how do I find which sector is bad?
+> unregister_netdevice: waiting for xxxx to become free. Usage count = 1
+:
+> whreis xxxx is name of sit device, created via script
 
-That part is easy.  It's in your error message. 156064 is the bad
-sector.  I would use dd if=/dev/zero of=/dev/hd???? bs=512 seek=?????
-count=1 to write the sector, but before I did that, I would be very
-sure of my sector number.  The best way I can think of to do that is
-to turn off read aheda for that device and attempt to read one sector
-at a time until you find the bad one.  Then reboot, double check,
-reboot again, and finally write that sector out.  Then you'll need to
-do an fsck to fix the file system.  You will have lost some data, but
-it may not be clare what file(s) have been damaged.
+Is your box acting as router, or host?
+% sysctl -a |grep ipv6|grep forwarding
 
-If you are very confident in your backups, you could just dd
-if=/dev/zero of=/dev/hd???? bs=something big and wipe the whole drive.
- That will remapp all of the bad sectors, then just mke2fs the device
-and start over.
+What is happend if you let the interface down and delete it before
+becore rebooting?
 
-Becareful doing any of the above, if you do it wrong, you lose data. 
-Even if you do it write, you lose some data, just not as much.
+Thanks.
 
-    Ross
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281645AbRKUHA6>; Wed, 21 Nov 2001 02:00:58 -0500
+	id <S281638AbRKUHE2>; Wed, 21 Nov 2001 02:04:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281641AbRKUHAt>; Wed, 21 Nov 2001 02:00:49 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:18048 "EHLO
+	id <S281641AbRKUHES>; Wed, 21 Nov 2001 02:04:18 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:20096 "EHLO
 	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S281643AbRKUHAe>; Wed, 21 Nov 2001 02:00:34 -0500
-Message-ID: <002501c1725a$19022a80$f5976dcf@nwfs>
+	id <S281638AbRKUHEG>; Wed, 21 Nov 2001 02:04:06 -0500
+Message-ID: <003401c1725a$975ad4e0$f5976dcf@nwfs>
 From: "Jeff Merkey" <jmerkey@timpanogas.org>
-To: "Jeff Merkey" <jmerkey@timpanogas.org>, <jmerkey@vger.timpanogas.org>,
-        "David S. Miller" <davem@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <jmerkey@vger.timpanogas.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011121003304.A683@vger.timpanogas.org><20011120.224723.35806752.davem@redhat.com><000601c17259$59316630$f5976dcf@nwfs> <20011120.225655.85404918.davem@redhat.com>
 Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid opcode
-Date: Tue, 20 Nov 2001 23:59:43 -0700
+Date: Wed, 21 Nov 2001 00:03:15 -0700
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -24,46 +24,42 @@ X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > You are really a fucking pain in the ass to help Jeff.
+
+----- Original Message -----
+From: "David S. Miller" <davem@redhat.com>
+To: <jmerkey@timpanogas.org>
+Cc: <jmerkey@vger.timpanogas.org>; <linux-kernel@vger.kernel.org>
+Sent: Tuesday, November 20, 2001 11:56 PM
+Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid
+opcode
+
+
+>    From: "Jeff Merkey" <jmerkey@timpanogas.org>
+>    Date: Tue, 20 Nov 2001 23:54:21 -0700
 >
-> Dave,  I went and looked at this stuff.  I have been running this code for
-> over a year on 2.4 and I AM NOT CREATING A SLAB CACHE TWICE!!!!
-> I am building an NWFS module external of the kernel tree, and unless make
-> dep
-> has been run, the default behavior of the includes causes me to drop into
-> the
-> BUG() trap.
+>    I am building an NWFS module external of the kernel tree, and unless
+make
+>    dep
+>    has been run, the default behavior of the includes causes me to drop
+into
+>    the
+>    BUG() trap.
+>
+> When you change configuration options, you have to run make
+> dep again, that is a known requirement of the 2.4.x build system
 
-This is a bug in how these includes are structured.  It may be ok to leave
-the damn
-thing the way it is, but warn folks who build custom drivers (like the SCI
-drivers I
-maintain for Dolphin, NWFS, etc.) that their f_cking code will be broken and
-generate these garbage errors if they have not run make dep against the tree
-they
-try to build against.
-
-I would not have expected you or most LKML folks to have seen this, since
-you live
-in a world where everything is in the kernel tree.   I am telling you there
-is a problem there,
-and it can bite.  After I build this module (since the generated code thatr
-ends up in
-the external module is crap) it will routinely crash over and over gain
-until it gets rebuilt
-against a kernel that has had make dep (and make bzImage) run against it.
+OK.  Cool.  Now we are making progress.  I think this is a nasty problem.
+There
+are numerous RPMs that will build against the kernel tree and be busted.  I
+would
+expect an rpm -ba on your DEFAULT kernel in Redhat with the sources
+contained
+in the kernel.rpm files to also be broken unless someone has done this.  You
+probably should have someone check this out.  I just built the SCI drivers
+against
+2.4.15-pre7 and they blow up as well.
 
 Jeff
 
->
-> Jeff
->
->
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
->
+> like it or not :-)
 

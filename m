@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291845AbSBHVWJ>; Fri, 8 Feb 2002 16:22:09 -0500
+	id <S291851AbSBHVQi>; Fri, 8 Feb 2002 16:16:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291844AbSBHVUc>; Fri, 8 Feb 2002 16:20:32 -0500
-Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:14809 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S291845AbSBHVTb>;
-	Fri, 8 Feb 2002 16:19:31 -0500
-Message-Id: <m16ZIPF-000OVeC@amadeus.home.nl>
-Date: Fri, 8 Feb 2002 21:18:05 +0000 (GMT)
-From: arjan@fenrus.demon.nl
-To: pbadari@us.ibm.com (Badari Pulavarty)
-Subject: Re: patch: aio + bio for raw io
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200202082107.g18L7wx26206@eng2.beaverton.ibm.com>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+	id <S291842AbSBHVPC>; Fri, 8 Feb 2002 16:15:02 -0500
+Received: from 92dyn231.com21.casema.net ([62.234.23.231]:40357 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S291837AbSBHVOQ>; Fri, 8 Feb 2002 16:14:16 -0500
+Message-Id: <200202082114.WAA13937@cave.bitwizard.nl>
+Subject: Re: [PATCH] Specialix RIO Oops fix
+In-Reply-To: <20020204090200.A30872@osiris.silug.org> from Steven Pritchard at
+ "Feb 4, 2002 09:02:00 am"
+To: Steven Pritchard <steve@silug.org>
+Date: Fri, 8 Feb 2002 22:14:11 +0100 (MET)
+CC: linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200202082107.g18L7wx26206@eng2.beaverton.ibm.com> you wrote:
+Steven Pritchard wrote:
+> The patch below fixes an Oops in the Specialix RIO driver.  I sent
+> this to the maintainer a couple of months ago and never got a
+> response.
 
-> 1) brw_kvec_async() does not seem to split IO at BIO_MAX_SIZE. I thought
->   each bio can handle only BIO_MAX_SIZE (ll_rw_kio() is creating one bio
->   for each BIO_MAX_SIZE IO). 
+Hi Steve, 
 
->   And also, currently BIO_MAX_SIZE is only 64K. Infact, if I try to issue
->   64K IO using submit_bio(), I get following BUG() on my QLOGIC controller.
+I'm the maintainer, and I just found your 15-11-2001 mail. Indeed I
+seem to have forgotten to reply.. Sorry about that.
 
->        kernel BUG at ll_rw_blk.c:1336 
+We have fixed a couple of RIO things since 2.4.2, so I would recommend
+that you try running a more recent kernel....
 
->        Code is: BUG_ON(bio_sectors(bio) > q->max_sectors); 
+And keep bugging me and/or perle/specialix support if you need
+help. This card/driver is supported and you should get the support you
+require. We'll work with you till it works. (but we do reserve the
+right to ask you to upgrade to a kernel that has fixes we've done in
+the past...)
 
->                bio_sectors(bio) is 128 
->                q->max_sectors is 64 (for QLOGIC ISP) 
+			Rogier. 
 
-this is a bio bug. BIO should split if needed.
-(Oh and qlogic hw can easily handle 1024 sector-sized requests)
-
-
-
-> 2) Could you please make map_user_kvec() generic enough to handle mapping
->   of mutliple iovecs to single kvec (to handle readv/writev).
-
-I think the "move all readv/writev to one single kvec" is a mistake. The
-OPPOSITE should happen. If you submit a huge single vector it should be
-split up internally. This would also be the fix for the "submit the entire
-vector so far and sync wait on it after 512Kb" performance bug in the normal
-rawio code, since it can just submit partial (say 256Kb sized) vectors and
-wait for ANY one of them before going over a 512Kb boundary.
-
-Sure readv/writev are not optimal now. but that is because the kernel waits for
-IO complete per vector element instead of submitting them all async and
-waiting at the end (or in the aio case, not wait at all).
-
-Gretings,
-  Arjan van de Ven.
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

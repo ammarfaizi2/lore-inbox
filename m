@@ -1,94 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261966AbULVLwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261974AbULVMEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261966AbULVLwy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 06:52:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbULVLvr
+	id S261974AbULVMEo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 07:04:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbULVMEn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 06:51:47 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:61969 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261969AbULVLuM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 06:50:12 -0500
-Date: Wed, 22 Dec 2004 12:50:10 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/char/lp.c: make some code static (fwd)
-Message-ID: <20041222115010.GP5217@stusta.de>
+	Wed, 22 Dec 2004 07:04:43 -0500
+Received: from gate.crashing.org ([63.228.1.57]:24508 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261974AbULVMAQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 07:00:16 -0500
+Subject: Re: [PATCH] USB: fix Scheduling while atomic warning when resuming.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: David Brownell <david-b@pacbell.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <41C905C0.9000705@pobox.com>
+References: <200412220103.iBM13wS0002158@hera.kernel.org>
+	 <200412212022.52316.david-b@pacbell.net> <41C8FC25.2060304@pobox.com>
+	 <200412212059.15426.david-b@pacbell.net>  <41C905C0.9000705@pobox.com>
+Content-Type: text/plain
+Date: Wed, 22 Dec 2004 12:59:28 +0100
+Message-Id: <1103716768.28670.61.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch forwarded below still applies and compiles against 
-2.6.10-rc3-mm1.
 
-Please apply.
+> If the PCI layer is calling the resume method for a PCI device while 
+> simultaneously calling the suspend method, that's a PCI layer problem. 
+> Similarly, If the USB layer is calling into your driver while you are 
+> resuming, something is broken and it ain't your locking.
 
+Actually, the later isn't broken, something may well call into the
+higher level USB drivers while resuming, but indeed, those shouldn't
+send any URB down the stack when the bus is suspended, and the EHCI
+driver should drop incoming URBs as well until fully resumed.
 
------ Forwarded message from Adrian Bunk <bunk@stusta.de> -----
+I think the lock here is only needed to protect the HCD state
+transitions David, no ? All we need is make sure that we don't let
+things get queued (or call into EHCI code path that will end up
+touch the HW) while suspended.
 
-Date:	Sun, 5 Dec 2004 18:01:35 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/char/lp.c: make some code static
+Ben.
 
-The patch below makes a struct and a function that both were needlessly 
-global static.
-
-
-diffstat output:
- drivers/char/lp.c  |    4 ++--
- include/linux/lp.h |    6 ------
- 2 files changed, 2 insertions(+), 8 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm3-full/include/linux/lp.h.old	2004-11-07 00:22:38.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/include/linux/lp.h	2004-11-07 00:22:51.000000000 +0100
-@@ -186,12 +186,6 @@
-  */
- #define LP_DELAY 	50
- 
--/*
-- * function prototypes
-- */
--
--extern int lp_init(void);
--
- #endif
- 
- #endif
---- linux-2.6.10-rc1-mm3-full/drivers/char/lp.c.old	2004-11-07 00:23:01.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/lp.c	2004-11-07 00:27:41.000000000 +0100
-@@ -142,7 +142,7 @@
- /* ROUND_UP macro from fs/select.c */
- #define ROUND_UP(x,y) (((x)+(y)-1)/(y))
- 
--struct lp_struct lp_table[LP_NO];
-+static struct lp_struct lp_table[LP_NO];
- 
- static unsigned int lp_count = 0;
- static struct class_simple *lp_class;
-@@ -867,7 +867,7 @@
- 	.detach = lp_detach,
- };
- 
--int __init lp_init (void)
-+static int __init lp_init (void)
- {
- 	int i, err = 0;
- 
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
 

@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261791AbSIPLyP>; Mon, 16 Sep 2002 07:54:15 -0400
+	id <S261757AbSIPLyJ>; Mon, 16 Sep 2002 07:54:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261806AbSIPLyP>; Mon, 16 Sep 2002 07:54:15 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:27666 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S261791AbSIPLyO>; Mon, 16 Sep 2002 07:54:14 -0400
-Date: Mon, 16 Sep 2002 13:59:02 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jonathan Buzzard <jonathan@buzzard.org.uk>
-Cc: James Blackwell <jblack@linuxguru.net>, linux-kernel@vger.kernel.org,
-       hch@infradead.org
-Subject: Re: [PATCH] IRQ patch for Toshiba Char Driver in 2.5.34
-Message-ID: <20020916115902.GD27545@atrey.karlin.mff.cuni.cz>
-References: <20020909115956.GA23290@comet> <20020911112938.A25726@infradead.org> <20020915154248.GA3647@elf.ucw.cz> <20020915213009.A53847@ucw.cz> <20020915195328.GA60517@comet> <20020915200202.GA15744@atrey.karlin.mff.cuni.cz> <E17qiyn-0001ZK-00@jelly.buzzard.org.uk>
-Mime-Version: 1.0
+	id <S261786AbSIPLyJ>; Mon, 16 Sep 2002 07:54:09 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:43789 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S261757AbSIPLyI>; Mon, 16 Sep 2002 07:54:08 -0400
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       Daniel Jacobowitz <drow@false.org>
+Subject: Re: [PATCH] Fix for ptrace breakage
+References: <Pine.LNX.4.44.0209161349270.29027-100000@localhost.localdomain>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Mon, 16 Sep 2002 20:58:53 +0900
+In-Reply-To: <Pine.LNX.4.44.0209161349270.29027-100000@localhost.localdomain>
+Message-ID: <87vg565eo2.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E17qiyn-0001ZK-00@jelly.buzzard.org.uk>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Ingo Molnar <mingo@elte.hu> writes:
 
-> > It would be nice to make it preempt/smp safe, through. [SMP notebooks
-> > are not so unreasonable; think p4 hyperthreading]. 
+> On Mon, 16 Sep 2002, OGAWA Hirofumi wrote:
 > 
-> They are here. The code that is protected by cli() and friends does not
-> run on any anything more fancy than a Pentium. As I recall nothing but
-> mobile P90 in a Portage 610CT and a mobile P120 in a Tecra 700CDT/CDS.
+> > 	list_for_each(_p, &father->ptrace_children) {
+> > 		p = list_entry(_p,struct task_struct,ptrace_list);
+> > 		list_del_init(&p->ptrace_list);
+> > 		reparent_thread(p, reaper, child_reaper);
+> > 		if (p->parent != p->real_parent)
+> > 			list_add(&p->ptrace_list, &p->real_parent->ptrace_children);
+> > 	}
+> > 
+> > current->ptrace_children should be empty after this reparent.
+> 
+> oh, okay. It's also cleaner this way.
 
-Its still not safe due to preempt.
+Grr, sorry. This patch is bad version.
 
-Anyway #ifdef PREEMPT bug, and comment that this is never ever used on
-SMP might be enough.
-								Pavel
+ 	list_for_each(_p, &father->ptrace_children) {
+
+of course, this should
+
+ 	list_for_each_safe(_p, _n, &father->ptrace_children) {
+
+I'll resend patch.
 -- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262311AbTEIGta (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 02:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262313AbTEIGta
+	id S262319AbTEIGz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 02:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTEIGz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 02:49:30 -0400
-Received: from holomorphy.com ([66.224.33.161]:6558 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262311AbTEIGt3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 02:49:29 -0400
-Date: Fri, 9 May 2003 00:01:42 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: how to measure scheduler latency on powerpc?  realfeel doesn't work due to /dev/rtc issues
-Message-ID: <20030509070142.GU8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Chris Friesen <cfriesen@nortelnetworks.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3EBAD63C.4070808@nortelnetworks.com> <20030509001339.GQ8978@holomorphy.com> <Pine.LNX.4.50.0305081735040.2094-100000@blue1.dev.mcafeelabs.com> <20030509003825.GR8978@holomorphy.com> <Pine.LNX.4.53.0305082052160.21290@chaos> <3EBB25FD.7060809@nortelnetworks.com> <20030509042659.GS8978@holomorphy.com> <3EBB4735.30701@nortelnetworks.com> <20030509062008.GT8978@holomorphy.com> <3EBB504C.1030001@nortelnetworks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 9 May 2003 02:55:29 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:3083 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262319AbTEIGz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 02:55:28 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Gregoire Favre <greg@ulima.unil.ch>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-rc2
+Date: Fri, 9 May 2003 09:07:50 +0200
+User-Agent: KMail/1.5.1
+References: <fa.m0c9ksl.1ijqph1@ifi.uio.no> <20030509065510.GA21381@ulima.unil.ch>
+In-Reply-To: <20030509065510.GA21381@ulima.unil.ch>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3EBB504C.1030001@nortelnetworks.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Message-Id: <200305090907.50284.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 09, 2003 at 02:53:00AM -0400, Chris Friesen wrote:
-> I'm obsessed with interrupts because it gives me a higher sampling rate.
-> I could set up and itimer for a recurring 10ms timeout and see how much 
-> extra I waited, but then I can only get 100 samples/sec.
-> With /dev/rtc (on intel) you can get 20x more samples in the same amount of 
-> time.
+On Friday 09 May 2003 08:55, Gregoire Favre wrote:
 
-Why not just keep track of it in the scheduler? The statistic is well-
-defined in terms of things measurable at context switch and wakeup.
-Just stamping processes with when they became runnable and when they
-were first run with the timebase and/or TSC and/or whatever would seem
-to provide the answer you want for T(x). W(x) is slightly more involved
-but can be measured properly in the same way.
+Hi Gregoire,
 
-I think your stats will be more accurate and serve your own (not mine;
-I have _zero_ cause to fish this stuff out myself besides curiostiy)
-purposes better if measured in the way I'm suggesting. That said, only
-your own purposes really matter for this in the end so if I
-misunderstand you by all means generate all the interrupts you want.
+> > Here goes release canditate 2. The aic7xxx problems should be fixed.
+> does it "only" correct the aic7xxx probolems, or does it also include
+> some other changes?
+http://www.kernel.org/pub/linux/kernel/v2.4/testing/patch-2.4.21.log
 
+or: http://www.kernel.org -> 2.4.21-rc2 -> Changelog
 
--- wli
+> My main interest is the XFS merge that is in 2.4.21-rc1-ac3 ;-)
+muahaha.
+
+ciao, Marc

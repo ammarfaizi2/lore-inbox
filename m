@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278263AbRJWUsg>; Tue, 23 Oct 2001 16:48:36 -0400
+	id <S278269AbRJWUwg>; Tue, 23 Oct 2001 16:52:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278269AbRJWUs1>; Tue, 23 Oct 2001 16:48:27 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35334 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S278263AbRJWUsR>; Tue, 23 Oct 2001 16:48:17 -0400
-Subject: Re: [RFC] New Driver Model for 2.5
-To: benh@kernel.crashing.org (Benjamin Herrenschmidt)
-Date: Tue, 23 Oct 2001 21:54:23 +0100 (BST)
-Cc: jlundell@pobox.com (Jonathan Lundell), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        mochel@osdl.org (Patrick Mochel), linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <20011023202258.5598@smtp.wanadoo.fr> from "Benjamin Herrenschmidt" at Oct 23, 2001 10:22:58 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S278295AbRJWUw0>; Tue, 23 Oct 2001 16:52:26 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:5392 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S278269AbRJWUwN>;
+	Tue, 23 Oct 2001 16:52:13 -0400
+Date: Tue, 23 Oct 2001 18:52:35 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Issue with max_threads (and other resources) and highmem
+In-Reply-To: <72940000.1003868385@baldur>
+Message-ID: <Pine.LNX.4.33L.0110231850100.3690-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15w8Z6-00010E-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >"Stop accepting new requests" is nontrivial as well, in the general 
-> >case. New requests that can't be discarded need to be queued 
-> >somewhere. Whose responsibility is that? Ideally at some point where 
-> >a queue already exists, possibly in the requester.
-> 
-> Some driver already handle queues. In the case of network driver, just
-> stop your network queue and stop accepting incoming packets. If your
-> driver is too simple to have queues, a simple semaphore on entry points
-> can often be enough. You shouldn't deadlock as you are not supposed to
-> re-enter a sleeping driver in step 2.
+On Tue, 23 Oct 2001, Dave McCracken wrote:
 
-Stop accepting new requests is not simple. To complete existing requests you
-might need an arbitary other module to complete a new request you submit
-as part of your shutdown. 
+> A quick examination of fork_init() shows that max_threads is supposed
+> to be limited so its stack/task_struct takes no more than half of
+> physical memory.  This calculation ignores the fact that task_structs
+> must be allocated from the normal pool and not the highmem pool, which
+> is a clear bug.
 
-Alan
+It also ignores the fact that tasks need things like page
+tables, VMAs, etc...  The total kernel memory demand of
+the maximum number of tasks the kernel allows by default
+is way higher than physical memory.
+
+I submitted a patch a while ago to set the number way lower,
+which was accepted by Alan and in the -ac kernels. A few months
+later Linus followed and changed the limit in his kernels, too.
+
+regards,
+
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,29 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267418AbUG2CTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267415AbUG2CTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267418AbUG2CTk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 22:19:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267415AbUG2CSr
+	id S267415AbUG2CTl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 22:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267419AbUG2CSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 22:18:47 -0400
-Received: from snickers.hotpop.com ([38.113.3.51]:29385 "EHLO
-	snickers.hotpop.com") by vger.kernel.org with ESMTP id S267420AbUG2CQ0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 22:16:26 -0400
+	Wed, 28 Jul 2004 22:18:23 -0400
+Received: from twix.hotpop.com ([38.113.3.71]:59620 "EHLO twix.hotpop.com")
+	by vger.kernel.org with ESMTP id S267415AbUG2COq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 22:14:46 -0400
 From: "Antonino A. Daplas" <adaplas@hotpop.com>
 Reply-To: adaplas@pol.net
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2/5] [FBDEV]: Set color fields correctly
-Date: Thu, 29 Jul 2004 10:04:10 +0800
+Subject: [PATCH 5/5] [I810FB]: i810fb fixes
+Date: Thu, 29 Jul 2004 10:04:32 +0800
 User-Agent: KMail/1.5.4
 Cc: Linux Fbdev development list 
 	<linux-fbdev-devel@lists.sourceforge.net>,
        linux-kernel@vger.kernel.org
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200407290955.29735.adaplas@hotpop.com>
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407291004.10098.adaplas@hotpop.com>
 X-HotPOP: -----------------------------------------------
                    Sent By HotPOP.com FREE Email
              Get your FREE POP email at www.HotPOP.com
@@ -31,146 +31,259 @@ X-HotPOP: -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-
-Although the depth can be correctly inferred from bits_per_pixel
-(if bits_per_pixel == 1), for the  sake of consistency, drivers should still
-set the color fields correctly. True even if the first patch is not applied.
-
-(I've combined everything in a single diff since there is only 1 logical
-change)
+1. Fixed cursor corruption if acceleration is enabled
+2. Round up fields in var instead of rounding down
+3. Set capabilities flags
+4. Added myself to the MAINTAINERS file for i810fb
 
 Tony
 
 Signed-off-by: Antonino Daplas <adaplas@pol.net>
- 
- 68328fb.c  |   13 +++++++++++++
- bw2.c      |    6 +++++-
- cirrusfb.c |    6 ++++++
- dnfb.c     |    3 +++
- macfb.c    |    3 +++
- stifb.c    |    1 +
- tx3912fb.c |    3 +++
- 7 files changed, 34 insertions(+), 1 deletion(-)
 
-diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/68328fb.c linux-2.6.8-rc2-mm1/drivers/video/68328fb.c
---- linux-2.6.8-rc2-mm1-orig/drivers/video/68328fb.c	2004-07-28 20:12:58.386578752 +0000
-+++ linux-2.6.8-rc2-mm1/drivers/video/68328fb.c	2004-07-28 20:15:20.197020288 +0000
-@@ -199,6 +199,15 @@ static int mc68x328fb_check_var(struct f
- 	 */
- 	switch (var->bits_per_pixel) {
- 	case 1:
-+		var->red.offset = 0;
-+		var->red.length = 1;
-+		var->green.offset = 0;
-+		var->green.length = 1;
-+		var->blue.offset = 0;
-+		var->blue.length = 1;
-+		var->transp.offset = 0;
-+		var->transp.length = 0;
-+		break;
- 	case 8:
- 		var->red.offset = 0;
- 		var->red.length = 8;
-@@ -452,6 +461,10 @@ int __init mc68x328fb_init(void)
- 		get_line_length(mc68x328fb_default.xres_virtual, mc68x328fb_default.bits_per_pixel);
- 	fb_info.fix.visual = (mc68x328fb_default.bits_per_pixel) == 1 ?
- 		MC68X328FB_MONO_VISUAL : FB_VISUAL_PSEUDOCOLOR;
-+	if (fb_info.var.bits_per_pixel == 1) {
-+		fb_info.var.red.length = fb_info.var.green.length = fb_info.var.blue.length = 1;
-+		fb_info.var.red.offset = fb_info.var.green.offset = fb_info.var.blue.offset = 0;
+ MAINTAINERS                    |    6 +++
+ drivers/video/Kconfig          |    4 +-
+ drivers/video/i810/i810_dvt.c  |   14 +++----
+ drivers/video/i810/i810_main.c |   72 ++++++++++++++++++++++++-----------------
+ 4 files changed, 59 insertions(+), 37 deletions(-)
+
+diff -uprN linux-2.6.8-rc2-mm1-orig/MAINTAINERS linux-2.6.8-rc2-mm1/MAINTAINERS
+--- linux-2.6.8-rc2-mm1-orig/MAINTAINERS	2004-07-29 00:36:12.028112928 +0000
++++ linux-2.6.8-rc2-mm1/MAINTAINERS	2004-07-29 00:35:56.592459504 +0000
+@@ -1060,6 +1060,12 @@ M:	lethal@chaoticdreams.org
+ L:	linux-fbdev-devel@lists.sourceforge.net
+ S:	Maintained
+ 
++INTEL 810/815 FRAMEBUFFER DRIVER
++P:      Antonino Daplas
++M:      adaplas@pol.net
++L:      linux-fbdev-devel@lists.sourceforge.net
++S:      Maintained
++
+ INTEL APIC/IOAPIC, LOWLEVEL X86 SMP SUPPORT
+ P:	Ingo Molnar
+ M:	mingo@redhat.com
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/Kconfig linux-2.6.8-rc2-mm1/drivers/video/Kconfig
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/Kconfig	2004-07-28 19:51:13.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/Kconfig	2004-07-29 00:35:04.115437224 +0000
+@@ -457,7 +457,9 @@ config FB_RIVA_DEBUG
+ 
+ config FB_I810
+ 	tristate "Intel 810/815 support (EXPERIMENTAL)"
+-	depends on FB && AGP && AGP_INTEL && EXPERIMENTAL && PCI	
++	depends on FB && EXPERIMENTAL && PCI	
++	select AGP
++	select AGP_INTEL
+ 	help
+ 	  This driver supports the on-board graphics built in to the Intel 810 
+           and 815 chipsets.  Say Y if you have and plan to use such a board.
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/i810/i810_dvt.c linux-2.6.8-rc2-mm1/drivers/video/i810/i810_dvt.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/i810/i810_dvt.c	2004-05-10 02:33:13.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/i810/i810_dvt.c	2004-07-29 00:35:35.466671112 +0000
+@@ -193,19 +193,19 @@ struct mode_registers std_modes[] = {
+ 
+ void round_off_xres(u32 *xres) 
+ {
+-	if (*xres < 800) 
++	if (*xres <= 640)
+ 		*xres = 640;
+-	if (*xres < 1024 && *xres >= 800) 
++	else if (*xres <= 800)
+ 		*xres = 800;
+-	if (*xres < 1152 && *xres >= 1024)
++	else if (*xres <= 1024)
+ 		*xres = 1024;
+-	if (*xres < 1280 && *xres >= 1152)
++	else if (*xres <= 1152)
+ 		*xres = 1152;
+-	if (*xres < 1600 && *xres >= 1280)
++	else if (*xres <= 1280)
+ 		*xres = 1280;
+-	if (*xres >= 1600)
++	else 
+ 		*xres = 1600;
+-}		
++}
+ 
+ inline void round_off_yres(u32 *xres, u32 *yres)
+ {
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/i810/i810_main.c linux-2.6.8-rc2-mm1/drivers/video/i810/i810_main.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/i810/i810_main.c	2004-05-10 02:32:27.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/i810/i810_main.c	2004-07-29 01:53:15.973166432 +0000
+@@ -1353,11 +1353,15 @@ static int i810fb_set_par(struct fb_info
+ 
+ 	encode_fix(&info->fix, info);
+ 
+-	if (info->var.accel_flags && !(par->dev_flags & LOCKUP)) 
++	if (info->var.accel_flags && !(par->dev_flags & LOCKUP)) {
++		info->flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN |
++		FBINFO_HWACCEL_COPYAREA | FBINFO_HWACCEL_FILLRECT |
++		FBINFO_HWACCEL_IMAGEBLIT;
+ 		info->pixmap.scan_align = 2;
+-	else 
++	} else { 
+ 		info->pixmap.scan_align = 1;
+-	
++		info->flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
 +	}
- 	fb_info.pseudo_palette = &mc68x328fb_pseudo_palette;
- 	fb_info.flags = FBINFO_FLAG_DEFAULT;
+ 	return 0;
+ }
  
-diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/bw2.c linux-2.6.8-rc2-mm1/drivers/video/bw2.c
---- linux-2.6.8-rc2-mm1-orig/drivers/video/bw2.c	2004-07-28 20:13:14.279162712 +0000
-+++ linux-2.6.8-rc2-mm1/drivers/video/bw2.c	2004-07-28 20:15:31.292333544 +0000
-@@ -323,7 +323,7 @@ static void bw2_init_one(struct sbus_dev
- 		resp = &res;
- 		all->info.var.xres = all->info.var.xres_virtual = 1152;
- 		all->info.var.yres = all->info.var.yres_virtual = 900;
--		all->info.bits_per_pixel = 1;
-+		all->info.var.bits_per_pixel = 1;
- 		linebytes = 1152 / 8;
- 	} else
- #else
-@@ -337,6 +337,10 @@ static void bw2_init_one(struct sbus_dev
- 					       all->info.var.xres);
+@@ -1388,16 +1392,17 @@ static int i810fb_cursor(struct fb_info 
+ {
+ 	struct i810fb_par *par = (struct i810fb_par *)info->par;
+ 	u8 *mmio = par->mmio_start_virtual;	
+-	u8 data[64 * 8];
+-	
++
+ 	if (!info->var.accel_flags || par->dev_flags & LOCKUP) 
+ 		return soft_cursor(info, cursor);
+ 
+ 	if (cursor->image.width > 64 || cursor->image.height > 64)
+ 		return -ENXIO;
+ 
+-	if ((i810_readl(CURBASE, mmio) & 0xf) != par->cursor_heap.physical)
++	if ((i810_readl(CURBASE, mmio) & 0xf) != par->cursor_heap.physical) {
+ 		i810_init_cursor(par);
++		cursor->set |= FB_CUR_SETALL;
++	}
+ 
+ 	i810_enable_cursor(mmio, OFF);
+ 
+@@ -1409,50 +1414,56 @@ static int i810fb_cursor(struct fb_info 
+ 
+ 		info->cursor.image.dx = cursor->image.dx;
+ 		info->cursor.image.dy = cursor->image.dy;
+-		
+-		tmp = cursor->image.dx - info->var.xoffset;
+-		tmp |= (cursor->image.dy - info->var.yoffset) << 16;
+-	    
++		tmp = (info->cursor.image.dx - info->var.xoffset) & 0xffff;
++		tmp |= (info->cursor.image.dy - info->var.yoffset) << 16;
+ 		i810_writel(CURPOS, mmio, tmp);
  	}
- #endif
-+	all->info.var.red.length = all->info.var.green.length =
-+		all->info.var.blue.length = all_info.var.bits_per_pixel;
-+	all->info.var.red.offset = all->info.var.green.offset =
-+		all->info.var.blue.offset = 0;
  
- 	all->par.regs = (struct bw2_regs *)
- 		sbus_ioremap(resp, BWTWO_REGISTER_OFFSET,
-diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/cirrusfb.c linux-2.6.8-rc2-mm1/drivers/video/cirrusfb.c
---- linux-2.6.8-rc2-mm1-orig/drivers/video/cirrusfb.c	2004-07-28 20:13:25.316484784 +0000
-+++ linux-2.6.8-rc2-mm1/drivers/video/cirrusfb.c	2004-07-28 20:15:40.616915992 +0000
-@@ -752,6 +752,12 @@ int cirrusfb_check_var(struct fb_var_scr
+ 	if (cursor->set & FB_CUR_SETSIZE) {
++		i810_reset_cursor_image(par);
+ 		info->cursor.image.height = cursor->image.height;
+ 		info->cursor.image.width = cursor->image.width;
+-		i810_reset_cursor_image(par);
+ 	}
  
- 	switch (var->bits_per_pixel) {
- 	case 1:
-+		var->red.offset = 0;
-+		var->red.length = 1;
-+		var->green.offset = 0;
-+		var->green.length = 1;
-+		var->blue.offset = 0;
-+		var->blue.length = 1;
- 		break;
+ 	if (cursor->set & FB_CUR_SETCMAP) {
+-		info->cursor.image.fg_color = cursor->image.fg_color;
+-		info->cursor.image.bg_color = cursor->image.bg_color;
+ 		i810_load_cursor_colors(cursor->image.fg_color,
+ 					cursor->image.bg_color,
+ 					info);
++		info->cursor.image.fg_color = cursor->image.fg_color;
++		info->cursor.image.bg_color = cursor->image.bg_color;
++
+ 	}
  
- 	case 8:
-diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/dnfb.c linux-2.6.8-rc2-mm1/drivers/video/dnfb.c
---- linux-2.6.8-rc2-mm1-orig/drivers/video/dnfb.c	2004-07-28 20:13:35.850883312 +0000
-+++ linux-2.6.8-rc2-mm1/drivers/video/dnfb.c	2004-07-28 20:15:56.266536888 +0000
-@@ -239,6 +239,9 @@ static int __devinit dnfb_probe(struct d
- 	info->fbops = &dn_fb_ops;
- 	info->fix = dnfb_fix;
- 	info->var = dnfb_var;
-+	info->var.red.length = 1;
-+	info->var.red.offset = 0;
-+	info->var.green = info->var.blue = info->var.red;
- 	info->screen_base = (u_char *) info->fix.smem_start;
+-	if (cursor->set & FB_CUR_SETSHAPE) {
++	if (cursor->set & (FB_CUR_SETSHAPE)) {
+ 		int size = ((info->cursor.image.width + 7) >> 3) * 
+-			     info->cursor.image.height;
++			info->cursor.image.height;
+ 		int i;
++		u8 *data = kmalloc(64 * 8, GFP_KERNEL);
++
++		if (data == NULL)
++			return -ENOMEM;
++		info->cursor.image.data = cursor->image.data;
  
- 	err = fb_alloc_cmap(&info->cmap, 2, 0);
-diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/macfb.c linux-2.6.8-rc2-mm1/drivers/video/macfb.c
---- linux-2.6.8-rc2-mm1-orig/drivers/video/macfb.c	2004-07-28 20:13:59.972216312 +0000
-+++ linux-2.6.8-rc2-mm1/drivers/video/macfb.c	2004-07-28 20:16:08.340701336 +0000
-@@ -660,6 +660,9 @@ void __init macfb_init(void)
- 	case 1:
- 		/* XXX: I think this will catch any program that tries
- 		   to do FBIO_PUTCMAP when the visual is monochrome */
-+		macfb_defined.red.length = macfb_defined.bits_per_pixel;
-+		macfb_defined.green.length = macfb_defined.bits_per_pixel;
-+		macfb_defined.blue.length = macfb_defined.bits_per_pixel;
- 		video_cmap_len = 0;
- 		macfb_fix.visual = FB_VISUAL_MONO01;
- 		break;
-diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/stifb.c linux-2.6.8-rc2-mm1/drivers/video/stifb.c
---- linux-2.6.8-rc2-mm1-orig/drivers/video/stifb.c	2004-07-28 20:14:15.423867304 +0000
-+++ linux-2.6.8-rc2-mm1/drivers/video/stifb.c	2004-07-28 20:16:21.296731720 +0000
-@@ -1298,6 +1298,7 @@ stifb_init_fb(struct sti_struct *sti, in
- 	    case 1:
- 		fix->type = FB_TYPE_PLANES;	/* well, sort of */
- 		fix->visual = FB_VISUAL_MONO10;
-+		var->red.length = var->green.length = var->blue.length = 1;
- 		break;
- 	    case 8:
- 		fix->type = FB_TYPE_PACKED_PIXELS;
-diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/tx3912fb.c linux-2.6.8-rc2-mm1/drivers/video/tx3912fb.c
---- linux-2.6.8-rc2-mm1-orig/drivers/video/tx3912fb.c	2004-07-28 20:14:26.830133288 +0000
-+++ linux-2.6.8-rc2-mm1/drivers/video/tx3912fb.c	2004-07-28 20:16:31.124237712 +0000
-@@ -60,6 +60,9 @@ static struct fb_var_screeninfo tx3912fb
- 	.blue =		{ 0, 2, 0 },
- #else
- 	.bits_per_pixel =4,
-+	.red =		{ 0, 4, 0 },	/* ??? */
-+	.green =	{ 0, 4, 0 },
-+	.blue =		{ 0, 4, 0 },
- #endif
- 	.activate =	FB_ACTIVATE_NOW,
- 	.width =	-1,
+ 		switch (info->cursor.rop) {
+ 		case ROP_XOR:
+ 			for (i = 0; i < size; i++)
+-				data[i] = cursor->image.data[i] ^ info->cursor.mask[i]; 
++				data[i] = info->cursor.image.data[i] ^ info->cursor.mask[i]; 
+ 			break;
+ 		case ROP_COPY:
+ 		default:
+ 			for (i = 0; i < size; i++)
+-				data[i] = cursor->image.data[i] & info->cursor.mask[i]; 
++				data[i] = info->cursor.image.data[i] & info->cursor.mask[i]; 
+ 			break;
+ 		}
+ 		i810_load_cursor_image(info->cursor.image.width, 
+ 				       info->cursor.image.height, data,
+ 				       par);
++		kfree(data);
+ 	}
+-
+-	if (info->cursor.enable)
++	
++	if (info->cursor.enable) 
+ 		i810_enable_cursor(mmio, ON);
++
+ 	return 0;
+ }
+ 
+@@ -1641,9 +1652,11 @@ static void __devinit i810_init_monspecs
+ 		hsync1 = HFMIN;
+ 	if (!hsync2) 
+ 		hsync2 = HFMAX;
+-	info->monspecs.hfmax = hsync2;
+-	info->monspecs.hfmin = hsync1;
+-	if (hsync2 < hsync1) 
++	if (!info->monspecs.hfmax)
++		info->monspecs.hfmax = hsync2;
++	if (!info->monspecs.hfmin)
++		info->monspecs.hfmin = hsync1;
++	if (hsync1 < hsync2) 
+ 		info->monspecs.hfmin = hsync2;
+ 
+ 	if (!vsync1)
+@@ -1652,8 +1665,10 @@ static void __devinit i810_init_monspecs
+ 		vsync2 = VFMAX;
+ 	if (IS_DVT && vsync1 < 60)
+ 		vsync1 = 60;
+-	info->monspecs.vfmax = vsync2;
+-	info->monspecs.vfmin = vsync1;		
++	if (!info->monspecs.vfmax)
++		info->monspecs.vfmax = vsync2;
++	if (!info->monspecs.vfmin)
++		info->monspecs.vfmin = vsync1;		
+ 	if (vsync2 < vsync1) 
+ 		info->monspecs.vfmin = vsync2;
+ }
+@@ -1724,6 +1739,7 @@ static void __devinit i810_init_device(s
+ 	pci_read_config_byte(par->dev, 0x50, &reg);
+ 	reg &= FREQ_MASK;
+ 	par->mem_freq = (reg) ? 133 : 100;
++
+ }
+ 
+ static int __devinit 
+@@ -1836,8 +1852,9 @@ static int __devinit i810fb_init_pci (st
+ {
+ 	struct fb_info    *info;
+ 	struct i810fb_par *par = NULL;
+-	int err, vfreq, hfreq, pixclock;
++	int i, err = -1, vfreq, hfreq, pixclock;
+ 
++	i = 0;
+ 	if (!(info = kmalloc(sizeof(struct fb_info), GFP_KERNEL))) {
+ 		i810fb_release_resource(info, par);
+ 		return -ENOMEM;
+@@ -1879,8 +1896,6 @@ static int __devinit i810fb_init_pci (st
+ 	info->screen_base = par->fb.virtual;
+ 	info->fbops = &par->i810fb_ops;
+ 	info->pseudo_palette = par->pseudo_palette;
+-	info->flags = FBINFO_FLAG_DEFAULT;
+-	
+ 	fb_alloc_cmap(&info->cmap, 256, 0);
+ 
+ 	if ((err = info->fbops->fb_check_var(&info->var, info))) {
+@@ -1957,8 +1972,7 @@ static void i810fb_release_resource(stru
+ 
+ 		kfree(par);
+ 	}
+-	if (info) 
+-		kfree(info);
++	kfree(info);
+ }
+ 
+ static void __exit i810fb_remove_pci(struct pci_dev *dev)
 
 

@@ -1,117 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264619AbSIQWAp>; Tue, 17 Sep 2002 18:00:45 -0400
+	id <S264641AbSIQVyf>; Tue, 17 Sep 2002 17:54:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264625AbSIQWAp>; Tue, 17 Sep 2002 18:00:45 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:35061 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264619AbSIQWAl>;
-	Tue, 17 Sep 2002 18:00:41 -0400
-Date: Tue, 17 Sep 2002 15:02:15 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Juan M. de la Torre" <jmtorre@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: Possible bug in __alloc_pages() ?
-Message-ID: <132900000.1032300135@flay>
-In-Reply-To: <20020917214804.GA891@apocalipsis>
-References: <20020917214804.GA891@apocalipsis>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S264642AbSIQVye>; Tue, 17 Sep 2002 17:54:34 -0400
+Received: from packet.digeo.com ([12.110.80.53]:38871 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264641AbSIQVx6>;
+	Tue, 17 Sep 2002 17:53:58 -0400
+Message-ID: <3D87A59C.410FFE3E@digeo.com>
+Date: Tue, 17 Sep 2002 14:58:52 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: manfred@colorfullife.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Info: NAPI performance at "low" loads
+References: <3D87A264.8D5F3AD2@digeo.com> <20020917.143947.07361352.davem@redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-OriginalArrivalTime: 17 Sep 2002 21:58:52.0581 (UTC) FILETIME=[69135D50:01C25E95]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is deliberate, and is to discourage fallback. I'm not desperately fond
-of the method, but I'm told it's not an accidental typo / bug.
-
-M.
-
---On Tuesday, September 17, 2002 23:48:04 +0200 "Juan M. de la Torre" <jmtorre@gmx.net> wrote:
-
+"David S. Miller" wrote:
 > 
->  Hi, this code appears at the beggining of __page_alloc() (kernel 2.4.19):
+>    From: Andrew Morton <akpm@digeo.com>
+>    Date: Tue, 17 Sep 2002 14:45:08 -0700
 > 
->         min = 1UL << order;
->         for (;;) {
->                 zone_t *z = *(zone++);
->                 if (!z)
->                         break;
+>    "David S. Miller" wrote:
+>    > Well, it is due to the same problems manfred saw initially,
+>    > namely just a crappy or buggy NAPI driver implementation. :-)
 > 
->                 min += z->pages_low;
->                 if (z->free_pages > min) {
->                         page = rmqueue(z, order);
->                         if (page)
->                                 return page;
->                 }
->         }
+>    It was due to additional inl()'s and outl()'s in the driver fastpath.
 > 
->  AFAIK, what this code does is to try to alloc the requested pages from
-> the first zone in a zone_list (passed as argument) which have enought free 
-> pages.
-> 
->  A zone is considered to have enought free pages if z->free_pages is greater 
-> than (number_of_requested_pages + z->pages_low).
-> 
->  In the loop shown, the first iteration is OK, but in the second iteration
-> (which only occurs if the first zone in the zone_list hasn't enought free
-> pages) the zone will only be considered to have enought free pages if
-> z->free_pages is greater that (number_of_requested_pages + z->pages_low
-> + PREV_ZONE->pages_low). 
-> 
->  I think this is a bug, but i'm not sure (i'm not a VM hacker).
-> 
->  If it is a bug, there are other two loops in the same function which
-> are buggy.
-> 
-> 
-> Possible patch:
-> 
-> --- linux/mm/page_alloc.c.orig  Tue Sep 17 23:45:02 2002
-> +++ linux/mm/page_alloc.c       Tue Sep 17 23:46:45 2002
-> @@ -330,8 +330,7 @@
->                 if (!z)
->                         break;
-> 
-> -               min += z->pages_low;
-> -               if (z->free_pages > min) {
-> +               if (z->free_pages > min + z->pages_low) {
->                         page = rmqueue(z, order);
->                         if (page)
->                                 return page;
-> @@ -354,8 +353,8 @@
->                 local_min = z->pages_min;
->                 if (!(gfp_mask & __GFP_WAIT))
->                         local_min >>= 2;
-> -               min += local_min;
-> -               if (z->free_pages > min) {
-> +
-> +               if (z->free_pages > min + local_min) {
->                         page = rmqueue(z, order);
->                         if (page)
->                                 return page;
-> @@ -394,8 +393,7 @@
->                 if (!z)
->                         break;
-> 
-> -               min += z->pages_min;
-> -               if (z->free_pages > min) {
-> +               if (z->free_pages > min + z->pages_min) {
->                         page = rmqueue(z, order);
->                         if (page)
->                                 return page;
-> 
-> Regards,
-> Juanma
-> 
-> -- 
-> /jm
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> How many?  Did the implementation cache the register value in a
+> software state word or did it read the register each time to write
+> the IRQ masking bits back?
 > 
 
+Looks like it cached it:
 
+-    outw(SetIntrEnb | (inw(ioaddr + 10) & ~StatsFull), ioaddr + EL3_CMD);
+     vp->intr_enable &= ~StatsFull;
++    outw(vp->intr_enable, ioaddr + EL3_CMD);
+
+> It is issues like this that make me say "crappy or buggy NAPI
+> implementation"
+> 
+> Any driver should be able to get the NAPI overhead to max out at
+> 2 PIOs per packet.
+> 
+> And if the performance is really concerning, perhaps add an option to
+> use MEM space in the 3c59x driver too, IO instructions are constant
+> cost regardless of how fast the PCI bus being used is :-)
+
+Yup.  But deltas are interesting.

@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVA2Rok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVA2RoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbVA2Rok (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 12:44:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVA2Roj
+	id S261339AbVA2RoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 12:44:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVA2RoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 12:44:39 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:5101 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261376AbVA2Roe (ORCPT
+	Sat, 29 Jan 2005 12:44:25 -0500
+Received: from fw.osdl.org ([65.172.181.6]:52390 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261339AbVA2RoW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 12:44:34 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: Ooops unmounting a defect DVD
-Date: Sat, 29 Jan 2005 18:44:41 +0100
-User-Agent: KMail/1.7.1
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <1107009976.4535.13.camel@mulgrave>
-In-Reply-To: <1107009976.4535.13.camel@mulgrave>
+	Sat, 29 Jan 2005 12:44:22 -0500
+Date: Sat, 29 Jan 2005 09:44:19 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org, rohit.seth@intel.com,
+       asit.k.mallick@intel.com
+Subject: Re: [Discuss][i386] Platform SMIs and their interferance with tsc
+ based delay calibration
+In-Reply-To: <20050128185101.A19117@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.58.0501290927180.2362@ppc970.osdl.org>
+References: <20050128185101.A19117@unix-os.sc.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501291844.41290.oliver@neukum.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 29. Januar 2005 15:46 schrieb James Bottomley:
-> I wouldn't have noticed this at all since you didn't send it to the scsi
-> list, but fortunately, Al Viro drew it politely to my attention as
-> another example of SCSI refcounting problems.
 
-Sorry, it happening in cdrom_release fooled me into considering it
-a generic cdrom problem.
 
-> The issue seems to be that we have a spurious scsi_cd_put() on the error
-> path of sr_open().  The sr_block_..() functions are the "real" block
-> opens and should be refcounted, the sr_...() are the pseudo cdrom opens
-> and should not be refcounted.
-> 
-> Could you try this and see if it fixes the problem?
+On Fri, 28 Jan 2005, Venkatesh Pallipadi wrote:
+>
+> Current tsc based delay_calibration can result in significant errors in
+> loops_per_jiffy count when the platform events like SMIs (System
+> Management Interrupts that are non-maskable) are present. This could
+> lead to potential kernel panic(). This issue is becoming more visible
+> with 2.6 kernel (as default HZ is 1000) and on platforms with higher SMI
+> handling latencies. During the boot time, SMIs are mostly used by BIOS
+> (for things like legacy keyboard emulation).
 
-It fully fixes the problem. Thank you.
+Hmm. I see the problem, but I don't know that I'm 100% happy with this
+patch, though.
 
-	Regards
-		Oliver
+In particular, I don't see why you didn't just put this in the generic 
+calibrate_delay() routine. You seem to have basically duplicated it, and 
+added the "guess from an external timer" code - and I don't see what's 
+non-generic about that, except for some trivial "what's the current timer" 
+lookup.
+
+		Linus

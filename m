@@ -1,54 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbUJZIms@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbUJZIpo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262180AbUJZIms (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 04:42:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUJZIms
+	id S262193AbUJZIpo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 04:45:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbUJZIpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 04:42:48 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:9490 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262180AbUJZImo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 04:42:44 -0400
-Subject: Re: [ACPI] [Proposal]Another way to save/restore PCI config space
-	for suspend/resume
-From: Arjan van de Ven <arjan@infradead.org>
-To: Len Brown <len.brown@intel.com>
-Cc: Andi Kleen <ak@suse.de>, "Li, Shaohua" <shaohua.li@intel.com>,
-       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, greg@kroah.com,
-       Pavel Machek <pavel@suse.cz>
-In-Reply-To: <417DEA8D.4080307@intel.com>
-References: <1098766257.8433.7.camel@sli10-desk.sh.intel.com>
-	 <20041026051100.GA5844@wotan.suse.de>  <417DEA8D.4080307@intel.com>
-Content-Type: text/plain
-Message-Id: <1098780150.2789.19.camel@laptop.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Tue, 26 Oct 2004 10:42:31 +0200
+	Tue, 26 Oct 2004 04:45:43 -0400
+Received: from ValkamoMari.a.finnair.fi ([157.200.181.102]:28801 "EHLO
+	dell.work.holviala.com") by vger.kernel.org with ESMTP
+	id S262193AbUJZIpc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 04:45:32 -0400
+Message-ID: <417E0EA8.7000704@holviala.com>
+Date: Tue, 26 Oct 2004 11:45:28 +0300
+From: Kim Holviala <kim@holviala.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: [PATCH] mousedev: Fix scrollwheel thingy on IBM ScrollPoint mice
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.6 (++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (2.6 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-26 at 02:11 -0400, Len Brown wrote:
-> What this comes down to is that extended config space is device-specific.
-> Generic solutions will fail.  Only device drivers will work.
-> 
-> If there are no drivers for PCI bridges to properly save/restore
-> their config space, then should create them, even if this is all the 
-> drivers do.
+The scrollwheel thingy (stick) on IBM ScrollPoint mice returns extremely
+aggressive values even when touched lightly. This confuses XFree which
+assumes the wheel values can only be 1 or -1. Incidently, it also
+confuses Windows' default mouse driver which proves the problem is in
+the mouse itself.
 
-note that by default, if there is no driver, the first 64 bytes of
-config space are saved/restored.
--- 
+This patch limits the scroll wheel movements to be either +1 or -1 on
+the event -> emulated PS/2 level. I chose to implement it there because
+mousedev emulates Microsoft mice but the real ones almoust never return
+a bigger value than 1 (or -1).
+
+Kim
+
+
+
+diff -ruN linux-2.6.8.1-original/drivers/input/Kconfig linux-2.6.8.1/drivers/input/Kconfig
+--- linux-2.6.8.1-original/drivers/input/Kconfig	2004-10-26 08:42:30.000000000 +0300
++++ linux-2.6.8.1/drivers/input/Kconfig	2004-10-26 09:54:58.000000000 +0300
+@@ -72,6 +72,17 @@
+  	  screen resolution you are using to correctly scale the data. If
+  	  you're not using a digitizer, this value is ignored.
+
++config INPUT_MOUSEDEV_WHEELFIX
++	bool "Limit too fast wheel movement"
++	depends on INPUT_MOUSEDEV
++	default n
++	help
++	  Say Y here if your mouse wheel only works randomly or if it scrolls
++	  too fast. Some mice, like IBM's scrollpoints, return too big wheel
++	  movement values which confuse programs like XFree.
++
++	  If your mouse wheel thingy works as advertised, say N.
++
+  config INPUT_JOYDEV
+  	tristate "Joystick interface"
+  	depends on INPUT
+diff -ruN linux-2.6.8.1-original/drivers/input/mousedev.c linux-2.6.8.1/drivers/input/mousedev.c
+--- linux-2.6.8.1-original/drivers/input/mousedev.c	2004-10-26 08:42:31.000000000 +0300
++++ linux-2.6.8.1/drivers/input/mousedev.c	2004-10-26 11:21:01.000000000 +0300
+@@ -137,7 +137,11 @@
+  	switch (code) {
+  		case REL_X:	mousedev->packet.dx += value; break;
+  		case REL_Y:	mousedev->packet.dy -= value; break;
+-		case REL_WHEEL:	mousedev->packet.dz -= value; break;
++		case REL_WHEEL:
++#ifdef CONFIG_INPUT_MOUSEDEV_WHEELFIX
++				if (value) { value = (value < 0 ? -1 : 1); }
++#endif /* CONFIG_INPUT_MOUSEDEV_WHEELFIX */
++				mousedev->packet.dz -= value; break;
+  	}
+  }
 

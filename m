@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267351AbTBFXu0>; Thu, 6 Feb 2003 18:50:26 -0500
+	id <S265135AbTBFXtL>; Thu, 6 Feb 2003 18:49:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267554AbTBFXu0>; Thu, 6 Feb 2003 18:50:26 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:52620 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267351AbTBFXuY>; Thu, 6 Feb 2003 18:50:24 -0500
-Date: Thu, 06 Feb 2003 15:59:58 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: gcc -O2 vs gcc -Os performance
-Message-ID: <285570000.1044575997@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.44.0302061456370.14478-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0302061456370.14478-100000@home.transmeta.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267351AbTBFXtL>; Thu, 6 Feb 2003 18:49:11 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:43213 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S265135AbTBFXtL>;
+	Thu, 6 Feb 2003 18:49:11 -0500
+Date: Fri, 7 Feb 2003 10:58:38 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: syscall documentation (2)
+Message-Id: <20030207105838.303df6c9.sfr@canb.auug.org.au>
+In-Reply-To: <UTC200302062008.h16K8Aa23600.aeb@smtp.cwi.nl>
+References: <UTC200302062008.h16K8Aa23600.aeb@smtp.cwi.nl>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The observation re low repeat rate is interesting ... might be amusing 
->> to do some really basic profile-guided optimisation on this grounds,
->> take readprofile / oprofile output, and compile the files that don't
->> get hammered at all with -Os rather than -O2. Given their low frequency
->> (by definition), I'm not sure that improving their icache footprint will
->> have a measureable effect though.
+On Thu, 6 Feb 2003 21:08:10 +0100 (MET) Andries.Brouwer@cwi.nl wrote:
+>
+> The next new page is futex.2.
 > 
-> Icache footprint has nothing to do with repeat rates, which is exactly why 
-> repeat rates are interesting for -Os.
+> Comments welcome.
+> Andries
+> aeb@cwi.nl
+> 
+> -------------------------------
+> NAME
+>        futex - Fast Userspace Locking system call
+> 
+> SYNOPSIS
+>        #include <linux/futex.h>
+> 
+>        #include <sys/time.h>
+> 
+>        int  sys_futex (void *futex, int op, int val, const struct
+>        timespec *timeout);
 
-Reading the below, I think I just misinterpreted what you meant by 
-"repeate rate". My point was that if you hardly ever run that section
-of code, -Os might be better. If we call how often you call that code
-section it's "frequency" (nothing to do with how tightly it loops inside
-it), then if the frequency of the code is low, the icache footprint 
-might be better off smaller, as it'll just blow the icache when we do
-run it and those cachelines are fetched. On the other hand, that won't
-happen often, so it may well be unobservable for real loads.
+In discussions with Rusty, we decided that the first parameter
+to sys_futex should be a u32 * i.e. a pointer to a 32 bit quantity
+in user space.  This is what is assumed by the code at the moment.
+The kernel doesn't really care if it is signed or not as the only
+test done on it is for equality.
 
-M.
+I will be submitting a patch to that effect shortly.  This also makes
+it much easier to do the compatibility layer interface ...
 
+>        The futex argument needs to point to  an  aligned  integer
+                                                            ^^^^^^^
+32 bit quantity
 
-
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263800AbUACStG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 13:49:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263803AbUACStF
+	id S263771AbUACS5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 13:57:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUACS5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 13:49:05 -0500
-Received: from p50829256.dip.t-dialin.net ([80.130.146.86]:13060 "EHLO
-	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
-	id S263800AbUACStA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 13:49:00 -0500
-Date: Sat, 3 Jan 2004 18:49:04 +0000
-From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
-To: John Goerzen <jgoerzen@complete.org>
+	Sat, 3 Jan 2004 13:57:15 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17101 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263771AbUACS5N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 13:57:13 -0500
+Date: Sat, 3 Jan 2004 18:57:12 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Bill Davidsen <davidsen@tmr.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1rc1 fails to build on Alpha
-Message-ID: <20040103184904.A3321@Marvin.DL8BCU.ampr.org>
-Reply-To: dl8bcu@dl8bcu.de
-Mail-Followup-To: John Goerzen <jgoerzen@complete.org>,
-	linux-kernel@vger.kernel.org
-References: <slrnbvd1ci.2mp.jgoerzen@christoph.complete.org>
+Subject: Re: Should struct inode be made available to userspace?
+Message-ID: <20040103185712.GV4176@parcelfarce.linux.theplanet.co.uk>
+References: <200312292040.00409.mmazur@kernel.pl> <20031229195742.GL4176@parcelfarce.linux.theplanet.co.uk> <bt71ip$cer$1@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <slrnbvd1ci.2mp.jgoerzen@christoph.complete.org>; from jgoerzen@complete.org on Sat, Jan 03, 2004 at 09:04:18AM +0000
+Content-Disposition: inline
+In-Reply-To: <bt71ip$cer$1@gatekeeper.tmr.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 03, 2004 at 09:04:18AM +0000, John Goerzen wrote:
-> I'm building 2.6.1-rc1 on my Alpha and am getting this error:
- 
->   LD      init/built-in.o
->   LD      .tmp_vmlinux1
-> local symbol 0: discarded in section `.exit.text' from drivers/built-in.o
-> local symbol 1: discarded in section `.exit.text' from drivers/built-in.o
-> make[1]: *** [.tmp_vmlinux1] Error 1
+On Sat, Jan 03, 2004 at 01:39:41PM -0500, Bill Davidsen wrote:
+> viro@parcelfarce.linux.theplanet.co.uk wrote:
+> 
+> >struct inode and structures containing it should not be used outside of 
+> >kernel.
+> >Moreover, foo_fs.h should be seriously trimmed down and everything _not_
+> >useful outside of kernel should be taken into fs/foo/*; other kernel code
+> >also doesn't give a fsck for that stuff, so it should be private to 
+> >filesystem
+> >instead of polluting include/linux/*.
+> 
+> Moving the definitions is fine, but some user programs, like backup 
+> programs, do benefit from direct interpretation of the inode. Clearly 
+> that's not a normal user program, but this information is not only 
+> useful inside the kernel.
 
-> # CONFIG_HOTPLUG is not set
-
-I was able to eliminate these with 'Support for hot-pluggable devices'.
-
->From what I understand there must be hiding some errorneous declaration
-somewhere, i.e. a pointer to something that is thrown away at link time.
-Didn't find it yet, though :)
-
-Thorsten
-
--- 
-| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
-| Mobile: ++49 170 1876134       Snail: Kiebitzstr. 14, 49324 Melle, Germany  |
-| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |
+No, they do not.  They care about on-disk structures, not the in-core
+ones fs driver happens to build.

@@ -1,235 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268174AbUIFQKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268253AbUIFQPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268174AbUIFQKc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 12:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268193AbUIFQKb
+	id S268253AbUIFQPV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 12:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268258AbUIFQPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 12:10:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:25581 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268174AbUIFQJl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 12:09:41 -0400
-Date: Mon, 6 Sep 2004 12:09:28 -0400
-From: Alan Cox <alan@redhat.com>
-To: David R <david@unsolicited.net>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
-       arjanv@redhat.com, akpm@osdl.org
-Subject: Re: PATCH: Misrouted IRQ recovery, take 2
-Message-ID: <20040906160928.GA17719@devserv.devel.redhat.com>
-References: <1094486042.413c881a748ee@unsolicited.net>
-Mime-Version: 1.0
+	Mon, 6 Sep 2004 12:15:21 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:40172 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S268253AbUIFQPC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 12:15:02 -0400
+Date: Mon, 6 Sep 2004 18:14:50 +0200
+From: Spam <spam@tnonline.net>
+Reply-To: Spam <spam@tnonline.net>
+X-Priority: 3 (Normal)
+Message-ID: <263863366.20040906181450@tnonline.net>
+To: Christer Weinigel <christer@weinigel.se>
+CC: Pavel Machek <pavel@suse.cz>, Tonnerre <tonnerre@thundrix.ch>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
+       Chris Wedgwood <cw@f00f.org>, <viro@parcelfarce.linux.theplanet.co.uk>,
+       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
+       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <m3sm9vh06b.fsf@zoo.weinigel.se>
+References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl>
+ <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org>
+ <m3eklm9ain.fsf@zoo.weinigel.se> <20040905111743.GC26560@thundrix.ch>
+ <1215700165.20040905135749@tnonline.net> <20040905115854.GH26560@thundrix.ch>
+ <1819110960.20040905143012@tnonline.net>
+ <20040906105018.GB28111@atrey.karlin.mff.cuni.cz>
+ <6010544610.20040906143222@tnonline.net> <m3wtz7h2l6.fsf@zoo.weinigel.se>
+ <826067315.20040906171320@tnonline.net> <m3sm9vh06b.fsf@zoo.weinigel.se>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094486042.413c881a748ee@unsolicited.net>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 06, 2004 at 04:54:02PM +0100, David R wrote:
-> Quoting Alan Cox <alan@redhat.com>:
-> 
-> I'm probably being stupid...  but in misrouted_irq(), shouldn't the 'work' flag
-> be reset for each irq, rather than initialised outside the main loop?
-> 
 
-You are correct. 
+>>   Plugins were just another thing that could extend the functionality
+>>   of these streams and meta data. Reiser4 has a plugin architecture,
+>>   although not yet any run-time support for loading them. Is this so
+>>   bad that we have to prevent it?
 
-Ok try this
+> Take an example: "expose a tar-file as streams below the file" which
+> as been suggested here is IMNSHO plain silly.  I'm not saying anything
+> about mounting a tar file via userfs somewhere else in the file
+> system, that is quite ok, but trying to mount it on top of the same
+> file which suddenly and automagically turns into a sort-of-directory
+> breaks too many thing.  Let your file manager do the choice instead,
+> based on the users preferences.  For example, with a tar.gz-file, I'd
+> like to have a choice of "open file as a seekable file" which would
+> do:
+
+>     mount -t userfs -o driver=gunzip foo.tar.gz /tmp/xyzzy
+
+ Where is the difference? Both would be handled by a specific driver
+ or module and export the same semantics (files+dirs) with permissions
+ etc to the user. With your idea you still would need the userfs
+ kernel module, and with "magic plugins", as you said, you will need a
+ vfs/reiser4 kernel plugin.
+
+> Then I can work with /tmp/xyzzy as a normal file (maybe even with
+> write access if the userfs driver can handle this).  Another choice in
+> the same file manager would be "open file as a directory" which would
+> mount the same file in _another place_ as a directory, and I can even
+> have different views of the same file mounted at the same time.  With
+> the named streams junk that have been suggested here, having two
+> different views would be impossible.
+
+> Sure, we could say that we add another level of indirection to the
+> named streams, so that we specify the driver as the first component of
+> te magic file-as-directory, i.e. foo.tar.gz/ungzipped would refer to
+> the ungzipped stream and foo.tar.gz/ungzipped-and-untarred would show
+> the tar file as a directory, but really, this isn't any more useful
+> than doing a userfs mount.  The userfs mount does not break existing
+> semantics (anymore than mount -o loop does today), and it will work
+> with the existing infrastructure in the linux kernel.  The only
+> advantage of files-as-directories with magic plugins in the kernel is
+> that one can look at it and say "look, how neat, the filenames look
+> almost the same".
+
+  No there are _usability_ differences. I cirtanly do not want to
+  mount lots of files with mount -t userfs, just to see extra
+  meta-data that I want to quickly be able to use. And it also
+  wouldn't work generically (searchable) with tools like find, grep,
+  etc either.
+
+  ~S
+
+>   /Christer
 
 
---- linux-2.6.8.1/arch/i386/kernel/irq.c	2004-08-14 11:54:48.000000000 +0100
-+++ linux-2.6.8.1.ac/arch/i386/kernel/irq.c	2004-09-07 07:21:13.267562440 +0100
-@@ -273,12 +273,103 @@ static int noirqdebug;
- static int __init noirqdebug_setup(char *str)
- {
- 	noirqdebug = 1;
--	printk("IRQ lockup detection disabled\n");
-+	printk(KERN_INFO "IRQ lockup detection disabled\n");
- 	return 1;
- }
- 
- __setup("noirqdebug", noirqdebug_setup);
- 
-+static int irqfixup;
-+
-+static int __init irqfixup_setup(char *str)
-+{
-+	irqfixup = 1;
-+	printk(KERN_WARNING "Misrouted IRQ fixup support enabled.\n");
-+	printk(KERN_WARNING "This may impact system performance.\n");
-+	return 1;
-+}
-+
-+__setup("irqfixup", irqfixup_setup);
-+
-+static int __init irqpoll_setup(char *str)
-+{
-+	irqfixup = 2;
-+	printk(KERN_WARNING "Misrouted IRQ fixup and polling support enabled.\n");
-+	printk(KERN_WARNING "This may significantly impact system performance.\n");
-+	return 1;
-+}
-+
-+__setup("irqpoll", irqpoll_setup);
-+
-+/*
-+ *	Recovery handler for misrouted interrupts
-+ */
-+
-+static asmlinkage int misrouted_irq(int irq, struct pt_regs *regs)
-+{
-+	int i;
-+	irq_desc_t *desc;
-+	int ok = 0;
-+	for(i = 1; i < NR_IRQS; i++)
-+	{
-+		int work = 0;	/* Did we do work for a real IRQ */
-+		struct irqaction *action;
-+		if(i == irq)	/* Already tried */
-+			continue;
-+		desc = &irq_desc[i];
-+		spin_lock(&desc->lock);
-+		action = desc->action;
-+		/* Already running on another processor */
-+		if(desc->status & IRQ_INPROGRESS)
-+		{
-+			/* Already running: If it is shared get the other
-+			   CPU to go looking for our mystery interrupt too */
-+			if(desc->action && (desc->action->flags & SA_SHIRQ))
-+				desc->status |= IRQ_PENDING;
-+			spin_unlock(&desc->lock);
-+			continue;
-+		}
-+		/* Honour the normal IRQ locking */
-+		desc->status |= IRQ_INPROGRESS;
-+		spin_unlock(&desc->lock);
-+		while(action)
-+		{
-+			/* Only shared IRQ handlers are safe to call */
-+			if(action->flags & SA_SHIRQ)
-+			{
-+				if(action->handler(i, action->dev_id, regs) == IRQ_HANDLED)
-+					ok = 1;
-+			}
-+			action = action->next;
-+		}
-+		local_irq_disable();
-+		/* Now clean up the flags */
-+		spin_lock(&desc->lock);
-+		action = desc->action;
-+
-+		/* While we were looking for a fixup someone queued a real
-+		   IRQ clashing with our walk */
-+
-+		while((desc->status & IRQ_PENDING) && action)
-+		{
-+			/* Perform real IRQ processing for the IRQ we deferred */
-+			work = 1;
-+			spin_unlock(&desc->lock);
-+			handle_IRQ_event(i, regs, action);
-+			spin_lock(&desc->lock);
-+			desc->status &= ~IRQ_PENDING;
-+		}
-+		desc->status &= ~IRQ_INPROGRESS;
-+		/* If we did actual work for the real IRQ line we must
-+		   let the IRQ controller clean up too */
-+		if(work)
-+			desc->handler->end(i);
-+		spin_unlock(&desc->lock);
-+	}
-+	/* So the caller can adjust the irq error counts */
-+	return ok;
-+}
-+
- /*
-  * If 99,900 of the previous 100,000 interrupts have not been handled then
-  * assume that the IRQ is stuck in some manner.  Drop a diagnostic and try to
-@@ -289,13 +380,69 @@ __setup("noirqdebug", noirqdebug_setup);
-  *
-  * Called under desc->lock
-  */
--static void note_interrupt(int irq, irq_desc_t *desc, irqreturn_t action_ret)
-+static void note_interrupt(int irq, irq_desc_t *desc, irqreturn_t action_ret, struct pt_regs *regs)
- {
- 	if (action_ret != IRQ_HANDLED) {
- 		desc->irqs_unhandled++;
- 		if (action_ret != IRQ_NONE)
- 			report_bad_irq(irq, desc, action_ret);
- 	}
-+	if(unlikely(irqfixup))	/* Don't punish working computers */
-+	{
-+		if((irqfixup == 2 && irq == 0) || action_ret == IRQ_NONE)
-+		{
-+#ifdef CONFIG_4KSTACKS
-+			u32 *isp;
-+			union irq_ctx * curctx;
-+			union irq_ctx * irqctx;
-+			int ok;
-+
-+			curctx = (union irq_ctx *) current_thread_info();
-+			irqctx = hardirq_ctx[smp_processor_id()];
-+
-+			spin_unlock(&desc->lock);
-+
-+			/*
-+			 * this is where we switch to the IRQ stack. However, if we are already using
-+			 * the IRQ stack (because we interrupted a hardirq handler) we can't do that
-+			 * and just have to keep using the current stack (which is the irq stack already
-+			 * after all)
-+			 */
-+
-+			if (curctx == irqctx)
-+				ok = misrouted_irq(irq, regs);
-+			else {
-+				/* build the stack frame on the IRQ stack */
-+				isp = (u32*) ((char*)irqctx + sizeof(*irqctx));
-+				irqctx->tinfo.task = curctx->tinfo.task;
-+				irqctx->tinfo.previous_esp = current_stack_pointer();
-+
-+				*--isp = (u32) regs;
-+				*--isp = (u32) irq;
-+
-+				asm volatile(
-+				"       xchgl   %%ebx,%%esp     \n"
-+				"       call    misrouted_irq   \n"
-+				"       xchgl   %%ebx,%%esp     \n"
-+				: "=a"(ok)
-+				: "b"(isp)
-+				: "memory", "cc", "edx", "ecx"
-+				);
-+			}
-+			spin_lock(&desc->lock);
-+			if (curctx != irqctx)
-+				irqctx->tinfo.task = NULL;
-+#else
-+			spin_unlock(&desc->lock);
-+
-+			ok = misrouted_irq(irq, desc, regs);
-+
-+			spin_lock(&desc->lock);
-+#endif
-+			if(action_ret == IRQ_NONE)
-+				desc->irqs_unhandled -= ok;
-+		}
-+	}
- 
- 	desc->irq_count++;
- 	if (desc->irq_count < 100000)
-@@ -532,7 +679,7 @@ asmlinkage unsigned int do_IRQ(struct pt
- 		}
- 		spin_lock(&desc->lock);
- 		if (!noirqdebug)
--			note_interrupt(irq, desc, action_ret);
-+			note_interrupt(irq, desc, action_ret, &regs);
- 		if (curctx != irqctx)
- 			irqctx->tinfo.task = NULL;
- 		if (likely(!(desc->status & IRQ_PENDING)))
-@@ -551,7 +698,7 @@ asmlinkage unsigned int do_IRQ(struct pt
- 
- 		spin_lock(&desc->lock);
- 		if (!noirqdebug)
--			note_interrupt(irq, desc, action_ret);
-+			note_interrupt(irq, desc, action_ret, &regs);
- 		if (likely(!(desc->status & IRQ_PENDING)))
- 			break;
- 		desc->status &= ~IRQ_PENDING;

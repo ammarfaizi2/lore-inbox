@@ -1,82 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314056AbSDVFkT>; Mon, 22 Apr 2002 01:40:19 -0400
+	id <S314057AbSDVFkr>; Mon, 22 Apr 2002 01:40:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314057AbSDVFkS>; Mon, 22 Apr 2002 01:40:18 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:30475
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S314056AbSDVFkS>; Mon, 22 Apr 2002 01:40:18 -0400
-Date: Sun, 21 Apr 2002 22:38:23 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Hans-Peter Jansen <hpj@urpla.net>
-cc: andersen@codepoet.org, drd@homeworld.ath.cx, linux-kernel@vger.kernel.org
-Subject: Re: A CD with errors (scratches etc.) blocks the whole system while
- reading damadged files
-In-Reply-To: <20020422005439.0799e874.hpj@urpla.net>
-Message-ID: <Pine.LNX.4.10.10204212235220.24428-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S314058AbSDVFkq>; Mon, 22 Apr 2002 01:40:46 -0400
+Received: from adsl-64-174-67-42.dsl.sntc01.pacbell.net ([64.174.67.42]:22713
+	"EHLO moon.timocharis.com") by vger.kernel.org with ESMTP
+	id <S314057AbSDVFkp>; Mon, 22 Apr 2002 01:40:45 -0400
+Date: Sun, 21 Apr 2002 22:39:31 -0700
+From: Akkana <akkana@shallowsky.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: power off (again)
+Message-ID: <20020422053931.GA18478@shallowsky.com>
+Mail-Followup-To: Akkana <akkana@shallowsky.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020418201220.C6D6247B1@debian.heim.lan> <1019162789.3361.0.camel@cristal> <20020419123743.DDB6847B5@debian.heim.lan> <20020418201220.C6D6247B1@debian.heim.lan> <1019163766.6743.8.camel@aurora> <20020419123026.A802D47B4@debian.heim.lan> <20020419230335.6454C755@merlin.webofficenow.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rob Landley writes:
+> Just thought I'd give a "me too" response.  The Red Hat 7.2 kernel powers 
+> down all three systems I've tried it on (a Dell Inspiron 3500 laptop, a 
+> Toshiba Tecra 8000, and an SIS chipset motherboard).  The 2.4.18 and 2.4.17 
+> kernels do NOT power down any of those systems
 
-You have addressed the core problem I have been working on quietly.
-The export of the sense data and end request per subdriver is required to
-make the personalities proper.  This is messy for two of the four current
-subdrivers, and teh fifth new one will be clean from the start.
+Christian Schoenebeck writes:
+> I tried: APM only, ACPI only and I'm not really sure, but I think I also 
+> tried ACPI & APM, but AFAIK this automatically enables just one of them 
 
-Cheers,
+Another data point: VIA KT266 chipset (MSI mobo) and ALI Magick1 chipset
+(Soyo mobo), kernels 2.4.7, 2.4.17 and 2.4.18: enabling ACPI makes the
+system power down correctly.  It doesn't matter whether APM is enabled,
+nor whether "use real mode APM to power down" is enabled.  Single
+processor, no SMP support in the kernel.  (Distro kernels tested:
+stock Redhat 7.1, 7.2, and Mandrake 8.1 kernels do not power the
+system down; the stock SuSE 7.3 kernel does.)
 
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Mon, 22 Apr 2002, Hans-Peter Jansen wrote:
-
-> On Fri, 19 Apr 2002 14:01:13 -0600
-> "Erik Andersen" <andersen@codepoet.org> wrote:
-> 
-> > This should help somewhat.  Currently, ide-cd.c retries ERROR_MAX
-> > (8) times when it sees an error.  But ide.c is also retrying
-> > ERROR_MAX times when _it_ sees an error, and does a bus reset
-> > after evey 4 failures.  So for each bad sector, you get 64
-> > retries (with typical timouts of 7 seconds each) plus 16 bus
-> > resets per bad sector.
-> 
-> Thanks for investigation. BTW: Does this cover the ide-scsi case, too?
->  
-> > The funny thing is though, we knew after the first read that we
-> > had an uncorrectable medium error.  Try this patch vs 2.4.19-pre7
-> > 
-> > --- linux/drivers/ide/ide-cd.c.orig	Tue Apr  9 06:59:56 2002
-> > +++ linux/drivers/ide/ide-cd.c	Tue Apr  9 07:04:59 2002
-> > @@ -657,6 +657,11 @@
-> >  			   request or data protect error.*/
-> >  			ide_dump_status (drive, "command error", stat);
-> >  			cdrom_end_request (0, drive);
-> > +		} else if (sense_key == MEDIUM_ERROR) {
-> > +			/* No point in re-trying a zillion times on a bad 
-> > +			 * sector...  If we got here the error is not correctable */
-> > +			ide_dump_status (drive, "media error (bad sector)", stat);
-> 
-> .. and some curious will want to know which sector has thrown the error 
-> [which would save me to patch this some day myself...]
-> 
-> > +			cdrom_end_request (0, drive);
-> >  		} else if ((err & ~ABRT_ERR) != 0) {
-> >  			/* Go to the default handler
-> >  			   for other errors. */
-> >  -Erik
-> > 
-> > --
-> > Erik B. Andersen             http://codepoet-consulting.com/
-> > --This message was written using 73% post-consumer electrons--
-> 
-> Cheers,
->   Hans-Peter
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+	...Akkana

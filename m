@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289032AbSA3J54>; Wed, 30 Jan 2002 04:57:56 -0500
+	id <S289039AbSA3KCQ>; Wed, 30 Jan 2002 05:02:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289036AbSA3J5q>; Wed, 30 Jan 2002 04:57:46 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:9993 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id <S289032AbSA3J5i>;
-	Wed, 30 Jan 2002 04:57:38 -0500
-Message-ID: <3C57C38B.30101@namesys.com>
-Date: Wed, 30 Jan 2002 12:57:31 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020123
-X-Accept-Language: en-us
+	id <S289036AbSA3KCG>; Wed, 30 Jan 2002 05:02:06 -0500
+Received: from dsl-213-023-038-145.arcor-ip.net ([213.23.38.145]:32655 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289042AbSA3KBz>;
+	Wed, 30 Jan 2002 05:01:55 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: Wed, 30 Jan 2002 11:05:42 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: <mingo@elte.hu>, Rob Landley <landley@trommello.org>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0201300110420.1542-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0201300110420.1542-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Oliver Xymoron <oxymoron@waste.org>
-CC: Chris Mason <mason@suse.com>, Alexander Viro <viro@math.psu.edu>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
-        linux-kernel <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com,
-        reiserfs-dev@namesys.com
-Subject: Re: [reiserfs-dev] Re: Note describing poor dcache utilization under high memory pressure
-In-Reply-To: <Pine.LNX.4.44.0201300106020.25123-100000@waste.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Vrcc-0000DH-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron wrote:
+On January 30, 2002 10:21 am, Linus Torvalds wrote:
+> On Wed, 30 Jan 2002, Alexander Viro wrote:
+> >
+> > 	Frankly, the only real issue in that thread was that we _do_ need
+> > a tree specifically for small fixes.  Preferably - quickly getting merged
+> > into the main tree.
+> 
+> A "small stuff" maintainer may indeed be a good idea. The maintainer could
+> be the same as somebody who does bigger stuff too, but they should be
+> clearly different things - trivial one-liners that do not add anything
+> new, only fix obvious stuff (to the point where nobody even needs to think
+> about it - if I'd start getting any even halfway questionable patches from
+> the "small stuff" maintainer, it wouldn't work).
 
->
->Can we get you to agree that basically all subpage objects are immovable?
->
-No.  Certainly not in the general case, and I think Josh found ways to 
-handle the dcache case.  If we can simply free the old objects, we don't 
-actually have to move the hot ones, as he points out.
+But that's exactly what Arnaldo Carvalho de Melo[1] does, has been doing for 
+more than a year, surely you've noticed?  On top of being the nicest guy in 
+the world, as far as I can tell.
 
->
->And as a consequence that garbage collecting at subpage levels doesn't
->guarantee freeing up any pages that can then be given up to other
->subsystems in response to VM pressure? The GC must think in terms of pages
->to actually make progress.
->
->One of the design goals of slab by the way is that objects of a similar
->type will end up having similar lifetimes, avoiding some of the worst
->cases of sub-page allocations.
->
+[1] Most of us call him <acme>.
 
-
-
+-- 
+Daniel

@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVBGQBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVBGQEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbVBGQBe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 11:01:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbVBGQBe
+	id S261169AbVBGQEu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 11:04:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbVBGQEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 11:01:34 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:27327 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261167AbVBGQBc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 11:01:32 -0500
-Message-ID: <42079029.5040401@sgi.com>
-Date: Mon, 07 Feb 2005 09:58:33 -0600
-From: Patrick Gefre <pfg@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel@vger.kernel.org, matthew@wil.cx,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: [PATCH] Altix : ioc4 serial driver support
-References: <20050103140938.GA20070@infradead.org> <Pine.SGI.3.96.1050131164059.62785B-100000@fsgi900.americas.sgi.com> <20050201092335.GB28575@infradead.org> <420139BF.4000100@sgi.com> <20050202215716.GA23253@infradead.org>
-In-Reply-To: <20050202215716.GA23253@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Feb 2005 11:04:49 -0500
+Received: from gprs215-44.eurotel.cz ([160.218.215.44]:48614 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261169AbVBGQEs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 11:04:48 -0500
+Date: Mon, 7 Feb 2005 17:01:05 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+Cc: Paulo Marques <pmarques@grupopie.com>, Adam Sulmicki <adam@cfar.umd.edu>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>,
+       ncunningham@linuxmail.org, ACPI List <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Li-Ta Lo <ollie@lanl.gov>
+Subject: Re: [RFC] Reliable video POSTing on resume
+Message-ID: <20050207160105.GF8040@elf.ucw.cz>
+References: <4202DF7B.2000506@gmx.net> <1107485504.5727.35.camel@desktop.cunninghams> <9e4733910502032318460f2c0c@mail.gmail.com> <20050204074454.GB1086@elf.ucw.cz> <9e473391050204093837bc50d3@mail.gmail.com> <20050205093550.GC1158@elf.ucw.cz> <1107695583.14847.167.camel@localhost.localdomain> <Pine.BSF.4.62.0502062107000.26868@www.missl.cs.umd.edu> <42077AC4.5030103@grupopie.com> <42077CFD.7030607@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42077CFD.7030607@gmx.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Wed, Feb 02, 2005 at 02:36:15PM -0600, Patrick Gefre wrote:
-> 
->>>Please kill ioc4_ide_init as it's completely unused and make 
->>>ioc4_serial_init
->>>a normal module_init() handler in ioc4_serial, there's no need to call
->>>them from the generic driver.
->>>
->>
->>I want ioc4_serial_init called before pci_register_driver() if I make it a
->>module_init() call I have no control over order ??
-> 
-> 
-> For the modular case it'd always be executed before because the module
-> must be loaded first, for the builtin case it'd depend on the link order.
-> 
-> Let's leave it as-is, it's probably safer.
-> 
-> 
+Hi!
 
+> > 3 - it's always there and can be executed at *any* time: booting,
+> > returning from suspend, etc. Also it would allow the VESA framebuffer
+> > driver to change graphics mode at any time (for instance).
+> 
+> OK, and what would force you to do the above in the kernel? If the code
+> lives in initramfs, it can be called very early, too.
 
-Latest version with review mods:
-ftp://oss.sgi.com/projects/sn2/sn2-update/033-ioc4-support
-
-Signed-off-by: Patrick Gefre <pfg@sgi.com>
+It will be easier to debug in kernel than in initramfs, for
+one. Kernel code is bad enough, but initramfs running while kernel is
+not even initialized is going to be even more "fun".
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

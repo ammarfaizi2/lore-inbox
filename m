@@ -1,63 +1,30 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313118AbSECNrQ>; Fri, 3 May 2002 09:47:16 -0400
+	id <S313120AbSECNv4>; Fri, 3 May 2002 09:51:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313120AbSECNrP>; Fri, 3 May 2002 09:47:15 -0400
-Received: from pieck.student.uva.nl ([146.50.96.22]:48524 "EHLO
-	pieck.student.uva.nl") by vger.kernel.org with ESMTP
-	id <S313118AbSECNrO>; Fri, 3 May 2002 09:47:14 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rudmer van Dijk <rudmer@legolas.dynup.net>
-Reply-To: rudmer@legolas.dynup.net
-To: Vojtech Pavlik <vojtech@ucw.cz>
-Subject: psmouse
-Date: Fri, 3 May 2002 15:47:47 +0200
-X-Mailer: KMail [version 1.3.2]
+	id <S313128AbSECNvz>; Fri, 3 May 2002 09:51:55 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17161 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313120AbSECNvy>; Fri, 3 May 2002 09:51:54 -0400
+Subject: Re: Linux 2.4 as a router, when is it appropriate?
+To: russ@elegant-software.com (Russell Leighton)
+Date: Fri, 3 May 2002 15:10:57 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3CD28FB8.40204@elegant-software.com> from "Russell Leighton" at May 03, 2002 09:25:12 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020503134714Z313118-22651+22158@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E173dlx-0006Pc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> I have heard that performance wise, if you have a fast CPU,
+> much memory and good NICs that Linux can be as good
+> all but the high end routers. Are there important missing
+> features or realiability issues that make using Linux not
+> suitable for "enterprise" use?
 
-I have a Logitech Optical Wheelmouse and it is not detected correctly in 
-2.5.12-dj1. It is detected as a 'PS/2 Logitech Mouse on isa0060/serio1' and 
-the scrollwheel does not work. 
-
-when I let the detection function print the devicetype I discovered that the 
-devicetype of my mouse is not listed in the logitech_{4btn,wheel,ps2pp} 
-arrays (it is 86).
-
-when I put 86 in logitech_wheel[] it is still listed as 'PS/2 Logitech Mouse 
-on isa0060/serio1'
-
-when I also put 86 in logitech_ps2pp it is listed as 'ImExPS/2 Microsoft 
-IntelliMouse Explorer on isa0060/serio1'....
-
-It appears that it is not recognised in the if statement on line 405, 
-printing the numbers in the param[] array gives:
-param[0] = 8
-param[1] = 0
-param[2] = 0
-param[3] = 205
-param[4] = 246
-
-In every combination of 86 in the logitch_* arrays I get the following 
-messages when I use the wheel:
-psmouse.c: Lost synchronization, throwing X bytes away. (with X = 1-3)
-the mouse does not work correctly for PSMOUSE_{IMPS,IMEX} otherwise the mouse 
-and the three buttons work ok.
-
-I do not know what to do next, but I want to use my scrollwheel!!
-BTW the wheel works in 2.4.x
-
-mouse info:
-Logitech Optical Wheelmouse
-M/N: M-BJ58
-P/N: 830513-0000
-S/N: LNA14826942
-Chip: CP5763AM, Logitech, 3311550000 A  02, IND0143 508226
-
-	Rudmer
+CPU and RAM isnt that important. Your normal limit is the PCI bus bandwidth.
+At gigabit speeds that becomes a bottleneck, followed by RAM bandwidth.

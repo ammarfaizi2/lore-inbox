@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268146AbUJMBJr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268153AbUJMBKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268146AbUJMBJr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 21:09:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268153AbUJMBJr
+	id S268153AbUJMBKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 21:10:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268164AbUJMBKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 21:09:47 -0400
-Received: from mail.renesas.com ([202.234.163.13]:51079 "EHLO
-	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S268146AbUJMBJo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 21:09:44 -0400
-Date: Wed, 13 Oct 2004 10:09:29 +0900 (JST)
-Message-Id: <20041013.100929.982911309.takata.hirokazu@renesas.com>
-To: paul.mundt@nokia.com
-Cc: akpm@osdl.org, nico@cam.org, takata@linux-m32r.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] net: fix smc91x build for sh/ppc
-From: Hirokazu Takata <takata.hirokazu@renesas.com>
-In-Reply-To: <20041012161631.GA8766@hed040-158.research.nokia.com>
-References: <20041012161631.GA8766@hed040-158.research.nokia.com>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Oct 2004 21:10:09 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:40850 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268153AbUJMBKB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 21:10:01 -0400
+Message-ID: <416C8048.1000602@redhat.com>
+Date: Tue, 12 Oct 2004 18:09:28 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041010
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/3] lsm: add bsdjail module
+References: <1097094103.6939.5.camel@serge.austin.ibm.com> <1097094270.6939.9.camel@serge.austin.ibm.com> <20041006162620.4c378320.akpm@osdl.org> <20041007190157.GA3892@IBM-BWN8ZTBWA01.austin.ibm.com> <20041010104113.GC28456@infradead.org> <1097502444.31259.19.camel@localhost.localdomain> <20041012131124.GA2484@IBM-BWN8ZTBWA01.austin.ibm.com> <416C5C26.9020403@redhat.com> <20041013005856.GA3364@IBM-BWN8ZTBWA01.austin.ibm.com>
+In-Reply-To: <20041013005856.GA3364@IBM-BWN8ZTBWA01.austin.ibm.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Paul,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-OK. I agree with you.
+Serge E. Hallyn wrote:
 
-From: Paul Mundt <paul.mundt@nokia.com>
-Subject: [PATCH] net: fix smc91x build for sh/ppc
-Date: Tue, 12 Oct 2004 19:16:32 +0300
-> The current smc91x code uses set_irq_type(). It looks like the m32r guys
-> worked around this by adding a !defined(__m32r__) check, but this is equally
-> bogus as set_irq_type() is an arm/arm26-specific function.
+>>  selinux: user_u:user_r:user_t
 > 
-> Trying to get this to build on sh died in the same spot, so we just back out
-> the m32r change and make it depend on CONFIG_ARM instead. Notably, the ppc
-> build would have been broken by this as well, but it doesn't seem like anyone
-> noticed this there yet.
 > 
-> Signed-off-by: Paul Mundt <paul.mundt@nokia.com>
-> 
->  drivers/net/smc91x.c |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> ===== drivers/net/smc91x.c 1.7 vs edited =====
-> --- 1.7/drivers/net/smc91x.c	2004-09-17 03:07:00 +03:00
-> +++ edited/drivers/net/smc91x.c	2004-10-12 19:05:25 +03:00
-> @@ -1885,7 +1885,7 @@
->        	if (retval)
->        		goto err_out;
->  
-> -#if !defined(__m32r__)
-> +#ifdef CONFIG_ARM
->  	set_irq_type(dev->irq, IRQT_RISING);
->  #endif
->  #ifdef SMC_USE_PXA_DMA
+> This is exactly what my current stacker does, to the byte  :-)
 
--- Takata
+This is all nice and good, but you have to bring this up with the
+SELinux people _now_ since, as I said before, the current
+SELinux-enabled userland code might not even start with this change of
+the format even if SELinux is not enabled.  If it is decided that
+/proc/*/attr/current does not belong to SELinux alone, then the guys
+should be told about it now so that all the relevant code (libselinux,
+kernel without your "stacker" stuff, ...) can be changed before the
+current use spreads too far.
+
+- --
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFBbIBI2ijCOnn/RHQRAqXMAJ96lsdsTsZf3jI+8UXLAziK1iKC2QCfZyZT
+zewSIJsYVpIFK2lG0lFcrgY=
+=SGiv
+-----END PGP SIGNATURE-----

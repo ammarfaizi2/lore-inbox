@@ -1,80 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319313AbSIKTvf>; Wed, 11 Sep 2002 15:51:35 -0400
+	id <S319303AbSIKUAJ>; Wed, 11 Sep 2002 16:00:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319311AbSIKTvf>; Wed, 11 Sep 2002 15:51:35 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:18442 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S319307AbSIKTvc>;
-	Wed, 11 Sep 2002 15:51:32 -0400
-Date: Wed, 11 Sep 2002 21:52:32 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
-Message-ID: <20020911195232.GH1212@marowsky-bree.de>
-References: <20020911191701.GE1212@marowsky-bree.de> <200209111937.g8BJbfQ02442@localhost.localdomain>
+	id <S319304AbSIKUAJ>; Wed, 11 Sep 2002 16:00:09 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:30087 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S319303AbSIKUAI>;
+	Wed, 11 Sep 2002 16:00:08 -0400
+Date: Wed, 11 Sep 2002 22:04:56 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Can't compil i2o_block.c and i2o... in 2.5.34
+Message-ID: <20020911200456.GB22435@ulima.unil.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <200209111937.g8BJbfQ02442@localhost.localdomain>
 User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-09-11T14:37:40,
-   James Bottomley <James.Bottomley@steeleye.com> said:
+Hello,
 
-> I think I see driverfs as the solution here.  Topology is deduced by
-> examining certain device and HBA parameters.  As long as these parameters
-> can be exposed as nodes in the device directory for driverfs, a user level
-> daemon map the topology and connect the paths at the top.  It should even be
-> possible to weight the constructed multi-paths.
+I haden't noticed this problem being reported to this ml, but maybe I am
+wrong, in that case, I am sorry ;-)
 
-Perfect, I agree, should've thought of it. As long as this is simple enough
-that it can be done in initrd (if / is on a multipath device...).
+Trying to compil the 2.5.34 I got:
 
-The required weighting has already been implemented in the LVM1 patch by IBM.
-While it appeared overkill to me for "simple" cases, I think it is suited to
-expressing proximity.
+  gcc -Wp,-MD,./.i2o_block.o.d -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=i2o_block   -c -o i2o_block.o i2o_block.c
+i2o_block.c:43:2: #error Please convert me to Documentation/DMA-mapping.txt
+i2o_block.c: In function `i2ob_send':
+i2o_block.c:325: warning: comparison between pointer and integer
+i2o_block.c: In function `i2ob_install_device':
+i2o_block.c:1241: structure has no member named `queue_buggy'
+i2o_block.c:1244: structure has no member named `queue_buggy'
+i2o_block.c:1328: incompatible type for argument 1 of `set_capacity'
+i2o_block.c: In function `init_module':
+i2o_block.c:1775: warning: passing arg 1 of `sprintf' discards qualifiers from pointer target type
+make[3]: *** [i2o_block.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.5/drivers/message/i2o'
+make[2]: *** [i2o] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.5/drivers/message'
+make[1]: *** [message] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5/drivers'
+make: *** [drivers] Error 2
+80.160u 6.310s 1:42.73 84.1%	0+0k 0+0io 419602pf+0w
+Exit 2
 
-> This solution appeals because the kernel doesn't have to dictate policy, 
+Removing it, and then:
+  gcc -Wp,-MD,./.i2o_lan.o.d -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=i2o_lan   -c -o i2o_lan.o i2o_lan.c
+i2o_lan.c:28:2: #error Please convert me to Documentation/DMA-mapping.txt
+make[3]: *** [i2o_lan.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.5/drivers/message/i2o'
+make[2]: *** [i2o] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.5/drivers/message'
+make[1]: *** [message] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5/drivers'
+make: *** [drivers] Error 2
+Exit 2
 
-Right.
+  gcc -Wp,-MD,./.i2o_scsi.o.d -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=i2o_scsi   -c -o i2o_scsi.o i2o_scsi.c
+i2o_scsi.c:34:2: #error Please convert me to Documentation/DMA-mapping.txt
+i2o_scsi.c: In function `i2o_scsi_reply':
+i2o_scsi.c:194: warning: assignment from incompatible pointer type
+i2o_scsi.c:289: warning: assignment from incompatible pointer type
+i2o_scsi.c: In function `i2o_scsi_queuecommand':
+i2o_scsi.c:726: structure has no member named `address'
+i2o_scsi.c:737: structure has no member named `address'
+make[3]: *** [i2o_scsi.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.5/drivers/message/i2o'
+make[2]: *** [i2o] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.5/drivers/message'
+make[1]: *** [message] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5/drivers'
+make: *** [drivers] Error 2
+Exit 2
 
-> I've been think about this separately.  FC in particular needs some type of
-> event notification API (something like "I've just seen this disk" or "my
-> loop just went down").  I'd like to leverage a mid-layer api into hot plug
-> for some of this, but I don't have the details worked out.
+And afterthat everything got perfectly compiled ;-)
 
-This isn't just FC, but also dasd on S/390. Potentially also network block
-devices, which can notice a link down.
+Have a great day ;-)
 
-> The probing issue is an interesting one.  At least SCSI has the ability to 
-> probe with no IO (something like a TEST UNIT READY) and I assume other block 
-> devices have something similar.  Would it make sense to tie this to a single 
-> well known ioctl so that you can probe any device that supports it without 
-> having to send real I/O?
-
-Not sufficient. The test is policy, so the above applies here too ;-) 
-
-In the case of talking to a dual headed RAID box for example, TEST UNIT READY
-might return OK, but the controller might refuse actual IO, or the path may be
-somehow damaged in a way which is only detected by doing some "large" IO. Now,
-this might be total overkill for other scenarios.
-
-I vote for exposing the path via driverfs (which, I think, is already
-concensus so the multipath group, topology etc can be used) and allowing
-user-space to reenable them after doing whatever probing deemed necessary.
-
-What are your ideas on the potential timeframe?
-
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-Immortality is an adequate definition of high availability for me.
-	--- Gregory F. Pfister
-
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

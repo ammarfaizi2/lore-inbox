@@ -1,99 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264394AbRFNB56>; Wed, 13 Jun 2001 21:57:58 -0400
+	id <S264398AbRFNCA6>; Wed, 13 Jun 2001 22:00:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264398AbRFNB5s>; Wed, 13 Jun 2001 21:57:48 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:37031 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S264394AbRFNB5l>; Wed, 13 Jun 2001 21:57:41 -0400
-Message-ID: <3B281A50.9B3EAA68@idcomm.com>
-Date: Wed, 13 Jun 2001 19:58:40 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel <ddickman@nyc.rr.com>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: obsolete code must die
-In-Reply-To: <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x>
+	id <S264400AbRFNCAs>; Wed, 13 Jun 2001 22:00:48 -0400
+Received: from sunny-legacy.pacific.net.au ([210.23.129.40]:65533 "EHLO
+	sunny.pacific.net.au") by vger.kernel.org with ESMTP
+	id <S264398AbRFNCAc>; Wed, 13 Jun 2001 22:00:32 -0400
+Message-Id: <200106140200.f5E20NL3012987@typhaon.pacific.net.au>
+X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
+To: "Rainer Mager" <rmager@vgkk.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Download process for a "split kernel" (was: obsolete code must die) 
+In-Reply-To: Message from "Rainer Mager" <rmager@vgkk.com> 
+   of "Thu, 14 Jun 2001 10:45:10 +0900." <NEBBJBCAFMMNIHGDLFKGCEFCEEAA.rmager@vgkk.com> 
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGCEFCEEAA.rmager@vgkk.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 14 Jun 2001 12:00:23 +1000
+From: David Luyer <david_luyer@pacific.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel wrote:
-> 
-> Anyone concerned about the current size of the kernel source code? I am, and
-> I propose to start cleaning house on the x86 platform. I mean it's all very
-> well and good to keep adding features, but stuff needs to go if kernel
-> development is to move forward. Before listing the gunk I want to get rid
-> of, here's my justification for doing so:
-> -- Getting rid of old code can help simplify the kernel. This means less
-> chance of bugs.
-> -- Simplifying the kernel means that it will be easier for newbies to
-> understand and perhaps contribute.
-> -- a simpler, cleaner kernel will also be of more use in an academic
-> environment.
-> -- a smaller kernel is easier to maintain and is easier to re-architect
-> should the need arise.
-> -- If someone really needs support for this junk, they will always have the
-> option of using the 2.0.x, 2.2.x or 2.4.x series.
-> 
-> So without further ado here're the features I want to get rid of:
-> 
-> i386, i486
-> The Pentium processor has been around since 1995. Support for these older
-> processors should go so we can focus on optimizations for the pentium and
-> better processors.
-> 
-> math-emu
-> If support for i386 and i486 is going away, then so should math emulation.
-> Every intel processor since the 486DX has an FPU unit built in. In fact
-> shouldn't FPU support be a userspace responsibility anyway?
-> 
-> ISA bus, MCA bus, EISA bus
-> PCI is the defacto standard. Get rid of CONFIG_BLK_DEV_ISAPNP,
-> CONFIG_ISAPNP, etc
-> 
-> ISA, MCA, EISA device drivers
-> If support for the buses is gone, there's no point in supporting devices for
-> these buses.
-> 
-> all code marked as CONFIG_OBSOLETE
-> Since we're cleaning house we may as well get rid of this stuff.
-> 
-> MFM/RLL/XT/ESDI hard drive support
-> Does anyone still *have* an RLL drive that works? At the very least get rid
-> of the old driver (eg CONFIG_BLK_DEV_HD_ONLY, CONFIG_BLK_DEV_HD_IDE,
-> CONFIG_BLK_DEV_XD, CONFIG_BLK_DEV_PS2)
-> 
-> parallel/serial/game ports
-> More controversial to remove this, since they are *still* in pretty wide
-> use -- but USB and IEEE 1394 are the way to go. No ifs ands or buts.
 
-This is completely wrong. USB is a hog, IEEE 1394 joysticks? Almost
-every sound card out there...modern...have game ports that are useful
-now. USB is an evolving and often broken standard. Your idea of obsolete
-is not completely wrong, but it is far too wrong to go about it this
-way. And printers or serial mice?
 
-D. Stimits, stimits@idcomm.com
+> I agree that removing support for any hardware is a bad idea but I question
+> the idea of putting it all in one monolithic download (tar file). If we're
+> considering the concern for less developed nations with older hardware,
+> imagine how you would like to download the whole kernel with an old 2400 bps
+> modem. Not a fun thought.
+> 
+> Would it make sense to create some sort of 'make config' script that
+> determines what you want in your kernel and then downloads only those
+> components? After all, with the constant release of new hardware, isn't a
+> 50MB kernel release not too far away? 100MB?
 
-> 
-> a.out
-> Who needs it anymore. I love ELF.
-> 
-> I really think doing a clean up is worthwhile. Maybe while looking for stuff
-> to clean up we'll even be able to better comment the existing code. Any
-> other features people would like to get rid of? Any comments or suggestions?
-> I'd love to start a good discussion about this going so please send me your
-> 2 cents.
-> 
-> Daniel
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+This might actually make sense - a kernel composed of multiple versioned
+segments.  A tool which works out dependencies of the options being selected,
+downloads the required parts if the latest versions of those parts are not
+already downloaded, and then builds the kernel (or could even build during
+the download, as soon as the build dependencies for each block of the kernel
+are satisfied, if you want to be fancy...).  
+
+Or as a simpler design, something like;
+
+  * a copy of the kernel maintained in a CVS tree
+  * kernel download would pull down:
+        * the build script
+        * a file containing the list of filenames depended on by
+          each config option
+  * build script builds the config and then cvs updates the file list
+    and the files for each config option in question to the version as
+    tagged in the build script
+
+Someone could relatively easily maintain this separate to all the kernel 
+developers, and it would mean only ever having to download files you were
+actually using.
+
+David.
+-- 
+David Luyer                                        Phone:   +61 3 9674 7525
+Engineering Projects Manager   P A C I F I C       Fax:     +61 3 9699 8693
+Pacific Internet (Australia)  I N T E R N E T      Mobile:  +61 4 1111 2983
+http://www.pacific.net.au/                         NASDAQ:  PCNTF
+
+

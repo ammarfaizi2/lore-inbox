@@ -1,80 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293721AbSCKM3X>; Mon, 11 Mar 2002 07:29:23 -0500
+	id <S293722AbSCKMdd>; Mon, 11 Mar 2002 07:33:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293722AbSCKM3P>; Mon, 11 Mar 2002 07:29:15 -0500
-Received: from dire.bris.ac.uk ([137.222.10.60]:27339 "EHLO dire.bris.ac.uk")
-	by vger.kernel.org with ESMTP id <S293721AbSCKM3C>;
-	Mon, 11 Mar 2002 07:29:02 -0500
-Date: Mon, 11 Mar 2002 12:26:51 +0000 (GMT)
-From: Josh Howlett <Josh.Howlett@bristol.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: PCMCIA problem: writing to Intel Flash Series 2+
-Message-ID: <Pine.SOL.3.95q.1020311121407.9331B-100000@shark.cse.bris.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293724AbSCKMdP>; Mon, 11 Mar 2002 07:33:15 -0500
+Received: from [213.24.79.7] ([213.24.79.7]:46862 "EHLO despina.msk.mt")
+	by vger.kernel.org with ESMTP id <S293722AbSCKMdM>;
+	Mon, 11 Mar 2002 07:33:12 -0500
+Date: Mon, 11 Mar 2002 15:33:46 +0300
+From: Valentin Podlovchenko <valya@vip.pp.ru>
+To: Paul Mackerras <paulus@cs.anu.edu.au>,
+        "Ben. Herrenschmidt" <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] pmac_mb_defs[] for new iBook2 (kernel-2.4.18-ben0)
+Message-ID: <20020311123346.GD7449@microtest.ru>
+Mail-Followup-To: Valentin Podlovchenko <valya@vip.pp.ru>,
+	Paul Mackerras <paulus@cs.anu.edu.au>,
+	"Ben. Herrenschmidt" <benh@kernel.crashing.org>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="cNdxnHkX5QqsyA0e"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Debian GNU/Linux 2.4.17-grsecurity-1.9.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Summary:
 
-I can read, but not write to or erase, an Intel Series 2+ flash card.
+--cNdxnHkX5QqsyA0e
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
 
-In the event of a reply, please Cc to my email address, as I am no
-subscribed.
+Hello,
 
-Hardware:
+motherboard on the new iBook2 reports to be compatible to "PowerBook4,2"
+so to make some things work (such as sleep mode) on this model should be
+applied this patch
 
-Toshiba Tecra 8100 laptop
-Intel Series 2+ flash memory card
+-- 
+  Valentin Podlovchenko,                     ____/|
+  <VPodlovchenko@Microtest.ru>               \ o.O|
+  Tel: +7(095) 787-2058 (ext. 1245)           =(_)=
+  Fax: +7(095) 787-2056                         U
 
-Software:
+--cNdxnHkX5QqsyA0e
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: attachment; filename="new_ibook2.patch"
 
-Linux 2.4.17
-pcmcia-cs-3.1.33
+diff -urN linux-2.4.18-ben0/arch/ppc/kernel/pmac_feature.c linux-2.4.18-ben0-my/arch/ppc/kernel/pmac_feature.c
+--- linux-2.4.18-ben0/arch/ppc/kernel/pmac_feature.c	Tue Feb 26 17:34:34 2002
++++ linux-2.4.18-ben0-my/arch/ppc/kernel/pmac_feature.c	Mon Mar 11 15:16:07 2002
+@@ -1640,6 +1640,10 @@
+ 		PMAC_TYPE_IBOOK2,		pangea_features,
+ 		PMAC_MB_CAN_SLEEP | PMAC_MB_HAS_FW_POWER
+ 	},
++	{	"PowerBook4,2",			"new iBook 2",
++		PMAC_TYPE_IBOOK2,		pangea_features,
++		PMAC_MB_CAN_SLEEP | PMAC_MB_HAS_FW_POWER
++	},
+ 	{	"PowerMac4,2",			"Flat panel iMac",
+ 		PMAC_TYPE_FLAT_PANEL_IMAC,	pangea_features,
+ 		PMAC_MB_CAN_SLEEP
 
-Detail:
-
-When I insert the flash card, the card is correctly recognised and the
-appropriate modules load.  If I do a "cat /dev/mem0c0c" I get a load of
-gibberish on the console, which I assume indicates that I am reading
-from the card.
-
-If I attempt to format the card, I get the following error:
-
-	$ ftl_format /dev/mem0c0c
-	Partition size = 8 mb, erase size = 128 kb, 1 transfer units
-	Reserved 5%, formatted size = 7755264 bytes
-	Erasing all blocks...
-
-	block erase failed: input/output error
-	format failed.
-
-Querying the card, I get:
-
-	$ ftl_check /dev/mem0c0c
-	Memory region info:
-	  Card offset = 0x0, region size = 8 mb, access speed = 150 ns
-	  Erase block size = 128 kb, partition multiple = 128 kb
-
-	No valid erase unit headers!
-
-The following gets reported to the log:
-
-	kernel: iflash2+_mtd: erase timed out!
-	kernel: CSR = 0x0000, BSR = 0x4040, GSR = 0x0606
-
-Is there any other info that would be useful?
-
-Thanks in advance...
-
-josh.
-
----------------------------------------
-Josh Howlett, Network Support Officer,
-Networking & Digital Communications,
-Information Systems & Computing,
-University of Bristol, U.K.
-0117 928 7850 | josh.howlett@bris.ac.uk
----------------------------------------
-
+--cNdxnHkX5QqsyA0e--

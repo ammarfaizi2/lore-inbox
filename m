@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279264AbRKIFL4>; Fri, 9 Nov 2001 00:11:56 -0500
+	id <S279261AbRKIFL4>; Fri, 9 Nov 2001 00:11:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279303AbRKIFLq>; Fri, 9 Nov 2001 00:11:46 -0500
-Received: from [202.135.142.195] ([202.135.142.195]:1803 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S279277AbRKIFLg>; Fri, 9 Nov 2001 00:11:36 -0500
-Date: Fri, 9 Nov 2001 14:12:15 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andi Kleen <ak@suse.de>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: speed difference between using hard-linked and modular drives?
-Message-Id: <20011109141215.08d33c96.rusty@rustcorp.com.au>
-In-Reply-To: <p731yj8kgvw.fsf@amdsim2.suse.de>
-In-Reply-To: <Pine.LNX.4.33.0111081802380.15975-100000@localhost.localdomain.suse.lists.linux.kernel>
-	<Pine.LNX.4.33.0111081836080.15975-100000@localhost.localdomain.suse.lists.linux.kernel>
-	<p731yj8kgvw.fsf@amdsim2.suse.de>
-X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+	id <S279277AbRKIFLq>; Fri, 9 Nov 2001 00:11:46 -0500
+Received: from zok.sgi.com ([204.94.215.101]:10626 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S279264AbRKIFLc>;
+	Fri, 9 Nov 2001 00:11:32 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Anton Blanchard <anton@samba.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: speed difference between using hard-linked and modular drives? 
+In-Reply-To: Your message of "Fri, 09 Nov 2001 10:59:21 +1100."
+             <20011109105921.A6822@krispykreme> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 09 Nov 2001 16:11:23 +1100
+Message-ID: <7462.1005282683@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09 Nov 2001 00:00:19 +0100
-Andi Kleen <ak@suse.de> wrote:
-
-> Ingo Molnar <mingo@elte.hu> writes:
-> > 
-> > we should fix this by trying to allocate continuous physical memory if
-> > possible, and fall back to vmalloc() only if this allocation fails.
+On Fri, 9 Nov 2001 10:59:21 +1100, 
+Anton Blanchard <anton@samba.org> wrote:
 > 
-> Check -aa. A patch to do that has been in there for some time now.
-> 
-> -Andi
-> 
-> P.S.: It makes a measurable difference with some Oracle benchmarks with
-> the Qlogic driver.
+>> > Are there any speed difference between hard-linked device drivers and
+>> > their modular counterparts?
+>
+>Its worse on some architectures that need to pass through a trampoline
+>when going between kernel and module (eg ppc). Its even worse on ppc64
+>at the moment because we have a local TOC per module which needs to be
+>saved and restored.
 
-Modules have lots of little disadvantages that add up.  The speed penalty
-on various platforms is one, the load/unload race complexity is another.
+Is that TOC save and restore just for module code or does it apply to
+all calls through function pointers?
 
-There's a widespread "modules are free!" mentality: they're not, and we
-can add complexity trying to make them "free", but it might be wiser to
-realize that dynamic adding and deleting from a running kernel is a
-problem on par with a pagagble kernel, and may not be the greatest thing
-since sliced bread.
+On IA64, R1 (global data pointer) must be saved and restored on all
+calls through function pointers, even if both the caller and callee are
+in the kernel.  You might know that this is a kernel to kernel call but
+gcc does not so it has to assume the worst.  This is not a module
+problem, it affects all indirect function calls.
 
-Rusty.

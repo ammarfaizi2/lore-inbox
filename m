@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261834AbSIXWBO>; Tue, 24 Sep 2002 18:01:14 -0400
+	id <S261815AbSIXV5C>; Tue, 24 Sep 2002 17:57:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261835AbSIXWBO>; Tue, 24 Sep 2002 18:01:14 -0400
-Received: from mta04ps.bigpond.com ([144.135.25.136]:28914 "EHLO
-	mta04ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S261834AbSIXWBN>; Tue, 24 Sep 2002 18:01:13 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: "Michael D. Crawford" <crawford@goingware.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Conserving memory for an embedded application
-Date: Wed, 25 Sep 2002 07:59:45 +1000
-User-Agent: KMail/1.4.5
-References: <3D91413C.1050603@goingware.com>
-In-Reply-To: <3D91413C.1050603@goingware.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	id <S261824AbSIXV5C>; Tue, 24 Sep 2002 17:57:02 -0400
+Received: from holomorphy.com ([66.224.33.161]:47260 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261815AbSIXV5C>;
+	Tue, 24 Sep 2002 17:57:02 -0400
+Date: Tue, 24 Sep 2002 15:01:23 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, dipankar@in.ibm.com, mingo@elte.hu,
+       davem@redhat.com, jgarzik@mandrakesoft.com, torvalds@transmeta.com
+Subject: Re: on 2.5.38-mm2 tbench 64 smptimers shows 30% improvement
+Message-ID: <20020924220123.GL6070@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+	dipankar@in.ibm.com, mingo@elte.hu, davem@redhat.com,
+	jgarzik@mandrakesoft.com, torvalds@transmeta.com
+References: <20020924081340.GD6070@holomorphy.com> <20020924083606.GF6070@holomorphy.com> <3D90A378.C58157AA@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-Message-Id: <200209250759.45445.bhards@bigpond.net.au>
+In-Reply-To: <3D90A378.C58157AA@digeo.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+William Lee Irwin III wrote:
+>> 2.5.38-mm2-smptimers:
+>> c01053dc 30936965 41.2616     poll_idle
+>> c020ee62 30635964 40.8601     .text.lock.dev       <- what's this?
+>> c0114c08 2499541  3.33371     load_balance
+>> c01175db 2141278  2.85589     .text.lock.sched
+>> c020ce40 2141045  2.85558     dev_queue_xmit
+>> c013a47e 932681   1.24394     .text.lock.page_alloc
 
-On Wed, 25 Sep 2002 14:53, Michael D. Crawford wrote:
-> One question I have is whether it is possible to burn an uncompressed image
-> of the kernel into flash, and then boot the kernel in-place, so that it is
-> not copied to RAM when it runs.  Of course the kernel would need RAM for
-> its data structures and user programs, but it would seem to me I should be
-> able to run the kernel without making a RAM copy.
-The uclinux guys have eXecute In Place  - google search for uclinux and XIP 
-will produce a stack of hits - here's one:
-http://www.snapgear.com/tb20010618.html
+On Tue, Sep 24, 2002 at 10:40:08AM -0700, Andrew Morton wrote:
+> queue lock for the loopback device?
 
-Brad
-- -- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Aust. Tickets booked.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Yeah. I did some fishing around last time I ran smptimers benchmarks
+and found (to everyone's surprise) it was the queue lock and not the
+xmit lock, or at least as far as my reading of the disassembly went.
 
-iD8DBQE9kOBRW6pHgIdAuOMRAvEKAKCdutujZNT2tBk8gxkjkVz1ColD0wCdGZr+
-75U01oH+2G4UWiJSk59/CBU=
-=SJGg
------END PGP SIGNATURE-----
+Busywait time was reduced from 80% to 45%, which is good.
 
+
+Cheers,
+Bill

@@ -1,43 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277265AbRJJP2S>; Wed, 10 Oct 2001 11:28:18 -0400
+	id <S277272AbRJJP3J>; Wed, 10 Oct 2001 11:29:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277272AbRJJP17>; Wed, 10 Oct 2001 11:27:59 -0400
-Received: from hq2.fsmlabs.com ([209.155.42.199]:28935 "HELO hq2.fsmlabs.com")
-	by vger.kernel.org with SMTP id <S277271AbRJJP1s>;
-	Wed, 10 Oct 2001 11:27:48 -0400
-Date: Wed, 10 Oct 2001 09:23:00 -0600
-From: Victor Yodaiken <yodaiken@fsmlabs.com>
-To: BALBIR SINGH <balbir.singh@wipro.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
-Message-ID: <20011010092300.A8389@hq2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BC3E424.1070901@wipro.com>
-User-Agent: Mutt/1.3.18i
-Organization: FSM Labs
+	id <S277273AbRJJP3A>; Wed, 10 Oct 2001 11:29:00 -0400
+Received: from host115.express.visi.com ([209.98.212.115]:44165 "EHLO skuld.wk")
+	by vger.kernel.org with ESMTP id <S277272AbRJJP2l>;
+	Wed, 10 Oct 2001 11:28:41 -0400
+To: linux-kernel@vger.kernel.org
+Cc: debian-user@lists.debian.org
+Subject: Problems with NFS between IRIX Server and Linux client
+Date: Wed, 10 Oct 2001 10:26:02 -0500
+From: "Chad C. Walstrom" <chewie@wookimus.net>
+Message-Id: <20011010152602.E11EE184B3@skuld.wk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 10, 2001 at 11:31:08AM +0530, BALBIR SINGH wrote:
-> Linus Torvalds wrote:
-> >I can't think of many lists like that. The PCI lists certainly are both
-> >add/remove: cardbus bridges and hotplug-PCI means that they are not just
-> >purely "enumerate at bootup".
-> >
-> 
-> I agree, I just thought of one case quickly. Assume that somebody did a cat /proc/pci.
-> Meanwhile somebody is adding a new pci device (hotplug PCI) simultaneously (which is very rare).
-> I would not care if the new device showed up in the output of /proc/pci this time. It would
-> definitely show up next time. Meanwhile locking the list (just in case it changes) is an
-> overhead in the case above. I was referring to these cases in my earlier mail.
+OK.  Strange problem here with NFS that has been experienced on both
+Debian machines and Red Hat machines.  I believe the problem ties in
+to NFS support in the Linux kernel, but I could be entirely wrong.
 
-So you make the data structure and algorithms more complex and hard to maintain in
-order to get an undetectable improvement in the speed of something that almost
-never happens and and that is not even in the same neighborhood as being a 
-bottleneck?
+Scenario: Serving a filesystem from IRIX 6.5 host.  Accessing it with
+a Linux 2.4.9 Debian Woody machine.  Directory content listings and
+directory info are not consistently reported to the client.
 
+Symptoms: For directories with #files approx > 200, filename
+completion in bash does not work, many applications do not show files
+in the directory.
 
+I cannot pinpoint the number of files that throws it off.  In a test
+directory, I've created a number of files by looping through a bash
+script:
 
+    for i in $(seq 1 200) ; do touch $i ; done
+
+With 200 files, I was able to type 'ls 1<tab>' and get the familiar:
+
+    "Display all 111 possibilities? (y or n)"
+
+When I up'd the sequence to 210 it worked, 220, it did not.  From 220
+files, I started to delete one file at a time until filename
+completion started to work.  By 180, I could still not get a filename
+completion.  I increased the number of files I removed by blocks of
+ten.  At 159 files in the directory, I got that familiar list of files
+that would complete 'ls 1<tab>'.  I would have expected the filename
+completion to start working again at 200 files, but this is what
+is happening.
+
+nfsstat(1) of the nfs-common package reports no calls to nfs v2.
+The client stats are as follows:
+
+Client rpc stats:
+calls      retrans    authrefrsh
+251193     2          0       
+
+Client nfs v3:
+null       getattr    setattr    lookup     access     readlink   
+0       0% 339     0% 4941    1% 192725 77% 719     0% 13      0% 
+read       write      create     mkdir      symlink    mknod      
+10893   4% 16079   6% 3119    1% 2       0% 3       0% 0       0% 
+remove     rmdir      rename     link       readdir    readdirplus
+2715    1% 1       0% 2425    0% 223     0% 1632    0% 0       0% 
+fsstat     fsinfo     pathconf   commit     
+11      0% 11      0% 0       0% 13222   5% 
+
+The IRIX Server reported the following:
+
+Server RPC:
+calls      badcalls   nullrecv   badlen     xdrcall    duphits
+dupage
+88596597   0          7661399    0          0          2186
+557.33  
+
+Server NFS V3:
+calls        badcalls     
+51031056     0            
+null         getattr      setattr      lookup       access       readlink     
+52998  0%    1394893  2%  827158  1%   19540449 38% 1294352  2%  50714 0%    
+read         write        create       mkdir        symlink      mknod        
+6306234 12%  7379734 14%  504682  0%   8581  0%     4185  0%     1  0%        
+remove       rmdir        rename       link         readdir    readdir+     
+458294  0%   5198  0%     132737  0%   33172  0%    390736  0% 105473  0%   
+fsstat       fsinfo       pathconf     commit       
+5377509 10%  4612155  9%  12342  0%    2539452  4%  
+
+An strace of scan(1) from nmh to two different directories shows the
+contrasting ipc calls:
+
+Calling "scan +inbox":
+
+    brk(0x809c000)                          = 0x809c000
+    stat64(0x8097690, 0xbfffd21c)           = 0 
+    access("/home/chad/Mail/inbox", W_OK)   = 0
+    SYS_199(0x401940b8, 0x2, 0x40194e00, 0x40191ed0, 0x8098118) = 713
+    ipc_subcall(0x3, 0x80987c8, 0x2000, 0x2) = 2672
+    ipc_subcall(0x3, 0x80987c8, 0x2000, 0x2) = 0
+    close(3)                                = 0
+    open("/home/chad/Mail/inbox/.mh_sequences", O_RDONLY) = 3
+    .
+    .
+    .
+
+Calling "scan +ima/cron/2001-10":
+
+    brk(0x809c000)                          = 0x809c000
+    stat64(0x8097698, 0xbfffd20c)           = 0
+    access("/home/chad/Mail/ima/cron/2001-10", W_OK) = 0
+    SYS_199(0x401940b8, 0x2, 0x40194e00, 0x40191ed0, 0x8098118) = 713
+    ipc_subcall(0x3, 0x80987c8, 0x2000, 0x2) = 8184
+    close(3)                                = 0
+    writev(2, [{"scan", 4}, {": ", 2}, {"no messages in ima/cron/2001-10",
+    31}, {"\n", 1}], 4scan: no messages in ima/cron/2001-10
+    ) = 38
+    _exit(1)                                = ?
+
+I know this isn't a whole lot to go on, but if I could get a direction
+to start looking, I would really appreciate it.
+
+--
+Chad Walstrom <chewie@wookimus.net>                 | a.k.a. ^chewie
+http://www.wookimus.net/                            | s.k.a. gunnarr
+Key fingerprint = B4AB D627 9CBD 687E 7A31  1950 0CC7 0B18 206C 5AFD

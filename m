@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbVAMDIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVAMDKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbVAMDIK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 22:08:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVAMDII
+	id S261417AbVAMDKp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 22:10:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVAMDKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 22:08:08 -0500
-Received: from av7-1-sn1.fre.skanova.net ([81.228.11.113]:28827 "EHLO
-	av7-1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S261429AbVAMDH7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 22:07:59 -0500
-Date: Thu, 13 Jan 2005 04:07:57 +0100
-From: Voluspa <lista1@telia.com>
-To: Terence Ripperda <tripperda@nvidia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.11-rc1
-Message-Id: <20050113040757.265de0ba.lista1@telia.com>
-In-Reply-To: <20050113012159.GB15008@hygelac>
-References: <20050112095238.32a89245.lista1@telia.com>
-	<20050113021328.137435b8.lista1@telia.com>
-	<20050113012159.GB15008@hygelac>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Jan 2005 22:10:10 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:15111 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261451AbVAMDJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 22:09:46 -0500
+Date: Thu, 13 Jan 2005 03:09:14 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Andrew Morton <akpm@osdl.org>, <clameter@sgi.com>, <torvalds@osdl.org>,
+       <ak@muc.de>, <linux-mm@kvack.org>, <linux-ia64@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <benh@kernel.crashing.org>
+Subject: Re: page table lock patch V15 [0/7]: overview
+In-Reply-To: <41E5B7AD.40304@yahoo.com.au>
+Message-ID: <Pine.LNX.4.44.0501130258210.4577-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Jan 2005 19:21:59 -0600
-Terence Ripperda wrote:
+On Thu, 13 Jan 2005, Nick Piggin wrote:
+> Andrew Morton wrote:
+> 
+> Note that this was with my ptl removal patches. I can't see why Christoph's
+> would have _any_ extra overhead as they are, but it looks to me like they're
+> lacking in atomic ops. So I'd expect something similar for Christoph's when
+> they're properly atomic.
+> 
+> > Look, -7% on a 2-way versus +700% on a many-way might well be a tradeoff we
+> > agree to take.  But we need to fully understand all the costs and benefits.
+> 
+> I think copy_page_range is the one to keep an eye on.
 
-> the x86_64 change in bk is here, but the only thing you really need is
-> the 'get_page' fix. you should be able to manually edit
-> linux/arch/i386/mm/pageattr.c:__change_page_attr(), update that single
-> line and be fine:
+Christoph's currently lack set_pte_atomics in the fault handlers, yes.
+But I don't see why they should need set_pte_atomics in copy_page_range
+(which is why I persuaded him to drop forcing set_pte to atomic).
 
-Not being a coder I was unable to change that function correctly.
-replacing "struct page *page" with a "unsigned long pfn" craved other
-changes further down - if that even is how you begin hacking... I'll
-just wait for the real implementation.
+dup_mmap has down_write of the src mmap_sem, keeping out any faults on
+that.  copy_pte_range has spin_lock of the dst page_table_lock and the
+src page_table_lock, keeping swapout away from those.  Why would atomic
+set_ptes be needed there?  Probably in yours, but not in Christoph's.
 
--- 
-Mvh
-Mats Johannesson
+Hugh
+

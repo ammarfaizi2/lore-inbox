@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267561AbUHTFJi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267538AbUHTAXZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267561AbUHTFJi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 01:09:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267556AbUHTFJi
+	id S267538AbUHTAXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 20:23:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267540AbUHTAXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 01:09:38 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:62936 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267561AbUHTFJJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 01:09:09 -0400
-Subject: Re: [PATCH] [1/4] /dev/random: Fix latency in rekeying sequence
-	number
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <E1By1Sh-0001TJ-1U@thunk.org>
-References: <E1By1Sh-0001TJ-1U@thunk.org>
-Content-Type: text/plain
-Message-Id: <1092978626.10063.15.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 20 Aug 2004 01:10:26 -0400
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Aug 2004 20:23:25 -0400
+Received: from mail.enyo.de ([212.9.189.167]:41998 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S267538AbUHTAXX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 20:23:23 -0400
+To: Miles Lane <miles.lane@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DTrace-like analysis possible with future Linux kernels?
+References: <200408191822.48297.miles.lane@comcast.net>
+	<87hdqyogp4.fsf@killer.ninja.frodoid.org>
+From: Florian Weimer <fw@deneb.enyo.de>
+Date: Fri, 20 Aug 2004 02:23:22 +0200
+In-Reply-To: <87hdqyogp4.fsf@killer.ninja.frodoid.org> (Julien Oster's message
+	of "Fri, 20 Aug 2004 01:23:35 +0200")
+Message-ID: <87k6vu3bet.fsf@deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-20 at 00:57, Theodore Ts'o wrote:
-> Based on reports from Ingo's Latency Tracer that the TCP sequence number
-> rekey code is causing latency problems, I've moved the sequence number
-> rekey to be done out of a workqueue.
-> 
+* Julien Oster:
 
-This patch does not actually fix the problem, as 3-700usecs is still
-spent in the spinlocked region, this just causes it to be done out of a
-workqueue.  It reduces the incidence of problems, but for latency
-sensitive applications the worst-case is the important one.
+> Miles Lane <miles.lane@comcast.net> writes:
+>
+>> http://www.theregister.co.uk/2004/07/08/dtrace_user_take/:
+>> "Sun sees DTrace as a big advantage for Solaris over other versions of Unix 
+>> and Linux."
+>
+> That article is way too hypey.
 
-Lee
+Maybe, but DTrace seems to solve one really pressing problem: tracking
+disk I/O to the processes causing it.  Unexplained high I/O
+utilization is a *very* common problem, and there aren't any tools to
+diagnose it.
 
+Most other system resources can be tracked quite easily: disk space,
+CPU time, committed address space, even network I/O (with tcpdump and
+netstat -p).  But there's no such thing for disk I/O.

@@ -1,77 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283251AbRK2OFm>; Thu, 29 Nov 2001 09:05:42 -0500
+	id <S283233AbRK2OIM>; Thu, 29 Nov 2001 09:08:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283247AbRK2OFc>; Thu, 29 Nov 2001 09:05:32 -0500
-Received: from mail.gmx.de ([213.165.64.20]:63757 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S283243AbRK2OFS> convert rfc822-to-8bit;
-	Thu, 29 Nov 2001 09:05:18 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Slo Mo Snail <slomosnail@gmx.net>
-Reply-To: slomosnail@gmx.net
-To: axboe@suse.de
-Subject: Re: 2.5.1-pre2 compile error in ide-scsi.o ide-scsi.c
-Date: Thu, 29 Nov 2001 15:06:55 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20011128135552.204311E532@Cantor.suse.de> <20011128153718.D23858@suse.de> 
-Cc: linux-kernel@vger.kernel.org
+	id <S283244AbRK2OHx>; Thu, 29 Nov 2001 09:07:53 -0500
+Received: from wiprom2mx2.wipro.com ([203.197.164.42]:10683 "EHLO
+	wiprom2mx2.wipro.com") by vger.kernel.org with ESMTP
+	id <S283233AbRK2OHv>; Thu, 29 Nov 2001 09:07:51 -0500
+Message-ID: <3C063E6B.5060308@wipro.com>
+Date: Thu, 29 Nov 2001 19:25:55 +0530
+From: "BALBIR SINGH" <balbir.singh@wipro.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20011129140528Z283243-17409+20705@vger.kernel.org>
+To: Russell King <rmk@arm.linux.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove BKL from drivers' release functions
+In-Reply-To: <E169EFX-0006TA-00@the-village.bc.nu> <3C057410.3090201@us.ibm.com> <20011128234505.C2561@flint.arm.linux.org.uk>
+Content-Type: multipart/mixed;
+	boundary="----=_NextPartTM-000-17489e5c-e4c2-11d5-a216-0000e22173f5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Am Donnerstag, 29. November 2001 14:33 schrieben Sie:
-> Am Donnerstag, 29. November 2001 14:26 schrieben Sie:
-> > Am Mittwoch, 28. November 2001 15:37 schrieben Sie:
-> > > On Wed, Nov 28 2001, Jens Axboe wrote:
-> > > > On Wed, Nov 28 2001, Sebastian Dröge wrote:
-> > > > > -----BEGIN PGP SIGNED MESSAGE-----
-> > > > > Hash: SHA1
-> > > > >
-> > > > > Am Mittwoch, 28. November 2001 14:58 schrieben Sie:
-> > > > > > On Wed, Nov 28 2001, Sebastian Dröge wrote:
-> > > > > > > -----BEGIN PGP SIGNED MESSAGE-----
-> > > > > > > Hash: SHA1
-> > > > > > >
-> > > > > > > Hi Jens,
-> > > > > > > your patch doesn't work for ide-scsi
-> > > > > > > I get this oops when trying to mount a CD:
-> > > > > >
-> > > > > > [oops in sr_scatter_pad]
-> > > > > >
-> > > > > > Hmm ok, and 2.5.1-pre1 works for you right?
-> > > > >
-> > > > > Yes it works very well
-> > > >
-> > > > Ok, thanks for confirming that. Going to take a look at it now.
-> > >
-> > > Does this work for you? Apply on top of what you already have.
-> >
-> > OK it does work BUT
-> > when I read audio data from a CD it reads the first ~20 MB and then it
-> > doesn't write anything on hdd.
-> > When I try to play an audio CD with the KDE CD player it crashes
-> > immediately 2.5.1-pre1 works fine and mounting/reading data CDs work, too
-> > Bye
+This is a multi-part message in MIME format.
+
+------=_NextPartTM-000-17489e5c-e4c2-11d5-a216-0000e22173f5
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Even register_blkdev(), etc hold BKL, without these there will be
+a lot of problems, all these need to be taken care of if BKL is
+ever replaced.
+
+Just adding what I know,
+Balbir  
+
+
+Russell King wrote:
+
+>On Wed, Nov 28, 2001 at 03:32:32PM -0800, David C. Hansen wrote:
 >
-> But wait :)
-> I'll first test 2.5.1-pre3 + Alan's Patch + your sg-sr patch + your bio
-> patch Bye
-Hmm it works :)
-Thanks
-I'll test some more things with my CD drives ;)
-Maybe I'll find some bugs
-Bye
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+>>Nothing, because the BKL is not held for all opens anymore.  In most of 
+>>the cases that we addressed, the BKL was in release _only_, not in open 
+>>at all.  There were quite a few drivers where we added a spinlock, or 
+>>used atomic operations to keep open from racing with release.  
+>>
+>
+>All char and block devs are opened with the BKL held - see chrdev_open in
+>fs/devices.c and do_open in fs/block_dev.c
+>
+>--
+>Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+>             http://www.arm.linux.org.uk/personal/aboutme.html
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-iD8DBQE8BkEEvIHrJes3kVIRAvQ9AKCbVMNKEbz3mB2XgFo8BKzymui5jQCdGJiF
-KoBQHL2kW05Mjiw9lsQi3xc=
-=Q1R3
------END PGP SIGNATURE-----
+
+
+------=_NextPartTM-000-17489e5c-e4c2-11d5-a216-0000e22173f5
+Content-Type: text/plain;
+	name="InterScan_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="InterScan_Disclaimer.txt"
+
+-------------------------------------------------------------------------------------------------------------------------
+Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
+is intended for use only by the individual or entity to which it is
+addressed, and may contain information that is privileged, confidential or
+exempt from disclosure under applicable law. If you are not the intended
+recipient or it appears that this mail has been forwarded to you without
+proper authority, you are notified that any use or dissemination of this
+information in any manner is strictly prohibited. In such cases, please
+notify us immediately at mailto:mailadmin@wipro.com and delete this mail
+from your records.
+----------------------------------------------------------------------------------------------------------------------
+
+------=_NextPartTM-000-17489e5c-e4c2-11d5-a216-0000e22173f5--

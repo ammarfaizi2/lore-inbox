@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262925AbUCWXi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 18:38:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262924AbUCWXi6
+	id S262919AbUCWXlh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 18:41:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262915AbUCWXlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 18:38:58 -0500
-Received: from mail.tpgi.com.au ([203.12.160.59]:62409 "EHLO mail3.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S262925AbUCWXiu (ORCPT
+	Tue, 23 Mar 2004 18:41:36 -0500
+Received: from mail.tpgi.com.au ([203.12.160.61]:38569 "EHLO mail4.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S262919AbUCWXk4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 18:38:50 -0500
+	Tue, 23 Mar 2004 18:40:56 -0500
 Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on
 	the merge?]
 From: Nigel Cunningham <ncunningham@users.sourceforge.net>
 Reply-To: ncunningham@users.sourceforge.net
 To: Pavel Machek <pavel@suse.cz>
-Cc: Jonathan Sambrook <swsusp@hmmn.org>,
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jonathan Sambrook <swsusp@hmmn.org>,
        Swsusp mailing list <swsusp-devel@lists.sourceforge.net>,
        Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20040323221756.GF364@elf.ucw.cz>
-References: <20040318193703.4c02f7f5.akpm@osdl.org>
-	 <1079661410.15557.38.camel@calvin.wpcb.org.au>
-	 <20040318200513.287ebcf0.akpm@osdl.org>
-	 <1079664318.15559.41.camel@calvin.wpcb.org.au>
-	 <20040321220050.GA14433@elf.ucw.cz>
-	 <1079988938.2779.18.camel@calvin.wpcb.org.au>
-	 <20040322231737.GA9125@elf.ucw.cz> <20040323095318.GB20026@hmmn.org>
-	 <20040323214734.GD364@elf.ucw.cz>
-	 <1080076132.12965.18.camel@calvin.wpcb.org.au>
-	 <20040323221756.GF364@elf.ucw.cz>
+In-Reply-To: <20040323233228.GK364@elf.ucw.cz>
+References: <1079659165.15559.34.camel@calvin.wpcb.org.au>
+	 <20040323095318.GB20026@hmmn.org> <20040323214734.GD364@elf.ucw.cz>
+	 <200403231743.01642.dtor_core@ameritech.net>
+	 <20040323233228.GK364@elf.ucw.cz>
 Content-Type: text/plain
-Message-Id: <1080081491.22641.12.camel@calvin.wpcb.org.au>
+Message-Id: <1080081653.22670.15.camel@calvin.wpcb.org.au>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5-2.norlug 
-Date: Wed, 24 Mar 2004 10:38:11 +1200
+Date: Wed, 24 Mar 2004 10:40:53 +1200
 Content-Transfer-Encoding: 7bit
 X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi yet again.
 
-On Wed, 2004-03-24 at 10:17, Pavel Machek wrote:
-> Yes, but with eye candy its a bit more of a problem because progress
-> bar updating could obscure them.
+On Wed, 2004-03-24 at 11:32, Pavel Machek wrote:
+> Well, I'd hate
+> 
+> Nov 10 00:37:51 amd kernel: Buffer I/O error on device sr0, logical block 842340
+> Nov 10 00:37:53 amd kernel: end_request: I/O error, dev sr0, sector 6738472
+> 
+> to be obscured by progress bar.
 
-Remember though that I said that's a mistake I need to fix.
+So why aren't you arguing against bootsplash too? That definitely
+obscures such an error :> Of course we could argue that such an error
+shouldn't happen and/or will be obvious via other means (assuming it
+indicates hardware failure).
 
 Nigel
 -- 

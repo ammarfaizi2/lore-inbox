@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262347AbVAJRi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262363AbVAJRiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbVAJRi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 12:38:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbVAJRfq
+	id S262363AbVAJRiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 12:38:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbVAJRh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 12:35:46 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:39313 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262364AbVAJRVI convert rfc822-to-8bit
+	Mon, 10 Jan 2005 12:37:26 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:18324 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262347AbVAJRVC convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 12:21:08 -0500
+	Mon, 10 Jan 2005 12:21:02 -0500
 X-Fake: the user-agent is fake
 Subject: Re: [PATCH] PCI patches for 2.6.10
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <11053776585@kroah.com>
+In-Reply-To: <11053776581385@kroah.com>
 Date: Mon, 10 Jan 2005 09:20:58 -0800
-Message-Id: <11053776582129@kroah.com>
+Message-Id: <110537765846@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,100 +23,60 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.447.14, 2004/12/21 16:21:25-08:00, pavel@suse.cz
+ChangeSet 1.1938.447.12, 2004/12/17 15:43:58-08:00, macro@mips.com
 
-[PATCH] PCI: clean up state usage in pci core
+[PATCH] PCI: PCI early fixup missing bits
 
-> Now, care to send patches to fix up all of the new sparse warnings in
-> the drivers/pci/* directory?
-
-This should reduce number of warnings in pci.c. It will still warn on
-comparison (because we are using __bitwise, but in fact we want
-something like "this is unique but arithmetic is still ok"), but that
-probably needs to be fixed in sparse.
-
-Also killed "function does not return anything" warning.
+ A few bits seem to be missing for PCI early fixup to work -- the
+pci_fixup_device() helper ignores fixups of the pci_fixup_early type.
+Also the local class variable needs to be refreshed after performing the
+fixups for they can change dev->class.
 
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+Signed-off-by: Maciej W. Rozycki <macro@mips.com>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-
- drivers/pci/pci.c |   23 ++++++++++++++---------
- 1 files changed, 14 insertions(+), 9 deletions(-)
+patch-mips-2.6.10-rc2-20041124-pci_fixup_early-1
 
 
-diff -Nru a/drivers/pci/pci.c b/drivers/pci/pci.c
---- a/drivers/pci/pci.c	2005-01-10 09:00:25 -08:00
-+++ b/drivers/pci/pci.c	2005-01-10 09:00:25 -08:00
-@@ -248,13 +248,14 @@
- 	u16 pmcsr, pmc;
+ drivers/pci/probe.c  |    1 +
+ drivers/pci/quirks.c |    7 +++++++
+ 2 files changed, 8 insertions(+)
+
+
+diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
+--- a/drivers/pci/probe.c	2005-01-10 09:00:47 -08:00
++++ b/drivers/pci/probe.c	2005-01-10 09:00:47 -08:00
+@@ -501,6 +501,7 @@
  
- 	/* bound the state we're entering */
--	if (state > 3) state = 3;
-+	if (state > PCI_D3hot)
-+		state = PCI_D3hot;
+ 	/* Early fixups, before probing the BARs */
+ 	pci_fixup_device(pci_fixup_early, dev);
++	class = dev->class >> 8;
  
- 	/* Validate current state:
- 	 * Can enter D0 from any state, but if we can only go deeper 
- 	 * to sleep if we're already in a low power state
- 	 */
--	if (state > 0 && dev->current_state > state)
-+	if (state != PCI_D0 && dev->current_state > state)
- 		return -EINVAL;
- 	else if (dev->current_state == state) 
- 		return 0;        /* we're already there */
-@@ -263,7 +264,8 @@
- 	pm = pci_find_capability(dev, PCI_CAP_ID_PM);
- 	
- 	/* abort if the device doesn't support PM capabilities */
--	if (!pm) return -EIO; 
-+	if (!pm)
-+		return -EIO; 
- 
- 	pci_read_config_word(dev,pm + PCI_PM_PMC,&pmc);
- 	if ((pmc & PCI_PM_CAP_VER_MASK) != 2) {
-@@ -274,16 +276,18 @@
+ 	switch (dev->hdr_type) {		    /* header type */
+ 	case PCI_HEADER_TYPE_NORMAL:		    /* standard header */
+diff -Nru a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+--- a/drivers/pci/quirks.c	2005-01-10 09:00:47 -08:00
++++ b/drivers/pci/quirks.c	2005-01-10 09:00:47 -08:00
+@@ -1237,6 +1237,8 @@
  	}
- 
- 	/* check if this device supports the desired state */
--	if (state == 1 || state == 2) {
--		if (state == 1 && !(pmc & PCI_PM_CAP_D1)) return -EIO;
--		else if (state == 2 && !(pmc & PCI_PM_CAP_D2)) return -EIO;
-+	if (state == PCI_D1 || state == PCI_D2) {
-+		if (state == PCI_D1 && !(pmc & PCI_PM_CAP_D1))
-+			return -EIO;
-+		else if (state == PCI_D2 && !(pmc & PCI_PM_CAP_D2))
-+			return -EIO;
- 	}
- 
- 	/* If we're in D3, force entire word to 0.
- 	 * This doesn't affect PME_Status, disables PME_En, and
- 	 * sets PowerState to 0.
- 	 */
--	if (dev->current_state >= 3)
-+	if (dev->current_state >= PCI_D3hot)
- 		pmcsr = 0;
- 	else {
- 		pci_read_config_word(dev, pm + PCI_PM_CTRL, &pmcsr);
-@@ -296,9 +300,9 @@
- 
- 	/* Mandatory power management transition delays */
- 	/* see PCI PM 1.1 5.6.1 table 18 */
--	if(state == 3 || dev->current_state == 3)
-+	if (state == PCI_D3hot || dev->current_state == PCI_D3hot)
- 		msleep(10);
--	else if(state == 2 || dev->current_state == 2)
-+	else if (state == PCI_D2 || dev->current_state == PCI_D2)
- 		udelay(200);
- 	dev->current_state = state;
- 
-@@ -325,6 +329,7 @@
- 	case 3: return PCI_D3hot;
- 	default: BUG();
- 	}
-+	return PCI_D0;
  }
  
- EXPORT_SYMBOL(pci_choose_state);
++extern struct pci_fixup __start_pci_fixups_early[];
++extern struct pci_fixup __end_pci_fixups_early[];
+ extern struct pci_fixup __start_pci_fixups_header[];
+ extern struct pci_fixup __end_pci_fixups_header[];
+ extern struct pci_fixup __start_pci_fixups_final[];
+@@ -1250,6 +1252,11 @@
+ 	struct pci_fixup *start, *end;
+ 
+ 	switch(pass) {
++	case pci_fixup_early:
++		start = __start_pci_fixups_early;
++		end = __end_pci_fixups_early;
++		break;
++
+ 	case pci_fixup_header:
+ 		start = __start_pci_fixups_header;
+ 		end = __end_pci_fixups_header;
 

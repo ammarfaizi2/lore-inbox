@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261213AbRERRN2>; Fri, 18 May 2001 13:13:28 -0400
+	id <S261222AbRERRP6>; Fri, 18 May 2001 13:15:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261214AbRERRNT>; Fri, 18 May 2001 13:13:19 -0400
-Received: from t2.redhat.com ([199.183.24.243]:34044 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S261213AbRERRNK>; Fri, 18 May 2001 13:13:10 -0400
-Message-ID: <3B05581D.BBE089A3@redhat.com>
-Date: Fri, 18 May 2001 18:13:01 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Michael Meissner <meissner@spectacle-pond.org>,
-        linux-kernel@vger.kernel.org
+	id <S261219AbRERRPs>; Fri, 18 May 2001 13:15:48 -0400
+Received: from marine.sonic.net ([208.201.224.37]:21538 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S261201AbRERRPh>;
+	Fri, 18 May 2001 13:15:37 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Fri, 18 May 2001 10:15:33 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
-In-Reply-To: <20010518105353.A13684@thyrsus.com> <E150mKO-0007FF-00@the-village.bc.nu> <20010518120434.F14309@thyrsus.com> <20010518180909.A10357@caldera.de> <20010518124355.A20191@munchkin.spectacle-pond.org>
+Message-ID: <20010518101533.E10611@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010505192731.A2374@thyrsus.com> <d33da9tjjw.fsf@lxplus015.cern.ch> <20010513112543.A16121@thyrsus.com> <d3d79awdz3.fsf@lxplus015.cern.ch> <20010515173316.A8308@thyrsus.com> <d3wv7eptuz.fsf@lxplus015.cern.ch> <3B054500.2090408@reutershealth.com> <20010518175843.A9347@caldera.de> <3B05473B.70606@reutershealth.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.6i
+In-Reply-To: <3B05473B.70606@reutershealth.com>; from jcowan@reutershealth.com on Fri, May 18, 2001 at 12:00:59PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Meissner wrote:
-> 
-> On Fri, May 18, 2001 at 06:09:09PM +0200, Christoph Hellwig wrote:
-> > Aunt Tillie shouldn't try to manually configure a kernel.
-> 
-> Ummm, maybe Aunt Tillie wants to learn how to configure a kernel....  After
-> all, all of us at one point in time were newbies in terms of configuring
+On Fri, May 18, 2001 at 12:00:59PM -0400, John Cowan wrote:
+> Christoph Hellwig wrote:
+> Yes, I should have limited myself to pre-egcs versions.
 
-And maybe she uses KDE and clicks kkernelconfigurator for the first
-steps.
-And if she wants to learn, she even might stumble on the HOWTO..
+Huh?
+
+It's been possible to have multiple versions of gcc installed for a very
+long time.  At least since 2.0 came out.
+
+Thu Dec 19 15:54:29 1991  K. Richard Pixley  (rich at cygnus.com)
+
+        * configure: added -V for version number option.
+
+
+mrc
+-- 
+       Mike Castle       Life is like a clock:  You can work constantly
+  dalgoda@ix.netcom.com  and be right all the time, or not work at all
+www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
+    We are all of us living in the shadow of Manhattan.  -- Watchmen

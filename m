@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262146AbVBJPqB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVBJPwK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262146AbVBJPqB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 10:46:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbVBJPqA
+	id S262149AbVBJPwK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 10:52:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbVBJPwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 10:46:00 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:40420 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S262146AbVBJPoB (ORCPT
+	Thu, 10 Feb 2005 10:52:10 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:31707 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262149AbVBJPqP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 10:44:01 -0500
-Date: Thu, 10 Feb 2005 16:45:42 +0100
+	Thu, 10 Feb 2005 10:46:15 -0500
+Date: Thu, 10 Feb 2005 16:47:52 +0100
 From: Stelian Pop <stelian@popies.net>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 2/5] sonypi: add another HELP button event
-Message-ID: <20050210154542.GG3493@crusoe.alcove-fr>
+Subject: [PATCH 5/5] sonypi: add fan and temperature status/control
+Message-ID: <20050210154752.GJ3493@crusoe.alcove-fr>
 Reply-To: Stelian Pop <stelian@popies.net>
 Mail-Followup-To: Stelian Pop <stelian@popies.net>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
@@ -29,47 +29,117 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 ===================================================================
 
-Add another HELP button event.
-Increment the version number.
+1. FAN Status/Control: you can now get the fan status (running or not) and
+   also set the fan speed (for <5 seconds only). The problem is that there
+   is an auto regulator that kicks in within about 5 seconds after that to
+   restart the fan if it is above a threshold temperature (39 Degree C in
+   my Vaio). It is useful just to get the fan status (primarily). It also
+   appears that you can change the speed by increasing the values (much
+   like the LCD control) - there are effectively only about 6 speeds (it
+   seems - not sure, but from what I've played with on my Vaio).
 
+2. Temperature: you can get the current temperature (same as reported by
+   ACPI). This is primarily useful for APM users (since ACPI already gives
+   this). I have used this to detect when the fan comes on in my Vaio (39
+   Degree C).
+
+From: Narayanan R S <nars@kadamba.org>
 Signed-off-by: Stelian Pop <stelian@popies.net>
 
 ===================================================================
 
- sonypi.h |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/char/sonypi.c  |   32 ++++++++++++++++++++++++++++++++
+ include/linux/sonypi.h |   11 ++++++++++-
+ 2 files changed, 42 insertions(+), 1 deletion(-)
 
 ===================================================================
 
-Index: drivers/char/sonypi.h
+Index: include/linux/sonypi.h
 ===================================================================
---- a/drivers/char/sonypi.h	(revision 26539)
-+++ b/drivers/char/sonypi.h	(revision 26540)
-@@ -1,7 +1,7 @@
+--- a/include/linux/sonypi.h	(revision 26830)
++++ b/include/linux/sonypi.h	(revision 26831)
+@@ -1,8 +1,10 @@
  /*
   * Sony Programmable I/O Control Device driver for VAIO
   *
 - * Copyright (C) 2001-2004 Stelian Pop <stelian@popies.net>
 + * Copyright (C) 2001-2005 Stelian Pop <stelian@popies.net>
   *
++ * Copyright (C) 2005 Narayanan R S <nars@kadamba.org>
++
   * Copyright (C) 2001-2002 Alcôve <www.alcove.com>
   *
-@@ -36,7 +36,7 @@
+  * Copyright (C) 2001 Michael Ashley <m.ashley@unsw.edu.au>
+@@ -118,6 +120,13 @@
+ #define SONYPI_IOCGBLUE		_IOR('v', 8, __u8)
+ #define SONYPI_IOCSBLUE		_IOW('v', 9, __u8)
  
++/* get/set fan state on/off */
++#define SONYPI_IOCGFAN		_IOR('v', 10, __u8)
++#define SONYPI_IOCSFAN		_IOW('v', 11, __u8)
++
++/* get temperature (C) */
++#define SONYPI_IOCGTEMP		_IOR('v', 12, __u8)
++
  #ifdef __KERNEL__
  
--#define SONYPI_DRIVER_VERSION	 "1.25"
-+#define SONYPI_DRIVER_VERSION	 "1.26"
+ /* used only for communication between v4l and sonypi */
+Index: drivers/char/sonypi.c
+===================================================================
+--- a/drivers/char/sonypi.c	(revision 26830)
++++ b/drivers/char/sonypi.c	(revision 26831)
+@@ -3,6 +3,8 @@
+  *
+  * Copyright (C) 2001-2005 Stelian Pop <stelian@popies.net>
+  *
++ * Copyright (C) 2005 Narayanan R S <nars@kadamba.org>
++ *
+  * Copyright (C) 2001-2002 Alcôve <www.alcove.com>
+  *
+  * Copyright (C) 2001 Michael Ashley <m.ashley@unsw.edu.au>
+@@ -126,6 +128,10 @@ MODULE_PARM_DESC(useinput,
+ #define SONYPI_BAT2_MAXTK	0xb8
+ #define SONYPI_BAT2_FULL	0xba
  
- #define SONYPI_DEVICE_MODEL_TYPE1	1
- #define SONYPI_DEVICE_MODEL_TYPE2	2
-@@ -330,6 +330,7 @@ struct sonypi_eventtypes {
- 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_PKEY_MASK, sonypi_pkeyev },
- 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x11, SONYPI_BACK_MASK, sonypi_backev },
- 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_HELP_MASK, sonypi_helpev },
-+	{ SONYPI_DEVICE_MODEL_TYPE2, 0x21, SONYPI_HELP_MASK, sonypi_helpev },
- 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x21, SONYPI_ZOOM_MASK, sonypi_zoomev },
- 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x20, SONYPI_THUMBPHRASE_MASK, sonypi_thumbphraseev },
- 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x31, SONYPI_MEMORYSTICK_MASK, sonypi_memorystickev },
++/* FAN0 information (reverse engineered from ACPI tables) */
++#define SONYPI_FAN0_STATUS	0x93
++#define SONYPI_TEMP_STATUS	0xC1
++
+ /* ioports used for brightness and type2 events */
+ #define SONYPI_DATA_IOPORT	0x62
+ #define SONYPI_CST_IOPORT	0x66
+@@ -1009,6 +1015,32 @@ static int sonypi_misc_ioctl(struct inod
+ 		}
+ 		sonypi_setbluetoothpower(val8);
+ 		break;
++	/* FAN Controls */
++	case SONYPI_IOCGFAN:
++		if (sonypi_ec_read(SONYPI_FAN0_STATUS, &val8)) {
++			ret = -EIO;
++			break;
++		}
++		if (copy_to_user((u8 *)arg, &val8, sizeof(val8)))
++			ret = -EFAULT;
++		break;
++	case SONYPI_IOCSFAN:
++		if (copy_from_user(&val8, (u8 *)arg, sizeof(val8))) {
++			ret = -EFAULT;
++			break;
++		}
++		if (sonypi_ec_write(SONYPI_FAN0_STATUS, val8))
++			ret = -EIO;
++		break;
++	/* GET Temperature (useful under APM) */
++	case SONYPI_IOCGTEMP:
++		if (sonypi_ec_read(SONYPI_TEMP_STATUS, &val8)) {
++			ret = -EIO;
++			break;
++		}
++		if (copy_to_user((u8 *)arg, &val8, sizeof(val8)))
++			ret = -EFAULT;
++		break;
+ 	default:
+ 		ret = -EINVAL;
+ 	}
 -- 
 Stelian Pop <stelian@popies.net>

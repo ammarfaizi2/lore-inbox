@@ -1,127 +1,887 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262707AbVBYO22@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262706AbVBYO2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262707AbVBYO22 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 09:28:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262708AbVBYO22
+	id S262706AbVBYO2M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 09:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262708AbVBYO2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 09:28:28 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:1457 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262707AbVBYO2G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 09:28:06 -0500
+	Fri, 25 Feb 2005 09:28:12 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:44929 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262706AbVBYO0w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 09:26:52 -0500
+Message-ID: <421F35AB.2040305@acm.org>
+Date: Fri, 25 Feb 2005 08:26:51 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16927.13776.382746.406875@alkaid.it.uu.se>
-Date: Fri, 25 Feb 2005 15:27:28 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ppc32 weirdness with gcc-4.0 in 2.6.11-rc4
-In-Reply-To: <16926.63745.143566.413488@alkaid.it.uu.se>
-References: <16924.59237.581247.498382@alkaid.it.uu.se>
-	<1109210688.15027.2.camel@gaston>
-	<16925.60927.49095.758660@alkaid.it.uu.se>
-	<20050224160139.GF853@devserv.devel.redhat.com>
-	<16926.63745.143566.413488@alkaid.it.uu.se>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] I2C patch 5 - Add a non-blocking interface to the I2C core
+ (again)
+Content-Type: multipart/mixed;
+ boundary="------------020001090603050107070709"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson writes:
- > Jakub Jelinek writes:
- >  > On Thu, Feb 24, 2005 at 04:08:47PM +0100, Mikael Pettersson wrote:
- >  > > _However_, the 0k data message is due to a gcc-4.0 bug, and below
- >  > > you'll find a test program which illustrates it.
- >  > 
- >  > http://gcc.gnu.org/PR20196
- > 
- > Jakub's patch to gcc4 solved the mysterious "0k data" message,
- > but my eMac's USB is still dysfunctional. I'll try to look into
- > that next week.
+This is a multi-part message in MIME format.
+--------------020001090603050107070709
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-CONFIG_USB_DEBUG gave the following dmesg diff between gcc-3.4.3 and 4.0.0:
+This patch didn't make it to the mailing list because my fat fingers 
+type lmkl instead of lkml.  One more time...
 
-@@ -118,6 +118,8 @@
- hub 1-0:1.0: Single TT
- hub 1-0:1.0: TT requires at most 8 FS bit times
- hub 1-0:1.0: power on to power good time: 20ms
-+hub 1-0:1.0: hub controller current requirement: 0mA
-+hub 1-0:1.0: 500mA bus power budget for children
- hub 1-0:1.0: local power source is good
- hub 1-0:1.0: enabling power on all ports
- ohci_hcd: 2004 Nov 08 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+--------------020001090603050107070709
+Content-Type: text/plain;
+ name="i2c_nonblock_i801.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="i2c_nonblock_i801.diff"
 
-There are several more of these diffs, and they are what's eventually
-causing USB to label the hub as bus-powered and refuse to connect it.
+This patch modifies the I801 SMBus driver to use the non-blocking
+interface.
 
-The root problem is that code like:
-    get_status(..., &status);
-    cpu_to_le16s(&status);
-    if ((status & (1 << BITNO)) == 0) { ... }
-gets miscompiled so that the if statement triggers when it shouldn't.
+Signed-off-by: Corey Minyard <minyard@acm.org>
 
-Below is a standalone test program which reproduces the bug.
-It does involve some PPC-specific asm(), so the bug may be
-in gcc-4.0.0 or it may be in the asm() constraints.
+Index: linux-2.6.11-rc2/drivers/i2c/busses/i2c-i801.c
+===================================================================
+--- linux-2.6.11-rc2.orig/drivers/i2c/busses/i2c-i801.c
++++ linux-2.6.11-rc2/drivers/i2c/busses/i2c-i801.c
+@@ -40,6 +40,14 @@
+ 
+ /* Note: we assume there can only be one I801, with one SMBus interface */
+ 
++/* Another note: This interface is extremely sensitive to timing and
++   failure handling.  If you don't wait at least one jiffie after
++   starting the transaction before checking things, you will screw it
++   up.  If you don't wait a jiffie after the final check, you will
++   screw it up.  If you screw it up by these manners or by abandoning
++   an operation in progress, the I2C bus is likely stuck and won't
++   work any more.  Gotta love this hardware. */
++
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
+@@ -79,7 +87,8 @@
+ #define SMBHSTCFG_I2C_EN	4
+ 
+ /* Other settings */
+-#define MAX_TIMEOUT		100
++#define MAX_TIMEOUT_US		100000
++#define RETRY_TIME_US		500 /* Retry minimum is 500us */
+ #define ENABLE_INT9		0	/* set to 0x01 to enable - untested */
+ 
+ /* I801 command constants */
+@@ -105,21 +114,35 @@
+ 		 "Forcibly enable the I801 at the given address. "
+ 		 "EXTREMELY DANGEROUS!");
+ 
+-static int i801_transaction(void);
+-static int i801_block_transaction(union i2c_smbus_data *data,
+-				  char read_write, int command);
+-
+ static unsigned short i801_smba;
+ static struct pci_dev *I801_dev;
+ static int isich4;
+ 
++struct i801_i2c_data
++{
++	int i;
++	int len;
++	unsigned char hostc;
++	int block;
++	int hwpec;
++	int xact;
++	int hststs;
++	int wait_intr;
++	int finished;
++
++	/* Used to handle removal race conditions. */
++	int in_removal;
++	int in_use;
++};
++struct i801_i2c_data i801_data;
++
+ static int i801_setup(struct pci_dev *dev)
+ {
+ 	int error_return = 0;
+ 	unsigned char temp;
+ 
+ 	/* Note: we keep on searching until we have found 'function 3' */
+-	if(PCI_FUNC(dev->devfn) != 3)
++	if (PCI_FUNC(dev->devfn) != 3)
+ 		return -ENODEV;
+ 
+ 	I801_dev = dev;
+@@ -136,7 +159,7 @@
+ 	} else {
+ 		pci_read_config_word(I801_dev, SMBBA, &i801_smba);
+ 		i801_smba &= 0xfff0;
+-		if(i801_smba == 0) {
++		if (i801_smba == 0) {
+ 			dev_err(&dev->dev, "SMB base address uninitialized"
+ 				"- upgrade BIOS or use force_addr=0xaddr\n");
+ 			return -ENODEV;
+@@ -180,12 +203,93 @@
+ 	return error_return;
+ }
+ 
+-static int i801_transaction(void)
++static void i801_check_hststs(struct i2c_adapter *adap,
++			      struct i2c_op_q_entry *entry,
++			      struct i801_i2c_data *d)
++{
++	if (d->hststs & 0x10) {
++		entry->result = -EIO;
++		dev_dbg(&I801_dev->dev,
++			"Error: Failed bus transaction\n");
++	} else if (d->hststs & 0x08) {
++		entry->result = -EIO;
++		dev_err(&I801_dev->dev, "Bus collision!\n");
++		/* Clock stops and slave is stuck in mid-transmission */
++	} else if (d->hststs & 0x04) {
++		entry->result = -EIO;
++		dev_dbg(&I801_dev->dev, "Error: no response!\n");
++	}
++}
++
++static void i801_finish(struct i2c_adapter *adap,
++			struct i2c_op_q_entry *entry,
++			struct i801_i2c_data *d)
++{
++	d->finished = 1;
++
++#ifdef HAVE_PEC
++	if (isich4 && d->hwpec) {
++		if (entry->smbus.size != I2C_SMBUS_QUICK &&
++		   entry->smbus.size != I2C_SMBUS_I2C_BLOCK_DATA)
++			outb_p(0, SMBAUXCTL);
++	}
++#endif
++
++	if (d->block || (entry->result < 0) ||
++	   ((entry->smbus.read_write == I2C_SMBUS_WRITE)
++	    || (d->xact == I801_QUICK)))
++		return;
++
++	switch (d->xact & 0x7f) {
++	case I801_BYTE:	/* Result put in SMBHSTDAT0 */
++	case I801_BYTE_DATA:
++		entry->smbus.data->byte = inb_p(SMBHSTDAT0);
++		break;
++	case I801_WORD_DATA:
++		entry->smbus.data->word = inb_p(SMBHSTDAT0)
++		    + (inb_p(SMBHSTDAT1) << 8);
++		break;
++	}
++}
++
++static void i801_transaction_final_check(struct i2c_adapter *adap,
++					 struct i2c_op_q_entry *entry,
++					 struct i801_i2c_data *d)
+ {
+-	int temp;
+-	int result = 0;
+-	int timeout = 0;
++	i801_check_hststs(adap, entry, d);
+ 
++	if ((inb_p(SMBHSTSTS) & 0x1f) != 0x00)
++		outb_p(inb(SMBHSTSTS), SMBHSTSTS);
++
++	if ((d->hststs = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
++		dev_dbg(&I801_dev->dev, "Failed reset at end of transaction"
++			"(%02x)\n", d->hststs);
++	}
++	dev_dbg(&I801_dev->dev, "Transaction (post): CNT=%02x, CMD=%02x, "
++		"ADD=%02x, DAT0=%02x, DAT1=%02x\n", inb_p(SMBHSTCNT),
++		inb_p(SMBHSTCMD), inb_p(SMBHSTADD), inb_p(SMBHSTDAT0),
++		inb_p(SMBHSTDAT1));
++}
++
++static void i801_transaction_poll(struct i2c_adapter *adap,
++				  struct i2c_op_q_entry *entry,
++				  struct i801_i2c_data *d)
++{
++	d->hststs = inb_p(SMBHSTSTS);
++	if (!(d->hststs & 0x01)) {
++		i801_transaction_final_check(adap, entry, d);
++		i801_finish(adap, entry, d);
++	} else if (entry->time_left <= 0) {
++		dev_dbg(&I801_dev->dev, "SMBus Timeout!\n");
++		entry->result = -EIO;
++		i801_transaction_final_check(adap, entry, d);
++	}
++}
++
++static void i801_transaction_start(struct i2c_adapter *adap,
++				   struct i2c_op_q_entry *entry,
++				   struct i801_i2c_data *d)
++{
+ 	dev_dbg(&I801_dev->dev, "Transaction (pre): CNT=%02x, CMD=%02x,"
+ 		"ADD=%02x, DAT0=%02x, DAT1=%02x\n", inb_p(SMBHSTCNT),
+ 		inb_p(SMBHSTCMD), inb_p(SMBHSTADD), inb_p(SMBHSTDAT0),
+@@ -193,331 +297,368 @@
+ 
+ 	/* Make sure the SMBus host is ready to start transmitting */
+ 	/* 0x1f = Failed, Bus_Err, Dev_Err, Intr, Host_Busy */
+-	if ((temp = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
++	if ((d->hststs = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
+ 		dev_dbg(&I801_dev->dev, "SMBus busy (%02x). Resetting... \n",
+-			temp);
+-		outb_p(temp, SMBHSTSTS);
+-		if ((temp = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
+-			dev_dbg(&I801_dev->dev, "Failed! (%02x)\n", temp);
+-			return -1;
++			d->hststs);
++		outb_p(d->hststs, SMBHSTSTS);
++		if ((d->hststs = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
++			dev_dbg(&I801_dev->dev, "Failed! (%02x)\n", d->hststs);
++			entry->result = -EIO;
++			return;
+ 		} else {
+ 			dev_dbg(&I801_dev->dev, "Successfull!\n");
+ 		}
+ 	}
+ 
+ 	outb_p(inb(SMBHSTCNT) | I801_START, SMBHSTCNT);
++}
+ 
+-	/* We will always wait for a fraction of a second! */
+-	do {
+-		msleep(1);
+-		temp = inb_p(SMBHSTSTS);
+-	} while ((temp & 0x01) && (timeout++ < MAX_TIMEOUT));
+-
+-	/* If the SMBus is still busy, we give up */
+-	if (timeout >= MAX_TIMEOUT) {
+-		dev_dbg(&I801_dev->dev, "SMBus Timeout!\n");
+-		result = -1;
++static void i801_block_finish(struct i2c_adapter *adap,
++			      struct i2c_op_q_entry *entry,
++			      struct i801_i2c_data *d)
++{
++	if (entry->smbus.size == I2C_SMBUS_I2C_BLOCK_DATA) {
++		/* restore saved configuration register value */
++		pci_write_config_byte(I801_dev, SMBHSTCFG, d->hostc);
+ 	}
+ 
+-	if (temp & 0x10) {
+-		result = -1;
+-		dev_dbg(&I801_dev->dev, "Error: Failed bus transaction\n");
+-	}
++	i801_finish(adap, entry, d);
++}
+ 
+-	if (temp & 0x08) {
+-		result = -1;
+-		dev_err(&I801_dev->dev, "Bus collision! SMBus may be locked "
+-			"until next hard reset. (sorry!)\n");
+-		/* Clock stops and slave is stuck in mid-transmission */
+-	}
++static void i801_block_poll_wait_intr(struct i2c_adapter *adap,
++				      struct i2c_op_q_entry *entry,
++				      struct i801_i2c_data *d)
++{
++#ifdef HAVE_PEC
++	if (entry->result >= 0 &&
++	   isich4 &&
++	   entry->smbus.size == I2C_SMBUS_BLOCK_DATA_PEC)
++	{
++		/* wait for INTR bit as advised by Intel */
++		d->hststs = inb_p(SMBHSTSTS);
++		if (d->hststs & 0x02) {
++			outb_p(d->hststs, SMBHSTSTS); 
++			i801_block_finish(adap, entry, d);
++		} else if (entry->time_left <= 0) {
++			/* Timed out */
++			outb_p(d->hststs, SMBHSTSTS); 
++			entry->result = -EIO;
++			dev_dbg(&I801_dev->dev, "PEC Timeout!\n");
++		}
++	} else
++#endif
++		i801_block_finish(adap, entry, d);
++}
+ 
+-	if (temp & 0x04) {
+-		result = -1;
+-		dev_dbg(&I801_dev->dev, "Error: no response!\n");
++static void i801_block_next_byte(struct i2c_adapter *adap,
++				 struct i2c_op_q_entry *entry,
++				 struct i801_i2c_data *d)
++{
++	int smbcmd;
++	unsigned char errmask;
++
++	if (d->i > d->len) {
++		d->wait_intr = 1;
++		entry->time_left = MAX_TIMEOUT_US;
++		i801_block_poll_wait_intr(adap, entry, d);
++		return;
+ 	}
+ 
+-	if ((inb_p(SMBHSTSTS) & 0x1f) != 0x00)
+-		outb_p(inb(SMBHSTSTS), SMBHSTSTS);
++	if (d->i == d->len && entry->smbus.read_write == I2C_SMBUS_READ)
++		smbcmd = I801_BLOCK_LAST;
++	else
++		smbcmd = I801_BLOCK_DATA;
++	outb_p(smbcmd | ENABLE_INT9, SMBHSTCNT);
+ 
+-	if ((temp = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
+-		dev_dbg(&I801_dev->dev, "Failed reset at end of transaction"
+-			"(%02x)\n", temp);
++	dev_dbg(&I801_dev->dev, "Block (pre %d): CNT=%02x, CMD=%02x, "
++		"ADD=%02x, DAT0=%02x, BLKDAT=%02x\n", d->i,
++		inb_p(SMBHSTCNT), inb_p(SMBHSTCMD), inb_p(SMBHSTADD),
++		inb_p(SMBHSTDAT0), inb_p(SMBBLKDAT));
++
++	/* Make sure the SMBus host is ready to start transmitting */
++	d->hststs = inb_p(SMBHSTSTS);
++	if (d->i == 1) {
++		/* Erronenous conditions before transaction: 
++		 * Byte_Done, Failed, Bus_Err, Dev_Err, Intr, Host_Busy */
++		errmask=0x9f; 
++	} else {
++		/* Erronenous conditions during transaction: 
++		 * Failed, Bus_Err, Dev_Err, Intr */
++		errmask=0x1e; 
++	}
++	if (d->hststs & errmask) {
++		dev_dbg(&I801_dev->dev, "SMBus busy (%02x). "
++			"Resetting... \n", d->hststs);
++		outb_p(d->hststs, SMBHSTSTS);
++		if (((d->hststs = inb_p(SMBHSTSTS)) & errmask) != 0x00) {
++			dev_err(&I801_dev->dev,
++				"Reset failed! (%02x)\n", d->hststs);
++			entry->result = -EIO;
++			return;
++		}
++		if (d->i != 1) {
++			/* if die in middle of block transaction, fail */
++			entry->result = -EIO;
++			return;
++		}
+ 	}
+-	dev_dbg(&I801_dev->dev, "Transaction (post): CNT=%02x, CMD=%02x, "
+-		"ADD=%02x, DAT0=%02x, DAT1=%02x\n", inb_p(SMBHSTCNT),
+-		inb_p(SMBHSTCMD), inb_p(SMBHSTADD), inb_p(SMBHSTDAT0),
+-		inb_p(SMBHSTDAT1));
+-	return result;
++
++	if (d->i == 1)
++		outb_p(inb(SMBHSTCNT) | I801_START, SMBHSTCNT);
+ }
+ 
+-/* All-inclusive block transaction function */
+-static int i801_block_transaction(union i2c_smbus_data *data, char read_write,
+-				  int command)
++/* Called on timer ticks.  This checks the result of the
++   transaction. */
++static void i801_block_poll(struct i2c_adapter *adap,
++			    struct i2c_op_q_entry *entry,
++			    struct i801_i2c_data *d)
+ {
+-	int i, len;
+-	int smbcmd;
+-	int temp;
+-	int result = 0;
+-	int timeout;
+-	unsigned char hostc, errmask;
+-
+-	if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
+-		if (read_write == I2C_SMBUS_WRITE) {
+-			/* set I2C_EN bit in configuration register */
+-			pci_read_config_byte(I801_dev, SMBHSTCFG, &hostc);
+-			pci_write_config_byte(I801_dev, SMBHSTCFG,
+-					      hostc | SMBHSTCFG_I2C_EN);
+-		} else {
+-			dev_err(&I801_dev->dev,
+-				"I2C_SMBUS_I2C_BLOCK_READ not DB!\n");
+-			return -1;
++	d->hststs = inb_p(SMBHSTSTS);
++	if (!(d->hststs & 0x80)) {
++		/* Not ready yet */
++		if (entry->time_left <= 0) {
++			dev_dbg(&I801_dev->dev, "SMBus Timeout!\n");
++			entry->result = -EIO;
+ 		}
++		return;
+ 	}
+ 
+-	if (read_write == I2C_SMBUS_WRITE) {
+-		len = data->block[0];
+-		if (len < 1)
+-			len = 1;
+-		if (len > 32)
+-			len = 32;
+-		outb_p(len, SMBHSTDAT0);
+-		outb_p(data->block[1], SMBBLKDAT);
++	i801_check_hststs(adap, entry, d);
++	if (d->i == 1 && entry->smbus.read_write == I2C_SMBUS_READ) {
++		d->len = inb_p(SMBHSTDAT0);
++		if (d->len < 1)
++			d->len = 1;
++		if (d->len > 32)
++			d->len = 32;
++		entry->smbus.data->block[0] = d->len;
++	}
++
++	/* Retrieve/store value in SMBBLKDAT */
++	if (entry->smbus.read_write == I2C_SMBUS_READ)
++		entry->smbus.data->block[d->i] = inb_p(SMBBLKDAT);
++	if (entry->smbus.read_write == I2C_SMBUS_WRITE && d->i+1 <= d->len)
++		outb_p(entry->smbus.data->block[d->i+1], SMBBLKDAT);
++	if ((d->hststs & 0x9e) != 0x00)
++		outb_p(d->hststs, SMBHSTSTS);  /* signals SMBBLKDAT ready */
++	
++	if ((d->hststs = (0x1e & inb_p(SMBHSTSTS))) != 0x00) {
++		dev_dbg(&I801_dev->dev,
++			"Bad status (%02x) at end of transaction\n",
++			d->hststs);
++	}
++	dev_dbg(&I801_dev->dev, "Block (post %d): CNT=%02x, CMD=%02x, "
++		"ADD=%02x, DAT0=%02x, BLKDAT=%02x\n", d->i,
++		inb_p(SMBHSTCNT), inb_p(SMBHSTCMD), inb_p(SMBHSTADD),
++		inb_p(SMBHSTDAT0), inb_p(SMBBLKDAT));
++
++	if (entry->result)
++		return;
++
++	(d->i)++;
++	i801_block_next_byte(adap, entry, d);
++}
++
++static void i801_block_start(struct i2c_adapter *adap,
++			     struct i2c_op_q_entry *entry,
++			     struct i801_i2c_data *d)
++{
++	if (entry->smbus.read_write == I2C_SMBUS_WRITE) {
++		d->len = entry->smbus.data->block[0];
++		if (d->len < 1)
++			d->len = 1;
++		if (d->len > 32)
++			d->len = 32;
++		outb_p(d->len, SMBHSTDAT0);
++		outb_p(entry->smbus.data->block[1], SMBBLKDAT);
+ 	} else {
+-		len = 32;	/* max for reads */
++		d->len = 32;	/* max for reads */
+ 	}
+ 
+-	if(isich4 && command != I2C_SMBUS_I2C_BLOCK_DATA) {
++	if(isich4 && entry->smbus.size != I2C_SMBUS_I2C_BLOCK_DATA) {
+ 		/* set 32 byte buffer */
+ 	}
+ 
+-	for (i = 1; i <= len; i++) {
+-		if (i == len && read_write == I2C_SMBUS_READ)
+-			smbcmd = I801_BLOCK_LAST;
+-		else
+-			smbcmd = I801_BLOCK_DATA;
+-		outb_p(smbcmd | ENABLE_INT9, SMBHSTCNT);
+-
+-		dev_dbg(&I801_dev->dev, "Block (pre %d): CNT=%02x, CMD=%02x, "
+-			"ADD=%02x, DAT0=%02x, BLKDAT=%02x\n", i,
+-			inb_p(SMBHSTCNT), inb_p(SMBHSTCMD), inb_p(SMBHSTADD),
+-			inb_p(SMBHSTDAT0), inb_p(SMBBLKDAT));
+-
+-		/* Make sure the SMBus host is ready to start transmitting */
+-		temp = inb_p(SMBHSTSTS);
+-		if (i == 1) {
+-			/* Erronenous conditions before transaction: 
+-			 * Byte_Done, Failed, Bus_Err, Dev_Err, Intr, Host_Busy */
+-			errmask=0x9f; 
+-		} else {
+-			/* Erronenous conditions during transaction: 
+-			 * Failed, Bus_Err, Dev_Err, Intr */
+-			errmask=0x1e; 
+-		}
+-		if (temp & errmask) {
+-			dev_dbg(&I801_dev->dev, "SMBus busy (%02x). "
+-				"Resetting... \n", temp);
+-			outb_p(temp, SMBHSTSTS);
+-			if (((temp = inb_p(SMBHSTSTS)) & errmask) != 0x00) {
+-				dev_err(&I801_dev->dev,
+-					"Reset failed! (%02x)\n", temp);
+-				result = -1;
+-                                goto END;
+-			}
+-			if (i != 1) {
+-				/* if die in middle of block transaction, fail */
+-				result = -1;
+-				goto END;
+-			}
+-		}
++	d->i = 1;
++	i801_block_next_byte(adap, entry, d);
++}
+ 
+-		if (i == 1)
+-			outb_p(inb(SMBHSTCNT) | I801_START, SMBHSTCNT);
++/* General poll routine.  Called periodically by the i2c code. */
++static void i801_poll(struct i2c_adapter *adap,
++		      struct i2c_op_q_entry *entry,
++		      unsigned int us_since_last_poll)
++{
++	struct i801_i2c_data *d = entry->data;
+ 
+-		/* We will always wait for a fraction of a second! */
+-		timeout = 0;
+-		do {
+-			temp = inb_p(SMBHSTSTS);
+-			msleep(1);
+-		}
+-		    while ((!(temp & 0x80))
+-			   && (timeout++ < MAX_TIMEOUT));
++	dev_dbg(&I801_dev->dev, "Poll call for %p %p at %ld\n", adap, entry,
++		jiffies);
+ 
+-		/* If the SMBus is still busy, we give up */
+-		if (timeout >= MAX_TIMEOUT) {
+-			result = -1;
+-			dev_dbg(&I801_dev->dev, "SMBus Timeout!\n");
+-		}
++	if (!d)
++		/* The entry hasn't been started yet. */
++		return;
+ 
+-		if (temp & 0x10) {
+-			result = -1;
+-			dev_dbg(&I801_dev->dev,
+-				"Error: Failed bus transaction\n");
+-		} else if (temp & 0x08) {
+-			result = -1;
+-			dev_err(&I801_dev->dev, "Bus collision!\n");
+-		} else if (temp & 0x04) {
+-			result = -1;
+-			dev_dbg(&I801_dev->dev, "Error: no response!\n");
+-		}
++	if (d->finished) {
++		/* We delay an extra poll to keep the hardware happy.
++		   Otherwise the hardware is not ready when we start
++		   the next operation. */
++		i2c_op_done(adap, entry);
++		d->in_use = 0;
++		return;
++	}
+ 
+-		if (i == 1 && read_write == I2C_SMBUS_READ) {
+-			len = inb_p(SMBHSTDAT0);
+-			if (len < 1)
+-				len = 1;
+-			if (len > 32)
+-				len = 32;
+-			data->block[0] = len;
+-		}
++	/* Decrement timeout */
++	entry->time_left -= us_since_last_poll;
++
++	/* Wait a jiffie normally. */
++	entry->call_again_us = RETRY_TIME_US;
+ 
+-		/* Retrieve/store value in SMBBLKDAT */
+-		if (read_write == I2C_SMBUS_READ)
+-			data->block[i] = inb_p(SMBBLKDAT);
+-		if (read_write == I2C_SMBUS_WRITE && i+1 <= len)
+-			outb_p(data->block[i+1], SMBBLKDAT);
+-		if ((temp & 0x9e) != 0x00)
+-			outb_p(temp, SMBHSTSTS);  /* signals SMBBLKDAT ready */
+-
+-		if ((temp = (0x1e & inb_p(SMBHSTSTS))) != 0x00) {
+-			dev_dbg(&I801_dev->dev,
+-				"Bad status (%02x) at end of transaction\n",
+-				temp);
++	if (d->block) {
++		if (d->wait_intr) {
++			i801_block_poll_wait_intr(adap, entry, d);
++		} else {
++			i801_block_poll(adap, entry, d);
+ 		}
+-		dev_dbg(&I801_dev->dev, "Block (post %d): CNT=%02x, CMD=%02x, "
+-			"ADD=%02x, DAT0=%02x, BLKDAT=%02x\n", i,
+-			inb_p(SMBHSTCNT), inb_p(SMBHSTCMD), inb_p(SMBHSTADD),
+-			inb_p(SMBHSTDAT0), inb_p(SMBBLKDAT));
++		if (entry->result < 0)
++			/* Error, finish the transaction */
++			i801_block_finish(adap, entry, d);
++	} else {
++		i801_transaction_poll(adap, entry, d);
++		if (entry->result < 0)
++			/* Error, finish the transaction */
++			i801_finish(adap, entry, d);
++	}
++}
+ 
+-		if (result < 0)
+-			goto END;
++/* Start a general SMBUS transaction on the i801.  Figure out what
++   kind of transaction it is, set it up, and start it. */
++static void i801_start(struct i2c_adapter *adap,
++		       struct i2c_op_q_entry *entry)
++{
++	struct i801_i2c_data *d = adap->algo_data;
++
++	d->in_use = 1;
++	if (d->in_removal) {
++		d->in_use = 0;
++		entry->result = -ENODEV;
++		return;
+ 	}
+ 
+-#ifdef HAVE_PEC
+-	if(isich4 && command == I2C_SMBUS_BLOCK_DATA_PEC) {
+-		/* wait for INTR bit as advised by Intel */
+-		timeout = 0;
+-		do {
+-			temp = inb_p(SMBHSTSTS);
+-			msleep(1);
+-		} while ((!(temp & 0x02))
+-			   && (timeout++ < MAX_TIMEOUT));
++	dev_dbg(&I801_dev->dev, "start call for %p %p at %ld\n", adap, entry,
++		jiffies);
+ 
+-		if (timeout >= MAX_TIMEOUT) {
+-			dev_dbg(&I801_dev->dev, "PEC Timeout!\n");
++	if (entry->smbus.size == I2C_SMBUS_I2C_BLOCK_DATA) {
++		if (entry->smbus.read_write == I2C_SMBUS_WRITE) {
++			/* set I2C_EN bit in configuration register */
++			pci_read_config_byte(I801_dev, SMBHSTCFG, &d->hostc);
++			pci_write_config_byte(I801_dev, SMBHSTCFG,
++					      d->hostc | SMBHSTCFG_I2C_EN);
++		} else {
++			dev_err(&I801_dev->dev,
++				"I2C_SMBUS_I2C_BLOCK_READ not DB!\n");
++			d->in_use = 0;
++			entry->result = -EINVAL;
++			return;
+ 		}
+-		outb_p(temp, SMBHSTSTS); 
+ 	}
+-#endif
+-	result = 0;
+-END:
+-	if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
+-		/* restore saved configuration register value */
+-		pci_write_config_byte(I801_dev, SMBHSTCFG, hostc);
+-	}
+-	return result;
+-}
+ 
+-/* Return -1 on error. */
+-static s32 i801_access(struct i2c_adapter * adap, u16 addr,
+-		       unsigned short flags, char read_write, u8 command,
+-		       int size, union i2c_smbus_data * data)
+-{
+-	int hwpec = 0;
+-	int block = 0;
+-	int ret, xact = 0;
++	d->block = 0;
++	d->hwpec = 0;
++	d->xact = 0;
++	d->wait_intr = 0;
++	d->finished = 0;
+ 
+ #ifdef HAVE_PEC
+-	if(isich4)
+-		hwpec = (flags & I2C_CLIENT_PEC) != 0;
++	if (isich4)
++		d->hwpec = (entry->smbus.flags & I2C_CLIENT_PEC) != 0;
+ #endif
+ 
+-	switch (size) {
++	switch (entry->smbus.size) {
+ 	case I2C_SMBUS_QUICK:
+-		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		outb_p(((entry->smbus.addr & 0x7f) << 1)
++		       | (entry->smbus.read_write & 0x01),
+ 		       SMBHSTADD);
+-		xact = I801_QUICK;
++		d->xact = I801_QUICK;
+ 		break;
+ 	case I2C_SMBUS_BYTE:
+-		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		outb_p(((entry->smbus.addr & 0x7f) << 1)
++		       | (entry->smbus.read_write & 0x01),
+ 		       SMBHSTADD);
+-		if (read_write == I2C_SMBUS_WRITE)
+-			outb_p(command, SMBHSTCMD);
+-		xact = I801_BYTE;
++		if (entry->smbus.read_write == I2C_SMBUS_WRITE)
++			outb_p(entry->smbus.command, SMBHSTCMD);
++		d->xact = I801_BYTE;
+ 		break;
+ 	case I2C_SMBUS_BYTE_DATA:
+-		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		outb_p(((entry->smbus.addr & 0x7f) << 1)
++		       | (entry->smbus.read_write & 0x01),
+ 		       SMBHSTADD);
+-		outb_p(command, SMBHSTCMD);
+-		if (read_write == I2C_SMBUS_WRITE)
+-			outb_p(data->byte, SMBHSTDAT0);
+-		xact = I801_BYTE_DATA;
++		outb_p(entry->smbus.command, SMBHSTCMD);
++		if (entry->smbus.read_write == I2C_SMBUS_WRITE)
++			outb_p(entry->smbus.data->byte, SMBHSTDAT0);
++		d->xact = I801_BYTE_DATA;
+ 		break;
+ 	case I2C_SMBUS_WORD_DATA:
+-		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		outb_p(((entry->smbus.addr & 0x7f) << 1)
++		       | (entry->smbus.read_write & 0x01),
+ 		       SMBHSTADD);
+-		outb_p(command, SMBHSTCMD);
+-		if (read_write == I2C_SMBUS_WRITE) {
+-			outb_p(data->word & 0xff, SMBHSTDAT0);
+-			outb_p((data->word & 0xff00) >> 8, SMBHSTDAT1);
++		outb_p(entry->smbus.command, SMBHSTCMD);
++		if (entry->smbus.read_write == I2C_SMBUS_WRITE) {
++			outb_p(entry->smbus.data->word & 0xff, SMBHSTDAT0);
++			outb_p((entry->smbus.data->word & 0xff00) >> 8,
++			       SMBHSTDAT1);
+ 		}
+-		xact = I801_WORD_DATA;
++		d->xact = I801_WORD_DATA;
+ 		break;
+ 	case I2C_SMBUS_BLOCK_DATA:
+ 	case I2C_SMBUS_I2C_BLOCK_DATA:
+ #ifdef HAVE_PEC
+ 	case I2C_SMBUS_BLOCK_DATA_PEC:
+-		if(hwpec && size == I2C_SMBUS_BLOCK_DATA)
+-			size = I2C_SMBUS_BLOCK_DATA_PEC;
++		if (d->hwpec && entry->smbus.size == I2C_SMBUS_BLOCK_DATA)
++			entry->smbus.size = I2C_SMBUS_BLOCK_DATA_PEC;
+ #endif
+-		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		outb_p(((entry->smbus.addr & 0x7f) << 1)
++		       | (entry->smbus.read_write & 0x01),
+ 		       SMBHSTADD);
+-		outb_p(command, SMBHSTCMD);
+-		block = 1;
++		outb_p(entry->smbus.command, SMBHSTCMD);
++		d->block = 1;
+ 		break;
+ 	case I2C_SMBUS_PROC_CALL:
+ 	default:
+-		dev_err(&I801_dev->dev, "Unsupported transaction %d\n", size);
+-		return -1;
++		dev_err(&I801_dev->dev, "Unsupported transaction %d\n",
++			entry->smbus.size);
++		entry->result = -EINVAL;
++		d->in_use = 0;
++		return;
+ 	}
+ 
+ #ifdef HAVE_PEC
+-	if(isich4 && hwpec) {
+-		if(size != I2C_SMBUS_QUICK &&
+-		   size != I2C_SMBUS_I2C_BLOCK_DATA)
++	if (isich4 && d->hwpec) {
++		if (entry->smbus.size != I2C_SMBUS_QUICK &&
++		   entry->smbus.size != I2C_SMBUS_I2C_BLOCK_DATA)
+ 			outb_p(1, SMBAUXCTL);	/* enable HW PEC */
+ 	}
+ #endif
+-	if(block)
+-		ret = i801_block_transaction(data, read_write, size);
+-	else {
+-		outb_p(xact | ENABLE_INT9, SMBHSTCNT);
+-		ret = i801_transaction();
+-	}
+-
+-#ifdef HAVE_PEC
+-	if(isich4 && hwpec) {
+-		if(size != I2C_SMBUS_QUICK &&
+-		   size != I2C_SMBUS_I2C_BLOCK_DATA)
+-			outb_p(0, SMBAUXCTL);
+-	}
+-#endif
+-
+-	if(block)
+-		return ret;
+-	if(ret)
+-		return -1;
+-	if ((read_write == I2C_SMBUS_WRITE) || (xact == I801_QUICK))
+-		return 0;
+-
+-	switch (xact & 0x7f) {
+-	case I801_BYTE:	/* Result put in SMBHSTDAT0 */
+-	case I801_BYTE_DATA:
+-		data->byte = inb_p(SMBHSTDAT0);
+-		break;
+-	case I801_WORD_DATA:
+-		data->word = inb_p(SMBHSTDAT0) + (inb_p(SMBHSTDAT1) << 8);
+-		break;
+-	}
+-	return 0;
++	if (d->block) {
++		i801_block_start(adap, entry, d);
++		if (entry->result < 0)
++			/* Error, finish the transaction */
++			i801_block_finish(adap, entry, d);
++	} else {
++		outb_p(d->xact | ENABLE_INT9, SMBHSTCNT);
++		i801_transaction_start(adap, entry, d);
++		if (entry->result < 0)
++			/* Error, finish the transaction */
++			i801_finish(adap, entry, d);
++	}
++
++	/* Wait extra long here, we want at least 2 ticks to guarantee
++	   we wait >= 1 tick. */
++	entry->call_again_us = (1000000 / HZ) * 2;
++	entry->time_left = MAX_TIMEOUT_US;
++
++	if (d->finished) {
++		i2c_op_done(adap, entry);
++		d->in_use = 0;
++	} else
++		entry->data = d;
+ }
+ 
+ 
+@@ -537,7 +678,8 @@
+ static struct i2c_algorithm smbus_algorithm = {
+ 	.name		= "Non-I2C SMBus adapter",
+ 	.id		= I2C_ALGO_SMBUS,
+-	.smbus_xfer	= i801_access,
++	.smbus_start	= i801_start,
++	.poll		= i801_poll,
+ 	.functionality	= i801_func,
+ };
+ 
+@@ -545,6 +687,7 @@
+ 	.owner		= THIS_MODULE,
+ 	.class		= I2C_CLASS_HWMON,
+ 	.algo		= &smbus_algorithm,
++	.algo_data      = &i801_data,
+ 	.name		= "unset",
+ };
+ 
+@@ -563,7 +706,8 @@
+ 
+ MODULE_DEVICE_TABLE (pci, i801_ids);
+ 
+-static int __devinit i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
++static int __devinit i801_probe(struct pci_dev *dev,
++				const struct pci_device_id *id)
+ {
+ 
+ 	if (i801_setup(dev)) {
+@@ -582,6 +726,14 @@
+ 
+ static void __devexit i801_remove(struct pci_dev *dev)
+ {
++	struct i801_i2c_data *d = i801_adapter.algo_data;
++
++	/* Shut down any new requests and wait for any in-progress
++	   operations to complete. */
++	d->in_removal = 1;
++	while (d->in_use)
++		mdelay(1);
++
+ 	i2c_del_adapter(&i801_adapter);
+ 	release_region(i801_smba, (isich4 ? 16 : 8));
+ }
 
-/Mikael
-
-/* gcc4bug2.c
- * Written by Mikael Pettersson <mikpe@csd.uu.se>, 2005-02-25.
- *
- * This program is abstracted from drivers/usb/core/hub.c in
- * the 2.6.11-rc5 Linux kernel sources.
- *
- * With gcc-3.4.3, gcc-3.3.5, or gcc-3.2.3, usb_configure()
- * correctly returns 0.
- *
- * With gcc-4.0.0 20050220, usb_configure() erroneously returns 1.
- * The error occurs at -O1 and higher. -O0 hides the error.
- *
- * All gcc versions were configured for powerpc-unknown-linux-gnu.
- */
-#include <stdio.h>
-
-extern __inline__ __attribute__((always_inline))
-void st_le16(volatile unsigned short *addr, const unsigned val)
-{
-    __asm__ __volatile__ ("sthbrx %1,0,%2" : "=m" (*addr) : "r" (val), "r" (addr));
-}
-
-static __inline__ __attribute__((always_inline))
-void swab16s(unsigned short *addr)
-{
-    st_le16(addr, *addr);
-}
-
-unsigned short raw_hubstatus;
-
-void usb_get_status(unsigned short *hubstatusp)
-{
-    *hubstatusp = raw_hubstatus;
-}
-
-int usb_configure(void)
-{
-    unsigned short hubstatus;
-
-    usb_get_status(&hubstatus);
-    swab16s(&hubstatus);
-    return (hubstatus & 1) == 0;
-}
-
-int main(void)
-{
-    int ret;
-
-    raw_hubstatus = 0x0300;
-    ret = usb_configure();
-    if (ret) {
-	fprintf(stderr, "gcc bug! usb_configure() returned %d\n", ret);
-	return 1;
-    } else
-	return 0;
-}
+--------------020001090603050107070709--

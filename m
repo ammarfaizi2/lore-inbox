@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284302AbSABV3O>; Wed, 2 Jan 2002 16:29:14 -0500
+	id <S284776AbSABVcO>; Wed, 2 Jan 2002 16:32:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284795AbSABV3A>; Wed, 2 Jan 2002 16:29:00 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:41859
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S284304AbSABV1M>; Wed, 2 Jan 2002 16:27:12 -0500
-Date: Wed, 2 Jan 2002 16:13:47 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S287055AbSABVb7>; Wed, 2 Jan 2002 16:31:59 -0500
+Received: from ns.suse.de ([213.95.15.193]:51208 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287044AbSABVbg>;
+	Wed, 2 Jan 2002 16:31:36 -0500
+Date: Wed, 2 Jan 2002 22:31:35 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020102161347.A16223@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16LsU0-0005RB-00@the-village.bc.nu> <Pine.LNX.4.33.0201022200070.427-100000@Appserv.suse.de> <20020102162349.A957@apone.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020102162349.A957@apone.devel.redhat.com>; from notting@redhat.com on Wed, Jan 02, 2002 at 04:23:49PM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+In-Reply-To: <20020102161347.A16223@thyrsus.com>
+Message-ID: <Pine.LNX.4.33.0201022230240.427-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Nottingham <notting@redhat.com>:
-> Dave Jones (davej@suse.de) said: 
-> > > You can make an educated guess. However it is at best an educated guess.
-> > > The DMI tables will tell you what PCI and ISA slots are present (but
-> > > tend to be unreliable on older boxes).
-> > 
-> > And newer ones. I've seen 'Full length ISA slot' reported on a laptop
-> > for eg.
-> 
-> I have an ia64 here that, according to dmidecode, has a
-> 32bit NUBUS slot in it. AFAIK, that's not the case. ;)
+On Wed, 2 Jan 2002, Eric S. Raymond wrote:
 
-I just downloaded and tested Arjan deVen's dmidecode.c program.
-That will do what I want, but it has the irritating problem that
-it requires root privileges for access to /dev/kmem.
+> I just downloaded and tested Arjan deVen's dmidecode.c program.
+> That will do what I want, but it has the irritating problem that
+> it requires root privileges for access to /dev/kmem.
 
-Is the DMI data available in /proc files anywhere?
+Yup, needs to map BIOS tables.
 
-If not, should it be?
+> Is the DMI data available in /proc files anywhere?
+
+Nope.
+
+> If not, should it be?
+
+Questionable. Dumping this in /proc just to make kernel autoconfig
+easier seems dreadful overkill.
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 
-"Taking my gun away because I might shoot someone is like cutting my tongue
-out because I might yell `Fire!' in a crowded theater."
-        -- Peter Venetoklis

@@ -1,59 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279952AbRKXUhD>; Sat, 24 Nov 2001 15:37:03 -0500
+	id <S279992AbRKXUtX>; Sat, 24 Nov 2001 15:49:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279997AbRKXUgx>; Sat, 24 Nov 2001 15:36:53 -0500
-Received: from f05s15.cac.psu.edu ([128.118.141.58]:40631 "EHLO
-	f05n15.cac.psu.edu") by vger.kernel.org with ESMTP
-	id <S279952AbRKXUgo>; Sat, 24 Nov 2001 15:36:44 -0500
-Subject: Re: Linux 2.4.16-pre1
-From: Phil Sorber <aafes@psu.edu>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0111241639480.12066-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0111241639480.12066-100000@freak.distro.conectiva>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-2dYGphFpVGY3DMUZyc7Q"
-X-Mailer: Evolution/0.16 (Preview Release)
-Date: 24 Nov 2001 15:36:40 -0500
-Message-Id: <1006634201.290.11.camel@praetorian>
-Mime-Version: 1.0
+	id <S279997AbRKXUtO>; Sat, 24 Nov 2001 15:49:14 -0500
+Received: from host132.googgun.cust.cyberus.ca ([209.195.125.132]:3986 "EHLO
+	marauder.googgun.com") by vger.kernel.org with ESMTP
+	id <S279992AbRKXUtF>; Sat, 24 Nov 2001 15:49:05 -0500
+Date: Sat, 24 Nov 2001 15:48:24 -0500 (EST)
+From: Ahmed Masud <masud@marauder.googgun.com>
+To: Peter Jay Salzman <p@dirac.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kswapd and system response
+In-Reply-To: <20011124121231.A2062@dirac.org>
+Message-ID: <Pine.LNX.4.33.0111241535160.3541-100000@marauder.googgun.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-2dYGphFpVGY3DMUZyc7Q
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Sat, 2001-11-24 at 13:40, Marcelo Tosatti wrote:
->=20
-> Its available at
-> ftp.xx.kernel.org/pub/linux/kernel/people/marcelo/2.4/testing/
->=20
-> duh. :)
+On Sat, 24 Nov 2001, Peter Jay Salzman wrote:
 
-Are these going to appear on the front page of kernel.org? all i see
-there now is 2.5.1pre1, no 2.4.16pre1.
-=20
---=20
-Phil Sorber
-AIM: PSUdaemon
-IRC: irc.openprojects.net #psulug PSUdaemon
-GnuPG: keyserver - pgp.mit.edu
+> hi there,
+>
+> every so often, my system (2.4.13 smp) gets really sloooooow.   a typical top
+> looks something like:
+>
+>   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+>     5 root      14   0     0    0     0 RW   99.9  0.0   7:52 kswapd
+>     7 root       9   0     0    0     0 SW    1.9  0.0   0:04 kupdated
+>  2053 root      13   0   984  984   776 R     0.7  0.4   0:01 top
+>  2063 p          9   0  2080 2080  1292 S     0.3  0.9   0:00 vim
+>
+> kswapd is definitely not behaving correctly.
+>
+> the thing that brought it on this time was gtv (an mpeg viewer which uses
+> sdl) bailed on me.   X "kind of" froze, so i killed it.  but that's only the
+> cause this time around.  last time, it happened between the time of going to
+> bed and waking up (ie- the system was pretty much idling from a user's pov).
+>
+> this has been happening with the 2.4.13 kernel every couple of days.
+>
 
---=-2dYGphFpVGY3DMUZyc7Q
-Content-Type: application/pgp-signature
+Hello
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+I have experienced similar behaviour with kswapd/kupdated with 2.4.12 and
+2.4.13 .  After much struggle, I discovered that the system had become
+slugish and non-responsive because i was using the wrong IDE busmastering
+and DMA drivers (VIA chipset) instead of the correct ones for my
+motherboard (PROMISE chipset). If you are using IDE, then perhaps you have
+something similar and are using the incorrect drivers?
 
-iD8DBQA8AATYXm6Gwek+iaQRAkucAKCYG72AIlgqXyvfJaaItaLrRQFLpwCeMyC5
-l6uzCbZ/4ZtONetO3oa20v0=
-=/yN9
------END PGP SIGNATURE-----
+If you are indeed using IDE then suggest that you turn of busmastering all
+together and give it another try.
 
---=-2dYGphFpVGY3DMUZyc7Q--
+Ahmed.
 

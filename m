@@ -1,44 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263566AbTDWVtn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 17:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTDWVtn
+	id S264264AbTDWVz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 17:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264266AbTDWVz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 17:49:43 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:63911 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S263566AbTDWVtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 17:49:42 -0400
-Subject: Re: [Bug 622] New: ALSA Choppy During Thing Like Window Changes
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <21270000.1051112116@[10.10.2.4]>
-References: <21270000.1051112116@[10.10.2.4]>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1051135300.652.11.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 24 Apr 2003 00:01:40 +0200
+	Wed, 23 Apr 2003 17:55:56 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:31178 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264264AbTDWVzy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 17:55:54 -0400
+Message-ID: <3EA70DC8.187CDD25@us.ibm.com>
+Date: Wed, 23 Apr 2003 15:03:52 -0700
+From: Peter Badovinatz <tabmowzo@us.ibm.com>
+Organization: IBM Linux Technology Center
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mika Kukkonen <mika@osdl.org>
+CC: Christoph Hellwig <hch@infradead.org>, LKML <linux-kernel@vger.kernel.org>,
+       cgl_discussion@osdl.org
+Subject: Re: [cgl_discussion] Re: OSDL CGL-WG draft specs available forreview
+References: <1051044403.1384.44.camel@miku-t21-redhat.koti>
+		 <20030423174958.A2603@infradead.org> <1051122743.7515.97.camel@miku-t21-redhat.koti>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-23 at 17:35, Martin J. Bligh wrote:
-> http://bugme.osdl.org/show_bug.cgi?id=622
-> Problem Description:
-> When there is a short burst of high CPU usage, ALSA tends to skip for up to
-> a second. This has always worked fine with 2.4.x OSS.
+Mika Kukkonen wrote:
+> 
+> On Wed, 2003-04-23 at 09:49, Christoph Hellwig wrote:
+> > >    4.10 Force unmount (2) 2 Experimental Availability Core
+> (...)
+> > This is very hard to get right.  What the expermintel implementation
+> > you're referring to?
+> 
+> This feature was mentioned in v1.1 spec, so some distributions already
+> provide "experimental" versions of this feature. There are no Open
+> Source projects I know of, though.
 
-Uhmm... Maybe a problem with the backboost interactivity enhancements.
-Does this happen with command-line apps like mpg123, mpg321, ogg123,
-etc? In my case, I've experienced those "sound skips" when using XMMS,
-but not mpg123 or ogg123. I think it's both a "corner-case" problem with
-the interactivity changes in the 2.5-series scheduler and XMMS itself.
+It is hard to get right, I personally cannot vouch for Solaris 8 or
+Veritas (VxFS) having gotten it right.  We list it because of the
+expressed desire to control file system mountings in clustered
+environments.  One option is to shut down a node where the file system
+is mounted, but for various reasons you would like a finer level of
+control.
 
--- 
-Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
-See http://www.fsf.org/philosophy/no-word-attachments.html
-Linux Registered User #287198
+MontaVista claims support (see http://www.mvista.com/tech3.html) in
+their Carrier Grade Edition Linux product release.  The 'Experimental'
+is because this does exist, but I don't know how well it works, and
+whether it's been proposed for mainstream inclusion.
 
+> 
+> > >    6.8 Page flushing 3 Experimental Performance Core
+> (...)
+> > I don't see how you want to implement this.  The fundamental VM object
+> > for page flushing is struct address_space and it's in no say related to
+> > processes.
+> 
+> I'll let somebody wiser than me to comment on this one, as I do not
+> recall the reasoning behind this feature right know ;-)
+
+The goal of this requirement is to allow the applications running on the
+system to have deep control of the allocation of system resources.  In
+response to some stimulus they can decide they want their allocated
+pages released via this hypothetical flush.
+
+A better analogue might be to madvise() and munmap(), although
+generalized beyond mmap'ped pages.  In other words, the phrasing needs
+to be improved here to be more accurate.  Since most of the text is
+mine, and not the folks who've worked with me on it, blame me.
+
+As to implementation, it is 'Experimental' because support exists for
+some kinds of pages, ala madvise().  For the more generic case, I see
+your point.  In part, we convey this making it priority 3 to allow time
+to think on it, but we also don't want to limit possible solutions,
+rather identify the need and help inspire the effort.
+
+
+> > >    Reference projects:
+> > >      * Implemented in NGPT: [94]http://www-124.ibm.com/pthreads/.
+> >
+> > Well, NGPT is maintaince only mode and I doubt there's much chance to see
+> > this ever in glibc/ngpt.  I'd rather check this with Ullrich before adding
+> > it to the spec..
+> 
+> Yes, we follow what is happening around. Really the requirement is just
+> to get POSIX threads, if it gets done by NPTL we are OK with that. NGPT
+> is mentioned because some distros currently ship with it and so from
+> CGL viewpoint fulfill this requirement with NGPT.
+
+Note that NGPT already implemented some specific interfaces [Robust
+Mutexes] that are not part of Posix threads (rather, part of Solaris
+(Unix International) threads in this case), and this function was
+identified as being very important for compatibility for many existing
+carrier applications.
+
+I believe that Ulrich has already commented negatively on this support
+in glibc/nptl, because it isn't POSIX.  But I'm uncomfortable completely
+dropping this from the spec as we're trying to identify requirements as
+viewed by some class of users (i.e., carrier applications.)  I can see
+an adjustment of priority or other recognition (it's a 1, make it a 2,
+and let the discussions play out over time.)
+
+Peter
+--
+Peter R. Badovinatz aka 'Wombat' -- IBM Linux Technology Center
+preferred: tabmowzo@us.ibm.com / alternate: wombat@us.ibm.com
+These are my opinions and absolutely not official opinions of IBM, Corp.

@@ -1,319 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbVBOWDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261905AbVBOWEn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbVBOWDH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 17:03:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVBOWDH
+	id S261905AbVBOWEn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 17:04:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVBOWEn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 17:03:07 -0500
-Received: from gate.crashing.org ([63.228.1.57]:20109 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261903AbVBOWCt (ORCPT
+	Tue, 15 Feb 2005 17:04:43 -0500
+Received: from soundwarez.org ([217.160.171.123]:42400 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S261905AbVBOWEM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 17:02:49 -0500
-Subject: Re: Radeon FB troubles with recent kernels
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Vincent C Jones <vcjones@networkingunlimited.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050215150713.EE7721DE4A@X31.nui.nul>
-References: <3y1SR-5K6-1@gated-at.bofh.it>
-	 <20050215150713.EE7721DE4A@X31.nui.nul>
-Content-Type: text/plain
-Date: Wed, 16 Feb 2005 09:02:01 +1100
-Message-Id: <1108504921.13376.21.camel@gaston>
+	Tue, 15 Feb 2005 17:04:12 -0500
+Date: Tue, 15 Feb 2005 23:04:06 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: linux-kernel@vger.kernel.org
+Cc: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] add "bus" symlink to class/block devices
+Message-ID: <20050215220406.GA1419@vrfy.org>
+References: <20050215205344.GA1207@vrfy.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050215205344.GA1207@vrfy.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-15 at 10:07 -0500, Vincent C Jones wrote:
+On Tue, Feb 15, 2005 at 09:53:44PM +0100, Kay Sievers wrote:
+> Add a "bus" symlink to the class and block devices, just like the "driver"
+> and "device" links. This may be a huge speed gain for e.g. udev to determine
+> the bus value of a device, as we currently need to do a brute-force scan in
+> /sys/bus/* to find this value.
 
-> .../...
->
-> radeonfb: panel ID string: 1024x768                
-> radeonfb: detected LVDS panel size from BIOS: 1024x768
-> BIOS provided panel power delay: 1000
-> radeondb: BIOS provided dividers will be used
-> ref_divider = 8
-> post_divider = 2
-> fbk_divider = 4d
-> Scanning BIOS table ...
->  320 x 350
->  320 x 400
->  320 x 400
->  320 x 480
->  400 x 600
->  512 x 384
->  640 x 350
->  640 x 400
->  640 x 475
->  640 x 480
->  720 x 480
->  720 x 576
->  800 x 600
->  848 x 480
->  1024 x 768
-> Found panel in BIOS table:
->   hblank: 320
->   hOver_plus: 16
->   hSync_width: 136
->   vblank: 38
->   vOver_plus: 2
->   vSync_width: 6
->   clock: 6500
-> Setting up default mode based on panel info
+Hmm, while playing around with it, I think we should create the "bus"
+link on the physical device on not on the class device.
 
-So far, things look good. At this point, the driver should have obtained
-the 1024x768 mode that matches your panel...
+Also the current "driver" link at the class device should be removed,
+cause class devices don't have a driver. Block devices never had this
+misleading symlink.
 
-Can you look at radeon_monitor.c, function radeon_check_modes(). This
-function calls radeon_get_panel_info_BIOS() which is the above. Then, it
-gets into the if () block that follow that comment:
+>From the class device we point with the "device" link to the physical
+device, and only the physical device should have the "driver" and the
+"bus" link, as it represents the real relationship.
 
-	/*
-	 * If we have some valid panel infos, we setup the default mode based on
-	 * those
-	 */
+Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
 
-Could you add some more printk's in there to see what's going on ? It should
-setup a 1024x768 mode at this point...
-
-Also, it should not get into any of the other if () statements of this function,
-except the last bit, in if (1) which adds the panel mode to the list for the
-driver. Can you check that happens ? (Especially, check that mode_option is NULL
-and thus the driver isn't trying to override the panel mode from the command
-line arguments).
-
-If all of that looks good, then maybe look at what's going on in the function
-radeon_match_mode()... Maybe it's not matching the mode properly.
-
-> radeonfb: Dynamic Clock Power Management enabled
-> hStart = 656, hEnd = 792, hTotal = 960
-> vStart = 402, vEnd = 408, vTotal = 438
-> h_total_disp = 0x4f0077	   hsync_strt_wid = 0x11028a
-> v_total_disp = 0x18f01b5	   vsync_strt_wid = 0x60191
-> pixclock = 15384
-> freq = 6500
-> Console: switching to colour frame buffer device 53x18
-> radeonfb (0000:01:00.0): ATI Radeon LY 
-> radeonfb_pci_register END
-> ACPI: AC Adapter [AC] (off-line)
-> ACPI: Battery Slot [BAT0] (battery present)
-> ACPI: Power Button (FF) [PWRF]
-> ACPI: Lid Switch [LID]
-> ACPI: Sleep Button (CM) [SLPB]
-> ACPI: Video Device [VID] (multi-head: yes  rom: no  post: no)
-> ACPI: CPU0 (power states: C1[C1] C2[C2] C3[C3] C4[C3])
-> ACPI: Processor [CPU] (supports 8 throttling states)
-> ACPI: Thermal Zone [THM0] (51 C)
-> ibm_acpi: IBM ThinkPad ACPI Extras v0.8
-> ibm_acpi: http://ibm-acpi.sf.net/
-> ibm_acpi: dock device not present
-> ibm_acpi: bay device not present
-> Real Time Clock Driver v1.12
-> Non-volatile memory driver v1.2
-> i8xx TCO timer: initialized (0x1060). heartbeat=30 sec (nowayout=0)
-> Linux agpgart interface v0.100 (c) Dave Jones
-> agpgart: Detected an Intel 855PM Chipset.
-> agpgart: Maximum main memory to use for agp memory: 690M
-> agpgart: AGP aperture is 256M @ 0xd0000000
-> [drm] Initialized drm 1.0.0 20040925
-> ACPI: PCI interrupt 0000:01:00.0[A] -> GSI 11 (level, low) -> IRQ 11
-> [drm] Initialized radeon 1.14.0 20050125 on minor 0: 
-> ACPI: PS/2 Keyboard Controller [KBD] at I/O 0x60, 0x64, irq 1
-> ACPI: PS/2 Mouse Controller [MOU] at irq 12
-> serio: i8042 AUX port at 0x60,0x64 irq 12
-> serio: i8042 KBD port at 0x60,0x64 irq 1
-> io scheduler noop registered
-> io scheduler deadline registered
-> io scheduler cfq registered
-> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> ide: Assuming 66MHz system bus speed for PIO modes
-> ICH4: IDE controller at PCI slot 0000:00:1f.1
-> PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
-> ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 11
-> ACPI: PCI interrupt 0000:00:1f.1[A] -> GSI 11 (level, low) -> IRQ 11
-> ICH4: chipset revision 1
-> ICH4: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0x1860-0x1867, BIOS settings: hda:DMA, hdb:pio
->     ide1: BM-DMA at 0x1868-0x186f, BIOS settings: hdc:pio, hdd:pio
-> Probing IDE interface ide0...
-> hda: HTS726060M9AT00, ATA DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> Probing IDE interface ide1...
-> hda: max request size: 1024KiB
-> hda: 117210240 sectors (60011 MB) w/7877KiB Cache, CHS=16383/255/63, UDMA(100)
-> hda: cache flushes supported
->  hda: hda1 hda2 < hda5 hda6 hda7 hda8 hda9 hda10 > hda4
-> mice: PS/2 mouse device common for all mice
-> input: AT Translated Set 2 keyboard on isa0060/serio0
-> input: PS/2 Generic Mouse on isa0060/serio1
-> input: PC Speaker
-> i2c /dev entries driver
-> i2c-core: driver dev_driver registered.
-> i2c_adapter i2c-0: Registered as minor 0
-> i2c_adapter i2c-1: Registered as minor 1
-> i2c_adapter i2c-2: Registered as minor 2
-> i2c_adapter i2c-3: Registered as minor 3
-> i801_smbus 0000:00:1f.3: I801 using PCI Interrupt for SMBus.
-> i801_smbus 0000:00:1f.3: SMBREV = 0x1
-> i801_smbus 0000:00:1f.3: I801_smba = 0x1880
-> i2c_adapter i2c-4: Registered as minor 4
-> i2c_adapter i2c-4: registered as adapter #4
-> NET: Registered protocol family 2
-> IP: routing cache hash table of 8192 buckets, 64Kbytes
-> TCP established hash table entries: 131072 (order: 8, 1048576 bytes)
-> TCP bind hash table entries: 65536 (order: 6, 262144 bytes)
-> TCP: Hash tables configured (established 131072 bind 65536)
-> NET: Registered protocol family 1
-> ACPI wakeup devices: 
->  LID SLPB PCI0 UART PCI1 DOCK USB0 USB1 USB2 AC9M 
-> ACPI: (supports S0 S3 S4 S5)
-> ReiserFS: hda6: found reiserfs format "3.6" with standard journal
-> ReiserFS: hda6: using ordered data mode
-> ReiserFS: hda6: journal params: device hda6, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
-> ReiserFS: hda6: checking transaction log (hda6)
-> ReiserFS: hda6: Using r5 hash to sort names
-> VFS: Mounted root (reiserfs filesystem) readonly.
-> Freeing unused kernel memory: 172k freed
-> Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
-> ttyS1 at I/O 0x2f8 (irq = 3) is a NS16550A
-> Adding 1572440k swap on /dev/hda8.  Priority:42 extents:1
-> usbcore: registered new driver usbfs
-> usbcore: registered new driver hub
-> device-mapper: 4.4.0-ioctl (2005-01-12) initialised: dm-devel@redhat.com
-> Intel(R) PRO/1000 Network Driver - version 5.6.10.1-k2-NAPI
-> Copyright (c) 1999-2004 Intel Corporation.
-> ACPI: PCI interrupt 0000:02:01.0[A] -> GSI 11 (level, low) -> IRQ 11
-> e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
-> USB Universal Host Controller Interface driver v2.2
-> ACPI: PCI interrupt 0000:00:1d.0[A] -> GSI 11 (level, low) -> IRQ 11
-> uhci_hcd 0000:00:1d.0: UHCI Host Controller
-> ath_hal: module license 'Proprietary' taints kernel.
-> ath_hal: 0.9.12.14 (AR5210, AR5211, AR5212)
-> wlan: 0.8.4.5 (EXPERIMENTAL)
-> PCI: Setting latency timer of device 0000:00:1d.0 to 64
-> uhci_hcd 0000:00:1d.0: irq 11, io base 0x1800
-> uhci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 1
-> hub 1-0:1.0: USB hub found
-> hub 1-0:1.0: 2 ports detected
-> ath_rate_onoe: 1.0
-> ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 11
-> ACPI: PCI interrupt 0000:00:1d.1[B] -> GSI 11 (level, low) -> IRQ 11
-> uhci_hcd 0000:00:1d.1: UHCI Host Controller
-> ath_pci: 0.9.4.12 (EXPERIMENTAL)
-> PCI: Setting latency timer of device 0000:00:1d.1 to 64
-> uhci_hcd 0000:00:1d.1: irq 11, io base 0x1820
-> uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 2
-> hub 2-0:1.0: USB hub found
-> hub 2-0:1.0: 2 ports detected
-> ACPI: PCI interrupt 0000:00:1d.2[C] -> GSI 11 (level, low) -> IRQ 11
-> uhci_hcd 0000:00:1d.2: UHCI Host Controller
-> PCI: Setting latency timer of device 0000:00:1d.2 to 64
-> uhci_hcd 0000:00:1d.2: irq 11, io base 0x1840
-> uhci_hcd 0000:00:1d.2: new USB bus registered, assigned bus number 3
-> hub 3-0:1.0: USB hub found
-> hub 3-0:1.0: 2 ports detected
-> ACPI: PCI Interrupt Link [LNKH] enabled at IRQ 11
-> ACPI: PCI interrupt 0000:00:1d.7[D] -> GSI 11 (level, low) -> IRQ 11
-> ehci_hcd 0000:00:1d.7: EHCI Host Controller
-> PCI: Setting latency timer of device 0000:00:1d.7 to 64
-> ehci_hcd 0000:00:1d.7: irq 11, pci mem 0xc0000000
-> ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 4
-> PCI: cache line size of 32 is not supported by device 0000:00:1d.7
-> ehci_hcd 0000:00:1d.7: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
-> hub 4-0:1.0: USB hub found
-> hub 4-0:1.0: 6 ports detected
-> ACPI: PCI interrupt 0000:02:02.0[A] -> GSI 11 (level, low) -> IRQ 11
-> usb 3-1: new full speed USB device using uhci_hcd and address 2
-> ath0: 11a rates: 6Mbps 9Mbps 12Mbps 18Mbps 24Mbps 36Mbps 48Mbps 54Mbps
-> ath0: 11b rates: 1Mbps 2Mbps 5.5Mbps 11Mbps
-> ath0: mac 4.2 phy 3.0 5ghz radio 1.7 2ghz radio 2.3
-> ath0: 802.11 address: 00:05:4e:41:3e:59
-> ath0: Use hw queue 0 for WME_AC_BE traffic
-> ath0: Use hw queue 0 for WME_AC_BK traffic
-> ath0: Use hw queue 0 for WME_AC_VI traffic
-> ath0: Use hw queue 0 for WME_AC_VO traffic
-> ath0: Atheros 5211: mem=0xc0210000, irq=11
-> ACPI: PCI interrupt 0000:02:00.0[A] -> GSI 11 (level, low) -> IRQ 11
-> Yenta: CardBus bridge found at 0000:02:00.0 [1014:0532]
-> Yenta: ISA IRQ mask 0x04b8, PCI irq 11
-> Socket status: 30000006
-> ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 11
-> ACPI: PCI interrupt 0000:02:00.1[B] -> GSI 11 (level, low) -> IRQ 11
-> Yenta: CardBus bridge found at 0000:02:00.1 [1014:0532]
-> Yenta: ISA IRQ mask 0x04b8, PCI irq 11
-> Socket status: 30000006
-> ohci1394: $Rev: 1223 $ Ben Collins <bcollins@debian.org>
-> ACPI: PCI interrupt 0000:02:00.2[C] -> GSI 11 (level, low) -> IRQ 11
-> ohci1394: fw-host0: OHCI-1394 1.0 (PCI): IRQ=[11]  MMIO=[c0240000-c02407ff]  Max Packet=[2048]
-> ieee1394: Host added: ID:BUS[0-00:1023]  GUID[00061b031001139f]
-> Bluetooth: Core ver 2.7
-> NET: Registered protocol family 31
-> Bluetooth: HCI device and connection manager initialized
-> Bluetooth: HCI socket layer initialized
-> Bluetooth: HCI USB driver ver 2.8
-> st: Version 20041025, fixed bufsize 32768, s/g segs 256
-> usbcore: registered new driver hci_usb
-> Bluetooth: L2CAP ver 2.7
-> Bluetooth: L2CAP socket layer initialized
-> Bluetooth: HIDP (Human Interface Emulation) ver 1.1
-> Bluetooth: RFCOMM ver 1.5
-> Bluetooth: RFCOMM socket layer initialized
-> Bluetooth: RFCOMM TTY layer initialized
-> ReiserFS: hda7: found reiserfs format "3.6" with standard journal
-> ReiserFS: hda7: using ordered data mode
-> ReiserFS: hda7: journal params: device hda7, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
-> ReiserFS: hda7: checking transaction log (hda7)
-> ReiserFS: hda7: Using r5 hash to sort names
-> ReiserFS: hda9: found reiserfs format "3.6" with standard journal
-> ReiserFS: hda9: using ordered data mode
-> ReiserFS: hda9: journal params: device hda9, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
-> ReiserFS: hda9: checking transaction log (hda9)
-> ReiserFS: hda9: Using r5 hash to sort names
-> ReiserFS: hda10: found reiserfs format "3.6" with standard journal
-> ReiserFS: hda10: using ordered data mode
-> ReiserFS: hda10: journal params: device hda10, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
-> ReiserFS: hda10: checking transaction log (hda10)
-> ReiserFS: hda10: Using r5 hash to sort names
-> NTFS driver 2.1.22 [Flags: R/O MODULE].
-> NTFS volume version 3.1.
-> cs: IO port probe 0xc00-0xcff: clean.
-> cs: IO port probe 0xc00-0xcff: clean.
-> cs: IO port probe 0x820-0x8ff: clean.
-> cs: IO port probe 0x820-0x8ff: clean.
-> cs: IO port probe 0x800-0x80f: clean.
-> cs: IO port probe 0x800-0x80f: clean.
-> cs: IO port probe 0x3e0-0x4ff: excluding 0x4d0-0x4d7
-> cs: IO port probe 0x3e0-0x4ff: excluding 0x4d0-0x4d7
-> cs: IO port probe 0x100-0x3af: excluding 0x170-0x177 0x370-0x377
-> cs: IO port probe 0x100-0x3af: excluding 0x170-0x177 0x370-0x377
-> cs: IO port probe 0xa00-0xaff: clean.
-> cs: IO port probe 0xa00-0xaff: clean.
-> ACPI: PCI interrupt 0000:00:1f.5[B] -> GSI 11 (level, low) -> IRQ 11
-> PCI: Setting latency timer of device 0000:00:1f.5 to 64
-> intel8x0_measure_ac97_clock: measured 49395 usecs
-> intel8x0: clocking to 48000
-> NET: Registered protocol family 23
-> NET: Registered protocol family 10
-> Disabled Privacy Extensions on device c039d880(lo)
-> IPv6 over IPv4 tunneling driver
-> Disabled Privacy Extensions on device eebae000(sit0)
-> ath0: no IPv6 routers present
-> parport0: PC-style at 0x3bc [PCSPP(,...)]
-> lp0: using parport0 (polling).
-> usbcore: registered new driver usbserial
-> drivers/usb/serial/usb-serial.c: USB Serial Driver core v2.0
-> agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
-> agpgart: Putting AGP V2 device at 0000:00:00.0 into 4x mode
-> agpgart: Putting AGP V2 device at 0000:01:00.0 into 4x mode
-> hStart = 656, hEnd = 792, hTotal = 960
-> vStart = 402, vEnd = 408, vTotal = 438
-> h_total_disp = 0x4f0077	   hsync_strt_wid = 0x11028a
-> v_total_disp = 0x18f01b5	   vsync_strt_wid = 0x60191
-> pixclock = 15384
-> freq = 6500
-> 
->                            # # #
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
++++ edited/drivers/base/bus.c	2005-02-15 22:33:37 +01:00
+@@ -465,6 +465,7 @@ int bus_add_device(struct device * dev)
+ 		up_write(&dev->bus->subsys.rwsem);
+ 		device_add_attrs(bus, dev);
+ 		sysfs_create_link(&bus->devices.kobj, &dev->kobj, dev->bus_id);
++		sysfs_create_link(&dev->kobj, &dev->bus->subsys.kset.kobj, "bus");
+ 	}
+ 	return error;
+ }
+@@ -481,6 +482,7 @@ int bus_add_device(struct device * dev)
+ void bus_remove_device(struct device * dev)
+ {
+ 	if (dev->bus) {
++		sysfs_remove_link(&dev->kobj, "bus");
+ 		sysfs_remove_link(&dev->bus->devices.kobj, dev->bus_id);
+ 		device_remove_attrs(dev->bus, dev);
+ 		down_write(&dev->bus->subsys.rwsem);
+===== drivers/base/class.c 1.58 vs edited =====
+--- 1.58/drivers/base/class.c	2005-02-05 19:35:12 +01:00
++++ edited/drivers/base/class.c	2005-02-15 22:32:08 +01:00
+@@ -196,33 +196,6 @@ void class_device_remove_bin_file(struct
+ 		sysfs_remove_bin_file(&class_dev->kobj, attr);
+ }
+ 
+-static int class_device_dev_link(struct class_device * class_dev)
+-{
+-	if (class_dev->dev)
+-		return sysfs_create_link(&class_dev->kobj,
+-					 &class_dev->dev->kobj, "device");
+-	return 0;
+-}
+-
+-static void class_device_dev_unlink(struct class_device * class_dev)
+-{
+-	sysfs_remove_link(&class_dev->kobj, "device");
+-}
+-
+-static int class_device_driver_link(struct class_device * class_dev)
+-{
+-	if ((class_dev->dev) && (class_dev->dev->driver))
+-		return sysfs_create_link(&class_dev->kobj,
+-					 &class_dev->dev->driver->kobj, "driver");
+-	return 0;
+-}
+-
+-static void class_device_driver_unlink(struct class_device * class_dev)
+-{
+-	sysfs_remove_link(&class_dev->kobj, "driver");
+-}
+-
+-
+ static ssize_t
+ class_device_attr_show(struct kobject * kobj, struct attribute * attr,
+ 		       char * buf)
+@@ -452,8 +425,9 @@ int class_device_add(struct class_device
+ 		class_device_create_file(class_dev, &class_device_attr_dev);
+ 
+ 	class_device_add_attrs(class_dev);
+-	class_device_dev_link(class_dev);
+-	class_device_driver_link(class_dev);
++	if (class_dev->dev)
++		sysfs_create_link(&class_dev->kobj,
++				  &class_dev->dev->kobj, "device");
+ 
+  register_done:
+ 	if (error && parent)
+@@ -482,8 +456,8 @@ void class_device_del(struct class_devic
+ 		up_write(&parent->subsys.rwsem);
+ 	}
+ 
+-	class_device_dev_unlink(class_dev);
+-	class_device_driver_unlink(class_dev);
++	if (class_dev->dev)
++		sysfs_remove_link(&class_dev->kobj, "device");
+ 	class_device_remove_attrs(class_dev);
+ 
+ 	kobject_del(&class_dev->kobj);
 

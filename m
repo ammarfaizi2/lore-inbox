@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129177AbRBIVnU>; Fri, 9 Feb 2001 16:43:20 -0500
+	id <S129849AbRBIVoa>; Fri, 9 Feb 2001 16:44:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130048AbRBIVnL>; Fri, 9 Feb 2001 16:43:11 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:1040 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129849AbRBIVm4>;
-	Fri, 9 Feb 2001 16:42:56 -0500
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Ion Badulescu <ionut@moisil.cs.columbia.edu>, Alan Cox <alan@redhat.com>,
-        linux-kernel@vger.kernel.org, Donald Becker <becker@scyld.com>
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
-In-Reply-To: <200102080152.f181q6G17259@moisil.dev.hydraweb.com> <3A83017D.D84AD6B1@mandrakesoft.com>
-From: Jes Sorensen <jes@linuxcare.com>
-Date: 09 Feb 2001 22:42:08 +0100
-In-Reply-To: Jeff Garzik's message of "Thu, 08 Feb 2001 15:28:45 -0500"
-Message-ID: <d3d7crwn2n.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
-MIME-Version: 1.0
+	id <S130037AbRBIVoU>; Fri, 9 Feb 2001 16:44:20 -0500
+Received: from kerberos.suse.cz ([195.47.106.10]:8710 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S129849AbRBIVoD>;
+	Fri, 9 Feb 2001 16:44:03 -0500
+Date: Fri, 9 Feb 2001 22:44:00 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Henryk Paluch <paluch@KMLinux.fjfi.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RESOLVED]: kernel hangs on CD-R HP8100i if compiled w/ VIA IDE
+Message-ID: <20010209224400.B3621@suse.cz>
+In-Reply-To: <Pine.LNX.4.10.10101211333300.17469-100000@KMLinux.fjfi.cvut.cz> <Pine.LNX.4.10.10102092200350.11205-100000@KMLinux.fjfi.cvut.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10102092200350.11205-100000@KMLinux.fjfi.cvut.cz>; from paluch@KMLinux.fjfi.cvut.cz on Fri, Feb 09, 2001 at 10:18:05PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+On Fri, Feb 09, 2001 at 10:18:05PM +0100, Henryk Paluch wrote:
 
-Jeff> Donald Becker wrote:
->> On Tue, 16 Jan 2001, Jeff Garzik wrote: > * IA64 support (Jes) Oh,
->> and this is completely bogus.  This isn't a fix, it's a hack that
->> covers up the real problem.
->> 
->> The align-copy should *never* be required because the alignment
->> differs between DIX and E-II encapsulated packets.  The machine
->> shouldn't crash because someone sends you a different encapsulation
->> type!
+> Shortly: kernel (2.2.x, 2.4.x) hangs on CD-R HP8100i, VIA KT133 chipset
+> (w/ ATA100 support) if kernel is compiled with VIA IDE chipset support.
+> Please, see my previous post from 21 Jan 2001 for full description.
+> 
+>  After little tweaking via82cxxx.c driver I found, that the cause is
+> 'Prefetch Buffer: ' (/proc/ide/via) - if disabled for appropriate IDE
+> channel, everything works well. It also explains, why the kernel works
+> properly if VIA IDE support is not compiled in - BIOS leaves Prefetch
+> disabled (I hacked that driver a bit more to show chipset configuration
+> either before and after modification).
+> 
+> So I have a little question: What could be a clean way, to make a kernel
+> option to disable prefetch for VIA (use something like 'ide1=noprefetch'?)
+> Any idea?
 
-The ia64 kernel has gotten mis aligned load support, but it's slow as
-a dog so we really want to copy the packet every time anyway when the
-header is not aligned. If people send out 802.3 headers or other crap
-on Ethernet then it's just too bad.
+Since version 2.30 of the VIA driver (2.4.2-pre2), the driver leaves
+prefetch as is set by BIOS. It seems that ATAPI devices need this set to
+off at least on some of the VIA chips.
 
-Jes
+-- 
+Vojtech Pavlik
+SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

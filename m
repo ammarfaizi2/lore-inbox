@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278437AbRJOVZv>; Mon, 15 Oct 2001 17:25:51 -0400
+	id <S278443AbRJOV2b>; Mon, 15 Oct 2001 17:28:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278447AbRJOVZl>; Mon, 15 Oct 2001 17:25:41 -0400
-Received: from [194.46.8.33] ([194.46.8.33]:45066 "EHLO angusbay.vnl.com")
-	by vger.kernel.org with ESMTP id <S278443AbRJOVZa>;
-	Mon, 15 Oct 2001 17:25:30 -0400
-Date: Mon, 15 Oct 2001 22:28:43 +0100
-From: Dale Amon <amon@vnl.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Compressed fs's
-Message-ID: <20011015222843.A7971@vnl.com>
-Mail-Followup-To: Dale Amon <amon@vnl.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <OF24A34168.0F477E02-ON85256B29.0052E00A@raleigh.ibm.com> <20010829015050.F27869@vnl.com> <20010828205929.C1878@mindspring.com>
+	id <S278444AbRJOV2L>; Mon, 15 Oct 2001 17:28:11 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:50162
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S278443AbRJOV2E>; Mon, 15 Oct 2001 17:28:04 -0400
+Date: Mon, 15 Oct 2001 14:28:31 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Michele Mencacci <shire@inwind.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HD problem!
+Message-ID: <20011015142831.B4482@mikef-linux.matchmail.com>
+Mail-Followup-To: Michele Mencacci <shire@inwind.it>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3BCB523C.7060800@inwind.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010828205929.C1878@mindspring.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux, the choice of a GNU generation
+In-Reply-To: <3BCB523C.7060800@inwind.it>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anyone know what happened to the CBD project?
+On Mon, Oct 15, 2001 at 11:16:44PM +0200, Michele Mencacci wrote:
+> Hello there!
+> I have a prob with 2.4.XX kernel version.
+> It doesn't read the partition table of my 4th HD, It says "unknown 
 
-Or if there is a version of the cloop kernel module
-updated to work with 2.4.x?
+What is your 2.4 kernel version?
 
--- 
-------------------------------------------------------
-Use Linux: A computer        Dale Amon, CEO/MD
-is a terrible thing          Village Networking Ltd
-to waste.                    Belfast, Northern Ireland
-------------------------------------------------------
+There have been several threads over the last few weeks about this.  Check
+the archives, and try the latest -ac or Linus kernel.
+
+Mike

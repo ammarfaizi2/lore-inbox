@@ -1,67 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263800AbTLNKqX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 05:46:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263963AbTLNKqX
+	id S262041AbTLNKiU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 05:38:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbTLNKiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 05:46:23 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:52354 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263800AbTLNKqV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 05:46:21 -0500
-Subject: Re: [CFT][RFC] HT scheduler
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Jamie Lokier <jamie@shareable.org>, bill davidsen <davidsen@tmr.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <3FDC3023.9030708@cyberone.com.au>
-References: <20031213022038.300B22C2C1@lists.samba.org>
-	 <3FDAB517.4000309@cyberone.com.au> <brgeo7$huv$1@gatekeeper.tmr.com>
-	 <3FDBC876.3020603@cyberone.com.au>
-	 <20031214043245.GC21241@mail.shareable.org>
-	 <3FDC3023.9030708@cyberone.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5XpcfM1dsn4odEYQ1KMw"
-Organization: Red Hat, Inc.
-Message-Id: <1071398761.5233.1.camel@laptop.fenrus.com>
+	Sun, 14 Dec 2003 05:38:20 -0500
+Received: from purplechoc.demon.co.uk ([80.176.224.106]:3456 "EHLO
+	skeleton-jack.localnet") by vger.kernel.org with ESMTP
+	id S262041AbTLNKiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 05:38:19 -0500
+Date: Sun, 14 Dec 2003 10:38:03 +0000
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jamie Lokier <jamie@shareable.org>, Peter Horton <pdh@colonel-panic.org>,
+       linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+Subject: Re: Possible shared mapping bug in 2.4.23 (at least MIPS/Sparc)
+Message-ID: <20031214103803.GA916@skeleton-jack>
+References: <20031213114134.GA9896@skeleton-jack> <20031213222626.GA20153@mail.shareable.org> <Pine.LNX.4.58.0312131740120.14336@home.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sun, 14 Dec 2003 11:46:01 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0312131740120.14336@home.osdl.org>
+User-Agent: Mutt/1.3.28i
+From: Peter Horton <pdh@colonel-panic.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-5XpcfM1dsn4odEYQ1KMw
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-
-> >Regarding the overhead of the shared runqueue lock:
+On Sat, Dec 13, 2003 at 05:41:16PM -0800, Linus Torvalds wrote:
+> 
+> On Sat, 13 Dec 2003, Jamie Lokier wrote:
 > >
-> >Is the "lock" prefix actually required for locking between x86
-> >siblings which share the same L1 cache?
+> > Peter Horton wrote:
+> > > A quick look at sparc and sparc64 seem to show the same problem.
 > >
->=20
-> That lock is still taken by other CPUs as well for eg. wakeups, balancing=
-,
-> and so forth. I guess it could be a very specific optimisation for
-> spinlocks in general if there was only one HT core. Don't know if it
-> would be worthwhile though.
+> > D-cache incoherence with unsuitably aligned multiple MAP_FIXED
+> > mappings is also observed on SH4, SH5, PA-RISC 1.1d.  The kernel may
+> > have the same behaviour on those platforms: allowing a mapping that
+> > should not be allowed.
+> 
+> Why?
+> 
+> If the user asks for it, it's the users own damn fault. Nobody guarantees
+> cache coherency to users who require fixed addresses.
+> 
+> Just document it as a bug in the user program if this causes problems.
+> Don't blame the kernel - the kernel is only doing what the user asked it
+> to do.
+> 
 
-also keep in mind that current x86 processors all will internally
-optimize out the lock prefix in UP mode or when the cacheline is owned
-exclusive.... If HT matters here let the cpu optimize it out.....
+I've seen code written for X86 use MAP_FIXED to create self wrapping
+ring buffers. Surely it's better to fail the mmap() on other archs
+rather than for the code to fail in unexpected ways?
 
---=-5XpcfM1dsn4odEYQ1KMw
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+It's a bug either way ... either the test should be fixed up or it
+should be removed from arch_get_unmapped_area() to save confusion.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/3D9pxULwo51rQBIRAtPqAJ996GzmPZ5zkrN+qxVQxsupTRC+XACZAfU0
-sUlw6QgoDrXCXGiL+1jB4jE=
-=Yjf+
------END PGP SIGNATURE-----
-
---=-5XpcfM1dsn4odEYQ1KMw--
+P.

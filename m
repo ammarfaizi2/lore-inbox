@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266459AbUIWRMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267650AbUIWRQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266459AbUIWRMK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 13:12:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbUIWRKg
+	id S267650AbUIWRQH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 13:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268197AbUIWROa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 13:10:36 -0400
-Received: from cliff.cse.wustl.edu ([128.252.166.5]:32139 "EHLO
-	cliff.cse.wustl.edu") by vger.kernel.org with ESMTP id S266463AbUIWRJg
+	Thu, 23 Sep 2004 13:14:30 -0400
+Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:64235 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S267650AbUIWROM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 13:09:36 -0400
-Message-ID: <41530349.2050003@dssimail.com>
-Date: Thu, 23 Sep 2004 12:09:29 -0500
-From: "Mr. Berkley Shands" <berkley@dssimail.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
+	Thu, 23 Sep 2004 13:14:12 -0400
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S4
+Date: Thu, 23 Sep 2004 14:13:59 -0300
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <20040907115722.GA10373@elte.hu> <20040923130949.GB12984@elte.hu> <200409231346.21398.norberto+linux-kernel@bensa.ath.cx>
+In-Reply-To: <200409231346.21398.norberto+linux-kernel@bensa.ath.cx>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: sendfile64() on x86_64 breaks at 2gb (MAX_NON_LFS limit)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409231414.00356.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-for the opteron, the value of MAX_NON_LFS (include/linux/fs.h) is fixed 
-at (1UL<<31 -1).
-Since ALL 64 bit boxes force O_LARGEFILE on, shouldn't this value be 
-(1UL<<63 -1) so that
-sendfile64() will proceed beyond the 2gb limit?
-under 2.6.6, sendfile64() has no __NR_sendfile64 entry in asm*/unistd.h 
-(same for 2.6.9-rc2)
-so the syscall sendfile64() maps to sendfile(), which has MAX_NON_LFS 
-hard coded in fs/read_write.c
-as its limit, rather than 0ULL as in sendfile64().
+Hello,
 
-So the fix is to make the correct entry for sendfile64 in unistd.h (note 
-that this hoses /usr/include/.../syscalls.h :-)
-and update fs.h as folows:
+Norberto Bensa wrote:
+> Is it me or does this patch broke quiet command-line parameter?
 
+Ingo, is this on purpose:
 
---- fs.h.old    2004-09-23 11:44:33.469481466 -0500
-+++ fs.h        2004-09-23 11:29:56.823712018 -0500
-@@ -589,7 +589,11 @@
- /* Release a private file and free its security structure. */
- extern void close_private_file(struct file *file);
- 
-+#if BITS_PER_LONG==32
- #define        MAX_NON_LFS     ((1UL<<31) - 1)
-+#else
-+#define        MAX_NON_LFS     ((1UL<<63) - 1)
-+#endif
- 
- /* Page cache limit. The filesystems should put that into their s_maxbytes
-    limits, otherwise bad things can happen in VM. */
+--- linux/kernel/printk.c.orig 
++++ linux/kernel/printk.c 
+@@ -401,7 +401,7 @@ static void __call_console_drivers(unsig
+ static void _call_console_drivers(unsigned long start,
+     unsigned long end, int msg_log_level)
+ {
+- if (msg_log_level < console_loglevel &&
++ if (/*msg_log_level < console_loglevel && */
+    console_drivers && start != end) {
+   if ((start & LOG_BUF_MASK) > (end & LOG_BUF_MASK)) {
+    /* wrapped write */
 
 
-Please consider making these updates in the next rev of the kernel sources.
+If so, why is it needed?
 
-Berkley Shands
-
+Thanks,
+Norberto

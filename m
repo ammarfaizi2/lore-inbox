@@ -1,50 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131781AbRA3SPP>; Tue, 30 Jan 2001 13:15:15 -0500
+	id <S131811AbRA3SQP>; Tue, 30 Jan 2001 13:16:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131832AbRA3SPF>; Tue, 30 Jan 2001 13:15:05 -0500
-Received: from nat-20.kulnet.kuleuven.ac.be ([134.58.0.20]:61284 "EHLO
-	scoezie.kotnet.org") by vger.kernel.org with ESMTP
-	id <S131799AbRA3SO7>; Tue, 30 Jan 2001 13:14:59 -0500
-Date: Tue, 30 Jan 2001 19:17:28 +0100 (CET)
-From: Davy Preuveneers <davy.preuveneers@student.kuleuven.ac.be>
-To: linux-kernel@vger.kernel.org
-Subject: Parallel zip-disk can't use EPP 32 bit with 2.4.x kernels
-Message-ID: <Pine.LNX.4.21.0101301846510.812-100000@scoezie.kotnet.org>
-Organization: "kotnet" <www.kotnet.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131832AbRA3SPz>; Tue, 30 Jan 2001 13:15:55 -0500
+Received: from chmls05.mediaone.net ([24.147.1.143]:11002 "EHLO
+	chmls05.mediaone.net") by vger.kernel.org with ESMTP
+	id <S131811AbRA3SPx>; Tue, 30 Jan 2001 13:15:53 -0500
+Date: Tue, 30 Jan 2001 13:15:11 -0500
+From: Jon Anderson <andersoj@mediaone.net>
+To: Ronald Lembcke <es186@fen-net.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: no boot with 2.4.x
+Message-ID: <20010130131511.D22358@mediaone.net>
+In-Reply-To: <98087051420864-30100120864rhairyes@lee.k12.nc.us> <20010130172428.A4899@defiant.crash>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="veXX9dWIonWZEC6h"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010130172428.A4899@defiant.crash>; from es186@fen-net.de on Tue, Jan 30, 2001 at 05:24:28PM +0100
+X-Operating-System: Linux tornado 2.4.0-test10 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since I'm running the 2.4.x kernels, I'm having a little problem with my
-parallel zip-disk. The ppa module can't use the EPP 32 protocol and uses
-the PS/2 protocol instead (which is much slower), as shown by the boot
-message of kernel 2.4.1:
 
-   ppa: Version 2.07 (for Linux 2.4.x)
-   ppa: Found device at ID 6, Attempting to use EPP 32 bit
-   ppa: Found device at ID 6, Attempting to use PS/2
-   ppa: Communication established with ID 6 using PS/2 
-   scsi0 : Iomega VPI0 (ppa) interface
-     Vendor: IOMEGA    Model: ZIP 100           Rev: J.03
-     Type:   Direct-Access                      ANSI SCSI revision: 02
-   Detected scsi removable disk sda at scsi0, channel 0, id 6, lun 0
-   SCSI device sda: 196608 512-byte hdwr sectors (101 MB)
-   sda: Write Protect is off
-   sda: sda4
-
-Kernels 2.2.x use the EPP 32 bit protocol while the 2.4.x versions don't,
-although I have used the same options when compiling the new 2.4.1 kernel.
-When I change the parallel port configuration in the BIOS from ECP/EPP to
-EPP only (version 1.9), the 2.4.x kernels use the EPP 32 bit protocol as 
-well, but then I can't use ECP with dma anymore.
-
-Does anyone know what the problem is?
-
-Davy
+--veXX9dWIonWZEC6h
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
+After compiling 2.4 and 2.4ac11 I got failed boots as well, getting=20
+either=20
+
+  LI
+
+or=20
+
+  LIL
+
+And then nothing.  This is a K6-2 450 machine, all previous (2.4.0-test*)=
+=20
+kernels worked fine.  The correct processor is selected...
+
+# CONFIG_MPENTIUMIII is not set
+# CONFIG_MPENTIUM4 is not set
+CONFIG_MK6=3Dy
+# CONFIG_MK7 is not set
+
+Running an up to date debian woody distribution.
+Switching back to the 2.4.0-test10 kernel and boot sector (using
+debian's kernel package) made everything happy again.   Let me know
+if a newbie can do anything to help.
+
+JA
+
+On Tue, Jan 30, 2001 at 05:24:28PM +0100, Ronald Lembcke wrote:
+> Hi!
+>=20
+>=20
+> On Tue, Jan 30, 2001 at 04:01:54PM +0000, Ryan Hairyes wrote:
+> > I compiled the 2.4 kernel on my laptop last night.
+> > After editing lilo, I rebooted the machine. I selected
+> > this new kernel and when it began to boot, it told me
+> > that it was uncompressing the kernel and that the=20
+> > kernel uncompression was ok.  Then it just froze.  Any
+> > ideas?
+>=20
+> The same happened to me (not on a laptop) when I forgot to select
+> the right CPU-Type (AMD K6-2) and Pentium 3 was still selected.
+>=20
+> Und weg...=20
+>            Roni
+
+--=20
+Jonathan Anderson               http://users.rcn.com/~andersoj
+andersoj@enc.edu
+
+--veXX9dWIonWZEC6h
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjp3BK8ACgkQQTa/MyVvLDjuOACZARQSqRhJ2KOr5vR+ZzytvaS0
+tbIAnjcHPbueoLzBt0kjwIhhBAV+aEi7
+=CDbU
+-----END PGP SIGNATURE-----
+
+--veXX9dWIonWZEC6h--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

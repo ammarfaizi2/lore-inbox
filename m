@@ -1,81 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbTEFAJN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 20:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbTEFAJN
+	id S261259AbTEFAId (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 20:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbTEFAId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 20:09:13 -0400
-Received: from mbox1.netikka.net ([213.250.81.202]:42917 "EHLO
-	mbox1.netikka.net") by vger.kernel.org with ESMTP id S261887AbTEFAJF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 20:09:05 -0400
-From: Thomas Backlund <tmb@iki.fi>
-To: Willy TARREAU <willy@w.ods.org>
-Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
-Date: Tue, 6 May 2003 03:21:23 +0300
-User-Agent: KMail/1.5.1
-Cc: Willy Tarreau <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3EB0413D.2050200@superonline.com> <200305031546.57631.tmb@iki.fi> <20030504094900.GA342@pcw.home.local>
-In-Reply-To: <20030504094900.GA342@pcw.home.local>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Mon, 5 May 2003 20:08:33 -0400
+Received: from are.twiddle.net ([64.81.246.98]:13205 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id S261259AbTEFAIc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 20:08:32 -0400
+Date: Mon, 5 May 2003 17:21:00 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: Mark Kettenis <kettenis@chello.nl>
+Cc: David.Mosberger@acm.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix vsyscall unwind information
+Message-ID: <20030506002100.GB10921@twiddle.net>
+Mail-Followup-To: Mark Kettenis <kettenis@chello.nl>,
+	David.Mosberger@acm.org, linux-kernel@vger.kernel.org
+References: <20030502004014$08e2@gated-at.bofh.it> <20030503210015$292c@gated-at.bofh.it> <20030504063010$279f@gated-at.bofh.it> <ugade16g78.fsf@panda.mostang.com> <20030505074248.GA7812@twiddle.net> <16054.32214.804891.702812@panda.mostang.com> <20030505163444.GB9342@twiddle.net> <86d6ixdm6q.fsf@elgar.kettenis.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305060321.23459.tmb@iki.fi>
+In-Reply-To: <86d6ixdm6q.fsf@elgar.kettenis.dyndns.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Viestissä Sunnuntai 4. Toukokuuta 2003 12:49, Willy TARREAU kirjoitti:
-> Hi Thomas,
->
-> > the correct line should AFAIK be:
-> > video_size = screen_info.lfb_width * screen_info.lfb_height *
-> > video_bpp;
-> >
-> > (AFAIK we are calculating bits here, not bytes so the '/8' you used is
-> > wrong... could you try without it, and let me know...)
->
-> No, after verification, I insist, we're really calculating BYTES here.
-> Please take a look :
+On Tue, May 06, 2003 at 01:10:37AM +0200, Mark Kettenis wrote:
+> Unfortunately, GDB needs to be able to recognize signal trampolines in
+> order to be able to single step correctly when a signal arrives.
 
-Yes, 
-you are right...
+If it actually used the dwarf2 unwind information as written,
+I wouldn't expect this to be true.
 
-[...]
->
-> So I think that the correct line really is :
->   video_size = screen_info.lfb_width * screen_info.lfb_height *
-> video_bpp / 8;
+> Anyway, signal trampolines could be marked with a special augmentation
+> in their CIE.
 
-There is a problem with this, ...
-If we calculate the exact memory like this, there wont be any
-memory remapped to do double/tripple buffering...
-So the question is: shoud one take the formula and add ' * 2' to 
-atleast get the double buffering supported...
-(in the patch I made for mdk, I kept a modified override part so that
-the user can change this, if he needs it....)
+I'd prefer not, if at all possible.
 
-Alan,
-any comments on this?
 
-> (Which also handles line widths which are not multiple of 8).
-
-Well actually, in that formula it does not matter where you put the '/8',
-the result is always the same...
-
-> BTW, I wonder why we truncate the mtrr size to the highest lower power
-> of 2. Shouldn't we round it up to the next one ?
->
-
-Isn't it a hardware requirement?
-I think I read it in a nvidia document once... 
-(of course they may be wrong...)
-
--- 
-Thomas Backlund
-
-tmb@iki.fi
-www.iki.fi/tmb
-
+r~

@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261711AbTIYSmU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 14:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTIYSmO
+	id S261689AbTIYSiJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 14:38:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTIYSiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 14:42:14 -0400
-Received: from fw.osdl.org ([65.172.181.6]:7913 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261711AbTIYSmD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 14:42:03 -0400
-Date: Thu, 25 Sep 2003 11:41:50 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: "Milton D. Miller II" <miltonm@realtime.net>
-Cc: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
-       Omen Wild <Omen.Wild@Dartmouth.EDU>, linux-kernel@vger.kernel.org
-Subject: Re: call_usermodehelper does not report exit status?
-Message-ID: <20030925114150.A18074@osdlab.pdx.osdl.net>
-References: <20030919124213.7fc93067.akpm@osdl.org> <200309201855.h8KItHuf000466@sullivan.realtime.net>
+	Thu, 25 Sep 2003 14:38:09 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:61583 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261689AbTIYSiG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 14:38:06 -0400
+Date: Thu, 25 Sep 2003 11:36:23 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: J?rn Engel <joern@wohnheim.fh-wedel.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, andrea@kernel.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Larry McVoy <lm@bitmover.com>
+Subject: Re: log-buf-len dynamic
+Message-ID: <20030925183623.GC18749@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	J?rn Engel <joern@wohnheim.fh-wedel.de>,
+	Linus Torvalds <torvalds@osdl.org>,
+	"Eric W. Biederman" <ebiederm@xmission.com>, andrea@kernel.org,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Matthew Wilcox <willy@debian.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+	Larry McVoy <lm@bitmover.com>
+References: <m1n0csiybu.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.44.0309251026550.29320-100000@home.osdl.org> <20030925182233.GA1356@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200309201855.h8KItHuf000466@sullivan.realtime.net>; from miltonm@realtime.net on Sat, Sep 20, 2003 at 01:55:17PM -0500
+In-Reply-To: <20030925182233.GA1356@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
+	required 7, AWL)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Milton D. Miller II (miltonm@realtime.net) wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
-> > This might fix it.
-> 
-> I think you missed the why behind the comment just above your first change.
+On Thu, Sep 25, 2003 at 08:22:33PM +0200, J?rn Engel wrote:
+> Would be nice, if Larry coded up something central that all projects
+> could benefit from, but that is not necessary.  
 
-Anything wrong with just setting a SIG_DFL handler?  W.R.T. the kernel
-pointer, either Andrew's patch which does put_user/__put_user depending
-on context, or some ugly set_fs() should work.  This simplistic approach
-works for me, thoughts?
+Is the "bkbits.net can export any patch and/or version of a tree as plain
+text" match what you are asking for or not?
 
-thanks,
--chris
-
+So if there was a URL that you could type in that fed you the patch as
+plain text, with any associated checkin comments, is that what you meant?
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
-
-
---- linux-2.6.0-test5-mm4/kernel/kmod.c	2003-09-08 12:49:59.000000000 -0700
-+++ 2.6.0-test5-mm4/kernel/kmod.c	2003-09-25 11:34:59.000000000 -0700
-@@ -181,16 +181,24 @@
- {
- 	struct subprocess_info *sub_info = data;
- 	pid_t pid;
-+	struct k_sigaction sa;
-+
-+	sa.sa.sa_handler = SIG_DFL;
-+	sa.sa.sa_flags = 0;
-+	siginitset(&sa.sa.sa_mask, sigmask(SIGCHLD));
-+	do_sigaction(SIGCHLD, &sa, (struct k_sigaction *)0);
- 
- 	sub_info->retval = 0;
- 	pid = kernel_thread(____call_usermodehelper, sub_info, SIGCHLD);
- 	if (pid < 0)
- 		sub_info->retval = pid;
--	else
--		/* We don't have a SIGCHLD signal handler, so this
--		 * always returns -ECHILD, but the important thing is
--		 * that it blocks. */
--		sys_wait4(pid, NULL, 0, NULL);
-+	else {
-+		mm_segment_t old_fs;
-+		old_fs = get_fs();
-+		set_fs(KERNEL_DS);
-+		sys_wait4(pid, &sub_info->retval, 0, NULL);
-+		set_fs(old_fs);
-+	}
- 
- 	complete(sub_info->complete);
- 	return 0;
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

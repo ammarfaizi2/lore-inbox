@@ -1,64 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVCIScz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262247AbVCISci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbVCIScz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 13:32:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbVCIScs
+	id S262247AbVCISci (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 13:32:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbVCISaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 13:32:48 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:44426 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262237AbVCISbf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 13:31:35 -0500
-Subject: PATCH: 2.6.11-ac2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110392991.3072.222.camel@localhost.localdomain>
+	Wed, 9 Mar 2005 13:30:04 -0500
+Received: from fire.osdl.org ([65.172.181.4]:7588 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262169AbVCIS2n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 13:28:43 -0500
+Date: Wed, 9 Mar 2005 10:28:22 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Andi Kleen <ak@muc.de>
+Cc: Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>,
+       torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] -stable, how it's going to work.
+Message-ID: <20050309182822.GU5389@shell0.pdx.osdl.net>
+References: <20050309072833.GA18878@kroah.com> <m1sm35w3am.fsf@muc.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 09 Mar 2005 18:29:52 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1sm35w3am.fsf@muc.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Andi Kleen (ak@muc.de) wrote:
+> Greg KH <greg@kroah.com> writes:
+> >
+> > Rules on what kind of patches are accepted, and what ones are not, into
+> > the "-stable" tree:
+> >  - It must be obviously correct and tested.
+> >  - It can not bigger than 100 lines, with context.
+> 
+> This rule seems silly. What happens when a security fix needs 150 lines? 
+> 
+> Better maybe a rule like "The patch should be the minimal and safest 
+> change to fix an issue". But see below for an exception.
 
-2.6.11-ac2
-o	Merge 2.6.11.2					(Greg Kroah-Hartmann)
-	including epoll error handling			(Georgi Guninski)
-	| Theoretically security
-o	Fix a couple of pwc warnings			(Alan Cox)
-o	Ressurect epca driver				(Alan Cox)
+It's just a guideline to scope the work.  But a fixed size is probably
+less meaningful than your wording.
 
-2.6.11-ac1
-o	Fix jbd race in ext3				(Stephen Tweedie)
+> >  - It must fix only one thing.
+> >  - It must fix a real bug that bothers people (not a, "This could be a
+> >    problem..." type thing.)
+> >  - It must fix a problem that causes a build error (but not for things
+> >    marked CONFIG_BROKEN), an oops, a hang, data corruption, a real
+> >    security issue, or some "oh, that's not good" issue.  In short,
+> >    something critical.
+> >  - No "theoretical race condition" issues, unless an explanation of how
+> >    the race can be exploited.
+> >  - It can not contain any "trivial" fixes in it (spelling changes,
+> >    whitespace cleanups, etc.)
+> >  - It must be accepted by the relevant subsystem maintainer.
+> 
+> >  - It must follow Documentation/SubmittingPatches rules.
+> 
+> One rule I'm missing:
+> 
+> - It must be accepted to mainline. 
 
-Carried over from 2.6.10-ac
+This can violate the principle of keeping fixes simple for -stable tree.
+And Linus/Andrew don't want to litter mainline with patch series that
+do simple fix followed by complete fix meant for developement branch.
 
-Security
-o	AF_ROSE security hole fix - still missing from base
-o	Bridge failure to check kmalloc argument overflow
+> That is what big enterprise distributions often require and I think
+> it's a good rule. Otherwise you risk code and feature set drift
+> and we don't want to repeat the 2.4 mistakes again where some 
+> subsystems had more fixes in 2.4 than 2.6.
 
-Functionality
-o	PWC USB camera driver
-o	Working ULI526X support (added to base in .11 but broken)
-o	ATP88x support
-o	Intelligent misrouted IRQ handlers
-o	Fix PCI boxes that take minutes IDE probing
-o	Remove bogus confusing XFree86 keyboard message
-o	Support fibre AMD pcnet32
-o	Runtime configurable clock
-	| So you can run laptops usefully. Set 100Hz to fix
-	| the power drain, clock sliding and other problems
-	| 1000Hz causes
-o	Fix token ring locking so token ring can be used again
-o	x86_64/32 cross build fixes
-o	NetROM locking fixes (so NetROM actually works!)
-o	SUID dumpable support
-o	Don't log pointless CD messages
-o	Minimal stallion driver functionality
-o	IDE from 2.6-ac
+I agree, it's a good rule, but these should be small, temporal diffs
+from mainline.  For example, -ac tree will sometimes do the simpler fix,
+whereas mainline does proper complete fix.
 
-Misc
-o	Correct LANANA URL
+> Also your rules encourage to do different patches for -stable
+> (e.g. with less comment changes etc.) than for mainline. I don't
+> think that's a very good thing. Sometimes it is unavoidable
+> and sometimes the mainline patches are just too big and intrusive,
+> but in general it's imho best to apply the same patches
+> to mainline and backport trees.  This has also the advantage
+> that the patch is best tested as possible; slimmed down patches
+> usually have a risk of malfunction.
+> 
+> If a mainline patch violates too many of your other rules
+> ("Fixes one thing; doesn't do cosmetic changes etc.") perhaps
+> the mainline patch just needs to be improved.
 
+Good point.
 
+> So in general there should be a preference to apply the same
+> patch as mainline, unless it is very big.
+
+Agreed.
+
+> >  - Security patches will be accepted into the -stable tree directly from
+> >    the security kernel team, and not go through the normal review cycle.
+> >    Contact the kernel security team for more details on this procedure.
+> 
+> This also sounds like a bad rule. How come the security team has more
+> competence to review patches than the subsystem maintainers?  I can
+> see the point of overruling maintainers on security issues when they
+> are not responsive, but if they are I think the should be still the
+> main point of contact.
+
+They don't, the security patches should still be reviewed by subsystem
+maintainer.  Point here is, sometimes there's disclosure coordination
+happening as well.
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

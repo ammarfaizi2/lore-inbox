@@ -1,386 +1,224 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315143AbSD2MUN>; Mon, 29 Apr 2002 08:20:13 -0400
+	id <S315147AbSD2McH>; Mon, 29 Apr 2002 08:32:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315142AbSD2MUL>; Mon, 29 Apr 2002 08:20:11 -0400
-Received: from krynn.axis.se ([193.13.178.10]:20618 "EHLO krynn.axis.se")
-	by vger.kernel.org with ESMTP id <S315143AbSD2MUI>;
-	Mon, 29 Apr 2002 08:20:08 -0400
-Date: Mon, 29 Apr 2002 14:16:26 +0200 (CEST)
-From: Johan Adolfsson <johan.adolfsson@axis.com>
-X-X-Sender: <johana@ado-2.axis.se>
-To: <quinlan@transmeta.com>
-cc: <linux-kernel@vger.kernel.org>, <johan.adolfsson@axis.com>
-Subject: [PATCH] 4/6 - mkcrams gets -m metafile support
-Message-ID: <Pine.LNX.4.33.0204291413320.25892-200000@ado-2.axis.se>
+	id <S315148AbSD2McG>; Mon, 29 Apr 2002 08:32:06 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:64129 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S315147AbSD2McE>; Mon, 29 Apr 2002 08:32:04 -0400
+Date: Mon, 29 Apr 2002 08:33:45 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Kerl, John" <John.Kerl@Avnet.com>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: FPU, i386
+In-Reply-To: <C08678384BE7D311B4D70004ACA371050B7633F3@amer22.avnet.com>
+Message-ID: <Pine.LNX.3.95.1020429081543.10997A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="218762247-677588199-1020082586=:25892"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Fri, 26 Apr 2002, Kerl, John wrote:
 
---218762247-677588199-1020082586=:25892
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+> There is an error here which shouldn't be propagated:
+> 
+> 	if (fabs(a-b) < 1.0e-38)
+> 		...
+
+It is not an error at all.
+
+> 
+> "Machine epsilon" for doubles (namely, the difference between 1.0 and
+> the next largest number) is on the order of 2e-16.  This is a rough
+> estimate of the granularity of round-off error; and in fact 1.0 / 0.2
+> and 5.0 can't possibly be as close as 1.0e-38, unless they're exactly
+> equal.
 
 
-4. The tools: mkcramfs.c gets added support for -m metafile option.
-Patch is against cramfs-1.1 with patch 3/6 applied.
+This is  not correct. The FPU in (even) the i486 stores 'tiny' (defined in
+the Intel book) in extended real format. Quantities as small as +/- 3.37
+* 10 -4932 are represented internally. Any comparison of real numbers is
+(or certainly should be) done internally. The hard-coded example of
+1.0e-38 is well within the dynamic range of both the FPU and the double
+fabs().
 
-Please apply
-/Johan
+As explained on page 16-3 of the Intel 486 Programmer's Reference
+Manual, the FPU tries to prevent denormalization. Denormalization
+produces either a denormal or a zero. Even single precision
+denormals all have exponents of -46 or more negative, also well
+within the -38 cited.
+
+> 
+> There are four epsilon-ish things to be aware of:
+> 
+> *	Difference between 0.0 and next float  above: ~= 1.4e-45
+> *	Difference between 0.0 and next double above: ~= 4.9e-324
+> *	Difference between 1.0 and next float  above: ~= 1.2e-7
+> *	Difference between 1.0 and next double above: ~= 2.2e-16
+> 
+> The first two are more useful for things like detecting underflow; the
+> last two (some numerical folks suggest using their square roots) are
+> more useful for implementing an "approximately equals".
+> 
 
 
---218762247-677588199-1020082586=:25892
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="mkcramfs4.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0204291416260.25892@ado-2.axis.se>
-Content-Description: mkcramfs4.patch
-Content-Disposition: attachment; filename="mkcramfs4.patch"
+I agree with your explainations on everything following:
 
-LS0tIG1rY3JhbWZzLWItdGltZS5jCVRodSBBcHIgMjUgMjM6MjI6MDYgMjAw
-Mg0KKysrIG1rY3JhbWZzLmMJRnJpIEFwciAyNiAwMDowMToyMiAyMDAyDQpA
-QCAtMzMsMTEgKzMzLDE0IEBADQogI2luY2x1ZGUgPHN0ZGxpYi5oPg0KICNp
-bmNsdWRlIDxlcnJuby5oPg0KICNpbmNsdWRlIDxzdHJpbmcuaD4NCisjaW5j
-bHVkZSA8Y3R5cGUuaD4NCisjaW5jbHVkZSA8bGltaXRzLmg+DQogI2luY2x1
-ZGUgPHN0ZGFyZy5oPg0KICNpbmNsdWRlIDxsaW51eC9jcmFtZnNfZnMuaD4N
-CiAjaW5jbHVkZSA8emxpYi5oPg0KICNpbmNsdWRlIDx0aW1lLmg+DQogDQor
-DQogLyogRXhpdCBjb2RlcyB1c2VkIGJ5IG1rZnMtdHlwZSBwcm9ncmFtcyAq
-Lw0KICNkZWZpbmUgTUtGU19PSyAgICAgICAgICAwCS8qIE5vIGVycm9ycyAq
-Lw0KICNkZWZpbmUgTUtGU19FUlJPUiAgICAgICA4CS8qIE9wZXJhdGlvbmFs
-IGVycm9yICovDQpAQCAtNzQsNiArNzcsNyBAQA0KIAkJICArICgxIDw8IENS
-QU1GU19TSVpFX1dJRFRIKSAqIDQgLyBibGtzaXplIC8qIGJsb2NrIHBvaW50
-ZXJzICovICkNCiANCiBzdGF0aWMgY29uc3QgY2hhciAqcHJvZ25hbWUgPSAi
-bWtjcmFtZnMiOw0KK3N0YXRpYyBjb25zdCBjaGFyICptZXRhX2ZpbGVfbmFt
-ZSA9IE5VTEw7IC8qIE5VTEwgbWVhbnMgaWdub3JlIG1ldGEgZmlsZSAqLw0K
-IHN0YXRpYyB1bnNpZ25lZCBpbnQgYmxrc2l6ZSA9IERFRkFVTFRfUEFHRV9D
-QUNIRV9TSVpFOw0KIHN0YXRpYyBsb25nIHRvdGFsX2Jsb2NrcyA9IDAsIHRv
-dGFsX25vZGVzID0gMTsgLyogcHJlLWNvdW50IHRoZSByb290IG5vZGUgKi8N
-CiBzdGF0aWMgaW50IGltYWdlX2xlbmd0aCA9IDA7DQpAQCAtOTksNiArMTAz
-LDcgQEANCiBzdGF0aWMgY2hhciAqb3B0X25hbWUgPSBOVUxMOw0KIA0KIHN0
-YXRpYyBpbnQgd2Fybl9kZXYsIHdhcm5fZ2lkLCB3YXJuX25hbWVsZW4sIHdh
-cm5fc2tpcCwgd2Fybl9zaXplLCB3YXJuX3VpZDsNCitzdGF0aWMgaW50IG5h
-bWVfb2Zmc2V0OwkvKiBGb3IgcmVtb3ZpbmcgZGlyZWN0b3J5IG5hbWUgaW4g
-b3V0cHV0ICovDQogDQogLyogSW4tY29yZSB2ZXJzaW9uIG9mIGlub2RlIC8g
-ZGlyZWN0b3J5IGVudHJ5LiAqLw0KIHN0cnVjdCBlbnRyeSB7DQpAQCAtMTMz
-LDYgKzEzOCw3IEBADQogCQkiIC1iIGJsb2Nrc2l6ZSB0aGUgcGFnZS1zaXpl
-IChkZWZhdWx0IGlzIDQwOTYpXG4iDQogCQkiIC1lIGVkaXRpb24gICBzZXQg
-ZWRpdGlvbiBudW1iZXIgKHBhcnQgb2YgZnNpZCkgKGRlZmF1bHQgdGltZXN0
-YW1wKVxuIg0KIAkJIiAtaSBmaWxlICAgICAgaW5zZXJ0IGEgZmlsZSBpbWFn
-ZSBpbnRvIHRoZSBmaWxlc3lzdGVtIChyZXF1aXJlcyA+PSAyLjQuMClcbiIN
-CisJCSIgLW0gZmlsZW5hbWUgIGxvb2sgZm9yIG1ldGEgZmlsZXMgd2l0aCB0
-aGlzIG5hbWUgaW4gZWFjaCBzdWJkaXJcbiINCiAJCSIgLW4gbmFtZSAgICAg
-IHNldCBuYW1lIG9mIGNyYW1mcyBmaWxlc3lzdGVtXG4iDQogCQkiIC1wICAg
-ICAgICAgICBwYWQgYnkgJWQgYnl0ZXMgZm9yIGJvb3QgY29kZVxuIg0KIAkJ
-IiAtcyAgICAgICAgICAgc29ydCBkaXJlY3RvcnkgZW50cmllcyAob2xkIG9w
-dGlvbiwgaWdub3JlZClcbiINCkBAIC0yMTgsNiArMjI0LDM0OCBAQA0KIAl9
-DQogfQ0KIA0KKy8qKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKi8NCisNCisvKiBNZXRh
-IHR5cGVzICovDQorDQorI2RlZmluZSBNRVRBX0lHTk9SRSAgICAgICAgICAx
-DQorI2RlZmluZSBNRVRBX0lHTk9SRV9DT05URU5UUyAyDQorI2RlZmluZSBN
-RVRBX0RFVklDRSAgICAgICAgICAzDQorI2RlZmluZSBNRVRBX0lOQ0xVREUg
-ICAgICAgICA0DQorI2RlZmluZSBNRVRBX1VJRCAgICAgICAgICAgICA1DQor
-I2RlZmluZSBNRVRBX0dJRCAgICAgICAgICAgICA2DQorDQorI2RlZmluZSBJ
-RF9OT05FIFVJTlRfTUFYCS8qIGZvciBpZ25vcmluZyBkZWZhdWx0X3VpZCBh
-bmQgZGVmYXVsdF9naWQgKi8NCisNCitzdHJ1Y3QgbWV0YWRhdGEgew0KKwlz
-dHJ1Y3QgbWV0YWRhdGEgKm5leHQ7CS8qIG5leHQgbm9kZSBpbiBsaW5rZWQg
-bGlzdCAqLw0KKwlpbnQgdHlwZTsJCS8qIG1ldGEgdHlwZSAqLw0KKwljaGFy
-ICpuYW1lOwkJLyogZW50cnkgbmFtZSAqLw0KKwl1bnNpZ25lZCBpbnQgaWQ7
-CS8qIGZvciB0eXBlIE1FVEFfVUlEIGFuZCBNRVRBX0dJRCAqLw0KKwljaGFy
-IGRldl90eXBlOwkJLyogZm9yIHR5cGUgTUVUQV9ERVZJQ0UgKi8NCisJdW5z
-aWduZWQgY2hhciBtYWpvcjsJLyogZm9yIHR5cGUgTUVUQV9ERVZJQ0UgKi8N
-CisJdW5zaWduZWQgY2hhciBtaW5vcjsJLyogZm9yIHR5cGUgTUVUQV9ERVZJ
-Q0UgKi8NCit9Ow0KKw0KKyNkZWZpbmUgQlVGRkVSTEVOR1RIIDI1Ng0KKw0K
-Ky8qIE1ldGEgZGF0YSBmdW5jdGlvbnMgKi8NCisNCitzdHJ1Y3QgbWV0YWRh
-dGEgKmNyZWF0ZV9tZXRhX2lnbm9yZShjaGFyICpsaW5lLCBzdHJ1Y3QgbWV0
-YWRhdGEgKm1ldGEsIGludCBpZ25vcmV0eXBlKQ0KK3sNCisJc3RydWN0IG1l
-dGFkYXRhICpuZXdfbWV0YTsNCisJY2hhciAqZW5kID0gJmxpbmVbc3RybGVu
-KGxpbmUpXTsNCisNCisJd2hpbGUgKGlzc3BhY2UoKmxpbmUpKSB7DQorCQls
-aW5lKys7DQorCX0NCisNCisJZm9yIChlbmQtLTsgZW5kID4gbGluZSAmJiBp
-c3NwYWNlKCplbmQpOyBlbmQtLSkgew0KKwkJKmVuZCA9ICdcMCc7DQorCX0N
-CisNCisJaWYgKGVuZCA+IGxpbmUgJiYgKmxpbmUgPT0gJyInICYmICplbmQg
-PT0gJyInKSB7DQorCQlsaW5lKys7DQorCQkqZW5kID0gJ1wwJzsNCisJfQ0K
-Kw0KKwkvKiBDYW4ndCBpZ25vcmUgdGhlIC4gYW5kIC4uIGRpcmVjdG9yaWVz
-ICovDQorCWlmIChzdHJsZW4obGluZSkgJiYgc3RyY21wKGxpbmUsICIuIikg
-JiYgc3RyY21wKGxpbmUsICIuLiIpKSB7DQorCQlpZiAoKG5ld19tZXRhID0g
-bWFsbG9jKHNpemVvZihzdHJ1Y3QgbWV0YWRhdGEpKSkpIHsNCisJCQluZXdf
-bWV0YS0+bmV4dCA9IG1ldGE7DQorCQkJbmV3X21ldGEtPnR5cGUgPSBpZ25v
-cmV0eXBlOw0KKwkJCW5ld19tZXRhLT5uYW1lID0gc3RyZHVwKGxpbmUpOw0K
-KwkJCXJldHVybiBuZXdfbWV0YTsNCisJCX0gZWxzZSB7DQorCQkJZnByaW50
-ZihzdGRlcnIsIm91dCBvZiBtZW1vcnlcbiIpOw0KKwkJCWV4aXQoMSk7DQor
-CQl9DQorCX0NCisNCisJcmV0dXJuIG1ldGE7DQorfQ0KKw0KK3N0cnVjdCBt
-ZXRhZGF0YSAqY3JlYXRlX21ldGFfaW5jbHVkZShjaGFyICpsaW5lLCBzdHJ1
-Y3QgbWV0YWRhdGEgKm1ldGEpDQorew0KKwlzdHJ1Y3QgbWV0YWRhdGEgKm5l
-d19tZXRhOw0KKwljaGFyICplbmQgPSAmbGluZVtzdHJsZW4obGluZSldOw0K
-Kw0KKwl3aGlsZSAoaXNzcGFjZSgqbGluZSkpIHsNCisJCWxpbmUrKzsNCisJ
-fQ0KKw0KKwlmb3IgKGVuZC0tOyBlbmQgPiBsaW5lICYmIGlzc3BhY2UoKmVu
-ZCk7IGVuZC0tKSB7DQorCQkqZW5kID0gJ1wwJzsNCisJfQ0KKw0KKwlpZiAo
-ZW5kID4gbGluZSAmJiAqbGluZSA9PSAnIicgJiYgKmVuZCA9PSAnIicpIHsN
-CisJCWxpbmUrKzsNCisJCSplbmQgPSAnXDAnOw0KKwl9DQorDQorCWlmICgo
-bmV3X21ldGEgPSBtYWxsb2Moc2l6ZW9mKHN0cnVjdCBtZXRhZGF0YSkpKSkg
-ew0KKwkJbmV3X21ldGEtPm5leHQgPSBtZXRhOw0KKwkJbmV3X21ldGEtPnR5
-cGUgPSBNRVRBX0lOQ0xVREU7DQorCQluZXdfbWV0YS0+bmFtZSA9IHN0cmR1
-cChsaW5lKTsNCisJCXJldHVybiBuZXdfbWV0YTsNCisJfSBlbHNlIHsNCisJ
-CWZwcmludGYoc3RkZXJyLCJvdXQgb2YgbWVtb3J5XG4iKTsNCisJCWV4aXQo
-MSk7DQorCX0NCisNCisJcmV0dXJuIG1ldGE7DQorfQ0KKw0KK3N0cnVjdCBt
-ZXRhZGF0YSAqY3JlYXRlX21ldGFfZGV2aWNlKGNoYXIgKmxpbmUsIHN0cnVj
-dCBtZXRhZGF0YSAqbWV0YSkNCit7DQorCXN0cnVjdCBtZXRhZGF0YSAqbmV3
-X21ldGE7DQorCWNoYXIgbmFtZVtNQVhfSU5QVVRfTkFNRUxFTiArIDFdOw0K
-KwljaGFyIGRldl90eXBlOw0KKwl1bnNpZ25lZCBpbnQgbWFqb3IgPSAwOw0K
-Kwl1bnNpZ25lZCBpbnQgbWlub3IgPSAwOw0KKwlpbnQgZm91bmQ7DQorDQor
-CWZvdW5kID0gc3NjYW5mKGxpbmUsICIlcyAlYyAldSAldSIsIG5hbWUsICZk
-ZXZfdHlwZSwgJm1ham9yLCAmbWlub3IpOw0KKwkNCisJaWYgKChmb3VuZCA9
-PSAyIHx8IGZvdW5kID09IDQpICYmDQorCSAgICAoZGV2X3R5cGUgPT0gJ2In
-IHx8IGRldl90eXBlID09ICdjJyB8fCBkZXZfdHlwZSA9PSAncCcpICYmDQor
-CSAgICBtYWpvciA8IDI1NiAmJiBtaW5vciA8IDI1Nikgew0KKwkJaWYgKChu
-ZXdfbWV0YSA9IG1hbGxvYyhzaXplb2Yoc3RydWN0IG1ldGFkYXRhKSkpKSB7
-DQorCQkJbmV3X21ldGEtPm5leHQgPSBtZXRhOw0KKwkJCW5ld19tZXRhLT50
-eXBlID0gTUVUQV9ERVZJQ0U7DQorCQkJbmV3X21ldGEtPm5hbWUgPSBzdHJk
-dXAobmFtZSk7DQorCQkJbmV3X21ldGEtPmRldl90eXBlID0gZGV2X3R5cGU7
-DQorCQkJaWYgKGRldl90eXBlID09ICdiJyB8fCBkZXZfdHlwZSA9PSAnYycp
-IHsNCisJCQkJbmV3X21ldGEtPm1ham9yID0gKHVuc2lnbmVkIGNoYXIpbWFq
-b3I7DQorCQkJCW5ld19tZXRhLT5taW5vciA9ICh1bnNpZ25lZCBjaGFyKW1p
-bm9yOw0KKwkJCX0NCisJCQlyZXR1cm4gbmV3X21ldGE7DQorCQl9IGVsc2Ug
-ew0KKwkJCWZwcmludGYoc3RkZXJyLCJvdXQgb2YgbWVtb3J5XG4iKTsNCisJ
-CQlleGl0KDEpOw0KKwkJfQ0KKwl9IGVsc2UNCisJCWZwcmludGYoc3RkZXJy
-LCAiSWxsZWdhbCBkZXZpY2UgZmlsZSBzcGVjaWZpY2F0aW9uOiAlcyIsIGxp
-bmUpOw0KKw0KKwlyZXR1cm4gbWV0YTsNCit9DQorDQorc3RydWN0IG1ldGFk
-YXRhICpjcmVhdGVfbWV0YV91aWQoY2hhciAqbGluZSwgc3RydWN0IG1ldGFk
-YXRhICptZXRhKQ0KK3sNCisJc3RydWN0IG1ldGFkYXRhICpuZXdfbWV0YTsN
-CisJY2hhciBuYW1lW01BWF9JTlBVVF9OQU1FTEVOICsgMV07DQorCXVuc2ln
-bmVkIGludCB1aWQ7DQorCWludCBmb3VuZDsNCisNCisJZm91bmQgPSBzc2Nh
-bmYobGluZSwgIiVzICV1IiwgbmFtZSwgJnVpZCk7DQorCQ0KKwlpZiAoZm91
-bmQgPT0gMikgew0KKwkJaWYgKChuZXdfbWV0YSA9IG1hbGxvYyhzaXplb2Yo
-c3RydWN0IG1ldGFkYXRhKSkpKSB7DQorCQkJbmV3X21ldGEtPm5leHQgPSBt
-ZXRhOw0KKwkJCW5ld19tZXRhLT50eXBlID0gTUVUQV9VSUQ7DQorCQkJbmV3
-X21ldGEtPm5hbWUgPSBzdHJkdXAobmFtZSk7DQorCQkJbmV3X21ldGEtPmlk
-ID0gdWlkOw0KKw0KKwkJCXJldHVybiBuZXdfbWV0YTsNCisJCX0gZWxzZSB7
-DQorCQkJZnByaW50ZihzdGRlcnIsIm91dCBvZiBtZW1vcnlcbiIpOw0KKwkJ
-CWV4aXQoMSk7DQorCQl9DQorCX0gZWxzZQ0KKwkJZnByaW50ZihzdGRlcnIs
-ICJJbGxlZ2FsIHVpZCBzcGVjaWZpY2F0aW9uOiAlcyIsIGxpbmUpOw0KKw0K
-KwlyZXR1cm4gbWV0YTsNCit9DQorDQorc3RydWN0IG1ldGFkYXRhICpjcmVh
-dGVfbWV0YV9naWQoY2hhciAqbGluZSwgc3RydWN0IG1ldGFkYXRhICptZXRh
-KQ0KK3sNCisJc3RydWN0IG1ldGFkYXRhICpuZXdfbWV0YTsNCisJY2hhciBu
-YW1lW01BWF9JTlBVVF9OQU1FTEVOICsgMV07DQorCXVuc2lnbmVkIGludCBn
-aWQ7DQorCWludCBmb3VuZDsNCisNCisJZm91bmQgPSBzc2NhbmYobGluZSwg
-IiVzICV1IiwgbmFtZSwgJmdpZCk7DQorCQ0KKwlpZiAoZm91bmQgPT0gMikg
-ew0KKwkJaWYgKChuZXdfbWV0YSA9IG1hbGxvYyhzaXplb2Yoc3RydWN0IG1l
-dGFkYXRhKSkpKSB7DQorCQkJbmV3X21ldGEtPm5leHQgPSBtZXRhOw0KKwkJ
-CW5ld19tZXRhLT50eXBlID0gTUVUQV9HSUQ7DQorCQkJbmV3X21ldGEtPm5h
-bWUgPSBzdHJkdXAobmFtZSk7DQorCQkJbmV3X21ldGEtPmlkID0gZ2lkOw0K
-Kw0KKwkJCXJldHVybiBuZXdfbWV0YTsNCisJCX0gZWxzZSB7DQorCQkJZnBy
-aW50ZihzdGRlcnIsIm91dCBvZiBtZW1vcnlcbiIpOw0KKwkJCWV4aXQoMSk7
-DQorCQl9DQorCX0gZWxzZQ0KKwkJZnByaW50ZihzdGRlcnIsICJJbGxlZ2Fs
-IGdpZCBzcGVjaWZpY2F0aW9uOiAlcyIsIGxpbmUpOw0KKw0KKwlyZXR1cm4g
-bWV0YTsNCit9DQorDQorc3RydWN0IG1ldGFkYXRhICpyZWFkX21ldGFfZGF0
-YShjb25zdCBjaGFyICpkaXJfbmFtZSwgdW5zaWduZWQgaW50ICpkZWZhdWx0
-X3VpZF9wdHIsIHVuc2lnbmVkIGludCAqZGVmYXVsdF9naWRfcHRyKQ0KK3sN
-CisJRklMRSAqbWV0YV9maWxlOw0KKwljaGFyICpmaWxlX25hbWU7DQorCXN0
-cnVjdCBtZXRhZGF0YSAqbWV0YSA9IDA7DQorCWNoYXIgbGluZVtCVUZGRVJM
-RU5HVEhdOw0KKw0KKwlpZiAoIW1ldGFfZmlsZV9uYW1lKQ0KKwkJcmV0dXJu
-IE5VTEw7DQorDQorCWlmICghKGZpbGVfbmFtZSA9IG1hbGxvYyhzdHJsZW4o
-ZGlyX25hbWUpICsgc3RybGVuKG1ldGFfZmlsZV9uYW1lKSArIDIpKSkgew0K
-KwkJZnByaW50ZihzdGRlcnIsIm91dCBvZiBtZW1vcnlcbiIpOw0KKwkJcmV0
-dXJuIDA7DQorCX0NCisNCisJc3RyY3B5KGZpbGVfbmFtZSwgZGlyX25hbWUp
-Ow0KKwlzdHJjYXQoZmlsZV9uYW1lLCAiLyIpOw0KKwlzdHJjYXQoZmlsZV9u
-YW1lLCBtZXRhX2ZpbGVfbmFtZSk7DQorDQorCWlmICghKG1ldGFfZmlsZSA9
-IGZvcGVuKGZpbGVfbmFtZSwgInIiKSkpIHsNCisJCXJldHVybiAwOw0KKwl9
-DQorDQorCXdoaWxlICghZmVvZihtZXRhX2ZpbGUpKSB7DQorCQlpZiAoZmdl
-dHMobGluZSwgQlVGRkVSTEVOR1RIIC0gMSwgbWV0YV9maWxlKSkgew0KKwkJ
-CWlmICghc3RybmNhc2VjbXAoIklnbm9yZToiLCBsaW5lLCA3KSkgew0KKwkJ
-CQltZXRhID0gY3JlYXRlX21ldGFfaWdub3JlKGxpbmUgKyA3LCBtZXRhLCBN
-RVRBX0lHTk9SRSk7DQorCQkJfSBlbHNlIGlmICghc3RybmNhc2VjbXAoIkln
-bm9yZUNvbnRlbnRzOiIsIGxpbmUsIDE1KSkgew0KKwkJCQltZXRhID0gY3Jl
-YXRlX21ldGFfaWdub3JlKGxpbmUgKyAxNSwgbWV0YSwNCisJCQkJCQkJICBN
-RVRBX0lHTk9SRV9DT05URU5UUyk7DQorCQkJfSBlbHNlIGlmICghc3RybmNh
-c2VjbXAoIkluY2x1ZGU6IiwgbGluZSwgOCkpIHsNCisJCQkJbWV0YSA9IGNy
-ZWF0ZV9tZXRhX2luY2x1ZGUobGluZSArIDgsIG1ldGEpOw0KKwkJCX0gZWxz
-ZSBpZiAoIXN0cm5jYXNlY21wKCJEZXZpY2U6IiwgbGluZSwgNykpIHsNCisJ
-CQkJbWV0YSA9IGNyZWF0ZV9tZXRhX2RldmljZShsaW5lICsgNywgbWV0YSk7
-DQorCQkJfSBlbHNlIGlmICghc3RybmNhc2VjbXAoIlVzZXJJZDoiLCBsaW5l
-LCA3KSkgew0KKwkJCQltZXRhID0gY3JlYXRlX21ldGFfdWlkKGxpbmUgKyA3
-LCBtZXRhKTsNCisJCQl9IGVsc2UgaWYgKCFzdHJuY2FzZWNtcCgiR3JvdXBJ
-ZDoiLCBsaW5lLCA4KSkgew0KKwkJCQltZXRhID0gY3JlYXRlX21ldGFfZ2lk
-KGxpbmUgKyA4LCBtZXRhKTsNCisJCQl9IGVsc2UgaWYgKCFzdHJuY2FzZWNt
-cCgiRGVmYXVsdFVzZXJJZDoiLCBsaW5lLCAxNCkpIHsNCisJCQkJaW50IGNv
-dW50ID0gc3NjYW5mKGxpbmUgKyAxNCwgIiV1IiwgZGVmYXVsdF91aWRfcHRy
-KTsNCisJCQkJaWYgKGNvdW50IDwgMSkNCisJCQkJCWZwcmludGYoc3RkZXJy
-LCAiSWxsZWdhbCBkZWZhdWx0IHVpZCBzcGVjaWZpY2F0aW9uOiAlcyIsIGxp
-bmUpOw0KKwkJCX0gZWxzZSBpZiAoIXN0cm5jYXNlY21wKCJEZWZhdWx0R3Jv
-dXBJZDoiLCBsaW5lLCAxNSkpIHsNCisJCQkJaW50IGNvdW50ID0gc3NjYW5m
-KGxpbmUgKyAxNSwgIiV1IiwgZGVmYXVsdF9naWRfcHRyKTsNCisJCQkJaWYg
-KGNvdW50IDwgMSkNCisJCQkJCWZwcmludGYoc3RkZXJyLCAiSWxsZWdhbCBk
-ZWZhdWx0IGdpZCBzcGVjaWZpY2F0aW9uOiAlcyIsIGxpbmUpOw0KKwkJCX0g
-ZWxzZSB7DQorCQkJCWZwcmludGYoc3RkZXJyLCAiSWxsZWdhbCBtZXRhIHNw
-ZWNpZmljYXRpb246ICVzIiwgbGluZSk7DQorCQkJfQ0KKwkJfQ0KKwl9DQor
-CQ0KKwlmY2xvc2UobWV0YV9maWxlKTsNCisJZnJlZShmaWxlX25hbWUpOw0K
-Kw0KKwlyZXR1cm4gbWV0YTsNCit9DQorDQordm9pZCBmcmVlX21ldGFfZGF0
-YShzdHJ1Y3QgbWV0YWRhdGEgKm1ldGEpDQorew0KKwlzdHJ1Y3QgbWV0YWRh
-dGEgKm5leHQ7DQorDQorCWZvciAoOyBtZXRhOyBtZXRhID0gbmV4dCkgew0K
-KwkJbmV4dCA9IG1ldGEtPm5leHQ7DQorCQlmcmVlKG1ldGEtPm5hbWUpOw0K
-KwkJZnJlZShtZXRhKTsNCisJfQ0KK30NCisNCitpbnQgbWV0YV9pZ25vcmUo
-c3RydWN0IG1ldGFkYXRhICptZXRhLCBjaGFyICpuYW1lKQ0KK3sNCisJZm9y
-ICg7IG1ldGE7IG1ldGEgPSBtZXRhLT5uZXh0KSB7DQorCQlpZiAobWV0YS0+
-dHlwZSA9PSBNRVRBX0lHTk9SRSAmJiAhc3RyY21wKG5hbWUsIG1ldGEtPm5h
-bWUpKSB7DQorCQkJcmV0dXJuIDE7DQorCQl9DQorCX0NCisNCisJcmV0dXJu
-IDA7DQorfQ0KKw0KK2ludCBtZXRhX2lnbm9yZV9jb250ZW50cyhzdHJ1Y3Qg
-bWV0YWRhdGEgKm1ldGEsIGNoYXIgKm5hbWUpDQorew0KKwlmb3IgKDsgbWV0
-YTsgbWV0YSA9IG1ldGEtPm5leHQpIHsNCisJCWlmIChtZXRhLT50eXBlID09
-IE1FVEFfSUdOT1JFX0NPTlRFTlRTICYmICFzdHJjbXAobmFtZSwgbWV0YS0+
-bmFtZSkpIHsNCisJCQlyZXR1cm4gMTsNCisJCX0NCisJfQ0KKw0KKwlyZXR1
-cm4gMDsNCit9DQorDQoraW50IG1ldGFfaW5jbHVkZShzdHJ1Y3QgbWV0YWRh
-dGEgKm1ldGEsIGNoYXIgKm5hbWUpDQorew0KKwlpbnQgZm91bmQgPSAwOw0K
-Kw0KKwkvKiBBbHdheXMgaW5jbHVkZSAuIGFuZCAuLiAqLw0KKwlpZiAoIXN0
-cmNtcChuYW1lLCAiLiIpIHx8ICFzdHJjbXAobmFtZSwgIi4uIikpDQorCQly
-ZXR1cm4gMTsgIA0KKw0KKwlmb3IgKDsgbWV0YTsgbWV0YSA9IG1ldGEtPm5l
-eHQpIHsNCisJCWlmIChtZXRhLT50eXBlID09IE1FVEFfSU5DTFVERSkgew0K
-KwkJCWZvdW5kID0gMTsNCisJCQlpZiAoIXN0cmNtcChuYW1lLCBtZXRhLT5u
-YW1lKSkgew0KKwkJCQlyZXR1cm4gMTsNCisJCQl9DQorCQl9DQorCX0NCisN
-CisJcmV0dXJuICFmb3VuZDsNCit9DQorDQoraW50IG1ldGFfaGFuZGxlX2Rl
-dmljZShzdHJ1Y3QgbWV0YWRhdGEgKm1ldGEsIHN0cnVjdCBlbnRyeSAqZW50
-cnkpDQorew0KKwlmb3IgKDsgbWV0YTsgbWV0YSA9IG1ldGEtPm5leHQpIHsN
-CisJCWlmIChtZXRhLT50eXBlID09IE1FVEFfREVWSUNFICYmDQorCQkgICAg
-IXN0cmNtcChlbnRyeS0+bmFtZSwgbWV0YS0+bmFtZSkpIHsNCisJCQlpZiAo
-bWV0YS0+ZGV2X3R5cGUgPT0gJ2InKSB7DQorCQkJCWVudHJ5LT5tb2RlID0g
-KGVudHJ5LT5tb2RlICYgflNfSUZNVCkgfCBTX0lGQkxLOw0KKwkJCQllbnRy
-eS0+c2l6ZSA9IG1ha2VkZXYobWV0YS0+bWFqb3IsIG1ldGEtPm1pbm9yKTsN
-CisJCQl9IGVsc2UgaWYgKG1ldGEtPmRldl90eXBlID09ICdjJykgew0KKwkJ
-CQllbnRyeS0+bW9kZSA9IChlbnRyeS0+bW9kZSAmIH5TX0lGTVQpIHwgU19J
-RkNIUjsNCisJCQkJZW50cnktPnNpemUgPSBtYWtlZGV2KG1ldGEtPm1ham9y
-LCBtZXRhLT5taW5vcik7DQorCQkJfSBlbHNlIHsNCisJCQkJZW50cnktPm1v
-ZGUgPSAoZW50cnktPm1vZGUgJiB+U19JRk1UKSB8IFNfSUZJRk87DQorCQkJ
-fQ0KKwkJCXJldHVybiAxOw0KKwkJfQ0KKwl9DQorDQorCXJldHVybiAwOw0K
-K30NCisNCitpbnQgbWV0YV9oYW5kbGVfdWlkKHN0cnVjdCBtZXRhZGF0YSAq
-bWV0YSwgc3RydWN0IGVudHJ5ICplbnRyeSkNCit7DQorCWZvciAoOyBtZXRh
-OyBtZXRhID0gbWV0YS0+bmV4dCkgew0KKwkJaWYgKG1ldGEtPnR5cGUgPT0g
-TUVUQV9VSUQpIHsNCisJCQlpZiAoIXN0cmNtcChlbnRyeS0+bmFtZSwgbWV0
-YS0+bmFtZSkpIHsNCisJCQkJZW50cnktPnVpZCA9IG1ldGEtPmlkOw0KKwkJ
-CQlyZXR1cm4gMTsNCisJCQl9DQorCQl9DQorCX0NCisNCisJcmV0dXJuIDA7
-DQorfQ0KKw0KK2ludCBtZXRhX2hhbmRsZV9naWQoc3RydWN0IG1ldGFkYXRh
-ICptZXRhLCBzdHJ1Y3QgZW50cnkgKmVudHJ5KQ0KK3sNCisJZm9yICg7IG1l
-dGE7IG1ldGEgPSBtZXRhLT5uZXh0KSB7DQorCQlpZiAobWV0YS0+dHlwZSA9
-PSBNRVRBX0dJRCkgew0KKwkJCWlmICghc3RyY21wKGVudHJ5LT5uYW1lLCBt
-ZXRhLT5uYW1lKSkgew0KKwkJCQllbnRyeS0+Z2lkID0gbWV0YS0+aWQ7DQor
-CQkJCXJldHVybiAxOw0KKwkJCX0NCisJCX0NCisJfQ0KKw0KKwlyZXR1cm4g
-MDsNCit9DQorDQorLyoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqLw0KKw0KIC8qDQog
-ICogV2UgZGVmaW5lIG91ciBvd24gc29ydGluZyBmdW5jdGlvbiBpbnN0ZWFk
-IG9mIHVzaW5nIGFscGhhc29ydCB3aGljaA0KICAqIHVzZXMgc3RyY29sbCBh
-bmQgY2hhbmdlcyBvcmRlcmluZyBiYXNlZCBvbiBsb2NhbGUgaW5mb3JtYXRp
-b24uDQpAQCAtMjI4LDEyICs1NzYsMjEgQEANCiAJCSAgICAgICAoKihjb25z
-dCBzdHJ1Y3QgZGlyZW50ICoqKSBiKS0+ZF9uYW1lKTsNCiB9DQogDQotc3Rh
-dGljIHVuc2lnbmVkIGludCBwYXJzZV9kaXJlY3Rvcnkoc3RydWN0IGVudHJ5
-ICpyb290X2VudHJ5LCBjb25zdCBjaGFyICpuYW1lLCBzdHJ1Y3QgZW50cnkg
-KipwcmV2LCBsb2ZmX3QgKmZzbGVuX3ViKQ0KK3N0YXRpYyB1bnNpZ25lZCBp
-bnQgcGFyc2VfZGlyZWN0b3J5KHN0cnVjdCBlbnRyeSAqcm9vdF9lbnRyeSwg
-DQorICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY29uc3Qg
-Y2hhciAqbmFtZSwgDQorICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgc3RydWN0IGVudHJ5ICoqcHJldiwgDQorICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgbG9mZl90ICpmc2xlbl91YiwNCisgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBpbnQgaWdub3JlX2Nv
-bnRlbnRzLCANCisgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICB1bnNpZ25lZCBpbnQgZGVmYXVsdF91aWQsIA0KKyAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIHVuc2lnbmVkIGludCBkZWZhdWx0X2dp
-ZCkNCiB7DQogCXN0cnVjdCBkaXJlbnQgKipkaXJsaXN0Ow0KIAlpbnQgdG90
-YWxzaXplID0gMCwgZGlyY291bnQsIGRpcmluZGV4Ow0KIAljaGFyICpwYXRo
-LCAqZW5kcGF0aDsNCiAJc2l6ZV90IGxlbiA9IHN0cmxlbihuYW1lKTsNCisJ
-c3RydWN0IG1ldGFkYXRhICptZXRhOw0KKw0KKwltZXRhID0gcmVhZF9tZXRh
-X2RhdGEobmFtZSwgJmRlZmF1bHRfdWlkLCAmZGVmYXVsdF9naWQpOw0KIA0K
-IAkvKiBTZXQgdXAgdGhlIHBhdGguICovDQogCS8qIFRPRE86IFJldXNlIHRo
-ZSBwYXJlbnQncyBidWZmZXIgdG8gc2F2ZSBtZW1jcHknaW5nIGFuZCBkdXBs
-aWNhdGlvbi4gKi8NCkBAIC0yNzIsNiArNjI5LDI5IEBADQogCQkJCQljb250
-aW51ZTsNCiAJCQl9DQogCQl9DQorDQorCQkvKiBJZ25vcmUgZmlsZXMgYWNj
-b3JkaW5nIHRvIG1ldGEgZGF0YSAqLw0KKwkJaWYgKGlnbm9yZV9jb250ZW50
-cykgew0KKwkJCXByaW50ZigiTWV0YTogaWdub3JpbmcgY29udGVudCAlcy8l
-c1xuIiwgDQorCQkJICAgICAgIG5hbWUgKyBuYW1lX29mZnNldCwgZGlyZW50
-LT5kX25hbWUpOw0KKwkJCWNvbnRpbnVlOw0KKwkJfQ0KKwkJaWYgKG1ldGFf
-ZmlsZV9uYW1lICYmICFzdHJjbXAoZGlyZW50LT5kX25hbWUsIG1ldGFfZmls
-ZV9uYW1lKSkgew0KKwkJCXByaW50ZigiTWV0YTogaWdub3JpbmcgbWV0YSBm
-aWxlICVzLyVzXG4iLCANCisJCQkgICAgICAgbmFtZSArIG5hbWVfb2Zmc2V0
-LCBkaXJlbnQtPmRfbmFtZSk7DQorCQkJY29udGludWU7IC8qIGRvbid0IGlu
-Y2x1ZGUgdGhlIG1ldGEgZGF0YSBmaWxlICovDQorCQl9DQorCQlpZiAoIW1l
-dGFfaW5jbHVkZShtZXRhLCBkaXJlbnQtPmRfbmFtZSkpIHsNCisJCQlwcmlu
-dGYoIk1ldGE6IG5vdCBpbmNsdWRpbmcgJXMvJXNcbiIsIA0KKwkJCSAgICAg
-ICBuYW1lICsgbmFtZV9vZmZzZXQsIGRpcmVudC0+ZF9uYW1lKTsNCisJCQlj
-b250aW51ZTsgLyogaW5jbHVkZSBmaWxlcyBhY2NvcmRpbmcgdG8gdGhlIG1l
-dGEgZGF0YSAqLw0KKwkJfQ0KKwkJaWYgKG1ldGFfaWdub3JlKG1ldGEsIGRp
-cmVudC0+ZF9uYW1lKSkgew0KKwkJCXByaW50ZigiTWV0YTogaWdub3Jpbmcg
-JXMvJXNcbiIsIA0KKwkJCSAgICAgICBuYW1lICsgbmFtZV9vZmZzZXQsIGRp
-cmVudC0+ZF9uYW1lKTsNCisJCQljb250aW51ZTsgLyogaWdub3JlIGZpbGVz
-IGFjY29yZGluZyB0byB0aGUgbWV0YSBkYXRhICovDQorCQl9DQorDQogCQlu
-YW1lbGVuID0gc3RybGVuKGRpcmVudC0+ZF9uYW1lKTsNCiAJCWlmIChuYW1l
-bGVuID4gTUFYX0lOUFVUX05BTUVMRU4pIHsNCiAJCQlkaWUoTUtGU19FUlJP
-UiwgMCwNCkBAIC0zMzAsOCArNzEwLDE3IEBADQogCQlzaXplID0gc2l6ZW9m
-KHN0cnVjdCBjcmFtZnNfaW5vZGUpICsgKChuYW1lbGVuICsgMykgJiB+Myk7
-DQogCQkqZnNsZW5fdWIgKz0gc2l6ZTsNCiAJCWlmIChTX0lTRElSKHN0LnN0
-X21vZGUpKSB7DQotCQkJZW50cnktPnNpemUgPSBwYXJzZV9kaXJlY3Rvcnko
-cm9vdF9lbnRyeSwgcGF0aCwgJmVudHJ5LT5jaGlsZCwgZnNsZW5fdWIpOw0K
-KwkJCWVudHJ5LT5zaXplID0gcGFyc2VfZGlyZWN0b3J5KHJvb3RfZW50cnks
-IHBhdGgsICZlbnRyeS0+Y2hpbGQsIGZzbGVuX3ViLCANCisJCQkgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICBtZXRhX2lnbm9yZV9jb250ZW50cyht
-ZXRhLCBkaXJlbnQtPmRfbmFtZSksIGRlZmF1bHRfdWlkLCBkZWZhdWx0X2dp
-ZCk7DQogCQl9IGVsc2UgaWYgKFNfSVNSRUcoc3Quc3RfbW9kZSkpIHsNCisJ
-CQlpZiAobWV0YV9oYW5kbGVfZGV2aWNlKG1ldGEsIGVudHJ5KSkgew0KKwkJ
-CQlpZiAoZW50cnktPnNpemUgJiAtKDEgPDwgQ1JBTUZTX1NJWkVfV0lEVEgp
-KQ0KKwkJCQkJd2Fybl9kZXYgPSAxOw0KKwkJCQlwcmludGYoIk1ldGE6IGRl
-dmljZSAoJWMgJWQgJWQpICVzLyVzXG4iLCANCisJCQkJICAgICAgIChTX0lT
-QkxLKGVudHJ5LT5tb2RlKSk/ICdiJyA6ICdjJywgDQorCQkJCSAgICAgICBt
-YWpvcihlbnRyeS0+c2l6ZSksIG1pbm9yKGVudHJ5LT5zaXplKSwNCisJCQkJ
-ICAgICAgIG5hbWUgKyBuYW1lX29mZnNldCwgZGlyZW50LT5kX25hbWUpOw0K
-KwkJCX0gZWxzZSB7DQogCQkJaWYgKGVudHJ5LT5zaXplKSB7DQogCQkJCWlm
-IChhY2Nlc3MocGF0aCwgUl9PSykgPCAwKSB7DQogCQkJCQl3YXJuX3NraXAg
-PSAxOw0KQEAgLTM0Niw2ICs3MzUsNyBAQA0KIAkJCQkJZW50cnktPnNpemUg
-PSAoMSA8PCBDUkFNRlNfU0laRV9XSURUSCkgLSAxOw0KIAkJCQl9DQogCQkJ
-fQ0KKwkJCX0NCiAJCX0gZWxzZSBpZiAoU19JU0xOSyhzdC5zdF9tb2RlKSkg
-ew0KIAkJCWVudHJ5LT51bmNvbXByZXNzZWQgPSBtYWxsb2MoZW50cnktPnNp
-emUpOw0KIAkJCWlmICghZW50cnktPnVuY29tcHJlc3NlZCkgew0KQEAgLTM3
-NCwxMSArNzY0LDMwIEBADQogCQkJCSpmc2xlbl91YiArPSAoNCsyNikqYmxv
-Y2tzICsgZW50cnktPnNpemUgKyAzOw0KIAkJfQ0KIA0KKwkJaWYgKG1ldGFf
-aGFuZGxlX3VpZChtZXRhLCBlbnRyeSkpIHsNCisJCQlwcmludGYoIk1ldGE6
-IHVpZCAoJXUpICVzLyVzXG4iLCANCisJCQkgICAgICAgZW50cnktPnVpZCwg
-bmFtZSArIG5hbWVfb2Zmc2V0LCBkaXJlbnQtPmRfbmFtZSk7DQorCQl9IGVs
-c2UgaWYgKGRlZmF1bHRfdWlkICE9IElEX05PTkUpIHsNCisJCQllbnRyeS0+
-dWlkID0gZGVmYXVsdF91aWQ7DQorCQkJcHJpbnRmKCJNZXRhOiBkZWZhdWx0
-IHVpZCAoJXUpICVzLyVzXG4iLCANCisJCQkgICAgICAgZW50cnktPnVpZCwg
-bmFtZSArIG5hbWVfb2Zmc2V0LCBkaXJlbnQtPmRfbmFtZSk7DQorCQl9DQor
-DQorCQlpZiAobWV0YV9oYW5kbGVfZ2lkKG1ldGEsIGVudHJ5KSkgew0KKwkJ
-CXByaW50ZigiTWV0YTogZ2lkICgldSkgJXMvJXNcbiIsIA0KKwkJCSAgICAg
-ICBlbnRyeS0+Z2lkLCBuYW1lICsgbmFtZV9vZmZzZXQsIGRpcmVudC0+ZF9u
-YW1lKTsNCisJCX0gZWxzZSBpZiAoZGVmYXVsdF9naWQgIT0gSURfTk9ORSkg
-ew0KKwkJCWVudHJ5LT5naWQgPSBkZWZhdWx0X2dpZDsNCisJCQlwcmludGYo
-Ik1ldGE6IGRlZmF1bHQgZ2lkICgldSkgJXMvJXNcbiIsIA0KKwkJCSAgICAg
-ICBlbnRyeS0+Z2lkLCBuYW1lICsgbmFtZV9vZmZzZXQsIGRpcmVudC0+ZF9u
-YW1lKTsNCisJCX0NCisNCiAJCS8qIExpbmsgaXQgaW50byB0aGUgbGlzdCAq
-Lw0KIAkJKnByZXYgPSBlbnRyeTsNCiAJCXByZXYgPSAmZW50cnktPm5leHQ7
-DQogCQl0b3RhbHNpemUgKz0gc2l6ZTsNCiAJfQ0KKwlmcmVlX21ldGFfZGF0
-YShtZXRhKTsNCiAJZnJlZShwYXRoKTsNCiAJZnJlZShkaXJsaXN0KTsJCS8q
-IGFsbG9jYXRlZCBieSBzY2FuZGlyKCkgd2l0aCBtYWxsb2MoKSAqLw0KIAly
-ZXR1cm4gdG90YWxzaXplOw0KQEAgLTcxNiw3ICsxMTI1LDcgQEANCiAJCXBy
-b2duYW1lID0gYXJndlswXTsNCiANCiAJLyogY29tbWFuZCBsaW5lIG9wdGlv
-bnMgKi8NCi0Jd2hpbGUgKChjID0gZ2V0b3B0KGFyZ2MsIGFyZ3YsICJoRWU6
-aTpiOm46cHN2eiIpKSAhPSBFT0YpIHsNCisJd2hpbGUgKChjID0gZ2V0b3B0
-KGFyZ2MsIGFyZ3YsICJoRWU6aTpiOm06bjpwc3Z6IikpICE9IEVPRikgew0K
-IAkJc3dpdGNoIChjKSB7DQogCQljYXNlICdoJzoNCiAJCQl1c2FnZShNS0ZT
-X09LKTsNCkBAIC03NDQsNiArMTE1Myw5IEBADQogCQkJCWRpZShNS0ZTX0VS
-Uk9SLDAsIndyb25nIGJsb2NrIHNpemVcbiIpOw0KIAkJCX0NCiAJCQlicmVh
-azsNCisJCWNhc2UgJ20nOg0KKwkJCW1ldGFfZmlsZV9uYW1lID0gb3B0YXJn
-Ow0KKwkJCWJyZWFrOw0KIAkJY2FzZSAnbic6DQogCQkJb3B0X25hbWUgPSBv
-cHRhcmc7DQogCQkJYnJlYWs7DQpAQCAtNzY5LDYgKzExODEsOSBAQA0KIAlv
-dXRmaWxlID0gYXJndltvcHRpbmQgKyAxXTsNCiANCiAJcHJpbnRmKCJVc2lu
-ZyBhIGJsb2Nrc2l6ZSBvZiAlZCBieXRlcy5cbiIsIGJsa3NpemUpOw0KKwlp
-ZiAobWV0YV9maWxlX25hbWUpDQorCQlwcmludGYoIlVzaW5nIG1ldGEgZmls
-ZShzKSBuYW1lZCBcIiVzXCIuXG4iLCBtZXRhX2ZpbGVfbmFtZSk7DQorDQog
-CWlmIChzdGF0KGRpcm5hbWUsICZzdCkgPCAwKSB7DQogCQlkaWUoTUtGU19V
-U0FHRSwgMSwgInN0YXQgZmFpbGVkOiAlcyIsIGRpcm5hbWUpOw0KIAl9DQpA
-QCAtNzg1LDcgKzEyMDAsNyBAQA0KIAlyb290X2VudHJ5LT51aWQgPSBzdC5z
-dF91aWQ7DQogCXJvb3RfZW50cnktPmdpZCA9IHN0LnN0X2dpZDsNCiANCi0J
-cm9vdF9lbnRyeS0+c2l6ZSA9IHBhcnNlX2RpcmVjdG9yeShyb290X2VudHJ5
-LCBkaXJuYW1lLCAmcm9vdF9lbnRyeS0+Y2hpbGQsICZmc2xlbl91Yik7DQor
-CXJvb3RfZW50cnktPnNpemUgPSBwYXJzZV9kaXJlY3Rvcnkocm9vdF9lbnRy
-eSwgZGlybmFtZSwgJnJvb3RfZW50cnktPmNoaWxkLCAmZnNsZW5fdWIsIDAs
-IElEX05PTkUsIElEX05PTkUpOw0KIA0KIAkvKiBhbHdheXMgYWxsb2NhdGUg
-YSBtdWx0aXBsZSBvZiBibGtzaXplIGJ5dGVzIGJlY2F1c2UgdGhhdCdzDQog
-CSAgIHdoYXQgd2UncmUgZ29pbmcgdG8gd3JpdGUgbGF0ZXIgb24gKi8NCg==
---218762247-677588199-1020082586=:25892--
+
+
+> ----------------------------------------------------------------
+> 
+> The poster was incorrect in expecting 1.0 / 0.2 to be exactly equal to
+> anything, as was explained to him.  But the problem doesn't have to do
+> with whether a number is transcendental, or irrational, or rational:
+> the number must be rational *and* must have a mantissa whose
+> denominator is a power of two *and* that power of two must be less than
+> or equal to 23 (for single) or 52 (for double).  And of course 1/5 is
+> 2^-3 * 8/5, of which the mantissa has denominator 5, which isn't a power
+> of two.
+> 
+> So we all should know not to expect floating-point numbers to be
+> exactly equal to anything; that's been established.  However, another
+> more basic question was not answered; curiosity (if nothing else)
+> demands an answer.  Namely, it's OK to say we can't expect 1.0/0.2 ==
+> 5.0.  But why is the result of (what is apparently) the same
+> computation *sometimes* the same, and *sometimes* different? That's the
+> question.
+> 
+> And I think it's fair for the poster to want to know why.
+> 
+> If you disassemble the sample program, you'll see that without
+> optimization, 1.0 is divided by 0.2 at *run* time, and compared with
+> 5.0; with optimization, the division is done, and the "<" and
+> "==" comparisons are done, at *compile* time.  OK, but: If we're not
+> cross-compiling (most people don't), then the compiler creating a.out
+> is running on perhaps the same box as a.out is!  Why does gcc, folding
+> the constant in the optimized a.out, get a different answer for 1.0/0.2
+> than the unoptimized a.out gets for 1.0/0.2?
+> 
+> Not only that, without optimization:
+> 
+> 	if (1/h < 5.0)
+> 		...
+> 
+> gives a different answer inside a.out than
+> 
+> 	x = 1/h;
+> 	if (x < 5.0)
+> 		...
+> 
+> The key is that Pentiums (Pentia?) have 80-bit floating-point numbers
+> in the FPU.  Without optimization, at compile time, gcc represents 5.0
+> as 0x4014000000000000.  0.2 is 0x3fc999999999999a.  These are both
+> 64-bit doubles -- 1 sign bit, 11 exponent bits, & 52 explicit mantissa
+> bits (and 1 implicit leading mantissa bit, not stored in memory.)
+> 
+> In the case "if (1/h < 5.0)", at run time, 1.0 is loaded into the FPU
+> using fld1; then "fdivl {address of 0.2 in memory}".  The result is the
+> *80-bit* number 0x40019ffffffffffffd80.  The 64-bit number 5.0
+> (0x4014000000000000) is loaded into the FPU to become the 80-bit number
+> 0x4001a000000000000000.  Then, these two 80-bit numbers are compared in
+> the FPU; they're of course not the same.
+> 
+> What's different in the case "x = 1/h; if (x < 5.0) ..." is that both
+> 80-bit numbers are stored from the FPU to memory as 64-bit (rounding
+> off the mantissa bits which differ), at which point they're both
+> 0x4014000000000000, then loaded *back* into the FPU where they're
+> both 0x4001a000000000000000.
+> 
+> This isn't an FPU bug, by any stretch of the imagination, nor is it a
+> compiler bug.  But it's a subtle difference between the Pentium's FPU
+> and other FPUs, of which it may occasionally be useful to be aware.
+> 
+> 
+> 
+> 
+> -----Original Message-----
+> From: Richard B. Johnson [mailto:root@chaos.analogic.com]
+> Sent: Thursday, April 25, 2002 7:23 AM
+> To: rpm
+> Cc: Jesse Pollard; Nikita@Namesys.COM; Andrey Ulanov;
+> linux-kernel@vger.kernel.org
+> Subject: Re: FPU, i386
+> 
+> 
+> On Thu, 25 Apr 2002, rpm wrote:
+> 
+> > On Wednesday 17 April 2002 08:10 pm, Jesse Pollard wrote:
+> > > ---------  Received message begins Here  ---------
+> > >
+> > 
+> > > if (int(1/h * 100) == int(5.0 * 100))
+> > >
+> > > will give a "proper" result within two decimal places. This is still
+> > > limited since there are irrational numbers within that range that COULD
+> > > still come out with a wrong answer, but is much less likely to occur.
+> > >
+> > > Exact match of floating point is not possible - 1/h is eleveated to a
+> > > float.
+> > >
+> > > If your 1/h was actually num/h, and num computed by summing .01 100
+> times
+> > > I suspect the result would also be "wrong".
+> > >
+> > 
+> > why is exact match of floating point not possible ?
+> 
+> Because many (read most) numbers are not exactly representable
+> in floating-point. The purpose of floating-point it to represent
+> real numbers with a large dynamic range. The trade-off is that
+> few such internal representations are exact.
+> 
+> As a simple example, 0.33333333333.....  can't be represented exactly
+> even with paper-and-pencil. However, as the ratio of two integers
+> it can be represented exactly, i.e., 1/3 . Both 1 and 3 must
+> be integers to represent this ratio exactly.
+> 
+> All real numbers (except trancendentials) can represented exactly
+> as the ratio of two integers but floating-point uses only one
+> value, not two integers, to represent the value. So, an exact
+> representation of a real number, when using a single variable
+> in a general-purpose way, is, for all practical purposes, not
+> possible. Instead, we get very close.
+> 
+> When it comes to '==' close is not equal. There are macros in
+> <math.h> that can be used for most floating-point logic. You
+> should check them out. If we wanted to check for '==' we really
+> need to do something like this:
+> 
+>     double a, b;
+>     some_loop() {
+>        if(fabs(a-b) < 1.0e-38)
+>            break;
+>      }
+> Where we get the absolute value of the difference between two
+> FP variables and compare against some very small number.
+> 
+> To use the math macros, the comparison should be something like:
+> 
+>         if (isless(fabs(a-b), 1.0e-38))
+>              break;
+> 
+> 
+> Cheers,
+> Dick Johnson
+> 
+> Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+> 
+>                  Windows-2000/Professional isn't.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

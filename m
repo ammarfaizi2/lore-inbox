@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267186AbUJLSFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUJLSHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267186AbUJLSFH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 14:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266538AbUJLSFH
+	id S266511AbUJLSHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 14:07:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266538AbUJLSHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 14:05:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20130 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267186AbUJLSEn (ORCPT
+	Tue, 12 Oct 2004 14:07:16 -0400
+Received: from rproxy.gmail.com ([64.233.170.207]:24136 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266511AbUJLSHK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 14:04:43 -0400
-Date: Tue, 12 Oct 2004 14:04:28 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Andrea Arcangeli <andrea@cpushare.com>
-cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: secure computing for 2.6.7
-In-Reply-To: <20041012174605.GH17372@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0410121403000.13693-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 12 Oct 2004 14:07:10 -0400
+Message-ID: <7a329d9104101211077e97ee33@mail.gmail.com>
+Date: Tue, 12 Oct 2004 18:07:09 +0000
+From: Wil Reichert <wil.reichert@gmail.com>
+Reply-To: Wil Reichert <wil.reichert@gmail.com>
+To: "mobil@wodkahexe.de" <mobil@wodkahexe.de>
+Subject: Re: 2.6.9-rc4 Wrong processor speed
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041012200402.765b2231.mobil@wodkahexe.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20041012200402.765b2231.mobil@wodkahexe.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Oct 2004, Andrea Arcangeli wrote:
-> On Tue, Oct 12, 2004 at 12:28:48PM -0400, Rik van Riel wrote:
-> > Looks like it should work, though really only for the
-> > purposes of cpushare and nothing else.
+Just the current speed its running at, M's can drop the CPU to 600MHz
+to save power.  Were the boots with the machine plugged or unplugged? 
+I've noticed they'll start at the slower speed unplugged.  Something
+like cpudyn makes boot speed irrelevant anyway.
 
-> However as said boinc and seti would better start using it too.
+Wil
 
-Are they interested ?
-
-> And people could start using it for other things too every time they
-> deal with untrusted data or bytecode.
-
-Would be interesting for eg. browser plugins, though I don't
-know whether the current seccomp infrastructure is powerful
-enough for that ...
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+On Tue, 12 Oct 2004 20:04:02 +0200, mobil@wodkahexe.de
+<mobil@wodkahexe.de> wrote:
+> Hi,
+> 
+> there seems to be some problem with detecting/displaying processor
+> speed.
+> 
+> 2.6.8.1: Detected 1399.199 MHz processor
+> 2.6.9-rc3: Detected 599.541 MHz processor
+> 2.6.9-rc4: Detected 599.542 MHz processor
+> 
+> Machine is an Acer Travelmate 291lci laptop. (Pentium M - centrino - speedstep)
+> This machine is running at 600Mhz, if it does not need more power.
+> But it should display the real clockspeed at bootup, shouldn't it ?
+> 
+> Regards, Sebastian
+> 
+> 
+>

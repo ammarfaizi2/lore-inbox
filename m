@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVCZD4y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVCZD6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261948AbVCZD4y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 22:56:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbVCZD4y
+	id S261954AbVCZD6s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 22:58:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVCZD6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 22:56:54 -0500
-Received: from smtpout.mac.com ([17.250.248.73]:51659 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261948AbVCZD4q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 22:56:46 -0500
-In-Reply-To: <200503260347.AXR12129@mira-sjc5-e.cisco.com>
-References: <200503260347.AXR12129@mira-sjc5-e.cisco.com>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <427b3b3fe43412832df380d23113357c@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: greg@kroah.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       "'Chris Wright'" <chrisw@osdl.org>, torvalds@osdl.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Linux 2.6.11.6
-Date: Fri, 25 Mar 2005 22:56:39 -0500
-To: hzhong@cisco.com
-X-Mailer: Apple Mail (2.619.2)
+	Fri, 25 Mar 2005 22:58:30 -0500
+Received: from 201-15-164-252.nhoce700-nrp6.dsl.brasiltelecom.net.br ([201.15.164.252]:58121
+	"HELO [201.15.164.252]") by vger.kernel.org with SMTP
+	id S261952AbVCZD57 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 22:57:59 -0500
+Date: Fri, 25 Mar 2005 13:59:28 +0000
+From: Dwight Bray <vohurazof@sammail.com>
+X-Mailer: The Bat! (v3.01 RC4) UNREG / XKZ8NUV5OBGQAT
+Reply-To: Dwight Bray <vohurazof@sammail.com>
+X-Priority: 3 (Normal)
+Message-ID: <0008744928.38899425752841041@[201.15.164.252]>
+To: linux-kernel@vger.kernel.org
+Subject: 9HY: A custom Logo that expresses your company!
+MIME-Version: 1.0
+Content-Type: text/plain; charset=Windows-1252
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 25, 2005, at 22:47, Hua Zhong wrote:
->>  int bt_sock_unregister(int proto)
->>  {
->> -	if (proto >= BT_MAX_PROTO)
->> +	if (proto < 0 || proto >= BT_MAX_PROTO)
->>  		return -EINVAL;
->
-> Just curious: would it be better to say
->
-> if ((unsigned int)proto >= BT_MAX_PTORO)
+Your business lacks visual identity?
 
-Erm, it _would_ work, but it's _much_ less clear, less typesafe,
-and besides, GCC can probably optimize that test anyways.
+Marketing efforts falling short?
 
-Cheers,
-Kyle Moffett
+Invisible among a sea of competitors?
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+You're on the right track for a solution - keep reading...
+Our professional designers specialize in the creation of custom logos and business/corporate identities. Our design needs to be seen only once to gain customer attention and recognition. With one of our unique, eye-catching mages you'll never have to introduce yourself twice!
+We promise fast turnaround and 100% customer satisfaction. Choose from as any design ideas as necessary, select as many colors as you wish, order any modifications you like, and request any format. Our prices are affordable for any size of business, and get this: there are no hidden fees.
+
+Follow the link below to browse our portfolio and check out our Sweet Deals.
+Wipe the "in" from "invisible" in just a few days - with us!
+http://www.innerlogos.com/
+
+Sincerely,
+Dwight Bray
 
 
+
+
+======
+If you want to be removed, click here:
+http://www.innerlogos.com/u.php

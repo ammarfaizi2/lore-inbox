@@ -1,140 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271989AbRHVLyB>; Wed, 22 Aug 2001 07:54:01 -0400
+	id <S271988AbRHVLwl>; Wed, 22 Aug 2001 07:52:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271990AbRHVLxw>; Wed, 22 Aug 2001 07:53:52 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:5644 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S271989AbRHVLxi>; Wed, 22 Aug 2001 07:53:38 -0400
-Date: Wed, 22 Aug 2001 07:25:33 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Sven Heinicke <sven@research.nj.nec.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: With Daniel Phillips Patch (was: aic7xxx with 2.4.9 on 7899P)
-In-Reply-To: <15234.29508.488705.826498@abasin.nj.nec.com>
-Message-ID: <Pine.LNX.4.21.0108220724590.1327-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271989AbRHVLwb>; Wed, 22 Aug 2001 07:52:31 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:13839 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S271988AbRHVLwR>;
+	Wed, 22 Aug 2001 07:52:17 -0400
+Date: Wed, 22 Aug 2001 13:52:07 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Memory Problem in 2.4.9 ?
+Message-Id: <20010822135207.4e0250b2.skraw@ithnet.com>
+In-Reply-To: <20010821190414Z16086-32384+294@humbolt.nl.linux.org>
+In-Reply-To: <20010821154617.4671f85d.skraw@ithnet.com>
+	<20010821174918Z16114-32383+718@humbolt.nl.linux.org>
+	<20010821201733.40fae5cf.skraw@ithnet.com>
+	<20010821190414Z16086-32384+294@humbolt.nl.linux.org>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 21 Aug 2001 21:10:44 +0200
+Daniel Phillips <phillips@bonn-fries.net> wrote:
 
+> Do you have the same problem on 2.4.8, but not in 2.4.7?
 
-On Tue, 21 Aug 2001, Sven Heinicke wrote:
+I tested the situation with 2.4.7 (straight, no patches) and it looks like this:
 
-> 
-> Forgive the sin of replying to my own message but Daniel Phillips
-> replied to a different message with a patch to somebody getting a
-> similar error to mine.  Here is the result:
-> 
-> Aug 20 15:10:33 ps1 kernel: cation failed (gfp=0x30/1). 
-> Aug 20 15:10:33 ps1 kernel: __alloc_pages: 0-order allocation failed
-> (gfp=0x30/1). 
-> Aug 20 15:10:46 ps1 last message repeated 327 times 
-> Aug 20 15:10:47 ps1 kernel: cation failed (gfp=0x30/1). 
-> Aug 20 15:10:47 ps1 kernel: __alloc_pages: 0-order allocation failed
-> (gfp=0x30/1). 
-> Aug 20 15:10:56 ps1 last message repeated 294 times 
-> 
-> 
-> Sven Heinicke writes:
->  > 
->  > It's always a blessing and a curse when people seem to be haveing
->  > problems with the same drivers as you.  I started looking into this
->  > when I user complained about disk access time.  I think this is
->  > related to the running aic7xxx topics.
->  > 
->  > From my tests, I got a Dell 4400 who's Adaptec 7899P, according to
->  > bonnie++, was writing slower then some of my my IDE drives on a
->  > different system.  I tried Red Hat's 2.4.3-12smp kernel and got a
->  > little improvement.  I then built 2.4.9 and started running bonnie++
->  > again and my syslog gets filled up with such errors:
->  > 
->  > Aug 20 14:23:33 ps1 kernel: __alloc_pages: 0-order all
->  > Aug 20 14:23:36 ps1 last message repeated 376 times
->  > Aug 20 14:23:36 ps1 kernel: ed.
->  > Aug 20 14:23:36 ps1 kernel: __alloc_pages: 0-order all
->  > Aug 20 14:23:44 ps1 last message repeated 376 times
->  > Aug 20 14:23:44 ps1 kernel: ed.
->  > Aug 20 14:23:44 ps1 kernel: __alloc_pages: 0-order all
->  > Aug 20 14:23:44 ps1 last message repeated 363 times
->  > 
->  > With slow access time.  Please request more info if you think it might
->  > help.
+meminfo before:
 
-Sven,
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  921735168 88141824 833593344        0  6643712 36012032
+Swap: 271392768        0 271392768
+MemTotal:       900132 kB
+MemFree:        814056 kB
+MemShared:           0 kB
+Buffers:          6488 kB
+Cached:          35168 kB
+SwapCached:          0 kB
+Active:          34920 kB
+Inact_dirty:      6736 kB
+Inact_clean:         0 kB
+Inact_target:      864 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       900132 kB
+LowFree:        814056 kB
+SwapTotal:      265032 kB
+SwapFree:       265032 kB
 
-Could you please try the following patch on top of 2.4.9? 
+meminfo after test:
 
-diff -Nur --exclude-from=exclude linux.orig/fs/buffer.c linux/fs/buffer.c
---- linux.orig/fs/buffer.c	Wed Aug 15 18:25:49 2001
-+++ linux/fs/buffer.c	Tue Aug 21 04:54:01 2001
-@@ -2447,7 +2447,8 @@
- 	spin_unlock(&free_list[index].lock);
- 	write_unlock(&hash_table_lock);
- 	spin_unlock(&lru_list_lock);
--	if (gfp_mask & __GFP_IO) {
-+	if (gfp_mask & __GFP_IO || (gfp_mask & __GFP_NOBOUNCE) 
-+			&& page-zone == &pgdat_list->node_zones[ZONE_HIGHMEM]) {
- 		sync_page_buffers(bh, gfp_mask);
- 		/* We waited synchronously, so we can free the buffers. */
- 		if (gfp_mask & __GFP_WAIT) {
-diff -Nur --exclude-from=exclude linux.orig/include/linux/mm.h linux/include/linux/mm.h
---- linux.orig/include/linux/mm.h	Wed Aug 15 18:21:11 2001
-+++ linux/include/linux/mm.h	Tue Aug 21 04:52:08 2001
-@@ -538,6 +538,8 @@
- #define __GFP_HIGH	0x20	/* Should access emergency pools? */
- #define __GFP_IO	0x40	/* Can start physical IO? */
- #define __GFP_FS	0x80	/* Can call down to low-level FS? */
-+#define __GFP_NOBOUNCE	0x100	/* Don't do any IO operation which may
-+				   result in IO bouncing */
- 
- #define GFP_NOIO	(__GFP_HIGH | __GFP_WAIT)
- #define GFP_NOFS	(__GFP_HIGH | __GFP_WAIT | __GFP_IO)
-diff -Nur --exclude-from=exclude linux.orig/include/linux/slab.h linux/include/linux/slab.h
---- linux.orig/include/linux/slab.h	Wed Aug 15 18:21:13 2001
-+++ linux/include/linux/slab.h	Tue Aug 21 04:51:20 2001
-@@ -23,7 +23,7 @@
- #define	SLAB_NFS		GFP_NFS
- #define	SLAB_DMA		GFP_DMA
- 
--#define SLAB_LEVEL_MASK		(__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS)
-+#define SLAB_LEVEL_MASK		(__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS|__GFP_NOBOUNCE)
- #define	SLAB_NO_GROW		0x00001000UL	/* don't grow a cache */
- 
- /* flags to pass to kmem_cache_create().
-diff -Nur --exclude-from=exclude linux.orig/mm/highmem.c linux/mm/highmem.c
---- linux.orig/mm/highmem.c	Thu Aug 16 13:42:45 2001
-+++ linux/mm/highmem.c	Tue Aug 21 04:50:08 2001
-@@ -321,7 +321,7 @@
- 	struct page *page;
- 
- repeat_alloc:
--	page = alloc_page(GFP_NOIO);
-+	page = alloc_page(GFP_NOIO|__GFP_NOBOUNCE);
- 	if (page)
- 		return page;
- 	/*
-@@ -359,7 +359,7 @@
- 	struct buffer_head *bh;
- 
- repeat_alloc:
--	bh = kmem_cache_alloc(bh_cachep, SLAB_NOIO);
-+	bh = kmem_cache_alloc(bh_cachep, SLAB_NOIO|__GFP_NOBOUNCE);
- 	if (bh)
- 		return bh;
- 	/*
-diff -Nur --exclude-from=exclude linux.orig/mm/page_alloc.c linux/mm/page_alloc.c
---- linux.orig/mm/page_alloc.c	Thu Aug 16 13:43:02 2001
-+++ linux/mm/page_alloc.c	Tue Aug 21 04:51:03 2001
-@@ -398,7 +398,8 @@
- 	 * - we're /really/ tight on memory
- 	 * 	--> try to free pages ourselves with page_launder
- 	 */
--	if (!(current->flags & PF_MEMALLOC)) {
-+	if (!(current->flags & PF_MEMALLOC) 
-+			|| ((gfp_mask & __GFP_NOBOUNCE) && !order)) {
- 		/*
- 		 * Are we dealing with a higher order allocation?
- 		 *
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  921735168 917393408  4341760        0 221192192 567046144
+Swap: 271392768        0 271392768
+MemTotal:       900132 kB
+MemFree:          4240 kB
+MemShared:           0 kB
+Buffers:        216008 kB
+Cached:         553756 kB
+SwapCached:          0 kB
+Active:         107912 kB
+Inact_dirty:    658432 kB
+Inact_clean:      3420 kB
+Inact_target:    11360 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       900132 kB
+LowFree:          4240 kB
+SwapTotal:      265032 kB
+SwapFree:       265032 kB
+
+I can see these:
+
+Aug 22 13:34:53 admin kernel: __alloc_pages: 2-order allocation failed.
+Aug 22 13:34:53 admin kernel: __alloc_pages: 3-order allocation failed.
+Aug 22 13:34:53 admin last message repeated 21 times
+
+_BUT_ I cannot see any errors during NFS-filecopy. I tried hard, but no errors. Another thing is the CPU load. It is definitely lower than with 2.4.9 around 3 - 3.5, but never 4 or above.
+Swap is not used, although turned on.
+Besides the above kernel-messages I would say that 2.4.7 performs a lot better (and more stable) than 2.4.9 in this test case.
+I think a deep look should be taken into this topic, because it makes 2.4.9 pretty unusable for server-environment. I wonder if anybody can produce (low-memory) errors during normal file-operation on localhost (not NFS like me). I would expect that, for it doesn't look NFS specific. I can make the kernel shoot loads of error messages only by reading CDs while copying in the background from the net. The effect can be seen vice versa, too. So you could say it is clearly a memory management problem, and not related to the allocating process.
+
+Should I try with a plain 2.4.8 ?
+
+Regards, Stephan
 

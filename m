@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbTEYLyD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 07:54:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbTEYLyD
+	id S262034AbTEYMER (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 08:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbTEYMER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 07:54:03 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:49931 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262033AbTEYLyB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 07:54:01 -0400
-Date: Sun, 25 May 2003 13:07:06 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Paulo Andre'" <l16083@alunos.uevora.pt>
-Cc: kernel-janitor-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Question on verify_area() and friends wrt
-Message-ID: <20030525130706.B9127@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Paulo Andre' <l16083@alunos.uevora.pt>,
-	kernel-janitor-discuss@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20030525124625.4dedc758.l16083@alunos.uevora.pt>
-Mime-Version: 1.0
+	Sun, 25 May 2003 08:04:17 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:38028 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S262034AbTEYMEQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 08:04:16 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] ide-ops:1262 in 2.4.21-rc3
+Mail-Copies-To: never
+References: <87d6i7kzcn.fsf@free.fr>
+From: Roland Mas <roland.mas@free.fr>
+Date: Sun, 25 May 2003 14:17:20 +0200
+In-Reply-To: <87d6i7kzcn.fsf@free.fr> (Roland Mas's message of "Sun, 25 May
+ 2003 14:03:20 +0200")
+Message-ID: <878ysvkypb.fsf@free.fr>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030525124625.4dedc758.l16083@alunos.uevora.pt>; from l16083@alunos.uevora.pt on Sun, May 25, 2003 at 12:46:25PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 25, 2003 at 12:46:25PM +0100, Paulo Andre' wrote:
-> if (!verify_area(VERIFY_WRITE, ptr, sizeof(ir) +
-> 		(sizeof(struct inquiry_info) * ir.num_rsp))) {
->     copy_to_user(ptr, &ir, sizeof(ir));
->     ptr += sizeof(ir);
->     copy_to_user(ptr, buf, sizeof(struct inquiry_info) * ir.num_rsp);	} else
->     err = -EFAULT;
-> 
-> I'm presuming verify_area() does its job fine returning 0 if the memory
-> is valid and -EFAULT if not. Thus, given the exact check that's been
-> done, there seems indeed to exist no need to check each call to
-> copy_to_user() below. Or is there?
+Roland Mas, 2003-05-25 14:03:20 +0200 :
 
-verify_area only does some checks so you need to check the return value
-from copy_to_user.  You could switch to __copy_to_user, though.
+>   The problem happens when I try to blank a CD-RW from a terminal in
+> X-Window (or from a GUI frontend such as gcombust).  The same
+> command issued on the console does not cause the panic.  I'll check
+> whether it does if issued on the console when X is running.  The
+> problem started happening when I reordered my IDE devices: [...]
 
+[A few crashes later]
+
+It turns out that I was wrong.  The problem seems not to be X, but a
+CD player applet (Gnome).  When it runs, any CD burning operation
+causes a panic.  When it does not, burning and blanking works fine,
+gcombust or not.  I was probably mislead into my former diagnosis by
+the fact that I only recently started using that applet, same as I
+only recently set up the RAID and moved disks around.
+
+  Anyway, the bug's still there, and I'm still willing to provide more
+info on demand.
+
+Roland.
+-- 
+Roland Mas
+
+Twenty thousand balls, clubs, and rings.  How about yours?
+European Juggling Convention -- Svendborg, Denmark.  http://ejc2003.dk

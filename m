@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266043AbUBQGIn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 01:08:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266040AbUBQGIm
+	id S266036AbUBQGIe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 01:08:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266048AbUBQGIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 01:08:42 -0500
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:34232 "HELO
-	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266043AbUBQGIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 01:08:13 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PSX support in input/joystick/gamecon.c
-Date: Tue, 17 Feb 2004 01:08:06 -0500
-User-Agent: KMail/1.6
-Cc: Peter Nelson <pnelson@andrew.cmu.edu>,
-       Rusty Russell <rusty@rustcorp.com.au>
-References: <20040215222107.720832C2CC@lists.samba.org> <4031AB8D.1040209@andrew.cmu.edu>
-In-Reply-To: <4031AB8D.1040209@andrew.cmu.edu>
+	Tue, 17 Feb 2004 01:08:34 -0500
+Received: from mail.gmx.net ([213.165.64.20]:41145 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266036AbUBQGHp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 01:07:45 -0500
+X-Authenticated: #5429946
+From: Felix Seeger <felix.seeger@gmx.de>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.3-rc4
+Date: Tue, 17 Feb 2004 07:19:43 +0100
+User-Agent: KMail/1.6.1
+References: <Pine.LNX.4.58.0402161945540.30742@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0402161945540.30742@home.osdl.org>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200402170108.07271.dtor_core@ameritech.net>
+Message-Id: <200402170719.43997.felix.seeger@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 February 2004 12:50 am, Peter Nelson wrote:
-> +module_param_array(gc, int, gc_count, 0);
-> +module_param_array(gc_2, int, gc_2_count, 0);
-> +module_param_array(gc_3, int, gc_3_count, 0);
-> +module_param(gc_psx_delay, int, 0);
-> +module_param(gc_psx_ddr, int, 0);
+On Tuesday 17 February 2004 04:51, Linus Torvalds wrote:
+> Ok,
+>  I'm planning on doing the final 2.6.3 tomorrow, so please test this
+> final -rc.
 
-Nitpick: module_param, if module is compiled in, adds a prefix to parameter
-names, so the parameters will be:
-gamecon.gc
-gamecon.gc_2
-gamecon.gc_3
-gamecon.gc_psx_delay
-gamecon.gc_psx_ddr
+Hi
 
-At least with PSX stuff it would be nice to drop gc_ prefix.
- 
--- 
-Dmitry
+Should NForce2 boards also work without patches and with acpi/apic ?
+I saw a change in rc3.
+
+It just hangs again, so I switched back to my patched kernel.
+But of course this could be another problem, kernel 2.6.2-rc1 is running very 
+stable here with the apictack-rd and the ioapic-rd patches.
+
+thanks
+Felix

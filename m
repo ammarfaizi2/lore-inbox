@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261535AbTCTPyo>; Thu, 20 Mar 2003 10:54:44 -0500
+	id <S261570AbTCTP61>; Thu, 20 Mar 2003 10:58:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261543AbTCTPyn>; Thu, 20 Mar 2003 10:54:43 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:21633
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S261535AbTCTPyk> convert rfc822-to-8bit; Thu, 20 Mar 2003 10:54:40 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-To: Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4 due to wrmsr (performance)
-Date: Tue, 18 Mar 2003 20:22:05 -0500
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-References: <629040000.1045013743@flay> <m1of5gwyhq.fsf@frodo.biederman.org> <20030213180705.GB27560@wotan.suse.de>
-In-Reply-To: <20030213180705.GB27560@wotan.suse.de>
+	id <S261575AbTCTP61>; Thu, 20 Mar 2003 10:58:27 -0500
+Received: from copper.ftech.net ([212.32.16.118]:40150 "EHLO relay5.ftech.net")
+	by vger.kernel.org with ESMTP id <S261570AbTCTP6Z>;
+	Thu, 20 Mar 2003 10:58:25 -0500
+Message-ID: <7C078C66B7752B438B88E11E5E20E72E0EF765@GENERAL.farsite.co.uk>
+From: Kevin Curtis <kevin.curtis@farsite.co.uk>
+To: "'bert hubert'" <ahu@ds9a.nl>, "Filipau, Ihar" <ifilipau@sussdd.de>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: read() & close()
+Date: Thu, 20 Mar 2003 16:09:20 -0000
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200303182022.05358.landley@trommello.org>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 February 2003 13:07, Andi Kleen wrote:
-> [Hmm, this is becomming a FAQ]
->
-> > Switching in and out of long mode is evil enough that I don't think it
-> > is worth it.  And encouraging people to write good JIT compiling
->
-> Forget it. It is completely undefined in the architecture what happens
-> then. You'll lose interrupts and everything. Nothing for an operating
-> system intended to be stable.
->
-> I have no plans at all to even think about it for Linux/x86-64.
->
-> > emulators sounds much better, especially in the long run.  But it can
-> > be written.
->
-> For DOS even a slow emulator should be good enough. After all most
-> DOS Programs are written for slow machines. Bochs running on a K8
-> will be hopefully fast enough. If not an JIT can be written, perhaps
-> you can extend valgrind for it.
+Hi,
+	I have come across this problem when implementing a sockets
+interface to our X.25 card.  On the thread that wants to close the socket,
+it must first issue a shutdown().  This will unblock the read() or poll().
+And then you can do the close().  
 
-Fabrice Bellard, the author of TCC (Tiny C Compiler) seems to have taken it 
-into his head that Bochs and Valgrind are too slow, and his current pet 
-project is writing a new hand-optimized, portable JIT x86 emulator.  So 
-there's one in the works already... :)
 
-(See the tinycc-devel@nongnu.org archives for details, just this past weekend 
-in fact...)
+Kevin
 
-Rob
+-----Original Message-----
+From: bert hubert [mailto:ahu@ds9a.nl]
+Sent: 20 March 2003 15:08
+To: Filipau, Ihar
+Cc: 'linux-kernel@vger.kernel.org'
+Subject: Re: read() & close()
+
+
+On Thu, Mar 20, 2003 at 03:14:52PM +0100, Filipau, Ihar wrote:
+
+>     I have/had a simple issue with multi-threaded programs:
+> 
+>     one thread is doing blocking read(fd) or poll({fd}) on 
+>     file/socket.
+
+You can't do poll on a file, it won't tell you anything useful, so I assume
+you mean a socket.
+
+>     another thread is doing close(fd).
+> 
+>     I expected first thread will unblock with some kind 
+>     of error - but nope! It is blocked!
+
+Can you show code with this problem?
+
+Regards,
+
+bert
 
 -- 
-penguicon.sf.net - A combination Linux Expo and Science Fiction Convention, 
-May 2-4 2003 in Warren, Michigan. Tutorials, installfest, filk, masquerade...
-
-
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+http://netherlabs.nl                         Consulting
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

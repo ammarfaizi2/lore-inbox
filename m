@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275583AbRIZUWW>; Wed, 26 Sep 2001 16:22:22 -0400
+	id <S275582AbRIZUYm>; Wed, 26 Sep 2001 16:24:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275579AbRIZUWN>; Wed, 26 Sep 2001 16:22:13 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:16303 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S275580AbRIZUV5>; Wed, 26 Sep 2001 16:21:57 -0400
-Subject: Re: DELIVERY FAILURE: 550 5.7.1 Policy analysis reported: This is not
- accepted relay target rcpt=<kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF9A32B0A3.D22ECF1C-ON85256AD3.006FC573@raleigh.ibm.com>
-From: "Robert Williamson" <robbiew@us.ibm.com>
-Date: Wed, 26 Sep 2001 15:22:01 -0500
-X-MIMETrack: Serialize by Router on D04NMS96/04/M/IBM(Release 5.0.8 |June 18, 2001) at
- 09/26/2001 04:22:05 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S275579AbRIZUYc>; Wed, 26 Sep 2001 16:24:32 -0400
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:6152 "HELO mail.pha.ha-vel.cz")
+	by vger.kernel.org with SMTP id <S275584AbRIZUYZ>;
+	Wed, 26 Sep 2001 16:24:25 -0400
+Date: Wed, 26 Sep 2001 22:24:50 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>, bcrl@redhat.com,
+        marcelo@conectiva.com.br, andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Locking comment on shrink_caches()
+Message-ID: <20010926222450.A2196@suse.cz>
+In-Reply-To: <Pine.LNX.4.33.0109261003480.8327-200000@penguin.transmeta.com> <E15mIfQ-0001E5-00@the-village.bc.nu> <20010926222021.A2086@suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010926222021.A2086@suse.cz>; from vojtech@suse.cz on Wed, Sep 26, 2001 at 10:20:21PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Local mail server did this...I apologize.
+On Wed, Sep 26, 2001 at 10:20:21PM +0200, Vojtech Pavlik wrote:
 
-- Robbie
+> > generic Athlon is
+> > 
+> > nothing: 11 cycles
+> > locked add: 11 cycles
+> > cpuid: 64 cycles
+> 
+> Interestingly enough, my TBird 1.1G insist on cpuid being somewhat
+> slower:
+> 
+> nothing: 11 cycles
+> locked add: 11 cycles
+> cpuid: 87 cycles
 
-Robert V. Williamson
-Linux Test Project
-IBM Linux Technology Center
-Phone: (512) 838-9295   T/L: 638-9295
-http://ltp.sourceforge.net
+Oops, this is indeed just a difference in compiler options.
 
+-- 
+Vojtech Pavlik
+SuSE Labs

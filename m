@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279612AbRJXWBI>; Wed, 24 Oct 2001 18:01:08 -0400
+	id <S279617AbRJXWH7>; Wed, 24 Oct 2001 18:07:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279613AbRJXWA7>; Wed, 24 Oct 2001 18:00:59 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:2054 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S279612AbRJXWAt>;
-	Wed, 24 Oct 2001 18:00:49 -0400
-Date: Thu, 25 Oct 2001 00:01:24 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: safemode <safemode@speakeasy.net>
-cc: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: time tells all about kernel VM's
-In-Reply-To: <200110241836.f9OIaa9l002350@Expansa.sns.it>
-Message-ID: <Pine.LNX.4.33.0110242357020.3133-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279615AbRJXWHu>; Wed, 24 Oct 2001 18:07:50 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:34689 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S279614AbRJXWHj>;
+	Wed, 24 Oct 2001 18:07:39 -0400
+Date: Wed, 24 Oct 2001 15:08:04 -0700 (PDT)
+Message-Id: <20011024.150804.15268320.davem@redhat.com>
+To: toon@vdpas.hobby.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.13 high SWAP
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011024234826.A19967@vdpas.hobby.nl>
+In-Reply-To: <200110241936.RAA04632@inter.lojasrenner.com.br>
+	<9r73pv$8h1$1@penguin.transmeta.com>
+	<20011024234826.A19967@vdpas.hobby.nl>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: toon@vdpas.hobby.nl
+   Date: Wed, 24 Oct 2001 23:48:26 +0200
 
+   The command `make modules_install' results in the following output:
+   
+   if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.13; fi
+   depmod: *** Unresolved symbols in /lib/modules/2.4.13/kernel/fs/ramfs/ramfs.o
+   depmod: 	activate_page
+   
+   Maybe an #include of some header file is missing somewhere?
 
-On Wed, 24 Oct 2001, safemode wrote:
+No, the fix is even simpler:
 
-> On Wednesday 24 October 2001 14:05, Luigi Genoni wrote:
-> > On Wed, 24 Oct 2001, safemode wrote:
-> > > ok.  Reran e2defrag and got the same effect.
-> > > This is the vmstat output by the second.  It starts out with my normal
-> > > load (but no mp3s playing).  Then i start e2defrag with the same
-> > > arguments as before and allow it to run all the way through.  It ends but
-> > > i dont close it until near the very end (which is seen by the swap
-> > > dropoff.  Then i let my normal load again be displayed a bit.  One thing
-> > > i did notice, however, was that the vm handled that quite a lot better
-> > > than how it handled it after being up for 5 days even though it created
-> > > the 600MB of buffer.
-> >
-> > If I do remember well e2defrag was working just with ext2 with 1k as block
-> > size, and latest version compiled with 2.0.12 kernel, (I made also a patch
-> > to compile with 2.0.X kernels after), then ext2 simply evolved and
-> > e2defrag did not.  (by the way e2defrag sources are really isstructive to
-> > learn how a blockFS works).
->
-> e2defrag defaults to 4k blocks.  Version 0.73pjm1   30 Apr 2001
-mmm, a new version. The previous one was some year old.
->
-> > I used e2defrag since earlier versions, (just with old slow disk, now it
-> > is almost useless, and I went to journaled FSes). If I do remember well,
-> > the behavoiur you are telling was usual with 2.0 kernels.
-> > If the pool is to big, i saw that e2dump shows a lot of inode that left
-> > their group (sic!), and also there could be some FS corruption.
-> > e2defrag was writter to use buffer cache, and now VM changed in details
-> > this behaviour. It could be that what you see is due to those changes?
->
-> you say it is the same behavior as 2.0 yet you say that i could be seeing
-> this problem due to _changes_ in the vm.  So the comparison to 2.0 doesn't
-> really tell us anything since it has nothing to do with what 2.0 was doing.
->
-
-Sorry for bad english, and bad logic.
-I said that you could see this behaivour also with 2.0. kernels.
-With 2.2 kernels this behaviour disapperared. Now I never tried e2defrag
-with 2.4 kernels, since I use reiserFS and JFS now, but my idea
-was that probably the different buffer cache management is involved, as it
-was with 2.0.
-
-Sorry for bad logic, it is too mutch time that i do not sleep :).
-
-Luigi
-
-
+--- ../vanilla/linux/kernel/ksyms.c	Wed Oct 17 14:32:50 2001
++++ kernel/ksyms.c	Wed Oct 24 14:45:31 2001
+@@ -116,6 +116,7 @@
+ EXPORT_SYMBOL(get_unmapped_area);
+ EXPORT_SYMBOL(init_mm);
+ EXPORT_SYMBOL(deactivate_page);
++EXPORT_SYMBOL(activate_page);
+ #ifdef CONFIG_HIGHMEM
+ EXPORT_SYMBOL(kmap_high);
+ EXPORT_SYMBOL(kunmap_high);

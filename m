@@ -1,205 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262706AbTEVP57 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 11:57:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbTEVP57
+	id S261998AbTEVPzF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 11:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbTEVPzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 11:57:59 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:44735 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262706AbTEVP5w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 11:57:52 -0400
-Date: Thu, 22 May 2003 18:09:25 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Peter <cogwepeter@cogweb.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: DMA gone on ALI 1533
-In-Reply-To: <Pine.LNX.4.44.0305220846010.23179-100000@greenie.frogspace.net>
-Message-ID: <Pine.SOL.4.30.0305221803310.4444-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 May 2003 11:55:05 -0400
+Received: from pop.gmx.de ([213.165.64.20]:11727 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261998AbTEVPzD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 11:55:03 -0400
+Message-Id: <5.2.0.9.2.20030522173254.00cd21b8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Thu, 22 May 2003 18:12:37 +0200
+To: Valdis.Kletnieks@vt.edu
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: web page on O(1) scheduler 
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200305221447.h4MElAKx003511@turing-police.cc.vt.edu>
+References: <Your message of "Thu, 22 May 2003 07:52:44 +0200." <5.2.0.9.2.20030522063421.00cc3e90@pop.gmx.net>
+ <5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net>
+ <5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net>
+ <5.2.0.9.2.20030522063421.00cc3e90@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 10:47 AM 5/22/2003 -0400, Valdis.Kletnieks@vt.edu wrote:
+>On Thu, 22 May 2003 07:52:44 +0200, Mike Galbraith said:
+>
+> > It does consider cpu usage though.  Your run history is right there in 
+> your
+> > accumulated sleep_avg.  Unfortunately (in some ways, fortunate in others..
+> > conflict) that information can be diluted down to nothing instantly by new
+> > input from one wakeup.
+>
+>Maybe there should be a scheduler tunable that says how much it should be
+>diluted?
 
-It seems you forgot to compile in support for ALI chipset.
-Make sure you have CONFIG_BLK_DEV_ALI15X3=y in your config.
-If it doesn't help let me know.
+I hope not.  Once you use a knob, you _have_ to use it again when you 
+change workloads.
 
-Please also read below...
-
-On Thu, 22 May 2003, Peter wrote:
-
-> The 2.5.69 kernel kicks butt -- Debian is now releasing a version in sid
-> and it runs stable on my vpr matrix 205A laptop. What works: nfs, samba,
-> v4l, the nVidia driver (patched), everything I've tested so far. And sound
-> -- the ALSA sound is great (headphone jack still dead). ACPI now detects
-> my battery, and I'm working on software suspend.
->
-> The ALI chipset (1671 northbridge, 1533 ISA bridge, 5229 IDE interface,
-> 7101 bridge) gives me
-> DMA 33 with 2.4.20:
->
->     hda: 78140160 sectors (40008 MB) w/1768KiB Cache, CHS=4864/255/63, UDMA(33)
->
-> but no dma with 2.5.69.  Timing buffered disk reads now come in at
-> 3.17MB/s -- in 2.4.20 I get 19.88 MB/sec. hdparm gives part number
-> IC25N040ATCS04-0, a Travelstar 40GN, which I believe supports a 100MHz
-> bus. The "idebus=66" never made a difference afaict.
->
-> Aside from the slower harddrive (see details below), I've had no issues
-> with this kernel.
->
-> Is there a workaround for the dma, or something I'm missing? Incidentally,
-> it would be handy to have a bit more information in dmesg, along the lines
-> of the 2.4 kernel -- chipset, dma and bus speed per drive.
->
-> Cheers,
-> Peter
->
->
->
->
-> dmesg 2.5.69:
->
-> Kernel command line: root=/dev/hda5 ro hdc=scsi idebus=66 resume=/dev/hda6
-> ide_setup: hdc=scsi
-> ide_setup: idebus=66
-> No local APIC present or hardware disabled
->
-> PCI: PCI BIOS revision 2.10 entry at 0xfd88e, last bus=1
-> PCI: Using configuration type 1
->
-> PCI: Using ACPI for IRQ routing
-> PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off'
->
-> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> ide: Assuming 66MHz system bus speed for PIO modes
-> hda: IC25N040ATCS04-0, ATA DISK drive
-> hdc: MATSHITACD-RW CW-8121, ATAPI CD/DVD-ROM drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> ide1 at 0x170-0x177,0x376 on irq 15
-> hda: host protected area => 1
-> hda: 78140160 sectors (40008 MB) w/1768KiB Cache, CHS=77520/16/63
->  hda: hda1 hda2 < hda5 hda6 hda7 > hda3 hda4
-> ide-cd: passing drive hdc to ide-scsi emulation.
-
-Interfaces were taken by generic code, no ALI driver here.
-
-> hdparm -i claims to be using dma5:
->
-> hdparm -i /dev/hda
->
-> /dev/hda:
->
->  Model=IC25N040ATCS04-0, FwRev=CA4OA71A, SerialNo=CSH405DCLW5UVB
->  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
->  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
->  BuffType=DualPortCache, BuffSize=1768kB, MaxMultSect=16, MultSect=off
->  CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=78140160
->  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
->  PIO modes:  pio0 pio1 pio2 pio3 pio4
->  DMA modes:  mdma0 mdma1 mdma2
->  UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5
->  AdvancedPM=yes: mode=0x80 (128) WriteCache=enabled
->  Drive conforms to: ATA/ATAPI-5 T13 1321D revision 3:  2 3 4 5
->
-> In contrast, hdparm /dev/hda claims dma is off:
->
-> # hdparm /dev/hda
->
-> /dev/hda:
->  multcount    =  0 (off)
->  IO_support   =  0 (default 16-bit)
->  unmaskirq    =  0 (off)
->  using_dma    =  0 (off)
->  keepsettings =  0 (off)
->  readonly     =  0 (off)
->  readahead    = 256 (on)
->  geometry     = 11984/16/63, sectors = 78140160, start = 0
->
-> The disk read speed in 2.5.69 indicates dma is off:
->
-> # hdparm -tT /dev/hda
->
-> /dev/hda:
->  Timing buffer-cache reads:   128 MB in  0.46 seconds =280.74 MB/sec
->  Timing buffered disk reads:  64 MB in 20.18 seconds =  3.17 MB/sec
->
-> # cat kernel-2.5.69.config | grep DMA
-> CONFIG_GENERIC_ISA_DMA=y
-> CONFIG_BLK_DEV_IDEDMA_PCI=y
-> # CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-> CONFIG_IDEDMA_PCI_AUTO=y
-> # CONFIG_IDEDMA_ONLYDISK is not set
-> CONFIG_BLK_DEV_IDEDMA=y
-> # CONFIG_IDEDMA_PCI_WIP is not set
-> CONFIG_BLK_DEV_ADMA=y
-> CONFIG_IDEDMA_AUTO=y
-> # CONFIG_IDEDMA_IVB is not set
-> # CONFIG_IEEE1394_SBP2_PHYS_DMA is not set
->
-> Here's what 2.4.20 produces:
->
-> Uniform Multi-Platform E-IDE driver Revision: 6.31
-> ide: Assuming 66MHz system bus speed for PIO modes
-> ALI15X3: IDE controller on PCI bus 00 dev 80
-> PCI: No IRQ known for interrupt pin A of device 00:10.0.
-> ALI15X3: chipset revision 196
-> ALI15X3: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0x1840-0x1847, BIOS settings: hda:DMA, hdb:pio
->     ide1: BM-DMA at 0x1848-0x184f, BIOS settings: hdc:pio, hdd:pio
-> hda: IC25N040ATCS04-0, ATA DISK drive
-> hdc: MATSHITACD-RW CW-8121, ATAPI CD/DVD-ROM drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> ide1 at 0x170-0x177,0x376 on irq 15
-> blk: queue c0335ee4, I/O limit 4095Mb (mask 0xffffffff)
-> hda: 78140160 sectors (40008 MB) w/1768KiB Cache, CHS=4864/255/63, UDMA(33)
-
-ALI driver compiled in.
-
-> Disk information under 2.4.20 -- claims to be using dma2:
->
-> Model=IC25N040ATCS04-0, FwRev=CA4OA71A, SerialNo=CSH405DCLW5UVB
-> Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
-> RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
-> BuffType=DualPortCache, BuffSize=1768kB, MaxMultSect=16, MultSect=16
-> CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=78140160
-> IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
-> PIO modes: pio0 pio1 pio2 pio3 pio4
-> DMA modes: mdma0 mdma1 mdma2
-> UDMA modes: udma0 udma1 *udma2 udma3 udma4 udma5
-> AdvancedPM=yes: mode=0x80 (128) WriteCache=enabled
-> Drive conforms to: ATA/ATAPI-5 T13 1321D revision 3: 2 3 4 5
->
-> This fits with the disk read speed:
->
-> Timing buffer-cache reads: 128 MB in 0.44 seconds =290.91 MB/sec
-> Timing buffered disk reads: 64 MB in 3.22 seconds = 19.88 MB/sec
->
-> cat kernel-2.4.20-5-5.config | grep DMA
-
-'grep DMA' is really not sufficient,
-you need driver for your IDE chipset first.
-
-Regards,
---
-Bartlomiej
-
-> CONFIG_BLK_DEV_IDEDMA_PCI=y
-> # CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-> CONFIG_IDEDMA_PCI_AUTO=y
-> # CONFIG_IDEDMA_ONLYDISK is not set
-> CONFIG_BLK_DEV_IDEDMA=y
-> # CONFIG_IDEDMA_PCI_WIP is not set
-> # CONFIG_BLK_DEV_IDEDMA_TIMEOUT is not set
-> # CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
-> CONFIG_BLK_DEV_ADMA=y
-> # CONFIG_HPT34X_AUTODMA is not set
-> CONFIG_IDEDMA_AUTO=y
-> # CONFIG_IDEDMA_IVB is not set
-> # CONFIG_DMA_NONPCI is not set
-> # CONFIG_SCSI_EATA_DMA is not set
-> # CONFIG_IEEE1394_SBP2_PHYS_DMA is not set
-> # CONFIG_SOUND_DMAP is not set
+         -Mike 
 

@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283610AbRLEAO6>; Tue, 4 Dec 2001 19:14:58 -0500
+	id <S283618AbRLEAgw>; Tue, 4 Dec 2001 19:36:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283611AbRLEAOt>; Tue, 4 Dec 2001 19:14:49 -0500
-Received: from 216-21-153-9.ip.van.radiant.net ([216.21.153.9]:59656 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S283610AbRLEAOm>;
-	Tue, 4 Dec 2001 19:14:42 -0500
-Date: Tue, 4 Dec 2001 16:34:43 +0000 (/etc/localtime)
-From: <gmack@innerfire.net>
-To: Takashi Iwai <tiwai@suse.de>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [s-h] Re: OSS driver cleanups.
-In-Reply-To: <s5hy9kinbaw.wl@alsa1.suse.de>
-Message-ID: <Pine.LNX.4.21.0112041631180.4650-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S283616AbRLEAgn>; Tue, 4 Dec 2001 19:36:43 -0500
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:4244 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S283613AbRLEAgc>; Tue, 4 Dec 2001 19:36:32 -0500
+Date: Wed, 5 Dec 2001 01:36:30 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Endianness-aware mkcramfs
+Message-ID: <20011205013630.C717@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <3C0BD8FD.F9F94BE0@mvista.com> <3C0CB59B.EEA251AB@lightning.ch> <9uj5fb$1fm$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <9uj5fb$1fm$1@cesium.transmeta.com>; from hpa@zytor.com on Tue, Dec 04, 2001 at 10:42:51AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There is another issue, that alsa mutes all volumes as default.
-> I know that's what sometime annoying people.  IMO, it's same on OSS
-> anyway, since everyone needs to set up the mixer as he likes after
-> start up.
+On Tue, Dec 04, 2001 at 10:42:51AM -0800, H. Peter Anvin wrote:
+> > As told above, it could be cleaner, but I don't know of a nice method of
+> > accessing byteorder dependent data through structures.
+> 
+> This isn't the right way to deal with this.  The right way to deal
+> with this is to get all systems to read cramfs the same way.
 
-That's not a bug that's a feature!
+Yes, from a CS point of view. 
 
-The drivers included in the 2.2.x and early 2.4.x series kernels(havn't
-tested lately) cause a feedback loop on some laptops that continues until
-the mixers are set.  (usually 1 to 2 seconds during bootup)  I'd *really*
-prefer mute.  
+But practically cramfs is created once to contain some kind of
+ROM for embedded devices. So if we never modify these data again,
+why not creating it in the required byte order? 
 
-	Gerhard
-  
+Why wasting kernel cycles for le<->be conversion? Just because
+it's more general? For writable general purpose file systems it
+makes sense, but to none of romfs, cramfs etc.
 
+So I would prefer the given patch.
+
+Regards
+
+Ingo Oeser
+-- 
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

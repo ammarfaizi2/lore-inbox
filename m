@@ -1,35 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288675AbSAQNSC>; Thu, 17 Jan 2002 08:18:02 -0500
+	id <S288686AbSAQNRc>; Thu, 17 Jan 2002 08:17:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288689AbSAQNRy>; Thu, 17 Jan 2002 08:17:54 -0500
-Received: from ns.suse.de ([213.95.15.193]:50186 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S288675AbSAQNRZ>;
-	Thu, 17 Jan 2002 08:17:25 -0500
-Date: Thu, 17 Jan 2002 14:17:20 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-Cc: Jeremy Freeman <jfreeman@sporg.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: XP PCI Contamination, GURR (Re: Care?)
-In-Reply-To: <Pine.LNX.4.10.10201170438020.30663-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.33.0201171416200.22662-100000@Appserv.suse.de>
+	id <S288691AbSAQNRR>; Thu, 17 Jan 2002 08:17:17 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:59144 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288675AbSAQNQR>;
+	Thu, 17 Jan 2002 08:16:17 -0500
+Date: Thu, 17 Jan 2002 11:15:51 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Andrea Scrimieri <livore@karma.oltrelinux.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Rik spreading bullshit about VM
+In-Reply-To: <Pine.LNX.4.40L0.0201171326580.31442-100000@karma.oltrelinux.com>
+Message-ID: <Pine.LNX.4.33L.0201171113270.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jan 2002, Andre Hedrick wrote:
+On Thu, 17 Jan 2002, Andrea Scrimieri wrote:
 
-> It appears the folks up in redmond have succeeded in having the BIOS
-> people default disable PCI resources.  Since XP will reject, or assume a
-> device is in use should the BAR's be allocated, the various archs may need
-> to have a broader setup table or a more generic ruleset.
-> Any thoughts on how best to address good hardare, which the BIOS does not
-> setup per redmond-rules.
+> > I'm willing to take full responsability for what I mean,
+> > not for other people's interpretations of my words.
+>
+> For the last time, i didn't change the interview text or cut anything.
+> If you want to continue throwing shit to me because you are not
 
-Why do I have this sneaking suspicion that ACPI will play a part here.
+Which part of "to interprete" do you not understand ?
 
+Interpreting my text is reading it and building a
+meaning for the words in your head. It doesn't mean
+the text needs to be changed ... the meaning can be
+different for each person reading the exact same
+words.
+
+I guess this is why politicians are very careful to
+not attach any meaning at all to their words, however
+I'm a programmer, not a politician ;)
+
+> > It seems IRC isn't a good medium to do interviews so I
+> > won't do that again.
+>
+> You chose IRC, I don't.
+
+And that was my mistake, indeed.
+
+I think you're reading things into my words that I
+didn't want to put there.
+
+regards,
+
+Rik
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

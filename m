@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267047AbSLREHF>; Tue, 17 Dec 2002 23:07:05 -0500
+	id <S267133AbSLREcn>; Tue, 17 Dec 2002 23:32:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267048AbSLREHE>; Tue, 17 Dec 2002 23:07:04 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28430 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267047AbSLREHA>; Tue, 17 Dec 2002 23:07:00 -0500
-Date: Tue, 17 Dec 2002 20:15:47 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ulrich Drepper <drepper@redhat.com>
-cc: Matti Aarnio <matti.aarnio@zmailer.org>, Hugh Dickins <hugh@veritas.com>,
-       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       <linux-kernel@vger.kernel.org>, <hpa@transmeta.com>
+	id <S267134AbSLREcn>; Tue, 17 Dec 2002 23:32:43 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:39381 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S267133AbSLREcl>;
+	Tue, 17 Dec 2002 23:32:41 -0500
+Date: Wed, 18 Dec 2002 15:40:23 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
 Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <Pine.LNX.4.44.0212171159440.1095-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0212171716020.1362-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20021218154023.29726d09.sfr@canb.auug.org.au>
+In-Reply-To: <Pine.LNX.4.44.0212172005500.1230-100000@home.transmeta.com>
+References: <3DFFED33.2020201@transmeta.com>
+	<Pine.LNX.4.44.0212172005500.1230-100000@home.transmeta.com>
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus, Andrew,
 
-On Tue, 17 Dec 2002, Linus Torvalds wrote:
+On Tue, 17 Dec 2002 20:07:53 -0800 (PST) Linus Torvalds <torvalds@transmeta.com> wrote:
 >
-> How about this diff? It does both the 6-parameter thing _and_ the
-> AT_SYSINFO addition.
+> Btw, on another tangent - Andrew Morton reports that APM is unhappy about
+> the fact that the fast system call stuff required us to move the segments
+> around a bit. That's probably because the APM code has the old APM segment
+> numbers hardcoded somewhere, but I don't see where (I certainly knew about
+> the segment number issue, and tried to update the cases I saw).
 
-The 6-parameter thing is broken. It's clever, but playing games with %ebp
-is not going to work with restarting of the system call - we need to
-restart with the proper %ebp.
+I looked at this yesterday and decided that it was OK as well.
 
-I pushed out the AT_SYSINFO stuff, but we're back to the "needs to use
-'int $0x80' for system calls that take 6 arguments" drawing board.
+> Debugging help would be appreciated, especially from somebody who knows
+> the APM code.
 
-The only sane way I see to fix the %ebp problem is to actually expand the
-kernel "struct ptregs" to have separate "ebp" and "arg6" fields (so that
-we can re-start with the right ebp, and have arg6 as the right argument on
-the stack). That would work but is not really worth it.
+It would help to know what "unhappy" means :-)
 
-		Linus
+Does the following fix it for you? Untested, assumes cache lines are 32
+bytes.
 
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
+diff -ruN 2.5.52-200212181207/include/asm-i386/segment.h 2.5.52-200212181207-apm/include/asm-i386/segment.h
+--- 2.5.52-200212181207/include/asm-i386/segment.h	2002-12-18 15:25:48.000000000 +1100
++++ 2.5.52-200212181207-apm/include/asm-i386/segment.h	2002-12-18 15:38:34.000000000 +1100
+@@ -65,9 +65,9 @@
+ #define GDT_ENTRY_APMBIOS_BASE		(GDT_ENTRY_KERNEL_BASE + 11)
+ 
+ /*
+- * The GDT has 23 entries but we pad it to cacheline boundary:
++ * The GDT has 25 entries but we pad it to cacheline boundary:
+  */
+-#define GDT_ENTRIES 24
++#define GDT_ENTRIES 28
+ 
+ #define GDT_SIZE (GDT_ENTRIES * 8)
+ 

@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264015AbTFYM27 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 08:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbTFYM27
+	id S264115AbTFYMcn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 08:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbTFYMcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 08:28:59 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:3540 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S264015AbTFYM27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 08:28:59 -0400
-Subject: Re: [PATCH] Fix mtdblock / mtdpart / mtdconcat
-From: David Woodhouse <dwmw2@redhat.com>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-mtd@lists.infradead.org
-In-Reply-To: <20030623010031.E16537@flint.arm.linux.org.uk>
-References: <20030623010031.E16537@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Red Hat UK Ltd.
-Message-Id: <1056544988.24294.9.camel@passion.cambridge.redhat.com>
+	Wed, 25 Jun 2003 08:32:43 -0400
+Received: from pa147.antoniuk.sdi.tpnet.pl ([213.25.59.147]:19073 "EHLO
+	darkwood.somewhere") by vger.kernel.org with ESMTP id S264115AbTFYMcm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 08:32:42 -0400
+Date: Wed, 25 Jun 2003 14:46:37 +0200
+From: Jacek =?iso-8859-2?Q?Pop=B3awski?= <jp@angry-pixels.com>
+To: linux-kernel@vger.kernel.org
+Subject: DRM in 2.4.22-pre?
+Message-ID: <20030625124637.GA1044@darkwood>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
-Date: Wed, 25 Jun 2003 13:43:09 +0100
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-23 at 01:00, Russell King wrote:
-> Dirtily disable ECC support; it doesn't work when mtdpart is layered
-> on top of mtdconcat on top of CFI flash.
-> 
-> There is probably a better fix, but that's for someone else to find.
-
-I had to run 'indent' on mtdconcat.c before I could stand to even look
-for it, so I haven't attached the patch here -- but could you try v1.6
-from CVS, which should refrain from pretending to have ecc/oob access
-functions of none of the subdevices have them, and hence fix the problem
-you observed.
+Are there any plans to put new (compatible with XFree86-4.3.0) Direct Rendering
+Module code in 2.4.22-pre? 
 
 -- 
-dwmw2
+Free Software - find interesting programs and change them
+NetHack - meet interesting creatures, kill them and eat their bodies
+Usenet - meet interesting people from all over the world and flame them
+Decopter - unrealistic helicopter simulator, get it from http://decopter.sf.net

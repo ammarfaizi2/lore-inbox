@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272304AbRIEUXJ>; Wed, 5 Sep 2001 16:23:09 -0400
+	id <S272305AbRIEU0T>; Wed, 5 Sep 2001 16:26:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272305AbRIEUW7>; Wed, 5 Sep 2001 16:22:59 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:65036 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S272304AbRIEUWo>; Wed, 5 Sep 2001 16:22:44 -0400
-Message-Id: <200109052023.f85KN1Y67662@aslan.scsiguy.com>
-To: joe.mathewson@btinternet.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx errors 
-In-Reply-To: Your message of "Wed, 05 Sep 2001 07:21:10 BST."
-             <200109050621.f856LAK00824@ambassador.mathewson.int> 
-Date: Wed, 05 Sep 2001 14:23:01 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S272309AbRIEU0J>; Wed, 5 Sep 2001 16:26:09 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59151 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272305AbRIEUZ7>; Wed, 5 Sep 2001 16:25:59 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: getpeereid() for Linux
+Date: 5 Sep 2001 13:26:09 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9n61p1$k5e$1@cesium.transmeta.com>
+In-Reply-To: <200109051551.KAA48912@tomcat.admin.navo.hpc.mil> <tgd755vdl9.fsf@mercury.rus.uni-stuttgart.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I've just woken up this morning to find my internet gateway machine only
->responding to pings, and on giving it a keyboard & monitor, a load of
->
->scsi0:0:1:0: Attempting to queue an ABORT message
->scsi0:0:1:0: Cmd aborted from QINFIFO
->aic7xxx_abort returns 8194
->
->errors.
+Followup to:  <tgd755vdl9.fsf@mercury.rus.uni-stuttgart.de>
+By author:    Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+In newsgroup: linux.dev.kernel
+> 
+> I need the credentials only for local connections, though.  This is
+> technically possible.  A userspace implementation partially cloning
+> ident seems to be a possible approach.
+> 
 
-I would have to see the messages with "aic7xxx=verbose"" in order
-to better diagnose the problem.  A full dmesg that includes driver
-initialization and SCSI device detection would be useful too.
-You might also want to upgrade your driver to something newer:
+Since it will only work locally anyway, just use a Unix domain socket
+-- that's what they're for.
 
-	http://people.FreeBSD.org/~gibbs/linux/
-
---
-Justin
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

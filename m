@@ -1,38 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289092AbSAJAMJ>; Wed, 9 Jan 2002 19:12:09 -0500
+	id <S289097AbSAJAOk>; Wed, 9 Jan 2002 19:14:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289094AbSAJAL7>; Wed, 9 Jan 2002 19:11:59 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47364 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289092AbSAJALt>; Wed, 9 Jan 2002 19:11:49 -0500
-Subject: Re: [PATCH] PAGE_SIZE IO for RAW (RAW VARY)
-To: pbadari@us.ibm.com (Badari Pulavarty)
-Date: Thu, 10 Jan 2002 00:23:18 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), pbadari@us.ibm.com (Badari Pulavarty),
-        linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-In-Reply-To: <200201092320.g09NK1224012@eng2.beaverton.ibm.com> from "Badari Pulavarty" at Jan 09, 2002 03:20:01 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S289096AbSAJAO3>; Wed, 9 Jan 2002 19:14:29 -0500
+Received: from petreley.org ([64.170.109.178]:56214 "EHLO petreley.com")
+	by vger.kernel.org with ESMTP id <S289093AbSAJAOK>;
+	Wed, 9 Jan 2002 19:14:10 -0500
+Date: Wed, 9 Jan 2002 16:13:59 -0800
+From: Nicholas Petreley <nicholas@petreley.com>
+To: linux-kernel@vger.kernel.org
+Subject: NVidia patch for kdev_t
+Message-ID: <20020110001357.GA1654@petreley.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16OT03-0002mK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I tested with 2 large competing databases, both of them seem to benifit 
-> significantly from this patch. I tested with 4 different Fiber & SCSI
-> adaptors, they all seem to work fine. (only on i386).
+Re: The fellow who noted that kdev_t breaks the current nv.c driver.
 
-Great.
+I'm just guessing here based on what other patches I've seen, so pardon me
+if this isn't the proper way to handle the change, or if I missed anything. 
+But it worked for me and my GeForce3.  This patch is against
+NVIDIA_kernel-1.0-2314.
 
-> But unfortunately, if the hardware have special alignment restrictions
-> (as you mentioned), this patch does not work. I don't know if it makes
-> sense to make this configurable and expect customer/user to enable this
-> feature if they know about their hardware/driver alignment restrictions.
+--- nv.c Fri Nov 30 20:11:06 2001
++++ NVIDIA_kernel-1.0-2314/nv.c  Thu Jan  3 17:18:42 2002
+@@ -1146,11 +1146,11 @@
 
-The only one I know about is the 3ware, but I don't know how many I don't
-know about (so to speak). For the kind of win you report, it looks well
-worth exploring the compatibility issues and fixing them.
+     /* for control device, just jump to its open routine */
+     /* after setting up the private data */
+-    if (NV_DEVICE_IS_CONTROL_DEVICE(inode->i_rdev))
++    if (NV_DEVICE_IS_CONTROL_DEVICE(minor(inode->i_rdev)))
+         return nv_kern_ctl_open(inode, file);
 
+     /* what device are we talking about? */
+-    devnum = NV_DEVICE_NUMBER(inode->i_rdev);
++    devnum = NV_DEVICE_NUMBER(minor(inode->i_rdev));
+     if (devnum >= NV_MAX_DEVICES)
+     {
+         rc = -ENODEV;
+@@ -1257,7 +1257,7 @@
+
+     /* for control device, just jump to its open routine */
+     /* after setting up the private data */
+-    if (NV_DEVICE_IS_CONTROL_DEVICE(inode->i_rdev))
++    if (NV_DEVICE_IS_CONTROL_DEVICE(minor(inode->i_rdev)))
+         return nv_kern_ctl_close(inode, file);
+
+     NV_DMSG(nv, "close");
+
+
+
+
+
+
+-- 
+***********************************************************
+Nicholas Petreley        http://www.VarLinux.org
+nicholas@petreley.com    http://www.computerworld.com
+http://www.petreley.org  http://www.linuxworld.com Eph 6:12
+***********************************************************

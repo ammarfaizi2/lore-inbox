@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129555AbRCBWUZ>; Fri, 2 Mar 2001 17:20:25 -0500
+	id <S129567AbRCBW2F>; Fri, 2 Mar 2001 17:28:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129564AbRCBWUP>; Fri, 2 Mar 2001 17:20:15 -0500
-Received: from colorfullife.com ([216.156.138.34]:5894 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129555AbRCBWUC>;
-	Fri, 2 Mar 2001 17:20:02 -0500
-Message-ID: <3AA01CAF.98726DEC@colorfullife.com>
-Date: Fri, 02 Mar 2001 23:20:31 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-14 i586)
-X-Accept-Language: en
+	id <S129574AbRCBW1z>; Fri, 2 Mar 2001 17:27:55 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:14344
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129567AbRCBW1m>; Fri, 2 Mar 2001 17:27:42 -0500
+Date: Fri, 2 Mar 2001 14:27:27 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: CPRM is dead; Thanks Andre!
+In-Reply-To: <004901c09d6e$7d328480$8501a8c0@gromit>
+Message-ID: <Pine.LNX.4.10.10103021420280.4273-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: pat@isis.co.za, linux-kernel@vger.kernel.org, Alan@redhat.com,
-        Donald Becker <becker@scyld.com>
-Subject: Re: PROBLEM: Network hanging - Tulip driver with Netgear (Lite-On)
-In-Reply-To: <3A9A30C7.3C62E34@colorfullife.com> <3A9AB84C.A17D20AE@mandrakesoft.com> <3A9AC372.A86DC6C7@colorfullife.com> <3AA00D5A.44FA21D0@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Thu, 22 Feb 2001, Michael Rothwell wrote:
+
+> > IBM withdrew the proposal.
 > 
-> Manfred Spraul wrote:
-> > Could you double check the code in tulip_core.c, around line 1450?
-> > IMHO it's bogus.
-> >
-> > 1) if the network card contains multiple mii's, then the the advertised
-> > value of all mii's is changed to the advertised value of the first mii.
-> 
-> I'm really curious about this one myself.
-> 
-> Since I haven't digested all of the tulip media stuff in my brain yet,
-> and since I'm not familiar with all the corner cases, I'm loathe to
-> change the tulip media stuff without fully understanding what's going
-> on.
-> 
-> If you have a single controller with multiple MII phys...  how does one
-> select the phy of choice (for tulip, in the absence of SROM media
-> table...)?
+> ... from public view
 
-I'd choose the first one with a link partner.
+I am saddened to say that I agree with you now that all the info is in
+hand.  However, I do not think IBM is the driving force now...
+It is now just the C4 extortion^H^H^H^H^H^H^H^H^Horganization sponsoring
+the mess and they are not in the committee by name.
 
-> And once phy A has been selected out of N available as the
-> active phy, should you care about the others at all?
->
+The good news is that I know how to kill it and protect Linux....
+The bad news is I will not fight for the taskfile-filter code to protect
+the OS, I will just publish it.  And yes it does look like a possible
+security risk now because of the rogue-java that does exist but is not
+released.
 
-Not until the link beat disappears.
-Then scan all existing phy's and select the phy with a link beat as the
-new active phy.
+Please do not start another war, I do not have the time or desire to fight
+this one again...the policy of noe policies is not true, because we have
+a policy to disable the PII/PIII serial-number access.
 
-At least that's what the sis900.c driver does. Are there other linux
-drivers that support multiple phy's?
+Regards,
 
---
-	Manfred
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
+

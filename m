@@ -1,92 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVAWENn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVAWETP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbVAWENn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 23:13:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVAWENn
+	id S261204AbVAWETP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 23:19:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVAWETP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 23:13:43 -0500
-Received: from waste.org ([216.27.176.166]:13971 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261203AbVAWENk (ORCPT
+	Sat, 22 Jan 2005 23:19:15 -0500
+Received: from soundwarez.org ([217.160.171.123]:45706 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S261204AbVAWETN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 23:13:40 -0500
-Date: Sat, 22 Jan 2005 20:13:24 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, "Theodore Ts'o" <tytso@mit.edu>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/12] random pt4: Create new rol32/ror32 bitops
-Message-ID: <20050123041324.GS12076@waste.org>
-References: <200501222113_MC3-1-940A-5393@compuserve.com> <20050123031921.GA1660@wotan.suse.de>
+	Sat, 22 Jan 2005 23:19:13 -0500
+Date: Sun, 23 Jan 2005 05:19:11 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: linux-kernel@vger.kernel.org
+Cc: Greg KH <greg@kroah.com>
+Subject: [PATCH 0/7] driver core: export MAJOR/MINOR to the hotplug env
+Message-ID: <20050123041911.GA9209@vrfy.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050123031921.GA1660@wotan.suse.de>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 23, 2005 at 04:19:21AM +0100, Andi Kleen wrote:
-> On Sat, Jan 22, 2005 at 09:10:40PM -0500, Chuck Ebbert wrote:
-> > On Fri, 21 Jan 2005 at 15:41:06 -0600 Matt Mackall wrote:
-> > 
-> > > Add rol32 and ror32 bitops to bitops.h
-> > 
-> > Can you test this patch on top of yours?  I did it on 2.6.10-ac10 but it
-> > should apply OK.  Compile tested and booted, but only random.c is using it
-> > in my kernel.
-> 
-> Does random really use variable rotates? For constant rotates 
-> gcc detects the usual C idiom and turns it transparently into
-> the right machine instruction.
+This patch sequence moves the creation of the sysfs "dev" file of the class
+devices into the driver core. The struct class_device contains a dev_t
+value now. If set, the driver core will create the "dev" file containing
+the major/minor numbers automatically.
 
-Nope, random doesn't. The only thing I converted in my sweep that did
-were CAST5 and CAST6, which are fairly unique in doing key-based
-rotations. On the other hand:
+The MAJOR/MINOR values are also exported to the hotplug environment. This
+makes it easy for userspace, especially udev to know if it should wait for
+a "dev" file to create a device node or if it can just ignore the event.
+We currently carry a compiled in blacklist around for that reason.
 
-typedef unsigned int __u32;
+It would also be possible to run some "tiny udev" while sysfs is not
+available - just by reading the hotplug call or the netlink-uevent.
 
-static inline __u32 rol32(__u32 word, int shift)
-{
-        return (word << shift) | (word >> (32 - shift));
-}
+Thanks,
+Kay
 
-int foo(int val, int rot)
-{
-        return rol32(val, rot);
-}
-
-With 2.95:
-
-   0:   55                      push   %ebp
-   1:   89 e5                   mov    %esp,%ebp
-   3:   8b 4d 0c                mov    0xc(%ebp),%ecx
-   6:   8b 45 08                mov    0x8(%ebp),%eax
-   9:   d3 c0                   rol    %cl,%eax
-   b:   c9                      leave
-   c:   c3                      ret
-
-With 3.3.5:
-
-   0:   55                      push   %ebp
-   1:   89 e5                   mov    %esp,%ebp
-   3:   8b 45 08                mov    0x8(%ebp),%eax
-   6:   8b 4d 0c                mov    0xc(%ebp),%ecx
-   9:   5d                      pop    %ebp
-   a:   d3 c0                   rol    %cl,%eax
-   c:   c3                      ret
-
-With gcc-snapshot:
-
-   0:   55                      push   %ebp
-   1:   89 e5                   mov    %esp,%ebp
-   3:   8b 45 08                mov    0x8(%ebp),%eax
-   6:   8b 4d 0c                mov    0xc(%ebp),%ecx
-   9:   d3 c0                   rol    %cl,%eax
-   b:   5d                      pop    %ebp
-   c:   c3                      ret
-
-So I think tweaks for x86 at least are unnecessary. 
-
--- 
-Mathematics is the supreme nostalgia of our time.

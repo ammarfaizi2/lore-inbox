@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268551AbTGLVeL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 17:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268552AbTGLVeL
+	id S268597AbTGLWAd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 18:00:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268617AbTGLWAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 17:34:11 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:60811 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S268551AbTGLVeJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 17:34:09 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sat, 12 Jul 2003 14:41:25 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Eric Varsanyi <e0206@foo21.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch][RFC] epoll and half closed TCP connections
-In-Reply-To: <20030712211941.GD15643@srv.foo21.com>
-Message-ID: <Pine.LNX.4.55.0307121436460.4720@bigblue.dev.mcafeelabs.com>
-References: <20030712181654.GB15643@srv.foo21.com> <20030712194432.GE10450@mail.jlokier.co.uk>
- <20030712205114.GC15643@srv.foo21.com> <Pine.LNX.4.55.0307121346140.4720@bigblue.dev.mcafeelabs.com>
- <20030712211941.GD15643@srv.foo21.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 12 Jul 2003 18:00:33 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:15079 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268597AbTGLWAb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 18:00:31 -0400
+Date: Sat, 12 Jul 2003 15:15:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: mroos@linux.ee, linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: 2.5 'what to expect'
+Message-Id: <20030712151511.107c1f59.akpm@osdl.org>
+In-Reply-To: <20030712202352.GA7741@suse.de>
+References: <20030711140219.GB16433@suse.de>
+	<E19bK8w-0004Ij-00@roos.tartu-labor>
+	<20030712202352.GA7741@suse.de>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Jul 2003, Eric Varsanyi wrote:
+Dave Jones <davej@codemonkey.org.uk> wrote:
+>
+> ..
+> 
+> Something seems amiss. The deprecated elvtune interface is the old -r/-w/-b command line.
+> I was lead to believe a new elvtune appeared which supports an option
+> for changing the elevator under 2.5, however a quick google doesn't turn
+> up any such patched elvtune, so I'm somewhat puzzled.
 
-> I guess my only argument would be that edge triggered mode isn't really
-> workable with TCP connections if there's no way to solve the ambiguity
-> between EOF and no data in buffer (at least w/o an extra syscall). I just
-> realized that the race you mention in the man page (reading data from
-> the 'next' event that hasn't been polled into user mode yet) will lead to
-> the same issue: how do you know if you got this event because you consumed
-> the data on the previous interrupt or if this is an EOF condition.
+No, we planned to do the selection via sysfs rather than ioctl.
 
-(Sorry, I missed this)
-You can work that out very easily. When your read/write returns a lower
-number of bytes, it means that it is time to stop processing this fd. If
-events happened meanwhile, you will get them at the next epoll_wait(). If
-not, the next time they'll happen. There's no blind spot if you follow
-this simple rule, and you do not even have the extra syscall with EAGAIN.
+>  > Maybe just suggest the sysfs interface at once and not mention elvtune?
+> 
+> Changing the elevator type per device via sysfs does seem to make sense,
+> however /sys/block/<devicename>/queue/iosched/ doesn't yield anything
+> that would suggest this is possible (yet).  I think Jens has patches for this?
 
+But it never happened.  There are all sorts of nasties wrt actually making
+the switch.  Some related to request queueing, some to sysfs itself.
 
+So yes, we should have runtime selection, and maybe sometime we will, but
+the lowness of the return-to-effort ratio means it won't happen soon.
 
-- Davide
 

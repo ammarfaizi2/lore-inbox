@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265908AbUFDSSF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265930AbUFDSVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265908AbUFDSSF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 14:18:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265898AbUFDSSF
+	id S265930AbUFDSVT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 14:21:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265923AbUFDSVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 14:18:05 -0400
-Received: from mail.kroah.org ([65.200.24.183]:13751 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265908AbUFDSRd (ORCPT
+	Fri, 4 Jun 2004 14:21:18 -0400
+Received: from holomorphy.com ([207.189.100.168]:52647 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265921AbUFDSU3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 14:17:33 -0400
-Date: Fri, 4 Jun 2004 11:15:28 -0700
-From: Greg KH <greg@kroah.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Paul Jackson <pj@sgi.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, ak@suse.de
-Subject: Re: [PATCH] fix sys cpumap for > 352 NR_CPUS
-Message-ID: <20040604181528.GA11527@kroah.com>
-References: <20040602161115.1340f698.pj@sgi.com> <1086222156.29391.337.camel@bach> <20040603162712.GA3291@kroah.com> <20040603093807.33bc670d.pj@sgi.com> <20040603165142.GA3959@kroah.com> <1086312466.7990.884.camel@bach>
+	Fri, 4 Jun 2004 14:20:29 -0400
+Date: Fri, 4 Jun 2004 11:20:18 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Paul Jackson <pj@sgi.com>, mikpe@csd.uu.se, nickpiggin@yahoo.com.au,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       ak@muc.de, ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
+       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
+       Simon.Derr@bull.net
+Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
+Message-ID: <20040604182018.GH21007@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Paul Jackson <pj@sgi.com>, mikpe@csd.uu.se, nickpiggin@yahoo.com.au,
+	rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
+	ak@muc.de, ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
+	joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
+	Simon.Derr@bull.net
+References: <20040604093712.GU21007@holomorphy.com> <16576.17673.548349.36588@alkaid.it.uu.se> <20040604095929.GX21007@holomorphy.com> <16576.23059.490262.610771@alkaid.it.uu.se> <20040604112744.GZ21007@holomorphy.com> <20040604113252.GA21007@holomorphy.com> <20040604092316.3ab91e36.pj@sgi.com> <20040604162853.GB21007@holomorphy.com> <20040604104756.472fd542.pj@sgi.com> <20040604181233.GF21007@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1086312466.7990.884.camel@bach>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040604181233.GF21007@holomorphy.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 04, 2004 at 11:27:46AM +1000, Rusty Russell wrote:
-> On Fri, 2004-06-04 at 02:51, Greg KH wrote:
-> > Just be aware of the size and code your show() function to be defensive
-> > and not overrun that size.
-> 
-> This is where we have a philosophical difference.  As I understand it,
-> the rule is, "don't put big things in attributes".  If we want to change
-> that rule, we need to do more work, like pass the length to the show
-> function, and handle -ENOMEM by reallocating and looping.
+On Fri, Jun 04, 2004 at 11:12:33AM -0700, William Lee Irwin III wrote:
+> 	while (lower < upper) {
 
-We don't want to change the rule, it's a good rule.
-
-> But I think the /rule/ is a good one: if you need to handle something
-> arbitrarily large, DON'T USE THIS INTERFACE, because there is no way to
-> do that correctly.  This allows us to handle 99.9% of cases as a
-> one-liner, which I think has great merit.
-
-Agreed.
-
-> I think we should guarantee any kernel primitive fits into the space:
-> this means it should comfortably fit printing a cpumask_t.  I would
-> argue for a #error inside the cpumask or sysfs code which ensures we can
-> fit two cpumasks (~7000 CPUs on page-size 4096), so we explode early if
-> this ever becomes a problem, and a runtime sanity check inside the sysfs
-> code to BUG on overrun.
-
-Again, this seems to be a issue with the code that is trying to export a
-cpumask_t.  I suggest you keep the check inside that code and keep it
-out of the sysfs core, which does not need it for 99.99% of the cases.
-
-thanks,
-
-greg k-h
+--- nr_cpus.c.orig	2004-06-04 11:16:16.492419568 -0700
++++ nr_cpus.c	2004-06-04 11:16:26.508896832 -0700
+@@ -23,7 +23,7 @@
+ 		if (!realloc(cpus, 2*upper))
+ 			return -ENOMEM;
+ 	}
+-	while (lower < upper) {
++	while (lower < upper - 1) {
+ 		middle = (lower + upper)/2;
+ 		if (!realloc(cpus, middle))
+ 			return -ENOMEM;

@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272664AbRILDzC>; Tue, 11 Sep 2001 23:55:02 -0400
+	id <S272670AbRILEct>; Wed, 12 Sep 2001 00:32:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272665AbRILDyw>; Tue, 11 Sep 2001 23:54:52 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:7686 "EHLO probity.mcc.ac.uk")
-	by vger.kernel.org with ESMTP id <S272664AbRILDyr>;
-	Tue, 11 Sep 2001 23:54:47 -0400
-Date: Wed, 12 Sep 2001 04:55:07 +0100
-From: John Levon <moz@compsoc.man.ac.uk>
+	id <S272671AbRILEcj>; Wed, 12 Sep 2001 00:32:39 -0400
+Received: from www.stolica.ru ([62.118.250.25]:15772 "HELO stolica.ru")
+	by vger.kernel.org with SMTP id <S272670AbRILEcg>;
+	Wed, 12 Sep 2001 00:32:36 -0400
+Date: Wed, 12 Sep 2001 08:29:35 +0400
+From: Dmitry Volkoff <vdb@mail.ru>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4 daemonize()
-Message-ID: <20010912045507.B4734@compsoc.man.ac.uk>
+Subject: Re: [GOLDMINE!!!] Athlon optimisation bug (was Re: Duron kernel crash)
+Message-ID: <20010912082935.A391@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: Truant - Neither Work Nor Leisure
-X-Toppers: N/A
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>I don't have any problems with the kernel, but if I'm compiling (say) the
+>kernel or any large program, user-mode apps like gcc, make, etc all
+>randomly segfault on me.
+>
+>I'm running a Duron 800 on a Asus A7V133 mobo - and no bios version I've
+>tried has made a bit of difference yet :p
 
-examples in drivers/ seem undecided on whether the BKL is necessary
-during the initial daemonize() and setup of a kernel thread.
-
-must the lock be taken or not ?
-
-thanks
-john
+Same things here. I'm also experiencing random segfaults with kernels 
+2.4.10pre[47]. My motherbord is Chaintech CT-7AIA2 (kt133A/686A), Duron 600.
+I did'nt see such things with kernels 2.4.[78]. The problem persists even 
+after recompiling kernel with K6-III optimisation. Note, this motherboard
+was rock solid and I never had any problems with athlon-optimised kernels
+prior to 2.4.9.
 
 -- 
-"Since when would the sizeof any kind of pointer be zero ? 
- Have you built a zero-bit CPU ?"
-	- Jeffrey Turner
+
+    DV

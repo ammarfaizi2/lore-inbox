@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263033AbVCKBLM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263046AbVCKBM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263033AbVCKBLM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 20:11:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbVCKBLL
+	id S263046AbVCKBM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 20:12:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbVCKBMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 20:11:11 -0500
-Received: from nacho.zianet.com ([216.234.192.105]:39698 "HELO
-	nacho.zianet.com") by vger.kernel.org with SMTP id S263033AbVCKBHi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 20:07:38 -0500
-From: Steven Cole <elenstev@mesatop.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: Someting's busted with serial in 2.6.11 latest
-Date: Thu, 10 Mar 2005 18:04:52 -0700
-User-Agent: KMail/1.6.1
-Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-serial@vger.kernel.org
-References: <20050309155049.4e7cb1f4@dxpl.pdx.osdl.net> <4230CCCB.6030909@mesatop.com> <20050310225939.G1044@flint.arm.linux.org.uk>
-In-Reply-To: <20050310225939.G1044@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 10 Mar 2005 20:12:40 -0500
+Received: from rproxy.gmail.com ([64.233.170.206]:38188 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263043AbVCKBMO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 20:12:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=s4OjXyRhmmRNJzntPH/rLCHn8EV7mtBU6JIfnuaUJns9Mm95PkqE6mkSkhhxo4Ib6rMyajPBRe1buASaTCyzXPJ3ESqMSEZujjhtpMWgtwqDmffZyzq8tyFkuXbUMqn2Em+rhugl7DuDIrsPf/Oy8B7CojOXJe/WZ4ftZg9FOOI=
+Message-ID: <21d7e99705031017124f1e7551@mail.gmail.com>
+Date: Fri, 11 Mar 2005 12:12:09 +1100
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Christian Henz <christian.henz@gmail.com>
+Subject: Re: 2.6.11-mm2 + Radeon crash
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <493984f050309121212541d8@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200503101804.52770.elenstev@mesatop.com>
+References: <493984f050309121212541d8@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 March 2005 03:59 pm, Russell King wrote:
-> On Thu, Mar 10, 2005 at 03:40:11PM -0700, Steven Cole wrote:
-> > I'll test current bk tonight, but I don't see any recent fix to
-> > drivers/serial/8250.c when browsing linux.bkbits.net/linux-2.6.
 > 
-> Ok, so Stephen's bug is already fixed.  After testing the latest bk, if
-> you find your bug isn't resolved, please try to isolate the change by
-> applying this patch.  If this doesn't resolve it, then your change of
-> behaviour hasn't been caused by changes to 8250.c, but must be down to
-> some other part of the kernel.
+> When I try to start X, my machine reboots. The screen goes dark as
+> usual when setting the video mode, but then I get a beep and I'm
+> greeted with the BIOS boot messages. This happened 4/5 times i've
+> tried, and once the video mode was actually set (at least I saw the
+> usual X b/w pattern with some random framebuffer garbage), the machine
+> didn't reboot but after that nothing happened. My keyboard was still
+> responsive (ie NumLock LED would still go on/off), but i could neither
+> kill X with CTRL-ALT-BACKSPACE nor could i switch back to console, so
+> I ended up pressing reset.
+> 
+> After the crashes I booted with a rescue CD to examine the logs, but I
+> could not find any obvious errors.
+> 
+> Everything works nicely on 2.6.10 and earlier kernels. I'm in the
+> process of building 2.6.11.2 to see if the crash occurs there.
+> 
+> Here is some info on my system:
+> 
+> I've got an Athlon 1000C on a VIA KT133 chipset and a Radeon 7200 (the
+> original Radeon with 32MB SDR RAM). I'm running Debian/sid.
+> 
 
-OK, latest 2.6.11-bk works just fine.  Although I thought I had a failure
-with a fairly recent snapshot, I must have had a version before the fix.
-Sorry for any confusion.
+A copy of /var/log/XFree86.0.log and a copy of dmesg and copy of your
+.config if you could .. main things of interest whether you have fb
+drivers and drm drivers..
 
-FWIW, the failing kernels reported: ttyS0 at I/O 0x3f8 (irq = 4) is a XScale
-
-But now, all is fine.  Thanks.
-
-Steven
+Dave.

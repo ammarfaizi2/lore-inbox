@@ -1,61 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbTIRRPa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 13:15:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbTIRRP3
+	id S261987AbTIRRoS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 13:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTIRRoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 13:15:29 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:63228 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261921AbTIRRP2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 13:15:28 -0400
-Subject: Re: netpoll/netconsole minor tweaks
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Chris Wright <chrisw@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Matt Mackall <mpm@selenic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030918094832.A16499@osdlab.pdx.osdl.net>
-References: <20030917112447.A24623@osdlab.pdx.osdl.net>
-	 <1063888205.15962.20.camel@dhcp23.swansea.linux.org.uk>
-	 <20030918094832.A16499@osdlab.pdx.osdl.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dRqZB4Pwm7F8JrVJUf8q"
-Organization: Red Hat, Inc.
-Message-Id: <1063905237.2978.0.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Thu, 18 Sep 2003 19:13:57 +0200
+	Thu, 18 Sep 2003 13:44:18 -0400
+Received: from hqemgate00.nvidia.com ([216.228.112.144]:2058 "EHLO
+	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
+	id S261987AbTIRRoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 13:44:16 -0400
+Message-ID: <8F12FC8F99F4404BA86AC90CD0BFB04F039F7137@mail-sc-6.nvidia.com>
+From: Allen Martin <AMartin@nvidia.com>
+To: "'Witold Krecicki'" <adasi@kernel.pl>, linux-kernel@vger.kernel.org
+Subject: RE: SII SATA request size limit
+Date: Thu, 18 Sep 2003 10:43:25 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > much as soon as anything touches the SCSI bus on my aic7xxx card.
+> > Disabling DMA on the SiI IDE channel seems to work around it, at the
+> > cost of a lot of performance... (this is on stock 2.4.22, BTW)
+> No, only on-board nForce2 IDE controller. Disabling ACPI 
+> helped. - now it's 
+> stable
 
---=-dRqZB4Pwm7F8JrVJUf8q
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+There are ACPI issues with nForce boards, you will see PCI interrupts get
+programmed to edge triggered mode in /proc/interrupts when APIC is enabled.
+The easiest workaround is to disable ACPI like you have done.
 
-
-> Hrm, there's many spots that aren't using it.  What's the benefit, less
-> power consumption?=20
-
-Less power consumption, and on HT/SMT CPU's it's a "yield" to the other
-half/halves.
->
->  Is it worth a patch to convert other things over?
->=20
-
-yes
-
-
---=-dRqZB4Pwm7F8JrVJUf8q
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/aefVxULwo51rQBIRAj77AKCQXcRy/Zvdh9Uvcj1/i5Ogb7OmCgCgnA+3
-atUtr6beX0PPr7lGBimkpCs=
-=1tO6
------END PGP SIGNATURE-----
-
---=-dRqZB4Pwm7F8JrVJUf8q--
+-Allen

@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277559AbRJZFoU>; Fri, 26 Oct 2001 01:44:20 -0400
+	id <S277653AbRJZFzJ>; Fri, 26 Oct 2001 01:55:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277598AbRJZFoK>; Fri, 26 Oct 2001 01:44:10 -0400
-Received: from mail1.amc.com.au ([203.15.175.2]:17413 "HELO mail1.amc.com.au")
-	by vger.kernel.org with SMTP id <S277559AbRJZFoD>;
-	Fri, 26 Oct 2001 01:44:03 -0400
-Message-Id: <5.1.0.14.0.20011026151926.00a23d60@mail.amc.localnet>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 26 Oct 2001 15:44:33 +1000
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: Stuart Young <sgy@amc.com.au>
-Subject: Re: linux-2.4.13..
-Cc: Anuradha Ratnaweera <anuradha@gnu.org>, bert hubert <ahu@ds9a.nl>,
-        Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <20011026081728.A14607@bee.lk>
-In-Reply-To: <20011024114026.A14078@outpost.ds9a.nl>
- <Pine.LNX.4.33.0110232249090.1185-100000@penguin.transmeta.com>
- <20011024114026.A14078@outpost.ds9a.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S277656AbRJZFy7>; Fri, 26 Oct 2001 01:54:59 -0400
+Received: from mail.medav.de ([213.95.12.190]:37382 "HELO mail.medav.de")
+	by vger.kernel.org with SMTP id <S277653AbRJZFys> convert rfc822-to-8bit;
+	Fri, 26 Oct 2001 01:54:48 -0400
+From: "Daniela Engert" <dani@ngrt.de>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "dan" <lung@theuw.net>
+Cc: "Andre Hedrick" <andre@linux-ide.org>
+Date: Fri, 26 Oct 2001 07:53:50 +0200 (CDT)
+Reply-To: "Daniela Engert" <dani@ngrt.de>
+X-Mailer: PMMail 2.00.1500 for OS/2 Warp 4.00
+In-Reply-To: <Pine.LNX.4.33.0110252048260.1388-100000@narboza.theuw.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: Re: Repeatable File Corruption (ECS K7S5A w/SIS735)
+Message-Id: <20011026045736.77F08106D0@mail.medav.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:17 AM 26/10/01 +0600, Anuradha Ratnaweera wrote:
->IMHO _nothing_ should be done for the final.  A better alternative is to 
->name a stable pre kernel as a final without changes.  In the current 
->scenario, a final kernel release is one which is _not_ tested.
+On Thu, 25 Oct 2001 22:21:47 -0400 (EDT), dan wrote:
 
-My "personal" opinion is that final's are for Documentation updates, 
-correction of spelling errors in comments (not code, which needs testing), 
-and *possibly* trivial updates to data files (eg: like 
-linux/drivers/pci/pci.ids).
+>  It is repeatable and verified on other boards of the same model.  This
+>just started happening when I upgraded the system.  The following is a
+>link to the ECS K7S5A board in question, the SIS735 chipset, and a
 
-There have been a number of 2.4 issues in finals. Not all of them as 
-staggering as 2.4.11, but things like the driver issues with the sblive 
-(emu10k1) joystick stuff comes to mind, which was a 'final' addition. 
-Admittedly it's not a hugely critical system, but it was fairly visible.
+>  hda: ST36421A, ATA DISK drive
+>  hdb: QUANTUM FIREBALLP LM10.2, ATA DISK drive
+>  hdc: IC35L060AVER07-0, ATA DISK drive
 
-What would also be nice is a list of actual changed files for each patch 
-mentioned in the ChangeLog, which if there is a problem between 2 revisions 
-of a kernel (wether they're pre's of the same major kernel, or different 
-major kernels), could really help pinpoint some problems a hell of a lot 
-faster. Doesn't have to be in the ChangeLog, but it'd nice to have about 
-(especially for those that don't keep every version of the kernel on disk).
+>The problem only went away when I replaced the motherboard.  I also
+>haven't had any file corruption issues running Windows2000 on the same
+>hardware with the same files.  I moved all of the hardware in the original
+>system to a new motherboard (ASUS A7A266)  and the problem went away.
 
-Then again, opinions are like..... *grin*
+>I have CC'd the IDE chipset maintainer because I can only assume it might
+>be related.
 
+It very likely is. The current Linux SiS IDE driver doesn't initialize
+the the EIDE controller in the SiS735 (and most likely all other
+ATA/100 capable members, too) correctly.
 
+The SiS735 IDE cycle timing registers have a layout that is different
+from the older predecessors!
 
-AMC Enterprises P/L    - Stuart Young
-First Floor            - Network and Systems Admin
-3 Chesterville Rd      - sgy@amc.com.au
-Cheltenham Vic 3192    - Ph:  (03) 9584-2700
-http://www.amc.com.au/ - Fax: (03) 9584-2755
+>From my experiences, drivers taking this not into account *do* actually
+work most of the time even if the timing of the layer 0 communication
+protocol is wrong, but fail mysteriously sometimes. Andre needs to
+update the SiS5513 code.
+
+Ciao,
+  Dani
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Daniela Engert, systems engineer at MEDAV GmbH
+Gräfenberger Str. 34, 91080 Uttenreuth, Germany
+Phone ++49-9131-583-348, Fax ++49-9131-583-11
+
 

@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261878AbTE2FVc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 01:21:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbTE2FVc
+	id S261919AbTE2FoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 01:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbTE2FoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 01:21:32 -0400
-Received: from marstons.services.quay.plus.net ([212.159.14.223]:23501 "HELO
-	marstons.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S261878AbTE2FVb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 01:21:31 -0400
-From: "Riley Williams" <Riley@Williams.Name>
-To: "Marc Wilson" <msw@cox.net>, "lkml" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-rc6
-Date: Thu, 29 May 2003 06:34:48 +0100
-Message-ID: <BKEGKPICNAKILKJKMHCAIEANECAA.Riley@Williams.Name>
+	Thu, 29 May 2003 01:44:25 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:13030 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id S261916AbTE2FoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 01:44:16 -0400
+Date: Thu, 29 May 2003 06:59:47 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Inline vm_acct_memory
+In-Reply-To: <20030529044312.GG5604@in.ibm.com>
+Message-ID: <Pine.LNX.4.44.0305290656010.1317-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20030529052425.GA1566@moonkingdom.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marc.
+On Thu, 29 May 2003, Ravikiran G Thirumalai wrote:
+> 
+> Yeah I kinda overlooked vm_unacct_memory 'til I wondered why I had put
+> the inlines in the header file earlier :).  But I do have the profiles
+> and checking on all calls to vm_unacct_memory, I find there is no 
+> regression at significant callsites.  
+> I can provide the detailed profile if required,
+> but here is the summary for 4 runs of kernbench -- nos against routines
+> are profile ticks (oprofile) for 4 runs.
+> 
+> Vanilla
+> -------
+> vm_enough_memory 786 778 780 735
+> vm_acct_memory	870 952 884 898
+> -----------------------------------
+> tot of above    1656 1730 1664 1633
+> 
+> do_mmap_pgoff 	3559 3673 3669 3807
+> expand_stack	27 34 33 42
+> unmap_region	236 267 280 280
+> do_brk		594 596 615 615
+> exit_mmap	51 52 44 52	
+> mprotect_fixup	47 55 55 57
+> do_mremap	0 2 1 1
+> poll_idle	101553 108687 89281 86251
+> 
+> Inline
+> ------
+> vm_enough_memory 1539 1488 1488 1472
+> do_mmap_pgoff 	3510 3523 3436 3475
+> expand_stack	27 33 32 27
+> unmap_region	295 340 311 349
+> do_brk		641 583 659 640
+> exit_mmap	33 52 44 42
+> mprotect_fixup	54 65 73 64
+> do_mremap	2 0 0 0
+> poll_idle	98733 85659 104994 103096
 
- > I just had mutt > freeze cold on me though for ~15 sec when
- > it tried to open my debian-devel mbox (rather large file)
- > while brag was beating on the drive.
- >
- > <whimper>
+There does look to be a regression in unmap_region.
 
-I used to get the same effect when I asked pine to open the
-Linux-Kernel mailbox on my system. I long since cured that by
-having procmail split Linux-Kernel mail into multiple mailboxes,
-one for each calendar week.
+Though I'd be reluctant to assign much general significance
+to any of these numbers (suspect it might all come out quite
+differently on another machine, another config, another run).
 
-The basic problem there is that any mail client needs to know
-just how many messages are in a particular folder to handle that
-folder, and the only way to do this is to count them all. That's
-what takes the time when one opens a large folder.
+But the probable best course is just to inline vm_acct_memory
+as you did, but also uninline vm_unacct_memory: placing the
+static inline vm_acct_memory and then vm_unacct_memory just
+before vm_enough_memory in mm/mmap.c.
 
-Best wishes from Riley.
----
- * Nothing as pretty as a smile, nothing as ugly as a frown.
+Hugh
 
----
-Outgoing mail is certified Virus Free.
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.484 / Virus Database: 282 - Release Date: 27-May-2003
 

@@ -1,106 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270480AbTHQS3X (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 14:29:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270484AbTHQS3W
+	id S270469AbTHQS3R (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 14:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270484AbTHQS3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 14:29:22 -0400
-Received: from main.gmane.org ([80.91.224.249]:711 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S270480AbTHQS3P (ORCPT
+	Sun, 17 Aug 2003 14:29:16 -0400
+Received: from mail.kroah.org ([65.200.24.183]:29421 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270469AbTHQS3O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 14:29:15 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Rob North <tzwvgwv2001@sneakemail.com>
-Subject: Re: [RFC] ioctl vs xattr for the filesystem specific attributes
-Date: Sun, 17 Aug 2003 19:14:28 +0100
-Message-ID: <bhogm4$2gb$1@sea.gmane.org>
-References: <8765l67rvc.fsf@devron.myhome.or.jp>
+	Sun, 17 Aug 2003 14:29:14 -0400
+Date: Sun, 17 Aug 2003 11:28:47 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Does sysfs really provides persistent hardware path to devices?
+Message-ID: <20030817182847.GA2422@kroah.com>
+References: <200307262036.13989.arvidjaar@mail.ru> <200307282044.43131.arvidjaar@mail.ru> <20030728170308.GA4839@kroah.com> <200308172041.31874.arvidjaar@mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en, en-us
-In-Reply-To: <8765l67rvc.fsf@devron.myhome.or.jp>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200308172041.31874.arvidjaar@mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi wrote:
-> Hi,
+On Sun, Aug 17, 2003 at 08:41:31PM +0400, Andrey Borzenkov wrote:
+> On Monday 28 July 2003 21:03, Greg KH wrote:
+> [...]
+> > > Question: how to configure udev so that "database" always refers to LUN 0
+> > > on target 0 on bus 0 on HBA in PCI slot 1.
+> >
+> > If you can't rely on scsi position, then you need to look for something
+> > that uniquely describes the device.  Like a filesystem label, or a uuid
+> > on the device.  udev can handle this (well I'm still working on the
+> > filesystem label, but others have already done the hard work for that to
+> > be intregrated easily.)
+> >
 > 
-> Bastien Roucaries <roucariesbastien@yahoo.fr> writes:
+> I tried to explain that I can rely on SCSI position but kernel does not give 
+> me this SCSI position. Apparently we have some communication problem. You do 
+> not understand my question and I do not understand what you do not understand 
+> :) I attribute it to my bad English.
 > 
-> 
->>This patch implement an "extended attributes" (XATTR) hook in aim to read or
->>modify specific  fatfs flags' like ARCHIVE or SYSTEM.
->>
->>I believe it's a good idea  because :
->>	- PAX ( GNU replacement of tar) save and restore XATTRs, so you can make more
->>exact save of FATfs without use of specific programs.
->>	- It's an elegant means to avoid use of mattrib.
->>	- Samba can use this .
->>but CONS :
->>	- use 2 Kb of kernel memory.
-> 
-> 
-> Bastien Roucaries <roucariesbastien@yahoo.fr> writes:
-> 
-> 
->>Indeed some flags are shared by many namespace for instance immutable is 
->>shared by xfs,ext2/3,jfs and by the fat ( with a special mount option). 
->>Compress also is a very common flag
->>This flags are in the "common" sub-namespace.
->>
->>But some are fs specifics for instance notail attr of reiserfs,shortname of 
->>fat.They are in the the "spec"sub-namespace
-> 
-> 
-> I received the above email.
-> 
-> This read/modify the file attributes of filesystem specific via xattr
-> interface (in this case, ARCHIVE, SYSTEM, HIDDEN flags of fatfs).
-> 
-> Yes, also we can provide it via ioctl like ext2/ext3 does now.
-> 
-> But if those flags provides by xattr interfaces and via one namespace
-> prefix, I guess the app can save/restore easy without dependency of
-> one fs.
-> 
-> Which interface would we use for attributes of filesystem specific?
-> Also if we use xattr, what namepace prefix should be used?
-> 
-> Any idea?
-> 
-> Thanks.
-> 
+> Let's avoid this communication problem. You show me namedev.config line that 
+> implements the above. If it really does it - it is likely I understand what 
+> you mean better and won't bother you with stupid questions anymore. If it 
+> does not do it - I can immediately point out where it fails.
 
+Here's the line that I used in my demo at OLS 2003 for udev:
 
-I like the ideas that the patch seems to propose.
-Infact I'd like to see the use of xattr used for non-standard attributes
-applied to all fs.
-Specifically, I want to backup all partitions, and attribs from one OS:
-Linux. I do not want to loose fat attributes during backup.
-This would also be useful for the Wine developers.
+	# USB camera from Fuji to be named "camera"
+	LABEL, BUS="usb", vendor="FUJIFILM", NAME="camera"
 
+This is a scsi device on the USB bus that has the vendor name "FUJIFILM"
+in it's scsi sysfs directory.
 
-If you haven't got a response to your questions, maybe make your own 
-decisions and submit a patch anyway.
+Now, partition issues asside (all partitions of this device will be
+named camera, camera1, camera2, etc., but I'm working on identifying
+partitions better) this shows that the vendor of a scsi device is able
+to be named uniquely.
 
+Does that help?  Have you looked at the 2003 OLS paper about udev for
+more information?
 
-One question:
-How does the patch deal with the fact that only some named xattrs are
-permitted?
+thanks,
 
-I see 2 options:
-1. all files/dirs in fat mount posess fat-specific xattrs. These xattrs 
-are initialised at file/dir create. No further attribs can be added, 
-none can be deleted. the fat attribute's Boolean value is defined by 
-extended attribute's value.
-2. all fat-specific attribs are optional, absence/presence defines
-boolean value. All operations are permitted, but can only add the
-fat-specific attributes.
-
-I prefer option 1, as it makes clear what attributes are available.
-
-
+greg k-h

@@ -1,67 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262686AbUAGXMP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 18:12:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbUAGXMO
+	id S262130AbUAGXHU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 18:07:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbUAGXHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 18:12:14 -0500
-Received: from 217-13-7-10.dd.nextgentel.com ([217.13.7.10]:28166 "EHLO
-	minerva.hungry.com") by vger.kernel.org with ESMTP id S262686AbUAGXMK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 18:12:10 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Increase recursive symlink limit from 5 to 8
-From: Petter Reinholdtsen <pere@hungry.com>
-Message-Id: <E1AeMqJ-00022k-00@minerva.hungry.com>
-Date: Thu, 08 Jan 2004 00:12:03 +0100
+	Wed, 7 Jan 2004 18:07:20 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:12468 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S262130AbUAGXHS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 18:07:18 -0500
+Date: Wed, 7 Jan 2004 15:07:12 -0800
+To: Grant Grundler <grundler@parisc-linux.org>
+Cc: Matthew Wilcox <willy@debian.org>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, jeremy@sgi.com
+Subject: Re: [RFC] Relaxed PIO read vs. DMA write ordering
+Message-ID: <20040107230712.GB6837@sgi.com>
+Mail-Followup-To: Grant Grundler <grundler@parisc-linux.org>,
+	Matthew Wilcox <willy@debian.org>,
+	linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+	jeremy@sgi.com
+References: <20040107175801.GA4642@sgi.com> <20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk> <20040107222142.GB14951@colo.lackof.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040107222142.GB14951@colo.lackof.org>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 07, 2004 at 03:21:42PM -0700, Grant Grundler wrote:
+> > How about always setting the bit in readb() and having a readb_ordered()
+> > which doesn't set the bit in the transaction?
+> 
+> I was under the impression the driver can't control RO for
+> each transaction though. The PCI-X device controls which
+> transactions set RO "signal" in the PCI-X command on read-return.
+> The Read-Return is a seperate transaction from the Read-Request.
 
-The comment in do_follow_link() do not match the code.  The comment
-explain that the limit for recursive symlinks are 8, but the code
-limit it to 5.  This is the current comment:
+My understanding is that you need both.  And if we used the
+pci_enable_relaxed() routine, we'd have to add a check to readX() for it
+so that we don't accidentally set the RO bit in the transaction when the
+command word has it clear.
 
-  /*
-   * This limits recursive symlink follows to 8, while
-   * limiting consecutive symlinks to 40.
-   *
-   * Without that kind of total limit, nasty chains of consecutive
-   * symlinks can cause almost arbitrarily long lookups.
-   */
+> If anyone has data that specific devices are "smart" and set/clear
+> RO appropriately, it would be safe to enable RO for them.
 
-I discovered it when I ran into a problem with the following symlinks
-producing the error message "Too many levels of symbolic links" when I
-tried to run /usr/lib/sendmail in our current software configuration.
+I don't know of any that do it automatically...
 
-  /usr/lib/sendmail      -> /local/sbin/sendmail
-  /local/sbin/sendmail   -> /store/store/diskless/.exim/ver-4.22/sbin/sendmail
-  /store/store/diskless/.exim/ver-4.22/sbin/sendmail -> /local/sbin/exim
-  /local/sbin/exim ->
-    /store/store/diskless/.exim/ver-4.22/sbin/exim@386linuxlibc62
+> On HP ZX1, the "Allow Relaxed Ordering" is only implemented for outbound
+> DMA/PIO Writes *while they pass through the ZX1 chip*. Ie RO bit settings
+> don't explicitly apply since we aren't talking about PCI-X bus transactions
+> even though the system chipset needs to honor PCI-X rules.
 
-As you can see, this have to visit exactly 5 files to reach the real
-file "/store/store/diskless/.exim/ver-4.22/sbin/exim@386linuxlibc62".
+So this wouldn't be helpful for your chipset then.
 
-I discovered this when testing Debian for the first time using this
-software configuration.  RedHat did not have any problems follwing the
-links, which suggests to me that they already increased the limit.
+> > That way, drivers which
+> > call pci_set_relaxed() have the responsibility to verify they're not
+> > relying on these semantics and use readb_ordered() in any places that
+> > they are.
+> 
+> if new variants of readb() are ok, then yours sounds better.
+> 
+> But I wasn't too keen on introducing readb variants to solve what
+> looks like a DMA flushing problem. I've come to the conclusion
+> that systems which implement (and enable) RO for inbound DMA are
+> effectively not coherent. The data the CPU expects to be visible is not.
 
-The fix seem to be to bring the code in sync with the comment of the
-function, and increase the limit from 5 to 8.
+Ahh... that's a bit of a stretch of the definition of non-coherence I
+think, but it might be close enough to use the sync semantics.
 
---- linux-2.4.24/fs/namei.c.orig     Wed Jan  7 23:46:03 2004
-+++ linux-2.4.24/fs/namei.c  Wed Jan  7 23:46:34 2004
-@@ -335,7 +335,7 @@
- static inline int do_follow_link(struct dentry *dentry, struct nameidata *nd)
- {
-        int err;
--       if (current->link_count >= 5)
-+       if (current->link_count >= 8)
-                goto loop;
-        if (current->total_link_count >= 40)
-                goto loop;
+> DMA-mapping.txt already has support (pci_dma_sync_xx() or
+> pci_dma_unmap_xx()) to deal with common forms off non-coherence and
+> syncronize caches for streaming mappings but not for consistent
+> mappings.  DMA-ABI.txt (2.6 only) has a method to handle non-coherent
 
-(I'm not on this mailing list, and do not really know how to proceed
-to increase the chances of this patch being accepted into the official
-source.  Please CC me if you reply. :)
+Right, that's another option--adding a pci_sync_consistent() call.
+
+> systems and I have to reread/study it to see if the provided interface
+> is sufficient for the case of relaxed ordering.  Jesse, have you
+> looked at this already?
+
+All of them are pretty easy enough to do...  so I see our options as one
+of the following:
+
+  1) add pcix_enable_relaxed() and read_relaxed() (read() would always be
+     ordered)
+  2) add pcix_enable_relaxed() and read_ordered() (read() would be
+     relaxed after the pcix_enable_relaxed() call)
+  3) add pcix_enable_relaxed() and pci_sync_consistent() (read() would
+     be relaxed after the pcix_enable_relaxed() call)
+
+Thanks,
+Jesse

@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270619AbRH1KG6>; Tue, 28 Aug 2001 06:06:58 -0400
+	id <S270640AbRH1K0u>; Tue, 28 Aug 2001 06:26:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270624AbRH1KGh>; Tue, 28 Aug 2001 06:06:37 -0400
-Received: from gate.terreactive.ch ([212.90.202.121]:38393 "HELO
-	toe.terreactive.ch") by vger.kernel.org with SMTP
-	id <S270619AbRH1KGg>; Tue, 28 Aug 2001 06:06:36 -0400
-Message-ID: <3B8B6CEF.17C616C0@tac.ch>
-Date: Tue, 28 Aug 2001 12:05:35 +0200
-From: Roberto Nibali <ratz@tac.ch>
-Organization: terreActive
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8 i686)
-X-Accept-Language: en, de-CH, zh-CN
+	id <S270644AbRH1K0k>; Tue, 28 Aug 2001 06:26:40 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:47028 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S270640AbRH1K02>; Tue, 28 Aug 2001 06:26:28 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: [patch] zero-bounce block highmem I/O, #13
+In-Reply-To: <20010827123700.B1092@suse.de>
+Organisation: SAP LinuxLab
+Date: 28 Aug 2001 12:26:08 +0200
+In-Reply-To: <20010827123700.B1092@suse.de>
+Message-ID: <m3itf85vlr.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-To: Andrew Theurer <habanero@us.ibm.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Journal Filesystem Comparison on Netbench
-In-Reply-To: <3B8A6122.3C784F2D@us.ibm.com>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi Jens,
 
-Thank you for those interesting tests.
+I tested both #11 and #13 on my 8GB machine with sym53c8xx. The
+initialization of a SAP DB database takes 20 minutes with 2.4.9 and
+with 2.4.9+b13 it took nearly 2.5 hours :-(
 
-> Some optimizations were used for linux, including zerocopy,
-> IRQ affinity, and interrupt delay for the gigabit cards,
-> and process affinity for the smbd processes.
+Greetings
+		Christoph
 
-Why is ext3 the only tested journaling filesystem that showed
-dropped packets [1] during the test and how do you explain it?
 
-[1]: http://lse.sourceforge.net/benchmarks/netbench/results/\
-     august_2001/filesystems/raid1e/ext3/4p/droppped_packets.txt
-
-Regards,
-Roberto Nibali, ratz
-
--- 
-mailto: `echo NrOatSz@tPacA.cMh | sed 's/[NOSPAM]//g'`

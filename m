@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266564AbUAWPAM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 10:00:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266569AbUAWPAM
+	id S262598AbUAWPFt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 10:05:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266571AbUAWPFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 10:00:12 -0500
-Received: from main.gmane.org ([80.91.224.249]:59275 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266564AbUAWPAJ (ORCPT
+	Fri, 23 Jan 2004 10:05:49 -0500
+Received: from mail.aei.ca ([206.123.6.14]:55241 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S262598AbUAWPFs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 10:00:09 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Mike <Mike@kordik.net>
-Subject: 2.6.1-mm5, kernel panic "Interrupt not syncing"
-Date: Fri, 23 Jan 2004 09:58:40 -0500
-Message-ID: <pan.2004.01.23.14.58.39.560168@kordik.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
+	Fri, 23 Jan 2004 10:05:48 -0500
+From: Ed Tomlinson <edt@aei.ca>
+Organization: me
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: vts have stopped working here
+Date: Fri, 23 Jan 2004 10:05:35 -0500
+User-Agent: KMail/1.5.93
+Cc: Vojtech Pavlik <vojtech@suse.cz>
+References: <224300000.1074839500@[10.10.2.4]> <200401230743.38488.edt@aei.ca> <20040123130535.GA4046@ucw.cz>
+In-Reply-To: <20040123130535.GA4046@ucw.cz>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401231005.35610.edt@aei.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have run 2.6.0-test.* kernels, 2.6.1-mm1 and 4 and they all boot fine.
-When I go to 2.6.1-mm5 I get a kernel panic and the boot freezes. The
-messages go by so quick I can't tell at what point it is doing this but
-the last line is interrupt not syncing. Any ideas? I have gone back to
-2.6.1-mm4 so I can boot but I was interested in mm5 because it has ALSA
-1.01 and I was hoping that would solve my lockup when I got to a web page
-with a lot of flash problem but not being able to boot is even worse. :-)
+On January 23, 2004 08:05 am, Vojtech Pavlik wrote:
+> On Fri, Jan 23, 2004 at 07:43:38AM -0500, Ed Tomlinson wrote:
+> > Is anyone else having problems with vt(s)?  I can switch between X and vt
+> > 1 without problems.  Trying to use any of the other vt(s) fails.
+> >
+> > A+C+F1 flips from X to vt1
+> > A+F2 flips to vt7 (x)
+> > A+C+F2 from X does nothing
+> >
+> > In my logs there are messages about init spawing too fast.  Suspect that
+> > these are the processes for the Vt(s) started with:
+> >
+> > 2:23:respawn:/sbin/getty 38400 tty2
+>
+> Interesting. The vt's don't exist until something writes to them. So
+> most likely X is running on vt2 in your case. As to why the processes
+> keep dying - no idea.
 
-Any ideas on the problem or advice on how to debug this would be most
-appreciated.
+No.  X is running on vt7.  Selecting F2,F3,F4,F5,F6 all get you to the X
+screen, and these are the ids init complains about in the log.  Interestingly 
+this happens on two boxes (K6-III 400 via, P3-1.4G Intel).
 
-Thx
-
-Mike
-
+Ed

@@ -1,40 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVBAAfb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVBAAfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbVBAAfb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 19:35:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVBAAdZ
+	id S261452AbVBAAfa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 19:35:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVBAAeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 19:33:25 -0500
-Received: from mail.kroah.org ([69.55.234.183]:60565 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261486AbVBAAZH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 19:25:07 -0500
-Date: Mon, 31 Jan 2005 16:15:04 -0800
-From: Greg KH <greg@kroah.com>
-To: brking@us.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] pci: Add Citrine quirk
-Message-ID: <20050201001503.GB7498@kroah.com>
-References: <200501281453.j0SErn7w002778@d03av02.boulder.ibm.com>
+	Mon, 31 Jan 2005 19:34:16 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:54536 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261469AbVBAA3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 19:29:34 -0500
+Date: Tue, 1 Feb 2005 01:29:32 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: akpm@osdl.org, ralf@linux-mips.org, davem@redhat.com, jgarzik@pobox.com,
+       linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove dp83840.h
+Message-ID: <20050201002932.GC8722@stusta.de>
+References: <20050131234158.GI21437@stusta.de> <20050131154607.70786f2c.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200501281453.j0SErn7w002778@d03av02.boulder.ibm.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050131154607.70786f2c.davem@davemloft.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 08:53:47AM -0600, brking@us.ibm.com wrote:
+On Mon, Jan 31, 2005 at 03:46:07PM -0800, David S. Miller wrote:
+> On Tue, 1 Feb 2005 00:41:58 +0100
+> Adrian Bunk <bunk@stusta.de> wrote:
 > 
-> The IBM Citrine chipset has a feature that if PCI config register
-> 0xA0 is read while DMAs are being performed to it, there is the possiblity
-> that the parity will be wrong on the PCI bus, causing a parity error and
-> a master abort. On this chipset, this register is simply a debug register
-> for the chip developers and the registers after it are not defined.
-> Patch sets cfg_size to 0xA0 to prevent this problem from being seen.
+> > dp83840.h is included once but none of the definitions it contains is
+> > actually used.
+> > 
+> > Ralf Baechle wants that it stays as documentation, so this patch moves 
+> > it under Documentation/ .
 > 
-> Signed-off-by: Brian King <brking@us.ibm.com>
+> No, let's kill this thing altogether.  The only driver in the world
+> using the CSCONFIG_* defines in there is the sunhme driver and it
+> defines it's own macros in drivers/net/sunhme.h  This header is more
+> than useless these days.
+> 
+> The header still exists in older trees and the revision history.
+> So people can still get to it there.
 
-Applied, thanks.
+OK, patch below
 
-greg k-h
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+dp83840.h is included once but none of the definitions it contains is
+actually used.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ drivers/net/ioc3-eth.c               |    1 
+ include/linux/dp83840.h              |   41 ---------------------------
+ 2 files changed, 42 deletions(-)
+
+--- linux-2.6.10-rc2-mm3-full/drivers/net/ioc3-eth.c.old	2004-11-29 12:14:25.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/drivers/net/ioc3-eth.c	2004-11-29 12:14:34.000000000 +0100
+@@ -56,7 +56,6 @@
+ #include <linux/etherdevice.h>
+ #include <linux/ethtool.h>
+ #include <linux/skbuff.h>
+-#include <linux/dp83840.h>
+ #include <net/ip.h>
+ 
+ #include <asm/byteorder.h>
+--- linux-2.6.10-rc2-mm3-full/include/linux/dp83840.h	2004-10-18 23:54:32.000000000 +0200
++++ /dev/null	2004-11-25 03:16:25.000000000 +0100
+@@ -1,41 +0,0 @@
+-/*
+- * linux/dp83840.h: definitions for DP83840 MII-compatible transceivers
+- *
+- * Copyright (C) 1996, 1999 David S. Miller (davem@redhat.com)
+- */
+-#ifndef __LINUX_DP83840_H
+-#define __LINUX_DP83840_H
+-
+-#include <linux/mii.h>
+-
+-/*
+- * Data sheets and programming docs for the DP83840 are available at
+- * from http://www.national.com/
+- *
+- * The DP83840 is capable of both 10 and 100Mbps ethernet, in both
+- * half and full duplex mode.  It also supports auto negotiation.
+- *
+- * But.... THIS THING IS A PAIN IN THE ASS TO PROGRAM!
+- * Debugging eeprom burnt code is more fun than programming this chip!
+- */
+-
+-/* First, the MII register numbers (actually DP83840 register numbers). */
+-#define MII_CSCONFIG        0x17        /* CS configuration            */
+-
+-/* The Carrier Sense config register. */
+-#define CSCONFIG_RESV1          0x0001  /* Unused...                   */
+-#define CSCONFIG_LED4           0x0002  /* Pin for full-dplx LED4      */
+-#define CSCONFIG_LED1           0x0004  /* Pin for conn-status LED1    */
+-#define CSCONFIG_RESV2          0x0008  /* Unused...                   */
+-#define CSCONFIG_TCVDISAB       0x0010  /* Turns off the transceiver   */
+-#define CSCONFIG_DFBYPASS       0x0020  /* Bypass disconnect function  */
+-#define CSCONFIG_GLFORCE        0x0040  /* Good link force for 100mbps */
+-#define CSCONFIG_CLKTRISTATE    0x0080  /* Tristate 25m clock          */
+-#define CSCONFIG_RESV3          0x0700  /* Unused...                   */
+-#define CSCONFIG_ENCODE         0x0800  /* 1=MLT-3, 0=binary           */
+-#define CSCONFIG_RENABLE        0x1000  /* Repeater mode enable        */
+-#define CSCONFIG_TCDISABLE      0x2000  /* Disable timeout counter     */
+-#define CSCONFIG_RESV4          0x4000  /* Unused...                   */
+-#define CSCONFIG_NDISABLE       0x8000  /* Disable NRZI                */
+-
+-#endif /* __LINUX_DP83840_H */
+

@@ -1,56 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265025AbTGGPlC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 11:41:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265036AbTGGPlC
+	id S267066AbTGGPq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 11:46:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267074AbTGGPq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 11:41:02 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:778 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S265025AbTGGPlA
+	Mon, 7 Jul 2003 11:46:26 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:26587 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S267066AbTGGPqL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 11:41:00 -0400
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Sancho Dauskardt <sda@bdit.de>, linux-kernel@vger.kernel.org
-Subject: Re: FAT statfs loop abort on read-error
-References: <5.0.2.1.2.20030704123653.03140b70@pop.puretec.de>
-	<20030706102410.2becd137.rddunlap@osdl.org>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 08 Jul 2003 00:54:48 +0900
-In-Reply-To: <20030706102410.2becd137.rddunlap@osdl.org>
-Message-ID: <87u19ypc1j.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 7 Jul 2003 11:46:11 -0400
+Date: Mon, 07 Jul 2003 09:00:30 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 883] New: LTP symlink01 test causes oops in 2.5.74-mm2 
+Message-ID: <17430000.1057593630@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> writes:
+http://bugme.osdl.org/show_bug.cgi?id=883
 
-> On Fri, 04 Jul 2003 13:57:19 +0200 Sancho Dauskardt <sda@bdit.de> wrote:
-> |   when calling statfs on a volume that has been removed (without umount) 
-> | fat_statfs() will attempt to read all sectors of the fat table quite a few 
-> | times (depending on the fat type, eg. FAT16 --> 256 times).
+           Summary: LTP symlink01 test causes oops in 2.5.74-mm2
+    Kernel Version: 2.5.74-mm2
+            Status: NEW
+          Severity: normal
+             Owner: akpm@digeo.com
+         Submitter: plars@austin.ibm.com
 
-Yes, fat driver of 2.4 ignore the many errors.
 
-> | Possible solution:
-> | 1. let default_fat_access return something like -2 on 'can't read' error.
-> | 2. Abort stafs loop on error.
-> | 3. return -EIO
-> | 
-> | This would break mode fat_access calls. I could make a patch, but I don't 
-> | know what's going on with those cvf extensions (which seem to replace 
-> | fat_access). Is dmsdos dead / can we ignore it ?
-> | Somewhere in the list archives, I found comments about the cvf stuff being 
-> | completely removed ?
+Distribution: RedHat 7.3
+Hardware Environment:
+8-way PIII 700, 16GB ram
 
-I don't know anybody ported dmsdos to 2.4. The cvf stuff was removed
-and many error handlings was fixed on 2.5.x. So, personally I think to
-remove the cvf stuff and backport the some parts of fat driver to 2.4
-is good.
+Software Environment:
+gcc 2.96, Linux-2.5.74-mm2, ext3
+(I will attach the kernel config in a bit)
 
-> (I asked him to add a patch to MAINTAINTERS...)
+Problem Description:
+This oops does not cause the system to crash or hang.
 
-Thank you. But honestly, I may not have skill enough.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+00000000
+*pde = 3546d001
+Oops: 0000 [#1]
+SMP
+CPU:    0
+EIP:    0060:[<00000000>]    Not tainted VLI
+EFLAGS: 00010282
+EIP is at 0x0
+eax: c0399ec0   ebx: fffffff4   ecx: f593ebe0   edx: f5529f78
+esi: f593ea80   edi: f5452e50   ebp: f5529f70   esp: f5529ef0
+ds: 007b   es: 007b   ss: 0068
+Process symlink01 (pid: 4003, threadinfo=f5528000 task=f57c86f0)
+Stack: c015ffc8 f5452e50 f593ea80 f5529f70 f593ebc0 f593ebc0 f5529f70 00000041
+       c01607c0 f5529f78 f593ebc0 f5529f70 00000001 00000004 f593ebc0 00000000
+       00030002 1e79d078 3f097ddb 1e79d078 3f097ddb 1e79d078 000343b3 00000040
+Call Trace:
+ [<c015ffc8>] __lookup_hash+0x78/0xa0
+ [<c01607c0>] open_namei+0x3b0/0x3e0
+ [<c01517a6>] filp_open+0x36/0x60
+ [<c0151b85>] sys_open+0x35/0x70
+ [<c0108ff3>] syscall_call+0x7/0xb
+
+Code:  Bad EIP value.
+Steps to reproduce:
+Run the symlink01 test from LTP
+
+

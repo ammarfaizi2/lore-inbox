@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279981AbRLLNXT>; Wed, 12 Dec 2001 08:23:19 -0500
+	id <S279778AbRLLNY7>; Wed, 12 Dec 2001 08:24:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280002AbRLLNXA>; Wed, 12 Dec 2001 08:23:00 -0500
-Received: from [194.228.240.2] ([194.228.240.2]:50951 "EHLO chudak.century.cz")
-	by vger.kernel.org with ESMTP id <S279981AbRLLNWy>;
-	Wed, 12 Dec 2001 08:22:54 -0500
-Message-ID: <3C175A07.6000505@century.cz>
-Date: Wed, 12 Dec 2001 14:22:15 +0100
-From: Petr Titera <P.Titera@century.cz>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.6+) Gecko/20011203
-X-Accept-Language: en-us
+	id <S280002AbRLLNYk>; Wed, 12 Dec 2001 08:24:40 -0500
+Received: from server1.fla.matrix.com.br ([200.196.24.21]:19975 "EHLO
+	server1.fla.matrix.com.br") by vger.kernel.org with ESMTP
+	id <S279778AbRLLNYe>; Wed, 12 Dec 2001 08:24:34 -0500
+Message-ID: <3C175A7C.6C532320@roadnet.com.br>
+Date: Wed, 12 Dec 2001 11:24:12 -0200
+From: "Marcelo ''Mosca'' de Paula Bezerra" <mosca@roadnet.com.br>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: pt-BR, en, pt
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 4GB file size limit on SMBFS
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+To: Rui Sousa <rui.p.m.sousa@clix.pt>
+CC: Zlatko Calusic <zlatko.calusic@iskon.hr>,
+        emu10k1-devel@opensource.creative.com, linux-kernel@vger.kernel.org
+Subject: Re: emu10k1 - interrupt storm?
+In-Reply-To: <Pine.LNX.4.33.0112121112450.2868-100000@sophia-sousar2.nice.mindspeed.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: OK (checked by AntiVir Version 6.10.0.16)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Try running esd with the -as 10 options..
+As the help says, it will disconnect the audio device after 10 seconds
+of inactivity. It will at least help you with the interrupt load while
+not using sound.
 
-	I tested patches from Urban Wildmark to give SMBFS LFS support and found, 
-that limit on file size has only moved from 2GB to 4GB. Is this expected 
-behaviour?
-
-Petr Titera
-P.Titera@century.cz
-
+Rui Sousa wrote:
+> 
+> 
+> If the sound device is open and playback is enabled the driver runs
+> at "full speed" even if the output is just silence.
+> 
+> 
+> Both I think... With some machines the hardware timer(used inside
+> the emu10k1) seems to be running at wrong rate.
+> 
+> Rui Sousa
+>

@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129745AbQLRVAy>; Mon, 18 Dec 2000 16:00:54 -0500
+	id <S129391AbQLRVBX>; Mon, 18 Dec 2000 16:01:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129477AbQLRVAn>; Mon, 18 Dec 2000 16:00:43 -0500
-Received: from magic.adaptec.com ([208.236.45.80]:47259 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP
-	id <S129391AbQLRVA0>; Mon, 18 Dec 2000 16:00:26 -0500
-Message-ID: <E9EF680C48EAD311BDF400C04FA07B612D4DA5@ntcexc02.ntc.adaptec.com>
-From: "Boerner, Brian" <Brian_Boerner@adaptec.com>
-To: "'Andi Kleen'" <ak@suse.de>, "Boerner, Brian" <Brian_Boerner@adaptec.com>
-Cc: "'linux-kernel@vger.redhat.com'" <linux-kernel@vger.kernel.org>
-Subject: RE: Disabling interrupts in 2.4.x
-Date: Mon, 18 Dec 2000 15:24:01 -0500
+	id <S130642AbQLRVBO>; Mon, 18 Dec 2000 16:01:14 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:2573 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S129391AbQLRVAw>; Mon, 18 Dec 2000 16:00:52 -0500
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+Date: Mon, 18 Dec 2000 13:30:17 -0700
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: ReiserFS now works with 2.4.0-test12 and test13-pre1,2,3
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+Message-Id: <00121813301601.00924@spc.esa.lanl.gov>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's a UP configured system.
+For the benefit of those who want to run 2.4.0-test12 and
+2.4.0-test13-preX kernels with ReiserFS and who are not actively
+monitoring the reiserfs-list, the following information may be
+of interest.
 
--bmb-
+Reiserfs version 3.6.22 (only) now works with these latest kernels, but
+two additional patches for 2.4.0-test12 and a third patch for test13-preX are 
+necessary.
 
+Reiserfs-3.6.22 is available at:
+ftp://ftp.namesys.com/pub/2.4/linux-2.4.0-test10-reiserfs-3.6.22-patch.gz
 
-> -----Original Message-----
-> From: Andi Kleen [mailto:ak@suse.de]
-> Sent: Monday, December 18, 2000 3:18 PM
-> To: Boerner, Brian
-> Cc: 'linux-kernel@vger.redhat.com'
-> Subject: Re: Disabling interrupts in 2.4.x
-> 
-> 
-> > The only thing I am sure of is that interrupts are simply 
-> not disabled.
-> 
-> They are only disabled on the local CPU, they could still 
-> occur on other 
-> CPUs. This is not different from 2.2.
-> 
-> > 
-> > I've also looked at some other scsi drivers that are 
-> disabling interrupts
-> > and they appear to be making similar calls to spin_lock_irqsave.
-> > 
-> > Does anyone have any suggestions for debugging this? Is 
-> there a call that
-> > can be made to find out if interrupts are actually disabled?
-> 
-> unsigned flag; 
-> asm volatile("pushfl ; popfl %0" : "=r" (flag)); 
-> printk(KERN_DEBUG "local interrupts are %s\n", (flag & 
-> (1<<9)) ? "enabled" : "disabled"); 
-> 
-> -Andi
-> 
+The first two additional patches are available here:
+ftp://ftp.reiserfs.org/pub/2.4/beta/reiserfs-test12-patches.tar.gz
+
+This tar contains:
+readpage-uptodate.diff    Linus's version (Test12 ll_rw_block thread)
+reiserfs-3622-test12.diff
+
+For 2.4.0-test13-pre1,2,3, the following Makefile patch is needed:
+ftp://ftp.reiserfs.org/pub/2.4/beta/test13-preX/reiserfs-Makefile-patch
+
+If you apply these patches in this order, you shouldn't get any rejects.
+(Apply the test13-preX patch first).
+
+Have fun,
+Steven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

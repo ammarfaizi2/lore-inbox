@@ -1,108 +1,196 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129248AbQLEByu>; Mon, 4 Dec 2000 20:54:50 -0500
+	id <S130754AbQLECAK>; Mon, 4 Dec 2000 21:00:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130252AbQLEByk>; Mon, 4 Dec 2000 20:54:40 -0500
-Received: from portraits.wsisiz.edu.pl ([195.205.208.34]:13599 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id <S129248AbQLEByg>; Mon, 4 Dec 2000 20:54:36 -0500
-Date: Tue, 5 Dec 2000 02:19:55 +0100 (CET)
-From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
-To: <linux-kernel@vger.kernel.org>
-cc: <jakub@redhat.com>
-Subject: Problems with Athlon CPU
-Message-ID: <Pine.LNX.4.30.0012050205570.2065-100000@lt.wsisiz.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	id <S130589AbQLECAB>; Mon, 4 Dec 2000 21:00:01 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:26373
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S129547AbQLEB7u>; Mon, 4 Dec 2000 20:59:50 -0500
+Date: Mon, 4 Dec 2000 20:39:29 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test12-pre4 boot failure (better than pre3 and lower)
+Message-ID: <20001204203929.A10058@animx.eu.org>
+In-Reply-To: <20001204162642.A5553@animx.eu.org> <3906.975966211@ocs3.ocs-net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <3906.975966211@ocs3.ocs-net>; from Keith Owens on Tue, Dec 05, 2000 at 08:43:31AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+> Most architectures dump their code as a string of bytes and print the
+> code after the registers and trace back.  Alpha dumps the code before
+> the trace and also decodes the instructions which really confuses
+> ksymoops.  Somebody changed 'Trace: ' to 'Trace:' between 2.2 and 2.4
+> kernels so ksymoops no longer picks the trace data.
+> 
+> Is there any chance of changing arch/alpha/kernel/traps.c to print
+> registers, trace and _raw_ code, in that order so it is more like other
+> architectures?  You can print the decoded instructions as well (prefix
+> Decode:, not Code:) as long as the raw code bytes are also available.
+> 
+> In the meantime, this patch to ksymoops 2.3.5 will pick up the change
+> to the trace lines.  It will still complain about a bad code line,
+> ksymoops is built for raw data.
 
-There is probably not a kernel bug, but bug in gcc, but... :)
+Didn't help much:
+[wakko@kakarot:/home/wakko/ksymoops-2.3.4] ./ksymoops -v /usr/src/2.4.0-test12-pre4/vmlinux -K -L -O -m /usr/src/2.4.0-test12-pre4/System.map < /rod/home/wakko/240t12p4-boot 
+ksymoops 2.3.4 on alpha 2.2.17-LVM-RAID.  Options used
+     -v /usr/src/2.4.0-test12-pre4/vmlinux (specified)
+     -K (specified)
+     -L (specified)
+     -O (specified)
+     -m /usr/src/2.4.0-test12-pre4/System.map (specified)
 
-[root@beer linux]# make bzImage
+Unable to handle kernel paging request at virtual address 0000000000000010
+swapper(53): Oops 0
+pc = [<fffffc0000323270>]  ra = [<fffffc0000323658>]  ps = 0000
+Using defaults from ksymoops -t elf64-alpha -a alpha
+v0 = 0000000000000000  t0 = 0000000000000012  t1 = fffffc0000485748
+t2 = fffffc0009f5c560  t3 = fffffc000046cfb0  t4 = 0000000000000000
+t5 = fffffffffffffffe  t6 = ffffffffffffffff  t7 = fffffc0009e00000
+s0 = fffffc0000323600  s1 = 0000000000000000  s2 = fffffc0009f5c560
+s3 = fffffc0009f5c560  s4 = fffffc0009eb0ac0  s5 = fffffc0009eb0ac0
+s6 = fffffc0009eb0ac0
+a0 = fffffc00004870c8  a1 = fffffc0009e00050  a2 = fffffc00004871c8
+a3 = 0000000000000000  a4 = 0000000000000001  a5 = 0000000000000000
+t8 = 0000000000000001  t9 = 0000000000000003  t10= 0000000000000004
+t11= 0000000000000010  pv = fffffc0000323600  at = 0000000000000000
+gp = fffffc00004a3f58  sp = fffffc0009dffee0
+Code: 40203001  addl t0,1,t0
+Warning (Oops_code): trailing garbage ignored on Code: line
+  Text: 'Code: 40203001  addl t0,1,t0'
+  Garbage: 'l t0,1,t0'
+Error (Oops_code_values): invalid value 0xadd in Code line, must be 2, 4, 8 or 16 digits, value ignored
 
-[snip]
+>>PC;  fffffc0000323270 <exec_usermodehelper+f0/480>   <=====
+Code;  fffffc0000323270 <exec_usermodehelper+f0/480>
+0000000000000000 <_PC>:
+Code;  fffffc0000323270 <exec_usermodehelper+f0/480>
+   0:   01 30 20 40       addl t0,0x1,t0
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
--fomit-frame-pointer -fno-strict-aliasing -pipe
--mpreferred-stack-boundary=2 -march=i686    -DEXPORT_SYMTAB -c selection.c
-In file included from /usr/src/linux/include/asm/smp.h:21,
-                 from /usr/src/linux/include/linux/smp.h:14,
-                 from /usr/src/linux/include/linux/sched.h:22,
-                 from selection.c:16:
-/usr/src/linux/include/asm/apic.h:13:29: warning: nothing can be pasted
-after this token
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
--fomit-frame-pointer -fno-strict-aliasing -pipe
--mpreferred-stack-boundary=2 -march=i686    -DEXPORT_SYMTAB -c serial.c
-In file included from /usr/src/linux/include/asm/smp.h:21,
-                 from /usr/src/linux/include/linux/smp.h:14,
-                 from /usr/src/linux/include/linux/sched.h:22,
-                 from serial.c:183:
-/usr/src/linux/include/asm/apic.h:13:29: warning: nothing can be pasted
-after this token
-serial.c: In function `line_info':
-serial.c:3241: Internal error: Segmentation fault.
-Please submit a full bug report.
-See <URL:http://www.gnu.org/software/gcc/bugs.html> for instructions.
-make[3]: *** [serial.o] Error 2
-make[3]: Leaving directory `/usr/src/linux/drivers/char'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux/drivers/char'
-make[1]: *** [_subdir_char] Error 2
-make[1]: Leaving directory `/usr/src/linux/drivers'
-make: *** [_dir_drivers] Error 2
+ b82b0000  stl_c t0,0(s2)
+ e42001fe  blt t0,.+2044
+ b57e0148  stq s2,328(sp)
+ a5480428  ldq s1,1064(t7)
+ a0220008  ldl t0,8(t1)
+ a52a0028  ldq s0,40(s1)
+Trace:323658 323600 
+Unable to handle kernel paging request at virtual address 0000000000000010
+swapper(54): Oops 0
+pc = [<fffffc0000323270>]  ra = [<fffffc0000323658>]  ps = 0000
+v0 = 0000000000000000  t0 = 0000000000000012  t1 = fffffc0000485748
+t2 = fffffc0009f5c560  t3 = fffffc000046cfb0  t4 = 0000000000000000
+t5 = fffffffffffffffe  t6 = ffffffffffffffff  t7 = fffffc0009e00000
+s0 = fffffc0000323600  s1 = 0000000000000000  s2 = fffffc0009f5c560
+s3 = fffffc0009f5c560  s4 = fffffc0009eb0ac0  s5 = fffffc0009eb0ac0
+s6 = fffffc0009eb0ac0
+a0 = fffffc00004870c8  a1 = fffffc0009e00050  a2 = fffffc00004871c8
+a3 = 0000000000000000  a4 = 0000000000000001  a5 = 0000000000000000
+t8 = 0000000000000001  t9 = 0000000000000003  t10= 0000000000000004
+t11= 0000000000000010  pv = fffffc0000323600  at = 0000000000000000
+gp = fffffc00004a3f58  sp = fffffc0009dffee0
+Code: 40203001  addl t0,1,t0
+Warning (Oops_code): trailing garbage ignored on Code: line
+  Text: 'Code: 40203001  addl t0,1,t0'
+  Garbage: 'l t0,1,t0'
+Error (Oops_code_values): invalid value 0xadd in Code line, must be 2, 4, 8 or 16 digits, value ignored
 
-I have tried compiled it on AMD Athlon Processor with glibc 2.2.
-I have tried to compile kernels: 2.2.17, 2.2.18pre-24, 2.4.0-test11 and
-always I have got this message. With glibc 2.1.94 I had not any problems
-with compilation!
+Trace; 0000000000323658 Before first symbol
+Trace; 0000000000323600 Before first symbol
+>>PC;  fffffc0000323270 <exec_usermodehelper+f0/480>   <=====
+Code;  fffffc0000323270 <exec_usermodehelper+f0/480>
+0000000000000000 <_PC>:
+Code;  fffffc0000323270 <exec_usermodehelper+f0/480>
+   0:   01 30 20 40       addl t0,0x1,t0
+
+ b82b0000  stl_c t0,0(s2)
+ e42001fe  blt t0,.+2044
+ b57e0148  stq s2,328(sp)
+ a5480428  ldq s1,1064(t7)
+ a0220008  ldl t0,8(t1)
+ a52a0028  ldq s0,40(s1)
+Trace:323658 323600 
+Unable to handle kernel paging request at virtual address 0000000000000010
+swapper(56): Oops 0
+pc = [<fffffc0000323270>]  ra = [<fffffc0000323658>]  ps = 0000
+v0 = 0000000000000000  t0 = 0000000000000012  t1 = fffffc0000485748
+t2 = fffffc0009f5c560  t3 = fffffc000046cfb0  t4 = 0000000000000000
+t5 = fffffffffffffffe  t6 = ffffffffffffffff  t7 = fffffc0009e00000
+s0 = fffffc0000323600  s1 = 0000000000000000  s2 = fffffc0009f5c560
+s3 = fffffc0009f5c560  s4 = fffffc0009eb0ac0  s5 = fffffc0009eb0ac0
+s6 = fffffc0009eb0ac0
+a0 = fffffc00004870c8  a1 = fffffc0009e00050  a2 = fffffc00004871c8
+a3 = 0000000000000000  a4 = 0000000000000001  a5 = 0000000000000000
+t8 = 0000000000000001  t9 = 0000000000000003  t10= 0000000000000004
+t11= 0000000000000010  pv = fffffc0000323600  at = 0000000000000000
+gp = fffffc00004a3f58  sp = fffffc0009dffee0
+Code: 40203001  addl t0,1,t0
+Warning (Oops_code): trailing garbage ignored on Code: line
+  Text: 'Code: 40203001  addl t0,1,t0'
+  Garbage: 'l t0,1,t0'
+Error (Oops_code_values): invalid value 0xadd in Code line, must be 2, 4, 8 or 16 digits, value ignored
+
+Trace; 0000000000323658 Before first symbol
+Trace; 0000000000323600 Before first symbol
+>>PC;  fffffc0000323270 <exec_usermodehelper+f0/480>   <=====
+Code;  fffffc0000323270 <exec_usermodehelper+f0/480>
+0000000000000000 <_PC>:
+Code;  fffffc0000323270 <exec_usermodehelper+f0/480>
+   0:   01 30 20 40       addl t0,0x1,t0
+
+ b82b0000  stl_c t0,0(s2)
+ e42001fe  blt t0,.+2044
+ b57e0148  stq s2,328(sp)
+ a5480428  ldq s1,1064(t7)
+ a0220008  ldl t0,8(t1)
+ a52a0028  ldq s0,40(s1)
+Trace:323658 323600 
+Unable to handle kernel paging request at virtual address 0000000000000010
+swapper(57): Oops 0
+pc = [<fffffc0000323270>]  ra = [<fffffc0000323658>]  ps = 0000
+v0 = 0000000000000000  t0 = 0000000000000012  t1 = fffffc0000485748
+t2 = fffffc0009f5c560  t3 = fffffc000046cfb0  t4 = 0000000000000000
+t5 = fffffffffffffffe  t6 = ffffffffffffffff  t7 = fffffc0009e00000
+s0 = fffffc0000323600  s1 = 0000000000000000  s2 = fffffc0009f5c560
+s3 = fffffc0009f5c560  s4 = fffffc0009eb0ac0  s5 = fffffc0009eb0ac0
+s6 = fffffc0009eb0ac0
+a0 = fffffc00004870c8  a1 = fffffc0009e00050  a2 = fffffc00004871c8
+a3 = 0000000000000000  a4 = 0000000000000001  a5 = 0000000000000000
+t8 = 0000000000000001  t9 = 0000000000000003  t10= 0000000000000004
+t11= 0000000000000010  pv = fffffc0000323600  at = 0000000000000000
+gp = fffffc00004a3f58  sp = fffffc0009dffee0
+Code: 40203001  addl t0,1,t0
+Warning (Oops_code): trailing garbage ignored on Code: line
+  Text: 'Code: 40203001  addl t0,1,t0'
+  Garbage: 'l t0,1,t0'
+Error (Oops_code_values): invalid value 0xadd in Code line, must be 2, 4, 8 or 16 digits, value ignored
+
+Trace; 0000000000323658 Before first symbol
+Trace; 0000000000323600 Before first symbol
+>>PC;  fffffc0000323270 <exec_usermodehelper+f0/480>   <=====
+Code;  fffffc0000323270 <exec_usermodehelper+f0/480>
+0000000000000000 <_PC>:
+Code;  fffffc0000323270 <exec_usermodehelper+f0/480>
+   0:   01 30 20 40       addl t0,0x1,t0
+
+ b82b0000  stl_c t0,0(s2)
+ e42001fe  blt t0,.+2044
+ b57e0148  stq s2,328(sp)
+ a5480428  ldq s1,1064(t7)
+ a0220008  ldl t0,8(t1)
+ a52a0028  ldq s0,40(s1)
+Trace:323658 323600 
+Warning (Oops_read): Code line not seen, dumping what data is available
+
+Trace; 0000000000323658 Before first symbol
+Trace; 0000000000323600 Before first symbol
 
 
-[lukasz@beer lukasz]$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 3
-model name      : AMD Athlon(tm) Processor
-stepping        : 0
-cpu MHz         : 600.043
-cache size      : 1 KB
-fdiv_bug        : no
-hlt_bug         : no
-sep_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr 6 mce cx8 sep mtrr pge 14 cmov
-fcmov 17 psn 22 mmx 24 30 3dnow
-bogomips        : 1196.03
-
-[lukasz@beer lukasz]$ gcc -v
-Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
-gcc version 2.96 20000731 (Red Hat Linux 7.0)
-
-[lukasz@beer lukasz]$ rpm -q glibc
-glibc-2.2-5
-
-Any sugestions? On others machines with AMD-K6 or Petnium-III/II and
-with the same version of glibc and gcc that problems does not exists!
-
-ps
-sorry for my broken english. :(
-
-
-
--- 
-*[ £ukasz Tr±biñski ]*
-SysAdmin @wsisiz.edu.pl
-
+5 warnings and 4 errors issued.  Results may not be reliable.
+[wakko@kakarot:/home/wakko/ksymoops-2.3.4] 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

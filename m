@@ -1,51 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269046AbUI2Ugw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269023AbUI2Ui3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269046AbUI2Ugw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 16:36:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269026AbUI2Uga
+	id S269023AbUI2Ui3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 16:38:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269026AbUI2Ug4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 16:36:30 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:34451
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S269046AbUI2Uf5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 16:36:56 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:19328 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S269045AbUI2Uf5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 29 Sep 2004 16:35:57 -0400
-Date: Wed, 29 Sep 2004 13:35:00 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Greg Banks <gnb@sgi.com>
-Cc: jbarnes@engr.sgi.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       jeremy@sgi.com, johnip@sgi.com, netdev@oss.sgi.com
-Subject: Re: [PATCH] I/O space write barrier
-Message-Id: <20040929133500.59d78765.davem@davemloft.net>
-In-Reply-To: <20040929103646.GA4682@sgi.com>
-References: <200409271103.39913.jbarnes@engr.sgi.com>
-	<20040929103646.GA4682@sgi.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Date: Wed, 29 Sep 2004 22:33:47 +0200
+From: Tonnerre <tonnerre@thundrix.ch>
+To: Lennert Buytenhek <buytenh@wantstofly.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, dsaxena@plexity.net,
+       linux-kernel@vger.kernel.org, herbertb@cs.vu.nl
+Subject: Re: strange NFS problems (ARM client, x86 server)
+Message-ID: <20040929203347.GD21770@thundrix.ch>
+References: <20040929082307.GA19666@xi.wantstofly.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="DrWhICOqskFTAXiy"
+Content-Disposition: inline
+In-Reply-To: <20040929082307.GA19666@xi.wantstofly.org>
+X-GPG-KeyID: 0x8BE1C38D
+X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
+X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Sep 2004 20:36:46 +1000
-Greg Banks <gnb@sgi.com> wrote:
 
-> Ok, here's a patch for the tg3 network driver to use mmiowb().  Tests
-> over the last couple of days has shown that it solves the oopses in
-> tg3_tx() that I reported and attempted to patch some time ago:
-> 
-> http://marc.theaimsgroup.com/?l=linux-netdev&m=108538612421774&w=2
-> 
-> The CPU usage of the mmiowb() approach is also significantly better
-> than doing PCI reads to flush the writes (by setting the existing
-> TG3_FLAG_MBOX_WRITE_REORDER flag).  In an artificial CPU-constrained
-> test on a ProPack kernel, the same amount of CPU work for the REORDER
-> solution pushes 85.1 MB/s over 2 NICs compared to 146.5 MB/s for the
-> mmiowb() solution.
+--DrWhICOqskFTAXiy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Please put this macro in asm/io.h or similar and make sure
-every platform has it implemented or provides a NOP version.
+Salut,
 
-A lot of people are going to get this wrong btw.  The only
-way it's really going to be cured across the board is if someone
-like yourself who understands this audits all of the drivers.
+On Wed, Sep 29, 2004 at 10:23:07AM +0200, Lennert Buytenhek wrote:
+> chdir("")                               = -1 ENOENT (No such file or directory)
+
+Interestingly,  rpm requested an  empty chdir.  This narrows  down the
+problem.
+
+The following miniapp should be able to reproduce the problem:
+
+cat << EOT > blah.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main(void) {
+	if (chdir("")) {
+		perror("chdir");
+		exit(1);
+	}
+	exit(0);
+}
+EOT
+
+Does it?
+
+			    Tonnerre
+
+--DrWhICOqskFTAXiy
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.2 (GNU/Linux)
+
+iD8DBQFBWxwq/4bL7ovhw40RAqWFAKCsJSYbs4XFp1GbY57AXy/WUZsSzACghmi1
+ceK1So6t8FnY+3QEFO2eRvo=
+=lym0
+-----END PGP SIGNATURE-----
+
+--DrWhICOqskFTAXiy--

@@ -1,102 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129581AbRB0Gcb>; Tue, 27 Feb 2001 01:32:31 -0500
+	id <S129590AbRB0GeB>; Tue, 27 Feb 2001 01:34:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129590AbRB0GcU>; Tue, 27 Feb 2001 01:32:20 -0500
-Received: from mail.isis.co.za ([196.15.218.226]:33034 "EHLO mail.isis.co.za")
-	by vger.kernel.org with ESMTP id <S129581AbRB0GcG>;
-	Tue, 27 Feb 2001 01:32:06 -0500
-Message-Id: <4.3.2.7.0.20010227082751.00aa1c90@192.168.0.18>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Tue, 27 Feb 2001 08:31:52 +0200
-To: Manfred Spraul <manfred@colorfullife.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-From: Pat Verner <pat@isis.co.za>
-Subject: Re: PROBLEM: Network hanging - Tulip driver with Netgear
-  (Lite-On)
-Cc: linux-kernel@vger.kernel.org, Alan@redhat.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S129594AbRB0Gdv>; Tue, 27 Feb 2001 01:33:51 -0500
+Received: from [213.95.12.190] ([213.95.12.190]:12 "HELO mail.medav.de")
+	by vger.kernel.org with SMTP id <S129590AbRB0Gdj> convert rfc822-to-8bit;
+	Tue, 27 Feb 2001 01:33:39 -0500
+From: "Daniela Engert" <dani@ngrt.de>
+To: "Jason Rappleye" <rappleye@cse.Buffalo.EDU>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "jonesm@ccr.buffalo.edu" <jonesm@ccr.buffalo.edu>
+Date: Tue, 27 Feb 2001 07:35:50 +0100 (CET)
+Reply-To: "Daniela Engert" <dani@ngrt.de>
+X-Mailer: PMMail 2.00.1500 for OS/2 Warp 4.00
+In-Reply-To: <Pine.GSO.4.21.0102261526330.15135-100000@pollux.cse.Buffalo.EDU>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: Re: timeout waiting for DMA
+Message-Id: <20010227063147.3F8674F06@mail.medav.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Later, for what its worth:
-Up to now, I have only had one of the network cards active, and connected 
-to the hub.  I have just connected a second card to the hub, with an 
-additional IP address.  After running IPTRAF, it hung after about 5 
-minutes, after which BOTH network cards stopped responding.
-=Pat
-----------------
-Good morning all.
+Hi Jason!
 
-First thing this morning I applied Jeff's patch, as below.  Started off 
-well, ran for about 20 minutes (and 40 MBytes) before hanging.
+On Mon, 26 Feb 2001 15:41:04 -0500 (EST), Jason Rappleye wrote:
 
-Reversed out Jeff's change and applied Manfred's patch to the same lines in 
-pnic.c.  Ran for about 15 minutes (28 Mbytes) before hanging.  It is still 
-early, and the network is still quiet, so the volume of data received is 
-still low, but the hanging problem is unfortunately still there.
+>I'm running kernel 2.4.2 on an SGI 1100 (dual PIIIs) with a Serverworks
+>III LE based motherboard. The disk is a Seagate ST330630A. The disk has
+>DMA enabled at boot time :
 
-=Pat
+>hda: ST330630A, ATA DISK drive
+>hda: 59777640 sectors (30606 MB) w/2048KiB Cache, CHS=3720/255/63, UDMA(33)
 
-At 09:58 PM 26/02/2001 +0100, Manfred Spraul wrote:
->Jeff Garzik wrote:
-> > Pat, Manfred, in pnic_check_duplex, make this change:
-> > > -        negotiated = mii_reg5 & tp->advertising[0];
-> > > +        negotiated = mii_reg5 & tulip_mdio_read(dev, tp->phys[0], 4);
-> >
->The changed fixed the problem.
->
-> >
-> > Manfred Spraul wrote:
-> > >
-> > > I think I found the bug:
-> > >
-> > > Someone (Jeff?) removed the line
-> > >
-> > >         tp->advertising[phy_idx++] = reg4;
-> > >
-> > > from tulip/tulip_core.c
-> > >
-> > > pnic_check_duplex uses that variable :-(
-> > >
-> > > There are 2 workarounds:
-> > >
-> > > * change pnic_check_duplex:
-> > > s/tp->advertising[0]/tp->mii_advertise/g
-> > >
-> > > * remove the new mii_advertise variable and replace it with
-> > > 'tp->advertising[i]'.
-> >
-> > mii_advertise is what MII is currently advertising on the current
-> > media.  tp->advertising is per-phy, on the other hand.
-> >
->
->Could you double check the code in tulip_core.c, around line 1450?
->IMHO it's bogus.
->
->1) if the network card contains multiple mii's, then the the advertised
->value of all mii's is changed to the advertised value of the first mii.
->
->2) the new driver starts with the current advertised value, the previous
->driver recalculated the value from mii_status
->
->[ mii_status = tulip_mdio_read(dev,phy,1); ]
->
->- reg4 = ((mii_status>>6)& tp->to_advertise) | 1;
->
->That could trigger 2 problems:
->* I tested with 'options=11', and the new driver announces '100baseT4'
->support, but the PHY doesn't support 100baseT4.
->* If the mii is incorrectly initialized, then a wrong advertised value
->is not corrected.
->
->--
->         Manfred
+>but after a while (eg partway through running bonnie with a 1GB file) I
+>get the following errors:
 
---
-Pat Verner				E-Mail:  pat@isis.co.za
-           Isis Information Systems (Pty) Ltd
-           PO Box 281, Irene, 0062, South Africa
-Phone: +27-12-667-1411	      	Fax: +27-12-667-3800
+>Feb 24 22:51:02 nash2 kernel: hda: timeout waiting for DMA 
+>Feb 24 22:51:02 nash2 kernel: ide_dmaproc: chipset supported ide_dma_timeout 
+>func only: 14 
+>Feb 24 22:51:02 nash2 kernel: hda: irq timeout: status=0x58 { DriveReady
+>SeekComplete DataRequest }
+><repeats a few times>
+>Feb 24 22:51:32 nash2 kernel: hda: DMA disabled
+
+>I can reenable DMA without any problems, but after some additional disk
+>activity (eg running bonnie again), the error occurs again. 
+
+>Additional information on my hardware is given below. Any suggestions on
+>how this can be resolved?
+
+Reduce the IDE channel speed to UltraDMA mode 1 or less.
+
+Ciao,
+  Dani
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Daniela Engert, systems engineer at MEDAV GmbH
+Gräfenberger Str. 34, 91080 Uttenreuth, Germany
+Phone ++49-9131-583-348, Fax ++49-9131-583-11
+
 

@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbUL2GE0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbUL2G7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261325AbUL2GE0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 01:04:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbUL2GE0
+	id S261165AbUL2G7j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 01:59:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbUL2G7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 01:04:26 -0500
-Received: from sweetums.bluetronic.net ([24.199.150.42]:7823 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S261325AbUL2GEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 01:04:24 -0500
-Date: Wed, 29 Dec 2004 01:00:31 -0500 (EST)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK] disconnected operation
-In-Reply-To: <C8A13912-5958-11D9-AA77-000393ACC76E@mac.com>
-Message-ID: <Pine.GSO.4.33.0412290052030.6921-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 29 Dec 2004 01:59:39 -0500
+Received: from em.njupt.edu.cn ([202.119.230.11]:12209 "HELO njupt.edu.cn")
+	by vger.kernel.org with SMTP id S261165AbUL2G7h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 01:59:37 -0500
+Message-ID: <304306892.28448@njupt.edu.cn>
+X-WebMAIL-MUA: [10.10.136.115]
+From: "Zhenyu Wu" <y030729@njupt.edu.cn>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 29 Dec 2004 15:54:52 +0800
+Reply-To: "Zhenyu Wu" <y030729@njupt.edu.cn>
+X-Priority: 3
+Subject: VQs in Gred!
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Dec 2004, Kyle Moffett wrote:
->So what would happen to somebody who put their BK files on a portable
->drive and carried it from home to work.  That's a perfectly reasonable
->thing to do, both for security and for speed reasons, but it would appear
->to cause problems.
+Hello,
 
-First, the license(s) are stored in the user's home directory (~/.bk/lease)
-per hostname.  If you move to a completely different machine, then, yes,
-there will need to be a lease for that machine.
+We know, VQs are used in Gred to offer different schedulers, in order to make
+clear what the 
+VQs are, I have read the sch_gred.c in net/sched/. In the function gred_enqueue(),
+at first it will 
+find the VQ(q) according to the lower four bits of the skb->tc_index, then some
+parameters of the
+q is modified, such as q->packetsin and q->bytesin. At last the packet was put
+into the  physical
+Queue using __skb_queue_tail(). When dequeue the packet, only the function
+__skb_dequeue()
+is called, and the VQ parameters are modified. Then the packets from all VQS will
+enter and 
+store in the physical queue (sch->q), and be dequeued from there. HOW does the
+Gred schedule
+packets of differnet priorities?
 
-What you are describing is no different from the NFS case.  It doesn't
-matter that the media has physically moved; it's still visible to multiple,
-unique hosts.  Each host(name) will need it's own lease.
+Thanks,
 
---Ricky
 
 

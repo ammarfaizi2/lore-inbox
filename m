@@ -1,68 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265911AbUFITeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265931AbUFIThb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265911AbUFITeL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 15:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265864AbUFITdx
+	id S265931AbUFIThb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 15:37:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265932AbUFIThb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 15:33:53 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31370 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265880AbUFITct (ORCPT
+	Wed, 9 Jun 2004 15:37:31 -0400
+Received: from puzzle.pobox.com ([207.8.214.3]:31400 "EHLO puzzle.pobox.com")
+	by vger.kernel.org with ESMTP id S265878AbUFITe3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 15:32:49 -0400
-Date: Wed, 9 Jun 2004 15:32:41 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: John Bradford <john@grabjohn.com>
-cc: Matt Mackall <mpm@selenic.com>,
-       Christian Borntraeger <linux-kernel@borntraeger.net>,
-       <linux-kernel@vger.kernel.org>,
-       Lasse K?rkk?inen / Tronic <tronic2@sci.fi>
-Subject: Re: Some thoughts about cache and swap
-In-Reply-To: <200406091932.i59JWh0N000383@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.4.44.0406091528410.3620-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 9 Jun 2004 15:34:29 -0400
+Date: Wed, 9 Jun 2004 12:34:19 -0700
+From: Paul Dickson <dickson@permanentmail.com>
+To: Phy Prabab <phyprabab@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: slow down in 2.6 vs 2.4
+Message-Id: <20040609123419.0931b9f5.dickson@permanentmail.com>
+In-Reply-To: <20040609041032.96600.qmail@web51807.mail.yahoo.com>
+References: <1086744927.40c6695f9c361@vds.kolivas.org>
+	<20040609041032.96600.qmail@web51807.mail.yahoo.com>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Jun 2004, John Bradford wrote:
+You might check out this URL:
 
-> Does "the big problem" really exist though?
+    http://www.usenix.org/publications/library/proceedings/als01/full_papers/ezolt/ezolt_html/
 
-It's all about corner cases (and corner case workloads).
+It may not be directly relevent even though the discussed problem is
+similar, but the tips on how to break down the problem more than likely
+are.
 
-> Despite all of this discussion about swap and memory management, I
-> _never_ reproduce any of the problems mentioned in normal use.
-
-Just like most people aren't seeing problems with the O(1)
-scheduler and the 500 lines of kludges piled on top that
-keep it working ok in 2.6 - in most cases.
-
-Compare with Con's staircase scheduler, that removes those
-500 lines of code, appears to work just as good in the common
-situations and deals with a few extra corner cases.
-
-The VM is in a similar situation, with Too Much Magic(tm) all
-over the place, just to keep the system working smoothly in
-normal workloads.
-
-It would be a minor miracle if the VM - with all the magic
-tweaks - still worked fine for workloads that don't behave the
-way the VM expects them to.
-
-THAT is what replacing the current code with a self-learning
-algorithm is all about, IMHO.
-
-> In my experience, extreme VM problems almost always stem from
-> mis-configured swap.
-
-Haven't seen many of those, to be honest.  The majority
-of the VM problems I get to see are people running a
-workload the kernel didn't expect - a workload the kernel
-wasn't prepared to handle...
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+	-Paul
 

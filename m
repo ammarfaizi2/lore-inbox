@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263146AbVCDVBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263149AbVCDVSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263146AbVCDVBx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 16:01:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbVCDU5J
+	id S263149AbVCDVSm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 16:18:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263164AbVCDVN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 15:57:09 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:24044 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S263104AbVCDUsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 15:48:30 -0500
-Subject: Re: Linux 2.6.11.1
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, chrisw@osdl.org, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050304175302.GA29289@kroah.com>
-References: <20050304175302.GA29289@kroah.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Fri, 04 Mar 2005 15:48:20 -0500
-Message-Id: <1109969300.591.115.camel@localhost.localdomain>
+	Fri, 4 Mar 2005 16:13:27 -0500
+Received: from mail.kroah.org ([69.55.234.183]:57761 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263148AbVCDUy0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 15:54:26 -0500
+Cc: khali@linux-fr.org
+Subject: [PATCH] I2C: Make i2c list terminators explicitely unsigned
+In-Reply-To: <11099685962988@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 4 Mar 2005 12:36:36 -0800
+Message-Id: <11099685962273@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-04 at 09:53 -0800, Greg KH wrote:
+ChangeSet 1.2107, 2005/03/02 15:02:10-08:00, khali@linux-fr.org
 
-> ---------------
-> 
-> I've released the 2.6.11.1 patch:
-> 	kernel.org/pub/linux/kernel/people/gregkh/v2.6.11/patch-2.6.11.1.gz
-> 
-> With a detailed changelog at:
-> 	kernel.org/pub/linux/kernel/people/gregkh/v2.6.11/ChangeLog-2.6.11.1
-> 
-> A bitkeeper tree for the 2.6.11.y releases can be found at:
-> 	bk://linux-release.bkbits.net/linux-2.6.11
-> 
-> The diffstat and short summary of the fixes are below.  
+[PATCH] I2C: Make i2c list terminators explicitely unsigned
 
-I know this is new, but is this going to be posted on www.kernel.org?  
+Shouldn't the i2c list terminators be explicitely declared as unsigned?
+I'd hope it to help code analysis tools and possibly avoid false
+positives. Coverity's SWAT pointed my attention to these constants.
 
-Like you don't have enough on your plate already!
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
--- Steve
 
+ include/linux/i2c.h |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+
+diff -Nru a/include/linux/i2c.h b/include/linux/i2c.h
+--- a/include/linux/i2c.h	2005-03-04 12:23:42 -08:00
++++ b/include/linux/i2c.h	2005-03-04 12:23:42 -08:00
+@@ -299,8 +299,8 @@
+ };
+ 
+ /* Internal numbers to terminate lists */
+-#define I2C_CLIENT_END		0xfffe
+-#define I2C_CLIENT_ISA_END	0xfffefffe
++#define I2C_CLIENT_END		0xfffeU
++#define I2C_CLIENT_ISA_END	0xfffefffeU
+ 
+ /* The numbers to use to set I2C bus address */
+ #define ANY_I2C_BUS		0xffff
 

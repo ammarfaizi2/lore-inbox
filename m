@@ -1,71 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263523AbUCTUP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 15:15:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263525AbUCTUPZ
+	id S263525AbUCTUQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 15:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263530AbUCTUQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 15:15:25 -0500
-Received: from moutng.kundenserver.de ([212.227.126.184]:27878 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S263523AbUCTUPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 15:15:16 -0500
-Date: Sat, 20 Mar 2004 21:15:09 +0100 (MET)
-From: Armin Schindler <armin@melware.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>
-Subject: Re: [PATCH 2.6] serialization of kernelcapi work
-In-Reply-To: <20040320111431.4ba002f1.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.31.0403202048010.27103-100000@phoenix.one.melware.de>
-Organization: Cytronics & Melware
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:4f0aeee4703bc17a8237042c4702a75a
+	Sat, 20 Mar 2004 15:16:55 -0500
+Received: from mail.kroah.org ([65.200.24.183]:25753 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263525AbUCTUQw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 15:16:52 -0500
+Date: Sat, 20 Mar 2004 12:16:36 -0800
+From: Greg KH <greg@kroah.com>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-usb-users@lists.sourceforge.net
+Subject: Re: [PATCH 2.6.5-rc2] CAN-2004-0075 still valid for 2.6?
+Message-ID: <20040320201636.GC14667@kroah.com>
+References: <200403202059.33039@WOLK>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403202059.33039@WOLK>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Mar 2004, Andrew Morton wrote:
-> Armin Schindler <armin@melware.de> wrote:
-> >
-> > static atomic_t recv_work_count;
-> >
-> > static void recv_handler(void *data)
-> > {
-> > 	if (atomic_inc_and_test(&recv_work_count)) {
-> > 		do {
-> > 			/* work to do */
-> > 		} while (!atomic_add_negative(-1, &recv_work_count));
-> > 	}
-> > }
-> >
-> > static int __init kcapi_init(void)
-> > {
-> > 	atomic_set(&recv_work_count, -1);
-> > }
-> >
-> >
-> > A second call to the recv_handler() just results in an additional loop
-> > of the first one and the second CPU goes on with its work.
->
-> It doesn't need to be a counter - it can simply be a flag.  See how (say)
-> queue_work() does it.
->
-> However you are limiting things so only a single CPU can run `work to do'
-> at any time, same as with a semaphore.
+On Sat, Mar 20, 2004 at 08:59:33PM +0100, Marc-Christian Petersen wrote:
+> Hi Greg,
+> 
+> seems $subject is still valid for 2.6, no? - 2.4 got a fix 11 weeks ago.
+> 
+> See this: 
+> http://linux.bkbits.net:8080/linux-2.4/diffs/drivers/usb/vicam.c@1.15?nav=index.html|
+> src/|src/drivers|src/drivers/usb|hist/drivers/usb/vicam.c
+> 
+> Please apply.
+> 
+> ciao, Marc
 
-Well, limiting the 'work to do' to one CPU is exactly what I need to do,
-the code must not run on another CPU at the same time.
+> # drivers/usb/media/vicam.c |   13 ++++++++++---
+> # 1 files changed, 10 insertions(+), 3 deletions(-)
+> 
+> diff -urN linux-old/drivers/usb/media/vicam.c linux-wolk-for-2.6drivers/usb/media/vicam.c
+> --- linux-old/drivers/usb/media/vicam.c	2003-11-28 10:26:20.000000000 -0800
+> +++ linux-wolk-for-2.6drivers/usb/media/vicam.c	2004-01-15 12:10:23.000000000 -0800
+> @@ -653,12 +653,19 @@
+>  	case VIDIOCSWIN:
+>  		{
+>  
+> -			struct video_window *vw = (struct video_window *) arg;
+> -			DBG("VIDIOCSWIN %d x %d\n", vw->width, vw->height);
+> +			struct video_window vw;
+>  
+> -			if ( vw->width != 320 || vw->height != 240 )
+> +			if (copy_from_user(&vw, arg, sizeof(vw)))
+> +			{
 
-If just a 'flag' is used, it is possible to loose an event, the flag like in
-queue_work() prevents from running twice only.
-But if the first work is just finished and about to reset the flag, the
-check for the flag in the second CPU results to do nothing and a possible
-needed work is not done.
+Care to implement proper coding style here?
 
-The idea of using an atomic counter instead of the semaphore is for
-performance reasons. It's better if the second work-to-do just increments
-a counter, which the first work handles afterwards, than put this thread to
-sleep.
+And for some reason I thought this was already fixed in 2.6...  guess
+not.
 
-Armin
+thanks,
 
-
+greg k-h

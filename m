@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281005AbRKYTRH>; Sun, 25 Nov 2001 14:17:07 -0500
+	id <S281017AbRKYTtR>; Sun, 25 Nov 2001 14:49:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281006AbRKYTQ4>; Sun, 25 Nov 2001 14:16:56 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:23818 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S281005AbRKYTQt>;
-	Sun, 25 Nov 2001 14:16:49 -0500
-Date: Sun, 25 Nov 2001 20:16:31 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: kubla@sciobyte.de, marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.16-pre1
-Message-Id: <20011125201631.6f381261.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.33.0111251007140.9377-100000@penguin.transmeta.com>
-In-Reply-To: <20011125151543.57a1159c.skraw@ithnet.com>
-	<Pine.LNX.4.33.0111251007140.9377-100000@penguin.transmeta.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S281044AbRKYTtI>; Sun, 25 Nov 2001 14:49:08 -0500
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:16257 "EHLO
+	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S281042AbRKYTsu>;
+	Sun, 25 Nov 2001 14:48:50 -0500
+Message-ID: <3C014B51.3040308@stesmi.com>
+Date: Sun, 25 Nov 2001 20:49:37 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: J Sloan <jjs@pobox.com>
+CC: arjan@fenrus.demon.nl, James Davies <james_m_davies@yahoo.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: linux 2.4.13 Kernel and Ext3 vs Ext2
+In-Reply-To: <E167zTW-0002SK-00@fenrus.demon.nl> <3C013C73.51912229@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Nov 2001 10:17:15 -0800 (PST)
-Linus Torvalds <torvalds@transmeta.com> wrote:
+Hi.
 
-[about Gods' pure nature]  ;-)
+>>>You can also download a kernel RPM. the latest one released by redhat is
+>>>2.4.13, and it is pretty much guaranteed to work with your current system and
+>>>not break anything. It is also be patched with ext3 support.
+>>>
+>>Ehmmm..... The last released kernel by Red Hat is 2.4.9-13, not
+>>2.4.13-something....
+>>
+> 
+> Well, the rawhide (release "1.0") is currently
+> "shipping" with a 2.4.13 kernel -
 
-lets face it, guys: God gave us the stones, its our free decision if we either
-throw them at each other or build a house to live in.
+Yeah, but rawhide is and always will be a thing that might run. I know 
+that sometimes they throw in packages that won't work with other 
+packages until those are replaced. Rawhide if for testing, not 
+production. Sometimes it works, sometimes it doesn't. No guarantees, no 
+QA, no nothing.
 
-:-)
+// Stefan
 
-Well, in fact I'd rather let the Eagles fly in my house, than Rolling the
-Stones ...
-But that's a personal decision :-)
-
-Take it easy,
-Stephan
 

@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131310AbRALAn0>; Thu, 11 Jan 2001 19:43:26 -0500
+	id <S131188AbRALAx7>; Thu, 11 Jan 2001 19:53:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131556AbRALAnQ>; Thu, 11 Jan 2001 19:43:16 -0500
-Received: from d-dialin-1397.addcom.de ([62.96.164.205]:22257 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S131310AbRALAnK>; Thu, 11 Jan 2001 19:43:10 -0500
-Date: Fri, 12 Jan 2001 01:35:29 +0100 (CET)
-From: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
-To: rdunlap <randy.dunlap@intel.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>, Alan Cox <alan@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Re: That horrible hack from hell called A20
-In-Reply-To: <3A5CBAE3.ACDD2494@intel.com>
-Message-ID: <Pine.LNX.4.30.0101120130350.1288-100000@vaio>
+	id <S131498AbRALAxt>; Thu, 11 Jan 2001 19:53:49 -0500
+Received: from mailhost1.dircon.co.uk ([194.112.32.65]:25355 "EHLO
+	mailhost1.dircon.co.uk") by vger.kernel.org with ESMTP
+	id <S131188AbRALAxb>; Thu, 11 Jan 2001 19:53:31 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14942.21680.175176.177588@starfruit.iwks.multi.local>
+Date: Fri, 12 Jan 2001 00:49:52 +0000 (GMT)
+From: Mark Longair <list-reader@ideaworks3d.com>
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.2.18] outgoing connections getting stuck in SYN_SENT
+In-Reply-To: <Pine.LNX.3.95.1010111191618.1531A-100000@chaos.analogic.com>
+In-Reply-To: <14942.18985.174437.785751@starfruit.iwks.multi.local>
+	<Pine.LNX.3.95.1010111191618.1531A-100000@chaos.analogic.com>
+X-Mailer: VM 6.72 under 21.1 (patch 10) "Capitol Reef" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jan 2001, rdunlap wrote:
+On Thursday 11 January, Richard B. Johnson wrote ("Re: [2.2.18] outgoing connections getting stuck in SYN_SENT"):
+[...]
+> You probably compiled your kernel with "CONFIG_INET_ECN" set.
+> If so, you need to turn it OFF in /proc/sys/net/...something_ecn.
 
-> Here's a patch to 2.2.19-pre7 that is essentially a backport of the
-> 2.4.0 gate-A20 code.
->
-> This speeds up booting on my fast-A20 board (Celeron 500 MHz, no KBC)
-> from 2 min:15 seconds to <too small to measure by my wrist watch>.
->
-> Kai, you reported that your system was OK with 2.4.0-test12-pre6.
-> Does that mean that it's OK with 2.4.0-final also?
+I don't have an ECN option available in this kernel (2.2.18) - I
+thought it only appeared in 2.3...
 
-Yes, i would have complained otherwise ;-)
+> Many/most/all servers are "not ready for prime time" and will
+> reject packets that have "strange" bits set.
+[...]
 
-> Comments?  Should we be merging Peter's int 0x15-first patch with this?
-> And test for A20-gated after each step, before going to the next
-> method?  Get that working and then backport it to 2.2.19?
-> Have their been any test reports on Peter's last patch?  I didn't see
-> any, but if that should be the goal, I'll give it a whirl.
->
-> I'd like to see this applied to 2.2.19.  At least changing the long
-> delay so that it doesn't appear that Linux isn't going to boot...
-
-For what it's worth, 2.2.19pre7+your patch works fine here (across
-suspend).
-
---Kai
-
-
-
-
+I compiled in the QoS support - could that possibly cause a similar
+effect?  I'm not actually using the QoS tools at the moment, but I
+intend to soon.  I'll post the selected options in my .config if that
+would be helpful.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

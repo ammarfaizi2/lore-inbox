@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290302AbSB0ARU>; Tue, 26 Feb 2002 19:17:20 -0500
+	id <S290333AbSB0ASU>; Tue, 26 Feb 2002 19:18:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290277AbSB0ARL>; Tue, 26 Feb 2002 19:17:11 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:47865 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S290302AbSB0AQ6>; Tue, 26 Feb 2002 19:16:58 -0500
-Date: Tue, 26 Feb 2002 16:24:03 -0800
-From: Chris Wright <chris@wirex.com>
-To: "Dennis, Jim" <jdennis@snapserver.com>
-Cc: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>,
-        Andreas Dilger <adilger@turbolabs.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: crypto (was Re: Congrats Marcelo,)
-Message-ID: <20020226162403.A6964@figure1.int.wirex.com>
-Mail-Followup-To: "Dennis, Jim" <jdennis@snapserver.com>,
-	'Jeff Garzik' <jgarzik@mandrakesoft.com>,
-	Andreas Dilger <adilger@turbolabs.com>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD6@cdserv.meridian-data.com>
+	id <S290289AbSB0ASL>; Tue, 26 Feb 2002 19:18:11 -0500
+Received: from zok.sgi.com ([204.94.215.101]:60887 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S290277AbSB0ARy>;
+	Tue, 26 Feb 2002 19:17:54 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
+Cc: kdb@oss.sgi.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: kdb v2.1 is available for kernel 2.4.18 
+In-Reply-To: Your message of "26 Feb 2002 16:06:59 -0800."
+             <1014768419.16077.12.camel@tduffy-lnx.afara.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD6@cdserv.meridian-data.com>; from jdennis@snapserver.com on Tue, Feb 26, 2002 at 03:18:56PM -0800
+Date: Wed, 27 Feb 2002 11:17:43 +1100
+Message-ID: <997.1014769063@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Dennis, Jim (jdennis@snapserver.com) wrote:
-<snip>
-> As for LIDS, grsecurity, etc: I suspect it will be a cold day in hell
-> before Linus includes any of those into the mainstream.  I think it is
-> sufficient that he's willing to accommodate the LSM (security module)
-> to provide a common interface to all of the competing kernel hardening
-> packages.
-<snip>
+On 26 Feb 2002 16:06:59 -0800, 
+Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu> wrote:
+>On Mon, 2002-02-25 at 17:25, Keith Owens wrote:
+>
+>>   kdb-v2.1-2.4.18-common-1.bz2
+>>   kdb-v2.1-2.4.18-i386-1.bz2
+>
+>here is an updated sparc64 version of kdb v2.1 for 2.4.18.  no
+>functionality has changed between 2.4.17 sparc64-3.
 
-You may interested to know, LIDS has been ported to LSM, which is kept
-up-to-date for stable 2.4 releases, and (for those with bitkeeper) all
-2.5-pres/stable.
+Thanks, uploaded to ftp:/oss.sgi.com//projects/kdb/download/v2.1/.
 
-cheers,
--chris
+>I also have a version of kdb/sparc64 that works on 2.5.5 if anybody is
+>interested.  kaos, are you planning on putting a common and i386 version
+>of kdb for 2.5.x up on oss?
+
+You are the first person who has asked for kdb on 2.5, I do not have
+time to work on 2.5 kernels at the moment.  I will take patches but
+will not have time to test them.
+

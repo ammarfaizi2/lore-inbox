@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290767AbSAYSfU>; Fri, 25 Jan 2002 13:35:20 -0500
+	id <S290747AbSAYSfd>; Fri, 25 Jan 2002 13:35:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290770AbSAYSex>; Fri, 25 Jan 2002 13:34:53 -0500
-Received: from mailhost.nmt.edu ([129.138.4.52]:62482 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id <S290767AbSAYSes>;
-	Fri, 25 Jan 2002 13:34:48 -0500
-Date: Fri, 25 Jan 2002 11:34:43 -0700
-From: Val Henson <val@nmt.edu>
-To: benh@kernel.crashing.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Athlon/AGP issue update
-Message-ID: <20020125113443.C26874@boardwalk>
-In-Reply-To: <20020123.060855.26275529.davem@redhat.com> <20020123154737.19204@mailhost.mipsys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020123154737.19204@mailhost.mipsys.com>; from benh@kernel.crashing.org on Wed, Jan 23, 2002 at 04:47:37PM +0100
-Favorite-Color: Polka dot
+	id <S290773AbSAYSfY>; Fri, 25 Jan 2002 13:35:24 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:43925 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S290747AbSAYSfI>; Fri, 25 Jan 2002 13:35:08 -0500
+Date: Fri, 25 Jan 2002 11:34:59 -0700
+Message-Id: <200201251834.g0PIYxj02545@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Rainer Krienke <krienke@uni-koblenz.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17:Increase number of anonymous filesystems beyond 256?
+In-Reply-To: <20020125124110.A357@devserv.devel.redhat.com>
+In-Reply-To: <mailman.1011275640.16596.linux-kernel2news@redhat.com>
+	<200201240858.g0O8wnH03603@bliss.uni-koblenz.de>
+	<20020124121649.A7722@devserv.devel.redhat.com>
+	<200201250728.g0P7SDH26738@bliss.uni-koblenz.de>
+	<20020125124110.A357@devserv.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 23, 2002 at 04:47:37PM +0100, benh@kernel.crashing.org wrote:
-> >I don't think your PPC case needs the kernel mappings messed with.
-> >I really doubt the PPC will speculatively fetch/store to a TLB
-> >missing address.... unless you guys have large TLB mappings on
-> >PPC too?
+[Note: nfs-list removed from Cc:ed because slow^Wsourcefore has a
+broken mail configuration which always bounces my email]
+
+Pete Zaitcev writes:
+> > From: Rainer Krienke <krienke@uni-koblenz.de>
+> > Date: Fri, 25 Jan 2002 08:28:13 +0100
 > 
-> Yes, we use BATs (sort of built-in fixed large TLBs) to map
-> the lowmem (or entire RAM without CONFIG_HIGHMEM).
+> > > Rainer, you missed the point. Nobody cares about small things
+> > > such as "cannot start nfsd" while your 4096 mounts patch
+> > > simply CORRUPTS YOUR DATA TO HELL.
+> > 
+> > Well I never said, I really knew what I was doing:-).  Thats exacly why I 
+> > asked about why to use more major devices? OK the anser to this question 
+> > seems to be that minor devices may only be 8 bit due to the static nature of 
+> > some kernel structures. Right?
+> 
+> Close enough... Actual reason is the implementation of MINOR().
+> 
+> > > If you need more than 1200 mounts, you have to add more majors
+> > > to my patch. There is a number of them between 115 and 198.
+> > > I suspect scalability problems may become evident
+> > > with this approach, but it will work.
+> > 
+> > The solution Richard posted seems to be interesting at this point isn't it?
+> 
+> I thought about the rgooch's suggestion, it sounds good for 2.5.
+> Red Hat do not ship devfs enabled currently, and I cannot use his
+> allocation function if someone uses static majors, or some modules
+> may not load. The patch does include a safety element (majorhog_xxx)
+> that reserves majors properly. The devfs would make that unnecessary.
 
-Looking at bat_mapin_ram, it looks like we only map the first 512MB of
-RAM with BATs, so we actually map the 512MB - 768MB range with PTEs
-(and highmem starts at 768MB).  Two of the DBATs are used by I/O
-mappings, so that only leaves two DBATs of 256MB each to map lowmem
-anyway.  Am I missing something?
+The allocation function should be safe, since it only gives majors
+which are not assigned in devices.txt. Drivers which statically grab
+unassigned majors are broken, and *will* trip over each other at some
+point.
 
-By the way, does the "nobats" option currently work on PowerMac?
+As I said before, I can move the major allocation function into a
+generic place and not have it depend on CONFIG_DEVFS_FS. So it doesn't
+have to matter if RH ship devfs or not.
 
--VAL
+BTW: please Cc: me, otherwise I may not see responses.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

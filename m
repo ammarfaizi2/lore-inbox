@@ -1,22 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263551AbUCTVzd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 16:55:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263552AbUCTVzd
+	id S263550AbUCTVxR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 16:53:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263552AbUCTVxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 16:55:33 -0500
-Received: from fw.osdl.org ([65.172.181.6]:12504 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263551AbUCTVz2 (ORCPT
+	Sat, 20 Mar 2004 16:53:17 -0500
+Received: from fw.osdl.org ([65.172.181.6]:21973 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263550AbUCTVxQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 16:55:28 -0500
-Date: Sat, 20 Mar 2004 13:55:30 -0800
+	Sat, 20 Mar 2004 16:53:16 -0500
+Date: Sat, 20 Mar 2004 13:53:17 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: "Michael W. Shaffer" <mwshaffer@yahoo.com>
+To: brad@brad-x.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.4 Hang in utime() on swap file
-Message-Id: <20040320135530.7f06a7b8.akpm@osdl.org>
-In-Reply-To: <20040320181630.27185.qmail@web10401.mail.yahoo.com>
-References: <20040320181630.27185.qmail@web10401.mail.yahoo.com>
+Subject: Re: badness in kernel/softirq.c
+Message-Id: <20040320135317.544622f8.akpm@osdl.org>
+In-Reply-To: <1079800910.13796.7.camel@Discovery.brad-x.com>
+References: <1079800804.13796.5.camel@Discovery.brad-x.com>
+	<1079800910.13796.7.camel@Discovery.brad-x.com>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,24 +25,24 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Michael W. Shaffer" <mwshaffer@yahoo.com> wrote:
+Brad Laue <brad@brad-x.com> wrote:
 >
-> I have a Debian Sarge system running a 2.6 kernel (tested with 2.6.2, 2.6.3,
-> 2.6.4 with the same behavior as described here), and am seeing un-killable
-> hanging processes with our particular backup product.
-> 
-> When the backup disk agent process is running, one the the last files it
-> tries to back up is a swap file at the path /swapfile00. The read of the
-> file appears to work fine, but then it wants to call utime() to reset the
-> atime/mtime on the file, and at this point the process becomes infinitely
-> hung, doing nothing, no more output from strace, never terminating.
-> 
-> This only occurs if the swapfile is actively in use when the backup runs. If
-> I run swapoff to deactivate the swapfile, then the utime() call apparently
-> completes and the process immediately finishes and exits normally. If the
-> swapfile is not in use at all, everything works fine.
-> 
+> Badness in local_bh_enable at kernel/softirq.c:126
+>  Call Trace:
+>   [<c0121d46>] local_bh_enable+0x86/0x90
+>   [<d087ac3b>] ppp_sync_push+0x5b/0x170 [ppp_synctty]
+>   [<d087a63d>] ppp_sync_wakeup+0x2d/0x60 [ppp_synctty]
+>   [<c024363a>] do_tty_hangup+0x3ea/0x460
+>   [<c0244bcd>] release_dev+0x62d/0x660
+>   [<c0142d53>] unmap_page_range+0x43/0x70
+>   [<c0168b62>] dput+0x22/0x210
+>   [<c0244faa>] tty_release+0x2a/0x60
+>   [<c0152ec0>] __fput+0x100/0x120
+>   [<c0151529>] filp_close+0x59/0x90
+>   [<c011f594>] put_files_struct+0x54/0xc0
+>   [<c01201fd>] do_exit+0x18d/0x410
+>   [<c012051a>] do_group_exit+0x3a/0xb0
+>   [<c0109387>] syscall_call+0x7/0xb
 
-ho hum.  We do this to prevent anyone from ftruncate()ing the swapfile
-while it is in use.  That can destroy filesystems.  Let me think about it a
-bit.
+This is reminding us that nobody has fixed the tty locking yet.  It's
+generally harmless in practice.

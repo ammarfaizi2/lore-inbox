@@ -1,43 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265317AbRFVCzA>; Thu, 21 Jun 2001 22:55:00 -0400
+	id <S265322AbRFVDdr>; Thu, 21 Jun 2001 23:33:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265320AbRFVCyv>; Thu, 21 Jun 2001 22:54:51 -0400
-Received: from smarty.smart.net ([207.176.80.102]:63755 "EHLO smarty.smart.net")
-	by vger.kernel.org with ESMTP id <S265318AbRFVCyk>;
-	Thu, 21 Jun 2001 22:54:40 -0400
-From: Rick Hohensee <humbubba@smarty.smart.net>
-Message-Id: <200106220305.XAA15554@smarty.smart.net>
-Subject: Re: Controversy over dynamic linking -- how to end the panic
+	id <S265323AbRFVDdi>; Thu, 21 Jun 2001 23:33:38 -0400
+Received: from imo-m10.mx.aol.com ([64.12.136.165]:47556 "EHLO
+	imo-m10.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S265322AbRFVDdZ>; Thu, 21 Jun 2001 23:33:25 -0400
+Date: Thu, 21 Jun 2001 23:33:11 -0400
+From: hunghochak@netscape.net (Ho Chak Hung)
 To: linux-kernel@vger.kernel.org
-Date: Thu, 21 Jun 2001 23:05:13 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Using page cache without a file system 
+Mime-Version: 1.0
+Message-ID: <72AE45C3.2DE2C328.0F76C228@netscape.net>
+X-Mailer: Franklin Webmailer 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andrew@pimlott.ne.mediaone.net (Andrew Pimlott)
->I agree entirely that Linus, as creator of the license, is
->privileged with respect to interpretation of the license.  I
+Hi,
 
-Richard Stallman is the creator of the license. It's his greatest work.
-Linus is in no way priviledged as to interpretation of it, other than
-tolerance on the part of the parties that own the copyright to the
-license.
+Is it possible to allocate and add pages to the page cache without a underlying file system in Linux 2.4? I know that the host pointer to inode structure inside the address_space structure can be NULL, but does this mean that we can still make use of page cache operations like readpage or writepage if we do not back up the cache with a file system? I am currently developing a driver that wants to make use of the page cache, however, I want to save myself with the heavy load of kmalloc.
 
-The GPL is about "the program". As far as I'm concerned, modules are the
-kernel, "the program".  The way to stem any panic that may exist, if you
-want to allow binary-only modules (which sucks*, but whatever), is to LGPL
-or "KGPL" the kernel. What is being allowed now is in violation of the
-GPL. 
+Any hint would be greatly appreciated.
 
-
-Rick Hohensee
-www.clienux.com
-
-
-*How 'bout a nice binary-only Forth running the kernel? Metacompiling
-kernel routines into the Forth dictionary and such. Sound creepy? Good.
-
+Thanks
+__________________________________________________________________
+Get your own FREE, personal Netscape Webmail account today at http://webmail.netscape.com/

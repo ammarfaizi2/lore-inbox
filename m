@@ -1,38 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUEHE5B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264088AbUEHF3L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbUEHE5B (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 00:57:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264090AbUEHE4p
+	id S264088AbUEHF3L (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 01:29:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbUEHF3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 00:56:45 -0400
-Received: from [202.155.4.242] ([202.155.4.242]:59152 "HELO vger.kernel.org")
-	by vger.kernel.org with SMTP id S264082AbUEHE4b (ORCPT
+	Sat, 8 May 2004 01:29:11 -0400
+Received: from [202.95.124.99] ([202.95.124.99]:11788 "EHLO mail.icus.net")
+	by vger.kernel.org with ESMTP id S264088AbUEHF3K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 00:56:31 -0400
-To: <linux-kernel@vger.kernel.org>
-From: "ray" <dmalf1et@hotmail.com>
-Date: Fri, 07 May 2004 22:04:42 GMT
-Message-Id: <1083967482-31435@excite.com>
-Subject: CAS1N0: New Deal!! 50% Sign Up Bonus! chaos diane|
-Content-Type: text/plain;
+	Sat, 8 May 2004 01:29:10 -0400
+To: linux-kernel@vger.kernel.org
+From: mail@ICUS.NET
+Subject: SAV detected a violation in a document you authored.
+X-Priority: 3 (Normal)
+Date: Sat, 8 May 2004 13:30:23 +0800
+Message-ID: <OF96FEAF10.ABBD685A-ON48256E8E.001E3F9D@icus.net>
+X-MIMETrack: Serialize by Router on mail/Icus(Release 5.0.8 |June 18, 2001) at 05/08/2004
+ 01:30:36 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PREMI}ERE ONLIN'E CAS{INO!
-50% BONU:S for YOUR FIRST DEPO`SIT as a New Player.
-
-SI`GN UP now! Don't wait!
-
-http://www.bay-casino.com/_e4faa55afa1972493c43ac8a3f66f869/
-
-Once you're a Mem'ber, there are near WEEK'LY 2-T{O-1, and 3-T{O-1 depo`sit offers!
-
-Imagine, put in $25, GET $50 CRE|DIT BE|FORE YOU PL!ACE YO!UR FI`RST BET!!
-
-CLIC'K HER|E!
-
-http://www.bay-casino.com/_e4faa55afa1972493c43ac8a3f66f869/
+Please contact your system administrator.
 
 
+The scanned document was QUARANTINED.
 
-racerx wolverin blondie andre turbo butch yomama reznor booster buffy gretchen genius christop gordon castle eclipse bfi cookies rambo1 october ladybug sundance tango sailor dgj test2

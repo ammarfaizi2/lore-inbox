@@ -1,121 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291834AbSBHVbQ>; Fri, 8 Feb 2002 16:31:16 -0500
+	id <S291840AbSBHVfq>; Fri, 8 Feb 2002 16:35:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291840AbSBHVbD>; Fri, 8 Feb 2002 16:31:03 -0500
-Received: from smtp4.vol.cz ([195.250.128.43]:1798 "EHLO majordomo.vol.cz")
-	by vger.kernel.org with ESMTP id <S291829AbSBHVMn>;
-	Fri, 8 Feb 2002 16:12:43 -0500
-Date: Fri, 8 Feb 2002 12:36:49 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Heinz Diehl <hd@cavy.de>, linux-kernel@vger.kernel.org
-Subject: WARNING: 2.5.3 -- IDE damages data! [was Re: Warning, 2.5.3 eats filesystems]
-Message-ID: <20020208113649.GC117@elf.ucw.cz>
-In-Reply-To: <20020206233051.GA503@chiara.cavy.de> <Pine.GSO.4.21.0202061836450.22680-100000@weyl.math.psu.edu>
+	id <S291846AbSBHVfh>; Fri, 8 Feb 2002 16:35:37 -0500
+Received: from bitmover.com ([192.132.92.2]:898 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S291840AbSBHVfX>;
+	Fri, 8 Feb 2002 16:35:23 -0500
+Date: Fri, 8 Feb 2002 13:35:22 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Tom Lord <lord@regexps.com>, jaharkes@cs.cmu.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+Message-ID: <20020208133522.G25595@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Pavel Machek <pavel@suse.cz>, Tom Lord <lord@regexps.com>,
+	jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0202052328470.32146-100000@ash.penguinppc.org> <20020207165035.GA28384@ravel.coda.cs.cmu.edu> <200202072306.PAA08272@morrowfield.home> <20020207132558.D27932@work.bitmover.com> <20020208153307.GA122@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0202061836450.22680-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020208153307.GA122@elf.ucw.cz>; from pavel@suse.cz on Fri, Feb 08, 2002 at 04:33:08PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Feb 08, 2002 at 04:33:08PM +0100, Pavel Machek wrote:
+> I know less than 10 such systems, not 300. And now arch is one of
+> them.
 
-> > > > 2.5.3 managed to damage my ext2 filesystem (few lost directories);
-> > > > beware.
-> > 
-> > > I can confirm that there are filesystem corruption issues with 2.5.3;
-> > > after this message I rebooted and did a forced fsck which turned up
-> > > around a half dozen inodes where the block count in the inode itself was
-> > > too high.
-> > 
-> > Exactly the same thing here, and I bet it _is_ 2.5.3 and not a relict from
-> > a 2.5.3-pre patch because I switched directly from 2.4.17 to 2.5.3
-> > without ever using any pre patch at this machine.
+http://www.cmtoday.com/yp/ is a starting point to get a baseline for
+all of them.  It's by no means a complete list, but it's a lot bigger
+than 10.
+
+> What was the point of this mail?
 > 
-> Very interesting.  Which filesystems are mounted (other than ext2) and
-> are you been able to reproduce it on 2.5.3-pre6?
+> Are you concerned that arch is free software and bk is not?
+> 
+> arch _has_ chance; Tom is probably not going to make million dollars,
+> but if someone has a choice between using non-free software and arch,
+> maybe he will just spend his time improving arch.
 
-[This is ext2 machine, IDE is 
+The point is that you don't make systems like this by having people "spend
+their time improving arch" for free.  If that worked, then CVS would
+be the ultimate SCM system.  CVS has been here for close to 2 decades I
+think, right?  Wasn't the first release 1986?  OK, 15 years.  So 15 years
+ago, CVS was where arch is today in terms of maturity.  There is no reason
+that you couldn't take CVS and make it work.  It's just work to do so.
+We've had 15 years to have that happen and it didn't.  What makes you
+think it will be different this time around?
 
-  Bus  0, device  15, function  0:
-    IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev 195).
-      Master Capable.  Latency=64.  Min Gnt=2.Max Lat=4.
-      I/O at 0x1000 [0x100f].
+The problem with this space, and it is constantly annoying to me, is
+that people think it is easy.  "I can just write some scripts and wrap
+them around RCS or SCCS or diff&patch, I can do a better job than those
+losers over at Rational (or Perforce or AccuRev or BitMover or Collab.net
+or ...)".
 
-]
+And guess what?  In very short order, you can have something that
+does something.  Even something useful.  Then it starts to get hard.
+Then it starts to get harder.  If you really want to solve the problem,
+it's really really hard, harder than, say, multithreading a kernel.
+I can hear you screaming BS, no way is it harder than what I do, which
+is exactly what I find annoying - I've done what you do, you haven't
+done what I do, so why is it that you know that I'm wrong?  Don't know,
+but you're sure I'm wrong.
 
+So the point is that it is a hard problem space, it takes a lot of time,
+thought, and quality programming to get it right, and it's not fun.  The
+easy part is a blast.  I have some fun most days.  But the majority of
+my day is not fun.  And if you were solving the same problems it wouldn't
+be any more fun for you.  Only the fun part is fun, and that's the small
+part of the problem space.  So you have a not-so-fun space, a fairly 
+small market of people to pay for the not-so-fun parts, and a lot of
+competition.
 
-I did more testing, and yes, 2.5.3 does data corruption. This appeared
-in syslog:
+Result?  Arch is cool, it's got a good model for distribution, it needs 
+a huge amount of work to make it a reasonable answer, and noone is going
+to pay for that work.  So you take what you have now, and realize that if
+it works for you now or is close, then arch is the answer you want, you
+can't beat the price.  If it isn't close to what you want, then I question
+the chances it has of getting there.
 
-Feb  8 12:08:02 amd kernel: hda: status timeout: status=0xd0 { Busy }
-Feb  8 12:08:02 amd kernel: hda: drive not ready for command
-Feb  8 12:08:02 amd kernel: ide0: reset: success
-Feb  8 12:09:26 amd kernel: hda: status timeout: status=0xd0 { Busy }
-Feb  8 12:09:26 amd kernel: hda: drive not ready for command
-Feb  8 12:09:26 amd kernel: ide0: reset: success
-Feb  8 12:12:27 amd kernel: hda: status timeout: status=0xd0 { Busy }
-Feb  8 12:12:27 amd kernel: hda: drive not ready for command
-Feb  8 12:12:27 amd kernel: ide0: reset: success
-Feb  8 12:13:05 amd log1n[103]: ROOT LOGIN on `tty6'
-Feb  8 12:15:00 amd sendmail[150]: alias database /etc/aliases.db out
-of date
-Feb  8 12:15:00 amd sendmail[150]: MAA00150: from=pavel, size=2519,
-class=0, pri=62519, nrcpts=2, msgid=<20020208111457.GA117@elf.ucw.cz>,
-relay=pavel@localhost
-Feb  8 12:15:04 amd sendmail[152]: MAA00150:
-to=linux-kernel@vger.kernel.org,viro@math.psu.edu, ctladdr=pavel
-(8/100), delay=00:00:04, xdelay=00:00:04, mailer=relay,
-relay=[10.0.0.1] [10.0.0.1], stat=Sent (MAA10440 Message accepted for
-delivery)
-Feb  8 12:18:17 amd kernel: hda: status timeout: status=0xd0 { Busy }
-Feb  8 12:18:17 amd kernel: hda: drive not ready for command
-Feb  8 12:18:18 amd kernel: ide0: reset: master: error (0x00?)
-
-And this happened on console:
-
-croot@amd:~# cat /dev/urandom > /tmp/delme
-
-root@amd:~# ls -al /tmp/delme
--rw-r--r--    1 root     root     246845440 Feb  8 12:11 /tmp/delme
-root@amd:~# cp /tmp/delme /tmp/delme2
-root@amd:~# cp /tmp/delme /tmp/delme3
-root@amd:~# cp /tmp/delme /tmp/delme4
-root@amd:~# md5sum /tmp/delme*
-2da1568c45e298938353672d3a642714  /tmp/delme
-bc99762f3cf9a104e58e3f5708eeba99  /tmp/delme2
-2da1568c45e298938353672d3a642714  /tmp/delme3
-2da1568c45e298938353672d3a642714  /tmp/delme4
-root@amd:~# cd /tmp
-root@amd:/tmp# ls -al delme delme2 delme3
--rw-r--r--    1 root     root     246845440 Feb  8 12:11 delme
--rw-r--r--    1 root     root     246845440 Feb  8 12:14 delme2
--rw-r--r--    1 root     root     246845440 Feb  8 12:17 delme3
-root@amd:/tmp#
-
-As you can see, delme2 was damaged. I tried to do some heavy reads,
-but those seem to be okay.
-
-root@amd:/tmp# hdparm /dev/hda
-
-/dev/hda:
- multcount    =  0 (off)
- I/O support  =  0 (default 16-bit)
- unmaskirq    =  0 (off)
- using_dma    =  0 (off)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 2432/255/63, sectors = 39070080, start = 0
- busstate     =  1 (on)
-root@amd:/tmp#
-
-									Pavel
+That's all.  This whole mail could have been "if it works for you, great.
+If if doesn't and you can fix it, great.  If you can't, don't hold your
+breath".
 -- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

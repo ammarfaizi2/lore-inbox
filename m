@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267231AbUGMX3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267232AbUGMX3s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267231AbUGMX3O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 19:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267232AbUGMX3O
+	id S267232AbUGMX3s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 19:29:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267233AbUGMX3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 19:29:14 -0400
-Received: from main.gmane.org ([80.91.224.249]:16363 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S267231AbUGMX3M (ORCPT
+	Tue, 13 Jul 2004 19:29:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:38123 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267232AbUGMX3o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 19:29:12 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: [PATCH] swsusp bootsplash support
-Date: Wed, 14 Jul 2004 04:27:16 -0700
-Message-ID: <m2n022n817.fsf@tnuctip.rychter.com>
-References: <20040708110549.GB9919@linux.nu> <20040708133934.GA10997@infradead.org>
- <20040708204840.GB607@openzaurus.ucw.cz>
- <20040708210403.GA18049@infradead.org> <20040708225216.GA27815@elf.ucw.cz>
- <20040708225501.GA20143@infradead.org> <20040709051528.GB23152@elf.ucw.cz>
- <20040709115531.GA28343@redhat.com>
- <20040710123422.GC607@openzaurus.ucw.cz>
+	Tue, 13 Jul 2004 19:29:44 -0400
+Date: Tue, 13 Jul 2004 16:32:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: paul@linuxaudiosystems.com, rlrevell@joe-job.com,
+       linux-audio-dev@music.columbia.edu, mingo@elte.hu, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel
+ Preemption Patch
+Message-Id: <20040713163236.0dbf3872.akpm@osdl.org>
+In-Reply-To: <20040713231803.GP974@dualathlon.random>
+References: <20040713162539.GD974@dualathlon.random>
+	<20040713114829.705b9607.akpm@osdl.org>
+	<20040713213847.GH974@dualathlon.random>
+	<20040713145424.1217b67f.akpm@osdl.org>
+	<20040713220103.GJ974@dualathlon.random>
+	<20040713152532.6df4a163.akpm@osdl.org>
+	<20040713223701.GM974@dualathlon.random>
+	<20040713154448.4d29e004.akpm@osdl.org>
+	<20040713225305.GO974@dualathlon.random>
+	<20040713160628.596b96a3.akpm@osdl.org>
+	<20040713231803.GP974@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 66-27-68-14.san.rr.com
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:gUiRFsWR2IhcgrvV2bwFCK4Uo84=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Pavel" == Pavel Machek <pavel@suse.cz> writes:
- Pavel> Hi!
- > But I guess swsusp is going to make this more "interesting" as
- > progressbar is nice to have there, and userland can not help at that
- > point.
- >>
- >> Personally I'd prefer the effort went into making suspend actually
- >> work on more machines rather than painting eyecandy for the minority
- >> of machines it currently works on.
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> > And it's currently OK to add a might_sleep() to (say) an inline path which
+> > is expended a zillion times because we know it'll go away for production
+> > builds.  If those things become cond_resched() calls instead, the code
+> > increase will be permanent.
+> 
+> this is exactly why I'm making this change: so you can still add
+> might_sleep in a inline path expected to run a zillion times. With
+> Ingo's change you would be doing cond_sched internally to might_sleep, I
+> do the other way around so might_sleep remains a debugging statement.
 
- Pavel> Actually, it does work on most of UP/IDE machines by now.
- Pavel> Remaining problems tend to be unsupported drivers. I can't help
- Pavel> with devices I do not have, unfortunately, so there's little I
- Pavel> can do.
+OK.
 
-[...]
 
-Just to clarify -- in one of my previous posts I said that swsusp2 works
-very well for me. I meant *swsusp2*, not swsusp. It is unfortunate that
-the two projects are so similarly named. They are very different from
-the user perspective.
+cond_resched() is usually a waste of space with CONFIG_PREEMPT.  It might
+make sense to define a cond_resched_if_not_preempt thingy, which only does
+things if !CONFIG_PREEMPT.  We'd still need to use cond_resched() inside
+lock_kernel().
 
---J.
+> 
+> > I've yet to go through Arjan's patch - I suspect a lot of it is not needed.
+> 
+> Arjan's or Ingo's? I've seen Ingo's patch but maybe I missed Arjan's one.
+
+I think Ingo's patch includes Arjan's one.  Ingo's patch apparently breaks
+ext3.  I have a bunch of ext3 and other fixes here, but there's still an occasional
+problem on SMP.
 

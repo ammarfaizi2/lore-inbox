@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267912AbRGRRbK>; Wed, 18 Jul 2001 13:31:10 -0400
+	id <S267508AbRGRRqc>; Wed, 18 Jul 2001 13:46:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267867AbRGRRaw>; Wed, 18 Jul 2001 13:30:52 -0400
-Received: from intra.cyclades.com ([209.81.55.6]:525 "HELO intra.cyclades.com")
-	by vger.kernel.org with SMTP id <S267864AbRGRRah>;
-	Wed, 18 Jul 2001 13:30:37 -0400
-Date: Wed, 18 Jul 2001 10:31:50 -0700 (PDT)
-From: Ivan Passos <lists@cyclades.com>
-To: Nick DeClario <nick@guardiandigital.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: RAMDisk Blues
-In-Reply-To: <3B548A9A.2EA1DECA@guardiandigital.com>
-Message-ID: <Pine.LNX.4.30.0107181030000.9956-100000@intra.cyclades.com>
+	id <S267510AbRGRRqW>; Wed, 18 Jul 2001 13:46:22 -0400
+Received: from web14405.mail.yahoo.com ([216.136.174.62]:10258 "HELO
+	web14405.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S267508AbRGRRqI>; Wed, 18 Jul 2001 13:46:08 -0400
+Message-ID: <20010718174612.48434.qmail@web14405.mail.yahoo.com>
+Date: Wed, 18 Jul 2001 10:46:12 -0700 (PDT)
+From: Rajeev Bector <rajeev_bector@yahoo.com>
+Subject: vmalloc and kiobuf questions ?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+MM Gurus, 
+  In trying to understand how to map driver
+memory into user space memory, I have the following
+questions:
 
-On Tue, 17 Jul 2001, Nick DeClario wrote:
+1) Is there a limit to how much memory
+   I can allocate using vmalloc() ?
+   (This is regular RAM)
+2) I want to map the vmalloc'ed memory
+   to user space via mmap(). I've read
+   that remap_page_range() will not do it
+   and I have to do it using nopage
+   handlers ? Is that true ? Is there
+   a simple answer to why is that the case ?
 
-> Hi,  I know there is this option in the kernel:
->
-> Default RAM disk size
-> CONFIG_BLK_DEV_RAM_SIZE
->   The default value is 4096. Only change this if you know what are
->   you doing. If you are using IBM S/390, then set this to 8192.
->
-> I grabbed that from ~/linux/Documentation/Configure.help.  I have never
-> gone about changing this before as the largest RAM disks I have delt
-> with were no larger than 3Mb.  But it defaults to 4Mb, so perhaps
-> increasing this would solve your problem.
+3) I've also read the kiobufs will simplify
+   all this. Is there a documentation on 
+   kiobufs - what they can and cannot do ?
+   Are kiobufs part of the standard kernel
+   now ?
+Thanks in advance for your answers !
 
-This is set to 131072 (128MB). Just to make sure, I also set it on the
-lilo.conf in the append line, with "ramdisk_size=131072". Maybe there is a
-limitation in the RAMDisk driver and it doesn't work well with huge
-RAMDisk sizes??
+Rajeev
 
-Any other hints?!?!
 
-Later,
-Ivan
-
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail
+http://personal.mail.yahoo.com/

@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263898AbUACTJG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 14:09:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263903AbUACTJG
+	id S263903AbUACTJS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 14:09:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263909AbUACTJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 14:09:06 -0500
-Received: from mail.mediaways.net ([193.189.224.113]:18498 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP id S263898AbUACTJD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 14:09:03 -0500
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0401031402210.24942-100000@coffee.psychology.mcmaster.ca>
-References: <Pine.LNX.4.44.0401031402210.24942-100000@coffee.psychology.mcmaster.ca>
-Content-Type: text/plain
-Message-Id: <1073156858.9851.177.camel@localhost>
+	Sat, 3 Jan 2004 14:09:18 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:4485 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263903AbUACTJO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 14:09:14 -0500
+Date: Sat, 3 Jan 2004 20:08:57 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Willem Riede <wrlk@riede.org>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The survival of ide-scsi in 2.6.x
+Message-ID: <20040103190857.GY5523@suse.de>
+References: <1072809890.2839.24.camel@mulgrave> <20031230221820.GQ1277@linnie.riede.org>
 Mime-Version: 1.0
-Date: Sat, 03 Jan 2004 20:07:38 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031230221820.GQ1277@linnie.riede.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-01-03 at 20:03, Mark Hahn wrote:
-> > Anyone else with that problem - ideas of the cause ?
+On Tue, Dec 30 2003, Willem Riede wrote:
+> On 2003.12.30 13:44, James Bottomley wrote:
+> >     If people will have me, I am prepared to take on that responsibility.
+> >     I am just concerned that I may not have enough of a variety of devices
+> >     to be able to thoroughly test it (unless the DI-30 is the only one :-)).
+> >     What do people see as the requirements to be able to maintain ide-scsi?
+> >     
+> > Well...there's currently not a long line of people wanting to do this,
+> > so feel free to send in patches (at least cc'd to linux-scsi so I can
+> > pick them up easily), and we'll see how it goes.
 > 
-> the 2.6 scheduler tries to be much more adaptive.  doesn't it look like
-> it's decided to make some wrong decisions wrt scheduling in your first run?
+> OK. You did see the patch that came with the original, right? I just sent
+> it to linux-kernel because the audience there is broader. 
+> 
+> Linus wants Jens to look at it, so I'm waiting for his response.
 
-yeah, I think so... but as generating output in a shell is a very common
-thing to do there should either be an option to turn that unwanted
-behaviour off or to fix this issue...
+It's pending review, I'll get to it tomorrow...
 
-Soeren
+-- 
+Jens Axboe
 

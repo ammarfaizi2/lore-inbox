@@ -1,46 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262716AbVA1Szc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262722AbVA1S4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262716AbVA1Szc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 13:55:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbVA1SwB
+	id S262722AbVA1S4F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 13:56:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbVA1S4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 13:52:01 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:10472 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261515AbVA1Sua (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 13:50:30 -0500
-Date: Fri, 28 Jan 2005 18:50:17 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Arjan van de Ven <arjanv@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>, viro@zenII.uk.linux.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: make flock_lock_file_wait static
-Message-ID: <20050128185017.GA21760@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Paul E. McKenney" <paulmck@us.ibm.com>,
-	Arjan van de Ven <arjanv@infradead.org>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	viro@zenII.uk.linux.org, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>
-References: <1105346324.4171.16.camel@laptopd505.fenrus.org> <1105367014.11462.13.camel@lade.trondhjem.org> <1105432299.3917.11.camel@laptopd505.fenrus.org> <1105471004.12005.46.camel@lade.trondhjem.org> <1105472182.3917.49.camel@laptopd505.fenrus.org> <20050125185812.GA1499@us.ibm.com> <1106730061.6307.62.camel@laptopd505.fenrus.org> <20050126160715.GB1266@us.ibm.com> <1106765983.6307.134.camel@laptopd505.fenrus.org> <20050128141446.GA1868@us.ibm.com>
+	Fri, 28 Jan 2005 13:56:04 -0500
+Received: from vds-320151.amen-pro.com ([62.193.204.86]:4999 "EHLO
+	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
+	id S262722AbVA1SzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 13:55:14 -0500
+Subject: Re: [PATCH] OpenBSD Networking-related randomization port
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: netdev@oss.sgi.com,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050128101825.388990a0@dxpl.pdx.osdl.net>
+References: <1106932637.3778.92.camel@localhost.localdomain>
+	 <20050128174046.GR28047@stusta.de>
+	 <1106934475.3778.98.camel@localhost.localdomain>
+	 <20050128101825.388990a0@dxpl.pdx.osdl.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-f3UObqIKh2Ao37zlI3Kx"
+Date: Fri, 28 Jan 2005 19:54:36 +0100
+Message-Id: <1106938476.3864.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050128141446.GA1868@us.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 06:14:46AM -0800, Paul E. McKenney wrote:
-> In my experience, the only way to get exports into a major distribution
-> is to get them into mainline kernel.org.  If you can get Red Hat to
-> change its stance on this, works for me!
 
-That's not the point.  You're trying to let us work for you for free
-without any gain for us.
+--=-f3UObqIKh2Ao37zlI3Kx
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+El vie, 28-01-2005 a las 10:18 -0800, Stephen Hemminger escribi=F3:
+> This is a very transitory effect, it works only because your machine
+> is then different from the typical Linux machine; therefore the scanner
+> will go on to the next obvious ones. But if this gets incorporated widely
+> then the rarity factor goes away and this defense becomes useless.
+
+I would prefer to say that such "rarity factor" comes directly from the
+"rarity factor" given by the PRNG.
+
+So, we should take "rarity factor" as the PRNG seed entropy and not as a
+predictable value (not in a reasonable time manner, which is the goal of
+most crypto-related developments, to make as much difficult as possible
+to cause an information leak, and if such leak happens, ensure that the
+information is no longer needed, private, confidential, critical,
+whateverelse) (AFAIK).
+
+So, there's no point at that claim.
+
+Cheers,
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
+[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
+
+--=-f3UObqIKh2Ao37zlI3Kx
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBB+opsDcEopW8rLewRApOoAKCpQhJNui44vkW94QMoM5y6LaSXnQCffFEg
+DNEiog8zbrgel/5QNd7FK5M=
+=VLlc
+-----END PGP SIGNATURE-----
+
+--=-f3UObqIKh2Ao37zlI3Kx--
 

@@ -1,71 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269863AbUJSVgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267377AbUJSVa6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269863AbUJSVgX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 17:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269773AbUJSVbV
+	id S267377AbUJSVa6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 17:30:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267497AbUJSVLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 17:31:21 -0400
-Received: from gprs214-24.eurotel.cz ([160.218.214.24]:3456 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S267301AbUJSVLc (ORCPT
+	Tue, 19 Oct 2004 17:11:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:25500 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267327AbUJSU6m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 17:11:32 -0400
-Date: Tue, 19 Oct 2004 23:11:14 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Kendall Bennett <KendallB@scitechsoft.com>
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
-       penguinppc-team@lists.penguinppc.org
-Subject: Re: Generic VESA framebuffer driver and Video card BOOT?
-Message-ID: <20041019211114.GC1142@elf.ucw.cz>
-References: <416E6ADC.3007.294DF20D@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <416E6ADC.3007.294DF20D@localhost>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 19 Oct 2004 16:58:42 -0400
+Message-ID: <41758014.4080502@osdl.org>
+Date: Tue, 19 Oct 2004 13:59:00 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: netdev@oss.sgi.com, linux-net@vger.kernel.org, LARTC@mailman.ds9a.nl
+Subject: [ANNOUNCE] iproute2 2.6.9-041019
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Now that 2.6.9 is final. Here is an update of the iproute2 utilities 
+that contains
+all the patches in my queue. 
 
-> I am writing this email to guage the interest in having code contributed 
-> to the main stream Linux kernel that would support the user of a generic, 
-> full featured VESA framebuffer driver that works on any CPU architecture 
-> along with a generic Video card BOOT or POST mechanism.
+    * lnstat to replace rtstat and ctstat (from Harald Welte)
+    * latest xfrm related changes
+    * several small typo's and build fixes for older systems
 
-BTW, does this look like right way to POST VGA BIOS from real mode? It
-is what we currently use... and it works on some machines...
-
-        movw    $0xb800, %ax
-        movw    %ax,%fs
-        movw    $0x0e00 + 'L', %fs:(0x10)
-
-        cli
-        cld
-
-        # setup data segment
-        movw    %cs, %ax
-        movw    %ax, %ds                                        # Make ds:0 point to wakeup_start
-        movw    %ax, %ss
-        mov     $(wakeup_stack - wakeup_code), %sp              # Private stack is needed for ASUS board
-        movw    $0x0e00 + 'S', %fs:(0x12)
-
-        pushl   $0                                              # Kill any dangerous flags
-        popfl
-
-        movl    real_magic - wakeup_code, %eax
-        cmpl    $0x12345678, %eax
-        jne     bogus_real_magic
-
-        testl   $1, video_flags - wakeup_code
-        jz      1f
-        lcall   $0xc000,$3
-        movw    %cs, %ax
-        movw    %ax, %ds                                        # Bios might have played with that
-        movw    %ax, %ss
-1:
-
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+http://developer.osdl.org/dev/iproute2/download/iproute2-2.6.9-041019.tar.gz

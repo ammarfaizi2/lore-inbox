@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265140AbTBYBSS>; Mon, 24 Feb 2003 20:18:18 -0500
+	id <S265135AbTBYBUL>; Mon, 24 Feb 2003 20:20:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265098AbTBYBSB>; Mon, 24 Feb 2003 20:18:01 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21007 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264984AbTBYBQX>; Mon, 24 Feb 2003 20:16:23 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [BK PATCH] klibc for 2.5.63
-Date: 24 Feb 2003 17:26:32 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b3ego8$eac$1@cesium.transmeta.com>
-References: <20030224225659.GD3775@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	id <S265169AbTBYBSc>; Mon, 24 Feb 2003 20:18:32 -0500
+Received: from dp.samba.org ([66.70.73.150]:6619 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265135AbTBYBSK>;
+	Mon, 24 Feb 2003 20:18:10 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Stelian Pop <stelian@popies.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: modutils: FATAL: Error running install... 
+In-reply-to: Your message of "Mon, 24 Feb 2003 17:27:34 BST."
+             <20030224172734.C29439@deep-space-9.dsnet> 
+Date: Tue, 25 Feb 2003 12:27:43 +1100
+Message-Id: <20030225012823.8C09A2C54A@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20030224225659.GD3775@kroah.com>
-By author:    Greg KH <greg@kroah.com>
-In newsgroup: linux.dev.kernel
->
-> Hi,
-> 
-> Here's the klibc addition synced up with the latest 2.5.63 kernel tree.
-> It's the same patches that I sent last time, so I'm not going to repost
-> them here again.
-> 
+In message <20030224172734.C29439@deep-space-9.dsnet> you write:
+> ===== kernel/kmod.c 1.24 vs edited =====
+> --- 1.24/kernel/kmod.c	Mon Feb 24 04:18:09 2003
+> +++ edited/kernel/kmod.c	Mon Feb 24 17:19:39 2003
+> @@ -154,6 +154,7 @@
+>  
+>  	/* Unblock all signals. */
+>  	flush_signals(current);
+> +	current->sighand->action[SIGCHLD-1].sa.sa_handler = SIG_DFL;
+>  	spin_lock_irq(&current->sighand->siglock);
+>  	flush_signal_handlers(current);
+>  	sigemptyset(&current->blocked);
 
-Also, just to make things clear:
+Is there really no cleaner way that this?
 
-Greg has taken on the job of integrating klibc with the kernel, but
-please post klibc bug reports to the klibc mailing list at
-<klibc@zytor.com>.
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: cris ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

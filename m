@@ -1,110 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311536AbSDANIX>; Mon, 1 Apr 2002 08:08:23 -0500
+	id <S311530AbSDANOn>; Mon, 1 Apr 2002 08:14:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311530AbSDANIP>; Mon, 1 Apr 2002 08:08:15 -0500
-Received: from imladris.infradead.org ([194.205.184.45]:25616 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S311519AbSDANIJ>; Mon, 1 Apr 2002 08:08:09 -0500
-Date: Mon, 1 Apr 2002 14:08:08 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: linux-kernel@vger.kernel.org
-Subject: 1.0.9hch1
-Message-ID: <20020401140808.A21512@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S311570AbSDANOe>; Mon, 1 Apr 2002 08:14:34 -0500
+Received: from ch-12-44-141-235.lcisp.com ([12.44.141.235]:17280 "EHLO
+	dual.lcisp.com") by vger.kernel.org with ESMTP id <S311530AbSDANOY>;
+	Mon, 1 Apr 2002 08:14:24 -0500
+From: "Kevin Krieser" <kkrieser@lcisp.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux needs new leadership.
+Date: Mon, 1 Apr 2002 07:14:18 -0600
+Message-ID: <NDBBLFLJADKDMBPPNBALCEOFHPAA.kkrieser@lcisp.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <5377F813-4553-11D6-A6A3-00039382EB3C@pacbell.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a patchkit against Linux 1.0.9, largely based upon Paul
-Gortmakers linux-lite patch. Why this new kernel release?
 
-After all the discussions about VFS races and VM problems and growing bloat
-in all areas of the kernel people seem to have forgotten the good old days
-of the small and simple linux kernels.
-Even more important the ego of a young kernel developer will suffer
-in the long term if he doesn't have his own kernel patchkit, so here it is:
+You forgot that your required Passport membership is free, though you will
+require Passport to login.
 
-URL:
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Hristo Doichev
+Sent: Monday, April 01, 2002 3:32 AM
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds
+Subject: Re: Linux needs new leadership.
 
-	ftp://ftp.kernel.org/pub/linux/kernel/people/hch/kernels/v1.0/1.0.9hch1.gz
-	ftp://ftp.kernel.org/pub/linux/kernel/people/hch/kernels/v1.0/1.0.9hch1/
-
-
-Contents:
-
-00_elf-1
-
-	Allow building the kernel as ELF binary.
-
-00_elf-ksyms-1
-
-	Fix kernel symbol table generation for ELF.
-	(Don't apply this if you are still builing a.out kernels)
-
-00_ext3-1 
-
-	Preliminary ext3 support.
-
-00_gcc272-1
-
-	Fixes for building with gcc 2.7.2.
-
-00_idle_hlt-1
-
-	Call the i386 'hlt' instruction in the idle loop.
-
-00_ifnet_unused-1
-
-	Comment out unused struct ifnet methods to avoid compiler warnings.
-
-00_includes-1
-
-	Fix #include breakage.
-
-00_isofs-1
-
-	Rewrite isofs_match to avoid inline assembly.
-
-00_makefiles-1
-
-	Fix up makefile rules for assembly source files.
-
-00_mmap-PROT_NONE-1
-
-	Fix do_mmap problems.
-
-00_mprotect-1
-
-	Fake mprotect() success to emulate never kernels.
-
-00_proc_debug-1
-
-	Disable DEBUG_PROC_TREE - it has proven stable in years of
-	carefull testing.
-
-00_ultrastore-1
-
-	Fix ultrastore driver atomic ops bugs.
-
-00_user-headers-1
-
-	Don't include userspace headers.
-
-00_voxware25-1
-
-	Import Voxware 2.5.
-
-00_warnings-1
-
-	Fix a large number of compiler warnings.
-
-00_zboot-1
-
-	Fix compressed boot header problems.
-
+Bill Gates.
+	If we only had him as a leader money will be flowing like a river
+towards OSS and GNU. For starters this entire list will be subscription
+based with required certification (about $10K per person and $3K if you
+only want to read it)
 

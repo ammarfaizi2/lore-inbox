@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265557AbUAHQyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 11:54:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265558AbUAHQyZ
+	id S265644AbUAHRFT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 12:05:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265647AbUAHRFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 11:54:25 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:41231 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265557AbUAHQyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 11:54:20 -0500
-Date: Thu, 8 Jan 2004 16:54:14 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Vasquez <andrew.vasquez@qlogic.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux-SCSI <linux-scsi@vger.kernel.org>
-Subject: Re: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b7).
-Message-ID: <20040108165414.A12233@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Vasquez <andrew.vasquez@qlogic.com>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Linux-SCSI <linux-scsi@vger.kernel.org>
-References: <B179AE41C1147041AA1121F44614F0B060EDD4@AVEXCH02.qlogic.org>
+	Thu, 8 Jan 2004 12:05:19 -0500
+Received: from absinthe.ifi.unizh.ch ([130.60.75.58]:19632 "EHLO
+	diamond.madduck.net") by vger.kernel.org with ESMTP id S265644AbUAHRFN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 12:05:13 -0500
+Date: Thu, 8 Jan 2004 18:05:08 +0100
+From: martin f krafft <madduck@madduck.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: stability problems with 2.4.24/Software RAID/ext3
+Message-ID: <20040108170508.GD17608@piper.madduck.net>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <E5DA6395B8F9614EB7A784D628184B200E345C@hdsmsx402.hd.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sHrvAb52M6C8blB9"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <B179AE41C1147041AA1121F44614F0B060EDD4@AVEXCH02.qlogic.org>; from andrew.vasquez@qlogic.com on Thu, Jan 08, 2004 at 08:47:51AM -0800
+In-Reply-To: <E5DA6395B8F9614EB7A784D628184B200E345C@hdsmsx402.hd.intel.com>
+X-OS: Debian GNU/Linux testing/unstable kernel 2.6.0-diamond i686
+X-Mailer: Mutt 1.5.4i (2003-03-19)
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 08, 2004 at 08:47:51AM -0800, Andrew Vasquez wrote:
-> Yes, given the structure and form of recent patches, that certainly
-> does seem to be the case - which from QLogic's standpoint (now) seems
-> to be the proper path.  Just for clarification, given the structure of
-> the driver now (failover completely separated), inclusion of the
-> qla2xxx driver would exclude the following failover files:
-> 
-> 	qla_fo.c qla_foln.c qla_cfg.c qla_cfgln.c
-> 
-> correct?
 
- + qla_inioct.c qla_xioct.c
+--sHrvAb52M6C8blB9
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-and the associated headers for both the ioctl and failover code, of course
+also sprach Cress, Andrew R <andrew.r.cress@intel.com> [2004.01.08.1702 +01=
+00]:
+> https://listman.redhat.com/archives/ext3-users/2002-December/msg00125.html
+> You may want to check it out to see if this fix is already included in
+> your 2.4.24 kernel.  =20
 
-> > - The odd ioctl set to the qla device...I'd much rather see something
-> > more standard that all FC drivers can use.
-> > 
-> 
-> Are you proposing to standardize a transport by which a user-space
-> application communicates with a driver (beyond IOCTLs), or, are you
-> suggesting there be some commonality in functional interfaces (i.e.
-> SNIA) for all FC drivers?
+These are both already inthe vanilla 2.4.24 kernel.
 
-the SNIA HBA-API spec is completely broken.  But we should try to support
-a sanitized subset of the spec using the transport class work that's
-currently discussed on linux-scsi.
+Thanks though.
 
+--=20
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
+=20
+"the vast majority of our imports come from outside the country." =20
+                                                      - george w. bush=20
+
+--sHrvAb52M6C8blB9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE//Y3EIgvIgzMMSnURAurZAJwM0yamoxA03ZoAiokvswZS6P0OCwCeLC3C
+pCNSz/LeU9lrOMrS2xDJs0s=
+=3yW2
+-----END PGP SIGNATURE-----
+
+--sHrvAb52M6C8blB9--

@@ -1,125 +1,148 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129944AbQLFNlB>; Wed, 6 Dec 2000 08:41:01 -0500
+	id <S130231AbQLFNuL>; Wed, 6 Dec 2000 08:50:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130356AbQLFNkm>; Wed, 6 Dec 2000 08:40:42 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:27398 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S130355AbQLFNkf>;
-	Wed, 6 Dec 2000 08:40:35 -0500
-From: Matti Aarnio <news-innominate.list.linux.kernel@innominate.de>
-Reply-To: Matti Aarnio <matti.aarnio@zmailer.org>
-X-Newsgroups: innominate.list.linux.kernel
-Subject: All INNOMINATE linux-list feeds are now killed...
-Date: 6 Dec 2000 13:20:04 +0100
-Organization: innominate AG, Berlin, Germany
-Message-ID: <news2mail-20001206141950.F28963@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="CaPKgh3XHpq3rEUV"
-Content-Disposition: inline
-X-Delivered-To: news-innominate.list.linux.kernel@localhost.bln.innominate.de
-X-To: news-innominate.list.linux.kernel@innominate.de
-To: linux-kernel@vger.kernel.org
+	id <S130673AbQLFNuB>; Wed, 6 Dec 2000 08:50:01 -0500
+Received: from cs85214.pp.htv.fi ([212.90.85.214]:55291 "EHLO
+	chip.nutshakers.dhs.org") by vger.kernel.org with ESMTP
+	id <S130231AbQLFNtr>; Wed, 6 Dec 2000 08:49:47 -0500
+Date: Wed, 6 Dec 2000 15:18:46 +0200 (EET)
+From: Panu Matilainen <pmatilai@pp.htv.fi>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexander Viro <aviro@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
+        "Stephen C. Tweedie" <sct@redhat.com>, Alan Cox <alan@redhat.com>,
+        Christoph Rohland <cr@sap.com>, Rik van Riel <riel@conectiva.com.br>,
+        MOLNAR Ingo <mingo@chiara.elte.hu>, <urban@svenskatest.se>
+Subject: Re: test12-pre5
+In-Reply-To: <Pine.LNX.4.10.10012041906510.2047-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.30.0012061518050.26107-100000@chip.nutshakers.dhs.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 4 Dec 2000, Linus Torvalds wrote:
 
---CaPKgh3XHpq3rEUV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+>
+> Ok, this contains one of the fixes for the dirty inode buffer list (the
+> other fix is pending, simply because I still want to understand why it
+> would be needed at all). Al?
+>
+> Also, it has the final installment of the PageDirty handling, and now
+> officially direct IO can work by just marking the physical page dirty and
+> be done with it. NFS along with all filesystems have been converted, the
+> one hold-out still being smbfs.
+>
+> Who works on smbfs these days? I see two ways of fixing smbfs now that
+> "writepage()" only gets an anonymous page and no "struct file" information
+> any more (this also fixes the double page unlock that Andrew saw).
 
-See attachment, these lists got removed:
+Urban Widmark is the smbfs maintainer nowadays. BTW Urban thanks again for
+the NetApp-fix, it has saved my behind quite a few times by now :)
 
-
-linux-alpha:	news-innominate.list.linux.alpha@innominate.de
-linux-doc:	news-innominate.list.linux-doc@innominate.de
-linux-fsdevel:	news-innominate.list.linux.fsdevel@innominate.de
-linux-kernel:	news-innominate.list.linux.kernel@innominate.de
-linux-raid:	news-innominate.list.linux.raid@innominate.de
-linux-scsi:	news-innominate.list.linux.scsi@innominate.de
-linux-smp:	news-innominate.list.linux.smp@innominate.de
-sparclinux:	news-innominate.list.linux.sparclinux@innominate.de
-ultralinux:	news-innominate.list.linux.ultralinux@innominate.de
-
-
-Officially we don't approve bidirectional  news<->list  feeds, as those
-are prone to this type of blunders of looping messages back to the list.
+        - Panu -
 
 
---CaPKgh3XHpq3rEUV
-Content-Type: message/rfc822
-Content-Disposition: inline
-
-Received: from vger.kernel.org ([IPv6:::ffff:199.183.24.194]:16136 "EHLO
-	vger.kernel.org" smtp-auth: <none> TLS-CIPHER: <none> TLS-PEER: <none>)
-	by mail.zmailer.org with ESMTP id <S2622023AbQLFLla>;
-	Wed, 6 Dec 2000 13:41:30 +0200
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131578AbQLFMLf>; Wed, 6 Dec 2000 07:11:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131527AbQLFMLZ>; Wed, 6 Dec 2000 07:11:25 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:17938 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S130696AbQLFMLN>;
-	Wed, 6 Dec 2000 07:11:13 -0500
-Received: from mate.bln.innominate.de (cerberus.berlin.innominate.de [212.84.234.251])
-	by hermes.mixx.net (Postfix) with ESMTP id BBD11F810
-	for <linux-kernel@vger.kernel.org>; Wed,  6 Dec 2000 12:40:46 +0100 (CET)
-Received: by mate.bln.innominate.de (Postfix, from userid 9)
-	id 9FBCD2CAD4; Wed,  6 Dec 2000 12:40:46 +0100 (CET)
-From: wakko@animx.eu.org (Wakko Warner)
-X-Newsgroups: innominate.list.linux.kernel
-Subject: Re: test12-pre6
-Date: 6 Dec 2000 12:40:46 +0100
-Organization: innominate AG, Berlin, Germany
-Distribution: local
-Message-ID: <20001206064732.A6542@animx.eu.org>
-In-Reply-To: <Pine.LNX.4.10.10012052318270.5786-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Trace: mate.bln.innominate.de 976102846 5241 10.0.0.1 (6 Dec 2000 11:40:46 GMT)
-X-Complaints-To: news@innominate.de
-X-Delivered-To: news-innominate.list.linux.kernel@localhost.bln.innominate.de
-X-Received: from hermes.mixx.net (hermes.mixx.net [212.84.196.2]) 	by mate.bln.innominate.de (Postfix) with ESMTP id D0FD72CAD4 	for <news-innominate.list.linux.kernel@innominate.de>; Wed,  6 Dec 2000 12:40:44 +0100 (CET)
-X-Received: from vger.kernel.org (vger.kernel.org [199.183.24.194]) 	by hermes.mixx.net (Postfix) with ESMTP id B2C54F80F 	for <news-innominate.list.linux.kernel@innominate.de>; Wed,  6 Dec 2000 12:40:43 +0100 (CET)
-X-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand 	id <S131559AbQLFMIP>; Wed, 6 Dec 2000 07:08:15 -0500
-X-Received: (majordomo@vger.kernel.org) by vger.kernel.org 	id <S130696AbQLFMIG>; Wed, 6 Dec 2000 07:08:06 -0500
-X-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:29702 	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP 	id <S129703AbQLFMH5>; Wed, 6 Dec 2000 07:07:57 -0500
-X-Received: from wakko by ani.animx.eu.org with local 	(Exim 2.05 #1 (Debian) Bug?  What bug /\oo/\) 	id 143d2q-0001iF-00; Wed, 6 Dec 2000 06:47:32 -0500
-X-To: Linus Torvalds <torvalds@transmeta.com>
-X-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Mailer: Mutt 0.95.3i
-X-In-Reply-To: <Pine.LNX.4.10.10012052318270.5786-100000@penguin.transmeta.com>; from Linus Torvalds on Tue, Dec 05, 2000 at 11:25:55PM -0800
-X-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-To: news-innominate.list.linux.kernel@innominate.de
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-X-Envelope-To: <mea+linux-kernel@zmailer.org> (uid 99)
-X-Orcpt: rfc822;mea+linux-kernel@zmailer.org
-
->  - pre6:
->     - Andrew Morton: exec_usermodehelper fixes
-
-pre4 oopsed all over the place on my alpha with modules and autoloading
-turned on as soon as it mounted / and freed unused memory.  I take it this
-was seen on i386 as well?
-
-Will try pre6.
-
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-Please read the FAQ at http://www.tux.org/lkml/
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-Please read the FAQ at http://www.tux.org/lkml/
-
---CaPKgh3XHpq3rEUV--
+>
+>  - disable shared mmap over smbfs (very easily done by just setting
+>    writepage to NULL)
+>
+>  - fetch the dentry that writepage needs by just looking at the
+>    inode->i_dentry list and/or just make the smbfs page cache host be the
+>    dentry instead of the inode like other filesystems. The first approach
+>    assumes that all paths are equal for writeout, the second one assumes
+>    that there are no hard linking going on in smbfs.
+>
+> Somebody more knowledgeable than I will have to make the decision
+> (otherwise I'll just end up disabling shared mmap - I doubt anybody really
+> uses it anyway, but it would be more polite to just support it).
+>
+> NOTE! There's another change to "writepage()" semantics than just dropping
+> the "struct file": the new writepage() is supposed to mirror the logic of
+> readpage(), and unlock the page when it is done with it. This allows the
+> VM system more visibility into what IO is pending (which the VM doesn't
+> take advantage of yet, but now it can _truly_ use the same logic for both
+> swapout and for dirty file writeback).
+>
+> The other change is that I forward-ported the ymfpci driver from 2.2.18,
+> as it works better than the ALSA one on my now-to-be-main-laptop ;)
+>
+> [ Alan - I ahve your patches in my incoming queue still, I wanted to get
+>   an interim version out to check with Al on the block list and the VM
+>   stuff with Rik and people. ]
+>
+> 		Linus
+>
+> ----
+>  - pre5:
+>     - Jaroslav Kysela: ymfpci driver
+>     - me: get rid of bogus MS_INVALIDATE semantics
+>     - me: final part of the PageDirty() saga
+>     - Rusty Russell: 4-way SMP iptables fix
+>     - Al Viro: oops - bad ext2 inode dirty block bug
+>
+>  - pre4:
+>     - Andries Brouwer: final isofs pieces.
+>     - Kai Germaschewski: ISDN
+>     - play CD audio correctly, don't stop after 12 minutes.
+>     - Anton Altaparmakov: disable NTFS mmap for now, as it doesn't work.
+>     - Stephen Tweedie: fix inode dirty block handling
+>     - Bill Hartner: reschedule_idle - prefer right cpu
+>     - Johannes Erdfelt: USB updates
+>     - Alan Cox: synchronize
+>     - Richard Henderson: alpha updates and optimizations
+>     - Geert Uytterhoeven: fbdev could be fooled into crashing fix
+>     - Trond Myklebust: NFS filehandles in inode rather than dentry
+>
+>  - pre3:
+>     - me: more PageDirty / swapcache handling
+>     - Neil Brown: raid and md init fixes
+>     - David Brownell: pci hotplug sanitization.
+>     - Kanoj Sarcar: mips64 update
+>     - Kai Germaschewski: ISDN sync
+>     - Andreas Bombe: ieee1394 cleanups and fixes
+>     - Johannes Erdfelt: USB update
+>     - David Miller: Sparc and net update
+>     - Trond Myklebust: RPC layer SMP fixes
+>     - Thomas Sailer: mixed sound driver fixes
+>     - Tigran Aivazian: use atomic_dec_and_lock() for free_uid()
+>
+>  - pre2:
+>     - Peter Anvin: more P4 configuration parsing
+>     - Stephen Tweedie: O_SYNC patches. Make O_SYNC/fsync/fdatasync
+>       do the right thing.
+>     - Keith Owens: make mdule loading use the right struct module size
+>     - Boszormenyi Zoltan: get MTRR's right for the >32-bit case
+>     - Alan Cox: various random documentation etc
+>     - Dario Ballabio: EATA and u14-34f update
+>     - Ivan Kokshaysky: unbreak alpha ruffian
+>     - Richard Henderson: PCI bridge initialization on alpha
+>     - Zach Brown: correct locking in Maestro driver
+>     - Geert Uytterhoeven: more m68k updates
+>     - Andrey Savochkin: eepro100 update
+>     - Dag Brattli: irda update
+>     - Johannes Erdfelt: USB update
+>
+>  - pre1: (for ISDN synchronization _ONLY_! Not complete!)
+>     - Byron Stanoszek: correct decimal precision for CPU MHz in
+>       /proc/cpuinfo
+>     - Ollie Lho: SiS pirq routing.
+>     - Andries Brouwer: isofs cleanups
+>     - Matt Kraai: /proc read() on directories should return EISDIR, not EINVAL
+>     - me: be stricter about what we accept as a PCI bridge setup.
+>     - me: always set PCI interrupts to be level-triggered when we enable them.
+>     - me: updated PageDirty and swap cache handling
+>     - Peter Anvin: update A20 code to work without keyboard controller
+>     - Kai Germaschewski: ISDN updates
+>     - Russell King: ARM updates
+>     - Geert Uytterhoeven: m68k updates
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,82 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262925AbUABFoy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 00:44:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbUABFoy
+	id S264902AbUABFrL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 00:47:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264910AbUABFrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 00:44:54 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:38277 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262925AbUABFow
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 00:44:52 -0500
-Date: Fri, 2 Jan 2004 11:20:20 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: daniel@osdl.org, janetmor@us.ibm.com, pbadari@us.ibm.com,
-       linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH linux-2.6.0-test10-mm1] filemap_fdatawait.patch
-Message-ID: <20040102055020.GA3410@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20031231091828.GA4012@in.ibm.com> <20031231013521.79920efd.akpm@osdl.org> <20031231095503.GA4069@in.ibm.com> <20031231015913.34fc0176.akpm@osdl.org> <20031231100949.GA4099@in.ibm.com> <20031231021042.5975de04.akpm@osdl.org> <20031231104801.GB4099@in.ibm.com> <20031231025309.6bc8ca20.akpm@osdl.org> <20031231025410.699a3317.akpm@osdl.org> <20031231031736.0416808f.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031231031736.0416808f.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+	Fri, 2 Jan 2004 00:47:11 -0500
+Received: from mail.ms.so-net.ne.jp ([202.238.82.30]:47404 "EHLO
+	mx04.ms.so-net.ne.jp") by vger.kernel.org with ESMTP
+	id S264902AbUABFrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 00:47:07 -0500
+Message-ID: <3FF5059F.4010007@turbolinux.co.jp>
+Date: Fri, 02 Jan 2004 14:46:07 +0900
+From: Go Taniguchi <go@turbolinux.co.jp>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ja-JP; rv:1.4) Gecko/20030925
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: vojtech@suse.cz
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1-rc1 with JP106 keyboard
+References: <Pine.LNX.4.58.0312310033110.30995@home.osdl.org> <3FF4F8EA.6090602@turbolinux.co.jp>
+In-Reply-To: <3FF4F8EA.6090602@turbolinux.co.jp>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 31, 2003 at 03:17:36AM -0800, Andrew Morton wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > Let me actually think about this a bit.
+And more....
+
+mae-kouho/henkan (scancode 0x79) 92 -> 184
+mu-henkan (scancode 0x7b)        94 -> 185
+
+-        85, 86, 90, 91, 92, 93, 14, 94, 95, 79,183, 75, 71,121,  0,123,
++         0, 86,193,192,184,  0, 14,185,  0, 79,182, 75, 71,124,  0,  0,
+                          ^ 0x79      ^ 0x7b
+These are input method control keys.
+
+Go Taniguchi wrote:
+>>
+>> Vojtech Pavlik:
+>>   o Fixes for keyboard 2.4 compatibility
+>>
 > 
-> Nasty.  The same race is present in 2.4.x...
+> Hi,
+> 2.6.1-rc1 with JP106 keybord. keycode was changed....
+>                                         2.6.0 -> 2.6.1-rc1
+> lower-right backslash (scancode 0x73)   89    -> 181
+> upper-right backslash (scancode 0x7d)   183   -> 182
 > 
-> How's about we start new I/O in filemap_fdatawait() if the page is dirty?
+> at atkbd_set2_keycode in drivers/input/keyboard/atkbd.c
 > 
-
-Makes sense to me.
-There's a chance that this could explain why Daniel saw exposures even 
-with his fix. 
-
-Would be interesting to see his results with your patch.
-
-Though we might as well plug this anyway ?
-
+> -       122, 89, 40,120, 26, 13,  0,  0, 58, 54, 28, 27,  0, 43,  0,  0,
+> +         0,181, 40,  0, 26, 13,  0,  0, 58, 54, 28, 27,  0, 43,  0,194,
+>              ^ scancode 0x73
 > 
-> diff -puN mm/filemap.c~a mm/filemap.c
-> --- 25/mm/filemap.c~a	2003-12-31 03:10:29.000000000 -0800
-> +++ 25-akpm/mm/filemap.c	2003-12-31 03:17:05.000000000 -0800
-> @@ -206,7 +206,13 @@ restart:
->  		page_cache_get(page);
->  		spin_unlock(&mapping->page_lock);
->  
-> -		wait_on_page_writeback(page);
-> +		lock_page(page);
-> +		if (PageDirty(page) && mapping->a_ops->writepage) {
-> +			write_one_page(page, 1);
-> +		} else {
-> +			wait_on_page_writeback(page);
-> +			unlock_page(page);
-
-Would we lose anything if we unlock_page() before wait_on_page_writeback() ?
-I was thinking about the corresponding fix in sync_page_range, and it
-would make life easier for retry based fs-AIO if we could move the
-unlock_page before the wait.
-
-> +		}
->  		if (PageError(page))
->  			ret = -EIO;
->  
-> 
-> 
-
-Regards
-Suparna
-
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+> -        85, 86, 90, 91, 92, 93, 14, 94, 95, 79,183, 75, 71,121,  0,123,
+> +         0, 86,193,192,184,  0, 14,185,  0, 79,182, 75, 71,124,  0,  0,
+>                                                  ^ scancode 0x7d
+> Is this correct?
+> 2.6.0 is OK, but 2.6.1-rc1 does not get [|/_] keys.
 

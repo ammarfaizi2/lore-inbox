@@ -1,28 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133028AbRDRGTV>; Wed, 18 Apr 2001 02:19:21 -0400
+	id <S133029AbRDRGWB>; Wed, 18 Apr 2001 02:22:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133029AbRDRGTM>; Wed, 18 Apr 2001 02:19:12 -0400
-Received: from GEOV11.TelDa.Net ([193.96.236.53]:46713 "HELO TDN.TelDa.Net")
-	by vger.kernel.org with SMTP id <S133028AbRDRGTD>;
-	Wed, 18 Apr 2001 02:19:03 -0400
-Message-ID: <3ADD241B.60C9928F@karstenkreher.de>
-Date: Wed, 18 Apr 2001 07:20:27 +0200
-From: Karsten Kreher <email@karstenkreher.de>
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3 i586)
-X-Accept-Language: en
+	id <S133030AbRDRGVv>; Wed, 18 Apr 2001 02:21:51 -0400
+Received: from mx1.sac.fedex.com ([199.81.208.10]:57362 "EHLO
+	mx1.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S133029AbRDRGVn>; Wed, 18 Apr 2001 02:21:43 -0400
+Date: Wed, 18 Apr 2001 14:21:49 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: <root@boston.corp.fedex.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: 2.4.4-pre4 nfsd.o unresolved symbol
+In-Reply-To: <Pine.GSO.4.21.0104180040050.9930-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0104181421000.8661-100000@boston.corp.fedex.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: compiling buz.c problem in 2.4.3 (missing symbol)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-... can be resolved by adding the missing define in line 65
 
-#define KMALLOC_MAXSIZE (512*1024)
+great! working fine one.
 
-regards,
-Karsten Kreher
+Thanks,
+Jeff
+[ jchua@fedex.com ]
+
+On Wed, 18 Apr 2001, Alexander Viro wrote:
+
+>
+>
+> On Wed, 18 Apr 2001, Jeff Chua wrote:
+>
+> > depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre4/kernel/fs/nfsd/nfsd.o
+> > depmod:         nfsd_linkage_Rb56858ea
+>
+> Grrr...
+>
+> Add #include <linux/module.h> to fs/filesystems.c. My apologies.
+>
+> --- fs/filesystems.c    Tue Apr 17 23:40:32 2001
+> +++ /tmp/filesystems.c  Wed Apr 18 00:41:01 2001
+> @@ -7,6 +7,7 @@
+>   */
+>
+>  #include <linux/config.h>
+> +#include <linux/module.h>
+>  #include <linux/sched.h>
+>  #include <linux/smp_lock.h>
+>  #include <linux/kmod.h>
+>
+>
 

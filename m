@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266884AbUG1LxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266890AbUG1MIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266884AbUG1LxI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 07:53:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266888AbUG1LxI
+	id S266890AbUG1MIz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 08:08:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266891AbUG1MIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 07:53:08 -0400
-Received: from pop.gmx.de ([213.165.64.20]:16014 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266884AbUG1LxC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 07:53:02 -0400
-X-Authenticated: #1725425
-Date: Wed, 28 Jul 2004 13:54:44 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: Paul Jackson <pj@sgi.com>
-Cc: rob@landley.net, linux-kernel@vger.kernel.org
-Subject: Re: Interesting race condition...
-Message-Id: <20040728135444.79e67ea9.Ballarin.Marc@gmx.de>
-In-Reply-To: <20040728010546.3b7933d5.pj@sgi.com>
-References: <200407222204.46799.rob@landley.net>
-	<20040728010546.3b7933d5.pj@sgi.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Jul 2004 08:08:55 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:4304 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S266890AbUG1MIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 08:08:53 -0400
+Date: Wed, 28 Jul 2004 14:08:52 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Avi Kivity <avi@exanet.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Deadlock during heavy write activity to userspace NFS
+ server on local NFS mount
+In-Reply-To: <20040727203438.GB2149@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0407281402020.26456@artax.karlin.mff.cuni.cz>
+References: <41050300.90800@exanet.com> <20040726210229.GC21889@openzaurus.ucw.cz>
+ <4106B992.8000703@exanet.com> <20040727203438.GB2149@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jul 2004 01:05:46 -0700
-Paul Jackson <pj@sgi.com> wrote:
+> Hi!
+>
+> > >>On heavy write activity, allocators wait synchronously for kswapd to
+> > >>free some memory. But if kswapd is freeing memory via a userspace NFS
+> > >>server, that server could be waiting for kswapd, and the system seizes
+> > >>instantly.
+> > >>
+> > >>This patch (against RHEL 2.4.21-15EL, but should apply either
+> > >>literally
+> > >>or conceptually to other kernels) allows a process to declare itself
+> > >>as
+> > >>kswapd's little helper, and thus will not have to wait on kswapd.
+> > >>
+> > >>
+> > >
+> > >Ok, but what if its memory runs out, anyway?
+> > >
+> > >
+> > >
+> > Tough. What if kswapd's memory runs out?
+>
+> I'd hope that kswapd was carefully to make sure that it always has
+> enough pages...
+>
+> ...it is harder to do the same auditing with userland program.
+>
+> > A more complete solution would be to assign memory reserve levels below
+> > which a process starts allocating synchronously. For example, normal
+> > processes must have >20MB to make forward progress, kswapd wants >15MB
+> > and the NFS server needs >10MB. Some way would be needed to express the
+> > dependencies.
+>
+> Yes, something like that would be neccessary. I believe it would be
+> slightly more complicated, like
+>
+> "NFS server needs > 10MB *and working kswapd*", so you'd need 25MB in
+> fact... and this info should be stored in some readable form so that
+> it can be checked.
 
-> Rob wrote:
-> > I just saw a funky thing.  Here's the cut and past from the xterm...
-> 
-> Can you reproduce this by cat'ing /proc/<pid>/cmdline?  Can you get a
-> dump of the proc cmdline file to leak the environment sometimes?
-> 
-> It is this file that 'ps' is dumping for these options.  Adding the
-> 'e' option would also dump the /proc/<pid>/environ file (if readable).
-> 
-> But you aren't adding 'e', so presumably the environment is "leaking"
-> into the the cmdline file.
-> 
-> I suspect a kernel bug here - the ps code seems rather obvious and
-> unimpeachable.
-> 
+Hi!
 
-I ran the following loop for a while (> 9 million times) and could not
-reproduce the bug, but that might just be coincidence.
-Conditions were the same as in my other, succesful test.
+And if the NFS server is waiting for some lock that is held by another
+process that is wating for kswapd...? It won't help.
 
-while [ 1 ];do
-        cat /proc/self/cmdline >> TEST
-done
+The solution would be a limit for dirty pages on NFS --- if you say that
+less than 1/8 of memory might be dirty NFS pages, than you can keep system
+stable even if NFS writes starve. If you export NFS filesystem via NFSD
+again, even this woudn't help, but there's no fix for this case.
 
-Marc
+Mikulas

@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbTDRKyG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 06:54:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263018AbTDRKyG
+	id S263019AbTDRLDY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 07:03:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbTDRLDX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 06:54:06 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:27404 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263015AbTDRKyF
+	Fri, 18 Apr 2003 07:03:23 -0400
+Received: from yuzuki.cinet.co.jp ([61.197.228.219]:12162 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP id S263019AbTDRLDX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 06:54:05 -0400
-Date: Fri, 18 Apr 2003 07:01:06 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: DigorA <ydigora@yandex.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: /target0/lun0/
-In-Reply-To: <3E9E93F3.000007.06385@camay.yandex.ru>
-Message-ID: <Pine.LNX.3.96.1030418065929.8516B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 18 Apr 2003 07:03:23 -0400
+Date: Fri, 18 Apr 2003 20:15:05 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5.67-ac2] ALSA config fix for PC98
+Message-ID: <20030418111505.GA15464@yuzuki.cinet.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Apr 2003, DigorA wrote:
+This is a trivial patch against 2.5.67-ac2.
+Please apply.
 
-> Waiting for your help!
-> 
-> After successfull update of a new kernel from 2.2.14 to 2.4.18 first
-> rebooting did failed.  On the stage of initialisation (but before
-> inittab) had wrote "Partition check: /dev/ide/host0/bus0/target0/lun0"
-> and buzzed.  Booting from rescue disk with differnet kernel (some disks
-> with kernel 2.4.x does work, some doesn't) enables disk.  But I'm
-> resctricted with usage and long booting and differnet kernel and so on. 
-> So hard disk works through other kernel.  What can be done? 
+Fix config menu for alsa sound driver for PC98.
 
-Using devfs? That sounds vaguely like a message which might come out of a
-devfs botch of some kind. 
+Regards,
+Osamu Tomita
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+diff -Nru linux-2.5.67-ac2/sound/isa/Kconfig linux-2.5.67-ac2/sound/isa/Kconfig
+--- linux-2.5.67-ac2/sound/isa/Kconfig	2003-04-18 09:14:26.000000000 +0900
++++ linux-2.5.67-ac2/sound/isa/Kconfig	2003-04-18 10:14:44.000000000 +0900
+@@ -41,7 +41,7 @@
+ 
+ config SND_PC98_CS4232
+ 	tristate "NEC PC9800 CS4232 driver"
+-	depends on SND && PC9800
++	depends on SND && X86_PC9800
+ 	help
+ 	  Say 'Y' or 'M' to include support for NEC PC-9801/PC-9821 on-board
+ 	  soundchip based on CS4232.

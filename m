@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbUL2UFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbUL2UFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbUL2UFq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 15:05:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbUL2UFp
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 15:05:45 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39047 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261417AbUL2UFh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S261414AbUL2UFh (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 29 Dec 2004 15:05:37 -0500
-Date: Wed, 29 Dec 2004 12:04:57 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jesse Allen <the3dfxdude@gmail.com>
-cc: Mike Hearn <mh@codeweavers.com>, Thomas Sailer <sailer@scs.ch>,
-       Eric Pouech <pouech-eric@wanadoo.fr>,
-       Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       wine-devel <wine-devel@winehq.com>
-Subject: Re: ptrace single-stepping change breaks Wine
-In-Reply-To: <53046857041229114077eb4d1d@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0412291151080.2353@ppc970.osdl.org>
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> 
- <20041119212327.GA8121@nevyn.them.org>  <Pine.LNX.4.58.0411191330210.2222@ppc970.osdl.org>
-  <20041120214915.GA6100@tesore.ph.cox.net>  <41A251A6.2030205@wanadoo.fr> 
- <Pine.LNX.4.58.0411221300460.20993@ppc970.osdl.org>  <1101161953.13273.7.camel@littlegreen>
-  <1104286459.7640.54.camel@gamecube.scs.ch>  <1104332559.3393.16.camel@littlegreen>
-  <Pine.LNX.4.58.0412291047120.2353@ppc970.osdl.org> <53046857041229114077eb4d1d@mail.gmail.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUL2UFh
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 29 Dec 2004 15:05:37 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:65471 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S261414AbUL2UFc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 15:05:32 -0500
+X-Qmail-Scanner-Mail-From: solt2@dns.toxicfilms.tv via dns
+X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
+X-Qmail-Scanner: 1.23 (Clear:RC:0(213.238.103.71):. Processed in 0.067998 secs)
+Message-ID: <04ef01c4ede2$ff4a7cc0$0e25fe0a@pysiak>
+From: "Maciej Soltysiak" <solt2@dns.toxicfilms.tv>
+To: <linux-kernel@vger.kernel.org>
+References: <m3mzw262cu.fsf@rajsekar.pc> <41CD51E6.1070105@kolivas.org>
+Subject: Re: Trying out SCHED_BATCH
+Date: Wed, 29 Dec 2004 21:14:00 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
+Con wrote:
+> Only the staircase scheduler currently has an implementation of
+> sched_batch and you need 2 more patches on top of the staircase patch
+> for it to work.
+Hmm, Is it feasable to write a sched_batch policy for the current linux 
+schedulers?
 
-On Wed, 29 Dec 2004, Jesse Allen wrote:
-> 
-> > 
-> > So does removing the conditional TF clear make everything work again?
-> > 
-> 
-> Yes, as long as TIF_SINGLESTEP is not set in set_singlestep(). 
+I mean, if there are people that want it bad, maybe it would be nice to be 
+able
+to use a version of sched_batch that would work without the staircase 
+scheduler.
+It is still experimental, right?
 
-That may be a clue, if only because that makes absolutely _zero_ sense. 
+Regards,
+Maciej
 
-Setting TIF_SINGLESTEP shouldn't actually matter in this case, since we
-set the TRAP_FLAG in eflags by hand anyway (and that's what TIF_SINGESTEP
-will just re-do when returning to user space).
-
-What TIF_SINGLESTEP _does_ do, however, is change how some other issues
-are reported to user space. In particular, it causes system call tracing
-(see arch/i386/kernel/ptrace.c: do_syscall_trace), and maybe it is _that_ 
-that messes up Wine.
-
-So instead of removing the setting of TIF_SINGLESTEP in set_singlestep(), 
-can you test whether removing the _testing_ of it in do_syscall_trace() 
-makes things happier for you? Hmm?
-
-(Also, looking at the code, I get the feeling that set_singlestep() should 
-_only_ set TIF_SINGLESTEP, and not set the TRAP_FLAG by hand at all, since 
-TIF_SINGESTEP should take care of that detail regardless).
-
-		Linus

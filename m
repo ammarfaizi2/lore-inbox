@@ -1,76 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269229AbRH1SS4>; Tue, 28 Aug 2001 14:18:56 -0400
+	id <S271868AbRH1ST0>; Tue, 28 Aug 2001 14:19:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271868AbRH1SSr>; Tue, 28 Aug 2001 14:18:47 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:20743 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S269229AbRH1SSn>; Tue, 28 Aug 2001 14:18:43 -0400
-Message-ID: <3B8BE08F.360C3481@zip.com.au>
-Date: Tue, 28 Aug 2001 11:18:55 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac9 i686)
-X-Accept-Language: en
+	id <S271869AbRH1STQ>; Tue, 28 Aug 2001 14:19:16 -0400
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:50948 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S271868AbRH1SS7>; Tue, 28 Aug 2001 14:18:59 -0400
+Date: Tue, 28 Aug 2001 19:18:45 +0100
+From: Matthew Hambley <matthew@aether.demon.co.uk>
+To: linux-kernel@vger.kernel.org
+Message-ID: <411e3db14a.matthew@aether.demon.co.uk>
+X-Organization: Beyond the Reality Barrier
+User-Agent: Messenger-Pro/2.50a (RemoteNB/1.50) (RISC-OS/4.02)
+Subject: ip_dynaddr problem wirh 2.4.9
+X-Editor: Zap 1.44 (24 Jul 2001) [TEST 7], ZapEmail 0.26 (14 Jun 2001) test-2
 MIME-Version: 1.0
-To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-In-Reply-To: <20010828010850Z270025-760+6645@vger.kernel.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dieter Nützel wrote:
-> 
-> ...
-> (dbench-1.1 32 clients)
-> ...
-> 640 MB PC100-2-2-2 SDRAM
-> ...
-> * readahead do not show dramatic differences
-> * killall -STOP kupdated DO
+I recently indulged in a marathon compile-a-thon (glibc 2.2.3, X 4.1.0 and
+all the things they are dependent on) and at the end of this I found that
+ppp was no longer dialling on demand correctly.  What appears to be
+happening is that ip_dynaddr isn't working properly.  The first connection
+(the one which initiated the dial) fails.
 
-dbench is a poor tool for evaluating VM or filesystem performance.
-It deletes its own files.
+Prior to noticing the problem with ppp I also upgraded to 2.4.9 of the
+kernel.  So my question is this, is there a known problem with ip_dynaddr
+or is it more likely to be a problem with the default configuration of DNS
+lookups in glibc as I have seen suggested elsewhere?
 
-If you want really good dbench numbers, you can simply install lots
-of RAM and tweak the bdflush parameters thusly:
+-- 
+(\/)atthew Hambley ----------------\ If something's worth doing it's worth
+                                    \ doing badly until you can learn to
+matthew@aether.demon.co.uk           \ do it well.
+http://www.aether.demon.co.uk/        \-----------------------------------
 
-1: set nfract and nfract_sync really high, so you can use all your
-   RAM for buffering dirty data.
-
-2: Set the kupdate interval to 1000000000 to prevent kupdate from
-   kicking in.
-
-And guess what?  You can perform an entire dbench run without
-touching the disk at all!  dbench deletes its own files, and
-they never hit disk.
-
-
-It gets more complex - if you leave the bdflush parameters at
-default, and increase the number of dbench clients you'll reach
-a point where bdflush starts kicking in to reduce the amount
-of buffercache memory.  This slows the dbench clients down,
-so they have less opportunity to delete data before kupdate and
-bdflush write them out.  So the net effect is that the slower
-you go, the more I/O you end up doing - a *lot* more.  This slows
-you down further, which causes more I/O, etc.
-
-dbench is not a benchmark.  It is really complex, it is really
-misleading.  It is a fine stress-tester though.
-
-The original netbench test which dbench emulates has three phases:
-startup, run and cleanup.  Throughput numbers are only quoted for
-the "run" phase.  dbench is incomplete in that it reports on throughput
-for all three phases.  Apparently Tridge and friends are working on
-changing this, but it will still be the case that the entire test
-can be optimised away, and that it is subject to the regenerative
-feedback phenomenon described above.
-
-For tuning and measuring fs and VM efficiency we need to user
-simpler, more specific tools.
-
--

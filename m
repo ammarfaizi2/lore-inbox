@@ -1,56 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269020AbUJKPBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269031AbUJKPAd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269020AbUJKPBm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 11:01:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269048AbUJKPBT
+	id S269031AbUJKPAd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 11:00:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269032AbUJKO5h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 11:01:19 -0400
-Received: from fw.osdl.org ([65.172.181.6]:22410 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269043AbUJKO5v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 10:57:51 -0400
-Date: Mon, 11 Oct 2004 07:57:45 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Brice.Goglin@ens-lyon.org
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-rc4 - pls test (and no more patches)
-In-Reply-To: <416A4D67.9070108@ens-lyon.fr>
-Message-ID: <Pine.LNX.4.58.0410110752380.3897@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
- <416A4D67.9070108@ens-lyon.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 11 Oct 2004 10:57:37 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:39617 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269038AbUJKO5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 10:57:17 -0400
+Subject: Re: IT8212 IDE driver on ASUS P5GD-VM (IT8211)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ampoulin <ampoulin@altern.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200410110409.56544.ampoulin@altern.org>
+References: <200410110409.56544.ampoulin@altern.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1097502881.31259.21.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 11 Oct 2004 14:54:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 11 Oct 2004, Brice Goglin wrote:
+On Llu, 2004-10-11 at 03:09, Ampoulin wrote:
+> Hello,
 > 
-> Well, I have one (N600c).
-> What am I supposed to see ? Is there anything special to do ?
+> Is the patch provided by Alan Cox for IT8212 on linux 2.6.9-rc3 supposed to 
+> work on IT8211 ? I tried it and it wasn't working.
 
-Different Evo, different BIOS, different AML bug. You might try to update 
-your BIOS, it might be fixed.
+I think it will with some slight persuasion. I don't have an IT8211 so
+I've not had a chance to dig into this. Once the driver is all nicely
+merged I'll do the needed comparisons.
 
-> I don't know exactly how fan control is supposed to be fixed.
-> Automatic wakeup/stop of these fans depending on the temperature
-> was already working.
-
-It wasn't on the N620c.. That one had errors like
-
-    ACPI-1133: *** Error: Method execution failed [\_TZ_.C202] (Node c1926af0), AE_AML_NO_RETURN_VA
-    ACPI-1133: *** Error: Method execution failed [\_TZ_.C20C._STA] (Node c1926cd4), AE_AML_NO_RETU
-
-but yours are different:
-
-> By the way, I still see these errors during the boot, don't know if it's
-> supposed to be fixed :
-> 
->   psparse-1133: *** Error: Method execution failed [\_SB_.C03E.C053.C0D1.C12E] (Node e7f9a3a8), AE_AML_UNINITIALIZED_LOCAL
->   psparse-1133: *** Error: Method execution failed [\_SB_.C03E.C053.C0D1.C13D] (Node e7f9bd68), AE_AML_UNINITIALIZED_LOCAL
->   psparse-1133: *** Error: Method execution failed [\_SB_.C19F._BTP] (Node e7fa3348), AE_AML_UNINITIALIZED_LOCAL
-
-Have you made a acpi bugzilla entry for this?
-
-		Linus

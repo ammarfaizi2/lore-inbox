@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276877AbRJQQWK>; Wed, 17 Oct 2001 12:22:10 -0400
+	id <S276956AbRJQQ3J>; Wed, 17 Oct 2001 12:29:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276933AbRJQQWA>; Wed, 17 Oct 2001 12:22:00 -0400
-Received: from t2.redhat.com ([199.183.24.243]:18415 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S276877AbRJQQVp>; Wed, 17 Oct 2001 12:21:45 -0400
-Message-ID: <3BCDB039.8F00D818@redhat.com>
-Date: Wed, 17 Oct 2001 17:22:17 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-4smp i686)
-X-Accept-Language: en
+	id <S276957AbRJQQ3A>; Wed, 17 Oct 2001 12:29:00 -0400
+Received: from smtp012.mail.yahoo.com ([216.136.173.32]:50958 "HELO
+	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S276956AbRJQQ2p>; Wed, 17 Oct 2001 12:28:45 -0400
+X-Apparently-From: <rajeev?bector@yahoo.com>
+From: "Rajeev Bector" <rajeev_bector@yahoo.com>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: ptrace question
+Date: Wed, 17 Oct 2001 09:23:38 -0700
+Message-ID: <GIEMIEJKPLDGHDJKJELAEEBLCNAA.rajeev_bector@yahoo.com>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Problem with 2.4.14prex and qlogicfc
-In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D570@xfc01.fc.hp.com>
-		<20011017081837.C3035@suse.de> <20011016.233534.48799017.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
->    From: Jens Axboe <axboe@suse.de>
->    Date: Wed, 17 Oct 2001 08:18:37 +0200
-> 
->    On Tue, Oct 16 2001, DICKENS,CARY (HP-Loveland,ex2) wrote:
->    > I'm seeing a problem on all the kernels that are 2.4.13pre1 and up.
-> 
->    This smells like a bug in the pci64 conversion of qlogicfc. Maybe davem
->    has an idea, I'll take a look too.
-> 
-> Not if it broke in pre1 since the pci64 stuff went into pre2 :-)
+I have a question on the ptrace system call
+implementation:
 
-since it broke as of pre2, the following things are suspect:
+In kernel/ptrace.c in the function access_one_page(),
+why is read access denied to pages which are
+marked PG_reserved ?
 
-if  BITS_PER_LONG > 32
-#define pci_dma_lo32(a) (a & 0xffffffff)
-#define pci_dma_hi32(a) ((a >> 32) & 0xffffffff)
-#else
-#define pci_dma_lo32(a) (a & 0xffffffff)
-#define pci_dma_hi32(a) 0
-#endif
+I have some pages in my driver which are reserved
+and memory mapped to user applications which I'd
+like to access in gdb.
+
+Any clues to what is the risk if I were to enable
+accessing of pages which are marked "reserved"
+
+Thanks in advance !
+Rajeev
 
 
-#if  BITS_PER_LONG <= 32
-#define  VIRT_TO_BUS_LOW(a) (uint32_t)virt_to_bus(((void *)a))
-#define  VIRT_TO_BUS_HIGH(a) (uint32_t)(0x0)
-#else
-#define  VIRT_TO_BUS_LOW(a) (uint32_t)(0xffffffff & virt_to_bus((void
-*)(a)))
-#define  VIRT_TO_BUS_HIGH(a) (uint32_t)(0xffffffff & (virt_to_bus((void
-*)(a))>
-#endif#
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 
-if BITS_PER_LONG > 32
-        uint64_t request_dma;        /* Physical address. */
-#else
-        uint32_t request_dma;        /* Physical address. */
-#endif
-
-the later is abused instead of dma_addr_t and friends, and is used for
-several other physical address
-variables as well.

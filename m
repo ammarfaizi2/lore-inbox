@@ -1,46 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264341AbRFLMHk>; Tue, 12 Jun 2001 08:07:40 -0400
+	id <S264356AbRFLMMA>; Tue, 12 Jun 2001 08:12:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264346AbRFLMHa>; Tue, 12 Jun 2001 08:07:30 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:28151 "EHLO
-	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S264341AbRFLMH2>; Tue, 12 Jun 2001 08:07:28 -0400
-Message-Id: <l03130300b74b9ddb0369@[192.168.239.105]>
-In-Reply-To: <20010611223357.A959@bug.ucw.cz>
-In-Reply-To: <20010611113604.4073.qmail@web3504.mail.yahoo .com>; from 
- =?iso-8859-1?Q?Mich=E8l?= Alexandre Salim on Mon, Jun  11, 2001 at 
- 12:36:04PM +0100 <20010611113604.4073.qmail@web3504.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Tue, 12 Jun 2001 11:26:32 +0100
-To: Pavel Machek <pavel@suse.cz>,
-        =?iso-8859-1?Q?Mich=E8l?= Alexandre Salim 
-	<salimma1@yahoo.co.uk>,
-        linux-kernel@vger.kernel.org
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: Clock drift on Transmeta Crusoe
+	id <S264353AbRFLMLu>; Tue, 12 Jun 2001 08:11:50 -0400
+Received: from [212.18.228.90] ([212.18.228.90]:18706 "HELO
+	carrot.linuxgrrls.org") by vger.kernel.org with SMTP
+	id <S264348AbRFLMLd>; Tue, 12 Jun 2001 08:11:33 -0400
+Message-ID: <3B2606CF.10003@linuxgrrls.org>
+Date: Tue, 12 Jun 2001 13:10:55 +0100
+From: Rachel Greenham <rachel@linuxgrrls.org>
+Organization: LinuxGrrls.Org
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-ac6 i686; en-US; rv:0.9.1) Gecko/20010607
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: VIA KT133A crash *post* 2.4.3-ac6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> clock drift of a few minutes per day.
+This seems to just run and run... Sorry I couldn't report this earlier, 
+but I've only just got this machine...
 
-That's about 0.1%.  It may be relatively large compared to tolerances of
-hardware clocks, but it's realistically tiny.  It certainly compares
-favourably with mkLinux on my PowerBook 5300, which usually drifts by
-several hours per day regardless of actual load.
+With DMA (UDMA Mode 5) enabled, my machine crashes on kernel versions 
+from 2.4.3-ac7 onwards up to 2.4.5 right up to 2.4.5-ac13. 2.4.3 vanilla 
+and 2.4.3-ac6 are completely stable. -ac7 of course is when a load of 
+VIA fixes were done. :-}
 
-The drift might be caused by something masking interrupts for too long, too
-often, considering you state that the hardware clock remains comparatively
-well-synced.  As another poster suggests, the framebuffer may be to blame.
+Details:
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
+System is:
 
-The key to knowledge is not to rely on people to teach you it.
+CPU: Athlon 1.33 GHz with 266MHz FSB
+Mobo: Asus A7V133 with 266MHz FSB, UltraDMA100 (PDC20265 according to 
+kernel boot messages)
+    BIOS has been updated to latest available (massively unstable before)
+512Mb PC133 RAM
+Voodoo 3
+3Com 3C905B
+IBM UDMA100 41Gb Deskstar
 
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+Software:
+
+SuSE 7.1 updated to current-everything
+SuSE default kernel and self-built kernels of various versions
+
+Symptoms:
+
+With DMA disabled, *all* kernels are completely stable.
+
+With DMA (any setting, but UDMA mode 5 preferred of course) enabled, on 
+kernels 2.4.3-ac7 and onwards, random lockup on disk access within first 
+few minutes of use - sometimes very quickly after boot, sometimes as 
+much as ten minutes later given use. Running bonnie -s 1024 once or 
+twice after boot generally excites it too. :-}. Lockup is pretty severe: 
+machine goes completely unresponsive, Magic SysRq doesn't work. About 
+the only thing that does still work is the flashing VGA cursor. :-)
+
+Actual tested kernels:
+
+2.4.0.SuSE, 2.4.0 vanilla, 2.4.3 vanilla, 2.4.3-ac6 - No failure
+2.4.3-ac7, 2.4.4 vanilla, 2.4.5 vanilla, 2.4.5-ac13 - Failure.
+
+-- 
+Rachel
 
 

@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270175AbTHCDHj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 23:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270439AbTHCDHj
+	id S263990AbTHCEBt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 00:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270272AbTHCEBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 23:07:39 -0400
-Received: from itaqui.terra.com.br ([200.176.3.19]:59313 "EHLO
-	itaqui.terra.com.br") by vger.kernel.org with ESMTP id S270175AbTHCDHi
+	Sun, 3 Aug 2003 00:01:49 -0400
+Received: from evrtwa1-ar2-4-33-045-074.evrtwa1.dsl-verizon.net ([4.33.45.74]:13729
+	"EHLO grok.yi.org") by vger.kernel.org with ESMTP id S263990AbTHCEBs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 23:07:38 -0400
-Message-ID: <3F2C7A03.6080204@terra.com.br>
-Date: Sat, 02 Aug 2003 23:57:07 -0300
-From: Raphael Kubo da Costa <suroii@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030707
+	Sun, 3 Aug 2003 00:01:48 -0400
+Message-ID: <3F2C891B.7080004@candelatech.com>
+Date: Sat, 02 Aug 2003 21:01:31 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030718
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvac.org, akpm@osdl.org
-Subject: Re: 2.6.0-test2-mm3
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Nivedita Singhvi <niv@us.ibm.com>,
+       Werner Almesberger <werner@almesberger.net>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: TOE brain dump
+References: <20030802140444.E5798@almesberger.net> <3F2BF5C7.90400@us.ibm.com> <3F2C0C44.6020002@pobox.com>
+In-Reply-To: <3F2C0C44.6020002@pobox.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, here's my first patch. ;)
-This is a fix for i386's fpu_system.h, which was causing an error during 
-the compilation of fpu_entry.c.
+Jeff Garzik wrote:
 
---- linux-2.6.0-test2-mm3/arch/i386/math-emu/fpu_system.h	2003-08-02 22:54:44.000000000 -0300
-+++ linux-2.6.0-test2-mm3-fix/arch/i386/math-emu/fpu_system.h	2003-08-02 22:53:55.000000000 -0300
-@@ -22,7 +22,7 @@
- 
- /* s is always from a cpu register, and the cpu does bounds checking
-  * during register load --> no further bounds checks needed */
--#define LDT_DESCRIPTOR(s)	(((struct desc_struct *)current->mm->context.ldt)[(s) >> 3])
-+#define LDT_DESCRIPTOR(s)	(((struct desc_struct *)current->mm->context.ldt_pages)[(s) >> 3])
- #define SEG_D_SIZE(x)		((x).b & (3 << 21))
- #define SEG_G_BIT(x)		((x).b & (1 << 23))
- #define SEG_GRANULARITY(x)	(((x).b & (1 << 23)) ? 4096 : 1)
+> So, fix the other end of the pipeline too, otherwise this fast network 
+> stuff is flashly but pointless.  If you want to serve up data from disk, 
+> then start creating PCI cards that have both Serial ATA and ethernet 
+> connectors on them :)  Cut out the middleman of the host CPU and host 
+
+I for one would love to see something like this, and not just Serial ATA..
+but maybe 8x Serial ATA and RAID :)
+
+Ben
+
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 
 

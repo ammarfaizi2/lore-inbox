@@ -1,80 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVAWDcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVAWDh6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVAWDcq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 22:32:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVAWDcq
+	id S261200AbVAWDh6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 22:37:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVAWDh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 22:32:46 -0500
-Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:31963 "EHLO
-	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261199AbVAWDcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 22:32:39 -0500
-Message-ID: <41F31AD4.6030707@kolivas.org>
-Date: Sun, 23 Jan 2005 14:32:36 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Gustavo Guillermo Perez <gustavo@compunauta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Supermount / ivman
-References: <200501232126.08575.gustavo@compunauta.com>
-In-Reply-To: <200501232126.08575.gustavo@compunauta.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigC86CB9805E45688B3F7E449A"
+	Sat, 22 Jan 2005 22:37:58 -0500
+Received: from rproxy.gmail.com ([64.233.170.205]:53612 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261200AbVAWDhw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 22:37:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Xli+fYlOvYnnt6Un12AzJuZtuyAO0hDHLuK8BWWervLP4FGDtR2kXBdjHi6lbd6nbrco0zb7idvlNXoNxxJYdpEV7depaSpgwQX+gpa/FwHMVHPQZSTh/y2R7q8IlM5hVLS+yw0Y70+FH3r/TVotjH+EdnyLHuTNJ+vyi0nCVsg=
+Message-ID: <5a4c581d050122193751fdcb71@mail.gmail.com>
+Date: Sun, 23 Jan 2005 04:37:51 +0100
+From: Alessandro Suardi <alessandro.suardi@gmail.com>
+Reply-To: Alessandro Suardi <alessandro.suardi@gmail.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [Bug 4081] New: OpenOffice crashes while starting due to a threading error
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <5a4c581d050122091829a64f29@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <217740000.1106412985@10.10.2.4>
+	 <5a4c581d050122091829a64f29@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigC86CB9805E45688B3F7E449A
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sat, 22 Jan 2005 18:18:55 +0100, Alessandro Suardi
+<alessandro.suardi@gmail.com> wrote:
+> On Sat, 22 Jan 2005 08:56:25 -0800, Martin J. Bligh <mbligh@aracnet.com> wrote:
+> > Please contact bug submitter for more info, not myself.
+> >
+> > ---------------------------------------------
+> >
+> > http://bugme.osdl.org/show_bug.cgi?id=4081
 
-Gustavo Guillermo Perez wrote:
-> Cause I play with old toys, (floppys) and ivman doesn't work properly on the 
-> lastest gentoo with floppys, I retouch for a while the supermount patch from 
-> sourceforge for kernel 2.6.11-rc1.
+[snip]
+
+> Doesn't happen here:
 > 
-> I'm a n00b on kernel, I do this only for general purposes helping some 
-> friends, I know supermount should not be used, and is not mantained, I've 
-> tested it just only for IDE/ATAPI CD/DVD and floppys.
+> [asuardi@incident asuardi]$ grep openoffice /var/log/rpmpkgs
+> openoffice.org-1.1.2-11.4.fc2.i386.rpm
+> openoffice.org-i18n-1.1.2-11.4.fc2.i386.rpm
+> openoffice.org-libs-1.1.2-11.4.fc2.i386.rpm
+> [asuardi@incident asuardi]$ cat /proc/version
+> Linux version 2.6.11-rc1-bk9 (asuardi@incident) (gcc version 3.4.3) #1
+> Fri Jan 21 15:46:16 CET 2005
 > 
-> Cause Supermount seems to be a filesystem I replace vfs_permission by 
-> generic_permission instead of permission as I read on the lkml. Other stuffs 
-> too in scsi section (I don't have scsi hardware).
-> 
-> If Help someone else:
-> 
-> http://www.compunauta.com/forums/linux/instalarlinux/supermount_en.html
-> 
+> Will try -rc2 later...
 
-I've been silently maintaining it offlist. No real development but 
-keeping it in sync and fixing obvious bugs that show up that I can fix.
+The above OO RPMs are also okay with -rc2 under FC2.
 
-Here's a patch for 2.6.10-ck5 (should apply fairly cleanly to 2.6.10):
-http://ck.kolivas.org/patches/2.6/2.6.10/2.6.10-ck5/patches/supermount-ng208-10ck5.diff
-
-and for 2.6.11-rc1
-http://ck.kolivas.org/patches/2.6/2.6.11-rc1/patches/supermount-ng208-2611rc1.diff
-
-Cheers,
-Con
-
---------------enigC86CB9805E45688B3F7E449A
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB8xrXZUg7+tp6mRURAhVXAJ0TKQbp5wc+CfhgKlZfQt701qjnnQCfaktr
-L27f2byVUG9UFMYpWMqfqpk=
-=uckE
------END PGP SIGNATURE-----
-
---------------enigC86CB9805E45688B3F7E449A--
+--alessandro
+ 
+ "And every dream, every, is just a dream after all"
+  
+    (Heather Nova, "Paper Cup")

@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275795AbTHOIqj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 04:46:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275796AbTHOIqj
+	id S275794AbTHOImJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 04:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275795AbTHOImJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 04:46:39 -0400
-Received: from iv.ro ([194.105.28.94]:36992 "HELO iv.ro") by vger.kernel.org
-	with SMTP id S275795AbTHOIqj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 04:46:39 -0400
-Date: Fri, 15 Aug 2003 12:01:45 +0300
-From: Jani Monoses <jani@iv.ro>
-To: linux-kernel@vger.kernel.org
-Subject: separate kbuild objdir status?
-Message-Id: <20030815120145.4337d688.jani@iv.ro>
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 15 Aug 2003 04:42:09 -0400
+Received: from AMarseille-201-1-4-67.w217-128.abo.wanadoo.fr ([217.128.74.67]:14119
+	"EHLO gaston") by vger.kernel.org with ESMTP id S275794AbTHOImH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 04:42:07 -0400
+Subject: Re: FBDEV updates.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Otto Solares <solca@guug.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.44.0308142150390.15200-100000@phoenix.infradead.org>
+References: <Pine.LNX.4.44.0308142150390.15200-100000@phoenix.infradead.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1060936833.13534.34.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 15 Aug 2003 10:40:33 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Thu, 2003-08-14 at 22:52, James Simmons wrote:
+> > what is the current state of PM in fb drivers?
+> 
+> Experinmental patch from Ben is in the works.
 
-is Sam's separate objdir patch or any other patch accomplishing the goal
-of being able to build various kernels using a single source tree
-considered too disruptive or unimportant for the 2.6-test series?
+That patch actually works here and I'm more/less waiting for it
+to be merged so I can send you the driver updates based on it.
+(It's becoming rather urgent. My pending PowerMac updates that
+port things to the new model are causing PM to break on PowerBook
+laptops now because fbdev has incorrect PM and the "old style" thing
+isn't properly ordered).
 
-thanks
-Jani
+The only thing you may probably want to fix (because you know
+that code better than I do) are:
 
+ - the "resume" callback in fbcon where I currently just refresh
+the foreground console, while you may actually want to refresh the
+one on this fb since I suppose that with mutiple heads, we may have
+consoles on more than one head ?
+
+ - the suspend callback where you probably want to disable the
+cursor timer
+
+Ben. 

@@ -1,100 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262772AbTLSSr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 13:47:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbTLSSr3
+	id S263522AbTLSS5O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 13:57:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263343AbTLSS5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 13:47:29 -0500
-Received: from auemail2.lucent.com ([192.11.223.163]:48102 "EHLO
-	auemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S262772AbTLSSr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 13:47:27 -0500
+	Fri, 19 Dec 2003 13:57:13 -0500
+Received: from smtp4.us.dell.com ([143.166.148.135]:4485 "EHLO
+	smtp4.us.dell.com") by vger.kernel.org with ESMTP id S263522AbTLSS5L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 13:57:11 -0500
+Date: Fri, 19 Dec 2003 12:57:06 -0600 (CST)
+From: Matt Domsch <Matt_Domsch@dell.com>
+X-X-Sender: mdomsch@humbolt.us.dell.com
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] 2.6.0 EDD enhancements
+Message-ID: <Pine.LNX.4.44.0312191254550.2465-100000@humbolt.us.dell.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16355.11079.203110.404785@gargle.gargle.HOWL>
-Date: Fri, 19 Dec 2003 11:45:59 -0500
-From: "John Stoffel" <stoffel@lucent.com>
-To: "John Stoffel" <stoffel@lucent.com>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, grundig@teleline.es,
-       Mathieu Chouquet-Stringer <mathieu@newview.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: SMP Kernel 2.6.0-test11 doesn't boot on a Dell 410
-In-Reply-To: <16336.3156.134104.991694@gargle.gargle.HOWL>
-References: <Pine.LNX.4.58.0312041607180.27578@montezuma.fsmlabs.com>
-	<16335.44623.99755.811085@gargle.gargle.HOWL>
-	<Pine.LNX.4.58.0312041702470.27578@montezuma.fsmlabs.com>
-	<16335.45013.813891.503104@gargle.gargle.HOWL>
-	<Pine.LNX.4.58.0312042109140.27578@montezuma.fsmlabs.com>
-	<16336.3156.134104.991694@gargle.gargle.HOWL>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+For review and comment, three changesets against 2.6.0 at:
 
-Just to followup, I've downloaded, compiled and installed 2.6.0 and
-Len Brown's ACPI patch on my Dell Precision 610MT box and it's works
-just fine.  I was never able to get 2.6.0-test11 with ACPI to work,
-though I never put in Len's patch on there.  
+	bk pull http://mdomsch.bkbits.net/linux-2.5-edd
 
-The system is up and running now in SMP mode, so I think once 2.6.1
-comes out with the ACPI updates, we should be all set.
+This will update the following files:
 
-I've got the following ACPI configuration options setup:
+ Documentation/i386/zero-page.txt |    4 -
+ arch/i386/boot/setup.S           |   21 ++++++
+ arch/i386/kernel/edd.c           |  128 ++++++++++++++++++++++++++++++++++-----
+ arch/i386/kernel/i386_ksyms.c    |    6 -
+ arch/i386/kernel/setup.c         |    7 ++
+ include/asm-i386/edd.h           |    6 +
+ include/asm-i386/setup.h         |    1 
+ 7 files changed, 149 insertions, 24 deletions
 
-  CONFIG_ACPI=y
-  CONFIG_ACPI_BOOT=y
-  CONFIG_ACPI_INTERPRETER=y
-  CONFIG_ACPI_AC=m
-  CONFIG_ACPI_BATTERY=m
-  CONFIG_ACPI_BUTTON=m
-  CONFIG_ACPI_FAN=m
-  CONFIG_ACPI_PROCESSOR=m
-  CONFIG_ACPI_THERMAL=m
-  CONFIG_ACPI_ASUS=m
-  CONFIG_ACPI_TOSHIBA=m
-  CONFIG_ACPI_DEBUG=y
-  CONFIG_ACPI_BUS=y
-  CONFIG_ACPI_EC=y
-  CONFIG_ACPI_POWER=y
-  CONFIG_ACPI_PCI=y
-  CONFIG_ACPI_SYSTEM=y
-  CONFIG_ACPI_RELAXED_AML=y
-  CONFIG_SERIAL_8250_ACPI=y
+through these ChangeSets:
+
+<Matt_Domsch@dell.com> (03/12/18 1.1532.1.3)
+   EDD: add sysfs symlinks for IDE devices
+   
+   Devices reporting as type "ATA" to the EDD 3.0 BIOS calls
+   now get symlinks pointing from the int13_dev8x device
+   to the IDE disk device in sysfs.
+   
+   EDD 3.0 maps all IDE devices on a single PCI device with a single
+   device value; there's no concept of multiple channels,
+   primary/secondary devices on a channel.  This may not be equivalent,
+   but edd.c currently matches only based on ide_drive_t.lun ==
+   EDD device value.  This should perhaps be taken up with
+   the T13 committee, as their spec seems incomplete in this regard.
+
+<Matt_Domsch@dell.com> (03/12/18 1.1532.1.2)
+   EDD: enable symlinks to SCSI devices
+   
+   Symlinks from /sys/firmware/edd/int13_dev8x/disc to the appropriate
+   SCSI discs were added a year ago, but disabled because the
+   scsi_bus list contained non-'scsi_device's at that time, which
+   could have lead to an improper pointer following.    The SCSI
+   mid-layer has rectified this, so this code can be re-enabled
+   in edd.c once again.
+
+<Matt_Domsch@dell.com> (03/12/18 1.1532.1.1)
+   EDD: read disk80 MBR signature, export through edd module
+   
+   There are 4 bytes in the MSDOS master boot record, at offset 0x1b8,
+   which may contain a per-system-unique signature.  By first writing a
+   unique signature to each disk in the system, then rebooting, and then
+   reading the MBR to get the signature for the boot disk (int13 dev
+   80h), userspace may use it to compare against disks it knows as named
+   /dev/[hs]d[a-z], and thus determine which disk is the BIOS boot disk,
+   thus where the /boot, / and boot loaders should be placed.
+     
+   This is useful in the case where the BIOS is not EDD3.0 compliant,
+   thus doesn't provide the PCI bus/dev/fn and IDE/SCSI location of the
+   boot disk, yet you need to know which disk is the boot disk.  It's
+   most useful in OS installers.
+      
+   This patch retrieves the signature from the disk in setup.S, stores it
+   in a space reserved in the empty_zero_page, copies it somewhere safe
+   in setup.c, and exports it via
+   /sys/firmware/edd/int13_disk80/mbr_signature in edd.c.  Code is
+   covered under CONFIG_EDD=[ym].
 
 
-If I get a chance over Xmas, I'll see about changing the RELAXED_AML
-stuff as well.  But looking at my interrupts, they certainly don't
-seem too balanced:
+Patches will follow.  Feedback welcome.
 
-    > cat /proc/interrupts 
-	       CPU0       CPU1       
-      0:   31862628         48    IO-APIC-edge  timer
-      1:        504          1    IO-APIC-edge  i8042
-      2:          0          0          XT-PIC  cascade
-      8:          4          0    IO-APIC-edge  rtc
-     11:          0          1    IO-APIC-edge  Cyclom-Y
-     12:      25139          0    IO-APIC-edge  i8042
-     14:      14906          0    IO-APIC-edge  ide0
-     15:      11947          0    IO-APIC-edge  ide1
-     17:       6346          1   IO-APIC-level  eth0
-     18:      46860          1   IO-APIC-level  aic7xxx, aic7xxx
-     19:        140          0   IO-APIC-level  aic7xxx
-    NMI:          0          0 
-    LOC:   31867092   31867091 
-    ERR:          0
-    MIS:          0
+Thanks,
+Matt
 
-
-I've got the following APIC config settings:
-
-  CONFIG_X86_GOOD_APIC=y
-  CONFIG_X86_LOCAL_APIC=y
-  CONFIG_X86_IO_APIC=y
-
-
-So I think that 2.6.1 and higher will work out of the box for the
-problematic Dell boxes, once the right ACPI patches get added.
-
-John
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 

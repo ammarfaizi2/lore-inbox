@@ -1,86 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316798AbSGVLQO>; Mon, 22 Jul 2002 07:16:14 -0400
+	id <S316204AbSGVFJJ>; Mon, 22 Jul 2002 01:09:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316821AbSGVLQN>; Mon, 22 Jul 2002 07:16:13 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:9609 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S316798AbSGVLPY>; Mon, 22 Jul 2002 07:15:24 -0400
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-To: <martin@dalecki.de>, "'Christoph Hellwig'" <hch@lst.de>
-Cc: "'Linus Torvalds'" <torvalds@transmeta.com>,
-       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] 2.5.27 sysctl
-Date: Mon, 22 Jul 2002 16:51:52 +0530
-Message-ID: <00e301c23171$fb122110$290806c0@wipro.com>
+	id <S316210AbSGVFJI>; Mon, 22 Jul 2002 01:09:08 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24073 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316204AbSGVFJI>;
+	Mon, 22 Jul 2002 01:09:08 -0400
+Message-ID: <3D3B960C.C56D4FE2@zip.com.au>
+Date: Sun, 21 Jul 2002 22:20:12 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPartTM-000-c9ca57d7-f2a1-4709-a187-3e0c3178e339"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-In-Reply-To: <3D3BE4C7.2060203@evision.ag>
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] low-latency zap_page_range
+References: <mailman.1027196701.28591.linux-kernel2news@redhat.com> <200207210247.g6L2lXE13782@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pete Zaitcev wrote:
+> 
+> > The lock hold time in zap_page_range is horrid.  This patch breaks the
+> > work up into chunks and relinquishes the lock after each iteration.
+> > This drastically lowers latency by creating a preemption point, as well
+> > as lowering lock contention.
+> 
+> >  void zap_page_range(struct vm_area_struct *vma, unsigned long address, unsigned long size)
+> 
+> Arjan sent me something similar, done by AKPM, only he did this a
+> little differently. He added an argument to zap_page_range
+> which allowed to work it in the old way, if set. Then, he set it so
+> all places would use low latency EXCEPT a reading from /dev/zero.
+> I assume it was some locking somewhere in devices/char/mem.c,
+> though I was unable to figure which in particular.
+> 
 
-This is a multi-part message in MIME format.
+There are actually quite a few places in the ll patch which don't
+pass ZPR_COND_RESCHED into zap_page_range.  Places which are
+themselves called under locks, places where not enough pages
+are being zapped to make it necessary, etc. vmtruncate_list,
+some mremap code, others.
 
-------=_NextPartTM-000-c9ca57d7-f2a1-4709-a187-3e0c3178e339
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+Plus some historical notes: there used to be a couple more
+flags which could be passed into zap_page_range() to tell
+it whether to run flush_cache_range and flush_tlb_range.  That
+was an irrelevant cleanup.  But those calls were later unconditionally
+sucked into zap_page_range() anyway.
 
-|-----Original Message-----
-|From: linux-kernel-owner@vger.kernel.org 
-|[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Marcin Dalecki
-|Sent: Monday, July 22, 2002 4:26 PM
-|To: Christoph Hellwig
-|Cc: martin@dalecki.de; Linus Torvalds; Kernel Mailing List
-|Subject: Re: [PATCH] 2.5.27 sysctl
-|
-|
-|Christoph Hellwig wrote:
-|> On Mon, Jul 22, 2002 at 12:42:07PM +0200, Marcin Dalecki wrote:
-|> 
-|>>This is making the sysctl code acutally be written in C.
-|>>It wasn't mostly due to georgeous ommitted size array "forward 
-|>>declarations". As a side effect it makes the table structure 
-|easier to 
-|>>deduce.
-|> 
-|> 
-|> Please don't remove the trailing commas in the enums.  they make 
-|> adding to them much easier and are allowed by gcc (and maybe 
-|C99, I'm 
-|> not sure).
-|
-|It's an GNU-ism. If you have any problem with "adding vales", 
-|just invent some dummy end-value. I have a problem with using 
-|-pedantic.
-
-Its not, ANSI C allows a trailing comma.
-
-Balbir
-
-
-------=_NextPartTM-000-c9ca57d7-f2a1-4709-a187-3e0c3178e339
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
-**************************Disclaimer************************************
-
-Information contained in this E-MAIL being proprietary to Wipro Limited is 
-'privileged' and 'confidential' and intended for use only by the individual
- or entity to which it is addressed. You are notified that any use, copying 
-or dissemination of the information contained in the E-MAIL in any manner 
-whatsoever is strictly prohibited.
-
-***************************************************************************
-
-------=_NextPartTM-000-c9ca57d7-f2a1-4709-a187-3e0c3178e339--
+-

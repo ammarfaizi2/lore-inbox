@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270609AbRHNM43>; Tue, 14 Aug 2001 08:56:29 -0400
+	id <S270615AbRHNM7T>; Tue, 14 Aug 2001 08:59:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270612AbRHNM4T>; Tue, 14 Aug 2001 08:56:19 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27920 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270609AbRHNM4H>; Tue, 14 Aug 2001 08:56:07 -0400
-Subject: Re: Swapping for diskless nodes
-To: pavel@suse.cz (Pavel Machek)
-Date: Tue, 14 Aug 2001 13:57:54 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), abali@us.ibm.com (Bulent Abali),
-        dws@dirksteinberg.de (Dirk W. Steinberg),
-        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <20010811011329.C55@toy.ucw.cz> from "Pavel Machek" at Aug 11, 2001 01:13:29 AM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S270614AbRHNM67>; Tue, 14 Aug 2001 08:58:59 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:12037 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S270612AbRHNM6v>; Tue, 14 Aug 2001 08:58:51 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: VM working much better in 2.4.8 than before
+Date: Tue, 14 Aug 2001 15:03:51 +0200
+X-Mailer: KMail [version 1.3]
+Cc: Helge Hafting <helgehaf@idb.hist.no>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0108131245200.6118-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0108131245200.6118-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Wdla-00018V-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010814125859Z16031-1231+838@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Ultimately its an insoluble problem, neither SunOS, Solaris or NetBSD are
-> > infallible, they just never fail for any normal situation, and thats good
-> > enough for me as a solution
+On August 13, 2001 05:52 pm, Rik van Riel wrote:
+> On Mon, 13 Aug 2001, Alan Cox wrote:
+> > > Yes, those would be the expected effects of use-once, in fact it was
+> > > "morning after updatedb" question that got me started on it.
+> >
+> > updatedb is also absolutely fine if you just work with the existing VM
+> > and up the inode pressure a little. I'm still very unconvinced by
+> > use-once.
 > 
-> Oops,  really? And if I can DoS such machine with ping -f (to eat atomic
-> ram)? And what are you going to tel your users? "It died so reboot"?
+> Use-once has a number of theoretical disadvantages too:
+> 
+> 1) newly read in pages are evicted earlier, this means
+>    readahead pages will either evict each other or the
+>    amount of readahead done might need to be shrunk
+>    -- the current readahead code is not prepared for this,
+>       use-once could lead to more disk seeks being done
 
-For the simplistic case you can stop queueing data to user sockets but that
-isnt neccessarily a cure - it can lead to bogus OOM by preventing progress
-of apps that would otherwise read a packet then exit.
+Have you actually seen this happening?
+ 
+> 2) since we add new pages to the inactive list, VM
+>    balancing is faced with a really strange situation ;)
+> 
+> Yes, these things are solvable, but not without redesigning
+> major parts of the VM balancing to do things which have never
+> been done before. I'm not sure 2.4 is the time to do that.
 
-The good example of the insoluble end of it is a box with no default route
-doing BGP4 routing with NFS swap. Now thats an extremely daft practical 
-proposition but it illustrates the fact the priority ordering is not known
-to the kernel
+--
+Daniel

@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272242AbRIKBSg>; Mon, 10 Sep 2001 21:18:36 -0400
+	id <S272249AbRIKBV0>; Mon, 10 Sep 2001 21:21:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272247AbRIKBS1>; Mon, 10 Sep 2001 21:18:27 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:28680 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S272242AbRIKBSQ>; Mon, 10 Sep 2001 21:18:16 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Andreas Steinmetz <ast@domdv.de>
-Date: Tue, 11 Sep 2001 11:18:22 +1000 (EST)
+	id <S272247AbRIKBVR>; Mon, 10 Sep 2001 21:21:17 -0400
+Received: from static004-9-151-24.nt02-c4.cpe.charter-ne.com ([24.151.9.4]:31824
+	"EHLO Jupiter.LIWAVE.COM") by vger.kernel.org with ESMTP
+	id <S272244AbRIKBU6>; Mon, 10 Sep 2001 21:20:58 -0400
+Reply-To: <rvandam@liwave.com>
+From: "Ron Van Dam" <rvandam@liwave.com>
+To: "'Chris Siebenmann'" <cks@utcc.utoronto.ca>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: FW: OT: Integrating Directory Services for Linux
+Date: Mon, 10 Sep 2001 21:20:56 -0400
+Message-ID: <002201c13a60$022e1350$1f0201c0@w2k001>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <15261.26206.601070.598763@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reboot notifier priority definitions
-In-Reply-To: message from Andreas Steinmetz on Tuesday September 11
-In-Reply-To: <XFMail.20010911015634.ast@domdv.de>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <01Sep10.181449edt.63201@gpu.utcc.utoronto.ca>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday September 11, ast@domdv.de wrote:
-> As a suggestion to prevent further shutdown/reboot notifier processing problems
-> here's a (crude) attempt of definitions for include/linux/notifier.h. I do
-> believe it needs to be heavily reworked by someone with a broad kernel overview.
-> 
-> #define NOTIFY_REBOOT_PHYSICAL    0x00 /* scsi */
-> #define NOTIFY_REBOOT_LOGICAL     0x10 /* md, lvm */
-> #define NOTIFY_REBOOT_FS          0x20 /* knfsd */
-> #define NOTIFY_REBOOT_APPLICATION 0x30 /* tux */
+Chris Siebenmann wrote:
+>> What if some less then enthusiastic has semi-mangled a /etc file.
 
-I think this misses the point of reboot notifiers (as I understand
-it).
+> Then the registry breaks in the same way. There is always something
+>that someone can do to screw the machine up; moving where most of the
+>data is stored doesn't change that. At most it reduces the number of
+>knobs someone can break off.
 
-There are *only* meant for "physical" sorts of things.
-The comment in the code says:
- *	Notifier list for kernel code which wants to be called
- *	at shutdown. This is used to stop any idling DMA operations
- *	and the like. 
+Not true. First I would like to say the a directory service isn't a
+registry. It's a database to store information in a organized system. There
+is nothing organized about the windows registry! The window registry is
+nothing more than a huge INI file with bits and pieces of information
+everywhere. It has no schema to pervent anyone from adding an bits of
+information anywhere they want.
 
-md, lvm, knfsd and tux have no business registering a reboot notifier.
-If they have something to shut down, it should be shut down in a
-higher-level way, such as when a process gets a signal. 
+With a text file I can put anything in it. I can make a 100 MB resolv.conf
+file if I wanted too. With a structured schema, the configuration can pretty
+much be locked down what information is summitted or changed.
 
-Currently md does register a reboot notifier, but this is wrong and
-will go away just as soon as it can.  Unfortuantely it cannot yet.
-The problem is that if the root filesystem is on an md device, then
-the device never received a final close, (bd_op->release) so it can
-never make the array as "stable".  That is what the current
-reboot notifier does.
-I am hoping that when Al Viro's changes to the boot/mount-root sequence
-go in, the the root filesystem will really close it's device during
-shutdown and the reboot notifier can go away.
+> No one dealing with a large collective of Unix machines is managing
+>them on a one-by-one basis. They are driving configurations out of a
+>central system for managing them, in some form or way, and if they have
+>any sense individualization is strongly discouraged if not exterminated.
+>(There are some quite elaborate systems for doing this, going so far as
+>to store everything in SQL databases. See various LISA proceedings.)
 
-Until then, I will change the priority for the md reboot notifier to
-be very high, so that it is run first, as you suggest.
+Do you see DS as a bad thing for Linux? Tell why you think having a DS
+system for Linux would be a terrible waste?
 
-I also have this idea that if the raid1d or raid5d gets a signal, it
-will switch into a mode where the array is marked stable after each
-write, and then marked dirty before each write.  This would have the
-desired effect without requiring a final close....
-
-NeilBrown
+Thanks,
+Ron
 

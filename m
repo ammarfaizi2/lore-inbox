@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263031AbRF0UJZ>; Wed, 27 Jun 2001 16:09:25 -0400
+	id <S265028AbRF0UU5>; Wed, 27 Jun 2001 16:20:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262568AbRF0UJP>; Wed, 27 Jun 2001 16:09:15 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:15114 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S263031AbRF0UJK>;
-	Wed, 27 Jun 2001 16:09:10 -0400
-Date: Wed, 27 Jun 2001 22:09:09 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Cc: "Jeffrey W. Baker" <jwbaker@acm.org>, linux-kernel@vger.kernel.org
-Subject: Re: How to change DVD-ROM speed?
-Message-ID: <20010627220909.M17905@suse.de>
-In-Reply-To: <200106271938.OAA78951@tomcat.admin.navo.hpc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200106271938.OAA78951@tomcat.admin.navo.hpc.mil>
+	id <S265152AbRF0UUr>; Wed, 27 Jun 2001 16:20:47 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:7396 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S265028AbRF0UU0>;
+	Wed, 27 Jun 2001 16:20:26 -0400
+Date: Wed, 27 Jun 2001 22:19:37 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200106272019.WAA29237@harpo.it.uu.se>
+To: FrankZhu@viatech.com.cn
+Subject: Re: PROBLEM:Illegal instruction when mount nfs file systems using cyr ixIII
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 27 2001, Jesse Pollard wrote:
-> > Excellent. I'd say use the same ioctl if you can, but default to using
-> > SET_STREAMING for DVD drives.
-> 
-> As long as it still works for the combo drives - CD/CD-RW/DVD
-> Sony VIAO high end laptops, Toshiba has one, maybe others by now.
+On Wed, 27 Jun 2001 17:42:01 +0800, Frank Zhu wrote:
 
-As long as it has the DVD features, SET_STREAMING must be supported. So
-provided that the combos adhere to that part of the spec (ha), it will
-work.
+>I use a PIII machine as the server and cyrixIII machine as the client.The
+>kernel is 2.4.5.The distribute is red hat 7.1
+>when i mount the nfs file system at the client it failed.The core file is
+>created.using the gdb it report  :
+>Program terminated with signal 4(SIGILL),Illegal instruction
+>#0  0x40003e28 in ??()
+>
+>If i change the cpu (CyrixIII) to PIII all is ok.
 
--- 
-Jens Axboe
+You don't say exactly where the failure occurs, but I suspect
+that you're feeding i686-class machine code to your VIA Cyrix III.
 
+The problem is that VIA Cyrix III announces itself (via CPUID)
+as a "family 6" processor, i.e. i686 compatible. This is not
+completely accurate, since it doesn't implement the conditional
+move instruction. [Yeah, I know there's a CPUID feature flag for
+CMOV. I also know gcc doesn't check it, and I suspect glibc
+doesn't either.]
+
+To make the machine work you'll have to ensure that the kernel,
+user-space libraries and programs, and NFS-imported programs
+all are compiled for a lesser CPU than i686.
+
+/Mikael

@@ -1,88 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290377AbSBFKjY>; Wed, 6 Feb 2002 05:39:24 -0500
+	id <S290389AbSBFKkE>; Wed, 6 Feb 2002 05:40:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290389AbSBFKjR>; Wed, 6 Feb 2002 05:39:17 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:24978 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S290377AbSBFKi7>; Wed, 6 Feb 2002 05:38:59 -0500
-Message-Id: <5.1.0.14.2.20020206094947.04d4a2d0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 06 Feb 2002 10:35:16 +0000
-To: Daniel Phillips <phillips@bonn-fries.net>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: VFS EA interface patch (was: A modest proposal...)
-Cc: Nathan Scott <nathans@sgi.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-        Andreas Gruenbacher <ag@bestbits.at>
-In-Reply-To: <E16YJNO-0000rY-00@starship.berlin>
-In-Reply-To: <20020130104004.C81308@wobbly.melbourne.sgi.com>
- <p73d6zshidj.fsf@oldwotan.suse.de>
- <Pine.LNX.4.33.0201291502460.1747-100000@penguin.transmeta.com>
- <20020130104004.C81308@wobbly.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S290386AbSBFKjz>; Wed, 6 Feb 2002 05:39:55 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:17846 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S290389AbSBFKjo>;
+	Wed, 6 Feb 2002 05:39:44 -0500
+Date: Wed, 6 Feb 2002 13:37:30 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Jussi Laako <jussi.laako@kolumbus.fi>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
+In-Reply-To: <3C607C43.92262E82@kolumbus.fi>
+Message-ID: <Pine.LNX.4.33.0202061329370.4542-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 04:08 06/02/02, Daniel Phillips wrote:
-[snip]
->My main problem with the EA interface patch itself is that there is no
->way to specify the class of the EA, currenly 'system' or 'user'.
->Instead, individual filesystems are expected to parse the attribute
->name to determine the class.  I think this is inadequate, and has not
->been discussed sufficiently.
 
-Have you read those:
-         http://acl.bestbits.at/man/extattr.5.html
-         http://acl.bestbits.at/man/extattr.2.html
+On Wed, 6 Feb 2002, Jussi Laako wrote:
 
-Why is this inadequate? The above specify perfectly well what the current 
-defined EA namespaces are, and the API is extensible in that should people 
-come up with other useful namespaces (I can't think of any) they can just 
-be added without any modification to the generic EA interface in the kernel 
-and that is good.
+> > > > tasks? If yes then renice them to -11.
+>
+> I tried to renice many of the processes with different combinations
+> and didn't make any difference.
 
-NTFS for example has no concept of different EA classes and I am planning 
-to only support the "user." namespace and just adding "user." before 
-returning an EA and removing it when writing an EA. All other classes will 
-just return that such beasts are not supported.
+> Here's top screens of two badly behaving load combinations:
 
->What will happen is, user space utilities will start making assumptions
->about the syntax of ea names (because the kernel interface provides no
->other alternative) and the current, arbitrary, EA name syntax will become
->cast in stone for ever more.
+> CPU states: 14.3% user, 11.9% system,  0.0% nice, 73.6% idle
 
-A binary interface is much worse. While with the current interface it is 
-arbitrary, at least it is defined, so yes, it is set in stone for ever 
-more, and that is a Good Thing, you don't want to be changing that in the 
-future.
+73% of CPU time is idle! So priorities will make no (or little)
+difference.
 
-However you are missing a very important point and that is that this is the 
-EA API for the kernel. There is nothing to stop glibc (or some EA library) 
-defining whatever different interface they like and exposing that to user 
-space.
+>   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+>   809 root      15   0 58312  14M  3744 S    11.8  5.7   1:12 X
+>   946 visitor   15   0  9572 9572  3584 S     8.0  3.7   0:26 guispect
+>   999 visitor   15   0  1616 1616  1324 S     2.2  0.6   0:01 spectrum
+>   944 visitor   15   0  1184 1184   984 S     1.5  0.4   0:03 soundsrv2
+>   939 visitor   15   0  1184 1184   984 R     1.4  0.4   0:06 soundsrv2
+>  1000 visitor   15   0  1236 1236  1024 S     0.7  0.4   0:00 streamdist
+>   943 visitor   15   0  1236 1236  1024 S     0.5  0.4   0:02 streamdist
+>   912 visitor   15   0  4564 4564  3544 R     0.2  1.7   0:00 gnome-terminal
 
->Then attribute classes will start to multiply, we'll get attribute 
->namespaces, and we'll get more arbitrary hacks added to the attribute name 
->syntax to accomodate them.  Support for 'new, improved' attribute name 
->syntax will be variable across filesystems.  This isn't going to be pretty.
+since there is lots of idle CPU time left, the only thing that could make
+a difference is timeslice length.
 
-I don't see why any of this should happen. The interface for EAs is well 
-defined in the above referenced documents. And note that we already have 
-attribute namespaces, that is the whole point of the "user.", "system.", 
-etc. That is what is used to distinguish the various classes. Or did I miss 
-your point completely?
+to 'fix' this (temporarily), renice all the non-SCHED_FIFO processes to
+nice +19, that will give them the minimum timeslice length.
 
-Best regards,
+still dropped sound? If this fixes it then we can think about ways to fix
+it for real.
 
-Anton
+again, what does it need to cause the 'bad' situation - too much latency
+in the sound delivery path causing the audio buffers to starve? (or audio
+buffers to be dropped?)
 
+> CPU states: 19.4% user, 27.7% system, 0.0% nice, 52.7% idle
 
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+idle time in this snapshot too.
+
+	Ingo
 

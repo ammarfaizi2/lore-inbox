@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbUCES3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 13:29:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbUCES3Z
+	id S262672AbUCESi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 13:38:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbUCESi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 13:29:25 -0500
-Received: from hail.he.net ([64.62.223.2]:29115 "HELO hail.he.net")
-	by vger.kernel.org with SMTP id S262192AbUCES3Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 13:29:24 -0500
-Message-ID: <4048C6B7.7080202@BitWagon.com>
-Date: Fri, 05 Mar 2004 10:28:07 -0800
-From: John Reiser <jreiser@BitWagon.com>
-Organization: -
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: mike@navi.cx
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Potential bug in fs/binfmt_elf.c?
-References: <1078508281.3065.33.camel@linux.littlegreen>
-In-Reply-To: <1078508281.3065.33.camel@linux.littlegreen>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Mar 2004 13:38:58 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:55427 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S262672AbUCESi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 13:38:58 -0500
+Date: Fri, 5 Mar 2004 18:37:06 +0000
+From: Dave Jones <davej@redhat.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [WATCHDOG] v2.6.3 moduleparam-patches
+Message-ID: <20040305183706.GA26176@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040305174904.O30061@infomag.infomag.iguana.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040305174904.O30061@infomag.infomag.iguana.be>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When mapping a nobits PT_LOAD segment with a memsize > filesize, the
-> kernel calls set_brk (which in turns calls do_brk) to map and clear the
-> area, but this discards access permissons on the mapping leading to rwx
-> protection. This causes a load failure on systems where the VM cannot
-> reserve swap space for the segment, unless overcommit is active (on many
-> systems it's not on by default).
-[snip]
+On Fri, Mar 05, 2004 at 05:49:04PM +0100, Wim Van Sebroeck wrote:
+ > Hi Linus, Andrew,
+ > 
+ > please do a
+ > 
+ > 	bk pull http://linux-watchdog.bkbits.net/linux-2.6-watchdog
 
-I believe that's not the only problem with binfmt_elf.  If the total address
-space described by the PT_LOADs is not exactly one contiguous interval, then
-2.6.3 binfmt_elf fills in the gaps with 'prw.' of zero-filled pages, instead
-of the intended "holes" with no mapping at all between isolated PT_LOADs.
-One example is  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=115913
+btw, it'd be nice to have CONFIG_WDT_501_FAN tuned into a module
+param instead of a compile time decision too. The "only turn this
+on if you have the fan tachometer set up" clause means that for
+example vendor kernels can't enable this.
 
--- 
+		Dave
 

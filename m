@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270511AbRHHP2O>; Wed, 8 Aug 2001 11:28:14 -0400
+	id <S270512AbRHHPbY>; Wed, 8 Aug 2001 11:31:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270512AbRHHP2E>; Wed, 8 Aug 2001 11:28:04 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:59780
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S270511AbRHHP1w>; Wed, 8 Aug 2001 11:27:52 -0400
-Date: Wed, 8 Aug 2001 08:27:55 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Christian Borntraeger <CBORNTRA@de.ibm.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: BUG: Assertion failure with ext3-0.95 for 2.4.7
-Message-ID: <20010808082755.M2399@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <OF1F8FDF9C.400E6F0B-ONC1256AA2.004F74C5@de.ibm.com>
-Mime-Version: 1.0
+	id <S270514AbRHHPbO>; Wed, 8 Aug 2001 11:31:14 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:49929 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S270512AbRHHPbL>; Wed, 8 Aug 2001 11:31:11 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] vfat write wrong value into lcase flag
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: 09 Aug 2001 00:30:58 +0900
+Message-ID: <87wv4er2kt.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.104
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF1F8FDF9C.400E6F0B-ONC1256AA2.004F74C5@de.ibm.com>
-User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 08, 2001 at 04:38:36PM +0200, Christian Borntraeger wrote:
+Hi,
 
-> I also tested it with a 70GB LVM and /proc/sys/fs/jbd-debug set to 5.There
-> was also no error. After reset to 0 the error reoccured (???)
-> Next, I will try,using md instead of LVM to have a disk with a similar
-> size.
+The current vfat is writeing wrong value into lcase flag.  It is
+writing the lowercase flag, although filename is uppercase.
 
-Sounds like my crash on PPC again :)  W/ jbd-debug set to 5 there's so much
-I/O going on (writing out the logs) that the bug doesn't happen, I suspect.
-
+Please apply.
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+
+diff -urN linux-2.4.8-pre6/fs/vfat/namei.c vfat_lcase-2.4.8-pre6/fs/vfat/namei.c
+--- linux-2.4.8-pre6/fs/vfat/namei.c	Sat Apr  7 02:51:19 2001
++++ vfat_lcase-2.4.8-pre6/fs/vfat/namei.c	Thu Aug  9 00:07:39 2001
+@@ -1056,7 +1056,7 @@
+ 	(*de)->starthi = 0;
+ 	(*de)->size = 0;
+ 	(*de)->attr = is_dir ? ATTR_DIR : ATTR_ARCH;
+-	(*de)->lcase = CASE_LOWER_BASE | CASE_LOWER_EXT;
++	(*de)->lcase = 0;
+ 
+ 
+ 	fat_mark_buffer_dirty(sb, *bh);
+

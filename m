@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317642AbSGUFz1>; Sun, 21 Jul 2002 01:55:27 -0400
+	id <S317643AbSGUGLN>; Sun, 21 Jul 2002 02:11:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317643AbSGUFz1>; Sun, 21 Jul 2002 01:55:27 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:12043 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S317642AbSGUFz0>; Sun, 21 Jul 2002 01:55:26 -0400
-Date: Sun, 21 Jul 2002 07:58:23 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	id <S317647AbSGUGLN>; Sun, 21 Jul 2002 02:11:13 -0400
+Received: from moutvdomng0.kundenserver.de ([195.20.224.130]:1512 "EHLO
+	moutvdomng0.schlund.de") by vger.kernel.org with ESMTP
+	id <S317643AbSGUGLM>; Sun, 21 Jul 2002 02:11:12 -0400
+Date: Sun, 21 Jul 2002 00:14:13 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Andre Hedrick <andre@linux-ide.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
        Thunder from the hill <thunder@ngforever.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Give Bartlomiej a break!  (Re: Impressions of IDE 98?)
-Message-ID: <20020721055823.GA14352@louise.pinerecords.com>
-References: <20020720221703.GE12637@louise.pinerecords.com> <Pine.LNX.4.10.10207202222320.23502-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10207202222320.23502-100000@master.linux-ide.org>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
-X-Uptime: 46 days, 14:39
+In-Reply-To: <20020721055823.GA14352@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.44.0207210006410.3309-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre,
+Hi,
 
-> Give Bartlomiej a break!
-
-Hmm? I was pointing my finger at Martin, not Bart.
-
-> I have been working with and teaching him how to read the document.
-> I refused to give him the answers, he had to learn it while I guided him.
-> It took about 3-4 evenings on IRC for Bart to get it, while he still has
-> much to learn that only time will grant him.  I got in a shorter period
-> than me, but I had to learn much if it on my own and only at the threshold
-> of getting did somebody in the storage industry give me a swift kick in
-> the pants.
+On Sun, 21 Jul 2002, Tomas Szepe wrote:
+> > Give Bartlomiej a break!
 > 
-> Somebody submit a patch to make Bart the maintainer of 2.5.
+> Hmm? I was pointing my finger at Martin, not Bart.
 
-Like I said yesterday, I'd love to see that happen, on the grounds that:
+I guess he meant "a start".
 
-o  He has exhibited understanding of the subtleties of the IDE code --
-	unlike MD.
+> o  He has exhibited understanding of the subtleties of the IDE code --
+> 	unlike MD.
+> o  He doesn't have a conflicting/macho personality -- unlike MD.
+> o  He actually knows what has to be done and has planned out a long-term
+> 	schedule -- unlike MD.
 
-o  He doesn't have a conflicting/macho personality -- unlike MD.
-                                                                 
-o  He actually knows what has to be done and has planned out a long-term
-	schedule -- unlike MD.
+Whatever, I think there are some problems with the current IDE 
+development. Martin is possibly a good developer, but he doesn't always 
+seem all that experienced regarding IDE. Also, he releases too many testal 
+patches which simply aren't going to work. Unfortunately, Linus ate them 
+at once, so we sometimes had deadly situations.
 
-T.
+These facts make me think that Martin is probably not the best maintainer 
+for it. He might be a good developer - whatever -, but what is worth, he's 
+certainly not the best one when it comes to planning. Thus, I think the 
+question is: will it be better for IDE if Martin has the lead, current 
+situation, or if Martin can unfold all his powerfulness in testing while 
+someone else takes up the pieces and makes IDE of it, planning what comes 
+next?
+
+I'm not proposing a Martin Dalecki frontend, I'm just propagating an 
+election.
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

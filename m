@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262911AbTDII1i (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 04:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbTDII1i (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 04:27:38 -0400
-Received: from 237.oncolt.com ([213.86.99.237]:63705 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S262911AbTDII1h (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 04:27:37 -0400
-Subject: Re: [PATCH] compatmac is not needed
-From: David Woodhouse <dwmw2@infradead.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: alan@lxorguk.ukuu.org.uk
-In-Reply-To: <200304081725.h38HPeSV012611@hera.kernel.org>
-References: <200304081725.h38HPeSV012611@hera.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049877554.31462.24.camel@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
-Date: Wed, 09 Apr 2003 09:39:15 +0100
-Content-Transfer-Encoding: 7bit
+	id S262914AbTDIIfm (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 04:35:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262926AbTDIIfm (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 04:35:42 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:59069 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id S262914AbTDIIfl (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 04:35:41 -0400
+Date: Wed, 9 Apr 2003 10:47:27 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] z2ram fix (was: Re: Linux 2.5.67)
+In-Reply-To: <Pine.LNX.4.44.0304071051190.1385-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0304091044230.21742-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-04-08 at 17:42, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1089, 2003/04/08 09:42:06-07:00, alan@lxorguk.ukuu.org.uk
-> 
-> 	[PATCH] compatmac is not needed
+On Mon, 7 Apr 2003, Linus Torvalds wrote:
+> Jens Axboe:
+>   o kill blk_queue_empty()
 
-Er, compatmac is there to make new code work in older kernels. The only
-concession we have to make for compatibility in the actual code is that
-#include, and we put all the ugliness into compatmac.h which makes it
-work in older kernels. 
+This change contained a typo, here's a fix:
 
-So compatmac.h ends up _empty_ in the latest kernel, but that doesn't
-mean it's not needed.
+--- linux-2.5.x/drivers/block/z2ram.c	Tue Apr  8 10:05:00 2003
++++ linux-m68k-2.5.x/drivers/block/z2ram.c	Tue Apr  8 14:16:49 2003
+@@ -74,7 +74,7 @@
+ static void do_z2_request(request_queue_t *q)
+ {
+ 	struct request *req;
+-	while ((req = elv_next_request) != NULL) {
++	while ((req = elv_next_request(q)) != NULL) {
+ 		unsigned long start = req->sector << 9;
+ 		unsigned long len  = req->current_nr_sectors << 9;
+ 
 
-Please don't break stuff just for the sake of it.
+Gr{oetje,eeting}s,
 
--- 
-dwmw2
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+
+
 

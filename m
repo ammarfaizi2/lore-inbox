@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbRBCH6f>; Sat, 3 Feb 2001 02:58:35 -0500
+	id <S129104AbRBCIWP>; Sat, 3 Feb 2001 03:22:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129035AbRBCH6Z>; Sat, 3 Feb 2001 02:58:25 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36362 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129033AbRBCH6Q>; Sat, 3 Feb 2001 02:58:16 -0500
-Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
-To: paul@clubi.ie (Paul Jakma)
-Date: Sat, 3 Feb 2001 07:58:42 +0000 (GMT)
-Cc: jakub@redhat.com (Jakub Jelinek), jamagallon@able.es (J . A . Magallon),
-        reiser@namesys.com (Hans Reiser), alan@redhat.com (Alan Cox),
-        mason@suse.com (Chris Mason), kas@informatics.muni.cz (Jan Kasprzak),
-        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-        yura@yura.polnet.botik.ru (Yury Yu . Rupasov)
-In-Reply-To: <Pine.LNX.4.31.0102030420031.20193-100000@fogarty.jakma.org> from "Paul Jakma" at Feb 03, 2001 04:25:20 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Oxam-0007zT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S130654AbRBCIWF>; Sat, 3 Feb 2001 03:22:05 -0500
+Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:19204 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S129104AbRBCIV7>; Sat, 3 Feb 2001 03:21:59 -0500
+Date: Sat, 3 Feb 2001 01:21:36 -0700
+Message-Id: <200102030821.f138Lah02314@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@mobilix.ras.ucalgary.ca
+Subject: [PATCH] devfs v99.19 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > compiler (e.g. on sparc64). This test will barf on gcc-2.96 up to -67 and
-> > 	Jakub
-> 
-> ehhmm..
-> 
-> didn't barf here with 2.96-70.
+  Hi, all. Version 99.19 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
-Which is correct
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.2/devfs-patch-current.gz
 
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.2/devfs-patch-current.gz
+
+NOTE: the devfs-patch-v99.x patches are maintenance patches for the
+2.2.x production kernels. Devfs development is done against recent
+development kernels. Occasionally, the latest devfs patch for the
+development kernels may be backported to 2.2.x series, but this
+happens rarely.
+
+This is against 2.2.18. Highlights of this release:
+
+- Ported devfs-patch-v99.18 to kernel 2.2.18
+
+- Updated README from master HTML file
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

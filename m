@@ -1,57 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130509AbRCFJ3Y>; Tue, 6 Mar 2001 04:29:24 -0500
+	id <S130252AbRCFKVb>; Tue, 6 Mar 2001 05:21:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130503AbRCFJ3P>; Tue, 6 Mar 2001 04:29:15 -0500
-Received: from www.wen-online.de ([212.223.88.39]:62479 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S130469AbRCFJ3A>;
-	Tue, 6 Mar 2001 04:29:00 -0500
-Date: Tue, 6 Mar 2001 10:29:00 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.2-ac12 unknown southbridge
-In-Reply-To: <20010306101654.A1281@suse.cz>
-Message-ID: <Pine.LNX.4.33.0103061020310.2291-100000@mikeg.weiden.de>
+	id <S130253AbRCFKVW>; Tue, 6 Mar 2001 05:21:22 -0500
+Received: from julia.fractalus.com ([208.33.249.70]:5895 "HELO
+	julia.fractalus.com") by vger.kernel.org with SMTP
+	id <S130252AbRCFKVJ> convert rfc822-to-8bit; Tue, 6 Mar 2001 05:21:09 -0500
+Date: Tue, 6 Mar 2001 05:14:41 -0500 (EST)
+From: SteveC <steve@fractalus.com>
+To: Frédéric L. W. Meunier <0@pervalidus.net>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.2 ext2 filesystem corruption ? (was 2.4.2: What happened ?
+ (No such file or directory))
+In-Reply-To: <20010305022117.C103@pervalidus>
+Message-ID: <Pine.LNX.4.10.10103060510520.4683-100000@julia.fractalus.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Mar 2001, Vojtech Pavlik wrote:
+On Mon, 5 Mar 2001, [iso-8859-1] Frédéric L. W. Meunier wrote:
+> Hi. After a reboot I had to manually run fsck (sulogin from
+> sysinit script) since there were failures.
 
-> On Tue, Mar 06, 2001 at 10:09:05AM +0100, Mike Galbraith wrote:
->
-> > The driver forget what it always called a vt82c596b before.  Reverting
-> > the below brought it back on-line, and all seems well again.  (hope I
-> > don't receive any unpleasant suprises.. I've not the foggiest clue what
-> > that number means;)
-> >
-> > -	{ "vt82c596b",	PCI_DEVICE_ID_VIA_82C596,   0x12, 0x2f, VIA_UDMA_66 },
-> > +	{ "vt82c596b",	PCI_DEVICE_ID_VIA_82C596,   0x10, 0x2f, VIA_UDMA_66 },
->
-> Can you verify it's a 596b and not 596a? Preferably by looking on the
-> chip? This change was brought in because I wasn't sure for the 10 and 11
-> revisions. 586a doesn't have a functional UDMA66 engine and causes
-> crashes if programmed to UDMA66.
+'s what I had, also after something like 8 hours idle.
 
-*blur* SQUINT (I _definitely_ need new glasses) it's a 596b.
+lost+found looks a bit bigger with 43 files... no problems just using
+2.2.18.
 
-Probably dumb question wrt hdparm -i output...
+have fun,
 
-/dev/hda:
-
- Model=IBM-DJNA-352030, FwRev=J58OA30K, SerialNo=GQ0GQFP8740
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=34
- BuffType=DualPortCache, BuffSize=1966kB, MaxMultSect=16, MultSect=off
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=39876480
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4
-
-Why is it defaulting to udma4, and :) why the heck does it work?
-
-	-Mike
+pub  1024D/A9D75E73 2000-05-30 Stephen Coast (SteveC) <steve@fractalus.com>
+[expires:2001-05-30] www.fractalus.com/steve/ <stevecoast@hushmail.com>
 

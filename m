@@ -1,75 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135413AbRD3QbI>; Mon, 30 Apr 2001 12:31:08 -0400
+	id <S135571AbRD3QjB>; Mon, 30 Apr 2001 12:39:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135509AbRD3Qa7>; Mon, 30 Apr 2001 12:30:59 -0400
-Received: from alpo.casc.com ([152.148.10.6]:30628 "EHLO alpo.casc.com")
-	by vger.kernel.org with ESMTP id <S135413AbRD3Qaw>;
-	Mon, 30 Apr 2001 12:30:52 -0400
-From: John Stoffel <stoffel@casc.com>
+	id <S135576AbRD3Qiv>; Mon, 30 Apr 2001 12:38:51 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:7650 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S135571AbRD3Qip>;
+	Mon, 30 Apr 2001 12:38:45 -0400
+Message-ID: <3AED950C.962360AF@mandrakesoft.com>
+Date: Mon, 30 Apr 2001 12:38:36 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: root@chaos.analogic.com
+Cc: Greg Hosler <hosler@lugs.org.sg>, linux-kernel@vger.kernel.org
+Subject: Re: AC'97 (VT82C686A) & IRQ reassignment (I/O APIC)
+In-Reply-To: <Pine.LNX.3.95.1010430113545.13070A-100000@chaos.analogic.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15085.37569.205459.898540@gargle.gargle.HOWL>
-Date: Mon, 30 Apr 2001 12:28:49 -0400
-To: esr@thyrsus.com
-Cc: John Stoffel <stoffel@casc.com>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 1.3.1, aka "I stick my neck out a mile..."
-In-Reply-To: <20010429183526.B32748@thyrsus.com>
-In-Reply-To: <20010427193501.A9805@thyrsus.com>
-	<15084.12152.956561.490805@gargle.gargle.HOWL>
-	<20010429183526.B32748@thyrsus.com>
-X-Mailer: VM 6.90 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Richard B. Johnson" wrote:
+> Observe that the PCI DWORD (long) register at DWORD offset 15 consists
+> of 4 byte-wide registers (from the PCI specification), Max_lat, Min_Gnt,
+> Interrupt pin, and interrupt line.  Nothing has to fit into 4 bits, you
+> have 8 bits. I haven't looked at the Linux code, but if it provides only 4
+> bits for the IRQ, it's broken.
 
-Eric> John Stoffel <stoffel@casc.com>:
->> Which is a real PITA because now I have to edit my .config file to
->> have:
->> 
->> CONFIG_RTC=y
+Non-IO-APIC Via audio hardware only decodes the lower 4 bits of the IRQ.
 
-Eric> The correct fix for this PITA is for Linus not to ship a broken
-Eric> defconfig.
-
-While I can sympathize with this comment, I still feel that CML2 needs
-to be more robust and handle corner cases like this more gracefully.  
-
-Eric> I hear you.  The problem is that "what's wrong" is not as
-Eric> well-defined as one might like.  In this case the error could be
-Eric> in the setting of X86, SMP, or RTC.  CML2 has no way to know
-Eric> which of these is mis-set, so it can't know which one to pop
-Eric> up..
-
-It should then highlight *all* of the potential problem config
-setting(s) and let the user deal.  But they should never be forced to
-hand edit their config file because a dependency is broken somewhere.
-CML2 should enforce the *writing* of compliant files, but should deal
-gracefully with non-compliant ones.  Within reason of course.  
- 
-Eric> USB and SCSI are both enabled/disabled in the system buses menu.
-Eric> The apparent confusion
-
-Then they should be pushed down a level to be under those buses.  They
-don't belong on the top level.
-
-More correctly, *any* configuration setting on an upper level should
-not depend on a lower level setting.  I know, this is probably not
-possible for a variety of reasons, but I feel pretty strongly that we
-should try to keep common options near/next to each other.
-
-I can see where this would be a problem, using just SCSI as an
-example, since you could have ISA, PCI or some other system bus SCSI
-controller(s) on the system.  So where do you allow users to choose
-whether to enable SCSI or not?  At the top level?  Only under the
-"System Busses" menu item?
-
-On the other hand, I really do like the search feature for config
-stuff, it seems pretty powerful.
-
-Thanks,
-John
-   John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
-	 stoffel@lucent.com - http://www.lucent.com - 978-952-7548
+-- 
+Jeff Garzik      | Game called on account of naked chick
+Building 1024    |
+MandrakeSoft     |

@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129344AbRBYOzO>; Sun, 25 Feb 2001 09:55:14 -0500
+	id <S129346AbRBYO7y>; Sun, 25 Feb 2001 09:59:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129338AbRBYOzF>; Sun, 25 Feb 2001 09:55:05 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:51019
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S129344AbRBYOys>; Sun, 25 Feb 2001 09:54:48 -0500
-Date: Sun, 25 Feb 2001 15:54:38 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s/isa//g in drivers/scsi/g_NCR5380.c and some cleanup (242)
-Message-ID: <20010225155438.E764@jaquet.dk>
-In-Reply-To: <20010225154043.D764@jaquet.dk> <E14X2RG-0003D4-00@the-village.bc.nu>
+	id <S129357AbRBYO7o>; Sun, 25 Feb 2001 09:59:44 -0500
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:14760 "EHLO
+	mailout.plan9.de") by vger.kernel.org with ESMTP id <S129346AbRBYO7d>;
+	Sun, 25 Feb 2001 09:59:33 -0500
+Date: Sun, 25 Feb 2001 15:59:29 +0100
+From: Marc Lehmann <pcg@goof.com>
+To: linux-kernel@vger.kernel.org
+Subject: linux swap freeze STILL in 2.4.x
+Message-ID: <20010225155929.A371@cerebro.laendle>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14X2RG-0003D4-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Feb 25, 2001 at 02:46:15PM +0000
+X-Operating-System: Linux version 2.4.2-ac3 (root@cerebro) (gcc version 2.95.2.1 19991024 (release)) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 25, 2001 at 02:46:15PM +0000, Alan Cox wrote:
-> > I am sorry but have I inverted the arguments to the memcpy_*io calls?
-> > Or are you referring to something other than the arguments here?
-> 
-> You seem to have swapped the source/dest over in memcpy_toio cases and I need
-> to convince myself you did that correctly
+It seems linux-2.4 still freezes on out-of-memory situations:
 
-Yes, that is neither obvious nor nice. My apologies, but I could not
-find a better way.
+I was using 2.4.2-ac3 SMP and had a fairly large background job that takes
+hundreds of megabytes of memory, much more than I have:
 
-Explanation: The memcpy_toio cases goes like this:
+Mem:        255296      81836     173460          0      10324      30608
+Swap:        99992          0      99992
 
--       isa_memcpy_toio(NCR53C400_host_buffer+NCR5380_map_name,src+start,128);
-+       memcpy_toio(isa_remap_ptr+OFFSET_FROM_REMAPPING, src+start, 128);
+Usually I swapon ./swap some 512MB swapfile, but today I forgot it. When the
+machine started to get sluggish I sent the process a -STOP signal.
 
-isa_remap_ptr is the ioremap from NCR5380_map_name + NCR53C400_mem_base.
-I would like to memcpy from NCR53C400_host_buffer+NCR5380_map_name thus
-needing to add the difference between NCR53C400_host_buffer and the
-NCR53C400_mem_base (used in isa_remap_ptr). Thus, in the hope that
-this can be done linearly, I add OFFSET_FROM_REMAPPING 
-(NCR53C400_host_buffer - NCR53C400_mem_base). (BTW, this is also done
-in the memcpy_fromio cases.)
+Swap:        99992      99992          0
 
-I hope that the above is readable.
+O.k, (I had about 12MB of main memory free (in the +/- buffers line of
+free) and the machine was sluggish but workable for about five minutes. At
+the instant I did a swapon ./swap the machine froze hard (no sysrq, no
+ping etc...)
+
+I thought these complete freezes on OOM-situations had been fixed in
+2.4.x? Do I have to watch out for andrea's fix-2.4-oom patches?
+
+;)
+
 -- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

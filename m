@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265989AbTGDLbo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 07:31:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265992AbTGDLbo
+	id S265992AbTGDLih (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 07:38:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265998AbTGDLih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 07:31:44 -0400
-Received: from mail-2.tiscali.it ([195.130.225.148]:44218 "EHLO
-	mail-2.tiscali.it") by vger.kernel.org with ESMTP id S265989AbTGDLbn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 07:31:43 -0400
-Date: Fri, 4 Jul 2003 13:46:08 +0200
-From: Kronos <kronos@kronoz.cjb.net>
-To: linux-fbdev-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, Ben Collins <bcollins@debian.org>
-Subject: Re: [Linux-fbdev-devel] Re: New fbdev updates.
-Message-ID: <20030704114608.GB1085@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <Pine.LNX.4.44.0307031847570.16727-100000@phoenix.infradead.org> <20030703235039.GB502@phunnypharm.org>
+	Fri, 4 Jul 2003 07:38:37 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:34043 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S265992AbTGDLig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 07:38:36 -0400
+Message-Id: <5.0.2.1.2.20030704123653.03140b70@pop.puretec.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Fri, 04 Jul 2003 13:57:19 +0200
+To: linux-kernel@vger.kernel.org
+From: Sancho Dauskardt <sda@bdit.de>
+Subject: FAT statfs loop abort on read-error
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030703235039.GB502@phunnypharm.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Thu, Jul 03, 2003 at 07:50:39PM -0400, Ben Collins ha scritto: 
-> >    I have updates to the framebuffer layer. Alot of bug fixes accumlated. 
-> > A couple of driver updates as well. I have more code to go in but haven't 
-> > had time to add them in. Please test. This is not the final code going in 
-> > just yet. More needs to be done. The patches are at the usual
-> 
-> Seems my old corrupt cursor is fixed, but with your new code I am
-> getting ghost cursors left behind while moving around in vim over ssh
-> with syntax on.
+Hi all,
 
-Same here. I can see the ghost cursor also when typing fast on the shell
-(via ssh) and the hit backspace, arrows, home, end. I don't see it using
-normal tty (the kernel is the same, I just did ssh ::1).
+  i've written to the current FAT maintainer (Gordon Chaffee) about this, 
+but he's no longer active, so:
 
-Btw, the cursor doesn't disappear  anymore switching back and forth from
-X.
+While working in the usb-sotrage area (mostly with removeable media, eg. 
+CompactFlash in USB-Readers), i've come across a litte odd behaviour:
 
-Luca
--- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-It can't rain forever,
-but you can die before seeing the sun again.
+  when calling statfs on a volume that has been removed (without umount) 
+fat_statfs() will attempt to read all sectors of the fat table quite a few 
+times (depending on the fat type, eg. FAT16 --> 256 times).
+
+eg:
+1. mount /dev/sda1 /mnt/cf
+2. remove card
+3. df
+
+on my system, for a 16 MB CompactFlash formated with FAT-16 this takes 47 
+seconds.
+
+Possible solution:
+1. let default_fat_access return something like -2 on 'can't read' error.
+2. Abort stafs loop on error.
+3. return -EIO
+
+This would break mode fat_access calls. I could make a patch, but I don't 
+know what's going on with those cvf extensions (which seem to replace 
+fat_access). Is dmsdos dead / can we ignore it ?
+Somewhere in the list archives, I found comments about the cvf stuff being 
+completely removed ?
+
+
+Thanks,
+- sda
+

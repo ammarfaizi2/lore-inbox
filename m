@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272196AbRIJXx0>; Mon, 10 Sep 2001 19:53:26 -0400
+	id <S272195AbRIJX4H>; Mon, 10 Sep 2001 19:56:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272195AbRIJXxR>; Mon, 10 Sep 2001 19:53:17 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:64517 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S272193AbRIJXxD>; Mon, 10 Sep 2001 19:53:03 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Michael S. Fischer" <michael@auctionwatch.com>
-Date: Tue, 11 Sep 2001 08:51:43 +1000 (EST)
+	id <S272197AbRIJXz4>; Mon, 10 Sep 2001 19:55:56 -0400
+Received: from 200.telesoft.com ([140.99.12.200]:3192 "EHLO
+	scottspc.sunbelt.com") by vger.kernel.org with ESMTP
+	id <S272195AbRIJXzp>; Mon, 10 Sep 2001 19:55:45 -0400
+Message-ID: <3B9D531D.E0157C7F@telesoft.com>
+Date: Mon, 10 Sep 2001 16:56:13 -0700
+From: Scott Dudley <scott@telesoft.com>
+Organization: Telesoft Corp.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.14 and nfs compatablity with at&t r32v3
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15261.17407.263707.28101@notabene.cse.unsw.edu.au>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Oops in md_error/set_disk_faulty
-In-Reply-To: message from Michael S. Fischer on Wednesday September 5
-In-Reply-To: <5179B27750A9D411B968009027E06E2702EB5FCE@exback.corp.auctionwatch.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday September 5, michael@auctionwatch.com wrote:
-> Kernel: 2.4.8-ac8
-> raidsetfaulty v0.3d compiled for md raidtools-0.90
-> 
-> I accidentally entered the wrong disk device in a raidsetfaulty command,
-> which caused a kernel oops and appears to have locked the thread (so that
-> subsequent commands just hang).
-> 
-> The md device in question was:
-> 
-> md2 : active raid1 sdb4[0] sda4[1]
->       5839552 blocks [2/2] [UU]
-> 
-> And the command I entered was 
-> 
-> # raidsetfaulty /dev/md2 /dev/hdb4 
-> Segmentation fault
 
-This is fixed in 2.4.10-pre5.
+I just recently exported via NFS a file system from a 2.2.14 machine (RH 6.2) to
+an old Motorola m88k system running SVR3.  A few hours thereafter, the PC
+crashed.  There was no output on the console and it had to be power-cycled.  The
+following appears in syslog (messages) immediately prior to the crash:
 
-NeilBrown
+Sep 10 13:52:34 sunbelt2 kernel: nfs: RPC call returned error 111
+Sep 10 13:52:34 sunbelt2 kernel: RPC: task of released request still queued!
+Sep 10 13:52:34 sunbelt2 kernel: RPC: (task is on xprt_pending)
+Sep 10 13:52:35 sunbelt2 kernel: nfs: RPC call returned error 111
+Sep 10 13:52:35 sunbelt2 kernel: RPC: task of released request still queued!
+Sep 10 13:52:35 sunbelt2 kernel: RPC: (task is on xprt_pending)
+Sep 10 13:52:36 sunbelt2 kernel: nfs: RPC call returned error 111
+Sep 10 13:52:36 sunbelt2 kernel: RPC: task of released request still queued!
+Sep 10 13:52:36 sunbelt2 kernel: RPC: (task is on xprt_pending)
+...and so on
+
+This has happened twice now.  I tried also to mount an NFS file system exported
+via the SVR3 box to the linux machine.  When i did so, the SVR3 machine
+crashed.  This is the first time I've used the kernel-based server.  I've
+previously (several years ago) used the user-space server with kernel 1.2.13 to
+connect to the same SVR3 machine with no problems.  Is anyone aware of this
+problem or its cause?
+
+Please cc any responses to this address as I'm not a list subscriber.
+
+Many thanks.
+

@@ -1,77 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268055AbUIKAfe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268057AbUIKAhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268055AbUIKAfe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 20:35:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268056AbUIKAfe
+	id S268057AbUIKAhX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 20:37:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268059AbUIKAhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 20:35:34 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:8954 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268055AbUIKAfL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 20:35:11 -0400
-Subject: Re: [Patch 0/6]: Cleanup and rbtree for ext3 reservations in
-	2.6.9-rc1-mm4
-From: Mingming Cao <cmm@us.ibm.com>
-To: Stephen Tweedie <sct@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       pbadari@us.ibm.com, Ram Pai <linuxram@us.ibm.com>
-In-Reply-To: <200409071302.i87D2Dus030892@sisko.scot.redhat.com>
-References: <200409071302.i87D2Dus030892@sisko.scot.redhat.com>
-Content-Type: text/plain
+	Fri, 10 Sep 2004 20:37:23 -0400
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:5080 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S268056AbUIKAhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 20:37:04 -0400
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: Lionel Bouton <Lionel.Bouton@inet6.fr>
+Subject: Re: [PATCH] sis5513 fix for SiS962 chipset
+Date: Fri, 10 Sep 2004 23:21:16 +0200
+User-Agent: KMail/1.6.2
+Cc: tglx@linutronix.de, LKML <linux-kernel@vger.kernel.org>,
+       Linux-IDE <linux-ide@vger.kernel.org>
+References: <1094826555.7868.186.camel@thomas.tec.linutronix.de> <1094828803.13450.4.camel@thomas.tec.linutronix.de> <4141C8C6.1030307@inet6.fr>
+In-Reply-To: <4141C8C6.1030307@inet6.fr>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 10 Sep 2004 17:34:44 -0700
-Message-Id: <1094862886.1637.7078.camel@w-ming2.beaverton.ibm.com>
-Mime-Version: 1.0
+Message-Id: <200409102321.17042.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-07 at 06:02, Stephen Tweedie wrote:
-> The patches in the following set contain several cleanups for ext3
-> reservations, fix a reproducable SMP race, and turn the per-superblock
-> linear list of reservations into an rbtree for better scaling.
-
-> These changes have been in rawhide for a couple of weeks, and have
-> been undergoing testing both within Red Hat and at IBM.  
+On Friday 10 September 2004 17:31, Lionel Bouton wrote:
+> Thomas Gleixner wrote the following on 09/10/2004 05:06 PM :
 > 
+> >On Fri, 2004-09-10 at 16:53, Lionel Bouton wrote:
+> >  
+> >
+> >> [...]
+> >>
+> >> What hardware did you use to test ?
+> >>    
+> >>
+> >
+> >Compact PCI ICP-P4 from Inova Computers.
+> >
+> >  
+> >
+> 
+> I see it's not really a cutting-edge design (2002). Apparently nobody 
+> seemed to care about Linux IDE performance before :-|
 
-We have run several tests on this set of the reservation changes. We
-compared the results w/o reservation, rbtree based reservation vs link
-list based reservation. Here is the tiobench sequential test
-results.Note that 2.6.8.1-mm4 kernel include the double link based
-per-fs reservation tree.
+Yep. :/  Lionel, can I push this fix upstream?
 
-            tiobench sequential write throughputs
-============================================================
-Threads no reservation  2.6.8.1-mm4     2.6.8.1-mm4+rbtree patch
-1       29              29              29
-4       3               29              29
-8       4               28              28
-16      3               27              27
-32      4               27              27
-64      3               27              27
-128     2               20              25
-256     1               20              24 
+Could somebody enlighten me what exactly 'remapping mode' does?
 
-We did see the rbtree changes scales better on more than 128 threads. We
-also run tio random tests, did not see throughput regression there. 
-
-We also re-run the dbench, test results showing that these two
-reservations(rbtree based vs link based) performs almost equally well.
-
-dbench average throughputs on 4 runs
-==================================================
-Threads no reservation  2.6.8.1-mm4     2.6.8.1-mm4_rbtree
-1       97              93              96
-4       234             250             213
-8       201             213             213
-16      156             168             169
-32      73              106             105
-64      38              65              67
-
-We had some concerns about the cpu cost for seeky random write workload
-with all the reservation changes before. We are doing some tests in that
-area too. 
-
-Mingming
-
+Bartlomiej

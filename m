@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVDDIhe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVDDImX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbVDDIhe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 04:37:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVDDIhb
+	id S261176AbVDDImX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 04:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVDDImX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 04:37:31 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:28094 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261175AbVDDIhF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 04:37:05 -0400
-Date: Mon, 4 Apr 2005 10:36:52 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: kus Kusche Klaus <kus@keba.com>
-Cc: stern@rowland.harvard.edu, linux-usb-users@lists.sourceforge.net,
+	Mon, 4 Apr 2005 04:42:23 -0400
+Received: from mail.hosted.servetheworld.net ([62.70.14.38]:35526 "HELO
+	mail.hosted.servetheworld.net") by vger.kernel.org with SMTP
+	id S261176AbVDDImP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 04:42:15 -0400
+Message-ID: <4250FDE4.6090107@osvik.no>
+Date: Mon, 04 Apr 2005 10:42:12 +0200
+From: Dag Arne Osvik <da@osvik.no>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: viro@parcelfarce.linux.theplanet.co.uk, sfr@canb.auug.org.au,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11, USB: High latency?
-Message-ID: <20050404083652.GA29525@elte.hu>
-References: <AAD6DA242BC63C488511C611BD51F3673231DD@MAILIT.keba.co.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <AAD6DA242BC63C488511C611BD51F3673231DD@MAILIT.keba.co.at>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Subject: Re: Use of C99 int types
+References: <E1DIHww-0004bU-00@gondolin.me.apana.org.au>
+In-Reply-To: <E1DIHww-0004bU-00@gondolin.me.apana.org.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Herbert Xu wrote:
 
-* kus Kusche Klaus <kus@keba.com> wrote:
+>Dag Arne Osvik <da@osvik.no> wrote:
+>  
+>
+>>>... and with such name 99% will assume (at least at the first reading)
+>>>that it _is_ 32bits.  We have more than enough portability bugs as it
+>>>is, no need to invite more by bad names.
+>>>      
+>>>
+>>Agreed.  The way I see it there are two reasonable options.  One is to 
+>>just use u32, which is always correct but sacrifices speed (at least 
+>>with the current gcc).  The other is to introduce C99 types, which Linus 
+>>doesn't seem to object to when they are kept away from interfaces 
+>>(http://infocenter.guardiandigital.com/archive/linux-kernel/2004/Dec/0117.html).
+>>    
+>>
+>
+>There is a third option which has already been pointed out before:
+>
+>Use unsigned long.
+>  
+>
 
-> Moreover, we know from experience that the "WBINDV" instruction (Write 
-> back and invalidate CPU cache) can cause such latencies.
-> 
-> Does this instruction occur anywhere in Linux?
+Yes, as Kulewski pointed out, unsigned long is at least 32 bits wide and 
+therefore correct.  Whether it's also fastest is less of a concern, but 
+it is so for at least the x86* architectures.  So, sure, I'll use it.
 
-yes, they rarely occur when MTRR's are set (and some drivers like video 
-uses it too), but then they'd also show up in the trace. The only other 
-possibility would be if a driver used wbinvd in a preemptible section - 
-that would not be traced. OTOH, it could still show up in wakeup-latency 
-tracing.
+Cheers all,
 
-To make sure, could you remove all relevant wbinvd's from your kernel 
-tree? You can just comment out those lines from all relevant 'grep -rl 
-wbinvd . | grep -v x86_64' files. (and in assembly defines, just replace 
-the "wbinvd" with "nop") The kernel will most likely still work most of 
-the time.
+-- 
+  Dag Arne
 
-Or if you want to be safe: change all wbinvd occurances to: 
-preempt_disable(); <wbinvd>; preempt_enable() sections, for tracing to 
-pick them up.
-
-	Ingo

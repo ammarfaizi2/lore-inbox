@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130013AbRAILdc>; Tue, 9 Jan 2001 06:33:32 -0500
+	id <S129875AbRAILp6>; Tue, 9 Jan 2001 06:45:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130110AbRAILdN>; Tue, 9 Jan 2001 06:33:13 -0500
-Received: from laurin.munich.netsurf.de ([194.64.166.1]:26867 "EHLO
-	laurin.munich.netsurf.de") by vger.kernel.org with ESMTP
-	id <S130024AbRAILdH>; Tue, 9 Jan 2001 06:33:07 -0500
-Date: Mon, 8 Jan 2001 17:50:36 +0100
-From: Andi Kleen <ak@muc.de>
-To: Ben Greear <greearb@candelatech.com>
-Cc: "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] hashed device lookup (New Benchmarks)
-Message-ID: <20010108175036.A22154@fred.local>
-In-Reply-To: <3A578F27.D2A9DF52@candelatech.com> <20010107042959.A14330@gruyere.muc.suse.de> <3A580B31.7998C783@candelatech.com> <20010107062744.A15198@gruyere.muc.suse.de> <3A58249F.86DD52BC@candelatech.com> <3A597665.4B68C39@candelatech.com> <200101080700.XAA10037@pizda.ninka.net> <3A59EA1F.AEAD08A6@candelatech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3A59EA1F.AEAD08A6@candelatech.com>; from greearb@candelatech.com on Mon, Jan 08, 2001 at 04:23:41PM +0100
+	id <S129532AbRAILps>; Tue, 9 Jan 2001 06:45:48 -0500
+Received: from mailout2-0.nyroc.rr.com ([24.92.226.121]:63177 "EHLO
+	mailout2.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S129875AbRAILpc>; Tue, 9 Jan 2001 06:45:32 -0500
+Message-ID: <01da01c07a32$03995db0$0701a8c0@morph>
+From: "Dan Maas" <dmaas@dcine.com>
+To: <whitney@math.berkeley.edu>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.e9ik37v.1lg8urj@ifi.uio.no> <fa.hifgbev.s1ana8@ifi.uio.no>
+Subject: Re: Subtle MM bug (really 830MB barrier question)
+Date: Tue, 9 Jan 2001 06:47:58 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2001 at 04:23:41PM +0100, Ben Greear wrote:
-> I don't argue that ifconfig shouldn't be fixed, but the hash speeds up
+> 08048000-08b5c000 r-xp 00000000 03:05 1130923
+/tmp/newmagma/magma.exe.dyn
+> 08b5c000-08cc9000 rw-p 00b13000 03:05 1130923
+/tmp/newmagma/magma.exe.dyn
+> 08cc9000-0bd00000 rwxp 00000000 00:00 0
 
-It's already fixed since months. There was one stupid algorithm, which
-I was to blame for when I changed ifconfig to use a device list two years ago.
-At that time I didn't think that anybody would be ever crazy enough to set up
-4000 interfaces and just chosed the simplest list management. I fixed it 
-when you first complained a few months ago and now the list insertion works
-that the list does not need to be walked fully in the usual case.
-It could be optimized more in user space, but it's probably not worth it. 
+> Now, subsequent to each memory allocation, only the second number in the
+> third line changes.  It becomes 23a78000, then 3b7f0000, and finally
+> 3b808000 (after the failed allocation).
 
-> ip by about 2X too.  Is that not useful enough?  ip seems to be implemented
-> pretty efficient, so if the hash helps it significantly then maybe it
-> can help other efficient programs too.  Notice that it is the system
-> (ie kernel) time that stays remarkably flat with the hash + ip graph.
+OK it's fairly obvious what's happening here. Your program is using its own
+allocator, which relies solely on brk() to obtain more memory. On x86 Linux,
+brk()-allocated memory (the heap) begins right above the executable and
+grows upward - the increasing number you noted above is the top of the heap,
+which grows with every brk(). Problem is, the heap can't keep growing
+forever - as you discovered, on x86 Linux the upper bound is just below
+0x40000000. That boundary is where shared libraries and other memory-mapped
+files start to appear.
 
-Just does your benchmark represent anything that real users do frequently ? 
+Note that there is still plenty (~2GB) of address space left, in the region
+between the shared libraries and the top of user address space (just under
+0xBFFFFFFF). How do you use that space? You need an allocation scheme based
+on mmap'ing /dev/zero. As others pointed out, glibc's allocator does just
+that.
 
-If you really want to optimize I'm sure there are lots of areas in the kernel
-where your efforts are better spent ;) [just run with a the kernel profiler on
-for a few days on your box and look at all the real hot spots] 
+Here's your short answer: ask the authors of your program to either 1)
+replace their custom allocator with regular malloc() or 2) enhance their
+custom allocator to use mmap. (or, buy some 64-bit hardware =)...)
 
-BTW, if you just want to optimize ip link ls speed it would be probably enough
-to keep a one behind cache that just caches the next member after the last
-search. 
+Dan
 
 
--Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

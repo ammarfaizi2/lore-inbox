@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265959AbUAEWTq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 17:19:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265958AbUAEWSm
+	id S265964AbUAEWXH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 17:23:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265975AbUAEWV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 17:18:42 -0500
-Received: from hell.org.pl ([212.244.218.42]:260 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S265959AbUAEWRx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 17:17:53 -0500
-Date: Mon, 5 Jan 2004 23:17:58 +0100
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.0-mm2] PM timer still has problems
-Message-ID: <20040105221758.GA13727@hell.org.pl>
-References: <20031230204831.GA17344@hell.org.pl> <1073340716.15645.96.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <1073340716.15645.96.camel@cog.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 5 Jan 2004 17:21:57 -0500
+Received: from viruswall.ccf.swri.edu ([129.162.252.34]:5619 "EHLO
+	viruswall.ccf.swri.edu") by vger.kernel.org with ESMTP
+	id S265964AbUAEWUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 17:20:19 -0500
+Date: Mon, 05 Jan 2004 16:20:15 -0600
+From: Chris Smith <chris.smith@swri.org>
+Subject: ld.so kernel difference
+To: linux-kernel@vger.kernel.org
+Message-id: <7bf757ae92.7ae927bf75@swri.org>
+MIME-version: 1.0
+X-Mailer: iPlanet Messenger Express 5.2 HotFix 1.17 (built Jun 23 2003)
+Content-type: text/plain; charset=us-ascii
+Content-language: en
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote john stultz:
-> If the override boot option failed, its most likely your system doesn't
-> have an ACPI PM time source.  Instead it seems your system is having
+I have a system booting via pxe using a kernel built from redhat source (2.4.20-8). I am trying to get the system to boot using a kernel.org kernel. (one of many 2.4.22, 23, 20) 
 
-Well, I don't have the slightest idea on how to determine this, though I
-read somewhere that all ACPI-compliant systems have those.
+This system is very stripped down, no disks. ~12MB for the full running os. essentially the init is the only thing running. it starts various daemons then loops on a bash propmt.
 
-> trouble using the PIT as a time source (which seems not all that
-> uncommon unfortunately). 
+What I am seeing (and why i sent it to this list) is that there appears to be a difference in how the libraries are being found between the two types of kernels. the redhat derived kenrel is working but none of the kernel.org kernels are. 
 
-Perhaps, though bear in mind it behaves so only if clock=pmtmr has been
-appended and works fine with clock=pit.
+the error i am seeing with the kenrel.org kernels is: 
+/bin/sh: error while loading shared libraries libc.so.6: cannot open shared object file: no such file or directory.
 
-> I guess we can just re-call select_timer() without an override if the
-> override fails, that way you'll fall back to the default time source on
-> your system. Try the (compile tested) patch below and see if that helps.
+then it tries to kill the init and the kernel panics.
 
-That would be PIT again, as TSC is unusable due to CPUFreq.
-I'll try it ASAP -- should I test with Dmitry's patch applied?
-Best regards,
+is there a way the kernel can influence how/where ld.so looks for a library? the libraries are present on the ramdisk just not found by the kernel. the kernel is accessing the ramdisk since it is trying to run the init script (it is failing on loading /bin/sh since this is not statically linked). the "redhat" kernel using the same ramdisk works fine (same ld.so.cache, etc).
 
--- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+??
+
+chris
+

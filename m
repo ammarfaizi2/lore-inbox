@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262166AbTEEMtp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 08:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbTEEMtp
+	id S262167AbTEEMzK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 08:55:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbTEEMzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 08:49:45 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:5952 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S262166AbTEEMto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 08:49:44 -0400
-Message-ID: <3EB66069.2090104@myrealbox.com>
-Date: Mon, 05 May 2003 06:00:25 -0700
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.69 
-References: <fa.m5ekdiv.15gu98j@ifi.uio.no>
-In-Reply-To: <fa.m5ekdiv.15gu98j@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 5 May 2003 08:55:10 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:54145 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S262167AbTEEMzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 08:55:10 -0400
+Date: Mon, 5 May 2003 14:06:41 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Art Haas <ahaas@airmail.net>, linux-kernel@vger.kernel.org
+Subject: Re: Latest GCC-3.3 is much quieter about sign/unsigned comparisons
+Message-ID: <20030505130641.GA13082@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Tomas Szepe <szepe@pinerecords.com>, Art Haas <ahaas@airmail.net>,
+	linux-kernel@vger.kernel.org
+References: <20030504212256.GE24907@debian> <20030505074803.GA1775@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030505074803.GA1775@louise.pinerecords.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Mon, May 05, 2003 at 09:48:04AM +0200, Tomas Szepe wrote:
+ > > ... has eliminated all the warnings that GCC-3.3 by default printed
+ > > with regards to signed/unsigned comparisons. A build of today's BK
+ > > with this compiler is much quieter than those previously done
+ > > with the 3.3 snapshots.
+ > 
+ > Is this a good thing, though?  I'm quite sure those warnings were useful.
 
-<much snippage>
+In a lot of cases, they were just noise. They are still there with
+-W if you really want to see them.
 
-> Jeff Garzik:
->   o [netdrvr tg3] detect shared (and screaming) interrupts
->   o [netdrvr tg3] fix omission in board shutdown sequence
-
-I had high hopes for these patches but unfortunately they didn't
-fix the problem I've had with the built-in Broadcom chip on the
-ASUS A7V8X motherboard:  after bootup I still need to do an
-'ifconfig eth0 down' followed by 'ifconfig eth0 up' before the
-chip will actually start passing packets.  From then 'til the
-next reboot the chip works fine.
-
-> Patrick Mansfield:
->   o fix ppa locking and oops
-
-My parallel-port ZIP drive finally works, thanks!
+		Dave
 

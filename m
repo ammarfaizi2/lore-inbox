@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262571AbTENPZA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 11:25:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbTENPZA
+	id S262470AbTENPQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 11:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbTENPOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 11:25:00 -0400
-Received: from 7.Red-80-37-235.pooles.rima-tde.net ([80.37.235.7]:52666 "EHLO
-	pau.intranet.ct") by vger.kernel.org with ESMTP id S262571AbTENPY5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 11:24:57 -0400
-Date: Wed, 14 May 2003 17:36:35 +0200 (CEST)
-From: Pau Aliagas <linuxnow@newtral.org>
-X-X-Sender: pau@pau.intranet.ct
-To: lkml <linux-kernel@vger.kernel.org>
-cc: viro@parcelfarce.linux.theplanet.co.uk, Ahmed Masud <masud@googgun.com>,
-       walt <wa1ter@myrealbox.com>
-Subject: Re: cannot boot 2.5.69
-In-Reply-To: <20030514152255.GY10374@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0305141734020.1872-100000@pau.intranet.ct>
+	Wed, 14 May 2003 11:14:37 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:60867 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S262437AbTENPMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 11:12:51 -0400
+Date: Wed, 14 May 2003 10:25:26 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Andrew Morton <akpm@digeo.com>, mika.penttila@kolumbus.fi,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: Race between vmtruncate and mapped areas?
+Message-ID: <51020000.1052925926@baldur.austin.ibm.com>
+In-Reply-To: <20030514150653.GM8978@holomorphy.com>
+References: <154080000.1052858685@baldur.austin.ibm.com>
+ <20030513181018.4cbff906.akpm@digeo.com>
+ <18240000.1052924530@baldur.austin.ibm.com>
+ <20030514150653.GM8978@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 May 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-> > > > > I still find no way to boot a 2.5.69 kernel.
-> > > > > It reports: "no console found, specify init= option"
+--On Wednesday, May 14, 2003 08:06:53 -0700 William Lee Irwin III
+<wli@holomorphy.com> wrote:
 
-> What kind of console do you have configured in and what's your kernel
-> command line?
+>> Which the application thinks is still part of the file, and will expect
+>> its changes to be written back.  Granted, if the page fault occurred
+>> just after the truncate it'd get SIGBUS, so it's clearly not a robust
+>> assumption, but it will result in unexpected behavior.  Note that if the
+>> application later extends the file to include this page it could result
+>> in a corrupted file, since all the pages around it will be written
+>> properly.
+> 
+> Well, for this one I'd say the app loses; it was its own failure to
+> synchronize truncation vs. access, at least given that the kernel
+> doesn't oops.
 
-It's a Dell laptop, nothing special.
+I think allowing a race condition that can randomly leave corrupted files
+is a really bad idea, even if the app is doing something stupid.  We know
+what the race is.  We should be able to prevent it.
 
-This is the relevant part of my config:
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-# CONFIG_LP_CONSOLE is not set
-CONFIG_VGA_CONSOLE=y
-# CONFIG_MDA_CONSOLE is not set
-CONFIG_DUMMY_CONSOLE=y
+Dave
 
-And the part of /boot/grub/grub.conf:
-title Pau Linux (2.5.69)
-        root (hd0,0)
-        kernel /vmlinuz-2.5.69 ro root=/dev/hda1
-
-Pau
-
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

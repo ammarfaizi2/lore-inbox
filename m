@@ -1,64 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261703AbTCaQwY>; Mon, 31 Mar 2003 11:52:24 -0500
+	id <S261719AbTCaROu>; Mon, 31 Mar 2003 12:14:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261705AbTCaQwY>; Mon, 31 Mar 2003 11:52:24 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:65446 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261703AbTCaQwX>;
-	Mon, 31 Mar 2003 11:52:23 -0500
-Date: Mon, 31 Mar 2003 08:59:09 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: roy@karlsbakk.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: turning off kernel dhcp klient on _one_ nic?
-Message-Id: <20030331085909.01782332.rddunlap@osdl.org>
-In-Reply-To: <20030328081318.304196ca.rddunlap@osdl.org>
-References: <200303281030.35551.roy@karlsbakk.net>
-	<20030328081318.304196ca.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S261726AbTCaROu>; Mon, 31 Mar 2003 12:14:50 -0500
+Received: from inet-mail1.oracle.com ([148.87.2.201]:36813 "EHLO
+	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
+	id <S261719AbTCaROt>; Mon, 31 Mar 2003 12:14:49 -0500
+Date: Mon, 31 Mar 2003 09:24:04 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: bert hubert <ahu@ds9a.nl>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andries.Brouwer@cwi.nl,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Wim Coekaerts <Wim.Coekaerts@oracle.com>
+Subject: Re: 64-bit kdev_t - just for playing
+Message-ID: <20030331172403.GM32000@ca-server1.us.oracle.com>
+References: <UTC200303272027.h2RKRbf27546.aeb@smtp.cwi.nl> <Pine.LNX.4.44.0303272245490.5042-100000@serv> <1048805732.3953.1.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.44.0303280008530.5042-100000@serv> <20030327234820.GE1687@kroah.com> <Pine.LNX.4.44.0303281031120.5042-100000@serv> <20030328180545.GG32000@ca-server1.us.oracle.com> <Pine.LNX.4.44.0303281924530.5042-100000@serv> <20030331083157.GA29029@outpost.ds9a.nl> <Pine.LNX.4.44.0303311039190.5042-100000@serv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303311039190.5042-100000@serv>
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Mar 2003 08:13:18 -0800 Randy.Dunlap <rddunlap@osdl.org> wrote:
+On Mon, Mar 31, 2003 at 10:52:53AM +0200, Roman Zippel wrote:
+> > Can you envision solutions based on 16 bit kdev_t infrastructure? 
+> 
+> I know that 16bit is getting small (but with dynamic assignment even 
+> that is still enough for most people), but OTOH I don't understand the 
+> obsession for 64bit. 32bit is more than enough on a 32bit system.
 
-| On Fri, 28 Mar 2003 10:30:35 +0100 Roy Sigurd Karlsbakk <roy@karlsbakk.net> wrote:
-| 
-| | is it possible to turn off the kernel dhcp client / kernel autoconfiguration 
-| | on _one_ nic? We're using dual gigabit cards from intel (e1000), so splitting 
-| | up modular/static drivers obviously won't do the job. I've search through the 
-| | kernel doc, but I can't find anything...
-| 
-| I've seen that, er, scenario, too.
-| I should have fixed it last night, but I had other things to do.
-| 
-| Can['t] you just mess around with (depending on distro, not kernel)
-| something like /etc/sysconfig/network-scripts/ifcfg-ethN (just rename
-| one of them so that it won't be used)?
-| 
-| This should totally disable half of the dual NIC.  Do you want to only
-| disable dhcp on half of it, but keep it usable otherwise?
-| You can edit ./ifcfg-ethN and change the line
-| BOOTPROTO=dhcp
-| to
-| BOOTPROTO=
-| 
-| Something like that should work, but I haven't done it yet.
+	There are big companies out there that require thousands of
+disks.  Many don't want to use hardware raid, they just want JBOD.
+There are installations today with 2k-4k disks covering the gamut from
+massive databases to HPC to research facilities.  Today.
+	A 32bit dev_t with the 12/20 Linus split provides 64k minors.
+That's 16k disks with our current 15-partitions-per limit.  But if
+someone wants 35 partitions (I've seen that somewhere) you're down to
+8k.  And the places using 2-4k disks today will be getting to 8k disks
+soon after 2.6 becomes usable, if not before.  They will likely hit 16k
+disks before 2.6 becomes an afterthought.
 
-I did this and it works.  I had /etc/sysconfig/network-scripts/ifcfg-eth[01]
-but I only want one of them alive, so I renamed ifcfg-eth1 to
-not-ifcfg-ethbackup  (since the ifcfg* files are searched for as /ifcfg*/).
-Then I renamed ifcfg-eth0 to ifcfg-ethmain and (by using advice from
-the thread on "NICs trading places ?"), I used 'nameif' to name the
-eth0 interface to 'ethmain' by making an /etc/mactab file containing:
+> Somehow it sounds that we just have to introduce a huge dev_t and all our 
+> problems are magically solved and I doubt that. If people want to encode 
 
-ethmain     mac.address.for.live.interface
+	64bit dev_t is not a panacea.  However, if we have to do this
+change, we want to do it once.  This only solves the space issue.  All
+of the other issues, such as naming, are orthogonal to this change.
+Holding one change until everything else has been written is silly.
 
-and I modified /etc/rc.d/init.d/network to run 'nameif' to change
-the interface names as listed in the /etc/mactab file.
+> (Slowly I'm getting the feeling that there is some sort of 64bit dev_t 
+> conspiracy going on here, with the amount of answers I'm (not) getting 
+> here.)
 
---
-~Randy
+	There is no conspiracy.  Everyone agrees we need more dev_t
+space.  Peter, Andries, and others see it like I do; we only want to do
+this once, and we already can see a day when 20bits of minors isn't
+enough.
+
+Joel
+
+-- 
+
+Life's Little Instruction Book #207
+
+	"Swing for the fence."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

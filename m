@@ -1,31 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262965AbUAYWUH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 17:20:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265296AbUAYWUG
+	id S265319AbUAYW3T (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 17:29:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265320AbUAYW3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 17:20:06 -0500
-Received: from desnol.ru ([217.150.58.74]:28177 "EHLO desnol.ru")
-	by vger.kernel.org with ESMTP id S262965AbUAYWUE (ORCPT
+	Sun, 25 Jan 2004 17:29:19 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:33763 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S265319AbUAYW3Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 17:20:04 -0500
-Date: Mon, 26 Jan 2004 01:20:02 +0300
-From: Agri <agri@desnol.ru>
-To: linux-kernel@vger.kernel.org
-Subject: loading ide-scsi on demand
-Message-Id: <20040126012002.4f4b6f28.agri@desnol.ru>
-X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 25 Jan 2004 17:29:16 -0500
+Date: Sun, 25 Jan 2004 23:29:14 +0100
+From: David Weinehall <tao@debian.org>
+To: Coywolf Qi Hunt <coywolf@lovecn.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.0.39] put_last_free() defined, but not used
+Message-ID: <20040125222914.GB20879@khan.acc.umu.se>
+Mail-Followup-To: Coywolf Qi Hunt <coywolf@lovecn.org>,
+	linux-kernel@vger.kernel.org
+References: <401417A3.7000206@lovecn.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <401417A3.7000206@lovecn.org>
+User-Agent: Mutt/1.4.1i
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I asked this question on newbie list... but got no idea...
+On Mon, Jan 26, 2004 at 03:23:15AM +0800, Coywolf Qi Hunt wrote:
+> Hello,
+> 
+> In 2.0.39, the function put_last_free() in fs/file_table.c is defined, 
+> but no longer get used.
+> Should it be removed?
 
-Is there any way to configure loading of ide-scsi "ON DEMAND"?
-It seems that "touching" for /dev/scd0 do not cause kmod
-to exec modprobe.
+I might consider this for 2.0.41, not for 2.0.40.  Indeed it doesn't
+seem to be used, but it might be used in some external file system.
 
-Agri
 
+Regards: David Weinehall
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

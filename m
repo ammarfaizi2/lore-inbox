@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268306AbUHKXBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268292AbUHKXBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268306AbUHKXBk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 19:01:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268292AbUHKW6T
+	id S268292AbUHKXBm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 19:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268297AbUHKWrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 18:58:19 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:49538 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S268318AbUHKW5O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 18:57:14 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Diffie <diffie@gmail.com>
-Subject: Re: 2.6.8-rc4-mm1
-Date: Wed, 11 Aug 2004 16:57:10 -0600
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-References: <9dda349204081020337de13352@mail.gmail.com>
-In-Reply-To: <9dda349204081020337de13352@mail.gmail.com>
+	Wed, 11 Aug 2004 18:47:36 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:57725 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S268296AbUHKWo3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 18:44:29 -0400
+Message-ID: <411AAF69.9080803@myrealbox.com>
+Date: Wed, 11 Aug 2004 16:44:41 -0700
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040811
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: neilb@cse.unsw.edu.au
+Subject: [2.6.8-rc4] New nfsd-related kernel panic
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408111657.10923.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.6.8-rc4-mm1 panics when booting (aic7xxx) with lots of SCSI ABORT
-> and sens code errors.
-> IDE ports give also failed probe messages.
+The following patch of 09Aug is causing kernel panics:
 
-If you could capture the output of the failed kernel, that would be
-helpful.  I know that's a pain unless you're using a serial console.
-Thanks!
+$bk get -D fs/nfsd/nfsxdr.c
+237d236
+<       int len;
+237a237
+ >       unsigned int len;
+269d268
+<       int len;
+269a269
+ >       unsigned int len;
 
-Bjorn
+I can cause a kernel panic by mounting the remote filesystem
+read-only and merely copying a moderately large tarball from it.
+(The linux-kernel source tarball, for example.)
+
+The panic occurs every time, after only a second or two at most.
+It's so easy to reproduce that I haven't copied down the backtrace,
+but I will if no one else can reproduce the problem.
+
+Anyone else seeing this?
+

@@ -1,146 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263003AbREaDlC>; Wed, 30 May 2001 23:41:02 -0400
+	id <S263009AbREaE0r>; Thu, 31 May 2001 00:26:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263006AbREaDkw>; Wed, 30 May 2001 23:40:52 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:28427 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S263003AbREaDkn>;
-	Wed, 30 May 2001 23:40:43 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200105310340.f4V3eVF244481@saturn.cs.uml.edu>
-Subject: Re: How to know HZ from userspace?
-To: laforge@gnumonks.org (Harald Welte)
-Date: Wed, 30 May 2001 23:40:30 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva> from "Harald Welte" at May 30, 2001 08:37:25 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263012AbREaE0h>; Thu, 31 May 2001 00:26:37 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:62733 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S263009AbREaE0b>; Thu, 31 May 2001 00:26:31 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: lkml <linux-kernel@vger.kernel.org>
+Message-ID: <86256A5D.001829A5.00@smtpnotes.altec.com>
+Date: Wed, 30 May 2001 23:25:41 -0500
+Subject: Re: cs46xx oops in 2.4.5-ac4
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Harald Welte writes:
-
-> Is there any way to read out the compile-time HZ value of the kernel?
-> 
-> I had a brief look at /proc/* and didn't find anything.
-
-Look again, this time with a sick mind. Got your barf bag?
-Kubys made me do it.
-
-/****************************************************************/
-/***********************************************************************\
-*   Copyright (C) 1992-1998 by Michael K. Johnson, johnsonm@redhat.com *
-*                                                                      *
-*      This file is placed under the conditions of the GNU Library     *
-*      General Public License, version 2, or any later version.        *
-*      See file COPYING for information on distribution conditions.    *
-\***********************************************************************/
-
-/* ...but Albert Cahalan wrote the really evil parts.
-MKJ is only guilty for the macro */
-
-/* Sets Hertz equal to the kernel's HZ, as seen in /proc. */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-
-#include <unistd.h>
-#include <fcntl.h>
-
-#ifndef HZ
-#include <netinet/in.h>  /* htons */
-#endif
-
-long smp_num_cpus;     /* number of CPUs */
-
-#define BAD_OPEN_MESSAGE                                        \
-"Error: /proc must be mounted\n"                                \
-"  To mount /proc at boot you need an /etc/fstab line like:\n"  \
-"      /proc   /proc   proc    defaults\n"                      \
-"  In the meantime, mount /proc /proc -t proc\n"
-
-#define STAT_FILE    "/proc/stat"
-static int stat_fd = -1;
-#define UPTIME_FILE  "/proc/uptime"
-static int uptime_fd = -1;
-#define LOADAVG_FILE "/proc/loadavg"
-static int loadavg_fd = -1;
-#define MEMINFO_FILE "/proc/meminfo"
-static int meminfo_fd = -1;
-
-static char buf[1024];
-
-/* This macro opens filename only if necessary and seeks to 0 so
- * that successive calls to the functions are more efficient.
- * It also reads the current contents of the file into the global buf.
- */
-#define FILE_TO_BUF(filename, fd) do{                           \
-    static int local_n;                                         \
-    if (fd == -1 && (fd = open(filename, O_RDONLY)) == -1) {    \
-        fprintf(stderr, BAD_OPEN_MESSAGE);                      \
-        fflush(NULL);                                           \
-        _exit(102);                                             \
-    }                                                           \
-    lseek(fd, 0L, SEEK_SET);                                    \
-    if ((local_n = read(fd, buf, sizeof buf - 1)) < 0) {        \
-        perror(filename);                                       \
-        fflush(NULL);                                           \
-        _exit(103);                                             \
-    }                                                           \
-    buf[local_n] = '\0';                                        \
-}while(0)
-
-unsigned long Hertz;
-static void init_Hertz_value(void) __attribute__((constructor));
-static void init_Hertz_value(void){
-  unsigned long user_j, nice_j, sys_j, other_j;  /* jiffies (clock ticks) */
-  double up_1, up_2, seconds;
-  unsigned long jiffies, h;
-  smp_num_cpus = sysconf(_SC_NPROCESSORS_CONF);
-  if(smp_num_cpus==-1) smp_num_cpus=1;
-  do{
-    FILE_TO_BUF(UPTIME_FILE,uptime_fd);  sscanf(buf, "%lf", &up_1);
-    /* uptime(&up_1, NULL); */
-    FILE_TO_BUF(STAT_FILE,stat_fd);
-    sscanf(buf, "cpu %lu %lu %lu %lu", &user_j, &nice_j, &sys_j, &other_j);
-    FILE_TO_BUF(UPTIME_FILE,uptime_fd);  sscanf(buf, "%lf", &up_2);
-    /* uptime(&up_2, NULL); */
-  } while((long)( (up_2-up_1)*1000.0/up_1 )); /* want under 0.1% error */
-  jiffies = user_j + nice_j + sys_j + other_j;
-  seconds = (up_1 + up_2) / 2;
-  h = (unsigned long)( (double)jiffies/seconds/smp_num_cpus );
-  /* actual values used by 2.4 kernels: 32 64 100 128 1000 1024 1200 */
-  switch(h){
-  case   30 ...   34 :  Hertz =   32; break; /* ia64 emulator */
-  case   48 ...   52 :  Hertz =   50; break;
-  case   58 ...   62 :  Hertz =   60; break;
-  case   63 ...   65 :  Hertz =   64; break; /* StrongARM /Shark */
-  case   95 ...  105 :  Hertz =  100; break; /* normal Linux */
-  case  124 ...  132 :  Hertz =  128; break; /* MIPS, ARM */
-  case  195 ...  204 :  Hertz =  200; break; /* normal << 1 */
-  case  253 ...  260 :  Hertz =  256; break;
-  case  393 ...  408 :  Hertz =  400; break; /* normal << 2 */
-  case  790 ...  808 :  Hertz =  800; break; /* normal << 3 */
-  case  990 ... 1010 :  Hertz = 1000; break; /* ARM */
-  case 1015 ... 1035 :  Hertz = 1024; break; /* Alpha, ia64 */
-  case 1180 ... 1220 :  Hertz = 1200; break; /* Alpha */
-  default:
-#ifdef HZ
-    Hertz = (unsigned long)HZ;    /* <asm/param.h> */
-#else
-    /* If 32-bit or big-endian (not Alpha or ia64), assume HZ is 100. */
-    Hertz = (sizeof(long)==sizeof(int) || htons(999)==999) ? 100UL : 1024UL;
-#endif
-    fprintf(stderr, "Unknown HZ value! (%ld) Assume %ld.\n", h, Hertz);
-  }
-}
-/****************************************************************/
 
 
+This problem is still present in 2.4.5-ac5.  Here's the latest oops:
 
+ksymoops 2.4.1 on i686 2.4.5-ac5.  Options used
+     -v /usr/src/linux-2.4.5-ac5/vmlinux (specified)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.5-ac5/ (default)
+     -m /usr/src/linux/System.map (default)
+
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0111f54>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010086
+eax: cfa78e84   ebx: 00000000   ecx: 00000286   edx: cc961f2c
+esi: cc961f24   edi: cfa78e80   ebp: cc961f24   esp: cc961f08
+ds: 0018   es: 0018   ss: 0018
+Process sox (pid: 195, stackpage=cc961000)
+Stack: cfa78e78 cc960000 c0105938 ffffffea cc9ce560 00001000 cfa78df0 00000001
+       cc960000 cfa78e84 00000000 c0105aa8 cfa78e78 cfa78dc0 cc9ce580 d0c676b4
+       ffffffea cc9ce560 00001000 bffff830 00000000 cfa78df0 c0267c40 00000000
+Call Trace: [<c0105938>] [<c0105aa8>] [<d0c676b4>] [<c0119baa>] [<c012dd86>]
+   [<c0106b27>]
+Code: 89 13 51 9d 5b 5e c3 90 9c 58 fa 8b 4a 0c 8b 52 08 89 4a 04
+
+>>EIP; c0111f54 <add_wait_queue_exclusive+1c/24>   <=====
+Trace; c0105938 <__down+4c/a8>
+Trace; c0105aa8 <__down_failed+8/c>
+Trace; d0c676b4 <[cs46xx].text.end+74/1e0>
+Trace; c0119baa <tqueue_bh+16/1c>
+Trace; c012dd86 <sys_write+8e/c4>
+Trace; c0106b27 <system_call+33/38>
+Code;  c0111f54 <add_wait_queue_exclusive+1c/24>
+00000000 <_EIP>:
+Code;  c0111f54 <add_wait_queue_exclusive+1c/24>   <=====
+   0:   89 13                     mov    %edx,(%ebx)   <=====
+Code;  c0111f56 <add_wait_queue_exclusive+1e/24>
+   2:   51                        push   %ecx
+Code;  c0111f57 <add_wait_queue_exclusive+1f/24>
+   3:   9d                        popf
+Code;  c0111f58 <add_wait_queue_exclusive+20/24>
+   4:   5b                        pop    %ebx
+Code;  c0111f59 <add_wait_queue_exclusive+21/24>
+   5:   5e                        pop    %esi
+Code;  c0111f5a <add_wait_queue_exclusive+22/24>
+   6:   c3                        ret
+Code;  c0111f5b <add_wait_queue_exclusive+23/24>
+   7:   90                        nop
+Code;  c0111f5c <remove_wait_queue+0/14>
+   8:   9c                        pushf
+Code;  c0111f5d <remove_wait_queue+1/14>
+   9:   58                        pop    %eax
+Code;  c0111f5e <remove_wait_queue+2/14>
+   a:   fa                        cli
+Code;  c0111f5f <remove_wait_queue+3/14>
+   b:   8b 4a 0c                  mov    0xc(%edx),%ecx
+Code;  c0111f62 <remove_wait_queue+6/14>
+   e:   8b 52 08                  mov    0x8(%edx),%edx
+Code;  c0111f65 <remove_wait_queue+9/14>
+  11:   89 4a 04                  mov    %ecx,0x4(%edx)
 
 

@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288156AbSAMVJh>; Sun, 13 Jan 2002 16:09:37 -0500
+	id <S287966AbSAMVNI>; Sun, 13 Jan 2002 16:13:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288158AbSAMVJ1>; Sun, 13 Jan 2002 16:09:27 -0500
-Received: from colorfullife.com ([216.156.138.34]:6408 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S288156AbSAMVJW>;
-	Sun, 13 Jan 2002 16:09:22 -0500
-Message-ID: <3C41F772.543C2F85@colorfullife.com>
-Date: Sun, 13 Jan 2002 22:09:06 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.2-pre11 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-kernel@vger.kernel.org, Andre Hedrick <andre@linuxdiskcert.org>
-Subject: Re: BIO Usage Error or Conflicting Designs
+	id <S287976AbSAMVM6>; Sun, 13 Jan 2002 16:12:58 -0500
+Received: from int-mail.syd.fl.net.au ([202.181.0.28]:27653 "HELO
+	int-mail.syd.fl.net.au") by vger.kernel.org with SMTP
+	id <S287966AbSAMVMt>; Sun, 13 Jan 2002 16:12:49 -0500
+Subject: Any non-BS VM work queued for 2.5?
+From: Duraid Madina <duraid@fl.net.au>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 14 Jan 2002 09:12:36 +1200
+Message-Id: <1010956364.50291.0.camel@simplex.idesign.fl.net.au>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi all,
 
-> 
-> Is this with the highmem debug stuff enabled? That's the only way I can
-> see this BUG triggering, otherwise q->bounce_pfn _cannot_ be smaller
-> than the max_pfn.
-> 
-Have you tested that?
+	A good spot o' webtrawling has left me with the impression that Rik
+Riel is Linux's only hope of ever competing with FreeBSD on large jobs
+other than dbench.
 
-Unless I misread arch/i386/kernel/setup.c, line 740 to 760, max_pfn is
-the upper end of the highmem area, if highmem is configured.
-For non-highmem setup, it's set to min(system_memory, 4 GB).
-It was a local variable within setup_arch, and someone made it a global
-variable.
+	Is this true? Judging by the ease with which AA's hackwork made it into
+2.4, I think we may all be, well, fucked.
 
-I.e. max_pfn is 1 GB with Andre's setup.
+	I wonder if Linus has booted 5-CURRENT lately.
 
-His patch doesn't touch the bounce limit, the default limit from
-blk_queue_make_request() is used: BLK_BOUNCE_HIGH, which is max_low_pfn.
+	Alarmed,
 
-max_low_pfn is 896 MB.
+	Duraid.
 
---> BUG in create_bounce(), because a request comes in with a bounce
-limit less than the total system memory, and no highmem configured.
 
---
-	Manfred
+

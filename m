@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265319AbUAYW3T (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 17:29:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265320AbUAYW3T
+	id S262033AbUAYWcz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 17:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265275AbUAYWcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 17:29:19 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:33763 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S265319AbUAYW3Q (ORCPT
+	Sun, 25 Jan 2004 17:32:54 -0500
+Received: from colin2.muc.de ([193.149.48.15]:6414 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262033AbUAYWcx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 17:29:16 -0500
-Date: Sun, 25 Jan 2004 23:29:14 +0100
-From: David Weinehall <tao@debian.org>
-To: Coywolf Qi Hunt <coywolf@lovecn.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.0.39] put_last_free() defined, but not used
-Message-ID: <20040125222914.GB20879@khan.acc.umu.se>
-Mail-Followup-To: Coywolf Qi Hunt <coywolf@lovecn.org>,
-	linux-kernel@vger.kernel.org
-References: <401417A3.7000206@lovecn.org>
+	Sun, 25 Jan 2004 17:32:53 -0500
+Date: 25 Jan 2004 23:31:05 +0100
+Date: Sun, 25 Jan 2004 23:31:05 +0100
+From: Andi Kleen <ak@muc.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@muc.de>, cova@ferrara.linux.it, bunk@fs.tum.de,
+       eric@cisu.net, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
+Message-ID: <20040125223105.GE28576@colin2.muc.de>
+References: <200401232253.08552.eric@cisu.net> <200401252221.01679.cova@ferrara.linux.it> <20040125214653.GB28576@colin2.muc.de> <200401252308.33005.cova@ferrara.linux.it> <20040125221304.GD28576@colin2.muc.de> <20040125142500.526dcac5.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <401417A3.7000206@lovecn.org>
+In-Reply-To: <20040125142500.526dcac5.akpm@osdl.org>
 User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 26, 2004 at 03:23:15AM +0800, Coywolf Qi Hunt wrote:
-> Hello,
+On Sun, Jan 25, 2004 at 02:25:00PM -0800, Andrew Morton wrote:
+> Andi Kleen <ak@muc.de> wrote:
+> >
+> > I would suspect the new weird CPU
+> >  configuration stuff.
 > 
-> In 2.0.39, the function put_last_free() in fs/file_table.c is defined, 
-> but no longer get used.
-> Should it be removed?
+> What do you believe is wrong with it?
 
-I might consider this for 2.0.41, not for 2.0.40.  Indeed it doesn't
-seem to be used, but it might be used in some external file system.
+It's different and it is weird and probably easy to screw up.
 
+It's just that CPU configuration errors often cause problems before
+the console is running.  And we unfortunately still don't have 
+early printk on i386, which makes it hard to diagnose.
 
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+-Andi

@@ -1,75 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316538AbSEaSiF>; Fri, 31 May 2002 14:38:05 -0400
+	id <S316548AbSEaSkU>; Fri, 31 May 2002 14:40:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316548AbSEaSiE>; Fri, 31 May 2002 14:38:04 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:18816 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S316538AbSEaSiD>; Fri, 31 May 2002 14:38:03 -0400
-Date: Fri, 31 May 2002 14:38:30 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: do_mmap
-In-Reply-To: <Pine.GSO.4.05.10205312012330.10681-100000@mausmaki.cosy.sbg.ac.at>
-Message-ID: <Pine.LNX.3.95.1020531143216.2645A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316574AbSEaSkT>; Fri, 31 May 2002 14:40:19 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:19552 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S316548AbSEaSkS>; Fri, 31 May 2002 14:40:18 -0400
+Date: Fri, 31 May 2002 20:40:14 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: Andrey Nekrasov <andy@spylog.ru>
+Subject: Re: 2.4.19pre9aa2
+Message-ID: <20020531184014.GJ1172@dualathlon.random>
+In-Reply-To: <20020531051841.GA1172@dualathlon.random> <20020531131306.GA29960@spylog.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 May 2002, Thomas 'Dent' Mirlacher wrote:
+On Fri, May 31, 2002 at 05:13:06PM +0400, Andrey Nekrasov wrote:
+> Hello Andrea Arcangeli,
+> 
+> 
+> Stability fine. [..]
 
-> Dick,
-> 
-> --snip/snip
-> 
-> 
-> > > btw, is err should (according to alans explaination be):
-> > > 
-> > > 	return (unsigned long)ptr > (unsigned long)-1024UL;
-> > > 
-> > > 	tm
-> > > 
-> > 
-> > At the user-mode API, we get to (void *) -1, defined in sys/mman.h
-> > (actually (__ptr_t) -1); so whatever you do, the 'C' runtime library
-> > has to 'know' about your return values if this propagates to
-> > sys-calls.
-> 
-> the code right now, will pass all the errors through to the user
-> space in any case (beside a handful internal kernel-functions).
-> 
-> by changing unsigned long to void * everything should stay the same
-> (at least for todays architectures) - well if i'm wrong, please
-> enlighten me :)
-> 
-> also using IS_ERR is essentially the same as the other approaches
-> to check for errors (beside the check for == 0).
-> 
-> this means by "cleaning up" the internal functions, _nothing_ should
-> me impacted, even if the changes are step by step, function by function,
-> beside some gcc warnings (the well known: "assignment makes pointer from
-> integer without a cast").
-> 
-> cheers,
-> 
-> 	tm
-> 
+Cool thanks :)
 
-Good. It was just a 'sanity-check' as these things caught my
-eye. Because I have to fix a lot of junk code that others have
-written (here at work), as they become Peter-principled to
-higher-level positions, I get sensitized to these things.
-No complaint -- I like fixing junk code!
-The previously line was written for Network Security Administrators
-(Hello Thor).
+> [..] But something happened with interactivity. If to start the
+> countable task, enter on the computer on ssh, to make "su" - bothers to wait.
+> 
+> On 2.4.19pre8aa3 such was not. Because of "O1"?
 
-Cheers,
-Dick Johnson
+if it's a userspace-cpu intensive background load, most probably because
+of o1. The dyn-sched (before I integraed o1 that obsoleted it) was very
+good at detecting cpu hogs and to avoid them to disturb interactive
+tasks like ssh-shell, of course o1 also has a sleep_time/sleep_avg
+derived from the dyn-sched idea from Davide, but maybe the constants are
+tuned in a different manner.
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Can you try to renice at +19 the cpu hogs and see if you still get bad
+interactivity?
 
-                 Windows-2000/Professional isn't.
+The other possibility is that the bad interactivity is due to bad
+sched-latency, so that the scheduler posts a reschedule via irq
+(schedule_tick()) but the function schedule() is never invoked because
+the kernel spins on a loop etc... Now the fixes to prune_icache might
+have increased the sched-latency in some case when you shrink the cache
+but in turn now you release the inodes and also we roll the list, so
+overall should be even an improvement for sched latency for you. And I
+doubt you're exercising such path so frequently that it makes a
+difference (even if you're certainly exercising it to test the fix
+worked). So I would suggest to run some readprofile and to see if
+prune_icache/invalidate_inode_pages goes up a lot in the profiling. Also
+please check if the cpu load is all in userspace during the bad
+interactivity, if it's all userspace load the bad sched latency is
+almost certainly not the case.
 
+Andrea

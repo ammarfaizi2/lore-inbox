@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268079AbSIRRnH>; Wed, 18 Sep 2002 13:43:07 -0400
+	id <S267973AbSIRRlR>; Wed, 18 Sep 2002 13:41:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268122AbSIRRnH>; Wed, 18 Sep 2002 13:43:07 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:43261
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268079AbSIRRnF>; Wed, 18 Sep 2002 13:43:05 -0400
-Subject: Re: Info: NAPI performance at "low" loads
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "David S. Miller" <davem@redhat.com>, hadi@cyberus.ca, akpm@digeo.com,
-       manfred@colorfullife.com, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <m1hegnky2h.fsf@frodo.biederman.org>
-References: <3D87A59C.410FFE3E@digeo.com>
-	<Pine.GSO.4.30.0209172053360.3686-100000@shell.cyberus.ca>
-	<20020917.180014.07882539.davem@redhat.com> 
-	<m1hegnky2h.fsf@frodo.biederman.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 18 Sep 2002 18:50:53 +0100
-Message-Id: <1032371453.20463.139.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S267981AbSIRRlR>; Wed, 18 Sep 2002 13:41:17 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33796 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267973AbSIRRlQ>; Wed, 18 Sep 2002 13:41:16 -0400
+Date: Wed, 18 Sep 2002 10:46:35 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Ingo Molnar <mingo@elte.hu>, Andries Brouwer <aebr@win.tue.nl>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] lockless, scalable get_pid(), for_each_process()
+ elimination, 2.5.35-BK
+In-Reply-To: <20020918173653.GV3530@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0209181044240.1384-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-09-18 at 18:27, Eric W. Biederman wrote:
-> Plus I have played with calibrating the TSC with outb to port
-> 0x80 and there was enough variation that it was unuseable.  On some
-> newer systems it would take twice as long as on some older ones.
 
-port 0x80 isnt going to PCI space.
+On Wed, 18 Sep 2002, William Lee Irwin III wrote:
+> 
+> There were only 10K tasks, with likely consecutively-allocated PID's,
+> and some minor background fork()/exit() activity, but there are more
+> offenders on the read side than get_pid() itself.
+> 
+> There is no question of PID space: the full 2^30 was configured in
+> the tests done after the PID space expansion. 
 
-x86 generally posts mmio write but not io write. Thats quite measurable.
+I bet the lockup was something else. There have been other bugs recently 
+with the task state changes, and the lockup may just have been a regular 
+plain lockup. Thread exit has been kind of fragile lately, although it 
+looks better now.
 
+		Linus
 

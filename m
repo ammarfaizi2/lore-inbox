@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129093AbRBMXvO>; Tue, 13 Feb 2001 18:51:14 -0500
+	id <S129059AbRBNACf>; Tue, 13 Feb 2001 19:02:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129078AbRBMXvE>; Tue, 13 Feb 2001 18:51:04 -0500
-Received: from tsukuba.m17n.org ([192.47.44.130]:33945 "EHLO tsukuba.m17n.org")
-	by vger.kernel.org with ESMTP id <S129059AbRBMXup>;
-	Tue, 13 Feb 2001 18:50:45 -0500
-Date: Wed, 14 Feb 2001 08:50:35 +0900 (JST)
-Message-Id: <200102132350.IAA07667@mule.m17n.org>
-From: NIIBE Yutaka <gniibe@m17n.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: marcelo@conectiva.com.br (Marcelo Tosatti),
-        torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (lkml)
-Subject: Re: [PATCH] swapin flush cache bug
-In-Reply-To: <200102131116.f1DBGFx02086@flint.arm.linux.org.uk>
-In-Reply-To: <200102131053.TAA11808@mule.m17n.org>
-	<200102131116.f1DBGFx02086@flint.arm.linux.org.uk>
+	id <S129185AbRBNACZ>; Tue, 13 Feb 2001 19:02:25 -0500
+Received: from pat.uio.no ([129.240.130.16]:18144 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S129059AbRBNACN>;
+	Tue, 13 Feb 2001 19:02:13 -0500
+To: Jakob Østergaard <jakob@unthought.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Stale NFS handles on 2.4.1
+In-Reply-To: <20010214002750.B11906@unthought.net>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Type: text/plain; charset=US-ASCII
+Date: 14 Feb 2001 01:02:05 +0100
+In-Reply-To: Jakob Østergaard's message of "Wed, 14 Feb
+ 2001 00:27:50 +0100"
+Message-ID: <shsitme169u.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
- > Unless someone else (Rik/DaveM) says otherwise, it is my understanding
- > that any IO for page P will only ever be a write to disk.  Therefore,
- > when you get a copy of the page from the swap cache, the physical memory
- > for that page is the same as it was when the process was using it last.
-[...]
- > The data from memory will still be up to date though.  However, I agree
- > that you will end up with cache aliases.  I will also end up with cache
- > aliases.  The question now is, do these aliases really matter?
- > 
- > On my caches, the answer is no because they're not marked dirty, and
- > therefore will get dropped from the cache without writeback to memory.
- > 
- > If your cache doesn't write back clean cache data to memory, then you
- > should also behave well.
+>>>>> " " == stergaard  <Jakob> writes:
 
-Yes, that's the difference.  It's write back cache, in my case.
--- 
+     > What happens is that one machine will finish compiling, and
+     > another machine will immediately thereafter do a "touch
+     > some_output.o". This "touch" sometimes fails with a stale
+     > handle message.
+
+Does the appended patch change anything?
+
+Cheers,
+  Trond
+
+--- linux-2.4.1/fs/nfs/inode.c.orig	Tue Dec 12 02:46:04 2000
++++ linux-2.4.1/fs/nfs/inode.c	Wed Feb 14 01:00:33 2001
+@@ -100,6 +100,7 @@
+ 	inode->i_rdev = 0;
+ 	NFS_FILEID(inode) = 0;
+ 	NFS_FSID(inode) = 0;
++	NFS_FLAGS(inode) = 0;
+ 	INIT_LIST_HEAD(&inode->u.nfs_i.read);
+ 	INIT_LIST_HEAD(&inode->u.nfs_i.dirty);
+ 	INIT_LIST_HEAD(&inode->u.nfs_i.commit);

@@ -1,94 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbUL2OBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbUL2ODk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbUL2OBY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 09:01:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbUL2OBY
+	id S261350AbUL2ODk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 09:03:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbUL2ODk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 09:01:24 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:61424 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261347AbUL2OBU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 09:01:20 -0500
-Date: Wed, 29 Dec 2004 08:01:12 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: bert hubert <ahu@ds9a.nl>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: local root exploit confirmed in 2.6.10: Linux 2.6 Kernel Capability LSM Module Local Privilege Elevation
-Message-ID: <20041229140112.GA4812@IBM-BWN8ZTBWA01.austin.ibm.com>
-References: <1104268915.20714.20.camel@krustophenia.net> <20041229102532.GB9926@outpost.ds9a.nl> <1104316379.2984.26.camel@krustophenia.net>
+	Wed, 29 Dec 2004 09:03:40 -0500
+Received: from ee.oulu.fi ([130.231.61.23]:27821 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S261350AbUL2ODi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 09:03:38 -0500
+Date: Wed, 29 Dec 2004 16:03:33 +0200
+From: Pekka Pietikainen <pp@ee.oulu.fi>
+To: Mateusz Berezecki <mateuszb@gmail.com>
+Cc: Stefan Knoblich <stkn@gentoo.org>, linux-kernel@vger.kernel.org
+Subject: Re: b44 ifconfig fails with ENOMEM
+Message-ID: <20041229140333.GA27964@ee.oulu.fi>
+References: <200412290557.29114.stkn@gentoo.org> <41D2B4B4.6090608@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1104316379.2984.26.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <41D2B4B4.6090608@gmail.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Lee Revell (rlrevell@joe-job.com):
-> On Wed, 2004-12-29 at 11:25 +0100, bert hubert wrote:
-> > On Tue, Dec 28, 2004 at 04:21:55PM -0500, Lee Revell wrote:
-> > > Frank Barknecht pointed this out on linux-audio-dev, it's a horrible
-> > > bug, I confirmed it in 2.6.10, and have not seen it mentioned on the
-> > > list.
+On Wed, Dec 29, 2004 at 02:44:20PM +0100, Mateusz Berezecki wrote:
+> >unloading and reloading the module didn't help, only a reboot fixed it 
+> >(after ~36hours uptime)
 > > 
-> > Although this sucks, it should be pointed out that it only grants root to
-> > users able to force the loading of a certain module, aka 'root'.
-> 
-> Not force the loading of a certain module, but predict when it will be
-> loaded.  Still, not easy to exploit.
-> 
-> Lee
+> >
+> same problem here. i left my laptop on for a longer time and ifconfig 
+> failed too
+> kernel backtrace same as above. kernel looked like it didn't swap out 
+> some memory.
+> lots of swap free no phys mem free. i dont know if this helps.
+> reloading the module didn't help too.
+> if you want more info please let me know
+Hiya... Known feature :-( See
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=118165 for details.
 
-Right, this means it is unsafe to have capabilities compiled as a
-module, or at least loaded after any untrusted processes start.
+"See last paragraph of comment #66. The problem is that the driver
+needs about 750k of memory that has to be located under 1GB physically
+to not trigger the hardware bug that causes crashes and other fun. The
+driver tries to allocate that kind of memory
+(pci_set_consistent_dma_mask(pdev, 0x3fffffff) ). There should be
+plenty, right?
 
-The attached patch, which is a simple port of a fix by Chris Wright
-(sent out a year ago), fixes this problem by having the dummy module
-track capabilities.
+Unfortunately the way it's implemented right now in the generic x86
+pci code is that if you ask for some memory with a dma mask of < 4GB,
+it falls back to giving you memory from the first 16MB. Now that's a
+pretty limited resource :-(. There seems to be 3 drivers that need
+similar workarounds (wanxl, aacraid and b44)"
 
--serge
-
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
-
-Index: linux-2.6.9/security/dummy.c
-===================================================================
---- linux-2.6.9.orig/security/dummy.c	2004-12-24 05:33:33.000000000 -0600
-+++ linux-2.6.9/security/dummy.c	2004-12-24 05:41:11.000000000 -0600
-@@ -74,12 +74,10 @@ static int dummy_acct (struct file *file
- 
- static int dummy_capable (struct task_struct *tsk, int cap)
- {
--	if (cap_is_fs_cap (cap) ? tsk->fsuid == 0 : tsk->euid == 0)
--		/* capability granted */
-+	if (cap_raised (tsk->cap_effective, cap))
- 		return 0;
--
--	/* capability denied */
--	return -EPERM;
-+	else
-+		return -EPERM;
- }
- 
- static int dummy_sysctl (ctl_table * table, int op)
-@@ -199,6 +197,10 @@ static void dummy_bprm_apply_creds (stru
- 
- 	current->suid = current->euid = current->fsuid = bprm->e_uid;
- 	current->sgid = current->egid = current->fsgid = bprm->e_gid;
-+
-+	dummy_capget(current, &current->cap_effective,
-+					&current->cap_inheritable,
-+					&current->cap_permitted);
- }
- 
- static int dummy_bprm_set_security (struct linux_binprm *bprm)
-@@ -563,6 +565,9 @@ static int dummy_task_setuid (uid_t id0,
- 
- static int dummy_task_post_setuid (uid_t id0, uid_t id1, uid_t id2, int flags)
- {
-+	dummy_capget(current, &current->cap_effective,
-+					&current->cap_inheritable,
-+					&current->cap_permitted);
- 	return 0;
- }
- 
-
+Quickest "fix" is to use a B44_DMA_MASK of 0xffffffff . Which is the
+pre-2.6.9 behaviour and is fine if you have <= 1GB of memory or use the
+standard 1:3 kernel:user split.

@@ -1,88 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVBMV5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVBMWtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbVBMV5z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Feb 2005 16:57:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVBMV5z
+	id S261317AbVBMWtY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Feb 2005 17:49:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVBMWtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Feb 2005 16:57:55 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:62223 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261315AbVBMV5w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Feb 2005 16:57:52 -0500
-Date: Mon, 14 Feb 2005 08:56:45 +1100
-To: Christian Heim <christian.th.heim@gmx.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       kai.germaschewski@gmx.de
-Subject: Re: linux-2.6.11-rc3 and isdn mppp
-Message-ID: <20050213215645.GA9704@gondor.apana.org.au>
-References: <200502121750.23899.christian.th.heim@gmx.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="/04w6evG8XlLl3ft"
-Content-Disposition: inline
-In-Reply-To: <200502121750.23899.christian.th.heim@gmx.de>
-User-Agent: Mutt/1.5.6+20040722i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Sun, 13 Feb 2005 17:49:23 -0500
+Received: from smtpauth01.mail.atl.earthlink.net ([209.86.89.61]:44247 "EHLO
+	smtpauth01.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S261317AbVBMWtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Feb 2005 17:49:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=simple;
+  s=test1; d=earthlink.net;
+  h=Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=aT+1KcAxeVW3cI97/gpRp1iWU//Il4c7mgs9VZdu0QV/kMFTgG5mj1MtC+lVSOKg;
+Message-ID: <420FD9EB.7080606@earthlink.net>
+Date: Sun, 13 Feb 2005 17:51:23 -0500
+From: Todd Shetter <tshetter-lkml@earthlink.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x kernel BUG at filemap.c:81
+References: <42099C57.9030306@earthlink.net> <20050209121011.GA13614@logos.cnet> <420A3A8D.9030705@earthlink.net> <20050209130319.GA13986@logos.cnet> <420A76E0.2030604@earthlink.net> <20050209174232.GC15888@logos.cnet> <420AE1CE.2070306@earthlink.net> <20050210220510.GB21012@logos.cnet> <420F9E55.4040701@pobox.com>
+In-Reply-To: <420F9E55.4040701@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ELNK-Trace: 20b3e7689bd2545e1aa676d7e74259b7b3291a7d08dfec796f23e6ad2cbd01fa2901ff2bb891fb93350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 24.144.117.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik wrote:
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Marcelo Tosatti wrote:
+>
+>> On Wed, Feb 09, 2005 at 11:23:42PM -0500, Todd Shetter wrote:
+>>
+>>> Marcelo Tosatti wrote:
+>>>
+>>>
+>>>> On Wed, Feb 09, 2005 at 03:47:28PM -0500, Todd Shetter wrote:
+>>>>
+>>>>
+>>>>>>>>> Running slackware 10 and 10.1, with kernels 2.4.26, 2.4.27, 
+>>>>>>>>> 2.4.28, 2.4.29 with highmem 4GB, and highmem i/o support 
+>>>>>>>>> enabled, I get a system lockup. This happens in both X and 
+>>>>>>>>> console. Happens with and without my Nvidia drivers loaded. I 
+>>>>>>>>> cannot determine what makes this bug present it self besides 
+>>>>>>>>> highmem and high i/o support enabled. Im guessing the system 
+>>>>>>>>> is fine until highmem is actually used to some point and then 
+>>>>>>>>> it borks, but I really have no idea and so im just making a 
+>>>>>>>>> random guess. I ran memtest86 for a few hours a while ago 
+>>>>>>>>> thinking that it may be bad memory, but that did not seem to 
+>>>>>>>>> be the problem.
+>>>>>>>>>
+>>>>>>>>> If you need anymore information, or have questions, or wish me 
+>>>>>>>>> to test anything, PLEASE feel free to contact me, I would 
+>>>>>>>>> really like to see this bug resolved. =)
+>>>>>>>>>
+>>>>>>>>> Todd Shetter
+>>>>>>>>>
+>>>>>>>>> Feb  8 19:49:31 quark kernel: kernel BUG at filemap.c:81!
+>>>>>>>>> Feb  8 19:49:31 quark kernel: invalid operand: 0000
+>>>>>>>>> Feb  8 19:49:31 quark kernel: CPU:    0
+>>>>>>>>> Feb  8 19:49:31 quark kernel: EIP:    0010:[<c01280d1>]    
+>>>>>>>>> Tainted: P
+>>>>>>>>>          
+>>>>>>>>
+>>>>>>>>
+>>>>>>>> Hi Todd,
+>>>>>>>> Why is your kernel tainted ?
+>>>>>>>>
+>>>>>>>
+>>>>>>> I had the nvidia 1.0-6629 driver loaded when I got that error. I 
+>>>>>>> compiled the kernel using the slackware 10.1 config, enabled 
+>>>>>>> highmem 4GB support, highmem i/o, and then some kernel hacking 
+>>>>>>> options including debugging for highmen related things.
+>>>>>>>
+>>>>>>> I booted, loaded X with KDE, opened firefox a few times, and 
+>>>>>>> then started running hdparm because some newer 2.4.x kernels 
+>>>>>>> dont play nice with my SATA, ICH5, and DMA. hdparm segfaulted 
+>>>>>>> while running the drive read access portion of its tests, and 
+>>>>>>> things locked up from there in about 30secs.
+>>>>>>>
+>>>>>>> I've gotten the same error with the nvidia driver not loaded, so 
+>>>>>>> I dont think that is part of the problem.
+>>>>>>>
+>>>>>>> As I said, if you want me to test or try anything feel free to 
+>>>>>>> ask.  =)
+>>>>>>>
+>>>>>>
+>>>>>> Todd,
+>>>>>>
+>>>>>> Would be interesting to have the oops output without the kernel 
+>>>>>> nvidia module. Do you have that saved?
+>>>>>>
+>>>>>
+>>>>> Sorry, it took me FOREVER to get this bug to appear again, and 
+>>>>> this time its a little different.
+>>>>>  
+>>>>>
+>>>>
+>>>> Hum, both BUGs are due to a page with alive ->buffers mapping.
+>>>>
+>>>> Did it crashed right after hdparm now too?
+>>>> Can you boot your box without SATA drivers, configuring the 
+>>>> interface to IDE mode ?
+>>>>
+>>>> Which problems are you facing with newer v2.4.x kernels and SATA?
+>>>>
+>>>
+>>> Im waiting for the system to crash, so I figured I might as well get 
+>>> on with the SATA problems....
+>>>
+>>> Running 2.4.29 neither the CONFIG_BLK_DEV_IDE_SATA nor the 
+>>> CONFIG_SCSI_SATA are set currently and DMA is not enabled on either 
+>>> of my drives,  hda: ST380013AS,  hdb: WDC WD2500SD-01KCB0,  hdc: 
+>>> Maxtor 94610U6. Setting DMA manually on the hard drives yields a 
+>>> HDIO_SET_DMA failed: Operation not permitted error.
+>>>
+>>> Using 2.4.26, DMA worked fine on the drives. Under 2.4.27, 2.4.28, 
+>>> and 2.4.29 using CONFIG_SCSI_SATA does not allow setting of DMA on 
+>>> the drives, yielding a HDIO_SET_DMA failed: Operation not permitted 
+>>> error, and the transfer speeds reported by hdparm are at about 3MB/s.
+>>
+>>
+>>
+>> I think thats expected. Jeff?
+>
+>
+> If (a) this is Intel ICH hardware and (b) it is running in combined 
+> mode, it will get poor performance.
+>
+> For the SATA drivers, they ALWAYS run in DMA mode, so there is no need 
+> to support HDIO_SET_DMA.
+>
+>     Jeff
 
-On Sat, Feb 12, 2005 at 04:50:23PM +0000, Christian Heim wrote:
-> Well, i have to setup ISDN here at home, and wanted to use both channels.
-> I am able to add the second channel, but then the kernel (at least i think) 
-> starts to complain.
-> 
-> >17:36:22 kraftwerk Badness in local_bh_enable at kernel/softirq.c:140
-> >17:36:22 kraftwerk [<c011b201>] local_bh_enable+0x71/0x80
-> >17:36:22 kraftwerk [<c030c1a7>] isdn_ppp_xmit+0xe7/0x7d0
 
-isdn_net_get_locked_lp is doing a local_bh_enable with hard IRQs
-disabled.  This is not allowed.
+Yes, I am running the SATA in combined mode. That, along with Auto mode, 
+is the only way I can get all my devices to work properly under linux. 
+Under Enhanced mode there is no primary IDE, only second and third. My 
+ATA drive and CDROM are hdc and hdd, which is normal, my first SATA 
+drive which would normally be hda should be hde and the other drive 
+should be hdf. But the kernel doesnt see them and I cant boot off my 
+normally hda, I get an invalid root= option kernel panic. I did edit 
+lilo to reflect the change, but the drive wasnt even listed when hdc and 
+hdd were. Under SATA only, I only get the SATA drives, and not my ATA 
+drive nor my CDROM. With SATA diabled, I cant get the SATA drives at all 
+which I expected.
 
-The following patch fixes the problem by removing the unnecessary
-local_bh_enable while the hard IRQs are disabled.
+Under Auto, which is the same as combined as far as I can tell, the 
+kernel doesnt enable DMA for the drives using libata, and trying to 
+enable it by hand yields the HDIO_SET_DMA failed: Operation not 
+permitted error.
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+So, unless there is better performance from libata with ICH5 combined 
+mode, I am 'forced' to stay with CONFIG_BLK_DEV_IDE_SATA, which isnt a 
+bad thing really. I get good performance from the drives, and havent had 
+any problems yet.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+On a another note, kernel 2.4.30-pre1 with highmem is working fine for 
+me, using CONFIG_BLK_DEV_IDE_SATA, uptime was a little over 2 days.
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
+--
+Todd Shetter
 
-===== drivers/isdn/i4l/isdn_net.h 1.48 vs edited =====
---- 1.48/drivers/isdn/i4l/isdn_net.h	2004-06-23 00:44:03 +10:00
-+++ edited/drivers/isdn/i4l/isdn_net.h	2005-02-14 08:52:19 +11:00
-@@ -78,18 +78,19 @@
- 
- 	spin_lock_irqsave(&nd->queue_lock, flags);
- 	lp = nd->queue;         /* get lp on top of queue */
--	spin_lock_bh(&nd->queue->xmit_lock);
-+	spin_lock(&nd->queue->xmit_lock);
- 	while (isdn_net_lp_busy(nd->queue)) {
--		spin_unlock_bh(&nd->queue->xmit_lock);
-+		spin_unlock(&nd->queue->xmit_lock);
- 		nd->queue = nd->queue->next;
- 		if (nd->queue == lp) { /* not found -- should never happen */
- 			lp = NULL;
- 			goto errout;
- 		}
--		spin_lock_bh(&nd->queue->xmit_lock);
-+		spin_lock(&nd->queue->xmit_lock);
- 	}
- 	lp = nd->queue;
- 	nd->queue = nd->queue->next;
-+	local_bh_disable();
- errout:
- 	spin_unlock_irqrestore(&nd->queue_lock, flags);
- 	return lp;
-
---/04w6evG8XlLl3ft--

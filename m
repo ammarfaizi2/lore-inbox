@@ -1,56 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266262AbUFUPSx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264176AbUFUPTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266262AbUFUPSx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 11:18:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264176AbUFUPSx
+	id S264176AbUFUPTu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 11:19:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbUFUPTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 11:18:53 -0400
-Received: from [203.178.140.15] ([203.178.140.15]:59142 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S266261AbUFUPSq
+	Mon, 21 Jun 2004 11:19:50 -0400
+Received: from stress.telefonica.net ([213.4.129.135]:55444 "EHLO
+	tnetsmtp2.mail.isp") by vger.kernel.org with ESMTP id S264176AbUFUPTm convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 11:18:46 -0400
-Date: Tue, 22 Jun 2004 00:19:42 +0900 (JST)
-Message-Id: <20040622.001942.89290875.yoshfuji@linux-ipv6.org>
-To: yoda@isr.ist.utl.pt
-Cc: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: Re: kernel oops with v2.6.7 and tracepath6
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <m3zn6xdk38.fsf@pixie.isrnet>
-References: <m3zn6xdk38.fsf@pixie.isrnet>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Mon, 21 Jun 2004 11:19:42 -0400
+Subject: Re: pdc202xx_old serious bug with DMA on 2.6.x series
+From: Adolfo =?ISO-8859-1?Q?Gonz=E1lez_Bl=E1zquez?= 
+	<agblazquez_mailing@telefonica.net>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.58.0406211518530.5916@mion.elka.pw.edu.pl>
+References: <1087253451.4817.4.camel@localhost>
+	 <200406191846.32983.bzolnier@elka.pw.edu.pl>
+	 <1087686048.647.9.camel@localhost>
+	 <200406200247.32303.bzolnier@elka.pw.edu.pl>
+	 <1087782099.2392.7.camel@localhost>
+	 <Pine.GSO.4.58.0406211518530.5916@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1087831177.1119.5.camel@localhost>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 21 Jun 2004 17:19:38 +0200
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <m3zn6xdk38.fsf@pixie.isrnet> (at Mon, 21 Jun 2004 16:08:59 +0100), Rodrigo Ventura <yoda@isr.ist.utl.pt> says:
+Your patch works perfect! I hope this is the end of this issue.
 
+Maybe you can answer other question i have about pdc202xx_old driver.
+Altough the pdc bios shows it is on mode udma5, /proc/ide/pdc202xx shows
+the controller is on dma mode UDMA4. hdparm shows disks are on udma5.
+This is a bug or is normal behaviour?
+
+Thanks again for your help!!
+
+This is what proc says about pdc202xx:
+fito@soho:~$ cat /proc/ide/pdc202xx 
+
+                                Ultra100 on M/B Chipset.
+------------------------------- General Status
+---------------------------------
+Burst Mode                           : enabled
+Host Mode                            : Normal
+Bus Clocking                         : 66 External
+IO pad select                        : 10 mA
+Status Polling Period                : 0
+Interrupt Check Status Polling Delay : 0
+--------------- Primary Channel ---------------- Secondary Channel
+-------------
+                enabled                          enabled 
+66 Clocking     disabled                         disabled
+           Mode PCI                         Mode PCI   
+                FIFO Empty                       FIFO Empty  
+--------------- drive0 --------- drive1 -------- drive0 ----------
+drive1 ------
+DMA enabled:    yes              yes             no                no 
+DMA Mode:       UDMA 4           UDMA 4          NOTSET           
+NOTSET
+PIO Mode:       PIO 4            PIO 4           NOTSET           
+NOTSET
+
+
+El lun, 21-06-2004 a las 16:14, Bartlomiej Zolnierkiewicz escribió:
+> On Mon, 21 Jun 2004, Adolfo [ISO-8859-1] González Blázquez wrote:
 > 
-> Hello, I just got a kernel oops (two actually) after runmning
-> tracepath6 (from suse's iputils-ss021109-147.rpm) in a suse9.1-i386
-> machine:
-:
->  [<c02e36cf>] ip6_output2+0x2af/0x2e0
->  [<c02e36db>] ip6_output2+0x2bb/0x2e0
->  [<c02e36cf>] ip6_output2+0x2af/0x2e0
->  [<c0104bd5>] error_code+0x2d/0x38
->  [<c02e4679>] ip6_fragment+0x359/0x8b0
->  [<c01fa25e>] csum_partial_copy_generic+0x3a/0xfc
->  [<c02e3734>] ip6_output+0x34/0x50
->  [<c02e3420>] ip6_output2+0x0/0x2e0
->  [<c02e5799>] ip6_push_pending_frames+0x289/0x440
+> > Well, it seems that problem is solved! I'm now using 2.6.7 without
+> > problems. Got same perfomance on hard disks as with 2.4.x series.
+> >
+> > Disabling LBA48 for pdc20265 just made it work. This is the simple patch
+> > I applied:
+> 
+> OK, thanks.  It works but similar patch went into 2.4.23 and you are
+> using 2.4.25 without a problems.  Can you try this patch instead?
+> 
+> --- linux-2.6.7/drivers/ide/ide-probe.c	2004-06-21 15:25:51.000000000 +0200
+> +++ linux/drivers/ide/ide-probe.c	2004-06-21 15:29:19.901710936 +0200
+> @@ -897,7 +897,7 @@
+>  	blk_queue_segment_boundary(q, 0xffff);
+> 
+>  	if (!hwif->rqsize)
+> -		hwif->rqsize = hwif->no_lba48 ? 256 : 65536;
+> +		hwif->rqsize = 256;
+>  	if (hwif->rqsize < max_sectors)
+>  		max_sectors = hwif->rqsize;
+>  	blk_queue_max_sectors(q, max_sectors);
+> 
+> > diff --unified --recursive --new-file
+> > linux-2.6.7/drivers/ide/pci/pdc202xx_old.c
+> > linux/drivers/ide/pci/pdc202xx_old.c
+> > --- linux-2.6.7/drivers/ide/pci/pdc202xx_old.c  2004-06-16
+> > 07:20:17.000000000 +0200
+> > +++ linux/drivers/ide/pci/pdc202xx_old.c        2004-06-21
+> > 02:53:33.000000000 +0200
+> > @@ -721,6 +721,10 @@
+> >         hwif->tuneproc  = &config_chipset_for_pio;
+> >         hwif->quirkproc = &pdc202xx_quirkproc;
+> >
+> > +       /* This was present on 2.6.0-test4, maybe here is the bug */
+> > +       if (hwif->pci_dev->device == PCI_DEVICE_ID_PROMISE_20265)
+> > +               hwif->no_lba48 = (hwif->channel) ? 0 : 1;
+> > +
+> >         if (hwif->pci_dev->device != PCI_DEVICE_ID_PROMISE_20246) {
+> >                 hwif->busproc   = &pdc202xx_tristate;
+> >                 hwif->resetproc = &pdc202xx_reset;
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Already fixed in current bk tree.
-Thanks.
-
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

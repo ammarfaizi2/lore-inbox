@@ -1,70 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267551AbUHRTlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267584AbUHRTw2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267551AbUHRTlj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 15:41:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267566AbUHRTli
+	id S267584AbUHRTw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 15:52:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267588AbUHRTw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 15:41:38 -0400
-Received: from [82.154.232.128] ([82.154.232.128]:48800 "EHLO
-	puma-vgertech.no-ip.com") by vger.kernel.org with ESMTP
-	id S267551AbUHRTlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 15:41:36 -0400
-Message-ID: <4123B0F0.5050408@vgertech.com>
-Date: Wed, 18 Aug 2004 20:41:36 +0100
-From: Nuno Silva <nuno.silva@vgertech.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040528 Thunderbird/0.6 Mnenhy/0.6.0.103
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PCI-Bus
-References: <Pine.LNX.4.53.0408181403120.16592@chaos>
-In-Reply-To: <Pine.LNX.4.53.0408181403120.16592@chaos>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Aug 2004 15:52:28 -0400
+Received: from ctb-mesg1.saix.net ([196.25.240.73]:45457 "EHLO
+	ctb-mesg1.saix.net") by vger.kernel.org with ESMTP id S267584AbUHRTwZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 15:52:25 -0400
+Subject: Re: [UPDATED PATCH 1/2] export module parameters in sysfs for
+	modules _and_ built-in code
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Dominik Brodowski <linux@dominikbrodowski.de>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Greg KH <greg@kroah.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040802214710.GB7772@dominikbrodowski.de>
+References: <20040801165407.GA8667@dominikbrodowski.de>
+	 <1091426395.430.13.camel@bach>  <20040802214710.GB7772@dominikbrodowski.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-EvuW+lVxiTbc4Sy5kneY"
+Message-Id: <1092858948.8998.47.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 18 Aug 2004 21:55:49 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Richard B. Johnson wrote:
+--=-EvuW+lVxiTbc4Sy5kneY
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-[..]
+On Mon, 2004-08-02 at 23:47, Dominik Brodowski wrote:
 
-|
-| 0e:03.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5704
-Gigabit Ethernet (rev 03)
-| 	Subsystem: Advanced Micro Devices [AMD]: Unknown device 2b80
-| 	Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 28
-| 	Memory at f1370000 (64-bit, non-prefetchable) [size=64K]
-| 	Memory at f1360000 (64-bit, non-prefetchable) [size=64K]
-| 	Capabilities: [40] PCI-X non-bridge device.
-| 	Capabilities: [48] Power Management version 2
-| 	Capabilities: [50] Vital Product Data
-| 	Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/3 Enable-
-|
-| The Analogic entries of:
-| 	Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 25
-| don't look much different than the Ethernet controllers, above. Of
-| course they are built into the motherboard and claim 64-bits.
-|
+I know its tainted (nvidia), but this is difficult to test,
+as it usually only happens if the box have been up for a while
+and I modprobe something (ext2 in most of the cases).
 
-And they are 64bit. They are connected to a PCI-X bus, not plain PCI.
+---
+Unable to handle kernel paging request at virtual address 39cc6b10
+ printing eip:
+c03d16c4
+*pde =3D 00000000
+Oops: 0000 [#1]
+PREEMPT SMP
+Modules linked in: e1000 snd_intel8x0 snd_ac97_codec gameport snd_mpu401_ua=
+rt snd_rawmidi snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device snd_pc=
+m_oss snd_pcm snd_timer snd_page_alloc snd_mixer_oss snd joydev nvidia usbh=
+id uhci_hcd ehci_hcd usbcore w83781d i2c_sensor i2c_isa i2c_i801 i2c_dev i2=
+c_core
+CPU:    1
+EIP:    0060:[<c03d16c4>]    Tainted: P
+EFLAGS: 00010286   (2.6.8.1)
+EIP is at param_sysfs_setup+0x0/0x129
+eax: f9cb338c   ebx: 00000000   ecx: f7db4ec0   edx: c0333820
+esi: f9cb3380   edi: f9cb33cc   ebp: f9b48000   esp: c9709ebc
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 17632, threadinfo=3Dc9708000 task=3De15a4670)
+Stack: c01312f4 f9cb338c f9cb3380 00000000 00000000 00000000 f9cb33cc 00000=
+000
+       f9cb3380 00000000 c013644a f9cb3380 00000000 00000000 f9c90000 f9c9d=
+0f4
+       f9cb3380 c0137644 f9cb3380 00000000 00000000 00000000 00000000 f9cb3=
+380
+Call Trace:
+ [<c01312f4>] module_param_sysfs_setup+0x41/0x95
+ [<c013644a>] mod_sysfs_setup+0x89/0xb4
+ [<c0137644>] load_module+0x916/0xbd9
+ [<c013798a>] sys_init_module+0x83/0x25e
+ [<c0104195>] sysenter_past_esp+0x52/0x71
+Code: 65 6e 40 6e 6f 72 74 65 6c 6e 65 74 77 6f 72 6b 73 2e 63 6f
+---
 
-About your real question, I'm sorry but I don't know :(
+PS: If needed, I can try to get some time to leave it up not
+    in X ...
 
-Reegards,
-Nuno
 
+Thanks,
+
+--=20
+Martin Schlemmer
+
+--=-EvuW+lVxiTbc4Sy5kneY
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFBI7DwOPig54MP17wRAqbSAKCjK3jqTJr7ap4XVIulXOJNrBeoIgCdEEAH
-Lj5QFVoZj29BFJ1G3sA/kE0=
-=ycDw
+iD8DBQBBI7REqburzKaJYLYRAuDzAKCRkWWefiwuQnu3eBv3x3FSjOWyCQCfYUCF
+WRPVTUZlAiWH+R2SPPqKdQo=
+=l6wq
 -----END PGP SIGNATURE-----
+
+--=-EvuW+lVxiTbc4Sy5kneY--
+

@@ -1,48 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbUDWQkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264867AbUDWQnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbUDWQkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 12:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264865AbUDWQkQ
+	id S264867AbUDWQnr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 12:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264869AbUDWQnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 12:40:16 -0400
-Received: from mail.gmx.de ([213.165.64.20]:7903 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262138AbUDWQkM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 12:40:12 -0400
-Date: Fri, 23 Apr 2004 18:40:11 +0200 (MEST)
-From: Daniel.Kirsten@gmx.net
+	Fri, 23 Apr 2004 12:43:47 -0400
+Received: from smtp1.adl2.internode.on.net ([203.16.214.181]:30735 "EHLO
+	smtp1.adl2.internode.on.net") by vger.kernel.org with ESMTP
+	id S264867AbUDWQno (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 12:43:44 -0400
+Subject: Re: nvidia binary driver broken with 2.6.6-rc{1,2}, reverting a
+	-mm patch makes it work
+From: Antony Suter <suterant@users.sourceforge.net>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: Re: xconfig font problems
-X-Priority: 3 (Normal)
-X-Authenticated: #14521599
-Message-ID: <24811.1082738411@www55.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Cc: m.c.p@kernel.linux-systeme.com, Ralf.Hildebrandt@charite.de,
+       sleightofmind@xs4all.nl
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-tiCcJv1mK0vn68BMQOlv"
+Message-Id: <1082738585.26812.14.camel@hikaru.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 24 Apr 2004 02:43:05 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> since somewhen in the 2.6.5-rc series, I have some font problems
->> in make xconfig. I just see rectangles instead of letters...
->> However, numbers are displayed correctly. (I use Fedora.)
->>
->> Does anyone know a solution.
->
->Someone I know who had the same problem removed the .fonts.cache-1 file and
->the .qt directory from their home directory, and it fixed it. I'm guessing
->it was just the font cache file that needed to go though...
 
-I removed .fonts.cache-1 and the .qt directory in /root and in my home 
-directory. I also removed .gconf, .gconfd and every .fonts.cache-1 
-file on the entire hard drive, but the problem remains (even after 
-rebooting). 
+--=-tiCcJv1mK0vn68BMQOlv
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Best regards, Daniel
- 
+Marc wrote:
+> On Friday 23 April 2004 10:30, Ralf Hildebrandt wrote:
+> Hi Ralf,
+>=20
+> > > Because of a patch from -mm merged in mainstream i cannot get the
+nvidia
+> > > binary to work with the 2.6.6 release candidates. I get this
+message
+> > > when doing `modprobe nvidia`:
+>=20
+> > $ uname -a
+> > Linux hummus2 2.6.6-rc2-bk1 #1 Thu Apr 22 14:15:08 CEST 2004 i686
+> > GNU/Linux
+> > nvidia works like a charm here.
+>=20
+> that's the problem. It works for many people, for many others not. It
+always=20
+> worked fine for me too but I had to rip that out of my 2.6-WOLK tree
+to=20
+> satisfy all people using wolk and lack of knowledge to fix that by
+myself.
 
--- 
-"Sie haben neue Mails!" - Die GMX Toolbar informiert Sie beim Surfen!
-Jetzt aktivieren unter http://www.gmx.net/info
+I had this problem, and I resolved it for me like this: In the
+NVIDIA-Linux-x86-1.0-5336-pkg?.run archive from Nvidia are multiple make
+files. By default, my distro was using the make file "makefile" and it
+stopped working. I switched to using "Makefile.kbuild", which is
+oriented to 2.6 kernels, and it works again. Comments within
+Makefile.kbuild touch on changes to module handling in 2.6 compared to
+2.4.
+
+--=20
+- Antony Suter  (suterant users sourceforge net)  "Bonta"
+- "...through shadows falling, out of memory and time..."
+
+--=-tiCcJv1mK0vn68BMQOlv
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAiUeYZu6XKGV+xxoRAvHfAJ0ZLKJK4ayxV+rohHO390Zqp715HACfZGbi
+0IVAM9A8gRRDycYApShXpGA=
+=lL+0
+-----END PGP SIGNATURE-----
+
+--=-tiCcJv1mK0vn68BMQOlv--
 

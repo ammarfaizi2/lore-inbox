@@ -1,63 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268614AbRHBDa7>; Wed, 1 Aug 2001 23:30:59 -0400
+	id <S268617AbRHBDh7>; Wed, 1 Aug 2001 23:37:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268616AbRHBDas>; Wed, 1 Aug 2001 23:30:48 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:48390 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S268614AbRHBDap>; Wed, 1 Aug 2001 23:30:45 -0400
-Date: Thu, 2 Aug 2001 00:30:49 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Jason Victor <sloppyj123@yahoo.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: TODO: framebuffer?
-In-Reply-To: <20010802022008.4214.qmail@web4301.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.33L.0108020018270.5582-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268618AbRHBDhu>; Wed, 1 Aug 2001 23:37:50 -0400
+Received: from c1608841-a.fallon1.nv.home.com ([65.5.95.44]:36736 "EHLO
+	tarot.aom.geek") by vger.kernel.org with ESMTP id <S268617AbRHBDhj>;
+	Wed, 1 Aug 2001 23:37:39 -0400
+Date: Wed, 1 Aug 2001 20:37:14 -0700
+To: "Nadav Har'El" <nyh@math.technion.ac.il>
+Cc: linux-kernel@vger.kernel.org, agmon@techunix.technion.ac.il
+Subject: Re: SMP possible with AMD CPUs?
+Message-ID: <20010801203714.B2530@ferret.dyndns.org>
+In-Reply-To: <20010801230441.A19396@leeor.math.technion.ac.il>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jho1yZJdad60DJr+"
+Content-Disposition: inline
+In-Reply-To: <20010801230441.A19396@leeor.math.technion.ac.il>
+User-Agent: Mutt/1.3.18i
+From: idalton@ferret.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Aug 2001, Jason Victor wrote:
 
-> I'm Jason, I'm 14, and all I wanna do is work on the
-> Linux kernel (Linus is my hero :). I'm a newbie, so I
-> was looking to start off with something easy. Should I
-> write a set of functions to make it easier to draw in
-> the framebuffer? If that's not the sort of thing
-> you're looking for, what should I do?
+--jho1yZJdad60DJr+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-There are a large number of things that need to be done
-for the kernel. ;))
+On Wed, Aug 01, 2001 at 11:04:41PM +0300, Nadav Har'El wrote:
+[snip]
+> By the way, here's a fragment from the outdated (1999) SMP-HOWTO at
+> http://www.phy.duke.edu/brahma/smp-faq/smp-howto-3.html explaining why SMP
+> wasn't possible in kernel 2.2 and contemporary AMD processors:
+>=20
+>      1.  Can I use my Cyrix/AMD/non-Intel CPU in SMP?
+>=20
+>          Short answer: no.
+>=20
+>          Long answer: Intel claims ownership to the APIC SMP scheme, and
+>          unless a company licenses it from Intel they may not use it. The=
+re
+>          are currently no companies that have done so. (This of course can
+>          change in the future) FYI - Both Cyrix and AMD support the non-
+>          proprietary OpenPIC SMP standard but currently there are no
+>          motherboards that use it.
 
-If you are looking for a project which is relatively
-easy, helps you learn a lot about the kernel and has
-a bunch of friendly people who can help you, I have
-a few URLs for you:
+Hmmm.. I seem to recall Tyan once built a board that did OpenPIC, and I
+think Fry's (funky computer/consumer electronics store in Western US)
+carried it for a month or two. Just rumour?
 
+--=20
+Ferret
 
-A website, mailing list and irc channel to help you
-learn about the kernel. You can always find a few
-kernel hackers here, too...
-	http://kernelnewbies.org/
+I will be switching my email addresses from @ferret.dyndns.org to
+@mail.aom.geek on or after September 1, 2001, but not until after
+Debian's servers include support. 'geek' is an OpenNIC TLD. See
+http://www.opennic.unrated.net for details about adding OpenNIC
+support to your computer, or ask your provider to add support to
+their name servers.
 
+--jho1yZJdad60DJr+
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-A project that maintains a list of possible bugs in
-the kernel and then goes around searching through the
-kernel to see where else they happen:
-	http://sourceforge.net/projects/kernel-janitor/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE7aMrpe0DNEkH06HMRAsJiAKCYZghsVxiS5bhzJAX3zsJrYRIQhQCfQ5bu
+Qz9goNznUEBnYJuD2SQLe/c=
+=P9Ie
+-----END PGP SIGNATURE-----
 
-regards,
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
-
+--jho1yZJdad60DJr+--

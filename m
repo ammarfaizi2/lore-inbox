@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290040AbSAKR4N>; Fri, 11 Jan 2002 12:56:13 -0500
+	id <S290045AbSAKSEO>; Fri, 11 Jan 2002 13:04:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290041AbSAKR4E>; Fri, 11 Jan 2002 12:56:04 -0500
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:23680 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S290040AbSAKRz6>; Fri, 11 Jan 2002 12:55:58 -0500
-To: willy tarreau <wtarreau@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
-In-Reply-To: <20020111092548.38249.qmail@web20508.mail.yahoo.com>
-From: Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>
-Date: 11 Jan 2002 18:55:56 +0100
-In-Reply-To: <20020111092548.38249.qmail@web20508.mail.yahoo.com>
-Message-ID: <m2n0zkn55f.fsf@goliath.csn.tu-chemnitz.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
+	id <S290049AbSAKSD5>; Fri, 11 Jan 2002 13:03:57 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:8964 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S290045AbSAKSDm>; Fri, 11 Jan 2002 13:03:42 -0500
+Message-ID: <3C3F28EF.4090702@lexus.com>
+Date: Fri, 11 Jan 2002 10:03:27 -0800
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Simple local DOS
+In-Reply-To: <Pine.LNX.4.33.0201111458231.13192-100000@netfinity.realnet.co.sz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jan 2002 10:25:48 +0100 (CET), willy tarreau wrote:
+IIUC the magic sys req keys work even if the
+normal keyboard handling is hosed -
 
->> is it possible to include an emulation for the CMOV*
-> (and
->> possible other i686 instructions) for processors
-> that dont
+More than once when quake or rtcw appear
+to have hosed the console completely, and it
+appears "locked up", <ALT><SysRq> k has
+brought me back to the gdm login screen.
 
-> I did something similar to emulate 486 instructions
-> for 386s
-> (bswap, cmpxchg...). You can reuse it if needed. It's 
-> available for 2.2 and 2.4 at this location :
+cu
 
-> http://www-miaif.lip6.fr/willy/linux-patches/486emulation/
+jjs
 
-Thanks! I will have a look into it.
+Zwane Mwaikambo wrote:
 
-ron
+>>Ctrl-ALT-F12 selects VT mode from a locked X-window, ALT-F1 gets you
+>>to the first VT, ALT-F2, next, etc.
+>>No problem at all.
+>>
+>
+>X can kill the keyboard completely, only way in was via remote.
+>
+>Regards,
+>	Zwane Mwaikambo
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
 
--- 
-/\/\  Dipl.-Inf. Ronald Wahl                /\/\        C S N         /\/\
-\/\/  ronald.wahl@informatik.tu-chemnitz.de \/\/  ------------------  \/\/
-/\/\  http://www.tu-chemnitz.de/~row/       /\/\  network and system  /\/\
-\/\/  GnuPG/PGP key available               \/\/    administration    \/\/
+

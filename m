@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265227AbTLRPgG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 10:36:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265226AbTLRPgF
+	id S265215AbTLRPfF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 10:35:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbTLRPfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 10:36:05 -0500
-Received: from main.gmane.org ([80.91.224.249]:38797 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265229AbTLRPfz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 10:35:55 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: PROBLEM: Bug-Report, Linux 2.6.0
-Date: Thu, 18 Dec 2003 16:35:51 +0100
-Message-ID: <yw1x8yladtpk.fsf@kth.se>
-References: <3FE1C843.70608@gmx.net>
+	Thu, 18 Dec 2003 10:35:05 -0500
+Received: from mailwasher.lanl.gov ([192.16.0.25]:12484 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S265215AbTLRPe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 10:34:59 -0500
+Subject: [PATCH] 2.4.24-pre1 update scripts/ver_linux  for xfsprogs.
+From: Steven Cole <elenstev@mesatop.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1071761579.1625.20.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:zsti9q7QBYckhQ3p9E/E5p/JYZA=
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 18 Dec 2003 08:32:59 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Schmidt <GMSmith@gmx.net> writes:
+Marcelo,
 
-> When starting up the new Kernel 2.6.0 in vesa-fb mode, german umlauts
-> (and possibly other special characters) aren't displayed
-> properly. Problem has been there since test9 or even earlier versions.
+Here is a patch to update the ver_linux script for xfsprogs.
 
-It's a font thing.  I don't know why the fb fonts use a different
-character map than the standard vga font.
+This was copied from 2.6 and the patch was made against the current 2.4
+tree.
 
-> When trying to access a RIO 500 mp3-player through the tools from
-> rio500.sf.net, the rio freezes and needs to be unplugged and the
-> battery needs to be removed to make it revert to its normal
-> state. It's not possible to up- or download files on or from
-> it. Problem has been there since test9 or even earlier aswell.
+Steven
 
-That sounds more like a bug in the mp3 player.
+--- 2.4-12_18/scripts/ver_linux.orig	Thu Dec 18 07:30:31 2003
++++ 2.4-12_18/scripts/ver_linux	Thu Dec 18 07:34:53 2003
+@@ -39,6 +39,9 @@
+ reiserfsck -V 2>&1 | grep reiserfsprogs | awk \
+ 'NR==1{print "reiserfsprogs         ", $NF}'
+ 
++xfs_db -V 2>&1 | grep version | awk \
++'NR==1{print "xfsprogs              ", $3}'
++
+ cardmgr -V 2>&1| grep version | awk \
+ 'NR==1{print "pcmcia-cs             ", $3}'
+ 
 
--- 
-Måns Rullgård
-mru@kth.se
+
 

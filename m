@@ -1,43 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267241AbTAUV4U>; Tue, 21 Jan 2003 16:56:20 -0500
+	id <S267242AbTAUV6d>; Tue, 21 Jan 2003 16:58:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267242AbTAUV4T>; Tue, 21 Jan 2003 16:56:19 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:62455 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S267241AbTAUV4T>;
-	Tue, 21 Jan 2003 16:56:19 -0500
-Message-ID: <F760B14C9561B941B89469F59BA3A84725A12E@orsmsx401.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: linux-kernel@vger.kernel.org
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, jgarzik@redhat.com,
-       wli@holomorphy.com, zwane@holomorphy.com
-Subject: [patch] smpenum patch updated (20030121)
-Date: Tue, 21 Jan 2003 14:05:13 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-content-class: urn:content-classes:message
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S267243AbTAUV6d>; Tue, 21 Jan 2003 16:58:33 -0500
+Received: from ulima.unil.ch ([130.223.144.143]:12751 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id <S267242AbTAUV6b>;
+	Tue, 21 Jan 2003 16:58:31 -0500
+Date: Tue, 21 Jan 2003 23:07:34 +0100
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: cdwrite@other.debian.org, linux-kernel@vger.kernel.org
+Subject: Can't burn DVD under 2.5.59 with ide-cd
+Message-ID: <20030121220734.GD20325@ulima.unil.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An updated smpenum patch can be found at:
+Hello,
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/grover/
+after reporting this problem, someone pointed me that I should try
+without DAO, I have tried this:
 
-Changes from yesterday:
-- Fix compilation errors on NUMA/discontigmem
-- Eliminate unused raw_phys_apicid array
-- Eliminate unrelated ACPI changeset from patch
+mkisofs -dvd-video -V $1 $2 | cdrecord-prodvd driveropts=burnfree -dummy -v dev=/dev/hdc fs=64m speed=1 -eject tsize={$SIZE}s -
 
-There is also a package containing broken-out diffs of each changeset.
+And got this:
 
-Thanks to Martin Bligh and Zwane Mwaikambo for their feedback.
+Cdrecord-ProDVD-Clone 2.0 (i586-pc-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
+Unlocked features: ProDVD Clone 
+Limited  features: speed 
+This copy of cdrecord is licensed for: private/research/educational_non-commercial_use
+TOC Type: 1 = CD-ROM
+scsidev: '/dev/hdc'
+devname: '/dev/hdc'
+scsibus: -2 target: -2 lun: -2
+Warning: Open by 'devname' is unintentional and not supported.
+Linux sg driver version: 3.5.27
+Using libscg version 'schily-0.7'
+Driveropts: 'burnfree'
+atapi: 1
+Device type    : Removable CD-ROM
+Version        : 2
+Response Format: 2
+Capabilities   : 
+Vendor_info    : 'SONY    '
+Identifikation : 'DVD RW DRU-500A '
+Revision       : '1.0f'
+Device seems to be: Generic mmc2 DVD-R/DVD-RW.
+Using generic SCSI-3/mmc-2 DVD-R/DVD-RW driver (mmc_dvd).
+Driver flags   : DVD SWABAUDIO BURNFREE 
+Supported modes: TAO PACKET SAO SAO/R96R RAW/R96R
+Drive buf size : 8126464 = 7936 KB
+FIFO size      : 67108864 = 65536 KB
+Track 01: data  4001 MB        
+Total size:     4001 MB = 2048512 sectors
+Current Secsize: 2048
+Blocks total: 2298496 Blocks current: 2298496 Blocks remaining: 249984
+Starting to write CD/DVD at speed 1 in dummy TAO mode for single session.
+Last chance to quit, starting dummy write in 9 seconds.  0.24% done, estimate finish Tue Jan 21 23:09:02 2003
+   8 seconds.  0.49% done, estimate finish Tue Jan 21 23:09:03 2003
+   7 seconds.  0.73% done, estimate finish Tue Jan 21 23:06:46 2003
+   6 seconds.  0.98% done, estimate finish Tue Jan 21 23:07:21 2003
+   5 seconds.  1.22% done, estimate finish Tue Jan 21 23:07:41 2003
+   4 seconds.  1.46% done, estimate finish Tue Jan 21 23:07:55 2003
+   0 seconds. Operation starts.
+Waiting for reader process to fill input buffer ... input buffer ready.
+BURN-Free is ON.
+Starting new track at sector: 0
+Track 01:    4 of 4001 MB written (fifo  96%)  16.1x.cdrecord-prodvd: Success. write_g1: scsi sendcmd: no error
+CDB:  2A 00 00 00 08 B8 00 00 1F 00
+status: 0x1 (GOOD STATUS)
+resid: 63488
+cmd finished after 0.008s timeout 100s
 
-Regards -- Andy
+write track data: error after 4571136 bytes
+Sense Bytes: 70 00 00 00 00 00 00 12 00 00 00 00 00 00 00 00 00 00
+Writing  time:    5.264s
+Average write speed 578.9x.
+Fixating...
+Fixating time:   77.439s
+cdrecord-prodvd: fifo had 1095 puts and 73 gets.
+cdrecord-prodvd: fifo was 0 times empty and 1 times full, min fill was 96%.
+Exit 254
 
------------------------------
-Andrew Grover
-Intel Labs / Mobile Architecture
-andrew.grover@intel.com
+I have no idea on how I could solve this issue by myself...
 
+Thank you very much,
+
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

@@ -1,30 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262530AbTELTTP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 15:19:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbTELTTP
+	id S262601AbTELTXd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 15:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbTELTXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 15:19:15 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:11719 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262530AbTELTTG
+	Mon, 12 May 2003 15:23:33 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:17863 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S262609AbTELTWo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 15:19:06 -0400
-Message-ID: <3EBFF6A1.2080501@namesys.com>
-Date: Mon, 12 May 2003 23:31:45 +0400
+	Mon, 12 May 2003 15:22:44 -0400
+Message-ID: <3EBFF77A.20506@namesys.com>
+Date: Mon, 12 May 2003 23:35:22 +0400
 From: Hans Reiser <reiser@namesys.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
 CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [BK] [2.4] reiserfs: fix one more directio vs tails problem, resend]
+Subject: [BK] [2.4] reiserfs: parser fix patch, resend
 Content-Type: multipart/mixed;
- boundary="------------020009050906070405080109"
+ boundary="------------070108060905000606040501"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------020009050906070405080109
+--------------070108060905000606040501
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
@@ -33,25 +33,25 @@ Content-Transfer-Encoding: 7bit
 Hans
 
 
---------------020009050906070405080109
+--------------070108060905000606040501
 Content-Type: message/rfc822;
- name="[2.4] reiserfs: fix one more directio vs tails problem, resend"
+ name="[2.4] reiserfs: parser fix patch, resend"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="[2.4] reiserfs: fix one more directio vs tails problem, resend"
+ filename="[2.4] reiserfs: parser fix patch, resend"
 
 Return-Path: <green@angband.namesys.com>
 Delivered-To: reiser@namesys.com
-Received: (qmail 760 invoked from network); 12 May 2003 14:01:30 -0000
+Received: (qmail 975 invoked from network); 12 May 2003 14:02:45 -0000
 Received: from angband.namesys.com (postfix@212.16.7.85)
-  by thebsh.namesys.com with SMTP; 12 May 2003 14:01:30 -0000
+  by thebsh.namesys.com with SMTP; 12 May 2003 14:02:45 -0000
 Received: by angband.namesys.com (Postfix, from userid 521)
-	id 5CC7D328AB8; Mon, 12 May 2003 18:01:30 +0400 (MSD)
-Date: Mon, 12 May 2003 18:01:30 +0400
+	id 79ABF571F9C; Mon, 12 May 2003 18:02:45 +0400 (MSD)
+Date: Mon, 12 May 2003 18:02:45 +0400
 From: Oleg Drokin <green@namesys.com>
 To: reiser@namesys.com
-Subject: [2.4] reiserfs: fix one more directio vs tails problem, resend
-Message-ID: <20030512140130.GA6665@namesys.com>
+Subject: [2.4] reiserfs: parser fix patch, resend
+Message-ID: <20030512140245.GE4165@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -59,198 +59,252 @@ User-Agent: Mutt/1.4i
 
 Hello!
 
-    This changeset fixes another set problems related to directio vs packed tails.
-    Thanks to Mingming Cao <mcao@us.ibm.com> for bringing the issue to our attention.
-    Most of the patch was made by Chris Mason.
+    These two changesets fix the problems in reiserfs' option parser.
+    Now it will correctly bail out and refuse to mount/remount if
+    incorrect options were given. Also it is now aware of exclusive
+    options and deals with those correctly, so you can actually
+    disable tails after you have enabled those.
 
-    Please pull from bk://namesys.com/bk/reiser3-linux-2.4-directiofix2
+    Please pull from bk://namesys.com/bk/reiser3-linux-2.4-parserfix
 
 Diffstat:
- fs/reiserfs/inode.c           |   12 ++++++-
- fs/reiserfs/journal.c         |   66 +++++++++++++++++++++++++++---------------
- fs/reiserfs/tail_conversion.c |    1
- include/linux/reiserfs_fs.h   |    2 +
- include/linux/reiserfs_fs_i.h |    7 ++++
- 5 files changed, 63 insertions(+), 25 deletions(-)
+ super.c |  122 +++++++++++++++++++++++++++++++++++-----------------------------
+ 1 files changed, 68 insertions(+), 54 deletions(-)
 
 Plain text patch:
-
 # This is a BitKeeper generated patch for the following project:
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.1158  -> 1.1159 
-#	include/linux/reiserfs_fs_i.h	1.8     -> 1.9    
-#	 fs/reiserfs/inode.c	1.42    -> 1.43   
-#	fs/reiserfs/tail_conversion.c	1.16    -> 1.17   
-#	fs/reiserfs/journal.c	1.28    -> 1.29   
-#	include/linux/reiserfs_fs.h	1.26    -> 1.27   
+#	           ChangeSet	1.1158  -> 1.1160 
+#	 fs/reiserfs/super.c	1.31    -> 1.33   
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
 # 03/05/03	green@angband.namesys.com	1.1159
-# reiserfs: Fix another O_DIRECT vs tails problem. Mostly by Chris Mason.
-# Thanks to Mingming Cao <mcao@us.ibm.com> for bringing the issue to our attention.
+# Fix reiserfs options parser, return error if given incorrect options on remount
+# --------------------------------------------
+# 03/05/03	green@angband.namesys.com	1.1160
+# reiserfs: Refuse to mount/remount if "alloc=" option had incorect parameter
 # --------------------------------------------
 #
-diff -Nru a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
---- a/fs/reiserfs/inode.c	Mon May 12 18:00:53 2003
-+++ b/fs/reiserfs/inode.c	Mon May 12 18:00:53 2003
-@@ -469,7 +469,7 @@
-     tail_end = (tail_start | (bh_result->b_size - 1)) + 1 ;
+diff -Nru a/fs/reiserfs/super.c b/fs/reiserfs/super.c
+--- a/fs/reiserfs/super.c	Mon May 12 17:49:20 2003
++++ b/fs/reiserfs/super.c	Mon May 12 17:49:20 2003
+@@ -403,8 +403,11 @@
+    mount options that have values rather than being toggles. */
+ typedef struct {
+     char * value;
+-    int bitmask; /* bit which is to be set in mount_options bitmask when this
+-                    value is found, 0 is no bits are to be set */
++    int setmask; /* bitmask which is to set on mount_options bitmask when this
++                    value is found, 0 is no bits are to be changed. */
++    int clrmask; /* bitmask which is to clear on mount_options bitmask when this
++		    value is found, 0 is no bits are to be changed. This is
++		    applied BEFORE setmask */
+ } arg_desc_t;
  
-     index = tail_offset >> PAGE_CACHE_SHIFT ;
--    if (index != hole_page->index) {
-+    if ( !hole_page || index != hole_page->index) {
- 	tail_page = grab_cache_page(inode->i_mapping, index) ;
- 	retval = -ENOMEM;
- 	if (!tail_page) {
-@@ -1810,7 +1810,12 @@
- 	    flush_dcache_page(page) ;
- 	    kunmap(page) ;
- 	    if (buffer_mapped(bh) && bh->b_blocknr != 0) {
--	        mark_buffer_dirty(bh) ;
-+	        if (!atomic_set_buffer_dirty(bh)) {
-+			set_buffer_flushtime(bh);
-+			refile_buffer(bh);
-+			buffer_insert_inode_data_queue(bh, p_s_inode);
-+			balance_dirty();
-+		}
- 	    }
- 	}
- 	UnlockPage(page) ;
-@@ -2158,6 +2163,9 @@
-                               struct kiobuf *iobuf, unsigned long blocknr,
- 			      int blocksize) 
- {
-+    lock_kernel();
-+    reiserfs_commit_for_tail(inode);
-+    unlock_kernel();
-     return generic_direct_IO(rw, inode, iobuf, blocknr, blocksize,
-                              reiserfs_get_block_direct_io) ;
- }
-diff -Nru a/fs/reiserfs/journal.c b/fs/reiserfs/journal.c
---- a/fs/reiserfs/journal.c	Mon May 12 18:00:53 2003
-+++ b/fs/reiserfs/journal.c	Mon May 12 18:00:53 2003
-@@ -2655,32 +2655,52 @@
-   inode->u.reiserfs_i.i_trans_id = SB_JOURNAL(inode->i_sb)->j_trans_id ;
- }
  
--static int reiserfs_inode_in_this_transaction(struct inode *inode) {
--  if (inode->u.reiserfs_i.i_trans_id == SB_JOURNAL(inode->i_sb)->j_trans_id || 
--      inode->u.reiserfs_i.i_trans_id == 0) {
--    return 1; 
--  } 
--  return 0 ;
-+void reiserfs_update_tail_transaction(struct inode *inode) {
-+  
-+  inode->u.reiserfs_i.i_tail_trans_index = SB_JOURNAL_LIST_INDEX(inode->i_sb);
-+
-+  inode->u.reiserfs_i.i_tail_trans_id = SB_JOURNAL(inode->i_sb)->j_trans_id ;
-+}
-+
-+static void __commit_trans_index(struct inode *inode, unsigned long id,
-+                                 unsigned long index) 
-+{
-+    struct reiserfs_journal_list *jl ;
-+    struct reiserfs_transaction_handle th ;
-+    struct super_block *sb = inode->i_sb ;
-+
-+    jl = SB_JOURNAL_LIST(sb) + index;
-+
-+    /* is it from the current transaction, or from an unknown transaction? */
-+    if (id == SB_JOURNAL(sb)->j_trans_id) {
-+	journal_join(&th, sb, 1) ;
-+	journal_end_sync(&th, sb, 1) ;
-+    } else if (jl->j_trans_id == id) {
-+	flush_commit_list(sb, jl, 1) ;
-+    }
-+    /* if the transaction id does not match, this list is long since flushed
-+    ** and we don't have to do anything here
-+    */
- }
-+void reiserfs_commit_for_tail(struct inode *inode) {
-+    unsigned long id = inode->u.reiserfs_i.i_tail_trans_id;
-+    unsigned long index = inode->u.reiserfs_i.i_tail_trans_index;
+@@ -414,37 +417,42 @@
+     char * option_name;
+     int arg_required; /* 0 is argument is not required, not 0 otherwise */
+     const arg_desc_t * values; /* list of values accepted by an option */
+-    int bitmask;  /* bit which is to be set in mount_options bitmask when this
+-		     option is selected, 0 is not bits are to be set */
++    int setmask; /* bitmask which is to set on mount_options bitmask when this
++		    value is found, 0 is no bits are to be changed. */
++    int clrmask; /* bitmask which is to clear on mount_options bitmask when this
++		    value is found, 0 is no bits are to be changed. This is
++		    applied BEFORE setmask */
+ } opt_desc_t;
  
-+    /* for tails, if this info is unset there's nothing to commit */
-+    if (id && index)
-+	__commit_trans_index(inode, id, index);
-+}
- void reiserfs_commit_for_inode(struct inode *inode) {
--  struct reiserfs_journal_list *jl ;
--  struct reiserfs_transaction_handle th ;
--  struct super_block *sb = inode->i_sb ;
--
--  jl = SB_JOURNAL_LIST(sb) + inode->u.reiserfs_i.i_trans_index ;
--
--  /* is it from the current transaction, or from an unknown transaction? */
--  if (reiserfs_inode_in_this_transaction(inode)) {
--    journal_join(&th, sb, 1) ;
--    reiserfs_update_inode_transaction(inode) ;
--    journal_end_sync(&th, sb, 1) ;
--  } else if (jl->j_trans_id == inode->u.reiserfs_i.i_trans_id) {
--    flush_commit_list(sb, jl, 1) ;
--  }
--  /* if the transaction id does not match, this list is long since flushed
--  ** and we don't have to do anything here
--  */
-+    unsigned long id = inode->u.reiserfs_i.i_trans_id;
-+    unsigned long index = inode->u.reiserfs_i.i_trans_index;
-+
-+    /* for the whole inode, assume unset id or index means it was
-+     * changed in the current transaction.  More conservative
-+     */
-+    if (!id || !index)
-+	reiserfs_update_inode_transaction(inode) ;
-+
-+    __commit_trans_index(inode, id, index);
- }
  
- void reiserfs_restore_prepared_buffer(struct super_block *p_s_sb, 
-diff -Nru a/fs/reiserfs/tail_conversion.c b/fs/reiserfs/tail_conversion.c
---- a/fs/reiserfs/tail_conversion.c	Mon May 12 18:00:53 2003
-+++ b/fs/reiserfs/tail_conversion.c	Mon May 12 18:00:53 2003
-@@ -133,6 +133,7 @@
- 
-     inode->u.reiserfs_i.i_first_direct_byte = U32_MAX;
- 
-+    reiserfs_update_tail_transaction(inode);
-     return 0;
- }
- 
-diff -Nru a/include/linux/reiserfs_fs.h b/include/linux/reiserfs_fs.h
---- a/include/linux/reiserfs_fs.h	Mon May 12 18:00:53 2003
-+++ b/include/linux/reiserfs_fs.h	Mon May 12 18:00:53 2003
-@@ -1558,7 +1558,9 @@
- #define JOURNAL_BUFFER(j,n) ((j)->j_ap_blocks[((j)->j_start + (n)) % JOURNAL_BLOCK_COUNT])
- 
- void reiserfs_commit_for_inode(struct inode *) ;
-+void reiserfs_commit_for_tail(struct inode *) ;
- void reiserfs_update_inode_transaction(struct inode *) ;
-+void reiserfs_update_tail_transaction(struct inode *) ;
- void reiserfs_wait_on_write_block(struct super_block *s) ;
- void reiserfs_block_writes(struct reiserfs_transaction_handle *th) ;
- void reiserfs_allow_writes(struct super_block *s) ;
-diff -Nru a/include/linux/reiserfs_fs_i.h b/include/linux/reiserfs_fs_i.h
---- a/include/linux/reiserfs_fs_i.h	Mon May 12 18:00:53 2003
-+++ b/include/linux/reiserfs_fs_i.h	Mon May 12 18:00:53 2003
-@@ -53,6 +53,13 @@
-     ** flushed */
-     unsigned long i_trans_id ;
-     unsigned long i_trans_index ;
-+
-+    /* direct io needs to make sure the tail is on disk to avoid
-+     * buffer alias problems.  This records the transaction last
-+     * involved in a direct->indirect conversion for this file
-+     */
-+    unsigned long i_tail_trans_id;
-+    unsigned long i_tail_trans_index;
+ /* possible values for "-o hash=" and bits which are to be set in s_mount_opt
+    of reiserfs specific part of in-core super block */
+ static const arg_desc_t hash[] = {
+-    {"rupasov", FORCE_RUPASOV_HASH},
+-    {"tea", FORCE_TEA_HASH},
+-    {"r5", FORCE_R5_HASH},
+-    {"detect", FORCE_HASH_DETECT},
+-    {NULL, 0}
++    {"rupasov", 1<<FORCE_RUPASOV_HASH,(1<<FORCE_TEA_HASH)|(1<<FORCE_R5_HASH)},
++    {"tea", 1<<FORCE_TEA_HASH,(1<<FORCE_RUPASOV_HASH)|(1<<FORCE_R5_HASH)},
++    {"r5", 1<<FORCE_R5_HASH,(1<<FORCE_RUPASOV_HASH)|(1<<FORCE_TEA_HASH)},
++    {"detect", 1<<FORCE_HASH_DETECT, (1<<FORCE_RUPASOV_HASH)|(1<<FORCE_TEA_HASH)|(1<<FORCE_R5_HASH)},
++    {NULL, 0, 0}
  };
  
- #endif
+ 
+ /* possible values for "-o block-allocator=" and bits which are to be set in
+    s_mount_opt of reiserfs specific part of in-core super block */
+ static const arg_desc_t balloc[] = {
+-    {"noborder", REISERFS_NO_BORDER},
+-    {"no_unhashed_relocation", REISERFS_NO_UNHASHED_RELOCATION},
+-    {"hashed_relocation", REISERFS_HASHED_RELOCATION},
+-    {"test4", REISERFS_TEST4},
+-    {NULL, 0}
++    {"noborder", 1<<REISERFS_NO_BORDER, 0},
++    {"border", 0, 1<<REISERFS_NO_BORDER},
++    {"no_unhashed_relocation", 1<<REISERFS_NO_UNHASHED_RELOCATION, 0},
++    {"hashed_relocation", 1<<REISERFS_HASHED_RELOCATION, 0},
++    {"test4", 1<<REISERFS_TEST4, 0},
++    {"notest4", 0, 1<<REISERFS_TEST4},
++    {NULL, 0, 0}
+ };
+ 
+ static const arg_desc_t tails[] = {
+-    {"on", REISERFS_LARGETAIL},
+-    {"off", -1},
+-    {"small", REISERFS_SMALLTAIL},
+-    {NULL, 0}
++    {"on", 1<<REISERFS_LARGETAIL, 1<<REISERFS_SMALLTAIL},
++    {"off", 0, (1<<REISERFS_LARGETAIL)|(1<<REISERFS_SMALLTAIL)},
++    {"small", 1<<REISERFS_SMALLTAIL, 1<<REISERFS_LARGETAIL},
++    {NULL, 0, 0}
+ };
+ 
+ 
+@@ -481,15 +489,20 @@
+ 	/* Ugly special case, probably we should redo options parser so that
+ 	   it can understand several arguments for some options, also so that
+ 	   it can fill several bitfields with option values. */
+-	reiserfs_parse_alloc_options( s, p + 6);
+-	return 0;
++	if ( reiserfs_parse_alloc_options( s, p + 6) ) {
++	    return -1;
++	} else {
++	    return 0;
++	}
+     }
+ 	
+     /* for every option in the list */
+     for (opt = opts; opt->option_name; opt ++) {
+ 	if (!strncmp (p, opt->option_name, strlen (opt->option_name))) {
+-	    if (bit_flags && opt->bitmask != -1 )
+-		set_bit (opt->bitmask, bit_flags);
++	    if (bit_flags) {
++		*bit_flags &= ~opt->clrmask;
++		*bit_flags |= opt->setmask;
++	    }
+ 	    break;
+ 	}
+     }
+@@ -529,7 +542,7 @@
+     }
+     
+     if (!opt->values) {
+-	/* *opt_arg contains pointer to argument */
++	/* *=NULLopt_arg contains pointer to argument */
+ 	*opt_arg = p;
+ 	return opt->arg_required;
+     }
+@@ -537,8 +550,10 @@
+     /* values possible for this option are listed in opt->values */
+     for (arg = opt->values; arg->value; arg ++) {
+ 	if (!strcmp (p, arg->value)) {
+-	    if (bit_flags && arg->bitmask != -1 )
+-		set_bit (arg->bitmask, bit_flags);
++	    if (bit_flags) {
++		*bit_flags &= ~arg->clrmask;
++		*bit_flags |= arg->setmask;
++	    }
+ 	    return opt->arg_required;
+ 	}
+     }
+@@ -547,7 +562,6 @@
+     return -1;
+ }
+ 
+-
+ /* returns 0 if something is wrong in option string, 1 - otherwise */
+ static int reiserfs_parse_options (struct super_block * s, char * options, /* string given via mount's -o */
+ 				   unsigned long * mount_options,
+@@ -560,18 +574,21 @@
+     char * arg = NULL;
+     char * pos;
+     opt_desc_t opts[] = {
+-		{"tails", 't', tails, -1},
+-		{"notail", 0, 0, -1}, /* Compatibility stuff, so that -o notail for old setups still work */
+-		{"conv", 0, 0, REISERFS_CONVERT}, 
+-		{"nolog", 0, 0, -1},
+-		{"replayonly", 0, 0, REPLAYONLY},
++		{"tails", 't', tails, 0, 0},
++		/* Compatibility stuff, so that -o notail
++		   for old setups still work */
++		{"notail", 0, 0, 0, (1<<REISERFS_LARGETAIL)|(1<<REISERFS_SMALLTAIL)},
++		{"conv", 0, 0, 1<<REISERFS_CONVERT, 0},
++		{"nolog", 0, 0, 0, 0}, /* This is unsupported */
++		{"replayonly", 0, 0, 1<<REPLAYONLY, 0},
+ 		
+-		{"block-allocator", 'a', balloc, -1}, 
+-		{"hash", 'h', hash, FORCE_HASH_DETECT},
++		{"block-allocator", 'a', balloc, 0, 0},
++		{"hash", 'h', hash, 1<<FORCE_HASH_DETECT, 0},
+ 		
+-		{"resize", 'r', 0, -1},
+-		{"attrs", 0, 0, REISERFS_ATTRS},
+-		{NULL, 0, 0, 0}
++		{"resize", 'r', 0, 0, 0},
++		{"attrs", 0, 0, 1<<REISERFS_ATTRS, 0},
++		{"noattrs", 0, 0, 0, 1<<REISERFS_ATTRS},
++		{NULL, 0, 0, 0, 0}
+     };
+ 	
+     *blocks = 0;
+@@ -579,9 +596,6 @@
+ 	/* use default configuration: create tails, journaling on, no
+ 	   conversion to newest format */
+ 	return 1;
+-    else
+-	/* Drop defaults to zeroes */
+-	*mount_options = 0;
+     
+     for (pos = options; pos; ) {
+ 	c = reiserfs_getopt (s, &pos, opts, &arg, mount_options);
+@@ -635,26 +649,26 @@
+   struct reiserfs_super_block * rs;
+   struct reiserfs_transaction_handle th ;
+   unsigned long blocks;
+-  unsigned long mount_options = 0;
++  unsigned long mount_options = s->u.reiserfs_sb.s_mount_opt;
++  unsigned long safe_mask = 0;
+ 
+   rs = SB_DISK_SUPER_BLOCK (s);
+ 
+   if (!reiserfs_parse_options(s, data, &mount_options, &blocks))
+-  	return 0;
++  	return -EINVAL;
+ 
+-#define SET_OPT( opt, bits, super )					\
+-    if( ( bits ) & ( 1 << ( opt ) ) )					\
+-	    ( super ) -> u.reiserfs_sb.s_mount_opt |= ( 1 << ( opt ) )
+-
+-  /* set options in the super-block bitmask */
+-  SET_OPT( REISERFS_SMALLTAIL, mount_options, s );
+-  SET_OPT( REISERFS_LARGETAIL, mount_options, s );
+-  SET_OPT( REISERFS_NO_BORDER, mount_options, s );
+-  SET_OPT( REISERFS_NO_UNHASHED_RELOCATION, mount_options, s );
+-  SET_OPT( REISERFS_HASHED_RELOCATION, mount_options, s );
+-  SET_OPT( REISERFS_TEST4, mount_options, s );
+-  SET_OPT( REISERFS_ATTRS, mount_options, s );
+-#undef SET_OPT
++  /* Add options that are safe here */
++  safe_mask |= 1 << REISERFS_SMALLTAIL;
++  safe_mask |= 1 << REISERFS_LARGETAIL;
++  safe_mask |= 1 << REISERFS_NO_BORDER;
++  safe_mask |= 1 << REISERFS_NO_UNHASHED_RELOCATION;
++  safe_mask |= 1 << REISERFS_HASHED_RELOCATION;
++  safe_mask |= 1 << REISERFS_TEST4;
++  safe_mask |= 1 << REISERFS_ATTRS;
++
++  /* Update the bitmask, taking care to keep
++   * the bits we're not allowed to change here */
++  s->u.reiserfs_sb.s_mount_opt = (s->u.reiserfs_sb.s_mount_opt & ~safe_mask) | (mount_options & safe_mask);
+ 
+   handle_attrs( s );
+ 
 
 
 
---------------020009050906070405080109--
+--------------070108060905000606040501--
 

@@ -1,61 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286841AbRLWJRx>; Sun, 23 Dec 2001 04:17:53 -0500
+	id <S286843AbRLWJTT>; Sun, 23 Dec 2001 04:19:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286843AbRLWJRn>; Sun, 23 Dec 2001 04:17:43 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32087 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S286841AbRLWJRb>; Sun, 23 Dec 2001 04:17:31 -0500
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: dcinege@psychosis.com, otto.wyss@bluewin.ch,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Booting a modular kernel through a multiple streams file
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D81C@orsmsx111.jf.intel.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 23 Dec 2001 02:15:52 -0700
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D81C@orsmsx111.jf.intel.com>
-Message-ID: <m1r8pmqotz.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S283777AbRLWJTM>; Sun, 23 Dec 2001 04:19:12 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:26124 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S286843AbRLWJSH>;
+	Sun, 23 Dec 2001 04:18:07 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: How to fix false positives on references to discarded text/data?
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Sun, 23 Dec 2001 20:17:51 +1100
+Message-ID: <23259.1009099071@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Grover, Andrew" <andrew.grover@intel.com> writes:
+When the .*.exit sections are discarded from vmlinux, any dangling
+references from the rest of the code or data to the discarded sections
+are potential problems.  Newer versions of binutils detect these
+dangling references and complain.  Unfortunately we are getting some
+false positives that I cannot see an easy way of fixing, I'm looking
+for ideas.
 
-> > From: ebiederm@xmission.com [mailto:ebiederm@xmission.com]
-> > > Basically what Grub does is loads the kernel modules from disk
-> > > into memory, and 'tells' the kernel the memory location to load
-> > > them from, very similar to how an initrd file is loaded. The problem
-> > > is Linux, is not MBS compilant and doesn't know to look for and load
-> > > the modules. 
-> > 
-> > So tell me how you make an MBS compliant alpha kernel again?
-> 
-> 1) Someone writes a MBS spec chapter for Alpha
+References from one discarded section to another are not an issue,
+binutils is smart enough to cope with those.  Pointer references to
+__devexit code can be wrapped in __devexit_p, a bit of a kludge but it
+works.  What is killing us at the moment is the out of line spinlock
+code.
 
-Nope it isn't that simple.  Multiboot doesn't extend gracefully at all,
-not to multiple architectures, not to new parameters, not to multiple
-vendors.   If you do extend it you get a real mess.
+As an example, net/ipv4/netfilter/ip_nat_snmp_basic.c
+static void __exit fini(void)
+{
+        ip_nat_helper_unregister(&snmp);
+        ip_nat_helper_unregister(&snmp_trap);
+        br_write_lock_bh(BR_NETPROTO_LOCK);
+        br_write_unlock_bh(BR_NETPROTO_LOCK);
+}
 
-Which is why it is not good to adopt.  
+The lock operations generate a branch to out of line code in section
+.text.lock which then branches back to fini.  When ip_nat_snmp_basic is
+built into vmlinux, the fini section is discarded but the .text.lock
+code is kept.  That has two problems, unused code in .text.lock (minor)
+and an unresolved reference from .text.lock to .text.exit which makes
+binutils complain (major).
 
-> 2) Someone implements it.
-> 
-> Any volunteers? (Eric? ;-))
+I have several options, none of which I like :-
 
-I've looked and I'm not going there.  Multiboot is just plain nasty,
-and quite poorly specified as well.
+(1) Drop the ld check for discarded sections.
 
-I'll do something better but not that.  In fact I have already started...
+    I don't want to lose the ld check, it has already found several
+    bits of buggy code.  For example, usb_uhci.c calls the exit routine
+    from the init code on error, but the exit code has been discarded
+    in vmlinux - oops.  New binutils flagged that bug and others.
 
-> It's all about scratching an itch, right? Things don't become cross-platform
-> by themselves. Linux started out 386-only, after all.
+(2) Tell ld which sections matter and which ones it can ignore, then
+    ignore dangling refernces in .text.lock.
 
-GRUB allows some very neat things and it allows for it with the
-multiboot stuff.  And everyone seems to assume that because what you
-can do with GRUB is good, multiboot must be good as well.  But have
-you ever wondered why no other bootloader implementor was interested?
+    Maybe, but it makes ld specific to vmlinux's design.  If this were
+    done by an environment variable then it might be acceptable.
 
-Eric
+(3) Add _exit versions of locks that do noop when the code is
+    discarded.
+
+    br_write_lock_bh_exit(BR_NETPROTO_LOCK).  Barf-o-meter alert!
+
+(4) Add #define/#undef EXIT_CODE around functions, EXIT_CODE tells
+    the lock functions to become noop.
+
+	#define EXIT_CODE
+	static void __exit fini(void)
+	{
+		ip_nat_helper_unregister(&snmp);
+		ip_nat_helper_unregister(&snmp_trap);
+		br_write_lock_bh(BR_NETPROTO_LOCK);
+		br_write_unlock_bh(BR_NETPROTO_LOCK);
+	}
+	#undef EXIT_CODE
+
+    Barf-o-meter overflow!
+
+(5) Post process the objects before ld sees them, remove the dangling
+    references in safe sections.
+
+    Will probably mess up timestamps on objects, as well as requiring
+    yet another program for kernel build.  Cross compiling would be
+    "interesting".
+
+Number (2) is the least objectionable but I am hoping for any better
+ideas.
+

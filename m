@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272073AbTG2Uha (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 16:37:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272074AbTG2Uha
+	id S272048AbTG2Uf3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 16:35:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272066AbTG2Uf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 16:37:30 -0400
-Received: from c52038.upc-c.chello.nl ([212.187.52.38]:45444 "EHLO
-	lintilla.koffie.nu") by vger.kernel.org with ESMTP id S272073AbTG2Uh1
+	Tue, 29 Jul 2003 16:35:29 -0400
+Received: from c52038.upc-c.chello.nl ([212.187.52.38]:44932 "EHLO
+	lintilla.koffie.nu") by vger.kernel.org with ESMTP id S272048AbTG2UfY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 16:37:27 -0400
-Message-ID: <XFMail.20030729223719.kernel@koffie.nu>
+	Tue, 29 Jul 2003 16:35:24 -0400
+Message-ID: <XFMail.20030729223514.huysmans@xs4all.nl>
 X-Mailer: XFMail 1.5.2 on Linux
 X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 MIME-Version: 1.0
-Date: Tue, 29 Jul 2003 22:37:19 +0200 (CEST)
+Date: Tue, 29 Jul 2003 22:35:14 +0200 (CEST)
 Organization: JBS Unix Solutions
-From: Jan Huijsmans <kernel@koffie.nu>
+From: Jan Huijsmans <huysmans@xs4all.nl>
 To: linux-kernel@vger.kernel.org
 Subject: 2.6.0-test 2 & matroxfb or orinoco wifi card
 X-MailScanner: Found to be clean
@@ -56,3 +56,5 @@ Could someone point me in the right direction to get this working?
 Jan Huijsmans              kernel@koffie.nu
 
 ... cannot activate /dev/brain, no response from main coffee server
+
+

@@ -1,56 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282212AbRLLVLi>; Wed, 12 Dec 2001 16:11:38 -0500
+	id <S282271AbRLLV0U>; Wed, 12 Dec 2001 16:26:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282373AbRLLVL3>; Wed, 12 Dec 2001 16:11:29 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:39440 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S282275AbRLLVLX>; Wed, 12 Dec 2001 16:11:23 -0500
-Date: Wed, 12 Dec 2001 22:11:20 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Johannes Erdfelt <johannes@erdfelt.com>
-Cc: Jan Kasprzak <kas@informatics.muni.cz>, linux-kernel@vger.kernel.org
-Subject: Re: USB mouse disconnect/reconnect
-Message-ID: <20011212221120.A7400@suse.cz>
-In-Reply-To: <20011211222014.A13443@informatics.muni.cz> <20011211164059.C8227@sventech.com> <20011212103748.C14688@informatics.muni.cz> <20011212112548.E29229@sventech.com> <20011212172940.O14688@informatics.muni.cz> <20011212114820.F29229@sventech.com> <20011212180333.V14688@informatics.muni.cz> <20011212125323.N8227@sventech.com> <20011212220625.A7346@suse.cz> <20011212160919.R8227@sventech.com>
+	id <S282260AbRLLV0L>; Wed, 12 Dec 2001 16:26:11 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:38948 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S282213AbRLLVZ4>; Wed, 12 Dec 2001 16:25:56 -0500
+Date: Wed, 12 Dec 2001 22:25:34 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@zip.com.au>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16 & OOM killer screw up (fwd)
+Message-ID: <20011212222534.P4801@athlon.random>
+In-Reply-To: <20011211144223.E4801@athlon.random> <E16DooZ-0001J4-00@starship.berlin> <20011212121624.B4801@athlon.random> <E16EFb9-0000E4-00@starship.berlin>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011212160919.R8227@sventech.com>; from johannes@erdfelt.com on Wed, Dec 12, 2001 at 04:09:19PM -0500
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <E16EFb9-0000E4-00@starship.berlin>; from phillips@bonn-fries.net on Wed, Dec 12, 2001 at 09:03:20PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 12, 2001 at 04:09:19PM -0500, Johannes Erdfelt wrote:
-> On Wed, Dec 12, 2001, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > On Wed, Dec 12, 2001 at 12:53:23PM -0500, Johannes Erdfelt wrote:
-> > > On Wed, Dec 12, 2001, Jan Kasprzak <kas@informatics.muni.cz> wrote:
-> > > > [l-k removed from Cc:]
-> > > > 
-> > > > Johannes Erdfelt wrote:
-> > > > : 
-> > > > : There's your problem with disconnects. Those are illegal per the specs.
-> > > > : 
-> > > > 	What is the maximum length?
+On Wed, Dec 12, 2001 at 09:03:20PM +0100, Daniel Phillips wrote:
+> On December 12, 2001 12:16 pm, Andrea Arcangeli wrote:
+> > On Tue, Dec 11, 2001 at 04:27:23PM +0100, Daniel Phillips wrote:
+> > > On December 11, 2001 03:23 pm, Andrea Arcangeli wrote:
+> > > > As said I wrote some documentation on the VM for my last speech at the
+> > > > one of the most important italian linux events, it explains the basic
+> > > > design. It should be published on their webside as soon as I find the
+> > > > time to send them the slides. I can post a link once it will be online.
 > > > 
-> > > I haven't looked at the spec lately, but I think 5 meters is the
-> > > maximum. You can go longer if you use an active cable which is
-> > > essentially a one port hub. It essentially acts as a repeater.
+> > > Why not also post the whole thing as an email, right here?
 > > 
-> > The problem with active cables is that they are very problematic as
-> > well. The device plugged in isn't visible to Linux until the cable
-> > itself is unplugged and replugged into the computer. I haven't found out
-> > why yet.
+> > I uploaded it here:
 > 
-> That's weird. Sounds like a problem specific to that cable. It should
-> just look like a hub and act as one.
+> ftp://ftp.suse.com//pub/people/andrea/talks/english/2001/pluto-dec-pub-0.tar.gz
 > 
-> Including hot plugging.
+> This is really, really useful.
+> 
+> Helpful hint: to run the slideshow, get magicpoint (debian users: apt-get 
+> install mgp) and do:
+> 
+>    mv pluto.mpg pluto.mgp # ;)
 
-Most active extension cables don't look like hubs. They have the
-electric part of the hub built in, but not the logic one. They're
-invisible on the USB bus.
+8)
 
--- 
-Vojtech Pavlik
-SuSE Labs
+>    mgp pluto.mgp -x vflib
+> 
+> Helpful hint #2: Actually, just gv pluto.ps is gets all the content.
+> 
+> Helpful hint #3: Actually, less pluto.mgp will do the trick (after the 
+> rename) and lets you cut and paste the text, as I'm about to do...
+> 
+> Nit: "vm shrinking is not serialized with any other subsystem, it is also 
+>                                                               only---^^^^
+> threaded against itself."
+
+correct.
+
+> The big thing I see missing from this presentation is a discussion of how 
+> icache, dcache etc fit into the picture, i.e., shrink_caches.
+
+Going into the differences between icache/dcache and pagecache would
+been too low level (and I should have spent some time explaining what
+icache and dcache are first ;), so as you noticed I intentionally
+ignored those highlevel vfs caches in the slides. The concept of "pages
+of cache" is usually well known by most people instead, so I only
+considered the pagecache, that incidentally is also the most interesting
+case for the VM.  For seasoned kernel developers it would been
+interesting to integrate more stuff, of course, but as you said this is
+a start at least :).
+
+About the icache/dcache shrinking, that's probably the most rough thing
+we have in the vm at the moment. It just works.
+
+Andrea

@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbUF3UKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbUF3UKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbUF3UKb (ORCPT <rfc822;willy@w.ods.org>);
+	id S262213AbUF3UKb (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 30 Jun 2004 16:10:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUF3UI4
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUF3UJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 16:08:56 -0400
-Received: from mout2.freenet.de ([194.97.50.155]:37538 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S262213AbUF3UIG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 16:08:06 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: Kevin Corry <kevcorry@us.ibm.com>
-Subject: Re: [PATCH] 4/4: DM: dm-raid1.c: Use fixed-size arrays
-Date: Wed, 30 Jun 2004 22:07:53 +0200
-User-Agent: KMail/1.6.2
-References: <200406301452.16886.kevcorry@us.ibm.com> <200406301458.46109.kevcorry@us.ibm.com>
-In-Reply-To: <200406301458.46109.kevcorry@us.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	Wed, 30 Jun 2004 16:09:11 -0400
+Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:19105 "EHLO
+	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S262329AbUF3UIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 16:08:04 -0400
+X-OB-Received: from unknown (205.158.62.49)
+  by wfilter.us4.outblaze.com; 30 Jun 2004 20:06:42 -0000
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-Message-Id: <200406302207.56348.mbuesch@freenet.de>
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: twl@mail.com
+To: "Dmitry Torokhov" <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Date: Wed, 30 Jun 2004 15:08:02 -0500
+Subject: RE: 2.6.7 oops in psmouse/serio while booting
+X-Originating-Ip: 170.215.214.43
+X-Originating-Server: ws1-1.us4.outblaze.com
+Message-Id: <20040630200802.860244BDAE@ws1-1.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> Ok, it seemd that your BIOS having some issues with USB legacy 
+> emulation (oh-so-common-story). Could you please try compiling 
+> psmouse as a module and load it _after_ all yur USB modules. 
+> Does it get rid of phanthom mouse? If it does could you please 
+> CC LKML so that the interested parties will know that the mistery 
+> has been resolved? ;) 
+>  
+> -- 
+> Dmitry 
+>  
+ 
+Yes, that did the trick.  The phantom PS/2 mouse is gone.  And I can still use 
+either a USB mouse or a PS/2 mouse.  (It even boots a couple of seconds faster 
+without the inital probe for the PS/2 mouse). 
+ 
+Thanks. 
+ 
+Tom 
+ 
+-- 
+___________________________________________________________
+Sign-up for Ads Free at Mail.com
+http://promo.mail.com/adsfreejump.htm
 
-Quoting Kevin Corry <kevcorry@us.ibm.com>:
-> -	struct io_region from, to[ms->nr_mirrors - 1], *dest;
-
-Heh? Could someone please explain how this could compile?
-Dynamic allocation on the stack? I'm confused.
-
-- --
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA4x2ZFGK1OIvVOP4RAnH3AKDhNlOgKWvx/GqWVROutfqEUpnc1QCbBz1j
-koxiQ/7WtV/QOocbgYTHi4E=
-=7Ch5
------END PGP SIGNATURE-----

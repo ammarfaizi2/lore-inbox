@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263581AbUJ3AtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263594AbUJ3AsC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263581AbUJ3AtA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 20:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263543AbUJ3Asc
+	id S263594AbUJ3AsC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 20:48:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbUJ3AoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 20:48:32 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:51216 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S263691AbUJ3Am3
+	Fri, 29 Oct 2004 20:44:16 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:61088 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S263617AbUJ3Ak7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 20:42:29 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <cfriesen@nortelnetworks.com>
-Cc: "Manu Abraham" <manu@kromtek.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: BK kernel workflow
-Date: Fri, 29 Oct 2004 17:41:43 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKCEJEPGAA.davids@webmaster.com>
+	Fri, 29 Oct 2004 20:40:59 -0400
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: [2.6 patch] usbnet.c: remove an unused function
+Date: Fri, 29 Oct 2004 17:37:04 -0700
+User-Agent: KMail/1.6.2
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+References: <20041028232455.GK3207@stusta.de> <200410291617.30136.david-b@pacbell.net> <20041029232742.GE6677@stusta.de>
+In-Reply-To: <20041029232742.GE6677@stusta.de>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <418293F3.5050108@nortelnetworks.com>
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Fri, 29 Oct 2004 17:18:19 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Fri, 29 Oct 2004 17:18:20 -0700
+Message-Id: <200410291737.04415.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 29 October 2004 16:27, Adrian Bunk wrote:
+> On Fri, Oct 29, 2004 at 04:17:30PM -0700, David Brownell wrote:
 
-> I think you could make a compelling argument that the linux
-> kernel history
-> metadata is *not* covered under the GPL, and hence can be
-> restricted by licensing.
+> > p.s. Last I looked, GCC ignored unused inlines; no code
+> >      generated, no warnings.  Did that change?
+> >...
+> 
+> It didn't change.
+> 
+> But there are three different possible reactions on my patches:
+> 1. ACK, kill this dead code
+> 2. ups, I really wanted to use this function
+> 3. please keep, code using this function will/might follow in the future
+> 
+> Case 1 is the most common case (and this simply removes some dead code).
+> 
+> I had until now two times case 2 (which means the code is now better).
+> 
+> You are the first person for case 3.
 
-	That's an interesting argument. I think you could argue that a BK
-repository is an aggregation of metadata and the kernel source, and
-therefore only the kernel source needs to be distributed. IANAL, this
-question has now gotten into territory in which I don't feel comfortable
-offering an opinion.
+And presumably there will also be at least a few case 4:
 
-	As for the 'preferred form' argument, I think an argument can be made that
-the source itself is the preferred form of the work for the purpose of
-making modifications to it. One uses the BK repository to *get* the
-preferred form. Again, though, one could argue the other side of this --
-that it's preferred to have the metadata to make the modifications.
+  4. no response, treated as an ACK.
 
-	DS
-
+:)
 

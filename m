@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262367AbTFGOUe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 10:20:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTFGOUe
+	id S262984AbTFGOXA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 10:23:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTFGOXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 10:20:34 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:7893 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262367AbTFGOUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 10:20:32 -0400
-Date: Sat, 7 Jun 2003 16:34:01 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-ide@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.5.70-mm5: sc1200.c compile error if !CONFIG_PROC_FS
-Message-ID: <20030607143401.GN15311@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sat, 7 Jun 2003 10:23:00 -0400
+Received: from jstevenson.plus.com ([212.159.71.212]:40851 "EHLO
+	alpha.stev.org") by vger.kernel.org with ESMTP id S262984AbTFGOW6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 10:22:58 -0400
+Date: Sat, 7 Jun 2003 16:36:39 +0100 (BST)
+From: James Stevenson <james@stev.org>
+To: chas williams <chas@cmf.nrl.navy.mil>
+cc: Werner Almesberger <wa@almesberger.net>,
+       "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations
+ (take 2) 
+In-Reply-To: <200306071121.h57BL4sG006740@ginger.cmf.nrl.navy.mil>
+Message-ID: <Pine.LNX.4.44.0306071634540.1776-100000@jlap.stev.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting the following compile error in drivers/ide/pci/sc1200.c if 
-!CONFIG_PROC_FS:
 
-<--  snip  -->
+> In message <Pine.LNX.4.44.0306071214110.19033-100000@god.stev.org>,James Steven
+> son writes:
+> >Think of a latop with a normall ethernet card in it.
+> >When you unplug the cable it wont disconnect all the tcp
+> >connection on the interface so that you could re route everything though
+> >a wireless card.
+> 
+> if i have a single interface and i physically remove it (not just unplug
+> the cable)  i would be willing to accept that certain tcp connections are
+> going to die.  particularly tcp which might be using keep alives.
 
-...
-  CC      drivers/ide/pci/sc1200.o
-drivers/ide/pci/sc1200.c: In function `sc1200_config_dma2':
-drivers/ide/pci/sc1200.c:228: warning: implicit declaration of function `sc1200_get_pci_clock'
-drivers/ide/pci/sc1200.c:240: `PCI_CLK_33' undeclared (first use in this function)
-drivers/ide/pci/sc1200.c:240: (Each undeclared identifier is reported only once
-drivers/ide/pci/sc1200.c:240: for each function it appears in.)
-drivers/ide/pci/sc1200.c:241: `PCI_CLK_48' undeclared (first use in this function)
-drivers/ide/pci/sc1200.c:242: `PCI_CLK_66' undeclared (first use in this function)
-make[3]: *** [drivers/ide/pci/sc1200.o] Error 1
+>From how is understand it the tcp connections should be alive
+until they try to send data. As soon as they try to send
+data on a down interface as in they dont have a route any more
+an icmp packet of host / network unreachable should be generated
+then the connection can be killed.
 
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+	James
 

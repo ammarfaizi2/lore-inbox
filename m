@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265227AbUGCWKP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265244AbUGCWT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265227AbUGCWKP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 18:10:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265244AbUGCWKP
+	id S265244AbUGCWT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 18:19:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbUGCWT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 18:10:15 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:12681 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S265227AbUGCWKL (ORCPT
+	Sat, 3 Jul 2004 18:19:58 -0400
+Received: from nef.ens.fr ([129.199.96.32]:60426 "EHLO nef.ens.fr")
+	by vger.kernel.org with ESMTP id S265244AbUGCWT4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 18:10:11 -0400
-Message-ID: <40E72EAE.2060806@colorfullife.com>
-Date: Sun, 04 Jul 2004 00:09:50 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Sat, 3 Jul 2004 18:19:56 -0400
+Date: Sun, 4 Jul 2004 00:19:51 +0200 (MEST)
+From: David Monniaux <David.Monniaux@ens.fr>
+To: linux-kernel@vger.kernel.org
+Subject: bug in moxa.c driver (+ patch, please apply)
+Message-ID: <Pine.GSO.4.03.10407032354510.4300-100000@basilic.ens.fr>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] cleanup of ipc/msg.c
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.3.3 (nef.ens.fr [129.199.96.32]); Sun, 04 Jul 2004 00:19:55 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+SYMPTOMS:
+The current Moxa Intellio driver (moxa.c) panics when using > 1 board.
 
-Attached is a cleanup of the main loops in sys_msgrcv and sys_msgsnd, 
-based on ipc_lock_by_ptr(). Most backward gotos are gone, instead normal 
-"for(;;)" loops until a suitable message is found.
+BACKGROUND:
+The Moxa board needs a firmware download (see
+http://www.moxa.com/drivers/C320T/Linux/v5.4/MXDRV.TGZ, command
+moxaload -y) prior to usage.
 
-Additionally, the patch
-- reintroduces lockless receive, same implementation as in ipc/mqueue.c.
-- fixes a rare BUG(): if queue settings are changed with 
-msgctl(,IPC_SET,) while a thread is sleeping in msgrcv() and the queue 
-is then destroyed with msgctl(,IPC_RMID,) before the sleeping thread 
-noticed the new configuration, then the BUG() is line 764 would trigger.
+Unfortunately, the current Linux kernel code fails during this download if
+more than one board are installed.
 
-Andrew, could you add it to -mm? If it's too large then I'll split out 
-the bugfix, it's a oneliner [remove the BUG()].
+EXPLANATION AND FIX:
+The MoxaDriverPoll function does:
+[...]
+        for (card = 0; card < MAX_BOARDS; card++) {
+                if ((ports = moxa_boards[card].numPorts) == 0)
+                        continue;
+                if (readb(moxaIntPend[card]) == 0xff) {
+[...]
 
-Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
+Unfortunately, with multiple boards, there exists a point where
+MoxaDriverPoll() will be called when moxa_boards[card].numPorts != 0 but
+moxaIntPend[card] is still NULL. Result: kernel panic.
+
+Fix: use instead
+                if ((ports = moxa_boards[card].numPorts) == 0
+                    || moxaIntPend[card] == 0)
+                        continue;
+
+If someone who understands the code better than me proposes a better
+patch, I'd be delighted. [For the little story, the above patch was
+written after finding the bug in a remote location without internet access
+using a serial console for getting the panic trace...]
+
+David Monniaux            http://www.di.ens.fr/~monniaux
+Laboratoire d'informatique de l'École Normale Supérieure,
+Paris, France
+

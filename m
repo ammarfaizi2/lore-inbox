@@ -1,52 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264964AbUD2Ujr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264962AbUD2Uja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264964AbUD2Ujr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 16:39:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264971AbUD2Ujp
+	id S264962AbUD2Uja (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 16:39:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264984AbUD2Uja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 16:39:45 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:29130 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S264964AbUD2UdV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 16:33:21 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] USB: add new USB PhidgetServo driver
-Date: Thu, 29 Apr 2004 22:33:14 +0200
-User-Agent: KMail/1.5.1
-Cc: Bryan Small <code_smith@comcast.net>, Sean Young <sean@mess.org>,
-       Chester <fitchett@phidgets.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20040428181806.GA36322@atlantis.8hz.com> <200404292135.42713.oliver@neukum.org> <20040429194426.GA19315@kroah.com>
-In-Reply-To: <20040429194426.GA19315@kroah.com>
+	Thu, 29 Apr 2004 16:39:30 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:11790 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S264962AbUD2Uba
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 16:31:30 -0400
+Message-ID: <40916653.4050904@phekda.gotadsl.co.uk>
+Date: Thu, 29 Apr 2004 21:32:19 +0100
+From: Richard Dawe <rich@phekda.gotadsl.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031031
+X-Accept-Language: en, de, fr
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404292233.14956.oliver@neukum.org>
+To: torvalds@osdl.org
+Cc: Richard Dawe <rich@phekda.gotadsl.co.uk>, linux-kernel@vger.kernel.org
+Subject: Patch for 2.6.x: Add procps URL to Doc/Changes
+Content-Type: multipart/mixed;
+ boundary="------------060001000802060903050206"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060001000802060903050206
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> > Yes. You are describing a better devfs, but still devfs. Why not go
-> > the whole way?
->
-> {sigh}  Not again.  Come on Oliver...  Go read the archives for why
-> Linus does not want us to put device nodes in sysfs.
+Hello.
 
-Neither do I. Sorry for being unclear.
+Attached is a patch to add a URL for the procps home page to
+Documentation/Changes.
 
-> Putting device attributes such as led colors, servo motor controls, etc,
-> look to be much the same idea, are much different from the traditional
-> block and character nodes we are used to in Unix.
->
-> Think of them as mini device specific file systems instead, mounted in a
-> device tree.
+It was made against Linux 2.6.4-rc2, but it applies cleanly to Linux
+2.6.6-rc2.
 
-That I see as the problem. It's mission creep in sysfs. Reminds me of
-procfs. IMHO, if you do io, use a device node.
+Bye, Rich =]
 
-	Regards
-		Oliver
+-- 
+Richard Dawe [ http://homepages.nildram.co.uk/~phekda/richdawe/ ]
+
+"You can't evaluate a man by logic alone."
+      -- McCoy, "I, Mudd", Star Trek
+
+
+
+
+--------------060001000802060903050206
+Content-Type: text/plain;
+ name="linux-2.6.4-rc2-changes-procps.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.6.4-rc2-changes-procps.diff"
+
+--- linux-2.6.4-rc2/Documentation/Changes.orig	2004-03-08 21:08:37.000000000 +0000
++++ linux-2.6.4-rc2/Documentation/Changes	2004-03-08 21:10:39.000000000 +0000
+@@ -349,9 +349,13 @@ Pcmcia-cs
+ o  <ftp://pcmcia-cs.sourceforge.net/pub/pcmcia-cs/pcmcia-cs-3.1.21.tar.gz>
+ 
+ Quota-tools
+-----------
++-----------
+ o  <http://sourceforge.net/projects/linuxquota/>
+ 
++Procps
++------
++o  <http://procps.sourceforge.net/>
++
+ Jade
+ ----
+ o  <ftp://ftp.jclark.com/pub/jade/jade-1.2.1.tar.gz>
+
+
+
+
+--------------060001000802060903050206--
 

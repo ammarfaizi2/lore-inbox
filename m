@@ -1,32 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131307AbRDKFye>; Wed, 11 Apr 2001 01:54:34 -0400
+	id <S131344AbRDKHjU>; Wed, 11 Apr 2001 03:39:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131323AbRDKFyY>; Wed, 11 Apr 2001 01:54:24 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:38929 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S131307AbRDKFyP>; Wed, 11 Apr 2001 01:54:15 -0400
-Message-ID: <3AD46091.C43A413@ntsp.nec.co.jp>
-Date: Wed, 11 Apr 2001 13:48:01 +0000
-From: "Adrian V. Bono" <adrianb@ntsp.nec.co.jp>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: ppp performance degradation?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132517AbRDKHjJ>; Wed, 11 Apr 2001 03:39:09 -0400
+Received: from t2.redhat.com ([199.183.24.243]:1784 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S131344AbRDKHjD>; Wed, 11 Apr 2001 03:39:03 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <andrewm@uow.edu.au>, Ben LaHaise <bcrl@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386 rw_semaphores fix 
+In-Reply-To: Your message of "Tue, 10 Apr 2001 12:42:07 PDT."
+             <Pine.LNX.4.31.0104101229150.13071-100000@penguin.transmeta.com> 
+Date: Wed, 11 Apr 2001 08:38:57 +0100
+Message-ID: <13054.986974737@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Can CONFIG_X86_XADD be equated to CONFIG_X86_CMPXCHG?
 
-Could anyone please explain the major changes to the ppp module from
-2.4.1 to 2.4.3? I've noticed that ppp performance isn't as fast as it
-was using 2.4.1, and after a week using 2.4.3 i've concluded that ppp is
-definitely slower. I've looked at the ppp_* files but so far the only
-changes i saw were ppp_cleanup() being made static, and a new line added
-to ppp_generic.c. Perhaps the major changes are in the rest of the
-network code?
-
-Adrian
+David

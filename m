@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbULFNgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbULFNsu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbULFNgo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 08:36:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbULFNgo
+	id S261249AbULFNsu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 08:48:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbULFNsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 08:36:44 -0500
-Received: from gprs214-164.eurotel.cz ([160.218.214.164]:51584 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261312AbULFNgh (ORCPT
+	Mon, 6 Dec 2004 08:48:50 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:2450 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261249AbULFNss (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 08:36:37 -0500
-Date: Mon, 6 Dec 2004 14:36:25 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Mike Waychison <Michael.Waychison@Sun.COM>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: wakeup_pmode_return jmp failing?
-Message-ID: <20041206133625.GB1213@elf.ucw.cz>
-References: <41B084B4.1050402@sun.com> <41B09D4B.3090906@tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Dec 2004 08:48:48 -0500
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: 2.6: drivers/md/dm-io.c partially copies bio.c
+Date: Mon, 6 Dec 2004 07:48:51 -0600
+User-Agent: KMail/1.7.1
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>
+References: <20041206120941.GB7250@stusta.de>
+In-Reply-To: <20041206120941.GB7250@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <41B09D4B.3090906@tmr.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+Message-Id: <200412060748.51047.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Adrian,
 
-> Is suspend even supposed to be generally functional? I thought it was a 
-> WIP not expected to work except on certain models which have been
-> hand 
+On Monday 06 December 2004 6:09 am, Adrian Bunk wrote:
+> drivers/md/dm-io.c copies functionality from bio.c .
+>
+> Is there a specific reason why you don't simply use the functionality
+> bio.c provides?
 
-Suspend to work should work, only thing that needs to be hand-tuned is
-video resume. But when he sees "Lin", video is not problem for him.
+Can you give some specific examples of the functionality you think is 
+duplicated? Meanwhile, I'll take a look and see if I can explain any code 
+overlaps.
 
-								Pavel
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Kevin Corry
+kevcorry@us.ibm.com
+http://evms.sourceforge.net/

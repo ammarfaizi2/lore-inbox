@@ -1,382 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267703AbUIZOId@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269537AbUIZOLF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267703AbUIZOId (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 10:08:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269456AbUIZOIc
+	id S269537AbUIZOLF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 10:11:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269538AbUIZOLF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 10:08:32 -0400
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:50398 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S267703AbUIZOIQ (ORCPT
+	Sun, 26 Sep 2004 10:11:05 -0400
+Received: from mail.kroah.org ([69.55.234.183]:39660 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269537AbUIZOKp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 10:08:16 -0400
-Date: Sun, 26 Sep 2004 23:08:03 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: akpm@osdl.org
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
-Subject: [PATCH] mips: added CPU type checking to interrupt control routines
-Message-Id: <20040926230803.5485e331.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Sun, 26 Sep 2004 10:10:45 -0400
+Date: Sun, 26 Sep 2004 07:10:02 -0700
+From: Greg KH <greg@kroah.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Christoph Hellwig <hch@infradead.org>, Hanna Linder <hannal@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kernel-janitors@lists.osdl.org, davej@codemonkey.org.uk, hpa@zytor.com
+Subject: Re: [PATCH 2.6.9-rc2-mm2] Create new function to see if pci dev is present
+Message-ID: <20040926141002.GA24942@kroah.com>
+References: <2480000.1095978400@w-hlinder.beaverton.ibm.com> <20040924200231.A30391@infradead.org> <20040924211912.GC7619@kroah.com> <1096059645.10797.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1096059645.10797.1.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This change had added CPU type checking to interrupt control routines.
+On Fri, Sep 24, 2004 at 10:00:47PM +0100, Alan Cox wrote:
+> On Gwe, 2004-09-24 at 22:19, Greg KH wrote:
+> > > Please include subdevice/subvendor id
+> > 
+> > Good idea, but do you see any places in the kernel that would use those
+> > fields, instead of always setting them to PCI_ANY_ID?
+> 
+> If you are taking that path then make it take a pci_device_id table.
+> That makes it behave like other interfaces of the same form, and makes
+> the implementation remarkably trivial.
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+Ah, yes, that is a very good idea.  Here's just such an implementation
+(compile tested, nothing else, still need to add comments describing the
+function...)  Does everyone like this interface?  Hanna, look ok to you?
 
-diff -urN -X dontdiff vr-orig/arch/mips/vr41xx/common/icu.c vr/arch/mips/vr41xx/common/icu.c
---- vr-orig/arch/mips/vr41xx/common/icu.c	Sun Sep 26 21:27:15 2004
-+++ vr/arch/mips/vr41xx/common/icu.c	Sun Sep 26 21:27:36 2004
-@@ -165,217 +165,267 @@
- {
- 	irq_desc_t *desc = irq_desc + PIU_IRQ;
- 	unsigned long flags;
--	uint16_t val;
- 
--	spin_lock_irqsave(&desc->lock, flags);
--	val = read_icu1(MPIUINTREG);
--	val |= mask;
--	write_icu1(val, MPIUINTREG);
--	spin_unlock_irqrestore(&desc->lock, flags);
-+	if (current_cpu_data.cputype == CPU_VR4111 ||
-+	    current_cpu_data.cputype == CPU_VR4121) {
-+		spin_lock_irqsave(&desc->lock, flags);
-+		set_icu1(MPIUINTREG, mask);
-+		spin_unlock_irqrestore(&desc->lock, flags);
-+	}
- }
- 
-+EXPORT_SYMBOL(vr41xx_enable_piuint);
-+
- void vr41xx_disable_piuint(uint16_t mask)
- {
- 	irq_desc_t *desc = irq_desc + PIU_IRQ;
- 	unsigned long flags;
--	uint16_t val;
- 
--	spin_lock_irqsave(&desc->lock, flags);
--	val = read_icu1(MPIUINTREG);
--	val &= ~mask;
--	write_icu1(val, MPIUINTREG);
--	spin_unlock_irqrestore(&desc->lock, flags);
-+	if (current_cpu_data.cputype == CPU_VR4111 ||
-+	    current_cpu_data.cputype == CPU_VR4121) {
-+		spin_lock_irqsave(&desc->lock, flags);
-+		clear_icu1(MPIUINTREG, mask);
-+		spin_unlock_irqrestore(&desc->lock, flags);
-+	}
- }
- 
-+EXPORT_SYMBOL(vr41xx_disable_piuint);
-+
- void vr41xx_enable_aiuint(uint16_t mask)
- {
- 	irq_desc_t *desc = irq_desc + AIU_IRQ;
- 	unsigned long flags;
--	uint16_t val;
- 
--	spin_lock_irqsave(&desc->lock, flags);
--	val = read_icu1(MAIUINTREG);
--	val |= mask;
--	write_icu1(val, MAIUINTREG);
--	spin_unlock_irqrestore(&desc->lock, flags);
-+	if (current_cpu_data.cputype == CPU_VR4111 ||
-+	    current_cpu_data.cputype == CPU_VR4121) {
-+		spin_lock_irqsave(&desc->lock, flags);
-+		set_icu1(MAIUINTREG, mask);
-+		spin_unlock_irqrestore(&desc->lock, flags);
-+	}
- }
- 
-+EXPORT_SYMBOL(vr41xx_enable_aiuint);
-+
- void vr41xx_disable_aiuint(uint16_t mask)
- {
- 	irq_desc_t *desc = irq_desc + AIU_IRQ;
- 	unsigned long flags;
--	uint16_t val;
- 
--	spin_lock_irqsave(&desc->lock, flags);
--	val = read_icu1(MAIUINTREG);
--	val &= ~mask;
--	write_icu1(val, MAIUINTREG);
--	spin_unlock_irqrestore(&desc->lock, flags);
-+	if (current_cpu_data.cputype == CPU_VR4111 ||
-+	    current_cpu_data.cputype == CPU_VR4121) {
-+		spin_lock_irqsave(&desc->lock, flags);
-+		clear_icu1(MAIUINTREG, mask);
-+		spin_unlock_irqrestore(&desc->lock, flags);
-+	}
- }
- 
-+EXPORT_SYMBOL(vr41xx_disable_aiuint);
-+
- void vr41xx_enable_kiuint(uint16_t mask)
- {
- 	irq_desc_t *desc = irq_desc + KIU_IRQ;
- 	unsigned long flags;
--	uint16_t val;
- 
--	spin_lock_irqsave(&desc->lock, flags);
--	val = read_icu1(MKIUINTREG);
--	val |= mask;
--	write_icu1(val, MKIUINTREG);
--	spin_unlock_irqrestore(&desc->lock, flags);
-+	if (current_cpu_data.cputype == CPU_VR4111 ||
-+	    current_cpu_data.cputype == CPU_VR4121) {
-+		spin_lock_irqsave(&desc->lock, flags);
-+		set_icu1(MKIUINTREG, mask);
-+		spin_unlock_irqrestore(&desc->lock, flags);
-+	}
- }
- 
-+EXPORT_SYMBOL(vr41xx_enable_kiuint);
-+
- void vr41xx_disable_kiuint(uint16_t mask)
- {
- 	irq_desc_t *desc = irq_desc + KIU_IRQ;
- 	unsigned long flags;
--	uint16_t val;
- 
--	spin_lock_irqsave(&desc->lock, flags);
--	val = read_icu1(MKIUINTREG);
--	val &= ~mask;
--	write_icu1(val, MKIUINTREG);
--	spin_unlock_irqrestore(&desc->lock, flags);
-+	if (current_cpu_data.cputype == CPU_VR4111 ||
-+	    current_cpu_data.cputype == CPU_VR4121) {
-+		spin_lock_irqsave(&desc->lock, flags);
-+		clear_icu1(MKIUINTREG, mask);
-+		spin_unlock_irqrestore(&desc->lock, flags);
-+	}
- }
- 
-+EXPORT_SYMBOL(vr41xx_disable_kiuint);
-+
- void vr41xx_enable_dsiuint(uint16_t mask)
- {
- 	irq_desc_t *desc = irq_desc + DSIU_IRQ;
- 	unsigned long flags;
--	uint16_t val;
- 
- 	spin_lock_irqsave(&desc->lock, flags);
--	val = read_icu1(MDSIUINTREG);
--	val |= mask;
--	write_icu1(val, MDSIUINTREG);
-+	set_icu1(MDSIUINTREG, mask);
- 	spin_unlock_irqrestore(&desc->lock, flags);
- }
- 
-+EXPORT_SYMBOL(vr41xx_enable_dsiuint);
-+
- void vr41xx_disable_dsiuint(uint16_t mask)
- {
- 	irq_desc_t *desc = irq_desc + DSIU_IRQ;
- 	unsigned long flags;
--	uint16_t val;
- 
- 	spin_lock_irqsave(&desc->lock, flags);
--	val = read_icu1(MDSIUINTREG);
--	val &= ~mask;
--	write_icu1(val, MDSIUINTREG);
-+	clear_icu1(MDSIUINTREG, mask);
- 	spin_unlock_irqrestore(&desc->lock, flags);
- }
- 
-+EXPORT_SYMBOL(vr41xx_disable_dsiuint);
-+
- void vr41xx_enable_firint(uint16_t mask)
- {
- 	irq_desc_t *desc = irq_desc + FIR_IRQ;
- 	unsigned long flags;
--	uint16_t val;
- 
- 	spin_lock_irqsave(&desc->lock, flags);
--	val = read_icu2(MFIRINTREG);
--	val |= mask;
--	write_icu2(val, MFIRINTREG);
-+	set_icu2(MFIRINTREG, mask);
- 	spin_unlock_irqrestore(&desc->lock, flags);
- }
- 
-+EXPORT_SYMBOL(vr41xx_enable_firint);
-+
- void vr41xx_disable_firint(uint16_t mask)
- {
- 	irq_desc_t *desc = irq_desc + FIR_IRQ;
- 	unsigned long flags;
--	uint16_t val;
- 
- 	spin_lock_irqsave(&desc->lock, flags);
--	val = read_icu2(MFIRINTREG);
--	val &= ~mask;
--	write_icu2(val, MFIRINTREG);
-+	clear_icu2(MFIRINTREG, mask);
- 	spin_unlock_irqrestore(&desc->lock, flags);
- }
- 
-+EXPORT_SYMBOL(vr41xx_disable_firint);
-+
- void vr41xx_enable_pciint(void)
- {
- 	irq_desc_t *desc = irq_desc + PCI_IRQ;
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&desc->lock, flags);
--	write_icu2(PCIINT0, MPCIINTREG);
--	spin_unlock_irqrestore(&desc->lock, flags);
-+	if (current_cpu_data.cputype == CPU_VR4122 ||
-+	    current_cpu_data.cputype == CPU_VR4131 ||
-+	    current_cpu_data.cputype == CPU_VR4133) {
-+		spin_lock_irqsave(&desc->lock, flags);
-+		write_icu2(PCIINT0, MPCIINTREG);
-+		spin_unlock_irqrestore(&desc->lock, flags);
-+	}
- }
- 
-+EXPORT_SYMBOL(vr41xx_enable_pciint);
-+
- void vr41xx_disable_pciint(void)
- {
- 	irq_desc_t *desc = irq_desc + PCI_IRQ;
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&desc->lock, flags);
--	write_icu2(0, MPCIINTREG);
--	spin_unlock_irqrestore(&desc->lock, flags);
-+	if (current_cpu_data.cputype == CPU_VR4122 ||
-+	    current_cpu_data.cputype == CPU_VR4131 ||
-+	    current_cpu_data.cputype == CPU_VR4133) {
-+		spin_lock_irqsave(&desc->lock, flags);
-+		write_icu2(0, MPCIINTREG);
-+		spin_unlock_irqrestore(&desc->lock, flags);
-+	}
- }
- 
-+EXPORT_SYMBOL(vr41xx_disable_pciint);
-+
- void vr41xx_enable_scuint(void)
- {
- 	irq_desc_t *desc = irq_desc + SCU_IRQ;
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&desc->lock, flags);
--	write_icu2(SCUINT0, MSCUINTREG);
--	spin_unlock_irqrestore(&desc->lock, flags);
-+	if (current_cpu_data.cputype == CPU_VR4122 ||
-+	    current_cpu_data.cputype == CPU_VR4131 ||
-+	    current_cpu_data.cputype == CPU_VR4133) {
-+		spin_lock_irqsave(&desc->lock, flags);
-+		write_icu2(SCUINT0, MSCUINTREG);
-+		spin_unlock_irqrestore(&desc->lock, flags);
-+	}
- }
- 
-+EXPORT_SYMBOL(vr41xx_enable_scuint);
-+
- void vr41xx_disable_scuint(void)
- {
- 	irq_desc_t *desc = irq_desc + SCU_IRQ;
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&desc->lock, flags);
--	write_icu2(0, MSCUINTREG);
--	spin_unlock_irqrestore(&desc->lock, flags);
-+	if (current_cpu_data.cputype == CPU_VR4122 ||
-+	    current_cpu_data.cputype == CPU_VR4131 ||
-+	    current_cpu_data.cputype == CPU_VR4133) {
-+		spin_lock_irqsave(&desc->lock, flags);
-+		write_icu2(0, MSCUINTREG);
-+		spin_unlock_irqrestore(&desc->lock, flags);
-+	}
- }
- 
-+EXPORT_SYMBOL(vr41xx_disable_scuint);
-+
- void vr41xx_enable_csiint(uint16_t mask)
- {
- 	irq_desc_t *desc = irq_desc + CSI_IRQ;
- 	unsigned long flags;
--	uint16_t val;
- 
--	spin_lock_irqsave(&desc->lock, flags);
--	val = read_icu2(MCSIINTREG);
--	val |= mask;
--	write_icu2(val, MCSIINTREG);
--	spin_unlock_irqrestore(&desc->lock, flags);
-+	if (current_cpu_data.cputype == CPU_VR4122 ||
-+	    current_cpu_data.cputype == CPU_VR4131 ||
-+	    current_cpu_data.cputype == CPU_VR4133) {
-+		spin_lock_irqsave(&desc->lock, flags);
-+		set_icu2(MCSIINTREG, mask);
-+		spin_unlock_irqrestore(&desc->lock, flags);
-+	}
- }
- 
-+EXPORT_SYMBOL(vr41xx_enable_csiint);
-+
- void vr41xx_disable_csiint(uint16_t mask)
- {
- 	irq_desc_t *desc = irq_desc + CSI_IRQ;
- 	unsigned long flags;
--	uint16_t val;
- 
--	spin_lock_irqsave(&desc->lock, flags);
--	val = read_icu2(MCSIINTREG);
--	val &= ~mask;
--	write_icu2(val, MCSIINTREG);
--	spin_unlock_irqrestore(&desc->lock, flags);
-+	if (current_cpu_data.cputype == CPU_VR4122 ||
-+	    current_cpu_data.cputype == CPU_VR4131 ||
-+	    current_cpu_data.cputype == CPU_VR4133) {
-+		spin_lock_irqsave(&desc->lock, flags);
-+		clear_icu2(MCSIINTREG, mask);
-+		spin_unlock_irqrestore(&desc->lock, flags);
-+	}
- }
- 
-+EXPORT_SYMBOL(vr41xx_disable_csiint);
-+
- void vr41xx_enable_bcuint(void)
- {
- 	irq_desc_t *desc = irq_desc + BCU_IRQ;
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&desc->lock, flags);
--	write_icu2(BCUINTR, MBCUINTREG);
--	spin_unlock_irqrestore(&desc->lock, flags);
-+	if (current_cpu_data.cputype == CPU_VR4122 ||
-+	    current_cpu_data.cputype == CPU_VR4131 ||
-+	    current_cpu_data.cputype == CPU_VR4133) {
-+		spin_lock_irqsave(&desc->lock, flags);
-+		write_icu2(BCUINTR, MBCUINTREG);
-+		spin_unlock_irqrestore(&desc->lock, flags);
-+	}
- }
- 
-+EXPORT_SYMBOL(vr41xx_enable_bcuint);
-+
- void vr41xx_disable_bcuint(void)
- {
- 	irq_desc_t *desc = irq_desc + BCU_IRQ;
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&desc->lock, flags);
--	write_icu2(0, MBCUINTREG);
--	spin_unlock_irqrestore(&desc->lock, flags);
-+	if (current_cpu_data.cputype == CPU_VR4122 ||
-+	    current_cpu_data.cputype == CPU_VR4131 ||
-+	    current_cpu_data.cputype == CPU_VR4133) {
-+		spin_lock_irqsave(&desc->lock, flags);
-+		write_icu2(0, MBCUINTREG);
-+		spin_unlock_irqrestore(&desc->lock, flags);
-+	}
- }
-+
-+EXPORT_SYMBOL(vr41xx_disable_bcuint);
- 
- /*=======================================================================*/
- 
+thanks,
 
+greg k-h
+
+--- 1.42/drivers/pci/pci-driver.c	2004-09-22 16:24:29 -07:00
++++ edited/drivers/pci/pci-driver.c	2004-09-26 06:44:32 -07:00
+@@ -14,27 +14,6 @@
+  *  Registration of PCI drivers and handling of hot-pluggable devices.
+  */
+ 
+-/**
+- * pci_match_one_device - Tell if a PCI device structure has a matching
+- *                        PCI device id structure
+- * @id: single PCI device id structure to match
+- * @dev: the PCI device structure to match against
+- * 
+- * Returns the matching pci_device_id structure or %NULL if there is no match.
+- */
+-
+-static inline const struct pci_device_id *
+-pci_match_one_device(const struct pci_device_id *id, const struct pci_dev *dev)
+-{
+-	if ((id->vendor == PCI_ANY_ID || id->vendor == dev->vendor) &&
+-	    (id->device == PCI_ANY_ID || id->device == dev->device) &&
+-	    (id->subvendor == PCI_ANY_ID || id->subvendor == dev->subsystem_vendor) &&
+-	    (id->subdevice == PCI_ANY_ID || id->subdevice == dev->subsystem_device) &&
+-	    !((id->class ^ dev->class) & id->class_mask))
+-		return id;
+-	return NULL;
+-}
+-
+ /*
+  * Dynamic device IDs are disabled for !CONFIG_HOTPLUG
+  */
+===== drivers/pci/pci.h 1.18 vs edited =====
+--- 1.18/drivers/pci/pci.h	2004-09-22 07:07:44 -07:00
++++ edited/drivers/pci/pci.h	2004-09-26 06:44:28 -07:00
+@@ -66,3 +66,24 @@
+ extern int pcie_mch_quirk;
+ extern void pcie_rootport_aspm_quirk(struct pci_dev *pdev);
+ extern struct device_attribute pci_dev_attrs[];
++
++/**
++ * pci_match_one_device - Tell if a PCI device structure has a matching
++ *                        PCI device id structure
++ * @id: single PCI device id structure to match
++ * @dev: the PCI device structure to match against
++ * 
++ * Returns the matching pci_device_id structure or %NULL if there is no match.
++ */
++static inline const struct pci_device_id *
++pci_match_one_device(const struct pci_device_id *id, const struct pci_dev *dev)
++{
++	if ((id->vendor == PCI_ANY_ID || id->vendor == dev->vendor) &&
++	    (id->device == PCI_ANY_ID || id->device == dev->device) &&
++	    (id->subvendor == PCI_ANY_ID || id->subvendor == dev->subsystem_vendor) &&
++	    (id->subdevice == PCI_ANY_ID || id->subdevice == dev->subsystem_device) &&
++	    !((id->class ^ dev->class) & id->class_mask))
++		return id;
++	return NULL;
++}
++
+===== drivers/pci/search.c 1.31 vs edited =====
+--- 1.31/drivers/pci/search.c	2004-08-26 15:16:41 -07:00
++++ edited/drivers/pci/search.c	2004-09-26 07:02:57 -07:00
+@@ -11,6 +11,7 @@
+ #include <linux/pci.h>
+ #include <linux/module.h>
+ #include <linux/interrupt.h>
++#include "pci.h"
+ 
+ spinlock_t pci_bus_lock = SPIN_LOCK_UNLOCKED;
+ 
+@@ -343,6 +344,29 @@
+ 	spin_unlock(&pci_bus_lock);
+ 	return dev;
+ }
++
++int pci_dev_present(const struct pci_device_id *ids)
++{
++	struct pci_dev *dev;
++	int found = 0;
++
++	WARN_ON(in_interrupt());
++	spin_lock(&pci_bus_lock);
++	while (ids->vendor || ids->subvendor || ids->class_mask) {
++		list_for_each_entry(dev, &pci_devices, global_list) {
++			if (pci_match_one_device(ids, dev)) {
++				found = 1;
++				goto exit;
++			}
++		}
++		ids++;
++	}
++exit:				
++	spin_unlock(&pci_bus_lock);
++	return found;
++}
++EXPORT_SYMBOL(pci_dev_present);
++
+ 
+ EXPORT_SYMBOL(pci_find_bus);
+ EXPORT_SYMBOL(pci_find_device);

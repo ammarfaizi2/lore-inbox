@@ -1,60 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267615AbUH3JfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267597AbUH3Jjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267615AbUH3JfW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 05:35:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267619AbUH3JfW
+	id S267597AbUH3Jjp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 05:39:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267619AbUH3Jjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 05:35:22 -0400
-Received: from jib.isi.edu ([128.9.128.193]:33419 "EHLO jib.isi.edu")
-	by vger.kernel.org with ESMTP id S267615AbUH3JfP (ORCPT
+	Mon, 30 Aug 2004 05:39:45 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:21980 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267597AbUH3Jjn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 05:35:15 -0400
-Date: Mon, 30 Aug 2004 02:35:02 -0700
-From: Craig Milo Rogers <rogers@isi.edu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Termination of the Philips Webcam Driver (pwc)
-Message-ID: <20040830093502.GB32665@isi.edu>
-References: <20040826233244.GA1284@isi.edu> <20040827004757.A26095@infradead.org> <Pine.LNX.4.58.0408261700320.2304@ppc970.osdl.org> <1093790181.27934.44.camel@localhost.localdomain> <Pine.LNX.4.58.0408291102010.2295@ppc970.osdl.org>
+	Mon, 30 Aug 2004 05:39:43 -0400
+Date: Mon, 30 Aug 2004 11:41:24 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: voluntary-preempt-2.6.8.1-P9 : big latency when logging on console
+Message-ID: <20040830094124.GA26445@elte.hu>
+References: <20040823221816.GA31671@yoda.timesys> <20040824061459.GA29630@elte.hu> <1093556379.5678.109.camel@krustophenia.net> <20040828121413.GB17908@elte.hu> <4132F302.7030706@fr.thalesgroup.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408291102010.2295@ppc970.osdl.org>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <4132F302.7030706@fr.thalesgroup.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04.08.29, Linus Torvalds wrote:
-> I'm disgusted by how many people have been complaining, yet when I ask 
-> people to step up and actually _do_ something about it, people suddenly 
-> become very quiet, or continue complaining about it ignoring the 
-> fundamental issue.
+
+* P.O. Gaillard <pierre-olivier.gaillard@fr.thalesgroup.com> wrote:
+
+> Hello,
 > 
-> Everybody (including you, Alan, so don't go hoity-toity on us) has
-> apparently totally ignored my calls for a new maintainer, and asking the 
-> people involved who wrote parts of the driver for their input.
-...
-> I don't have a _single_ one actually responding for my calls to actually 
-> _do_ something about the driver.
+> I have a 1.6ms latency every time I log in with P9.
 
-	I beg your pardon, but that is not true.  I volunteered to be
-a maintainer of the open-source pwc driver in one of my messages of
-the 27th.  Quote:
+could you try the patch below, ontop of P9? (or ontop of the latest, -Q5
+patch)
 
-    So long as someone is available to maintain the closed-source
-    codecs (while, we all hope, working in parallel with the manufacturers
-    involved to secure open-source licensing for any currently
-    closed-source components), I am confident that we can put together
-    a team to implement the rest. I would be pleased to be on the team.
+The problem with font loading is that vt_ioctl runs with the BKL held
+(as all ioctls) which disables preemption, but in this case it seems
+pretty safe to drop the lock - the vga console has its own spinlock.
 
-	I then submitted an overall design for a revised open-source
-driver, and a graceful transition plan.  Please see my message
-entitled: "PWC: A Plea for Grace" for details.
+	Ingo
 
-	I've discussed some of my proposal for maintenance pf pwc with
-Nemosoft offline (apparently, I'm not the only one discussing pwc
-maintenance with Nemosoft offline), and received what I believe is a
-favorable response.
-
-					Craig Milo Rogers
+--- linux/drivers/video/console/vgacon.c.orig	
++++ linux/drivers/video/console/vgacon.c	
+@@ -763,6 +763,7 @@ static int vgacon_do_font_op(struct vgas
+ 		charmap += 4 * cmapsz;
+ #endif
+ 
++	unlock_kernel();
+ 	spin_lock_irq(&vga_lock);
+ 	/* First, the Sequencer */
+ 	vga_wseq(state->vgabase, VGA_SEQ_RESET, 0x1);
+@@ -848,6 +849,7 @@ static int vgacon_do_font_op(struct vgas
+ 		vga_wattr(state->vgabase, VGA_AR_ENABLE_DISPLAY, 0);	
+ 	}
+ 	spin_unlock_irq(&vga_lock);
++	lock_kernel();
+ 	return 0;
+ }
+ 

@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132272AbRDAKxi>; Sun, 1 Apr 2001 06:53:38 -0400
+	id <S132142AbRDAKrs>; Sun, 1 Apr 2001 06:47:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132324AbRDAKx2>; Sun, 1 Apr 2001 06:53:28 -0400
-Received: from anime.net ([63.172.78.150]:36366 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S132272AbRDAKxL>;
-	Sun, 1 Apr 2001 06:53:11 -0400
-Date: Sun, 1 Apr 2001 03:53:26 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: Chip Salzenberg <chip@valinux.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: TCP Vegas implementation for Linux
-In-Reply-To: <E14jfEW-0007bT-00@tytlal>
-Message-ID: <Pine.LNX.4.30.0104010352230.28774-100000@anime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132163AbRDAKri>; Sun, 1 Apr 2001 06:47:38 -0400
+Received: from elektra.higherplane.net ([203.37.52.137]:36996 "EHLO
+	elektra.higherplane.net") by vger.kernel.org with ESMTP
+	id <S132142AbRDAKr1>; Sun, 1 Apr 2001 06:47:27 -0400
+Date: Sun, 1 Apr 2001 20:52:07 +1000
+From: john slee <indigoid@higherplane.net>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New directions for kernel development
+Message-ID: <20010401205207.F28831@higherplane.net>
+In-Reply-To: <BFECLKCMHDOFPPMBMMDKAEALCAAA.torvalds@transmeta.com> <200104010922.f319Mmq04522@mobilix.atnf.CSIRO.AU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <200104010922.f319Mmq04522@mobilix.atnf.CSIRO.AU>; from rgooch@ras.ucalgary.ca on Sun, Apr 01, 2001 at 01:22:48AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Apr 2001, Chip Salzenberg wrote:
-> Our (VA's) kernel includes a Vegas patch:
->    ftp://ftp.valinux.com/pub/people/chip/linux-vegas-v2-patch-2.2
+On Sun, Apr 01, 2001 at 01:22:48AM -0800, Richard Gooch wrote:
+> Linus Torvalds writes:
+> 
+> Ho, hum. No, he didn't. It's April Wankers^WFools again.
 
-tcp vegas performs very badly for me on asymmetric links (e.g. adsl),
-about 50% performance loss vs non-vegas.
+we aussies are supposed to have a good sense of humour :P
 
--Dan
+j.
 
+-- 
+"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson

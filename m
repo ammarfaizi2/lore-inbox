@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbUKHVJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbUKHVNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbUKHVJz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 16:09:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbUKHVJr
+	id S261228AbUKHVNi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 16:13:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbUKHVKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 16:09:47 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:49677 "EHLO pastinakel.tue.nl")
-	by vger.kernel.org with ESMTP id S261238AbUKHVH6 (ORCPT
+	Mon, 8 Nov 2004 16:10:24 -0500
+Received: from quechua.inka.de ([193.197.184.2]:40616 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261233AbUKHVHJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 16:07:58 -0500
-Date: Mon, 8 Nov 2004 22:07:51 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ext2 docs
-Message-ID: <20041108210751.GA2946@pclin040.win.tue.nl>
-References: <20041108135541.GA23052@apps.cwi.nl> <20041108173007.GB2900@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041108173007.GB2900@logos.cnet>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: CollegeOfNewCaledonia: mailhost.tue.nl 1189; Body=1 Fuz1=1 Fuz2=1
+	Mon, 8 Nov 2004 16:07:09 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Why my computer freeze completely with xawtv ?
+References: <20041107224621.GB5360@magma.epfl.ch> <418EB58A.7080309@kolivas.org> <20041108000229.GC5360@magma.epfl.ch> <418EB8EB.30405@kolivas.org> <20041108003323.GE5360@magma.epfl.ch> <418EBFE5.5080903@kolivas.org> <Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net>
+Organization: private Linux site, southern Germany
+Date: Mon, 08 Nov 2004 21:57:13 +0100
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E1CRGZd-0002ss-00@bigred.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 03:30:07PM -0200, Marcelo Tosatti wrote:
+> I suspect two things:
+> - there is some bug in bttv and similar drivers (DVB) that corrupts memory
+> related with internal mm and vfs structures or does something equally bad,
+> - or maybe PCI bandwitch is overflowed, but I do not think it should
+> happen.
 
-> > +oldalloc			Enable the old block allocator. Orlov should
-> > +				have better performance, we'd like to get some
-> > +				feedback if it's the contrary for you.
-> > +orlov			(*)	Use the Orlov block allocator.
-> > +				(See http://lwn.net/Articles/14633/ and
-> > +				http://lwn.net/Articles/14446/.)
-> 
-> Did you really mean to use the second link "14446" ? 
-> 
-> It points to a patch from Ted fixing a memory leak into the Orlov allocator,
-> which is not very useful. 
-> 
-> You probably meant http://lwn.net/Articles/14447/, which contains the full
-> Orlov ext3 patch?
+This (first alternative) sounds related to the problem I had with DVB;
+I got visible corruption of video memory when using xawtv on the DVB
+video device using Xv on a G550. The cause might lie in either of:
+- Hardware/AV7110 firmware
+- Kernel DVB driver (probably: AV7110 videodevice part), tried many versions
+- Xfree86 XV-over-videodevice driver, tried several versions
+- Xfree86 MGA driver, tried several versions
 
-No, not at all. I am a collector of information, and 14447 has nothing
-at all, but 14446 documents the EXT2_TOPDIR_FL flag that is undocumented
-in the kernel source. The flag can be set using chattr +T.
+Never found the cause, but the problem went away with disabling the Xv
+extension (now using video overlay mode).
 
-Andries
+Olaf
+

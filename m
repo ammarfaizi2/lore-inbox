@@ -1,64 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317441AbSFCRv5>; Mon, 3 Jun 2002 13:51:57 -0400
+	id <S317440AbSFCRvm>; Mon, 3 Jun 2002 13:51:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317442AbSFCRv4>; Mon, 3 Jun 2002 13:51:56 -0400
-Received: from mx3.fuse.net ([216.68.1.123]:58008 "EHLO mta03.fuse.net")
-	by vger.kernel.org with ESMTP id <S317441AbSFCRvy>;
-	Mon, 3 Jun 2002 13:51:54 -0400
-Message-ID: <3CFBACD2.4000904@fuse.net>
-Date: Mon, 03 Jun 2002 13:52:18 -0400
-From: Nathan <wfilardo@fuse.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020520 Debian/1.0rc2-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Link order madness :-(
-In-Reply-To: <200206031729.g53HTwTo002828@pincoya.inf.utfsm.cl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S317442AbSFCRvj>; Mon, 3 Jun 2002 13:51:39 -0400
+Received: from [209.184.141.168] ([209.184.141.168]:63501 "HELO UberGeek")
+	by vger.kernel.org with SMTP id <S317441AbSFCRvi>;
+	Mon, 3 Jun 2002 13:51:38 -0400
+Subject: Re: If you want kbuild 2.5, tell Linus
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <E17Esc6-0000v9-00@starship>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 03 Jun 2002 12:51:33 -0500
+Message-Id: <1023126693.32500.9.camel@UberGeek>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
+On Mon, 2002-06-03 at 09:15, Daniel Phillips wrote:
+> On Monday 03 June 2002 15:58, Keith Owens wrote:
+> > I regret having to do this but Linus has left me with no other options.
+> >
+> > [...]
+> >
+> > Then tell Linus that you want kbuild 2.5.
+> 
+> Err, Keith, time to calm down ;-)
 
->Jean Tourrilhes <jt@bougret.hpl.hp.com> said:
->
->[...]
->
->  
->
->>	The problem is *not* the networking initialisation (I wish
->>people were *reading* my e-mails). The basic networking is initialised
->>early enough. The various networking stacks could be initialised
->>earlier, but I don't depend on them. Note that there might be a reason
->>to initialise networking after the file system, so to do that we might
->>need to insert a level between fs_initcall() and device_initcall().
->>    
->>
->
->If you insert enough levels, you are in another form of madness.
->
->There should be a way of saying "This must be initialized after this, and
->before that" (the "before that" might perhaps be taken care of by the
->"that" itself). Spiced with a few "barriers": "Networking inited", etc.
->>From there the build system should figure it out by itself. tsort(1) on an
->appropiate bunch of descriptive one-liners (extracted from the sources?)
->should give the right initialization order, or error out.
->
->Yes, I know this has been proposed before and been thrown out (for no good
->reason, AFAICS)
->  
->
+Agreed. I may be a newbie on *this* list, but not to lists in general.
+Keith, I wholly respect all the work you've done as it *is* a good thing
+and certainly a large step in the right direction, as all the numbers
+clearly prove.(I say that because I'm certain that anyone else doing the
+same testing would find the same things..so have at it!)
 
-Throwing in my $.02.  /etc/rc.d/* seems to have 100 levels (00 through 
-99) and it (so far) appears to be pretty sane, from my perspective. 
- While 100 levels are perhaps too many, would it be more reasonable to 
-have, say _early_initcall, _initcall, and _late_initcall for each of the 
-categories (arch, fs, device, etc.)?  This would allow more granularity 
-within levels so things needn't ever be improperly promoted out of their 
-rightly-named level.  Prolly not, just thought I'd ask.
+But impatience is seldom rewarded the way we'd often like. Something I
+myself must remember, often!
 
---Nathan
+Linus didn't lie, remember that, he even stated his position, as listed
+below. Patience is key, but so is proper communication of intent. (see
+below)
 
+> Linus has already indicated his position, I guess you were busy writing
+> the post so you didn't notice:
+> 
+>   http://marc.theaimsgroup.com/?l=linux-kernel&m=102304528224527&w=2
+> 
+> Plus you've got helpers, how could the situation be better?
 
+To play devil's advocate for just a minute: It would seem that
+impatience is a two way street. Linus has decided how it should work,
+and as we all know, this is a similar situation to CML2(ESR). 
+
+The thing which remains constant however is a lack of communication
+around timing. Without that information, from either party in this
+discussion:Keith and Linus for all intents, then it often will be ill
+rewarded for both parties. 
+
+This is how flame wars seem to escalate rapidly and nearly every time,
+about something which multiple parties believe is important. 
+
+Let us take a step back, or completely off-line this discussion for a
+day or two, and then have at it again, if the list permits. 
+
+We should know that kbuild 2.5 is looked at by Linus and Kai. Let us not
+*trash* another great make system. Let us take time and understanding,
+but without the clear and crisp communication of intentions, timing
+included, then it usually makes things *far* more frustrating than they
+should've been.
+
+> -- 
+> Daniel
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,67 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265640AbTFXCq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 22:46:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265641AbTFXCq4
+	id S265644AbTFXCvc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 22:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265641AbTFXCvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 22:46:56 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:20189 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S265640AbTFXCqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 22:46:45 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Date: Tue, 24 Jun 2003 13:00:48 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16119.48864.513891.880357@gargle.gargle.HOWL>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Can't unmount volume which was once exported via NFS
-In-Reply-To: message from Felipe Alfaro Solana on  June 20
-References: <1056129414.588.8.camel@teapot.felipe-alfaro.com>
-X-Mailer: VM 7.16 under Emacs 21.3.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	Mon, 23 Jun 2003 22:51:32 -0400
+Received: from www.13thfloor.at ([212.16.59.250]:55426 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S265644AbTFXCva (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 22:51:30 -0400
+Date: Tue, 24 Jun 2003 05:05:42 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Brad Tilley <bradtilley@usa.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OS Fails to Load
+Message-ID: <20030624030542.GB23390@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+References: <981HFwuLg3008S08.1056399066@uwdvg008.cms.usa.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <981HFwuLg3008S08.1056399066@uwdvg008.cms.usa.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  June 20, felipe_alfaro@linuxmail.org wrote:
-> Hi!
+
+Hi Brad!
+
+On Mon, Jun 23, 2003 at 04:11:06PM -0400, Brad Tilley wrote:
+> Hello,
 > 
-> Starting with 2.5.72-bk, I've been hit again by the old "umount:
-> /volume: device is busy" bug when trying to unmount an ext3 volume which
-> once was being exported via NFS.
+> 50% of the time when I boot RH Linux 9 (2.4.20-18.9) the OS fails to load. The
+> failure usually occurs during a period of intense disk activity such as
+> 'finding module dependencies' or 'mounting local filesystems'. I can reproduce
+> this error with the most recent RH kernel and the kernel that the distro
+> originally shipped with and 2.4.21 from Kernel.org built using RH's config
+> files. Usually after 4-5 power cycles, the OS loads OK and the machine runs
+> fine once it gets going.
+
+I've seen this happen on MDK 8.2 and MDK 9.1 with or
+without custom kernel from 2.4.19 - 2.4.20 ...
+
+it seemed to me to be VM related (swapper) but I had no 
+time to take a closer look at it ...
+
+you will find many voodoo answers on the net, how this
+was cured (like disable usb, change hd, etc ...) but I 
+guess this is some kind of VM deadlock, which can be 
+triggered by any memory consuming task activated before 
+swap is enabled ...
+
+> It's a HP xw4100 with these specs:
 > 
-> To reproduce the problem, I compiled 2.5.72-bk3 with the configuration
-> file attached an plugged it on a RHL9 box. To reproduce the bug, I
-> exported my "/data" volume:
+> P4 Processor 3.00GHz/800 FSB
+> 1.5GB DDR/400 ECC (2x512, 2x256)
+> NVIDIA Quadro4 200NVS 64MB AGP
+> Ultra320 SCSI Controller
+> 18GB Ultra 320 SCSI 15,000rpm Hard Drive (sda)
+> 146GB Ultra 320 SCSI 10,000rpm Hard Drive (sdb)
+> 48X DVD/CDRW Combo Drive
+> 48X CD-RW Drive
+> Broadcom Gbit 10/100/1000
+> 
+> Can someone help me troubleshoot this? I'm at the end of my rope. I have the
+> most recent BIOS from HP.
 
-Thanks for the report.
-It took me a while to find because I am using a newer nfs-utils which
-exports and unexports things differently, and there are lots of extra
-bugs that were affecting it :-(
+maybe this has been fixed in 2.4.21-rc6 ...
 
-However the one that was affecting you can be fixed by:
+Summary of changes from v2.4.21-rc5 to v2.4.21-rc6
+============================================
+Andrew Morton <akpm@digeo.com>:
+  o Fix IO stalls and deadlocks
 
+if not, you could try to activate magic sys-req and 
+dump the current kernel state, or even better, attach
+the debugger and have a look whats going on ... 
 
-diff ./net/sunrpc/cache.c~current~ ./net/sunrpc/cache.c
---- ./net/sunrpc/cache.c~current~	2003-06-24 12:37:38.000000000 +1000
-+++ ./net/sunrpc/cache.c	2003-06-24 12:46:24.000000000 +1000
-@@ -319,8 +319,8 @@ int cache_clean(void)
- 			if (test_and_clear_bit(CACHE_PENDING, &ch->flags))
- 				queue_loose(current_detail, ch);
- 
--			if (atomic_read(&ch->refcnt))
--				continue;
-+			if (!atomic_read(&ch->refcnt))
-+				break;
- 		}
- 		if (ch) {
- 			cache_get(ch);
+HTH,
+Herbert
 
-
-I'll make sure it and a bunch of other fixes get to Linus shortly.
-
-NeilBrown
+> Thanks,
+> Brad
+> 
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

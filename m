@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267492AbTA3LMh>; Thu, 30 Jan 2003 06:12:37 -0500
+	id <S267494AbTA3Lci>; Thu, 30 Jan 2003 06:32:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267493AbTA3LMh>; Thu, 30 Jan 2003 06:12:37 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:27846 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S267492AbTA3LMg>; Thu, 30 Jan 2003 06:12:36 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Date: Thu, 30 Jan 2003 22:21:48 +1100
-MIME-Version: 1.0
+	id <S267496AbTA3Lci>; Thu, 30 Jan 2003 06:32:38 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:17935 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267494AbTA3Lch>; Thu, 30 Jan 2003 06:32:37 -0500
+Date: Thu, 30 Jan 2003 11:42:00 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>, linux-visws-devel@lists.sf.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Linux-visws-devel] Re: [PATCH] visws support for 2.5.59
+Message-ID: <20030130114200.A26721@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	linux-visws-devel@lists.sf.net, linux-kernel@vger.kernel.org
+References: <20030127074644.GB4648@pazke> <20030130085457.A23075@infradead.org> <20030130112650.GA497@pazke>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15929.2764.932711.81506@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.59 NFS server keeps local fs live after being stopped
-In-Reply-To: message from Mikael Pettersson on Wednesday January 29
-References: <15927.56648.966141.528675@harpo.it.uu.se>
-	<15928.16811.851512.105997@notabene.cse.unsw.edu.au>
-	<15928.20117.266542.506842@harpo.it.uu.se>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030130112650.GA497@pazke>; from pazke@orbita1.ru on Thu, Jan 30, 2003 at 02:26:50PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday January 29, mikpe@csd.uu.se wrote:
-> Neil Brown writes:
->  > On Wednesday January 29, mikpe@csd.uu.se wrote:
->  > > Kernel 2.5.59. A local ext2 file system is mounted at $MNTPNT
->  > > and exported through NFS V3. A client mounts and unmounts it,
->  > > w/o any I/O in between. The NFS server is shut down. Nothing in
->  > > user-space refers to $MNTPNT.
->  > > 
->  > > The bug is that $MNTPNT now can't be unmounted. umount fails with
->  > > "device is busy". A forced umount at shutdown fails with "device
->  > > or resource busy" and "illegal seek", and leaves the underlying
->  > > fs marked dirty.
->  > > 
->  > > I can't say exactly when this began, but the problem is present
->  > > in 2.5.59 and 2.5.55. 2.4.21-pre4 does not have this problem.
->  > 
->  > How do you shut down the nfs server?
-> 
-> /etc/rc.d/init.d/nfs stop
-> which basically does a kill on rpc.mountd, nfsd, and rpc.quotad
-> (standard RH8.0 user-space)
-> 
-> I've checked that all *nfs* processes are gone.
-> 
->  > Is anything in /proc/fs/nfs/export after the shutdown?
-> 
-> Except for the two header lines, it's empty.
+On Thu, Jan 30, 2003 at 02:26:50PM +0300, Andrey Panin wrote:
+> Probably agreed. But I didn't even try to compile UP kernels for visws.
+> Added into todo list.
 
-Ok, it defaintely sounds like a leak.  I'll be back at my desk on
-Monday and I will try to reproduce it and explore the situation then.
+Then either test it or add a comment explaining why it's disallowed
 
-NeilBrown
+> The visws support is totally borken now, so why submit this ASAP ?
+
+the visw fb driver can't work anyway, so there's no harm if you get this
+driver update into James' tree (an he'll submit it to Linus with the other
+fb stuff) soon, but your patch will get a lot smaller and easier to integrate.
+
+> This varibable-like macro replaces two #ifndef's in smp.c and smpboot.c
+> I'm not sure are the really necessary and I can't test it because my visws
+> has one cpu only (and it's impossible to buy VRM and slot-1 P3 in Russia).
+
+I can try to get one or two for you in a second hand store here in Germany
+for you.  sending it to russia will probably be more important than the
+actual price for them :)
+

@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262411AbVAENlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262423AbVAENwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262411AbVAENlh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 08:41:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVAENlh
+	id S262423AbVAENwT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 08:52:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbVAENwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 08:41:37 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:12217 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262411AbVAENlc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 08:41:32 -0500
-Subject: Re: [PATCH] request_irq: avoid slash in proc directory entries
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Olaf Hering <olh@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050105075357.GA12473@suse.de>
-References: <20050105075357.GA12473@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1104928634.24187.168.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 05 Jan 2005 12:37:16 +0000
+	Wed, 5 Jan 2005 08:52:19 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:51336 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262423AbVAENwQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 08:52:16 -0500
+Date: Wed, 5 Jan 2005 14:51:55 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: David Howells <dhowells@redhat.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] FRV: Fujitsu FR-V CPU arch implementation part 4
+In-Reply-To: <200501050712.j057CSTU032672@hera.kernel.org>
+Message-ID: <Pine.GSO.4.61.0501051450040.26733@waterleaf.sonytel.be>
+References: <200501050712.j057CSTU032672@hera.kernel.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-01-05 at 07:53, Olaf Hering wrote:
-> diff -purNx tags linux-2.6.10.orig/drivers/net/wan/hostess_sv11.c linux-2.6.10-olh/drivers/net/wan/hostess_sv11.c
-> --- linux-2.6.10.orig/drivers/net/wan/hostess_sv11.c	2004-08-14 07:37:27.000000000 +0200
-> +++ linux-2.6.10-olh/drivers/net/wan/hostess_sv11.c	2005-01-01 19:34:46.000000000 +0100
-> @@ -263,7 +263,7 @@ static struct sv11_device *sv11_init(int
->  	/* We want a fast IRQ for this device. Actually we'd like an even faster
->  	   IRQ ;) - This is one driver RtLinux is made for */
->  	   
-> -	if(request_irq(irq, &z8530_interrupt, SA_INTERRUPT, "Hostess SV/11", dev)<0)
-> +	if(request_irq(irq, &z8530_interrupt, SA_INTERRUPT, "Hostess SV-11", dev)<0)
->  	{
->  		printk(KERN_WARNING "hostess: IRQ %d already in use.\n", irq);
->  		goto fail1;
+On Wed, 5 Jan 2005, Linux Kernel Mailing List wrote:
+> ChangeSet 1.2030, 2005/01/04 21:16:47-08:00, dhowells@redhat.com
+> 
+> 	[PATCH] FRV: Fujitsu FR-V CPU arch implementation part 4
+> 	
+> 	The attached patches provides part 4 of an architecture implementation
+> 	for the Fujitsu FR-V CPU series, configurably as Linux or uClinux.
 
-SV11 would probably be better but fine by me as the sv11 author
+> --- /dev/null	Wed Dec 31 16:00:00 196900
+> +++ b/arch/frv/kernel/process.c	2005-01-04 23:12:39 -08:00
+> @@ -0,0 +1,384 @@
+> +/*
+> + *  linux/arch/m68k/kernel/process.c
+                  ^^^^
+Can you please fix up these (there exist a few more) bogus file names? Thanks!
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

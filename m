@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263324AbUEROSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263429AbUERO0i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263324AbUEROSP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 10:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263338AbUEROSP
+	id S263429AbUERO0i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 10:26:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263366AbUERO0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 10:18:15 -0400
-Received: from qfep04.superonline.com ([212.252.122.160]:41344 "EHLO
-	qfep04.superonline.com") by vger.kernel.org with ESMTP
-	id S263324AbUEROSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 10:18:13 -0400
-Message-ID: <40AA1B20.3010205@superonline.com>
-Date: Tue, 18 May 2004 17:18:08 +0300
-From: "O.Sezer" <sezero@superonline.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: tr, en-us, en
+	Tue, 18 May 2004 10:26:37 -0400
+Received: from mns.spb.ru ([195.131.16.6]:19600 "EHLO mail.mns.spb.ru")
+	by vger.kernel.org with ESMTP id S263435AbUERO0f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 10:26:35 -0400
+From: Kirill Smelkov <kirr@mns.spb.ru>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [watchdog]: problem with wafer5823wdt
+Date: Tue, 18 May 2004 18:26:31 +0400
+User-Agent: KMail/1.5.1
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4] decrypt/update ide help entries
-References: <40A8F0E7.4000807@superonline.com> <200405172020.36892.bzolnier@elka.pw.edu.pl> <40AA12E2.1070900@superonline.com> <200405181609.04045.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200405181609.04045.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain; charset=iso-8859-9; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405181826.31080.kirr@mns.spb.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-[...]
-Thanks for your patience.
+Hello,
 
-> BTW it needs to be split-up for old and new driver (hint, hint!).
-> 
+I have a problem with hardware watchdog doesn't working properly.
+The watchdog seems to be equal to that on ICP Wafer 5823 motherboard.
 
-Why? Do you think that an admin may want to enable/disable it for
-Chipset-A/pdc-old and disable/enable it for chipset-B/pdc-new ?
+---
 
-Thanks;
-Özkan Sezer
+My motherboard is PCISA-C800EV (integrated MB with VIA C3 processor).The 
+watchdog hardware description seems to be exactly the same as in ICP Wafer 
+5823, i.e.
 
+there are 2 io ports:
+0x443	(w/r)   to start the watchdog (w) and to 'touch' it (r)
+0x843	(r)     to stop the watchdog
+
+although writing to 0x443 starts the watchdog (with say for example 60 seconds 
+timeout), it can't be updated, i.e. the system reboots no matter has the 
+0x443 port been read or not.
+The watchdog cannot be disabled (reading 0x843 has no effect) either.
+
+According to MB documentation wafer5823wdt.c is ok for my hardware, but 
+watchdog behaviour is very strange.
+
+Any thoughts?
+
+-- 
+Kirill.

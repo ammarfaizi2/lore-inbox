@@ -1,86 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268004AbRGVQuS>; Sun, 22 Jul 2001 12:50:18 -0400
+	id <S268002AbRGVRWW>; Sun, 22 Jul 2001 13:22:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268001AbRGVQuJ>; Sun, 22 Jul 2001 12:50:09 -0400
-Received: from WARSL401PIP3.highway.telekom.at ([195.3.96.75]:6468 "HELO
-	email03.aon.at") by vger.kernel.org with SMTP id <S268000AbRGVQt6>;
-	Sun, 22 Jul 2001 12:49:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Peter Klotz <peter.klotz@aon.at>
-To: linux-kernel@vger.kernel.org
-Subject: Problem compiling kernel 2.4.7 with gcc 2.96
-Date: Sun, 22 Jul 2001 18:51:24 +0200
-X-Mailer: KMail [version 1.2]
+	id <S268005AbRGVRWM>; Sun, 22 Jul 2001 13:22:12 -0400
+Received: from femail21.sdc1.sfba.home.com ([24.0.95.146]:18572 "EHLO
+	femail21.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S268002AbRGVRWG>; Sun, 22 Jul 2001 13:22:06 -0400
+Message-ID: <3B5B088A.8C48D55D@home.com>
+Date: Sun, 22 Jul 2001 12:08:26 -0500
+From: Steven Lass <stevenlass1@home.com>
+X-Mailer: Mozilla 4.77 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01072218512400.13385@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+To: Rob Turk <r.turk@chello.nl>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.[<=6] kernel has Cyrix 'coma' bug?
+In-Reply-To: <032701c112bb$170c2220$0101a8c0@aster>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi folks
 
-When creating the modules (make modules) for my 2.4.7 kernel the compilation 
-aborts with the following error message. I used the standard Red Hat 7.1 
-kernel configuration file with only minor modifications.
+Rob,
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.7/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS 
--include /usr/src/linux-2.4.7/include/linux/modversions.h   -c -o xd.o xd.c
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.7/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS 
--include /usr/src/linux-2.4.7/include/linux/modversions.h   -c -o cpqarray.o 
-cpqarray.c
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.7/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS 
--include /usr/src/linux-2.4.7/include/linux/modversions.h   -c -o cciss.o 
-cciss.cgcc -D__KERNEL__ -I/usr/src/linux-2.4.7/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=i686 -DMODULE -DMODVERSIONS -include 
-/usr/src/linux-2.4.7/include/linux/modversions.h   -DEXPORT_SYMTAB -c DAC960.c
-DAC960.c: In function `DAC960_ProcessRequest':
-DAC960.c:2771: structure has no member named `sem'
-make[2]: *** [DAC960.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.4.7/drivers/block'
-make[1]: *** [_modsubdir_block] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.7/drivers'
-make: *** [_mod_drivers] Error 2
-[root@localhost linux]#
+My CPU is a bit different than yours (sorry for not posting this with
+the original message).
 
-I have run the ver_linux script as recommended. Here is the output.
+[root /root]# cat /proc/cpuinfo
+processor       : 0
+vendor_id       : CyrixInstead
+cpu family      : 4
+model           : 1
+model name      : MediaGX 3x Core/Bus Clock
+stepping        : 2
+fdiv_bug        : no
+hlt_bug         : no
+sep_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : -1
+wp              : yes
+flags           :
+bogomips        : 59.59
 
-[root@localhost linux]# sh scripts/ver_linux
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
+I posted my .config file if anyone is interested.  MTRR is not set.
+http://members.home.net/stevenlass1/.config.txt
 
-Linux localhost.localdomain 2.4.6 #1 Thu Jul 5 08:40:51 CEST 2001 i686 unknown
+-steve
 
-Gnu C                  2.96
-Gnu make               3.79.1
-binutils               2.10.91.0.2
-util-linux             2.10s
-mount                  2.10r
-modutils               2.4.2
-e2fsprogs              1.19
-reiserfsprogs          3.x.0f
-PPP                    2.4.0
-isdn4k-utils           3.1pre1
-Linux C Library        2.2.2
-Dynamic linker (ldd)   2.2.2
-Procps                 2.0.7
-Net-tools              1.57
-Console-tools          0.3.3
-Sh-utils               2.0
-Modules Loaded         ppp_async ppp_generic binfmt_misc autofs scanner 3c59x 
-ipchains parport_pc ppa parport ide-scsi scsi_mod ide-cd cdrom ntfs 
-nls_iso8859-1 nls_cp437 vfat fat reiserfs usb-uhci usbcore
-[root@localhost linux]#
+> ----- Original Message -----
+> From: "Rob Turk" <r.turk@chello.nl>
+> Newsgroups: lists.linux.kernel
+> Sent: Sunday, July 22, 2001 4:23 PM
+> Subject: Re: 2.4.[<=6] kernel has Cyrix 'coma' bug?
+> 
+> > "Steven Lass" <stevenlass1@home.com> wrote in message
+> > news:cistron.3B5AD0DF.8DDC5D1E@home.com...
+> > >
+> > > dev-list,
+> > >
+> > > Every 2.4 kernel that I've tried freezes my Cyrix MediaGX system at boot
+> > > up.
+> > >
+> >
+> > For what it's worth, I use the Slackware 8.0 distribution, and have no
+> > trouble running 2.4.[5-7] on my Cyrix MediaGX 233 MHz. Make sure MTTR is
+> off
+> > in your configuration, this has bit me in the *ss once...
+> >
+> > Rob
+> >
+> > ======
+> > CPU: Before vendor init, caps: 00808131 01818131 00000000, vendor = 1
+> > Working around Cyrix MediaGX virtual DMA bugs.
+> > CPU: After vendor init, caps: 00808121 00818131 00000000 00000001
+> > CPU:     After generic, caps: 00808121 00818131 00000000 00000001
+> > CPU:             Common caps: 00808121 00818131 00000000 00000001
+> > CPU: Cyrix MediaGXtm MMXtm Enhanced stepping 02
+> > Checking 'hlt' instruction... OK.
+> > POSIX conformance testing by UNIFIX
+> > =======
+> > robtu@pi8nos:/proc$ cat cpuinfo
+> > processor       : 0
+> > vendor_id       : CyrixInstead
+> > cpu family      : 5
+> > model           : 7
+> > model name      : Cyrix MediaGXtm MMXtm Enhanced
+> > stepping        : 2
+> > cache size      : 16 KB
+> > fdiv_bug        : no
+> > hlt_bug         : no
+> > f00f_bug        : no
+> > coma_bug        : no
+> > fpu             : yes
+> > fpu_exception   : yes
+> > cpuid level     : 2
+> > wp              : yes
+> > flags           : fpu msr cx8 cmov mmx cxmmx
+> > bogomips        : 76.80
+> >
 
-Maybe someone has an idea.
-
-Bye, Peter.

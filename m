@@ -1,37 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266041AbTBLDlC>; Tue, 11 Feb 2003 22:41:02 -0500
+	id <S266224AbTBLDmi>; Tue, 11 Feb 2003 22:42:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266081AbTBLDlB>; Tue, 11 Feb 2003 22:41:01 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:12174 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S266041AbTBLDlB>; Tue, 11 Feb 2003 22:41:01 -0500
-Date: Tue, 11 Feb 2003 19:50:41 -0800
-Message-Id: <200302120350.h1C3ofQ19892@magilla.sf.frob.com>
-MIME-Version: 1.0
+	id <S266297AbTBLDmi>; Tue, 11 Feb 2003 22:42:38 -0500
+Received: from relief.getitback.org ([208.49.116.17]:26372 "EHLO
+	relief.getitback.org") by vger.kernel.org with ESMTP
+	id <S266224AbTBLDmh>; Tue, 11 Feb 2003 22:42:37 -0500
+Date: Tue, 11 Feb 2003 22:52:17 -0500
+From: Paul <set@pobox.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, Marc Zyngier <mzyngier@freesurf.fr>
+Subject: Re: 2.5.60 3c509 & net/Space.c problem
+Message-ID: <20030212035217.GE1733@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+	Marc Zyngier <mzyngier@freesurf.fr>
+References: <200302110144.CAA15199@kim.it.uu.se> <20030210182619.3b6791cc.akpm@digeo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-X-Fcc: ~/Mail/linus
-Cc: Ingo Molnar <mingo@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: another subtle signals issue
-In-Reply-To: Linus Torvalds's message of  Tuesday, 11 February 2003 19:18:33 -0800 <Pine.LNX.4.44.0302111912580.2667-100000@home.transmeta.com>
-X-Fcc: ~/Mail/linus
-X-Zippy-Says: I'm EXCITED!!  I want a FLANK STEAK WEEK-END!!  I think I'm JULIA CHILD!!
+Content-Disposition: inline
+In-Reply-To: <20030210182619.3b6791cc.akpm@digeo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You just have to read it in a way that says "partial results are
-> permissible, and are part of the normal behaviour". And then the fact that
-> when ^Z happens you get partial results from pipes is not "different
-> behaviour" from a qualitative standpoint - even though in fact we'd get a
-> full result if the ^Z didn't happen.
+Andrew Morton <akpm@digeo.com>, on Mon Feb 10, 2003 [06:26:19 PM] said:
+[...]
+> 
+> I'm looking for someone to pump some bytes through this fix.
+> 
+> 
+> 
+> Patch from Marc Zyngier <mzyngier@freesurf.fr>
+> 
+> 
+>  drivers/net/3c509.c |   66 +++++++++++++++++++++++++++++-----------------------
+>  drivers/net/Space.c |    3 --
+>  2 files changed, 37 insertions(+), 32 deletions(-)
 
-I'm not talking about reading from pipes, that was your example.  I was
-talking about calls with timeouts, like semop, whose interface do not
-permit partial results.  Anyway, I find your reading insupportable even in
-reference to read or write.  read and write are explicitly specified to
-return partial results when interrupted by a signal, and are not permitted
-to do so otherwise.  1003.1-2001 2.4.4 defines "interrupted" in reference
-only to signals that are caught.
+	Hi;
+
+	Tested this under 2.5.60, and Marc's other patch against
+2.5.59 -- compiles and works.
+
+eth0      Link encap:Ethernet  HWaddr 00:60:8C:CB:99:78  
+          inet addr:192.168.2.21  Bcast:192.168.2.255 Mask:255.255.255.0
+          UP BROADCAST NOTRAILERS RUNNING  MTU:1500  Metric:1
+          RX packets:946103 errors:62 dropped:0 overruns:56 frame:62
+          TX packets:360895 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:45706 txqueuelen:100 
+          RX bytes:1190605511 (1135.4 Mb)  TX bytes:357493752 (340.9 Mb)
+          Interrupt:10 Base address:0x300 
+
+	RX errors increase under just about any load, similar to
+2.4 kernel-- this traffic is over effectively a 2 computer
+network. The machine is a k6-II 333. I dont think Ive ever
+noticed errors with a wd8013 in this box....
+
+Paul
+set@pobox.com
+

@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314707AbSFGCRc>; Thu, 6 Jun 2002 22:17:32 -0400
+	id <S316591AbSFGCnG>; Thu, 6 Jun 2002 22:43:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316601AbSFGCRb>; Thu, 6 Jun 2002 22:17:31 -0400
-Received: from pc132.utati.net ([216.143.22.132]:41638 "HELO
-	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S314707AbSFGCRa>; Thu, 6 Jun 2002 22:17:30 -0400
+	id <S316610AbSFGCnF>; Thu, 6 Jun 2002 22:43:05 -0400
+Received: from dsl-213-023-043-086.arcor-ip.net ([213.23.43.86]:40915 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S316591AbSFGCnE>;
+	Thu, 6 Jun 2002 22:43:04 -0400
 Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: linux-kernel@vger.kernel.org
-Subject: Obscure networking question (shutdown on socket WITHOUT discarding data...)
-Date: Thu, 6 Jun 2002 16:19:08 -0400
-X-Mailer: KMail [version 1.3.1]
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Mark Mielke <mark@mark.mielke.cc>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+Date: Fri, 7 Jun 2002 04:42:18 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0206042132450.2614-100000@waste.org> <20020606212100.GA1113@elf.ucw.cz> <20020606213551.A3551@mark.mielke.cc>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020607024846.81BF37C8@merlin.webofficenow.com>
+Message-Id: <E17G9hi-0002Qh-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a way to call shutdown(blah, SHUT_WR) on a network SOCK_STREAM 
-connection's fd without discarding pending output?  Or some way to block 
-until pending output has been acknowledged by the far end?  (There's a TCP/IP 
-acknowledgement packet being sent, I'm fairly certain of this...)
+On Friday 07 June 2002 03:35, Mark Mielke wrote:
+> On Thu, Jun 06, 2002 at 11:21:00PM +0200, Pavel Machek wrote:
+> > > > What you really want for an MP3 player is _not_ hard RT, what you want is
+> > > > very reliable low-latency. Which we can do without throwing away most of
+> > > > UNIX.
+> > > I think that depends on whether you are an audiophile or not.  Or a
+> > > broadcaster.  If you're a broadcaster, how many mp3 skips will you
+> > > tolerate
+> > 10 skips a year is probably okay for broadcaster, "normal" stations
+> > using cds are worse than that.
+> 
+> Also, unless one plans on playing 10+ .mp3's simulataneously on the
+> same piece of hardware, I would make a bet that the electric company,
+> or the computer itself would 'skip' before the dedicated computer
+> 'skipped'. In either case, real time, or no real time, the system will
+> skip.
 
-I want the connection at the far end to get EOF from read, but still be able 
-to send me data back from the other half of the connection.
+You're both being silly.  The point is not mp3 skips per year, the point is:
+is anything less than perfection tolerable, when you know perfection is within
+reach?  If it helps, forget I ever said 'mp3' and think 'signal processing'
+instead.
 
-I've looked at the BSD networking documentation, the source code to "netcat", 
-all the man pages I could find, asked google, etc.  The 2.4.18 net/ipv4/tcp.c 
-source has some interesting comments (line 396) about poll not having a 
-notion of HUP in just one direction, but I've gathered that select and poll 
-behave differently on files, pipes, network sockets, block devices, etc...  
-In any case, this doesn't help me find an exported user-space API that might 
-help me implement this behavior.  (By the way, is "PULLHUP" on lines 414 and 
-417 a typo for "POLLHUP", or not?)
+I'll go further and say we need realtime processing in our desktops, not
+only for signal processing but for more mundane things like moving the mouse
+cursor smoothly (yes, this is another item that sucks in Linux).  Sorry, I'm
+a perfectionist, and I like precision.  If you're not and you don't, just
+say so, and we'll understand each other perfectly.
 
-There doesn't seem to be any variant of a blocking flush() call on a socket 
-(that I can find), or a way to tell shutdown() to wait for pending output the 
-way a normal close() does.  (Maybe I can do something fancy with poll or 
-select?)
+OK, I'm done with the 'do we really need realtime' FAQ item.
 
-If there IS no way to do this, why does shutdown(2) bother taking a second 
-argument?
-
-(Maybe I can disable nagle and then do a write of length zero, to make the 
-other end unblock with a read of length zero and THINK the stream's done?  
-Probably won't work, but it's worth a try...)
-
-Rob
-
-(P.S.  yes I can rewrite the protocol being sent over the wire to signal EOF 
-in-band (yet again) but this keeps coming up over and over.  Processes that 
-work when stdin and stdout are seperate file handles don't work when the data 
-goes back and forth through a network socket...)
+-- 
+Daniel

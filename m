@@ -1,98 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129306AbRA3CxN>; Mon, 29 Jan 2001 21:53:13 -0500
+	id <S129771AbRA3DJa>; Mon, 29 Jan 2001 22:09:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129101AbRA3CxD>; Mon, 29 Jan 2001 21:53:03 -0500
-Received: from dns2.chaven.com ([207.238.162.18]:61342 "EHLO shell.chaven.com")
-	by vger.kernel.org with ESMTP id <S129306AbRA3Cwu>;
-	Mon, 29 Jan 2001 21:52:50 -0500
-Message-ID: <007201c08a67$42a925e0$160912ac@stcostlnds2zxj>
-From: "List User" <lists@chaven.com>
-To: "James Sutherland" <jas88@cam.ac.uk>
-Cc: "Chris Evans" <chris@scary.beasts.org>, <Tony.Young@ir.com>,
-        <slug@slug.org.au>, <csa@oss.sgi.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOL.4.21.0101300215050.21740-100000@green.csi.cam.ac.uk>
-Subject: Re: Linux Disk Performance/File IO per process
-Date: Mon, 29 Jan 2001 20:49:21 -0600
+	id <S129101AbRA3DJU>; Mon, 29 Jan 2001 22:09:20 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:33279 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129771AbRA3DJE>; Mon, 29 Jan 2001 22:09:04 -0500
+Message-ID: <3A763048.BB95E15A@uow.edu.au>
+Date: Tue, 30 Jan 2001 03:08:56 +0000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.1-pre10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Rusty Russell <rusty@linuxcare.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
+In-Reply-To: Your message of "Tue, 30 Jan 2001 12:05:41 +1100." <E14NPVU-0005nZ-00@halfway>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It depends on what the performance hit is 'after coding'.  If the code is
-say less than 5%
-overhead I honestly don't see there being a problem then just to compile it
-in the kernel
-and keep it active all the time.  Only people who would need it would
-compile it in, and
-from experience 5% or less for the systems that would be keeping this data
-is negligible
-considering functionality/statistics gained.
+Rusty Russell wrote:
+> 
+> > In message <3A74451F.DA29FD17@uow.edu.au> you write:
+> > >     http://www.uwsg.iu.edu/hypermail/linux/kernel/0005.3/0269.html
+> > >
+> > > A lot of the timer deletion races are hard to fix because of
+> > > the deadlock problem.
+> 
+> Double take: we *did* fix the problems with del_timer_sync().
 
+A bit.
 
-Steve
------ Original Message -----
-From: "James Sutherland" <jas88@cam.ac.uk>
-To: "List User" <lists@chaven.com>
-Cc: "Chris Evans" <chris@scary.beasts.org>; <Tony.Young@ir.com>;
-<slug@slug.org.au>; <csa@oss.sgi.com>; <linux-kernel@vger.kernel.org>
-Sent: Monday, January 29, 2001 20:18
-Subject: Re: Linux Disk Performance/File IO per process
+> We should probably have renamed del_timer to del_time_async and make
+> everyone fix their code though.
 
+That renaming is an absolute precondition.  We just use
 
-> On Mon, 29 Jan 2001, List User wrote:
->
-> > Just wanted to 'chime' in here.  Yes this would be noisy and will have
-> > an affect on system performance however these statistics are what are
-> > used in conjunction with several others to size systems as well as to
-> > plan on growth.  If Linux is to be put into an enterprise environment
-> > these types of statistics will be needed.
-> >
-> > When you start hooking up 100's of 'physical volumes' (be it real
-> > disks or raided logical drives) this data helps you pin-point
-> > problems.  I think the idea of having the ability to turn such
-> > accounting on/off via /proc entry a very nice method of doing things.
->
-> Question: how will the extra overhead of checking this configuration
-> compare with just doing it anyway?
->
-> If the code ends up as:
->
-> if (stats_enabled)
->   counter++;
->
-> then you'd be better off keeping stats enabled all the time...
->
-> Obviously it'll be a bit more complex, but will the stats code be able to
-> remove itself completely when disabled, even at runtime??
->
-> Might be possible with IBM's dprobes, perhaps...?
->
-> > That way you can leave it off for normal run-time but when users
-> > complain or DBA's et al you can turn it on get some stats for a couple
-> > hours/days whatever, then turn it back off and plan an upgrade or
-> > re-create a logical volume or stripping set.
->
-> NT allows boot-time (en|dis)abling of stats; they quote a percentage for
-> the performance hit caused - 4%, or something like that?? Of course, they
-> don't say whether that's a 486 on a RAID array or a quad Xeon on IDE, so
-> the accuracy of that figure is a bit questionable...
->
->
-> James.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
->
+#define del_timer_async del_timer
 
+and as the janitors go through fixing stuff, rename known-to-be-correct
+usage of del_timer to del_timer_async.  This is the only way
+we can keep track of which code still needs looking at.
+
+It's often trivial.  But sometimes not, such as in SCSI.
+
+We also need to clean up the initialisation of timers with some
+nice macros, similar to list.h, semaphore.h, etc.  
+
+> The `text vanishing under timer in
+> module' problem is solved by the pending module cleanup for 2.5.
+
+mm..  A very common bug is this:
+
+xxx_handler(void *something)
+{
+	use(something);
+or:     assume(something->foo != 1);
+}
+
+xxx_close(something)
+{
+	del_timer(&something->timer);
+	kfree(something);
+or:     something->foo = 1;
+}
+
+So xxx_handler can "use" freed memory.  There really is a large amount
+of breakage here.  Just pick a random user of del_timer() and ask
+yourself "what if the handler is running after del_timer returns".
+
+Generally, it doesn't happen, because it's in fact quite rare for
+a timer to actually expire, and because a lot of the buggy code
+is on rarely-used paths such as close() methods.  I've never seen
+a bug report which could be attributed to a timer deletion race - partly
+because SMP machines are rare, partly because they tend to be used
+with a less exotic range of device drivers and partly because some
+random subsytem went stupid and there was nothing concrete to report.
+
+Now, there _is_ a correct solution, and that is to create a new timer
+API. Probably one in which the timers are reference counted and their
+storage is not managed by the users of the API.
+
+It's a shame to create a second API (but we had two timer APIs up to
+a few months back anyway...).  But it's also an opportunity.  The
+proposed SMP-scalable timers could benefit from not having to be
+back-compatible.  Some of the remaining locking and cross-CPU
+traffic could be tossed out if a clean slate were available. 
+
+But I don't see a way around the need for synchronous deletion and
+the deadlock risk which that introduces.
+
+The morbid amongst us can read the netdev thread from May 2000,
+when timer outrage was at its peak:
+
+	http://www.wcug.wwu.edu/lists/netdev/200005/threads.html
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

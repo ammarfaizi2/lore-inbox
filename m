@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267508AbUIOVF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267466AbUIOVF3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267508AbUIOVF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 17:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267466AbUIOVF0
+	id S267466AbUIOVF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 17:05:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267507AbUIOVBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 17:05:26 -0400
-Received: from main.gmane.org ([80.91.229.2]:11210 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S267519AbUIOVEJ (ORCPT
+	Wed, 15 Sep 2004 17:01:53 -0400
+Received: from holomorphy.com ([207.189.100.168]:1183 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267474AbUIOVBJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 17:04:09 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Wes Felter <wesley@felter.org>
-Subject: Re: The ultimate TOE design
-Date: Wed, 15 Sep 2004 16:03:57 -0500
-Message-ID: <ciaao4$crc$1@sea.gmane.org>
-References: <4148991B.9050200@pobox.com> <Pine.LNX.4.61.0409152102050.23011@fogarty.jakma.org> <4148A561.5070401@redhat.com>
+	Wed, 15 Sep 2004 17:01:09 -0400
+Date: Wed, 15 Sep 2004 14:01:06 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       an.li.wang@intel.com
+Subject: Re: truncate shows non zero data beyond the end of the inode with MAP_SHARED
+Message-ID: <20040915210106.GX9106@holomorphy.com>
+References: <20040915122920.GA4454@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: pixpat.austin.ibm.com
-User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
-X-Accept-Language: en-us, en
-In-Reply-To: <4148A561.5070401@redhat.com>
-Cc: netdev@oss.sgi.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040915122920.GA4454@dualathlon.random>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Horman wrote:
-> Paul Jakma wrote:
-> 
->> On Wed, 15 Sep 2004, Jeff Garzik wrote:
->>
->>> Put simply, the "ultimate TOE card" would be a card with network 
->>> ports, a generic CPU (arm, mips, whatever.), some RAM, and some 
->>> flash.  This card's "firmware" is the Linux kernel, configured to run 
->>> as a _totally indepenent network node_, with IP address(es) all its own.
->>>
->>> Then, your host system OS will communicate with the Linux kernel 
->>> running on the card across the PCI bus, using IP packets (64K fixed 
->>> MTU).
+On Wed, Sep 15, 2004 at 02:29:20PM +0200, Andrea Arcangeli wrote:
+> I've been told we're not posix compliant the way we handle MAP_SHARED
+> on the last page of the inode. Basically after we map the page into
+> userspace people can make the data beyond the i_size non-zero and we
+> should clear it in the transition from page_mapcount 1 -> 0.  The bug
+> is that if you truncate-extend, the new data will not be guaranteed to
+> be zero.
+> msync + power outage and writing to the page with sys_write at the same
+> time it's being mapped (and in turn queueing it for pdflush writeout)
+> are the two worst offeners. To fix those we'd need to mark the pte
+> readonly, flush the tlb with a worst-case IPI broadcast, writepage, then
+> mark the pte read-write and flush the tlb again with another IPI
+> broadcast.
+> That is going to have a significant cost methinks. So maybe we shouldn't
+> fix it after all...
 
->> The intel IXP's are like the above, XScale+extra-bits host-on-a-PCI 
->> card running Linux. Or is that what you were referring to with "<cards 
->> exist> but they are all fairly expensive."?
+Zeroing the final partial page during expanding truncate (flushing TLB)
+sounds like a reasonable half measure; we don't do anything at the moment.
+We could even, say, do a pass of pte shootdown given try_to_unmap() and
+force minor faults to make all this less likely.
 
-> IBM's PowerNP chip was also very simmilar (a powerpc core with lots of 
-> hardware assists for DMA and packet inspection in the extended register 
-> area).  Don't know if they still sell it, but at one time I had heard 
-> they had booted linux on it.
 
-An IXP or PowerNP wouldn't work for Jeff's idea. The IXP's XScale core 
-and PowerNP's PowerPC core are way too slow to do any significant 
-processing; they are intended for control tasks like updating the 
-routing tables. All the work in the IXP or PowerNP is done by the 
-microengines, which have weird, non-Linux-compatible architectures.
-
-To do 10 Gbps Ethernet with Jeff's approach, wouldn't you need a 5-10 
-GHz processor on the card? Sounds expensive.
-
-A 440GX or BCM1250 on a cheap PCI card would be fun to play with, though.
-
-Wes Felter - wesley@felter.org - http://felter.org/wesley/
-
+-- wli

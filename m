@@ -1,62 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266267AbRGAXjG>; Sun, 1 Jul 2001 19:39:06 -0400
+	id <S266270AbRGAXx6>; Sun, 1 Jul 2001 19:53:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266268AbRGAXi4>; Sun, 1 Jul 2001 19:38:56 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:61197 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S266267AbRGAXil>; Sun, 1 Jul 2001 19:38:41 -0400
-Date: Sun, 1 Jul 2001 17:45:07 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Justin Guyett <justin@soze.net>
-Cc: Chris Wedgwood <cw@f00f.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: NWFS Submitted to Alan Cox
-Message-ID: <20010701174507.A12097@vger.timpanogas.org>
-In-Reply-To: <20010702025418.B14068@weta.f00f.org> <Pine.LNX.4.33.0107011220090.27557-100000@gw.soze.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.33.0107011220090.27557-100000@gw.soze.net>; from justin@soze.net on Sun, Jul 01, 2001 at 12:23:17PM -0700
+	id <S266276AbRGAXxt>; Sun, 1 Jul 2001 19:53:49 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:64350 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S266274AbRGAXxf>; Sun, 1 Jul 2001 19:53:35 -0400
+Message-ID: <3B3FB754.8040305@kalifornia.com>
+Date: Sun, 01 Jul 2001 16:50:44 -0700
+From: Ben Ford <ben@kalifornia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Paul Mundt <lethal@ChaoticDreams.ORG>
+CC: Adam Schrotenboer <ajschrotenboer@lycosmail.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Uncle Sam Wants YOU!
+In-Reply-To: <3B3F5F5C.40907@lycosmail.com> <20010701130151.A10989@ChaoticDreams.ORG>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 01, 2001 at 12:23:17PM -0700, Justin Guyett wrote:
-> On Mon, 2 Jul 2001, Chris Wedgwood wrote:
-> 
-> > On Sun, Jul 01, 2001 at 01:50:00PM +0100, Alan Cox wrote:
-> >
-> > > I'm not a file sustem hacker, nor since I work for one vendor the
-> > > appropriate owner for larg chunks of code in some people's eyes. I
-> > > suspect the FSF is a much much better asignee for the code itself
-> >
-> > I assume the legal threats that Jeff has experience will follow the
-> > code? Surely before anyone wishes to adopt such a thing they should
-> > get legal advice about the situation?
-> >
-> > It would be shame to let potentially useful code be left to die for
-> > fear of bully-tactics if their claims are unfounded.
-> 
-> presuming they are unfounded, given the history of attacks by Novell,
-> perhaps the best move would be to turn it over to a company like compaq or
-> ibm given a written contract that they will keep it open source.  
+Paul Mundt wrote:
+
+>On Sun, Jul 01, 2001 at 01:35:24PM -0400, Adam Schrotenboer wrote:
+>
+>>So as a user you are free to not use M$ products.
+>>What if you are IT. Then you do not have a choice.
+>>
+>You always have a choice, work elsewhere. If you're in a position where you're
+>working with MS products, you were the one who made the decision to do so.
+>MS is not at fault, claiming so is childish.
+>
+
+Name a single tech company anywhere in the world that doesn't have to 
+deal with microsoftisms.
+
+[ . . . ]
+
+>>When Win95 came out, I finally got to hate M$. Then I discovered Linux
+>>and now I have a great dislike for M$ and their products.
+>>
+>This makes absolutely no sense. You didn't have a problem with MS originally,
+>but as soon as Win95 came out you instantly hated them? A few issues with an
+>OS are hardly valid grounds for "hating" a company.
+>
+>Also, I don't see how once you discovered Linux your hatred for MS grew. This
+>also makes very little sense. If you were sitting there using MS products of
+>
+It makes perfect sense to me.  Take my family as an example.  My wife 
+used Windows because she didn't know anything else existed.  She crashed 
+and rebooted quite frequently and never knew there was an alternative. 
+ Then she met me and was rather astounded that I hadn't rebooted my 
+machine in months.  Now she hates Microsoft because she realizes what 
+bullshit she went through.
+
+
+[ . . . ]
+
+>Oh please, next you'll be blaming world hunger on MS because third world
+>countries can't afford licenses of win2k.
+>
+
+Well, when you realize that Bill Gates (not MS, just Bill Gates 
+personally) has enough money to give every person in the world $10 out 
+of his pocket, then you see this argument in a different light.
+
+(Disclaimer:  This statistic was from 2 or 3 years ago.  I don't know 
+what the figures are now.)
+
+-- 
+:    __o
+:   -\<,
+:   0/ 0
+-----------
 
 
 
-> Novell can't be that stupid.
-
-Don't count on it.  I had completed a fully 64-bit OS in 1997 for IA64, 
-four years before everyone else.  It's been sitting in an archive 
-somewhere inside of Novell -- unused for no other reason than I 
-wrote it.  I am waiting to see who would want it.  It's open to 
-any takers.  Alan may be in a conflict of interest with Red Hat 
-since Novell is an investor in them, so this I understand.  I'll 
-wait and see who's interested.  I would not be surprised if 
-someone from Novell asks to take it over.   
-
-Jeff
-
-
-> 
-> 
-> justin

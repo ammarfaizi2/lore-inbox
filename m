@@ -1,48 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbUKCRDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbUKCREY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbUKCRDY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 12:03:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbUKCRDY
+	id S261732AbUKCREY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 12:04:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbUKCREY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 12:03:24 -0500
-Received: from fmr12.intel.com ([134.134.136.15]:52424 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261729AbUKCRDU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 12:03:20 -0500
-Date: Wed, 3 Nov 2004 09:24:21 -0800
-From: Matt Tolentino <metolent@snoqualmie.dp.intel.com>
-Message-Id: <200411031724.iA3HOLl0017096@snoqualmie.dp.intel.com>
-To: arjan@infradead.org, metolent@snoqualmie.dp.intel.com
-Subject: Re: [patch] remove direct mem_map refs for x86-64
+	Wed, 3 Nov 2004 12:04:24 -0500
+Received: from cantor.suse.de ([195.135.220.2]:1225 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261732AbUKCREO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 12:04:14 -0500
+Date: Wed, 3 Nov 2004 18:01:44 +0100
+From: Andi Kleen <ak@suse.de>
+To: Matt Tolentino <metolent@snoqualmie.dp.intel.com>
 Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [patch] remove direct mem_map refs for x86-64
+Message-ID: <20041103170144.GA1514@wotan.suse.de>
+References: <200411031647.iA3GlmBm016951@snoqualmie.dp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411031647.iA3GlmBm016951@snoqualmie.dp.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From SRS0+fff01e338c482ba0c24b+437+infradead.org+arjan@canuck.srs.infradead.org  Wed Nov  3 08:54:21 2004
->On Wed, 2004-11-03 at 08:47 -0800, Matt Tolentino wrote:
->> -                       page = pgdat->node_mem_map + i;
->> -		total++;
->> +			page = pfn_to_page(pgdat->node_start_pfn + i);
->> +			total++;
->
->this can't be correct... pfn_to_page starts to count from address 0
->while the original code starts from the start of the node..
+On Wed, Nov 03, 2004 at 08:47:48AM -0800, Matt Tolentino wrote:
+> Hi Andi,
+> 
+> No real functional change here.  Just use the pfn_to_page
+> macros instead of directly indexing into the mem_map. 
+> Patch is against 2.6.10-rc1-mm2.  Please consider...
 
-Yep, you're right.  I've been thinking about single nodes too much
-lately.
+Thanks looks good. I put it into my tree.
 
-matt
-
-
-diff -urN linux-2.6.10-rc1-mm2-vanilla/arch/x86_64/mm/init.c linux-2.6.10-rc1-mm2/arch/x86_64/mm/init.c
---- linux-2.6.10-rc1-mm2-vanilla/arch/x86_64/mm/init.c	2004-11-03 06:50:01.939974040 -0500
-+++ linux-2.6.10-rc1-mm2/arch/x86_64/mm/init.c	2004-11-03 07:26:15.922478464 -0500
-@@ -466,7 +466,7 @@
- 		/*
- 		 * Only count reserved RAM pages
- 		 */
--		if (page_is_ram(tmp) && PageReserved(mem_map+tmp))
-+		if (page_is_ram(tmp) && PageReserved(pfn_to_page(tmp)))
- 			reservedpages++;
- #endif
- 
+-Andi

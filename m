@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263945AbUACU4S (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 15:56:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263946AbUACU4S
+	id S264127AbUACVQP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 16:16:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264137AbUACVQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 15:56:18 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:63409 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S263945AbUACU4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 15:56:18 -0500
-Message-ID: <3FF72A4C.2040404@myrealbox.com>
-Date: Sat, 03 Jan 2004 12:47:08 -0800
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040103
-X-Accept-Language: en-us, en
+	Sat, 3 Jan 2004 16:16:15 -0500
+Received: from c211-28-147-198.thoms1.vic.optusnet.com.au ([211.28.147.198]:12478
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S264127AbUACVQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 16:16:14 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Soeren Sonnenburg <kernel@nn7.de>
+Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
+Date: Sun, 4 Jan 2004 08:15:54 +1100
+User-Agent: KMail/1.5.3
+Cc: Mark Hahn <hahn@physics.mcmaster.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca> <200401040800.06529.kernel@kolivas.org> <1073164240.9851.319.camel@localhost>
+In-Reply-To: <1073164240.9851.319.camel@localhost>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Technical udev question for Greg
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401040815.54655.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+On Sun, 4 Jan 2004 08:10, Soeren Sonnenburg wrote:
+> On Sat, 2004-01-03 at 22:00, Con Kolivas wrote:
+> > On Sun, 4 Jan 2004 07:19, Soeren Sonnenburg wrote:
+> > > On Sat, 2004-01-03 at 20:40, Mark Hahn wrote:
+>
+> [it is a bash bug]
+> huuhh ? How can this be a bash bug if the output is done by other
+> programs like dmesg or find ? however I just tested - this issue happens
+> with csh/tcsh too...
 
-I think I acidentally screwed up by running a script which ran MAKEDEV
-while udev was running.
+The bash bug was waiting on a pipe problem; not just bash alone. I was just 
+offering a suggestion. I have no idea what exactly to blame without evidence 
+of what's at fault.
 
-Now /dev/.udev.tdb is very large and devices have strange permissions
-they didn't have before.
+Con
 
-All I want to do is delete all the extraneous devices in .udev.tdb
-and start over.  How do I do that?
-
-Thanks!

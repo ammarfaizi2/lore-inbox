@@ -1,79 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbUKHAqy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbUKHAyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbUKHAqy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 19:46:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbUKHAqy
+	id S261720AbUKHAyt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 19:54:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbUKHAyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 19:46:54 -0500
-Received: from mx.inch.com ([216.223.198.27]:19473 "EHLO util.inch.com")
-	by vger.kernel.org with ESMTP id S261719AbUKHAqv (ORCPT
+	Sun, 7 Nov 2004 19:54:49 -0500
+Received: from fw.osdl.org ([65.172.181.6]:64747 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261720AbUKHAyq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 19:46:51 -0500
-Date: Sun, 7 Nov 2004 19:46:43 -0500 (EST)
-From: John McGowan <jmcgowan@inch.com>
-To: Dave Airlie <airlied@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: (non) "bug" in 810 (kernel 2.6.9)
-In-Reply-To: <21d7e99704110714276228ff9b@mail.gmail.com>
-Message-ID: <20041107193648.H67112@shell.inch.com>
-References: <20041106212327.GA3592@localhost.localdomain>
- <21d7e99704110714276228ff9b@mail.gmail.com>
+	Sun, 7 Nov 2004 19:54:46 -0500
+Message-ID: <418EC395.3070002@osdl.org>
+Date: Sun, 07 Nov 2004 16:53:41 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Michael Buesch <mbuesch@freenet.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] fix address passing of unknown_bootoption
+References: <200411072247.39841.mbuesch@freenet.de> <20041107164244.34ad8bfd.akpm@osdl.org>
+In-Reply-To: <20041107164244.34ad8bfd.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Nov 2004, Dave Airlie wrote:
+Andrew Morton wrote:
+> Michael Buesch <mbuesch@freenet.de> wrote:
+> 
+>>Hi Andrew,
+>>
+>>Addresses of functions are returned by their name without
+>>parantheses. Remove an & in main.c
+> 
+> 
+> Using `&' in fornt of a function name when passing the function's address
+> is unnecessary and is kinda dorky, but your patch shouldn't change
+> generated code.
+> 
+> 
+>>Unable to handle kernel paging request at virtual address 00020800
+>> printing eip:
+>>00020800
+>>*pde = 00000000
+>>Oops: 0000 [#1]
+>>SMP 
+>>Modules linked in: ipv6 ohci_hcd tuner tvaudio msp3400 bttv video_buf btcx_risc nvidia ehci_hcd uhci_hcd usbcore intel_agp agpgart evdev
+>>CPU:    0
+>>EIP:    0060:[<00020800>]    Tainted: P   VLI
+>>EFLAGS: 00010296   (2.6.9-ck3-ac6-nozeroram) 
+>>EIP is at 0x20800
+>>eax: 00000001   ebx: b03e6000   ecx: 00000001   edx: 00000084
+>>esi: 00099100   edi: b01020a7   ebp: 00459007   esp: b03e7fec
+>>ds: 007b   es: 007b   ss: 0068
+>>Process swapper (pid: 0, threadinfo=b03e6000 task=b034bac0)
+>>Stack: b03e881c 000000d9 b03e8310 b04132a0 b0100211 
+>>Call Trace:
+>> [<b03e881c>] start_kernel+0x139/0x152
+>> [<b03e8310>] unknown_bootoption+0x0/0x171
+>>Code:  Bad EIP value.
+>> <0>Kernel panic - not syncing: Attempted to kill the idle task!
+>>
+>>
+>>Unable to handle kernel paging request at virtual address 00099108
+>> printing eip:
+>>b01020a7
+>>*pde = 00000000
+>>Oops: 0000 [#1]
+>>SMP 
+>>Modules linked in: nvidia ohci_hcd tuner tvaudio msp3400 bttv video_buf btcx_risc ehci_hcd uhci_hcd usbcore intel_agp agpgart evdev
+>>CPU:    0
+>>EIP:    0060:[<b01020a7>]    Tainted: P   VLI
+>>EFLAGS: 00010292   (2.6.9-ck2-ac4-nozeroram) 
+>>EIP is at cpu_idle+0x2e/0x3c
+>>eax: 00000001   ebx: 00099100   ecx: 00000000   edx: 0000001d
+>>esi: 00000000   edi: 00000008   ebp: 004f3007   esp: b0477fe8
+>>ds: 007b   es: 007b   ss: 0068
+>>Process swapper (pid: 0, threadinfo=b0476000 task=b03ccac0)
+>>Stack: 00020800 b047881c 000000dd b0478310 b04a62a0 b0100211 
+>>Call Trace:
+>> [<b047881c>] start_kernel+0x139/0x152
+>> [<b0478310>] unknown_bootoption+0x0/0x171
+>>Code: e0 ff ff 21 e3 eb 24 8b 0d 80 56 4a b0 b8 1a 20 10 b0 8b 15 a0 e5 3c b0 85 c9 0f 44 c8 8b 43 10 c1 e0 07 89 90 04 ea 4a b0 ff d1 <8b> 43 08 a8 08 74 d5 e8 0d a9 26 00 eb f2 56 53 fb ba 00 e0 ff 
+>> <0>Kernel panic - not syncing: Attempted to kill the idle task!
+> 
+> 
+> hm, I don't know what happened there.  Maybe the value of pm_idle in
+> cpu_idle() is garbage.  Or maybe not.
 
-> > I had reported a problem with getting a working screen in X with kernel
-> > 2.6.9. It is not a bug, but a change.
-> >
->
-> I can't reproduce this on my system at all, I've got an i815 (slightly
-> newer chipset than i810 - maybe something in that...) but I've just
-> compiled a kernel with the i810 drm built in and started X in 24-bit
-> color on 2.6.9 without incident...
+Zwane and someone else had patches for that happening IIRC
+a month or 2 back.
+I can dig them out if wanted... Michael, want to try?
 
-I have been finding more problems. Even with DRM not configured in the
-kernel, I have explicitly to kill (NoAccel) all 2D acceleration to
-get things working.
-
-I put DRM back in.
-
-I have managed to avoid having to kill ALL 2D acceleration by selectively
-disabling parts of it. My xorg.conf now has:
-
-        Option "XaaNoScanlineCPUToScreenColorExpandFill" "true"
-        Option "XaaNoSolidFillRect" "true"
-        Option "XaaNoScreenToScreenCopy" "true"
-        Option "XaaNoMono8x8PatternFillRect" "true"
-
-(the first blocked access to the xterm windows ice put up,
- the second caused the junk on the screen,
- the third was to get text inside Mozilla to scroll and
- the last was to get the MonoPattern in the xterm scrollbar)
-(perhaps there will be more things I have to disable)
-(I found that disabling all individual options worked and so
-then enabled then one at a time until a problem arose to find
-out what had to be disabled to get things working)
-
-I can then get DRI working in 16 bit mode (actually I can get it
-working with just the first two disabling options but put in the
-others for general use).
-
-This is for xorg-x11-6.8.1-12 (rpm, fedora core2 development branch,
-rebuilt under kernel 2.6.9).
-
-> I'm running Xorg 6.8.0-rc3.... its wierd I've no idea what could be
-> causing it ...
-
-Nor I.
-
-Maybe that's why they brought out the 815 chipset :-)
-
-
-Regards from:
-
-    John McGowan  |  jmcgowan@inch.com                [Internet Channel]
-                  |  jmcgowan@coin.org                [COIN]
-    --------------+-----------------------------------------------------
+-- 
+~Randy

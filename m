@@ -1,148 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVARHVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVARHXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261155AbVARHVl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 02:21:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVARHVl
+	id S261159AbVARHXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 02:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbVARHXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 02:21:41 -0500
-Received: from colin2.muc.de ([193.149.48.15]:50438 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261155AbVARHVf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 02:21:35 -0500
-Date: 18 Jan 2005 08:21:33 +0100
-Date: Tue, 18 Jan 2005 08:21:33 +0100
-From: Andi Kleen <ak@muc.de>
-To: akpm@osdl.org, mst@mellanox.co.il, hch@infradead.org,
-       linux-kernel@vger.kernel.org
-Cc: chrisw@osdl.org, davem@davemloft.net
-Subject: [PATCH] Some fixes for compat ioctl
-Message-ID: <20050118072133.GB76018@muc.de>
-Mime-Version: 1.0
+	Tue, 18 Jan 2005 02:23:15 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:47071 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261159AbVARHWu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 02:22:50 -0500
+From: Tom Zanussi <zanussi@us.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16876.50139.587691.939056@tut.ibm.com>
+Date: Tue, 18 Jan 2005 02:07:55 -0600
+To: karim@opersys.com
+Cc: Aaron Cohen <remleduff@gmail.com>, Roman Zippel <zippel@linux-m68k.org>,
+       Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
+       Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: 2.6.11-rc1-mm1
+In-Reply-To: <41EC94BF.2080105@opersys.com>
+References: <20050114002352.5a038710.akpm@osdl.org>
+	<41E899AC.3070705@opersys.com>
+	<Pine.LNX.4.61.0501160245180.30794@scrub.home>
+	<41EA0307.6020807@opersys.com>
+	<Pine.LNX.4.61.0501161648310.30794@scrub.home>
+	<41EADA11.70403@opersys.com>
+	<Pine.LNX.4.61.0501171403490.30794@scrub.home>
+	<41EC2DCA.50904@opersys.com>
+	<Pine.LNX.4.61.0501172323310.30794@scrub.home>
+	<41EC8AA2.1030000@opersys.com>
+	<727e501505011720303ba4f2cd@mail.gmail.com>
+	<41EC94BF.2080105@opersys.com>
+X-Mailer: VM 7.18 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Karim Yaghmour writes:
+ > 
+ > Aaron Cohen wrote:
+ > >   I've got a quick question and I just want to be clear that it
+ > > doesn't have a political agenda behind it.
+ > 
+ > :)
+ > 
+ > > Here goes, why can't LTT and/or relayfs, work similar to the way
+ > > syslog does and just fill a buffer (aka ring-buffer or whatever is
+ > > appropriate), while a userspace daemon of some kind periodically reads
+ > > that buffer and massages it.  I'm probably being naive but if the
+ > > difficulty is with huge several hundred-gig files, the daemon if it
+ > > monitors the buffer often enough could stuff it into a database or
+ > > whatever high-performance format you need.
+ > 
+ > Because of the bandwidth it is not possible to do any sort of live
+ > processing of any kind. The only thing the daemon can possibly do
+ > is write large blocks of tracing info to disk as rapidly as possible.
 
-While doing some compat_ioctl conversions I noticed a few issues
-in compat_sys_ioctl:
+I have to disagree.  Awhile back, if you remember, I posted a patch to
+the LTT daemon that would monitor the trace stream in real time, and
+process it using an embedded Perl interpreter, no less:
 
-- It is not completely compatible to old ->ioctl because 
-the traditional common ioctls are not checked before it. I added
-a check for those. The main advantage is that the handler 
-now works the same as a traditional handler even when it returns
--EINVAL
-- The private socket ioctl check should only apply for sockets.
-- There was a security hook missing.  Drawback is that it uses
-the same hook now, and the LSM module cannot distingush between
-32bit and 64bit clients. But it'll have to live with that for now.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109405724500237&w=2
 
-Signed-off-by: Andi Kleen <ak@muc.de>
+It didn't seem to have any problems keeping up with the trace stream
+even though it was monitoring all LTT event types (and a couple of
+others - custom events injected using kprobes) and not doing any
+filtering in the kernel, through kernel compiles, normal X traffic,
+etc.  I don't know what volume of event traffic would cause this model
+to break down, but I think it shows that at least some level of
+non-trivial live processing is possible...
 
-diff -u linux-2.6.11-rc1-bk4/fs/ioctl.c-o linux-2.6.11-rc1-bk4/fs/ioctl.c
---- linux-2.6.11-rc1-bk4/fs/ioctl.c-o	2005-01-17 10:39:40.000000000 +0100
-+++ linux-2.6.11-rc1-bk4/fs/ioctl.c	2005-01-17 21:57:09.000000000 +0100
-@@ -78,6 +78,10 @@
- }
- 
- 
-+/* 
-+ * When you add any new common ioctls to the switches above and below
-+ * please update compat_sys_ioctl() too.
-+ */ 
- asmlinkage long sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
- {
- 	struct file * filp;
-diff -u linux-2.6.11-rc1-bk4/fs/compat.c-o linux-2.6.11-rc1-bk4/fs/compat.c
---- linux-2.6.11-rc1-bk4/fs/compat.c-o	2005-01-17 10:39:40.000000000 +0100
-+++ linux-2.6.11-rc1-bk4/fs/compat.c	2005-01-18 08:04:11.000000000 +0100
-@@ -25,6 +25,7 @@
- #include <linux/file.h>
- #include <linux/vfs.h>
- #include <linux/ioctl32.h>
-+#include <linux/ioctl.h>
- #include <linux/init.h>
- #include <linux/sockios.h>	/* for SIOCDEVPRIVATE */
- #include <linux/smb.h>
-@@ -47,6 +48,7 @@
- 
- #include <asm/uaccess.h>
- #include <asm/mmu_context.h>
-+#include <asm/ioctls.h>
- 
- /*
-  * Not all architectures have sys_utime, so implement this in terms
-@@ -437,16 +439,41 @@
- 	if (!filp)
- 		goto out;
- 
--	if (filp->f_op && filp->f_op->compat_ioctl) {
--		error = filp->f_op->compat_ioctl(filp, cmd, arg);
--		if (error != -ENOIOCTLCMD)
--			goto out_fput;
--	}
--
--	if (!filp->f_op ||
--	    (!filp->f_op->ioctl && !filp->f_op->unlocked_ioctl))
--		goto do_ioctl;
-+	/* 
-+	 * To allow the compat_ioctl handlers to be self contained
-+	 * we need to check the common ioctls here first.
-+	 * Just handle them with the standard handlers below.
-+	 */ 
-+	switch (cmd) { 
-+	case FIOCLEX:
-+	case FIONCLEX:
-+	case FIONBIO:
-+	case FIOASYNC:
-+	case FIOQSIZE:
-+		break; 
-+
-+	case FIBMAP:
-+	case FIGETBSZ:
-+	case FIONREAD:
-+		if (S_ISREG(filp->f_dentry->d_inode->i_mode))
-+			break;
-+		/*FALL THROUGH*/
- 
-+	default:
-+		if (filp->f_op && filp->f_op->compat_ioctl) {
-+			error = filp->f_op->compat_ioctl(filp, cmd, arg);
-+			if (error != -ENOIOCTLCMD)
-+				goto out_fput;
-+		}
-+		
-+		if (!filp->f_op ||
-+		    (!filp->f_op->ioctl && !filp->f_op->unlocked_ioctl))
-+			goto do_ioctl;
-+		break;
-+	}
-+		   	
-+	/* When register_ioctl32_conversion is finally gone remove
-+	   this lock! -AK */
- 	down_read(&ioctl32_sem);
- 	for (t = ioctl32_hash_table[ioctl32_hash(cmd)]; t; t = t->next) {
- 		if (t->cmd == cmd)
-@@ -454,7 +481,8 @@
- 	}
- 	up_read(&ioctl32_sem);
- 
--	if (cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15)) {
-+	if (S_ISSOCK(filp->f_dentry->d_inode->i_mode) &&
-+	    cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15)) {
- 		error = siocdevprivate_ioctl(fd, cmd, arg);
- 	} else {
- 		static int count;
-@@ -468,6 +496,11 @@
- 
-  found_handler:
- 	if (t->handler) {
-+		/* RED-PEN how should LSM module know it's handling 32bit? */
-+		error = security_file_ioctl(filp, cmd, arg);
-+		if (error)
-+			goto out_fput;
-+
- 		lock_kernel();
- 		error = t->handler(fd, cmd, arg, filp);
- 		unlock_kernel();
+Tom
+
+ > 
+ > >  It also seems to me that Linus' nascent "splice and tee" work would
+ > > be really useful for something like this to avoid a lot of unnecessary
+ > > copying by the userspace daemon.
+ > 
+ > There is no copying by the userspace daemon. All it does is open(),
+ > then mmap(), and then it sleeps until it is woken up by the ltt
+ > kernel subsystem. When that happens, it only does a write() on the
+ > mmaped area, tells the ltt subsystem that it commited X number of
+ > sub-buffers and goes back asleep. This is all zero-copy.
+ > 
+ > Karim
+ > -- 
+ > Author, Speaker, Developer, Consultant
+ > Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+ > http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+
+-- 
+Regards,
+
+Tom Zanussi <zanussi@us.ibm.com>
+IBM Linux Technology Center/RAS
+

@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317673AbSIJUHV>; Tue, 10 Sep 2002 16:07:21 -0400
+	id <S317616AbSIJUMa>; Tue, 10 Sep 2002 16:12:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317858AbSIJUHV>; Tue, 10 Sep 2002 16:07:21 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:55283
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317673AbSIJUHU>; Tue, 10 Sep 2002 16:07:20 -0400
-Subject: Re: ignore pci devices?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Martin Mares <mj@ucw.cz>
-Cc: Gerd Knorr <kraxel@bytesex.org>,
-       Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020910184128.GA5627@ucw.cz>
-References: <20020910134708.GA7836@bytesex.org>
-	<20020910163023.GA3862@ucw.cz>
-	<1031683362.1537.104.camel@irongate.swansea.linux.org.uk> 
-	<20020910184128.GA5627@ucw.cz>
-Content-Type: text/plain
+	id <S317836AbSIJUMa>; Tue, 10 Sep 2002 16:12:30 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:6928 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id <S317616AbSIJUM2>;
+	Tue, 10 Sep 2002 16:12:28 -0400
+Message-ID: <3D7E534A.7000600@namesys.com>
+Date: Wed, 11 Sep 2002 00:17:14 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Alvord <jalvo@mbay.net>
+CC: Shawn <core@enodev.com>, Mike Galbraith <efault@gmx.de>,
+       Andi Kleen <ak@suse.de>,
+       Thunder from the hill <thunder@lightweight.ods.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: XFS?
+References: <p73wupuq34l.fsf@oldwotan.suse.de> <20020909193820.GA2007@lnuxlab.ath.cx.suse.lists.linux.kernel> <Pine.LNX.4.44.0209091457590.3793-100000@hawkeye.luckynet.adm.suse.lists.linux.kernel> <p73wupuq34l.fsf@oldwotan.suse.de> <20020909162050.B4781@q.mn.rr.com> <5.1.0.14.2.20020910190828.00b27258@pop.gmx.net> <20020910142347.A5000@q.mn.rr.com> <92ksnuc403ubdr07dqvnor1mf9lr18srij@4ax.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 10 Sep 2002 21:15:12 +0100
-Message-Id: <1031688912.31787.129.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-10 at 19:41, Martin Mares wrote:
-> > pci_driver has no implicit ordering.
-> 
-> Agreed, but I meant inserting it as a module before the other
-> modules.
+John Alvord wrote:
 
-Which breaks the moment it meets a hotplug system
+>  
+>
+>If memory serves, Linus incorporated reiserfs after several major
+>distributors started including it. Linus seems to pay a lot of
+>attention to distributions in areas where he isn't so much interested.
+>
+>So does Redhat/Suse/??? ship XFS yet?
+>
+>john
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
+Mandrake does if I remember right.  
+
+XFS is cool, and their allocation at flush innovation has influenced 
+reiser4 deeply.  I wish them well.
+
+Hans
+
 

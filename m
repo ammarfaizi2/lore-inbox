@@ -1,32 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262462AbTCIHld>; Sun, 9 Mar 2003 02:41:33 -0500
+	id <S262470AbTCIHsW>; Sun, 9 Mar 2003 02:48:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262470AbTCIHld>; Sun, 9 Mar 2003 02:41:33 -0500
-Received: from h-64-105-35-18.SNVACAID.covad.net ([64.105.35.18]:46208 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S262462AbTCIHlc>; Sun, 9 Mar 2003 02:41:32 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sat, 8 Mar 2003 23:51:52 -0800
-Message-Id: <200303090751.XAA01395@adam.yggdrasil.com>
-To: akpm@digeo.com
-Subject: Re: 2.5.64bk3 no screen after Ok booting kernel
-Cc: jason@jeetkunedomaster.net, linux-kernel@vger.kernel.org
+	id <S262471AbTCIHsW>; Sun, 9 Mar 2003 02:48:22 -0500
+Received: from a089148.adsl.hansenet.de ([213.191.89.148]:4224 "EHLO
+	ds666.starfleet") by vger.kernel.org with ESMTP id <S262470AbTCIHsV>;
+	Sun, 9 Mar 2003 02:48:21 -0500
+Message-ID: <3E6AF463.4020706@portrix.net>
+Date: Sun, 09 Mar 2003 08:59:31 +0100
+From: Jan Dittmer <j.dittmer@portrix.net>
+Organization: portrix.net GmbH
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030305
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: jsimmons@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: Console weirdness
+References: <3E6A1A7F.8090409@portrix.net> <20030308131721.5254517a.akpm@digeo.com>
+In-Reply-To: <20030308131721.5254517a.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Andrew Morton wrote:
->Did you try adding "console=tty0" to the boot command?  That got broken too.
+> Jan Dittmer <j.dittmer@portrix.net> wrote:
+> 
+>>I'm not seeing any boot messages during boot up.
+> 
+> Try adding "console=/dev/tty0" to your kernel boot parameters.  Please
+> report on the outcome.
+> 
 
-	Thank you!  That was the problem.
+Okay, all of these fixes it.
+console=ttyS0,38400n8 console=tty0
+console=tty1
+console=tty0
 
-	The machine that originally worked had
-"console=ttyS0,38400 console=tty0" so that its kernel messages
-can be logged to a serial port.  The machine that did not work
-did not have any "console=" boot argument.  Adding "console=tty0"
-restored console behavior.
+But still, switching back from X to console corrupts the display. 
+Switching back is fine though using the fbdev.diff patch. Without 
+switching back and force works fine, except that the last line isn't 
+properly redrawn (rivafb).
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Thanks, jan
+

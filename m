@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313416AbSFBTpO>; Sun, 2 Jun 2002 15:45:14 -0400
+	id <S313492AbSFBTto>; Sun, 2 Jun 2002 15:49:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313419AbSFBTpN>; Sun, 2 Jun 2002 15:45:13 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:36549 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S313416AbSFBTpN>; Sun, 2 Jun 2002 15:45:13 -0400
-Date: Sun, 2 Jun 2002 21:45:18 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@neptun.fachschaften.tu-muenchen.de
-To: Russell King <rmk@arm.linux.org.uk>
-cc: LKML <linux-kernel@vger.kernel.org>, CPUfreq <cpufreq@www.linux.org.uk>
-Subject: Re: [PATCH] cpufreq core for 2.5
-In-Reply-To: <20020602203510.A11542@flint.arm.linux.org.uk>
-Message-ID: <Pine.NEB.4.44.0206022144280.1674-100000@neptun.fachschaften.tu-muenchen.de>
+	id <S313505AbSFBTtn>; Sun, 2 Jun 2002 15:49:43 -0400
+Received: from pD9E239B5.dip.t-dialin.net ([217.226.57.181]:26324 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S313419AbSFBTtl>; Sun, 2 Jun 2002 15:49:41 -0400
+Date: Sun, 2 Jun 2002 13:49:34 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Lightweight patch manager <patch@luckynet.dynu.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Kernel Build -- Daniel Phillips <phillips@bonn-fries.net>,
+        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+        Keith Owens <kaos@ocs.com.au>
+Subject: Re: [PATCH][2.5] kbuild-2.5 12/12: scsi stuff
+In-Reply-To: <Pine.LNX.4.44.0206021229001.12673-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0206021348530.29405-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russell,
+Hi,
 
+On Sun, 2 Jun 2002, Linus Torvalds wrote:
+> Hasn't this been made obsolete by the work done by Kai?
 
->...
-> --- orig/incldue/linux/cpufreq.h	Sat Apr 26 08:56:46 1997
-> +++ linux/include/linux/cpufreq.h	Wed May  1 17:32:20 2002
->...
-> +#ifndef CONFIG_SMP
->...
-> +#else
->...
-> +#error fill in SMP version
-> +#endif
->...
+Yepp, but it's not in your current bktree.
 
-
-this means that it's impossible to compile it into a kernel with
-CONFIG_SMP enabled. Are there any plans to fix this?
-
-
-TIA
-Adrian
-
+Regards,
+Thunder
 -- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+ship is leaving right on time	|	Thunder from the hill at ngforever
+empty harbour, wave goodbye	|
+evacuation of the isle		|	free inhabitant not directly
+caveman's paintings drowning	|	belonging anywhere
 

@@ -1,100 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264426AbTFEC7X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 22:59:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264429AbTFEC7W
+	id S264436AbTFEDBP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 23:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbTFEDBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 22:59:22 -0400
-Received: from ishtar.tlinx.org ([64.81.58.33]:49596 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S264426AbTFEC7V convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 22:59:21 -0400
-From: "linda w." <lkml@tlinx.org>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Subject: reading links in proc - permission denied
-Date: Wed, 4 Jun 2003 20:12:51 -0700
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAiHEeAA2WU0axxgkRKekfNOKAAAAQAAAAydHhJHuL6EidVu4vBhnNbgEAAAAA@tlinx.org>
+	Wed, 4 Jun 2003 23:01:15 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:43138
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S264436AbTFEDBO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 23:01:14 -0400
+Date: Wed, 4 Jun 2003 23:04:00 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+cc: "Brian J. Murrell" <brian@interlinx.bc.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: local apic timer ints not working with vmware: nolocalapic
+In-Reply-To: <Pine.GSO.3.96.1030603133821.29576A-100000@delta.ds2.pg.gda.pl>
+Message-ID: <Pine.LNX.4.50.0306030827550.14455-100000@montezuma.mastecende.com>
+References: <Pine.GSO.3.96.1030603133821.29576A-100000@delta.ds2.pg.gda.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm misunderstanding something about links in proc. 
+On Tue, 3 Jun 2003, Maciej W. Rozycki wrote:
 
-I thought 'ps', 'top' et al used /proc to display processes, command lines, etc.
+> On Sat, 31 May 2003, Zwane Mwaikambo wrote:
+>  How about clearing cpu_has_apic and smp_found_config instead?  As I
+> understand the problem, the local APIC is useless so the kernel shouldn't
+> pretend it's present.  And the MP-table is useless without a local APIC. 
 
-Since neither ps nor top are suid root, they are running with my uid 
-permissions.
+I agree, but there are already the appropriate checks for wether there is 
+an APIC enabled that should suffice.
 
-However, if I do "ls -l" on /proc/<number>/exe, I get a
-
-"ls: cannot read symbolic link /proc/16714/exe: Permission denied"
-
-message.
-
-Now the process is owned by 'named', but the entries in diriectory are 
-owned by root (is that right/logical?), thus:
-
-# ll /proc/16714 
-total 0
-dr-xr-xr-x    3 named    named           0 Jun  4 11:39 ./
-dr-xr-xr-x   95 root     root            0 May 30 15:38 ../
--r--r--r--    1 root     root            0 Jun  4 11:39 cmdline
--r--r--r--    1 root     root            0 Jun  4 11:39 cpu
-lrwxrwxrwx    1 root     root            0 Jun  4 11:39 cwd -> /var/named/
--r--------    1 root     root            0 Jun  4 11:39 environ
-lrwxrwxrwx    1 root     root            0 Jun  4 11:39 exe -> /usr/sbin/named*
-dr-x------    2 root     root            0 Jun  4 11:39 fd/
--r--r--r--    1 root     root            0 Jun  4 11:39 maps
--rw-------    1 root     root            0 Jun  4 11:39 mem
--r--r--r--    1 root     root            0 Jun  4 11:39 mounts
-lrwxrwxrwx    1 root     root            0 Jun  4 11:39 root -> //
--r--r--r--    1 root     root            0 Jun  4 11:39 stat
--r--r--r--    1 root     root            0 Jun  4 11:39 statm
--r--r--r--    1 root     root            0 Jun  4 11:39 status
----
-	Purely from a 'cleanliness' standpoint, is the environment owned by
-the user-id, or is it a common piece of public, kernel (root) owned data?
-
-	From observation of other /proc entries, it appears that 'named' has
-some unique features in that it is started as root, but then reverts to uid/gid named sometime after startup.  Should some (or all) of the UID's
-in proc change ownership to the new UID or are they still considered to
-be owned by the old UID?  (Would seem a bit inconsistent -- I wonder if
-it could be security exploitable? -- like if a user process was able to
-setuid root, would  anything be left in the environment owned by the
-original unpriviledged user that could be changed from another running
-process, changing things like PATH for the currently running root
-process....naw...I'm sure that's plugged...and it's only inconsistent
-with root doing setuid to non-root....hmmmm :-/).
-
-
-
-	But, here's the part that is bugging me.  Running as user 'foo',
-I can't read that link -- yet the permissions say rxw for group and other.
-So why am I getting the *permission error*?  The binary it is pointing to
-/usr/sbin/named is also publicly readable, so that can't be the problem.
-
-	So why can't I follow the link of 'exe' to see what image the process
-is executing?  Programs like 'ps' and 'top' seem to not have this
-difficulty.
-
-	I'm sure it's some silly misconfiguration on my part, but I guess I want
-to know how I got here.  This isn't my beautiful kernel, it's not my beautiful /proc...(etc...).
-
-	I'm running a xfs-patched kernel, V2.4.20/SMP.
-
-Thanks for any insights...I'm trying to write a simple script looking for
-a running process (by looking at what 'exe' is pointing to).  I would 
-find it kludgey to achieve the objective by running 'ps' and doing 
-appropriate filtering. 
-
--linda
-     
-
+	Zwane
+-- 
+function.linuxpower.ca

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319071AbSHSW12>; Mon, 19 Aug 2002 18:27:28 -0400
+	id <S319063AbSHSWbU>; Mon, 19 Aug 2002 18:31:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319069AbSHSW12>; Mon, 19 Aug 2002 18:27:28 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:2205 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S319063AbSHSW11>; Mon, 19 Aug 2002 18:27:27 -0400
-Date: Mon, 19 Aug 2002 16:31:26 -0600
-Message-Id: <200208192231.g7JMVQI28575@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: MAX_PID changes in 2.5.31
-In-Reply-To: <Pine.LNX.4.44.0208192146580.32337-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0208192146580.32337-100000@localhost.localdomain>
+	id <S319069AbSHSWbU>; Mon, 19 Aug 2002 18:31:20 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:27079 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S319063AbSHSWbT>;
+	Mon, 19 Aug 2002 18:31:19 -0400
+Date: Tue, 20 Aug 2002 00:36:36 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] O(1) sys_exit(), threading, scalable-exit-2.5.31-A6
+In-Reply-To: <100750000.1029793342@baldur.austin.ibm.com>
+Message-ID: <Pine.LNX.4.44.0208200035250.5286-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar writes:
-> 
-> Linus,
-> 
-> afaics, you did the PID_MAX changes in v2.5.31? This is a change i had for
-> (surprise) threading purposes already, but done a bit differently.
-> 
-> The main problem is that there's the old-style SysV IPC interface
-> that uses 16-bit PIDs still. All recent SysV applications (linked
-> against glibc 2.2 or newer) use IPC_64, but any application linked
-> against pre-2.2 glibcs will fail. glibc 2.2 was released 2 years
-> ago, is this enough of a timeout to obsolete the non-IPC_64
-> interfaces?
 
-Are you saying that people running libc 5 or even glibc 2.1 will
-suddenly have their code broken?
+On Mon, 19 Aug 2002, Dave McCracken wrote:
 
-				Regards,
+> > No, you only need to make debugged children slightly pecial in wait4(), in
+> > that the parent must never see their state, only the fact that they are
+> > there (as if they were still running, in short, regardless of their _real_
+> > state)
+> 
+> So does that mean we need something like a 'count of children stolen by
+> debuggers' in the task struct that wait4() can check?
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+in fact we have this already, almost:
+
+	if (!list_empty(&current->ptrace_children))
+
+then block (or return -EAGAIN). Instead of the current -ENOCHLD.
+
+	Ingo
+

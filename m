@@ -1,64 +1,279 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315416AbSGUXs4>; Sun, 21 Jul 2002 19:48:56 -0400
+	id <S316667AbSGVKkP>; Mon, 22 Jul 2002 06:40:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315417AbSGUXs4>; Sun, 21 Jul 2002 19:48:56 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:39624 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S315416AbSGUXsz>;
-	Sun, 21 Jul 2002 19:48:55 -0400
-Date: Mon, 22 Jul 2002 01:50:57 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: george anzinger <george@mvista.com>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>, <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [announce, patch, RFC] "big IRQ lock" removal, IRQ cleanups.
-In-Reply-To: <3D3B4734.244BBE2A@mvista.com>
-Message-ID: <Pine.LNX.4.44.0207220146210.4147-100000@localhost.localdomain>
+	id <S316668AbSGVKkP>; Mon, 22 Jul 2002 06:40:15 -0400
+Received: from rzfoobar.is-asp.com ([217.11.194.155]:39914 "EHLO mail.isg.de")
+	by vger.kernel.org with ESMTP id <S316667AbSGVKkL>;
+	Mon, 22 Jul 2002 06:40:11 -0400
+Message-ID: <3D3BE1C2.CB89D124@isg.de>
+Date: Mon, 22 Jul 2002 12:43:14 +0200
+From: Peter Niemayer <niemayer@isg.de>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: read/recv sometimes returns EAGAIN instead of EINTR on SMP machines
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi everyone,
 
-On Sun, 21 Jul 2002, george anzinger wrote:
+I just noticed that both kernel 2.2.x and 2.4.x return a false code from read or recv
+under certain conditions:
 
-> > > - to remove the preemption count increase/decrease code from the lowlevel
-> > >   IRQ assembly code.
-> 
-> IMHO this is unwise as the system NEEDS to exit to user (or
-> system) space when preempt_count is zero with a garuntee
-> that TIF_NEED_RESCHED is 0. [...]
+If one process tries to read non-blocking from a tcp socket (domain sockets work
+fine), and another process sends the reading process signals, then sometimes
+select() returns with the indication that the socket is readable, but the subsequent
+read returns EAGAIN - instead of EINTR which would have been the correct return
+code. This only happenes on SMP machines.
 
-my comment was too compact - the bumping of the preemption count did not
-get removed, it's just the dualness that got removed. Both the lowlevel
-entry code and the irq_enter() code used to do the same thing - now only
-irq_enter() does it.
+Other "fd"-types or operating systems I tried did not show such a behaviour.
 
-in the latest patch irq_enter() is done early in do_IRQ(), and irq_exit()  
-is done before returning from do_IRQ().
+Find below a small sample source that demonstrates the problem - from time to time
+you should get messages such as:
 
-> [...] To do this from irq.c means that it must exit with interrupts off
-> and the the low level code needs to keep them off till the irtn. [...]
+"recv returned EAGAIN, after 161365824 bytes and 54 interrupts"
 
-yes, we are very careful to keep irqs disabled in do_IRQ(), both before
-and after calling the handler.
+Regards,
 
-> [...] But this is where we test TIF_NEED_RESCHED, and if it is set,
-> schedule() is called and should be called with preempt_count != 0, to
-> avoid stack overflow interrupt loops.  And, schedule() returns with the
-> interrupt system on (even if we, unwisely, call it with it off).
+Peter Niemayer
 
-yes, in this case schedule() is called with a nonzero preempt count
-(PREEMPT_ACTIVE), to keep it from recursing into itself.
+---------------------------------------------------------------------------------------
 
-> > It seems to me that call to irq_enter() must be shifted from
-> > handle_IRQ_event() to do_IRQ().
-> 
-> Even then...
+sample source below, compile with
+> c++ -o test test.cxx
 
-could you check out the latest patch, can you still see any hole in it?  
-All the above scenarios should be handled correctly.
+start with
+> ./test
 
-	Ingo
+creates 3 processes, one just writing to a socket, one reading from the socket
+non-blocking, one sending SIGUSR1 signals to the reading process
 
+---------------------------------------------------------------------------------------
+#include <stdio.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/time.h>
+#include <string.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <stdlib.h>
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <netdb.h>
+
+#include <sys/types.h>
+
+int sigcount = 0;
+
+void mysighandler(int) {
+  ++sigcount;
+}
+
+
+void writer(int fd);
+void reader(int fd);
+void signaller(int pid);
+
+#define testres(name,x) {\
+  int rc = x; \
+  if (rc < 0) { \
+    perror(name); \
+    exit(0); \
+  } \
+} 
+
+
+int main(int argc, char* argv[]) {
+  
+  int mypid = getpid();
+
+  int localhost = (127 << 24) + 1; // 127.0.0.1
+    
+  int s1 = socket(AF_INET, SOCK_STREAM, 0);
+  if (s1 < 0) {
+    perror("error creating server socket");
+    exit(0);
+  }
+  
+  {
+    int val = 1;
+    testres("reuse",setsockopt(s1, SOL_SOCKET, SO_REUSEADDR,
+            (char *) &val, sizeof(val)));
+  }
+
+  {
+    struct sockaddr_in adr;
+    memset ((char *)&adr, 0, sizeof(struct sockaddr_in));
+    adr.sin_family = AF_INET;
+    adr.sin_addr.s_addr = htonl(localhost); // INADDR_ANY;
+    adr.sin_port = htons(9999);
+    testres("bind", bind(s1, (sockaddr*) &adr, sizeof(struct sockaddr_in)));
+    testres("listen", listen(s1, 5));
+  }
+  
+  if (fork() == 0) {
+    
+    int s2 = socket(AF_INET, SOCK_STREAM, 0);
+    if (s2 < 0) {
+      perror("error creating client socket");
+      exit(0);
+    }
+    
+    {
+      struct sockaddr_in adr;
+      memset ((char *)&adr, 0, sizeof(struct sockaddr_in));
+      adr.sin_family = AF_INET;
+      adr.sin_addr.s_addr = htonl(localhost);
+      adr.sin_port = htons(9999);
+      testres("connect", connect(s2, (sockaddr *) &adr,
+              sizeof(struct sockaddr_in)));
+    }
+  
+  
+    writer(s2);
+    _exit(0);
+  }
+  
+  int s2 = accept(s1, 0, 0);
+  
+  {
+    struct sigaction action;
+    action.sa_handler = mysighandler;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+    testres("sigaction", sigaction(SIGUSR1, &action, 0));
+  }
+  
+  if (fork() == 0) {
+    signaller(mypid);
+    _exit(0);
+  }
+  
+  reader(s2);
+
+  return 0;
+}
+
+void signaller(int pid) {
+  for (;;) {
+    if (getppid() == 1) {
+      puts("parent terminated, terminating signaller");
+      break;
+    }
+
+    kill(pid, SIGUSR1);
+    usleep(1);
+  }
+}
+
+void writer(int fd) {
+  fd_set waitset;
+  
+  struct timeval tv;
+  
+  char buf[64000];
+  memset(buf, 0, 64000);
+  
+  int flags = fcntl(fd, F_GETFL);
+  flags |= O_NONBLOCK;
+
+  fcntl(fd, F_SETFL, flags);
+
+  for (;;) {
+    if (getppid() == 1) {
+      puts("parent terminated, terminating writer");
+      break;
+    }
+
+    FD_ZERO(&waitset);
+    FD_SET(fd, &waitset);
+
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+
+    int rc = select(fd+1, 0, &waitset, 0, &tv);
+
+    if (rc < 0) {
+      if (rc == EINTR) {
+        break;
+      } else {
+        perror("writer terminated with select error");
+        return;
+      }
+    } else if (rc == 1) {
+      // socket is writeable
+      send(fd, buf, 64000, 0);
+    }
+
+  }
+}
+
+void reader(int fd) {
+  fd_set waitset;
+  
+  struct timeval tv;
+  
+  char buf[64000];
+  memset(buf, 0, 64000);
+  
+  int flags = fcntl(fd, F_GETFL);
+  flags |= O_NONBLOCK;
+  fcntl(fd, F_SETFL, flags);
+  
+  int totalbytes = 0;
+
+  for (;;) {
+  
+    FD_ZERO(&waitset);
+    FD_SET(fd, &waitset);
+    
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+    
+    int rc = select(fd+1, &waitset, 0, 0, &tv);
+    
+    if (rc < 0) {
+      if (errno == EINTR) {
+        continue;
+      } else if (errno == EAGAIN) {
+        puts("select returned EAGAIN");
+        continue;
+      } else {
+        perror("writer terminated with select error");
+        return;
+      }
+    } else if (rc == 1) {
+      // socket is readable
+      
+      for (;;) {
+        rc = recv(fd, buf, 64000, 0);
+
+        if (rc < 0) {
+          if (errno == EINTR) {
+            continue;
+          } else if (errno == EAGAIN) {
+            printf("recv returned EAGAIN, after %d bytes and %d interrupts\n",
+                   totalbytes, sigcount);
+            fflush(0);
+            sigcount = 0;
+            totalbytes = 0;
+          }
+        } else if (rc == 0) {
+          puts("reader read 0 bytes");
+          return;
+        } else {
+          totalbytes += rc;
+        }
+        break;
+      }
+    }
+  
+  }
+}
+-----------------------------------------------------------------------------------------

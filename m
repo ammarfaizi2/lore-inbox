@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271622AbSKECOo>; Mon, 4 Nov 2002 21:14:44 -0500
+	id <S271907AbSKECTy>; Mon, 4 Nov 2002 21:19:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271630AbSKECOo>; Mon, 4 Nov 2002 21:14:44 -0500
-Received: from dhcp024-209-039-058.neo.rr.com ([24.209.39.58]:12418 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S271622AbSKECOl>;
-	Mon, 4 Nov 2002 21:14:41 -0500
-Date: Mon, 4 Nov 2002 21:24:44 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: CaT <cat@zip.com.au>
-Cc: greg@kroah.com, linux@brodo.de, Tamagucci@libero.it,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.45 / boottime oops (pnp bios I think)
-Message-ID: <20021104212444.GH316@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, CaT <cat@zip.com.au>,
-	greg@kroah.com, linux@brodo.de, Tamagucci@libero.it,
-	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-References: <20021104025458.GA3088@zip.com.au> <20021104161504.GA316@neo.rr.com> <20021104235408.GA627@zip.com.au> <20021104202800.GD316@neo.rr.com> <20021105020630.GA644@zip.com.au>
+	id <S271910AbSKECTx>; Mon, 4 Nov 2002 21:19:53 -0500
+Received: from mhost.enel.ucalgary.ca ([136.159.102.8]:19411 "EHLO
+	mhost.enel.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S271907AbSKECTw>; Mon, 4 Nov 2002 21:19:52 -0500
+Date: Mon, 4 Nov 2002 19:26:23 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Geoff Gustafson <geoff@linux.co.intel.com>
+Cc: Christopher Yeoh <cyeoh@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Open POSIX Test Suite
+Message-ID: <20021104192623.A14085@munet-d.enel.ucalgary.ca>
+Mail-Followup-To: Geoff Gustafson <geoff@linux.co.intel.com>,
+	Christopher Yeoh <cyeoh@samba.org>, linux-kernel@vger.kernel.org
+References: <000a01c28454$56a94b90$7fd40a0a@amr.corp.intel.com> <15815.2399.566974.940599@gargle.gargle.HOWL> <016601c28464$6f6d1110$7fd40a0a@amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021105020630.GA644@zip.com.au>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <016601c28464$6f6d1110$7fd40a0a@amr.corp.intel.com>; from geoff@linux.co.intel.com on Mon, Nov 04, 2002 at 04:44:01PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 05, 2002 at 01:06:30PM +1100, CaT wrote:
-> On Mon, Nov 04, 2002 at 08:28:00PM +0000, Adam Belay wrote:
-> > occured when the pnp bios protocol reached node 0x13.  This node, pnp id
-> > PNP0f13, is of course a standard mouse port.  If you look at the output of 
-> > lspnp for my system, the following can be seen.
-> > 
-> > 12 PNP0f13 input device: mouse
-> >     flags: [no disable] [no config] [static]
-> >     allocated resources:
-> > 	irq 12 [high edge]
->
-> Mine is #13 (ie the first line reads 13 PNP0f13...)
->
-> > Please feel free to send any questions or comments.  The patch is below.
->
-> The patch lets me boot just fine. (Woo) One hassle though, doing
-> lspci -v 13 or cat /proc/bus/pnp/13 causes an oops. I presume it's the
-> same deal as what you were talking about?
->
+On Nov 04, 2002  16:44 -0800, Geoff Gustafson wrote:
+> Another problem is the overhead of the TET framework. One of the goals of
+> this the new test suite is to have test cases which are utterly minimal.
+> So far, each test case has its own main() function and a bare minimum of
+> surrounding code. The idea is that when a bug is found, this one .c file
+> can be sent to the appropriate developer, and without any learning curve,
+> they have the ability to find their bug. I don't think LKML wants to see
+> TET code posted here. :)
 
-Oops, I forgot to fix the pnpbios proc interface for this problem.  I have
-to look into it some more.  None the less this is not a big problem.  If
-it boots you're in good shape.
+Having suffered through using the TET framework for the Open Group POSIX
+test suite, I would agree that using TET sucks.  The code is so convoluted
+as to be useless, and it is nearly impossible to see from the output what
+it is actually doing.
 
-Could you, however send me the output of lspnp for /proc/bus/pnp/boot/13.
-This will not fault.  Also could you try lspnp on /proc/bus/pnp/14.  If
-all is well this one should not fault.
+I agree that having a simple C or shell or perl script which is the entire
+test, and the rest of the framework is external to it is very desirable.
 
-by the way
-
-/proc/bus/pnp/*.* = current
-/proc/bus/pnp/boot/*.* = boot
-
-current config has the problem but boot does not.  I'll work on a patch to
-fix this.
-
-Thanks,
-Adam
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

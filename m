@@ -1,36 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266379AbUHMSIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266522AbUHMSMD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266379AbUHMSIW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 14:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266380AbUHMSIW
+	id S266522AbUHMSMD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 14:12:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266427AbUHMSMC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 14:08:22 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:56594 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S266379AbUHMSIV
+	Fri, 13 Aug 2004 14:12:02 -0400
+Received: from bay17-f22.bay17.hotmail.com ([64.4.43.72]:23308 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S266534AbUHMSLg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 14:08:21 -0400
-Date: Fri, 13 Aug 2004 20:10:42 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "David S. Miller" <davem@redhat.com>, Sam Ravnborg <sam@ravnborg.org>,
-       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: __crc_* symbols in System.map
-Message-ID: <20040813181042.GA9006@mars.ravnborg.org>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	Sam Ravnborg <sam@ravnborg.org>, torvalds@osdl.org, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20040811205529.1ff86e9d.davem@redhat.com> <20040812050136.GA7246@mars.ravnborg.org> <20040812000558.220d7e5d.davem@redhat.com> <20040813180239.GA7571@mars.ravnborg.org>
+	Fri, 13 Aug 2004 14:11:36 -0400
+X-Originating-IP: [207.174.0.253]
+X-Originating-Email: [chandrasekhar_n@hotmail.com]
+From: "chandrasekhar nagaraj" <chandrasekhar_n@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Preallocation of memory in 2.4 kernels
+Date: Fri, 13 Aug 2004 23:41:35 +0530
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040813180239.GA7571@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY17-F222koAUaQMni0003849e@hotmail.com>
+X-OriginalArrivalTime: 13 Aug 2004 18:11:35.0451 (UTC) FILETIME=[F83876B0:01C48160]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 13, 2004 at 08:02:39PM +0200, Sam Ravnborg wrote:
-> 
-> $NM -n $1 | grep  '\( [aUw] \)\|\(__crc_\)' > $2
+Hi,
+    We have a block driver which operates under heavy IO load.The driver 
+always preallocates the memory for IO so that while IO is going ,it can take 
+the required memory from the pool.(for performance reasons,we preallocate 
+the memory).
+But we do have some small chunks of memory allocation (say close to 4K) when 
+the IO is in operation.(to update the stats,we require this memory).But 
+under heavy load conditions,the kmalloc fails to get even this small chunk 
+of data.
+We felt that we could preallocate some 64K of memory pool(before the IO 
+starts) and then when this kind of small memory request comes (note that 
+this request size is variable) , we would use this memory pool instead of 
+using the kmalloc.
+Is there any mechanism in 2.4 kernels to achieve this task.?
 
-The missing -v ito grep was just to check if you were awake :-(
+Regards
+Chandrasekhar
 
-	Sam
+_________________________________________________________________
+Block annoying pop ups! Empower your search! 
+http://server1.msn.co.in/features04/general/MSNToolbar Enrich your internet 
+experience!
+

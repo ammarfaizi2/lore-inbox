@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261366AbTCOIdU>; Sat, 15 Mar 2003 03:33:20 -0500
+	id <S261364AbTCOIdl>; Sat, 15 Mar 2003 03:33:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261364AbTCOIdU>; Sat, 15 Mar 2003 03:33:20 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:22277 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S261366AbTCOIdT>; Sat, 15 Mar 2003 03:33:19 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303150846.h2F8k6IX000895@81-2-122-30.bradfords.org.uk>
-Subject: Crash dumping
-To: linux-kernel@vger.kernel.org
-Date: Sat, 15 Mar 2003 08:46:06 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S261367AbTCOIdk>; Sat, 15 Mar 2003 03:33:40 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:63362 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S261364AbTCOIdj>; Sat, 15 Mar 2003 03:33:39 -0500
+Date: Sat, 15 Mar 2003 08:41:57 -0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Mitch Adair <mitch@theneteffect.com>
+Cc: "Randy.Dunlap" <randy.dunlap@verizon.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] update filesystems config. menu
+Message-ID: <20030315094151.GA16373@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Mitch Adair <mitch@theneteffect.com>,
+	"Randy.Dunlap" <randy.dunlap@verizon.net>,
+	linux-kernel@vger.kernel.org
+References: <200303150819.h2F8JfW15921@mako.theneteffect.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200303150819.h2F8JfW15921@mako.theneteffect.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just wondering, we've had a lot of discussions in the past about
-various serial port/network/disk crash dumping ideas, and always had
-the problem of how do we know that the code we're about the execute
-hasn't been corrupted, etc, which is especially important in the case
-of the disk dumper.
+On Sat, Mar 15, 2003 at 02:19:40AM -0600, Mitch Adair wrote:
 
-Well, with the Linux BIOS project, couldn't we include some code in
-the BIOS that we can jump to after a kernel crash, I.E. just switch to
-real mode and start executing the BIOS-contained code to put the
-system in to a sane state, and accept commands over the network[1] via
-either UDP, or a custom protocol, to dump memory to disk, network, or
-whatever?
+ > I seem to recall if you say Y to ext2 and Y to ext3 and your root is on ext3
+ > then it's likely to be mounted as ext2 unless you set rootfstype=...
+ > The ext3 help comment also warns you should set it to Y, so people with
+ > root ext3 are likely to get a surprise if they follow both help.  Would it
+ > be better to say something like "if your root partition is extX you almost
+ > certainly want to say Y here"?  Or warn about the rootfstype issue maybe?
 
-Internet IMPs had loader/dumpers to do this kind of thing 30 years
-ago, and I don't see why we can't ressurect the idea today.
+(03:40:50:davej@tetrachloride:davej)$ mount
+/dev/hda5 on / type ext3 (rw,errors=remount-ro)
 
-[1] Obviously the code in the BIOS will be hard coded to work with
-whatever network card you have, I.E. you would need to program the
-right driver in to the BIOS for your particular card, and store the
-machine's I.P. there as well, (and a password, or a list of local
-I.P.s that were trusted - the idea being that you connect to the
-machine via another machine on the LAN, not directly the internet
-directly).
+(08:40:13:davej@tetrachloride:davej)$ cat /proc/filesystems | grep ext
+	ext3
+	ext2
 
-John.
+Note the ordering, ext3 gets tried before ext2.
+
+		Dave
+

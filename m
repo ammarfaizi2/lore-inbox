@@ -1,36 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVBGFbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVBGGN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbVBGFbs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 00:31:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVBGFbs
+	id S261357AbVBGGN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 01:13:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVBGGN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 00:31:48 -0500
-Received: from mail.autoweb.net ([198.172.237.26]:59920 "EHLO mail.autoweb.net")
-	by vger.kernel.org with ESMTP id S261355AbVBGFbr (ORCPT
+	Mon, 7 Feb 2005 01:13:26 -0500
+Received: from mxc.rambler.ru ([81.19.66.31]:35853 "EHLO mxc.rambler.ru")
+	by vger.kernel.org with ESMTP id S261357AbVBGGNX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 00:31:47 -0500
-Date: Mon, 7 Feb 2005 00:31:45 -0500
-From: Ryan Anderson <ryan@michonline.com>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC/RFT] Better handling of bad xfers/interrupt delays in psmouse
-Message-ID: <20050207053145.GA7828@mythryan2.michonline.com>
-Mail-Followup-To: kernel list <linux-kernel@vger.kernel.org>
-References: <200502051448.57492.dtor_core@ameritech.net> <20050206092731.GA3869@elf.ucw.cz> <200502061255.00741.dtor_core@ameritech.net>
+	Mon, 7 Feb 2005 01:13:23 -0500
+Date: Mon, 7 Feb 2005 09:10:38 -0500
+From: Pavel Fedin <sonic_amiga@rambler.ru>
+To: linux-kernel@vger.kernel.org
+Cc: linux-fsdevel@vger.kernel.org
+Subject: Generating NLS modules
+Message-Id: <20050207091038.606d9f0e.sonic_amiga@rambler.ru>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502061255.00741.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Auth-User: sonic_amiga, whoson: (null)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 06, 2005 at 12:55:00PM -0500, Dmitry Torokhov wrote:
-> 
-> Hmm, wouldn't it be nice if they put spell checker in GCC? ;)
-
-Isn't the resulting beast called "emacs"?
+ Nobody answered so i repeat the question.
+ I think i found a way to make use of NLS table for HFS filesystem and
+i'm going to try to implement it. But first i need to create NLS module
+for codepage 10007 (Mac cyrillic). In the beginning of every existing
+NLS module code i see comment which says that this file is automatically
+generated from data found at unicode.org. Could you tell me where i can find a
+convertor and what data it can use as input? I explored unicode.org and found
+some conversion data at oss.software.ibm.com/icu/. The data is available in
+UCM and XML formats. Are those files suitable?
 
 -- 
-
-Ryan Anderson
-  sometimes Pug Majere
+Best regards,
+Pavel Fedin,									mailto:sonic_amiga@rambler.ru

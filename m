@@ -1,59 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262363AbREUDI6>; Sun, 20 May 2001 23:08:58 -0400
+	id <S262371AbREUDMs>; Sun, 20 May 2001 23:12:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262360AbREUDIs>; Sun, 20 May 2001 23:08:48 -0400
-Received: from www.microgate.com ([216.30.46.105]:51211 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S262364AbREUDIc>; Sun, 20 May 2001 23:08:32 -0400
-Message-ID: <002801c0e1a3$5dfb8f20$0201a8c0@mojo>
-From: "Paul Fulghum" <paulkf@microgate.com>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0105202032260.10653-100000@weyl.math.psu.edu>
+	id <S262368AbREUDMi>; Sun, 20 May 2001 23:12:38 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:45330 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262365AbREUDMb>; Sun, 20 May 2001 23:12:31 -0400
+Date: Sun, 20 May 2001 20:12:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Alexander Viro <viro@math.psu.edu>, Russell King <rmk@arm.linux.org.uk>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Matthew Wilcox <matthew@wil.cx>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Andrew Clausen <clausen@gnu.org>, Ben LaHaise <bcrl@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
 Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-Date: Sun, 20 May 2001 22:08:52 -0500
+In-Reply-To: <Pine.LNX.4.33.0105210135240.1569-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0105202005070.8426-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Alexander Viro" <viro@math.psu.edu>
-> On Sun, 20 May 2001, Paul Fulghum wrote:
-> > I'll be the first to admit there is some ugliness in my driver.
->
-> So will anyone here regarding his or her code. Count me in, BTW.
->
-> Could you reread the posting you are refering to?
 
-Sorry if I misunderstood. My post was as much in
-response to several current threads revolving around
-device major numbers and ioctl calls (I use both!).
+On Mon, 21 May 2001, Ingo Molnar wrote:
+> 
+> On Sun, 20 May 2001, Alexander Viro wrote:
+> 
+> > Linus, as much as I'd like to agree with you, you are hopeless
+> > optimist. 90% of drivers contain code written by stupid gits.
+> 
+> 90% of drivers contain code written by people who do driver development in
+> their spare time, with limited resources, most of the time serving as a
+> learning excercise. And they do this freely and for fun. Accusing them of
+> being 'stupid gits' is just micharacterising the situation.
 
-Many postings seem to imply driver writers must be flawed for
-using these flawed facilities. Driver writers don't use device
-major numbers and ioctl calls because they are brain damaged, they use
-them because they are accepted practice and they work (albeit imperfectly).
+I would disagree with both of you.
 
-I have no problem moving to better solutions *as they become available*.
+The problem is not whether people do it with limited resources or time, or
+whether they are stupid or not.
 
-But I have seen multiple references to 'causing pain' for people
-by restricting their use while alternatives  (only now being discussed
-and decided) are years away in the next stable kernel.
+The problem is that if you expect to get nice code, you have to have nice
+interfaces and infratructure. And ioctl's aren't it.
 
-All I hope for  is a reasonable path to get there (better alternatives) from
-here.
-My 2 cents, with no intent to offend anyone.
+The reason we _can_ write beautiful filesystems these days is that the VFS
+layer _supports_ it. In fact, the VFS layer has tons of infrastructure and
+structure that makes it _hard_ to write bad filesystem code (which is not
+to say that we don't have ugly code there - but much of it is due to
+historically not having had quite the same level of infrastructure).
 
-Paul Fulghum paulkf@microgate.com
-Microgate Corporation http://www.microgate.com
+If we had nice infrastructure to make ioctl's more palatable, we could
+probably make do even with the current binary-number interfaces, simply
+because people would use the infrastructure without ever even _seeing_ how
+lacking the user-level accesses are.
 
+But that absolutely _requires_ that the driver writers should never see
+the silly "pass a random number and a random argument type" kind of
+interface with no structure or infrastructure in place.
 
+Because right now even _good_ programmers make a mess of the fact that
+they get passed a bad interface.
 
+Think of it this way: the user interface to opening a file is
+"open()" with pathnames and magic flags. But a filesystem never even
+_sees_ that interface, it sees a very nicely structured setup where all
+the argument parsing and locking has already been done for it, and the
+magic flags don't even exist any more as far as the low-level FS is
+concerned. Which is why filesystems _can_ be clean.
 
+In contrast, ioctl's are passed through directly, with no help to make
+them clean. 
+
+		Linus
 

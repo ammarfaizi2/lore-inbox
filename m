@@ -1,71 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315456AbSFYMwU>; Tue, 25 Jun 2002 08:52:20 -0400
+	id <S315459AbSFYNQv>; Tue, 25 Jun 2002 09:16:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315457AbSFYMwT>; Tue, 25 Jun 2002 08:52:19 -0400
-Received: from 89dyn229.com21.casema.net ([62.234.20.229]:30082 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S315456AbSFYMwS>; Tue, 25 Jun 2002 08:52:18 -0400
-Message-Id: <200206251251.OAA11370@cave.bitwizard.nl>
-Subject: IDE Promise hang on 2.4.19-pre2. 
-To: linux-kernel@vger.kernel.org
-Date: Tue, 25 Jun 2002 14:51:39 +0200 (MEST)
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-notice: Read http://www.bitwizard.nl/cou.html for the licence to my Emailaddr.
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S315463AbSFYNQu>; Tue, 25 Jun 2002 09:16:50 -0400
+Received: from mgw-x1.nokia.com ([131.228.20.21]:4065 "EHLO mgw-x1.nokia.com")
+	by vger.kernel.org with ESMTP id <S315459AbSFYNQt>;
+	Tue, 25 Jun 2002 09:16:49 -0400
+Message-ID: <3D186CC7.4090305@nokia.com>
+Date: Tue, 25 Jun 2002 16:14:47 +0300
+From: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020412 Debian/0.9.9-6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Newsgroups: comp.os.linux.networking
+To: affix-devel@lists.sourceforge.net,
+       Affix support <affix-support@lists.sourceforge.net>
+CC: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>,
+       linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: [new release - stable] Affix-1_00pre5  --- The most powerfull Bluetooth
+ Protocol Stack.
+References: <3C500D09.4080206@nokia.com> <3C5AB093.5050405@nokia.com> <3C5E4991.6010707@nokia.com> <3C628D6A.2050900@nokia.com> <3C628DCF.40700@nokia.com> <3C6D25F6.4010905@nokia.com> <3C766511.5050808@nokia.com> <3C7F6C0C.6030204@nokia.com> <3C877AC7.8090008@nokia.com> <3C92111C.1070107@nokia.com> <3CA3A149.1080905@nokia.com> <3CAE2484.8090304@nokia.com> <3CB99689.7090105@nokia.com> <3CEEC240.8030905@nokia.com> <3CFF615E.50500@nokia.com> <3D0A74ED.1000902@nokia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 Jun 2002 13:16:49.0397 (UTC) FILETIME=[904DCA50:01C21C4A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
 
-Hi,
+Find new Affix release Affix-1_00pre5 on http://affix.sourceforge.net
+This is stable version. See News Section.
 
-We just test-installed a Promise controller in a machine, and tried to
-get it probed. Turns out that crashed the machine.
-
-/root# lspci -v -s 00:09.0
-00:09.0 Unknown mass storage controller: Promise Technology, Inc. 20268 (rev 02) (prog-if 85)
-        Subsystem: Promise Technology, Inc. 20268
-        Flags: bus master, 66Mhz, slow devsel, latency 32, IRQ 9
-        I/O ports at e000 [size=8]
-        I/O ports at d800 [size=4]
-        I/O ports at d400 [size=8]
-        I/O ports at d000 [size=4]
-        I/O ports at c800 [size=16]
-        Memory at fb000000 (32-bit, non-prefetchable) [size=16K]
-        Expansion ROM at <unassigned> [disabled] [size=16K]
-        Capabilities: [60] Power Management version 1
+New features:
+- iMac, iPaq tested.
+- obex fixed.
+- packages for iPaq -> http://affix.sourceforge.net/ipaq.shtml
 
 
-We then went into the bios (install video card, grab a monitor,
-etcetc.)  and told it to assign interrupts automatically, rather than
-IRQ9 for all slots.... 
+Version 1.0pre5 [24.06.2002]
+- [new] *open_uart* enhanced to support vendor dependend initialization
+	btctl open_uart <vendor> <speed> <flags>
+- [fix] minor rfcomm fixes.
+- [fix] btobex fixed. It was not working after in *pre3/4* because of 
+one bug
+- [fix] btctl inquiry cache finaly fixed.
+- [fix] SDP fixed to correctly work on ARM/SPARC/PPC architectures
+- [changes] SDP file structure changed. Header files moved to affix
+	client need to include sdp.h, sdpclt.h and sdpsrv.h
+- [changes] user space apps. shall use only <affix/btcore.h>
+do not use <affix/hci.h>
 
-So then the VGA card, ethernet card, scsi card all got assigned
-different IRQs than 9.
-
-Now when we insmod the IDE, the machine doesn't crash. 
 
 
-Hypothesis: The Promise driver enables IRQs on the chip first, then
-grabs its IRQ. This leads to an interrupt storm, provided that any
-other device is using that IRQ. 
+  Affix works on platforms (tested):
+- i386.
+- ARM (e.g. Compaq iPac).
+- PowerPC (e.g. iMac).
 
-This is on our testing machine: 
-	Pentium PRO 150. 
-	96Mb RAM. 
-	Linux-2.4.19-pre2. 
+Affix currently supports the following Bluetooth Profiles:
+- General Access Profie
+- Service Discovery Profile
+- Serial Port Profile
+- DialUp Networking Profile
+- LAN Access Profile
+- OBEX Object Push Profile
+- OBEX File Transfer Profile
+- PAN Profile
 
-We've got our system running. We only have the hardware for a day, so
-we're running our tests, and won't have time to test stuff (like
-upgrading the kernel. Sorry)
 
-			Roger. 
+GUI environment A.F.E - Affix Frontend Environment available for use.
+http://affix.sourceforge.net/afe
+
+Link can be found on Affix WEB site in *Links* section.
+
+br, Dmitry
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+  Dmitry Kasatkin
+  Nokia Research Center / Helsinki
+  *Affix* Project Coordinator (http://affix.sourceforge.net)
+  Mobile: +358 50 4836365
+  E-Mail: dmitry.kasatkin@nokia.com
+

@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264719AbUEVCwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264834AbUEVCyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264719AbUEVCwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 22:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264834AbUEVCwQ
+	id S264834AbUEVCyE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 22:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264835AbUEVCyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 22:52:16 -0400
-Received: from mail.tpgi.com.au ([203.12.160.53]:35474 "EHLO mail5.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S264719AbUEVCwP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 22:52:15 -0400
-Message-ID: <40AEBF37.2010202@linuxmail.org>
-Date: Sat, 22 May 2004 12:47:19 +1000
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: Oliver Neukum <oliver@neukum.org>, Pavel Machek <pavel@suse.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Suspend2 merge preparation: Rationale behind the freezer changes.
-References: <E1BRJY0-0006hl-00@gondolin.me.apana.org.au>
-In-Reply-To: <E1BRJY0-0006hl-00@gondolin.me.apana.org.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+	Fri, 21 May 2004 22:54:04 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48872 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264834AbUEVCyB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 22:54:01 -0400
+Date: Sat, 22 May 2004 03:54:00 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: "Spinka, Kristofer" <kspinka@style.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unserializing ioctl() system calls
+Message-ID: <20040522025400.GU17014@parcelfarce.linux.theplanet.co.uk>
+References: <web-1649994@style.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <web-1649994@style.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, May 21, 2004 at 10:46:45PM -0400, Spinka, Kristofer wrote:
+> I noticed that even in the 2.6.6 code, callers to ioctl 
+> system call (sys_ioctl in fs/ioctl.c) are serialized with 
+> {lock,unlock}_kernel().
+> 
+> I realize that many kernel modules, and POSIX for that 
+> matter, may not be ready to make this more concurrent.
+> 
+> I propose adding a flag to indicate that the underlying 
+> module would like to support its own concurrency 
+> management, and thus we avoid grabbing the BKL around the 
+> f_op->ioctl call.
+> 
+> The default behavior would adhere to existing standards, 
+> and if the flag is present (in the underlying module), we 
+> let the module (or modules) handle it.
+> 
+> Reasonable?
 
-Herbert Xu wrote:
-> So exactly which kernel threads will dead lock when frozen in the wrong
-> order? So far I've only seen user process vs. kernel thread examples.
-
-It's been so long since I've seen it happen that I have to confess I've 
-forgotten. I'll take a look in the list archives.
-
-Nigel
--- 
-Nigel & Michelle Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6254 0216 (home)
-
-Evolution (n): A hypothetical process whereby infinitely improbable 
-events occur
-with alarming frequency, order arises from chaos, and no one is given 
-credit.
+No.  Flags on drivers are never a good idea.  What's more, if somebody
+wants that shit parallelized they can always drop BKL upon entry and
+reacquire on exit from their ->ioctl().

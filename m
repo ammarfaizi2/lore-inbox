@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289098AbSANWUz>; Mon, 14 Jan 2002 17:20:55 -0500
+	id <S289097AbSANWVO>; Mon, 14 Jan 2002 17:21:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289096AbSANWUu>; Mon, 14 Jan 2002 17:20:50 -0500
-Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:51984 "EHLO
-	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
-	id <S289094AbSANWTp>; Mon, 14 Jan 2002 17:19:45 -0500
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery --
-	the elegant solution)
-From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020114153844.A20537@thyrsus.com>
-In-Reply-To: <20020114132618.G14747@thyrsus.com>
-	<m16QCNJ-000OVeC@amadeus.home.nl> <20020114145035.E17522@thyrsus.com>
-	<20020114213732.M15139@suse.de>  <20020114153844.A20537@thyrsus.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 14 Jan 2002 16:18:26 -0600
-Message-Id: <1011046709.18003.45.camel@zeus>
-Mime-Version: 1.0
+	id <S289094AbSANWVI>; Mon, 14 Jan 2002 17:21:08 -0500
+Received: from femail44.sdc1.sfba.home.com ([24.254.60.38]:12728 "EHLO
+	femail44.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S289097AbSANWVD>; Mon, 14 Jan 2002 17:21:03 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Alexander Viro <viro@math.psu.edu>, "Eric S. Raymond" <esr@thyrsus.com>
+Subject: Re: Hardwired drivers are going away?
+Date: Mon, 14 Jan 2002 09:19:01 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
+        Giacomo Catenazzi <cate@debian.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0201141337580.224-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0201141337580.224-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020114222101.ZPUW15906.femail44.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-01-14 at 14:38, Eric S. Raymond wrote:
-> Right now, neither lsmod nor the boot time messages  necessarily give you that 
-> information.  lsmod only works if the driver is in fact a module.  My 
-> /var/log/dmesg contains no message from the NIC on my motherboard.  And
-> going from the driver to the config symbol isn't trivial even if you *have*
-> the lsmod or dmesg information.  
+On Monday 14 January 2002 02:09 pm, Alexander Viro wrote:
 
-Yes, getting the current used environment from the running kernel in a
-simple way would be nice. Actually, I'm interested in trying out your
-autoconfigurator, though I'll be one to go back to the config and look
-it over. The Aunt Tillie scenario doesn't preclude the usefulness of an
-autoconfig tool.
+> But it still leaves you with tristate - instead of yes/module/no it's
+> yes/yes, but don't put it on initramfs/no.  However, dependencies become
+> simpler - all you need is "I want this, that and that on initramfs" and
+> the rest can be found by depmod (i.e. configurator doesn't have to deal
+> with "FOO goes on initramfs (== old Y), so BAR and BAZ must go there
+> (== can't be M)").
 
-> Sure, Melvin could remember a whole bunch of state, or a whole bunch
-> of rules for reconstructing it. But isn't sweating that kind of detail
-> exactly what *computers* are for?  
+This is something I've wondered about and would like to ask for clarification 
+on: the relationship between the initramfs image and the kernel, build 
+process-wise.
 
-Precisely. The Real Problem(TM) is there are more issues than initial
-kernel configuration that effect the details the user installing a
-kernel or device is required to know. For a real example of this -- Grip
-fails to see an audio CD in my CDRW when ide-scsi is loaded, DVD
-playback is also slower but I need ide-scsi so I can backup CD's from
-one drive to another. Right now, if I want to do one or another task, I
-need to reboot using different kernel command lines, with a script to
-alter my /dev links so the relevant apps continue to work. For another,
-some of my apps need to be poked and prodded when my USB webcam hops
-from /dev/video1 to /dev/video0 depending on whether bttv was or not.
+How much of the build process for the initramfs will be integrated with the 
+kernel build?  Since the kernel won't boot without a matching initramfs, I 
+take it that some kind of initramfs will be a kernel build target now?
 
-Fixing those bits will allow vendors to make better and easier choices
-with supplied kernels, at which point initial kernel (auto)configuration
-becomes less important. I guess it's part of what Linus calls growing to
-have a "middle-aged" kernel.  
+There's been a lot of talk about having the source for a mini-libc (uclibc, 
+dietlibc, some combo) in the kernel tree, and other people saying we should 
+just grab the binary for build purposes.  The most obvious model I can think 
+of for klibc staying seperate from the kernel is the user-space 
+pcmcia/cardbus hotplug stuff, but that DID get integrated into the kernel.
 
-Anyway, I know it's not a zero sum game. We can't make Eric stop work on
-one thing and make him do another. In what ways could an
-autoconfigurator better work in today's environment? What could the
-kernel do to make that job easier while not offending people too much?
+The klibc source/binary debate still seems to be ongoing, but apart from 
+that, will the build process for initramfs be part of the kernel build or not?
 
-Regards,
-Reid
-
+Rob.

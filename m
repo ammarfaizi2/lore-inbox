@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268957AbRIFX4E>; Thu, 6 Sep 2001 19:56:04 -0400
+	id <S269119AbRIGACo>; Thu, 6 Sep 2001 20:02:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269119AbRIFXz4>; Thu, 6 Sep 2001 19:55:56 -0400
-Received: from st-207-63-161-6.cm201u.will.k12.il.us ([207.63.161.6]:34426
-	"HELO gwia.cm201u.org") by vger.kernel.org with SMTP
-	id <S268957AbRIFXzr>; Thu, 6 Sep 2001 19:55:47 -0400
-Date: Fri, 7 Sep 2001 01:55:08 +0200
-From: victor <ixnay@infonegocio.com>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: victor <ixnay@infonegocio.com>
-X-Priority: 3 (Normal)
-Message-ID: <2685246227.20010907015508@infonegocio.com>
-To: Luigi Genoni <kernel@Expansa.sns.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re[2]: K7/Athlon optimizations again. (The sacrifices worked??) (VIA KT133A chipset)
-In-Reply-To: <Pine.LNX.4.33.0109062352130.26515-100000@Expansa.sns.it>
-In-Reply-To: <Pine.LNX.4.33.0109062352130.26515-100000@Expansa.sns.it>
+	id <S269413AbRIGACe>; Thu, 6 Sep 2001 20:02:34 -0400
+Received: from mx-outgoing.delfi.lt ([213.197.128.109]:6930 "HELO
+	mx-outgoing.delfi.lt") by vger.kernel.org with SMTP
+	id <S269119AbRIGACW>; Thu, 6 Sep 2001 20:02:22 -0400
+Date: Fri, 7 Sep 2001 02:02:24 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: Re[2]: Basic reiserfs question
+To: Hans Reiser <reiser@namesys.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+In-Reply-To: <F45bR99kQgkV07DPT1p00005d9e@hotmail.com>
+ <3B97729B.1F49AACA@namesys.com>
+In-Reply-To: <3B97729B.1F49AACA@namesys.com>
+X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.4.7 i686
+Message-Id: <20010907000239.26A738F91C@mail.delfi.lt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Luigi,
+On Thu, 06 Sep 2001 16:56:59 +0400 Hans Reiser <reiser@namesys.com> wrote:
 
-Friday, September 07, 2001, 12:01:50 AM, you wrote:
+HR> It seems that we should put something in journal replay that says:
+HR> 
+HR> "Warning: replaying a non-empty journal, this means that either your system
+HR> crashed, or its shutdown scripts need fixing (a common distro failing at the
+HR> moment)
 
-LG> On KT133A based MBs, I came trought at less 4 bios upgrades, and no
-LG> problems at all. Usually I do not oveclock CPUs, so i keep 1.725 volts for
-LG> vcore instead of 1.75, and system are just STABLE. In the reality setting
-LG> 1.725 volts in the bios gives to my CPUs on abit MBs the right 1.75 volts,
-LG> and setting 1.75 gives them 1.78/9. So I would suggest also to investigate
-LG> if this light overvolt could be involved to create instabilities.
-LG> I just made a test, and saw that on athlon 1.33 Ghz this volts diffecence
-LG> creates a 5 degres difference when CPU is idle, and 7/8 when it is full
-LG> loaded. And belive me, actually i am keeping thos CPU in a 18 degrees
-LG> environment, using delta's fan to dissipate the eath.
+If you think it's RedHat, you probably are wrong - I use RH with reiserfs
+a long time (more than a year - 6.2, now 7.1), and never got a message about
+replaying journal if system was shut down correctly.
 
-look at this
-http://bp6.gamesquad.net/Q6fix.phtml
-i have a bp6 who has the same problem whit the dual celeron, and here
-is the solution for it, looks your motherboard and see if its the same
-problem, the celerons are fine whit this overvolt, they are prety
-stable
+Regards,
+Nerijus
 
-its abit ... it cuold be ;)
-
-LG> I know that a light overvolt should increase stability, and not generate
-LG> instability, but maybe if CPUs and north bridge get too hot, (not
-LG> so hot to destroy the HW, but anyway hotter in front of the optimal
-LG> temperature), that could generate instability on loaded systems.
-
-LG> just my 2 cents
-
-LG> Luigi
-
--- 
-Best regards,
- victor                            mailto:ixnay@infonegocio.com
 

@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273926AbRIRVGB>; Tue, 18 Sep 2001 17:06:01 -0400
+	id <S273925AbRIRVFV>; Tue, 18 Sep 2001 17:05:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273927AbRIRVFn>; Tue, 18 Sep 2001 17:05:43 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:25380 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S273926AbRIRVFe>; Tue, 18 Sep 2001 17:05:34 -0400
-Date: Tue, 18 Sep 2001 23:05:53 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
+	id <S273926AbRIRVFP>; Tue, 18 Sep 2001 17:05:15 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:208 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S273925AbRIRVE7>; Tue, 18 Sep 2001 17:04:59 -0400
+Date: Tue, 18 Sep 2001 15:06:19 -0600
+Message-Id: <200109182106.f8IL6Js14650@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Andreas Dilger <adilger@turbolabs.com>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.4.10-pre11
-Message-ID: <20010918230553.G720@athlon.random>
-In-Reply-To: <Pine.LNX.4.21.0109181254200.7152-100000@freak.distro.conectiva> <Pine.LNX.4.21.0109181508080.7836-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0109181508080.7836-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Tue, Sep 18, 2001 at 04:18:34PM -0300
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <Pine.GSO.4.21.0109181648001.27538-100000@weyl.math.psu.edu>
+In-Reply-To: <200109182033.f8IKXPZ14069@vindaloo.ras.ucalgary.ca>
+	<Pine.GSO.4.21.0109181648001.27538-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2001 at 04:18:34PM -0300, Marcelo Tosatti wrote:
-> I still can reproduce the alloc pages failures with the following patch.
+Alexander Viro writes:
+> 
+> 
+> On Tue, 18 Sep 2001, Richard Gooch wrote:
+> 
+> > Alexander Viro writes:
+> > > "I can't be arsed to split my K'R4D 3133t 200Kb p47cH" had lost its
+> > > charm years ago - just look at the devfs mess...
+> > 
+> > Al, are you ever going to stop bitching and moaning about devfs?
+> > If you have a specific, technical, reasoned complaint to make, do it
+> > coherently. Otherwise, stop sniping.
+> 
+> What?  I'm saying that devfs was a huge patch which was not understood
+> (let alone audited) by anyone except you when it was included and as
+> the direct result we have a long history of problems in that area.
+> You want to argue against that?
+> 
+> If you still feel that feeding devfs into the tree in one huge chunk
+> was not a mistake - you are much dumber than I thought.
 
-Could you try the very last patch I posted?
+Actually, many times I fed Linus smaller patches. I tried to get the
+FS core itself in separately from the drivers, which was 100% safe
+(since no existing code was touched), but he wasn't interested. If the
+devfs core *had* been accepted on it's own, I could then have
+reasonably split up the driver patches.
 
-> --- linux.orig/mm/vmscan.c      Tue Sep 18 15:43:14 2001
-> +++ linux/mm/vmscan.c   Tue Sep 18 16:37:52 2001
-> @@ -361,13 +361,19 @@
->                 }
->  
->                 deactivate_page_nolock(page);
-> +
->                 list_del(entry);
-> -               list_add_tail(entry, &inactive_local_lru);
->  
-> -               if (__builtin_expect(!memclass(page->zone, classzone), 0))
-> +               if (__builtin_expect(!memclass(page->zone, classzone),
-> 0)) {
-> +                       list_add_tail(entry, &inactive_list);
-> +                       __max_scan--;
->                         continue;
-> +               }
->  
->                 __max_scan--;
-> +
-> +               list_add_tail(entry, &inactive_local_lru);
-> +
+However, I disagree with your "long history of problems" comment. You
+make it sound like devfs hasn't performed reliably, whereas in real
+life (i.e. normal use, not constructed exploits) it's done quite well.
 
-I actually used a much more aggressive approch, I always left all the
-page visibles now, not just for the memclass check. After all the same
-issue that can arise with the memclass check can also arise in a smaller
-scale with the other failed checks. But the oom weren't just because of
-the "hiding", I suspect that infact.
+In any case, if your "I can't be arsed to split my patch" comment is
+directed at me, I take offense. I did actually take the trouble to
+split up my patch.
 
-Andrea
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

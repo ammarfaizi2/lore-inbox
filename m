@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269349AbTCDJy5>; Tue, 4 Mar 2003 04:54:57 -0500
+	id <S269354AbTCDKKD>; Tue, 4 Mar 2003 05:10:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269351AbTCDJy5>; Tue, 4 Mar 2003 04:54:57 -0500
-Received: from [195.128.145.236] ([195.128.145.236]:11907 "EHLO hippo.ru")
-	by vger.kernel.org with ESMTP id <S269349AbTCDJy4>;
-	Tue, 4 Mar 2003 04:54:56 -0500
-Date: Tue, 4 Mar 2003 15:31:06 +0400
-From: Vlad Harchev <hvv@hippo.ru>
-To: J?rn Engel <joern@wohnheim.fh-wedel.de>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and cryptofs on raid1 - what will be cached and how many times
-Message-ID: <20030304113106.GC4024@h>
-References: <20030302105634.GA4258@h> <20030303093832.GA4601@h> <15971.52790.676134.722437@notabene.cse.unsw.edu.au> <20030304093020.GA4024@h> <20030304092031.GB6583@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030304092031.GB6583@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4i
+	id <S269355AbTCDKKC>; Tue, 4 Mar 2003 05:10:02 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:13450 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S269354AbTCDKKB>;
+	Tue, 4 Mar 2003 05:10:01 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 4 Mar 2003 11:20:29 +0100 (MET)
+Message-Id: <UTC200303041020.h24AKTA23975.aeb@smtp.cwi.nl>
+To: alan@lxorguk.ukuu.org.uk
+Subject: [PATCH?] ide_setup_dma undefined
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 04, 2003 at 10:20:31AM +0100, J?rn Engel wrote:
-> On Tue, 4 March 2003 13:30:20 +0400, Vlad Harchev wrote:
-> > 
-> >  Sorry for confusion - I meant loopback-based crypto filesystem - e.g. loop-aes
-> > based (loop-aes.sourceforge.net) or CryptoAPI-based (www.kerneli.org) - both
-> > are loopback-based filesystem (one has to call losetup(8) to point out chipher,
-> > a password..)
-> 
-> Loopback with encryption is not the same as a crypto filesystem.
-> Loopback encryption works transparently with any (non-)crypto fs.
+If one compiles 2.4.21-pre5 without CONFIG_BLK_DEV_IDEDMA_PCI
+the compilation fails with undefined ide_setup_dma().
+And indeed, ide_setup_dma is called in ide_hwif_setup_dma
+in setup-pci.c.
 
- Yes, you are right.
- 
-> A potential attacker can use this to look for the ext2 superblock,
-> which gives him the same data both encrypted an unencrypted. A real
- 
- I've got an impression that in case of loopback with encryption the 
-superblock will also be encrypted. 
- If one forgets known cleartext attacks, one can place the filesystem at
-some offset.
+One of the ways to make the kernel compile with this config is
 
-> cryptofs would go through great pains to take such advantages away.
-> 
--- 
- Best regards,
-  -Vlad
+--- ../../linux-2.4.21-pre5/linux/include/linux/ide.h	Tue Mar  4 02:25:12 2003
++++ include/linux/ide.h	Tue Mar  4 11:07:32 2003
+@@ -1719,6 +1719,7 @@
+ extern int __ide_dma_lostirq(ide_drive_t *);
+ extern int __ide_dma_timeout(ide_drive_t *);
+ #else
++static inline void ide_setup_dma(ide_hwif_t *x, unsigned long y, unsigned int z) {;}
+ static inline void ide_release_dma(ide_hwif_t *x) {;}
+ #endif
+ 
+
+Andries
+
+
+[much larger changes might be appropriate]

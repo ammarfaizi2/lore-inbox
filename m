@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269198AbUISJbh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269191AbUISJjW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269198AbUISJbh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 05:31:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269200AbUISJbe
+	id S269191AbUISJjW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 05:39:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269200AbUISJjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 05:31:34 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:32949 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S269198AbUISJbD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 05:31:03 -0400
-Message-ID: <414D4631.4030809@free.fr>
-Date: Sun, 19 Sep 2004 10:41:21 +0200
-From: Remi Colinet <remi.colinet@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Cyril Wattebled <neurowork@free.fr>
+	Sun, 19 Sep 2004 05:39:21 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4883 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S269191AbUISJjU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 05:39:20 -0400
+Date: Sun, 19 Sep 2004 11:38:48 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Manu Abraham <manu@kromtek.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: init_tss problem
-References: <414CBCE0.5000508@free.fr>
-In-Reply-To: <414CBCE0.5000508@free.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: Reiser 4
+Message-ID: <20040919093847.GA6623@fs.tum.de>
+References: <200409162221.48756.manu@kromtek.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409162221.48756.manu@kromtek.com>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cyril Wattebled wrote:
+On Thu, Sep 16, 2004 at 10:21:48PM +0400, Manu Abraham wrote:
 
 > Hi,
-> I'm trying to understand some piece of kernel code and I've come to 
-> this :
-> In arch/i386/kernel/process.c:
->     struct tss_struct *tss = &per_cpu(init_tss, cpu);
-> I don't know what init_tss is.
-> It's defined in asm/processor.h with the macro DEFINE_PER_CPU 
-> (tss_struct, init_tss)
-> which basically does extern tss_struct init_tss.
-> But this init_tss has to be declared somewhere to be used as extern ...
-> I've searched the entire code for any reference to it but I only found 
-> it in
-> arch/x86_64/kernel/init_task.c which is normaly not compiled on my 
-> system.
-> I'm in a dead end ... anyone .. help ?
-> Thanks
 
-TSS is a Task State Segment. It is defined in include/asm-i386/processor.h.
-init_tss is the Task State Segment used by the statically forked init 
-process. (process 0)
+Hi Manu,
 
-Each CPU has its own tss.
+> 		Will reiser 4 be going into the mainstream kernel soon ?
 
-This segment is used by i386 and x86_64 CPUs to store the CPU/process 
-context. Could be used to have hardware context switch (not used by Linux).
+judging from the recent discussions, Reiser4 in it's current form will 
+never enter the Linux kernel.
 
-In order to have a clean understanding about TSS (and more generally 
-i386), you should have a look at the i386 Intel specifiction, manual vol 
-3 (system programming manual)
-Then, you could also read the AMD64 specification if you wish to 
-understand x86_64...
+A modified version might enter the Linux kernel at some point in the 
+future.
 
-Regards
-Remi
+> Regards,
+> Manu
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

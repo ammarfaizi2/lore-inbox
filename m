@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290276AbSBLTXL>; Tue, 12 Feb 2002 14:23:11 -0500
+	id <S290767AbSBLTdw>; Tue, 12 Feb 2002 14:33:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290503AbSBLTXC>; Tue, 12 Feb 2002 14:23:02 -0500
-Received: from mailc.telia.com ([194.22.190.4]:15560 "EHLO mailc.telia.com")
-	by vger.kernel.org with ESMTP id <S290276AbSBLTWw>;
-	Tue, 12 Feb 2002 14:22:52 -0500
-Message-Id: <200202121922.g1CJMPi23466@mailc.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@norran.net>
-To: Martin Dalecki <dalecki@evision-ventures.com>,
-        Pavel Machek <pavel@suse.cz>
-Subject: Re: another IDE cleanup: kill duplicated code
-Date: Tue, 12 Feb 2002 20:19:14 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Jens Axboe <axboe@suse.de>, kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020211221102.GA131@elf.ucw.cz> <3C68F3F3.8030709@evision-ventures.com>
-In-Reply-To: <3C68F3F3.8030709@evision-ventures.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S290616AbSBLTdm>; Tue, 12 Feb 2002 14:33:42 -0500
+Received: from dialin-145-254-130-001.arcor-ip.net ([145.254.130.1]:2564 "EHLO
+	dale.home") by vger.kernel.org with ESMTP id <S290503AbSBLTdd>;
+	Tue, 12 Feb 2002 14:33:33 -0500
+Date: Tue, 12 Feb 2002 20:33:23 +0100
+From: Alex Riesen <fork0@users.sourceforge.net>
+To: Oleg Drokin <green@namesys.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [reiserfs-dev] 2.5.4-pre1: zero-filled files reiserfs
+Message-ID: <20020212203323.A1685@steel>
+Reply-To: Alex Riesen <fork0@users.sourceforge.net>
+In-Reply-To: <20020211172747.A1815@namesys.com> <Pine.LNX.4.44.0202121753360.15594-100000@Expansa.sns.it> <20020212200124.A2267@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020212200124.A2267@namesys.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday den 12 February 2002 11.52, Martin Dalecki wrote:
->
-> If you are already at it, I would like to ask to you consider seriously
-> the removal of the
-> following entries in the ide drivers /proc control files:
->
-> [snip]
->     ide_add_setting(drive,    "file_readahead",   ...
-> &max_readahead[major][minor],    NULL);
->
-> Those calls can be found in ide-cd.c, ide-disk,c and ide-floppy.c
->
-> [snip]
->
-> The second of them is trying to control a file-system level constant
-> inside the actual block device driver.
-> This is a blatant violation of the layering principle in software
-> design, and should go as soon as
-> possible.
+On Tue, Feb 12, 2002 at 08:01:24PM +0300, Oleg Drokin wrote:
+> Hello!
+> 
+>    What kind of corruption? Can we look at corrupted file if there is something
+>    unusual?
+>    What Linux Distribution do you run?
+i have my own system (but with sysVinit), and am somewhat sure about unmounts.
 
-It really should go (the only one working is for ide-disk) but
-you need to add another way to tune readahead per disk too...
+>    You can check cleanness by looking into kernel messages.
+>    If there is "replaying journal" message - umount was not clean.
+I've had the "replaying journal" after "machine check exception".
+But after this crash the filesystem was perfect. The zerofiles was before...
 
-Tuning this parameter gives quite a bit improved performance
-when reading from several big files at a time! A diff of two big files
-is enough to show it: from 10MB/s to 25MB/s (2.4.17-rc1)
-(due to less time lost seeking)
 
-/RogerL
+> 
+> Bye,
+>     Oleg
+> On Tue, Feb 12, 2002 at 05:55:54PM +0100, Luigi Genoni wrote:
+> > Sorry but I got a corrupted file also with 2.5.4. I could see it after the
+> > reboot to 2.4.17. It was /etc/exports and it was OK since i edited it
+> > running 2.5.4, and It was readable by exportfs, so it corrupted at reboot.
+> > 
+> > The reboot was clean, of course. Maybe wrong umount?
 
--- 
-Roger Larsson
-Skellefteå
-Sweden
+-alex

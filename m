@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290084AbSBOQfd>; Fri, 15 Feb 2002 11:35:33 -0500
+	id <S290184AbSBOQob>; Fri, 15 Feb 2002 11:44:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290081AbSBOQfV>; Fri, 15 Feb 2002 11:35:21 -0500
-Received: from dspnet.claranet.fr ([212.43.196.92]:21512 "HELO
-	dspnet.fr.eu.org") by vger.kernel.org with SMTP id <S290012AbSBOQfF>;
-	Fri, 15 Feb 2002 11:35:05 -0500
-Date: Fri, 15 Feb 2002 17:35:04 +0100
-From: Jean-Luc Leger <reiga@dspnet.fr.eu.org>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: CML2-2.3.0 is available
-Message-ID: <20020215173504.B85139@dspnet.fr.eu.org>
-In-Reply-To: <20020214193329.A23463@thyrsus.com> <20020215042631.A23535@zalem.nrockv01.md.comcast.net> <20020215090624.B3047@thyrsus.com>
+	id <S290125AbSBOQoW>; Fri, 15 Feb 2002 11:44:22 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:64493 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S290113AbSBOQoJ>; Fri, 15 Feb 2002 11:44:09 -0500
+Date: Fri, 15 Feb 2002 08:43:33 -0800
+From: Mike Anderson <andmike@us.ibm.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Jens Axboe <axboe@suse.de>, Chris Mason <mason@suse.com>,
+        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] queue barrier support
+Message-ID: <20020215084333.A1527@beaverton.ibm.com>
+Mail-Followup-To: James Bottomley <James.Bottomley@SteelEye.com>,
+	Jens Axboe <axboe@suse.de>, Chris Mason <mason@suse.com>,
+	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <axboe@suse.de> <200202151515.g1FFFw801733@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020215090624.B3047@thyrsus.com>; from esr@thyrsus.com on Fri, Feb 15, 2002 at 09:06:24AM -0500
+User-Agent: Mutt/1.2i
+In-Reply-To: <200202151515.g1FFFw801733@localhost.localdomain>; from James.Bottomley@SteelEye.com on Fri, Feb 15, 2002 at 10:15:58AM -0500
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 15, 2002 at 09:06:24AM -0500, Eric S. Raymond wrote:
-> Symbol type is inferred from use in a menu.
+James Bottomley [James.Bottomley@SteelEye.com] wrote:
+> James.Bottomley@steeleye.com said:
+> 
+> Unfortunately, this is going to involve deep hackery inside the error handler. 
+>  The current initial premise is that it can simply retry the failing command 
+> by issuing an ABORT to the tag and resending it (which can cause a tag to move 
+> past your barrier).  In an error situation, it really wouldn't be wise to try 
+> to abort lots of potentially running tags to preserve the barrier ordering 
+> (because of the overload placed on a known failing component), so I think the 
+> error handler has to abandon the concept of aborting commands and move 
+> straight to device reset.  We then carefully resend the commands in FIFO order.
+> 
+> Additionally, you must handle the case that a device is reset by something 
+> else (in error handler terms, the cc_ua [check condition/unit attention]).  
+> Here also, the tags would have to be sent back down in FIFO order as soon as 
+> the condition is detected.
 
-what about those "legend" symbols that were in menus list but with
-no menu declaration ?
+I agree on the hacker. You also will need to clean the pipe of the unit
+attention post the reset or the first command you send down will
+be coming right back into the error handler and could get you in to a
+error recovery storm.
 
-ex:
-menu usb        # USB? support
-        USB_DEBUG
-        usb_options_legend
-        USB_DEVICEFS USB_BANDWIDTH USB_LONG_TIMEOUT
-        usb_controllers_legend
-        h:USB_UHCI? h:USB_UHCI_ALT? h:USB_OHCI?
-...
 
-I see no difference in use for usb_options_legend and USB_DEBUG.
+> 
+> James
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-	JL
-
+-- 
+Michael Anderson
+andmike@us.ibm.com
 

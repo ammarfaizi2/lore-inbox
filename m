@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263204AbUDBCJq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 21:09:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263553AbUDBCJq
+	id S263556AbUDBCJX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 21:09:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263204AbUDBCJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 21:09:46 -0500
-Received: from host199.200-117-131.telecom.net.ar ([200.117.131.199]:13783
-	"EHLO smtp.bensa.ar") by vger.kernel.org with ESMTP id S263204AbUDBCJl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 21:09:41 -0500
-From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-To: Joshua Kwan <joshk@triplehelix.org>
-Subject: Re: 2.6.5-rc3-mm4
-Date: Thu, 1 Apr 2004 23:09:38 -0300
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <20040401020512.0db54102.akpm@osdl.org> <200404011112.21212.norberto+linux-kernel@bensa.ath.cx> <pan.2004.04.02.01.35.32.434379@triplehelix.org>
-In-Reply-To: <pan.2004.04.02.01.35.32.434379@triplehelix.org>
-MIME-Version: 1.0
+	Thu, 1 Apr 2004 21:09:22 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:25241
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263556AbUDBCJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 21:09:16 -0500
+Date: Fri, 2 Apr 2004 04:09:15 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       kenneth.w.chen@intel.com
+Subject: Re: disable-cap-mlock
+Message-ID: <20040402020915.GO18585@dualathlon.random>
+References: <20040401135920.GF18585@dualathlon.random> <20040401170705.Y22989@build.pdx.osdl.net> <20040401173034.16e79fee.akpm@osdl.org> <20040401175914.A22989@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404012309.38950.norberto+linux-kernel@bensa.ath.cx>
+In-Reply-To: <20040401175914.A22989@build.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Kwan wrote:
-> > 	LC_ALL= sudo make
->
-> This is not right. 
+On Thu, Apr 01, 2004 at 05:59:14PM -0800, Chris Wright wrote:
+> * Andrew Morton (akpm@osdl.org) wrote:
+> > Rumour has it that the more exhasperated among us are brewing up a patch to
+> > login.c which will allow capabilities to be retained after the setuid.  So
+> > you do
+> > 
+> > 	echo "oracle CAP_IPC_LOCK" > /etc/logincap.conf
+> > 
+> > And that's it.
+> > 
+> > See any reason why this won't work?
+> 
+> Looks ok, and sounds very similar to what pam_cap does.
 
-I know it isn't right. I was always weak on Makefiles :-/
+just curious, how does this work through 'su'? Does su check
+logincap.conf too?
 
-It was a workaround to compile it ASAP without the need to modify any file.
-
-Regards,
-Norberto
+I certainly agree this can be fully solved in userspace, though it won't
+be a few linear change in userspace and for the short term matter
+there's not much time left to change userspace. For the long term if we
+want to go with the userspace solution that's fine with me, I definitely
+agree with that.  For the very short term I'm not sure, but then I
+certainly cannot object if nothing is changed in the mainline kernel for
+this.

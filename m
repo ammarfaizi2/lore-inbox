@@ -1,50 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262019AbUL1Cjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262021AbUL1Cmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbUL1Cjj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 21:39:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUL1Cji
+	id S262021AbUL1Cmc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 21:42:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbUL1Cmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 21:39:38 -0500
-Received: from fmr15.intel.com ([192.55.52.69]:64473 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262019AbUL1Cjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 21:39:37 -0500
-Subject: Re: 2.6.{9,10}: C3 not working once USB driver gets loaded
-	(ThinkPad T40p)
-From: Len Brown <len.brown@intel.com>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041226205053.GA27671@louise.pinerecords.com>
-References: <20041226205053.GA27671@louise.pinerecords.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1104201565.18173.36.camel@d845pe>
+	Mon, 27 Dec 2004 21:42:32 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:43941
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262021AbUL1Cmb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 21:42:31 -0500
+Date: Mon, 27 Dec 2004 18:40:34 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: andros@umich.edu, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove unused
+ net/sunrpc/auth_gss/gss_pseudoflavors.c
+Message-Id: <20041227184034.6b805617.davem@davemloft.net>
+In-Reply-To: <20041212194750.GF22324@stusta.de>
+References: <20041212194750.GF22324@stusta.de>
+X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 27 Dec 2004 21:39:25 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-12-26 at 15:50, Tomas Szepe wrote:
-> Hi,
-> 
-> In recent kernels (tried 2.6.9, 2.6.10), after I load the uhci_hcd
-> module, the processor never goes to state C3.  Unloading the module
-> again puts things back to normal.  The system is an IBM ThinkPad T40p.
-> 
-> Is the USB driver setting some kinda flag in the ACPI subsystem to
-> achieve this behavior intentionally or is this a bug?
+On Sun, 12 Dec 2004 20:47:50 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
-It is not a Linux bug -- it is a system hardware architecture flaw.
+> I wasn't able to find any usage of this file.
 
-There is a workaround for this issue called
-USB Selective Suspend, which you can google and
-read all about.  Hopefully we'll have this workaround
-available on Linux systems before too long.
-
-cheers,
--Len
-
-
-
+Applied, thanks Adrian.

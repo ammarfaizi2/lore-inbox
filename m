@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263113AbTJJQoL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 12:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263109AbTJJQny
+	id S263058AbTJJQ6i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 12:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbTJJQ6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 12:43:54 -0400
-Received: from wiggis.ethz.ch ([129.132.86.197]:61070 "EHLO wiggis.ethz.ch")
-	by vger.kernel.org with ESMTP id S263108AbTJJQnR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 12:43:17 -0400
-From: Thom Borton <borton@phys.ethz.ch>
-To: Dave Jones <davej@redhat.com>, Russell King <rmk@arm.linux.org.uk>
-Subject: Re: PCMCIA CD-ROM does not work
-Date: Fri, 10 Oct 2003 18:43:17 +0200
-User-Agent: KMail/1.5.4
-References: <200310101652.53796.borton@phys.ethz.ch> <200310101744.30827.borton@phys.ethz.ch> <20031010162710.GF25856@redhat.com>
-In-Reply-To: <20031010162710.GF25856@redhat.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
+	Fri, 10 Oct 2003 12:58:38 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:442 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263058AbTJJQ6h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 12:58:37 -0400
+Message-ID: <3F86E51D.3090605@nortelnetworks.com>
+Date: Fri, 10 Oct 2003 12:58:05 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: Jamie Lokier <jamie@shareable.org>, Linus Torvalds <torvalds@osdl.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: statfs() / statvfs() syscall ballsup...
+References: <20031010122755.GC22908@ca-server1.us.oracle.com> <Pine.LNX.4.44.0310100756510.20420-100000@home.osdl.org> <20031010152710.GA28773@ca-server1.us.oracle.com> <20031010160144.GI28795@mail.shareable.org> <20031010163300.GC28773@ca-server1.us.oracle.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310101843.17341.borton@phys.ethz.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joel Becker wrote:
+> On Fri, Oct 10, 2003 at 05:01:44PM +0100, Jamie Lokier wrote:
+> 
+>>Why don't you _share_ the App's cache with the kernel's?  That's what
+>>mmap() and remap_file_pages() are for.
 
-You were both right. With CONFIG_ISA the system does not hang when I 
-plug in the PCMCIA card, but I cannot mount it later. 
+> 	Because you can't force flush/read.  You can't say "I need you
+> to go to disk for this."
 
-What can I do then?
+According to my man pages, this is exactly what msync() is for, no?
 
-Thanks for your help, 
+>>That's tough to guarantee at the platter level regardless of O_DIRECT,
+>>but otherwise: you have fdatasync() and msync().
 
-Thom
+> 	Platter level doesn't matter.  Storage access level matters.
+> Node1 and Node2 have to see the same thing.  As long as I am absolutely
+> sure that when Node1's write() returns, any subsequent read() on Node2
+> will see the change (normal barrier stuff, really), it doesn't matter
+> what happend on the Storage.
 
-On Friday 10 October 2003 18:27, you wrote:
-> On Fri, Oct 10, 2003 at 05:44:30PM +0200, Thom Borton wrote:
->  > Thanks a lot, I tried the parameters
->  > 	ide1=0x386,0x180 pci=off
->  > and it did not work. pci=off seems to have broken quite a lot
->  > (fb, jogdial, ...). Just leaving it away and just having
->  > ide1=0x386,0x180 didn't help the CD-ROM drive either.
->
-> Something else that needs fixing is pcmcia-cs has its exclude list
-> for the RadeonIGP bug set way too wide.
-> /etc/pcmcia/config.opts has..
->
-> exclude port 0x380-0x3ff
->
-> Which is bad news, as the Vaio wants port 0x386. The actual ports
-> that cause problems are 0x3b0->0x3bb and 0x3d3
->
-> After fixing this, it detects the drive, but hangs when you try and
-> mount it.
->
-> 		Dave
+Isn't that exactly what msync() exists for?
+
+Chris
 
 -- 
-Thom Borton
-Switzerland
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

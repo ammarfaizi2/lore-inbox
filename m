@@ -1,59 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261620AbTCZKra>; Wed, 26 Mar 2003 05:47:30 -0500
+	id <S261627AbTCZKs4>; Wed, 26 Mar 2003 05:48:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261627AbTCZKra>; Wed, 26 Mar 2003 05:47:30 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:57492 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S261620AbTCZKr2>;
-	Wed, 26 Mar 2003 05:47:28 -0500
-Date: Wed, 26 Mar 2003 11:58:40 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [FIX] Re: 2.5.66 new fbcon oops while loading X
-Message-ID: <20030326105840.GA10201@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	James Simmons <jsimmons@infradead.org>, linux-kernel@vger.kernel.org
-References: <20030325123126.GA10808@outpost.ds9a.nl> <Pine.LNX.4.44.0303251722321.3789-100000@phoenix.infradead.org>
+	id <S261631AbTCZKs4>; Wed, 26 Mar 2003 05:48:56 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:18883 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261627AbTCZKsy>; Wed, 26 Mar 2003 05:48:54 -0500
+Date: Wed, 26 Mar 2003 12:00:01 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [2.5 patch] fix sound/oss/mad16.c compile
+Message-ID: <20030326110001.GJ24744@fs.tum.de>
+References: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303251722321.3789-100000@phoenix.infradead.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 25, 2003 at 05:23:07PM +0000, James Simmons wrote:
-> > While loading X, I get this oops. The weird thing is that I don't use
-> > framebuffer. I compiled with gcc 3.2.2 but the code generated looks weird.
-> > Virgin gcc 3.2.2 on a pentium III.
-> 
-> You don't use framebuffer? Can you send me your config. 
+On Mon, Mar 24, 2003 at 03:26:47PM -0800, Linus Torvalds wrote:
+>...
+> Summary of changes from v2.5.65 to v2.5.66
+> ============================================
+>...
+> Dave Jones <davej@codemonkey.org.uk>:
+>...
+>   o guard mad16 debug macro
+>...
 
-Ok, I've found the bug, it is in fb_open() in drivers/video/fbmem.c, it
-needs this addition:
 
-        if(fbidx >= FB_MAX)
-                return -ENODEV;
+This change broke the compilation of sound/oss/mad16.c:
 
-Without it, large minor numbers result in access beyond the end of
-registered_fb.
+<--  snip  -->
 
-On Debian, ls /dev/fb[67] results in:
-crw--w--w-    1 root     tty       29, 192 Nov 30  2000 /dev/fb6
-crw--w--w-    1 root     tty       29, 224 Nov 30  2000 /dev/fb7
+...
+  gcc -Wp,-MD,sound/oss/.mad16.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=k6 -Iinclude/asm-i386/mach-default -nostdinc 
+-iwithprefix include    -DKBUILD_BASENAME=mad16 -DKBUILD_MODNAME=mad16 -c -o 
+sound/oss/mad16.o sound/oss/mad16.c
+...
+sound/oss/mad16.c: In function `probe_mad16':
+sound/oss/mad16.c:541: syntax error before "else"
+sound/oss/mad16.c:604: syntax error before "else"
+make[2]: *** [sound/oss/mad16.o] Error 1
 
-On Red Hat this is: 
-crw-------    1 root     root      29,   7 Apr 11  2002 /dev/fb7
-crw-------    1 root     root      29,   8 Apr 11  2002 /dev/fb8
+<--  snip  -->
 
-Which explains why many don't see this bug.
 
-Regards,
+The following patch is needed:
 
-bert
+
+--- linux-2.5.66-notfull/sound/oss/mad16.c.old	2003-03-26 11:52:13.000000000 +0100
++++ linux-2.5.66-notfull/sound/oss/mad16.c	2003-03-26 11:55:06.000000000 +0100
+@@ -537,7 +537,7 @@
+ 
+ 	for (i = 0xf8d; i <= 0xf93; i++) {
+ 		if (!c924pnp)
+-			DDB(printk("port %03x = %02x\n", i, mad_read(i)))
++			DDB(printk("port %03x = %02x\n", i, mad_read(i)));
+ 		else
+ 			DDB(printk("port %03x = %02x\n", i-0x80, mad_read(i)));
+ 	}
+@@ -600,7 +600,7 @@
+ 
+ 	for (i = 0xf8d; i <= 0xf93; i++) {
+ 		if (!c924pnp)
+-			DDB(printk("port %03x after init = %02x\n", i, mad_read(i)))
++			DDB(printk("port %03x after init = %02x\n", i, mad_read(i)));
+ 		else
+ 			DDB(printk("port %03x after init = %02x\n", i-0x80, mad_read(i)));
+ 	}
+
+
+cu
+Adrian
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
-http://netherlabs.nl                         Consulting
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

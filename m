@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285138AbRLRUhy>; Tue, 18 Dec 2001 15:37:54 -0500
+	id <S285121AbRLRUed>; Tue, 18 Dec 2001 15:34:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285117AbRLRUhp>; Tue, 18 Dec 2001 15:37:45 -0500
-Received: from ns.suse.de ([213.95.15.193]:34833 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S285126AbRLRUgL>;
-	Tue, 18 Dec 2001 15:36:11 -0500
-Date: Tue, 18 Dec 2001 21:36:10 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: More fun with fsx.
-In-Reply-To: <20011218.123130.58437921.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0112182134400.29077-100000@Appserv.suse.de>
+	id <S285133AbRLRUe2>; Tue, 18 Dec 2001 15:34:28 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11529 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285132AbRLRUdK>; Tue, 18 Dec 2001 15:33:10 -0500
+Message-ID: <3C1FA7EE.6050707@transmeta.com>
+Date: Tue, 18 Dec 2001 12:32:46 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, mirrors@kernel.org
+Subject: Recent kernel.org outages
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Dec 2001, David S. Miller wrote:
+Dear friends,
 
-> BTW, here is a portability fix for fsx-linux.c :-)
+I'd like to apologize for the apparently sad state of kernel.org recently.
+ We have been experiencing repeated hardware problems with the old server,
+and it's pretty clear that it's no longer reliable.
 
-Cool, danke.
-I'll wrap it in an ifdef and push it to the Apple folks
-when I send my next changes.
+The good news is that we're already in the process of provisioning a new
+server, generously donated by Compaq.  Until that gets installed, though,
+I'm afraid kernel.org is probably going to be rather flaky.  Please bear
+with us...
 
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+	-hpa
 

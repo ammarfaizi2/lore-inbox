@@ -1,96 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbUEKLt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263124AbUEKLww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbUEKLt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 07:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbUEKLt5
+	id S263124AbUEKLww (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 07:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263232AbUEKLww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 07:49:57 -0400
-Received: from ns.suse.de ([195.135.220.2]:59856 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263100AbUEKLtk (ORCPT
+	Tue, 11 May 2004 07:52:52 -0400
+Received: from mx-00.sil.at ([62.116.68.196]:49934 "EHLO mx-00.sil.at")
+	by vger.kernel.org with ESMTP id S263124AbUEKLwq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 07:49:40 -0400
-Date: Tue, 11 May 2004 13:49:36 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: Linux SCSI list <linux-scsi@vger.kernel.org>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Format Unit can take many hours
-Message-ID: <20040511114936.GI4828@tpkurt.garloff.de>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Linux SCSI list <linux-scsi@vger.kernel.org>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
+	Tue, 11 May 2004 07:52:46 -0400
+Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement
+From: nf <nf2@scheinwelt.at>
+Reply-To: nf2@scheinwelt.at
+To: Chris Wedgwood <cw@f00f.org>
+Cc: John McCutchan <ttb@tentacle.dhs.org>, nautilus-list@gnome.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040511024701.GA19489@taniwha.stupidest.org>
+References: <1084152941.22837.21.camel@vertex>
+	 <20040510021141.GA10760@taniwha.stupidest.org>
+	 <1084227460.28663.8.camel@vertex>
+	 <20040511024701.GA19489@taniwha.stupidest.org>
+Content-Type: text/plain
+Message-Id: <1084276364.4081.63.camel@lilota.lamp.priv>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NqNl6FRZtoRUn5bW"
-Content-Disposition: inline
-X-Operating-System: Linux 2.6.5-9-KG i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: SUSE/Novell
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6-2mdk 
+Date: Tue, 11 May 2004 13:52:44 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-05-11 at 04:47, Chris Wedgwood wrote: 
+> On Mon, May 10, 2004 at 06:17:40PM -0400, John McCutchan wrote:
+> 
+> > According to everyone who uses dnotify it is.
+> 
+> I don't buy that.  I have used dnotify and signals where not an issue.
+> Why is this an issue for others?
 
---NqNl6FRZtoRUn5bW
-Content-Type: multipart/mixed; boundary="dwWFXG4JqVa0wfCP"
-Content-Disposition: inline
+I believe the worst thing about dnotify is the "umount blocking"
+behaviour. It drives me crazy since i use the Linux desktop. So if this
+is the "Year of the linux desktop", please please switch OFF dnotify
+until it does not open files for monitoring anymore! Or until "inotify"
+works.
+
+Btw, i have written a little tool to assist people with the
+umount-problem and collected some links
+http://www.scheinwelt.at/~norbertf/wbumount/. 
+
+> > The idea is to encourage use of a user-space daemon that will
+> > multiplex all requests, so if 5 people want to watch /somedir the
+> > daemon will only use one watcher in the kernel. The number might be
+> > too low, but its easily upped.
+> 
+> If you are to use a daemon for this, why no use dnotify?
+
+I don't understand, why the author of inotify wants to force people to
+use user-space daemons like fam (which requires xinetd, ...)? Does using
+a daemon for multiplexing really add efficiency? Is it really worth
+adding all the complexity of things like "fam" to the system, just
+because more than one application monitor the same directory once in a
+while? I doubt it.
+
+I would even claim, that simple polling ("stat"-ing) the filesystem for
+changes is more efficient in 95% of the cases, than all this dnotify,
+fam, etc... stuff.
+
+Just to be fair - i don't think that dnotify or fam are bad tools, but
+the combination of them seems poisonous for the desktop.
+
+Norbert
 
 
---dwWFXG4JqVa0wfCP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-the timeout for FORMAT_UNIT should be much longer; I've seen 8hrs
-already (75Gig). I've increased the timeout from 2hrs to 12hrs.
-
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                            Cologne, DE=20
-SUSE LINUX AG, Nuernberg, DE                          SUSE Labs (Head)
-
---dwWFXG4JqVa0wfCP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="scsi-format-unit-timeout.diff"
-Content-Transfer-Encoding: quoted-printable
-
---- linux-2.6.5.orig/drivers/scsi/scsi_ioctl.c	2004-04-04 05:38:20.00000000=
-0 +0200
-+++ linux-2.6.5/drivers/scsi/scsi_ioctl.c	2004-05-11 08:59:12.837421215 +02=
-00
-@@ -26,12 +26,12 @@
- #include "scsi_logging.h"
-=20
- #define NORMAL_RETRIES			5
--#define IOCTL_NORMAL_TIMEOUT			(10 * HZ)
--#define FORMAT_UNIT_TIMEOUT		(2 * 60 * 60 * HZ)
-+#define IOCTL_NORMAL_TIMEOUT		(10 * HZ)
-+#define FORMAT_UNIT_TIMEOUT		(12 * 60 * 60 * HZ)
- #define START_STOP_TIMEOUT		(60 * HZ)
- #define MOVE_MEDIUM_TIMEOUT		(5 * 60 * HZ)
- #define READ_ELEMENT_STATUS_TIMEOUT	(5 * 60 * HZ)
--#define READ_DEFECT_DATA_TIMEOUT	(60 * HZ )  /* ZIP-250 on parallel port t=
-akes as long! */
-+#define READ_DEFECT_DATA_TIMEOUT	(60 * HZ)  /* ZIP-250 on parallel port ta=
-kes as long! */
-=20
- #define MAX_BUF PAGE_SIZE
-=20
-
---dwWFXG4JqVa0wfCP--
-
---NqNl6FRZtoRUn5bW
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAoL3QxmLh6hyYd04RAvzSAJ9YleDalzGxaK+gTw8ybXPBXbUZUwCgkncs
-LHGtlBtB28PKS5WBcFDIQo0=
-=AgjH
------END PGP SIGNATURE-----
-
---NqNl6FRZtoRUn5bW--

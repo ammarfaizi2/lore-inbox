@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUHZB1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266686AbUHZB2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266613AbUHZB1x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 21:27:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266648AbUHZB1x
+	id S266686AbUHZB2J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 21:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266683AbUHZB2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 21:27:53 -0400
-Received: from berrymount.xs4all.nl ([82.92.47.16]:31584 "EHLO
-	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S266613AbUHZB1w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 21:27:52 -0400
-Date: Thu, 26 Aug 2004 03:27:48 +0200
-From: Rob van Nieuwkerk <robn@berrymount.nl>
-To: Rob van Nieuwkerk <robn@berrymount.nl>
-Cc: nemosoft@smcc.demon.nl, linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.8 pwc patches and counterpatches
-Message-Id: <20040826032748.6ad60a28.robn@berrymount.nl>
-In-Reply-To: <20040826025545.716b6c59.robn@berrymount.nl>
-References: <1092793392.17286.75.camel@localhost>
-	<1092845135.8044.22.camel@localhost>
-	<20040823221028.GB4694@kroah.com>
-	<200408250058.24845@smcc.demon.nl>
-	<20040826025545.716b6c59.robn@berrymount.nl>
-Organization: Berrymount Automation B.V.
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-X-URL: http://www.berrymount.nl/
+	Wed, 25 Aug 2004 21:28:09 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:14254 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266684AbUHZB2B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 21:28:01 -0400
+Subject: Re: silent semantic changes with reiser4
+From: Nicholas Miell <nmiell@gmail.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Wichert Akkerman <wichert@wiggy.net>, Jeremy Allison <jra@samba.org>,
+       Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>,
+       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+In-Reply-To: <20040826010355.GB24731@mail.shareable.org>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
+	 <20040825152805.45a1ce64.akpm@osdl.org>
+	 <112698263.20040826005146@tnonline.net>
+	 <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>
+	 <1453698131.20040826011935@tnonline.net>
+	 <20040825163225.4441cfdd.akpm@osdl.org>
+	 <20040825233739.GP10907@legion.cup.hp.com>
+	 <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy>
+	 <20040826010355.GB24731@mail.shareable.org>
+Content-Type: text/plain
+Message-Id: <1093483607.2748.42.camel@entropy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.njm.1) 
+Date: Wed, 25 Aug 2004 18:26:47 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Aug 2004 02:55:45 +0200
-Rob van Nieuwkerk <robn@berrymount.nl> wrote:
+On Wed, 2004-08-25 at 18:03, Jamie Lokier wrote:
+> Nicholas Miell wrote:
+> > Anything that currently stores a file's metadata in another file really
+> > wants this right now. Things like image thumbnails, document summaries,
+> > digital signatures, etc.
+> 
+> Additionally, all of those things you describe should be deleted if
+> the file is modified -- to indicate that they're no longer valid and
+> should be regenerated if needed.
+> 
+> Whereas there are some other kinds of metadata which should not be
+> deleted if the file is modified.
+> 
+> -- Jamie
 
-> There are some severe bugs in either your Philips webcam driver, the
-> USB stack or the combination of both, resulting in a "dead" camera
-> within a second of use in some situations.  This can only be fixed by
-> a power cycle  (reported to you several times btw).
-  ^^^^^^^^^^^^^
+Presumably the app which uses the metadata will be smart enough to
+compare the st_mtime of the MDS/stream/attribute/whatever (can we choose
+a name for these things now?) to the st_mtime of the file and do the
+right thing.
 
-I mean "reboot" !
+thumbnail - regenerate it
+summary - keep it, it's relatively independent of the file's exact
+contents
+signature - always verify it
+etc.
 
-	greetings,
-	Rob van Nieuwkerk

@@ -1,82 +1,169 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129396AbRBOKm0>; Thu, 15 Feb 2001 05:42:26 -0500
+	id <S129475AbRBOKxT>; Thu, 15 Feb 2001 05:53:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129480AbRBOKmR>; Thu, 15 Feb 2001 05:42:17 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:64688 "EHLO xfe3.d.ethz.ch")
-	by vger.kernel.org with ESMTP id <S129396AbRBOKmH>;
-	Thu, 15 Feb 2001 05:42:07 -0500
-Message-ID: <3A8BB28B.B2A51C57@debian.org>
-Date: Thu, 15 Feb 2001 11:42:19 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-X-Mailer: Mozilla 4.7C-SGI [en] (X11; I; IRIX 6.5 IP22)
-X-Accept-Language: en, en-US, en-GB
+	id <S129480AbRBOKxK>; Thu, 15 Feb 2001 05:53:10 -0500
+Received: from jdi.jdimedia.nl ([212.204.192.51]:7688 "EHLO jdi.jdimedia.nl")
+	by vger.kernel.org with ESMTP id <S129475AbRBOKwx>;
+	Thu, 15 Feb 2001 05:52:53 -0500
+Date: Thu, 15 Feb 2001 11:52:46 +0100 (CET)
+From: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
+To: <linux-kernel@vger.kernel.org>
+cc: <tim@cyberelk.demon.co.uk>
+Subject: Netmos PCI parallel card
+Message-ID: <Pine.LNX.4.30.0102151149240.30393-300000@jdi.jdimedia.nl>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [ANNONCE] Kernel Autoconfiguration utility v.0.9.1.2
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Feb 2001 10:42:05.0791 (UTC) FILETIME=[F05DAEF0:01C0973B]
+Content-Type: MULTIPART/MIXED; BOUNDARY="-858508352-1420746481-982234366=:30393"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-I just release a new verion of kernel autoconfig.
-The kernel autoconfiguration utility will help user to detect and
-configure the kernel. The detection is soft, thus no hangs!
-
-It is still in test phase, thus now it prints only the proposed
-configuration. To change real configurations, I'm still waiting for
-a working CML2.
+---858508352-1420746481-982234366=:30393
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
-On my hardware database there are:
+Hi,
 
-1007  pci cards
- 111  devices (block and char)
-  37  file systems
-   7  console drivers
-   8  net protocols
- 511  resources strings.
+Attached is a patch to make a Netmos PCI parallal port card working.
 
-+ some extra special detection.
-
-Project homepage:
- http://sourceforge.net/projects/kautoconfigure/
-
-How to use: (now, testing phase)
-  unpack the files (better: in a new directory)
-  > bash autoconfigure.sh | less
-  check the output.
-  no super user privileges required!
+Card is a PCI card with a Netmos 9705 controller and an Atmel serial
+eeprom.
 
 
-I need some help:
-- Some drivers detect pci in a strange way, I could not check every
-files.
-  Please check if your cards are included.
-- Check, add extra detections
+
+	Regards,
 
 
-I will do:
-- updates to the database when a new official kernel version is released
-- interface with CML2 (partially done, but CML2-9.0.1 has still bugs)
-- better 'CONFIG_*=N' handling (e.g. I will check is a drivers depends
-  on PCI. If this PCI card is not found, I can safely tell you that the
-  device is not in the box).
-- generate inverse dependences.
+		Igmar
 
 
-Comments?
+-- 
 
+--
+Igmar Palsenberg
+JDI Media Solutions
 
-        giacomo
+Jansplaats 11
+6811 GB Arnhem
+The Netherlands
 
+mailto: i.palsenberg@jdimedia.nl
+PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
 
-PS. I have done the autodetection reading the source and not using
-    real hardware, thus ... no warranty.
+---858508352-1420746481-982234366=:30393
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="lspci.out"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0102151152460.30393@jdi.jdimedia.nl>
+Content-Description: 
+Content-Disposition: attachment; filename="lspci.out"
 
-PPS: This tools is designed mainly for newbies (in kernel compiling...),
-     thus I don't expect to have a real autodetection on very special
-     machines. [But I expect in the future to do this :-) ]
+MDA6MDAuMCBDbGFzcyAwNjAwOiA4MDg2OjcxMjIgKHJldiAwMykNCglDb250
+cm9sOiBJL08tIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYt
+IFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQ0K
+CVN0YXR1czogQ2FwLSA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERF
+VlNFTD1mYXN0ID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQrID5TRVJSLSA8
+UEVSUi0NCglMYXRlbmN5OiAwIHNldA0KDQowMDowMS4wIENsYXNzIDAzMDA6
+IDgwODY6NzEyMyAocmV2IDAzKQ0KCVN1YnN5c3RlbTogODA4NjowMjAwDQoJ
+Q29udHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1X
+SU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUi0gRmFzdEIy
+Qi0NCglTdGF0dXM6IENhcCsgNjZNaHorIFVERi0gRmFzdEIyQisgUGFyRXJy
+LSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5T
+RVJSLSA8UEVSUi0NCglMYXRlbmN5OiAwIHNldA0KCUludGVycnVwdDogcGlu
+IEEgcm91dGVkIHRvIElSUSAxMQ0KCVJlZ2lvbiAwOiBNZW1vcnkgYXQgZWMw
+MDAwMDAgKDMyLWJpdCwgcHJlZmV0Y2hhYmxlKQ0KCVJlZ2lvbiAxOiBNZW1v
+cnkgYXQgZmZlODAwMDAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkNCglD
+YXBhYmlsaXRpZXM6IFtkY10gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDEN
+CgkJRmxhZ3M6IFBNRUNsay0gQXV4UHdyLSBEU0krIEQxLSBEMi0gUE1FLQ0K
+CQlTdGF0dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MCBQTUUt
+DQoNCjAwOjFlLjAgQ2xhc3MgMDYwNDogODA4NjoyNDE4IChyZXYgMDEpDQoJ
+Q29udHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1X
+SU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUisgRmFzdEIy
+Qi0NCglTdGF0dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJy
+LSBERVZTRUw9ZmFzdCA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VS
+Ui0gPFBFUlItDQoJTGF0ZW5jeTogMCBzZXQNCglCdXM6IHByaW1hcnk9MDAs
+IHNlY29uZGFyeT0wMSwgc3Vib3JkaW5hdGU9MDEsIHNlYy1sYXRlbmN5PTY0
+DQoJSS9PIGJlaGluZCBicmlkZ2U6IDAwMDBkMDAwLTAwMDBkZmZmDQoJTWVt
+b3J5IGJlaGluZCBicmlkZ2U6IGZmYzAwMDAwLWZmY2ZmZmZmDQoJUHJlZmV0
+Y2hhYmxlIG1lbW9yeSBiZWhpbmQgYnJpZGdlOiBlN2UwMDAwMC1lN2VmZmZm
+Zg0KCUJyaWRnZUN0bDogUGFyaXR5LSBTRVJSKyBOb0lTQS0gVkdBLSBNQWJv
+cnQtID5SZXNldC0gRmFzdEIyQi0NCg0KMDA6MWYuMCBDbGFzcyAwNjAxOiA4
+MDg2OjI0MTAgKHJldiAwMSkNCglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFz
+dGVyKyBTcGVjQ3ljbGUrIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0
+ZXBwaW5nLSBTRVJSKyBGYXN0QjJCLQ0KCVN0YXR1czogQ2FwLSA2Nk1oei0g
+VURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0g
+PFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQ0KCUxhdGVuY3k6IDAg
+c2V0DQoNCjAwOjFmLjEgQ2xhc3MgMDEwMTogODA4NjoyNDExIChyZXYgMDEp
+IChwcm9nLWlmIDgwIFtNYXN0ZXJdKQ0KCUNvbnRyb2w6IEkvTysgTWVtLSBC
+dXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVy
+ci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItDQoJU3RhdHVzOiBDYXAtIDY2
+TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFi
+b3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItDQoJTGF0ZW5j
+eTogMCBzZXQNCglSZWdpb24gNDogSS9PIHBvcnRzIGF0IGZmYTANCg0KMDA6
+MWYuMiBDbGFzcyAwYzAzOiA4MDg2OjI0MTIgKHJldiAwMSkNCglDb250cm9s
+OiBJL08rIE1lbS0gQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZH
+QVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQ0KCVN0
+YXR1czogQ2FwLSA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNF
+TD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQ
+RVJSLQ0KCUxhdGVuY3k6IDAgc2V0DQoJSW50ZXJydXB0OiBwaW4gRCByb3V0
+ZWQgdG8gSVJRIDUNCglSZWdpb24gNDogSS9PIHBvcnRzIGF0IGVmODANCg0K
+MDA6MWYuMyBDbGFzcyAwYzA1OiA4MDg2OjI0MTMgKHJldiAwMSkNCglDb250
+cm9sOiBJL08rIE1lbS0gQnVzTWFzdGVyLSBTcGVjQ3ljbGUtIE1lbVdJTlYt
+IFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQ0K
+CVN0YXR1czogQ2FwLSA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERF
+VlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlIt
+IDxQRVJSLQ0KCUludGVycnVwdDogcGluIEIgcm91dGVkIHRvIElSUSAxMA0K
+CVJlZ2lvbiA0OiBJL08gcG9ydHMgYXQgZWZhMA0KDQowMTowNS4wIENsYXNz
+IDAyMDA6IDEwZWM6ODAyOQ0KCVN1YnN5c3RlbTogMTBlYzo4MDI5DQoJQ29u
+dHJvbDogSS9PKyBNZW0rIEJ1c01hc3Rlci0gU3BlY0N5Y2xlLSBNZW1XSU5W
+LSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUi0gRmFzdEIyQi0N
+CglTdGF0dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQi0gUGFyRXJyLSBE
+RVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJS
+LSA8UEVSUi0NCglJbnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgMTAN
+CglSZWdpb24gMDogSS9PIHBvcnRzIGF0IGRmODANCg0KMDE6MGIuMCBDbGFz
+cyAwNzAxOiA5NzEwOjk3MDUgKHJldiAwMSkgKHByb2ctaWYgMDIpDQoJU3Vi
+c3lzdGVtOiAxMDAwOjAwMTANCglDb250cm9sOiBJL08rIE1lbS0gQnVzTWFz
+dGVyLSBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0
+ZXBwaW5nLSBTRVJSKyBGYXN0QjJCLQ0KCVN0YXR1czogQ2FwLSA2Nk1oei0g
+VURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0g
+PFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQ0KCUludGVycnVwdDog
+cGluIEEgcm91dGVkIHRvIElSUSA1DQoJUmVnaW9uIDA6IEkvTyBwb3J0cyBh
+dCBkZjAwDQoNCg==
+---858508352-1420746481-982234366=:30393
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="netmos_parport.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0102151152461.30393@jdi.jdimedia.nl>
+Content-Description: 
+Content-Disposition: attachment; filename="netmos_parport.patch"
+
+LS0tIGxpbnV4L2luY2x1ZGUvbGludXgvcGNpLmgub3JpZwlUaHUgRmViIDE1
+IDExOjE4OjQzIDIwMDENCisrKyBsaW51eC9pbmNsdWRlL2xpbnV4L3BjaS5o
+CVRodSBGZWIgMTUgMTE6NTI6MjcgMjAwMQ0KQEAgLTEyNjgsNiArMTI2OCw5
+IEBADQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX0lOVEVSUEhBU0VfNTUyNgkw
+eDAwMDQNCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfSU5URVJQSEFTRV81NXg2
+CTB4MDAwNQ0KIA0KKyNkZWZpbmUgUENJX1ZFTkRPUl9JRF9ORVRNT1MJCTB4
+OTcxMA0KKyNkZWZpbmUgUENJX1ZFTkRPUl9JRF9ORVRNT1NfOTcwNQkweDk3
+MDUNCisNCiAvKg0KICAqIFRoZSBQQ0kgaW50ZXJmYWNlIHRyZWF0cyBtdWx0
+aS1mdW5jdGlvbiBkZXZpY2VzIGFzIGluZGVwZW5kZW50DQogICogZGV2aWNl
+cy4gIFRoZSBzbG90L2Z1bmN0aW9uIGFkZHJlc3Mgb2YgZWFjaCBkZXZpY2Ug
+aXMgZW5jb2RlZA0KLS0tIGxpbnV4L2RyaXZlcnMvbWlzYy9wYXJwb3J0X3Bj
+LmMub3JpZwlUaHUgRmViIDE1IDExOjQ5OjAwIDIwMDENCisrKyBsaW51eC9k
+cml2ZXJzL21pc2MvcGFycG9ydF9wYy5jCVRodSBGZWIgMTUgMTE6NTM6MjEg
+MjAwMQ0KQEAgLTkxMCw2ICs5MTAsOCBAQA0KIAkJICB7IHsgMCwgLTEgfSwg
+fSB9LA0KIAkJeyBQQ0lfVkVORE9SX0lEX09YU0VNSSwgUENJX0RFVklDRV9J
+RF9PWFNFTUlfMTJQQ0k4NDAsIDEsDQogCQkgIHsgeyAwLCAxIH0sIH0gfSwN
+CisJCXsgUENJX1ZFTkRPUl9JRF9ORVRNT1MsIFBDSV9ERVZJQ0VfSURfTkVU
+TU9TXzk3MDUsIDEsIA0KKwkJICB7IHsgMCwgLTEgfSwgfSB9LA0KIAkJeyAw
+LCB9DQogCX07DQogDQotLS0gbGludXgvZHJpdmVycy9wY2kvb2xkcHJvYy5j
+Lm9yaWcJVGh1IEZlYiAxNSAxMTozMDozNiAyMDAxDQorKysgbGludXgvZHJp
+dmVycy9wY2kvb2xkcHJvYy5jCVRodSBGZWIgMTUgMTE6MzA6MDYgMjAwMQ0K
+QEAgLTk0Nyw2ICs5NDcsNyBAQA0KIAkgICAgICBjYXNlIFBDSV9WRU5ET1Jf
+SURfVElHRVJKRVQ6CXJldHVybiAiVGlnZXJKZXQiOw0KIAkgICAgICBjYXNl
+IFBDSV9WRU5ET1JfSURfQVJLOgkJcmV0dXJuICJBUksgTG9naWMiOw0KIAkg
+ICAgICBjYXNlIFBDSV9WRU5ET1JfSURfU1lTS09OTkVDVDoJcmV0dXJuICJT
+eXNLb25uZWN0IjsNCisJICAgICAgY2FzZSBQQ0lfVkVORE9SX0lEX05FVE1P
+UzoJcmV0dXJuICJOZXRtb3MiOw0KIAkgICAgICBkZWZhdWx0OgkJCQlyZXR1
+cm4gIlVua25vd24gdmVuZG9yIjsNCiAJfQ0KIH0NCg==
+---858508352-1420746481-982234366=:30393--

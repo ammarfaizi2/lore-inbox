@@ -1,65 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265487AbUGMQpV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265499AbUGMQtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265487AbUGMQpV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 12:45:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265492AbUGMQpV
+	id S265499AbUGMQtR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 12:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265509AbUGMQtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 12:45:21 -0400
-Received: from snota.svorka.net ([194.19.72.11]:31427 "HELO snota.svorka.net")
-	by vger.kernel.org with SMTP id S265487AbUGMQpP (ORCPT
+	Tue, 13 Jul 2004 12:49:16 -0400
+Received: from havoc.gtf.org ([216.162.42.101]:25760 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S265499AbUGMQtN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 12:45:15 -0400
-X-Qmail-Scanner-Mail-From: eldiablo@svorka.net via snota
-X-Qmail-Scanner: 1.20st (Clear:RC:1(194.19.72.135):. Processed in 0.042079 secs) process 6528 
-Message-ID: <40F41186.8060808@svorka.net>
-Date: Tue, 13 Jul 2004 18:44:54 +0200
-From: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <eldiablo@svorka.net>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040705)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6] Module writing?
-References: <40F40DE9.5010909@svorka.net>
-In-Reply-To: <40F40DE9.5010909@svorka.net>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 13 Jul 2004 12:49:13 -0400
+Date: Tue, 13 Jul 2004 12:49:11 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Ricky Beam <jfbeam@bluetronic.net>
+Cc: "Eric D. Mudama" <edmudama@bounceswoosh.org>,
+       "Robert M. Stockmann" <stock@stokkie.net>, linux-kernel@vger.kernel.org
+Subject: Re: SATA disk device naming ?
+Message-ID: <20040713164911.GA947@havoc.gtf.org>
+References: <20040713064645.GA1660@bounceswoosh.org> <Pine.GSO.4.33.0407131221000.25702-100000@sweetums.bluetronic.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.33.0407131221000.25702-100000@sweetums.bluetronic.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Jul 13, 2004 at 12:23:32PM -0400, Ricky Beam wrote:
+> On Tue, 13 Jul 2004, Eric D. Mudama wrote:
+> >... "root=LABEL=/" ...
+> 
+> I've seen the LABEL method not work at all. (2.6.7-rc3 on the wikipedia
+> servers.)
 
-Espen Fjellvær Olsen wrote:
+For LABEL to work, your filesystem needs to support it.
 
-| I have started to write some kernel modules for fun now, but they
-| are a bit empty :) it's just some printk's and some other simple
-| things.
-|
-| I wonder if there are any good howtoes out on the Net somewhere,
-| I've read a bit on: http://tldp.org/LDP/lkmpg, but I'm afraid it's
-| a bit outdated(?)
-|
-| I'm only doing this for fun(at this time, maybe it becomes serious
-| when i become a bit older;) ) so i don't want to spend any money on
-| a book, or on an course.
-|
-|
-| Best regards Espen Fjellvær Olsen eldiablo@svorka.net Norway
-|
-|
-|
-|
+For LABEL to work on root filesystem, you need an initrd.
 
-I'm intressed in Kernel Hackin generally, any tips or documentation of
-general Kernel Hacking would also be very nice. :)
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+	Jeff
 
-iD8DBQFA9BGGibTL5aHQf7URAjArAJ9oQbY93twIeeubBxytCZgIaelw7ACePX3r
-DyP0Q6Wp0l0BUaUeKLTwKpg=
-=BGzr
------END PGP SIGNATURE-----
+
 

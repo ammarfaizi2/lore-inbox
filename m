@@ -1,158 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVASJib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVASJoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261674AbVASJib (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 04:38:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVASJgM
+	id S261420AbVASJoT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 04:44:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVASJoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 04:36:12 -0500
-Received: from mail03.syd.optusnet.com.au ([211.29.132.184]:132 "EHLO
-	mail03.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261686AbVASJe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 04:34:28 -0500
-Message-ID: <41EE2987.1040005@kolivas.org>
-Date: Wed, 19 Jan 2005 20:33:59 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Jack O'Quin" <joq@io.com>
-Cc: linux <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       rlrevell@joe-job.com, paul@linuxaudiosystems.com,
-       CK Kernel <ck@vds.kolivas.org>
-Subject: Re: [PATCH][RFC] sched: Isochronous class for unprivileged soft rt
- scheduling
-References: <41ED08AB.5060308@kolivas.org> <87is5tx61a.fsf@sulphur.joq.us>
-In-Reply-To: <87is5tx61a.fsf@sulphur.joq.us>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigF9EB79CC4C8F106DC4A47228"
+	Wed, 19 Jan 2005 04:44:19 -0500
+Received: from gprs215-241.eurotel.cz ([160.218.215.241]:35256 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261420AbVASJoN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 04:44:13 -0500
+Date: Wed, 19 Jan 2005 10:43:42 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Tony Lindgren <tony@atomide.com>
+Cc: George Anzinger <george@mvista.com>, john stultz <johnstul@us.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dynamic tick patch
+Message-ID: <20050119094342.GB25623@elf.ucw.cz>
+References: <20050119000556.GB14749@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050119000556.GB14749@atomide.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigF9EB79CC4C8F106DC4A47228
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi!
 
-Jack O'Quin wrote:
-> Con Kolivas <kernel@kolivas.org> writes:
+> Attached is the dynamic tick patch for x86 to play with
+> as I promised in few threads earlier on this list.[1][2]
 > 
+> The dynamic tick patch does following:
 > 
->>This patch for 2.6.11-rc1 provides a method of providing real time
->>scheduling to unprivileged users which increasingly is desired for
->>multimedia workloads.
+> - Separates timer interrupts from updating system time
 > 
+> - Allows updating time from other interrupts in addition
+>   to timer interrupt
 > 
-> I ran some jack_test3.2 runs with this, using all the default
-> settings.  The results of three runs differ quite significantly for no
-> obvious reason.  I can't figure out why the DSP load should vary so
-> much.  
+> - Makes timer tick dynamic
+> 
+> - Allows power management modules to take advantage of the
+>   idle time inbetween skipped ticks
+> 
+> - Might help with the whistling caps?
+> 
+> The patch should be non-intrusive where possible. The system
+> boots with the regular timers, and then later on switches on
+> the dynamic tick if the selected driver implements get_hw_time()
+> function.
+> 
+> Currently supported timers are TSC and ACPI PM timer. Other
+> timers should be easy to add. Both TSC and ACPI PM timer
+> rely on the PIT timer for interrupts, so the maximum skip
+> inbetween ticks is only few seconds at most.
+> 
+> Please note that this patch alone does not help much with
+> power savings. More work is needed in that area to make the
+> system take advantage of the idle time inbetween the skipped
+> ticks.
 
-I installed a fresh jack installation and got the test suite. I tried 
-running the test suite and found it only ran to completion if I changed 
-the run time right down to 30 seconds from 300. Otherwise it bombed out 
-almost instantly at the default of 300. I don't know if that helps you 
-debug the problem or not but it might be worth mentioning.
-
-As for my own results I gave it a run on the weak SCHED_ISO 
-implementation in 2.6.10-ck5 (P4HT 3.06):
-
-SCHED_NORMAL:
-*********************************************
-Timeout Count . . . . . . . . :(    0)
-XRUN Count  . . . . . . . . . :    74
-Delay Count (>spare time) . . :     0
-Delay Count (>1000 usecs) . . :     0
-Delay Maximum . . . . . . . . :     0   usecs
-Cycle Maximum . . . . . . . . :  1046   usecs
-Average DSP Load. . . . . . . :    18.0 %
-Average CPU System Load . . . :     2.5 %
-Average CPU User Load . . . . :     7.8 %
-Average CPU Nice Load . . . . :     0.1 %
-Average CPU I/O Wait Load . . :     0.1 %
-Average CPU IRQ Load  . . . . :     0.1 %
-Average CPU Soft-IRQ Load . . :     0.0 %
-Average Interrupt Rate  . . . :  1776.0 /sec
-Average Context-Switch Rate . : 10290.4 /sec
-*********************************************
-
-SCHED_NORMAL nice -n -20:
-*********************************************
-Timeout Count . . . . . . . . :(    0)
-XRUN Count  . . . . . . . . . :   266
-Delay Count (>spare time) . . :     0
-Delay Count (>1000 usecs) . . :     0
-Delay Maximum . . . . . . . . :     0   usecs
-Cycle Maximum . . . . . . . . :  2239   usecs
-Average DSP Load. . . . . . . :    28.6 %
-Average CPU System Load . . . :     2.9 %
-Average CPU User Load . . . . :    10.2 %
-Average CPU Nice Load . . . . :     0.0 %
-Average CPU I/O Wait Load . . :     1.0 %
-Average CPU IRQ Load  . . . . :     0.2 %
-Average CPU Soft-IRQ Load . . :     0.1 %
-Average Interrupt Rate  . . . :  2049.7 /sec
-Average Context-Switch Rate . : 10145.1 /sec
-*********************************************
-
-SCHED_ISO:
-*********************************************
-Timeout Count . . . . . . . . :(    0)
-XRUN Count  . . . . . . . . . :     1
-Delay Count (>spare time) . . :     0
-Delay Count (>1000 usecs) . . :     0
-Delay Maximum . . . . . . . . :     0   usecs
-Cycle Maximum . . . . . . . . :   687   usecs
-Average DSP Load. . . . . . . :    19.9 %
-Average CPU System Load . . . :     2.6 %
-Average CPU User Load . . . . :    10.3 %
-Average CPU Nice Load . . . . :     0.0 %
-Average CPU I/O Wait Load . . :     0.0 %
-Average CPU IRQ Load  . . . . :     0.2 %
-Average CPU Soft-IRQ Load . . :     0.3 %
-Average Interrupt Rate  . . . :  2166.2 /sec
-Average Context-Switch Rate . : 10117.3 /sec
-*********************************************
-
-SCHED_FIFO:
-*********************************************
-Timeout Count . . . . . . . . :(    0)
-XRUN Count  . . . . . . . . . :     2
-Delay Count (>spare time) . . :     0
-Delay Count (>1000 usecs) . . :     0
-Delay Maximum . . . . . . . . :     0   usecs
-Cycle Maximum . . . . . . . . :   544   usecs
-Average DSP Load. . . . . . . :    19.5 %
-Average CPU System Load . . . :     3.1 %
-Average CPU User Load . . . . :    12.6 %
-Average CPU Nice Load . . . . :     0.0 %
-Average CPU I/O Wait Load . . :     0.0 %
-Average CPU IRQ Load  . . . . :     1.0 %
-Average CPU Soft-IRQ Load . . :     1.1 %
-Average Interrupt Rate  . . . :  5018.4 /sec
-Average Context-Switch Rate . : 10902.5 /sec
-*********************************************
-
-
-It occasionally would segfault on client exit as well (as you've already 
-mentioned). I think we're still in the dark here to be honest.
-
-Con
-
---------------enigF9EB79CC4C8F106DC4A47228
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB7imKZUg7+tp6mRURAoE+AJ9scXmMkuaJ2y7sK5oqtQR0YAQQ5wCfV+sD
-afwRAjgtdU0cx8fokv226+c=
-=jnLe
------END PGP SIGNATURE-----
-
---------------enigF9EB79CC4C8F106DC4A47228--
+Well, having HZ=100 instead of HZ=1000 has measurable benefits on
+power consumption. This should be at least as good, no?
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

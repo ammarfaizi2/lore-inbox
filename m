@@ -1,34 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261429AbSJVPRJ>; Tue, 22 Oct 2002 11:17:09 -0400
+	id <S262824AbSJVPcM>; Tue, 22 Oct 2002 11:32:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262813AbSJVPRJ>; Tue, 22 Oct 2002 11:17:09 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:27577 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261429AbSJVPRH>; Tue, 22 Oct 2002 11:17:07 -0400
-Subject: Re: running 2.4.2 kernel under 4MB Ram
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Amol Kumar Lad <amolk@ishoni.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-In-Reply-To: <1035333109.2200.2.camel@amol.in.ishoni.com>
-References: <1035281203.31873.34.camel@irongate.swansea.linux.org.uk> 
-	<1035333109.2200.2.camel@amol.in.ishoni.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 22 Oct 2002 16:39:24 +0100
-Message-Id: <1035301164.31917.78.camel@irongate.swansea.linux.org.uk>
+	id <S262937AbSJVPcM>; Tue, 22 Oct 2002 11:32:12 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:52614 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262824AbSJVPcL>; Tue, 22 Oct 2002 11:32:11 -0400
+Date: Tue, 22 Oct 2002 08:38:15 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: andy barlak <andyb@island.net>
+Cc: Mike Anderson <andmike@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] scsi_error device offline fix
+Message-ID: <20021022083815.A61@eng2.beaverton.ibm.com>
+Mail-Followup-To: andy barlak <andyb@island.net>,
+	Mike Anderson <andmike@us.ibm.com>, linux-kernel@vger.kernel.org
+References: <20021021155236.A10032@eng2.beaverton.ibm.com> <Pine.LNX.4.30.0210211739330.2010-100000@tosko.alm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.30.0210211739330.2010-100000@tosko.alm.com>; from andyb@island.net on Mon, Oct 21, 2002 at 05:58:04PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-23 at 01:31, Amol Kumar Lad wrote:
-> It means that I _cannot_ run 2.4.2 on a 4MB box. 
-> Actually my embedded system already has 2.4.2 running on a 16Mb. I was
-> looking for a way to run it in 4Mb. 
-> So Is upgrade to 2.4.19 the only option ??
+On Mon, Oct 21, 2002 at 05:58:04PM -0700, andy barlak wrote:
+> On Mon, 21 Oct 2002, Patrick Mansfield wrote:
+> > Can you turn on all scsi logging - with CONFIG_SCSI_LOGGING enabled,
+> > on your boot command line add a "scsi_logging=1" and send
+> > the output.
+> >
+> > -- Patrick Mansfield
+> 
+> Sure.  large dmesg buffer required.  This produced a 55k file that
+> I will pare down to what I consider informative.
 
-You should move to a later kernel anyway 2.4.2 has a lot of bugs
-including some security ones.
+It looks like the INQUIRY page code 0 is timing out and appears to have
+hung the bus, as all other commands sent to the bus then timeout.
 
+It's surprising that that would hang the bus.
+
+That driver really needs at least some basic reset handling.
+
+Try removing the scsi_load_identifier call in scsi_scan.c and
+see if you can boot. And/or get sg_utils and on your 2.4 system
+send a INQUIRY page 0 to the device, and see if that hangs or
+not, like:
+
+[patman@elm3a50 sg_utils]$ sudo ./sg_inq  -e -o=0 /dev/sg1
+EVPD INQUIRY, page code=0x00:
+ Only hex output supported
+ 00     00 00 00 0c 00 03 80 81  c0 c1 c2 c3 c7 c8 d1 d2    ................    
+
+FYI sg_utils is at:
+
+http://www.torque.net/sg/index.html#Utilities:%20sg_utils%20and%20sg3_utils
+http://www.torque.net/sg/p/sg3_utils-1.01.tgz
+
+-- Patrick Mansfield

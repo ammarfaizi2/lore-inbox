@@ -1,52 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262089AbSKCP5z>; Sun, 3 Nov 2002 10:57:55 -0500
+	id <S262076AbSKCPzA>; Sun, 3 Nov 2002 10:55:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262107AbSKCP5y>; Sun, 3 Nov 2002 10:57:54 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:20109 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262089AbSKCP5x>; Sun, 3 Nov 2002 10:57:53 -0500
-Subject: Re: swsusp: don't eat ide disks
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: benh@kernel.crashing.org
-Cc: Alan Cox <alan@redhat.com>, Pavel Machek <pavel@ucw.cz>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021103145735.14872@smtp.wanadoo.fr>
-References: <200211022006.gA2K6XW08545@devserv.devel.redhat.com> 
-	<20021103145735.14872@smtp.wanadoo.fr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Nov 2002 16:25:33 +0000
-Message-Id: <1036340733.29642.41.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262080AbSKCPzA>; Sun, 3 Nov 2002 10:55:00 -0500
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:13200 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262076AbSKCPy7>; Sun, 3 Nov 2002 10:54:59 -0500
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Oliver Xymoron <oxymoron@waste.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       Dax Kelson <dax@gurulabs.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       linux-kernel@vger.kernel.org, davej@suse.de
+References: <Pine.GSO.4.21.0211030904340.25010-100000@steklov.math.psu.edu>
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+To: Alexander Viro <viro@math.psu.edu>
+Subject: Re: Filesystem Capabilities in 2.6?
+Date: Sun, 03 Nov 2002 17:01:10 +0100
+Message-ID: <87u1iymym1.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-11-03 at 14:57, benh@kernel.crashing.org wrote:
-> Hrm... I don't think so Alan. The PM ordering is bus driven,
-> so actual bus binding of the disk is it's controller, not
-> the request queue which is the functional binding. It's up to
-> the disk driver to shut down processing of the request queue.
+Alexander Viro <viro@math.psu.edu> writes:
 
-That requires code in every driver. Duplicated, hard to write, likely to
-be racey code. Thats bad.
+> On Sun, 3 Nov 2002, Olaf Dietsche wrote:
+>
+>> > And as Al points out, new security features don't mean that you can just
+>> > stop being careful. 
+>> 
+>> Stating the obvious. Capabilities are not an end in itself, nor is suid
+>> root. It's just another line of defense to help with these binaries,
+>> which are _not_ capability aware.
+>
+> Bullshit.  To _be_ careful you need to understand the implications of
+> what you are doing.
 
-The bigger picture really should be
+Where did I, or anyone else, state the opposite?
 
-ACPI etc	"I want to suspend to disk"
+> To do so in a more complicated model is harder,
+> not easier.
 
-PM layer
-		Suspend the non I/O tasks (btw reminds me - eh tasks and
-			all workqueues may be I/O tasks at times)
-		Complete all the block I/O queues
-		Throw out the pages we can evict
-		Write suspend image
-		
-		Jump to PM layer "power off" logic
+Because it's harder for you to do a proper job, doesn't mean it is for
+everybody else.
 
-If you do it that way up then no drivers need to be hacked about.
+> More features != better security.  Quite often it's exact opposite.
+> Human do make errors, otherwise suid-root stuff wouldn't be a problem
+> to start with.  And when security mechanism increases probability
+> of error it becomes a menace.
 
-Alan
+Capabilities are not about adding features, they are about reducing.
+Face it, you just don't get it.
 
+> Odds of getting screwed are 0 if programs contain no bugs.  We are dealing
+> with real world and there are non-zero odds of exploitable holes being there
+> and getting found.  What we want is to decrease the odds of compromise,
+> right?  So how are ACLs/capabilities/etc. settings different from program
+> internals?  Either can contain bugs.  Neither is guaranteed to be done
+> correctly.  Odds of compromise depend on odds of bugs in both.  Yet you
+> seem to imply that metadata *will* be set correctly.  By the same vendors
+> that had shipped vulnerable binary in the first place.  Even though the
+> complexity of metadata had grown.
+
+Agreed in _every_ _single_ _point_. But because there might be stupid
+vendors out there, doesn't mean I have to bow down to their level.
+And that is, what this is all about. I want to have this choice and
+fortunately, I have it.
+
+> Please, get real.  "Completely understood" is much more important than
+> "versatile" when it comes to security models.  And as for additional lines
+
+So, what's your point? Like with suid root, capability settings need
+to be debugged, bug reports filed and people educated.
+
+> of defense...  How did it go?  "For extra privacy that message had been
+> twice encrypted with ROT13"...
+
+Well, _that_ is bullshit.
+
+Regards, Olaf.

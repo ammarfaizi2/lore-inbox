@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVBGW4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVBGWyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVBGW4I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 17:56:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVBGWyY
+	id S261336AbVBGWyL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 17:54:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVBGWwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 17:54:24 -0500
-Received: from fw.osdl.org ([65.172.181.6]:38091 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261326AbVBGWwq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 17:52:46 -0500
-Date: Mon, 7 Feb 2005 14:57:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jay Lan <jlan@sgi.com>
-Cc: clameter@sgi.com, torvalds@osdl.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re:
- move-accounting-function-calls-out-of-critical-vm-code-paths.patch
-Message-Id: <20050207145748.435a68ea.akpm@osdl.org>
-In-Reply-To: <42077724.1060606@sgi.com>
-References: <20050110184617.3ca8d414.akpm@osdl.org>
-	<Pine.LNX.4.58.0502031319440.25268@schroedinger.engr.sgi.com>
-	<20050203140904.7c67a144.akpm@osdl.org>
-	<Pine.LNX.4.58.0502031436460.26183@schroedinger.engr.sgi.com>
-	<20050203150551.4d88f210.akpm@osdl.org>
-	<42077724.1060606@sgi.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 7 Feb 2005 17:52:25 -0500
+Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:51619 "EHLO
+	fw-loc.vanvergehaald.nl") by vger.kernel.org with ESMTP
+	id S261336AbVBGWvz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 17:51:55 -0500
+Date: Mon, 7 Feb 2005 23:51:39 +0100
+From: Toon van der Pas <toon@hout.vanvergehaald.nl>
+To: Ali Bayazit <listeci@bayazit.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Judith und Mirko Kloppstech <jugal@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suggestion for CD filesystem for Backups
+Message-ID: <20050207225138.GC9850@hout.vanvergehaald.nl>
+References: <415204E0.9010203@gmx.net> <1095956209.6776.36.camel@localhost.localdomain> <1096003099.16849.16.camel@mevlevi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1096003099.16849.16.camel@mevlevi>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay Lan <jlan@sgi.com> wrote:
->
-> I have tested Christoph's patch before the leave. It did work for CSA
-> and showed performance improvement on certain configuration.
+On Fri, Sep 24, 2004 at 01:18:19AM -0400, Ali Bayazit wrote:
+> 
+> On Thu, 2004-09-23 at 17:16 +0100, Alan Cox wrote:
+> > On Iau, 2004-09-23 at 00:04, Judith und Mirko Kloppstech wrote:
+> > > Why not write a file system on top of ISO9660 which uses the rest of the 
+> > > CD to write error correction. If a sector becomes unreadable, the error 
+> > > correction saves the data. Besides, a tool for testing the error rate 
+> > > and the safety of the data can be easily written for a normal CD-ROM drive.
+> > > 
+> > > The data for error correction might be written into a file so that the 
+> > > CD can be read using any System, but Linux provides error correction.
+> > 
+> > Send patches, or possibly if you are dumping tars and the like just
+> > write yourself an app to generate a second file of ECC data.
+> 
+> Wouldn't it be safer to do ECC on meta-data also?
+> That probably means replacing ISO9660 though.
 
-OK, thanks.
+There seems to be a good user space alternative for this purpose:
 
-> Should i propose to include the CSA module in
-> the kernel then, Andrew? :)
+	http://dvdisaster.berlios.de
 
-Sure, if such an action is suitable for all the other parties who are
-interested in enhanced system accounting.
-
-What this ballgame needs is for someone to grab the bull by the horns and
-run with it.  This thing obviously requires a lot more cliches!
+Regards,
+Toon.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

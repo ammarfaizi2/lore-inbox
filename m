@@ -1,81 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267078AbSKWW1J>; Sat, 23 Nov 2002 17:27:09 -0500
+	id <S267091AbSKWWjI>; Sat, 23 Nov 2002 17:39:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267083AbSKWW1J>; Sat, 23 Nov 2002 17:27:09 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:43478 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id <S267078AbSKWW1I>; Sat, 23 Nov 2002 17:27:08 -0500
-From: "Folkert van Heusden" <folkert@vanheusden.com>
-To: "'David Schwartz'" <davids@webmaster.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: TCP memory pressure question
-Date: Sat, 23 Nov 2002 23:34:15 +0100
-Message-ID: <001701c29340$749e8110$3640a8c0@boemboem>
+	id <S267092AbSKWWjI>; Sat, 23 Nov 2002 17:39:08 -0500
+Received: from whitsun.whitsunday.net.au ([203.25.188.10]:45319 "EHLO
+	mail1.whitsunday.net.au") by vger.kernel.org with ESMTP
+	id <S267091AbSKWWjH> convert rfc822-to-8bit; Sat, 23 Nov 2002 17:39:07 -0500
+From: John W Fort <johnf@whitsunday.net.au>
+To: linux-kernel@vger.kernel.org
+Subject: RE: buffer layer error at fs/buffer.c:399 (Was incorrectly FS Corruption)
+Date: Sun, 24 Nov 2002 08:46:02 +1000
+Message-ID: <t410uu0mv6ooii8mahmcb5hcea5dvmrd9s@4ax.com>
+X-Mailer: Forte Agent 1.92/32.572
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20021123002812.AAA5286@shell.webmaster.com@whenever>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	Any comments or suggestions are appreciated. I've found that when we hit
-TCP
-> memory pressure, many applications become very badly behaved.
+> Andrew Morton replied so quickly he slipped under the radar:
+> John W Fort wrote:
+> > 
+> > I got this just before I went away on a trip.
+> > 
+> > Nov 20 13:46:47 localhost kernel: buffer layer error at fs/buffer.c:399
+> > ... 
+> > Trace; c0139526 <__find_get_block_slow+a6/e0>
+> > Trace; c013a447 <unmap_underlying_metadata+17/50>
+> 
+> Why do you say "corruption"?
+> 
+> Was this while you were doing stuff with the root filesystem?
+> 
+> Was that filesystem fsck'ed on that reboot?
+> 
+> Thanks.
+> 
 
-What about:
+1. 'FS left in an unclean state' dosn't have the same ring to it
+and when you spend so long in 'fsck' that you start contemplating
+recovery from backup. Sorry bad choice of words.
 
-int WRITE(int handle, char *whereto, int len)
-{
-        int cnt=len;
+2. Yes, was tarring up the kernel source, so reading and writing to
+root filesystem (ext2).
 
-        while(len>0)
-        {
-                int rc;
+3. it was wedged, so just powered down, on return the guilty FS was fscked
+from a 2.2.22 boot.
 
-                rc = write(handle, whereto, len);
+Sorry it took so long to see your reply.
 
-                if (rc == -1)
-                {
-                        if (errno == EINTR)
-				{
-					/* just try again */
-				}
-				else if (errno == EAGAIN)
-				{
-					/* give up time-slice */
-					if (sched_yield() == -1)
-					{
-						/* BIG troubles */
-                              	syslog(LOG_DEBUG, "WRITE(), during EAGAIN
-handling: sched_yield failed! [%d - %s]", errno, strerror(errno));
-                               	return -1;
-					}
-				}
-				else
-                        {
-                                syslog(LOG_DEBUG, "WRITE(): io-error [%d -
-%s]", errno, strerror(errno));
-                                return -1;
-                        }
-                }
-                else if (rc == 0)
-                {
-                        return 0;
-                }
-                else
-                {
-                        whereto += rc;
-                        len -= rc;
-                }
-        }
+Thanks  johnf
 
-        return cnt;
-}
 

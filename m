@@ -1,69 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264533AbTFAAPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 20:15:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264534AbTFAAPQ
+	id S264534AbTFABBk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 21:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264535AbTFABBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 20:15:16 -0400
-Received: from ms-smtp-01.texas.rr.com ([24.93.36.229]:5033 "EHLO
-	ms-smtp-01.texas.rr.com") by vger.kernel.org with ESMTP
-	id S264533AbTFAAPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 20:15:15 -0400
-Subject: Re: Linux 2.4.21-rc6
-From: Daniel Goller <dgoller@satx.rr.com>
-To: Michael Frank <mflt1@micrologica.com.hk>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200305311912.29558.mflt1@micrologica.com.hk>
-References: <1054321731.13265.8.camel@schlaefer>
-	 <20030530205223.GB25810@matchmail.com> <1054364771.17718.1.camel@schlaefer>
-	 <200305311912.29558.mflt1@micrologica.com.hk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054427952.7416.2.camel@schlaefer>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4- 
-Date: 31 May 2003 19:39:12 -0500
+	Sat, 31 May 2003 21:01:40 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:41945 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S264534AbTFABBj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 21:01:39 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Scott A Crosby <scrosby@cs.rice.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Algoritmic Complexity Attacks and 2.4.20 the dcache code
+Date: Sun, 1 Jun 2003 03:15:07 +0200
+User-Agent: KMail/1.5.1
+References: <oydbrxlbi2o.fsf@bert.cs.rice.edu>
+In-Reply-To: <oydbrxlbi2o.fsf@bert.cs.rice.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306010315.07264.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-05-31 at 06:12, Michael Frank wrote:
-> On Saturday 31 May 2003 15:06, Daniel Goller wrote:
-> > On Fri, 2003-05-30 at 15:52, Mike Fedyk wrote:
-> > > On Fri, May 30, 2003 at 02:08:51PM -0500, Daniel Goller 
-> wrote:
-> > > > i tried 2.4.21-rc6 as i was told it might fix the
-> > > > mouse stalling on heavy disk IO problem and i would
-> > > > like to report that it DOES fix them for the most
-> > > > part, even certain compiles/benchmarks/stress tests
-> > > > that could stall my pc for seconds now affect the
-> > > > mouse for mere fractions of one second, situations
-> > > > that used to cause short stalls are now a thing of
-> > > > the past
-> > > >
-> > > > 2.4.21-rc6 is the best kernel i have tried to date
-> > > > and i have tried many on my quest to get a smooth
-> > > > mouse
-> > >
-> > > There are reports that 2.4.18 also "fixed" the problems
-> > > with the mouse.  Can you verify?
-> >
-> 
-> Yes, it performs similar to -rc6 but not nearly as good as 
-> 2.5.70.
-> 
-> On 2.5.70 the mouse is really smooth all the time, scrollong 
-> of large pages in opera is fairly smooth most the time also 
-> with large disk io loads such as the script i posted 
-> earlier.
-> 
-> Regards
-> Michael
-> 
+On Thursday 29 May 2003 22:42, Scott A Crosby wrote:
+> The solution for these attacks on hash tables is to make the hash
+> function unpredictable via a technique known as universal
+> hashing. Universal hashing is a keyed hash function where, based on
+> the key, one of a large set hash functions is chosen. When
+> benchmarking, we observe that for short or medium length inputs, it is
+> comparable in performance to simple predictable hash functions such as
+> the ones in Python or Perl. Our paper has graphs and charts of our
+> benchmarked performance.
 
-unfortunately the radeon dri is broken in 2.5.70 so i havent tried that
-much, need to see if someone already suggests a fix for this unused int
-(it seems unused to me, after a *quick* look through the file) i guess i
-will have to subscribe now to lkml
+You should have said "a solution", not "the solution", above.  For the Ext2/3 
+HTree index, we found a rather nice solution that varies the hash dispersion 
+pattern on a per-volume basis, in a way that's difficult for a DOSer to 
+reconstruct (please feel free to analyze this approach and find a hole, if 
+there is one).
 
+This is much simpler than what you propose.  As we are talking core kernel 
+here, adding an extra spiderweb of complexity in the form of multiple hash 
+algorithms really isn't appealing, if it can be avoided.  Not to mention the 
+overhead of indexing into the correct hash algorithm on each lookup.
 
+> I highly advise using a universal hashing library, either our own or
+> someone elses. As is historically seen, it is very easy to make silly
+> mistakes when attempting to implement your own 'secure' algorithm.
+
+Translation: adding bloat is often the easy way out for the lazy.  Anyway, 
+thanks for your analysis, but I disagree with your recommendation.
+
+Regards,
+
+Daniel

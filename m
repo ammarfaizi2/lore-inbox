@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264012AbUECVQP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264019AbUECVS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264012AbUECVQP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 17:16:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264019AbUECVQP
+	id S264019AbUECVS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 17:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264021AbUECVS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 17:16:15 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33958 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264012AbUECVQN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 17:16:13 -0400
-Date: Mon, 3 May 2004 22:16:07 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, davidm@hpl.hp.com, bunk@fs.tum.de,
-       eyal@eyal.emu.id.au, linux-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3: modular DVB tda1004x broken
-Message-ID: <20040503211607.GG17014@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org> <408F9BD8.8000203@eyal.emu.id.au> <20040501201342.GL2541@fs.tum.de> <Pine.LNX.4.58.0405011536300.18014@ppc970.osdl.org> <20040501161035.67205a1f.akpm@osdl.org> <Pine.LNX.4.58.0405011653560.18014@ppc970.osdl.org> <20040501175134.243b389c.akpm@osdl.org> <16534.35355.671554.321611@napali.hpl.hp.com> <Pine.LNX.4.58.0405031336470.1589@ppc970.osdl.org> <20040503140251.274e1239.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040503140251.274e1239.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 3 May 2004 17:18:29 -0400
+Received: from ns.clanhk.org ([69.93.101.154]:20639 "EHLO mail.clanhk.org")
+	by vger.kernel.org with ESMTP id S264019AbUECVS1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 17:18:27 -0400
+Message-ID: <4096B752.9050602@clanhk.org>
+Date: Mon, 03 May 2004 16:19:14 -0500
+From: "J. Ryan Earl" <heretic@clanhk.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Booting off of IDE while using different libata drives on same southbridge
+References: <200403121826.21442.markus.kossmann@inka.de> <200403121902.44371.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200403121902.44371.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 03, 2004 at 02:02:51PM -0700, Andrew Morton wrote:
-> Linus Torvalds <torvalds@osdl.org> wrote:
-> >
-> > 
-> > 
-> > How about this patch? 
-> 
-> Seems sane.  For after 2.6.6 ;)
-> 
-> > +static inline long open(const char * name, int mode, int flags)
-> > +{
-> > +	return sys_open((const char __user *) name, mode, flags);
-> > +}
-> 
-> We may as well stick the get_fs()/set_fs() stuff in here as well - all
-> callers need to do it, after all.  After which it would best be uninlined.
+I am having a similar problem to what Markus Kossmann wrote about, but 
+with the VIA Southbridge (Asus K8V).  My situation is similar, but a 
+little different.  I would like to boot off a PATA drive attached to the 
+Southbridge, but use libata for a couple SATA drives attached to the 
+same Southbridge.
 
-I'd rather kill open() completely - we only have a handful of in-tree users
-and there's no good reason to keep that crap, AFAICS.  I'm gathering the
-list of in-tree callers of open()/lseek()/close() and so far a lot of them
-look buggy.  More on that later...
+Is this still not possible?  I also tried hde/hdg=noprobe options, but 
+they didn't help the situation.  It appears the only way to get the 
+drives on sata_via is to boot off of them.  Am I correct in thinking 
+this is the only way to go about this?
+
+-ryan
+
+Bartlomiej Zolnierkiewicz wrote:
+
+>>Is there any chance to use sata_sil with that kernel configuration ?
+>>Or is recompiling with CONFIG_BLK_DEV_SIIMAGE=m or with siimage disabled
+>>the only option ?
+>>    
+>>
+>
+>Yep.
+>
+>Regards,
+>Bartlomiej
+>

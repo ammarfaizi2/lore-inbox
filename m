@@ -1,53 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268212AbTALDgk>; Sat, 11 Jan 2003 22:36:40 -0500
+	id <S268214AbTALDri>; Sat, 11 Jan 2003 22:47:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268214AbTALDgk>; Sat, 11 Jan 2003 22:36:40 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:47265 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S268212AbTALDgj>; Sat, 11 Jan 2003 22:36:39 -0500
-Date: Sat, 11 Jan 2003 22:45:26 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200301120345.h0C3jQl12220@devserv.devel.redhat.com>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sd.c
-In-Reply-To: <mailman.1042337402.13365.linux-kernel2news@redhat.com>
-References: <mailman.1042337402.13365.linux-kernel2news@redhat.com>
+	id <S268215AbTALDri>; Sat, 11 Jan 2003 22:47:38 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:44505 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S268214AbTALDrh>;
+	Sat, 11 Jan 2003 22:47:37 -0500
+Date: Sat, 11 Jan 2003 22:56:20 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: rusty@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: [PATCH] fixup loop blkdev, add module_get
+Message-ID: <20030112035620.GA25648@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> @@ -809,9 +809,22 @@
->  		if (media_not_present(sdkp, SRpnt))
->  			return;
->  
-> -		/* Look for devices that return NOT_READY.
-> -		 * Issue command to spin up drive for these cases. */
-> -		if (the_result && SRpnt->sr_sense_buffer[2] == NOT_READY) {
-> +		if (the_result == 0)
-> +			break;		/* all is well now */
-> +
-> +		/*
-> +		 * If manual intervention is required, or this is an
-> +		 * absent USB storage device, a spinup is meaningless.
-> +		 */
-> +		if (SRpnt->sr_sense_buffer[2] == NOT_READY &&
-> +		    SRpnt->sr_sense_buffer[12] == 4 /* not ready */ &&
-> +		    SRpnt->sr_sense_buffer[13] == 3)
+Sometimes, we are absolutely certain that we have at least one module
+reference "locked open" for us.  Loop is an example of such a case:  the
+set-fd and clear-fd struct block_device_operations ioctls already have a
+module reference from simply the block device being opened.
 
-Why is this not inside media_not_present?
+Therefore, we can just unconditionally increment the module refcount.
+I added module_get to do this.
 
-> +/*
-> + * sd_read_cache_type - called only from sd_init_onedisk()
+Implementing try_module_get in terms of module_get is left as an
+exercise for the maintainer :)  I am too lazy to investigate whether it
+is ok for try_module_get to call module_is_live outside of the
+get_cpu/put_cpu pair, which is a prereq for try_module_get using
+module_get.
 
-Was it necessary to move and change sd_read_cache_type
-simultaneously? Makes a joke of the diff.
+Patch against latest Linus BK tree follows...  this also eliminates the
+"deprecated" warnings for the loop device.
 
-> +	/* without media there is no reason to ask;
-> +	   moreover, some devices react badly if we do */
-> +	if (sdkp->media_present)
-> +		sd_read_cache_type(sdkp, disk->disk_name, SRpnt, buffer);
 
-Hmm... cautiously ok.
 
--- Pete
+===== drivers/block/loop.c 1.78 vs edited =====
+--- 1.78/drivers/block/loop.c	Thu Dec  5 10:52:06 2002
++++ edited/drivers/block/loop.c	Sat Jan 11 22:45:54 2003
+@@ -642,7 +642,7 @@
+ 	int		lo_flags = 0;
+ 	int		error;
+ 
+-	MOD_INC_USE_COUNT;
++	module_get(THIS_MODULE);
+ 
+ 	error = -EBUSY;
+ 	if (lo->lo_state != Lo_unbound)
+@@ -742,7 +742,7 @@
+  out_putf:
+ 	fput(file);
+  out:
+-	MOD_DEC_USE_COUNT;
++	module_put(THIS_MODULE);
+ 	return error;
+ }
+ 
+@@ -814,7 +814,7 @@
+ 	filp->f_dentry->d_inode->i_mapping->gfp_mask = gfp;
+ 	lo->lo_state = Lo_unbound;
+ 	fput(filp);
+-	MOD_DEC_USE_COUNT;
++	module_put(THIS_MODULE);
+ 	return 0;
+ }
+ 
+===== include/linux/module.h 1.38 vs edited =====
+--- 1.38/include/linux/module.h	Wed Jan  8 08:19:44 2003
++++ edited/include/linux/module.h	Sat Jan 11 22:43:20 2003
+@@ -249,6 +249,20 @@
+ #define local_dec(x) atomic_dec(x)
+ #endif
+ 
++/* bump a module's refcount.
++ *
++ * called only when we are absolutely certain that
++ * module != NULL, and the locking / call chain
++ * guarantees that the module won't disappear out
++ * from underneath us.
++ */
++static inline void module_get(struct module *module)
++{
++	unsigned int cpu = get_cpu();
++	local_inc(&module->ref[cpu].count);
++	put_cpu();
++}
++
+ static inline int try_module_get(struct module *module)
+ {
+ 	int ret = 1;
+@@ -277,6 +291,7 @@
+ }
+ 
+ #else /*!CONFIG_MODULE_UNLOAD*/
++static inline void module_get(struct module *module) {}
+ static inline int try_module_get(struct module *module)
+ {
+ 	return !module || module_is_live(module);

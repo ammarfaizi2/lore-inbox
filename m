@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263085AbUDOT6k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 15:58:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbUDOT6k
+	id S262468AbUDOUCk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 16:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUDOUCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 15:58:40 -0400
-Received: from mtaw6.prodigy.net ([64.164.98.56]:20706 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S262468AbUDOT6j (ORCPT
+	Thu, 15 Apr 2004 16:02:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:45449 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262468AbUDOUCi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 15:58:39 -0400
-Message-ID: <407EE9A5.3020305@pacbell.net>
-Date: Thu, 15 Apr 2004 12:59:33 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Colin Leroy <colin@colino.net>
-CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] 2.6.6-rc1: cdc-acm still (differently) broken
-References: <20040415201117.11524f63@jack.colino.net>	<407EDA4A.2070509@pacbell.net> <20040415212334.4a568c5a@jack.colino.net>
-In-Reply-To: <20040415212334.4a568c5a@jack.colino.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Apr 2004 16:02:38 -0400
+Date: Thu, 15 Apr 2004 13:02:36 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: Chris Wright <chrisw@osdl.org>, Manfred Spraul <manfred@colorfullife.com>,
+       Andrew Morton <akpm@osdl.org>, Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mq_open() honor leading slash
+Message-ID: <20040415130236.I21045@build.pdx.osdl.net>
+References: <20040415113951.G21045@build.pdx.osdl.net> <20040415192735.GO31589@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040415192735.GO31589@devserv.devel.redhat.com>; from jakub@redhat.com on Thu, Apr 15, 2004 at 03:27:35PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Colin,
-
->>That test has always been buggy -- better to just remove it.  For
->>that matter, usb_interface_claimed() calls should all vanish ... it's
->>better to fail if claiming the interface fails (one step, not two).
->>Care to try an updated patch?
+* Jakub Jelinek (jakub@redhat.com) wrote:
+> On Thu, Apr 15, 2004 at 11:39:51AM -0700, Chris Wright wrote:
+> > Patch below simply eats all leading slashes before passing name to
+> > lookup_one_len() in mq_open() and mq_unlink().
 > 
-> 
-> Like this one? It works. I'm a bit wondering, however, how comes 
-> usb_interface_claimed() returns true, and the check in 
-> usb_driver_claim_interface() passes?
+> glibc already strips the leading slash in userland.
 
-Pretty much like that one, but not leaking the other urbs ... :)
+Ah, OK.  I'm just using the kernel interfaces directly.
 
-There are two interfaces involved, for "control" and "data".
-"Control" is being probed; and "data" is what gets claimed.
+> If you want to do it in the kernel instead, it shouldn't IMHO be silent if it
+> doesn't see a leading slash or sees more than one. I.e.
+> 	error = -EINVAL;
+> 	if (name[0] != '/')
+> 		goto out_err;
 
-For more info, you could see how "usbnet" handles CDC Ethernet;
-see how it parses the CDC Union descriptor (which is what the
-FIXME refers to).  Or read the CDC spec, from www.usb.org as PDF.
+Given it's implementation defined what happens w/out leading slash, I
+see no trouble with allowing names w/out leading slashes to be looked
+up as well as names with leading slash (in kernel rather than glibc).
+But I don't feel strongly either way.
 
-- Dave
-
-
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

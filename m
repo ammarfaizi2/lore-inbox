@@ -1,33 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266565AbRGDWeM>; Wed, 4 Jul 2001 18:34:12 -0400
+	id <S266562AbRGDW2D>; Wed, 4 Jul 2001 18:28:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266566AbRGDWeC>; Wed, 4 Jul 2001 18:34:02 -0400
-Received: from 31-d08-1.trd1.netcom.no ([212.45.186.96]:13067 "EHLO
-	hakva-2.student.nlh.no") by vger.kernel.org with ESMTP
-	id <S266565AbRGDWdt>; Wed, 4 Jul 2001 18:33:49 -0400
-To: David Balazic <david.balazic@uni-mb.si>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Mail list archives down
-In-Reply-To: <3B434F94.90D1F1EB@uni-mb.si>
-From: "=?iso-8859-1?q?H=E5vard_Kv=E5len?=" <havardk@sol.no>
-Date: 05 Jul 2001 00:33:31 +0200
-In-Reply-To: <fa.c6oj41v.1968bqd@ifi.uio.no>
-Message-ID: <m3u20suxxg.fsf@hakva-2.student.nlh.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S266564AbRGDW1m>; Wed, 4 Jul 2001 18:27:42 -0400
+Received: from mail.mesatop.com ([208.164.122.9]:12037 "EHLO thor.mesatop.com")
+	by vger.kernel.org with ESMTP id <S266562AbRGDW1f>;
+	Wed, 4 Jul 2001 18:27:35 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: alan@lxorguk.ukuu.org.uk
+Subject: [PATCH] 2.4.6-ac1 fix error in drivers/parport/parport_pc.c
+Date: Wed, 4 Jul 2001 16:20:02 -0600
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <01070416200200.01208@localhost.localdomain>
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Balazic <david.balazic@uni-mb.si> writes:
+I got this error building 2.4.6-ac1.
 
-> I noticed 4 out of 5 LKML web archives listed in the FAQ are down as
-> of today.
+drivers/parport/driver.o: In function `parport_pc_find_ports':
+drivers/parport/driver.o(.text.init+0x3f2): undefined reference to `init_pnp040x'
+drivers/parport/driver.o(.text.init+0x400): undefined reference to `pnpbios_find_device'
+drivers/parport/driver.o(.text.init+0x412): undefined reference to `init_pnp040x'
+drivers/parport/driver.o(.text.init+0x420): undefined reference to `pnpbios_find_device'
+make: *** [vmlinux] Error 1
 
-I guess the FAQ needs updating.  Here is one that seems to work:
-<URL: http://www.lib.uaa.alaska.edu/linux-kernel/ >
+My access to lkml archives is temporarily gone (marc.theaimsgroup.com is down
+and other archive sites aren't very current), so please forgive me if someone else 
+has already posted this fix.
 
--- 
-Håvard Kvålen
+Here is a patch which may be correct.  It worked for me.
+Steven
+
+--- linux-2.4.6-ac1/drivers/parport/parport_pc.c.original       Wed Jul  4 15:22:28 2001
++++ linux/drivers/parport/parport_pc.c  Wed Jul  4 15:26:03 2001
+@@ -2828,12 +2828,14 @@
+        detect_and_report_smsc ();
+ #endif
+ 
++#if defined (CONFIG_PNPBIOS) || defined (CONFIG_PNPBIOS_MODULE)
+        dev=NULL;
+        while ((dev=pnpbios_find_device("PNP0400",dev)))
+                count+=init_pnp040x(dev);
+        dev=NULL;
+         while ((dev=pnpbios_find_device("PNP0401",dev)))
+                 count+=init_pnp040x(dev);
++#endif
+ 
+        /* Onboard SuperIO chipsets that show themselves on the PCI bus. */
+        count += parport_pc_init_superio (autoirq, autodma);

@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129894AbRABCGo>; Mon, 1 Jan 2001 21:06:44 -0500
+	id <S129572AbRABCHe>; Mon, 1 Jan 2001 21:07:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129823AbRABCGe>; Mon, 1 Jan 2001 21:06:34 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:64779 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129477AbRABCGX>;
-	Mon, 1 Jan 2001 21:06:23 -0500
-Date: Tue, 2 Jan 2001 02:35:54 +0100
-From: Andi Kleen <ak@suse.de>
-To: stewart@neuron.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sync() broken for raw devices in 2.4.x??
-Message-ID: <20010102023554.A2232@gruyere.muc.suse.de>
-In-Reply-To: <Pine.LNX.4.10.10101011925130.1859-100000@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10101011925130.1859-100000@localhost>; from stewart@neuron.com on Mon, Jan 01, 2001 at 07:50:31PM -0500
+	id <S129477AbRABCH0>; Mon, 1 Jan 2001 21:07:26 -0500
+Received: from c252.h203149202.is.net.tw ([203.149.202.252]:57855 "EHLO
+	mail.tahsda.org.tw") by vger.kernel.org with ESMTP
+	id <S130073AbRABCHN>; Mon, 1 Jan 2001 21:07:13 -0500
+Message-ID: <3A513089.9AF6EB6A@teatime.com.tw>
+Date: Tue, 02 Jan 2001 09:36:09 +0800
+From: Tommy Wu <tommy@teatime.com.tw>
+Reply-To: tommy@teatime.com.tw
+Organization: TeaTime Development
+X-Mailer: Mozilla 4.76 [zh] (Windows NT 5.0; U)
+X-Accept-Language: en,zh,zh-TW,zh-CN
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Sparc64 compile error for 2.4.0-prerelease
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 01, 2001 at 07:50:31PM -0500, stewart@neuron.com wrote:
-> 
->  I have a sync()/fdatasync() intensive application that is designed to work
->  on both raw files and raw partitions. Today I upgraded my kernel to the
->  new pre-release and found that my benchmark program would no longer finish
->  when handed a raw partition. I've written a small Java program (my app is
->  in Java) which demonstrates the bug. Make foo.dat a raw scsi partition to
->  re-produce. In my case it's "mknod foo.dat b 8 18". 
+make[2]: Entering directory `/usr/src/kernel-source-2.4.0-prerelease/kernel'
+sparc64-linux-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototype
+s -O2 -fomit-frame-pointer -fno-strict-aliasing -m64 -pipe -mno-fpu -mcpu=ultras
+parc -mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7 -Wno-sign-compare
+-Wa,--undeclared-regs    -c -o panic.o panic.c
+panic.c: In function `panic':
+panic.c:80: `loops_per_sec' undeclared (first use in this function)
+panic.c:80: (Each undeclared identifier is reported only once
+panic.c:80: for each function it appears in.)
+make[2]: *** [panic.o] Error 1
+make[2]: Leaving directory `/usr/src/kernel-source-2.4.0-prerelease/kernel'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/kernel-source-2.4.0-prerelease/kernel'
+make: *** [_dir_kernel] Error 2
 
-Just a minor correction: this is not a raw partition, but a buffered blockdevice.
-If you want a real rawdevice (where sync is a noop because all IO goes
-synchronously to disk) you need to bind a character raw device to the
-block device first using the raw util.
 
->From a quick look sync_buffers() [which implements fsync on block devices]
-has not changed significantly between 2.2 and 2.4 and uses the same algorithm.
+-- 
 
--Andi
+    Tommy Wu
+    mailto:tommy@teatime.com.tw
+    http://www.teatime.com.tw/~tommy
+    ICQ: 22766091
+    Mobile Phone: +886 936 909490
+    TeaTime BBS +886 2 31515964 24Hrs V.Everything
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,55 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131139AbRBLVhy>; Mon, 12 Feb 2001 16:37:54 -0500
+	id <S131069AbRBLVie>; Mon, 12 Feb 2001 16:38:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131149AbRBLVho>; Mon, 12 Feb 2001 16:37:44 -0500
-Received: from innerfire.net ([208.181.73.33]:27402 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id <S131069AbRBLVhd>;
-	Mon, 12 Feb 2001 16:37:33 -0500
-Date: Mon, 12 Feb 2001 13:39:07 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Tony Hoyle <tmh@magenta-netlogic.com>
-cc: Paul Tweedy <pault@5emedia.net>, linux-kernel@vger.kernel.org
-Subject: Re: "Unable to load intepreter" on login - 2.2.14-5.0
-In-Reply-To: <3A884456.4080103@magenta-netlogic.com>
-Message-ID: <Pine.LNX.4.10.10102121335500.13086-100000@innerfire.net>
+	id <S131231AbRBLViZ>; Mon, 12 Feb 2001 16:38:25 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17157 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131069AbRBLVhx>; Mon, 12 Feb 2001 16:37:53 -0500
+Subject: Re: Linux 2.2.19pre10:x!
+To: cowboy@vnet.ibm.com (Richard A Nelson)
+Date: Mon, 12 Feb 2001 21:38:35 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0102121329410.22778-100000@badlands.lexington.ibm.com> from "Richard A Nelson" at Feb 12, 2001 01:33:50 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14SQgA-00089o-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Feb 2001, Tony Hoyle wrote:
+> Ah, but it does matter !  We break compatibility with other systems (and
+> our manpages, and possibly standards) if we don't mark the segment
+> IPC_PRIVATE upon removal -
 
-> Paul Tweedy wrote:
-> 
-> > Secondly, to get the thing running I'm assuming I can copy a working login
-> > binary from an identical server, so I can get in & change the passwords and
-> > sort the security out?
-> 
-> ...and what if the 'cp' binary has been hacked to stop you doing just 
-> that?  What if 'passwd' is silently emailing your root password to the 
-> hacker each time you change it?
-> 
-> Reformat and re-install.  It's the only way (and check your firewall).
-
-Disabling all unneeded services would be a better idea than checking the
-firewall.  
-
-<RANT>
-I'm still not understanding this running by default most dists
-have going, it's stupid for servers and it's down right retarted for
-workstations. 
-</RANT>
-
-	Gerhard
-
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
+This being so midbogglingly critical a bug that nobody noticed until 2.2.18
+and the bug existed since 1.2 or earlier. I think I can wait for 2.2.20
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263695AbUJ3LU6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263701AbUJ3LXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263695AbUJ3LU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 07:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263694AbUJ3LU6
+	id S263701AbUJ3LXK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 07:23:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263699AbUJ3LXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 07:20:58 -0400
-Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:4804 "EHLO
-	safari.iki.fi") by vger.kernel.org with ESMTP id S263695AbUJ3LUu
+	Sat, 30 Oct 2004 07:23:10 -0400
+Received: from smtp-out.hotpop.com ([38.113.3.61]:6851 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S263697AbUJ3LWz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 07:20:50 -0400
-Date: Sat, 30 Oct 2004 14:20:48 +0300
-From: Sami Farin <7atbggg02@sneakemail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.6.9-ac5 - more stupid FAT filesystems
-Message-ID: <20041030112048.GA7501@m.safari.iki.fi>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <1099060831.13098.33.camel@localhost.localdomain> <20041030090308.GA6060@m.safari.iki.fi> <20041030110414.GA3130@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 30 Oct 2004 07:22:55 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: linux-fbdev-devel@lists.sourceforge.net,
+       Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>
+Subject: Re: [Linux-fbdev-devel] Re: 2.6.10-rc1-mm2: intelfb/AGP unknown symbols
+Date: Sat, 30 Oct 2004 19:21:31 +0800
+User-Agent: KMail/1.5.4
+Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
+       Sylvain Meyer <sylvain.meyer@worldonline.fr>,
+       Antonino Daplas <adaplas@pol.net>, linux-kernel@vger.kernel.org,
+       linux-fbdev-devel@lists.sourceforge.net
+References: <20041029014930.21ed5b9a.akpm@osdl.org> <20041030032425.GI6677@stusta.de> <1099124920.2822.3.camel@laptop.fenrus.org>
+In-Reply-To: <1099124920.2822.3.camel@laptop.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041030110414.GA3130@ucw.cz>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200410301921.34961.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 30, 2004 at 01:04:15PM +0200, Vojtech Pavlik wrote:
-...
-> > I guess Canon IXUS 400 is overstupid or something.
-> 
-> No, the patch from me (included in -ac) is completely bogus. The correct
-> patch is attached.
+On Saturday 30 October 2004 16:28, Arjan van de Ven wrote:
+> > The removal of 3 "unneeded exports" in bk-agpgart.patch conflicts with
+> > code adding usage of them in Linus' tree:
+>
+> that makes me really really curious why the fb driver calls into the
+> backend and not just the agp frontend layer like the rest of the world
+> does...
+>
 
-OK :)  I reverted the ac5 FAT patch and applied this one,
-now it mounts nicely.  Thanks.
+Because all functions in the frontend are marked static and are accessible
+only via ioctl.
 
-Filesystem    Type    Size  Used Avail Use% Mounted on
-/dev/sdb1     vfat    245M   27M  218M  11% /mnt/usb
+Anyway, I think the drivers can make do without the
+agp_backend_acquire/release() functions, since all they do is
+increment/decrement  a use count field.  I don't know about agp_copy_info()
+but it might be possible to get the agp information from pci_dev structure.
+This part I'm not sure.
 
-> diff -urN linux-2.6.8/fs/fat/inode.c linux-2.6.8-fat/fs/fat/inode.c
-> --- linux-2.6.8/fs/fat/inode.c	2004-09-30 15:27:58.343661051 +0200
-> +++ linux-2.6.8-fat/fs/fat/inode.c	2004-09-30 15:33:32.820915377 +0200
-> @@ -1003,6 +1003,8 @@
->  		/* all is as it should be */
->  	} else if (media == 0xf8 && FAT_FIRST_ENT(sb, 0xfe) == first) {
->  		/* bad, reported on pc9800 */
-> +	} else if (media == 0xf8 && FAT_FIRST_ENT(sb, 0xff) == first) {
-> +		/* bad, reported on Nokia phone with USB storage */
->  	} else if (media == 0xf0 && FAT_FIRST_ENT(sb, 0xf8) == first) {
->  		/* bad, reported with a MO disk on win95/me */
->  	} else if (first == 0) {
+What's wrong with exporting the symbols back again?
 
--- 
+Tony
+
+

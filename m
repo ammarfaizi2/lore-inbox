@@ -1,49 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267196AbTGOLMv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 07:12:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267200AbTGOLMv
+	id S267190AbTGOLQq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 07:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267200AbTGOLQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 07:12:51 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:61062 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267196AbTGOLMu (ORCPT
+	Tue, 15 Jul 2003 07:16:46 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:35019 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S267190AbTGOLQo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 07:12:50 -0400
-Date: Tue, 15 Jul 2003 13:27:37 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
-Subject: Re: RFC on io-stalls patch
-Message-ID: <20030715112737.GQ833@suse.de>
-References: <1058034751.13318.95.camel@tiny.suse.com> <20030713090116.GU843@suse.de> <20030713191921.GI16313@dualathlon.random> <20030714054918.GD843@suse.de> <Pine.LNX.4.55L.0307140922130.17091@freak.distro.conectiva> <20030714131206.GJ833@suse.de> <20030714195138.GX833@suse.de> <20030714201637.GQ16313@dualathlon.random> <20030715052640.GY833@suse.de> <1058268126.3857.25.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 15 Jul 2003 07:16:44 -0400
+Date: Tue, 15 Jul 2003 13:31:16 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Markus Gaugusch <markus@gaugusch.at>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Jamie Lokier <jamie@shareable.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Swsusp-devel] Re: Thoughts wanted on merging Software Suspend enhancements
+Message-ID: <20030715113116.GA231@elf.ucw.cz>
+References: <1058130071.1829.2.camel@laptop-linux> <20030713210934.GK570@elf.ucw.cz> <1058147684.2400.9.camel@laptop-linux> <20030714201245.GC24964@ucw.cz> <20030714201804.GF902@elf.ucw.cz> <20030714204143.GA25731@ucw.cz> <20030714230219.GB11283@elf.ucw.cz> <20030715063612.GB27368@ucw.cz> <20030715100842.GB3279@zaurus.ucw.cz> <Pine.LNX.4.53.0307151305270.30306@dynast.gaugusch.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1058268126.3857.25.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.53.0307151305270.30306@dynast.gaugusch.at>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15 2003, Alan Cox wrote:
-> On Maw, 2003-07-15 at 06:26, Jens Axboe wrote:
-> > Sorry, but I think that is nonsense. This is the way we have always
-> > worked. You just have to maintain a decent queue length still (like we
-> > always have in 2.4) and there are no problems.
-> 
-> The memory pinning problem is still real - and always has been. It shows up
-> best not on IDE disks but large slow media like magneto opticals where you
-> can queue lots of I/O but you get 500K/second
+Hi!
 
-Not the same thing. On slow media, like dvd-ram, what causes the problem
-is that you can dirty basically all of the RAM in the system. That has
-nothing to do with memory pinned in the request queue.
+> > ... and so I believe right thing is to make magic sysrq combination for
+> > aborting suspend...
+> Pavel,
+> SWSusp is mainly useful for desktop users. Although there may be cases
+> where it is enabled on production machines, it should be aimed at desktop
+> users as much as possible. The features to toggle reboot and abort suspend
+> are really, really cool. And combining them with sysrq would just make
+> them very very ugly. Someone mentioned the Gnome2 disaster, and I can only
+> second that. Configurability IS important. And it should be easy as well
+> (/proc is easy enough, good people or distributors can write a script and
+> provide it to end users, etc.).
+> To make the abort of swsusp configurable is the best compromise you can
+> have, IMHO. I don't know why you are so stubborn and don't try to see the
+> 'normal' people (I'm not one of those, but I'm trying to
+> understand!!).
 
-And that is still writes, not reads. Reads are pinned on the queue, so
-very different case.
+At one point I was suggesting that Esc feature perhaps could be done
+by Esc and controlled same way magic sysrq is. No, nigel insisted that
+it has to have separate config option.
 
+I believe that's simply stupid.
+
+Anyway, escape key has pretty well defined meaning: send ^[ to the
+console. Altrough it might be nice for escape to return you back to
+LILO during early boot, we are not doing that.
+
+Kernel should do its job and policy should be in userland. "Escape
+always stops suspend" is a security hole. => "Escape stops suspends"
+has no place in kernel.
+
+You might want Esc to mean ^C when user accidentaly starts "cat", but
+you can't have that.
+
+And now: special (and very ugly and very hacky) mechanism was
+developed to control kernel from console. It is called magic
+sysrq. Its ugly, but its also usefull. It is usable over serial
+line. Aborting suspend fits in there.
+
+Esc controlled by magic sysrq proc control is extremely ugly, but at
+least it is not security hole any more, becuase user can already do
+bad stuff to the computer.
+
+Anyway, this thread is long and boring... If you are trying to
+convince me with 10 000 mails "its important for users"... please
+don't do that.
+								Pavel
 -- 
-Jens Axboe
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

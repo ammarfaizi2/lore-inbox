@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310435AbSCXSgL>; Sun, 24 Mar 2002 13:36:11 -0500
+	id <S311782AbSCXSnV>; Sun, 24 Mar 2002 13:43:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310825AbSCXSfz>; Sun, 24 Mar 2002 13:35:55 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:17642 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S310435AbSCXSfi> convert rfc822-to-8bit;
-	Sun, 24 Mar 2002 13:35:38 -0500
-Message-ID: <3C9E1CE0.3000609@freenet.de>
-Date: Sun, 24 Mar 2002 19:37:20 +0100
-From: Andreas Hartmann <andihartmann@freenet.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020323
-X-Accept-Language: de, en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Christian_Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-CC: Rik van Riel <riel@conectiva.com.br>,
-        Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kernel-Mailingliste <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.18] Security: Process-Killer if machine get's out of memory
-In-Reply-To: <Pine.LNX.4.44L.0203241444560.18660-100000@imladris.surriel.com> <200203241757.SAA20700@piggy.rz.tu-ilmenau.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by susi.maya.org id g2OIbLUg011029
+	id <S311786AbSCXSnM>; Sun, 24 Mar 2002 13:43:12 -0500
+Received: from ns.suse.de ([213.95.15.193]:39952 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S311782AbSCXSm7>;
+	Sun, 24 Mar 2002 13:42:59 -0500
+Date: Sun, 24 Mar 2002 19:42:54 +0100
+From: Dave Jones <davej@suse.de>
+To: Boris Bezlaj <boris@kista.gajba.net>
+Cc: kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mdacon.c minor cleanups
+Message-ID: <20020324194254.A14465@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Boris Bezlaj <boris@kista.gajba.net>,
+	kernel-janitor-discuss <kernel-janitor-discuss@lists.sourceforge.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020323164220.742414d2.boris@kista.gajba.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Bornträger wrote:
-> Rik van Riel wrote:
-> 
->>On Sun, 24 Mar 2002, Roy Sigurd Karlsbakk wrote:
->>
->>>Would it hard to do some memory allocation statistics, so if some
->>>process at one point (as rsync did) goes crazy eating all memory, that
->>>would be detected?
->>
->>No.  What I doubt however is whether it would be worth it,
->>since most machines never run OOM.
-> 
-> 
-> Well, I think could be worth in terms of security, because a local user could 
-> use a bad memory-eating program to produce an Denial of Service of other 
-> processes.
+On Sat, Mar 23, 2002 at 04:42:20PM +0100, Boris Bezlaj wrote:
 
-That's what I fear.
+ >  	if (! mda_detect()) {
+ > -		printk("mdacon: MDA card not detected.\n");
+ > +		printk(KERN_WARNING __FILE__ ": MDA card not detected.\n");
+ >  		return NULL;
 
-Take the actual example. You've running a server on which people can 
-connect with rsync. Somebody breaks off rsync - and the rsync-process on 
-the server is getting crazy - that's the situation, I described at the 
-beginning.
+Does __FILE__ suffer the same 'deprecated' warning that newer gcc 3's
+spit out for __FUNCTION__  ? If so, it'd be better to do this properly
+than to add more bits that will just create another janitor item for
+someone else later..
 
-Now, the httpd-process on the server is killed, the named, ... .
-
-It's a perfect DOS-attack.
-
-
-Regards,
-Andreas Hartmann
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

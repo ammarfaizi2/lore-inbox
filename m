@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315440AbSE2Tmd>; Wed, 29 May 2002 15:42:33 -0400
+	id <S315442AbSE2TtI>; Wed, 29 May 2002 15:49:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315441AbSE2Tmc>; Wed, 29 May 2002 15:42:32 -0400
-Received: from dsl-65-188-226-101.telocity.com ([65.188.226.101]:58602 "EHLO
-	crown.reflexsecurity.com") by vger.kernel.org with ESMTP
-	id <S315440AbSE2Tmc>; Wed, 29 May 2002 15:42:32 -0400
-Date: Wed, 29 May 2002 15:42:32 -0400
-From: Jason Lunz <lunz@reflexsecurity.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.19
-Message-ID: <20020529194232.GA1366@reflexsecurity.com>
-In-Reply-To: <Pine.LNX.4.33.0205291146510.1344-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S315443AbSE2TtH>; Wed, 29 May 2002 15:49:07 -0400
+Received: from dsl-213-023-039-142.arcor-ip.net ([213.23.39.142]:49841 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S315442AbSE2TtG>;
+	Wed, 29 May 2002 15:49:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "Rose, Billy" <wrose@loislaw.com>, "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+        Roman Zippel <zippel@linux-m68k.org>,
+        "'Karim Yaghmour'" <karim@opersys.com>
+Subject: Re: A reply on the RTLinux discussion.
+Date: Wed, 29 May 2002 21:46:46 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: yodaiken@fsmlabs.com, linux-kernel@vger.kernel.org
+In-Reply-To: <4188788C3E1BD411AA60009027E92DFD0962E2F2@loisexc2.loislaw.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17D9PC-0006in-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In mlist.linux-kernel, you wrote:
-> <kai@tp1.ruhr-uni-bochum.de>
-> 	o kbuild: Figure out flags independently from pass
-> 	o ISDN/CAPI: Move methods from capi_driver to capi_ctr
-> 	o kbuild: Simplify rule for just building one subdir
-> 	o kbuild: Use consistently FORCE instead of dummy
-> 	o drivers/video/matrox/matroxfb_accel.c: Explicitly export symbols.
-> 	o ISDN/CAPI: Cleanup /proc/capi
-> 	o ISDN: CAPI: Remove unused capi_driver::driver_read_proc
-> 	o ISDN/CAPI: Have hardware driver alloc struct capi_drv
-> 	o ISDN/CAPI: Export callbacks for CAPI drivers directly
-> 	o ISDN/CAPI: Remove struct capi_driver
-> 	o kbuild: built-in and modules in one pass
-> 	o kbuild: Normal sources should not include <linux/compile.h>
-> 	o kbuild: Add EXTRA_TARGETS variable
-> 	o kbuild: Remove remaining O_TARGET in drivers/*/Makefile
-> 	o kbuild: Don't overwrite Rules.make's first_rule
-> 	o kbuild: beautify Makefile / Rules.make...
-> 	o kbuild: Group together descending/linking in drivers/*
-> 	o kbuild: Build targets locally
-> 	o kbuild: Provide correct 'make some/dir/file.[iso]'
-> 	o kbuild: Hand merge link order change form driverfs update.
+On Wednesday 29 May 2002 14:36, Rose, Billy wrote:
+> > The
+> > patent grant says it can be used for GPL software. As a free software
+> > author I have no problems at all with Victor's patent. If I want to do
+> > proprietary software well shucks, I'm going to have to play by the
+> > proprietary rules. I don't see that anti free software. It 
+> > might be anti
+> > how convenient I can mix the two and flog it for lots of money, but
+> > thats not free software anyway.
+> ...
+> 
+> Enough said. Business is business, bottom line. Coding in open source
+> is artwork. These guys building this kernel are artists. Those guys
+> selling stuff are business people. So, you want to use my artwork for
+> money? Fine, then pay me to let someone have the privilege. Want to
+> help me paint parts of the memory handling? Fine, here's a paint brush
+> all your own... totally free.
 
-Are these purely patches to kbuild 1 or are they the beginning of a
-gradual migration to kbuild 2?
+These are fine-sounding words, but this is not the intent of, for
+example, the GPL, which intentionally accomodates the needs of commerce.
+If it didn't - i.e., no provision for closed apps on the GPL operating
+system - you can be sure that Linux would not have grown as it has.
+
+What we're really discussing is whether we're willing to allow patent
+restrictions to inhibit the growth of Linux in new areas that go beyond
+its traditional IT role, and further, whether we're willing to accept
+such restrictions from people or companies that depend on Linux for
+their sustenance, and who have benefitted from the lack of such
+restrictions as they wish to impose on others.
 
 -- 
-Jason Lunz			Reflex Security
-lunz@reflexsecurity.com		http://www.reflexsecurity.com/
+Daniel

@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262500AbUBXW2f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 17:28:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262506AbUBXW2f
+	id S262498AbUBXWav (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 17:30:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262511AbUBXWau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 17:28:35 -0500
-Received: from fw.osdl.org ([65.172.181.6]:44213 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262500AbUBXW2b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 17:28:31 -0500
-Date: Tue, 24 Feb 2004 14:30:25 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-mm3
-Message-Id: <20040224143025.36395730.akpm@osdl.org>
-In-Reply-To: <403BCE9E.7080607@matchmail.com>
-References: <20040222172200.1d6bdfae.akpm@osdl.org>
-	<403BCE9E.7080607@matchmail.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Feb 2004 17:30:50 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:658 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262498AbUBXWat (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 17:30:49 -0500
+Date: Tue, 24 Feb 2004 17:29:16 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Greg KH <greg@kroah.com>
+cc: Christoph Hellwig <hch@infradead.org>,
+       "Woodruff, Robert J" <woody@co.intel.com>,
+       <linux-kernel@vger.kernel.org>, "Hefty, Sean" <sean.hefty@intel.com>,
+       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
+       "Davis, Arlin R" <arlin.r.davis@intel.com>,
+       <marcelo.tosatti@cyclades.com>, <torvalds@osdl.org>
+Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
+In-Reply-To: <20040224195745.GA777@kroah.com>
+Message-ID: <Pine.LNX.4.44.0402241728460.21522-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk <mfedyk@matchmail.com> wrote:
->
-> Andrew Morton wrote:
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3/2.6.3-mm3/
+On Tue, 24 Feb 2004, Greg KH wrote:
+> On Tue, Feb 24, 2004 at 07:50:18PM +0000, Christoph Hellwig wrote:
+
+> > I don't understand why anyone is wasting time on this.  Without available
+> > hardware drivers this huge midlayer is completely useless.
 > 
-> Hi,
-> 
-> I have 2.6.3 on the 1.5GB RAM server that started the "large slab" thread.
-> 
-> Which patches should I apply from -mm to test for improvements?
+> You mean this whole huge chunk of code doesn't have any hardware
+> drivers?  What good is it then?
 
-Just apply the mm3 rollup patch.
+Beats me. I hope we can just bury this infiniband stuff
+before we waste any more time on it.
 
-> Do these below have any dependencies not listed?
+I really can't see any reason why we would want to have
+this.
 
-Probably not.  If they apply ten they'll work.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 
-> What about Nick's fix up patch for the two patches above?  Should I 
-> include that one also?
-
-yes.

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315423AbSFCTLl>; Mon, 3 Jun 2002 15:11:41 -0400
+	id <S317462AbSFCTOC>; Mon, 3 Jun 2002 15:14:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315437AbSFCTLk>; Mon, 3 Jun 2002 15:11:40 -0400
-Received: from 216-42-72-145.ppp.netsville.net ([216.42.72.145]:46829 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S315423AbSFCTLj>; Mon, 3 Jun 2002 15:11:39 -0400
-Subject: Re: [RFC] iput() cleanup (was Re: [patch 12/16] fix race between
-	writeback and unlink)
-From: Chris Mason <mason@suse.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <akpm@zip.com.au>, Alexander Viro <aviro@redhat.com>,
-        lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0206022119300.1030-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 03 Jun 2002 15:09:36 -0400
-Message-Id: <1023131376.22609.1856.camel@tiny>
-Mime-Version: 1.0
+	id <S317461AbSFCTOB>; Mon, 3 Jun 2002 15:14:01 -0400
+Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:58560 "EHLO
+	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
+	id <S317460AbSFCTN6>; Mon, 3 Jun 2002 15:13:58 -0400
+Date: Mon, 3 Jun 2002 21:13:57 +0200 (MET DST)
+From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
+To: Pavel Machek <pavel@suse.cz>
+cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: do_mmap
+In-Reply-To: <20020603121943.A37@toy.ucw.cz>
+Message-ID: <Pine.GSO.4.05.10206032110520.7433-100000@mausmaki.cosy.sbg.ac.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-06-03 at 00:27, Linus Torvalds wrote:
-> 
-> 
-> On Sat, 1 Jun 2002, Andrew Morton wrote:
-> >
-> > > Why not just split up the code inside iput(), and then just do
-> > >
-> > >         if (atomic_dec(&inode->i_count))
-> > >                 final_iput(inode);
-> >
-> > Yes, I suspect all the inode refcounting, locking, I_FREEING, I_LOCK, etc
-> > could do with a spring clean. Make it a bit more conventional.  I'll
-> > discuss with Al when he resurfaces.
-> 
-> This is a first cut at cleaning up "iput()" and getting rid of some of the
-> magic VFS-level behaviour of the i_nlink field which many filesystems do
-> not actually want - as shown by the number of "force_delete" users out
-> there.
-> 
-> It does not change any real behaviour, but it splits up the "iput()"
-> behaviour into several functions ("common_delete_inode()",
-> "common_forget_inode()" and "common_drop_inode()"), and adds a place for a
-> low-level filesystem to hook into the behaviour at inode drop time,
-> through the "drop_inode" superblock operation.
+pavel,
 
-Now that is kinda neat, calling it with the inode lock held lets me move
-some things out of reiserfs_file_release which need i_sem, and move them
-into a less expensive drop_inode call without grabbing the semaphore.
+> > what about the do_mmap/do_mmap_pgoff implementation?
+> > reurn-type: _unsigned_ long	(which should be ok cause we've to return
+> > 				 an adress if len == 0)
+> > on error: -ERR_*
+> > 
+> > and the checks in various places are really strange. - well some
+> > places check for:
+> > 	o != NULL
+> > 	o > -1024UL
+> > 	o ...
+> > 
+> > guess this nedds some cleanup.
+> 
+> While you are at it... fs/binfmt_elf does mmaps but does not check for errors.
+> And errors actually do happen there :-(
 
--chris
+sure, was tripping over that anyways ... since the compiler spits out tons
+of "conversion without a cast" warnings (seems to be a different way to 
+use grep :)
 
+i just came across one problem: when converting the unsigned longs to
+        void * pointers, everything works fine, beside the "advanced"
+        pointer arithmetic. (like aligning the address to a certain 
+        boundary - using address & MASK) ... for that case i need to
+        cast to an unsigned long in any case :( 
+                is there another way to do it without explicit casting?
+		should we introduce ptr_addr_t?
+		can we be sure that an unsigned long is capable to hold
+			and address (also in the future)
+		can we be sure about gcc void * pointer arithmetic (like
+			++ incremets the address by one)
+
+	tm
+
+-- 
+in some way i do, and in some way i don't.
 

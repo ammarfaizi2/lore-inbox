@@ -1,161 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263416AbRGXOfl>; Tue, 24 Jul 2001 10:35:41 -0400
+	id <S264375AbRGXOsP>; Tue, 24 Jul 2001 10:48:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264375AbRGXOfb>; Tue, 24 Jul 2001 10:35:31 -0400
-Received: from ns.caldera.de ([212.34.180.1]:5598 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S263416AbRGXOfS>;
-	Tue, 24 Jul 2001 10:35:18 -0400
-Date: Tue, 24 Jul 2001 16:34:57 +0200
-From: Christoph Hellwig <hch@caldera.de>
-To: alan@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] optionally compile with framepointer
-Message-ID: <20010724163457.A16942@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>, alan@redhat.com,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S267546AbRGXOsF>; Tue, 24 Jul 2001 10:48:05 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:18863 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S264375AbRGXOry>;
+	Tue, 24 Jul 2001 10:47:54 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 24 Jul 2001 14:47:56 GMT
+Message-Id: <200107241447.OAA07015@vlet.cwi.nl>
+To: linux-kernel@vger.kernel.org, net-tools@lina.inka.de, philb@gnu.org
+Subject: ifconfig and SIOCSIFADDR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi Alan,
+I just noticed that the command
 
-almost every single debugging patch for Linux needs a kernel compiled
-with frame pointers.  This patch ist intended to make this configurable
-in the base kernel so different patches can shared this modification
-nicely.  It is also very usefull for using something like mclinux's
-crash tool on /dev/mem.
+	ifconfig eth1 netmask 255.255.255.0 broadcast 10.0.0.255 10.0.0.150
 
-The patch (against 2.4.6-ac5) has the changes to the i386-specific
-sempahore code that are needed to compile with frame pointers (from kdb),
-the toplevel makefile change and an option in the i386 debugging menu
-(which is also cleaned up to conform to the config.in style guides).
+(with ifconfig from net-tools-1.60)
+results in a netmask of 255.0.0.0, which is wrong in my situation.
 
-	Christoph
+Why does ifconfig ignore the explicitly given netmask?
+Because it does SIOCSIFNETMASK, then SIOCSIFBRDADDR, then SIOCSIFADDR,
+and the last ioctl destroys the information set by the previous two.
+	
+I consider this a kernel bug, but the code has been in the kernel
+for a long time. In 2.2 and 2.4 it is (devinet.c):
 
--- 
-Whip me.  Beat me.  Make me maintain AIX.
+	case SIOCSIFADDR:
+		...
+		if (!(dev->flags&IFF_POINTOPOINT)) {
+			ifa->ifa_prefixlen = inet_abc_len(ifa->ifa_address);
+			ifa->ifa_mask = inet_make_mask(ifa->ifa_prefixlen);
+			if ((dev->flags&IFF_BROADCAST) && ifa->ifa_prefixlen < 31)
+				ifa->ifa_broadcast = ifa->ifa_address|~ifa->ifa_mask;
+		} else {
+			ifa->ifa_prefixlen = 32;
+			ifa->ifa_mask = inet_make_mask(32);
+		}
 
+and in 2.0 it is (net/core/dev.c):
 
---- linux-2.4.6-ac5/Documentation/Configure.help.OL	Tue Jul 24 16:06:15 2001
-+++ linux-2.4.6-ac5/Documentation/Configure.help	Tue Jul 24 16:10:41 2001
-@@ -21997,6 +21997,11 @@
-   the BUG call as well as the EIP and oops trace. This aids debugging but
-   costs about 70-100K of memory.
- 
-+Compile the kernel with frame pointers
-+CONFIG_FRAME_POINTER
-+  Say Y here to compile your kernel here to have the frame pointer available
-+  for additional debugging information.
-+
- Include kgdb kernel debugger
- CONFIG_KGDB
-   Include in-kernel hooks for kgdb, the Linux kernel source level debugger.
---- linux-2.4.6-ac5/Makefile.OL	Tue Jul 24 16:18:46 2001
-+++ linux-2.4.6-ac5/Makefile	Tue Jul 24 16:19:07 2001
-@@ -95,9 +95,13 @@
- CPPFLAGS := -D__KERNEL__ -I$(HPATH)
- 
- CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
--	  -fomit-frame-pointer -fno-strict-aliasing -fno-common
-+	  -fno-strict-aliasing -fno-common
- AFLAGS := -D__ASSEMBLY__ $(CPPFLAGS)
- 
-+ifneq ($(CONFIG_FRAME_POINTER),y)
-+CFLAGS += -fomit-frame-pointer
-+endif
-+
- #
- # ROOT_DEV specifies the default root-device when making the image.
- # This can be either FLOPPY, CURRENT, /dev/xxxx or empty, in which case
---- linux-2.4.6/arch/i386/config.in.OL	Tue Jul 24 16:21:14 2001
-+++ linux-2.4.6/arch/i386/config.in	Tue Jul 24 16:22:11 2001
-@@ -395,15 +395,13 @@
- comment 'Kernel hacking'
- 
- bool 'Kernel debugging' CONFIG_DEBUG_KERNEL
--
- if [ "$CONFIG_DEBUG_KERNEL" != "n" ]; then
--
--
--bool '  Debug memory allocations' CONFIG_DEBUG_SLAB
--bool '  Memory mapped I/O debugging' CONFIG_DEBUG_IOVIRT
--bool '  Magic SysRq key' CONFIG_MAGIC_SYSRQ
--bool '  Spinlock debugging' CONFIG_DEBUG_SPINLOCK
--bool '  Verbose BUG() reporting (adds 70K)' CONFIG_DEBUG_BUGVERBOSE
-+   bool '  Compile the kernel with frame pointers' CONFIG_FRAME_POINTER
-+   bool '  Debug memory allocations' CONFIG_DEBUG_SLAB
-+   bool '  Memory mapped I/O debugging' CONFIG_DEBUG_IOVIRT
-+   bool '  Magic SysRq key' CONFIG_MAGIC_SYSRQ
-+   bool '  Spinlock debugging' CONFIG_DEBUG_SPINLOCK
-+   bool '  Verbose BUG() reporting (adds 70K)' CONFIG_DEBUG_BUGVERBOSE
- fi
- 
- endmenu
---- linux-2.4.6-ac5/arch/i386/kernel/semaphore.c.OL	Tue Jul 24 16:03:50 2001
-+++ linux-2.4.6-ac5/arch/i386/kernel/semaphore.c	Tue Jul 24 16:03:55 2001
-@@ -182,6 +182,10 @@
- ".align 4\n"
- ".globl __down_failed\n"
- "__down_failed:\n\t"
-+#if defined(CONFIG_FRAME_POINTER)
-+	"pushl %ebp\n\t"
-+	"movl  %esp,%ebp\n\t"
-+#endif
- 	"pushl %eax\n\t"
- 	"pushl %edx\n\t"
- 	"pushl %ecx\n\t"
-@@ -189,6 +193,10 @@
- 	"popl %ecx\n\t"
- 	"popl %edx\n\t"
- 	"popl %eax\n\t"
-+#if defined(CONFIG_FRAME_POINTER)
-+	"movl %ebp,%esp\n\t"
-+	"popl %ebp\n\t"
-+#endif
- 	"ret"
- );
- 
-@@ -197,11 +205,19 @@
- ".align 4\n"
- ".globl __down_failed_interruptible\n"
- "__down_failed_interruptible:\n\t"
-+#if defined(CONFIG_FRAME_POINTER)
-+	"pushl %ebp\n\t"
-+	"movl  %esp,%ebp\n\t"
-+#endif
- 	"pushl %edx\n\t"
- 	"pushl %ecx\n\t"
- 	"call __down_interruptible\n\t"
- 	"popl %ecx\n\t"
- 	"popl %edx\n\t"
-+#if defined(CONFIG_FRAME_POINTER)
-+	"movl %ebp,%esp\n\t"
-+	"popl %ebp\n\t"
-+#endif
- 	"ret"
- );
- 
-@@ -210,11 +226,19 @@
- ".align 4\n"
- ".globl __down_failed_trylock\n"
- "__down_failed_trylock:\n\t"
-+#if defined(CONFIG_FRAME_POINTER)
-+	"pushl %ebp\n\t"
-+	"movl  %esp,%ebp\n\t"
-+#endif
- 	"pushl %edx\n\t"
- 	"pushl %ecx\n\t"
- 	"call __down_trylock\n\t"
- 	"popl %ecx\n\t"
- 	"popl %edx\n\t"
-+#if defined(CONFIG_FRAME_POINTER)
-+	"movl %ebp,%esp\n\t"
-+	"popl %ebp\n\t"
-+#endif
- 	"ret"
- );
+	case SIOCSIFADDR:
+		...
+		/* This is naughty. When net-032e comes out It wants moving
+		   into the net032 code not the kernel. Till then it can sit
+		   here (SIGH) */
+		if (!dev->pa_mask)
+			dev->pa_mask = ip_get_mask(dev->pa_addr);
+		if (!dev->pa_brdaddr)
+			dev->pa_brdaddr = dev->pa_addr | ~dev->pa_mask;
+
+that is, 2.0 and earlier will only (reluctantly) set netmask and
+broadcast address when it was not set already.
+
+Probably things should be corrected both in the kernel and in ifconfig:
+SIOCSIFADDR should not change netmask and broadcast address,
+and ifconfig should assume that SIOCSIFADDR may be destructive
+and hence wait with setting netmask and broadcast address
+until after the SIOCSIFADDR.
+
+Andries
+
+	

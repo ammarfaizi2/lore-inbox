@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291642AbSBHXvs>; Fri, 8 Feb 2002 18:51:48 -0500
+	id <S287874AbSBHXyS>; Fri, 8 Feb 2002 18:54:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287874AbSBHXvi>; Fri, 8 Feb 2002 18:51:38 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11014 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287860AbSBHXva>; Fri, 8 Feb 2002 18:51:30 -0500
-Subject: Re: What "module license" applies to public domain code?
-To: carson@antd.nist.gov (Mark E. Carson)
-Date: Sat, 9 Feb 2002 00:05:00 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0202081632041.16834-100000@ran.antd.nist.gov> from "Mark E. Carson" at Feb 08, 2002 05:07:46 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S291664AbSBHXyI>; Fri, 8 Feb 2002 18:54:08 -0500
+Received: from zero.tech9.net ([209.61.188.187]:30478 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S287874AbSBHXyC>;
+	Fri, 8 Feb 2002 18:54:02 -0500
+Subject: Re: [PATCH] Read-Copy Update 2.5.4-pre2
+From: Robert Love <rml@tech9.net>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0202081847020.30304-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.33.0202081847020.30304-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16ZL0m-0005QU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/1.0.2 
+Date: 08 Feb 2002 18:54:02 -0500
+Message-Id: <1013212443.806.196.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Of course, anyone else would be free to take the code and apply any
-> license whatsoever to it, but my concern is simply what MODULE_LICENSE()
-> line I can legitimately include, if any.
+On Fri, 2002-02-08 at 18:51, Mark Hahn wrote:
 
-We have to be careful about this because MODULE_LICENSE("Public domain")
-doesn't mean anything if the resulting code is then shipped binary only.
-GPL and additional rights is probably closest or even just a
+> yes, but have you evaluated whether it's noticably better than
+> other forms of locking?  for instance, couldn't your dcache example
+> simply use BR locks?
 
-/*
- *	When linked into the Linux kernel the resulting work is GPL, you
- *	are however free to use this work under other licenses if you
- *	so wish. See README.blah
- */
+Good point.
 
-MODULE_LICENSE("GPL");	/* When part of Linux */
+One of the things with implicit locking schemes like RCU is that the
+performance hit merely shifts.  Reading the data may no longer have any
+overhead, but the hit is taken elsewhere.  One most be careful in
+benchmarking RCU locking.
+
+	Robert Love
 

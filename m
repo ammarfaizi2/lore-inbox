@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312425AbSDCW3u>; Wed, 3 Apr 2002 17:29:50 -0500
+	id <S312420AbSDCWeA>; Wed, 3 Apr 2002 17:34:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312420AbSDCW3k>; Wed, 3 Apr 2002 17:29:40 -0500
-Received: from [12.150.248.132] ([12.150.248.132]:52786 "EHLO
-	dhcp-177.hsv.redhat.com") by vger.kernel.org with ESMTP
-	id <S312425AbSDCW30>; Wed, 3 Apr 2002 17:29:26 -0500
-Date: Wed, 3 Apr 2002 16:28:10 -0600
-From: Tommy Reynolds <reynolds@redhat.com>
-To: "Eric Sandeen" <sandeen@sgi.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        marcelo@conectiva.com.br
-Subject: Re: [PATCH] kmem_cache_zalloc()
-Message-Id: <20020403162810.2c24ba60.reynolds@redhat.com>
-In-Reply-To: <1017871982.25556.7.camel@stout.americas.sgi.com>
-Organization: Red Hat Software, Inc. / Embedded Development
-X-Mailer: Sylpheed version 0.7.4cvs29 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
-X-Message-Flag: Outlook Virus Warning: Reboot within 12 seconds or risk loss of all files and data!
+	id <S312427AbSDCWdu>; Wed, 3 Apr 2002 17:33:50 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:10889 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S312420AbSDCWdl>;
+	Wed, 3 Apr 2002 17:33:41 -0500
+Date: Thu, 4 Apr 2002 00:18:16 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Warn about ioctl collision
+Message-ID: <20020403221815.GA1141@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uttered "Eric Sandeen" <sandeen@sgi.com>, spoke thus:
+Hi!
 
->  In short, we're using a kmem_cache_zalloc() function in XFS which just
->  does kmem_cache_alloc + memset.
-> 
->  We'd like to incorporate this into the kernel proper, and several others
->  chimed in that it would be useful, so here's the patch.  If it's a no-go
->  with you, we can roll this functionality back under fs/xfs to reduce our
->  changes in the mainline kernel.
+It is probably too late to fix it properly, but warning is better than
+nothing. (It confused the hell out of me...)
+									Pavel
 
-Why not use the constructor function interface to kmem_cache_create that is
-_already_ in the kernel API?
+--- clean.2.5/include/asm-i386/ioctls.h	Fri Jul 24 20:10:16 1998
++++ linux/include/asm-i386/ioctls.h	Thu Oct 25 13:24:35 2001
+@@ -6,7 +6,7 @@
+ /* 0x54 is just a magic number to make these relatively unique ('T') */
+ 
+ #define TCGETS		0x5401
+-#define TCSETS		0x5402
++#define TCSETS		0x5402 /* Clashes with SNDCTL_TMR_START sound ioctl */
+ #define TCSETSW		0x5403
+ #define TCSETSF		0x5404
+ #define TCGETA		0x5405
+
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

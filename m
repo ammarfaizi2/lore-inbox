@@ -1,80 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265903AbUGECEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265905AbUGECIA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265903AbUGECEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 22:04:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265905AbUGECEZ
+	id S265905AbUGECIA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 22:08:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265909AbUGECIA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 22:04:25 -0400
-Received: from tomsk.portland.co.uk ([212.15.64.29]:6103 "EHLO
-	tomsk.portland.co.uk") by vger.kernel.org with ESMTP
-	id S265903AbUGECEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 22:04:22 -0400
-Message-ID: <38696.66.178.80.76.1088992820.squirrel@mail.postaccess.com>
-Date: Mon, 5 Jul 2004 03:00:20 +0100 (BST)
-Subject: REF NUMBER: ELI/653/029/03
-From: euromail2@postaccess.com
-To: euromail2@mac.com
-User-Agent: SquirrelMail/1.4.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 1
-Importance: High
+	Sun, 4 Jul 2004 22:08:00 -0400
+Received: from mail-relay-3.tiscali.it ([212.123.84.93]:53937 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S265905AbUGECH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 22:07:57 -0400
+Date: Mon, 5 Jul 2004 04:07:40 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: prio_tree generalization
+Message-ID: <20040705020740.GA3246@dualathlon.random>
+References: <20040704222438.A11865@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040704222438.A11865@almesberger.net>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MRS. EDITH STANLEY.
-EUROMAIL LOTTO INTERNATIONAL(ELI)
-25 LIMERICK ROAD,
-DUBLIN 2
-REPUBLIC OF IRELAND
-REF NUMBER: ELI/653/029/03
-BATCH NUMBER: AT-040-SB06-03
+On Sun, Jul 04, 2004 at 10:24:38PM -0300, Werner Almesberger wrote:
+> Hi Rajesh,
+> 
+> I'm currently experimenting with the prio_tree code in an elevator
+> ("IO scheduler"), and I'm thinking about a way to avoid code
+> duplication.
 
-Reply to (email): euromail2@mac.com
-DATE: 5th July, 2004.
+that's a nice effort, I agree prio_tree.c is better suited for lib/ than
+mm/ but the code already looks quite generic and well written.
 
+>
+> The most straightforward approach seems to be to put everything
+> after prio_tree_init and before vma_prio_tree_add into a new file,
+> and #include that file. (And prio_tree_init should be shared.)
+> 
+> #including a .c file normally isn't exactly considered an epitome
+> of elegance, but in this case, there doesn't seem to be much of a
+> choice.
 
-Dear Sir/Madam,
+why don't you move the shared code to lib/prio_tree.c instead of
+duplicating it in every object?
+prio_tree_insert/prio_tree_remove/prio_tree_replace needs to be
+exported etc..
 
-We are pleased to inform you that as a result of our recent lottery draw
-held on the 1st of July, 2004. Your e-mail address attached to ticket
-number 27522465896-532 with serial number 652-662 drew lucky numbers
-7-14-18-23-31-45, which consequently won in the 2nd category. You have
-therefore been approved for a lump sum pay out of 4,000,000 (Euros) (Four
-Million Euros only)
+> There's another issue: in the elevator, entries overlap only
+> rarely if at all, and it is sometimes useful to walk the tree in
+> sort order. As far as I can tell, RPSTs can be walked just like
+> RB trees if there are no overlaps on the path from the current to
+> the respective adjacent node.
+> 
+> Unfortunately, "prio_tree_next" is already taken. It would be nice
+> to follow the same naming scheme as RB trees, so perhaps
+> prio_tree_next could become prio_tree_more, or such ?
 
-Note that all participants in this lottery program have been selected
-randomly through a computer ballot system drawn from over 20,000 companies
-and 30,000,000 individual email addresses from all search engines and web
-sites. This promotional program takes place every year, and is promoted
-and sponsored by eminent personalities like the Sultan of Brunei, Bill
-Gates of Microsoft Inc and other corporate organizations. This is to
-encourage the use of the Internet and computers worldwide.
-
-For security purpose and clarity, we advise that you keep your winning
-information confidential until your claims have been processed and your
-money remitted to you. This is part of our security protocol to avoid
-double claims and unwarranted abuse of this program by some participants.
-We look forward to your active participation in our next year USD50
-million slot.
-
-You are requested to contact our Lottery coordinator below to assist you
-with your winnings and subsequent payments. All winnings must be claimed
-not later than one month after the date of this notice. Please note, in
-order to avoid unnecessary delays and complications, remember to quote
-your reference number and batch numbers in all correspondence.
-
-Furthermore, should there be any change of address do inform our agent as
-soon as possible. Congratulations once more and thank you for being part
-of our promotional program.
-
-NOTE: YOU ARE AUTOMATICALLY DISQUALIFIED IF YOU ARE BELOW 18 YEARS OF AGE.
-YOU MUST REPLY TO THE ABOVE EMAIL ID (euromail2@mac.com)
-
-
-Yours faithfully,
-
-MRS. EDITH STANLEY.
-(Lottery Coordinator)
-
+I thought prio_tree_next was already the equivalent of rb_next for
+prio-trees. The API is slightly different because you need an iterator
+object, but I'm not sure how you want to change it to make it more
+symmetric with rb_next.

@@ -1,77 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129081AbQJ2TeR>; Sun, 29 Oct 2000 14:34:17 -0500
+	id <S129042AbQJ2TqN>; Sun, 29 Oct 2000 14:46:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129153AbQJ2TeH>; Sun, 29 Oct 2000 14:34:07 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:270 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129081AbQJ2Tdu>; Sun, 29 Oct 2000 14:33:50 -0500
-Date: Sun, 29 Oct 2000 11:33:19 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Paul Mackerras <paulus@linuxcare.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: page->mapping == 0
-In-Reply-To: <Pine.LNX.4.10.10010291100030.18939-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10010291118140.19109-100000@penguin.transmeta.com>
+	id <S129043AbQJ2TqE>; Sun, 29 Oct 2000 14:46:04 -0500
+Received: from twinlark.arctic.org ([204.107.140.52]:11021 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S129042AbQJ2Tpu>; Sun, 29 Oct 2000 14:45:50 -0500
+Date: Sun, 29 Oct 2000 11:45:49 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andrew Morton <andrewm@uow.edu.au>, kumon@flab.fujitsu.co.jp,
+        Andi Kleen <ak@suse.de>, Alexander Viro <viro@math.psu.edu>,
+        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+        Olaf Kirch <okir@monad.swb.de>
+Subject: Re: [PATCH] Re: Negative scalability by removal of lock_kernel()?(Was:
+In-Reply-To: <E13pYis-0005Q0-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0010291135570.11954-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 28 Oct 2000, Alan Cox wrote:
 
-
-On Sun, 29 Oct 2000, Linus Torvalds wrote:
+> > The big question is: why is Apache using file locking so
+> > much?  Is this normal behaviour for Apache?
 > 
-> Making it policy that we have to re-test page->mapping after aquireing the
-> page lock might be the simplest fix for 2.4.x. It still means that we
-> might end up allowing people to have a "bad" page in the VM space due to
-> the "test->insert" race condition, but it woul dmake that event pretty
-> much a harmless bug (and thus move it to the "beauty wart - to be fixed
-> later" category).
+> Apache uses file locking to serialize accept on hosts where accept either has
+> bad thundering heard problems or was simply broken with multiple acceptors
 
-I'd like to just re-iterate this point: re-testing "page->mapping" fixes
-the oops, but is not a full fix for the conceptual problem.
+if apache 1.3 is compiled with -DSINGLE_LISTEN_UNSERIALIZED_ACCEPT it'll
+avoid the fcntl() serialisation when there is only one listening port.  
+(it still uses it for multiple listeners... you can read all about my
+logic for that at <http://www.apache.org/docs/misc/perf-tuning.html>.)
 
-The problem with just re-testing "page->mapping" is that you still have a
-nasty potential race where you insert a (bogus) page into the VM space of
-a process instead of giving a SIGBUS/SIGSEGV.
+is it appropriate for this to be defined for newer linux kernels?  i
+haven't kept track, sorry.  tell me what versions to conditionalize it on.
 
-Now, I don't think this is really a valid usage pattern, so it's most
-likely to be a result of a buggy application, but I can imagine having
-some strange kind of user-space VM memory management scheme that depends
-on SIGBUS to maintain a file length. I've never heard of such a thing, but
-I could imagine somebody doing some kind of persistent data object store
-in user space this way.
-
-Does anybody actually know of an application that does something like
-this? Because I'm more and more inclined to just going with the half-fix
-for now. It would at least guarantee internal kernel data consistency (and
-no oopses, of course).
-
-Don't get me wrong - we need to clean this part up, but as far as I can
-tell we have never done this "right", so in that sense it's not a new
-2.4.x bug and it can't break existing applications.
-
-[ In fact, with the current ordering inside "vmtruncate()" of doing the
-  "truncate_inode_pages()" thing before doing the "vmtruncate_list()", I
-  have this suspicion that the race might even be impossible to trigger.
-  Even when the race "happens" in kernel space, we will end up unmapping
-  the page immediately afterwards, and the only effect as far as the user
-  is concerned is the disappearance of the SIGBUS.
-
-  And the "disappearing SIGBUS" is actually explainable with a
-  _user_level_ race: in order to get the kernel race at all, user level
-  itself must have been inherently racing on the truncate/access, and
-  depending on which one happened "first" you'd have lost the SIGBUS and
-  the data you wrote anyway.
-
-  So it may actually be that we can honestly claim that the half-fix is
-  actually a proper fix. I would have to look a lot closer at the issue to
-  be able to guarantee this, though. Comments? Anybody? ]
-
-Al?
-
-		Linus
+-dean
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

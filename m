@@ -1,20 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263963AbTLTLwj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 06:52:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbTLTLwj
+	id S263903AbTLTLz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 06:55:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263902AbTLTLz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 06:52:39 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:3519 "EHLO dns.toxicfilms.tv")
-	by vger.kernel.org with ESMTP id S263963AbTLTLvy (ORCPT
+	Sat, 20 Dec 2003 06:55:58 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:9919 "EHLO dns.toxicfilms.tv")
+	by vger.kernel.org with ESMTP id S264126AbTLTLzX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 06:51:54 -0500
-Message-ID: <003f01c3c6ef$9e419f50$0e25fe0a@southpark.ae.poznan.pl>
+	Sat, 20 Dec 2003 06:55:23 -0500
+Message-ID: <004b01c3c6f0$1a09dad0$0e25fe0a@southpark.ae.poznan.pl>
 From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
 To: <linux-kernel@vger.kernel.org>
-Cc: <perex@suse.cz>
-Subject: [PATCH BEAVER] Some outstanding C99 initializers in linux/sound
-Date: Sat, 20 Dec 2003 12:51:28 +0100
+Subject: [TRIVIAL PATCH BEAVER] paramter -> parameter typos
+Date: Sat, 20 Dec 2003 12:54:58 +0100
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-2"
@@ -29,1262 +28,323 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
-Here is another batch of my C99 initializers for linux/sound for 2.6.0
+trivial 'paramter -> parameter' typos in:
+ Documentation/networking/sk98lin.txt |    2 +-
+ arch/ppc64/kernel/setup.c            |    2 +-
+ drivers/char/hangcheck-timer.c       |    2 +-
+ drivers/media/video/tea6420.c        |    2 +-
+ drivers/net/appletalk/ltpc.c         |    2 +-
+ drivers/net/dl2k.c                   |    2 +-
+ drivers/net/e1000/e1000_param.c      |    2 +-
+ drivers/net/ixgb/ixgb_param.c        |    2 +-
+ drivers/net/skfp/h/smt.h             |    2 +-
+ drivers/net/tokenring/3c359.c        |    2 +-
+ drivers/net/tokenring/lanstreamer.c  |    2 +-
+ drivers/net/tokenring/olympic.c      |    2 +-
+ drivers/s390/net/iucv.h              |    2 +-
+ drivers/scsi/aic7xxx/aic79xx_pci.c   |    4 ++--
+ fs/block_dev.c                       |    4 ++--
+ include/asm-sh/bigsur.h              |    2 +-
+ include/asm-sh/bigsur/bigsur.h       |    2 +-
+ include/linux/ethtool.h              |    2 +-
+ include/net/ip6_tunnel.h             |    2 +-
+ sound/core/seq/seq_dummy.c           |    2 +-
+ 20 files changed, 22 insertions(+), 22 deletions(-)
 
-# diffstat patch-2.6.0-c99.diff
- dmasound/tas3001c.c        |    2
- dmasound/tas3001c_tables.c |  332
-++++++++++++++++++++++----------------------- 
- dmasound/tas3004_tables.c  |  240 ++++++++++++++++----------------
- dmasound/trans_16.c        |   44 ++---
- sb_card.h                  |  100 ++++++-------
- 5 files changed, 359 insertions(+), 359 deletions(-)
+Available at
 
-It is here:
+http://www.soltysiak.com/patches/2.6/2.6.0/typos/patch-2.6.0-typos.diff
 
-http://soltysiak.com/patches/2.6/2.6.0/c99/patch-2.6.0-c99.diff
-
-and in the body of this email.
-Please apply.
+and in the body of the email.
 
 Best Regards,
 Maciej
 
---- linux/sound/oss/dmasound/trans_16.c~2003-12-19 22:55:46.503819448 +0100
-+++ linux/sound/oss/dmasound/trans_16.c2003-12-19 22:55:46.503819448 +0100
-@@ -573,34 +573,34 @@
+diff -ru linux.orig/arch/ppc64/kernel/setup.c
+linux/arch/ppc64/kernel/setup.c
+--- linux.orig/arch/ppc64/kernel/setup.c2003-12-19 23:55:34.000000000 +0100
++++ linux/arch/ppc64/kernel/setup.c2003-12-20 00:05:06.330429680 +0100
+@@ -137,7 +137,7 @@
  }
 
- TRANS transAwacsNormal = {
--ct_ulaw:pmac_ct_law,
--ct_alaw:pmac_ct_law,
--ct_s8:pmac_ct_s8,
--ct_u8:pmac_ct_u8,
--ct_s16be:pmac_ct_s16,
--ct_u16be:pmac_ct_u16,
--ct_s16le:pmac_ct_s16,
--ct_u16le:pmac_ct_u16,
-+.ct_ulaw= pmac_ct_law,
-+.ct_alaw= pmac_ct_law,
-+.ct_s8= pmac_ct_s8,
-+.ct_u8= pmac_ct_u8,
-+.ct_s16be= pmac_ct_s16,
-+.ct_u16be= pmac_ct_u16,
-+.ct_s16le= pmac_ct_s16,
-+.ct_u16le= pmac_ct_u16,
- };
-
- TRANS transAwacsExpand = {
--ct_ulaw:pmac_ctx_law,
--ct_alaw:pmac_ctx_law,
--ct_s8:pmac_ctx_s8,
--ct_u8:pmac_ctx_u8,
--ct_s16be:pmac_ctx_s16,
--ct_u16be:pmac_ctx_u16,
--ct_s16le:pmac_ctx_s16,
--ct_u16le:pmac_ctx_u16,
-+.ct_ulaw= pmac_ctx_law,
-+.ct_alaw= pmac_ctx_law,
-+.ct_s8= pmac_ctx_s8,
-+.ct_u8= pmac_ctx_u8,
-+.ct_s16be= pmac_ctx_s16,
-+.ct_u16be= pmac_ctx_u16,
-+.ct_s16le= pmac_ctx_s16,
-+.ct_u16le= pmac_ctx_u16,
- };
-
- TRANS transAwacsNormalRead = {
--ct_s8:pmac_ct_s8_read,
--ct_u8:pmac_ct_u8_read,
--ct_s16be:pmac_ct_s16_read,
--ct_u16be:pmac_ct_u16_read,
--ct_s16le:pmac_ct_s16_read,
--ct_u16le:pmac_ct_u16_read,
-+.ct_s8= pmac_ct_s8_read,
-+.ct_u8= pmac_ct_u8_read,
-+.ct_s16be= pmac_ct_s16_read,
-+.ct_u16be= pmac_ct_u16_read,
-+.ct_s16le= pmac_ct_s16_read,
-+.ct_u16le= pmac_ct_u16_read,
- };
-
- /* translation tables */
---- linux/sound/oss/dmasound/tas3004_tables.c~2003-12-19 23:11:52.533960544
+ /*
+- * Do some initial setup of the system.  The paramters are those which
++ * Do some initial setup of the system.  The parameters are those which
+  * were passed in from the bootloader.
+  */
+ void setup_system(unsigned long r3, unsigned long r4, unsigned long r5,
+diff -ru linux.orig/Documentation/networking/sk98lin.txt
+linux/Documentation/networking/sk98lin.txt
+--- linux.orig/Documentation/networking/sk98lin.txt2003-12-19
+23:56:30.000000000 +0100
++++ linux/Documentation/networking/sk98lin.txt2003-12-20 00:04:55.000000000
 +0100
-+++ linux/sound/oss/dmasound/tas3004_tables.c2003-12-19 23:16:12.864384304
+@@ -365,7 +365,7 @@
+ Default:      2000
+
+ This parameter is only used, if either static or dynamic interrupt
+moderation
+-is used on a network adapter card. Using this paramter if no moderation is
++is used on a network adapter card. Using this parameter if no moderation is
+ applied, will lead to no action performed.
+
+ This parameter determines the length of any interrupt moderation interval.
+diff -ru linux.orig/drivers/char/hangcheck-timer.c
+linux/drivers/char/hangcheck-timer.c
+--- linux.orig/drivers/char/hangcheck-timer.c2003-12-19 23:56:07.000000000
 +0100
-@@ -2,169 +2,169 @@
- #include "tas_eq_prefs.h"
-
- static struct tas_drce_t eqp_17_1_0_drce={
--    enable:    1,
--    above:     { val: 3.0 * (1<<8), expand: 0 },
--    below:     { val: 1.0 * (1<<8), expand: 0 },
--    threshold: -19.12  * (1<<8),
--    energy:    2.4     * (1<<12),
--    attack:    0.013   * (1<<12),
--    decay:     0.212   * (1<<12),
-+    .enable     = 1,
-+    .above      = { .val = 3.0 * (1<<8), .expand = 0 },
-+    .below      = { .val = 1.0 * (1<<8), .expand = 0 },
-+    .threshold  = -19.12  * (1<<8),
-+    .energy     = 2.4     * (1<<12),
-+    .attack     = 0.013   * (1<<12),
-+    .decay      = 0.212   * (1<<12),
- };
-
- static struct tas_biquad_ctrl_t eqp_17_1_0_biquads[]={
--  { channel: 0, filter: 0, data: { coeff: { 0x0fd0d4, 0xe05e56, 0x0fd0d4,
-0xe05ee1, 0x0fa234 } } },
--  { channel: 0, filter: 1, data: { coeff: { 0x0910d7, 0x088e1a, 0x030651,
-0x01dcb1, 0x02c892 } } },
--  { channel: 0, filter: 2, data: { coeff: { 0x0ff895, 0xe0970b, 0x0f7f00,
-0xe0970b, 0x0f7795 } } },
--  { channel: 0, filter: 3, data: { coeff: { 0x0fd1c4, 0xe1ac22, 0x0ec8cf,
-0xe1ac22, 0x0e9a94 } } },
--  { channel: 0, filter: 4, data: { coeff: { 0x0f7c1c, 0xe3cc03, 0x0df786,
-0xe3cc03, 0x0d73a2 } } },
--  { channel: 0, filter: 5, data: { coeff: { 0x11fb92, 0xf5a1a0, 0x073cd2,
-0xf5a1a0, 0x093865 } } },
--  { channel: 0, filter: 6, data: { coeff: { 0x0e17a9, 0x068b6c, 0x08a0e5,
-0x068b6c, 0x06b88e } } },
--
--  { channel: 1, filter: 0, data: { coeff: { 0x0fd0d4, 0xe05e56, 0x0fd0d4,
-0xe05ee1, 0x0fa234 } } },
--  { channel: 1, filter: 1, data: { coeff: { 0x0910d7, 0x088e1a, 0x030651,
-0x01dcb1, 0x02c892 } } },
--  { channel: 1, filter: 2, data: { coeff: { 0x0ff895, 0xe0970b, 0x0f7f00,
-0xe0970b, 0x0f7795 } } },
--  { channel: 1, filter: 3, data: { coeff: { 0x0fd1c4, 0xe1ac22, 0x0ec8cf,
-0xe1ac22, 0x0e9a94 } } },
--  { channel: 1, filter: 4, data: { coeff: { 0x0f7c1c, 0xe3cc03, 0x0df786,
-0xe3cc03, 0x0d73a2 } } },
--  { channel: 1, filter: 5, data: { coeff: { 0x11fb92, 0xf5a1a0, 0x073cd2,
-0xf5a1a0, 0x093865 } } },
--  { channel: 1, filter: 6, data: { coeff: { 0x0e17a9, 0x068b6c, 0x08a0e5,
-0x068b6c, 0x06b88e } } }
-+  { .channel = 0, .filter = 0, .data = { .coeff = { 0x0fd0d4, 0xe05e56,
-0x0fd0d4, 0xe05ee1, 0x0fa234 } } },
-+  { .channel = 0, .filter = 1, .data = { .coeff = { 0x0910d7, 0x088e1a,
-0x030651, 0x01dcb1, 0x02c892 } } },
-+  { .channel = 0, .filter = 2, .data = { .coeff = { 0x0ff895, 0xe0970b,
-0x0f7f00, 0xe0970b, 0x0f7795 } } },
-+  { .channel = 0, .filter = 3, .data = { .coeff = { 0x0fd1c4, 0xe1ac22,
-0x0ec8cf, 0xe1ac22, 0x0e9a94 } } },
-+  { .channel = 0, .filter = 4, .data = { .coeff = { 0x0f7c1c, 0xe3cc03,
-0x0df786, 0xe3cc03, 0x0d73a2 } } },
-+  { .channel = 0, .filter = 5, .data = { .coeff = { 0x11fb92, 0xf5a1a0,
-0x073cd2, 0xf5a1a0, 0x093865 } } },
-+  { .channel = 0, .filter = 6, .data = { .coeff = { 0x0e17a9, 0x068b6c,
-0x08a0e5, 0x068b6c, 0x06b88e } } },
-+
-+  { .channel = 1, .filter = 0, .data = { .coeff = { 0x0fd0d4, 0xe05e56,
-0x0fd0d4, 0xe05ee1, 0x0fa234 } } },
-+  { .channel = 1, .filter = 1, .data = { .coeff = { 0x0910d7, 0x088e1a,
-0x030651, 0x01dcb1, 0x02c892 } } },
-+  { .channel = 1, .filter = 2, .data = { .coeff = { 0x0ff895, 0xe0970b,
-0x0f7f00, 0xe0970b, 0x0f7795 } } },
-+  { .channel = 1, .filter = 3, .data = { .coeff = { 0x0fd1c4, 0xe1ac22,
-0x0ec8cf, 0xe1ac22, 0x0e9a94 } } },
-+  { .channel = 1, .filter = 4, .data = { .coeff = { 0x0f7c1c, 0xe3cc03,
-0x0df786, 0xe3cc03, 0x0d73a2 } } },
-+  { .channel = 1, .filter = 5, .data = { .coeff = { 0x11fb92, 0xf5a1a0,
-0x073cd2, 0xf5a1a0, 0x093865 } } },
-+  { .channel = 1, .filter = 6, .data = { .coeff = { 0x0e17a9, 0x068b6c,
-0x08a0e5, 0x068b6c, 0x06b88e } } }
- };
-
- static struct tas_eq_pref_t eqp_17_1_0 = {
--  sample_rate:  44100,
--  device_id:    0x17,
--  output_id:    TAS_OUTPUT_INTERNAL_SPKR,
--  speaker_id:   0x00,
-+  .sample_rate   = 44100,
-+  .device_id     = 0x17,
-+  .output_id     = TAS_OUTPUT_INTERNAL_SPKR,
-+  .speaker_id    = 0x00,
-
--  drce:         &eqp_17_1_0_drce,
-+  .drce          = &eqp_17_1_0_drce,
-
--  filter_count: 14,
--  biquads:      eqp_17_1_0_biquads
-+  .filter_count  = 14,
-+  .biquads       = eqp_17_1_0_biquads
- };
-
- /* ========================================================================
-*/
-
- static struct tas_drce_t eqp_18_1_0_drce={
--  enable:    1,
--  above:     { val: 3.0 * (1<<8), expand: 0 },
--  below:     { val: 1.0 * (1<<8), expand: 0 },
--  threshold: -13.14  * (1<<8),
--  energy:    2.4     * (1<<12),
--  attack:    0.013   * (1<<12),
--  decay:     0.212   * (1<<12),
-+  .enable     = 1,
-+  .above      = { .val = 3.0 * (1<<8), .expand = 0 },
-+  .below      = { .val = 1.0 * (1<<8), .expand = 0 },
-+  .threshold  = -13.14  * (1<<8),
-+  .energy     = 2.4     * (1<<12),
-+  .attack     = 0.013   * (1<<12),
-+  .decay      = 0.212   * (1<<12),
- };
-
- static struct tas_biquad_ctrl_t eqp_18_1_0_biquads[]={
--  { channel: 0, filter: 0, data: { coeff: { 0x0f5514, 0xe155d7, 0x0f5514,
-0xe15cfa, 0x0eb14b } } },
--  { channel: 0, filter: 1, data: { coeff: { 0x06ec33, 0x02abe3, 0x015eef,
-0xf764d9, 0x03922d } } },
--  { channel: 0, filter: 2, data: { coeff: { 0x0ef5f2, 0xe67d1f, 0x0bcf37,
-0xe67d1f, 0x0ac529 } } },
--  { channel: 0, filter: 3, data: { coeff: { 0x0db050, 0xe5be4d, 0x0d0c78,
-0xe5be4d, 0x0abcc8 } } },
--  { channel: 0, filter: 4, data: { coeff: { 0x0f1298, 0xe64ec6, 0x0cc03e,
-0xe64ec6, 0x0bd2d7 } } },
--  { channel: 0, filter: 5, data: { coeff: { 0x0c641a, 0x06537a, 0x08d155,
-0x06537a, 0x053570 } } },
--  { channel: 0, filter: 6, data: { coeff: { 0x100000, 0x000000, 0x000000,
-0x000000, 0x000000 } } },
--
--  { channel: 1, filter: 0, data: { coeff: { 0x0f5514, 0xe155d7, 0x0f5514,
-0xe15cfa, 0x0eb14b } } },
--  { channel: 1, filter: 1, data: { coeff: { 0x06ec33, 0x02abe3, 0x015eef,
-0xf764d9, 0x03922d } } },
--  { channel: 1, filter: 2, data: { coeff: { 0x0ef5f2, 0xe67d1f, 0x0bcf37,
-0xe67d1f, 0x0ac529 } } },
--  { channel: 1, filter: 3, data: { coeff: { 0x0db050, 0xe5be4d, 0x0d0c78,
-0xe5be4d, 0x0abcc8 } } },
--  { channel: 1, filter: 4, data: { coeff: { 0x0f1298, 0xe64ec6, 0x0cc03e,
-0xe64ec6, 0x0bd2d7 } } },
--  { channel: 1, filter: 5, data: { coeff: { 0x0c641a, 0x06537a, 0x08d155,
-0x06537a, 0x053570 } } },
--  { channel: 1, filter: 6, data: { coeff: { 0x100000, 0x000000, 0x000000,
-0x000000, 0x000000 } } }
-+  { .channel = 0, .filter = 0, .data = { .coeff = { 0x0f5514, 0xe155d7,
-0x0f5514, 0xe15cfa, 0x0eb14b } } },
-+  { .channel = 0, .filter = 1, .data = { .coeff = { 0x06ec33, 0x02abe3,
-0x015eef, 0xf764d9, 0x03922d } } },
-+  { .channel = 0, .filter = 2, .data = { .coeff = { 0x0ef5f2, 0xe67d1f,
-0x0bcf37, 0xe67d1f, 0x0ac529 } } },
-+  { .channel = 0, .filter = 3, .data = { .coeff = { 0x0db050, 0xe5be4d,
-0x0d0c78, 0xe5be4d, 0x0abcc8 } } },
-+  { .channel = 0, .filter = 4, .data = { .coeff = { 0x0f1298, 0xe64ec6,
-0x0cc03e, 0xe64ec6, 0x0bd2d7 } } },
-+  { .channel = 0, .filter = 5, .data = { .coeff = { 0x0c641a, 0x06537a,
-0x08d155, 0x06537a, 0x053570 } } },
-+  { .channel = 0, .filter = 6, .data = { .coeff = { 0x100000, 0x000000,
-0x000000, 0x000000, 0x000000 } } },
-+
-+  { .channel = 1, .filter = 0, .data = { .coeff = { 0x0f5514, 0xe155d7,
-0x0f5514, 0xe15cfa, 0x0eb14b } } },
-+  { .channel = 1, .filter = 1, .data = { .coeff = { 0x06ec33, 0x02abe3,
-0x015eef, 0xf764d9, 0x03922d } } },
-+  { .channel = 1, .filter = 2, .data = { .coeff = { 0x0ef5f2, 0xe67d1f,
-0x0bcf37, 0xe67d1f, 0x0ac529 } } },
-+  { .channel = 1, .filter = 3, .data = { .coeff = { 0x0db050, 0xe5be4d,
-0x0d0c78, 0xe5be4d, 0x0abcc8 } } },
-+  { .channel = 1, .filter = 4, .data = { .coeff = { 0x0f1298, 0xe64ec6,
-0x0cc03e, 0xe64ec6, 0x0bd2d7 } } },
-+  { .channel = 1, .filter = 5, .data = { .coeff = { 0x0c641a, 0x06537a,
-0x08d155, 0x06537a, 0x053570 } } },
-+  { .channel = 1, .filter = 6, .data = { .coeff = { 0x100000, 0x000000,
-0x000000, 0x000000, 0x000000 } } }
- };
-
- static struct tas_eq_pref_t eqp_18_1_0 = {
--  sample_rate:  44100,
--  device_id:    0x18,
--  output_id:    TAS_OUTPUT_INTERNAL_SPKR,
--  speaker_id:   0x00,
-+  .sample_rate   = 44100,
-+  .device_id     = 0x18,
-+  .output_id     = TAS_OUTPUT_INTERNAL_SPKR,
-+  .speaker_id    = 0x00,
-
--  drce:         &eqp_18_1_0_drce,
-+  .drce          = &eqp_18_1_0_drce,
-
--  filter_count: 14,
--  biquads:      eqp_18_1_0_biquads
-+  .filter_count  = 14,
-+  .biquads       = eqp_18_1_0_biquads
- };
-
- /* ========================================================================
-*/
-
- static struct tas_drce_t eqp_1a_1_0_drce={
--  enable:    1,
--  above:     { val: 3.0 * (1<<8), expand: 0 },
--  below:     { val: 1.0 * (1<<8), expand: 0 },
--  threshold: -10.75  * (1<<8),
--  energy:    2.4     * (1<<12),
--  attack:    0.013   * (1<<12),
--  decay:     0.212   * (1<<12),
-+  .enable     = 1,
-+  .above      = { .val = 3.0 * (1<<8), .expand = 0 },
-+  .below      = { .val = 1.0 * (1<<8), .expand = 0 },
-+  .threshold  = -10.75  * (1<<8),
-+  .energy     = 2.4     * (1<<12),
-+  .attack     = 0.013   * (1<<12),
-+  .decay      = 0.212   * (1<<12),
- };
-
- static struct tas_biquad_ctrl_t eqp_1a_1_0_biquads[]={
--  { channel: 0, filter: 0, data: { coeff: { 0x0fb8fd, 0xe08e04, 0x0fb8fd,
-0xe08f40, 0x0f7336 } } },
--  { channel: 0, filter: 1, data: { coeff: { 0x06371d, 0x0c6e3a, 0x06371d,
-0x05bfd3, 0x031ca2 } } },
--  { channel: 0, filter: 2, data: { coeff: { 0x0fa1c0, 0xe18692, 0x0f030e,
-0xe18692, 0x0ea4ce } } },
--  { channel: 0, filter: 3, data: { coeff: { 0x0fe495, 0xe17eff, 0x0f0452,
-0xe17eff, 0x0ee8e7 } } },
--  { channel: 0, filter: 4, data: { coeff: { 0x100857, 0xe7e71c, 0x0e9599,
-0xe7e71c, 0x0e9df1 } } },
--  { channel: 0, filter: 5, data: { coeff: { 0x0fb26e, 0x06a82c, 0x0db2b4,
-0x06a82c, 0x0d6522 } } },
--  { channel: 0, filter: 6, data: { coeff: { 0x11419d, 0xf06cbf, 0x0a4f6e,
-0xf06cbf, 0x0b910c } } },
--
--  { channel: 1, filter: 0, data: { coeff: { 0x0fb8fd, 0xe08e04, 0x0fb8fd,
-0xe08f40, 0x0f7336 } } },
--  { channel: 1, filter: 1, data: { coeff: { 0x06371d, 0x0c6e3a, 0x06371d,
-0x05bfd3, 0x031ca2 } } },
--  { channel: 1, filter: 2, data: { coeff: { 0x0fa1c0, 0xe18692, 0x0f030e,
-0xe18692, 0x0ea4ce } } },
--  { channel: 1, filter: 3, data: { coeff: { 0x0fe495, 0xe17eff, 0x0f0452,
-0xe17eff, 0x0ee8e7 } } },
--  { channel: 1, filter: 4, data: { coeff: { 0x100857, 0xe7e71c, 0x0e9599,
-0xe7e71c, 0x0e9df1 } } },
--  { channel: 1, filter: 5, data: { coeff: { 0x0fb26e, 0x06a82c, 0x0db2b4,
-0x06a82c, 0x0d6522 } } },
--  { channel: 1, filter: 6, data: { coeff: { 0x11419d, 0xf06cbf, 0x0a4f6e,
-0xf06cbf, 0x0b910c } } }
-+  { .channel = 0, .filter = 0, .data = { .coeff = { 0x0fb8fd, 0xe08e04,
-0x0fb8fd, 0xe08f40, 0x0f7336 } } },
-+  { .channel = 0, .filter = 1, .data = { .coeff = { 0x06371d, 0x0c6e3a,
-0x06371d, 0x05bfd3, 0x031ca2 } } },
-+  { .channel = 0, .filter = 2, .data = { .coeff = { 0x0fa1c0, 0xe18692,
-0x0f030e, 0xe18692, 0x0ea4ce } } },
-+  { .channel = 0, .filter = 3, .data = { .coeff = { 0x0fe495, 0xe17eff,
-0x0f0452, 0xe17eff, 0x0ee8e7 } } },
-+  { .channel = 0, .filter = 4, .data = { .coeff = { 0x100857, 0xe7e71c,
-0x0e9599, 0xe7e71c, 0x0e9df1 } } },
-+  { .channel = 0, .filter = 5, .data = { .coeff = { 0x0fb26e, 0x06a82c,
-0x0db2b4, 0x06a82c, 0x0d6522 } } },
-+  { .channel = 0, .filter = 6, .data = { .coeff = { 0x11419d, 0xf06cbf,
-0x0a4f6e, 0xf06cbf, 0x0b910c } } },
-+
-+  { .channel = 1, .filter = 0, .data = { .coeff = { 0x0fb8fd, 0xe08e04,
-0x0fb8fd, 0xe08f40, 0x0f7336 } } },
-+  { .channel = 1, .filter = 1, .data = { .coeff = { 0x06371d, 0x0c6e3a,
-0x06371d, 0x05bfd3, 0x031ca2 } } },
-+  { .channel = 1, .filter = 2, .data = { .coeff = { 0x0fa1c0, 0xe18692,
-0x0f030e, 0xe18692, 0x0ea4ce } } },
-+  { .channel = 1, .filter = 3, .data = { .coeff = { 0x0fe495, 0xe17eff,
-0x0f0452, 0xe17eff, 0x0ee8e7 } } },
-+  { .channel = 1, .filter = 4, .data = { .coeff = { 0x100857, 0xe7e71c,
-0x0e9599, 0xe7e71c, 0x0e9df1 } } },
-+  { .channel = 1, .filter = 5, .data = { .coeff = { 0x0fb26e, 0x06a82c,
-0x0db2b4, 0x06a82c, 0x0d6522 } } },
-+  { .channel = 1, .filter = 6, .data = { .coeff = { 0x11419d, 0xf06cbf,
-0x0a4f6e, 0xf06cbf, 0x0b910c } } }
- };
-
- static struct tas_eq_pref_t eqp_1a_1_0 = {
--  sample_rate:  44100,
--  device_id:    0x1a,
--  output_id:    TAS_OUTPUT_INTERNAL_SPKR,
--  speaker_id:   0x00,
-+  .sample_rate   = 44100,
-+  .device_id     = 0x1a,
-+  .output_id     = TAS_OUTPUT_INTERNAL_SPKR,
-+  .speaker_id    = 0x00,
-
--  drce:         &eqp_1a_1_0_drce,
-+  .drce          = &eqp_1a_1_0_drce,
-
--  filter_count: 14,
--  biquads:      eqp_1a_1_0_biquads
-+  .filter_count  = 14,
-+  .biquads       = eqp_1a_1_0_biquads
- };
-
- /* ========================================================================
-*/
-
- static struct tas_drce_t eqp_1c_1_0_drce={
--  enable:    1,
--  above:     { val: 3.0 * (1<<8), expand: 0 },
--  below:     { val: 1.0 * (1<<8), expand: 0 },
--  threshold: -14.34  * (1<<8),
--  energy:    2.4     * (1<<12),
--  attack:    0.013   * (1<<12),
--  decay:     0.212   * (1<<12),
-+  .enable     = 1,
-+  .above      = { .val = 3.0 * (1<<8), .expand = 0 },
-+  .below      = { .val = 1.0 * (1<<8), .expand = 0 },
-+  .threshold  = -14.34  * (1<<8),
-+  .energy     = 2.4     * (1<<12),
-+  .attack     = 0.013   * (1<<12),
-+  .decay      = 0.212   * (1<<12),
- };
-
- static struct tas_biquad_ctrl_t eqp_1c_1_0_biquads[]={
--  { channel: 0, filter: 0, data: { coeff: { 0x0f4f95, 0xe160d4, 0x0f4f95,
-0xe1686e, 0x0ea6c5 } } },
--  { channel: 0, filter: 1, data: { coeff: { 0x066b92, 0x0290d4, 0x0148a0,
-0xf6853f, 0x03bfc7 } } },
--  { channel: 0, filter: 2, data: { coeff: { 0x0f57dc, 0xe51c91, 0x0dd1cb,
-0xe51c91, 0x0d29a8 } } },
--  { channel: 0, filter: 3, data: { coeff: { 0x0df1cb, 0xe4fa84, 0x0d7cdc,
-0xe4fa84, 0x0b6ea7 } } },
--  { channel: 0, filter: 4, data: { coeff: { 0x0eba36, 0xe6aa48, 0x0b9f52,
-0xe6aa48, 0x0a5989 } } },
--  { channel: 0, filter: 5, data: { coeff: { 0x0caf02, 0x05ef9d, 0x084beb,
-0x05ef9d, 0x04faee } } },
--  { channel: 0, filter: 6, data: { coeff: { 0x0fc686, 0xe22947, 0x0e4b5d,
-0xe22947, 0x0e11e4 } } },
--
--  { channel: 1, filter: 0, data: { coeff: { 0x0f4f95, 0xe160d4, 0x0f4f95,
-0xe1686e, 0x0ea6c5 } } },
--  { channel: 1, filter: 1, data: { coeff: { 0x066b92, 0x0290d4, 0x0148a0,
-0xf6853f, 0x03bfc7 } } },
--  { channel: 1, filter: 2, data: { coeff: { 0x0f57dc, 0xe51c91, 0x0dd1cb,
-0xe51c91, 0x0d29a8 } } },
--  { channel: 1, filter: 3, data: { coeff: { 0x0df1cb, 0xe4fa84, 0x0d7cdc,
-0xe4fa84, 0x0b6ea7 } } },
--  { channel: 1, filter: 4, data: { coeff: { 0x0eba36, 0xe6aa48, 0x0b9f52,
-0xe6aa48, 0x0a5989 } } },
--  { channel: 1, filter: 5, data: { coeff: { 0x0caf02, 0x05ef9d, 0x084beb,
-0x05ef9d, 0x04faee } } },
--  { channel: 1, filter: 6, data: { coeff: { 0x0fc686, 0xe22947, 0x0e4b5d,
-0xe22947, 0x0e11e4 } } }
-+  { .channel = 0, .filter = 0, .data = { .coeff = { 0x0f4f95, 0xe160d4,
-0x0f4f95, 0xe1686e, 0x0ea6c5 } } },
-+  { .channel = 0, .filter = 1, .data = { .coeff = { 0x066b92, 0x0290d4,
-0x0148a0, 0xf6853f, 0x03bfc7 } } },
-+  { .channel = 0, .filter = 2, .data = { .coeff = { 0x0f57dc, 0xe51c91,
-0x0dd1cb, 0xe51c91, 0x0d29a8 } } },
-+  { .channel = 0, .filter = 3, .data = { .coeff = { 0x0df1cb, 0xe4fa84,
-0x0d7cdc, 0xe4fa84, 0x0b6ea7 } } },
-+  { .channel = 0, .filter = 4, .data = { .coeff = { 0x0eba36, 0xe6aa48,
-0x0b9f52, 0xe6aa48, 0x0a5989 } } },
-+  { .channel = 0, .filter = 5, .data = { .coeff = { 0x0caf02, 0x05ef9d,
-0x084beb, 0x05ef9d, 0x04faee } } },
-+  { .channel = 0, .filter = 6, .data = { .coeff = { 0x0fc686, 0xe22947,
-0x0e4b5d, 0xe22947, 0x0e11e4 } } },
-+
-+  { .channel = 1, .filter = 0, .data = { .coeff = { 0x0f4f95, 0xe160d4,
-0x0f4f95, 0xe1686e, 0x0ea6c5 } } },
-+  { .channel = 1, .filter = 1, .data = { .coeff = { 0x066b92, 0x0290d4,
-0x0148a0, 0xf6853f, 0x03bfc7 } } },
-+  { .channel = 1, .filter = 2, .data = { .coeff = { 0x0f57dc, 0xe51c91,
-0x0dd1cb, 0xe51c91, 0x0d29a8 } } },
-+  { .channel = 1, .filter = 3, .data = { .coeff = { 0x0df1cb, 0xe4fa84,
-0x0d7cdc, 0xe4fa84, 0x0b6ea7 } } },
-+  { .channel = 1, .filter = 4, .data = { .coeff = { 0x0eba36, 0xe6aa48,
-0x0b9f52, 0xe6aa48, 0x0a5989 } } },
-+  { .channel = 1, .filter = 5, .data = { .coeff = { 0x0caf02, 0x05ef9d,
-0x084beb, 0x05ef9d, 0x04faee } } },
-+  { .channel = 1, .filter = 6, .data = { .coeff = { 0x0fc686, 0xe22947,
-0x0e4b5d, 0xe22947, 0x0e11e4 } } }
- };
-
- static struct tas_eq_pref_t eqp_1c_1_0 = {
--  sample_rate:  44100,
--  device_id:    0x1c,
--  output_id:    TAS_OUTPUT_INTERNAL_SPKR,
--  speaker_id:   0x00,
-+  .sample_rate   = 44100,
-+  .device_id     = 0x1c,
-+  .output_id     = TAS_OUTPUT_INTERNAL_SPKR,
-+  .speaker_id    = 0x00,
-
--  drce:         &eqp_1c_1_0_drce,
-+  .drce          = &eqp_1c_1_0_drce,
-
--  filter_count: 14,
--  biquads:      eqp_1c_1_0_biquads
-+  .filter_count  = 14,
-+  .biquads       = eqp_1c_1_0_biquads
- };
-
- /* ========================================================================
-*/
-@@ -286,10 +286,10 @@
- };
-
- struct tas_gain_t tas3004_gain={
--  master: tas3004_master_tab,
--  treble: tas3004_treble_tab,
--  bass:   tas3004_bass_tab,
--  mixer:  tas3004_mixer_tab
-+  .master  = tas3004_master_tab,
-+  .treble  = tas3004_treble_tab,
-+  .bass    = tas3004_bass_tab,
-+  .mixer   = tas3004_mixer_tab
- };
-
- struct tas_eq_pref_t *tas3004_eq_prefs[]={
---- linux/sound/oss/dmasound/tas3001c_tables.c~2003-12-19 23:05:53.489543592
++++ linux/drivers/char/hangcheck-timer.c2003-12-20 00:02:50.745041792 +0100
+@@ -26,7 +26,7 @@
+  * The hangcheck-timer driver uses the TSC to catch delays that
+  * jiffies does not notice.  A timer is set.  When the timer fires, it
+  * checks whether it was delayed and if that delay exceeds a given
+- * margin of error.  The hangcheck_tick module paramter takes the timer
++ * margin of error.  The hangcheck_tick module parameter takes the timer
+  * duration in seconds.  The hangcheck_margin parameter defines the
+  * margin of error, in seconds.  The defaults are 60 seconds for the
+  * timer and 180 seconds for the margin of error.  IOW, a timer is set
+diff -ru linux.orig/drivers/media/video/tea6420.c
+linux/drivers/media/video/tea6420.c
+--- linux.orig/drivers/media/video/tea6420.c2003-12-19 23:56:15.000000000
 +0100
-+++ linux/sound/oss/dmasound/tas3001c_tables.c2003-12-19 23:07:53.784256016
++++ linux/drivers/media/video/tea6420.c2003-12-20 00:01:57.968065112 +0100
+@@ -62,7 +62,7 @@
+
+ dprintk("tea6420.o: tea6420_switch: adr:0x%02x, i:%d, o:%d,
+g:%d\n",client->addr,i,o,g);
+
+-/* check if the paramters are valid */
++/* check if the parameters are valid */
+ if ( i < 1 || i > 6 || o < 1 || o > 4 || g < 0 || g > 6 || g%2 != 0 )
+ return -1;
+
+diff -ru linux.orig/drivers/net/appletalk/ltpc.c
+linux/drivers/net/appletalk/ltpc.c
+--- linux.orig/drivers/net/appletalk/ltpc.c2003-12-19 23:55:49.000000000
 +0100
-@@ -2,241 +2,241 @@
- #include "tas_eq_prefs.h"
++++ linux/drivers/net/appletalk/ltpc.c2003-12-20 00:03:54.000000000 +0100
+@@ -1244,7 +1244,7 @@
+ if (ints[0] > 2) {
+ dma = ints[3];
+ }
+-/* ignore any other paramters */
++/* ignore any other parameters */
+ }
+ return 1;
+ }
+diff -ru linux.orig/drivers/net/dl2k.c linux/drivers/net/dl2k.c
+--- linux.orig/drivers/net/dl2k.c2003-12-19 23:55:51.000000000 +0100
++++ linux/drivers/net/dl2k.c2003-12-20 00:03:40.000000000 +0100
+@@ -24,7 +24,7 @@
+     1.052001/11/22Fixed Tx stopped when unidirectional tx busy.
+     1.062001/12/13Fixed disconnect bug at 10Mbps mode.
+     Fixed tx_full flag incorrect.
+-Added tx_coalesce paramter.
++Added tx_coalesce parameter.
+     1.072002/01/03Fixed miscount of RX frame error.
+     1.082002/01/17Fixed the multicast bug.
+     1.092002/03/07Move rx-poll-now to re-fill loop.
+diff -ru linux.orig/drivers/net/e1000/e1000_param.c
+linux/drivers/net/e1000/e1000_param.c
+--- linux.orig/drivers/net/e1000/e1000_param.c2003-12-19 23:55:49.000000000
++0100
++++ linux/drivers/net/e1000/e1000_param.c2003-12-20 00:04:07.000000000 +0100
+@@ -299,7 +299,7 @@
+  * e1000_check_options - Range Checking for Command Line Parameters
+  * @adapter: board private structure
+  *
+- * This routine checks all command line paramters for valid user
++ * This routine checks all command line parameters for valid user
+  * input.  If an invalid value is given, or if no user specified
+  * value exists, a default value is used.  The final value is stored
+  * in a variable in the adapter structure.
+diff -ru linux.orig/drivers/net/ixgb/ixgb_param.c
+linux/drivers/net/ixgb/ixgb_param.c
+--- linux.orig/drivers/net/ixgb/ixgb_param.c2003-12-19 23:55:49.000000000
++0100
++++ linux/drivers/net/ixgb/ixgb_param.c2003-12-20 00:04:41.000000000 +0100
+@@ -286,7 +286,7 @@
+  * ixgb_check_options - Range Checking for Command Line Parameters
+  * @adapter: board private structure
+  *
+- * This routine checks all command line paramters for valid user
++ * This routine checks all command line parameters for valid user
+  * input.  If an invalid value is given, or if no user specified
+  * value exists, a default value is used.  The final value is stored
+  * in a variable in the adapter structure.
+diff -ru linux.orig/drivers/net/skfp/h/smt.h linux/drivers/net/skfp/h/smt.h
+--- linux.orig/drivers/net/skfp/h/smt.h2003-12-19 23:55:49.000000000 +0100
++++ linux/drivers/net/skfp/h/smt.h2003-12-20 00:04:29.000000000 +0100
+@@ -413,7 +413,7 @@
+ #define SMT_RDF_SUCCESS0x00000003/* success (PMF) */
+ #define SMT_RDF_BADSET0x00000004/* bad set count (PMF) */
+ #define SMT_RDF_ILLEGAL 0x00000005/* read only (PMF) */
+-#define SMT_RDF_NOPARAM0x6/* paramter not supported (PMF) */
++#define SMT_RDF_NOPARAM0x6/* parameter not supported (PMF) */
+ #define SMT_RDF_RANGE0x8/* out of range */
+ #define SMT_RDF_AUTHOR0x9/* not autohorized */
+ #define SMT_RDF_LENGTH0x0a/* length error */
+diff -ru linux.orig/drivers/net/tokenring/3c359.c
+linux/drivers/net/tokenring/3c359.c
+--- linux.orig/drivers/net/tokenring/3c359.c2003-12-19 23:55:51.000000000
++0100
++++ linux/drivers/net/tokenring/3c359.c2003-12-20 00:03:31.000000000 +0100
+@@ -76,7 +76,7 @@
+ MODULE_AUTHOR("Mike Phillips <mikep@linuxtr.net>") ;
+ MODULE_DESCRIPTION("3Com 3C359 Velocity XL Token Ring Adapter Driver \n") ;
 
- static struct tas_drce_t eqp_0e_2_1_drce = {
--  enable:    1,
--  above:     { val: 3.0 * (1<<8), expand: 0 },
--  below:     { val: 1.0 * (1<<8), expand: 0 },
--  threshold: -15.33  * (1<<8),
--  energy:    2.4     * (1<<12),
--  attack:    0.013   * (1<<12),
--  decay:     0.212   * (1<<12),
-+  .enable     = 1,
-+  .above      { .val = 3.0 * (1<<8), .expand = 0 },
-+  .below      { .val = 1.0 * (1<<8), .expand = 0 },
-+  .threshold  -15.33  * (1<<8),
-+  .energy     2.4     * (1<<12),
-+  .attack     0.013   * (1<<12),
-+  .decay      0.212   * (1<<12),
+-/* Module paramters */
++/* Module parameters */
+
+ /* Ring Speed 0,4,16
+  * 0 = Autosense
+diff -ru linux.orig/drivers/net/tokenring/lanstreamer.c
+linux/drivers/net/tokenring/lanstreamer.c
+--- linux.orig/drivers/net/tokenring/lanstreamer.c2003-12-19
+23:55:51.000000000 +0100
++++ linux/drivers/net/tokenring/lanstreamer.c2003-12-20 00:03:19.000000000
++0100
+@@ -163,7 +163,7 @@
+ "Monitor Contention failer for RPL", "FDX Protocol Error"
  };
 
- static struct tas_biquad_ctrl_t eqp_0e_2_1_biquads[]={
--  { channel: 0, filter: 0, data: { coeff: { 0x0FCAD3, 0xE06A58, 0x0FCAD3,
-0xE06B09, 0x0F9657 } } },
--  { channel: 0, filter: 1, data: { coeff: { 0x041731, 0x082E63, 0x041731,
-0xFD8D08, 0x02CFBD } } },
--  { channel: 0, filter: 2, data: { coeff: { 0x0FFDC7, 0xE0524C, 0x0FBFAA,
-0xE0524C, 0x0FBD72 } } },
--  { channel: 0, filter: 3, data: { coeff: { 0x0F3D35, 0xE228CA, 0x0EC7B2,
-0xE228CA, 0x0E04E8 } } },
--  { channel: 0, filter: 4, data: { coeff: { 0x0FCEBF, 0xE181C2, 0x0F2656,
-0xE181C2, 0x0EF516 } } },
--  { channel: 0, filter: 5, data: { coeff: { 0x0EC417, 0x073E22, 0x0B0633,
-0x073E22, 0x09CA4A } } },
--
--  { channel: 1, filter: 0, data: { coeff: { 0x0FCAD3, 0xE06A58, 0x0FCAD3,
-0xE06B09, 0x0F9657 } } },
--  { channel: 1, filter: 1, data: { coeff: { 0x041731, 0x082E63, 0x041731,
-0xFD8D08, 0x02CFBD } } },
--  { channel: 1, filter: 2, data: { coeff: { 0x0FFDC7, 0xE0524C, 0x0FBFAA,
-0xE0524C, 0x0FBD72 } } },
--  { channel: 1, filter: 3, data: { coeff: { 0x0F3D35, 0xE228CA, 0x0EC7B2,
-0xE228CA, 0x0E04E8 } } },
--  { channel: 1, filter: 4, data: { coeff: { 0x0FCEBF, 0xE181C2, 0x0F2656,
-0xE181C2, 0x0EF516 } } },
--  { channel: 1, filter: 5, data: { coeff: { 0x0EC417, 0x073E22, 0x0B0633,
-0x073E22, 0x09CA4A } } },
-+  { .channel = 0, .filter = 0, .data = { .coeff = { 0x0FCAD3, 0xE06A58,
-0x0FCAD3, 0xE06B09, 0x0F9657 } } },
-+  { .channel = 0, .filter = 1, .data = { .coeff = { 0x041731, 0x082E63,
-0x041731, 0xFD8D08, 0x02CFBD } } },
-+  { .channel = 0, .filter = 2, .data = { .coeff = { 0x0FFDC7, 0xE0524C,
-0x0FBFAA, 0xE0524C, 0x0FBD72 } } },
-+  { .channel = 0, .filter = 3, .data = { .coeff = { 0x0F3D35, 0xE228CA,
-0x0EC7B2, 0xE228CA, 0x0E04E8 } } },
-+  { .channel = 0, .filter = 4, .data = { .coeff = { 0x0FCEBF, 0xE181C2,
-0x0F2656, 0xE181C2, 0x0EF516 } } },
-+  { .channel = 0, .filter = 5, .data = { .coeff = { 0x0EC417, 0x073E22,
-0x0B0633, 0x073E22, 0x09CA4A } } },
-+
-+  { .channel = 1, .filter = 0, .data = { .coeff = { 0x0FCAD3, 0xE06A58,
-0x0FCAD3, 0xE06B09, 0x0F9657 } } },
-+  { .channel = 1, .filter = 1, .data = { .coeff = { 0x041731, 0x082E63,
-0x041731, 0xFD8D08, 0x02CFBD } } },
-+  { .channel = 1, .filter = 2, .data = { .coeff = { 0x0FFDC7, 0xE0524C,
-0x0FBFAA, 0xE0524C, 0x0FBD72 } } },
-+  { .channel = 1, .filter = 3, .data = { .coeff = { 0x0F3D35, 0xE228CA,
-0x0EC7B2, 0xE228CA, 0x0E04E8 } } },
-+  { .channel = 1, .filter = 4, .data = { .coeff = { 0x0FCEBF, 0xE181C2,
-0x0F2656, 0xE181C2, 0x0EF516 } } },
-+  { .channel = 1, .filter = 5, .data = { .coeff = { 0x0EC417, 0x073E22,
-0x0B0633, 0x073E22, 0x09CA4A } } },
- };
+-/* Module paramters */
++/* Module parameters */
 
- static struct tas_eq_pref_t eqp_0e_2_1 = {
--  sample_rate:  44100,
--  device_id:    0x0e,
--  output_id:    TAS_OUTPUT_EXTERNAL_SPKR,
--  speaker_id:   0x01,
-+  .sample_rate   = 44100,
-+  .device_id     = 0x0e,
-+  .output_id     = TAS_OUTPUT_EXTERNAL_SPKR,
-+  .speaker_id    = 0x01,
+ /* Ring Speed 0,4,16
+  * 0 = Autosense
+diff -ru linux.orig/drivers/net/tokenring/olympic.c
+linux/drivers/net/tokenring/olympic.c
+--- linux.orig/drivers/net/tokenring/olympic.c2003-12-19 23:55:51.000000000
++0100
++++ linux/drivers/net/tokenring/olympic.c2003-12-20 00:03:01.000000000 +0100
+@@ -131,7 +131,7 @@
+    "Reserved", "Reserved", "No Monitor Detected for RPL",
+    "Monitor Contention failer for RPL", "FDX Protocol Error"};
 
--  drce:         &eqp_0e_2_1_drce,
-+  .drce          = &eqp_0e_2_1_drce,
+-/* Module paramters */
++/* Module parameters */
 
--  filter_count: 12,
--  biquads:      eqp_0e_2_1_biquads
-+  .filter_count: 12,
-+  .biquads       = eqp_0e_2_1_biquads
- };
+ MODULE_AUTHOR("Mike Phillips <mikep@linuxtr.net>") ;
+ MODULE_DESCRIPTION("Olympic PCI/Cardbus Chipset Driver") ;
+diff -ru linux.orig/drivers/s390/net/iucv.h linux/drivers/s390/net/iucv.h
+--- linux.orig/drivers/s390/net/iucv.h2003-12-19 23:56:09.000000000 +0100
++++ linux/drivers/s390/net/iucv.h2003-12-20 00:02:32.000000000 +0100
+@@ -25,7 +25,7 @@
+  *             (-EINVAL) Invalid value
+  *             (-ENOMEM) storage allocation failed
+  *pgmask defined in iucv_register_program will be set depending on input
+- *paramters.
++ *parameters.
+  *
+  */
 
- /* ========================================================================
-*/
+diff -ru linux.orig/drivers/scsi/aic7xxx/aic79xx_pci.c
+linux/drivers/scsi/aic7xxx/aic79xx_pci.c
+--- linux.orig/drivers/scsi/aic7xxx/aic79xx_pci.c2003-12-19
+23:56:12.000000000 +0100
++++ linux/drivers/scsi/aic7xxx/aic79xx_pci.c2003-12-20 00:02:15.000000000
++0100
+@@ -958,7 +958,7 @@
+   |  AHD_FAINT_LED_BUG;
 
- static struct tas_drce_t eqp_10_1_0_drce={
--  enable:    1,
--  above:     { val: 3.0 * (1<<8), expand: 0 },
--  below:     { val: 1.0 * (1<<8), expand: 0 },
--  threshold: -12.46  * (1<<8),
--  energy:    2.4     * (1<<12),
--  attack:    0.013   * (1<<12),
--  decay:     0.212   * (1<<12),
-+  .enable     = 1,
-+  .above      = { .val = 3.0 * (1<<8), .expand = 0 },
-+  .below      = { .val = 1.0 * (1<<8), .expand = 0 },
-+  .threshold  = -12.46  * (1<<8),
-+  .energy     = 2.4     * (1<<12),
-+  .attack     = 0.013   * (1<<12),
-+  .decay      = 0.212   * (1<<12),
- };
+ /*
+- * IO Cell paramter setup.
++ * IO Cell parameter setup.
+  */
+ AHD_SET_PRECOMP(ahd, AHD_PRECOMP_CUTBACK_29);
 
- static struct tas_biquad_ctrl_t eqp_10_1_0_biquads[]={
--  { channel: 0, filter: 0, data: { coeff: { 0x0F4A12, 0xE16BDA, 0x0F4A12,
-0xE173F0, 0x0E9C3A } } },
--  { channel: 0, filter: 1, data: { coeff: { 0x02DD54, 0x05BAA8, 0x02DD54,
-0xF8001D, 0x037532 } } },
--  { channel: 0, filter: 2, data: { coeff: { 0x0E2FC7, 0xE4D5DC, 0x0D7477,
-0xE4D5DC, 0x0BA43F } } },
--  { channel: 0, filter: 3, data: { coeff: { 0x0E7899, 0xE67CCA, 0x0D0E93,
-0xE67CCA, 0x0B872D } } },
--  { channel: 0, filter: 4, data: { coeff: { 0x100000, 0x000000, 0x000000,
-0x000000, 0x000000 } } },
--  { channel: 0, filter: 5, data: { coeff: { 0x100000, 0x000000, 0x000000,
-0x000000, 0x000000 } } },
--
--  { channel: 1, filter: 0, data: { coeff: { 0x0F4A12, 0xE16BDA, 0x0F4A12,
-0xE173F0, 0x0E9C3A } } },
--  { channel: 1, filter: 1, data: { coeff: { 0x02DD54, 0x05BAA8, 0x02DD54,
-0xF8001D, 0x037532 } } },
--  { channel: 1, filter: 2, data: { coeff: { 0x0E2FC7, 0xE4D5DC, 0x0D7477,
-0xE4D5DC, 0x0BA43F } } },
--  { channel: 1, filter: 3, data: { coeff: { 0x0E7899, 0xE67CCA, 0x0D0E93,
-0xE67CCA, 0x0B872D } } },
--  { channel: 1, filter: 4, data: { coeff: { 0x100000, 0x000000, 0x000000,
-0x000000, 0x000000 } } },
--  { channel: 1, filter: 5, data: { coeff: { 0x100000, 0x000000, 0x000000,
-0x000000, 0x000000 } } },
-+  { .channel = 0, .filter = 0, .data = { .coeff = { 0x0F4A12, 0xE16BDA,
-0x0F4A12, 0xE173F0, 0x0E9C3A } } },
-+  { .channel = 0, .filter = 1, .data = { .coeff = { 0x02DD54, 0x05BAA8,
-0x02DD54, 0xF8001D, 0x037532 } } },
-+  { .channel = 0, .filter = 2, .data = { .coeff = { 0x0E2FC7, 0xE4D5DC,
-0x0D7477, 0xE4D5DC, 0x0BA43F } } },
-+  { .channel = 0, .filter = 3, .data = { .coeff = { 0x0E7899, 0xE67CCA,
-0x0D0E93, 0xE67CCA, 0x0B872D } } },
-+  { .channel = 0, .filter = 4, .data = { .coeff = { 0x100000, 0x000000,
-0x000000, 0x000000, 0x000000 } } },
-+  { .channel = 0, .filter = 5, .data = { .coeff = { 0x100000, 0x000000,
-0x000000, 0x000000, 0x000000 } } },
-+
-+  { .channel = 1, .filter = 0, .data = { .coeff = { 0x0F4A12, 0xE16BDA,
-0x0F4A12, 0xE173F0, 0x0E9C3A } } },
-+  { .channel = 1, .filter = 1, .data = { .coeff = { 0x02DD54, 0x05BAA8,
-0x02DD54, 0xF8001D, 0x037532 } } },
-+  { .channel = 1, .filter = 2, .data = { .coeff = { 0x0E2FC7, 0xE4D5DC,
-0x0D7477, 0xE4D5DC, 0x0BA43F } } },
-+  { .channel = 1, .filter = 3, .data = { .coeff = { 0x0E7899, 0xE67CCA,
-0x0D0E93, 0xE67CCA, 0x0B872D } } },
-+  { .channel = 1, .filter = 4, .data = { .coeff = { 0x100000, 0x000000,
-0x000000, 0x000000, 0x000000 } } },
-+  { .channel = 1, .filter = 5, .data = { .coeff = { 0x100000, 0x000000,
-0x000000, 0x000000, 0x000000 } } },
- };
+@@ -973,7 +973,7 @@
+   |  AHD_INTCOLLISION_BUG|AHD_EARLY_REQ_BUG;
 
- static struct tas_eq_pref_t eqp_10_1_0 = {
--  sample_rate:  44100,
--  device_id:    0x10,
--  output_id:    TAS_OUTPUT_INTERNAL_SPKR,
--  speaker_id:   0x00,
-+  .sample_rate   = 44100,
-+  .device_id     = 0x10,
-+  .output_id     = TAS_OUTPUT_INTERNAL_SPKR,
-+  .speaker_id    = 0x00,
+ /*
+- * IO Cell paramter setup.
++ * IO Cell parameter setup.
+  */
+ AHD_SET_PRECOMP(ahd, AHD_PRECOMP_CUTBACK_29);
+ AHD_SET_SLEWRATE(ahd, AHD_SLEWRATE_DEF_REVB);
+diff -ru linux.orig/fs/block_dev.c linux/fs/block_dev.c
+--- linux.orig/fs/block_dev.c2003-12-19 23:55:08.000000000 +0100
++++ linux/fs/block_dev.c2003-12-20 00:01:36.000000000 +0100
+@@ -846,7 +846,7 @@
+  *
+  * @path:special file representing the block device
+  * @flags:%MS_RDONLY for opening read-only
+- * @kind:usage (same as the 4th paramter to blkdev_get)
++ * @kind:usage (same as the 4th parameter to blkdev_get)
+  * @holder:owner for exclusion
+  *
+  * Open the blockdevice described by the special file at @path, claim it
+@@ -888,7 +888,7 @@
+  * close_bdev_excl  -  release a blockdevice openen by open_bdev_excl()
+  *
+  * @bdev:blockdevice to close
+- * @kind:usage (same as the 4th paramter to blkdev_get)
++ * @kind:usage (same as the 4th parameter to blkdev_get)
+  *
+  * This is the counterpart to open_bdev_excl().
+  */
+diff -ru linux.orig/include/asm-sh/bigsur/bigsur.h
+linux/include/asm-sh/bigsur/bigsur.h
+--- linux.orig/include/asm-sh/bigsur/bigsur.h2003-12-19 23:56:40.000000000
++0100
++++ linux/include/asm-sh/bigsur/bigsur.h2003-12-20 00:01:05.000000000 +0100
+@@ -66,7 +66,7 @@
+ /* SMC ethernet card parameters */
+ #define BIGSUR_ETHER_IOPORT0x220
 
--  drce:         &eqp_10_1_0_drce,
-+  .drce          = &eqp_10_1_0_drce,
+-/* IDE register paramters */
++/* IDE register parameters */
+ #define BIGSUR_IDECMD_IOPORT0x1f0
+ #define BIGSUR_IDECTL_IOPORT0x1f8
 
--  filter_count: 12,
--  biquads:      eqp_10_1_0_biquads
-+  .filter_count  = 12,
-+  .biquads       = eqp_10_1_0_biquads
- };
+diff -ru linux.orig/include/asm-sh/bigsur.h linux/include/asm-sh/bigsur.h
+--- linux.orig/include/asm-sh/bigsur.h2003-12-19 23:56:40.000000000 +0100
++++ linux/include/asm-sh/bigsur.h2003-12-20 00:00:46.000000000 +0100
+@@ -66,7 +66,7 @@
+ /* SMC ethernet card parameters */
+ #define BIGSUR_ETHER_IOPORT0x220
 
- /* ========================================================================
-*/
+-/* IDE register paramters */
++/* IDE register parameters */
+ #define BIGSUR_IDECMD_IOPORT0x1f0
+ #define BIGSUR_IDECTL_IOPORT0x1f8
 
- static struct tas_drce_t eqp_15_2_1_drce={
--  enable:    1,
--  above:     { val: 3.0 * (1<<8), expand: 0 },
--  below:     { val: 1.0 * (1<<8), expand: 0 },
--  threshold: -15.33  * (1<<8),
--  energy:    2.4     * (1<<12),
--  attack:    0.013   * (1<<12),
--  decay:     0.212   * (1<<12),
-+  .enable     = 1,
-+  .above      = { .val = 3.0 * (1<<8), .expand = 0 },
-+  .below      = { .val = 1.0 * (1<<8), .expand = 0 },
-+  .threshold  = -15.33  * (1<<8),
-+  .energy     = 2.4     * (1<<12),
-+  .attack     = 0.013   * (1<<12),
-+  .decay      = 0.212   * (1<<12),
- };
+diff -ru linux.orig/include/linux/ethtool.h linux/include/linux/ethtool.h
+--- linux.orig/include/linux/ethtool.h2003-12-19 23:56:39.000000000 +0100
++++ linux/include/linux/ethtool.h2003-12-20 00:01:15.000000000 +0100
+@@ -280,7 +280,7 @@
+  * get_ringparam: Report ring sizes
+  * set_ringparam: Set ring sizes
+  * get_pauseparam: Report pause parameters
+- * set_pauseparam: Set pause paramters
++ * set_pauseparam: Set pause parameters
+  * get_rx_csum: Report whether receive checksums are turned on or off
+  * set_rx_csum: Turn receive checksum on or off
+  * get_tx_csum: Report whether transmit checksums are turned on or off
+diff -ru linux.orig/include/net/ip6_tunnel.h linux/include/net/ip6_tunnel.h
+--- linux.orig/include/net/ip6_tunnel.h2003-12-19 23:56:31.000000000 +0100
++++ linux/include/net/ip6_tunnel.h2003-12-20 00:01:25.000000000 +0100
+@@ -23,7 +23,7 @@
+ struct net_device *dev;/* virtual device associated with tunnel */
+ struct net_device_stats stat;/* statistics for tunnel device */
+ int recursion;/* depth of hard_start_xmit recursion */
+-struct ip6_tnl_parm parms;/* tunnel configuration paramters */
++struct ip6_tnl_parm parms;/* tunnel configuration parameters */
+ struct flowi fl;/* flowi template for xmit */
+ struct dst_entry *dst_cache;    /* cached dst */
+ u32 dst_cookie;
+diff -ru linux.orig/sound/core/seq/seq_dummy.c
+linux/sound/core/seq/seq_dummy.c
+--- linux.orig/sound/core/seq/seq_dummy.c2003-12-19 23:55:43.000000000 +0100
++++ linux/sound/core/seq/seq_dummy.c2003-12-19 23:57:36.000000000 +0100
+@@ -45,7 +45,7 @@
+   snd-seq-client-62 as "off".  This will help modprobe.
 
- static struct tas_biquad_ctrl_t eqp_15_2_1_biquads[]={
--  { channel: 0, filter: 0, data: { coeff: { 0x0FE143, 0xE05204, 0x0FCCC5,
-0xE05266, 0x0FAE6B } } },
--  { channel: 0, filter: 1, data: { coeff: { 0x102383, 0xE03A03, 0x0FA325,
-0xE03A03, 0x0FC6A8 } } },
--  { channel: 0, filter: 2, data: { coeff: { 0x0FF2AB, 0xE06285, 0x0FB20A,
-0xE06285, 0x0FA4B5 } } },
--  { channel: 0, filter: 3, data: { coeff: { 0x0F544D, 0xE35971, 0x0D8F3A,
-0xE35971, 0x0CE388 } } },
--  { channel: 0, filter: 4, data: { coeff: { 0x13E1D3, 0xF3ECB5, 0x042227,
-0xF3ECB5, 0x0803FA } } },
--  { channel: 0, filter: 5, data: { coeff: { 0x0AC119, 0x034181, 0x078AB1,
-0x034181, 0x024BCA } } },
--
--  { channel: 1, filter: 0, data: { coeff: { 0x0FE143, 0xE05204, 0x0FCCC5,
-0xE05266, 0x0FAE6B } } },
--  { channel: 1, filter: 1, data: { coeff: { 0x102383, 0xE03A03, 0x0FA325,
-0xE03A03, 0x0FC6A8 } } },
--  { channel: 1, filter: 2, data: { coeff: { 0x0FF2AB, 0xE06285, 0x0FB20A,
-0xE06285, 0x0FA4B5 } } },
--  { channel: 1, filter: 3, data: { coeff: { 0x0F544D, 0xE35971, 0x0D8F3A,
-0xE35971, 0x0CE388 } } },
--  { channel: 1, filter: 4, data: { coeff: { 0x13E1D3, 0xF3ECB5, 0x042227,
-0xF3ECB5, 0x0803FA } } },
--  { channel: 1, filter: 5, data: { coeff: { 0x0AC119, 0x034181, 0x078AB1,
-0x034181, 0x024BCA } } },
-+  { .channel = 0, .filter = 0, .data = { .coeff = { 0x0FE143, 0xE05204,
-0x0FCCC5, 0xE05266, 0x0FAE6B } } },
-+  { .channel = 0, .filter = 1, .data = { .coeff = { 0x102383, 0xE03A03,
-0x0FA325, 0xE03A03, 0x0FC6A8 } } },
-+  { .channel = 0, .filter = 2, .data = { .coeff = { 0x0FF2AB, 0xE06285,
-0x0FB20A, 0xE06285, 0x0FA4B5 } } },
-+  { .channel = 0, .filter = 3, .data = { .coeff = { 0x0F544D, 0xE35971,
-0x0D8F3A, 0xE35971, 0x0CE388 } } },
-+  { .channel = 0, .filter = 4, .data = { .coeff = { 0x13E1D3, 0xF3ECB5,
-0x042227, 0xF3ECB5, 0x0803FA } } },
-+  { .channel = 0, .filter = 5, .data = { .coeff = { 0x0AC119, 0x034181,
-0x078AB1, 0x034181, 0x024BCA } } },
-+
-+  { .channel = 1, .filter = 0, .data = { .coeff = { 0x0FE143, 0xE05204,
-0x0FCCC5, 0xE05266, 0x0FAE6B } } },
-+  { .channel = 1, .filter = 1, .data = { .coeff = { 0x102383, 0xE03A03,
-0x0FA325, 0xE03A03, 0x0FC6A8 } } },
-+  { .channel = 1, .filter = 2, .data = { .coeff = { 0x0FF2AB, 0xE06285,
-0x0FB20A, 0xE06285, 0x0FA4B5 } } },
-+  { .channel = 1, .filter = 3, .data = { .coeff = { 0x0F544D, 0xE35971,
-0x0D8F3A, 0xE35971, 0x0CE388 } } },
-+  { .channel = 1, .filter = 4, .data = { .coeff = { 0x13E1D3, 0xF3ECB5,
-0x042227, 0xF3ECB5, 0x0803FA } } },
-+  { .channel = 1, .filter = 5, .data = { .coeff = { 0x0AC119, 0x034181,
-0x078AB1, 0x034181, 0x024BCA } } },
- };
+   The number of ports to be created can be specified via the module
+-  paramter "ports".  For example, to create four ports, add the
++  parameter "ports".  For example, to create four ports, add the
+   following option in /etc/modules.conf:
 
- static struct tas_eq_pref_t eqp_15_2_1 = {
--  sample_rate:  44100,
--  device_id:    0x15,
--  output_id:    TAS_OUTPUT_EXTERNAL_SPKR,
--  speaker_id:   0x01,
-+  .sample_rate   = 44100,
-+  .device_id     = 0x15,
-+  .output_id     = TAS_OUTPUT_EXTERNAL_SPKR,
-+  .speaker_id    = 0x01,
-
--  drce:         &eqp_15_2_1_drce,
-+  .drce          = &eqp_15_2_1_drce,
-
--  filter_count: 12,
--  biquads:      eqp_15_2_1_biquads
-+  .filter_count  = 12,
-+  .biquads       = eqp_15_2_1_biquads
- };
-
- /* ========================================================================
-*/
-
- static struct tas_drce_t eqp_15_1_0_drce={
--  enable:    1,
--  above:     { val: 3.0 * (1<<8), expand: 0 },
--  below:     { val: 1.0 * (1<<8), expand: 0 },
--  threshold: 0.0     * (1<<8),
--  energy:    2.4     * (1<<12),
--  attack:    0.013   * (1<<12),
--  decay:     0.212   * (1<<12),
-+  .enable     = 1,
-+  .above      = { .val = 3.0 * (1<<8), .expand = 0 },
-+  .below      = { .val = 1.0 * (1<<8), .expand = 0 },
-+  .threshold  = 0.0     * (1<<8),
-+  .energy     = 2.4     * (1<<12),
-+  .attack     = 0.013   * (1<<12),
-+  .decay      = 0.212   * (1<<12),
- };
-
- static struct tas_biquad_ctrl_t eqp_15_1_0_biquads[]={
--  { channel: 0, filter: 0, data: { coeff: { 0x0FAD08, 0xE0A5EF, 0x0FAD08,
-0xE0A79D, 0x0F5BBE } } },
--  { channel: 0, filter: 1, data: { coeff: { 0x04B38D, 0x09671B, 0x04B38D,
-0x000F71, 0x02BEC5 } } },
--  { channel: 0, filter: 2, data: { coeff: { 0x0FDD32, 0xE0A56F, 0x0F8A69,
-0xE0A56F, 0x0F679C } } },
--  { channel: 0, filter: 3, data: { coeff: { 0x0FD284, 0xE135FB, 0x0F2161,
-0xE135FB, 0x0EF3E5 } } },
--  { channel: 0, filter: 4, data: { coeff: { 0x0E81B1, 0xE6283F, 0x0CE49D,
-0xE6283F, 0x0B664F } } },
--  { channel: 0, filter: 5, data: { coeff: { 0x0F2D62, 0xE98797, 0x0D1E19,
-0xE98797, 0x0C4B7B } } },
--
--  { channel: 1, filter: 0, data: { coeff: { 0x0FAD08, 0xE0A5EF, 0x0FAD08,
-0xE0A79D, 0x0F5BBE } } },
--  { channel: 1, filter: 1, data: { coeff: { 0x04B38D, 0x09671B, 0x04B38D,
-0x000F71, 0x02BEC5 } } },
--  { channel: 1, filter: 2, data: { coeff: { 0x0FDD32, 0xE0A56F, 0x0F8A69,
-0xE0A56F, 0x0F679C } } },
--  { channel: 1, filter: 3, data: { coeff: { 0x0FD284, 0xE135FB, 0x0F2161,
-0xE135FB, 0x0EF3E5 } } },
--  { channel: 1, filter: 4, data: { coeff: { 0x0E81B1, 0xE6283F, 0x0CE49D,
-0xE6283F, 0x0B664F } } },
--  { channel: 1, filter: 5, data: { coeff: { 0x0F2D62, 0xE98797, 0x0D1E19,
-0xE98797, 0x0C4B7B } } },
-+  { .channel = 0, .filter = 0, .data = { .coeff = { 0x0FAD08, 0xE0A5EF,
-0x0FAD08, 0xE0A79D, 0x0F5BBE } } },
-+  { .channel = 0, .filter = 1, .data = { .coeff = { 0x04B38D, 0x09671B,
-0x04B38D, 0x000F71, 0x02BEC5 } } },
-+  { .channel = 0, .filter = 2, .data = { .coeff = { 0x0FDD32, 0xE0A56F,
-0x0F8A69, 0xE0A56F, 0x0F679C } } },
-+  { .channel = 0, .filter = 3, .data = { .coeff = { 0x0FD284, 0xE135FB,
-0x0F2161, 0xE135FB, 0x0EF3E5 } } },
-+  { .channel = 0, .filter = 4, .data = { .coeff = { 0x0E81B1, 0xE6283F,
-0x0CE49D, 0xE6283F, 0x0B664F } } },
-+  { .channel = 0, .filter = 5, .data = { .coeff = { 0x0F2D62, 0xE98797,
-0x0D1E19, 0xE98797, 0x0C4B7B } } },
-+
-+  { .channel = 1, .filter = 0, .data = { .coeff = { 0x0FAD08, 0xE0A5EF,
-0x0FAD08, 0xE0A79D, 0x0F5BBE } } },
-+  { .channel = 1, .filter = 1, .data = { .coeff = { 0x04B38D, 0x09671B,
-0x04B38D, 0x000F71, 0x02BEC5 } } },
-+  { .channel = 1, .filter = 2, .data = { .coeff = { 0x0FDD32, 0xE0A56F,
-0x0F8A69, 0xE0A56F, 0x0F679C } } },
-+  { .channel = 1, .filter = 3, .data = { .coeff = { 0x0FD284, 0xE135FB,
-0x0F2161, 0xE135FB, 0x0EF3E5 } } },
-+  { .channel = 1, .filter = 4, .data = { .coeff = { 0x0E81B1, 0xE6283F,
-0x0CE49D, 0xE6283F, 0x0B664F } } },
-+  { .channel = 1, .filter = 5, .data = { .coeff = { 0x0F2D62, 0xE98797,
-0x0D1E19, 0xE98797, 0x0C4B7B } } },
- };
-
- static struct tas_eq_pref_t eqp_15_1_0 = {
--  sample_rate:  44100,
--  device_id:    0x15,
--  output_id:    TAS_OUTPUT_INTERNAL_SPKR,
--  speaker_id:   0x00,
-+  .sample_rate   = 44100,
-+  .device_id     = 0x15,
-+  .output_id     = TAS_OUTPUT_INTERNAL_SPKR,
-+  .speaker_id    = 0x00,
-
--  drce:         &eqp_15_1_0_drce,
-+  .drce          = &eqp_15_1_0_drce,
-
--  filter_count: 12,
--  biquads:      eqp_15_1_0_biquads
-+  .filter_count  = 12,
-+  .biquads       = eqp_15_1_0_biquads
- };
-
- /* ========================================================================
-*/
-
- static struct tas_drce_t eqp_0f_2_1_drce={
--  enable:    1,
--  above:     { val: 3.0 * (1<<8), expand: 0 },
--  below:     { val: 1.0 * (1<<8), expand: 0 },
--  threshold: -15.33  * (1<<8),
--  energy:    2.4     * (1<<12),
--  attack:    0.013   * (1<<12),
--  decay:     0.212   * (1<<12),
-+  .enable     = 1,
-+  .above      = { .val = 3.0 * (1<<8), .expand = 0 },
-+  .below      = { .val = 1.0 * (1<<8), .expand = 0 },
-+  .threshold  = -15.33  * (1<<8),
-+  .energy     = 2.4     * (1<<12),
-+  .attack     = 0.013   * (1<<12),
-+  .decay      = 0.212   * (1<<12),
- };
-
- static struct tas_biquad_ctrl_t eqp_0f_2_1_biquads[]={
--  { channel: 0, filter: 0, data: { coeff: { 0x0FE143, 0xE05204, 0x0FCCC5,
-0xE05266, 0x0FAE6B } } },
--  { channel: 0, filter: 1, data: { coeff: { 0x102383, 0xE03A03, 0x0FA325,
-0xE03A03, 0x0FC6A8 } } },
--  { channel: 0, filter: 2, data: { coeff: { 0x0FF2AB, 0xE06285, 0x0FB20A,
-0xE06285, 0x0FA4B5 } } },
--  { channel: 0, filter: 3, data: { coeff: { 0x0F544D, 0xE35971, 0x0D8F3A,
-0xE35971, 0x0CE388 } } },
--  { channel: 0, filter: 4, data: { coeff: { 0x13E1D3, 0xF3ECB5, 0x042227,
-0xF3ECB5, 0x0803FA } } },
--  { channel: 0, filter: 5, data: { coeff: { 0x0AC119, 0x034181, 0x078AB1,
-0x034181, 0x024BCA } } },
--
--  { channel: 1, filter: 0, data: { coeff: { 0x0FE143, 0xE05204, 0x0FCCC5,
-0xE05266, 0x0FAE6B } } },
--  { channel: 1, filter: 1, data: { coeff: { 0x102383, 0xE03A03, 0x0FA325,
-0xE03A03, 0x0FC6A8 } } },
--  { channel: 1, filter: 2, data: { coeff: { 0x0FF2AB, 0xE06285, 0x0FB20A,
-0xE06285, 0x0FA4B5 } } },
--  { channel: 1, filter: 3, data: { coeff: { 0x0F544D, 0xE35971, 0x0D8F3A,
-0xE35971, 0x0CE388 } } },
--  { channel: 1, filter: 4, data: { coeff: { 0x13E1D3, 0xF3ECB5, 0x042227,
-0xF3ECB5, 0x0803FA } } },
--  { channel: 1, filter: 5, data: { coeff: { 0x0AC119, 0x034181, 0x078AB1,
-0x034181, 0x024BCA } } },
-+  { .channel = 0, .filter = 0, .data = { .coeff = { 0x0FE143, 0xE05204,
-0x0FCCC5, 0xE05266, 0x0FAE6B } } },
-+  { .channel = 0, .filter = 1, .data = { .coeff = { 0x102383, 0xE03A03,
-0x0FA325, 0xE03A03, 0x0FC6A8 } } },
-+  { .channel = 0, .filter = 2, .data = { .coeff = { 0x0FF2AB, 0xE06285,
-0x0FB20A, 0xE06285, 0x0FA4B5 } } },
-+  { .channel = 0, .filter = 3, .data = { .coeff = { 0x0F544D, 0xE35971,
-0x0D8F3A, 0xE35971, 0x0CE388 } } },
-+  { .channel = 0, .filter = 4, .data = { .coeff = { 0x13E1D3, 0xF3ECB5,
-0x042227, 0xF3ECB5, 0x0803FA } } },
-+  { .channel = 0, .filter = 5, .data = { .coeff = { 0x0AC119, 0x034181,
-0x078AB1, 0x034181, 0x024BCA } } },
-+
-+  { .channel = 1, .filter = 0, .data = { .coeff = { 0x0FE143, 0xE05204,
-0x0FCCC5, 0xE05266, 0x0FAE6B } } },
-+  { .channel = 1, .filter = 1, .data = { .coeff = { 0x102383, 0xE03A03,
-0x0FA325, 0xE03A03, 0x0FC6A8 } } },
-+  { .channel = 1, .filter = 2, .data = { .coeff = { 0x0FF2AB, 0xE06285,
-0x0FB20A, 0xE06285, 0x0FA4B5 } } },
-+  { .channel = 1, .filter = 3, .data = { .coeff = { 0x0F544D, 0xE35971,
-0x0D8F3A, 0xE35971, 0x0CE388 } } },
-+  { .channel = 1, .filter = 4, .data = { .coeff = { 0x13E1D3, 0xF3ECB5,
-0x042227, 0xF3ECB5, 0x0803FA } } },
-+  { .channel = 1, .filter = 5, .data = { .coeff = { 0x0AC119, 0x034181,
-0x078AB1, 0x034181, 0x024BCA } } },
- };
-
- static struct tas_eq_pref_t eqp_0f_2_1 = {
--  sample_rate:  44100,
--  device_id:    0x0f,
--  output_id:    TAS_OUTPUT_EXTERNAL_SPKR,
--  speaker_id:   0x01,
-+  .sample_rate   = 44100,
-+  .device_id     = 0x0f,
-+  .output_id     = TAS_OUTPUT_EXTERNAL_SPKR,
-+  .speaker_id    = 0x01,
-
--  drce:         &eqp_0f_2_1_drce,
-+  .drce          = &eqp_0f_2_1_drce,
-
--  filter_count: 12,
--  biquads:      eqp_0f_2_1_biquads
-+  .filter_count  = 12,
-+  .biquads       = eqp_0f_2_1_biquads
- };
-
- /* ========================================================================
-*/
-
- static struct tas_drce_t eqp_0f_1_0_drce={
--  enable:    1,
--  above:     { val: 3.0 * (1<<8), expand: 0 },
--  below:     { val: 1.0 * (1<<8), expand: 0 },
--  threshold: -15.33  * (1<<8),
--  energy:    2.4     * (1<<12),
--  attack:    0.013   * (1<<12),
--  decay:     0.212   * (1<<12),
-+  .enable     = 1,
-+  .above      = { .val = 3.0 * (1<<8), .expand = 0 },
-+  .below      = { .val = 1.0 * (1<<8), .expand = 0 },
-+  .threshold  = -15.33  * (1<<8),
-+  .energy     = 2.4     * (1<<12),
-+  .attack     = 0.013   * (1<<12),
-+  .decay      = 0.212   * (1<<12),
- };
-
- static struct tas_biquad_ctrl_t eqp_0f_1_0_biquads[]={
--  { channel: 0, filter: 0, data: { coeff: { 0x0FCAD3, 0xE06A58, 0x0FCAD3,
-0xE06B09, 0x0F9657 } } },
--  { channel: 0, filter: 1, data: { coeff: { 0x041731, 0x082E63, 0x041731,
-0xFD8D08, 0x02CFBD } } },
--  { channel: 0, filter: 2, data: { coeff: { 0x0FFDC7, 0xE0524C, 0x0FBFAA,
-0xE0524C, 0x0FBD72 } } },
--  { channel: 0, filter: 3, data: { coeff: { 0x0F3D35, 0xE228CA, 0x0EC7B2,
-0xE228CA, 0x0E04E8 } } },
--  { channel: 0, filter: 4, data: { coeff: { 0x0FCEBF, 0xE181C2, 0x0F2656,
-0xE181C2, 0x0EF516 } } },
--  { channel: 0, filter: 5, data: { coeff: { 0x0EC417, 0x073E22, 0x0B0633,
-0x073E22, 0x09CA4A } } },
--
--  { channel: 1, filter: 0, data: { coeff: { 0x0FCAD3, 0xE06A58, 0x0FCAD3,
-0xE06B09, 0x0F9657 } } },
--  { channel: 1, filter: 1, data: { coeff: { 0x041731, 0x082E63, 0x041731,
-0xFD8D08, 0x02CFBD } } },
--  { channel: 1, filter: 2, data: { coeff: { 0x0FFDC7, 0xE0524C, 0x0FBFAA,
-0xE0524C, 0x0FBD72 } } },
--  { channel: 1, filter: 3, data: { coeff: { 0x0F3D35, 0xE228CA, 0x0EC7B2,
-0xE228CA, 0x0E04E8 } } },
--  { channel: 1, filter: 4, data: { coeff: { 0x0FCEBF, 0xE181C2, 0x0F2656,
-0xE181C2, 0x0EF516 } } },
--  { channel: 1, filter: 5, data: { coeff: { 0x0EC417, 0x073E22, 0x0B0633,
-0x073E22, 0x09CA4A } } },
-+  { .channel = 0, .filter = 0, .data = { .coeff = { 0x0FCAD3, 0xE06A58,
-0x0FCAD3, 0xE06B09, 0x0F9657 } } },
-+  { .channel = 0, .filter = 1, .data = { .coeff = { 0x041731, 0x082E63,
-0x041731, 0xFD8D08, 0x02CFBD } } },
-+  { .channel = 0, .filter = 2, .data = { .coeff = { 0x0FFDC7, 0xE0524C,
-0x0FBFAA, 0xE0524C, 0x0FBD72 } } },
-+  { .channel = 0, .filter = 3, .data = { .coeff = { 0x0F3D35, 0xE228CA,
-0x0EC7B2, 0xE228CA, 0x0E04E8 } } },
-+  { .channel = 0, .filter = 4, .data = { .coeff = { 0x0FCEBF, 0xE181C2,
-0x0F2656, 0xE181C2, 0x0EF516 } } },
-+  { .channel = 0, .filter = 5, .data = { .coeff = { 0x0EC417, 0x073E22,
-0x0B0633, 0x073E22, 0x09CA4A } } },
-+
-+  { .channel = 1, .filter = 0, .data = { .coeff = { 0x0FCAD3, 0xE06A58,
-0x0FCAD3, 0xE06B09, 0x0F9657 } } },
-+  { .channel = 1, .filter = 1, .data = { .coeff = { 0x041731, 0x082E63,
-0x041731, 0xFD8D08, 0x02CFBD } } },
-+  { .channel = 1, .filter = 2, .data = { .coeff = { 0x0FFDC7, 0xE0524C,
-0x0FBFAA, 0xE0524C, 0x0FBD72 } } },
-+  { .channel = 1, .filter = 3, .data = { .coeff = { 0x0F3D35, 0xE228CA,
-0x0EC7B2, 0xE228CA, 0x0E04E8 } } },
-+  { .channel = 1, .filter = 4, .data = { .coeff = { 0x0FCEBF, 0xE181C2,
-0x0F2656, 0xE181C2, 0x0EF516 } } },
-+  { .channel = 1, .filter = 5, .data = { .coeff = { 0x0EC417, 0x073E22,
-0x0B0633, 0x073E22, 0x09CA4A } } },
- };
-
- static struct tas_eq_pref_t eqp_0f_1_0 = {
--  sample_rate:  44100,
--  device_id:    0x0f,
--  output_id:    TAS_OUTPUT_INTERNAL_SPKR,
--  speaker_id:   0x00,
-+  .sample_rate   = 44100,
-+  .device_id     = 0x0f,
-+  .output_id     = TAS_OUTPUT_INTERNAL_SPKR,
-+  .speaker_id    = 0x00,
-
--  drce:         &eqp_0f_1_0_drce,
-+  .drce          = &eqp_0f_1_0_drce,
-
--  filter_count: 12,
--  biquads:      eqp_0f_1_0_biquads
-+  .filter_count  = 12,
-+  .biquads       = eqp_0f_1_0_biquads
- };
-
- /* ========================================================================
-*/
-@@ -358,10 +358,10 @@
- };
-
- struct tas_gain_t tas3001c_gain = {
--  master: tas3001c_master_tab,
--  treble: tas3001c_treble_tab,
--  bass:   tas3001c_bass_tab,
--  mixer:  tas3001c_mixer_tab
-+  .master  = tas3001c_master_tab,
-+  .treble  = tas3001c_treble_tab,
-+  .bass    = tas3001c_bass_tab,
-+  .mixer   = tas3001c_mixer_tab
- };
-
- struct tas_eq_pref_t *tas3001c_eq_prefs[]={
---- linux/sound/oss/dmasound/tas3001c.c~2003-12-19 23:10:14.321891048 +0100
-+++ linux/sound/oss/dmasound/tas3001c.c2003-12-19 23:10:14.321891048 +0100
-@@ -55,7 +55,7 @@
-
- static const union tas_biquad_t
- tas3001c_eq_unity={
--buf: { 0x100000, 0x000000, 0x000000, 0x000000, 0x000000 }
-+.buf = { 0x100000, 0x000000, 0x000000, 0x000000, 0x000000 }
- };
-
-
---- linux/sound/oss/sb_card.h~2003-12-19 23:18:15.664715816 +0100
-+++ linux/sound/oss/sb_card.h2003-12-19 23:18:15.664715816 +0100
-@@ -25,119 +25,119 @@
- /* Card PnP ID Table */
- static struct pnp_card_device_id sb_pnp_card_table[] = {
- /* Sound Blaster 16 */
--{.id = "CTL0024", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL0024", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster 16 */
--{.id = "CTL0025", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL0025", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster 16 */
--{.id = "CTL0026", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL0026", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster 16 */
--{.id = "CTL0027", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL0027", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster 16 */
--{.id = "CTL0028", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL0028", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster 16 */
--{.id = "CTL0029", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL0029", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster 16 */
--{.id = "CTL002a", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL002a", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster 16 */
--{.id = "CTL002b", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL002b", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster 16 */
--{.id = "CTL002c", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL002c", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster 16 */
--{.id = "CTL00ed", .driver_data = 0, devs : { {.id="CTL0041"}, } },
-+{.id = "CTL00ed", .driver_data = 0, .devs = { {.id="CTL0041"}, } },
- /* Sound Blaster 16 */
--{.id = "CTL0086", .driver_data = 0, devs : { {.id="CTL0041"}, } },
-+{.id = "CTL0086", .driver_data = 0, .devs = { {.id="CTL0041"}, } },
- /* Sound Blaster Vibra16S */
--{.id = "CTL0051", .driver_data = 0, devs : { {.id="CTL0001"}, } },
-+{.id = "CTL0051", .driver_data = 0, .devs = { {.id="CTL0001"}, } },
- /* Sound Blaster Vibra16C */
--{.id = "CTL0070", .driver_data = 0, devs : { {.id="CTL0001"}, } },
-+{.id = "CTL0070", .driver_data = 0, .devs = { {.id="CTL0001"}, } },
- /* Sound Blaster Vibra16CL */
--{.id = "CTL0080", .driver_data = 0, devs : { {.id="CTL0041"}, } },
-+{.id = "CTL0080", .driver_data = 0, .devs = { {.id="CTL0041"}, } },
- /* Sound Blaster Vibra16CL */
--{.id = "CTL00F0", .driver_data = 0, devs : { {.id="CTL0043"}, } },
-+{.id = "CTL00F0", .driver_data = 0, .devs = { {.id="CTL0043"}, } },
- /* Sound Blaster AWE 32 */
--{.id = "CTL0039", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL0039", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster AWE 32 */
--{.id = "CTL0042", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL0042", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster AWE 32 */
--{.id = "CTL0043", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL0043", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster AWE 32 */
--{.id = "CTL0044", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL0044", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster AWE 32 */
--{.id = "CTL0045", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL0045", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster AWE 32 */
--{.id = "CTL0046", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL0046", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster AWE 32 */
--{.id = "CTL0047", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL0047", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster AWE 32 */
--{.id = "CTL0048", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL0048", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster AWE 32 */
--{.id = "CTL0054", .driver_data = 0, devs : { {.id="CTL0031"}, } },
-+{.id = "CTL0054", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
- /* Sound Blaster AWE 32 */
--{.id = "CTL009C", .driver_data = 0, devs : { {.id="CTL0041"}, } },
-+{.id = "CTL009C", .driver_data = 0, .devs = { {.id="CTL0041"}, } },
- /* Createive SB32 PnP */
--{.id = "CTL009F", .driver_data = 0, devs : { {.id="CTL0041"}, } },
-+{.id = "CTL009F", .driver_data = 0, .devs = { {.id="CTL0041"}, } },
- /* Sound Blaster AWE 64 */
--{.id = "CTL009D", .driver_data = 0, devs : { {.id="CTL0042"}, } },
-+{.id = "CTL009D", .driver_data = 0, .devs = { {.id="CTL0042"}, } },
- /* Sound Blaster AWE 64 Gold */
--{.id = "CTL009E", .driver_data = 0, devs : { {.id="CTL0044"}, } },
-+{.id = "CTL009E", .driver_data = 0, .devs = { {.id="CTL0044"}, } },
- /* Sound Blaster AWE 64 Gold */
--{.id = "CTL00B2", .driver_data = 0, devs : { {.id="CTL0044"}, } },
-+{.id = "CTL00B2", .driver_data = 0, .devs = { {.id="CTL0044"}, } },
- /* Sound Blaster AWE 64 */
--{.id = "CTL00C1", .driver_data = 0, devs : { {.id="CTL0042"}, } },
-+{.id = "CTL00C1", .driver_data = 0, .devs = { {.id="CTL0042"}, } },
- /* Sound Blaster AWE 64 */
--{.id = "CTL00C3", .driver_data = 0, devs : { {.id="CTL0045"}, } },
-+{.id = "CTL00C3", .driver_data = 0, .devs = { {.id="CTL0045"}, } },
- /* Sound Blaster AWE 64 */
--{.id = "CTL00C5", .driver_data = 0, devs : { {.id="CTL0045"}, } },
-+{.id = "CTL00C5", .driver_data = 0, .devs = { {.id="CTL0045"}, } },
- /* Sound Blaster AWE 64 */
--{.id = "CTL00C7", .driver_data = 0, devs : { {.id="CTL0045"}, } },
-+{.id = "CTL00C7", .driver_data = 0, .devs = { {.id="CTL0045"}, } },
- /* Sound Blaster AWE 64 */
--{.id = "CTL00E4", .driver_data = 0, devs : { {.id="CTL0045"}, } },
-+{.id = "CTL00E4", .driver_data = 0, .devs = { {.id="CTL0045"}, } },
- /* Sound Blaster AWE 64 */
--{.id = "CTL00E9", .driver_data = 0, devs : { {.id="CTL0045"}, } },
-+{.id = "CTL00E9", .driver_data = 0, .devs = { {.id="CTL0045"}, } },
- /* ESS 1868 */
--{.id = "ESS0968", .driver_data = 0, devs : { {.id="ESS0968"}, } },
-+{.id = "ESS0968", .driver_data = 0, .devs = { {.id="ESS0968"}, } },
- /* ESS 1868 */
--{.id = "ESS1868", .driver_data = 0, devs : { {.id="ESS1868"}, } },
-+{.id = "ESS1868", .driver_data = 0, .devs = { {.id="ESS1868"}, } },
- /* ESS 1868 */
--{.id = "ESS1868", .driver_data = 0, devs : { {.id="ESS8611"}, } },
-+{.id = "ESS1868", .driver_data = 0, .devs = { {.id="ESS8611"}, } },
- /* ESS 1869 PnP AudioDrive */
--{.id = "ESS0003", .driver_data = 0, devs : { {.id="ESS1869"}, } },
-+{.id = "ESS0003", .driver_data = 0, .devs = { {.id="ESS1869"}, } },
- /* ESS 1869 */
--{.id = "ESS1869", .driver_data = 0, devs : { {.id="ESS1869"}, } },
-+{.id = "ESS1869", .driver_data = 0, .devs = { {.id="ESS1869"}, } },
- /* ESS 1878 */
--{.id = "ESS1878", .driver_data = 0, devs : { {.id="ESS1878"}, } },
-+{.id = "ESS1878", .driver_data = 0, .devs = { {.id="ESS1878"}, } },
- /* ESS 1879 */
--{.id = "ESS1879", .driver_data = 0, devs : { {.id="ESS1879"}, } },
-+{.id = "ESS1879", .driver_data = 0, .devs = { {.id="ESS1879"}, } },
- /* CMI 8330 SoundPRO */
--{.id = "CMI0001", .driver_data = 0, devs : { {.id="@X@0001"},
-+{.id = "CMI0001", .driver_data = 0, .devs = { {.id="@X@0001"},
-      {.id="@H@0001"},
-      {.id="@@@0001"}, } },
- /* Diamond DT0197H */
--{.id = "RWR1688", .driver_data = 0, devs : { {.id="@@@0001"},
-+{.id = "RWR1688", .driver_data = 0, .devs = { {.id="@@@0001"},
-      {.id="@X@0001"},
-      {.id="@H@0001"}, } },
- /* ALS007 */
--{.id = "ALS0007", .driver_data = 0, devs : { {.id="@@@0001"},
-+{.id = "ALS0007", .driver_data = 0, .devs = { {.id="@@@0001"},
-      {.id="@X@0001"},
-      {.id="@H@0001"}, } },
- /* ALS100 */
--{.id = "ALS0001", .driver_data = 0, devs : { {.id="@@@0001"},
-+{.id = "ALS0001", .driver_data = 0, .devs = { {.id="@@@0001"},
-      {.id="@X@0001"},
-      {.id="@H@0001"}, } },
- /* ALS110 */
--{.id = "ALS0110", .driver_data = 0, devs : { {.id="@@@1001"},
-+{.id = "ALS0110", .driver_data = 0, .devs = { {.id="@@@1001"},
-      {.id="@X@1001"},
-      {.id="@H@0001"}, } },
- /* ALS120 */
--{.id = "ALS0120", .driver_data = 0, devs : { {.id="@@@2001"},
-+{.id = "ALS0120", .driver_data = 0, .devs = { {.id="@@@2001"},
-      {.id="@X@2001"},
-      {.id="@H@0001"}, } },
- /* ALS200 */
--{.id = "ALS0200", .driver_data = 0, devs : { {.id="@@@0020"},
-+{.id = "ALS0200", .driver_data = 0, .devs = { {.id="@@@0020"},
-      {.id="@X@0030"},
-      {.id="@H@0001"}, } },
- /* ALS200 */
--{.id = "RTL3000", .driver_data = 0, devs : { {.id="@@@2001"},
-+{.id = "RTL3000", .driver_data = 0, .devs = { {.id="@@@2001"},
-      {.id="@X@2001"},
-      {.id="@H@0001"}, } },
- /* -end- */
-
+ option snd-seq-dummy ports=4
 

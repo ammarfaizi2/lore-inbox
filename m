@@ -1,84 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbUCKMbG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 07:31:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbUCKMbG
+	id S261231AbUCKMee (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 07:34:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUCKMee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 07:31:06 -0500
-Received: from 68-184-155-122.cpe.ga.charter.com ([68.184.155.122]:61965 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id S261215AbUCKMbB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 07:31:01 -0500
-Date: Thu, 11 Mar 2004 07:31:00 -0500
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: NVIDIA and 2.6.4?
-Message-ID: <20040311123100.GE17760@rdlg.net>
-Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+	Thu, 11 Mar 2004 07:34:34 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5086 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261231AbUCKMea (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 07:34:30 -0500
+Date: Thu, 11 Mar 2004 13:34:25 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Steve Longerbeam <stevel@mvista.com>
+Cc: Christoph Hellwig <hch@infradead.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: new special filesystem for consideration in 2.6/2.7
+Message-ID: <20040311123425.GY14833@fs.tum.de>
+References: <40462AA1.7010807@mvista.com> <20040307094942.A14787@infradead.org> <404CBEAC.3090509@mvista.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lkTb+7nhmha7W+c3"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <404CBEAC.3090509@mvista.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 08, 2004 at 10:42:52AM -0800, Steve Longerbeam wrote:
+> 
+> 
+> Christoph Hellwig wrote:
+> 
+> >On Wed, Mar 03, 2004 at 10:57:37AM -0800, Steve Longerbeam wrote:
+> > 
+> >
+> >>An intro to PRAMFS along with a technical specification
+> >>is at the SourceForge project web page at
+> >>http://pramfs.sourceforge.net/. A patch for 2.6.3 has
+> >>been released at the SF project site.
+> >>   
+> >>
+> >
+> >What about posting that patch here instead of hiding it behind
+> >half a dozend indirections?
+> >
+> 
+> ~2900 lines! But here's a more direct link:
+> 
+> http://prdownloads.sourceforge.net/pramfs/pramfs-2.6.4-1.0.2.tar.gz?download
 
---lkTb+7nhmha7W+c3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The best link (wget'able) is
+  http://dl.sf.net/pramfs/pramfs-2.6.4-1.0.2.tar.gz
 
+cu
+Adrian
 
+-- 
 
-  I'm trying to use the NVIDIA driver so I can play NWN and some other
-games which won't run with the stock XFree (xserver-xfree86_4.3.0-5)=20
-driver.  When I run "make" in the NVIDIA_kernel directory I get alot of
-undefined variables:
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-/lib/modules/2.6.4/build/include/asm/mpspec.h:20: error: `MAX_MP_BUSSES' un=
-declared here (not in a function)
-/lib/modules/2.6.4/build/include/asm/mpspec.h:20: error: conflicting types =
-for `mp_bus_id_to_type'
-/lib/modules/2.6.4/build/include/asm/mpspec.h:8: error: previous declaratio=
-n of `mp_bus_id_to_type'
-/lib/modules/2.6.4/build/include/asm/mpspec.h:22: error: `MAX_IRQ_SOURCES' =
-undeclared here (not in a function)
-/lib/modules/2.6.4/build/include/asm/mpspec.h:24: error: `MAX_MP_BUSSES' un=
-declared here (not in a function)
-/lib/modules/2.6.4/build/include/asm/mpspec.h:24: error: conflicting types =
-for `mp_bus_id_to_pci_bus'
-/lib/modules/2.6.4/build/include/asm/mpspec.h:12: error: previous declarati=
-on of `mp_bus_id_to_pci_bus'
-/lib/modules/2.6.4/build/include/asm/mpspec.h:50: error: `MAX_APICS' undecl=
-ared here (not in a function)
-
-And that's just for starters.  Does anyone know if there's a way to get
-this to compile cleanly or is it SoL until a new driver is released
-(running 1.0.4191 currently).
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Life is not a destination, it's a journey.
-  Microsoft produces 15 car pileups on the highway.
-    Don't stop traffic to stand and gawk at the tragedy.
-
---lkTb+7nhmha7W+c3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAUFwE8+1vMONE2jsRAqOKAJ9nqocO43+LxM/4o5E8iSuCOxtZAQCfehhx
-BSlAwZr9Bk/pewg9uDx8oCQ=
-=yCSD
------END PGP SIGNATURE-----
-
---lkTb+7nhmha7W+c3--

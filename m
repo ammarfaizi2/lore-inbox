@@ -1,43 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267976AbTBXFqH>; Mon, 24 Feb 2003 00:46:07 -0500
+	id <S268121AbTBXFuQ>; Mon, 24 Feb 2003 00:50:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267989AbTBXFqH>; Mon, 24 Feb 2003 00:46:07 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:53517 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267976AbTBXFqH>;
-	Mon, 24 Feb 2003 00:46:07 -0500
-Date: Sun, 23 Feb 2003 21:48:31 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] Make hot unplugging of PCI buses work
-Message-ID: <20030224054830.GA31528@kroah.com>
-References: <20030223173441.D20405@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030223173441.D20405@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4i
+	id <S268129AbTBXFuQ>; Mon, 24 Feb 2003 00:50:16 -0500
+Received: from coffee.Psychology.mcmaster.ca ([130.113.218.59]:34224 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S268121AbTBXFuQ>; Mon, 24 Feb 2003 00:50:16 -0500
+Date: Mon, 24 Feb 2003 01:00:22 -0500 (EST)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+X-X-Sender: hahn@coffee.psychology.mcmaster.ca
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Larry McVoy <lm@work.bitmover.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Minutes from Feb 21 LSE Call
+In-Reply-To: <20030224050650.GI27135@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0302240056500.17312-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 23, 2003 at 05:34:41PM +0000, Russell King wrote:
+> > Last I checked, things scaled pretty nicely on 4 ways.
 > 
-> Currently, we do not have a way to tell the PCI subsystem "this device
-> has gone, as have all its children" without manually walking the device
-> tree.  I suspect real docking stations will require this same
-> functionality.
+> Try 4 or 8 mkfs's in parallel on a 4x box running virgin 2.4.x.
 
-Yeah, the pci hotplug driver all implemented their own code to do this,
-it's much smarter to put this in the core like you just did.
+"Doctor, it hurts..."
 
-> Furthermore, I propose that pci_remove_device() shall disappear -
-> and this devices makes it so (thereby breaking existing hotplug
-> drivers.)
-
-I like the patch, nice job.  If you don't mind, I'll add it to my tree,
-fix up all of the pci hotplug drivers, and then send all of that off to
-Linus.  Is that ok?
-
-thanks,
-
-greg k-h

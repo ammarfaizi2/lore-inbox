@@ -1,79 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270391AbTHBVt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 17:49:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270435AbTHBVt0
+	id S270354AbTHBVnu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 17:43:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270365AbTHBVnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 17:49:26 -0400
-Received: from almesberger.net ([63.105.73.239]:49677 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S270391AbTHBVtQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 17:49:16 -0400
-Date: Sat, 2 Aug 2003 18:49:01 -0300
-From: Werner Almesberger <werner@almesberger.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Nivedita Singhvi <niv@us.ibm.com>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: TOE brain dump
-Message-ID: <20030802184901.G5798@almesberger.net>
-References: <20030802140444.E5798@almesberger.net> <3F2BF5C7.90400@us.ibm.com> <3F2C0C44.6020002@pobox.com>
+	Sat, 2 Aug 2003 17:43:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:10378 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270354AbTHBVnt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 17:43:49 -0400
+Date: Sat, 2 Aug 2003 14:44:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Scott L. Burson" <gyro@zeta-soft.com>
+Cc: linux-kernel@vger.kernel.org, Mathieu.Malaterre@creatis.insa-lyon.fr
+Subject: Re: SMP performance problem in 2.4 (was: Athlon spinlock
+ performance)
+Message-Id: <20030802144422.111d6893.akpm@osdl.org>
+In-Reply-To: <16171.31418.271319.316382@kali.zeta-soft.com>
+References: <16171.31418.271319.316382@kali.zeta-soft.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F2C0C44.6020002@pobox.com>; from jgarzik@pobox.com on Sat, Aug 02, 2003 at 03:08:52PM -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> jabbering at the same time.  TCP is a "one size fits all" solution, but 
-> it doesn't work well for everyone.
+"Scott L. Burson" <gyro@zeta-soft.com> wrote:
+>
+> The problem is in `try_to_free_pages' and its associated routines,
 
-But then, ten "optimized xxPs" that work well in two different
-scenarios each, but not so good in the 98 others, wouldn't be
-much fun either.
+This is not unusual.
 
-It's been tried a number of times. Usually, real life sneaks
-in at one point or another, leaving behind a complex mess.
-When they've sorted out these problems, regular TCP has caught
-up with the great optimized transport protocols. At that point,
-they return to their niche, sometimes tail between legs and
-muttering curses, sometimes shaking their fist and boldly
-proclaiming how badly they'll rub TCP in the dirt in the next
-round. Maybe they shed off some of the complexity, and trade it
-for even more aggressive optimization, which puts them into
-their niche even more firmly. Eventually, they fade away.
+> In one approximately 60-second period with the problematic workload running, 
 
-There are cases where TCP doesn't work well, like a path of
-badly mismatched link layers, but such paths don't treat any
-protocol following the end-to-end principle kindly.
+What is the problematic workload?  Please describe it in great detail.
 
-Another problem of TCP is that it has grown a bit too many
-knobs you need to turn before it works over your really fast
-really long pipe. (In one of the OLS after dinner speeches,
-this was quite appropriately called the "wizard gap".)
+> Clearly the kernel group has been aware of the problems with `shrink_cache',
+> as I see that it has received quite a bit of attention in the course of 2.5
+> development.  I am hopeful that the problem will be substantially
+> ameliorated in 2.6.0.  (The comment at the top of `try_to_free_pages' --
+> "This is a fairly lame algorithm - it can result in excessive CPU burning"
+> -- suggests it won't be cured entirely.)
 
-> It's obviously not over a WAN...
+That comment has thus far proved to be wrong.
 
-That's why NFS turned off UDP checksums ;-) As soon as you put
-it on IP, it will crawl to distances you didn't imagine in your
-wildest dreams. It always does.
+> However, it seems the kernel group may not have been aware of just how bad
+> the problem can be in recent 2.4 kernels on dual-processor machines with
+> lots of memory.  It's bad enough that running two `find' jobs at the same
+> time on large filesystems can bring the machine pretty much to its knees.
 
-> So, fix the other end of the pipeline too, otherwise this fast network 
-> stuff is flashly but pointless.  If you want to serve up data from disk, 
-> then start creating PCI cards that have both Serial ATA and ethernet 
-> connectors on them :)  Cut out the middleman of the host CPU and host 
-> memory bus instead of offloading portions of TCP that do not need to be 
-> offloaded.
+oh, is that the workload?
 
-That's a good point. A hierarchical memory structure can help
-here. Moving one end closer to the hardware, and letting it
-know (e.g. through sendfile) that also the other end is close
-(or can be reached more directly that through some hopelessly
-crowded main bus) may help too.
+Send a copy of /proc/meminfo, captured when the badness is happening.  Also
+/proc/slabinfo.
 
-- Werner
+Probably you will find that all of the low memory is consumed by inodes and
+dentries.  ext2 is particularly prone to this because its directory pages
+are placed in highmem, and those pages can pin down the dentries (and hence
+the inodes).  
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+So sigh.  It is a problem which has been solved for a year at least.  Try
+running one of Andrea's kernels, from
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4
+
+The most important patch for you is 10_inode-highmem-2.
+
+

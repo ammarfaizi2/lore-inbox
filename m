@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287404AbSAGXqh>; Mon, 7 Jan 2002 18:46:37 -0500
+	id <S287408AbSAGXqr>; Mon, 7 Jan 2002 18:46:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287408AbSAGXq2>; Mon, 7 Jan 2002 18:46:28 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25363 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287400AbSAGXqM>;
-	Mon, 7 Jan 2002 18:46:12 -0500
-Message-ID: <3C3A3341.F9025058@mandrakesoft.com>
-Date: Mon, 07 Jan 2002 18:46:09 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre9fs7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: torvalds@transmeta.com, viro@math.psu.edu, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: PATCH 2.5.2.9: ext2 unbork fs.h (part 1/7)
-In-Reply-To: <20020107132121.241311F6A@gtf.org> <E16NcLw-0001R9-00@starship.berlin>
-Content-Type: text/plain; charset=us-ascii
+	id <S287407AbSAGXqh>; Mon, 7 Jan 2002 18:46:37 -0500
+Received: from dsl-65-185-109-125.telocity.com ([65.185.109.125]:36736 "HELO
+	ohdarn.net") by vger.kernel.org with SMTP id <S287406AbSAGXq0>;
+	Mon, 7 Jan 2002 18:46:26 -0500
+Subject: Re: Second edition of the -mjc branch has been released
+From: Michael Cohen <lkml@ohdarn.net>
+To: linux-kernel@vger.kernel.org
+Cc: pavel@suse.cz
+In-Reply-To: <20020103203507.A408@elf.ucw.cz>
+In-Reply-To: <200201030929.g039TCZ02342@ohdarn.net> 
+	<20020103203507.A408@elf.ucw.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 07 Jan 2002 18:46:25 -0500
+Message-Id: <1010447185.4069.2.camel@ohdarn.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+On Thu, 2002-01-03 at 14:35, Pavel Machek wrote:
+> Hi!
 > 
-> On January 7, 2002 04:19 pm, Daniel Phillips wrote:
-> >   - You are dreferencing a pointer, and have two allocations for every
-> >     inode instead of one.
+> > removed in mjc2:
+> > Software Suspend        (does not function correctly,
+> >                          very poor style in some areas)
 > 
-> Oh no, you only have one allocator, and you have the filesystem do it, with
-> per-sb methods.  Why is this better than having the VFS do it?  Does this
-> imply you might have different sized inodes with different mounts of the same
-> filesystem?
-> 
-> The per-fs cost with my variant is: 4-8 bytes per filesystem, period.  No
-> methods needed, and the object management code doesn't get replicated through
-> all the filesystems.
+> Which patch did you try to integrate? Can you elaborate on "does not
+> function" and "poor style"? I want to see that fixed ;-).
 
-I greatly prefer function pointers to [possibly] generic obj management
-code, to storing object sizes.  Some filesystem is inevitably going to
-want to do something even more clever with inode allocation.  My method
-gives developers the freedom to experiement with inode alloc to their
-heart's desires, without affecting any other filesystem.
+There were a whole bunch of places where ifdefs were not inserted, and
+the feature got turned on even if you didn't want it in some instances.
+Also, well, it doesn't resume. ;)
+
+-------
+Michael Cohen
+
+> 									Pavel
+> -- 
+> (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+> no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
 
 
-> Also, having the inode point at itself is a little, hmm, 'what's wrong with
-> this picture', don't you think?
-
-gone in the updated patch :)
-
--- 
-Jeff Garzik      | Alternate titles for LOTR:
-Building 1024    | Fast Times at Uruk-Hai
-MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
-                 | Samwise Gamgee: International Hobbit of Mystery

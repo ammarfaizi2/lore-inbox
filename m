@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbTDKViE (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 17:38:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbTDKViE (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 17:38:04 -0400
-Received: from postoffice2.mail.cornell.edu ([132.236.56.10]:22004 "EHLO
-	postoffice2.mail.cornell.edu") by vger.kernel.org with ESMTP
-	id S261757AbTDKViC convert rfc822-to-8bit 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 17:38:02 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-Organization: ( )
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: I2C, compile error: via686a_attach_adapter()
-Date: Fri, 11 Apr 2003 17:51:02 -0400
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200304111751.07679.ivg2@cornell.edu>
+	id S261665AbTDKViB (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 17:38:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTDKViB (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 17:38:01 -0400
+Received: from [12.47.58.73] ([12.47.58.73]:40170 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S261665AbTDKViA (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 17:38:00 -0400
+Date: Fri, 11 Apr 2003 14:49:42 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Lockmeter 2.5] BKL with 51ms hold time, prove me wrong
+Message-Id: <20030411144942.4934832d.akpm@digeo.com>
+In-Reply-To: <34680000.1050084914@w-hlinder>
+References: <46950000.1050023701@w-hlinder>
+	<20030410185006.5fd88c30.akpm@digeo.com>
+	<34680000.1050084914@w-hlinder>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Apr 2003 21:49:39.0227 (UTC) FILETIME=[4058BEB0:01C30074]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hanna Linder <hannal@us.ibm.com> wrote:
+>
+> 
+> Sure enough. I ported lockmeter to 2.5.67-mm1 and ran the same rmap-test
+> and lo and behold all the ext3 issues went away. However, the one remaining
+> long hold time moved to the top (unmap_vmas):
 
-  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall 
-- -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
-- -mpreferred-stack-boundary=2 -march=athlon -Iinclude/asm-i386/mach-default 
-- -fomit-frame-pointer -nostdinc -iwithprefix include    
-- -DKBUILD_BASENAME=version -DKBUILD_MODNAME=version -c -o init/.tmp_version.o 
-init/version.c
-   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o 
-init/mounts.o init/initramfs.o
-        ld -m elf_i386  -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o 
-arch/i386/kernel/init_task.o   init/built-in.o --start-group  usr/built-in.o  
-arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  
-arch/i386/mach-default/built-in.o  kernel/built-in.o  mm/built-in.o  
-fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  
-lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  
-arch/i386/pci/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
-drivers/built-in.o(.text+0xa641b): In function `via686a_attach_adapter':
-: undefined reference to `i2c_detect'
+Ah, but the unmap_vmas lock was not kernel_flag, was it?  It'll be
+page_table_lock.
 
+That's OK I think.  The only time this is likely to bite anyone is if you
+have a threaded application in which one thread it doing a massive munmap()
+while another one is handling a pagefault, running mmap(), etc.  And given
+that _establishing_ that large mapping in the first place takes tons of CPU,
+the relative loss from the long hold time is small.
 
+Famous last words.
 
-Bitkeeper with relevant config: 
-I2C, I2C_CHARDEV, SENSORS_VIA686A  = Y
+> 
+> Here is the port of lockmeter to the 2.5.67-mm1 kernel. If you would consider
+> putting it in your tree that would be great and I would work on porting the
+> rest of the architectures. 
+> 
+> http://prdownloads.sourceforge.net/lse/lockmeter1.5-2.5.67-mm1.patch?download
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+lzjKXQ/AjixQzHcRAv63AKCXgDEl3zKx4q4QE5czQzdAKXf5GgCgj5ak
-5dqVlRa+Q87L+VvypgBXLoE=
-=vzDE
------END PGP SIGNATURE-----
+OK, that's pretty unintrusive.
 

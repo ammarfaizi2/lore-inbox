@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268384AbTCCFcL>; Mon, 3 Mar 2003 00:32:11 -0500
+	id <S268391AbTCCFz3>; Mon, 3 Mar 2003 00:55:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268386AbTCCFcK>; Mon, 3 Mar 2003 00:32:10 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:1289 "EHLO probity.mcc.ac.uk")
-	by vger.kernel.org with ESMTP id <S268384AbTCCFcJ>;
-	Mon, 3 Mar 2003 00:32:09 -0500
-Date: Mon, 3 Mar 2003 05:42:35 +0000
-From: John Levon <levon@movementarian.org>
-To: linux-kernel@vger.kernel.org, ambx1@neo.rr.com
-Subject: [PATCH] Another bitop on boolean in pnpbios
-Message-ID: <20030303054235.GA58427@compsoc.man.ac.uk>
-Mime-Version: 1.0
+	id <S268396AbTCCFz3>; Mon, 3 Mar 2003 00:55:29 -0500
+Received: from csl.Stanford.EDU ([171.64.73.43]:47310 "EHLO csl.stanford.edu")
+	by vger.kernel.org with ESMTP id <S268391AbTCCFz3>;
+	Mon, 3 Mar 2003 00:55:29 -0500
+From: Dawson Engler <engler@csl.stanford.edu>
+Message-Id: <200303030605.h2365oK08706@csl.stanford.edu>
+Subject: Re: [CHECKER] potential deadlocks
+To: akpm@digeo.com (Andrew Morton)
+Date: Sun, 2 Mar 2003 22:05:50 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030302212500.72fe9b87.akpm@digeo.com> from "Andrew Morton" at Mar 02, 2003 09:25:00 PM
+X-Mailer: ELM [version 2.5 PL0pre8]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18piih-000B8I-00*b.S4JuO6xcg*
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> There are some real ones there.  The ones surrounding lock_kernel() and
+> semaphores are false positives.
+> 
+> lock_kernel() is special, in that the lock is dropped when the caller
+> performs a voluntary context switch.  So there are no ordering requirements
+> between lock_kernel and the sleeping locks down(), down_read(), down_write().
 
-First obvious case from -Wbitop-boolean
+Ah.  I actually knew that.  Embarassing.  Thanks for pointing it out;
+I'll make the change.
 
-Not tested ...
+BTW, are there known deadlocks (harmless or otherwise)?  Debugging
+the checker is a bit hard since false negatives are silent...
 
-regards,
-john
-
-
---- linux-linus/include/linux/pnpbios.h	2003-01-13 22:43:41.000000000 +0000
-+++ linux/include/linux/pnpbios.h	2003-03-03 05:46:42.000000000 +0000
-@@ -86,7 +86,7 @@
- #define PNPBIOS_DOCK			0x0020
- #define PNPBIOS_REMOVABLE		0x0040
- #define pnpbios_is_static(x) ((x)->flags & 0x0100) == 0x0000
--#define pnpbios_is_dynamic(x) (x)->flags & 0x0080
-+#define pnpbios_is_dynamic(x) ((x)->flags & 0x0080)
- 
- /* 0x8000 through 0xffff are OEM defined */
- 
+Dawson

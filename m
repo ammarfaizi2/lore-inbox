@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264984AbRGAFJT>; Sun, 1 Jul 2001 01:09:19 -0400
+	id <S264993AbRGAGhE>; Sun, 1 Jul 2001 02:37:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264989AbRGAFJK>; Sun, 1 Jul 2001 01:09:10 -0400
-Received: from lithium.nac.net ([64.21.52.68]:14351 "HELO lithium.nac.net")
-	by vger.kernel.org with SMTP id <S264984AbRGAFIz>;
-	Sun, 1 Jul 2001 01:08:55 -0400
-Date: Sun, 1 Jul 2001 01:08:47 -0400
-To: linux-kernel@vger.kernel.org
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Freezing bug in all kernels greater than 2.4.5-ac13 *AND* 2.4.6-pre2
-Message-ID: <20010701010846.A685@debian>
-In-Reply-To: <20010623222954.A9031@debian> <20010627203331.B1615@debian>
-Mime-Version: 1.0
+	id <S265001AbRGAGgy>; Sun, 1 Jul 2001 02:36:54 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:693 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264993AbRGAGgk>;
+	Sun, 1 Jul 2001 02:36:40 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010627203331.B1615@debian>
-User-Agent: Mutt/1.3.18i
-From: <tcm@nac.net>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15166.50418.583094.554723@pizda.ninka.net>
+Date: Sat, 30 Jun 2001 23:36:34 -0700 (PDT)
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: linux-kernel@vger.kernel.org, jakub@redhat.com
+Subject: Re: Linux speed on sun4c
+In-Reply-To: <20010630220612.C14361@vitelus.com>
+In-Reply-To: <20010630220612.C14361@vitelus.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I'm currently running 2.4.6-pre8 and happy as a clam, the
-problem has been found and reverted, looks from my discussions with
-Linus like the page_launder change introduced into pre3 and also
-included in ac14 was causing the hangs/near freezes.
 
-	I'm not really much of a coder, so I can't say what was wrong
-with it, only what the symptoms were and how to get it to screw up
-whenever I wanted to test for it. (See previous messages for how to do
-this) If Rik van Riel/Marcelo Tosatti/anyone wants to have me gather
-information on what is going on just before/after the kernel dies I'll
-do it - just tell me how to, and I'll push it along :)
+Aaron Lehmann writes:
+ > 
+ > NetBSD/Sparc's FAQ asserts:
+ > 
+ >     Why is NetBSD so much faster than SparcLinux on sun4c (top) 
+ > 
+ >         The memory management hardware on sun4c machines (SPARCStation
+ >         1, 1+, 2, IPC, IPX, SLC, ELC and clones) is not handled particularly
+ >         well by Linux. Until Linux reworks their MMU code NetBSD will be very
+ >         much faster on this hardware. 
+ > 
+ > Was there ever any truth to this statement? It seems to be light on
+ > technical details. Have these purported issues ever been fixed?
+ > 
+ > I don't want to be scared into running NetBSD on my SparcStation 2 :D.
 
-Thanks a bunch Linus,
-Tim
+It's totally true, use *BSD on your sun4c systems if top performance
+is your desire. :-)
+
+I know how to fix it but frankly I have no desire to work on
+that platform any more.
+
+Later,
+David S. Miller
+davem@redhat.com

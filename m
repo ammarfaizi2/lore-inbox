@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318085AbSFTBuq>; Wed, 19 Jun 2002 21:50:46 -0400
+	id <S318086AbSFTBu6>; Wed, 19 Jun 2002 21:50:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318086AbSFTBup>; Wed, 19 Jun 2002 21:50:45 -0400
-Received: from radium.jvb.tudelft.nl ([130.161.82.13]:59777 "EHLO
-	radium.jvb.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S318085AbSFTBuo>; Wed, 19 Jun 2002 21:50:44 -0400
-From: "Robbert Kouprie" <robbert@radium.jvb.tudelft.nl>
-To: "'Keith Owens'" <kaos@ocs.com.au>,
-       "'Maciej W. Rozycki'" <macro@ds2.pg.gda.pl>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: The buggy APIC of the Abit BP6
-Date: Thu, 20 Jun 2002 03:50:10 +0200
-Message-ID: <006e01c217fc$cfd1b620$020da8c0@nitemare>
+	id <S318088AbSFTBu5>; Wed, 19 Jun 2002 21:50:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39950 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318086AbSFTBu4>;
+	Wed, 19 Jun 2002 21:50:56 -0400
+Message-ID: <3D11360F.4EA4807D@zip.com.au>
+Date: Wed, 19 Jun 2002 18:55:27 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: mgross@unix-os.sc.intel.com
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lse-tech@lists.sourceforge.net, richard.a.griffiths@intel.com
+Subject: Re: ext3 performance bottleneck as the number of spindles gets large
+References: <200206200022.g5K0MKP27994@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-reply-to: <25764.1024495399@ocs3.intra.ocs.com.au>
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
+mgross wrote:
+> 
+> We've been doing some throughput comparisons and benchmarks of block I/O
+> throughput for 8KB writes as the number of SCSI addapters and drives per
+> adapter is increased.
+> 
+> The Linux platform is a dual processor 1.2GHz PIII, 2Gig or RAM, 2U box.
+> Similar results have been seen with both 2.4.16 and 2.4.18 base kernel, as
+> well as one of those patched up O(1) 2.4.18 kernels out there.
 
-> You do not have the data required to (a) detect the problem and (b)
-> recover even if you could detect the problem.
+umm.  Are you not using block-highmem?  That is a must-have.
 
-Maciej W. Rozycki wrote:
+http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre9aa2/00_block-highmem-all-18b-12.gz
 
-> The reliability of the hardware is next to null.  You are not able to
-> recover from that. 
-
-Okay, you guys convinced me that some hardware can suck *really* bad. I
-think I'm just going to stop my effort on this, stay with Raphael
-Manfredi's hack to avoid most of the hangs on my BP6 for now, and get a
-new board ASAP.
-
-Thanks for all the help,
-- Robbert Kouprie
-
+-

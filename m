@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264248AbTJOTz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 15:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbTJOTz4
+	id S264251AbTJOT4G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 15:56:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbTJOT4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 15:55:56 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55430 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264248AbTJOTzz
+	Wed, 15 Oct 2003 15:56:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57478 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264251AbTJOT4D
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 15:55:55 -0400
-Date: Wed, 15 Oct 2003 20:55:53 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Rohland <cr@sap.com>,
+	Wed, 15 Oct 2003 15:56:03 -0400
+Message-ID: <3F8DA644.50403@pobox.com>
+Date: Wed, 15 Oct 2003 15:55:48 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Matthew Wilcox <willy@debian.org>, Linus Torvalds <torvalds@osdl.org>,
+       "David S. Miller" <davem@redhat.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, netdev@oss.sgi.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] tmpfs 2/7 LTP S_ISGID dir
-Message-ID: <20031015195553.GU7665@parcelfarce.linux.theplanet.co.uk>
-References: <20031015193404.GT7665@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0310152046250.6969-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310152046250.6969-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+Subject: Re: [PATCH] pci_get_slot()
+References: <20031015183213.GG16535@parcelfarce.linux.theplanet.co.uk> <20031015184104.GA22373@kroah.com> <20031015185053.GH16535@parcelfarce.linux.theplanet.co.uk> <20031015193455.GA23727@kroah.com>
+In-Reply-To: <20031015193455.GA23727@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 15, 2003 at 08:48:59PM +0100, Hugh Dickins wrote:
-> On Wed, 15 Oct 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > On Wed, Oct 15, 2003 at 07:19:46PM +0100, Hugh Dickins wrote:
-> > > LTP tests the filesystem on /tmp: many failures when tmpfs because
-> > > it missed the way giddy directories hand down their gid.  Also fix
-> > > ramfs and hugetlbfs.
-> > 
-> > *the* way?  I can think of at least two...
+Greg KH wrote:
+> On Wed, Oct 15, 2003 at 07:50:53PM +0100, Matthew Wilcox wrote:
+>>The only real way to do it is to inline pci_get_slot() into tg3.  Since I
+>>also have a need for it in sym2, that doesn't seem like a sensible idea.
+>>It would also be racy since it wouldn't take the pci_bus_lock.
 > 
-> You mean, the way they do directories and the way they do non-directories?
-> Or, the way they do it if they do it, and the way they do it if they don't?
-> Or something else?  Please, share your thought!
+> 
+> Ok, fair enough.  I'll add it to my tree to be sent to Linus after 2.6.0
+> is out, if Jeff and David agree it's an ok tg3.c patch.
 
-"We always inherit parents gid, sgid is ignored" and "we do that only
-if parent is sgid and children that happen to be directories inherit
-sgid from parent".  Yes, ramfs et.al. follow neither of those, but which
-way to change that is an interesting question...
+
+I'm OK with it...   I guess we'll be shipping tg3 and sym2 known-broken 
+on PCI domain boxes?
+
+Admittedly it's an uncommon case for tg3...
+
+	Jeff
+
+
+

@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265677AbUAKAPM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 19:15:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265681AbUAKAPM
+	id S265488AbUAKATP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 19:19:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265493AbUAKATP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 19:15:12 -0500
-Received: from netline-mail1.netline.ch ([195.141.226.27]:27664 "EHLO
-	netline-mail1.netline.ch") by vger.kernel.org with ESMTP
-	id S265677AbUAKAPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 19:15:09 -0500
-Subject: Re: [Dri-devel] 2.6 kernel change in nopage
-From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-To: arjanv@redhat.com
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1073772500.4432.5.camel@laptop.fenrus.com>
-References: <20031231182148.26486.qmail@web14918.mail.yahoo.com>
-	 <1072958618.1603.236.camel@thor.asgaard.local>
-	 <1072959055.5717.1.camel@laptop.fenrus.com>
-	 <1072959820.1600.252.camel@thor.asgaard.local>
-	 <20040101122851.GA13671@devserv.devel.redhat.com>
-	 <1072967278.1603.270.camel@thor.asgaard.local>
-	 <Pine.LNX.4.58.0401011205110.2065@home.osdl.org>
-	 <1073771694.2290.17.camel@thor.asgaard.local>
-	 <1073772500.4432.5.camel@laptop.fenrus.com>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1073780105.2287.21.camel@thor.asgaard.local>
+	Sat, 10 Jan 2004 19:19:15 -0500
+Received: from h80ad254f.async.vt.edu ([128.173.37.79]:31618 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265488AbUAKATN (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 19:19:13 -0500
+Message-Id: <200401110019.i0B0J2Ld014059@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Job 317 <job317@mailvault.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: HELP!! 2.6.x build problem with make xconfig 
+In-Reply-To: Your message of "Sun, 11 Jan 2004 01:00:33 +0100."
+             <20040110235440.7962B8400A3@gateway.mailvault.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040110235440.7962B8400A3@gateway.mailvault.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 11 Jan 2004 01:15:06 +0100
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; boundary="==_Exmh_-2004626072P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 10 Jan 2004 19:19:02 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-01-10 at 23:08, Arjan van de Ven wrote:
-> On Sat, 2004-01-10 at 22:54, Michel Dänzer wrote:
-> > First of all, thanks for all the suggestions I've received in this
-> > thread.
-> > 
-> > New patch up at http://penguinppc.org/~daenzer/DRI/drm-nopage.diff; does
-> > this look acceptable to those who are going to do merges between the
-> > trees? :)
-> 
-> I like this one a whole lot better than the previous ones...
-> One could argue that you want the do_ function set the pagefault type
-> itself (and just igore the result in the 2.4 variants) but that's minor
-> nitpicking at most.
+--==_Exmh_-2004626072P
+Content-Type: text/plain; charset=us-ascii
 
-Okay, thanks, I just committed this.
+On Sun, 11 Jan 2004 01:00:33 +0100, Job 317 <job317@mailvault.com>  said:
+
+> cd /usr/include
+> rm asm linux scsi
+> ln -fs /usr/src/linux/include/asm-i386 asm
+> ln -fs /usr/src/linux/include/linux linux
+> ln -fs /usr/src/linux/include/scsi scsi
+
+Don't do that.
+
+Use what's in the glibc-kernheaders RPM for userspace, and let the kernel
+provide its own headers for its use.
 
 
--- 
-Earthling Michel Dänzer      |     Debian (powerpc), X and DRI developer
-Software libre enthusiast    |   http://svcs.affero.net/rm.php?r=daenzer
+--==_Exmh_-2004626072P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAAJZ2cC3lWbTT17ARAos3AJ9rvZ91rjM8f7qJ+/qJvT4JKIlBDwCfQD1v
+mSxRSx06xLvdhVf3U0apd5Q=
+=h2p1
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-2004626072P--

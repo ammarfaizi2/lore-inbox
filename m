@@ -1,69 +1,165 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265326AbTF1Snh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 14:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265329AbTF1Sng
+	id S265330AbTF1Sqh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 14:46:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265329AbTF1Sqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 14:43:36 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:36746
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S265326AbTF1Snf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 14:43:35 -0400
-Subject: Re: Dell vs. GPL
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Fluke <fluke@gibson.mw.luc.edu>
-Cc: linux-poweredge@dell.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0306280005000.29249-100000@gibson.mw.luc.edu>
-References: <Pine.LNX.4.44.0306280005000.29249-100000@gibson.mw.luc.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1056826496.6295.7.camel@dhcp22.swansea.linux.org.uk>
+	Sat, 28 Jun 2003 14:46:37 -0400
+Received: from pal-213-228-128-91.netvisao.pt ([213.228.128.91]:31368 "HELO
+	front3.netvisao.pt") by vger.kernel.org with SMTP id S265330AbTF1Sqc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 14:46:32 -0400
+Date: Sat, 28 Jun 2003 20:00:47 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Asus CD-S520/A kernel I/O error
+Message-ID: <20030628190047.GA629@deneb>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 28 Jun 2003 19:54:56 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: Marco Ferra <marcoferra@netvisao.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-06-28 at 06:51, Fluke wrote:
->   Dell is providing binary only derived works of the Linux kernel and the 
-> modutils package at ftp://ftp.dell.com/fixes/boot-floppy-rh9.tar.gz
+Something's wrong on the kernels ide/atapi interface for cd-rom's.  I
+got a Asus CD-S520/A and it seems that I can't sweep from the beginning
+to the end of the CD without getting a sense error.  Commands like:
 
-and a patch file of the relevant diff, which btw Dell engineers actually
-did a lot of work in figuring out why the serverworks stuff was a
-problem and fixing most of the bug, and sent to me.
+dd if=/dev/scd0 of=/file.iso
+dd if=/dev/hdc of=/file.iso
 
->   I contacted Dell support and recieved confirmation that Dell does not 
-> intend to provide the source code to these binary works.  He explained 
-> that all Dell fixes are licensed by Dell from third parties for use by 
-> Dell customers in binary only form and "Dell does not intend the fixes to 
-> be open source products."
+give
 
-Dell support are a bit random and in my experience completely clueless
-when faced with anything which isnt on the script. Much like most
-support people.
+---
 
->   I have also tried to contact RedHat activities but based on the responce 
-> that I got from Mark Webbink, I don't think RedHat is prepaired to do 
-> anything about it.
+Jun 28 19:28:33 deneb kernel:  I/O error: dev 0b:00, sector 1159912
+Jun 28 19:28:33 deneb kernel:  I/O error: dev 0b:00, sector 1160064
 
-Firstly they are supplying the patch in question. Secondly they are
-making sure people actually get it. 
+(note)
+the sectors do change if I change de medium, but on the same medium the
+falty sectores are always the same.  All the cd's are in top conditions
+without a scratch and clean.
 
->   Is the GPL as it applies to the kernel intended to be a legal set of 
-> requirements or simply a set of optional guidelines like Dell/RedHat seems 
-> to be treating it?
+---
 
-Red Hat takes all its license compliance seriously. 
+(with and without the scsi emulation) are pointless.  On my former HP
+9100c cdr/rw writer and Phillips 40x reader this didn't happen.  What is
+also curious is that original brand cd's (like a game or the maxim's cd
+data catalog) is red 100% by this Asus cd reader.  I thought is as not
+an error with the interface but with cdrecord but after testing a cd
+burned with nero (windows os) the same happened.  If I change brands the
+same happens too (tested TDK and Sony).
 
-What Dell do is their business - they've given you the patch, and yes
-you might want to have a discussion about getting the entire SRPM
-package, but do it with the right bits of Dell, and with the FSF
-perhaps. The FSF has no business attachments to muddy waters.
+As a final note it seems that when mounted the cd can be accessed
+perfectly (or so it seems).
 
-There are better people to raise these issues with than Dell support
-personnel.
+I would write a patch/workaround myself but it seems that I can't
+understand this behaviour.
 
-Alan
+Hoping that this report was useful.. best regards, Marco Ferra.
 
+--- Debian GNU/Linux 3.0r1 ---
+
+My configuration:
+
+Motherboard: ASUS CUV4X
+
+cat /proc/version
+Linux version 2.4.18 (root@deneb) (gcc version 2.95.4 20011002 (Debian
+prerelease)) #1 Mon Jun 23 00:27:00 WEST 2003
+
+cat /proc/version
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 3
+cpu MHz         : 701.626
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca
+cmov pat pse36 mmx fxsr sse
+bogomips        : 1399.19
+
+cat /proc/modules
+ipt_state                576   2
+ipt_mac                  640   0 (unused)
+ipt_limit                960   0 (unused)
+ipt_LOG                 3072   0 (unused)
+ip_conntrack_irc        2400   0 (unused)
+ip_conntrack_ftp        3136   0 (unused)
+ip_conntrack           12884   3 [ipt_state ip_conntrack_irc
+ip_conntrack_ftp]
+mga                   102480   1
+agpgart                12448   3
+
+(note: scsi emulation is directly on the kernel image)
+
+cat /proc/ioports
+
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial(set)
+0376-0376 : ide1
+0378-037a : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial(set)
+0cf8-0cff : PCI conf1
+b400-b43f : Ensoniq ES1371 [AudioPCI-97]
+  b400-b43f : es1371
+b800-b8ff : Realtek Semiconductor Co., Ltd. RTL-8139
+  b800-b8ff : 8139too
+d000-d01f : VIA Technologies, Inc. UHCI USB (#2)
+  d000-d01f : usb-uhci
+d400-d41f : VIA Technologies, Inc. UHCI USB
+  d400-d41f : usb-uhci
+d800-d80f : VIA Technologies, Inc. Bus Master IDE
+  d800-d807 : ide0
+  d808-d80f : ide1
+e400-e4ff : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+e800-e80f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+
+cat /proc/iomem
+00000000-0009fbff : System RAM
+0009fc00-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000f0000-000fffff : System ROM
+00100000-13febfff : System RAM
+  00100000-002343e9 : Kernel code
+  002343ea-00292b77 : Kernel data
+13fec000-13feefff : ACPI Tables
+13fef000-13ffefff : reserved
+13fff000-13ffffff : ACPI Non-volatile Storage
+f8000000-f80000ff : Realtek Semiconductor Co., Ltd. RTL-8139
+  f8000000-f80000ff : 8139too
+f8800000-f9efffff : PCI Bus #01
+  f8800000-f8ffffff : Matrox Graphics, Inc. MGA G400 AGP
+  f9000000-f9003fff : Matrox Graphics, Inc. MGA G400 AGP
+f9f00000-fbffffff : PCI Bus #01
+  fa000000-fbffffff : Matrox Graphics, Inc. MGA G400 AGP
+fc000000-fdffffff : VIA Technologies, Inc. VT8605 [ProSavage PM133]
+ffff0000-ffffffff : reserved
+
+cat /proc/scsi/scsi
+Attached devices: 
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: ASUS     Model: CD-S520/A        Rev: 2.0K
+  Type:   CD-ROM                           ANSI SCSI revision: 02

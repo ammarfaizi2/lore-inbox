@@ -1,80 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbULNQTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbULNQZD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261545AbULNQTh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 11:19:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbULNQTg
+	id S261548AbULNQZD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 11:25:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbULNQZC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 11:19:36 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:42183 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261544AbULNQRw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 11:17:52 -0500
-From: David Howells <dhowells@redhat.com>
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] FRV perfctr_info syscall
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.3
-Date: Tue, 14 Dec 2004 16:17:47 +0000
-Message-ID: <9457.1103041067@redhat.com>
+	Tue, 14 Dec 2004 11:25:02 -0500
+Received: from gort.metaparadigm.com ([203.117.131.12]:63427 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S261548AbULNQYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 11:24:32 -0500
+Message-ID: <41BF13EC.8020909@metaparadigm.com>
+Date: Wed, 15 Dec 2004 00:25:16 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adam Sulmicki <adam@cfar.umd.edu>, Juergen Botz <jurgen@botz.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Thinkpad T42, keyboard sometimes hosed when waking from sleep
+References: <cpl6n2$ivd$1@sea.gmane.org> <Pine.BSF.4.61.0412131854030.66694@www.missl.cs.umd.edu>
+In-Reply-To: <Pine.BSF.4.61.0412131854030.66694@www.missl.cs.umd.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adam Sulmicki wrote:
 
-The attached patch gets rid of the perfctr_info syscall from the FRV arch now
-that its implementation has gone and it has been removed from the i386 arch
-and the i386 syscalls have been renumbered.
+>
+>
+> On Mon, 13 Dec 2004, Juergen Botz wrote:
+>
+>> I have a new IBM Thinkpad T42, FC3 with all updates, stock
+>> 2.6.9-1.681_FC3 kernel + iwp2200 driver (0.13).  Everyone once
+>> in a while when I wake from ACPI S3 sleep my keyboard is hosed...
+>> the first key I press starts rapidly auto-repeating, which can't
+>> be stopped, and pressing any key produces either no visible
+>> action or some other character (not the one normally on that
+>> key) which also auto repeats madly.
+>>
+>> It doesn't always happen, only maybe 10% of the time I come
+>> out of S3.  I can't switch to different vt since ctrl-alt-fN
+>> don't work, and since I am rarely on a text console I have
+>> no idea whether it would happen there.  Putting the machine
+>> back to sleep and re-waking doesn't fix it, so my only option
+>> has been to reboot via the 'Actions' menu (mouse is ok through
+>> all this.)
+>>
+>> Others have also reported this happening with APM, so it
+>> doesn't seem to be an ACPI bug per se.
+>>
+>> Any ideas?
+>
+>
+> just another data point. I had seen the same thing happen for me once 
+> with my T41p. Same config as above ie FC3, 2.6.9-1.681_FC3.
+>
+> might be some RH-FC specific thing since I did not see it happen with 
+> earlier incarnations of kernel.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat frv-perf-syscall-2610rc3.diff 
- arch/frv/kernel/entry.S  |    6 +++---
- include/asm-frv/unistd.h |   13 ++++++-------
- 2 files changed, 9 insertions(+), 10 deletions(-)
 
-diff -uNr linux-2.6.10-rc3-mm1-mmcleanup/arch/frv/kernel/entry.S linux-2.6.10-rc3-mm1-misc/arch/frv/kernel/entry.S
---- linux-2.6.10-rc3-mm1-mmcleanup/arch/frv/kernel/entry.S	2004-12-13 17:33:50.000000000 +0000
-+++ linux-2.6.10-rc3-mm1-misc/arch/frv/kernel/entry.S	2004-12-14 14:31:51.000000000 +0000
-@@ -1031,6 +1031,7 @@
- # perform work that needs to be done immediately before resumption
- #
- ###############################################################################
-+	.globl		__entry_return_from_user_exception
- 	.balign		L1_CACHE_BYTES
- __entry_return_from_user_exception:
- 	LEDS		0x6501
-@@ -1420,9 +1421,8 @@
- 	.long sys_add_key
- 	.long sys_request_key
- 	.long sys_keyctl
--	.long sys_perfctr_info
--	.long sys_vperfctr_open		/* 290 */
--	.long sys_vperfctr_control
-+	.long sys_vperfctr_open
-+	.long sys_vperfctr_control	/* 290 */
- 	.long sys_vperfctr_unlink
- 	.long sys_vperfctr_iresume
- 	.long sys_vperfctr_read
-diff -uNr linux-2.6.10-rc3-mm1-mmcleanup/include/asm-frv/unistd.h linux-2.6.10-rc3-mm1-misc/include/asm-frv/unistd.h
---- linux-2.6.10-rc3-mm1-mmcleanup/include/asm-frv/unistd.h	2004-12-13 17:34:21.000000000 +0000
-+++ linux-2.6.10-rc3-mm1-misc/include/asm-frv/unistd.h	2004-12-14 16:16:26.762754662 +0000
-@@ -295,14 +295,13 @@
- #define __NR_add_key		286
- #define __NR_request_key	287
- #define __NR_keyctl		288
--#define __NR_perfctr_info	289
--#define __NR_vperfctr_open	(__NR_perfctr_info+1)
--#define __NR_vperfctr_control	(__NR_perfctr_info+2)
--#define __NR_vperfctr_unlink	(__NR_perfctr_info+3)
--#define __NR_vperfctr_iresume	(__NR_perfctr_info+4)
--#define __NR_vperfctr_read	(__NR_perfctr_info+5)
-+#define __NR_vperfctr_open	289
-+#define __NR_vperfctr_control	(__NR_perfctr_info+1)
-+#define __NR_vperfctr_unlink	(__NR_perfctr_info+2)
-+#define __NR_vperfctr_iresume	(__NR_perfctr_info+3)
-+#define __NR_vperfctr_read	(__NR_perfctr_info+4)
- 
--#define NR_syscalls 295
-+#define NR_syscalls 294
- 
- /*
-  * process the return value of a syscall, consigning it to one of two possible fates
+I get the same thing on Debian/sid with pretty much stock 2.6.9
+on a T42 - so probably not a RH-FC think - and I'm using APM.
+
+~mc

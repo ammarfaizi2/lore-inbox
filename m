@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317022AbSGXNK2>; Wed, 24 Jul 2002 09:10:28 -0400
+	id <S317110AbSGXNNX>; Wed, 24 Jul 2002 09:13:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317035AbSGXNK2>; Wed, 24 Jul 2002 09:10:28 -0400
-Received: from bitmover.com ([192.132.92.2]:13506 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S317022AbSGXNK2>;
-	Wed, 24 Jul 2002 09:10:28 -0400
-Date: Wed, 24 Jul 2002 06:13:39 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "James H. Cloos Jr." <cloos@jhcloos.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bk://linux.bkbits.net/linux-2.[45] pull error
-Message-ID: <20020724061339.E2703@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"James H. Cloos Jr." <cloos@jhcloos.com>,
-	linux-kernel@vger.kernel.org
-References: <m37kjlmt2k.fsf@lugabout.jhcloos.org>
-Mime-Version: 1.0
+	id <S317112AbSGXNNW>; Wed, 24 Jul 2002 09:13:22 -0400
+Received: from rogue.ncsl.nist.gov ([129.6.101.41]:55760 "EHLO
+	rogue.ncsl.nist.gov") by vger.kernel.org with ESMTP
+	id <S317110AbSGXNM4>; Wed, 24 Jul 2002 09:12:56 -0400
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Boot problem, 2.4.19-rc3-ac1
+From: Ian Soboroff <ian.soboroff@nist.gov>
+Date: 24 Jul 2002 09:16:05 -0400
+Message-ID: <9cfu1mp5kru.fsf@rogue.ncsl.nist.gov>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m37kjlmt2k.fsf@lugabout.jhcloos.org>; from cloos@jhcloos.com on Wed, Jul 24, 2002 at 04:24:51AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We ran out of disk space, it's fixed.  Thanks for the message.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+
+Alan,
+
+2.4.19-rc3-ac1 hangs on boot on my laptop (Fujitsu P-series, TM5800
+CPU), whereas plain[1] rc3 boots fine.  The hang appears to be during IDE
+detection:
+
+...
+block: 704 slots per queue, batch=176
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=XX
+ALI15X3: IDE controller on PCI bus 00 dev 78
+PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try using pci=biosirq
+ALI15X3: chipset revision 195
+ALI15X3: not 100% native mode: will probe irqs later
+
+With rc-3, I get this same error unless I have 'ide0=ata66 ide1=ata66'
+on the kernel command line.  However, -ac1 hangs with or without these
+options.
+
+
+
+[1] Actually, two one-liner patches... one to extend the ext3 journal
+commit interval to 30 seconds, and another to fix suspend issues in
+sound/trident.c.

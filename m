@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266622AbRGEFba>; Thu, 5 Jul 2001 01:31:30 -0400
+	id <S266591AbRGEF5F>; Thu, 5 Jul 2001 01:57:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266623AbRGEFbU>; Thu, 5 Jul 2001 01:31:20 -0400
-Received: from c-025.static.AT.KPNQwest.net ([193.154.188.25]:38528 "EHLO
-	stefan.sime.com") by vger.kernel.org with ESMTP id <S266622AbRGEFbJ>;
-	Thu, 5 Jul 2001 01:31:09 -0400
-Date: Thu, 5 Jul 2001 07:29:29 +0200
-From: Stefan Traby <stefan@hello-penguin.com>
-To: Mark Swanson <swansma@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: loop device corruption in 2.4.6
-Message-ID: <20010705072929.A7922@stefan.sime.com>
-Reply-To: Stefan Traby <stefan@hello-penguin.com>
-In-Reply-To: <01070417140200.03178@test.home2.mark>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <01070417140200.03178@test.home2.mark>; from swansma@yahoo.com on Wed, Jul 04, 2001 at 05:14:02PM -0400
-Organization: Stefan Traby Services && Consulting
-X-Operating-System: Linux 2.4.5-fijiji2-aescrypto (i686)
-X-APM: 99% -1 min
-X-PGP: Key fingerprint = C090 8941 DAD8 4B09 77B1  E284 7873 9310 3BDB EA79
-X-MIL: A-6172171143
-X-Lotto: Suggested Lotto numbers (Austrian 6 out of 45): 1 8 13 25 36 38
+	id <S266624AbRGEF4z>; Thu, 5 Jul 2001 01:56:55 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:19984 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266591AbRGEF4g>; Thu, 5 Jul 2001 01:56:36 -0400
+Date: Wed, 4 Jul 2001 22:55:31 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ben LaHaise <bcrl@redhat.com>
+cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: [wip-PATCH] rfi: PAGE_CACHE_SIZE suppoort
+In-Reply-To: <Pine.LNX.4.33.0107050054470.5548-100000@toomuch.toronto.redhat.com>
+Message-ID: <Pine.LNX.4.33.0107042247230.21720-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 04, 2001 at 05:14:02PM -0400, Mark Swanson wrote:
 
-> I get repeatable errors with 2.4.6 patched with the international encryption 
-> patch patch-int-2.4.3.1.bz2 when building loop device filesystems on top of 
-> Reiserfs.
+On Thu, 5 Jul 2001, Ben LaHaise wrote:
+>
+> I attacked the PAGE_CACHE_SIZE support in the kernel for the last few days
+> in an attempt to get multipage PAGE_CACHE_SIZE support working and below
+> is what I've come up with.  It currently boots to single user read only,
+> doesn't quite have write support fixed properly yet, but is going pretty
+> well.  The reason for sending this out now is the question of what to do
+> about kmap() support.
 
-Well, exactly this happens here on 2.4.5 and earlier too...
+I suggest making kmap _always_ map the "biggest" chunk of physical memory
+that the kernel ever touches at a time.
 
-I can't verify this on 2.4.6 (plain) because the kernel hangs right after
-partition-check on my Thinkpad A21p. :(
+So I would _strongly_ suggest that you make the kmap granularity be at
+_least_ PAGE_CACHE_SIZE. For debugging reasons I would suggest you have a
+separate "PAGE_KMAP_SIZE" thing, so that you can get the kmap code working
+independently of the PAGE_CACHE_SIZE thing.
 
--- 
+Once you have the guarantee that "kmap(page)" will actually end up mapping
+the (power-of-two-aligned) power-of-two-sized PAGE_KMAP_SIZE around the
+page, the loops should all go away, and you should be able to use kmap()
+the same way you've always used it (whether the user actually cares about
+just one page or not ends up being a non-issue).
 
-  ciao - 
-    Stefan
+> -	filp->f_pos = (n << PAGE_CACHE_SHIFT) | offset;
+> +	filp->f_pos = (n << PAGE_SHIFT) | offset;
 
-                     CONFIG_HANG_AFTER_PARTITION_CHECK=y
+You're definitely doing something wrong here.
+
+You should _never_ care about PAGE_SHIFT, except in the case of a mmap()
+where you obviously end up mapping in "partial" page-cache pages.  I
+suspect you're doing all this exactly because of the kmap issue, but you
+really shouldn't need to do it.
+
+The whole point with having a bigger page-cache-size is to be able to
+process bigger chunks at a time.
+
+Now, one thing you might actually want to look into is to make the dirty
+bit be a "dirty bitmap", so that you have the option of marking things
+dirty at a finer granularity. But that, I feel, is after you've gotten the
+basic stuff working with a PAGE_CACHE_SIZE dirty granularity.
+
+		Linus
+

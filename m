@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266704AbUGQNWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266727AbUGQNbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266704AbUGQNWF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 09:22:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266705AbUGQNWE
+	id S266727AbUGQNbm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 09:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266707AbUGQNbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 09:22:04 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:29589 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S266704AbUGQNWB
+	Sat, 17 Jul 2004 09:31:35 -0400
+Received: from mail-gw0.york.ac.uk ([144.32.128.245]:28338 "EHLO
+	mail-gw0.york.ac.uk") by vger.kernel.org with ESMTP id S266705AbUGQNbc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 09:22:01 -0400
-Subject: Davicom DM9102AF card working only at 10 Mbps
-From: Jean Francois Martinez <jfm512@free.fr>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1090070520.4498.25.camel@agnes>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 17 Jul 2004 15:22:00 +0200
+	Sat, 17 Jul 2004 09:31:32 -0400
+Message-ID: <019201c46c02$c6a84f30$68892090@grouse>
+From: "Jee J.Z." <jz105@york.ac.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: Questions on Linux 2.4.20 TCP fast recovery and ECN implementation
+Date: Sat, 17 Jul 2004 14:34:25 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+X-York-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an ethernet card with a DM9102AF chip.  It only works at 10 Mbps.
+Dear all,
 
-More precisely by using etheral on another box I see the frames it is
-sending but it seems unable to catch the replies.  If I configure it 
-to transmit at 10 Mbps then it works.
+I am really having problems understanding some linux 2.4.20 TCP
+implementation behaviours (listed as follows). Any reply would be very much
+appreciated.
 
-It happens both with 2.4 and 2.6 kernels.
+1. Fast recovery trigger: I found (by ethereal traces) linux 2.4.20 TCP fast
+recovery is usually triggered by only one duplicate ACK. I used to think
+this is caused by FACK. However, even after I disable FACK by turning off
+(set to 0) /proc/sys/net/ipv4/tcp_fack, the same phenomenon still happen.
+Only when I disable SACK, fast recovery is triggered by 3 duplicate ACK. I
+can't think of any explanation to this phenomenon.
 
-The computer with the Davicom card is linked to the network through 
-a switch.  The particualr cable and switch's port have worked 
-perfectly with other cards.  Same thing for the network config;
+2. FACK: Another issue related to FACK is that somebody said in linux 2.4
+with FACK on, fast recovery is triggered on conditions: if ((snd.fack -
+snd.una) > (N * MSS)) || (dupacks == 3), rather than what I have known: if
+((snd.fack - snd.una) > (3 * MSS)) || (dupacks == 3), where N is dynamically
+determined based on current network conditions such as reordering. However,
+I can't find the codes implementing this algorithm. If this is true, could
+anybody point me to the codes? Also, could anybody point me to the reference
+decribing this algorithm in detail?
 
-Could be a thing about failing negotiation with the switch 
-(as I saids the switch has worked perfectly with other cards).
-Now the question is if negotiation is a hardware thing and there
-is nothing to be done or a driver thing and then it should be
-fixed
+3. ECN implementation: As far as I read from a document, linux 2.4 ECN is
+somewhat different from the standard rfc 2481/3168 in that linux 2.4 TCP
+does not halve its congestion window at once on reception of a Congestion
+Experenced packet, but only gradually decreases the congestion window to
+half at the rate of one segment for two incoming ACKs. Is this true and are
+there any paticular reasons for modifying linux 2.4 TCP like this? If I
+don't remember wrong, linux 2.0 conforms to the standard in this issue.
 
-I have tried to link the card directly to another computer through a
-crossed cable.    It worked but
-I haven't checked at what speed the cards agreed to work.
+I have been trying to search resources related to these issues for many days
+but haven't found one really heuristic and useful. I would be very grateful
+if anybody could help me out with any of these questions. Thank you very
+much in advance!
 
-I have tried the card in several computers: K6 with VIA chipset, PIII
-with VIA chipset, P4 with Intel chipset.  Same results everywhere: card
-doesn't work at 100 Mbps only at 10 Mbps
-
-
+Cheers,
+Jee
 

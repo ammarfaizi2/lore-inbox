@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284987AbSBBX6t>; Sat, 2 Feb 2002 18:58:49 -0500
+	id <S285229AbSBCADH>; Sat, 2 Feb 2002 19:03:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284300AbSBBX6i>; Sat, 2 Feb 2002 18:58:38 -0500
-Received: from brick.kernel.dk ([195.249.94.204]:23961 "EHLO
-	burns.home.kernel.dk") by vger.kernel.org with ESMTP
-	id <S284305AbSBBX6b>; Sat, 2 Feb 2002 18:58:31 -0500
-Date: Sun, 3 Feb 2002 00:58:19 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-Cc: "Axel H. Siebenwirth" <axel@hh59.org>,
-        Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.3 - (IDE) hda: drive not ready for command errors
-Message-ID: <20020203005819.C29553@suse.de>
-In-Reply-To: <20020202102659.L12156@suse.de> <Pine.LNX.4.10.10202021158010.26613-100000@master.linux-ide.org> <20020203002821.A29553@suse.de>
+	id <S284732AbSBCAC6>; Sat, 2 Feb 2002 19:02:58 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:39880 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S285229AbSBCACo>;
+	Sat, 2 Feb 2002 19:02:44 -0500
+Date: Sat, 2 Feb 2002 19:02:42 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        davem@redhat.com
+Subject: Re: [PATCH] Generic HDLC patch for 2.5.3
+Message-ID: <20020202190242.C1740@havoc.gtf.org>
+In-Reply-To: <m3adurpifs.fsf@defiant.pm.waw.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020203002821.A29553@suse.de>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m3adurpifs.fsf@defiant.pm.waw.pl>; from khc@pm.waw.pl on Sun, Feb 03, 2002 at 12:33:59AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 03 2002, Jens Axboe wrote:
-> > what we are trying to get away from but we really need a way to stream the
-> > pointers to the data register cleanly.  Otherwise the benefits of the zero
-> > copy in block go away.
+On Sun, Feb 03, 2002 at 12:33:59AM +0100, Krzysztof Halasa wrote:
+> Hi,
 > 
-> ?? Your point is not clear. zero copy what, request struct?! That would
-> be way below measurable.
+> The attached file updates Linux 2.5.3 generic HDLC, please apply.
+> 
+> The patch includes:
+> - new SIOCDEVICE ioctl for setting all protocol and hardware parameters
+>   of (HDLC) network devices, instead of using PRIVATE netdev ioctls
+>   (details in hdlc.h and respective hdlc_*.c and/or N2 + C101 drivers)
+> - the HDLC code is now split into hdlc_generic.c, hdlc_fr.c,
+>   hdlc_cisco.c etc. files,
+> - all protocol parameters (timeouts etc.) are (should/aim) now configurable
+>   via SIOCDEVICE ioctl,
 
-Sorry, I see what you mean, was a bit too quick. To me the current code
-looks ok in this regard, I don't see any problems with that. If you have
-noticed a problem please out line it and I'll take a look tomorrow. Now,
-bed time.
 
--- 
-Jens Axboe
+
+Linus,
+
+Please revert, or do not apply, this patch.
+
+ftp://ftp.pm.waw.pl/pub/linux/hdlc/experimental/hdlc-2.5.3.patch.gz
+
+It adds undiscussed networking changed which I very much doubt DaveM
+would approve of, and I do not approve of:  SIOCDEVICE is far too
+generic for inclusion, and it adds a structure for passing untyped
+data which is very definitely non-portable.
+
+	Jeff
+
+
 

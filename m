@@ -1,73 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312978AbSDBWlN>; Tue, 2 Apr 2002 17:41:13 -0500
+	id <S312986AbSDBWmY>; Tue, 2 Apr 2002 17:42:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312983AbSDBWlE>; Tue, 2 Apr 2002 17:41:04 -0500
-Received: from web13107.mail.yahoo.com ([216.136.174.152]:38408 "HELO
-	web13107.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S312978AbSDBWky>; Tue, 2 Apr 2002 17:40:54 -0500
-Message-ID: <20020402224053.14575.qmail@web13107.mail.yahoo.com>
-Date: Tue, 2 Apr 2002 23:40:53 +0100 (BST)
-From: =?iso-8859-1?q?Chris=20Rankin?= <rankincj@yahoo.com>
+	id <S312983AbSDBWmG>; Tue, 2 Apr 2002 17:42:06 -0500
+Received: from h53n2fls32o986.telia.com ([213.67.49.53]:23813 "EHLO
+	localhost.toothpaste.org") by vger.kernel.org with ESMTP
+	id <S312980AbSDBWl4>; Tue, 2 Apr 2002 17:41:56 -0500
+Date: Wed, 3 Apr 2002 01:38:42 +0200
+From: Erik =?ISO-8859-1?Q?Ljungstr=F6m?= <insight@metalab.unc.edu>
+To: Chris Rankin <rankincj@yahoo.com>
+Cc: VANDROVE@vc.cvut.cz, linux-kernel@vger.kernel.org
 Subject: Re: Screen corruption in 2.4.18
-To: root@chaos.analogic.com
-Cc: VANDROVE@vc.cvut.cz, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.95.1020402172447.7371A-100000@chaos.analogic.com>
-MIME-Version: 1.0
+Message-Id: <20020403013842.54a961e2.insight@metalab.unc.edu>
+In-Reply-To: <3CAA25E7.2060405@yahoo.com>
+Organization: Independent C0der
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- "Richard B. Johnson" <root@chaos.analogic.com>
-wrote: > On Tue, 2 Apr 2002, Chris Rankin wrote:
-> [SNIPPED...]
+On Tue, 02 Apr 2002 22:43:03 +0100
+Chris Rankin <rankincj@yahoo.com> wrote:
+
+> Hi,
 > 
-> > 
-> > A few other things:
-> > - since I have about 1.25 GB of RAM, I have
-> enabled a 256 MB AGP aperture.
+> I have an i840 motherboard with dual 733 MHz PIIIs and a Matrox G400 
+> MAX, and I am also seeing console corruption with 2.4.18. The difference 
+> with me is that I *only* see it when I am using xine (CVS) and the 
+> SyncFB video plugin, possibly the Xv video plugin sometimes too. When I 
+> kill xine, the regular multicoloured rectangle disappears from the console.
 > 
-> What? 'since amount of RAM' has nothing to do with
-> AGP aperature. The
-> aperature should be the same as the amount of AGP
-> shared RAM used for
-> the screen-card on-board graphics. This is normally
-> set by the BIOS but
-> can be reset if the BIOS doesn't 'understand' your
-> screen card.
+> Obviously, this isn't something that I would normally notice - I 
+> wouldn't have noticed at all if the CVS xine hadn't locked up on me in 
+> full-screen mode, forcing me to turn to a console to kill it.
 > 
-> So, unless you have 256 MB on your screen board,
-> typically 32 MB for
-> high-resolution true-color boards, you will be
-> disabling PCI hardware
-> hand-shaking for a lot of addresses above your
-> screen board. This
-> can make DRAM-controler, controlled RAM accesses
-> interfere.
+> A few other things:
+> - since I have about 1.25 GB of RAM, I have enabled a 256 MB AGP aperture.
+> - I am using XFree86 4.2, but with the mga.o module that is native to 
+> Linux 2.4.18. I have not installed the Matrox HAL X module.
+> 
+> Whatever is causing this console corruption, it doesn't seem to be a VIA 
+> bug (in my case, anyway).
+> 
+> Chris
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I set the AGP aperture based upon the following
-information:
-
-"The AGP aperture is an area of system RAM reserved
-for use by the AGP card for storing textures if it
-needs to.  The RAM is available for use by the system
-as normal if not used by the graphics card."
-...
-"It is generally advised to set the AGP aperture to
-half the system RAM ."
-
-Therefore, it seemed reasonable to maximise my AGP
-aperture size for all and any conceivable textures (I
-have system RAM to spare), with no harm done.
-Admittedly, 256 MB does seem excessive, but anyway ...
-;-).
-
-Chris
-
-
-__________________________________________________
-Do You Yahoo!?
-Everything you'll ever need on one web page
-from News and Sport to Email and Music Charts
-http://uk.my.yahoo.com
+I'm having the same problem, just that this happens when I've been using mplayer with the -vo vesa parameters. I also have this problem with the 2.4.17 kernel.
+-- 
+--
+Best regards, Erik

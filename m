@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbTFFW3I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 18:29:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbTFFW3I
+	id S262348AbTFFWnj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 18:43:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbTFFWnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 18:29:08 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:4775 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262328AbTFFW3H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 18:29:07 -0400
-Message-ID: <3EE117CF.9060106@austin.ibm.com>
-Date: Fri, 06 Jun 2003 17:38:07 -0500
-From: Mark Peloquin <peloquin@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Nightly regression run results
-References: <3EDF6F49.8070201@austin.ibm.com> <3EDFEFBB.7080507@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Jun 2003 18:43:39 -0400
+Received: from almesberger.net ([63.105.73.239]:24074 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S262348AbTFFWni (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 18:43:38 -0400
+Date: Fri, 6 Jun 2003 19:56:49 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Mitchell Blank Jr <mitch@sfgoth.com>
+Cc: "David S. Miller" <davem@redhat.com>, chas@cmf.nrl.navy.mil,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations (take 2)
+Message-ID: <20030606195649.E3232@almesberger.net>
+References: <20030606121339.A3232@almesberger.net> <20030606.081618.108808702.davem@redhat.com> <20030606122616.B3232@almesberger.net> <20030606.082802.124082825.davem@redhat.com> <20030606125416.C3232@almesberger.net> <20030606214317.GD21217@gaz.sfgoth.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030606214317.GD21217@gaz.sfgoth.com>; from mitch@sfgoth.com on Fri, Jun 06, 2003 at 02:43:17PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nick,
+Mitchell Blank Jr wrote:
+> ATM switch and have atmsigd speak NNI to its neighbors (didn't someone have
+> some code for this WAY back in the dark ages... but it had some unfortunate
+> license issues... or am I remembering wrong?)
 
-Yes, the read tests do currently run primarily out of cache. This does 
-have some value for measuring the relative overhead of the i/o apis. To 
-avoid cache effects, and measure the real throughput, we need to bump 
-the size up and, as you suggest, size*2 is a good value to use. We've 
-tried to keep the overall test suite time down by maintaining shorter 
-runs whereever possible. So rather than increasing to run size by 2, we 
-will reduce the memory used, at boot, then use runs of newsmallsize*2. 
-This will keep the runs from taking too long and also avoid the cache 
-benefits. We will have to tweak this to come up with the appropriate 
-balance of memsize vs run time. This should be available in a few days.
+I think it was Ascom who had some P-NNI code, but they never
+made the effort of clearing it for release, even though it
+was only gathering dust in some drawer.
 
-Thanks for the feedback.
+- Werner
 
-Mark
-
-Nick Piggin wrote:
-
->
->
-> Mark Peloquin wrote:
->
->>
->>
->> Here are links to some 2.5.70 nightly regression comparisons:
->>
-> It appears your tiobench reads are coming out of cache.
-> Would you be able add some runs with the size >= 2*ram
-> please? I don't know if anyone would still find the
-> current type useful - maybe for scalability work?
->
-> Thanks
-> Nick
-
-
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

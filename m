@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270038AbTGLXz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 19:55:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270039AbTGLXz2
+	id S270024AbTGLXvj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 19:51:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270026AbTGLXvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 19:55:28 -0400
-Received: from holomorphy.com ([66.224.33.161]:40900 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S270038AbTGLXzW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 19:55:22 -0400
-Date: Sat, 12 Jul 2003 17:11:23 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [announce, patch] 4G/4G split on x86, 64 GB RAM (and more) support
-Message-ID: <20030713001123.GD15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Davide Libenzi <davidel@xmailserver.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0307082332450.17252-100000@localhost.localdomain> <55580000.1057727591@[10.10.2.4]> <20030709051941.GK15452@holomorphy.com> <20030709054307.GL15452@holomorphy.com> <Pine.LNX.4.55.0307121656060.4720@bigblue.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55.0307121656060.4720@bigblue.dev.mcafeelabs.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Sat, 12 Jul 2003 19:51:39 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:59023 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270024AbTGLXvi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 19:51:38 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 12 Jul 2003 16:58:55 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [announce, patch] 4G/4G split on x86, 64 GB RAM (and more)
+ support
+In-Reply-To: <20030709054307.GL15452@holomorphy.com>
+Message-ID: <Pine.LNX.4.55.0307121656060.4720@bigblue.dev.mcafeelabs.com>
+References: <Pine.LNX.4.44.0307082332450.17252-100000@localhost.localdomain>
+ <55580000.1057727591@[10.10.2.4]> <20030709051941.GK15452@holomorphy.com>
+ <20030709054307.GL15452@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, 8 Jul 2003, William Lee Irwin III wrote:
->    ^^^^^^^^^^^^^^^
+   ^^^^^^^^^^^^^^^
 
-On Sat, Jul 12, 2003 at 04:58:55PM -0700, Davide Libenzi wrote:
-> Is it just me that is receiving dups from lkml or it's a common disease ?
+Is it just me that is receiving dups from lkml or it's a common disease ?
 
-The story is all in the headers:
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S269995AbTGLXao (ORCPT <rfc822;wli@holomorphy.com>);
-        Sat, 12 Jul 2003 19:30:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270018AbTGLXao
-        (ORCPT <rfc822;linux-kernel-outgoing>);
-        Sat, 12 Jul 2003 19:30:44 -0400
-Received: from pip15.ptt.js.cn ([61.155.13.245]:9629 "HELO jlonline.com")
-        by vger.kernel.org with SMTP id S269995AbTGLXa2 (ORCPT
-        <rfc822;linux-kernel@vger.kernel.org>);
-        Sat, 12 Jul 2003 19:30:28 -0400
-Received: from jlonline.com([10.100.0.6]) by js.cn(AIMC 2.9.5.2)
-        with SMTP id jm43f10fd18; Sun, 13 Jul 2003 07:33:56 +0800
-Received: from kanga.kvack.org([216.138.200.138]) by js.cn(AIMC 2.9.5.2)
-        with SMTP id jm343f0c0ba8; Wed, 09 Jul 2003 13:35:56 +0800
-Received: (root@kanga.kvack.org) by kvack.org id <S26870AbTGIFmJ>;
-        Wed, 9 Jul 2003 01:42:09 -0400
-Received: from holomorphy.com ([66.224.33.161]:56232 "EHLO holomorphy")
-        by kvack.org with ESMTP id <S26867AbTGIFlw> convert rfc822-to-8bit;
-        Wed, 9 Jul 2003 01:41:52 -0400
-Received: from wli by holomorphy with local (Exim 3.36 #1 (Debian))
-        id 19a7jQ-0004Pg-00; Tue, 08 Jul 2003 22:43:08 -0700
 
-It's clearly well upstream from me.
+- Davide
 
--- wli

@@ -1,65 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274085AbRISPBW>; Wed, 19 Sep 2001 11:01:22 -0400
+	id <S274084AbRISO7c>; Wed, 19 Sep 2001 10:59:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274086AbRISPBM>; Wed, 19 Sep 2001 11:01:12 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:57105 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S274085AbRISPBD>; Wed, 19 Sep 2001 11:01:03 -0400
-Date: Wed, 19 Sep 2001 11:02:52 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: <proski@portland.hansa.lan>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.9-ac12 - problem mounting reiserfs (parse error?)
-Message-ID: <Pine.LNX.4.33.0109191053400.1244-100000@portland.hansa.lan>
+	id <S274085AbRISO7X>; Wed, 19 Sep 2001 10:59:23 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:8210 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S274084AbRISO7P>;
+	Wed, 19 Sep 2001 10:59:15 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
+Date: Wed, 19 Sep 2001 16:59:09 MET-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Re[2]: [PATCH] Athlon bug stomper. Pls apply.
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <3E975341CB7@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On 19 Sep 01 at 17:31, Liakakis Kostas wrote:
+> 
+> It seems to fix the stability problem. We don;t know why, but
+> experimetation shows that those _with_ the problem are relieved. This is
+> fine! We are happy with it.
+> 
+> We write to a register marked as "don't write" by Via. This is potentialy 
+> dangerous in ways we don't know yet.
 
-I've compiled 2.4.9-ac12 and it has problems mounting reiserfs partitions.
+Just small question - you are saying that your KT133A works fine with
+0x89... Two questions then - Do you have more than 256MB in your box?
+And second one: Do you have one, two, or three memory modules installed
+on the board? 
 
-This forks fine:
-
-mount /dev/hda6 /usr/local
-
-but "mount /dev/hda6" doesn't work if I have this in /etc/fstab:
-
-/dev/hda6    /usr/local    reiserfs defaults  0 0
-
-It appears that "defaults" is confusing some code in the kernel.  Here are
-more results:
-
-# mount -t reiserfs -o defaults /dev/hda6 /usr/local
-reiserfs kgetopt: there is not option
-mount: wrong fs type, bad option, bad superblock on /dev/hda6,
-       or too many mounted file systems
-# mount -t reiserfs -o rw /dev/hda6 /usr/local
-reiserfs kgetopt: there is not option
-mount: wrong fs type, bad option, bad superblock on /dev/hda6,
-       or too many mounted file systems
-# mount -t reiserfs -o bogus /dev/hda6 /usr/local
-reiserfs kgetopt: there is not option bogus
-mount: wrong fs type, bad option, bad superblock on /dev/hda6,
-       or too many mounted file systems
-
-As you see, invalid options are distinguished ("there is not option
-bogus", as opposed to "there is not option"), but all options are
-considered invalid.
-
-"reiserfs kgetopt: there is not option" appears on the console and in the
-dmesg output, it's not coming from mount.
-
-RedHat 7.1, i686, mount-2.11b-3 (from RedHat).
-
-No problems with 2.4.9-ac10.  I haven't tried 2.4.9-ac12.
-
-I hope to send fix soon.  Sorry, but I'm writing it in hurry to alert
-others that 2.4.9-ac12 is not quite usable, at least with reiserfs.
-
--- 
-Regards,
-Pavel Roskin
-
+If your answer is <=256MB, one module, no surprise then, as AFAIK nobody 
+with such config suffers from the problem. But checking also number of 
+memory modules looks more like black magic that anything else. 
+Hopefully VIA will answer...
+                                            Thanks,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

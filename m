@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278031AbRJIWjf>; Tue, 9 Oct 2001 18:39:35 -0400
+	id <S278038AbRJIWm1>; Tue, 9 Oct 2001 18:42:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278035AbRJIWjZ>; Tue, 9 Oct 2001 18:39:25 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:24966 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S278031AbRJIWjJ>;
-	Tue, 9 Oct 2001 18:39:09 -0400
-Date: Tue, 09 Oct 2001 15:37:46 -0700 (PDT)
-Message-Id: <20011009.153746.59466398.davem@redhat.com>
-To: balbir.singh@wipro.com
-Cc: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Trivial patch for SIOCGIFCOUNT
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3BC2FA63.6070006@wipro.com>
-In-Reply-To: <3BC2FA63.6070006@wipro.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S278036AbRJIWmP>; Tue, 9 Oct 2001 18:42:15 -0400
+Received: from smtp10.atl.mindspring.net ([207.69.200.246]:31515 "EHLO
+	smtp10.atl.mindspring.net") by vger.kernel.org with ESMTP
+	id <S278038AbRJIWmB>; Tue, 9 Oct 2001 18:42:01 -0400
+Subject: Re: Dual Athlon XP 1800+ on Tyan Thunder K7 or Tiger MP anyone?
+From: Robert Love <rml@tech9.net>
+To: Dan Hollis <goemon@anime.net>
+Cc: David Lang <dlang@diginsite.com>, Timur Tabi <ttabi@interactivesi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0110091528450.18826-100000@anime.net>
+In-Reply-To: <Pine.LNX.4.30.0110091528450.18826-100000@anime.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
+Date: 09 Oct 2001 18:43:01 -0400
+Message-Id: <1002667385.1673.129.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "BALBIR SINGH" <balbir.singh@wipro.com>
-   Date: Tue, 09 Oct 2001 18:53:47 +0530
+On Tue, 2001-10-09 at 18:30, Dan Hollis wrote:
+> It's palomino core. It means, new SSE instructions, bigger TLB cache,
+> prefetch, and 20% power reduction. All this for maybe 5%-15% performance
+> increase. And a not so nice increase in price tag :-o
 
-   	To make the API orthogonal, I have included a patch for SIOCGIFCOUNT,
-   which currently returns -EINVAL. The only reason I am providing this patch
-   is to make the API complete and make it easier to port applications from
-   other UNIX like OS'es.
+Oh, you are right.
 
-There is no need for this change, and _EVEN_ if we put this
-change in today every APP out there would _STILL_ need to deal with
-all existing kernels which do not have SIOCGIFCOUNT implemented.
+I meant MP vs XP part, sorry.  From what I gather, MP is no different
+from XP, although perhaps "certified for SMP" -- despite costing more
+per MHz.
 
-Furthermore, SIOCGIFCOUNT also gives no new functionality that does
-not exist already.  SIOCGIFCONF with a zero size with give the
-behavior necessary to get the same answer as a SIOCGIFCOUNT would
-provide.  As far as I am aware, every system providing BSD sockets
-provides this SIOCGIFCONF "feature".
+> Dual 1.2 non-MP is fine for me thanks... plenty fast and cheap.
 
-Therefore, it is already quite easy to make applications portable
-between Linux and other BSD socket based systems.  Simply use the
-SIOCGIFCONF method throughout.
+Completely Agreed.  I am thinking of getting a dual AMD system for doing
+more kernel work (tackle AMD and SMP).  My main machine is a P3 now.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+	Robert Love
 

@@ -1,98 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267569AbTACQJq>; Fri, 3 Jan 2003 11:09:46 -0500
+	id <S267572AbTACQKC>; Fri, 3 Jan 2003 11:10:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267568AbTACQIP>; Fri, 3 Jan 2003 11:08:15 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:47770 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267567AbTACQIB>;
-	Fri, 3 Jan 2003 11:08:01 -0500
-Date: Fri, 3 Jan 2003 17:16:17 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Richard Baverstock <beaver@gto.net>
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: [PATCH] AGPGART for VIA vt8235, kernel 2.4.21-pre2
-Message-ID: <20030103171617.B4502@ucw.cz>
-References: <20030102145346.27a21ed9.beaver@gto.net>
+	id <S267570AbTACQJx>; Fri, 3 Jan 2003 11:09:53 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:40893 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S267567AbTACQIV> convert rfc822-to-8bit; Fri, 3 Jan 2003 11:08:21 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <andrew@walrond.org>, Marco Monteiro <masm@acm.org>,
+       <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Fri, 3 Jan 2003 08:16:50 -0800
+In-Reply-To: <3E158738.4050003@walrond.org>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030102145346.27a21ed9.beaver@gto.net>; from beaver@gto.net on Thu, Jan 02, 2003 at 02:53:46PM -0500
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20030103161652.AAA2625@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 02, 2003 at 02:53:46PM -0500, Richard Baverstock wrote:
-> Here is a patch that enables AGPGART for the VIA vt8235 chipset on P4X400 motherboards. Rather trivial, adds the pci id, then a few lines in the agp sources to get it identified. I've only been able to test this on my computer, where it works.
 
-The vt8235 is the southbridge chip and that the AGP bridge is
-located in the northbridge, which most likely has a different number.
+On Fri, 03 Jan 2003 12:51:04 +0000, Andrew Walrond wrote:
 
-> Rich
-> 
-> 
-> --BEGIN--
-> 
-> diff -ur linux/drivers/char/agp/agp.h linux-2.4.21-pre2/drivers/char/agp/agp.h
-> --- linux/drivers/char/agp/agp.h 2003-01-02 14:36:15.000000000 -0500
-> +++ linux-2.4.21-pre2/drivers/char/agp/agp.h 2003-01-02 14:35:02.000000000 -0500
-> @@ -157,6 +157,9 @@
-> 
->  #define PGE_EMPTY(p) (!(p) || (p) == (unsigned long) agp_bridge.scratch_page)
-> 
-> +#ifndef PCI_DEVICE_ID_VIA_8235_0
-> +#define PCI_DEVICE_ID_VIA_8235_0       0x3168
-> +#endif
->  #ifndef PCI_DEVICE_ID_VIA_82C691_0
->  #define PCI_DEVICE_ID_VIA_82C691_0      0x0691
->  #endif
-> diff -ur linux/drivers/char/agp/agpgart_be.c linux-2.4.21-pre2/drivers/char/agp/agpgart_be.c
-> --- linux/drivers/char/agp/agpgart_be.c   2003-01-02 14:36:15.000000000 -0500
-> +++ linux-2.4.21-pre2/drivers/char/agp/agpgart_be.c   2003-01-02 14:35:02.000000000 -0500
-> @@ -4640,6 +4640,12 @@
->  #endif /* CONFIG_AGP_SIS */
-> 
->  #ifdef CONFIG_AGP_VIA
-> +  { PCI_DEVICE_ID_VIA_8235_0,
-> +     PCI_VENDOR_ID_VIA,
-> +     VIA_P4X400,
-> +     "Via",
-> +     "P4X400",
-> +     via_generic_setup },
->    { PCI_DEVICE_ID_VIA_8501_0,
->       PCI_VENDOR_ID_VIA,
->       VIA_MVP4,
-> diff -ur linux/drivers/pci/pci.ids linux-2.4.21-pre2/drivers/pci/pci.ids
-> --- linux/drivers/pci/pci.ids 2003-01-02 14:36:16.000000000 -0500
-> +++ linux-2.4.21-pre2/drivers/pci/pci.ids 2003-01-02 14:35:02.000000000 -0500
-> @@ -2751,6 +2751,7 @@
->    3147  VT8233A ISA Bridge
->    3148  P4M266 Host Bridge
->    3156  P/KN266 Host Bridge
-> +  3168  VT8235 [P4X400 AGP]
->    3177  VT8233A ISA Bridge
->       1458 5001 GA-7VAX Mainboard
->    3189  VT8377 [KT400 AGP] Host Bridge
-> diff -ur linux/include/linux/agp_backend.h linux-2.4.21-pre2/include/linux/agp_backend.h
-> --- linux/include/linux/agp_backend.h  2003-01-02 14:36:17.000000000 -0500
-> +++ linux-2.4.21-pre2/include/linux/agp_backend.h  2003-01-02 14:35:02.000000000 -0500
-> @@ -54,6 +54,7 @@
->    INTEL_I850,
->    INTEL_I860,
->    VIA_GENERIC,
-> +  VIA_P4X400,
->    VIA_VP3,
->    VIA_MVP3,
->    VIA_MVP4,
-> 
-> --END--
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>Yes but....
 
--- 
-Vojtech Pavlik
-SuSE Labs
+>I develop computer games. The last one I did took a team of 35 people 2
+>years and cost $X million to develop.
+
+>Please explain how I could do this as free software, while still feeding
+>my people? Am I a bad person charging for my work?
+
+>Really - I want to understand so I too can join this merry band of happy
+>people giving everything away for free!
+
+	You can't with the GPL, because it presents you with a "take it or leave it" 
+package deal. But you could with a different license.
+
+	What you do is you base your game off of whatever open source code gets you 
+the furthest. The game itself, of course, is closed source. After your first 
+few months of sales, you contribute some of the code you wrote back to the 
+open source community. 
+
+	Why shouldn't you? It hurts you not one bit and it's free publicity. Heck, 
+after a few year, maybe you open source the whole game.
+
+	The next person to write a game can start where you left off to some extent. 
+He can develop a better game for less money, and he can contribute more code 
+back to the community. Eventually, there may be enough code in the comnunity 
+to develop such complex games entirely open source.
+
+	However, with a license like the GPL, every game has to be developed on a 
+proprietary base. You simply can't afford to put any money into an open 
+source base. So every game has to start back from square one, or the most 
+advanced proprietary base that can be found.
+
+	Everybody loses except the person who makes the proprietary base or engine 
+you started with. I think working to make all software better and cheaper is 
+much more noble goal than working to arm twist other people into giving you 
+their code.
+
+	And the best part is, you can work to strengthen fair use, first sale, and 
+oppose the validity of shrink wrap licenses. You can argue for a narrower 
+definition of a derived work. In fact, you can at least *try* to win the 
+legal war.
+
+	DS
+
+

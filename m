@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282210AbRK2ABD>; Wed, 28 Nov 2001 19:01:03 -0500
+	id <S282190AbRK2ADn>; Wed, 28 Nov 2001 19:03:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282190AbRK2AAy>; Wed, 28 Nov 2001 19:00:54 -0500
-Received: from zero.tech9.net ([209.61.188.187]:49418 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S282210AbRK2AAp>;
-	Wed, 28 Nov 2001 19:00:45 -0500
-Subject: [PATCH] silly ide without proc compile fix
-From: Robert Love <rml@tech9.net>
-To: marcelo@conectiva.com.br, andre@linux-ide.org
+	id <S282204AbRK2ADd>; Wed, 28 Nov 2001 19:03:33 -0500
+Received: from gordon.ukservers.net ([217.10.138.217]:59407 "HELO
+	gordon.ukservers.net") by vger.kernel.org with SMTP
+	id <S282190AbRK2ADW>; Wed, 28 Nov 2001 19:03:22 -0500
+Date: Thu, 29 Nov 2001 00:05:09 +0000
+From: Mark Hymers <markh@linuxfromscratch.org>
+To: Robert Love <rml@tech9.net>
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 28 Nov 2001 19:00:39 -0500
-Message-Id: <1006992039.813.6.camel@phantasy>
+Subject: Re: Linux 2.4.17-pre1
+Message-ID: <20011129000509.A1362@markcomp.blaydon.hymers.org.uk>
+Mail-Followup-To: Robert Love <rml@tech9.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E169EIY-0006UI-00@the-village.bc.nu> <1006991294.813.0.camel@phantasy>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1006991294.813.0.camel@phantasy>; from rml@tech9.net on Wed, Nov 28, 2001 at 06:48:13PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IDE subsystem fails to compile without proc support because
-ide_remove_proc_entries is called but not defined.  Other uses of the
-function are properly ifdef'ed, the following in ide-disk.c and
-ide-floppy.c are not.
+On Wed, 28, Nov, 2001 at 06:48:13PM -0500, Robert Love spoke thus..
+> On Wed, 2001-11-28 at 18:39, Alan Cox wrote:
+> > > use "BSD without advertising clause", which causes the kernel to
+> > > be
+> > > tainted. Shouldn't fs/nls/*.c use "Dual BSD/GPL" or "GPL" instead?
+> >
+> > Dual BSD/GPL is the correct one.  Not a big issue. Since the GPL
+> > allows
+> > stuff to be freer than GPL but still GPL its arguably correct too I
+> > suspect
+>
+> I was waiting for confirmation about the license status...without
+> getting into what license is correct and legal, the current
+> MODULE_LICENSE value taints the kernel.  The attached patch switches
+> to
+> Dual BSD/GPL.
+Do you know what the legal status of the rest of the *.c files in fs/nls
+is?  There are still quite a few which have no MODULE_LICENSE tag at all
+which causes the kernel to be tainted (IMO) incorrectly.
 
-Please apply.
+Mark
 
-	Robert Love
-
-diff -urN linux-2.4.17-pre1/drivers/ide/ide-disk.c linux/drivers/ide/ide-disk.c
---- linux-2.4.17-pre1/drivers/ide/ide-disk.c	Wed Nov 28 15:15:35 2001
-+++ linux/drivers/ide/ide-disk.c	Wed Nov 28 17:05:07 2001
-@@ -856,10 +856,12 @@
- 			printk (KERN_ERR "%s: cleanup_module() called while still busy\n", drive->name);
- 			failed++;
- 		}
- 		/* We must remove proc entries defined in this module.
- 		   Otherwise we oops while accessing these entries */
-+#ifdef CONFIG_PROC_FS
- 		if (drive->proc)
- 			ide_remove_proc_entries(drive->proc, idedisk_proc);
-+#endif
- 	}
- 	ide_unregister_module(&idedisk_module);
- }
-diff -urN linux-2.4.17-pre1/drivers/ide/ide-floppy.c linux/drivers/ide/ide-floppy.c
---- linux-2.4.17-pre1/drivers/ide/ide-floppy.c	Wed Nov 28 15:15:35 2001
-+++ linux/drivers/ide/ide-floppy.c	Wed Nov 28 17:09:21 2001
-@@ -2071,8 +2071,10 @@
- 		}
- 		/* We must remove proc entries defined in this module.
- 		   Otherwise we oops while accessing these entries */
-+#ifdef CONFIG_PROC_FS
- 		if (drive->proc)
- 			ide_remove_proc_entries(drive->proc, idefloppy_proc);
-+#endif
- 	}
- 	ide_unregister_module(&idefloppy_module);
- }
-
+-- 
+Mark Hymers					 BLFS Editor
+markh@linuxfromscratch.org

@@ -1,68 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266341AbUIVCHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267745AbUIVCOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266341AbUIVCHV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 22:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267646AbUIVCHV
+	id S267745AbUIVCOp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 22:14:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267708AbUIVCOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 22:07:21 -0400
-Received: from coriana6.CIS.McMaster.CA ([130.113.128.17]:6795 "EHLO
-	coriana6.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S266341AbUIVCHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 22:07:18 -0400
-Subject: Re: [RFC][PATCH] inotify 0.9.2
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Robert Love <rml@novell.com>
-Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-In-Reply-To: <1095792996.4944.59.camel@betsy.boston.ximian.com>
-References: <1095652572.23128.2.camel@vertex>
-	 <1095782674.4944.41.camel@betsy.boston.ximian.com>
-	 <1095792996.4944.59.camel@betsy.boston.ximian.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1095820345.22558.7.camel@vertex>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 21 Sep 2004 22:32:25 -0400
-X-PMX-Version-Mac: 4.7.0.111621, Antispam-Engine: 2.0.0.0, Antispam-Data: 2004.9.21.5
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0, __SANE_MSGID 0'
-X-Spam-Flag: NO
+	Tue, 21 Sep 2004 22:14:44 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:48529 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S267690AbUIVCOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 22:14:39 -0400
+Date: Wed, 22 Sep 2004 11:10:56 +0900
+From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Subject: Re: [ACPI] PATCH-ACPI based CPU hotplug[3/6]-Mapping lsapic to cpu
+In-reply-to: <20040920093819.E14208@unix-os.sc.intel.com>
+To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+Cc: tokunaga.keiich@jp.fujitsu.com, len.brown@intel.com,
+       acpi-devel@lists.sourceforge.net, lhns-devel@lists.sourceforge.net,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-id: <20040922111056.3360443c.tokunaga.keiich@jp.fujitsu.com>
+Organization: FUJITSU LIMITED
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20040920092520.A14208@unix-os.sc.intel.com>
+ <20040920093819.E14208@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-21 at 14:56, Robert Love wrote:
-> On Tue, 2004-09-21 at 12:04 -0400, Robert Love wrote:
-> 
-> > Hey, John.
-> > 
-> > We are seeing an oops when monitoring a large number of directories.
-> > The system keeps running, but I/O gets flaky and eventually processes
-> > start getting stuck.
-> > 
-> > Also, the ioctl() stops returning new WD after 1024.  Thereafter, it
-> > keeps returning the same value.
-> > 
-> > I have attached the relevant bits from the syslog.  I will debug it, but
-> > I thought that perhaps you would immediately see the issue.
-> 
-> OK.  I fixed the problem with ioctl() failing after 1024 WD's.  This may
-> also fix the oopses.  Still checking on that.
-> 
+On Mon, 20 Sep 2004 09:38:19 -0700 Keshavamurthy Anil S wrote:
+> ---
+> Name:acpi_hotplug_arch.patch
+> Status: Tested on 2.6.9-rc2
+> Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+> Depends:	
+> Version: applies on 2.6.9-rc2	
+> Description: 
+> This patch provides the architecture specifice support for mapping lsapic to cpu array.
+> Currently this supports just IA64. Support for IA32 and x86_64 is in progress
+> ---
 
-I hope it fixes the oopses, I have only just started looking at the oops
-you sent me, and nothing jumped out at me.
+Here is a small fix.
 
-> The problem was that we were passing the size of dev->bitmask in _bytes_
-> to find_first_zero_bit().  But find_first_zero_bit()'s second parameter
-> is the size in _bits_.
->
+Thanks,
+Keiichiro Tokunaga
 
-Good to know, I wasn't sure when I wrote this code.
 
-> I then went ahead and just made dev->bitmask an array, since we know the
-> size at compile time.
-> 
-> Comments?
+Name: pxm_to_nid_map_fix.patch
+Status: Tested on 2.6.9-rc2
+Signed-off-by: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Description:
+Change an attribute of pxm_to_nid_map[] from __initdata to __devinitdata.
 
-Sounds good.
+---
 
-John
+ linux-2.6.9-rc2-fix-kei/include/asm-ia64/acpi.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN include/asm-ia64/acpi.h~pxm_to_nid_map_fix include/asm-ia64/acpi.h
+--- linux-2.6.9-rc2-fix/include/asm-ia64/acpi.h~pxm_to_nid_map_fix	2004-09-22 09:30:17.692176696 +0900
++++ linux-2.6.9-rc2-fix-kei/include/asm-ia64/acpi.h	2004-09-22 09:30:17.694129834 +0900
+@@ -101,7 +101,7 @@ int acpi_gsi_to_irq (u32 gsi, unsigned i
+ #ifdef CONFIG_ACPI_NUMA
+ /* Proximity bitmap length; _PXM is at most 255 (8 bit)*/
+ #define MAX_PXM_DOMAINS (256)
+-extern int __initdata pxm_to_nid_map[MAX_PXM_DOMAINS];
++extern int __devinitdata pxm_to_nid_map[MAX_PXM_DOMAINS];
+ extern int __initdata nid_to_pxm_map[MAX_NUMNODES];
+ #endif
+ 
+
+_

@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265139AbSLVSsi>; Sun, 22 Dec 2002 13:48:38 -0500
+	id <S265134AbSLVSpN>; Sun, 22 Dec 2002 13:45:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265140AbSLVSsi>; Sun, 22 Dec 2002 13:48:38 -0500
-Received: from h-64-105-34-78.SNVACAID.covad.net ([64.105.34.78]:63918 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S265139AbSLVSsh>; Sun, 22 Dec 2002 13:48:37 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 22 Dec 2002 10:53:09 -0800
-Message-Id: <200212221853.KAA12889@adam.yggdrasil.com>
-To: dave@codemonkey.org.uk, hannal@us.ibm.com
-Subject: Re: Dedicated kernel bug database
-Cc: linux-kernel@vger.kernel.org
+	id <S265135AbSLVSpN>; Sun, 22 Dec 2002 13:45:13 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21254 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265134AbSLVSpN>; Sun, 22 Dec 2002 13:45:13 -0500
+Date: Sun, 22 Dec 2002 10:53:49 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Ulrich Drepper <drepper@redhat.com>, <bart@etpmod.phys.tue.nl>,
+       <davej@codemonkey.org.uk>, <hpa@transmeta.com>,
+       <terje.eggestad@scali.com>, <matti.aarnio@zmailer.org>,
+       <hugh@veritas.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <Pine.LNX.4.44.0212221111080.31068-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0212221050210.2587-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-12-20, Dave Jones wrote:
->On Thu, Dec 19, 2002 at 06:01:34PM -0800, Hanna Linder wrote:
->
-> > > Anything in "OPEN" state isn't really assigned to anyone yet.
-> > > (the state would really better be named "NEW", but it's not). 
-> > > People should move it to "ASSIGNED" if they're working on it.
-> >      So the process is to query for all open bugs (but not 
-> > assigned) then email each person to let them know you are 
-> > working on it?
->
->Why generate noise ?
->
->Query bugs.
->Find something interesting.
->Fix it.
->THEN email person (or better yet, add to bugzilla entry).
->
->Flooding the database with "I'm working on this" reports
->buys absolutely nothing.
 
-	"I'm working on this" messages (in my experience in lkml at
-least) help people avoid duplication of effort, and perhaps sometimes
-help multiple people who want to work on the same bug find each other.
 
-	I think the "noise" would mostly be a user interface issue.
-Imagine, for example, if the "I'm working on this" messages were
-consolidated into a single link that said something like "4 people are
-working on this bug", which you could click on for the details.
+On Sun, 22 Dec 2002, Ingo Molnar wrote:
+>
+> On Sat, 21 Dec 2002, Linus Torvalds wrote:
+>
+> > Saving and restoring eflags in user mode avoids all of these
+> > complications, and means that there are no special cases. None. Zero.
+> > Nada.
+>
+> and i'm 100% sure the more robust eflags saving will also avoid security
+> holes. The amount of security-relevant complexity that comes from all the
+> x86 features [and their combinations] is amazing.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+I looked a bit at what it would take to have the TF bit handled by the
+sysenter path, and it might not be so horrible - certainly not as ugly as
+the register restore bits.
+
+Jamie, if you want to do it, it looks like you could add a new "work" bit
+in the thread flags, and add it to the _TIF_ALLWORK_MASK tests. At least
+that way it wouldn't touch the regular code, and I don't think that the
+result would have any strange "magic EIP" tests or anything horrible like
+that ;)
+
+		Linus
+

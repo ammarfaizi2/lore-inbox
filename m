@@ -1,169 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbVAJGVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbVAJG2n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbVAJGVE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 01:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbVAJFjX
+	id S262097AbVAJG2n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 01:28:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbVAJG2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 00:39:23 -0500
-Received: from pool-151-203-193-191.bos.east.verizon.net ([151.203.193.191]:20996
-	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S262096AbVAJFOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 00:14:18 -0500
-Message-Id: <200501100735.j0A7ZbPW005785@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 11/28] UML - Separate out the time code
+	Mon, 10 Jan 2005 01:28:43 -0500
+Received: from ozlabs.org ([203.10.76.45]:59279 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262097AbVAJG2k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 01:28:40 -0500
+Date: Tue, 11 Jan 2005 05:00:04 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: [PPC64] Rename perf counter register #defines
+Message-ID: <20050110180004.GC22101@localhost.localdomain>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, linuxppc64-dev@ozlabs.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 10 Jan 2005 02:35:37 -0500
-From: Jeff Dike <jdike@addtoit.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move the i386 __delay to sys-i386 and add an implementation for x86_64.
-Also get rid of the definition of um_udelay_t.
+Andrew, please apply:
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+This patch makes some cleanups to the #defines for various fields in
+the MMCR0 performance monitor control register.  Specifically, the
+names of a couple of bits are changed so that: a) they are a bit less
+cumbersomely long and b) they match the names used in the hardware
+documentation.
 
-Index: 2.6.10/arch/um/kernel/time_kern.c
-===================================================================
---- 2.6.10.orig/arch/um/kernel/time_kern.c	2005-01-02 22:03:40.000000000 -0500
-+++ 2.6.10/arch/um/kernel/time_kern.c	2005-01-02 22:09:23.000000000 -0500
-@@ -136,22 +136,7 @@
- 	return 0;
- }
- 
--/* XXX Needs to be moved under sys-i386 */
--void __delay(um_udelay_t time)
--{
--	/* Stolen from the i386 __loop_delay */
--	int d0;
--	__asm__ __volatile__(
--		"\tjmp 1f\n"
--		".align 16\n"
--		"1:\tjmp 2f\n"
--		".align 16\n"
--		"2:\tdecl %0\n\tjns 2b"
--		:"=&a" (d0)
--		:"0" (time));
--}
--
--void __udelay(um_udelay_t usecs)
-+void __udelay(unsigned long usecs)
- {
- 	int i, n;
- 
-@@ -159,7 +144,7 @@
- 	for(i=0;i<n;i++) ;
- }
- 
--void __const_udelay(um_udelay_t usecs)
-+void __const_udelay(unsigned long usecs)
- {
- 	int i, n;
- 
-Index: 2.6.10/arch/um/sys-i386/Makefile
-===================================================================
---- 2.6.10.orig/arch/um/sys-i386/Makefile	2005-01-02 22:03:40.000000000 -0500
-+++ 2.6.10/arch/um/sys-i386/Makefile	2005-01-02 22:09:23.000000000 -0500
-@@ -1,4 +1,4 @@
--obj-y = bitops.o bugs.o checksum.o fault.o ksyms.o ldt.o ptrace.o \
-+obj-y = bitops.o bugs.o checksum.o delay.o fault.o ksyms.o ldt.o ptrace.o \
- 	ptrace_user.o semaphore.o signal.o sigcontext.o syscalls.o sysrq.o
- 
- obj-$(CONFIG_HIGHMEM) += highmem.o
-Index: 2.6.10/arch/um/sys-i386/delay.c
-===================================================================
---- 2.6.10.orig/arch/um/sys-i386/delay.c	2003-09-15 09:40:47.000000000 -0400
-+++ 2.6.10/arch/um/sys-i386/delay.c	2005-01-02 22:09:23.000000000 -0500
-@@ -0,0 +1,14 @@
-+void __delay(unsigned long time)
-+{
-+	/* Stolen from the i386 __loop_delay */
-+	int d0;
-+	__asm__ __volatile__(
-+		"\tjmp 1f\n"
-+		".align 16\n"
-+		"1:\tjmp 2f\n"
-+		".align 16\n"
-+		"2:\tdecl %0\n\tjns 2b"
-+		:"=&a" (d0)
-+		:"0" (time));
-+}
-+
-Index: 2.6.10/arch/um/sys-x86_64/Makefile
-===================================================================
---- 2.6.10.orig/arch/um/sys-x86_64/Makefile	2005-01-02 22:09:15.000000000 -0500
-+++ 2.6.10/arch/um/sys-x86_64/Makefile	2005-01-02 22:09:39.000000000 -0500
-@@ -4,7 +4,7 @@
- # Licensed under the GPL
- #
- 
--lib-y = bitops.o bugs.o csum-partial.o fault.o mem.o memcpy.o \
-+lib-y = bitops.o bugs.o csum-partial.o delay.o fault.o mem.o memcpy.o \
- 	ptrace.o ptrace_user.o semaphore.o sigcontext.o signal.o \
- 	syscalls.o sysrq.o thunk.o
- 
-Index: 2.6.10/arch/um/sys-x86_64/delay.c
-===================================================================
---- 2.6.10.orig/arch/um/sys-x86_64/delay.c	2003-09-15 09:40:47.000000000 -0400
-+++ 2.6.10/arch/um/sys-x86_64/delay.c	2005-01-02 22:09:23.000000000 -0500
-@@ -0,0 +1,26 @@
-+/*
-+ * Copyright 2003 PathScale, Inc.
-+ * Copied from arch/x86_64
-+ *
-+ * Licensed under the GPL
-+ */
-+
-+#include "asm/processor.h"
-+
-+void __delay(unsigned long loops)
-+{
-+	unsigned long i;
-+
-+	for(i = 0; i < loops; i++) ;
-+}
-+
-+/*
-+ * Overrides for Emacs so that we follow Linus's tabbing style.
-+ * Emacs will notice this stuff at the end of the file and automatically
-+ * adjust the settings for this buffer only.  This must remain at the end
-+ * of the file.
-+ * ---------------------------------------------------------------------------
-+ * Local variables:
-+ * c-file-style: "linux"
-+ * End:
-+ */
-Index: 2.6.10/include/asm-um/archparam-i386.h
-===================================================================
---- 2.6.10.orig/include/asm-um/archparam-i386.h	2005-01-02 22:03:40.000000000 -0500
-+++ 2.6.10/include/asm-um/archparam-i386.h	2005-01-02 22:09:23.000000000 -0500
-@@ -136,10 +136,6 @@
- #define R_386_GOTPC	10
- #define R_386_NUM	11
- 
--/********* Bits for asm-um/delay.h **********/
--
--typedef unsigned long um_udelay_t;
--
- /********* Nothing for asm-um/hardirq.h **********/
- 
- /********* Nothing for asm-um/hw_irq.h **********/
-Index: 2.6.10/include/asm-um/archparam-ppc.h
-===================================================================
---- 2.6.10.orig/include/asm-um/archparam-ppc.h	2005-01-02 22:03:40.000000000 -0500
-+++ 2.6.10/include/asm-um/archparam-ppc.h	2005-01-02 22:09:23.000000000 -0500
-@@ -21,10 +21,6 @@
- #define ELF_DATA        ELFDATA2MSB
- #define ELF_ARCH	EM_PPC
- 
--/********* Bits for asm-um/delay.h **********/
--
--typedef unsigned int um_udelay_t;
--
- /********* Bits for asm-um/hw_irq.h **********/
- 
- struct hw_interrupt_type;
+Signed-off-by: David Gibson <dwg@au1.ibm.com>
 
+Index: working-2.6/include/asm-ppc64/processor.h
+===================================================================
+--- working-2.6.orig/include/asm-ppc64/processor.h	2005-01-10 16:51:10.625391320 +1100
++++ working-2.6/include/asm-ppc64/processor.h	2005-01-10 16:51:28.771295712 +1100
+@@ -331,8 +331,8 @@
+ #define   MMCR0_FCECE	0x02000000UL /* freeze counters on enabled condition or event */
+ /* time base exception enable */
+ #define   MMCR0_TBEE	0x00400000UL /* time base exception enable */
+-#define   MMCR0_PMC1INTCONTROL	0x00008000UL /* PMC1 count enable*/
+-#define   MMCR0_PMCNINTCONTROL	0x00004000UL /* PMCn count enable*/
++#define   MMCR0_PMC1CE	0x00008000UL /* PMC1 count enable*/
++#define   MMCR0_PMCjCE	0x00004000UL /* PMCj count enable*/
+ #define   MMCR0_TRIGGER	0x00002000UL /* TRIGGER enable */
+ #define   MMCR0_PMAO	0x00000080UL /* performance monitor alert has occurred, set to 0 after handling exception */
+ #define   MMCR0_SHRFC	0x00000040UL /* SHRre freeze conditions between threads */
+Index: working-2.6/arch/ppc64/oprofile/op_model_rs64.c
+===================================================================
+--- working-2.6.orig/arch/ppc64/oprofile/op_model_rs64.c	2005-01-10 16:51:10.625391320 +1100
++++ working-2.6/arch/ppc64/oprofile/op_model_rs64.c	2005-01-10 16:51:28.772295560 +1100
+@@ -119,7 +119,7 @@
+ 
+ 	mmcr0 |= MMCR0_FCM1|MMCR0_PMXE|MMCR0_FCECE;
+ 	/* Only applies to POWER3, but should be safe on RS64 */
+-	mmcr0 |= MMCR0_PMC1INTCONTROL|MMCR0_PMCNINTCONTROL;
++	mmcr0 |= MMCR0_PMC1CE|MMCR0_PMCjCE;
+ 	mtspr(SPRN_MMCR0, mmcr0);
+ 
+ 	dbg("setup on cpu %d, mmcr0 %lx\n", smp_processor_id(),
+Index: working-2.6/arch/ppc64/oprofile/op_model_power4.c
+===================================================================
+--- working-2.6.orig/arch/ppc64/oprofile/op_model_power4.c	2005-01-10 16:51:10.626391168 +1100
++++ working-2.6/arch/ppc64/oprofile/op_model_power4.c	2005-01-10 16:51:28.772295560 +1100
+@@ -97,7 +97,7 @@
+ 	mtspr(SPRN_MMCR0, mmcr0);
+ 
+ 	mmcr0 |= MMCR0_FCM1|MMCR0_PMXE|MMCR0_FCECE;
+-	mmcr0 |= MMCR0_PMC1INTCONTROL|MMCR0_PMCNINTCONTROL;
++	mmcr0 |= MMCR0_PMC1CE|MMCR0_PMCjCE;
+ 	mtspr(SPRN_MMCR0, mmcr0);
+ 
+ 	mtspr(SPRN_MMCR1, mmcr1_val);
+
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist.  NOT _the_ _other_ _way_
+				| _around_!
+http://www.ozlabs.org/people/dgibson

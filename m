@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293244AbSCAQUF>; Fri, 1 Mar 2002 11:20:05 -0500
+	id <S293236AbSCAQY5>; Fri, 1 Mar 2002 11:24:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293236AbSCAQTz>; Fri, 1 Mar 2002 11:19:55 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:55308 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S293005AbSCAQTp>; Fri, 1 Mar 2002 11:19:45 -0500
-Date: Fri, 1 Mar 2002 12:10:55 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, Paul Gortmaker <p_gortmaker@yahoo.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bluesmoke/MCE support optional
-In-Reply-To: <E16gmBy-0003V5-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0203011210300.2391-100000@freak.distro.conectiva>
+	id <S293245AbSCAQYq>; Fri, 1 Mar 2002 11:24:46 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:15246 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S293236AbSCAQYc>; Fri, 1 Mar 2002 11:24:32 -0500
+Date: Fri, 01 Mar 2002 10:24:30 -0600
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        David Howells <dhowells@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: thread groups bug? 
+Message-ID: <36310000.1014999870@baldur>
+In-Reply-To: <Pine.LNX.4.33.0202281616510.31454-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0202281616510.31454-100000@penguin.transmeta.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--On Thursday, February 28, 2002 16:20:21 -0800 Linus Torvalds
+<torvalds@transmeta.com> wrote:
 
-On Fri, 1 Mar 2002, Alan Cox wrote:
-
-> > > +  ranging from a warning message on the console, to halting the machine.
-> > > +  Your processor must be a Pentium or newer to support this - check the 
-> > > +  flags in /proc/cpuinfo for mce.  Note that some older Pentium systems
-> > > +  have a design flaw which leads to false MCE events - for these and
-> > > +  old non-MCE processors (386, 486), say N.  Otherwise say Y.
+> Maybe killing the other threads on execve _is_ the right thing after all, 
+> if that also gives us POSIX behaviour.
 > 
-> Its not necessary to say N. 
+> Who actually maintains the pthread library? I don't think they use 
+> CLONE_THREAD at all yet, right?
 
-> On a pentium box with the newer MCE setup code you must force MCE on.
+As far as I know, Linuxthreads is maintained by Ullrich Drepper, and it
+doesn't use CLONE_THREAD.  IBM's NGPT pthread library does use
+CLONE_THREAD, and I'm the one who's handling kernel issues related to it.
 
-And if you don't ? 
+I could code up something that does a 'kill the thread group on execve' if
+you'd like me to.
+
+Dave McCracken
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

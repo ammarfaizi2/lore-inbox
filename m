@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbULTXdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbULTXdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261713AbULTXdK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 18:33:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbULTX3f
+	id S261691AbULTXdN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 18:33:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbULTXaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 18:29:35 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:3299 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261701AbULTX0X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 18:26:23 -0500
-Date: Mon, 20 Dec 2004 15:26:10 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Nish Aravamudan <nish.aravamudan@gmail.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Dipankar Sarma <dipankar@in.ibm.com>, Li Shaohua <shaohua.li@intel.com>,
-       Len Brown <len.brown@intel.com>
-Subject: Re: [PATCH] Remove RCU abuse in cpu_idle()
-Message-ID: <20041220232610.GB2466@us.ibm.com>
-References: <Pine.LNX.4.61.0412112205290.7847@montezuma.fsmlabs.com> <Pine.LNX.4.61.0412112244000.7847@montezuma.fsmlabs.com> <29495f1d04121818403f949fdd@mail.gmail.com> <Pine.LNX.4.61.0412191757450.18310@montezuma.fsmlabs.com> <1103505344.5093.4.camel@npiggin-nld.site> <Pine.LNX.4.61.0412191819130.18310@montezuma.fsmlabs.com> <1103507784.5093.9.camel@npiggin-nld.site> <Pine.LNX.4.61.0412191909580.18310@montezuma.fsmlabs.com> <20041220182711.GA13972@us.ibm.com> <Pine.LNX.4.61.0412201556130.12334@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Dec 2004 18:30:01 -0500
+Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:30113 "EHLO
+	cenedra.walrond.org") by vger.kernel.org with ESMTP id S261678AbULTX0P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 18:26:15 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: Attila BODY <compi@freemail.hu>
+Subject: Re: USB storage (pendrive) problems
+Date: Mon, 20 Dec 2004 23:25:19 +0000
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <1103579679.23963.14.camel@localhost>
+In-Reply-To: <1103579679.23963.14.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0412201556130.12334@montezuma.fsmlabs.com>
-X-Operating-System: Linux 2.6.10-rc3 (i686)
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200412202325.20064.andrew@walrond.org>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 20, 2004 at 03:57:59PM -0700, Zwane Mwaikambo wrote:
-> On Mon, 20 Dec 2004, Nishanth Aravamudan wrote:
-> 
-> > I believe the only files/patches that needed to be changed were the process.c
-> > changes. Here they are re-worked to use ssleep(1) instead of
-> 
-> This makes it hard for the person integrating the patches to graft them 
-> together. How about just rediffing the whole lot so that my original patch 
-> gets replaced? Ideally it should be able to resolve the issue in 2.6-bk 
-> standalone.
+On Monday 20 December 2004 21:54, Attila BODY wrote:
+> Hi,
+>
+> I have some weird problems with my pendrives recently. I just compile a
+> 2.6.9 to check if the problem is still exists there.
+>
+> current kernel is 2.6.10-rc3 and the situation is the following:
+>
+> If I copy more than few megabytes to the drive, the activity LED keeps
+> flashing forever. sync, umount keeps runing forever, normal reboot is
+> inpossible (alt+sysreq+b seems to work)
+>
+> Tested with usb 1.1 and 2.0 pendrives, behaviour is the same.
+>
 
-Sorry about that, I will do that next time, thanks for the info.
+I'm doing exactly that with 2.6.10-rc3. umount does take a very long time (but 
+I had just written 600Mb+ over usb 1.1)
 
--Nish
+Are you sure it doesn't come back if you leave it long enough?
+
+Do the throughput sums; you'll be suprised how long it takes to send more than 
+a few Mb over usb 1.1 (1.5Mb/s). Eg 600Mb = 7minutes
+
+Usb 2 should be much faster; Do you have EHCI loaded?
+
+Andrew Walrond

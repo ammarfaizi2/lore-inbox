@@ -1,96 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbULBUT2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261747AbULBUZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261755AbULBUT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 15:19:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbULBUT2
+	id S261747AbULBUZd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 15:25:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbULBUZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 15:19:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:33422 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261751AbULBUTK (ORCPT
+	Thu, 2 Dec 2004 15:25:33 -0500
+Received: from thunk.org ([69.25.196.29]:45475 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261747AbULBUZV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 15:19:10 -0500
-Date: Thu, 2 Dec 2004 21:19:05 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
-Subject: Re: Time sliced CFQ io scheduler
-Message-ID: <20041202201904.GD26695@suse.de>
-References: <20041202130457.GC10458@suse.de> <20041202134801.GE10458@suse.de> <20041202114836.6b2e8d3f.akpm@osdl.org> <20041202195232.GA26695@suse.de> <20041202121938.12a9e5e0.akpm@osdl.org>
+	Thu, 2 Dec 2004 15:25:21 -0500
+Date: Thu, 2 Dec 2004 15:25:14 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: James Bruce <bruce@andrew.cmu.edu>, "J.A. Magallon" <jamagallon@able.es>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: What if?
+Message-ID: <20041202202514.GA5882@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	James Bruce <bruce@andrew.cmu.edu>,
+	"J.A. Magallon" <jamagallon@able.es>,
+	lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <41AE5BF8.3040100@gmail.com> <20041202044034.GA8602@thunk.org> <1101976424l.5095l.0l@werewolf.able.es> <41AE5BF8.3040100@gmail.com> <20041202044034.GA8602@thunk.org> <41AED140.4000306@andrew.cmu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041202121938.12a9e5e0.akpm@osdl.org>
+In-Reply-To: <1101976424l.5095l.0l@werewolf.able.es> <41AED140.4000306@andrew.cmu.edu>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 02 2004, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> >
-> > n Thu, Dec 02 2004, Andrew Morton wrote:
-> > > Jens Axboe <axboe@suse.de> wrote:
-> > > >
-> > > > as:
-> > > > Reader: 27985KiB/sec (max_lat=34msec)
-> > > > Writer:    64KiB/sec (max_lat=1042msec)
-> > > > 
-> > > > cfq:
-> > > > Reader: 12703KiB/sec (max_lat=108msec)
-> > > > Writer:  9743KiB/sec (max_lat=89msec)
-> > > > 
-> > > > If you look at vmstat while running these tests, cfq and deadline give
-> > > > equal bandwidth for the reader and writer all the time, while as
-> > > > basically doesn't give anything to the writer (a single block per second
-> > > > only). Nick, is the write batching broken or something?
-> > > 
-> > > Looks like it.  We used to do 2/3rds-read, 1/3rd-write in that testcase.
-> > 
-> > But 'as' has had no real changes in about 9 months time, it's really
-> > strange. Twiddling with write expire and write batch expire settings
-> > make no real difference. Upping the ante to 4 clients, two readers and
-> > two writers work about the same: 27MiB/sec aggregate read bandwidth,
-> > ~100KiB/sec write.
+On Thu, Dec 02, 2004 at 03:24:32AM -0500, James Bruce wrote:
 > 
-> Did a quick test here, things seem OK.
-> 
-> Writer:
-> 
-> 	while true
-> 	do
-> 	dd if=/dev/zero of=foo bs=1M count=1000 conv=notrunc
-> 	done
-> 
-> Reader:
-> 
-> 	time cat 1-gig-file > /dev/null
-> 	cat x > /dev/null  0.07s user 1.55s system 3% cpu 45.434 total
-> 
-> `vmstat 1' says:
-> 
-> 
->  0  5   1168   3248    472 220972    0    0    28 24896 1249   212  0  7  0 94
->  0  7   1168   3248    492 220952    0    0    28 28056 1284   204  0  5  0 96
->  0  8   1168   3248    500 221012    0    0    28 30632 1255   194  0  5  0 95
->  0  7   1168   2800    508 221344    0    0    16 20432 1183   170  0  3  0 97
->  0  8   1168   3024    484 221164    0    0 15008 12488 1246   460  0  4  0 96
->  1  8   1168   2252    484 221980    0    0 27808  6092 1270   624  0  4  0 96
->  0  8   1168   3248    468 221044    0    0 32420  4596 1290   690  0  4  0 96
->  0  9   1164   2084    456 222212    4    0 28964  1800 1285   596  0  3  0 96
->  1  7   1164   3032    392 221256    0    0 23456  6820 1270   527  0  4  0 96
+> I think this oft-repeated argument is a strawman, since C++ and C are 
+> identical on primitive types, and for non-primitive types, C can't use 
+> operators anyway.
 
-[snip]
+While that may be true, the problem is that you don't know off the top
+of your head whether something like:
 
-Looks fine, yes.
+	a = b + c + d + e;
 
-> So what are you doing different?
+involves primitive types or not just by inspection.  So it could be
+something that takes no time at all, or a monstrosity which takes a
+dozen or more memory allocations, and where it requires a Ph.D. in
+understanding obfuscated code to figure out which overloaded operators
+and which type coercions had actually taken place.  And remember, this
+is a language where you can even override the comma (',') operator.
+You think you know what a piece of code will do just by looking at it?
+Think again!
 
-Doing sync io, most likely. My results above are 64k O_DIRECT reads and
-writes, see the mention of the test cases in the first mail.  I'll
-repeat the testing with both sync and async writes tomorrow on the same
-box and see what that does to fairness.
+This is perhaps one of the reasons why no one has bothered to make a
+C++ analogue of the Obfuscated C Programming Contest.  There simply is
+no challenge involved.  I have seen propietary codebases written in
+C++, where said codebase was the crown jewel of the company, and while
+the original C code was understandable, when it was re-written in C++,
+it was completely unmaintainable and impossible to understand what was
+going on.  I was reduced to placing printf's all over the place just
+to figure out the flow of control.  
 
-Async writes are not very interesting, it takes quite some effort to
-make those go slow :-)
+(Out of respect to the company involved, I won't name names, but it
+was a filesystem-related product, and I was adding ext2 support to the
+codebase at the time.  While on paper it may have made sense to use
+C++ classes to represent different filesystem drivers, the
+implementation was a complete and mitigated disaster, IMHO.  And this
+is not the only C++ project I have seen where it would have been much
+easier to understand the darned thing if it had been written in C
+instead.)
 
--- 
-Jens Axboe
+On Thu, Dec 02, 2004 at 08:33:44AM +0000, J.A. Magallon wrote:
+> Don't ge silly. I have written C++ code to deal with SSE operations
+> on vectors, and there you really need to control the assembler produced,
+> and with the correct const and & on correct places the code is as
+> efficient as C. Or more. You can control everything.....
+>
+> It is as all things, you need to know it deeply to use it well.
+> There are a ton of myths around C++.
 
+If you know how to use a table saw deeply and well, you can use it
+safely even with all of the safeties disabled and the blade guard
+removed.  There are even a few cases where you have to do this.
+However, I wouldn't recommend it for most people since it is far too
+likely they will lose a finger or a hand....
+
+That's the problem with C++; it is far too easy to misuse.  And with a
+project as big as the Linux Kernel, and with as many contributors as
+the Linux Kernel, at the end of the day, it's all about damage
+control.  If we depend on peer review to understand whether or not a
+patch is busted, it is rather important that something as simple as 
+
+	a = b + c;
+
+does what we think it does, and not something else because someone has
+overloaded the '+' operator.  Or God help us, as I have mentioned
+earlier, the comma operator.
+
+> In short, with C++ you can generate code as efficient as C or asm.
+> You just have to know how.
+
+You can juggle running chain saws if you know how, too.  But I think I
+would rather leave that to the Flying Karamazov Brothers.
+
+							- Ted

@@ -1,79 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbUKUUOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbUKUUUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbUKUUOW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 15:14:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbUKUUOW
+	id S261753AbUKUUUi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 15:20:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbUKUUUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 15:14:22 -0500
-Received: from mail.dif.dk ([193.138.115.101]:38859 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261776AbUKUUOQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 15:14:16 -0500
-Date: Sun, 21 Nov 2004 21:23:41 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Blaisorblade <blaisorblade_spam@yahoo.it>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Why INSTALL_PATH is not /boot by default?
-In-Reply-To: <41A09305.7030908@domdv.de>
-Message-ID: <Pine.LNX.4.61.0411212122570.3419@dragon.hygekrogen.localhost>
-References: <200411160127.15471.blaisorblade_spam@yahoo.it>
- <20041121094308.GA7911@mars.ravnborg.org> <41A06FF0.7090808@domdv.de>
- <Pine.LNX.4.61.0411211400530.3418@dragon.hygekrogen.localhost>
- <41A09305.7030908@domdv.de>
+	Sun, 21 Nov 2004 15:20:35 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:65512 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261753AbUKUUUb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 15:20:31 -0500
+Message-ID: <41A0F893.9020106@free.fr>
+Date: Sun, 21 Nov 2004 21:20:35 +0100
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: fr-fr, en, en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Meelis Roos <mroos@linux.ee>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Jean Tourrilhes <jt@bougret.hpl.hp.com>, Adam Belay <ambx1@neo.rr.com>,
+       "Li, Shaohua" <shaohua.li@intel.com>,
+       =?ISO-8859-1?Q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>
+Subject: Re: [PATCH] smsc-ircc2: Add PnP support.
+References: <E1CVAfT-0002n9-Rn@rhn.tartu-labor> <419E16E5.1000601@free.fr> <419E17FF.1000503@free.fr> <Pine.SOC.4.61.0411191822030.9059@math.ut.ee> <419E2D2B.4020804@free.fr> <Pine.SOC.4.61.0411191934070.29328@math.ut.ee> <419E3B7A.4000904@free.fr> <Pine.SOC.4.61.0411200102580.12992@math.ut.ee> <419F136B.8010308@free.fr> <Pine.SOC.4.61.0411211949260.23880@math.ut.ee> <41A0DB78.2010807@free.fr> <Pine.SOC.4.61.0411212050490.11420@math.ut.ee>
+In-Reply-To: <Pine.SOC.4.61.0411212050490.11420@math.ut.ee>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Nov 2004, Andreas Steinmetz wrote:
-
-> Jesper Juhl wrote:
-> > On Sun, 21 Nov 2004, Andreas Steinmetz wrote:
-> > 
-> > 
-> > > Sam Ravnborg wrote:
-> > > 
-> > > > On Tue, Nov 16, 2004 at 01:27:15AM +0100, Blaisorblade wrote:
-> > > > 
-> > > > 
-> > > > > This line, in the main Makefile, is commented:
-> > > > > 
-> > > > > export  INSTALL_PATH=/boot
-> > > > > 
-> > > > > Why? It seems pointless, since almost everything has been for ages
-> > > > > requiring this settings, and distros' versions of installkernel have
-> > > > > been
-> > > > > taking an empty INSTALL_PATH as meaning /boot for ages (for instance
-> > > > > Mandrake). It's maybe even mandated by the FHS (dunno).
-> > > > > 
-> > > > > Is there any reason I'm missing?
-> > > > 
-> > > > 
-> > > > Changing this may have impact on default behaviour of some versions of
-> > > > installkernel.
-> > > > If /boot is ok for other than just i386 we can give it a try.
-> > > > 
-> > > 
-> > > Please note that there are cases where you build a kernel for machine x on
-> > > machine y. Which means: don't unconditionally uncomment this line.
-> > > 
-> > 
-> > Huh, in that case wouldn't you just copy the kernel image from the source
-> > dir on machine y to whereever it needs to liveon machine x by hand? At least
-> > that's what I do, the Makefile and its INSTALL_PATH never comes into play
-> > then.
+Meelis Roos wrote:
+>> Could I have the log from smsc-ircc2 when it failed with pnpacpi ?
 > 
-> Not if you build different kernels for quite some machines on a build system.
-> It is neat then to use INSTALL_PATH and INSTALL_MOD_PATH to get the build
-> output into target machine related directories for further automated
-> processing.
-> What I just want to say is that, yes, set INSTALL_PATH (and INSTALL_MOD_PATH)
-> whereever you want to point it to - as long as it is not already set.
+> 
+> found SMC SuperIO Chip (devid=0x5a rev=00 base=0x002e): LPC47N227
+> smsc_superio_flat(): IrDA not enabled
+> smsc_superio_flat(): fir: 0x00, sir: 0x00, dma: 15, irq: 0, mode: 0x02
+> 
+just for curiosity, when you have time, could try pnpacpi and jean PNP 
+smsc patch?
 
-Fair enough, I see your point.
+It sould find the correct resources because there are provided by PnP 
+layer, but if the resources are not well allocated by PnPacpi, the 
+device shouldn't work.
 
---
-Jesper Juhl
 
+thanks
 
+Matthieu

@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281457AbRKPQab>; Fri, 16 Nov 2001 11:30:31 -0500
+	id <S281439AbRKPQjW>; Fri, 16 Nov 2001 11:39:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281458AbRKPQaW>; Fri, 16 Nov 2001 11:30:22 -0500
-Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:20751 "HELO
-	ocean.lucon.org") by vger.kernel.org with SMTP id <S281457AbRKPQaK>;
-	Fri, 16 Nov 2001 11:30:10 -0500
-Date: Fri, 16 Nov 2001 08:30:08 -0800
-From: "H . J . Lu" <hjl@lucon.org>
-To: Kristian Hogsberg <hogsberg@users.sourceforge.net>
-Cc: Andrew Morton <akpm@zip.com.au>, hogsberg@users.sourceforge.net,
-        jamesg@filanet.com, linux-1394devel@lists.sourceforge.net,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: sbp2.c on SMP
-Message-ID: <20011116083008.C1308@lucon.org>
-In-Reply-To: <3BEF27D1.7793AE8E@zip.com.au> <3BEF27D1.7793AE8E@zip.com.au> <20011113191721.A9276@lucon.org> <3BF21B79.5F188A0D@zip.com.au> <20011115193234.A22081@lucon.org> <m3snbeofnw.fsf@dk20037170.bang-olufsen.dk>
+	id <S281463AbRKPQjD>; Fri, 16 Nov 2001 11:39:03 -0500
+Received: from ns.caldera.de ([212.34.180.1]:9127 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S281458AbRKPQi5>;
+	Fri, 16 Nov 2001 11:38:57 -0500
+Date: Fri, 16 Nov 2001 17:38:40 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] mconfig 0.20 available
+Message-ID: <20011116173840.A15515@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <m3snbeofnw.fsf@dk20037170.bang-olufsen.dk>; from hogsberg@users.sf.net on Fri, Nov 16, 2001 at 05:15:47PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 16, 2001 at 05:15:47PM +0100, Kristian Hogsberg wrote:
-> In any case, it's the wrong fix, because the error is elsewhere:
-> neither the host_info list or the node list should contain NULL
-> entries.  This is just curing the symptoms.  HJ, could you provide
-> some details on the crash?  Do you have the sbp2 module loaded when
-> you insmod/rmmod ohci1394, and if so, does it crash without sbp2
-> loaded?
+The mconfig release 0.20 is now available.
 
-No, sbp2 is not loaded.
+Mconfig is a tool to configure the linux kernel, similar to
+make {menu,x,}config, but written in C and with a proper yacc
+parser.
+
+The following changes have been made since the last public
+release, 0.18 by Michael Elizabeth Chastain:
+
+* switched to autoconf/automake.
+* build 'menu' mode only if curses are available.
+* added manpage (VERY simple).
+* added specfile for RPM builds.
+* help text moved from C source to external file.
+* modes 'text' and 'old' implemented.
+* verb 'dep_mbool' implemented.
+* relaxed error checking - moan in
+
+This release is available as gzip/bzip compressed source tarball at:
+
+	ftp://ftp.kernel.org/pub/linux/kernel/people/hch/mconfig/
 
 
-H.J.
+	ftp:/ftp.opengfs.org/pub/opengfs/0.0.91/opengfs-0.0.91.tar.gz
+	ftp:/ftp.opengfs.org/pub/opengfs/0.0.91/opengfs-0.0.91-1.src.rpm
+
+Please send patches and report bugs to me,
+
+	Christoph
+

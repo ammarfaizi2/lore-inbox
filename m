@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVA3RIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVA3RMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261734AbVA3RIS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 12:08:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVA3RIF
+	id S261744AbVA3RMU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 12:12:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbVA3RMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 12:08:05 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:28235 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261739AbVA3RF2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 12:05:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=m9XfBDIhf8PwWNBe88lcB+wcD0Y9NVM0Wl3XiWmkgreZy1QG6J13o2QUAANklgT/pAUgRunZ+QuE+mxatYH0ENQOyJ9iejo1rtxNsVRxQzKJhf0pIHBBXGVtFaHUSTQGG7lpR/ouENJEtUJIxZpszsNkBhIrNp/reiFkEMe3rWs=
-Message-ID: <9e473391050130090532067a5f@mail.gmail.com>
-Date: Sun, 30 Jan 2005 12:05:27 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Subject: Re: 2.6.10 dies when X uses PCI radeon 9200 SE, further binary search result
-Cc: Dave Airlie <airlied@gmail.com>,
-       Andreas Hartmann <andihartmann@01019freenet.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050130163241.GA18036@hh.idb.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 30 Jan 2005 12:12:19 -0500
+Received: from natjimbo.rzone.de ([81.169.145.162]:30140 "EHLO
+	natjimbo.rzone.de") by vger.kernel.org with ESMTP id S261741AbVA3RLP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 12:11:15 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: blaisorblade@yahoo.it
+Subject: Re: [patch 1/1] fix syscallN() macro errno value checking for i386
+Date: Sun, 30 Jan 2005 18:00:22 +0100
+User-Agent: KMail/1.6.2
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, dhowells@redhat.com
+References: <20050129010145.1C42F8C9E4@zion>
+In-Reply-To: <20050129010145.1C42F8C9E4@zion>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_mKR/BrHsIMePD4/";
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-References: <fa.ks44mbo.ljgao4@ifi.uio.no> <fa.hinb9iv.s38127@ifi.uio.no>
-	 <41F21FA4.1040304@pD9F8757A.dip0.t-ipconnect.de>
-	 <21d7e99705012205012c95665@mail.gmail.com> <41F76B4D.8090905@hist.no>
-	 <20050130111634.GA9269@hh.idb.hist.no>
-	 <21d7e9970501300322ffdabe0@mail.gmail.com>
-	 <9e473391050130070520631901@mail.gmail.com>
-	 <20050130163241.GA18036@hh.idb.hist.no>
+Message-Id: <200501301800.22706.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Jan 2005 17:32:41 +0100, Helge Hafting
-<helgehaf@aitel.hist.no> wrote:
-> Yes, it is a PCI radeon.  And the machine has an AGP slot
-> too, which is used by a matrox G550.  This AGP card was not
-> used in the test, (other than being the VGA console).
-> Note that there is no crash if I don't compile
-> AGP support, so the crash is related to AGP somehow even though
-> AGP is not supposed to be used in this case.
 
-Can you set the PCI card to be primary in your BIOS or remove the AGP
-card, and then see if it works? It could be that X's video reset code
-for secondary PCI cards is broken.
+--Boundary-02=_mKR/BrHsIMePD4/
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+On S=FCnnavend 29 Januar 2005 02:01, blaisorblade@yahoo.it wrote:
+>=20
+> From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+> Cc: David Howells <dhowells@redhat.com>
+>=20
+> The errno values which are visible for userspace are actually in the rang=
+e=20
+> -1 - -129, not until -128 (): this value was added:
+>=20
+> #define	EKEYREJECTED	129	/* Key was rejected by service */
+>=20
+> And this would break ucLibc (for what I heard).
+>=20
+> This is just a quick-fix, because putting a macro inside errno.h instead =
+of
+> having it copied in two places would be probably nicer.
+
+Yes. Note that your patch only fixes the bug on i386. The code has been
+copied to many other architectures, and some of them have been updated
+less recently and are checking for values lower than 128. There should
+really be a way to keep them all in sync.
+
+	Arnd <><
+
+--Boundary-02=_mKR/BrHsIMePD4/
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBB/RKm5t5GS2LDRf4RAh3dAJ4sH52UfjqtSco4X0bhZEj011D38gCfbCui
+Yv6BmHGzZfIT0d/upURhItw=
+=m3qW
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_mKR/BrHsIMePD4/--

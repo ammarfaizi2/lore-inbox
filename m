@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292780AbSBUVZ7>; Thu, 21 Feb 2002 16:25:59 -0500
+	id <S292776AbSBUVZ3>; Thu, 21 Feb 2002 16:25:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292779AbSBUVZk>; Thu, 21 Feb 2002 16:25:40 -0500
-Received: from rj.sgi.com ([204.94.215.100]:38556 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S292778AbSBUVZf>;
-	Thu, 21 Feb 2002 16:25:35 -0500
-Date: Thu, 21 Feb 2002 13:25:32 -0800
-From: Paul Jackson <pj@engr.sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Erich Focht <efocht@ess.nec.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Matthew Dobson <colpatch@us.ibm.com>,
-        lse-tech <lse-tech@lists.sourceforge.net>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] O(1) scheduler set_cpus_allowed for non-current tasks
-In-Reply-To: <Pine.LNX.4.33.0202211723520.14005-100000@localhost.localdomain>
-Message-ID: <Pine.SGI.4.21.0202211313200.561412-100000@sam.engr.sgi.com>
+	id <S292778AbSBUVZT>; Thu, 21 Feb 2002 16:25:19 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:1920 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S292776AbSBUVZJ>; Thu, 21 Feb 2002 16:25:09 -0500
+Date: Thu, 21 Feb 2002 16:25:11 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Adam <ambx1@netscape.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: driverfs question
+In-Reply-To: <3C755A8A.90000@netscape.net>
+Message-ID: <Pine.LNX.3.95.1020221161906.254A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo wrote:
-> The concept is the following: there are new per-CPU
-> system threads (so-called migration threads) that handle
-> a per-runqueue 'migration queue'.
+On Thu, 21 Feb 2002, Adam wrote:
+> 
+> All devices will be arranged according to type.  There will be a folder 
+                                                                   ^^^^^
+> Method 2:
+> Folders are created for each bus then devices are placed within them.
+  ^^^^^^^
 
-Thanks, Ingo.
+> member of a pci bus, it's folder will be within the pci folder.  The 
+                            ^^^^^^                        ^^^^^^
 
-Could you, or some other kind soul who understands this, to
-explain why the following alternative for migrating proceses
-currently running on some other cpu wouldn't have been better
-(simpler and sufficient):
+What is this? Do you mean "directory" or "file", or even "inode"?
 
-    - add another variable to the task_struct, say "eviction_notice"
-    - when it comes time to tell a process to migrate, set this
-	eviction_notice (and then continue without waiting)
-    - rely on code that fires each time slice on the cpu currently
-        hosting the evicted process to notice the eviction notice and
-	serve it (migrate the process instead of giving it yet another
-	slice).
+Or is this a troll from Microsoft?  We don't have such things in
+real operating systems. Next thing you know, we'll need a "cabinet"
+to keep the "folders" in.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+        111,111,111 * 111,111,111 = 12,345,678,987,654,321
 

@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286336AbSBCHDo>; Sun, 3 Feb 2002 02:03:44 -0500
+	id <S286339AbSBCHPR>; Sun, 3 Feb 2002 02:15:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286339AbSBCHDe>; Sun, 3 Feb 2002 02:03:34 -0500
-Received: from a1as10-p200.stg.tli.de ([195.252.189.200]:31126 "EHLO
-	dea.linux-mips.net") by vger.kernel.org with ESMTP
-	id <S286336AbSBCHDX>; Sun, 3 Feb 2002 02:03:23 -0500
-Date: Sun, 3 Feb 2002 08:01:35 +0100
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
-        vandrove@vc.cvut.cz, torvalds@transmeta.com, garzik@havoc.gtf.org,
-        linux-kernel@vger.kernel.org, paulus@samba.org, davidm@hpl.hp.com
-Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does
-Message-ID: <20020203080134.C19813@dea.linux-mips.net>
-In-Reply-To: <E16WQYs-0003Ux-00@the-village.bc.nu> <m17kpv8amu.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m17kpv8amu.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sat, Feb 02, 2002 at 09:14:33PM -0700
-X-Accept-Language: de,en,fr
+	id <S286411AbSBCHPG>; Sun, 3 Feb 2002 02:15:06 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:29908 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S286339AbSBCHOt>; Sun, 3 Feb 2002 02:14:49 -0500
+Date: Sun, 3 Feb 2002 08:12:17 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: =?iso-8859-1?q?Kurt=20Johnson?= <gorydetailz@yahoo.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: cant compile 2.5.3-dj1
+In-Reply-To: <20020203032247.61375.qmail@web14608.mail.yahoo.com>
+Message-ID: <Pine.NEB.4.44.0202030811260.9676-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 02, 2002 at 09:14:33PM -0700, Eric W. Biederman wrote:
+On Sun, 3 Feb 2002, Kurt Johnson wrote:
 
-> > > As a side note, this thing is so tiny (less than 4K on sparc64!) so
-> > > why don't we just include it unconditionally instead of having all
-> > > of this "turn it on for these drivers" stuff?
-> > 
-> > Because 100 4K drivers suddenly becomes 0.5Mb. There are those of us trying
-> > to stuff Linux into embedded devices who if anything want more configuration
-> > options not people taking stuff out.
-> > 
-> > What I'd much rather see if this is an issue is:
-> > 
-> > bool	'Do you want to customise for a very small system' 
-> > 
-> > which auto enables all the random small stuff if you say no, and goes
-> > much deeper into options if you say yes.
-> 
-> I mostly agree.  Except when I have looked at trying to get the kernel
-> (compiled size down) the biggest bloat was in the core.  Things like
-> having both a page and a block cache.
-> 
-> Getting code reuse in the core higher would cut down on kernel size a
-> lot.  But that isn't quick fix territory.
+> Hello,
+>...
 
-Is it really worth the effort?  During the past year the average size of
-embedded systems that people want to use for seems to have increased
-dramatically.  In case of the MIPS port the core activity is about to
-move away from the 32-bit to 64-bit kernel.
+Hi Kurt,
 
-  Ralf
+> filesystems.c
+> filesystems.c:36: syntax error before `int'
+> make[2]: *** [filesystems.o] Error 1
+> make[2]: Leaving directory
+> `/usr/local/src/linux-2.5/fs'
+> make[1]: *** [first_rule] Error 2
+> make[1]: Leaving directory
+> `/usr/local/src/linux-2.5/fs'
+> make: *** [_dir_fs] Error 2
+>
+> Is this a known issue? If so, is there any patch?
+
+This is a known issue. The patch is:
+
+--- fs/filesystems.c.old	Fri Feb  1 08:55:12 2002
++++ fs/filesystems.c	Fri Feb  1 08:55:41 2002
+@@ -12,6 +12,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/kmod.h>
+ #include <linux/nfsd/interface.h>
++#include <linux/linkage.h>
+
+ #if defined(CONFIG_NFSD_MODULE)
+ struct nfsd_linkage *nfsd_linkage = NULL;
+
+
+
+> Regards,
+>
+> /kj
+
+cu
+Adrian
+
+

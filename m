@@ -1,29 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132807AbREBLqF>; Wed, 2 May 2001 07:46:05 -0400
+	id <S132834AbREBMI6>; Wed, 2 May 2001 08:08:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132822AbREBLp4>; Wed, 2 May 2001 07:45:56 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27663 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132807AbREBLpg>; Wed, 2 May 2001 07:45:36 -0400
-Subject: Re: Broken gcc ?
-To: agodbole@mahindrabt.com (Amarendra GODBOLE)
-Date: Wed, 2 May 2001 12:48:32 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010502143741.A12251@mahindrabt.com> from "Amarendra GODBOLE" at May 02, 2001 02:37:41 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132850AbREBMIs>; Wed, 2 May 2001 08:08:48 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:61317 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S132834AbREBMIl>; Wed, 2 May 2001 08:08:41 -0400
+From: Christoph Rohland <cr@sap.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        MM mailing list <linux-mm@kvack.org>
+Subject: Re: [Patch] deadlock on write in tmpfs
+In-Reply-To: <m3hez5ci6p.fsf@linux.local> <20010501173210.S26638@redhat.com>
+Organisation: SAP LinuxLab
+Date: 02 May 2001 14:00:53 +0200
+In-Reply-To: <20010501173210.S26638@redhat.com>
+Message-ID: <m3hez4arka.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14uv7T-0003TY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If I recall correctly, RHL 7 shipped with a broken gcc. Has it been 
-> fixed ? Basically, is it safe to switch to RHL 7 for development 
-> purposes ? Presently I use RHL 6.2 with 2.2.14 kernel.
+Hi Stephen,
 
-I do all my kernel development with gcc 2.96-69 and 2.96-81 (the errata
-7.0 and the 7.1 gcc).
+On Tue, 1 May 2001, Stephen C. Tweedie wrote:
+> If the locking is for a completely different reason, then a
+> different semaphore is quite appropriate.  In this case you're
+> trying to lock the shm internal info structures, which is quite
+> different from the sort of inode locking which the VFS tries to do
+> itself, so the new semaphore appears quite clean --- and definitely
+> needed.
+
+It's not the addition to the inode semaphore I do care about, but the
+addition to the spin lock which protects also the shmem internals. But
+you are probably right: It only protects the onthefly pages between
+page cache and swap cache.
+
+Greetings
+		Christoph
+
 

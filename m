@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbUKETYr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbUKET01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbUKETYr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 14:24:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbUKETYr
+	id S261177AbUKET01 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 14:26:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbUKET01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 14:24:47 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:25198 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261168AbUKETYp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 14:24:45 -0500
-Date: Fri, 5 Nov 2004 21:26:01 +0100
-From: Sam Ravnborg <sam@mars.opasia.dk>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc1-mm3: (fix for make xconfig)
-Message-ID: <20041105202601.GA8785@mars.opasia.dk>
-Mail-Followup-To: "Rafael J. Wysocki" <rjw@sisk.pl>,
-	linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
-	Andrew Morton <akpm@osdl.org>
-References: <20041105001328.3ba97e08.akpm@osdl.org> <200411051907.19008.rjw@sisk.pl> <200411051948.32936.rjw@sisk.pl>
+	Fri, 5 Nov 2004 14:26:27 -0500
+Received: from bender.bawue.de ([193.7.176.20]:34440 "EHLO bender.bawue.de")
+	by vger.kernel.org with ESMTP id S261172AbUKET0R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 14:26:17 -0500
+Date: Fri, 5 Nov 2004 20:26:09 +0100
+From: Joerg Sommrey <jo@sommrey.de>
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-ac5: dm-snapshot and XFS failures
+Message-ID: <20041105192609.GA5843@sommrey.de>
+Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20041105073750.GA11812@sommrey.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200411051948.32936.rjw@sisk.pl>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20041105073750.GA11812@sommrey.de>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 05, 2004 at 07:48:32PM +0100, Rafael J. Wysocki wrote:
-> >   HOSTCXX scripts/kconfig/qconf.o
-> >   HOSTLD  scripts/kconfig/qconf
-> > scripts/kconfig/qconf arch/x86_64/Kconfig
-> > ./scripts/kconfig/libkconfig.so: cannot open shared object file: No such 
-> file 
-> > or directory
-> > make[1]: *** [xconfig] Error 1
-> > make: *** [xconfig] Error 2
+On Fri, Nov 05, 2004 at 08:37:50AM +0100, Joerg Sommrey wrote:
+> Hi,
 > 
-> I did this to fix it:
-> 
-> --- scripts/kconfig/Makefile.orig	2004-11-05 19:16:23.000000000 +0100
-> +++ scripts/kconfig/Makefile	2004-11-05 19:18:08.000000000 +0100
-> @@ -70,9 +70,11 @@
->  #         Based on GTK which needs to be installed to compile it
->  # object files used by all kconfig flavours
->  
-> +libkconfig-objs := zconf.tab.o
-> +
->  hostprogs-y	:= conf mconf qconf gconf
-> -conf-objs	:= conf.o  zconf.tab.o
-> -mconf-objs	:= mconf.o zconf.tab.o
-> +conf-objs	:= conf.o  libkconfig.so
-> +mconf-objs	:= mconf.o libkconfig.so
->  
->  ifeq ($(MAKECMDGOALS),xconfig)
->  	qconf-target := 1
+> in the last time I found some "strange" things happening while backing
+> up.  For backing up I create a snapshot of all dm-devices, generate new
+> UUIDs and mount the snapshot filesystems r/o (all XFS).
+> While the backup was done there were hard lockups, XFS corruptions and
+> a DM failure.
 
-Wrong fix.
-I will look into it later tonight.
+I was unable to remove the two stale snapshot volumes and tried to solve
+that with a reboot.  "shutdown -r now" did hang. I was able to do a
+SysRq-T trace, if this is of any interest. (rather large ~180K)
 
-	Sam
+-jo
+
+-- 
+-rw-r--r--  1 jo users 63 2004-11-05 20:16 /home/jo/.signature

@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313109AbSDDDBX>; Wed, 3 Apr 2002 22:01:23 -0500
+	id <S313098AbSDDDAn>; Wed, 3 Apr 2002 22:00:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313104AbSDDDBO>; Wed, 3 Apr 2002 22:01:14 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20277 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S313103AbSDDDBG>; Wed, 3 Apr 2002 22:01:06 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 Boot enhancements, pic 16 4/9
-In-Reply-To: <m11ydwu5at.fsf@frodo.biederman.org>
-	<a8fls5$mur$1@cesium.transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 03 Apr 2002 19:54:28 -0700
-Message-ID: <m17knorx5n.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S313103AbSDDDAd>; Wed, 3 Apr 2002 22:00:33 -0500
+Received: from lucy.ulatina.ac.cr ([163.178.60.3]:27655 "EHLO
+	lucy.ulatina.ac.cr") by vger.kernel.org with ESMTP
+	id <S313098AbSDDDAW>; Wed, 3 Apr 2002 22:00:22 -0500
+Subject: "Disk Sleep" status on qlogic scsi sbus card on a sparc station 20
+	(sparc32, 2.4.17)
+From: Alvaro Figueroa <fede2@fuerzag.ulatina.ac.cr>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.0 (Preview Release)
+Date: 03 Apr 2002 20:57:24 -0600
+Message-Id: <1017889044.221.10.camel@lucy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
+I know sparc32 is not mantained any more, but I'm still posting in case
+this problem with give light to a problem that might apear on another
+arquitecture.
 
-> Followup to:  <m11ydwu5at.fsf@frodo.biederman.org>
-> By author:    ebiederm@xmission.com (Eric W. Biederman)
-> In newsgroup: linux.dev.kernel
-> >
-> > Linus please apply,
-> > 
-> > This patch makes not changes to the generated object code.
-> > 
-> > Instead removes the assumption the code is linked to run at 0.  The
-> > binary code is already PIC, this makes the build process the same way,
-> > making the build requirements more flexible. 
-> > 
-> 
-> Flexible in what way?
+I'm running kernel 2.4.17 on a sparc station 20 (with 2 procesors)
+running splack -current.
 
-In that the object files generated can be treated as ordinary object
-files, instead of needing special treatment.  
+I have a scsi qlogic sbus card on this box on with I attatch an scsi
+tape or a multipack storage with some 8 to 12 disks on it.
 
-Since gas does not have an ASSUME segment directive to tell the
-assembler where base addresses point the current code is arguable
-broken.  And this patch is a bug fix.
+While I run diferent aplications (not at a time) that are some I/O
+intensive on the devices attatched to this qlogic card and I sometimes
+see some huge sleeps on the process that is working on them.
 
-I don't really need this patch but it sure makes life easier.
+I cat'ed /proc/{PID}/status and I see "State:  D (disk sleep)".
 
-Eric
+Sometimes the process goes on working, but not often. I also can't send
+this process to sleep nor I can kill them.
+
+I have used tar to back up an filesystem to a DD3 tape, and have also
+used rsync from another host (On a 100Mb LAN) to a raid formed by the
+disks that are attatched to the controller.
+
+BTW, this does *NOT* occur on an ultra1 box (which is sparc64) running
+the same kernel version, and with the same set of disk or the same tape
+with the same qlogic scsi sbus card.
+
+What test could I run on this box to give some more information to you
+guys that would help to resolve this problem?
+
+Or else, what could be that problem, and what could I do to solve it?
+
+Thanks in advance.
+
+-- 
+Alvaro Figueroa
+

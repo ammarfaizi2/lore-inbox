@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271149AbRICDIx>; Sun, 2 Sep 2001 23:08:53 -0400
+	id <S271129AbRICDYS>; Sun, 2 Sep 2001 23:24:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271135AbRICDIm>; Sun, 2 Sep 2001 23:08:42 -0400
-Received: from ns.suse.de ([213.95.15.193]:18439 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S271129AbRICDIb>;
-	Sun, 2 Sep 2001 23:08:31 -0400
-Date: Mon, 3 Sep 2001 05:08:49 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Alan Cox <laughing@shared-source.org>, <linux-kernel@vger.kernel.org>,
-        <torvalds@transmeta.com>
-Subject: Re: Linux 2.4.9-ac6 
-In-Reply-To: <4165.999485481@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.30.0109030507190.8867-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271135AbRICDYJ>; Sun, 2 Sep 2001 23:24:09 -0400
+Received: from rj.sgi.com ([204.94.215.100]:41946 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S271129AbRICDYC>;
+	Sun, 2 Sep 2001 23:24:02 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Jean-Luc Leger <reiga@dspnet.fr.eu.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: make xconfig problems 
+In-Reply-To: Your message of "Mon, 03 Sep 2001 05:07:37 +0200."
+             <20010903050737.A1223@dspnet.fr.eu.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 03 Sep 2001 13:24:05 +1000
+Message-ID: <4664.999487445@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Sep 2001, Keith Owens wrote:
-
-> -ac4 added to arch/i386/kernel/setup.c::display_cacheinfo()
->         if (c->x86_vendor == X86_VENDOR_CENTAUR && (c->x86 == 6) &&
->                 (c->x86_model == 7) || (c->x86_model == 8)) {
+On Mon, 3 Sep 2001 05:07:37 +0200, 
+Jean-Luc Leger <reiga@dspnet.fr.eu.org> wrote:
+>Due to inexistant config.in files, make xconfig fail for the following architectures :
+>* arm
+>* cris
+>* mips
+>* mips64
+>* sh
 >
-> That should probably be
->
->         if (c->x86_vendor == X86_VENDOR_CENTAUR && (c->x86 == 6) &&
->                 ((c->x86_model == 7) || (c->x86_model == 8))) {
+>Here is a patch for the 2.4.9 kernel :
+>(a patch for the ac serie follows)
 
-Agreed, well spotted.
-The same change also went into 2.4.10pre3 and needs the same fix there.
-
-regards,
-
-Dave.
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
+Did you apply the arch specific patches?  Most architectures will not
+compile from Linus's tree, you need to apply extra patches first.
 

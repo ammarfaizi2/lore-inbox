@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261422AbSJAAwM>; Mon, 30 Sep 2002 20:52:12 -0400
+	id <S261418AbSJAAge>; Mon, 30 Sep 2002 20:36:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261425AbSJAAwM>; Mon, 30 Sep 2002 20:52:12 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:12806 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261422AbSJAAwL>;
-	Mon, 30 Sep 2002 20:52:11 -0400
-Date: Mon, 30 Sep 2002 17:55:21 -0700
+	id <S261420AbSJAAdM>; Mon, 30 Sep 2002 20:33:12 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:6662 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261419AbSJAAct>;
+	Mon, 30 Sep 2002 20:32:49 -0400
+Date: Mon, 30 Sep 2002 17:35:59 -0700
 From: Greg KH <greg@kroah.com>
-To: arnd@bergmann-dalldorf.de
-Cc: Arjan van de Ven <arjanv@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH] 2.5.39 s390 (3/26): drivers.
-Message-ID: <20021001005521.GA4331@kroah.com>
-References: <1033396763.1718.1.camel@localhost.localdomain> <200209301957.04743.arnd@bergmann-dalldorf.de>
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] USB changes for 2.5.39
+Message-ID: <20021001003558.GI3994@kroah.com>
+References: <20021001003104.GA3994@kroah.com> <20021001003240.GB3994@kroah.com> <20021001003304.GC3994@kroah.com> <20021001003401.GD3994@kroah.com> <20021001003440.GE3994@kroah.com> <20021001003456.GF3994@kroah.com> <20021001003512.GG3994@kroah.com> <20021001003541.GH3994@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200209301957.04743.arnd@bergmann-dalldorf.de>
+In-Reply-To: <20021001003541.GH3994@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 30, 2002 at 07:58:10PM +0200, Arnd Bergmann wrote:
-> > Ehm. Ok. This code STILL tries to read and parse config files. If you're
-> > fixing it, can you please fix it to NOT read and parse config files from
-> > inside the kernel? Please? 
-> 
-> This is just a fix to keep chandev working as long as it's there and
-> drivers depend on it. We're working on getting rid of chandev altogether,
-> as we don't need any more it once driverfs and hotplug are working well 
-> for s390 ccw devices.
-
-With the last patch I just sent to Linus, I think you have everything
-you need (from the driver core, exported to /sbin/hotplug.)  Let me know
-if there's any changes that can help you out.
-
-I'll work on adding /sbin/hotplug support for classes later this week,
-but I don't think your code would need that, correct?
-
-thanks,
-
-greg k-h
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.660.1.7 -> 1.660.1.8
+#	drivers/usb/serial/usbserial.c	1.44    -> 1.45   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/09/30	greg@kroah.com	1.660.1.8
+# USB: fix typo from previous schedule_task() patch.
+# --------------------------------------------
+#
+diff -Nru a/drivers/usb/serial/usbserial.c b/drivers/usb/serial/usbserial.c
+--- a/drivers/usb/serial/usbserial.c	Mon Sep 30 17:24:53 2002
++++ b/drivers/usb/serial/usbserial.c	Mon Sep 30 17:24:53 2002
+@@ -1092,7 +1092,7 @@
+ 
+ 	usb_serial_port_softint((void *)port);
+ 
+-	schedule_tasks(&port->tqueue);
++	schedule_task(&port->tqueue);
+ }
+ 
+ static void generic_shutdown (struct usb_serial *serial)

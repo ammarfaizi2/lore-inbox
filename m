@@ -1,97 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262309AbULMHWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbULMIFg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262309AbULMHWE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 02:22:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbULMHWE
+	id S261981AbULMIFg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 03:05:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbULMIFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 02:22:04 -0500
-Received: from static64-74.dsl-blr.eth.net ([61.11.64.74]:50692 "EHLO
-	linmail.globaledgesoft.com") by vger.kernel.org with ESMTP
-	id S262309AbULMHVx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 02:21:53 -0500
-Message-ID: <41BD4235.2030307@globaledgesoft.com>
-Date: Mon, 13 Dec 2004 12:48:13 +0530
-From: krishna <krishna.c@globaledgesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
+	Mon, 13 Dec 2004 03:05:35 -0500
+Received: from penta.pentaserver.com ([216.74.97.66]:34784 "EHLO
+	penta.pentaserver.com") by vger.kernel.org with ESMTP
+	id S261981AbULMIF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 03:05:29 -0500
+From: Manu Abraham <manu@kromtek.com>
+Reply-To: manu@kromtek.com
+Organization: Kromtek Systems
+To: linux-kernel@vger.kernel.org
+Subject: Re: [WISHLIST] IBM HD Shock detection in Linux
+Date: Mon, 13 Dec 2004 12:05:27 +0400
+User-Agent: KMail/1.6.2
+References: <1102888882.15558.2.camel@ksyrium.local> <1102889485.15558.5.camel@ksyrium.local> <Pine.LNX.4.61.0412122314560.10353@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0412122314560.10353@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-To: Andreas Unterkircher <unki@netshadow.at>
-CC: linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How to enable sysrq feature
-References: <41BD24EB.8000502@globaledgesoft.com> <41BD2D35.5080101@netshadow.at>
-In-Reply-To: <41BD2D35.5080101@netshadow.at>
-Content-Type: multipart/mixed;
- boundary="------------050809060006010400030602"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200412131205.27786.manu@kromtek.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - penta.pentaserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kromtek.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050809060006010400030602
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Hi Andreas,
-
-Here is the configuration of my system.
-
-Regards,
-Krishna Chaitanya
-
-Andreas Unterkircher wrote:
-
-> Hi
+On Mon December 13 2004 2:15 am, Jan Engelhardt wrote:
+> >> >The code apparently can display the horizon, but cannot prevent
+> >> >shocks :(
+> >>
+> >> How can something prevent a shock if it does not know before? What I
+> >> mean is that if I smack a harddrive, it can hardly evade it... nor can
+> >> it prevent me from smacking it.
+> >
+> >It can only prevent shocks when it detects tilts... like when the laptop
+> >shakes in a moving vehicle for example..
 >
-> .config looks correct - u should have at least
->
-> /proc/sys/kernel/sysrq - to enable/disable   and
-> /proc/sysrq-trigger - to trigger an sysrq event.
->
-> do u really booted the correct kernel? :)
->
-> The key combination won't work sometimes - in special cases.
-> But in Documenation/sysrq.txt you will find some tricks.
->
-> lg, Andi
->
-> krishna wrote:
->
->> Hi all,
->>
->> I have installed a 2.6.9 linux box with sysrq enabled. But Alt + 
->> printscreen + h is not working. And there is no 
->> /proc/sys/kernel/sysrq in
->> the proc directory.
->>
->> Regards,
->> Krishna Chaitanya
->>
+> Ah that's reasonable, like I'm dropping it (will probably tilt due to
+> physics) and then hit the ground.
+> But what will it do to prevent against the schock, now that it knows it is
+> tilted?
+When a tilt is detected, it would park the heads ? so that it would not 
+affected from the larger shock ?
 
-
---------------050809060006010400030602
-Content-Type: text/plain;
- name="log"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="log"
-
-Linux marvell 2.6.9 #1 SMP Fri Dec 10 12:08:52 IST 2004 i686 unknown unknown GNU/Linux
+The platter/head is affected in a case where the arm swings away, even from 
+the powerful magnet to crash against the platter. If the arm is locked, such 
+that it does not move when a tilt is detected, (The tilt before the shock) 
+the arm is parked and locked (more locking than the simple magnet) ?
  
-Gnu C                  gcc (GCC) 3.2.3
-Gnu make               3.80
-util-linux             2.12
-mount                  2.12
-modutils               0.9.14
-e2fsprogs              1.34
-pcmcia-cs              3.2.5
-PPP                    2.4.1
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Linux C++ Library      5.0.3
-Procps                 2.0.16
-Net-tools              1.60
-Kbd                    1.08
-Sh-utils               5.0
-Modules Loaded         
-
-
---------------050809060006010400030602--
+Manu
+>
+>
+>
+> Jan Engelhardt

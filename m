@@ -1,144 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129060AbQKNJIb>; Tue, 14 Nov 2000 04:08:31 -0500
+	id <S129047AbQKNJ0P>; Tue, 14 Nov 2000 04:26:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129061AbQKNJIV>; Tue, 14 Nov 2000 04:08:21 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:33810 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S129060AbQKNJIK>; Tue, 14 Nov 2000 04:08:10 -0500
-Message-Id: <200011140838.eAE8c3s01351@wattle.linuxcare.com.au>
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [DOCO PATCH] Directory notifications
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <1348.974191083.1@linuxcare.com.au>
-Date: Tue, 14 Nov 2000 19:38:03 +1100
-From: Stephen Rothwell <sfr@linuxcare.com.au>
+	id <S129061AbQKNJ0F>; Tue, 14 Nov 2000 04:26:05 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:3420
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129047AbQKNJZ6>; Tue, 14 Nov 2000 04:25:58 -0500
+Date: Tue, 14 Nov 2000 10:53:18 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops on 2.2.17 [klogd bonus question]
+Message-ID: <20001114105317.D3096@jaquet.dk>
+In-Reply-To: <20001113162155.A18009@jaquet.dk> <20001113231008.G18203@wire.cadcamlab.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001113231008.G18203@wire.cadcamlab.org>; from peter@cadcamlab.org on Mon, Nov 13, 2000 at 11:10:08PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Mon, Nov 13, 2000 at 11:10:08PM -0600, Peter Samuelson wrote:
+> 
+> [Rasmus Andersen]
+> > I'm getting oopses on a linux 2.2.17 box when I try to do
+> > tar cvIf <file> -X<file> /. Reproducably.
+> 
+> Are you excluding /proc?  Trying to back up all of /proc is definitely
+> asking for trouble, although the oops still indicates a kernel bug.
 
-This patch just adds some documentation about directory
-notifications.
+Good suggestion. But I exclude /proc and anyways it crashes before I get
+to that part of the fs.
 
-Cheers,
-Stephen
--- 
-Stephen Rothwell, Open Source Researcher, Linuxcare, Inc.
-+61-2-62628990 tel, +61-2-62628991 fax 
-sfr@linuxcare.com, http://www.linuxcare.com/ 
-Linuxcare. Support for the revolution.
-
-diff -ruN 2.4.0-test11pre4/Documentation/00-INDEX 2.4.0-test11pre4-dnot/Documentation/00-INDEX
---- 2.4.0-test11pre4/Documentation/00-INDEX	Wed Feb  9 06:28:31 2000
-+++ 2.4.0-test11pre4-dnot/Documentation/00-INDEX	Mon Nov 13 22:01:52 2000
-@@ -43,6 +43,8 @@
- 	- info on the Digiboard PC/X{i,e,eve} multiport boards.
- digiepca.txt
- 	- info on Digi Intl. {PC,PCI,EISA}Xx and Xem series cards.
-+dnotify.txt
-+	- info about directory notification in Linux.
- exception.txt
- 	- how Linux v2.2 handles exceptions without verify_area etc.
- fb/
-diff -ruN 2.4.0-test11pre4/Documentation/dnotify.txt 2.4.0-test11pre4-dnot/Documentation/dnotify.txt
---- 2.4.0-test11pre4/Documentation/dnotify.txt	Thu Jan  1 10:00:00 1970
-+++ 2.4.0-test11pre4-dnot/Documentation/dnotify.txt	Tue Nov 14 19:36:17 2000
-@@ -0,0 +1,92 @@
-+		Linux Directory Notification
-+		============================
-+
-+	   Stephen Rothwell <sfr@linuxcare.com.au>
-+
-+The intention of directory notification is to allow user applications
-+to be notified when a directory, or any of the files in it, are changed.
-+The basic mechanism involves the application registering for notification
-+on a directory using a fcntl(2) call and the notifications themselves
-+being delivered using signals.
-+
-+The application decides which "events" it wants to be notified about.
-+The currently defined events are:
-+
-+	DN_ACCESS	A file in the directory was accessed (read)
-+	DN_MODIFY	A file in the directory was modified (write,truncate)
-+	DN_CREATE	A file was created in the directory
-+	DN_DELETE	A file was unlinked from directory
-+	DN_RENAME	A file in the directory was renamed
-+	DN_ATTRIB	A file in the directory had its attributes
-+			changed (chmod,chown)
-+
-+Usually, the application must reregister after each notification, but
-+if DN_MULTISHOT is or'ed with the event mask, then the registration will
-+remain until explicitly removed (by registering for no events).
-+
-+By default, SIGIO will be delivered to the process and no other useful
-+information.  However, if the F_SETSIG fcntl(2) call is used to let the
-+kernel know which signal to deliver, a siginfo structure will be passed to
-+the signal handler and the si_fd member of that structure will contain the
-+file descriptor associated with the direcory in which the event occured.
-+
-+Preferably the application will choose one of the real time signals
-+(SIGRTMIN + <n>) so that the notifications may be queued.  This is
-+especially important if DN_MULTISHOT is specified.
-+
-+Implementation expectations (features and bugs :-))
-+---------------------------
-+
-+The notification should work for any local access to files even if the
-+actual file system is on a remote server.  This implies that remote
-+access to files served by local user mode servers should be notified.
-+Also, remote accesses to files served by a local kernel NFS server should
-+be notified.
-+
-+In order to make the impact on the file system code as small as possible,
-+the problem of hard links to files has been ignored.  So if a file (x)
-+exists in two directories (a and b) then a change to the file using the
-+name "a/x" should be notified to a program expecting notifications on
-+directory "a", but will not be notified to one expecting notifications on
-+directory "b".
-+
-+Also, files that are unlinked, will still cause notifications in the
-+last directory that they were linked to.
-+
-+Example
-+-------
-+
-+	#define _GNU_SOURCE	/* needed to get the defines */
-+	#include <fcntl.h>	/* in glibc 2.2 this has the needed
-+					   values defined */
-+	#include <signal.h>
-+	#include <stdio.h>
-+	#include <unistd.h>
-+	
-+	static volatile int event_fd;
-+	
-+	static void handler(int sig, siginfo_t *si, void *data)
-+	{
-+		event_fd = si->si_fd;
-+	}
-+	
-+	int main(void)
-+	{
-+		struct sigaction act;
-+		int fd;
-+		
-+		act.sa_sigaction = handler;
-+		sigemptyset(&act.sa_mask);
-+		act.sa_flags = SA_SIGINFO;
-+		sigaction(SIGRTMIN, &act, NULL);
-+		
-+		fd = open(".", O_RDONLY);
-+		fcntl(fd, F_SETSIG, SIGRTMIN);
-+		fcntl(fd, F_NOTIFY, DN_MODIFY|DN_CREATE|DN_MULTISHOT);
-+		/* we will now be notified if any of the files
-+		   in "." is modified or new files are created */
-+		while (1) {
-+			pause();
-+			printf("Got event on fd=%d\n", event_fd);
-+		}
-+	}
+Regards,
+  Rasmus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

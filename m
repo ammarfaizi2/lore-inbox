@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130401AbRA3XnF>; Tue, 30 Jan 2001 18:43:05 -0500
+	id <S130194AbRA3XvT>; Tue, 30 Jan 2001 18:51:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131413AbRA3Xmz>; Tue, 30 Jan 2001 18:42:55 -0500
-Received: from [209.24.233.229] ([209.24.233.229]:16646 "HELO
-	penguincomputing.com") by vger.kernel.org with SMTP
-	id <S130922AbRA3Xmx>; Tue, 30 Jan 2001 18:42:53 -0500
-Date: Tue, 30 Jan 2001 15:42:36 -0800 (PST)
-From: "Brett G. Person" <bperson@penguincomputing.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Reiserfs problem was: Re: Version 2.4.1 cannot be built. 
-In-Reply-To: <Pine.LNX.4.21.0101302012410.1321-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.10.10101301538520.22416-100000@mailserver.penguincomputing.com>
+	id <S130443AbRA3Xu7>; Tue, 30 Jan 2001 18:50:59 -0500
+Received: from cheetah.STUDENT.CWRU.Edu ([129.22.164.229]:58496 "EHLO
+	cheetah.STUDENT.cwru.edu") by vger.kernel.org with ESMTP
+	id <S130194AbRA3Xu4>; Tue, 30 Jan 2001 18:50:56 -0500
+Date: Tue, 30 Jan 2001 18:50:56 -0500 (EST)
+From: Matthew Gabeler-Lee <msg2@po.cwru.edu>
+X-X-Sender: <cheetah@cheetah.STUDENT.cwru.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: bttv problems in 2.4.0/2.4.1
+Message-ID: <Pine.LNX.4.32.0101301830330.1138-100000@cheetah.STUDENT.cwru.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Worked fine here but  i am getting segfaults on my Reiser filesystems. 
-I've been distracted by a project over the last few days. Is what I'm
-seeing a symptom of the fs corruption people were talking about last week?
+In 2.4.0 and 2.4.1, when I try to load the bttv driver, one of two
+things happens: the system hangs (even alt-sysrq doesn't work!), or the
+system powers off by itself (ATX mobo).  Instant power-off usually
+happens after a soft reboot (init 6), while it usually hangs up after a
+hard reboot (power cycling).
 
-Brett G. Person
-415-358-2656
-bperson@penguincomputing.com
+When it hangs, I noticed a very strange thing.  If I push the power
+on/off button briefly, it un-hangs and seems to proceed as normal.  The
+kernel does report an APIC error on each cpu (dual p3 700 system) when
+this happens.
 
-Penguin Computing - The World's Most Reliable Linux Systems
+These errors all occur in the same way (as near as I can tell) in
+kernels 2.4.0 and 2.4.1, using bttv drivers 0.7.50 (incl. w/ kernel),
+0.7.53, and 0.7.55.
 
-On Tue, 30 Jan 2001, Rik van Riel wrote:
+I am currently using 2.4.0-test10 with bttv 0.7.47, which works fine.
 
-> On Tue, 30 Jan 2001, Richard B. Johnson wrote:
-> 
-> > The subject says it all. `make dep` is now broken.
-> 
-> It worked fine here, with 2.4.1 unpacked from the tarball.
-> 
-> Rik
-> --
-> Virtual memory is like a game you can't win;
-> However, without VM there's truly nothing to lose...
-> 
-> 		http://www.surriel.com/
-> http://www.conectiva.com/	http://distro.conectiva.com.br/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+I have sent all this info to Gerd Knorr but, as far as I know, he hasn't
+been able to track down the bug yet.  I thought that by posting here,
+more eyes might at least make more reports of similar situations that
+might help track down the problem.
+
+PS: I'm not on the linux-kernel list, so please CC replies to me.
+
+-- 
+	-Matt
+
+Today's weirdness is tomorrow's reason why.
+                -- Hunter S. Thompson
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,87 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316210AbSG3SQa>; Tue, 30 Jul 2002 14:16:30 -0400
+	id <S316768AbSG3SWP>; Tue, 30 Jul 2002 14:22:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316715AbSG3SQa>; Tue, 30 Jul 2002 14:16:30 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:52494 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S316210AbSG3SQ3>;
-	Tue, 30 Jul 2002 14:16:29 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: dalecki@evision.ag
-Date: Tue, 30 Jul 2002 20:19:27 +0200
+	id <S316795AbSG3SWP>; Tue, 30 Jul 2002 14:22:15 -0400
+Received: from agate.roonetworks.com ([12.44.168.40]:29314 "EHLO
+	h216.ofc.roonetworks.com") by vger.kernel.org with ESMTP
+	id <S316768AbSG3SWO>; Tue, 30 Jul 2002 14:22:14 -0400
+From: Remco Treffkorn <remco@rvt.com>
+Reply-To: remco@rvt.com
+To: "David S. Miller" <davem@redhat.com>
+Subject: Re: 3 Serial issues up for discussion
+Date: Tue, 30 Jul 2002 11:23:47 -0700
+User-Agent: KMail/1.4.5
+Cc: dan@embeddededge.com, benh@kernel.crashing.org, trini@kernel.crashing.org,
+       rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       linuxppc-dev@lists.linuxppc.org
+References: <20020729181352.27999@192.168.4.1> <200207291246.43134.remco@rvt.com> <20020729.195414.31386335.davem@redhat.com>
+In-Reply-To: <20020729.195414.31386335.davem@redhat.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: IDE from current bk tree, UDMA and two channels...
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <9A81BA09AB@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200207301123.48322.remco@rvt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
-> On 30 Jul 02 at 16:25, Marcin Dalecki wrote:
-> > > Second problem is that read operation which ends with
-> > > "drive ready, seek complete, data request" (why it happened in first
-> > > place?) will just read one sector from drive (it was DMA transfer,
-> > > so drive->mult_count == 0), and then it returns from ata_error
-> > > with ATA_OP_CONTINUES. But what continues? Drive told us that
-> > > current operation is done, and no new operation was started, so
-> > > there is very low chance that some IRQ will ever come, and timer was
-> > > just removed by ata_irq_request(), so channel will never awake.
-> > 
-> > What should continue is the retry of the operation, since otherwise
-> > it will be abondoned in do_ide_request(). However I will recheck.
-> 
-> It is UP machine (with SMP non-preemptible kernel). Stack trace does not 
-> look like that it was caused by some race.
+On Monday 29 July 2002 19:54, David S. Miller wrote:
+>    From: Remco Treffkorn <remco@rvt.com>
+>    Date: Mon, 29 Jul 2002 12:46:42 -0700
+>
+>    Drivers need not fight about minor numbers. That can be simply handled:
+>
+>    int get_new_serial_minor()
+>    {
+>        static int minor;
+>
+>        return minor++;
+>    }
+>
+>    Any serial driver can call this when it initializes a new uart.
+>    Hot pluggable drivers have to hang on to their minors, and
+>    re-use.
+>
+> I don't think it's wise to make hot-plug drivers keep track
+> of the minors they ever use in such a sloppy way.  Why not
+> make the get_new_serial_minor() thing have a release method
+> too and then we can keep track of minor allocation in one
+> place.
+>
+> Also if I remmove the module for a serial port driver, those minors
+> should get reused by the next registered uart too.
 
-There is something severely broken... I reenabled
-ide: unexpected interrupt in ata_irq_request and to my surprise here
-we get one suprious interrupt for each request we do, on both
-channels - primary and secondary.
+Point taken.
+Here are a few more points.
 
-It looked:
+The given solution presents almost zero overhead, but has the mentioned 
+problem. There is a way to allocate and free minor numbers, but that requires 
+storage. It could be handled like the fd_set's select uses. Just a bit field. 
+Bit cleared == minor available, bit set == in use.
 
-udma_pci_init: sending read command to drive
-ata_irq_request: IRQ arrived, for us, calling handler
-ata_irq_request: handler returned 0
-ide: unexpected interrupt 1 15 handler=00000000
-callstack: ata_irq_request + 7e/234, handle_IRQ_event + 29/4c,
-           do_IRQ + df/190, common_interrupt + 18/20, do_softirq + 50/ac,
-           do_IRQ + 179/190, common_interrupt + 18/20
-udma_pci_init: sending read command to drive
-ata_irq_request: IRQ arrived, for us, calling handler
-ata_irq_request: handler returned 0
-ide: unexpected interrupt 1 15 handler=00000000
-callstack: same as above
-udma_pci_init: sending read command to drive
-ata_irq_request: IRQ arrived, for us, calling handler
-ata_irq_request: handler returned 0
-udma_pci_init: sending read command to drive
-ata_irq_request: command immediately queued by do_ide_request
-ata_irq_request: IRQ arrived, for us, calling handler
-oops: ide_dma_intr: udmastatus=00, diskstatus=58
+If you want to do that, you would want to know the maximum number of minors 
+used. Also, finding the first cleared bit in your field costs more on some 
+platforms, than on others.
 
-So we are getting one spurious interrupt for each UDMA request.
-Until we do not issue new command to the drive immediately, IRQ
-is silently ignored, and everybody is happy (?). But when we
-queue command immediately by call to do_ide_request in
-ata_irq_request, sooner or later spurious interrupt will
-arrive with wrong timming, and we'll think that command is
-done while it is still in progress.
+Although I suspect this additional overhead to not matter much, since 
+initialising a new uart is a rare event, I have bin surprised in the past.
 
-I see same spurious interrupt problem on primary channel too,
-but somehow timming is different with UDMA100, and we always find
-command done instead of in progress when spurious interrupt happens.
+So:
+How many minors?
+Is the overhead in getting a minor acceptable?
+Is it worth doing?
 
-Unfortunately ATA/ATAPIv7 says that single interrupt is triggered
-after command is done and all data transfered, and we do not play
-with select bit. But we play with nIEN bit of disk. Do you see
-any reason why this should cause spurious interrupt? (system is using
-XT-PIC, FYI)
-                                        Thanks,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
+Cheers,
+Remco
+
+-- 
+Remco Treffkorn (RT445)
+HAM DC2XT
+remco@rvt.com   (831) 685-1201

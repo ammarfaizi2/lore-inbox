@@ -1,30 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287386AbSBSWu0>; Tue, 19 Feb 2002 17:50:26 -0500
+	id <S289571AbSBSXKt>; Tue, 19 Feb 2002 18:10:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289571AbSBSWuR>; Tue, 19 Feb 2002 17:50:17 -0500
-Received: from sproxy.gmx.net ([213.165.64.20]:56400 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S287386AbSBSWuG>;
-	Tue, 19 Feb 2002 17:50:06 -0500
-Date: Tue, 19 Feb 2002 23:49:39 +0100
-From: Hanno Boeck <hanno@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Problems with Radeon Framebuffer
-Message-Id: <20020219234939.0d8597fb.hanno@gmx.de>
-X-Mailer: Sylpheed version 0.7.1claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S289790AbSBSXKk>; Tue, 19 Feb 2002 18:10:40 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:29194 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S289571AbSBSXKT>;
+	Tue, 19 Feb 2002 18:10:19 -0500
+Date: Tue, 19 Feb 2002 15:05:13 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Thomas Hood <jdthood@mail.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.4 PNPBIOS fault
+In-Reply-To: <1014153713.5039.149.camel@thanatos>
+Message-ID: <Pine.LNX.4.33L2.0202191501450.1465-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have Problems using the radeon Framebuffer on my Notebook. It is a Sony PCG-GR114MK with a Radeon Mobility.
+On 19 Feb 2002, Thomas Hood wrote:
 
-Kernel shows the following message. It only works with vesa-framebuffer.
+| On Tue, 2002-02-19 at 13:48, Randy.Dunlap wrote:
+| >
+| > Linux 2.5.4 with PNPBIOS support enabled:
+| >
+| > Looks like a PnP BIOS fault to me (i.e., in the system
+| > BIOS, not the kernel).
+|
+| I wrote:
+| > Test by booting with "pnpbios=off".
 
-Feb 19 23:41:54 hannonb kernel: radeonfb: ref_clk=2700, ref_div=60, xclk=16600 from BIOS
-Feb 19 23:41:54 hannonb kernel: radeonfb: panel ID string: 1024x768                
-Feb 19 23:41:54 hannonb kernel: radeonfb: detected DFP panel size from BIOS: 1024x768
-Feb 19 23:41:54 hannonb kernel: radeonfb: cannot map FB
+Linux 2.5.4 with CONFIG_PNPBIOS=y and "pnpbios=off" oopses
+in ahc_linux_isr() (or near there, according to the
+System.map file).
 
-Any ideas what I could do?
+| Also test by booting with "pnpbios=nores" and
+| "pnpbios=nocurr".
+
+Linux 2.5.4 with CONFIG_PNPBIOS=y and ("pnpbios=nores" or
+"pnpbios=nocurr") dies with the same problem as posted in
+the original email in this thread.
+
+By changing only one config (to CONFIG_PNPBIOS=n), Linux 2.5.4
+boots with no problems on this system.
+
+-- 
+~Randy
+

@@ -1,81 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbTFXUqe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 16:46:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbTFXUqe
+	id S261651AbTFXUvE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 16:51:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbTFXUvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 16:46:34 -0400
-Received: from esperi.demon.co.uk ([194.222.138.8]:34575 "EHLO
-	esperi.demon.co.uk") by vger.kernel.org with ESMTP id S261428AbTFXUqc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 16:46:32 -0400
-To: Oleg Drokin <green@namesys.com>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       reiserfs-list@namesys.com
-Subject: Re: 2.4.21 reiserfs oops
-References: <87he6iyzyj.fsf@amaterasu.srvr.nix>
-	<20030623095356.GA12936@namesys.com>
-	<87k7bcxww4.fsf@amaterasu.srvr.nix>
-	<20030624053129.GA24025@namesys.com>
-From: Nix <nix@esperi.demon.co.uk>
-X-Emacs: the Swiss Army of Editors.
-Date: Tue, 24 Jun 2003 21:34:55 +0100
-In-Reply-To: <20030624053129.GA24025@namesys.com> (Oleg Drokin's message of
- "Tue, 24 Jun 2003 09:31:29 +0400")
-Message-ID: <8765mvxlhs.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-MIME-Version: 1.0
+	Tue, 24 Jun 2003 16:51:04 -0400
+Received: from [62.67.222.139] ([62.67.222.139]:65489 "EHLO kermit")
+	by vger.kernel.org with ESMTP id S261651AbTFXUvA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 16:51:00 -0400
+Date: Tue, 24 Jun 2003 23:04:14 +0200
+From: Konstantin Kletschke <konsti@ludenkalle.de>
+To: linux-kernel@vger.kernel.org
+Subject: medium Oops on 2.5.73-mm1
+Message-ID: <20030624210414.GA1533@sexmachine.doom>
+Reply-To: Konstantin Kletschke <konsti@ludenkalle.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030624164026.GA2934@sexmachine.doom>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030624164026.GA2934@sexmachine.doom>
+Organization: Kletschke & Uhlig GbR
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Jun 2003, Oleg Drokin moaned:
-> Hello!
-> 
-> On Mon, Jun 23, 2003 at 11:16:27PM +0100, Nix wrote:
-> 
->> >> Jun 22 13:52:42 loki kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000001 
->> > This is very strange address to oops on.
->> I'll say! Looks almost like it JMPed to a null pointer or something.
-> 
-> No, if it'd jumped to a NULL pointer, we'd see 0 in EIP.
+This evening 2.5.73-mm1 "crashed" two times. The " because of that: this
+time it did not freeze completely, it disabled keyboard and mouse
+buttons, mouse movements where working still! I was running X...
 
-JMPed to ((long)NULL)+1 or something then :) the fact remains that it's
-not somewhere that even a memory error would make us likely to jump to.
+I enabled debugging in kernel, do you need the raw output or the
+ksymoopsed one?
 
->> >> Jun 22 13:52:43 loki kernel: EIP:    0010:[<c0092df4>]    Not tainted 
->> > And the EIP is prior to kernel start which is also very strange.
->> > On the other hand the address c0192df4 is somewhere inside reiserfs code,
->> > so it looks like a single bit error, I'd say.
->> I think it unlikely to be RAM problems given that the problem happened
->> shortly after upgrading to 2.4.21; this was about half a day after I
->> rebooted it because it threw a pile of never-seen-again, un-syslogged
->> SCSI abort errors at me (sym53c875); and *that* was a few minutes after
->> I rebooted into 2.4.21 for the first time.
-> 
-> Hm, so first there were some scsi problems and then reiserfs oops?
+last lines raw:
 
-Different boots. I upgraded, the first boot crashed within five minutes
-with weird SCSI errors, so I rebooted again and this happened six hours
-later.
+agetty        S E9DC2000  5027      1                4994 (NOTLB)
+ea767e1c 00000082 00000082 e9dc2000 ea767e34 c0339260 00000246 c0339260
+       c03db160 eaa23000 c03db160 00000001 00000008 7fffffff 00000000
+eb175974
+       c0130393 c03db160 00000292 eb175000 7fffffff 00100100 00200200
+00000246
+Call Trace:
+ [<c0130393>] schedule_timeout+0xe5/0xe7
+ [<c024847a>] uart_write+0x18a/0x4be
+ [<c02361d8>] read_chan+0x2d8/0x100e
+ [<c0237094>] write_chan+0x186/0x272
+ [<c011ecd7>] default_wake_function+0x0/0x2e
+ [<c011ecd7>] default_wake_function+0x0/0x2e
+ [<c0235f00>] read_chan+0x0/0x100e
+ [<c022f4e3>] tty_read+0x24b/0x2ce
+ [<c012ac52>] tasklet_action+0x40/0x61
+ [<c0171c26>] vfs_read+0xbc/0x127
+ [<c0171edd>] sys_read+0x42/0x63
+ [<c010a067>] syscall_call+0x7/0xb
 
-I'm willing to write off the SCSI errors to the shock effect of having
-just been powered down for the first time in a year (the shutdown
-scripts didn't quite work and the reset button is disconnected).
+full at http://www.ludenkalle.de/capture.log.2003-06-24
 
->> Actually since the RAM is good, I see no good reason for this to happen.
->> (actually I see no good reason for valid code before _text, either).
-> 
-> I wonder if 2.4.21 constantly crashes like that for you, then?
+and ksymoopsed:
 
-No obvious sign of it:
+>>EIP; e5cf1e6c <_end+25909b9c/3fc15d30>   <=====
 
-  9:34pm  up 1 day 22:30,  14 users,  load average: 0.09, 0.12, 0.16
+Trace; c0130341 <schedule_timeout+93/e7>
+Trace; c01302a5 <process_timeout+0/9>
+Trace; c018d5b4 <do_select+29e/474>
+Trace; c018d171 <__pollwait+0/c4>
+Trace; c018dab0 <sys_select+301/53d>
+Trace; c0137455 <sys_rt_sigaction+a1/115>
+Trace; c010a067 <syscall_call+7/b>
+Proc;  agetty
 
-(it is of course waiting until I am hundreds of miles away. *Then* it'll
-crash.)
+>>EIP; e9dc2000 <_end+299d9d30/3fc15d30>   <=====
+
+Trace; c0130393 <schedule_timeout+e5/e7>
+Trace; c024847a <uart_write+18a/4be>
+Trace; c02361d8 <read_chan+2d8/100e>
+Trace; c0237094 <write_chan+186/272>
+Trace; c011ecd7 <default_wake_function+0/2e>
+Trace; c011ecd7 <default_wake_function+0/2e>
+Trace; c0235f00 <read_chan+0/100e>
+Trace; c022f4e3 <tty_read+24b/2ce>
+Trace; c012ac52 <tasklet_action+40/61>
+Trace; c0171c26 <vfs_read+bc/127>
+Trace; c0171edd <sys_read+42/63>
+Trace; c010a067 <syscall_call+7/b>
+
+
+2 warnings and 1 error issued.  Results may not be reliable.
+
+full at http://www.ludenkalle.de/C
 
 -- 
-`It is an unfortunate coincidence that the date locarchive.h was
- written (in hex) matches Ritchie's birthday (in octal).'
-               -- Roland McGrath on the libc-alpha list
+2.5.73-mm1
+Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
+GPG KeyID EF62FCEF
+Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
+keulator.homelinux.org up 7 min, 

@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130073AbQK3QRm>; Thu, 30 Nov 2000 11:17:42 -0500
+        id <S129226AbQK3QaG>; Thu, 30 Nov 2000 11:30:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130083AbQK3QRe>; Thu, 30 Nov 2000 11:17:34 -0500
-Received: from u-code.de ([207.159.137.250]:11752 "EHLO u-code.de")
-        by vger.kernel.org with ESMTP id <S130073AbQK3QRU>;
-        Thu, 30 Nov 2000 11:17:20 -0500
-From: Eckhard Jokisch <e.jokisch@u-code.de>
-Reply-To: e.jokisch@u-code.de
-Organization: u-code
+        id <S130083AbQK3Q35>; Thu, 30 Nov 2000 11:29:57 -0500
+Received: from mx6.port.ru ([194.67.23.42]:50182 "EHLO mx6.port.ru")
+        by vger.kernel.org with ESMTP id <S129183AbQK3Q2w>;
+        Thu, 30 Nov 2000 11:28:52 -0500
+From: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
 To: linux-kernel@vger.kernel.org
-Subject: IDE_TAPE problem wiht ONSTREAM DI30
-Date: Thu, 30 Nov 2000 16:26:09 +0000
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: gadio@netvision.net.il
-MIME-Version: 1.0
-Message-Id: <00113016484200.11054@eckhard>
-Content-Transfer-Encoding: 7BIT
+Subject: Re[2]: DMA for triton again...
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: 143.167.4.62 via proxy [143.167.1.16]
+In-Reply-To: <3A267541.D1AED8E9@windsormachine.com>
+Reply-To: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 8bit
+Message-Id: <E141W6K-000AgZ-00@f6.mail.ru>
+Date: Thu, 30 Nov 2000 18:58:24 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Thanks!
 
-I tried the ide-tape driver for several weeks now. And after some time during
-writing or reading tar stops because of errors.
+> Chipset is a 430FX, Same hard drive as what you have.  Pentium > 133, 48 meg ram.  Kernel 2.2.17 with raid patch, and ide patch.  
 
-Error messages are:
-Nov 30 15:32:20  kernel: ide-tape: ht0: I/O error, pc =  8, key =  0,
-asc =  0, ascq =  2 Nov 30 15:32:25 eckhard last message repeated 1000 times
-Nov 30 15:32:25  kernel: ide-tape: ht0: unrecovered read error on logical block number 461706, skipping
-Nov 30 15:32:25  kernel: ide-tape: ht0: I/O error, pc =  8, key =  0, asc =  0, ascq =  2
-Nov 30 15:32:31  last message repeated 1000 times
-Nov 30 15:32:31  kernel: ide-tape: ht0: unrecovered read error on logical block number 461707, skipping
-Nov 30 15:32:31  kernel: ide-tape: ht0: I/O error, pc =  8, key =  0, asc =  0, ascq =  2 
+I don't think I need tha raid patch, do I?
 
-I tried to switch of pipelining by setting the parameters in ide-tape.c to 0
-but it didn't help too much ( the error seems to raise later :-(
+> Shares the ide cable with a WDC 850 meg drive as slave.
 
-This happens with 2.2.14, 2.2.17 and 2.4.test11 on SuSE-Linux6.4.
+No slaves on mine.
 
-I would really like to help finding the reason for this despite it takes a lot
-of time to fill a complete tape with tar. 
-Please - what's going on there? 
+> What brand is your motherboard?
 
-Eckhard Jokisch
+Intel Morrison64 (not Morrison32!) aka Advanced/MN (in some sources Advanced/AL). BIOS AMI 1.00.03.CA0 (upgraded to 1.00.04.CA0).
 
+What version of hdparm are you using? By the output it looks like 3.9, patched? Did DMA work from the very beginning? Can you send me a copy of your .config file?
 
-
+Regards
+Guennadi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

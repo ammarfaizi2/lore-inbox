@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267512AbRGXMja>; Tue, 24 Jul 2001 08:39:30 -0400
+	id <S267505AbRGXMsL>; Tue, 24 Jul 2001 08:48:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267505AbRGXMjT>; Tue, 24 Jul 2001 08:39:19 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:2690 "EHLO
+	id <S267513AbRGXMsC>; Tue, 24 Jul 2001 08:48:02 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:3714 "EHLO
 	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S267513AbRGXMjP>; Tue, 24 Jul 2001 08:39:15 -0400
-Date: Tue, 24 Jul 2001 08:39:04 -0400 (EDT)
+	id <S267505AbRGXMrw> convert rfc822-to-8bit; Tue, 24 Jul 2001 08:47:52 -0400
+Date: Tue, 24 Jul 2001 08:47:39 -0400 (EDT)
 From: "Richard B. Johnson" <root@chaos.analogic.com>
 Reply-To: root@chaos.analogic.com
-To: Russ Lewis <russ@deming-os.org>
+To: =?gb2312?q?=D0=C2=20=D4=C2?= <xinyuepeng@yahoo.com>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Safely giving up a lock before sleeping
-In-Reply-To: <3B5C9BFE.5BFB8BC7@deming-os.org>
-Message-ID: <Pine.LNX.3.95.1010724082503.26144A-100000@chaos.analogic.com>
+Subject: Re: your mail
+In-Reply-To: <20010724003806.59752.qmail@web20009.mail.yahoo.com>
+Message-ID: <Pine.LNX.3.95.1010724084559.26144B-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, 23 Jul 2001, Russ Lewis wrote:
-[SNIPPED...]
+On Tue, 24 Jul 2001, [gb2312] ÐÂ ÔÂ wrote:
 
-> Of course, since I need the lock to do anything, the first thing I do
-> (after removing myself from the wait queue and checking for signals) is
-> to relock the lock.
-> 
-> Is this a common problem?  Is there a more elegant solution to this?
+> Hi:
+> 	how does the kernel know which filesystem should be
+> mounted as root filesytem?
 > 
 
-If you need to protect a piece of code, and the variables it
-accesses are ONLY accessed by that code, investigate the use
-of a simple spin-lock (no disabling interrupts). This can
-prevent races such as you describe.
-
-	spin_lock_irqsave(&big_lock, flags);
-	do_critical_stuff();    /* Where global variables could change */
-	spin_lock(&little_lock);  /* Simple spin for any other entry */
-	spin_unlock_irqrestore(&big_lock, flags);  /* Interrupts now on */
-	do_less_critical_stuff_including_sleep();
-	spin_unlock(&little_lock);
-
-Note that this turns a possible race into a possible CPU time-eating
-spin so you need to carefully look at how the code is written. You
-could turn that spin-wait into a sleep if you used a semaphore to
-protect that section of code "up(), and down()".
-
+The Easter Bunny whispers in its ear.... Erm actually, check
+/etc/lilo.conf for hints.
 
 Cheers,
 Dick Johnson

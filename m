@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131606AbRC3SC3>; Fri, 30 Mar 2001 13:02:29 -0500
+	id <S131627AbRC3SRj>; Fri, 30 Mar 2001 13:17:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131612AbRC3SCU>; Fri, 30 Mar 2001 13:02:20 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:35930 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S131606AbRC3SCB>; Fri, 30 Mar 2001 13:02:01 -0500
-Date: Fri, 30 Mar 2001 12:01:15 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: Matti Aarnio <matti.aarnio@zmailer.org>, George Bonser <george@gator.com>,
-   linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: 2.4.3 aic7xxx wont compile 
-In-Reply-To: <200103301740.f2UHeSs26880@aslan.scsiguy.com>
-Message-ID: <Pine.LNX.3.96.1010330115642.8826U-100000@mandrakesoft.mandrakesoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131631AbRC3SR3>; Fri, 30 Mar 2001 13:17:29 -0500
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:29832 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S131627AbRC3SRO>; Fri, 30 Mar 2001 13:17:14 -0500
+Date: Fri, 30 Mar 2001 13:16:14 -0500
+From: Tim Coleman <tim@epenguin.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: RTL8139 conflicting with hard drive?
+Message-ID: <20010330131614.A744@tux.epenguin.org>
+In-Reply-To: <20010330085208.A428@tux.epenguin.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010330085208.A428@tux.epenguin.org>; from tim@epenguin.org on Fri, Mar 30, 2001 at 08:52:08AM -0500
+X-PGP-Key: finger tim@beastor.epenguin.org
+X-Operating-System: Linux 2.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 30 Mar 2001, Justin T. Gibbs wrote:
-
-> >You cannot expect that all people will instantly start using the
-> >latest driver from your Web site, immediately.  Especially considering
+On Fri, Mar 30, 2001 at 08:52:08AM -0500, Tim Coleman wrote:
+> I'm having a problem with a NIC I tried to install this morning.
+> The chip on the NIC says its an RTL-8139B (it's a generic brand
+> NIC, and I didn't really need anything fancy).
 > 
-> I guess I expect people posting on LK to read it.  There have been
-> announcements for all the driver versions on that list, I've responded
-> to all of the threads complaining about the aicasm stuff, and
+> When I install the NIC, and try to boot, the kernel complains
+> about not being able to find the root device.  If I take it out,
+> everything is fine.  I'm using kernel version 2.4.1, and my 
+> motherboard is an Asus A7V.  
+> 
+> I already have one RTL-8139B NIC installed, and it's just fine.
+> 
+> I also noticed that the kernel seemed to detect it as an IDE
+> controller, because two more IDE devices showed up in the boot
+> messages.
+> 
+> What could cause this?  More importantly, what's a good remedy?
 
-No less than three patches were posted to linux-kernel fixing my
-drivers/net/Makefile screwup... after I posted my own patch.  I never
-assume people read lkml at all before posting a problem report.
-Oh well, at least they are posting problem reports at all!  :)
+Sorry about posting that.  I figured out what I was doing wrong,
+and everything works now.  The new NIC I put in was stealing the
+hardware addresses used by my IDE controller.
 
+A change to lilo.conf fixed everything.
 
-> I've provided updated patches to Linus.
-
-I dunno about the patches for Linus.  Have you read
-Documentation/SubmittingPatches?  #3, #6, and especially #9 probably
-apply here, I'm guessing.
-
-
-> I'll try the psychic waves thing.  Perhaps it will help.
-
-hee :)
-
-	Jeff
-
-
+-- 
+Tim Coleman <tim@epenguin.org>                         [43.28 N 80.31 W]
+Software Developer/Systems Administrator/RDBMS Specialist/Linux Advocate
+University of Waterloo Honours Co-op Combinatorics & Optimization
+"Go to Heaven for the climate, Hell for the company." -- Mark Twain
 

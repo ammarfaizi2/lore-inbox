@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317102AbSGCRfy>; Wed, 3 Jul 2002 13:35:54 -0400
+	id <S317107AbSGCRl0>; Wed, 3 Jul 2002 13:41:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317107AbSGCRfy>; Wed, 3 Jul 2002 13:35:54 -0400
-Received: from hall.mail.mindspring.net ([207.69.200.60]:39469 "EHLO
-	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S317102AbSGCRfx>; Wed, 3 Jul 2002 13:35:53 -0400
-Date: Wed, 3 Jul 2002 13:38:29 -0400
-From: Kareem Dana <kareemy@earthlink.net>
-To: linux-kernel@vger.kernel.org
-Subject: SiS645DX Chipset and agpgart support
-Message-Id: <20020703133829.738c63cd.kareemy@earthlink.net>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S317110AbSGCRlZ>; Wed, 3 Jul 2002 13:41:25 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:20741 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S317107AbSGCRlZ>; Wed, 3 Jul 2002 13:41:25 -0400
+Date: Wed, 3 Jul 2002 19:43:40 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: khromy <khromy@lnuxlab.ath.cx>, linux-kernel@vger.kernel.org,
+       ext3-users@redhat.com
+Subject: Re: sync slowness. ext3 on VIA vt82c686b
+Message-ID: <20020703174340.GL22762@louise.pinerecords.com>
+References: <20020703022051.GA2669@lnuxlab.ath.cx> <3D226E86.695D27F3@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D226E86.695D27F3@zip.com.au>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
+X-Uptime: 29 days, 3:34
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> > When I copy a file(13Megs) from /home/ to /tmp/, sync takes almost 2 minutes.
+> > When I copy the same file to /usr/local/, sync returns almost right away.
+> 
+> Gad.  Please, mount those filesystems as ext2 and retest.
 
-I have an ASUS P4S533 motherboard with the sis645dx chipset. I need agpgart support for dri to work correctly, so in my kernel I enabled agpgart support (made the /dev entry) and enabled Generic SiS Chipset support under it.
+Checking out $(smartctl -l /dev/hda) might be advisable too.
 
-When my kernel boots up it complains "Unsupported SiS chipset (device id: 0646), you might want to try agp_try_unsupported=1. no supported devices found."
-
-Is the 645dx chipset completely unsupported? It is fairly popular. I believe it uses the same agp controller as the regular sis 645. Is that unsupported as well?
-
-btw, I am using kernel 2.4.18
-
-Thanks,
-Kareem
+T.

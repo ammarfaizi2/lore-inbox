@@ -1,93 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261288AbTDKQ4S (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 12:56:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTDKQ4S (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 12:56:18 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:32658 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S261288AbTDKQ4P (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 12:56:15 -0400
-Date: Fri, 11 Apr 2003 19:07:53 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Cc: netfilter-devel@lists.samba.org
-Subject: [PATCH] net/ipv6/netfilter warning removal 2.[45]
-Message-ID: <Pine.LNX.4.51.0304111904240.17912@dns.toxicfilms.tv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S261308AbTDKQ6s (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 12:58:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbTDKQ6s (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 12:58:48 -0400
+Received: from CPE0080c8c9b431-CM014280010574.cpe.net.cable.rogers.com ([24.114.72.97]:1541
+	"EHLO stargate.coplanar.net") by vger.kernel.org with ESMTP
+	id S261308AbTDKQ6r (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 12:58:47 -0400
+Subject: Re: [ANNOUNCE] udev 0.1 release
+From: Jeremy Jackson <jerj@coplanar.net>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+In-Reply-To: <20030411032424.GA3688@kroah.com>
+References: <20030411032424.GA3688@kroah.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050081047.1252.4.camel@contact.skynet.coplanar.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 11 Apr 2003 13:10:47 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+What about read-only root fs?  What about the root= kernel command line
+ever working?  What about initrd issues?
 
-there are simple warning to remove in 4 files there, here are the
-warnings:
-net/ipv6/netfilter/ip6t_rt.c: In function `match':
-net/ipv6/netfilter/ip6t_rt.c:133: warning: assignment from incompatible pointer type
-net/ipv6/netfilter/ip6t_frag.c: In function `match':
-net/ipv6/netfilter/ip6t_frag.c:150: warning: assignment from incompatible pointer type
-net/ipv6/netfilter/ip6t_esp.c: In function `match':
-net/ipv6/netfilter/ip6t_esp.c:126: warning: assignment from incompatible pointer type
-net/ipv6/netfilter/ip6t_ah.c: In function `match':
-net/ipv6/netfilter/ip6t_ah.c:136: warning: assignment from incompatible pointer type
+On Thu, 2003-04-10 at 23:24, Greg KH wrote:
+> Hi all,
+> 
+> I'd like to finally announce the previously vapor-ware udev program that
+> I've talked a lot about with a lot of people over the past months.  The
+> first, very rough cut is at:
+> 	kernel.org/pub/linux/utils/kernel/hotplug/udev-0.1.tar.gz
+> 
+> But what is it?  I've included an initial design document below that was
+> originally written by Dan Stekloff, and hacked up a bit by me.  But in
+> short, udev is a userspace replacement for devfs.  It will create and
+> destroy /dev entries based on the current system configuration.  It does
+> this by watching the /sbin/hotplug events on the system, and reading
+> information about these events from sysfs.
+> 
 
-And here is the patch to remove those by using casts.
 
-It applies both to 2.4.20 and 2.5.67.
-
-Regards,
-Maciej
-
-diff -Nru linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_ah.c linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_ah.c
---- linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_ah.c	2003-04-11 18:41:29.000000000 +0200
-+++ linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_ah.c	2003-04-11 18:49:41.000000000 +0200
-@@ -133,7 +133,7 @@
-        		return 0;
-        }
-
--       ah=skb->data+ptr;
-+       ah = (struct ahhdr *) skb->data+ptr;
-
-        DEBUGP("IPv6 AH LEN %u %u ", hdrlen, ah->hdrlen);
-        DEBUGP("RES %04X ", ah->reserved);
-Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_ah.ko and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_ah.ko differ
-Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_ah.o and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_ah.o differ
-diff -Nru linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_esp.c linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_esp.c
---- linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_esp.c	2003-04-11 18:41:29.000000000 +0200
-+++ linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_esp.c	2003-04-11 18:48:24.000000000 +0200
-@@ -123,7 +123,7 @@
-        		return 0;
-        }
-
--	esp=skb->data+ptr;
-+	esp = (struct esphdr *) skb->data+ptr;
-
- 	DEBUGP("IPv6 ESP SPI %u %08X\n", ntohl(esp->spi), ntohl(esp->spi));
-
-Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_esp.ko and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_esp.ko differ
-Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_esp.o and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_esp.o differ
-diff -Nru linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_frag.c linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_frag.c
---- linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_frag.c	2003-04-11 18:41:29.000000000 +0200
-+++ linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_frag.c	2003-04-11 18:48:09.000000000 +0200
-@@ -147,7 +147,7 @@
-        		return 0;
-        }
-
--       frag=skb->data+ptr;
-+       frag = (struct fraghdr *) skb->data+ptr;
-
-        DEBUGP("IPv6 FRAG LEN %u %u ", hdrlen, frag->hdrlen);
-        DEBUGP("INFO %04X ", frag->info);
-Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_frag.ko and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_frag.ko differ
-Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_frag.o and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_frag.o differ
-diff -Nru linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_rt.c linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_rt.c
---- linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_rt.c	2003-04-11 18:41:29.000000000 +0200
-+++ linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_rt.c	2003-04-11 18:53:36.000000000 +0200
-@@ -130,7 +130,7 @@
-        		return 0;
-        }
-
--       route=skb->data+ptr;
-+       route = (struct ipv6_rt_hdr *) skb->data+ptr;
-
-        DEBUGP("IPv6 RT LEN %u %u ", hdrlen, route->hdrlen);
-        DEBUGP("TYPE %04X ", route->type);

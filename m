@@ -1,85 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268147AbUHQIMH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268157AbUHQITm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268147AbUHQIMH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 04:12:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268159AbUHQILJ
+	id S268157AbUHQITm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 04:19:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268170AbUHQISN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 04:11:09 -0400
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:61327 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S268148AbUHQIKR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 04:10:17 -0400
-Subject: typos
-From: Borislav Petkov <bbpetkov@yahoo.de>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-L2ylhbEBWlEpWr/G0BJc"
-Message-Id: <1092730251.18997.16.camel@gollum.tnic>
+	Tue, 17 Aug 2004 04:18:13 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:57802 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S268156AbUHQIRL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 04:17:11 -0400
+Date: Tue, 17 Aug 2004 10:18:29 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Florian Schmidt <mista.tapas@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P1
+Message-ID: <20040817081829.GA1977@elte.hu>
+References: <1092624221.867.118.camel@krustophenia.net> <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu> <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <20040817021431.169d07db@mango.fruits.de> <1092701223.13981.106.camel@krustophenia.net> <20040817073927.GA594@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 17 Aug 2004 10:10:51 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040817073927.GA594@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-L2ylhbEBWlEpWr/G0BJc
-Content-Type: multipart/mixed; boundary="=-3ugk2Jdg6JlcCD0xEwAq"
+* Ingo Molnar <mingo@elte.hu> wrote:
 
+> > Yes, Ingo identified an issue with copy_page_range, I don't think it's
+> > fixed yet.  See the voluntary-preempt-2.6.8.1-P0 thread.
+> 
+> right, it's not fixed yet. It's not a trivial critical section - we
+> are holding two locks and are mapping two atomic kmaps.
 
---=-3ugk2Jdg6JlcCD0xEwAq
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+fortunately it's easier than i thought - neither the source pmd nor the
+target pmd can go away so we can simply drop the locks, reschedule, and
+remap. Does the patch below (ontop of -P3) fix the copy_page_range()
+latencies you are seeing?
 
-Hi there guys,
-I've been pondering on posting about this for a long time but I guess
-I'll just go and say it. I've been reading the lkml for about a year now
-and, I don't know how important it is to you, but I think that typos in
-the comments in the kernel sources really annoy those who really read
-them in order to understand what's going on. Well, I'm one of them, and,
-since the typos are really a lot, I thought that maybe fixing them would
-be a good idea.
-Here's a patch. Please, tell me if you don't want such noise on the list
-but I think that, although not crucial, somewhat correct english in the
-comments would be better, or?
+	Ingo
 
-Regards,
-Boris
-
-
-
---=-3ugk2Jdg6JlcCD0xEwAq
-Content-Description: 
-Content-Disposition: attachment; filename=sem.c-typo.patch
-Content-Type: text/x-patch; charset=ISO-8859-15
-Content-Transfer-Encoding: base64
-
-LS0tIGxpbnV4LTIuNi44LjEvaXBjL3NlbS5jLm9yaWcJMjAwNC0wOC0xNyAxMDowMjowNi4wMDAw
-MDAwMDAgKzAyMDANCisrKyBsaW51eC0yLjYuOC4xL2lwYy9zZW0uYwkyMDA0LTA4LTE3IDEwOjAy
-OjU3LjAwMDAwMDAwMCArMDIwMA0KQEAgLTg3OSw3ICs4NzksNyBAQCBzdGF0aWMgaW5saW5lIHZv
-aWQgbG9ja19zZW11bmRvKHZvaWQpDQogICogYWNxdWlyZXMgdGhlIHVuZG9fbGlzdCBsb2NrIGlu
-IGxvY2tfc2VtdW5kbygpLiAgSWYgdGFzazIgbm93DQogICogZXhpdHMgYmVmb3JlIHRhc2sxIHJl
-bGVhc2VzIHRoZSBsb2NrIChieSBjYWxsaW5nDQogICogdW5sb2NrX3NlbXVuZG8oKSksIHRoZW4g
-dGFzazEgd2lsbCBuZXZlciBjYWxsIHNwaW5fdW5sb2NrKCkuDQotICogVGhpcyBsZWF2ZSB0aGUg
-c2VtX3VuZG9fbGlzdCBpbiBhIGxvY2tlZCBzdGF0ZS4gIElmIHRhc2sxIG5vdyBjcmVhdHMgdGFz
-azMNCisgKiBUaGlzIGxlYXZlcyB0aGUgc2VtX3VuZG9fbGlzdCBpbiBhIGxvY2tlZCBzdGF0ZS4g
-IElmIHRhc2sxIG5vdyBjcmVhdGVzIHRhc2szDQogICogYW5kIG9uY2UgYWdhaW4gc2hhcmVzIHRo
-ZSBzZW1fdW5kb19saXN0LCB0aGUgc2VtX3VuZG9fbGlzdCB3aWxsIHN0aWxsIGJlDQogICogbG9j
-a2VkLCBhbmQgZnV0dXJlIFNFTV9VTkRPIG9wZXJhdGlvbnMgd2lsbCBkZWFkbG9jay4gIFRoaXMg
-Y2FzZSBpcw0KICAqIGRlYWx0IHdpdGggaW4gY29weV9zZW11bmRvKCkgYnkgaGF2aW5nIGl0IHJl
-aW5pdGlhbGl6ZSB0aGUgc3BpbiBsb2NrIHdoZW4gDQo=
-
---=-3ugk2Jdg6JlcCD0xEwAq--
-
---=-L2ylhbEBWlEpWr/G0BJc
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBIb2KQ6NBq1iMuxERApORAJ0fJo8j4m14iGrjLLPSruMcyvbltgCgiyS+
-dlBNddJMTuwKe0KhrvxZh64=
-=/lQM
------END PGP SIGNATURE-----
-
---=-L2ylhbEBWlEpWr/G0BJc--
-
+--- linux/mm/memory.c.orig	
++++ linux/mm/memory.c	
+@@ -337,6 +337,15 @@ cont_copy_pte_range_noset:
+ 				}
+ 				src_pte++;
+ 				dst_pte++;
++				if (voluntary_need_resched()) {
++					pte_unmap_nested(src_pte);
++					pte_unmap(dst_pte);
++					spin_unlock(&src->page_table_lock);
++					cond_resched_lock(&dst->page_table_lock);
++					spin_lock(&src->page_table_lock);
++					dst_pte = pte_offset_map(dst_pmd, address);
++					src_pte = pte_offset_map_nested(src_pmd, address);
++				}
+ 			} while ((unsigned long)src_pte & PTE_TABLE_MASK);
+ 			pte_unmap_nested(src_pte-1);
+ 			pte_unmap(dst_pte-1);

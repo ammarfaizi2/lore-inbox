@@ -1,36 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVBGCQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVBGCsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbVBGCQz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 21:16:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVBGCQz
+	id S261329AbVBGCsV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 21:48:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVBGCsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 21:16:55 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21677 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261337AbVBGCQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 21:16:54 -0500
-Date: Mon, 7 Feb 2005 02:16:53 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Larry McVoy <lm@bitmover.com>, Stelian Pop <stelian@popies.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050207021653.GQ8859@parcelfarce.linux.theplanet.co.uk>
-References: <20050203033459.GA29409@bitmover.com> <20050203193220.GB29712@sd291.sivit.org> <20050203202049.GC20389@bitmover.com> <20050203220059.GD5028@deep-space-9.dsnet> <20050203222854.GC20914@bitmover.com> <20050204130127.GA3467@crusoe.alcove-fr> <20050204160631.GB26748@bitmover.com> <Pine.LNX.4.61.0502060025020.6118@scrub.home> <20050206173910.GB24160@bitmover.com> <Pine.LNX.4.61.0502061859000.30794@scrub.home>
+	Sun, 6 Feb 2005 21:48:20 -0500
+Received: from zeus.bragatel.pt ([217.70.64.253]:8412 "HELO mail.bragatel.pt")
+	by vger.kernel.org with SMTP id S261329AbVBGCsP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 21:48:15 -0500
+Date: Mon, 7 Feb 2005 02:48:00 +0000
+From: Nuno Monteiro <nuno@itsari.org>
+To: =?iso-8859-1?Q?Pozs=E1r_Bal=E1zs?= <pozsy@uhulinux.hu>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: msdos/vfat defaults are annoying
+Message-ID: <20050207024800.GA18010@hobbes.itsari.int>
+References: <4205AC37.3030301@comcast.net> <20050206070659.GA28596@infradead.org> <20050206232108.GA31813@ojjektum.uhulinux.hu> <20050207003610.GP8859@parcelfarce.linux.theplanet.co.uk> <20050207004218.GA12541@ojjektum.uhulinux.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; Format=Flowed; DelSp=Yes; charset=ISO-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0502061859000.30794@scrub.home>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050207004218.GA12541@ojjektum.uhulinux.hu> (from pozsy@uhulinux.hu on Mon, Feb 07, 2005 at 00:42:18 +0000)
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 07, 2005 at 02:45:22AM +0100, Roman Zippel wrote:
 
-[same wankfest]
+On 2005.02.07 00:42, Pozsár Balázs wrote:
+> On Mon, Feb 07, 2005 at 12:36:10AM +0000, Al Viro wrote:
+> > On Mon, Feb 07, 2005 at 12:21:08AM +0100, Pozsar Balazs wrote:
+> > > On Sun, Feb 06, 2005 at 07:06:59AM +0000, Christoph Hellwig wrote:
+> > > > filesystem detection isn't handled at the kerne level.
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-*plonk*
+> 
+> IIRC currently if both msdos and vfat are compiled in (not modules),  
+> and
+> 
+> you try to mount a vfat filesystem without explicitly specifying the fs
+> type, it will be mounted with the msdos type. With the, it will mounted
+> vfat.
+>
 
-If you ever need to send me mail - send it directly.  Anything from you
-to l-k will be handled by /dev/null here.  And it would better on saner
-topics not involving your crusades, TYSoFsckingM.
+
+But since filesystem detection isn't handled in the kernel, changing the  
+link order is pointless. Please fix your /etc/filesystems instead.
+
+~# grep camera /etc/fstab
+/dev/sda1 /mnt/camera auto users,noauto 0 0
+~# strace -o mount.trace mount /mnt/camera
+~# grep filesystems mount.trace
+open("/etc/filesystems", O_RDONLY|O_LARGEFILE) = 3
+~# cat /etc/filesystems
+ext2
+ext3
+nodev proc
+nodev devpts
+iso9660
+reiserfs
+vfat
+udf
+
+Also check man 8 mount, specifically option -t:
+
+[...] Creating a  file /etc/filesystems can be useful to change the probe  
+order (e.g., to try vfat before msdos) ...
+
+This is from man-pages 1.66, btw.
+
+
+Regards,
+
+
+		Nuno

@@ -1,56 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVC3JGi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbVC3JOe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbVC3JGi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 04:06:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVC3JGi
+	id S261822AbVC3JOe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 04:14:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbVC3JOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 04:06:38 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32187 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261816AbVC3JGg (ORCPT
+	Wed, 30 Mar 2005 04:14:33 -0500
+Received: from mx1.mail.ru ([194.67.23.121]:64109 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S261822AbVC3JO0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 04:06:36 -0500
-Date: Wed, 30 Mar 2005 11:06:24 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jim Carter <jimc@math.ucla.edu>
-Cc: linux-kernel@vger.kernel.org, hare@suse.de, seife@suse.de
-Subject: Re: Disc driver is module, software suspend fails
-Message-ID: <20050330090624.GA572@elf.ucw.cz>
-References: <Pine.LNX.4.61.0503242248530.7785@xena.cft.ca.us> <20050325081438.GA17245@elf.ucw.cz> <Pine.LNX.4.61.0503271623150.5513@xena.cft.ca.us> <20050328221922.GD1389@elf.ucw.cz> <Pine.LNX.4.61.0503291724030.7677@xena.cft.ca.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 30 Mar 2005 04:14:26 -0500
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: 2.6.12-rc1-bk2+PREEMPT_BKL: Oops at serio_interrupt
+Date: Wed, 30 Mar 2005 13:14:39 +0400
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+References: <200503282126.55366.adobriyan@mail.ru> <200503292349.55319.adobriyan@mail.ru> <200503300130.12736.dtor_core@ameritech.net>
+In-Reply-To: <200503300130.12736.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0503291724030.7677@xena.cft.ca.us>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200503301314.39575.adobriyan@mail.ru>
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > You insmod driver for your swap device, then you echo device numbers
-> > to /sys... then initiate resume.
+On Wednesday 30 March 2005 10:30, Dmitry Torokhov wrote:
+> On Tuesday 29 March 2005 14:49, Alexey Dobriyan wrote:
+> > According to vmlinux, c0202947 is at:
+> > 
+> > c020293e <serport_ldisc_write_wakeup>:
 > 
-> So you're saying, let the machine come all the way up, log in as root, 
-> "echo 8:5 > /sys/power/resume" (I think that was the name), then "echo 
-> resume > /sys/power/state"?  Hmm, you would have to bypass "swapon -a",
-> e.g. boot with the -b kernel parameter.  
+> Could you please try this one instead? Thanks!
 
-Well, basically yes, but do that without any writing to filesystem, or
-it is "bye bye data".
+Still dies in serport_ldisc_write_wakeup (doesn't matter how to trigger)
+via:
 
-> Or I'll bet one could do something equivalent in the initrd -- much more 
-> user friendly.  But the friendliest of all would be if the swsusp resume 
-> call were not a late_initcall but rather were called just before the root 
-> was mounted, after the initrd (if any) had loaded whatever modules.  I 
-> think you're confirming that that approach would not blow up the kernel -- 
-> if it will work with the root mounted and user space in full roar (well, 
-> skimpy roar with the -b switch), then it's got to be OK at the earlier 
-> time.
+Unable to handle kernel NULL pointer dereference at virtual address 00000068
+EIP: c020294f
+	tty_wakeup
+	uart_close
+	wait_for_completion
+	release_dev
 
-You do not want to mount journaling filesystems; they tend to write to
-disks even during read-only mounts... But doing it from initrd should
-be okay. ext2 and init=/bin/bash should do the trick, too.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+If you want me to be more specific, wait until I figure out how to print
+only parts of oops (to fit them on console).
+============================================================================
+c0202930 <serport_ldisc_write_wakeup>:
+c0202930:       push   %esi
+c0202931:       push   %ebx
+c0202932:       mov    0x978(%eax),%ebx
+c0202938:       pushf
+c0202939:       pop    %esi
+c020293a:       cli
+c020293b:       mov    $0x1,%eax
+c0202940:       call   c010ecaf <add_preempt_count>
+c0202945:       mov    0x14(%ebx),%eax
+c0202948:       test   $0x4,%al
+c020294a:       jne    c0202956 <serport_ldisc_write_wakeup+0x26>
+c020294c:       mov    0xc(%ebx),%eax
+c020294f: ==>>  mov    0x68(%eax),%edx	<<==
+c0202952:       test   %edx,%edx
+c0202954:       jne    c0202973 <serport_ldisc_write_wakeup+0x43>
+c0202956:       push   %esi
+c0202957:       popf
+c0202958:       mov    $0x1,%eax
+c020295d:       call   c010ece1 <sub_preempt_count>
+c0202962:       mov    $0xfffff000,%eax
+c0202967:       and    %esp,%eax
+c0202969:       mov    0x8(%eax),%eax
+c020296c:       test   $0x8,%al
+c020296e:       jne    c0202984 <serport_ldisc_write_wakeup+0x54>
+c0202970:       pop    %ebx
+c0202971:       pop    %esi
+c0202972:       ret
+c0202973:       mov    0x10(%edx),%edx
+c0202976:       test   %edx,%edx
+c0202978:       je     c0202956 <serport_ldisc_write_wakeup+0x26>
+c020297a:       lea    0x0(%esi),%esi
+c0202980:       call   *%edx
+c0202982:       jmp    c0202956 <serport_ldisc_write_wakeup+0x26>
+c0202984:       pop    %ebx
+c0202985:       pop    %esi
+c0202986:       jmp    c029ad16 <preempt_schedule>

@@ -1,127 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261842AbSJVAaV>; Mon, 21 Oct 2002 20:30:21 -0400
+	id <S261847AbSJVAcM>; Mon, 21 Oct 2002 20:32:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261845AbSJVAaV>; Mon, 21 Oct 2002 20:30:21 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:56049 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261842AbSJVAaR>; Mon, 21 Oct 2002 20:30:17 -0400
-Date: Mon, 21 Oct 2002 17:31:33 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>, Rik van Riel <riel@conectiva.com.br>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm mailing list <linux-mm@kvack.org>
-Subject: Re: ZONE_NORMAL exhaustion (dcache slab)
-Message-ID: <326730000.1035246693@flay>
-In-Reply-To: <3DB4855F.D5DA002E@digeo.com>
-References: <309670000.1035236015@flay> <Pine.LNX.4.44L.0210212028100.22993-100000@imladris.surriel.com> <3DB4855F.D5DA002E@digeo.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S261846AbSJVAbz>; Mon, 21 Oct 2002 20:31:55 -0400
+Received: from nwkea-mail-1.sun.com ([192.18.42.13]:19703 "EHLO
+	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id <S261849AbSJVAac>; Mon, 21 Oct 2002 20:30:32 -0400
+From: Timothy Hockin <th122948@scl2.sfbay.sun.com>
+Message-Id: <200210220036.g9M0aT431407@scl2.sfbay.sun.com>
+Subject: [BK PATCH 4/4] fix NGROUPS hard limit (resend)
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Date: Mon, 21 Oct 2002 17:36:29 -0700 (PDT)
+Reply-To: thockin@sun.com
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> On Mon, 21 Oct 2002, Martin J. Bligh wrote:
->> 
->> > > Blockdevices only use ZONE_NORMAL for their pagecache.  That cat will
->> > > selectively put pressure on the normal zone (and DMA zone, of course).
->> > 
->> > Ah, I recall that now. That's fundamentally screwed.
->> 
->> It's not too bad since the data can be reclaimed easily.
->> 
->> The problem in your case is that the dentry and inode cache
->> didn't get reclaimed. Maybe there is a leak so they can't get
->> reclaimed at all or maybe they just don't get reclaimed fast
->> enough.
-
-OK, well "find / | xargs ls -l" results in:
-
-dentry_cache      1125216 1125216    160 46884 46884    1 :  248  124
-
-repeating it gives
-
-dentry_cache      969475 1140960    160 47538 47540    1 :  248  124
-
-Which is only a third of what I eventually ended up with over the weekend,
-so presumably that means you're correct and there is a leak.
-
-Hmmm .... but why did it shrink ... I didn't expect mem pressure just
-doing a find ....
-
-MemTotal:     16077728 kB
-MemFree:      15070304 kB
-MemShared:           0 kB
-Buffers:         92400 kB
-Cached:         266052 kB
-SwapCached:          0 kB
-Active:         351896 kB
-Inactive:         9080 kB
-HighTotal:    15335424 kB
-HighFree:     15066160 kB
-LowTotal:       742304 kB
-LowFree:          4144 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-Dirty:           32624 kB
-Writeback:           0 kB
-Mapped:           4956 kB
-Slab:           630216 kB
-Reserved:       570464 kB
-Committed_AS:     6476 kB
-PageTables:        236 kB
-ReverseMaps:      3562
-
-Pretty much all in slab ...
-
-ext2_inode_cache  921200 938547    416 104283 104283    1 :  120   60
-dentry_cache      1068133 1131096    160 47129 47129    1 :  248  124
-
-So it looks as though it's actually ext2_inode cache that's first against the wall.
-For comparison, over the weekend I ended up with:
-
-ext2_inode_cache  554556 554598    416 61622 61622    1 :  120   60
-dentry_cache      2791320 2791320    160 116305 116305    1 :  248  124
-
-did a cat of /dev/sda2 > /dev/null ..... after that:
-
-larry:~# egrep '(dentry|inode)' /proc/slabinfo
-isofs_inode_cache      0      0    320    0    0    1 :  120   60
-ext2_inode_cache  667345 809181    416 89909 89909    1 :  120   60
-shmem_inode_cache      3      9    416    1    1    1 :  120   60
-sock_inode_cache      16     22    352    2    2    1 :  120   60
-proc_inode_cache      12     12    320    1    1    1 :  120   60
-inode_cache          385    396    320   33   33    1 :  120   60
-dentry_cache      1068289 1131096    160 47129 47129    1 :  248  124
-
-larry:~# cat /proc/meminfo
-MemTotal:     16077728 kB
-MemFree:      15068684 kB
-MemShared:           0 kB
-Buffers:        165552 kB
-Cached:         266052 kB
-SwapCached:          0 kB
-Active:         266620 kB
-Inactive:       167524 kB
-HighTotal:    15335424 kB
-HighFree:     15066160 kB
-LowTotal:       742304 kB
-LowFree:          2524 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-Dirty:               8 kB
-Writeback:           0 kB
-Mapped:           4956 kB
-Slab:           558684 kB
-Reserved:       570464 kB
-Committed_AS:     6476 kB
-PageTables:        236 kB
-ReverseMaps:      3563
-
-So it doesn't seem to shrink under mem pressure, but I can't reproduce 
-the OOM at the moment either ;-(
-
-M.
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.811   -> 1.812  
+#	include/linux/nfsiod.h	1.1     ->         (deleted)      
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/10/21	thockin@freakshow.cobalt.com	1.812
+# no one references nfsiod.h anymore - nix it.
+# --------------------------------------------
+#
+diff -Nru a/include/linux/nfsiod.h b/include/linux/nfsiod.h
+--- a/include/linux/nfsiod.h	Mon Oct 21 17:14:31 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,52 +0,0 @@
+-/*
+- * linux/include/linux/nfsiod.h
+- *
+- * Declarations for asynchronous NFS RPC calls.
+- *
+- */
+-
+-#ifndef _LINUX_NFSIOD_H
+-#define _LINUX_NFSIOD_H
+-
+-#include <linux/rpcsock.h>
+-#include <linux/nfs_fs.h>
+-
+-#ifdef __KERNEL__
+-
+-/*
+- * This is the callback handler for nfsiod requests.
+- * Note that the callback procedure must NOT sleep.
+- */
+-struct nfsiod_req;
+-typedef int	(*nfsiod_callback_t)(int result, struct nfsiod_req *);
+-
+-/*
+- * This is the nfsiod request struct.
+- */
+-struct nfsiod_req {
+-	struct nfsiod_req *	rq_next;
+-	struct nfsiod_req *	rq_prev;
+-	wait_queue_head_t	rq_wait;
+-	struct rpc_ioreq	rq_rpcreq;
+-	nfsiod_callback_t	rq_callback;
+-	struct nfs_server *	rq_server;
+-	struct inode *		rq_inode;
+-	struct page *		rq_page;
+-
+-	/* user creds */
+-	uid_t			rq_fsuid;
+-	gid_t			rq_fsgid;
+-	int			rq_groups[NGROUPS];
+-
+-	/* retry handling */
+-	int			rq_retries;
+-};
+-
+-struct nfsiod_req *	nfsiod_reserve(struct nfs_server *);
+-void			nfsiod_release(struct nfsiod_req *);
+-void			nfsiod_enqueue(struct nfsiod_req *);
+-int			nfsiod(void);
+-
+-
+-#endif /* __KERNEL__ */
+-#endif /* _LINUX_NFSIOD_H */

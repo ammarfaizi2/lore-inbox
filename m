@@ -1,59 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264908AbSJ3Uup>; Wed, 30 Oct 2002 15:50:45 -0500
+	id <S264937AbSJ3U5Y>; Wed, 30 Oct 2002 15:57:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264911AbSJ3Uup>; Wed, 30 Oct 2002 15:50:45 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:35344 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S264908AbSJ3Uun>;
-	Wed, 30 Oct 2002 15:50:43 -0500
-Date: Wed, 30 Oct 2002 21:56:52 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: "Matthew J. Fanto" <mattf@mattjf.com>, linux-kernel@vger.kernel.org
-Subject: Re: The Ext3sj Filesystem
-Message-ID: <20021030205652.GC22178@marowsky-bree.de>
-References: <200210301434.17901.mattf@mattjf.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200210301434.17901.mattf@mattjf.com>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+	id <S264938AbSJ3U5Y>; Wed, 30 Oct 2002 15:57:24 -0500
+Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:54766 "EHLO
+	harrier.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S264937AbSJ3U5X>; Wed, 30 Oct 2002 15:57:23 -0500
+Date: Wed, 30 Oct 2002 13:56:38 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Linux console project <linuxconsole-dev@lists.sourceforge.net>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: [BK console] console updates.
+Message-ID: <Pine.LNX.4.33.0210301343580.1392-100000@maxwell.earthlink.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-10-30T14:34:17,
-   "Matthew J. Fanto" <mattf@mattjf.com> said:
 
-> Encryption/decryption is transparent to the user, so the only thing 
-> they will need to know is their key, and how to mount a device. We do not 
-> encrypt the entire volume under the same key as some solutions do (this can 
-> not only aid in a known-plaintext attack, but it gives the users less 
-> options). Instead, every file is encrypted seperately under the key of the 
-> users choice.
+Hi folks!!!
 
-Do you encrypt before the data has hit the data journal or after? Does that
-work for mmap etc?
+   Along with the new fbdev api I also have rewritten the console layer.
+The goals are:
 
-> We are also adding support for reading keys off floppies, 
-> cdroms, and USB keychain drives. Currently, ext3sj supports the following 
-> algorithms: AES, 3DES, Twofish, Serpent, RC6, RC5, RC2, Blowfish, CAST-256, 
-> XTea, Safer+, SHA1, SHA256, SHA384, SHA512, MD5, with more to come. 
+1) The idea here was to move alot of the basic functionaly present in
+   alot of low level drivers into the the higher layers thus making the
+   low level drivers smaller and cleaner. A good example is using the
+   /dev/fb interface to resize a VC. That is just plain dumb.
 
-This sounds like something you might want to abstract into a generic
-architecture to be shared with the loop device code, or anything which might
-need encryption in the kernel. Otherwise it is a PITA to maintain.
+2) The second goal was to seperate out the terminal emulation to allow
+   for a light weight printk. Also the idea was to make the VT console
+   system modular. On embedded devices then we can insmod the VT
+   console system. This is partially done.
 
-And I thought some of those algorithms were strictly signature / hash
-algorithms, but you never stop learning ;-)
+3) Multi-desktop systems. Already done this. The current code in BK
+   doesn't support this just yet as I have a few bug to beat out for
+   single headed systems. It will take about one more week to get this
+   ready.
 
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+I doubt this code will go into 2.5.X but it is avaiable for anyone to play
+with it.
 
--- 
-Principal Squirrel 
-SuSE Labs - Research & Development, SuSE Linux AG
-  
-"If anything can go wrong, it will." "Chance favors the prepared (mind)."
-  -- Capt. Edward A. Murphy            -- Louis Pasteur
+bk://linuxconsole.bkbits.net
+
+BTW I will make patches avaiable as soon as 2.5.45 comes out.
+
+MS: (n) 1. A debilitating and surprisingly widespread affliction that
+renders the sufferer barely able to perform the simplest task. 2. A disease.
+
+James Simmons  [jsimmons@users.sf.net] 	                ____/|
+fbdev/console/gfx developer                             \ o.O|
+http://www.linux-fbdev.org                               =(_)=
+http://linuxgfx.sourceforge.net                            U
+http://linuxconsole.sourceforge.net
+

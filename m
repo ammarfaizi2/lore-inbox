@@ -1,112 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291179AbSAaRfp>; Thu, 31 Jan 2002 12:35:45 -0500
+	id <S291174AbSAaRgP>; Thu, 31 Jan 2002 12:36:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291177AbSAaRf1>; Thu, 31 Jan 2002 12:35:27 -0500
-Received: from acl.lanl.gov ([128.165.147.1]:9560 "HELO acl.lanl.gov")
-	by vger.kernel.org with SMTP id <S291174AbSAaRfS>;
-	Thu, 31 Jan 2002 12:35:18 -0500
-Date: Thu, 31 Jan 2002 10:35:16 -0700
-From: "Erik A. Hendriks" <hendriks@lanl.gov>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org, Werner Almesberger <wa@almesberger.net>
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-Message-ID: <20020131103516.I26855@lanl.gov>
-In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org> <3C586355.A396525B@zip.com.au> <m1zo2vb5rt.fsf@frodo.biederman.org> <3C58B078.3070803@zytor.com> <m1vgdjb0x0.fsf@frodo.biederman.org> <3C58CAE0.4040102@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C58CAE0.4040102@zytor.com>; from hpa@zytor.com on Wed, Jan 30, 2002 at 08:41:04PM -0800
+	id <S291177AbSAaRf5>; Thu, 31 Jan 2002 12:35:57 -0500
+Received: from mail.little-ft.com ([63.215.255.3]:15371 "EHLO
+	ltfsd01.little-ft.com") by vger.kernel.org with ESMTP
+	id <S291178AbSAaRfp>; Thu, 31 Jan 2002 12:35:45 -0500
+Message-ID: <B9F49C7F90DF6C4B82991BFA8E9D547B1256FB@BUFORD.littlefeet-inc.com>
+From: Kris Urquhart <kurquhart@littlefeet-inc.com>
+To: "'Alexander Viro'" <viro@math.psu.edu>
+Cc: Andreas Dilger <adilger@turbolabs.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: PROBLEM: ext2/mount - multiple mounts corrupts inodes
+Date: Thu, 31 Jan 2002 09:31:21 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 08:41:04PM -0800, H. Peter Anvin wrote:
-> Eric W. Biederman wrote:
+> From: Alexander Viro [mailto:viro@math.psu.edu]
+> Sent: Wednesday, January 30, 2002 9:05 PM
 > 
-> > 
-> > I am reluctant to go with a bootimg like interface because having a
-> > standard format encourages people to standardize.  Though a good
-> > argument can persuade me.  I don't loose any flexibility in comparison
-> > to bootimg because composing files on the fly is not significantly
-> > harder than composing a bootable image in ram. 
-> > 
-> > Please tell me if I haven't clearly answered your concerns about
-> > being locked into a single image.
-> > 
+> > + grep /mnt/hd
+> > + cat /proc/mounts
+> > /dev/hda3 /mnt/hd ext2 rw 0 0
+> > + find /mnt/hd -ls
+> >      2    1 drwxr-xr-x   3 root     root         1024 Dec 
+> 31 15:17 /mnt/hd
+> >     11   12 drwxr-xr-x   2 root     root        12288 Dec 31 15:17
+> > /mnt/hd/lost+found
+> > find: /mnt/hd/tar: Input/output error
+> > find: /mnt/hd/zcat: Input/output error
 > 
+> WTF???  Very interesting...  What about kernel messages?  It 
+> looks like
+> stat(2) failing.
+
+Yes, please see my recent reply to Andreas Dilger.
+
+> Just in case - could you put the same find before the second 
+> attempt of
+> mount?
 > 
-> I have to think about it.  I'm not convinced that this particular 
-> flavour of standardization is a step in the right direction -- in fact, 
-> it is *guaranteed* to provide significant additional complexity for 
-> bootloaders, and bzImage support is still going to have to be provided 
-> for the forseeable future.  Since you express that it will basically be 
-> necessary to stitch the ELF file together on the fly I don't see much 
-> point, quite frankly; it seems like extra complexity for no good reason.
 
-I'm inclined to agree with Peter here.
-
-For Linux, placing an initrd image with ELF is seriously problematic
-since only the boot loader will the necessary information to know
-where to put it.
-
-(Note: I suppose initramfs will make some or all of this go away but
-as long as initrds are around - which I think will be a long while,
-these problems exist.)
-
-  - It needs to be placed far enough away from the kernel to avoid
-    getting overwritten when the kernel starts allocating memory for
-    stuff at boot time.  I had this problem myself with two kernel
-    monte and a fixed load address for initrds.
-
-  - It needs to be placed on free memory.  The boot loader would
-    potentially have access to memory maps to know where not to place
-    the initrd.  I don't know if any do this at this point but I have
-    had problems with bootloaders dropping initrds in reserved
-    regions.  I ended up switching from syslinux to LILO (or maybe it
-    was the other way) to get around that.
-
-    As soon as you throw multiple architectures into the mix, I think
-    anything you think you can assume about what memory is reasonable
-    to use disappears.
-
-    Two kernel monte still has this problem.  Reading the E820 map or
-    something like it is on my to-do list somewhere.
-
-I don't think that being able to compose an elf image on the fly would
-solve either of these problems since the boot loader needs to make a
-relocation decision.  Running a linker on the fly would be pretty
-nasty anyway, IMO.  Nobody is suggesting any kind of dynamic linking
-in the boot loader are they?
-
-I like some of the patches that change Linux so you enter in 32 bit
-protected mode.  Switching back to 16bit mode might cause some trouble
-on boards with screwy BIOSes.  I did the "stay in protected mode"
-thing for two kernel monte because some BIOSes would get hung if I
-switch to protected mode and then back again before calling the APM
-setup.  The trick there is to keep the setup information from the real
-mode code and use it for the next kernel.  Gross, if you ask me.
-
-I think ELF is overkill for what you're doing with it.  It's an
-established format but so what?  It's not like you'll be able to take
-advantage of large existing code base.  Sure, ld exists to create your
-image but that's not the hard part.  The boot loaders would all have
-to include new code for this.  Also, your patch (for x86 only, it
-seems.  didn't you have alpha support too?) is far from trivial.  In
-short, I don't see how using ELF (or creating a new boot format at
-all) is going to save much, if any, work.
-
-I have this funny feeling some of the initrd discussion might have
-been discussed/addressed elsewhere.  I hope I'm not too out of touch
-:)
-
-Anyway, there's $.02.
-
-- Erik
-
-P.S.  The two second delay in two kernel monte is intentional and
-      easily removed.  It's there to let me glimpse the messages
-      before it actually does the reset.
-
++ find /mnt/hd -ls
+     2    1 drwxr-xr-x   3 root     root         1024 Dec 31 23:42 /mnt/hd
+    11   12 drwxr-xr-x   2 root     root        12288 Dec 31 23:42
+/mnt/hd/lost+found
+    12  149 -rwxr-xr-x   1 root     root       150796 Dec 31 23:42
+/mnt/hd/tar
+    13   52 -rwxr-xr-x   1 root     root        51228 Dec 31 23:42
+/mnt/hd/zcat
++ mount -t ext2 /dev/hda3 /mnt/hd
+mount: /dev/hda3 already mounted or /mnt/hd busy
+mount: according to mtab, /dev/hda3 is already mounted on /mnt/hd
++ cat /proc/mounts
++ grep /mnt/hd
+/dev/hda3 /mnt/hd ext2 rw 0 0
++ find /mnt/hd -ls
+     2    1 drwxr-xr-x   3 root     root         1024 Dec 31 23:42 /mnt/hd
+    11   12 drwxr-xr-x   2 root     root        12288 Dec 31 23:42
+/mnt/hd/lost+found
+find: /mnt/hd/tar: Input/output error
+find: /mnt/hd/zcat: Input/output error
 

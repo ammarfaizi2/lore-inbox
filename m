@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129465AbQK0XTw>; Mon, 27 Nov 2000 18:19:52 -0500
+        id <S129480AbQK0X0z>; Mon, 27 Nov 2000 18:26:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129480AbQK0XTm>; Mon, 27 Nov 2000 18:19:42 -0500
-Received: from iq.sch.bme.hu ([152.66.226.168]:9296 "EHLO iq.rulez.org")
-        by vger.kernel.org with ESMTP id <S129465AbQK0XTd>;
-        Mon, 27 Nov 2000 18:19:33 -0500
-Date: Mon, 27 Nov 2000 23:51:30 +0100 (CET)
+        id <S129639AbQK0X0p>; Mon, 27 Nov 2000 18:26:45 -0500
+Received: from iq.sch.bme.hu ([152.66.226.168]:46672 "EHLO iq.rulez.org")
+        by vger.kernel.org with ESMTP id <S129480AbQK0X0g>;
+        Mon, 27 Nov 2000 18:26:36 -0500
+Date: Mon, 27 Nov 2000 23:56:54 +0100 (CET)
 From: Sasi Peter <sape@iq.rulez.org>
-To: Jens Axboe <axboe@suse.de>, Andre Hedrick <andre@linux-ide.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ATA-4, ATA-5 TCQ status
-In-Reply-To: <Pine.LNX.4.10.10011261721420.12346-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.30.0011272349270.27635-100000@iq.rulez.org>
+To: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Multi-Chanel ATA, was: Re: ATA-4, ATA-5 TCQ status
+In-Reply-To: <14882.20520.247769.591536@hertz.ikp.physik.tu-darmstadt.de>
+Message-ID: <Pine.LNX.4.30.0011272353410.27635-100000@iq.rulez.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2000, Jens Axboe wrote:
+On Mon, 27 Nov 2000, Uwe Bonnes wrote:
 
-> On Mon, Nov 27 2000, Sasi Peter wrote:
-> > > implementation listed in the specs Linux might as well not support it :)
-> > > It's simply not worth it.
-> > But seriously, how come?
-> > I thought they just somewhat like copied the SCSI implementation...
-> I wish they would have, and based it on atapi. But they didn't...
-> Basically it requires you to poll for completion of tags with a
-> service command.
+> the 3Ware Controllers have up to 8 channels. However I think you can
+> only use one drive per chanel.
 
-On Sun, 26 Nov 2000, Andre Hedrick wrote:
-> On Mon, 27 Nov 2000, Jens Axboe wrote:
-> > On Mon, Nov 27 2000, Sasi Peter wrote:
-> > > I would like to ask if the tagged command queueing capability in the
-> > > decent ATA standards is utilized in the linux IDE driver (2.2 2.2ide
-> >   ^^^^^^
-> > > patches, or 2.4 maybe...)?
+Hi!
 
-Ok, so anybody knows a multichannel adapter? At least 4 channels?
-Andre? Where do I get one? Where does the ATA revolution start?
+I'm afraid they have only one with intel RISC on board for hardware raid,
+which amkes these card rather exensive for me wanting multilple channels,
+nota higher quality of service.
+It's like I do not want GB Ethernet, I only wanta single card with 4 Fast
+Ethernet ports. Just for storage: a single ATA-4/5 host adapter PCI card
+with as many channels as possible...
 
 -- 
 SaPE - Peter, Sasi - mailto:sape@sch.hu - http://sape.iq.rulez.org/

@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267821AbUHPR0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267814AbUHPR1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267821AbUHPR0M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 13:26:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267815AbUHPRZz
+	id S267814AbUHPR1O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 13:27:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267815AbUHPR1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 13:25:55 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:25184 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S267814AbUHPRZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 13:25:46 -0400
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Centralize i386 Constants
-X-Message-Flag: Warning: May contain useful information
-References: <1092619849.29612.49.camel@bach>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 16 Aug 2004 10:25:43 -0700
-In-Reply-To: <1092619849.29612.49.camel@bach> (Rusty Russell's message of
- "Mon, 16 Aug 2004 11:30:50 +1000")
-Message-ID: <52n00vm1uw.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 16 Aug 2004 17:25:43.0737 (UTC) FILETIME=[0F4F7A90:01C483B6]
+	Mon, 16 Aug 2004 13:27:14 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:41211 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S267814AbUHPR1K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 13:27:10 -0400
+Subject: Re: [PATCH] use simple_read_from_buffer in selinuxfs
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, James Morris <jmorris@redhat.com>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040814161521.C1924@build.pdx.osdl.net>
+References: <20040814161521.C1924@build.pdx.osdl.net>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1092677137.16631.156.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 16 Aug 2004 13:25:37 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Rusty> __FIXADDR_TOP and PAGE_OFFSET are hardcoded in various
-    Rusty> places.  I had to change it to run the kernel under
-    Rusty> qemu-fast, so I wanted to centralize them.
+On Sat, 2004-08-14 at 19:15, Chris Wright wrote:
+> Use simple_read_from_buffer.  This also eliminates page allocation
+> for the sprintf buffer.  Switch to get_zeroed_page instead of
+> open-coding it.  Viro had ack'd this earlier.  Still applies w/
+> the transaction update.
+> 
+> Signed-off-by: Chris Wright <chrisw@osdl.org>
 
-I like this patch -- I recently built a kernel with PAGE_OFFSET
-0xb0000000 to avoid highmem on my box with 1G of RAM, based on recent
-discussion, and I made the same change to vmlinux.lds.S (although
-since <asm-i386/thread_info.h> includes <asm-i386/page.h>, I didn't
-bother adding the "#include <asm/page.h>" line).
+Thanks, looks fine to me.
 
-In any case it seems there is at least one more place where 0xc0000000
-is hardcoded in arch/i386.  The patch below uses PAGE_OFFSET instead
-of 0xc0000000 in doublefault.c's ptr_ok() macro.
+Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
 
- - Roland
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
-
---- linux-2.6.8.1.orig/arch/i386/kernel/doublefault.c	2004-08-14 03:54:50.000000000 -0700
-+++ linux-2.6.8.1/arch/i386/kernel/doublefault.c	2004-08-14 10:44:55.000000000 -0700
-@@ -13,7 +13,7 @@
- static unsigned long doublefault_stack[DOUBLEFAULT_STACKSIZE];
- #define STACK_START (unsigned long)(doublefault_stack+DOUBLEFAULT_STACKSIZE)
- 
--#define ptr_ok(x) ((x) > 0xc0000000 && (x) < 0xc1000000)
-+#define ptr_ok(x) ((x) > PAGE_OFFSET && (x) < PAGE_OFFSET + 0x1000000)
- 
- static void doublefault_fn(void)
- {

@@ -1,42 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132649AbQKWHxC>; Thu, 23 Nov 2000 02:53:02 -0500
+        id <S132692AbQKWH4c>; Thu, 23 Nov 2000 02:56:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132657AbQKWHwx>; Thu, 23 Nov 2000 02:52:53 -0500
-Received: from callisto.space.umu.se ([192.36.114.9]:43790 "EHLO
-        callisto.umea.irf.se") by vger.kernel.org with ESMTP
-        id <S132649AbQKWHwq>; Thu, 23 Nov 2000 02:52:46 -0500
-Message-ID: <010a01c0551e$22a3bdb0$067224c0@umea.irf.se>
-From: Pär-Ola Nilsson <peje@umea.irf.se>
-To: "Andreas Dilger" <adilger@turbolinux.com>,
-        "Mohammad A. Haque" <mhaque@haque.net>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200011230640.eAN6eb223846@webber.adilger.net>
-Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
-Date: Thu, 23 Nov 2000 08:22:28 +0100
+        id <S132690AbQKWH4W>; Thu, 23 Nov 2000 02:56:22 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:4621 "EHLO havoc.gtf.org")
+        by vger.kernel.org with ESMTP id <S132689AbQKWH4H>;
+        Thu, 23 Nov 2000 02:56:07 -0500
+Message-ID: <3A1CC66D.BC1EB6DB@mandrakesoft.com>
+Date: Thu, 23 Nov 2000 02:25:33 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="Windows-1252"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.3018.1300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
+To: Keith Owens <kaos@ocs.com.au>
+CC: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+Subject: Re: Patch(?): pci_device_id tables for drivers/scsi in 2.4.0-test11
+In-Reply-To: <882.974962819@ocs3.ocs-net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 540028982 = 0x20303036 = " 336"
-> 540024880 = 0x20302030 = " 3 3"
-> 170926128 = 0x0a302030 = "\n3 3"
->
-These should be:
-540028982 = 0x20303036 = " 006"
-540024880 = 0x20302030 = " 0 0"
-170926128 = 0x0a302030 = "\n0 0"
+Keith Owens wrote:
+> 
+> [Adam J. Richter]
+> > +static struct pci_device_id atp870u_pci_tbl[] __initdata = {
+> > +{vendor: 0x1191, device: 0x8002, subvendor: PCI_ANY_ID, subdevice: PCI_ANY_ID},
+> > +{vendor: 0x1191, device: 0x8010, subvendor: PCI_ANY_ID, subdevice: PCI_ANY_ID},
+> 
+> It would make it easier to read and safer to type if you used a macro
+> to generate the fields.
+> 
+> #define PCITBL(v,d,sv,sd) \
+>  { PCI_VENDOR_ID_##v, PCI_DEVICE_ID_##d, \
+>    PCI_VENDOR_ID_##sv, PCI_DEVICE_ID_##sd }
+> 
+> #define PCITBL_END {0,0,0,0}
+> 
+> static struct pci_device_id foo_pci_tbl[] __initdata = {
+>   PCITBL(INTEL, INTEL_82437VX, ANY, ANY),
+>   PCITBL_END
+> }
 
-/Pär-Ola Nilsson
+* your macro fails for the 'ANY' case, because the proper macro is
+PCI_ANY_ID not PCI_{VENDOR,DEVICE}_ID_ANY.
+* many drivers need to set the driver_data field
+
+That said, the general idea presented above is quite good.  The PCITBL
+macro will probably change on a per-driver basis... I don't think it
+belongs in a common header.  For example, ethernet drivers might want to
+have a macro that always checks for PCI-CLASS-ETHERNET under the hood,
+while visibly looking like
+
+PCITBL(INTEL, 82437VX, {a driver_data value}),
+PCITBL(INTEL, 82987VX, {another driver_data value}),
+PCITBL_END
+
+	Jeff
 
 
+-- 
+Jeff Garzik             |
+Building 1024           | The chief enemy of creativity is "good" sense
+MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,136 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265821AbTIJWQU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 18:16:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265820AbTIJWOq
+	id S265864AbTIJWFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 18:05:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265866AbTIJWFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 18:14:46 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:27050 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S265817AbTIJWOW (ORCPT
+	Wed, 10 Sep 2003 18:05:25 -0400
+Received: from lidskialf.net ([62.3.233.115]:15580 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S265864AbTIJWFK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 18:14:22 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 11 Sep 2003 00:14:08 +0200 (MEST)
-Message-Id: <UTC200309102214.h8AME8l06380.aeb@smtp.cwi.nl>
-To: akpm@osdl.org, torvalds@osdl.org
-Subject: [PATCH] another keyboard problem solved
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+	Wed, 10 Sep 2003 18:05:10 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: linux-kernel@vger.kernel.org, linux-dvb@linuxtv.org
+Subject: Possible kernel thread related crashes on 2.4.x
+Date: Wed, 10 Sep 2003 23:03:34 +0100
+User-Agent: KMail/1.5.3
+Cc: franck@nenie.org, eric@lammerts.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200309102303.34095.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A colleague reported that the keyboard of his brandnew laptop
-is dead under 2.6 while 2.4 works.
+Hi, I've been having fatal oopses with some of my DVB receiver systems 
+when restarting streaming recently (i.e. opening/closing DVB devices). 
+I've only just got into the office with a debug cable to find out what has happening.
 
-Now I once wrote
+Anyway, here are the important parts of the oops (full oops at end of mail):
+Unable to handle kernel paging request at virtual address d905a984
+...
+Trace; c011c79c <free_uid+2c/34>
+Trace; c011767b <release_task+2b/16c>
+Trace; c0118337 <sys_wait4+307/390>
+Trace; c0106c03 <system_call+33/38>
 
-  In order to avoid interference between scancode sequences
-  or mouse packets and the reponses given to commands,
-  the keyboard or mouse should always be disabled before
-  giving a command that requires a response, and probably
-  enabled afterwards. Some keyboards or mice do the disable
-  automatically in this situation, but still require an
-  explicit enable afterwards. 
+Does this look familiar to anyone? I mean specifically this thread on linux-dvb (among others):
+http://www.linuxtv.org/mailinglists/linux-dvb/2003/04-2003/msg00291.html
 
-(http://www.win.tue.nl/~aeb/linux/kbd/scancodes-9.html)
+Searching about found me this patch on LKML:
+http://hypermail.idiosynkrasia.net/linux-kernel/archived/2003/week04/0468.html
 
-This is what happens on this laptop. The routine atkbd_probe()
-probes for a keyboard, and after detecting it, enables it.
-But immediately afterwards the routine atkbd_set_3() reads
-the current scancode set and sets the desired set, and as a
-side effect of these commands, the keyboard gets disabled again.
+Which I applied to 2.4.21, and which appears to fix the problem. At least,
+I was able to continually restart streaming for 4 hours this afternoon without a problem. 
+Previously, I could crash it within 15 minutes.
 
-Thus, the keyboard enable must be moved after all command sending
-has been done.
+It seems to be a bug related to kernel threads when starting/stopping them. The DVB drivers 
+now do this when a DVB device is opened/closed, although I'm sure they previously left 
+them running which would explain why I never saw this behaviour before.
 
-Now that I patch this area anyway: we are almost always in
-scancode set 2 but send the ATKBD_CMD_SETALL_MB command
-that only works in scancode set 3. At best this is useless.
-At worst it confuses the keyboard. So, I put this command
-in a separate routine and call that only when we really
-are in scancode set 3.
+My question is: is there a reason the patch has not yet made it into 2.4.x? It is not in 
+2.4.22-pre3.
 
-Andries
+Ta
 
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c	Mon Jun 23 04:43:32 2003
-+++ b/drivers/input/keyboard/atkbd.c	Wed Sep 10 23:24:13 2003
-@@ -322,6 +322,16 @@
- }
- 
- /*
-+ * Enable keyboard.
-+ */
-+static void atkbd_enable(struct atkbd *atkbd)
-+{
-+	if (atkbd_command(atkbd, NULL, ATKBD_CMD_ENABLE))
-+		printk(KERN_ERR "atkbd.c: Failed to enable keyboard on %s\n",
-+		       atkbd->serio->phys);
-+}
-+
-+/*
-  * atkbd_set_3 checks if a keyboard has a working Set 3 support, and
-  * sets it into that. Unfortunately there are keyboards that can be switched
-  * to Set 3, but don't work well in that (BTC Multimedia ...)
-@@ -399,7 +409,9 @@
- 
- 	if (atkbd_reset)
- 		if (atkbd_command(atkbd, NULL, ATKBD_CMD_RESET_BAT)) 
--			printk(KERN_WARNING "atkbd.c: keyboard reset failed on %s\n", atkbd->serio->phys);
-+			printk(KERN_WARNING
-+			       "atkbd.c: keyboard reset failed on %s\n",
-+			       atkbd->serio->phys);
- 
- /*
-  * Then we check the keyboard ID. We should get 0xab83 under normal conditions.
-@@ -433,24 +445,20 @@
- 	if (atkbd_command(atkbd, param, ATKBD_CMD_SETLEDS))
- 		return -1;
- 
-+	return 0;
-+}
-+
- /*
-  * Disable autorepeat. We don't need it, as we do it in software anyway,
-  * because that way can get faster repeat, and have less system load (less
-  * accesses to the slow ISA hardware). If this fails, we don't care, and will
-  * just ignore the repeated keys.
-+ *
-+ * This command is for scancode set 3 only.
-  */
--
-+static void atkbd_disable_autorepeat(struct atkbd *atkbd)
-+{
- 	atkbd_command(atkbd, NULL, ATKBD_CMD_SETALL_MB);
--
--/*
-- * Last, we enable the keyboard to make sure  that we get keypresses from it.
-- */
--
--	if (atkbd_command(atkbd, NULL, ATKBD_CMD_ENABLE))
--		printk(KERN_ERR "atkbd.c: Failed to enable keyboard on %s\n",
--			atkbd->serio->phys);
--
--	return 0;
- }
- 
- /*
-@@ -477,7 +485,7 @@
- }
- 
- /*
-- * atkbd_connect() is called when the serio module finds and interface
-+ * atkbd_connect() is called when the serio module finds an interface
-  * that isn't handled yet by an appropriate device driver. We check if
-  * there is an AT keyboard out there and if yes, we register ourselves
-  * to the input module.
-@@ -531,7 +539,9 @@
- 		}
- 		
- 		atkbd->set = atkbd_set_3(atkbd);
--
-+		if (atkbd->set == 3)
-+			atkbd_disable_autorepeat(atkbd);
-+		atkbd_enable(atkbd);
- 	} else {
- 		atkbd->set = 2;
- 		atkbd->id = 0xab00;
+
+
+ksymoops 2.4.5 on i686 2.4.21.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.21/ (default)
+     -m /boot/System.map-2.4.21 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Unable to handle kernel paging request at virtual address d905a984
+c01295b8
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c01295b8>]    Tainted: P
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010046
+eax: 00000000   ebx: 06014dab   ecx: c10072c0   edx: 00000010
+esi: c12c74b0   edi: 00000246   ebp: c12dff80   esp: c12dff58
+ds: 0018   es: 0018   ss: 0018
+Process init (pid: 1, stackpage=c12df000)
+Stack: c867c000 0000048b c12de000 c12dff80 c011c79c c12c74b0 c029b570 c011767b
+       c029b570 c867c000 bffff730 c0118337 c867c000 c12de000 00000000 bffff730
+       bffff6f4 c12dffb0 00000000 c12de000 00000000 00000000 00000000 c12de000
+Call Trace:    [<c011c79c>] [<c011767b>] [<c0118337>] [<c0106c03>]
+Code: 89 44 99 18 89 59 14 8b 41 10 8d 50 ff 89 51 10 83 f8 01 75
+
+
+>>EIP; c01295b8 <kmem_cache_free+34/a8>   <=====
+
+>>ebx; 06014dab Before first symbol
+>>ecx; c10072c0 <_end+ceb68c/105f93cc>
+>>esi; c12c74b0 <_end+fab87c/105f93cc>
+>>ebp; c12dff80 <_end+fc434c/105f93cc>
+>>esp; c12dff58 <_end+fc4324/105f93cc>
+
+Trace; c011c79c <free_uid+2c/34>
+Trace; c011767b <release_task+2b/16c>
+Trace; c0118337 <sys_wait4+307/390>
+Trace; c0106c03 <system_call+33/38>
+
+Code;  c01295b8 <kmem_cache_free+34/a8>
+00000000 <_EIP>:
+Code;  c01295b8 <kmem_cache_free+34/a8>   <=====
+   0:   89 44 99 18               mov    %eax,0x18(%ecx,%ebx,4)   <=====
+Code;  c01295bc <kmem_cache_free+38/a8>
+   4:   89 59 14                  mov    %ebx,0x14(%ecx)
+Code;  c01295bf <kmem_cache_free+3b/a8>
+   7:   8b 41 10                  mov    0x10(%ecx),%eax
+Code;  c01295c2 <kmem_cache_free+3e/a8>
+   a:   8d 50 ff                  lea    0xffffffff(%eax),%edx
+Code;  c01295c5 <kmem_cache_free+41/a8>
+   d:   89 51 10                  mov    %edx,0x10(%ecx)
+Code;  c01295c8 <kmem_cache_free+44/a8>
+  10:   83 f8 01                  cmp    $0x1,%eax
+Code;  c01295cb <kmem_cache_free+47/a8>
+  13:   75 00                     jne    15 <_EIP+0x15> c01295cd <kmem_cache_free+49/a8>
+
+ <0>Kernel panic: Attempted to kill init!
+
+1 warning issued.  Results may not be reliable.
+

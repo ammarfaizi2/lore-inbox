@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265963AbUF2TLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265959AbUF2TNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265963AbUF2TLw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 15:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265959AbUF2TLw
+	id S265959AbUF2TNF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 15:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265965AbUF2TNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 15:11:52 -0400
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:19435 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S265970AbUF2TLu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 15:11:50 -0400
-Date: Tue, 29 Jun 2004 21:11:48 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Frederic Krueger <spamalltheway@bigfoot.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: io apic + tsc = slowdown (bugreport + possible fix)
-In-Reply-To: <1088534977.1388.3.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.55.0406292107570.31801@jurand.ds.pg.gda.pl>
-References: <40DFC853.20803@bigfoot.com>  <1088467569.1944.10.camel@cog.beaverton.ibm.com>
-  <Pine.LNX.4.55.0406291358010.31801@jurand.ds.pg.gda.pl>
- <1088534977.1388.3.camel@cog.beaverton.ibm.com>
+	Tue, 29 Jun 2004 15:13:05 -0400
+Received: from vsat-148-63-57-162.c001.g4.mrt.starband.net ([148.63.57.162]:3548
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S265959AbUF2TMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 15:12:54 -0400
+Message-ID: <40E1BE7D.7070806@redhat.com>
+Date: Tue, 29 Jun 2004 12:09:49 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a2) Gecko/20040627
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: inconsistency between SIOCGIFCONF and SIOCGIFNAME
+References: <40E0EAC1.50101@redhat.com> <20040629012604.20c3ad8b.davem@redhat.com>
+In-Reply-To: <20040629012604.20c3ad8b.davem@redhat.com>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jun 2004, john stultz wrote:
+David S. Miller wrote:
 
-> >  Please folks do read the sources sometimes -- I've been repeatedly
-> > clarifying these bits while they are all documented in the sources,
-> > sigh...
-> 
-> Whoops, sorry, I had the impression the patch was targeted against 2.6,
+> I enclose a potential implementation for the ipv4 instance.
+> Please at least make sure it does what you want.
 
- It works the same way for both series.
+Seems to work nicely.
 
-> where there is no do_slow_gettimeoffset() and the only user of timer_ack
-> is in do_timer_interrupt(). 
 
- A quick search reveals the bits were moved to do_timer_overflow() in
-include/asm-i386/mach-default/do_timer.h which is used by
-arch/i386/kernel/timers/timer_pit.c -- I suppose the comment in 
-arch/i386/kernel/time.c needs an update then.
+> I really really hope there is not some application out there
+> that assumes that devices reported by SIOCGIFCONF are all up.
+> That works now, and we'd break things by making the suggested
+> change.  So this is what I'm most concerned about.
 
-> So am I incorrect that the TSC bits can be dropped for the 2.6 version
-> of the patch?
+The worst that could happen is that some more interfaces are reported.
+Since the information provided by SIOCGIFCONF isn't really enough to do
+anything meaningful other calls are needed at which point those
+interfaces can be weeded out, if this is wanted.  Also, the address
+family reported for those interfaces is AF_UNSPEC which should be a hint
+strong enough to recognize them.
 
- You are, sorry.
-
-  Maciej
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

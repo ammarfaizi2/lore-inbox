@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314047AbSDXCWl>; Tue, 23 Apr 2002 22:22:41 -0400
+	id <S314502AbSDXCYU>; Tue, 23 Apr 2002 22:24:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314507AbSDXCWl>; Tue, 23 Apr 2002 22:22:41 -0400
-Received: from pat.uio.no ([129.240.130.16]:48821 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S314047AbSDXCWk> convert rfc822-to-8bit;
-	Tue, 23 Apr 2002 22:22:40 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Unresolved symbols in 2.4.9-dj1
-In-Reply-To: <d8jk7qym0ai.fsf@fimm.ifi.uio.no>
-From: ilmari@ping.uio.no (Dagfinn Ilmari =?iso-8859-1?q?Manns=E5ker?=)
-Organization: PING
-Date: Wed, 24 Apr 2002 04:22:35 +0200
-Message-ID: <d8j8z7dn8d0.fsf@fimm.ifi.uio.no>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.2
- (sparc-sun-solaris2.7)
+	id <S314507AbSDXCYT>; Tue, 23 Apr 2002 22:24:19 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34824 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S314502AbSDXCYS>; Tue, 23 Apr 2002 22:24:18 -0400
+Date: Tue, 23 Apr 2002 19:23:30 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Pavel Machek <pavel@suse.cz>
+cc: Rob Landley <landley@trommello.org>, Alexander Viro <viro@math.psu.edu>,
+        Ian Molton <spyro@armlinux.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+In-Reply-To: <20020421230842.E155@toy.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0204231920401.10866-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ilmari@ping.uio.no (Dagfinn Ilmari Mannsåker) writes:
 
-> Hi,
+
+On Sun, 21 Apr 2002, Pavel Machek wrote:
 >
-> When compiling 2.5.9-dj1 with modular MD/LVM and EXT3, I got the
-> following unresolved symbols:
->
-> % depmod -ae -F System.map -b debian/tmp-image -r 2.5.9-dj1
-> depmod: *** Unresolved symbols in
->          debian/tmp-image/lib/modules/2.5.9-dj1/kernel/drivers/md/md.o
-> depmod:         blk_get_readahead
-> depmod: *** Unresolved symbols in
->          debian/tmp-image/lib/modules/2.5.9-dj1/kernel/fs/jbd/jbd.o
-> depmod:         exit_files
->
-> Seems like some missing EXPORT_SYMBOL statements.
+> I believe -pre's are still important. Daily snapshots are too likely to be
+> broken, and "real" releases are different from -pre ones (with *usefull*
+> difference): you can ignore -pre release, but you can't ignore real release
+> (because real releases are relative to each other).
 
-It worked when I added EXPORT_SYMBOL statements for these symbols to
-ksyms.c. Here's the patch (I hope they're in the right locations).
+Considering how even real releases in the development tree are likely to
+be broken (never mind the _trivial_ brokenness of applying the same patch
+to init/main.c twice, I'm talking about the more fundamental brokenness of
+just broken drivers and filesystems due to development), I'm not sure how
+big a deal that is.
 
--- 
-Dagfinn I. Mannsåker
-aka. Ilmari
+And I do make full tar-files of real releases, so that people can skip a
+few (although unless you have a fast connection it usually only makes
+sense after 10 full releases or so).
 
---- kernel/ksyms.c.orig Wed Apr 24 04:17:42 2002
-+++ kernel/ksyms.c      Wed Apr 24 04:20:52 2002
-@@ -340,6 +340,7 @@
- EXPORT_SYMBOL(init_buffer);
- EXPORT_SYMBOL(refile_buffer);
- EXPORT_SYMBOL(wipe_partitions);
-+EXPORT_SYMBOL(blk_get_readahead);
- 
- /* tty routines */
- EXPORT_SYMBOL(tty_hangup);
-@@ -553,6 +554,7 @@
- EXPORT_SYMBOL(is_bad_inode);
- EXPORT_SYMBOL(event);
- EXPORT_SYMBOL(brw_page);
-+EXPORT_SYMBOL(exit_files);
- 
- #ifdef CONFIG_UID16
- EXPORT_SYMBOL(overflowuid);
+> Having slightly more frequent real releases would be nice, but I believe
+> it is not feasible to make them as common as pre- patches.
+
+I'll try to keep them coming a bit more often.
+
+		Linus
+

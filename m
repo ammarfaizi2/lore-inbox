@@ -1,90 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263135AbSJVQJC>; Tue, 22 Oct 2002 12:09:02 -0400
+	id <S264761AbSJVQKr>; Tue, 22 Oct 2002 12:10:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263366AbSJVQJC>; Tue, 22 Oct 2002 12:09:02 -0400
-Received: from mimas.island.net ([199.60.19.4]:6156 "EHLO mimas.island.net")
-	by vger.kernel.org with ESMTP id <S263135AbSJVQI7>;
-	Tue, 22 Oct 2002 12:08:59 -0400
-Date: Tue, 22 Oct 2002 09:14:55 -0700 (PDT)
-From: andy barlak <andyb@island.net>
-Reply-To: <andyb@island.net>
-To: Patrick Mansfield <patmans@us.ibm.com>
-cc: Mike Anderson <andmike@us.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] scsi_error device offline fix
-In-Reply-To: <20021022083815.A61@eng2.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.30.0210220905560.20878-100000@tosko.alm.com>
+	id <S264755AbSJVQKJ>; Tue, 22 Oct 2002 12:10:09 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:31689 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S263968AbSJVQJR>; Tue, 22 Oct 2002 12:09:17 -0400
+Date: Tue, 22 Oct 2002 09:13:19 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm mailing list <linux-mm@kvack.org>
+Subject: Re: ZONE_NORMAL exhaustion (dcache slab)
+Message-ID: <2666502487.1035277994@[10.10.2.3]>
+In-Reply-To: <3DB4EE4E.88311B7B@digeo.com>
+References: <3DB4EE4E.88311B7B@digeo.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+>> > Maybe you didn't cat /dev/sda2 for long enough?
+>> 
+>> Well, it's a multi-gigabyte partition. IIRC, I just ran it until
+>> it died with "input/output error" ... which I assumed at the time
+>> was the end of the partition, but it should be able to find that
+>> without error, so maybe it just ran out of ZONE_NORMAL ;-)
+> 
+> Oh.  Well it should have just hit eof.  Maybe you have a dud
+> sector and it terminated early.
 
-On Tue, 22 Oct 2002, Patrick Mansfield wrote:
-> Try removing the scsi_load_identifier call in scsi_scan.c and
-> see if you can boot. And/or get sg_utils and on your 2.4 system
-> send a INQUIRY page 0 to the device, and see if that hangs or
-> not, like:
+OK, I catted an 18Gb disk completely. The beast still didn't shrink.
 
+larry:~# cat /proc/meminfo
+MemTotal:     16078192 kB
+MemFree:      15043280 kB
+MemShared:           0 kB
+Buffers:         79152 kB
+Cached:         287248 kB
+SwapCached:          0 kB
+Active:         263056 kB
+Inactive:       105136 kB
+HighTotal:    15335424 kB
+HighFree:     15039616 kB
+LowTotal:       742768 kB
+LowFree:          3664 kB
+SwapTotal:           0 kB
+SwapFree:            0 kB
+Dirty:               0 kB
+Writeback:           0 kB
+Mapped:           3736 kB
+Slab:           641352 kB
+Reserved:       570000 kB
+Committed_AS:     2400 kB
+PageTables:        180 kB
+ReverseMaps:      2236
 
-On this 2.4.19 box with the Buslogic 958, that command hangs:
-# ./sg_inq -e -o=0 /dev/sg1
-EVPD INQUIRY, page code=0x00:
+ext2_inode_cache  476254 541125    416 60125 60125    1 :  120   
+dentry_cache      2336272 2336280    160 97345 97345    1 :  248  124
 
-Dmesg reports a growing list of:
-.
-.
-.
-SCSI host 0 abort (pid 41290) timed out - resetting
-SCSI bus is being reset for host 0 channel 0.
-scsi0: Resetting BusLogic BT-958 due to Target 1
-scsi0: *** BusLogic BT-958 Initialized Successfully ***
-SCSI host 0 abort (pid 41292) timed out - resetting
-SCSI bus is being reset for host 0 channel 0.
-scsi0: Resetting BusLogic BT-958 due to Target 1
-scsi0: *** BusLogic BT-958 Initialized Successfully ***
-.
-.
-.
+Note that dentry cache seems to have grown overnight ....
 
+I guess I'll add some debug code to the slab cache shrinkers
+and try to see what it's doing.
 
-> On Mon, Oct 21, 2002 at 05:58:04PM -0700, andy barlak wrote:
-> > On Mon, 21 Oct 2002, Patrick Mansfield wrote:
-> > > Can you turn on all scsi logging - with CONFIG_SCSI_LOGGING enabled,
-> > > on your boot command line add a "scsi_logging=1" and send
-> > > the output.
-> > >
-> > > -- Patrick Mansfield
-> >
-> > Sure.  large dmesg buffer required.  This produced a 55k file that
-> > I will pare down to what I consider informative.
->
-> It looks like the INQUIRY page code 0 is timing out and appears to have
-> hung the bus, as all other commands sent to the bus then timeout.
->
-> It's surprising that that would hang the bus.
->
-> That driver really needs at least some basic reset handling.
->
-> Try removing the scsi_load_identifier call in scsi_scan.c and
-> see if you can boot. And/or get sg_utils and on your 2.4 system
-> send a INQUIRY page 0 to the device, and see if that hangs or
-> not, like:
->
-> [patman@elm3a50 sg_utils]$ sudo ./sg_inq  -e -o=0 /dev/sg1
-> EVPD INQUIRY, page code=0x00:
->  Only hex output supported
->  00     00 00 00 0c 00 03 80 81  c0 c1 c2 c3 c7 c8 d1 d2    ................
->
-> FYI sg_utils is at:
->
-> http://www.torque.net/sg/index.html#Utilities:%20sg_utils%20and%20sg3_utils
-> http://www.torque.net/sg/p/sg3_utils-1.01.tgz
->
-> -- Patrick Mansfield
->
-
--- 
-
- Andy Barlak
-
+M.

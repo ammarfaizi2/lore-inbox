@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261486AbVCaOvz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVCaOzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261486AbVCaOvz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 09:51:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVCaOvy
+	id S261482AbVCaOzg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 09:55:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVCaOzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 09:51:54 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:2752 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261486AbVCaOu3 (ORCPT
+	Thu, 31 Mar 2005 09:55:36 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:44480 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261482AbVCaOzL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 09:50:29 -0500
-Date: Thu, 31 Mar 2005 16:50:15 +0200
+	Thu, 31 Mar 2005 09:55:11 -0500
+Date: Thu, 31 Mar 2005 16:54:39 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: Trond Myklebust <trond.myklebust@fys.uio.no>
 Cc: Andrew Morton <akpm@osdl.org>, rlrevell@joe-job.com,
        linux-kernel@vger.kernel.org
 Subject: Re: NFS client latencies
-Message-ID: <20050331145015.GA4830@elte.hu>
+Message-ID: <20050331145439.GA4896@elte.hu>
 References: <1112237239.26732.8.camel@mindpipe> <1112240918.10975.4.camel@lade.trondhjem.org> <20050331065942.GA14952@elte.hu> <20050330231801.129b0715.akpm@osdl.org> <20050331073017.GA16577@elte.hu> <1112270304.10975.41.camel@lade.trondhjem.org> <1112272451.10975.72.camel@lade.trondhjem.org> <20050331135825.GA2214@elte.hu> <1112279522.20211.8.camel@lade.trondhjem.org> <20050331143930.GA4032@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -35,18 +35,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Ingo Molnar <mingo@elte.hu> wrote:
 
-> > So the overhead you are currently seeing should just be that of 
-> > iterating through the list, locking said requests and adding them to 
-> > our private list.
-> 
-> ah - cool! This was a 100 MB writeout so having 3.7 msecs to process 
-> 20K+ pages is not unreasonable. To break the latency, can i just do a 
-> simple lock-break, via the patch below?
+> [...] To break the latency, can i just do a simple lock-break, via the 
+> patch below?
 
-with this patch the worst-case latency during NFS writeout is down to 40 
-usecs (!).
+i think it's incorrect in its current form, because 'pos' is not 
+necessarily safe and might be removed from the commit_list?
 
-Lee: i've uploaded the -42-05 release with this patch included - could 
-you test it on your (no doubt more complex than mine) NFS setup?
+the whole loop could be a "while (!list_empty(head))" thing, if it wasnt 
+for the possibility for an nfs_set_page_writeback_locked() to skip an 
+entry. Maybe a local list of 'already processed' requests should be 
+built, and once the main list is emptied, moved back into the main list? 
+Then the lock-break could be moved to the end of the loop.
 
 	Ingo

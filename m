@@ -1,72 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263645AbTKYW7r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 17:59:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbTKYW7r
+	id S263464AbTKYXRU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 18:17:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbTKYXRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 17:59:47 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:53759 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263645AbTKYW7p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 17:59:45 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] 2.6.0-test10 O_DIRECT memory leak fix
-Date: Tue, 25 Nov 2003 14:49:50 -0800
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
+	Tue, 25 Nov 2003 18:17:19 -0500
+Received: from natsmtp01.rzone.de ([81.169.145.166]:36572 "EHLO
+	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S263464AbTKYXRR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 18:17:17 -0500
+Message-ID: <3FC3E2F4.4080809@softhome.net>
+Date: Wed, 26 Nov 2003 00:17:08 +0100
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_2FJXPTP7CPDOM9S4U30O"
-Message-Id: <200311251449.50397.pbadari@us.ibm.com>
+To: root@chaos.analogic.com
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2/2.4/2.6 VMs: do malloc() ever return NULL?
+References: <3FC358B5.3000501@softhome.net> <Pine.LNX.4.53.0311251510310.6584@chaos>
+In-Reply-To: <Pine.LNX.4.53.0311251510310.6584@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Richard B. Johnson wrote:
+> 
+> As documented, malloc() will never fail as long as there
+> is still address space (not memory) available. This is
+> the required nature of the over-commit strategy. This is
+> necessary because many programs never even touch all the
+> memory they allocate.
+> 
 
---------------Boundary-00=_2FJXPTP7CPDOM9S4U30O
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+   We are reading different mans? My man malloc(3) clearly states that 
+malloc() can return NULL. (*)
 
-Hi Andrew,
+   May I ask you one question? Did you were ever doing once graceful
+failure of application under memory pressure? Looks like not.
 
-I found the problem with O_DIRECT memory leak.
+   I can guess why sendmail allocates memory it never touches - memory
+pools. There are situations where you really cannot fail - and memory
+allocation failures are really nasty. Do you wanna to lose your e-mails? 
+No? So then think twice, while implementing lazy allocators.
 
-The problem is, when we are doing DIO read and crossed the end of file -
-we don't release referencess on all the pages we got from get_user_pages(=
-).
-(since it is a sucess case).
+   So from my tests I see that by default Linux is not safe. You allocate
+memory - malloc() != NULL. Then later you try to write to this memory
+and you get killed by oom_killer. What is the point of this? Your
+reasoning doesn't sound to me.
 
-The fix is to call dio_cleanup() even for sucess cases. Can you please
-review this ? I tested the patch with fsstress and there are no memory le=
-ak=20
-problems now.
+   Memory pools used by applications exactly to make grace error
+handling under memory pressure - but it looks like this stuff under
+Linux gets no testing at all. And default settings could make from
+simple bug complete disaster.
 
-Thanks,
-Badari
+ > You can turn OFF over-commit by doing:
+ >
+ > echo "2" >proc/sys/vm/overcommit_memory
+ >
+ > However, you will probably find that many programs fail
+ > or seg-fault when normally they wouldn't. So, if you don't
+ > mind restarting sendmail occasionally, then turn off over-commit.
+ >
 
---------------Boundary-00=_2FJXPTP7CPDOM9S4U30O
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="dioleak.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="dioleak.patch"
+   I shall try overcommit_memory == 2 tomorrow and say what I see.
 
---- linux-2.6.0-test10/fs/direct-io.c	2003-11-25 12:45:14.000000000 -0800
-+++ linux-2.6.0-test10.new/fs/direct-io.c	2003-11-25 15:20:26.554239616 -0800
-@@ -946,6 +946,12 @@ direct_io_worker(int rw, struct kiocb *i
- 	if (dio->bio)
- 		dio_bio_submit(dio);
- 
-+	/* 
-+	 * It is possible that, we return short IO due to end of file.
-+	 * In that case, we need to release all the pages we got hold on.
-+	 */ 
-+	dio_cleanup(dio);
-+
- 	/*
- 	 * OK, all BIOs are submitted, so we can decrement bio_count to truly
- 	 * reflect the number of to-be-processed BIOs.
+P.S. For example application I have ported right now to kernel space has
+a limitiation - it must never ever allocate memory: memory consumption
+is known, protocol just have no situation like ENOMEM - it _must_ fail
+to initialize on start-up. No - not to being killed by oom_killer in
+middle of processing. think carrier grade and/or just good programming
+technics.
 
---------------Boundary-00=_2FJXPTP7CPDOM9S4U30O--
+(*) Great optimization opportunities: remove from all programmes checks 
+of the return value if malloc(). As by your words - why not?
+
+-- 
+Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
+--                                                           _ _ _
+  Because the kernel depends on it existing. "init"          |_|*|_|
+  literally _is_ special from a kernel standpoint,           |_|_|*|
+  because its' the "reaper of zombies" (and, may I add,      |*|*|*|
+  that would be a great name for a rock band).
+                                 -- Linus Torvalds
+
 

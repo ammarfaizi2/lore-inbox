@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266535AbTBPLlt>; Sun, 16 Feb 2003 06:41:49 -0500
+	id <S266408AbTBPLlE>; Sun, 16 Feb 2003 06:41:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266540AbTBPLlt>; Sun, 16 Feb 2003 06:41:49 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:26116 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S266535AbTBPLlq>;
-	Sun, 16 Feb 2003 06:41:46 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302161150.h1GBok41000483@darkstar.example.net>
-Subject: Re: openbkweb-0.0
-To: dwmw2@infradead.org (David Woodhouse)
-Date: Sun, 16 Feb 2003 11:50:46 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, lm@bitmover.com, arashi@yomerashi.yi.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1045394526.2068.52.camel@imladris.demon.co.uk> from "David Woodhouse" at Feb 16, 2003 11:22:06 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S266431AbTBPLlE>; Sun, 16 Feb 2003 06:41:04 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:11978 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S266408AbTBPLlD>; Sun, 16 Feb 2003 06:41:03 -0500
+X-Face: "iUeUu$b*W_"w?tV83Y3*r:`rh&dRv}$YnZ3,LVeCZSYVuf[Gpo*5%_=/\_!gc_,SS}[~xZ
+ wY77I-M)xHIx:2f56g%/`SOw"Dx%4Xq0&f\Tj~>|QR|vGlU}TBYhiG(K:2<T^
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make jiffies wrap 5 min after boot
+References: <Pine.LNX.4.33L2.0302040935230.6174-100000@dragon.pdx.osdl.net>
+	<Pine.LNX.4.33.0302160232120.7975-100000@gans.physik3.uni-rostock.de>
+	<20030216020808.GF9833@krispykreme>
+	<20030216024317.GM29983@holomorphy.com>
+	<1045377459.2175.0.camel@phantasy>
+	<20030216071659.GB6417@actcom.co.il>
+From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+Date: 16 Feb 2003 12:50:34 +0100
+In-Reply-To: <20030216071659.GB6417@actcom.co.il>
+Message-ID: <871y281m2d.fsf@student.uni-tuebingen.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (broccoli)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I just wanted to confirm that bk-commit-head is actually:
+Muli Ben-Yehuda <mulix@mulix.org> writes:
+
+> On Sun, Feb 16, 2003 at 01:37:40AM -0500, Robert Love wrote:
+> > On Sat, 2003-02-15 at 21:43, William Lee Irwin III wrote:
 > > 
-> > 1. Complete
+> > > Can I get a vote for ~0UL instead of -1UL?
+> > 
+> > OK, I bite.  What is the difference?  Aren't both equivalent?
 > 
-> It should be complete -- but bear in mind that you may receive the mails
-> in a different order to the order in which they were sent, so just
-> applying them from a mail filter isn't necessarily sensible.
+> I have no idea if that's what wli meant, but -1UL is only "all ones"
+> in a 2's complement binary representation. 
 
-OK, fair enough, it does need to be more complicated than I originally
-suggested, but each changeset is numbered, so presumably we could just
-use that to ensure that we don't miss any.
+No. Wraparound of unsigned types is well-defined. -1UL must be the
+largest possible unsigned long value, which must consist of only 1
+bits (except for possible padding bits).
 
-> Also note that the dates on them are the date of the changeset itself,
-> not the date of application to Linus' tree (or indeed the date of the
-> cron job which creates the mail).
+Of course, no machines with ones-complement (or padding bits, or
+integer trap representations, or any of the other ISO braindamages)
+exist, so this is mostly irrelevant anyway.
 
-Well, that's OK as long as we are just trying to track Linus' tree, we
-don't even need to know the patch's original date.
-
-> > 2. Realtime
-> 
-> Almost -- it's run from an hourly cron job, which is more 'real time'
-> than Linus actually pushing from his own box to master.kernel.org and
-> quite enough of a demand on resources already.
-> 
-> It's not done with triggers on Linus' tree because I suspect that would
-> actually make Linus _wait_ while the mail is generated for every
-> changeset he's pushing to master.kernel.org. I do it with a cron job
-> which pulls from Linus' tree to another, and I don't do it with triggers
-> in my own tree because I suspect that would keep Linus' tree locked
-> while it generated the mails too. I do need to investigate possible
-> improvements to the way it's generated, though.
-
-Can't Larry just do this from bkbits, though?  That's what I don't
-understand.
-
-Maybe not for Linus' tree due to the volume of patches, but for most
-other trees, a mail sent out for each commit should be no problem.
-There should be no issues with locking - the mailing list shouldn't
-*care* whether anybody is actually receiving the mail, it just
-broadcasts the changes for everybody to see. 
-
-John.
+-- 
+	Falk

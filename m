@@ -1,88 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272526AbTGaQIo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 12:08:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272516AbTGaQGk
+	id S270449AbTGaQY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 12:24:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272505AbTGaQY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 12:06:40 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:5830
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S272513AbTGaQG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 12:06:26 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.0-test2-mm1 results
-Date: Fri, 1 Aug 2003 02:11:02 +1000
-User-Agent: KMail/1.5.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <5110000.1059489420@[10.10.2.4]> <200308010135.57514.kernel@kolivas.org> <61330000.1059667311@[10.10.2.4]>
-In-Reply-To: <61330000.1059667311@[10.10.2.4]>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Jul 2003 12:24:26 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:2965 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S270449AbTGaQYY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 12:24:24 -0400
+Date: Thu, 31 Jul 2003 18:24:23 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: TSCs are a no-no on i386
+Message-ID: <20030731162423.GC1873@lug-owl.de>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+References: <20030730181006.GB21734@fs.tum.de> <20030730183033.GA970@matchmail.com> <20030730184529.GE21734@fs.tum.de> <1059595260.10447.6.camel@dhcp22.swansea.linux.org.uk> <20030730203318.GH1873@lug-owl.de> <20030731002230.GE22991@fs.tum.de> <20030731062252.GM1873@lug-owl.de> <20030731071719.GA26249@alpha.home.local> <20030731150758.GE6410@mail.jlokier.co.uk> <Pine.LNX.4.53.0307311126530.770@chaos>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VEG93Z8xfWyRDB6c"
 Content-Disposition: inline
-Message-Id: <200308010211.02246.kernel@kolivas.org>
+In-Reply-To: <Pine.LNX.4.53.0307311126530.770@chaos>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Aug 2003 02:01, Martin J. Bligh wrote:
-> > On Fri, 1 Aug 2003 01:19, Martin J. Bligh wrote:
-> >> >> Does this help interactivity a lot, or was it just an experiment?
-> >> >> Perhaps it could be less agressive or something?
-> >> >
-> >> > Well basically this is a side effect of selecting out the correct cpu
-> >> > hogs in the interactivity estimator. It seems to be working ;-) The
-> >> > more cpu hogs they are the lower dynamic priority (higher number) they
-> >> > get, and the more likely they are to be removed from the active array
-> >> > if they use up their full timeslice. The scheduler in it's current
-> >> > form costs more to resurrect things from the expired array and restart
-> >> > them, and the cpu hogs will have to wait till other less cpu hogging
-> >> > tasks run.
-> >> >
-> >> > How do we get around this? I'll be brave here and say I'm not sure we
-> >> > need to, as cpu hogs have a knack of slowing things down for everyone,
-> >> > and it is best not just for interactivity for this to happen, but for
-> >> > fairness.
-> >> >
-> >> > I suspect a lot of people will have something to say on this one...
-> >>
-> >> Well, what you want to do is prioritise interactive tasks over cpu hogs.
-> >> What *seems* to be happening is you're just switching between cpu hogs
-> >> more ... that doesn't help anyone really. I don't have an easy answer
-> >> for how to fix that, but it doesn't seem desireable to me - we need some
-> >> better way of working out what's interactive, and what's not.
-> >
-> > Indeed and now that I've thought about it some more, there are 2 other
-> > possible contributors
-> >
-> > 1. Tasks also round robin at 25ms. Ingo said he's not sure if that's too
-> > low, and it definitely drops throughput measurably but slightly.
-> > A simple experiment is changing the timeslice granularity in sched.c and
-> > see if that fixes it to see if that's the cause.
-> >
-> > 2. Tasks waiting for 1 second are considered starved, so cpu hogs running
-> > with their full timeslice used up when something is waiting that long
-> > will be expired. That used to be 10 seconds.
-> > Changing starvation limit will show if that contributes.
->
-> Ah. If I'm doing a full "make -j" I have almost 100 tasks per cpu.
-> if it's 25ms or 100ms timeslice that's 2.5 or 10s to complete the
-> timeslice. Won't that make *everyone* seem starved? Not sure that's
-> a good idea ... reminds me of Dilbert: "we're going to focus particularly
-> on ... everything!" ;-)
 
-The starvation thingy is also dependent on number of running tasks.
+--VEG93Z8xfWyRDB6c
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I quote from the master engineer Ingo's codebook:
+On Thu, 2003-07-31 11:50:27 -0400, Richard B. Johnson <root@chaos.analogic.=
+com>
+wrote in message <Pine.LNX.4.53.0307311126530.770@chaos>:
+> On Thu, 31 Jul 2003, Jamie Lokier wrote:
+> > Willy Tarreau wrote:
 
-#define EXPIRED_STARVING(rq) \
-		(STARVATION_LIMIT && ((rq)->expired_timestamp && \
-		(jiffies - (rq)->expired_timestamp >= \
-			STARVATION_LIMIT * ((rq)->nr_running) + 1)))
+> The bad op-code for the i386 is cmpxchg. This is what triggers
+> the trap. This can be emulated, although the emulation is
+> not SMP compatible. You worry about this when somebody makes
+> a dual '386 machine ;^).  Also, the best performing emulation
+> for any op-codes should be done within the kernel. That way,
+> the invalid-opcode trap works just like the math emulator. You
+> don't need the overhead of calling a user-mode handler. If
+> this is emulation is implimented, then one should also emulate
+> BSWAP and XADD. This makes '486 code compatible with '386
+> machines.
 
-Where STARVATION_LIMIT is 1 second.
+Thanks for this fine explanation! Maybe I'd take the 2.4.x emulator
+kernel patch and bring it in line with 2.6.x?
 
-Con
+However, that doesn't release gcc's developers from providing a solution
+to the initial problem (i386 and i486 compiled libs/programs
+incompatible) from the task to work on libstdc++ :->
 
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+
+--VEG93Z8xfWyRDB6c
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/KUK3Hb1edYOZ4bsRAux6AJ0SZ8iBdXeiH19lNPtCXaIVMOlbOQCeM7yy
+SB/n8LJHiKnCN4gFb/3jwWM=
+=r/1I
+-----END PGP SIGNATURE-----
+
+--VEG93Z8xfWyRDB6c--

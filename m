@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262478AbUK3Xe0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262429AbUK3XbZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262478AbUK3Xe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 18:34:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbUK3XeC
+	id S262429AbUK3XbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 18:31:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUK3Xa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 18:34:02 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30379 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262459AbUK3XdJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 18:33:09 -0500
-Date: Tue, 30 Nov 2004 23:33:06 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Alexandre Oliva <oliva@lsd.ic.unicamp.br>
-Cc: Linus Torvalds <torvalds@osdl.org>, David Howells <dhowells@redhat.com>,
-       Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
-       David Woodhouse <dwmw2@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
-       hch@infradead.org, linux-kernel@vger.kernel.org,
-       libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Message-ID: <20041130233306.GA5752@parcelfarce.linux.theplanet.co.uk>
-References: <20041127032403.GB10536@kroah.com> <16810.24893.747522.656073@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org> <ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br> <8219.1101828816@redhat.com> <Pine.LNX.4.58.0411300744120.22796@ppc970.osdl.org> <ormzwzrrmy.fsf@livre.redhat.lsd.ic.unicamp.br> <Pine.LNX.4.58.0411301249590.22796@ppc970.osdl.org> <orekibrpmn.fsf@livre.redhat.lsd.ic.unicamp.br> <oracszrp7t.fsf@livre.redhat.lsd.ic.unicamp.br>
+	Tue, 30 Nov 2004 18:30:29 -0500
+Received: from gate.crashing.org ([63.228.1.57]:37527 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262464AbUK3X2W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 18:28:22 -0500
+Subject: Re: [1/7] Xen VMM #3: add ptep_establish_new to make va available
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, Steven.Hand@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk,
+       Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E1CZH45-0000Gk-00@mta1.cl.cam.ac.uk>
+References: <E1CZH45-0000Gk-00@mta1.cl.cam.ac.uk>
+Content-Type: text/plain
+Date: Wed, 01 Dec 2004 10:27:45 +1100
+Message-Id: <1101857266.5174.26.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <oracszrp7t.fsf@livre.redhat.lsd.ic.unicamp.br>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 30, 2004 at 07:39:34PM -0200, Alexandre Oliva wrote:
-> Sure, we could take headers from linux-*/include/user and install them
-> in /usr/include/kernel, but then includes in there that reference
-> other headers in user/ or in asm-<arch>/ will cease to work.
+On Tue, 2004-11-30 at 23:05 +0000, Ian Pratt wrote:
 
-I covered this with an evil sed script earlier in the thread.
+> I'd appreciate a pointer to the patch. 
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Well, I was hoping that David would reply with one :) It wasn't ported
+to all archs tho, but I did ppc & ppc64, and he did x86 & sparc iirc
+
+> It may still be of some use to distinguish between call sites
+> where it is likely that mm == current->mm to avoid adding a
+> futile test in all the others.
+
+Maybe ...
+
+ 
+> > Is there also a need for ptep_establish and ptep_establish_new to be 2
+> > different functions ?
+> 
+> They allow different TLB invalidation behaviour. I guess it could
+> be one function with an extra arg.
+
+Not sure, my point is that we tend nowadays to have one abstraction per
+call site, and I wonder if it's the right way to go ...
+
+Ben.
+
+

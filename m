@@ -1,136 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130874AbRCGK14>; Wed, 7 Mar 2001 05:27:56 -0500
+	id <S130952AbRCGK3J>; Wed, 7 Mar 2001 05:29:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130900AbRCGK1r>; Wed, 7 Mar 2001 05:27:47 -0500
-Received: from samar.sasken.com ([164.164.56.2]:25570 "EHLO samar.sasi.com")
-	by vger.kernel.org with ESMTP id <S130824AbRCGK13>;
-	Wed, 7 Mar 2001 05:27:29 -0500
-Message-ID: <3AA60CEE.AD9F2102@sasken.com>
-Date: Wed, 07 Mar 2001 15:56:54 +0530
-From: Manoj Sontakke <manojs@sasken.com>
-Organization: Sasken Communication Technologies Limited.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Hen, Shmulik" <shmulik.hen@intel.com>
-CC: "'nigel@nrg.org'" <nigel@nrg.org>, Manoj Sontakke <manojs@sasken.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: spinlock help
-In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B27152@hasmsx52.iil.intel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130921AbRCGK3A>; Wed, 7 Mar 2001 05:29:00 -0500
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:15889 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S130824AbRCGK2R>; Wed, 7 Mar 2001 05:28:17 -0500
+From: mshiju@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: Jeremy Jackson <jerj@coplanar.net>
+cc: linux-kernel@vger.kernel.org, linux-mca@vger.kernel.org
+Message-ID: <CA256A08.0039498E.00@d73mta05.au.ibm.com>
+Date: Wed, 7 Mar 2001 15:44:07 +0530
+Subject: Re: Linux installation problem
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
 
-spin_lock_irq()   and    spin_lock_bh() 
+ CDROM is detected. On booting it gives the following messages
+######################
 
-can they be of any use to u? 
+Detected scsi CD-ROM sr0 at scsi0, channel 0, id 12, lun 0
+sr0: scsi-1 drive
+Uniform CD-ROM driver Revision: 3.12
 
-"Hen, Shmulik" wrote:
-> 
-> How about if the same sequence occurred, but from two different drivers ?
-> 
-> We've had some bad experience with this stuff. Our driver, which acts as an
-> intermediate net driver, would call the hard_start_xmit in the base driver.
-> The base driver, wanting to block receive interrupts would issue a
-> 'spin_lock_irqsave(a,b)' and process the packet. If the TX queue is full, it
-> could call an indication entry point in our intermediate driver to signal it
-> to stop sending more packets. Since our indication function handles many
-> types of indications but can process them only one at a time, we wanted to
-> block other indications while queuing the request.
-> 
-> The whole sequence would look like that:
-> 
-> [our driver]
->         ans_send() {
->                 .
->                 .
->                 e100_hard_start_xmit(dev, skb);
->                 .
->                 .
->         }
-> 
-> [e100.o]
->         e100_hard_start_xmit() {
->                 .
->                 .
->                 spin_lock_irqsave(a,b);
->                 .
->                 .
->                 if(tx_queue_full)
->                         ans_notify(TX_QUEUE_FULL);      <--
->                 .
->                 .
->                 spin_unlock_irqrestore(a,b);
->         }
-> 
-> [our driver]
->         ans_notify() {
->                 .
->                 .
->                 spin_lock_irqsave(c,d);
->                 queue_request(req_type);
->                 spin_unlock_irqrestore(c,d);    <--
->                 .
->                 .
->         }
-> 
-> At that point, for some reason, interrupts were back and the e100.o would
-> hang in an infinite loop (we verified it on kernel 2.4.0-test10 +kdb that
-> the processor was enabling interrupts and that the e100_isr was called for
-> processing an Rx int.).
-> 
-> How is that possible that a 'spin_unlock_irqrestore(c,d)' would also restore
-> what should have been restored only with a 'spin_unlock_irqrestore(a,b)' ?
-> 
->         Thanks in advance,
->         Shmulik Hen
->       Software Engineer
->         Linux Advanced Networking Services
->         Intel Network Communications Group
->         Jerusalem, Israel.
-> 
-> -----Original Message-----
-> From: Nigel Gamble [mailto:nigel@nrg.org]
-> Sent: Wednesday, March 07, 2001 1:54 AM
-> To: Manoj Sontakke
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: spinlock help
-> 
-> On Tue, 6 Mar 2001, Manoj Sontakke wrote:
-> > 1. when spin_lock_irqsave() function is called the subsequent code is
-> > executed untill spin_unloc_irqrestore()is called. is this right?
-> 
-> Yes.  The protected code will not be interrupted, or simultaneously
-> executed by another CPU.
-> 
-> > 2. is this sequence valid?
-> >       spin_lock_irqsave(a,b);
-> >       spin_lock_irqsave(c,d);
-> 
-> Yes, as long as it is followed by:
-> 
->         spin_unlock_irqrestore(c, d);
->         spin_unlock_irqrestore(a, b);
-> 
-> Nigel Gamble                                    nigel@nrg.org
-> Mountain View, CA, USA.                         http://www.nrg.org/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+#############################
 
--- 
-Regards,
-Manoj Sontakke
+The kernel message from the  virtual consol is as follows:
+
+########################
+trying to mount device scd0
+loopfd is -1
+LOP_SET_FD failed : Bad file descriptor
+
+####################
+
+Where am I gone wrong?
+
+Thanks & Regards
+Shiju
+
+
+
+mshiju@in.ibm.com wrote:
+
+> Hi all,
+>            I am trying to install Linux (redhat-7) on a ps/2 server-9595
+> machine (mca ). I am booting from a floppy disk and using a custom build
+> 2.4.1 kernel image since there are problems  booting  the machine using
+the
+> installation image on  redhat CD and also it is not CD bootable. The
+> problem is that after booting it asks for redhat CDROM and when I insert
+> the redhat CDROM it gives a message "I could not find a redhat linux
+CDROM
+> in any of your CDROM drives ". The CD drive is a SCSI device and I have
+> enabled SCSI cdrom in kernel compilation . Can any one help me .
+>
+> Thanks & Regards
+> Shiju
+
+Hi,
+
+I have a type 8560 PS/2... not the same as yours but I did install
+slackware
+on
+it once.
+
+I would suggest installing from a standard PC.  Boot disks are very
+inflexible,
+since you don't have any utilities to poke around and figure out what's
+going
+on.
+
+Once you have a complete root filesystem, once you've got a kernel to
+recognise your scsi adapter, (and disk), you're off to the races, and can
+use all kinds of tools to look into the CDROM problem...BUT
+
+it's probably not going to recognise the disk either...
+
+check different virtual consoles with alt-f1, f2, etc: under
+a normal redhat boot disk, the different vc's will have diagnostic
+messages, ie kernel messages, list of modules being loaded, etc.
+
+maybe the best way is to be sure to compile kernel with support
+for scsi subsystem *in kernel* - not module, along with
+scsi-disk, scsi-cdrom, and your scsi host adapter.  the last
+one may be the tricky one.  you will have to figure out if it is supported.
+(the one in my PS/2 is at least for 2.0 kernel)
+
+if you can make the kernel on the boot disk use a smaller font,
+you will be able to see more of the messages at once.
+
+also, shift-PgUp should let you scroll back some of the messages.
+look for the kernel messages from your scsi host adapter driver...
+if you don't see any there's a problem!
+
+take a look inside your box and see what kind of scsi adapter it has.
+or use your reference disk to see what it is.  post that here
+so someone (maybe me) can check for kernel support.
+
+Cheers,
+
+Jeremy
+
+
+
+

@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131540AbQLLA5O>; Mon, 11 Dec 2000 19:57:14 -0500
+	id <S129906AbQLLA5o>; Mon, 11 Dec 2000 19:57:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131541AbQLLA5E>; Mon, 11 Dec 2000 19:57:04 -0500
-Received: from cip.physik.uni-wuerzburg.de ([132.187.42.13]:10768 "EHLO
-	wpax13.physik.uni-wuerzburg.de") by vger.kernel.org with ESMTP
-	id <S131540AbQLLA4v>; Mon, 11 Dec 2000 19:56:51 -0500
-Date: Tue, 12 Dec 2000 01:09:27 +0100 (MET)
-From: Andreas Klein <asklein@cip.physik.uni-wuerzburg.de>
+	id <S131541AbQLLA5g>; Mon, 11 Dec 2000 19:57:36 -0500
+Received: from hibernia.clubi.ie ([212.17.32.129]:24456 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP
+	id <S129906AbQLLA5J>; Mon, 11 Dec 2000 19:57:09 -0500
+Date: Tue, 12 Dec 2000 00:29:52 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: bug in scsi.c
-In-Reply-To: <E144ACA-00038L-00@the-village.bc.nu>
-Message-ID: <Pine.GHP.4.21.0012120044390.20976-100000@wpax13.physik.uni-wuerzburg.de>
+cc: "Mohammad A. Haque" <mhaque@haque.net>,
+        Andrew Stubbs <andrews@stusoft.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Enviromental Monitoring
+In-Reply-To: <E145dAr-0000On-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0012120029040.20500-100000@fogarty.jakma.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2000, Alan Cox wrote:
+On Tue, 12 Dec 2000, Alan Cox wrote:
 
-> Andreas is looking at a slightly older kernel, and was right for that. Every
-> caller to daemonize either then did the file stuff or needed to and forgot
-> so I fixed daemonize
+> No idea on the sensors stuff
 
-I think, there ist still a small bug.
-(This time I even checked 2.4.0-test12-pre8)
+i'll go nag them again. :)
 
-In linux/arch/i386/kernel/process.c, function kernel_thread, line 453 the
-flag CLONE_VM is always used.
-
-In sched.c, function daemonize, line 1216 you call exit_mm.
-
-Since the memory is cloned, you  will take away the mem from your
-user-space-application as well. So if insmod is already running at that
-time, it has to segvault. If I am not wrong at this point CLONE_VM simply
-has to be removed from kernel_thread. The kernel-thread will free his mem
-in daemonize (calling exit_mm) and the user-space-application will free
-the mem when exiting.
-
-Bye,
-
--- Andreas Klein
-   asklein@cip.physik.uni-wuerzburg.de
-   root / webmaster @cip.physik.uni-wuerzburg.de
-   root / webmaster @www.physik.uni-wuerzburg.de
-_____________________________________
-|                                   | 
-|   Long live our gracious AMIGA!   |
-|___________________________________|
-
-
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org
+PGP5 key: http://www.clubi.ie/jakma/publickey.txt
+-------------------------------------------
+Fortune:
+You will lose an important disk file.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

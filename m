@@ -1,80 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265050AbUD3DeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265041AbUD3Ddv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265050AbUD3DeS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 23:34:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265052AbUD3DeR
+	id S265041AbUD3Ddv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 23:33:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265050AbUD3Ddv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 23:34:17 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50080 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265050AbUD3DeJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 23:34:09 -0400
-Date: Fri, 30 Apr 2004 04:34:08 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Michael Brown <mebrown@michaels-house.net>
-Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com,
-       michael_e_brown@dell.com
-Subject: Re: [PATCH 2.4] add SMBIOS information to /proc/smbios -- UPDATED
-Message-ID: <20040430033408.GR17014@parcelfarce.linux.theplanet.co.uk>
-References: <1083291712.1203.2914.camel@debian>
+	Thu, 29 Apr 2004 23:33:51 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:32655 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S265041AbUD3Ddt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 23:33:49 -0400
+Subject: Re: Patch for 2.6.x: Add procps URL to Doc/Changes
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: rddunlap@osdl.org, rich@phekda.gotadsl.co.uk
+Content-Type: text/plain
+Organization: 
+Message-Id: <1083287510.3450.1082.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1083291712.1203.2914.camel@debian>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 29 Apr 2004 21:11:50 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 09:21:52PM -0500, Michael Brown wrote:
-> +	u32 fp = 0xF0000;
-> +	while (fp < 0xFFFFF) {
-> +		isa_memcpy_fromio(table_eps, fp, sizeof(*table_eps));
-> +		if (memcmp(table_eps->anchor, "_SM_", 4)==0 &&
-> +					checksum_eps(table_eps)) {
-> +			return 0;
-> +		}
-> +		fp += 16;
-> +	}
+Randy.Dunlap writes:
 
-Stilistic note:
-	for (fp = 0xf0000; fp < 0xfffff; fp += 16) {
-		isa_memcpy_fromio(table_eps, fp, sizeof(*table_eps));
-		if (memcmp(table_eps->anchor, "_SM_", 4) != 0)
-			continue;
-		if (checksum_eps(table_eps))
-			return 0;
-	}
+> alternative: ??
 
-> +	while(keep_going && ((ptr - buf) <= max_length) && count < max_count){
-> +		if (ptr[0] == 0x7F)   /* ptr[0] is type */
-> +			keep_going = 0;
-> +
-> +		ptr += ptr[1]; /* ptr[1] is length, skip structure */
-> +		/* skip strings at end of structure */
-> +		while((ptr-buf) < max_length && (ptr[0] || ptr[1]))
-> +			++ptr;
+No, not if you want your procps to work anyway.
 
-It looks like an off-by-one - if ptr reaches buf + max_length - 1, ptr[1]
-appears to be beyond the area it's OK to dereference.
+If your TTY is pts/256 or above, you'll need
+procps-3.2.0 or above to see it and select it.
 
-> +                size_t count, loff_t *ppos)
-> +{
-> +	unsigned long origppos = *ppos;
-> +	unsigned long max_off = the_smbios_device.smbios_table_real_length;
-> +	u8 *ptr;
-> +
-> +	if(*ppos >= max_off)
-> +		return 0;
+If you think "ps s" shouldn't be missing a few
+columns, procps-3.1.6 or above is needed.
 
-Note that *ppos is signed here.  llseek() to negative and you've got a problem.
+If you want to view threads, procps-3.1.14 or
+above is needed.
 
-> +	while (*ppos < max_off) {
-> +		put_user(readb(ptr + *ppos), buf);
-> +		++(*ppos); ++buf;
-> +	}
+If you want to run SE Linux, procps-3.1.15 or
+above is needed.
 
-Eeek...
+------------- partial list of improvements --------------
+* ps fully supports thread display (H, -L, m, -m, and -T)
+* ps can display NSA SELinux security contexts
+* top can show CPU usage for IO-wait, IRQ, and softirq
+* can set $PS_FORMAT to choose your own default ps format
+* better width control ("ps -o pid,wchan:42,args")
+* width of ps PID column adjusts to your system
+* vmstat lets you choose units you like: 1000, 1024, 1000000...
+* top can sort by any column (old sort keys available too)
+* top can select a single user to display
+* top can be put in multi-window mode and/or color mode
+* vmstat has the -s option, as found on UNIX and BSD systems
+* vmstat has the -f option, as found on UNIX and BSD systems
+* watch doesn't eat the first blank line by mistake
+* vmstat uses a fast O(1) algorithm on 2.5.xx kernels
+* pmap command is SunOS-compatible
+* vmstat shows IO-wait time
+* pgrep and pkill can find the oldest matching process
+* sysctl handles the Linux 2.5.xx VLAN interfaces
+* ps has a new "-F" format (very nice, like DYNIX/ptx has)
+* ps with proper BSD process selection
+* better handling of very long uptimes
 
-	a) that's called copy_to_user()
-	b) you'd better check the return value (either of put_user() or
-copy_to_user()).
+

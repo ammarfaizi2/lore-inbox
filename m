@@ -1,77 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267646AbTAQT0j>; Fri, 17 Jan 2003 14:26:39 -0500
+	id <S267645AbTAQTrM>; Fri, 17 Jan 2003 14:47:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267649AbTAQT0i>; Fri, 17 Jan 2003 14:26:38 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:49568 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267646AbTAQT0h>; Fri, 17 Jan 2003 14:26:37 -0500
-Date: Fri, 17 Jan 2003 11:26:43 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Erich Focht <efocht@ess.nec.de>, Ingo Molnar <mingo@elte.hu>,
-       colpatch@us.ibm.com
-cc: Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Andrew Theurer <habanero@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Re: [patch] sched-2.5.59-A2
-Message-ID: <148970000.1042831603@flay>
-In-Reply-To: <147000000.1042830254@flay>
-References: <Pine.LNX.4.44.0301170921430.3723-100000@localhost.localdomain> <200301171535.21226.efocht@ess.nec.de> <200301171911.29514.efocht@ess.nec.de> <147000000.1042830254@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S267649AbTAQTrM>; Fri, 17 Jan 2003 14:47:12 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:12200 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S267645AbTAQTrL>; Fri, 17 Jan 2003 14:47:11 -0500
+Date: Fri, 17 Jan 2003 13:56:07 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Russell King <rmk@arm.linux.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Initcall / device model meltdown?
+In-Reply-To: <20030117192356.F13888@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0301171342410.15056-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I repeated the tests with your B0 version and it's still not
->> satisfying. Maybe too aggressive NODE_REBALANCE_IDLE_TICK, maybe the
->> difference is that the other calls of load_balance() never have the
->> chance to balance across nodes.
+On Fri, 17 Jan 2003, Russell King wrote:
+
+> Both the input core and the multifunction chip drivers are using
+> module_init(), the order in which these are initialised is link-order
+> specific, and it happens that drivers/input is initialised really late
+> during boot, after drivers/misc.
 > 
-> Nope, I found the problem. The topo cleanups are broken - we end up 
-> taking all mem accesses, etc to node 0.
+> Since the device model requires any object to be initialised before it
+> is used, this causes an oops from devclass_add_driver().
+> 
+> We appear to have two conflicting requirements here:
+> 
+> 1. the device model requires a certain initialisation order.
+> 2. modules need to use module_init() which means the initialisation order
+>    is link-order dependent, despite our multi-level initialisation system.
 
-Kernbench:
-                                   Elapsed        User      System         CPU
-                        2.5.59     20.032s     186.66s      47.73s       1170%
-               2.5.59-ingo-mjb     19.986s    187.044s     48.592s     1178.8%
+I think there's basically two ways to overcome the current fragility:
 
-NUMA schedbench 4:
-                                   AvgUser     Elapsed   TotalUser    TotalSys
-                        2.5.59        0.00       36.38       90.70        0.62
-               2.5.59-ingo-mjb        0.00       34.70       88.58        0.69
+o Get the init order right. Well, doing it by hand is obviously fragile,
+  so it needs to be done automatically. I think rusty had patches floating
+  about which would ensure proper ordering depending on the exported 
+  interfaces. Example: The pci code exports pci_register_driver(), so we
+  make sure that every (built-in) module which uses pci_register_driver() 
+  runs only after the the module which defines pci_register_driver() has 
+  finished its initcall.
 
-NUMA schedbench 8:
-                                   AvgUser     Elapsed   TotalUser    TotalSys
-                        2.5.59        0.00       42.78      249.77        1.85
-               2.5.59-ingo-mjb        0.00       49.33      256.59        1.69
+  Note that this is how things are done today for actual modules, you 
+  cannot load a module which depends on symbols defined in another module
+  which has not yet been loaded, thus not yet initialized.
 
-NUMA schedbench 16:
-                                   AvgUser     Elapsed   TotalUser    TotalSys
-                        2.5.59        0.00       56.84      848.00        2.78
-               2.5.59-ingo-mjb        0.00       65.67      875.05        3.58
+  However, it relies on sufficient modularization, which is true for much
+  of the driver business, but e.g. pci isn't modularized and thus
+  a bad example (USB, ISDN, etc are better ones). This method however
+  does not help with early arch init etc., where I think explicit ordering
+  is a better idea, anyway.
 
-NUMA schedbench 32:
-                                   AvgUser     Elapsed   TotalUser    TotalSys
-                        2.5.59        0.00      116.36     1807.29        5.75
-               2.5.59-ingo-mjb        0.00      142.77     2039.47        8.42
+o Make the init order not matter. That is, make sure that the registration
+  routines ("pci_register_driver()") can be run safely even before
+  the corresponding __initcall() has executed. E.g. have 
+  pci_register_driver() only add the driver to a (statically initialized)
+  list of drivers. Then, when pci_init() gets executed, walk the list of
+  registered drivers, call ->probe() etc.
 
-NUMA schedbench 64:
-                                   AvgUser     Elapsed   TotalUser    TotalSys
-                        2.5.59        0.00      240.01     3634.20       14.57
-               2.5.59-ingo-mjb        0.00      293.48     4534.99       20.62
+--Kai
 
-System times are little higher (multipliers are set at busy = 10,
-idle = 10) .... I'll try setting the idle multipler to 100, but
-the other thing to do would be into increase the cross-node migrate
-resistance by setting some minimum imbalance offsets. That'll 
-probably have to be node-specific ... something like the number
-of cpus per node ... but probably 0 for the simple HT systems.
-
-M.
 

@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261919AbUCWDsE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 22:48:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbUCWDsE
+	id S261926AbUCWDtv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 22:49:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbUCWDtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 22:48:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:13445 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261919AbUCWDsC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 22:48:02 -0500
-Date: Mon, 22 Mar 2004 19:47:59 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: Issues with /proc/bus/pci
-Message-Id: <20040322194759.7a38ffe9.davem@redhat.com>
-In-Reply-To: <1080009609.23717.81.camel@gaston>
-References: <1080007613.22212.61.camel@gaston>
-	<20040322183126.16fe76cc.davem@redhat.com>
-	<1080009609.23717.81.camel@gaston>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Mon, 22 Mar 2004 22:49:51 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.135.30]:35076 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S261926AbUCWDtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 22:49:49 -0500
+Date: Tue, 23 Mar 2004 12:49:48 +0900 (JST)
+Message-Id: <20040323.124948.50721347.yoshfuji@linux-ipv6.org>
+To: John.Pinkney@spirentcom.com
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: New ARPHRD type
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <629E717C12A8694A88FAA6BEF9FFCD440550CACB@brigadoon.spirentcom.com>
+References: <629E717C12A8694A88FAA6BEF9FFCD440550CACB@brigadoon.spirentcom.com>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Mar 2004 13:40:11 +1100
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+In article <629E717C12A8694A88FAA6BEF9FFCD440550CACB@brigadoon.spirentcom.com> (at Mon, 22 Mar 2004 19:41:38 -0800), "Pinkney, John" <John.Pinkney@spirentcom.com> says:
 
-> What do you think ?
+> Can anyone tell me how I would go about getting a new ARPHRD type defined?
 
-Ok, it does sound like we need something else.
+Please send a patch (with its users) to <netdev@oss.sgi.com>.
 
-Another idea is to always at least provide a "virtual" host
-bridge on these weird platforms you mention.  You control
-the PCI config space etc. operations, so you could handle
-the virtual host bridge correctly right?
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311357AbSCLWQ1>; Tue, 12 Mar 2002 17:16:27 -0500
+	id <S311361AbSCLWSH>; Tue, 12 Mar 2002 17:18:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311356AbSCLWQS>; Tue, 12 Mar 2002 17:16:18 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:13510 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S311357AbSCLWQG>; Tue, 12 Mar 2002 17:16:06 -0500
-Message-ID: <3C8E7E08.C3CF4227@us.ibm.com>
-Date: Tue, 12 Mar 2002 14:15:36 -0800
-From: Larry Kessler <kessler@us.ibm.com>
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+	id <S311360AbSCLWR5>; Tue, 12 Mar 2002 17:17:57 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16903 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311356AbSCLWRk>;
+	Tue, 12 Mar 2002 17:17:40 -0500
+Message-ID: <3C8E7E0C.816A3527@zip.com.au>
+Date: Tue, 12 Mar 2002 14:15:40 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH-RFC] POSIX Event Logging, kernel 2.5.6 & 2.4.18
+To: Chris Mason <mason@suse.com>
+CC: linux-kernel@vger.kernel.org, aviro@math.psu.edu
+Subject: Re: [RFC] write_super is for syncing
+In-Reply-To: <205630000.1015970453@tiny>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please cc: kessler@us.ibm.com with your comments.
+Chris Mason wrote:
+> 
+> Hi everyone,
+> 
+> The fact that write_super gets called for both syncs and periodic
+> commits causes problems for the journaled filesystems, since we
+> need to trigger commits on write_super to have sync() behave
+> properly.
+> 
+> So, this patch adds a new super operation called commit_super,
+> and extends struct super.s_dirt a little so the filesystem
+> can say: call me on sync() but don't call me from kupdate.
+> 
+> if (s_dirt & S_SUPER_DIRTY) call me from kupdate and on sync
+> if (s_dirt & S_SUPER_DIRTY_COMMIT) call me on sync only.
+> 
 
-Patch for kernel version 2.5.6:
-http://prdownloads.sourceforge.net/evlog/evlog-1.3.0_kernel2.5.6.patch
-Patch for kernel version 2.4.17, 2.4.18:
-http://prdownloads.sourceforge.net/evlog/evlog-1.3.0_kernel2.4.17.patch
+I'm not quite sure why these flags exist?  Would it not be
+sufficient to just call ->write_super() inside kupdate,
+and ->commit_super in fsync_dev()?  (With a ->write_super
+fallback, of course).
 
-This patch, in combination with the event logging and event
-notification user library, provides a comprehensive event 
-logging package based on the draft POSIX standard 1003.25.
-See http://evlog.sourceforge.net/ for details and downloads.
+Either way, this is good - ext3's write_super() can just
+become a one-liner:  `sb->s_dirt = 0'.
 
-A summary of the kernel patch:
-1) A static kernel buffer is implemented for POSIX events logged
-   in the kernel.  Size is configurable during kernel build.
-2) If the buffer overruns the oldest events are kept, newest
-   discarded, and a count of discarded events is reported.
-3) Optionally, POSIX events can be created from printk messages
-   (printk messages still go to /var/log/messages, as before)
-4) Functions are provided for: 
-   - logging directly to kernel event buffer (text string or
-     binary data which gets formatted outside of the kernel)
-   - registering facilities beyond the standard ones in syslog.h
-     (device drivers can have facility other than KERN)
-5) Events are displayed on the system console as single-line
-   summary messages (based on printk's default console logging level).
-
-Please be clear that this is NOT intended to replace printk and
-syslog, but to coexist with them and provide additional 
-capabilities not available with printk/syslog that are highly 
-desirable in large servers and Telecom environments (to name a few).
-
-Larry Kessler
+-

@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136384AbRD2V7h>; Sun, 29 Apr 2001 17:59:37 -0400
+	id <S136387AbRD2WG1>; Sun, 29 Apr 2001 18:06:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136385AbRD2V71>; Sun, 29 Apr 2001 17:59:27 -0400
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:2861 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S136384AbRD2V7S>; Sun, 29 Apr 2001 17:59:18 -0400
-Subject: Re: #define HZ 1024 -- negative effects?
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-To: Jim Gettys <jg@pa.dec.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200104292144.f3TLiBD03874@pachyderm.pa.dec.com>
-In-Reply-To: <200104292144.f3TLiBD03874@pachyderm.pa.dec.com>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 29 Apr 2001 17:59:16 -0400
-Message-Id: <988581556.7879.2.camel@gromit>
-Mime-Version: 1.0
+	id <S136386AbRD2WGR>; Sun, 29 Apr 2001 18:06:17 -0400
+Received: from pc-25-211.mountaincable.net ([24.215.25.211]:2200 "HELO
+	adrock.vbfx.com") by vger.kernel.org with SMTP id <S136390AbRD2WGF>;
+	Sun, 29 Apr 2001 18:06:05 -0400
+Message-ID: <3AEC9052.EA3ECBAC@vbfx.com>
+Date: Sun, 29 Apr 2001 18:06:10 -0400
+From: Adam <adam@vbfx.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 8139too in 2.4.4 Hanging/Locking
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Great. I'm running 4.02. How do I enable "silken mouse"?
+Please CC this back, as I'm not yet on the kernel-mailing-list
 
-Thanks,
+I'm currently running the following:
 
--Michael
+kernel 2.4.3
+gcc 2.95.3
+modutils 2.4.2
+dhcpcd v.1.3.19-pl8
 
-On 29 Apr 2001 14:44:11 -0700, Jim Gettys wrote:
-> The biggest single issue in GUI responsiveness on Linux has been caused
-> by XFree86's implementation of mouse tracking in user space.
-> 
-> On typical UNIX systems, the mouse was often controlled in the kernel
-> driver.  Until recently (XFree86 4.0 days), the XFree86 server's reads
-> of mouse/keyboard events were not signal driven, so that if the X server
-> was loaded, the cursor stopped moving.
-> 
-> On most (but not all) current XFree86 implementations, this is now
-> signal drive, and further the internal X schedular has been reworked to
-> make it difficult for a single client to monopolize the X server.
-> 
-> So the first thing you should try is to make sure you are using an X server
-> with this "silken mouse" enabled; anotherwords, run XFree86 4.0x and make
-> sure the implementation has it enabled....
-> 
-> There may be more to do in Linux thereafter, but until you've done this, you
-> don't get to discuss the matter further....
->                                       - Jim Gettys
-> 
-> --
-> Jim Gettys
-> Technology and Corporate Development
-> Compaq Computer Corporation
-> jg@pa.dec.com
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+The problem is, after compiling the 2.4.4 kernel with the exact
+configuration as I had used on the 2.4.3 kernel, my system hangs at:
 
+8139too Fast Ethernet driver 0.9.16 loaded [the version number is
+greater than 0.9.15c (which is used in 2.4.3) though I'm not exactly
+sure if it's 0.9.16]
+PCI: Found IRQ 9 for device 00:0b.0
+eth0: RealTek RTL8139 Fast Ethernet at 0xd0814000, 00:50:ba:d2:45:21,
+IRQ 9
+eth0:  Identified 8139 chip type 'RTL-8139B'
+eth0: Setting half-duplex based on auto-negotiated partner ability 0000.
+[this is where it hangs, it requires me to reboot and load up a backup
+kernel (2.4.3)]
+
+If there is any other information you require to solve this problem, I'd
+be happy to help.
+
+
+-- 
+Adam
+adam@vbfx.com
+Linux user #190288

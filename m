@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310649AbSCHC1V>; Thu, 7 Mar 2002 21:27:21 -0500
+	id <S310654AbSCHCfl>; Thu, 7 Mar 2002 21:35:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310650AbSCHC1M>; Thu, 7 Mar 2002 21:27:12 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:26363
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S310649AbSCHC05>; Thu, 7 Mar 2002 21:26:57 -0500
-Date: Thu, 7 Mar 2002 18:27:51 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] preempt-kernel on 2.4.19-pre2-ac2 bugfix
-Message-ID: <20020308022751.GF28141@matchmail.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020308000504.GE28141@matchmail.com> <E16j8P5-0004NW-00@the-village.bc.nu>
+	id <S310655AbSCHCfW>; Thu, 7 Mar 2002 21:35:22 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:19723 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S310654AbSCHCfM>; Thu, 7 Mar 2002 21:35:12 -0500
+Date: Fri, 8 Mar 2002 13:38:25 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: michael bernstein <bernstein.46@osu.edu>
+Cc: lm@bitmover.com, akpm@zip.com.au, hozer@drgw.net, pavel@ucw.cz,
+        kentborg@borg.org, opensource-admin@cis.ohio-state.edu,
+        linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
+Subject: Re: [opensource] Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+Message-Id: <20020308133825.556c7b4f.rusty@rustcorp.com.au>
+In-Reply-To: <10B32CBD-320F-11D6-BAF0-003065C60BC2@osu.edu>
+In-Reply-To: <20020307121509.I20271@work.bitmover.com>
+	<10B32CBD-320F-11D6-BAF0-003065C60BC2@osu.edu>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16j8P5-0004NW-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 08, 2002 at 12:38:35AM +0000, Alan Cox wrote:
-> > I'm running kde, mutt, mozilla, make -j5 kernel compile on a loop for the
-> > last coupld days.  I wasn't using this much address space with the same work
-> > load yesterday, so that's why I think there is a bug there.  
-> 
-> Could be  - or an app decided to spring a leak. You might want to see if
-> a lot of it vanishes when you kill specific things
-> 
+On Thu, 7 Mar 2002 16:05:33 -0500
+michael bernstein <bernstein.46@osu.edu> wrote:
+> Last time I checked, it didn't matter if a person had "cashed out their 
+> millions" for a program to go opensource.  So fucking what.  I'm a poor 
+> college student, as many are, and yet, I still see a lot of useful 
+> programs coming out.
 
-True.
+Wow, a poor college student who has a decade of experience implementing
+revision control systems?  Great!
 
-Won't this show up in rss or some other ps mem listing -or- is this
-something that hasn't been exported to user space before on linux?
+> Last time I checked, no one was making money off of 
+> enlightenment, and they are all still poor.
+
+Wow! *Where* do you live?  In Australia, poor people don't live in
+apartments in Bondi Junction with an ocean view, or drive a Nissan GTS
+Skyline.
+
+Sorry to deflate your fantasy...
+Rusty.
+-- 
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

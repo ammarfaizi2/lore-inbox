@@ -1,71 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277055AbRJMSQG>; Sat, 13 Oct 2001 14:16:06 -0400
+	id <S278343AbRJMSSg>; Sat, 13 Oct 2001 14:18:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278343AbRJMSPr>; Sat, 13 Oct 2001 14:15:47 -0400
-Received: from radium.jvb.tudelft.nl ([130.161.76.91]:12042 "HELO
-	radium.jvb.tudelft.nl") by vger.kernel.org with SMTP
-	id <S278341AbRJMSPo>; Sat, 13 Oct 2001 14:15:44 -0400
-From: "Robbert Kouprie" <robbert@radium.jvb.tudelft.nl>
-To: "'Ion Badulescu'" <ion@cs.columbia.edu>,
-        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: eepro100.c bug on 10Mbit half duplex (kernels 2.4.5 / 2.4.10 / 2.4.11pre6 / 2.4.11 / 2.4.10ac11)
-Date: Sat, 13 Oct 2001 20:16:33 +0200
-Message-ID: <002601c15413$305938f0$020da8c0@nitemare>
+	id <S278347AbRJMSS2>; Sat, 13 Oct 2001 14:18:28 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:778 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S278343AbRJMSSR>;
+	Sat, 13 Oct 2001 14:18:17 -0400
+Date: Sat, 13 Oct 2001 15:18:29 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Security question: "Text file busy" overwriting executables but
+ not shared libraries?
+In-Reply-To: <Pine.LNX.4.33.0110130956350.8707-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0110131517160.2847-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <Pine.LNX.4.33.0110120923010.7250-100000@guppy.limebrokerage.com>
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Oct 2001, Ion Badulescu wrote:
+On Sat, 13 Oct 2001, Linus Torvalds wrote:
 
-> > >  Receiver lock-up bug exists -- enabling work-around.
-> > >  ^^^^^^^^^^^^^^^^^^^^
-> >
-> > My card DOES NOT have the receiver lock-up bug 
-> 
-> Your card's eeprom claims otherwise. The eeprom is most 
-> likely wrong, but 
-> again, the workaround for *this* bug is pretty harmless, 
-> whether the bug 
-> exists or not.
-> 
-> Ion
-> 
+> Trust me, MAP_COPY really _is_ stupid, and the Hurd is a piece of crap.
 
-Sorry, this was kind of a unlucky paste, because this line:
+Isn't it a Mach thing ?
 
-> > >  Receiver lock-up bug exists -- enabling work-around.
-> > >  ^^^^^^^^^^^^^^^^^^^^
+> People who think MAP_COPY is a good idea are people who cannot think about
+> the implications of it, and cannot think about the alternatives.
 
-is from the previous sender's dmesg (Matthew S. Hallacy). *My card* does
-not give this message, but it surely has a bug (which is not the
-receiver lock-up bug).
+I guess thinking about the implications will come when
+the Hurd people seriously start porting their beast to
+other microkernels, say L4 ;)
 
-Earlier, I was somewhat too quick with my conclusions. Since I upgraded
-the link to 100 Mbit, also half duplex, the problem seemed gone. This
-was NOT the case. The problem now only takes about 10 times as much
-traffic to trigger.
+This should be a spectacle worth watching (from a safe
+distance).
 
-* With vanilla kernel-2.4.13-pre2 the problem exists.
-* With vanilla kernel-2.4.12-ac1 the problem exists.
+cheers,
 
-So I added my device id to the 10 Mbit half-duplex workaround check, and
-problem went away. For now. ;) I am gonna test this for some days and if
-it stays put I will post the patch. Anyway, I should've stuck with 3com
-:)
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
 
-Regards,
-- Robbert
-
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

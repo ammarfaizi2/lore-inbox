@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132121AbRCYRIu>; Sun, 25 Mar 2001 12:08:50 -0500
+	id <S132122AbRCYRNu>; Sun, 25 Mar 2001 12:13:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132122AbRCYRIk>; Sun, 25 Mar 2001 12:08:40 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:56202 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S132121AbRCYRI2>; Sun, 25 Mar 2001 12:08:28 -0500
-Message-Id: <5.0.2.1.2.20010325180537.04690940@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Sun, 25 Mar 2001 18:07:17 +0100
-To: "Michel Wilson" <michel@procyon14.yi.org>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: RE: Larger dev_t
-Cc: <linux-kernel@vger.kernel.org>
+	id <S132127AbRCYRNk>; Sun, 25 Mar 2001 12:13:40 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:15075 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S132122AbRCYRNV>;
+	Sun, 25 Mar 2001 12:13:21 -0500
+Message-ID: <3ABE2708.E9422DD8@mandrakesoft.com>
+Date: Sun, 25 Mar 2001 12:12:40 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Michel Wilson <michel@procyon14.yi.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Larger dev_t
 In-Reply-To: <NEBBLEJBILPLHPBNEEHIEEPNCAAA.michel@procyon14.yi.org>
-In-Reply-To: <20010325081524.E30469@sfgoth.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 17:54 25/03/2001, Michel Wilson wrote:
-> > Wichert Akkerman wrote:
-> > > You are just delaying the problem then, at some point your uptime will
-> > > be large enough that you have run through all 64bit pids for example.
-> >
-> > 64 bits is enough to fork 1 million processes per second for over
-> > 500,000 years.  I think that's putting the problem off far enough.
-> >
-> > -Mitch
-> > -
->Ever thought about how you would kill a process: kill -9 127892752 doesn't
->sound very appealing to me.
->So you'd also need to implement a mechanism that allows for 'easy' selection
->of processes to kill, for example giving every process with the same name
->a unique identifier (like httpd_0, httpd_1, httpd_2 and so on).
+Michel Wilson wrote:
+> Ever thought about how you would kill a process: kill -9 127892752 doesn't
+> sound very appealing to me.
 
-Ever heard of cut-and-paste? Surely you can afford a mouse... And for when 
-you you are not inputting manually but running a script/whatever, who cares 
-what the numbers are...
+man killall(1).  Kill processes by name.
 
-Cheers,
+> So you'd also need to implement a mechanism that allows for 'easy' selection
+> of processes to kill, for example giving every process with the same name
+> a unique identifier (like httpd_0, httpd_1, httpd_2 and so on).
 
-         Anton
-
+huh?
 
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+Jeff Garzik       | May you have warm words on a cold evening,
+Building 1024     | a full moon on a dark night,
+MandrakeSoft      | and a smooth road all the way to your door.

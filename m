@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287508AbSAUR1E>; Mon, 21 Jan 2002 12:27:04 -0500
+	id <S287591AbSAUR0y>; Mon, 21 Jan 2002 12:26:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287588AbSAUR0z>; Mon, 21 Jan 2002 12:26:55 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:39332 "EHLO
-	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S287572AbSAUR0g>; Mon, 21 Jan 2002 12:26:36 -0500
-Message-ID: <3C4C50C9.8C7D5B6F@nortelnetworks.com>
-Date: Mon, 21 Jan 2002 12:32:57 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: yodaiken@fsmlabs.com
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        george anzinger <george@mvista.com>, Momchil Velikov <velco@fadata.bg>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <E16SgwP-0001iN-00@starship.berlin> <20020121090602.A13715@hq.fsmlabs.com> <E16ShcU-0001ip-00@starship.berlin> <20020121095051.B14139@hq.fsmlabs.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S287588AbSAUR0o>; Mon, 21 Jan 2002 12:26:44 -0500
+Received: from gumby.it.wmich.edu ([141.218.23.21]:37037 "EHLO
+	gumby.it.wmich.edu") by vger.kernel.org with ESMTP
+	id <S287565AbSAUR0X>; Mon, 21 Jan 2002 12:26:23 -0500
+Subject: Re: Athlon PSE/AGP Bug
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+To: jepler@unpythonic.dhs.org
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020121105817.B1520@unpythonic.dhs.org>
+In-Reply-To: <1011610422.13864.24.camel@zeus>
+	<20020121.053724.124970557.davem@redhat.com> <3C4C1C96.9330C916@redhat.com>
+	 <20020121105817.B1520@unpythonic.dhs.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 21 Jan 2002 12:26:06 -0500
+Message-Id: <1011633971.384.12.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yodaiken@fsmlabs.com wrote:
-
-> So your claim is that:
->         Preemption improves latency when there are both kernel cpu bound
->         tasks and tasks that are I/O bound with very low cache hit
->         rates?
+On Mon, 2002-01-21 at 11:58, jepler@unpythonic.dhs.org wrote:
+> On Mon, Jan 21, 2002 at 01:50:14PM +0000, Arjan van de Ven wrote:
+> > "David S. Miller" wrote:
+> > 
+> > > The funny part is, if this published errata is the problem, it cannot
+> > > be a problem under Linux since we never invalidate 4MB pages.  We
+> > > create them at boot time and they never change after that.
+> > 
+> > Well we don't know what nvidia's kernel module is doing.....
 > 
-> Is that it?
+> .. which makes it not a kernel bug, right?  Just some buggy module that
+> bangs hardware in a way documented to not work...
 > 
-> Can you give me an example of a CPU bound task that runs
-> mostly in kernel? Doesn't that seem like a kernel bug?
 
-cat /dev/urandom > /dev/null
+Would seem so since it's been one and a half years and nobody has
+encountered this bug in linux.  
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Damn you gotta love slashdot. It's like the Internet's smut mag.  If
+their news is going to be so old it should be because they're actually
+looking into the story they're posting with some kind of review
+process.  
+

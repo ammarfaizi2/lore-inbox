@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262604AbSJDRL5>; Fri, 4 Oct 2002 13:11:57 -0400
+	id <S262582AbSJDRHl>; Fri, 4 Oct 2002 13:07:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262610AbSJDRL5>; Fri, 4 Oct 2002 13:11:57 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:51158 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S262604AbSJDRL4>; Fri, 4 Oct 2002 13:11:56 -0400
-Message-ID: <3D9DCD22.4070205@nortelnetworks.com>
-Date: Fri, 04 Oct 2002 13:17:22 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S262595AbSJDRHk>; Fri, 4 Oct 2002 13:07:40 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:9148 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S262582AbSJDRHh>; Fri, 4 Oct 2002 13:07:37 -0400
+Date: Fri, 4 Oct 2002 14:13:00 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: rickh@Capaccess.org, <linux-kernel@vger.kernel.org>
+Subject: Re: an open letter to George Soros
+In-Reply-To: <200210041534.g94FYdQ03332@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44L.0210041411030.1909-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: /proc/net/bootpc support for non-ASCII vendor specific tags?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 4 Oct 2002, James Bottomley wrote:
 
-Currently it appears that /proc/net/bootpc assumes that all reserved 
-vendor specific tags contain ASCII information.  Is this part of the 
-BOOTP standard?  I hadn't thought so, but maybe I'm missing something.
+> Is that really your aim?
 
-Assuming that binary information is allowable, would a patch printing 
-out tags 128-254 of the vendor specific information as raw hex 
-characters be considered acceptable/useful?
++--------------+
+|  Don't feed  |
+|  the trolls  |
+|              |
+|  thank you   |
++--------------+
+      | |
+      | |
+      | |
+      | |
+  ....\ /....
 
-I need this for my own purposes, and I'm just wondering if I should 
-bother trying to push it up.
+cheers,
 
-Chris
+Rik
+-- 
+A: No.
+Q: Should I include quotations after my reply?
 
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,93 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbTDVKWr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 06:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263063AbTDVKWr
+	id S263036AbTDVKUS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 06:20:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbTDVKUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 06:22:47 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:62642 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263062AbTDVKWo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 06:22:44 -0400
-Date: Tue, 22 Apr 2003 06:34:45 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Rick Lindsley <ricklind@us.ibm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] HT scheduler, sched-2.5.68-A9 
-In-Reply-To: <200304221018.h3MAItX11004@owlet.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.44.0304220622570.24063-100000@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 22 Apr 2003 06:20:17 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:47854 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263036AbTDVKUQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 06:20:16 -0400
+Subject: Re: 2.5.67-mm4 & IRQ balancing
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Philippe =?ISO-8859-1?Q?Gramoull=E9?= 
+	<philippe.gramoulle@mmania.com>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030422120630.4048a8b1.philippe.gramoulle@mmania.com>
+References: <20030419015836.6acbaeb6.philippe.gramoulle@mmania.com>
+	 <20030418175116.75c8aa7b.akpm@digeo.com>
+	 <20030419153923.6d63e22b.philippe.gramoulle@mmania.com>
+	 <20030419133837.0118907b.akpm@digeo.com>
+	 <20030422120630.4048a8b1.philippe.gramoulle@mmania.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rQEd80+7brMe2rlKYEFu"
+Organization: Red Hat, Inc.
+Message-Id: <1051007533.1420.6.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 22 Apr 2003 12:32:13 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 22 Apr 2003, Rick Lindsley wrote:
+--=-rQEd80+7brMe2rlKYEFu
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Ingo, several questions.
-> 
-> What makes this statement:
-> 
->     * At this point it's sure that we have a SMT
->     * imbalance: this (physical) CPU is idle but
->     * another CPU has two (or more) tasks running.
-> 
-> true?  Do you mean "this cpu/sibling set are all idle but another
-> cpu/sibling set are all non-idle"? [...]
 
-yes, precisely.
+>=20
+> Booted with "noirqbalance" & started irqbalance:
+>=20
+> $ cat /proc/interrupts
+>            CPU0       CPU1      =20
+>   0:      73897  247288143    IO-APIC-edge  timer
+>   1:      38421         56    IO-APIC-edge  i8042
+>   2:          0          0          XT-PIC  cascade
+>   3:        177          0    IO-APIC-edge  serial
+>   8:     107607          0    IO-APIC-edge  rtc
+>  12:          3          0    IO-APIC-edge  i8042, i8042, i8042, i8042
+>  15:         32        118    IO-APIC-edge  ide1
+>  18:      12602       1159   IO-APIC-level  EMU10K1
+>  19:     454172      15987   IO-APIC-level  uhci-hcd
+>  20:     494005          0   IO-APIC-level  eth0
+>  22:     717483      38681   IO-APIC-level  aic7xxx
+>  23:          0          0   IO-APIC-level  uhci-hcd
+> NMI:          0          0=20
+> LOC:  247366287  247364170=20
+> ERR:          0
+> MIS:          0
 
-> [...] Are we assuming that because both a physical processor and its
-> sibling are not idle, that it is better to move a task from the sibling
-> to a physical processor?  In other words, we are presuming that the case
-> where the task on the physical processor and the task(s) on the
-> sibling(s) are actually benefitting from the relationship is rare?
+this looks reasonably in balance; your biggest irq source is the timer,
+which gets a cpu all of it's own and the rest of your irq sources is
+hardly noticable and all go together on the other cpu for that reason to
+counterbalance the "high rate" timer.=20
 
-yes. This 'un-sharing' of contexts happens unconditionally, whenever we
-notice the situation. (ie. whenever a CPU goes completely idle and notices
-an overloaded physical CPU.) On the HT system i have i have measure this
-to be a beneficial move even for the most trivial things like infinite
-loop-counting.
+--=-rQEd80+7brMe2rlKYEFu
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-the more per-logical-CPU cache a given SMT implementation has, the less
-beneficial this move becomes - in that case the system should rather be
-set up as a NUMA topology and scheduled via the NUMA scheduler.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
->     * We wake up one of the migration threads (it
->     * doesnt matter which one) and let it fix things up:
-> 
-> So although a migration thread normally pulls tasks to it, we've altered
-> migration_thread now so that when cpu_active_balance() is set for its
-> cpu, it will go find a cpu/sibling set in which all siblings are busy
-> (knowing it has a good chance of finding one), decrement nr_running in
-> the runqueue it has found, call load_balance() on the queue which is
-> idle, and hope that load_balance will again find the busy queue (the
-> same queue as the migration thread's) and decide to move a task over?
+iD8DBQA+pRotxULwo51rQBIRAkefAKCGcIREu5sl2dYdYPJGtRB5SlGSCgCfewtq
+MDQruxoTr29jsAiGVClzhMs=
+=B4d4
+-----END PGP SIGNATURE-----
 
-yes.
-
-> whew. So why are we perverting the migration thread to push rather than
-> pull? If active_load_balance() finds a imbalance, why must we use such
-> indirection?  Why decrement nr_running?  Couldn't we put together a
-> migration_req_t for the target queue's migration thread?
-
-i'm not sure what you mean by perverting the migration thread to push
-rather to pull, as migration threads always push - it's not different in
-this case either. Since the task in question is running in an
-un-cooperative way at the moment of active-balancing, that CPU needs to
-run the high-prio migration thread, which pushes the task to the proper
-CPU after that point. [if the push is still necessary.]
-
-we could use a migration_req_t for this, in theory, but active balancing
-is independent of ->cpus_allowed, so some special code would still be
-needed. Also, active balancing is non-queued by nature. Is there a big
-difference?
-
-> Making the migration thread TASK_UNINTERRUPTIBLE has the nasty side
-> effect of artificially raising the load average.  Why is this changed?
-
-agreed, this is an oversight, i fixed it in my tree.
-
-	Ingo
-
+--=-rQEd80+7brMe2rlKYEFu--

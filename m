@@ -1,26 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287375AbSACWBc>; Thu, 3 Jan 2002 17:01:32 -0500
+	id <S287368AbSACWDM>; Thu, 3 Jan 2002 17:03:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287368AbSACWBX>; Thu, 3 Jan 2002 17:01:23 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:5504 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S287394AbSACWBJ>; Thu, 3 Jan 2002 17:01:09 -0500
-Date: Thu, 3 Jan 2002 17:01:18 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
+	id <S287376AbSACWDD>; Thu, 3 Jan 2002 17:03:03 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:53984 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S287368AbSACWCn>;
+	Thu, 3 Jan 2002 17:02:43 -0500
+Message-ID: <3C34E169.FFE2DBED@vnet.ibm.com>
+Date: Thu, 03 Jan 2002 16:55:37 -0600
+From: Tom Gall <tom_gall@vnet.ibm.com>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2 ppc)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Michael Zhu <mylinuxk@yahoo.ca>
-cc: linux-kernel@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
 Subject: Re: The CURRENT macro
 In-Reply-To: <20020103213455.34699.qmail@web14911.mail.yahoo.com>
-Message-ID: <Pine.LNX.3.95.1020103165726.906A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jan 2002, Michael Zhu wrote:
-
+Michael Zhu wrote:
+> 
 > In Alessandro Rubini's book Linux Device Driver(Second
 > Edition), Chatper 12, he said that "By accessing the
 > fields in the request structure, usually by way of
@@ -32,43 +34,21 @@ On Thu, 3 Jan 2002, Michael Zhu wrote:
 > the request_queue(a request_queue_t struct). CURRENT
 > points to which field in the
 > blk_dev[MAJOR_NR].request_queue? Thank you very much.
-> 
-> Michael
 
-If symlinks are set up:
+Look in include/asm-[your-arch]/current.h
 
-/usr/include/linux/blk.h
+It's architecture dependant. For instance on PPC64 we keep current in a
+register.
 
-#ifndef _BLK_H
-#define _BLK_H
+Regards,
 
-[SNIPPED...]
+Tom
 
-#ifndef CURRENT
-#define CURRENT blkdev_entry_next_request(&blk_dev[MAJOR_NR].request_queue.queue_head)
-#endif
-
-#endif /* _BLK_H */
-
-Otherwise:
-
-../linux-n.n.n/include/linux/blk.h
-
-
-FYI. To find things in the future, do:
-cd /usr/include/linux
-grep WHAT_TO_FIND *.h | more
-cd ../asm
-grep WHAT_TO_FIND *.h | more
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+-- 
+Tom Gall - [embedded] [PPC64 | PPC32] Code Monkey
+Peace, Love &                  "Where's the ka-boom? There was
+Linux Technology Center         supposed to be an earth
+http://www.ibm.com/linux/ltc/   shattering ka-boom!"
+(w) tom_gall@vnet.ibm.com       -- Marvin Martian
+(w) 507-253-4558
+(h) tgall@rochcivictheatre.org

@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129597AbQLXH6c>; Sun, 24 Dec 2000 02:58:32 -0500
+	id <S129319AbQLXI2E>; Sun, 24 Dec 2000 03:28:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129655AbQLXH6N>; Sun, 24 Dec 2000 02:58:13 -0500
-Received: from kamov.deltanet.ro ([193.226.175.3]:20750 "HELO
-	kamov.deltanet.ro") by vger.kernel.org with SMTP id <S129597AbQLXH6I>;
-	Sun, 24 Dec 2000 02:58:08 -0500
-Date: Sun, 24 Dec 2000 09:27:20 +0200
-From: Petru Paler <ppetru@ppetru.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sparc64 network-related problems
-Message-ID: <20001224092720.A896@ppetru.net>
-In-Reply-To: <20001210105553.E728@ppetru.net> <200012101038.CAA06747@pizda.ninka.net> <20001210131033.H728@ppetru.net> <200012101057.CAA09215@pizda.ninka.net>
-Mime-Version: 1.0
+	id <S129370AbQLXI1y>; Sun, 24 Dec 2000 03:27:54 -0500
+Received: from web1002.mail.yahoo.com ([128.11.23.92]:45584 "HELO
+	web1002.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129319AbQLXI1s>; Sun, 24 Dec 2000 03:27:48 -0500
+Message-ID: <20001224075721.26703.qmail@web1002.mail.yahoo.com>
+Date: Sat, 23 Dec 2000 23:57:21 -0800 (PST)
+From: Ron Calderon <ronnnyc@yahoo.com>
+Subject: sparc 10 w/512 megs hangs during boot
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <200012101057.CAA09215@pizda.ninka.net>; from davem@redhat.com on Sun, Dec 10, 2000 at 02:57:21AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Follow-up: in the mean time I upgraded to test13-pre3. Things look fine so
-far, but I got this in the kernel log:
+My sparc 10 seems to hang with any 2.4.0-test12+
+kernel
+if I add mem=128M it boots fine, but anything above
+128M wont boot it just hangs. Is there something I've
+missed? here is screen output.
 
-TCP: peer 203.65.190.178:25/57885 shrinks window 2375104836:0:2375106284. Bad, what else can I say?                                                                                                 
+Resetting ... 
 
-Should I be worried about it or it's ok ?
+SPARCstation 10  (1 X 390Z50), No Keyboard
+ROM Rev. 2.12, 512 MB memory installed, Serial
+#6299671.
+Ethernet address 8:0:20:11:fe:10, Host ID: 72602017.
 
-On Sun, Dec 10, 2000 at 02:57:21AM -0800, David S. Miller wrote:
->    Date: Sun, 10 Dec 2000 13:10:33 +0200
->    From: Petru Paler <ppetru@ppetru.net>
-> 
->    So should I apply your patch ?
-> 
-> Yes, this new OOPS you've sent me is in the same place.
 
---
-Petru Paler, mailto:ppetru@ppetru.net
-http://www.ppetru.net - ICQ: 41817235
+Boot device: /iommu/sbus/espdma/esp/sd@3,0:c   File
+and args:         
+SILO boot: 
+Uncompressing image...
+PROMLIB: obio_ranges 5
+bootmem_init: Scan sp_banks, 
+init_bootmem(spfn[1c9],bpfn[1c9],mlpfn[c000])
+free_bootmem: base[0] size[c000000]
+reserve_bootmem: base[0] size[1c9000]
+reserve_bootmem: base[1c9000] size[1800]
+
+
+
+then it just hangs here....
+any info would be great
+
+ron
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Shopping - Thousands of Stores. Millions of Products.
+http://shopping.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266590AbUAWTbP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 14:31:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266616AbUAWTbP
+	id S266675AbUAWTkq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 14:40:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbUAWTkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 14:31:15 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:53141 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S266590AbUAWTbM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 14:31:12 -0500
-Date: Fri, 23 Jan 2004 20:31:11 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       ak@colin2.muc.de, sundarapandian.durairaj@intel.com,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       torvalds@osdl.org, greg@kroah.com, vladimir.kondratiev@intel.com,
-       harinarayanan.seshadri@intel.com
-Subject: Re: [patch] PCI Express Enhanced Config Patch - 2.6.0-test11
-Message-ID: <20040123193111.GA28277@atrey.karlin.mff.cuni.cz>
-References: <6B09584CC3D2124DB45C3B592414FA83011A3357@bgsmsx402.gar.corp.intel.com> <20040122131258.GA84577@colin2.muc.de> <1074795663.1413.8.camel@dhcp23.swansea.linux.org.uk> <20040122114035.7af1c9bc.rddunlap@osdl.org> <20040123191928.GA1355@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040123191928.GA1355@elf.ucw.cz>
-User-Agent: Mutt/1.5.4i
+	Fri, 23 Jan 2004 14:40:46 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:53428 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S266675AbUAWTki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 14:40:38 -0500
+Message-ID: <4011788D.3070606@nortelnetworks.com>
+Date: Fri, 23 Jan 2004 14:39:57 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: Mariusz Mazur <mmazur@kernel.pl>, linux-kernel@vger.kernel.org,
+       debian-glibc@lists.debian.org
+Subject: Re: Userland headers available
+References: <200401231907.17802.mmazur@kernel.pl> <20040123184755.GA2138@nevyn.them.org> <401172D8.8040507@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Friesen, Christopher [CAR:7Q28:EXCH] wrote:
 
-> I'd call it "noexpress". pciexp sounds like PCI exception, PCI
-> expected or something...
+> The obvious way is to have the kernel headers include the userland
+> headers, then everything below that be wrapped in "#ifdef __KERNEL__". 
+> Userland then includes the normal kernel headers, but only gets the 
+> userland-safe ones.
 
-Well, "noexpress" sounds like it does nothing in common with PCI,
-which is more misleading than the connotations you mention.
+I just realized this wasn't clear.  I envision a new set of headers in 
+the kernel that are clean to export to userland.  The current headers 
+then include the appropriate userland-clean ones, and everything below 
+that is kernel only.
 
-				Have a nice fortnight
+This lets the kernel maintain the userland-clean headers explicitly, and 
+we don't have the work of cleaning them up for glibc.
+
+Chris
+
+
+
 -- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-P.C.M.C.I.A. stands for `People Can't Memorize Computer Industry Acronyms'
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

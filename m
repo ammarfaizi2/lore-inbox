@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263300AbTJKNRq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 09:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbTJKNRq
+	id S263303AbTJKN1E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 09:27:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263304AbTJKN1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 09:17:46 -0400
-Received: from smtp3.att.ne.jp ([165.76.15.139]:31988 "EHLO smtp3.att.ne.jp")
-	by vger.kernel.org with ESMTP id S263300AbTJKNRo (ORCPT
+	Sat, 11 Oct 2003 09:27:04 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:64656 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S263303AbTJKN1B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 09:17:44 -0400
-Message-ID: <26cb01c38ff9$f6251580$5cee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: <jamagallon@able.es>, <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI year blacklist
-Date: Sat, 11 Oct 2003 22:16:02 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Sat, 11 Oct 2003 09:27:01 -0400
+Date: Sat, 11 Oct 2003 15:24:22 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
+Subject: Re: 2.7 thoughts
+Message-ID: <20031011132422.GI1084@marowsky-bree.de>
+References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be> <20031009165723.43ae9cb5.skraw@ithnet.com> <3F864F82.4050509@longlandclan.hopto.org> <200310100830.03216.kevcorry@us.ibm.com> <20031010182918.GF1084@marowsky-bree.de> <20031011034951.GE4716@pegasys.ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20031011034951.GE4716@pegasys.ws>
+User-Agent: Mutt/1.4.1i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon wrote:
+On 2003-10-10T20:49:51,
+   jw schultz <jw@pegasys.ws> said:
 
-> I have and (oldie...) SuperMicro P6DGU mobo with ACPI, but the kernel says
-> it is too old (before 99, I think...).
+> I concur with one caviat.  0+1 has the advantage of
+> extendability that doesn't exist with 1+0.
 
-If you think your BIOS's ACPI will work, you can add this to your boot
-command:
-  acpi=force
+Right, this annoying complicated approach you describe can be done much
+easier with 1+0. With [EL]VMS?[12] you can simply create a new raid1 set
+and add it as a physical volume to the volume group and then extend the
+LVs accordingly. (I am unsure whether you can add a new disk to a raid0
+set if you don't want to use a volume manager, but if it's not
+currently, it sounds fairly straightforward to add.)
 
-Of course if it doesn't work then take that back off.
+Your approach with breaking the mirrors etc includes prolonged periods
+of no redundancy and makes me shiver.
 
-> Why are this BIOSes blacklisted ?
+There's some *buy it* good book about *buy it* all this, but if I go
+hype *buy it* "Blueprints for High Availability" *buy it* one more time,
+people are going to accuse me of *buy this book already!* of flogging a
+dead horse *buy it*, so for this time, I am going to recommend reading
+some linux LVM and RAID howtos ;-)
 
-I agree with Zwane Mwaikambo's answer as to why, but I think that 1999 is
-likely to be safe.  1998 was dodgy.
+So, I think, as far as RAID and Volume Management is concerned, Linux
+does pretty well. There's some advanced and fancy stuff missing (>2
+mirrors, online consistency check, etc), but the basics are pretty well
+done.
 
-By the way, since Mr. Mwaikambo spoke of Monopolysoft systems, I'll add a
-bit.  Windows 98 can be switched between ACPI and APM after installing,
-though it probably requires multiple reboots (one reboot to load one of the
-newly selected drivers and additional reboots to load drivers for redetected
-devices further down the chain).  For Windows 2000 and XP you can force a
-selection at the beginning of installing, using a poorly documented
-technique, but they cannot be switched afterwards.  For Windows 2000 and XP,
-if the installer doesn't get forced, it checks lists of known good BIOSes
-and known bad BIOSes, and then goes by date for BIOSes that aren't on either
-list.  But I think they default to assuming 1999 was good, since Windows
-2000 was essentially completed in 1999.
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering		ever tried. ever failed. no matter.
+SuSE Labs				try again. fail again. fail better.
+Research & Development, SUSE LINUX AG		-- Samuel Beckett
 

@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132860AbRDWQbE>; Mon, 23 Apr 2001 12:31:04 -0400
+	id <S132801AbRDWQye>; Mon, 23 Apr 2001 12:54:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132919AbRDWQaz>; Mon, 23 Apr 2001 12:30:55 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:46852 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S132801AbRDWQaj>;
-	Mon, 23 Apr 2001 12:30:39 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Matt <madmatt@bits.bris.ac.uk>
-Date: Mon, 23 Apr 2001 18:29:24 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: ioctl arg passing
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <EE31127966@vcnet.vc.cvut.cz>
+	id <S133105AbRDWQyX>; Mon, 23 Apr 2001 12:54:23 -0400
+Received: from turnover.lancs.ac.uk ([148.88.17.220]:17405 "EHLO
+	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
+	id <S132801AbRDWQyP>; Mon, 23 Apr 2001 12:54:15 -0400
+Message-Id: <l03130301b70a0e4c4676@[192.168.239.105]>
+In-Reply-To: <Pine.LNX.4.21.0104231218000.1685-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.30.0104231039050.3540-200000@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Mon, 23 Apr 2001 17:53:18 +0100
+To: Rik van Riel <riel@conectiva.com.br>, Ingo Molnar <mingo@elte.hu>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: [patch] swap-speedup-2.4.3-A1, massive swapping speedup
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Szabolcs Szakacsits <szaka@f-secure.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Apr 01 at 17:06, Matt wrote:
-> struct instruction_t {
->     __s16 code;
->     __s16 rxlen;
->     __s16 *rxbuf;
->     __s16 txlen;
->     __s16 *txbuf;
-> };
+>There seems to be one more reason, take a look at the function
+>read_swap_cache_async() in swap_state.c, around line 240:
+>
+>        /*
+>         * Add it to the swap cache and read its contents.
+>         */
+>        lock_page(new_page);
+>        add_to_swap_cache(new_page, entry);
+>        rw_swap_page(READ, new_page, wait);
+>        return new_page;
+>
+>Here we add an "empty" page to the swap cache and use the
+>page lock to protect people from reading this non-up-to-date
+>page.
 
-You should reorder fields, starting with largest fields and going down
-to smaller ones. That ways you'll not have troubles with alignment when
-someone decides to play with alignment rules...
+How about reversing the order of the calls - ie. add the page to the cache
+only when it's been filled?  That would fix the race.
 
-> struct instruction_t local;
-> __s16 *temp;
-> 
-> copy_from_user( &local, ( struct instruction_t * ) arg, sizeof( struct instruction_t ) );
-> temp = kmalloc( sizeof( __s16 ) * local.rxlen, GFP_KERNEL );
-> copy_from_user( temp, arg, sizeof( __s16 ) * local.rxlen );
-> local.rxbuf = temp;
-> temp = kmalloc( sizeof( __s16 ) * local.txlen, GFP_KERNEL );
-> ...
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
-As you are using signed value for rxlen/txlen, you should check
-for value < 0 ... And there is very low chance that kmalloc() for 
-anything bigger than 4KB will succeed. You should either use
-vmalloc unconditionally, or at least as fallback. And some error
-checking (copy_from_user returns 0 if everything went OK) also
-makes driver safer.
-                                        Best regards,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
+The key to knowledge is not to rely on people to teach you it.
+
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+-----END GEEK CODE BLOCK-----
+
 

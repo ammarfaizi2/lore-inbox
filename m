@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264495AbUEUXCf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264670AbUEUXCg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264495AbUEUXCf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 19:02:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265065AbUEUWty
+	id S264670AbUEUXCg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 19:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265017AbUEUWuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 18:49:54 -0400
+	Fri, 21 May 2004 18:50:18 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:36774 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S265100AbUEUWtW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 18:49:22 -0400
-content-class: urn:content-classes:message
+	by vger.kernel.org with ESMTP id S265097AbUEUWtQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 18:49:16 -0400
+Message-ID: <40ADF0AC.1090404@tmr.com>
+Date: Fri, 21 May 2004 08:06:04 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: [PATCH] Kernel parameter parsing fix
-Date: Fri, 21 May 2004 18:07:56 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8403BD54A5@PDSMSX403.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Kernel parameter parsing fix
-Thread-Index: AcQ/G+aQoEMbj7PMRO6j1cPsBevt1w==
-From: "Zhu, Yi" <yi.zhu@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Andrew Morton" <akpm@osdl.org>
-X-OriginalArrivalTime: 21 May 2004 10:08:21.0738 (UTC) FILETIME=[8BEBF4A0:01C43F1B]
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Brad Campbell <brad@wasp.net.au>, linux-kernel@vger.kernel.org
+Subject: Re: libata 2.6.5->2.6.6 regression -part II
+References: <40A8E9A8.3080100@wasp.net.au> <200405181513.12920.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200405181513.12920.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bartlomiej Zolnierkiewicz wrote:
+> On Monday 17 of May 2004 18:34, Brad Campbell wrote:
+> 
+>>G'day all,
+>>I caught the suggestion on my last post in the archives, but because I'm
+>>not subscribed and wasn't cc'd I can't keep it threaded.
+>>
+>>I tried backing out the suggested acpi patch (No difference at all), and I
+>>managed to get apic to work but it still hangs solid in the same place.
+>>
+>>dmesg attached.
+>>
+>>I managed to figure out that the VIA ATA driver captures my sata drives on
+>>the via ports, explaining why sata_via misses them, but writing data to
+>>those drives (hde & hdg) causes dma timeouts and locks the machine. No
+>>useful debug info produced. The machine becomes non-responsive, throws a
+>>couple of dma timeouts to the console and then loses all interactivity
+>>(keyboard, serial, network) forcing a reset push.
+>>
+>>Is there any way I can prevent the VIA ATA driver capturing this device?
+>>Unfortunately my boot drive is on hda on the on-board VIA ATA interface so
+>>I need it compiled in.
+> 
+> 
+> Disable the fscking PCI IDE generic driver.
+> [ You are not the first one tricked by it. ]
+> 
+> AFAIR support for VIA 8237 was added to it before sata_via.c was ready.
+> [ but my memory is... ]
 
-Hi,
+What would happen if the generic driver was initialized last? That would 
+let other more specific drivers grab devices first. The model which 
+comes to mind is a route table, smallest subnet (or in this case most 
+specific) being used first. Or would that open a whole other nest of snakes?
 
-Must all the kernel parameters have trailing '=' at the end of the param
-string?
-If not, I think below patch is useful to avoid potential problems.
-
-Thanks,
-
---- linux-2.6.6.orig/init/main.c	2004-05-14 13:38:31.000000000
-+0800
-+++ linux-2.6.6/init/main.c	2004-05-15 00:25:41.339261792 +0800
-@@ -149,11 +149,15 @@ static int __init obsolete_checksetup(ch  {
- 	struct obs_kernel_param *p;
- 	extern struct obs_kernel_param __setup_start, __setup_end;
-+	char *ptr;
-+	int len = strlen(line);
- 
-+	if ((ptr = strchr(line, '=')))
-+		len = ptr - line;
- 	p = &__setup_start;
- 	do {
- 		int n = strlen(p->str);
--		if (!strncmp(line, p->str, n)) {
-+		if (len <= n && !strncmp(line, p->str, n)) {
- 			if (!p->setup_func) {
- 				printk(KERN_WARNING "Parameter %s is
-obsolete, ignored\n", p->str);
- 				return 1;
-
-
------------------------------------------------------------------
-Opinions expressed are those of the author and do not represent Intel
-Corp.
-
-- Zhu Yi (Chuyee)
-
-GnuPG v1.0.6 (GNU/Linux)
-http://cn.geocities.com/chewie_chuyee/gpg.txt or
-$ gpg --keyserver wwwkeys.pgp.net --recv-keys 71C34820
-1024D/71C34820 C939 2B0B FBCE 1D51 109A  55E5 8650 DB90 71C3 4820 
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129141AbRBFApC>; Mon, 5 Feb 2001 19:45:02 -0500
+	id <S130743AbRBFAuN>; Mon, 5 Feb 2001 19:50:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129791AbRBFAow>; Mon, 5 Feb 2001 19:44:52 -0500
-Received: from winds.org ([207.48.83.9]:35588 "EHLO winds.org")
-	by vger.kernel.org with ESMTP id <S129141AbRBFAok>;
-	Mon, 5 Feb 2001 19:44:40 -0500
-Date: Mon, 5 Feb 2001 19:43:04 -0500 (EST)
-From: Byron Stanoszek <gandalf@winds.org>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: NFS stop/start problems (related to datagram shutdown bug?)
-In-Reply-To: <14975.15829.623996.534161@notabene.cse.unsw.edu.au>
-Message-ID: <Pine.LNX.4.21.0102051935270.1746-100000@winds.org>
+	id <S132071AbRBFAuE>; Mon, 5 Feb 2001 19:50:04 -0500
+Received: from baldur.fh-brandenburg.de ([195.37.0.5]:36247 "HELO
+	baldur.fh-brandenburg.de") by vger.kernel.org with SMTP
+	id <S130743AbRBFAtq>; Mon, 5 Feb 2001 19:49:46 -0500
+Date: Tue, 6 Feb 2001 01:31:12 +0100 (MET)
+From: Roman Zippel <zippel@fh-brandenburg.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Stephen C. Tweedie" <sct@redhat.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Christoph Hellwig <hch@caldera.de>, Steve Lord <lord@sgi.com>,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <Pine.LNX.4.10.10102051118210.31206-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.10.10102060052330.20184-100000@zeus.fh-brandenburg.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Feb 2001, Neil Brown wrote:
+Hi,
 
-> How repeatable is this?  Is the server SMP?
+On Mon, 5 Feb 2001, Linus Torvalds wrote:
 
-I've tested this on two UP Athlons and 2 SMP Pentium 3's and the same problem
-occurred. I have not tested it more than once on the same system (I left the
-NFS servers untouched after the reboot).
+> This all proves that the lowest level of layering should be pretty much
+> noting but the vectors. No callbacks, no crap like that. That's already a
+> level of abstraction away, and should not get tacked on. Your lowest level
+> of abstraction should be just the "area". Something like
+> 
+> 	struct buffer {
+> 		struct page *page;
+> 		u16 offset, length;
+> 	};
+> 
+> 	int nr_buffers:
+> 	struct buffer *array;
+> 
+> should be the low-level abstraction. 
 
-The Athlon systems running NFS were 2.4.1-ac3 and the Pentiums were running
-2.2.19-pre7. All computers exporting the FS had one directory mounted at least
-once.
+Does it has to be vectors? What about lists? I'm thinking about this for
+some time now and I think lists are more flexible. At higher level we can
+easily generate a list of pages and in a lower level you can still split
+them up as needed. It would be basically the same structure, but you
+could use it everywhere with the same kind of operations.
 
-In one case, only 1 directory was mounted once and then unmounted before
-shutting off the NFS server. When I realized I forgot to copy a directory over,
-I went to restart NFS on the server and found out I was unable to. Probably
-irrelevant, but this had been after transferring 7 gigs of data over 100 Mbps.
-
-I still have the 'broken' server running, so if you would like me to run a
-command or two on it I can show you the results.
-
-> The attached patch might fix it, so if you are having reproducable
-> problems, it might be worth applying this patch.
-
-I can try it tomorrow and see if it fixes the problem, but since this problem
-also occurred on a UP, using spin locks probably will not correct it. Perhaps
-it's something else.
-
-> [patch snipped]
-
- -Byron
-
--- 
-Byron Stanoszek                         Ph: (330) 644-3059
-Systems Programmer                      Fax: (330) 644-8110
-Commercial Timesharing Inc.             Email: byron@comtime.com
+bye, Roman
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271380AbTHDFbe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 01:31:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271381AbTHDFbe
+	id S271378AbTHDF1c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 01:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271379AbTHDF1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 01:31:34 -0400
-Received: from ms-smtp-02.texas.rr.com ([24.93.36.230]:44493 "EHLO
-	ms-smtp-02.texas.rr.com") by vger.kernel.org with ESMTP
-	id S271380AbTHDFbd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 01:31:33 -0400
-Message-ID: <3F2DEFA5.2010700@austin.rr.com>
-Date: Mon, 04 Aug 2003 00:31:17 -0500
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	Mon, 4 Aug 2003 01:27:32 -0400
+Received: from [203.53.213.67] ([203.53.213.67]:37903 "EHLO exchange.world.net")
+	by vger.kernel.org with ESMTP id S271378AbTHDF1b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 01:27:31 -0400
+Message-ID: <6416776FCC55D511BC4E0090274EFEF5080024A9@exchange.world.net>
+From: Steven Micallef <steven.micallef@world.net>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: chroot() breaks syslog() ?
+Date: Mon, 4 Aug 2003 15:27:27 +1000 
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: do_div considered harmful
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have made a change to fix this in fs/cifs/inode.c and a similar 
-problem in fs/cifs/file.c
-(and a change to fs/cifs/cifsfs.c to better match the blocksize bits and 
-blocksize default).
-It is (version 0.8.7 of the cifs vfs) in 
-bk://cifs.bkbits.net/linux-2.5cifs and I am testing it now.
+Hi all,
 
- >> Similarly, I find in fs/cifs/inode.c>
- >>          inode->i_blocks = do_div(findData.NumOfBytes, 
-inode->i_blksize);
- >
- >This should be
- >
- >        int blocksize = 1 << inode->i_blkbits;
- >
- >         inode->i_blocks = (findData.NumOfBytes + blocksize - 1)
- >                                    >> inode->i_blkbits;
+I've stumbled onto what seems to have broken somewhere between 2.4.8 and
+2.4.18 (sorry, I've been unable to test it on a later version just yet).
+Basically, when using chroot(), syslog() calls don't work.
 
+The following simple example is broken on 2.4.18:
+
+#include    <stdio.h>
+#include    <sys/syslog.h>
+
+int main(void) {
+    chroot("/home/steve");
+    syslog(LOG_ALERT, "TEST");
+}
+
+An strace reveals the following:
+
+connect(3, {sin_family=AF_UNIX, path="/dev/log"}, 16) = -1 ENOENT (No such
+file or directory)
+
+Is this intentional? If so, is there a work-around? I discovered this when
+debugging 'rwhod', but I imagine there are many more utils that would be
+affected too.
+
+Cheers,
+
+Steve Micallef

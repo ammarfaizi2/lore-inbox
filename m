@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129745AbRAQVu5>; Wed, 17 Jan 2001 16:50:57 -0500
+	id <S129905AbRAQVwh>; Wed, 17 Jan 2001 16:52:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130031AbRAQVur>; Wed, 17 Jan 2001 16:50:47 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:5935 "EHLO
-	amsmta05-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S129745AbRAQVua>; Wed, 17 Jan 2001 16:50:30 -0500
-Date: Wed, 17 Jan 2001 23:57:28 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: Werner Almesberger <Werner.Almesberger@epfl.ch>
-cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 + iproute2
-In-Reply-To: <20010117180433.A4979@almesberger.net>
-Message-ID: <Pine.LNX.4.21.0101172356090.26160-100000@server.serve.me.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130139AbRAQVw1>; Wed, 17 Jan 2001 16:52:27 -0500
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:27779 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S129905AbRAQVwR>; Wed, 17 Jan 2001 16:52:17 -0500
+Date: Wed, 17 Jan 2001 13:51:31 -0800
+From: Dan Kegel <dank@alumni.caltech.edu>
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+To: dean-list-linux-kernel@arctic.org, linux-kernel@vger.kernel.org,
+        Tony Finch <dot@dotat.at>
+Reply-to: dank@alumni.caltech.edu
+Message-id: <3A6613E3.218F588C@alumni.caltech.edu>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> The underlying problem is of course that all those sanity checks should
-> be done in user space, not in the kernel.
+Dean Gaudet wrote:
+> consider the case where you're responding to a pair of pipelined HTTP/1.1 
+> requests. with the HPUX and BSD sendfile() APIs you end up forcing a 
+> packet boundary between the two responses. this is likely to result in 
+> one small packet on the wire after each response. 
 > 
-> (See also ftp://icaftp.epfl.ch/pub/people/almesber/slides/tmp-tc.ps.gz
-> The bitching starts on slide 11, some ideas for fixing the problem on
-> slide 16, but heed the warning on slide 15.)
-> 
-> Besides that, I agree that we have far too many EINVALs in the kernel.
-> Maybe we should just record file name and line number of the EINVAL
-> in *current and add an eh?(2) system call ;-)
+> with the linux TCP_CORK API you only get one trailing small packet
 
-I don't care about an error, but EINVAL is giving very confusing
-errors.. Like finding your glasses when you're already have them on.
+Tony Finch tells me that BSD also supports TCP_CORK; in fact, it had it first.
+He wrote:
+> BSDs that include T/TCP (pretty much all of them since 1995) have an
+> option called TCP_NOPUSH which is equivalent to Linux's TCP_CORK. A
+> pity the Linux people didn't know about it when they implemented their
+> version.
+>  
+> #if defined(TCP_CORK) && !defined(TCP_NOPUSH)
+> #define TCP_NOPUSH TCP_CORK
+> #endif
 
-I like the h_errno solution, but that's another glibc change.
+Can anyone verify it resolves the problem Dean pointed out?
 
-> - Werner
-
-
-	Igmar
-
+Now, Linus, does that make you hate BSD less? :-)
+- Dan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

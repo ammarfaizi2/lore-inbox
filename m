@@ -1,46 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292116AbSBYXcJ>; Mon, 25 Feb 2002 18:32:09 -0500
+	id <S292398AbSBYXd7>; Mon, 25 Feb 2002 18:33:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292406AbSBYXcB>; Mon, 25 Feb 2002 18:32:01 -0500
-Received: from mercury.mv.net ([199.125.85.40]:35055 "EHLO mercury.mv.net")
-	by vger.kernel.org with ESMTP id <S292402AbSBYXbn>;
-	Mon, 25 Feb 2002 18:31:43 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Tom Rauschenbach <tom@rauschenbach.mv.com>
-To: Mike Fedyk <mfedyk@matchmail.com>, Dan Maas <dmaas@dcine.com>
-Subject: Re: ext3 and undeletion
-Date: Mon, 25 Feb 2002 18:33:01 -0500
-X-Mailer: KMail [version 1.2]
-Cc: "Rose, Billy" <wrose@loislaw.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <fa.n4lfl6v.h4chor@ifi.uio.no> <05cb01c1be1e$c490ba00$1a01a8c0@allyourbase> <20020225172048.GV20060@matchmail.com>
-In-Reply-To: <20020225172048.GV20060@matchmail.com>
-MIME-Version: 1.0
-Message-Id: <02022518330103.01161@grumpersII>
-Content-Transfer-Encoding: 7BIT
+	id <S292402AbSBYXdp>; Mon, 25 Feb 2002 18:33:45 -0500
+Received: from charger.oldcity.dca.net ([207.245.82.76]:16318 "EHLO
+	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
+	id <S292398AbSBYXct>; Mon, 25 Feb 2002 18:32:49 -0500
+Date: Mon, 25 Feb 2002 18:32:42 -0500
+From: christophe =?iso-8859-15?Q?barb=E9?= 
+	<christophe.barbe.ml@online.fr>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: suspend/resume and 3c59x
+Message-ID: <20020225233242.GA5370@ufies.org>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020225200056.GW12719@ufies.org> <3C7A9C75.F6A4BA05@zip.com.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fUYQa+Pmc3FrFX/N"
+Content-Disposition: inline
+In-Reply-To: <3C7A9C75.F6A4BA05@zip.com.au>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: debian SID Gnu/Linux 2.4.18 on i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 25 February 2002 12:20, Mike Fedyk wrote:
-> On Mon, Feb 25, 2002 at 12:06:29PM -0500, Dan Maas wrote:
-> > > but I don't want a Netware filesystem running on Linux, I
-> > > want a *native* Linux filesystem (i.e. ext3) that has the
-> > > ability to queue deleted files should I configure it to.
-> >
-> > Rather than implementing this in the filesystem itself, I'd first try
-> > writing a libc shim that overrides unlink(). You could copy files to
-> > safety, or do anything else you want, before they actually get deleted...
->
-> Yep, more portable.
 
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Thank Andrew.
+My problem is solved with 2.4.18 and 'options 3c59x enable_wol=3D1'.
 
-But it only works if everything get linked with the new library.
+Christophe
 
->
-> Now the question is: Is there already something written?
+On Mon, Feb 25, 2002 at 12:20:05PM -0800, Andrew Morton wrote:
+> christophe barb=E9 wrote:
+> >=20
+> > Hi,
+> >=20
+> > I use the kernel 2.4.17 and the hotplug facilities for my 3com cardbus
+> > (driver 3c59x). It works well when I insert and remove the card.
+> > But If I don't remove the card before suspending (apm -s) my laptop,
+> > The card is in a bad state when I resume the laptop and I need to remove
+> > and insert the card to get it back. I have tried to ifdown and rmmod
+> > before suspending but the result is the same.
+> >=20
+>=20
+> Did you provide the `enable_wol=3D1' module parameter?
+>=20
+> 	options 3c59x enable_wol=3D1
+>=20
+> Despite its name, this turns on some power management
+> functionality.  Should have been a separate "enable_pm".
+>=20
+> -
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
+
+--=20
+Christophe Barb=E9 <christophe.barbe@ufies.org>
+GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
+
+Cats seem go on the principle that it never does any harm to ask for
+what you want. --Joseph Wood Krutch
+
+--fUYQa+Pmc3FrFX/N
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Pour information voir http://www.gnupg.org
+
+iD8DBQE8esmaj0UvHtcstB4RAprIAJ92wlVdbD+jS/7jZJXRckP9fxR5igCfRJXn
+elNUDLhwIlgVwCYvwsPueXk=
+=dNuK
+-----END PGP SIGNATURE-----
+
+--fUYQa+Pmc3FrFX/N--

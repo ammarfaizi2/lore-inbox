@@ -1,83 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264688AbTBEUUO>; Wed, 5 Feb 2003 15:20:14 -0500
+	id <S264686AbTBEUXv>; Wed, 5 Feb 2003 15:23:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264836AbTBEUUO>; Wed, 5 Feb 2003 15:20:14 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:262 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264688AbTBEUUL>; Wed, 5 Feb 2003 15:20:11 -0500
-Date: Wed, 5 Feb 2003 12:25:10 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Matt Reppert <arashi@yomerashi.yi.org>
-cc: Andrew Morton <akpm@digeo.com>, <andrea@suse.de>, <lm@bitmover.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
-In-Reply-To: <20030205141104.6ae9e439.arashi@yomerashi.yi.org>
-Message-ID: <Pine.LNX.4.44.0302051211070.2999-100000@home.transmeta.com>
+	id <S264836AbTBEUXu>; Wed, 5 Feb 2003 15:23:50 -0500
+Received: from packet.digeo.com ([12.110.80.53]:45212 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264686AbTBEUXt>;
+	Wed, 5 Feb 2003 15:23:49 -0500
+Message-ID: <3E41750C.56F7165@digeo.com>
+Date: Wed, 05 Feb 2003 12:33:16 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrea Arcangeli <andrea@suse.de>
+CC: lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
+References: <20030205174021.GE19678@dualathlon.random> <20030205102308.68899bc3.akpm@digeo.com> <20030205184535.GG19678@dualathlon.random> <20030205114353.6591f4c8.akpm@digeo.com> <20030205195151.GJ19678@dualathlon.random> <20030205120903.1e84c12e.akpm@digeo.com> <20030205201810.GM19678@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Feb 2003 20:33:19.0753 (UTC) FILETIME=[D1EAB790:01C2CD55]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 5 Feb 2003, Matt Reppert wrote:
->
-> (CC'ing Linus because I have a question for him in here ... )
-> On Wed, 5 Feb 2003 11:43:53 -0800
-> Andrew Morton <akpm@digeo.com> wrote:
+Andrea Arcangeli wrote:
+> 
+> On Wed, Feb 05, 2003 at 12:09:03PM -0800, Andrew Morton wrote:
+> > Andrea Arcangeli <andrea@suse.de> wrote:
+> > >
+> > > it might be simply an error in the tarball, maybe Linus's tree isn't in
+> > > full sync with bk head. But something definitely is corrupt between
+> > > tarball and bk.
 > >
-> > http://linux.bkbits.net:8080/linux-2.5/cset@1.879.43.1?nav=index.html|ChangeSet@-8w
-> > 
-> > And revtool shows that change on Jan 09 this year.
-> > 
-> > But it does not appear in Linus's 2.5.59 tarball, and there appears to be no
-> > record in bitkeeper of where this change fell out of the tree.
+> > Well, the 2.5.59 BK tree shows that function using block_truncate_page() as
+> > well.
+> >
+> > The question is why did the Jan 9 changeset in the 2.5.55 timeframe not
+> > appear in the tree until post-2.5.59.  Maybe on Jan 9 Linus only part-merged
+> > it by some means (making the web interface claim it is there), and this week
+> > completed the merge and updated the checkin comment?
+> 
+> I don't know how it is supposed to work, but this sounds quite messy, if
+> this is the case, how can you order the changesets?
+> 
 
-There is a record in BK, you just have to find the merge.
+Dave says that the Jan 9 date was when he committed it locally.  It
+was pushed to Linus this week, and the tracking shows Dave's date,
+not Linus's.
 
-> > In fact the above URL shows two instances of the same patch, with different
-> > human-written summaries, on the same day.
-
-Which if true would easily happen if the patches was independently
-committed to two trees and then those trees were later merged.
-
-However, in this case I don't think there is any real duplication, and
-what you're looking at is the "all diffs"  part (whole changeset) and the
-"per-file diffs" part. And the changeset comment is slightly different for
-the per-file comment. (Look at some more extensive changeset that modifies
-multiple files to see this more clearly).
-
-The way it then came into my tree is through:
-
-	ChangeSet@1.974, 2003-02-03 14:58:24-08:00, torvalds@penguin.transmeta.com
-	  Merge http://jfs.bkbits.net/linux-2.5
-	  into penguin.transmeta.com:/home/penguin/torvalds/repositories/kernel/linux
-
-(you can use "bk changes -e" to also get merge changes, or you can try to 
-follow the merges in the graphical tree shown by "bk revtool").
-
-So it was merged into _my_ tree yesterday, but it's been in shaggy's tree 
-since Jan 9th.
-
-> I sit on the web interface a lot to see what's being merged. If you ask for
-> it, it will give you a list of csets ordered by date, newest first. I've
-> noticed sometimes that recently merged csets will appear to be older than
-> the date they were merged, perhaps because they actually were that old in
-> the parent repository. Is cset age preserved across repositories? It seems
-> to be.
-
-Absolutely. There are two totally independent events: the event of 
-committing a patch to a tree (which was done by shaggy some time ago) and 
-the event of merging the trees into my tree (which was done by me 
-yesterday). 
-
-Use "bk revtool" to get a mental picture of this. I don't find "bk 
-revtool" that useful for some other reasons (bad cut-and-paste behaviour, 
-sometimes horribly hard to find things), but it's a good way to mentally 
-visualize the "topology" of the changes.
-
-("bk revtool" probably works a lot better on simpler projects, with the 
-kernel it just gets too complicated too fast to be horribly useful).
-
-		Linus
-
+I didn't know Dave was using bitkeeper.  Sorry noise.

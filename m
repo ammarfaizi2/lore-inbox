@@ -1,73 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268511AbRHRV7h>; Sat, 18 Aug 2001 17:59:37 -0400
+	id <S268570AbRHRWE1>; Sat, 18 Aug 2001 18:04:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268570AbRHRV72>; Sat, 18 Aug 2001 17:59:28 -0400
-Received: from eriador.apana.org.au ([203.14.152.116]:44559 "EHLO
-	eriador.apana.org.au") by vger.kernel.org with ESMTP
-	id <S268511AbRHRV7X>; Sat, 18 Aug 2001 17:59:23 -0400
-Date: Sun, 19 Aug 2001 07:59:07 +1000
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] CramFS and HighMem
-Message-ID: <20010819075907.A19307@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ReaqsoxgOBHFXBhH"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	id <S268792AbRHRWES>; Sat, 18 Aug 2001 18:04:18 -0400
+Received: from ns.suse.de ([213.95.15.193]:15625 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S268570AbRHRWEH>;
+	Sat, 18 Aug 2001 18:04:07 -0400
+To: Ralf Baechle <ralf@uni-koblenz.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Aliases
+In-Reply-To: <00df01c127a8$c354ad20$bb1cfa18@JimWS.suse.lists.linux.kernel> <Pine.LNX.4.33.0108180245070.27721-100000@kobayashi.soze.net.suse.lists.linux.kernel> <20010818143232.A11687@bacchus.dhis.org.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 19 Aug 2001 00:04:18 +0200
+In-Reply-To: Ralf Baechle's message of "18 Aug 2001 14:44:48 +0200"
+Message-ID: <oupy9ohqb31.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ralf Baechle <ralf@uni-koblenz.de> writes:
+> 
+> For various reasons interfaces aliases are deprecated.  The recommended
+> way of doing things these days is just adding more addresses to an
+> interface with the ip(8) program from the iproute package.  It works like:
+> 
+>   ip addr add 192.168.2.0/24 broadcast 192.168.2.255 scope host dev eth0
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Newer ifconfig also supports "add" for IPv4 (older supported it only for 
+v6)
 
-This patch replaces page_address in fs/cramfs with kmap.
--- 
-Debian GNU/Linux 2.2 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+The problem of the original poster is also likely to have an too old ifconfig;
+older ones had some O(n^2) algorithms with hurt with many interfaces.
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-diff -u -r1.1.1.6 -r1.6
---- fs/cramfs/inode.c	19 Jul 2001 23:14:53 -0000	1.1.1.6
-+++ fs/cramfs/inode.c	18 Aug 2001 08:11:14 -0000	1.6
-@@ -374,6 +374,7 @@
- {
- 	struct inode *inode = page->mapping->host;
- 	u32 maxblock, bytes_filled;
-+	void *pgdata;
- 
- 	maxblock = (inode->i_size + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
- 	bytes_filled = 0;
-@@ -387,15 +388,18 @@
- 			start_offset = *(u32 *) cramfs_read(sb, blkptr_offset-4, 4);
- 		compr_len = (*(u32 *) cramfs_read(sb, blkptr_offset, 4)
- 			     - start_offset);
-+		pgdata = kmap(page);
- 		if (compr_len == 0)
- 			; /* hole */
- 		else
--			bytes_filled = cramfs_uncompress_block(page_address(page),
-+			bytes_filled = cramfs_uncompress_block(pgdata,
- 				 PAGE_CACHE_SIZE,
- 				 cramfs_read(sb, start_offset, compr_len),
- 				 compr_len);
--	}
--	memset(page_address(page) + bytes_filled, 0, PAGE_CACHE_SIZE - bytes_filled);
-+	} else
-+		pgdata = kmap(page);
-+	memset(pgdata + bytes_filled, 0, PAGE_CACHE_SIZE - bytes_filled);
-+	kunmap(page);
- 	flush_dcache_page(page);
- 	SetPageUptodate(page);
- 	UnlockPage(page);
-
---ReaqsoxgOBHFXBhH--
+-Andi

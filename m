@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317563AbSFIFdd>; Sun, 9 Jun 2002 01:33:33 -0400
+	id <S317557AbSFIFhF>; Sun, 9 Jun 2002 01:37:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317564AbSFIFdc>; Sun, 9 Jun 2002 01:33:32 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:39596 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317563AbSFIFd3>;
-	Sun, 9 Jun 2002 01:33:29 -0400
-Date: Sat, 08 Jun 2002 22:29:42 -0700 (PDT)
-Message-Id: <20020608.222942.111546622.davem@redhat.com>
-To: acahalan@cs.uml.edu
+	id <S317559AbSFIFhE>; Sun, 9 Jun 2002 01:37:04 -0400
+Received: from newman.edw2.uc.edu ([129.137.2.198]:45330 "EHLO smtp.uc.edu")
+	by vger.kernel.org with ESMTP id <S317557AbSFIFhD>;
+	Sun, 9 Jun 2002 01:37:03 -0400
+From: kuebelr@email.uc.edu
+Date: Sun, 9 Jun 2002 01:36:57 -0400
+To: trivial@rustcorp.com.au
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200206090130.g591UVR434040@saturn.cs.uml.edu>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Subject: [PATCH] [TRIVIAL] ip_nat_core.c - fix compiler warning
+Message-Id: <20020609053657.GA552@cartman>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-   Date: Sat, 8 Jun 2002 21:30:31 -0400 (EDT)
-   
-   On a non-SMP system, would it be OK to map all the memory
-   without memory coherency enabled? You seem to be implying that
-   one only needs to implement some mechanism in pci_map_single()
-   to handle flushing cache lines (write back, then invalidate).
-   
-   This would be useful for Macs.
-   
-It's just avoiding flushing by effecting flushing the cache after
-every load/store the cpu does, so of course it would work.
+If netfilter is build w/o CONFIG_IP_NF_NAT_LOCAL, gcc will complain that
+do_extra_mangle() is not used.  So only compile the function when
+IP_NF_NAT_LOCAL is defined.  Patch is against 2.4.19-pre10.
 
-It would be slow as hell, but it would work.
+Rob.
+
+--- linux-clean/net/ipv4/netfilter/ip_nat_core.c	Fri Jun  7 23:42:15 2002
++++ linux-dirty/net/ipv4/netfilter/ip_nat_core.c	Sat Jun  8 12:12:46 2002
+@@ -198,6 +198,7 @@
+ 		return NULL;
+ }
+ 
++#ifdef CONFIG_IP_NF_NAT_LOCAL
+ /* If it's really a local destination manip, it may need to do a
+    source manip too. */
+ static int
+@@ -216,6 +217,7 @@
+ 	ip_rt_put(rt);
+ 	return 1;
+ }
++#endif
+ 
+ /* Simple way to iterate through all. */
+ static inline int fake_cmp(const struct ip_nat_hash *i,

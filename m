@@ -1,66 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264940AbTBJQTY>; Mon, 10 Feb 2003 11:19:24 -0500
+	id <S262789AbTBJQTO>; Mon, 10 Feb 2003 11:19:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264944AbTBJQTY>; Mon, 10 Feb 2003 11:19:24 -0500
-Received: from web20409.mail.yahoo.com ([66.163.169.97]:35432 "HELO
-	web20421.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S264940AbTBJQTW>; Mon, 10 Feb 2003 11:19:22 -0500
-Message-ID: <20030210162852.55402.qmail@web20421.mail.yahoo.com>
-Date: Mon, 10 Feb 2003 08:28:52 -0800 (PST)
-From: devnetfs <devnetfs@yahoo.com>
-Subject: Re: compiling kernel with debug and optimization 
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <2721.1044876757@ocs3.intra.ocs.com.au>
+	id <S264940AbTBJQTO>; Mon, 10 Feb 2003 11:19:14 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:27550 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S262789AbTBJQTM>; Mon, 10 Feb 2003 11:19:12 -0500
+Date: Mon, 10 Feb 2003 17:28:55 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: torvalds@transmeta.com
+Cc: Andrea Arcangeli <andrea@suse.de>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.0, 2.2, 2.4, 2.5: fsync buffer race
+In-Reply-To: <20030210130704.GO31401@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0302101723540.32095-100000@artax.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for you reply Keith :)
+Linus, do you remember what "nasty deadlock" did you mean when writing
+this to 2.[0-2].* and maybe 1.*?
 
-The reason I asked this question is -- Distro's like RH (i guess it
-holds for others too) DONT distribute kernels compiled with -g and
-I was wondering why? 
+ll_rw_blk.c - ll_rw_block():
+        /* Uhhuh.. Nasty dead-lock possible here.. */
+        if (buffer_locked(bh))
+                return;
+        /* Maybe the above fixes it, and maybe it doesn't boot. Life is
+interesting */
+        lock_buffer(bh);
 
-Agreed about the compile-time+disk overhead, but that's ONE time
-affair. Analyzing a system-core-dump of a "-g" built kernel (using
-MCL's crash) is much easier and fruitful than otherwise.
+Mikulas
 
-so is it (just) the disk-space overhead that keeps distributions 
-from NOT compiling with "-g" option?!
+On Mon, 10 Feb 2003, Andrea Arcangeli wrote:
 
-Thanks once again,
+> On Wed, Feb 05, 2003 at 12:16:53AM +0100, Pavel Machek wrote:
+> > Hi!
+> >
+> > > > there's a race condition in filesystem
+> > > >
+> > > > let's have a two inodes that are placed in the same buffer.
+> > > >
+> > > > call fsync on inode 1
+> > > > it goes down to ext2_update_inode [update == 1]
+> > > > it calls ll_rw_block at the end
+> > > > ll_rw_block starts to write buffer
+> > > > ext2_update_inode waits on buffer
+> > > >
+> > > > while the buffer is writing, another process calls fsync on inode 2
+> > > > it goes again to ext2_update_inode
+> > > > it calls ll_rw_block
+> > > > ll_rw_block sees buffer locked and exits immediatelly
+> > > > ext2_update_inode waits for buffer
+> > > > the first write finished, ext2_update_inode exits and changes made by
+> > > > second proces to inode 2 ARE NOT WRITTEN TO DISK.
+> > > >
+> > >
+> > > hmm, yes.  This is a general weakness in the ll_rw_block() interface.  It is
+> > > not suitable for data-integrity writeouts, as you've pointed out.
+> > >
+> > > A suitable fix would be do create a new
+> > >
+> > > void wait_and_rw_block(...)
+> > > {
+> > > 	wait_on_buffer(bh);
+> > > 	ll_rw_block(...);
+> > > }
+> > >
+> > > and go use that in all the appropriate places.
+> > >
+> > > I shall make that change for 2.5, thanks.
+> >
+> > Should this be fixed at least in 2.4, too? It seems pretty serious for
+> > mail servers (etc)...
+>
+> actually the lowlevel currently is supposed to take care of that if it
+> writes directly with ll_rw_block like fsync_buffers_list takes care of
+> it before calling ll_rw_block. But the whole point is that normally the
+> write_inode path only marks the buffer dirty, it never writes directly,
+> and no dirty bitflag can be lost and we flush those dirty buffers right
+> with the proper wait_on_buffer before ll_rw_block. So I don't think it's
+> happening really in 2.4, at least w/o mounting the fs with -osync.
+>
+> But I thought about about Mikulas suggestion of adding lock_buffer
+> in place of the test and set bit. This looks very appealing. the main
+> reason we didn't do that while fixing fsync_buffers_list a few months
+> ago in 2.4.20 or so, is been that it is a very risky change, I mean, I'm
+> feeling like it'll break something subtle.
+>
+> In theory the only thing those bitflags controls are the coherency of
+> the buffer cache here, the rest is serialized by design at the
+> highlevel. And the buffer_cache should be ok with the lock_buffer(),
+> since we'll see the buffer update and we'll skip the write if we race
+> with other reads (we'll sleep in lock_buffer rather than in
+> wait_on_buffer). For the writes we'll overwrite the data one more time
+> (the feature incidentally ;).  so it sounds safe.  Performance wise it
+> shouldn't matter, for read it can't matter infact.
+>
+> So I guess it's ok to make that change, then we could even move the
+> wait_on_buffer from fsync_buffers_list to the xfs buffer_delay path of
+> write_buffer. I'm tempted to make this change for next -aa. I feel it
+> makes more sense and it's a better fix even if if risky. Can anybody see
+> a problem with that?
+>
+> Andrea
+>
 
-Regards,
-A.
 
-
-
---- Keith Owens <kaos@ocs.com.au> wrote:
-> On Mon, 10 Feb 2003 03:11:51 -0800 (PST), 
-> devnetfs <devnetfs@yahoo.com> wrote:
-> >Does compiling with -g option degrade performance? IMO it should
-> NOT.
-> 
-> Compiling with -g slows down compilation and link, mainly because of
-> the extra debugging data that has to be copied around.  -g
-> significantly increases disk usage.
-> 
-> >If that's true, then why dont we compile kernels with both -g and
-> -O2
-> >always? Also does using -g AND -O2 cause some optimizations to be 
-> >missed out?
-> 
-> With gcc, compiling with -g should have no effect on the kernel.  One
-> of my occasional tests is to build vmlinux with and without -g, run
-> both through strip -g and compare the results.  They should be
-> identical except for the build timestamp.
-> 
-
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-http://mailplus.yahoo.com

@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262307AbVCPJwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262309AbVCPJxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262307AbVCPJwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 04:52:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbVCPJwQ
+	id S262309AbVCPJxr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 04:53:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbVCPJxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 04:52:16 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:5009 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262307AbVCPJwM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 04:52:12 -0500
-Date: Wed, 16 Mar 2005 10:51:55 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rostedt@goodmis.org, rlrevell@joe-job.com, linux-kernel@vger.kernel.org
-Subject: [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks
-Message-ID: <20050316095155.GA15080@elte.hu>
-References: <Pine.LNX.4.58.0503140427560.697@localhost.localdomain> <Pine.LNX.4.58.0503140509170.697@localhost.localdomain> <Pine.LNX.4.58.0503141024530.697@localhost.localdomain> <Pine.LNX.4.58.0503150641030.6456@localhost.localdomain> <20050315120053.GA4686@elte.hu> <Pine.LNX.4.58.0503150746110.6456@localhost.localdomain> <20050315133540.GB4686@elte.hu> <Pine.LNX.4.58.0503151150170.6456@localhost.localdomain> <20050316085029.GA11414@elte.hu> <20050316011510.2a3bdfdb.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050316011510.2a3bdfdb.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 16 Mar 2005 04:53:46 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:33284 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S262309AbVCPJxd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 04:53:33 -0500
+Message-ID: <423802E6.1020308@aitel.hist.no>
+Date: Wed, 16 Mar 2005 10:56:54 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Airlie <airlied@linux.ie>
+CC: linux-kernel@vger.kernel.org, dri-devel@lists.sf.net
+Subject: Another drm/dri lockup - when moving the mouse
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have reported this before, but now I have some more data.
 
-* Andrew Morton <akpm@osdl.org> wrote:
+I have an office pc with this video card:
+VGA compatible controller: ATI Technologies Inc Radeon RV100 QY [Radeon 
+7000/VE]
 
-> > > Damn! The answer was right there in front of my eyes! Here's the
-> > > cleanest solution. I forgot about wait_on_bit_lock.  I've converted
-> > > all the locks to use this instead. [...]
-> > 
-> > ah, indeed, this looks really nifty. Andrew?
-> > 
-> 
-> There's a little lock ranking diagram in jbd.h which tells us that
-> these locks nest inside j_list_lock and j_state_lock.  So I guess
-> you'll need to turn those into semaphores.
+In previous reports I found that starting xfree or xorg with dri support
+cause a hang after a little while.  It seems that this only happens when
+the mouse moves.  Something I didn't discover before because there
+are lots of unplanned mouse movements - the thing is sensitive and jumps
+a pixel now and then when I move stuff on the desk.
 
-indeed. I did this (see the three followup patches, against BK-curr),
-and it builds/boots/works just fine on an ext3 box. Do we want to try
-this in -mm?
+Taking care not to move the mouse, I can start X and run glxgears
+with acceleration.  The slightest mouse movement during 3D activity
+kills the machine instantly so it only responds to the reset button.  Mouse
+movement without 3D activity may or may not kill the pc.
 
-one worry would be that while spinlocks are NOP on UP, semaphores are
-not. OTOH, this could relax some of the preemptability constraints
-within ext3 and could make it more hackable. These patches enabled the
-removal of some of the lock-break code for example and could likely
-solve some of the remaining ext3 latencies.
+Could there be a problem where 3D-stuff and code to move the mouse
+"steps on each other toes" somehow?  Or some way to test this further,
+by disabling the mouse or force some kind of software fallback for
+the mouse cursor?
 
-	Ingo
+Helge Hafting
+
+Helge Hafting
+
+
+

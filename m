@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269815AbRH3RTO>; Thu, 30 Aug 2001 13:19:14 -0400
+	id <S272354AbRH3RVO>; Thu, 30 Aug 2001 13:21:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272350AbRH3RTF>; Thu, 30 Aug 2001 13:19:05 -0400
-Received: from wildsau.idv-edu.uni-linz.ac.at ([140.78.40.25]:1034 "EHLO
-	wildsau.idv-edu.uni-linz.ac.at") by vger.kernel.org with ESMTP
-	id <S269815AbRH3RSv>; Thu, 30 Aug 2001 13:18:51 -0400
-From: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>
-Message-Id: <200108301718.f7UHIWq19376@wildsau.idv-edu.uni-linz.ac.at>
-Subject: arp.c duplicate assignment of skb->dev ("cosmetic")
-To: linux-kernel@vger.kernel.org
-Date: Thu, 30 Aug 2001 19:18:32 +0200 (MET DST)
-X-Mailer: ELM [version 2.4ME+ PL37 (25)]
+	id <S272352AbRH3RVE>; Thu, 30 Aug 2001 13:21:04 -0400
+Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:52452 "EHLO
+	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S272354AbRH3RU4>; Thu, 30 Aug 2001 13:20:56 -0400
+Importance: Normal
+Subject: Re: lcs ethernet driver source
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: arjan@fenrus.demon.nl (Arjan van de Ven), linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OFA16538B8.61628554-ONC1256AB8.005D7C15@de.ibm.com>
+From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
+Date: Thu, 30 Aug 2001 19:20:04 +0200
+X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 30/08/2001 19:20:13
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-hi,
+Alan Cox wrote:
 
-this is rather cosmetical than functional, but in arp.c,
-in arp_send(), on line 489
+>> Sorry, at this point we are not allowed to publish the source code of
+the
+>> lcs and qeth drivers (due to the use of confidential hardware interface
+>> specifications).  We make those modules available only in binary form
+>> on our developerWorks web site.
+>
+>Is there any plan to change this ?
 
-	skb->dev=dev;
+This is not something we (the Linux for S/390 development team) can decide;
+it's up to the hardware groups that 'own' the LCS / QDIO specifications
+whether they allow to make these public.  As I said, at this point, we
+are not allowed to open the specs; while it is conceivable that this might
+change in the future, I'm not aware of any specific plan.
 
-is assigned. in line 563, still in the same routine, it is
-assigned again without skb or skb->dev being changed. so I guess
-this second assignment is not neccessary. I can't see where
-skb->dev is changed within the 80  lines. so, we could remove
-the second assignment.
+(Please note that I'm in no way speaking for IBM here; that's just my
+personal opinion.)
 
-/herp
+
+Mit freundlichen Gruessen / Best Regards
+
+Ulrich Weigand
+
+--
+  Dr. Ulrich Weigand
+  Linux for S/390 Design & Development
+  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
+  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
 

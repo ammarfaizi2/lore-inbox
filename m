@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268458AbUILFhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268479AbUILFnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268458AbUILFhs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 01:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268479AbUILFhs
+	id S268479AbUILFnX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 01:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268463AbUILFnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 01:37:48 -0400
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:57678 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268458AbUILFhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 01:37:45 -0400
-Message-ID: <4143D491.6070006@yahoo.com.au>
-Date: Sun, 12 Sep 2004 14:46:09 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, paulus@samba.org,
-       linux-kernel@vger.kernel.org, anton@samba.org, jun.nakajima@intel.com,
-       ak@suse.de, mingo@elte.hu
-Subject: Re: [PATCH] Yielding processor resources during lock contention
-References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com> <16703.60725.153052.169532@cargo.ozlabs.ibm.com> <Pine.LNX.4.53.0409090810550.15087@montezuma.fsmlabs.com> <Pine.LNX.4.58.0409090751230.5912@ppc970.osdl.org> <Pine.LNX.4.58.0409090754270.5912@ppc970.osdl.org> <Pine.LNX.4.53.0409091107450.15087@montezuma.fsmlabs.com> <Pine.LNX.4.53.0409120009510.2297@montezuma.fsmlabs.com> <20040911220003.0e9061ad.akpm@osdl.org> <Pine.LNX.4.53.0409120108310.2297@montezuma.fsmlabs.com> <4143D16F.30500@yahoo.com.au> <Pine.LNX.4.53.0409120131000.2297@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.53.0409120131000.2297@montezuma.fsmlabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 12 Sep 2004 01:43:23 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:20418 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268479AbUILFnV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 01:43:21 -0400
+Date: Sat, 11 Sep 2004 22:42:01 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: anton@samba.org, akpm@osdl.org, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, ak@suse.de, iwamoto@valinux.co.jp
+Subject: Re: [Patch 4/4] cpusets top mask just online, not all possible
+Message-Id: <20040911224201.7b085629.pj@sgi.com>
+In-Reply-To: <1094964209.16406.22.camel@localhost>
+References: <20040911082810.10372.86008.84920@sam.engr.sgi.com>
+	<20040911082834.10372.51697.75658@sam.engr.sgi.com>
+	<20040911141001.GD32755@krispykreme>
+	<20040911100731.2f400271.pj@sgi.com>
+	<1094923728.3997.10.camel@localhost>
+	<20040911192156.1da7c636.pj@sgi.com>
+	<1094964209.16406.22.camel@localhost>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> On Sun, 12 Sep 2004, Nick Piggin wrote:
+pj wrote:
+>   I expect that disabling a Memory Node should result in some
+>   "move_task_off_dead_memory()" routine, ...
+>   Does this expectation fit for you?
 
->>I presume the hypervisor switch much incur the same sorts of costs as
->>a context switch?
-> 
-> 
-> In the PPC64 and P4/HT case the spinning on a lock is a bad utilisation of 
-> the execution resources and that's what we're really trying to avoid, not 
-> necessarily cache thrashing from a context switch.
-> 
+Dave replied:
+> That seems pretty reasonable to me.  ...
 
-But isn't yielding to the hypervisor and thus causing it to schedule
-something else basically the same as a context switch? (I don't know
-anything about POWER).
+In other words, as is apparent in the reply I just sent a few minutes
+ago, what I wrote about "move_task_off_dead_memory()" routine no longer
+seems at all reasonable to me ;).
 
-If yes, then shouldn't your lock be a blocking lock anyway?
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

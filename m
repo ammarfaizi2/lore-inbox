@@ -1,76 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263632AbTLON6d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 08:58:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbTLON6d
+	id S263636AbTLON6L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 08:58:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbTLON6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 08:58:33 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:27336 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S263632AbTLON63 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 08:58:29 -0500
-Message-ID: <3FDDBDFE.5020707@intel.com>
-Date: Mon, 15 Dec 2003 15:58:22 +0200
-From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: arjanv@redhat.com
-CC: Gabriel Paubert <paubert@iram.es>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@redhat.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, Martin Mares <mj@ucw.cz>,
-       zaitcev@redhat.com, hch@infradead.org
-Subject: Re: PCI Express support for 2.4 kernel
-References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com>	 <3FDD8691.80206@intel.com> <20031215103142.GA8735@iram.es>	 <3FDDACA9.1050600@intel.com> <1071494155.5223.3.camel@laptop.fenrus.com>
-In-Reply-To: <1071494155.5223.3.camel@laptop.fenrus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Dec 2003 08:58:11 -0500
+Received: from 82-32-19-107.cable.ubr03.azte.blueyonder.co.uk ([82.32.19.107]:10116
+	"EHLO amphibian.dyndns.org") by vger.kernel.org with ESMTP
+	id S263636AbTLON6F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 08:58:05 -0500
+Date: Mon, 15 Dec 2003 13:58:02 +0000
+To: linux-kernel@vger.kernel.org
+Subject: 'bad: scheduling while atomic!', preempt kernel, 2.6.1-test11, reading an apparently duff DVD-R
+Message-ID: <20031215135802.GA4332@amphibian.dyndns.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Toad <toad@amphibian.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got it.
-Should I understand it this way: for system with >=1Gb RAM, I will be 
-unable to ioremap 256Mb region?
-It looks confusing. On my test system (don't ask details, I am not 
-alowed to share this info), I see
-video controller with 256Mb BAR. Does it mean this controller will not 
-work as well?
 
-There is alternative solution, for each transaction to ioremap/unmap 
-corresponded page.
-I don't like it, it involves huge overhead.
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I thought about remapping only pages that have actual PCI devices behind,
-but this is problematic: access to config goes not always through 
-pci_exp_read_config_xxx and alike, raw access with bus/dev/fn numbers 
-used as well. And in 2.6, correct me if I wrong, raw access using 
-bus/dev/fn numbers goes to be the only way. Per-device access replaced 
-with per-bus, at least.
+I got the following when trying to mount a particular DVD-R on Linux
+2.6.0-test11, using an IDE DVD-RW drive, using SCSI emulation, with the
+preempt kernel option enabled, and taskfile I/O:
+(the middle bit was repeated several times):
 
-I can statically remap only region for existing buses, this will be huge 
-save. It is 1MB per bus, this lead to typical 2-3MB instead of 256. To 
-be sure I can do this, I need to know that new bus can't be added on run 
-time. I don't think it is true, isn't it? Or do we have single point to 
-capture hot plug for new bus?
+ide-scsi: reset called for 133
+bad: scheduling while atomic!
+Call Trace:
+ [<c0119acc>] schedule+0x55c/0x570
+ [<c01259ce>] schedule_timeout+0x5e/0xb0
+ [<c0125960>] process_timeout+0x0/0x10
+ [<c02add47>] idescsi_reset+0xf7/0x110
+ [<c02a7b82>] scsi_try_bus_device_reset+0x52/0x90
+ [<c02a7c1d>] scsi_eh_bus_device_reset+0x5d/0xe0
+ [<c02a8368>] scsi_eh_ready_devs+0x28/0x70
+ [<c02a84ef>] scsi_unjam_host+0xbf/0xd0
+ [<c02a85da>] scsi_error_handler+0xda/0x120
+ [<c02a8500>] scsi_error_handler+0x0/0x120
+ [<c0107329>] kernel_thread_helper+0x5/0xc
 
-Vladimir.
+SCSI error: host 0 id 0 lun 0 return code =3D 6000000
+Sense class 0, sense error 0, extended sense 0
+mount: No medium found
 
-Arjan van de Ven wrote:
+I also suspect that it is refusing to read valid DVD-Rs, but it could
+just be my drive. One of them successfully mounted and then complained
+about attempt to access beyond end of device, and another 6 or so
+refused to mount for the same reason.
 
->>I should be missing something here. You have 256M of physical address 
->>space at 0xe0000000 occupied.
->>You can do nothing with it, it is simply present. Then, ioremap maps it 
->>somewhere in high memory.
->>It should not conflict with kernel RAM, for which trivial mapping (+3G) 
->>used.
->>    
->>
->
->the thing is that typically you have a maximum of 168Mb or so of
->ioremap/vmalloc space (they share the same pool). That is, ff your
->system has >= 1Gb of ram, if it has less ran the ioremap/vmalloc space
->is bigger....
->
->  
->
+If you require any further information, please ask me.
 
+Software: Kernel 2.6.0-test11, configured as above, Debian sid current
+(glibc2.3 IIRC), mount version 2.12, athlon XP 2800+, ATI's fglrx module
+loaded, sound (emu10k1) as moule, AGP, and some networking and lm_sensors
+stuff (all from stock kernel).
+--=20
+Matthew J Toseland - toad@amphibian.dyndns.org
+Freenet Project Official Codemonkey - http://freenetproject.org/
+ICTHUS - Nothing is impossible. Our Boss says so.
+
+--lrZ03NoBR/3+SXJZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/3b3pr5e+zmpNTm8RAiCeAJ9MjHfE38fytfZ56FFPu5zZEfJvXQCfcu23
+odXU2ol5nDfSYtkXaGH8Va8=
+=LH2/
+-----END PGP SIGNATURE-----
+
+--lrZ03NoBR/3+SXJZ--

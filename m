@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbUCQLHq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 06:07:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUCQLHq
+	id S261366AbUCQLPp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 06:15:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUCQLPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 06:07:46 -0500
-Received: from [202.125.86.130] ([202.125.86.130]:44736 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S261358AbUCQLHo convert rfc822-to-8bit (ORCPT
+	Wed, 17 Mar 2004 06:15:45 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:59821 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261366AbUCQLPo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 06:07:44 -0500
-Content-class: urn:content-classes:message
-Subject: SMP related
+	Wed, 17 Mar 2004 06:15:44 -0500
+Date: Wed, 17 Mar 2004 12:15:37 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Ian Campbell <icampbell@arcom.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       James Simmons <jsimmons@infradead.org>
+Subject: Re: [PATCH] PXA255 LCD Driver
+In-Reply-To: <1079521633.13370.39.camel@icampbell-debian>
+Message-ID: <Pine.GSO.4.58.0403171215050.21104@waterleaf.sonytel.be>
+References: <1079518182.13373.27.camel@icampbell-debian>
+ <Pine.GSO.4.58.0403171137410.21104@waterleaf.sonytel.be>
+ <1079521633.13370.39.camel@icampbell-debian>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Date: Wed, 17 Mar 2004 16:34:00 +0530
-Message-ID: <1118873EE1755348B4812EA29C55A972176775@esnmail.esntechnologies.co.in>
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: SMP related
-Thread-Index: AcQMD41gHYglN0PhTDmyGkaH9kKSaw==
-From: "Chandrashekhar Reddy.N" <chandrashekharn@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
-Cc: <linux-kernel-owner@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+	Hi Ian,
 
- 
+On Wed, 17 Mar 2004, Ian Campbell wrote:
+> > > +For example:
+> > > +	modprobe pxafb options=xres:640,yres:480,bpp:8,passive
+> >
+> > Not much comments, except: why don't you use the standard modedb mode parameter
+> > style?
+>
+> I was trying too (I mostly copied the i810 driver). How wrong did I get
+> it? I'm willing to rework it to make it the same as the standard.
 
-I want to develop a block driver which should work on both uni-processor
-and SMP machine.
+Take a look at drivers/video/modedb.c and fb_find_mode().
 
-What are the issues that are to be addressed when dealing with SMP? I
-mean for Compiling the module and Interrupt Handling on SMP machine.
+Gr{oetje,eeting}s,
 
-I have gone through all the archives but I did not find any suitable
-answer....
+						Geert
 
- 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Thanks in advance
-
- 
-
----chandra 
-
- 
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

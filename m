@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316041AbSEJPzY>; Fri, 10 May 2002 11:55:24 -0400
+	id <S316039AbSEJPzW>; Fri, 10 May 2002 11:55:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316044AbSEJPzX>; Fri, 10 May 2002 11:55:23 -0400
-Received: from fiona.siteprotect.com ([66.113.135.14]:32263 "HELO
-	fiona.siteprotect.com") by vger.kernel.org with SMTP
-	id <S316041AbSEJPzU>; Fri, 10 May 2002 11:55:20 -0400
-Message-ID: <3CDBEC6A.9020600@hostway.net>
-Date: Fri, 10 May 2002 10:51:06 -0500
-From: Nicholas Harring <nharring@hostway.net>
-Reply-To: nharring@hostway.net
-Organization: Hostway Corporation
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020313
-X-Accept-Language: en-us, en
+	id <S316044AbSEJPzV>; Fri, 10 May 2002 11:55:21 -0400
+Received: from ahriman.Bucharest.roedu.net ([141.85.128.71]:2775 "HELO
+	ahriman.bucharest.roedu.net") by vger.kernel.org with SMTP
+	id <S316039AbSEJPzS>; Fri, 10 May 2002 11:55:18 -0400
+Date: Fri, 10 May 2002 19:04:36 +0300 (EEST)
+From: Mihai RUSU <dizzy@roedu.net>
+X-X-Sender: <dizzy@ahriman.bucharest.roedu.net>
+To: "David S. Miller" <davem@redhat.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: mmap, SIGBUS, and handling it
+In-Reply-To: <20020510.083050.55863714.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0205101900090.9661-100000@ahriman.bucharest.roedu.net>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>, chen_xiangping@emc.com,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Tcp/ip offload card driver
-In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D1A42@srgraham.eng.emc.com> <3CDBFF5B.32550.1364FB2@localhost> <3CDBE7EB.9060605@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And how about when an SMP system isn't enough? Should I have to 
-re-engineer my network storage architecture when hardware exists that'll 
-increase throughput if a simple device driver gets written? Don't forget 
-that with 64 bit PCI that the limit of the bus has been raised, and with 
-impending technologies like Infiniband and Hypertransport that limit 
-will be raised again. At that point devoting main processor resources to 
-something better handled by specialty hardware really stops making 
-sense, if that specialty hardware is low-cost (oughta be) and effective 
-(still debatable).
+On Fri, 10 May 2002, David S. Miller wrote:
 
-Nicholas Harring
-Hostway Corporation
+>    From: Mihai RUSU <dizzy@roedu.net>
+>    Date: Fri, 10 May 2002 18:37:21 +0300 (EEST)
+>
+>    PS: why signal(SIGBUS,SIG_IGN) doesnt work, but a user handler its called
+>    if set with signal(SIGBUS,handle_sigbus) ?
+>
+> How would you like the kernel to "ignore" a page fault that cannot be
+> serviced?
+>
 
+You are right, its not that I want to ignore it. The problem was that I
+want to handle it some way but I dont know how. If I will make a user
+handler for it how can I know if its a SIGBUS from a HW error or a SIGBUS
+from that write()-case. Because I have to continue serving files even
+after received a SIGBUS in that write (otherwise my file server will exit
+with SIGBUS and thats no good :) ).
 
-Jeff Garzik wrote:
-> Pedro M. Rodrigues wrote:
-> 
->>   Actually there is. Think iSCSI. Have a look at this article at 
->> LinuxJournal - http://linuxjournal.com/article.php?sid=4896 .
->>
-> 
-> Ug...  why bother?  Just buy an SMP system at that point...
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Take for example any single process ftp/http server, they are hit by this
+problem. Which solution would you recommend ? :)
 
+----------------------------
+Mihai RUSU
 
+Disclaimer: Any views or opinions presented within this e-mail are solely
+those of the author and do not necessarily represent those of any company,
+unless otherwise specifically stated.
 

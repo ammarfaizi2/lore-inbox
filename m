@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262464AbTJ0Nn1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 08:43:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbTJ0Nn1
+	id S262799AbTJ0Nwk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 08:52:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbTJ0Nwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 08:43:27 -0500
-Received: from [212.55.154.22] ([212.55.154.22]:61347 "HELO sapo.pt")
-	by vger.kernel.org with SMTP id S262464AbTJ0Nn0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 08:43:26 -0500
-Message-ID: <3F9D2111.3020109@vgertech.com>
-Date: Mon, 27 Oct 2003 13:43:45 +0000
-From: Nuno Silva <nuno.silva@vgertech.com>
-Organization: VGER, LDA
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031020 Debian/1.5-1
-X-Accept-Language: en-us, pt
-MIME-Version: 1.0
-To: Shaun Savage <savages@savages.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6t9 SATA slower than 2.4.20
-References: <3F9D196C.9080301@savages.net>
-In-Reply-To: <3F9D196C.9080301@savages.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 27 Oct 2003 08:52:40 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:13193 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S262799AbTJ0Nwj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 08:52:39 -0500
+Subject: Re: 2.6.0-test9 and sleeping function called from invalid context
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>
+Cc: arekm@pld-linux.org, lkml <linux-kernel@vger.kernel.org>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       James Morris <jmorris@redhat.com>,
+       Manfred Spraul <manfred@colorfullife.com>
+In-Reply-To: <20031025224950.001b4055.akpm@osdl.org>
+References: <200310260045.52094.arekm@pld-linux.org>
+	 <20031025185055.4d9273ae.akpm@osdl.org>
+	 <20031025224950.001b4055.akpm@osdl.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1067262721.18818.24.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 27 Oct 2003 08:52:01 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-Shaun Savage wrote:
-> I have just compiled and installed kernel 2.6t9 on my RH9 / Asus A7N8X 
-> Deluxe.  I find the disk access is slower using the 2.6 kernel than the 
-> 2.4.20 kernel.
+On Sun, 2003-10-26 at 01:49, Andrew Morton wrote:
+> Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > but the wider question would be: is the SELinux
+> >  d_instantiate callout allowed to sleep?  A quick audit seems to indicate
+> >  that it's OK, but only by luck I think.
 > 
-> To get it to work for 2.4.20 kernel I have to use
-> # hdparm -d1 -X88 /dev/hde
-> then the buffered disk read goes from 1.5M to 55M
+> proc_pid_lookup() calls d_add->d_instantiate under task->proc_lock, so
+> inode_doinit_with_dentry() is called under spinlock on this path as well.
 > 
-> On the 2.6 kernel the buffered disk read is only 16M
-> 
-> What do I have to do to increase the disk speed for kernel 2.6t9?
-> 
+> Manfred, is there any particular reason why proc_pid_lookup()'s d_add is
+> inside the lock?
 
-I bet it's the "beat to death in lkml" issue with readahead.
+This shouldn't be a problem for SELinux, because the /proc/pid inodes
+are initialized by proc_pid_make_inode via the security_task_to_inode
+hook (=> selinux_task_to_inode), so inode_doinit_with_dentry will bail
+immediately on the first test of isec->initialized prior to any blocking
+calls.
 
-What's the output of cat /proc/ide/hdX?
+I asked Al Viro about this issue back when the proc locking change was
+introduced (circa 2.5.70), and he seemed to agree that the SELinux code
+is safe in this case.  He was concerned about the change in behavior for
+d_instantiate, but d_instantiate seems to be the more general location
+to perform inode security initialization for the majority of filesystem
+types; hooking in iget() would only handle a subset of filesystems.
 
-Regards,
-Nuno Silva
-
-
-> Shaun Savage
-> 
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

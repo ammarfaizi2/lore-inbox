@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129434AbQKWBWB>; Wed, 22 Nov 2000 20:22:01 -0500
+        id <S129434AbQKWBgS>; Wed, 22 Nov 2000 20:36:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129385AbQKWBVw>; Wed, 22 Nov 2000 20:21:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17167 "EHLO
-        www.linux.org.uk") by vger.kernel.org with ESMTP id <S129792AbQKWBVX>;
-        Wed, 22 Nov 2000 20:21:23 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200011230050.eAN0ofN13755@flint.arm.linux.org.uk>
-Subject: Re: Patch(?): pci_device_id tables for linux-2.4.0-test11/drivers/block
-To: adam@yggdrasil.com (Adam J. Richter)
-Date: Thu, 23 Nov 2000 00:50:40 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200011222201.OAA29131@baldur.yggdrasil.com> from "Adam J. Richter" at Nov 22, 2000 02:01:36 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+        id <S129529AbQKWBgH>; Wed, 22 Nov 2000 20:36:07 -0500
+Received: from pump3.york.ac.uk ([144.32.128.131]:57302 "EHLO pump3.york.ac.uk")
+        by vger.kernel.org with ESMTP id <S129434AbQKWBf5>;
+        Wed, 22 Nov 2000 20:35:57 -0500
+Message-ID: <3A1C6D4C.7060306@demeter.cs.york.ac.uk>
+Date: Thu, 23 Nov 2000 01:05:16 +0000
+From: Michel Salim <mas118@demeter.cs.york.ac.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.13 i686; en-US; m18) Gecko/20001117
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Michel Salim <mas118@cs.york.ac.uk>, LKML <linux-kernel@vger.kernel.org>,
+        dhinds@valinux.com
+Subject: Re: i82365 PCI-PCMCIA bridge still not working in 2.4.0-test11
+In-Reply-To: <3A1AC075.4020506@cs.york.ac.uk> <4186.974889923@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam J. Richter writes:
-> + { PCI_VENDOR_ID_DEC,   PCI_DEVICE_ID_DEC_21285,       PCI_ANY_ID, PCI_ANY_ID},
+Thanks for the patch... but it does not quite work. It applies cleanly, 
+but upon booting the patched kernel, the machine freezes completely upon 
+PCMCIA initialisation (it got to the point where the init script said 
+'Loading modules' then nothing). CTRL+ALT+DEL does not work, either.
 
-No no no no no no no.
+Anyone got a clue? Would love to help debug this if someone would just 
+walk me through it.
 
-This "device" should be identified by either the class code OR the
-subsystem device/vendor IDs.
+Michel
 
-By using "PCI_VENDOR_ID_DEC" and "PCI_DEVICE_ID_DEC_21285" you are referring
-to a chip which can be:
+David Woodhouse wrote:
 
-1. A host bridge
-2. A non-I2O add in card performing non-I2O functions
-3. An I2O card
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+> mas118@cs.york.ac.uk said:
+> 
+>>  Installed kernel 2.4.0-test11 on my Debian Woody box today. Had no
+>> problem apart from getting PCMCIA to work. I have a PCI-PCMCIA adapter
+>>  on my desktop PC, using the Cirrus Logic CL6729 chipset;
+> 
+> 
+> Linus got a bit carried away when stripping out all the CardBus support 
+> from i82365, and took out the support for PCI-PCMCIA bridges too.
+> 
+> Try this snapshot of my development tree, or use lspci to find the IO 
+> address of the device and specify that to the existing module.
+> 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265227AbTLKTWt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 14:22:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265228AbTLKTWs
+	id S265217AbTLKTPk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 14:15:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265222AbTLKTPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 14:22:48 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:1485 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S265227AbTLKTWr convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 14:22:47 -0500
-Content-Class: urn:content-classes:message
+	Thu, 11 Dec 2003 14:15:40 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:58477 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S265217AbTLKTPd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 14:15:33 -0500
+Reply-To: <hzhong@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "'Andy Isaacson'" <adi@hexapodia.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Is there a "make hole" (truncate in middle) syscall?
+Date: Thu, 11 Dec 2003 11:15:28 -0800
+Organization: Cisco Systems
+Message-ID: <017c01c3c01b$232bd130$d43147ab@amer.cisco.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Increasing HZ (patch for HZ > 1000)
-Date: Thu, 11 Dec 2003 11:22:19 -0800
-Message-ID: <F760B14C9561B941B89469F59BA3A84702C931A4@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Increasing HZ (patch for HZ > 1000)
-Thread-Index: AcO/t5qYwhZyo+lzSYS54Xl8w7aeIgAZBkZg
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "Jean-Marc Valin" <Jean-Marc.Valin@USherbrooke.ca>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 11 Dec 2003 19:22:19.0618 (UTC) FILETIME=[18527420:01C3C01C]
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+In-Reply-To: <20031211125806.B2422@hexapodia.org>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> Jean-Marc Valin
-> > Why would you want to *increase* HZ? I'd say 1000 is 
-> already too high
-> > personally, but I'm curious what you'd want to do with it? Embedded
-> > real-time stuff?
+> The abstract interface for make_hole() is simple, but it turns into a
+> pretty expensive filesystem operation, I think.  After many cycles of
+> free/allocate, your file would be badly fragmented across the
+> filesystem.  
+
+Understood. Two filesystems we are using: tmpfs and ext3. For the
+former, fragmentation doesn't matter.
+
+Hey, I think when I get some cycles I can try to implement this for
+tmpfs (since it's simpler) myself, and post a patch. :-) But before
+that, I want to make sure it's doable.
+
+> You'll probably get better overall performance by keeping
+> track of how "sparse" your file is (you could compare st_blocks versus
+> how many blocks you have allocated in your tree structure) 
+> and re-write
+> it when you're wasting more than, say, 20% of the allocated space.
 > 
-> Actually, my reasons may sound a little strange, but basically I'd be
-> fine with HZ=1000 if it wasn't for that annoying ~1 kHz sound when the
-> CPU is idle (probably bad capacitors). By increasing HZ to 10 kHz, the
-> sound is at a frequency where the ear is much less sensitive. 
-> Anyway, I
-> thought some people might be interested in high HZ for other (more
-> fundamental) reasons, so I posted the patch.
+> It turns into an interesting problem if you don't want to double your
+> space requirements during the re-write process.  You could write the
+> new file "backwards", one MB at a time, truncating the 
+> previous file at
+> each step to free up the blocks.  You'd end up with contiguous 1MB
+> chunks, which given your tree organization is probably good 
+> enough.  If
+> you wanted really good streaming performance you'd want to do bigger
+> chunks (or just write the file from the beginning, or use the
+> pre-allocation APIs that I think XFS provides).
+> 
+> -andy
+> 
 
-I'd advocate lower HZ. Say, oh I dunno...100? This is better for power
-management and also should make the sound go away.
-
-Hmm, I wonder if HZ=10 would break anything :)
-
-Regards -- Andy

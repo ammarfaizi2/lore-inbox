@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVDCXDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbVDCXGD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbVDCXDi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 19:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVDCXDi
+	id S261949AbVDCXGD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 19:06:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVDCXGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 19:03:38 -0400
-Received: from mail.hosted.servetheworld.net ([62.70.14.38]:54714 "HELO
-	mail.hosted.servetheworld.net") by vger.kernel.org with SMTP
-	id S261942AbVDCXDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 19:03:36 -0400
-Message-ID: <42507645.6010808@osvik.no>
-Date: Mon, 04 Apr 2005 01:03:33 +0200
-From: Dag Arne Osvik <da@osvik.no>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-CC: Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org
+	Sun, 3 Apr 2005 19:06:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52358 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261949AbVDCXFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 19:05:54 -0400
+Date: Mon, 4 Apr 2005 00:05:51 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Dag Arne Osvik <da@osvik.no>
+Cc: Andreas Schwab <schwab@suse.de>, Stephen Rothwell <sfr@canb.auug.org.au>,
+       linux-kernel@vger.kernel.org
 Subject: Re: Use of C99 int types
-References: <424FD9BB.7040100@osvik.no> <20050403220508.712e14ec.sfr@canb.auug.org.au> <424FE1D3.9010805@osvik.no> <20050403181318.GW8859@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20050403181318.GW8859@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20050403230551.GX8859@parcelfarce.linux.theplanet.co.uk>
+References: <424FD9BB.7040100@osvik.no> <20050403220508.712e14ec.sfr@canb.auug.org.au> <424FE1D3.9010805@osvik.no> <jezmwgxa5v.fsf@sykes.suse.de> <425072A4.7080804@osvik.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <425072A4.7080804@osvik.no>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
+On Mon, Apr 04, 2005 at 12:48:04AM +0200, Dag Arne Osvik wrote:
+> unsigned long happens to coincide with uint_fast32_t for x86 and x86-64, 
+> but there's no guarantee that it will on other architectures.  And, at 
+> least in theory, long may even provide less than 32 bits.
 
->On Sun, Apr 03, 2005 at 02:30:11PM +0200, Dag Arne Osvik wrote:
->  
->
->>Yes, but wouldn't it be much better to avoid code like the following, 
->>which may also be wrong (in terms of speed)?
->>
->>#ifdef CONFIG_64BIT  // or maybe CONFIG_X86_64?
->> #define fast_u32 u64
->>#else
->> #define fast_u32 u32
->>#endif
->>    
->>
->
->... and with such name 99% will assume (at least at the first reading)
->that it _is_ 32bits.  We have more than enough portability bugs as it
->is, no need to invite more by bad names.
->  
->
+To port on such platform we'd have to do a lot of rewriting - so much that
+the impact of this issue will be lost in noise.
 
-Agreed.  The way I see it there are two reasonable options.  One is to 
-just use u32, which is always correct but sacrifices speed (at least 
-with the current gcc).  The other is to introduce C99 types, which Linus 
-doesn't seem to object to when they are kept away from interfaces 
-(http://infocenter.guardiandigital.com/archive/linux-kernel/2004/Dec/0117.html).
-
--- 
-  Dag Arne
-
+Look, it's very simple:
+	* too many people blindly assume that all world is 32bit l-e.
+	* too many of those who try to do portable code have very little
+idea of what that means - see the drivers that try and mix e.g. size_t with
+int, etc.
+	* stdint is not widely understood, to put it mildly.
+	* ...fast... types have very unfortunate names - these are guaranteed
+to create a lot of confusion.
+	* pretty much everything in the kernel assumes that
+4 = sizeof(int) <=
+sizeof(long) = sizeof(pointer) = sizeof(size_t) = sizeof(ptrdiff_t) <=
+sizeof(long long) = 8
+and any platform that doesn't satisfy the above will require very serious
+work on porting anyway.

@@ -1,40 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbULJHjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbULJHys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbULJHjR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 02:39:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbULJHjR
+	id S261650AbULJHys (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 02:54:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbULJHys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 02:39:17 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:50921 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261719AbULJHjP (ORCPT
+	Fri, 10 Dec 2004 02:54:48 -0500
+Received: from mail.kroah.org ([69.55.234.183]:1702 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261650AbULJHyq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 02:39:15 -0500
-Date: Fri, 10 Dec 2004 08:39:14 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] jobfs - new virtual filesystem for job kernel/user
-In-Reply-To: <200412091724.iB9HOEf26056@dbear.engr.sgi.com>
-Message-ID: <Pine.LNX.4.53.0412100837050.27203@yvahk01.tjqt.qr>
-References: <200412091724.iB9HOEf26056@dbear.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
+	Fri, 10 Dec 2004 02:54:46 -0500
+Date: Thu, 9 Dec 2004 23:54:29 -0800
+From: Greg KH <greg@kroah.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] debugfs - yet another in-kernel file system
+Message-ID: <20041210075429.GA30223@kroah.com>
+References: <20041210005055.GA17822@kroah.com> <Pine.LNX.4.53.0412100805440.8273@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0412100805440.8273@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>I maintain my position that this belongs in /proc.
->This is a question I try to find an answer. If the community agrees
->the /proc is the right place for it, I would be very happy to move it
->to /proc and implement it with procfs.
->>>Why not have a structure something like:
->>>/proc/<pid>/job -> ../jobs/<jid>
->But adding /proc/<pid>/job needs to patch fs/proc/base.c, we can not
->do that in a module. Of course if job gets accepted, this won't be a problem.
+On Fri, Dec 10, 2004 at 08:07:20AM +0100, Jan Engelhardt wrote:
+> >What if there was a in-kernel filesystem that was explicitly just for
+> >putting debugging stuff?  Some place other than proc and sysfs, and that
+> >was easier than both of them to use.  Yet it needed to also be able to
+> >handle complex stuff like seq file and raw file_ops if needed.
+> 
+> As for modules, they could just wrap a variable in a module_param, don't they?
 
-That depends on whether the community (read: the standard user) needs it. Maybe
-we could make some procfs functions exported and let jobfs be dependent on
-procfs (let jobfs using proc_create_dir() for example).
+For input stuff, yes.  And for simple types that are not debug stuff,
+yes, that is the proper place for them.
 
-Jan Engelhardt
--- 
-ENOSPC
+> I have to admit that adding another filesystem that is very like procfs or
+> sysfs make some kind of redundancy.
+
+Why?  The main issue is the discussion usually goes like this:
+
+Me:  Hey, the /proc/driver/foo/foo_value really shouldn't be in proc.
+Developer:  Ok, but it has a lot of really good debug stuff in it.  Can
+I put it in sysfs?
+Me:  No, sysfs is for one-value-per-file whenever possible.  It needs to
+go somewhere else.
+Developer:  Well, if you don't have anywhere else to put it, why are you
+even bringing this up at all.  Go away and leave me alone.
+
+
+Now we have a place to put this stuff.  If you look through the way
+drivers use /proc these days, there is still a lot of stuff that needs
+to get moved out, that can go in debugfs.
+
+As for "another filesystem", it's tiny due to using libfs, and it will
+compile away into nothing if not selected (so in the end, provides the
+ability to make the final kernel image smaller.)
+
+thanks,
+
+greg k-h

@@ -1,83 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261274AbSKBPhJ>; Sat, 2 Nov 2002 10:37:09 -0500
+	id <S261268AbSKBPfV>; Sat, 2 Nov 2002 10:35:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261278AbSKBPhJ>; Sat, 2 Nov 2002 10:37:09 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:39383 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261274AbSKBPhI>;
-	Sat, 2 Nov 2002 10:37:08 -0500
-Date: Sat, 2 Nov 2002 16:43:23 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Thomas Molina <tmolina@cox.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-cd still borken for me in 2.5.45
-Message-ID: <20021102154323.GB2177@suse.de>
-References: <20021102091811.GD31088@suse.de> <Pine.LNX.4.44.0211020847550.876-100000@dad.molina> <20021102145451.GA1820@suse.de>
+	id <S261274AbSKBPfV>; Sat, 2 Nov 2002 10:35:21 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:6329 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261268AbSKBPfQ>;
+	Sat, 2 Nov 2002 10:35:16 -0500
+Date: Sat, 2 Nov 2002 15:41:29 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: John Gardiner Myers <jgmyers@netscape.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
+Subject: Re: Unifying epoll,aio,futexes etc. (What I really want from epoll)
+Message-ID: <20021102154129.GA4402@bjl1.asuk.net>
+References: <20021031230215.GA29671@bjl1.asuk.net> <Pine.LNX.4.44.0210311642300.1562-100000@blue1.dev.mcafeelabs.com> <20021101020119.GC30865@bjl1.asuk.net> <3DC30DED.6040207@netscape.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021102145451.GA1820@suse.de>
+In-Reply-To: <3DC30DED.6040207@netscape.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 02 2002, Jens Axboe wrote:
-> On Sat, Nov 02 2002, Thomas Molina wrote:
-> > On Sat, 2 Nov 2002, Jens Axboe wrote:
-> > 
-> > > > Well that was quick.  2.5.42 works correctly.  The problems begin with 
-> > > > 2.5.43.
-> > > 
-> > > Ok, so Linus broke it :-)
-> > > 
-> > > Please boot with this patch, it looks like a command length screwup.
-> > 
-> > Your patch produced:
-> > 
-> > hdc: starting 5a, len = 24
-> 
-> ok looks fine, now please try (on top of the other one):
+John Gardiner Myers wrote:
+> The cost of removing and readding the listener to the file's wait queue 
+> is part of what epoll is amortizing.
 
-There's at least one report of that patch fixing the issue. Thomas, I'd
-like you to try it too.
+Not really.  The main point of epoll is to ensure O(1) processing time
+per event - one list add and removal doesn't affect that.  It has a
+constant time overhead, which I expect is rather small - but Davide
+says he's measuring that so we'll see.
 
-Linus, we need something like this for now, your switch to
-unconditionally output 16 bytes of cdb broke lots of drives... Please
-apply.
+> There's also the oddity that I noticed this week: pipes don't report 
+> POLLOUT readiness through the classic poll interface until the pipe's 
+> buffer is completely empty.  Changing this to report POLLOUT readiness 
+> when the pipe's buffer is not full apparently causes NIS to break.
 
-===== drivers/ide/ide-cd.c 1.27 vs edited =====
---- 1.27/drivers/ide/ide-cd.c	Fri Oct 18 20:02:55 2002
-+++ edited/drivers/ide/ide-cd.c	Sat Nov  2 16:40:33 2002
-@@ -863,6 +863,12 @@
- 	}
- }
- 
-+/*
-+ * fixme, this breaks for real 16-byte commands. however, lots of drives
-+ * currently break if we just send 16-bytes for 10/12 byte commands
-+ */
-+#define MAX_CDB_BYTES	12
-+
- /* Send a packet command to DRIVE described by CMD_BUF and CMD_LEN.
-    The device registers must have already been prepared
-    by cdrom_start_packet_command.
-@@ -877,7 +883,6 @@
- 					  ide_handler_t *handler)
- {
- 	unsigned char *cmd_buf	= rq->cmd;
--	int cmd_len		= sizeof(rq->cmd);
- 	unsigned int timeout	= rq->timeout;
- 	struct cdrom_info *info = drive->driver_data;
- 	ide_startstop_t startstop;
-@@ -904,7 +909,7 @@
- 	ide_set_handler(drive, handler, timeout, cdrom_timer_expiry);
- 
- 	/* Send the command to the device. */
--	HWIF(drive)->atapi_output_bytes(drive, cmd_buf, cmd_len);
-+	HWIF(drive)->atapi_output_bytes(drive, cmd_buf, MAX_CDB_BYTES);
- 
- 	/* Start the DMA if need be */
- 	if (info->dma)
+There's a section in the Glibc manual which talks about pipe
+atomicity.  A pipe must guarantee that a write of PIPE_BUF bytes or
+less either blocks or is accepted whole.  So you can't report POLLOUT
+just because there is room in the pipe - there must be PIPE_BUF room.
 
--- 
-Jens Axboe
+Furthermore, the manual says that after writing PIPE_BUF bytes,
+further writes will block until some bytes are read.  This latter does
+not seem a useful requirement to me - I think that a pipe could be
+larger than the PIPE_BUF atomicity value, but perhaps it is defined in
+POSIX or SUS to be like this.  (Someone care to check?)
 
+Together these would seem to imply the behaviour noted by John.
+
+-- Jamie

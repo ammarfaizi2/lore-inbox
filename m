@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132508AbQL3BvC>; Fri, 29 Dec 2000 20:51:02 -0500
+	id <S132513AbQL3CF1>; Fri, 29 Dec 2000 21:05:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132513AbQL3Buw>; Fri, 29 Dec 2000 20:50:52 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:772 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132508AbQL3Bur>; Fri, 29 Dec 2000 20:50:47 -0500
-Date: Fri, 29 Dec 2000 17:03:05 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <aviro@redhat.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>, "Marco d'Itri" <md@Linux.IT>,
-        Jeff Lightfoot <jeffml@pobox.com>, Dan Aloni <karrde@callisto.yi.org>,
-        Anton Blanchard <anton@linuxcare.com.au>
-Subject: Re: test13-pre6
-In-Reply-To: <Pine.GSO.4.21.0012291932380.1464-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.10.10012291655530.869-100000@penguin.transmeta.com>
+	id <S132603AbQL3CFR>; Fri, 29 Dec 2000 21:05:17 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56072 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132513AbQL3CFH>; Fri, 29 Dec 2000 21:05:07 -0500
+Subject: Re: [PATCH] i810 audio fixes for 2.4.0-test13-pre5
+To: jim@federated.com (Jim Studt)
+Date: Sat, 30 Dec 2000 01:36:22 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200012300045.SAA25016@core.federated.com> from "Jim Studt" at Dec 29, 2000 06:45:45 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14CAwa-00061q-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> This patch addresses three problems in the i810-audio driver for
+> 2.4.0-test13-pre5.  I will be happy to split it if someone doesn't like
+> part of it.  (I see pre6 just popped out, there are no changes to this
+> driver in pre6.)
 
+> 1) "DMA overrun on send" - this contains a patch from Tjeerd Mulder that
+>    prevents almost all of this.  I still get an occasional one during
+>    heavy video activity, the driver was unusable before.  (This is a smaller 
+>    patch than the previous flamed patch, it does no format conversion.)
 
-On Fri, 29 Dec 2000, Alexander Viro wrote:
-> 
-> Two examples: devices and bitmaps-in-pagecache trick. But both belong to
-> 2.5, so...
+Yeah I have Tjeerd's patches and no quibbles with them
 
-Also, they can easily be done with a private inode, if required. So even
-in 2.5.x this may not be a major problem.
+> 3) Add a module parameter to supress powercycling the DACs on rate change -
+>    This causes a big pop on the outputs at least for the CS4299 codec in
+>    the emachines etower 700, probably others.  I honestly can't find a 
+>    reason to power cycle the DACs.  There's nothing in the AC97 spec 
+>    that suggests it should be done.  The code is common to OSS and ALSA.
+>    I left the old behavior as the default.  Maybe later the default should
+>    change if it turns out that everyone wants to force the parameter to 
+>    zero.
 
-> BTW, nice timing ;-) -pre6 appeared 5 minutes after I've started testing
-> sane-s_lock patch (SMP-safe lock_super() and friends, refcount on superblocks,
-> death of mount_sem, beginning of SMP-safe super.c). Oh, well...
-> 
-> Oblock_super(): what the hell is wait_on_super() doing in fsync_file()?
-> It gives absolutely no warranties - ->write_super() can easily block, so
-> it looks very odd.
+What I would love someone to do (hint ;)) is to move the 
 
-A lot of the superblock locking has been odd. It should probably be a
-lock_super() + unlock_super(). At least that's what sync_supers() does.
+	set_dac_speed
+	set_adc_speed
+	powerup_amp
+	powerdown_amp
 
-> BTW, while we are dropping the junk from vm_operations_struct, could we lose
-> ->protect() and ->wppage()?
-
-Sure. I think sync() and unmap() fall under that heading too - it used to
-do a msync(), but that was before we handled dirty pages directly, so...
-
-		Linus
+type stuff into the ac97_codec - actually have a codec_ops in the AC97 
+for each type.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266997AbSKSPb0>; Tue, 19 Nov 2002 10:31:26 -0500
+	id <S266939AbSKSPj7>; Tue, 19 Nov 2002 10:39:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266995AbSKSPb0>; Tue, 19 Nov 2002 10:31:26 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:23451 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S266997AbSKSPb0>; Tue, 19 Nov 2002 10:31:26 -0500
-Date: Tue, 19 Nov 2002 07:35:18 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: vasya vasyaev <vasya197@yahoo.com>, Andrew Morton <akpm@digeo.com>
-cc: "Nakajima, Jun" <jun.nakajima@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Machine's high load when HIGHMEM is enabled
-Message-ID: <788336908.1037691317@[10.10.2.3]>
-In-Reply-To: <20021119092912.39541.qmail@web20510.mail.yahoo.com>
-References: <20021119092912.39541.qmail@web20510.mail.yahoo.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
+	id <S266948AbSKSPj7>; Tue, 19 Nov 2002 10:39:59 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:20712 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S266939AbSKSPj5>;
+	Tue, 19 Nov 2002 10:39:57 -0500
+Date: Tue, 19 Nov 2002 15:45:18 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.47-ac6
+Message-ID: <20021119154518.GA560@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+References: <200211191414.gAJEE8N05498@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <200211191414.gAJEE8N05498@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Box has 1 GB of RAM, it's running oracle database.
-> After some disk activity disk cache has 400 Mb, so 600
-> Mb is free
+On Tue, Nov 19, 2002 at 09:14:08AM -0500, Alan Cox wrote:
 
-What makes you assume that the only thing taking up RAM
-in the whole box is disk cache? 1GB of ram with 400Mb
-of disk cache != 600Mb free. Posting /proc/meminfo is
-likely to be more revealing.
+ > | Still versus 2.5.47 - the 2.5.48 tree is a little bit too broken to run
+ > | IDE development against. This should also get pnp working on the 
+ > | RadeonIGP boxes and fix several weird early boot crashes
+ > 
+ > Linux 2.5.47-ac6
+ > o	Move isapnp to device_init			(me)
+ > 	| This is needed so pci init runs first and can mark
+ > 	| areas reserved before PnP stomps on them blindly
+ > o	Reserve 0x3d3 on the ATI chipset		(me)
+ > 	| These two fix isapnp on the Presario 900 at least
 
-M.
+FYI, This seems to work fine on my Compaq Evo N1015v too.
+This monster seems to have the same chipset as you mentioned.
+(unknown ATI gfx card id: 1002:4336, with ALI bridge)
 
+Every other 2.4 kernel goes mental with machine checks,
+and assorted IDE errors. had to use a 2.2 Debian install
+to get things off the ground. Strange how 2.2 IDE worked much
+better than 2.4's here.
+
+		Dave
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270025AbUJHPcY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270021AbUJHPbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270025AbUJHPcY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 11:32:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270023AbUJHPcX
+	id S270021AbUJHPbt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 11:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270025AbUJHP3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 11:32:23 -0400
-Received: from findaloan.ca ([66.11.177.6]:46471 "EHLO findaloan.ca")
-	by vger.kernel.org with ESMTP id S270022AbUJHPbR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 11:31:17 -0400
-Date: Fri, 8 Oct 2004 11:27:01 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: "David S. Miller" <davem@davemloft.net>,
-       Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Message-ID: <20041008152701.GB13183@mark.mielke.cc>
-Mail-Followup-To: Willy Tarreau <willy@w.ods.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
-References: <20041006193053.GC4523@pclin040.win.tue.nl> <003301c4abdc$c043f350$b83147ab@amer.cisco.com> <20041006200608.GA29180@dspnet.fr.eu.org> <20041006163521.2ae12e6d.davem@davemloft.net> <20041007001937.GA48516@dspnet.fr.eu.org> <20041006172959.47c25e3d.davem@davemloft.net> <20041008064104.GF19761@alpha.home.local>
+	Fri, 8 Oct 2004 11:29:00 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:41403 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S270032AbUJHP16 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 11:27:58 -0400
+Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Mark Lord <lkml@rtr.ca>
+Cc: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Mark Lord <lsml@rtr.ca>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <4166AF2F.6070904@rtr.ca>
+References: <4161A06D.8010601@rtr.ca>
+	<416547B6.5080505@rtr.ca>	<20041007150709.B12688@infradead.org>
+	<4165624C.5060405@rtr.ca>	<416565DB.4050006@pobox.com>
+	<4165A45D.2090200@rtr.ca>	<4165A766.1040104@pobox.com>
+	<4165A85D.7080704@rtr.ca>	<4165AB1B.8000204@pobox.com>
+	<4165ACF8.8060208@rtr.ca> 	<20041007221537.A17712@infradead.org>
+	<1097241583.2412.15.camel@mulgrave>  <4166AF2F.6070904@rtr.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 08 Oct 2004 10:27:41 -0500
+Message-Id: <1097249266.1678.40.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041008064104.GF19761@alpha.home.local>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 08, 2004 at 08:41:04AM +0200, Willy Tarreau wrote:
-> On Wed, Oct 06, 2004 at 05:29:59PM -0700, David S. Miller wrote:
-> > It absolutely does help the programs not using select(), using
-> > blocking sockets, and not expecting -EAGAIN.
-> As I asked in a previous mail in this overly long thread, why not returning
-> zero bytes at all. It is perfectly valid to receive an UDP packet with 0
-> data bytes, and any application should be able to support this case anyway.
-> In case of TCP, this would be a problem because the app would think it
-> indicates the last byte has been received. But in case of UDP, there is no
-> problem.
+On Fri, 2004-10-08 at 10:15, Mark Lord wrote:
+> > Actually, the driver has no need for a thread at all.  Since you're
+> > simply using it to fire hotplug events, use schedule_work instead.
+> 
+> That worries me some, because the mid-layer will perform blocking I/O
+> and the like, and I'm not sure how much that stuff may depend on its
+> own usage (any?) of workqueues.  If you believe it to be safe,
+> then I'll nuke the kthread entirely.
 
-0 isn't correct either. No zero length packet was successfully received.
+We use this already for other entities that require user context like
+domain validation.  It seems to work as advertised.
 
-I agree with the current read() behaviour. It's the select() behaviour
-that I consider to be wrong. Patching return values is just a hacky way
-of avoiding the issue.
+> > scsi_done() doesn't require a lock
+> 
+> Really?  I wonder why the mid-layer is so religious about
+> doing the lock around every invocation of it today?
 
-The issue can be more easily avoided by saying 'the Linux developers
-believe that the use of select() with blocking file descriptors is
-invalid or not recommended, and have chosen not to ensure that this
-use of system calls is reliable'. "We're not POSIX compliant in this
-case" isn't good enough for me. One acknowledges the issue. The other
-ignores it.
+It's not if you look at other drivers.  There's no harm in taking the
+lock, so none of the old ones got updated, but the lock isn't needed. 
+The idea is that if you're holding the lock naturally (say in an
+interrupt routine) there's no need to drop it artificially.  However,
+you definitely shouldn't take it artificially like you do.
 
-Cheers,
-mark
+> > - Your emulated commands assume they're non-sg and issued through the
+> > kernel (i.e. you don't kmap and you don't do SG).  This will blow up on
+> > the first inquiry submitted via SG_IO for instance.
+> 
+> The SG is tested for and simply failed -- there is no need today for
+> SG usage on those code paths.  If there turns out to be a need for that
+> interface with this driver in the future, we can add it.  Just like most
+> of the other drivers currently treat it.
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+And you've tested this with things like SUSE's hwinfo utility which
+seems to send INQUIRIES on its own?
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+> What is the "kmap" semantic, and how should it be applied here?
 
-                           http://mark.mielke.cc/
+kmap is used to make a user page visible to the kernel.
+
+Really, I suppose, libata should provide the interfaces for doing this
+work for emulated commands.
+
+James
+
 

@@ -1,43 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266708AbUHORqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266830AbUHORrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266708AbUHORqn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 13:46:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266830AbUHORqn
+	id S266830AbUHORrW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 13:47:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266831AbUHORrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 13:46:43 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:28290 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S266708AbUHORqm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 13:46:42 -0400
-Date: Sun, 15 Aug 2004 19:49:15 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Coywolf Qi Hunt <coywolf@greatcn.org>
-Cc: akpm@osdl.org, kai@tp1.ruhr-uni-bochum.de, sam@ravnborg.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove obsolete HEAD in top Makefile
-Message-ID: <20040815174915.GA7265@mars.ravnborg.org>
-Mail-Followup-To: Coywolf Qi Hunt <coywolf@greatcn.org>,
-	akpm@osdl.org, kai@tp1.ruhr-uni-bochum.de, sam@ravnborg.org,
-	linux-kernel@vger.kernel.org
-References: <411F3A48.2030201@greatcn.org>
+	Sun, 15 Aug 2004 13:47:22 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:7173 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266830AbUHORrU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 13:47:20 -0400
+Date: Sun, 15 Aug 2004 18:47:18 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jon Smirl <jonsmirl@yahoo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: module parameters and 2.6 macros
+Message-ID: <20040815184718.A3350@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jon Smirl <jonsmirl@yahoo.com>, lkml <linux-kernel@vger.kernel.org>
+References: <20040815174108.14463.qmail@web14929.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <411F3A48.2030201@greatcn.org>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040815174108.14463.qmail@web14929.mail.yahoo.com>; from jonsmirl@yahoo.com on Sun, Aug 15, 2004 at 10:41:08AM -0700
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 15, 2004 at 06:26:16PM +0800, Coywolf Qi Hunt wrote:
-> Hi,
-> 
-> This removes an obsolete variable in the top Makefile. It is used in 2.4 
-> Makefile.
-> Now the 2.6 kbuild is no longer using it. I have tested it.
+On Sun, Aug 15, 2004 at 10:41:08AM -0700, Jon Smirl wrote:
+> Is there some way to avoid two sets of parsing code with the 2.6 module
+> parameter macros?
 
-find -name 'Makefile*' | xargs grep HEAD
-identify one user: cris.
+Yes, if you use module_param{,_named} and a paramter 'foo' you can use
+foo=1 at modprobe time and modulename.foo=1 at the kernel command line
 
-Please resend patch with removal in arch/cris/Makefile.
-
-	Sam

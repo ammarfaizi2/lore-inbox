@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261792AbUKPUTa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261808AbUKPUW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261792AbUKPUTa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 15:19:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUKPUTB
+	id S261808AbUKPUW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 15:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUKPUWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 15:19:01 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:40679 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261792AbUKPUP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 15:15:28 -0500
-Subject: Re: Slab corruption with 2.6.9 + swsusp2.1
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Ake <Ake.Sandgren@hpc2n.umu.se>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041116115917.GN4344@hpc2n.umu.se>
-References: <20041116115917.GN4344@hpc2n.umu.se>
-Content-Type: text/plain
-Message-Id: <1100635759.4362.4.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 17 Nov 2004 07:09:19 +1100
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Nov 2004 15:22:24 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:23230 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261783AbUKPUUf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 15:20:35 -0500
+Date: Tue, 16 Nov 2004 21:20:32 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: linux-os@analogic.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Work around a lockup?
+In-Reply-To: <Pine.LNX.4.61.0411161456030.983@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.53.0411162111440.32739@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.53.0411162038490.8374@yvahk01.tjqt.qr>
+ <Pine.LNX.4.61.0411161456030.983@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+>No driver code should ever wait forever. Some module code may
+>be broken where the writter assumed that some bit must eventually
+>be set or some FIFO must eventually empty, etc. Hardware breaks.
 
-On Tue, 2004-11-16 at 22:59, Ake wrote:
-> I got a slab corruption message running 2.6.9 + swsusp2.1 and
-> nvidia_compat.patch + vm-pages_scanned-active_list.patch from -ck3.
+The box has locked up and I would like to know if there's a way around it.
 
-Just so I'm clear, why do you think it's suspending that's causing the
-corruption?
+>If you need to wait a long time for something, you can execute
+>schedule_timeout(n) in your counted loop. This will give up
+>the CPU to other tasks while you are waiting. More sophisticated
+>code sleeps until interrupted, etc. Of course, the interrupt
+>may never happen so your driver needs to plan for that too.
 
-Regards,
+Let's *do* assume that some module's algorithm is not perfect, and further
+assume that ATM, it's in an endless loop. Moreover, editing the module's source
+is not an option.
 
-Nigel
+This is not a homework or something, it's real. And I do not know where it's
+hanging. Sure, SYSRQ+P would tell me where, but that could get hard to track if
+it's the Nth stack frame (seen from the inner-most) for big N.
+
+So for the moment to keep downtimes small, best option would be to have
+something to circumvent the blocker process. E.g. putting it to sleep and
+(then, finally, when I regain control) poke with the module's/kernel's source.
+
+I've generalized the case into the above-mentioned for(;;); because that's the
+worst case for uniprocessors, and I think it's best to start tackling there.
+
+
+Jan Engelhardt
 -- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
-
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

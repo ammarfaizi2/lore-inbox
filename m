@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267865AbRGVB6f>; Sat, 21 Jul 2001 21:58:35 -0400
+	id <S267871AbRGVCkj>; Sat, 21 Jul 2001 22:40:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267866AbRGVB6Z>; Sat, 21 Jul 2001 21:58:25 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:37896 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S267865AbRGVB6R>;
-	Sat, 21 Jul 2001 21:58:17 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Michael S. Miles" <mmiles@alacritech.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kgdb and/or kdb for RH7.1 
-In-Reply-To: Your message of "Sat, 21 Jul 2001 12:30:34 -0400."
-             <KIEKJCGPOOADIOGPDJJLOEPGEFAA.mmiles@alacritech.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 22 Jul 2001 11:58:15 +1000
-Message-ID: <1632.995767095@ocs3.ocs-net>
+	id <S267872AbRGVCkT>; Sat, 21 Jul 2001 22:40:19 -0400
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:8456 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S267871AbRGVCkI>;
+	Sat, 21 Jul 2001 22:40:08 -0400
+Message-Id: <200107220023.f6M0Navr022281@sleipnir.valparaiso.cl>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7: wtf is "ksoftirqd_CPU0" 
+In-Reply-To: Your message of "Sat, 21 Jul 2001 12:38:15 -0400."
+             <3B59AFF7.8061645B@mandrakesoft.com> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Sat, 21 Jul 2001 20:23:36 -0400
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sat, 21 Jul 2001 12:30:34 -0400, 
-"Michael S. Miles" <mmiles@alacritech.com> wrote:
->Does anyone know if patches exist against the stock RedHat 7.1
->kernel(2.4.2-2) to support remote kernel debugging(kgdb).  I would also be
->interested in the same for kdb, but I'm primarily interested in kgdb.
+Jeff Garzik <jgarzik@mandrakesoft.com> said:
+> "peter k." wrote:
 
-ftp://oss.sgi.com/projects/xfs/download/Release-1.0/patches/linux-2.4.2-kdb-04112001.patch.gz
-is kdb v1.8 against Redhat 7.1.  There are no XFS dependencies in that
-patch, but kdb and xfs hit a couple of common files so you might need
-to resolve some patch failures.
+> > i just installed 2.4.7, now a new process called "ksoftirqd_CPU0" is
+> > started automatically when booting (by the kernel obviously)? why? what
+> > does it do?  i didnt find any useful information on it in linuxdoc /
+> > linux-kernel archives
 
-It is a lot easier to start from that patch instead of trying to
-convert a kdb patch from a standard kernel onto Redhat's kernel.  RH
-took patches from the -ac tree as well which really messed up kdb, it
-took me several hours to work out whta RH had done to each file, and I
-had all the kdb patches.  AFAICR, the IKD patch in RH 7.1 does not fit
-correctly.
+> it is used internally, ignore it.
 
+I'd advise not to do so in general: It is a rather tempting name for
+crackers to hide illegal activities.
+-- 
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616

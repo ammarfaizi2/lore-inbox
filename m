@@ -1,83 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262826AbVCPWiT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVCPWk4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262826AbVCPWiT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 17:38:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbVCPWiS
+	id S261759AbVCPWk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 17:40:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbVCPWk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 17:38:18 -0500
-Received: from mirapoint1.TIS.CWRU.Edu ([129.22.104.46]:47643 "EHLO
-	mirapoint1.tis.cwru.edu") by vger.kernel.org with ESMTP
-	id S262826AbVCPWiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 17:38:03 -0500
-From: prj@po.cwru.edu (Paul Jarc)
-To: linux-kernel@vger.kernel.org
-Cc: supervision@list.skarnet.org
-Subject: Re: a problem with linux 2.6.11 and sa
-In-Reply-To: <20050316031814.GB1315@ixeon.local> (George Georgalis's message
-	of "Tue, 15 Mar 2005 22:18:14 -0500")
-Organization: What did you have in mind?  A short, blunt, human pyramid?
-References: <20050303214023.GD1251@ixeon.local>
-	<6.2.1.2.0.20050303165334.038f32a0@192.168.50.2>
-	<20050303224616.GA1428@ixeon.local>
-	<871xaqb6o0.fsf@amaterasu.srvr.nix>
-	<20050308165814.GA1936@ixeon.local>
-	<871xap9dfg.fsf@amaterasu.srvr.nix>
-	<20050309152958.GB4042@ixeon.local> <m3is40z9dy.fsf@multivac.cwru.edu>
-	<20050316031814.GB1315@ixeon.local>
-Mail-Copies-To: nobody
-Mail-Followup-To: linux-kernel@vger.kernel.org, supervision@list.skarnet.org
-Date: Wed, 16 Mar 2005 17:37:59 -0500
-Message-ID: <m3r7if6wte.fsf@multivac.cwru.edu>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
+	Wed, 16 Mar 2005 17:40:56 -0500
+Received: from smtp04.auna.com ([62.81.186.14]:18073 "EHLO smtp04.retemail.es")
+	by vger.kernel.org with ESMTP id S261759AbVCPWjT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 17:39:19 -0500
+Date: Wed, 16 Mar 2005 22:39:17 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: 2.6.11-mm4
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+References: <20050316040654.62881834.akpm@osdl.org>
+	<1110985632l.8879l.0l@werewolf.able.es>
+	<20050316132600.3f6e4df2.akpm@osdl.org>
+In-Reply-To: <20050316132600.3f6e4df2.akpm@osdl.org> (from akpm@osdl.org on
+	Wed Mar 16 22:26:00 2005)
+X-Mailer: Balsa 2.3.0
+Message-Id: <1111012757l.17756l.0l@werewolf.able.es>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"George Georgalis" <george@galis.org> wrote:
-> On Wed, Mar 09, 2005 at 06:28:35PM -0500, Paul Jarc wrote:
->> To simplify, what about these two:
->> mplayer foo.mpg
->> mplayer foo.mpg < mediafiles.txt
->
-> The particular host does not have X support so mpg is out.
 
-Well, use any one of the files listed in mediafiles.txt.  I expect the
-first one would behave the same as your for loop, and the second would
-behave the same as your while loop.
+On 03.16, Andrew Morton wrote:
+> "J.A. Magallon" <jamagallon@able.es> wrote:
+> >
+> > On 03.16, Andrew Morton wrote:
+> >  > 
+> >  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm4/
+> >  > 
+> >  ...
+> >  >
+> >  > +revert-gconfig-changes.patch
+> >  > 
+> >  >  Back out a recent change which broke gconfig.
+> >  > 
+> > 
+> >  What was broken ?
+> 
+> hm.  I emailed you twice, and had a feeling that things weren't getting
+> through.
+> 
+> The patch caused those little pixmap buttons across the top of the main
+> window to vanish when using gtk+-1.2.10-28.1.  See
+> http://www.zip.com.au/~akpm/linux/patches/stuff/x.jpg.
+> 
+> I now note that scripts/kconfig/gconf.c doesn't compile at all with the
+> above backout patch.  Drat.
+> 
 
-> I'm not sure that that test would work as mplayer requires filenames
-> as command arguments not stdin (exclusivly, I think);
+But gconf is not supposed to build with gtk-1.2, it needs 2.x,
+at least reding this:
 
-Note that I said to redirect input from mediafiles.txt, not from any
-of the filenames listed in it, but one of the files listed in it
-should also be passed ion the command line in both cases.
+ linux/scripts/kconfig/Makefile:
 
-Your test also had mplayer's stdin connected to mediafiles.txt.  It
-was just less explicit - mplayer inherits stdin from surrounding loop.
-So I'm suggesting simplifying the test so that stdin is the *only*
-difference between the two cases, and that will show whether it's
-relevant.  OTOH, if you can't reproduce the problem with the
-simplified pair of tests, then some interaction with the shell loops
-must be involved.
+HOSTLOADLIBES_gconf = `pkg-config gtk+-2.0 gmodule-2.0 libglade-2.0 --libs`
+HOSTCFLAGS_gconf.o  = `pkg-config gtk+-2.0 gmodule-2.0 libglade-2.0 --cflags` \
+                          -D LKC_DIRECT_LINK
 
-> this works fine
-> mplayer `cat zz.mtest `
->
-> Then I tried
-> mplayer /dev/stdin <zz.mtest
+...
+# GTK needs some extra effort, too...
+$(obj)/.tmp_gtkcheck:
+    @if `pkg-config gtk+-2.0 gmodule-2.0 libglade-2.0 --exists`; then       \
+        if `pkg-config gtk+-2.0 --atleast-version=2.0.0`; then          \
+            touch $@;                               \
+        else                                    \
+            echo "*";                           \
+            echo "* GTK+ is present but version >= 2.0.0 is required."; \
+            echo "*";                           \
+            false;                              \
+        fi                                  \
+    else                                        \
+        echo "*";                               \
+        echo "* Unable to find the GTK+ installation. Please make sure that";   \
+        echo "* the GTK+ 2.0 development package is correctly installed...";    \
+        echo "* You need gtk+-2.0, glib-2.0 and libglade-2.0.";         \
+        echo "*";                               \
+        false;                                  \
+    fi
+endif
 
-In the first case, mplayer is processing the files listed in
-zz.mtest.  In the second case, it's processing zz.mtest itself.  So
-it's not surprising that you get different results here.
+I can try just to make it compile, and then polish all the edges...
+If you swear to me it does not have to build under gtk-1.2 (which with
+current Makefile I do not know how can it be done), there are many stock
+things that can be done automagically in 2.x, and not manually like in gtk-1.2.
 
-> Then I tried
-> while read file; do mplayer "$file" ; done <zz.mtest
+TIA
 
-What's in zz.mtest?  E.g., if it contains a line "-", then that will
-tell mplayer to play the file on stdin, which in this case is
-zz.mtest.  Choosing one of the listed files and testing with that, as
-I suggested above, will eliminate this possibility.
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.11-jam5 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-6mdk)) #1
 
 
-paul

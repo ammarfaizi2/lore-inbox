@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265635AbUATSKi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 13:10:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265641AbUATSKi
+	id S265656AbUATSRc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 13:17:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265657AbUATSRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 13:10:38 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:21768 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265635AbUATSJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 13:09:40 -0500
-Date: Tue, 20 Jan 2004 18:08:51 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Patrick Gefre <pfg@sgi.com>
-Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
-       davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] Altix updates
-Message-ID: <20040120180851.A18872@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Patrick Gefre <pfg@sgi.com>, akpm@osdl.org,
-	davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
-References: <200401152154.i0FLscIG023452@fsgi900.americas.sgi.com> <20040116144132.A24555@infradead.org> <400D6A5B.7090009@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <400D6A5B.7090009@sgi.com>; from pfg@sgi.com on Tue, Jan 20, 2004 at 11:50:19AM -0600
+	Tue, 20 Jan 2004 13:17:32 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:27838 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S265656AbUATSR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 13:17:29 -0500
+Message-ID: <400D7061.9060608@nortelnetworks.com>
+Date: Tue, 20 Jan 2004 13:16:01 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Zan Lynx <zlynx@acm.org>
+Cc: root@chaos.analogic.com, Bart Samwel <bart@samwel.tk>,
+       Ashish sddf <buff_boulder@yahoo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Compiling C++ kernel module + Makefile
+References: <20040116210924.61545.qmail@web12008.mail.yahoo.com>	 <Pine.LNX.4.53.0401161659470.31455@chaos>	 <200401171359.20381.bart@samwel.tk>	 <Pine.LNX.4.53.0401190839310.6496@chaos> <400C1682.2090207@samwel.tk>	 <Pine.LNX.4.53.0401191311250.8046@chaos> <400C37E3.5020802@samwel.tk>	 <Pine.LNX.4.53.0401191521400.8389@chaos> <400C4B17.3000003@samwel.tk>	 <Pine.LNX.4.53.0401201000490.11497@chaos> <1074620079.22023.26.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 20, 2004 at 11:50:19AM -0600, Patrick Gefre wrote:
-> Yes this probably looks a little odd. This was setup this way for TIO. 
-> The macro in the TIO code checks to see
-> if it is a 'soft' struct or bridge address AND what bridge type it is - 
-> accessing different registers depending
-> on TIO or not TIO (the 2 cases we have so far). We think this makes the 
-> register access functions pretty flexible/generic.
+Zan Lynx wrote:
 
-Sorry, but this is completly bogus.  Just declare one accessor per
-datatype.
+> I like C++ and hate to see it so unfairly maligned.  Here's a much
+> better example:
+
+> Both programs contain exactly the same code: one main() function using
+> puts("Hello world!").
+
+Just to pick a nit, if you use cout (as most C++ people would) the size 
+goes up by another couple hundred bytes.
+
+Chris
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

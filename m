@@ -1,49 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314336AbSDRMqq>; Thu, 18 Apr 2002 08:46:46 -0400
+	id <S314339AbSDRM6v>; Thu, 18 Apr 2002 08:58:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314337AbSDRMqp>; Thu, 18 Apr 2002 08:46:45 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:39433 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S314336AbSDRMqo>; Thu, 18 Apr 2002 08:46:44 -0400
-Message-ID: <3CBEC025.141CAA76@aitel.hist.no>
-Date: Thu, 18 Apr 2002 14:46:29 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.7 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: Tony Clarke <sam@palamon.ie>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: VM Related question
-In-Reply-To: <3CBE8FBB.8080108@palamon.ie>
+	id <S314340AbSDRM6u>; Thu, 18 Apr 2002 08:58:50 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:43784 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S314339AbSDRM6t>;
+	Thu, 18 Apr 2002 08:58:49 -0400
+Date: Thu, 18 Apr 2002 14:57:57 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Sebastian Droege <sebastian.droege@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IDE TCQ #4
+Message-ID: <20020418125757.GF2492@suse.de>
+In-Reply-To: <02db01c1e498$7180c170$58dc703f@bnscorp.com> <20020416102510.GI17043@suse.de> <20020416200051.7ae38411.sebastian.droege@gmx.de> <20020416180914.GR1097@suse.de> <20020416204329.4c71102f.sebastian.droege@gmx.de> <3CBD28D1.6070702@evision-ventures.com> <20020417132852.4cf20276.sebastian.droege@gmx.de> <3CBD519F.7080207@evision-ventures.com> <20020418141746.2df4a948.sebastian.droege@gmx.de> <3CBEABEF.1030009@evision-ventures.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tony Clarke wrote:
-> 
-> I have noticed with my current kernel that after the system is idle for
-> a while, say 10 hours or
-> so, that everything seems to be swapped out to disk. So when I come in
-> the next morning
-> it starts swapping everything like crazy in from disk. Is this a known
-> characteristic of the
-> VM. I seem to remember this with all 2.4 kernels tried to date.
-> 
-> Whats the point of swapping out to disk in circumstances like this?
-> 
-> Currently I am using 2.4.18-rc2-ac2, with apps like mozilla, dozen
-> xterms, xemacs, staroffice etc.
+On Thu, Apr 18 2002, Martin Dalecki wrote:
+> BTW>  Jens: Do you have any idea what the "sector chaing" in ide-cd is
+> good for?! I would love to just get rid of it alltogether!
 
-The kernel makes no decision to swap just because you left the
-machine.  But your distro probably runs "updatedb" at night.
-Updatedb reads all the directories in all your filesystems, so
-it tends to use a lot of cache.  This activity pushes
-lots of other stuff into swap.
+Sector chaining? Are you talking about the cdrom_read_intr() comments?
 
-You may of course change your crontab to runn updatedb less
-often, or configure updatedb to skip directory
-trees where you expect little change. (/usr perhaps...)
+-- 
+Jens Axboe
 
-Helge Hafting

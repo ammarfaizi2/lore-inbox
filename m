@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291104AbSBLPPu>; Tue, 12 Feb 2002 10:15:50 -0500
+	id <S291103AbSBLPQa>; Tue, 12 Feb 2002 10:16:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291103AbSBLPPo>; Tue, 12 Feb 2002 10:15:44 -0500
-Received: from h108-129-61.datawire.net ([207.61.129.108]:39186 "HELO
-	mail.datawire.net") by vger.kernel.org with SMTP id <S291104AbSBLPP3>;
-	Tue, 12 Feb 2002 10:15:29 -0500
-Subject: Re: 2.4.18-pre9-xfs-shawn4  -  kmem_cache_alloc oops
-From: Shawn Starr <shawn.starr@datawire.net>
-To: Tarkan Erimer <tarkane@solmaz.com.tr>
-Cc: Linux <linux-kernel@vger.kernel.org>
-In-Reply-To: <01f601c1b3d6$c94ca060$040010ac@LocalHost>
-In-Reply-To: <20020212141007.B223@dagb> <1013523257.262.3.camel@unaropia> 
-	<01f601c1b3d6$c94ca060$040010ac@LocalHost>
-Content-Type: text/plain
+	id <S291105AbSBLPQX>; Tue, 12 Feb 2002 10:16:23 -0500
+Received: from galactus.CS.Berkeley.EDU ([169.229.62.130]:34312 "EHLO
+	galactus.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S291103AbSBLPQR>; Tue, 12 Feb 2002 10:16:17 -0500
+Message-ID: <3C6931B6.F3F84212@cs.berkeley.edu>
+Date: Tue, 12 Feb 2002 07:16:06 -0800
+From: "J. Robert von Behren" <jrvb@cs.berkeley.edu>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-686 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.17 hangs hard w/ wavelan_cs
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1.99 (Preview Release)
-Date: 12 Feb 2002 10:18:14 -0500
-Message-Id: <1013527094.263.17.camel@unaropia>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is in the works. I'm trying to iron out any buglets that remain and
-make sure that I don't break anything in the process ;-)
 
-Shawn.
+Greetings!
 
-On Tue, 2002-02-12 at 10:06, Tarkan Erimer wrote:
-> Hi Shawn,
-> 
-> Do you plan to add XFS support to .mjc patches ? 
-> If so, I would be soo grateful. 
-> 
-> Tarkan
-> 
-> ----- Original Message ----- 
-> From: Shawn Starr <spstarr@sh0n.net>
-> To: Dag Bakke <dag@bakke.com>
-> Cc: Linux <linux-kernel@vger.kernel.org>; xfs <linux-xfs@oss.sgi.com>
-> Sent: Tuesday, February 12, 2002 4:13 PM
-> Subject: Re: 2.4.18-pre9-xfs-shawn4 - kmem_cache_alloc oops
-> 
-> 
-> > Interesting, I have CONFIG_PNPBIOS on.
-> > What other filesystems do you have or is it just XFS only?
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
--- 
-Shawn Starr
-Developer Support Engineer
-Datawire Communication Networks Inc.
-10 Carlson Court, Suite 300
-Toronto, ON, M9W 6L2
-T: 416-213-2001 ext 179  F: 416-213-2008
+I've been seeing some seriously bad behavior from the wavelan_cs kernel
+module in 2.4.17.  (I've tried 2.4.16 as well, compiled my own kernels
+rather than using the debian woody packages, etc - all w/ no effect on
+the bug.)  After a bit of data is transfered, the machine hangs up.  The
+Alt-SysRq trick does nothing, unfortunately, so I haven't been able to
+get any additional info.  Also, the man page doesn't mention any
+additional debugging that I can turn on, so the logs don't have anything
+useful, either.  ;-(
 
+The bug seems to be timing sensitive, since it doesn't always occur at
+the same point in my file transfer tests.  It happens very consistently
+though - always within the first few megabytes of data transfered.
+
+I've used the same hardware setup w/ older versions of the kernel
+(2.2.14, 2.2.17, and probably some other 2.2.X kernels) with no
+problems.  The pertinent changes (AFAICT) are that I'm running 2.4 now,
+and that I've been using the built-in pcmcia support, rather than the
+external pcmcia_cs package.
+
+Any ideas?  Any advice on how I can get some better debugging info?
+
+Thanks much!!
+
+Best regards,
+
+-Rob von Behren

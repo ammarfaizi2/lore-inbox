@@ -1,38 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317263AbSGHX4k>; Mon, 8 Jul 2002 19:56:40 -0400
+	id <S317268AbSGHX5m>; Mon, 8 Jul 2002 19:57:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317265AbSGHX4j>; Mon, 8 Jul 2002 19:56:39 -0400
-Received: from hell.ascs.muni.cz ([147.251.60.186]:39296 "EHLO
-	hell.ascs.muni.cz") by vger.kernel.org with ESMTP
-	id <S317263AbSGHX4j>; Mon, 8 Jul 2002 19:56:39 -0400
-Date: Tue, 9 Jul 2002 01:58:53 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Austin Gonyou <austin@digitalroadkill.net>, linux-kernel@vger.kernel.org
-Subject: Re: Terrible VM in 2.4.11+?
-Message-ID: <20020709015853.A1598@mail.muni.cz>
-References: <20020709001137.A1745@mail.muni.cz> <1026167822.16937.5.camel@UberGeek> <20020709005025.B1745@mail.muni.cz> <20020708225816.GA1948@werewolf.able.es>
+	id <S317267AbSGHX5l>; Mon, 8 Jul 2002 19:57:41 -0400
+Received: from server0027.freedom2surf.net ([194.106.33.36]:1438 "EHLO
+	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
+	id <S317266AbSGHX5g>; Mon, 8 Jul 2002 19:57:36 -0400
+Date: Tue, 9 Jul 2002 01:10:33 +0100
+From: Ian Molton <spyro@armlinux.org>
+To: linux-kernel@vger.kernel.org
+Subject: SERIOUSLY *crap* audio output.
+Message-Id: <20020709011033.521c7bab.spyro@armlinux.org>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.7.6cvs24 (GTK+ 1.2.10; )
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020708225816.GA1948@werewolf.able.es>; from jamagallon@able.es on Tue, Jul 09, 2002 at 12:58:16AM +0200
-X-Muni: zakazka, vydelek, firma, komerce, vyplata
-X-echalon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, Mosad, Iraq, Pentagon, WTC, president, assassination, A-bomb, kua, vic joudu uz neznam
-X-policie-CR: Neserte mi nebo nebo ukradnu, vyloupim, vybouchnu, znasilnim, zabiju, podpalim, umucim, podriznu, zapichnu a vubec vsechno
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09, 2002 at 12:58:16AM +0200, J.A. Magallon wrote:
-> 
-> Seriously, if you have that kind of problems, take the -aa kernel and use it.
-> I use it regularly and it behaves as one would expect, and fast.
-> And please, report your results...
+Hi.
 
-Great, -aa tree works perfectly for me. It was little bit tricky to get that
-tree but now I think it works fine.
+not sure where to post this and its a bit rambling, but it does seem to
+indicate a problem in the emu10k1 kernel driver.
 
--- 
-Luká¹ Hejtmánek
+I've been trying to track a fault on my speakers today, and not being
+able to pinpoint it, I got out the 'scope and a sine-generator program
+to output sinewaves for testing.
+
+My soundcard is a SBLive! value (emu10k1).
+
+The sinewaves coming out of it were *really* bad.
+
+I had long known that turning up the PCM volume over 79% was audio
+quality suicide for some reason, but wow.
+
+the sinewave was coming out ok at 79%, but almost completely tansformed
+to a square wave at 100%.
+
+I assume that the PCM volume controls a mixer in the emu10k1, which,
+being a DSP probably does the job digitally, but something is very very
+wrong with this.
+
+also, running 2 copies of the sine-generator, even at 79% volume, at
+(say) 130 and 131Hz produces a waveform that instead of being a nice
+sinewave, growing and shrinking in amplitude every second, in fact goes
+from a sine to a squarewave!! (at 100% this is even worse).
+
+I know nothing of the audio layer in linux, but this seems to me like
+some top-byte-missing or something similar.
+
+Has anyone else exerienced this?
+
+Im using 2.4.19-pre8-ac-somethingorother, but based on my listening when
+the PCM vol was >79%, this problem has been around since 2.4.9 at least.
+probably earlier, but my memory fails me.
+
+The problem occurs with the soundcard outputs loaded or unloaded. the
+problem looks too clean to be a damaged card. below 79% PCM vol.,
+playing one audio source I cant hear any discernable distortion, even
+with the external amplifier cranked up a bit.
+
+...now, if I could just find the IRRITATING rattle somewhere near my
+left speaker... Im praying its not a faulty midrange unit...

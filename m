@@ -1,280 +1,179 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262032AbTELJzo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 05:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbTELJru
+	id S262037AbTELJzp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 05:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbTELJq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 05:47:50 -0400
-Received: from amsfep11-int.chello.nl ([213.46.243.20]:31315 "EHLO
-	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262038AbTELJpM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 05:45:12 -0400
-Date: Mon, 12 May 2003 11:54:43 +0200
-Message-Id: <200305120954.h4C9shoT001051@callisto.of.borg>
+	Mon, 12 May 2003 05:46:59 -0400
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:19022 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262036AbTELJpI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 05:45:08 -0400
+Date: Mon, 12 May 2003 11:54:40 +0200
+Message-Id: <200305120954.h4C9seet001015@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] M68k IRQ API updates [17/20]
+Subject: [PATCH] M68k IRQ API updates [11/20]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k net drivers: Update to the new irq API (from Roman Zippel and me) [17/20]
+M68k Sun-3: Update to the new irq API (from Roman Zippel and me) [11/20]
 
---- linux-2.5.69/drivers/net/82596.c	Mon May  5 10:31:25 2003
-+++ linux-m68k-2.5.69/drivers/net/82596.c	Fri May  9 10:21:32 2003
-@@ -501,7 +501,7 @@
+--- linux-2.5.69/arch/m68k/sun3/config.c	Wed Mar  5 10:06:39 2003
++++ linux-m68k-2.5.69/arch/m68k/sun3/config.c	Tue May  6 13:50:50 2003
+@@ -37,7 +37,7 @@
  
+ extern unsigned long sun3_gettimeoffset(void);
+ extern int show_sun3_interrupts (struct seq_file *, void *);
+-extern void sun3_sched_init(void (*handler)(int, void *, struct pt_regs *));
++extern void sun3_sched_init(irqreturn_t (*handler)(int, void *, struct pt_regs *));
+ extern void sun3_get_model (char* model);
+ extern void idprom_init (void);
+ extern int sun3_hwclk(int set, struct rtc_time *t);
+@@ -174,7 +174,7 @@
+ 	sun3_bootmem_alloc(memory_start, memory_end);
+ }
  
- #if defined(ENABLE_MVME16x_NET) || defined(ENABLE_BVME6000_NET)
--static void i596_error(int irq, void *dev_id, struct pt_regs *regs)
-+static irqreturn_t i596_error(int irq, void *dev_id, struct pt_regs *regs)
+-void __init sun3_sched_init(void (*timer_routine)(int, void *, struct pt_regs *))
++void __init sun3_sched_init(irqreturn_t (*timer_routine)(int, void *, struct pt_regs *))
  {
- 	struct net_device *dev = dev_id;
- #ifdef ENABLE_MVME16x_NET
-@@ -522,6 +522,7 @@
- #endif
- 	printk(KERN_ERR "%s: Error interrupt\n", dev->name);
- 	i596_display_data(dev);
-+	return IRQ_HANDLED;
- }
- #endif
+ 	sun3_disable_interrupts();
+         intersil_clock->cmd_reg=(INTERSIL_RUN|INTERSIL_INT_DISABLE|INTERSIL_24H_MODE);
+--- linux-2.5.69/arch/m68k/sun3/sun3ints.c	Tue Nov  5 10:09:42 2002
++++ linux-m68k-2.5.69/arch/m68k/sun3/sun3ints.c	Fri May  9 10:21:30 2003
+@@ -18,7 +18,7 @@
+ #include <linux/seq_file.h>
  
-@@ -1004,13 +1005,13 @@
+ extern void sun3_leds (unsigned char);
+-static void sun3_inthandle(int irq, void *dev_id, struct pt_regs *fp);
++static irqreturn_t sun3_inthandle(int irq, void *dev_id, struct pt_regs *fp);
  
- 	DEB(DEB_OPEN,printk(KERN_DEBUG "%s: i596_open() irq %d.\n", dev->name, dev->irq));
- 
--	if (request_irq(dev->irq, &i596_interrupt, 0, "i82596", dev)) {
-+	if (request_irq(dev->irq, i596_interrupt, 0, "i82596", dev)) {
- 		printk(KERN_ERR "%s: IRQ %d not free\n", dev->name, dev->irq);
- 		return -EAGAIN;
- 	}
- #ifdef ENABLE_MVME16x_NET
- 	if (MACH_IS_MVME16x) {
--		if (request_irq(0x56, &i596_error, 0, "i82596_error", dev))
-+		if (request_irq(0x56, i596_error, 0, "i82596_error", dev))
- 			return -EAGAIN;
- 	}
- #endif
---- linux-2.5.69/drivers/net/apne.c	Tue Mar 25 10:06:42 2003
-+++ linux-m68k-2.5.69/drivers/net/apne.c	Fri May  9 10:21:32 2003
-@@ -85,7 +85,7 @@
- 								struct sk_buff *skb, int ring_offset);
- static void apne_block_output(struct net_device *dev, const int count,
- 							const unsigned char *buf, const int start_page);
--static void apne_interrupt(int irq, void *dev_id, struct pt_regs *regs);
-+static irqreturn_t apne_interrupt(int irq, void *dev_id, struct pt_regs *regs);
- 
- static int init_pcmcia(void);
- 
-@@ -511,18 +511,18 @@
-     return;
- }
- 
--static void apne_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+static irqreturn_t apne_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+ void sun3_disable_interrupts(void)
  {
-     unsigned char pcmcia_intreq;
- 
-     if (!(gayle.inten & GAYLE_IRQ_IRQ))
--        return;
-+        return IRQ_NONE;
- 
-     pcmcia_intreq = pcmcia_get_intreq();
- 
-     if (!(pcmcia_intreq & GAYLE_IRQ_IRQ)) {
-         pcmcia_ack_int(pcmcia_intreq);
--        return;
-+        return IRQ_NONE;
-     }
-     if (ei_debug > 3)
-         printk("pcmcia intreq = %x\n", pcmcia_intreq);
-@@ -530,6 +530,7 @@
-     ei_interrupt(irq, dev_id, regs);
-     pcmcia_ack_int(pcmcia_get_intreq());
-     pcmcia_enable_irq();
-+    return IRQ_HANDLED;
+@@ -64,15 +64,16 @@
+ 	*sun3_intreg |=  (1<<irq);
  }
  
- #ifdef MODULE
---- linux-2.5.69/drivers/net/atari_bionet.c	Thu Jan  9 10:20:00 2003
-+++ linux-m68k-2.5.69/drivers/net/atari_bionet.c	Fri May  9 10:21:32 2003
-@@ -221,9 +221,9 @@
- 	return c;
- }
- 
--static void
-+static irqreturn_t
- bionet_intr(int irq, void *data, struct pt_regs *fp) {
--	return;
+-static void sun3_int7(int irq, void *dev_id, struct pt_regs *fp)
++static irqreturn_t sun3_int7(int irq, void *dev_id, struct pt_regs *fp)
+ {
+ 	sun3_do_irq(irq,fp);
+ 	if(!(kstat_cpu(0).irqs[SYS_IRQS + irq] % 2000)) 
+ 		sun3_leds(led_pattern[(kstat_cpu(0).irqs[SYS_IRQS+irq]%16000)
+ 			  /2000]);
 +	return IRQ_HANDLED;
  }
  
- 
---- linux-2.5.69/drivers/net/atari_pamsnet.c	Thu Jan  2 12:54:31 2003
-+++ linux-m68k-2.5.69/drivers/net/atari_pamsnet.c	Fri May  9 10:21:32 2003
-@@ -167,7 +167,7 @@
- static struct net_device_stats *net_get_stats(struct net_device *dev);
- static void pamsnet_tick(unsigned long);
- 
--static void pamsnet_intr(int irq, void *data, struct pt_regs *fp);
-+static irqreturn_t pamsnet_intr(int irq, void *data, struct pt_regs *fp);
- 
- static struct timer_list pamsnet_timer = TIMER_INITIALIZER(amsnet_tick, 0, 0);
- 
-@@ -494,13 +494,13 @@
- 	return (ret);
- }
- 
--static void
-+static irqreturn_t
- pamsnet_intr(irq, data, fp)
- 	int irq;
- 	void *data;
- 	struct pt_regs *fp;
+-static void sun3_int5(int irq, void *dev_id, struct pt_regs *fp)
++static irqreturn_t sun3_int5(int irq, void *dev_id, struct pt_regs *fp)
  {
--	return;
+         kstat_cpu(0).irqs[SYS_IRQS + irq]++;
+ #ifdef CONFIG_SUN3
+@@ -87,11 +88,12 @@
+         if(!(kstat_cpu(0).irqs[SYS_IRQS + irq] % 20))
+                 sun3_leds(led_pattern[(kstat_cpu(0).irqs[SYS_IRQS+irq]%160)
+                 /20]);
 +	return IRQ_HANDLED;
  }
  
- /* receivepkt() loads a packet to a given buffer and returns its length */
---- linux-2.5.69/drivers/net/mace.c	Tue Apr  8 10:05:14 2003
-+++ linux-m68k-2.5.69/drivers/net/mace.c	Fri May  9 10:21:32 2003
-@@ -86,7 +86,7 @@
- static void mace_set_multicast(struct net_device *dev);
- static void mace_reset(struct net_device *dev);
- static int mace_set_address(struct net_device *dev, void *addr);
--static void mace_interrupt(int irq, void *dev_id, struct pt_regs *regs);
-+static irqreturn_t mace_interrupt(int irq, void *dev_id, struct pt_regs *regs);
- static void mace_txdma_intr(int irq, void *dev_id, struct pt_regs *regs);
- static void mace_rxdma_intr(int irq, void *dev_id, struct pt_regs *regs);
- static void mace_set_timeout(struct net_device *dev);
-@@ -622,7 +622,7 @@
- 	    printk(KERN_DEBUG "mace: jabbering transceiver\n");
+ /* handle requested ints, excepting 5 and 7, which always do the same
+    thing */
+-void (*sun3_default_handler[SYS_IRQS])(int, void *, struct pt_regs *) = {
++irqreturn_t (*sun3_default_handler[SYS_IRQS])(int, void *, struct pt_regs *) = {
+ 	sun3_inthandle, sun3_inthandle, sun3_inthandle, sun3_inthandle,
+ 	sun3_inthandle, sun3_int5, sun3_inthandle, sun3_int7
+ };
+@@ -99,10 +101,10 @@
+ static const char *dev_names[SYS_IRQS] = { NULL, NULL, NULL, NULL, 
+ 				     NULL, "timer", NULL, "int7 handler" };
+ static void *dev_ids[SYS_IRQS];
+-static void (*sun3_inthandler[SYS_IRQS])(int, void *, struct pt_regs *) = {
++static irqreturn_t (*sun3_inthandler[SYS_IRQS])(int, void *, struct pt_regs *) = {
+ 	NULL, NULL, NULL, NULL, NULL, sun3_int5, NULL, sun3_int7
+ };
+-static void (*sun3_vechandler[SUN3_INT_VECS])(int, void *, struct pt_regs *);
++static irqreturn_t (*sun3_vechandler[SUN3_INT_VECS])(int, void *, struct pt_regs *);
+ static void *vec_ids[SUN3_INT_VECS];
+ static const char *vec_names[SUN3_INT_VECS];
+ static int vec_ints[SUN3_INT_VECS];
+@@ -124,7 +126,7 @@
+ 	return 0;
  }
  
--static void mace_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+static irqreturn_t mace_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+-static void sun3_inthandle(int irq, void *dev_id, struct pt_regs *fp)
++static irqreturn_t sun3_inthandle(int irq, void *dev_id, struct pt_regs *fp)
  {
-     struct net_device *dev = (struct net_device *) dev_id;
-     struct mace_data *mp = (struct mace_data *) dev->priv;
-@@ -833,11 +833,11 @@
-     spin_unlock_irqrestore(&mp->lock, flags);
- }
+ 	if(sun3_inthandler[irq] == NULL)
+ 		panic ("bad interrupt %d received (id %p)\n",irq, dev_id);
+@@ -133,11 +135,13 @@
+         *sun3_intreg &= ~(1<<irq);
  
--static void mace_txdma_intr(int irq, void *dev_id, struct pt_regs *regs)
-+static irqreturn_t mace_txdma_intr(int irq, void *dev_id, struct pt_regs *regs)
- {
- }
- 
--static void mace_rxdma_intr(int irq, void *dev_id, struct pt_regs *regs)
-+static irqreturn_t mace_rxdma_intr(int irq, void *dev_id, struct pt_regs *regs)
- {
-     struct net_device *dev = (struct net_device *) dev_id;
-     struct mace_data *mp = (struct mace_data *) dev->priv;
---- linux-2.5.69/drivers/net/macmace.c	Sun Apr 20 12:28:38 2003
-+++ linux-m68k-2.5.69/drivers/net/macmace.c	Fri May  9 10:21:32 2003
-@@ -77,8 +77,8 @@
- static struct net_device_stats *mace_stats(struct net_device *dev);
- static void mace_set_multicast(struct net_device *dev);
- static int mace_set_address(struct net_device *dev, void *addr);
--static void mace_interrupt(int irq, void *dev_id, struct pt_regs *regs);
--static void mace_dma_intr(int irq, void *dev_id, struct pt_regs *regs);
-+static irqreturn_t mace_interrupt(int irq, void *dev_id, struct pt_regs *regs);
-+static irqreturn_t mace_dma_intr(int irq, void *dev_id, struct pt_regs *regs);
- static void mace_tx_timeout(struct net_device *dev);
- 
- /* Bit-reverse one byte of an ethernet hardware address. */
-@@ -561,7 +561,7 @@
-  * Process the chip interrupt
-  */
-  
--static void mace_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+static irqreturn_t mace_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
- 	struct net_device *dev = (struct net_device *) dev_id;
- 	struct mace_data *mp = (struct mace_data *) dev->priv;
-@@ -577,6 +577,7 @@
- 	if (ir & RCVINT) {
- 		mace_recv_interrupt(dev);
- 	}
+ 	sun3_inthandler[irq](irq, dev_ids[irq], fp);
 +	return IRQ_HANDLED;
  }
  
- static void mace_tx_timeout(struct net_device *dev)
-@@ -632,7 +633,7 @@
-  * The PSC has passed us a DMA interrupt event.
-  */
-  
--static void mace_dma_intr(int irq, void *dev_id, struct pt_regs *regs)
-+static irqreturn_t mace_dma_intr(int irq, void *dev_id, struct pt_regs *regs)
+-static void sun3_vec255(int irq, void *dev_id, struct pt_regs *fp)
++static irqreturn_t sun3_vec255(int irq, void *dev_id, struct pt_regs *fp)
  {
- 	struct net_device *dev = (struct net_device *) dev_id;
- 	struct mace_data *mp = (struct mace_data *) dev->priv;
-@@ -643,7 +644,7 @@
- 	/* Not sure what this does */
- 
- 	while ((baka = psc_read_long(PSC_MYSTERY)) != psc_read_long(PSC_MYSTERY));
--	if (!(baka & 0x60000000)) return;
-+	if (!(baka & 0x60000000)) return IRQ_NONE;
- 
- 	/*
- 	 * Process the read queue
-@@ -691,6 +692,7 @@
- 		mp->tx_count++;
- 		netif_wake_queue(dev);
- 	}
+ //	intersil_clear();
 +	return IRQ_HANDLED;
  }
  
- MODULE_LICENSE("GPL");
---- linux-2.5.69/drivers/net/sun3lance.c	Tue Jan 14 10:09:30 2003
-+++ linux-m68k-2.5.69/drivers/net/sun3lance.c	Fri May  9 10:21:33 2003
-@@ -238,7 +238,7 @@
- static int lance_open( struct net_device *dev );
- static void lance_init_ring( struct net_device *dev );
- static int lance_start_xmit( struct sk_buff *skb, struct net_device *dev );
--static void lance_interrupt( int irq, void *dev_id, struct pt_regs *fp );
-+static irqreturn_t lance_interrupt( int irq, void *dev_id, struct pt_regs *fp );
- static int lance_rx( struct net_device *dev );
- static int lance_close( struct net_device *dev );
- static struct net_device_stats *lance_get_stats( struct net_device *dev );
-@@ -620,7 +620,7 @@
- 
- /* The LANCE interrupt handler. */
- 
--static void lance_interrupt( int irq, void *dev_id, struct pt_regs *fp)
-+static irqreturn_t lance_interrupt( int irq, void *dev_id, struct pt_regs *fp)
+ void sun3_init_IRQ(void)
+@@ -159,7 +163,7 @@
+ 	sun3_vechandler[191] = sun3_vec255;
+ }
+                                 
+-int sun3_request_irq(unsigned int irq, void (*handler)(int, void *, struct pt_regs *),
++int sun3_request_irq(unsigned int irq, irqreturn_t (*handler)(int, void *, struct pt_regs *),
+                       unsigned long flags, const char *devname, void *dev_id)
  {
- 	struct net_device *dev = dev_id;
- 	struct lance_private *lp = dev->priv;
-@@ -629,7 +629,7 @@
  
- 	if (dev == NULL) {
- 		DPRINTK( 1, ( "lance_interrupt(): invalid dev_id\n" ));
+@@ -228,7 +232,7 @@
+ 	}		
+ }
+ 
+-void sun3_process_int(int irq, struct pt_regs *regs)
++irqreturn_t sun3_process_int(int irq, struct pt_regs *regs)
+ {
+ 
+ 	if((irq >= 64) && (irq <= 255)) {
+@@ -239,8 +243,7 @@
+ 			panic ("bad interrupt vector %d received\n",irq);
+ 
+ 		vec_ints[vec]++;
+-		sun3_vechandler[vec](irq, vec_ids[vec], regs);
 -		return;
-+		return IRQ_NONE;
- 	}
++		return sun3_vechandler[vec](irq, vec_ids[vec], regs);
+ 	} else {
+ 		panic("sun3_process_int: unable to handle interrupt vector %d\n",
+ 		      irq);
+--- linux-2.5.69/include/asm-m68k/sun3ints.h	Tue Nov  5 10:10:13 2002
++++ linux-m68k-2.5.69/include/asm-m68k/sun3ints.h	Fri May  9 10:21:35 2003
+@@ -26,17 +26,17 @@
+ void sun3_enable_irq(unsigned int irq);
+ void sun3_disable_irq(unsigned int irq);
+ int sun3_request_irq(unsigned int irq,
+-                     void (*handler)(int, void *, struct pt_regs *),
++                     irqreturn_t (*handler)(int, void *, struct pt_regs *),
+                      unsigned long flags, const char *devname, void *dev_id
+ 		    );
+ extern void sun3_init_IRQ (void);
+-extern void (*sun3_default_handler[]) (int, void *, struct pt_regs *);
+-extern void (*sun3_inthandler[]) (int, void *, struct pt_regs *);
++extern irqreturn_t (*sun3_default_handler[]) (int, void *, struct pt_regs *);
++extern irqreturn_t (*sun3_inthandler[]) (int, void *, struct pt_regs *);
+ extern void sun3_free_irq (unsigned int irq, void *dev_id);
+ extern void sun3_enable_interrupts (void);
+ extern void sun3_disable_interrupts (void);
+ extern int show_sun3_interrupts(struct seq_file *, void *);
+-extern void sun3_process_int(int, struct pt_regs *);
++extern irqreturn_t sun3_process_int(int, struct pt_regs *);
+ extern volatile unsigned char* sun3_intreg;
  
- 	if (in_interrupt)
-@@ -688,7 +688,7 @@
- 					REGA(CSR3) = CSR3_BSWP;
- 					lance_init_ring(dev);
- 					REGA(CSR0) = CSR0_STRT | CSR0_INEA;
--					return;
-+					return IRQ_HANDLED;
- 				}
- 			} else if(head->flag & (TMD1_ENP | TMD1_STP)) {
- 				
-@@ -743,7 +743,7 @@
- 	DPRINTK( 2, ( "%s: exiting interrupt, csr0=%#04x.\n",
- 				  dev->name, DREG ));
- 	in_interrupt = 0;
--	return;
-+	return IRQ_HANDLED;
- }
- 
- /* get packet, toss into skbuff */
+ /* master list of VME vectors -- don't fuck with this */
 
 Gr{oetje,eeting}s,
 

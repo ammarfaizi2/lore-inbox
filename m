@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbUADSnq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 13:43:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbUADSnp
+	id S263806AbUADShT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 13:37:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264347AbUADShT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 13:43:45 -0500
-Received: from pop.gmx.net ([213.165.64.20]:62655 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261522AbUADSnn (ORCPT
+	Sun, 4 Jan 2004 13:37:19 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:18835 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S263806AbUADShS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 13:43:43 -0500
-X-Authenticated: #14349625
-Message-Id: <5.2.1.1.2.20040104192514.00ba30c8@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Sun, 04 Jan 2004 19:40:25 +0100
-To: azarah@nosferatu.za.org, Con Kolivas <kernel@kolivas.org>
-From: mikeg <efault@gmx.de>
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-Cc: Soeren Sonnenburg <kernel@nn7.de>, Willy Tarreau <willy@w.ods.org>,
-       Mark Hahn <hahn@physics.mcmaster.ca>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       gillb4@telusplanet.net
-In-Reply-To: <1073227359.6075.284.camel@nosferatu.lan>
-References: <200401042345.33039.kernel@kolivas.org>
- <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca>
- <200401041949.27408.kernel@kolivas.org>
- <1073214820.6075.254.camel@nosferatu.lan>
- <200401042345.33039.kernel@kolivas.org>
+	Sun, 4 Jan 2004 13:37:18 -0500
+Date: Sun, 4 Jan 2004 10:37:12 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: gaim problems in 2.6.0
+Message-ID: <20040104183712.GT1882@matchmail.com>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20040104172535.GA322@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040104172535.GA322@elf.ucw.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 04:42 PM 1/4/2004 +0200, Martin Schlemmer wrote:
+On Sun, Jan 04, 2004 at 06:25:36PM +0100, Pavel Machek wrote:
+> Hi!
+> 
 
->Do not worry, _I_ will go back to lurking about this issue _again_,
+Hi Pavel!
 
-Wrong answer.  Jump in with both feet instead (much fun, highly 
-educational).  The code's not complicated (the problem space is though).
+> I'm having bad problems with gaim... When I run gaim, my machine tends
+> to freeze hard (no blinking leds). I'm running vesafb -> that should
+> rule out X problems. Machine is rather strange pre-production athlon64
+> noteook, but I'm running 32-bit (on 32-bit kernel), and I can run gaim
+> under 2.4.X kernel.
 
->but after _once_again_ seeing a issue about this being blown off
+Are you using debian(IIRC, you are, but maybe not on this machine?)?
 
-By you personally.
+Are you using the old version in debian stable?  Id suggest upgrading to the
+new version available in testing, or possibly unstable (probably only
+problems compiling on non-i386 arches).
 
->as being something wrong with 'it', and some facts (you did see
->that the skipping code for the other user _never_ kicked in)
->were just ignored, I just could not help myself - sorry.
+The debian package maintainer doesn't like the version in stable at all, but
+policy dictates that only security fixes and such go in the stable series...
 
-Don't apologize... scratch that itch :)
-
-         -Mike 
-
+  Version Table:
+      1:0.72-1 0
+           711 http://http.us.debian.org unstable/main Packages
+      1:0.64-3 0
+           722 http://http.us.debian.org testing/main Packages
+      1:0.58-2.3 0
+           722 http://security.debian.org stable/updates/main Packages

@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285315AbRLFXq6>; Thu, 6 Dec 2001 18:46:58 -0500
+	id <S285312AbRLFXs4>; Thu, 6 Dec 2001 18:48:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285312AbRLFXqr>; Thu, 6 Dec 2001 18:46:47 -0500
-Received: from carbon.btinternet.com ([194.73.73.92]:54689 "EHLO
-	carbon.btinternet.com") by vger.kernel.org with ESMTP
-	id <S285315AbRLFXqe>; Thu, 6 Dec 2001 18:46:34 -0500
-Message-ID: <00e601c17eb0$25e20d80$0801a8c0@Stev.org>
-Reply-To: "James Stevenson" <mistral@stev.org>
-From: "James Stevenson" <mail-lists@stev.org>
-To: "Andrew Morton" <akpm@zip.com.au>,
-        "Roy Sigurd Karlsbakk" <roy@karlsbakk.net>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0112061458360.15516-100000@mustard.heime.net> <3C0FD78D.F567ECBD@zip.com.au>
-Subject: Re: temporarily system freeze with high I/O write to ext2 fs
-Date: Thu, 6 Dec 2001 23:45:54 -0000
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S285319AbRLFXsl>; Thu, 6 Dec 2001 18:48:41 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:6272 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S285312AbRLFXsD>;
+	Thu, 6 Dec 2001 18:48:03 -0500
+Date: Thu, 06 Dec 2001 15:47:35 -0800 (PST)
+Message-Id: <20011206.154735.71088809.davem@redhat.com>
+To: lm@bitmover.com
+Cc: alan@lxorguk.ukuu.org.uk, phillips@bonn-fries.net, davidel@xmailserver.org,
+        rusty@rustcorp.com.au, Martin.Bligh@us.ibm.com, riel@conectiva.com.br,
+        lars.spam@nocrew.org, hps@intermeta.de, linux-kernel@vger.kernel.org
+Subject: Re: SMP/cc Cluster description
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011206153257.T27589@work.bitmover.com>
+In-Reply-To: <20011206151504.R27589@work.bitmover.com>
+	<20011206.151945.57439059.davem@redhat.com>
+	<20011206153257.T27589@work.bitmover.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > why is it that Linux 'hangs' while doing heavy I/O operations (such as
-dd)
-> > to (and perhaps from?) ext2 file systems? I can't see the same behaivour
-> > when using other file systems, such as ReiserFS
-> >
->
-> A partial fix for this went into 2.4.17-pre2.  What kernel are you
-> using?
+   From: Larry McVoy <lm@bitmover.com>
+   Date: Thu, 6 Dec 2001 15:32:57 -0800
+   
+   And, the ccCluster approach moves most of the nasty locking
+   problems into a ccCluster specific filesystem rather than buggering
+   up the generic paths.
 
-i have always had with problem normally during disk writes.
-currently on 2.4.x-14 + 2.4.16
+I still don't believe this, you are still going to need a lot of
+generic VFS threading.  This is why myself and others keep talking
+about ftruncate(), namei() et al.
 
-> For how long does it "hang"?   What exactly are you doing when it
-> occurs?
+If I look up "/etc" on bigfoot, littletoe, or whatever fancy name you
+want to call the filesystem setup, SOMETHING has to control access to
+the path name components (ie. there has to be locking).
 
-its not that it hangs but it gets extremely laggy eg 2/3 seconds pause
-for keyboard input to appear on a console.
+You are not "N*M scaling" lookups on filesystem path components.
+In fact, bigfoot sounds like it would make path name traversal more
+heavyweight than it is now because these stripes need to coordinate
+with each other somehow.
 
-> Is your disk system well-tuned?  What throughput do you get with
-> `hdparm -t /dev/hdXX'?
-
-i have tuned with hdparm as much as i can. but i cannot tune the
-VM because the files in /proc/sys/vm do not seem to make any difference
-to the system at all and the documents dont seem to be correct inn
-procfs.txt
-if docs are wrong for a kernel version would it not be better to either say
-they are wrong
-or remove them alll together. but i assume this is todo with the latest VM
-change.
-
-are there going to be new documents for these files ?
-
-    James
-
-
+You keep saying "it'll be in the filesystem" over and over.  And the
+point I'm trying to make is that this is not going to do away with the
+fundamental problems.  They are still there with a ccCluster, they are
+still there with bigfoot, and you are not getting N*M scaling on
+filesystem name component walks.

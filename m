@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268836AbUIHEYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268802AbUIHE0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268836AbUIHEYE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 00:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268182AbUIHEYE
+	id S268802AbUIHE0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 00:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268805AbUIHE0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 00:24:04 -0400
-Received: from pat.uio.no ([129.240.130.16]:19621 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S268861AbUIHEX4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 00:23:56 -0400
-Subject: Re: [CHECKER] 2.6.8.1 deadlock in rpc_queue_lock <<===>> 
-	rpc_sched_lock
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Greg Banks <gnb@melbourne.sgi.com>
-Cc: Dawson Engler <engler@coverity.dreamhost.com>,
-       linux-kernel@vger.kernel.org, developers@coverity.com
-In-Reply-To: <1094615460.20243.165.camel@hole.melbourne.sgi.com>
-References: <Pine.LNX.4.58.0409071915020.23546@coverity.dreamhost.com>
-	 <1094615460.20243.165.camel@hole.melbourne.sgi.com>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1094617428.8389.12.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 08 Sep 2004 00:23:48 -0400
-Content-Transfer-Encoding: 8BIT
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
+	Wed, 8 Sep 2004 00:26:16 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:42972 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268802AbUIHE0G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 00:26:06 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: multi-domain PCI and sysfs
+Date: Tue, 7 Sep 2004 21:25:41 -0700
+User-Agent: KMail/1.7
+Cc: jonsmirl@gmail.com, willy@debian.org, linux-kernel@vger.kernel.org
+References: <9e4733910409041300139dabe0@mail.gmail.com> <200409072115.09856.jbarnes@engr.sgi.com> <20040907211637.20de06f4.davem@davemloft.net>
+In-Reply-To: <20040907211637.20de06f4.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409072125.41153.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På ty , 07/09/2004 klokka 23:51, skreiv Greg Banks:
+On Tuesday, September 7, 2004 9:16 pm, David S. Miller wrote:
+> > A potentially cleaner option which Ben and I would prefer is to use
+> > the vga device Jon is creating to do legacy I/O with explicit
+> > read/write or ioctl calls.
+>
+> Definitely.  Note that xfree86 already has a signal handler for this
+> stuff, ppc generates traps like sparc64 too.
 
-> If this arc ever happens, you have data structure corruption issues
-> which are far more worrying than a deadlock.
+Doing SIGBUS on ia64 was painful, due to the way the CPU chooses to not 
+generate errors until bad data is actually consumed, but that's the approach 
+we're taking at the moment.  I'd rather have the ioctls though, so I'm glad 
+you're up for it.  My hope is that we can have a unified Linux device access 
+method in X and get rid of all (or at least most) of the ppc/sparc/ia64/etc. 
+specific hacks in the tree...
 
-True, but we should still get rid of it. No point in maintaining buggy
-debugging lines.
-
-Note that in any case, the global rpc_queue_lock is gone in recent
-NFS_ALL and 2.6.x-mm series patches.
-
-Cheers,
-   Trond
-
+Jesse

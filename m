@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267701AbUIUOmf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267702AbUIUOoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267701AbUIUOmf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 10:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267709AbUIUOme
+	id S267702AbUIUOoj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 10:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267709AbUIUOoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 10:42:34 -0400
-Received: from out004pub.verizon.net ([206.46.170.142]:58298 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S267702AbUIUOm0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 10:42:26 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: SPAM
-Date: Tue, 21 Sep 2004 10:42:21 -0400
-User-Agent: KMail/1.7
-Cc: Piotr Perak <peri@aqua.aspd.pwr.wroc.pl>
-References: <Pine.LNX.4.21.0409211541440.18918-100000@aqua.aspd.pwr.wroc.pl>
-In-Reply-To: <Pine.LNX.4.21.0409211541440.18918-100000@aqua.aspd.pwr.wroc.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Sep 2004 10:44:39 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:8067 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S267702AbUIUOoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 10:44:34 -0400
+Date: Tue, 21 Sep 2004 16:44:16 +0200
+From: kladit@t-online.de (Klaus Dittrich)
+To: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: boot hangs since 2.6.9-rc2-bk6
+Message-ID: <20040921144416.GA1361@xeon2.local.here>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409211042.21365.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [141.153.127.192] at Tue, 21 Sep 2004 09:42:24 -0500
+User-Agent: Mutt/1.4.2.1i
+X-ID: TETs4GZvYeQHeg8NrXOxR6QyccC0CVe+sY18QJr6XSTZvMB+8f+iYG
+X-TOI-MSGID: 49cf67e5-edc5-49c1-b355-aefc88e94af3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 September 2004 09:46, Piotr Perak wrote:
->I'm sorry but I have to test.
->does this get to the list correctly?
->
-It got as far as West Virginia USA via the lkml.
+Since linux-2.6.9-rc2-bk6 my smp system 
+(Tyan S2665 mobo, 2x Xeon, I7505)
+hangs during boot.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.26% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+The last lines the boot screen shows are ..
+
+..
+CPU-Intel(R) Xeon(TM) CPU 2.4GHz stepping 07
+per-CPU-timeslice cutoff: 1463.01
+task migration cache decay timeout: 2ms
+Booting processor 1/1 eip 2000
+CPU1 irqstacks, hard=c063800 soft=c0634000
+
+linux-2.6.9-rc2-bk5 works.
+
+--
+Regards Klaus

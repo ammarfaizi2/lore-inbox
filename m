@@ -1,61 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266259AbUAVOJO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 09:09:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266264AbUAVOJO
+	id S266381AbUAVUBX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 15:01:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266325AbUAVUBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 09:09:14 -0500
-Received: from dsl-213-023-011-163.arcor-ip.net ([213.23.11.163]:8905 "EHLO
-	fusebox.fsfeurope.org") by vger.kernel.org with ESMTP
-	id S266259AbUAVOJM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 09:09:12 -0500
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: Martin Loschwitz <madkiss@madkiss.org>, linux-kernel@vger.kernel.org,
-       "Brown, Len" <len.brown@intel.com>, acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: PROBLEM: ACPI freezes 2.6.1 on boot
-References: <7F740D512C7C1046AB53446D3720017361885C@scsmsx402.sc.intel.com>
-	<m3u12pgfpr.fsf@reason.gnu-hamburg>
-	<m3ptddgckg.fsf@reason.gnu-hamburg>
-	<20040122120854.GB3534@hell.org.pl>
-From: "Georg C. F. Greve" <greve@gnu.org>
-Organisation: Free Software Foundation Europe - GNU Project
-X-PGP-Fingerprint: 2D68 D553 70E5 CCF9 75F4 9CC9 6EF8 AFC2 8657 4ACA
-X-PGP-Affinity: will accept encrypted messages for GNU Privacy Guard
-X-Home-Page: http://gnuhh.org
-X-Accept-Language: en, de
-Date: Thu, 22 Jan 2004 15:08:56 +0100
-In-Reply-To: <20040122120854.GB3534@hell.org.pl> (Karol Kozimor's message of
- "Thu, 22 Jan 2004 13:08:54 +0100")
-Message-ID: <m3browulc7.fsf@reason.gnu-hamburg>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 22 Jan 2004 15:01:23 -0500
+Received: from h00a0cca1a6cf.ne.client2.attbi.com ([65.96.182.167]:28801 "EHLO
+	h00a0cca1a6cf.ne.client2.attbi.com") by vger.kernel.org with ESMTP
+	id S266381AbUAVUBR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 15:01:17 -0500
+Date: Thu, 22 Jan 2004 15:00:44 -0500
+From: timothy parkinson <t@timothyparkinson.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: hauan@cmu.edu, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1 "clock preempt"?
+Message-ID: <20040122200044.GA593@h00a0cca1a6cf.ne.client2.attbi.com>
+Mail-Followup-To: john stultz <johnstul@us.ibm.com>, hauan@cmu.edu,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1074630968.19174.49.camel@steinar.cheme.cmu.edu> <1074633977.16374.67.camel@cog.beaverton.ibm.com> <1074697593.5650.26.camel@steinar.cheme.cmu.edu> <1074709166.16374.73.camel@cog.beaverton.ibm.com> <20040122193704.GA552@h00a0cca1a6cf.ne.client2.attbi.com> <1074800554.21658.68.camel@cog.beaverton.ibm.com> <20040122195026.GA579@h00a0cca1a6cf.ne.client2.attbi.com> <1074801242.21658.71.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1074801242.21658.71.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- || On Thu, 22 Jan 2004 13:08:54 +0100
- || Karol Kozimor <sziwan@hell.org.pl> wrote: 
 
- >> So the problem we've been seeing seems to be related to the
- >> interaction between local APIC support and ACPI.
+su -c "/usr/sbin/hdparm /dev/hda"
+Password:
 
- kk> We've definitely had those problems before (with ASUS L3800C),
- kk> there's even a patch fixing this issue (attached below) you might
- kk> try.  I guess that's another of those lost and forgotten bugzilla
- kk> bugs :)
+/dev/hda:
+ multcount    = 16 (on)
+ IO_support   =  1 (32-bit)
+ unmaskirq    =  0 (off)
+ using_dma    =  0 (off)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    = 256 (on)
+ geometry     = 65535/16/63, sectors = 156301488, start = 0
 
-Thanks a lot -- this patch fixed the problem for me.
+but...
 
-The kernel now found the APIC and initialized ACPI (including
-switching to level trigger) with no problems.
+su -c "/usr/sbin/hdparm -d1 /dev/hda"
+Password:
 
-Could we please make sure this doesn't get lost again and makes it
-into the kernel?
+/dev/hda:
+ setting using_dma to 1 (on)
+ HDIO_SET_DMA failed: Operation not permitted
+ using_dma    =  0 (off)
 
-Regards,
-Georg
+it's an 80gig western digital from about 2-3 years ago.
 
--- 
-Georg C. F. Greve                                       <greve@gnu.org>
-Free Software Foundation Europe	                 (http://fsfeurope.org)
-Brave GNU World	                           (http://brave-gnu-world.org)
+
+On Thu, Jan 22, 2004 at 11:54:02AM -0800, john stultz wrote:
+> On Thu, 2004-01-22 at 11:50, timothy parkinson wrote:
+> > well, it does *say* the following:
+> > 
+> >   ..... host bus clock speed is 133.0266 MHz.
+> >   checking TSC synchronization across 2 CPUs: passed.
+> >   Starting migration thread for cpu 0
+> 
+> That looks fine then. 
+> 
+> > is there a good way to check IDE PIO?
+> 
+> Run  "/sbin/hdparm /dev/hdX" and look for "using_dma = 0".
+> 
+> thanks
+> -john
+> 
+> 
+> 
+> 
+> 
+> 

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261395AbSJUPXZ>; Mon, 21 Oct 2002 11:23:25 -0400
+	id <S261397AbSJUPYN>; Mon, 21 Oct 2002 11:24:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261397AbSJUPXY>; Mon, 21 Oct 2002 11:23:24 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:39604 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261395AbSJUPXX>; Mon, 21 Oct 2002 11:23:23 -0400
-Subject: Re: What kernels 2.4.x 2.5.x compile gcc3.2???
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: clemens@dwf.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200210151849.g9FInbur002088@orion.dwf.com>
-References: <200210151849.g9FInbur002088@orion.dwf.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Oct 2002 16:45:08 +0100
-Message-Id: <1035215108.27259.165.camel@irongate.swansea.linux.org.uk>
+	id <S261399AbSJUPYN>; Mon, 21 Oct 2002 11:24:13 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:21731 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261397AbSJUPX0>;
+	Mon, 21 Oct 2002 11:23:26 -0400
+Date: Mon, 21 Oct 2002 08:21:07 -0700 (PDT)
+Message-Id: <20021021.082107.56539790.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: rmk@arm.linux.org.uk, hugh@veritas.com, willy@debian.org, akpm@zip.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] shmem missing cache flush
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1035212657.27259.154.camel@irongate.swansea.linux.org.uk>
+References: <20021017011957.A9589@flint.arm.linux.org.uk>
+	<20021016.171626.112600105.davem@redhat.com>
+	<1035212657.27259.154.camel@irongate.swansea.linux.org.uk>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-15 at 19:49, clemens@dwf.com wrote:
-> The subject just about says it.
-> What versions of 2.4.x and 2.5.x compile cleanly with
-> the new gcc 3.2 that is included in most recent releases
-> (in particular RH8.0)
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: 21 Oct 2002 16:04:17 +0100
+   
+   I disagree here. Its a measurable performance item, and its actually
+   going to break less code than for example the last minute scsi and bio
+   changes have done
+   
+That's a good point.
 
-2.4.18/19/20.. are fine. 2.2 isnt really tested.
-
-> The 2.4.18-14 kernel sources from RH have LOTS of patches,
-> and they (well the modules) still dont compile with their
-> own config file (sigh).
-
-Works for everyone else 8)
-
+So, if you want to merge the deprecation to Linus when he returns
+I'd fully support it :-)

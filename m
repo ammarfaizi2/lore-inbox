@@ -1,33 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317973AbSFSSg6>; Wed, 19 Jun 2002 14:36:58 -0400
+	id <S317974AbSFSSiZ>; Wed, 19 Jun 2002 14:38:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317974AbSFSSg5>; Wed, 19 Jun 2002 14:36:57 -0400
-Received: from pool-141-155-119-31.ny5030.east.verizon.net ([141.155.119.31]:5249
-	"EHLO mylaptop.gatworks.com") by vger.kernel.org with ESMTP
-	id <S317973AbSFSSg5>; Wed, 19 Jun 2002 14:36:57 -0400
-Message-ID: <3D10836F.33E42F14@voicenet.com>
-Date: Wed, 19 Jun 2002 09:13:19 -0400
-From: Uncle George <gatgul@voicenet.com>
-Organization: GatWorks.com
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3 i686)
-X-Accept-Language: en
+	id <S317975AbSFSSiY>; Wed, 19 Jun 2002 14:38:24 -0400
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:48323 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S317974AbSFSSiX>; Wed, 19 Jun 2002 14:38:23 -0400
+Date: Wed, 19 Jun 2002 20:10:22 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: (2.5.23) buffer layer error at buffer.c:2326
+Message-ID: <Pine.LNX.4.44.0206192007210.1263-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Newsgroups: linux.dev.kernel
-CC: linux-kernel@vger.kernel.org
-Subject: Kernel Profiling a device driver
-References: <pan.2002.05.16.14.10.05.542669.21313@sysk-net.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on my laptop i have a xircom 100 credit kard pcmcia device.
 
-Unfortunately, at 100mbps, the system time goes up to nearly 100% usage.
-( the on-board ethernet at 100mbps gets around 25% system usage )
+The ide drive holding the mounted filesystem dropped out of DMA and then 
+spewed the following a number of times. Anyone interested?
 
-Is there a way to profile the device driver so that i can zero in on the
-section of code that may be spinning, doing inefficient things ?
+ buffer layer error at buffer.c:2326
+Pass this trace through ksymoops for reporting
+c13f7e8c 00000916 c1014ef0 c13f6000 c0868d8c c0861da0 c014e500 c1014ef0
+       c13f6000 c0861da0 c13f6000 c0861da0 c0186f3b c1014ef0 00000000 00000000
+       c1000018 c033893c 00000203 000001d0 c13f6000 c0868d8c 0000000a c017d55e
+Call Trace: [<c014e500>] [<c0186f3b>] [<c017d55e>] [<c014cb62>] [<c013cb70>]
+   [<c013d0b5>] [<c013d11c>] [<c013d1c2>] [<c013d236>] [<c013d38f>] [<c0117820>]
+   [<c0105000>] [<c0105000>] [<c01057f6>] [<c013d2d0>]
+
+Trace; c014e500 <try_to_free_buffers+80/110>
+Trace; c0186f3b <journal_try_to_free_buffers+20b/220>
+Trace; c017d55e <ext3_releasepage+1e/30>
+Trace; c014cb62 <try_to_release_page+42/60>
+Trace; c013cb70 <shrink_cache+3e0/6e0>
+Trace; c013d0b5 <shrink_caches+65/a0>
+Trace; c013d11c <try_to_free_pages+2c/50>
+Trace; c013d1c2 <kswapd_balance_pgdat+52/a0>
+Trace; c013d236 <kswapd_balance+26/40>
+Trace; c013d38f <kswapd+bf/c6>
+Trace; c0117820 <default_wake_function+0/40>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105000 <_stext+0/0>
+Trace; c01057f6 <kernel_thread+26/30>
+Trace; c013d2d0 <kswapd+0/c6>
+
+-- 
+http://function.linuxpower.ca
+		
 

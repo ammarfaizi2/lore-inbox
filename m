@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136700AbREJOqH>; Thu, 10 May 2001 10:46:07 -0400
+	id <S136703AbREJOzR>; Thu, 10 May 2001 10:55:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136701AbREJOp5>; Thu, 10 May 2001 10:45:57 -0400
-Received: from idiom.com ([216.240.32.1]:40204 "EHLO idiom.com")
-	by vger.kernel.org with ESMTP id <S136700AbREJOpt>;
-	Thu, 10 May 2001 10:45:49 -0400
-Message-ID: <3AFAA98A.F79471CF@namesys.com>
-Date: Thu, 10 May 2001 07:45:31 -0700
-From: Hans Reiser <reiser@namesys.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14cl i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tony Hoyle <tmh@magenta-netlogic.com>
-CC: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org
+	id <S136707AbREJOzH>; Thu, 10 May 2001 10:55:07 -0400
+Received: from fjordland.nl.linux.org ([131.211.28.101]:20747 "EHLO
+	fjordland.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S136703AbREJOyw>; Thu, 10 May 2001 10:54:52 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Pekka Pietikainen <pp@evil.netppl.fi>, linux-kernel@vger.kernel.org
 Subject: Re: reiserfs, xfs, ext2, ext3
-In-Reply-To: <01050910381407.26653@bugs> <20010510134453.A6816@emma1.emma.line.org> <3AFA9AD8.7080203@magenta-netlogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 10 May 2001 16:42:50 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <alan@lxorguk.ukuu.org.uk> <200105092125.f49LPew13300@jen.americas.sgi.com> <20010510131945.B11927@netppl.fi>
+In-Reply-To: <20010510131945.B11927@netppl.fi>
+MIME-Version: 1.0
+Message-Id: <01051016425003.06492@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tony Hoyle wrote:
+On Thursday 10 May 2001 12:19, Pekka Pietikainen wrote:
+> Here's some very unscientific numbers I've measured (ancient 4G SCSI
+> drive on a dual pII/450), XFS 1.0-pre2 and reiserfs is
+> the version in that kernel. The first bit is from tiobench, the
+> multiple files one is a simple 30-line program that creates tons of
+> 1k files and then removes them.
+>
+> XFS
+>
+> Create 20000 files: 116.882449
+> Unlink 20000 files: 47.449201
+>
+> reiserfs
+>
+> Create 20000 files: 17.862143
+> Unlink 20000 files: 9.487520
+>
+> ext2
+>
+> Create 20000 files: 248.758925
+> Unlink 20000 files: 2.287174
 
-> Matthias Andree wrote:
->
-> > ext3fs has never given me any problems, but I did not have it in
-> > production use where I discovered major ReiserFS <-> kNFSd
-> > incompatibilities. ext3 has a 0.0.x version number which suggests it's
-> > not meant for production use.
->
-> Hmm... Reiserfs is incompatible with knfsd?  That might explain the
-> massive data loss I was getting with reiserfs (basically I'd have to
-> reformat and reinstall every couple of weeks).  The machine this was
-> happening with also exports my apt cache for the rest of the network.
->
-> Tony
->
-> --
-> Where a calculator on the ENIAC is equpped with 18,000 vaccuum
-> tubes and weighs 30 tons, computers in the future may have only
-> 1,000 vaccuum tubes and perhaps weigh 1 1\2 tons.
-> -- Popular Mechanics, March 1949
->
-> tmh@magenta-netlogic.com
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Whoops!  The create test is exactly the case my index patch 
+accelerates, trying it is highly recommended:
 
-we have a patch on our website.
+  http://nl.linux.org/~phillips/htree/dx.testme-2.4.3-3
 
-Hans
+To apply:
+
+    cd source/tree
+    zcat ext2-dir-patch-S4.gz | patch -p1
+    cat dx.pcache-2.4.4 | patch -p0
+
+Or for the all-in-page-cache version (needs Al Viro's patch, see the 
+READ.ME at http://nl.linux.org/~phillips/htree/):
+
+  http://nl.linux.org/~phillips/htree/dx.pcache-2.4.4-4
+
+The testme version is easier to apply but the pcache version is more 
+like what the final form will be (waiting for Al's patch to get into 
+Linus's tree so I can de-fork this).
+
+--
+Daniel
 

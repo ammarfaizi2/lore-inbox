@@ -1,81 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbTHZPZv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 11:25:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbTHZPZv
+	id S262749AbTHZPeB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 11:34:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbTHZPeB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 11:25:51 -0400
-Received: from modemcable009.53-202-24.mtl.mc.videotron.ca ([24.202.53.9]:51841
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261179AbTHZPZg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 11:25:36 -0400
-Date: Tue, 26 Aug 2003 11:24:34 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Where'd my second proc go?
-In-Reply-To: <20030826151225.GT16183@rdlg.net>
-Message-ID: <Pine.LNX.4.53.0308261124200.6876@montezuma.fsmlabs.com>
-References: <20030826151225.GT16183@rdlg.net>
+	Tue, 26 Aug 2003 11:34:01 -0400
+Received: from [203.185.132.124] ([203.185.132.124]:17072 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262749AbTHZPd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 11:33:59 -0400
+Message-ID: <3F4B7D7B.50401@nectec.or.th>
+Date: Tue, 26 Aug 2003 22:32:11 +0700
+From: Samphan Raruenrom <samphan@nectec.or.th>
+Organization: NECTEC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en, th
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christoph Hellwig <hch@infradead.org>
+CC: Jens Axboe <axboe@suse.de>, Jens Axboe <axboe@image.dk>,
+       linux-kernel@vger.kernel.org, Linux TLE Team <rdi1@opentle.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [Rdi1] Re: [PATCH] Add MOUNT_STATUS ioctl to cdrom device
+References: <3F4A53ED.60801@nectec.or.th> <20030825195026.A10305@infradead.org> <3F4B0343.7050605@nectec.or.th> <20030826083249.B20776@infradead.org> <3F4B23E2.8040401@nectec.or.th> <20030826105613.A23356@infradead.org> <20030826095830.GA20693@suse.de> <3F4B44C2.4030406@nectec.or.th> <20030826145821.A26398@infradead.org>
+In-Reply-To: <20030826145821.A26398@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Aug 2003, Robert L. Harris wrote:
+Christoph Hellwig wrote:
+ > On Tue, Aug 26, 2003 at 06:30:10PM +0700, Samphan Raruenrom wrote:
+ >>>>This doesn't make sense at all.  Just try the unmount and
+ >>>>tell the user if it failed - you can't say whether it will
+ >>>>fail before trying.
+ >>Yes, you can! Reading the code, if vfsmount.mnt_count > 1 then
+ >>umount on that device will fail.
+ > if you are doing the unmount currently and nothing changes because
+ > you hold the nessecary locks, yes.  But as soon as you drop the locks
+ > this is void.  There's no way to find out whether you can unmount
+ > a filesystem except trying it.
 
-> 
-> 
-> Dual-P3-850.  Bios reports both procs.  2.4.21-ac3 reported both procs.
-> 2.4.22-rc2-ac1 only shows one.  The lilo used to have a "maxcpus=1"
-> append but I removed that and I tried changing it to 4 even.  cat
-> /proc/cpu only shows 1 still.
+_^_ I understand it now. Thank you for your patience in explaining this
+to me. I learn quite a lot of things in <4 hours! Thank you everyone.
+I'll try to make a good use of what I learn here, e.g. to write another
+GNOME automounter that use the new "event status notification" and also
+let users eject their CDs -
+"without polling" - possible?
+It must be real cool to write such daemon (polling make any hacker feel guilty).
 
-dmesg?
+-- 
+Samphan Raruenrom,
+The Open Source Project,
+National Electronics and Computer Technology Center,
+National Science and Technology Development Agency,
+Thailand.
 
-> root# cat /proc/cpuinfo 
-> processor       : 0
-> vendor_id       : GenuineIntel
-> cpu family      : 6
-> model           : 8
-> model name      : Pentium III (Coppermine)
-> stepping        : 3
-> cpu MHz         : 846.342
-> cache size      : 256 KB
-> physical id     : 0
-> siblings        : 1
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 2
-> wp              : yes
-> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-> mca cmov pat pse36 mmx fxsr sse
-> bogomips        : 1684.27
-> 
-> root# uname -a
-> Linux nms-hub2.acs.pnap.net 2.4.22-rc2-ac1 #1 SMP Sat Aug 9 12:32:27 EDT 2003 i686 unknown
-> 
-> 
-> Pushing to the latest 2.4.22 kernel would be a nightmare as that means
-> another testing cycle and 2.4.23 will be out before it gets passed.
-> 
-> Thoughts?
->   Robert
-> 
-> 
-> 
-> :wq!
-> ---------------------------------------------------------------------------
-> Robert L. Harris                     | GPG Key ID: E344DA3B
->                                          @ x-hkp://pgp.mit.edu
-> DISCLAIMER:
->       These are MY OPINIONS ALONE.  I speak for no-one else.
-> 
-> Life is not a destination, it's a journey.
->   Microsoft produces 15 car pileups on the highway.
->     Don't stop traffic to stand and gawk at the tragedy.
-> 

@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbUA3O1k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 09:27:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUA3O1k
+	id S261539AbUA3O0L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 09:26:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUA3O0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 09:27:40 -0500
-Received: from mail.humboldt.co.uk ([81.2.65.18]:11418 "EHLO
-	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S261464AbUA3O1h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 09:27:37 -0500
-Subject: Re: question about PCI setup with multiple CPUs on the PCI bus(es)
-From: Adrian Cox <adrian@humboldt.co.uk>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: linux-kernel@vger.kernel.org, mj@ucw.cz
-In-Reply-To: <401941C4.4070502@nortelnetworks.com>
-References: <401941C4.4070502@nortelnetworks.com>
+	Fri, 30 Jan 2004 09:26:11 -0500
+Received: from linux-bt.org ([217.160.111.169]:36563 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S261539AbUA3O0I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 09:26:08 -0500
+Subject: Re: Bluetooth oddity
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Anders Karlsson <anders@trudheim.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1075471246.11889.5.camel@tor.trudheim.com>
+References: <1075462349.9698.4.camel@tor.trudheim.com>
+	 <1075469610.26729.108.camel@pegasus>
+	 <1075471246.11889.5.camel@tor.trudheim.com>
 Content-Type: text/plain
-Message-Id: <1075472830.18271.7.camel@newt>
+Message-Id: <1075472736.26729.132.camel@pegasus>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 30 Jan 2004 14:27:10 +0000
+Date: Fri, 30 Jan 2004 15:25:36 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-01-29 at 17:24, Chris Friesen wrote:
-> Surely we aren't the only people that want to put multiple CPUs on a 
-> single PCI space.  How have people handled this in the past?  Ideally 
-> what I'm looking for is a CONFIG_NO_MANGLE_PCI or something to that 
-> effect. As a last resort we are considering hardcoding the bus/device 
-> topology for the two drivers on special daughterboard, but this seems 
-> really kludgy.
+Hi Anders,
+
+> > I assume that you have enabled the SCO support of the HCI USB driver.
+> > The unlink of ISOC URB's fails on UHCI host controllers and actually I
+> > don't know why. So disable the SCO support of the HCI USB driver and you
+> > can switch on and off your Bluetooth device as often as you like.
 > 
-> Anyone have any advice?
+> I just checked, and I did have the SCO support switched on. Shows that
+> the name can not be trusted... ;-)
 
-Having done this a few times before, the basic advice is to design with
-a non-transparent bridge, such as an Intel 2155x or a PLX 6254/6540.
-That's too late to save you, so you'll need a nasty hack instead.
+the CONFIG_BT_SCO option is not problematic, you can leave this on. But
+for now you must disable CONFIG_BT_HCIUSB_SCO if you have an UHCI host
+controller.
 
-Faced with your situation, I dealt with it by declaring one processor to
-be the root of the PCI bus, and having a task on that processor read the
-bus address of each PCI device, and pass those bus addresses to the
-processors that needed them. Only the root processor ever made
-configuration cycles.
+> > What is your USB host controller chipset? Do you see an oops?
+> 
+> No oops, rebuilding the kernel with serial support built in so I can
+> attach serial console. After that I should be able to capture any
+> information required.
 
-- Adrian Cox
-http://www.humboldt.co.uk/
+Apply patch-2.6.1-mh3 and rebuild your kernel. This patch only updates
+your Bluetooth subsystem. To not run into problems with your modules
+undiff the change to the Makefile EXTRAVERSION before calling make.
+
+> > This was a bug in the RFCOMM layer that has been already fixed. Why
+> > don't you say what 2.6 kernel do you use? Try the latest 2.6.2-rc2 or
+> > 2.6.1-mh3 and this will go away.
+> 
+> I am currently using 2.6.1 proper, but saw it in 2.6.0 and a couple of
+> half-way houses between 2.6.0 and 2.6.1.
+
+I know, but our big resync with 2.6 was first in 2.6.2-rc1. And this bug
+only occurred on incoming RFCOMM connections.
+
+Regards
+
+Marcel
 
 

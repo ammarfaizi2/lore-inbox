@@ -1,46 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315540AbSGXAkz>; Tue, 23 Jul 2002 20:40:55 -0400
+	id <S315529AbSGXAjl>; Tue, 23 Jul 2002 20:39:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315630AbSGXAkz>; Tue, 23 Jul 2002 20:40:55 -0400
-Received: from zeppo.NMSU.Edu ([128.123.29.173]:5763 "EHLO zeppo.NMSU.Edu")
-	by vger.kernel.org with ESMTP id <S315540AbSGXAky>;
-	Tue, 23 Jul 2002 20:40:54 -0400
-Message-Id: <200207240033.g6O0X8n16845@zeppo.NMSU.Edu>
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Vassili Papavassiliou <pvs@NMSU.Edu>
-To: linux-kernel@vger.kernel.org
-cc: Vassili Papavassiliou <pvs@NMSU.Edu>
-Subject: USB and PCMCIA drop out simultaneously during heavy data transfers 
- (2.4.18)
+	id <S315540AbSGXAjl>; Tue, 23 Jul 2002 20:39:41 -0400
+Received: from jalon.able.es ([212.97.163.2]:32948 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S315529AbSGXAjk>;
+	Tue, 23 Jul 2002 20:39:40 -0400
+Date: Wed, 24 Jul 2002 02:42:45 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [RFC] x86 cpu selection cleanup
+Message-ID: <20020724004245.GE3622@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 23 Jul 2002 18:33:08 -0600
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-    This is a problem I reported on July 19; unfortunately, because of a typo, 
-the subject header did not appear. Briefly, during traffic through a PCMCIA 
-card (Ethernet, WiFi, or SCSI adapter), both PCMCIA and USB time out if there 
-is any USB activity at the time (such as moving a mouse). Otherwise they can 
-coexist for days. After the timeout PCMCIA cannot be restarted until the USB 
-modules are removed. This makes USB essentially unusable in this machine, as 
-there is always some PC card in use. In 2.2.xx, this issue only showed up with 
-CardBus cards.
+HI all...
 
-    I apologize for reposting, but I think it's a real problem that may only 
-show up in older, slow machines, which is why I haven't seen any references to 
-it, and the absence of a subject in my original post probably made it useless.
-Details are in the archived original message, e.g. in
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0207.2/0884.html
+I have introduced in the -jam kernels a cleanup for the x86 cpu selection that
+can make things easier for future work.
+The patches apply on top of -rc3-aa1, but if there is general interest I can
+make them for plain rc3 (or better for final, I know, an rc is not place for
+this).
 
-    If anybody has any ideas, please CC also to pvs@nmsu.edu and thanks in 
-advance.
-                                                      Vassili Papavassiliou
+Steps:
+- Introduce CONFIG_X86_F00F_BUG (credits to Brian Gerst)
+- Make CONFIG_M586 a generic option, not set directly but dependent on
+  processor specific configs, like GEN586 (generic 586), PENTIUM (a real
+  intel pentium), PENTIUMMMX
+- Make CONFIG_M686 a generic option, not set directly but dependent on
+  MPENTIUMPRO, MPENTIUM2, MPENTIUM3, MPENTIUM4 (so I splitted PII from
+  PPro, both were 686).
+
+(now that I think, I could even name it CONFIG_X86_586 and CONFIG_X86_686,
+they are an abstract of what _X86_ features are available)
+
+Things end like this for 586:
+
+if [ "$CONFIG_MGEN586" = "y" ]; then
+   define_bool CONFIG_M586 y 
+fi 
+if [ "$CONFIG_MPENTIUM" = "y" ]; then
+   define_bool CONFIG_M586 y
+   define_bool CONFIG_X86_TSC_CPU y
+fi 
+if [ "$CONFIG_MPENTIUMMMX" = "y" ]; then
+   define_bool CONFIG_M586 y 
+   define_bool CONFIG_X86_TSC_CPU y
+   define_bool CONFIG_X86_GOOD_APIC y
+fi
+if [ "$CONFIG_M586" = "y" ]; then
+   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+   define_bool CONFIG_X86_USE_STRING_486 y
+   define_bool CONFIG_X86_ALIGNMENT_16 y
+   define_bool CONFIG_X86_PPRO_FENCE y
+   define_bool CONFIG_X86_F00F_BUG y
+fi
+
+And like this for 686:
+
+if [ "$CONFIG_MPENTIUMPRO" = "y" ]; then
+   define_bool CONFIG_M686 y
+   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+   define_bool CONFIG_X86_PPRO_FENCE y
+fi
+if [ "$CONFIG_MPENTIUM2" = "y" ]; then
+   define_bool CONFIG_M686 y
+   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+fi
+if [ "$CONFIG_MPENTIUM3" = "y" ]; then
+   define_bool CONFIG_M686 y
+   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+   define_bool CONFIG_X86_SFENCE y
+fi
+if [ "$CONFIG_MPENTIUM4" = "y" ]; then
+   define_bool CONFIG_M686 y
+   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+   define_bool CONFIG_X86_SFENCE y
+   define_bool CONFIG_X86_LFENCE y
+   define_bool CONFIG_X86_MFENCE y
+fi
+if [ "$CONFIG_M686" = "y" ]; then
+   define_bool CONFIG_X86_TSC_CPU y
+   define_bool CONFIG_X86_GOOD_APIC y
+   define_bool CONFIG_X86_PGE y
+   define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
+fi
+
+Comments ?
+Direct to trash ?
+
 -- 
-Vassili Papavassiliou             E-mail: pvs@nmsu.edu
-NMSU, Physics Dept.               Phone: (505) 646-1310
-Las Cruces, NM 88003              Fax:   (505) 646-1934
-
-
+J.A. Magallon             \   Software is like sex: It's better when it's free
+mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
+Linux werewolf 2.4.19-rc3-jam1, Mandrake Linux 9.0 (Cooker) for i586
+gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.10mdk)

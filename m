@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264726AbTFAUcF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 16:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264727AbTFAUcF
+	id S264725AbTFAUpC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 16:45:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264727AbTFAUpC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 16:32:05 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:51462 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S264726AbTFAUcE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 16:32:04 -0400
-Date: Sun, 1 Jun 2003 22:45:16 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Willy Tarreau <willy@w.ods.org>,
-       Daniel Podlejski <underley@underley.eu.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: AIC7xxx problem
-Message-ID: <20030601204516.GA15693@alpha.home.local>
-References: <20030531165945.GA5561@witch.underley.eu.org> <20030601083656.GI21673@alpha.home.local> <2859720000.1054499680@aslan.scsiguy.com>
+	Sun, 1 Jun 2003 16:45:02 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:36067
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264725AbTFAUpB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 16:45:01 -0400
+Subject: Re: [PATCH][ATM] assorted he driver cleanup
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: chas williams <chas@cmf.nrl.navy.mil>
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>, davem@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200306011858.h51IwlsG022457@ginger.cmf.nrl.navy.mil>
+References: <200306011858.h51IwlsG022457@ginger.cmf.nrl.navy.mil>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054497613.5863.4.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2859720000.1054499680@aslan.scsiguy.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 01 Jun 2003 21:00:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 01, 2003 at 02:34:40PM -0600, Justin T. Gibbs wrote:
-> > Hmmm that makes quite a difference ! I didn't understand what happened between
-> > these two outputs. Also, did you try with Justin's latest version of the driver:
-> > 
+On Sul, 2003-06-01 at 19:57, chas williams wrote:
+> In message <20030529173637.GZ24054@conectiva.com.br>,Arnaldo Carvalho de Melo writes:
+> >Sure thing, but hey, spin_lock_irqsave and friends take care of how to behave
+> >when in up or smp, i.e. its how all the other drivers use spinlocks 8)
 > 
-> My driver can't fix interrupt routing issues which is what Daniel's
-> problem turned out to be.  I'm really tempted to add an interrupt
-> test to the driver attach so that these kinds of problems are clearly
-> flagged and my driver doesn't continue to get blamed for interrupt
-> routing it can't control.
+> but on a single processor machine (i.e. #undef CONFIG_SMP) there is no
+> chance that there will be reads/writes from other processors so i dont
+> need any locking OR protection from interrupts.  so the degenerate case
+> of spin_lock_irqsave() isnt quite as dengerate as i would like for this
+> particular spin lock.
 
-If this is (relatively) easy to do, I really think it could be a valuable
-diagnostic tool. I'd prefer to get a clear "fix your APIC" or any insult
-about my hardware config than devices detection dying in endless timeout
-loops.
-
-This principle may even be generalized to any other driver which can make the
-device trigger an interrupt.
-
-Cheers,
-Willy
+Then why are you using spin_lock_irqsave ?
 

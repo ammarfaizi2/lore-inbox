@@ -1,95 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264920AbUE0RrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264926AbUE0RrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264920AbUE0RrP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 13:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUE0RpX
+	id S264926AbUE0RrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 13:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbUE0Rpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 13:45:23 -0400
-Received: from outmx006.isp.belgacom.be ([195.238.2.99]:58243 "EHLO
-	outmx006.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S264918AbUE0Roe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 13:44:34 -0400
-Subject: Re: [2.6.7-rc1-mm1] lp int copy_to_user replaced
-From: FabF <fabian.frederick@skynet.be>
-To: arjanv@redhat.com
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1085679588.7179.9.camel@laptop.fenrus.com>
-References: <1085679127.2070.21.camel@localhost.localdomain>
-	 <1085679588.7179.9.camel@laptop.fenrus.com>
-Content-Type: multipart/mixed; boundary="=-MOKftr6tvtcXFXewx6aN"
-Message-Id: <1085679935.2070.24.camel@localhost.localdomain>
+	Thu, 27 May 2004 13:45:39 -0400
+Received: from calvin.stupendous.org ([213.84.70.4]:1284 "HELO
+	quadpro.stupendous.org") by vger.kernel.org with SMTP
+	id S264920AbUE0Rox (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 13:44:53 -0400
+Date: Thu, 27 May 2004 19:45:10 +0200
+From: Jurjen Oskam <jurjen@stupendous.org>
+To: linux-kernel@vger.kernel.org
+Subject: Badness in local_bh_enable at kernel/softirq.c:122
+Message-ID: <20040527174509.GA1654@quadpro.stupendous.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 27 May 2004 19:45:35 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi there,
 
---=-MOKftr6tvtcXFXewx6aN
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I'm using pptp-linux to connect to my ADSL-provider. I've been doing this
+for several years now, without significant problems. A week ago, I
+upgraded
 
-Here it is.
+May 27 11:35:41 calvin kernel: Badness in local_bh_enable at kernel/softirq.c:122
+May 27 11:35:41 calvin kernel: Call Trace:
+May 27 11:35:41 calvin kernel:  [<c011ac00>] local_bh_enable+0x60/0x80
+May 27 11:35:41 calvin kernel:  [<c4cc2b54>] ppp_sync_push+0x54/0x140 [ppp_synctty]
+May 27 11:35:41 calvin kernel:  [<c4cc25a5>] ppp_sync_wakeup+0x25/0x60 [ppp_synctty]
+May 27 11:35:41 calvin kernel:  [<c01f20e7>] pty_unthrottle+0x47/0x60
+May 27 11:35:41 calvin kernel:  [<c01eefb1>] check_unthrottle+0x31/0x40
+May 27 11:35:41 calvin kernel:  [<c01ef02b>] n_tty_flush_buffer+0xb/0x60
+May 27 11:35:41 calvin kernel:  [<c01f2488>] pty_flush_buffer+0x48/0x60
+May 27 11:35:41 calvin kernel:  [<c01ec116>] do_tty_hangup+0x2d6/0x340
+May 27 11:35:41 calvin kernel:  [<c01ed387>] release_dev+0x547/0x580
+May 27 11:35:41 calvin kernel:  [<c010c038>] timer_interrupt+0xb8/0xc0
+May 27 11:35:41 calvin kernel:  [<c012544d>] rcu_check_quiescent_state+0x4d/0x60
+May 27 11:35:41 calvin kernel:  [<c012551e>] rcu_process_callbacks+0xbe/0xe0
+May 27 11:35:41 calvin kernel:  [<c011ad7a>] tasklet_action+0x3a/0x60
+May 27 11:35:41 calvin kernel:  [<c0108805>] do_IRQ+0xc5/0xe0
+May 27 11:35:41 calvin kernel:  [<c0106ed8>] common_interrupt+0x18/0x20
+May 27 11:35:41 calvin kernel:  [<c01ed709>] tty_release+0x9/0x20
+May 27 11:35:41 calvin kernel:  [<c0145532>] __fput+0xd2/0x100
+May 27 11:35:41 calvin kernel:  [<c0143ee3>] filp_close+0x43/0x80
+May 27 11:35:41 calvin kernel:  [<c0118795>] put_files_struct+0x55/0xc0
+May 27 11:35:41 calvin kernel:  [<c01192eb>] do_exit+0x14b/0x2e0
+May 27 11:35:41 calvin kernel:  [<c0119548>] do_group_exit+0x48/0x80
+May 27 11:35:41 calvin kernel:  [<c0120bf9>] get_signal_to_deliver+0x199/0x2c0
+May 27 11:35:41 calvin kernel:  [<c0106a65>] do_signal+0x45/0xc0
+May 27 11:35:41 calvin kernel:  [<c01134ea>] recalc_task_prio+0x8a/0x1a0
+May 27 11:35:41 calvin kernel:  [<c014463d>] vfs_read+0xbd/0xe0
+May 27 11:35:41 calvin kernel:  [<c014482b>] sys_read+0x2b/0x60
+May 27 11:35:41 calvin kernel:  [<c0106b29>] do_notify_resume+0x49/0x50
+May 27 11:35:41 calvin kernel:  [<c0106d0e>] work_notifysig+0x13/0x15
+May 27 11:35:41 calvin kernel:
 
-FabF
 
-On Thu, 2004-05-27 at 19:39, Arjan van de Ven wrote:
-> On Thu, 2004-05-27 at 19:32, FabF wrote:
-> > Andrew,
-> > 
-> > 	Here's a patch to have standard __put_user for integer transfers in lp
-> > driver.Is it correct ?
-> 
-> no it's not. You need to use put_user() not __put_user() at least, to
-> make sure the destination address is checked to not be in kernel
-> space...
-> 
+Each time the pppd link was retried, the "Badness in..." message appeared.
 
---=-MOKftr6tvtcXFXewx6aN
-Content-Disposition: attachment; filename=lp2.diff
-Content-Type: text/x-patch; name=lp2.diff; charset=utf-8
-Content-Transfer-Encoding: 7bit
+This is on a 450 MHz K6-II.
+-- 
+Jurjen Oskam
 
-diff -Naur orig/drivers/char/lp.c edited/drivers/char/lp.c
---- orig/drivers/char/lp.c	2004-05-10 04:31:58.000000000 +0200
-+++ edited/drivers/char/lp.c	2004-05-27 19:43:43.649316720 +0200
-@@ -31,6 +31,8 @@
-  * Obsoleted and removed all the lowlevel stuff implemented in the last
-  * month to use the IEEE1284 functions (that handle the _new_ compatibilty
-  * mode fine).
-+ *
-+ * 27-MAY-2004  Replace int copy_to_user with put_user (Fabian Frederick)
-  */
- 
- /* This driver should, in theory, work with any parallel port that has an
-@@ -603,16 +605,14 @@
- 			return -EINVAL;
- 			break;
- 		case LPGETIRQ:
--			if (copy_to_user((int *) arg, &LP_IRQ(minor),
--					sizeof(int)))
-+			if (put_user(LP_IRQ(minor), (int *) arg))
- 				return -EFAULT;
- 			break;
- 		case LPGETSTATUS:
- 			lp_claim_parport_or_block (&lp_table[minor]);
- 			status = r_str(minor);
- 			lp_release_parport (&lp_table[minor]);
--
--			if (copy_to_user((int *) arg, &status, sizeof(int)))
-+			if (put_user(status, (int *) arg))
- 				return -EFAULT;
- 			break;
- 		case LPRESET:
-@@ -630,7 +630,7 @@
- #endif
-  		case LPGETFLAGS:
-  			status = LP_F(minor);
--			if (copy_to_user((int *) arg, &status, sizeof(int)))
-+			if (put_user(status, (int *) arg))
- 				return -EFAULT;
- 			break;
- 
-
---=-MOKftr6tvtcXFXewx6aN--
-
+"Avoid putting a paging file on a fault-tolerant drive, such as a mirrored
+volume or a RAID-5 volume. Paging files do not need fault-tolerance."-MS Q308417

@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262353AbUCCECq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 23:02:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbUCCECp
+	id S262345AbUCCEEX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 23:04:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbUCCEEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 23:02:45 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:45271 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262353AbUCCECn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 23:02:43 -0500
-Date: Tue, 2 Mar 2004 23:03:15 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Glen Nakamura <glen@imodulo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Mysterious string truncation in 2.4.25 kernel
-In-Reply-To: <20040302235353.GA4215@modulo.internal>
-Message-ID: <Xine.LNX.4.44.0403022302030.31759-100000@thoron.boston.redhat.com>
+	Tue, 2 Mar 2004 23:04:23 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:44894 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262345AbUCCEEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 23:04:15 -0500
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: poll() in 2.6 and beyond
+References: <Pine.LNX.4.53.0403021817050.9351@chaos>
+	<404521B2.2030504@americasm01.nt.com>
+	<Pine.LNX.4.53.0403022006250.9695@chaos>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 02 Mar 2004 20:04:14 -0800
+In-Reply-To: <Pine.LNX.4.53.0403022006250.9695@chaos>
+Message-ID: <52vflmpoe9.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 03 Mar 2004 04:04:14.0850 (UTC) FILETIME=[97872620:01C400D4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Mar 2004, Glen Nakamura wrote:
+    Richard> Well the device's poll function isn't getting called the
+    Richard> second time with 2.6.0. I never checked it in 2.4.x
+    Richard> because it always worked.  This problem occurs in a
+    Richard> driver that only returns the fact that one event
+    Richard> occurred. When it failed to report the event when built
+    Richard> with a newer kernel, I added diagnostics which showed
+    Richard> that the poll in the driver was only called once --and
+    Richard> that the return from poll_wait happened immediately.
 
-> Could someone please comment on the correctness of the above patch
-> especially regarding procfs?
+Your driver is buggy.  It's not surprising since you fundamentally
+don't understand the kernel interface you're trying to use.
 
-I don't see how the patch could be related to the problem you are seeing.  
+    Richard> So, if the poll_wait isn't a wait-function, but just some
+    Richard> add-wakeup to the queue function, then its name probably
+    Richard> should have been changed when it changed. At one time it
+    Richard> did, truly, wait until it was awakened with
+    Richard> wake_up_interruptible.
 
+When did it change?  Show me a kernel version where poll_wait() waited
+until the driver woke it up.  (Kernel versions at least as far back as
+1.0 are readily available from kernel.org, so it should be easy for
+you)
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+ - Roland

@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267932AbTBVWHn>; Sat, 22 Feb 2003 17:07:43 -0500
+	id <S267933AbTBVWI3>; Sat, 22 Feb 2003 17:08:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267933AbTBVWHn>; Sat, 22 Feb 2003 17:07:43 -0500
-Received: from mx5.mail.ru ([194.67.57.15]:47890 "EHLO mx5.mail.ru")
-	by vger.kernel.org with ESMTP id <S267932AbTBVWHm>;
-	Sat, 22 Feb 2003 17:07:42 -0500
-Date: Sat, 22 Feb 2003 23:17:19 +0100 (CET)
-From: Guennadi Liakhovetski <lyakh@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 146818 RTC set-time curious...
-Message-ID: <Pine.LNX.4.44.0302222311560.7720-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267934AbTBVWI2>; Sat, 22 Feb 2003 17:08:28 -0500
+Received: from holomorphy.com ([66.224.33.161]:6826 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267933AbTBVWI2>;
+	Sat, 22 Feb 2003 17:08:28 -0500
+Date: Sat, 22 Feb 2003 14:17:39 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030222221739.GF10411@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Mark Hahn <hahn@physics.mcmaster.ca>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel@vger.kernel.org
+References: <2080000.1045947731@[10.10.2.4]> <Pine.LNX.4.44.0302221648010.2686-100000@coffee.psychology.mcmaster.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0302221648010.2686-100000@coffee.psychology.mcmaster.ca>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Sat, Feb 22, 2003 at 05:06:27PM -0500, Mark Hahn wrote:
+> ccNUMA worst-case latencies are not much different from decent 
+> cluster (message-passing) latencies.
 
-Not a bug report, nothing critical (hopefully), just a question - in rtc.c
-driver on time-set ioctl() the following is done:
-	save_freq_select = CMOS_READ(RTC_FREQ_SELECT);
-	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
-which writes 0x7X to rtc regs=ister 0xA... Why? I read a few documents and
-all agree on, what's expressed in one of them as "bits 4-6 should be 0x2,
-other values don't do anything useful on PCs, really..." VERY curious...
-
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+Not even close, by several orders of magnitude.
 
 
+-- wli

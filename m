@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271972AbRHVJ01>; Wed, 22 Aug 2001 05:26:27 -0400
+	id <S271974AbRHVJcq>; Wed, 22 Aug 2001 05:32:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271974AbRHVJ0R>; Wed, 22 Aug 2001 05:26:17 -0400
-Received: from mailrelay.inpharmatica.co.uk ([193.115.214.5]:42257 "EHLO
-	gallions-reach.inpharmatica.co.uk") by vger.kernel.org with ESMTP
-	id <S271972AbRHVJ0E>; Wed, 22 Aug 2001 05:26:04 -0400
-Message-ID: <3B837AB3.40308@purplet.demon.co.uk>
-Date: Wed, 22 Aug 2001 10:26:11 +0100
-From: Mike Jagdis <jaggy@purplet.demon.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en, fr, de
-MIME-Version: 1.0
-To: David Schwartz <davids@webmaster.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: select() says closed socket readable
-In-Reply-To: <NOEJJDACGOHCKNCOGFOMIEKBDFAA.davids@webmaster.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S271976AbRHVJcg>; Wed, 22 Aug 2001 05:32:36 -0400
+Received: from wlg21.werkleitz.de ([195.37.189.21]:24984 "EHLO
+	mail-2.werkleitz.de") by vger.kernel.org with ESMTP
+	id <S271974AbRHVJcX>; Wed, 22 Aug 2001 05:32:23 -0400
+Date: Wed, 22 Aug 2001 02:00:29 +0200
+From: Martin Mueller <mm@sig21.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9 breaks apm, ymfpci, pcmcia on VAIO + patch
+Message-ID: <20010822020029.A649@cicero.werkleitz.de>
+In-Reply-To: <20010821160628.A2296@cicero.werkleitz.de> <E15ZCV0-0007xr-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E15ZCV0-0007xr-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.20i
+Organization: Unorganized Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz wrote:
+Thanks for your reply Alan, i just downloaded 2.4.8-ac8 and compiled
+by copying .config from my 2.4.8 tree and using "make oldconfig".
 
-> 	No, because 'select' is defined to work the same on both blocking and
-> non-blocking sockets. Roughly, select should hit on read if a non-blocking
-> read wouldn't return 'would block'.
+On Tue, Aug 21, 2001 at 03:27:22PM +0100, Alan Cox wrote:
+> 
+> > Linux 2.4.8 worked _extremely_ well, all problems except the wrong
+> > battery display gone. I just could suspend the running laptop while
+> 
+> Does 2.4.8-ac8 show the 2.4.9 problem. If so then we can try and binary
+> search out where it broke
 
-Which may be the root of the problem. Linux seems to consider that
-select indicates "would not block", whereas Solaris et. al. use
-"ready to read". (The difference seems to exist in man pages too)
-Clearly an unconnected socket "would not block" but is not
-"ready to read".
+Nope, 2.4.8-ac8 works just as well as 2.4.8. I just tested it.
 
-> 	If you think about the cases where someone might actually do this, odds are
-> you want the application's error handling code to launch. That won't happen
-> if you never break out of select. However, if you do break out of select, do
-> a read, and get an error, the problem will then be handled, rather than
-> ignored.
+> > Aug 21 15:01:32 cicero kernel: PCI: Enabling device 00:09.0 (0000 -> 0003) 
+> > Aug 21 15:01:32 cicero kernel: PCI: Found IRQ 9 for device 00:09.0 
+> > Aug 21 15:01:32 cicero kernel: ymfpci: YMF744 at 0xfedf8000 IRQ 9 
+> > Aug 21 15:01:33 cicero kernel: ymfpci_codec_ready: codec 0 is not ready [0xffff] 
+> > 
+> > This is with the ymfpci module shipped with the kernel tree, the
+> > ALSA messages are roughly the same.
+> 
+> Something failed to bring back the codec ACLink.
 
-No. If there is a correct behaviour defined in a standard we should
-do that. Otherwise we should do what other systems do _unless_ there
-is a clear benefit to doing something else. In this case doing
-something else appears to create porting problems and confusion over
-what select(2) means without any clear benefit.
+The YMFPCI also works with 2.4.8-ac8!
 
-So, we're back to the beginning: justify with reference or reason :-).
+bye
+   MM
 
-				Mike
+Martin Mueller      Phone: +49 39298 4125      e-mail:  mm@sig21.net
+		    ICQ:         99023536              mm@lunetix.de
+PGP/GPG mail welcome, keys as well other stuff at:  http://themm.net
+
 

@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265281AbTFMJFd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 05:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbTFMJFd
+	id S265285AbTFMJFf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 05:05:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbTFMJFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 05:05:33 -0400
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:20104 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S265281AbTFMJFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 05:05:34 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:13744
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S265285AbTFMJFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 13 Jun 2003 05:05:32 -0400
-Date: Fri, 13 Jun 2003 11:19:11 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Clemens Schwaighofer <cs@tequila.co.jp>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: uptime wrong in 2.5.70
-In-Reply-To: <3EE9903E.2040101@tequila.co.jp>
-Message-ID: <Pine.LNX.4.33.0306131117230.12096-100000@gans.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Anybody gotta list archive tarball?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Jonathan Corbet <corbet@lwn.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, aeb@cwi.nl
+In-Reply-To: <20030612165134.B2602@pclin040.win.tue.nl>
+References: <20030612141446.16634.qmail@eklektix.com>
+	 <20030612165134.B2602@pclin040.win.tue.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1055495817.5162.39.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 13 Jun 2003 10:16:57 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I a got a test vmware running with a 2.5.70 and I have sligh "overflow"
-> with my uptime.
->
-> gentoo root # uptime
->  22:29:47 up 14667 days, 19:08,  3 users,  load average: 0.00, 0.00, 0.00
+>   Also Oct 1993 to Jul 1995.
 
-Doesn't ring any bell yet. Can you cat /proc/uptime and /proc/stat output?
-Is this immediately after booting? Reproducable?
-
-Tim
+Thats about what I have of linux-activists, maybe a bit more
 

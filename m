@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268438AbTCFWBJ>; Thu, 6 Mar 2003 17:01:09 -0500
+	id <S268423AbTCFVxr>; Thu, 6 Mar 2003 16:53:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268439AbTCFWBJ>; Thu, 6 Mar 2003 17:01:09 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:62133 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S268438AbTCFWBI>;
-	Thu, 6 Mar 2003 17:01:08 -0500
-Date: Thu, 6 Mar 2003 17:11:36 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Robin Holt <holt@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: Re: Make ipconfig.c work as a loadable module.
-Message-ID: <20030306221136.GB26732@gtf.org>
-References: <Pine.LNX.4.44.0303061500310.31368-100000@mandrake.americas.sgi.com> <1046990052.18158.121.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1046990052.18158.121.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+	id <S268426AbTCFVxr>; Thu, 6 Mar 2003 16:53:47 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:13316 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S268423AbTCFVxk>; Thu, 6 Mar 2003 16:53:40 -0500
+Date: Thu, 6 Mar 2003 17:00:22 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+In-Reply-To: <3E6770F3.8030207@pobox.com>
+Message-ID: <Pine.LNX.3.96.1030306164559.25959A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 06, 2003 at 10:34:16PM +0000, Alan Cox wrote:
-> On Thu, 2003-03-06 at 21:10, Robin Holt wrote:
-> > The patch at the end of this email makes ipconfig.c work as a loadable 
-> > module under the 2.5.  The diff was taken against the bitkeeper tree 
-> > changeset 1.1075.
+On Thu, 6 Mar 2003, Jeff Garzik wrote:
+
+> Pardon the suggestion of a dumb hueristic, feel free to ignore me: 
+> would it work to run-first processes that have modified their iopl() 
+> level?  i.e. "if you access hardware directly, we'll treat you specially 
+> in the scheduler"?
 > 
-> The right fix is to delete ipconfig.c, it has been the right fix for a long
-> long time. There are initrd based bootp/dhcp setups that can also then mount
-> a root NFS partition and they do *not* need any kernel helper.
+> An alternative is to encourage distros to set some sort of flag for 
+> processes like the X server, when it is run.  This sounds suspiciously 
+> like the existing "renice X server" hack, but it could be something like 
+> changing the X server from SCHED_OTHER  to SCHED_HW_ACCESS instead.
+> 
+> Just throwing out some things, because I care about apps which access 
+> hardware from userspace :)
 
-The klibc tarball on kernel.org also has ipconfig-type code, waiting for
-initramfs early userspace :)
+Well, close. But any low-latency access, even if somewhat buffered,
+is likely to be user visible if unresponsive. Clearly that means video
+memory like X and DRI, and sound, and mouse. If you define this generally
+it would include serial as well, probably not a bad thing.
 
-Many have wanted to delete ipconfig.c for a while now...
+The proposal to backfeed priority from interractive processes to processes
+waking them sounds useful, perhaps that might be limited a bit however.
+Someone (Ingo?, Linus?) proposed limiting this to a fraction of the
+priority of the interractive process, but it might be more useful to
+simply limit how much could be added at one time, perhaps as a fraction of
+the delta between max and current interractive bonus, which would have the
+waker increase asymptomically toward max. Hysteresis is nice.
 
-	Jeff
+I do agree that it would be better to identify processes using physical
+devices, far better than trying to identify some subset because it's
+obvious.
 
+I think this would include parallel port, although other than PL/IP I
+don't think of a case where it matters much.
 
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

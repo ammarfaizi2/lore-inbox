@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275352AbTHGOhA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 10:37:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275350AbTHGOg7
+	id S275353AbTHGOmq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 10:42:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275365AbTHGOmq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 10:36:59 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:949 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S275352AbTHGOg6
+	Thu, 7 Aug 2003 10:42:46 -0400
+Received: from Mix-Lyon-107-1-204.w193-249.abo.wanadoo.fr ([193.249.22.204]:27008
+	"EHLO gaston") by vger.kernel.org with ESMTP id S275353AbTHGOmh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 10:36:58 -0400
-Message-ID: <3F3263FC.5030100@pobox.com>
-Date: Thu, 07 Aug 2003 10:36:44 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: axboe@suse.de
-Subject: Re: [PATCH] Proper block queue reference counting
-References: <200308070909.h7799QHg022029@hera.kernel.org>
-In-Reply-To: <200308070909.h7799QHg022029@hera.kernel.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 7 Aug 2003 10:42:37 -0400
+Subject: Re: [Linux-fbdev-devel] [PATCH] Framebuffer: 2nd try: client
+	notification mecanism & PM
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: James Simmons <jsimmons@infradead.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <20030807100309.GB166@elf.ucw.cz>
+References: <Pine.LNX.4.44.0308070000540.17315-100000@phoenix.infradead.org>
+	 <1060249101.1077.67.camel@gaston>  <20030807100309.GB166@elf.ucw.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1060267031.722.3.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 07 Aug 2003 16:37:11 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I like the patch, but see two problems:
 
-1) You convert drivers to dynamically allocated queues... who is freeing 
-the queues?  unregister_blkdev?  It's a bit non-obvious to say the 
-least, since you patches (for example, the first one, to stram.c) 
-obviously switch blk_init_queue to dynamically allocate a queue...  but 
-you do not add code to remove the final reference in modprobe.  The 
-standard driver-facing API dictates that the driver calls foo_put 
-itself, in the driver, rather than have it done implicitly.
+> I believe solution to this is simple: always switch to kernel-owned
+> console during suspend. (swsusp does it, there's patch for S3 to do
+> the same). That way, Xfree (or qtopia or whoever) should clean up
+> after themselves and leave the console to the kernel. (See
+> kernel/power/console.c)
 
-2) the blk_init_queue really should change names, IMO.  The other 
-subsystems in the kernel tend to use a "foo_alloc" or "alloc_foo" 
-pattern when creating new objects.  blk_alloc_queue, or simply blk_alloc?
+I tried using it on pmac, but it causes hell with XFree. I'm not sure
+what's up yet, I suspect it may be XFree still doing things after
+calling the RELDISP ioctl but I'm not completely sure yet.
 
-	Jeff
+The setup XFree + DRI is working without switching to suspend console
+(with only the apm_bios emulation for XFree to suspend/restore itself)
+but not when switching to suspend console right before doing the apm
+emulation callbacks (which should be ignored by X since it's no longer
+the frontmost process at this point).
 
+For some reason, it seems that after we have switched to the suspend
+console, we race with the X server on accel engine, and on resume, the X
+server just crashes.
 
-
+Ben.
+ 

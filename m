@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266097AbUA1Pse (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 10:48:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266053AbUA1Pr0
+	id S266078AbUA1PqB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 10:46:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266052AbUA1Pol
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 10:47:26 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:19109 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S266066AbUA1Pm7 (ORCPT
+	Wed, 28 Jan 2004 10:44:41 -0500
+Received: from albireo.ucw.cz ([81.27.194.19]:37763 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S266056AbUA1PlO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 10:42:59 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Wed, 28 Jan 2004 10:41:14 -0500
+Date: Wed, 28 Jan 2004 16:41:12 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Jake Moilanen <moilanen@austin.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.6] PCI Scan all functions
+Message-ID: <20040128154112.GA6108@ucw.cz>
+References: <1075222501.1030.45.camel@magik>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16407.55422.229863.840323@napali.hpl.hp.com>
-Date: Wed, 28 Jan 2004 07:42:54 -0800
-To: Hironobu Ishii <ishii.hironobu@jp.fujitsu.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ia64 <linux-ia64@vger.kernel.org>
-Subject: Re: [RFC/PATCH, 3/4] readX_check() performance evaluation
-In-Reply-To: <00a401c3e541$c1d347f0$2987110a@lsd.css.fujitsu.com>
-References: <00a401c3e541$c1d347f0$2987110a@lsd.css.fujitsu.com>
-X-Mailer: VM 7.17 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <1075222501.1030.45.camel@magik>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 28 Jan 2004 10:54:42 +0900, Hironobu Ishii <ishii.hironobu@jp.fujitsu.com> said:
+Hello!
 
-  Hironobu> This is a patch for rawread 1.0.3.
-  Hironobu> Original rawread 1.0.3 depends on i386.
+> There are some arch, like PPC64, that need to be able to scan all the
+> PCI functions.  The problem comes in on a logically partitioned system
+> where function 0 on a PCI-PCI bridge is assigned to one partition and
+> say function 2 is assiged to another partition.  On the second
+> partition, it would appear that function 0 does not exist, but function
+> 2 does.  If all the functions are not scanned, everything under function
+> 2 would not be detected.
 
-  Hironobu> --- rawread.c.old 2004-01-22 19:33:43.000000000 +0900
-  Hironobu> +++ rawread.c 2004-01-27 23:26:24.406717936 +0900
-  Hironobu> @@ -94,8 +94,14 @@
+Enabling scan of all functions globally is probably going to cause troubles,
+because there are single-function devices which respond to all function
+numbers. You need to enable this quirk selectively.
 
-  Hironobu> __inline__ unsigned long long int rdtsc()
-  Hironobu> {
-  Hironobu> -  unsigned long long int x;
-  Hironobu> -  __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
-  Hironobu> + unsigned long long int x;
-  Hironobu> +#if __i386__
-  Hironobu> + __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
-  Hironobu> +#elif __ia64__
-  Hironobu> + __asm__ volatile ("mov r8 = ar44");
-  Hironobu> +#else
-  Hironobu> + #error "Please write your own rdtsc()"
-  Hironobu> +#endif
-  Hironobu> return x;
-  Hironobu> }
-
-Inline assembly doesn't work with the Intel compiler on ia64.  I
-suggest to use ia64_get_itc() defined in <asm/delay.h> instead.
-
-	--david
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+"God doesn't play dice."    -- Albert Einstein

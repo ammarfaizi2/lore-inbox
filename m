@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263356AbTKQGQt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 01:16:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263357AbTKQGQt
+	id S263357AbTKQGZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 01:25:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbTKQGZZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 01:16:49 -0500
-Received: from f21.mail.ru ([194.67.57.54]:15888 "EHLO f21.mail.ru")
-	by vger.kernel.org with ESMTP id S263356AbTKQGQs (ORCPT
+	Mon, 17 Nov 2003 01:25:25 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:49894 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263357AbTKQGZY convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 01:16:48 -0500
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: =?koi8-r?Q?=22?=Rusty Russell=?koi8-r?Q?=22=20?= 
-	<rusty@rustcorp.com.au>
-Cc: =?koi8-r?Q?=22?=Greg KH=?koi8-r?Q?=22=20?= <greg@kroah.com>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: file2alias - incorrect=?koi8-r?Q?=3F=20?=aliases for USB 
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.248.25.26]
-Date: Mon, 17 Nov 2003 09:24:22 +0300
-In-Reply-To: <20031117060542.489442C266@lists.samba.org>
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1ALcoA-0006f7-00.arvidjaar-mail-ru@f21.mail.ru>
+	Mon, 17 Nov 2003 01:25:24 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Yet another UDP pmtud iss, it's different, really
+Date: Sun, 16 Nov 2003 22:25:08 -0800
+Message-ID: <7E713DB94F47914DB5AAB80DE8EEA875015398BE@fmsmsx410.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Yet another UDP pmtud iss, it's different, really
+Thread-Index: AcOrFhfE3N/A09UoQnmuk+bmA9PDVgBvPrSw
+From: "Johnson, Chester F" <chester.f.johnson@intel.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 17 Nov 2003 06:25:09.0163 (UTC) FILETIME=[8C7DAFB0:01C3ACD3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+List,
 
-> 
-> Thanks to Andrey for the fix.  Greg, did you want to add something
-> else?  Either way, please forward to Linus.
-> 
+This is not the same as the pmtud issues discussed ad-nauseum from 1999
+through 2001. It really is different. Trust me, please read on.
 
-thank you.
+Well, it is similar, but with a twist. We are in the middle of deploying
+DiffServ compliant QoS throughout our networks and stumbled across an
+issue that occurs when we configure our routers to mark the DiffServ
+Code Points (DSCP) for UDP traffic (AFS, NFS, other full frame size UDP
+traffic).
 
-> Andrey: the reason everything is in there is I didn't know what Greg
-> wanted.  He OK'd it, but I'm happy for them to be trimmed, too.
-> 
+The problem is that when the marked traffic reaches an IPsec/Ethernet
+segment, and the DF bit set to true, an ICMP message is returned to the
+transmitting host to say basically "fix your MTU". Since we have changed
+the ToS field with DSCP information, the ICMP message no longer matches
+anything in the route cache hash. If the ToS field is not "0", it must
+match src, dst, and ToS in the cache. Well, we changed one of them and
+there can be no such match.
 
-May I ask reponsible persons - Greg, Rusty - make some decision?
-As I have been hammered by Rusty to use modules.alias I am going
-to send functions for other subsystems as well - at least USB.
-Ironically for all others it makes code much smaller (and possibly
-a bit faster). For input it does not bring much :(
+The net result is that the transmitting host sends another 1500 byte
+packet and the process repeats itself. Ultimately the data transfer
+fails. When we stop DSCP marking, MTU negotiation works just fine, but
+we have no QoS.
 
-regards
+This kind of match might be great if we use a Linux platform as a
+router. It may indeed be useful for higher performance DiffServ routing.
+This kind of match requirement for an end-host is problematic. In our
+estimation it looks like a bug.
 
--andrey
+Can anyone out there help sort this out?
+
+Chester Johnson
+Network Transport Engineering
+Intel Corporation
 

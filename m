@@ -1,54 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318774AbSHQXPX>; Sat, 17 Aug 2002 19:15:23 -0400
+	id <S318770AbSHQXM2>; Sat, 17 Aug 2002 19:12:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318775AbSHQXPX>; Sat, 17 Aug 2002 19:15:23 -0400
-Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:27841 "EHLO
-	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S318774AbSHQXPW>; Sat, 17 Aug 2002 19:15:22 -0400
-Message-ID: <3D5ED96F.50805@linux.org>
-Date: Sat, 17 Aug 2002 19:17:03 -0400
-From: John Weber <john.weber@linux.org>
-Organization: Linux Online
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020702
-X-Accept-Language: en-us, en
+	id <S318771AbSHQXM2>; Sat, 17 Aug 2002 19:12:28 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:56849
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S318770AbSHQXM1>; Sat, 17 Aug 2002 19:12:27 -0400
+Date: Sat, 17 Aug 2002 16:06:46 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE?  IDE-TNG driver
+In-Reply-To: <Pine.LNX.4.44.0208172353330.3111-100000@sharra.ivimey.org>
+Message-ID: <Pine.LNX.4.10.10208171557510.23171-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-CC: Anton Altaparmakov <aia21@cantab.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Andre Hedrick <andre@linux-ide.org>, axboe@suse.de, vojtech@suse.cz,
-       bkz@linux-ide.org, linux-kernel@vger.kernel.org
-Subject: Re: IDE?
-References: <Pine.LNX.4.44.0208161706390.1674-100000@home.transmeta.com> <Pine.LNX.4.44.0208161706390.1674-100000@home.transmeta.com> <5.1.0.14.2.20020817225323.021796b0@pop.cus.cam.ac.uk> <20020817221704.GA2478@conectiva.com.br>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnaldo Carvalho de Melo wrote:
-> Em Sat, Aug 17, 2002 at 11:11:14PM +0100, Anton Altaparmakov escreveu:
-> 
->>At 20:56 17/08/02, Alan Cox wrote:
->>
->>>Volunteers willing to run Cerberus test sets on 2.4 boxes with IDE
->>>controllers would also be much appreciated. That way we can get good
->>>coverage tests and catch badness immediately
->>
-> 
->>If you tell me the kernel version and patches to apply which you want 
->>tested, and what options to run cerberus with (never used it before...), I 
->>have control over a currently idle dual Athlon MP 2000+ with an AMD-768 
->>(rev 04) IDE controller and 3G of RAM. It has only one HD, a ST340810A 
->>(ATA-100, 37G) attached.
-> 
-> 
-> I have a dual p100 with a CMD640 so I'll test 2.4-ac or whatever you name it,
-> as soon as I get back from vacation (in two weeks) and I get another old disk
-> for this test machine. It behaves with 2.4 but loses a lot of interrupts with
-> 2.5-MD (haven't tested after Jens got 2.4 forward port into 2.5).
-> 
+On Sat, 17 Aug 2002, Ruth Ivimey-Cook wrote:
 
-I have a dual Ppro200 with a PIIX ide chip, and a PIII 866 with a VIA 
-686B.  I'll test anything you want on these boxes.
+> On Sat, 17 Aug 2002, Andre Hedrick wrote:
+> >
+> >ide_ioctl(fd, HDIO_SET_IDE_SCSI, bool)
+> 
+> Seems fine to me...
+> 
+> >Where bool does the subdriver switch.
+> >Just that ioctl's are being blasted and people using are frowned upon.
+> 
+> ? so how is cdrecord (or whatever) supposed to do its stuff -- is it ioctl()  
+> -> fcntl()? If so, I suppose that's ok, but the basic premise still exists,
+> surely?
+> 
+> >This was a feature Alan Cox poked me for to try and move away from how
+> >modules are basically an all or nothing grab-all.
+> 
+> I don't think modules are the answer to any of this:
+>  a) some people want basically module-less kernels
 
+This is designed to work regardless.
+
+/dev/hdc == ide-cd builtin
+insmod ide-scsi
+
+ide_ioctl(fd, HDIO_SET_IDE_SCSI, bool)
+
+converts /dev/hdc == ide-cd builtin to ide-scsi(add-in-module).
+
+>  b) in some environments, you need to be able to select the IO mechanism 
+>     without the ability to select the module to load.
+
+See above, I think it solves the problem.
+Once ide-scsi is added to the ide_module link list it is as good as
+built-in.
+
+> anyway...
+> 
+> <slightly confused by it all>
+
+Me too, because I do not know the direction goal so I am doing the very
+best I can.  What I really need is an active development team.
+
+Before me:
+
+Mark Lord, Gadi Oxman, Eric Anderson worked well.
+
+ML ide-disk and ide.c global.
+GO ide-floppy, ide-tape, ide-scsi
+EA ide-cd
+
+Anyways that was long before transport layer w/ all the hardware issues
+began to dominate things.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
 

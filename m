@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262806AbVCPVW4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262810AbVCPVZ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262806AbVCPVW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 16:22:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVCPVWz
+	id S262810AbVCPVZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 16:25:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262816AbVCPVZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 16:22:55 -0500
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:17537 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262806AbVCPVW3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 16:22:29 -0500
-Date: Wed, 16 Mar 2005 22:22:16 +0100
-From: Johannes Stezenbach <js@sig21.net>
-To: Mikael Pettersson <mikpe@user.it.uu.se>
-Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
-Message-ID: <20050316212216.GB4526@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@sig21.net>,
-	Mikael Pettersson <mikpe@user.it.uu.se>,
-	linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
-References: <16950.59948.810534.979691@alkaid.it.uu.se>
-Mime-Version: 1.0
+	Wed, 16 Mar 2005 16:25:29 -0500
+Received: from ozlabs.org ([203.10.76.45]:4046 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262810AbVCPVXV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 16:23:21 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16950.59948.810534.979691@alkaid.it.uu.se>
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: 217.231.51.130
-Subject: Re: [PATCH][2.6.11] drivers/media/dvb/bt8xx/bt878.h gcc4 fix
-X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+Content-Transfer-Encoding: 7bit
+Message-ID: <16952.41973.751326.592933@cargo.ozlabs.ibm.com>
+Date: Thu, 17 Mar 2005 08:24:05 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, riel@redhat.com,
+       kurt@garloff.de, Ian.Pratt@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk
+Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
+In-Reply-To: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk>
+References: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 15, 2005 at 02:59:08PM +0100, Mikael Pettersson wrote:
-> Fix one array-of-incomplete-type error from gcc4 in bt878.h.
+Keir Fraser writes:
 
-Applied to linuxtv.org CVS.
+> This patch cleans up AGP driver treatment of bus/device memory. Every
+> use of virt_to_phys/phys_to_virt should properly be converting between
+> virtual and bus addresses: this distinction really matters for the Xen
+> hypervisor.
 
-Thanks,
-Johannes
+I think you are misunderstanding the distinction between physical
+addresses and bus addresses.  Specifically, it seems wrong to me to be
+putting bus addresses into the GATT rather than physical addresses.
+
+For example, on my G5, physical addresses are 36 bits (in the
+hardware) but bus addresses are only 32 bits.  Using bus addresses in
+the GATT would mean that I couldn't put any memory above the 4GB point
+into the GATT.
+
+The distinction is that physical addresses are what are used to access
+physical memory, whereas bus addresses are what appears on some
+external bus (usually PCI).  The GATT sits between an external (AGP)
+bus and memory, so while the GATT is indexed using bus addresses, its
+entries contain physical addresses.  So in fact virt_to_phys is the
+correct thing to use to calculate values to put in GATT entries.
+
+Paul.

@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288529AbSADHrm>; Fri, 4 Jan 2002 02:47:42 -0500
+	id <S288527AbSADHxY>; Fri, 4 Jan 2002 02:53:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288528AbSADHrc>; Fri, 4 Jan 2002 02:47:32 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:16188 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S288527AbSADHrZ>; Fri, 4 Jan 2002 02:47:25 -0500
-Date: Fri, 4 Jan 2002 09:36:26 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: adilger@turbolabs.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        linux-kernel@vger.kernel.org, sak@iki.fi, phillips@innominate.de,
-        viro@math.psu.edu, tao@acc.umu.se
-Subject: Re: Ext2 groups descriptor corruption in 2.2 - Phillips's patch seems to work
-Message-ID: <20020104093626.C1200@niksula.cs.hut.fi>
-In-Reply-To: <E16LjnL-00010c-00@starship.berlin> <E16LjxJ-0003om-00@the-village.bc.nu> <20020103170032.H12868@lynx.no>
+	id <S288528AbSADHxO>; Fri, 4 Jan 2002 02:53:14 -0500
+Received: from codepoet.org ([166.70.14.212]:14095 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S288527AbSADHxB>;
+	Fri, 4 Jan 2002 02:53:01 -0500
+Date: Fri, 4 Jan 2002 00:53:00 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: serge.manigault@ask.fr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: romable kernel (XIP)
+Message-ID: <20020104075300.GB5587@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	serge.manigault@ask.fr, linux-kernel@vger.kernel.org
+In-Reply-To: <3C347F73.1F6FD8A0@ask.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020103170032.H12868@lynx.no>; from adilger@turbolabs.com on Thu, Jan 03, 2002 at 05:00:32PM -0700
+In-Reply-To: <3C347F73.1F6FD8A0@ask.fr>
+User-Agent: Mutt/1.3.24i
+X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 03, 2002 at 05:00:32PM -0700, you [Andreas Dilger] said:
-> On Jan 02, 2002  11:53 +0000, Alan Cox wrote:
-> > > Since you have done such a thorough job of documenting the whole thing, why 
-> > > not drop the other shoe and submit the patches?
-> > 
-> > He did 8)
-> > 
-> > I've asked him to run them past Stephen and the other ext2 folks
-> 
-> Well, nobody else has spoken up on this, so I might as well.  I remember
-> when Daniel originally posted this fix, and at the time it was the right
-> thing to do.  Al's patch fixed more than Daniel's did,
+On Thu Jan 03, 2002 at 04:57:39PM +0100, Serge Manigault wrote:
+> Hello,
+> I am looking for information about Linux XIP for eXecute In Place
+> I need a romable image to minimize RAM usage.
+> Thanks for any information, link, or anything else about this subject.
+> regards,
 
-"More", in what way? Fixed more problem cases or just better in sense that
-he refromatted and splitted the long ext2_new_inode() function?
+http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2001-April/002262.html
 
-> but I think it is too much change to be adding to 2.2, so we should use
-> the minimal fix from Daniel, unless there are objections.
+ -Erik
 
-Ok. The minimal approach is what I was after, too :).
-
-Do you have any opionion about 2.0? The problem has been spotted on 2.0.39,
-too, and the 2.0.40pre3 ext2_new_inode() is almost identical to 2.2 one
-barring few trivialish changes. We plan to test the patch some more on 2.0
-(we already know it compiles and boots, btw ;), but it would be nice if some
-one who has played with 2.0 ext2 would give a "go ahead".
-
-
--- v --
-
-v@iki.fi
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

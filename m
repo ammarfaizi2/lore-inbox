@@ -1,83 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267767AbUIXDnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267773AbUIXDsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267767AbUIXDnl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 23:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266878AbUIXDmV
+	id S267773AbUIXDsH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 23:48:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266884AbUIXDq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 23:42:21 -0400
-Received: from dea.vocord.ru ([217.67.177.50]:20451 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S267666AbUIXDfq (ORCPT
+	Thu, 23 Sep 2004 23:46:56 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:9435 "EHLO baikonur.stro.at")
+	by vger.kernel.org with ESMTP id S267170AbUIWUb6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 23:35:46 -0400
-Subject: Re: [1/1] connector: Kernel connector - userspace <-> kernelspace
-	"linker".
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>
-Cc: Andrew Morton <akpm@osdl.org>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040923215447.GD30131@ruslug.rutgers.edu>
-References: <1095331899.18219.58.camel@uganda>
-	 <20040921124623.GA6942@uganda.factory.vocord.ru>
-	 <20040924000739.112f07dd@zanzibar.2ka.mipt.ru>
-	 <20040923215447.GD30131@ruslug.rutgers.edu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8fpkCBNjFfMFdPaA8Oer"
-Organization: MIPT
-Message-Id: <1095997232.17587.8.camel@uganda>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 24 Sep 2004 07:40:32 +0400
+	Thu, 23 Sep 2004 16:31:58 -0400
+Subject: [patch 04/21]  video/radeonfb: remove MS_TO_HZ()
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
+From: janitor@sternwelten.at
+Date: Thu, 23 Sep 2004 22:31:59 +0200
+Message-ID: <E1CAaFz-0000zb-S6@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-8fpkCBNjFfMFdPaA8Oer
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, 2004-09-24 at 01:54, Luis R. Rodriguez wrote:
-> RFC:=20
->=20
-> Can and should we work towards using this as interface for drivers that
-> need callbacks from an external (closed source) library/HAL?
 
-As I mentioned to Richard Jonson, it can be considered as
-ioctl. ioctl-ng!
-Unified interface (as ioctl) can be used for any type of modules.
-It is just a bit extended ioctl :)
 
-And _yes_, it can be used to turn on/off binary-only callbacks.
-Remember pwc - closed part can register callback and open part can
-send message, or even closed part can register notification when
-open part registers itself and begin to "trash the kernel".
 
-I understand that it is not right way to include it is into the kernel,
-but I personally do not understand how it is different=20
-from just extended ioctl. It was designed to be usefull and convenient,
-and it is.
 
-BTW, any binary-only module can _itself_ create netlink socket
-with input callback. And that is all - it will be absolutely
-the same as above.
+I would appreciate any comments from the janitors list. 
 
-One may consider connector as yet-another-netlink-helper.
 
---=20
-	Evgeniy Polyakov
 
-Crash is better than data corruption. -- Art Grabowski
+Depends-on: Patch to radeon_base.c which replaces call to MS_TO_HZ()
+with msecs_to_jiffies().
 
---=-8fpkCBNjFfMFdPaA8Oer
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Description: Removes definition of MS_TO_HZ() in favor of
+msecs_to_jiffies().
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
-iD8DBQBBU5cwIKTPhE+8wY0RArB9AJ9BVtouc/+Y4NtRR36frbG5W/k/gACeKd9o
-Va1gj+T3Fd5AXJOAOMWsLpU=
-=mKmD
------END PGP SIGNATURE-----
+---
 
---=-8fpkCBNjFfMFdPaA8Oer--
+ linux-2.6.9-rc2-bk7-max/drivers/video/aty/radeonfb.h |    2 --
+ 1 files changed, 2 deletions(-)
 
+diff -puN drivers/video/aty/radeonfb.h~use-msecs-to-jiffies-drivers_video_aty_radeonfb drivers/video/aty/radeonfb.h
+--- linux-2.6.9-rc2-bk7/drivers/video/aty/radeonfb.h~use-msecs-to-jiffies-drivers_video_aty_radeonfb	2004-09-21 20:51:47.000000000 +0200
++++ linux-2.6.9-rc2-bk7-max/drivers/video/aty/radeonfb.h	2004-09-21 20:51:47.000000000 +0200
+@@ -425,8 +425,6 @@ static inline u32 _INPLL(struct radeonfb
+ 		spin_unlock_irqrestore(&rinfo->reg_lock, flags); 	\
+ 	} while (0)
+ 
+-#define MS_TO_HZ(ms)       ((ms * HZ + 999) / 1000)
+-
+ #define BIOS_IN8(v)  	(readb(rinfo->bios_seg + (v)))
+ #define BIOS_IN16(v) 	(readb(rinfo->bios_seg + (v)) | \
+ 			  (readb(rinfo->bios_seg + (v) + 1) << 8))
+_

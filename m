@@ -1,46 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262641AbVCDFLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVCDFLF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262641AbVCDFLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 00:11:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbVCDFD7
+	id S261475AbVCDFLF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 00:11:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbVCDFDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 00:03:59 -0500
-Received: from nessie.weebeastie.net ([220.233.7.36]:62183 "EHLO
-	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S262149AbVCDEex (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 23:34:53 -0500
-Date: Fri, 4 Mar 2005 15:33:40 +1100
-From: CaT <cat@zip.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE locking (was: Re: RFD: Kernel release numbering)
-Message-ID: <20050304043340.GH30616@zip.com.au>
-References: <4226C235.1070609@pobox.com> <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com> <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org> <42274171.3030702@nortel.com> <20050303165940.GA11144@kroah.com> <1109893901.21780.68.camel@localhost.localdomain> <20050304001930.GF30616@zip.com.au> <1109897041.21781.75.camel@localhost.localdomain> <20050304014415.GG30616@zip.com.au>
-Mime-Version: 1.0
+	Fri, 4 Mar 2005 00:03:31 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:53793 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262145AbVCDElS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 23:41:18 -0500
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][10/10] verify_area cleanup : deprecate
+X-Message-Flag: Warning: May contain useful information
+References: <Pine.LNX.4.62.0503040342510.2801@dragon.hygekrogen.localhost>
+From: Roland Dreier <roland@topspin.com>
+Date: Thu, 03 Mar 2005 20:41:14 -0800
+In-Reply-To: <Pine.LNX.4.62.0503040342510.2801@dragon.hygekrogen.localhost> (Jesper
+ Juhl's message of "Fri, 4 Mar 2005 03:49:38 +0100 (CET)")
+Message-ID: <52is48m39x.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050304014415.GG30616@zip.com.au>
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.6+20040907i
+X-OriginalArrivalTime: 04 Mar 2005 04:41:14.0431 (UTC) FILETIME=[65B0D4F0:01C52074]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 12:44:16PM +1100, CaT wrote:
-> The problems were weird. The fs I was copying from decided it was
-> corrupt. Unmounting the partition and trying an fsck reported that it
-> couldn't find the partition. After a reboot all was well and a fsck
-> reported no problems.
+    Jesper> Eventually when this has been deprecated for a while I'll
+    Jesper> send patches to completely remove the function (thoughts
+    Jesper> on how long it should be deprecated first are welcome).
 
-Similar stuff with ac12 if dma is on on both drives.
+I don't have an opinion on how long to wait before removing the
+function, but this patch should probably add an entry to
+Documentation/feature-removal.txt.
 
-Mar  4 15:15:55 nessie kernel: hdi: dma_timer_expiry: dma status == 0x21
-Mar  4 15:16:10 nessie kernel: hdi: DMA timeout error
-Mar  4 15:16:10 nessie kernel: hdi: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
-Mar  4 15:16:10 nessie kernel:
-Mar  4 15:16:10 nessie kernel: ide: failed opcode was: unknown
-
-Should be noted that hdi does not boot with multisec or dma on.
-
--- 
-    Red herrings strewn hither and yon.
+ - R.

@@ -1,41 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285007AbRLZWpz>; Wed, 26 Dec 2001 17:45:55 -0500
+	id <S285016AbRLZWtz>; Wed, 26 Dec 2001 17:49:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285013AbRLZWpp>; Wed, 26 Dec 2001 17:45:45 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:6156 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S285007AbRLZWpa>;
-	Wed, 26 Dec 2001 17:45:30 -0500
-Date: Wed, 26 Dec 2001 20:45:13 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: safemode <safemode@speakeasy.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: some 2.4.17 vs. 2.4.17-rmap8 vs. lowmem analysis
-In-Reply-To: <1009405122.381.0.camel@psuedomode>
-Message-ID: <Pine.LNX.4.33L.0112262044280.24031-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S285013AbRLZWtp>; Wed, 26 Dec 2001 17:49:45 -0500
+Received: from ns1.system-techniques.com ([199.33.245.254]:22682 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S285016AbRLZWtn>; Wed, 26 Dec 2001 17:49:43 -0500
+Date: Wed, 26 Dec 2001 17:49:37 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Arturas V <arturasv@hotmail.com>
+cc: linux-kernel@vger.kernel.org, <avaitaitis@bloomberg.net>
+Subject: Re: Proliant hangs with 2.4 but works with 2.2. 
+In-Reply-To: <F105uevz176RbFGIUUJ0000fff8@hotmail.com>
+Message-ID: <Pine.LNX.4.43.0112261747460.18080-100000@filesrv1.baby-dragons.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Dec 2001, safemode wrote:
 
-> Ok, ran the same test again this time limiting ram to 32MB to really
-> work the vm. Unfortunately 2.4.17-rmap8 couldn't handle the vm load and
-> locked up during a swapin. So obviously there is no real data on it.
+	Hello Arturus ,  Fyi ,  The SYM2 version of the 53c8xx driver
+	(imo) has better support for both the older & newer chips .
+	The first 2.4 kernel with the SYM2 included is 2.4.16 (iirc) .
+		Hth ,  JimL
 
-Yes, the rmap patch still has a known livelock. I haven't
-quite tracked it down yet, but am looking into it whenever
-I have the time.
+On Wed, 26 Dec 2001, Arturas V wrote:
+> lafanga lafanga wrote:
+> >I have a Compaq Proliant 1600 server which can be hung on demand with >all
+> >the 2.4 series kernels I have tried (2.4, 2.4.1 & 2.4.2-pre3). >Kernel
+> >2.2.16 runs perfectly (from a default RH7.0).
+>
+> >I have ensured that the server meets the necessary requirements for >the
+> >2.4 kernels (modutils etc) and I have tried kgcc and various gcc versions.
+> > >When compiling I have tried default configs and also minimalist configs
+> >(with only cpqarray and tlan). I have also ensured that I have the latest
+> > >current SmartStart CD (4.9) and have setup the firmware for installing
+> >Linux.
+>
+> I had similar problem with 2.4.5 Kernel. I managed to solve the problem by
+> configuring a working verion of kernel with
+> NCR53C8XX SCSI support as well as SYM53C8XX. As far as I understood
+> SYM53C8xx support covers 53C8xx chips better than NCR53C8xx and that makes
+> all the difference. Anyone understands why?
+> ---
+> Arturas Vaitaitis.
+> ---
+> Please CC to arturv@acedsl.com
+> P.S. Intelligence has yet to prove its survival value
+>
+> _________________________________________________________________
+> Send and receive Hotmail on your mobile device: http://mobile.msn.com
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-regards,
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
 

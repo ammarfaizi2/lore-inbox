@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317544AbSGJQvE>; Wed, 10 Jul 2002 12:51:04 -0400
+	id <S317550AbSGJQxH>; Wed, 10 Jul 2002 12:53:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317546AbSGJQvD>; Wed, 10 Jul 2002 12:51:03 -0400
-Received: from relay01.valueweb.net ([216.219.253.235]:25094 "EHLO
-	relay01.valueweb.net") by vger.kernel.org with ESMTP
-	id <S317544AbSGJQvB>; Wed, 10 Jul 2002 12:51:01 -0400
-Message-ID: <3D2C66D9.AF14035A@opersys.com>
-Date: Wed, 10 Jul 2002 12:54:49 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: Thunder from the hill <thunder@ngforever.de>
-CC: Adrian Bunk <bunk@fs.tum.de>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-       bob <bob@watson.ibm.com>, Richard Moore <richardj_moore@uk.ibm.com>
-Subject: Re: [STATUS 2.5]  July 10, 2002
-References: <Pine.LNX.4.44.0207101027380.5067-100000@hawkeye.luckynet.adm>
+	id <S317559AbSGJQxG>; Wed, 10 Jul 2002 12:53:06 -0400
+Received: from holomorphy.com ([66.224.33.161]:10128 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S317546AbSGJQxD>;
+	Wed, 10 Jul 2002 12:53:03 -0400
+Date: Wed, 10 Jul 2002 09:54:43 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: David Chow <davidchow@shaolinmicro.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CPU load
+Message-ID: <20020710165443.GA15916@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	David Chow <davidchow@shaolinmicro.com>,
+	linux-kernel@vger.kernel.org
+References: <1026312615.6584.18.camel@star15.staff.shaolinmicro.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <1026312615.6584.18.camel@star15.staff.shaolinmicro.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 10, 2002 at 10:50:15PM +0800, David Chow wrote:
+> Is there any calls in the kernel space I can determine the current
+> system load or CPU load?
 
-Thunder from the hill wrote:
-> > >    - Build option for Linux Trace Toolkit (LTT)
-> 
-> Nobody seemed to be interested in this toolkit. The (s|l)trace toolkit and
-> kdb seemed to be sufficient for the most developers. (I don't whine here
-> either.)
+Examine the avenrun array declared in kernel/timer.c in a manner similar
+to how loadavg_read_proc() in fs/proc/proc_misc.c does.
 
-It's somewhat unfair to compare LTT to s/ltrace or kdb because they
-don't serve the same purposes. The other thread on "Enhanced profiling"
-should have made this very clear by now.
-
-I've spoken to many key kernel developers about this and they all saw
-its inclusion as being positive, but they also all said the same thing:
-it's really Linus' decision.
-
-In light of the recent discussions, it would be really nice to get a
-definitive statement about LTT's inclusion in 2.5.
 
 Cheers,
-
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+Bill

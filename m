@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263459AbTETC14 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 22:27:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbTETC14
+	id S263493AbTETCfC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 22:35:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263507AbTETCfC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 22:27:56 -0400
-Received: from smtp2.ispsnet.net ([64.63.192.12]:52704 "EHLO ispsnet.net")
-	by vger.kernel.org with ESMTP id S263459AbTETC1z (ORCPT
+	Mon, 19 May 2003 22:35:02 -0400
+Received: from dp.samba.org ([66.70.73.150]:688 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263493AbTETCfB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 22:27:55 -0400
-Subject: DHCP
-From: Gerald Stuhrberg <grstuhrberg@aaahawk.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200305191821.h4JILlE12026@adam.yggdrasil.com>
-References: <200305191821.h4JILlE12026@adam.yggdrasil.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CNp0ta4SHhriw0s/9S6V"
-Organization: 
-Message-Id: <1053398280.22397.5.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 19 May 2003 22:38:01 -0400
+	Mon, 19 May 2003 22:35:01 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: mingo@elte.hu
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] fix do_fork() return value
+Date: Tue, 20 May 2003 12:46:44 +1000
+Message-Id: <20030520024801.535E02C002@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+# Noticed by Julie DeWandel <jdewand@redhat.com>.
+# 
+# do_fork() needs to return the pid (or error), not the pointer to the
+# resulting process structure.  The process structure may not even be
+# valid any more, since do_fork() has already woken the process up (and as
+# a result it might already have done its thing and gone away).
+# 
+# Besides, doing it this way cleans up the users, which all really just
+# wanted the pid or error number _anyway_.
 
---=-CNp0ta4SHhriw0s/9S6V
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Just FYI: the change was done in the first place to allow spawning a
+new init thread as CPUs come up.  But now we have copy_process it can
+be done neatly (it should also be done out of keventd so we get a
+clean thread, but that's another story).
 
-I was just wondering if anyone had plans to implement a DHCP client in
-the kernel.Something that would listen for an ip that could be loaded as
-a module. --Just an idea-- Im not an experienced C programmer but would
-like to mess with this idea. If anyone has any ideas for more info
-please email them to me.
+Note that this version also has a (theoretical) race, except hidden
+by the time to wrap PIDs ie. "never happens".
 
-Thanks
--Gerald Stuhrberg-
-
-
---=-CNp0ta4SHhriw0s/9S6V
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+yZUItKz6PCmTX+kRAiLKAKDeQfKDhV+Fp8XneuM3URPqs1G72wCfWqsk
-7C2c6Khg+dKm2lobL2lFtr4=
-=6958
------END PGP SIGNATURE-----
-
---=-CNp0ta4SHhriw0s/9S6V--
-
+Thanks!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264262AbUEMPhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264260AbUEMPhC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264262AbUEMPhK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 11:37:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264263AbUEMPhK
+	id S264260AbUEMPhC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 11:37:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264262AbUEMPhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 11:37:10 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:61705 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S264262AbUEMPhF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 11:37:05 -0400
-Date: Thu, 13 May 2004 23:36:38 +0800 (WST)
-From: raven@themaw.net
-To: John McCutchan <ttb@tentacle.dhs.org>
-cc: linux-kernel@vger.kernel.org, nautilus-list@gnome.org
-Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement
-In-Reply-To: <1084152941.22837.21.camel@vertex>
-Message-ID: <Pine.LNX.4.58.0405132330480.13693@donald.themaw.net>
-References: <1084152941.22837.21.camel@vertex>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.2, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, REFERENCES,
-	REPLY_WITH_QUOTES, USER_AGENT_PINE)
+	Thu, 13 May 2004 11:37:02 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:28906 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S264260AbUEMPg6 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 11:36:58 -0400
+Message-Id: <200405131536.i4DFaaSE017433@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Kronos <kronos@kronoz.cjb.net>, linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [4KSTACK][2.6.6] Stack overflow in radeonfb 
+In-Reply-To: Your message of "Thu, 13 May 2004 17:15:49 +0200."
+             <20040513151549.GB31123@wohnheim.fh-wedel.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040513134847.GA2024@dreamland.darkstar.lan> <20040513145640.GA3430@dreamland.darkstar.lan>
+            <20040513151549.GB31123@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-867745868P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 13 May 2004 11:36:36 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-867745868P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Hi John.
+On Thu, 13 May 2004 17:15:49 +0200, =3D?iso-8859-1?Q?J=3DF6rn?=3D Engel s=
+aid:
 
-On Sun, 9 May 2004, John McCutchan wrote:
+> Even quicker fix:
+> =
 
-> Hi,
-> 
-> I have been working on inotify a dnotify replacement. 
+> --- linux-2.6/drivers/video/aty/radeon_base.c~	2004-05-13 16:51:08.000
+000000 +0200
+> +++ linux-2.6/drivers/video/aty/radeon_base.c	2004-05-13 16:55:09.00000=
+0000 +
+0200
+> @@ -1397,7 +1397,7 @@
+>  {
+>  	struct radeonfb_info *rinfo =3D info->par;
+>  	struct fb_var_screeninfo *mode =3D &info->var;
+> -	struct radeon_regs newmode;
+> +	static struct radeon_regs newmode;
+>  	int hTotal, vTotal, hSyncStart, hSyncEnd,
+>  	    hSyncPol, vSyncStart, vSyncEnd, vSyncPol, cSync;
+>  	u8 hsync_adj_tab[] =3D {0, 0x12, 9, 9, 6, 5};
 
-I have a rather unusual requirement for notification events.
+Is that racy if you have more than one graphics card installed?
 
-I've had a brief look at the code but it doesn't look like it would 
-cater for it.
+--==_Exmh_-867745868P
+Content-Type: application/pgp-signature
 
-Would this allow me to receive a notification when a directory is 
-passed over during a path walk?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Could this strategy be adapted to notify an in kernel module?
-Or is this overkill for what I'm asking?
+iD8DBQFAo5YEcC3lWbTT17ARAtZkAJ9DRW5FLRd+eaqkJPxs5azzTiHLXgCaAlV8
+9GfjjsfiBJWkUryChYGRxrg=
+=aV8l
+-----END PGP SIGNATURE-----
 
-Ian
-
+--==_Exmh_-867745868P--

@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267141AbTAKUeg>; Sat, 11 Jan 2003 15:34:36 -0500
+	id <S267143AbTAKUnJ>; Sat, 11 Jan 2003 15:43:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267143AbTAKUeg>; Sat, 11 Jan 2003 15:34:36 -0500
-Received: from mail.cs.umn.edu ([128.101.34.202]:47358 "EHLO mail.cs.umn.edu")
-	by vger.kernel.org with ESMTP id <S267141AbTAKUeg>;
-	Sat, 11 Jan 2003 15:34:36 -0500
-To: rct@gherkin.frus.com (Bob_Tracy(0000))
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.55+: soundcore: Unknown symbol errno
-From: Raja R Harinath <harinath@cs.umn.edu>
-Date: Sat, 11 Jan 2003 14:43:22 -0600
-In-Reply-To: <20030111151812.3F4DC4EE7@gherkin.frus.com> (rct@gherkin.frus.com's
- message of "Sat, 11 Jan 2003 09:18:12 -0600 (CST)")
-Message-ID: <d9iswvzac5.fsf@bose.cs.umn.edu>
-User-Agent: Gnus/5.090011 (Oort Gnus v0.11) Emacs/21.3.50
- (i686-pc-linux-gnu)
-References: <20030111151812.3F4DC4EE7@gherkin.frus.com>
+	id <S267221AbTAKUnJ>; Sat, 11 Jan 2003 15:43:09 -0500
+Received: from public1-brig1-3-cust85.brig.broadband.ntl.com ([80.0.159.85]:7176
+	"EHLO ppg_penguin.kenmoffat.uklinux.net") by vger.kernel.org
+	with ESMTP id <S267143AbTAKUnI>; Sat, 11 Jan 2003 15:43:08 -0500
+Date: Sat, 11 Jan 2003 20:51:50 +0000 (GMT)
+From: Ken Moffat <ken@kenmoffat.uklinux.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-pre3 : i8253 count too high! resetting..
+Message-ID: <Pine.LNX.4.21.0301112040390.5280-100000@ppg_penguin>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ I've just started running pre3, and after a few minutes the above
+message started to appear. I can see it is coming from
+i386/kernel/timer.c, but beyond that I'm out of my depth, so I'll just
+report it for my betters.
 
-rct@gherkin.frus.com (Bob_Tracy(0000)) writes:
+ I remember that in earlier versions of 2.4 there was a sporadic timer
+message, along the lines of "probably via" (?) which also affected this
+box. 
 
-> I'm getting the subject error message with ALSA for both 2.5.55 and
-> 2.5.56.  The culprit appears to be the very last patch in the 2.5.55
-> patch set, which deletes "static int errno;" from
-> linux/sound/sound_firmware.c.  The undefined reference to errno is
-> from the include of <linux/unistd.h>.
+ The CPU is a K6-2, on a Jetway 542C mobo. lspci shows an Ali M1541 (rev
+04) host bridge and PCI bridge, with an Ali M1533 (rev c3) PCI to ISA
+bridge and a M5229 IDE i/f (rev c2). Compiler was gcc-2.95.3.
 
-Try compiling soundcore in-kernel (everything else can be modular).
+ Any more information anybody would like ?
 
-The "problem" appears to be that 'errno' in lib/errno.c is not
-EXPORT_SYMBOLed.  The "static int errno;" in sound_firmware.c was most
-definitely a bug, especially since it conflicts with the "extern int
-errno;" in linux/unistd.h.
-
-- Hari
+Ken
 -- 
-Raja R Harinath ------------------------------ harinath@cs.umn.edu
+ Out of the darkness a voice spake unto me, saying "smile, things could be
+worse". So I smiled, and lo, things became worse.
+
+
+

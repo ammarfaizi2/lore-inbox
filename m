@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318059AbSGLXCT>; Fri, 12 Jul 2002 19:02:19 -0400
+	id <S318058AbSGLXBD>; Fri, 12 Jul 2002 19:01:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318060AbSGLXCS>; Fri, 12 Jul 2002 19:02:18 -0400
-Received: from holomorphy.com ([66.224.33.161]:46751 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S318059AbSGLXCQ>;
-	Fri, 12 Jul 2002 19:02:16 -0400
-Date: Fri, 12 Jul 2002 16:04:02 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, colpatch@us.ibm.com
-Subject: Re: NUMA-Q breakage 2/7 xquad_portio ioremap deadlock
-Message-ID: <20020712230402.GB21551@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-	linux-kernel@vger.kernel.org, colpatch@us.ibm.com
-References: <20020712223942.GZ25360@holomorphy.com> <1176230000.1026514730@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1176230000.1026514730@flay>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S318059AbSGLXBC>; Fri, 12 Jul 2002 19:01:02 -0400
+Received: from pD952ACB5.dip.t-dialin.net ([217.82.172.181]:47495 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318058AbSGLXBC>; Fri, 12 Jul 2002 19:01:02 -0400
+Date: Fri, 12 Jul 2002 17:02:59 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: linux-kernel@vger.kernel.org, <rml@tech9.net>
+Subject: Re: NUMA-Q breakage 5/7 in_interrupt() race
+In-Reply-To: <20020712225318.GA21551@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0207121702390.3421-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The cpu_online_map stuff for hotplug cpu created a brand new bootstrap
->> ordering problem for NUMA-Q. The mmapped portio region needs to be
->> ioremapped early but ioremap attempts to do TLB shootdown, and
->> smp_call_function() (called by flush_tlb_all()) deadlocks when
->> cpu_online_map is uninitialized.
+Hi,
 
-On Fri, Jul 12, 2002 at 03:58:50PM -0700, Martin J. Bligh wrote:
-> Would it be slightly less of a hack if we just move the ioremap down below
-> set_bit(0, &cpu_online_map); later on in smp_boot_cpus ? Untested patch
-> below. As long as we set up the xquad_portio remap before any other cpus 
-> are online, I can't see it matters exactly when we do it ....
-> Either that, or we just define cpu_online_map to be =1 to start with.
-> M.
+On Fri, 12 Jul 2002, William Lee Irwin III wrote:
+> Argh, I forgot to credit Rusty Russell (and possibly also Paul Mackerras)
+> with originally discovering & fixing this.
 
-This looks better than fiddling with smp_call_function().
+While we're on it, thanks from me, too.
 
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 
-Cheers,
-Bill

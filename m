@@ -1,162 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261218AbSLHNS0>; Sun, 8 Dec 2002 08:18:26 -0500
+	id <S265414AbSLHN3m>; Sun, 8 Dec 2002 08:29:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261290AbSLHNS0>; Sun, 8 Dec 2002 08:18:26 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:896 "EHLO bilbo.tmr.com")
-	by vger.kernel.org with ESMTP id <S261218AbSLHNSY>;
-	Sun, 8 Dec 2002 08:18:24 -0500
-Date: Sun, 8 Dec 2002 08:25:59 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-X-X-Sender: root@bilbo.tmr.com
-Reply-To: Bill Davidsen <davidsen@tmr.com>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] ctxbench 2.4.18 and 2.5.50
-Message-ID: <Pine.LNX.4.44.0212080810350.11404-300000@bilbo.tmr.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463810548-720066511-1039353923=:11404"
+	id <S265754AbSLHN3m>; Sun, 8 Dec 2002 08:29:42 -0500
+Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:29111 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265414AbSLHN3m>; Sun, 8 Dec 2002 08:29:42 -0500
+Subject: Re: [BUG] 2.4.20-BK
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, hps@intermeta.de
+In-Reply-To: <200212081337.56002.m.c.p@wolk-project.de>
+References: <200212071434.11514.m.c.p@wolk-project.de>
+	<200212072036.08500.m.c.p@wolk-project.de> <asv3d8$nr$1@forge.intermeta.de>
+	 <200212081337.56002.m.c.p@wolk-project.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 08 Dec 2002 14:13:24 +0000
+Message-Id: <1039356804.6942.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Sun, 2002-12-08 at 12:37, Marc-Christian Petersen wrote:
+> On Sunday 08 December 2002 10:29, Henning P. Schmiedehausen wrote:
+> 
+> Hi Henning,
+> 
+> > >    ide0: BM-DMA at 0x9400-0x9407, BIOS settings: hda:pio, hdb:pio
+> > >    ide1: BM-DMA at 0x9408-0x940f, BIOS settings: hdc:pio, hdd:pio
+> > >    ide2: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
+> > >    ide3: BM-DMA at 0xffa8-0xffaf, BIOS settings: hda:pio, hdb:DMA
+> >
+> > Shouldn't these bei hde - hdh ? I'd be scared by my machine reporting
+> > hda thrice. :-)
+> That's why I've writte this also ;) It's an exact output of what I got.
 
----1463810548-720066511-1039353923=:11404
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Send me an lspci -vxx
 
-The results of these tests indicate that there may be some odd SMP locking 
-issues still in 2.5.xx which were either much less obvious or not present 
-in 2.4.
-
-The oddness I see
-
-As these results show, best results were from using a uni kernel, but an 
-SMP kernel with "nosmp" was faster than running SMP. The problem is that 
-with 2.5 kernels the SMP results for multiple runs vary by up to 2:1, and 
-for uni kernels it's more like 5-10% max. I have tried longer runs, more 
-runs, and gotten the same results even in single user mode.
-
-The ctxbench measures the number of times two processes can take turns 
-running using various forms of IPC. I'll post a more complete sescription 
-of the benchmark and a link later today. The IPC in question is signals, 
-semiphores, and message queues. Pipes are disabled (didn't work in 2.5.50) 
-and sockets are not currently tested.
-
-I am going to enable the pipe testing code, and will rerun the tests and 
-post the results as well as the link to source code by tomorrow at the 
-latest.
-
--- 
-bill davidsen, CTO TMR Associates, Inc <davidsen@tmr.com>
-  Having the feature freeze for Linux 2.5 on Hallow'een is appropriate,
-since using 2.5 kernels includes a lot of things jumping out of dark
-corners to scare you.
-
-
----1463810548-720066511-1039353923=:11404
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="x.tmp"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0212080825230.11404@bilbo.tmr.com>
-Content-Description: 2.4.18 results
-Content-Disposition: attachment; filename="x.tmp"
-
-DQoNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT0NCiAgICBSdW4gaW5mb3JtYXRpb24N
-Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT0NCg0KUnVuOiAyLjQuMTgtMTAtYmwNCiAg
-Q1BVX01IeiAgICAgICAgICAgICAgNDk4LjAxNA0KICBDUFV0eXBlICAgICAg
-ICAgICAgICBDZWxlcm9uIChNZW5kb2Npbm8pDQogIE5jcHUgICAgICAgICAg
-ICAgICAgIDENClJ1bjogMi40LjE4LTEwc21wLWJsDQogIENQVV9NSHogICAg
-ICAgICAgICAgIDQ5OC4wMDcNCiAgQ1BVdHlwZSAgICAgICAgICAgICAgQ2Vs
-ZXJvbiAoTWVuZG9jaW5vKQ0KICBOY3B1ICAgICAgICAgICAgICAgICAyDQpS
-dW46IDIuNC4xOC0xMHVuaS1ibA0KICBDUFVfTUh6ICAgICAgICAgICAgICA0
-OTguMDE2DQogIENQVXR5cGUgICAgICAgICAgICAgIENlbGVyb24gKE1lbmRv
-Y2lubykNCiAgTmNwdSAgICAgICAgICAgICAgICAgMQ0KDQoNCj09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT0NCiAgICBSZXN1bHRzIGJ5IElQQyB0eXBlDQo9PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09DQoNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgbG9vcHMvc2VjDQpTSUdVU1IxICAgICAgICAgICAgICAgICAgICAg
-bG93ICAgICAgIGhpZ2ggICAgYXZlcmFnZQ0KICAyLjQuMTgtMTAtYmwgICAg
-ICAgICAgICA3MDcwMyAgICAgIDcxMDI4ICAgICAgNzA5MTQNCiAgMi40LjE4
-LTEwc21wLWJsICAgICAgICAgMzE3NzIgICAgICAzMjUwOCAgICAgIDMyMTgx
-DQogIDIuNC4xOC0xMHVuaS1ibCAgICAgICAgIDYzMDE3ICAgICAgNjM0MzAg
-ICAgICA2MzE2NQ0KDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgIGxvb3BzL3NlYw0KbWVzc2FnZSBxdWV1ZSAgICAgICAgICAgICAgIGxv
-dyAgICAgICBoaWdoICAgIGF2ZXJhZ2UNCiAgMi40LjE4LTEwLWJsICAgICAg
-ICAgICAxMjk5OTQgICAgIDEzMDQ0NiAgICAgMTMwMjEyDQogIDIuNC4xOC0x
-MHNtcC1ibCAgICAgICAgIDQ1MDMwICAgICAgNTA2OTEgICAgICA0ODIxOA0K
-ICAyLjQuMTgtMTB1bmktYmwgICAgICAgIDEwNTY0OSAgICAgMTA2NTI5ICAg
-ICAxMDYxODANCg0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICBsb29wcy9zZWMNCnNlbWlwaG9yZSAgICAgICAgICAgICAgICAgICBsb3cg
-ICAgICAgaGlnaCAgICBhdmVyYWdlDQogIDIuNC4xOC0xMC1ibCAgICAgICAg
-ICAgMTQxNzA2ICAgICAxNDI4OTUgICAgIDE0MjM1OA0KICAyLjQuMTgtMTBz
-bXAtYmwgICAgICAgICA0NDcxMiAgICAgIDQ1NDAxICAgICAgNDQ5ODMNCiAg
-Mi40LjE4LTEwdW5pLWJsICAgICAgICAxMTM1MjcgICAgIDExNDAxMyAgICAg
-MTEzNzc0DQoNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-bG9vcHMvc2VjDQpzcGluK3lpZWxkICAgICAgICAgICAgICAgICAgbG93ICAg
-ICAgIGhpZ2ggICAgYXZlcmFnZQ0KICAyLjQuMTgtMTAtYmwgICAgICAgICAg
-IDI4Njg4MiAgICAgMzAwOTg5ICAgICAyOTM4NjQNCiAgMi40LjE4LTEwc21w
-LWJsICAgICAgICA1OTI1ODUgICAgIDY0ODc2OCAgICAgNjIwMjY2DQogIDIu
-NC4xOC0xMHVuaS1ibCAgICAgICAgMTczMzY3ICAgICAxODUwNjMgICAgIDE3
-OTE2MA0KDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGxv
-b3BzL3NlYw0Kc3BpbmxvY2sgICAgICAgICAgICAgICAgICAgIGxvdyAgICAg
-ICBoaWdoICAgIGF2ZXJhZ2UNCiAgMi40LjE4LTEwLWJsICAgICAgICAgICAg
-ICAgIDMgICAgICAgICAgMyAgICAgICAgICAzDQogIDIuNC4xOC0xMHNtcC1i
-bCAgICAgICAxMjA2NjcyICAgIDEyMDc0NzEgICAgMTIwNzE5Mg0KICAyLjQu
-MTgtMTB1bmktYmwgICAgICAgICAgICAgMyAgICAgICAgICAzICAgICAgICAg
-IDMNCg0K
----1463810548-720066511-1039353923=:11404
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="y.tmp"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0212080825231.11404@bilbo.tmr.com>
-Content-Description: 2.5.50 results
-Content-Disposition: attachment; filename="y.tmp"
-
-DQoNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT0NCiAgICBSdW4gaW5mb3JtYXRpb24N
-Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT0NCg0KUnVuOiAyLjUuNTAtYmwNCiAgQ1BV
-X01IeiAgICAgICAgICAgICAgNDk3Ljk1MA0KICBDUFV0eXBlICAgICAgICAg
-ICAgICBDZWxlcm9uIChNZW5kb2Npbm8pDQogIE5jcHUgICAgICAgICAgICAg
-ICAgIDENClJ1bjogMi41LjUwc21wLWJsDQogIENQVV9NSHogICAgICAgICAg
-ICAgIDQ5Ny45NTMNCiAgQ1BVdHlwZSAgICAgICAgICAgICAgQ2VsZXJvbiAo
-TWVuZG9jaW5vKQ0KICBOY3B1ICAgICAgICAgICAgICAgICAyDQpSdW46IDIu
-NS41MHVuaS1ibA0KICBDUFVfTUh6ICAgICAgICAgICAgICA0OTcuOTE0DQog
-IENQVXR5cGUgICAgICAgICAgICAgIENlbGVyb24gKE1lbmRvY2lubykNCiAg
-TmNwdSAgICAgICAgICAgICAgICAgMQ0KDQoNCj09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT0NCiAgICBSZXN1bHRzIGJ5IElQQyB0eXBlDQo9PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09DQoNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbG9v
-cHMvc2VjDQpTSUdVU1IxICAgICAgICAgICAgICAgICAgICAgbG93ICAgICAg
-IGhpZ2ggICAgYXZlcmFnZQ0KICAyLjUuNTAtYmwgICAgICAgICAgICAgICA2
-NjA5OCAgICAgIDY2NjM4ICAgICAgNjYzMjENCiAgMi41LjUwc21wLWJsICAg
-ICAgICAgICAgIDY1ODYgICAgICA0NzAyNiAgICAgIDMxMjY2DQogIDIuNS41
-MHVuaS1ibCAgICAgICAgICAgIDU1NDgyICAgICAgNTU2NDcgICAgICA1NTU2
-NQ0KDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGxvb3Bz
-L3NlYw0KbWVzc2FnZSBxdWV1ZSAgICAgICAgICAgICAgIGxvdyAgICAgICBo
-aWdoICAgIGF2ZXJhZ2UNCiAgMi41LjUwLWJsICAgICAgICAgICAgICAxMjA3
-MjAgICAgIDEyMjEwMSAgICAgMTIxNTc0DQogIDIuNS41MHNtcC1ibCAgICAg
-ICAgICAgIDUyMzY1ICAgICAgNzQ2MTcgICAgICA2NjA1OQ0KICAyLjUuNTB1
-bmktYmwgICAgICAgICAgIDEwMTc2NSAgICAgMTAxODMyICAgICAxMDE3OTUN
-Cg0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsb29wcy9z
-ZWMNCnNlbWlwaG9yZSAgICAgICAgICAgICAgICAgICBsb3cgICAgICAgaGln
-aCAgICBhdmVyYWdlDQogIDIuNS41MC1ibCAgICAgICAgICAgICAgMTI5NTY0
-ICAgICAxMzA2ODMgICAgIDEyOTk5Mg0KICAyLjUuNTBzbXAtYmwgICAgICAg
-ICAgICA2MDg3MSAgICAgIDg3MTU0ICAgICAgNzEyMTINCiAgMi41LjUwdW5p
-LWJsICAgICAgICAgICAxMDcyOTAgICAgIDEwNzcxOSAgICAgMTA3NTIzDQoN
-CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbG9vcHMvc2Vj
-DQpzcGluK3lpZWxkICAgICAgICAgICAgICAgICAgbG93ICAgICAgIGhpZ2gg
-ICAgYXZlcmFnZQ0KICAyLjUuNTAtYmwgICAgICAgICAgICAgIDMyNzMyNSAg
-ICAgMzI5MzU4ICAgICAzMjgzNjUNCiAgMi41LjUwc21wLWJsICAgICAgICAg
-ICAzOTExMDQgICAgIDU2MDAwNyAgICAgNDkyMTg3DQogIDIuNS41MHVuaS1i
-bCAgICAgICAgICAgMjQ5NTk1ICAgICAyNDk3MzQgICAgIDI0OTY4NQ0KDQog
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGxvb3BzL3NlYw0K
-c3BpbmxvY2sgICAgICAgICAgICAgICAgICAgIGxvdyAgICAgICBoaWdoICAg
-IGF2ZXJhZ2UNCiAgMi41LjUwLWJsICAgICAgICAgICAgICAgICAgIDMgICAg
-ICAgICAgMyAgICAgICAgICAzDQogIDIuNS41MHNtcC1ibCAgICAgICAgICAx
-MTk1NDAzICAgIDExOTY1MTkgICAgMTE5NjA5NQ0KICAyLjUuNTB1bmktYmwg
-ICAgICAgICAgICAgICAgMyAgICAgICAgICAzICAgICAgICAgIDMNCg0K
----1463810548-720066511-1039353923=:11404--

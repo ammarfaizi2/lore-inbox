@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312466AbSCUT5n>; Thu, 21 Mar 2002 14:57:43 -0500
+	id <S312470AbSCUUFf>; Thu, 21 Mar 2002 15:05:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312467AbSCUT5e>; Thu, 21 Mar 2002 14:57:34 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:32131 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S312466AbSCUT5T>;
-	Thu, 21 Mar 2002 14:57:19 -0500
-Date: Thu, 21 Mar 2002 15:12:03 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Dave Jones <davej@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Anders Gustafsson <andersg@0x63.nu>, arjanv@redhat.com,
-        linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: [PATCH] devexit fixes in i82092.c
-Message-ID: <20020321151203.I37@toy.ucw.cz>
-In-Reply-To: <E16mMer-0007Q4-00@the-village.bc.nu> <Pine.LNX.4.33.0203161421240.8278-100000@home.transmeta.com> <20020317001533.E15296@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S312467AbSCUUF0>; Thu, 21 Mar 2002 15:05:26 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:19150 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S312469AbSCUUFK>; Thu, 21 Mar 2002 15:05:10 -0500
+Date: Thu, 21 Mar 2002 21:01:39 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: alan@lxorguk.ukuu.org.uk, marcelo@conectiva.com.br, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] boot_cpu_data corruption on SMP x86
+In-Reply-To: <200203141724.SAA05707@harpo.it.uu.se>
+Message-ID: <Pine.GSO.3.96.1020321205927.22279J-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 14 Mar 2002, Mikael Pettersson wrote:
 
->  This makes sense for a shutdown, and suspend-to-disk, but not for
->  a reboot imo (senseless spinning down/up of drives).
->  So some means is probably going to be needed for drivers to
->  distinguish between a reboot & shutdown/suspend.
+> --- linux-2.4.19-pre3/arch/i386/kernel/head.S.~1~	Tue Feb 26 13:26:56 2002
+> +++ linux-2.4.19-pre3/arch/i386/kernel/head.S	Thu Mar 14 16:20:57 2002
+> @@ -178,7 +178,7 @@
+>   * we don't need to preserve eflags.
+>   */
+>  
+> -	movl $3,X86		# at least 386
+> +	movb $3,X86		# at least 386
+>  	pushfl			# push EFLAGS
+>  	popl %eax		# get EFLAGS
+>  	movl %eax,%ecx		# save original EFLAGS
+> @@ -191,7 +191,7 @@
+>  	andl $0x40000,%eax	# check if AC bit changed
+>  	je is386
+>  
+> -	movl $4,X86		# at least 486
+> +	movb $4,X86		# at least 486
+>  	movl %ecx,%eax
+>  	xorl $0x200000,%eax	# check ID flag
+>  	pushl %eax
 
-I'd guess 'suspend' callback would handle this, and suspend already has
-"state we want to enter" as a parameter.
-								Pavel
+ This is broken -- these word stores assure a proper initialization on
+pre-CPUID processors.
+
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

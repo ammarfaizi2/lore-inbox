@@ -1,87 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262916AbUCRT5U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 14:57:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbUCRT5U
+	id S262903AbUCRUAb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 15:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbUCRUAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 14:57:20 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:22402 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262916AbUCRT5J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 14:57:09 -0500
-Date: Thu, 18 Mar 2004 20:58:19 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: akpm@osdl.org, anton@samba.org,
-       kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.x atkbd.c moaning
-Message-ID: <20040318195819.GB4248@ucw.cz>
-References: <opr41z9zel4evsfm@smtp.pacific.net.th> <20040318120114.GN28212@krispykreme> <opr42hoctn4evsfm@smtp.pacific.net.th> <opr42nq0a24evsfm@smtp.pacific.net.th>
+	Thu, 18 Mar 2004 15:00:31 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:13191
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262903AbUCRUAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 15:00:22 -0500
+Date: Thu, 18 Mar 2004 21:01:11 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, hch@infradead.org,
+       drepper@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: sched_setaffinity usability
+Message-ID: <20040318200111.GA16743@dualathlon.random>
+References: <40595842.5070708@redhat.com> <20040318112913.GA13981@elte.hu> <20040318120709.A27841@infradead.org> <Pine.LNX.4.58.0403180748070.24088@ppc970.osdl.org> <20040318182407.GA1287@elte.hu> <20040318103352.1a65126a.akpm@osdl.org> <20040318183944.GA3710@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <opr42nq0a24evsfm@smtp.pacific.net.th>
+In-Reply-To: <20040318183944.GA3710@elte.hu>
 User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 19, 2004 at 03:14:50AM +0800, Michael Frank wrote:
-> On Fri, 19 Mar 2004 01:03:38 +0800, Michael Frank <mhf@linuxmail.org> wrote:
+On Thu, Mar 18, 2004 at 07:39:44PM +0100, Ingo Molnar wrote:
 > 
-> >On Thu, 18 Mar 2004 23:01:14 +1100, Anton Blanchard <anton@samba.org> 
-> >wrote:
-> >
-> >>
-> >>>Why is this and should I investigate further?
-> >>..
-> >>
-> >>>mice: PS/2 mouse device common for all mice
-> >>>serio: i8042 AUX port at 0x60,0x64 irq 12
-> >>>input: ImExPS/2 Generic Explorer Mouse on isa0060/serio1
-> >>>serio: i8042 KBD port at 0x60,0x64 irq 1
-> >>>input: AT Translated Set 2 keyboard on isa0060/serio0
-> >>>atkbd.c: Unknown key released (translated set 2, code 0x7a on 
-> >>>isa0060/serio0).
-> >>
-> >>Did this happen recently? If so, does backing out the following patch 
-> >>help?
-> >
-> >I think so but later than this changeset 1.34 of 19 December.
+> * Andrew Morton <akpm@osdl.org> wrote:
 > 
-> The Unknown key release msg is introduced in 2.6.1 with i8042
-> changesets from 1.33 to 1.35 (likely 1.34 as Anton suggested). Guess i
-> did not think much of it as it was "smaller" but "blaming xfree"
-> during boot since 2.6.2 caught my attention.
-
-XFree86 was fixed (post 4.4) thanks to this message. kbdrate is also
-fixed in the current version. With latest XFree86 and latest kbd package
-you shouldn't be getting this message anymore.
-
-> >The patch has no effect.
-> >
-> >Also the mouse screws up after a few hours and becomes unusable.
-> 	On 2.6.4
+> > >  Right now the VDSO mostly contains code and exception-handling data, but
+> > >  it could contain real, userspace-visible data just as much: info that is
+> > >  only known during the kernel build. There's basically no cost in adding
+> > >  more fields to the VDSO, and it seems to be superior to any of the other
+> > >  approaches. Is there any reason not to do it?
+> > 
+> > It's x86-specific?
 > 
-> On 2.6.[012] the mouse does not sync at all (even after power up).
-> 
-> On 2.4.18-26 mouse never had problems.
+> x86-64 has a VDSO page as well, and it can be implemented on any
 
-Can you give details on the mouse and the machine? I seem to have missed
-them.
+it doesn't.
 
-> >psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, 
-> >throwing 1 bytes away.
-> >psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, 
-> >throwing 3 bytes away.
-> 
-> Could also be load dependent. Will do more testing on 2.6.4 to reproduce.
-> 
-> The serious issue with the mouse is that it does not recover and stays
-> out of sync and interprets further movement as random coordinates/button 
-> clicks.
+> architecture that wants to accelerate syscalls in user-space (and/or
 
-Does unloading and reloading the psmouse module help?
+x86-64 is the first arch ever implementing vsyscalls in production with
+the fastest possible API.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+The API doesn't contemplate the idea of relocating the vsyscall address,
+but it can be extended easily with a relocation API.
+
+> wants to provide alternate methods of system-entry).
+
+there's no need of alternate methods of system-entry in x86-64, luckily
+Intel merged the optimal extremely optimized syscall/sysexit from AMD
+instead of only providing sysenter/sysexit like they do in the 32bit
+cpus.
+
+The way x86-64 implements the entry.S code is ultraoptimized since we
+don't save a full stack for all syscalls except fork and few othrs that
+needs to see all the registers, we've two different stack frames
+depending on which syscalls is running.
+
+Intel also provides sysenter/sysexit but that's useless on 64bit since
+syscall/sysret is the standard in 64bit mode.

@@ -1,82 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269497AbUI3UwD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269515AbUI3U4B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269497AbUI3UwD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 16:52:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269471AbUI3UwC
+	id S269515AbUI3U4B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 16:56:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269510AbUI3Uyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 16:52:02 -0400
-Received: from smtpq2.home.nl ([213.51.128.197]:46524 "EHLO smtpq2.home.nl")
-	by vger.kernel.org with ESMTP id S269497AbUI3UuF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 16:50:05 -0400
-Date: Thu, 30 Sep 2004 22:50:01 +0200 (CEST)
-From: Erik Oomen <erik.oomen@home.nl>
-X-X-Sender: ooer@paris
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.9rc2-mm1 (reiser4 related?) oops
-Message-ID: <Pine.LNX.4.58.0409302236360.2783@paris>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Thu, 30 Sep 2004 16:54:44 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:61830 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S269484AbUI3Utb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 16:49:31 -0400
+Date: Thu, 30 Sep 2004 22:49:18 +0200
+From: maximilian attems <janitor@sternwelten.at>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] msleep_interruptible() fix whitespace
+Message-ID: <20040930204918.GD1848@stro.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This oops happened when I started mencoder for recording television
-broadcast to a reiser4 partition.
+thanks Xu for noticing, some whitespace found it's way there.
+clean that up.
 
-/dev/hda1 is the reiser4 partition, /dev/hda3 is reiser3
 
-root@paris:~$ df -h
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/hda3              28G   18G  9.6G  65% /
-/dev/hda1             9.3G   29M  9.3G   1% /var/movies
-tmpfs                  94M     0   94M   0% /dev/shm
+--- linux-2.6.9-rc3-b/kernel/timer.c	2004-09-30 22:25:27.000000000 +0200
++++ linux-2.6.9-rc3/kernel/timer.c	2004-09-30 22:37:09.000000000 +0200
+@@ -1624,13 +1624,13 @@ EXPORT_SYMBOL(msleep);
+  */
+ unsigned long msleep_interruptible(unsigned int msecs)
+ {
+-       unsigned long timeout = msecs_to_jiffies(msecs);
++	unsigned long timeout = msecs_to_jiffies(msecs);
+ 
+-       while (timeout && !signal_pending(current)) {
+-               set_current_state(TASK_INTERRUPTIBLE);
+-               timeout = schedule_timeout(timeout);
+-       }
+-       return jiffies_to_msecs(timeout);
++	while (timeout && !signal_pending(current)) {
++		set_current_state(TASK_INTERRUPTIBLE);
++		timeout = schedule_timeout(timeout);
++	}
++	return jiffies_to_msecs(timeout);
+ }
+ 
+ EXPORT_SYMBOL(msleep_interruptible);
 
-System is an PIII-650 with 192Mb memory
-
-Unable to handle kernel paging request at virtual address 140007d8
- printing eip:
-c01ec130
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT
-Modules linked in: snd_es1938 snd_opl3_lib snd_hwdep snd_mpu401_uart tuner
-msp3400 bttv video_buf firmware_class i2c_algo_bit v4l2_common btcx_risc
-videodev ohci_hcd usbcore sis_agp agpgart 8250_pnp sd_mod sg sr_mod
-scsi_mod autofs4 snd_bt87x snd_ens1371 snd_rawmidi snd_seq_device
-snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd_page_alloc
-snd soundcore 8250 serial_core lm78 i2c_sensor i2c_isa i2c_core rtc
-CPU:    0
-EIP:    0060:[<c01ec130>]    Not tainted VLI
-EFLAGS: 00010292   (2.6.9-rc2-mm1)
-EIP is at pre_commit_hook_bitmap+0x60/0x1b0
-eax: 14000808   ebx: cc902000   ecx: c2724e40   edx: cb06b500
-esi: 00000da8   edi: cac51000   ebp: 140007d8   esp: cb3a1dec
-ds: 007b   es: 007b   ss: 0068
-Process ktxnmgrd:hda1:t (pid: 960, threadinfo=cb3a0000 task=cb798550)
-Stack: 00000da8 00000003 01100100 00000da8 c2724eb0 c2724e40 c11d4400 00000000
-       00000000 00000000 00000000 000012a1 cb3a0000 cb06c800 cb3a0000 c11d4400
-       c01b52c5 c01bd17c c01c1cd9 c836546c c836546c cb3a0000 cb3a1ed8 c8365460
-Call Trace:
- [<c01b52c5>] pre_commit_hook+0x5/0x10
- [<c01bd17c>] reiser4_write_logs+0x2c/0x2b0
- [<c01c1cd9>] release_prepped_list+0x109/0x140
- [<c01c1cd9>] release_prepped_list+0x109/0x140
- [<c01c18a8>] finish_fq+0x38/0x40
- [<c01c190e>] finish_all_fq+0x5e/0xa0
- [<c01b5e4a>] commit_current_atom+0x11a/0x200
- [<c01b6772>] try_commit_txnh+0x122/0x1a0
- [<c01b6827>] commit_txnh+0x37/0xb0
- [<c01b563e>] txn_end+0x2e/0x40
- [<c01b5658>] txn_restart+0x8/0x20
- [<c01b61f1>] commit_some_atoms+0xc1/0x140
- [<c01c232a>] scan_mgr+0x2a/0x50
- [<c026ba2f>] snprintf+0x1f/0x30
- [<c01c2234>] ktxnmgrd+0x174/0x200
- [<c01c20c0>] ktxnmgrd+0x0/0x200
- [<c010229d>] kernel_thread_helper+0x5/0x18
-Code: 8b 43 08 a8 08 0f 85 59 01 00 00 8b 44 24 14 8b 54 24 14 83 c0 70 89
-44 24 10 8b 42 70 39 44 24 10 8d 68 d0 74 1c 90 8d 74 26 00 <8b> 45 00 a8
-40 0f 85 95 00 00 00 8b 45 30 39 44 24 10 8d 68 d0
+--
+maks
+kernel janitor  	http://janitor.kernelnewbies.org/
 

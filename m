@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263571AbUAYAPR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 19:15:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263598AbUAYAPR
+	id S263537AbUAYAJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 19:09:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263561AbUAYAJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 19:15:17 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45290 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263571AbUAYAPN
+	Sat, 24 Jan 2004 19:09:16 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:30860 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263537AbUAYAJK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 19:15:13 -0500
-Message-ID: <40130A81.6090400@pobox.com>
-Date: Sat, 24 Jan 2004 19:14:57 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Sat, 24 Jan 2004 19:09:10 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 24 Jan 2004 16:09:12 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Davide Libenzi <davidel@xmailserver.org>, <felix-kernel@fefe.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Request: I/O request recording
+In-Reply-To: <20040124160342.070c14a2.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0401241604420.14163-100000@bigblue.dev.mdolabs.com>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Santiago Leon <santil@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IBM PowerPC Virtual Ethernet Driver
-References: <400C3CEA.1060004@us.ibm.com> <20040119205629.A5831@infradead.org>
-In-Reply-To: <20040119205629.A5831@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Mon, Jan 19, 2004 at 03:24:10PM -0500, Santiago Leon wrote:
->>Jeff, can you formally add this driver to 2.4?... I'm waiting for some
->>ppc64 architectural addition to send out the driver for 2.6...
+On Sat, 24 Jan 2004, Andrew Morton wrote:
+
+> Davide Libenzi <davidel@xmailserver.org> wrote:
+> >
+> > > 	http://www.zip.com.au/~akpm/linux/fboot.tar.gz
+> > 
+> >  Warning. I don't know if they do have a patent for this, but MS does this 
+> >  starting from XP (look inside %WINDIR%\PreFetch). It is both boot and app 
+> >  based.
 > 
-> 
-> I think we shouldn't accept new drivers in 2.4 anymore unless they're
-> already in 2.6
+> Did they do it in August 2001?
+
+Ouch, I don't know. I know for sure that it came with XP, but I'm not 
+really into MS things ;) This is one of the links that talk about that:
+
+http://msdn.microsoft.com/msdnmag/issues/01/12/XPKernel/default.aspx
 
 
-The architectural dependency is queued for 2.6 and in 2.4, so I'm OK 
-with it.
 
-	Jeff
-
+- Davide
 
 

@@ -1,71 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131777AbRA2TNU>; Mon, 29 Jan 2001 14:13:20 -0500
+	id <S132951AbRA2TRB>; Mon, 29 Jan 2001 14:17:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131978AbRA2TNK>; Mon, 29 Jan 2001 14:13:10 -0500
-Received: from mail.myrealbox.com ([192.108.102.201]:40197 "EHLO myrealbox.com")
-	by vger.kernel.org with ESMTP id <S131777AbRA2TM5> convert rfc822-to-8bit;
-	Mon, 29 Jan 2001 14:12:57 -0500
-From: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
-To: Yi Li <yili@sgi.com>
-Date: Mon, 29 Jan 2001 20:17:35 +0100
+	id <S132952AbRA2TQv>; Mon, 29 Jan 2001 14:16:51 -0500
+Received: from Mail.ubishops.ca ([192.197.190.5]:20755 "EHLO Mail.ubishops.ca")
+	by vger.kernel.org with ESMTP id <S132951AbRA2TQk>;
+	Mon, 29 Jan 2001 14:16:40 -0500
+Message-ID: <3A75C169.793CE7D3@yahoo.co.uk>
+Date: Mon, 29 Jan 2001 14:15:53 -0500
+From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
-Subject: Re: XFS file system Pre-Release
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3A75CFDF.29359.1A1D947A@localhost>
-In-Reply-To: <4FAC40499714D31186C60060943F47A902C0C4F0@mtv-mven006e--n.engr.sgi.com>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+To: linux-kernel@vger.kernel.org
+Subject: Bug: 2.4.0 w/ PCMCIA on ThinkPad: KERNEL: 
+ assertion(dev->ip_ptr==NULL)failed at 
+ dev.c(2422):netdev_finish_unregister
+In-Reply-To: <393D1B6D.ECCE0721@mail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear l-k.
 
-   Any information on XFS interoperability with current kernel nfsd? 
+I'm still having this problem with kernel 2.4.0:
 
+Conditions:
+Linux 2.4.0 compiled on an IBM ThinkPad 600 51U (Pentium II)
+laptop with PCMCIA support.  Same behavior with integral kernel
+PCMCIA, modular kernel PCMCIA and modular Hinds PCMCIA.  System
+is Progeny Debian beta II.
 
-Pedro
+I have a Xircom modem/ethernet card which works correctly using
+the serial_cs, xirc2ps_cs, ds, i82365 and pcmcia_core modules;
+however when I try to "cardctl eject" or "reboot" I get first,
+   "KERNEL: assertion(dev->ip_ptr==NULL)failed at
+    dev.c(2422):netdev_finish_unregister"
+(not exact since I had to copy it down on paper ... doesn't
+show up in the logs) then a perpetual series of:
+   "unregister_netdevice: waiting for eth0 to become free.
+    Usage count = -1"
+messages every five seconds or so.  "ps -A" reveals that
+modprobe is running; it can't be killed even with "kill -9".
+The "ifconfig" command locks up.  Shutdown won't complete
+so I end up having to use SysRq-S-U-B to reboot.
 
-On 29 Jan 2001, at 10:49, Yi Li wrote:
+This problem only occurs if the Xircom card is connected to
+the Ethernet (in which case it is configured using DHCP).
+If the card is left unconnected to the network, the problem
+does not occur---the card can be ejected.
 
-> 
-> SGI has made available the pre-release version 0.9 of its high-end XFS
-> file system ported to Linux®. Code and detailed information are at
-> http://oss.sgi.com/projects/xfs/prerelease.html.
-> 
-> Thanks to the extensive interest and contributions from the community,
-> the XFS file system for Linux has made significant progress since its
-> Beta release in September 2000. Although there are still some features
-> to be finalized, the pre-release code is currently stable in a
-> majority of normal environments. We welcome and encourage interested
-> users to try out the code aggressively in your test environments, so
-> that we can work through the final stage of the development and bug
-> fixes to meet your production needs. 
-> 
-> SGI XFS Pre-release 0.9 is available in the following three fashions:
-> · As a patch against linux-2.4.0. · As a set of RPMs. · As a complete
-> system installer which works with Red Hat 7.0 media to run XFS on the
-> root partition.
-> 
-> We will be demonstrating XFS as the root file system for high
-> availability and clustering solutions in SGI systems at LinuxWorld New
-> York from January 31 to February 2. Free XFS CDs will also be
-> available at LinuxWorld.
-> 
-> For more information on the open source project of XFS for Linux,
-> please see http://oss.sgi.com/projects/xfs/index.html.
-> 
-> Thanks very much - please email me at yili@sgi.com if you have any
-> questions.
-> 
-> Yi 
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
-
-
+Thomas Hood
+Please cc: your replies to me at jdthood_AT_yahoo.co.uk
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,79 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbUGFFdl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263088AbUGFFpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263085AbUGFFdl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 01:33:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUGFFdl
+	id S263088AbUGFFpz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 01:45:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbUGFFpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 01:33:41 -0400
-Received: from jupiter.loonybin.net ([208.248.0.98]:21001 "EHLO
-	jupiter.loonybin.net") by vger.kernel.org with ESMTP
-	id S263085AbUGFFdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 01:33:38 -0400
-Date: Tue, 6 Jul 2004 00:33:28 -0500
-From: Zinx Verituse <zinx@epicsol.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 8139too in 2.6.x tx timeout
-Message-ID: <20040706053328.GA860@bliss>
-References: <20040626222304.GA31195@bliss> <87hdsoghdv.fsf@devron.myhome.or.jp> <20040704194009.GA2029@bliss> <873c4713fl.fsf@ibmpc.myhome.or.jp>
+	Tue, 6 Jul 2004 01:45:55 -0400
+Received: from bender.bawue.de ([193.7.176.20]:17612 "EHLO bender.bawue.de")
+	by vger.kernel.org with ESMTP id S263088AbUGFFpx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 01:45:53 -0400
+Date: Tue, 6 Jul 2004 07:45:46 +0200
+From: Joerg Sommrey <jo@sommrey.de>
+To: Len Brown <len.brown@intel.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: System not booting after acpi_power_off()
+Message-ID: <20040706054546.GA5016@sommrey.de>
+Mail-Followup-To: Len Brown <len.brown@intel.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <A6974D8E5F98D511BB910002A50A6647615FF35A@hdsmsx403.hd.intel.com> <1089059128.15675.77.camel@dhcppc4> <20040705210420.GA23177@sommrey.de> <1089062436.15675.128.camel@dhcppc4>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <873c4713fl.fsf@ibmpc.myhome.or.jp>
+In-Reply-To: <1089062436.15675.128.camel@dhcppc4>
 User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 05, 2004 at 01:30:22PM +0900, OGAWA Hirofumi wrote:
-> Zinx Verituse <zinx@epicsol.org> writes:
-> 
-> > Up with some other files:
-> > http://zinx.xmms.org/misc/tmp/8139too/
-> > linux-2.6.7-mobius-dotconfig (.config being used for the kernel)
-> 
-> Probably this isn't fix the problem, but can you try the following?
-> 
-> CONFIG_8139TOO_PIO=n
-> CONFIG_8139TOO_TUNE_TWISTER=n
-> 
-> (both config to "n")
-> 
+On Mon, Jul 05, 2004 at 05:20:36PM -0400, Len Brown wrote:
+> Hmm, I don't see any messages from the button driver,
+> do you have CONFIG_ACPI_BUTTON enabled?
+> If yes, can you send me the output
+> from acpidmp?  acpidmp is in /usr/sbin
+> or in pmtools: 
+> http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
 
-Tried, but didn't work (not relevant due to new information after I tried,
-though -- see below)
+Oops, that's not obvious: from config help I got the impression, the
+button module wasn't of any use at this time.  After loading the button
+module everything works fine.  
 
-> > On the ping -c1: several pings made it, then it didn't reply for one,
-> > but also reported no timeout in the messages.  Another ping caused it
-> > to not reply _and_ to timeout/reset.
-> 
-> This may not be the problem of 8139too driver, because 2.4.24's
-> driver didn't fix.
-> 
-> Umm.. possible of cable or hub problem, but 2.4.24 is work...
-> Do you know lastest worked version?
-> 
-
-I just tried a 2.4.24 kernel I compiled myself -- It doesn't work.
-I tried booting the 2.4.24-xfs knoppix kernel on my actual system
-instead of the knoppix CD (required a bit of fiddling to get it
-booting) -- Also does not work.
-
-So, it seems to be some configuration issue on my end, though I'm
-not sure what at this point (first thing i tried way back was copying
-knoppix's /etc/pcmcia).  Ah well, I'll figure it out eventually :)
-Thanks for your time :)
-
-> > By the way, I downloaded the specs for the 8139C and noticed immediately
-> > it claims writing to the ISR has no effect and that reading it clears it.
-> > The drivers appear to indicate this documentation is entirely wrong --
-> > Is there any real documentation for this chipset?
-> 
-> Indeed. I think you are reading the same document with me. Docs says it,
-> however, the interrupt status wasn't cleared by read.
-> -- 
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
->  
-> 
+Thanks a lot,
+-jo
 
 -- 
-Zinx Verituse                                    http://zinx.xmms.org/
+-rw-r--r--    1 jo       users          80 2004-07-06 07:35 /home/jo/.signature

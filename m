@@ -1,144 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbQLMEcg>; Tue, 12 Dec 2000 23:32:36 -0500
+	id <S130075AbQLMEjk>; Tue, 12 Dec 2000 23:39:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130075AbQLMEc0>; Tue, 12 Dec 2000 23:32:26 -0500
-Received: from gw.lowendale.com.au ([203.26.242.120]:30058 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S129267AbQLMEcX>; Tue, 12 Dec 2000 23:32:23 -0500
-Date: Wed, 13 Dec 2000 15:27:55 +1100 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Stephen Rothwell <sfr@linuxcare.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18pre21 oops reading /proc/apm
-In-Reply-To: <E1461Qi-0002Bx-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.05.10012131516320.27152-200000@marina.lowendale.com.au>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="449546482-1687751561-976681675=:27152"
+	id <S130779AbQLMEj3>; Tue, 12 Dec 2000 23:39:29 -0500
+Received: from ziggy.one-eyed-alien.net ([216.51.112.145]:46860 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id <S130075AbQLMEjL>; Tue, 12 Dec 2000 23:39:11 -0500
+Date: Tue, 12 Dec 2000 20:08:40 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Frédéric L . W . Meunier 
+	<0@pervalidus.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB mass storage backport status?
+Message-ID: <20001212200840.K23762@one-eyed-alien.net>
+Mail-Followup-To: Frédéric L . W . Meunier <0@pervalidus.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20001213014154.H1245@pervalidus>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="zPXeIxDajdrcF2en"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20001213014154.H1245@pervalidus>; from 0@pervalidus.net on Wed, Dec 13, 2000 at 01:41:54AM -0200
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2000 Matthew Dharm, all rights reserved.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---449546482-1687751561-976681675=:27152
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+--zPXeIxDajdrcF2en
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 13 Dec 2000, Alan Cox wrote:
+Depending on the type of device you have and how you use it, it can either:
+(1) Work properly
+(2) Corrupt your data
+(3) Crash the driver
+(4) Crash your system
 
-> > (3) modifies the output of /proc/apm when power status reporting is
-> > disabled - on reflection, maybe this wasn't such a smart thing to do
-> > (could royally stuff anybody who is automagically parsing /proc/apm?)
-> 
-> Please dont - it correctly reports 'dunno' right now
+It's allready labeled EXPERIMENTAL.  Perhaps it should be labeled
+DANGEROUS, also, but how many labels can you put on things to warn people
+off?
 
-OK, (yet another) diff attached, against 2.2.18.
+Matt Dharm
 
-Neale.
+On Wed, Dec 13, 2000 at 01:41:54AM -0200, Fr=E9d=E9ric L . W . Meunier wrot=
+e:
+> What's the real status of the mass storage backport to 2.2.18?
+> Some people report it can corrupt your data, another that it
+> rebooted his computer while doing a large trasnfer, and so on.
+>=20
+> If it's not good, shouldn't it be removed or labeled
+> DANGEROUS? BTW, where can I see a list of what's backported
+> and working without major problems?
+>=20
+> --=20
+> 0@pervalidus.{net,{dyndns.}org} TelFax: 55-21-717-2399 (Niter=F3i-RJ BR)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
---449546482-1687751561-976681675=:27152
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ashes2.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.05.10012131527550.27152@marina.lowendale.com.au>
-Content-Description: 
-Content-Disposition: attachment; filename="ashes2.diff"
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
-ZGlmZiAtdXIgLXggLmNvbmZpZyBsaW51eC0yLjIuMTgtb3JpZy9Eb2N1bWVu
-dGF0aW9uL0NvbmZpZ3VyZS5oZWxwIGxpbnV4LTIuMi4xOC9Eb2N1bWVudGF0
-aW9uL0NvbmZpZ3VyZS5oZWxwDQotLS0gbGludXgtMi4yLjE4LW9yaWcvRG9j
-dW1lbnRhdGlvbi9Db25maWd1cmUuaGVscAlNb24gRGVjIDExIDExOjQ5OjQx
-IDIwMDANCisrKyBsaW51eC0yLjIuMTgvRG9jdW1lbnRhdGlvbi9Db25maWd1
-cmUuaGVscAlXZWQgRGVjIDEzIDEzOjM2OjU0IDIwMDANCkBAIC0xMDI5OCw2
-ICsxMDI5OCwxOCBAQA0KICAgYSB3b3JrLWFyb3VuZCBmb3IgYSBudW1iZXIg
-b2YgYnVnZ3kgQklPU2VzLiBTd2l0Y2ggdGhpcyBvcHRpb24gb24gaWYNCiAg
-IHlvdXIgY29tcHV0ZXIgY3Jhc2hlcyBpbnN0ZWFkIG9mIHBvd2VyaW5nIG9m
-ZiBwcm9wZXJseS4NCiANCitCdWdneSBiYXR0ZXJ5IHN0YXR1cyByZXBvcnRp
-bmcNCitDT05GSUdfQVBNX0FTSEVTX05PVEVCSU9TDQorICBDdXJyZW50bHkg
-ZGlzYWJsZXMgcG93ZXIgc3RhdHVzIHJlcG9ydGluZyAtIGZvciBidWdneSBC
-SU9TIHdoaWNoDQorICAoYSkgb29wc2VzIG9uIHJlYWRpbmcgZnJvbSAvcHJv
-Yy9hcG0gYW5kIChiKSBkb2VzIE5PVCBoYXZlIERNSS4NCisgIChBY2VyTm90
-ZS05NTAgd2l0aCBQaG9lbml4IE5vdGVCSU9TIDE5OTQpLg0KKyAgSW4gZnV0
-dXJlLCB0aGlzIHNldHRpbmcgbWlnaHQgaW52b2tlIGEgYnVnLXdvcmthcm91
-bmQuDQorICANCisgIE5vdGUgdGhhdCBpZiB0aGUgbWFjaGluZSBoYXMgRE1J
-IHRoZW4gdGhlIEJJT1MgdmVyc2lvbiBzaG91bGQgYmUNCisgIGF1dG9tYWdp
-Y2FsbHkgZGV0ZWN0YWJsZSBhbmQgdGhpcyB3b3JrYXJvdW5kIGF1dG9tYXRl
-ZC4gIFNlbmQgdGhlIERNSQ0KKyAgc3RyaW5ncyBwcmludGVkIGF0IGJvb3Qt
-dGltZSB3aXRoIGFueSByZXBvcnQgaWYgdGhpcyBpcyBub3QgaGFwcGVuaW5n
-DQorICAob3IgdHJ5IHBhdGNoaW5nIGFyY2gvaTM4Ni9rZXJuZWwvZG1pX3Nj
-YW4uYykuDQorDQogV2F0Y2hkb2cgVGltZXIgU3VwcG9ydCANCiBDT05GSUdf
-V0FUQ0hET0cNCiAgIElmIHlvdSBzYXkgWSBoZXJlIChhbmQgdG8gb25lIG9m
-IHRoZSBmb2xsb3dpbmcgb3B0aW9ucykgYW5kIGNyZWF0ZSBhDQpkaWZmIC11
-ciAteCAuY29uZmlnIGxpbnV4LTIuMi4xOC1vcmlnL2FyY2gvaTM4Ni9jb25m
-aWcuaW4gbGludXgtMi4yLjE4L2FyY2gvaTM4Ni9jb25maWcuaW4NCi0tLSBs
-aW51eC0yLjIuMTgtb3JpZy9hcmNoL2kzODYvY29uZmlnLmluCU1vbiBEZWMg
-MTEgMTE6NDk6NDEgMjAwMA0KKysrIGxpbnV4LTIuMi4xOC9hcmNoL2kzODYv
-Y29uZmlnLmluCVdlZCBEZWMgMTMgMTM6MzY6NTQgMjAwMA0KQEAgLTExNiw2
-ICsxMTYsNyBAQA0KICAgYm9vbCAnICAgUlRDIHN0b3JlcyB0aW1lIGluIEdN
-VCcgQ09ORklHX0FQTV9SVENfSVNfR01UDQogICBib29sICcgICBBbGxvdyBp
-bnRlcnJ1cHRzIGR1cmluZyBBUE0gQklPUyBjYWxscycgQ09ORklHX0FQTV9B
-TExPV19JTlRTDQogICBib29sICcgICBVc2UgcmVhbCBtb2RlIEFQTSBCSU9T
-IGNhbGwgdG8gcG93ZXIgb2ZmJyBDT05GSUdfQVBNX1JFQUxfTU9ERV9QT1dF
-Ul9PRkYNCisgIGJvb2wgJyAgIEJ1Z2d5IHBvd2VyIHN0YXR1cyByZXBvcnRp
-bmcnIENPTkZJR19BUE1fQVNIRVNfTk9URUJJT1MNCiBmaQ0KIHRyaXN0YXRl
-ICdUb3NoaWJhIExhcHRvcCBzdXBwb3J0JyBDT05GSUdfVE9TSElCQQ0KIA0K
-ZGlmZiAtdXIgLXggLmNvbmZpZyBsaW51eC0yLjIuMTgtb3JpZy9hcmNoL2kz
-ODYva2VybmVsL2FwbS5jIGxpbnV4LTIuMi4xOC9hcmNoL2kzODYva2VybmVs
-L2FwbS5jDQotLS0gbGludXgtMi4yLjE4LW9yaWcvYXJjaC9pMzg2L2tlcm5l
-bC9hcG0uYwlNb24gRGVjIDExIDExOjQ5OjQxIDIwMDANCisrKyBsaW51eC0y
-LjIuMTgvYXJjaC9pMzg2L2tlcm5lbC9hcG0uYwlXZWQgRGVjIDEzIDEzOjQw
-OjIzIDIwMDANCkBAIC0xMzAsNiArMTMwLDkgQEANCiAgKiAgICAgICAgIGlz
-IG5vdyB0aGUgd2F5IGxpZmUgd29ya3MpLiANCiAgKiAgICAgICAgIEZpeCB0
-aGlua28gaW4gc3VzcGVuZCgpICh3cm9uZyByZXR1cm4pLg0KICAqICAgMS4x
-M2FjOiBBZGRlZCBhcG1fYmF0dGVyeV9ob3JrZWQoKSBmb3IgQ29tcGFsIGJv
-YXJkcyAoRGVsbCA1MDAwZSBldGMpDQorICogICAxLjEzYWMtbmI6IFdJUDog
-QWNlck5vdGUtOTUwIG9vcHMgb24gcmVhZGluZyAvcHJvYy9hcG0NCisgKiAg
-ICAgICAgIFRyeSBkaXNhYmxpbmcgcG93ZXIgc3RhdHVzIHJlcG9ydGluZy4N
-CisgKiAgICAgICAgIE5lYWxlIEJhbmtzIDxuZWFsZUBsb3dlbmRhbGUuY29t
-LmF1Pg0KICAqDQogICogQVBNIDEuMSBSZWZlcmVuY2U6DQogICoNCkBAIC0y
-MTEsNiArMjE0LDggQEANCiAgKiBQOiBUb3NoaWJhIDE5NTBTOiBiYXR0ZXJ5
-IGxpZmUgaW5mb3JtYXRpb24gb25seSBnZXRzIHVwZGF0ZWQgYWZ0ZXIgcmVz
-dW1lDQogICogUDogTWlkd2VzdCBNaWNybyBTb3VuZGJvb2sgRWxpdGUgRFgy
-LzY2IG1vbm9jaHJvbWU6IHNjcmVlbiBibGFua2luZw0KICAqIAlicm9rZW4g
-aW4gQklPUyBbUmVwb3J0ZWQgYnkgR2Fyc3QgUi4gUmVlc2UgPHJlZXNlQGlz
-bi5uZXQ+XQ0KKyAqID86IEFjZXJOb3RlLTk1MDogb29wcyBvbiByZWFkaW5n
-IC9wcm9jL2FwbSAtIHdvcmthcm91bmQgaXMgYSBXSVANCisgKiAJTmVhbGUg
-QmFua3MgPG5lYWxlQGxvd2VuZGFsZS5jb20uYXU+IERlY2VtYmVyIDIwMDAN
-CiAgKg0KICAqIExlZ2VuZDogVSA9IHVudXNhYmxlIHdpdGggQVBNIHBhdGNo
-ZXMNCiAgKiAgICAgICAgIFAgPSBwYXJ0aWFsbHkgdXNhYmxlIHdpdGggQVBN
-IHBhdGNoZXMNCkBAIC0zMjcsNiArMzMyLDExIEBADQogc3RhdGljIGludAkJ
-CXBvd2VyX29mZl9lbmFibGVkID0gMTsNCiAjZW5kaWYNCiBzdGF0aWMgaW50
-IAkJCWRlbGxfY3JhcCA9IDA7CS8qU2V0IGlmIHdlIGZpbmQgYSA1MDAwZSAq
-Lw0KKyNpZmRlZiBDT05GSUdfQVBNX0FTSEVTX05PVEVCSU9TDQorc3RhdGlj
-IGludCAJCQlhc2hlc19ub3RlYmlvcyA9IDE7CS8qU2V0IGJ5IGNvbmZpZ3Vy
-ZSovDQorI2Vsc2UNCitzdGF0aWMgaW50IAkJCWFzaGVzX25vdGViaW9zID0g
-MDsJLyogRGVmYXVsdCB0byBPSyAqLw0KKyNlbmRpZg0KIA0KIHN0YXRpYyBE
-RUNMQVJFX1dBSVRfUVVFVUVfSEVBRChhcG1fd2FpdHF1ZXVlKTsNCiBzdGF0
-aWMgREVDTEFSRV9XQUlUX1FVRVVFX0hFQUQoYXBtX3N1c3BlbmRfd2FpdHF1
-ZXVlKTsNCkBAIC02NTgsNiArNjY4LDE0IEBADQogCXUzMgllZHg7DQogCXUz
-MglkdW1teTsNCiANCisJLyogQ2F0Y2ggY2FzZXMgb2Yga25vd24gYnVnZ3kg
-QklPU2VuICovDQorCWlmIChkZWxsX2NyYXAgfHwgYXNoZXNfbm90ZWJpb3Mp
-IHsNCisJCSpzdGF0dXMgPSAqYmF0ID0gKmxpZmUgPSAweGZmZmY7DQorCQkv
-KiBub3Qgc3VyZSBvZiB0aGUgX2Jlc3RfIGNvZGUgdG8gcmV0dXJuIGhlcmUu
-DQorCQkgICBGb3Igbm93LCBBUE1fRElTQUJMRUQgd2lsbCBoYXZlIHRvIGRv
-ICAqLw0KKwkJcmV0dXJuIEFQTV9ESVNBQkxFRDsNCisJfQ0KKw0KIAlpZiAo
-YXBtX2Jpb3NfY2FsbChBUE1fRlVOQ19HRVRfU1RBVFVTLCBBUE1fREVWSUNF
-X0FMTCwgMCwNCiAJCQkmZWF4LCAmZWJ4LCAmZWN4LCAmZWR4LCAmZHVtbXkp
-KQ0KIAkJcmV0dXJuIChlYXggPj4gOCkgJiAweGZmOw0KQEAgLTEyNzIsNyAr
-MTI5MCw3IEBADQogDQogCXAgPSBidWY7DQogDQotCWlmICgoc21wX251bV9j
-cHVzID09IDEpICYmICghZGVsbF9jcmFwKSAmJiANCisJaWYgKChzbXBfbnVt
-X2NwdXMgPT0gMSkgJiYNCiAJICAgICEoZXJyb3IgPSBhcG1fZ2V0X3Bvd2Vy
-X3N0YXR1cygmYngsICZjeCwgJmR4KSkpIHsNCiAJCWFjX2xpbmVfc3RhdHVz
-ID0gKGJ4ID4+IDgpICYgMHhmZjsNCiAJCWJhdHRlcnlfc3RhdHVzID0gYngg
-JiAweGZmOw0KQEAgLTE0OTIsNiArMTUxMCw5IEBADQogCQkoYXBtX2Jpb3Nf
-aW5mby52ZXJzaW9uICYgMHhmZiksDQogCQlhcG1fYmlvc19pbmZvLmZsYWdz
-LA0KIAkJZHJpdmVyX3ZlcnNpb24pOw0KKwlpZiAoZGVsbF9jcmFwIHx8IGFz
-aGVzX25vdGViaW9zKSB7DQorCQlwcmludGsoS0VSTl9JTkZPICJhcG06IHBv
-d2VyIHN0YXR1cyByZXBvcnRpbmcgZGlzYWJsZWRcbiIpOw0KKwl9DQogCWlm
-ICgoYXBtX2Jpb3NfaW5mby5mbGFncyAmIEFQTV8zMl9CSVRfU1VQUE9SVCkg
-PT0gMCkgew0KIAkJcHJpbnRrKEtFUk5fSU5GTyAiYXBtOiBubyAzMiBiaXQg
-QklPUyBzdXBwb3J0XG4iKTsNCiAJCXJldHVybiAtRU5PREVWOw0K
---449546482-1687751561-976681675=:27152--
+Umm, these aren't the droids you're looking for.
+					-- Bill Gates
+User Friendly, 11/14/1998
+
+--zPXeIxDajdrcF2en
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6NvZIz64nssGU+ykRAmB+AKCs6F1rIeAGj28Elzq6yHd6cUku8ACbBzKA
+w/vvPdskV6dl/vemqjXUFyI=
+=0UQX
+-----END PGP SIGNATURE-----
+
+--zPXeIxDajdrcF2en--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

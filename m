@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269760AbRHILMV>; Thu, 9 Aug 2001 07:12:21 -0400
+	id <S269765AbRHIL0M>; Thu, 9 Aug 2001 07:26:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269763AbRHILML>; Thu, 9 Aug 2001 07:12:11 -0400
-Received: from elektra.higherplane.net ([203.37.52.137]:35971 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S269760AbRHILL6>; Thu, 9 Aug 2001 07:11:58 -0400
-Date: Thu, 9 Aug 2001 21:11:23 +1000
-From: john slee <indigoid@higherplane.net>
-To: Yasunori GOTO <y-goto@jp.fujitsu.com>
+	id <S269764AbRHIL0D>; Thu, 9 Aug 2001 07:26:03 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:24082 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S269533AbRHILZ4>; Thu, 9 Aug 2001 07:25:56 -0400
+Date: Thu, 9 Aug 2001 13:26:04 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Etienne Lorrain <etienne@masroudeau.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: file access log
-Message-ID: <20010809211123.A3197@higherplane.net>
-In-Reply-To: <0GHS003EV4XX9D@fjmail504.fjmail.jp.fujitsu.com>
+Subject: Re: [ANNOUNCE] Gujin graphical bootloader 0.4
+Message-ID: <20010809132604.C14108@emma1.>
+Mail-Followup-To: Etienne Lorrain <etienne@masroudeau.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108060228220.10664-100000@hp.masroudeau.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <0GHS003EV4XX9D@fjmail504.fjmail.jp.fujitsu.com>
-User-Agent: Mutt/1.3.20i
+In-Reply-To: <Pine.LNX.4.33.0108060228220.10664-100000@hp.masroudeau.com>
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 09, 2001 at 11:45:00AM +0900, Yasunori GOTO wrote:
-> I want to make the function which check the file access
-> (create(), unlink(), and rename(), etc.)
-> and take the log.
+On Mon, 06 Aug 2001, Etienne Lorrain wrote:
 
-there are many applications for this sort of kernel interface.  sgi have
-an implementation of it called imon, but the patches don't seem to be
-maintained anymore.
+>   I released the 0.4 version of the GPL Gujin bootloader.
+> 
+>  Its homepage (with screenshoots) is at:
+> http://gujin.sourceforge.net/
 
-what sort of interface were you considering?  my first impression was to
-create something similar to route sockets, but i'm not really a kernel
-hacker...  i believe imon+fam used something like this but also using
-fcntl() hacks, which to me seems a bit ugly... anyone want to correct
-me? :-/
+Given that I need to use rdev: is there any way to tell gujin to pass
+parameters to the kernel? I use ide0=ata66 on my 2.2 kernels, and other
+options on some other machines.
 
-j.
+Do you plan to set up a gujin mailing list on sourceforge to pull
+discussions off here?
 
 -- 
-"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson
+Matthias Andree

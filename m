@@ -1,77 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281893AbRLFSLe>; Thu, 6 Dec 2001 13:11:34 -0500
+	id <S281912AbRLFSNy>; Thu, 6 Dec 2001 13:13:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281908AbRLFSLY>; Thu, 6 Dec 2001 13:11:24 -0500
-Received: from mustard.heime.net ([194.234.65.222]:49352 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S281893AbRLFSLS>; Thu, 6 Dec 2001 13:11:18 -0500
-Date: Thu, 6 Dec 2001 19:10:56 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Pablo Borges <pablo.borges@uol.com.br>
+	id <S281915AbRLFSNo>; Thu, 6 Dec 2001 13:13:44 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51217 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281912AbRLFSNd>; Thu, 6 Dec 2001 13:13:33 -0500
+Date: Thu, 6 Dec 2001 10:07:01 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.4.16 & Heavy I/O
-In-Reply-To: <20011206160630.1f4ab058.pablo.borges@uol.com.br>
-Message-ID: <Pine.LNX.4.30.0112061908220.17427-100000@mustard.heime.net>
+Subject: Re: Linux/Pro  -- clusters
+In-Reply-To: <E16C2qa-0002RR-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0112060958450.10625-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is it really neccecary? Free memory's a waste! The cache will be discarded
-the moment an application needs the memory.
 
-what's the problem? It speeds up disk I/O for recently used files
+On Thu, 6 Dec 2001, Alan Cox wrote:
+>
+> > Timeouts for different commands were so different that people ended up
+> > making most timeouts so long that they no longer made sense for other
+> > commands etc.
+>
+> Thats per _target_ not host. Which needs to be common code.
 
-On Thu, 6 Dec 2001, Pablo Borges wrote:
+It hasn't traditionally been "common code". The old SCSI layer has various
+fixed timeouts, many of them on the order of 2-5 minutes, and none of them
+target-specific.
 
->
-> Don't we have a "dont't eat my whole memory, disk cache" option on linux ?
->
->
-> On Wed, 5 Dec 2001 21:07:42 +0100 (CET)
-> Roy Sigurd Karlsbakk <roy@karlsbakk.net> wrote:
->
-> > > > Absolutely all free memory may be used for disk caching.  So
-> > > > no, you can't get a bigger cache because it is already at
-> > > > the highest possible setting.  You don't have more memory
-> > > > for this - all is used already.
-> > >
-> > > May I limit this memory ? For a long time I'm working all day with no
-> > > physical memory available.
-> >
-> > You can try rtlinux. In rtlinux (realtime linux), you tell linux how
-> > much memory the kernel will have access to, and let specially written
-> > apps to take the rest
-> > --
-> > Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-> >
-> > Computers are like air conditioners.
-> > They stop working when you open Windows.
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
->
-> =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-> Pablo Borges                                pablo.borges@uol.com.br
-> -------------------------------------------------------------------
->   ____                                               Tecnologia UOL
->  /    \    Debian:
->  |  =_/      The 100% suck free linux distro.
->   \
->     \      SETI is lame. http://www.distributed.net
->                                                      Dnetc is XNUG!
->
+Some of them are effectively turned off - the format timeout was increased
+to 2 hours to make sure that it basically never triggers.
 
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+But never fear, we'll have some common routines for error handling.  But
+they will be library routines, NOT the current crap.
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+> Those devices aren't SCSI controllers, and they don't want to appear as one.
 
+Ehh.. IDE disks take SCSI commands, and do most error recovery entirely in
+disk firmware. There is very little you can do about most errors there.
+
+Don't think "SCSI" as in SCSI controllers. Think SCSI as in "fairly
+generic packet protocol that somehow infiltrated most things".
+
+> Which is another thing - can you make the internal dev_t 32 or 64bits now.
+> You can have 65536 volumes on an S/390 so even with perfectly distributed
+> devfs allocated device identifiers - we don't have enough.
+
+It's called "struct block_device" and "struct genhd". The pointers will
+have as many bits as pointers have on the architecture. Low-level drivers
+will not even see anything else eventually, there will be no "numbers".
+
+		Linus
 

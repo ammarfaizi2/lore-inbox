@@ -1,89 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261500AbREYSfo>; Fri, 25 May 2001 14:35:44 -0400
+	id <S261502AbREYSiO>; Fri, 25 May 2001 14:38:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261502AbREYSfe>; Fri, 25 May 2001 14:35:34 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:53152 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261500AbREYSfO>;
-	Fri, 25 May 2001 14:35:14 -0400
-Date: Fri, 25 May 2001 14:35:13 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] (part 4) fs/super.c cleanup
-Message-ID: <Pine.GSO.4.21.0105251431230.27664-100000@weyl.math.psu.edu>
+	id <S261505AbREYSiE>; Fri, 25 May 2001 14:38:04 -0400
+Received: from twinlark.arctic.org ([204.107.140.52]:57867 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S261502AbREYSht>; Fri, 25 May 2001 14:37:49 -0400
+Date: Fri, 25 May 2001 11:37:48 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Jonathan Lundell <jlundell@pobox.com>
+cc: Andi Kleen <ak@suse.de>, Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
+        Keith Owens <kaos@ocs.com.au>, Andreas Dilger <adilger@turbolinux.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [CHECKER] large stack variables (>=1K) in 2.4.4 and 2.4.4-ac8
+In-Reply-To: <p05100308b73439980162@[207.213.214.37]>
+Message-ID: <Pine.LNX.4.33.0105251130040.17081-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	* MNT_VISIBLE is gone. We simply do not insert vfsmounts we don't
-want to see into the vfsmntlist. The only place where it is used is
-get_filesystem_info(), so it's obviously correct.
-	
-	Please, apply.
+On Fri, 25 May 2001, Jonathan Lundell wrote:
 
-PS: I've done a different locking scheme for superblocks, so right
-now I'm testing it on a complete patch. I.e. that part is postponed until
-it gets some testing. So the next several pieces will be just a bunch
-of trivial cleanups.
+> At 8:45 AM -0700 2001-05-25, dean gaudet wrote:
+> >i think it really depends on how you use current -- here's an alternative
+> >usage which can fold the extra addition into the structure offset
+> >calculations, and moves the task struct to the top of the stack.
+> >
+> >not that this really solves anything, 'cause a stack underflow will just
+> >trash something else rather than the task struct :)
+>
+> It would open the door for putting a guard page (which only occupies
+> virtual space, after all) below the stack. I have no idea whether
+> that's practical, given other constraints, but it's a potential
+> benefit of having the stack at the bottom rather than the top of a
+> page.
 
-diff -urN S5-pre6/fs/super.c S5-pre6-MNT_VISIBLE/fs/super.c
---- S5-pre6/fs/super.c	Thu May 24 22:15:03 2001
-+++ S5-pre6-MNT_VISIBLE/fs/super.c	Thu May 24 23:57:23 2001
-@@ -314,13 +314,6 @@
-  *	Potential reason for failure (aside of trivial lack of memory) is a
-  *	deleted mountpoint. Caller must hold ->i_zombie on mountpoint
-  *	dentry (if any).
-- *
-- *	Node is marked as MNT_VISIBLE (visible in /proc/mounts) unless both
-- *	@nd and @devname are %NULL. It works since we pass non-%NULL @devname
-- *	when we are mounting root and kern_mount() filesystems are deviceless.
-- *	If we will get a kern_mount() filesystem with nontrivial @devname we
-- *	will have to pass the visibility flag explicitly, so if we will add
-- *	support for such beasts we'll have to change prototype.
-  */
- 
- static struct vfsmount *add_vfsmnt(struct nameidata *nd,
-@@ -336,9 +329,6 @@
- 		goto out;
- 	memset(mnt, 0, sizeof(struct vfsmount));
- 
--	if (nd || dev_name)
--		mnt->mnt_flags = MNT_VISIBLE;
--
- 	/* It may be NULL, but who cares? */
- 	if (dev_name) {
- 		name = kmalloc(strlen(dev_name)+1, GFP_KERNEL);
-@@ -366,7 +356,8 @@
- 	}
- 	INIT_LIST_HEAD(&mnt->mnt_mounts);
- 	list_add(&mnt->mnt_instances, &sb->s_mounts);
--	list_add(&mnt->mnt_list, vfsmntlist.prev);
-+	if (nd || dev_name)
-+		list_add(&mnt->mnt_list, vfsmntlist.prev);
- 	spin_unlock(&dcache_lock);
- out:
- 	return mnt;
-@@ -500,8 +491,6 @@
- 
- 	for (p = vfsmntlist.next; p != &vfsmntlist; p = p->next) {
- 		struct vfsmount *tmp = list_entry(p, struct vfsmount, mnt_list);
--		if (!(tmp->mnt_flags & MNT_VISIBLE))
--			continue;
- 		path = d_path(tmp->mnt_root, tmp, buffer, PAGE_SIZE);
- 		if (!path)
- 			continue;
-diff -urN S5-pre6/include/linux/mount.h S5-pre6-MNT_VISIBLE/include/linux/mount.h
---- S5-pre6/include/linux/mount.h	Thu May 24 22:15:06 2001
-+++ S5-pre6-MNT_VISIBLE/include/linux/mount.h	Thu May 24 23:58:00 2001
-@@ -12,8 +12,6 @@
- #define _LINUX_MOUNT_H
- #ifdef __KERNEL__
- 
--#define MNT_VISIBLE	1
--
- struct vfsmount
- {
- 	struct dentry *mnt_mountpoint;	/* dentry of mountpoint */
+somewhere else in the thread someone indicated this was a hard thing to
+do.
+
+also you don't need the task struct at the top to do this -- you just
+allocate 16k instead of 8k, put the task struct on page 0 of the
+allocation, unmap page 1, and put the stack frame on pages 2 and 3.
+(you'd probably have to do a 16k allocation regardless to get the guard
+page.)
+
+-dean
 

@@ -1,79 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263540AbTJVL0i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 07:26:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263541AbTJVL0i
+	id S263606AbTJVLUr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 07:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbTJVLUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 07:26:38 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:56456 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S263540AbTJVL0g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 07:26:36 -0400
-Message-ID: <3F9669BF.1040408@t-online.de>
-Date: Wed, 22 Oct 2003 13:27:59 +0200
-From: Knut Petersen <Knut_Petersen@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031011
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Courtier-Dutton <James@superbug.demon.co.uk>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: VIA IDE performance under 2.6.0-test7/8?
-References: <C0D45ABB3F45D5118BBC00508BC292DB016038F5@imgserv04> <3F957DAC.6080901@superbug.demon.co.uk>
-In-Reply-To: <3F957DAC.6080901@superbug.demon.co.uk>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Seen: false
-X-ID: GtMRm8ZEQeOK5xPFgRN24jTy8CuyWkcb06pqJ4fevhHRD+b8udgXwM@t-dialin.net
+	Wed, 22 Oct 2003 07:20:47 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:53775 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S263606AbTJVLUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 07:20:45 -0400
+Date: Wed, 22 Oct 2003 21:20:35 +1000
+To: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: scx200_wdt: Include linux/fs.h for struct file
+Message-ID: <20031022112035.GA25439@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="WIyZ46R2i8wDzkSu"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James!
 
-> Can you also send the output from "cat /proc/interrupts".
-> It looks like you are not using IO-APIC, but instead using XT-PIC.
-> XT-PIC is a lot slower than IO-APIC.
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Reading the  previous messages I compared the SuSE 2.4.20-4GB and the 
-2.6.0-test8-bk1 kernel.
+Hi:
 
-The mainboard is a VIA EPIA 5000 (cpu Via Eden 533 Mhz, Via 8601A 
-Northbridge, VT8231 Southbridge)
+This patch adds an explicit inclusion of linux/fs.h as it needs to
+dereference struct file *.  This is needed for it to compile on
+non-i386 architectures.
 
-hdparm -I /dev/hd? displays no difference ... udma2 is the used mode.
+Cheers,
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
-hdparm -T /dev/hd? measures transfer rates of 60-63 MB/s, there is no 
-significant difference between
-the kernel versions.
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
 
-hdparm -t /dev/hd? mesasures 18 MB/s for kernel 2.6.0-test8-bk1 and 27 
-MB/s for kernel 2.4.20.
-This is a significant  :-(
+Index: kernel-source-2.5/drivers/char/watchdog/scx200_wdt.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/char/watchdog/scx200_wdt.c,v
+retrieving revision 1.1.1.3
+diff -u -r1.1.1.3 scx200_wdt.c
+--- kernel-source-2.5/drivers/char/watchdog/scx200_wdt.c	9 Aug 2003 08:11:55 -0000	1.1.1.3
++++ kernel-source-2.5/drivers/char/watchdog/scx200_wdt.c	22 Oct 2003 11:16:59 -0000
+@@ -27,6 +27,7 @@
+ #include <linux/reboot.h>
+ #include <linux/pci.h>
+ #include <linux/scx200.h>
++#include <linux/fs.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
 
-2.4.20 gives almost exactly 50% better performance compared to 
-2.6.0-test8 ... is this pure accident or could this give a hint?
-
-> Just turn on SMB support in the "make menuconf", and it should enable 
-> IO-APIC.
-
-Compiling the kernel with and without smb support as well as trying the 
-other APIC related new configuration options
-does change nothing.  There is allways a "No local APIC present or 
-hardware disabled" message. I believe that there
-really is no IO-APIC, at least I found no related BIOS configuration option.
-
-/proc/interrupts indicates an XT-PIC for both kernel versions.
-
-IRQ setup is identical, IDE IRQs are not shared with any other devices.
-
-The drive is the only drive attached.
-
-Playing around with different read-ahead values does not help.
-
-Any ideas?
-
-cu,
- Knut Petersen
-
-
+--WIyZ46R2i8wDzkSu--

@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267624AbTAXKdl>; Fri, 24 Jan 2003 05:33:41 -0500
+	id <S267628AbTAXKpg>; Fri, 24 Jan 2003 05:45:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267626AbTAXKdk>; Fri, 24 Jan 2003 05:33:40 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:2308 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267624AbTAXKdj>;
-	Fri, 24 Jan 2003 05:33:39 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301241042.h0OAgwlm000380@darkstar.example.net>
-Subject: Re: Server down?
-To: davem@redhat.com (David S. Miller)
-Date: Fri, 24 Jan 2003 10:42:58 +0000 (GMT)
-Cc: yiding_wang@agilent.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1043380941.16486.10.camel@rth.ninka.net> from "David S. Miller" at Jan 23, 2003 08:02:21 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267629AbTAXKpg>; Fri, 24 Jan 2003 05:45:36 -0500
+Received: from amsfep15-int.chello.nl ([213.46.243.28]:29739 "EHLO
+	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S267628AbTAXKpf>; Fri, 24 Jan 2003 05:45:35 -0500
+Message-ID: <3E311B72.9060508@users.sf.net>
+Date: Fri, 24 Jan 2003 11:54:42 +0100
+From: Thomas Tonino <ttonino@users.sf.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030116
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Paul Jakma <paulj@alphyra.ie>
+CC: GrandMasterLee <masterlee@digitalroadkill.net>,
+       Thomas Tonino <ttonino@users.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with Qlogic 2200 and 2.4.20
+References: <Pine.LNX.4.44.0301231851080.31406-100000@dunlop.admin.ie.alphyra.com>
+In-Reply-To: <Pine.LNX.4.44.0301231851080.31406-100000@dunlop.admin.ie.alphyra.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The list server probably de-subscribed you.  Try re-subscribing.
+Paul Jakma wrote:
+
+>>Just to chime in, are you using the qlogicfc driver that comes with
+>>the kernel? If so, Try using qlogic's 6.01 driver set instead and
+>>see if your problem goes away. I've had other problems, mostly stack
+>>related, but I've since found my fixes
 > 
-> This is absolutely NOT WHAT YOU SHOULD DO.
+> hmm.. i'd be very interested in them. I have found the qlogic v6 
+> driver to dreadfully unstable under heavy load (eg multiple 
+> bonnie++'s) on SMP.
 
-No, infact what you are suggesting is absolutely not what you should
-do - the postmasters are already overworked, and don't need to be
-troubled as a first resort.
+I was planning to go use the qlogic 6.x driver, but only after a test.
 
-Please, read the FAQ.  If you wish to embarrase yourself on this
-mailing list, that is up to you, but please do not make me look
-stupid, AND THERE IS NO NEED TO SHOUT YOUR INCORRECT ADVICE.
+For me, the in-kernel driver with the patch from Andrew Patterson is very stable 
+on SMP. We'll have to see how the 6.x driver works out.
 
-The relevant section of the FAQ is:
+The in-kernel driver without patch is hopeless on single processor too. Uptime 
+of 15 minutes or so when doing a resync, a bit more, but not much more than an 
+hour, when doing less intensive IO.
 
-Section 3, subsection 14
+In both cases with the "no handle slots, this should not happen" message. Both 
+on Broadcom PIII boards - one Dell, one IBM.
 
-"I am not getting any mail anymore from the list!  Is it down or
-what?"
 
-Note that there is NO problem with any of the original poster's
-mailservers, they are all accessible, so it is not a case of mail
-getting bounced from some of them.
+Thomas
 
-The FAQ actually says, "Just resubscribe.  Majordomo will get you a
-nice note saying you're still subscribed if suddenly everybody went
-dumb".
-
-It also says, "Asking for help from postmaster@vger.kernel.org could
-expedite the issue.", but common sense suggests that it's best to try
-re-subscribing at least once before contacting the already overworked
-postmasters.
-
-> You should INSTEAD, send a mail to postmaster@vger.kernel.org
-> asking why you were removed.
-
-Only if you have persistant problems.
-
-> People who continually keep resubscribing eventually get black
-> listed.  This means DO NOT DO IT.  Ask why you are being removed
-> so that the problems at your site can be fixed.
-> 
-> When an address bounces, it puts a major burdon on both vger and
-> the postmasters here.
-
-Ask for the FAQ to be updated if it is wrong.
-
-John.

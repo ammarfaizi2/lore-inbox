@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262843AbUJ1GPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262797AbUJ1GPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262843AbUJ1GPo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 02:15:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262807AbUJ1GNo
+	id S262797AbUJ1GPp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 02:15:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbUJ1GNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 02:13:44 -0400
-Received: from fmr99.intel.com ([192.55.52.32]:21220 "EHLO
-	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262833AbUJ1GMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 02:12:02 -0400
-Subject: Re: [PATCH 5/5]8250_pnp fix
-From: Len Brown <len.brown@intel.com>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: ACPI Developers <acpi-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Adam Belay <ambx1@neo.rr.com>,
-       Matthieu <castet.matthieu@free.fr>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>
-In-Reply-To: <1098327571.6132.228.camel@sli10-desk.sh.intel.com>
-References: <1098327571.6132.228.camel@sli10-desk.sh.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1098943907.5399.0.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 28 Oct 2004 02:11:47 -0400
+	Thu, 28 Oct 2004 02:13:30 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:17164 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262816AbUJ1GJb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 02:09:31 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Lei Yang <lya755@ece.northwestern.edu>, linux-kernel@vger.kernel.org,
+       kernelnewbies <kernelnewbies@nl.linux.org>
+Subject: Re: set blksize of block device
+Date: Thu, 28 Oct 2004 09:09:20 +0300
+User-Agent: KMail/1.5.4
+Cc: Lei Yang <lya755@ece.northwestern.edu>
+References: <417FE6A8.5090803@ece.northwestern.edu> <417FE937.1040304@ece.northwestern.edu> <41804F04.4000300@ece.northwestern.edu>
+In-Reply-To: <41804F04.4000300@ece.northwestern.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410280909.20141.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Applied.
+> >> I am learning block device drivers and have a newbie question. Given 
+> >> a block device, is there anyway that I could set its block size? For 
+> >> example, I want to write a block device driver that will work on an 
+> >> existing block device.  In this driver, I want block size smaller. 
+> >> (The idea looks confusing but I could explain if anybody is 
+> >> interested :- )  However,  typically the block size is 1KB, now I 
+> >> want to set it to 512 or 256.  Can I do it?
 
-thanks,
--Len
+256 - no way if hardware can do only 512-byte writes.
 
-On Wed, 2004-10-20 at 23:00, Li Shaohua wrote:
-> Hi,
-> This is a small fix found when debugging the 8250 driver in IA64.
-> 
-> Thanks,
-> Shaohua
-> 
-> Signed-off-by: Li Shaohua <shaohua.li@intel.com>
-> 
-> --- 2.6/drivers/serial/8250_pnp.c.stg4  2004-09-28 11:27:42.371840736
-> +0800
-> +++ 2.6/drivers/serial/8250_pnp.c       2004-09-28 11:28:14.036027048
-> +0800
-> @@ -407,7 +407,7 @@ serial_pnp_probe(struct pnp_dev * dev, c
->         serial_req.irq = pnp_irq(dev,0);
->         serial_req.port = pnp_port_start(dev, 0);
->         if (HIGH_BITS_OFFSET)
-> -               serial_req.port = pnp_port_start(dev, 0) >>
-> HIGH_BITS_OFFSET;
-> +               serial_req.port_high = pnp_port_start(dev, 0) >>
-> HIGH_BITS_OFFSET;
->  #ifdef SERIAL_DEBUG_PNP
->         printk("Setup PNP port: port %x, irq %d, type %d\n",
->                serial_req.port, serial_req.irq, serial_req.io_type);
-> 
-> 
-> 
+You need read-modify-write for this.
+--
+vda
 

@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVAXUnK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbVAXUpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbVAXUnK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 15:43:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbVAXUmI
+	id S261622AbVAXUpG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 15:45:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbVAXUoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 15:42:08 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:21385 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261622AbVAXUhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 15:37:13 -0500
-Subject: Re: [PATCH] Avoiding fragmentation through different allocator
-From: James Bottomley <jejb@steeleye.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Mel Gorman <mel@csn.ul.ie>, William Lee Irwin III <wli@holomorphy.com>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Grant Grundler <grundler@parisc-linux.org>
-In-Reply-To: <20050124154927.GJ5925@logos.cnet>
-References: <20050120101300.26FA5E598@skynet.csn.ul.ie>
-	 <20050121142854.GH19973@logos.cnet>
-	 <Pine.LNX.4.58.0501222128380.18282@skynet>
-	 <20050122215949.GD26391@logos.cnet>
-	 <Pine.LNX.4.58.0501241141450.5286@skynet>
-	 <20050124122952.GA5739@logos.cnet> <1106585052.5513.26.camel@mulgrave>
-	 <20050124154927.GJ5925@logos.cnet>
+	Mon, 24 Jan 2005 15:44:07 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:8600 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261622AbVAXUmN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 15:42:13 -0500
+Subject: Re: DVD burning still have problems
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Volker Armin Hemmann <volker.armin.hemmann@tu-clausthal.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050124150755.GH2707@suse.de>
+References: <200501232126.55191.volker.armin.hemmann@tu-clausthal.de>
+	 <5a4c581d050123125967a65cd7@mail.gmail.com> <20050124150755.GH2707@suse.de>
 Content-Type: text/plain
-Date: Mon, 24 Jan 2005 14:36:09 -0600
-Message-Id: <1106598969.5513.43.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
+Message-Id: <1106594023.6154.89.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 24 Jan 2005 19:37:06 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-24 at 13:49 -0200, Marcelo Tosatti wrote:
-> So is it valid to affirm that on average an operation with one SG element pointing to a 1MB 
-> region is similar in speed to an operation with 16 SG elements each pointing to a 64K 
-> region due to the efficient onboard SG processing? 
+On Llu, 2005-01-24 at 15:07, Jens Axboe wrote:
+> >  794034176/4572807168 (17.4%) @2.4x, remaining 18:47
+> >  805339136/4572807168 (17.6%) @2.4x, remaining 18:42
+> > :-[ WRITE@LBA=60eb0h failed with SK=3h/ASC=0Ch/ACQ=00h]: Input/output error
+> > builtin_dd: 396976*2KB out @ average 2.4x1385KBps
+> > :-( write failed: Input/output error
+> 
+> As with the original report, the drive is sending back a write error to
+> the issuer. Looks like bad media.
 
-it's within a few percent, yes.  And the figures depend on how good the
-I/O card is at it.  I can imagine there are some wildly varying I/O
-cards out there.
-
-However, also remember that 1MB of I/O is getting beyond what's sensible
-for a disc device anyway.  The cable speed is much faster than the
-platter speed, so the device takes the I/O into its cache as it services
-it.  If you overrun the cache it will burp (disconnect) and force a
-reconnection to get the rest (effectively splitting the I/O up anyway).
-This doesn't apply to arrays with huge caches, but it does to pretty
-much everything else.  The average disc cache size is only a megabyte or
-so.
-
-James
-
+I've got several reports like this that only happen with ACPI, and one
+user whose burns report fine but are corrupted if ACPI is allowed to do
+power manglement.
 

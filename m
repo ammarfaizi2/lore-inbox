@@ -1,79 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265260AbUFDAHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265428AbUFDAI1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265260AbUFDAHU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 20:07:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265148AbUFDAHT
+	id S265428AbUFDAI1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 20:08:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265311AbUFDAHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 20:07:19 -0400
-Received: from babyruth.hotpop.com ([38.113.3.61]:29113 "EHLO
-	babyruth.hotpop.com") by vger.kernel.org with ESMTP id S265428AbUFDAGu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 20:06:50 -0400
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: David Eger <eger@theboonies.us>, adaplas@pol.net
-Subject: Re: [Linux-fbdev-devel] [PATCH] fb accel capabilities (resend against 2.6.7-rc2)
-Date: Fri, 4 Jun 2004 08:06:38 +0800
-User-Agent: KMail/1.5.4
-Cc: David Eger <eger@havoc.gtf.org>, Andrew Morton <akpm@osdl.org>,
-       linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Thomas Winischhofer <thomas@winischhofer.net>
-References: <20040603023653.GA20951@havoc.gtf.org> <200406032307.13121.adaplas@hotpop.com> <1086285678.40bf676e1da4d@mail.theboonies.us>
-In-Reply-To: <1086285678.40bf676e1da4d@mail.theboonies.us>
+	Thu, 3 Jun 2004 20:07:37 -0400
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:25775 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S265104AbUFDAGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 20:06:11 -0400
+Message-ID: <40BFBCD9.8000607@myrealbox.com>
+Date: Thu, 03 Jun 2004 17:05:45 -0700
+From: Andy Lutomirski <luto@myrealbox.com>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200406040806.18437.adaplas@hotpop.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andi Kleen <ak@suse.de>
+CC: Andy Lutomirski <luto@myrealbox.com>, mingo@elte.hu, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, arjanv@redhat.com,
+       suresh.b.siddha@intel.com, jun.nakajima@intel.com
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86,   2.6.7-rc2-bk2
+References: <20040602205025.GA21555@elte.hu> <Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org> <20040603072146.GA14441@elte.hu> <20040603124448.GA28775@elte.hu> <20040603175422.4378d901.ak@suse.de> <40BFADE5.9040506@myrealbox.com> <20040603230834.GF868@wotan.suse.de> <40BFBA3F.4000304@myrealbox.com>
+In-Reply-To: <40BFBA3F.4000304@myrealbox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 June 2004 02:01, David Eger wrote:
+Andy Lutomirski wrote:
 
->
-> On the down side, panning makes screen corruption for me... time to
-> investigate to see if fbcon or radeonfb is to blame... perhaps panning is
-> just incompatible with accel engine at all in radeon...
->
+>>> I don't like Ingo's fix either, though.  At least it should check 
+>>> CAP_PTRACE or some such.  A better fix would be for LSM to pass down 
+>>> a flag indicating a change of security context.  I'll throw that in 
+>>> to my caps/apply_creds cleanup, in case that ever gets applied.
+>>
+>>
+>>
+>> Don't think we should require an LSM module for that. That's far 
+>> overkill.
+> 
+> 
+> I'm not suggesting a new LSM module.  I'm suggesting modifying the 
+> existing LSM code to handle this cleanly.  We already have a function 
+> (security_bprm_secureexec) that does something like this, and, in fact, 
+> it's probably the right thing to test here.
 
-The one time I saw screen corruption with panning was when the console virtual 
-rows (p->vrows in fbcon.c) were unconditionally set to var->yres_virtual/
-fontheight.  In most cases, this will cause screen corruption (or even a GPU 
-crash) when you scroll down to end of virtual memory.  Symptoms are corrupted 
-data when you pan to p->vrows, fixed by changing to another console and back 
-again.
+... or not.
 
-The correct thing to do is not to scroll to the very end, but scroll only to a 
-point where you still have enough fb memory at the end of fbmem to display 1 
-screenful of data.  This is done by subtracting several lines to p->vrows as 
-illustrated by this code snippet scattered in fbcon.c 
+secureexec will return true even if you have whatever cap you want the user 
+to have for this to work.
 
-	p->vrows = info->var.yres_virtual / vc->vc_font.height;
-	if(info->var.yres > (vc->vc_font.height * (vc->vc_rows + 1))) {
-		p->vrows -= (info->var.yres - (vc->vc_font.height * vc->vc_rows)) / 
-vc->vc_font.height;
-	}
+What use to you see for having this flag survive setuid?  The only (safe) 
+use I can see is for debugging, in which case just copying the binary and 
+running it non-setuid should be OK.
 
-Or this in fbcon_resize()
+In this case, then secureexec is a better test than setuid-ness because of 
+LSMs (like SELinux) in which case setuid is not the only way that security 
+can be elevated.
 
-	p->vrows = var.yres_virtual/fh;
-	if (var.yres > (fh * (height + 1)))
-		p->vrows -= (var.yres - (fh * height)) / fh;
-
-The above code is scattered because we cannot seem to find a central location 
-to strategically place it because of the very confusing console code :-(  
-
-Is it possible that the changes in your development tree might have failed to 
-appropriately update p->vrows?
-
-Tony  
-
-P.S.  I believe this corruption was spotted with fix contributed by Thomas 
-last year.
-
-
+--Andy

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbTDQPuy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 11:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTDQPux
+	id S261323AbTDQPxT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 11:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTDQPxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 11:50:53 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:16327
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261798AbTDQPuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 11:50:52 -0400
-Subject: Re: Subtle semantic issue with sleep callbacks in drivers
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Bradford <john@grabjohn.com>
-Cc: Patrick Mochel <mochel@osdl.org>, Grover Andrew <andrew.grover@intel.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200304171459.h3HExMBa000217@81-2-122-30.bradfords.org.uk>
-References: <200304171459.h3HExMBa000217@81-2-122-30.bradfords.org.uk>
+	Thu, 17 Apr 2003 11:53:18 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:37137
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S261323AbTDQPxR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 11:53:17 -0400
+Subject: Re: RedHat 9 and 2.5.x support
+From: Robert Love <rml@tech9.net>
+To: Antonio Vargas <wind@cocodriloo.com>
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030417150321.GC16335@wind.cocodriloo.com>
+References: <20030416165408.GD30098@wind.cocodriloo.com>
+	 <1050517953.598.16.camel@teapot.felipe-alfaro.com>
+	 <20030417150321.GC16335@wind.cocodriloo.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1050591871.31390.79.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1050595500.17830.4.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 17 Apr 2003 16:04:32 +0100
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 17 Apr 2003 12:05:01 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-04-17 at 15:59, John Bradford wrote:
-> The machines are never accessed except over the LAN in normal use, but
-> it's quite possible that you'd want to suspend the whole cluster
-> overnight, for example, or at least some nodes which were not in use,
-> and you wouldn't care about the VGA card being restored.
+On Thu, 2003-04-17 at 11:03, Antonio Vargas wrote:
 
-Fine,. set the "dont post" flag, set the callback to a null function
+> 2. RH9 procutils _seems_ to work fine: I can do "vmstat 1" whereas the older
+>    gentoo image from summer I used to test boot 2.5 didn't.
+
+It does work fine.
+
+The Red Hat 9 procps is very recent, even with some nice NPTL
+enhancements.  If you want to try a newer release, you can get a CVS
+snapshot from http://tech9.net/rml/procps.  But the RH9 version should
+be fine in 2.5.
+
+	Robert Love
 

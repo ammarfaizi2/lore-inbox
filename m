@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270495AbRHQTVG>; Fri, 17 Aug 2001 15:21:06 -0400
+	id <S270601AbRHQTbS>; Fri, 17 Aug 2001 15:31:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270552AbRHQTU7>; Fri, 17 Aug 2001 15:20:59 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:12680 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S270495AbRHQTUt>; Fri, 17 Aug 2001 15:20:49 -0400
-Date: Fri, 17 Aug 2001 15:21:03 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: Patch for Linus' 2.4.8 show_trace() on i386
-Message-ID: <20010817152103.A30155@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	id <S270584AbRHQTbK>; Fri, 17 Aug 2001 15:31:10 -0400
+Received: from intranet.resilience.com ([209.245.157.33]:64486 "EHLO
+	intranet.resilience.com") by vger.kernel.org with ESMTP
+	id <S270600AbRHQTbB>; Fri, 17 Aug 2001 15:31:01 -0400
+Message-ID: <3B7D6FFB.CCD5099@resilience.com>
+Date: Fri, 17 Aug 2001 12:26:51 -0700
+From: Jeff Golds <jgolds@resilience.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Michael H. Warfield" <mhw@wittsend.com>
+CC: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>,
+        linux-kernel@vger.kernel.org
+Subject: Re: min() and max() in kernel.h ?
+In-Reply-To: <200108171913.f7HJDKi00416@wildsau.idv-edu.uni-linz.ac.at> <20010817152159.A15459@alcove.wittsend.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is not relevant for latest and greatest where this
-area was reworked completely, but in case anyone ships
-a 2.4.8-based distro...
+"Michael H. Warfield" wrote:
+> 
+>         Please review the flamefest threads in this forum going under the
+> subjects of "2.4.9 does not compile" and related "[PATCH]".  That will
+> answer who what when and why, as well as giving you a suitable case of
+> characters to throw stones, or whatever else is handy, at.
+> 
+>         Rather interesting that Linus ducked out of town just in time
+> for this...  :->
+> 
 
---- linux-2.4.8/arch/i386/kernel/traps.c	Wed Jun 20 13:59:44 2001
-+++ linux-2.4.8-e/arch/i386/kernel/traps.c	Fri Aug 17 11:50:46 2001
-@@ -105,7 +105,6 @@
- 	i = 1;
- 	module_start = VMALLOC_START;
- 	module_end = VMALLOC_END;
--	module_end = 0;
- 	while (((long) stack & (THREAD_SIZE-1)) != 0) {
- 		addr = *stack++;
- 		/*
+Now we can make this into a conspiracy theory as well =)
+
+> 
+>         Mike
+
+-Jeff
+
+-- 
+Jeff Golds
+Sr. Software Engineer
+jgolds@resilience.com

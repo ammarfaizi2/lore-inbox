@@ -1,83 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131564AbRAOVdY>; Mon, 15 Jan 2001 16:33:24 -0500
+	id <S131535AbRAOVge>; Mon, 15 Jan 2001 16:36:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131535AbRAOVdO>; Mon, 15 Jan 2001 16:33:14 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:46354 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131564AbRAOVdC>; Mon, 15 Jan 2001 16:33:02 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: 4G SGI quad Xeon - memory-related slowdowns
-Date: 15 Jan 2001 13:32:40 -0800
-Organization: Transmeta Corporation
-Message-ID: <93vq9o$vt$1@penguin.transmeta.com>
-In-Reply-To: <3A6364AF.AC4D4081@fnal.gov>
+	id <S131625AbRAOVgZ>; Mon, 15 Jan 2001 16:36:25 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:38605 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S131535AbRAOVgF>; Mon, 15 Jan 2001 16:36:05 -0500
+Date: Mon, 15 Jan 2001 22:34:48 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Linus Torvalds <torvalds@transmeta.com>, "H. Peter Anvin" <hpa@zytor.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrea Arcangeli <andrea@suse.de>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386/setup.c cpuinfo notsc
+In-Reply-To: <Pine.LNX.4.21.0101152017450.1032-100000@localhost.localdomain>
+Message-ID: <Pine.GSO.3.96.1010115222714.16619a-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A6364AF.AC4D4081@fnal.gov>,
-Paul Hubbard  <phubbard@fnal.gov> wrote:
->
->We're having some problems with the 2.4.0 kernel on our SGI 1450, and
->were hoping for some help.
-> The box is a quad Xeon 700/2MB, with 4GB of memory, ServerSet III HE
->chipset, RH6.1 (slightly modified for local configuration) distribution.
->
->a) If we compile the kernel with no high memory support, /proc/meminfo
->shows 1G of memory and everything works fine.
+On Mon, 15 Jan 2001, Hugh Dickins wrote:
 
-Good.
+> That's how "notsc" used to behave, but since 2.4.0-test11
+> "notsc" has left "tsc" in /proc/cpuinfo.  setup.c has a bogus
+> "#ifdef CONFIG_TSC" which should be "#ifndef CONFIG_X86_TSC".
 
->b) If we compile for 4G of memory, /proc/meminfo shows about 3G, and
->overriding the amount at the lilo prompt causes kernel panics at bootup.
->However, other than missing a quarter of the memory, it works just
->fine.
+ Confirmed.
 
-3GB is right - your last 1GB is above the 4GB mark, and it's mapped
-there explicitly so that you'll have space in the low 32 bits to map PCI
-devices etc (and things like the APIC, you get the idea). 
+> HPA, Maciej and I discussed that around 5 Dec 2000; but HPA
+> was of Andrea's persuasion, that we should not mask caps out
+> of (real CPU entries in) /proc/cpuinfo, so we made no change.
 
-If you try to override it, you will very obviously crash, because if you
-tell Linux that you have 4GB of memory, Linux will think that you have
-4GB of _contiguous_ memory, which is not true.  The only way to use that
-last gigabyte is to enable support for memory > 4GB, and get the proper
-memory map _without_ any overrides that shows the proper holes for PCI
-space. 
+ The conclusion was to add something like common_cpu_data, which would be
+independent from boot_cpu_data.
 
-Check your "dmesg" output under a working kernel for details - you'll
-see how the memory is laid out and reported by the e820 call..
+> In discussion we found a more worrying error in the SMP case:
+> boot_cpu_data is supposed to be left with those x86_capabilities
+> common to all CPUs, but the code to do so was unaware that
+> boot_cpu_data is overwritten in booting each CPU.  Even if all
+> CPUs have the same features, I imagine the Linux-defined ones
+> (CXMMX, K6_MTRR, CYRIX_ARR, CENTAUR_MCR) were unintentionally
+> masked out of the final boot_cpu_data.
 
->c) If we compile the kernel for 64G high memory (PAE mode), we see all
->of the memory but have other problems:
->  i) mkefs -m0 on a 72GB Seagate SCSI disk runs very slowly (about
->5MB/sec instead of 22-25) and the machine hangs after the format
->completes. To be exact, the command prompt returns, but
->     ls or any other command will never return, and you have to reset
->the box. This is a 
->     showstopper for us!
+ It's not supposed.  Another struct should be added.  Boot_cpu_data is
+expected to be used during an early SMP boot only.  That's the original
+semantics and it should be preserved, I think.  The SMP code relies on it.
 
-Sounds like a true-to-God bug. Possibly in the form of incorrect MTRR
-settings. Make sure you enable MTRR support.
+> The patch below fixes both those issues, and also clears
+> "pse" from /proc/cpuinfo in the same way if "mem=nopentium".
+> Tempted to rename "tsc_disable" to "disable_x86_tsc", but resisted.
 
-I do need more information on what seems to hang, and how it hangs. One
-of the pre-kernels will give you a nice stack backtrace for each process
-if you press control-scrolllock, and that might be useful.
+ Good spotting.
 
->  ii) If I override the amount of memory via lilo, we still get the
->       hang, but performance actually improves!
+> I think there are still anomalies in the Cyrix and Centaur TSC
+> handling - shouldn't dodgy_tsc() check Centaur too?  shouldn't
+> we set X86_CR4_TSD wherever we clear X86_FEATURE_TSC? - but I
+> don't have those CPUs to test, I'm wary of disabling TSC since
+> finding RH7.0 installed on i686 needs rdtsc to run /sbin/init,
+> and even if they are wrong then "notsc" corrects the situation:
+> not 2.4.1 material.
 
-The performance problem is _probably_ due to the kernel having to
-double-buffer the IO requests, coupled with bad MTRR settings (ie memory
-above the 4GB range is probably marked as non-cacheable or something,
-which means that you'll get really bad performance). 
+ Yep, that needs glibc or whatever introduces rdtsc to be fixed.
 
-Not using the high memory will avoid the double-buffering, and will also
-avoid using memory that isn't cached. If I'm right.
+ Thanks for the patch -- I'll see how to fit it within my point of view.
+I'm somewhat time-constrained these days, but I might be able to spend an
+hour or so on coding and testing this issue tonight.
 
-The hang still indicates that something is wrong in PAE-land, though.
+  Maciej
 
-		Linus
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

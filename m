@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317851AbSHDOvp>; Sun, 4 Aug 2002 10:51:45 -0400
+	id <S317858AbSHDO7G>; Sun, 4 Aug 2002 10:59:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317858AbSHDOvp>; Sun, 4 Aug 2002 10:51:45 -0400
-Received: from dsl-213-023-061-042.arcor-ip.net ([213.23.61.42]:31759 "EHLO
-	spot.local") by vger.kernel.org with ESMTP id <S317851AbSHDOvp>;
-	Sun, 4 Aug 2002 10:51:45 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Oliver Feiler <kiza@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19, USB_HID only works compiled in, not as module
-Date: Sun, 4 Aug 2002 16:56:19 +0200
-User-Agent: KMail/1.4.1
-X-PGP-KeyID: 0x561D4FD2
-X-PGP-Key: http://www.lionking.org/~kiza/pgpkey.shtml
-X-Species: Snow Leopard
-X-Operating-System: Linux i686
+	id <S317859AbSHDO7G>; Sun, 4 Aug 2002 10:59:06 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:40943 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S317858AbSHDO7F>; Sun, 4 Aug 2002 10:59:05 -0400
+Date: Sun, 4 Aug 2002 17:02:33 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Keith Owens <kaos@ocs.com.au>
+cc: Willy Tarreau <willy@w.ods.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19 make allmodconfig - undefined symbols 
+In-Reply-To: <1876.1028467344@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.NEB.4.44.0208041659070.1422-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200208041656.21035.kiza@gmx.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 4 Aug 2002, Keith Owens wrote:
 
-Since 2.4.19 a usb mouse does not work anymore if
+> On Sun, 4 Aug 2002 14:35:13 +0200,
+> Willy Tarreau <willy@w.ods.org> wrote:
+> >On Sun, Aug 04, 2002 at 08:13:20PM +1000, Keith Owens wrote:
+> >> 2.4.19 make allmodconfig.  Besides the perennial drivers/net/wan/comx.o
+> >> wanting proc_get_inode, there was only one undefined symbol.  In the
+> >> extremely unlikely event that binfmt_elf is a module (how do you load
+> >> modules when binfmt_elf is a module?), smp_num_siblings is unresolved.
+> >
+> >I also get an unresolved reference to __io_virt_debug in misc.o:puts()
+> >when building bzImage. If you don't get it, it means that my tree is
+> >corrupted.
+>
+> Neither.  It is a problem with CONFIG_DEBUG_IOVIRT which allmod and
+> allyesconfig turn on.  My builds stop at vmlinux and do not build
+> bzImage so I did not detect this problem.  The outb_p calls in misc.c
+> need fixing for CONFIG_DEBUG_IOVIRT=y, or force CONFIG_DEBUG_IOVIRT=n.
+>...
 
-CONFIG_USB_HID=m
-and
-CONFIG_INPUT_MOUSEDEV=m
+More exactly it's a problem that only occurs with CONFIG_MULTIQUAD
+enabled. The thread starting with [1] contains a discussion of this bug
+and the patch used to fix it in 2.5.
 
-is set. It only works if both are compiled into the kernel. Yes, I have set
-CONFIG_USB_HIDINPUT=y.
+cu
+Adrian
 
-I've also seen other complaints about usb mice not working in 2.4.19, I guess 
-that's the problem?
+[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=102079707313304&w=2
 
-If the stuff is compiled as modules, everything seems to be fine. The kernel 
-messages are the same, everything is detected fine. Except that 'cat 
-/dev/input/mice' does not give any output if the driver is compiled as 
-module.
-
-Cheers,
-Oliver
 
 -- 
-Oliver Feiler  <kiza@(gmx(pro).net|lionking.org|claws-and-paws.com)>
-http://www.lionking.org/~kiza/  <--   homepage
-PGP-key ID 0x561D4FD2    --> /pgpkey.shtml
-http://www.lionking.org/~kiza/journal/
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

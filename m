@@ -1,100 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267578AbUIKGM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267410AbUIKGzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267578AbUIKGM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 02:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267602AbUIKGM1
+	id S267410AbUIKGzx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 02:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267470AbUIKGzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 02:12:27 -0400
-Received: from host-63-144-52-41.concordhotels.com ([63.144.52.41]:55616 "EHLO
-	080relay.CIS.CIS.com") by vger.kernel.org with ESMTP
-	id S267578AbUIKGMY convert rfc822-to-8bit (ORCPT
+	Sat, 11 Sep 2004 02:55:53 -0400
+Received: from ozlabs.org ([203.10.76.45]:54757 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S267410AbUIKGzt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 02:12:24 -0400
-Subject: Re: radeon-pre-2
-From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-To: Dave Airlie <airlied@linux.ie>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>,
-       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0409110600120.26651@skynet>
-References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
-	 <Pine.LNX.4.58.0409100209100.32064@skynet>
-	 <9e47339104090919015b5b5a4d@mail.gmail.com>
-	 <20040910153135.4310c13a.felix@trabant>
-	 <9e47339104091008115b821912@mail.gmail.com>
-	 <1094829278.17801.18.camel@localhost.localdomain>
-	 <9e4733910409100937126dc0e7@mail.gmail.com>
-	 <1094832031.17883.1.camel@localhost.localdomain>
-	 <9e47339104091010221f03ec06@mail.gmail.com>
-	 <1094835846.17932.11.camel@localhost.localdomain>
-	 <9e47339104091011402e8341d0@mail.gmail.com>
-	 <Pine.LNX.4.58.0409102254250.13921@skynet>
-	 <1094853588.18235.12.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0409110137590.26651@skynet>
-	 <1094873412.4838.49.camel@admin.tel.thor.asgaard.local>
-	 <Pine.LNX.4.58.0409110600120.26651@skynet>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Date: Sat, 11 Sep 2004 02:12:16 -0400
-Message-Id: <1094883136.6095.75.camel@admin.tel.thor.asgaard.local>
+	Sat, 11 Sep 2004 02:55:49 -0400
+Date: Sat, 11 Sep 2004 16:54:06 +1000
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix real bugs uncovered by -Wno-uninitialized removal
+Message-ID: <20040911065406.GA32755@krispykreme>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-09-11 at 06:19 +0100, Dave Airlie wrote:
-> >
-> > You're probably right, but it still doesn't follow that this driver must
-> > include all the fbdev and DRM code as well. Both fbdev and the DRM could
-> > use that driver, e.g., just like ide_cd and ide_disk use the IDE driver.
-> 
-> I think your wrong, look at drivers/video/aty/radeon* and tell me what in
-> there is capable of being abstracted from the hardware, every file access
-> lowlevel registers for something or other, be it mode setting or I2C, 
 
-I'm not talking about abstracting much of anything, just moving
-(arbitration of) actual hardware access to a common lowlevel driver. The
-things you mentioned but snipped above, basically.
+The removal of -Wno-uninitialized on ppc64 revealed a number of real
+bugs.
 
-> now accessing lowlevels while the CP is running on a radeon is a one way
-> express to the land of the lockups... 
+Signed-off-by: Anton Blanchard <anton@samba.org>
 
-No need to tell me that...
-
-> (think mode setting a second head, while a 3d app is running on the first 
-> head...), the lowlevel driver can provide a DRM and FB interface to fbcon 
-> and 3d stuff, but the lowlevel driver needs all the code to do both...
-
-I still haven't seen a complete logical chain leading to that
-conclusion.
-
-The lowlevel driver could provide all the necessary arbitration and
-safety measures to prevent the two from stepping on each other's toes.
-
-
-> The other thing I think some people are confusing is 2.4 fbdev and 2.6...
-
-Again, not me.
-
-> there is no console support in 2.6 fbdev drivers, it is all in the fbcon
-> stuff, so the fbdev drivers are only doing 2d mode setting and monitor
-> detection, [...]
-
-Exactly. Why not leave it like that, and the DRM taking care of memory
-management and rendering?
-
-
-> 1. It doesn't matter where the code lives, fbdev/DRM need to start talking
-> about things
-
-Agreed.
-
-> 2. A generic interface between the two is probably going to be impossible,
-
-Probably true, I'm not talking about a generic interface (although some
-parts might be generic, just like the DRM userspace interface).
-
-
--- 
-Earthling Michel Dänzer      |     Debian (powerpc), X and DRI developer
-Libre software enthusiast    |   http://svcs.affero.net/rm.php?r=daenzer
+diff -puN drivers/char/hvcs.c~realbugs drivers/char/hvcs.c
+--- foobar2/drivers/char/hvcs.c~realbugs	2004-09-11 15:32:35.532933850 +1000
++++ foobar2-anton/drivers/char/hvcs.c	2004-09-11 15:32:35.580930160 +1000
+@@ -427,7 +427,7 @@ static int hvcs_io(struct hvcs_struct *h
+ 	struct tty_struct *tty;
+ 	char buf[HVCS_BUFF_LEN] __ALIGNED__;
+ 	unsigned long flags;
+-	int got;
++	int got = 0;
+ 	int i;
+ 
+ 	spin_lock_irqsave(&hvcsd->lock, flags);
+@@ -945,7 +945,7 @@ static int hvcs_enable_device(struct hvc
+  */
+ struct hvcs_struct *hvcs_get_by_index(int index)
+ {
+-	struct hvcs_struct *hvcsd;
++	struct hvcs_struct *hvcsd = NULL;
+ 	unsigned long flags;
+ 
+ 	spin_lock(&hvcs_structs_lock);
+@@ -1433,7 +1433,7 @@ static int __init hvcs_module_init(void)
+ 			" as a tty driver failed.\n");
+ 		hvcs_free_index_list();
+ 		put_tty_driver(hvcs_tty_driver);
+-		return rc;
++		return -EIO;
+ 	}
+ 
+ 	hvcs_pi_buff = kmalloc(PAGE_SIZE, GFP_KERNEL);
+diff -puN drivers/net/ibmveth.c~realbugs drivers/net/ibmveth.c
+--- foobar2/drivers/net/ibmveth.c~realbugs	2004-09-11 15:32:35.538933389 +1000
++++ foobar2-anton/drivers/net/ibmveth.c	2004-09-11 15:41:13.949998616 +1000
+@@ -885,13 +885,16 @@ static int __devinit ibmveth_probe(struc
+ 
+ 	mac_addr_p = (unsigned char *) vio_get_attribute(dev, VETH_MAC_ADDR, 0);
+ 	if(!mac_addr_p) {
+-		ibmveth_error_printk("Can't find VETH_MAC_ADDR attribute\n");
++		printk(KERN_ERR "(%s:%3.3d) ERROR: Can't find VETH_MAC_ADDR "
++				"attribute\n", __FILE__, __LINE__); 
+ 		return 0;
+ 	}
+ 	
+ 	mcastFilterSize_p= (unsigned int *) vio_get_attribute(dev, VETH_MCAST_FILTER_SIZE, 0);
+ 	if(!mcastFilterSize_p) {
+-		ibmveth_error_printk("Can't find VETH_MCAST_FILTER_SIZE attribute\n");
++		printk(KERN_ERR "(%s:%3.3d) ERROR: Can't find "
++				"VETH_MCAST_FILTER_SIZE attribute\n",
++				__FILE__, __LINE__); 
+ 		return 0;
+ 	}
+ 	
+diff -puN drivers/pci/hotplug/rpaphp_core.c~realbugs drivers/pci/hotplug/rpaphp_core.c
+--- foobar2/drivers/pci/hotplug/rpaphp_core.c~realbugs	2004-09-11 15:32:35.545932850 +1000
++++ foobar2-anton/drivers/pci/hotplug/rpaphp_core.c	2004-09-11 15:32:35.575930545 +1000
+@@ -449,7 +449,7 @@ static int rpaphp_disable_slot(struct pc
+ 
+ static int disable_slot(struct hotplug_slot *hotplug_slot)
+ {
+-	int retval;
++	int retval = -EINVAL;
+ 	struct slot *slot = (struct slot *)hotplug_slot->private;
+ 
+ 	dbg("%s - Entry: slot[%s]\n", __FUNCTION__, slot->name);
+diff -puN drivers/pci/hotplug/rpaphp_pci.c~realbugs drivers/pci/hotplug/rpaphp_pci.c
+--- foobar2/drivers/pci/hotplug/rpaphp_pci.c~realbugs	2004-09-11 15:32:35.551932389 +1000
++++ foobar2-anton/drivers/pci/hotplug/rpaphp_pci.c	2004-09-11 15:32:35.582930007 +1000
+@@ -186,7 +186,7 @@ static struct pci_dev *
+ rpaphp_pci_config_slot(struct device_node *dn, struct pci_bus *bus)
+ {
+ 	struct device_node *eads_first_child = dn->child;
+-	struct pci_dev *dev;
++	struct pci_dev *dev = NULL;
+ 	int num;
+ 	
+ 	dbg("Enter %s: dn=%s bus=%s\n", __FUNCTION__, dn->full_name, bus->name);
+diff -puN arch/ppc64/kernel/iSeries_pci_reset.c~realbugs arch/ppc64/kernel/iSeries_pci_reset.c
+--- foobar2/arch/ppc64/kernel/iSeries_pci_reset.c~realbugs	2004-09-11 16:11:41.437058963 +1000
++++ foobar2-anton/arch/ppc64/kernel/iSeries_pci_reset.c	2004-09-11 16:11:45.839379196 +1000
+@@ -65,7 +65,8 @@ int iSeries_Device_ToggleReset(struct pc
+ 		AssertDelay = (5 * HZ) / 10;
+ 	else
+ 		AssertDelay = (AssertTime * HZ) / 10;
+-	if (WaitDelay == 0)
++
++	if (DelayTime == 0)
+ 		WaitDelay = (30 * HZ) / 10;
+ 	else
+ 		WaitDelay = (DelayTime * HZ) / 10;
+_

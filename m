@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265942AbTIER7y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 13:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbTIER7y
+	id S265816AbTIERle (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 13:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265817AbTIERle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 13:59:54 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:35987 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S265942AbTIER7x (ORCPT
+	Fri, 5 Sep 2003 13:41:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:14790 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265816AbTIERld (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 13:59:53 -0400
-Date: Fri, 5 Sep 2003 13:59:38 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Andi Kleen <ak@colin2.muc.de>
-Cc: Jan Hubicka <jh@suse.cz>, Andi Kleen <ak@muc.de>, torvalds@osdl.org,
-       akpm@osdl.org, rth@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use -fno-unit-at-a-time if gcc supports it
-Message-ID: <20030905175938.GA29353@gtf.org>
-References: <20030905004710.GA31000@averell> <20030905053730.GB24509@kam.mff.cuni.cz> <20030905172715.GA80302@colin2.muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030905172715.GA80302@colin2.muc.de>
-User-Agent: Mutt/1.3.28i
+	Fri, 5 Sep 2003 13:41:33 -0400
+Date: Fri, 5 Sep 2003 10:47:49 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Rob Landley <rob@landley.net>
+cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Fix up power managment in 2.6
+In-Reply-To: <200309050158.36447.rob@landley.net>
+Message-ID: <Pine.LNX.4.44.0309051044470.17174-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 05, 2003 at 07:27:15PM +0200, Andi Kleen wrote:
-> I'm not sure that is that good an idea. When I was still hacking 
-> TCP I especially moved some stuff out-of-line in the fast path to avoid 
-> register pressure. Otherwise gcc would inline rarely used sub functions 
-> and completely mess up the register allocation in the fast path.
-> Of course just a call alone messes up the registers somewhat because
-> of its clobbers, but a full inlining is usually worse.
-[...]
-> I suspect that is true for a lot of core kernel code - everything
-> that is worth inlining is already inlined and for the rest it doesn't matter.
 
-Definitely , agreed.  In fact, we are moving in the opposite direction:
-looking into what we can un-inline...
+> Is there somewhere we can download your code?  swsusp in -test3 hung my box 
+> immediately without touching the disk, and in -test4 there doesn't seem to be 
+> any way to trigger it under /proc or /sys...
 
+I posted a URL last Saturday to the patch, and Andrew merged it into 
+-test4-mm4. 
 
-> On the other hand a lot of driver code seems to be written without
-> manual consideration for inline. For that it may be worth it. But then
-> I would consider core kernel code to be more important than driver
-> code.
+If you're interested in testing, please try -test4-mm6, as it has a couple 
+of more fixes. 
 
-Modern network drivers seem fairly aware of it ;-)
+> APM suspend doesn't work properly on my new thinkpad (suspends but hangs with 
+> the power LED still on and the hibernate light off, and the thing's a brick 
+> at that point; the only thing you can do is hold the power button down for 
+> ten seconds or pop the battery to get it to boot back up from scratch.)  So I 
+> have to shut the sucker down every time I want to move it, which is a pain...
 
-> Also I fear cross module inlining would expose a lot of latent bugs
-> (missing barriers etc.) when the optimizer becomes more aggressive. 
-> I'm not saying this would be a bad thing, just that it may be a lot 
-> of work to fix (both for compiler and kernel people)
+What model is it? It probably doesn't support APM at all. I can't
+guarantee that ACPI suspend/resume will work on it, but I'm interested to 
+see if it does.. 
 
-Agreed.
-
-	Jeff
+Thanks,
 
 
+	Pat
 

@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbTEBM1p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 08:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbTEBM1p
+	id S262025AbTEBMpu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 08:45:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbTEBMpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 08:27:45 -0400
-Received: from outpost.zedz.net ([194.109.206.210]:27853 "EHLO mail.zedz.net")
-	by vger.kernel.org with ESMTP id S262015AbTEBM1p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 08:27:45 -0400
-From: Nomen Nescio <nobody@dizum.com>
-Comments: This message did not originate from the Sender address above.
-	It was remailed automatically by anonymizing remailer software.
-	Please report problems or inappropriate use to the
-	remailer administrator at <abuse@dizum.com>.
-To: linux-kernel@vger.kernel.org
+	Fri, 2 May 2003 08:45:49 -0400
+Received: from uni02du.unity.ncsu.edu ([152.1.13.102]:2177 "EHLO
+	uni02du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id S262025AbTEBMpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 08:45:49 -0400
+From: jlnance@unity.ncsu.edu
+Date: Fri, 2 May 2003 08:57:35 -0400
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Did the SCO Group plant UnixWare source in the Linux kernel?
-References: <fa.gqa0utv.1i0gigr@ifi.uio.no>
-Message-ID: <a273cd89471ffee7bed6a2cc2eceb51c@dizum.com>
-Date: Fri,  2 May 2003 14:40:02 +0200 (CEST)
+Message-ID: <20030502125735.GA3409@ncsu.edu>
+References: <ZIA7D8S737743.2233333333@Gilgamesh-frog.org> <20030502064349.A9988@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030502064349.A9988@infradead.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The Spirit of Open Source wrote:
-> > This C|Net news article says the SCO Group claims to have found many instances
-> > of copyrighted UnixWare source code being inserted verbatim into the Linux
-> > kernel:
-> 
-> According to an article here:
-> 
-> http://slashdot.org/articles/03/05/01/2332226.shtml?tid=167&tid=99
-> 
-> SCO-Caldera Senior Vice President Chris Sontag explicitly says that the
-> kernel.org kernel is *not* tainted, but that that other stuff that Red Hat and
-> SuSE are including *is*.
+On Fri, May 02, 2003 at 06:43:49AM +0100, Christoph Hellwig wrote:
 
-Hmm.  SCO Group Chief Executive Darl McBride says _exactly_ the opposite
-according to http://msnbc-cnet.com.com/2100-1016_3-999371.html :
+> It might be more interesting to look for stolen Linux code in Unixware,
+> I'd suggest with the support for a very well known Linux fileystem in
+> the Linux compat addon product for UnixWare..
 
-    "We're finding ... cases where there is line-by-line code in the Linux kernel
-    that is matching up to our UnixWare code.
+Wouldnt it be halirous if whatever code SCO is talking about when they
+say there is Unix code in Linux turns out to be code some SCO employee
+ripped out of some GPL program and stuck it into Unixware.  That is
+actually far more likely than what they alledge.
 
-    We're finding code that looks likes it's been obfuscated to make it look
-    like it wasn't UnixWare code -- but it was."
-
-Chris Sontag should get his story straight with his boss before he opens his
-mouth to the press.
+Jim

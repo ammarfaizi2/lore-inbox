@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262203AbVCBGng@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262204AbVCBHA0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262203AbVCBGng (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 01:43:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVCBGnZ
+	id S262204AbVCBHA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 02:00:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262205AbVCBHA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 01:43:25 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26822 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262201AbVCBGnT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 01:43:19 -0500
-Message-ID: <42256078.1040002@pobox.com>
-Date: Wed, 02 Mar 2005 01:43:04 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Andrew Morton <akpm@osdl.org>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6.11-rc4-mm1 patch] fix buggy IEEE80211_CRYPT_* selects
-References: <20050223014233.6710fd73.akpm@osdl.org> <20050226113123.GJ3311@stusta.de>
-In-Reply-To: <20050226113123.GJ3311@stusta.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 2 Mar 2005 02:00:26 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:43763 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262204AbVCBHAV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 02:00:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=Fz9Y1yhHGtPIuR0HGQ3AaEVmwGL7cgXrPadl+A1WwjHoMEZ+lf7londG04VAQjl73g4VPnll+LooTS7U0m2YwVdqb8cpwZlAmEPhFRosLeACKcwgNByqASchPVrhBoGXqST06PpxRvWpFsMmpuJUyTasdcLNTjzA07tnK+Dzw2I=
+Message-ID: <3cac075b050301230046289a03@mail.gmail.com>
+Date: Wed, 2 Mar 2005 12:00:20 +0500
+From: Nauman <mailtonauman@gmail.com>
+Reply-To: Nauman <mailtonauman@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: SCSI Target Mode issue...... pls help
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> +	select CRYPTO
->  	select CRYPTO_AES
->  	---help---
->  	Include software based cipher suites in support of IEEE 802.11i 
->  	(aka TGi, WPA, WPA2, WPA-PSK, etc.) for use with CCMP enabled 
->  	networks.
-> @@ -54,10 +55,11 @@
->  	"ieee80211_crypt_ccmp".
->  
->  config IEEE80211_CRYPT_TKIP
->  	tristate "IEEE 802.11i TKIP encryption"
->  	depends on IEEE80211
-> +	select CRYPTO
->  	select CRYPTO_MICHAEL_MIC
+hello all the gurus out there, 
+i have written simple Target for SCSI device. its in very early stage.
+I started to handle simple commands from the INITIATOR like INQUIRY,
+READ CAPACITY , REPORT LUN.
+Now i am upto READ and WRITE. I have responded READ properly. Problem
+is in WRITE command. For instance there is a case when i get multiple
+WRITE command from INITIATOR
+i queue command as i receive it. CTIO has to be sent to firmware for
+each recieved command  . in my case i send CTIO as i recieve the
+command. now firmware has to send back the response for each CTIO i
+sent. here is whats happening
+i get 2 commands for WRITE. send CTIO for cmd1 and cmd2 and what i get
+back from firmware is response of second cmd which is cmd2. cmd1's
+command time out occurs and it fails to respond.
 
-
-'select CRYPTO_AES' should 'select CRYPTO' automatically, I would hope.
-
-	Jeff
-
-
+if any one has done basic handshake and handled READ and WRITE for
+TARGET mode then please share ur knowledge......
+Best Regards,
+-- 
+When the going gets tough, The tough gets going...!
+Peace ,  
+Nauman.

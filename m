@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130011AbQKJHlE>; Fri, 10 Nov 2000 02:41:04 -0500
+	id <S129488AbQKJHtQ>; Fri, 10 Nov 2000 02:49:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130575AbQKJHkz>; Fri, 10 Nov 2000 02:40:55 -0500
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:56077 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S130011AbQKJHkk>; Fri, 10 Nov 2000 02:40:40 -0500
-From: aprasad@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: bsuparna@in.ibm.com
-cc: linux-kernel@vger.kernel.org
-Message-ID: <CA256993.0026C8BD.00@d73mta05.au.ibm.com>
-Date: Fri, 10 Nov 2000 12:25:24 +0530
+	id <S129806AbQKJHtG>; Fri, 10 Nov 2000 02:49:06 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:21890 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129488AbQKJHtA>;
+	Fri, 10 Nov 2000 02:49:00 -0500
+Date: Thu, 9 Nov 2000 23:34:26 -0800
+Message-Id: <200011100734.XAA26767@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: aprasad@in.ibm.com
+CC: bsuparna@in.ibm.com, linux-kernel@vger.kernel.org
+In-Reply-To: <CA256993.0026C8BD.00@d73mta05.au.ibm.com> (aprasad@in.ibm.com)
 Subject: Re: Oddness in i_shared_lock and page_table_lock nesting
 	 hierarchies ?
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Reply-To: aprasad@in.ibm.com
-X-created: Reply-To created by f03n05e.au.ibm.com
+In-Reply-To: <CA256993.0026C8BD.00@d73mta05.au.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I was looking into the vmm code and trying to work out exactly how to fix
->this, and there are
->  some questions in my mind - mainly a few cases (involving multiple vma
->updates) which
->  I'm not sure about the cleanest way to tackle.
->  But before I bother anyone with those, I thought I ought to go through
->the earlier discussions
->  that you had while coming up with what the fix should be. Maybe you've
->already gone over
->  this once.
->  Could you point me to those ? Somehow I haven't been successful in
->locating them.
+   From: aprasad@in.ibm.com
+   Date: 	Fri, 10 Nov 2000 12:25:24 +0530
 
-this link might be useful
-http://mail.nl.linux.org/linux-mm/2000-07/msg00038.html
+   this link might be useful
+   http://mail.nl.linux.org/linux-mm/2000-07/msg00038.html
 
-Anil Kumar Prasad,
-Hardware Design,
-IBM Global Services,
-Pune,
-INDIA
-Phone:6349724 , 4007117 extn:1310
+This talks about a completely different bug.
 
+We are talking here about inconsistant ordering of lock acquisition
+when both mapping->i_shared_lock and mm->page_table_lock must be
+held simultaneously.
 
+The thread you quoted merely mentions the issue we have mm->rss
+modifications are not always protected properly by the
+page_table_lock.
+
+There were no previous public discussions about the
+i_shared_lock/page_table_lock deadlock problems.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

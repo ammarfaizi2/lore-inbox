@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263154AbUELXBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263033AbUELXDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263154AbUELXBD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 19:01:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263169AbUELXA7
+	id S263033AbUELXDG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 19:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbUELXDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 19:00:59 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:50902 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263089AbUELXAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 19:00:55 -0400
-Date: Thu, 13 May 2004 01:00:47 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: How to contact AdvanSys/ConnectCom?
-Message-ID: <20040512230047.GC21408@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 May 2004 19:03:06 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:38890 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263033AbUELXDE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 19:03:04 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Doug Maxey <dwm@austin.ibm.com>
+Subject: Re: ppc64 HDIO_TASK_* ioctls 2.4, 2.6
+Date: Thu, 13 May 2004 01:03:59 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <200405122253.i4CMrR31014078@falcon10.austin.ibm.com>
+In-Reply-To: <200405122253.i4CMrR31014078@falcon10.austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Message-Id: <200405130103.59404.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thursday 13 of May 2004 00:53, Doug Maxey wrote:
+> On Thu, 13 May 2004 00:47:49 +0200, Bartlomiej Zolnierkiewicz wrote:
+> >  HDIO_DRIVE_TASK is _always_ available
+>
+> Yes, indeed.  Move the line, or eliminate the conditionals entirely?
 
-I tried to contact AdvanSys/ConnectCom regarding a patch (also sent to 
-these lists) a few minutes ago.
+Just move the line.
 
-The URLs in drivers/scsi/advansys.c as well as the Email address 
-support@connectcom.net listed as contact address in this file no longer 
-exist.
-
-The Email address linux@advansys.com in MAINTAINERS doesn't work since 
-they have a broken MTA setup:
-
-<--  snip  -->
-
-Hi. This is the qmail-send program at hermes.fachschaften.tu-muenchen.de.
-I'm afraid I wasn't able to deliver your message to the following addresses.
-This is a permanent error; I've given up. Sorry it didn't work out.
-   
-<linux@advansys.com>:
-Connected to 207.155.252.71 but sender was rejected.
-Remote host said: 550 Invalid domain fs.tum.de
-  
-<--  snip  -->
-
-Does anyone know how to contact them?
-
-TIA
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Regards,
+Bartlomiej
 

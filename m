@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbUAINtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 08:49:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbUAINtQ
+	id S261784AbUAINy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 08:54:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbUAINy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 08:49:16 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:59627 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261563AbUAINtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 08:49:15 -0500
-Subject: Re: [PATCH] 2.6.1-rc2 ide barrier support
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-In-Reply-To: <20040109072600.GA18416@suse.de>
-References: <20040107134323.GB16720@suse.de>
-	 <1073615696.784.181.camel@gaston>  <20040109072600.GA18416@suse.de>
-Content-Type: text/plain
-Message-Id: <1073655945.796.0.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 10 Jan 2004 00:45:46 +1100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Fri, 9 Jan 2004 08:54:56 -0500
+Received: from alpha.zarz.agh.edu.pl ([149.156.122.231]:56847 "EHLO
+	alpha.zarz.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S261784AbUAINyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 08:54:55 -0500
+Date: Fri, 9 Jan 2004 15:53:22 +0100 (CET)
+From: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.1-mm1
+In-Reply-To: <20040109014003.3d925e54.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58L.0401091550150.6458@alpha.zarz.agh.edu.pl>
+References: <20040109014003.3d925e54.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 9 Jan 2004, Andrew Morton wrote:
 
-> Hmm? It _is_ in struct drive :-). It could be put in hwgroup actually,
-> but I felt it was cleaner in drive (and easier to manage).
+[...]
+> 
+> - The PCI IDE drivers should work as modules now.
 
-Oops :) I misread the patch, or was on crack or something... sorry :)
+shouldn't ..
+returned warnings like I've posted
 
-Ben.
+Sorry.
 
-
+					Sas.
+-- 
+{Wojciech 'Sas' Cieciwa}  {Member of PLD Team                               }
+{e-mail: cieciwa@alpha.zarz.agh.edu.pl, http://www2.zarz.agh.edu.pl/~cieciwa}

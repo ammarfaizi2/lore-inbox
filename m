@@ -1,44 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317184AbSFFVAo>; Thu, 6 Jun 2002 17:00:44 -0400
+	id <S317181AbSFFVCj>; Thu, 6 Jun 2002 17:02:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317181AbSFFU7r>; Thu, 6 Jun 2002 16:59:47 -0400
-Received: from users.ccur.com ([208.248.32.211]:16195 "HELO rudolph.ccur.com")
-	by vger.kernel.org with SMTP id <S317176AbSFFU7N>;
-	Thu, 6 Jun 2002 16:59:13 -0400
-From: jak@rudolph.ccur.com (Joe Korty)
-Message-Id: <200206062059.UAA14586@rudolph.ccur.com>
-Subject: [PATCH] 2.4.19-pre10 bug in disable_APIC_timer
-To: marcelo@conectiva.com.br (Marcelo Tosatti)
-Date: Thu, 6 Jun 2002 16:59:02 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-Reply-To: joe.korty@ccur.com (Joe Korty)
-X-Mailer: ELM [version 2.5 PL0b1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317187AbSFFVCh>; Thu, 6 Jun 2002 17:02:37 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:49240 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S317181AbSFFVB1>; Thu, 6 Jun 2002 17:01:27 -0400
+Date: Thu, 6 Jun 2002 16:01:27 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200206062101.QAA15457@tomcat.admin.navo.hpc.mil>
+To: kaih@khms.westfalen.de (Kai Henningsen), linux-kernel@vger.kernel.org
+Subject: Re: If you want kbuild 2.5, tell Linus
+cc: linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
- This one bit me when I actually started using the (relatively) new
-services disable_APIC_timer() and enable_APIC_timer().  Enable_APIC_timer()
-is coded correctly; this patch fixes the bug in the disable service.
+kaih@khms.westfalen.de (Kai Henningsen):
+> 
+> phillips@bonn-fries.net (Daniel Phillips)  wrote on 03.06.02 in <E17Esc6-0000v9-00@starship>:
+> 
+> > Linus has already indicated his position, I guess you were busy writing
+> > the post so you didn't notice:
+> >
+> >   http://marc.theaimsgroup.com/?l=linux-kernel&m=102304528224527&w=2
+> >
+> > Plus you've got helpers, how could the situation be better?
+> 
+> I fail to see how this is supposed to work, and I guess so does Keith.
+> 
+> Kai (a different Kai!) does not seem to want to integrate the core part of  
+> kbuild2.5. He seems to want to only pick the low-hanging fruits and make  
+> unsupported (and unbelievable) noises about the rest.
+> 
+> And Linus seems to want to ignore the fact that the core portion of  
+> kbuild2.5 is, by its very nature, not something that can be merged  
+> "gradually" - just like ALSA, or a new architecture, can't meaningfully be  
+> merged "gradually". (And he *also* said that he wasn't interested in  
+> pseudo-gradually, i.e. getting the stuff in parts but still making a big  
+> exchange.)
+> 
+> Frankly, I see *absolutely no way* how the current Kai-Linus "merge" can  
+> possibly end with something even remotely like Keith's kbuild2.5. Unless  
+> Linus changes his approach radically.
+> 
+> If I were Keith, I'd be rather upset, too.
 
-Please apply.  Patch is against 2.4.19-pre10.
+How about the following approach, which MAY not be practical:
 
-Joe
+1. Name all of the new Makefiles Makefile.k2.5
+2. Create a small wrapper script to define make as "make -f Makefile.k2.5"
+   or just define MAKE as make -f Makefile.k2.5 in the top level Makefile.k2.5
 
+Put the kbuild2.5 specific tools in a directory reserved for kbuild2.5
+tools.
 
---- linux/arch/i386/kernel/apic.c.orig	Thu Jun  6 15:21:26 2002
-+++ linux/arch/i386/kernel/apic.c	Thu Jun  6 15:24:05 2002
-@@ -941,7 +941,7 @@
- 	smp_call_function(setup_APIC_timer, (void *)calibration_result, 1, 1);
- }
- 
--void __init disable_APIC_timer(void)
-+void disable_APIC_timer(void)
- {
- 	if (using_apic_timer) {
- 		unsigned long v;
+This should allow both build procedures to reside side by side. Use one
+or the other, but don't mix them  (don't build the kernel using one,
+then build the modules using the other, though that MIGHT work, it doesn't
+have to). It may be necessary to have disjoint configure file names.
 
+To switch between them should take a "make clean", then rename the wrapper
+script. Dependant tools should reside in different directories to prevent
+name collision. Common tools wouldn't change.
+
+After everyone is happy with the new build procedures, the older one
+could be retired. A clean-up patch could then rename the Makefiles and
+fix any final targets, though I would favor just leaving that the same
+as a pattern for future kbuild evoultion/revolution.
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

@@ -1,93 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315832AbSEJIOE>; Fri, 10 May 2002 04:14:04 -0400
+	id <S315834AbSEJIXY>; Fri, 10 May 2002 04:23:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315833AbSEJIOD>; Fri, 10 May 2002 04:14:03 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:31507 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S315832AbSEJIOB>; Fri, 10 May 2002 04:14:01 -0400
-Message-Id: <200205100810.g4A8AaX28554@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: DervishD <raul@viadomus.com>, Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: mmap() doesn't like certain value...
-Date: Fri, 10 May 2002 11:13:40 -0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <3CD983C5.mail1K71EX1NG@viadomus.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S315836AbSEJIXX>; Fri, 10 May 2002 04:23:23 -0400
+Received: from mario.gams.at ([194.42.96.10]:35106 "EHLO mario.gams.at")
+	by vger.kernel.org with ESMTP id <S315834AbSEJIXW> convert rfc822-to-8bit;
+	Fri, 10 May 2002 04:23:22 -0400
+Message-Id: <200205100820.g4A8K1W00658@frodo.gams.co.at>
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.3
+From: Bernd Petrovitsch <bernd@gams.at>
+To: Paul P Komkoff Jr <i@stingr.net>, Erik Andersen <andersen@codepoet.org>,
+        Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Some useless cleanup 
+In-Reply-To: <20020509222358.GB8651@codepoet.org> 
+X-url: http://www.luga.at/~bernd/
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Fri, 10 May 2002 10:20:00 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 May 2002 18:00, DervishD wrote:
->     While writing a test program I used mmap using SIZE_MAX (which is
-> the maximum value storeable in a size_t variable) as the length, just
-> to see when mmap starts failing with EINVAL or ENOMEM.
->
->     Well, mmap() acted quite good and reasonable and gave me the
-> values I was searching for... except when a value of SIZE_MAX-4095 or
-> higher is passed to it.
->
->     I've taken a look at the kernel sources and in the file
-> mm/mmap.c, in the function do_mmap_pgoff, the length supplied is page
-> aligned (thru the macro PAGE_ALIGN). But this macro correctly says
-> that when we are at address SIZE_MAX-4095 or higher the next page in
-> the addressable space is the page at address 0. But we are dealing
-> with *sizes*, not addresses.
+Erik Andersen <andersen@codepoet.org> wrote:
+>char * safe_strncpy(char *dst, const char *src, size_t size)
+>{
+>    dst[size-1] = '\0';
+>    strncpy(dst, src, size-1);
+>}
 
-unsigned long do_mmap_pgoff(struct file * file, unsigned long addr, unsigned 
-long len,
-        unsigned long prot, unsigned long flags, unsigned long pgoff)
-{
-        [local var defs snipped]
-        if (file && (!file->f_op || !file->f_op->mmap))
-                return -ENODEV;
-        if ((len = PAGE_ALIGN(len)) == 0)
-                return addr;
-        if (len > TASK_SIZE)
-                return -EINVAL;
-        /* offset overflow? */
-        if ((pgoff + (len >> PAGE_SHIFT)) < pgoff)
-                return -EINVAL;
-...
+Maybe just call it strlcpy() similar to others :
+e.g. http://www.tac.eu.org/cgi-bin/man-cgi?strlcpy+3
 
->     The matter is that mmap() doesn't fail with values of
-> SIZE_MAX-4095 and higher (as it should do), but succeeds returning
-> '0' as the address... This is due the calculus that PAGE_ALIGN does
-> with the enormous length passed (namely 4294963200 or higher, up to
-> the limit marked by SIZE_MAX: 2^32-1). This macro cannot be used with
-> numbers near to the limit. mmap() should return -1 and set errno to
-> EINVAL, as properly does when the enormous length is less than
-> 2^32-4096.
+	bernd
+-- 
+Bernd Petrovitsch                              Email : bernd@gams.at
+g.a.m.s gmbh                                  Fax : +43 1 205255-900
+Prinz-Eugen-Straße 8                    A-1040 Vienna/Austria/Europe
+                     LUGA : http://www.luga.at
 
-So,
 
--	if ((len = PAGE_ALIGN(len)) == 0)
--		return addr;
--	if (len > TASK_SIZE)
-+	if (!len)
-+		return addr;
-+	len = PAGE_ALIGN(len);
-+	if (!len || len > TASK_SIZE) /* !len: address wrapped to 0 in ALIGN */
-
->     I know: this lengths are enormous, nobody uses them, etc... but I
-
-Looks like you found an obscure corner case. Good!
-
-> think that mmap shouldn't behave as bad just because nobody will use
-> the entire domain of the function. If the length domain is [0, 2^32)
-> the function should behave correctly, returning errors as
-> appropriate, not succeeding falsely. So please consider correcting
-> the problem (should suffice with eliminating the use of PAGE_ALIGN or
-> adding special cases to the test prior to its use).
->
->     If this is not a bug, but an intended behaviour please excuse me.
-> Moreover, I can provide a patch (I suppose) against the 2.4.18 tree.
-
-Do it.
-
-BTW, does anybody know why len==0 is not flagged as error?
---
-vda

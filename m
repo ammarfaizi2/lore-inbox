@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261861AbTACWSw>; Fri, 3 Jan 2003 17:18:52 -0500
+	id <S267690AbTACWOq>; Fri, 3 Jan 2003 17:14:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267695AbTACWSw>; Fri, 3 Jan 2003 17:18:52 -0500
-Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:56960 "EHLO
-	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261861AbTACWSv>; Fri, 3 Jan 2003 17:18:51 -0500
-Date: Fri, 3 Jan 2003 20:27:07 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Richard Stallman <rms@gnu.org>
-cc: mark@mark.mielke.cc, "" <billh@gnuppy.monkey.org>, "" <paul@clubi.ie>,
-       "" <Hell.Surfers@cwctv.net>, "" <linux-kernel@vger.kernel.org>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <E18UYT5-0004xp-00@fencepost.gnu.org>
-Message-ID: <Pine.LNX.4.50L.0301032021200.2429-100000@imladris.surriel.com>
-References: <20030102013736.GA2708@gnuppy.monkey.org>
- <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org>
- <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc>
- <E18UIZS-0006Cr-00@fencepost.gnu.org> <Pine.LNX.4.50L.0301030838270.2429-100000@imladris.surriel.com>
- <E18UYT5-0004xp-00@fencepost.gnu.org>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S267691AbTACWOq>; Fri, 3 Jan 2003 17:14:46 -0500
+Received: from ASt-Lambert-103-2-1-23.abo.wanadoo.fr ([193.252.176.23]:3853
+	"EHLO elrond.two-towers.net") by vger.kernel.org with ESMTP
+	id <S267690AbTACWOp>; Fri, 3 Jan 2003 17:14:45 -0500
+Message-ID: <3E160B6E.3060109@free.fr>
+Date: Fri, 03 Jan 2003 23:15:10 +0100
+From: Philip Dodd <smpcomputing@free.fr>
+Reply-To: spambox@two-towers.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ranjeet Shetye <ranjeet.shetye@zultys.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [Way OT]Re: Nvidia and its choice to read the GPL "differently"
+References: <005001c2b374$d4f88430$0100a8c0@zultys.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Jan 2003, Richard Stallman wrote:
+Ranjeet Shetye wrote:
 
-> If "have faith in freedom" means to assume it will take care of
-> itself, that is always bad advice.
+> I thought I'd just needle some pakis cos they
+> are such nincompoops. 
 
-Agreed.
 
-> One way we can defend our freedom is by refusing to buy the hardware
-> that needs non-free drivers.  To make this pressure effective,
+> your intransigence over your untenable extreme
+> views 
 
-Absolutely agreed, this way we might even give nvidia an actual
-reason to open up their driver.  Infinitely better than whining
-about nvidia doing something they have all right to do...
 
-regards,
+Just a bit of editing that I couldn't resist, thought these two bits 
+went together so well.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+Ranjeet, meet my kill file; kill file, this is Ranjeet.  Before you go, 
+it is humbling to live one's life thinking that for every person you 
+think is an asshole, there are at least 2 that think you are.
+
+More if you post it to an ML ;-)
+

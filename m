@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264479AbTH1WfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 18:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264481AbTH1WfZ
+	id S264446AbTH1Xdr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 19:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbTH1Xdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 18:35:25 -0400
-Received: from aneto.able.es ([212.97.163.22]:9686 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S264479AbTH1WfT (ORCPT
+	Thu, 28 Aug 2003 19:33:46 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31682 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264446AbTH1Xdp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 18:35:19 -0400
-Date: Fri, 29 Aug 2003 00:35:11 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [2.4] gcc3 warns about type-punned pointers ?
-Message-ID: <20030828223511.GA23528@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.14
+	Thu, 28 Aug 2003 19:33:45 -0400
+Date: Thu, 28 Aug 2003 16:39:37 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Thomas Spatzier <TSPAT@de.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] memory leak in sysfs
+In-Reply-To: <OF846221A1.E004CC84-ONC1256D8F.00491EF9-C1256D8F.004A7867@de.ibm.com>
+Message-ID: <Pine.LNX.4.44.0308281638160.4140-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
 
-gcc3 gives this warning when using the __set_64bit_var function:
+> please verify the following patch. We found a memory leak in sysfs. Entries
+> in the dentry_cache allocated for objects in sysfs are not freed when the
+> objects in sysfs are deleted. This effect is due to inconsistent reference
+> counting in sysfs. Furthermore, when calling sysfs_remove_dir the deleted
+> directory was not removed from its parent's list of children. The attached
+> patch should fix the problems.
 
-/usr/src/linux/include/asm/system.h:190: warning: dereferencing type-punned pointer will break strict-aliasing rules
+Thanks. Martin Schwidefsky had mentioned this to me at OLS (I presume it's 
+the same problem). I haven't had a chance to look closely at the patch, 
+but it's in my immediate queue..
 
-Is it a potential problem ?
 
-This seems to cure it:
+	Pat
 
---- linux-2.4.22-jam1m/include/asm-i386/system.h.orig	2003-08-29 00:26:41.000000000 +0200
-+++ linux-2.4.22-jam1m/include/asm-i386/system.h	2003-08-29 00:26:55.000000000 +0200
-@@ -181,8 +181,8 @@
- {
- 	__set_64bit(ptr,(unsigned int)(value), (unsigned int)((value)>>32ULL));
- }
--#define ll_low(x)	*(((unsigned int*)&(x))+0)
--#define ll_high(x)	*(((unsigned int*)&(x))+1)
-+#define ll_low(x)	*(((unsigned int*)(void*)&(x))+0)
-+#define ll_high(x)	*(((unsigned int*)(void*)&(x))+1)
- 
- static inline void __set_64bit_var (unsigned long long *ptr,
- 			 unsigned long long value)
 
-A collateral question: why is the reason for this function ?
-long long assignments are not atomic in gcc ?
-
-TIA
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.22-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-1mdk))

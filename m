@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261866AbTEEAhz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 20:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTEEAhz
+	id S261868AbTEEAyw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 20:54:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbTEEAyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 20:37:55 -0400
-Received: from rth.ninka.net ([216.101.162.244]:28370 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S261866AbTEEAhx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 20:37:53 -0400
-Subject: Re: Re:[2.5] Update sk98lin driver
-From: "David S. Miller" <davem@redhat.com>
-To: azarah@gentoo.org
-Cc: KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1052092571.4459.27.camel@nosferatu.lan>
-References: <3EB5867D.1000404@wanadoo.es>
-	 <1052092571.4459.27.camel@nosferatu.lan>
+	Sun, 4 May 2003 20:54:52 -0400
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:43953 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261868AbTEEAyv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 20:54:51 -0400
+Subject: Re: will be able to load new kernel without restarting?
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Gabe Foobar <foobar.gabe@freemail.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <freemail.20030403212422.18231@fm9.freemail.hu>
+References: <freemail.20030403212422.18231@fm9.freemail.hu>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052095702.27465.19.camel@rth.ninka.net>
+Message-Id: <1052096831.1699.1.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 04 May 2003 17:48:22 -0700
+X-Mailer: Ximian Evolution 1.3.2.99 (Preview Release)
+Date: 05 May 2003 03:07:11 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-05-04 at 16:56, Martin Schlemmer wrote:
-> A few issues though:
+On Sat, 2003-05-03 at 21:24, Gabe Foobar wrote:
+> Hi!
 > 
-> 1)  Should MOD_INC_USE_COUNT and MOD_DEC_USE_COUNT just be removed?
->     I commented them for now.
+> Just a simple question. When I will be able to load new
+> kernel without restarting the system? Working anybody on
+> this problem?
 
-No.  For the net device itself, make sure you do
-SET_MODULE_OWNER() on the netdev before passing it
-to register_netdevice().
-
-For the procfs stuff you must make sure the appropriate
-module refcounting is done for that mechanism.
-
-Just deleteing MOD_{INC,DEC}_USE_COUNT blindly will result
-in the module being broken.
-
+There's an experimental Linux kernel patch called "kexec" that allows
+you to load another kernel (not only a Linux kernel) witout rebooting in
+the sense of what this term really means: e.g. you can load another
+Linux kernel without doing a full POST using the BIOS.
 -- 
-David S. Miller <davem@redhat.com>
+Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
+Linux Registered User #287198
 

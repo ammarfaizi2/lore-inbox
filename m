@@ -1,59 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVADJwC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVADJyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261594AbVADJwC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 04:52:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVADJwC
+	id S261595AbVADJyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 04:54:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVADJyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 04:52:02 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:8867 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261594AbVADJv4 (ORCPT
+	Tue, 4 Jan 2005 04:54:09 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:35740 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261595AbVADJx5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 04:51:56 -0500
-Date: Tue, 4 Jan 2005 10:51:47 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       kernel@kolivas.org, rncbc@rncbc.org, paul@linuxaudiosystems.com
-Subject: Re: Latency results with 2.6.10 - looks good
-Message-ID: <20050104095147.GA14787@elte.hu>
-References: <1104348820.5218.42.camel@krustophenia.net> <1104549524.3803.28.camel@krustophenia.net> <20050101012252.7b4645b7.akpm@osdl.org>
+	Tue, 4 Jan 2005 04:53:57 -0500
+Date: Tue, 4 Jan 2005 10:53:56 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Cc: drepper@gmail.com, viro@parcelfarce.linux.theplanet.co.uk,
+       wli@holomorphy.com
+Subject: struct rusage::ru_wtime - "sys time, user time, iowait time"
+Message-ID: <20050104095356.GA29101@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	linux-kernel@vger.kernel.org, drepper@gmail.com,
+	viro@parcelfarce.linux.theplanet.co.uk, wli@holomorphy.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050101012252.7b4645b7.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'd love to have 'time' to be able to print out the amount of time spent
+waiting for io. getrusage nor wait4 currently pass this information and,
+worse, there is no place for it in struct rusage.
 
-* Andrew Morton <akpm@osdl.org> wrote:
+What would the preferred way of adding this ability be? To make things
+interesting, some parts of struct rusage are unused, and the majority of
+them not standardised by SuS:
 
-> Lee Revell <rlrevell@joe-job.com> wrote:
-> >
-> > Followup: other audio users have confirmed that 2.6.10 is the best
-> >  release yet latency-wise.  It works most of the time at 64 frames
-> >  (~1.33ms latency).
-> > 
-> >  Now, the bad news: there are still enough xruns to make it not quite
-> >  good enough for, say, a recording studio; as we all know with realtime
-> >  constraints the worst case scenario is important.
-> 
-> The kernel which you should be testing is most-recent -mm.  The -mm
-> kernels have had a bunch of latency improvements which are queued for
-> 2.6.11.  We need to know how that stuff performs - 2.6.10 is largely
-> uninteresting from a development POV.
+            struct rusage {
+mandatory       struct timeval ru_utime; /* user time used */
+mandatory       struct timeval ru_stime; /* system time used */
+                long   ru_maxrss;        /* maximum resident set size */
+                long   ru_ixrss;         /* integral shared memory size */
+                long   ru_idrss;         /* integral unshared data size */
+                long   ru_isrss;         /* integral unshared stack size */
+filled          long   ru_minflt;        /* page reclaims */
+filled          long   ru_majflt;        /* page faults */
+filled (untrue) long   ru_nswap;         /* swaps */
+  ^             long   ru_inblock;       /* block input operations */
+  |             long   ru_oublock;       /* block output operations */
+space to fiddle long   ru_msgsnd;        /* messages sent */
+  |             long   ru_msgrcv;        /* messages received */
+  |             long   ru_nsignals;      /* signals received */
+  |             long   ru_nvcsw;         /* voluntary context switches */
+  v             long   ru_nivcsw;        /* involuntary context switches */
+            };
 
-i think Lee is well aware of that - nevertheless his data point shows
-that even the relatively low number of latency fixes that went into
-2.6.10 (compared to what is pending in -mm and in -RT) are a step in the
-right direction. I'd guess the biggest win was the ACPI related latency
-fix, and maybe the softirq fixes.
+SUSv3 says:
+ The <sys/resource.h> header defines the rusage structure that includes at
+ least the following members:
+ 
+ struct timeval ru_utime   user time used
+ struct timeval ru_stime   system time used
 
-	Ingo
+Our own manpage: 
+	The above struct was taken from BSD 4.3 Reno.  Not all fields are
+	meaningful under Linux.  Right now (Linux 2.4, 2.6) only the fields
+	ru_utime, ru_stime, ru_minflt, ru_majflt, and ru_nswap are
+	maintained.
+
+So we have some liberty, constrained by the need to keep sizeof(rusage)
+constant. On different architectures sizeof(struct timeval)-2*sizeof(long)
+will not be the same, I bet. On 386, it is zero, but conceivably time_t (and
+'suseconds_t' brr) could be 32 bit while long is 64 on other platforms.
+
+The other good news is that at least 2.6.10 zeroes rusage before returning
+it, so userspace can be fairly confident that if it finds non-zero values in
+ru_wtime that they represent something.
+
+Ideas? My favorite would be to nuke 'messages sent' and 'messages received':
+
+            struct rusage {
+                struct timeval ru_utime; /* user time used */
+                struct timeval ru_stime; /* system time used */
+                long   ru_maxrss;        /* maximum resident set size */
+                long   ru_ixrss;         /* integral shared memory size */
+                long   ru_idrss;         /* integral unshared data size */
+                long   ru_isrss;         /* integral unshared stack size */
+                long   ru_minflt;        /* page reclaims */
+                long   ru_majflt;        /* page faults */
+                long   ru_nswap;         /* swaps */
+                long   ru_inblock;       /* block input operations */
+                long   ru_oublock;       /* block output operations */
+                struct timeval ru_wtime; /* time spent waiting on i/o */
+#if sizeof(struct timeval) != 2 * sizeof(long)
+		char pad[2 * sizeof(long) - sizeof(struct timeval)];
+#endif       
+                long   ru_nsignals;      /* signals received */
+                long   ru_nvcsw;         /* voluntary context switches */
+                long   ru_nivcsw;        /* involuntary context switches */
+            };
+
+Bert (keeping fingers crossed on alignment issues).
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262913AbUAYBCd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 20:02:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUAYBCc
+	id S262888AbUAYA6l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 19:58:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbUAYA6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 20:02:32 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:18662 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262913AbUAYBCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 20:02:31 -0500
-Date: Sun, 25 Jan 2004 02:02:28 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Eric <eric@cisu.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernels > 2.6.1-mm3 do not boot.
-Message-ID: <20040125010228.GH6441@fs.tum.de>
-References: <200401232253.08552.eric@cisu.net> <200401240011.36074.eric@cisu.net> <200401241639.23479.eric@cisu.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401241639.23479.eric@cisu.net>
-User-Agent: Mutt/1.4.1i
+	Sat, 24 Jan 2004 19:58:41 -0500
+Received: from dsl081-085-091.lax1.dsl.speakeasy.net ([64.81.85.91]:63105 "EHLO
+	mrhankey.megahappy.net") by vger.kernel.org with ESMTP
+	id S262888AbUAYA6k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 19:58:40 -0500
+Date: Sat, 24 Jan 2004 16:57:45 -0800 (PST)
+From: Bryan Whitehead <driver@megahappy.net>
+X-X-Sender: driver@mrhankey.homeip.net
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, nathans@sgi.com,
+       owner-xfs@oss.sgi.com
+Subject: Re: [PATCH 2.6.2-rc1-mm2] fs/xfs/xfs_log_recover.c
+In-Reply-To: <20040124082606.A3107@infradead.org>
+Message-ID: <Pine.LNX.4.58.0401241655010.32008@mrhankey.homeip.net>
+References: <20040124073111.34B2313A354@mrhankey.megahappy.net>
+ <20040124082606.A3107@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 24, 2004 at 04:39:23PM -0600, Eric wrote:
-> On Saturday 24 January 2004 00:11, Eric wrote:
-> > On Friday 23 January 2004 22:53, Eric wrote:
-> > > Hello.
-> > > 	I am unable to boot with kernels greater than 2.6.1-mm3. I do not recall
-> > > if mm3 booted or not, but I know for sure that mm4 and rc1-mm1 are broken
-> > > for me. When I try to boot the selected kernel I see uncompressing
-> > > kernel.....then booting kernel.
-> >
-> > Very sorry, here is the .config i MEANT to attach but got distracted.
+Oh, one more thing. After removed the superflurous switch statement flags 
+will have a value which fixes the warning.
+
+If you look at the flow of code it is impossible for flags to not have a 
+value when it gets to the if statement as the previous switch statement 
+would give it a value. But since that switch statement only catches that 
+one case anyway, it's better to merge the 2 switch statemnets.
+
+On Sat, 24 Jan 2004, Christoph Hellwig wrote:
+
+> On Fri, Jan 23, 2004 at 11:31:11PM -0800, Bryan Whitehead wrote:
+> > 
+> > This fixes a warning on compile of the xfs fs module.
 > 
-> Confirmed, the same problem when I recompiled and tried (just now)
+> This patch looks very strange.  What error do you get without it?
 > 
-> 2.6.1-rc1-mm1
-> 2.6.1-rc1-mm2
-> 
-> What changed? Why am I suddenly locked out of all newer kernel versions?
-> I am using vanilla sources with nothing other than mm patches.
-
-Please check exactly between which two kernel versions the problem 
-first appeared.
-
-Please send the .config of the last kernel that worked for you.
-
-> Eric Bambach
-
-cu
-Adrian
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Bryan Whitehead
+Email:driver@megahappy.net
+WorkE:driver@jpl.nasa.gov

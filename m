@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265398AbUHAHeI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265288AbUHAHgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265398AbUHAHeI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 03:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265410AbUHAHeI
+	id S265288AbUHAHgl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 03:36:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265317AbUHAHgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 03:34:08 -0400
-Received: from ozlabs.org ([203.10.76.45]:22721 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S265398AbUHAHeE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 03:34:04 -0400
-Date: Sun, 1 Aug 2004 17:27:11 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use for_each_cpu
-Message-ID: <20040801072711.GJ30253@krispykreme>
-References: <20040801060144.GI30253@krispykreme> <20040731230859.138ba584.akpm@osdl.org>
+	Sun, 1 Aug 2004 03:36:38 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:23998 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265288AbUHAHfr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 03:35:47 -0400
+Date: Sun, 1 Aug 2004 13:15:18 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 0/5] Concurrent O_SYNC write speedups using radix-tree walks
+Message-ID: <20040801074518.GA7310@in.ibm.com>
+Reply-To: suparna@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040731230859.138ba584.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040523i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > The per cpu schedule counters need to be summed up over all possible cpus.
-> >  When testing hotplug cpu remove I saw the sum of the online cpu count
-> >  for nr_uninterruptible go negative which made the load average go nuts.
-> 
-> I think the preferred approach here is to transfer the count over to the
-> current CPU in the CPU_DEAD handler.
+The attached patches (generated against 2.6.8-rc2) enable concurrent 
+O_SYNC writers to different parts of the same file by avoiding 
+serialising on i_sem across the wait for IO completion.
 
-They only look to be called out of proc, and once every 5 seconds for
-loadaverage calculations. Is it worth adding complexity to the cpu
-notifiers vs just using for_each_cpu?
+This is mostly your work, ported to the tagged radix tree VFS changes
+and a few fixes. I have been carrying these patches for sometime now; 
+they can be the merged upstream. Please apply.
 
-Anton
+Regards
+Suparna
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

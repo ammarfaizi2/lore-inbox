@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262448AbUDKStt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Apr 2004 14:49:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbUDKStt
+	id S262454AbUDKSwW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Apr 2004 14:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262468AbUDKSwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Apr 2004 14:49:49 -0400
-Received: from build.arklinux.oregonstate.edu ([128.193.0.51]:21702 "EHLO
-	test.arklinux.org") by vger.kernel.org with ESMTP id S262448AbUDKStr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Apr 2004 14:49:47 -0400
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-Organization: LINUX4MEDIA GmbH
+	Sun, 11 Apr 2004 14:52:22 -0400
+Received: from posti6.jyu.fi ([130.234.4.43]:51879 "EHLO posti6.jyu.fi")
+	by vger.kernel.org with ESMTP id S262454AbUDKSwU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Apr 2004 14:52:20 -0400
+Date: Sun, 11 Apr 2004 21:52:17 +0300 (EEST)
+From: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
+X-X-Sender: ptsjohol@silmu.st.jyu.fi
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Make 2.6.5-mm3 compile
-Date: Sun, 11 Apr 2004 20:46:01 +0200
-User-Agent: KMail/1.6.2
-Cc: akpm@osdl.org
+Subject: Samba 3.0.2a and smbfs (2.4.21) sometimes missing files (CRITICAL
+ BUG)
+Message-ID: <Pine.LNX.4.58.0404112150020.19045@silmu.st.jyu.fi>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_pJZeAgXyuSiXRbU"
-Message-Id: <200404112046.01682.bero@arklinux.org>
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Spam-Checked: by miltrassassin
+	at posti6.jyu.fi; Sun, 11 Apr 2004 21:52:19 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---Boundary-00=_pJZeAgXyuSiXRbU
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I'm using the newest Samba 3.0.2a and smbfs which comes in 2.4.21 kernel.
+Sometimes or actually always when I copy, rsync or even list files from a
+share which resides on NT4 server all the files don't show up (only in
+directories which have lots of files >1000 files..)
 
-There's a couple of typos in mm/hugetlb.c
+First I noticed this when I was rsyncing a "mirror" of this share to an
+another machine and rsync was deleting some files which still existed in
+the NT4-server. After some debugging I made a little test with 'ls -l
+/mnt/point/manyfiles | wc -l' and these was the results (no one was using
+the share at that time):
 
-Fairly trivial patch attached.
+2335
+2335
+2336
+2332
+2334
+2327
+2328
 
---Boundary-00=_pJZeAgXyuSiXRbU
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="2.6.5-mm3-compile.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="2.6.5-mm3-compile.patch"
+This is quite annoying bug. Same thing happens when using smbclient for
+example: 'smbclient //192.168.0.1/d$ -U username%password -c "ls
+directory/*"|wc -l'
 
---- linux-2.6.5/mm/hugetlb.c.ark	2004-04-11 11:56:17.000000000 +0200
-+++ linux-2.6.5/mm/hugetlb.c	2004-04-11 11:57:09.000000000 +0200
-@@ -140,11 +140,11 @@
- 	for (i = 0; i < MAX_NUMNODES; ++i) {
- 		struct page *page;
- 		list_for_each_entry(page, &hugepage_freelists[i], lru) {
--			if (PageHighmem(page))
-+			if (PageHighMem(page))
- 				continue;
- 			list_del(&page->lru);
- 			update_and_free_page(page);
--			--free_huge_pages
-+			--free_huge_pages;
- 			if (!--count)
- 				return 0;
- 		}
+It's quite random which files are missing when doing directory listing. I
+also tried to google problem down but nothing more than some random
+questions about the same problem without a solution. So could we
+investigate this problem more?
 
---Boundary-00=_pJZeAgXyuSiXRbU--
+(please cc me when replying)
+
+--
+Pasi Sjöholm

@@ -1,60 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262317AbVCOHTa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262206AbVCOHgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262317AbVCOHTa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 02:19:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVCOHTa
+	id S262206AbVCOHgj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 02:36:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVCOHgj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 02:19:30 -0500
-Received: from gate.crashing.org ([63.228.1.57]:8096 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262317AbVCOHTV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 02:19:21 -0500
-Subject: Re: bad pgd/pmd in latest BK on ia64
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: tony.luck@intel.com, Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, hugh@veritas.com
-In-Reply-To: <20050314153156.159d4bb3.davem@davemloft.net>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F031272AF@scsmsx401.amr.corp.intel.com>
-	 <20050314143442.2ab086c9.davem@davemloft.net>
-	 <20050314151142.716903cb.davem@davemloft.net>
-	 <20050314153156.159d4bb3.davem@davemloft.net>
-Content-Type: text/plain
-Date: Tue, 15 Mar 2005 18:17:27 +1100
-Message-Id: <1110871047.29138.92.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Mar 2005 02:36:39 -0500
+Received: from 209-204-138-32.dsl.static.sonic.net ([209.204.138.32]:58885
+	"EHLO graphe.net") by vger.kernel.org with ESMTP id S262206AbVCOHgg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 02:36:36 -0500
+Date: Mon, 14 Mar 2005 23:36:31 -0800 (PST)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@server.graphe.net
+To: Andrew Morton <akpm@osdl.org>
+cc: shai@scalex86.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Per cpu irq stat
+In-Reply-To: <20050314224803.37cd21fe.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0503142332250.12724@server.graphe.net>
+References: <Pine.LNX.4.58.0503142230050.11651@server.graphe.net>
+ <20050314224803.37cd21fe.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-14 at 15:31 -0800, David S. Miller wrote:
-> On Mon, 14 Mar 2005 15:11:42 -0800
-> "David S. Miller" <davem@davemloft.net> wrote:
-> 
-> > I therefore suspect the pgwalk patches.
-> 
-> I just noticed something else while reviewing this stuff.
-> The PTRS_PER_PMD macros aren't used anymore, so my hacks
-> to get 32-bit process VM operations optimized on sparc64
-> aren't even being used any more, ho hum... :-)  There are
-> better ways to do this.
-> 
-> (For the interested, see {REAL_}PTRS_PER_PMD in
->  include/asm-sparc64/pgtable.h)
-> 
-> Come to think of it, this may be related somehow to whatever
-> is causing the problems.
+On Mon, 14 Mar 2005, Andrew Morton wrote:
 
-That reminds me ... I still itend to toy with your old patches and add
-some more abstract walkers & bitmap stuffs. Just no time at the moment. 
+> >  +DEFINE_PER_CPU(irq_cpustat_t, irq_stat)
+> >  ____cacheline_maxaligned_in_smp;
+>
+> Why is this marked ____cacheline_maxaligned_in_smp?
 
-The main thing I want to change from your approach is instead of calling
-a pte_work callback for every pte, call it for ranges of PTEs (that is
-PTE pages most of the time). The goal here is to avoid the overhead of
-the indirect function call (& additional stackframe junk etc...) on
-every single PTE.
-
-Ben.
-
+In order to avoid potential false aliasing I guess. irq_cpustat_t is
+already marked ___cacheline_aligned though which should be sufficient.
+Shai?
 

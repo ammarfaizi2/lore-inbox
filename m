@@ -1,69 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265267AbTLZXnK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 18:43:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265272AbTLZXnK
+	id S265278AbTLZX4b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 18:56:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbTLZX4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 18:43:10 -0500
-Received: from c211-28-147-198.thoms1.vic.optusnet.com.au ([211.28.147.198]:17641
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S265267AbTLZXnA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 18:43:00 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] 2.6.0 batch scheduling, HT aware
-Date: Sat, 27 Dec 2003 10:42:55 +1100
-User-Agent: KMail/1.5.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Nick Piggin <piggin@cyberone.com.au>
-References: <200312231138.21734.kernel@kolivas.org> <20031226225652.GE197@elf.ucw.cz>
-In-Reply-To: <20031226225652.GE197@elf.ucw.cz>
+	Fri, 26 Dec 2003 18:56:31 -0500
+Received: from adsl-b3-72-7.telepac.pt ([213.13.72.7]:8837 "EHLO
+	puma-vgertech.no-ip.com") by vger.kernel.org with ESMTP
+	id S265279AbTLZX41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 18:56:27 -0500
+Message-ID: <3FECCAC2.2030101@vgertech.com>
+Date: Fri, 26 Dec 2003 23:56:50 +0000
+From: Nuno Silva <nuno.silva@vgertech.com>
+Organization: VGER, LDA
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en-us, pt
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Cc: Joshua Kwan <joshk@triplehelix.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Can't eject a previously mounted CD?
+References: <20031226081535.GB12871@triplehelix.org> <20031226103427.GB11127@ucw.cz> <20031226194457.GC12871@triplehelix.org> <3FEC91FA.1050705@rackable.com> <20031226202700.GD12871@triplehelix.org> <3FECC3C1.5000108@wmich.edu>
+In-Reply-To: <3FECC3C1.5000108@wmich.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312271042.55989.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Dec 2003 09:56, Pavel Machek wrote:
-> Hi!
->
-> > I've done a resync and update of my batch scheduling that is also
-> > hyper-thread aware.
-> >
-> > What is batch scheduling? Specifying a task as batch allows it to only
-> > use cpu time if there is idle time available, rather than having a
-> > proportion of the cpu time based on niceness.
-> >
-> > Why do I need hyper-thread aware batch scheduling?
-> >
-> > If you have a hyperthread (P4HT) processor and run it as two logical cpus
-> > you can have a very low priority task running that can consume 50% of
-> > your physical cpu's capacity no matter how high priority tasks you are
-> > running. For example if you use the distributed computing client
-> > setiathome you will be effectively be running at half your cpu's speed
-> > even if you run setiathome at nice 20. Batch scheduling for normal cpus
-> > allows only idle time to be used for batch tasks, and for HT cpus only
-> > allows idle time when both logical cpus are idle.
->
-> BTW this is going to be an issue even on normal (non-HT)
-> systems. Imagine memory-bound scientific task on CPU0 and nice -20
-> memory-bound seti&home at CPU1. Even without hyperthreading, your
-> scientific task is going to run at 50% of speed and seti&home is going
-> to get second half. Oops.
->
-> Something similar can happen with disk, but we are moving out of
-> cpu-scheduler arena with that.
->
-> [I do not have SMP nearby to demonstrate it, anybody wanting to
-> benchmark a bit?]
 
-This is definitely the case but there is one huge difference. If you have 
-2x1Ghz non HT processors then the fastest a single threaded task can run is 
-at 1Ghz. If you have 1x2Ghz HT processor the fastest a single threaded task 
-can run is 2Ghz. 
 
-Con
+Ed Sweetman wrote:
+> 
+> I've had 2.6.0-mm1 not able to allow the button on the cdrom eject the 
+> cd. the command  eject   however, does work.  No errors are reported 
+> relating to why the eject button on the cdrom doesn't eject the cd.
+
+
+This happens to me too, running 2.6.0-mm1. Even a music CD gets stuck 
+and can only be ejected with the "eject" command. eject, after ejecting 
+sucessfully the CD outputs this:
+
+# eject
+eject: unable to eject, last error: Invalid argument
+#
+
+Regards,
+Nuno Silva
+
+> 
+> 
+> Joshua Kwan wrote:
+> 
+>> On Fri, Dec 26, 2003 at 11:54:34AM -0800, Samuel Flory wrote:
+>>
+>>>  What does fuser -kv /mnt/cdrom claim?
+>>
+>>
+>>
+>> It's /cdrom here. I tried it on both /cdrom and /dev/cdrom after
+>> unmounting it, and the output was blank.
+>>
+>> While mounted, here was the output:
+>>
+>>                      USER        PID ACCESS COMMAND
+>> /cdrom               root     kernel mount  /cdrom
+>> No automatic removal. Please use  umount /cdrom
+>>
+>> I guess that doesn't say much though...
+>>
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

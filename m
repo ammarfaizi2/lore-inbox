@@ -1,87 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261436AbTCYEHX>; Mon, 24 Mar 2003 23:07:23 -0500
+	id <S261452AbTCYEY1>; Mon, 24 Mar 2003 23:24:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261439AbTCYEHX>; Mon, 24 Mar 2003 23:07:23 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:48304 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S261436AbTCYEHW>; Mon, 24 Mar 2003 23:07:22 -0500
-Date: Tue, 25 Mar 2003 15:18:03 +1100
-From: CaT <cat@zip.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Gerd Knorr <kraxel@bytesex.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S261449AbTCYEY0>; Mon, 24 Mar 2003 23:24:26 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:54032 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261447AbTCYEYT>;
+	Mon, 24 Mar 2003 23:24:19 -0500
+Date: Mon, 24 Mar 2003 20:34:54 -0800
+From: Greg KH <greg@kroah.com>
+To: CaT <cat@zip.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.5.66
-Message-ID: <20030325041802.GA535@zip.com.au>
-References: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com> <20030325012252.7aafee8c.us15@os.inf.tu-dresden.de> <20030325003048.GC10505@kroah.com>
+Message-ID: <20030325043454.GJ11874@kroah.com>
+References: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com> <20030325012252.7aafee8c.us15@os.inf.tu-dresden.de> <20030325003048.GC10505@kroah.com> <20030325041802.GA535@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030325003048.GC10505@kroah.com>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+In-Reply-To: <20030325041802.GA535@zip.com.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 04:30:48PM -0800, Greg KH wrote:
-> Yes, I sent out some patches a few evenings ago to lkml that should fix
-> this problem.  I'm resyncing them with 2.5.66 right now and will send
-> them to Linus in a bit.
+On Tue, Mar 25, 2003 at 03:18:03PM +1100, CaT wrote:
+> On Mon, Mar 24, 2003 at 04:30:48PM -0800, Greg KH wrote:
+> > Yes, I sent out some patches a few evenings ago to lkml that should fix
+> > this problem.  I'm resyncing them with 2.5.66 right now and will send
+> > them to Linus in a bit.
+> 
+> I have an oops of my very own to report, and this one is with the afore
+> mentioned patches applied:
+> 
+> mice: PS/2 mouse device common for all mice
+> logimb.c: Didn't find Logitech busmouse at 0x23c
+> input: PC Speaker
+> input: PS/2 Synaptics Touchpad on isa0060/serio1
+> serio: i8042 AUX port at 0x60,0x64 irq 12
+> input: AT Set 2 keyboard on isa0060/serio0
+> serio: i8042 KBD port at 0x60,0x64 irq 1
+> i2c-dev.o: i2c /dev entries driver module version 2.7.0 (20021208)
+> i2c-proc.o version 2.7.0 (20021208)
+> i2c-pixx4 version 2.7.0 (20021208)
+> piix4 smbus 00.07.3: Found Intel Corp. 82371AB/EM/MB PIIX4  device
+> Unable to handle kernel NULL pointer dereference at vertual address 00000000
 
-I have an oops of my very own to report, and this one is with the afore
-mentioned patches applied:
+Do you have the patches I just sent out a few hours ago?
+You will need the last one, I've attached it here.  Let me know if it
+fixes this or not.
 
-mice: PS/2 mouse device common for all mice
-logimb.c: Didn't find Logitech busmouse at 0x23c
-input: PC Speaker
-input: PS/2 Synaptics Touchpad on isa0060/serio1
-serio: i8042 AUX port at 0x60,0x64 irq 12
-input: AT Set 2 keyboard on isa0060/serio0
-serio: i8042 KBD port at 0x60,0x64 irq 1
-i2c-dev.o: i2c /dev entries driver module version 2.7.0 (20021208)
-i2c-proc.o version 2.7.0 (20021208)
-i2c-pixx4 version 2.7.0 (20021208)
-piix4 smbus 00.07.3: Found Intel Corp. 82371AB/EM/MB PIIX4  device
-Unable to handle kernel NULL pointer dereference at vertual address 00000000
- printing eip:
-c02fb031
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:	0
-EIP:	0060:[<c02fb831>]    Not tainted
-EFLAGS:	00010202
-EIP is at piix4_transaction+0x101/0x15c
-eax: 00000000	ebx: 00000004	ecx: 00000000	edx: ffffffff
-esi: 00000000	edi: ffffffff	ebp: c1299ee8	esp: c1299ed8
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 1, threadinfo=c1298000 task=c12fe040)
-Stack: c04cfdb6 00000000 00000000 00000000 c1299f00 c02fba7e 00000018 00000000
-       00000000 00000648 c1299f4c c02f9a3b c04cfc60 00000018 00000000 00000000
-       00000000 00000000 00000000 00000000 00000001 00000001 c04cfc78 0000ffff
-Call Trace:
- [<c02fba7e>] piix4_access+0x1f2/0x2d0
- [<c02f9a3b>] i2c_smbus_xfer+0x123/0x1b8
- [<c02fb43c>] i2c_detect+0x44/0x494
- [<c02fbbe6>] adm1021_attach_adapter+0x16/0x1c
- [<c02fbbec>] adm1021_detect+0x0/0x2d8
- [<c02f7f31>] i2x_add_driver+0xdd/0x104
- [<c010502c>] init+0x0/0x144
- [<c0105049>] init+0x1d/0x144
- [<c010502c>] init+0x0/0x144
- [<c0107211>] kernel_thread_helper+0x5/0xc
+thanks,
 
-Code: 8b 00 50 68 20 36 44 c0 e8 fa ff e1 ff 83 c4 0c 0f b7 15 08
- <0>Kernel panic: Attempted to kill init!
+greg k-h
 
-After a long pause it then looped, once per second with the call trace
-repeating over and over again in the framebufer. Basically every time the
-cursor was blinked. The end of these call traces is also the above call
-trace. Also, the call trace was looping due to the code being called in
-an illegal context in mm/slab.c:1723.
 
--- 
-"Other countries of course, bear the same risk. But there's no doubt his
-hatred is mainly directed at us. After all this is the guy who tried to
-kill my dad."
-        - George W. Bush Jr, Leader of the United States Regime
-          September 26, 2002 (from a political fundraiser in Houston, Texas)
+ChangeSet 1.985.1.4, 2003/03/24 15:16:12-08:00, greg@kroah.com
+
+[PATCH] i2c: set up a "generic" i2c driver to prevent oopses when devices are registering.
+
+This is needed as we are still not using the driver core model for
+matching up devices to drivers, but doing it by hand.  Once that is
+changed, this will not be needed.
+
+
+ drivers/i2c/i2c-core.c |    9 +++++++++
+ 1 files changed, 9 insertions(+)
+
+
+diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+--- a/drivers/i2c/i2c-core.c	Mon Mar 24 17:26:51 2003
++++ b/drivers/i2c/i2c-core.c	Mon Mar 24 17:26:51 2003
+@@ -65,6 +65,14 @@
+ 	return 0;
+ }
+ 
++static struct device_driver i2c_generic_driver = {
++	.name =	"i2c",
++	.bus = &i2c_bus_type,
++	.probe = i2c_device_probe,
++	.remove = i2c_device_remove,
++};
++
++
+ /* ---------------------------------------------------
+  * registering functions 
+  * --------------------------------------------------- 
+@@ -106,6 +114,7 @@
+ 	if (adap->dev.parent == NULL)
+ 		adap->dev.parent = &legacy_bus;
+ 	sprintf(adap->dev.bus_id, "i2c-%d", i);
++	adap->dev.driver = &i2c_generic_driver;
+ 	device_register(&adap->dev);
+ 
+ 	/* inform drivers of new adapters */

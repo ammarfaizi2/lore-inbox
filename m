@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S291561AbUKBARf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S289556AbUKBAR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S291561AbUKBARf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 19:17:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S291564AbUKBARf
+	id S289556AbUKBAR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 19:17:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S291096AbUKBAR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 19:17:35 -0500
-Received: from fsmlabs.com ([168.103.115.128]:43653 "EHLO musoma.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S385249AbUKBARQ (ORCPT
+	Mon, 1 Nov 2004 19:17:57 -0500
+Received: from fw.osdl.org ([65.172.181.6]:3279 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S385249AbUKBARi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 19:17:16 -0500
-Date: Mon, 1 Nov 2004 17:16:02 -0700 (MST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Dominik Brodowski <linux@dominikbrodowski.de>,
-       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: [PATCH] [CPU-HOTPLUG] convert cpucontrol to be a rwsem
-In-Reply-To: <1099332277.3647.43.camel@krustophenia.net>
-Message-ID: <Pine.LNX.4.61.0411011711560.2985@musoma.fsmlabs.com>
-References: <20041101084337.GA7824@dominikbrodowski.de> 
- <Pine.LNX.4.61.0411010656380.19123@musoma.fsmlabs.com>
- <1099332277.3647.43.camel@krustophenia.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 1 Nov 2004 19:17:38 -0500
+Date: Mon, 1 Nov 2004 16:21:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: dhowells@redhat.com
+Cc: torvalds@osdl.org, davidm@snapgear.com, linux-kernel@vger.kernel.org,
+       uclinux-dev@uclinux.org
+Subject: Re: [PATCH 1/14] FRV: Fujitsu FR-V CPU arch implementation
+Message-Id: <20041101162121.12aebbbd.akpm@osdl.org>
+In-Reply-To: <76b4a884-2c3c-11d9-91a1-0002b3163499@redhat.com>
+References: <76b4a884-2c3c-11d9-91a1-0002b3163499@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Nov 2004, Lee Revell wrote:
+dhowells@redhat.com wrote:
+>
+> The attached patch provides an architecture implementation for the Fujitsu FR-V
+> CPU series, configurably as Linux or uClinux.
 
-> On Mon, 2004-11-01 at 07:00 -0700, Zwane Mwaikambo wrote:
-> > Agreed it makes a lot more sense, i think there could be some places where 
-> > we use preempt_disable to protect against cpu offline which could 
-> > converted, but that can come later.
-> > 
-> 
-> You know I picked up Robert Love's book the other day and was surprised
-> to read we are not supposed to be using preempt_disable, there is a
-> per_cpu interface for exactly this kind of thing.  Which is currently
-> recommended?
+Who developed this?
 
-It's on a case by case basis, preempt_disable has the side effect of 
-ensuring that you run through that specific critical section without being 
-interrupted by scheduling, this happens to also block out various things 
-like RCU and the stop_machine (used by cpu hotplug) code amongst others. 
-I'm curious what is the excert that you're referring to?
+Who is maintaining it, and via what mailing list?
 
-Thanks,
-	Zwane
+I didn't notice a MAINTAINERS record.  Was there one?
 
+How widespread is the usage of this architecture?
+
+Please convince us that this is not a piece of code which nobody will use
+and which will fall into an unmaintained lump.
+
+Thanks.

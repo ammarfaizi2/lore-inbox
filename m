@@ -1,84 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264683AbUEKNBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264705AbUEKNCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264683AbUEKNBI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 09:01:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264724AbUEKNBI
+	id S264705AbUEKNCU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 09:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264717AbUEKNCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 09:01:08 -0400
-Received: from shellutil.inch.com ([216.223.208.53]:49668 "EHLO util.inch.com")
-	by vger.kernel.org with ESMTP id S264683AbUEKNA4 (ORCPT
+	Tue, 11 May 2004 09:02:20 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:34442 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264705AbUEKNCF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 09:00:56 -0400
-Date: Tue, 11 May 2004 09:00:33 -0400 (EDT)
-From: John McGowan <jmcgowan@inch.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: Kernel 2.6.6: Removing the last large file does not reset
- filesystem properties
-In-Reply-To: <20040511004956.70f7e17d.akpm@osdl.org>
-Message-ID: <20040511084510.J33555@shell.inch.com>
-References: <20040511002008.GA2672@localhost.localdomain>
- <20040511004956.70f7e17d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 11 May 2004 09:02:05 -0400
+Date: Wed, 6 Oct 2004 18:28:24 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       manfred@colorfullife.com, davej@redhat.com, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: dentry bloat.
+Message-ID: <20041006125824.GE2004@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20040506200027.GC26679@redhat.com> <20040506150944.126bb409.akpm@osdl.org> <409B1511.6010500@colorfullife.com> <20040508012357.3559fb6e.akpm@osdl.org> <20040508022304.17779635.akpm@osdl.org> <20040508031159.782d6a46.akpm@osdl.org> <Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org> <20040508120148.1be96d66.akpm@osdl.org> <Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org> <20040508201259.GA6383@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040508201259.GA6383@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 May 2004, Andrew Morton wrote:
+On Sat, May 08, 2004 at 08:30:55PM +0000, Dipankar Sarma wrote:
+> On Sat, May 08, 2004 at 12:13:09PM -0700, Linus Torvalds wrote:
+> > On Sat, 8 May 2004, Andrew Morton wrote:
+> > > 
+> > > I think we can simply take ->d_lock a bit earlier in __d_lookup.  That will
+> > > serialise against d_move(), fixing the problem which you mention, and also
+> > > makes d_movecount go away.
+> > 
+> > If you do that, RCU basically loses most of it's meaning.
+> > 
+> > You'll be taking a lock for - and dirtying in the cache - every single
+> > dentry on the hash chain, which is pretty much guaranteed to be slower
+> > than just taking the dcache_lock _once_, even if that one jumps across 
+> > CPU's a lot.
+> > 
+> > In other words, no, I don't think that's a good idea. We really want to
+> > take the dentry lock only after we're pretty sure we have the right
+> > dentry. Otherwise the dentry chains will be bouncing from CPU to CPU all
+> > the time.
+> 
+> Exactly. Taking ->d_lock for every dentry while traversing the hash
+> chain should be avoided. As such, atomic operations on that path
+> are getting costly.
 
-> John McGowan <jmcgowan@inch.com> wrote:
->
-> I think this is really an e2fsck/initscript problem.
->
-> fsck saw that there were no large files on the fs, then fixed up the
-> superblock to say that then returned an exit code which says "I modified
-> the fs".
->
-> The initscripts see that exit code and have a heart attack.
+We can see this happening in the following numbers taken using dcachebench*
+gathered on 2-way P4 Xeon 2.4MHz SMP box with 4.5GB RAM. The benchmark was run
+with the following parameters and averaged over 10 runs.
+./dcachebench -p 32 -b testdir
 
-Yes. But why did it have to modify the file system/superblock/properties?
-Should the file system have had to be modified (relying upon
-fsck to fix the "largefile" property when next it is run)?
+		Average	microseconds/iterations 	Std. Deviation
+		(lesser is better)
+2.6.6		10204					161.5
+2.6.6-mm1	10571					51.5
 
-> What should happen is that fsck returns an exit code which says "I modified
-> the fs, but everythig is OK".  And the initscripts should say "oh, cool"
-> and keep booting.
 
-Actually, they do, if it isn't the root partition (if I create/delay the
-large file from another partition it gives a message and continues - but
-for the root partition, the initscript, with an exit code greater than 1
-drops one to a root prompt for "maintenance" - and with my /usr on a
-different partition and seeing a bunch of "id not found"
-"test not found" messages ... for a few minutes I was a bit flustered.
-It is easy enough to modify the init script to do a reboot on exit
-code 2).
+*dcachebench is a microbenchmark written by Bill Hartner and is available at
+http://www-124.ibm.com/developerworks/opensource/linuxperf/dcachebench/dcachebench.html
 
-(Fedora Core1 initscript on mounting the root partition:
-
-  # A return of 2 or higher means there were serious problems.
-  echo $"*** An error occurred during the file system check."
-  echo $"*** Dropping you to a shell; the system will reboot"
-  echo $"*** when you leave the shell."
-  str=$"(Repair filesystem)"
-  PS1="$str \# # "; export PS1
-  sulogin
-
-(the sulogin login message is:
-  "Give root password for maintenance")
-
-> I don't know whether the problem lies with fsck or initscripts.
-
-fsck does fix it. Or should the removal of the last large file have
-resulted in the change without the mismatch between the "largefile"
-property being set with no large files?
-
-It's a small annoyance (no damage to the file system itself), no more.
-
-I know what's happening and how to patch the initscript to get an
-automatic reboot on exit code 2. Is that the proper way to handle it?
-
-Regards from:
-
-    John McGowan  |  jmcgowan@inch.com                [Internet Channel]
-                  |  jmcgowan@coin.org                [COIN]
-    --------------+-----------------------------------------------------
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044999 Fax: 91-80-25268553
+T/L : 9243696

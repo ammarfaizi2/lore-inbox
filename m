@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265789AbRF2JDb>; Fri, 29 Jun 2001 05:03:31 -0400
+	id <S265454AbRF2JCv>; Fri, 29 Jun 2001 05:02:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265790AbRF2JDW>; Fri, 29 Jun 2001 05:03:22 -0400
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:26102 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S265789AbRF2JDL>; Fri, 29 Jun 2001 05:03:11 -0400
-Message-ID: <3B3C44BE.5F25109D@kegel.com>
-Date: Fri, 29 Jun 2001 02:05:02 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
+	id <S265789AbRF2JCb>; Fri, 29 Jun 2001 05:02:31 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:25334 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S265454AbRF2JCU>; Fri, 29 Jun 2001 05:02:20 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200106290902.f5T924Qv014328@webber.adilger.int>
+Subject: Re: "Trying to free nonexistent swap-page" error message.
+In-Reply-To: <la8zibpur5.fsf@glass.netfonds.no> "from Johan Simon Seland at Jun
+ 29, 2001 10:15:10 am"
+To: Johan Simon Seland <johans@netfonds.no>
+Date: Fri, 29 Jun 2001 03:02:03 -0600 (MDT)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-To: Christopher Smith <x@xman.org>
-CC: "Daniel R. Kegel" <dank@alumni.caltech.edu>, balbir.singh@wipro.com,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: A signal fairy tale
-In-Reply-To: <5.1.0.14.0.20010629011647.02a00a98@imap.xman.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christopher Smith wrote:
+Johan Seland
+> One one of our Linux Oracle servers the following messages has started
+> to appear : 
 > 
-> At 07:49 PM 6/27/2001 -0700, Daniel R. Kegel wrote:
-> >Balbir Singh <balbir.singh@wipro.com> wrote:
-> > >sigopen() should be selective about the signals it allows
-> > >as argument. Try and make sigopen() thread specific, so that if one
-> > >thread does a sigopen(), it does not imply it will do all the signal
-> > >handling for all the threads.
-> >
-> >IMHO sigopen()/read() should behave just like sigwait() with respect
-> >to threads.  That means that in Posix, it would not be thread specific,
-> >but in Linux, it would be thread specific, because that's how signals
-> >and threads work there at the moment.
+> Jun 29 07:16:32 blanco kernel: swap_free: Trying to free nonexistent swap-page
+> Jun 29 07:16:32 blanco kernel: swap_free: Trying to free nonexistent swap-page
 > 
-> Actually, I believe with IBM's new Posix threads implementation, Linux
-> finally does signal delivery "the right way". In general, I think it'd be
-> nice if this API *always* sucked up signals from all threads. This makes
-> sense particularly since the FD is accessible by all threads.
+> I also find some of these:
+> 
+> Jun 29 06:25:01 blanco kernel: EXT2-fs error (device sd(8,10)): ext2_readdir: bad entry in directory #172258: rec_len %% 4 != 0 - offset=192, inode=812610409, rec_len=11833, name_len=115
+> Jun 29 06:25:32 blanco kernel: EXT2-fs error (device sd(8,10)): ext2_readdir: bad entry in directory #172258: rec_len %% 4 != 0 - offset=192, inode=812610409, rec_len=11833, name_len=115
+> 
+> Machine is a 2x933MhZ P3 with 2GB of memory. Kernel version is now
+> 2.2.19, but the same problem appeared with 2.2.18 as well.
 
-Although I'm looking forward to the day when Linux threading
-(perhaps thanks to IBM's enhancements to Gnu Pth) becomes Posix compliant,
-for now we need to consider both Posix threads and LinuxThreads.  
-I think the proper behavior for sigopen() under the two threading systems would be:
+My first guess would be some sort of hardware/software problem with your
+SCSI controller, cables, disk, etc.  I'm not sure about the swap problem,
+but the ext2 problems are caused by corruption of the disk or memory.
 
-Posix threads: sigopen() would capture signals delivered to the process,
-as well as signals delivered by pthread_kill() to the thread that called sigopen().
+It is not just a single-bit error either, because rec_len % 4 != 0 AND it
+is larger than a page size, so the value is totally bogus, as is the inode
+number.  Interestingly, converting the above ext2 numbers into ascii gives:
 
-Current LinuxThreads: sigopen() would only capture signals delivered 
-to the thread that called sigopen().
+0x69 0x73 0x6f 0x30 0x39 0x2e 0x73 => iso09.s
 
-- Dan
+(in the order they are layed out in ext2_dir_entry_2).  Coincidence or bug?
+I would suggest a full fsck for the filesystem, as it is likely that there
+are other problems.
+
+Now when you say "servers" do you mean you have the same problem on
+multiple machines?  Are they identical, or different?
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267503AbUBSToq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 14:44:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267509AbUBSTop
+	id S267513AbUBSTrj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 14:47:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267514AbUBSTrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 14:44:45 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:39913 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S267503AbUBSTon (ORCPT
+	Thu, 19 Feb 2004 14:47:37 -0500
+Received: from fw.osdl.org ([65.172.181.6]:22682 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267513AbUBSTrL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 14:44:43 -0500
-Message-ID: <40351211.1030200@colorfullife.com>
-Date: Thu, 19 Feb 2004 20:44:17 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
+	Thu, 19 Feb 2004 14:47:11 -0500
+Date: Thu, 19 Feb 2004 11:51:56 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Tridge <tridge@samba.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+cc: Jamie Lokier <jamie@shareable.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
+In-Reply-To: <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0402191150120.1270@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0402181422180.2686@home.osdl.org>
+ <Pine.LNX.4.58.0402181427230.2686@home.osdl.org> <16435.60448.70856.791580@samba.org>
+ <Pine.LNX.4.58.0402181457470.18038@home.osdl.org> <16435.61622.732939.135127@samba.org>
+ <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org>
+ <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org>
+ <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org> <20040219182948.GA3414@mail.shareable.org>
+ <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Christoph Hellwig <hch@infradead.org>,
-       Krzysztof Benedyczak <golbi@mat.uni.torun.pl>,
-       linux-kernel@vger.kernel.org, Michal Wronski <wrona@mat.uni.torun.pl>
-Subject: Re: [RFC][PATCH] 2/6 POSIX message queues
-References: <Pine.GSO.4.58.0402191527030.18841@Juliusz> <20040219145331.B23685@infradead.org> <20040219190720.GA2421@mars.ravnborg.org>
-In-Reply-To: <20040219190720.GA2421@mars.ravnborg.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
 
->Maybe something like:
->mqueue.h	for kernel-only
->mqueue_abi.h	for kernel+user
->  
->
-I don't think that this is necessary. Everything in <linux/> is kernel 
-only. user space should copy the headers and remove the kernel only 
-parts. kernel+user files mean that it's not possible rename structures 
-or move them around. Perhaps someone wants to move all 16-bit uid 
-structures into a <linux/compat/> directly - shared headers make that 
-impossible.
 
-I agree that the placement of the #ifdef is a bit arbitrary - it's a 
-hint that the structures outside are visible to user space and must 
-remain unchanged.
+On Thu, 19 Feb 2004, Linus Torvalds wrote:
+> 
+> Basic approach: add two bits to the VFS dentry flags. That's all that is 
+> needed. Then you have two new system calls:
+                        ^^^
+>  - set_bit_one(dirfd)
+>  - set_bit_two_if_one_is_set(dirfd);
+>  - check_or_create_name(dirfd, name, case_table_pointer, newfd);
 
-Christoph: I'm sure there will be users that must call the message queue 
-functions directly from C code. E.g. the 32-bit emulation layers on 
-64/32 bit archs. And they need the prototypes.
+ [ deletia ]
 
---
-    Manfred
+> Am I a super-intelligent bastard, or am I a complete nincompoop? You
+> decide.
 
+I think my lack of counting ability basically answers that question.
+
+Damn.
+
+		Linus "complete nincompoop" Torvalds

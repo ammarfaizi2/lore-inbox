@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262821AbSJJCeG>; Wed, 9 Oct 2002 22:34:06 -0400
+	id <S262805AbSJJCdJ>; Wed, 9 Oct 2002 22:33:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262823AbSJJCeG>; Wed, 9 Oct 2002 22:34:06 -0400
-Received: from codepoet.org ([166.70.99.138]:32189 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S262821AbSJJCeE>;
-	Wed, 9 Oct 2002 22:34:04 -0400
-Date: Wed, 9 Oct 2002 20:39:51 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-Message-ID: <20021010023951.GA11063@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Jamie Lokier <lk@tantalophile.demon.co.uk>,
-	Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-References: <20021009152731.GY3045@clusterfs.com> <Pine.LNX.4.44L.0210092045195.22735-100000@imladris.surriel.com> <20021010001641.GE2654@bjl1.asuk.net>
+	id <S262821AbSJJCdJ>; Wed, 9 Oct 2002 22:33:09 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:39591 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S262805AbSJJCdI>;
+	Wed, 9 Oct 2002 22:33:08 -0400
+Date: Thu, 10 Oct 2002 12:38:22 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, george anzinger <george@mvista.com>
+Subject: [PATCH] fix __SI_CODE
+Message-Id: <20021010123822.64c9bbc1.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.3 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021010001641.GE2654@bjl1.asuk.net>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk2, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Oct 10, 2002 at 01:16:41AM +0100, Jamie Lokier wrote:
-> Using the _same_ flag on different architectures can simplify the
-> kernel source, though.  Just imagine, a set of O_* definitions in
-> <linux/fcntl.h> instead of them being duplicated, with different
-> definitions, throughout <asm-*/fcntl.h>.
+Hi Linus,
 
-That would be wonderful -- except those asm-*/fcntl.h values are
-also duplicated in arch specific include/bits/fcntl.h files in
-glibc, uClibc, etc and are compiled into zillions of existing
-binaries.  Change it and you break binary compatibility...
-So if your going to have a flag day, you will need to coordinate
-that change with a bunch of non-kernel people as well.
+This small patch is extracted from George Anzinger's High-res-timer
+patches.  Even if George's patches do not go in, this patch is necessary
+to fix up something I missed when I consolidated the siginfo stuff.
 
- -Erik
+Thanks, George.
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+diff -ruN 2.5.41-1.715/include/asm-generic/siginfo.h 2.5.41-1.715-si.2/include/asm-generic/siginfo.h
+--- 2.5.41-1.715/include/asm-generic/siginfo.h	2002-06-09 16:12:33.000000000 +1000
++++ 2.5.41-1.715-si.2/include/asm-generic/siginfo.h	2002-10-10 12:26:46.000000000 +1000
+@@ -91,7 +91,7 @@
+ #define __SI_FAULT	(3 << 16)
+ #define __SI_CHLD	(4 << 16)
+ #define __SI_RT		(5 << 16)
+-#define __SI_CODE(T,N)	((T) << 16 | ((N) & 0xffff))
++#define __SI_CODE(T,N)	((T) | ((N) & 0xffff))
+ #else
+ #define __SI_KILL	0
+ #define __SI_TIMER	0

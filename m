@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270721AbRHKErT>; Sat, 11 Aug 2001 00:47:19 -0400
+	id <S270722AbRHKFBB>; Sat, 11 Aug 2001 01:01:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270722AbRHKErJ>; Sat, 11 Aug 2001 00:47:09 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:55055 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S270721AbRHKErF>;
-	Sat, 11 Aug 2001 00:47:05 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200108110447.f7B4l9Y439730@saturn.cs.uml.edu>
-Subject: Re: re-export nfs possible?
-To: nbecker@fred.net
-Date: Sat, 11 Aug 2001 00:47:09 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m3wv4nmei0.fsf@nbecker.fred.net> from "nbecker@fred.net" at Aug 01, 2001 09:34:15 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S270723AbRHKFAv>; Sat, 11 Aug 2001 01:00:51 -0400
+Received: from neon-gw.transmeta.com ([63.209.4.196]:28168 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S270722AbRHKFAd>; Sat, 11 Aug 2001 01:00:33 -0400
+Message-ID: <3B74BBE9.3070601@zytor.com>
+Date: Fri, 10 Aug 2001 22:00:25 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Rik van Riel <riel@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: VM nuisance
+In-Reply-To: <Pine.LNX.4.33L.0108110117160.3530-100000@imladris.rielhome.conectiva>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nbecker@fred.net writes:
+Rik van Riel wrote:
+> On 10 Aug 2001, H. Peter Anvin wrote:
+> 
+> 
+>>>I haven't got the faintest idea how to come up with an OOM
+>>>killer which does the right thing for everybody.
+>>>
+>>Basically because there is no such thing?
+>>
+> 
+> Actually the killer itself isn't the problem.
+> 
+> It's deciding when to let it kick in.
+> 
 
-> Is it possible to mount a fs via nfs, and then reexport it via nfs?
+Well... yeah...
 
-Currently, no.
-
-With some restrictions, it could be done. For any given IP address,
-you could export or re-export filesystems from _one_ source server.
-Anything more is like trying to cram N+1 bits into an N-bit sack,
-and no you can't assume the bits are compressible.
+	-hpa
 

@@ -1,854 +1,145 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290624AbSBLNZb>; Tue, 12 Feb 2002 08:25:31 -0500
+	id <S291027AbSBLNal>; Tue, 12 Feb 2002 08:30:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291020AbSBLNZP>; Tue, 12 Feb 2002 08:25:15 -0500
-Received: from mail.turbolinux.co.jp ([210.171.55.67]:63246 "EHLO
-	mail.turbolinux.co.jp") by vger.kernel.org with ESMTP
-	id <S290624AbSBLNYy>; Tue, 12 Feb 2002 08:24:54 -0500
-Message-ID: <3C691752.4000804@turbolinux.co.jp>
-Date: Tue, 12 Feb 2002 22:23:30 +0900
-From: Go Taniguchi <go@turbolinux.co.jp>
-Organization: Turbolinx Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ja-JP; rv:0.9.6) Gecko/20011206
-X-Accept-Language: ja
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: linux-kernel@vger.kernel.org, deller@puffin.external.hp.com,
-        akpm@zip.com.au
-Subject: Re: [PATCH] pcnet32 v1.27
-In-Reply-To: <20020212204514.69ea7d45.go@turbolinux.co.jp> <3C6908C8.DC09410C@mandrakesoft.com>
-Content-Type: multipart/mixed;
- boundary="------------080904090407050302070909"
+	id <S291021AbSBLNaX>; Tue, 12 Feb 2002 08:30:23 -0500
+Received: from [210.38.208.130] ([210.38.208.130]:9682 "HELO dns.")
+	by vger.kernel.org with SMTP id <S291022AbSBLNaH>;
+	Tue, 12 Feb 2002 08:30:07 -0500
+From: <vortex1010102000@yahoo.com>
+Subject: toner cartridges
+Date: Tue, 12 Feb 2002 08:31:15
+Message-Id: <841.35276.723506@yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Apparently-To: <sparclinux@vger.kernel.org>
+Apparently-To: <linux-kernel@vger.kernel.org>
+Apparently-To: <ultralinux@vger.kernel.org>
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080904090407050302070909
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Hi,
-
-Jeff Garzik wrote:
- > Nice work... but... can you please apply the attached patch, and then
- > send me a diff?
-
-I attached new patch from your new one.
-
- >
- > The reason, I have already sent the attached patch to Marcelo to include
- > in 2.4.18-pre10, and it conflicts with yours.
- >
- > Also, please CC myself and Andrew Morton (akpm@zip.com.au) on network
- > driver patches.
- >
- > Thanks,
- >
- > 	Jeff
- >
-
-Thank you very much.
-
--- GO!
-
---------------080904090407050302070909
-Content-Type: text/plain;
- name="pcnet32-v1.27a.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pcnet32-v1.27a.patch"
-
---- linux/drivers/net/pcnet32.c.jg	Tue Feb 12 21:41:55 2002
-+++ linux/drivers/net/pcnet32.c	Tue Feb 12 22:08:08 2002
-@@ -22,8 +22,9 @@
-  *************************************************************************/
- 
- #define DRV_NAME	"pcnet32"
--#define DRV_VERSION	"1.25kf"
--#define DRV_RELDATE	"17.11.2001"
-+#define DRV_VERSION	"1.27a"
-+#define DRV_RELDATE	"10.02.2002"
-+#define PFX		DRV_NAME ": "
- 
- static const char *version =
- DRV_NAME ".c:v" DRV_VERSION " " DRV_RELDATE " tsbogend@alpha.franken.de\n";
-@@ -53,8 +54,6 @@
- #include <linux/skbuff.h>
- #include <linux/spinlock.h>
- 
--static unsigned int pcnet32_portlist[] __initdata = {0x300, 0x320, 0x340, 0x360, 0};
--
- /*
-  * PCI device identifiers for "new style" Linux PCI Device Drivers
-  */
-@@ -64,13 +63,26 @@
-     { 0, }
- };
- 
-+MODULE_DEVICE_TABLE (pci, pcnet32_pci_tbl);
-+
-+int cards_found __initdata;
-+
-+/* 
-+ * VLB I/O addresses 
-+ */
-+static unsigned int pcnet32_portlist[] __initdata = 
-+	{ 0x300, 0x320, 0x340, 0x360, 0 };
-+
-+
-+
- static int pcnet32_debug = 1;
- static int tx_start = 1; /* Mapping -- 0:20, 1:64, 2:128, 3:~220 (depends on chip vers) */
-+static int pcnet32vlb;	 /* check for VLB cards ? */
- 
- static struct net_device *pcnet32_dev;
- 
--static const int max_interrupt_work = 80;
--static const int rx_copybreak = 200;
-+static int max_interrupt_work = 80;
-+static int rx_copybreak = 200;
- 
- #define PCNET32_PORT_AUI      0x00
- #define PCNET32_PORT_10BT     0x01
-@@ -93,21 +105,21 @@
-     PCNET32_PORT_AUI,			   /*  1 BNC/AUI	  */
-     PCNET32_PORT_AUI,			   /*  2 AUI/BNC	  */ 
-     PCNET32_PORT_ASEL,			   /*  3 not supported	  */
--    PCNET32_PORT_10BT | PCNET32_PORT_FD,	   /*  4 10baseT-FD	  */
-+    PCNET32_PORT_10BT | PCNET32_PORT_FD,   /*  4 10baseT-FD	  */
-     PCNET32_PORT_ASEL,			   /*  5 not supported	  */
-     PCNET32_PORT_ASEL,			   /*  6 not supported	  */
-     PCNET32_PORT_ASEL,			   /*  7 not supported	  */
-     PCNET32_PORT_ASEL,			   /*  8 not supported	  */
-     PCNET32_PORT_MII,			   /*  9 MII 10baseT	  */
--    PCNET32_PORT_MII | PCNET32_PORT_FD,		   /* 10 MII 10baseT-FD	  */
-+    PCNET32_PORT_MII | PCNET32_PORT_FD,	   /* 10 MII 10baseT-FD	  */
-     PCNET32_PORT_MII,			   /* 11 MII (autosel)	  */
-     PCNET32_PORT_10BT,			   /* 12 10BaseT	  */
--    PCNET32_PORT_MII | PCNET32_PORT_100,	   /* 13 MII 100BaseTx	  */
-+    PCNET32_PORT_MII | PCNET32_PORT_100,   /* 13 MII 100BaseTx	  */
-     PCNET32_PORT_MII | PCNET32_PORT_100 | PCNET32_PORT_FD, /* 14 MII 100BaseTx-FD */
-     PCNET32_PORT_ASEL			   /* 15 not supported	  */
- };
- 
--#define MAX_UNITS 8
-+#define MAX_UNITS 8	/* More are supported, limit only on options */
- static int options[MAX_UNITS];
- static int full_duplex[MAX_UNITS];
- 
-@@ -186,7 +198,19 @@
-  * v1.25kf Added No Interrupt on successful Tx for some Tx's <kaf@fc.hp.com>
-  * v1.26   Converted to pci_alloc_consistent, Jamey Hicks / George France
-  *                                           <jamey@crl.dec.com>
-- * v1.26p Fix oops on rmmod+insmod; plug i/o resource leak - Paul Gortmaker
-+ * -	   Fixed a few bugs, related to running the controller in 32bit mode.
-+ *	   23 Oct, 2000.  Carsten Langgaard, carstenl@mips.com
-+ *	   Copyright (C) 2000 MIPS Technologies, Inc.  All rights reserved.
-+ * v1.26p  Fix oops on rmmod+insmod; plug i/o resource leak - Paul Gortmaker
-+ * v1.27   improved CSR/PROM address detection, lots of cleanups,
-+ * 	   new pcnet32vlb module option, HP-PARISC support,
-+ * 	   added module parameter descriptions, 
-+ * 	   initial ethtool support - Helge Deller <deller@gmx.de>
-+ * v1.27a  Sun Feb 10 2002 Go Taniguchi <go@turbolinux.co.jp>
-+ *	   use alloc_etherdev and register_netdev
-+ *	   fix pci probe not increment cards_found
-+ *	   FD auto negotiate error workaround for xSeries250
-+ *	   clean up and using new mii module
-  */
- 
- 
-@@ -200,13 +224,13 @@
- #define PCNET32_LOG_RX_BUFFERS 5
- #endif
- 
--#define TX_RING_SIZE			(1 << (PCNET32_LOG_TX_BUFFERS))
--#define TX_RING_MOD_MASK		(TX_RING_SIZE - 1)
--#define TX_RING_LEN_BITS		((PCNET32_LOG_TX_BUFFERS) << 12)
--
--#define RX_RING_SIZE			(1 << (PCNET32_LOG_RX_BUFFERS))
--#define RX_RING_MOD_MASK		(RX_RING_SIZE - 1)
--#define RX_RING_LEN_BITS		((PCNET32_LOG_RX_BUFFERS) << 4)
-+#define TX_RING_SIZE		(1 << (PCNET32_LOG_TX_BUFFERS))
-+#define TX_RING_MOD_MASK	(TX_RING_SIZE - 1)
-+#define TX_RING_LEN_BITS	((PCNET32_LOG_TX_BUFFERS) << 12)
-+
-+#define RX_RING_SIZE		(1 << (PCNET32_LOG_RX_BUFFERS))
-+#define RX_RING_MOD_MASK	(RX_RING_SIZE - 1)
-+#define RX_RING_LEN_BITS	((PCNET32_LOG_RX_BUFFERS) << 4)
- 
- #define PKT_BUF_SZ		1544
- 
-@@ -221,7 +245,7 @@
- #define PCNET32_DWIO_RESET	0x18
- #define PCNET32_DWIO_BDP	0x1C
- 
--#define PCNET32_TOTAL_SIZE 0x20
-+#define PCNET32_TOTAL_SIZE	0x20
- 
- #define CRC_POLYNOMIAL_LE 0xedb88320UL	/* Ethernet CRC, little endian */
- 
-@@ -271,37 +295,36 @@
-  */
- struct pcnet32_private {
-     /* The Tx and Rx ring entries must be aligned on 16-byte boundaries in 32bit mode. */
--    struct pcnet32_rx_head   rx_ring[RX_RING_SIZE];
--    struct pcnet32_tx_head   tx_ring[TX_RING_SIZE];
--    struct pcnet32_init_block	init_block;
--    dma_addr_t dma_addr;		/* DMA address of beginning of this object, returned by pci_alloc_consistent */
--    struct pci_dev *pci_dev;		/* Pointer to the associated pci device structure */
--    const char *name;
-+    struct pcnet32_rx_head    rx_ring[RX_RING_SIZE];
-+    struct pcnet32_tx_head    tx_ring[TX_RING_SIZE];
-+    struct pcnet32_init_block init_block;
-+    dma_addr_t 		dma_addr;	/* DMA address of beginning of this object, 
-+					   returned by pci_alloc_consistent */
-+    struct pci_dev	*pci_dev;	/* Pointer to the associated pci device structure */
-+    const char		*name;
-     /* The saved address of a sent-in-place packet/buffer, for skfree(). */
--    struct sk_buff *tx_skbuff[TX_RING_SIZE];
--    struct sk_buff *rx_skbuff[RX_RING_SIZE];
--    dma_addr_t tx_dma_addr[TX_RING_SIZE];
--    dma_addr_t rx_dma_addr[RX_RING_SIZE];
-+    struct sk_buff	*tx_skbuff[TX_RING_SIZE];
-+    struct sk_buff	*rx_skbuff[RX_RING_SIZE];
-+    dma_addr_t		tx_dma_addr[TX_RING_SIZE];
-+    dma_addr_t		rx_dma_addr[RX_RING_SIZE];
-     struct pcnet32_access a;
--    spinlock_t lock;					/* Guard lock */
--    unsigned int cur_rx, cur_tx;		/* The next free ring entry */
--    unsigned int dirty_rx, dirty_tx;	/* The ring entries to be free()ed. */
-+    spinlock_t		lock;		/* Guard lock */
-+    unsigned int	cur_rx, cur_tx;	/* The next free ring entry */
-+    unsigned int	dirty_rx, dirty_tx; /* The ring entries to be free()ed. */
-     struct net_device_stats stats;
--    char tx_full;
--    int	 options;
--    int	 shared_irq:1,			/* shared irq possible */
--	ltint:1,
--#ifdef DO_DXSUFLO
--      dxsuflo:1,			    /* disable transmit stop on uflo */
--#endif
--	mii:1;					/* mii port available */
--    struct net_device *next;
-+    char		tx_full;
-+    int			options;
-+    int	shared_irq:1,			/* shared irq possible */
-+	ltint:1,			/* enable TxDone-intr inhibitor */
-+	dxsuflo:1,			/* disable transmit stop on uflo */
-+	mii:1;				/* mii port available */
-+    struct net_device	*next;
-     struct mii_if_info mii_if;
- };
- 
--static int  pcnet32_probe_vlbus(int cards_found);
-+static void pcnet32_probe_vlbus(void);
- static int  pcnet32_probe_pci(struct pci_dev *, const struct pci_device_id *);
--static int  pcnet32_probe1(unsigned long, unsigned char, int, int, struct pci_dev *);
-+static int  pcnet32_probe1(unsigned long, unsigned char, int, struct pci_dev *);
- static int  pcnet32_open(struct net_device *);
- static int  pcnet32_init_ring(struct net_device *);
- static int  pcnet32_start_xmit(struct sk_buff *, struct net_device *);
-@@ -320,15 +343,6 @@
-     PCI_ADDR0=0x10<<0, PCI_ADDR1=0x10<<1, PCI_ADDR2=0x10<<2, PCI_ADDR3=0x10<<3,
- };
- 
--struct pcnet32_pci_id_info {
--    const char *name;
--    u16 vendor_id, device_id, svid, sdid, flags;
--    int io_size;
--    int (*probe1) (unsigned long, unsigned char, int, int, struct pci_dev *);
--};
--
--
--MODULE_DEVICE_TABLE (pci, pcnet32_pci_tbl);
- 
- static u16 pcnet32_wio_read_csr (unsigned long addr, int index)
- {
-@@ -376,13 +390,13 @@
- }
- 
- static struct pcnet32_access pcnet32_wio = {
--    pcnet32_wio_read_csr,
--    pcnet32_wio_write_csr,
--    pcnet32_wio_read_bcr,
--    pcnet32_wio_write_bcr,
--    pcnet32_wio_read_rap,
--    pcnet32_wio_write_rap,
--    pcnet32_wio_reset
-+    read_csr:	pcnet32_wio_read_csr,
-+    write_csr:	pcnet32_wio_write_csr,
-+    read_bcr:	pcnet32_wio_read_bcr,
-+    write_bcr:	pcnet32_wio_write_bcr,
-+    read_rap:	pcnet32_wio_read_rap,
-+    write_rap:	pcnet32_wio_write_rap,
-+    reset:	pcnet32_wio_reset
- };
- 
- static u16 pcnet32_dwio_read_csr (unsigned long addr, int index)
-@@ -431,82 +445,61 @@
- }
- 
- static struct pcnet32_access pcnet32_dwio = {
--    pcnet32_dwio_read_csr,
--    pcnet32_dwio_write_csr,
--    pcnet32_dwio_read_bcr,
--    pcnet32_dwio_write_bcr,
--    pcnet32_dwio_read_rap,
--    pcnet32_dwio_write_rap,
--    pcnet32_dwio_reset
--
-+    read_csr:	pcnet32_dwio_read_csr,
-+    write_csr:	pcnet32_dwio_write_csr,
-+    read_bcr:	pcnet32_dwio_read_bcr,
-+    write_bcr:	pcnet32_dwio_write_bcr,
-+    read_rap:	pcnet32_dwio_read_rap,
-+    write_rap:	pcnet32_dwio_write_rap,
-+    reset:	pcnet32_dwio_reset
- };
- 
--
- 
--/* only probes for non-PCI devices, the rest are handled by pci_register_driver via pcnet32_probe_pci*/
--static int __init pcnet32_probe_vlbus(int cards_found)
-+
-+/* only probes for non-PCI devices, the rest are handled by 
-+ * pci_register_driver via pcnet32_probe_pci */
-+
-+static void __devinit
-+pcnet32_probe_vlbus(void)
- {
--    unsigned long ioaddr = 0; // FIXME dev ? dev->base_addr: 0;
--    unsigned int  irq_line = 0; // FIXME dev ? dev->irq : 0;
--    int *port;
-+    unsigned int *port, ioaddr;
-     
--    printk(KERN_INFO "pcnet32_probe_vlbus: cards_found=%d\n", cards_found);
--#ifndef __powerpc__
--    if (ioaddr > 0x1ff) {
--	if (check_region(ioaddr, PCNET32_TOTAL_SIZE) == 0)
--	    return pcnet32_probe1(ioaddr, irq_line, 0, 0, NULL);
--	else
--	    return -ENODEV;
--    } else
--#endif
--	if (ioaddr != 0)
--	    return -ENXIO;
--    
--    /* now look for PCnet32 VLB cards */
--    for (port = pcnet32_portlist; *port; port++) {
--	unsigned long ioaddr = *port;
--	
--	if ( check_region(ioaddr, PCNET32_TOTAL_SIZE) == 0) {
-+    /* search for PCnet32 VLB cards at known addresses */
-+    for (port = pcnet32_portlist; (ioaddr = *port); port++) {
-+	if (!check_region(ioaddr, PCNET32_TOTAL_SIZE)) {
- 	    /* check if there is really a pcnet chip on that ioaddr */
--	    if ((inb(ioaddr + 14) == 0x57) &&
--		(inb(ioaddr + 15) == 0x57) &&
--		(pcnet32_probe1(ioaddr, 0, 0, 0, NULL) == 0))
--		cards_found++;
-+	    if ((inb(ioaddr + 14) == 0x57) && (inb(ioaddr + 15) == 0x57))
-+		pcnet32_probe1(ioaddr, 0, 0, NULL);
- 	}
-     }
--    return cards_found ? 0: -ENODEV;
- }
- 
- 
--
- static int __devinit
- pcnet32_probe_pci(struct pci_dev *pdev, const struct pci_device_id *ent)
- {
--    static int card_idx;
--    long ioaddr;
--    int err = 0;
--
--    printk(KERN_INFO "pcnet32_probe_pci: found device %#08x.%#08x\n", ent->vendor, ent->device);
-+    unsigned long ioaddr;
-+    int err;
- 
--    if ((err = pci_enable_device(pdev)) < 0) {
--	printk(KERN_ERR "pcnet32.c: failed to enable device -- err=%d\n", err);
-+    err = pci_enable_device(pdev);
-+    if (err < 0) {
-+	printk(KERN_ERR PFX "failed to enable device -- err=%d\n", err);
- 	return err;
-     }
-     pci_set_master(pdev);
- 
-     ioaddr = pci_resource_start (pdev, 0);
--    printk(KERN_INFO "    ioaddr=%#08lx  resource_flags=%#08lx\n", ioaddr, pci_resource_flags (pdev, 0));
-     if (!ioaddr) {
--        printk (KERN_ERR "no PCI IO resources, aborting\n");
-+        printk (KERN_ERR PFX "card has no PCI IO resources, aborting\n");
-         return -ENODEV;
-     }
--	
-+    
-     if (!pci_dma_supported(pdev, PCNET32_DMA_MASK)) {
--	printk(KERN_ERR "pcnet32.c: architecture does not support 32bit PCI busmaster DMA\n");
-+	printk(KERN_ERR PFX "architecture does not support 32bit PCI busmaster DMA\n");
- 	return -ENODEV;
-     }
- 
--    return pcnet32_probe1(ioaddr, pdev->irq, 1, card_idx, pdev);
-+    return pcnet32_probe1(ioaddr, pdev->irq, 1, pdev);
- }
- 
- 
-@@ -515,41 +508,44 @@
-  *  pdev will be NULL when called from pcnet32_probe_vlbus.
-  */
- static int __devinit
--pcnet32_probe1(unsigned long ioaddr, unsigned char irq_line, int shared, int card_idx, struct pci_dev *pdev)
-+pcnet32_probe1(unsigned long ioaddr, unsigned char irq_line, int shared,
-+		struct pci_dev *pdev)
- {
-     struct pcnet32_private *lp;
-     struct resource *res;
-     dma_addr_t lp_dma_addr;
--    int i,media,fdx = 0, mii = 0, fset = 0;
--#ifdef DO_DXSUFLO
--    int dxsuflo = 0;
--#endif
--    int ltint = 0;
-+    int i, media;
-+    int fdx, mii, fset, dxsuflo, ltint;
-     int chip_version;
-     char *chipname;
-     struct net_device *dev;
-     struct pcnet32_access *a = NULL;
-+    u8 promaddr[6];
- 
-     /* reset the chip */
-     pcnet32_dwio_reset(ioaddr);
-     pcnet32_wio_reset(ioaddr);
- 
-     /* NOTE: 16-bit check is first, otherwise some older PCnet chips fail */
--    if (pcnet32_wio_read_csr (ioaddr, 0) == 4 && pcnet32_wio_check (ioaddr)) {
-+    if (pcnet32_wio_read_csr(ioaddr, 0) == 4 && pcnet32_wio_check(ioaddr)) {
- 	a = &pcnet32_wio;
-     } else {
--	if (pcnet32_dwio_read_csr (ioaddr, 0) == 4 && pcnet32_dwio_check(ioaddr)) {
-+	if (pcnet32_dwio_read_csr(ioaddr, 0) == 4 && pcnet32_dwio_check(ioaddr)) {
- 	    a = &pcnet32_dwio;
- 	} else
- 	    return -ENODEV;
-     }
- 
--    chip_version = a->read_csr (ioaddr, 88) | (a->read_csr (ioaddr,89) << 16);
-+    chip_version = a->read_csr(ioaddr, 88) | (a->read_csr(ioaddr,89) << 16);
-     if (pcnet32_debug > 2)
- 	printk(KERN_INFO "  PCnet chip version is %#x.\n", chip_version);
-     if ((chip_version & 0xfff) != 0x003)
- 	return -ENODEV;
-+    
-+    /* initialize variables */
-+    fdx = mii = fset = dxsuflo = ltint = 0;
-     chip_version = (chip_version >> 12) & 0xffff;
-+
-     switch (chip_version) {
-     case 0x2420:
- 	chipname = "PCnet/PCI 79C970"; /* PCI */
-@@ -588,23 +584,24 @@
- 	 * mode by which the card should operate
- 	 */
- 	/* switch to home wiring mode */
--	media = a->read_bcr (ioaddr, 49);
-+	media = a->read_bcr(ioaddr, 49);
- #if 0
- 	if (pcnet32_debug > 2)
--	    printk(KERN_DEBUG "pcnet32: pcnet32 media value %#x.\n",  media);
-+	    printk(KERN_DEBUG PFX "media value %#x.\n",  media);
- 	media &= ~3;
- 	media |= 1;
- #endif
- 	if (pcnet32_debug > 2)
--	    printk(KERN_DEBUG "pcnet32: pcnet32 media reset to %#x.\n",  media);
--	a->write_bcr (ioaddr, 49, media);
-+	    printk(KERN_DEBUG PFX "media reset to %#x.\n",  media);
-+	a->write_bcr(ioaddr, 49, media);
- 	break;
-     case 0x2627:
- 	chipname = "PCnet/FAST III 79C975"; /* PCI */
- 	fdx = 1; mii = 1;
- 	break;
-     default:
--	printk(KERN_INFO "pcnet32: PCnet version %#x, no PCnet32 chip.\n",chip_version);
-+	printk(KERN_INFO PFX "PCnet version %#x, no PCnet32 chip.\n",
-+			chip_version);
- 	return -ENODEV;
-     }
- 
-@@ -619,17 +616,15 @@
-     {
- 	a->write_bcr(ioaddr, 18, (a->read_bcr(ioaddr, 18) | 0x0800));
- 	a->write_csr(ioaddr, 80, (a->read_csr(ioaddr, 80) & 0x0C00) | 0x0c00);
--#ifdef DO_DXSUFLO
- 	dxsuflo = 1;
--#endif
- 	ltint = 1;
-     }
-     
--    dev = init_etherdev(NULL, 0);
--    if(dev==NULL)
-+    dev = alloc_etherdev(0);
-+    if(!dev)
- 	return -ENOMEM;
- 
--    printk(KERN_INFO "%s: %s at %#3lx,", dev->name, chipname, ioaddr);
-+    printk(KERN_INFO PFX "%s at %#3lx,", chipname, ioaddr);
- 
-     /* In most chips, after a chip reset, the ethernet address is read from the
-      * station address PROM at the base address and programmed into the
-@@ -645,31 +640,28 @@
- 	dev->dev_addr[2*i] = val & 0x0ff;
- 	dev->dev_addr[2*i+1] = (val >> 8) & 0x0ff;
-     }
--    {
--	u8 promaddr[6];
--	for (i = 0; i < 6; i++) {
--	    promaddr[i] = inb(ioaddr + i);
--	}
--	if( memcmp( promaddr, dev->dev_addr, 6) )
--	{
--	    printk(" warning PROM address does not match CSR address\n");
--#if defined(__i386__)
--	    printk(KERN_WARNING "%s: Probably a Compaq, using the PROM address of", dev->name);
--	    memcpy(dev->dev_addr, promaddr, 6);
--#elif defined(__powerpc__)
--	    if (!is_valid_ether_addr(dev->dev_addr)
--		&& is_valid_ether_addr(promaddr)) {
--		    printk("\n" KERN_WARNING "%s: using PROM address:",
--			   dev->name);
--		    memcpy(dev->dev_addr, promaddr, 6);
--	    }
-+
-+    /* read PROM address and compare with CSR address */
-+    for (i = 0; i < 6; i++)
-+	promaddr[i] = inb(ioaddr + i);
-+    
-+    if( memcmp( promaddr, dev->dev_addr, 6)
-+	|| !is_valid_ether_addr(dev->dev_addr) ) {
-+#ifndef __powerpc__
-+	if( is_valid_ether_addr(promaddr) ){
-+#else
-+	if( !is_valid_ether_addr(dev->dev_addr)
-+	    && is_valid_ether_addr(promaddr)) {
- #endif
--	}	    	    
-+	    printk(" warning: CSR address invalid,\n");
-+	    printk(KERN_INFO "    using instead PROM address of");
-+	    memcpy(dev->dev_addr, promaddr, 6);
-+	}
-     }
-+
-     /* if the ethernet address is not valid, force to 00:00:00:00:00:00 */
-     if( !is_valid_ether_addr(dev->dev_addr) )
--	for (i = 0; i < 6; i++)
--	    dev->dev_addr[i]=0;
-+	memset(dev->dev_addr, 0, sizeof(dev->dev_addr));
- 
-     for (i = 0; i < 6; i++)
- 	printk(" %2.2x", dev->dev_addr[i] );
-@@ -699,7 +691,7 @@
- 
-     dev->base_addr = ioaddr;
-     res = request_region(ioaddr, PCNET32_TOTAL_SIZE, chipname);
--    if (res == NULL)
-+    if (!res)
- 	return -EBUSY;
-     
-     /* pci_alloc_consistent returns page-aligned memory, so we do not have to check the alignment */
-@@ -711,7 +703,6 @@
-     memset(lp, 0, sizeof(*lp));
-     lp->dma_addr = lp_dma_addr;
-     lp->pci_dev = pdev;
--    printk("\n" KERN_INFO "pcnet32: pcnet32_private lp=%p lp_dma_addr=%#08x", lp, lp_dma_addr);
- 
-     spin_lock_init(&lp->lock);
-     
-@@ -719,24 +710,23 @@
-     lp->name = chipname;
-     lp->shared_irq = shared;
-     lp->mii_if.full_duplex = fdx;
--#ifdef DO_DXSUFLO
-     lp->dxsuflo = dxsuflo;
--#endif
-     lp->ltint = ltint;
-     lp->mii = mii;
--    if (options[card_idx] > sizeof (options_mapping))
-+    if ((cards_found >= MAX_UNITS) || (options[cards_found] > sizeof(options_mapping)))
- 	lp->options = PCNET32_PORT_ASEL;
-     else
--	lp->options = options_mapping[options[card_idx]];
-+	lp->options = options_mapping[options[cards_found]];
-     lp->mii_if.dev = dev;
-     lp->mii_if.mdio_read = mdio_read;
-     lp->mii_if.mdio_write = mdio_write;
-     
--    if (fdx && !(lp->options & PCNET32_PORT_ASEL) && full_duplex[card_idx])
-+    if (fdx && !(lp->options & PCNET32_PORT_ASEL) && 
-+		((cards_found>=MAX_UNITS) || full_duplex[cards_found]))
- 	lp->options |= PCNET32_PORT_FD;
-     
--    if (a == NULL) {
--      printk(KERN_ERR "pcnet32: No access methods\n");
-+    if (!a) {
-+      printk(KERN_ERR PFX "No access methods\n");
-       pci_free_consistent(lp->pci_dev, sizeof(*lp), lp, lp->dma_addr);
-       release_resource(res);
-       return -ENODEV;
-@@ -791,8 +781,6 @@
- 	}
-     }
- 
--    if (pcnet32_debug > 0)
--	printk(KERN_INFO "%s", version);
-     
-     /* The PCNET32-specific entries in the device structure. */
-     dev->open = &pcnet32_open;
-@@ -808,11 +796,13 @@
-     pcnet32_dev = dev;
- 
-     /* Fill in the generic fields of the device structure. */
--    ether_setup(dev);
-+    register_netdev(dev);
-+    printk(KERN_INFO "%s: registered as %s\n",dev->name, lp->name);
-+    cards_found++;
-     return 0;
- }
- 
--
-+
- static int
- pcnet32_open(struct net_device *dev)
- {
-@@ -857,6 +847,9 @@
- 	    val |= 1;
- 	    if (lp->options == (PCNET32_PORT_FD | PCNET32_PORT_AUI))
- 		val |= 2;
-+	} else if (lp->options & PCNET32_PORT_ASEL) {
-+	/* workaround for xSeries250 */
-+	    val |= 3;
- 	}
- 	lp->a.write_bcr (ioaddr, 9, val);
-     }
-@@ -889,6 +882,7 @@
- 	lp->a.write_csr (ioaddr, 3, val);
-     }
- #endif
-+
-     if (lp->ltint) { /* Enable TxDone-intr inhibitor */
- 	val = lp->a.read_csr (ioaddr, 5);
- 	val |= (1<<14);
-@@ -923,7 +917,7 @@
-     if (pcnet32_debug > 2)
- 	printk(KERN_DEBUG "%s: pcnet32 open after %d ticks, init block %#x csr0 %4.4x.\n",
- 	       dev->name, i, (u32) (lp->dma_addr + offsetof(struct pcnet32_private, init_block)),
--	       lp->a.read_csr (ioaddr, 0));
-+	       lp->a.read_csr(ioaddr, 0));
- 
- 
-     MOD_INC_USE_COUNT;
-@@ -1033,7 +1027,7 @@
- 
-     /* Transmitter timeout, serious problems. */
- 	printk(KERN_ERR "%s: transmit timed out, status %4.4x, resetting.\n",
--	       dev->name, lp->a.read_csr (ioaddr, 0));
-+	       dev->name, lp->a.read_csr(ioaddr, 0));
- 	lp->a.write_csr (ioaddr, 0, 0x0004);
- 	lp->stats.tx_errors++;
- 	if (pcnet32_debug > 2) {
-@@ -1069,7 +1063,7 @@
- 
-     if (pcnet32_debug > 3) {
- 	printk(KERN_DEBUG "%s: pcnet32_start_xmit() called, csr0 %4.4x.\n",
--	       dev->name, lp->a.read_csr (ioaddr, 0));
-+	       dev->name, lp->a.read_csr(ioaddr, 0));
-     }
- 
-     spin_lock_irqsave(&lp->lock, flags);
-@@ -1136,8 +1130,9 @@
-     int boguscnt =  max_interrupt_work;
-     int must_restart;
- 
--    if (dev == NULL) {
--	printk (KERN_DEBUG "pcnet32_interrupt(): irq %d for unknown device.\n", irq);
-+    if (!dev) {
-+	printk (KERN_DEBUG "%s(): irq %d for unknown device\n",
-+		__FUNCTION__, irq);
- 	return;
-     }
- 
-@@ -1208,7 +1203,8 @@
- 
- 		/* We must free the original skb */
- 		if (lp->tx_skbuff[entry]) {
--                    pci_unmap_single(lp->pci_dev, lp->tx_dma_addr[entry], lp->tx_skbuff[entry]->len, PCI_DMA_TODEVICE);
-+                    pci_unmap_single(lp->pci_dev, lp->tx_dma_addr[entry],
-+			lp->tx_skbuff[entry]->len, PCI_DMA_TODEVICE);
- 		    dev_kfree_skb_irq(lp->tx_skbuff[entry]);
- 		    lp->tx_skbuff[entry] = 0;
-                     lp->tx_dma_addr[entry] = 0;
-@@ -1216,13 +1212,12 @@
- 		dirty_tx++;
- 	    }
- 
--#ifndef final_version
- 	    if (lp->cur_tx - dirty_tx >= TX_RING_SIZE) {
--		printk(KERN_ERR "out-of-sync dirty pointer, %d vs. %d, full=%d.\n",
--		       dirty_tx, lp->cur_tx, lp->tx_full);
-+		printk(KERN_ERR "%s: out-of-sync dirty pointer, %d vs. %d, full=%d.\n",
-+			dev->name, dirty_tx, lp->cur_tx, lp->tx_full);
- 		dirty_tx += TX_RING_SIZE;
- 	    }
--#endif
-+
- 	    if (lp->tx_full &&
- 		netif_queue_stopped(dev) &&
- 		dirty_tx > lp->cur_tx - TX_RING_SIZE + 2) {
-@@ -1263,7 +1258,7 @@
- 
-     /* Clear any other interrupt, and set interrupt enable. */
-     lp->a.write_csr (ioaddr, 0, 0x7940);
--    lp->a.write_rap(ioaddr,rap);
-+    lp->a.write_rap (ioaddr,rap);
-     
-     if (pcnet32_debug > 4)
- 	printk(KERN_DEBUG "%s: exiting interrupt, csr0=%#4.4x.\n",
-@@ -1316,7 +1311,9 @@
- 			skb_put (skb, pkt_len);
- 			lp->rx_skbuff[entry] = newskb;
- 			newskb->dev = dev;
--                        lp->rx_dma_addr[entry] = pci_map_single(lp->pci_dev, newskb->tail, newskb->len, PCI_DMA_FROMDEVICE);
-+                        lp->rx_dma_addr[entry] = 
-+				pci_map_single(lp->pci_dev, newskb->tail,
-+					newskb->len, PCI_DMA_FROMDEVICE);
- 			lp->rx_ring[entry].base = le32_to_cpu(lp->rx_dma_addr[entry]);
- 			rx_in_place = 1;
- 		    } else
-@@ -1446,13 +1443,13 @@
- 	
-     /* set all multicast bits */
-     if (dev->flags & IFF_ALLMULTI){ 
--	ib->filter [0] = 0xffffffff;
--	ib->filter [1] = 0xffffffff;
-+	ib->filter[0] = 0xffffffff;
-+	ib->filter[1] = 0xffffffff;
- 	return;
-     }
-     /* clear the multicast filter */
--    ib->filter [0] = 0;
--    ib->filter [1] = 0;
-+    ib->filter[0] = 0;
-+    ib->filter[1] = 0;
- 
-     /* Add addresses */
-     for (i = 0; i < dev->mc_count; i++){
-@@ -1664,20 +1661,28 @@
-     }
-     return -EOPNOTSUPP;
- }
--					    
-+
- static struct pci_driver pcnet32_driver = {
--	name:		DRV_NAME,
--	probe:		pcnet32_probe_pci,
--	remove:		NULL,
--	id_table:	pcnet32_pci_tbl,
-+    name:	DRV_NAME,
-+    probe:	pcnet32_probe_pci,
-+    id_table:	pcnet32_pci_tbl,
- };
- 
- MODULE_PARM(debug, "i");
-+MODULE_PARM_DESC(debug, DRV_NAME " debug level (0-6)");
- MODULE_PARM(max_interrupt_work, "i");
-+MODULE_PARM_DESC(max_interrupt_work, DRV_NAME " maximum events handled per interrupt");  
- MODULE_PARM(rx_copybreak, "i");
-+MODULE_PARM_DESC(rx_copybreak, DRV_NAME " copy breakpoint for copy-only-tiny-frames"); 
- MODULE_PARM(tx_start_pt, "i");
-+MODULE_PARM_DESC(tx_start_pt, DRV_NAME " transmit start point (0-3)"); 
-+MODULE_PARM(pcnet32vlb, "i");
-+MODULE_PARM_DESC(pcnet32vlb, DRV_NAME " Vesa local bus (VLB) support (0/1)"); 
- MODULE_PARM(options, "1-" __MODULE_STRING(MAX_UNITS) "i");
-+MODULE_PARM_DESC(options, DRV_NAME " initial option setting(s) (0-15)"); 
- MODULE_PARM(full_duplex, "1-" __MODULE_STRING(MAX_UNITS) "i");
-+MODULE_PARM_DESC(full_duplex, DRV_NAME " full duplex setting(s) (1)");
-+
- MODULE_AUTHOR("Thomas Bogendoerfer");
- MODULE_DESCRIPTION("Driver for PCnet32 and PCnetPCI based ethercards");
- MODULE_LICENSE("GPL");
-@@ -1688,36 +1693,25 @@
- 
- static int __init pcnet32_init_module(void)
- {
--    int cards_found = 0;
--    int err;
-+    printk(KERN_INFO "%s", version);
- 
-     if (debug > 0)
- 	pcnet32_debug = debug;
-+
-     if ((tx_start_pt >= 0) && (tx_start_pt <= 3))
- 	tx_start = tx_start_pt;
--    
--    pcnet32_dev = NULL;
-+
-     /* find the PCI devices */
--#define USE_PCI_REGISTER_DRIVER
--#ifdef USE_PCI_REGISTER_DRIVER
--    if ((err = pci_module_init(&pcnet32_driver)) < 0 )
--       return err;
--#else
--    {
--        struct pci_device_id *devid = pcnet32_pci_tbl;
--        for (devid = pcnet32_pci_tbl; devid != NULL && devid->vendor != 0; devid++) {
--            struct pci_dev *pdev = pci_find_subsys(devid->vendor, devid->device, devid->subvendor, devid->subdevice, NULL);
--            if (pdev != NULL) {
--                if (pcnet32_probe_pci(pdev, devid) >= 0) {
--                    cards_found++;
--                }
--            }
--        }
--    }
--#endif
--    return 0;
--    /* find any remaining VLbus devices */
--    return pcnet32_probe_vlbus(cards_found);
-+    pci_module_init(&pcnet32_driver);
-+
-+    /* should we find any remaining VLbus devices ? */
-+    if (pcnet32vlb)
-+	pcnet32_probe_vlbus();
-+
-+    if (cards_found)
-+	printk(KERN_INFO PFX "%d cards_found.\n", cards_found);
-+    
-+    return cards_found ? 0 : -ENODEV;
- }
- 
- static void __exit pcnet32_cleanup_module(void)
-@@ -1726,13 +1720,13 @@
- 
-     /* No need to check MOD_IN_USE, as sys_delete_module() checks. */
-     while (pcnet32_dev) {
--        struct pcnet32_private *lp = pcnet32_dev->priv;
-+	struct pcnet32_private *lp = pcnet32_dev->priv;
- 	next_dev = lp->next;
- 	unregister_netdev(pcnet32_dev);
- 	release_region(pcnet32_dev->base_addr, PCNET32_TOTAL_SIZE);
--	if (lp->pci_dev != NULL)
-+	if (lp->pci_dev)
- 	    pci_unregister_driver(&pcnet32_driver);
--        pci_free_consistent(lp->pci_dev, sizeof(*lp), lp, lp->dma_addr);
-+	pci_free_consistent(lp->pci_dev, sizeof(*lp), lp, lp->dma_addr);
- 	kfree(pcnet32_dev);
- 	pcnet32_dev = next_dev;
-     }
 
 
---------------080904090407050302070909--
+
+
+**** VORTEX SUPPLIES ****
+
+-SPECIALS OF THE WEEK ON LASER TONER SUPPLIES AT DISCOUNT PRICES--
+
+
+
+ORDER BY PHONE:1-888-288-9043
+ORDER BY FAX: 1-888-977-1577
+E-MAIL REMOVAL LINE: 1-888-248-4930
+
+
+UNIVERSITY AND/OR SCHOOL PURCHASE ORDERS WELCOME. (NO CREDIT APPROVAL REQUIRED)
+ALL OTHER PURCHASE ORDER REQUESTS REQUIRE CREDIT APPROVAL.
+PAY BY CHECK (C.O.D), CREDIT CARD OR PURCHASE ORDER (NET 30 DAYS).
+
+IF YOUR ORDER IS BY CREDIT CARD PLEASE LEAVE YOUR CREDIT CARD # PLUS EXPIRATION DATE. 
+IF YOUR ORDER IS BY PURCHASE ORDER LEAVE YOUR SHIPPING/BILLING ADDRESSES AND YOUR P.O. NUMBER
+
+
+NOTE: WE DO NOT CARRY 
+
+1) XEROX, BROTHER, PANASONIC, FUJITSU PRODUCTS
+2) DESKJETJET/INK JET OR BUBBLE JET CARTRIDGES 
+3) ANY OFFBRANDS BESIDES THE ONES LISTED BELOW.    
+
+OUR NEW PRICES ON LASER PRINTER CARTRIDGEDS ARE  AS FOLLOWS:
+ 
+(PLEASE ORDER BY PAGE NUMBER AND/OR ITEM NUMBER)
+
+FOR HEWLETT PACKARD: (ON PAGE 2)
+
+ITEM #1  LASERJET SERIES  4L,4P (74A)------------------------$44
+ITEM #2  LASERJET SERIES  1100 (92A)-------------------------$44
+ITEM #3  LASERJET SERIES  2 (95A)----------------------------$39
+ITEM #4  LASERJET SERIES  2P (75A)---------------------------$54 
+ITEM #5  LASERJET SERIES  5P,6P,5MP, 6MP (3903A)----------  -$44
+ITEM #6  LASERJET SERIES  5SI, 8000 (09A)--------------------$95
+ITEM #7  LASERJET SERIES  2100, 2200 (96A)-------------------$74
+ITEM #8  LASERJET SERIES  8100 (82X)-------------------------$115
+ITEM #9  LASERJET SERIES  5L/6L (3906A)----------------------$39
+ITEM #10 LASERJET SERIES  4V---------------------------------$95
+ITEM #11 LASERJET SERIES 4000 (27X)--------------------------$79
+ITEM #12 LASERJET SERIES 3SI/4SI (91A)-----------------------$54
+ITEM #13 LASERJET SERIES 4, 4M, 5,5M-------------------------$49
+ITEM #13A LASERJET SERIES 5000 (29X)-------------------------$125
+ITEM #13B LASERJET SERIES 1200-------------------------------$59
+ITEM #13C LASERJET SERIES 4100-------------------------------$99
+ITEM #18   LASERJET SERIES 3100------------------------------$39
+ITEM #19 LASERJET SERIES 4500 BLACK--------------------------$79
+ITEM #20 LASERJET SERIES 4500 COLORS ------------------------$125
+
+FOR HEWLETT PACKARD FAX (ON PAGE 2)
+
+ITEM #14 LASERFAX 500, 700 (FX1)----------$49
+ITEM #15  LASERFAX 5000,7000 (FX2)--------$64
+ITEM #16  LASERFAX (FX3)------------------$59
+ITEM #17  LASERFAX (FX4)------------------$54
+
+
+FOR LEXMARK/IBM (ON PAGE 3)
+
+OPTRA 4019, 4029 HIGH YIELD---------------$89
+OPTRA R, 4039, 4049 HIGH YIELD-----------$105
+OPTRA E310.312 HIGH YIELD----------------$79
+
+OPTRA E-----------------------------------$59
+OPTRA N----------------------------------$115
+OPTRA S----------------------------------$165
+OPTRA T----------------------------------$195
+OPTRA E310/312---------------------------$79
+OPTAA E410/412---------------------------$89
+
+
+FOR EPSON (ON PAGE 4)
+
+ACTION LASER 7000,7500,8000,9000----------$105
+ACTION LASER 1000,1500--------------------$105
+
+
+FOR CANON PRINTERS (ON PAGE 5)
+
+PLEASE CALL FOR MODELS AND UPDATED PRICES
+FOR CANON PRINTER CARTRIDGES
+
+PANASONIC (0N PAGE 7)
+
+NEC SERIES 2 MODELS 90 AND 95----------$105
+
+APPLE (0N PAGE 8)
+
+LASER WRITER PRO 600 or 16/600------------------$49 
+LASER WRITER SELECT 300,320,360-----------------$74
+LASER WRITER 300 AND 320------------------------$54
+LASER WRITER NT, 2NT----------------------------$54
+LASER WRITER 12/640-----------------------------$79
+
+FOR CANON FAX (ON PAGE 9)
+
+LASERCLASS 4000 (FX3)---------------------------$59
+LASERCLASS 5000,6000,7000 (FX2)-----------------$54
+LASERFAX 5000,7000 (FX2)------------------------$54
+LASERFAX 8500,9000 (FX4)------------------------$54
+
+FOR CANON COPIERS (PAGE 10)
+
+PC 3, 6RE, 7 AND 11 (A30)---------------------$69
+PC 300,320,700,720,760,900,910,920(E-40)------$89
+
+
+90 DAY UNLIMITED WARRANTY INCLUDED ON ALL PRODUCTS.
+
+ALL TRADEMARKS AND BRAND NAMES LISTED ABOVE ARE PROPERTY OF THE 
+RESPECTIVE HOLDERS AND USED FOR DESCRIPTIVE PURPOSES ONLY.
+
+
+
+
+
+
 

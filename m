@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314625AbSEMXZ6>; Mon, 13 May 2002 19:25:58 -0400
+	id <S314681AbSEMX1W>; Mon, 13 May 2002 19:27:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314681AbSEMXZ5>; Mon, 13 May 2002 19:25:57 -0400
-Received: from sydney1.au.ibm.com ([202.135.142.193]:5644 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S314625AbSEMXZ4>; Mon, 13 May 2002 19:25:56 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: davidm@hpl.hp.com, Rusty Russell <rusty@rustcorp.com.au>,
-        engebret@vnet.ibm.com, justincarlson@cmu.edu, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org, anton@samba.org, ak@suse.de,
-        paulus@samba.org
-Subject: Re: Memory Barrier Definitions 
-In-Reply-To: Your message of "Mon, 13 May 2002 09:50:01 MST."
-             <Pine.LNX.4.44.0205130938380.19524-100000@home.transmeta.com> 
-Date: Tue, 14 May 2002 09:28:19 +1000
-Message-Id: <E177PEp-0001Hm-00@wagner.rustcorp.com.au>
+	id <S314690AbSEMX1V>; Mon, 13 May 2002 19:27:21 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:63248 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S314681AbSEMX1U>;
+	Mon, 13 May 2002 19:27:20 -0400
+Date: Tue, 14 May 2002 01:26:55 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Woodruff, Robert J" <woody@co.intel.com>, linux-kernel@vger.kernel.org,
+        zaitcev@redhat.com
+Subject: Re: InfiniBand BOF @ LSM - topics of interest
+Message-ID: <20020514012655.G12383@marowsky-bree.de>
+In-Reply-To: <D9223EB959A5D511A98F00508B68C20C0BFB7E68@orsmsx108.jf.intel.com> <E177PSB-0006bH-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.22.1i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0205130938380.19524-100000@home.transmeta.com> you wr
-ite:
-> We're _not_ going to make up a complicated, big fancy new model. We might
-> tweak the current one a bit. And if that means that some architectures get
-> heavier barriers than they strictly need, then so be it. There are two
-> overriding concerns:
-> 
->  - sanity: maybe it's better to have one mb() that is a sledgehammer but
->    obvious, than it is to have many subtle variations that are just asking
->    for subtle bugs.
+On 2002-05-14T00:42:07,
+   Alan Cox <alan@lxorguk.ukuu.org.uk> said:
 
-NO NO NO.  Look at what actually happens now:
+> Kernel mode RPC over infiniband - relevant to mosix type stuff, to McVoy
+> scalable cluster type stuff and also to things like file system offload
 
-	void init_bh(int nr, void (*routine)(void))
-	{
-		bh_base[nr] = routine;
-		mb();
-	}
+For that, a generic comm interface would be a good thing to have first.
 
-Now, what is this mb() for?  Are you sure?
 
-If we can come up with a better fit between the macros and what the
-code are trying to actually do, we win, even if they all map to the
-same thing *today*.  While we're there, if we can get something that
-fits with different architectures, great.
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
-Clearer?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+Immortality is an adequate definition of high availability for me.
+	--- Gregory F. Pfister
+

@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbTKON1e (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 08:27:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbTKON1e
+	id S261773AbTKON36 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 08:29:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbTKON36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 08:27:34 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:27152 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261746AbTKON1d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 08:27:33 -0500
-Date: Sat, 15 Nov 2003 08:16:44 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jens Axboe <axboe@suse.de>
-cc: Linus Torvalds <torvalds@osdl.org>, Pascal Schmidt <der.eremit@email.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-In-Reply-To: <20031113122039.GJ4441@suse.de>
-Message-ID: <Pine.LNX.3.96.1031115081442.2903D-100000@gatekeeper.tmr.com>
+	Sat, 15 Nov 2003 08:29:58 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:39840 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S261773AbTKON35 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 08:29:57 -0500
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [BK PATCHES] 2.5.x experimental net driver patches
+References: <20031114140413.GA15406@gtf.org>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 14 Nov 2003 22:04:27 +0100
+In-Reply-To: <20031114140413.GA15406@gtf.org>
+Message-ID: <m33ccq4q78.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Nov 2003, Jens Axboe wrote:
+Jeff Garzik <jgarzik@pobox.com> writes:
 
-> On Thu, Nov 13 2003, Bill Davidsen wrote:
-
-> > Are there any cases when the last_written size is really what's wanted,
-> > rather than the capacity? Such as unclosed multi-session iso9660, ufs, or
-> > whatever else I'm ignoring?
+> BK users:
 > 
-> Yes, for packet written media.
+> 	bk pull bk://gkernel.bkbits.net/net-drivers-2.5-exp
+> 
+> Patch:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.0-test9-bk18-netdrvr-exp1.patch.bz2
 
-Thanks, the recent patch addresses that, I think that covers the cases
-which want the last_written size. 
-
+How about a driver for PCI200SYN sync serial WAN card?
+Would you like me to send it again?
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Krzysztof Halasa, B*FH

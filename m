@@ -1,60 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262845AbVDAS2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262787AbVDASsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262845AbVDAS2x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 13:28:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbVDAS1P
+	id S262787AbVDASsS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 13:48:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbVDASp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 13:27:15 -0500
-Received: from webmail.topspin.com ([12.162.17.3]:34971 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S262844AbVDASZI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 13:25:08 -0500
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][5/6] IB: Fix user MAD registrations with class 0
-In-Reply-To: <2005411023.5oEZz0iawuKxVyay@topspin.com>
-X-Mailer: Roland's Patchbomber
-Date: Fri, 1 Apr 2005 10:23:51 -0800
-Message-Id: <2005411023.Wt2K1CXaZGIHp9sH@topspin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: akpm@osdl.org
-Content-Transfer-Encoding: 7BIT
-From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 01 Apr 2005 18:23:51.0457 (UTC) FILETIME=[F4565110:01C536E7]
+	Fri, 1 Apr 2005 13:45:28 -0500
+Received: from graphe.net ([209.204.138.32]:44041 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S262851AbVDASli (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 13:41:38 -0500
+Date: Fri, 1 Apr 2005 10:41:29 -0800 (PST)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@server.graphe.net
+To: Andrew Morton <akpm@osdl.org>
+cc: Linus Torvalds <torvalds@osdl.org>, oleg@tv-sign.ru,
+       linux-kernel@vger.kernel.org, mingo@elte.hu, kenneth.w.chen@intel.com
+Subject: Re: [RFC][PATCH] timers fixes/improvements
+In-Reply-To: <20050401103235.1fcea9f0.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0504011041001.9755@server.graphe.net>
+References: <424D373F.1BCBF2AC@tv-sign.ru> <Pine.LNX.4.58.0504010807570.4774@ppc970.osdl.org>
+ <20050401103235.1fcea9f0.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix handling of MAD agent registrations with mgmt_class == 0.  In this
-case ib_umad should pass a NULL registration request to the MAD core
-rather than a request with mgmt_class set to 0.
+On Fri, 1 Apr 2005, Andrew Morton wrote:
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+> Sure.  Christoph and (I think) Ken have been seeing mysterious misbehaviour
+> which _might_ be due to Oleg's first round of timer patches.  I assume C&K
+> will test this new patch?
 
-
---- linux-export.orig/drivers/infiniband/core/user_mad.c	2005-03-31 19:06:42.000000000 -0800
-+++ linux-export/drivers/infiniband/core/user_mad.c	2005-04-01 10:09:01.250588043 -0800
-@@ -389,15 +389,17 @@
- 	goto out;
- 
- found:
--	req.mgmt_class         = ureq.mgmt_class;
--	req.mgmt_class_version = ureq.mgmt_class_version;
--	memcpy(req.method_mask, ureq.method_mask, sizeof req.method_mask);
--	memcpy(req.oui,         ureq.oui,         sizeof req.oui);
-+	if (ureq.mgmt_class) {
-+		req.mgmt_class         = ureq.mgmt_class;
-+		req.mgmt_class_version = ureq.mgmt_class_version;
-+		memcpy(req.method_mask, ureq.method_mask, sizeof req.method_mask);
-+		memcpy(req.oui,         ureq.oui,         sizeof req.oui);
-+	}
- 
- 	agent = ib_register_mad_agent(file->port->ib_dev, file->port->port_num,
- 				      ureq.qpn ? IB_QPT_GSI : IB_QPT_SMI,
--				      &req, 0, send_handler, recv_handler,
--				      file);
-+				      ureq.mgmt_class ? &req : NULL,
-+				      0, send_handler, recv_handler, file);
- 	if (IS_ERR(agent)) {
- 		ret = PTR_ERR(agent);
- 		goto out;
-
+Yes will be tested. The hangs disappeared here when we removed Oleg's
+patches.

@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265084AbUF1U5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265206AbUF1VAE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265084AbUF1U5H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 16:57:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265207AbUF1U5F
+	id S265206AbUF1VAE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 17:00:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265207AbUF1VAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 16:57:05 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:21684 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S265084AbUF1U4D convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 16:56:03 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: drivers/block/ub.c
-Date: Mon, 28 Jun 2004 22:57:11 +0200
-User-Agent: KMail/1.6.2
-Cc: Scott Wood <scott@timesys.com>, zaitcev@redhat.com, greg@kroah.com,
+	Mon, 28 Jun 2004 17:00:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:50650 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265206AbUF1U74 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 16:59:56 -0400
+Date: Mon, 28 Jun 2004 13:58:21 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Scott Wood <scott@timesys.com>
+Cc: scott@timesys.com, oliver@neukum.org, zaitcev@redhat.com, greg@kroah.com,
        arjanv@redhat.com, jgarzik@redhat.com, tburke@redhat.com,
        linux-kernel@vger.kernel.org, stern@rowland.harvard.edu,
        mdharm-usb@one-eyed-alien.net, david-b@pacbell.net
-References: <20040626130645.55be13ce@lembas.zaitcev.lan> <20040628141517.GA4311@yoda.timesys> <20040628132531.036281b0.davem@redhat.com>
-In-Reply-To: <20040628132531.036281b0.davem@redhat.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200406282257.11026.oliver@neukum.org>
+Subject: Re: drivers/block/ub.c
+Message-Id: <20040628135821.6b38e377.davem@redhat.com>
+In-Reply-To: <20040628204857.GA5321@yoda.timesys>
+References: <20040626130645.55be13ce@lembas.zaitcev.lan>
+	<200406270631.41102.oliver@neukum.org>
+	<20040626233423.7d4c1189.davem@redhat.com>
+	<200406271242.22490.oliver@neukum.org>
+	<20040627142628.34b60c82.davem@redhat.com>
+	<20040628141517.GA4311@yoda.timesys>
+	<20040628132531.036281b0.davem@redhat.com>
+	<20040628204857.GA5321@yoda.timesys>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 28. Juni 2004 22:25 schrieb David S. Miller:
-> That's true.  But if one were to propose such a feature to the gcc
-> guys, I know the first question they would ask.  "If no padding of
-> the structure is needed, why are you specifying this new
-> __nopadding__ attribute?"
+On Mon, 28 Jun 2004 16:48:57 -0400
+Scott Wood <scott@timesys.com> wrote:
 
-It would replace some uses of __packed__, where the first element
-is aligned.
+> However, what if it were to be run on a machine that can't address
+> smaller quantities than 64-bit?  Such a machine sounds silly, but it
+> could happen (just as early Alphas couldn't directly load or store
+> smaller than 32-bit quantities),
 
-> I think it's bad to just "smack this attribute onto any structure that
-> _MIGHT_ need it on some platform"  I never do that in my drivers,
-> and they work on all platforms.  For example, if you have a simple
-> DMA descriptor structure such as:
-> 
->         struct txd {
->                 u32 dma_addr;
->                 u32 length;
->         };
-> 
-> It is just total and utter madness to put a packed or the proposed
-> __nopadding__ attribute on that structure.  Yet this seems to be
-> what was suggested now and at the beginning of this thread.
+You are still hitting right at the heart of why I think all of
+this talk is madness and silly, you're staying in the realm of
+"what ifs".
 
-I did suggest that. I still think it has some advantages, but I am not
-sure whether they are sufficient
-1) Not every structure is that simple
-2) It is an architecture specific requirement
-3) padding rules might change
-4) It simplifies driver writing
+Cross that bridge when we get there and no sooner, ok? :-)
 
-	Regards
-		Oliver
+As a side note, even though early Alpha's could not address smaller
+than word quantities directly with loads and stores, the structure
+layout defined by the Alpha ABIs did not pad such elements inside
+of structures.  It simply emitted word sized loads, then extracted
+the byte or half-word using shifts and masks.
+
+So even if such a maniac machine as you described were created, it
+would likely shift+mask out from 64-bit loads the elements it needed
+instead of padding structures uselessly.  Structure padding eats memory
+which is why ABI designers avoid it like the plague.
+

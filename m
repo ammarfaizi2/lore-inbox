@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317006AbSHATeU>; Thu, 1 Aug 2002 15:34:20 -0400
+	id <S316860AbSHAThq>; Thu, 1 Aug 2002 15:37:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317012AbSHATeU>; Thu, 1 Aug 2002 15:34:20 -0400
-Received: from web11203.mail.yahoo.com ([216.136.131.185]:55316 "HELO
-	web11203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317006AbSHATeT>; Thu, 1 Aug 2002 15:34:19 -0400
-Message-ID: <20020801193747.78477.qmail@web11203.mail.yahoo.com>
-Date: Thu, 1 Aug 2002 12:37:47 -0700 (PDT)
-From: Datoda <datoda@yahoo.com>
-Subject: PTRACE_SYSCALL
-To: linux-kernel@vger.kernel.org
+	id <S316896AbSHAThq>; Thu, 1 Aug 2002 15:37:46 -0400
+Received: from smtp1.auracom.net ([165.154.140.23]:37603 "EHLO
+	smtp1.auracom.net") by vger.kernel.org with ESMTP
+	id <S316860AbSHAThp>; Thu, 1 Aug 2002 15:37:45 -0400
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: garym@teledyn.com
+Subject: Kernel compiled from source won't read /parts/ of a CD?
+From: Gary Lawrence Murphy <garym@canada.com>
+X-Home-Page: http://www.teledyn.com
+Organization: TCI Business Innovation through Open Source Computing
+Date: 01 Aug 2002 15:40:58 -0400
+Message-ID: <m2bs8mtlit.fsf@maya.dyndns.org>
+Reply-To: Gary Lawrence Murphy <garym@canada.com>
+X-Url: http://www.teledyn.com/
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-   I have played with this ptrace request a bit on
-ia32 and there are a few things unclear to me. Could
-someone please answer my questions? TIA.
-
-o When the child enters a system call, and the parent
-regains control after issuing PTRACE_SYSCALL, where is
-the system call number stored? I guess it's either in
-%eax or in orig_eax (at 0x24(esp)) of the child, but
-values in both places seem invalid in my own
-experiments.
-
-o According to the man page, the child is interrupted
-twice for each system call, once at the entry and once
-at the exit. Intriguingly, when parent inspects the
-eip of the child at both interruptions, the two eip's
-are the same. What is the explanation for this?
-Furthermore, the eip of the child seems to always
-point at the instruction after "int". Why is that the
-case?
-
-o Is there a good document that covers PTRACE_SYSCALL
-or ptrace in general?
-
-Your answers are appreciated.
+--=-=-=
 
 
+This is one of the strangest situations I have ever seen: my
+re-compiled Linux 2.4.18 kernel now /refuses/ to read /only/ the
+"/Mandrake" directory branch of all three of the Mandrake distribution
+CDs.  It /has/ to be some kernel option, but I can't figure which one;
+any advice or debugging hints at all are greatly appreciated.
+
+I had to recompile a Mandrake 8.2 kernel to remove pcmcia support (so
+I could use the sf release of it) Using the stock Mandrake 8.2 binary
+kernel, the CDs can be read just fine, it is only the kernel that I
+compiled from the linux-2.4.18-6mdk.src package that has this trouble.
+There are no warning messages, only one line returned to the console
+to say "ls /Mandrake: Invalid argument" and one line in syslog to say
+"ISO 9660: RRIP_1991A" and that's the total diagnostic information I
+have.
+
+Using /usr/bin/isoinfo, I can list the CD contents just fine; all the
+unix tools (ls, cd, cp ...) and rpm cannot read /Mandrake.
+
+What could I have possibly omitted from the kernel config to cause
+this?  How could that one directory be singled out by a simple kernel
+config problem? (or could it be a gcc 2.96 problem?)
+
+-- 
+Gary Lawrence Murphy <garym@teledyn.com> TeleDynamics Communications Inc
+Business Innovations Through Open Source Systems: http://www.teledyn.com
+"Computers are useless.  They can only give you answers."(Pablo Picasso)
 
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Health - Feel better, live better
-http://health.yahoo.com
+--=-=-=
+
+
+
+-- 
+Gary Lawrence Murphy <garym@teledyn.com> TeleDynamics Communications Inc
+Business Innovations Through Open Source Systems: http://www.teledyn.com
+"Computers are useless.  They can only give you answers."(Pablo Picasso)
+
+
+--=-=-=--

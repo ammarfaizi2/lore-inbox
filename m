@@ -1,39 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132865AbRDPGoG>; Mon, 16 Apr 2001 02:44:06 -0400
+	id <S132866AbRDPGrG>; Mon, 16 Apr 2001 02:47:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132866AbRDPGn5>; Mon, 16 Apr 2001 02:43:57 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:46047 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S132865AbRDPGnl>;
-	Mon, 16 Apr 2001 02:43:41 -0400
-Message-ID: <3ADA949C.D10D8536@mandrakesoft.com>
-Date: Mon, 16 Apr 2001 02:43:40 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-19mdksmp i686)
-X-Accept-Language: en
+	id <S132867AbRDPGq4>; Mon, 16 Apr 2001 02:46:56 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:3422 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S132866AbRDPGqk>; Mon, 16 Apr 2001 02:46:40 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: db@zigo.dhs.org (Dennis Bjorklund), linux-kernel@vger.kernel.org
+Subject: Re: Data-corruption bug in VIA chipsets
+In-Reply-To: <E14o3HM-0002pm-00@the-village.bc.nu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 16 Apr 2001 00:45:12 -0600
+In-Reply-To: Alan Cox's message of "Fri, 13 Apr 2001 14:06:22 +0100 (BST)"
+Message-ID: <m1ae5htkav.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Patrick Shirkey <pshirkey@boosthardware.com>, linux-kernel@vger.kernel.org
-Subject: Re: Files not linking/replacing.
-In-Reply-To: <3ADA524A.7038A81C@boosthardware.com> <m1eluttkx2.fsf@frodo.biederman.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" wrote:
-> Normally /usr/src/linux on a redhat system contains a kernel with a
-> known good set of kernel headers.  /usr/include/linux and
-> /usr/include/asm are symlinks that point into the known good kernel
-> headers.  It looks like you removed your known good 2.2.14 known good
-> kernel headers, or the symlinks to them.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Modern glibc systems have their own copies of headers for
-/usr/include/{asm,linux}, and those locations should not be pointing to
-kernel space...
+> > Here might be one of the resons for the trouble with VIA chipsets:
+> > 
+> > http://www.theregister.co.uk/content/3/18267.html
+> > 
+> > Some DMA error corrupting data, sounds like a really nasty bug. The
+> > information is minimal on that page.
+> 
+> What annoys me is that we've known about the problem for _ages_. If you look
+> the 2.4 kernel has experimental workarounds for this problem. VIA never once
+> even returned an email to say 'we are looking into this'. Instead people sat
+> there flashing multiple BIOS images and seeing what made the difference.
+> 
+> > I just bought one of these babies and I should probably return it
+> > directly. I have seven days to return it and get my money back. I have not
+> > even opened the box yet.
+> 
+> Disabling pci master read caching is likely to reduce the performance of the 
+> board.
+> 
+> > They seems to think they can correct it by some bios updates, but who
+> > knows what that fix might be. Maybe they turn of DMA alltogether
+> > (hopefully not).
+> 
+> The -ac kernel does this on the KT7 series boards which seemed the worst
+> affected. 
+> 
+> Hopefully now someone in VIA will have the decency to tell the community 
+> how to detect setups that need a BIOS upgrade so we can warn them before the
+> chipset bug turns there file systems into sludge.
 
--- 
-Jeff Garzik       | "Give a man a fish, and he eats for a day. Teach a
-Building 1024     |  man to fish, and a US Navy submarine will make sure
-MandrakeSoft      |  he's never hungry again." -- Chris Neufeld
+I wonder if someone at VIA even knows what is going on.  In working
+with linuxBIOS Ron Minnich was worked with VIA to get it up on some of
+their chipsets. He ran into a few cases where his code wouldn't work,
+he'd show it to the engineers at VIA and they also wouldn't have a
+clue why his code was failing.  And that it looked like only Award
+knew how the chipset really worked.  This is northbridge code not
+southbridge code so it may be an entirely different ball game but...
+
+Anyway Alan you might want to bounce off Ron.  He might have a clue
+how to help you get get VIA's attention...
+
+Eric

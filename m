@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130188AbRAYJtw>; Thu, 25 Jan 2001 04:49:52 -0500
+	id <S129444AbRAYKDl>; Thu, 25 Jan 2001 05:03:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130507AbRAYJtm>; Thu, 25 Jan 2001 04:49:42 -0500
-Received: from 3dyn148.com21.casema.net ([212.64.94.148]:27914 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S130188AbRAYJti>;
-	Thu, 25 Jan 2001 04:49:38 -0500
-Date: Thu, 25 Jan 2001 11:42:01 +0100
-From: bert hubert <ahu@ds9a.nl>
+	id <S129774AbRAYKDb>; Thu, 25 Jan 2001 05:03:31 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:9480 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S129444AbRAYKDY>;
+	Thu, 25 Jan 2001 05:03:24 -0500
+Date: Thu, 25 Jan 2001 11:01:08 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Is sendfile all that sexy?
-Message-ID: <20010125114201.A32526@home.ds9a.nl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E14LawQ-000893-00@the-village.bc.nu> <Pine.SOL.4.21.0101250905140.15936-100000@orange.csi.cam.ac.uk>
+Subject: cpqfc in 2.4 ?
+Message-ID: <20010125110108.A32249@marowsky-bree.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre4i
-In-Reply-To: <Pine.SOL.4.21.0101250905140.15936-100000@orange.csi.cam.ac.uk>; from jas88@cam.ac.uk on Thu, Jan 25, 2001 at 09:06:33AM +0000
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.3i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 25, 2001 at 09:06:33AM +0000, James Sutherland wrote:
+cpqfc isn't build for 2.4 yet.
 
-> performance than it would for an httpd, because of the long-lived
-> sessions, but rewriting it as a state machine (no forking, threads or
-> other crap, just use non-blocking I/O) would probably make much more
-> sense.
+Is there any specific reason for this?
 
->From a kernel coders perspective, possibly. But a lot of SMB details are
-pretty convoluted. Statemachines may produce more efficient code but can be
-hell to maintain and expand. Bugs can hide in lots of corners.
-
-Regards,
-
-bert hubert
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
 -- 
-PowerDNS                     Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+Perfection is our goal, excellence will be tolerated. -- J. Yahl
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

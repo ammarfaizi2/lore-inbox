@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262669AbTCPNxi>; Sun, 16 Mar 2003 08:53:38 -0500
+	id <S262671AbTCPO3Y>; Sun, 16 Mar 2003 09:29:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262670AbTCPNxi>; Sun, 16 Mar 2003 08:53:38 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:6404 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S262669AbTCPNxi>; Sun, 16 Mar 2003 08:53:38 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303161406.h2GE6PGd000145@81-2-122-30.bradfords.org.uk>
-Subject: 2.4 PS/2 mouse problem
-To: vojtech@suse.cz
-Date: Sun, 16 Mar 2003 14:06:25 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262672AbTCPO3Y>; Sun, 16 Mar 2003 09:29:24 -0500
+Received: from nat9.steeleye.com ([65.114.3.137]:6151 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id <S262671AbTCPO3X>; Sun, 16 Mar 2003 09:29:23 -0500
+Subject: Re: [patch] NUMAQ subarchification
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, colpatch@us.ibm.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0303152353520.10374-100000@chaos.physics.uiowa.edu>
+References: <Pine.LNX.4.44.0303152353520.10374-100000@chaos.physics.uiowa.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 16 Mar 2003 08:36:51 -0600
+Message-Id: <1047825416.4371.6.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Vojtech,
+On Sat, 2003-03-15 at 23:55, Kai Germaschewski wrote:
+> On 15 Mar 2003, James Bottomley wrote:
+> +config X86_DEFAULT_TOPOLOGY
+> +	bool
+> +	default y
+> +	depends on X86_PC || X86_NUMAQ || X86_SUMMIT || X86_BIGSMP
+> +
 
-I've just bought a new PS/2 mouse, and it works fine with 2.5, but in
-2.4 it doesn't work properly if I move the mouse slowly.
+The slight problem here is that topology isn't shared between default,
+summit and numaq (or at least won't be when the #ifdef mess is removed
+from the default), but summit and numaq would still like to share the
+same topology file between them, which is going to add another level of
+complexity to the Makefile solution.
 
-I've tried 2.4.20-pre5, 2.4.20, and 2.4.19, and get the same
-problems:
+On the whole, I think the least of the three evils is #including a .c
+file.
 
-In X, the mouse works fine as long as it's moved quickly, but trying
-to move it 1 pixel, for example, is almost impossible.
+James
 
->From the console, cat /dev/psaux displays nothing, if I move the mouse
-slowly, no matter how far it's moved.  Moving it quicky displays
-characters as expected.
 
-It's almost as if individual packets of data are being lost, but only
-the first packet of a constant stream of data.  Maybe the mouse is
-sending an extra syncronisation byte or something, which is confusing
-things?
-
-Is there a way to dump the raw data from the port like there is in
-2.5?
-
-John.

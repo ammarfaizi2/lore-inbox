@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265239AbTFMREP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 13:04:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265396AbTFMREO
+	id S265406AbTFMRF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 13:05:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265437AbTFMRF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 13:04:14 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:27284 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265239AbTFMREO (ORCPT
+	Fri, 13 Jun 2003 13:05:26 -0400
+Received: from p68.rivermarket.wintek.com ([208.13.56.68]:29174 "EHLO dust")
+	by vger.kernel.org with ESMTP id S265406AbTFMRFU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 13:04:14 -0400
-Subject: Re: ext[23]/lilo/2.5.{68,69,70} -- blkdev_put() problem?
-From: Andy Pfiffer <andyp@osdl.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: christophe@saout.de, adam@yggdrasil.com, linux-kernel@vger.kernel.org,
-       Herbert Xu <herbert@gondor.apana.org.au>,
-       Unai Garro Arrazola <Unai.Garro@ee.ed.ac.uk>,
-       Max Valdez <maxvalde@fis.unam.mx>,
-       Eduardo Pereira Habkost <ehabkost@conectiva.com.br>
-In-Reply-To: <20030613010149.359cb4dd.akpm@digeo.com>
-References: <1052507057.15923.31.camel@andyp.pdx.osdl.net>
-	 <1052510656.6334.8.camel@chtephan.cs.pocnet.net>
-	 <1052513725.15923.45.camel@andyp.pdx.osdl.net>
-	 <1055369326.1158.252.camel@andyp.pdx.osdl.net>
-	 <1055373692.16483.8.camel@chtephan.cs.pocnet.net>
-	 <1055377253.1222.8.camel@andyp.pdx.osdl.net>
-	 <20030611172958.5e4d3500.akpm@digeo.com>
-	 <1055438856.1202.6.camel@andyp.pdx.osdl.net>
-	 <20030612105347.6ea644b7.akpm@digeo.com>
-	 <1055441028.1202.11.camel@andyp.pdx.osdl.net>
-	 <1055442331.1225.11.camel@andyp.pdx.osdl.net>
-	 <20030613010149.359cb4dd.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1055524632.1233.1.camel@andyp.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 13 Jun 2003 10:17:12 -0700
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Jun 2003 13:05:20 -0400
+Date: Fri, 13 Jun 2003 12:21:11 -0500 (EST)
+From: Alex Goddard <agoddard@purdue.edu>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: Clemens Schwaighofer <cs@tequila.co.jp>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: uptime wrong in 2.5.70
+In-Reply-To: <Pine.LNX.4.33.0306131117230.12096-100000@gans.physik3.uni-rostock.de>
+Message-ID: <Pine.LNX.4.56.0306131217530.1228@dust>
+References: <Pine.LNX.4.33.0306131117230.12096-100000@gans.physik3.uni-rostock.de>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-06-13 at 01:01, Andrew Morton wrote:
-> Fix this by just leaving the inode dirty and moving on to inspect the other
-> blockdev inodes on sb->s_io.
+On Fri, 13 Jun 2003, Tim Schmielau wrote:
 
-Yup, this fixed it for me, too.  Thanks for your help.  --Andy
+> > I a got a test vmware running with a 2.5.70 and I have sligh "overflow"
+> > with my uptime.
+> >
+> > gentoo root # uptime
+> >  22:29:47 up 14667 days, 19:08,  3 users,  load average: 0.00, 0.00, 0.00
+> 
+> Doesn't ring any bell yet. Can you cat /proc/uptime and /proc/stat output?
+> Is this immediately after booting? Reproducable?
 
+I had this happen yesterday with a 2.5.70-bkWhatever from about three days
+ago.
 
+Immediately after boot my uptime was reported as 14664 days, 13 hours.  I 
+didn't do a cat of either /proc/uptime or /proc/stat.  If the bug hits 
+again, I'll do so and post the results.
 
+-- 
+Alex Goddard
+agoddard@purdue.edu

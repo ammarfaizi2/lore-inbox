@@ -1,75 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262801AbTJULLP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 07:11:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbTJULLP
+	id S262944AbTJULNK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 07:13:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262950AbTJULNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 07:11:15 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:9615 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262801AbTJULLN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 07:11:13 -0400
-Date: Tue, 21 Oct 2003 13:11:12 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Emmanuel Fleury <fleury@cs.auc.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unable to handle kernel...
-Message-ID: <20031021111112.GC4663@DUK2.13thfloor.at>
-Mail-Followup-To: Emmanuel Fleury <fleury@cs.auc.dk>,
-	linux-kernel@vger.kernel.org
-References: <1065623368.15369.35.camel@rade7.s.cs.auc.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1065623368.15369.35.camel@rade7.s.cs.auc.dk>
-User-Agent: Mutt/1.4i
+	Tue, 21 Oct 2003 07:13:10 -0400
+Received: from SteeleMR-loadb-NAT-49.caltech.edu ([131.215.49.69]:1682 "EHLO
+	water-ox.its.caltech.edu") by vger.kernel.org with ESMTP
+	id S262944AbTJULNI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 07:13:08 -0400
+Date: Tue, 21 Oct 2003 04:13:05 -0700 (PDT)
+From: "Noah J. Misch" <noah@caltech.edu>
+X-X-Sender: noah@clyde
+To: Stephen Hemminger <shemminger@osdl.org>,
+       "David S. Miller" <davem@redhat.com>
+Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] Make LLC2 compile with PROC_FS=n
+In-Reply-To: <20031020223237.31854ab5.davem@redhat.com>
+Message-ID: <Pine.GSO.4.58.0310210401470.26573@clyde>
+References: <Pine.GSO.4.58.0310171452540.13905@blinky>
+ <20031020101607.76e02647.shemminger@osdl.org> <20031020223237.31854ab5.davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 08, 2003 at 04:29:28PM +0200, Emmanuel Fleury wrote:
-> Hi,
-> 
-> I am pretty new in coding for the kernel and I was wandering what is the
-> _deep_ meaning of:
-> 
-> "Unable to handle kernel paging request at virtual address XXXX" 
+On Mon, 20 Oct 2003, David S. Miller wrote:
 
-some page was requested, (probably via a pointer
-dereference, read or write), which led to a page
-fault, which in turn could not be satisfied by
-loading/providing the requested page, because it
-simply isn't there (usually wrong address)
+> On Mon, 20 Oct 2003 10:16:07 -0700
+> Stephen Hemminger <shemminger@osdl.org> wrote:
+>
+> > Why make up a whole separate llc_proc.h file for two prototypes?
+> > Put them on the end of llc.h
+>
+> I definitely prefer this version of the fix.
 
-> and 
-> "Unable to handle kernel NULL pointer dereference".
+I agree completely.  Thanks, Stephen.
 
-some pointer (value = NULL) was dereferenced, which
-should be considered an error, this caused the oops
-which (probably) follows those lines (reg/stackdump)
+> Since Arnaldo appears to be busy, I'll apply this.
 
-	int *test = NULL;
-	int v = test[0];	// bad!
+Great.
 
-> If somebody could explain this to me, I would be very pleased ! :)
-
-probably there are better explanations,
-
-HTH,
-Herbert
-
-> PS: I know already how to trace an Oops by using ksymoops. But these two
-> errors are puzzling me and I would like to understand more about it.
-> 
-> Regards
-> -- 
-> Emmanuel
-> 
-> The tradition of open science has done more to build the modern
-> economy than Microsoft ever will.
->   -- Linus Torvalds
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

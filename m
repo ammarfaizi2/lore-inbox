@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264944AbTIDMkj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 08:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264951AbTIDMkj
+	id S264953AbTIDMuW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 08:50:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264956AbTIDMuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 08:40:39 -0400
-Received: from mail.hometree.net ([212.34.184.41]:35521 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S264944AbTIDMki
+	Thu, 4 Sep 2003 08:50:22 -0400
+Received: from GOL139579-1.gw.connect.com.au ([203.63.118.157]:3257 "EHLO
+	goldweb.com.au") by vger.kernel.org with ESMTP id S264953AbTIDMuS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 08:40:38 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Driver Model
-Date: Thu, 4 Sep 2003 12:40:35 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <bj7bs3$qg6$1@tangens.hometree.net>
-References: <MDEHLPKNGKAHNMBLJOLKAENJGCAA.davids@webmaster.com> <Pine.LNX.4.10.10309031024030.13722-100000@master.linux-ide.org>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1062679235 27142 212.34.184.4 (4 Sep 2003 12:40:35 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 4 Sep 2003 12:40:35 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	Thu, 4 Sep 2003 08:50:18 -0400
+Date: Thu, 4 Sep 2003 22:50:32 +1000 (EST)
+From: Michael Still <mikal@stillhq.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: carbonated beverage <ramune@net-ronin.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: minor TMPDIR fix
+In-Reply-To: <20030903200736.GA12723@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.44.0309042248330.12720-100000@diskbox.stillhq.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick <andre@linux-ide.org> writes:
+On Wed, 3 Sep 2003, Sam Ravnborg wrote:
 
->why many people have earned the title of "GPL NAZIS".
+Sam, Mr Beverage (or can I just call you Carbonated?)
 
-Godwin's law. You lost.
+> On Wed, Sep 03, 2003 at 12:27:26PM -0700, carbonated beverage wrote:
+> > Hi,
+> > 
+> > 	Just a small fix to make the makeman script use $TMPDIR from the
+> > environment if it's set.
 
-	Regards
-		Henning
+> Michael Still contributed this script - I have added him in to:
+
+Thanks for the patch... I'm playing with that script at the moment, so the 
+timing was really good from my perspective. I'll be sending an update to 
+LKML in the next few days, and I'll include this.
+
+Thanks,
+Mikal
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
 
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire
+Michael Still (mikal@stillhq.com) | "All my life I've had one dream,
+http://www.stillhq.com            |  to achieve my many goals"
+UTC + 10                          |    -- Homer Simpson
 
-"Dominate!! Dominate!! Eat your young and aggregate! I have grotty silicon!" 
-      -- AOL CD when played backwards  (User Friendly - 200-10-15)

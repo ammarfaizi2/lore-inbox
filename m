@@ -1,70 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261524AbSLCPFT>; Tue, 3 Dec 2002 10:05:19 -0500
+	id <S261529AbSLCPGd>; Tue, 3 Dec 2002 10:06:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261529AbSLCPFT>; Tue, 3 Dec 2002 10:05:19 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:11539 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261524AbSLCPFS>; Tue, 3 Dec 2002 10:05:18 -0500
-Date: Tue, 3 Dec 2002 15:12:40 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
-Cc: linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: [PATCH][RESEND] POSIX message queues, 2.5.50
-Message-ID: <20021203151238.A14315@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Krzysztof Benedyczak <golbi@mat.uni.torun.pl>,
-	linux-kernel@vger.kernel.org,
-	Manfred Spraul <manfred@colorfullife.com>
-References: <Pine.GSO.4.40.0212031542100.11660-100000@Juliusz>
+	id <S261545AbSLCPGd>; Tue, 3 Dec 2002 10:06:33 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:48288 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261529AbSLCPGc>; Tue, 3 Dec 2002 10:06:32 -0500
+Subject: Re: [Linux-fbdev-devel] [PATCH] FBDev: vga16fb port
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Antonino Daplas <adaplas@pol.net>
+Cc: James Simmons <jsimmons@infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1038917280.1228.7.camel@localhost.localdomain>
+References: <Pine.LNX.4.44.0212022027510.18805-100000@phoenix.infradead.org> 
+	<1038917280.1228.7.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Dec 2002 15:47:43 +0000
+Message-Id: <1038930464.11426.1.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.40.0212031542100.11660-100000@Juliusz>; from golbi@mat.uni.torun.pl on Tue, Dec 03, 2002 at 03:56:58PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 03, 2002 at 03:56:58PM +0100, Krzysztof Benedyczak wrote:
-> +#ifndef _LINUX_MQUEUE_H
-> +#define _LINUX_MQUEUE_H
-> +
-> +#include <linux/init.h>
+On Tue, 2002-12-03 at 12:22, Antonino Daplas wrote:
+> >   Things I like to get done for the vga16fb driver. 
+> > 
+> >   1) Its own read and write functions to fake a linear framebuffer.
+> Should be doable with fb_write and fb_read, but with mmap, the app still
+> needs to know the VGA format.
 
-I don't think you need this..
+I question whether thats something that belongs anywhere near the
+kernel. Ben Pfaff wrote a fine library for vga16 hackery (BOGL) and it
+combines very nicely with the fb driver.
 
-> +struct mq_attr {
-> +	long mq_flags;		/* message queue flags */
-> +	long mq_maxmsg;		/* maximum number of messages */
-> +	long mq_msgsize;	/* maximum message size */
-> +	long mq_curmsgs;	/* number of messages currently queued */
+> >   2) The ability to go back to vga text mode on close of /dev/fb. 
+> >      Yes fbdev/fbcon supports that now. 
+> 
+> I'll take a stab at writing VGA save/restore routines which hopefully is
+> generic enough to be used by various hardware.  No promises though, VGA
+> programming gives me a headache :(
 
-Please don't use longs as ioctl arguments, better s32.  (and why
-can't this be unsigned, btw?)
+You can pull the code out of the old svgalib library. Since its not
+doing any card specific stuff the generic vga->text restore ought to do
+the right thing.
 
-
-> --- linux-2.5.50-org/ipc/mqueue.c	Thu Jan  1 01:00:00 1970
-> +++ linux-2.5.50-patched/ipc/mqueue.c	Mon Dec  2 21:17:28 2002
-
-No copyright statement at all?
-
-> +	if (*off>=FILENT_SIZE)
-> +		return 0;
-> +	buffer = kmalloc(FILENT_SIZE,GFP_KERNEL);
-> +	if (buffer==NULL)
-> +		return -ENOMEM;
-> +
-> +	*((long *)buffer) = info->qsize;
-> +	*((pid_t *)(buffer+sizeof(long))) = info->notify_pid;
-> +	*((int *)(buffer+sizeof(long)+sizeof(pid_t))) =
-> +					info->notify.sigev_signo;
-> +	*((int *)(buffer+sizeof(long)+sizeof(pid_t)+sizeof(int))) =
-> +					info->notify.sigev_notify;
-> +	retval = FILENT_SIZE - *off;
-> +	if (copy_to_user(data,buffer+*off,retval))
-> +		return -EFAULT;
-> +	*off += retval;
-> +	return retval;
-
-Where is the buffer freed?
 

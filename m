@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263383AbUJ2Scn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbUJ2So0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263383AbUJ2Scn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 14:32:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbUJ2S3X
+	id S261223AbUJ2So0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 14:44:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbUJ2So0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 14:29:23 -0400
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:32948 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263448AbUJ2SY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 14:24:28 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2/4] Driver core: add driver_probe_device
-Date: Fri, 29 Oct 2004 13:24:21 -0500
-User-Agent: KMail/1.6.2
-Cc: LKML <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>
-References: <200410062354.18885.dtor_core@ameritech.net> <200410120131.38330.dtor_core@ameritech.net> <20041029163714.GB27902@kroah.com>
-In-Reply-To: <20041029163714.GB27902@kroah.com>
-MIME-Version: 1.0
+	Fri, 29 Oct 2004 14:44:26 -0400
+Received: from holomorphy.com ([207.189.100.168]:45203 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263382AbUJ2S1r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 14:27:47 -0400
+Date: Fri, 29 Oct 2004 11:27:28 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Mark Fortescue <mark@mtfhpc.demon.co.uk>
+Cc: linux-fbdev-devel@lists.sourceforge.net, jsimmons@infradead.org,
+       geert@linux-m68k.org, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Help re Frame Buffer/Console Problems
+Message-ID: <20041029182728.GE12934@holomorphy.com>
+References: <Pine.LNX.4.10.10410291849480.2831-100000@mtfhpc.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410291324.22084.dtor_core@ameritech.net>
+In-Reply-To: <Pine.LNX.4.10.10410291849480.2831-100000@mtfhpc.demon.co.uk>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 29 October 2004 11:37 am, Greg KH wrote:
-> On Tue, Oct 12, 2004 at 01:31:36AM -0500, Dmitry Torokhov wrote:
-> > #### AUTHOR dtor_core@ameritech.net
-> > #### COMMENT START
-> > ### Comments for ChangeSet
-> > Driver core: rename bus_match into driver_probe_device and export
-> >              it so subsystems can bind an individual device to a
-> >              specific driver without getting involved with driver
-> >              core internals.
-> 
-> Applied, thanks.
-> 
+On Fri, Oct 29, 2004 at 07:22:11PM +0100, Mark Fortescue wrote:
+> I have been trying to get a CG3 sparc clone up and running with linux.
+> Under 2.2.26, the console is fine. During the development of the
+> 2.5.x/2.6.x frame buffer system the CG3 support got broken. I have managed
+> to track done one of the problems (the blanking code had some typing
+> errors in it) and this gave me a logo + black screen and cursor using a
+> linux-2.2.8.1 kernel. Still no console text.
+> Given that 2.2.10-rc1-bk6 is available, I have downloaded and applied the
+> appropriate patches and made some additional mods to keep the
+> compiler/linker happy. Now I have a black console, no text, logo or cursor
+> and if I redirect the console output to a serial port I get the following:
 
-Greg,
+Okay, sounds like a relatively major disaster. =(
 
-What about "bind_mode" device and driver attributes? If you are not going
-to apply them then I need to rework driver_probe_device to not call 
-bus->match() function. The reason is that if bind_mode is not in the core
-then I need to check these attributes in serio's bus match function, but
-then I will not be able to use driver_probe_device to force binding when
-user requests it. And if I don't check bind_mode in serio_bus_match then
-I will have to do all driver/device mathing by hand which I wanted to
-avoid in the first place.
 
-Please let me know.
-
--- 
-Dmitry
+-- wli

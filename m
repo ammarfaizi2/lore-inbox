@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265098AbSK1Cgo>; Wed, 27 Nov 2002 21:36:44 -0500
+	id <S265108AbSK1Cix>; Wed, 27 Nov 2002 21:38:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265102AbSK1Cgo>; Wed, 27 Nov 2002 21:36:44 -0500
-Received: from mail.michigannet.com ([208.49.116.30]:52744 "EHLO
-	member.michigannet.com") by vger.kernel.org with ESMTP
-	id <S265098AbSK1Cgn>; Wed, 27 Nov 2002 21:36:43 -0500
-Date: Wed, 27 Nov 2002 21:43:55 -0500
-From: Paul <set@pobox.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: trivial@rustcorp.com.au
-Subject: [uPATCH] NCR5380.c compile fix Re: Linux v2.5.50
-Message-ID: <20021128024354.GK1432@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	trivial@rustcorp.com.au
-References: <Pine.LNX.4.44.0211271456160.18214-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S265111AbSK1Cix>; Wed, 27 Nov 2002 21:38:53 -0500
+Received: from pat.uio.no ([129.240.130.16]:48567 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S265108AbSK1Cix>;
+	Wed, 27 Nov 2002 21:38:53 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211271456160.18214-100000@penguin.transmeta.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15845.33640.256556.123111@charged.uio.no>
+Date: Thu, 28 Nov 2002 03:46:00 +0100
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+       Ext2 devel <ext2-devel@lists.sourceforge.net>,
+       NFS maillist <nfs@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext2-devel] Re: [NFS] htree+NFS (NFS client bug?)
+In-Reply-To: <1038449223.1464.17.camel@ixodes.goop.org>
+References: <1038354285.1302.144.camel@sherkaner.pao.digeo.com>
+	<shsptsrd761.fsf@charged.uio.no>
+	<1038387522.31021.188.camel@ixodes.goop.org>
+	<20021127150053.A2948@redhat.com>
+	<1038449223.1464.17.camel@ixodes.goop.org>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com>, on Wed Nov 27, 2002 [03:07:38 PM] said:
-> 
-> Taking a small thanksgiving break, but before that here's 2.5.50.
-> 
+>>>>> " " == Jeremy Fitzhardinge <jeremy@goop.org> writes:
 
-	Hi;
+     > Hm, I just did a run with 8k NFS packets, and the results are
+     > slightly different.  There's only a single READDIR reply,
+     > fragmented over 3 IP packets.  vg_include.h~51-kill-inceip
+     > still has a cookie of 1611747420, and vg_libpthread.vs is still
+     > the last entry returned, but it has a cookie of 0.  As far as I
+     > can see, all the other cookies are unique.
 
-	Needed this so NCR5380.c would compile. (via pas16)
+AFAICS, the ext2/ext3 code is simply failing to initialize that last
+cookie, and so knfsd is giving it the value of the cookie that was
+passed by the client.
 
-Paul
-set@pobox.com
-
---- 2.5.50.virgin/drivers/scsi/NCR5380.c	2002-11-12 21:18:00.000000000 -0500
-+++ 2.5.50/drivers/scsi/NCR5380.c	2002-11-27 21:20:26.000000000 -0500
-@@ -1477,8 +1477,8 @@
- 	int len;
- 	unsigned long timeout;
- 	unsigned char value;
--	NCR5380_setup(instance);
- 	int err;
-+	NCR5380_setup(instance);
- 
- 	if (hostdata->selecting) {
- 		if(instance->irq != IRQ_NONE)
+Cheers,
+  Trond

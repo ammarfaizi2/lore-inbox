@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263401AbTCNR22>; Fri, 14 Mar 2003 12:28:28 -0500
+	id <S263427AbTCNRbE>; Fri, 14 Mar 2003 12:31:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263402AbTCNR21>; Fri, 14 Mar 2003 12:28:27 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:29356 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S263401AbTCNR2Z>; Fri, 14 Mar 2003 12:28:25 -0500
-Date: Fri, 14 Mar 2003 11:41:28 -0600
-From: latten@austin.ibm.com
-Message-Id: <200303141741.h2EHfSpm021569@faith.austin.ibm.com>
-To: root@chaos.analogic.com
-Subject: Re: eth0: Bus master arbitration failure
-Cc: linux-kernel@vger.kernel.org
+	id <S263428AbTCNRbD>; Fri, 14 Mar 2003 12:31:03 -0500
+Received: from otter.mbay.net ([206.55.237.2]:16147 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S263427AbTCNRa7> convert rfc822-to-8bit;
+	Fri, 14 Mar 2003 12:30:59 -0500
+From: John Alvord <jalvo@mbay.net>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: Jens Axboe <axboe@suse.de>, Oleg Drokin <green@namesys.com>,
+       Oleg Drokin <green@linuxhacker.ru>, alan@redhat.com,
+       linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: Re: [2.4] init/do_mounts.c::rd_load_image() memleak
+Date: Fri, 14 Mar 2003 09:40:49 -0800
+Message-ID: <fq447vk4b4q823ihqbvakl8g05cnogor86@4ax.com>
+References: <20030313210144.GA3542@linuxhacker.ru> <20030314110421.A28273@namesys.com> <20030314080911.GY836@suse.de> <200303141008.h2EA8gu08535@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200303141008.h2EA8gu08535@Port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: Forte Agent 1.92/32.570
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 14 Mar 2003 12:05:40 +0200, Denis Vlasenko
+<vda@port.imtp.ilyichevsk.odessa.ua> wrote:
 
->On Thu, 13 Mar 2003 latten@austin.ibm.com wrote:
+>On 14 March 2003 10:09, Jens Axboe wrote:
+>> No that would just be another pointless exercise in causing more
+>> annoyance for someone who has to look through patches finding that
+>> one hunk that breaks stuff. The recent spelling changes come to mind.
 >
->> I was wondering if anyone knew if this had been resolved
->> or see this problem too. I am having the same problem. 
->> However, I am using 2.5.64 kernel and I have tried 
->> both an eepro100 and a 3com-tornado ethernet card.
->> 
+>How we should do such global small cleanups?
+>Maybe grep the source and bring the list of affected files
+>to maintainers' attention, letting the to gradually push
+>changes to Linus...
 >
->I think the problem is probably all those "printk()" calls
->within timing-sensitive code (really). A Bus master arbitration
->failure is supposed to result in a retry. It is not supposed to
->be fatal. For kicks, just comment out the printk() and see if
->the box starts to work. If that makes it work, an appropriate
->permanent fix would be to just keep track of the number of
->such failures just like the dropped-packet and collision count.
+>I suspect "bring the list to maintainers' attention"
+>will be a trickier part ;)
 >
->If removing the printk() doesn't fix it, there may be a retained
->spin-lock on an error exit path.
+>> But just because you don't seem to have seen any kfree(NULL) in the
+>> kernel does not mean they are not there. And should a good trend not
+>> allow to grow?
 >
+>"if(p) free(p)" => "free(p)" is mostly ok, less code.
+>
+>But free is called now unconditionally. Make an exception
+>for performance-critical places where p is almost always 0.
 
-I did go and take a look at that printk :-) and realized it was in
-pcnet32.c and that it was my pcnet32 card complaining and not
-my eepro100 or 3com card. Whew! Sorry about that mistake. 
-I am going to try and install kdb and see if it will help 
-locate where the lockup is occuring.
+The one implementation I looked at carefully (SAS/C) looked like this:
 
-Thanks,
-Joy
+ 	free(p);
+	---------
+	if (p)
+		malloc(p);
+
+so 
+	if (p) free(p);
+	-------------
+	if (p)
+	     if (p)
+		malloc(p);
+
+which seems fairly worthless.
+
+john

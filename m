@@ -1,82 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262919AbTHZTOS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 15:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262915AbTHZTOS
+	id S262870AbTHZTXh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 15:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbTHZTXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 15:14:18 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:5760 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262919AbTHZTMr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 15:12:47 -0400
-Date: Tue, 26 Aug 2003 15:12:46 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Andy Isaacson <adi@hexapodia.org>
-cc: max@vortex.physik.uni-konstanz.de,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test4 shocking (HT) benchmarking (wrong logic./phys. HT
- CPU distinction?)
-In-Reply-To: <20030826135051.A16285@hexapodia.org>
-Message-ID: <Pine.LNX.4.53.0308261455590.4526@chaos>
-References: <200308261552.44541.max@vortex.physik.uni-konstanz.de>
- <20030826135051.A16285@hexapodia.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Aug 2003 15:23:37 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:16658
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S262870AbTHZTXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 15:23:35 -0400
+Date: Tue, 26 Aug 2003 12:23:33 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: cache limit
+Message-ID: <20030826192333.GA1258@matchmail.com>
+Mail-Followup-To: Ihar 'Philips' Filipau <filia@softhome.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <oJ5P.699.21@gated-at.bofh.it> <oJ5P.699.23@gated-at.bofh.it> <oJ5P.699.25@gated-at.bofh.it> <oJ5P.699.27@gated-at.bofh.it> <oJ5P.699.19@gated-at.bofh.it> <oQh2.4bQ.13@gated-at.bofh.it> <3F4BB043.6010805@softhome.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F4BB043.6010805@softhome.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Aug 2003, Andy Isaacson wrote:
-
-> On Tue, Aug 26, 2003, max@vortex.physik.uni-konstanz.de wrote:
-> > in our fine physics group we recently bought a DUAL XEON P4 2666MHz, 2GB,
-> > with
-> > hyper-threading support and I had the honour of making the thing work.
-> > In the
-> > process I also did some benchmarking using two different kernels (stock
-> > SuSE-8.2-Pro 2.4.20-64GB-SMP, and the latest and greatest vanilla
-> > 2.6.0-test4). I benchmarked
+On Tue, Aug 26, 2003 at 09:08:51PM +0200, Ihar 'Philips' Filipau wrote:
+> Mike Fedyk wrote:
+> >Ok, let's benchmark it.
 > >
-> > [2] running time of a multi-threaded numerical simulation making
-> > extensive use of FFTs, using the fftw.org library.
->
-> One thing to watch out for, with fftw:  I believe it will benchmark
-> various kernels, and decide which one to use, at run-time.  If the
-> scheduler fools it into thinking that a particular kernel is going to
-> perform better, it might do the wrong thing.
->
-> Does fftw have a switch to write a debug log?
->
-> ("kernel" in this context means "the small section of code used to solve
-> the fft", not "the OS code running in privileged mode".)
->
-> -andy
+> >Yes, I can see the logic in your argument, but at this point, numbers are
+> >needed to see if or how much of a win this might be.
+> 
+>   [ I beleive you can see those thread about O_STREAMING patch. 
+> Not-caching was giving 10%-15% peformance boost for gcc on kernel 
+> compiles. Isn't that overhead? ]
+> 
 
-The benchmarks in the fftw.org libraries are useful only as
-time-sinks. At least on ix86, our tests show that a generic
-fft, perhaps 10 years old, with no special treatment except
-using pointers instead of indexes, when using 'double' as
-float, is, within the test noise, as fast as their "self-
-adapting" fft.
+That was because they wanted the non-streaming files to be left in the cache.
 
-Also, the nature of a fft, reduces the influence of the kernel.
-Even with some kind of parallelism, for which there is little
-chance because of the serial nature of a fft, you are testing
-threads, not the kernel. To the kernel, a fft is just some
-CPU bound math.
+>   I will try to produce some benchmarktings tomorrow with different 
+> 'mem=%dMB'. I'm afraid to confirm that it will make difference.
+>   But in advance: mantainance of page tables for 1GB and for 128MB of 
+> RAM are going to make a difference.
 
-If you are going to do a lot of math simulation and are not
-going to be creating a lot of separate tasks that communicate,
-your choice of kernel (or operating system) is irrelevant.
-This kind of math-code just sits in user's memory plugging
-along until it writes its results to something, somewhere.
-The kernel is not involved until the answers are available.
+I'm sorry to say, but you *will* get lower performance if you lower the mem=
+value below your working set.  This will also lower the total amount of
+memory available for your applications, and force your apps, to swap and
+balance cache, and app memory.
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+That's not what you are looking to benchmark.

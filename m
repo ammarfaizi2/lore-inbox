@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264177AbRFNX24>; Thu, 14 Jun 2001 19:28:56 -0400
+	id <S264194AbRFNXgh>; Thu, 14 Jun 2001 19:36:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264183AbRFNX2p>; Thu, 14 Jun 2001 19:28:45 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:37509 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S264177AbRFNX2c>;
-	Thu, 14 Jun 2001 19:28:32 -0400
-Message-ID: <3B294898.CEFE387F@candelatech.com>
-Date: Thu, 14 Jun 2001 16:28:24 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S264196AbRFNXg1>; Thu, 14 Jun 2001 19:36:27 -0400
+Received: from smtp-rt-2.wanadoo.fr ([193.252.19.154]:8354 "EHLO
+	apeiba.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S264194AbRFNXgN>; Thu, 14 Jun 2001 19:36:13 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Going beyond 256 PCI buses
+Date: Fri, 15 Jun 2001 01:35:53 +0200
+Message-Id: <20010614233553.31603@smtp.wanadoo.fr>
+In-Reply-To: <15145.16268.239882.904451@pizda.ninka.net>
+In-Reply-To: <15145.16268.239882.904451@pizda.ninka.net>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
-To: Christopher Friesen <cfriesen@nortelnetworks.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: questions about link-level loopback, PF_PACKET and ETH_P_LOOP
-In-Reply-To: <3B2926A3.C3B65EBB@nortelnetworks.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christopher Friesen wrote:
-> 
-> I'm attempting to write a piece of code that will validate the physical ethernet
-> link from a NIC to the nearest router/hub/switch.  What I'd like to do is to
-> send out an ethernet packet addressed to me, bounce it off the
-> hub/switch/router, and then read it back in.  This is all at the ethernet layer.
-> 
+>Add whatever else you might be interested that things tend to
+>inb/outb.
+>
+>And if your concern is having multiple of these in your system, the
+>only ones that make sense are floppy and serial and those are handled
+>just fine by the asm/serial.h mechanism.
+>
+>This way of doing this allows 16550's, floppies, etc. to be handled on
+>any bus whatsoever.
+>
+>I mean, besides this and VGA what is left and even matters?
 
-No properly configured ethernet hub or router will return you the
-same packet you sent.  You can get some of this information out of the
-drivers though, as their hardware knows the link state, at least the
-physical layer.
+Ok, I capitulate ;)
 
-Check out Becker's mii-diag program.  There are some options
-in it to dump out all kinds of neat information about the drivers
-and link condition.
+So basically, all is needed is to enforce those drivers to use
+ioremap before doing their IOs.
 
-> The nitty-gritty on this is that I have a machine that has two NICs but only one
-> IP address.  I want to do some kind of packet loopback at the ethernet layer to
-> verify that my NIC transceiver is working properly.
+I still think there's a potential difficulty with having the same
+ioremap function for both MMIO and PIO as the address space may overlap.
 
-Ping your switch.  Or use something like ethernet channel bonding.
+For once, the x86 enters the dance as it has really separate bus spaces for
+them. Other archs can work around this by using the physical address
+where the PIO is mapped in the IO resources.
 
-If both ports are up, then you should be able to send a pkt
-from one NIC with your other NICs MAC in it, and the switch should deliver
-that pkt to your other NIC.  However, if you don't receive the packet, you
-cannot determine which one of your links/NICs is bad without going to
-a third party (which I suggest should be your switch itself).
+Ben.
 
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+

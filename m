@@ -1,168 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288876AbSAEREn>; Sat, 5 Jan 2002 12:04:43 -0500
+	id <S288879AbSAERMx>; Sat, 5 Jan 2002 12:12:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288875AbSAEREZ>; Sat, 5 Jan 2002 12:04:25 -0500
-Received: from e120116.upc-e.chello.nl ([213.93.120.116]:31250 "EHLO
-	stempel.dhs.org") by vger.kernel.org with ESMTP id <S288876AbSAEREG>;
-	Sat, 5 Jan 2002 12:04:06 -0500
-Date: Sat, 5 Jan 2002 18:03:59 +0100 (CET)
-From: Edward Stempel <eazstempel@cal009001.student.utwente.nl>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Edward Stempel <eazstempel@cal009001.student.utwente.nl>,
-        linux-kernel mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: DMA conflicts with soundcard for ide driver via82cxxx
-In-Reply-To: <20020105172336.B25998@suse.cz>
-Message-ID: <Pine.LNX.4.21.0201051758010.12020-100000@nieuw3.stempel.dhs.org>
+	id <S288880AbSAERMo>; Sat, 5 Jan 2002 12:12:44 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:56061 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S288879AbSAERMd> convert rfc822-to-8bit; Sat, 5 Jan 2002 12:12:33 -0500
+Date: Sat, 5 Jan 2002 18:12:27 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+cc: Ingo Molnar <mingo@elte.hu>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] O(1) scheduler, 2.4.17-A1, 2.5.2-pre7-A1.
+In-Reply-To: <20020104224505Z285720-13996+1136@vger.kernel.org>
+Message-ID: <Pine.NEB.4.43.0201051808330.24096-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Jan 2002, Vojtech Pavlik wrote:
+On Fri, 4 Jan 2002, Dieter Nützel wrote:
 
-> On Sat, Jan 05, 2002 at 05:17:28PM +0100, Edward Stempel wrote:
-> > On Tue, 1 Jan 2002, Vojtech Pavlik wrote:
-> > 
-> > > On Tue, Jan 01, 2002 at 11:03:52PM +0100, Edward Stempel wrote:
-> > > > In my BIOS-setup there is an option "PCI latency" which defaults to
-> > > > 32. First I changed it to 128. That worked perfect. Later I have decreased
-> > > > it to 64, 48 and 40. But 40 still gave some problems (a little bit
-> > > > distortion of my sound). After that I tried 44, but the disk was to slow
-> > > > with this setting (30 MB/s instead of 40 MB/s). So now I have a PCI
-> > > > latency of 48. The strange thing is that it seems not to work
-> > > > directly. After the system boot when I do hdparm -t, I get about 5
-> > > > MB/s. But then when I switch using_dma off and on again using hdparm, I
-> > > > get the full 40 MB/s and no distortion of my es1371. Any ideas what might
-> > > > cause this?
-> > > 
-> > > You'd have to tell me all other settings in your setup first so I can
-> > > guess the cause. What options do you use? Is DMA enabled automatically?
-> > > Etc, etc ...
-> > 
-> > I am not sure which settings you need. But I compiled a kernel with:
-> > - Generic PCI IDE chipset support
-> > - Sharing PCI IDE interrupt support
-> > - Generic PCI bus-master DMA support
-> > - Use PCI DMA by default when available
-> > - VIA82CXXX chipset support
-> > 
-> > After booting this kernel hdparm -v reports that I am using dma, but
-> > hdparm -t only reports about 5 MB/s data transfer rate. When I switch the
-> > using of dma off and on with hdparm -d the transfer rate becomes about
-> > 40MB/s
-> 
-> What does hdparm -i say before and after? Is there any difference (the
-> asterisk)?
+> gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+> -pipe -mpreferred-stack-boundary=2 -march=k6    -DEXPORT_SYMTAB -c filemap.c
+> In file included from filemap.c:26:
+> /usr/src/linux/include/linux/compiler.h:13: warning: likely' redefined
+> /usr/src/linux/include/linux/sched.h:445: warning: this is the location of
+> the previous definition
+> /usr/src/linux/include/linux/compiler.h:14: warning: unlikely' redefined
+> /usr/src/linux/include/linux/sched.h:444: warning: this is the location of
+> the previous definition
+>...
 
-Sorry, I cannot reproduce this behaviour again. (I just did a reboot) I am
-not sure what happened, as I am using the same kernel and bios-setup. Kind
-of strange non-deterministic behaviour here. However, as far as  can
-remember (it has been some days ago) I did not see something different in
-hdparm -i before ore after the switching of and on. Both times udma-5 were
-reported by hdparm.
+This warning is harmless but I'm wondering why sched.h adds a second
+definition of likely/unlikely instead of using the one in compiler.h?
 
-As I cannot reproduce this behaviour now, I suggest we forget about
-it. Maybe I did something wird when this happened. I will contact you
-whenever I notice the same behaviour again.
+I'd suggest the following patch against 2.4.17-A2:
 
+--- include/linux/sched.h.old	Sat Jan  5 18:03:41 2002
++++ include/linux/sched.h	Sat Jan  5 18:10:16 2002
+@@ -7,6 +7,7 @@
 
-> 
-> > The PCI latency is set in the BIOS setup, and according to /proc/pci this
-> > latency is applied to all PCI devices except my matrox G550 video card,
-> > which has a latency of 64.
-> > 
-> > 
-> > I hope this explains something.
-> 
-> Not much yet.
-> 
-> > 
-> > 
-> > 
-> > > 
-> > > > 
-> > > > Regards,
-> > > > 
-> > > > Edward  
-> > > >  
-> > > > 
-> > > > 
-> > > > 
-> > > > ---------- Forwarded message ----------
-> > > > Date: Tue, 1 Jan 2002 18:14:41 +0100
-> > > > From: Vojtech Pavlik <vojtech@suse.cz>
-> > > > To: Edward Stempel <eazstempel@cal009001.student.utwente.nl>
-> > > > Cc: linux-kernel mailinglist <linux-kernel@vger.kernel.org>
-> > > > Subject: Re: DMA conflicts with soundcard for ide driver via82cxxx
-> > > > 
-> > > > On Fri, Dec 28, 2001 at 05:10:43PM +0100, Edward Stempel wrote:
-> > > > 
-> > > > > Excellent! That solved my problem.
-> > > > 
-> > > > What exactly did you have to change? It might be worth to include the
-> > > > changing of the latency setting in the kernel.
-> > > > 
-> > > > > 
-> > > > > Thankx
-> > > > > 
-> > > > > Edward
-> > > > > 
-> > > > > 
-> > > > > 
-> > > > > 
-> > > > > Date: Fri, 28 Dec 2001 10:15:05 +0100
-> > > > > From: Vojtech Pavlik <vojtech@suse.cz>
-> > > > > To: Edward Stempel <eazstempel@cal009001.student.utwente.nl>
-> > > > > Cc: linux-kernel mailinglist <linux-kernel@vger.kernel.org>
-> > > > > Subject: Re: DMA conflicts with soundcard for ide driver via82cxxx
-> > > > > 
-> > > > > On Fri, Dec 28, 2001 at 03:32:34AM +0100, Edward Stempel wrote:
-> > > > > 
-> > > > > > I have an Asus a7v266 mother board and an Ensoniq sound card in it. 
-> > > > > > The ide chipset is a VIA VT8233 that is capable of UDMA100. So I built a
-> > > > > > kernel with the es1371 sound driver and the via82cxxx ide driver
-> > > > > > configured in it. Actually I tried the kernel 2.4.17 first, and the latest
-> > > > > > I tried is 4.5.1 with the latest patch (patch-2.5.2-pre3) applied to it.
-> > > > > > I also tried the kernel 2.5.1 with Vojtech  patch (via-3.33.diff from
-> > > > > > his email dated 2001-12-23 23:20:48) applied to it, with the same
-> > > > > > (negative) results.
-> > > > > > 
-> > > > > > The good thing is that hdparm reports appr. 40 MB/sec when using DMA and
-> > > > > > about 6 MB/sec when not using DMA.
-> > > > > > Unfortunately using DMA for ide results in some ugly distortion of the
-> > > > > > sound from my soundcard whenever some IO to the disk is done.  :((
-> > > > > > 
-> > > > > > I have assigned different interrupts to the PCI-cards (ide is 
-> > > > > > on-board) and I even changed the sound card's PCI slot, so it shared
-> > > > > > its interrupt with another device (acpi instead of USB). It did not solve
-> > > > > > the problem. Because the problem only occurs when switching on using_dma
-> > > > > > on the ide driver, I think it is a DMA problem with the ide driver. It may
-> > > > > > be the es1371 driver as well off course, but I suspect it is the ide
-> > > > > > driver (or chipset).
-> > > > > >   
-> > > > > > Reading the list archive from linux-kernel, I discovered there have been
-> > > > > > more problems with DMA using this chipset, but I did not find anyone
-> > > > > > having the same problem as I have now.
-> > > > > > 
-> > > > > > Has someone also dealt with these problems, or can someone help me
-> > > > > > solving this problem? Please help!  
-> > > > > > 
-> > > > > > Below are some outputs using kernel 5.1 with patch-2.5.2-pre3.
-> > > > > 
-> > > > > You may try changing the PCI latency settings on either the IDE
-> > > > > controller or the sound card. Other than that, I don't know how to help.
-> > > > > 
-> > > > > -- 
-> > > > > Vojtech Pavlik
-> > > > > SuSE Labs
-> > > > 
-> > > > -- 
-> > > > Vojtech Pavlik
-> > > > SuSE Labs
-> > > 
-> > > 
-> > 
-> 
-> 
+ #include <linux/config.h>
+ #include <linux/binfmts.h>
++#include <linux/compiler.h>
+ #include <linux/threads.h>
+ #include <linux/kernel.h>
+ #include <linux/types.h>
+@@ -441,8 +442,6 @@
+  */
+ #define _STK_LIM	(8*1024*1024)
+
+-#define unlikely(x) x
+-#define likely(x) x
+ /*
+  * The lower the priority of a process, the more likely it is
+  * to run. Priority of a process goes from 0 to 63.
+
+> -Dieter
+
+cu
+Adrian
+
 

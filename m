@@ -1,135 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261962AbTIPRrK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 13:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbTIPRrK
+	id S261997AbTIPR32 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 13:29:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbTIPR32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 13:47:10 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13452 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261962AbTIPRrF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 13:47:05 -0400
-Subject: Re: 2.6.0-test5: "No module aic7xxx found for kernel 2.6.0-test5, 
-	aborting."
-From: John Cherry <cherry@osdl.org>
-To: Randy Dunlap <rddunlap@osdl.org>
-Cc: reg@dwf.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030915095354.6f28eedd.rddunlap@osdl.org>
-References: <200309130725.h8D7PE6d019675@orion.dwf.com>
-	 <20030915095354.6f28eedd.rddunlap@osdl.org>
-Content-Type: multipart/mixed; boundary="=-qKbn9YnrwluGdEN58xpj"
-Organization: 
-Message-Id: <1063734412.20156.2.camel@cherrytest.pdx.osdl.net>
+	Tue, 16 Sep 2003 13:29:28 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:33428 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261997AbTIPR30
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 13:29:26 -0400
+Date: Tue, 16 Sep 2003 18:23:54 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Dave Jones <davej@redhat.com>, richard.brunner@amd.com,
+       alan@lxorguk.ukuu.org.uk, zwane@linuxpower.ca,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Message-ID: <20030916172354.GD28457@mail.jlokier.co.uk>
+References: <20030916133019.GA1039@redhat.com> <Pine.LNX.3.96.1030916094748.26515B-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 16 Sep 2003 10:46:53 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1030916094748.26515B-100000@gatekeeper.tmr.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-qKbn9YnrwluGdEN58xpj
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-Are you compiling with anything other than -j1?  There is a race in the
-parallel build of aic7xxx.  A patch has been submitted, but is not in
--test5.
-
-Try the attached patches and see if this helps you.
-
-John
-
-On Mon, 2003-09-15 at 09:53, Randy.Dunlap wrote:
-> On Sat, 13 Sep 2003 01:25:14 -0600 reg@dwf.com wrote:
+Bill Davidsen wrote:
+> > prefetch isn't a cpuid feature flag. The only way you could do
+> > what you suggest is by removing '3dnow' or 'sse', which cripples
+> > things more than necessary.
 > 
-> | When trying to build SCSI support into 2.6.0-test5, 
-> | I configure SCSI, but
-> | whether I configure NO driver at all
-> | or configure the aic7xxx driver
-> | when I get to the 
-> |     make install
-> | I constantly get the error message  
-> |     No module aic7xxx found for kernel 2.6.0-test5, aborting.
-> | 
-> | Surely SOMEONE has built this kernel with SCSI support, 
-> | so why is it giving me this trouble.
-> | 
-> | I can probably build w/o ANY SCSI support at all, but that wouldnt be
-> | useful, so I havent tried...
-> 
-> I build and boot with aic7xxx built into vmlinux all the time.
-> However, I don't use 'make install' so I haven't seen this.
-> If noone else knows the answer to this problem, perhaps you could
-> debug install.sh or /sbin/installkernel (if those are being used).
-> 
-> --
-> ~Randy
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Good point, and even if it were a separate feature, any code which was
+> clever enough to use prefetch is likely to check the CPU bits rather
+> than the /proc anyway. That's a guess, I suspect most programs do
+> whatever gcc/glibc choose.
 
---=-qKbn9YnrwluGdEN58xpj
-Content-Disposition: attachment; filename=part1
-Content-Type: text/plain; name=part1; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+As I pointed out, other programs _especially_ glibc will need to check
+for the AMD errata anyway, because of older kernels.
 
---- a/drivers/scsi/aic7xxx/Makefile	2003-08-08 21:42:16.000000000 -0700
-+++ b/drivers/scsi/aic7xxx/Makefile	2003-08-14 16:55:13.000000000 -0700
-@@ -58,7 +58,9 @@
- 	-p $(obj)/aic7xxx_reg_print.c -i aic7xxx_osm.h
- 
- ifeq ($(CONFIG_AIC7XXX_BUILD_FIRMWARE),y)
--$(aic7xxx-gen-y): $(src)/aic7xxx.seq $(src)/aic7xxx.reg $(obj)/aicasm/aicasm
-+$(aic7xxx-gen-y): $(src)/aic7xxx.seq 
-+
-+$(src)/aic7xxx.seq: $(obj)/aicasm/aicasm $(src)/aic7xxx.reg
- 	$(obj)/aicasm/aicasm -I$(src) -r $(obj)/aic7xxx_reg.h \
- 			      $(aicasm-7xxx-opts-y) -o $(obj)/aic7xxx_seq.h \
- 			      $(src)/aic7xxx.seq
-@@ -72,7 +74,9 @@
- 	-p $(obj)/aic79xx_reg_print.c -i aic79xx_osm.h
- 
- ifeq ($(CONFIG_AIC79XX_BUILD_FIRMWARE),y)
--$(aic79xx-gen-y): $(src)/aic79xx.seq $(src)/aic79xx.reg $(obj)/aicasm/aicasm
-+$(aic79xx-gen-y): $(src)/aic79xx.seq
-+
-+$(src)/aic79xx.seq: $(obj)/aicasm/aicasm $(src)/aic79xx.reg
- 	$(obj)/aicasm/aicasm -I$(src) -r $(obj)/aic79xx_reg.h \
- 			      $(aicasm-79xx-opts-y) -o $(obj)/aic79xx_seq.h \
- 			      $(src)/aic79xx.seq
+> If the fixup were not in place, would it be useful to emit a warning
+> like "you have booted a non-Athlon kernel on an Athlon process, user
+> programs may get unexpected page faults."
 
---=-qKbn9YnrwluGdEN58xpj
-Content-Disposition: attachment; filename=part2
-Content-Type: text/plain; name=part2; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+I agree, that's a good idea.  It will fit nicely alongside the
+messages for broken WP bit etc.
 
---- a/drivers/scsi/aic7xxx/aicasm/Makefile	2003-08-08 21:40:42.000000000 -0700
-+++ b/drivers/scsi/aic7xxx/aicasm/Makefile	2003-08-14 16:39:00.000000000 -0700
-@@ -49,14 +49,18 @@
- clean:
- 	rm -f $(clean-files)
- 
--aicasm_gram.c aicasm_gram.h: aicasm_gram.y
-+aicasm_gram.c: aicasm_gram.h 
-+	mv $(<:.h=).tab.c $(<:.h=.c)
-+
-+aicasm_gram.h: aicasm_gram.y
- 	$(YACC) $(YFLAGS) -b $(<:.y=) $<
--	mv $(<:.y=).tab.c $(<:.y=.c)
- 	mv $(<:.y=).tab.h $(<:.y=.h)
- 
--aicasm_macro_gram.c aicasm_macro_gram.h: aicasm_macro_gram.y
-+aicasm_macro_gram.c: aicasm_macro_gram.h
-+	mv $(<:.h=).tab.c $(<:.h=.c)
-+
-+aicasm_macro_gram.h: aicasm_macro_gram.y
- 	$(YACC) $(YFLAGS) -b $(<:.y=) -p mm $<
--	mv $(<:.y=).tab.c $(<:.y=.c)
- 	mv $(<:.y=).tab.h $(<:.y=.h)
- 
- aicasm_scan.c: aicasm_scan.l
-
---=-qKbn9YnrwluGdEN58xpj--
-
+-- Jamie

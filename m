@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265243AbUFAVlE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265244AbUFAVoC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265243AbUFAVlE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 17:41:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265244AbUFAVlE
+	id S265244AbUFAVoC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 17:44:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbUFAVoC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 17:41:04 -0400
-Received: from cfcafw.sgi.com ([198.149.23.1]:25426 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S265243AbUFAVlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 17:41:00 -0400
-From: Dimitri Sivanich <sivanich@sgi.com>
-Message-Id: <200406012140.i51LeGjV043356@fsgi142.americas.sgi.com>
-Subject: Re: Slab cache reap and CPU availability
-To: akpm@osdl.org (Andrew Morton)
-Date: Tue, 1 Jun 2004 16:40:16 -0500 (CDT)
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <20040524145303.45c8f8a6.akpm@osdl.org> from "Andrew Morton" at May 24, 2004 02:53:03 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	Tue, 1 Jun 2004 17:44:02 -0400
+Received: from gprs214-153.eurotel.cz ([160.218.214.153]:64640 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265244AbUFAVnz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 17:43:55 -0400
+Date: Tue, 1 Jun 2004 23:43:45 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: jgarzik@pobox.com,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: [trivial] no mili-bits-per-second for via-rhine
+Message-ID: <20040601214345.GA32700@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Dimitri Sivanich <sivanich@sgi.com> wrote:
-> >
-> > The IA/64 backtrace with all the cruft removed looks as follows:
-> > 
-> > 0xa000000100149ac0 reap_timer_fnc+0x100
-> > 0xa0000001000f4d70 run_timer_softirq+0x2d0
-> > 0xa0000001000e9440 __do_softirq+0x200
-> > 0xa0000001000e94e0 do_softirq+0x80
-> > 0xa000000100017f50 ia64_handle_irq+0x190
-> > 
-> > The system is running mostly AIM7, but I've seen holdoffs > 30 usec with
-> > virtually no load on the system.
-> 
-> They're pretty low latencies you're talking about there.
-> 
-> You should be able to reduce the amount of work in that timer handler by
-> limiting the size of the per-cpu caches in the slab allocator.  You can do
-> that by writing a magic incantation to /proc/slabinfo or:
-> 
-> --- 25/mm/slab.c~a	Mon May 24 14:51:32 2004
-> +++ 25-akpm/mm/slab.c	Mon May 24 14:51:37 2004
-> @@ -2642,6 +2642,7 @@ static void enable_cpucache (kmem_cache_
->  	if (limit > 32)
->  		limit = 32;
->  #endif
-> +	limit = 8;
+Hi!
 
-I tried several values for this limit, but these had little effect.
+via-rhine claims to support 100 mili-bits-per-second mode and one
+place and 100 mega-bit-second mode ("100 mega-bit-seconds of storage
+for only $1?"). This cleans it up.
+
+								Pavel
+
+--- tmp/linux/drivers/net/via-rhine.c	2004-05-20 23:08:19.000000000 +0200
++++ linux/drivers/net/via-rhine.c	2004-05-20 23:11:26.000000000 +0200
+@@ -863,12 +863,12 @@
+ 		if (np->default_port & 0x330) {
+ 			/* FIXME: shouldn't someone check this variable? */
+ 			/* np->medialock = 1; */
+-			printk(KERN_INFO "  Forcing %dMbs %s-duplex operation.\n",
++			printk(KERN_INFO "  Forcing %dMbps %s-duplex operation.\n",
+ 				   (option & 0x300 ? 100 : 10),
+ 				   (option & 0x220 ? "full" : "half"));
+ 			if (np->mii_cnt)
+ 				mdio_write(dev, np->phys[0], MII_BMCR,
+-						   ((option & 0x300) ? 0x2000 : 0) |  /* 100mbps? */
++						   ((option & 0x300) ? 0x2000 : 0) |  /* 100Mbps? */
+ 						   ((option & 0x220) ? 0x0100 : 0));  /* Full duplex? */
+ 		}
+ 	}
+
+-- 
+934a471f20d6580d5aad759bf0d97ddc

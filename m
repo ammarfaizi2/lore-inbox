@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264679AbTGGXdL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 19:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264700AbTGGXdL
+	id S264700AbTGGXh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 19:37:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264753AbTGGXh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 19:33:11 -0400
-Received: from fed1mtao04.cox.net ([68.6.19.241]:687 "EHLO fed1mtao04.cox.net")
-	by vger.kernel.org with ESMTP id S264679AbTGGXdJ (ORCPT
+	Mon, 7 Jul 2003 19:37:29 -0400
+Received: from ns.suse.de ([213.95.15.193]:42765 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264700AbTGGXh2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 19:33:09 -0400
-Date: Mon, 7 Jul 2003 16:47:41 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Mason <mason@suse.com>, schlicht@uni-mannheim.de, green@namesys.com,
-       barryn@pobox.com, piggin@cyberone.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] heavy disk access sometimes freezes 2.5.73-mm[123]
-Message-ID: <20030707234741.GB2860@ip68-4-255-84.oc.oc.cox.net>
-References: <20030703090541.GB5044@ip68-101-124-193.oc.oc.cox.net> <20030706193722.79352bc3.akpm@osdl.org> <20030707033058.GA2860@ip68-4-255-84.oc.oc.cox.net> <200307071758.45702.schlicht@uni-mannheim.de> <1057599193.20904.1352.camel@tiny.suse.com> <20030707121859.5204703f.akpm@osdl.org>
+	Mon, 7 Jul 2003 19:37:28 -0400
+Date: Tue, 8 Jul 2003 01:52:01 +0200
+From: Andi Kleen <ak@suse.de>
+To: Doug McNaught <doug@mcnaught.org>
+Cc: palbrecht@qwest.net, niv@us.ibm.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: question about linux tcp request queue handling
+Message-Id: <20030708015201.4a5ad7e6.ak@suse.de>
+In-Reply-To: <m3brw6rn3m.fsf@varsoon.wireboard.com>
+References: <3F08858E.8000907@us.ibm.com.suse.lists.linux.kernel>
+	<001a01c3441c$6fe111a0$6801a8c0@oemcomputer.suse.lists.linux.kernel>
+	<3F08B7E2.7040208@us.ibm.com.suse.lists.linux.kernel>
+	<000d01c3444f$e6439600$6801a8c0@oemcomputer.suse.lists.linux.kernel>
+	<3F090A4F.10004@us.ibm.com.suse.lists.linux.kernel>
+	<001401c344df$ccbc63c0$6801a8c0@oemcomputer.suse.lists.linux.kernel>
+	<p73fzliqa91.fsf@oldwotan.suse.de>
+	<m3brw6rn3m.fsf@varsoon.wireboard.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030707121859.5204703f.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 07, 2003 at 12:18:59PM -0700, Andrew Morton wrote:
-> But we need to tell the VFS that the page was cleaned.
-> 
-> Could someone please make that clear_page_dirty() and retest?
+On 07 Jul 2003 18:25:17 -0400
+Doug McNaught <doug@mcnaught.org> wrote:
 
-Ok, I just did that -- indeed, that appears to fix it. Beneath my
-e-mail signature is the fix, turned into a patch.
+> And furthermore, IIRC, the current Linux networking code is not
+> Berkeley-derived, though an earlier version was.
 
--Barry K. Nathan <barryn@pobox.com>
+The linux network stack was never BSD derived in any way.
 
---- 2.5.74-bk2/fs/reiserfs/tail_conversion.c	2003-07-03 01:13:37.000000000 -0700
-+++ 2.5.74-bk2-iserv/fs/reiserfs/tail_conversion.c	2003-07-07 16:36:01.000000000 -0700
-@@ -191,7 +191,7 @@
- 	bh = next ;
-       } while (bh != head) ;
-       if ( PAGE_SIZE == bh->b_size ) {
--	ClearPageDirty(page);
-+	clear_page_dirty(page);
-       }
-     }
-   } 
+[there are two header files that came from net2, but they do not 
+contain any code]
+
+-Andi

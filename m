@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264957AbTFQWM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 18:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264959AbTFQWLL
+	id S264960AbTFQWP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 18:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264959AbTFQWOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 18:11:11 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:14527 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264957AbTFQWKX (ORCPT
+	Tue, 17 Jun 2003 18:14:19 -0400
+Received: from [62.75.136.201] ([62.75.136.201]:8578 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S264960AbTFQWN7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 18:10:23 -0400
-Date: Tue, 17 Jun 2003 15:23:59 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] PCI device list locking
-Message-ID: <20030617222359.GA1326@kroah.com>
-References: <20030617212628.GA12723@kroah.com> <20030617151335.A17117@figure1.int.wirex.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030617151335.A17117@figure1.int.wirex.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 17 Jun 2003 18:13:59 -0400
+Message-ID: <3EEF95E8.5040109@g-house.de>
+Date: Wed, 18 Jun 2003 00:27:52 +0200
+From: Christian Kujau <evil@g-house.de>
+Reply-To: evil@g-house.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4b) Gecko/20030507
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.71 compile error on alpha
+References: <3EEE4A14.4090505@g-house.de> <wrpr85te3fa.fsf@hina.wild-wind.fr.eu.org> <3EEF585E.9030404@g-house.de> <yw1xk7bk36hw.fsf@zaphod.guide> <20030617202221.GH6353@lug-owl.de> <3EEF7B20.5030208@g-house.de> <yw1xptlcs8ng.fsf@zaphod.guide>
+In-Reply-To: <yw1xptlcs8ng.fsf@zaphod.guide>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 17, 2003 at 03:13:35PM -0700, Chris Wright wrote:
-> * Greg KH (greg@kroah.com) wrote:
-> > 
-> > Comments?  Places I missed protecting?
+Måns Rullgård schrieb:
+>>lila:~# cat /proc/cpuinfo
+[...]
+>>kernel unaligned acc	: 32 (pc=fffffc0000478394,va=fffffc0002dbf176)
 > 
-> Is it safe to ignore pcibios_init?  This happens after smp_init, but are
-> could there be multiple events (that would effect pcibios_sort)?
+> That's not good.  Do you know what is causing it.
 
-Yes, I'm ignoring the PCI startup code for now.  That's a twisty maze of
-horrible passages that I'm going to try to tackle after this step...
+i did not even know that this one is bad. the only weird thing which 
+comes into my mind when thinking about this alpha is: it is filled up 
+whith fine 128 MB RAM -- but it is only seeing 64 MB. when we inserted 
+64 MB RAM, only 32 MB are recognized. with 32 MB working with it was no 
+fun, working with 64 MB is quite good. must be the type of RAM but i 
+don't really know much about the different RAM types.
 
-> > --- a/drivers/pci/proc.c	Tue Jun 17 12:47:27 2003
-> > +++ b/drivers/pci/proc.c	Tue Jun 17 12:47:27 2003
-> > @@ -12,6 +12,7 @@
-> >  #include <linux/proc_fs.h>
-> >  #include <linux/seq_file.h>
-> >  #include <linux/smp_lock.h>
-> > +#include "pci.h"
-> >  
-> >  #include <asm/uaccess.h>
-> >  #include <asm/byteorder.h>
-> > @@ -311,20 +312,32 @@
-> >  	struct list_head *p = &pci_devices;
-> >  	loff_t n = *pos;
-> >  
-> > -	/* XXX: surely we need some locking for traversing the list? */
-> > +	spin_lock(&pci_bus_lock);
-> 
-> should you just grab this lock here (pci_seq_start), and release in
-> pci_seq_stop, holding for duration of ->seq_start() ->seq_next()
-> ->seq_stop().  IOW, what happens when you grab list element in
-> ->seq_start(), it's removed from list, you reference a bogus ->next
-> pointer in ->seq_next()?
+> Good, what's it like performance-wise?  2.5.68 had trouble with my IDE
+> disks, and I wonder if it's been fixed since.
 
-Hm, good point.  Let me go check to see if we invalidate a ->next
-pointer when we remove the device...
+can't tell about IDE, since it has only scsi in it. i used to run 
+benchmarks (tiobench) on the alpha, with different loop-mounted 
+filesystems, but the alpha has been frozen very often during these 
+benchmarks...will redo with 2.5.72 later.
 
-Ugh, we don't.  And what's even worse is that data could be gone...
+Thanks,
+Christian.
 
-I'll work on this one a bit...
-
-thanks for taking a look at this.
-
-greg k-h

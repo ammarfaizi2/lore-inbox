@@ -1,173 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262442AbUDAFjS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 00:39:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbUDAFjR
+	id S262285AbUDAFlE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 00:41:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262506AbUDAFlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 00:39:17 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8889 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262442AbUDAFjM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 00:39:12 -0500
-Date: Wed, 31 Mar 2004 21:39:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: yusufg@outblaze.com, linux-kernel@vger.kernel.org
-Subject: Re: Strange output from exportfs in 2.6.5-rc3-mm1
-Message-Id: <20040331213902.147036f3.akpm@osdl.org>
-In-Reply-To: <20040331144031.360c2c3f.rddunlap@osdl.org>
-References: <20040331030439.GA23306@outblaze.com>
-	<20040331144031.360c2c3f.rddunlap@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 1 Apr 2004 00:41:04 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:57553 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S262285AbUDAFkz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 00:40:55 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: Tom Rini <trini@kernel.crashing.org>, Pavel Machek <pavel@suse.cz>
+Subject: Re: [Kgdb-bugreport] Re: Latest kgdb?
+Date: Thu, 1 Apr 2004 11:09:57 +0530
+User-Agent: KMail/1.5
+Cc: kgdb-bugreport@lists.sourceforge.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040319162009.GE4569@smtp.west.cox.net> <20040331160806.GG220@elf.ucw.cz> <20040331161213.GJ13819@smtp.west.cox.net>
+In-Reply-To: <20040331161213.GJ13819@smtp.west.cox.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404011109.58270.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+On Wednesday 31 Mar 2004 9:42 pm, Tom Rini wrote:
+> On Wed, Mar 31, 2004 at 06:08:06PM +0200, Pavel Machek wrote:
+> > Hi!
+> >
+> > > > Where can I get latest kgdb? The version on kgdb.sf.net is still
+> > > > against 2.6.3, afaics. Or should I forward port it?
+> > >
+> > > CVS is against 2.6.4.  Once 2.6.5 comes out, I'll move it forward
+> > > again. Locally, I've got a series of patches vs 2.6.5-rc3 + some -mm
+> > > bits for Andrew which I hope to post today, but might not make it until
+> > > tomorrow.
+> >
+> > Okay, CVS *is* against 2.6.4, but it says it is against 2.6.3. Okay to
+> > commit?
+> > 								Pavel
+> > Index: README
+> > ===================================================================
+> > RCS file: /cvsroot/kgdb/kgdb-2/README,v
+> > retrieving revision 1.5
+> > diff -u -u -r1.5 README
+> > --- README	2 Mar 2004 11:10:36 -0000	1.5
+> > +++ README	31 Mar 2004 15:52:54 -0000
+> > @@ -1,4 +1,4 @@
+> > -Base Kernel version: 2.6.3
+> > +Base Kernel version: 2.6.4
+> >
+> >  Patch:
+> >  ------
+> > @@ -39,8 +39,8 @@
+> >  Supply command line options kgdbwait and kgdb8250 to the kernel.
+> >  Example:  kgdbwait kgdb8250=0,115200
+> >  (for ttyS0), then
+> > -   % stty 115200 < /dev/ttyS0
+> >     % gdb ./vmlinux
+> > +   (gdb) set remotebaud 115200
+> >     (gdb) target remote /dev/ttyS0
+> >
+> >  Example for kgdb ethernet interface
 >
-> On Wed, 31 Mar 2004 11:04:39 +0800 Yusuf Goolamabbas wrote:
-> 
->  | In 2.6.5-rc3-mm1, I saw the following via dmesg
->  | 
->  | exportfs: no version for "init_module" found: kernel tainted.
->  | 
->  | I am exporting a few filesystems via NFS but this is the first 2.6.x
->  | kernel in which I have seen the above message
->  | Output of lsmod
->  | 
->  | nfsd                   94344  - 
->  | exportfs                5440  - 
->  | lockd                  59912  - 
->  | sunrpc                134312  - 
->  | e100                   28196  - 
->  | ext3                  116104  - 
->  | jbd                    55416  - 
->  | aic7xxx               164588  - 
->  | sd_mod                 17696  - 
->  | scsi_mod              109200  - 
-> 
->  I can't reproduce that with 2.6.5-rc3-mm3 (but there are no
->  changes to exportfs in -mm3).
+> Sure.
 
-You probably didn't have modversions enabled?
+Yes. We have to keep that in mind. This has happened second time.
+Thanks, Pavel.
 
-Rusty sent me this:
-
-
-From: Rusty Russell <rusty@rustcorp.com.au>
-
-Brian Gerst's patch which moved __this_module out from module.h into the
-module post-processing had a side effect.  genksyms didn't see the
-undefined symbols for modules without a module_init (or module_exit), and
-hence didn't generate a version for them, causing the kernel to be tainted.
-
-The simple solution is to always include the versions for these functions. 
-Also includes two cleanups:
-
-1) alloc_symbol is easier to use if it populates ->next for us.
-
-2) add_exported_symbol should set owner to module, not head of module
-   list (we don't use this field in entries in that list, fortunately).
-
-
----
-
- 25-akpm/scripts/modpost.c |   35 ++++++++++++++++-------------------
- 1 files changed, 16 insertions(+), 19 deletions(-)
-
-diff -puN scripts/modpost.c~modversions-fix scripts/modpost.c
---- 25/scripts/modpost.c~modversions-fix	2004-03-31 21:37:47.745773896 -0800
-+++ 25-akpm/scripts/modpost.c	2004-03-31 21:37:47.749773288 -0800
-@@ -113,12 +113,13 @@ static inline unsigned int tdb_hash(cons
-  * the list of unresolved symbols per module */
- 
- struct symbol *
--alloc_symbol(const char *name)
-+alloc_symbol(const char *name, struct symbol *next)
- {
- 	struct symbol *s = NOFAIL(malloc(sizeof(*s) + strlen(name) + 1));
- 
- 	memset(s, 0, sizeof(*s));
- 	strcpy(s->name, name);
-+	s->next = next;
- 	return s;
- }
- 
-@@ -128,17 +129,15 @@ void
- new_symbol(const char *name, struct module *module, unsigned int *crc)
- {
- 	unsigned int hash;
--	struct symbol *new = alloc_symbol(name);
-+	struct symbol *new;
- 
-+	hash = tdb_hash(name) % SYMBOL_HASH_SIZE;
-+	new = symbolhash[hash] = alloc_symbol(name, symbolhash[hash]);
- 	new->module = module;
- 	if (crc) {
- 		new->crc = *crc;
- 		new->crc_valid = 1;
- 	}
--
--	hash = tdb_hash(name) % SYMBOL_HASH_SIZE;
--	new->next = symbolhash[hash];
--	symbolhash[hash] = new;
- }
- 
- #define DOTSYM_PFX "__dot_"
-@@ -177,7 +176,7 @@ add_exported_symbol(const char *name, st
- 	struct symbol *s = find_symbol(name);
- 
- 	if (!s) {
--		new_symbol(name, modules, crc);
-+		new_symbol(name, module, crc);
- 		return;
- 	}
- 	if (crc) {
-@@ -331,7 +330,6 @@ void
- handle_modversions(struct module *mod, struct elf_info *info,
- 		   Elf_Sym *sym, const char *symname)
- {
--	struct symbol *s;
- 	unsigned int crc;
- 
- 	switch (sym->st_shndx) {
-@@ -368,13 +366,10 @@ handle_modversions(struct module *mod, s
- #endif
- 		
- 		if (memcmp(symname, MODULE_SYMBOL_PREFIX,
--			   strlen(MODULE_SYMBOL_PREFIX)) == 0) {
--			s = alloc_symbol(symname + 
--					 strlen(MODULE_SYMBOL_PREFIX));
--			/* add to list */
--			s->next = mod->unres;
--			mod->unres = s;
--		}
-+			   strlen(MODULE_SYMBOL_PREFIX)) == 0)
-+			mod->unres = alloc_symbol(symname +
-+						  strlen(MODULE_SYMBOL_PREFIX),
-+						  mod->unres);
- 		break;
- 	default:
- 		/* All exported symbols */
-@@ -431,10 +426,12 @@ read_symbols(char *modname)
- 	 * the automatic versioning doesn't pick it up, but it's really
- 	 * important anyhow */
- 	if (modversions) {
--		s = alloc_symbol("struct_module");
--		/* add to list */
--		s->next = mod->unres;
--		mod->unres = s;
-+		mod->unres = alloc_symbol("struct_module", mod->unres);
-+
-+		/* Always version init_module and cleanup_module, in
-+		 * case module doesn't have its own. */
-+		mod->unres = alloc_symbol("init_module", mod->unres);
-+		mod->unres = alloc_symbol("cleanup_module", mod->unres);
- 	}
- }
- 
-
-_
+-Amit
 

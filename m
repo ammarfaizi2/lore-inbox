@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbTH2RBt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 13:01:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbTH2RBt
+	id S261471AbTH2RUP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 13:20:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbTH2RRt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 13:01:49 -0400
-Received: from windsormachine.com ([206.48.122.28]:24196 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id S261403AbTH2RB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 13:01:27 -0400
-Date: Fri, 29 Aug 2003 13:01:23 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: linux-kernel@vger.kernel.org
-Subject: Bug report with ACPI under 2.4.22, on ASUS P4B533 motherboards.
-Message-ID: <Pine.LNX.4.56.0308291251430.18200@router.windsormachine.com>
+	Fri, 29 Aug 2003 13:17:49 -0400
+Received: from yankee.rb.xcalibre.co.uk ([217.8.240.35]:4803 "EHLO
+	yankee.rb.xcalibre.co.uk") by vger.kernel.org with ESMTP
+	id S261556AbTH2RP3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 13:15:29 -0400
+Envelope-to: linux-kernel@vger.kernel.org
+From: Alistair J Strachan <alistair@devzero.co.uk>
+To: Rahul Karnik <rahul@genebrew.com>
+Subject: Re: Weird problem with nforce2
+Date: Fri, 29 Aug 2003 18:15:31 +0100
+User-Agent: KMail/1.5.9
+References: <3F4F54F2.4080506@ihme.org> <3F4F5B1B.1030909@genebrew.com>
+In-Reply-To: <3F4F5B1B.1030909@genebrew.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.12.3 - (http://pldaniels.com/inflex/)
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200308291815.32082.alistair@devzero.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a bunch of servers here with ASUS P4B533 motherboards.
+On Friday 29 August 2003 14:54, Rahul Karnik wrote:
+> Markus Hästbacka wrote:
+> > My chipset is NForce2, and needs NVIDIA NForce/NForce2 so the agp
+> > can work with full power. Thank you.
+>
+> This is not true; AGP works perfectly fine with the in-kernel drivers.
+> You can set your video card to use the in-kernel AGP even if it is
+> Nvidia, I think (use the NvAgp option in XF86Config).
+>
+> If not, maybe the patch has not been updated for the latest kernels, and
+> you will have to wait for someone to do so. In that case, this list is
+> not the place to ask.
+>
 
-Under 2.4.21, things work fine.
+The patch is fully up to date, I'm running 2.6.0-test4-mm1.
 
-I've upgraded two machines so far that had an ethernet card in pci slot
-2(two below the AGP), and upon reboot, slot2 ends up with either IRQ
-255(none assigned), or doesn't work.
+nForce2 AGPGART plus the binary NVIDIA drivers kills my box on startup. I just 
+disabled AGPGART and used NVAGP provided with the drivers and I get working 
+AGP 8x.
 
-Before moving the card from slot2:
+Anybody else with this?
 
-kernel: PCI: No IRQ known for interrupt pin A of device 02:0a.0
-kernel: eth0: RealTek RTL8139 Fast Ethernet at 0xd0806000, 00:40:f4:64:c9:2c, IRQ 7
-
-I've seen the no irq known problem before, but it hasn't bitten me like
-this one did.
-
-(after a few lines after the network card is setup)
-
-kernel: NETDEV WATCHDOG: eth0: transmit timed out
-
-After moving the network card to the bottom slot:
-
-kernel: eth0: RealTek RTL8139 Fast Ethernet at 0xd0806000, 00:40:f4:64:c9:2c, IRQ 18
-
-Which worked fine.
-
-As well, the USR pci modem in the one machine changed it's address and irq
-after reboot, requiring me to go onsite to update /etc/serial.conf to
-reflect the new addresses.
-
-I'll have to check /proc/pci before updating servers to make sure the
-ethernet card isn't in slot 2.  As for what to do about the PCI modem's
-changing addresses on me, I have no idea.  Onsite upgrades for all, I
-guess.
-
-Any other information needed?
-
-Mike
+Cheers,
+Alistair.

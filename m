@@ -1,69 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263275AbTH0KvA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 06:51:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263276AbTH0KvA
+	id S263277AbTH0LG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 07:06:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263327AbTH0LG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 06:51:00 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:65297 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S263275AbTH0Ku6 (ORCPT
+	Wed, 27 Aug 2003 07:06:59 -0400
+Received: from webmail2.vsnl.net ([203.197.12.44]:17120 "EHLO bom6.vsnl.net.in")
+	by vger.kernel.org with ESMTP id S263277AbTH0LG6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 06:50:58 -0400
-Date: Wed, 27 Aug 2003 12:50:56 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Carl Nygard <cjnygard@fast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: keyboard shift not registered under fast typing or auto-repeat
-Message-ID: <20030827125056.A1854@pclin040.win.tue.nl>
-References: <1061944729.14320.74.camel@finland>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 27 Aug 2003 07:06:58 -0400
+Date: Wed, 27 Aug 2003 16:38:44 -0500 (GMT)
+Message-Id: <200308272138.h7RLciK29987@webmail2.vsnl.net>
+Content-Type: text/plain
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1061944729.14320.74.camel@finland>; from cjnygard@fast.net on Tue, Aug 26, 2003 at 08:38:50PM -0400
+Content-Transfer-Encoding: binary
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.411 (Entity 5.404)
+From: warudkar@vsnl.net
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test4-mm1 - kswap hogs cpu OO takes ages to start!
+X-Mailer: VSNL, Web based email
+X-Sender-Ip: 203.197.141.34
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 26, 2003 at 08:38:50PM -0400, Carl Nygard wrote:
-
-> Summary: Keyboard shift state not registered under fast typing or
-> autorepeat
-> 
-> If someone can help point me where to look at the code, I've already
-> looked into ./drivers/char/keyboard.c but didn't see anything obvious. 
-> More specific help would be appreciated.
-
-You must look at input/input.c at occurrences of repeat_key.
-(And afterwards at char/keyboard.c at kbd_event, kbd_keycode.)
-
-You'll see that the current 2.6 code ignores a lot of what the keyboard
-is telling us and synthesizes its own events.
-
-What happens in your autorepeat case:
-- Press a key, repeat_key is set to its keycode.
-  If you keep it pressed then the keyboard repeats are ignored,
-  but the kernel generates its own repeats using a timer.
-- Press Shift, repeat_key is set to its keycode.
-  Now the timer repeat generates repeats of the Shift-down event,
-  but that does not generate keyboard input.
-
-But in your autorepeat case the kernel does precisely what the
-keyboard also would have done: repeat the last key that was pressed.
-Also the hardware keyboard does not send anything after Press A,
-Press Shift, Release Shift.
-
-Incidentally, both add_keyboard_randomness() and add_mouse_randomness()
-are called - we invent more randomness than one might have thought
-at first.
-
-Andries
+Trying out 2.6.0-test4-mm1. Inside KDE, I start OpenOffice.org, Rational Rose and Konsole at a time. All of these take extremely long time to startup. (approx > 5 minutes). Kswapd hogs the CPU all the time.
+X becomes unusable till all of them startup, although I can telnet and run top.
+Same thing run under 2.4.18 starts up in 3 minutes, X stays usable and kswapd never take more than 2% CPU.
 
 
-> Kernel doesn't register shift state when typing quickly.  Example, 'ls
-> *' shows up as 'ls 8' when typed fast.  Also, holding '-' key down, once
-> it's repeating, shift key makes no difference.
+Here a snapshot of Top output when running 2.6.0-test4-mm1:
+==============================
+  4:24pm  up 21:19,  6 users,  load average: 3.47, 2.04, 1.49
+96 processes: 88 sleeping, 8 running, 0 zombie, 0 stopped
+CPU states: 11.3% user, 88.6% system,  0.0% nice,  0.0% idle
+Mem:   124632K av,  122664K used,    1968K free,       0K shrd,     160K buff
+Swap: 1052248K av,   71256K used,  980992K free                   43540K cached
 
-So, the first part of what you say, when true, would be a bug.
-But a bug difficult to distinguish from a finger coordination error.
-The second part is correct behaviour.
-
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+    8 root      15   0     0    0     0 SW   66.6  0.0   4:59 kswapd0
+ 2087 wipro     17   0 29576  10M 27408 S     4.6  8.9   0:03 kdeinit
+ 2044 wipro     17   0  118M  22M  103M D     2.7 18.8   0:04 soffice.bin
+ 2292 wipro     18   0  3856  912  3716 S     1.8  0.7   0:02 top
+ 2312 wipro     18   0  3852  912  3716 R     1.8  0.7   0:00 top
+  540 wipro     15   0 28988 6640 26672 S     0.9  5.3  10:40 kdeinit
+ 1254 wipro     15   0 26340 4916 24716 S     0.9  3.9   0:17 kdeinit
+    1 root      17   0  1320  268  1288 S     0.0  0.2   0:04 init
+    2 root      0K   0     0    0     0 SW    0.0  0.0   0:00 migration/0
+    3 root      34  19     0    0     0 SWN   0.0  0.0   0:00 ksoftirqd/0
+    4 root       5 -10     0    0     0 SW<   0.0  0.0   0:00 events/0
+    5 root       5 -10     0    0     0 SW<   0.0  0.0   0:01 kblockd/0
+    6 root      15   0     0    0     0 SW    0.0  0.0   0:00 pdflush
+    7 root      15   0     0    0     0 SW    0.0  0.0   0:00 pdflush
+    9 root      10 -10     0    0     0 SW<   0.0  0.0   0:00 aio/0
+   10 root      10 -10     0    0     0 SW<   0.0  0.0   0:00 aio_fput/0
+   11 root      15   0     0    0     0 SW    0.0  0.0   0:00 kseriod
+   12 root      15   0     0    0     0 SW    0.0  0.0   0:00 kjournald

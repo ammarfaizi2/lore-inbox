@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282266AbRKWWfT>; Fri, 23 Nov 2001 17:35:19 -0500
+	id <S282271AbRKWWnu>; Fri, 23 Nov 2001 17:43:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282270AbRKWWfL>; Fri, 23 Nov 2001 17:35:11 -0500
-Received: from [212.18.232.186] ([212.18.232.186]:40965 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S282266AbRKWWex>; Fri, 23 Nov 2001 17:34:53 -0500
-Date: Fri, 23 Nov 2001 22:34:12 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH][CFT] Re: 2.4.15-pre9 breakage (inode.c)
-Message-ID: <20011123223412.B3141@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.GSO.4.21.0111231634310.2422-100000@weyl.math.psu.edu> <Pine.GSO.4.21.0111231701440.2422-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
+	id <S282272AbRKWWnk>; Fri, 23 Nov 2001 17:43:40 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:6016 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S282271AbRKWWnY>;
+	Fri, 23 Nov 2001 17:43:24 -0500
+Message-ID: <3BFED107.CBAAFC37@pobox.com>
+Date: Fri, 23 Nov 2001 14:43:19 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: mingo@elte.hu
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: sunrpc woes with tux2 in 2.4.15-pre8,9
+In-Reply-To: <Pine.LNX.4.33.0111231153160.3988-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0111231701440.2422-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Fri, Nov 23, 2001 at 05:06:46PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 23, 2001 at 05:06:46PM -0500, Alexander Viro wrote:
-> On Fri, 23 Nov 2001, Alexander Viro wrote:
-> > 	Untested fix follows.  And please, pass the brown paperbag... ;-/
-> 
-> ... and now for something that really builds:
+Ingo Molnar wrote:
 
-I can confirm this passes my boot, shutdown, reboot test that failed with
-2.4.15-greased-turkey.  2.4.15-viro1 is currently running my kernel build
-tests quite happily thus far.
+> On Thu, 22 Nov 2001, J Sloan wrote:
+>
+> > In 2.4.15-pre8 I applied the tux2 patches to
+> > take it for a spin - well, it's insanely fast, thanks
+> > Ingo - but I am having a problem with the sun
+> > rpc module:
+>
+> > depmod: *** Unresolved symbols in
+> > depmod:         atomic_dec_and_lock_R648ef859
+>
+> hm, it's exported. What does 'grep dec_and_lock /proc/ksyms' show on your
+> box?
 
-I think 2.4.15-greased-turkey should be renamed to 2.4.15-dead-duck. 8)
+Well, the problem is it's there because of tux2,
+but never defined since I compiled for up -
 
-Al, thanks for the fast response.  Appologies for the slow build.
+If I compile with smp enabled the problem
+disappears - but I naturally prefer maximum
+efficiency, so I usually compile smp enabled
+kernels only on smp boxes.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+cu
+
+jjs
+
 

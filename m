@@ -1,127 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbTFIC5r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 22:57:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbTFIC5r
+	id S261245AbTFICwV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 22:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbTFICwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 22:57:47 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:37020 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S261428AbTFIC5p
+	Sun, 8 Jun 2003 22:52:21 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:28060 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S261245AbTFICwT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 22:57:45 -0400
+	Sun, 8 Jun 2003 22:52:19 -0400
 From: "David Schwartz" <davids@webmaster.com>
-To: "Krzysztof Halasa" <khc@pm.waw.pl>, <linux-kernel@vger.kernel.org>
+To: "Chris Friesen" <cfriesen@nortelnetworks.com>
+Cc: "MarKol" <markol4@wp.pl>, <linux-kernel@vger.kernel.org>
 Subject: RE: select for UNIX sockets?
-Date: Sun, 8 Jun 2003 20:11:20 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKKEHBDIAA.davids@webmaster.com>
+Date: Sun, 8 Jun 2003 20:05:52 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKGEHBDIAA.davids@webmaster.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+	charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <m3of19h1tx.fsf@defiant.pm.waw.pl>
+In-Reply-To: <3EE2B878.6050809@nortelnetworks.com>
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> "David Schwartz" <davids@webmaster.com> writes:
-
-> > 	You are doing something wrong. You are using 'select' along with
-> > blocking
+> David Schwartz wrote:
+>
+> > Yu are doing something wrong. You are using 'select' along
+> > with blocking
 > > I/O operations. You can't make bricks without clay. If you don't want to
 > > block, you must use non-blocking socket operations. End of story.
 
-> There is a little problem here. Do you see any place for select() here?
-> There isn't any.
+> That's funny, I was under the impression that the whole point of
+> using select()
+> was to enable the use of blocking I/O.
 
-	For unconnected UDP sockets, I see no place for 'select'ing for write. No.
+	This is a very common misconception. No, the point of 'select' is to hint
+to you when you should attempt a non-blocking socket operation. It has never
+been the case that 'select' guaranteed that a following blocking operation
+wouldn't block.
 
-> If you have a working select(), you can use (blocking or non-blocking)
-> I/O functions a get a) low latency b) small CPU overhead.
-> If you want to use non-blocking I/O, either with broken select() or
-> without it at all, you get either a) high latency, or b) high CPU
-> overhead.
+> If you are on a
+> uniprocessor system, in
+> a single thread, and select() says that a socket is writeable,
+> then I had darn
+> well better be able to write to that socket!
 
-	It is fundamental that an application that sends UDP packets must control
-the transmit timing. That's just the way it is with UDP.
+	No. A 'write' hit from 'select' cannot guarantee that any arbitrary 'write'
+won't block unless the following 'write' is non-blocking.
 
-> > 	Just because 'select' indicates a write hit, you are not assured
-> > that some
+	Consider a TCP connection. I get a 'write' hit, and then I call 'write' to
+send 250Kb of data. Do you seriously want to argue that the kernel must
+somehow handle that 250Kb without blocking?
+
+> Sure, this gets more complicated when multiprocessing or
+> multithreading, but the
+> test program does neither of these.
+
+	No, it's more complicated in many situations. Suppose the kernel says a
+connected UDP socket won't block because the network interface the packet
+would go out is unused. Before you can call 'send', the interface goes down
+and the packet now has to take a congested network interface. The 'write'
+will block.
+
+> >  Just because 'select' indicates a write hit, you are not
+> > assured that some
 > > particular write at a later time will not block. Past
 > > performance does not
 > > guarantee future results.
 
-> The problem is select() on UNIX datagram sockets returns immediately,
-> and thus it could be well substituted by a NOP. There isn't any
-> "performance".
+> Think about the whole reason for select()'s existance. If a
+> single-threaded app
+> calls select() and is told a socket is writeable, then a write to
+> that socket
+> should either immediately succeed or immediately fail (if the
+> other socket
+> disappeared in between the calls, for instance).
 
-	Right. It's silly to 'select' on an unconnected UDP datagram socket. There
-is no single defined buffer whose fullness or emptiness can be the subject
-of the 'select'ing. It's not like TCP where there's a send queue and the
-network stack is responsible for transmit pacing. With UDP, the application
-is responsible for transmit pacing.
+	Sure, but you can't ensure this in all cases unless you set the socket
+non-blocking. The kernel can't guarantee the future and it has no way of
+knowing that it's important to the application that the following operation
+not block unless yuo tell it.
 
-> > 	Suppose, for example, a machine has two network interfaces.
-> One is very
-> > busy, queue full, and one is totally idle, queue empty. What do
-> you think
-> > 'select' for write on an unconnected UDP socket should do? If you say it
-> > should block, then it can block forever even if there's plenty of buffer
-> > space on the network card you were going to send to. So, it
-> can't block, it
-> > must indicate writability.
+> Now granted I use non-blocking I/O out of paranoia, but even
+> there if select()
+> says it is writeable and the send call returns EAGAIN then we get
+> into a nice
+> little infinite loop.
 
-> That's a little different problem, and a datagram will be transmitted by
-> this busy interface at last (while you will never send a datagram
-> if nobody
-> is reading the socket).
+	Only if the application foolishly insists. For UDP, you should treat EAGAIN
+as a hint that you're sending too fast. With UDP, the application is
+responsible for send timing and can't foist this responsibility on the OS by
+misusing 'select'.
 
-> Hoverer, select() doesn't work on connected sockets either (I missed
-> the fact the example program doesn't connect at first, but it's
-> unimportant here).
+> select() should be reliable.
 
-	It really doesn't matter. UDP applications have to control the transmit
-pacing at application level. There is absolutely no way for the kernel to
-know whether the path to the recipient is congested or not.
-
-> > 	You have any number of sane choices. My suggestion is that
-> > you make the
-> > socket non-blocking and treat an EWOULDBLOCK return as equivalent to
-> > success. You can additionally take it as a hint that the packet
-> > will be as
-> > if it was dropped.
-
-> You essentially transform a code such as:
-> while () {
->         select();
->         blocking_send();
-> }
->
-> into:
->
-> while() {
->         non_blocking_send();
-> }
->
-> Not very CPU-friendly :-(
-
-	No, no no. This is not how you write UDP applications. If you're sending
-UDP, you must have a transmit scheduler somewhere.
-
-> Having working select() on at least connected sockets is a must.
-
-	The kernel can't tell you when to send because that depends upon factors
-that are remote. The application *MUST* schedule its transmissions. There's
-no two ways about it.
-
-	Yes, it would be nice of the kernel helped more. But the application has to
-deal with remote packet loss as well. It HAS TO decide when to send the
-packet and can't rely upon the availability or unavailability of local
-resources to mean anything with regard to the connection as a whole.
+	It cannot be made so without other greater losses. The perfect is the enemy
+of the good. Use it as a hint.
 
 	DS
 

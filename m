@@ -1,98 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262805AbSJWDoZ>; Tue, 22 Oct 2002 23:44:25 -0400
+	id <S262814AbSJWDon>; Tue, 22 Oct 2002 23:44:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262814AbSJWDoZ>; Tue, 22 Oct 2002 23:44:25 -0400
-Received: from pcp470010pcs.westk01.tn.comcast.net ([68.47.207.140]:48797 "EHLO
-	shed.7house.org") by vger.kernel.org with ESMTP id <S262805AbSJWDoY>;
-	Tue, 22 Oct 2002 23:44:24 -0400
-Message-ID: <3DB61C87.77AAE742@y12.doe.gov>
-Date: Tue, 22 Oct 2002 23:50:31 -0400
-From: David Dillow <dillowd@y12.doe.gov>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@rth.ninka.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 3COM 3C990 NIC
-References: <1035002976.3086.4.camel@maranello.interclypse.net> 
-		<3DB4D9F8.F86ABA4@y12.doe.gov> <1035328421.16085.21.camel@rth.ninka.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262815AbSJWDon>; Tue, 22 Oct 2002 23:44:43 -0400
+Received: from [213.95.15.193] ([213.95.15.193]:17931 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S262814AbSJWDol>;
+	Tue, 22 Oct 2002 23:44:41 -0400
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.44: How to decode call trace
+References: <87elai82xb.fsf@goat.bogus.local.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 23 Oct 2002 05:50:41 +0200
+In-Reply-To: Olaf Dietsche's message of "23 Oct 2002 01:34:17 +0200"
+Message-ID: <p73isztstim.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de> writes:
+> and this is the code:
+> static int __fscap_lookup(struct vfsmount *mnt, struct nameidata *nd)
+> {
+> 	static char name[] = ".capabilities";
+> 	nd->mnt = mntget(mnt);
+> 	nd->dentry = dget(mnt->mnt_sb->s_root);
+> 	nd->flags = 0;
+> 	return path_walk(name, nd);
+> }
 > 
-> On Mon, 2002-10-21 at 21:54, David Dillow wrote:
-> > It will support zero-copy TCP, TCP segmentation offload, and when DaveM's
-> > IPSEC is in, I'll be able to do hardware offload for that as well.
-> 
-> Please tell me what the interface is to offload IPSEC transformations
-> to the card.  What information does the card need to properly transform
-> the packet and what transforms are supported?
+> What does .text.lock.namei and name.810 mean?
 
-The card was designed with NDIS 5.0 task offloading in mind. The documents for
-that (in the NT DDK) will give you an overview of where they're going; I'll
-try to provide more detail here.
+.text.lock.namei means that it hung in the slow path of a spinlock that
+is referenced from namei.c
 
-The cards support varying levels of encryption, depending on the model. Some
-support no encryption, some only DES, and some Triple DES. We can query the
-card to determine what it supports. Those cards that support DES or 3DES
-support the MD5 and SHA1 hashes.
+name.810 is a static data variable, probably the static char name[]
+shown above. Remember the kernel backtrace is not exact and can print
+random stack junk that looks like return addresses too. You always have 
+to sanity check each entry.
 
-The cards support IPSEC packets in the following modes:
-1. [IP1][AH][payload]
-2. [IP1][ESP][payload]
-3. [IP1][AH][ESP][payload]
-4. [IP2][AH][IP1][payload]
-5. [IP2][AH][IP1][payload]
-6. [IP2][AH][ESP][payload]
+> Is there a way to get the line number out of these hex values?
 
-where payload can be any type of data, including more nested levels of IPSEC,
-as long as they have been encrpyted/hashed by the host.
+addr2line -e vmlinux ... does this when you compile the kernel with -g 
 
-There may be other modes supported; the documentation I have for the cards is
-inconsistent in some places, and flat out wrong in others. Experimentation is
-needed to be sure of what is supported beyond the above.
-
-Only IPv4 is supported at this time, IPv6 is not supported (maybe in a later
-firmware). IP options are supported, while fragments are not. They will be
-passed through without processing. The adapter can do scatter gather,
-checksumming, TSO, VLAN insertion, and IPSEC on the same packet.
-
-The IPSEC engine must register a Security Association with the card before we
-can offload the crypto. While NDIS supports a fair number of selectors for
-SA's, the Typhoon cards only key off of the destination address and SPI for
-inbound packets. For Tx processing, an opaque handle must be passed to the
-adapter identifying the SA to be used to process the packet.
-
-Once again, future releases of the firmware may be able to do more for us, but
-I wouldn't count on it, nor would it necessarily be desirable.
-
-On Tx, we must add space for the AH and/or ESP headers and any needed padding,
-and fill in the SPI and Next Header fields. For ESP, the adapter will fill in
-the IV from its hardware random number generator (this feature may be
-selectable.)
-
-To register an SA, we need to provide the adapter with the protocol (NULL, AH,
-or ESP), the hash type (MD5 or SHA1), the direction for this SA (Tx or Rx),
-the encryption type (None, DES, 2 key 3DES, 3 key 3DES, ECB or CBC), the SPI,
-the dest address and mask, and the keying material. The card will give us a 16
-bit handle. If we are to nest as in mode 3 or 6 above, we pass in both SA's to
-the driver, which will return a 32 bit handle. The handle will be zero if a
-problem occurs. We can query the maximum number of SA's supported. To delete
-an SA, we give the card the handle it gave us. For Tx, we must pass the handle
-in as part of the Tx descriptor.
-
-On Rx, the card will lookup the destination/mask and SPI in its tables, and if
-it finds an SA for the packet, will attempt to decrypt it and verify the hash.
-It will put the results of this processing in the Rx descriptor it passes to
-the host.
-
-> Currently there are no plans for an offload strategy, because we lack
-> knowledge in the area of exactly what cards provide.
-
-Hopefully, the above will help. The NDIS docs have been pretty useful as well.
-
-Dave
+-Andi

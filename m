@@ -1,78 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271030AbTGVWM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 18:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271035AbTGVWM7
+	id S271038AbTGVWXF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 18:23:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271039AbTGVWXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 18:12:59 -0400
-Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:30174 "EHLO
-	msgbas1x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S271030AbTGVWM5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 18:12:57 -0400
-content-class: urn:content-classes:message
-Subject: 2.5.72 module loading issue
-Date: Tue, 22 Jul 2003 16:27:24 -0600
+	Tue, 22 Jul 2003 18:23:05 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:6575 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S271038AbTGVWXC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 18:23:02 -0400
+Date: Tue, 22 Jul 2003 18:37:47 -0400
+From: Chris Heath <chris@heathens.co.nz>
+To: vojtech@suse.cz
+Subject: [PATCH][2.6] Fix for Toshiba laptop keyboards
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20030722182817.9F8A.CHRIS@heathens.co.nz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D55220@axcs03.cos.agilent.com>
-X-MS-Has-Attach: 
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.5.72 module loading issue
-Thread-Index: AcNQoHub6/C54rDEEdeA3wBgsGgWXA==
-From: <yiding_wang@agilent.com>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.06.02
+X-Antirelay: Good relay from local net1 127.0.0.1/32
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am still struggling on the fc driver module working on new 2.5.72/2.6 kernel and wish someone can shed some lights here.
+Here is a patch that fixes the problem we've seen on Toshiba laptop
+keyboards.
 
-The driver is working great for 2.4.x Linux and is modified to reflect all SCSI layer change in 2.5.72.  I have RH9.0 and installed 2.5.72 on the same system.  Driver compiled under 2.5.72 OK.  The module utilities are upgraded to 0.9.13-pre.
+It has been tested on my regular keyboard, and Ralf Hildebrandt has
+confirmed that it fixes the problem on his Toshiba.
 
-Now first problem I have is to module loading fails on "insmod mymodule.o".  Message:
+Chris
+
+
+--- a/drivers/input/serio/i8042.c	2003-06-01 09:56:28.000000000 -0400
++++ b/drivers/input/serio/i8042.c	2003-07-21 22:19:53.000000000 -0400
+@@ -59,6 +59,7 @@
+ static unsigned char i8042_initial_ctr;
+ static unsigned char i8042_ctr;
+ static unsigned char i8042_last_e0;
++static unsigned char i8042_last_release;
+ static unsigned char i8042_mux_open;
+ struct timer_list i8042_timer;
  
-"No module found in object"
-"Error inserting 'mymodule.o': -1 Invalid module format"
-
-By checking the trace, following are the failed part: 
-... ...
-open("/etc/ld.so.preload", O_RDONLY)    = -1 ENOENT (No such file or directory)
-open("/etc/ld.so.cache", O_RDONLY)      = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=49530, ...}) = 0
-... ...
-brk(0)                                  = 0x804a000
-brk(0x804b000)                          = 0x804b000
-brk(0)                                  = 0x804b000
-create_module(umovestr: Input/output error 0, 0)                     = -1 ENOSYS (Function not implemented)
-open("mymodule.o", O_RDONLY)             = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=345047, ...}) = 0
-mmap2(NULL, 345047, PROT_READ, MAP_SHARED, 3, 0) = 0x40017000
-vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv - something is wrong here
-init_module("ELF", 0x543d7No module found in object) = -1  ENOEXEC (Exec format error))         = -1 ENOEXEC (Exec format error)
-... ...
-exit_group(1)                           = ?
-
-Noticed that kernel build module has *.mod.c file created, I tried to include those part in but the result is the same.  
-
-This is a SCSI HBA driver and init_module() is not required (ref. to qlogic, adaptec and buslogic drivers).
-
-Also I tried to load kernel build driver module BusLogic.o and qla1280.o with "insmod", it gives error almost the same except the message are different.  
-"BusLogic: no version message, tainting kernel"
-"Error inserting 'BusLogic.o': -1  No such device
-
-In init_module call, it has init_module("ELF". 0x1a5b4BusLogic" no version magic, tainting kernel.) = -1  ENODEV (No such device).
-
-It looks like something is missing from migrating my driver module from 2.4.x to 2.5.x.
-
-What is new requirement for module building and loading with "insmod" on 2.5.72 compare with the requirement in 2.4.x?  
-
-Many thanks!
-
-Eddie
-
-
-
-Also the init_module call 
+@@ -406,15 +407,22 @@
  
+ 		if (data > 0x7f) {
+ 			unsigned char index = (data & 0x7f) | (i8042_last_e0 << 7);
++			/* work around hardware that doubles key releases */
++			if (index == i8042_last_release) {
++				dbg("i8042 skipped double release (%d)\n", index);
++				continue;
++			}
+ 			if (index == 0xaa || index == 0xb6)
+ 				set_bit(index, i8042_unxlate_seen);
+ 			if (test_and_clear_bit(index, i8042_unxlate_seen)) {
+ 				serio_interrupt(&i8042_kbd_port, 0xf0, dfl, regs);
+ 				data = i8042_unxlate_table[data & 0x7f];
++				i8042_last_release = index;
+ 			}
+ 		} else {
+ 			set_bit(data | (i8042_last_e0 << 7), i8042_unxlate_seen);
+ 			data = i8042_unxlate_table[data];
++			i8042_last_release = 0;
+ 		}
+ 
+ 		i8042_last_e0 = (data == 0xe0);
+

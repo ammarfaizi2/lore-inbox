@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317844AbSGVSQk>; Mon, 22 Jul 2002 14:16:40 -0400
+	id <S317848AbSGVSUP>; Mon, 22 Jul 2002 14:20:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317845AbSGVSQj>; Mon, 22 Jul 2002 14:16:39 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:51078 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S317844AbSGVSQj>;
-	Mon, 22 Jul 2002 14:16:39 -0400
-Date: Mon, 22 Jul 2002 14:19:47 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: martin@dalecki.de
-cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.27 devfs
-In-Reply-To: <3D3C48D5.6080500@evision.ag>
-Message-ID: <Pine.GSO.4.21.0207221412240.7619-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317850AbSGVSUO>; Mon, 22 Jul 2002 14:20:14 -0400
+Received: from ns.suse.de ([213.95.15.193]:21510 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317848AbSGVSUM>;
+	Mon, 22 Jul 2002 14:20:12 -0400
+Date: Mon, 22 Jul 2002 19:20:54 +0200
+From: Dave Jones <davej@suse.de>
+To: Clemens Schwaighofer <cs@pixelwings.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.27-dj1
+Message-ID: <20020722192054.O27749@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Clemens Schwaighofer <cs@pixelwings.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20020721215845.GA23019@suse.de> <1340522704.1027338950@[192.168.1.172]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1340522704.1027338950@[192.168.1.172]>; from cs@pixelwings.com on Mon, Jul 22, 2002 at 01:55:50PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 22, 2002 at 01:55:50PM +0200, Clemens Schwaighofer wrote:
+ > I just tried it on my test system (Redhat 7.3 with gcc-3.1-9 from rawhide) 
+ > and I get this
+ > fs/fs.o(.text+0x27f66): undefined reference to `jiffies_64_to_clock_t'
+ > fs/fs.o(.text+0x297fb): undefined reference to `jiffies_64_to_clock_t'
+ > fs/fs.o(.text+0x29877): undefined reference to `jiffies_64_to_clock_t'
 
+See the post from Tim Schmielau in this thread, and apply the patch there.
 
-On Mon, 22 Jul 2002, Marcin Dalecki wrote:
+        Dave
 
-> Richard Gooch wrote:
-> > Marcin Dalecki writes:
-> > 
-> >>Kill two inlines which are notwhere used and which don't make sense
-> >>in the case someone is not compiling devfs at all.
-> > 
-> > 
-> > Rejected. Linus, please don't apply this bogus patch. External patches
-> > and drivers rely on the inline stubs so that #ifdef CONFIG_DEVFS_FS
-> > isn't needed.
-> 
-> Dare to actually *name* one of them?
-
-[snip]
-
-OK, that's enough.  Martin, kindly stay the fsck away from that pile of
-garbage for a couple of weeks.
-
-_All_ partition-related code is getting rewritten and the last thing
-we need right now is additional clutter in the neighborhood.  And
-devfs_fs_kernel.h, shite as it is, qualifies.
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264377AbRFNBXs>; Wed, 13 Jun 2001 21:23:48 -0400
+	id <S264379AbRFNBZI>; Wed, 13 Jun 2001 21:25:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264379AbRFNBXi>; Wed, 13 Jun 2001 21:23:38 -0400
-Received: from sr3.terra.com.br ([200.176.3.63]:59660 "EHLO sr3.terra.com.br")
-	by vger.kernel.org with ESMTP id <S264377AbRFNBXf>;
-	Wed, 13 Jun 2001 21:23:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rafael Diniz <rafael2k@terra.com.br>
-To: linux-kernel@vger.kernel.org
+	id <S264383AbRFNBY6>; Wed, 13 Jun 2001 21:24:58 -0400
+Received: from hall.mail.mindspring.net ([207.69.200.60]:61732 "EHLO
+	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S264379AbRFNBYm>; Wed, 13 Jun 2001 21:24:42 -0400
 Subject: Re: obsolete code must die
-Date: Wed, 13 Jun 2001 22:23:28 +0000
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x> <9g91gb$11p$1@ns1.clouddancer.com> <20010614010834.2ECD678599@mail.clouddancer.com>
-In-Reply-To: <20010614010834.2ECD678599@mail.clouddancer.com>
-MIME-Version: 1.0
-Message-Id: <01061322232801.00269@rafael>
-Content-Transfer-Encoding: 7BIT
+From: Robert Love <rml@tech9.net>
+To: Alan Olsen <alan@clueserver.org>
+Cc: Daniel <ddickman@nyc.rr.com>, Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10106131903190.16254-100000@clueserver.org>
+In-Reply-To: <Pine.LNX.4.10.10106131903190.16254-100000@clueserver.org>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 13 Jun 2001 21:24:42 -0400
+Message-Id: <992481885.7126.0.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >i386, i486
-> >The Pentium processor has been around since 1995. Support for these older
->
-> No.  Both of my cheap on-site systems for occasional access are 486s.
-> Why would I spend money for a system that is hardly ever used?
-I have 386's that I still use.
+On 13 Jun 2001 19:22:38 -0700, Alan Olsen wrote:
+> On Wed, 13 Jun 2001, Daniel wrote:
+> <snip>
+> > ISA bus, MCA bus, EISA bus
+> > PCI is the defacto standard. Get rid of CONFIG_BLK_DEV_ISAPNP,
+> > CONFIG_ISAPNP, etc
+> 
+> This I strongly disagree with.
+> 
+> There are alot of ISA cards still in use.  (I have a USR 56k voice/fax
+> modem that still works great. How many Sound Blaster 16 cards are still
+> being used? Lots, i would guess.)
+> <snip>
 
-> >ISA bus, MCA bus, EISA bus
-> >PCI is the defacto standard. Get rid of CONFIG_BLK_DEV_ISAPNP,
-> >CONFIG_ISAPNP, etc
->
-> No.  There are still plenty of unique ISA cards around.
-How about all the isa ne2000 around the world?
+i think we are all missing the ball here: i am happy when i see driver
+support for a piece of hardware that i have _NEVER_ heard of and at most
+_ONE_ person uses it.  why?  it means more stuff works in linux.  we
+dont need to defend how many people use hardware X.  if you have X, good
+for you.  if not, you dont care, but at least good for linux as a whole.
 
-> >MFM/RLL/XT/ESDI hard drive support
-> >Does anyone still *have* an RLL drive that works? At the very least get
-> > rid
->
-> OK, I haven't seen one of these for nearly 10 years.
-My 386 have one of these.
+driver support does not effect me if i dont use said driver.
 
-> >parallel/serial/game ports
-> >More controversial to remove this, since they are *still* in pretty wide
-> >use -- but USB and IEEE 1394 are the way to go. No ifs ands or buts.
-ow, I think that you are in the future :-)
+in an ideal world, my kernel is super-small (ultra-optimized code) but
+the full kernel source is huge (lots of platform and driver support).
 
-> Send me the funds to replace my laser printers please.
-I want it too.
+lets stop fanning the flames and let this (Microsoft-using, as Rik
+pointed out) troll die off.
 
-> >a.out
-> >Who needs it anymore. I love ELF.
->
-> OK, everything that I had in a.out was converted within a year of
-> ELF's introduction.
-There are some non open source programs that are a.out...
+-- 
+Robert M. Love
+rml@ufl.edu
+rml@tech9.net
 
-I want to continue to use Linux on my 386!!!!
-
-Thanks
-Rafael Diniz
-Brazil

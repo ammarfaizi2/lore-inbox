@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262355AbTIUKkp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 06:40:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTIUKkp
+	id S262377AbTIULGd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 07:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTIULGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 06:40:45 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:23092 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262355AbTIUKko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 06:40:44 -0400
-To: Larry McVoy <lm@bitmover.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Fix for wrong OOM killer trigger?
-References: <20030919191613.36750de3.bless@tm.uka.de>
-	<20030919192544.GC1312@velociraptor.random>
-	<20030919203538.D1919@flint.arm.linux.org.uk>
-	<20030919200117.GE1312@velociraptor.random>
-	<20030919205220.GA19830@work.bitmover.com>
-	<20030920033153.GA1452@velociraptor.random>
-	<20030920043026.GA10836@work.bitmover.com>
-	<20030920142314.GA1338@velociraptor.random>
-	<20030920151332.GA18387@work.bitmover.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 21 Sep 2003 04:40:29 -0600
-In-Reply-To: <20030920151332.GA18387@work.bitmover.com>
-Message-ID: <m1smmqjug2.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Sun, 21 Sep 2003 07:06:33 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:39309 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262377AbTIULGc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 07:06:32 -0400
+Date: Sun, 21 Sep 2003 13:06:29 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Norman Diamond <ndiamond@wta.att.ne.jp>, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: 2.6.0-test5 vs. Japanese keyboards [3]
+Message-ID: <20030921110629.GC18677@ucw.cz>
+References: <1b7301c37a73$861bea70$2dee4ca5@DIAMONDLX60> <20030914122034.C3371@pclin040.win.tue.nl> <206701c37ab2$6a8033e0$2dee4ca5@DIAMONDLX60> <20030916154305.A1583@pclin040.win.tue.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030916154305.A1583@pclin040.win.tue.nl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy <lm@bitmover.com> writes:
-
-> On Sat, Sep 20, 2003 at 04:23:14PM +0200, Andrea Arcangeli wrote:
-> > I refuse to use closed software myself for my critical tasks true,
-> > but I've never said closed software is bad.
+On Tue, Sep 16, 2003 at 03:43:05PM +0200, Andries Brouwer wrote:
+ 
+> I do not think his patch is needed.
 > 
-> Really?  So where's the source to the BIOS of your machine?  Your drive
-> firmware?  Do you drive a car?  Turn on a microwave?  Use a cell phone?
+> So the question arises: do we need a kernel patch, and if so, what patch?
+> The program loadkeys exists to load the kernel keymap with the map the user
+> desires. So, if you need some particular map the obvious answer is:
+> "use loadkeys".
+> 
+> There is a small snag - until 2.4 the value of NR_KEYS was 128,
+> while 2.6 uses 256. Moreover, the keys you want to change are above 128.
+> So, your old precompiled loadkeys will not do - you must recompile the
+> kbd package against 2.6 kernel headers, or just edit loadkeys.y and dumpkeys.c
+> inserting
+> 
+> #undef NR_KEYS
+> #define NR_KEYS 256
+> 
+> after all includes, and then compile on any Linux machine.
+> 
+> There is no need to have knowledge of the Japanese keymap in the kernel,
+> just as there is no knowledge of the German or French keymap. That
+> knowledge belongs in the keymap that one loads.
 
-Careful with your accusations Larry, some of us can answer those questions,
-in ways that won't support your argument.
+There is a slight problem, and that is that NR_KEYS is (KEY_MAX+1) in
+recent 2.6's and that's 512. And that doesn't fit into a byte. There
+were some patches floating around to enhance the keymap loading ioctls.
+They will be needed, along with a new version of loadkeys.
 
-Eric
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

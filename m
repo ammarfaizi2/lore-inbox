@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313063AbSDCFqq>; Wed, 3 Apr 2002 00:46:46 -0500
+	id <S313075AbSDCGJN>; Wed, 3 Apr 2002 01:09:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313064AbSDCFqg>; Wed, 3 Apr 2002 00:46:36 -0500
-Received: from twinlark.arctic.org ([204.107.140.52]:49422 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S313063AbSDCFqV>; Wed, 3 Apr 2002 00:46:21 -0500
-Date: Tue, 2 Apr 2002 21:46:20 -0800 (PST)
-From: Jauder Ho <jauderho@carumba.com>
-X-X-Sender: jauderho@twinlark.arctic.org
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Ext2 vs. ext3 recovery after crash
-In-Reply-To: <Pine.LNX.3.96.1020402225256.9671A-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0204022144310.21070-100000@twinlark.arctic.org>
-X-Mailer: UW Pine 4.44 + a bunch of schtuff
-X-There-Is-No-Hidden-Message-In-This-Email: There are no tyops either
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313070AbSDCGJD>; Wed, 3 Apr 2002 01:09:03 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:23682 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S313068AbSDCGIu>; Wed, 3 Apr 2002 01:08:50 -0500
+Date: Tue, 2 Apr 2002 23:08:47 -0700
+Message-Id: <200204030608.g3368l903461@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bitops cleanup 3/4
+In-Reply-To: <E16sbI0-0005ug-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rusty Russell writes:
+> Linus, please apply (no object code changes).
+> 
+> This changes everything arch specific PPC and i386 which should have
+> been unsigned long (it doesn't *matter*, but bad habits get copied).
+> 
+> I left the devfs ones for Richard to submit separately, since they
+> actually change the resulting code.
 
-Bill, you do know that it will do a full fsck every x mounts right?
+??? But you didn't leave the devfs ones alone: your patch changes a
+devfs file:
 
-[root@turtle /lib]# tune2fs -l /dev/hda6 | grep -i mount
-Last mounted on:          <not available>
-Last mount time:          Sun Mar  3 11:34:50 2002
-Mount count:              1
-Maximum mount count:      20
+> diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.7-pre1/include/linux/devfs_fs_kernel.h working-2.5.7-pre1-bitops/include/linux/devfs_fs_kernel.h
+> --- linux-2.5.7-pre1/include/linux/devfs_fs_kernel.h	Fri Mar 15 15:37:39 2002
+> +++ working-2.5.7-pre1-bitops/include/linux/devfs_fs_kernel.h	Sat Mar 16 13:54:53 2002
+> @@ -54,7 +54,7 @@
+>      unsigned char sem_initialised;
+>      unsigned int num_free;          /*  Num free in bits       */
+>      unsigned int length;            /*  Array length in bytes  */
+> -    __u32 *bits;
+> +    unsigned long *bits;
+>      struct semaphore semaphore;
+>  };
+>  
 
---Jauder
+Anyway, I hope to have a devfs patch for 2.5.x ready before next
+week. I've got some other changes in the works, as well as the bitops
+changes, which I've already submitted for 2.4.x.
 
-On Tue, 2 Apr 2002, Bill Davidsen wrote:
+				Regards,
 
-> I have a laptop (Dell Inspiron C600) which, like most Dell laptops,
-> crashes every time I log out of X. On some occasions on reboot I get a
-> message about replaying the journal, while occasionally I get a full ext2
-> style multi-pass 12 minute recovery. I don't see why the ext3 isn't always
-> used, I know it's going to crash, I always do a sync and wait ten seconds
-> for journal writes, etc, to take place.
->
-> I have tried all the usual, Redhat kernels, 2.4.17, 2.4.19, -aa, -ac,
-> disable io-apc, disable apic, disable all power management, boot noapic
-> (someone swore it wasn't enough to pull it out of the kernel ;-) all
-> producing about 20% chance of slow reboot.
->
-> Since I would have to spend my own money to replace this device with
-> something functional before 2003, is there something I'm missing about why
-> it does the slow cleanup? It was Redhat 7.1, updated fsutils and modutils,
-> pcmcia packed, etc, to latest of Mar 15 this year, in case that matters.
-> All kernels have ext3 compiled in, all work "most of the time."
->
-> --
-> bill davidsen <davidsen@tmr.com>
->   CTO, TMR Associates, Inc
-> Doing interesting things with little computers since 1979.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

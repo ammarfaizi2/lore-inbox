@@ -1,102 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264428AbTLGOuw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 09:50:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264434AbTLGOuw
+	id S264436AbTLGPK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 10:10:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbTLGPK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 09:50:52 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:59570 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S264428AbTLGOuu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 09:50:50 -0500
-Date: Sun, 7 Dec 2003 12:40:10 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Mark Symonds <mark@symonds.net>
-Cc: Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@redhat.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Harald Welte <laforge@netfilter.org>
-Subject: Re: 2.4.23 hard lock, 100% reproducible.
-In-Reply-To: <049e01c3bca9$0eae8880$7a01a8c0@gandalf>
-Message-ID: <Pine.LNX.4.44.0312071236430.1283-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Sun, 7 Dec 2003 10:10:28 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:13696 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S264436AbTLGPK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 10:10:27 -0500
+Date: Sun, 7 Dec 2003 15:15:46 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200312071515.hB7FFkQH000866@81-2-122-30.bradfords.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Additional clauses to GPL in network drivers
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Many network drivers in the current 2.6 tree include the following
+licensing condition/clarification, in addition to being placed under
+the GPL:
 
+"This file is not a complete program and may only be used when the
+entire operating system is licensed under the GPL".
 
-The first oops looks like:
+as
+grep -C 1 "only be used when"
 
-Unable to handle kernel NULL pointer
-dereference at virtual address: 00000000
+in drivers/net will confirm.
 
-printing eip:
-c02363dd
-*pde=00000000
-Oops: 0000
-CPU: 0
-EIP: 0010:[<c02363d>]  Not tainted
-EFLAGS: 00010217
+*Please*, can we resist the temptation to 'play' with licenses in this
+way?  I suspect this extra clause was added just to clarify what the
+GPL already says, but in doing so, it just confuses matters, and ends
+up causing more work.
 
-eax: 00000006   ebx: 00000000  ecx: 7a01a8c0   ecx: c700b2a0
-esi: c0299ce0   edi: 000001b7  ebp: c0299d94   esp: c0299c54
-ds: 0018  es: 0018  ss: 0018
+For example, it brings up a few issues:
 
-process: swapper (pid: 0, stackpage = c0299000)
+1. How is 'operating system' supposed to be defined in this context?
 
+I assume that if it meant just the kernel, it would say 'kernel'.
 
-Isnt it a bit weird that the full backtrace is not reported ? 
+If you define 'operating system' as including some userspace
+utilities, it's going to cause problems, as some common utilities are
+not GPL'ed, (the extra clause doesn't say 'GPL-compatible', it
+specifically specifies GPL).
 
-wli suggests that might stack corruption.
+2. Is code licensed under this extra term actually compatible with
+code placed under the GPL alone?
 
+3. I haven't tried to trace the history of this code, but if these
+drivers were based on, and include, other developer's purely GPL'ed
+code, applying this extra condition is presumably not valid, (unless
+specific permission was sought to do so).
 
-I dont see any suspicious change around tcp_print_conntrack().
+4. The obvious issue concerning binary modules - does loading a binary
+module which is not licensed under the GPL invalidate your license to
+use these network drivers?  Note that I personally have no interest
+whatsoever in using such binary modules, but whatever ends up being
+decided for the GPL'ed parts of the kernel, this extra clause suggests
+to me that it specifically isn't OK whilst using these network
+drivers.
 
-Any clues? 
-
-
-
-On Sun, 7 Dec 2003, Mark Symonds wrote:
-
-> 
-> [...]
-> > 
-> > addr2line requires compiling with -g.  You can also do
-> >   ksymoops -m /path/to/your/System.map -A c02363dd
-> > which does not require a recompile.
-> > 
-> 
-> Excellent, this is alot easier.  Should note that this 
-> kernel is compiled without support for loadable modules.
-> Here goes: 
-> 
-> ------------- 
-> 
-> puggy:/usr/src/linux/2.4.23# ksymoops -m ./System.map -A c02363dd
-> ksymoops 2.4.9 on i686 2.4.23.  Options used
->      -V (default)
->      -k /proc/ksyms (default)
->      -l /proc/modules (default)
->      -o /lib/modules/2.4.23/ (default)
->      -m ./System.map (specified)
-> 
-> Error (regular_file): read_ksyms stat /proc/ksyms failed
-> ksymoops: No such file or directory
-> No modules in ksyms, skipping objects
-> No ksyms, skipping lsmod
-> 
-> 
-> Adhoc c02363dd <tcp_print_conntrack+2d/60>
-> 
-> 1 error issued.  Results may not be reliable.
-> puggy:/usr/src/linux/2.4.23#
-
-
-
-
-
-
+John.

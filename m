@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266235AbUBJScx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 13:32:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266149AbUBJSad
+	id S266198AbUBJS0x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 13:26:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266199AbUBJS0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 13:30:33 -0500
-Received: from lists.us.dell.com ([143.166.224.162]:61618 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S266203AbUBJS1U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 13:27:20 -0500
-Date: Tue, 10 Feb 2004 12:27:15 -0600
-From: Matt Domsch <Matt_Domsch@Dell.com>
-To: Stuart_Hayes@Dell.com
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: PATCH (for 2.6.3-rc1) for cdrom driver dvd_read_struct
-Message-ID: <20040210122715.A31834@lists.us.dell.com>
-References: <CE41BFEF2481C246A8DE0D2B4DBACF4F020E5F21@ausx2kmpc106.aus.amer.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <CE41BFEF2481C246A8DE0D2B4DBACF4F020E5F21@ausx2kmpc106.aus.amer.dell.com>; from Stuart_Hayes@Dell.com on Tue, Feb 10, 2004 at 12:06:03PM -0600
+	Tue, 10 Feb 2004 13:26:50 -0500
+Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:19692 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S266090AbUBJS0Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 13:26:25 -0500
+Message-ID: <40292246.2030902@backtobasicsmgmt.com>
+Date: Tue, 10 Feb 2004 11:26:14 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back to Basics Network Management
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: ATARAID userspace configuration tool
+References: <Pine.LNX.4.40.0402101405190.25784-100000@jehova.dsm.dk> <1076425115.23946.18.camel@leto.cs.pocnet.net>
+In-Reply-To: <1076425115.23946.18.camel@leto.cs.pocnet.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 10, 2004 at 12:06:03PM -0600, Stuart_Hayes@Dell.com wrote:
+Christophe Saout wrote:
+
+> I have a really bad idea :)
 > 
-> At risk of sounding stupid, how can a user space program check the type of
-> media (DVD vs. CD) that's in the drive?  I think that's what magicdev is
-> trying to do.
-> Thanks
-> Stuart
+> Try to combine it with udev. udev calls the ide script, the ide script
+> then calls the ataraid detector. If the device is non-ataraid, go on as
+> usual. If it is, build the device-mapper device and symlink (if it
+> doesn't already exist) and tell udev to not create anything.
 
+This is not a bad idea, it's the future. The hotplug mechanism is 
+exactly what should be used here. When a block-device hotplug ADD event 
+occurs, you look at that device to see if it's something you care about. 
+If not, just exit and leave it alone.
 
-Stuart, FYI, more linux-kernel ettiquite.
+Now in the ATARAID case, where you need to see multiple devices before 
+you can do anything with them, this means you'd need to keep some 
+"state" somewhere about the devices you've seen so far, and the partial 
+ATARAID devices they represent. When you get the hotplug event for the 
+last piece of a particular ATARAID device, you use DM/MD to set up the 
+device and make it available.
 
-People much prefer to see a quoting style as above (date, from line,
-inline >-delimited note you're quoting, followed by non->-delimited
-text.  (Such as this).  Outlook doesn't do this very well, as it
-always wants to put your response at the top of the message, but with
-cut-n-paste you can make the messages look more like what l-k expects.
+The wonderful part of this is, when you do that last step, _another_ 
+block-device hotplug ADD event occurs for the new device you just 
+created, and if the hotplug scripts are set up to run dmpartx or its 
+equivalent for new block-devices, you are done. The partition tables 
+_inside_ the ATARAID device will be read, more DM calls will be made to 
+make those sub-devices available to userspace and everyone is thrilled 
+about the elegance of the solution :-)
 
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com

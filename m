@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267161AbSKMKl1>; Wed, 13 Nov 2002 05:41:27 -0500
+	id <S267164AbSKMKmZ>; Wed, 13 Nov 2002 05:42:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267162AbSKMKl1>; Wed, 13 Nov 2002 05:41:27 -0500
-Received: from userbb201.dsl.pipex.com ([62.190.241.201]:44688 "EHLO
-	irishsea.home.craig-wood.com") by vger.kernel.org with ESMTP
-	id <S267161AbSKMKl0>; Wed, 13 Nov 2002 05:41:26 -0500
-Date: Wed, 13 Nov 2002 10:48:09 +0000
-From: Nick Craig-Wood <ncw1@axis.demon.co.uk>
-To: Oliver Neukum <oliver@neukum.name>
-Cc: Sean Neakums <sneakums@zork.net>, linux-kernel@vger.kernel.org
-Subject: Re: hotplug (was devfs)
-Message-ID: <20021113104809.D2386@axis.demon.co.uk>
-References: <20021112093259.3d770f6e.spyro@f2s.com> <20021112094949.GE17478@higherplane.net> <6uadkf9kdt.fsf@zork.zork.net> <200211121351.08328.oliver@neukum.name>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200211121351.08328.oliver@neukum.name>; from oliver@neukum.name on Tue, Nov 12, 2002 at 01:51:08PM +0100
+	id <S267165AbSKMKmZ>; Wed, 13 Nov 2002 05:42:25 -0500
+Received: from ns.suse.de ([213.95.15.193]:28681 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267164AbSKMKmY>;
+	Wed, 13 Nov 2002 05:42:24 -0500
+To: Jan Hudec <bulb@ucw.cz>
+Cc: Andreas Gruenbacher <agruen@suse.de>, Adam Voigt <adam@cryptocomm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: File Limit in Kernel?
+References: <1037115535.1439.5.camel@beowulf.cryptocomm.com>
+	<200211121657.20437.agruen@suse.de> <20021113095133.GC21446@vagabond>
+X-Yow: If I pull this SWITCH I'll be RITA HAYWORTH!!  Or a SCIENTOLOGIST!
+From: Andreas Schwab <schwab@suse.de>
+Date: Wed, 13 Nov 2002 11:49:13 +0100
+In-Reply-To: <20021113095133.GC21446@vagabond> (Jan Hudec's message of "Wed,
+ 13 Nov 2002 10:51:34 +0100")
+Message-ID: <jefzu5eod2.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.3.50 (ia64-suse-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12, 2002 at 01:51:08PM +0100, Oliver Neukum wrote:
-> > Actually, here's a question: are /sbin/hotplug upcalls serialized in
-> > some fashion?  I'd hate to online a thousand devices in my disk array
-> > and have the machine forkbomb itself.
-> 
-> Nope, no serialisation. You don't have any guarantee even that
-> addition will be delivered before removal.
+Jan Hudec <bulb@ucw.cz> writes:
 
-And that is why (we finally discovered) we were getting
-non-deterministic device numbering of USB nodes.
+|> On Tue, Nov 12, 2002 at 04:57:20PM +0100, Andreas Gruenbacher wrote:
+|> > On Tuesday 12 November 2002 16:38, Adam Voigt wrote:
+|> > > I have a directory with 39,000 files in it, and I'm trying to use the cp
+|> > > command to copy them into another directory, and neither the cp or the
+|> > > mv command will work, they both same "argument list too long" when I
+|> > > use:
+|> > >
+|> > > cp -f * /usr/local/www/images
+|> > >
+|> > > or
+|> > >
+|> > > mv -f * /usr/local/www/images
+|> > 
+|> > Note that this is not a kernel related question.
 
-We have machines with 6 x 4 port USB <-> serial converters attached.
-These would get randomly assigned usb device ids and hence random
-/dev/ttyUSB nodes.  Not very useful when there is a load of different
-things attached to the 24 serial ports!
+Actually it is, because it's a kernel limit.  Userspace does not have
+this problem in general.
 
-Sometimes we also found that one of the devices wouldn't get
-initialised properly.
+|> > expanded into a list of all entries in the current directory, which results 
+|> > in a command line longer than allowed. Try this instead:
+|> > 
+|> > find -maxdepth 1 -print0 | \
+|> > 	xargs -0 --replace=% cp -f % /usr/local/www/images
+|> 
+|> Find has an -exec operator in the first place, so this is a little:
+|> 
+|> find -maxdepth 1 -exec cp -f '{}' /usr/local/www/images ';'
 
-We fixed these problems by removing hotplug and loading the relevant
-kernel modules in the correct order and voila a perfectly
-deterministic order for the /dev/ttyUSBs with all devices initialised.
+Or even using the shell:
 
-Plugging in our USB bus with 24 devices on it does indeed produce a
-mini-forkbomb effect ;-) (Especially since these Keyspan devices are
-initialised twice - once without firmware and once with firmware.)
+for f in *; do cp -f "$f" /usr/local/www/image; done
 
-So - perhaps hotplug ought to be serialised?
+Andreas.
 
 -- 
-Nick Craig-Wood
-ncw1@axis.demon.co.uk
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266609AbUF3Jyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266608AbUF3J4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266609AbUF3Jyq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 05:54:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266610AbUF3Jyp
+	id S266608AbUF3J4H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 05:56:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266613AbUF3J4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 05:54:45 -0400
-Received: from zork.zork.net ([64.81.246.102]:64232 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S266609AbUF3Jyo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 05:54:44 -0400
-To: jan@talentex.demon.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: malloc overlap?
-References: <E1BfbVk-000PFO-0W@anchor-post-32.mail.demon.net>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: jan@talentex.demon.co.uk, linux-kernel@vger.kernel.org
-Date: Wed, 30 Jun 2004 10:54:42 +0100
-In-Reply-To: <E1BfbVk-000PFO-0W@anchor-post-32.mail.demon.net>
-	(jan@talentex.demon.co.uk's message of "Wed, 30 Jun 2004 10:36:12
-	+0100")
-Message-ID: <6ufz8dmkv1.fsf@zork.zork.net>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+	Wed, 30 Jun 2004 05:56:06 -0400
+Received: from msdo0001.xtend.de ([217.27.0.68]:26773 "EHLO
+	msdo0001.triaton-webhosting.com") by vger.kernel.org with ESMTP
+	id S266608AbUF3Jz5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 05:55:57 -0400
+Message-ID: <40E28E22.8010606@triaton-webhosting.com>
+Date: Wed, 30 Jun 2004 11:55:46 +0200
+From: Georg Chini <georg.chini@triaton-webhosting.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: sneakums@zork.net
-X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
+To: linux-kernel@vger.kernel.org
+Subject: pdflush uses all cpu-time with 2.6.7 and slow media
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jan@talentex.demon.co.uk writes:
+Hello,
 
-> I am developing a program that mallocs a struct, which contains a
-> pointer to another struct, which gets malloced. Then I realloc the
-> first buffer to be one element larger and assign something to an
-> element in the second element - and this action overwrites part of the
-> second level struct. After much tracing I am now sure that the buffers
-> somehow have come to overlap. Is this a known error? I imagine that if
-> the kernel had this kind of problem, it wouldn't run far, but surely
-> memory allocation is handled in the kernel?
+there seems to be a problem with pdflush and
+slow media in 2.6.7. I'm using the packet-writing patch
+maintained by Peter Osterlund to write to dvd+rw.
+When I copy large files to the dvd, pdflush
+starts using all cpu-time up to a point where
+the system hangs completely. I found a posting here
+with a similar problem concerning nfs and pdflush
+(28.04.2004, Brent Cook). This thread mentions,
+that the problem is not observable in 2.6.5.
+So I tried 2.6.5 and everything works fine if
+I set dirty_ratio in /proc/sys/vm to 15. With
+the default value of 40 there are still some problems,
+but it is way better than 2.6.7-bk12. BTW my machine
+is a dual PIII.
+Any idea what might cause the problem? Any more
+information I should give?
+As I'm not on the list, please CC to me in your replies.
 
-malloc is implemented in userspace, typically by the C library, which
-uses lower-elvel mechanisms to obtain memory from the kernel.
+Thanks in advance
+                  Georg Chini
 
-How are you calling realloc?  It must be called thus:
-
-    x = realloc(x, s);
-
-since the block will have to be moved if there is no space after it
-into which to expand.  Given that you allocated the block at x,
-another block, and then expanded the block at x, I think this may be
-what's happening.

@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265247AbSKNVEl>; Thu, 14 Nov 2002 16:04:41 -0500
+	id <S265228AbSKNU43>; Thu, 14 Nov 2002 15:56:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265246AbSKNVEl>; Thu, 14 Nov 2002 16:04:41 -0500
-Received: from to-velocet.redhat.com ([216.138.202.10]:22511 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S265243AbSKNVEj>; Thu, 14 Nov 2002 16:04:39 -0500
-Date: Thu, 14 Nov 2002 16:11:34 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] remove hugetlb syscalls
-Message-ID: <20021114161134.E20258@redhat.com>
-References: <20021113184555.B10889@redhat.com> <20021114203035.GF22031@holomorphy.com> <20021114154809.D20258@redhat.com> <20021114210220.GM23425@holomorphy.com>
-Mime-Version: 1.0
+	id <S265230AbSKNU43>; Thu, 14 Nov 2002 15:56:29 -0500
+Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:24841 "EHLO
+	daytona.compro.net") by vger.kernel.org with ESMTP
+	id <S265228AbSKNU42>; Thu, 14 Nov 2002 15:56:28 -0500
+Message-ID: <3DD40F77.F4217D4A@compro.net>
+Date: Thu, 14 Nov 2002 16:02:47 -0500
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-lcrs i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Nicolas Pitre <nico@cam.org>, Andreas Steinmetz <ast@domdv.de>,
+       Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: make distclean and make dep??
+References: <Pine.LNX.4.44.0211131628010.16858-100000@xanadu.home> <Pine.LNX.4.44.0211140933150.5313-100000@chaos.physics.uiowa.edu> <20021114174246.GB10723@mars.ravnborg.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021114210220.GM23425@holomorphy.com>; from wli@holomorphy.com on Thu, Nov 14, 2002 at 01:02:20PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oracle does not run as root, so they can't even use the syscalls 
-directly.  At least with hugetlbfs we can chmod the filesystem to be 
-owned by the oracle user.
+Sam Ravnborg wrote:
+> 
+> On Thu, Nov 14, 2002 at 09:35:53AM -0600, Kai Germaschewski wrote:
+> > I think there's good reasons for both distclean and mrproper, distclean is
+> > the standard target which most projects use, and mrproper is the
+> > traditional Linux kernel target. So I would vote for keeping them both
+> > (and share a common help entry).
+> >
+> > What I don't see is why we would need different semantics, though,
+> > anybody?
+> How about the following:
+> clean   Delete all intermidiate files, including symlinks and modversions
+> mrproper        clean + deletes .config and .config.old
+> distclean       mrproper + all editor backup, patch backup files
+> 
+> In other words a more powerfull clean compared to today.
+> The difference between clean and mrproper is then _only_ the configuration
+> files. That easy to explain, and thats easy to understand. Today only
+> very few people know the difference, and simply save their config,
+> and do make mrproper.
+> 
+> I have many times seen people do something like:
+> cp .config xxx
+> make mrproper
+> mv xxx .config
+> 
+> No need for that, when make clean deletes enough.
 
-		-ben
+I thought make mrproper cleaned whatever make dep did also. Make clean certainly
+does not.
+I never need a make dep after a clean. Only after a make mrproper???
 
-On Thu, Nov 14, 2002 at 01:02:20PM -0800, William Lee Irwin III wrote:
-> On Thu, Nov 14, 2002 at 12:30:35PM -0800, William Lee Irwin III wrote:
-> >> The main reason I haven't considered doing this is because they already
-> >> got in and there appears to be a user (Oracle/IA64).
-> 
-> On Thu, Nov 14, 2002 at 03:48:09PM -0500, Benjamin LaHaise wrote:
-> > Not in shipping code.  Certainly no vendor kernels that I am aware of 
-> > have shipped these syscalls yet either, as nearly all of the developers 
-> > find them revolting.  Not to mention that the code cleanups and bugfixes 
-> > are still ongoing.
-> 
-> This is a bit out of my hands; the support decision came from elsewhere.
-> I have to service my users first, and after that, I don't generally want
-> to stand in the way of others. In general it's good to have minimalistic
-> interfaces, but I'm not a party to the concerns regarding the syscalls.
-> My direct involvement there has been either of a kernel janitor nature,
-> helping to adapt it to Linux kernel idioms, or reusing code for hugetlbfs.
-> 
-> I guess the only real statement left to make is that hugetlbfs (or my
-> participation/implementation of it) was not originally intended to
-> compete with the syscalls, though there's a lot of obvious overlap
-> (which I tried to exploit by means of code reuse).
-> 
-> Bill
-
--- 
-"Do you seek knowledge in time travel?"
+Mark

@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267554AbUJIXgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267556AbUJIXkd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267554AbUJIXgb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 19:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267556AbUJIXgb
+	id S267556AbUJIXkd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 19:40:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267571AbUJIXkd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 19:36:31 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52965 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267554AbUJIXg3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 19:36:29 -0400
-Message-ID: <416875ED.6090503@pobox.com>
-Date: Sat, 09 Oct 2004 19:36:13 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-CC: Martins Krikis <mkrikis@yahoo.com>, linux-kernel@vger.kernel.org,
-       marcelo.tosatti@cyclades.com
-Subject: Re: [Announce] "iswraid" (ICH5R/ICH6R ataraid sub-driver) for 2.4.28-pre3
-References: <20041009204425.49483.qmail@web13725.mail.yahoo.com>	 <200410092337.36488.bzolnier@elka.pw.edu.pl>	 <41686121.7060607@pobox.com> <58cb370e0410091622423bded0@mail.gmail.com>
-In-Reply-To: <58cb370e0410091622423bded0@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 9 Oct 2004 19:40:33 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:57608 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S267556AbUJIXka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 19:40:30 -0400
+Date: Sun, 10 Oct 2004 01:36:42 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Michel Angelo da Silva Pereira <michel@michel.eti.br>
+Cc: linux-kernel@vger.kernel.org, Denis Oliver Kropp <dok@directfb.org>,
+       jsimmons@infradead.org, geert@linux-m68k.org,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: drivers/built-in.o(.text+0x1411f): In function `neo_scan_monitor
+Message-ID: <20041009233641.GB3727@stusta.de>
+References: <415B2974.2020208@michel.eti.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <415B2974.2020208@michel.eti.br>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On Sat, 09 Oct 2004 18:07:29 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
+On Wed, Sep 29, 2004 at 06:30:28PM -0300, Michel Angelo da Silva Pereira wrote:
+
+> 	I'm getting this error on compiling 2.6.9-rc2 with FrameBuffer 
+> 	support for my ThinkPad.
+> 	01:00.0 VGA compatible controller: Neomagic Corporation NM2200 
+> 	[MagicGraph 256AV] (rev 20)
 > 
->>Bartlomiej Zolnierkiewicz wrote:
->>
->>>I may sound like an ignorant but...
->>>
->>>Why can't device mapper be merged into 2.4 instead?
->>>Is there something wrong with 2.4 device mapper patch?
->>>
->>>It would more convenient (same driver for 2.4 and 2.6)
->>>and would benefit users of other software RAIDs
->>>(easier transition to 2.6).
->>
->>OTOH, that would be introducing a brand new RAID/LVM subsystem in the
->>middle of a stable series...
-> 
-> 
-> Quoting Marcelo:
-> 
-> 
->>New drivers are OK, as long as they dont break existing setups,
->>and if substantial amount of users will benefit from it.
-> 
-> 
-> IMHO both conditions are fulfilled.
+>   LD      .tmp_vmlinux1
+> drivers/built-in.o(.text+0x1411f): In function `neo_scan_monitor':
+> : undefined reference to `vesa_modes'
+> drivers/built-in.o(.text+0x141bf): In function `neo_scan_monitor':
+> : undefined reference to `vesa_modes'
+> drivers/built-in.o(.text+0x1420b): In function `neo_scan_monitor':
+> : undefined reference to `vesa_modes'
+> make: ** [.tmp_vmlinux1] Erro 1
+> root@nerdbook:/usr/src/linux#
 
 
-Note I said "subsystem", Marcelo said "driver".  I don't object to 
-adding DM to 2.4.x, but I think it's a rather large addition with 
-consequences WRT LVM1 versus LVM2, and perhaps other issues as well.
+Thanks for this report!
 
-	Jeff
+This is a bug still present in both 2.6.9-rc3 and 2.6.9-rc3-mm3.
+
+The following patch should fix it:
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.9-rc3-mm3/drivers/video/Kconfig.old	2004-10-10 01:31:52.000000000 +0200
++++ linux-2.6.9-rc3-mm3/drivers/video/Kconfig	2004-10-10 01:32:26.000000000 +0200
+@@ -793,6 +793,7 @@
+ config FB_NEOMAGIC
+ 	tristate "NeoMagic display support"
+ 	depends on FB && PCI
++	select FB_MODE_HELPERS
+ 	help
+ 	  This driver supports notebooks with NeoMagic PCI chips.
+ 	  Say Y if you have such a graphics card. 
 
 

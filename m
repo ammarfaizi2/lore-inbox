@@ -1,149 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268082AbUILSAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268760AbUILSFR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268082AbUILSAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 14:00:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268237AbUILSAP
+	id S268760AbUILSFR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 14:05:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268237AbUILSDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 14:00:15 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:26892 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S268082AbUILSAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 14:00:00 -0400
-Date: Sun, 12 Sep 2004 19:59:46 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Wolfpaw - Dale Corse <admin@wolfpaw.net>
-Cc: peter@mysql.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local and REMOTE(verified) Denial of Service Attack
-Message-ID: <20040912175946.GA3491@alpha.home.local>
-References: <029201c498d8$dff156f0$0300a8c0@s> <001c01c498df$8d2cd0f0$0200a8c0@wolf>
+	Sun, 12 Sep 2004 14:03:41 -0400
+Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:9443 "EHLO
+	albatross.madduck.net") by vger.kernel.org with ESMTP
+	id S268771AbUILSC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 14:02:57 -0400
+Date: Sun, 12 Sep 2004 20:02:42 +0200
+From: martin f krafft <madduck@madduck.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: usb: device not accepting address
+Message-ID: <20040912180242.GA15109@cirrus.madduck.net>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8t9RHnE3ZwKMSgU+"
 Content-Disposition: inline
-In-Reply-To: <001c01c498df$8d2cd0f0$0200a8c0@wolf>
-User-Agent: Mutt/1.4i
+X-OS: Debian GNU/Linux 3.1 kernel 2.6.8-1-k7 i686
+X-Mailer: Mutt 1.5.6+20040818i (CVS)
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+X-Spamtrap: madduck.bogus@madduck.net
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dale,
 
-I've tried your code right here.
-The "attacker" was 10.0.3.1, and the victim 10.0.3.2.
+--8t9RHnE3ZwKMSgU+
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I could successfully generate 1 CLOSE_WAIT on the victim with your program.
-It was on port 23 and attached to inetd as fd #3. So I killed inetd, the
-connection was then freed, and restarted it.
+I have a USB device in this 2.6.8.1 machine of mine, and it's acting
+up:
 
-I changed the code slightly to be able to pass IP/ports as arguments.
-On the victim, I straced inetd (pid 1013), and captured all TCP traffic
-on port 23.
+  usb 4-6: new high speed USB device using address 47
+  usb 4-6: control timeout on ep0in
+  usb 4-6: device not accepting address 47, error -71
 
-attacker> ./tcpnclose2 10.0.3.2 22 10.0.3.2 23
+I don't know what the problem is because I did get that device to
+work before. However, now it does not work anymore. Would you agree
+with me that the device firmware is probably messed up? Or what else
+could be the cause?
 
-I stopped it when it was shouting at me :
-socket failed.Connecting to 10.0.3.2:22 (FD: -1)...  FAILED: UNKNOWN ERROR.
-socket failed.Connecting to 10.0.3.2:23 (FD: -1)...  FAILED: UNKNOWN ERROR.
+What's worse is that my entire USB subsystem seems to hang. So
+I tried to restart hotplug (which usually helps) but that resulted
+in khubd crashing upon removal of uhci-hcd:
 
-Then, on the victim :
+  root      6215  0.0  0.0  1520  408 pts/4    DN+  11:54   0:00 rmmod uhci=
+-hcd
 
-victim> sudo netstat -atnp|grep -v LISTEN
-Active Internet connections (servers and established)
-Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name   
-tcp        1      0 10.0.3.2:23             10.0.3.1:34058          CLOSE_WAIT  1013/inetd          
+This is what dmesg says:
 
-victim> tcpdump -Svnr capture-victim.cap tcp port 34058
-reading from file capture-victim.cap, link-type EN10MB (Ethernet)
-19:05:10.360728 IP (tos 0x0, ttl  64, id 8168, offset 0, flags [DF], length: 48) 10.0.3.1.34058 > 10.0.3.2.23: S [tcp sum ok] 2882867180:2882867180(0) win 15920 <mss 7960,nop,nop,sackOK>
-19:05:10.360764 IP (tos 0x0, ttl  64, id 0, offset 0, flags [DF], length: 48) 10.0.3.2.23 > 10.0.3.1.34058: S [tcp sum ok] 2614211278:2614211278(0) ack 2882867181 win 5840 <mss 1460,nop,nop,sackOK>
-19:05:10.360863 IP (tos 0x0, ttl  64, id 8169, offset 0, flags [DF], length: 40) 10.0.3.1.34058 > 10.0.3.2.23: . [tcp sum ok] ack 2614211279 win 15920
-19:06:17.668670 IP (tos 0x0, ttl  64, id 8170, offset 0, flags [DF], length: 40) 10.0.3.1.34058 > 10.0.3.2.23: F [tcp sum ok] 2882867181:2882867181(0) ack 2614211279 win 15920
-19:06:17.671102 IP (tos 0x0, ttl  64, id 11127, offset 0, flags [DF], length: 40) 10.0.3.2.23 > 10.0.3.1.34058: . [tcp sum ok] ack 2882867182 win 5840
+  Unable to handle kernel NULL pointer dereference at virtual address 00000=
+008
+  printing eip:
+  f8b3a394
+  *pde =3D 00000000
+  Oops: 0000 [#1]
+  PREEMPT=20
+  Modules linked in: visor usbserial bnep rfcomm l2cap sd_mod ide_cd cdrom =
+ipv6 lp thermal fan button processor ac battery af_packet ipt_LOG ipt_limit=
+ ipt_REJECT ipt_state iptable_filter ipt_MASQUERADE iptable_nat ip_conntrac=
+k ip_tables hci_usb bluetooth 8139cp bt878 eth1394 sata_promise libata scsi=
+_mod ohci1394 ieee1394 pci_hotplug via_agp agpgart pcspkr parport_pc parpor=
+t tuner tvaudio msp3400 bttv video_buf i2c_algo_bit v4l2_common btcx_risc i=
+2c_core videodev 8139too mii crc32 tg3 firmware_class snd_bt87x via_ircc ir=
+da crc_ccitt uhci_hcd usbcore snd_via82xx snd_ac97_codec snd_pcm_oss snd_mi=
+xer_oss snd_pcm snd_timer snd_page_alloc gameport snd_mpu401_uart snd_rawmi=
+di snd_seq_device snd soundcore dm_mod tsdev mousedev evdev capability comm=
+oncap psmouse rtc xfs reiserfs vfat fat isofs ext2 ext3 jbd mbcache ide_gen=
+eric via82cxxx ide_disk ide_core unix font vesafb cfbcopyarea cfbimgblt cfb=
+fillrect
+  CPU:    0
+  EIP:    0060:[<f8b3a394>]    Not tainted
+  EFLAGS: 00010002   (2.6.8-1-k7)=20
+  EIP is at hcd_endpoint_disable+0x74/0x1e0 [usbcore]
+  eax: 00000000   ebx: 00000080   ecx: f783e000   edx: f7b53400
+  esi: ffffffed   edi: 00000000   ebp: 00000008   esp: f783fee0
+  ds: 007b   es: 007b   ss: 0068
+  Process khubd (pid: 1016, threadinfo=3Df783e000 task=3Df7af5770)
+  Stack: 00000400 f8b451c0 f783ff00 ffffffed f4c97000 f4c97400 00000000 000=
+00080=20
+        ffffffed 00000101 f4c97000 f8b3bd74 f7b53400 00000080 f7b53400 f8b3=
+80bc=20
+        f7b53400 00000080 00000001 f8b35fd8 f783e000 00000001 f7dc8ba0 f7dc=
+8bb0=20
+  Call Trace:
+  [<f8b3bd74>] usb_disable_endpoint+0x74/0x80 [usbcore]
+  [<f8b380bc>] hub_port_connect_change+0x1bc/0x400 [usbcore]
+  [<f8b35fd8>] clear_port_feature+0x58/0x60 [usbcore]
+  [<f8b38575>] hub_events+0x275/0x3c0 [usbcore]
+  [<f8b386f5>] hub_thread+0x35/0x110 [usbcore]
+  [<c0119d30>] autoremove_wake_function+0x0/0x60
+  [<c0105fde>] ret_from_fork+0x6/0x14
+  [<c0119d30>] autoremove_wake_function+0x0/0x60
+  [<f8b386c0>] hub_thread+0x0/0x110 [usbcore]
+  [<c0104291>] kernel_thread_helper+0x5/0x14
+  Code: 8b 50 08 8d 5a f4 8b 43 0c 0f 18 00 90 39 ea 74 2d 89 4c 24=20
+  <6>note: khubd[1016] exited with preempt_count 1
 
-==> We see that the victim (10.0.3.2) did not send the FIN in return.
+Thanks for any hints,
 
-Now let's take a closer look at inetd :
+--=20
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
+spamtraps: madduck.bogus@madduck.net
+=20
+"sobald man =FCber niveau spricht
+ ist man l=E4ngst dar=FCber hinweg."
+                                                      -- thomas krafft
 
-victim> cat /proc/net/tcp 
-  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
-  16: 0203000A:0017 0103000A:850A 08 00000000:00000001 00:00000000 00000000     0        0 6420 1 d5dac400 1500 20 0 2 -1                            
+--8t9RHnE3ZwKMSgU+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-==> The socket (state 8 = CLOSE_WAIT) is bound to inode 6420.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-victim> sudo ls -l /proc/1013/fd/|grep 6420
-lrwx------    1 root     root           64 Sep 12 19:28 3 -> socket:[6420]
+iD8DBQFBRI9CIgvIgzMMSnURAplaAKCxv0oZEajsUbJKkzcxq9iOn3mbhQCg5/Jg
+66e1zEuclJwmU68AHluku/I=
+=bXE1
+-----END PGP SIGNATURE-----
 
-==> Again, it's FD #3.
-
-I restarted strace on inetd, and noticed that fd#3 was not in the select fd
-list anymore (remember one of the two cases I spoke about a few hours ago ?) :
-victim> strace -p 1013
-select(22, [4 5 6 7 8 9 11 12 13 14 15 16 17 18 19 20 21], NULL, NULL, NULL <unfinished ...>
-
-Then, I took a look at the strace capture (184 MB !), to which I inserted line
-numbers for better readability :
-
-1:1013  accept(10, 0, NULL)               = 3
-2:1013  fcntl64(10, F_SETFL, O_RDONLY)    = 0
-3:1013  rt_sigprocmask(SIG_BLOCK, [HUP ALRM CHLD], NULL, 8) = 0
-4:1013  fork()                            = 1108
-5:1013  rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
-6:1013  close(3)                          = 0
-
-This was the last but one connection assigned to fd #3. As you see, it's
-finally closed. But a few lines later :
-
-7:1013  select(22, [4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21], NULL, NULL, NULL) = 1 (in [10])
-8:1013  fcntl64(10, F_SETFL, O_RDONLY|O_NONBLOCK) = 0
-9:1013  accept(10, 0, NULL)               = 3
-10:1013  fcntl64(10, F_SETFL, O_RDONLY)    = 0
-11:1013  rt_sigprocmask(SIG_BLOCK, [HUP ALRM CHLD], NULL, 8) = 0
-12:1013  gettimeofday({1095008773, 685550}, NULL) = 0
-
-The FD gets re-used, but is never scanned anymore, so never closed either :
-
-35:1013  select(22, [4 5 6 7 8 9 11 12 13 14 15 16 17 18 19 20 21], NULL, NULL, NULL <unfinished ...>
-
-Conclusion :
-============
-
-The problem is within inetd. In my case it could be because it was a bit
-old (1999), but since you have it too, it might indicate an old bug. The
-fact that it affects mysql too does not prove that the problem is in the
-kernel, and I suspect that for whatever reason, there are some race
-conditions in these two programs if the connection is either reused or
-closed very quickly.
-
-To demonstrate this, I've run your program against my reverse-proxy,
-haproxy, which I fortunately happen to know better than these other
-programs. I could not manage to get even a CLOSE_WAIT session after
-several attempts.  All connections are closed normally, and as you'll
-see with this extract from strace, the polled file-descriptors are
-active once you kill the attacker :
-
-(...)
-close(593)                              = 0
-select(684, [3 5 603 604 605 606 607 608 609 610 611 612 613 614 615 616 617
-618 619 620 621 622 623 624 625 626 627 628 629 630 631 632 633 634 635 636
-637 638 639 640 641 642 643 644 645 646 647 648 649 650 651 652 653 654 655
-656 657 658 659 660 661 662 663 664 665 666 667 668 669 670 671 672 673 674
-675 676 677 678 679 680 681 682 683], NULL, NULL, {4, 835000}) = 81 (in [603
-604 605 606 607 608 609 610 611 612 613 614 615 616 617 618 619 620 621 622
-623 624 625 626 627 628 629 630 631 632 633 634 635 636 637 638 639 640 641
-642 643 644 645 646 647 648 649 650 651 652 653 654 655 656 657 658 659 660
-661 662 663 664 665 666 667 668 669 670 671 672 673 674 675 676 677 678 679
-680 681 682 683], left {4, 836000})
-gettimeofday({1095011266, 506966}, NULL) = 0
-recv(603, "", 4096, 0x4000)             = 0
-recv(604, "", 4096, 0x4000)             = 0
-recv(605, "", 4096, 0x4000)             = 0
-(...)
-close(605)                              = 0
-close(604)                              = 0
-close(603)                              = 0
-select(6, [3 5], NULL, NULL, NULL <unfinished ...>
-
-So I believe you'll have to dig into some programs because at least you found
-a vulnerability in both inetd and mysql :-)
-
-Regards,
-Willy
-
+--8t9RHnE3ZwKMSgU+--

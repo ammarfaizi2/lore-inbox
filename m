@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVC0OwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbVC0OwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbVC0OwR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 09:52:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVC0OuX
+	id S261685AbVC0OwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 09:52:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbVC0OuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 09:50:23 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:7181 "HELO
+	Sun, 27 Mar 2005 09:50:10 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:8205 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261685AbVC0OeW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 09:34:22 -0500
-Date: Sun, 27 Mar 2005 16:34:21 +0200
+	id S261693AbVC0OeZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 09:34:25 -0500
+Date: Sun, 27 Mar 2005 16:34:24 +0200
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-net@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/scsi/dpti.h: remove kernel 2.2 #if's
-Message-ID: <20050327143421.GF4285@stusta.de>
+Subject: [2.6 patch] drivers/net/smc-mca.c: cleanups
+Message-ID: <20050327143424.GG4285@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,7 +23,13 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes #if's for kernel 2.2 .
+This patch contains the following cleanups:
+- make a needlessly global function static
+- make three needlessly global structs static const
+
+Since after moving the now-static stucts to smc-mca.c the file smc-mca.h 
+was empty except for two #define's, I've also killed the rest of 
+smc-mca.h .
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
@@ -31,37 +37,158 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 This patch was already sent on:
 - 12 Mar 2005
+- 21 Feb 2005
 
- drivers/scsi/dpti.h |   10 ----------
- 1 files changed, 10 deletions(-)
+ drivers/net/smc-mca.c |   60 +++++++++++++++++++++++++++++++++++++++--
+ drivers/net/smc-mca.h |   61 ------------------------------------------
+ 2 files changed, 58 insertions(+), 63 deletions(-)
 
---- linux-2.6.11-mm2-full/drivers/scsi/dpti.h.old	2005-03-12 12:22:23.000000000 +0100
-+++ linux-2.6.11-mm2-full/drivers/scsi/dpti.h	2005-03-12 12:22:46.000000000 +0100
-@@ -20,15 +20,9 @@
- #ifndef _DPT_H
- #define _DPT_H
- 
--#ifndef LINUX_VERSION_CODE
- #include <linux/version.h>
--#endif
-
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,00)
--#define MAX_TO_IOP_MESSAGES   (210)
--#else
- #define MAX_TO_IOP_MESSAGES   (255)
--#endif
- #define MAX_FROM_IOP_MESSAGES (255)
- 
- 
-@@ -321,10 +313,6 @@
- static void adpt_delay(int millisec);
- #endif
- 
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
--static struct pci_dev* adpt_pci_find_device(uint vendor, struct pci_dev* from);
--#endif
+--- linux-2.6.11-rc3-mm2-full/drivers/net/smc-mca.h	2004-12-24 22:35:23.000000000 +0100
++++ /dev/null	2004-11-25 03:16:25.000000000 +0100
+@@ -1,61 +0,0 @@
+-/*
+- * djweis weisd3458@uni.edu
+- * most of this file was taken from ps2esdi.h
+- */
 -
- #if defined __ia64__ 
- static void adpt_ia64_info(sysInfo_S* si);
- #endif
+-struct {
+-  unsigned int base_addr;
+-} addr_table[] = {
+-    { 0x0800 },
+-    { 0x1800 },
+-    { 0x2800 },
+-    { 0x3800 },
+-    { 0x4800 },
+-    { 0x5800 },
+-    { 0x6800 },
+-    { 0x7800 },
+-    { 0x8800 },
+-    { 0x9800 },
+-    { 0xa800 },
+-    { 0xb800 },
+-    { 0xc800 },
+-    { 0xd800 },
+-    { 0xe800 },
+-    { 0xf800 }
+-};
+-
+-#define MEM_MASK 64
+-
+-struct {
+-  unsigned char mem_index;
+-  unsigned long mem_start;
+-  unsigned char num_pages;
+-} mem_table[] = {
+-    { 16, 0x0c0000, 40 },
+-    { 18, 0x0c4000, 40 },
+-    { 20, 0x0c8000, 40 },
+-    { 22, 0x0cc000, 40 },
+-    { 24, 0x0d0000, 40 },
+-    { 26, 0x0d4000, 40 },
+-    { 28, 0x0d8000, 40 },
+-    { 30, 0x0dc000, 40 },
+-    {144, 0xfc0000, 40 },
+-    {148, 0xfc8000, 40 },
+-    {154, 0xfd0000, 40 },
+-    {156, 0xfd8000, 40 },
+-    {  0, 0x0c0000, 20 },
+-    {  1, 0x0c2000, 20 },
+-    {  2, 0x0c4000, 20 },
+-    {  3, 0x0c6000, 20 }
+-};
+-
+-#define IRQ_MASK 243
+-struct {
+-   unsigned char new_irq;
+-   unsigned char old_irq;
+-} irq_table[] = {
+-   {  3,  3 },
+-   {  4,  4 },
+-   { 10, 10 },
+-   { 14, 15 }
+-};
+--- linux-2.6.11-rc3-mm2-full/drivers/net/smc-mca.c.old	2005-02-16 18:44:29.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/smc-mca.c	2005-02-16 18:47:24.000000000 +0100
+@@ -49,7 +49,6 @@
+ #include <asm/system.h>
+ 
+ #include "8390.h"
+-#include "smc-mca.h"
+ 
+ #define DRV_NAME "smc-mca"
+ 
+@@ -100,6 +99,63 @@
+ MODULE_PARM_DESC(ultra_io, "SMC Ultra/EtherEZ MCA I/O base address(es)");
+ MODULE_PARM_DESC(ultra_irq, "SMC Ultra/EtherEZ MCA IRQ number(s)");
+ 
++static const struct {
++  unsigned int base_addr;
++} addr_table[] = {
++    { 0x0800 },
++    { 0x1800 },
++    { 0x2800 },
++    { 0x3800 },
++    { 0x4800 },
++    { 0x5800 },
++    { 0x6800 },
++    { 0x7800 },
++    { 0x8800 },
++    { 0x9800 },
++    { 0xa800 },
++    { 0xb800 },
++    { 0xc800 },
++    { 0xd800 },
++    { 0xe800 },
++    { 0xf800 }
++};
++
++#define MEM_MASK 64
++
++static const struct {
++  unsigned char mem_index;
++  unsigned long mem_start;
++  unsigned char num_pages;
++} mem_table[] = {
++    { 16, 0x0c0000, 40 },
++    { 18, 0x0c4000, 40 },
++    { 20, 0x0c8000, 40 },
++    { 22, 0x0cc000, 40 },
++    { 24, 0x0d0000, 40 },
++    { 26, 0x0d4000, 40 },
++    { 28, 0x0d8000, 40 },
++    { 30, 0x0dc000, 40 },
++    {144, 0xfc0000, 40 },
++    {148, 0xfc8000, 40 },
++    {154, 0xfd0000, 40 },
++    {156, 0xfd8000, 40 },
++    {  0, 0x0c0000, 20 },
++    {  1, 0x0c2000, 20 },
++    {  2, 0x0c4000, 20 },
++    {  3, 0x0c6000, 20 }
++};
++
++#define IRQ_MASK 243
++static const struct {
++   unsigned char new_irq;
++   unsigned char old_irq;
++} irq_table[] = {
++   {  3,  3 },
++   {  4,  4 },
++   { 10, 10 },
++   { 14, 15 }
++};
++
+ static short smc_mca_adapter_ids[] __initdata = {
+ 	0x61c8,
+ 	0x61c9,
+@@ -126,7 +182,7 @@
+ 
+ static int ultra_found = 0;
+ 
+-int __init ultramca_probe(struct device *gen_dev)
++static int __init ultramca_probe(struct device *gen_dev)
+ {
+ 	unsigned short ioaddr;
+ 	struct net_device *dev;
+
 

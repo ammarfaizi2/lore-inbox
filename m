@@ -1,91 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261406AbSIWTIR>; Mon, 23 Sep 2002 15:08:17 -0400
+	id <S261313AbSIWTIS>; Mon, 23 Sep 2002 15:08:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261333AbSIWSlo>; Mon, 23 Sep 2002 14:41:44 -0400
+	id <S261332AbSIWSli>; Mon, 23 Sep 2002 14:41:38 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:27041 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261312AbSIWSl2>;
-	Mon, 23 Sep 2002 14:41:28 -0400
-Date: Mon, 23 Sep 2002 17:17:55 +0200
-Subject: Re: 2.5.38 on ppc/prep
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v482)
-Cc: linux-kernel@vger.kernel.org
-To: Tom Rini <trini@kernel.crashing.org>
-From: Remco Post <r.post@sara.nl>
-In-Reply-To: <20020923145519.GP726@opus.bloom.county>
-Message-Id: <A303D698-CF07-11D6-A08A-000393911DE2@sara.nl>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.482)
+	by vger.kernel.org with ESMTP id <S261308AbSIWSlY>;
+	Mon, 23 Sep 2002 14:41:24 -0400
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: Con Kolivas <conman@kolivas.net>, root@chaos.analogic.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] Corrected gcc3.2 v gcc2.95.3 contest results
+References: <Pine.LNX.3.95.1020923101125.3233A-100000@chaos.analogic.com>
+	<1032791089.3d8f2431231ac@kolivas.net>
+	<20020923103417.V21220@devserv.devel.redhat.com>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 23 Sep 2002 18:03:17 +0200
+In-Reply-To: Jakub Jelinek's message of "Mon, 23 Sep 2002 10:34:17 -0400"
+Message-ID: <yw1xofaowv5m.fsf@calippo.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jakub Jelinek <jakub@redhat.com> writes:
 
-On maandag, september 23, 2002, at 04:55 , Tom Rini wrote:
+> BTW: Have you tried gcc 3.2 with say -finline-limit=2000 too?
+> By default gcc 3.2 has for usual C code smaller inlining cutoff, so the IO
+> difference might as well be because some important, but big function was
+> inlined by 2.95.x and not by 3.2.x. On the other side there is
+> __attribute__((always_inline)) which you can use to tell gcc you don't
+> want any cutoff for a particular function.
 
-> On Mon, Sep 23, 2002 at 04:39:49PM +0200, Remco Post wrote:
->>
->> On maandag, september 23, 2002, at 04:29 , Tom Rini wrote:
->>
->>> On Mon, Sep 23, 2002 at 02:03:02PM +0200, Remco Post wrote:
->>>
->>>> after some tiny fixes to reiserfs and the makefile for prep bootfile
->>>> (using ../lib/lib.a vs. ../lib/libz.a) I managed to succesfully 
->>>> compile
->>>> a kernel. It even boots to the point where it frees unused kernel
->>>> memory
->>>> and then stops... this includes succesfully mounting the root
->>>> filesystem...
->>>
->>> What typo exactly?  The only 'lib' in the Makefile
->>> (arch/ppc/boot/prep/Makefile) is:
->>> LIBS = ../lib/zlib.a
->>
->> That one exactly... I don't recall calling it a typo, though ;-) I 
->> guess
->> that is more a relic from when the only lib routines were libz ones and
->> we called the lib to be linked libz.a....
->
-> It's not a relic, it's design.  We don't want the kernel's zlib routines
-> right now, we want our own.  Did it not link the way it was?  It's been
-> a few releases since I last compiled for my PReP box, but it was well
-> after the zlib changes had gone in.
->
->> There is a simular entry in arch/ppc/boot/openfirmware/Makefile...
->> removing the z helped over there as well (don't recall exactly, I'm at
->> work now... ) (not that I dare booting Linus's 2.5 tree on my build
->> machine, it's falling apart even with stable software....  ;-(
->
-> Again, we don't want the 'normal' zlib there either.  Was it not
-> linking?  If so, what was the error?
->
+How about using -Winline?
 
-no rule to make target ../lib/libz.a needed for target 
-../images/zImage.prep (and simulair for openfirmware...), or something 
-like that (I have to this from what I remember) I found a file 
-../lib/lib.a, so I assumed it was renamed, not updating the makefile for 
-the prep and openfirmware image
-
-This is a linking error in the final stage of the build.... I think 
-2.5.33 als build ok, after a few patches. Booted as far a to tell me 
-there was an attempt to kill pid 0 and the do its 180 sec. countdown...
-
-> --
-> Tom Rini (TR1265)
-> http://gate.crashing.org/~trini/
->
---
-Met vriendelijke groeten,
-
-Remco Post
-
-SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
-High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
-PGP keys at http://home.sara.nl/~remco/keys.asc
-
-"I really didn't foresee the Internet. But then, neither did the computer
-industry. Not that that tells us very much of course - the computer 
-industry
-didn't even foresee that the century was going to end." -- Douglas Adams
-
-
+-- 
+Måns Rullgård
+mru@users.sf.net

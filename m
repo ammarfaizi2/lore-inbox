@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131544AbQLVPdA>; Fri, 22 Dec 2000 10:33:00 -0500
+	id <S131478AbQLVPeu>; Fri, 22 Dec 2000 10:34:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131478AbQLVPcu>; Fri, 22 Dec 2000 10:32:50 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:1080 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131618AbQLVPcc>; Fri, 22 Dec 2000 10:32:32 -0500
-Date: Fri, 22 Dec 2000 16:01:50 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: test13-pre4
-Message-ID: <20001222160150.A28385@athlon.random>
-In-Reply-To: <Pine.LNX.4.10.10012211726060.968-100000@penguin.transmeta.com> <3A43506B.6CEF84BB@eyal.emu.id.au> <20001222153145.A15733@athlon.random>
+	id <S131991AbQLVPek>; Fri, 22 Dec 2000 10:34:40 -0500
+Received: from p3EE3CA44.dip.t-dialin.net ([62.227.202.68]:3076 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S131478AbQLVPe2> convert rfc822-to-8bit; Fri, 22 Dec 2000 10:34:28 -0500
+Date: Fri, 22 Dec 2000 15:47:57 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: "Theodore Ts'o" <tytso@valinux.com>,
+        Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: FAIL: 2.2.18 + AA-VM-global-7 + serial 5.05
+Message-ID: <20001222154757.A1167@emma1.emma.line.org>
+Mail-Followup-To: Theodore Ts'o <tytso@valinux.com>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+	Andrea Arcangeli <andrea@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20001222153145.A15733@athlon.random>; from andrea@suse.de on Fri, Dec 22, 2000 at 03:31:45PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 22, 2000 at 03:31:45PM +0100, Andrea Arcangeli wrote:
-> On Sat, Dec 23, 2000 at 12:00:27AM +1100, Eyal Lebedinsky wrote:
-> > Linus Torvalds wrote:
-> > >  - pre4:
-> > >    - Andrea Arkangeli: update to LVM-0.9
-> > 
-> > gcc -D__KERNEL__ -I/usr/local/src/linux/include -Wall
-> > -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
-> > -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE
-> > -DMODVERSIONS -include
-> > /usr/local/src/linux/include/linux/modversions.h   -c -o lvm.o lvm.c
-> > lvm.c: In function `lvm_do_vg_extend':
-> > lvm.c:2024: warning: implicit declaration of function
-> > `lvm_do_create_proc_entry_of_pv'
-> > lvm.c: In function `lvm_do_create_proc_entry_of_lv':
-> > lvm.c:3016: `pde' undeclared (first use in this function)
-> > lvm.c:3016: (Each undeclared identifier is reported only once
-> > lvm.c:3016: for each function it appears in.)
-> > lvm.c: At top level:
-> > lvm.c:3044: warning: type mismatch with previous implicit declaration
-> > lvm.c:2024: warning: previous implicit declaration of
-> > `lvm_do_create_proc_entry_of_pv'
-> > lvm.c:3044: warning: `lvm_do_create_proc_entry_of_pv' was previously
-> > implicitly declared to return `int'
-> > lvm.c: In function `lvm_do_create_proc_entry_of_pv':
-> > lvm.c:3050: `pde' undeclared (first use in this function)
-> > lvm.c: At top level:
-> > lvm.c:147: warning: `lvm_short_version' defined but not used
-> > make[2]: *** [lvm.o] Error 1
-> > make[2]: Leaving directory `/data2/usr/local/src/linux-2.4/drivers/md'
-> 
-> Strange, test13-pre3 plus the 0.9 lvm patch compiled and worked fine
-> for me. I'll try to compile test13-pre4 now and I'll let you know.
+Hi,
 
-Ok, found it, you can workaround it with:
+I have a vanilla 2.2.18 that I patch Andrea Arcangeli's VM-global-7
+patch (for 2.2.18pre25) on top, as well as I²C 2.5.4, the current
+--12-09 IDE.2.2.18 patch and ReiserFS 3.5.28. So far, so good. If I now
+patch serial 5.05 on top of that, the kernel itself detects devices, but
+does nothing if it's to boot /sbin/init. ctrl-alt-del and Magic SysRq
+are both functional and can reboot the machine.
 
-CONFIG_LVM_PROC_FS=y
+Taking out either the VM-global-7 patch or the serial 5.05 update fixes
+this.
 
-(I never tried to compile LVM without procfs support, you really
-want /proc support too, anyways of course it should compile also
-without /proc support so it's a minor bug...)
+I suspect that these patches are mutually incompatible.
 
-Andrea
+Could somebody please have a look at this? I will test or provide more
+information as requested.
+
+-- 
+Matthias Andree
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

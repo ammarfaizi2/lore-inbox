@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269857AbRHDVtj>; Sat, 4 Aug 2001 17:49:39 -0400
+	id <S269861AbRHDV47>; Sat, 4 Aug 2001 17:56:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269861AbRHDVt3>; Sat, 4 Aug 2001 17:49:29 -0400
-Received: from femail39.sdc1.sfba.home.com ([24.254.60.33]:51076 "EHLO
-	femail39.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S269857AbRHDVtR>; Sat, 4 Aug 2001 17:49:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: linux-kernel@vger.kernel.org
-Subject: Possibly unfreezable system?
-Date: Sat, 4 Aug 2001 14:52:14 -0700
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01080414521403.02694@c779218-a>
-Content-Transfer-Encoding: 7BIT
+	id <S269868AbRHDV4u>; Sat, 4 Aug 2001 17:56:50 -0400
+Received: from p061.as-l031.contactel.cz ([212.65.234.253]:12804 "EHLO
+	p061.as-l031.contactel.cz") by vger.kernel.org with ESMTP
+	id <S269861AbRHDV4o>; Sat, 4 Aug 2001 17:56:44 -0400
+Date: Sat, 4 Aug 2001 23:56:27 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: [PATCH] 2.4.7-ac4/ac5 dies due to double unlock
+Message-ID: <20010804235627.C11632@ppc.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(I'm going to get my ass handed to me for this one, I just know it, but I 
-have to try.)
+Hi Alan,
+  double-unlock on sb_lock in try_to_sync_unused inodes when 
+try_to_sync_unused_list() returns 0... It is reliably
+triggered by xmms loading mp3 tags from vfat...
 
-I'm not a coder, I can't impliment this, I don't even know for sure if it 
-IS possible to impliment without a complete rewrite of the kernel.
-This is also not something that would likely be added to 2.4, it'd 
-probably be a 2.5 thing.
+  Originally from 2.4.7-ac4, but still unfixed in -ac5.
+					Thanks,
+						Petr Vandrovec
+						vandrove@vc.cvut.cz
 
-Note that I intend for the behavior below to be CONFIGURABLE, NOT the 
-default behavior of the kernel, and that the exact behavior be (somewhat) 
-configurable without diving into the code.
+diff -urdN linux/fs/inode.c linux/fs/inode.c
+--- linux/fs/inode.c	Sat Aug  4 00:02:18 2001
++++ linux/fs/inode.c	Sat Aug  4 17:37:50 2001
+@@ -412,7 +412,7 @@
+ 			continue;
+ 		spin_unlock(&sb_lock);
+ 		if (!try_to_sync_unused_list(&sb->s_dirty))
+-			break;
++			return;
+ 		spin_lock(&sb_lock);
+ 	}
+ 	spin_unlock(&sb_lock);
 
-I've lately seen many complaints regarding the inability to even access a 
-system that something (such as kswapd) is going crazy on.
-The solution, to me, seems simple, have the kernel reserve some extra RAM 
-at boot (a few megs), and dictate that it get at least X amount of 
-processor time, consistantly, to allow for the following:
-An alt-sysrq key that switches to a certain virtual console, kills 
-whatever might already be running there, and allow a person to log in in 
-order to kill whatever is causing the system to freeze, run out of 
-memory, etc. The program(s) running here would run in that extra RAM the 
-kernel reserved at boot.
-This obviously degrades performance somewhat, but if properly 
-implimented, the pros could outweigh the cons on even the most 
-resource-sensitive systems.
 
-Again, I mean for this to be CONFIGURABLE, and NOT the default behavior.
-And please, don't flame me, none of this may be doable, if so, I 
-apologize for wasting everyone's time.
+

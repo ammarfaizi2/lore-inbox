@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288293AbSACUFe>; Thu, 3 Jan 2002 15:05:34 -0500
+	id <S288294AbSACUHo>; Thu, 3 Jan 2002 15:07:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288299AbSACUFT>; Thu, 3 Jan 2002 15:05:19 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:17676 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S288294AbSACUFI>;
-	Thu, 3 Jan 2002 15:05:08 -0500
-Date: Thu, 3 Jan 2002 10:46:06 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Andrew Morton <akpm@zip.com.au>, Legacy Fishtank <garzik@havoc.gtf.org>,
-        Keith Owens <kaos@ocs.com.au>, Mike Castle <dalgoda@ix.netcom.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: State of the new config & build system
-Message-ID: <20020103104605.A37@toy.ucw.cz>
-In-Reply-To: <20011229042139.GC14067@thune.mrc-home.com> <20011229024143.A11696@havoc.gtf.org> <3C2D7B2B.C1362850@zip.com.au> <E16KFyl-0000DL-00@starship.berlin>
+	id <S288295AbSACUHe>; Thu, 3 Jan 2002 15:07:34 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:30481 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S288294AbSACUHY>;
+	Thu, 3 Jan 2002 15:07:24 -0500
+Date: Thu, 3 Jan 2002 21:06:53 +0100
+From: Jens Axboe <axboe@suse.de>
+To: petter wahlman <petter@bluezone.no>
+Cc: linux-kernel@vger.kernel.org, ipslinux@us.ibm.com
+Subject: Re: bug in IBM ServeRAID driver?
+Message-ID: <20020103210653.H8673@suse.de>
+In-Reply-To: <1010087472.9561.0.camel@BadEip>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E16KFyl-0000DL-00@starship.berlin>; from phillips@bonn-fries.net on Sat, Dec 29, 2001 at 10:40:33AM +0100
+Content-Disposition: inline
+In-Reply-To: <1010087472.9561.0.camel@BadEip>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > On Sat, Dec 29, 2001 at 03:44:10PM +1100, Keith Owens wrote:
-> > > > What Mr. Fishtank seems to overlook is that kbuild 2.5 is far more
-> > > > flexible and accurate than 2.4, including features that lots of people
-> > > > want, like separate source and object trees.
-> > > 
-> > > I don't see the masses, or, well, anybody on lkml, clamoring for this.
-> > 
-> > Clamour.
+On Thu, Jan 03 2002, petter wahlman wrote:
 > 
-> Clamour.
+> While looking through linux-2.4.18pre1/drivers/scsi/ips.c I noticed that
+> a spin_lock_irq is held while doing a possibly blocking operation.
+> Can't this code livelock on SMP if datasize is set?
+> 
+> linux-2.4.18pre1/drivers/scsi/ips.c
+> 
+>    1778       /* reobtain the lock */
+>    1779       spin_lock_irq(&io_request_lock);
+>    1780
+>    1781       /* command finished -- copy back */
+>    1782       user_area = *((char **) &SC->cmnd[4]);
+>    1783       kern_area = ha->ioctl_data;
+>    1784       datasize = *((u_int32_t *) &SC->cmnd[8]);
+>    1785
+>    1786       if (datasize) {
+>    1787          if (copy_to_user(user_area, kern_area, datasize) > 0) {
+>    1788             DEBUG_VAR(1, "(%s%d) passthru failed - unable to
+> copy out user data",
+>    1789                       ips_name, ha->host_num);
+> 
+> 
+> I am not subscribed to this list, so please CC me.
 
-Clamour.
+Yup, that's surely a nasty bug.
 
-Being able to cp -a then build without full rebuild is good. Also make dep
-takes  *long* and and bad things happen when you think it was not needed ;-).
-
-									Pavel
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Jens Axboe
 

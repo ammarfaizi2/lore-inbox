@@ -1,22 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131065AbRBNTgR>; Wed, 14 Feb 2001 14:36:17 -0500
+	id <S131135AbRBNTjh>; Wed, 14 Feb 2001 14:39:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131135AbRBNTgI>; Wed, 14 Feb 2001 14:36:08 -0500
-Received: from femail17.sdc1.sfba.home.com ([24.0.95.144]:43177 "EHLO
-	femail17.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S131065AbRBNTf7>; Wed, 14 Feb 2001 14:35:59 -0500
-From: Josh McKinney <forming@home.com>
-Date: Wed, 14 Feb 2001 14:36:17 -0500
-To: linux-kernel@vger.kernel.org
-Subject: test
-Message-ID: <20010214143617.A2864@home.com>
-Mail-Followup-To: josh, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+	id <S131311AbRBNTj1>; Wed, 14 Feb 2001 14:39:27 -0500
+Received: from nic-31-c31-100.mn.mediaone.net ([24.31.31.100]:1664 "EHLO
+	nic-31-c31-100.mn.mediaone.net") by vger.kernel.org with ESMTP
+	id <S131135AbRBNTi4>; Wed, 14 Feb 2001 14:38:56 -0500
+Date: Wed, 14 Feb 2001 13:38:25 -0600 (CST)
+From: "Scott M. Hoffman" <scott@mediaone.net>
+X-X-Sender: <scott@nic-31-c31-100.mn.mediaone.net>
+Reply-To: <scott1021@mediaone.net>
+To: <linux-kernel@vger.kernel.org>
+Message-ID: <Pine.LNX.4.32.0102140928001.4339-300000@nic-31-c31-100.mn.mediaone.net>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="521692191-192983790-982164689=:4339"
+Content-ID: <Pine.LNX.4.32.0102140946290.4524@nic-31-c31-100.mn.mediaone.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sory again
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
+
+--521692191-192983790-982164689=:4339
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.32.0102140946291.4524@nic-31-c31-100.mn.mediaone.net>
+
+Hello,
+   See the attached Oops passed through ksymoops 2.3.7(the i386 rpm from
+kernel.org).  Not sure who should see this...
+   Is it generally a good idea to reboot the machine after getting one of
+these?
+
+--521692191-192983790-982164689=:4339
+Content-Type: TEXT/PLAIN; NAME="oops.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.32.0102140931290.4339@nic-31-c31-100.mn.mediaone.net>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="oops.txt"
+
+RmViIDE0IDA0OjAyOjAyIG5pYy0zMS1jMzEtMTAwIGtlcm5lbDoga2xvZ2Qg
+MS4zLTMsIGxvZyBzb3VyY2UgPSAvcHJvYy9rbXNnIHN0YXJ0ZWQuDQpGZWIg
+MTQgMDQ6MDI6MDIgbmljLTMxLWMzMS0xMDAga2VybmVsOiBJbnNwZWN0aW5n
+IC9ib290L1N5c3RlbS5tYXAtMi40LjItcHJlMw0KRmViIDE0IDA0OjAyOjAy
+IG5pYy0zMS1jMzEtMTAwIGtlcm5lbDogTG9hZGVkIDEyOTc5IHN5bWJvbHMg
+ZnJvbSAvYm9vdC9TeXN0ZW0ubWFwLTIuNC4yLXByZTMuDQpGZWIgMTQgMDQ6
+MDI6MDIgbmljLTMxLWMzMS0xMDAga2VybmVsOiBTeW1ib2xzIG1hdGNoIGtl
+cm5lbCB2ZXJzaW9uIDIuNC4yLg0KRmViIDE0IDA0OjAyOjAyIG5pYy0zMS1j
+MzEtMTAwIGtlcm5lbDogTG9hZGVkIDU4IHN5bWJvbHMgZnJvbSA0IG1vZHVs
+ZXMuDQpGZWIgMTQgMDQ6MDI6MzcgbmljLTMxLWMzMS0xMDAga2VybmVsOiBV
+bmFibGUgdG8gaGFuZGxlIGtlcm5lbCBOVUxMIHBvaW50ZXIgZGVyZWZlcmVu
+Y2UgYXQgdmlydHVhbCBhZGRyZXNzIDAwMDAwMDA0DQpGZWIgMTQgMDQ6MDI6
+MzcgbmljLTMxLWMzMS0xMDAga2VybmVsOiAgcHJpbnRpbmcgZWlwOg0KRmVi
+IDE0IDA0OjAyOjM3IG5pYy0zMS1jMzEtMTAwIGtlcm5lbDogYzAxMzI3MTEN
+CkZlYiAxNCAwNDowMjozNyBuaWMtMzEtYzMxLTEwMCBrZXJuZWw6ICpwZGUg
+PSAwMDAwMDAwMA0KRmViIDE0IDA0OjAyOjM3IG5pYy0zMS1jMzEtMTAwIGtl
+cm5lbDogT29wczogMDAwMg0KRmViIDE0IDA0OjAyOjM3IG5pYy0zMS1jMzEt
+MTAwIGtlcm5lbDogQ1BVOiAgICAwDQpGZWIgMTQgMDQ6MDI6MzcgbmljLTMx
+LWMzMS0xMDAga2VybmVsOiBFSVA6ICAgIDAwMTA6W19fcmVtb3ZlX2lub2Rl
+X3F1ZXVlKzE3LzMyXQ0KRmViIDE0IDA0OjAyOjM3IG5pYy0zMS1jMzEtMTAw
+IGtlcm5lbDogRUZMQUdTOiAwMDAxMDIwNg0KRmViIDE0IDA0OjAyOjM3IG5p
+Yy0zMS1jMzEtMTAwIGtlcm5lbDogZWF4OiAwMDAwMDAwMCAgIGVieDogYzYz
+MjI4YzAgICBlY3g6IDAwMDAwMDAwICAgZWR4OiAwMDAwMDAwMA0KRmViIDE0
+IDA0OjAyOjM3IG5pYy0zMS1jMzEtMTAwIGtlcm5lbDogZXNpOiBjNjMyMjhj
+MCAgIGVkaTogYzYzMjI4YzAgICBlYnA6IDAwMDAwMDAwICAgZXNwOiBjNGNj
+N2Q2NA0KRmViIDE0IDA0OjAyOjM3IG5pYy0zMS1jMzEtMTAwIGtlcm5lbDog
+ZHM6IDAwMTggICBlczogMDAxOCAgIHNzOiAwMDE4DQpGZWIgMTQgMDQ6MDI6
+MzcgbmljLTMxLWMzMS0xMDAga2VybmVsOiBQcm9jZXNzIHVwZGF0ZWRiIChw
+aWQ6IDM3NzMsIHN0YWNrcGFnZT1jNGNjNzAwMCkNCkZlYiAxNCAwNDowMjoz
+NyBuaWMtMzEtYzMxLTEwMCBrZXJuZWw6IFN0YWNrOiBjMDEzNGJmOSBjNjMy
+MjhjMCAwMDAwMDAwMyBjMjI3ZTI4MCAwMDAwMDAwMCAwMDAwMDAwMCBjMDE1
+MDM5YyAwMDAwMDAwMCANCkZlYiAxNCAwNDowMjozNyBuaWMtMzEtYzMxLTEw
+MCBrZXJuZWw6ICAgICAgICBjMTBhNjY2YyAwMDAwMDAwMCAwMDAwMDAwNyBj
+MDEyYjFiNyBjMTBhNjY2YyAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAN
+CkZlYiAxNCAwNDowMjozNyBuaWMtMzEtYzMxLTEwMCBrZXJuZWw6ICAgICAg
+ICAwMDAwMDAwMCAwMDAwMTZiYiAwMDAwNDBjOCAwMDAwMDAwMCAwMDAwMTAw
+MCAwMDAwMDAwZCAwMDAwMDMwMyAwMDAzMGVhOSANCkZlYiAxNCAwNDowMjoz
+NyBuaWMtMzEtYzMxLTEwMCBrZXJuZWw6IENhbGwgVHJhY2U6IFt0cnlfdG9f
+ZnJlZV9idWZmZXJzKzEwNS8zNjhdIFtleHQyX2dldF9ibG9jays0NC8xMjY0
+XSBbcGFnZV9sYXVuZGVyKzg3MS8yMjA4XSBbcmVmaWxsX2ZyZWVsaXN0KzMx
+LzQ4XSBbZ2V0YmxrKzI1MC8yNTZdIFtleHQyX2dldGJsaysxMDYvMjI0XSBb
+ZXh0Ml9yZWFkX2lub2RlKzI1OC85NzZdIA0KRmViIDE0IDA0OjAyOjM3IG5p
+Yy0zMS1jMzEtMTAwIGtlcm5lbDogICAgICAgIFtleHQyX3JlYWRfaW5vZGUr
+ODM2Lzk3Nl0gW2V4dDJfYnJlYWQrMzUvMjg4XSBbaWdldDQrMTk0LzIwOF0g
+W2V4dDJfcmVhZGRpcisxNTUvMTAwOF0gW2NhY2hlZF9sb29rdXArMTYvODBd
+IFtyZWFsX2xvb2t1cCs3OS8xOTJdIFtvcGVuX25hbWVpKzgzMS8xNDU2XSBb
+dmZzX3JlYWRkaXIrOTAvMTI4XSANCkZlYiAxNCAwNDowMjozNyBuaWMtMzEt
+YzMxLTEwMCBrZXJuZWw6ICAgICAgICBbZmlsbGRpcjY0KzAvMzIwXSBbc3lz
+X2dldGRlbnRzNjQrNzkvMTkyXSBbZmlsbGRpcjY0KzAvMzIwXSBbc3lzX2Zj
+aGRpcisyMjQvMjQwXSBbc3lzdGVtX2NhbGwrNTEvNTZdIA0KRmViIDE0IDA0
+OjAyOjM3IG5pYy0zMS1jMzEtMTAwIGtlcm5lbDogDQpGZWIgMTQgMDQ6MDI6
+MzcgbmljLTMxLWMzMS0xMDAga2VybmVsOiBDb2RlOiA4OSA1MCAwNCA4OSAw
+MiBjMyA4OSBmNiA4ZCBiYyAyNyAwMCAwMCAwMCAwMCA4YiA1NCAyNCAwNCAz
+MSANCg==
+--521692191-192983790-982164689=:4339
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=ver
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.32.0102141334300.882@nic-31-c31-100.mn.mediaone.net>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME=ver
+
+LS0gVmVyc2lvbnMgaW5zdGFsbGVkOiAoaWYgc29tZSBmaWVsZHMgYXJlIGVt
+cHR5IG9yIGxvb2sNCi0tIHVudXN1YWwgdGhlbiBwb3NzaWJseSB5b3UgaGF2
+ZSB2ZXJ5IG9sZCB2ZXJzaW9ucykNCkxpbnV4IG5pYy0zMS1jMzEtMTAwLm1u
+Lm1lZGlhb25lLm5ldCAyLjQuMi1wcmUzICMxIFR1ZSBGZWIgMTMgMDk6MjU6
+MTQgQ1NUIDIwMDEgaTY4NiB1bmtub3duDQpLZXJuZWwgbW9kdWxlcyAgICAg
+ICAgIDIuNC4wDQpHbnUgQyAgICAgICAgICAgICAgICAgIDIuOTYNCkdudSBN
+YWtlICAgICAgICAgICAgICAgMy43OS4xDQpCaW51dGlscyAgICAgICAgICAg
+ICAgIDIuMTAuMC4xOA0KTGludXggQyBMaWJyYXJ5ICAgICAgICA+IGxpYmMu
+Mi4yDQpEeW5hbWljIGxpbmtlciAgICAgICAgIGxkZCAoR05VIGxpYmMpIDIu
+Mg0KUHJvY3BzICAgICAgICAgICAgICAgICAyLjAuNw0KTW91bnQgICAgICAg
+ICAgICAgICAgICAyLjEwcg0KTmV0LXRvb2xzICAgICAgICAgICAgICAxLjU2
+DQpDb25zb2xlLXRvb2xzICAgICAgICAgIDAuMy4zDQpTaC11dGlscyAgICAg
+ICAgICAgICAgIDIuMA0KTW9kdWxlcyBMb2FkZWQgICAgICAgICBwYXJwb3J0
+X3BjIGxwIHBhcnBvcnQgdHVsaXAgZXMxMzcxIHNvdW5kY29yZSBhYzk3X2Nv
+ZGVjDQo=
+--521692191-192983790-982164689=:4339--

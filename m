@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbTLQDDb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 22:03:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263267AbTLQDDb
+	id S263137AbTLQDhY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 22:37:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbTLQDhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 22:03:31 -0500
-Received: from b1.ovh.net ([213.186.33.51]:2735 "EHLO mail9.ha.ovh.net")
-	by vger.kernel.org with ESMTP id S262176AbTLQDDa (ORCPT
+	Tue, 16 Dec 2003 22:37:24 -0500
+Received: from mail.bluebottle.com ([69.20.6.25]:55981 "EHLO mail.bluebottle")
+	by vger.kernel.org with ESMTP id S263137AbTLQDhX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 22:03:30 -0500
-Message-ID: <1071630228.3fdfc794eb353@ssl0.ovh.net>
-Date: Wed, 17 Dec 2003 04:03:48 +0100
-From: Miroslaw KLABA <totoro@totoro.be>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Double Interrupt with HT
-References: <20031215155843.210107b6.totoro@totoro.be>  <1071603069.991.194.camel@cog.beaverton.ibm.com>  <1071615336.3fdf8d6840208@ssl0.ovh.net> <1071618630.1013.11.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1071618630.1013.11.camel@cog.beaverton.ibm.com>
+	Tue, 16 Dec 2003 22:37:23 -0500
+Date: Wed, 17 Dec 2003 01:37:20 -0200 (BRST)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
+X-X-Sender: fredlwm@pervalidus.dyndns.org
+To: linux-kernel@vger.kernel.org
+Subject: CONFIG_UNIX98_PTY_COUNT and devfs
+Message-ID: <Pine.LNX.4.58.0312170131500.397@pervalidus.dyndns.org>
+X-Archive: encrypt
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
-X-Originating-IP: 81.250.170.171
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I used CONFIG_UNIX98_PTY_COUNT=32 and it created
+/dev/pty/m[0-255]. Is there any way to make devfs only create
+/dev/pty/m[0-31] ?
 
-> Ok, so its been around awhile. Do you remember what was the last 2.4
-> kernel where you did not see this problem?
-> 
+>From Configure.help:
 
-In fact, it is a new motherboard we're testing, and with the oldest version of
-the kernel I have, 2.4.18, I have also the problem.
+"When not in use, each additional set of 256 PTYs occupy
+approximately 8 KB of kernel memory on 32-bit architectures."
 
-> Further I can't see how it fixes the problem, but it may just be working
-> around the issue. I'd be interested in what the patch author thinks. 
-> 
-> > I think it is a bug with the via chipset, but I'm not able to get deeper in
-> the
-> > kernel code.
-> 
-> Could be, but I suspect interrupt routing isn't happening properly at
-> boot time. The irqbalance code just forces it to be readjusted correctly
-> once your up and running. 
-> 
+Does that mean it doesn't make any difference if I set
+CONFIG_UNIX98_PTY_COUNT=1 or CONFIG_UNIX98_PTY_COUNT=256, and
+ONFIG_UNIX98_PTY_COUNT=257 will create 512 entries ?
 
-With SMP disabled, I have no problem with any kernel. So it must be in the APIC
-init, I think.
-I don't know how the patch works around this problem, but it's a workaround. I
-can test other kernels to find a "better" patch to find and fix this problem,
-and have a stable 2.4.24 that works with this hardware.
-If you can suggest other things to test or to identify the problem, I can do it.
-
-Thanks
-Miro
+-- 
+http://www.pervalidus.net/contact.html

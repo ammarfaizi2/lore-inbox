@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVCSUTX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbVCSUXD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261287AbVCSUTX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 15:19:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVCSUTX
+	id S261751AbVCSUXD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 15:23:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVCSUXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 15:19:23 -0500
-Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:40614 "HELO
-	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261287AbVCSUTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 15:19:20 -0500
-From: Russell Miller <rmiller@duskglow.com>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Suspend-to-disk woes
-Date: Sat, 19 Mar 2005 12:20:35 -0800
-User-Agent: KMail/1.7
-Cc: erik.andren@gmail.com, linux-kernel@vger.kernel.org
-References: <423B01A3.8090501@gmail.com> <20050319132612.GA1504@openzaurus.ucw.cz>
-In-Reply-To: <20050319132612.GA1504@openzaurus.ucw.cz>
+	Sat, 19 Mar 2005 15:23:03 -0500
+Received: from fmr14.intel.com ([192.55.52.68]:18913 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261751AbVCSUW5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 15:22:57 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503191220.35207.rmiller@duskglow.com>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch] arch hook for notifying changes in PTE protections bits
+Date: Sat, 19 Mar 2005 12:22:20 -0800
+Message-ID: <01EF044AAEE12F4BAAD955CB75064943033468DE@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] arch hook for notifying changes in PTE protections bits
+Thread-Index: AcUsOPwwc9cXCJepTpiHAdD6Rqj8rQAhC9cg
+From: "Seth, Rohit" <rohit.seth@intel.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <davidm@hpl.hp.com>
+X-OriginalArrivalTime: 19 Mar 2005 20:22:22.0552 (UTC) FILETIME=[5B828D80:01C52CC1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 19 March 2005 05:26, Pavel Machek wrote:
+David S. Miller <mailto:davem@davemloft.net> wrote on Friday, March 18,
+2005 8:06 PM:
 
-> Checking that would be hard, but you might want to provide patch to check
-> last-mounted dates of filesystems and panic if they changed.
-> 				Pavel
+> 
+> Take a look at set_pte_at().  You get the "mm", the
+> virtual address, the pte pointer, and the new pte value.
+> 
 
-Then how would you fix it?  There'd also have to be a way to reset it, 
-otherwise the kernel will never boot again.  Perhaps an argument to the 
-kernel that allows for resetting of the mechanism?
+Thanks for pointing out the updated interface in 2.6.12-* kernel.  I
+think I can overload the arch specific part of set_pte_at(or for that
+matter set_pte, as what I need is only pte_t) to always check if we need
+to do lazy I/D coherency for IA-64.....but this incurs extra cost for
+making a check every time set_pte_at is called.  This new hook,
+lazy_mmu_prot_update, though needs to be used only when the permissions
+on a valid PTE is changing. For example, at the time of remap or swap,
+this API is not called.
+  
+> What else could you possibly need to track stuff like this
+> and react appropriately? :-)
+> 
 
---Russell
+Stuff is there, though the call needs to be made to ensure we are
+reacting to it most optimally and correctly.....I guess something
+similar to why update_mmu_cache API is still existing in generic part
+and not overloading arch specific set_pte_at definition.
 
--- 
 
-Russell Miller - rmiller@duskglow.com - Agoura, CA
+-rohit

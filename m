@@ -1,87 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbULPQxw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbULPQzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261514AbULPQxw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 11:53:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbULPQxv
+	id S261749AbULPQzh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 11:55:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbULPQyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 11:53:51 -0500
-Received: from magic.adaptec.com ([216.52.22.17]:50855 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S261514AbULPQve convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 11:51:34 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: How to add/drop SCSI drives from within the driver?
-Date: Thu, 16 Dec 2004 11:51:28 -0500
-Message-ID: <60807403EABEB443939A5A7AA8A7458B87DC14@otce2k01.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: How to add/drop SCSI drives from within the driver?
-Thread-Index: AcTjhldH90Z2Gs2gTfOrzNQ7bn8ObAABzKDQ
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Arjan van de Ven" <arjan@infradead.org>
-Cc: "Matt Domsch" <Matt_Domsch@dell.com>,
-       "James Bottomley" <James.Bottomley@SteelEye.com>,
-       "Bagalkote, Sreenivas" <sreenib@lsil.com>, <brking@us.ibm.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "SCSI Mailing List" <linux-scsi@vger.kernel.org>, <bunk@fs.tum.de>,
-       "Andrew Morton" <akpm@osdl.org>, "Ju, Seokmann" <sju@lsil.com>,
-       "Doelfel, Hardy" <hdoelfel@lsil.com>, "Mukker, Atul" <Atulm@lsil.com>
+	Thu, 16 Dec 2004 11:54:00 -0500
+Received: from zoot.lafn.ORG ([206.117.18.6]:41476 "EHLO zoot.lafn.org")
+	by vger.kernel.org with ESMTP id S261749AbULPQx2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 11:53:28 -0500
+Date: Thu, 16 Dec 2004 00:58:29 -0800
+From: David Lawyer <dave@lafn.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Park Lee <parklee_sel@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Issue on connect 2 modems with a single phone line
+Message-ID: <20041216085828.GG1189@lafn.org>
+References: <20041215184206.43601.qmail@web51505.mail.yahoo.com> <20041216010138.GC6285@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041216010138.GC6285@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
- 
->On Iau, 2004-12-16 at 09:54, Arjan van de Ven wrote:
->> I'm strongly against adding this. The reason for that is that once an
->> ioctl is added, it realistically will and can never go away.
->> LSI is free to have their own fork and give that to dell; but they
->> should and could have known that it wasn't going to fly. (same I
-guess
->> for adaptec ioctls). The companies who then commit to some schedule
->> realize they take a huge risk, but that is no reason to foul up the
->> kernel more. 
->
->I agree. I'd like to see an agreed standard interface for dropping and
->managing physical volumes and drives, as well as a standard interface
->for dropping/managing logical volumes.
+On Thu, Dec 16, 2004 at 02:01:38AM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> >   I want to try serial console in order to see the
+> > complete Linux kernel oops. 
+> >   I have 2 computers, one is a PC, and the other is a
+> > Laptop. Unfortunately,my Laptop doesn't have a serial
+> > port on it. But then, the each machine has a internal
+> > serial modem respectively.
+> >   Then, can I use a telephone line to directly connect
+> > the two machines via their internal modems (i.e. One
+> > end of the telephone line is plugged into The PC's
+> > modem, and the other end is plugged into The Laptop's
+> > modem directly), and let them do the same function as
+> > two serial ports and a null modem can do? If it is,
+> > How to achieve that?
+> 
+> You'd need phone exchange to do this. Most modems will not talk using
+> simple cable. With 12V power supply and resistor phone exchange is
+> quite easy to emulate, but...
 
-Simple transactions, perhaps, but there are many checks, balances and
-complexities associated with a full management application that do not
-make sense to reside in the kernel.
+Here's what I once wrote in Modem-HOWTO:
 
-Aacraid uses a FIB to communicate a wide variety of RAID management
-commands.
-Dpt_i2o uses an I2O private frame to communicate the RAID management
-commands.
+  Most modems are designed to be connected only to telephone lines and
+  will not work over just a pair of wires.  This is because the
+  telephone company supplies the telephone line with a 40-50 volt DC
+  voltage which powers part of the modem.  Recall that ordinary
+  conventional telephones are entirely powered by the voltage from the
+  telephone company.  Without such a DC voltage, the modem lacks power
+  and can't send out data.  Furthermore, the telephone company has
+  special signals indicating a ring, line busy, etc.  Conventional
+  modems expect and respond to these signals.
 
-The remaining ioctls pick up driver or OS internal information as has
-been discussed thus far. Moving these pieces of information to sysfs
-does make some sense.
+  One way around this is to make a simple power supply to emulate a
+  telephone line.  See Connecting two computers using their modems,
+  without a telephone line <http://www.jagshouse.com/modem.html>.  In
+  most cases there are better way to connect computers together such as
+  using network cards or just cables (null-modem) between the serial
+  ports.  Using modems has the advantage of increasing the distance as
+  compared to a null-modem cable, since it's using a twisted pair.  But
+  it isn't nearly as fast as network cards.
 
-However, in order to add the ability to manage the arrays, especially if
-they follow the complexity of the container arrangement, hotspare
-assignments, the multitude of array types and their configuration needs
-and various other RAID or Cache policies; one will find the code sucked
-into the driver to be a lead weight. Adding a `translation' layer from
-FIB, I2O and other frames to a common set is *not* going to be
-lightweight and will not be full coverage. The recent efforts by HP to
-push CSMI added 30% to the size of the driver (Adaptec Branched
-version). Yuck (this is a scientific term) and only added `monitoring'
-and 'drive passthrough' capabilities.
-
-Array status monitoring is complicated enough to pull out into an
-application (the recent dropping of the firmware print messages and
-replacement with the aeventd application).
-
-By all means, let's set a standard for rudimentary array manipulation,
-but let's not loose sight of the complicated needs of the consumers of
-RAID equipment. Sysfs does not look like it will scale well towards a
-full up management interface.
-
-Sincerely -- Mark Salyzyn
+			David Lawyer

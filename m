@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129764AbQLIIb0>; Sat, 9 Dec 2000 03:31:26 -0500
+	id <S129912AbQLIJFv>; Sat, 9 Dec 2000 04:05:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129912AbQLIIbQ>; Sat, 9 Dec 2000 03:31:16 -0500
-Received: from h24-67-152-12.cc.shawcable.net ([24.67.152.12]:8464 "EHLO
-	ajax.capelazo.com") by vger.kernel.org with ESMTP
-	id <S129764AbQLIIbG>; Sat, 9 Dec 2000 03:31:06 -0500
-Date: Sat, 9 Dec 2000 00:00:37 -0800 (PST)
-From: Mark Sutton <mes@capelazo.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: NTFS repair tools]
-Message-ID: <Pine.GSO.4.10.10012082329290.27791-100000@lazo.capelazo.com>
+	id <S129933AbQLIJFl>; Sat, 9 Dec 2000 04:05:41 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:47364 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S129912AbQLIJFd>; Sat, 9 Dec 2000 04:05:33 -0500
+Date: Sat, 9 Dec 2000 08:34:59 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Johannes Erdfelt <johannes@erdfelt.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: USB-related lockup in test12-pre5
+In-Reply-To: <20001208200504.G15095@sventech.com>
+Message-ID: <Pine.LNX.4.30.0012090834480.1534-100000@imladris.demon.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I agree that if you give a mentally unbalanced person a firearm, they might
->shoot themselves with it.  I am suggesting we take away their firearm.  Write
->support for NTFS is useful for migrating from Linux to NT, R/O support is
->useful for migrating NT to Linux.  We won't be giving anything up.  I think
->just putting in a nastier warning message would suffice.
->                                                        
->Jeff                                                    
+On Fri, 8 Dec 2000, Johannes Erdfelt wrote:
 
-You could just tell people the truth. Something far worse that DANGEROUS.
-Like:
+> Actually, looking back at your previous email, enabling bus mastering
+> may make this error go away.
+>
+> Could you give -pre7 a try? Or have you already?
 
-CRIPPLED BY LEGAL DURESS 
+This is pre7
 
-Or as I come to understand:
+-- 
+dwmw2
 
-The processes that would normally have fixed this driver by now
-are broken by the vigorous defense of Microsoft's IP.
-It will trash your disk! maybe not right now ..
-
-I couldn't understand why I hadn't seen any real movement on this driver.
-Now it makes sense. Perhaps others might enjoy this understanding. 
-
-
-Mark
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

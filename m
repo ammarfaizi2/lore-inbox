@@ -1,65 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263706AbTDGWlI (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 18:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263715AbTDGWlI (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 18:41:08 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:34944
+	id S263715AbTDGWll (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 18:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263722AbTDGWlk (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 18:41:40 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:35200
 	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263706AbTDGWlH (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 18:41:07 -0400
-Date: Tue, 8 Apr 2003 00:59:57 +0100
+	id S263715AbTDGWlg (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 18:41:36 -0400
+Date: Tue, 8 Apr 2003 01:00:31 +0100
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200304072359.h37NxvTf008882@hraefn.swansea.linux.org.uk>
+Message-Id: <200304080000.h3800VKA008888@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: alpha typos part 1
+Subject: PATCH: alpha typos part 2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Steven Cole)
-
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/arch/alpha/kernel/core_cia.c linux-2.5.67-ac1/arch/alpha/kernel/core_cia.c
---- linux-2.5.67/arch/alpha/kernel/core_cia.c	2003-02-10 18:38:43.000000000 +0000
-+++ linux-2.5.67-ac1/arch/alpha/kernel/core_cia.c	2003-04-03 23:49:57.000000000 +0100
-@@ -610,7 +610,7 @@
- 		*(vip)CIA_IOC_CIA_CNFG = temp;
- 	}
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/arch/alpha/kernel/setup.c linux-2.5.67-ac1/arch/alpha/kernel/setup.c
+--- linux-2.5.67/arch/alpha/kernel/setup.c	2003-02-10 18:38:01.000000000 +0000
++++ linux-2.5.67-ac1/arch/alpha/kernel/setup.c	2003-04-03 23:49:57.000000000 +0100
+@@ -486,7 +486,7 @@
+ 	notifier_chain_register(&panic_notifier_list, &alpha_panic_block);
  
--	/* Syncronize with all previous changes.  */
-+	/* Synchronize with all previous changes.  */
- 	mb();
- 	*(vip)CIA_IOC_CIA_REV;
+ #ifdef CONFIG_ALPHA_GENERIC
+-	/* Assume that we've booted from SRM if we havn't booted from MILO.
++	/* Assume that we've booted from SRM if we haven't booted from MILO.
+ 	   Detect the later by looking for "MILO" in the system serial nr.  */
+ 	alpha_using_srm = strncmp((const char *)hwrpb->ssn, "MILO", 4) != 0;
+ #endif
+@@ -569,7 +569,7 @@
+ #endif
  
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/arch/alpha/kernel/pci.c linux-2.5.67-ac1/arch/alpha/kernel/pci.c
---- linux-2.5.67/arch/alpha/kernel/pci.c	2003-04-08 00:37:34.000000000 +0100
-+++ linux-2.5.67-ac1/arch/alpha/kernel/pci.c	2003-04-03 23:49:57.000000000 +0100
-@@ -230,7 +230,7 @@
- void __init
- pcibios_fixup_bus(struct pci_bus *bus)
- {
--	/* Propogate hose info into the subordinate devices.  */
-+	/* Propagate hose info into the subordinate devices.  */
+ 	/*
+-	 * Indentify and reconfigure for the current system.
++	 * Identify and reconfigure for the current system.
+ 	 */
+ 	cpu = (struct percpu_struct*)((char*)hwrpb + hwrpb->processor_offset);
  
- 	struct pci_controller *hose = bus->sysdata;
- 	struct list_head *ln;
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/arch/alpha/kernel/pci_iommu.c linux-2.5.67-ac1/arch/alpha/kernel/pci_iommu.c
---- linux-2.5.67/arch/alpha/kernel/pci_iommu.c	2003-03-06 17:04:22.000000000 +0000
-+++ linux-2.5.67-ac1/arch/alpha/kernel/pci_iommu.c	2003-04-03 23:49:57.000000000 +0100
-@@ -431,7 +431,7 @@
- /* Free and unmap a consistent DMA buffer.  CPU_ADDR and DMA_ADDR must
-    be values that were returned from pci_alloc_consistent.  SIZE must
-    be the same as what as passed into pci_alloc_consistent.
--   References to the memory and mappings assosciated with CPU_ADDR or
-+   References to the memory and mappings associated with CPU_ADDR or
-    DMA_ADDR past this call are illegal.  */
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/arch/alpha/kernel/time.c linux-2.5.67-ac1/arch/alpha/kernel/time.c
+--- linux-2.5.67/arch/alpha/kernel/time.c	2003-03-06 17:04:22.000000000 +0000
++++ linux-2.5.67-ac1/arch/alpha/kernel/time.c	2003-04-03 23:49:57.000000000 +0100
+@@ -331,7 +331,7 @@
  
- void
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/arch/alpha/kernel/semaphore.c linux-2.5.67-ac1/arch/alpha/kernel/semaphore.c
---- linux-2.5.67/arch/alpha/kernel/semaphore.c	2003-02-10 18:38:38.000000000 +0000
-+++ linux-2.5.67-ac1/arch/alpha/kernel/semaphore.c	2003-04-03 23:49:57.000000000 +0100
-@@ -122,7 +122,7 @@
- 		long tmp, tmp2, tmp3;
+ 	/* From John Bowman <bowman@math.ualberta.ca>: allow the values
+ 	   to settle, as the Update-In-Progress bit going low isn't good
+-	   enough on some hardware.  2ms is our guess; we havn't found 
++	   enough on some hardware.  2ms is our guess; we haven't found 
+ 	   bogomips yet, but this is close on a 500Mhz box.  */
+ 	__delay(1000000);
  
- 		/* We must undo the sem->count down_interruptible decrement
--		   simultaneously and atomicly with the sem->waking
-+		   simultaneously and atomically with the sem->waking
- 		   adjustment, otherwise we can race with __up.  This is
- 		   accomplished by doing a 64-bit ll/sc on two 32-bit words.
- 		
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/arch/alpha/lib/strrchr.S linux-2.5.67-ac1/arch/alpha/lib/strrchr.S
+--- linux-2.5.67/arch/alpha/lib/strrchr.S	2003-02-10 18:38:51.000000000 +0000
++++ linux-2.5.67-ac1/arch/alpha/lib/strrchr.S	2003-04-03 23:49:57.000000000 +0100
+@@ -2,7 +2,7 @@
+  * arch/alpha/lib/strrchr.S
+  * Contributed by Richard Henderson (rth@tamu.edu)
+  *
+- * Return the address of the last occurrance of a given character
++ * Return the address of the last occurrence of a given character
+  * within a null-terminated string, or null if it is not found.
+  */
+ 
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/arch/alpha/math-emu/math.c linux-2.5.67-ac1/arch/alpha/math-emu/math.c
+--- linux-2.5.67/arch/alpha/math-emu/math.c	2003-02-10 18:38:59.000000000 +0000
++++ linux-2.5.67-ac1/arch/alpha/math-emu/math.c	2003-04-03 23:49:57.000000000 +0100
+@@ -294,7 +294,7 @@
+ 	 *	  the appropriate signal to the translated program.
+ 	 *
+ 	 * In addition, properly track the exception state in software
+-	 * as described in the Alpha Architectre Handbook section 4.7.7.3.
++	 * as described in the Alpha Architecture Handbook section 4.7.7.3.
+ 	 */
+ done:
+ 	if (_fex) {

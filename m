@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286283AbSAEWhy>; Sat, 5 Jan 2002 17:37:54 -0500
+	id <S286311AbSAEWlY>; Sat, 5 Jan 2002 17:41:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286311AbSAEWhp>; Sat, 5 Jan 2002 17:37:45 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62772 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S286283AbSAEWhe>; Sat, 5 Jan 2002 17:37:34 -0500
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Legacy Fishtank <garzik@havoc.gtf.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.2-pre2 forces ramfs on
-In-Reply-To: <Pine.GSO.4.21.0112261228180.2716-100000@weyl.math.psu.edu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 05 Jan 2002 15:35:15 -0700
-In-Reply-To: <Pine.GSO.4.21.0112261228180.2716-100000@weyl.math.psu.edu>
-Message-ID: <m1r8p4s9y4.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S286314AbSAEWlO>; Sat, 5 Jan 2002 17:41:14 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:62354 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S286311AbSAEWlF>;
+	Sat, 5 Jan 2002 17:41:05 -0500
+Date: Sun, 6 Jan 2002 01:38:30 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: <linux-kernel@vger.kernel.org>
+Subject: [patch] O(1) scheduler, 2.4.17-B0, 2.5.2-pre8-B0.
+Message-ID: <Pine.LNX.4.33.0201060128250.1250-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro <viro@math.psu.edu> writes:
 
-> On Wed, 26 Dec 2001, Legacy Fishtank wrote:
-> 
-> > On Wed, Dec 26, 2001 at 03:04:40PM +0000, Alan Cox wrote:
-> > > > Because it's small, and if it wasn't there, we'd have to have the small
-> > > > "rootfs" anyway (which basically duplicated ramfs functionality).
-> > > 
-> > > Can ramfs=N longer term actually come back to be "use __init for the RAM
-> > > fs functions". That would seem to address any space issues even the most 
-> > > embedded fanatic has. 
-> > 
-> > Nifty idea... We could use __rootfs or similar in the module.
-> 
-> Um, folks - rootfs does _not_ go away after you mount final root over it.
-> Having absolute root always there makes life much simpler in a lot of
-> places...
-> 
-> What's more, quite a few ramfs methods are good candidates for library
-> functions, since they are already shared with other filesystems and
-> number of such cases is going to grow.
+this is the next, bugfix release of the O(1) scheduler:
 
-I guess this is o.k.  Assuming we get good code sharing between ramfs/rootfs
-and shmfs.  As those both seem to be always compiled in.
+	http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-B0.patch
+	http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.17-B0.patch
 
-Eric
+This release could fix the lockups and crashes reported by some people.
+
+Changes:
+
+ - remove the likely/unlikely define from sched.h and include compiler.h.
+   (Adrian Bunk)
+
+ - export sys_sched_yield, reported by Pawel Kot.
+
+ - turn off 'child runs first' temporarily, to see the effect.
+
+ - export nr_context_switches() as well, needed by ReiserFS.
+
+ - define resched_task() in the correct order to avoid compiler warnings
+   on UP.
+
+ - maximize the frequency of timer-tick driven load-balancing to 100 per
+   sec.
+
+ - clear ->need_resched in the RT scheduler path as well.
+
+ - simplify yield() support, remove TASK_YIELDED and __schedule_tail().
+
+Comments, bug reports, suggestions are welcome,
+
+	Ingo
+

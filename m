@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263861AbTJEUFn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 16:05:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263866AbTJEUFn
+	id S263810AbTJET76 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 15:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbTJET6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 16:05:43 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:18048 "EHLO
-	lapdancer.baythorne.internal") by vger.kernel.org with ESMTP
-	id S263861AbTJEUDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 16:03:30 -0400
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Rob Landley <rob@landley.net>,
-       "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10310051211520.21746-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10310051211520.21746-100000@master.linux-ide.org>
-Content-Type: text/plain
-Message-Id: <1065384197.3129.4.camel@lapdancer.baythorne.internal>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.2) 
-Date: Sun, 05 Oct 2003 21:03:17 +0100
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Oct 2003 15:58:33 -0400
+Received: from play.smurf.noris.de ([192.109.102.42]:46254 "EHLO
+	play.smurf.noris.de") by vger.kernel.org with ESMTP id S263847AbTJET6T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 15:58:19 -0400
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Organization: {M:U} IT Consulting
+Subject: Re: compile error with 2.6.0-test6 on ppc32
+Date: Sat, 04 Oct 2003 19:39:19 +0200
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+Message-Id: <pan.2003.10.04.17.39.19.402587@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+References: <3F7EE203.4030601@g-house.de>
+X-Pan-Internal-Attribution: Hi, Christian Kujau wrote:
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+X-Pan-Internal-Post-Server: smurf
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Cc: recipient list not shown:;
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-10-05 at 12:21 -0700, Andre Hedrick wrote:
-> David,
+Hi, Christian Kujau wrote:
+
+> upon compiling kernel 2.6.0-test6 on my PowerPC 604r machine (PReP),
+> i got the following error:
 > 
-> It is about the fact that Linus on his own set a position that modules are
-> permitted. 
+That's a regression in binutils. Debian/unstable fixed it in version
+2.14.90.0.6-3.
 
-It is indeed. And about that fact that by the time he made that
-declaration, he was not in a position to make it unilaterally.
-
-
->  Now if you want to take the position that one can not modify
-> and redistribute the modified kernel in source, you are imposing a
-> restriction.
-
-A restriction in this case which I assert was present in the original
-licence; not an 'additional restriction'.
-
-If I wanted to distribute my code without restrictions, I'd have
-contributed to a BSD kernel, or released my code under the terms 
-"GPL but not if you really really don't fancy it".
-
-I don't. I didn't.
-
-> If I wanted to be rude, I could take the changes I made and copyright the
-> combined work and make it so others could not use that version without
-> permission. 
-
-Not without being in violation of the original licence. This isn't about
-the resulting combined work, but about your permission to use the
-_original_.
-
-> Neither you or I can do anything, provide the vendor who is using Linux
-> publishes their source fork.  I also dare you to stop them, because you
-> can't.
-
-Believe me, there are ways this can be achieved.
- 
 -- 
-dwmw2
-
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+...a noble practice which does honor to women.
+		-- Sheik Gad Al Haq Ali Gad Al Haq, explaining
+		   clitorectomy

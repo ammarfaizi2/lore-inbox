@@ -1,86 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268164AbUJMBMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268144AbUJMBQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268164AbUJMBMV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 21:12:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268166AbUJMBMV
+	id S268144AbUJMBQs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 21:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268166AbUJMBQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 21:12:21 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28869 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268164AbUJMBLt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 21:11:49 -0400
-Date: Tue, 12 Oct 2004 18:11:46 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/3] lsm: add bsdjail module
-Message-ID: <20041012181146.H2441@build.pdx.osdl.net>
-References: <1097094103.6939.5.camel@serge.austin.ibm.com> <1097094270.6939.9.camel@serge.austin.ibm.com> <20041006162620.4c378320.akpm@osdl.org> <20041007190157.GA3892@IBM-BWN8ZTBWA01.austin.ibm.com> <20041010104113.GC28456@infradead.org> <1097502444.31259.19.camel@localhost.localdomain> <20041012131124.GA2484@IBM-BWN8ZTBWA01.austin.ibm.com> <416C5C26.9020403@redhat.com>
+	Tue, 12 Oct 2004 21:16:48 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:43659 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S268144AbUJMBQp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 21:16:45 -0400
+Message-Id: <200410130116.i9D1Gjsa010663@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc4-mm1-VP-T7 - horrid death in vortex_init at boot 
+In-Reply-To: Your message of "Tue, 12 Oct 2004 14:27:10 EDT."
+             <200410121827.i9CIRAc6014366@turing-police.cc.vt.edu> 
+From: Valdis.Kletnieks@vt.edu
+References: <200410121827.i9CIRAc6014366@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <416C5C26.9020403@redhat.com>; from drepper@redhat.com on Tue, Oct 12, 2004 at 03:35:18PM -0700
+Content-Type: multipart/signed; boundary="==_Exmh_-1750339543P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 12 Oct 2004 21:16:45 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ulrich Drepper (drepper@redhat.com) wrote:
-> Serge E. Hallyn wrote:
-> > +If a private IP was specified for the jail, then
-> > +		cat /proc/$$/attr/current
+--==_Exmh_-1750339543P
+Content-Type: text/plain; charset=us-ascii
+
+On Tue, 12 Oct 2004 14:27:10 EDT, Valdis.Kletnieks@vt.edu said:
+
+> 2.6.9-rc4-mm1-VP-T7 plus Ingo's patch to profile.c and 3c59x.c to use
+> raw_rwlock_t and raw_spinlock_t rather than the non-raw variant.  It croaked
+> when it found the onboard ethernet controller on a Dell Latitude C840 laptop:
 > 
-> How is this going to interact with SELinux?
+> lspci says it's a:
+> 02:00.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 78)
 
-Poorly.  It's not expected to work with SELinux.  There's no good
-stacking yet.
+> kernel BUG at net/core/net-sysfs.c:384
 
-> Currently SELinux uses
-> /proc/*/attr/current to report the current security context of the
-> process.  libselinux expects the file to contain one string (not even a
-> newline) which is the textual representation of the context.  Now with
-> your changes you want to change this.  libselinux as-is would break
-> miserably.
+Ignore this, self-inflicted idiocy - Ingo pointed out that a local tweak
+I wrote was fixing a symptom of a problem rather than the cause.  Backing
+out said self-inflicted error made it more-or-less happy, and
+2.6.9-rc4-mm1-VP-T7 is working on my laptop now....
 
-Maybe libselinux should not look around in there unless SELinux is
-enabled in kernel.
+--==_Exmh_-1750339543P
+Content-Type: application/pgp-signature
 
-> I don't know the history of the file and who is hijacking the file.
-> Fact is that the file content is currently unstructured and libselinux
-> couldn't possibly determine what part is of interest to itself.
-> 
-> So, either you use another file, SELinux uses another file, or the file
-> gets tagged lines like
-> 
->   selinux: user_u:user_r:user_t
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Yeah, that's workable.  Other options would probably look like putting
-stuff in module specific locations, which is more painful.
+iD8DBQFBbIH9cC3lWbTT17ARAm52AJoCztEl1iIP2r63BkinLt43kJCFPwCfbjKm
+TIOmK6b300Umm/TSTaYbeOE=
+=yWv1
+-----END PGP SIGNATURE-----
 
-> I guess you couldn't even start the userlevel code in FC3 in such a jail
-> in the moment since the libselinux startup tests would fail.
-
-Userspace won't start in a jail, and once it's up, jailing works (on
-rawhide for example).  Admittedly, the label looks a bit funny.
-
-# in jail
-$ ps -eM
-LABEL                             PID TTY          TIME CMD
-No                              16933 ?        00:00:00 bash
-No                              17010 ?        00:00:00 ps
-
-# unconfined
-$ ps -eM
-<snip>
-Not                              5714 pts/5    00:00:00 ssh
-Not                             12027 pts/6    00:00:00 bash
-Not                             12046 pts/6    00:00:00 vim
-Not                             16823 pts/4    00:00:00 vim
-Not                             16911 pts/8    00:00:00 bash
-Root:                           16933 pts/7    00:00:00 bash
-Not                             17016 pts/8    00:00:00 ps
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+--==_Exmh_-1750339543P--

@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293201AbSBWUga>; Sat, 23 Feb 2002 15:36:30 -0500
+	id <S293202AbSBWUkK>; Sat, 23 Feb 2002 15:40:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293202AbSBWUgU>; Sat, 23 Feb 2002 15:36:20 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:29167
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S293201AbSBWUgL>; Sat, 23 Feb 2002 15:36:11 -0500
-Date: Sat, 23 Feb 2002 12:36:34 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Gunther Mayer <gunther.mayer@gmx.net>,
-        Andre Hedrick <andre@linuxdiskcert.org>,
-        Adam Huffman <bloch@verdurin.com>, linux-kernel@vger.kernel.org
-Subject: Re: Boot problem with PDC20269
-Message-ID: <20020223203634.GL20060@matchmail.com>
-Mail-Followup-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-	Gunther Mayer <gunther.mayer@gmx.net>,
-	Andre Hedrick <andre@linuxdiskcert.org>,
-	Adam Huffman <bloch@verdurin.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020223201827.GK20060@matchmail.com> <Pine.LNX.4.30.0202232132280.13662-100000@mustard.heime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0202232132280.13662-100000@mustard.heime.net>
-User-Agent: Mutt/1.3.27i
+	id <S293203AbSBWUkA>; Sat, 23 Feb 2002 15:40:00 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:51986 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S293202AbSBWUjv>; Sat, 23 Feb 2002 15:39:51 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 23 Feb 2002 12:42:18 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Andre Hedrick <andre@linux-ide.org>, Jens Axboe <axboe@suse.de>
+Subject: ide timer trbl ...
+Message-ID: <Pine.LNX.4.44.0202231238060.1449-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 23, 2002 at 09:33:02PM +0100, Roy Sigurd Karlsbakk wrote:
-> > > A fix would be to printk("The linux IDE driver does not (yet?)support ATAPI
-> > > devices on PDC20269. Ignoring the device.\n");
-> > > and continue running.
-> 
-> er .. I'm running a PDC20269 with a few drives. Is that supposed to be
-> impossible?
-> 
 
-Are they ATAPI drives (cdrom, etc)?
+You guys probably already know but i'm still having problems with the ide
+timer in 2.5.5 :
+
+hda: ide_set_handler: handler not null; old=c01c5e10, new=c01c5e10
+bug: kernel timer added twice at c01c7293.
+NFS: NFSv3 not supported.
+nfs warning: mount version older than kernel
+hda: ide_set_handler: handler not null; old=c01c5e10, new=c01c5e10
+bug: kernel timer added twice at c01c7293.
+
+
+The machine seems working fine but i get these messages at the end of the
+kernel boot sequence. If you need more info just let me know.
+
+
+
+
+- Davide
+
+

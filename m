@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130909AbRCJD0x>; Fri, 9 Mar 2001 22:26:53 -0500
+	id <S130922AbRCJDtY>; Fri, 9 Mar 2001 22:49:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130906AbRCJD0n>; Fri, 9 Mar 2001 22:26:43 -0500
-Received: from saloma.stu.rpi.edu ([128.113.199.230]:35085 "EHLO incandescent")
-	by vger.kernel.org with ESMTP id <S130904AbRCJD03>;
-	Fri, 9 Mar 2001 22:26:29 -0500
-Date: Fri, 9 Mar 2001 22:25:29 -0500
-From: Andres Salomon <dilinger@mp3revolution.net>
-To: "Marco d'Itri" <md@Linux.IT>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: peer shrinks window
-Message-ID: <20010309222529.A28615@mp3revolution.net>
-In-Reply-To: <20010310004556.A7380@wonderland.linux.it>
-Mime-Version: 1.0
+	id <S130926AbRCJDtO>; Fri, 9 Mar 2001 22:49:14 -0500
+Received: from [203.169.151.222] ([203.169.151.222]:30733 "EHLO
+	main.coppice.org") by vger.kernel.org with ESMTP id <S130922AbRCJDtI>;
+	Fri, 9 Mar 2001 22:49:08 -0500
+Message-ID: <3AA9A461.19378DE@coppice.org>
+Date: Sat, 10 Mar 2001 11:49:53 +0800
+From: Steve Underwood <steveu@coppice.org>
+Organization: Me? Organised?
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en, zh-TW
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Microsoft begining to open source Windows 2000?
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E952C3@ATL_MS1> <3AA7DFCD.1000502@trustix.com> <7xWQFvVHw-B@khms.westfalen.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010310004556.A7380@wonderland.linux.it>; from md@Linux.IT on Sat, Mar 10, 2001 at 12:45:56AM +0100
-X-Operating-System: Linux incandescent 2.4.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've noticed this as well in my logs.  In linux/include/net/tcp.h,
-TCP_DEBUG is turned on; in linux/net/ipv4/tcp_input.c,
-tcp_ack_update_window() contains the following:
+larsg@trustix.com (Lars Gaarden)  wrote on 08.03.01 in
+<3AA7DFCD.1000502@trustix.com>:
 
-#ifdef TCP_DEBUG
-<snip>
-printk(KERN_DEBUG "TCP: peer %u.%u.%u.%u:%u/%u shrinks window %u:%u:%u. Bad, what else can I say?\n",
-                               NIPQUAD(sk->daddr), htons(sk->dport), sk->num,
-                               tp->snd_una, tp->snd_wnd, tp->snd_nxt);
-<snip>
-#endif
+> You can accuse MS of a lot of things. Being stupid and ignorant
+> of the market is not one of them.
 
-Is it really necessary for TCP_DEBUG to be turned on by default?
+I'd have to disagree there.
 
-On Sat, Mar 10, 2001 at 12:45:56AM +0100, Marco d'Itri wrote:
-> 
-> In two days I've got 46 messages like:
-> 
-> Mar  7 08:00:55 attila kernel: TCP: peer 163.162.41.4:37582/20 shrinks window 752789960:5840:752797200. Bad, what else can I say?
-> 
-> If needed I can ask about the os running there, I think it's solaris.
-> (nmap confirms: Solaris 7)
-> 
-> Linux attila 2.4.0-test11 #11 Wed Dec 13 12:02:51 CET 2000 ppc unknown
-> 
-> -- 
-> ciao,
-> Marco
+In the mid 80's MS had never had a really successful applications
+product, even though Word, Excel and others had been around for some
+time. The market leaders, like 123, were mostly copy protected with
+schemes (e.g. key floppies) that were annoying to legitimate customers,
+but hardly affected pirates. MS woke up to the opportunity, made a
+splash about how their products were not protected, and their
+applications market share soared. Windows, and a packaged (if far from
+integrated) office suite just finished the job of killing the
+competitors. You can genuinely say a measured level of openness was the
+key to their success. If 123 and others had reacted earlier, and removed
+their protection schemes, MS might not be as dominant as it is today.
+With the momentum that gave them, and a few dirty tricks, MS have never
+looked back (though they don't often look very far forward, either).
 
--- 
-"... being a Linux user is sort of like living in a house inhabited
-by a large family of carpenters and architects. Every morning when
-you wake up, the house is a little different. Maybe there is a new
-turret, or some walls have moved. Or perhaps someone has temporarily
-removed the floor under your bed." - Unix for Dummies, 2nd Edition
-        -- found in the .sig of Rob Riggs, rriggs@tesser.com
+Now MS is loosing sight of this. How long will it be before their
+increasingly restrictive tactics backfire and kill them as surely as
+dumb copy protection killed 123's 90% market share? Maybe they will take
+care to only put restrictions were they don't hurt day to day usefulness
+(i.e. don't piss off the user) - maybe they won't. What we hear of
+Whistler suggests the latter.
+
+The only survivors in this industry are HP and IBM, and even they are
+mere shells of their former selves!
+
+Regards,
+Steve

@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264095AbUD0Pmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264184AbUD0PsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264095AbUD0Pmw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 11:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264184AbUD0Pmp
+	id S264184AbUD0PsG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 11:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264191AbUD0PsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 11:42:45 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:45322 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S264191AbUD0PlY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 11:41:24 -0400
-Message-ID: <408E8012.1080400@techsource.com>
-Date: Tue, 27 Apr 2004 11:45:22 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-CC: root@chaos.analogic.com, linux-kernel@vger.kernel.org
-Subject: Re: File system compression, not at the block layer
-References: <Pine.LNX.4.44.0404231300470.27087-100000@twin.uoregon.edu> <Pine.LNX.4.53.0404231624010.1352@chaos> <yw1xoepio24x.fsf@kth.se> <Pine.LNX.4.53.0404231651120.1643@chaos> <40898730.50009@candelatech.com> <408989E3.5010009@techsource.com> <4089F3DD.3000200@candelatech.com>
-In-Reply-To: <4089F3DD.3000200@candelatech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 27 Apr 2004 11:48:05 -0400
+Received: from ns.suse.de ([195.135.220.2]:50361 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264184AbUD0PsC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 11:48:02 -0400
+Subject: Re: [PATCH 6/11] nfsacl-lazy-alloc
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1083011918.15282.24.camel@lade.trondhjem.org>
+References: <1082975192.3295.76.camel@winden.suse.de>
+	 <1083011918.15282.24.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Organization: SUSE Labs, SUSE LINUX AG
+Message-Id: <1083080881.19655.151.camel@winden.suse.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 27 Apr 2004 17:48:01 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Ben Greear wrote:
-> Timothy Miller wrote:
+On Mon, 2004-04-26 at 22:38, Trond Myklebust wrote:
+> On Mon, 2004-04-26 at 06:28, Andreas Gruenbacher wrote:
+> > Allow to allocate pages in the receive buffers lazily
+> > 
+> > Patch from Olaf Kirch <okir@suse.de>: Replies to the GETACL remote
+> > procedure call can become quite big, yet in the common case replies will
+> > be very small.  This patch checks of argument pages have already been
+> > allocated, and allocates pages up to the maximum length of the xdr_buf
+> > when this is not the case.
 > 
->>> Wouldn't this pretty much guarantee worst-case latency scenario for 
->>> reading, since
->>> on average at least one of your 32 disks is going to require a full 
->>> rotation
->>> (and probably a seek) to find it's bit?
->>
->>
->>
->>
->> Only for the first bit of a block.  For large streams of reads, the 
->> fifos will keep things going, except for occasionally as drives drift 
->> in their relative rotation positions which can cause some delays.
-> 
-> 
-> So how is that better than using a striping raid that stripes at the
-> block level or multi-block level?
-> 
+> AFAICS, there is nothing to stop xdr_partial_copy_from_skb() from
+> writing beyond the end of xdr->pages[]. How do you propose to prevent
+> this?
 
+xdr->page_len determines the maximum length. The pages array must
+contain enough entries to hold that many pages; this is no different
+from pre-allocating the pages.
 
-It's only better for large streaming writes.  The FIFOs I'm talking 
-about above would certainly be smaller than typical RAID0 stripes.
+Cheers,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG
 

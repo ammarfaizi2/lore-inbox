@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265369AbTL2UFl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 15:05:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265372AbTL2UFk
+	id S265151AbTL2UAq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 15:00:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265130AbTL2T6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 15:05:40 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:36367 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265369AbTL2UFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 15:05:02 -0500
-Date: Mon, 29 Dec 2003 20:04:59 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Omkhar Arasaratnam <omkhar@rogers.com>
-Cc: axeboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/cdrom/isp16.c check_region() fix
-Message-ID: <20031229200459.A31614@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Omkhar Arasaratnam <omkhar@rogers.com>, axeboe@suse.de,
-	linux-kernel@vger.kernel.org
-References: <20031229194222.GA26019@omkhar.ibm.com>
+	Mon, 29 Dec 2003 14:58:38 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4739 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265132AbTL2T5q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 14:57:46 -0500
+Date: Mon, 29 Dec 2003 19:57:42 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Mariusz Mazur <mmazur@kernel.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Should struct inode be made available to userspace?
+Message-ID: <20031229195742.GL4176@parcelfarce.linux.theplanet.co.uk>
+References: <200312292040.00409.mmazur@kernel.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031229194222.GA26019@omkhar.ibm.com>; from omkhar@rogers.com on Mon, Dec 29, 2003 at 02:42:23PM -0500
+In-Reply-To: <200312292040.00409.mmazur@kernel.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 29, 2003 at 02:42:23PM -0500, Omkhar Arasaratnam wrote:
-> --- /usr/src/linux/drivers/cdrom/isp16.c	2001-09-07 12:28:38.000000000 -0400
-> +++ drivers/cdrom/isp16.c	2003-12-29 14:07:24.000000000 -0500
-> @@ -121,11 +121,12 @@
->  		return (0);
->  	}
->  
-> -	if (check_region(ISP16_IO_BASE, ISP16_IO_SIZE)) {
-> +	if (!request_region(ISP16_IO_BASE, ISP16_IO_SIZE,"isp16")) {
->  		printk("ISP16: i/o ports already in use.\n");
->  		return (-EIO);
->  	}
-> -
-> +	release_region(ISP16_IO_BASE, ISP16_IO_SIZE);
+On Mon, Dec 29, 2003 at 08:40:00PM +0100, Mariusz Mazur wrote:
+> Inside __KERNEL__ block in linux/fs.h there is a definition (looks rather 
+> kernel specific) of struct inode. This structure is used all over the 
+> headers, specificaly in ${fsname}_fs_i.h files containing 
+> ${fsname}_inode_info structures. The problem is ${fsname}_fs_i.h files are  
+> included in ${fsname}_fs.h files which in turn are often used by various 
+> programs. This results in compile time errors since normal programs don't 
+> define __KERNEL__ (they shouldn't) and thus while parsing 
+> ${fsname}_inode_info structures do not have access to the inode structure 
+> ("error: field `vfs_inode' has incomplete type").
+> What is the complete, politicaly correct solution? (workarounds are of no use 
+> to me)
+> Is it (a) struct inode should be made available to userspace (yuck), (b) no 
+> !kernel code should use struct inode (linux/${fsname}_fs_i.h files shouldn't 
+> be included anywhere... hell... maybe all linux/${fsname}* files shouldn't be 
+> available outside kernel!) or (c) this kind of structures should come with 
+> apps using it and not be a part of any kernel derived userspace headers.
 
-This doesn't really buy you anything.  You must claim the I/O ports as long
-as you're possibly using them - i.e. claim them early when probing for
-the device, and release them only when you're done with the device.
-
+struct inode and structures containing it should not be used outside of kernel.
+Moreover, foo_fs.h should be seriously trimmed down and everything _not_
+useful outside of kernel should be taken into fs/foo/*; other kernel code
+also doesn't give a fsck for that stuff, so it should be private to filesystem
+instead of polluting include/linux/*.

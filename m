@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266281AbUHVGyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266494AbUHVHD7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266281AbUHVGyv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 02:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUHVGyv
+	id S266494AbUHVHD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 03:03:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUHVHD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 02:54:51 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:23729 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266281AbUHVGyu (ORCPT
+	Sun, 22 Aug 2004 03:03:59 -0400
+Received: from wasp.net.au ([203.190.192.17]:34473 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S266324AbUHVHDz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 02:54:50 -0400
-Date: Sat, 21 Aug 2004 23:51:57 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Thomas Davis <tadavis@lbl.gov>, linux-kernel@vger.kernel.org,
-       zaitcev@redhat.com
-Subject: Re: 2.6.8.1-mm3
-Message-Id: <20040821235157.2b6d2834@lembas.zaitcev.lan>
-In-Reply-To: <20040821214824.4bf5e6fd.akpm@osdl.org>
-References: <20040820031919.413d0a95.akpm@osdl.org>
-	<412821C4.7060402@lbl.gov>
-	<20040821214824.4bf5e6fd.akpm@osdl.org>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 22 Aug 2004 03:03:55 -0400
+Message-ID: <4128457C.7090001@wasp.net.au>
+Date: Sun, 22 Aug 2004 11:04:28 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 0.7+ (X11/20040730)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Josan Kadett <corporate@superonline.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
+References: <S266258AbUHVGYp/20040822062445Z+1742@vger.kernel.org>
+In-Reply-To: <S266258AbUHVGYp/20040822062445Z+1742@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Aug 2004 21:48:24 -0700
-Andrew Morton <akpm@osdl.org> wrote:
-
-> > 2) do not try to modprobe -r ub; it will do wonky things to your machine (I tried in a KDE Konsole, and lost the keyboard, and the terminal just scrolled blank lines..)
+Josan Kadett wrote:
+> **Indeed there is no longer such a need to recalculate the IP checksum
+> because I have found a way to disable it by patching the kernel. So, only
+> requirement is this;
 > 
-> Hi, Pete.
+> Change the source address of the packet before it reaches to the socket
+> buffer aka skbuff.h. Because if it reaches that code with the wrong IP
+> header, the csum will just drop it away.
 
-Probably ohci and timeouts, if anything.
+The main reason I suggested correcting the checksum is if it was done that way, the kernel would 
+behave normally for all other IP traffic and simply do a dodgy on only traffic from 192.168.1.1
 
-But actually 2.6.8.1-mm3 locks up on me without ub in the picture, so
-paint me suspicious.
+If nobody else jumps in, let me think about it for a day or so and I'll see what I can do. It's been 
+a couple of years since I last looked at the network code though.
 
--- Pete
+What kernel are you running?
+
+Regards,
+Brad

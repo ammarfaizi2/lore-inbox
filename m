@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277529AbRJOOCN>; Mon, 15 Oct 2001 10:02:13 -0400
+	id <S277540AbRJOOQQ>; Mon, 15 Oct 2001 10:16:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277533AbRJOOCD>; Mon, 15 Oct 2001 10:02:03 -0400
-Received: from [213.97.184.209] ([213.97.184.209]:15749 "HELO piraos.com")
-	by vger.kernel.org with SMTP id <S277529AbRJOOBu>;
-	Mon, 15 Oct 2001 10:01:50 -0400
-Date: Mon, 15 Oct 2001 16:01:34 +0200 (CEST)
-From: German Gomez Garcia <german@piraos.com>
-To: Stephen Frost <sfrost@snowman.net>
-cc: Willem Riede <wriede@home.com>,
-        Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: More on the 760MP
-In-Reply-To: <20011014174550.P29860@ns>
-Message-ID: <Pine.LNX.4.33.0110151557500.28028-100000@hal9000.piraos.com>
+	id <S277541AbRJOOQH>; Mon, 15 Oct 2001 10:16:07 -0400
+Received: from age.cs.columbia.edu ([128.59.22.100]:21256 "EHLO
+	age.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id <S277540AbRJOOPv>; Mon, 15 Oct 2001 10:15:51 -0400
+Date: Mon, 15 Oct 2001 10:15:50 -0400 (EDT)
+From: Ion Badulescu <ion@cs.columbia.edu>
+X-X-Sender: <ion@guppy.limebrokerage.com>
+To: Thomas Hood <jdthood@mail.com>
+cc: <linux-kernel@vger.kernel.org>, <stelian.pop@fr.alcove.com>,
+        <sduchene@mindspring.com>, <jurgen@botz.org>
+Subject: Re: [PATCH] PnP BIOS -- bugfix; update devlist on setpnp
+In-Reply-To: <1002987648.764.23.camel@thanatos>
+Message-ID: <Pine.LNX.4.33.0110151012240.10877-100000@guppy.limebrokerage.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Oct 2001, Stephen Frost wrote:
+On 13 Oct 2001, Thomas Hood wrote:
 
-> * German Gomez Garcia (german@piraos.com) wrote:
-> > On Sun, 14 Oct 2001, Willem Riede wrote:
-> >
-> > 	It's important to change the type of thermal sensor to
-> > 3904 transistor ( set sensor1 2 ....) if not you won't get the right
-> > temperatures.
->
-> 	Can you put up your sensors.conf file online somewhere so I/we
-> 	can take a look at it?  Perhaps your insmod line(s) as well and
-> 	the patch done to lm-sensors...  It'd be very useful to many of
-> 	us I think as I am trying to go through the steps to get
-> 	lm-sensors working for my on my Thunder S2462 board.
+> Vaio users: Please make sure that this doesn't oops.
+> Others: Try using setpnp to change the current configuration.
+> Unload and reload the parport drivers to check that they
+> reinitialize with the updated resource information provided
+> by the PnP BIOS driver.
 
-	You can get everything at:
+Works here on the inspiron 5k. Parport detects its config correctly, even 
+after multiple loads/unloads, lspnp and setpnp seem to be doing the right 
+thing, parport detects the new parameters after changing them with setpnp.
 
-	http://www.piraos.com/~german/sensors
+Relevant dmesg output:
 
-	Sorry for the delay but the server is in fact in the dual athlon,
-and I'm recompiling everything.
+PnPBIOS: Found PnP BIOS installation structure at 0xc00f7230.
+PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0xa610, dseg 0x400.
+PnPBIOS: 17 nodes reported by PnP BIOS; 17 recorded by driver.
+PnPBIOS: PNP0c02: 0xfff80000-0xffffffff was already reserved
+PnPBIOS: PNP0c01: 0xe8000-0xfffff was already reserved
+PnPBIOS: PNP0c01: 0x100000-0xbffffff was already reserved
+PnPBIOS: PNP0c02: 0x4d0-0x4d1 has been reserved
+PnPBIOS: PNP0c02: 0x1000-0x103f has been reserved
+PnPBIOS: PNP0c02: 0x1040-0x104f has been reserved
+SBF: ACPI BOOT descriptor is wrong length (39)
+SBF: Simple Boot Flag extension found and enabled.
+SBF: Setting boot flags 0x1
+parport: PnP BIOS reports device PNPBIOS PNP0401 (node number 0x16) is 
+configured to use io 0x0378, io 0x0778, irq 7, dma 3
+[and then after 'setpnp 16 dma 1']
+parport: PnP BIOS reports device PNPBIOS PNP0401 (node number 0x16) is 
+configured to use io 0x0378, io 0x0778, irq 7, dma 1
 
-	Regards,
+Thanks,
+Ion
 
-	- german
-
--------------------------------------------------------------------------
-German Gomez Garcia          | Send email with "SEND GPG KEY" as subject
-<german@piraos.com>          | to receive my GnuPG public key.
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 

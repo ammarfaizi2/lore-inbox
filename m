@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275116AbTHMOxk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 10:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275211AbTHMOxk
+	id S275200AbTHMOvU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 10:51:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275201AbTHMOuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 10:53:40 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:40838 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S275116AbTHMOxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 10:53:32 -0400
-Date: Wed, 13 Aug 2003 11:53:09 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@localhost.localdomain
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: akpm@osdl.org, <andrea@suse.de>, <alan@lxorguk.ukuu.org.uk>,
-       <linux-kernel@vger.kernel.org>, <mason@suse.com>, <green@namesys.com>
-Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
-In-Reply-To: <20030813125509.360c58fb.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.44.0308131143570.4279-100000@localhost.localdomain>
+	Wed, 13 Aug 2003 10:50:55 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:3079 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S275200AbTHMOus
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 10:50:48 -0400
+Date: Wed, 13 Aug 2003 10:42:31 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andries.Brouwer@cwi.nl
+cc: fvw@var.cx, linux-kernel@vger.kernel.org, linux-crypto@nl.linux.org
+Subject: Re: 2.6.0-test2+Util-linux/cryptoapi
+In-Reply-To: <UTC200307310941.h6V9fP204094.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.3.96.1030813103103.11041A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 31 Jul 2003 Andries.Brouwer@cwi.nl wrote:
 
-
-On Wed, 13 Aug 2003, Stephan von Krawczynski wrote:
-
-> On Fri, 8 Aug 2003 12:33:28 -0300 (BRT)
-> Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+> > First of all, in util-linux 2.12 the keybits option is gone
+> > I wanted to have losetup/mount hash the passphrase
 > 
-> > That will provide further information yes. We can then know if the problem 
-> > is reiserfs specific or not, which is VERY useful.
-> > 
-> > Again, thanks for your efforts helping us track down the problem.
+> The patches I got were maximal, too much junk.
+> So I went for a minimal version instead.
 > 
-> Status update:
-> 
-> uptime:
->  12:45pm  up 2 days 19:39,  18 users,  load average: 2.02, 2.05, 2.06
-> 
-> Running SMP. So far no crash happened under ext3. 
-> Still I see the tar-verification errors. None on the first day, 2 on the second
-> and 2 today so far.
-> I see a growing possibility that the formerly crashes are directly linked to a
-> reiserfs problem, maybe broken SMP-locking.
-> If it survives until sunday I will revert all ext3 back to reiserfs to be sure
-> it still crashes, then ideas for patches will be welcome :-)
+> It is usable (when the kernel part is stable, which it isn't today)
+> but mount/losetup may well acquire a few options before it is
+> conveniently usable.
 
-Great you tracked it down. Your previous traces almost always involved
-reiserfs calls, which is another indicator that reiserfs is probably the
-problem here.
+I'm not sure what value of stable you want, I've been using 2.6.0-test1
+(ac?) with crypto since it came out. Clearly there are a lot of things
+missing before 2.6 is ready for general use, but it sure is nice to have
+that filesystem protected. The crypto seems stable, as long as that's the
+main thing you do with the box.
 
-Chris, Oleg, it might be nice if you guys could look at previous oops
-reports by Stephan. 
+I hope we can get the control of key length back, while I doubt that
+anyone who actually could break the default is going to be involved in
+anything I do, I'd like to see it for future applications.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

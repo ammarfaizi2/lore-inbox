@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266196AbUJATTB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266193AbUJATXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266196AbUJATTB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 15:19:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUJATTB
+	id S266193AbUJATXH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 15:23:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266200AbUJATXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 15:19:01 -0400
-Received: from w130.z209220038.sjc-ca.dsl.cnc.net ([209.220.38.130]:60157 "EHLO
-	mail.inostor.com") by vger.kernel.org with ESMTP id S266196AbUJATS4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 15:18:56 -0400
-Subject: md hangs while rebuilding
-From: "Shesha B. " Sreenivasamurthy <shesha@inostor.com>
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       kernelnewbies@nl.linux.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1096658210.9342.1525.camel@arcane>
+	Fri, 1 Oct 2004 15:23:07 -0400
+Received: from mail.kroah.org ([69.55.234.183]:25053 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266193AbUJATXA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 15:23:00 -0400
+Date: Fri, 1 Oct 2004 12:22:38 -0700
+From: Greg KH <greg@kroah.com>
+To: "Teras Timo (EXT-YomiGroup/Helsinki)" <Ext-Timo.Teras@nokia.com>
+Cc: Robert Love <rml@novell.com>, linux-kernel@vger.kernel.org
+Subject: Re: kobject events questions
+Message-ID: <20041001192238.GA24404@kroah.com>
+References: <415ABA96.6010908@nokia.com> <1096486749.4666.31.camel@betsy.boston.ximian.com> <415D28B7.5070306@nokia.com> <20041001164750.GA11646@kroah.com> <20041001184714.GA19587@two.research.nokia.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 01 Oct 2004 12:16:51 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041001184714.GA19587@two.research.nokia.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
+On Fri, Oct 01, 2004 at 09:47:14PM +0300, Teras Timo (EXT-YomiGroup/Helsinki) wrote:
+> On Fri, Oct 01, 2004 at 09:47:50AM -0700, ext Greg KH wrote:
+> > > I'm just a bit dubious about adding new signals since they are hardcoded 
+> > > in the kernel. It's a time consuming process to add new signals (either 
+> > > for development build or for official kernels). This is one of the 
+> > > reasons I liked more about the original kevent patch. Wouldn't simple 
+> > > #defines have been enough for signal names?
+> > 
+> > What's the difference between a #define and a enum?  We want these to be
+> > well known, and correct.  A enum gives us that.
+> 
+> I was a bit ambiguous. I meant #defines with string literals. That would
+> have assured correct signal names. I guess to have them all well known
+> justifies for enums (even though it makes adding new ones a bit more
+> difficult).
 
-I have 9 disks raid 1. I pulled out 4 disks, and using raidhotadd I
-triggered a rebuild on 3 of them. While rebuilding md1, the rebuilding
-process is stuck at 0.0%. Below is a snapshot of "/proc/mdstat". 
+That's the point.  It should "be difficult" in that you need to present
+a valid reason to the whole kernel community as to why a new event needs
+to be added.  But if you make a point that others agree with, then there
+should be no problem in adding it.
 
------
-md1 : active raid1 sdi2[12] sdh2[11] sdg2[10] sde2[4] sdd2[1] sdc2[0]
-sdb2[2] sda2[5]
-      405504 blocks [9/5] [UUU_UU___]
-      [>....................]  recovery =  0.0% (384/405504)
-finish=176649.2min speed=0K/sec
------
+thanks,
 
-The finish="***" time is increasing constantly.
-
-(1) What may be the cause. I have experienced it several times. There is
-no heavy IO going-on on any of the partitions. Machine is kind of idle.
-(2) Can we somehow stop the rebuilding process and restart it again?
-(3) Rebooting will fix it. But I am trying to find a better solution.
-
-Any help is highly appreciated.
-
-Thanking You
-Shesha
-
--- 
-  .-----.
- /       \
-{  o | o  } 
-     |
-    \_/
-      
-
+greg k-h

@@ -1,71 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbTJMF2y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 01:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbTJMF2y
+	id S261486AbTJMFdA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 01:33:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbTJMFdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 01:28:54 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:24527 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261463AbTJMF2w
+	Mon, 13 Oct 2003 01:33:00 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:27855 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261486AbTJMFc5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 01:28:52 -0400
-Message-ID: <3F8A3813.7070503@namesys.com>
-Date: Mon, 13 Oct 2003 09:28:51 +0400
+	Mon, 13 Oct 2003 01:32:57 -0400
+Message-ID: <3F8A3908.50908@namesys.com>
+Date: Mon, 13 Oct 2003 09:32:56 +0400
 From: Hans Reiser <reiser@namesys.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Ihar 'Philips' Filipau" <filia@softhome.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ReiserFS causing kernel panic?
-References: <FNmF.1ky.9@gated-at.bofh.it> <FNFZ.1JI.3@gated-at.bofh.it> <FP59.3H0.17@gated-at.bofh.it> <FVkc.42S.5@gated-at.bofh.it> <3F89D567.6080901@softhome.net>
-In-Reply-To: <3F89D567.6080901@softhome.net>
+To: Alex Adriaanse <alex_a@caltech.edu>
+CC: linux-kernel@vger.kernel.org, vs@thebsh.namesys.com
+Subject: Re: ReiserFS patch for updating ctimes of renamed files
+References: <JIEIIHMANOCFHDAAHBHOIELODAAA.alex_a@caltech.edu>
+In-Reply-To: <JIEIIHMANOCFHDAAHBHOIELODAAA.alex_a@caltech.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ihar 'Philips' Filipau wrote:
+Vladimir will look at this and get back to you.  Thanks kindly for this.
 
-> Hans Reiser wrote:
->
->> reiserfs is not warranted to work on corrupted hdds.....
->
->
->   Is there any kind of error statistics for hard drives?
->
->   Geometry is known.
->   I suspect that structure of damages, caused by contact of plates 
-> surface with head, can be classified. 
+Hans
 
+Alex Adriaanse wrote:
+
+>Hi,
+>
+>I ran into some trouble trying to do incremental backups with GNU tar
+>(using --listed-incremental) where renaming a file in between backups would
+>cause the file to disappear upon restoration.  When investigating the issue
+>I discovered that this doesn't happen on ext2, ext3, and tmpfs filesystems
+>but only on ReiserFS filesystems.  I also noticed that for example ext3
+>updates the affected file's ctime upon rename whereas ReiserFS doesn't, so
+>I'm thinking this causes tar to believe that the file existed before the
+>first backup was taking under the new name, and as a result it doesn't back
+>it up during the second backup.  So I believe ReiserFS needs to update
+>ctimes for renamed files in order for incremental GNU tar backups to work
+>reliably.
+>
+>I made some changes to the reiserfs_rename function that I *think* should
+>fix the problem.  However, I don't know much about ReiserFS's internals, and
+>I haven't been able to test them out to see if things work now since I can't
+>afford to deal with potential FS corruption with my current Linux box.
+>
+>I included a patch below against the 2.4.22 kernel with my changes.  Would
+>somebody mind taking a look at this to see if I did things right here (and
+>perhaps wouldn't mind testing it out either)?  If it works then I (and I'm
+>sure others who've experienced the same problem) would like to see the
+>changes applied to the next 2.4.x (and 2.6.x?) release.
+>
+>Thanks a lot.
+>
+>Alex
+>
+>--- fs/reiserfs/namei.c.orig    Mon Aug 25 06:44:43 2003
+>+++ fs/reiserfs/namei.c Sun Oct 12 00:39:05 2003
+>@@ -1207,6 +1207,8 @@
+>     journal_mark_dirty (&th, old_dir->i_sb, old_de.de_bh);
+>     old_dir->i_ctime = old_dir->i_mtime = CURRENT_TIME;
+>     new_dir->i_ctime = new_dir->i_mtime = CURRENT_TIME;
+>+    old_inode->i_ctime = CURRENT_TIME;
+>+    reiserfs_update_sd (&th, old_inode);
+>
+>     if (new_dentry_inode) {
+>        // adjust link number of the victim
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 >
 >
->   It may be possible to classify manufacturing glitches. I think HD 
-> producers have this kind of classification/statistics - to improve 
-> quality, keeping price low.
->
->   Actually what I'm thinking of: some kind of design rules for file 
-> systems, how to minimize crashing due to hdd glitches.
->   Let's say, if some of hdd regions are know to be more error prone - 
-> desing fs to use those regions less.
->   If hdd damages used to have some specific structure - design file 
-> system to keep renundant data in regions which are less likely to be 
-> lost both at the same time. So renundancy would make sense.
->
->   Is there any thing like this?
->
->   Or file systems now do outlive hard drives?-)
+>  
 >
 
-
-Block allocation policies affect performance a lot, and keeping them 
-simple is important.    I would however be interested in knowing what 
-the distribution function for errors by geometry is.  If it turned out 
-that, say, errors were higher at the platter edges, I could make some 
-format changes....
-
-I think that for users it is best to think about how to mask drive 
-errors in the device layer or the device using RAID and mirroring.
 
 -- 
 Hans

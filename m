@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269841AbUIDJEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269843AbUIDJGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269841AbUIDJEs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 05:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269843AbUIDJEs
+	id S269843AbUIDJGl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 05:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269847AbUIDJGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 05:04:48 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:6801 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269841AbUIDJEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 05:04:46 -0400
-Message-ID: <4139851B.8070100@yahoo.com.au>
-Date: Sat, 04 Sep 2004 19:04:27 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
+	Sat, 4 Sep 2004 05:06:41 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:42639 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S269843AbUIDJGV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 05:06:21 -0400
+Message-ID: <41398597.2040506@cs.aau.dk>
+Date: Sat, 04 Sep 2004 11:06:31 +0200
+From: =?ISO-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040814)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-CC: linux-kernel@vger.kernel.org, Rick Lindsley <ricklind@us.ibm.com>
-Subject: Re: [PATCH] schedstats additions
-References: <41394D79.40205@yahoo.com.au> <200409041026.51519.rjw@sisk.pl>
-In-Reply-To: <200409041026.51519.rjw@sisk.pl>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+To: umbrella-devel@lists.sourceforge.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Umbrella-devel] Re: Getting full path from dentry in LSM hooks
+References: <41385FA5.806@cs.aau.dk> <1094220870.7975.19.camel@localhost.localdomain>            <4138CE6F.10501@cs.aau.dk> <200409032039.i83Kd1ZR028638@turing-police.cc.vt.edu>
+In-Reply-To: <200409032039.i83Kd1ZR028638@turing-police.cc.vt.edu>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
-> Dnia Saturday 04 of September 2004 07:07, Nick Piggin napisa³:
-> 
->>Hi,
->>I have a patch here to provide more useful statistics for me. Basically
->>it moves a lot more of the balancing information into the domains instead
->>of the runqueue, where it is nearly useless on multi-domain setups (eg.
->>SMT+SMP, SMP+NUMA).
+Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 03 Sep 2004 22:05:03 +0200, =?UTF-8?B?S3Jpc3RpYW4gU8O4cmVuc2Vu?= said:
 > 
 > 
-> Which kernel version it is against?
+>>Also simple bufferoverflows in suid-root programs may be avoided. The 
+>>simple way would to set the restriction "no fork", and thus if an 
+>>attacker tries to fork a (root) shell, this would be denied.
 > 
+> 
+> All this does is stop fork().  I'm not sure, but most shellcodes I've seen
+> don't bother forking, they just execve() a shell....
+I was not precise enough - it is not just fork, but the LSM catches 
+every time a new process is created - so we do have some way of generic 
+catching creation of processes, and denying so, if prohibited.
 
--mm3 ... oh yeah that has nicksched in it, sorry that would put a spanner
-in the works.
+> It doesn't stop a buffer overflow that does this:
+> 
+> 	f1 = open("/bin/bash");
+> 	f2 = open("/tmp/bash", O_CREAT);
+> 	while ((bytes = read(f1,buffer,sizeof(buffer))) > 0)
+> 		write(f2,buffer,bytes);
+> 	fchmod(f2,4775);
+> 	close(f1); close(f2);
+You are right! ... as long as a new process is not created, this may do 
+some damage ... but:
 
-I'll redo it to suit 2.6 if Rick acks it - the main info he needs is still
-valid, that is the output format.
+> Papering over *that* one by restricting fchmod just means the exploit needs to
+> append a line to /etc/passwd, or create a trojan inetd.conf or crontab entry,
+Not mny suid programs would really need to be able to access the /etc 
+and everything below... E.g. cdrecord (there were a bug a year ago or 
+something)... it should definitely not have access to the possiblílities 
+you mention!
 
-Thanks
-Nick
+> Remember - just papering over the fact that most shellcodes just execve() a
+> shell doesn't fix the fundemental problem, which is that the attacker is able
+> to run code of his choosing as root.
+Good point!
+
+Best, Kristian.

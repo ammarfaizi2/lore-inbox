@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVAMH37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVAMHaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbVAMH37 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 02:29:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVAMH37
+	id S261189AbVAMHaI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 02:30:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVAMHaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 02:29:59 -0500
-Received: from waste.org ([216.27.176.166]:7049 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261188AbVAMH36 (ORCPT
+	Thu, 13 Jan 2005 02:30:07 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:18321 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261189AbVAMHaB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 02:29:58 -0500
-Date: Wed, 12 Jan 2005 23:28:51 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       marcelo.tosatti@cyclades.com, Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050113072851.GN2995@waste.org>
-References: <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org> <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com> <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org>
+	Thu, 13 Jan 2005 02:30:01 -0500
+Date: Thu, 13 Jan 2005 08:28:02 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Chris Wright <chrisw@osdl.org>, Paul Davis <paul@linuxaudiosystems.com>,
+       Lee Revell <rlrevell@joe-job.com>, Matt Mackall <mpm@selenic.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       mingo@elte.hu, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050113072802.GB13195@devserv.devel.redhat.com>
+References: <20050111214152.GA17943@devserv.devel.redhat.com> <200501112251.j0BMp9iZ006964@localhost.localdomain> <20050111150556.S10567@build.pdx.osdl.net> <87y8ezzake.fsf@sulphur.joq.us> <20050112074906.GB5735@devserv.devel.redhat.com> <87oefuma3c.fsf@sulphur.joq.us>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <87oefuma3c.fsf@sulphur.joq.us>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12, 2005 at 08:48:57PM -0800, Linus Torvalds wrote:
+On Wed, Jan 12, 2005 at 06:44:23PM -0600, Jack O'Quin wrote:
+> Arjan van de Ven <arjanv@redhat.com> writes:
 > 
+> > On Tue, Jan 11, 2005 at 07:43:29PM -0600, Jack O'Quin wrote:
+> >> Lexicographic ambiguity: Lee and Paul are using "trash" for things
+> >> like installing a hidden suid root shell or co-opting sendmail into an
+> >> open spam relay.  Arjan just means crashing the system which forces
+> >> reboot to run fsck.
+> >
+> > I actually meant data corruption.
 > 
-> On Wed, 12 Jan 2005, Dave Jones wrote:
-> > 
-> > For us thankfully, exec-shield has trapped quite a few remotely
-> > exploitable holes, preventing the above.
-> 
-> One thing worth considering, but may be abit _too_ draconian, is a
-> capability that says "can execute ELF binaries that you can write to".
-> 
-> Without that capability set, you can only execute binaries that you cannot
-> write to, and that you cannot _get_ write permission to (ie you can't be
-> the owner of them either - possibly only binaries where the owner is
-> root).
+> Are you concerned about something different from the "normal" risk of
+> data corruption when the kernel panics or someone trips over the power
+> cord?
 
-We can do that now with a combination of read-only and no-exec mounts.
-
--- 
-Mathematics is the supreme nostalgia of our time.
+yes; the "normal" risk is time limited, eg the kernel will wait at most 30
+seconds before writing back your dirty data, 5 seconds for ext3 actually.
+With the "RT-abuse" hang, this 30 second thing goes on hold (because it's
+done from those kernel threads that cause you those hickups in sound :-) and
+you can starve a far longer period of time.. which may well mean a far
+larger dataset not hitting the disk.

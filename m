@@ -1,149 +1,197 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272256AbRIKC1m>; Mon, 10 Sep 2001 22:27:42 -0400
+	id <S272262AbRIKDCB>; Mon, 10 Sep 2001 23:02:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272258AbRIKC1c>; Mon, 10 Sep 2001 22:27:32 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38919 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S272256AbRIKC1U>; Mon, 10 Sep 2001 22:27:20 -0400
-Date: Mon, 10 Sep 2001 19:27:37 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Andreas Dilger <adilger@turbolabs.com>, Andrea Arcangeli <andrea@suse.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.4.10-pre5
-In-Reply-To: <20010911020707Z16564-26185+172@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33.0109101909010.1290-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272264AbRIKDBw>; Mon, 10 Sep 2001 23:01:52 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:57862 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S272262AbRIKDBr>;
+	Mon, 10 Sep 2001 23:01:47 -0400
+Date: Mon, 10 Sep 2001 20:00:36 -0700
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH] usb driver min max cleanup
+Message-ID: <20010910200036.A7981@kroah.com>
+In-Reply-To: <Pine.LNX.4.33.0109101745440.1145-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109101745440.1145-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.21i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Tue, 11 Sep 2001, Daniel Phillips wrote:
-> >
-> > Ehh.. So now you have two cases:
-> >  - you hit in the cache, in which case you've done an extra allocation,
-> >    and will have to do an extra memcpy.
-> >  - you don't hit in the cache, in which case you did IO that was
-> >    completely useless and just made the system slower.
->
-> If the read comes from block_read then the data goes into the page cache.  If
-> it comes from getblk (because of physical readahead or "dd xxx >null") the
-> data goes into the buffer cache and may later be moved to the page cache,
-> once we know what the logical mapping is.
+Here's a patch against 2.4.10-pre8 that converts most of the usb drivers
+from min_t() and max_t() to min() and max().
 
-Note that practically all accesses will be through the logical mapping,
-and the virtual index.
+Thanks,
 
-While the physical mapping and the physical index is the only one you can
-do physical read-ahead into.
+greg k-h
+(temporary usb maintainer)
 
-And the two DO NOT OVERLAP. They never will. You can't just swizzle
-pointers around - you will have to memcpy.
 
-In short, you'll en dup doing a memcpy() pretty much every single time you
-hit.
-
-> > Considering that the extra allocation and memcpy is likely to seriously
-> > degrade performance on any high-end hardware if it happens any noticeable
-> > percentage of the time, I don't see how your suggest can _ever_ be a win.
-> > The only time you avoid the memcpy is when you wasted the IO completely.
->
-> We don't have any extra allocation in the cases we're already handling now,
-> it works exactly the same.  The only overhead is an extra hash probe on cache
-> miss.
-
-No it doesn't. We're already handing _nothing_: the only thing we're
-handling right now is:
-
- - swap cache read-ahead (which is _not_ a physical read-ahead, but a
-   logical one, and as such is not at all the case you're handling)
-
- - we're invalidating buffer heads that we find to be aliasing the virtual
-   page we create, which is _also_ not at all the same thing, it's simply
-   an issue of making sure that we haven't had the (unlikely) case of a
-   meta-data block being free'd, but not yet written back.
-
-So in the first case we don't have an aliasing issue at all (it's really a
-virtual index, although in the case of a swap partition the virtual
-address ends up being a 1:1 mapping of the physical address), and in the
-second case we do not intend to use the physical mapping we find, we just
-intend to get rid of it.
-
-> > So please explain to me how you think this is all a good idea? Or explain
-> > why you think the memcpy is not going to be noticeable in disk throughput
-> > for normal loads?
->
-> When we're forced to do a memcpy it's for a case where we're saving a read or
-> a seek.
-
-No.
-
-The above is assuming that the disk doesn't already have the data in its
-buffers. In which case the only thing we're doing is making the IO command
-and the DMA that filled the page happen earlier.
-
-Which can be good for latency, but considering that the read-ahead is at
-least as likely to be _bad_ for latency, I don't believe in that argument
-very much. Especially not when you've dirtied the cache and introduced an
-extra memcop.
-
->	  Even then, the memcpy can be optimized away in the common case that
-> the blocksize matches page_size.
-
-Well, you actually have to be very very careful: if you do that there is
-just a _ton_ of races there (you'd better be _really_ sure that nobody
-else has already found either of the pages, the "move page" operation is
-not exactly completely painless).
-
->				  Sometimes, even when the blocksize doesn't
-> match this optimization would be possible.  But the memcpy optimization isn't
-> important, the goal is to save reads and seeks by combining reads and reading
-> blocks in physical order as opposed to file order.
-
-Try it. I'll be convinced by numbers, and I'll bet you won't have the
-numbers for the common cases to prove yourself right.
-
-You're making the (in my opinion untenable) argument that the logical
-read-ahead is flawed enough of the time that you win by doing an
-opportunistic physical read-ahead, even when that implies ore memory
-pressure both from an allocation standpoint (if you fail 10% of the time,
-you'll have 10% more page cache pages you need to get rid of gracefully,
-that never had _any_ useful information in them) and from a memory bus
-standpoint.
-
-> An observation: logical readahead can *never* read a block before it knows
-> what the physical mapping is, whereas physical readahead can.
-
-Sure. But the meta-data is usually on the order of 1% or less of the data,
-which means that you tend to need to read a meta-data block only 1% of the
-time you need to read a real data block.
-
-Which makes _that_ optimization not all that useful.
-
-So I'm claiming that in order to get any useful performance improvments,
-your physical read-ahead has to be _clearly_ better than the logical one.
-I doubt it is.
-
-Basically, the things where physical read-ahead might win:
- - it can be done without metadata (< 1%)
- - it can be done "between files" (very uncommon, especially as you have
-   to assume that different files are physically close)
-
-Can you see any others? I doubt you can get physical read-ahead that gets
-more than a few percentage points better hits than the logical one. AND I
-further claim that you'll get a _lot_ more misses on physical read-ahead,
-which means that your physical read-ahead window should probably be larger
-than our current logical read-ahead.
-
-I have seen no arguments from you that might imply anything else, really.
-
-Which in turn also implies that the _overhead_ of physical read-ahead is
-larger. And that is without even the issue of memcpy and/or switching
-pages around, _and_ completely ignoring all the complexity-issues.
-
-But hey, at the end of the day, numbers rule.
-
-		Linus
-
+diff -Nru a/drivers/usb/bluetooth.c b/drivers/usb/bluetooth.c
+--- a/drivers/usb/bluetooth.c	Mon Sep 10 19:47:07 2001
++++ b/drivers/usb/bluetooth.c	Mon Sep 10 19:47:07 2001
+@@ -518,7 +518,7 @@
+ 				}
+ 				
+ 
+-				buffer_size = min_t (int, count, bluetooth->bulk_out_buffer_size);
++				buffer_size = min (count, bluetooth->bulk_out_buffer_size);
+ 				memcpy (urb->transfer_buffer, current_position, buffer_size);
+ 
+ 				/* build up our urb */
+diff -Nru a/drivers/usb/serial/digi_acceleport.c b/drivers/usb/serial/digi_acceleport.c
+--- a/drivers/usb/serial/digi_acceleport.c	Mon Sep 10 19:47:07 2001
++++ b/drivers/usb/serial/digi_acceleport.c	Mon Sep 10 19:47:07 2001
+@@ -670,7 +670,7 @@
+ 		}
+ 
+ 		/* len must be a multiple of 4, so commands are not split */
+-		len = min_t(int, count, oob_port->bulk_out_size );
++		len = min(count, oob_port->bulk_out_size );
+ 		if( len > 4 )
+ 			len &= ~3;
+ 
+@@ -747,7 +747,7 @@
+ 		/* len must be a multiple of 4 and small enough to */
+ 		/* guarantee the write will send buffered data first, */
+ 		/* so commands are in order with data and not split */
+-		len = min_t(int, count, port->bulk_out_size-2-priv->dp_out_buf_len );
++		len = min(count, port->bulk_out_size-2-priv->dp_out_buf_len );
+ 		if( len > 4 )
+ 			len &= ~3;
+ 
+@@ -951,7 +951,7 @@
+ 	spin_lock_irqsave( &priv->dp_port_lock, flags );
+ 
+ 	/* send any buffered chars from throttle time on to tty subsystem */
+-	len = min_t(int, priv->dp_in_buf_len, TTY_FLIPBUF_SIZE - tty->flip.count );
++	len = min(priv->dp_in_buf_len, TTY_FLIPBUF_SIZE - tty->flip.count );
+ 	if( len > 0 ) {
+ 		memcpy( tty->flip.char_buf_ptr, priv->dp_in_buf, len );
+ 		memcpy( tty->flip.flag_buf_ptr, priv->dp_in_flag_buf, len );
+@@ -1272,7 +1272,8 @@
+ priv->dp_port_num, count, from_user, in_interrupt() );
+ 
+ 	/* copy user data (which can sleep) before getting spin lock */
+-	count = min_t(int, 64, min_t(int, count, port->bulk_out_size-2 ) );
++	count = min( count, port->bulk_out_size-2 );
++	count = min( 64, count);
+ 	if( from_user && copy_from_user( user_buf, buf, count ) ) {
+ 		return( -EFAULT );
+ 	}
+@@ -1303,7 +1304,7 @@
+ 
+ 	/* allow space for any buffered data and for new data, up to */
+ 	/* transfer buffer size - 2 (for command and length bytes) */
+-	new_len = min_t(int, count, port->bulk_out_size-2-priv->dp_out_buf_len );
++	new_len = min(count, port->bulk_out_size-2-priv->dp_out_buf_len);
+ 	data_len = new_len + priv->dp_out_buf_len;
+ 
+ 	if( data_len == 0 ) {
+@@ -1929,7 +1930,7 @@
+ 
+ 		if( throttled ) {
+ 
+-			len = min_t( int, len,
++			len = min( len,
+ 				DIGI_IN_BUF_SIZE - priv->dp_in_buf_len );
+ 
+ 			if( len > 0 ) {
+@@ -1942,7 +1943,7 @@
+ 
+ 		} else {
+ 
+-			len = min_t( int, len, TTY_FLIPBUF_SIZE - tty->flip.count );
++			len = min( len, TTY_FLIPBUF_SIZE - tty->flip.count );
+ 
+ 			if( len > 0 ) {
+ 				memcpy( tty->flip.char_buf_ptr, data, len );
+diff -Nru a/drivers/usb/serial/empeg.c b/drivers/usb/serial/empeg.c
+--- a/drivers/usb/serial/empeg.c	Mon Sep 10 19:47:07 2001
++++ b/drivers/usb/serial/empeg.c	Mon Sep 10 19:47:07 2001
+@@ -276,7 +276,7 @@
+ 			}
+ 		}
+ 
+-		transfer_size = min_t (int, count, URB_TRANSFER_BUFFER_SIZE);
++		transfer_size = min (count, URB_TRANSFER_BUFFER_SIZE);
+ 
+ 		if (from_user) {
+ 			if (copy_from_user (urb->transfer_buffer, current_position, transfer_size)) {
+diff -Nru a/drivers/usb/serial/io_edgeport.c b/drivers/usb/serial/io_edgeport.c
+--- a/drivers/usb/serial/io_edgeport.c	Mon Sep 10 19:47:07 2001
++++ b/drivers/usb/serial/io_edgeport.c	Mon Sep 10 19:47:07 2001
+@@ -1311,7 +1311,7 @@
+ 	fifo = &edge_port->txfifo;
+ 
+ 	// calculate number of bytes to put in fifo
+-	copySize = min_t (int, count, (edge_port->txCredits - fifo->count));
++	copySize = min ((unsigned int)count, (edge_port->txCredits - fifo->count));
+ 
+ 	dbg(__FUNCTION__"(%d) of %d byte(s) Fifo room  %d -- will copy %d bytes", 
+ 	    port->number, count, edge_port->txCredits - fifo->count, copySize);
+@@ -1329,7 +1329,7 @@
+ 	// then copy the reset from the start of the buffer 
+ 
+ 	bytesleft = fifo->size - fifo->head;
+-	firsthalf = min_t (int, bytesleft, copySize);
++	firsthalf = min (bytesleft, copySize);
+ 	dbg (__FUNCTION__" - copy %d bytes of %d into fifo ", firsthalf, bytesleft);
+ 
+ 	/* now copy our data */
+@@ -1454,7 +1454,7 @@
+ 
+ 	/* now copy our data */
+ 	bytesleft =  fifo->size - fifo->tail;
+-	firsthalf = min_t (int, bytesleft, count);
++	firsthalf = min (bytesleft, count);
+ 	memcpy(&buffer[2], &fifo->fifo[fifo->tail], firsthalf);
+ 	fifo->tail  += firsthalf;
+ 	fifo->count -= firsthalf;
+diff -Nru a/drivers/usb/serial/io_usbvend.h b/drivers/usb/serial/io_usbvend.h
+--- a/drivers/usb/serial/io_usbvend.h	Mon Sep 10 19:47:07 2001
++++ b/drivers/usb/serial/io_usbvend.h	Mon Sep 10 19:47:07 2001
+@@ -115,7 +115,7 @@
+ 
+ // TxCredits value below which driver won't bother sending (to prevent too many small writes).
+ // Send only if above 25%
+-#define EDGE_FW_GET_TX_CREDITS_SEND_THRESHOLD(InitialCredit)	(max_t(int, ((InitialCredit) / 4), EDGE_FW_BULK_MAX_PACKET_SIZE))
++#define EDGE_FW_GET_TX_CREDITS_SEND_THRESHOLD(InitialCredit)	(max(((InitialCredit) / 4), EDGE_FW_BULK_MAX_PACKET_SIZE))
+ 
+ #define	EDGE_FW_BULK_MAX_PACKET_SIZE		64	// Max Packet Size for Bulk In Endpoint (EP1)
+ #define EDGE_FW_BULK_READ_BUFFER_SIZE		1024	// Size to use for Bulk reads
+diff -Nru a/drivers/usb/serial/usbserial.c b/drivers/usb/serial/usbserial.c
+--- a/drivers/usb/serial/usbserial.c	Mon Sep 10 19:47:07 2001
++++ b/drivers/usb/serial/usbserial.c	Mon Sep 10 19:47:07 2001
+@@ -1259,9 +1259,9 @@
+ 
+ 	/* initialize some parts of the port structures */
+ 	/* we don't use num_ports here cauz some devices have more endpoint pairs than ports */
+-	max_endpoints = max_t(int, num_bulk_in, num_bulk_out);
+-	max_endpoints = max_t(int, max_endpoints, num_interrupt_in);
+-	max_endpoints = max_t(int, max_endpoints, serial->num_ports);
++	max_endpoints = max(num_bulk_in, num_bulk_out);
++	max_endpoints = max(max_endpoints, num_interrupt_in);
++	max_endpoints = max(max_endpoints, (int)serial->num_ports);
+ 	dbg (__FUNCTION__ " - setting up %d port structures for this device", max_endpoints);
+ 	for (i = 0; i < max_endpoints; ++i) {
+ 		port = &serial->port[i];
+diff -Nru a/drivers/usb/serial/visor.c b/drivers/usb/serial/visor.c
+--- a/drivers/usb/serial/visor.c	Mon Sep 10 19:47:07 2001
++++ b/drivers/usb/serial/visor.c	Mon Sep 10 19:47:07 2001
+@@ -441,7 +441,7 @@
+ 			}
+ 		}
+ 		
+-		transfer_size = min_t (int, count, URB_TRANSFER_BUFFER_SIZE);
++		transfer_size = min (count, URB_TRANSFER_BUFFER_SIZE);
+ 		if (from_user) {
+ 			if (copy_from_user (urb->transfer_buffer, current_position, transfer_size)) {
+ 				bytes_sent = -EFAULT;

@@ -1,42 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131547AbRCXC73>; Fri, 23 Mar 2001 21:59:29 -0500
+	id <S131545AbRCXCbr>; Fri, 23 Mar 2001 21:31:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131550AbRCXC7T>; Fri, 23 Mar 2001 21:59:19 -0500
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:56010 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S131547AbRCXC7E>; Fri, 23 Mar 2001 21:59:04 -0500
-From: Ed Tomlinson <tomlins@cam.org>
-Subject: Fwd: Re: [PATCH] Prevent OOM from killing init
+	id <S131546AbRCXCbh>; Fri, 23 Mar 2001 21:31:37 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:29369 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S131545AbRCXCbV>;
+	Fri, 23 Mar 2001 21:31:21 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Franck <afranck@gmx.de>
 To: linux-kernel@vger.kernel.org
-Date: Fri, 23 Mar 2001 21:58:22 -0500
-Organization: me
-User-Agent: KNode/0.4
+Subject: Re: [PATCH] Prevent OOM from killing init
+Date: Sat, 24 Mar 2001 03:30:29 +0100
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20010324025823.69BCD5A@oscar.casa.dyndns.org>
+Message-Id: <01032403302905.05124@dg1kfa>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi together,
 
-,--------------- Forwarded message (begin)
+seems like a hot discussion going on, but I couldn't resist and would like to
+throw in my $0.02.
 
- Subject: Re: [PATCH] Prevent OOM from killing init
- From: Jonathan Morton <chromi@cyberspace.org>
- Date: Fri, 23 Mar 2001 20:45:43 -0500
+Besides misunderstandings and general displeasure, some very interesting
+facts have shown up in the discussion (oh, yeah), which I'd like to know more
+about, and just extend them with a bit of my latest experience regarding
+memory usage.
 
- >Hmm...  "if ( freemem < (size_of_mallocing_process / 20) ) fail_to_allocate;"
+First one is about buffer/inode cache. What I expect as a medium-skilled
+system hacker would be: Before giving up with an OOM-whatever,
 
-Not sure this is that reasonable on a 4G box... 800M is a big chunk...
+a) all non-dirty buffers should be freed, possibly giving tons of memory
+b) all dirty buffers should be flushed and freed, alas
 
-Why not base this on the vm's free goal.  If I remember correctly it tries to keep one
-second of pages ready for allocating.  If memory is so tight that a second's worth of
-memory does not exist.  Note that I mean memory free in main memory and swap.
+I'm not sure if both is tried ATM, but I think enough experts are here to
+answer my questions :)
 
-Think your malloc patch along with UID weighting (1-99 protected, 100-999 endangered, 
-1000+ open season - with poaching expected if there is no choise) will make help oom 
-processing.
+What I saw lately was some general system sluggishness after copying very big
+files (ripping a CD image to disk) - it seems the system has paged out most
+of its processes (including the calling bash shell) in favor of the copying
+task, just for buffers! Up to which degree is this reasonable? It seems to
+slow down the system when using swap, so for this task I better had
+deactivated it. Not what one "intuitively" expects.
 
-Ed Tomlinson
+So, what is the second important point? The current system cannot properly
+distinguish between memory an application "really" needs and memory an
+application "eventually" needs (as internal caches, ...).
 
+A possible solution could be the implementation of something like SIGDANGER,
+which would be sent to an application in case of memory overload, so
+it should try to free a bit memory if it can. Surely applications would have
+to be modified to use that information. How about the C library, does it
+maintain any big buffers, for I/O or so? I don't know, changes there could
+surely be passed on transparently. Ok, ok, it's the MacOS way of thinking, so
+the other possibility. This problems are intimately related to memory
+overcommitting, or not doing so, so what might be fatal in overcommitting?
+
+One problem arises if an application gets a huge part of overcommitted memory
+and then tries to use it, which spontaneously fails - just because the memory
+was committed somewhere else, to the 999 other apps which are already
+ running.
+
+The flaw there is that at some time, you can guarantee that the overcommit
+would fail, if the memory was really used. At this point, the application
+could be halted (so that it does not get the chance to make use of the
+overcommit promise), until some more memory is available again - either by
+paging, or by waiting for other jobs to terminate. This could lead to
+starvation, but it potentially could let the system survive.
+
+A further idea would be to use overcommitted memory only for buffers and
+caches, this was already mentioned before. In any situation "near" an OOM,
+further memory pressure should be avoided - for example, by letting malloc()
+fail. This might also hurt existing processes, so some heuristics could
+decide - a malloc() from a freshly started process should fail regardlessly
+of its size, while older processes might get some more tolerance, because the
+system might trust their behaviour a bit more.
+
+So far from me, this was just a collection of some more or less unrelated
+thoughts, which I'd like to know a bit more about, or hear from experts why
+all of this is b*llshit (or: already done(TM)!)
+
+Greetings,
+Andreas

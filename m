@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318218AbSIJXki>; Tue, 10 Sep 2002 19:40:38 -0400
+	id <S318219AbSIJXvm>; Tue, 10 Sep 2002 19:51:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318219AbSIJXki>; Tue, 10 Sep 2002 19:40:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4869 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318218AbSIJXki>;
-	Tue, 10 Sep 2002 19:40:38 -0400
-Message-ID: <3D7E83F4.6050302@mandrakesoft.com>
-Date: Tue, 10 Sep 2002 19:44:52 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S318222AbSIJXvl>; Tue, 10 Sep 2002 19:51:41 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:47346 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S318219AbSIJXvl>; Tue, 10 Sep 2002 19:51:41 -0400
+Date: Wed, 11 Sep 2002 01:56:27 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre6
+In-Reply-To: <Pine.LNX.4.44.0209101501200.16518-100000@freak.distro.conectiva>
+Message-ID: <Pine.NEB.4.44.0209110152380.26432-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: Re: linux kernel conf 0.5
-References: <3D7E7D5F.F37D2D49@linux-m68k.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> Hi,
-> 
-> At http://www.xs4all.nl/~zippel/lc/lkc-0.5.tar.gz you can find the
-> latest version of the new config system. Besides various small bug
-> fixes, it includes the following changes:
-> - Improved mouse interface of qconf
-> - qconf isn't build if QT isn't available
-> - "if" ... "endif" block added
-> - update to 2.5.35
-> 
-> With the exception of the X interface I'm not planning any big visible
-> changes anymore, so slowly I'd like to know any reason, why this config
-> system shouldn't go into 2.5.x.
-[...]
-> Otherwise the little feedback I got was mostly positive, so if anything
-> thinks the old config system is in any way better, I'd really like to
-> know about it now (and if anyone wants to keep the old system, (s)he
-> just volunteered to fix all the subtle differences between the three
-> different parsers). So unless I hear objections rather soon, it's up to
-> Linus.
+On Tue, 10 Sep 2002, Marcelo Tosatti wrote:
 
+>...
+> Geert Uytterhoeven <geert@linux-m68k.org>:
+>...
+>   o Wrong fbcon_mac dependency
+>...
 
-How about posting a kernel patch (or link to one) that you feel is 
-suitable for 2.5.x integration?  That makes it a bit easier to review in 
-context, and may help to resolve any final integration issues.
+It's possible to enable CONFIG_FBCON_MAC on !m68k and after your change
+the compilation breaks on i386 with the following error:
 
-For the record I like what I've seen so far...
+<--  snip  -->
 
-	Jeff
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc
+-iwithprefix include -DKBUILD_BASENAME=fbcon  -c -o fbcon.o fbcon.c
+fbcon.c: In function `fbcon_setup':
+fbcon.c:641: `MACH_IS_MAC' undeclared (first use in this function)
+fbcon.c:641: (Each undeclared identifier is reported only once
+fbcon.c:641: for each function it appears in.)
+make[3]: *** [fbcon.o] Error 1
+make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.19-full/drivers/video'
 
+<--  snip   -->
 
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

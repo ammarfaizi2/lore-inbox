@@ -1,85 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbUKST4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbUKSURI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbUKST4H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 14:56:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbUKSTvz
+	id S261617AbUKSURI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 15:17:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbUKSUPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 14:51:55 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:57787 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261561AbUKSTqw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 14:46:52 -0500
-Date: Fri, 19 Nov 2004 11:46:45 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: torvalds@osdl.org, akpm@osdl.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: page fault scalability patch V11 [6/7]: x86_64 atomic pte operations
-In-Reply-To: <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0411191146110.24095@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0411061527440.3567-100000@localhost.localdomain>
-  <Pine.LNX.4.58.0411181126440.30385@schroedinger.engr.sgi.com> 
- <Pine.LNX.4.58.0411181715280.834@schroedinger.engr.sgi.com> 
- <419D581F.2080302@yahoo.com.au>  <Pine.LNX.4.58.0411181835540.1421@schroedinger.engr.sgi.com>
-  <419D5E09.20805@yahoo.com.au>  <Pine.LNX.4.58.0411181921001.1674@schroedinger.engr.sgi.com>
- <1100848068.25520.49.camel@gaston> <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 19 Nov 2004 15:15:41 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:36769 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261542AbUKSUNU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 15:13:20 -0500
+Date: Fri, 19 Nov 2004 21:12:03 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Dorn Hetzel <kernel@dorn.hetzel.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: r8169.c
+Message-ID: <20041119201203.GA13522@electric-eye.fr.zoreil.com>
+References: <20041119162920.GA26836@lilah.hetzel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041119162920.GA26836@lilah.hetzel.org>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changelog
-        * Provide atomic pte operations for x86_64
+Dorn Hetzel <kernel@dorn.hetzel.org> :
+[Abit AA8 experience]
+> 2.6.9, however, was not making happy noises with the ICH6R/AHCI SATA
+> controller, and after reviewing changelogs and finding encouraging
+> notes, I gave 2.6.10-rc2 a try and I am happy to report that it
+> seems to work very well with the AHCI SATA drives.
+> 
+> 2.6.10-rc2 still uses the 1.2 8169 driver, same as 2.6.9...
+> 
+> However, the r8169 2.2 driver would not build with 2.6.10-rc2,
+> due to use of pci_dma_sync_single.
+> 
+> I've made a V2.3 of the 8169 driver which uses 
+> pci_dma_sync_single_for_cpu instead, and it seems to work fine.
+> 
+> I was hoping to submit a patch to move the new driver into
+> some appropriate release, but the 2.2/2.3 driver is so far
+> changed from 1.2 that the diff -u is about the size of the
+> original and new file combined :(
+[...]
+> With such a huge diff, should I send a diff, or the whole new file, or
+> do something else entirely?
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+Do something else:
+- take a look at the changes for the 8169 driver in Jeff Garzik's -netdev
+  patchkit (included in -mm). It may be interesting to know how it behaves;
+- less +/8169 MAINTAINERS;
+- provide a more elaborate description of the issue with your computer
+  (+ gcc version, lspci -vx, dmesg at boot, lsmod, /proc/interrupts, ifconfig);
+- realize that the so called version number in 2.6.9 has no meaning.
 
-Index: linux-2.6.9/include/asm-x86_64/pgalloc.h
-===================================================================
---- linux-2.6.9.orig/include/asm-x86_64/pgalloc.h	2004-10-18 14:54:30.000000000 -0700
-+++ linux-2.6.9/include/asm-x86_64/pgalloc.h	2004-11-19 08:17:55.000000000 -0800
-@@ -7,16 +7,26 @@
- #include <linux/threads.h>
- #include <linux/mm.h>
+Last time I looked at Realtek's driver (linux-8169(220).zip), it still
+contained bugs which had been fixed in mainline (though it merges some
+part of it) and I did not find anything which should do a difference
+from a correctness POV. Intermediate versions of Realtek's code are
+not available and the datasheet has disappeared from their website.
+With due respect for Realtek's work (serious, really) it does not make
+my life fun _at all_ (and I guess that "my" is also accurate for anyone
+who tries to work with the 8169 driver on the long run).
 
-+#define PMD_NONE 0
-+#define PGD_NONE 0
-+
- #define pmd_populate_kernel(mm, pmd, pte) \
- 		set_pmd(pmd, __pmd(_PAGE_TABLE | __pa(pte)))
- #define pgd_populate(mm, pgd, pmd) \
- 		set_pgd(pgd, __pgd(_PAGE_TABLE | __pa(pmd)))
-+#define pgd_test_and_populate(mm, pgd, pmd) \
-+		(cmpxchg((int *)pgd, PGD_NONE, _PAGE_TABLE | __pa(pmd)) == PGD_NONE)
+Btw merging a 20 megaton patch is not the way network drivers changes
+are submitted. People expect a serie of small changes whose effects
+are clearly explained (see http://linux.yyz.us/patch-format.html for
+the suggested format).
 
- static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
- {
- 	set_pmd(pmd, __pmd(_PAGE_TABLE | (page_to_pfn(pte) << PAGE_SHIFT)));
- }
+Imho your issue is not completely specific to the 8169 hardware. With
+a wet finger in the wind, I'd suspect something related to timing or irq
+(duration of locking or such).
 
-+static inline int pmd_test_and_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
-+{
-+	return cmpxchg((int *)pmd, PMD_NONE, _PAGE_TABLE | (page_to_pfn(pte) << PAGE_SHIFT)) == PMD_NONE;
-+}
-+
- extern __inline__ pmd_t *get_pmd(void)
- {
- 	return (pmd_t *)get_zeroed_page(GFP_KERNEL);
-Index: linux-2.6.9/include/asm-x86_64/pgtable.h
-===================================================================
---- linux-2.6.9.orig/include/asm-x86_64/pgtable.h	2004-11-15 11:13:39.000000000 -0800
-+++ linux-2.6.9/include/asm-x86_64/pgtable.h	2004-11-19 08:18:52.000000000 -0800
-@@ -437,6 +437,10 @@
- #define	kc_offset_to_vaddr(o) \
-    (((o) & (1UL << (__VIRTUAL_MASK_SHIFT-1))) ? ((o) | (~__VIRTUAL_MASK)) : (o))
+Please Cc: netdev@oss.sgi.com on further messages. Cc: jgarzik@pobox.com
+for network devices patches is also suggested.
 
-+
-+#define ptep_cmpxchg(__vma,__addr,__xp,__oldval,__newval) (cmpxchg(&(__xp)->pte, pte_val(__oldval), pte_val(__newval)) == pte_val(__oldval))
-+#define __HAVE_ARCH_ATOMIC_TABLE_OPS
-+
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY
- #define __HAVE_ARCH_PTEP_GET_AND_CLEAR
-
+--
+Ueimor

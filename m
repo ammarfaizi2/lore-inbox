@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268096AbRGVXIK>; Sun, 22 Jul 2001 19:08:10 -0400
+	id <S268094AbRGVXEa>; Sun, 22 Jul 2001 19:04:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268097AbRGVXIB>; Sun, 22 Jul 2001 19:08:01 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:45574 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S268096AbRGVXHq>;
-	Sun, 22 Jul 2001 19:07:46 -0400
-Date: Mon, 23 Jul 2001 01:07:49 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: "Alan J. Wylie" <alan.nospam@glaramara.freeserve.co.uk>
-cc: <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: ipt_unclean: TCP flags bad: 4
-In-Reply-To: <15195.5892.311474.400006@glaramara.freeserve.co.uk>
-Message-ID: <Pine.LNX.4.33.0107230106550.1542-100000@Expansa.sns.it>
+	id <S268096AbRGVXEU>; Sun, 22 Jul 2001 19:04:20 -0400
+Received: from [217.28.130.35] ([217.28.130.35]:63755 "EHLO
+	mailth4.byworkwise.com") by vger.kernel.org with ESMTP
+	id <S268094AbRGVXEF>; Sun, 22 Jul 2001 19:04:05 -0400
+Message-ID: <3B5B32B2.B96E6BD3@freenet.co.uk>
+Date: Sun, 22 Jul 2001 21:08:18 +0100
+From: Gordon Lack <gmlack@freenet.co.uk>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: NFSv3 pathname problems in 2.4 kernels
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-This is normale behaviour, if with 2.4.7 kernel
-this rule acts this way, that means it does work.
-are you telling me you see this behavious with kernel 2.4.7?
+   I am seeing a problem at the client side when trying to obtain pathnames of NFS-mounted entries.  This occurs when the NFS servers involved are Linux2.4 kernels and the clients are SGI Irix 6.5 or Solaris 2.6 (Linux 2.4 clients are Ok - 2.2 ones won't be using NFSv3).
 
-Luigi
+   As an example of what happens.
 
-On Sun, 22 Jul 2001, Alan J. Wylie wrote:
+o The server side has a pathname of /raid/sources/prog1 - a directory.
 
-> On Sun, 22 Jul 2001 19:51:43 +0200 (CEST), Luigi Genoni <kernel@Expansa.sns.it> said:
->
-> > There was a bug introduced with kernel 2.4.6, but it was solved with
-> > one of the latest 2.4.7-pre patch, i do not remember which one.
->
-> > actually i was happily using tcp_unclean on my production servers,
-> > but with 2.4.6 i was forced to avoid it.  I still have to try 2.4.7
-> > to see if it works properly.
->
-> > If you use a rule like
->
-> > iptables -A INPUT -m unlean -j DROP
->                        ^^^^^^
-> unclean, unclean <ding> ;-)
->
-> > are you still able to connect in/out of your box?
->
-> $MYIPTABLES --append INPUT   --match unclean --jump DROP
->
-> has been at the start of my rules for a long time. I wasn't seeing
-> any *serious* problems browsing the web, etc., but was getting a few
-> "unable to connect to host" pages. Some of them went away on refresh,
-> but some sites I just couldn't get to. On the other hand, that's
-> normal for the Internet.
->
-> --
-> Alan J. Wylie                        http://www.glaramara.freeserve.co.uk/
-> "Perfection [in design] is achieved not when there is nothing left to add,
-> but rather when there is nothing left to take away."
->   Antoine de Saint-Exupery
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+o /raid is exported
 
+o The client NFS mounts /raid/sources as /projects/sources
+
+o I cd to /projects/sources/prog1 and type /bin/pwd
+
+   I expect to get /projects/sources/prog1 as the result, but I actually get /sources/prog1.
+
+   Similar mounts from Linux2.2. systems (presumably running NFSv2) produce the expected (correct) result.
+
+   I've snoop'ed the network traffic and one thing I can see is that the filehandle used in the NFSv3 mount is reported as being a different length (shorter) than those for v2.
+
+   So,
+
+a) has anyone else encountered these problems?
+
+b) if so, do they have a solution?
+
+c) how is the filehandle calculated in the 2.4 kernel for NFSv3?  Which routine is it in?  Perhaps I could try (optionally) forcing it to be the same length as a v2 filehandle to see whether that fixes things.  (I'd rather that the 2.4 kernel were optimally compatible rather than paranoically
+correct.
+
+
+   Hoping someone can help...

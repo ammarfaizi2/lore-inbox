@@ -1,280 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbUKLMlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262519AbUKLMwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbUKLMlp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 07:41:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbUKLMlp
+	id S262519AbUKLMwo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 07:52:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbUKLMwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 07:41:45 -0500
-Received: from ltgp.iram.es ([150.214.224.138]:12673 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id S262522AbUKLMao (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 07:30:44 -0500
-From: Gabriel Paubert <paubert@iram.es>
-Date: Fri, 12 Nov 2004 13:22:15 +0100
-To: Greg KH <greg@kroah.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Recent I2C "dead code removal" breaks pmac sound.
-Message-ID: <20041112122215.GA19147@iram.es>
-References: <20041111180902.GA8697@iram.es> <20041111182228.GA23236@kroah.com>
+	Fri, 12 Nov 2004 07:52:43 -0500
+Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:13736 "EHLO
+	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id S262519AbUKLMwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 07:52:40 -0500
+Date: Fri, 12 Nov 2004 13:51:26 +0100
+From: Guido Guenther <agx@sigxcpu.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: adaplas@pol.net,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: Fix IO access in rivafb
+Message-ID: <20041112125125.GA3613@bogon.ms20.nix>
+References: <200411080521.iA85LbG6025914@hera.kernel.org> <200411090402.22696.adaplas@hotpop.com> <Pine.LNX.4.58.0411081211270.2301@ppc970.osdl.org> <200411090608.02759.adaplas@hotpop.com> <Pine.LNX.4.58.0411081422560.2301@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041111182228.GA23236@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.58.0411081422560.2301@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Put the function back, and change the pmac.h file to delete the #define,
-> and replace the snd_pmac_keywest_write function with a real call to
-> i2c_smbus_write_block_data so things like this don't happen again.
+On Mon, Nov 08, 2004 at 02:25:04PM -0800, Linus Torvalds wrote:
 > 
-> Care to write a patch to do this?
+> 
+> On Tue, 9 Nov 2004, Antonino A. Daplas wrote:
+> > 
+> > In big endian machines, the read*/write* accessors do a byteswap for an
+> > inherently little endian PCI bus.  However, rivafb puts the hardwire in big
+> > endian register access, thus the byteswap is not needed. So for 16- and
+> > 32-bit access, instead of read*/write*, use __raw_read*/__raw_write* for all
+> > archs.
+> 
+> Ok, applied with some further simplifications (use "void __iomem *" and 
+> suddenly those /2 and /4 just go away - also use __raw_xxxx for the 
+> single-byte versions to be consistent).
+Doesn't work for me. This one works:
 
-It follows, along with an update of the include/linux/i2c.h to only
-declare functions that actually exist, but grepping the whole sound
-subtree shows that at least sound/oss/dmasound/tas_common.h defines 
-a few inline functions that call i2c_smbus_write_{byte,block}_data.
+diff -u -u linux-2.6.10-rc1-mm5.orig/drivers/video/riva/riva_hw.h linux-2.6.10-rc1-mm5/drivers/video/riva/riva_hw.h
+--- linux-2.6.10-rc1-mm5.orig/drivers/video/riva/riva_hw.h	2004-11-12 13:42:54.000000000 +0100
++++ linux-2.6.10-rc1-mm5/drivers/video/riva/riva_hw.h	2004-11-12 13:47:29.400807920 +0100
+@@ -75,12 +75,12 @@
+  */
+ #include <asm/io.h>
+ 
+-#define NV_WR08(p,i,d)  (__raw_writeb((d), (void __iomem *)(p) + (i)))
+-#define NV_RD08(p,i)    (__raw_readb((void __iomem *)(p) + (i)))
+-#define NV_WR16(p,i,d)  (__raw_writew((d), (void __iomem *)(p) + (i)))
+-#define NV_RD16(p,i)    (__raw_readw((void __iomem *)(p) + (i)))
+-#define NV_WR32(p,i,d)  (__raw_writel((d), (void __iomem *)(p) + (i)))
+-#define NV_RD32(p,i)    (__raw_readl((void __iomem *)(p) + (i)))
++#define NV_WR08(p,i,d)  (writeb((d), (u8 __iomem *)(p) + (i)))
++#define NV_RD08(p,i)    (readb((u8 __iomem *)(p) + (i)))
++#define NV_WR16(p,i,d)  (__raw_writew((d), (u16 __iomem *)(p) + (i)/2))
++#define NV_RD16(p,i)    (__raw_readw((u16 __iomem *)(p) + (i)/2))
++#define NV_WR32(p,i,d)  (__raw_writel((d), (u32 __iomem *)(p) + (i)/4))
++#define NV_RD32(p,i)    (__raw_readl((u32 __iomem *)(p) + (i)/4))
+ 
+ #define VGA_WR08(p,i,d) NV_WR08(p,i,d)
+ #define VGA_RD08(p,i)   NV_RD08(p,i)
 
-It might be reasonable to split it into two ChangeSets, that's
-your call.
+Interesting enough this one doesn't (only differenc in NV_{WR,RW}08:
 
-Compiled, booted, tested and CC'ed to BenH just in case.
+diff -u -u linux-2.6.10-rc1-mm5.orig/drivers/video/riva/riva_hw.h linux-2.6.10-rc1-mm5/drivers/video/riva/riva_hw.h
+--- linux-2.6.10-rc1-mm5.orig/drivers/video/riva/riva_hw.h	2004-11-12 13:42:54.000000000 +0100
++++ linux-2.6.10-rc1-mm5/drivers/video/riva/riva_hw.h	2004-11-12 13:47:29.400807920 +0100
+@@ -75,12 +75,12 @@
+  */
+ #include <asm/io.h>
+ 
+-#define NV_WR08(p,i,d)  (__raw_writeb((d), (void __iomem *)(p) + (i)))
+-#define NV_RD08(p,i)    (__raw_readb((void __iomem *)(p) + (i)))
+-#define NV_WR16(p,i,d)  (__raw_writew((d), (void __iomem *)(p) + (i)))
+-#define NV_RD16(p,i)    (__raw_readw((void __iomem *)(p) + (i)))
+-#define NV_WR32(p,i,d)  (__raw_writel((d), (void __iomem *)(p) + (i)))
+-#define NV_RD32(p,i)    (__raw_readl((void __iomem *)(p) + (i)))
++#define NV_WR08(p,i,d)  (writeb((d), (u8 __iomem *)(p) + (i)))
++#define NV_RD08(p,i)    (readb((u8 __iomem *)(p) + (i)))
++#define NV_WR16(p,i,d)  (__raw_writew((d), (u16 __iomem *)(p) + (i)/2))
++#define NV_RD16(p,i)    (__raw_readw((u16 __iomem *)(p) + (i)/2))
++#define NV_WR32(p,i,d)  (__raw_writel((d), (u32 __iomem *)(p) + (i)/4))
++#define NV_RD32(p,i)    (__raw_readl((u32 __iomem *)(p) + (i)/4))
+ 
+ #define VGA_WR08(p,i,d) NV_WR08(p,i,d)
+ #define VGA_RD08(p,i)   NV_RD08(p,i)
 
-	Gabriel
-
-[I2C part]
-Ressuscitate i2c_smbus_write_block_data since it's actually
-used. Update include/linux/i2c.h to reflect the existing
-functions.
-
-[Sound part]
-Remove snd_pmac_keywest_write* wrapper macros and directly 
-call the i2c_smbus_* functions instead.
-
-Signed-off-by: Gabriel Paubert <paubert@iram.es>
-
-===== include/linux/i2c.h 1.41 vs edited =====
---- 1.41/include/linux/i2c.h	2004-10-20 10:12:06 +02:00
-+++ edited/include/linux/i2c.h	2004-11-12 10:46:22 +01:00
-@@ -88,20 +88,12 @@
- extern s32 i2c_smbus_read_word_data(struct i2c_client * client, u8 command);
- extern s32 i2c_smbus_write_word_data(struct i2c_client * client,
-                                      u8 command, u16 value);
--extern s32 i2c_smbus_process_call(struct i2c_client * client,
--                                  u8 command, u16 value);
--/* Returns the number of read bytes */
--extern s32 i2c_smbus_read_block_data(struct i2c_client * client,
--                                     u8 command, u8 *values);
-+/* Returns the number of bytes transferred */
- extern s32 i2c_smbus_write_block_data(struct i2c_client * client,
--                                      u8 command, u8 length,
--                                      u8 *values);
-+				      u8 command, u8 length,
-+				      u8 *values);
- extern s32 i2c_smbus_read_i2c_block_data(struct i2c_client * client,
--                                         u8 command, u8 *values);
--extern s32 i2c_smbus_write_i2c_block_data(struct i2c_client * client,
--                                          u8 command, u8 length,
--                                          u8 *values);
--
-+					 u8 command, u8 *values);
- 
- /*
-  * A driver is capable of handling one or more physical devices present on
-===== drivers/i2c/i2c-core.c 1.58 vs edited =====
---- 1.58/drivers/i2c/i2c-core.c	2004-11-05 20:49:20 +01:00
-+++ edited/drivers/i2c/i2c-core.c	2004-11-11 18:33:23 +01:00
-@@ -1021,6 +1021,22 @@
- 	                      I2C_SMBUS_WORD_DATA,&data);
- }
- 
-+/* Returns the number of bytes transferred */
-+s32 i2c_smbus_write_block_data(struct i2c_client *client, u8 command,
-+			       u8 length, u8 *values)
-+{
-+	union i2c_smbus_data data;
-+	int i;
-+	if (length > I2C_SMBUS_BLOCK_MAX)
-+		length = I2C_SMBUS_BLOCK_MAX;
-+	for (i = 1; i <= length; i++)
-+		data.block[i] = values[i-1];
-+	data.block[0] = length;
-+	return i2c_smbus_xfer(client->adapter,client->addr,client->flags,
-+			      I2C_SMBUS_WRITE,command,
-+			      I2C_SMBUS_BLOCK_DATA,&data);
-+}
-+
- /* Returns the number of read bytes */
- s32 i2c_smbus_block_process_call(struct i2c_client *client, u8 command, u8 length, u8 *values)
- {
-@@ -1279,6 +1295,7 @@
- EXPORT_SYMBOL(i2c_smbus_write_byte_data);
- EXPORT_SYMBOL(i2c_smbus_read_word_data);
- EXPORT_SYMBOL(i2c_smbus_write_word_data);
-+EXPORT_SYMBOL(i2c_smbus_write_block_data);
- EXPORT_SYMBOL(i2c_smbus_read_i2c_block_data);
- 
- EXPORT_SYMBOL(i2c_get_functionality);
-===== sound/ppc/daca.c 1.10 vs edited =====
---- 1.10/sound/ppc/daca.c	2004-07-20 10:54:28 +02:00
-+++ edited/sound/ppc/daca.c	2004-11-12 09:48:54 +01:00
-@@ -56,10 +56,11 @@
- 	unsigned short wdata = 0x00;
- 	/* SR: no swap, 1bit delay, 32-48kHz */
- 	/* GCFG: power amp inverted, DAC on */
--	if (snd_pmac_keywest_write_byte(i2c, DACA_REG_SR, 0x08) < 0 ||
--	    snd_pmac_keywest_write_byte(i2c, DACA_REG_GCFG, 0x05) < 0)
-+	if (i2c_smbus_write_byte_data(i2c->client, DACA_REG_SR, 0x08) < 0 ||
-+	    i2c_smbus_write_byte_data(i2c->client, DACA_REG_GCFG, 0x05) < 0)
- 		return -EINVAL;
--	return snd_pmac_keywest_write(i2c, DACA_REG_AVOL, 2, (unsigned char*)&wdata);
-+	return i2c_smbus_write_block_data(i2c->client, DACA_REG_AVOL,
-+					  2, (unsigned char*)&wdata);
- }
- 
- /*
-@@ -81,9 +82,10 @@
- 	else
- 		data[1] = mix->right_vol;
- 	data[1] |= mix->deemphasis ? 0x40 : 0;
--	if (snd_pmac_keywest_write(&mix->i2c, DACA_REG_AVOL, 2, data) < 0) {
--		snd_printk("failed to set volume \n");  
--		return -EINVAL; 
-+	if (i2c_smbus_write_block_data(mix->i2c.client, DACA_REG_AVOL,
-+				       2, data) < 0) {
-+		snd_printk("failed to set volume \n");
-+		return -EINVAL;
- 	}
- 	return 0;
- }
-@@ -188,8 +190,8 @@
- 	change = mix->amp_on != ucontrol->value.integer.value[0];
- 	if (change) {
- 		mix->amp_on = ucontrol->value.integer.value[0];
--		snd_pmac_keywest_write_byte(&mix->i2c, DACA_REG_GCFG,
--					    mix->amp_on ? 0x05 : 0x04);
-+		i2c_smbus_write_byte_data(mix->i2c.client, DACA_REG_GCFG,
-+					  mix->amp_on ? 0x05 : 0x04);
- 	}
- 	return change;
- }
-@@ -220,9 +222,9 @@
- static void daca_resume(pmac_t *chip)
- {
- 	pmac_daca_t *mix = chip->mixer_data;
--	snd_pmac_keywest_write_byte(&mix->i2c, DACA_REG_SR, 0x08);
--	snd_pmac_keywest_write_byte(&mix->i2c, DACA_REG_GCFG,
--				    mix->amp_on ? 0x05 : 0x04);
-+	i2c_smbus_write_byte_data(mix->i2c.client, DACA_REG_SR, 0x08);
-+	i2c_smbus_write_byte_data(mix->i2c.client, DACA_REG_GCFG,
-+				  mix->amp_on ? 0x05 : 0x04);
- 	daca_set_volume(mix);
- }
- #endif /* CONFIG_PMAC_PBOOK */
-===== sound/ppc/tumbler.c 1.25 vs edited =====
---- 1.25/sound/ppc/tumbler.c	2004-09-16 13:40:26 +02:00
-+++ edited/sound/ppc/tumbler.c	2004-11-12 09:52:58 +01:00
-@@ -109,7 +109,8 @@
- 	while (*regs > 0) {
- 		int err, count = 10;
- 		do {
--			err =  snd_pmac_keywest_write_byte(i2c, regs[0], regs[1]);
-+			err = i2c_smbus_write_byte_data(i2c->client,
-+							regs[0], regs[1]);
- 			if (err >= 0)
- 				break;
- 			mdelay(10);
-@@ -220,9 +221,10 @@
- 	block[4] = (right_vol >> 8)  & 0xff;
- 	block[5] = (right_vol >> 0)  & 0xff;
-   
--	if (snd_pmac_keywest_write(&mix->i2c, TAS_REG_VOL, 6, block) < 0) {
--		snd_printk("failed to set volume \n");  
--		return -EINVAL; 
-+	if (i2c_smbus_write_block_data(mix->i2c.client, TAS_REG_VOL,
-+				       6, block) < 0) {
-+		snd_printk("failed to set volume \n");
-+		return -EINVAL;
- 	}
- 	return 0;
- }
-@@ -320,9 +322,10 @@
- 		val[1] = 0;
- 	}
- 
--	if (snd_pmac_keywest_write(&mix->i2c, TAS_REG_DRC, 2, val) < 0) {
--		snd_printk("failed to set DRC\n");  
--		return -EINVAL; 
-+	if (i2c_smbus_write_block_data(mix->i2c.client, TAS_REG_DRC,
-+				       2, val) < 0) {
-+		snd_printk("failed to set DRC\n");
-+		return -EINVAL;
- 	}
- 	return 0;
- }
-@@ -355,9 +358,10 @@
- 	val[4] = 0x60;
- 	val[5] = 0xa0;
- 
--	if (snd_pmac_keywest_write(&mix->i2c, TAS_REG_DRC, 6, val) < 0) {
--		snd_printk("failed to set DRC\n");  
--		return -EINVAL; 
-+	if (i2c_smbus_write_block_data(mix->i2c.client, TAS_REG_DRC,
-+				       6, val) < 0) {
-+		snd_printk("failed to set DRC\n");
-+		return -EINVAL;
- 	}
- 	return 0;
- }
-@@ -459,9 +463,10 @@
- 	vol = info->table[vol];
- 	for (i = 0; i < info->bytes; i++)
- 		block[i] = (vol >> ((info->bytes - i - 1) * 8)) & 0xff;
--	if (snd_pmac_keywest_write(&mix->i2c, info->reg, info->bytes, block) < 0) {
--		snd_printk("failed to set mono volume %d\n", info->index);  
--		return -EINVAL; 
-+	if (i2c_smbus_write_block_data(mix->i2c.client, info->reg,
-+				       info->bytes, block) < 0) {
-+		snd_printk("failed to set mono volume %d\n", info->index);
-+		return -EINVAL;
- 	}
- 	return 0;
- }
-@@ -588,9 +593,9 @@
- 		for (j = 0; j < 3; j++)
- 			block[i * 3 + j] = (vol >> ((2 - j) * 8)) & 0xff;
- 	}
--	if (snd_pmac_keywest_write(&mix->i2c, reg, 9, block) < 0) {
--		snd_printk("failed to set mono volume %d\n", reg);  
--		return -EINVAL; 
-+	if (i2c_smbus_write_block_data(mix->i2c.client, reg, 9, block) < 0) {
-+		snd_printk("failed to set mono volume %d\n", reg);
-+		return -EINVAL;
- 	}
- 	return 0;
- }
-@@ -689,8 +694,8 @@
- {
- 	if (! mix->i2c.client)
- 		return -ENODEV;
--	return snd_pmac_keywest_write_byte(&mix->i2c, TAS_REG_ACS,
--					   mix->capture_source ? 2 : 0);
-+	return i2c_smbus_write_byte_data(mix->i2c.client, TAS_REG_ACS,
-+					 mix->capture_source ? 2 : 0);
- }
- 
- static int snapper_info_capture_source(snd_kcontrol_t *kcontrol, snd_ctl_elem_info_t *uinfo)
-===== sound/ppc/pmac.h 1.11 vs edited =====
---- 1.11/sound/ppc/pmac.h	2004-08-16 12:19:56 +02:00
-+++ edited/sound/ppc/pmac.h	2004-11-12 10:40:58 +01:00
-@@ -199,8 +199,6 @@
- 
- int snd_pmac_keywest_init(pmac_keywest_t *i2c);
- void snd_pmac_keywest_cleanup(pmac_keywest_t *i2c);
--#define snd_pmac_keywest_write(i2c,cmd,len,data) i2c_smbus_write_block_data((i2c)->client, cmd, len, data)
--#define snd_pmac_keywest_write_byte(i2c,cmd,data) i2c_smbus_write_byte_data((i2c)->client, cmd, data)
- 
- /* misc */
- int snd_pmac_boolean_stereo_info(snd_kcontrol_t *kcontrol, snd_ctl_elem_info_t *uinfo);
-
+Cheers,
+ -- Guido

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262737AbTEVQMM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 12:12:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262763AbTEVQMM
+	id S262728AbTEVQKG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 12:10:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262735AbTEVQKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 12:12:12 -0400
-Received: from holomorphy.com ([66.224.33.161]:50828 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262737AbTEVQMI (ORCPT
+	Thu, 22 May 2003 12:10:06 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:25590 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262728AbTEVQKD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 12:12:08 -0400
-Date: Thu, 22 May 2003 09:24:48 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andries.Brouwer@cwi.nl
-Cc: jsimmons@infradead.org, linux-kernel@vger.kernel.org
+	Thu, 22 May 2003 12:10:03 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 22 May 2003 18:22:49 +0200 (MEST)
+Message-Id: <UTC200305221622.h4MGMnO01732.aeb@smtp.cwi.nl>
+To: jsimmons@infradead.org, wli@holomorphy.com
 Subject: Re: keyboard.c/kd.h field width fixes
-Message-ID: <20030522162448.GU8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andries.Brouwer@cwi.nl, jsimmons@infradead.org,
-	linux-kernel@vger.kernel.org
-References: <UTC200305221622.h4MGMnO01732.aeb@smtp.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <UTC200305221622.h4MGMnO01732.aeb@smtp.cwi.nl>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 22, 2003 at 06:22:49PM +0200, Andries.Brouwer@cwi.nl wrote:
-> Unfortunately it also changes the ioctl interface.
-> This should not be applied.
+    From: William Lee Irwin III <wli@holomorphy.com>
 
-Okay, James, drop this one.
+    These guys get massive numbers of warnings about comparisons always true
+    or false due to limited ranges of data types. This appears to kill off
+    the warnings.
 
-Andries, do you have a better attack on this one?
+    diff -prauN mm8-2.5.69-1/include/linux/kd.h mm8-2.5.69-2/include/linux/kd.h
+    --- mm8-2.5.69-1/include/linux/kd.h    2003-05-04 16:53:37.000000000 -0700
+    +++ mm8-2.5.69-2/include/linux/kd.h    2003-05-22 07:57:24.000000000 -0700
+    @@ -95,8 +95,8 @@ struct unimapinit {
+     #define    KDSKBLED    0x4B65    /* set led flags (not lights) */
+     
+     struct kbentry {
+    -    unsigned char kb_table;
+    -    unsigned char kb_index;
+    +    unsigned short kb_table;
+    +    unsigned short kb_index;
+         unsigned short kb_value;
+     };
+     #define        K_NORMTAB    0x00
 
 
--- wli
+Unfortunately it also changes the ioctl interface.
+This should not be applied.
+
+Andries

@@ -1,67 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263548AbTCUHOl>; Fri, 21 Mar 2003 02:14:41 -0500
+	id <S263545AbTCUHYL>; Fri, 21 Mar 2003 02:24:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263549AbTCUHOl>; Fri, 21 Mar 2003 02:14:41 -0500
-Received: from marc2.theaimsgroup.com ([63.238.77.172]:57615 "EHLO
-	mailer.progressive-comp.com") by vger.kernel.org with ESMTP
-	id <S263548AbTCUHOi>; Fri, 21 Mar 2003 02:14:38 -0500
-Date: Fri, 21 Mar 2003 02:26:53 -0500 (EST)
-From: Hank Leininger <hlein@progressive-comp.com>
-To: Ville Herva <vherva@niksula.hut.fi>
-cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Deprecating .gz format on kernel.org
-In-Reply-To: <20030321062635.GJ159052@niksula.cs.hut.fi>
-Message-ID: <010303210206190.23184-100000@timmy.spinoli.org>
-X-Marks-The: Spot
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263547AbTCUHYL>; Fri, 21 Mar 2003 02:24:11 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:46590 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S263545AbTCUHYI>;
+	Fri, 21 Mar 2003 02:24:08 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 21 Mar 2003 08:35:07 +0100 (MET)
+Message-Id: <UTC200303210735.h2L7Z7Q26322.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, zippel@linux-m68k.org
+Subject: Re: major/minor split
+Cc: Joel.Becker@oracle.com, akpm@digeo.com, andrey@eccentric.mae.cornell.edu,
+       linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+    From: Roman Zippel <zippel@linux-m68k.org>
 
-On Fri, 21 Mar 2003, Ville Herva wrote:
+    > > There is a point I'd like to get clear: where should the
+    > > 16bit<->32bit dev_t conversion happen?
+    > 
+    > ..., there is no conversion
+    > (other than the lengthening that happens when one
+    > casts an unsigned short to an unsigned int).
 
-> On Thu, Mar 20, 2003 at 06:14:53PM -0500, you [Hank Leininger] wrote:
-> >
-> > Right, but if the uncompressed file is what's signed, then you must
-> > waste either CPU uncompressing twice (once to verify, once to untar) or
-> > waste disk (to store the uncompressed file, then verify, then untar).
->
-> bzip2 -d < foo.tar.bz2 | tee >(md5sum) | tar xf
-> or
-> bzip2 -d < foo.tar.bz2 | tee >(gpg --verify foo.tar.bz2.sig) | tar xf
+    Let's look at ext2:
 
-Yup, but (besides the tar tpyo you corrected later) this still isn't
-safe.
+        if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode))
+            raw_inode->i_block[0] = cpu_to_le32(kdev_t_to_nr(inode->i_rdev));
 
-1) gpg --verify won't be able to complete until it's seen all the unpacked
-   tar file.
+    Should the saved device number be a 16bit or a 32bit device number?
+    Has the user any control over it?
 
-2) During that time tar -xf - will be unpacking and writing.
+It used to be a 32-bit device number. If we want to store
+a 64-bit device number then also raw_inode->i_block[1]
+is used. Fortunately ext2 has lots of room there.
 
-3) If the signature is bad, too late you've already unpacked it:
-   -At best you need to blow away what you just unpacked.
-   -Worse, it may have just (over)written real files in pwd other than
-     the ones you think it should have.
-   -Worst, if the tarfile is maliciously crafted to exploit tar (..'ing
-     archive, symlink-following archive, or bad data which overflows
-     tar), who-knows-what damage is already done.  This might sound
-     far-fetched, except that it already happens.
+No, the kernel code does what it does - user space does not influence this.
 
-...But it sounds like the whole discussion is dead anyway.  It would be
-at least slightly less off-topic on security-audit, perhaps we should
-move it there (http://lsap.org/mail.html).  Or to alt.tinfoil.hat.
+    > > how can software create nodes for a specific device?
+    > 
+    > You do not mean using mknod?
 
-Hank Leininger <hlein@progressive-comp.com>
-E407 AEF4 761E D39C D401  D4F4 22F8 EF11 861A A6F1
------BEGIN PGP SIGNATURE-----
+    I mean via mknod, e.g. if the user has a major/minor number,
+    how should it be converted to a dev_t number?
 
-iD8DBQE+er6+IvjvEYYapvERAqVKAJ9Z2sJ6pcib2+la0NqKYCeanuZwHwCdHEwt
-9dSMcChXaa2G9sihxav6t0M=
-=aCPQ
------END PGP SIGNATURE-----
+The proper way is using the makedev macro in <sys/sysmacros.h>.
+But in times of change you have to do everything by hand.
+glibc still has to be updated.
+(Steal the MKDEV macro from the kernel setup.)
+
+Since new dev_t is compatible with old dev_t you need not
+recompile or upgrade glibc or so, unless you actually want
+to use more than 16 bits.
+
+Andries
 

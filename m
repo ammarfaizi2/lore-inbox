@@ -1,45 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264884AbTIDVAa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 17:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264908AbTIDVA3
+	id S265529AbTIDVHj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 17:07:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265323AbTIDVH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 17:00:29 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:653 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S264884AbTIDVA0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 17:00:26 -0400
-Date: Thu, 4 Sep 2003 22:00:07 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Alternate futex non-page-pinning and COW fix
-Message-ID: <20030904210007.GE31590@mail.jlokier.co.uk>
-References: <Pine.LNX.4.44.0309031141310.1273-100000@localhost.localdomain> <20030904014229.2EFBF2C097@lists.samba.org>
+	Thu, 4 Sep 2003 17:07:26 -0400
+Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:61851 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S265537AbTIDVG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 17:06:27 -0400
+Date: Thu, 4 Sep 2003 23:06:23 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: shortlog missing entries - full list
+Message-ID: <20030904210623.GB16566@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030904014229.2EFBF2C097@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> I don't have a problem with the omission.  mremap is logically
-> equivalent to munmap + mmap, so it's a subset of the "I unmapped
-> underneath my futex!".  It's not like it's going to happen without the
-> caller knowing: if the address doesn't change, then the futexes won't
-> break.  If they do, the caller needs to reset them anyway.
+This mail was brought to you by
+comm(1) - compare two sorted files line by line ;-)
 
-I think mremap() on block of memory containing futexes is reasonable.
-Imagine a big data structure with a table futex locks at the start of
-it.  I'm not sure how useful it is, but it's not worthless.
+Linux 2.5:
 
-Anyway, I have a patch, tested, which moves remapped futexes _and_
-returns EFAULT to waiters when pages are unmapped.  It's kept separate
-from the main futex patch so you can accept it or not.
+a.wegele AT tu-bs.de
+alexander.schulz AT com.rmk
+ambx1 AT com.rmk
+anderson AT mvista.com
+antoine AT ausone.whoknows
+cat AT zip.com.au
+ch AT com.rmk
+cifs.adm AT hostme.bitkeeper.com
+cmayor AT ca.rmk
+core AT ameritech.net
+daniel.ritz AT ch.rmk
+dario AT emc.com
+dirk.behme AT com.rmk
+dmitri AT users.sourceforge.net
+dsaxena AT com.rmk
+elenstev AT com.rmk
+eli.carter AT com.rmk
+fbdev.adm AT hostme.bitkeeper.com
+fbecker AT com.rmk
+felixb AT sgi.com
+gortmaker AT yahoo.com
+habbinga AT hp.com
+hch AT com.rmk
+hch AT de.rmk
+ink AT ru.rmk
+jcchen AT icplus.com.tw
+jeffery AT adaptec.com
+jfs.adm AT hostme.bitkeeper.com
+kafai0928 AT yahoo.com
+ldm.adm AT hostme.bitkeeper.com
+leroy AT hotmail.com
+linux-bt.adm AT hostme.bitkeeper.com
+linux-m68k.org AT mandrakesoft.com
+linux AT de.rmk
+list.linux-kernel AT t-online.de
+mcmechan AT hotmail.com
+me AT hotmail.com
+nfsclient.adm AT hostme.bitkeeper.com
+nico AT org.rmk
+nikkne AT hotpop.com
+peng AT dlink.com.tw
+peterm AT uk.rmk
+pixi AT burble.org
+ppc.adm AT hostme.bitkeeper.com
+proski AT org.rmk
+ralphs AT org.rmk
+redbliss AT libero.it
+rfjak AT eircom.net
+spyro AT com.rmk
+stevef AT smfhome2.austin.rr.com
+taowenhwa AT intel.com
+thchou AT ali.com.tw
+ts AT csv.ica.uni-stuttgart.de
+williamson AT attbi.com
+williamson AT com.rmk
+williamson AT hp.com
+willy AT org.rmk
+zecke AT org.rmk
 
--- Jamie
+Linux 2.4, unless already listed above:
 
+aziz AT hp.com
+cagle AT mindspring.com
+dj AT yahoo.com
+hammer AT adaptec.com
+jengel AT brule.rchland.ibm.com
+linux-acpi.adm AT hostme.bitkeeper.com
+linux-kernel AT vger.kernel.org
+lucy AT innosys.com
+smith AT hp.com
+suse.cz AT mastika.lnxw.com
+
+-- 
+Matthias Andree
+
+Encrypt your mail: my GnuPG key ID is 0x052E7D95
